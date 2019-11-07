@@ -1345,7 +1345,7 @@ public final class HeapVM extends AbstractVM {
 
 		/* check reference initialization */
 		env.heap.initializeReference(conc_ref, symb_ref);
-		Type type = Type.getType(typeName);
+		Type type = Type.getObjectType(typeName);
 
 		Class<?> myClazz = classLoader.getClassForType(type);
 		boolean instanceOf = myClazz.isInstance(conc_ref);
