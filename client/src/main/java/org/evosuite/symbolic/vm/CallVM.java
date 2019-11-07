@@ -19,7 +19,13 @@
  */
 package org.evosuite.symbolic.vm;
 
-import org.evosuite.dse.AbstractVM;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Member;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.*;
+import java.util.stream.Collectors;
+
 import org.evosuite.symbolic.expr.bv.IntegerConstant;
 import org.evosuite.symbolic.expr.fp.RealConstant;
 import org.evosuite.symbolic.expr.ref.ReferenceConstant;
@@ -27,12 +33,7 @@ import org.evosuite.symbolic.expr.ref.ReferenceExpression;
 import org.evosuite.symbolic.instrument.ConcolicInstrumentingClassLoader;
 import org.evosuite.symbolic.instrument.ConcolicMethodAdapter;
 import org.objectweb.asm.Type;
-
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Member;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.*;
+import org.evosuite.dse.AbstractVM;
 
 /**
  * Explicit inter-procedural control transfer: InvokeXXX, Return, etc.
@@ -89,7 +90,7 @@ public final class CallVM extends AbstractVM {
 			}
 		}
 
-		if (function.equals(topFrame.getMember()))
+		if (function != null && function.equals(topFrame.getMember()))
 			return true;
 
 		env.popFrame();
@@ -122,7 +123,7 @@ public final class CallVM extends AbstractVM {
 			else
 				function = resolveMethodOverloading(className, methName, methDesc);
 
-			/*
+			/**
 			 * function could be equal to null if handler is in class
 			 * initializer
 			 */
@@ -130,7 +131,7 @@ public final class CallVM extends AbstractVM {
 		}
 
 		env.topFrame().operandStack.clearOperands();
-		/*
+		/**
 		 * This exception is added to the HANDLER_BEGIN because no other
 		 * instruction adds the corresponding exception. The handler will store
 		 * the exception to the locals table
@@ -149,7 +150,7 @@ public final class CallVM extends AbstractVM {
 		Frame topFrame = env.topFrame();
 		if (topFrame instanceof StaticInitializerFrame) {
 			StaticInitializerFrame clinitFrame = (StaticInitializerFrame) topFrame;
-			if (clinitFrame.getClassName().equals(className)) {
+			if (methName.equals(conf.CLINIT) && clinitFrame.getClassName().equals(className)) {
 				return true;
 			}
 		}
@@ -169,7 +170,7 @@ public final class CallVM extends AbstractVM {
 		if (conf.CLINIT.equals(methName))
 			return;
 
-		Member member;
+		Member member = null;
 		if (conf.INIT.equals(methName))
 			member = resolveConstructorOverloading(className, methDesc);
 		else
@@ -216,7 +217,7 @@ public final class CallVM extends AbstractVM {
 			return;
 		}
 
-		if (!env.topFrame().weInvokedInstrumentedCode()) {
+		if (env.topFrame().weInvokedInstrumentedCode() == false) {
 			// An uninstrumented caller has called instrumented code
 			// This is problemtatic
 		}
@@ -237,8 +238,8 @@ public final class CallVM extends AbstractVM {
 			frame = new ConstructorFrame(constructor, maxLocals);
 			calleeNeedsThis = true;
 
-			if (!callerFrame.weInvokedInstrumentedCode()) {
-				/*
+			if (callerFrame.weInvokedInstrumentedCode() == false) {
+				/**
 				 * Since this is a constructor called from un-instrumented code,
 				 * we need to "simulate" the missing NEW. This means 1) create a
 				 * new object reference 2) populate the localstable with the new
@@ -264,7 +265,7 @@ public final class CallVM extends AbstractVM {
 		 * operand stack! Instead, METHOD_BEGIN_PARAM will supply the concrete
 		 * parameter values and create corresponding symbolic constants.
 		 */
-		if (!callerFrame.weInvokedInstrumentedCode()) {
+		if (callerFrame.weInvokedInstrumentedCode() == false) {
 
 			env.pushFrame(frame);
 
@@ -444,8 +445,11 @@ public final class CallVM extends AbstractVM {
 	 *         which has the parameters encoded in methDesc.
 	 */
 	private Method resolveMethodOverloading(String owner, String name, String methDesc) {
+		if(owner.equals("com.sun.org.apache.xerces.internal.jaxp.SAXParserImpl")){
+			int y=0;
+		}
 		Method method = null;
-		final Deque<Class<?>> interfaces = new LinkedList<>();
+		final Deque<Class<?>> interfaces = new LinkedList<Class<?>>();
 
 		Class<?> claz = env.ensurePrepared(owner);
 		/* Resolve method overloading -- need method parameter types */
