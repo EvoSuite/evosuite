@@ -186,11 +186,6 @@ public class EvoSuite {
 
             setupProperties();
             final Integer javaVersion = Integer.valueOf(SystemUtils.JAVA_VERSION.split("\\.")[0]);
-            /*if (javaVersion >= 9) {
-                // Todo remove warning when sure EvoSuite works for Java > 8
-                // logger.warn("EvoSuite does not support Java versions > 8 yet");
-                //throw new RuntimeException(Properties.JAVA_VERSION_WARN_MSG);
-            }*/
 
             if (TestSuiteWriterUtils.needToUseAgent() &&
                     (Properties.JUNIT_CHECK == Properties.JUnitCheckValues.TRUE ||
@@ -266,6 +261,10 @@ public class EvoSuite {
                     logger.error("Can not execute Junit tests. Run EvoSuite with -Djunit_check=optional to generate tests, but dont check them.");
                     throw new IllegalStateException(ClassPathHacker.getCause());
                 }
+            }
+
+            if (Properties.STRATEGY == Properties.Strategy.DSE && javaVersion >= 9){
+                throw new IllegalStateException("DSE is not supported for java versions >9 by EvoSuite");
             }
 
             if (line.hasOption("base_dir")) {

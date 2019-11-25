@@ -606,6 +606,7 @@ public final class ConcolicMethodAdapter extends GeneratorAdapter {
 	 */
 	@Override
 	public void visitMethodInsn(int opcode, String owner, String name, String descriptor, boolean isInterface) {
+		// FIXME proper handling of INVOKEDYNAMIC (currently handled like INVOKESTATIC)
 		Type[] argTypes = Type.getArgumentTypes(descriptor); // does not include
 		// "this"
 

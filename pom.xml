@@ -247,8 +247,10 @@
                 <jdk>[9,)</jdk>
             </activation>
             <properties>
-                <compiler.target>1.9</compiler.target>
+                <compiler.target>1.8</compiler.target>
                 <compiler.source>1.8</compiler.source>
+                <exclude.tests.concolic>**/*Concolic*.java</exclude.tests.concolic>
+                <exclude.tests.mimeType>**/*TestMIMEType.java</exclude.tests.mimeType>
             </properties>
             <dependencyManagement>
                 <dependencies>
@@ -263,6 +265,8 @@
             <properties>
                 <compiler.target>1.8</compiler.target>
                 <compiler.source>1.8</compiler.source>
+                <exclude.tests.concolic></exclude.tests.concolic>
+                <exclude.tests.mimeType></exclude.tests.mimeType>
             </properties>
         </profile>
     </profiles>
@@ -748,14 +752,10 @@
                     <excludes>
                         <exclude>${integrationTests}</exclude>
                         <exclude>${systemTests}</exclude>
+                        <exclude>${exclude.tests.concolic}</exclude>
+                        <exclude>${exclude.tests.mimeType}</exclude>
                     </excludes>
-                    <argLine>-Xms512m -Xmx4096m </argLine>
-                    <systemProperties>
-                    <property>
-                        <name>jdk.attach.allowAttachSelf</name>
-                        <value>true</value>
-                    </property>
-                    </systemProperties>
+                    <argLine>-Djdk.attach.allowAttachSelf=true -Xms512m -Xmx4096m </argLine>
                 </configuration>
             </plugin>
             <!-- pluging to run tests after 'package' phase in 'integration-test' -->
@@ -769,6 +769,7 @@
                         <include>${integrationTests}</include>
                         <include>${systemTests}</include>
                     </includes -->
+                    <argLine>-Djdk.attach.allowAttachSelf=true</argLine>
                 </configuration>
                 <executions>
                     <execution>
