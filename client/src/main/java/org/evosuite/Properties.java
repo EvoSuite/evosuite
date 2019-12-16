@@ -317,7 +317,7 @@ public class Properties {
 		// many-objective algorithms
 		MOSA, DYNAMOSA, LIPS, MIO,
 		// multiple-objective optimisation algorithms
-		NSGAII, SPEA2,IBEA, mIBEA// Hadi
+		NSGAII, SPEA2,IBEA, M_IBEA// Hadi
 	}
 
 	// MOSA PROPERTIES
@@ -554,7 +554,7 @@ public class Properties {
     public static int LAMBDA = 1;
 
 	@Parameter(key = "tournament_size", group = "Search Algorithm", description = "Number of individuals for tournament selection")
-	public static int TOURNAMENT_SIZE = 2; // Hadi
+	public static int TOURNAMENT_SIZE = 2; // Hadi NGSA11 -=10
 
 	@Parameter(key = "rank_bias", group = "Search Algorithm", description = "Bias for better individuals in rank selection")
 	public static double RANK_BIAS = 1.7;
@@ -651,7 +651,7 @@ public class Properties {
 	}
 
 	@Parameter(key = "selection_function", group = "Search Algorithm", description = "Selection function during search")
-	public static SelectionFunction SELECTION_FUNCTION = SelectionFunction.RANK;
+	public static SelectionFunction SELECTION_FUNCTION = SelectionFunction.TOURNAMENT;
 
 	@Parameter(key = "emigrant_selection_function", group = "Search Algorithm", description = "Selection function for emigrant selection during search")
 	public static SelectionFunction EMIGRANT_SELECTION_FUNCTION = SelectionFunction.RANDOMK;

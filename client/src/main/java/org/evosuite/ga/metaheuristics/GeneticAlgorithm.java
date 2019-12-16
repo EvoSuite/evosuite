@@ -762,7 +762,8 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 
 		if (Properties.ALGORITHM == Algorithm.NSGAII ||
 		    Properties.ALGORITHM == Algorithm.SPEA2 ||
-				Properties.ALGORITHM == Algorithm.IBEA //Hadi: added the IBEA TODO: do we need it
+				Properties.ALGORITHM == Algorithm.IBEA ||
+					Properties.ALGORITHM == Algorithm.M_IBEA //Hadi: added the IBEA TODO: do we need it
 		)
 			return population;
 

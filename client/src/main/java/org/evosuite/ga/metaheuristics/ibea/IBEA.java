@@ -5,6 +5,7 @@ import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.ConstructionFailedException;
+import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.comparators.DominanceComparator;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.ga.operators.selection.SelectionFunction;
@@ -18,6 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 public class IBEA <T extends Chromosome> extends GeneticAlgorithm<T> {
@@ -53,7 +55,6 @@ public class IBEA <T extends Chromosome> extends GeneticAlgorithm<T> {
 
     private double maxIndicatorValue_;
 
-    private boolean isModificatedIBEA = false;
 
     /**
      * Constructor
@@ -171,13 +172,14 @@ public class IBEA <T extends Chromosome> extends GeneticAlgorithm<T> {
         }
 
         while (!isFinished()){
+
             // Create the union of parents and offSpring
             List<T> union = new ArrayList<T>();
             union.addAll(this.population);
             union.addAll(archive);
+            calculateFitness(union);
+            applyModification(union);
             this.archive = union;
-
-            calculateFitness(archive);
 
             while (archive.size() > Properties.POPULATION) {
                 removeWorst(archive);
@@ -186,8 +188,8 @@ public class IBEA <T extends Chromosome> extends GeneticAlgorithm<T> {
             evolve();
         }
 
-//        this.getRankingFunction().computeRankingAssignment(this.archive);
-//        this.getRankingFunction().getSubfront(0);
+        this.rankingFunction.computeRankingAssignment(this.archive, new LinkedHashSet<FitnessFunction<T>>(this.getFitnessFunctions()));
+        this.population = this.getRankingFunction().getSubfront(0);
     }
 
     private void calculateFitness(List<T> archive) {
@@ -324,12 +326,7 @@ public class IBEA <T extends Chromosome> extends GeneticAlgorithm<T> {
     }
 
 
-    public boolean isModificatedIBEA() {
-        return isModificatedIBEA;
-    }
-
-    public void setModificatedIBEA(boolean modificatedIBEA) {
-        isModificatedIBEA = modificatedIBEA;
+    public void applyModification(List<T> union) {
     }
 }
 
