@@ -157,4 +157,9 @@ public class RankBasedPreferenceSorting<T extends Chromosome> implements Ranking
 	public int getNumberOfSubfronts() {
 		return this.fronts.size();
 	}
+
+	@Override
+	public void computeRankingAssignment(List<T> solutions) {
+
+	}
 }

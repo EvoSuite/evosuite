@@ -9,6 +9,7 @@ import org.evosuite.coverage.mutation.MutationTimeoutStoppingCondition;
 import org.evosuite.ga.archive.ArchiveTestChromosomeFactory;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.metaheuristics.NoveltySearch;
+import org.evosuite.ga.metaheuristics.ibea.ranking.NSGA2Ranking;
 import org.evosuite.ga.operators.crossover.CrossOverFunction;
 import org.evosuite.ga.operators.crossover.SinglePointCrossOver;
 import org.evosuite.ga.operators.crossover.SinglePointFixedCrossOver;
@@ -112,6 +113,8 @@ public class PropertiesNoveltySearchFactory extends PropertiesSearchAlgorithmFac
       switch (Properties.RANKING_TYPE) {
         case FAST_NON_DOMINATED_SORTING:
           return new FastNonDominatedSorting<>();
+          case NSGA2_RANKING:// Hadi
+              return new NSGA2Ranking<>();
         case PREFERENCE_SORTING:
         default:
           return new RankBasedPreferenceSorting<>();

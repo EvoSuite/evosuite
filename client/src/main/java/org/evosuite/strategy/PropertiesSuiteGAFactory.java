@@ -32,6 +32,7 @@ import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.FitnessReplacementFunction;
 import org.evosuite.ga.archive.ArchiveTestChromosomeFactory;
 import org.evosuite.ga.metaheuristics.*;
+import org.evosuite.ga.metaheuristics.ibea.IBEA;
 import org.evosuite.ga.metaheuristics.mapelites.MAPElites;
 import org.evosuite.ga.metaheuristics.mosa.MOSA;
 import org.evosuite.ga.metaheuristics.mosa.DynaMOSA;
@@ -198,6 +199,9 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
         case SPEA2:
             logger.info("Chosen search algorithm: SPEA2");
             return new SPEA2<TestSuiteChromosome>(factory);
+		case IBEA:
+			logger.info("Chosen search algorithm: IBEA");
+			return new IBEA<>(factory);
         case MOSA:
         	logger.info("Chosen search algorithm: MOSA");
             return new MOSA<TestSuiteChromosome>(factory);

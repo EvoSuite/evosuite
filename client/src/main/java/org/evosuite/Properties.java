@@ -317,18 +317,19 @@ public class Properties {
 		// many-objective algorithms
 		MOSA, DYNAMOSA, LIPS, MIO,
 		// multiple-objective optimisation algorithms
-		NSGAII, SPEA2
+		NSGAII, SPEA2,IBEA, mIBEA// Hadi
 	}
 
 	// MOSA PROPERTIES
 	public enum RankingType {
 		// Preference sorting is the ranking strategy proposed in
 		PREFERENCE_SORTING, 
-		FAST_NON_DOMINATED_SORTING
+		FAST_NON_DOMINATED_SORTING,
+		NSGA2_RANKING // Hadi
 	}
 
 	@Parameter(key = "ranking_type", group = "Runtime", description = "type of ranking to use in MOSA")
-	public static RankingType RANKING_TYPE = RankingType.PREFERENCE_SORTING;
+	public static RankingType RANKING_TYPE = RankingType.FAST_NON_DOMINATED_SORTING; // hadi
 
 	public enum MapElitesChoice {
 	  ALL,
@@ -350,7 +351,7 @@ public class Properties {
     public static boolean MAP_ELITES_IGNORE_FEATURES = false;
 	
 	@Parameter(key = "algorithm", group = "Search Algorithm", description = "Search algorithm")
-	public static Algorithm ALGORITHM = Algorithm.MONOTONIC_GA;
+	public static Algorithm ALGORITHM = Algorithm.IBEA; //hadi
 
 	/** Different models of neighbourhoods in the Cellular GA **/
 	public enum CGA_Models{
@@ -553,7 +554,7 @@ public class Properties {
     public static int LAMBDA = 1;
 
 	@Parameter(key = "tournament_size", group = "Search Algorithm", description = "Number of individuals for tournament selection")
-	public static int TOURNAMENT_SIZE = 10;
+	public static int TOURNAMENT_SIZE = 2; // Hadi
 
 	@Parameter(key = "rank_bias", group = "Search Algorithm", description = "Bias for better individuals in rank selection")
 	public static double RANK_BIAS = 1.7;
@@ -581,7 +582,7 @@ public class Properties {
 
 	@Parameter(key = "population", group = "Search Algorithm", description = "Population size of genetic algorithm")
 	@IntValue(min = 1)
-	public static int POPULATION = 50;
+	public static int POPULATION = 100; //Hadi
 
 	public enum PopulationLimit {
 		INDIVIDUALS, TESTS, STATEMENTS;

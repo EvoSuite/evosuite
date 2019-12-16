@@ -29,6 +29,7 @@ import org.evosuite.coverage.mutation.MutationTimeoutStoppingCondition;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.FitnessReplacementFunction;
 import org.evosuite.ga.metaheuristics.*;
+import org.evosuite.ga.metaheuristics.ibea.IBEA;
 import org.evosuite.ga.metaheuristics.mapelites.MAPElites;
 import org.evosuite.ga.metaheuristics.mulambda.MuLambdaEA;
 import org.evosuite.ga.metaheuristics.mulambda.MuPlusLambdaEA;
@@ -154,6 +155,9 @@ public class PropertiesTestGAFactory extends PropertiesSearchAlgorithmFactory<Te
         case SPEA2:
             logger.info("Chosen search algorithm: SPEA2");
             return new SPEA2<>(factory);
+		case IBEA: // Hadi
+			logger.info("Chosen search algorithm: IBEA"); // Hadi
+			return new IBEA<>(factory); // Hadi
         case ONE_PLUS_LAMBDA_LAMBDA_GA:
             logger.info("Chosen search algorithm: 1 + (lambda, lambda)GA");
             return new OnePlusLambdaLambdaGA<>(factory, Properties.LAMBDA);
