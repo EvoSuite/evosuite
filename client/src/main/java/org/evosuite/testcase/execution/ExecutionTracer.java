@@ -679,42 +679,16 @@ public class ExecutionTracer {
 
 		checkTimeout();
 
-		// logger.trace("Called passedBranch3 with opcode "
-		//        + AbstractVisitor.OPCODES[opcode]); // +", val1="+val1+", val2="+val2+" in branch "+branch);
 		double distance_true = 0;
 		double distance_false = 0;
 		// logger.warn("Disabling tracer: passedBranch with 2 Objects");
 
 		switch (opcode) {
 		case Opcodes.IF_ACMPEQ:
-			if (val1 == null) {
-				distance_true = val2 == null ? 0.0 : 1.0;
-			} else {
-				disable();
-				try {
-					distance_true = val1.equals(val2) ? 0.0 : 1.0;
-				} catch (Throwable t) {
-					logger.debug("Equality raised exception: " + t);
-					distance_true = 1.0;
-				} finally {
-					enable();
-				}
-			}
+			distance_true = val1 == val2 ? 0.0 : 1.0;
 			break;
 		case Opcodes.IF_ACMPNE:
-			if (val1 == null) {
-				distance_true = val2 == null ? 1.0 : 0.0;
-			} else {
-				disable();
-				try {
-					distance_true = val1.equals(val2) ? 1.0 : 0.0;
-				} catch (Exception e) {
-					logger.debug("Caught exception during comparison: " + e);
-					distance_true = 1.0;
-				} finally {
-					enable();
-				}
-			}
+			distance_true = val1 != val2 ? 0.0 : 1.0;
 			break;
 		}
 
