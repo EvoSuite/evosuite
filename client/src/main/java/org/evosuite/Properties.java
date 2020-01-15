@@ -351,7 +351,7 @@ public class Properties {
     public static boolean MAP_ELITES_IGNORE_FEATURES = false;
 	
 	@Parameter(key = "algorithm", group = "Search Algorithm", description = "Search algorithm")
-	public static Algorithm ALGORITHM = Algorithm.IBEA; //hadi
+	public static Algorithm ALGORITHM = Algorithm.M_IBEA; //hadi
 
 	/** Different models of neighbourhoods in the Cellular GA **/
 	public enum CGA_Models{
@@ -582,7 +582,7 @@ public class Properties {
 
 	@Parameter(key = "population", group = "Search Algorithm", description = "Population size of genetic algorithm")
 	@IntValue(min = 1)
-	public static int POPULATION = 50; //Hadi
+	public static int POPULATION = 50; //Hadi2222
 
 	public enum PopulationLimit {
 		INDIVIDUALS, TESTS, STATEMENTS;
@@ -597,7 +597,7 @@ public class Properties {
 
 	@Parameter(key = "search_budget", group = "Search Algorithm", description = "Maximum search duration")
 	@LongValue(min = 1)
-	public static long SEARCH_BUDGET = 600; // Hadi
+	public static long SEARCH_BUDGET = 1000; // Hadi
 
 	@Parameter(key = "OUTPUT_DIR", group = "Runtime", description = "Directory in which to put generated files")
 	public static String OUTPUT_DIR = "evosuite-files";
@@ -612,7 +612,7 @@ public class Properties {
 
 
 	@Parameter(key = "stopping_condition", group = "Search Algorithm", description = "What condition should be checked to end the search")
-	public static StoppingCondition STOPPING_CONDITION = StoppingCondition.MAXTIME;
+	public static StoppingCondition STOPPING_CONDITION = StoppingCondition.MAXTIME; // Hadi
 
 	public enum CrossoverFunction {
 		SINGLEPOINTRELATIVE, SINGLEPOINTFIXED, SINGLEPOINT, COVERAGE, UNIFORM
@@ -684,14 +684,14 @@ public class Properties {
 	public static int BLOAT_FACTOR = 2;
 
 	@Parameter(key = "stop_zero", group = "Search Algorithm", description = "Stop optimization once goal is covered")
-	public static boolean STOP_ZERO = true;
+	public static boolean STOP_ZERO = true; //Hadi
 
 	@Parameter(key = "dynamic_limit", group = "Search Algorithm", description = "Multiply search budget by number of test goals")
 	public static boolean DYNAMIC_LIMIT = false;
 
 	@Parameter(key = "global_timeout", group = "Search Algorithm", description = "Maximum seconds allowed for entire search when not using time as stopping criterion")
 	@IntValue(min = 0)
-	public static int GLOBAL_TIMEOUT = 120;
+	public static int GLOBAL_TIMEOUT = 120; //Hadi
 
 	@Parameter(key = "minimization_timeout", group = "Search Algorithm", description = "Seconds allowed for minimization at the end")
 	@IntValue(min = 0)
@@ -728,7 +728,7 @@ public class Properties {
 	public static int EXTRA_TIMEOUT = 60;
 
 	@Parameter(key = "reuse_leftover_time", group = "Search Algorithm", description = "If a phase is ended before its timeout, allow the next phase to run over its timeout")
-	public static boolean REUSE_LEFTOVER_TIME = false;
+	public static boolean REUSE_LEFTOVER_TIME = true;
 
 	@Parameter(key = "track_boolean_branches", group = "Search Algorithm", description = "Track branches that have a distance of either 0 or 1")
 	public static boolean TRACK_BOOLEAN_BRANCHES = false;

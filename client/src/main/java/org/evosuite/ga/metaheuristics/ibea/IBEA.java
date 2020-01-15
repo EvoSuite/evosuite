@@ -12,7 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 
@@ -132,16 +131,18 @@ public class IBEA<T extends Chromosome> extends GeneticAlgorithm<T> {
             union.addAll(this.population);
             union.addAll(archive);
 
-            applyModification(union);
+            union = applyModification(union);
             calculateFitness(union);
 
             this.archive = union;
 
+            System.out.println("remove "+currentIteration);
             while (archive.size() > Properties.POPULATION) {
                 removeWorst(archive);
             }
 
             evolve();
+
             this.notifyIteration();
             //this.writeIndividuals(this.population);
         }
@@ -157,9 +158,20 @@ public class IBEA<T extends Chromosome> extends GeneticAlgorithm<T> {
         notifySearchFinished();
     }
 
+    @Override
+    public T getBestIndividual() {
+
+        if (population.isEmpty()) {
+            return this.chromosomeFactory.getChromosome();
+        }
+
+        this.sortPopulation();
+        // Assume population is sorted
+        return  (T) population.get(0);
+    }
 
     private void removeWorst(List<T> archive) {
-        System.out.println("Removeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
+//        System.out.println("Removeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
         // Find the worst;
         double worst = archive.get(0).getFitness();
         int worstIndex = 0;
@@ -184,14 +196,13 @@ public class IBEA<T extends Chromosome> extends GeneticAlgorithm<T> {
         }
 
         // remove worst from the indicatorValues list
-        indicatorValues_.remove(worstIndex); // Remove its own list
-        Iterator<List<Double>> it = indicatorValues_.iterator();
-        while (it.hasNext()) {
-            it.next().remove(worstIndex);
-
+        indicatorValues_.remove(worstIndex);
+        for (List<Double> anIndicatorValues_ : indicatorValues_) {
+            anIndicatorValues_.remove(worstIndex);
         }
-        // remove the worst individual from the population
+
         archive.remove(worstIndex);
+
     } // removeWorst
 
     private void calculateFitness(List<T> archive) {
@@ -317,7 +328,8 @@ public class IBEA<T extends Chromosome> extends GeneticAlgorithm<T> {
     }
 
 
-    public void applyModification(List<T> union) {
+    public List applyModification(List<T> union) {
+        return null;
     }
 }
 
