@@ -329,7 +329,7 @@ public class IBEA<T extends Chromosome> extends GeneticAlgorithm<T> {
 
 
     public List applyModification(List<T> union) {
-        return null;
+        return union;
     }
 }
 
