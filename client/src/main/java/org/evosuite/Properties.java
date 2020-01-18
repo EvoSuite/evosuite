@@ -351,7 +351,7 @@ public class Properties {
     public static boolean MAP_ELITES_IGNORE_FEATURES = false;
 	
 	@Parameter(key = "algorithm", group = "Search Algorithm", description = "Search algorithm")
-	public static Algorithm ALGORITHM = Algorithm.IBEA; //hadi
+	public static Algorithm ALGORITHM = Algorithm.M_IBEA; //hadi
 
 	/** Different models of neighbourhoods in the Cellular GA **/
 	public enum CGA_Models{
@@ -593,7 +593,7 @@ public class Properties {
 
 	@Parameter(key = "write_individuals", group = "Search Algorithm",
 	    description = "Write to a file all fitness values of each individual on each iteration of a GA")
-	public static boolean WRITE_INDIVIDUALS = false;
+	public static boolean WRITE_INDIVIDUALS = true;
 
 	@Parameter(key = "search_budget", group = "Search Algorithm", description = "Maximum search duration")
 	@LongValue(min = 1)
@@ -669,7 +669,7 @@ public class Properties {
 	}
 
 	@Parameter(key = "secondary_objectives", group = "Search Algorithm", description = "Secondary objective during search")
-	public static SecondaryObjective[] SECONDARY_OBJECTIVE = new SecondaryObjective[] { SecondaryObjective.TOTAL_LENGTH };
+	public static SecondaryObjective[] SECONDARY_OBJECTIVE = new SecondaryObjective[] { SecondaryObjective.TOTAL_LENGTH };//Hadi
 
 	@Parameter(key = "enable_secondary_objective_after", group = "Search Algorithm", description = "Activate the second secondary objective after a certain amount of search budget")
 	public static int ENABLE_SECONDARY_OBJECTIVE_AFTER = 0;
@@ -1440,6 +1440,7 @@ public class Properties {
         REGRESSION,	REGRESSIONTESTS, TRYCATCH
 	}
 
+	//HAdi
     @Parameter(key = "criterion", group = "Runtime", description = "Coverage criterion. Can define more than one criterion by using a ':' separated list")
     public static Criterion[] CRITERION = new Criterion[] {
             //these are basic criteria that should be always on by default
@@ -1580,7 +1581,7 @@ public class Properties {
 
 
 	@Parameter(key = "is_running_a_system_test", group = "Runtime", description = "Specify that a system test is running. To be used only for debugging purposes")
-	public static volatile boolean IS_RUNNING_A_SYSTEM_TEST = false;
+	public static volatile boolean IS_RUNNING_A_SYSTEM_TEST = true; // Hadi
 
 
 

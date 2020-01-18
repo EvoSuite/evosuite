@@ -84,7 +84,7 @@ public class ZeroFitnessStoppingCondition extends StoppingConditionImpl {
 	/** {@inheritDoc} */
 	@Override
 	public long getCurrentValue() {
-		return (long) (lastFitness ); // TODO: Why +0.5??
+		return (long) (lastFitness +0.5); // TODO: Why +0.5??
 	}
 
 	/**

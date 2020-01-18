@@ -40,6 +40,8 @@ import org.evosuite.testsuite.similarity.DiversityObserver;
 import org.evosuite.utils.ArrayUtil;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,7 +53,7 @@ import java.util.List;
  *
  */
 public class WholeTestSuiteStrategy extends TestGenerationStrategy {
-
+	private static final Logger logger = LoggerFactory.getLogger(WholeTestSuiteStrategy.class);
 	@Override
 	public TestSuiteChromosome generateTests() {
 		// Set up search algorithm
@@ -109,8 +111,10 @@ public class WholeTestSuiteStrategy extends TestGenerationStrategy {
 			LoggingUtils.getEvoLogger().info("* Using seed {}", Randomness.getSeed() );
 			LoggingUtils.getEvoLogger().info("* Starting evolution");
 			ClientServices.getInstance().getClientNode().changeState(ClientState.SEARCH);
-
+			logger.warn("started ************************************ ");
 			algorithm.generateSolution();
+
+			logger.warn("ENDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDED ");
 			// TODO: Refactor MOO!
 			// bestSuites = (List<TestSuiteChromosome>) ga.getBestIndividuals();
 			testSuite = (TestSuiteChromosome) algorithm.getBestIndividual();
@@ -123,6 +127,8 @@ public class WholeTestSuiteStrategy extends TestGenerationStrategy {
 		}
 
 		long endTime = System.currentTimeMillis() / 1000;
+
+		System.out.println("timee : "+(endTime - startTime));
 
 		goals = getGoals(false); //recalculated now after the search, eg to handle exception fitness
         ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Goals, goals.size());

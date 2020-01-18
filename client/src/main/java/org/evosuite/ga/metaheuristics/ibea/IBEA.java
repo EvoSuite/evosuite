@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 
@@ -22,11 +23,12 @@ public class IBEA<T extends Chromosome> extends GeneticAlgorithm<T> {
 
     private static final Logger logger = LoggerFactory.getLogger(IBEA.class);
 
-    protected List<T> archive = null;
-
     private List<List<Double>> indicatorValues_;
 
     private double maxIndicatorValue_;
+
+    private double[] indicatorFitnessValues = new double[Properties.POPULATION*2];
+
 
     /**
      * Constructor
@@ -45,9 +47,11 @@ public class IBEA<T extends Chromosome> extends GeneticAlgorithm<T> {
     protected void evolve() {
         // Create the offSpring population
         List<T> offSpringGeneration = new ArrayList<T>(Properties.POPULATION);
+        int populationSize = this.population.size();
+        int intendedPopulationSize = getNeededPopulationSize();
         //TODO : check if we need to add elitism and add the best two parents first
 
-        while (offSpringGeneration.size() < Properties.POPULATION) {
+        while (offSpringGeneration.size()+populationSize < intendedPopulationSize) {
 
             T parent1 = this.selectionFunction.select(population);
             T parent2 = this.selectionFunction.select(population);
@@ -74,6 +78,14 @@ public class IBEA<T extends Chromosome> extends GeneticAlgorithm<T> {
                     offspring2.updateAge(currentIteration);
                 }
 
+                // Evaluate
+                for (final FitnessFunction<T> ff : this.getFitnessFunctions()) {
+                    ff.getFitness(offspring1);
+                    notifyEvaluation(offspring1);
+                    ff.getFitness(offspring2);
+                    notifyEvaluation(offspring2);
+                }
+
                 offSpringGeneration.add(offspring1);
                 offSpringGeneration.add(offspring2);
             } catch (ConstructionFailedException e) {
@@ -81,10 +93,12 @@ public class IBEA<T extends Chromosome> extends GeneticAlgorithm<T> {
                 continue;
             }
         }
-        this.population.clear();
-        this.population = offSpringGeneration;
-        updateFitnessFunctionsAndValues(this.population);
-        currentIteration++;
+
+        this.population.addAll(offSpringGeneration);
+        int currentSize = this.population.size();
+        while(currentSize > intendedPopulationSize){
+            this.population.remove(--currentSize);
+        }
     }
 
     private void updateFitnessFunctionsAndValues(List<T> archive) {
@@ -104,12 +118,11 @@ public class IBEA<T extends Chromosome> extends GeneticAlgorithm<T> {
         logger.info("executing initializePopulation function");
 
         notifySearchStarted();
-        currentIteration = 0;
 
         // Create a random parent population P0
         this.generateInitialPopulation(Properties.POPULATION);
 
-        this.notifyIteration();
+        currentIteration = 0;
     }
 
     /**
@@ -119,43 +132,30 @@ public class IBEA<T extends Chromosome> extends GeneticAlgorithm<T> {
     public void generateSolution() {
         logger.info("executing generateSolution function");
 
-        if (population.isEmpty()) {
-            initializePopulation();
-            this.archive = new ArrayList<>();
-            updateFitnessFunctionsAndValues(this.population);
-        }
+        initializePopulation();
+        updateFitnessFunctionsAndValues(this.population);
+        evolve();
 
-        while (!isFinished()) {
-            // Create the union of parents and offSpring
-            List<T> union = new ArrayList<T>();
-            union.addAll(this.population);
-            union.addAll(archive);
+        boolean finished = isFinished();
+        while (!finished) {
 
-            union = applyModification(union);
-            calculateFitness(union);
+            this.population = applyModification(this.population);
 
-            this.archive = union;
-
-            System.out.println("remove "+currentIteration);
-            while (archive.size() > Properties.POPULATION) {
-                removeWorst(archive);
+            calculateFitness(this.population);
+            while (population.size() > Properties.POPULATION) {
+                removeWorst(population);
             }
 
-            evolve();
-
+            currentIteration++;
             this.notifyIteration();
-            //this.writeIndividuals(this.population);
+
+            evolve();
+            finished = isFinished();
+
         }
-
-        List<T> union = new ArrayList<T>();
-        union.addAll(this.population);
-        union.addAll(archive);
-        this.population = union;
-
-        this.rankingFunction.computeRankingAssignment(this.population, new LinkedHashSet<FitnessFunction<T>>(this.getFitnessFunctions()));
-        this.population = this.getRankingFunction().getSubfront(0);
-
+        logger.warn("IS finished print the fucking next" + finished);
         notifySearchFinished();
+        return;
     }
 
     @Override
@@ -165,33 +165,37 @@ public class IBEA<T extends Chromosome> extends GeneticAlgorithm<T> {
             return this.chromosomeFactory.getChromosome();
         }
 
-        this.sortPopulation();
+        this.rankingFunction.computeRankingAssignment(this.population, new LinkedHashSet<FitnessFunction<T>>(this.getFitnessFunctions()));
+        List<T> zeroFront = this.getRankingFunction().getSubfront(0);
         // Assume population is sorted
-        return  (T) population.get(0);
+        return (T) zeroFront.get(0);
     }
 
     private void removeWorst(List<T> archive) {
-//        System.out.println("Removeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
         // Find the worst;
-        double worst = archive.get(0).getFitness();
+        //double worst = archive.get(0).getFitness();
+        double worst = indicatorFitnessValues[0] ;
+
         int worstIndex = 0;
         double kappa = 0.05;
 
         for (int i = 1; i < archive.size(); i++) {
-            if (archive.get(i).getFitness() > worst) {
-                worst = archive.get(i).getFitness();
+            if (indicatorFitnessValues[i]  > worst) {
+                worst =indicatorFitnessValues[i] ;
                 worstIndex = i;
             }
         }
 
+
         // Update the population
         for (int i = 0; i < archive.size(); i++) {
             if (i != worstIndex) {
-                double fitness = archive.get(i).getFitness();
+                double fitness = indicatorFitnessValues[i];
                 Double indicationValue = new Double(Math.exp((-indicatorValues_.get(worstIndex).get(i) / maxIndicatorValue_) / kappa));
                 fitness -= indicationValue.isNaN() ? 0.0 : indicationValue.doubleValue();
 
-                archive.get(i).setFitness(this.getFitnessFunction(), fitness);
+                //archive.get(i).setFitness(this.getFitnessFunction(), fitness);
+                indicatorFitnessValues[i] = fitness;
             }
         }
 
@@ -200,7 +204,7 @@ public class IBEA<T extends Chromosome> extends GeneticAlgorithm<T> {
         for (List<Double> anIndicatorValues_ : indicatorValues_) {
             anIndicatorValues_.remove(worstIndex);
         }
-
+        indicatorFitnessValues[worstIndex] = 0;
         archive.remove(worstIndex);
 
     } // removeWorst
@@ -244,18 +248,17 @@ public class IBEA<T extends Chromosome> extends GeneticAlgorithm<T> {
         for (int j = 0; j < archive.size(); j++) {
             A = (T) archive.get(j).clone();
 
-
             List<Double> aux = new ArrayList<Double>();
             for (int i = 0; i < archive.size(); i++) {
                 B = (T) archive.get(i).clone();
 
-                int flag = (new DominanceComparator<T>()).compare(A, B);
+                int flag = (new DominanceComparator<T>(this.getFitnessFunction())).compare(A, B);
 
                 double value = 0.0;
                 if (flag == -1) {
-                    value = -calcHypervolumeIndicator(A, B, 1, maximumValues, minimumValues);
+                    value = -calcHypervolumeIndicator(A,indicatorFitnessValues[j], B, indicatorFitnessValues[i],1, maximumValues, minimumValues);
                 } else if (flag == 1) { // Hadi : TODO : wgat if they are equal ( flag =0 )
-                    value = calcHypervolumeIndicator(B, A, 1, maximumValues, minimumValues);
+                    value = calcHypervolumeIndicator(B, indicatorFitnessValues[i], A,  indicatorFitnessValues[j],1, maximumValues, minimumValues);
                 }
                 //double value = epsilon.epsilon(matrixA,matrixB,problem_.getNumberOfObjectives());
 
@@ -278,7 +281,8 @@ public class IBEA<T extends Chromosome> extends GeneticAlgorithm<T> {
                 fitness += (calculatedValue.isNaN()) ? 0.0 : calculatedValue;
             }
         }
-        archive.get(pos).setFitness(this.getFitnessFunction(), fitness);
+        //archive.get(pos).setFitness(this.getFitnessFunction(), fitness);
+        indicatorFitnessValues[pos]=fitness;
     }
 
     /**
@@ -286,7 +290,9 @@ public class IBEA<T extends Chromosome> extends GeneticAlgorithm<T> {
      * is dominated by individual a but not by individual b
      */
     double calcHypervolumeIndicator(T p_ind_a,
+                                    double aFitness,
                                     T p_ind_b,
+                                    double bFitness,
                                     int d,
                                     double maximumValues[],
                                     double minimumValues[]) {
@@ -298,11 +304,11 @@ public class IBEA<T extends Chromosome> extends GeneticAlgorithm<T> {
         max = minimumValues[d - 1] + r;
 
 
-        a = p_ind_a.getFitness();
+        a = aFitness;
         if (p_ind_b == null) {
             b = max;
         } else {
-            b = p_ind_b.getFitness();
+            b = bFitness;
         }
 
 
@@ -314,12 +320,12 @@ public class IBEA<T extends Chromosome> extends GeneticAlgorithm<T> {
             }
         } else {
             if (a < b) {
-                volume = calcHypervolumeIndicator(p_ind_a, null, d - 1, maximumValues, minimumValues) *
+                volume = calcHypervolumeIndicator(p_ind_a, aFitness, null,bFitness, d - 1, maximumValues, minimumValues) *
                         (b - a) / r;
-                volume += calcHypervolumeIndicator(p_ind_a, p_ind_b, d - 1, maximumValues, minimumValues) *
+                volume += calcHypervolumeIndicator(p_ind_a,aFitness, p_ind_b,bFitness, d - 1, maximumValues, minimumValues) *
                         (max - b) / r;
             } else {
-                volume = calcHypervolumeIndicator(p_ind_a, p_ind_b, d - 1, maximumValues, minimumValues) *
+                volume = calcHypervolumeIndicator(p_ind_a, aFitness, p_ind_b, bFitness,d - 1, maximumValues, minimumValues) *
                         (max - a) / r;
             }
         }
@@ -330,6 +336,10 @@ public class IBEA<T extends Chromosome> extends GeneticAlgorithm<T> {
 
     public List applyModification(List<T> union) {
         return union;
+    }
+
+    private int getNeededPopulationSize() {
+        return Properties.POPULATION*2;
     }
 }
 
