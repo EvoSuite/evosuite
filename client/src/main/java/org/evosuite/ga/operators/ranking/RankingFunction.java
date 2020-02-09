@@ -47,4 +47,9 @@ public interface RankingFunction<T extends Chromosome> extends Serializable {
 	 */
 	public int getNumberOfSubfronts();
 
+	/**
+	 * Added by Hadi to be used in NSGA11 Ranking
+	 */
+	public void computeRankingAssignment(List<T> solutions);
+
 }

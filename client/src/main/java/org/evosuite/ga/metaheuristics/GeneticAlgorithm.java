@@ -761,7 +761,10 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 		}
 
 		if (Properties.ALGORITHM == Algorithm.NSGAII ||
-		    Properties.ALGORITHM == Algorithm.SPEA2)
+		    Properties.ALGORITHM == Algorithm.SPEA2 ||
+				Properties.ALGORITHM == Algorithm.IBEA ||
+					Properties.ALGORITHM == Algorithm.M_IBEA //Hadi: added the IBEA TODO: do we need it
+		)
 			return population;
 
 		// Assume population is sorted
@@ -779,16 +782,16 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
         return;
       }
 
-      File dir = new File(Properties.REPORT_DIR);
-      if (!dir.exists()) {
-        if (!dir.mkdirs()) {
-          throw new RuntimeException("Cannot create report dir: " + Properties.REPORT_DIR);
-        }
-      }
+//      File dir = new File(Properties.REPORT_DIR);
+//      if (!dir.exists()) {
+//        if (!dir.mkdirs()) {
+//          throw new RuntimeException("Cannot create report dir: " + Properties.REPORT_DIR);
+//        }
+//      }
 
       try {
         File populationFile = new File(
-            Properties.REPORT_DIR + File.separator + "pareto_" + this.currentIteration + ".csv");
+            "C:\\evosuite-report\\"  + "pareto_" + this.currentIteration + ".csv");
         populationFile.createNewFile();
 
         FileWriter fw = new FileWriter(populationFile.getAbsoluteFile());
@@ -986,9 +989,11 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 	 */
 	public boolean isFinished() {
 		for (StoppingCondition c : stoppingConditions) {
-			// logger.error(c + " "+ c.getCurrentValue());
-			if (c.isFinished())
+			if (c.isFinished()){
+				logger.warn( "Finished :" +c.toString());
 				return true;
+			}
+
 		}
 		return false;
 	}

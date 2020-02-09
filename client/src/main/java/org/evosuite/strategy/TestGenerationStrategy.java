@@ -89,7 +89,7 @@ public abstract class TestGenerationStrategy {
 	    	// If this is compositional fitness, we need to make sure
 	    	// that all functions are consistently minimization or 
 	    	// maximization functions
-	    	if(Properties.ALGORITHM != Algorithm.NSGAII && Properties.ALGORITHM != Algorithm.SPEA2) {
+	    	if(Properties.ALGORITHM != Algorithm.NSGAII && Properties.ALGORITHM != Algorithm.SPEA2 && Properties.ALGORITHM != Algorithm.IBEA && Properties.ALGORITHM != Algorithm.M_IBEA) {
 	    		for(TestSuiteFitnessFunction oldFunction : ffs) {			
 	    			if(oldFunction.isMaximizationFunction() != newFunction.isMaximizationFunction()) {
 	    				StringBuffer sb = new StringBuffer();

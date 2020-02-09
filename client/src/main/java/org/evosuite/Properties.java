@@ -317,18 +317,19 @@ public class Properties {
 		// many-objective algorithms
 		MOSA, DYNAMOSA, LIPS, MIO,
 		// multiple-objective optimisation algorithms
-		NSGAII, SPEA2
+		NSGAII, SPEA2,IBEA, M_IBEA// Hadi
 	}
 
 	// MOSA PROPERTIES
 	public enum RankingType {
 		// Preference sorting is the ranking strategy proposed in
 		PREFERENCE_SORTING, 
-		FAST_NON_DOMINATED_SORTING
+		FAST_NON_DOMINATED_SORTING,
+		NSGA2_RANKING // Hadi
 	}
 
 	@Parameter(key = "ranking_type", group = "Runtime", description = "type of ranking to use in MOSA")
-	public static RankingType RANKING_TYPE = RankingType.PREFERENCE_SORTING;
+	public static RankingType RANKING_TYPE = RankingType.FAST_NON_DOMINATED_SORTING; // hadi
 
 	public enum MapElitesChoice {
 	  ALL,
@@ -350,7 +351,7 @@ public class Properties {
     public static boolean MAP_ELITES_IGNORE_FEATURES = false;
 	
 	@Parameter(key = "algorithm", group = "Search Algorithm", description = "Search algorithm")
-	public static Algorithm ALGORITHM = Algorithm.MONOTONIC_GA;
+	public static Algorithm ALGORITHM = Algorithm.M_IBEA; //hadi
 
 	/** Different models of neighbourhoods in the Cellular GA **/
 	public enum CGA_Models{
@@ -553,7 +554,7 @@ public class Properties {
     public static int LAMBDA = 1;
 
 	@Parameter(key = "tournament_size", group = "Search Algorithm", description = "Number of individuals for tournament selection")
-	public static int TOURNAMENT_SIZE = 10;
+	public static int TOURNAMENT_SIZE = 2; // Hadi NGSA11 -=10
 
 	@Parameter(key = "rank_bias", group = "Search Algorithm", description = "Bias for better individuals in rank selection")
 	public static double RANK_BIAS = 1.7;
@@ -581,7 +582,7 @@ public class Properties {
 
 	@Parameter(key = "population", group = "Search Algorithm", description = "Population size of genetic algorithm")
 	@IntValue(min = 1)
-	public static int POPULATION = 50;
+	public static int POPULATION = 50; //Hadi2222
 
 	public enum PopulationLimit {
 		INDIVIDUALS, TESTS, STATEMENTS;
@@ -592,11 +593,11 @@ public class Properties {
 
 	@Parameter(key = "write_individuals", group = "Search Algorithm",
 	    description = "Write to a file all fitness values of each individual on each iteration of a GA")
-	public static boolean WRITE_INDIVIDUALS = false;
+	public static boolean WRITE_INDIVIDUALS = true;
 
 	@Parameter(key = "search_budget", group = "Search Algorithm", description = "Maximum search duration")
 	@LongValue(min = 1)
-	public static long SEARCH_BUDGET = 60;
+	public static long SEARCH_BUDGET = 1000; // Hadi
 
 	@Parameter(key = "OUTPUT_DIR", group = "Runtime", description = "Directory in which to put generated files")
 	public static String OUTPUT_DIR = "evosuite-files";
@@ -611,7 +612,7 @@ public class Properties {
 
 
 	@Parameter(key = "stopping_condition", group = "Search Algorithm", description = "What condition should be checked to end the search")
-	public static StoppingCondition STOPPING_CONDITION = StoppingCondition.MAXTIME;
+	public static StoppingCondition STOPPING_CONDITION = StoppingCondition.MAXTIME; // Hadi
 
 	public enum CrossoverFunction {
 		SINGLEPOINTRELATIVE, SINGLEPOINTFIXED, SINGLEPOINT, COVERAGE, UNIFORM
@@ -650,7 +651,7 @@ public class Properties {
 	}
 
 	@Parameter(key = "selection_function", group = "Search Algorithm", description = "Selection function during search")
-	public static SelectionFunction SELECTION_FUNCTION = SelectionFunction.RANK;
+	public static SelectionFunction SELECTION_FUNCTION = SelectionFunction.TOURNAMENT;
 
 	@Parameter(key = "emigrant_selection_function", group = "Search Algorithm", description = "Selection function for emigrant selection during search")
 	public static SelectionFunction EMIGRANT_SELECTION_FUNCTION = SelectionFunction.RANDOMK;
@@ -668,7 +669,7 @@ public class Properties {
 	}
 
 	@Parameter(key = "secondary_objectives", group = "Search Algorithm", description = "Secondary objective during search")
-	public static SecondaryObjective[] SECONDARY_OBJECTIVE = new SecondaryObjective[] { SecondaryObjective.TOTAL_LENGTH };
+	public static SecondaryObjective[] SECONDARY_OBJECTIVE = new SecondaryObjective[] { SecondaryObjective.TOTAL_LENGTH };//Hadi
 
 	@Parameter(key = "enable_secondary_objective_after", group = "Search Algorithm", description = "Activate the second secondary objective after a certain amount of search budget")
 	public static int ENABLE_SECONDARY_OBJECTIVE_AFTER = 0;
@@ -683,14 +684,14 @@ public class Properties {
 	public static int BLOAT_FACTOR = 2;
 
 	@Parameter(key = "stop_zero", group = "Search Algorithm", description = "Stop optimization once goal is covered")
-	public static boolean STOP_ZERO = true;
+	public static boolean STOP_ZERO = true; //Hadi
 
 	@Parameter(key = "dynamic_limit", group = "Search Algorithm", description = "Multiply search budget by number of test goals")
 	public static boolean DYNAMIC_LIMIT = false;
 
 	@Parameter(key = "global_timeout", group = "Search Algorithm", description = "Maximum seconds allowed for entire search when not using time as stopping criterion")
 	@IntValue(min = 0)
-	public static int GLOBAL_TIMEOUT = 120;
+	public static int GLOBAL_TIMEOUT = 120; //Hadi
 
 	@Parameter(key = "minimization_timeout", group = "Search Algorithm", description = "Seconds allowed for minimization at the end")
 	@IntValue(min = 0)
@@ -727,7 +728,7 @@ public class Properties {
 	public static int EXTRA_TIMEOUT = 60;
 
 	@Parameter(key = "reuse_leftover_time", group = "Search Algorithm", description = "If a phase is ended before its timeout, allow the next phase to run over its timeout")
-	public static boolean REUSE_LEFTOVER_TIME = false;
+	public static boolean REUSE_LEFTOVER_TIME = true;
 
 	@Parameter(key = "track_boolean_branches", group = "Search Algorithm", description = "Track branches that have a distance of either 0 or 1")
 	public static boolean TRACK_BOOLEAN_BRANCHES = false;
@@ -1439,6 +1440,7 @@ public class Properties {
         REGRESSION,	REGRESSIONTESTS, TRYCATCH
 	}
 
+	//HAdi
     @Parameter(key = "criterion", group = "Runtime", description = "Coverage criterion. Can define more than one criterion by using a ':' separated list")
     public static Criterion[] CRITERION = new Criterion[] {
             //these are basic criteria that should be always on by default
@@ -1579,7 +1581,7 @@ public class Properties {
 
 
 	@Parameter(key = "is_running_a_system_test", group = "Runtime", description = "Specify that a system test is running. To be used only for debugging purposes")
-	public static volatile boolean IS_RUNNING_A_SYSTEM_TEST = false;
+	public static volatile boolean IS_RUNNING_A_SYSTEM_TEST = true; // Hadi
 
 
 

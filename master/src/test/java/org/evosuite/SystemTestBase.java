@@ -116,7 +116,8 @@ public class SystemTestBase {
 		Properties.STOPPING_CONDITION = StoppingCondition.MAXSTATEMENTS;
 		Properties.SEARCH_BUDGET = 30000;
 
-		Properties.GLOBAL_TIMEOUT = 120;
+		///Hadi to debug the test case generation ( it was 120)
+		Properties.GLOBAL_TIMEOUT = 0;
 		Properties.MINIMIZATION_TIMEOUT = 8;
 		Properties.EXTRA_TIMEOUT = 2;
 

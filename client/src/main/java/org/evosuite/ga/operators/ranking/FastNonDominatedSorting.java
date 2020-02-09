@@ -59,6 +59,11 @@ public class FastNonDominatedSorting<T extends Chromosome> implements RankingFun
 			ranking_[i] = fronts[i];
 	}
 
+	@Override
+	public void computeRankingAssignment(List<T> solutions) {
+
+	}
+
 
 	/**
 	 * This method ranks the remaining test cases using the traditional "Non-Dominated Sorting Algorithm"
