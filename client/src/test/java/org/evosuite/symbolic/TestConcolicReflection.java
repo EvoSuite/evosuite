@@ -100,7 +100,7 @@ public class TestConcolicReflection {
 	@Test
 	public void testClassNewInstanceNoReflection() throws NoSuchMethodException, SecurityException {
 		DefaultTestCase tc = buildNewInstanceNoReflectionTestCase();
-		PathCondition pc = ConcolicExecution.executeConcolic(tc);
+		PathCondition pc = new ConcolicEngine().execute(tc);
 		List<BranchCondition> branch_conditions = pc.getBranchConditions();
 		assertTrue(!branch_conditions.isEmpty());
 	}
@@ -108,7 +108,7 @@ public class TestConcolicReflection {
 	@Test
 	public void testClassNewInstance() throws NoSuchMethodException, SecurityException {
 		DefaultTestCase tc = buildClassNewInstanceTestCase();
-		PathCondition pc = ConcolicExecution.executeConcolic(tc);
+		PathCondition pc = new ConcolicEngine().execute(tc);
 		List<BranchCondition> branch_conditions = pc.getBranchConditions();
 		assertTrue(!branch_conditions.isEmpty());
 	}
@@ -116,7 +116,7 @@ public class TestConcolicReflection {
 	@Test
 	public void testConstructorNewInstance() throws NoSuchMethodException, SecurityException {
 		DefaultTestCase tc = buildConstructorNewInstanceTestCase();
-		PathCondition pc = ConcolicExecution.executeConcolic(tc);
+		PathCondition pc = new ConcolicEngine().execute(tc);
 		List<BranchCondition> branch_conditions = pc.getBranchConditions();
 		assertTrue(!branch_conditions.isEmpty());
 	}
@@ -124,7 +124,7 @@ public class TestConcolicReflection {
 	@Test
 	public void testMethodInvoke() throws NoSuchMethodException, SecurityException {
 		DefaultTestCase tc = buildMethodInvokeTestCase();
-		PathCondition pc = ConcolicExecution.executeConcolic(tc);
+		PathCondition pc = new ConcolicEngine().execute(tc);
 		List<BranchCondition> branch_conditions = pc.getBranchConditions();
 		assertTrue(!branch_conditions.isEmpty());
 	}
@@ -132,7 +132,7 @@ public class TestConcolicReflection {
 	@Test
 	public void testNotInstrumentedConstructorNewInstance() throws NoSuchMethodException, SecurityException {
 		DefaultTestCase tc = buildNotInstrumentedConstructorNewInstanceTestCase();
-		PathCondition pc = ConcolicExecution.executeConcolic(tc);
+		PathCondition pc = new ConcolicEngine().execute(tc);
 		List<BranchCondition> branch_conditions = pc.getBranchConditions();
 		assertTrue(!branch_conditions.isEmpty());
 	}
@@ -140,7 +140,7 @@ public class TestConcolicReflection {
 	@Test
 	public void testNotInstrumentedClassNewInstance() throws NoSuchMethodException, SecurityException {
 		DefaultTestCase tc = buildNotInstrumentedClassNewInstanceTestCase();
-		PathCondition pc = ConcolicExecution.executeConcolic(tc);
+		PathCondition pc = new ConcolicEngine().execute(tc);
 		List<BranchCondition> branch_conditions = pc.getBranchConditions();
 		assertTrue(!branch_conditions.isEmpty());
 	}

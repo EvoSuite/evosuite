@@ -38,6 +38,11 @@ import org.evosuite.symbolic.expr.bv.StringBinaryComparison;
 import org.evosuite.symbolic.expr.str.StringConstant;
 import org.evosuite.symbolic.expr.str.StringVariable;
 
+import org.evosuite.symbolic.solver.SolverEmptyQueryException;
+import org.evosuite.symbolic.solver.SolverErrorException;
+import org.evosuite.symbolic.solver.SolverParseException;
+import org.evosuite.symbolic.solver.SolverResult;
+import org.evosuite.symbolic.solver.SolverTimeoutException;
 import org.evosuite.symbolic.solver.avm.EvoSuiteSolver;
 import org.evosuite.symbolic.vm.ExpressionFactory;
 import org.junit.Test;
@@ -76,7 +81,7 @@ public class TestPatternSearch extends RandomizedTC {
 			Pattern pattern = Pattern.compile(format);
 			Matcher matcher = pattern.matcher(var0_value);
 			assertTrue(matcher.matches());
-		} catch (SolverTimeoutException | SolverParseException | SolverErrorException | IOException e) {
+		} catch (SolverTimeoutException | SolverParseException | SolverErrorException | IOException | SolverEmptyQueryException e) {
 			fail();
 		}
 

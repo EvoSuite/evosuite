@@ -21,7 +21,6 @@ package org.evosuite.testsuite.localsearch;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -36,7 +35,7 @@ import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.localsearch.LocalSearchBudget;
 import org.evosuite.ga.localsearch.LocalSearchObjective;
 import org.evosuite.symbolic.BranchCondition;
-import org.evosuite.symbolic.ConcolicExecution;
+import org.evosuite.symbolic.ConcolicEngine;
 import org.evosuite.symbolic.DSEStats;
 import org.evosuite.symbolic.expr.Comparator;
 import org.evosuite.symbolic.expr.Constraint;
@@ -238,7 +237,7 @@ public class DeprecatedTestSuiteDSE {
 	 * @param test
 	 */
 	private void updatePathConstraints(TestChromosome test) {
-		List<BranchCondition> pathCondition = ConcolicExecution.getSymbolicPath(test);
+		List<BranchCondition> pathCondition = new ConcolicEngine().getSymbolicPath(test);
 		pathConditions.put(test, pathCondition);
 	}
 
@@ -313,7 +312,8 @@ public class DeprecatedTestSuiteDSE {
 	/**
 	 * Generate new constraint and ask solver for solution
 	 * 
-	 * @param condition
+	 * @param reachingConstraints
+	 * @param localConstraint
 	 * @param test
 	 * @return
 	 */

@@ -55,12 +55,16 @@ import org.evosuite.dse.VM;
  * 
  * @author Gordon Fraser
  */
-public abstract class ConcolicExecution {
+public class ConcolicEngine {
 
-	private static Logger logger = LoggerFactory.getLogger(ConcolicExecution.class);
+	private static Logger logger = LoggerFactory.getLogger(ConcolicEngine.class);
 
 	/** Instrumenting class loader */
-	private static final ConcolicInstrumentingClassLoader classLoader = new ConcolicInstrumentingClassLoader();
+	private final ConcolicInstrumentingClassLoader classLoader;
+
+	public ConcolicEngine() {
+		classLoader = new ConcolicInstrumentingClassLoader();
+	}
 
 	/**
 	 * Retrieve the path condition for a given test case
@@ -69,15 +73,15 @@ public abstract class ConcolicExecution {
 	 *            a {@link org.evosuite.testcase.TestChromosome} object.
 	 * @return a {@link java.util.List} object.
 	 */
-	public static List<BranchCondition> getSymbolicPath(TestChromosome test) {
+	public List<BranchCondition> getSymbolicPath(TestChromosome test) {
 		TestChromosome dscCopy = (TestChromosome) test.clone();
 		DefaultTestCase defaultTestCase = (DefaultTestCase) dscCopy.getTestCase();
 
-		PathCondition pathCondition = executeConcolic(defaultTestCase);
+		PathCondition pathCondition = execute(defaultTestCase);
 		return pathCondition.getBranchConditions();
 	}
 
-	public static PathCondition executeConcolic(DefaultTestCase defaultTestCase) {
+	public PathCondition execute(DefaultTestCase defaultTestCase) {
 		logger.debug("Preparing concolic execution");
 
 		/**
@@ -142,7 +146,7 @@ public abstract class ConcolicExecution {
 		return new PathCondition(branches);
 	}
 
-	private static ExecutionResult executeTestCase(DefaultTestCase defaultTestCase) throws Exception {
+	private ExecutionResult executeTestCase(DefaultTestCase defaultTestCase) throws Exception {
 		logger.debug("Executing test");
 		ExecutionResult result;
 
@@ -156,7 +160,7 @@ public abstract class ConcolicExecution {
 		return result;
 	}
 
-	private static void setUpVMListeners(SymbolicEnvironment symbolicEnvironment, PathConditionCollector pathConditionCollector) {
+	private void setUpVMListeners(SymbolicEnvironment symbolicEnvironment, PathConditionCollector pathConditionCollector) {
 		List<IVM> listeners = new ArrayList<IVM>();
 		listeners.add(new CallVM(symbolicEnvironment, classLoader));
 		listeners.add(new JumpVM(symbolicEnvironment, pathConditionCollector));
@@ -169,7 +173,7 @@ public abstract class ConcolicExecution {
 		VM.getInstance().prepareConcolicExecution();
 	}
 
-	private static void logNrOfConstraints(List<BranchCondition> branches) {
+	private void logNrOfConstraints(List<BranchCondition> branches) {
 		int nrOfConstraints = 0;
 
 		ExpressionEvaluator exprExecutor = new ExpressionEvaluator();

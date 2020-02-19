@@ -99,7 +99,7 @@ public class DSEAlgorithm extends GeneticAlgorithm<TestSuiteChromosome> {
       TestCase clonedTestCase = currentTestCase.clone();
 
       final PathCondition pathCondition =
-          ConcolicExecution.executeConcolic((DefaultTestCase) clonedTestCase);
+          new ConcolicEngine().execute((DefaultTestCase) clonedTestCase);
       logger
           .debug("Path condition collected with : " + pathCondition.size() + " branches");
 

@@ -40,7 +40,7 @@ public class SymbolicObserverTestNull {
 		VariableReference int0 = builder.appendIntPrimitive(10);
 		builder.appendAssignment(var0, x_field, int0);
 		DefaultTestCase testCase = builder.getDefaultTestCase();
-		PathCondition pc = ConcolicExecution.executeConcolic(testCase);
+		PathCondition pc = new ConcolicEngine().execute(testCase);
 		List<BranchCondition> branch_conditions = pc.getBranchConditions();
 
 		assertTrue(branch_conditions.isEmpty());

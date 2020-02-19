@@ -34,6 +34,8 @@ import java.util.Map;
 import org.evosuite.Properties;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.solver.SolverEmptyQueryException;
+import org.evosuite.symbolic.solver.SolverErrorException;
+import org.evosuite.symbolic.solver.SolverParseException;
 import org.evosuite.symbolic.solver.SolverResult;
 import org.evosuite.symbolic.solver.SolverTimeoutException;
 import org.evosuite.symbolic.solver.avm.EvoSuiteSolver;
@@ -55,7 +57,7 @@ public class TestConstraintSolver {
 		System.out.println("TestCase=");
 		System.out.println(tc.toCode());
 
-		PathCondition pc = ConcolicExecution.executeConcolic(tc);
+		PathCondition pc = new ConcolicEngine().execute(tc);
 		List<BranchCondition> branch_conditions = pc.getBranchConditions();
 
 		return branch_conditions;

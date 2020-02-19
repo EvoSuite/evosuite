@@ -102,7 +102,7 @@ public class DSETestGenerator {
 		test.clone(); // I am not sure what is the purpose of this
 
 		DefaultTestCase clone_test_case = (DefaultTestCase) test.getTestCase().clone();
-		final PathCondition collectedPathCondition = ConcolicExecution.executeConcolic(clone_test_case);
+		final PathCondition collectedPathCondition = new ConcolicEngine().execute(clone_test_case);
 
 		logger.info("Done concolic execution");
 

@@ -167,7 +167,7 @@ public class ConcolicExecutionTest {
 		Properties.TIMEOUT = 5000;
 		Properties.CONCOLIC_TIMEOUT = 5000000;
 
-		PathCondition pc = ConcolicExecution.executeConcolic(tc);
+		PathCondition pc = new ConcolicEngine().execute(tc);
 		List<BranchCondition> branch_conditions = pc.getBranchConditions();
 
 		return branch_conditions;
