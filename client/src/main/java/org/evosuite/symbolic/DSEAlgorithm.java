@@ -128,41 +128,46 @@ public class DSEAlgorithm extends GeneticAlgorithm<TestSuiteChromosome> {
         query.addAll(varBounds);
 
         SolverResult result = SmtUtils.solveSMTQuery(query);
-        queryCache.put(constraintSet, result);
-
-        logger.debug("Number of stored entries in query cache : " + queryCache.keySet().size());
 
         if (result == null) {
           logger.debug("Solver outcome is null (probably failure/unknown");
-        } else if (result.isSAT()) {
-          logger.debug("query is SAT (solution found)");
-          Map<String, Object> solution = result.getModel();
-          logger.debug("solver found solution " + solution.toString());
-
-          TestCase newTest = DSETestGenerator.updateTest(currentTestCase, solution);
-          logger.debug("Created new test case from SAT solution:" + newTest.toCode());
-          generatedTests.add(newTest);
-
-          double fitnessBeforeAddingNewTest = this.getBestIndividual().getFitness();
-          logger.debug("Fitness before adding new test" + fitnessBeforeAddingNewTest);
-
-          getBestIndividual().addTest(newTest);
-
-          calculateFitness(getBestIndividual());
-
-          double fitnessAfterAddingNewTest = this.getBestIndividual().getFitness();
-          logger.debug("Fitness after adding new test " + fitnessAfterAddingNewTest);
-
-          this.notifyIteration();
-
-          if (fitnessAfterAddingNewTest == 0) {
-            logger.debug("No more DSE test generation since fitness is 0");
-            return;
-          }
-
         } else {
-          assert (result.isUNSAT());
-          logger.debug("query is UNSAT (no solution found)");
+
+          // Saving the result when is not null just to be sure not to save spurious
+          // solver failures / unknowns as already satisfiable in the cache.
+          queryCache.put(constraintSet, result);
+          logger.debug("Number of stored entries in query cache : " + queryCache.keySet().size());
+
+          if (result.isSAT()) {
+            logger.debug("query is SAT (solution found)");
+            Map<String, Object> solution = result.getModel();
+            logger.debug("solver found solution " + solution.toString());
+
+            TestCase newTest = DSETestGenerator.updateTest(currentTestCase, solution);
+            logger.debug("Created new test case from SAT solution:" + newTest.toCode());
+            generatedTests.add(newTest);
+
+            double fitnessBeforeAddingNewTest = this.getBestIndividual().getFitness();
+            logger.debug("Fitness before adding new test" + fitnessBeforeAddingNewTest);
+
+            getBestIndividual().addTest(newTest);
+
+            calculateFitness(getBestIndividual());
+
+            double fitnessAfterAddingNewTest = this.getBestIndividual().getFitness();
+            logger.debug("Fitness after adding new test " + fitnessAfterAddingNewTest);
+
+            this.notifyIteration();
+
+            if (fitnessAfterAddingNewTest == 0) {
+              logger.debug("No more DSE test generation since fitness is 0");
+              return;
+            }
+
+          } else {
+            assert (result.isUNSAT());
+            logger.debug("query is UNSAT (no solution found)");
+          }
         }
       }
     }
