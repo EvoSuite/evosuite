@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Set;
-import java.util.Map.Entry;
 
 import org.evosuite.Properties;
 import org.evosuite.ga.Chromosome;
@@ -43,16 +42,11 @@ import org.evosuite.symbolic.expr.Comparator;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.Variable;
-import org.evosuite.symbolic.solver.Solver;
-import org.evosuite.symbolic.solver.SolverCache;
-import org.evosuite.symbolic.solver.SolverFactory;
+import org.evosuite.symbolic.solver.SmtUtils;
 import org.evosuite.symbolic.solver.SolverResult;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
-import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.ExecutionTrace;
-import org.evosuite.testcase.localsearch.DSETestCaseLocalSearch;
-import org.evosuite.testcase.localsearch.TestCaseLocalSearch;
 import org.evosuite.testcase.statements.PrimitiveStatement;
 import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testsuite.TestSuiteChromosome;
@@ -360,12 +354,10 @@ public class DeprecatedTestSuiteDSE {
 		nrConstraints += nrCurrConstraints;
 
 		logger.info("Applying local search");
-		Solver solver = SolverFactory.getInstance().buildNewSolver();
 		DSEStats.getInstance().reportNewConstraints(constraints);
 
 		long startSolvingTime = System.currentTimeMillis();
-		SolverCache solverCache = SolverCache.getInstance();
-		SolverResult solverResult = solverCache.solve(solver, constraints);
+		SolverResult solverResult = SmtUtils.solveSMTQuery(constraints);
 		long estimatedSolvingTime = System.currentTimeMillis() - startSolvingTime;
 		DSEStats.getInstance().reportNewSolvingTime(estimatedSolvingTime);
 

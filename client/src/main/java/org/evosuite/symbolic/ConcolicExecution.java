@@ -25,7 +25,6 @@ import java.util.Set;
 
 import org.evosuite.Properties;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
-import org.evosuite.ga.stoppingconditions.MaxTestsStoppingCondition;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.ExpressionEvaluator;
 import org.evosuite.symbolic.instrument.ConcolicInstrumentingClassLoader;
@@ -43,7 +42,6 @@ import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.execution.ExecutionObserver;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.TestCaseExecutor;
-import org.evosuite.testcase.statements.Statement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.evosuite.dse.IVM;
@@ -80,7 +78,6 @@ public abstract class ConcolicExecution {
 	}
 
 	public static PathCondition executeConcolic(DefaultTestCase defaultTestCase) {
-
 		logger.debug("Preparing concolic execution");
 
 		/**
@@ -91,26 +88,24 @@ public abstract class ConcolicExecution {
 		/**
 		 * Path constraint and symbolic environment
 		 */
-		SymbolicEnvironment env = new SymbolicEnvironment(classLoader);
-		PathConditionCollector pc = new PathConditionCollector();
+		SymbolicEnvironment symbolicEnvironment = new SymbolicEnvironment(classLoader);
+		PathConditionCollector pathConditionCollector = new PathConditionCollector();
+
+		/**
+		 * Observers for TestCaseExecutor
+		 */
+		SymbolicObserver symbolicExecObserver = new SymbolicObserver(symbolicEnvironment);
 
 		/**
 		 * VM listeners
 		 */
-		List<IVM> listeners = new ArrayList<IVM>();
-		listeners.add(new CallVM(env, classLoader));
-		listeners.add(new JumpVM(env, pc));
-		listeners.add(new HeapVM(env, pc, classLoader));
-		listeners.add(new LocalsVM(env));
-		listeners.add(new ArithmeticVM(env, pc));
-		listeners.add(new OtherVM(env));
-		listeners.add(new SymbolicFunctionVM(env, pc));
-		VM.getInstance().setListeners(listeners);
-		VM.getInstance().prepareConcolicExecution();
+		setUpVMListeners(symbolicEnvironment, pathConditionCollector);
 
+		/**
+		 * Override test case classloader for instrumentation
+		 */
 		defaultTestCase.getChangedClassLoader();
 		defaultTestCase.changeClassLoader(classLoader);
-		SymbolicObserver symbolicExecObserver = new SymbolicObserver(env);
 
 		Set<ExecutionObserver> originalExecutionObservers = TestCaseExecutor.getInstance().getExecutionObservers();
 		TestCaseExecutor.getInstance().newObservers();
@@ -119,17 +114,11 @@ public abstract class ConcolicExecution {
 		logger.info("Starting concolic execution");
 		ExecutionResult result = new ExecutionResult(defaultTestCase, null);
 
+		/**
+		 * Execute the test case
+		 */
 		try {
-			logger.debug("Executing test");
-
-			long startConcolicExecutionTime = System.currentTimeMillis();
-			result = TestCaseExecutor.getInstance().execute(defaultTestCase, Properties.CONCOLIC_TIMEOUT);
-
-			long estimatedConcolicExecutionTime = System.currentTimeMillis() - startConcolicExecutionTime;
-			DSEStats.getInstance().reportNewConcolicExecutionTime(estimatedConcolicExecutionTime);
-
-			MaxStatementsStoppingCondition.statementsExecuted(result.getExecutedStatements());
-
+			result = executeTestCase(defaultTestCase);
 		} catch (Exception e) {
 			logger.error("Exception during concolic execution {}", e);
 			return new PathCondition(new ArrayList<BranchCondition>());
@@ -139,7 +128,7 @@ public abstract class ConcolicExecution {
 		}
 		VM.disableCallBacks(); // ignore all callbacks from now on
 
-		List<BranchCondition> branches = pc.getPathCondition();
+		List<BranchCondition> branches = pathConditionCollector.getPathCondition();
 		logger.info("Concolic execution ended with " + branches.size() + " branches collected");
 		if (!result.noThrownExceptions()) {
 			int idx = result.getFirstPositionOfThrownException();
@@ -151,6 +140,33 @@ public abstract class ConcolicExecution {
 		TestCaseExecutor.getInstance().setExecutionObservers(originalExecutionObservers);
 
 		return new PathCondition(branches);
+	}
+
+	private static ExecutionResult executeTestCase(DefaultTestCase defaultTestCase) throws Exception {
+		logger.debug("Executing test");
+		ExecutionResult result;
+
+		long startConcolicExecutionTime = System.currentTimeMillis();
+		result = TestCaseExecutor.getInstance().execute(defaultTestCase, Properties.CONCOLIC_TIMEOUT);
+
+		long estimatedConcolicExecutionTime = System.currentTimeMillis() - startConcolicExecutionTime;
+		DSEStats.getInstance().reportNewConcolicExecutionTime(estimatedConcolicExecutionTime);
+
+		MaxStatementsStoppingCondition.statementsExecuted(result.getExecutedStatements());
+		return result;
+	}
+
+	private static void setUpVMListeners(SymbolicEnvironment symbolicEnvironment, PathConditionCollector pathConditionCollector) {
+		List<IVM> listeners = new ArrayList<IVM>();
+		listeners.add(new CallVM(symbolicEnvironment, classLoader));
+		listeners.add(new JumpVM(symbolicEnvironment, pathConditionCollector));
+		listeners.add(new HeapVM(symbolicEnvironment, pathConditionCollector, classLoader));
+		listeners.add(new LocalsVM(symbolicEnvironment));
+		listeners.add(new ArithmeticVM(symbolicEnvironment, pathConditionCollector));
+		listeners.add(new OtherVM(symbolicEnvironment));
+		listeners.add(new SymbolicFunctionVM(symbolicEnvironment, pathConditionCollector));
+		VM.getInstance().setListeners(listeners);
+		VM.getInstance().prepareConcolicExecution();
 	}
 
 	private static void logNrOfConstraints(List<BranchCondition> branches) {

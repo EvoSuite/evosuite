@@ -43,17 +43,24 @@ import org.slf4j.LoggerFactory;
 public abstract class Solver {
 
 	private final boolean addMissingVariables;
+	private final SolverCache solverCache;
 
 	protected boolean addMissingVariables() {
 		return addMissingVariables;
 	}
 
-	public Solver() {
-		addMissingVariables = false;
+	public Solver(boolean addMissingVariables) {
+		this(addMissingVariables, SolverCache.getInstance());
 	}
 
-	public Solver(boolean addMissingVariables) {
+	public Solver() {
+		//TODO: Replace the getInstance methods with a dependency injection framework later on (e.g guice).
+		this(false, SolverCache.getInstance());
+	}
+
+	public Solver(boolean addMissingVariables, SolverCache solverCache) {
 		this.addMissingVariables = addMissingVariables;
+		this.solverCache = solverCache;
 	}
 
 	static Logger logger = LoggerFactory.getLogger(Solver.class);
@@ -75,7 +82,32 @@ public abstract class Solver {
 	 * @throws SolverErrorException
 	 *             the solver reported an error after its execution
 	 */
-	public abstract SolverResult solve(Collection<Constraint<?>> constraints) throws SolverTimeoutException,
+	public SolverResult solve(Collection<Constraint<?>> constraints) throws SolverTimeoutException, SolverParseException, SolverEmptyQueryException, SolverErrorException, IOException {
+		if (solverCache.hasCachedResult(constraints)) {
+			return solverCache.getCachedResult();
+		}
+
+		SolverResult solverResult;
+		try {
+			solverResult = executeSolver(constraints);
+			solverCache.saveSolverResult(constraints, solverResult);
+		} catch ( IllegalArgumentException | IOException e) {
+			solverResult = null;
+		}
+
+		return solverResult;
+	}
+
+	/**
+	 * @param constraints
+	 * @return
+	 * @throws SolverTimeoutException
+	 * @throws IOException
+	 * @throws SolverParseException
+	 * @throws SolverEmptyQueryException
+	 * @throws SolverErrorException
+	 */
+	public abstract SolverResult executeSolver(Collection<Constraint<?>> constraints) throws SolverTimeoutException,
 			IOException, SolverParseException, SolverEmptyQueryException, SolverErrorException;
 
 	/**

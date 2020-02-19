@@ -68,7 +68,7 @@ public class Z3Solver extends SmtSolver {
 	static Logger logger = LoggerFactory.getLogger(Z3Solver.class);
 
 	@Override
-	public SolverResult solve(Collection<Constraint<?>> constraints) throws SolverTimeoutException, IOException,
+	public SolverResult executeSolver(Collection<Constraint<?>> constraints) throws SolverTimeoutException, IOException,
 			SolverParseException, SolverEmptyQueryException, SolverErrorException {
 
 		long hard_timeout = Properties.DSE_CONSTRAINT_SOLVER_TIMEOUT_MILLIS;

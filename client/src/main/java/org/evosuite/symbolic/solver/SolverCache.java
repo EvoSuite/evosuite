@@ -19,7 +19,6 @@
  */
 package org.evosuite.symbolic.solver;
 
-import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 
@@ -27,51 +26,25 @@ import org.evosuite.symbolic.expr.Constraint;
 
 public final class SolverCache {
 
-	/**
-	 * 
-	 * @param solver
-	 * @param constraints
-	 * @return 
-	 */
-	public SolverResult solve(Solver solver, Collection<Constraint<?>> constraints) {
-		if (hasCachedResult(constraints)) {
-			SolverResult cached_solution = getCachedResult();
-			return cached_solution;
-		}
-
-		SolverResult solverResult;
-		try {
-			solverResult = solver.solve(constraints);
-			if (solverResult.isUNSAT()) {
-				addUNSAT(constraints, solverResult);
-			} else {
-				addSAT(constraints, solverResult);
-			}
-		} catch (SolverTimeoutException | IOException | SolverParseException | SolverEmptyQueryException
-				| SolverErrorException e) {
-			solverResult = null;
-		}
-
-		return solverResult;
-
-	}
-
 	private static final SolverCache instance = new SolverCache();
+	private static final String CONTRAINT_NOT_CACHED_EXCEPTION_MESSAGE = "The constraint is not cached!";
+	private static final String SOLVER_RESULT_CANNOT_BE_NULL_EXCEPTION_MESSAGE = "Unable to save solver result as its null.";
 
-	private HashMap<Collection<Constraint<?>>, SolverResult> cached_solver_results = new HashMap<Collection<Constraint<?>>, SolverResult>();
+	private int number_of_hits = 0;
+	private int number_of_accesses = 0;
 	private int cached_sat_result_count = 0;
 	private int cached_unsat_result_count = 0;
+	private boolean valid_cached_solution = false;
+
+	private HashMap<Collection<Constraint<?>>, SolverResult> cached_solver_results = new HashMap<Collection<Constraint<?>>, SolverResult>();
+	private SolverResult cached_solution = null;
 
 	public int getNumberOfUNSATs() {
 		return cached_unsat_result_count;
 	}
-
 	public int getNumberOfSATs() {
 		return cached_sat_result_count;
 	}
-
-	private int number_of_accesses = 0;
-	private int number_of_hits = 0;
 
 	private SolverCache() {
 		/* empty constructor */
@@ -91,10 +64,7 @@ public final class SolverCache {
 		cached_sat_result_count++;
 	}
 
-	private boolean valid_cached_solution = false;
-	private SolverResult cached_solution = null;
-
-	private boolean hasCachedResult(Collection<Constraint<?>> constraints) {
+	public boolean hasCachedResult(Collection<Constraint<?>> constraints) {
 		number_of_accesses++;
 
 		if (this.cached_solver_results.containsKey(constraints)) {
@@ -115,17 +85,34 @@ public final class SolverCache {
 	/**
 	 * If not in cache returns IllegalArgumentException()
 	 * 
-	 * @param constraints
 	 * @return
 	 */
 	public SolverResult getCachedResult() {
 
 		if (valid_cached_solution == false) {
-			throw new IllegalArgumentException("The constraint is not cached!");
+			throw new IllegalArgumentException(CONTRAINT_NOT_CACHED_EXCEPTION_MESSAGE);
 		}
 
 		valid_cached_solution = false;
 		return this.cached_solution;
+	}
+
+	/**
+	 * Saves result to cache
+	 *
+	 * @param constraints
+	 * @param solverResult
+	 */
+	public void saveSolverResult(Collection<Constraint<?>> constraints, SolverResult solverResult) {
+		if (solverResult == null) {
+			throw new IllegalArgumentException(SOLVER_RESULT_CANNOT_BE_NULL_EXCEPTION_MESSAGE);
+		}
+
+		if (solverResult.isUNSAT()) {
+			addUNSAT(constraints, solverResult);
+		} else {
+			addSAT(constraints, solverResult);
+		}
 	}
 
 }

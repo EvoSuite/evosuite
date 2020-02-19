@@ -17,10 +17,8 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite.testcase.localsearch;
+package org.evosuite.symbolic;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -30,17 +28,10 @@ import java.util.Set;
 import org.evosuite.Properties;
 import org.evosuite.ga.localsearch.LocalSearchBudget;
 import org.evosuite.ga.localsearch.LocalSearchObjective;
-import org.evosuite.symbolic.BranchCondition;
-import org.evosuite.symbolic.ConcolicExecution;
-import org.evosuite.symbolic.DSEStats;
-import org.evosuite.symbolic.PathCondition;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.Variable;
-import org.evosuite.symbolic.solver.SolverCache;
-import org.evosuite.symbolic.solver.Solver;
-import org.evosuite.symbolic.solver.SolverFactory;
-import org.evosuite.symbolic.solver.SolverResult;
+import org.evosuite.symbolic.solver.*;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.statements.Statement;
@@ -175,7 +166,7 @@ public class DSETestGenerator {
 			long startSolvingTime = System.currentTimeMillis();
 
 			// Get solution
-			SolverResult solverResult = solve(query);
+			SolverResult solverResult = SmtUtils.solveSMTQuery(query);
 
 			long estimatedSolvingTime = System.currentTimeMillis() - startSolvingTime;
 			DSEStats.getInstance().reportNewSolvingTime(estimatedSolvingTime);
@@ -218,19 +209,6 @@ public class DSETestGenerator {
 	}
 
 	/**
-	 * solves a given query (i.e. list of constraints).
-	 * 
-	 * @param query
-	 * @return
-	 */
-	public static SolverResult solve(List<Constraint<?>> query) {
-		Solver solver = SolverFactory.getInstance().buildNewSolver();
-		SolverCache solverCache = SolverCache.getInstance();
-		SolverResult solverResult = solverCache.solve(solver, query);
-		return solverResult;
-	}
-
-	/**
 	 * Compute the set of branch conditions in the path condition that are not
 	 * covered two ways. If the test case belongs to a whole test suite, the
 	 * coverage of the whole test suite is used, otherwise, only the coverage of the
@@ -259,8 +237,7 @@ public class DSETestGenerator {
 	 * test case belongs to a whole test suite, then the coverage of the test suite
 	 * is used, otherwise the single test case is used.
 	 * 
-	 * @param className
-	 * @param methodName
+	 * @param test
 	 * @param branchIndex
 	 * @return
 	 */
@@ -289,36 +266,6 @@ public class DSETestGenerator {
 		final boolean falseIsCovered = falseIndexes.contains(branchIndex);
 
 		return trueIsCovered && falseIsCovered;
-	}
-
-	/**
-	 * Creates a Solver query give a branch condition
-	 * 
-	 * @param condition
-	 * @return
-	 */
-	public static List<Constraint<?>> buildQuery(PathCondition pc, int conditionIndexToNegate) {
-		// negate target branch condition
-		if (conditionIndexToNegate < 0 || conditionIndexToNegate >= pc.getBranchConditions().size()) {
-			throw new IndexOutOfBoundsException("The position " + conditionIndexToNegate + " does not exists");
-		}
-
-		List<Constraint<?>> query = new LinkedList<Constraint<?>>();
-		for (int i = 0; i < conditionIndexToNegate; i++) {
-			BranchCondition b = pc.get(i);
-			query.addAll(b.getSupportingConstraints());
-			query.add(b.getConstraint());
-		}
-
-		BranchCondition targetBranch = pc.get(conditionIndexToNegate);
-		Constraint<?> negation = targetBranch.getConstraint().negate();
-		query.addAll(targetBranch.getSupportingConstraints());
-		query.add(negation);
-
-		// Compute cone of influence reduction
-		List<Constraint<?>> simplified_query = reduce(query);
-
-		return simplified_query;
 	}
 
 	/**
@@ -412,9 +359,42 @@ public class DSETestGenerator {
 	}
 
 	/**
+	 * Creates a Solver query give a branch condition
+	 * TODO: Deciding which is the next path to explore is done here, refactor
+	 *
+	 * @param pc
+	 * @param conditionIndexToNegate
+	 * @return
+	 */
+	public static List<Constraint<?>> buildQuery(PathCondition pc, int conditionIndexToNegate) {
+		// negate target branch condition
+		if (conditionIndexToNegate < 0 || conditionIndexToNegate >= pc.getBranchConditions().size()) {
+			throw new IndexOutOfBoundsException("The position " + conditionIndexToNegate + " does not exists");
+		}
+
+		List<Constraint<?>> query = new LinkedList<Constraint<?>>();
+		for (int i = 0; i < conditionIndexToNegate; i++) {
+			BranchCondition b = pc.get(i);
+			query.addAll(b.getSupportingConstraints());
+			query.add(b.getConstraint());
+		}
+
+		BranchCondition targetBranch = pc.get(conditionIndexToNegate);
+		Constraint<?> negation = targetBranch.getConstraint().negate();
+		query.addAll(targetBranch.getSupportingConstraints());
+		query.add(negation);
+
+		// Compute cone of influence reduction
+		List<Constraint<?>> simplified_query = reduce(query);
+
+		return simplified_query;
+	}
+
+
+	/**
 	 * Apply cone of influence reduction to constraints with respect to the last
 	 * constraint in the list
-	 * 
+	 *
 	 * @param constraints
 	 * @return
 	 */
@@ -444,6 +424,31 @@ public class DSETestGenerator {
 	}
 
 	/**
+	 * Determine the set of variable referenced by this constraint
+	 *
+	 * @param constraint
+	 * @return
+	 */
+	private static Set<Variable<?>> getVariables(Constraint<?> constraint) {
+		Set<Variable<?>> variables = new HashSet<Variable<?>>();
+		getVariables(constraint.getLeftOperand(), variables);
+		getVariables(constraint.getRightOperand(), variables);
+		return variables;
+	}
+
+	/**
+	 * Recursively determine constraints in expression
+	 *
+	 * @param expr
+	 *            a {@link org.evosuite.symbolic.expr.Expression} object.
+	 * @param variables
+	 *            a {@link java.util.Set} object.
+	 */
+	private static void getVariables(Expression<?> expr, Set<Variable<?>> variables) {
+		variables.addAll(expr.getVariables());
+	}
+
+	/**
 	 * Get the statement that defines this variable
 	 * 
 	 * @param test
@@ -459,31 +464,6 @@ public class DSETestGenerator {
 			}
 		}
 		return null;
-	}
-
-	/**
-	 * Determine the set of variable referenced by this constraint
-	 * 
-	 * @param constraint
-	 * @return
-	 */
-	private static Set<Variable<?>> getVariables(Constraint<?> constraint) {
-		Set<Variable<?>> variables = new HashSet<Variable<?>>();
-		getVariables(constraint.getLeftOperand(), variables);
-		getVariables(constraint.getRightOperand(), variables);
-		return variables;
-	}
-
-	/**
-	 * Recursively determine constraints in expression
-	 * 
-	 * @param expr
-	 *            a {@link org.evosuite.symbolic.expr.Expression} object.
-	 * @param variables
-	 *            a {@link java.util.Set} object.
-	 */
-	public static void getVariables(Expression<?> expr, Set<Variable<?>> variables) {
-		variables.addAll(expr.getVariables());
 	}
 
 }

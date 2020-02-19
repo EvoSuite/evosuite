@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang3.NotImplementedException;
 import org.evosuite.Properties;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.runtime.classhandling.ClassResetter;
@@ -23,12 +22,12 @@ import org.evosuite.symbolic.expr.bv.IntegerConstant;
 import org.evosuite.symbolic.expr.bv.IntegerVariable;
 import org.evosuite.symbolic.expr.fp.RealVariable;
 import org.evosuite.symbolic.expr.str.StringVariable;
+import org.evosuite.symbolic.solver.SmtUtils;
 import org.evosuite.symbolic.solver.SolverResult;
 import org.evosuite.symbolic.vm.ConstraintFactory;
 import org.evosuite.symbolic.vm.ExpressionFactory;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.TestCase;
-import org.evosuite.testcase.localsearch.DSETestGenerator;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.objectweb.asm.Type;
@@ -39,10 +38,10 @@ import org.slf4j.LoggerFactory;
  * This class implements a DSE algorithm *as* a subclass of genetic algorithm.
  * 
  * @author jgaleotti
- *
- * @param <T>
  */
 public class DSEAlgorithm extends GeneticAlgorithm<TestSuiteChromosome> {
+
+  public static final String DSE_FINISHED_BY_STROPPING_CONDITION_DEBUG_MESSAGE = "DSE test generation met a stopping condition. Exiting with {} generated test cases for method {}";
 
   private static final Logger logger = LoggerFactory.getLogger(DSEAlgorithm.class);
 
@@ -91,9 +90,7 @@ public class DSEAlgorithm extends GeneticAlgorithm<TestSuiteChromosome> {
       TestCase currentTestCase = generatedTests.get(currentTestIndex);
 
       if (this.isFinished()) {
-        logger.debug("DSE test generation met a stopping condition. Exiting with "
-            + generatedTests.size() + " generated test cases for method "
-            + staticEntryMethod.getName());
+        logger.debug(DSE_FINISHED_BY_STROPPING_CONDITION_DEBUG_MESSAGE, generatedTests.size(), staticEntryMethod.getName());
         return;
       }
 
@@ -114,36 +111,14 @@ public class DSEAlgorithm extends GeneticAlgorithm<TestSuiteChromosome> {
         logger.debug("negating index " + i + " of path condition");
 
         List<Constraint<?>> query = DSETestGenerator.buildQuery(pathCondition, i);
-
         Set<Constraint<?>> constraintSet = canonicalize(query);
 
-        if (queryCache.containsKey(constraintSet)) {
-          logger.debug("skipping solving of current query since it is in the query cache");
-          continue;
-        }
-
-        if (isSubSetOf(constraintSet, queryCache.keySet())) {
-          logger.debug(
-              "skipping solving of current query because it is satisfiable and solved by previous path condition");
-          continue;
-        }
-
-        if (pathConditions.contains(constraintSet)) {
-          logger.debug("skipping solving of current query because of existing path condition");
-          continue;
-
-        }
-
-        if (isSubSetOf(constraintSet, pathConditions)) {
-          logger.debug(
-              "skipping solving of current query because it is satisfiable and solved by previous path condition");
+        if (shouldSkipCurrentConstraintSet(pathConditions, constraintSet, queryCache)) {
           continue;
         }
 
         if (this.isFinished()) {
-          logger.debug("DSE test generation met a stopping condition. Exiting with "
-              + generatedTests.size() + " generated test cases for method "
-              + staticEntryMethod.getName());
+          logger.debug(DSE_FINISHED_BY_STROPPING_CONDITION_DEBUG_MESSAGE, generatedTests.size(), staticEntryMethod.getName());
           return;
         }
 
@@ -152,9 +127,9 @@ public class DSEAlgorithm extends GeneticAlgorithm<TestSuiteChromosome> {
         List<Constraint<?>> varBounds = createVarBounds(query);
         query.addAll(varBounds);
 
-        SolverResult result = DSETestGenerator.solve(query);
-
+        SolverResult result = SmtUtils.solveSMTQuery(query);
         queryCache.put(constraintSet, result);
+
         logger.debug("Number of stored entries in query cache : " + queryCache.keySet().size());
 
         if (result == null) {
@@ -195,6 +170,41 @@ public class DSEAlgorithm extends GeneticAlgorithm<TestSuiteChromosome> {
     logger.debug("DSE test generation finished for method " + staticEntryMethod.getName()
         + ". Exiting with " + generatedTests.size() + " generated test cases");
     return;
+  }
+
+  /**
+   * Checks if the currently computed constraint Set could be already solved.
+   * NOTE: Even though the query cache is local to the object instance, is better to put it as a parameter for future separation of the DSE algorithm.
+   *
+   * @param pathConditions
+   * @param constraintSet
+   * @param queryCache
+   * @return
+   */
+  private boolean shouldSkipCurrentConstraintSet(HashSet<Set<Constraint<?>>> pathConditions, Set<Constraint<?>> constraintSet, Map<Set<Constraint<?>>, SolverResult> queryCache) {
+    if (queryCache.containsKey(constraintSet)) {
+      logger.debug("skipping solving of current query since it is in the query cache");
+      return true;
+    }
+
+    if (isSubSetOf(constraintSet, queryCache.keySet())) {
+      logger.debug(
+          "skipping solving of current query because it is satisfiable and solved by previous path condition");
+      return true;
+    }
+
+    if (pathConditions.contains(constraintSet)) {
+      logger.debug("skipping solving of current query because of existing path condition");
+      return true;
+    }
+
+    if (isSubSetOf(constraintSet, pathConditions)) {
+      logger.debug(
+          "skipping solving of current query because it is satisfiable and solved by previous path condition");
+      return true;
+    }
+
+    return false;
   }
 
   protected static HashSet<Constraint<?>> canonicalize(List<Constraint<?>> query) {

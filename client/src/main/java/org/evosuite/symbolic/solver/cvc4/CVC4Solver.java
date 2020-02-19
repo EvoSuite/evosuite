@@ -83,7 +83,7 @@ public final class CVC4Solver extends SmtSolver {
 	}
 
 	@Override
-	public SolverResult solve(Collection<Constraint<?>> constraints) throws SolverTimeoutException,
+	public SolverResult executeSolver(Collection<Constraint<?>> constraints) throws SolverTimeoutException,
 			SolverEmptyQueryException, SolverErrorException, SolverParseException, IOException {
 
 		if (Properties.CVC4_PATH == null) {

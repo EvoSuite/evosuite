@@ -22,6 +22,7 @@ package org.evosuite.symbolic.solver.avm;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
@@ -34,9 +35,7 @@ import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.RealConstraint;
 import org.evosuite.symbolic.expr.fp.RealConstant;
 import org.evosuite.symbolic.expr.fp.RealVariable;
-import org.evosuite.symbolic.solver.SolverEmptyQueryException;
-import org.evosuite.symbolic.solver.SolverResult;
-import org.evosuite.symbolic.solver.SolverTimeoutException;
+import org.evosuite.symbolic.solver.*;
 import org.evosuite.symbolic.solver.avm.EvoSuiteSolver;
 import org.junit.Test;
 
@@ -85,7 +84,7 @@ public class TestRealConstraint extends RandomizedTC {
 
 				assertEquals(EXPECTED_DOUBLE, var0);
 			}
-		} catch (SolverTimeoutException e) {
+		} catch (SolverTimeoutException | SolverParseException | SolverErrorException | IOException e) {
 			fail();
 		}
 

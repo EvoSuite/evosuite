@@ -22,6 +22,7 @@ package org.evosuite.symbolic.solver.avm;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
@@ -35,7 +36,10 @@ import org.evosuite.symbolic.expr.IntegerConstraint;
 import org.evosuite.symbolic.expr.bv.IntegerConstant;
 import org.evosuite.symbolic.expr.bv.StringToIntegerCast;
 import org.evosuite.symbolic.expr.str.StringVariable;
+
 import org.evosuite.symbolic.solver.SolverEmptyQueryException;
+import org.evosuite.symbolic.solver.SolverErrorException;
+import org.evosuite.symbolic.solver.SolverParseException;
 import org.evosuite.symbolic.solver.SolverResult;
 import org.evosuite.symbolic.solver.SolverTimeoutException;
 import org.evosuite.symbolic.solver.avm.EvoSuiteSolver;
@@ -76,6 +80,7 @@ public class TestConstraintSolver3 extends RandomizedTC {
 
 		EvoSuiteSolver solver = new EvoSuiteSolver();
 		try {
+//			TODO: see f this
 			SolverResult result = solver.solve(constraints);
 			if (result.isUNSAT()) {
 				fail("search was unsuccessfull");
@@ -87,7 +92,7 @@ public class TestConstraintSolver3 extends RandomizedTC {
 
 				assertEquals(String.valueOf(EXPECTED_INTEGER), var0);
 			}
-		} catch (SolverTimeoutException e) {
+		} catch (SolverTimeoutException | SolverParseException | SolverErrorException | IOException e) {
 			fail();
 		}
 

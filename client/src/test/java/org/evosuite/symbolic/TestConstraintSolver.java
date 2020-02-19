@@ -24,6 +24,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -114,7 +115,12 @@ public class TestConstraintSolver {
 		printConstraints(constraints);
 
 		EvoSuiteSolver solver = new EvoSuiteSolver();
-		SolverResult solverResult = solver.solve(constraints);
+		SolverResult solverResult;
+		try {
+			solverResult = solver.solve(constraints);
+		} catch (IOException | SolverParseException | SolverErrorException e) {
+			solverResult = null;
+		}
 
 		if (solverResult.isUNSAT())
 			System.out.println("No new model was found");
@@ -134,17 +140,10 @@ public class TestConstraintSolver {
 	}
 
 	/**
-	 * @param int0
-	 *            ==5
-	 * @param int1
-	 *            ==16
-	 * @param int2
-	 *            ==16
-	 * @param int3
-	 *            ==22
-	 * @param int4
-	 *            ==22
-	 * 
+	 *
+	 * @return
+	 * @throws SecurityException
+	 * @throws NoSuchMethodException
 	 */
 	private DefaultTestCase buildTestCase2() throws SecurityException, NoSuchMethodException {
 		TestCaseBuilder tc = new TestCaseBuilder();
