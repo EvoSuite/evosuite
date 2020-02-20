@@ -428,6 +428,7 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
           }
 
           newPopulation.add(individual);
+		  //logger.error("Created a new individual");
           if (isFinished())
               break;
       }
@@ -606,9 +607,7 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 			if (isFinished()) {
 				break;
 			} else {
-				logger.error("Start calculation FF for {}",c);
 				this.calculateFitness(c);
-				logger.error("Finishing Start calculation FF for {}",c);
 			}
 		}
 	}
