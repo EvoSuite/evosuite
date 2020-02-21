@@ -48,6 +48,7 @@ import org.evosuite.coverage.mutation.WeakMutationTestFitness;
 import org.evosuite.coverage.statement.StatementCoverageTestFitness;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.FitnessFunction;
+import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.evosuite.graphs.cfg.BytecodeInstructionPool;
 import org.evosuite.graphs.cfg.ControlDependency;
@@ -363,14 +364,15 @@ public class MultiCriteriaManager<T extends Chromosome> extends StructuralGoalMa
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public void calculateFitness(T c) {
+	public void calculateFitness(T c, GeneticAlgorithm ga) {
 		// run the test
 		TestCase test = ((TestChromosome) c).getTestCase();
 		ExecutionResult result = TestCaseExecutor.runTest(test);
 		((TestChromosome) c).setLastExecutionResult(result);
 		c.setChanged(false);
 
-		if (result.hasTimeout() || result.hasTestException()){
+		/* check exceptions and if the test does not cover anything */
+		if (result.hasTimeout() || result.hasTestException() || result.getTrace().getCoveredLines().size() == 0){
 			for (FitnessFunction<T> f : currentGoals)
 				c.setFitness(f, Double.MAX_VALUE);
 			return;
@@ -381,7 +383,7 @@ public class MultiCriteriaManager<T extends Chromosome> extends StructuralGoalMa
 		LinkedList<FitnessFunction<T>> targets = new LinkedList<FitnessFunction<T>>();
 		targets.addAll(this.currentGoals);
 
-		while (targets.size()>0){
+		while (targets.size()>0 && !ga.isFinished()){
 			FitnessFunction<T> fitnessFunction = targets.poll();
 
 			int past_size = visitedTargets.size();
