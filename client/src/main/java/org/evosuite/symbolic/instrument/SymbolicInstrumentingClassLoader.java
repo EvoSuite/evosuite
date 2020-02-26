@@ -42,21 +42,20 @@ import org.objectweb.asm.Type;
  * @author galeotti
  *
  */
-public class ConcolicInstrumentingClassLoader extends ClassLoader {
+public class SymbolicInstrumentingClassLoader extends ClassLoader {
 	
 	//private final static Logger logger = LoggerFactory.getLogger(DscInstrumentingClassLoader.class);
 
 	private final ClassLoader classLoader;
-	private final ConcolicBytecodeInstrumentation instrumentation;
+	private final BytecodeInstrumentation instrumentation;
 	private final Map<String, Class<?>> classes = new HashMap<String, Class<?>>();
 	
-	public ConcolicInstrumentingClassLoader() {
-		super(ConcolicInstrumentingClassLoader.class.getClassLoader());
-		this.instrumentation = new ConcolicBytecodeInstrumentation();
-		classLoader = ConcolicInstrumentingClassLoader.class.getClassLoader();
+	public SymbolicInstrumentingClassLoader(BytecodeInstrumentation instrumentation) {
+		super(SymbolicInstrumentingClassLoader.class.getClassLoader());
+
+		this.instrumentation = instrumentation;
+		this.classLoader = SymbolicInstrumentingClassLoader.class.getClassLoader();
 	}
-
-
 
 	@Override
 	public Class<?> loadClass(String name) throws ClassNotFoundException {
@@ -90,12 +89,9 @@ public class ConcolicInstrumentingClassLoader extends ClassLoader {
 
 	}
 
-	
 	private boolean checkIfCanInstrument(String name) {
 		return !MainConfig.get().isIgnored(name);
 	}
-
-
 
 	private Class<?> instrumentClass(String fullyQualifiedTargetClass)
 	        throws ClassNotFoundException {

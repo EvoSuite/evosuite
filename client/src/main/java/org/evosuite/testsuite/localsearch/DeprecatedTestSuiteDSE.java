@@ -35,13 +35,13 @@ import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.localsearch.LocalSearchBudget;
 import org.evosuite.ga.localsearch.LocalSearchObjective;
 import org.evosuite.symbolic.BranchCondition;
-import org.evosuite.symbolic.ConcolicEngine;
-import org.evosuite.symbolic.DSEStats;
+import org.evosuite.symbolic.DSE.ConcolicEngine;
+import org.evosuite.symbolic.DSE.DSEStats;
 import org.evosuite.symbolic.expr.Comparator;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.Variable;
-import org.evosuite.symbolic.solver.SmtUtils;
+import org.evosuite.symbolic.solver.SolverUtils;
 import org.evosuite.symbolic.solver.SolverResult;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
@@ -357,7 +357,7 @@ public class DeprecatedTestSuiteDSE {
 		DSEStats.getInstance().reportNewConstraints(constraints);
 
 		long startSolvingTime = System.currentTimeMillis();
-		SolverResult solverResult = SmtUtils.solveSMTQuery(constraints);
+		SolverResult solverResult = SolverUtils.solveQuery(constraints);
 		long estimatedSolvingTime = System.currentTimeMillis() - startSolvingTime;
 		DSEStats.getInstance().reportNewSolvingTime(estimatedSolvingTime);
 

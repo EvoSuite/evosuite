@@ -41,6 +41,7 @@ import org.evosuite.runtime.testdata.EvoSuiteURL;
 import org.evosuite.runtime.testdata.FileSystemHandling;
 import org.evosuite.runtime.testdata.NetworkHandling;
 import org.evosuite.runtime.vfs.VirtualFileSystem;
+import org.evosuite.symbolic.DSE.ConcolicEngine;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.evosuite.testcase.variable.VariableReference;

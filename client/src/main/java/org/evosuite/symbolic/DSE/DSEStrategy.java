@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite.symbolic;
+package org.evosuite.symbolic.DSE;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,22 +26,29 @@ import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.coverage.TestFitnessFactory;
 import org.evosuite.ga.FitnessFunction;
-import org.evosuite.ga.archive.ArchiveTestChromosomeFactory;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import org.evosuite.ga.stoppingconditions.StoppingCondition;
-import org.evosuite.result.TestGenerationResultBuilder;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.rmi.service.ClientState;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.strategy.TestGenerationStrategy;
+import org.evosuite.symbolic.DSE.algorithm.DSEAlgorithm;
+import org.evosuite.symbolic.DSE.algorithm.DSEAlgorithmFactory;
+import org.evosuite.symbolic.DSE.algorithm.DSEAlgorithms;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
-import org.evosuite.testsuite.factories.TestSuiteChromosomeFactory;
 import org.evosuite.utils.ArrayUtil;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
 
+/**
+ * <p>
+ * DSEStrategy class
+ * </p>
+ *
+ * @author ignacio lebrero
+ */
 public class DSEStrategy extends TestGenerationStrategy {
 
 	@Override
@@ -75,19 +82,19 @@ public class DSEStrategy extends TestGenerationStrategy {
 			LoggingUtils.getEvoLogger().info("* Starting evolution");
 			ClientServices.getInstance().getClientNode().changeState(ClientState.SEARCH);
 
-			DSEAlgorithm algorithm = new DSEAlgorithm();
-			StoppingCondition stoppingCondition = getStoppingCondition();
-			algorithm.addFitnessFunctions((List)fitnessFunctions);
-			if (Properties.STOP_ZERO) {
-				
-			}
-			algorithm.setStoppingCondition(stoppingCondition);
-			algorithm.generateSolution();
-			testSuite = algorithm.getBestIndividual();
+			//TODO: move to dependency injection later on
+			DSEAlgorithmFactory dseFactory = new DSEAlgorithmFactory();
+			DSEAlgorithms dseAlgorithmType = Properties.DSE_ALGORITHM_TYPE;
+            DSEAlgorithm algorithm = dseFactory.getDSEAlgorithm(dseAlgorithmType);
 
-			if (Properties.SERIALIZE_GA || Properties.CLIENT_ON_THREAD) {
-				TestGenerationResultBuilder.getInstance().setGeneticAlgorithm(algorithm);
+			StoppingCondition stoppingCondition = getStoppingCondition();
+// TODO: implement fitness functions
+			//						algorithm.addFitnessFunctions((List)fitnessFunctions);
+			if (Properties.STOP_ZERO) {
+
 			}
+//			algorithm.setStoppingCondition(stoppingCondition);
+			testSuite = algorithm.generateSolution();;
 
 		} else {
 			zeroFitness.setFinished();

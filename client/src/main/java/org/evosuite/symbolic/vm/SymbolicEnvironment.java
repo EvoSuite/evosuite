@@ -30,7 +30,7 @@ import java.util.LinkedList;
 import java.util.Set;
 
 import org.evosuite.symbolic.expr.ref.ReferenceExpression;
-import org.evosuite.symbolic.instrument.ConcolicInstrumentingClassLoader;
+import org.evosuite.symbolic.instrument.SymbolicInstrumentingClassLoader;
 import org.evosuite.testcase.execution.EvosuiteError;
 import org.objectweb.asm.Type;
 
@@ -43,6 +43,7 @@ public final class SymbolicEnvironment {
 
 	/**
 	 * Storage for symbolic information in the memory heap
+	 * This might be extended at some point
 	 */
 	public final SymbolicHeap heap = new SymbolicHeap();
 
@@ -57,10 +58,10 @@ public final class SymbolicEnvironment {
 	 */
 	private final Set<Class<?>> preparedClasses = new HashSet<Class<?>>();
 
-	private final ConcolicInstrumentingClassLoader classLoader;
+	private final SymbolicInstrumentingClassLoader instrumentingClassLoader;
 
-	public SymbolicEnvironment(ConcolicInstrumentingClassLoader classLoader) {
-		this.classLoader = classLoader;
+	public SymbolicEnvironment(SymbolicInstrumentingClassLoader instrumentingClassLoader) {
+		this.instrumentingClassLoader = instrumentingClassLoader;
 	}
 
 	public Frame topFrame() {
@@ -91,7 +92,7 @@ public final class SymbolicEnvironment {
 			else {
 				// ensurePrepared component class
 				className = elemType.getClassName();
-				Class<?> claz = classLoader.getClassForName(className);
+				Class<?> claz = instrumentingClassLoader.getClassForName(className);
 				ensurePrepared(claz);
 				
 				// returns claz[] instead of claz
@@ -99,7 +100,7 @@ public final class SymbolicEnvironment {
 				return arrayClaz;
 			}
 		} else {
-			Class<?> claz = classLoader.getClassForName(className);
+			Class<?> claz = instrumentingClassLoader.getClassForName(className);
 			ensurePrepared(claz);
 			return claz;
 		}

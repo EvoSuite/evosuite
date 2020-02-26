@@ -38,7 +38,7 @@ import org.objectweb.asm.ClassWriter;
  * @author galeotti
  * 
  */
-public class ConcolicBytecodeInstrumentation {
+public class ConcolicBytecodeInstrumentation extends BytecodeInstrumentation {
 
 	//private static Logger logger = LoggerFactory.getLogger(DscBytecodeInstrumentation.class);
 
@@ -46,6 +46,7 @@ public class ConcolicBytecodeInstrumentation {
 	 * Applies DscClassAdapter to the className in the argument
 	 * 
 	 */
+	@Override
 	public byte[] transformBytes(String className, ClassReader reader) {
 		int readFlags = ClassReader.SKIP_FRAMES;
 

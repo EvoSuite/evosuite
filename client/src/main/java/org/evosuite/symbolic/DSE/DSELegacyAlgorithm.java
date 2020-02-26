@@ -1,4 +1,4 @@
-package org.evosuite.symbolic;
+package org.evosuite.symbolic.DSE;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -15,6 +15,9 @@ import java.util.Set;
 import org.evosuite.Properties;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.runtime.classhandling.ClassResetter;
+import org.evosuite.symbolic.MethodComparator;
+import org.evosuite.symbolic.PathCondition;
+import org.evosuite.symbolic.TestCaseBuilder;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.IntegerConstraint;
 import org.evosuite.symbolic.expr.Variable;
@@ -22,7 +25,7 @@ import org.evosuite.symbolic.expr.bv.IntegerConstant;
 import org.evosuite.symbolic.expr.bv.IntegerVariable;
 import org.evosuite.symbolic.expr.fp.RealVariable;
 import org.evosuite.symbolic.expr.str.StringVariable;
-import org.evosuite.symbolic.solver.SmtUtils;
+import org.evosuite.symbolic.solver.SolverUtils;
 import org.evosuite.symbolic.solver.SolverResult;
 import org.evosuite.symbolic.vm.ConstraintFactory;
 import org.evosuite.symbolic.vm.ExpressionFactory;
@@ -39,11 +42,11 @@ import org.slf4j.LoggerFactory;
  * 
  * @author jgaleotti
  */
-public class DSEAlgorithm extends GeneticAlgorithm<TestSuiteChromosome> {
+public class DSELegacyAlgorithm extends GeneticAlgorithm<TestSuiteChromosome> {
 
   public static final String DSE_FINISHED_BY_STROPPING_CONDITION_DEBUG_MESSAGE = "DSE test generation met a stopping condition. Exiting with {} generated test cases for method {}";
 
-  private static final Logger logger = LoggerFactory.getLogger(DSEAlgorithm.class);
+  private static final Logger logger = LoggerFactory.getLogger(DSELegacyAlgorithm.class);
 
   /**
    * A cache of previous results from the constraint solver
@@ -110,7 +113,7 @@ public class DSEAlgorithm extends GeneticAlgorithm<TestSuiteChromosome> {
       for (int i = pathCondition.size() - 1; i >= 0; i--) {
         logger.debug("negating index " + i + " of path condition");
 
-        List<Constraint<?>> query = DSETestGenerator.buildQuery(pathCondition, i);
+        List<Constraint<?>> query = SolverUtils.buildQueryNegatingIthCondition(pathCondition, i);
         Set<Constraint<?>> constraintSet = canonicalize(query);
 
         if (shouldSkipCurrentConstraintSet(pathConditions, constraintSet, queryCache)) {
@@ -127,7 +130,7 @@ public class DSEAlgorithm extends GeneticAlgorithm<TestSuiteChromosome> {
         List<Constraint<?>> varBounds = createVarBounds(query);
         query.addAll(varBounds);
 
-        SolverResult result = SmtUtils.solveSMTQuery(query);
+        SolverResult result = SolverUtils.solveQuery(query);
 
         if (result == null) {
           logger.debug("Solver outcome is null (probably failure/unknown");
@@ -361,7 +364,7 @@ public class DSEAlgorithm extends GeneticAlgorithm<TestSuiteChromosome> {
   /**
    * Creates a DSE algorithm for test generation.
    */
-  public DSEAlgorithm() {
+  public DSELegacyAlgorithm() {
     super(null);
   }
 

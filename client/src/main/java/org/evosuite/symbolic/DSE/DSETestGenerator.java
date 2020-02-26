@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite.symbolic;
+package org.evosuite.symbolic.DSE;
 
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -28,6 +28,8 @@ import java.util.Set;
 import org.evosuite.Properties;
 import org.evosuite.ga.localsearch.LocalSearchBudget;
 import org.evosuite.ga.localsearch.LocalSearchObjective;
+import org.evosuite.symbolic.BranchCondition;
+import org.evosuite.symbolic.PathCondition;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.Variable;
@@ -154,7 +156,7 @@ public class DSETestGenerator {
 			}
 			logger.info("Is relevant for " + symbolicVariables);
 
-			List<Constraint<?>> query = buildQuery(collectedPathCondition, conditionIndex);
+			List<Constraint<?>> query = SolverUtils.buildQueryNegatingIthCondition(collectedPathCondition, conditionIndex);
 
 			logger.info("Trying to solve: ");
 			for (Constraint<?> c : query) {
@@ -166,7 +168,7 @@ public class DSETestGenerator {
 			long startSolvingTime = System.currentTimeMillis();
 
 			// Get solution
-			SolverResult solverResult = SmtUtils.solveSMTQuery(query);
+			SolverResult solverResult = SolverUtils.solveQuery(query);
 
 			long estimatedSolvingTime = System.currentTimeMillis() - startSolvingTime;
 			DSEStats.getInstance().reportNewSolvingTime(estimatedSolvingTime);
@@ -356,96 +358,6 @@ public class DSETestGenerator {
 		}
 		return newTest;
 
-	}
-
-	/**
-	 * Creates a Solver query give a branch condition
-	 * TODO: Deciding which is the next path to explore is done here, refactor
-	 *
-	 * @param pc
-	 * @param conditionIndexToNegate
-	 * @return
-	 */
-	public static List<Constraint<?>> buildQuery(PathCondition pc, int conditionIndexToNegate) {
-		// negate target branch condition
-		if (conditionIndexToNegate < 0 || conditionIndexToNegate >= pc.getBranchConditions().size()) {
-			throw new IndexOutOfBoundsException("The position " + conditionIndexToNegate + " does not exists");
-		}
-
-		List<Constraint<?>> query = new LinkedList<Constraint<?>>();
-		for (int i = 0; i < conditionIndexToNegate; i++) {
-			BranchCondition b = pc.get(i);
-			query.addAll(b.getSupportingConstraints());
-			query.add(b.getConstraint());
-		}
-
-		BranchCondition targetBranch = pc.get(conditionIndexToNegate);
-		Constraint<?> negation = targetBranch.getConstraint().negate();
-		query.addAll(targetBranch.getSupportingConstraints());
-		query.add(negation);
-
-		// Compute cone of influence reduction
-		List<Constraint<?>> simplified_query = reduce(query);
-
-		return simplified_query;
-	}
-
-
-	/**
-	 * Apply cone of influence reduction to constraints with respect to the last
-	 * constraint in the list
-	 *
-	 * @param constraints
-	 * @return
-	 */
-	private static List<Constraint<?>> reduce(List<Constraint<?>> constraints) {
-
-		Constraint<?> target = constraints.get(constraints.size() - 1);
-		Set<Variable<?>> dependencies = getVariables(target);
-
-		LinkedList<Constraint<?>> coi = new LinkedList<Constraint<?>>();
-		if (dependencies.size() <= 0)
-			return coi;
-
-		coi.add(target);
-
-		for (int i = constraints.size() - 2; i >= 0; i--) {
-			Constraint<?> constraint = constraints.get(i);
-			Set<Variable<?>> variables = getVariables(constraint);
-			for (Variable<?> var : dependencies) {
-				if (variables.contains(var)) {
-					dependencies.addAll(variables);
-					coi.addFirst(constraint);
-					break;
-				}
-			}
-		}
-		return coi;
-	}
-
-	/**
-	 * Determine the set of variable referenced by this constraint
-	 *
-	 * @param constraint
-	 * @return
-	 */
-	private static Set<Variable<?>> getVariables(Constraint<?> constraint) {
-		Set<Variable<?>> variables = new HashSet<Variable<?>>();
-		getVariables(constraint.getLeftOperand(), variables);
-		getVariables(constraint.getRightOperand(), variables);
-		return variables;
-	}
-
-	/**
-	 * Recursively determine constraints in expression
-	 *
-	 * @param expr
-	 *            a {@link org.evosuite.symbolic.expr.Expression} object.
-	 * @param variables
-	 *            a {@link java.util.Set} object.
-	 */
-	private static void getVariables(Expression<?> expr, Set<Variable<?>> variables) {
-		variables.addAll(expr.getVariables());
 	}
 
 	/**

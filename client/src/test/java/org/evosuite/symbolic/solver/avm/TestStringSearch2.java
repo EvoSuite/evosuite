@@ -34,7 +34,7 @@ import java.util.Map;
 import org.evosuite.Properties;
 import org.evosuite.RandomizedTC;
 import org.evosuite.symbolic.BranchCondition;
-import org.evosuite.symbolic.ConcolicEngine;
+import org.evosuite.symbolic.DSE.ConcolicEngine;
 import org.evosuite.symbolic.PathCondition;
 import org.evosuite.symbolic.TestCaseBuilder;
 import org.evosuite.symbolic.expr.Constraint;

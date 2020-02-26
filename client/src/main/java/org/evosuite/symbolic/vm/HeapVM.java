@@ -31,7 +31,7 @@ import org.evosuite.symbolic.expr.bv.IntegerValue;
 import org.evosuite.symbolic.expr.fp.RealValue;
 import org.evosuite.symbolic.expr.ref.ReferenceConstant;
 import org.evosuite.symbolic.expr.ref.ReferenceExpression;
-import org.evosuite.symbolic.instrument.ConcolicInstrumentingClassLoader;
+import org.evosuite.symbolic.instrument.SymbolicInstrumentingClassLoader;
 import org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,12 +52,12 @@ public final class HeapVM extends AbstractVM {
 
 	private final SymbolicEnvironment env;
 
-	private final ConcolicInstrumentingClassLoader classLoader;
+	private final SymbolicInstrumentingClassLoader classLoader;
 
 	private final PathConditionCollector pc;
 
 	public HeapVM(SymbolicEnvironment env, PathConditionCollector pc,
-			ConcolicInstrumentingClassLoader classLoader) {
+			SymbolicInstrumentingClassLoader classLoader) {
 		this.env = env;
 		this.pc = pc;
 		this.classLoader = classLoader;

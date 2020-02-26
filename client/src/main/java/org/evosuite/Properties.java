@@ -26,6 +26,7 @@ import org.evosuite.runtime.LoopCounter;
 import org.evosuite.runtime.Runtime;
 import org.evosuite.runtime.RuntimeSettings;
 import org.evosuite.runtime.sandbox.Sandbox;
+import org.evosuite.symbolic.DSE.algorithm.DSEAlgorithms;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.FileIOUtils;
 import org.slf4j.Logger;
@@ -417,6 +418,9 @@ public class Properties {
 		/** DSE on whole suites */
 		SUITE;
 	}
+
+	@Parameter(key = "dse_algorithm", group = "DSE", description = "Type of DSE algorithm to use.")
+	public static DSEAlgorithms DSE_ALGORITHM_TYPE = DSEAlgorithms.DEFAULT;
 
 	@Parameter(key = "local_search_dse", group = "DSE", description = "Granularity of DSE application")
 	public static DSEType LOCAL_SEARCH_DSE = DSEType.TEST;

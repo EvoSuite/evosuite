@@ -29,7 +29,7 @@ import java.util.Set;
 
 import org.evosuite.Properties;
 import org.evosuite.symbolic.BranchCondition;
-import org.evosuite.symbolic.ConcolicEngine;
+import org.evosuite.symbolic.DSE.ConcolicEngine;
 import org.evosuite.symbolic.PathCondition;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.Variable;

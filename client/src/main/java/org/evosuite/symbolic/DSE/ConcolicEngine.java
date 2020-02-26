@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite.symbolic;
+package org.evosuite.symbolic.DSE;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,9 +25,14 @@ import java.util.Set;
 
 import org.evosuite.Properties;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
+import org.evosuite.symbolic.BranchCondition;
+import org.evosuite.symbolic.PathCondition;
+import org.evosuite.symbolic.SymbolicEngine;
+import org.evosuite.symbolic.SymbolicObserver;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.ExpressionEvaluator;
-import org.evosuite.symbolic.instrument.ConcolicInstrumentingClassLoader;
+import org.evosuite.symbolic.instrument.ConcolicBytecodeInstrumentation;
+import org.evosuite.symbolic.instrument.SymbolicInstrumentingClassLoader;
 import org.evosuite.symbolic.vm.ArithmeticVM;
 import org.evosuite.symbolic.vm.CallVM;
 import org.evosuite.symbolic.vm.HeapVM;
@@ -50,20 +55,26 @@ import org.evosuite.dse.VM;
 
 /**
  * <p>
- * ConcolicExecution class.
+ * ConcolicEngine class.
  * </p>
  * 
  * @author Gordon Fraser
  */
-public class ConcolicEngine {
+public class ConcolicEngine extends SymbolicEngine {
 
 	private static Logger logger = LoggerFactory.getLogger(ConcolicEngine.class);
 
-	/** Instrumenting class loader */
-	private final ConcolicInstrumentingClassLoader classLoader;
-
 	public ConcolicEngine() {
-		classLoader = new ConcolicInstrumentingClassLoader();
+		super(
+				new SymbolicInstrumentingClassLoader(
+						new ConcolicBytecodeInstrumentation()
+				)
+		);
+
+		/**
+		 * Prepare DSC configuration
+		 */
+		MainConfig.setInstance();
 	}
 
 	/**
@@ -84,16 +95,6 @@ public class ConcolicEngine {
 	public PathCondition execute(DefaultTestCase defaultTestCase) {
 		logger.debug("Preparing concolic execution");
 
-		/**
-		 * Prepare DSC configuration
-		 */
-		MainConfig.setInstance();
-
-		/**
-		 * Path constraint and symbolic environment
-		 */
-		SymbolicEnvironment symbolicEnvironment = new SymbolicEnvironment(classLoader);
-		PathConditionCollector pathConditionCollector = new PathConditionCollector();
 
 		/**
 		 * Observers for TestCaseExecutor
@@ -109,7 +110,7 @@ public class ConcolicEngine {
 		 * Override test case classloader for instrumentation
 		 */
 		defaultTestCase.getChangedClassLoader();
-		defaultTestCase.changeClassLoader(classLoader);
+		defaultTestCase.changeClassLoader(instrumentingClassLoader);
 
 		Set<ExecutionObserver> originalExecutionObservers = TestCaseExecutor.getInstance().getExecutionObservers();
 		TestCaseExecutor.getInstance().newObservers();
@@ -162,9 +163,9 @@ public class ConcolicEngine {
 
 	private void setUpVMListeners(SymbolicEnvironment symbolicEnvironment, PathConditionCollector pathConditionCollector) {
 		List<IVM> listeners = new ArrayList<IVM>();
-		listeners.add(new CallVM(symbolicEnvironment, classLoader));
+		listeners.add(new CallVM(symbolicEnvironment, instrumentingClassLoader));
 		listeners.add(new JumpVM(symbolicEnvironment, pathConditionCollector));
-		listeners.add(new HeapVM(symbolicEnvironment, pathConditionCollector, classLoader));
+		listeners.add(new HeapVM(symbolicEnvironment, pathConditionCollector, instrumentingClassLoader));
 		listeners.add(new LocalsVM(symbolicEnvironment));
 		listeners.add(new ArithmeticVM(symbolicEnvironment, pathConditionCollector));
 		listeners.add(new OtherVM(symbolicEnvironment));

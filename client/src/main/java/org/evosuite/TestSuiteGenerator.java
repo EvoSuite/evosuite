@@ -50,7 +50,7 @@ import org.evosuite.setup.TestCluster;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.statistics.StatisticsSender;
 import org.evosuite.strategy.*;
-import org.evosuite.symbolic.DSEStats;
+import org.evosuite.symbolic.DSE.DSEStats;
 import org.evosuite.testcase.ConstantInliner;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.TestCase;
