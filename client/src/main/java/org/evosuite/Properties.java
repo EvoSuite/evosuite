@@ -351,7 +351,7 @@ public class Properties {
     public static boolean MAP_ELITES_IGNORE_FEATURES = false;
 	
 	@Parameter(key = "algorithm", group = "Search Algorithm", description = "Search algorithm")
-	public static Algorithm ALGORITHM = Algorithm.M_IBEA; //hadi
+	public static Algorithm ALGORITHM = Algorithm.NSGAII; //hadi
 
 	/** Different models of neighbourhoods in the Cellular GA **/
 	public enum CGA_Models{
@@ -1040,10 +1040,10 @@ public class Properties {
 	public static boolean PRINT_CURRENT_GOALS = false;
 
 	@Parameter(key = "print_covered_goals", group = "Output", description = "Print out covered goals during test generation")
-	public static boolean PRINT_COVERED_GOALS = false;
+	public static boolean PRINT_COVERED_GOALS = true; // Hadi
 
 	@Parameter(key = "print_missed_goals", group = "Output", description = "Print out missed goals at the end")
-	public static boolean PRINT_MISSED_GOALS = false;
+	public static boolean PRINT_MISSED_GOALS = true; // HAdi
 
 	@Parameter(key = "write_covered_goals_file", group = "Output", description = "Write covered goals file")
 	public static boolean WRITE_COVERED_GOALS_FILE = false;
@@ -1437,7 +1437,7 @@ public class Properties {
 		EXCEPTION, DEFUSE, ALLDEFS, BRANCH, CBRANCH, STRONGMUTATION, WEAKMUTATION,
 		MUTATION, STATEMENT, RHO, AMBIGUITY, IBRANCH, READABILITY,
         ONLYBRANCH, ONLYMUTATION, METHODTRACE, METHOD, METHODNOEXCEPTION, LINE, ONLYLINE, OUTPUT, INPUT,
-        REGRESSION,	REGRESSIONTESTS, TRYCATCH
+        REGRESSION,	REGRESSIONTESTS, TRYCATCH, BZU_TIME, BZU_LENGTH
 	}
 
 	//HAdi

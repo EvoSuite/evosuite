@@ -30,6 +30,7 @@ import org.evosuite.coverage.exception.TryCatchCoverageTestFitness;
 import org.evosuite.coverage.ibranch.IBranchTestFitness;
 import org.evosuite.coverage.io.input.InputCoverageTestFitness;
 import org.evosuite.coverage.io.output.OutputCoverageTestFitness;
+import org.evosuite.coverage.length.LengthTestFitness;
 import org.evosuite.coverage.line.LineCoverageTestFitness;
 import org.evosuite.coverage.method.MethodCoverageTestFitness;
 import org.evosuite.coverage.method.MethodNoExceptionCoverageTestFitness;
@@ -40,6 +41,8 @@ import org.evosuite.coverage.mutation.StrongMutationTestFitness;
 import org.evosuite.coverage.mutation.WeakMutationTestFitness;
 import org.evosuite.coverage.rho.RhoCoverageTestFitness;
 import org.evosuite.coverage.statement.StatementCoverageTestFitness;
+import org.evosuite.coverage.time.ExecutionTimeSuiteFitness;
+import org.evosuite.coverage.time.ExecutionTimeTestFitness;
 import org.evosuite.runtime.util.AtMostOnceLogger;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.slf4j.Logger;
@@ -52,7 +55,7 @@ public final class ArchiveUtils {
   /**
    * Checks whether a specific goal (i.e., a {@link org.evosuite.testcase.TestFitnessFunction}
    * object) is of an enabled criterion. A criterion is considered enabled if and only if defined in
-   * {@link org.evosuite.Properties.CRITERION}.
+   * {@link org.evosuite.Properties.Criterion}.
    * 
    * @param goal a {@link org.evosuite.testcase.TestFitnessFunction} object
    * @return true if criterion of goal is enabled, false otherwise
@@ -120,7 +123,15 @@ public final class ArchiveUtils {
             return true;
           }
           break;
-        case READABILITY:
+        case BZU_TIME:
+          if (goal instanceof ExecutionTimeTestFitness) {
+            return true;
+          }
+          break;
+        case BZU_LENGTH:
+          if (goal instanceof LengthTestFitness) {
+            return true;
+          }
           break;
         case ONLYBRANCH:
           if (goal instanceof OnlyBranchCoverageTestFitness) {
@@ -169,6 +180,7 @@ public final class ArchiveUtils {
           break;
         case REGRESSION:
         case REGRESSIONTESTS:
+        case READABILITY:
           break;
         case TRYCATCH:
           if (goal instanceof TryCatchCoverageTestFitness) {

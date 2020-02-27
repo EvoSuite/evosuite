@@ -27,6 +27,7 @@ import org.evosuite.coverage.branch.OnlyBranchCoverageSuiteFitness;
 import org.evosuite.coverage.cbranch.CBranchSuiteFitness;
 import org.evosuite.coverage.exception.ExceptionCoverageSuiteFitness;
 import org.evosuite.coverage.io.input.InputCoverageSuiteFitness;
+import org.evosuite.coverage.length.LengthSuiteFitness;
 import org.evosuite.coverage.line.LineCoverageSuiteFitness;
 import org.evosuite.coverage.method.MethodCoverageSuiteFitness;
 import org.evosuite.coverage.method.MethodNoExceptionCoverageSuiteFitness;
@@ -35,6 +36,7 @@ import org.evosuite.coverage.mutation.OnlyMutationSuiteFitness;
 import org.evosuite.coverage.mutation.WeakMutationSuiteFitness;
 import org.evosuite.coverage.io.output.OutputCoverageSuiteFitness;
 import org.evosuite.coverage.rho.RhoCoverageSuiteFitness;
+import org.evosuite.coverage.time.ExecutionTimeSuiteFitness;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.result.TestGenerationResult;
 import org.evosuite.rmi.MasterServices;
@@ -145,6 +147,15 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
         sequenceOutputVariableFactories.put(RuntimeVariable.WeakMutationCoverageTimeline.name(), new WeakMutationCoverageSequenceOutputVariableFactory());
         sequenceOutputVariableFactories.put(RuntimeVariable.OnlyMutationFitnessTimeline.name(), new OnlyMutationFitnessSequenceOutputVariableFactory());
         sequenceOutputVariableFactories.put(RuntimeVariable.OnlyMutationCoverageTimeline.name(), new OnlyMutationCoverageSequenceOutputVariableFactory());
+
+        //HAdi
+		sequenceOutputVariableFactories.put(RuntimeVariable.BZUExecutionTimeFitnessTimeline.name(), new BZUExecutionTimeFitnessSequenceOutputVariableFactory());
+		sequenceOutputVariableFactories.put(RuntimeVariable.BZULengthFitnessTimeline.name(), new BZULengthFitnessSequenceOutputVariableFactory());
+
+		sequenceOutputVariableFactories.put(RuntimeVariable.BZUExecutionTimeCoverageTimeline.name(), new BZUExecutionTimeCoverageSequenceOutputVariableFactory());
+		sequenceOutputVariableFactories.put(RuntimeVariable.BZULengthCoverageTimeline.name(), new BZULengthCoverageSequenceOutputVariableFactory());
+
+
 		sequenceOutputVariableFactories.put(RuntimeVariable.DiversityTimeline.name(), 
             DirectSequenceOutputVariableFactory.getDouble(RuntimeVariable.DiversityTimeline));
 		
@@ -881,4 +892,54 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
             return individual.getCoverageInstanceOf(OnlyMutationSuiteFitness.class);
         }
     }
+
+	private static class BZUExecutionTimeFitnessSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Double> {
+
+		public BZUExecutionTimeFitnessSequenceOutputVariableFactory() {
+			super(RuntimeVariable.BZUExecutionTimeFitnessTimeline);
+		}
+
+		@Override
+		public Double getValue(TestSuiteChromosome individual) {
+			return individual.getFitnessInstanceOf(ExecutionTimeSuiteFitness.class);
+		}
+	}
+
+	private static class BZUExecutionTimeCoverageSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Double> {
+
+		public BZUExecutionTimeCoverageSequenceOutputVariableFactory() {
+			super(RuntimeVariable.BZUExecutionTimeCoverageTimeline);
+		}
+
+		@Override
+		public Double getValue(TestSuiteChromosome individual) {
+			return individual.getCoverageInstanceOf(ExecutionTimeSuiteFitness.class);
+		}
+	}
+
+	private static class BZULengthFitnessSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Double> {
+
+		public BZULengthFitnessSequenceOutputVariableFactory() {
+			super(RuntimeVariable.BZULengthFitnessTimeline);
+		}
+
+		@Override
+		public Double getValue(TestSuiteChromosome individual) {
+			return individual.getFitnessInstanceOf(LengthSuiteFitness.class);
+		}
+	}
+
+	private static class BZULengthCoverageSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Double> {
+
+		public BZULengthCoverageSequenceOutputVariableFactory() {
+			super(RuntimeVariable.BZULengthCoverageTimeline);
+		}
+
+		@Override
+		public Double getValue(TestSuiteChromosome individual) {
+			return individual.getCoverageInstanceOf(LengthSuiteFitness.class);
+		}
+	}
+
+
 }

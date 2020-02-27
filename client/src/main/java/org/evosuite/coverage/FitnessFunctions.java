@@ -53,6 +53,8 @@ import org.evosuite.coverage.io.input.InputCoverageTestFitness;
 import org.evosuite.coverage.io.output.OutputCoverageFactory;
 import org.evosuite.coverage.io.output.OutputCoverageSuiteFitness;
 import org.evosuite.coverage.io.output.OutputCoverageTestFitness;
+import org.evosuite.coverage.length.LengthCoverageFactory;
+import org.evosuite.coverage.length.LengthSuiteFitness;
 import org.evosuite.coverage.line.LineCoverageFactory;
 import org.evosuite.coverage.line.LineCoverageSuiteFitness;
 import org.evosuite.coverage.line.LineCoverageTestFitness;
@@ -81,6 +83,8 @@ import org.evosuite.coverage.rho.RhoCoverageSuiteFitness;
 import org.evosuite.coverage.statement.StatementCoverageFactory;
 import org.evosuite.coverage.statement.StatementCoverageSuiteFitness;
 import org.evosuite.coverage.statement.StatementCoverageTestFitness;
+import org.evosuite.coverage.time.ExecutionTimeCoverageFactory;
+import org.evosuite.coverage.time.ExecutionTimeSuiteFitness;
 import org.evosuite.regression.RegressionSuiteFitness;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
@@ -95,14 +99,14 @@ import java.util.Arrays;
  *
  */
 public class FitnessFunctions {
-	
+
 	private static Logger logger = LoggerFactory.getLogger(FitnessFunctions.class);
 
 	/**
 	 * <p>
 	 * getFitnessFunction
 	 * </p>
-	 * 
+	 *
 	 * @param criterion
 	 *            a {@link org.evosuite.Properties.Criterion} object.
 	 * @return a {@link org.evosuite.testsuite.TestSuiteFitnessFunction} object.
@@ -157,17 +161,21 @@ public class FitnessFunctions {
 			return new InputCoverageSuiteFitness();
 		case TRYCATCH:
 			return new TryCatchCoverageSuiteFitness();
+		case BZU_TIME://Hadi
+			return new ExecutionTimeSuiteFitness();
+		case BZU_LENGTH:
+			return new LengthSuiteFitness();
 		default:
 			logger.warn("No TestSuiteFitnessFunction defined for {}; using default one (BranchCoverageSuiteFitness)", Arrays.toString(Properties.CRITERION));
 			return new BranchCoverageSuiteFitness();
 		}
 	}
-	
+
 	/**
 	 * <p>
 	 * getFitnessFactory
 	 * </p>
-	 * 
+	 *
 	 * @param crit
 	 *            a {@link org.evosuite.Properties.Criterion} object.
 	 * @return a {@link org.evosuite.coverage.TestFitnessFactory} object.
@@ -218,6 +226,10 @@ public class FitnessFunctions {
 			return new InputCoverageFactory();
 		case TRYCATCH:
 			return new TryCatchCoverageFactory();
+		case BZU_TIME:
+			return new ExecutionTimeCoverageFactory();
+		case  BZU_LENGTH:
+			return  new LengthCoverageFactory();
 		default:
 			logger.warn("No TestFitnessFactory defined for " + crit
 			        + " using default one (BranchCoverageFactory)");
@@ -228,7 +240,7 @@ public class FitnessFunctions {
 	/**
 	 * Converts a {@link org.evosuite.Properties.Criterion} object to a
 	 * {@link org.evosuite.testcase.TestFitnessFunction} class.
-	 * 
+	 *
 	 * @param criterion a {@link org.evosuite.Properties.Criterion} object.
 	 * @return a {@link java.lang.Class} object.
 	 */
@@ -282,6 +294,10 @@ public class FitnessFunctions {
 				return InputCoverageTestFitness.class;
 		case TRYCATCH:
 				return TryCatchCoverageTestFitness.class;
+		case BZU_TIME: // Hadi
+			return ExecutionTimeSuiteFitness.class;
+		case BZU_LENGTH:
+			return LengthSuiteFitness.class;
 		default:
 				throw new RuntimeException("No criterion defined for " + criterion.name());
 		}

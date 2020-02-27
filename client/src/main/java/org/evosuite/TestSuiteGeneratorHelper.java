@@ -113,6 +113,12 @@ public class TestSuiteGeneratorHelper {
       case REGRESSION:
         LoggingUtils.getEvoLogger().info("  - Regression");
         break;
+      case BZU_TIME:
+        LoggingUtils.getEvoLogger().info("  - BZU Time");
+        break;
+      case BZU_LENGTH:
+        LoggingUtils.getEvoLogger().info("  - BZU Length");
+        break;
       default:
         throw new IllegalArgumentException("Unrecognized criterion: " + criterion);
     }

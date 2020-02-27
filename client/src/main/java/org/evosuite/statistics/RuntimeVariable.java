@@ -390,9 +390,19 @@ public enum RuntimeVariable {
 	/* -------------------------------------------------------------------- */
 	/** Search budget needed to reach the maximum coverage */ 
 	/** Used in the comparison between LISP and MOSA */
-	Time2MaxCoverage
-	
-	;
+	Time2MaxCoverage,
+
+	/* Test suite Length*/
+	BZULengthCoverage,
+	BZULengthFitnessTimeline,
+	BZULengthCoverageTimeline,
+	BZULengthCoverageBitString,
+
+	/* Test suite execution time*/
+	BZUExecutionTimeCoverage,
+	BZUExecutionTimeFitnessTimeline,
+	BZUExecutionTimeCoverageTimeline,
+	BZUExecutionTimeCoverageBitString;
 	/* -------------------------------------------------- */
 
 	

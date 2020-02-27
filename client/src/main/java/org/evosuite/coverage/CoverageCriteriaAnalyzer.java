@@ -178,6 +178,10 @@ public class CoverageCriteriaAnalyzer {
                 return RuntimeVariable.BranchCoverage;
             case TRYCATCH:
                 return RuntimeVariable.TryCatchCoverage;
+            case BZU_LENGTH://Hadi
+                return RuntimeVariable.BZULengthCoverage;
+            case BZU_TIME:
+                return RuntimeVariable.BZUExecutionTimeCoverage;
             default:
                 throw new RuntimeException("Criterion not supported: " + criterion);
 
@@ -337,6 +341,10 @@ public class CoverageCriteriaAnalyzer {
             case LINE:
             case ONLYLINE:
                 return RuntimeVariable.LineCoverageBitString;
+            case BZU_TIME://Hadi
+                return RuntimeVariable.BZUExecutionTimeCoverageBitString;
+            case BZU_LENGTH:
+                return  RuntimeVariable.BZULengthCoverageBitString;
             case REGRESSION:
             case REGRESSIONTESTS:
             case TRYCATCH:
