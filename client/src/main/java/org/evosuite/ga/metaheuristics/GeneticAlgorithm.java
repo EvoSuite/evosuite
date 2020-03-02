@@ -455,6 +455,11 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 		localObjective.addFitnessFunction(function);
 	}
 
+	/**
+	 * Add new fitness functions
+	 *
+	 * @param functions
+	 */
 	public void addFitnessFunctions(List<FitnessFunction<T>> functions) {
 		for (FitnessFunction<T> function : functions)
 			this.addFitnessFunction(function);

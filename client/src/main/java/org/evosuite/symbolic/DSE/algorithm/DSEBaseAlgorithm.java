@@ -20,9 +20,13 @@
 package org.evosuite.symbolic.DSE.algorithm;
 
 import org.evosuite.ga.Chromosome;
+import org.evosuite.ga.FitnessFunction;
+import org.evosuite.ga.stoppingconditions.StoppingCondition;
 import org.evosuite.symbolic.DSE.algorithm.listener.SymbolicExecutionSearchListener;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -30,10 +34,54 @@ import java.util.Set;
  *
  * @author Ignacio Lebrero
  */
-public abstract class DSEBaseAlgorithm {
+public abstract class DSEBaseAlgorithm<T extends Chromosome> {
 
 	/** Listeners */
-	protected transient Set<SymbolicExecutionSearchListener> listeners = new HashSet();
+	protected transient Set<SymbolicExecutionSearchListener> listeners = new HashSet<SymbolicExecutionSearchListener>();
+
+	/** Fitness Functions */
+	protected transient List<FitnessFunction<T>> fitnessFunctions = new ArrayList<FitnessFunction<T>>();
+
+	/** List of conditions on which to end the search */
+	protected transient Set<StoppingCondition> stoppingConditions = new HashSet<StoppingCondition>();
+
+	/**
+	 * Add new fitness function (i.e., for new mutation)
+	 *
+	 * @param function
+	 *            a {@link org.evosuite.ga.FitnessFunction} object.
+	 */
+	public void addFitnessFunction(FitnessFunction<T> function) {
+		fitnessFunctions.add(function);
+	}
+
+	/**
+	 * Add new fitness functions
+	 *
+	 * @param functions
+	 */
+	public void addFitnessFunctions(List<FitnessFunction<T>> functions) {
+		for (FitnessFunction<T> function : functions)
+			this.addFitnessFunction(function);
+	}
+
+	/**
+	 * Get currently used fitness function
+	 *
+	 * @return a {@link org.evosuite.ga.FitnessFunction} object.
+	 */
+	public FitnessFunction<T> getFitnessFunction() {
+		return fitnessFunctions.get(0);
+	}
+
+	/**
+	 * Get all used fitness function
+	 *
+	 * @return a {@link org.evosuite.ga.FitnessFunction} object.
+	 */
+	public List<FitnessFunction<T>> getFitnessFunctions() {
+		return fitnessFunctions;
+	}
 
     /**
 	 * Add a new search listener
@@ -96,36 +144,35 @@ public abstract class DSEBaseAlgorithm {
 		}
 	}
 
-//	/**
-//	 * Determine whether any of the stopping conditions hold
-//	 *
-//	 * @return a boolean.
-//	 */
-//	public boolean isFinished() {
-//		for (StoppingCondition c : stoppingConditions) {
-//			// logger.error(c + " "+ c.getCurrentValue());
-//			if (c.isFinished())
-//				return true;
-//		}
-//		return false;
-//	}
-//
-//	/**
-//	 * Returns the progress of the search.
-//	 *
-//	 * @return a value [0.0, 1.0]
-//	 */
-//	protected double progress() {
-//		long totalbudget = 0;
-//		long currentbudget = 0;
-//
-//		for (StoppingCondition sc : this.stoppingConditions) {
-//			if (sc.getLimit() != 0) {
-//				totalbudget += sc.getLimit();
-//				currentbudget += sc.getCurrentValue();
-//			}
-//		}
-//
-//		return (double) currentbudget / (double) totalbudget;
-//	}
+	/**
+	 * Determine whether any of the stopping conditions hold
+	 *
+	 * @return a boolean.
+	 */
+	public boolean isFinished() {
+		for (StoppingCondition c : stoppingConditions) {
+			if (c.isFinished())
+				return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Returns the progress of the search.
+	 *
+	 * @return a value [0.0, 1.0]
+	 */
+	protected double progress() {
+		long totalbudget = 0;
+		long currentbudget = 0;
+
+		for (StoppingCondition sc : this.stoppingConditions) {
+			if (sc.getLimit() != 0) {
+				totalbudget += sc.getLimit();
+				currentbudget += sc.getCurrentValue();
+			}
+		}
+
+		return (double) currentbudget / (double) totalbudget;
+	}
 }
