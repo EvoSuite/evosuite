@@ -20,13 +20,14 @@
 package org.evosuite.symbolic.DSE.algorithm;
 
 import org.evosuite.symbolic.DSE.ConcolicEngine;
+import org.evosuite.symbolic.DSE.DSETestGenerator;
 import org.evosuite.symbolic.DSE.algorithm.strategies.TestCaseBuildingStrategy;
 import org.evosuite.symbolic.DSE.algorithm.strategies.TestCaseSelectionStrategy;
 import org.evosuite.symbolic.DSE.algorithm.strategies.PathSelectionStrategy;
 import org.evosuite.symbolic.DSE.algorithm.strategies.KeepSearchingCriteriaStrategy;
 import org.evosuite.symbolic.DSE.algorithm.strategies.PathPruningStrategy;
 import org.evosuite.symbolic.DSE.algorithm.strategies.implementations.KeepSearchingCriteriaStrategies.LastExecutionCreatedATestCaseStrategy;
-import org.evosuite.symbolic.DSE.algorithm.strategies.implementations.PathPruningStrategies.AlwaysFalseStrategy;
+import org.evosuite.symbolic.DSE.algorithm.strategies.implementations.PathPruningStrategies.AlreadySeenSkipStrategy;
 import org.evosuite.symbolic.DSE.algorithm.strategies.implementations.PathSelectionStrategies.NegateLastConditionStrategy;
 import org.evosuite.symbolic.DSE.algorithm.strategies.implementations.TestCaseBuildingStrategies.DefaultTestCaseBuildingStrategy;
 import org.evosuite.symbolic.DSE.algorithm.strategies.implementations.TestCaseSelectionStrategies.LastTestCaseSelectionStrategy;
@@ -94,7 +95,7 @@ public class DSEAlgorithm extends DSEBaseAlgorithm {
             SolverFactory.getInstance().buildNewSolver(),
 
             // Default Strategies
-            new AlwaysFalseStrategy(),
+            new AlreadySeenSkipStrategy(),
             new LastExecutionCreatedATestCaseStrategy(),
             new NegateLastConditionStrategy(),
             new DefaultTestCaseBuildingStrategy(),
@@ -128,7 +129,6 @@ public class DSEAlgorithm extends DSEBaseAlgorithm {
         // Build initial testCase input
         generatedTests.add(testCaseBuildingStrategy.buildInitialTestCase(method));
 
-        Set<PathCondition> pathConditionsToExplore = new HashSet();
         HashSet<Set<Constraint<?>>> alreadyGeneratedPathConditions = new HashSet();
         while (keepSearchingCriteriaStrategy.ShouldKeepSearching(generatedTests)) {
 
@@ -149,7 +149,7 @@ public class DSEAlgorithm extends DSEBaseAlgorithm {
 
                 logger.debug(SOLVER_QUERY_STARTED_MESSAGE, query.size());
                 SolverResult smtQueryResult = solveQuery(query);
-                analizeResults(smtQueryResult, generatedTests, currentConcreteTest);
+                analizeResults(normalizedQueryConstraints, smtQueryResult, generatedTests, currentConcreteTest);
             }
         }
     }
@@ -157,13 +157,49 @@ public class DSEAlgorithm extends DSEBaseAlgorithm {
 
     /**
      * Analyzes the results of an smtQuery and appends to the tests cases if needed
-     *
+     *  @param query
      * @param smtQueryResult
      * @param generatedTests
      * @param currentConcreteTest
      */
-    private void analizeResults(SolverResult smtQueryResult, List<TestCase> generatedTests, TestCase currentConcreteTest) {
-        // TODO: completar
+    private void analizeResults(Set<Constraint<?>> query, SolverResult smtQueryResult, List<TestCase> generatedTests, TestCase currentConcreteTest) {
+        if (smtQueryResult == null) {
+            logger.debug("Solver outcome is null (probably failure/unknown/timeout)");
+        } else {
+            queryCache.put(query, smtQueryResult);
+
+            if (smtQueryResult.isSAT()) {
+                logger.debug("query is SAT (solution found)");
+                Map<String, Object> solution = smtQueryResult.getModel();
+                logger.debug("solver found solution " + solution.toString());
+
+                TestCase newTest = DSETestGenerator.updateTest(currentConcreteTest, solution);
+                logger.debug("Created new test case from SAT solution:" + newTest.toCode());
+                generatedTests.add(newTest);
+
+                //          TODO: re implement this part
+                //          double fitnessBeforeAddingNewTest = this.getBestIndividual().getFitness();
+                //          logger.debug("Fitness before adding new test" + fitnessBeforeAddingNewTest);
+                //          getBestIndividual().addTest(newTest);
+                //          calculateFitness(getBestIndividual());
+                //
+                //          double fitnessAfterAddingNewTest = this.getBestIndividual().getFitness();
+                //          logger.debug("Fitness after adding new test " + fitnessAfterAddingNewTest);
+                //          this.notifyIteration();
+                //
+                //          if (fitnessAfterAddingNewTest == 0) {
+                //            logger.debug("No more DSE test generation since fitness is 0");
+                //            return;
+                //          }
+
+            } else {
+                assert (smtQueryResult.isUNSAT());
+
+                // Special value for unsat queries
+                // queryCache.put(query, null);
+                logger.debug("query is UNSAT (no solution found)");
+            }
+        }
     }
 
     /**
