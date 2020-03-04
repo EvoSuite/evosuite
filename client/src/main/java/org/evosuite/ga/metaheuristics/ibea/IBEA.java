@@ -210,8 +210,12 @@ public class IBEA<T extends Chromosome> extends GeneticAlgorithm<T> {
     } // removeWorst
 
     private void calculateFitness(List<T> archive) {
+
+
+        FitnessFunction<T>[] ffArray =  this.getFitnessFunctions().toArray(new FitnessFunction[0]);
+
         //because of WTS
-        int numberOfObjectives = 1;
+        int numberOfObjectives = ffArray.length;
 
         double[] maximumValues = new double[numberOfObjectives];
         double[] minimumValues = new double[numberOfObjectives];
@@ -223,7 +227,7 @@ public class IBEA<T extends Chromosome> extends GeneticAlgorithm<T> {
 
         for (int pos = 0; pos < archive.size(); pos++) {
             for (int obj = 0; obj < numberOfObjectives; obj++) {
-                double value = archive.get(pos).getFitness();
+                double value = archive.get(pos).getFitness(ffArray[obj]);
                 if (value > maximumValues[obj])
                     maximumValues[obj] = value;
                 if (value < minimumValues[obj])
