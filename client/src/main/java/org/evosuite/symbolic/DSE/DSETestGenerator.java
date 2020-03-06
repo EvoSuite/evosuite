@@ -31,7 +31,6 @@ import org.evosuite.ga.localsearch.LocalSearchObjective;
 import org.evosuite.symbolic.BranchCondition;
 import org.evosuite.symbolic.PathCondition;
 import org.evosuite.symbolic.expr.Constraint;
-import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.Variable;
 import org.evosuite.symbolic.solver.*;
 import org.evosuite.testcase.DefaultTestCase;
@@ -163,7 +162,7 @@ public class DSETestGenerator {
 				logger.info("  " + c);
 			}
 
-			DSEStats.getInstance().reportNewConstraints(query);
+			DSEStatistics.getInstance().reportNewConstraints(query);
 
 			long startSolvingTime = System.currentTimeMillis();
 
@@ -171,17 +170,17 @@ public class DSETestGenerator {
 			SolverResult solverResult = SolverUtils.solveQuery(query);
 
 			long estimatedSolvingTime = System.currentTimeMillis() - startSolvingTime;
-			DSEStats.getInstance().reportNewSolvingTime(estimatedSolvingTime);
+			DSEStatistics.getInstance().reportNewSolvingTime(estimatedSolvingTime);
 
 			if (solverResult == null) {
 				logger.info("Found no result");
 
 			} else if (solverResult.isUNSAT()) {
 				logger.info("Found UNSAT result");
-				DSEStats.getInstance().reportNewUNSAT();
+				DSEStatistics.getInstance().reportNewUNSAT();
 			} else {
 				logger.info("Found SAT result");
-				DSEStats.getInstance().reportNewSAT();
+				DSEStatistics.getInstance().reportNewSAT();
 				Map<String, Object> model = solverResult.getModel();
 				TestCase oldTest = test.getTestCase();
 				ExecutionResult oldResult = test.getLastExecutionResult().clone();
@@ -192,12 +191,12 @@ public class DSETestGenerator {
 				test.clearCachedResults();
 
 				if (objective.hasImproved(test)) {
-					DSEStats.getInstance().reportNewTestUseful();
+					DSEStatistics.getInstance().reportNewTestUseful();
 					logger.info("Solution improves fitness, finishing DSE");
 					/* new test was created */
 					return test;
 				} else {
-					DSEStats.getInstance().reportNewTestUnuseful();
+					DSEStatistics.getInstance().reportNewTestUnuseful();
 					test.setTestCase(oldTest);
 					// FIXXME: How can this be null?
 					if (oldResult != null)

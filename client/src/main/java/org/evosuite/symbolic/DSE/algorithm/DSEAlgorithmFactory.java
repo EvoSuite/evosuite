@@ -19,6 +19,8 @@
  */
 package org.evosuite.symbolic.DSE.algorithm;
 
+import org.evosuite.symbolic.DSE.DSEStatistics;
+
 /**
  * Factory of DSE Algorithms
  *
@@ -26,6 +28,11 @@ package org.evosuite.symbolic.DSE.algorithm;
  */
 public class DSEAlgorithmFactory {
     private final static String DSE_ALGORITHM_TYPE_NOT_PROVIDED = "A DSE algorithm type must be provided";
+
+    /**
+    * Statistics object for when creating a customized algorithm
+    */
+    private final DSEStatistics dseStatistics = DSEStatistics.getInstance();
 
     public DSEAlgorithm getDSEAlgorithm(DSEAlgorithms dseAlgorithmType) {
         if (dseAlgorithmType == null) {

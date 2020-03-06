@@ -50,7 +50,7 @@ import org.evosuite.setup.TestCluster;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.statistics.StatisticsSender;
 import org.evosuite.strategy.*;
-import org.evosuite.symbolic.DSE.DSEStats;
+import org.evosuite.symbolic.DSE.DSEStatistics;
 import org.evosuite.testcase.ConstantInliner;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.TestCase;
@@ -504,13 +504,13 @@ public class TestSuiteGenerator {
 		if (ArrayUtil.contains(Properties.CRITERION, Criterion.DEFUSE) && Properties.ANALYSIS_CRITERIA.isEmpty())
 			DefUseCoverageSuiteFitness.printCoverage();
 
-		DSEStats.getInstance().trackConstraintTypes();
+		DSEStatistics.getInstance().trackConstraintTypes();
 
-		DSEStats.getInstance().trackSolverStatistics();
+		DSEStatistics.getInstance().trackSolverStatistics();
 
 		if (Properties.DSE_PROBABILITY > 0.0 && Properties.LOCAL_SEARCH_RATE > 0
 				&& Properties.LOCAL_SEARCH_PROBABILITY > 0.0) {
-			DSEStats.getInstance().logStatistics();
+			DSEStatistics.getInstance().logStatistics();
 		}
 
 		if (Properties.FILTER_SANDBOX_TESTS) {

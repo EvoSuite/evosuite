@@ -24,6 +24,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeTrue;
 
+import com.examples.with.different.packagename.dse.PathDivergeUsingHashExample;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
@@ -91,7 +92,6 @@ public class DSEAlgorithmSystemTest extends SystemTestBase {
 
 	@Test
 	public void testMax() {
-
 		EvoSuite evosuite = new EvoSuite();
 		String targetClass = Max.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
@@ -518,7 +518,28 @@ public class DSEAlgorithmSystemTest extends SystemTestBase {
 		assertFalse(best.getTests().isEmpty());
 
 		assertTrue(best.getNumOfCoveredGoals() >= 3);
-
 	}
 
+
+	/**
+	 * Given that the concolic engine makes the un-instrumented functions results concrete, the hashing case gets covered..
+	 *
+	 * See examples on: Patrice Godefroid - Higher-Order Test Generation.
+	 */
+	@Test
+	public void testPathDivergenceWithHashingfunction() {
+		EvoSuite evosuite = new EvoSuite();
+		String targetClass = PathDivergeUsingHashExample.class.getCanonicalName();
+		Properties.TARGET_CLASS = targetClass;
+
+		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+
+		Object result = evosuite.parseCommandLine(command);
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		System.out.println("EvolvedTestSuite:\n" + best);
+
+		assertFalse(best.getTests().isEmpty());
+		assertTrue(best.getNumOfCoveredGoals() >= 3);
+	}
 }

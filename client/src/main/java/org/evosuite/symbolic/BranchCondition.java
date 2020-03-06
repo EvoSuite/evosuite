@@ -20,6 +20,7 @@
 package org.evosuite.symbolic;
 
 import java.util.List;
+import java.util.Objects;
 
 import org.evosuite.classpath.ResourceList;
 import org.evosuite.symbolic.expr.Constraint;
@@ -56,14 +57,13 @@ public abstract class BranchCondition {
 	 * belonging to the class in the SUT, the target constraint and all the
 	 * suporting constraint for that particular branch (zero checks, etc)
 	 * 
+	 * @param className             
+	 * @param methodName
+	 * @param instructionIndex
 	 * @param constraint
 	 *            TODO
 	 * @param supportingConstraints
 	 *            a {@link java.util.Set} object.
-	 * @param reachingConstraints
-	 *            a {@link java.util.Set} object.
-	 * @param ins
-	 *            a {@link gov.nasa.jpf.jvm.bytecode.Instruction} object.
 	 */
 	public BranchCondition(String className, String methodName, int instructionIndex, Constraint<?> constraint,
 			List<Constraint<?>> supportingConstraints) {
@@ -123,5 +123,22 @@ public abstract class BranchCondition {
 
 	public String getMethodName() {
 		return methodName;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		BranchCondition that = (BranchCondition) o;
+		return instructionIndex == that.instructionIndex &&
+				className.equals(that.className) &&
+				methodName.equals(that.methodName) &&
+				constraint.equals(that.constraint) &&
+				supportingConstraints.equals(that.supportingConstraints);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(className, methodName, instructionIndex, constraint, supportingConstraints);
 	}
 }

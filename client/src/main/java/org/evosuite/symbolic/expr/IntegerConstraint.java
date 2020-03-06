@@ -21,7 +21,7 @@ package org.evosuite.symbolic.expr;
 
 import org.evosuite.Properties;
 import org.evosuite.symbolic.ConstraintTooLongException;
-import org.evosuite.symbolic.DSE.DSEStats;
+import org.evosuite.symbolic.DSE.DSEStatistics;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,7 +50,7 @@ public final class IntegerConstraint extends Constraint<Long> {
 		this.cmp = cmp;
 		this.right = right;
 		if (getSize() > Properties.DSE_CONSTRAINT_LENGTH) {
-			DSEStats.getInstance().reportConstraintTooLong(getSize());
+			DSEStatistics.getInstance().reportConstraintTooLong(getSize());
 			throw new ConstraintTooLongException(getSize());
 		}
 	}

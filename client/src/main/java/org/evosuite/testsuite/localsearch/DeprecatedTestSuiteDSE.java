@@ -36,7 +36,7 @@ import org.evosuite.ga.localsearch.LocalSearchBudget;
 import org.evosuite.ga.localsearch.LocalSearchObjective;
 import org.evosuite.symbolic.BranchCondition;
 import org.evosuite.symbolic.DSE.ConcolicEngine;
-import org.evosuite.symbolic.DSE.DSEStats;
+import org.evosuite.symbolic.DSE.DSEStatistics;
 import org.evosuite.symbolic.expr.Comparator;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.Expression;
@@ -354,12 +354,12 @@ public class DeprecatedTestSuiteDSE {
 		nrConstraints += nrCurrConstraints;
 
 		logger.info("Applying local search");
-		DSEStats.getInstance().reportNewConstraints(constraints);
+		DSEStatistics.getInstance().reportNewConstraints(constraints);
 
 		long startSolvingTime = System.currentTimeMillis();
 		SolverResult solverResult = SolverUtils.solveQuery(constraints);
 		long estimatedSolvingTime = System.currentTimeMillis() - startSolvingTime;
-		DSEStats.getInstance().reportNewSolvingTime(estimatedSolvingTime);
+		DSEStatistics.getInstance().reportNewSolvingTime(estimatedSolvingTime);
 
 		if (solverResult == null) {
 			logger.info("Found no solution");
@@ -369,13 +369,13 @@ public class DeprecatedTestSuiteDSE {
 		} else if (solverResult.isUNSAT()) {
 
 			logger.info("Found UNSAT solution");
-			DSEStats.getInstance().reportNewUNSAT();
+			DSEStatistics.getInstance().reportNewUNSAT();
 			return null;
 
 		} else {
 
 			Map<String, Object> model = solverResult.getModel();
-			DSEStats.getInstance().reportNewSAT();
+			DSEStatistics.getInstance().reportNewSAT();
 
 			TestCase newTest = test.clone();
 
@@ -652,7 +652,7 @@ public class DeprecatedTestSuiteDSE {
 
 					if (getFitness(expandedTests) < originalFitness) {
 						logger.info("New test improves fitness to {}", getFitness(expandedTests));
-						DSEStats.getInstance().reportNewTestUseful();
+						DSEStatistics.getInstance().reportNewTestUseful();
 						wasSuccess = true;
 
 						// no need to clone so we can keep executionresult
@@ -664,7 +664,7 @@ public class DeprecatedTestSuiteDSE {
 						// ZeroFitness is a stopping condition
 					} else {
 						logger.info("New test does not improve fitness");
-						DSEStats.getInstance().reportNewTestUnuseful();
+						DSEStatistics.getInstance().reportNewTestUnuseful();
 						expandedTests.deleteTest(newTest);
 					}
 				}

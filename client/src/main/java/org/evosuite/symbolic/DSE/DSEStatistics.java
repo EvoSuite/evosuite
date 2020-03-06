@@ -42,15 +42,15 @@ import org.slf4j.LoggerFactory;
  * @author galeotti
  * 
  */
-public class DSEStats {
+public class DSEStatistics {
 
-	static Logger logger = LoggerFactory.getLogger(DSEStats.class);
+	static Logger logger = LoggerFactory.getLogger(DSEStatistics.class);
 
-	private static DSEStats instance = null;
+	private static DSEStatistics instance = null;
 
-	public static DSEStats getInstance() {
+	public static DSEStatistics getInstance() {
 		if (instance==null) {
-			instance=new DSEStats();
+			instance=new DSEStatistics();
 		}
 		return instance;
 	}
@@ -66,26 +66,36 @@ public class DSEStats {
 	/**
 	 * This class cannot be built directly 
 	 */
-	private DSEStats() {
+	private DSEStatistics() {
 		
 	}
 
+	// Solver metrics
 	private long nrOfUNSATs = 0;
 	private long nrOfSATs = 0;
 	private long nrOfTimeouts = 0;
-	private long nrOfSolutionWithNoImprovement = 0;
-	private long nrOfNewTestFound = 0;
 	private long totalSolvingTimeMillis = 0;
 	private long totalConcolicExecutionTimeMillis = 0;
 	private int constraintTooLongCounter = 0;
+
+	// New solutions found metrics
+	private long nrOfSolutionWithNoImprovement = 0;
+	private long nrOfNewTestFound = 0;
+
+    // Path condition metrics
+	private int path_condition_count = 0;
+	private int pathsExploredCounter = 0;
+	private int pathDivergencesCounter = 0;
 	private int max_path_condition_length;
 	private int min_path_condition_length;
 	private double avg_path_condition_length;
+
+	// Constraint metrics
+	private int constraint_count = 0;
 	private int max_constraint_size = 0;
 	private int min_constraint_size = 0;
 	private double avg_constraint_size = 0;
-	private int constraint_count = 0;
-	private int path_condition_count = 0;
+
 	private final List<Boolean> changes = new LinkedList<Boolean>();
 	private final ConstraintTypeCounter constraintTypeCounter = new ConstraintTypeCounter();
 
@@ -152,6 +162,21 @@ public class DSEStats {
 		return nrOfNewTestFound;
 	}
 
+	/**
+	 * Invoke this method when a new test found by DSE turned out to diverged.
+	 */
+	public void reportNewPathDivergence() {
+		pathDivergencesCounter++;
+	}
+
+	/**
+	 * Invoke this method when a new path condition is found.
+	 */
+	public void reportNewPathExplored() {
+		pathsExploredCounter++;
+	}
+
+
 	public void logStatistics() {
 
 		logger.info("* DSE Statistics");
@@ -163,6 +188,9 @@ public class DSEStats {
 
 		logger.info("");
 		logPathConditionLengthStatistics();
+
+		logger.info("");
+		logPathsExploredStatistics();
 
 		logger.info("");
 		logTimeStatistics();
@@ -179,6 +207,12 @@ public class DSEStats {
 		logConstraintTypeStatistics();
 		logger.info("");
 
+	}
+
+	private void logPathsExploredStatistics() {
+		logger.info("* DSE) Paths exploration:");
+		logger.info(String.format("* DSE)   paths explored: %s", pathsExploredCounter));
+		logger.info(String.format("* DSE)   diverged paths: %s", pathDivergencesCounter));
 	}
 
 	private void logAdaptationStatistics() {
@@ -333,6 +367,10 @@ public class DSEStats {
 
 	private int getConstraintTooLongCounter() {
 		return constraintTooLongCounter;
+	}
+
+	private int getPathDivergencesCounter() {
+		return pathDivergencesCounter;
 	}
 
 	public void reportNewConstraints(Collection<Constraint<?>> constraints) {

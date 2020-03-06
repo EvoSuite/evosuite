@@ -53,7 +53,7 @@ import org.evosuite.ga.populationlimit.IndividualPopulationLimit;
 import org.evosuite.ga.populationlimit.PopulationLimit;
 import org.evosuite.ga.stoppingconditions.MaxGenerationStoppingCondition;
 import org.evosuite.ga.stoppingconditions.StoppingCondition;
-import org.evosuite.symbolic.DSE.DSEStats;
+import org.evosuite.symbolic.DSE.DSEStatistics;
 import org.evosuite.testcase.execution.ExecutionTracer;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.ArrayUtil;
@@ -238,11 +238,11 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 		}
 		
 		if (improvement) {
-			DSEStats.getInstance().reportNewIncrease();
+			DSEStatistics.getInstance().reportNewIncrease();
 			updateProbability(true);
 			logger.debug("Increasing probability of applying LS to " + localSearchProbability);
 		} else {
-			DSEStats.getInstance().reportNewDecrease();
+			DSEStatistics.getInstance().reportNewDecrease();
 			updateProbability(false);
 			logger.debug("Decreasing probability of applying LS to " + localSearchProbability);
 		}

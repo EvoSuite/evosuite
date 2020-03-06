@@ -155,7 +155,7 @@ public class ConcolicEngine extends SymbolicEngine {
 		result = TestCaseExecutor.getInstance().execute(defaultTestCase, Properties.CONCOLIC_TIMEOUT);
 
 		long estimatedConcolicExecutionTime = System.currentTimeMillis() - startConcolicExecutionTime;
-		DSEStats.getInstance().reportNewConcolicExecutionTime(estimatedConcolicExecutionTime);
+		DSEStatistics.getInstance().reportNewConcolicExecutionTime(estimatedConcolicExecutionTime);
 
 		MaxStatementsStoppingCondition.statementsExecuted(result.getExecutedStatements());
 		return result;

@@ -27,7 +27,7 @@ import java.util.Set;
 
 import org.evosuite.Properties;
 import org.evosuite.symbolic.ConstraintTooLongException;
-import org.evosuite.symbolic.DSE.DSEStats;
+import org.evosuite.symbolic.DSE.DSEStatistics;
 import org.evosuite.symbolic.expr.AbstractExpression;
 import org.evosuite.symbolic.expr.BinaryExpression;
 import org.evosuite.symbolic.expr.Expression;
@@ -82,7 +82,7 @@ public final class StringBinaryToIntegerExpression extends
 		this.right = right2;
 
 		if (getSize() > Properties.DSE_CONSTRAINT_LENGTH) {
-			DSEStats.getInstance().reportConstraintTooLong(getSize());
+			DSEStatistics.getInstance().reportConstraintTooLong(getSize());
 			throw new ConstraintTooLongException(getSize());
 		}
 	}

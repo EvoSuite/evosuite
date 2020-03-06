@@ -48,7 +48,7 @@ import org.evosuite.utils.LoggingUtils;
 
 /**
  * This is the abstract superclass of all techniques to generate a set of tests
- * for a target class, which does not neccessarily require the use of a GA.
+ * for a target class, which does not necessarily require the use of a GA.
  * 
  * Postprocessing is not done as part of the test generation strategy.
  * 
@@ -116,7 +116,7 @@ public abstract class TestGenerationStrategy {
 
 		return ffs;
 	}
-	
+
 	/**
 	 * Convert criterion names to factories for test case fitness functions
 	 * @return
@@ -129,11 +129,11 @@ public abstract class TestGenerationStrategy {
 
 		return goalsFactory;
 	}
-	
+
 	/**
 	 * Check if the budget has been used up. The GA will do this check
 	 * on its own, but other strategies (e.g. random) may depend on this function.
-	 * 
+	 *
 	 * @param chromosome
 	 * @param stoppingCondition
 	 * @return

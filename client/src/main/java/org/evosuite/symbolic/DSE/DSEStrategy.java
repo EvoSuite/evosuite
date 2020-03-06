@@ -62,7 +62,8 @@ public class DSEStrategy extends TestGenerationStrategy {
 		// What's the search target
 		List<TestSuiteFitnessFunction> fitnessFunctions = getFitnessFunctions();
 
-		List<TestFitnessFunction> goals = getGoals(true);
+		//TODO: move this to a dependency injection schema
+		List<TestFitnessFunction> goals = getFitnessFunctionsGoals(true);
 		if (!canGenerateTestsForSUT()) {
 			LoggingUtils.getEvoLogger()
 					.info("* Found no testable methods in the target class " + Properties.TARGET_CLASS);
@@ -88,12 +89,13 @@ public class DSEStrategy extends TestGenerationStrategy {
             DSEAlgorithm algorithm = dseFactory.getDSEAlgorithm(dseAlgorithmType);
 
 			StoppingCondition stoppingCondition = getStoppingCondition();
-// TODO: implement fitness functions
-			//						algorithm.addFitnessFunctions((List)fitnessFunctions);
+
+			algorithm.addFitnessFunctions((List)fitnessFunctions);
 			if (Properties.STOP_ZERO) {
 
 			}
-//			algorithm.setStoppingCondition(stoppingCondition);
+
+			//algorithm.setStoppingCondition(stoppingCondition);
 			testSuite = algorithm.generateSolution();;
 
 		} else {
@@ -106,7 +108,7 @@ public class DSEStrategy extends TestGenerationStrategy {
 
 		long endTime = System.currentTimeMillis() / 1000;
 
-		goals = getGoals(false); // recalculated now after the search, eg to
+		goals = getFitnessFunctionsGoals(false); // recalculated now after the search, eg to
 									// handle exception fitness
 		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Goals, goals.size());
 
@@ -131,7 +133,13 @@ public class DSEStrategy extends TestGenerationStrategy {
 
 	}
 
-	private List<TestFitnessFunction> getGoals(boolean verbose) {
+	 /**
+     * Returns current Fitness functions based on which Properties are currently set.
+     *
+     * @param verbose
+     * @return
+     */
+    private static List<TestFitnessFunction> getFitnessFunctionsGoals(boolean verbose) {
 		List<TestFitnessFactory<? extends TestFitnessFunction>> goalFactories = getFitnessFactories();
 		List<TestFitnessFunction> goals = new ArrayList<>();
 

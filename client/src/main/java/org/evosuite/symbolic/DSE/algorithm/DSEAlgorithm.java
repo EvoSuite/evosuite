@@ -20,6 +20,7 @@
 package org.evosuite.symbolic.DSE.algorithm;
 
 import org.evosuite.symbolic.DSE.ConcolicEngine;
+import org.evosuite.symbolic.DSE.DSEStatistics;
 import org.evosuite.symbolic.DSE.DSETestGenerator;
 import org.evosuite.symbolic.DSE.algorithm.strategies.TestCaseBuildingStrategy;
 import org.evosuite.symbolic.DSE.algorithm.strategies.TestCaseSelectionStrategy;
@@ -32,6 +33,7 @@ import org.evosuite.symbolic.DSE.algorithm.strategies.implementations.PathSelect
 import org.evosuite.symbolic.DSE.algorithm.strategies.implementations.TestCaseBuildingStrategies.DefaultTestCaseBuildingStrategy;
 import org.evosuite.symbolic.DSE.algorithm.strategies.implementations.TestCaseSelectionStrategies.LastTestCaseSelectionStrategy;
 import org.evosuite.symbolic.PathCondition;
+import org.evosuite.symbolic.PathConditionUtils;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.solver.Solver;
 import org.evosuite.symbolic.solver.SolverEmptyQueryException;
@@ -91,6 +93,7 @@ public class DSEAlgorithm extends DSEBaseAlgorithm {
 
     public DSEAlgorithm() {
         this(
+            DSEStatistics.getInstance(), //TODO: move this to a dependency injection schema
             new ConcolicEngine(),
             SolverFactory.getInstance().buildNewSolver(),
 
@@ -104,6 +107,7 @@ public class DSEAlgorithm extends DSEBaseAlgorithm {
     }
 
     public DSEAlgorithm(
+            DSEStatistics dseStatistics,
             ConcolicEngine engine,
             Solver solver,
             PathPruningStrategy pathPruningStrategy,
@@ -112,6 +116,8 @@ public class DSEAlgorithm extends DSEBaseAlgorithm {
             TestCaseBuildingStrategy testCaseBuildingStrategy,
             TestCaseSelectionStrategy testCaseSelectionStrategy
     ) {
+        super(dseStatistics);
+
         this.engine = engine;
         this.solver = solver;
 
@@ -122,19 +128,25 @@ public class DSEAlgorithm extends DSEBaseAlgorithm {
         this.keepSearchingCriteriaStrategy = keepSearchingCriteriaStrategy;
     }
 
-    // TODO: only static methods for, will extend later on
+    // TODO: only static methods for, will extend later on.
     public void algorithm(Method method) {
         List<TestCase> generatedTests = new ArrayList();
+        Map<TestCase, PathCondition> generatedPathConditions = new HashMap<>();
 
         // Build initial testCase input
         generatedTests.add(testCaseBuildingStrategy.buildInitialTestCase(method));
-
         HashSet<Set<Constraint<?>>> alreadyGeneratedPathConditions = new HashSet();
-        while (keepSearchingCriteriaStrategy.ShouldKeepSearching(generatedTests)) {
+
+        // Any of the stopping conditions has been achieved?
+        while (!isFinished() && keepSearchingCriteriaStrategy.ShouldKeepSearching(generatedTests)) {
 
             // Do a concolic execution on an arbitrary test case
             TestCase currentConcreteTest = testCaseSelectionStrategy.getCurrentIterationBasedTestCase(generatedTests).clone();
+            PathCondition currentConcreteTestExpectedPathConditionPrefix = generatedPathConditions.get(currentConcreteTest);
+
+            // Operate related path condition updates
             final PathCondition currentPathCondition = engine.execute((DefaultTestCase) currentConcreteTest);
+            checkPathConditionDivergence(currentPathCondition, currentConcreteTestExpectedPathConditionPrefix);
 
             // Next path condition generation
             List<Constraint<?>> query = pathSelectionStrategy.getNextPathConstraints(currentPathCondition);
@@ -142,7 +154,6 @@ public class DSEAlgorithm extends DSEBaseAlgorithm {
             alreadyGeneratedPathConditions.add(normalizedQueryConstraints);
 
             if (!pathPruningStrategy.shouldSkipCurrentPath(alreadyGeneratedPathConditions, normalizedQueryConstraints, queryCache)) {
-                // TODO: check if this is really neded, probable the SMT language is asking for this.
                 query.addAll(
                     SolverUtils.createBoundsForQueryVariables(query)
                 );
@@ -154,9 +165,9 @@ public class DSEAlgorithm extends DSEBaseAlgorithm {
         }
     }
 
-
     /**
      * Analyzes the results of an smtQuery and appends to the tests cases if needed
+     *
      *  @param query
      * @param smtQueryResult
      * @param generatedTests
@@ -209,6 +220,9 @@ public class DSEAlgorithm extends DSEBaseAlgorithm {
      */
      public TestSuiteChromosome generateSolution() {
          // TODO: completar
+
+         // Run this before finish
+         statisticsLogger.logStatistics();
          return null;
      }
 
