@@ -32,7 +32,7 @@ import org.evosuite.symbolic.expr.Constraint;
  * 
  * @author Gordon Fraser
  */
-public abstract class BranchCondition {
+public class BranchCondition {
 	/**
 	 * Class where the branch instruction is
 	 */
@@ -125,6 +125,15 @@ public abstract class BranchCondition {
 		return methodName;
 	}
 
+	/**
+	 * For simplicity we create this construction of the object to handle path conditions easily.
+	 *
+	 * @return
+	 */
+	public BranchCondition getNegatedVersion() {
+		return new BranchCondition(className, methodName, instructionIndex, constraint.negate(), supportingConstraints);
+	}
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
@@ -139,6 +148,12 @@ public abstract class BranchCondition {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(className, methodName, instructionIndex, constraint, supportingConstraints);
+		return Objects.hash(
+				className,
+				methodName,
+				instructionIndex,
+				constraint,
+				supportingConstraints
+		);
 	}
 }

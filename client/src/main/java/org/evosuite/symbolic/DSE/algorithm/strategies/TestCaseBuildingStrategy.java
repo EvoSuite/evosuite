@@ -20,7 +20,8 @@
 package org.evosuite.symbolic.DSE.algorithm.strategies;
 
 import java.lang.reflect.Method;
-import org.evosuite.testcase.TestCase;
+
+import org.evosuite.symbolic.DSE.DSETestCase;
 
 /**
  * Interface for test case building strategies
@@ -28,5 +29,5 @@ import org.evosuite.testcase.TestCase;
  * @author ignacio lebrero
  */
 public interface TestCaseBuildingStrategy {
-    TestCase buildInitialTestCase(Method method);
+    DSETestCase buildInitialTestCase(Method method);
 }

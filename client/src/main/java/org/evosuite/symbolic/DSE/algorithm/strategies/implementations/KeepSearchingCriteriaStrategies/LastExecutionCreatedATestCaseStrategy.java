@@ -19,10 +19,10 @@
  */
 package org.evosuite.symbolic.DSE.algorithm.strategies.implementations.KeepSearchingCriteriaStrategies;
 
+import org.evosuite.symbolic.DSE.DSETestCase;
 import org.evosuite.symbolic.DSE.algorithm.strategies.KeepSearchingCriteriaStrategy;
-import org.evosuite.testcase.TestCase;
 
-import java.util.List;
+import java.util.PriorityQueue;
 
 /**
  * Strategy for keep searching in case a new test case was generated in the last execution
@@ -31,7 +31,7 @@ import java.util.List;
  */
 public class LastExecutionCreatedATestCaseStrategy implements KeepSearchingCriteriaStrategy {
     @Override
-    public boolean ShouldKeepSearching(List<TestCase> generatedTests) {
-        return false;
+    public boolean ShouldKeepSearching(PriorityQueue<DSETestCase> generatedTests) {
+        return generatedTests.size() > 0;
     }
 }

@@ -19,10 +19,10 @@
  */
 package org.evosuite.symbolic.DSE.algorithm.strategies.implementations.TestCaseSelectionStrategies;
 
+import org.evosuite.symbolic.DSE.DSETestCase;
 import org.evosuite.symbolic.DSE.algorithm.strategies.TestCaseSelectionStrategy;
-import org.evosuite.testcase.TestCase;
 
-import java.util.List;
+import java.util.PriorityQueue;
 
 /**
  * Strategy for retrieving the last generated tests case for symbolic execution in the current iteration.
@@ -31,9 +31,7 @@ import java.util.List;
  */
 public class LastTestCaseSelectionStrategy implements TestCaseSelectionStrategy {
     @Override
-    public TestCase getCurrentIterationBasedTestCase(List<TestCase> generatedTests) {
-        return generatedTests.get(
-                generatedTests.size() - 1
-        );
+    public DSETestCase getCurrentIterationBasedTestCase(PriorityQueue<DSETestCase> generatedTests) {
+        return generatedTests.poll();
     }
 }

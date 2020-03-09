@@ -46,6 +46,7 @@ public abstract class DSEBaseAlgorithm<T extends Chromosome> {
 
 	private static final Logger logger = LoggerFactory.getLogger(DSEBaseAlgorithm.class);
 
+	/** DSE statistics */
 	protected final DSEStatistics statisticsLogger;
 
 	/** Listeners */
@@ -56,10 +57,6 @@ public abstract class DSEBaseAlgorithm<T extends Chromosome> {
 
 	/** List of conditions on which to end the search */
 	protected transient Set<StoppingCondition> stoppingConditions = new HashSet<StoppingCondition>();
-
-	/** Amount of divergences **/
-	protected Integer totalAmountOfPaths = 0;
-	protected Integer amountOfPathDivergences = 0;
 
 	public DSEBaseAlgorithm(DSEStatistics dseStatistics) {
 		this.statisticsLogger = dseStatistics;

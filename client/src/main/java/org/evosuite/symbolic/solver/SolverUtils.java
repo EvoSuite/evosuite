@@ -114,7 +114,7 @@ public abstract class SolverUtils {
 
      /**
 	 * Creates a Solver query give a branch condition
-	 * TODO: this is only for DSE, it may be good to put it in some other utils
+	 * TODO: this is exclusive for DSE, it may be good to put it in some other utils
 	 *
 	 * @param pc
 	 * @return
