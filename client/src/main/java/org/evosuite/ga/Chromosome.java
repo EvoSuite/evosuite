@@ -34,7 +34,7 @@ import static java.util.stream.Collectors.averagingDouble;
 
 /**
  * Abstract base class of chromosomes
- * 
+ *
  * @author Gordon Fraser, Jose Miguel Rojas
  */
 public abstract class Chromosome implements Comparable<Chromosome>, Serializable,
@@ -51,6 +51,7 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	protected Chromosome() {
 		// empty
 	}
+
 	/** Last recorded fitness value */
     private LinkedHashMap<FitnessFunction<?>, Double> fitnessValues = new LinkedHashMap<>();
 
@@ -71,13 +72,13 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
     /** The number of covered goals with regard to the fitness function given as key */
     private LinkedHashMap<FitnessFunction<?>, Integer> numsCoveredGoals = new LinkedHashMap<>();
 
-	
+
 	// protected double coverage = 0.0;
 
 	// protected int numOfCoveredGoals = 0;
 
 	/** Generation in which this chromosome was created */
-	protected int age = 0;
+    protected int generation = 0;
 
     /**
      * The Pareto front this chromosome belongs to. The first non-dominated front is assigned rank
@@ -105,7 +106,7 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 
 	/**
 	 * Return current fitness value
-	 * 
+	 *
 	 * @return a double.
 	 */
 	public double getFitness() {
@@ -121,7 +122,7 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
      * @return the fitness of this chromosome
      */
 	public <T extends Chromosome> double getFitness(FitnessFunction<T> ff) {
-		return fitnessValues.containsKey(ff) ? fitnessValues.get(ff) : ff.getFitness((T)this); // Calculate new value if non is cached
+        return fitnessValues.containsKey(ff) ? fitnessValues.get(ff) : ff.getFitness((T)this); // Calculate new value if non is cached
 	}
 
 	public Map<FitnessFunction<?>, Double> getFitnessValues() {
@@ -175,7 +176,8 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	 *            the fitness value for {@code ff}
 	 */
 	public void addFitness(FitnessFunction<?> ff, double fitnessValue) {
-		this.addFitness(ff, fitnessValue, 0.0, 0);
+        final double coverage = 0.0;
+        this.addFitness(ff, fitnessValue, coverage);
 	}
 
 	/**
@@ -190,7 +192,8 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	 *            the coverage value for {@code ff}
 	 */
 	public void addFitness(FitnessFunction<?> ff, double fitnessValue, double coverage) {
-		this.addFitness(ff, fitnessValue, coverage, 0);
+        final int numCoveredGoals = 0;
+        this.addFitness(ff, fitnessValue, coverage, numCoveredGoals);
 	}
 
 	/**
@@ -207,7 +210,7 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	 *            the number of covered goals for {@code ff}
 	 */
 	public void addFitness(FitnessFunction<?> ff, double fitnessValue, double coverage,
-			int numCoveredGoals) { 
+			int numCoveredGoals) {
 		this.fitnessValues.put(ff, fitnessValue);
 		this.previousFitnessValues.put(ff, fitnessValue);
 		this.coverageValues.put(ff, coverage);
@@ -217,7 +220,7 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 
 	/**
 	 * Set new fitness value
-	 * 
+	 *
 	 * @param value
 	 *            a double.
 	 */
@@ -232,7 +235,8 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 			previousFitnessValues.put(ff, value);
 			fitnessValues.put(ff, value);
 		} else {
-			previousFitnessValues.put(ff, fitnessValues.get(ff));
+            final double previousValue = fitnessValues.get(ff);
+            previousFitnessValues.put(ff, previousValue);
 			fitnessValues.put(ff, value);
 		}
 	}
@@ -254,7 +258,7 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 
 	/**
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * Create a deep copy of the chromosome
 	 */
 	@Override
@@ -268,25 +272,25 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	@Override
 	public abstract int hashCode();
 
-	/**
-	 * {@inheritDoc}
-	 * 
-	 * Determine relative ordering of this chromosome to another chromosome. If
-	 * the fitness values are equal, go through all secondary objectives and try
-	 * to find one where the two are not equal.
-	 */
-	@Override
-	public int compareTo(Chromosome c) {
-		int i = (int) Math.signum(this.getFitness() - c.getFitness());
-		if (i == 0){
-			return compareSecondaryObjective(c);
-		}else
-			return i;
-	}
+    /**
+     * {@inheritDoc}
+     *
+     * Determine relative ordering of this chromosome to another chromosome. If
+     * the fitness values are equal, go through all secondary objectives and try
+     * to find one where the two are not equal.
+     */
+    @Override
+    public int compareTo(Chromosome c) {
+        int i = (int) Math.signum(this.getFitness() - c.getFitness());
+        if (i == 0) {
+            return compareSecondaryObjective(c);
+        } else
+            return i;
+    }
 
 	/**
 	 * Secondary Objectives are specific to chromosome types
-	 * 
+	 *
 	 * @param o
 	 *            a {@link org.evosuite.ga.Chromosome} object.
 	 * @return a int.
@@ -300,7 +304,7 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 
 	/**
 	 * Fixed single point cross over
-	 * 
+	 *
 	 * @param other
 	 *            a {@link org.evosuite.ga.Chromosome} object.
 	 * @param position
@@ -314,7 +318,7 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 
 	/**
 	 * Single point cross over
-	 * 
+	 *
 	 * @param other
 	 *            a {@link org.evosuite.ga.Chromosome} object.
 	 * @param position1
@@ -329,7 +333,7 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 
 	/**
 	 * Apply the local search
-	 * 
+	 *
 	 * @param objective
 	 *            a {@link org.evosuite.ga.localsearch.LocalSearchObjective}
 	 *            object.
@@ -338,7 +342,7 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 
 	/**
 	 * Apply the local search
-	 * 
+	 *
 	 * @param objective
 	 *            a {@link org.evosuite.ga.LocalSearchObjective} object.
 	 */
@@ -349,7 +353,7 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 
 	/**
 	 * Apply DSE
-	 * 
+	 *
 	 * @param algorithm
 	 *            a {@link org.evosuite.ga.GeneticAlgorithm} object.
 	 */
@@ -357,7 +361,7 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 
 	/**
 	 * Return length of individual
-	 * 
+	 *
 	 * @return a int.
 	 */
 	public abstract int size();
@@ -365,7 +369,7 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	/**
 	 * Return whether the chromosome has changed since the fitness value was
 	 * computed last
-	 * 
+	 *
 	 * @return a boolean.
 	 */
 	public boolean isChanged() {
@@ -374,7 +378,7 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 
 	/**
 	 * Set changed status to @param changed
-	 * 
+	 *
 	 * @param changed
 	 *            a boolean.
 	 */
@@ -383,8 +387,8 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 		// If it's changed, then that also implies LS is possible again
 		localSearchApplied = false;
 	}
-	
-	
+
+
 	public boolean hasLocalSearchBeenApplied() {
 		return localSearchApplied;
 	}
@@ -448,11 +452,11 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	public Map<FitnessFunction<?>, Integer> getNumsOfCoveredGoals() {
 		return this.numsCoveredGoals;
 	}
-	
+
 	public LinkedHashMap<FitnessFunction<?>, Integer> getNumsNotCoveredGoals() {
 		return numsNotCoveredGoals;
 	}
-	
+
 	public Map<FitnessFunction<?>, Double> getCoverageValues() {
 		return this.coverageValues;
 	}
@@ -499,7 +503,7 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	public int getNumOfCoveredGoals(FitnessFunction<?> ff) {
         return numsCoveredGoals.getOrDefault(ff, 0);
 	}
-	
+
 	/**
 	 * Gets the number of not covered goals for a given fitness function
 	 *
@@ -622,7 +626,7 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	/**
 	 * Returns the tolerance of the system accepting a worse solution than the existing one. (Note:
 	 * method used by Chemical Reaction Optimization algorithms)
-	 * 
+	 *
 	 * @return a double value
 	 */
 	public double getKineticEnergy() {
@@ -632,7 +636,7 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	/**
 	 * Sets the tolerance of the system accepting a worse solution than the existing one. (Note:
 	 * method used by Chemical Reaction Optimization algorithms)
-	 * 
+	 *
 	 * @param kineticEnergy a double value
 	 */
 	public void setKineticEnergy(double kineticEnergy) {
@@ -642,7 +646,7 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	/**
 	 * Returns the total number of collisions a chromosome (i.e., a molecule in a CRO scenario) has
 	 * taken. (Note: method used by Chemical Reaction Optimization algorithms)
-	 * 
+	 *
 	 * @return a integer value
 	 */
 	public int getNumCollisions() {
@@ -652,7 +656,7 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	/**
 	 * Sets the total number of collisions of a chromosome (i.e., a molecule in a CRO scenario).
 	 * (Note: method used by Chemical Reaction Optimization algorithms)
-	 * 
+	 *
 	 * @param numCollisions a integer value
 	 */
 	public void setNumCollisions(int numCollisions) {
