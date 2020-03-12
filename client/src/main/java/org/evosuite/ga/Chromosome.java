@@ -38,6 +38,10 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 
 	private static final long serialVersionUID = -6921897301005213358L;
 
+	/** General Class Related Constants */
+	public static final double MAX_COVERAGE_REACHABLE = 1.0;
+	public static final double MIN_COVERAGE_REACHABLE = 0.0;
+
 	/** Constant <code>logger</code> */
 	private static final Logger logger = LoggerFactory.getLogger(Chromosome.class);
 

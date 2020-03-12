@@ -54,7 +54,8 @@ public class FitnessFunctionsUtils {
 
     /**
 	 * Convert criterion names to factories for test case fitness functions
-	 * @return
+	 * @param criterion
+     * @return
 	 */
 	public static List<TestFitnessFactory<? extends TestFitnessFunction>> getFitnessFactories(Properties.Criterion[] criterion) {
 	    List<TestFitnessFactory<? extends TestFitnessFunction>> goalsFactory = new ArrayList<TestFitnessFactory<? extends TestFitnessFunction>>();
@@ -63,5 +64,49 @@ public class FitnessFunctionsUtils {
 	    }
 
 		return goalsFactory;
+	}
+
+	/**
+     * Returns current Fitness functions based on which criterion was passed.
+     *
+     * @param criterion
+     * @param verbose
+     * @return
+     */
+    public static List<TestFitnessFunction> getFitnessFunctionsGoals(Properties.Criterion[] criterion, boolean verbose) {
+		List<TestFitnessFactory<? extends TestFitnessFunction>> goalFactories = getFitnessFactories(criterion);
+		List<TestFitnessFunction> goals = new ArrayList<>();
+
+		if (goalFactories.size() == 1) {
+			TestFitnessFactory<? extends TestFitnessFunction> factory = goalFactories.iterator().next();
+			goals.addAll(factory.getCoverageGoals());
+
+			if (verbose) {
+				LoggingUtils.getEvoLogger().info("* Total number of test goals: {}", factory.getCoverageGoals().size());
+				if (Properties.PRINT_GOALS) {
+					for (TestFitnessFunction goal : factory.getCoverageGoals())
+						LoggingUtils.getEvoLogger().info("" + goal.toString());
+				}
+			}
+		} else {
+			if (verbose) {
+				LoggingUtils.getEvoLogger().info("* Total number of test goals: ");
+			}
+
+			for (TestFitnessFactory<? extends TestFitnessFunction> goalFactory : goalFactories) {
+				goals.addAll(goalFactory.getCoverageGoals());
+
+				if (verbose) {
+					LoggingUtils.getEvoLogger()
+							.info("  - " + goalFactory.getClass().getSimpleName().replace("CoverageFactory", "") + " "
+									+ goalFactory.getCoverageGoals().size());
+					if (Properties.PRINT_GOALS) {
+						for (TestFitnessFunction goal : goalFactory.getCoverageGoals())
+							LoggingUtils.getEvoLogger().info("" + goal.toString());
+					}
+				}
+			}
+		}
+		return goals;
 	}
 }

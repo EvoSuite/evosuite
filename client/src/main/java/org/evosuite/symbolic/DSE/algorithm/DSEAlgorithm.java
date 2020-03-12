@@ -172,10 +172,6 @@ public class DSEAlgorithm extends DSEBaseAlgorithm {
         // Run & check
         testCasesWorkList.add(initialTestCase);
 
-        // Add new testCase to the testSuite
-        addNewTestCaseToTestSuite(initialTestCase);
-        if (isFinished()) return;
-
         while (keepSearchingCriteriaStrategy.ShouldKeepSearching(testCasesWorkList)) {
             // This gets wrapped into the building and fitness strategy selected due to the PriorityQueue sorting nature
             DSETestCase currentTestCase = testCaseSelectionStrategy.getCurrentIterationBasedTestCase(testCasesWorkList).clone();
@@ -196,6 +192,8 @@ public class DSEAlgorithm extends DSEBaseAlgorithm {
             List<DSEPathCondition> children = pathSelectionStrategy.generateChildren(currentExecutedPathCondition);
 
             processChildren(seenChildren, testCasesWorkList, currentTestCase, children);
+
+            notifyIteration();
         }
     }
 
@@ -281,6 +279,7 @@ public class DSEAlgorithm extends DSEBaseAlgorithm {
      * @return
      */
      public TestSuiteChromosome generateSolution() {
+         notifyGenerationStarted();
 //       Method a  = new Method();
 //       testSuite.addTests(transformResultToChromosome(runDSEAlgorithm(a)));
 
@@ -288,28 +287,10 @@ public class DSEAlgorithm extends DSEBaseAlgorithm {
          // TODO: complete, here we can have optimizations like testSuite redundancy reduction.
 
          // Run this before finish
+         notifyGenerationFinished();
          statisticsLogger.logStatistics();
          return testSuite;
      }
-
-    /**
-     * wrapping method till migrate all the GA parts of the algorithm.
-     *
-     * @param testCaseResults
-     * @return
-     */
-    private Collection<TestChromosome> transformResultToChromosome(List<DSETestCase> testCaseResults) {
-        List<TestChromosome> res = new ArrayList<>();
-
-
-        for (DSETestCase t : testCaseResults) {
-            TestChromosome c = new TestChromosome();
-            c.setTestCase(t.getTestCase());
-            res.add(c);
-        }
-
-        return res;
-    }
 
     /**
      * Solves an SMT query

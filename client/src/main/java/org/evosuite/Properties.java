@@ -410,6 +410,10 @@ public class Properties {
 	@Parameter(key = "dse_variable_resets", group = "DSE", description = "Times DSE resets the int and real variables with random values")
 	public static int DSE_VARIABLE_RESETS = 2;
 
+    // By default the target is 100
+	@Parameter(key = "dse_target_coverage", group = "DSE", description = "Percentage (out of 100) of target coverage to cover")
+	public static int DSE_TARGET_COVERAGE = 100;
+
 	public enum DSEType {
 		/** apply DSE per statement */
 		STATEMENT,
@@ -443,6 +447,11 @@ public class Properties {
 	@Parameter(key = "cvc4_path", group = "DSE", description = "Indicates the path to the CVC4 solver")
 	public static String CVC4_PATH = null;
 
+	public enum DSEStoppingCondition {
+		TARGETCOVERAGE,
+        /** Max time in seconds */ MAXTIME,
+        ZEROFITNESS
+	}
 
 	// --------- LS ---------
 
@@ -613,7 +622,6 @@ public class Properties {
         /** Max time in seconds */ MAXTIME,
         MAXGENERATIONS, MAXFITNESSEVALUATIONS, TIMEDELTA
 	}
-
 
 	@Parameter(key = "stopping_condition", group = "Search Algorithm", description = "What condition should be checked to end the search")
 	public static StoppingCondition STOPPING_CONDITION = StoppingCondition.MAXTIME;
