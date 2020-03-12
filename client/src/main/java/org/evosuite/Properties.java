@@ -419,8 +419,9 @@ public class Properties {
 		SUITE;
 	}
 
+    // NOTE: by default we use the sage implementation of the algorithm
 	@Parameter(key = "dse_algorithm", group = "DSE", description = "Type of DSE algorithm to use.")
-	public static DSEAlgorithms DSE_ALGORITHM_TYPE = DSEAlgorithms.DEFAULT;
+	public static DSEAlgorithms DSE_ALGORITHM_TYPE = DSEAlgorithms.SAGE;
 
 	@Parameter(key = "local_search_dse", group = "DSE", description = "Granularity of DSE application")
 	public static DSEType LOCAL_SEARCH_DSE = DSEType.TEST;

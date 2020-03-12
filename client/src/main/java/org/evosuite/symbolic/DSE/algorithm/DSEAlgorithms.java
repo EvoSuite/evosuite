@@ -19,6 +19,8 @@
  */
 package org.evosuite.symbolic.DSE.algorithm;
 
+import org.evosuite.Properties;
+
 /**
  * DSE Algorithms implemented.
  * Please, add your algorithm as well as a short description when you add a new one.
@@ -26,15 +28,28 @@ package org.evosuite.symbolic.DSE.algorithm;
  * @author ignacio lebrero
  */
 public enum DSEAlgorithms {
-    DEFAULT("Default implementation");
+    SAGE(
+            "SAGE",
+            "Default implementation is based on: Automated Whitebox Fuzz Testing, Godefroid, Levin, Molnar",
+            new Properties.Criterion[]{Properties.Criterion.LINE});
 
+    private String name;
     private String description;
+    private Properties.Criterion[] criteria;
 
-    DSEAlgorithms(String description) {
+    DSEAlgorithms(String name, String description, Properties.Criterion[] criteria) {
+        this.name = name;
         this.description = description;
+        this.criteria = criteria;
     }
 
+    public String getName() {
+        return this.name;
+    }
     public String getDescription() {
         return description;
+    }
+    public Properties.Criterion[] getCriteria() {
+        return criteria;
     }
 }

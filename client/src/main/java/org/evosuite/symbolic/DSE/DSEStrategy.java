@@ -24,6 +24,7 @@ import java.util.List;
 
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
+import org.evosuite.coverage.FitnessFunctionsUtils;
 import org.evosuite.coverage.TestFitnessFactory;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
@@ -51,22 +52,23 @@ import org.evosuite.utils.Randomness;
  */
 public class DSEStrategy extends TestGenerationStrategy {
 
+	public static final String SETTING_UP_DSE_GENERATION_INFO_MESSAGE = "* Setting up DSE test suite generation";
+	public static final String NOT_SOUITALE_METHOD_FOUND_INFO_MESSAGE = "* Found no testable methods in the target class {}";
+
 	@Override
 	public TestSuiteChromosome generateTests() {
-		LoggingUtils.getEvoLogger().info("* Setting up DSE test suite generation");
-
-		long startTime = System.currentTimeMillis() / 1000;
-
+		LoggingUtils.getEvoLogger().info(SETTING_UP_DSE_GENERATION_INFO_MESSAGE);
 		Properties.CRITERION = new Criterion[] { Properties.Criterion.BRANCH };
 
-		// What's the search target
-		List<TestSuiteFitnessFunction> fitnessFunctions = getFitnessFunctions();
+		long startTime = System.currentTimeMillis() / 1000;
 
 		//TODO: move this to a dependency injection schema
 		List<TestFitnessFunction> goals = getFitnessFunctionsGoals(true);
 		if (!canGenerateTestsForSUT()) {
-			LoggingUtils.getEvoLogger()
-					.info("* Found no testable methods in the target class " + Properties.TARGET_CLASS);
+			LoggingUtils.getEvoLogger().info(
+				NOT_SOUITALE_METHOD_FOUND_INFO_MESSAGE,
+				Properties.TARGET_CLASS
+			);
 			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Goals, goals.size());
 
 			return new TestSuiteChromosome();
@@ -86,24 +88,20 @@ public class DSEStrategy extends TestGenerationStrategy {
 			//TODO: move to dependency injection later on
 			DSEAlgorithmFactory dseFactory = new DSEAlgorithmFactory();
 			DSEAlgorithms dseAlgorithmType = Properties.DSE_ALGORITHM_TYPE;
+
+			LoggingUtils.getEvoLogger().info("* Using DSE algorithm: {}", dseAlgorithmType.toString());
             DSEAlgorithm algorithm = dseFactory.getDSEAlgorithm(dseAlgorithmType);
 
 			StoppingCondition stoppingCondition = getStoppingCondition();
 
-			algorithm.addFitnessFunctions((List)fitnessFunctions);
 			if (Properties.STOP_ZERO) {
 
 			}
 
-			//algorithm.setStoppingCondition(stoppingCondition);
-			testSuite = algorithm.generateSolution();;
+			testSuite = algorithm.generateSolution();
 
 		} else {
-			zeroFitness.setFinished();
-			testSuite = new TestSuiteChromosome();
-			for (FitnessFunction<?> ff : fitnessFunctions) {
-				testSuite.setCoverage(ff, 1.0);
-			}
+			testSuite = setNoGoalsCoverage(Properties.DSE_ALGORITHM_TYPE);
 		}
 
 		long endTime = System.currentTimeMillis() / 1000;
@@ -133,7 +131,21 @@ public class DSEStrategy extends TestGenerationStrategy {
 
 	}
 
-	 /**
+	private TestSuiteChromosome setNoGoalsCoverage(DSEAlgorithms algorithm) {
+		TestSuiteChromosome testSuite = new TestSuiteChromosome();;
+		List<TestSuiteFitnessFunction> fitnessFunctions = FitnessFunctionsUtils
+				.getFitnessFunctions(algorithm.getCriteria());
+
+		zeroFitness.setFinished();
+
+		for (FitnessFunction<?> ff : fitnessFunctions) {
+			testSuite.setCoverage(ff, 1.0);
+		}
+		return testSuite;
+	}
+
+
+	/**
      * Returns current Fitness functions based on which Properties are currently set.
      *
      * @param verbose

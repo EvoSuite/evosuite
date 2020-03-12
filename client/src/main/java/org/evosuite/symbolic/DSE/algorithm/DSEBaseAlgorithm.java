@@ -20,12 +20,13 @@
 package org.evosuite.symbolic.DSE.algorithm;
 
 import org.evosuite.ga.Chromosome;
-import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.stoppingconditions.StoppingCondition;
 import org.evosuite.symbolic.DSE.DSEStatistics;
-import org.evosuite.symbolic.DSE.algorithm.listener.SymbolicExecutionSearchListener;
 import org.evosuite.symbolic.PathCondition;
 import org.evosuite.symbolic.PathConditionUtils;
+import org.evosuite.testcase.TestCase;
+import org.evosuite.testsuite.TestSuiteChromosome;
+import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,20 +44,20 @@ public abstract class DSEBaseAlgorithm<T extends Chromosome> {
 
 	/** Logger Messages */
 	private static final String PATH_DIVERGENCE_FOUND_WARNING_MESSAGE = "Warning | Path condition diverged";
+	private static final String ONLY_LINE_CRITERIA_SUPPORTED_EXCEPTION_MESSAGE = "Error | Only supported line coverage for the moment. Please check your selected critera";
 
 	private static final Logger logger = LoggerFactory.getLogger(DSEBaseAlgorithm.class);
+
+	protected final TestSuiteChromosome testSuite = new TestSuiteChromosome();
 
 	/** DSE statistics */
 	protected final DSEStatistics statisticsLogger;
 
-	/** Listeners */
-	protected transient Set<SymbolicExecutionSearchListener> listeners = new HashSet<SymbolicExecutionSearchListener>();
-
 	/** Fitness Functions */
-	protected transient List<FitnessFunction<T>> fitnessFunctions = new ArrayList<FitnessFunction<T>>();
+	protected transient List<TestSuiteFitnessFunction> fitnessFunctions = new ArrayList();
 
 	/** List of conditions on which to end the search */
-	protected transient Set<StoppingCondition> stoppingConditions = new HashSet<StoppingCondition>();
+	protected transient Set<StoppingCondition> stoppingConditions = new HashSet();
 
 	public DSEBaseAlgorithm(DSEStatistics dseStatistics) {
 		this.statisticsLogger = dseStatistics;
@@ -66,9 +67,8 @@ public abstract class DSEBaseAlgorithm<T extends Chromosome> {
 	 * Add new fitness function (i.e., for new mutation)
 	 *
 	 * @param function
-	 *            a {@link org.evosuite.ga.FitnessFunction} object.
 	 */
-	public void addFitnessFunction(FitnessFunction<T> function) {
+	public void addFitnessFunction(TestSuiteFitnessFunction function) {
 		fitnessFunctions.add(function);
 	}
 
@@ -77,88 +77,43 @@ public abstract class DSEBaseAlgorithm<T extends Chromosome> {
 	 *
 	 * @param functions
 	 */
-	public void addFitnessFunctions(List<FitnessFunction<T>> functions) {
-		for (FitnessFunction<T> function : functions)
+	public void addFitnessFunctions(List<TestSuiteFitnessFunction> functions) {
+		for (TestSuiteFitnessFunction function : functions)
 			this.addFitnessFunction(function);
 	}
 
 	/**
 	 * Get currently used fitness function
-	 *
-	 * @return a {@link org.evosuite.ga.FitnessFunction} object.
+	 * @return
 	 */
-	public FitnessFunction<T> getFitnessFunction() {
+	public TestSuiteFitnessFunction getFitnessFunction() {
 		return fitnessFunctions.get(0);
 	}
 
 	/**
 	 * Get all used fitness function
-	 *
-	 * @return a {@link org.evosuite.ga.FitnessFunction} object.
+	 * @return
 	 */
-	public List<FitnessFunction<T>> getFitnessFunctions() {
+	public List<TestSuiteFitnessFunction> getFitnessFunctions() {
 		return fitnessFunctions;
 	}
 
-    /**
-	 * Add a new search listener
-	 *
-	 * @param listener
-	 *            a {@link org.evosuite.symbolic.DSE.algorithm.listener.SymbolicExecutionSearchListener}
-	 *            object.
-	 */
-	public void addListener(SymbolicExecutionSearchListener listener) {
-		listeners.add(listener);
-	}
-
 	/**
-	 * Remove a search listener
-	 *
-	 * @param listener
-	 *            a {@link org.evosuite.symbolic.DSE.algorithm.listener.SymbolicExecutionSearchListener}
-	 *            object.
+	 * Calculates current test suite fitness
 	 */
-	public void removeListener(SymbolicExecutionSearchListener listener) {
-		listeners.remove(listener);
-	}
+	public void calculateFitness() {
+		logger.debug("Calculating fitness for current test suite");
 
-	/**
-	 * Notify all search listeners of search start
-	 */
-	protected void notifySearchStarted() {
-		for (SymbolicExecutionSearchListener listener : listeners) {
-			listener.searchStarted(this);
+		for (TestSuiteFitnessFunction fitnessFunction : fitnessFunctions) {
+			fitnessFunction.getFitness(testSuite);
 		}
 	}
 
 	/**
-	 * Notify all search listeners of search end
+	 * Calculates current test suite fitness
 	 */
-	protected void notifySearchFinished() {
-		for (SymbolicExecutionSearchListener listener : listeners) {
-			listener.searchFinished(this);
-		}
-	}
-
-	/**
-	 * Notify all search listeners of iteration
-	 */
-	protected void notifyIteration() {
-		for (SymbolicExecutionSearchListener listener : listeners) {
-			listener.iteration(this);
-		}
-	}
-
-	/**
-	 * Notify all search listeners of fitness evaluation
-	 *
-	 * @param chromosome
-	 *            a {@link org.evosuite.ga.Chromosome} object.
-	 */
-	protected void notifyEvaluation(Chromosome chromosome) {
-		for (SymbolicExecutionSearchListener listener : listeners) {
-			listener.fitnessEvaluation(chromosome);
-		}
+	public double getFitness() {
+		return testSuite.getFitness();
 	}
 
 	/**
@@ -205,8 +160,30 @@ public abstract class DSEBaseAlgorithm<T extends Chromosome> {
         if (PathConditionUtils.hasPathConditionDiverged(expectedPathCondition, currentPathCondition)) {
             logger.debug(PATH_DIVERGENCE_FOUND_WARNING_MESSAGE);
         	statisticsLogger.reportNewPathDivergence();
-
         }
+    }
+
+	/**
+	 * Score calculation is based on fitness improvement against the current testSuite.
+	 *
+	 * @param newTestCase
+	 * @return
+	 */
+    protected double getTestScore(TestCase newTestCase) {
+    	double oldCoverage;
+    	double newCoverage;
+
+    	oldCoverage = testSuite.getCoverage();
+
+		testSuite.addTest(newTestCase);
+        calculateFitness();
+
+        newCoverage = testSuite.getCoverage();
+
+		testSuite.deleteTest(newTestCase);
+		calculateFitness();
+
+		return newCoverage - oldCoverage;
     }
 
 }

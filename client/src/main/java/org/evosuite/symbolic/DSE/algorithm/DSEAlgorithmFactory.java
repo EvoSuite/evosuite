@@ -19,10 +19,20 @@
  */
 package org.evosuite.symbolic.DSE.algorithm;
 
+import org.evosuite.coverage.FitnessFunctionsUtils;
 import org.evosuite.symbolic.DSE.DSEStatistics;
+import org.evosuite.symbolic.DSE.algorithm.strategies.implementations.KeepSearchingCriteriaStrategies.LastExecutionCreatedATestCaseStrategy;
+import org.evosuite.symbolic.DSE.algorithm.strategies.implementations.PathPruningStrategies.AlreadySeenSkipStrategy;
+import org.evosuite.symbolic.DSE.algorithm.strategies.implementations.PathSelectionStrategies.generationalGenerationStrategy;
+import org.evosuite.symbolic.DSE.algorithm.strategies.implementations.TestCaseBuildingStrategies.DefaultTestCaseBuildingStrategy;
+import org.evosuite.symbolic.DSE.algorithm.strategies.implementations.TestCaseSelectionStrategies.LastTestCaseSelectionStrategy;
+import org.evosuite.testsuite.TestSuiteFitnessFunction;
+
+import java.util.List;
 
 /**
  * Factory of DSE Algorithms
+ * Please add a citation to the paper / source of information from which the algorithm is based.
  *
  * @author ilebrero
  */
@@ -40,21 +50,34 @@ public class DSEAlgorithmFactory {
         }
 
         switch (dseAlgorithmType) {
-            case DEFAULT:
-                return buildDefaultAlgorithm();
+            case SAGE:
+                return buildSAGEAlgorithm();
             default:
                 throw new IllegalStateException("DSEAlgorithm not yet implemented: " + dseAlgorithmType.name());
         }
-
     }
 
     /**
-     * Builds a default version of the DSE algorithm.
+     * Default version of the DSE algorithm.
+     * Based on Godefroid P., Levin Y. M. & Molnar D. (2008) Automated Whitebox Fuzz Testing
+     *
+     * OBS: the only difference is that we model the incremental block coverage as incremental line coverage.
      *
      * @return
      */
-    private DSEAlgorithm buildDefaultAlgorithm() {
-        return new DSEAlgorithm();
+    private DSEAlgorithm buildSAGEAlgorithm() {
+        DSEAlgorithm algorithm = new DSEAlgorithm(
+            new AlreadySeenSkipStrategy(),
+            new LastExecutionCreatedATestCaseStrategy(),
+            new generationalGenerationStrategy(),
+            new DefaultTestCaseBuildingStrategy(),
+            new LastTestCaseSelectionStrategy()
+        );
+
+        List<TestSuiteFitnessFunction> sageFitnessFunctions = FitnessFunctionsUtils.getFitnessFunctions(DSEAlgorithms.SAGE.getCriteria());
+        algorithm.addFitnessFunctions(sageFitnessFunctions);
+
+        return algorithm;
     }
 }
 
