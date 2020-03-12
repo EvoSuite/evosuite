@@ -69,9 +69,9 @@ public class DSETestCase implements Comparable<DSETestCase>, Cloneable {
     @Override
     public int compareTo(DSETestCase testCase) {
         if (this.score < testCase.score) {
-            return 1;
-        } else if (this.score < testCase.score) {
             return -1;
+        } else if (this.score < testCase.score) {
+            return 1;
         } else {
             return 0;
         }

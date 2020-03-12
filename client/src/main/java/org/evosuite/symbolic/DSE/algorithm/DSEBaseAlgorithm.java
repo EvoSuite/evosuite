@@ -46,7 +46,6 @@ public abstract class DSEBaseAlgorithm<T extends Chromosome> {
 
 	/** Logger Messages */
 	private static final String PATH_DIVERGENCE_FOUND_WARNING_MESSAGE = "Warning | Path condition diverged";
-	private static final String ONLY_LINE_CRITERIA_SUPPORTED_EXCEPTION_MESSAGE = "Error | Only supported line coverage for the moment. Please check your selected critera";
 
 	private static final Logger logger = LoggerFactory.getLogger(DSEBaseAlgorithm.class);
 

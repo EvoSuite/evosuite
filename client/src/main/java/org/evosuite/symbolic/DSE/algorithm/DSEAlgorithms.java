@@ -30,7 +30,7 @@ import org.evosuite.Properties;
 public enum DSEAlgorithms {
     SAGE(
             "SAGE",
-            "Default implementation is based on: Automated Whitebox Fuzz Testing, Godefroid, Levin, Molnar",
+            "Default implementation based on: Automated Whitebox Fuzz Testing, Godefroid, Levin, Molnar",
             new Properties.Criterion[]{Properties.Criterion.LINE});
 
     private String name;
