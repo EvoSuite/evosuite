@@ -81,15 +81,17 @@ public class DSEStrategy extends TestGenerationStrategy {
 		if (!(Properties.STOP_ZERO && goals.isEmpty())
 				|| ArrayUtil.contains(Properties.CRITERION, Criterion.EXCEPTION)) {
 			// Perform search
+			// This is in case any algorithm internal strategy uses some random behaviour.
+			//     e.g. after x iterations selects the next path randomly.
 			LoggingUtils.getEvoLogger().info("* Using seed {}", Randomness.getSeed());
-			LoggingUtils.getEvoLogger().info("* Starting evolution");
+			LoggingUtils.getEvoLogger().info("* Starting DSE");
 			ClientServices.getInstance().getClientNode().changeState(ClientState.SEARCH);
 
 			//TODO: move to dependency injection later on
 			DSEAlgorithmFactory dseFactory = new DSEAlgorithmFactory();
 			DSEAlgorithms dseAlgorithmType = Properties.DSE_ALGORITHM_TYPE;
 
-			LoggingUtils.getEvoLogger().info("* Using DSE algorithm: {}", dseAlgorithmType.toString());
+			LoggingUtils.getEvoLogger().info("* Using DSE algorithm: {}", dseAlgorithmType.getName());
             DSEAlgorithm algorithm = dseFactory.getDSEAlgorithm(dseAlgorithmType);
 
 			StoppingCondition stoppingCondition = getStoppingCondition();

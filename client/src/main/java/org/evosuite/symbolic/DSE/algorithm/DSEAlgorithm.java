@@ -44,6 +44,7 @@ import org.evosuite.symbolic.solver.SolverResult;
 import org.evosuite.symbolic.solver.SolverTimeoutException;
 import org.evosuite.symbolic.solver.SolverUtils;
 import org.evosuite.testcase.DefaultTestCase;
+import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.slf4j.Logger;
@@ -109,6 +110,25 @@ public class DSEAlgorithm extends DSEBaseAlgorithm {
     }
 
     public DSEAlgorithm(
+            PathPruningStrategy pathPruningStrategy,
+            KeepSearchingCriteriaStrategy keepSearchingCriteriaStrategy,
+            PathSelectionStrategy pathSelectionStrategy,
+            TestCaseBuildingStrategy testCaseBuildingStrategy,
+            TestCaseSelectionStrategy testCaseSelectionStrategy
+    ) {
+        this(
+                DSEStatistics.getInstance(),
+                new ConcolicEngine(),
+                SolverFactory.getInstance().buildNewSolver(),
+                pathPruningStrategy,
+                keepSearchingCriteriaStrategy,
+                pathSelectionStrategy,
+                testCaseBuildingStrategy,
+                testCaseSelectionStrategy
+        );
+    }
+
+    public DSEAlgorithm(
             DSEStatistics dseStatistics,
             ConcolicEngine engine,
             Solver solver,
@@ -131,8 +151,6 @@ public class DSEAlgorithm extends DSEBaseAlgorithm {
     }
 
     /**
-     * Symbolic algorithm general schema.
-     *
      * Current implementation represents the high level algorithm of SAGE without the running&checking section
      * since our goal is just to generate the test suite.
      *
@@ -141,26 +159,29 @@ public class DSEAlgorithm extends DSEBaseAlgorithm {
      *
      * @param method
      */
-    private List<DSETestCase> runDSEAlgorithm(Method method) {
-        // Result tests
-        List<DSETestCase> resultTestCases = new ArrayList();
-
+    protected void DSEalgorithm(Method method) {
         // Children cache
-        HashSet<Set<Constraint<?>>> alreadyGeneratedChildren = new HashSet();
+        HashSet<Set<Constraint<?>>> seenChildren = new HashSet();
 
         // WorkList
-        PriorityQueue<DSETestCase> generatedTests = new PriorityQueue();
+        PriorityQueue<DSETestCase> testCasesWorkList = new PriorityQueue();
 
         // Initial element
         DSETestCase initialTestCase = testCaseBuildingStrategy.buildInitialTestCase(method);
 
         // Run & check
-        generatedTests.add(initialTestCase);
-        resultTestCases.add(initialTestCase);
+        testCasesWorkList.add(initialTestCase);
 
-        while (keepSearchingCriteriaStrategy.ShouldKeepSearching(generatedTests)) {
+        // Add new testCase to the testSuite
+        addNewTestCaseToTestSuite(initialTestCase);
+        if (isFinished()) return;
+
+        while (keepSearchingCriteriaStrategy.ShouldKeepSearching(testCasesWorkList)) {
             // This gets wrapped into the building and fitness strategy selected due to the PriorityQueue sorting nature
-            DSETestCase currentTestCase = testCaseSelectionStrategy.getCurrentIterationBasedTestCase(generatedTests).clone();
+            DSETestCase currentTestCase = testCaseSelectionStrategy.getCurrentIterationBasedTestCase(testCasesWorkList).clone();
+
+            addNewTestCaseToTestSuite(currentTestCase);
+            if (isFinished()) return;
 
             // Runs the current test case
             DSEPathCondition currentExecutedPathCondition = executeConcolicEngine(currentTestCase);
@@ -174,51 +195,53 @@ public class DSEAlgorithm extends DSEBaseAlgorithm {
             // Generates the children
             List<DSEPathCondition> children = pathSelectionStrategy.generateChildren(currentExecutedPathCondition);
 
-            // We look at all the children
-            for (DSEPathCondition child : children) {
-                List<Constraint<?>> childQuery = SolverUtils.buildQuery(child.getPathCondition());
-                Set<Constraint<?>> normalizedChildQuery = normalize(childQuery);
-                alreadyGeneratedChildren.add(normalizedChildQuery);
+            processChildren(seenChildren, testCasesWorkList, currentTestCase, children);
+        }
+    }
 
-                // Almost equivalent to a < 0 score, except we are not running these ones on the queue
-                if (!pathPruningStrategy.shouldSkipCurrentPath(alreadyGeneratedChildren, normalizedChildQuery, queryCache)) {
+    private void processChildren(HashSet<Set<Constraint<?>>> seenChildren, PriorityQueue<DSETestCase> testCasesWorkList, DSETestCase currentTestCase, List<DSEPathCondition> children) {
+        // We look at all the children
+        for (DSEPathCondition child : children) {
+            List<Constraint<?>> childQuery = SolverUtils.buildQuery(child.getPathCondition());
+            Set<Constraint<?>> normalizedChildQuery = normalize(childQuery);
+            seenChildren.add(normalizedChildQuery);
 
-                    // Post-processing stuff
-                    childQuery.addAll(
-                        SolverUtils.createBoundsForQueryVariables(childQuery)
-                    );
+            // Almost equivalent to a < 0 score, except we are not running these ones on the queue
+            if (!pathPruningStrategy.shouldSkipCurrentPath(seenChildren, normalizedChildQuery, queryCache)) {
 
-                    // Solves the SMT query
-                    logger.debug(SOLVER_QUERY_STARTED_MESSAGE, childQuery.size());
-                    SolverResult smtQueryResult = solveQuery(childQuery);
-                    Map<String, Object> smtSolution = getQuerySolution(
-                        normalizedChildQuery,
-                        smtQueryResult
-                    );
+                // Post-processing stuff
+                childQuery.addAll(
+                    SolverUtils.createBoundsForQueryVariables(childQuery)
+                );
 
-                    if (smtSolution != null) {
-                        // Generates the new tests based on the current solution
-                        DSETestCase newTestCase = generateNewTestCase(currentTestCase, child, smtSolution);
+                // Solves the SMT query
+                logger.debug(SOLVER_QUERY_STARTED_MESSAGE, childQuery.size());
+                SolverResult smtQueryResult = solveQuery(childQuery);
+                Map<String, Object> smtSolution = getQuerySolution(
+                    normalizedChildQuery,
+                    smtQueryResult
+                );
 
-                        generatedTests.add(newTestCase);
-                        resultTestCases.add(newTestCase);
-                    }
+                if (smtSolution != null) {
+                    // Generates the new tests based on the current solution
+                    DSETestCase newTestCase = generateNewTestCase(currentTestCase, child, smtSolution);
+                    testCasesWorkList.add(newTestCase);
                 }
             }
         }
-
-        return resultTestCases;
     }
 
     private DSETestCase generateNewTestCase(DSETestCase currentConcreteTest, DSEPathCondition currentPathCondition, Map<String, Object> smtSolution) {
-        DSETestCase newTestCase =  new DSETestCase(
-            DSETestGenerator.updateTest(currentConcreteTest.getTestCase(), smtSolution),
+        TestCase newTestCase = DSETestGenerator.updateTest(currentConcreteTest.getTestCase(), smtSolution);
+
+        DSETestCase newDSETestCase =  new DSETestCase(
+            newTestCase,
             currentPathCondition,
-            0 // TODO: implement the score section
+            getTestScore(newTestCase)
         );
 
-        logger.debug("Created new test case from SAT solution: {}", newTestCase.getTestCase().toCode());
-        logger.debug("New test case score: {}", newTestCase.getScore());
+        logger.debug("Created new test case from SAT solution: {}", newDSETestCase.getTestCase().toCode());
+        logger.debug("New test case score: {}", newDSETestCase.getScore());
 
         //          TODO: re implement this part
         //          double fitnessBeforeAddingNewTest = this.getBestIndividual().getFitness();
@@ -235,7 +258,7 @@ public class DSEAlgorithm extends DSEBaseAlgorithm {
         //            return;
         //          }
 
-        return newTestCase;
+        return newDSETestCase;
     }
 
     /**

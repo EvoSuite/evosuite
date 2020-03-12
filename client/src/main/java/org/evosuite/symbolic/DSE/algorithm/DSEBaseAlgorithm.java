@@ -22,6 +22,7 @@ package org.evosuite.symbolic.DSE.algorithm;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.stoppingconditions.StoppingCondition;
 import org.evosuite.symbolic.DSE.DSEStatistics;
+import org.evosuite.symbolic.DSE.DSETestCase;
 import org.evosuite.symbolic.PathCondition;
 import org.evosuite.symbolic.PathConditionUtils;
 import org.evosuite.testcase.TestCase;
@@ -30,6 +31,7 @@ import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -185,5 +187,27 @@ public abstract class DSEBaseAlgorithm<T extends Chromosome> {
 
 		return newCoverage - oldCoverage;
     }
+
+	/**
+	 * Prints old/new fitness values and adds the new test case.
+	 *
+	 * @param dseTestCase
+	 */
+    protected void addNewTestCaseToTestSuite(DSETestCase dseTestCase) {
+        logger.debug("About to add a new testCase to the test suite");
+        logger.debug("Fitness before adding new test: {}", testSuite.getFitness());
+
+        testSuite.addTest(dseTestCase.getTestCase());
+        calculateFitness();
+
+        logger.debug("Fitness after adding new test: {}", testSuite.getFitness());
+    }
+
+    /**
+     * Symbolic algorithm general schema.
+     *
+     * @param method
+     */
+    protected abstract void DSEalgorithm(Method method);
 
 }
