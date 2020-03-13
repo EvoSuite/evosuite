@@ -38,6 +38,7 @@ import org.evosuite.runtime.mock.MockFramework;
 import org.evosuite.statistics.OutputVariable;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.statistics.backend.DebugStatisticsBackend;
+import org.evosuite.symbolic.DSE.algorithm.DSEBaseAlgorithm;
 import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.evosuite.testcase.execution.reset.ClassReInitializer;
 import org.evosuite.testsuite.TestSuiteChromosome;
@@ -351,5 +352,12 @@ public class SystemTestBase {
 		assert(results.size() == 1);
 		//return results.iterator().next().getGeneticAlgorithm();
 		return results.get(0).get(0).getGeneticAlgorithm();
+	}
+
+	protected DSEBaseAlgorithm<?> getDSEAFromResult(Object result) {
+		assert (result instanceof List);
+		List<List<TestGenerationResult>> results = (List<List<TestGenerationResult>>) result;
+		assert (results.size() == 1);
+		return results.get(0).get(0).getDSEAlgorithm();
 	}
 }

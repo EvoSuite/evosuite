@@ -24,6 +24,7 @@ import java.util.Set;
 
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
+import org.evosuite.symbolic.DSE.algorithm.DSEBaseAlgorithm;
 import org.evosuite.testcase.TestCase;
 
 public interface TestGenerationResult extends Serializable {
@@ -35,7 +36,10 @@ public interface TestGenerationResult extends Serializable {
 	
 	/** If there was an error, this contains the error message */
 	public String getErrorMessage();
-	
+
+	/** The entire DSEA in its final state */
+	public DSEBaseAlgorithm<?> getDSEAlgorithm();
+
 	/** The entire GA in its final state */
 	public GeneticAlgorithm<?> getGeneticAlgorithm();
 	

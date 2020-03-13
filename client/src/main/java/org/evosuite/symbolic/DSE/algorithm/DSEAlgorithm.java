@@ -19,6 +19,8 @@
  */
 package org.evosuite.symbolic.DSE.algorithm;
 
+import org.evosuite.Properties;
+import org.evosuite.runtime.classhandling.ClassResetter;
 import org.evosuite.symbolic.DSE.ConcolicEngine;
 import org.evosuite.symbolic.DSE.DSEStatistics;
 import org.evosuite.symbolic.DSE.DSETestCase;
@@ -33,6 +35,7 @@ import org.evosuite.symbolic.DSE.algorithm.strategies.implementations.PathPrunin
 import org.evosuite.symbolic.DSE.algorithm.strategies.implementations.PathSelectionStrategies.generationalGenerationStrategy;
 import org.evosuite.symbolic.DSE.algorithm.strategies.implementations.TestCaseBuildingStrategies.DefaultTestCaseBuildingStrategy;
 import org.evosuite.symbolic.DSE.algorithm.strategies.implementations.TestCaseSelectionStrategies.LastTestCaseSelectionStrategy;
+import org.evosuite.symbolic.MethodComparator;
 import org.evosuite.symbolic.PathCondition;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.solver.Solver;
@@ -45,17 +48,17 @@ import org.evosuite.symbolic.solver.SolverTimeoutException;
 import org.evosuite.symbolic.solver.SolverUtils;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.TestCase;
-import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collection;
+import java.lang.reflect.Modifier;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
@@ -64,7 +67,7 @@ import java.util.Set;
 /**
    * General Structure of a DSE Algorithm
    *
-   * @author ilebrero
+   * @author Ignacio Lebrero
    */
 public class DSEAlgorithm extends DSEBaseAlgorithm {
 
@@ -82,17 +85,17 @@ public class DSEAlgorithm extends DSEBaseAlgorithm {
     /**
      * DSE Algorithm strategies
      * */
-    private final PathPruningStrategy pathPruningStrategy;
-    private final PathSelectionStrategy pathSelectionStrategy;
-    private final TestCaseBuildingStrategy testCaseBuildingStrategy;
-    private final TestCaseSelectionStrategy testCaseSelectionStrategy;
-    private final KeepSearchingCriteriaStrategy keepSearchingCriteriaStrategy;
+    private final transient PathPruningStrategy pathPruningStrategy;
+    private final transient PathSelectionStrategy pathSelectionStrategy;
+    private final transient TestCaseBuildingStrategy testCaseBuildingStrategy;
+    private final transient TestCaseSelectionStrategy testCaseSelectionStrategy;
+    private final transient KeepSearchingCriteriaStrategy keepSearchingCriteriaStrategy;
 
     /**
      * Internal Symbolic engine and Solver
      * */
-    private final ConcolicEngine engine;
-    private final Solver solver;
+    private final transient ConcolicEngine engine;
+    private final transient Solver solver;
 
     public DSEAlgorithm() {
         this(
@@ -159,7 +162,8 @@ public class DSEAlgorithm extends DSEBaseAlgorithm {
      *
      * @param method
      */
-    protected void DSEalgorithm(Method method) {
+    @Override
+    protected void runAlgorithm(Method method) {
         // Children cache
         HashSet<Set<Constraint<?>>> seenChildren = new HashSet();
 
@@ -174,13 +178,17 @@ public class DSEAlgorithm extends DSEBaseAlgorithm {
 
         while (keepSearchingCriteriaStrategy.ShouldKeepSearching(testCasesWorkList)) {
             // This gets wrapped into the building and fitness strategy selected due to the PriorityQueue sorting nature
-            DSETestCase currentTestCase = testCaseSelectionStrategy.getCurrentIterationBasedTestCase(testCasesWorkList).clone();
+            DSETestCase currentTestCase = testCaseSelectionStrategy.getCurrentIterationBasedTestCase(testCasesWorkList);
 
             addNewTestCaseToTestSuite(currentTestCase);
             if (isFinished()) return;
 
             // Runs the current test case
             DSEPathCondition currentExecutedPathCondition = executeConcolicEngine(currentTestCase);
+            seenChildren.add(
+                    normalize(
+                            currentExecutedPathCondition.getPathCondition().getConstraints()
+            ));
 
             // Checks for a divergence
             checkPathConditionDivergence(
@@ -202,7 +210,6 @@ public class DSEAlgorithm extends DSEBaseAlgorithm {
         for (DSEPathCondition child : children) {
             List<Constraint<?>> childQuery = SolverUtils.buildQuery(child.getPathCondition());
             Set<Constraint<?>> normalizedChildQuery = normalize(childQuery);
-            seenChildren.add(normalizedChildQuery);
 
             if (!pathPruningStrategy.shouldSkipCurrentPath(seenChildren, normalizedChildQuery, queryCache)) {
 
@@ -234,7 +241,7 @@ public class DSEAlgorithm extends DSEBaseAlgorithm {
         DSETestCase newDSETestCase =  new DSETestCase(
             newTestCase,
             currentPathCondition,
-            getTestScore(newTestCase)
+            0 //getTestScore(newTestCase)
         );
 
         logger.debug("Created new test case from SAT solution: {}", newDSETestCase.getTestCase().toCode());
@@ -280,8 +287,26 @@ public class DSEAlgorithm extends DSEBaseAlgorithm {
      */
      public TestSuiteChromosome generateSolution() {
          notifyGenerationStarted();
-//       Method a  = new Method();
-//       testSuite.addTests(transformResultToChromosome(runDSEAlgorithm(a)));
+         final Class<?> targetClass = Properties.getTargetClassAndDontInitialise();
+
+         List<Method> targetStaticMethods = getTargetStaticMethods(targetClass);
+         Collections.sort(targetStaticMethods, new MethodComparator());
+         logger.debug("Found " + targetStaticMethods.size() + " as entry points for DSE");
+
+         for (Method entryMethod : targetStaticMethods) {
+
+           if (this.isFinished()) {
+             logger.debug("A stoping condition was met. No more tests can be generated using DSE.");
+             break;
+           }
+
+           logger.debug("Generating tests for entry method" + entryMethod.getName());
+           int testCaseCount = testSuite.getTests().size();
+           runAlgorithm(entryMethod);
+           int numOfGeneratedTestCases = testSuite.getTests().size() - testCaseCount;
+           logger.debug(numOfGeneratedTestCases + " tests were generated for entry method "
+              + entryMethod.getName());
+         }
 
          // Post-process work
          // TODO: complete, here we can have optimizations like testSuite redundancy reduction.
@@ -290,6 +315,34 @@ public class DSEAlgorithm extends DSEBaseAlgorithm {
          notifyGenerationFinished();
          statisticsLogger.logStatistics();
          return testSuite;
+     }
+
+     /**
+       * Returns a set with the static methods of a class
+       *
+       * @param targetClass a class instance
+       * @return
+       */
+     private static List<Method> getTargetStaticMethods(Class<?> targetClass) {
+        Method[] declaredMethods = targetClass.getDeclaredMethods();
+        List<Method> targetStaticMethods = new LinkedList<Method>();
+        for (Method m : declaredMethods) {
+
+          if (!Modifier.isStatic(m.getModifiers())) {
+            continue;
+          }
+
+          if (Modifier.isPrivate(m.getModifiers())) {
+            continue;
+          }
+
+          if (m.getName().equals(ClassResetter.STATIC_RESET)) {
+            continue;
+          }
+
+          targetStaticMethods.add(m);
+        }
+        return targetStaticMethods;
      }
 
     /**
@@ -312,7 +365,6 @@ public class DSEAlgorithm extends DSEBaseAlgorithm {
             logger.debug(SOLVER_ERROR_DEBUG_MESSAGE, e.getMessage());
         }
 
-        logger.debug("* Finished solving current SMT query with result isSat: {}", smtQueryResult.isSAT());
         return smtQueryResult;
     }
 
@@ -335,7 +387,8 @@ public class DSEAlgorithm extends DSEBaseAlgorithm {
     private DSEPathCondition executeConcolicEngine(DSETestCase currentTestCase) {
         logger.debug("* Executing concolically the current test case");
 
-        PathCondition result = engine.execute((DefaultTestCase) currentTestCase.getTestCase());
+        TestCase clonedCurrentTestCase = currentTestCase.getTestCase().clone();
+        PathCondition result = engine.execute((DefaultTestCase) clonedCurrentTestCase);
         int currentGeneratedFromIndex = currentTestCase.getOriginalPathCondition().getGeneratedFromIndex();
 
         logger.debug("* Finished concolic execution.");

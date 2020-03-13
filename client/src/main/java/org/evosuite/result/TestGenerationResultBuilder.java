@@ -37,6 +37,7 @@ import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.instrumentation.LinePool;
 import org.evosuite.result.TestGenerationResult.Status;
+import org.evosuite.symbolic.DSE.algorithm.DSEBaseAlgorithm;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.utils.LoggingUtils;
@@ -87,6 +88,7 @@ public class TestGenerationResultBuilder {
 	private void resetTestData() {
 		code = "";
 		ga = null;
+		dse = null;
 		testCode.clear();
 		testCases.clear();
 		contractViolations.clear();
@@ -135,6 +137,7 @@ public class TestGenerationResultBuilder {
 		result.setExceptionMutants(exceptionMutants);
 		result.setTestSuiteCode(code);
 		result.setGeneticAlgorithm(ga);
+		result.setDSEAlgorithm(dse);
         for (Map.Entry<FitnessFunction<?>, Double> e : targetCoverages.entrySet()) {
             result.setTargetCoverage(e.getKey(), e.getValue());
         }
@@ -144,6 +147,8 @@ public class TestGenerationResultBuilder {
 	private String code = "";
 	
 	private GeneticAlgorithm<?> ga = null;
+
+	private DSEBaseAlgorithm<?> dse = null;
 	
 	private Map<String, String> testCode = new LinkedHashMap<String, String>();
 
@@ -224,6 +229,13 @@ public class TestGenerationResultBuilder {
 	public void setGeneticAlgorithm(GeneticAlgorithm<?> ga) {
 		this.ga = ga;
         for (Map.Entry<FitnessFunction<?>, Double> e : ga.getBestIndividual().getCoverageValues().entrySet()) {
+            targetCoverages.put(e.getKey(), e.getValue());
+        }
+	}
+
+	public void setDSEAlgorithm(DSEBaseAlgorithm<?> dse) {
+		this.dse = dse;
+        for (Map.Entry<FitnessFunction<?>, Double> e : dse.getGeneratedTestSuite().getCoverageValues().entrySet()) {
             targetCoverages.put(e.getKey(), e.getValue());
         }
 	}

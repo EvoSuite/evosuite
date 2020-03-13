@@ -26,11 +26,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * General class for Symbolic Engines, it provides a general schema for Symbolic algorithms.
+ * General class for Symbolic Engines.
  *
- * TODO: kind of empty for now, will fill with general overview of algorithms. Strongly based on the explanations of
- * "A Survey of Symbolic Execution Techniques, ROBERTO BALDONI, EMILIO COPPA, DANIELE CONO D’ELIA, CAMIL DEMETRESCU,
- * and IRENE FINOCCHI, Sapienza University of Rome" (Agregar bien esta cita)
+ * TODO: kind of empty for now.
+ * Strongly based on:
+ *     "A Survey of Symbolic Execution Techniques, ROBERTO BALDONI, EMILIO COPPA, DANIELE CONO D’ELIA, CAMIL DEMETRESCU,
+ *     and IRENE FINOCCHI, Sapienza University of Rome" (Agregar bien esta cita)
  *
  * @author Ignacio Lebrero
  */
@@ -40,16 +41,7 @@ public abstract class SymbolicEngine {
 	/** Instrumenting class loader */
 	protected final SymbolicInstrumentingClassLoader instrumentingClassLoader;
 
-	/**
-     * Memory model
-     * Path constraint and symbolic environment
-     * */
-    protected final SymbolicEnvironment symbolicEnvironment;
-    protected final PathConditionCollector pathConditionCollector;
-
     public SymbolicEngine(SymbolicInstrumentingClassLoader instrumentingClassLoader) {
-        this.symbolicEnvironment = new SymbolicEnvironment(instrumentingClassLoader);
-        this.pathConditionCollector = new PathConditionCollector();
         this.instrumentingClassLoader = instrumentingClassLoader;
     }
 }

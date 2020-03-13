@@ -41,6 +41,11 @@ public class generationalGenerationStrategy implements PathSelectionStrategy {
         List<BranchCondition> currentPathConditionBranchConditions = currentPathConditionChild.getPathCondition().getBranchConditions();
         int currentPathConditionIndexGeneratedFrom = currentPathConditionChild.getGeneratedFromIndex();
 
+        // We cover the untouched prefix
+        for (int indexBound = 0; indexBound < currentPathConditionIndexGeneratedFrom; ++indexBound) {
+            accumulatedBranchConditions.add(currentPathConditionBranchConditions.get(indexBound));
+        }
+
         // Important!! We start from the index the test was generated from to avoid re-create already checked paths
         for (int indexBound = currentPathConditionIndexGeneratedFrom; indexBound < currentPathConditionBranchConditions.size(); indexBound++) {
             BranchCondition currentBranchCondition = currentPathConditionBranchConditions.get(indexBound);
@@ -52,7 +57,7 @@ public class generationalGenerationStrategy implements PathSelectionStrategy {
                 new PathCondition(
                         new ArrayList(accumulatedBranchConditions)
                 ),
-                indexBound
+                indexBound + 1
             );
 
             // adds the negated last condition

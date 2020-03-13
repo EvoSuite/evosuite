@@ -57,7 +57,7 @@ import org.evosuite.dse.VM;
  * <p>
  * ConcolicEngine class.
  * </p>
- * 
+ *
  * @author Gordon Fraser
  */
 public class ConcolicEngine extends SymbolicEngine {
@@ -95,6 +95,12 @@ public class ConcolicEngine extends SymbolicEngine {
 	public PathCondition execute(DefaultTestCase defaultTestCase) {
 		logger.debug("Preparing concolic execution");
 
+		/**
+		 * Memory model
+		 * Path constraint and symbolic environment
+		 * */
+		SymbolicEnvironment symbolicEnvironment = new SymbolicEnvironment(instrumentingClassLoader);;
+		PathConditionCollector pathConditionCollector = new PathConditionCollector();
 
 		/**
 		 * Observers for TestCaseExecutor

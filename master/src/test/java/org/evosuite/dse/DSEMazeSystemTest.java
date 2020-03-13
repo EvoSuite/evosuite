@@ -32,6 +32,7 @@ import org.evosuite.Properties.StoppingCondition;
 import org.evosuite.Properties.Strategy;
 import org.evosuite.SystemTestBase;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
+import org.evosuite.symbolic.DSE.algorithm.DSEBaseAlgorithm;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.Before;
 import org.junit.Test;
@@ -63,7 +64,7 @@ public class DSEMazeSystemTest extends SystemTestBase {
 		// Properties.CONCOLIC_TIMEOUT = Integer.MAX_VALUE;
 		Properties.RESET_STATIC_FIELD_GETS = true;
 
-		String cvc4_path = System.getenv("cvc4_path");
+		String cvc4_path = System.getenv("CVC4_PATH");
 		if (cvc4_path != null) {
 			Properties.CVC4_PATH = cvc4_path;
 		}
@@ -95,8 +96,11 @@ public class DSEMazeSystemTest extends SystemTestBase {
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
-		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+//		GeneticAlgorithm<?> ga = getGAFromResult(result);
+//		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+				DSEBaseAlgorithm<?> dse = getDSEAFromResult(result);
+		TestSuiteChromosome best = dse.getGeneratedTestSuite();
+
 		System.out.println("EvolvedTestSuite:\n" + best);
 
 		assertFalse(best.getTests().isEmpty());

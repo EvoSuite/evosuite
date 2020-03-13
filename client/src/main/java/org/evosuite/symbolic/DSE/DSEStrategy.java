@@ -19,16 +19,12 @@
  */
 package org.evosuite.symbolic.DSE;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.coverage.FitnessFunctionsUtils;
-import org.evosuite.coverage.TestFitnessFactory;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
-import org.evosuite.ga.stoppingconditions.StoppingCondition;
+import org.evosuite.result.TestGenerationResultBuilder;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.rmi.service.ClientState;
 import org.evosuite.statistics.RuntimeVariable;
@@ -45,6 +41,8 @@ import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.evosuite.utils.ArrayUtil;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
+
+import java.util.List;
 
 /**
  * <p>
@@ -107,6 +105,10 @@ public class DSEStrategy extends TestGenerationStrategy {
 			}
 
 			testSuite = algorithm.generateSolution();
+
+			if (Properties.SERIALIZE_DSE || Properties.CLIENT_ON_THREAD) {
+				TestGenerationResultBuilder.getInstance().setDSEAlgorithm(algorithm);
+			}
 		} else {
 			testSuite = setNoGoalsCoverage(Properties.DSE_ALGORITHM_TYPE);
 		}

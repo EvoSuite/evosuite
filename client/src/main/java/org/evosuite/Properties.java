@@ -54,7 +54,7 @@ import java.util.Set;
  */
 public class Properties {
 
-	private final static Logger logger = LoggerFactory.getLogger(Properties.class);
+    private final static Logger logger = LoggerFactory.getLogger(Properties.class);
 
 	/**
 	 * Parameters are fields of the Properties class, annotated with this
@@ -1124,6 +1124,8 @@ public class Properties {
 	@Parameter(key = "serialize_ga", group = "Output", description = "Include the GA instance in the test generation result")
 	public static boolean SERIALIZE_GA = false;
 
+	@Parameter(key = "serialize_dse", group = "Output", description = "Include the DSE instance in the test generation result")
+	public static boolean SERIALIZE_DSE = false;
 
 	public enum StatisticsBackend {
 		NONE, CONSOLE, CSV, HTML, DEBUG;

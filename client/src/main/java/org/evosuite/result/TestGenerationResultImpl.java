@@ -27,6 +27,7 @@ import java.util.Set;
 import org.evosuite.Properties;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
+import org.evosuite.symbolic.DSE.algorithm.DSEBaseAlgorithm;
 import org.evosuite.testcase.TestCase;
 
 class TestGenerationResultImpl implements TestGenerationResult {
@@ -75,6 +76,8 @@ class TestGenerationResultImpl implements TestGenerationResult {
     private LinkedHashMap<FitnessFunction<?>, Double> targetCoverages = new LinkedHashMap<FitnessFunction<?>, Double>();
 	
 	private GeneticAlgorithm<?> ga = null;
+
+	private DSEBaseAlgorithm<?> dse = null;
 	
 	/** Did test generation succeed? */
 	public Status getTestGenerationStatus() {
@@ -102,6 +105,15 @@ class TestGenerationResultImpl implements TestGenerationResult {
 	
 	public void setGeneticAlgorithm(GeneticAlgorithm<?> ga) {
 		this.ga = ga;
+	}
+
+	/** The entire DSEA in tirs final state */
+	public DSEBaseAlgorithm<?> getDSEAlgorithm() {
+		return dse;
+	}
+
+	public void setDSEAlgorithm(DSEBaseAlgorithm<?> dse) {
+		this.dse = dse;
 	}
 	
 	/** Map from test method to ContractViolation */

@@ -31,6 +31,7 @@ import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -43,7 +44,9 @@ import java.util.Set;
  *
  * @author Ignacio Lebrero
  */
-public abstract class DSEBaseAlgorithm<T extends Chromosome> {
+public abstract class DSEBaseAlgorithm<T extends Chromosome> implements Serializable {
+
+	private static final long serialVersionUID = -3426910907322781226L;
 
 	/** Logger Messages */
 	private static final String PATH_DIVERGENCE_FOUND_WARNING_MESSAGE = "Warning | Path condition diverged";
@@ -52,11 +55,11 @@ public abstract class DSEBaseAlgorithm<T extends Chromosome> {
 
 	protected final TestSuiteChromosome testSuite = new TestSuiteChromosome();
 
-	/** DSE statistics */
-	protected final DSEStatistics statisticsLogger;
-
 	/** Fitness Functions */
-	protected transient List<TestSuiteFitnessFunction> fitnessFunctions = new ArrayList();
+	protected List<TestSuiteFitnessFunction> fitnessFunctions = new ArrayList();
+
+	/** DSE statistics */
+	protected transient final DSEStatistics statisticsLogger;
 
 	/** List of conditions on which to end the search */
 	protected transient Set<StoppingCondition> stoppingConditions = new HashSet();
@@ -309,6 +312,6 @@ public abstract class DSEBaseAlgorithm<T extends Chromosome> {
      *
      * @param method
      */
-    protected abstract void DSEalgorithm(Method method);
+    protected abstract void runAlgorithm(Method method);
 
 }
