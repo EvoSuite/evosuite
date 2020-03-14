@@ -53,10 +53,11 @@ public class TargetCoverageReachedStoppingCondition extends StoppingConditionImp
     public void setLimit(long limit) throws InvalidParameterException {
         if (limit < MINIMUM_LIMIT_INPUT_VALUE || limit > MAXIMUM_LIMIT_INPUT_VALUE) {
             throw new InvalidParameterException(
-                    "ERROR | limit parameter must be in bounds "
-                            + MINIMUM_LIMIT_INPUT_VALUE
-                            + " and "
-                            + MAXIMUM_LIMIT_INPUT_VALUE
+                    new StringBuilder()
+                            .append("ERROR | limit parameter must be in bounds ")
+                            .append(MINIMUM_LIMIT_INPUT_VALUE)
+                            .append(" and ")
+                            .append(MAXIMUM_LIMIT_INPUT_VALUE).toString()
             );
         }
         targetCoverage = (double) limit / 100;

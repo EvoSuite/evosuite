@@ -64,7 +64,7 @@ public class DSEMazeSystemTest extends SystemTestBase {
 		// Properties.CONCOLIC_TIMEOUT = Integer.MAX_VALUE;
 		Properties.RESET_STATIC_FIELD_GETS = true;
 
-		String cvc4_path = System.getenv("CVC4_PATH");
+		String cvc4_path = System.getenv("cvc4_path");
 		if (cvc4_path != null) {
 			Properties.CVC4_PATH = cvc4_path;
 		}
@@ -96,17 +96,15 @@ public class DSEMazeSystemTest extends SystemTestBase {
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-//		GeneticAlgorithm<?> ga = getGAFromResult(result);
-//		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
-				DSEBaseAlgorithm<?> dse = getDSEAFromResult(result);
+		DSEBaseAlgorithm<?> dse = getDSEAFromResult(result);
 		TestSuiteChromosome best = dse.getGeneratedTestSuite();
 
 		System.out.println("EvolvedTestSuite:\n" + best);
 
 		assertFalse(best.getTests().isEmpty());
 
-		assertEquals(27, best.getNumOfCoveredGoals());
-        assertEquals(0, best.getNumOfNotCoveredGoals());
+		assertEquals(58, best.getNumOfCoveredGoals());
+        assertEquals(1, best.getNumOfNotCoveredGoals());
 
 	}
 

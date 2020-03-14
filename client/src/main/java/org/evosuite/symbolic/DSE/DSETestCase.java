@@ -22,6 +22,8 @@ package org.evosuite.symbolic.DSE;
 import org.evosuite.symbolic.DSE.algorithm.DSEPathCondition;
 import org.evosuite.testcase.TestCase;
 
+import java.util.Objects;
+
 /**
  * A DSE test case also contains a score and an original PathCondition.
  * Note: it's not extending TestCase to avoid coupling with current code.
@@ -66,22 +68,50 @@ public class DSETestCase implements Comparable<DSETestCase>, Cloneable {
         return originalPathCondition;
     }
 
-    @Override
-    public int compareTo(DSETestCase testCase) {
-        if (this.score < testCase.score) {
-            return -1;
-        } else if (this.score < testCase.score) {
-            return 1;
-        } else {
-            return 0;
-        }
-    }
-
     public DSETestCase clone() {
         return new DSETestCase(
             testCase.clone(),
             originalPathCondition,
             score
         );
+    }
+
+    @Override
+    public int compareTo(DSETestCase dseTestCase) {
+        if (this.score < dseTestCase.score) {
+            return 1;
+        } else if (this.score > dseTestCase.score) {
+            return -1;
+        } else {
+            return 0;
+        }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        DSETestCase testCase1 = (DSETestCase) o;
+        return Double.compare(testCase1.score, score) == 0 &&
+                Objects.equals(testCase, testCase1.testCase) &&
+                Objects.equals(originalPathCondition, testCase1.originalPathCondition);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(score, testCase, originalPathCondition);
+    }
+
+    @Override
+    public String toString() {
+        return new StringBuilder()
+                .append("DSETestCase{")
+                .append("score=")
+                .append(score)
+                .append(", testCase=")
+                .append(testCase)
+                .append(", originalPathCondition=")
+                .append(originalPathCondition)
+                .append('}').toString();
     }
 }

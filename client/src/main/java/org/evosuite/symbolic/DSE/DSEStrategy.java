@@ -128,9 +128,13 @@ public class DSEStrategy extends TestGenerationStrategy {
 													// tests due to lack of
 													// determinism
 			LoggingUtils.getEvoLogger()
-					.info("* Search finished after " + (endTime - startTime) + "s and "
-							+ MaxStatementsStoppingCondition.getNumExecutedStatements()
-							+ " statements, best individual has fitness: " + testSuite.getFitness());
+				.info(new StringBuilder()
+					.append("* Search finished after ")
+					.append(endTime - startTime)
+					.append("s, fitness: ")
+					.append(testSuite.getFitness())
+					.append(" and coverage: ")
+					.append(testSuite.getCoverage()).toString());
 		}
 
 		// Search is finished, send statistics

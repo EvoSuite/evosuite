@@ -48,7 +48,7 @@ public class DefaultTestCaseBuildingStrategy implements TestCaseBuildingStrategy
         return new DSETestCase(
             testCase,
             emptyDSEPathCondition,
-            0 // Initial test case will always be seen the first time.
+            0.0 // Initial test case will always be seen the first time.
         );
     }
 }

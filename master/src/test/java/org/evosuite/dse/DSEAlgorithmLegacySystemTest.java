@@ -32,6 +32,7 @@ import org.evosuite.Properties.SolverType;
 import org.evosuite.Properties.StoppingCondition;
 import org.evosuite.Properties.Strategy;
 import org.evosuite.SystemTestBase;
+import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.symbolic.DSE.algorithm.DSEBaseAlgorithm;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.Before;
@@ -54,7 +55,9 @@ import com.examples.with.different.packagename.dse.ObjectExample;
 import com.examples.with.different.packagename.dse.ShortExample;
 import com.examples.with.different.packagename.dse.StringExample;
 
-public class DSEAlgorithmSystemTest extends SystemTestBase {
+@Ignore
+@Deprecated
+public class DSEAlgorithmLegacySystemTest extends SystemTestBase {
 
 	@Before
 	public void init() {
@@ -68,7 +71,7 @@ public class DSEAlgorithmSystemTest extends SystemTestBase {
 		// Properties.CONCOLIC_TIMEOUT = Integer.MAX_VALUE;
 		Properties.RESET_STATIC_FIELD_GETS = true;
 
-		String cvc4_path = System.getenv("cvc4_path");
+		String cvc4_path = System.getenv("CVC4_PATH");
 		if (cvc4_path != null) {
 			Properties.CVC4_PATH = cvc4_path;
 		}
@@ -100,6 +103,8 @@ public class DSEAlgorithmSystemTest extends SystemTestBase {
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
+//		GeneticAlgorithm<?> ga = getGAFromResult(result);
+//		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		DSEBaseAlgorithm<?> dse = getDSEAFromResult(result);
 		TestSuiteChromosome best = dse.getGeneratedTestSuite();
 		System.out.println("EvolvedTestSuite:\n" + best);
@@ -118,9 +123,10 @@ public class DSEAlgorithmSystemTest extends SystemTestBase {
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
-		Object result = evosuite.parseCommandLine(command);
-		DSEBaseAlgorithm<?> dse = getDSEAFromResult(result);
-		TestSuiteChromosome best = dse.getGeneratedTestSuite();
+		Object results = evosuite.parseCommandLine(command);
+		GeneticAlgorithm<?> ga = getGAFromResult(results);
+
+		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
 		assertFalse(best.getTests().isEmpty());
@@ -128,7 +134,7 @@ public class DSEAlgorithmSystemTest extends SystemTestBase {
 		assertEquals(1, best.getTests().size());
 
 		assertEquals(1, best.getNumOfCoveredGoals());
-		assertEquals(2, best.getNumOfNotCoveredGoals());
+		assertEquals(1, best.getNumOfNotCoveredGoals());
 
 	}
 
@@ -140,9 +146,10 @@ public class DSEAlgorithmSystemTest extends SystemTestBase {
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
-		Object result = evosuite.parseCommandLine(command);
-		DSEBaseAlgorithm<?> dse = getDSEAFromResult(result);
-		TestSuiteChromosome best = dse.getGeneratedTestSuite();
+		Object results = evosuite.parseCommandLine(command);
+		GeneticAlgorithm<?> ga = getGAFromResult(results);
+
+		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		assertTrue(best.getTests().isEmpty());
 
 		System.out.println("EvolvedTestSuite:\n" + best);
@@ -150,7 +157,7 @@ public class DSEAlgorithmSystemTest extends SystemTestBase {
 		assertTrue(best.getTests().isEmpty());
 
 		assertEquals(0, best.getNumOfCoveredGoals());
-		assertEquals(0, best.getNumOfNotCoveredGoals());
+		assertEquals(1, best.getNumOfNotCoveredGoals());
 
 	}
 
@@ -164,15 +171,15 @@ public class DSEAlgorithmSystemTest extends SystemTestBase {
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		DSEBaseAlgorithm<?> dse = getDSEAFromResult(result);
-		TestSuiteChromosome best = dse.getGeneratedTestSuite();
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
 		assertFalse(best.getTests().isEmpty());
 		assertEquals(2, best.getTests().size());
 
-		assertEquals(3, best.getNumOfCoveredGoals());
-		assertEquals(2, best.getNumOfNotCoveredGoals());
+		assertEquals(2, best.getNumOfCoveredGoals());
+		assertEquals(1, best.getNumOfNotCoveredGoals());
 
 	}
 
@@ -186,14 +193,14 @@ public class DSEAlgorithmSystemTest extends SystemTestBase {
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		DSEBaseAlgorithm<?> dse = getDSEAFromResult(result);
-		TestSuiteChromosome best = dse.getGeneratedTestSuite();
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
 		assertFalse(best.getTests().isEmpty());
 		assertEquals(2, best.getTests().size());
 
-		assertEquals(6, best.getNumOfCoveredGoals());
+		assertEquals(3, best.getNumOfCoveredGoals());
 		assertEquals(0, best.getNumOfNotCoveredGoals());
 
 	}
@@ -208,14 +215,14 @@ public class DSEAlgorithmSystemTest extends SystemTestBase {
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		DSEBaseAlgorithm<?> dse = getDSEAFromResult(result);
-		TestSuiteChromosome best = dse.getGeneratedTestSuite();
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
 		assertFalse(best.getTests().isEmpty());
 		assertEquals(2, best.getTests().size());
 
-		assertEquals(6, best.getNumOfCoveredGoals());
+		assertEquals(3, best.getNumOfCoveredGoals());
 		assertEquals(0, best.getNumOfNotCoveredGoals());
 
 	}
@@ -230,14 +237,14 @@ public class DSEAlgorithmSystemTest extends SystemTestBase {
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		DSEBaseAlgorithm<?> dse = getDSEAFromResult(result);
-		TestSuiteChromosome best = dse.getGeneratedTestSuite();
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
 		assertFalse(best.getTests().isEmpty());
 		assertEquals(2, best.getTests().size());
 
-		assertEquals(6, best.getNumOfCoveredGoals());
+		assertEquals(3, best.getNumOfCoveredGoals());
 		assertEquals(0, best.getNumOfNotCoveredGoals());
 
 	}
@@ -252,14 +259,14 @@ public class DSEAlgorithmSystemTest extends SystemTestBase {
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		DSEBaseAlgorithm<?> dse = getDSEAFromResult(result);
-		TestSuiteChromosome best = dse.getGeneratedTestSuite();
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
 		assertFalse(best.getTests().isEmpty());
 		assertEquals(2, best.getTests().size());
 
-		assertEquals(6, best.getNumOfCoveredGoals());
+		assertEquals(3, best.getNumOfCoveredGoals());
 		assertEquals(0, best.getNumOfNotCoveredGoals());
 
 	}
@@ -274,14 +281,14 @@ public class DSEAlgorithmSystemTest extends SystemTestBase {
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		DSEBaseAlgorithm<?> dse = getDSEAFromResult(result);
-		TestSuiteChromosome best = dse.getGeneratedTestSuite();
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
 		assertFalse(best.getTests().isEmpty());
 		assertEquals(2, best.getTests().size());
 
-		assertEquals(6, best.getNumOfCoveredGoals());
+		assertEquals(3, best.getNumOfCoveredGoals());
 		assertEquals(0, best.getNumOfNotCoveredGoals());
 
 	}
@@ -296,14 +303,14 @@ public class DSEAlgorithmSystemTest extends SystemTestBase {
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		DSEBaseAlgorithm<?> dse = getDSEAFromResult(result);
-		TestSuiteChromosome best = dse.getGeneratedTestSuite();
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
 		assertFalse(best.getTests().isEmpty());
 		assertEquals(2, best.getTests().size());
 
-		assertEquals(6, best.getNumOfCoveredGoals());
+		assertEquals(3, best.getNumOfCoveredGoals());
 		assertEquals(0, best.getNumOfNotCoveredGoals());
 
 	}
@@ -318,14 +325,14 @@ public class DSEAlgorithmSystemTest extends SystemTestBase {
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		DSEBaseAlgorithm<?> dse = getDSEAFromResult(result);
-		TestSuiteChromosome best = dse.getGeneratedTestSuite();
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
 		assertFalse(best.getTests().isEmpty());
 		assertEquals(2, best.getTests().size());
 
-		assertEquals(6, best.getNumOfCoveredGoals());
+		assertEquals(3, best.getNumOfCoveredGoals());
 		assertEquals(0, best.getNumOfNotCoveredGoals());
 
 	}
@@ -340,20 +347,18 @@ public class DSEAlgorithmSystemTest extends SystemTestBase {
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		DSEBaseAlgorithm<?> dse = getDSEAFromResult(result);
-		TestSuiteChromosome best = dse.getGeneratedTestSuite();
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
 		assertFalse(best.getTests().isEmpty());
 		assertEquals(2, best.getTests().size());
 
-		assertEquals(4, best.getNumOfCoveredGoals());
-		assertEquals(3, best.getNumOfNotCoveredGoals());
+		assertEquals(3, best.getNumOfCoveredGoals());
+		assertEquals(2, best.getNumOfNotCoveredGoals());
 	}
 
-    // Not supported so far
-    @Test
-	@Ignore
+	@Test
 	public void testMaxTestsStoppingCondition() {
 
 		EvoSuite evosuite = new EvoSuite();
@@ -366,8 +371,8 @@ public class DSEAlgorithmSystemTest extends SystemTestBase {
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		DSEBaseAlgorithm<?> dse = getDSEAFromResult(result);
-		TestSuiteChromosome best = dse.getGeneratedTestSuite();
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
 		assertFalse(best.getTests().isEmpty());
@@ -375,10 +380,8 @@ public class DSEAlgorithmSystemTest extends SystemTestBase {
 		assertEquals(1, best.getTests().size());
 	}
 
-// Not supported so far
-    @Test
-	@Ignore
-    public void testMaxFitnessEvaluationStoppingCondition() {
+	@Test
+	public void testMaxFitnessEvaluationStoppingCondition() {
 
 		EvoSuite evosuite = new EvoSuite();
 		String targetClass = Max.class.getCanonicalName();
@@ -390,8 +393,8 @@ public class DSEAlgorithmSystemTest extends SystemTestBase {
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		DSEBaseAlgorithm<?> dse = getDSEAFromResult(result);
-		TestSuiteChromosome best = dse.getGeneratedTestSuite();
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
 		assertFalse(best.getTests().isEmpty());
@@ -400,8 +403,6 @@ public class DSEAlgorithmSystemTest extends SystemTestBase {
 	}
 
 	@Test
-    @Ignore
-//    Not supported so far
 	public void testMaxTimeStoppingCondition() {
 
 		EvoSuite evosuite = new EvoSuite();
@@ -414,8 +415,8 @@ public class DSEAlgorithmSystemTest extends SystemTestBase {
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		DSEBaseAlgorithm<?> dse = getDSEAFromResult(result);
-		TestSuiteChromosome best = dse.getGeneratedTestSuite();
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
 		assertTrue(best.getTests().isEmpty());
@@ -423,8 +424,6 @@ public class DSEAlgorithmSystemTest extends SystemTestBase {
 	}
 
 	@Test
-    @Ignore
-//    Not supported so far
 	public void testMaxStatementsStoppingCondition() {
 
 		EvoSuite evosuite = new EvoSuite();
@@ -437,8 +436,8 @@ public class DSEAlgorithmSystemTest extends SystemTestBase {
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		DSEBaseAlgorithm<?> dse = getDSEAFromResult(result);
-		TestSuiteChromosome best = dse.getGeneratedTestSuite();
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
 		assertFalse(best.getTests().isEmpty());
@@ -447,7 +446,6 @@ public class DSEAlgorithmSystemTest extends SystemTestBase {
 	}
 
 	@Test
-//    What does stopZero means?
 	public void testStopZeroMax() {
 
 		EvoSuite evosuite = new EvoSuite();
@@ -458,13 +456,13 @@ public class DSEAlgorithmSystemTest extends SystemTestBase {
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		DSEBaseAlgorithm<?> dse = getDSEAFromResult(result);
-		TestSuiteChromosome best = dse.getGeneratedTestSuite();
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
 		assertFalse(best.getTests().isEmpty());
 
-		assertEquals(12, best.getNumOfCoveredGoals());
+		assertEquals(7, best.getNumOfCoveredGoals());
 		assertEquals(0, best.getNumOfNotCoveredGoals());
 	}
 
@@ -478,8 +476,8 @@ public class DSEAlgorithmSystemTest extends SystemTestBase {
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		DSEBaseAlgorithm<?> dse = getDSEAFromResult(result);
-		TestSuiteChromosome best = dse.getGeneratedTestSuite();
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
 		assertFalse(best.getTests().isEmpty());
@@ -498,8 +496,8 @@ public class DSEAlgorithmSystemTest extends SystemTestBase {
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		DSEBaseAlgorithm<?> dse = getDSEAFromResult(result);
-		TestSuiteChromosome best = dse.getGeneratedTestSuite();
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
 		assertFalse(best.getTests().isEmpty());
@@ -519,8 +517,8 @@ public class DSEAlgorithmSystemTest extends SystemTestBase {
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		DSEBaseAlgorithm<?> dse = getDSEAFromResult(result);
-		TestSuiteChromosome best = dse.getGeneratedTestSuite();
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
 		assertFalse(best.getTests().isEmpty());
@@ -541,10 +539,10 @@ public class DSEAlgorithmSystemTest extends SystemTestBase {
 		Properties.TARGET_CLASS = targetClass;
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
-		Object result = evosuite.parseCommandLine(command);
 
-		DSEBaseAlgorithm<?> dse = getDSEAFromResult(result);
-		TestSuiteChromosome best = dse.getGeneratedTestSuite();
+		Object result = evosuite.parseCommandLine(command);
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
 		assertFalse(best.getTests().isEmpty());
