@@ -65,7 +65,13 @@ import java.util.PriorityQueue;
 import java.util.Set;
 
 /**
-   * General Structure of a DSE Algorithm
+   * Structure of a DSE Algorithm,
+   *
+   * Current implementation represents the high level algorithm of SAGE without the running&checking section
+   * since the goal is just to generate the test suite.
+   *
+   * For more details, please take a look at:
+   *     Godefroid P., Levin Y. M. & Molnar D. (2008) Automated Whitebox Fuzz Testing
    *
    * @author Ignacio Lebrero
    */
@@ -73,18 +79,42 @@ public class DSEAlgorithm extends DSEBaseAlgorithm {
 
     private static final Logger logger = LoggerFactory.getLogger(DSEAlgorithm.class);
 
-    private static final String SOLVER_ERROR_DEBUG_MESSAGE = "Solver threw an exception when running: {}";
-    private static final String SOLVER_QUERY_STARTED_MESSAGE = "Solving query with {} constraints";
+    /**
+     * Logger Messages
+     **/
+
+    // Solver
+    public static final String SOLVER_ERROR_DEBUG_MESSAGE = "Solver threw an exception when running: {}";
+    public static final String SOLVER_QUERY_STARTED_MESSAGE = "Solving query with {} constraints";
+    public static final String SOLVER_SOLUTION_DEBUG_MESSAGE = "solver found solution {}";
+    public static final String SOLVER_OUTCOTE_NULL_DEBUG_MESSAGE = "Solver outcome is null (probably failure/unknown/timeout)";
+    public static final String SOLVER_OUTCOME_IS_SAT_DEBUG_MESSAGE = "query is SAT (solution found)";
+    public static final String SOLVER_OUTCOME_IS_UNSAT_DEBUG_MESSAGE = "query is UNSAT (no solution found)";
+    public static final String SOLVING_CURRENT_SMT_QUERY_DEBUG_MESSAGE = "* Solving current SMT query";
+
+    // Concolic Engine
+    public static final String FINISHED_CONCOLIC_EXECUTION_DEBUG_MESSAGE = "* Finished concolic execution.";
+    public static final String EXECUTING_CONCOLICALLY_THE_CURRENT_TEST_CASE_DEBUG_MESSAGE = "* Executing concolically the current test case";
+
+    // TestCase generation
+    public static final String NEW_TEST_CASE_SCORE_DEBUG_MESSAGE = "New test case score: {}";
+    public static final String NEW_TEST_CASE_CREATED_DEBUG_MESSAGE = "Created new test case from SAT solution: {}";
+
+    // Algorithm
+    public static final String ENTRY_POINTS_FOUND_DEBUG_MESSAGE = "Found {} as entry points for DSE";
+    public static final String STOPPING_CONDITION_MET_DEBUG_MESSAGE = "A stoping condition was met. No more tests can be generated using DSE.";
+    public static final String GENERATING_TESTS_FOR_ENTRY_DEBUG_MESSAGE = "Generating tests for entry method {}";
+    public static final String TESTS_WERE_GENERATED_FOR_ENTRY_METHOD_DEBUG_MESSAGE = "{} tests were generated for entry method {}";
 
     /**
      * A cache of previous results from the constraint solver
-     * */
+     **/
     protected final Map<Set<Constraint<?>>, SolverResult> queryCache
             = new HashMap<Set<Constraint<?>>, SolverResult>();
 
     /**
      * DSE Algorithm strategies
-     * */
+     **/
     private final transient PathPruningStrategy pathPruningStrategy;
     private final transient PathSelectionStrategy pathSelectionStrategy;
     private final transient TestCaseBuildingStrategy testCaseBuildingStrategy;
@@ -92,8 +122,8 @@ public class DSEAlgorithm extends DSEBaseAlgorithm {
     private final transient KeepSearchingCriteriaStrategy keepSearchingCriteriaStrategy;
 
     /**
-     * Internal Symbolic engine and Solver
-     * */
+     * Internal concolic engine and Solver
+     **/
     private final transient ConcolicEngine engine;
     private final transient Solver solver;
 
@@ -154,16 +184,15 @@ public class DSEAlgorithm extends DSEBaseAlgorithm {
     }
 
     /**
-     * Current implementation represents the high level algorithm of SAGE without the running&checking section
-     * since our goal is just to generate the test suite.
-     *
-     * For more details, please take a look at:
-     *     Godefroid P., Levin Y. M. & Molnar D. (2008) Automated Whitebox Fuzz Testing
+     * DSE algorithm
      *
      * @param method
      */
     @Override
     protected void runAlgorithm(Method method) {
+        // Path divergence check
+        boolean hasPathConditionDiverged;
+
         // Children cache
         HashSet<Set<Constraint<?>>> seenChildren = new HashSet();
 
@@ -193,7 +222,7 @@ public class DSEAlgorithm extends DSEBaseAlgorithm {
             ));
 
             // Checks for a divergence
-            checkPathConditionDivergence(
+            hasPathConditionDiverged = checkPathConditionDivergence(
                     currentExecutedPathCondition.getPathCondition(),
                     currentTestCase.getOriginalPathCondition().getPathCondition()
             );
@@ -201,11 +230,11 @@ public class DSEAlgorithm extends DSEBaseAlgorithm {
             // Generates the children
             List<DSEPathCondition> children = pathSelectionStrategy.generateChildren(currentExecutedPathCondition);
 
-            processChildren(seenChildren, testCasesWorkList, currentTestCase, children);
+            processChildren(seenChildren, testCasesWorkList, currentTestCase, children, hasPathConditionDiverged);
         }
     }
 
-    private void processChildren(HashSet<Set<Constraint<?>>> seenChildren, PriorityQueue<DSETestCase> testCasesWorkList, DSETestCase currentTestCase, List<DSEPathCondition> children) {
+    private void processChildren(HashSet<Set<Constraint<?>>> seenChildren, PriorityQueue<DSETestCase> testCasesWorkList, DSETestCase currentTestCase, List<DSEPathCondition> children, boolean hasPathConditionDiverged) {
         // We look at all the children
         for (DSEPathCondition child : children) {
             List<Constraint<?>> childQuery = SolverUtils.buildQuery(child.getPathCondition());
@@ -228,24 +257,29 @@ public class DSEAlgorithm extends DSEBaseAlgorithm {
 
                 if (smtSolution != null) {
                     // Generates the new tests based on the current solution
-                    DSETestCase newTestCase = generateNewTestCase(currentTestCase, child, smtSolution);
+                    DSETestCase newTestCase = generateNewTestCase(
+                        currentTestCase,
+                        child,
+                        smtSolution,
+                        hasPathConditionDiverged);
+
                     testCasesWorkList.offer(newTestCase);
                 }
             }
         }
     }
 
-    private DSETestCase generateNewTestCase(DSETestCase currentConcreteTest, DSEPathCondition currentPathCondition, Map<String, Object> smtSolution) {
+    private DSETestCase generateNewTestCase(DSETestCase currentConcreteTest, DSEPathCondition currentPathCondition, Map<String, Object> smtSolution, boolean hasPathConditionDiverged) {
         TestCase newTestCase = DSETestGenerator.updateTest(currentConcreteTest.getTestCase(), smtSolution);
 
         DSETestCase newDSETestCase =  new DSETestCase(
             newTestCase,
             currentPathCondition,
-            getTestScore(newTestCase)
+            getTestScore(newTestCase, hasPathConditionDiverged)
         );
 
-        logger.debug("Created new test case from SAT solution: {}", newDSETestCase.getTestCase().toCode());
-        logger.debug("New test case score: {}", newDSETestCase.getScore());
+        logger.debug(NEW_TEST_CASE_CREATED_DEBUG_MESSAGE, newDSETestCase.getTestCase().toCode());
+        logger.debug(NEW_TEST_CASE_SCORE_DEBUG_MESSAGE, newDSETestCase.getScore());
 
         return newDSETestCase;
     }
@@ -261,19 +295,19 @@ public class DSEAlgorithm extends DSEBaseAlgorithm {
          Map<String, Object> solution = null;
 
         if (smtQueryResult == null) {
-            logger.debug("Solver outcome is null (probably failure/unknown/timeout)");
+            logger.debug(SOLVER_OUTCOTE_NULL_DEBUG_MESSAGE);
         } else {
             queryCache.put(query, smtQueryResult);
 
             if (smtQueryResult.isSAT()) {
-                logger.debug("query is SAT (solution found)");
+                logger.debug(SOLVER_OUTCOME_IS_SAT_DEBUG_MESSAGE);
                 solution = smtQueryResult.getModel();
-                logger.debug("solver found solution {}", solution.toString());
+                logger.debug(SOLVER_SOLUTION_DEBUG_MESSAGE, solution.toString());
 
 
             } else {
                 assert (smtQueryResult.isUNSAT());
-                logger.debug("query is UNSAT (no solution found)");
+                logger.debug(SOLVER_OUTCOME_IS_UNSAT_DEBUG_MESSAGE);
             }
         }
 
@@ -291,21 +325,20 @@ public class DSEAlgorithm extends DSEBaseAlgorithm {
 
          List<Method> targetStaticMethods = getTargetStaticMethods(targetClass);
          Collections.sort(targetStaticMethods, new MethodComparator());
-         logger.debug("Found " + targetStaticMethods.size() + " as entry points for DSE");
+         logger.debug(ENTRY_POINTS_FOUND_DEBUG_MESSAGE, targetStaticMethods.size());
 
          for (Method entryMethod : targetStaticMethods) {
 
            if (this.isFinished()) {
-             logger.debug("A stoping condition was met. No more tests can be generated using DSE.");
+             logger.debug(STOPPING_CONDITION_MET_DEBUG_MESSAGE);
              break;
            }
 
-           logger.debug("Generating tests for entry method" + entryMethod.getName());
+           logger.debug(GENERATING_TESTS_FOR_ENTRY_DEBUG_MESSAGE, entryMethod.getName());
            int testCaseCount = testSuite.getTests().size();
            runAlgorithm(entryMethod);
            int numOfGeneratedTestCases = testSuite.getTests().size() - testCaseCount;
-           logger.debug(numOfGeneratedTestCases + " tests were generated for entry method "
-              + entryMethod.getName());
+           logger.debug(TESTS_WERE_GENERATED_FOR_ENTRY_METHOD_DEBUG_MESSAGE, numOfGeneratedTestCases, entryMethod.getName());
          }
 
          // Post-process work
@@ -354,7 +387,7 @@ public class DSEAlgorithm extends DSEBaseAlgorithm {
     private SolverResult solveQuery(List<Constraint<?>> SMTQuery) {
         SolverResult smtQueryResult = null;
 
-        logger.debug("* Solving current SMT query");
+        logger.debug(SOLVING_CURRENT_SMT_QUERY_DEBUG_MESSAGE);
         try {
             smtQueryResult = solver.solve(SMTQuery);
         } catch (SolverTimeoutException
@@ -385,13 +418,13 @@ public class DSEAlgorithm extends DSEBaseAlgorithm {
      * @return
      */
     private DSEPathCondition executeConcolicEngine(DSETestCase currentTestCase) {
-        logger.debug("* Executing concolically the current test case");
+        logger.debug(EXECUTING_CONCOLICALLY_THE_CURRENT_TEST_CASE_DEBUG_MESSAGE);
 
         TestCase clonedCurrentTestCase = currentTestCase.getTestCase().clone();
         PathCondition result = engine.execute((DefaultTestCase) clonedCurrentTestCase);
         int currentGeneratedFromIndex = currentTestCase.getOriginalPathCondition().getGeneratedFromIndex();
 
-        logger.debug("* Finished concolic execution.");
+        logger.debug(FINISHED_CONCOLIC_EXECUTION_DEBUG_MESSAGE);
 
         return new DSEPathCondition(result, currentGeneratedFromIndex);
     }

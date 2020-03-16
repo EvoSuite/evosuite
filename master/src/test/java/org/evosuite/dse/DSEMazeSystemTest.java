@@ -104,8 +104,9 @@ public class DSEMazeSystemTest extends SystemTestBase {
 		assertFalse(best.getTests().isEmpty());
 
 		assertEquals(58, best.getNumOfCoveredGoals());
-        assertEquals(1, best.getNumOfNotCoveredGoals());
 
+		// This is due to "private MazeClient() {};"
+        assertEquals(1, best.getNumOfNotCoveredGoals());
 	}
 
 }

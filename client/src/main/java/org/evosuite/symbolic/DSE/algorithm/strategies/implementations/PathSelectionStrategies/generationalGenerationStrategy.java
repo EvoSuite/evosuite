@@ -28,12 +28,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * SAGE based strategy, creating all the children negating all the branches of the current path condition.
- * TODO: TEST THIS
+ * SAGE based strategy, creates the children by iteratively negating all the branches of the current path condition.
  *
  * @author ignacio lebrero
  */
 public class generationalGenerationStrategy implements PathSelectionStrategy {
+
     @Override
     public List<DSEPathCondition> generateChildren(DSEPathCondition currentPathConditionChild) {
         List<DSEPathCondition> generatedChildren = new ArrayList<>();
@@ -41,7 +41,7 @@ public class generationalGenerationStrategy implements PathSelectionStrategy {
         List<BranchCondition> currentPathConditionBranchConditions = currentPathConditionChild.getPathCondition().getBranchConditions();
         int currentPathConditionIndexGeneratedFrom = currentPathConditionChild.getGeneratedFromIndex();
 
-        // We cover the untouched prefix
+        // adds the untouched prefix
         for (int indexBound = 0; indexBound < currentPathConditionIndexGeneratedFrom; ++indexBound) {
             accumulatedBranchConditions.add(currentPathConditionBranchConditions.get(indexBound));
         }
@@ -50,7 +50,7 @@ public class generationalGenerationStrategy implements PathSelectionStrategy {
         for (int indexBound = currentPathConditionIndexGeneratedFrom; indexBound < currentPathConditionBranchConditions.size(); indexBound++) {
             BranchCondition currentBranchCondition = currentPathConditionBranchConditions.get(indexBound);
 
-            // We add the negated BranchCondition version to the current created pathCondition
+            // Adds the negated BranchCondition version to the current created pathCondition
             accumulatedBranchConditions.add(currentBranchCondition.getNegatedVersion());
 
             DSEPathCondition newChild = new DSEPathCondition(
