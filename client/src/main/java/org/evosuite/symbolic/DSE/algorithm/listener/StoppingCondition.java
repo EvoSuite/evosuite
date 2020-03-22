@@ -37,7 +37,8 @@ public interface StoppingCondition extends SearchListener {
 	public abstract long getCurrentValue();
 
 	/**
-	 * Get upper limit of resources
+	 * Get upper limit of resources.
+	 * Please note that it must be bounded in [0, 100] in relation to the condition values.
 	 *
 	 * Mainly used for toString()
 	 *

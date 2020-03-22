@@ -19,6 +19,7 @@
  */
 package org.evosuite.symbolic.DSE.algorithm;
 
+import org.evosuite.Properties;
 import org.evosuite.coverage.FitnessFunctionsUtils;
 import org.evosuite.symbolic.DSE.DSEStatistics;
 import org.evosuite.symbolic.DSE.algorithm.strategies.implementations.KeepSearchingCriteriaStrategies.LastExecutionCreatedATestCaseStrategy;
@@ -44,6 +45,11 @@ public class DSEAlgorithmFactory {
     */
     private final DSEStatistics dseStatistics = DSEStatistics.getInstance();
 
+    /**
+     * Should lsog the algorithm progress throughout it's execution
+     */
+    private final boolean showProgress = Properties.SHOW_PROGRESS;
+
     public DSEAlgorithm getDSEAlgorithm(DSEAlgorithms dseAlgorithmType) {
         if (dseAlgorithmType == null) {
             throw new IllegalArgumentException(DSE_ALGORITHM_TYPE_NOT_PROVIDED);
@@ -67,6 +73,8 @@ public class DSEAlgorithmFactory {
      */
     private DSEAlgorithm buildSAGEAlgorithm() {
         DSEAlgorithm algorithm = new DSEAlgorithm(
+            dseStatistics,
+            showProgress,
             new AlreadySeenSkipStrategy(),
             new LastExecutionCreatedATestCaseStrategy(),
             new generationalGenerationStrategy(),

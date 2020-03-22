@@ -20,7 +20,6 @@
 package org.evosuite.symbolic.DSE.algorithm;
 
 import org.evosuite.Properties;
-import org.evosuite.runtime.classhandling.ClassResetter;
 import org.evosuite.symbolic.DSE.ConcolicEngine;
 import org.evosuite.symbolic.DSE.DSEStatistics;
 import org.evosuite.symbolic.DSE.DSETestCase;
@@ -49,16 +48,15 @@ import org.evosuite.symbolic.solver.SolverUtils;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testsuite.TestSuiteChromosome;
+import org.evosuite.utils.ClassUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
@@ -101,6 +99,7 @@ public class DSEAlgorithm extends DSEBaseAlgorithm {
     public static final String NEW_TEST_CASE_CREATED_DEBUG_MESSAGE = "Created new test case from SAT solution: {}";
 
     // Algorithm
+    public static final String PROGRESS_MSG_INFO = "Total progress: {}";
     public static final String ENTRY_POINTS_FOUND_DEBUG_MESSAGE = "Found {} as entry points for DSE";
     public static final String STOPPING_CONDITION_MET_DEBUG_MESSAGE = "A stoping condition was met. No more tests can be generated using DSE.";
     public static final String GENERATING_TESTS_FOR_ENTRY_DEBUG_MESSAGE = "Generating tests for entry method {}";
@@ -129,6 +128,7 @@ public class DSEAlgorithm extends DSEBaseAlgorithm {
 
     public DSEAlgorithm() {
         this(
+            SHOW_PROGRESS_DEFAULT_VALUE,
             DSEStatistics.getInstance(), //TODO: move this to a dependency injection schema
             new ConcolicEngine(),
             SolverFactory.getInstance().buildNewSolver(),
@@ -143,25 +143,29 @@ public class DSEAlgorithm extends DSEBaseAlgorithm {
     }
 
     public DSEAlgorithm(
-            PathPruningStrategy pathPruningStrategy,
-            KeepSearchingCriteriaStrategy keepSearchingCriteriaStrategy,
-            PathSelectionStrategy pathSelectionStrategy,
-            TestCaseBuildingStrategy testCaseBuildingStrategy,
-            TestCaseSelectionStrategy testCaseSelectionStrategy
+        DSEStatistics statisticsLogger,
+        boolean showProgress,
+        PathPruningStrategy pathPruningStrategy,
+        KeepSearchingCriteriaStrategy keepSearchingCriteriaStrategy,
+        PathSelectionStrategy pathSelectionStrategy,
+        TestCaseBuildingStrategy testCaseBuildingStrategy,
+        TestCaseSelectionStrategy testCaseSelectionStrategy
     ) {
         this(
-                DSEStatistics.getInstance(),
-                new ConcolicEngine(),
-                SolverFactory.getInstance().buildNewSolver(),
-                pathPruningStrategy,
-                keepSearchingCriteriaStrategy,
-                pathSelectionStrategy,
-                testCaseBuildingStrategy,
-                testCaseSelectionStrategy
+            showProgress,
+            statisticsLogger,
+            new ConcolicEngine(),
+            SolverFactory.getInstance().buildNewSolver(),
+            pathPruningStrategy,
+            keepSearchingCriteriaStrategy,
+            pathSelectionStrategy,
+            testCaseBuildingStrategy,
+            testCaseSelectionStrategy
         );
     }
 
     public DSEAlgorithm(
+            boolean showProgress,
             DSEStatistics dseStatistics,
             ConcolicEngine engine,
             Solver solver,
@@ -171,7 +175,7 @@ public class DSEAlgorithm extends DSEBaseAlgorithm {
             TestCaseBuildingStrategy testCaseBuildingStrategy,
             TestCaseSelectionStrategy testCaseSelectionStrategy
     ) {
-        super(dseStatistics);
+        super(dseStatistics, showProgress);
 
         this.engine = engine;
         this.solver = solver;
@@ -212,6 +216,9 @@ public class DSEAlgorithm extends DSEBaseAlgorithm {
             // NOTE: We consider Adding a testCase an iteration
             addNewTestCaseToTestSuite(currentTestCase);
             notifyIteration();
+
+            // After iteration checks and logs
+            if (showProgress) logger.info(PROGRESS_MSG_INFO, getProgress());
             if (isFinished()) return;
 
             // Runs the current test case
@@ -238,11 +245,14 @@ public class DSEAlgorithm extends DSEBaseAlgorithm {
         // We look at all the children
         for (DSEPathCondition child : children) {
             List<Constraint<?>> childQuery = SolverUtils.buildQuery(child.getPathCondition());
+
             Set<Constraint<?>> normalizedChildQuery = normalize(childQuery);
 
             if (!pathPruningStrategy.shouldSkipCurrentPath(seenChildren, normalizedChildQuery, queryCache)) {
 
-                // Post-processing stuff
+                // Logs query data
+                statisticsLogger.reportNewConstraints(childQuery);
+
                 childQuery.addAll(
                     SolverUtils.createBoundsForQueryVariables(childQuery)
                 );
@@ -269,6 +279,15 @@ public class DSEAlgorithm extends DSEBaseAlgorithm {
         }
     }
 
+    /**
+     * Generates a new test case from the concolic execution data.
+     *
+     * @param currentConcreteTest
+     * @param currentPathCondition
+     * @param smtSolution
+     * @param hasPathConditionDiverged
+     * @return
+     */
     private DSETestCase generateNewTestCase(DSETestCase currentConcreteTest, DSEPathCondition currentPathCondition, Map<String, Object> smtSolution, boolean hasPathConditionDiverged) {
         TestCase newTestCase = DSETestGenerator.updateTest(currentConcreteTest.getTestCase(), smtSolution);
 
@@ -285,7 +304,7 @@ public class DSEAlgorithm extends DSEBaseAlgorithm {
     }
 
     /**
-     * Analyzes the results of an smtQuery
+     * Analyzes the results of an smtQuery.
      *
      * @param query
      * @param smtQueryResult
@@ -296,17 +315,21 @@ public class DSEAlgorithm extends DSEBaseAlgorithm {
 
         if (smtQueryResult == null) {
             logger.debug(SOLVER_OUTCOTE_NULL_DEBUG_MESSAGE);
+
+            // This doesn't necessarily is a timeout, but we model it this way
+            statisticsLogger.reportSolverError();
         } else {
             queryCache.put(query, smtQueryResult);
 
             if (smtQueryResult.isSAT()) {
                 logger.debug(SOLVER_OUTCOME_IS_SAT_DEBUG_MESSAGE);
+                statisticsLogger.reportNewSAT();
+
                 solution = smtQueryResult.getModel();
                 logger.debug(SOLVER_SOLUTION_DEBUG_MESSAGE, solution.toString());
-
-
             } else {
                 assert (smtQueryResult.isUNSAT());
+                statisticsLogger.reportNewUNSAT();
                 logger.debug(SOLVER_OUTCOME_IS_UNSAT_DEBUG_MESSAGE);
             }
         }
@@ -323,7 +346,7 @@ public class DSEAlgorithm extends DSEBaseAlgorithm {
          notifyGenerationStarted();
          final Class<?> targetClass = Properties.getTargetClassAndDontInitialise();
 
-         List<Method> targetStaticMethods = getTargetStaticMethods(targetClass);
+         List<Method> targetStaticMethods = ClassUtil.getTargetClassStaticMethods(targetClass);
          Collections.sort(targetStaticMethods, new MethodComparator());
          logger.debug(ENTRY_POINTS_FOUND_DEBUG_MESSAGE, targetStaticMethods.size());
 
@@ -348,34 +371,6 @@ public class DSEAlgorithm extends DSEBaseAlgorithm {
          notifyGenerationFinished();
          statisticsLogger.logStatistics();
          return testSuite;
-     }
-
-     /**
-       * Returns a set with the static methods of a class
-       *
-       * @param targetClass a class instance
-       * @return
-       */
-     private static List<Method> getTargetStaticMethods(Class<?> targetClass) {
-        Method[] declaredMethods = targetClass.getDeclaredMethods();
-        List<Method> targetStaticMethods = new LinkedList<Method>();
-        for (Method m : declaredMethods) {
-
-          if (!Modifier.isStatic(m.getModifiers())) {
-            continue;
-          }
-
-          if (Modifier.isPrivate(m.getModifiers())) {
-            continue;
-          }
-
-          if (m.getName().equals(ClassResetter.STATIC_RESET)) {
-            continue;
-          }
-
-          targetStaticMethods.add(m);
-        }
-        return targetStaticMethods;
      }
 
     /**
@@ -412,7 +407,7 @@ public class DSEAlgorithm extends DSEBaseAlgorithm {
      }
 
     /**
-     * Executes concolicaly the current TestCase
+     * Executes concolically the current TestCase
      *
      * @param currentTestCase
      * @return

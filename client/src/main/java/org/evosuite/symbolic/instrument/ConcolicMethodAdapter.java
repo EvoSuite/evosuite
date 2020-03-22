@@ -24,6 +24,7 @@ import static org.evosuite.dse.util.Assertions.notNull;
 import static org.evosuite.symbolic.instrument.ConcolicConfig.BII_V;
 import static org.evosuite.symbolic.instrument.ConcolicConfig.BYTECODE_NAME;
 import static org.evosuite.symbolic.instrument.ConcolicConfig.CII_V;
+import static org.evosuite.symbolic.instrument.ConcolicConfig.CLASS_V;
 import static org.evosuite.symbolic.instrument.ConcolicConfig.DGGG_V;
 import static org.evosuite.symbolic.instrument.ConcolicConfig.DII_V;
 import static org.evosuite.symbolic.instrument.ConcolicConfig.D_V;
@@ -562,8 +563,7 @@ public final class ConcolicMethodAdapter extends GeneratorAdapter {
 			mv.visitMethodInsn(INVOKESTATIC, VM_FQ, BYTECODE_NAME[LDC], G_V);
 		} else if (constant instanceof Type) {
 			mv.visitInsn(DUP);
-			mv.visitMethodInsn(INVOKESTATIC, VM_FQ, BYTECODE_NAME[LDC],
-			                   "(Ljava/lang/Class;)V"); //$NON-NLS-1$
+			mv.visitMethodInsn(INVOKESTATIC, VM_FQ, BYTECODE_NAME[LDC],CLASS_V); //$NON-NLS-1$
 		} else { /* LDC2_W */
 			mv.visitInsn(DUP2);
 
@@ -907,7 +907,7 @@ public final class ConcolicMethodAdapter extends GeneratorAdapter {
 	@Override
 	public void visitLookupSwitchInsn(Label dflt, int[] keys, Label[] labels) {
 
-		
+
 		int currentBranchIndex = branchCounter++;
 
 		mv.visitInsn(DUP); // pass concrete int value

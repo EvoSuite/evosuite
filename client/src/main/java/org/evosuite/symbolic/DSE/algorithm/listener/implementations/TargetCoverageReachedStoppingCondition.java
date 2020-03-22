@@ -15,19 +15,19 @@ public class TargetCoverageReachedStoppingCondition extends StoppingConditionImp
     private static final long MAXIMUM_LIMIT_INPUT_VALUE = 100;
 
     /** Keep track of highest coverage seen so far */
-	private double lastCoverage = Chromosome.MIN_COVERAGE_REACHABLE;
+	private int lastCoverage = Chromosome.MIN_COVERAGE_REACHABLE;
 
 	/** Keep track of the target coverage */
-	private double targetCoverage = Properties.DSE_TARGET_COVERAGE;
+	private int targetCoverage = Properties.DSE_TARGET_COVERAGE;
 
     @Override
     public long getCurrentValue() {
-        return (long) (lastCoverage * MAXIMUM_LIMIT_INPUT_VALUE);
+        return lastCoverage ;
     }
 
     @Override
     public long getLimit() {
-        return (long) (targetCoverage * MAXIMUM_LIMIT_INPUT_VALUE);
+        return targetCoverage;
     }
 
     @Override
@@ -51,7 +51,7 @@ public class TargetCoverageReachedStoppingCondition extends StoppingConditionImp
      */
     @Override
     public void setLimit(long limit) throws InvalidParameterException {
-        if (limit < MINIMUM_LIMIT_INPUT_VALUE || limit > MAXIMUM_LIMIT_INPUT_VALUE) {
+        if (! isInputValid(limit)) {
             throw new InvalidParameterException(
                     new StringBuilder()
                             .append("ERROR | limit parameter must be in bounds ")
@@ -60,12 +60,33 @@ public class TargetCoverageReachedStoppingCondition extends StoppingConditionImp
                             .append(MAXIMUM_LIMIT_INPUT_VALUE).toString()
             );
         }
-        targetCoverage = (double) limit / 100;
+        targetCoverage = (int) limit;
     }
 
     @Override
     public void iteration(DSEBaseAlgorithm algorithm) {
-        lastCoverage = Math.max(lastCoverage, algorithm.getGeneratedTestSuite().getCoverage());
+        lastCoverage = Math.max(lastCoverage, normalizeCoverage(algorithm.getGeneratedTestSuite().getCoverage()));
     }
 
+    /**
+     * Workaround: as coverage on the testSuite is represented as a double between [0.0, 1.0] and stopping conditions use
+     *             longs, we normalize the value for internal use.
+     *
+     * @param coverage
+     * @return
+     */
+    private int normalizeCoverage(double coverage) {
+        return (int) (coverage * Chromosome.MAX_COVERAGE_REACHABLE);
+    }
+
+    /**
+     * Input validation for coverage.
+     *
+     * @param limit
+     * @return
+     */
+    private boolean isInputValid(long limit) {
+        return limit < MINIMUM_LIMIT_INPUT_VALUE
+            || limit > MAXIMUM_LIMIT_INPUT_VALUE;
+    }
 }

@@ -54,9 +54,16 @@ public abstract class DSEBaseAlgorithm<T extends Chromosome> implements Serializ
 	public static final String ADDING_NEW_STOPPING_CONDITION_DEBUG_MESSAGE = "Adding new stopping condition";
 	public static final String FITNESS_AFTER_ADDING_NEW_TEST_DEBUG_MESSAGE = "Fitness after adding new test: {}";
 	public static final String FITNESS_BEFORE_ADDING_NEW_TEST__DEBUG_MESSAGE = "Fitness before adding new test: {}";
+	public static final String NEW_TEST_GENERATED_IMPROVES_FITNESS_INFO_MESSAGE = "New test generated improves fitness";
+	public static final String NEW_TEST_GENERATED_DIDNT_IMPROVES_FITNESS_INFO_MESSAGE = "New test generated doesn't improves fitness";
 	public static final String CALCULATING_FITNESS_FOR_CURRENT_TEST_SUITE_DEBUG_MESSAGE = "Calculating fitness for current test suite";
 	public static final String ABOUT_TO_ADD_A_NEW_TEST_CASE_TO_THE_TEST_SUITE_DEBUG_MESSAGE = "About to add a new testCase to the test suite";
 
+	// TODO: this values can be moved to a general DSEAlgorithmConfig object later on
+	public static final long NORMALIZE_VALUE_LIMIT = 100;
+	public static final boolean SHOW_PROGRESS_DEFAULT_VALUE = false;
+
+	/** Path Divergence config */
 	public static final int PATH_DIVERGED_BASED_TEST_CASE_PENALTY_SCORE = 0;
 
 	private static final Logger logger = LoggerFactory.getLogger(DSEBaseAlgorithm.class);
@@ -72,12 +79,15 @@ public abstract class DSEBaseAlgorithm<T extends Chromosome> implements Serializ
 	/** DSE statistics */
 	protected transient final DSEStatistics statisticsLogger;
 
-	public DSEBaseAlgorithm(DSEStatistics dseStatistics) {
+	protected final boolean showProgress;
+
+	public DSEBaseAlgorithm(DSEStatistics dseStatistics, boolean showProgress) {
+		this.showProgress = showProgress;
 		this.statisticsLogger = dseStatistics;
 	}
 
 	/**
-	 * Add new fitness function (i.e., for new mutation)
+	 * Add new fitness function
 	 *
 	 * @param function
 	 */
@@ -244,18 +254,30 @@ public abstract class DSEBaseAlgorithm<T extends Chromosome> implements Serializ
 	 *
 	 * @return a value [0.0, 1.0]
 	 */
-	protected double progress() {
+	protected double getProgress() {
 		long totalbudget = 0;
-		long currentbudget = 0;
+		double currentbudget = 0;
 
 		for (StoppingCondition sc : this.stoppingConditions) {
 			if (sc.getLimit() != 0) {
-				totalbudget += sc.getLimit();
-				currentbudget += sc.getCurrentValue();
+				totalbudget += NORMALIZE_VALUE_LIMIT;
+				currentbudget += getNormalizedValue(sc.getCurrentValue(), sc.getLimit());
 			}
 		}
 
-		return (double) currentbudget / (double) totalbudget;
+		return currentbudget / (double) totalbudget;
+	}
+
+	/**
+	 * Each stopping condition can have diferent limits, thus we normalize the values to just get the
+	 * correspondent "percentage" related to the limit it had.
+	 *
+	 * @param currentValue
+	 * @param limit
+	 * @return
+	 */
+	private double getNormalizedValue(long currentValue, long limit) {
+		return (double )(currentValue * NORMALIZE_VALUE_LIMIT) / (double) limit;
 	}
 
 	public TestSuiteChromosome getGeneratedTestSuite() {
@@ -281,7 +303,7 @@ public abstract class DSEBaseAlgorithm<T extends Chromosome> implements Serializ
     }
 
 	/**
-	 * Score calculation is based on fitness improvement against the current testSuite.
+	 * Score calculation is based on coverage improvement against the current testSuite.
 	 *
 	 * @param newTestCase
 	 * @param hasPathConditionDiverged
@@ -289,23 +311,42 @@ public abstract class DSEBaseAlgorithm<T extends Chromosome> implements Serializ
 	 */
     protected double getTestScore(TestCase newTestCase, boolean hasPathConditionDiverged) {
     	// In case of divergence we add the worst score that there could be
-    	if (hasPathConditionDiverged) return PATH_DIVERGED_BASED_TEST_CASE_PENALTY_SCORE;
+    	if (hasPathConditionDiverged) {
+    		statisticsLogger.reportNewTestUnuseful();
+    		return PATH_DIVERGED_BASED_TEST_CASE_PENALTY_SCORE;
+		}
 
     	double oldCoverage;
     	double newCoverage;
+    	double coverageDiff;
 
     	oldCoverage = testSuite.getCoverage();
 
+    	// New coverage calculation
 		testSuite.addTest(newTestCase);
         calculateFitness();
 
         newCoverage = testSuite.getCoverage();
+        coverageDiff = newCoverage - oldCoverage;
 
+        // Restore old values
 		testSuite.deleteTest(newTestCase);
 		calculateFitness();
 
-		return newCoverage - oldCoverage;
+		logNewTestCoverageData(coverageDiff);
+
+		return coverageDiff;
     }
+
+	private void logNewTestCoverageData(double coverageDiff) {
+    	if (coverageDiff > 0) {
+			logger.debug(NEW_TEST_GENERATED_IMPROVES_FITNESS_INFO_MESSAGE);
+			statisticsLogger.reportNewTestUseful();
+		} else {
+    		logger.debug(NEW_TEST_GENERATED_DIDNT_IMPROVES_FITNESS_INFO_MESSAGE);
+    		statisticsLogger.reportNewTestUnuseful();
+		}
+	}
 
 	/**
 	 * Prints old/new fitness values and adds the new test case.

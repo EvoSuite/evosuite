@@ -61,6 +61,7 @@ public final class ConcolicConfig
   public static final String DOUBLE   = "D"; //$NON-NLS-1$
   public static final String REF      = "Ljava/lang/Object;"; //$NON-NLS-1$
   public static final String STR      = "Ljava/lang/String;"; //$NON-NLS-1$
+  public static final String CLASS    = "Ljava/lang/Class;"; //$NON-NLS-1$
 
 
   public static final String    V_V = "("+                ")"+VOID; //$NON-NLS-1$ //$NON-NLS-2$
@@ -120,6 +121,8 @@ public final class ConcolicConfig
   public static final String IGGG_V = "("+INT+STR+STR+STR+")"+VOID; //$NON-NLS-1$ //$NON-NLS-2$
   public static final String ZGGG_V = "("+BOOL+STR+STR+STR+")"+VOID; //$NON-NLS-1$ //$NON-NLS-2$
   public static final String LGGG_V = "("+REF+STR+STR+STR+")"+VOID; //$NON-NLS-1$ //$NON-NLS-2$
+
+  public static final String CLASS_V = "("+CLASS+")"+VOID;
 
 
   static final String[] BYTECODE_NAME = new String[] {

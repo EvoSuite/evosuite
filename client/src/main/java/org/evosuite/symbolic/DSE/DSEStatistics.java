@@ -76,25 +76,25 @@ public class DSEStatistics {
 	private long nrOfTimeouts = 0;
 	private long totalSolvingTimeMillis = 0;
 	private long totalConcolicExecutionTimeMillis = 0;
-	private int constraintTooLongCounter = 0;
 
 	// New solutions found metrics
 	private long nrOfSolutionWithNoImprovement = 0;
 	private long nrOfNewTestFound = 0;
 
     // Path condition metrics
-	private int path_condition_count = 0;
+	private int pathConditionCount = 0;
 	private int pathsExploredCounter = 0;
 	private int pathDivergencesCounter = 0;
-	private int max_path_condition_length;
-	private int min_path_condition_length;
-	private double avg_path_condition_length;
+	private int maxPathConditionLength;
+	private int minPathConditionLength;
+	private double avgPathConditionLength;
 
 	// Constraint metrics
-	private int constraint_count = 0;
-	private int max_constraint_size = 0;
-	private int min_constraint_size = 0;
-	private double avg_constraint_size = 0;
+	private int constraintCount = 0;
+	private int maxConstraintSize = 0;
+	private int minConstraintSize = 0;
+	private int constraintTooLongCounter = 0;
+	private double avgConstraintSize = 0;
 
 	private final List<Boolean> changes = new LinkedList<Boolean>();
 	private final ConstraintTypeCounter constraintTypeCounter = new ConstraintTypeCounter();
@@ -324,7 +324,7 @@ public class DSEStatistics {
 		int integerRealStringConstraints = constraintTypeCounter.getIntegerRealAndStringConstraints();
 
 		if (total == 0) {
-			logger.info(String.format("* DSE)   no constraints {}", avg_constraint_size));
+			logger.info(String.format("* DSE)   no constraints {}", avgConstraintSize));
 		} else {
 			String line1 = String.format("* DSE)   Number of integer only constraints : %s / %s ", integerOnly, total);
 			String line2 = String.format("* DSE)   Number of real only constraints : %s", realOnly, total);
@@ -351,18 +351,18 @@ public class DSEStatistics {
 
 	private void logConstraintSizeStatistics() {
 		logger.info("* DSE) Constraint size:");
-		logger.info(String.format("* DSE)   max constraint size: %s", max_constraint_size));
-		logger.info(String.format("* DSE)   min constraint size: %s", min_constraint_size));
-		logger.info(String.format("* DSE)   avg constraint size: %s", avg_constraint_size));
+		logger.info(String.format("* DSE)   max constraint size: %s", maxConstraintSize));
+		logger.info(String.format("* DSE)   min constraint size: %s", minConstraintSize));
+		logger.info(String.format("* DSE)   avg constraint size: %s", avgConstraintSize));
 		logger.info(String.format("* DSE)   Too big constraints: %s (max size %s)",
 				getConstraintTooLongCounter(), Properties.DSE_CONSTRAINT_LENGTH));
 	}
 
 	private void logPathConditionLengthStatistics() {
 		logger.info("* DSE) Path condition length:");
-		logger.info(String.format("* DSE)   max path condition length: %s", max_path_condition_length));
-		logger.info(String.format("* DSE)   min path condition length: %s", min_path_condition_length));
-		logger.info(String.format("* DSE)   avg path condition length: %s", avg_path_condition_length));
+		logger.info(String.format("* DSE)   max path condition length: %s", maxPathConditionLength));
+		logger.info(String.format("* DSE)   min path condition length: %s", minPathConditionLength));
+		logger.info(String.format("* DSE)   avg path condition length: %s", avgPathConditionLength));
 	}
 
 	private int getConstraintTooLongCounter() {
@@ -375,53 +375,53 @@ public class DSEStatistics {
 
 	public void reportNewConstraints(Collection<Constraint<?>> constraints) {
 
-		if (path_condition_count == 0) {
-			min_path_condition_length = constraints.size();
-			max_path_condition_length = constraints.size();
-			avg_path_condition_length = constraints.size();
+		if (pathConditionCount == 0) {
+			minPathConditionLength = constraints.size();
+			maxPathConditionLength = constraints.size();
+			avgPathConditionLength = constraints.size();
 		} else {
 			// update average size
-			double new_avg_size = avg_path_condition_length
-					+ ((((double) constraints.size() - avg_path_condition_length))
-							/ ((double) path_condition_count + 1));
-			avg_path_condition_length = new_avg_size;
+			double new_avg_size = avgPathConditionLength
+					+ ((((double) constraints.size() - avgPathConditionLength))
+							/ ((double) pathConditionCount + 1));
+			avgPathConditionLength = new_avg_size;
 
 			// update max length
-			if (constraints.size() > max_path_condition_length) {
-				max_path_condition_length = constraints.size();
+			if (constraints.size() > maxPathConditionLength) {
+				maxPathConditionLength = constraints.size();
 			}
 
 			// update min length
-			if (constraints.size() < min_path_condition_length) {
-				min_path_condition_length = constraints.size();
+			if (constraints.size() < minPathConditionLength) {
+				minPathConditionLength = constraints.size();
 			}
 		}
 
-		path_condition_count++;
+		pathConditionCount++;
 
 		for (Constraint<?> c : constraints) {
-			if (constraint_count == 0) {
-				min_constraint_size = c.getSize();
-				max_constraint_size = c.getSize();
-				avg_constraint_size = c.getSize();
+			if (constraintCount == 0) {
+				minConstraintSize = c.getSize();
+				maxConstraintSize = c.getSize();
+				avgConstraintSize = c.getSize();
 			} else {
 				// update average size
-				double new_avg_size = avg_constraint_size
-						+ ((((double) c.getSize() - avg_constraint_size)) / ((double) constraint_count + 1));
-				avg_constraint_size = new_avg_size;
+				double new_avg_size = avgConstraintSize
+						+ ((((double) c.getSize() - avgConstraintSize)) / ((double) constraintCount + 1));
+				avgConstraintSize = new_avg_size;
 
 				// update max size
-				if (c.getSize() > max_constraint_size) {
-					max_constraint_size = c.getSize();
+				if (c.getSize() > maxConstraintSize) {
+					maxConstraintSize = c.getSize();
 				}
 				// update min size
-				if (c.getSize() < min_constraint_size) {
-					min_constraint_size = c.getSize();
+				if (c.getSize() < minConstraintSize) {
+					minConstraintSize = c.getSize();
 				}
 
 			}
 
-			constraint_count++;
+			constraintCount++;
 		}
 
 		countTypesOfConstraints(constraints);
@@ -470,7 +470,7 @@ public class DSEStatistics {
 		constraintTooLongCounter++;
 	}
 
-	public void reportNewTimeout() {
+	public void reportSolverError() {
 		nrOfTimeouts++;
 	}
 
