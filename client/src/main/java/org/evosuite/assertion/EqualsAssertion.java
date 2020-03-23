@@ -65,12 +65,12 @@ public class EqualsAssertion extends Assertion {
 	@Override
 	public String getCode() {
 		if (source.isPrimitive() && dest.isPrimitive()) {
-			if (((Boolean) value).booleanValue())
+			if ((Boolean) value)
 				return "assertTrue(" + source.getName() + " == " + dest.getName() + ");";
 			else
 				return "assertFalse(" + source.getName() + " == " + dest.getName() + ");";
 		} else {
-			if (((Boolean) value).booleanValue())
+			if ((Boolean) value)
 				return "assertTrue(" + source.getName() + ".equals((java.lang.Object)" + dest.getName()
 				        + "));";
 			else
@@ -83,7 +83,7 @@ public class EqualsAssertion extends Assertion {
 	@Override
 	public boolean evaluate(Scope scope) {
 		try {
-			if (((Boolean) value).booleanValue()) {
+			if ((Boolean) value) {
 				if (source.getObject(scope) == null)
 					return dest.getObject(scope) == null;
 				else

@@ -1595,7 +1595,7 @@ public class TestFactory {
 		List<Integer> pos = new ArrayList<>(toDelete);
 		pos.sort(Collections.reverseOrder());
 
-		for (Integer i : pos) {
+		for (int i : pos) {
 			logger.debug("Deleting statement: {}", i);
 			test.remove(i);
 		}
@@ -1619,11 +1619,11 @@ public class TestFactory {
 			in those cases, we have to recursively look at all their dependencies.
 		 */
 
-		for (Integer i : references) {
+		for (int i : references) {
 
 			Set<Integer> constraintDependencies = ConstraintVerifier.dependentPositions(test, i);
 			if(constraintDependencies!=null){
-				for(Integer j : constraintDependencies){
+				for(int j : constraintDependencies){
 					recursiveDeleteInclusion(test,toDelete,j);
 				}
 			}
@@ -1963,7 +1963,7 @@ public class TestFactory {
             Field field = reflectionFactory.nextField();
             parameters = satisfyParameters(test, null,
                     //we need a reference to the SUT, and one to a variable of same type of chosen field
-                    Arrays.asList((Type)reflectionFactory.getReflectedClass() , (Type)field.getType()), null,
+                    Arrays.asList(reflectionFactory.getReflectedClass(), field.getType()), null,
                     position, recursionDepth + 1, true, false, true);
 
             try {
@@ -2027,7 +2027,7 @@ public class TestFactory {
 			// Added 'null' as additional parameter - fix for @NotNull annotations issue on evo mailing list
 			parameters = satisfyParameters(test, callee,
 					//we need a reference to the SUT, and one to a variable of same type of chosen field
-					Collections.singletonList((Type) field.getType()), null, position, recursionDepth + 1, allowNull, false, true);
+					Collections.singletonList(field.getType()), null, position, recursionDepth + 1, allowNull, false, true);
 
 			try {
 				st = new PrivateFieldStatement(test,reflectionFactory.getReflectedClass(),field.getName(),

@@ -207,7 +207,7 @@ public class InputCoverageTestFitness extends TestFitnessFunction {
 
               break;
           case Type.CHAR:
-              char charValue = (char)((Number) argValue).intValue();
+              char charValue = (char) argValue.intValue();
 
               double distanceToAlpha = 0.0;
               if (charValue < 'A') {

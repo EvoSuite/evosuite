@@ -125,19 +125,19 @@ public class BranchesManager<T extends Chromosome> extends StructuralGoalManager
 			FitnessFunction<T> branch = this.branchCoverageFalseMap.get(branchid);
 			if (branch == null)
 				continue;
-			updateCoveredGoals((FitnessFunction<T>) branch, c);
+			updateCoveredGoals(branch, c);
 		}
 		for (Integer branchid : result.getTrace().getCoveredTrueBranches()){
 			FitnessFunction<T> branch = this.branchCoverageTrueMap.get(branchid);
 			if (branch == null)
 				continue;
-			updateCoveredGoals((FitnessFunction<T>) branch, c);
+			updateCoveredGoals(branch, c);
 		}
 		for (String method : result.getTrace().getCoveredBranchlessMethods()){
 			FitnessFunction<T> branch = this.branchlessMethodCoverageMap.get(method);
 			if (branch == null)
 				continue;
-			updateCoveredGoals((FitnessFunction<T>) branch, c);
+			updateCoveredGoals(branch, c);
 		}
 		//debugStructuralDependencies(c);
 	}

@@ -282,7 +282,7 @@ public class MIOArchive<F extends TestFitnessFunction, T extends TestChromosome>
     // concurrent access
     Properties.TEST_ARCHIVE = false;
 
-    TestSuiteChromosome mergedSolution = (TestSuiteChromosome) solution.clone();
+    TestSuiteChromosome mergedSolution = solution.clone();
 
     // to avoid adding the same solution to 'mergedSolution' suite
     Set<T> solutionsSampledFromArchive = new LinkedHashSet<>();

@@ -610,7 +610,7 @@ public class TestCodeVisitor extends TestVisitor {
 		Boolean contains = (Boolean)assertion.getValue();
 
 		String stmt = "";
-		if(contains.booleanValue()) {
+		if(contains) {
 			stmt += "assertTrue(";
 		} else {
 			stmt += "assertFalse(";
@@ -738,7 +738,7 @@ public class TestCodeVisitor extends TestVisitor {
 			getClassName(value.getClass());
 
 		} else if (value.getClass().equals(boolean.class) || value.getClass().equals(Boolean.class)) {
-			if (((Boolean) value).booleanValue())
+			if ((Boolean) value)
 				testCode += "assertTrue(" + getVariableName(source) + "."
 				        + inspector.getMethodCall() + "());";
 			else
@@ -761,7 +761,7 @@ public class TestCodeVisitor extends TestVisitor {
 	protected void visitNullAssertion(NullAssertion assertion) {
 		VariableReference source = assertion.getSource();
 		Boolean value = (Boolean) assertion.getValue();
-		if (value.booleanValue()) {
+		if (value) {
 			testCode += "assertNull(" + getVariableName(source) + ");";
 		} else
 			testCode += "assertNotNull(" + getVariableName(source) + ");";
@@ -812,49 +812,49 @@ public class TestCodeVisitor extends TestVisitor {
 
 		if (source.isPrimitive() || source.isWrapperType()) {
 			if (source.getVariableClass().equals(float.class)) {
-				if (((Boolean) value).booleanValue())
+				if ((Boolean) value)
 					testCode += "assertEquals(" + getVariableName(source) + ", "
 							+ getVariableName(dest) + ", " + NumberFormatter.getNumberString(Properties.FLOAT_PRECISION, this) + ");";
 				else
 					testCode += "assertNotEquals(" + getVariableName(source) + ", "
 							+ getVariableName(dest) + ", " + NumberFormatter.getNumberString(Properties.FLOAT_PRECISION, this) + ");";
 			} else if (source.getVariableClass().equals(Float.class)) {
-					if (((Boolean) value).booleanValue())
+					if ((Boolean) value)
 						testCode += "assertEquals((float)" + getVariableName(source) + ", (float)"
 								+ getVariableName(dest) + ", " + NumberFormatter.getNumberString(Properties.FLOAT_PRECISION, this) + ");";
 					else
 						testCode += "assertNotEquals((float)" + getVariableName(source) + ", (float)"
 								+ getVariableName(dest) + ", " + NumberFormatter.getNumberString(Properties.FLOAT_PRECISION, this) + ");";
 			} else if (source.getVariableClass().equals(double.class)) {
-                if (((Boolean) value).booleanValue())
+                if ((Boolean) value)
                     testCode += "assertEquals(" + getVariableName(source) + ", "
                             + getVariableName(dest) + ", " + NumberFormatter.getNumberString(Properties.DOUBLE_PRECISION, this) + ");";
                 else
                     testCode += "assertNotEquals(" + getVariableName(source) + ", "
                             + getVariableName(dest) + ", " + NumberFormatter.getNumberString(Properties.DOUBLE_PRECISION, this) + ");";
 			} else if (source.getVariableClass().equals(Double.class)) {
-				if (((Boolean) value).booleanValue())
+				if ((Boolean) value)
 					testCode += "assertEquals((double)" + getVariableName(source) + ", (double)"
 							+ getVariableName(dest) + ", " + NumberFormatter.getNumberString(Properties.DOUBLE_PRECISION, this) + ");";
 				else
 					testCode += "assertNotEquals((double)" + getVariableName(source) + ", (double)"
 							+ getVariableName(dest) + ", " + NumberFormatter.getNumberString(Properties.DOUBLE_PRECISION, this) + ");";
             } else if(source.isWrapperType()) {
-                if (((Boolean) value).booleanValue())
+                if ((Boolean) value)
                     testCode += "assertTrue(" + getVariableName(source) + ".equals((" + this.getClassName(Object.class) +")"
                             + getVariableName(dest) + "));";
                 else
                     testCode += "assertFalse(" + getVariableName(source) + ".equals((" + this.getClassName(Object.class) +")"
                             + getVariableName(dest) + "));";
             } else if(dest.isWrapperType()) {
-                if (((Boolean) value).booleanValue())
+                if ((Boolean) value)
                     testCode += "assertTrue(" + getVariableName(dest) + ".equals((" + this.getClassName(Object.class) +")"
                             + getVariableName(source) + "));";
                 else
                     testCode += "assertFalse(" + getVariableName(dest) + ".equals((" + this.getClassName(Object.class) +")"
                             + getVariableName(source) + "));";
             } else {
-				if (((Boolean) value).booleanValue())
+				if ((Boolean) value)
 					testCode += "assertTrue(" + getVariableName(source) + " == "
 							+ getVariableName(dest) + ");";
 				else
@@ -862,7 +862,7 @@ public class TestCodeVisitor extends TestVisitor {
 							+ getVariableName(dest) + ");";
 			}
 		} else {
-			if (((Boolean) value).booleanValue())
+			if ((Boolean) value)
 				testCode += "assertTrue(" + getVariableName(source) + ".equals((" + this.getClassName(Object.class) +")"
 				        + getVariableName(dest) + "));";
 			else
@@ -884,7 +884,7 @@ public class TestCodeVisitor extends TestVisitor {
 		VariableReference dest = assertion.getDest();
 		Object value = assertion.getValue();
 
-		if (((Boolean) value).booleanValue())
+		if ((Boolean) value)
 			testCode += "assertSame(" + getVariableName(source) + ", "
 			        + getVariableName(dest) + ");";
 		else

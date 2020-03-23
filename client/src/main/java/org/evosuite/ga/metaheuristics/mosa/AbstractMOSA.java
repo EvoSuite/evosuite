@@ -242,10 +242,11 @@ public abstract class AbstractMOSA<T extends Chromosome> extends GeneticAlgorith
 	 * @param chromosome TestChromosome to clean
 	 */
 	private void clearCachedResults(T chromosome) {
-		((TestChromosome) chromosome).clearCachedMutationResults();
-		((TestChromosome) chromosome).clearCachedResults();
-		((TestChromosome) chromosome).clearMutationHistory();
-		((TestChromosome) chromosome).getFitnessValues().clear();
+		final TestChromosome testChromosome = (TestChromosome) chromosome;
+		testChromosome.clearCachedMutationResults();
+		testChromosome.clearCachedResults();
+		testChromosome.clearMutationHistory();
+		testChromosome.getFitnessValues().clear();
 	}
 
 	/**
@@ -276,7 +277,7 @@ public abstract class AbstractMOSA<T extends Chromosome> extends GeneticAlgorith
 			num++;
 		}
 		to_delete.sort(Collections.reverseOrder());
-		for (Integer position : to_delete) {
+		for (int position : to_delete) {
 			t.remove(position);
 		}
 		int sizeAfter = chromosome.size();
