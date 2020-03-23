@@ -175,12 +175,7 @@ public class MOSA<T extends Chromosome> extends AbstractMOSA<T> {
 
 		Listener<Set<? extends Chromosome>> listener = null;
 		if (Properties.NUM_PARALLEL_CLIENTS > 1) {
-			listener = new Listener<Set<? extends Chromosome>>() {
-				@Override
-				public void receiveEvent(Set<? extends Chromosome> event) {
-					immigrants.add(new LinkedList<T>((Set<? extends T>) event));
-				}
-			};
+			listener = (Listener<Set<? extends Chromosome>>) event -> immigrants.add(new LinkedList<>((Set<? extends T>) event));
 			ClientServices.getInstance().getClientNode().addListener(listener);
 		}
 

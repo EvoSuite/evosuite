@@ -91,13 +91,8 @@ public class TestRunnable implements InterfaceTestRunnable {
 		this.scope = scope;
 		this.observers = observers;
 		runFinished = false;
-		
-		KillSwitch killSwitch = new KillSwitch() {			
-			@Override
-			public void setKillSwitch(boolean kill) {
-				ExecutionTracer.setKillSwitch(kill);
-			}
-		};
+
+		KillSwitch killSwitch = ExecutionTracer::setKillSwitch;
 		Set<String> threadsToIgnore = new LinkedHashSet<>();
 		threadsToIgnore.add(TestCaseExecutor.TEST_EXECUTION_THREAD);
 		threadsToIgnore.addAll(Arrays.asList(Properties.IGNORE_THREADS));

@@ -59,22 +59,19 @@ public class StatisticsListener implements SearchListener {
 	private volatile long timeFromLastGenerationUpdate = 0;
 	
 	public StatisticsListener() {
-		notifier = new Thread() {
-			@Override
-			public void run() {
-				// Wait for new element in queue
-				// If there is a new element, then send it to master through RMI
-				while(!done || !individuals.isEmpty()) {
-					Chromosome individual;
-					try {
-						individual = individuals.take();
-						StatisticsSender.sendIndividualToMaster(individual);
-					} catch (InterruptedException e) {
-						done = true;
-					}
+		notifier = new Thread(() -> {
+			// Wait for new element in queue
+			// If there is a new element, then send it to master through RMI
+			while(!done || !individuals.isEmpty()) {
+				Chromosome individual;
+				try {
+					individual = individuals.take();
+					StatisticsSender.sendIndividualToMaster(individual);
+				} catch (InterruptedException e) {
+					done = true;
 				}
 			}
-		};
+		});
 		Sandbox.addPrivilegedThread(notifier);
 		notifier.start();
 	}
