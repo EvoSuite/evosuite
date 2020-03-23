@@ -33,17 +33,17 @@ import org.objectweb.asm.Type;
  */
 public class DynamicConstantPool implements ConstantPool {
 
-	private final RandomAccessQueue<String> stringPool = new DefaultRandomAccessQueue<String>();
+	private final RandomAccessQueue<String> stringPool = new DefaultRandomAccessQueue<>();
 
-	private final RandomAccessQueue<Type> typePool = new DefaultRandomAccessQueue<Type>();
+	private final RandomAccessQueue<Type> typePool = new DefaultRandomAccessQueue<>();
 
-	private final RandomAccessQueue<Integer> intPool = new DefaultRandomAccessQueue<Integer>();
+	private final RandomAccessQueue<Integer> intPool = new DefaultRandomAccessQueue<>();
 
-	private final RandomAccessQueue<Double> doublePool = new DefaultRandomAccessQueue<Double>();
+	private final RandomAccessQueue<Double> doublePool = new DefaultRandomAccessQueue<>();
 
-	private final RandomAccessQueue<Long> longPool = new DefaultRandomAccessQueue<Long>();
+	private final RandomAccessQueue<Long> longPool = new DefaultRandomAccessQueue<>();
 
-	private final RandomAccessQueue<Float> floatPool = new DefaultRandomAccessQueue<Float>();
+	private final RandomAccessQueue<Float> floatPool = new DefaultRandomAccessQueue<>();
 
 	public DynamicConstantPool() {
 		/*

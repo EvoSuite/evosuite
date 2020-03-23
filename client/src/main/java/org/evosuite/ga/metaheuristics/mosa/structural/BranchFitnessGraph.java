@@ -46,9 +46,9 @@ public class BranchFitnessGraph<T extends Chromosome, V extends FitnessFunction<
 	
 	private static final Logger logger = LoggerFactory.getLogger(BranchFitnessGraph.class);
 
-	protected DefaultDirectedGraph<FitnessFunction<T>, DependencyEdge> graph = new DefaultDirectedGraph<FitnessFunction<T>, DependencyEdge>(DependencyEdge.class);
+	protected DefaultDirectedGraph<FitnessFunction<T>, DependencyEdge> graph = new DefaultDirectedGraph<>(DependencyEdge.class);
 
-	protected Set<FitnessFunction<T>> rootBranches = new HashSet<FitnessFunction<T>>();
+	protected Set<FitnessFunction<T>> rootBranches = new HashSet<>();
 
 	@SuppressWarnings("unchecked")
 	public BranchFitnessGraph(Set<FitnessFunction<T>> goals){
@@ -69,7 +69,7 @@ public class BranchFitnessGraph<T extends Chromosome, V extends FitnessFunction<
 				this.rootBranches.add(fitness); 
 			// see dependencies for all true/false branches
 			ActualControlFlowGraph rcfg = branch.getInstruction().getActualCFG();
-			Set<BasicBlock> visitedBlock = new HashSet<BasicBlock>();
+			Set<BasicBlock> visitedBlock = new HashSet<>();
 			Set<BasicBlock> parents = lookForParent(branch.getInstruction().getBasicBlock(), rcfg, visitedBlock);
 			for (BasicBlock bb : parents){
 				Branch newB = extractBranch(bb);
@@ -91,7 +91,7 @@ public class BranchFitnessGraph<T extends Chromosome, V extends FitnessFunction<
 	
 	
 	public Set<BasicBlock> lookForParent(BasicBlock block, ActualControlFlowGraph acfg, Set<BasicBlock> visitedBlock){
-		Set<BasicBlock> realParent = new HashSet<BasicBlock>();
+		Set<BasicBlock> realParent = new HashSet<>();
 		Set<BasicBlock> parents = acfg.getParents(block);
 		if (parents.size() == 0){
 			realParent.add(block);

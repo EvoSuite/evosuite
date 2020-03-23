@@ -76,15 +76,15 @@ public class TestCodeVisitor extends TestVisitor {
 
     protected static final String NEWLINE = System.getProperty("line.separator");
 
-	protected final Map<Integer, Throwable> exceptions = new HashMap<Integer, Throwable>();
+	protected final Map<Integer, Throwable> exceptions = new HashMap<>();
 
 	protected TestCase test = null;
 
-	protected final Map<VariableReference, String> variableNames = new HashMap<VariableReference, String>();
+	protected final Map<VariableReference, String> variableNames = new HashMap<>();
 
-	protected final Map<Class<?>, String> classNames = new HashMap<Class<?>, String>();
+	protected final Map<Class<?>, String> classNames = new HashMap<>();
 
-	protected final Map<String, Integer> nextIndices = new HashMap<String, Integer>();
+	protected final Map<String, Integer> nextIndices = new HashMap<>();
 
 	/**
 	 * <p>

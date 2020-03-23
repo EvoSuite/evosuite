@@ -80,7 +80,7 @@ public class TestFactory {
 	/**
 	 * Keep track of objects we are already trying to generate to avoid cycles
 	 */
-	private transient Set<GenericAccessibleObject<?>> currentRecursion = new LinkedHashSet<GenericAccessibleObject<?>>();
+	private transient Set<GenericAccessibleObject<?>> currentRecursion = new LinkedHashSet<>();
 
 	/** Singleton instance */
 	private static TestFactory instance = null;
@@ -1660,7 +1660,7 @@ public class TestFactory {
 		references.add(test.getReturnValue(position));
 
 		for (int i = position; i < test.size(); i++) {
-			Set<VariableReference> temp = new LinkedHashSet<VariableReference>();
+			Set<VariableReference> temp = new LinkedHashSet<>();
 			for (VariableReference v : references) {
 				if (test.getStatement(i).references(v)) {
 					temp.add(test.getStatement(i).getReturnValue());
@@ -1878,7 +1878,7 @@ public class TestFactory {
 	 * @return
 	 */
 	private static Set<Type> getDependencies(GenericConstructor constructor) {
-		Set<Type> dependencies = new LinkedHashSet<Type>();
+		Set<Type> dependencies = new LinkedHashSet<>();
 		for (Type type : constructor.getParameterTypes()) {
 			dependencies.add(type);
 		}
@@ -1893,7 +1893,7 @@ public class TestFactory {
 	 * @return
 	 */
 	private static Set<Type> getDependencies(GenericField field) {
-		Set<Type> dependencies = new LinkedHashSet<Type>();
+		Set<Type> dependencies = new LinkedHashSet<>();
 		if (!field.isStatic()) {
 			dependencies.add(field.getOwnerType());
 		}
@@ -1908,7 +1908,7 @@ public class TestFactory {
 	 * @return
 	 */
 	private static Set<Type> getDependencies(GenericMethod method) {
-		Set<Type> dependencies = new LinkedHashSet<Type>();
+		Set<Type> dependencies = new LinkedHashSet<>();
 		if (!method.isStatic()) {
 			dependencies.add(method.getOwnerType());
 		}
@@ -1929,7 +1929,7 @@ public class TestFactory {
 	 */
 	private List<GenericAccessibleObject<?>> getPossibleCalls(Type returnType,
 	        List<VariableReference> objects) {
-		List<GenericAccessibleObject<?>> calls = new ArrayList<GenericAccessibleObject<?>>();
+		List<GenericAccessibleObject<?>> calls = new ArrayList<>();
 		Set<GenericAccessibleObject<?>> allCalls;
 
 		try {

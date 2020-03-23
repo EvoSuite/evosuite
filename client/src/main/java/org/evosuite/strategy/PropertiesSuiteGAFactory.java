@@ -125,25 +125,18 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
 	
 	protected GeneticAlgorithm<TestSuiteChromosome> getGeneticAlgorithm(ChromosomeFactory<TestSuiteChromosome> factory) {
 		switch (Properties.ALGORITHM) {
-		case ONE_PLUS_ONE_EA:
-			logger.info("Chosen search algorithm: (1+1)EA");
-			{
-				OnePlusOneEA<TestSuiteChromosome> ga = new OnePlusOneEA<TestSuiteChromosome>(factory);
-				return ga;
-			}
-		case MU_PLUS_LAMBDA_EA:
-		    logger.info("Chosen search algorithm: (Mu+Lambda)EA");
-            {
-                MuPlusLambdaEA<TestSuiteChromosome> ga = new MuPlusLambdaEA<TestSuiteChromosome>(factory, Properties.MU, Properties.LAMBDA);
-                return ga;
-            }
-		case MU_LAMBDA_EA:
-			logger.info("Chosen search algorithm: (Mu,Lambda)EA");
-			return new MuLambdaEA<TestSuiteChromosome>(factory, Properties.MU, Properties.LAMBDA);
-		case MONOTONIC_GA:
-			logger.info("Chosen search algorithm: MonotonicGA");
-			{
-				MonotonicGA<TestSuiteChromosome> ga = new MonotonicGA<TestSuiteChromosome>(factory);
+			case ONE_PLUS_ONE_EA:
+				logger.info("Chosen search algorithm: (1+1)EA");
+				return new OnePlusOneEA<>(factory);
+			case MU_PLUS_LAMBDA_EA:
+				logger.info("Chosen search algorithm: (Mu+Lambda)EA");
+				return new MuPlusLambdaEA<>(factory, Properties.MU, Properties.LAMBDA);
+			case MU_LAMBDA_EA:
+				logger.info("Chosen search algorithm: (Mu,Lambda)EA");
+				return new MuLambdaEA<>(factory, Properties.MU, Properties.LAMBDA);
+			case MONOTONIC_GA: {
+				logger.info("Chosen search algorithm: MonotonicGA");
+				MonotonicGA<TestSuiteChromosome> ga = new MonotonicGA<>(factory);
 				if (Properties.REPLACEMENT_FUNCTION == TheReplacementFunction.FITNESSREPLACEMENT) {
 					// user has explicitly asked for this replacement function
 					ga.setReplacementFunction(new FitnessReplacementFunction());
@@ -153,10 +146,9 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
 				}
 				return ga;
 			}
-		case CELLULAR_GA:
-			logger.info("Chosen search algorithm: CellularGA");
-			{
-				CellularGA<TestSuiteChromosome> ga = new CellularGA<TestSuiteChromosome>(Properties.MODEL, factory);
+			case CELLULAR_GA: {
+				logger.info("Chosen search algorithm: CellularGA");
+				CellularGA<TestSuiteChromosome> ga = new CellularGA<>(Properties.MODEL, factory);
 				if (Properties.REPLACEMENT_FUNCTION == TheReplacementFunction.FITNESSREPLACEMENT) {
 					// user has explicitly asked for this replacement function
 					ga.setReplacementFunction(new FitnessReplacementFunction());
@@ -166,9 +158,8 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
 				}
 				return ga;
 			}
-		case STEADY_STATE_GA:
-			logger.info("Chosen search algorithm: Steady-StateGA");
-			{
+			case STEADY_STATE_GA: {
+				logger.info("Chosen search algorithm: Steady-StateGA");
 				SteadyStateGA<TestSuiteChromosome> ga = new SteadyStateGA<>(factory);
 				if (Properties.REPLACEMENT_FUNCTION == TheReplacementFunction.FITNESSREPLACEMENT) {
 					// user has explicitly asked for this replacement function
@@ -179,57 +170,39 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
 				}
 				return ga;
 			}
-		case BREEDER_GA:
-			logger.info("Chosen search algorithm: BreederGA");
-		{
-			BreederGA<TestSuiteChromosome> ga = new BreederGA<>(factory);
-			return ga;
-		}
-		case RANDOM_SEARCH:
-			logger.info("Chosen search algorithm: Random");
-			{
-                RandomSearch<TestSuiteChromosome> ga = new RandomSearch<TestSuiteChromosome>(factory);
-                return ga;
-			}
-        case NSGAII:
-            logger.info("Chosen search algorithm: NSGAII");
-            return new NSGAII<TestSuiteChromosome>(factory);
-        case SPEA2:
-            logger.info("Chosen search algorithm: SPEA2");
-            return new SPEA2<TestSuiteChromosome>(factory);
-        case MOSA:
-        	logger.info("Chosen search algorithm: MOSA");
-            return new MOSA<TestSuiteChromosome>(factory);
-        case DYNAMOSA:
-        	logger.info("Chosen search algorithm: DynaMOSA");
-            return new DynaMOSA<TestSuiteChromosome>(factory);
-        case ONE_PLUS_LAMBDA_LAMBDA_GA:
-            logger.info("Chosen search algorithm: 1 + (lambda, lambda)GA");
-            {
-              OnePlusLambdaLambdaGA<TestSuiteChromosome> ga = new OnePlusLambdaLambdaGA<TestSuiteChromosome>(factory, Properties.LAMBDA);
-              return ga;
-            }
-        case MIO:
-          logger.info("Chosen search algorithm: MIO");
-          {
-              MIO<TestSuiteChromosome> ga = new MIO<TestSuiteChromosome>(factory);
-              return ga;
-          }
-        case STANDARD_CHEMICAL_REACTION:
-            logger.info("Chosen search algorithm: Standard Chemical Reaction Optimization");
-            {
-              StandardChemicalReaction<TestSuiteChromosome> ga = new StandardChemicalReaction<TestSuiteChromosome>(factory);
-              return ga;
-            }
-        case LIPS:
-        	logger.info("Chosen search algorithm: LIPS");
-            return new LIPS<TestSuiteChromosome>(factory);
-		default:
-			logger.info("Chosen search algorithm: StandardGA");
-            {
-                StandardGA<TestSuiteChromosome> ga = new StandardGA<TestSuiteChromosome>(factory);
-                return ga;
-            }
+			case BREEDER_GA:
+				logger.info("Chosen search algorithm: BreederGA");
+				return new BreederGA<>(factory);
+			case RANDOM_SEARCH:
+				logger.info("Chosen search algorithm: Random");
+				return new RandomSearch<>(factory);
+			case NSGAII:
+				logger.info("Chosen search algorithm: NSGAII");
+				return new NSGAII<>(factory);
+			case SPEA2:
+				logger.info("Chosen search algorithm: SPEA2");
+				return new SPEA2<>(factory);
+			case MOSA:
+				logger.info("Chosen search algorithm: MOSA");
+				return new MOSA<>(factory);
+			case DYNAMOSA:
+				logger.info("Chosen search algorithm: DynaMOSA");
+				return new DynaMOSA<>(factory);
+			case ONE_PLUS_LAMBDA_LAMBDA_GA:
+				logger.info("Chosen search algorithm: 1 + (lambda, lambda)GA");
+				return new OnePlusLambdaLambdaGA<>(factory, Properties.LAMBDA);
+			case MIO:
+				logger.info("Chosen search algorithm: MIO");
+				return new MIO<>(factory);
+			case STANDARD_CHEMICAL_REACTION:
+				logger.info("Chosen search algorithm: Standard Chemical Reaction Optimization");
+				return new StandardChemicalReaction<>(factory);
+			case LIPS:
+				logger.info("Chosen search algorithm: LIPS");
+				return new LIPS<>(factory);
+			default:
+				logger.info("Chosen search algorithm: StandardGA");
+				return new StandardGA<>(factory);
 		}
 	}
 	

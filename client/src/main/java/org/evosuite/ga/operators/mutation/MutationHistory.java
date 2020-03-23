@@ -30,7 +30,7 @@ public class MutationHistory<T extends MutationHistoryEntry> implements Iterable
 
 	private static final long serialVersionUID = -8543180637106924913L;
 
-	private final List<T> mutations = new ArrayList<T>();
+	private final List<T> mutations = new ArrayList<>();
 
 	public void clear() {
 		mutations.clear();

@@ -51,7 +51,7 @@ public class DynaMOSA<T extends Chromosome> extends AbstractMOSA<T> {
 	/** Manager to determine the test goals to consider at each generation */
 	protected StructuralGoalManager<T> goalsManager = null;
 
-	protected CrowdingDistance<T> distance = new CrowdingDistance<T>();
+	protected CrowdingDistance<T> distance = new CrowdingDistance<>();
 
 	/**
 	 * Constructor based on the abstract class {@link AbstractMOSA}.
@@ -67,8 +67,8 @@ public class DynaMOSA<T extends Chromosome> extends AbstractMOSA<T> {
 	protected void evolve() {
 		List<T> offspringPopulation = this.breedNextGeneration();
 
-		// Create the union of parents and offSpring
-		List<T> union = new ArrayList<T>(this.population.size() + offspringPopulation.size());
+		// Create the union of parents and offspring
+		List<T> union = new ArrayList<>(this.population.size() + offspringPopulation.size());
 		union.addAll(this.population);
 		union.addAll(offspringPopulation);
 

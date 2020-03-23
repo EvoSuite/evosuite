@@ -37,12 +37,12 @@ public class RhoCoverageTestFitness extends TestFitnessFunction {
 	private int previous_number_of_ones = 0;
 	private int previous_number_of_test_cases = 0;
 
-	private Set<Set<Integer>> coverage_matrix_generated_so_far = new LinkedHashSet<Set<Integer>>();
+	private Set<Set<Integer>> coverage_matrix_generated_so_far = new LinkedHashSet<>();
 
 	@Override
 	public double getFitness(TestChromosome individual, ExecutionResult result) {
 
-		Set<Set<Integer>> tmp_coverage_matrix = new LinkedHashSet<Set<Integer>>(this.coverage_matrix_generated_so_far);
+		Set<Set<Integer>> tmp_coverage_matrix = new LinkedHashSet<>(this.coverage_matrix_generated_so_far);
 
 		double fitness = 1.0;
 
@@ -54,7 +54,7 @@ public class RhoCoverageTestFitness extends TestFitnessFunction {
 
 		if (Properties.STRATEGY == Properties.Strategy.ENTBUG) {
 			// order set
-			List<Integer> l_coveredLines = new ArrayList<Integer>(coveredLines);
+			List<Integer> l_coveredLines = new ArrayList<>(coveredLines);
 			Collections.sort(l_coveredLines);
 			Set<Integer> coveredLinesOrdered = new LinkedHashSet<Integer>();
 			for (Integer coveredLine : l_coveredLines) {

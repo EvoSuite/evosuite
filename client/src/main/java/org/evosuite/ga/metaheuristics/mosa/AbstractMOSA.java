@@ -87,7 +87,7 @@ public abstract class AbstractMOSA<T extends Chromosome> extends GeneticAlgorith
 	public AbstractMOSA(ChromosomeFactory<T> factory) {
 		super(factory);
 
-		this.suiteFitnessFunctions = new LinkedHashMap<TestSuiteFitnessFunction, Class<?>>();
+		this.suiteFitnessFunctions = new LinkedHashMap<>();
 		for (Properties.Criterion criterion : Properties.CRITERION) {
 			TestSuiteFitnessFunction suiteFit = FitnessFunctions.getFitnessFunction(criterion);
 			Class<?> testFit = FitnessFunctions.getTestFitnessFunctionClass(criterion);
@@ -116,7 +116,7 @@ public abstract class AbstractMOSA<T extends Chromosome> extends GeneticAlgorith
 	 */
 	@SuppressWarnings("unchecked")
 	protected List<T> breedNextGeneration() {
-		List<T> offspringPopulation = new ArrayList<T>(Properties.POPULATION);
+		List<T> offspringPopulation = new ArrayList<>(Properties.POPULATION);
 		// we apply only Properties.POPULATION/2 iterations since in each generation
 		// we generate two offsprings
 		for (int i = 0; i < Properties.POPULATION / 2 && !this.isFinished(); i++) {
@@ -256,9 +256,9 @@ public abstract class AbstractMOSA<T extends Chromosome> extends GeneticAlgorith
 	 * @return true or false depending on whether "unused variables" are removed
 	 */
 	private boolean removeUnusedVariables(T chromosome) {
-		int sizeBefore = chromosome.size();
-		TestCase t = ((TestChromosome) chromosome).getTestCase();
-		List<Integer> to_delete = new ArrayList<Integer>(chromosome.size());
+		final int sizeBefore = chromosome.size();
+		final TestCase t = ((TestChromosome) chromosome).getTestCase();
+		final List<Integer> to_delete = new ArrayList<>(chromosome.size());
 		boolean has_deleted = false;
 
 		int num = 0;
@@ -293,12 +293,12 @@ public abstract class AbstractMOSA<T extends Chromosome> extends GeneticAlgorith
 	 * @return the non-dominated set of test cases
 	 */
 	private List<T> getNonDominatedSolutions(List<T> solutions) {
-		DominanceComparator<T> comparator = new DominanceComparator<T>(this.getCoveredGoals());
-		List<T> next_front = new ArrayList<T>(solutions.size());
+		final DominanceComparator<T> comparator = new DominanceComparator<>(this.getCoveredGoals());
+		final List<T> next_front = new ArrayList<>(solutions.size());
 		boolean isDominated;
 		for (T p : solutions) {
 			isDominated = false;
-			List<T> dominatedSolutions = new ArrayList<T>(solutions.size());
+			List<T> dominatedSolutions = new ArrayList<>(solutions.size());
 			for (T best : next_front) {
 				int flag = comparator.compare(p, best);
 				if (flag == -1) {

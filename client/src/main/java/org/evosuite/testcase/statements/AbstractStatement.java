@@ -74,7 +74,7 @@ public abstract class AbstractStatement implements Statement, Serializable {
 		 * @return
 		 */
 		public Set<Class<? extends Throwable>> throwableExceptions() {
-			return new HashSet<Class<? extends Throwable>>();
+			return new HashSet<>();
 		}
 	}
 
@@ -93,7 +93,7 @@ public abstract class AbstractStatement implements Statement, Serializable {
 	 */
 	protected final TestCase tc;
 
-	protected Set<Assertion> assertions = new LinkedHashSet<Assertion>();
+	protected Set<Assertion> assertions = new LinkedHashSet<>();
 
 	protected String comment = "";
 	
@@ -243,7 +243,7 @@ public abstract class AbstractStatement implements Statement, Serializable {
 	 * @return a {@link java.util.Set} object.
 	 */
 	protected Set<VariableReference> getAssertionReferences() {
-		Set<VariableReference> variables = new LinkedHashSet<VariableReference>();
+		Set<VariableReference> variables = new LinkedHashSet<>();
 		for (Assertion assertion : assertions) {
 			variables.addAll(assertion.getReferencedVariables());
 		}
@@ -343,7 +343,7 @@ public abstract class AbstractStatement implements Statement, Serializable {
 	 */
 	@Override
 	public Set<Assertion> copyAssertions(TestCase newTestCase, int offset) {
-		Set<Assertion> copy = new LinkedHashSet<Assertion>();
+		Set<Assertion> copy = new LinkedHashSet<>();
 		for (Assertion a : assertions) {
 			if (a == null) {
 				logger.info("Assertion is null!");
@@ -440,8 +440,7 @@ public abstract class AbstractStatement implements Statement, Serializable {
 	/** {@inheritDoc} */
 	@Override
 	public Set<Class<?>> getDeclaredExceptions() {
-		Set<Class<?>> ex = new HashSet<Class<?>>();
-		return ex;
+		return new HashSet<>();
 	}
 
 	/**

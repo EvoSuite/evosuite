@@ -54,7 +54,7 @@ public abstract class Assertion implements Serializable {
 	/** Assertion Comment */
 	protected String comment;
 
-	protected transient Set<Mutation> killedMutants = new LinkedHashSet<Mutation>();
+	protected transient Set<Mutation> killedMutants = new LinkedHashSet<>();
 
 	/** Constant <code>logger</code> */
 	protected static final Logger logger = LoggerFactory.getLogger(Assertion.class);
@@ -255,7 +255,7 @@ public abstract class Assertion implements Serializable {
     IOException {
 		ois.defaultReadObject();
 
-		killedMutants = new LinkedHashSet<Mutation>();
+		killedMutants = new LinkedHashSet<>();
 	}
 
 }

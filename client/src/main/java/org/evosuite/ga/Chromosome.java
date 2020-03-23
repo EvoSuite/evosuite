@@ -48,10 +48,10 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 		// empty
 	}
 	/** Last recorded fitness value */
-	private LinkedHashMap<FitnessFunction<?>, Double> fitnessValues = new LinkedHashMap<FitnessFunction<?>, Double>();
-	
+    private LinkedHashMap<FitnessFunction<?>, Double> fitnessValues = new LinkedHashMap<>();
+
 	/** Previous fitness, to see if there was an improvement */
-	private LinkedHashMap<FitnessFunction<?>, Double> previousFitnessValues = new LinkedHashMap<FitnessFunction<?>, Double>();
+    private LinkedHashMap<FitnessFunction<?>, Double> previousFitnessValues = new LinkedHashMap<>();
 
 	/** Has this chromosome changed since its fitness was last evaluated? */
 	private boolean changed = true;
@@ -59,11 +59,13 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	/** Has local search been applied to this individual since it was last changed? */
 	private boolean localSearchApplied = false;
 
-	private LinkedHashMap<FitnessFunction<?>, Double> coverageValues = new LinkedHashMap<FitnessFunction<?>, Double>();
+    private LinkedHashMap<FitnessFunction<?>, Double> coverageValues = new LinkedHashMap<>();
 
-	private LinkedHashMap<FitnessFunction<?>, Integer> numsNotCoveredGoals = new LinkedHashMap<FitnessFunction<?>, Integer>();
+    /** The number of uncovered goals with regard to the fitness function given as key */
+    private LinkedHashMap<FitnessFunction<?>, Integer> numsNotCoveredGoals = new LinkedHashMap<>();
 
-	private LinkedHashMap<FitnessFunction<?>, Integer> numsCoveredGoals = new LinkedHashMap<FitnessFunction<?>, Integer>();
+    /** The number of covered goals with regard to the fitness function given as key */
+    private LinkedHashMap<FitnessFunction<?>, Integer> numsCoveredGoals = new LinkedHashMap<>();
 
 	
 	// protected double coverage = 0.0;

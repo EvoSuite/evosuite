@@ -263,13 +263,13 @@ public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 
 		logger.debug("creating basic block for " + instruction.toString());
 
-		List<BytecodeInstruction> blockNodes = new ArrayList<BytecodeInstruction>();
+		List<BytecodeInstruction> blockNodes = new ArrayList<>();
 		blockNodes.add(instruction);
 
-		Set<BytecodeInstruction> handledChildren = new HashSet<BytecodeInstruction>();
-		Set<BytecodeInstruction> handledParents = new HashSet<BytecodeInstruction>();
+		Set<BytecodeInstruction> handledChildren = new HashSet<>();
+		Set<BytecodeInstruction> handledParents = new HashSet<>();
 
-		Queue<BytecodeInstruction> queue = new LinkedList<BytecodeInstruction>();
+		Queue<BytecodeInstruction> queue = new LinkedList<>();
 		queue.add(instruction);
 		while (!queue.isEmpty()) {
 			BytecodeInstruction current = queue.poll();
@@ -433,9 +433,9 @@ public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 	 * @return a {@link java.util.Set} object.
 	 */
 	public Set<BytecodeInstruction> getPreviousInstructionsInMethod(BytecodeInstruction v) {
-		Set<BytecodeInstruction> visited = new HashSet<BytecodeInstruction>();
-		PriorityQueue<BytecodeInstruction> queue = new PriorityQueue<BytecodeInstruction>(
-		        graph.vertexSet().size(), new BytecodeInstructionIdComparator());
+		Set<BytecodeInstruction> visited = new HashSet<>();
+		PriorityQueue<BytecodeInstruction> queue = new PriorityQueue<>(
+				graph.vertexSet().size(), new BytecodeInstructionIdComparator());
 		queue.add(v);
 		while (queue.peek() != null) {
 			BytecodeInstruction current = queue.poll();
@@ -463,11 +463,11 @@ public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 	 * @return a {@link java.util.Set} object.
 	 */
 	public Set<BytecodeInstruction> getLaterInstructionsInMethod(BytecodeInstruction v) {
-		Set<BytecodeInstruction> visited = new HashSet<BytecodeInstruction>();
-		Comparator<BytecodeInstruction> reverseComp = new ReverseComparator<BytecodeInstruction>(
-		        new BytecodeInstructionIdComparator());
-		PriorityQueue<BytecodeInstruction> queue = new PriorityQueue<BytecodeInstruction>(
-		        graph.vertexSet().size(), reverseComp);
+		Set<BytecodeInstruction> visited = new HashSet<>();
+		Comparator<BytecodeInstruction> reverseComp = new ReverseComparator<>(
+				new BytecodeInstructionIdComparator());
+		PriorityQueue<BytecodeInstruction> queue = new PriorityQueue<>(
+				graph.vertexSet().size(), reverseComp);
 		queue.add(v);
 		while (queue.peek() != null) {
 			BytecodeInstruction current = queue.poll();
@@ -500,7 +500,7 @@ public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 		if (!graph.containsVertex(def))
 			throw new IllegalArgumentException("unknown Definition");
 
-		return getUsesForDef(def, def, new HashSet<BytecodeInstruction>());
+		return getUsesForDef(def, def, new HashSet<>());
 	}
 
 	private Set<Use> getUsesForDef(Definition targetDef,
@@ -508,7 +508,7 @@ public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 		if (!graph.containsVertex(currentInstruction))
 			throw new IllegalArgumentException("vertex not in graph");
 
-		Set<Use> r = new HashSet<Use>();
+		Set<Use> r = new HashSet<>();
 
 		if (handled.contains(currentInstruction))
 			return r;
@@ -546,7 +546,7 @@ public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 			return false;
 
 		return hasDefClearPathToMethodExit(duVertex, duVertex,
-		                                   new HashSet<BytecodeInstruction>());
+				new HashSet<>());
 	}
 
 	/**
@@ -565,7 +565,7 @@ public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 			return false;
 
 		return hasDefClearPathFromMethodEntry(duVertex, duVertex,
-		                                      new HashSet<BytecodeInstruction>());
+				new HashSet<>());
 	}
 
 	private boolean hasDefClearPathToMethodExit(Definition targetDefUse,
@@ -614,7 +614,7 @@ public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 			BytecodeInstruction edgeStart = graph.getEdgeSource(e);
 
 			// skip edges coming from a def for the same field
-			if (canOverwriteDU(targetDefUse, edgeStart, new HashSet<String>()))
+			if (canOverwriteDU(targetDefUse, edgeStart, new HashSet<>()))
 				continue;
 
 			// if (edgeTarget.getInstructionId() >
@@ -713,8 +713,7 @@ public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 	}
 
 	private boolean canOverwriteDU(Definition targetDefUse, BytecodeInstruction edgeTarget) {
-
-		return canOverwriteDU(targetDefUse, edgeTarget, new HashSet<String>());
+		return canOverwriteDU(targetDefUse, edgeTarget, new HashSet<>());
 	}
 
 	private boolean canOverwriteDU(DefUse targetDefUse, BytecodeInstruction edgeTarget,
@@ -783,7 +782,7 @@ public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 	 * @return a {@link java.util.List} object.
 	 */
 	public List<BytecodeInstruction> determineMethodCallsToOwnClass() {
-		List<BytecodeInstruction> calls = new ArrayList<BytecodeInstruction>();
+		List<BytecodeInstruction> calls = new ArrayList<>();
 		for (BytecodeInstruction ins : determineMethodCalls())
 			if (ins.isMethodCallForClass(className)) {
 

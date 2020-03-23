@@ -451,7 +451,7 @@ public class MultiCriteriaManager<T extends Chromosome> extends StructuralGoalMa
 	 * @return list of exception goals being covered by t
 	 */
 	public Set<ExceptionCoverageTestFitness> deriveCoveredExceptions(T t){
-		Set<ExceptionCoverageTestFitness> covered_exceptions = new LinkedHashSet<ExceptionCoverageTestFitness>();
+		Set<ExceptionCoverageTestFitness> covered_exceptions = new LinkedHashSet<>();
 		TestChromosome testCh = (TestChromosome) t;
 		ExecutionResult result = testCh.getLastExecutionResult();
 		
@@ -493,12 +493,12 @@ public class MultiCriteriaManager<T extends Chromosome> extends StructuralGoalMa
 		List<BranchCoverageTestFitness> branches = new BranchCoverageFactory().getCoverageGoals();
 		for (BranchCoverageTestFitness branch : branches){
 			setOfBranches.add((FitnessFunction<T>) branch);
-			this.dependencies.put(branch, new LinkedHashSet<FitnessFunction<T>>());
+			this.dependencies.put(branch, new LinkedHashSet<>());
 		}
 
 		// initialize the maps
 		this.initializeMaps(setOfBranches);
 
-		return new BranchFitnessGraph<T, FitnessFunction<T>>(setOfBranches);
+		return new BranchFitnessGraph<>(setOfBranches);
 	}
 }

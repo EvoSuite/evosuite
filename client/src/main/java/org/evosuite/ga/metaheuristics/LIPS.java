@@ -70,19 +70,19 @@ public class LIPS <T extends Chromosome> extends GeneticAlgorithm<T>{
 	private static final Logger logger = LoggerFactory.getLogger(LIPS.class);
 
 	/** Map used to store the covered test goals (keys of the map) and the corresponding covering test cases (values of the map) **/
-	protected Map<FitnessFunction<T>, T> archive = new  HashMap<FitnessFunction<T>, T>();
+	protected Map<FitnessFunction<T>, T> archive = new HashMap<>();
 
 	/** Set of branches yet to be covered **/
-	protected Set<FitnessFunction<T>> uncoveredBranches = new HashSet<FitnessFunction<T>>();
+	protected Set<FitnessFunction<T>> uncoveredBranches = new HashSet<>();
 
 	/**  Keep track of overall suite fitness and coverage */
 	protected TestSuiteFitnessFunction suiteFitness;
 
 	/** Worklist of branches that can be potentially considered as search targets */
-	protected LinkedList<FitnessFunction<T>> worklist = new LinkedList<FitnessFunction<T>>();
+	protected LinkedList<FitnessFunction<T>> worklist = new LinkedList<>();
 
 	/** List of branches that have been already considered as search targets but that are still uncovered */
-	protected LinkedList<FitnessFunction<T>> alreadyAttemptedBranches = new LinkedList<FitnessFunction<T>>();
+	protected LinkedList<FitnessFunction<T>> alreadyAttemptedBranches = new LinkedList<>();
 
 	/** Current branch used as fitness function */
 	protected FitnessFunction<T> currentTarget;
@@ -179,7 +179,7 @@ public class LIPS <T extends Chromosome> extends GeneticAlgorithm<T>{
 	public void generateSolution() {
 		logger.info("executing generateSolution function");
 
-		CFG = new BranchesManager<T>(fitnessFunctions);
+		CFG = new BranchesManager<>(fitnessFunctions);
 
 		// generate the initial test t0
 		// and update the worklist 
@@ -330,8 +330,8 @@ public class LIPS <T extends Chromosome> extends GeneticAlgorithm<T>{
 	 * @param c test case (TestChromosome) to analised
 	 */
 	protected void updateWorkList(T c) {
-		// Set of newly covered branches 
-		Set<FitnessFunction<T>> coveredBranches = new HashSet<FitnessFunction<T>>();
+		// Set of newly covered branches
+		Set<FitnessFunction<T>> coveredBranches = new HashSet<>();
 
 		for (FitnessFunction<T> branch : fitnessFunctions){
 			double value = branch.getFitness(c);
@@ -430,7 +430,7 @@ public class LIPS <T extends Chromosome> extends GeneticAlgorithm<T>{
 		bestTestCases.setNumOfCoveredGoals(suiteFitness, (int) numberOfCoveredTargets());
 		bestTestCases.setNumOfNotCoveredGoals(suiteFitness, (int) (this.fitnessFunctions.size()-numberOfCoveredTargets()));
 
-		List<T> bests = new ArrayList<T>(1);
+		List<T> bests = new ArrayList<>(1);
 		bests.add((T) bestTestCases);
 		return bests;
 	}

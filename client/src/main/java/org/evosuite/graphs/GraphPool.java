@@ -50,7 +50,7 @@ public class GraphPool {
 
 	private static Logger logger = LoggerFactory.getLogger(GraphPool.class);
 
-	private static Map<ClassLoader, GraphPool> instanceMap = new HashMap<ClassLoader, GraphPool>();
+	private static Map<ClassLoader, GraphPool> instanceMap = new HashMap<>();
 
 	private final ClassLoader classLoader;
 
@@ -76,7 +76,7 @@ public class GraphPool {
 	 * 
 	 * Maps from classNames to methodNames to corresponding RawCFGs
 	 */
-	private final Map<String, Map<String, RawControlFlowGraph>> rawCFGs = new HashMap<String, Map<String, RawControlFlowGraph>>();
+	private final Map<String, Map<String, RawControlFlowGraph>> rawCFGs = new HashMap<>();
 
 	/**
 	 * Minimized control flow graph. This graph only contains the first and last
@@ -85,21 +85,21 @@ public class GraphPool {
 	 * 
 	 * Maps from classNames to methodNames to corresponding ActualCFGs
 	 */
-	private final Map<String, Map<String, ActualControlFlowGraph>> actualCFGs = new HashMap<String, Map<String, ActualControlFlowGraph>>();
+	private final Map<String, Map<String, ActualControlFlowGraph>> actualCFGs = new HashMap<>();
 
 	/**
 	 * Control Dependence Graphs for each method.
 	 * 
 	 * Maps from classNames to methodNames to corresponding CDGs
 	 */
-	private final Map<String, Map<String, ControlDependenceGraph>> controlDependencies = new HashMap<String, Map<String, ControlDependenceGraph>>();
+	private final Map<String, Map<String, ControlDependenceGraph>> controlDependencies = new HashMap<>();
 
 	/**
 	 * Cache of all created CCFGs
 	 * 
 	 * Maps from classNames to computed CCFG of that class
 	 */
-	private final Map<String, ClassControlFlowGraph> ccfgs = new HashMap<String, ClassControlFlowGraph>();
+	private final Map<String, ClassControlFlowGraph> ccfgs = new HashMap<>();
 
 	// retrieve graphs
 
@@ -201,7 +201,7 @@ public class GraphPool {
 			        "expect class and method name of CFGs to be set before entering the GraphPool");
 
 		if (!rawCFGs.containsKey(className)) {
-			rawCFGs.put(className, new HashMap<String, RawControlFlowGraph>());
+			rawCFGs.put(className, new HashMap<>());
 		}
 		Map<String, RawControlFlowGraph> methods = rawCFGs.get(className);
 		logger.debug("Added complete CFG for class " + className + " and method "
@@ -230,7 +230,7 @@ public class GraphPool {
 			        "expect class and method name of CFGs to be set before entering the GraphPool");
 
 		if (!actualCFGs.containsKey(className)) {
-			actualCFGs.put(className, new HashMap<String, ActualControlFlowGraph>());
+			actualCFGs.put(className, new HashMap<>());
 			// diameters.put(className, new HashMap<String, Double>());
 		}
 		Map<String, ActualControlFlowGraph> methods = actualCFGs.get(className);
@@ -259,7 +259,7 @@ public class GraphPool {
 
 		if (!controlDependencies.containsKey(className))
 			controlDependencies.put(className,
-			                        new HashMap<String, ControlDependenceGraph>());
+					new HashMap<>());
 		Map<String, ControlDependenceGraph> cds = controlDependencies.get(className);
 
 		cds.put(methodName, cd);

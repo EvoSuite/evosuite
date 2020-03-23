@@ -31,7 +31,7 @@ public class BinomialMutation extends MutationDistribution {
 
   public BinomialMutation(int sizeOfDistribution) {
     int numBits = howManyBits(sizeOfDistribution, 1.0 / (double) sizeOfDistribution);
-    this.bitsToBeModified = new LinkedHashSet<Integer>();
+    this.bitsToBeModified = new LinkedHashSet<>();
     while (this.bitsToBeModified.size() < numBits) {
       this.bitsToBeModified.add(Randomness.nextInt(0, sizeOfDistribution));
     }

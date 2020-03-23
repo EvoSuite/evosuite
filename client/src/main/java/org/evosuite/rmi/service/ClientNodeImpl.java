@@ -96,11 +96,11 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 	protected Registry registry;
 
     protected final Collection<Listener<Set<? extends Chromosome>>> listeners = Collections.synchronizedList(
-                                                    new ArrayList<Listener<Set<? extends Chromosome>>>());
-	
+			new ArrayList<>());
+
 	protected final ExecutorService searchExecutor = Executors.newSingleThreadExecutor();
 
-	private final BlockingQueue<OutputVariable> outputVariableQueue = new LinkedBlockingQueue<OutputVariable>();
+	private final BlockingQueue<OutputVariable> outputVariableQueue = new LinkedBlockingQueue<>();
 
 	private Collection<Set<? extends Chromosome>> bestSolutions;
 	
@@ -116,7 +116,7 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 		clientRmiIdentifier = identifier;
 		doneLatch = new CountDownLatch(1);
 		finishedLatch = new CountDownLatch(1);
-		this.bestSolutions = Collections.synchronizedList(new ArrayList<Set<? extends Chromosome>>(Properties.NUM_PARALLEL_CLIENTS));
+		this.bestSolutions = Collections.synchronizedList(new ArrayList<>(Properties.NUM_PARALLEL_CLIENTS));
 	}
 
 	private static class OutputVariable {
@@ -145,11 +145,11 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 			public void run() {
 				changeState(ClientState.STARTED);
 
-				//Before starting search, let's activate the sandbox
-				if (Properties.SANDBOX) {
-					Sandbox.initializeSecurityManagerForSUT();
-				}
-				List<TestGenerationResult> results = new ArrayList<TestGenerationResult>();
+			//Before starting search, let's activate the sandbox
+			if (Properties.SANDBOX) {
+				Sandbox.initializeSecurityManagerForSUT();
+			}
+			List<TestGenerationResult> results = new ArrayList<>();
 
 				try {
 					// Starting a new search
@@ -350,7 +350,7 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 	public void stop(){
 		if(statisticsThread!=null){
 			statisticsThread.interrupt();
-			List<OutputVariable> vars = new ArrayList<OutputVariable>();
+			List<OutputVariable> vars = new ArrayList<>();
 			outputVariableQueue.drainTo(vars);
 			for(OutputVariable ov : vars) {
 				try {
@@ -578,7 +578,7 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
     public Set<Set<? extends Chromosome>> getBestSolutions() {
         do {
             if (bestSolutions.size() == (Properties.NUM_PARALLEL_CLIENTS - 1)) {
-                return new HashSet<Set<? extends Chromosome>>(bestSolutions);
+                return new HashSet<>(bestSolutions);
             }
         } while (finishedLatch.getCount() != 0);
         

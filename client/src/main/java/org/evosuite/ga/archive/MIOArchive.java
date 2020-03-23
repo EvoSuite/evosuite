@@ -56,10 +56,10 @@ public class MIOArchive<F extends TestFitnessFunction, T extends TestChromosome>
    * Map used to store all targets (keys of the map) and the corresponding covering solutions
    * (values of the map)
    **/
-  protected final Map<F, Population> archive = new LinkedHashMap<F, Population>();
+  protected final Map<F, Population> archive = new LinkedHashMap<>();
 
   public static final MIOArchive<TestFitnessFunction, TestChromosome> instance =
-      new MIOArchive<TestFitnessFunction, TestChromosome>();
+          new MIOArchive<>();
 
   /**
    * {@inheritDoc}
@@ -188,7 +188,7 @@ public class MIOArchive<F extends TestFitnessFunction, T extends TestChromosome>
    */
   @Override
   public Set<T> getSolutions() {
-    Set<T> solutions = new LinkedHashSet<T>();
+    Set<T> solutions = new LinkedHashSet<>();
     for (Population population : this.archive.values()) {
       T solution = population.getBestSolutionIfAny();
       if (solution != null) {
@@ -294,7 +294,7 @@ public class MIOArchive<F extends TestFitnessFunction, T extends TestChromosome>
     TestSuiteChromosome mergedSolution = (TestSuiteChromosome) solution.clone();
 
     // to avoid adding the same solution to 'mergedSolution' suite
-    Set<T> solutionsSampledFromArchive = new LinkedHashSet<T>();
+    Set<T> solutionsSampledFromArchive = new LinkedHashSet<>();
 
     for (F target : this.archive.keySet()) {
       // does solution cover target?
@@ -372,7 +372,7 @@ public class MIOArchive<F extends TestFitnessFunction, T extends TestChromosome>
      */
     private Population(int populationSize) {
       this.capacity = populationSize;
-      this.solutions = new ArrayList<Pair<Double, T>>(populationSize);
+      this.solutions = new ArrayList<>(populationSize);
     }
 
     /**
@@ -413,7 +413,7 @@ public class MIOArchive<F extends TestFitnessFunction, T extends TestChromosome>
         return false;
       }
 
-      Pair<Double, T> candidateSolution = new ImmutablePair<Double, T>(h, t);
+      Pair<Double, T> candidateSolution = new ImmutablePair<>(h, t);
 
       boolean added = false;
 
@@ -554,7 +554,7 @@ public class MIOArchive<F extends TestFitnessFunction, T extends TestChromosome>
         return;
       }
 
-      List<Pair<Double, T>> shrinkSolutions = new ArrayList<Pair<Double, T>>(newPopulationSize);
+      List<Pair<Double, T>> shrinkSolutions = new ArrayList<>(newPopulationSize);
       for (int i = 0; i < newPopulationSize; i++) {
         shrinkSolutions.add(this.solutions.get(i));
       }

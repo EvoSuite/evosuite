@@ -78,10 +78,10 @@ public class DefaultTestCase implements TestCase, Serializable {
 	protected final ListenableList<Statement> statements;
 
 	/** Coverage goals this test covers */
-	private transient Set<TestFitnessFunction> coveredGoals = new LinkedHashSet<TestFitnessFunction>();
+	private transient Set<TestFitnessFunction> coveredGoals = new LinkedHashSet<>();
 
 	/** Violations revealed by this test */
-	private transient Set<ContractViolation> contractViolations = new LinkedHashSet<ContractViolation>();
+	private transient Set<ContractViolation> contractViolations = new LinkedHashSet<>();
 
 	private boolean isFailing = false;
 
@@ -288,8 +288,8 @@ public class DefaultTestCase implements TestCase, Serializable {
 	
 	@Override
 	public int sliceFor(VariableReference var) {
-		
-		Set<Statement> dependentStatements = new LinkedHashSet<Statement>();
+
+		Set<Statement> dependentStatements = new LinkedHashSet<>();
 		dependentStatements.add(statements.get(var.getStPosition()));
 		
 		int lastPosition = var.getStPosition();
@@ -301,7 +301,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 		}
 
 		for (int i = lastPosition; i >= 0; i--) {
-			Set<Statement> newStatements = new LinkedHashSet<Statement>();
+			Set<Statement> newStatements = new LinkedHashSet<>();
 			for (Statement s : dependentStatements) {
 				if (s.references(statements.get(i).getReturnValue()) ||
 						s.references(statements.get(i).getReturnValue().getAdditionalVariableReference())) {
@@ -311,8 +311,8 @@ public class DefaultTestCase implements TestCase, Serializable {
 			}
 			dependentStatements.addAll(newStatements);
 		}
-		List<Integer> dependentPositions = new ArrayList<Integer>();
-		for(Statement s : dependentStatements) {
+		List<Integer> dependentPositions = new ArrayList<>();
+		for (Statement s : dependentStatements) {
 			dependentPositions.add(s.getPosition());
 		}
 		Collections.sort(dependentPositions, Collections.reverseOrder());
@@ -415,7 +415,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	/** {@inheritDoc} */
 	@Override
 	public Set<Class<?>> getAccessedClasses() {
-		Set<Class<?>> accessedClasses = new LinkedHashSet<Class<?>>();
+		Set<Class<?>> accessedClasses = new LinkedHashSet<>();
 		for (Statement s : statements) {
 			for (VariableReference var : s.getVariableReferences()) {
 				if (var != null && !var.isPrimitive()) {
@@ -456,7 +456,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	/** {@inheritDoc} */
 	@Override
 	public List<Assertion> getAssertions() {
-		List<Assertion> assertions = new ArrayList<Assertion>();
+		List<Assertion> assertions = new ArrayList<>();
 		for (Statement s : statements) {
 			assertions.addAll(s.getAssertions());
 		}
@@ -478,7 +478,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	/** {@inheritDoc} */
 	@Override
 	public Set<Class<?>> getDeclaredExceptions() {
-		Set<Class<?>> exceptions = new LinkedHashSet<Class<?>>();
+		Set<Class<?>> exceptions = new LinkedHashSet<>();
 		for (Statement statement : statements) {
 			exceptions.addAll(statement.getDeclaredExceptions());
 		}
@@ -496,17 +496,17 @@ public class DefaultTestCase implements TestCase, Serializable {
 	/** {@inheritDoc} */
 	@Override
 	public Set<VariableReference> getDependencies(VariableReference var) {
-		Set<VariableReference> dependencies = new LinkedHashSet<VariableReference>();
+		Set<VariableReference> dependencies = new LinkedHashSet<>();
 
 		if (var == null || var.getStPosition() == -1)
 			return dependencies;
 
-		Set<Statement> dependentStatements = new LinkedHashSet<Statement>();
+		Set<Statement> dependentStatements = new LinkedHashSet<>();
 		if(statements.size() > var.getStPosition())
 			dependentStatements.add(statements.get(var.getStPosition()));
 
 		for (int i = var.getStPosition(); i >= 0; i--) {
-			Set<Statement> newStatements = new LinkedHashSet<Statement>();
+			Set<Statement> newStatements = new LinkedHashSet<>();
 			for (Statement s : dependentStatements) {
 				if (s.references(statements.get(i).getReturnValue())) {
 					newStatements.add(statements.get(i));
@@ -556,7 +556,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	/** {@inheritDoc} */
 	@Override
 	public List<VariableReference> getObjects(int position) {
-		List<VariableReference> variables = new LinkedList<VariableReference>();
+		List<VariableReference> variables = new LinkedList<>();
 
 		for (int i = 0; i < position && i < statements.size(); i++) {
 			VariableReference value = statements.get(i).getReturnValue();
@@ -584,7 +584,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	/** {@inheritDoc} */
 	@Override
 	public List<VariableReference> getObjects(Type type, int position) {
-		List<VariableReference> variables = new LinkedList<VariableReference>();
+		List<VariableReference> variables = new LinkedList<>();
 
 		GenericClass genericClass = new GenericClass(type);
 		Class<?> rawClass = genericClass.getRawClass();
@@ -749,7 +749,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	/** {@inheritDoc} */
 	@Override
 	public Set<VariableReference> getReferences(VariableReference var) {
-		Set<VariableReference> references = new LinkedHashSet<VariableReference>();
+		Set<VariableReference> references = new LinkedHashSet<>();
 
 		if (var == null || var.getStPosition() == -1)
 			return references;
@@ -757,7 +757,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 		// references.add(var);
 
 		for (int i = var.getStPosition() + 1; i < statements.size(); i++) {
-			Set<VariableReference> temp = new LinkedHashSet<VariableReference>();
+			Set<VariableReference> temp = new LinkedHashSet<>();
 			if (statements.get(i).references(var))
 				temp.add(statements.get(i).getReturnValue());
 			else if (statements.get(i).references(var.getAdditionalVariableReference()))
@@ -1138,8 +1138,8 @@ public class DefaultTestCase implements TestCase, Serializable {
 	        IOException {
 		ois.defaultReadObject();
 
-		coveredGoals = new LinkedHashSet<TestFitnessFunction>();
-		contractViolations = new LinkedHashSet<ContractViolation>();
+		coveredGoals = new LinkedHashSet<>();
+		contractViolations = new LinkedHashSet<>();
 	}
 
 	public void setFailing(boolean failing) {
