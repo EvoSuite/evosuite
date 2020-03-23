@@ -42,10 +42,7 @@ public class BinomialMutation extends MutationDistribution {
    */
   @Override
   public boolean toMutate(int index) {
-    if (this.bitsToBeModified.contains(index)) {
-      return true;
-    }
-    return false;
+    return this.bitsToBeModified.contains(index);
   }
 
   /**

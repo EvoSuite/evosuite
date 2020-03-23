@@ -181,9 +181,7 @@ public class AssignmentStatement extends AbstractStatement {
 					
 					VariableReference source = fieldRef.getSource();
 					Object sourceValue = source.getObject(scope);
-					if (sourceValue==null) {
-						return true;
-					}
+					return sourceValue == null;
 				}
 				return false;
 			}
@@ -256,11 +254,8 @@ public class AssignmentStatement extends AbstractStatement {
 		} else if (!parameter.equals(other.parameter))
 			return false;
 		if (retval == null) {
-			if (other.retval != null)
-				return false;
-		} else if (!retval.equals(other.retval))
-			return false;
-		return true;
+			return other.retval == null;
+		} else return retval.equals(other.retval);
 	}
 
 	/*
@@ -310,11 +305,8 @@ public class AssignmentStatement extends AbstractStatement {
 		} else if (!parameter.same(other.parameter))
 			return false;
 		if (retval == null) {
-			if (other.retval != null)
-				return false;
-		} else if (!retval.same(other.retval))
-			return false;
-		return true;
+			return other.retval == null;
+		} else return retval.same(other.retval);
 	}
 
 	/**

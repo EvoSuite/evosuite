@@ -147,21 +147,18 @@ public class MultiCriteriaManager<T extends Chromosome> extends StructuralGoalMa
 	private void initializeMaps(Set<FitnessFunction<T>> set){
 		for (FitnessFunction<T> ff : set) {
 			BranchCoverageTestFitness goal = (BranchCoverageTestFitness) ff;
+
 			// Skip instrumented branches - we only want real branches
-			if(goal.getBranch() != null) {
-				if(goal.getBranch().isInstrumented()) {
-					continue;
-				}
+			if (goal.getBranch() != null && goal.getBranch().isInstrumented()) {
+				continue;
 			}
 
-			if (goal.getBranch() == null) {
-				branchlessMethodCoverageMap.put(goal.getClassName() + "."
-						+ goal.getMethod(), ff);
-			} else {
-				if (goal.getBranchExpressionValue())
-					branchCoverageTrueMap.put(goal.getBranch().getActualBranchId(), ff);
-				else
-					branchCoverageFalseMap.put(goal.getBranch().getActualBranchId(), ff);
+			if (goal.getBranch() == null) { // the goal is to call the method at hand
+				branchlessMethodCoverageMap.put(goal.getClassName() + "." + goal.getMethod(), ff);
+			} else if (goal.getBranchExpressionValue()) { // we want to take the given branch
+				branchCoverageTrueMap.put(goal.getBranch().getActualBranchId(), ff);
+			} else { // we don't want to take the given branch
+				branchCoverageFalseMap.put(goal.getBranch().getActualBranchId(), ff);
 			}
 		}
 	}

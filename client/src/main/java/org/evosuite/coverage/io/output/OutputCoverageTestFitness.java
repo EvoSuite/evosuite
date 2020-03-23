@@ -140,9 +140,7 @@ public class OutputCoverageTestFitness extends TestFitnessFunction {
 			for (OutputCoverageGoal coveredGoal : coveredGoals) {
 				if (coveredGoal.equals(this.goal)) {
 					double distance = this.calculateDistance(coveredGoal);
-					if (distance < 0.0) {
-						continue;
-					} else {
+					if (!(distance < 0.0)) {
 						fitness = distance;
 						break;
 					}
@@ -199,12 +197,13 @@ public class OutputCoverageTestFitness extends TestFitnessFunction {
 					distanceToPositive = 0;
 				}
 
-				if (coveredGoal.getValueDescriptor().equals(NUM_NEGATIVE)) {
-					return distanceToNegative;
-				} else if (coveredGoal.getValueDescriptor().equals(NUM_ZERO)) {
-					return distanceToZero;
-				} else if (coveredGoal.getValueDescriptor().equals(NUM_POSITIVE)) {
-					return distanceToPositive;
+				switch (coveredGoal.getValueDescriptor()) {
+					case NUM_NEGATIVE:
+						return distanceToNegative;
+					case NUM_ZERO:
+						return distanceToZero;
+					case NUM_POSITIVE:
+						return distanceToPositive;
 				}
 
 				break;
@@ -282,43 +281,33 @@ public class OutputCoverageTestFitness extends TestFitnessFunction {
 	{
 		try
 		{
-			if( type.equals("boolean"))
-			{
-				return Boolean.TYPE;
-			}
-			else if(type.equals("byte"))
-			{
-				return Byte.TYPE;
-			}
-			else if( type.equals("char"))
-			{
-				return Character.TYPE;
-			}
-			else if( type.equals("double"))
-			{
-				return Double.TYPE;
-			}
-			else if(type.equals("float"))
-			{
-				return Float.TYPE;
-			}
-			else if(type.equals("int"))
-			{
-				return Integer.TYPE;
-			}
-			else if( type.equals("long"))
-			{
-				return Long.TYPE;
-			}
-			else if(type.equals("short"))
-			{
-				return Short.TYPE;
-			}
-			else if(type.equals("String") ||type.equals("Boolean") || type.equals("Short") ||type.equals("Long") ||
-					type.equals("Integer") || type.equals("Float") || type.equals("Double") ||type.equals("Byte") ||
-					type.equals("Character") )
-			{
-				return Class.forName("java.lang." + type);
+			switch (type) {
+				case "boolean":
+					return Boolean.TYPE;
+				case "byte":
+					return Byte.TYPE;
+				case "char":
+					return Character.TYPE;
+				case "double":
+					return Double.TYPE;
+				case "float":
+					return Float.TYPE;
+				case "int":
+					return Integer.TYPE;
+				case "long":
+					return Long.TYPE;
+				case "short":
+					return Short.TYPE;
+				case "String":
+				case "Boolean":
+				case "Short":
+				case "Long":
+				case "Integer":
+				case "Float":
+				case "Double":
+				case "Byte":
+				case "Character":
+					return Class.forName("java.lang." + type);
 			}
 
 			//			if(type.endsWith(";") && ! type.startsWith("["))

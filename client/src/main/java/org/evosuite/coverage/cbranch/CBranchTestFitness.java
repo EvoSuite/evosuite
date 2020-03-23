@@ -212,11 +212,8 @@ public class CBranchTestFitness extends TestFitnessFunction {
 		} else if (!branchGoal.equals(other.branchGoal))
 			return false;
 		if (context == null) {
-			if (other.context != null)
-				return false;
-		} else if (!context.equals(other.context))
-			return false;
-		return true;
+			return other.context == null;
+		} else return context.equals(other.context);
 	}
 
 }

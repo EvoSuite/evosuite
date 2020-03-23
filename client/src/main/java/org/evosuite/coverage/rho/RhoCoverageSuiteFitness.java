@@ -75,20 +75,11 @@ public class RhoCoverageSuiteFitness extends TestSuiteFitnessFunction {
 					coveredLinesOrdered.add(coveredLine);
 				}
 
-				// no coverage
-				if (coveredLinesOrdered.size() == 0) {
-					continue ;
-				}
-				// already exists locally
-				else if (tmp_coverage_matrix.add(coveredLinesOrdered) == false) {
-					continue ;
-				}
-				// already exists on the original test suite
-				else if (RhoCoverageFactory.exists(l_coveredLines)) {
-					continue ;
-				}
-				// good
-				else {
+				// there is coverage, and already exists on the original test
+				// suite, and already exists locally
+				if ((coveredLinesOrdered.size() != 0
+						&& tmp_coverage_matrix.add(coveredLinesOrdered))
+						&& !RhoCoverageFactory.exists(l_coveredLines)) {
 					number_of_ones += coveredLinesOrdered.size();
 					number_of_test_cases++;
 				}

@@ -142,9 +142,7 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 			return false;
 
 		if (getAge() % Properties.LOCAL_SEARCH_RATE == 0) {
-			if (Randomness.nextDouble() <= localSearchProbability) {
-				return true;
-			}
+            return Randomness.nextDouble() <= localSearchProbability;
 		}
 		return false;
 	}
@@ -200,13 +198,12 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 	private void updateSecondaryObjectiveStarvation(int starvationCounter) {
 		if (starvationCounter > Properties.STARVATION_AFTER_GENERATION && !TestSuiteChromosome.isFirstSecondaryObjectiveEnabled()) {
 			enableFirstSecondaryCriterion();
-		} else {
-			if (starvationCounter == 0 && TestSuiteChromosome.isFirstSecondaryObjectiveEnabled()
-					&& TestSuiteChromosome.getSecondaryObjectivesSize() > 1) {
-				disableFirstSecondaryCriterion();
-			}
-		}
-	}
+        } else if (starvationCounter == 0
+                && TestSuiteChromosome.isFirstSecondaryObjectiveEnabled()
+                && TestSuiteChromosome.getSecondaryObjectivesSize() > 1) {
+            disableFirstSecondaryCriterion();
+        }
+    }
 
 	/**
 	 * Apply local search, starting from the best individual and continue
@@ -247,16 +244,14 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 			logger.debug("Decreasing probability of applying LS to " + localSearchProbability);
 		}
 
-		if (improvement) {
-			// If an improvement occurred to one of the individuals, it could
-			// be the case that the improvement was so good, that the individual
-			// has surpassed to the previous individual, which makes the population
-			// list not sorted any more. 
-			if (!populationIsSorted()) {
-				this.sortPopulation();
-			}
-		}
-	}
+		// If an improvement occurred to one of the individuals, it could
+		// be the case that the improvement was so good, that the individual
+		// has surpassed to the previous individual, which makes the population
+		// list not sorted any more.
+        if (improvement && !populationIsSorted()) {
+            this.sortPopulation();
+        }
+    }
 
 	/**
 	 * Returns true if the population is sorted according to the fitness 
@@ -265,15 +260,13 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 	 * @return true if the population is sorted (or empty)
 	 */
 	private boolean populationIsSorted() {
-		Chromosome previousIndividual = null;
-		for (Chromosome currentIndividual : this.population) {
-			if (previousIndividual!=null) {
-				if (!isBetterOrEqual(previousIndividual, currentIndividual)) {
-					// at least two individuals are not sorted
-					return false;
-				}
-			}
-			previousIndividual = currentIndividual;
+        Chromosome previous = null;
+        for (Chromosome current : this.population) {
+            if (previous != null && !isBetterOrEqual(previous, current)) {
+                // at least two individuals are not sorted
+                return false;
+            }
+            previous = current;
 		}
 		// the population is sorted (or empty)
 		return true;
@@ -594,13 +587,15 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 		Iterator<T> iterator = this.population.iterator();
 		while (iterator.hasNext()) {
 			T c = iterator.next();
-			if (isFinished()) {
-				if (c.isChanged())
-					iterator.remove();
-			} else {
-				this.calculateFitness(c);
-			}
-		}
+            if (isFinished() && c.isChanged()) {
+                iterator.remove();
+            } else {
+                this.calculateFitness(c);
+            }
+        }
+
+        //population.removeIf(c -> isFinished() && c.isChanged());
+        //population.forEach(this::calculateFitness);
 	}
 
 	/**
@@ -771,11 +766,9 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
       }
 
       File dir = new File(Properties.REPORT_DIR);
-      if (!dir.exists()) {
-        if (!dir.mkdirs()) {
-          throw new RuntimeException("Cannot create report dir: " + Properties.REPORT_DIR);
+        if (!dir.exists() && !dir.mkdirs()) {
+            throw new RuntimeException("Cannot create report dir: " + Properties.REPORT_DIR);
         }
-      }
 
       try {
         File populationFile = new File(

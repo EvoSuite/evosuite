@@ -203,12 +203,7 @@ public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome
 		if (other.size() != size())
 			return false;
 
-		for (int i = 0; i < size(); i++) {
-			if (!tests.get(i).equals(other.tests.get(i)))
-				return false;
-		}
-
-		return true;
+		return tests.equals(other.tests);
 	}
 
 	/** {@inheritDoc} */

@@ -135,9 +135,7 @@ public class MethodTraceCoverageTestFitness extends TestFitnessFunction {
 		MethodTraceCoverageTestFitness other = (MethodTraceCoverageTestFitness) obj;
 		if (! className.equals(other.className)) {
 			return false;
-		} else if (! methodName.equals(other.methodName))
-			return false;
-		return true;
+		} else return methodName.equals(other.methodName);
 	}
 
 	/* (non-Javadoc)

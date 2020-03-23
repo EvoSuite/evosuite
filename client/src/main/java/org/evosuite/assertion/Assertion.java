@@ -97,11 +97,8 @@ public abstract class Assertion implements Serializable {
 		} else if (!source.equals(other.source))
 			return false;
 		if (value == null) {
-			if (other.value != null)
-				return false;
-		} else if (!value.equals(other.value))
-			return false;
-		return true;
+			return other.value == null;
+		} else return value.equals(other.value);
 	}
 
 	public void addKilledMutation(Mutation m) {

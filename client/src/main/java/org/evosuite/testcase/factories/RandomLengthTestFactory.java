@@ -57,10 +57,8 @@ public class RandomLengthTestFactory implements ChromosomeFactory<TestChromosome
 		TestCase test = getNewTestCase();
 		int num = 0;
 
-		// Choose a random length in 0 - size
-		int length = Randomness.nextInt(size);
-		while (length == 0)
-			length = Randomness.nextInt(size);
+		// Choose a random length between 1 (inclusive) and size (exclusive).
+		final int length = Randomness.nextInt(1, size);
 
 		TestFactory testFactory = TestFactory.getInstance();
 

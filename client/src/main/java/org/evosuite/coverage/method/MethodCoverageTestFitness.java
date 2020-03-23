@@ -130,7 +130,7 @@ public class MethodCoverageTestFitness extends TestFitnessFunction {
 
     private boolean isValidPosition(List<Integer> exceptionPositions, Integer position) {
         if (Properties.BREAK_ON_EXCEPTION) {
-            return exceptionPositions.isEmpty() ? true : position <= exceptionPositions.get(0);
+            return exceptionPositions.isEmpty() || position <= exceptionPositions.get(0);
         } else {
             return true;
         }
@@ -167,9 +167,7 @@ public class MethodCoverageTestFitness extends TestFitnessFunction {
         MethodCoverageTestFitness other = (MethodCoverageTestFitness) obj;
         if (!className.equals(other.className)) {
             return false;
-        } else if (! methodName.equals(other.methodName))
-            return false;
-        return true;
+        } else return methodName.equals(other.methodName);
     }
 
     /* (non-Javadoc)

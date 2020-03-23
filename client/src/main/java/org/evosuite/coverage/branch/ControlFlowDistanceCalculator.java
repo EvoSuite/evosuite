@@ -178,9 +178,7 @@ public class ControlFlowDistanceCalculator {
 			String constructorClassName = c.getConstructor().getName();
 			String constructorMethodName = "<init>"
 					+ Type.getConstructorDescriptor(c.getConstructor().getConstructor());
-			if(constructorClassName.equals(className) && constructorMethodName.equals(methodName)) {
-				return true;
-			}
+			return constructorClassName.equals(className) && constructorMethodName.equals(methodName);
 	
 		}
 		return false;

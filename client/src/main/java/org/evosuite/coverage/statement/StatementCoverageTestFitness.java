@@ -225,11 +225,8 @@ public class StatementCoverageTestFitness extends TestFitnessFunction {
           return false;
         } else if (!this.methodName.equals(other.methodName)) {
           return false;
-        } else if (this.instructionID.intValue() != other.instructionID.intValue()) {
-          return false;
-        }
-        return true;
-    }
+        } else return this.instructionID.intValue() == other.instructionID.intValue();
+	}
 
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.TestFitnessFunction#getTargetClass()

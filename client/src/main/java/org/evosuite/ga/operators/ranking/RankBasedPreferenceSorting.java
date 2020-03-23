@@ -121,10 +121,10 @@ public class RankBasedPreferenceSorting<T extends Chromosome> implements Ranking
 			List<T> dominatedSolutions = new ArrayList<>(solutions.size());
 			for (T best : front) {
 				int flag = comparator.compare(p, best);
-				if (flag == -1) {
+				if (flag < 0) {
 					dominatedSolutions.add(best);
 				}
-				if (flag == +1) {
+				if (flag > 0) {
 					isDominated = true;
 					break;
 				}

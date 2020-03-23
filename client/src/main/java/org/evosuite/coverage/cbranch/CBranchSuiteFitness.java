@@ -253,8 +253,7 @@ public class CBranchSuiteFitness extends TestSuiteFitnessFunction {
 									|| branchCounter.get(goalF.getGenericContextBranchIdentifier()) < count) {
 								branchCounter.put(goalF.getGenericContextBranchIdentifier(), count);
 							}
-						} else
-							continue;
+						}
 					}
 				}
 			}

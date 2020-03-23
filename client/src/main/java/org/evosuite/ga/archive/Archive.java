@@ -200,10 +200,7 @@ public abstract class Archive<F extends TestFitnessFunction, T extends TestChrom
           timesBetter--;
     }
 
-    if (timesBetter > 0)
-      return true;
-
-    return false;
+    return timesBetter > 0;
   }
 
   /**

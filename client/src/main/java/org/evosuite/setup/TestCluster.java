@@ -663,13 +663,7 @@ public class TestCluster {
 	        throws ConstructionFailedException {
 
 		Set<GenericAccessibleObject<?>> calls = getCallsFor(clazz, true);
-		Iterator<GenericAccessibleObject<?>> iter = calls.iterator();
-		while(iter.hasNext()) {
-			GenericAccessibleObject<?> gao = iter.next();
-			if (! ConstraintVerifier.isValidPositionForInsertion(gao,test,position)){
-				iter.remove();
-			}
-		}
+		calls.removeIf(gam -> !ConstraintVerifier.isValidPositionForInsertion(gam, test, position));
 
 		if (calls.isEmpty()) {
 			throw new ConstructionFailedException("No modifiers for " + clazz);
@@ -1408,10 +1402,7 @@ public class TestCluster {
 		if (clazz.isAssignableTo(Map.class))
 			return true;
 
-		if (clazz.isAssignableTo(Number.class))
-			return true;
-
-		return false;
+		return clazz.isAssignableTo(Number.class);
 	}
 
 

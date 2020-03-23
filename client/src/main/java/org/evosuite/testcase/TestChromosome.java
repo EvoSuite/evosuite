@@ -217,11 +217,8 @@ public class TestChromosome extends ExecutableChromosome {
 			return false;
 		TestChromosome other = (TestChromosome) obj;
 		if (test == null) {
-			if (other.test != null)
-				return false;
-		} else if (!test.equals(other.test))
-			return false;
-		return true;
+			return other.test == null;
+		} else return test.equals(other.test);
 	}
 
 	/** {@inheritDoc} */
@@ -407,14 +404,16 @@ public class TestChromosome extends ExecutableChromosome {
 	}
 
 	private int getLastMutatableStatement() {
-		ExecutionResult result = getLastExecutionResult();
+		final ExecutionResult result = getLastExecutionResult();
+		final int size = test.size();
+
 		if (result != null && !result.noThrownExceptions()) {
-			int pos = result.getFirstPositionOfThrownException();
-			// It may happen that pos > size() after statements have been deleted
-			if (pos >= test.size())
-				return test.size() - 1;
-			else
-				return pos;
+			// If an exception was thrown during execution, the test case is only valid up to the
+			// point right before where the exception occurred.
+			final int pos = result.getFirstPositionOfThrownException();
+
+			// It may happen that pos > size() after statements have been deleted.
+			return pos >= size ? size - 1 : pos;
 		} else {
 			return test.size() - 1;
 		}
@@ -446,15 +445,11 @@ public class TestChromosome extends ExecutableChromosome {
 			if (Randomness.nextDouble() <= pl) {
 				changed |= deleteStatement(testFactory, num);
 
-				if(changed){
-					assert ConstraintVerifier.verifyTest(test);
-				}
+				assert !changed || ConstraintVerifier.verifyTest(test);
 			}
 		}
 
-		if(changed){
-			assert ConstraintVerifier.verifyTest(test);
-		}
+		assert !changed || ConstraintVerifier.verifyTest(test);
 
 		return changed;
 	}
@@ -540,9 +535,7 @@ public class TestChromosome extends ExecutableChromosome {
 			}
 		}
 
-		if(changed){
-			assert ConstraintVerifier.verifyTest(test);
-		}
+		assert !changed || ConstraintVerifier.verifyTest(test);
 
 		return changed;
 	}
@@ -599,11 +592,8 @@ public class TestChromosome extends ExecutableChromosome {
 				targetBranches.add(branch);
 		}
 		// Select random branch
-		BranchCondition branch = null;
-		if (targetBranches.isEmpty())
-			branch = Randomness.choice(branches);
-		else
-			branch = Randomness.choice(targetBranches);
+		List<BranchCondition> bs = targetBranches.isEmpty() ? branches : targetBranches;
+		BranchCondition branch =  Randomness.choice(bs);
 
 		logger.debug("Trying to negate branch " + branch.getInstructionIndex()
 		        + " - have " + targetBranches.size() + "/" + branches.size()
@@ -668,8 +658,7 @@ public class TestChromosome extends ExecutableChromosome {
 	 * @return a boolean.
 	 */
 	public boolean hasException() {
-		return lastExecutionResult == null ? false
-		        : !lastExecutionResult.noThrownExceptions();
+		return lastExecutionResult != null && !lastExecutionResult.noThrownExceptions();
 	}
 
 
