@@ -229,9 +229,9 @@ public class LineCoverageTestFitness extends TestFitnessFunction {
 			return false;
 		} else if (! methodName.equals(other.methodName)) {
 			return false;
-		} else if (line.intValue() != other.line.intValue())
-			return false;
-		return true;
+		} else {
+			return line.intValue() == other.line.intValue();
+		}
 	}
 
 	/* (non-Javadoc)

@@ -311,8 +311,7 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 	}
 
 	public boolean isAlias() {
-		return goalDefinition != null ? !goalUse.getVariableName().equals(goalDefinition.getVariableName())
-		        : false;
+		return goalDefinition != null && !goalUse.getVariableName().equals(goalDefinition.getVariableName());
 	}
 
 	/**
@@ -637,9 +636,7 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 				return false;
 		} else if (!goalVariable.equals(other.goalVariable))
 			return false;
-		if (type != other.type)
-			return false;
-		return true;
+		return type == other.type;
 	}
 
 	/* (non-Javadoc)

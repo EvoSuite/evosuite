@@ -1097,18 +1097,15 @@ public class TestCodeVisitor extends TestVisitor {
 			builder.append(" = ");
 			builder.append(cast_str);
 			builder.append(getVariableName(source));
-			builder.append(".");
-			builder.append(field.getName());
-			builder.append(";");
 		} else {
 			builder.append(getVariableName(retval));
 			builder.append(" = ");
 			builder.append(cast_str);
 			builder.append(getClassName(field.getField().getDeclaringClass()));
-			builder.append(".");
-			builder.append(field.getName());
-			builder.append(";");
 		}
+		builder.append(".");
+		builder.append(field.getName());
+		builder.append(";");
 		if (exception != null) {
 			Class<?> ex = exception.getClass();
 			while (!Modifier.isPublic(ex.getModifiers()))

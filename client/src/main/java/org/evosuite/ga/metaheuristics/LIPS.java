@@ -156,7 +156,6 @@ public class LIPS <T extends Chromosome> extends GeneticAlgorithm<T>{
 				}
 			} catch (ConstructionFailedException e) {
 				logger.info("CrossOver/Mutation failed.");
-				continue;
 			}
 		}
 
@@ -203,15 +202,13 @@ public class LIPS <T extends Chromosome> extends GeneticAlgorithm<T>{
 				startSearch4Branch =  System.currentTimeMillis();
 			} else if  (Math.abs(System.currentTimeMillis() - startSearch4Branch) >= this.budget4branch) {
 				alreadyAttemptedBranches.add(this.currentTarget);
-				if (worklist.size() > 0){
-					this.currentTarget = worklist.removeLast();
-				} else {
-					// if the worklist is empty, we re-attempt the yet 
+				if (worklist.isEmpty()) {
+					// if the worklist is empty, we re-attempt the yet
 					// uncovered branches with the remaining budget
 					worklist.addAll(alreadyAttemptedBranches);
 					alreadyAttemptedBranches.clear();
-					this.currentTarget = worklist.removeLast();
 				}
+				this.currentTarget = worklist.removeLast();
 				startSearch4Branch =  System.currentTimeMillis();
 				logger.debug("SWITCHING TARGET");
 			}
@@ -441,15 +438,14 @@ public class LIPS <T extends Chromosome> extends GeneticAlgorithm<T>{
 		if (this.numberOfCoveredTargets()==0) {
 			return getArchive();
 		}
-		if (archive.size() == 0)
-			if (population.size() > 0) {
-				ArrayList<T> list = new ArrayList<T>();
-				list.add(population.get(population.size() - 1));
-				return list;
-			} else
-				return getArchive();
-		List<T> final_tests = getArchive();
-		return final_tests;
+
+		if (archive.size() == 0 && population.size() > 0) {
+			ArrayList<T> list = new ArrayList<>();
+			list.add(population.get(population.size() - 1));
+			return list;
+		}
+
+		return getArchive();
 	}
 
 	protected double numberOfCoveredTargets(){

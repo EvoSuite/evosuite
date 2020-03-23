@@ -361,10 +361,8 @@ public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 		if (!redirectIncomingEdges(from, newStart))
 			return false;
 
-		if (!redirectOutgoingEdges(from, newEnd))
-			return false;
+		return redirectOutgoingEdges(from, newEnd);
 
-		return true;
 	}
 
 	/**
@@ -420,10 +418,8 @@ public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 		V edgeSource = graph.getEdgeSource(edge);
 		if (!graph.removeEdge(edge))
 			return false;
-		if (!addEdge(edgeSource, node, edge))
-			return false;
 
-		return true;
+		return addEdge(edgeSource, node, edge);
 	}
 
 	/**
@@ -443,10 +439,8 @@ public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 		V edgeTarget = graph.getEdgeTarget(edge);
 		if (!graph.removeEdge(edge))
 			return false;
-		if (!addEdge(node, edgeTarget, edge))
-			return false;
 
-		return true;
+		return addEdge(node, edgeTarget, edge);
 	}
 
 	// different counts

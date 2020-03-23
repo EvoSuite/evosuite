@@ -329,14 +329,9 @@ public class ExecutionResult implements Cloneable {
 		if (test == null)
 			return false;
 
-		int size = test.size();
-		if (exceptions.containsKey(size)) {
-			if (exceptions.get(size) instanceof TestCaseExecutor.TimeoutExceeded) {
-				return true;
-			}
-		}
-
-		return false;
+		final int size = test.size();
+		return exceptions.containsKey(size)
+				&& exceptions.get(size) instanceof TestCaseExecutor.TimeoutExceeded;
 	}
 
 	/**

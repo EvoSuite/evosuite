@@ -139,9 +139,7 @@ public class InputCoverageTestFitness extends TestFitnessFunction {
             for (InputCoverageGoal coveredGoal : coveredGoals) {
                 if (coveredGoal.equals(this.goal)) {
                     double distance = this.calculateDistance(coveredGoal);
-                    if (distance < 0.0) {
-                        continue;
-                    } else {
+                    if (!(distance < 0.0)) {
                         fitness = distance;
                         break;
                     }
@@ -198,12 +196,13 @@ public class InputCoverageTestFitness extends TestFitnessFunction {
                   distanceToPositive = 0;
               }
 
-              if (coveredGoal.getValueDescriptor().equals(NUM_NEGATIVE)) {
-                  return distanceToNegative;
-              } else if (coveredGoal.getValueDescriptor().equals(NUM_ZERO)) {
-                  return distanceToZero;
-              } else if (coveredGoal.getValueDescriptor().equals(NUM_POSITIVE)) {
-                  return distanceToPositive;
+              switch (coveredGoal.getValueDescriptor()) {
+                  case NUM_NEGATIVE:
+                      return distanceToNegative;
+                  case NUM_ZERO:
+                      return distanceToZero;
+                  case NUM_POSITIVE:
+                      return distanceToPositive;
               }
 
               break;
@@ -235,12 +234,13 @@ public class InputCoverageTestFitness extends TestFitnessFunction {
                   distanceToAlpha = Math.min(charValue - 'A', 'Z' - charValue);
               }
 
-              if (coveredGoal.getValueDescriptor().equals(CHAR_ALPHA)) {
-                  return distanceToAlpha;
-              } else if (coveredGoal.getValueDescriptor().equals(CHAR_DIGIT)) {
-                  return distanceToDigit;
-              } else if (coveredGoal.getValueDescriptor().equals(CHAR_OTHER)) {
-                  return distanceToOther;
+              switch (coveredGoal.getValueDescriptor()) {
+                  case CHAR_ALPHA:
+                      return distanceToAlpha;
+                  case CHAR_DIGIT:
+                      return distanceToDigit;
+                  case CHAR_OTHER:
+                      return distanceToOther;
               }
 
               break;

@@ -124,7 +124,7 @@ public class ConstructorStatement extends EntityWithParametersStatement {
 	        VariableReference retvar, List<VariableReference> parameters, boolean check) {
 		super(tc, retvar, parameters,
 				constructor.getConstructor().getAnnotations(), constructor.getConstructor().getParameterAnnotations());
-		assert check == false;
+		assert !check;
 		this.constructor = constructor;
 	}
 

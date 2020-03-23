@@ -44,12 +44,9 @@ public abstract class AbstractFitnessFactory<T extends TestFitnessFunction> impl
 
 	
 	protected boolean isCUT(String className) {
-		if (!Properties.TARGET_CLASS.equals("")
-				&& !(className.equals(Properties.TARGET_CLASS) || className
-						.startsWith(Properties.TARGET_CLASS + "$"))) {
-			return false;
-		}
-		return true;
+		return Properties.TARGET_CLASS.equals("")
+				|| (className.equals(Properties.TARGET_CLASS)
+				|| className.startsWith(Properties.TARGET_CLASS + "$"));
 	}
 	
 	/** {@inheritDoc} */

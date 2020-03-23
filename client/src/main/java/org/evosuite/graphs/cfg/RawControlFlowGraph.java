@@ -409,11 +409,9 @@ public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 		if (candidates.size() > 1) {
 
 			for (BytecodeInstruction instruction : candidates) {
-				if (outDegreeOf(instruction) == 0) {
-					if (graph.removeVertex(instruction)) {
-						removed++;
-						BytecodeInstructionPool.getInstance(classLoader).forgetInstruction(instruction);
-					}
+				if (outDegreeOf(instruction) == 0 && graph.removeVertex(instruction)) {
+					removed++;
+					BytecodeInstructionPool.getInstance(classLoader).forgetInstruction(instruction);
 				}
 			}
 
@@ -650,8 +648,7 @@ public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 				return false;
 			}
 
-			if (!calledGraph.hasDefClearPath(targetDefUse, handle))
-				return true;
+			return !calledGraph.hasDefClearPath(targetDefUse, handle);
 		}
 
 		return false;
@@ -723,10 +720,7 @@ public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 		if (targetDefUse.canBecomeActiveDefinition(edgeTarget))
 			return true;
 
-		if (callsOverwritingMethod(targetDefUse, edgeTarget, handle))
-			return true;
-
-		return false;
+		return callsOverwritingMethod(targetDefUse, edgeTarget, handle);
 	}
 
 	private boolean canBeOverwritingMethod(DefUse targetDefUse,

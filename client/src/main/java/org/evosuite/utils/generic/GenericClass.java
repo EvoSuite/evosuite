@@ -204,11 +204,7 @@ public class GenericClass implements Serializable {
 	public static boolean isSubclass(Type superclass, Type subclass) {
 		List<Class<?>> superclasses = ClassUtils.getAllSuperclasses((Class<?>) subclass);
 		List<Class<?>> interfaces = ClassUtils.getAllInterfaces((Class<?>) subclass);
-		if (superclasses.contains(superclass) || interfaces.contains(superclass)) {
-			return true;
-		}
-
-		return false;
+		return superclasses.contains(superclass) || interfaces.contains(superclass);
 	}
 
 	transient Class<?> rawClass = null;
@@ -312,10 +308,7 @@ public class GenericClass implements Serializable {
 				if (equals(instantiation)) {
 					//logger.debug("Instantiation is equal to original, so I think we can't assign: "
 					//        + instantiation);
-					if (hasWildcardOrTypeVariables())
-						return false;
-					else
-						return true;
+					return !hasWildcardOrTypeVariables();
 				}
 				//logger.debug("Checking instantiation: " + instantiation);
 				return instantiation.canBeInstantiatedTo(otherType);
@@ -1196,10 +1189,7 @@ public class GenericClass implements Serializable {
 			return hasTypeVariables((ParameterizedType) type);
 		}
 
-		if (isTypeVariable())
-			return true;
-
-		return false;
+		return isTypeVariable();
 	}
 
 	private boolean hasTypeVariables(ParameterizedType parameterType) {
@@ -1230,12 +1220,7 @@ public class GenericClass implements Serializable {
 				return true;
 		}
 
-		if (type instanceof GenericArrayType) {
-			if (getComponentClass().hasWildcardOrTypeVariables())
-				return true;
-		}
-
-		return false;
+		return type instanceof GenericArrayType && getComponentClass().hasWildcardOrTypeVariables();
 	}
 
 	private boolean hasWildcardType(ParameterizedType parameterType) {
@@ -1256,10 +1241,7 @@ public class GenericClass implements Serializable {
 			return hasWildcardType((ParameterizedType) type);
 		}
 
-		if (isWildcardType())
-			return true;
-
-		return false;
+		return isWildcardType();
 	}
 
 	/**

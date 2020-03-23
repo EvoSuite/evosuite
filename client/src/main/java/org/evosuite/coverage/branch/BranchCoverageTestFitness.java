@@ -212,11 +212,8 @@ public class BranchCoverageTestFitness extends TestFitnessFunction {
 			return false;
 		BranchCoverageTestFitness other = (BranchCoverageTestFitness) obj;
 		if (goal == null) {
-			if (other.goal != null)
-				return false;
-		} else if (!goal.equals(other.goal))
-			return false;
-		return true;
+			return other.goal == null;
+		} else return goal.equals(other.goal);
 	}
 
 	/* (non-Javadoc)

@@ -119,11 +119,8 @@ public class EqualsAssertion extends Assertion {
 			return false;
 		EqualsAssertion other = (EqualsAssertion) obj;
 		if (dest == null) {
-			if (other.dest != null)
-				return false;
-		} else if (!dest.equals(other.dest))
-			return false;
-		return true;
+			return other.dest == null;
+		} else return dest.equals(other.dest);
 	}
 
 	/*

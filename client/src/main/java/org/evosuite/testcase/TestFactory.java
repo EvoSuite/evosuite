@@ -1025,7 +1025,6 @@ public class TestFactory {
 				// if bounded variable, cannot add methods before its initialization, and so cannot be
 				// used as a callee
 				iter.remove();
-				continue;
 			}
 		}
 
@@ -1573,12 +1572,8 @@ public class TestFactory {
 	private VariableReference createOrReuseObjectVariable(TestCase test, int position,
 	        int recursionDepth, VariableReference exclude, boolean allowNull, boolean canUseMocks)
 	        throws ConstructionFailedException {
-
-		double reuse = Randomness.nextDouble();
-
-		// Only reuse objects if they are related to a target call
-		if (reuse <= Properties.PRIMITIVE_REUSE_PROBABILITY) {
-
+		final boolean reuse = Randomness.nextDouble() <= Properties.PRIMITIVE_REUSE_PROBABILITY;
+		if (reuse) { // Only reuse objects if they are related to a target call
 			List<VariableReference> candidates = getCandidatesForReuse(test, Object.class, position, exclude, allowNull, canUseMocks);
 			//List<VariableReference> candidates = test.getObjects(Object.class, position);
 			filterVariablesByCastClasses(candidates);

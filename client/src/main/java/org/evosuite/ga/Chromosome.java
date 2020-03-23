@@ -147,10 +147,8 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	 *            a fitness function
 	 */
 	public void addFitness(FitnessFunction<?> ff) {
-		if (ff.isMaximizationFunction())
-			this.addFitness(ff, 0.0, 0.0, 0);
-		else
-			this.addFitness(ff, Double.MAX_VALUE, 0.0, 0);
+        final double fitnessValue = ff.isMaximizationFunction() ? 0 : Double.MAX_VALUE;
+        this.addFitness(ff, fitnessValue);
 	}
 
 	/**
@@ -209,8 +207,8 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	 *            a double.
 	 */
 	public void setFitness(FitnessFunction<?> ff, double value) throws IllegalArgumentException {
-		if ((Double.compare(value, Double.NaN) == 0) || (Double.isInfinite(value))) {
-//				 || ( value < 0 ) || ( ff == null )) 
+        if (Double.isNaN(value) || (Double.isInfinite(value))) {
+//				 || ( value < 0 ) || ( ff == null ))
 			throw new IllegalArgumentException("Invalid value of Fitness: " + value + ", Fitness: "
 					+ ff.getClass().getName());
 		}

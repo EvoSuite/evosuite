@@ -67,7 +67,7 @@ public class RhoCoverageTestFitness extends TestFitnessFunction {
 				return 1.0;
 			}
 			// already exists locally
-			else if (tmp_coverage_matrix.add(coveredLinesOrdered) == false) {
+			else if (!tmp_coverage_matrix.add(coveredLinesOrdered)) {
 				updateIndividual(this, individual, 1.0);
 				return 1.0;
 			}
@@ -133,9 +133,7 @@ public class RhoCoverageTestFitness extends TestFitnessFunction {
 			return false;
 		if (previous_number_of_ones != other.previous_number_of_ones)
 			return false;
-		if (previous_number_of_test_cases != other.previous_number_of_test_cases)
-			return false;
-		return true;
+		return previous_number_of_test_cases == other.previous_number_of_test_cases;
 	}
 
 	@Override

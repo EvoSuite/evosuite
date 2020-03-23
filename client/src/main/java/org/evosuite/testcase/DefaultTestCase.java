@@ -125,9 +125,8 @@ public class DefaultTestCase implements TestCase, Serializable {
 	public void addAssertions(TestCase other) {
 		for (int i = 0; i < statements.size() && i < other.size(); i++) {
 			for (Assertion a : other.getStatement(i).getAssertions()) {
-				if (!statements.get(i).getAssertions().contains(a))
-					if (a != null)
-						statements.get(i).getAssertions().add(a.clone(this));
+				if (!statements.get(i).getAssertions().contains(a) && a != null)
+					statements.get(i).getAssertions().add(a.clone(this));
 			}
 		}
 	}
@@ -394,8 +393,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 		DefaultTestCase other = (DefaultTestCase) obj;
 
 		if (statements == null) {
-			if (other.statements != null)
-				return false;
+			return other.statements == null;
 		} else {
 			if (statements.size() != other.statements.size())
 				return false;
@@ -1041,20 +1039,16 @@ public class DefaultTestCase implements TestCase, Serializable {
 
 	private boolean fieldNeedsDownCast(FieldReference fieldReference, VariableReference var, Class<?> abstractClass) {
 		if(fieldReference.getSource().equals(var)) {
-			if(!fieldReference.getField().getDeclaringClass().isAssignableFrom(abstractClass)) {
-				// Need downcast for real
-				return true;
-			}
+			// Need downcast for real
+			return !fieldReference.getField().getDeclaringClass().isAssignableFrom(abstractClass);
 		}
 		return false;
 	}
 
 	private boolean fieldNeedsDownCast(FieldStatement fieldStatement, VariableReference var, Class<?> abstractClass) {
 		if(!fieldStatement.isStatic() && fieldStatement.getSource().equals(var)) {
-			if(!fieldStatement.getField().getDeclaringClass().isAssignableFrom(abstractClass)) {
-				// Need downcast for real
-				return true;
-			}
+			// Need downcast for real
+			return !fieldStatement.getField().getDeclaringClass().isAssignableFrom(abstractClass);
 		}
 		return false;
 	}

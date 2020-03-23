@@ -186,11 +186,7 @@ public class ArrayStatement extends AbstractStatement {
 		ArrayStatement as = (ArrayStatement) s;
 		if (!Arrays.equals(lengths, as.lengths))
 			return false;
-		if (retval.equals(as.retval)) {
-			return true;
-		} else {
-			return false;
-		}
+		return retval.equals(as.retval);
 
 		// if (!Arrays.equals(variables, other.variables))
 		// return false;
@@ -373,11 +369,7 @@ public class ArrayStatement extends AbstractStatement {
 		ArrayStatement as = (ArrayStatement) s;
 		if (!Arrays.equals(lengths, as.lengths))
 			return false;
-		if (retval.same(as.retval)) {
-			return true;
-		} else {
-			return false;
-		}
+		return retval.same(as.retval);
 	}
 
 	/**
