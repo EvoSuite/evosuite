@@ -60,9 +60,8 @@ public class BranchesManager<T extends Chromosome> extends StructuralGoalManager
 	public BranchesManager(List<FitnessFunction<T>> fitnessFunctions){
 		super(fitnessFunctions);
 
-		Set<FitnessFunction<T>> set = new HashSet<FitnessFunction<T>>();
-		set.addAll(fitnessFunctions);
-		graph = new BranchFitnessGraph<T, FitnessFunction<T>>(set);
+		graph = new BranchFitnessGraph<>(new HashSet<>(fitnessFunctions));
+
 		// initialize current goals
 		this.currentGoals.addAll(graph.getRootBranches());
 
@@ -97,9 +96,8 @@ public class BranchesManager<T extends Chromosome> extends StructuralGoalManager
 		}
 
 		// 1) we update the set of currents goals
-		Set<FitnessFunction<T>> visitedStatements = new HashSet<FitnessFunction<T>>(this.getUncoveredGoals().size()*2);
-		LinkedList<FitnessFunction<T>> targets = new LinkedList<FitnessFunction<T>>();
-		targets.addAll(this.currentGoals);
+		Set<FitnessFunction<T>> visitedStatements = new HashSet<>(this.getUncoveredGoals().size() * 2);
+		LinkedList<FitnessFunction<T>> targets = new LinkedList<>(this.currentGoals);
 
 		while (targets.size()>0){
 			FitnessFunction<T> fitnessFunction = targets.poll();

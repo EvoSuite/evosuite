@@ -1851,12 +1851,7 @@ public class TestFactory {
 	 * @return
 	 */
 	private static Set<Type> getDependencies(GenericConstructor constructor) {
-		Set<Type> dependencies = new LinkedHashSet<>();
-		for (Type type : constructor.getParameterTypes()) {
-			dependencies.add(type);
-		}
-
-		return dependencies;
+		return new LinkedHashSet<>(Arrays.asList(constructor.getParameterTypes()));
 	}
 
 	/**
@@ -1885,9 +1880,7 @@ public class TestFactory {
 		if (!method.isStatic()) {
 			dependencies.add(method.getOwnerType());
 		}
-		for (Type type : method.getParameterTypes()) {
-			dependencies.add(type);
-		}
+		dependencies.addAll(Arrays.asList(method.getParameterTypes()));
 
 		return dependencies;
 	}
@@ -2039,8 +2032,7 @@ public class TestFactory {
 		} else {
 			//method
 			Method method = reflectionFactory.nextMethod();
-			List<Type> list = new ArrayList<>();
-			list.addAll(Arrays.asList(method.getParameterTypes()));
+			List<Type> list = new ArrayList<>(Arrays.asList(method.getParameterTypes()));
 			// Added 'null' as additional parameter - fix for @NotNull annotations issue on evo mailing list
 			parameters = satisfyParameters(test, callee, list, null, position, recursionDepth + 1, true, false, true);
 

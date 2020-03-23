@@ -826,7 +826,6 @@ public class TestCluster {
 		Set<GenericAccessibleObject<?>> calls = new LinkedHashSet<>();
 
 		if (clazz.isAssignableTo(Collection.class) || clazz.isAssignableTo(Map.class)) {
-			Set<GenericAccessibleObject<?>> all = new LinkedHashSet<>();
 			if (!generatorCache.containsKey(clazz)) {
 				cacheGenerators(clazz);
 			}
@@ -834,7 +833,7 @@ public class TestCluster {
 				throw new ConstructionFailedException("No generators of type " + clazz);
 			}
 
-			all.addAll(generatorCache.get(clazz));
+			Set<GenericAccessibleObject<?>> all = new LinkedHashSet<>(generatorCache.get(clazz));
 
 			for (GenericAccessibleObject<?> call : all) {
 				// TODO: Need to instantiate, or check?
@@ -859,11 +858,10 @@ public class TestCluster {
 		} else if (clazz.isAssignableTo(Number.class)) {
 			logger.debug("Found special case " + clazz);
 
-			Set<GenericAccessibleObject<?>> all = new LinkedHashSet<GenericAccessibleObject<?>>();
 			if (!generatorCache.containsKey(clazz)) {
 				cacheGenerators(clazz);
 			}
-			all.addAll(generatorCache.get(clazz));
+			Set<GenericAccessibleObject<?>> all = new LinkedHashSet<>(generatorCache.get(clazz));
 
 			if (all.isEmpty()) {
 				addNumericConstructor(clazz);
