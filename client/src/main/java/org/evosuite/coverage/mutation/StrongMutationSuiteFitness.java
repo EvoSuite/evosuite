@@ -20,7 +20,6 @@
 package org.evosuite.coverage.mutation;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -75,26 +74,9 @@ public class StrongMutationSuiteFitness extends MutationSuiteFitness {
 	 * @return
 	 */
 	private List<TestChromosome> prioritizeTests(TestSuiteChromosome individual) {
-		List<TestChromosome> executionOrder = new ArrayList<TestChromosome>(
-		        individual.getTestChromosomes());
-
-		Collections.sort(executionOrder, new Comparator<TestChromosome>() {
-
-			@Override
-			public int compare(TestChromosome tc1, TestChromosome tc2) {
-				ExecutionResult result1 = tc1.getLastExecutionResult();
-				ExecutionResult result2 = tc2.getLastExecutionResult();
-				long diff = result1.getExecutionTime() - result2.getExecutionTime();
-				if (diff == 0)
-					return 0;
-				else if (diff < 0)
-					return -1;
-				else
-					return 1;
-			}
-
-		});
-
+		List<TestChromosome> executionOrder = new ArrayList<>(individual.getTestChromosomes());
+		executionOrder.sort(Comparator.comparingLong(tch ->
+				tch.getLastExecutionResult().getExecutionTime()));
 		return executionOrder;
 	}
 

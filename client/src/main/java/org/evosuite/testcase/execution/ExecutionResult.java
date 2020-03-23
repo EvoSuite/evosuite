@@ -29,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.stream.IntStream;
 
 public class ExecutionResult implements Cloneable {
 
@@ -120,9 +121,7 @@ public class ExecutionResult implements Cloneable {
 	 */
 	public void setThrownExceptions(Map<Integer, Throwable> data) {
 		exceptions.clear();
-		for (Integer position : data.keySet()) {
-			reportNewThrownException(position, data.get(position));
-		}
+		data.forEach(this::reportNewThrownException);
 	}
 
 	
@@ -134,13 +133,9 @@ public class ExecutionResult implements Cloneable {
 	 * @return a {@link java.lang.Integer} object.
 	 */
 	public Integer getFirstPositionOfThrownException() {
-		Integer min = null;
-		for (Integer position : exceptions.keySet()) {
-			if (min == null || position < min) {
-				min = position;
-			}
-		}
-		return min;
+		return exceptions.keySet().stream()
+				.min(Comparator.naturalOrder())
+				.orElse(null);
 	}
 
 	/**
@@ -338,12 +333,8 @@ public class ExecutionResult implements Cloneable {
 		if (test == null)
 			return false;
 
-		for (Throwable t : exceptions.values()) {
-			if (t instanceof CodeUnderTestException)
-				return true;
-		}
-
-		return false;
+		return exceptions.values().stream()
+				.anyMatch(t -> t instanceof CodeUnderTestException);
 	}
 
 	/**
@@ -375,13 +366,9 @@ public class ExecutionResult implements Cloneable {
 	 * @return
      */
 	public boolean calledReflection() {
-		int executedStatements = getExecutedStatements();
-		for(int numStatement = 0; numStatement < executedStatements; numStatement++) {
-			Statement s = test.getStatement(numStatement);
-			if(s.isReflectionStatement())
-				return true;
-		}
-		return false;
+		return IntStream.range(0, getExecutedStatements())
+				.mapToObj(numStatement -> test.getStatement(numStatement))
+				.anyMatch(Statement::isReflectionStatement);
 	}
 
 

@@ -21,6 +21,7 @@ package org.evosuite.ga;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Arrays;
 
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ConstructionFailedException;
@@ -45,10 +46,9 @@ public class NSGAChromosome extends Chromosome
 	}
 
 	public NSGAChromosome(double lowerBound, double upperBound, double ... values) {
-	    for (int i = 0; i < values.length; i++) {
-	        Variable v = new DoubleVariable(values[i], lowerBound, upperBound);
-	        this.addVariable(v);
-	    }
+		Arrays.stream(values)
+				.mapToObj(v -> new DoubleVariable(v, lowerBound, upperBound))
+				.forEachOrdered(this::addVariable);
     }
 
 	public NSGAChromosome(boolean ZDT4,

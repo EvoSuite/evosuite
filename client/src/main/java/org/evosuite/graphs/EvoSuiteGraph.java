@@ -42,6 +42,8 @@ import org.jgrapht.graph.DefaultEdge;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static java.util.stream.Collectors.toCollection;
+
 /**
  * Supposed to become the super class of all kinds of graphs used within
  * EvoSuite Examples are the raw and minimal Control Flow Graph and hopefully at
@@ -187,9 +189,9 @@ public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 		//	throw new IllegalArgumentException(
 		//			"node not contained in this graph");
 		// TODO hash set? can't be sure V implements hash correctly
-		Set<V> r = new LinkedHashSet<V>();
-		for (E e : outgoingEdgesOf(node))
-			r.add(getEdgeTarget(e));
+		Set<V> r = outgoingEdgesOf(node).stream()
+				.map(this::getEdgeTarget)
+				.collect(toCollection(LinkedHashSet::new));
 
 		// sanity check
 		if (r.size() != outDegreeOf(node))
@@ -210,9 +212,9 @@ public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 			throw new IllegalArgumentException(
 					"node not contained in this graph");
 		// TODO hash set? can't be sure V implements hash correctly
-		Set<V> r = new LinkedHashSet<V>();
-		for (E e : incomingEdgesOf(node))
-			r.add(getEdgeSource(e));
+		Set<V> r = incomingEdgesOf(node).stream()
+				.map(this::getEdgeSource)
+				.collect(toCollection(LinkedHashSet::new));
 
 		// sanity check
 		if (r.size() != inDegreeOf(node))
@@ -374,13 +376,8 @@ public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 	 * @return a boolean.
 	 */
 	protected boolean redirectIncomingEdges(V oldNode, V newNode) {
-		Set<E> incomings = incomingEdgesOf(oldNode);
-		for (E incomingEdge : incomings) {
-			if (!redirectEdgeTarget(incomingEdge, newNode))
-				return false;
-		}
-
-		return true;
+		return incomingEdgesOf(oldNode).stream()
+				.allMatch(incomingEdge -> redirectEdgeTarget(incomingEdge, newNode));
 	}
 
 	/**
@@ -392,13 +389,8 @@ public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 	 * @return a boolean.
 	 */
 	protected boolean redirectOutgoingEdges(V oldNode, V newNode) {
-		Set<E> outgoings = outgoingEdgesOf(oldNode);
-		for (E outgoingEdge : outgoings) {
-			if (!redirectEdgeSource(outgoingEdge, newNode))
-				return false;
-		}
-
-		return true;
+		return outgoingEdgesOf(oldNode).stream()
+				.allMatch(outgoingEdge -> redirectEdgeSource(outgoingEdge, newNode));
 	}
 
 	/**
@@ -708,13 +700,9 @@ public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 	 * @return a {@link java.util.Set} object.
 	 */
 	public Set<V> determineBranches() {
-		Set<V> r = new LinkedHashSet<>();
-
-		for (V instruction : graph.vertexSet())
-			if (outDegreeOf(instruction) > 1)
-				r.add(instruction);
-
-		return r;
+		return graph.vertexSet().stream()
+				.filter(instruction -> outDegreeOf(instruction) > 1)
+				.collect(toCollection(LinkedHashSet::new));
 	}
 
 	/**
@@ -723,13 +711,9 @@ public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 	 * @return a {@link java.util.Set} object.
 	 */
 	public Set<V> determineJoins() {
-		Set<V> r = new LinkedHashSet<>();
-
-		for (V instruction : vertexSet())
-			if (inDegreeOf(instruction) > 1)
-				r.add(instruction);
-
-		return r;
+		return vertexSet().stream()
+				.filter(instruction -> inDegreeOf(instruction) > 1)
+				.collect(toCollection(LinkedHashSet::new));
 	}
 
 	// building up the reverse graph

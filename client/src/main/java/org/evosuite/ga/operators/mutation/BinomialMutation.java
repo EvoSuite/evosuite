@@ -19,9 +19,11 @@
  */
 package org.evosuite.ga.operators.mutation;
 
+import org.evosuite.utils.Randomness;
+
 import java.util.LinkedHashSet;
 import java.util.Set;
-import org.evosuite.utils.Randomness;
+import java.util.stream.DoubleStream;
 
 public class BinomialMutation extends MutationDistribution {
 
@@ -54,12 +56,9 @@ public class BinomialMutation extends MutationDistribution {
    * @return number of test cases to be mutated
    */
   private int howManyBits(int numTrials, double probability) {
-    int numberBits = 0;
-    for (int i = 0; i < numTrials; i++) {
-      if (Randomness.nextDouble() <= probability) {
-        numberBits++;
-      }
-    }
-    return numberBits;
+    return (int) DoubleStream.generate(Randomness::nextDouble)
+            .limit(numTrials)
+            .filter(d -> d <= probability)
+            .count();
   }
 }

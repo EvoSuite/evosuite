@@ -92,8 +92,7 @@ public class BranchesManager<T extends Chromosome> extends StructuralGoalManager
 		c.setChanged(false);
 		
 		if (result.hasTimeout() || result.hasTestException()){
-			for (FitnessFunction<T> f : currentGoals)
-					c.setFitness(f, Double.MAX_VALUE);
+			currentGoals.forEach(f -> c.setFitness(f, Double.MAX_VALUE));
 			return;
 		}
 

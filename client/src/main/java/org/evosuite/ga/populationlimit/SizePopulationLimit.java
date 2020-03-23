@@ -40,10 +40,7 @@ public class SizePopulationLimit implements PopulationLimit {
 	/** {@inheritDoc} */
 	@Override
 	public boolean isPopulationFull(List<? extends Chromosome> population) {
-		int size = 0;
-		for (Chromosome chromosome : population)
-			size += chromosome.size();
-
+		final int size = population.stream().mapToInt(Chromosome::size).sum();
 		return size >= Properties.POPULATION;
 	}
 

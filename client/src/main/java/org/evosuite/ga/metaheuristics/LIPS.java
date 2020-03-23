@@ -20,7 +20,6 @@
 package org.evosuite.ga.metaheuristics;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -123,7 +122,7 @@ public class LIPS <T extends Chromosome> extends GeneticAlgorithm<T>{
 		// However, we assume that LIPS uses elitism given the fact the 
 		// elitism has been shown to positively affect the convergence
 		// speed of GAs in various optimisation problems
-		Collections.sort(population, new SortByFitness(this.currentTarget,false));
+		population.sort(new SortByFitness(this.currentTarget, false));
 		newGeneration.add((T) population.get(0).clone());
 		newGeneration.add((T) population.get(1).clone());
 

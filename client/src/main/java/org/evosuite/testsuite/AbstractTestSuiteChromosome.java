@@ -21,9 +21,7 @@ package org.evosuite.testsuite;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.evosuite.Properties;
 import org.evosuite.ga.Chromosome;
@@ -36,6 +34,8 @@ import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static java.util.stream.Collectors.*;
 
 public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome> extends Chromosome {
 
@@ -82,9 +82,7 @@ public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome
 	protected AbstractTestSuiteChromosome(AbstractTestSuiteChromosome<T> source) {
 		this(source.testChromosomeFactory);
 
-		for (T test : source.tests) {
-			addTest((T) test.clone());
-		}
+		source.tests.forEach(t -> addTest((T) t.clone()));
 
 		//this.setFitness(source.getFitness());
 		this.setFitnessValues(source.getFitnessValues());
@@ -243,14 +241,8 @@ public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome
 			logger.debug("Adding new test case");
 			changed = true;
 		}
-		
-		Iterator<T> testIterator = tests.iterator();
-		while(testIterator.hasNext()) {
-			T test = testIterator.next();
-			if(test.size() == 0)
-				testIterator.remove();
-		}
-		
+
+        tests.removeIf(test -> test.size() == 0);
 
 		if (changed) {
 			this.increaseNumberOfMutations();
@@ -264,10 +256,7 @@ public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome
 	 * @return Sum of the lengths of the test cases
 	 */
 	public int totalLengthOfTestCases() {
-		int length = 0;
-		for (T test : tests)
-			length += test.size();
-		return length;
+		return tests.stream().mapToInt(T::size).sum();
 	}
 
 	/** {@inheritDoc} */
@@ -304,7 +293,9 @@ public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome
 	}
 
 	public List<ExecutionResult> getLastExecutionResults() {
-		return tests.stream().map(t -> t.getLastExecutionResult()).collect(Collectors.toList());
+		return tests.stream()
+				.map(T::getLastExecutionResult)
+				.collect(toList());
 	}
 
 	/**

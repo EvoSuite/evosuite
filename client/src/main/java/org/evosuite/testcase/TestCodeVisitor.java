@@ -63,6 +63,8 @@ import org.evosuite.utils.generic.GenericConstructor;
 import org.evosuite.utils.generic.GenericField;
 import org.evosuite.utils.generic.GenericMethod;
 
+import static java.util.stream.Collectors.toCollection;
+
 /**
  * The TestCodeVisitor is a visitor that produces a String representation of a
  * test case. This is the preferred way to produce executable code from EvoSuite
@@ -104,16 +106,11 @@ public class TestCodeVisitor extends TestVisitor {
 	 * @return a {@link java.util.Set} object.
 	 */
 	public Set<Class<?>> getImports() {
-		Set<Class<?>> imports = new HashSet<Class<?>>();
-		for (Class<?> clazz : classNames.keySet()) {
-			String name = classNames.get(clazz);
-			// If there's a dot in the name, then we assume this is the
-			// fully qualified name and we don't need to import
-			if (!name.contains(".")) {
-				imports.add(clazz);
-			}
-		}
-		return imports;
+		return classNames.keySet().stream()
+				// If there's a dot in the name, then we assume this is the
+				// fully qualified name and we don't need to import
+				.filter(clazz -> !classNames.get(clazz).contains("."))
+				.collect(toCollection(HashSet::new));
 	}
 
 	/**
@@ -161,10 +158,7 @@ public class TestCodeVisitor extends TestVisitor {
 	 * @return a {@link java.lang.Throwable} object.
 	 */
 	protected Throwable getException(Statement statement) {
-		if (exceptions != null && exceptions.containsKey(statement.getPosition()))
-			return exceptions.get(statement.getPosition());
-
-		return null;
+		return exceptions.getOrDefault(statement.getPosition(), null);
 	}
 
 	/**

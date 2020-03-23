@@ -62,6 +62,10 @@ import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.stream.Stream;
+
+import static java.util.stream.Collectors.*;
+
 /**
  * Abstract superclass of genetic algorithms
  * 
@@ -394,8 +398,8 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 	 */
 	protected void starveByFitness(int limit) {
 		calculateFitnessAndSortPopulation();
-		for (int i = population.size() - 1; i >= limit; i--) {
-			population.remove(i);
+        if (population.size() > limit) {
+            population.subList(limit, population.size()).clear();
 		}
 	}
 
@@ -409,9 +413,7 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 		logger.debug("Creating random population");
 		for (int i = 0; i < population_size; i++) {
 			T individual = chromosomeFactory.getChromosome();
-			for (FitnessFunction<?> fitnessFunction : this.fitnessFunctions) {
-				individual.addFitness(fitnessFunction);
-			}
+            fitnessFunctions.forEach(individual::addFitness);
 
 			population.add(individual);
 			if (isFinished())
@@ -440,8 +442,7 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 	}
 
 	public void addFitnessFunctions(List<FitnessFunction<T>> functions) {
-		for (FitnessFunction<T> function : functions)
-			this.addFitnessFunction(function);
+        functions.forEach(this::addFitnessFunction);
 	}
 
 	/**
@@ -562,11 +563,7 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 	 * @return a boolean.
 	 */
 	public boolean isTooLong(Chromosome chromosome) {
-		for (BloatControlFunction b : bloatControl) {
-			if (b.isTooLong(chromosome))
-				return true;
-		}
-		return false;
+        return bloatControl.stream().anyMatch(b -> b.isTooLong(chromosome));
 	}
 
 	/**
@@ -604,10 +601,10 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 	 * @param c
 	 */
 	protected void calculateFitness(T c) {
-		for (FitnessFunction<T> fitnessFunction : this.fitnessFunctions) {
-			fitnessFunction.getFitness(c);
+        fitnessFunctions.forEach(ff -> {
+            ff.getFitness(c);
 			notifyEvaluation(c);
-		}
+        });
 	}
 
 	/**
@@ -639,13 +636,11 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 	protected List<T> elitism() {
 		logger.debug("Elitism with ELITE = " + Properties.ELITE);
 
-		List<T> elite = new ArrayList<T>();
+        List<T> elite = population.stream().limit(Properties.ELITE)
+                .peek(c -> logger.trace("Copying individual with fitness " + c.getFitness()))
+                .map(c -> (T) c.clone())
+                .collect(toList());
 
-		for (int i = 0; i < Properties.ELITE; i++) {
-			logger.trace("Copying individual " + i + " with fitness "
-					+ population.get(i).getFitness());
-			elite.add((T) population.get(i).clone());
-		}
 		logger.trace("Done.");
 		return elite;
 	}
@@ -658,21 +653,16 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 	protected List<Chromosome> randomism() {
 		logger.debug("Randomism");
 
-		List<Chromosome> randoms = new ArrayList<Chromosome>();
-
-		for (int i = 0; i < Properties.ELITE; i++) {
-			randoms.add(chromosomeFactory.getChromosome());
-		}
-		return randoms;
+        return Stream.generate(chromosomeFactory::getChromosome)
+                .limit(Properties.ELITE)
+                .collect(toList());
 	}
 
 	/**
 	 * update archive fitness functions
 	 */
 	public void updateFitnessFunctionsAndValues() {
-		for (FitnessFunction<T> f : fitnessFunctions) {
-			f.updateCoveredGoals();
-		}
+         fitnessFunctions.forEach(FitnessFunction::updateCoveredGoals);
 
 		// Do we actually have to perform yet another fitness evaluation?
 		// Yes, if ARCHIVE has been updated, No otherwise.
@@ -680,11 +670,7 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 			return;
 		}
 
-		for (T t : population) {
-			for (FitnessFunction<T> fitnessFunction : fitnessFunctions) {
-				fitnessFunction.getFitness(t);
-			}
-		}
+        population.forEach(t -> fitnessFunctions.forEach(ff -> ff.getFitness(t)));
 
 		Archive.getArchiveInstance().setHasBeenUpdated(false);
 	}
@@ -780,35 +766,27 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
         PrintWriter out = new PrintWriter(bw);
 
         // header
-        List<String> l_string = new ArrayList<String>();
+            final String header = fitnessFunctions.stream()
+                    .map(ff -> ff.getClass().getSimpleName())
+                    .collect(joining(","));
 
         if (Properties.ALGORITHM == Algorithm.NSGAII) {
-          l_string.add("rank");
+                out.println("rank," + header);
         } else if (Properties.ALGORITHM == Algorithm.SPEA2) {
-          l_string.add("strength");
+                out.println("strength," + header);
         }
-
-        for (int i = 0; i < this.fitnessFunctions.size(); i++) {
-          l_string.add(this.fitnessFunctions.get(i).getClass().getSimpleName());
-        }
-        out.println(String.join(",", l_string));
 
         // content
-        for (int j = 0; j < individuals.size(); j++) {
-          l_string.clear();
+            for (T t : individuals) {
+                final String content = fitnessFunctions.stream()
+                        .map(ff -> Double.toString(t.getFitness(ff)))
+                        .collect(joining(","));
 
-          T individual = individuals.get(j);
           if (Properties.ALGORITHM == Algorithm.NSGAII) {
-            l_string.add(Integer.toString(individual.getRank()));
+                    out.println(t.getRank() + "," + content);
           } else if (Properties.ALGORITHM == Algorithm.SPEA2) {
-            l_string.add(Double.toString(individual.getDistance()));
+                    out.println(t.getDistance() + "," + content);
           }
-
-          for (int i = 0; i < this.fitnessFunctions.size(); i++) {
-            l_string.add(Double.toString(individual.getFitness(this.fitnessFunctions.get(i))));
-          }
-
-          out.println(String.join(",", l_string));
         }
 
         out.close();
@@ -868,27 +846,21 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 	 * Notify all search listeners of search start
 	 */
 	protected void notifySearchStarted() {
-		for (SearchListener listener : listeners) {
-			listener.searchStarted(this);
-		}
+        listeners.forEach(l -> l.searchStarted(this));
 	}
 
 	/**
 	 * Notify all search listeners of search end
 	 */
 	protected void notifySearchFinished() {
-		for (SearchListener listener : listeners) {
-			listener.searchFinished(this);
-		}
+        listeners.forEach(l -> l.searchFinished(this));
 	}
 
 	/**
 	 * Notify all search listeners of iteration
 	 */
 	protected void notifyIteration() {
-		for (SearchListener listener : listeners) {
-			listener.iteration(this);
-		}
+        listeners.forEach(l -> l.iteration(this));
 	}
 
 	/**
@@ -898,9 +870,7 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 	 *            a {@link org.evosuite.ga.Chromosome} object.
 	 */
 	protected void notifyEvaluation(Chromosome chromosome) {
-		for (SearchListener listener : listeners) {
-			listener.fitnessEvaluation(chromosome);
-		}
+        listeners.forEach(l -> l.fitnessEvaluation(chromosome));
 	}
 
 	/**
@@ -910,9 +880,7 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 	 *            a {@link org.evosuite.ga.Chromosome} object.
 	 */
 	protected void notifyMutation(Chromosome chromosome) {
-		for (SearchListener listener : listeners) {
-			listener.modification(chromosome);
-		}
+        listeners.forEach(l -> l.modification(chromosome));
 	}
 
 	/**
@@ -926,7 +894,7 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 			Randomness.shuffle(population);
 
 		if (isMaximizationFunction()) {
-			Collections.sort(population, Collections.reverseOrder());
+            population.sort(Collections.reverseOrder());
 		} else {
 			Collections.sort(population);
 		}
@@ -969,12 +937,8 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 	 * @return a boolean.
 	 */
 	public boolean isFinished() {
-		for (StoppingCondition c : stoppingConditions) {
-			// logger.error(c + " "+ c.getCurrentValue());
-			if (c.isFinished())
-				return true;
-		}
-		return false;
+        // logger.error(c + " "+ c.getCurrentValue());
+        return stoppingConditions.stream().anyMatch(StoppingCondition::isFinished);
 	}
 
 	// TODO: Override equals method in StoppingCondition
@@ -988,12 +952,13 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 	 *            object.
 	 */
 	public void addStoppingCondition(StoppingCondition condition) {
-		Iterator<StoppingCondition> it = stoppingConditions.iterator();
-		while (it.hasNext()) {
-			if (it.next().getClass().equals(condition.getClass())) {
-				return;
-			}
-		}
+        final boolean contained = stoppingConditions.stream()
+                .anyMatch(obj -> obj.getClass().equals(condition.getClass()));
+
+        if (contained) {
+            return;
+        }
+
 		logger.debug("Adding new stopping condition");
 		stoppingConditions.add(condition);
 		addListener(condition);
@@ -1030,13 +995,9 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 	 *            object.
 	 */
 	public void removeStoppingCondition(StoppingCondition condition) {
-		Iterator<StoppingCondition> it = stoppingConditions.iterator();
-		while (it.hasNext()) {
-			if (it.next().getClass().equals(condition.getClass())) {
-				it.remove();
-				removeListener(condition);
-			}
-		}
+        final boolean removed = stoppingConditions
+				.removeIf(sc -> sc.getClass().equals(condition.getClass()));
+        if (removed) removeListener(condition);
 	}
 
 	/**
@@ -1045,9 +1006,7 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 	 * </p>
 	 */
 	public void resetStoppingConditions() {
-		for (StoppingCondition c : stoppingConditions) {
-			c.reset();
-		}
+        stoppingConditions.forEach(StoppingCondition::reset);
 	}
 
 	/**
@@ -1059,9 +1018,7 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 	 *            a int.
 	 */
 	public void setStoppingConditionLimit(int value) {
-		for (StoppingCondition c : stoppingConditions) {
-			c.setLimit(value);
-		}
+        stoppingConditions.forEach(c -> c.setLimit(value));
 	}
 
 	protected void updateBestIndividualFromArchive() {
@@ -1072,12 +1029,7 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 
 		// The archive may contain tests evaluated with a fitness function
 		// that is not part of the optimization (e.g. ibranch secondary objective)
-		Iterator<FitnessFunction<?>> it = best.getCoverageValues().keySet().iterator();
-		while(it.hasNext()) {
-			FitnessFunction<?> ff = it.next();
-			if(!fitnessFunctions.contains(ff))
-				it.remove();
-		}
+        best.getCoverageValues().keySet().removeIf(ff -> !fitnessFunctions.contains(ff));
 		population.add(0, best);
 	}
 
@@ -1130,9 +1082,11 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 	 * So far only used for testing purposes in TestSuiteGenerator
 	 */
 	public void printBudget() {
-		LoggingUtils.getEvoLogger().info("* GA-Budget:");
-		for (StoppingCondition sc : stoppingConditions)
-			LoggingUtils.getEvoLogger().info("\t- " + sc.toString());
+        final Logger logger = LoggingUtils.getEvoLogger();
+        logger.info("* GA-Budget:");
+        stoppingConditions.stream()
+                .map(sc -> "\t- " + sc.toString())
+                .forEach(logger::info);
 	}
 
 	/**
@@ -1143,11 +1097,9 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 	 * @return a {@link java.lang.String} object.
 	 */
 	public String getBudgetString() {
-		String r = "";
-		for (StoppingCondition sc : stoppingConditions)
-			r += sc.toString() + " ";
-
-		return r;
+        return stoppingConditions.stream()
+                .map(StoppingCondition::toString)
+                .collect(joining(" "));
 	}
 
 	/**

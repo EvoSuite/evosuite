@@ -35,6 +35,8 @@ import org.jgrapht.graph.DefaultDirectedGraph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static java.util.stream.Collectors.*;
+
 /**
  * 
  * 
@@ -52,9 +54,7 @@ public class BranchFitnessGraph<T extends Chromosome, V extends FitnessFunction<
 
 	@SuppressWarnings("unchecked")
 	public BranchFitnessGraph(Set<FitnessFunction<T>> goals){
-		for (FitnessFunction<T> fitness : goals){
-			graph.addVertex(fitness);
-		}
+		goals.forEach(g -> graph.addVertex(g));
 
 		// derive dependencies among branches
 		for (FitnessFunction<T> fitness : goals){
@@ -141,21 +141,15 @@ public class BranchFitnessGraph<T extends Chromosome, V extends FitnessFunction<
 	
 	@SuppressWarnings("unchecked")
 	public Set<FitnessFunction<T>> getStructuralChildren(FitnessFunction<T> parent){
-		Set<DependencyEdge> outgoingEdges = this.graph.outgoingEdgesOf(parent);
-		Set<FitnessFunction<T>> children = new HashSet<FitnessFunction<T>>();
-		for (DependencyEdge edge : outgoingEdges){
-			children.add((FitnessFunction<T>) edge.getTarget());
-		}
-		return children;
+		return this.graph.outgoingEdgesOf(parent).stream()
+				.map(edge -> (FitnessFunction<T>) edge.getTarget())
+				.collect(toSet());
 	}
 	
 	@SuppressWarnings("unchecked")
 	public Set<FitnessFunction<T>> getStructuralParents(FitnessFunction<T> parent){
-		Set<DependencyEdge> incomingEdges = this.graph.incomingEdgesOf(parent);
-		Set<FitnessFunction<T>> parents = new HashSet<FitnessFunction<T>>();
-		for (DependencyEdge edge : incomingEdges){
-			parents.add((FitnessFunction<T>) edge.getSource());
-		}
-		return parents;
+		return this.graph.incomingEdgesOf(parent).stream()
+				.map(edge -> (FitnessFunction<T>) edge.getSource()
+				).collect(toSet());
 	}
 }

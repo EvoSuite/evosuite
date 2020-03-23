@@ -215,7 +215,8 @@ public class TestGeneration {
 		LoggingUtils.getEvoLogger().info("* Going to generate test cases for class: "+target);
 		
 		if (!findTargetClass(target)) {
-		    return Arrays.asList(Arrays.asList(new TestGenerationResult[]{TestGenerationResultBuilder.buildErrorResult("Could not find target class") }));
+			final TestGenerationResult result = TestGenerationResultBuilder.buildErrorResult("Could not find target class");
+			return Collections.singletonList(Collections.singletonList(result));
 		}
 
 

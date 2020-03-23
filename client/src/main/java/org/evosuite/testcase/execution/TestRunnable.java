@@ -139,9 +139,7 @@ public class TestRunnable implements InterfaceTestRunnable {
 	protected void informObservers_before(Statement s) {
 		ExecutionTracer.disable();
 		try {
-			for (ExecutionObserver observer : observers) {
-				observer.beforeStatement(s, scope);
-			}
+			observers.forEach(o -> o.beforeStatement(s, scope));
 		} finally {
 			ExecutionTracer.enable();
 		}
@@ -159,9 +157,7 @@ public class TestRunnable implements InterfaceTestRunnable {
 	protected void informObservers_after(Statement s, Throwable exceptionThrown) {
 		ExecutionTracer.disable();
 		try {
-			for (ExecutionObserver observer : observers) {
-				observer.afterStatement(s, scope, exceptionThrown);
-			}
+			observers.forEach(o -> o.afterStatement(s, scope, exceptionThrown));
 		} finally {
 			ExecutionTracer.enable();
 		}
@@ -170,9 +166,7 @@ public class TestRunnable implements InterfaceTestRunnable {
 	protected void informObservers_finished(ExecutionResult result) {
 		ExecutionTracer.disable();
 		try {
-			for (ExecutionObserver observer : observers) {
-				observer.testExecutionFinished(result, scope);
-			}
+			observers.forEach(o -> o.testExecutionFinished(result, scope));
 		} finally {
 			ExecutionTracer.enable();
 		}

@@ -91,9 +91,7 @@ public abstract class Archive<F extends TestFitnessFunction, T extends TestChrom
    * @param targets
    */
   public void addTargets(Collection<F> targets) {
-    for (F target : targets) {
-      this.addTarget(target);
-    }
+    targets.forEach(this::addTarget);
   }
 
   /**
@@ -117,10 +115,8 @@ public abstract class Archive<F extends TestFitnessFunction, T extends TestChrom
   protected void removeNonCoveredTargetOfAMethod(F target) {
     String targetMethod = this.getMethodFullName(target);
     if (this.nonCoveredTargetsOfEachMethod.containsKey(targetMethod)) {
-      if (this.nonCoveredTargetsOfEachMethod.get(targetMethod).contains(target)) {
-        // target has been covered, therefore we can remove it from the list of non-covered
-        this.nonCoveredTargetsOfEachMethod.get(targetMethod).remove(target);
-      }
+      // target has been covered, therefore we can remove it from the list of non-covered
+      this.nonCoveredTargetsOfEachMethod.get(targetMethod).remove(target);
 
       if (this.nonCoveredTargetsOfEachMethod.get(targetMethod).isEmpty()) {
         // method is fully covered, therefore we do not need to keep track of it

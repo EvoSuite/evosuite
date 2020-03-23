@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import org.evosuite.Properties;
@@ -132,7 +133,7 @@ public class LineCoverageTestFitness extends TestFitnessFunction {
 			        "an instruction is at least on the root branch of it's method");
 
 
-		branchFitnesses.sort((a,b) -> a.compareTo(b));
+		branchFitnesses.sort(Comparator.naturalOrder());
 	}
 	
 	@Override

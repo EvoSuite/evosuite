@@ -25,6 +25,8 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import static java.util.stream.Collectors.*;
+
 public class MutationHistory<T extends MutationHistoryEntry> implements Iterable<T>,
         Serializable {
 
@@ -66,10 +68,8 @@ public class MutationHistory<T extends MutationHistoryEntry> implements Iterable
 	 */
 	@Override
 	public String toString() {
-		String result = "";
-		for (T t : mutations)
-			result += t.toString() + "\n";
-
-		return result;
+		return mutations.stream()
+				.map(T::toString)
+				.collect(joining("\n"));
 	}
 }

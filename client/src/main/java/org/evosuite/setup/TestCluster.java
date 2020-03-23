@@ -47,6 +47,8 @@ import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static java.util.stream.Collectors.toCollection;
+
 /**
  * @author Gordon Fraser
  *
@@ -210,10 +212,9 @@ public class TestCluster {
 						continue; //as there is no need to instantiate X, it is not an issue
 					}
 					//is any generator for X using as input an instance of Y?
-					if(Arrays.asList(genOwner.getGenericParameterTypes())
-							.stream().anyMatch(
-									t -> t.equals(entry.getKey().getType()))
-							){
+					final boolean b = Arrays.stream(genOwner.getGenericParameterTypes())
+							.anyMatch(t -> t.equals(entry.getKey().getType()));
+					if(b) {
 						iter.remove();
 						break;
 					}
@@ -268,14 +269,7 @@ public class TestCluster {
 	}
 
 	public void invalidateGeneratorCache(GenericClass klass){
-		Iterator<Map.Entry<GenericClass,Set<GenericAccessibleObject<?>>>> iter = generatorCache.entrySet().iterator();
-		while(iter.hasNext()){
-			Map.Entry entry = iter.next();
-			GenericClass gen = (GenericClass) entry.getKey();
-			if(gen.isAssignableFrom(klass)){
-				iter.remove();
-			}
-		}
+		generatorCache.keySet().removeIf(clazz -> clazz.isAssignableFrom(klass));
 	}
 
 	public void handleRuntimeAccesses(TestCase test) {
@@ -786,11 +780,9 @@ public class TestCluster {
 	 * @return
 	 */
 	public Set<GenericAccessibleObject<?>> getGenerators() {
-		Set<GenericAccessibleObject<?>> calls = new LinkedHashSet<>();
-		for (Set<GenericAccessibleObject<?>> generatorCalls : generators.values())
-			calls.addAll(generatorCalls);
-
-		return calls;
+		return generators.values().stream()
+				.flatMap(Set::stream)
+				.collect(toCollection(LinkedHashSet::new));
 	}
 
 	/**
@@ -939,12 +931,9 @@ public class TestCluster {
 	 * @return
 	 */
 	public Collection<Class<?>> getKnownMatchingClasses(String name) {
-		Set<Class<?>> classes = new LinkedHashSet<Class<?>>();
-		for (Class<?> c : analyzedClasses) {
-			if (c.getName().endsWith(name))
-				classes.add(c);
-		}
-		return classes;
+		return analyzedClasses.stream()
+				.filter(c -> c.getName().endsWith(name))
+				.collect(toCollection(LinkedHashSet::new));
 	}
 
 	/**
@@ -953,11 +942,9 @@ public class TestCluster {
 	 * @return
 	 */
 	public Set<GenericAccessibleObject<?>> getModifiers() {
-		Set<GenericAccessibleObject<?>> calls = new LinkedHashSet<GenericAccessibleObject<?>>();
-		for (Set<GenericAccessibleObject<?>> modifierCalls : modifiers.values())
-			calls.addAll(modifierCalls);
-
-		return calls;
+		return modifiers.values().stream()
+				.flatMap(Set::stream)
+				.collect(toCollection(LinkedHashSet::new));
 	}
 
 	/**
@@ -1085,15 +1072,8 @@ public class TestCluster {
 			}
 
 			if(generatorRefToExclude != null){
-				Iterator<GenericAccessibleObject<?>> iter = candidates.iterator();
-				while (iter.hasNext()) {
-					GenericAccessibleObject<?> gao = iter.next();
-					//if current generator could be called from excluded ref, then we cannot use it
-					if(generatorRefToExclude.isAssignableTo(gao.getOwnerType())){
-						iter.remove();
-					}
-				}
-
+				//if current generator could be called from excluded ref, then we cannot use it
+				candidates.removeIf(gam -> generatorRefToExclude.isAssignableTo(gam.getOwnerType()));
 			}
 
 			logger.debug("Candidate generators for " + clazz + ": " + candidates.size());
@@ -1110,7 +1090,7 @@ public class TestCluster {
 				 */
 				Set<GenericAccessibleObject<?>> set = candidates.stream()
 						.filter(p -> p.isStatic() || p.isConstructor())
-						.collect(Collectors.toCollection(() -> new LinkedHashSet<GenericAccessibleObject<?>>()));
+						.collect(toCollection(LinkedHashSet::new));
 				if(! set.isEmpty()){
 					candidates = set;
 				}
