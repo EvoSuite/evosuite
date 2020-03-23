@@ -82,7 +82,7 @@ public abstract class TestGenerationStrategy {
      * @return
      */
 	protected List<TestSuiteFitnessFunction> getFitnessFunctions() {
-	    List<TestSuiteFitnessFunction> ffs = new ArrayList<TestSuiteFitnessFunction>();
+	    List<TestSuiteFitnessFunction> ffs = new ArrayList<>();
 	    for (int i = 0; i < Properties.CRITERION.length; i++) {
 	    	TestSuiteFitnessFunction newFunction = FitnessFunctions.getFitnessFunction(Properties.CRITERION[i]);
 	    	

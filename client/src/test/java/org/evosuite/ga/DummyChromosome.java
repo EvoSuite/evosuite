@@ -32,7 +32,7 @@ import java.util.List;
  */
 public class DummyChromosome extends Chromosome {
 
-    private List<Integer> values = new ArrayList<Integer>();
+    private List<Integer> values = new ArrayList<>();
 
     public DummyChromosome(int... values) {
         for(int x : values) {

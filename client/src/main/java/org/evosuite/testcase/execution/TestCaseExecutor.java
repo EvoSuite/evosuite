@@ -91,7 +91,7 @@ public class TestCaseExecutor implements ThreadFactory {
 
 	private Set<ExecutionObserver> observers;
 
-	private final Set<Thread> stalledThreads = new HashSet<Thread>();
+	private final Set<Thread> stalledThreads = new HashSet<>();
 
 	/** Constant <code>timeExecuted=0</code> */
 	public static long timeExecuted = 0;
@@ -244,7 +244,7 @@ public class TestCaseExecutor implements ThreadFactory {
 	}
 
 	public Set<ExecutionObserver> getExecutionObservers() {
-		return new LinkedHashSet<ExecutionObserver>(observers);
+		return new LinkedHashSet<>(observers);
 	}
 
 	private void resetObservers() {
@@ -304,7 +304,7 @@ public class TestCaseExecutor implements ThreadFactory {
 
 		long startTime = System.currentTimeMillis();
 
-		TimeoutHandler<ExecutionResult> handler = new TimeoutHandler<ExecutionResult>();
+		TimeoutHandler<ExecutionResult> handler = new TimeoutHandler<>();
 
 		// #TODO steenbuck could be nicer (TestRunnable should be an interface
 		TestRunnable callable = new TestRunnable(tc, scope, observers);

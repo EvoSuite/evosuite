@@ -75,28 +75,28 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 	private static final Logger logger = LoggerFactory.getLogger(GeneticAlgorithm.class);
 
 	/** Fitness function to rank individuals */
-	protected List<FitnessFunction<T>> fitnessFunctions = new ArrayList<FitnessFunction<T>>();
+	protected List<FitnessFunction<T>> fitnessFunctions = new ArrayList<>();
 
 	/** Selection function to select parents */
-	protected SelectionFunction<T> selectionFunction = new RankSelection<T>();
+	protected SelectionFunction<T> selectionFunction = new RankSelection<>();
 
 	/** CrossOver function */
 	protected CrossOverFunction crossoverFunction = new SinglePointCrossOver();
 
 	/** Current population */
-	protected List<T> population = new ArrayList<T>();
+	protected List<T> population = new ArrayList<>();
 
 	/** Generator for initial population */
 	protected ChromosomeFactory<T> chromosomeFactory;
 
 	/** Listeners */
-	protected transient Set<SearchListener> listeners = new HashSet<SearchListener>();
+	protected transient Set<SearchListener> listeners = new HashSet<>();
 
 	/** List of conditions on which to end the search */
-	protected transient Set<StoppingCondition> stoppingConditions = new HashSet<StoppingCondition>();
+	protected transient Set<StoppingCondition> stoppingConditions = new HashSet<>();
 
 	/** Bloat control, to avoid too long chromosomes */
-	protected Set<BloatControlFunction> bloatControl = new HashSet<BloatControlFunction>();
+	protected Set<BloatControlFunction> bloatControl = new HashSet<>();
 
 	/** Local search might need a different local objective */
 	protected LocalSearchObjective<T> localObjective = new DefaultLocalSearchObjective<>();
@@ -110,7 +110,7 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 	protected double localSearchProbability = Properties.LOCAL_SEARCH_PROBABILITY;
 
 	/** Selected ranking strategy **/
-	protected RankingFunction<T> rankingFunction = new RankBasedPreferenceSorting<T>();
+	protected RankingFunction<T> rankingFunction = new RankBasedPreferenceSorting<>();
 
 	/**
 	 * Constructor
@@ -753,7 +753,7 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 	 */
 	public List<T> getBestIndividuals() {
 
-		List<T> bestIndividuals = new ArrayList<T>();
+		List<T> bestIndividuals = new ArrayList<>();
 
 		if (this.population.isEmpty()) {
 			bestIndividuals.add(this.chromosomeFactory.getChromosome());

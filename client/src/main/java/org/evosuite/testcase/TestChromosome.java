@@ -65,10 +65,10 @@ public class TestChromosome extends ExecutableChromosome {
 	protected TestCase test = new DefaultTestCase();
 
 	/** To keep track of what has changed since last fitness evaluation */
-	protected MutationHistory<TestMutationHistoryEntry> mutationHistory = new MutationHistory<TestMutationHistoryEntry>();
+	protected MutationHistory<TestMutationHistoryEntry> mutationHistory = new MutationHistory<>();
 
 	/** Secondary objectives used during ranking */
-	private static final List<SecondaryObjective<TestChromosome>> secondaryObjectives = new ArrayList<SecondaryObjective<TestChromosome>>();
+	private static final List<SecondaryObjective<TestChromosome>> secondaryObjectives = new ArrayList<>();
 
 	/**
 	 * <p>

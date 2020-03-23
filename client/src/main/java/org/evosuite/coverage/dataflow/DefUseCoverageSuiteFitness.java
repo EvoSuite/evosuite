@@ -57,14 +57,14 @@ public class DefUseCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	/** Constant <code>totalGoals</code> */
 	public Map<DefUsePairType, Integer> totalGoals = initTotalGoals();
 	/** Constant <code>mostCoveredGoals</code> */
-	public final static Map<DefUsePairType, Integer> mostCoveredGoals = new HashMap<DefUsePairType, Integer>();
+	public final static Map<DefUsePairType, Integer> mostCoveredGoals = new HashMap<>();
 
-	public Map<DefUsePairType, Integer> coveredGoals = new HashMap<DefUsePairType, Integer>();
+	public Map<DefUsePairType, Integer> coveredGoals = new HashMap<>();
 
 	// TODO: Need readObject?
-	private transient final Map<Definition, Integer> maxDefinitionCount = new HashMap<Definition, Integer>();
+	private transient final Map<Definition, Integer> maxDefinitionCount = new HashMap<>();
 
-	private final Map<String, Integer> maxMethodCount = new HashMap<String, Integer>();
+	private final Map<String, Integer> maxMethodCount = new HashMap<>();
 
 	protected final BranchCoverageSuiteFitness branchFitness;
 
@@ -115,10 +115,10 @@ public class DefUseCoverageSuiteFitness extends TestSuiteFitnessFunction {
 			}
 		}
 
-		Map<Definition, Set<TestChromosome>> passedDefinitions = new HashMap<Definition, Set<TestChromosome>>();
-		Map<Definition, Integer> passedDefinitionCount = new HashMap<Definition, Integer>();
-		Map<String, Set<TestChromosome>> executedMethods = new HashMap<String, Set<TestChromosome>>();
-		Map<String, Integer> executedMethodsCount = new HashMap<String, Integer>();
+		Map<Definition, Set<TestChromosome>> passedDefinitions = new HashMap<>();
+		Map<Definition, Integer> passedDefinitionCount = new HashMap<>();
+		Map<String, Set<TestChromosome>> executedMethods = new HashMap<>();
+		Map<String, Integer> executedMethodsCount = new HashMap<>();
 
 		for (Definition def : maxDefinitionCount.keySet()) {
 			passedDefinitionCount.put(def, 0);
@@ -147,7 +147,7 @@ public class DefUseCoverageSuiteFitness extends TestSuiteFitnessFunction {
 					continue;
 				}
 				if (!passedDefinitions.containsKey(def))
-					passedDefinitions.put(def, new HashSet<TestChromosome>());
+					passedDefinitions.put(def, new HashSet<>());
 
 				if (!passedDefinitionCount.containsKey(def)) {
 					//logger.warn("Weird, definition is not known: " + def);
@@ -165,7 +165,7 @@ public class DefUseCoverageSuiteFitness extends TestSuiteFitnessFunction {
 					                         executedMethodsCount.get(entry.getKey())
 					                                 + entry.getValue());
 				if (!executedMethods.containsKey(entry.getKey())) {
-					executedMethods.put(entry.getKey(), new HashSet<TestChromosome>());
+					executedMethods.put(entry.getKey(), new HashSet<>());
 				}
 				executedMethods.get(entry.getKey()).add(test);
 			}
@@ -187,10 +187,10 @@ public class DefUseCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 		// 3. For all covered defs, calculate minimal use distance
 		//Set<DefUseCoverageTestFitness> coveredGoalsSet = DefUseExecutionTraceAnalyzer.getCoveredGoals(results);
-		Set<DefUseCoverageTestFitness> coveredGoalsSet = new HashSet<DefUseCoverageTestFitness>();//DefUseExecutionTraceAnalyzer.getCoveredGoals(results);
+		Set<DefUseCoverageTestFitness> coveredGoalsSet = new HashSet<>();//DefUseExecutionTraceAnalyzer.getCoveredGoals(results);
 
 		initCoverageMaps();
-		Set<Definition> notFullyCoveredDefs = new HashSet<Definition>();
+		Set<Definition> notFullyCoveredDefs = new HashSet<>();
 		boolean methodIsNotFullyCovered = false;
 
 		for (DefUseCoverageTestFitness goal : goals) {
@@ -199,7 +199,7 @@ public class DefUseCoverageSuiteFitness extends TestSuiteFitnessFunction {
 			}
 
 			double goalFitness = 2.0;
-			Set<TestChromosome> coveringTests = new HashSet<TestChromosome>();
+			Set<TestChromosome> coveringTests = new HashSet<>();
 
 			if (goal.isParameterGoal()) {
 				String methodKey = goal.getGoalUse().getClassName() + "."
@@ -371,7 +371,7 @@ public class DefUseCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	}
 
 	public static Map<DefUsePairType, Integer> initTotalGoals() {
-		Map<DefUsePairType, Integer> r = new HashMap<DefUsePairType, Integer>();
+		Map<DefUsePairType, Integer> r = new HashMap<>();
 
 		// init map
 		for (DefUsePairType type : DefUseCoverageTestFitness.DefUsePairType.values())

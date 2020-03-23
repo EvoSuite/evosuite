@@ -44,14 +44,11 @@ public class ExecutionResult implements Cloneable {
 	public Mutation mutation;
 
 	/** Map statement number to raised exception */
-	protected Map<Integer, Throwable> exceptions = new HashMap<Integer, Throwable>();
+	protected Map<Integer, Throwable> exceptions = new HashMap<>();
 
-	/** Record for each exception if it was explicitly thrown 
-	 * 
-	 * <p>
-	 * FIXME: internal data structures should never be null...
-	 * */
-	public Map<Integer, Boolean> explicitExceptions = new HashMap<Integer, Boolean>();
+	/** Record for each exception if it was explicitly thrown */
+	// FIXME: internal data structures should never be null...
+	public Map<Integer, Boolean> explicitExceptions = new HashMap<>();
 
 	/** Trace recorded during execution */
 	protected ExecutionTrace trace;
@@ -96,7 +93,7 @@ public class ExecutionResult implements Cloneable {
 	}
 
 	/** Output traces produced by observers */
-	protected final Map<Class<?>, OutputTrace<?>> traces = new HashMap<Class<?>, OutputTrace<?>>();
+	protected final Map<Class<?>, OutputTrace<?>> traces = new HashMap<>();
 
     private Map<Integer, Set<InputCoverageGoal>> inputGoals = new LinkedHashMap<>();
 
@@ -443,7 +440,7 @@ public class ExecutionResult implements Cloneable {
 			copy.traces.put(clazz, traces.get(clazz).clone());
 		}
 		if(readProperties!=null){
-			copy.readProperties = new LinkedHashSet<String>();
+			copy.readProperties = new LinkedHashSet<>();
 			copy.readProperties.addAll(readProperties);
 		}
 		copy.wasAnyPropertyWritten = wasAnyPropertyWritten;

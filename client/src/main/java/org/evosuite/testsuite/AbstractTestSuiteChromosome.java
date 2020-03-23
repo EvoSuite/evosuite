@@ -31,10 +31,8 @@ import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.ga.localsearch.LocalSearchObjective;
 import org.evosuite.ga.operators.mutation.MutationDistribution;
-import org.evosuite.regression.RegressionTestChromosomeFactory;
 import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.execution.ExecutionResult;
-import org.evosuite.testcase.factories.RandomLengthTestFactory;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,8 +43,8 @@ public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome
 	private static final long serialVersionUID = 1L;
 
 	private static final Logger logger = LoggerFactory.getLogger(AbstractTestSuiteChromosome.class);
-	
-	protected List<T> tests = new ArrayList<T>();
+
+	protected List<T> tests = new ArrayList<>();
 	protected ChromosomeFactory<T> testChromosomeFactory;
 
 	/**

@@ -52,7 +52,7 @@ public class BranchCoverageFactory extends
 	 */
 	private List<BranchCoverageTestFitness> computeCoverageGoals(boolean limitToCUT){
 		long start = System.currentTimeMillis();
-		List<BranchCoverageTestFitness> goals = new ArrayList<BranchCoverageTestFitness>();
+		List<BranchCoverageTestFitness> goals = new ArrayList<>();
 
 		// logger.info("Getting branches");
 		for (String className : BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).knownClasses()) {

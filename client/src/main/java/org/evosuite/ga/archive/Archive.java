@@ -64,8 +64,7 @@ public abstract class Archive<F extends TestFitnessFunction, T extends TestChrom
    * Map used to store all targets (values of the map) of each method (here represented by its name,
    * keys of the map)
    */
-  protected final Map<String, Set<F>> nonCoveredTargetsOfEachMethod =
-      new LinkedHashMap<String, Set<F>>();
+  protected final Map<String, Set<F>> nonCoveredTargetsOfEachMethod = new LinkedHashMap<>();
 
   /**
    * Has this archive been updated with new candidate solutions?

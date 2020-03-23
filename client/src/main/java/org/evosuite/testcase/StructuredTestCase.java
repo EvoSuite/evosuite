@@ -30,11 +30,11 @@ public class StructuredTestCase extends DefaultTestCase {
 
 	private static final long serialVersionUID = -1896651382970358963L;
 
-	private final Set<TestFitnessFunction> primaryTargets = new HashSet<TestFitnessFunction>();
+	private final Set<TestFitnessFunction> primaryTargets = new HashSet<>();
 
-	private final Set<TestFitnessFunction> secondaryTargets = new HashSet<TestFitnessFunction>();
+	private final Set<TestFitnessFunction> secondaryTargets = new HashSet<>();
 
-	private final Set<Integer> targetStatements = new HashSet<Integer>();
+	private final Set<Integer> targetStatements = new HashSet<>();
 
 	public StructuredTestCase(TestCase test) {
 		for (Statement statement : test) {

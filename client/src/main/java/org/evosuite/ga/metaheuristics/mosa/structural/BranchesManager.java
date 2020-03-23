@@ -48,9 +48,9 @@ public class BranchesManager<T extends Chromosome> extends StructuralGoalManager
 
 	protected BranchFitnessGraph<T, FitnessFunction<T>> graph;
 
-	protected final Map<Integer, FitnessFunction<T>> branchCoverageTrueMap = new HashMap<Integer, FitnessFunction<T>>();
-	protected final Map<Integer, FitnessFunction<T>> branchCoverageFalseMap = new HashMap<Integer, FitnessFunction<T>>();
-	private final Map<String, FitnessFunction<T>> branchlessMethodCoverageMap = new HashMap<String, FitnessFunction<T>>();
+	protected final Map<Integer, FitnessFunction<T>> branchCoverageTrueMap = new HashMap<>();
+	protected final Map<Integer, FitnessFunction<T>> branchCoverageFalseMap = new HashMap<>();
+	private final Map<String, FitnessFunction<T>> branchlessMethodCoverageMap = new HashMap<>();
 
 	/**
 	 * Constructor used to initialize the set of uncovered goals, and the initial set

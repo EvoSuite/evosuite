@@ -38,7 +38,7 @@ public class NSGAChromosome extends Chromosome
 	private static final long serialVersionUID = -2056801838518269049L;
 
 	/**  */
-	private List<Variable> variables = new ArrayList<Variable>();
+	private List<Variable> variables = new ArrayList<>();
 
 	public NSGAChromosome() {
 		// empty

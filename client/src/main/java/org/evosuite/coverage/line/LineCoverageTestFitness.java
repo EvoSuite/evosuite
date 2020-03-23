@@ -268,17 +268,17 @@ public class LineCoverageTestFitness extends TestFitnessFunction {
 	public String getTargetMethod() {
 		return getMethod();
 	}
-	
+
 	private void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException {
 		ois.defaultReadObject();
-		branchFitnesses = new ArrayList<BranchCoverageTestFitness>();
+		branchFitnesses = new ArrayList<>();
 		if(GraphPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getActualCFG(className,
 				methodName) != null) {
 			// TODO: Figure out why the CFG may not exist
 			setupDependencies();
 		}
 	}
-	
+
 	private void writeObject(ObjectOutputStream oos) throws ClassNotFoundException, IOException {
 		oos.defaultWriteObject();
 	}

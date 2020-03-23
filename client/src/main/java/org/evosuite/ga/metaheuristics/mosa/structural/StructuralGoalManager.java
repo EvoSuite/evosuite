@@ -49,7 +49,7 @@ public abstract class StructuralGoalManager<T extends Chromosome> implements Ser
 	protected Archive archive;
 
 	protected StructuralGoalManager(List<FitnessFunction<T>> fitnessFunctions){
-		currentGoals = new HashSet<FitnessFunction<T>>(fitnessFunctions.size());
+		currentGoals = new HashSet<>(fitnessFunctions.size());
 		archive = Archive.getArchiveInstance();
 
 		// initialize uncovered goals

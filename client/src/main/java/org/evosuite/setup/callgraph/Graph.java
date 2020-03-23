@@ -34,10 +34,10 @@ import java.util.Set;
  */
 public abstract class Graph<E> {
 
-	private final Map<E, Set<E>> edges = Collections.synchronizedMap(new HashMap<E, Set<E>>());
-	private final Map<E, Set<E>> reverseEdges = Collections.synchronizedMap(new HashMap<E, Set<E>>());
-	private final Set<E> vertexSet = Collections.synchronizedSet(new HashSet<E>());
-	
+	private final Map<E, Set<E>> edges = Collections.synchronizedMap(new HashMap<>());
+	private final Map<E, Set<E>> reverseEdges = Collections.synchronizedMap(new HashMap<>());
+	private final Set<E> vertexSet = Collections.synchronizedSet(new HashSet<>());
+
 	public Map<E, Set<E>> getEdges() {
 		return edges;
 	}
