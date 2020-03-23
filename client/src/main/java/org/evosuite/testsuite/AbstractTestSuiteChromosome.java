@@ -119,9 +119,7 @@ public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome
 	 * @param tests a {@link java.util.Collection} object.
 	 */
 	public void addTests(Collection<T> tests) {
-		for (T test : tests) {
-			this.tests.add(test);
-		}
+        this.tests.addAll(tests);
 		if (!tests.isEmpty())
 			this.setChanged(true);
 	}

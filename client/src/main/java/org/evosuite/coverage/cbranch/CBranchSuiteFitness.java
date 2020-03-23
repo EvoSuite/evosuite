@@ -330,9 +330,7 @@ public class CBranchSuiteFitness extends TestSuiteFitnessFunction {
 			return false;
 		}
 
-		for (CBranchTestFitness goal : this.toRemoveGoals) {
-			this.removedGoals.add(goal);
-		}
+		this.removedGoals.addAll(this.toRemoveGoals);
 
 		this.toRemoveGoals.clear();
 		logger.info("Current state of archive: " + Archive.getArchiveInstance().toString());

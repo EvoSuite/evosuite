@@ -70,10 +70,7 @@ public class RhoCoverageSuiteFitness extends TestSuiteFitnessFunction {
 				// order set
 				List<Integer> l_coveredLines = new ArrayList<>(coveredLines);
 				Collections.sort(l_coveredLines);
-				Set<Integer> coveredLinesOrdered = new LinkedHashSet<Integer>();
-				for (Integer coveredLine : l_coveredLines) {
-					coveredLinesOrdered.add(coveredLine);
-				}
+				Set<Integer> coveredLinesOrdered = new LinkedHashSet<>(l_coveredLines);
 
 				// there is coverage, and already exists on the original test
 				// suite, and already exists locally

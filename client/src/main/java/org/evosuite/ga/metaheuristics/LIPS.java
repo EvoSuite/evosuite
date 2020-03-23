@@ -266,9 +266,7 @@ public class LIPS <T extends Chromosome> extends GeneticAlgorithm<T>{
 		notifySearchStarted();
 
 		// keep track of covered goals
-		for (FitnessFunction<T> goal : fitnessFunctions) {
-			uncoveredBranches.add(goal);
-		}
+		uncoveredBranches.addAll(fitnessFunctions);
 		worklist.addAll(CFG.getGraph().getRootBranches());
 
 		// The first step is to randomly generate the first test case t0
@@ -399,11 +397,7 @@ public class LIPS <T extends Chromosome> extends GeneticAlgorithm<T>{
 	}
 
 	protected List<T> getArchive() {
-		Set<T> set = new HashSet<T>(); 
-		set.addAll(archive.values());
-		List<T> arch = new ArrayList<T>();
-		arch.addAll(set);
-		return arch;
+		return new ArrayList<>(new HashSet<>(archive.values()));
 	}
 
 

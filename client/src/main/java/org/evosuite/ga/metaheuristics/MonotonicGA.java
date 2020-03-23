@@ -84,11 +84,10 @@ public class MonotonicGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 	@SuppressWarnings("unchecked")
 	@Override
 	protected void evolve() {
-		List<T> newGeneration = new ArrayList<T>();
 
 		// Elitism
 		logger.debug("Elitism");
-		newGeneration.addAll(elitism());
+		List<T> newGeneration = new ArrayList<>(elitism());
 
 		// Add random elements
 		// new_generation.addAll(randomism());

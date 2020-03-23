@@ -242,9 +242,7 @@ public class ExecutionResult implements Cloneable {
 	 * @return Mapping of statement indexes and thrown exceptions.
 	 */
 	public Map<Integer, Throwable> getCopyOfExceptionMapping() {
-		Map<Integer, Throwable> copy = new HashMap<Integer, Throwable>();
-		copy.putAll(exceptions);
-		return copy;
+		return new HashMap<>(exceptions);
 	}
 
 	/**

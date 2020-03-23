@@ -21,10 +21,7 @@ package org.evosuite.testcase.statements;
 
 import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.reflect.TypeUtils;
@@ -449,8 +446,7 @@ public class MethodStatement extends EntityWithParametersStatement {
 	@Override
 	public Set<Class<?>> getDeclaredExceptions() {
 		Set<Class<?>> ex = super.getDeclaredExceptions();
-		for (Class<?> t : method.getMethod().getExceptionTypes())
-			ex.add(t);
+		ex.addAll(Arrays.asList(method.getMethod().getExceptionTypes()));
 		return ex;
 	}
 

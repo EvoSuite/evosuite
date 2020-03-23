@@ -383,9 +383,7 @@ public class TestRunnable implements InterfaceTestRunnable {
 	/** {@inheritDoc} */
 	@Override
 	public Map<Integer, Throwable> getExceptionsThrown() {
-		HashMap<Integer, Throwable> copy = new HashMap<Integer, Throwable>();
-		copy.putAll(exceptionsThrown);
-		return copy;
+		return new HashMap<>(exceptionsThrown);
 	}
 
 	/** {@inheritDoc} */
