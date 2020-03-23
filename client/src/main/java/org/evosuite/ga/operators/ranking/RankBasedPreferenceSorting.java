@@ -1,4 +1,4 @@
-/**
+/*
  *
  * This file is part of EvoSuite.
  *
@@ -37,7 +37,6 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Annibale Panichella, Fitsum M. Kifetew
  */
-
 public class RankBasedPreferenceSorting<T extends Chromosome> implements RankingFunction<T> {
 
 	private static final long serialVersionUID = -6636175563989586394L;

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -27,10 +27,8 @@ import org.jgrapht.graph.DefaultEdge;
  * 
  * @author Annibale Panichella
  */
-public class DependencyEdge extends DefaultEdge{
-	/**
-	 * 
-	 */
+public class DependencyEdge extends DefaultEdge {
+
 	private static final long serialVersionUID = 1L;
 	
 	//private static final Logger logger = LoggerFactory.getLogger(BranchFitnessGraph.class);
