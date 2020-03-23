@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -117,7 +117,7 @@ public class LIPS <T extends Chromosome> extends GeneticAlgorithm<T>{
 	@SuppressWarnings("unchecked")
 	@Override
 	protected void evolve() {
-		List<T> newGeneration = new ArrayList<T>();
+		List<T> newGeneration = new ArrayList<>();
 
 		// Elitism. It is not specified in original paper [1]. 
 		// However, we assume that LIPS uses elitism given the fact the 
