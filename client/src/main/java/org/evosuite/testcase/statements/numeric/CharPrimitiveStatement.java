@@ -71,7 +71,7 @@ public class CharPrimitiveStatement extends NumericalPrimitiveStatement<Characte
 	@Override
 	public void delta() {
 		int delta = Randomness.nextInt(2 * Properties.MAX_DELTA) - Properties.MAX_DELTA;
-		value = (char) (value.charValue() + delta);
+		value = (char) (value + delta);
 	}
 
 	/* (non-Javadoc)
@@ -89,7 +89,7 @@ public class CharPrimitiveStatement extends NumericalPrimitiveStatement<Characte
 	/** {@inheritDoc} */
 	@Override
 	public void randomize() {
-		value = (char) (Randomness.nextChar());
+		value = Randomness.nextChar();
 	}
 
 	/* (non-Javadoc)

@@ -250,7 +250,7 @@ public class TestChromosome extends ExecutableChromosome {
 		if (lastExecutionResult != null && !isChanged()) {
 			Integer lastPos = lastExecutionResult.getFirstPositionOfThrownException();
 			if (lastPos != null)
-				lastPosition = lastPos.intValue();
+				lastPosition = lastPos;
 		}
 
 		for (TestMutationHistoryEntry mutation : mutationHistory) {

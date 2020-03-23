@@ -715,9 +715,9 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 	 */
 	private void writeObject(ObjectOutputStream oos) throws IOException {
 		oos.writeObject(type);
-		oos.writeObject(Integer.valueOf(goalUse.useId));
+		oos.writeObject(goalUse.useId);
 		if (goalDefinition != null)
-			oos.writeObject(Integer.valueOf(goalDefinition.defId));
+			oos.writeObject(goalDefinition.defId);
 		else
 			oos.writeObject(0);
 	}

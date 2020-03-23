@@ -315,7 +315,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 			dependentPositions.add(s.getPosition());
 		}
 		dependentPositions.sort(Collections.reverseOrder());
-		for (Integer pos = size(); pos >= 0 ; pos--) {
+		for (int pos = size(); pos >= 0 ; pos--) {
 			if (!dependentPositions.contains(pos)) {
 				remove(pos);
 			}

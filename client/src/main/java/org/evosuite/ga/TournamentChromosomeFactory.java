@@ -87,6 +87,6 @@ public class TournamentChromosomeFactory<T extends Chromosome> implements
 
 		assert (bestIndividual != null);
 
-		return (T) bestIndividual;
+		return bestIndividual;
 	}
 }

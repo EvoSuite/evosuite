@@ -272,7 +272,7 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestChromo
     // concurrent access
     Properties.TEST_ARCHIVE = false;
 
-    TestSuiteChromosome mergedSolution = (TestSuiteChromosome) solution.clone();
+    TestSuiteChromosome mergedSolution = solution.clone();
 
     // skip solutions that have been modified as those might not have been evaluated yet, or have
     // timeout or throw some exception and therefore they may slow down future analysis on the final

@@ -58,8 +58,8 @@ public class OnlyMutationSuiteFitness extends MutationSuiteFitness {
 		 */
 		if (this.numMutants == 0) {
 			updateIndividual(this, individual, 0.0);
-			((TestSuiteChromosome) individual).setCoverage(this, 1.0);
-			((TestSuiteChromosome) individual).setNumOfCoveredGoals(this, 0);
+			individual.setCoverage(this, 1.0);
+			individual.setNumOfCoveredGoals(this, 0);
 			return 0.0;
 		}
 
@@ -138,9 +138,9 @@ public class OnlyMutationSuiteFitness extends MutationSuiteFitness {
 		}
 		
 		updateIndividual(this, individual, fitness);
-		((TestSuiteChromosome) individual).setCoverage(this, (double) covered / (double) this.numMutants);
-		((TestSuiteChromosome) individual).setNumOfCoveredGoals(this, covered);
-		
+		individual.setCoverage(this, (double) covered / (double) this.numMutants);
+		individual.setNumOfCoveredGoals(this, covered);
+
 		return fitness;
 	}
 }
