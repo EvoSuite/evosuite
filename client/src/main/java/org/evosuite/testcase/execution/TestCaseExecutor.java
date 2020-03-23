@@ -523,13 +523,7 @@ public class TestCaseExecutor implements ThreadFactory {
 	 * @return a int.
 	 */
 	public int getNumStalledThreads() {
-		Iterator<Thread> iterator = stalledThreads.iterator();
-		while (iterator.hasNext()) {
-			Thread t = iterator.next();
-			if (!t.isAlive()) {
-				iterator.remove();
-			}
-		}
+		stalledThreads.removeIf(t -> !t.isAlive());
 		return stalledThreads.size();
 	}
 

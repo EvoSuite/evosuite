@@ -99,11 +99,7 @@ public abstract class TestFitnessFunction extends FitnessFunction<TestChromosome
 	 * @return a boolean.
 	 */
 	public boolean isCovered(List<TestCase> tests) {
-		for (TestCase test : tests) {
-			if (isCovered(test))
-				return true;
-		}
-		return false;
+		return tests.stream().anyMatch(this::isCovered);
 	}
 
 	/**
@@ -114,11 +110,7 @@ public abstract class TestFitnessFunction extends FitnessFunction<TestChromosome
 	 * @return a boolean.
 	 */
 	public boolean isCoveredByResults(List<ExecutionResult> tests) {
-		for (ExecutionResult result : tests) {
-			if (isCovered(result))
-				return true;
-		}
-		return false;
+		return tests.stream().anyMatch(this::isCovered);
 	}
 
 	public boolean isCoveredBy(TestSuiteChromosome testSuite) {

@@ -314,9 +314,9 @@ public class DefaultTestCase implements TestCase, Serializable {
 		for (Statement s : dependentStatements) {
 			dependentPositions.add(s.getPosition());
 		}
-		Collections.sort(dependentPositions, Collections.reverseOrder());
-		for(Integer pos = size(); pos >= 0 ; pos--) {
-			if(!dependentPositions.contains(pos)) {
+		dependentPositions.sort(Collections.reverseOrder());
+		for (Integer pos = size(); pos >= 0 ; pos--) {
+			if (!dependentPositions.contains(pos)) {
 				remove(pos);
 			}
 		}
@@ -324,12 +324,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	}
 	
 	public boolean contains(Statement statement) {
-		for(Statement s : statements) {
-			if(s.equals(statement)) {
-				return true;
-			}
-		}
-		return false;
+		return statements.contains(statement);
 	}
 
 	/* (non-Javadoc)
@@ -678,14 +673,10 @@ public class DefaultTestCase implements TestCase, Serializable {
 		Inputs.checkNull(type);
 
 		List<VariableReference> variables = getObjects(type, position);
-		Iterator<VariableReference> iterator = variables.iterator();
-		while (iterator.hasNext()) {
-			VariableReference ref = iterator.next();
-			if (ref instanceof NullReference ||
-					(this.getStatement(ref.getStPosition()) instanceof FunctionalMockStatement) ) {
-				iterator.remove();
-			}
-		}
+		variables.removeIf(ref -> {
+			final Statement statement = this.getStatement(ref.getStPosition());
+			return ref instanceof NullReference || statement instanceof FunctionalMockStatement;
+		});
 		if (variables.isEmpty())
 			throw new ConstructionFailedException("Found no variables of type " + type
 			        + " at position " + position);
@@ -809,11 +800,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	/** {@inheritDoc} */
 	@Override
 	public boolean hasAssertions() {
-		for (Statement s : statements) {
-			if (s.hasAssertions())
-				return true;
-		}
-		return false;
+		return statements.stream().anyMatch(Statement::hasAssertions);
 	}
 
 	/* (non-Javadoc)
@@ -822,12 +809,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	/** {@inheritDoc} */
 	@Override
 	public boolean hasCastableObject(Type type) {
-		for (Statement st : statements) {
-			if (st.getReturnValue().isAssignableFrom(type)) {
-				return true;
-			}
-		}
-		return false;
+		return statements.stream().anyMatch(s -> s.getReturnValue().isAssignableFrom(type));
 	}
 
 	/**
@@ -893,11 +875,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 
 	@Override
 	public boolean isAccessible() {
-		for (Statement statement : statements) {
-			if (!statement.isAccessible())
-				return false;
-		}
-		return true;
+		return statements.stream().allMatch(Statement::isAccessible);
 	}
 
 	/* (non-Javadoc)
@@ -982,9 +960,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 
 	@Override
 	public void removeAssertion(Assertion assertion) {
-		for (Statement s : statements) {
-			s.removeAssertion(assertion);
-		}
+		statements.forEach(s -> s.removeAssertion(assertion));
 	}
 
 	/* (non-Javadoc)
@@ -993,9 +969,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	/** {@inheritDoc} */
 	@Override
 	public void removeAssertions() {
-		for (Statement s : statements) {
-			s.removeAssertions();
-		}
+		statements.forEach(Statement::removeAssertions);
 	}
 
 	private boolean methodNeedsDownCast(MethodStatement methodStatement, VariableReference var, Class<?> abstractClass) {
@@ -1121,9 +1095,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	/** {@inheritDoc} */
 	@Override
 	public void replace(VariableReference var1, VariableReference var2) {
-		for (Statement statement : statements) {
-			statement.replace(var1, var2);
-		}
+		statements.forEach(s -> s.replace(var1, var2));
 	}
 
 

@@ -58,16 +58,10 @@ public abstract class Graph<E> {
 	public synchronized void addEdge(E src, E dest) {
 		vertexSet.add(src);
 		vertexSet.add(dest);
-		Set<E> srcNeighbors = this.edges.get(src);
-		if (srcNeighbors == null) {
-			this.edges.put(src, srcNeighbors = new LinkedHashSet<E>());
-		}
+		Set<E> srcNeighbors = this.edges.computeIfAbsent(src, k -> new LinkedHashSet<>());
 		srcNeighbors.add(dest);
-		
-		Set<E> rsrcNeighbors = this.reverseEdges.get(dest);
-		if (rsrcNeighbors == null) {
-			this.reverseEdges.put(dest, rsrcNeighbors = new LinkedHashSet<E>());
-		}
+
+		Set<E> rsrcNeighbors = this.reverseEdges.computeIfAbsent(dest, k -> new LinkedHashSet<>());
 		rsrcNeighbors.add(src);
 	}
 	

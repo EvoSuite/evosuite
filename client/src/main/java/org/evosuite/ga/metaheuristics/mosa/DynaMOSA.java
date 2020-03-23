@@ -108,7 +108,7 @@ public class DynaMOSA<T extends Chromosome> extends AbstractMOSA<T> {
 		// Remain is less than front(index).size, insert only the best one
 		if (remain > 0 && !front.isEmpty()) { // front contains individuals to insert
 			this.distance.fastEpsilonDominanceAssignment(front, this.goalsManager.getCurrentGoals());
-			Collections.sort(front, new OnlyCrowdingComparator());
+			front.sort(new OnlyCrowdingComparator());
 			for (int k = 0; k < remain; k++) {
 				this.population.add(front.get(k));
 			}

@@ -260,7 +260,7 @@ public class TestFactory {
 						//Servlets are treated specially, as part of JEE
 						if (ConstraintHelper.countNumberOfMethodCalls(test, EvoServletState.class, "initServlet") == 0) {
 							Statement ms = new MethodStatement(test, ServletSupport.getServletInit(), null,
-									Arrays.asList(ref));
+									Collections.singletonList(ref));
 							test.addStatement(ms, injectPosition++);
 						}
 					}
@@ -326,7 +326,7 @@ public class TestFactory {
 				VariableReference valueToInject = satisfyParameters(
 						test,
 						ref, // avoid calling methods of bounded variables
-						Arrays.asList((Type) f.getType()),
+						Collections.singletonList(f.getType()),
 						null, //Added 'null' as additional parameter - fix for @NotNull annotations issue on evo mailing list
 						injectPosition,
 						recursionDepth +1,
@@ -984,18 +984,12 @@ public class TestFactory {
 		Inputs.checkNull(type);
 
 		List<VariableReference> variables = tc.getObjects(type, position);
-		Iterator<VariableReference> iterator = variables.iterator();
-		while (iterator.hasNext()) {
-			VariableReference var = iterator.next();
-			if (var instanceof NullReference
-					|| tc.getStatement(var.getStPosition()) instanceof PrimitiveStatement
-					|| var.isPrimitive()
-					|| var.isWrapperType()
-					|| tc.getStatement(var.getStPosition()) instanceof FunctionalMockStatement
-					|| ConstraintHelper.getLastPositionOfBounded(var, tc) >= position) {
-				iterator.remove();
-			}
-		}
+		variables.removeIf(var -> var instanceof NullReference
+				|| tc.getStatement(var.getStPosition()) instanceof PrimitiveStatement
+				|| var.isPrimitive()
+				|| var.isWrapperType()
+				|| tc.getStatement(var.getStPosition()) instanceof FunctionalMockStatement
+				|| ConstraintHelper.getLastPositionOfBounded(var, tc) >= position);
 
 		if (variables.isEmpty()) {
 			throw new ConstructionFailedException("Found no variables of type " + type
@@ -1038,13 +1032,7 @@ public class TestFactory {
 
 		if(ConstraintHelper.getLastPositionOfBounded(statement.getReturnValue(),test) >= 0){
 			//if the return variable is bounded, we can only use a constructor on the right hand-side
-			Iterator<GenericAccessibleObject<?>> z = calls.iterator();
-			while(z.hasNext()){
-				GenericAccessibleObject<?> k = z.next();
-				if(! (k instanceof GenericConstructor)){
-					z.remove();
-				}
-			}
+			calls.removeIf(k -> !(k instanceof GenericConstructor));
 		}
 
 		logger.debug("Got {} possible calls for {} objects",calls.size(),objects.size());
@@ -1286,9 +1274,9 @@ public class TestFactory {
 						TestClusterGenerator clusterGenerator = TestGenerationContext.getInstance().getTestClusterGenerator();
 						Class<?> mock = MockList.getMockClass(clazz.getRawClass().getCanonicalName());
 						if (mock != null) {
-							clusterGenerator.addNewDependencies(Arrays.asList(mock));
+							clusterGenerator.addNewDependencies(Collections.singletonList(mock));
 						} else {
-							clusterGenerator.addNewDependencies(Arrays.asList(clazz.getRawClass()));
+							clusterGenerator.addNewDependencies(Collections.singletonList(clazz.getRawClass()));
 						}
 
 						if (TestCluster.getInstance().hasGenerator(type)) {
@@ -1462,12 +1450,7 @@ public class TestFactory {
 			if (exclude.getAdditionalVariableReference() != null)
 				objects.remove(exclude.getAdditionalVariableReference());
 
-			Iterator<VariableReference> it = objects.iterator();
-			while (it.hasNext()) {
-				VariableReference v = it.next();
-				if (exclude.equals(v.getAdditionalVariableReference()))
-					it.remove();
-			}
+			objects.removeIf(v -> exclude.equals(v.getAdditionalVariableReference()));
 		}
 
 		List<VariableReference> additionalToRemove = new ArrayList<>();
@@ -1610,7 +1593,7 @@ public class TestFactory {
 		recursiveDeleteInclusion(test,toDelete,position);
 
 		List<Integer> pos = new ArrayList<>(toDelete);
-		Collections.sort(pos, Collections.reverseOrder());
+		pos.sort(Collections.reverseOrder());
 
 		for (Integer i : pos) {
 			logger.debug("Deleting statement: {}", i);
@@ -1690,12 +1673,7 @@ public class TestFactory {
 
 	private static void filterVariablesByClass(Collection<VariableReference> variables, Class<?> clazz) {
 		// Remove invalid classes if this is an Object.class reference
-		Iterator<VariableReference> replacement = variables.iterator();
-		while (replacement.hasNext()) {
-			VariableReference r = replacement.next();
-			if (!r.getVariableClass().equals(clazz))
-				replacement.remove();
-		}
+		variables.removeIf(r -> !r.getVariableClass().equals(clazz));
 	}
 
 
@@ -2049,7 +2027,7 @@ public class TestFactory {
 			// Added 'null' as additional parameter - fix for @NotNull annotations issue on evo mailing list
 			parameters = satisfyParameters(test, callee,
 					//we need a reference to the SUT, and one to a variable of same type of chosen field
-					Arrays.asList((Type)field.getType()), null, position, recursionDepth + 1, allowNull, false, true);
+					Collections.singletonList((Type) field.getType()), null, position, recursionDepth + 1, allowNull, false, true);
 
 			try {
 				st = new PrivateFieldStatement(test,reflectionFactory.getReflectedClass(),field.getName(),

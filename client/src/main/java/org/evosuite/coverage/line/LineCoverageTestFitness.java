@@ -23,8 +23,11 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Stream;
+
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.branch.BranchCoverageFactory;
@@ -132,24 +135,20 @@ public class LineCoverageTestFitness extends TestFitnessFunction {
 			        "an instruction is at least on the root branch of it's method");
 
 
-		branchFitnesses.sort((a,b) -> a.compareTo(b));
+		branchFitnesses.sort(Comparator.naturalOrder());
 	}
-	
+
 	@Override
 	public boolean isCovered(ExecutionResult result) {
-		for ( Integer coveredLine : result.getTrace().getCoveredLines()) {
-			if (coveredLine.intValue() == this.line.intValue()) {
-				return true;
-			}
-		}
-		return false;
+		Stream<Integer> coveredLines = result.getTrace().getCoveredLines().stream();
+		return coveredLines.anyMatch(coveredLine -> coveredLine.intValue() == this.line.intValue());
 	}
-	
+
 	/**
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * Calculate fitness
-	 * 
+	 *
 	 * @param individual
 	 *            a {@link org.evosuite.testcase.ExecutableChromosome} object.
 	 * @param result

@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.evosuite.coverage.branch.Branch;
 import org.evosuite.coverage.branch.BranchPool;
@@ -39,6 +40,9 @@ import org.evosuite.utils.ReverseComparator;
 import org.objectweb.asm.tree.LabelNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static java.util.Comparator.*;
+import static java.util.stream.Collectors.*;
 
 /**
  * Represents the complete CFG of a method
@@ -93,12 +97,10 @@ public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 	/** {@inheritDoc} */
 	@Override
 	public BytecodeInstruction getInstruction(int instructionId) {
-		for (BytecodeInstruction v : vertexSet()) {
-			if (v.getInstructionId() == instructionId) {
-				return v;
-			}
-		}
-		return null;
+		return vertexSet().stream()
+				.filter(v -> v.getInstructionId() == instructionId)
+				.findFirst()
+				.orElse(null);
 	}
 
 	// @Override
@@ -365,15 +367,9 @@ public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 	 * @return a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
 	 */
 	public BytecodeInstruction getInstructionWithSmallestId() {
-
-		BytecodeInstruction r = null;
-
-		for (BytecodeInstruction ins : vertexSet()) {
-			if (r == null || r.getInstructionId() > ins.getInstructionId())
-				r = ins;
-		}
-
-		return r;
+		return vertexSet().stream()
+				.min(comparingInt(BytecodeInstruction::getInstructionId))
+				.orElse(null);
 	}
 
 	/**
@@ -384,14 +380,9 @@ public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 	 * @return a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
 	 */
 	public BytecodeInstruction getInstructionWithBiggestId() {
-		BytecodeInstruction r = null;
-
-		for (BytecodeInstruction ins : vertexSet()) {
-			if (r == null || r.getInstructionId() < ins.getInstructionId())
-				r = ins;
-		}
-
-		return r;
+		return vertexSet().stream()
+				.max(comparingInt(BytecodeInstruction::getInstructionId))
+				.orElse(null);
 	}
 
 	/**
@@ -759,13 +750,9 @@ public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 	 * @return a {@link java.util.List} object.
 	 */
 	public List<BytecodeInstruction> determineMethodCalls() {
-		List<BytecodeInstruction> calls = new ArrayList<BytecodeInstruction>();
-		for (BytecodeInstruction ins : graph.vertexSet()) {
-			if (ins.isMethodCall()) {
-				calls.add(ins);
-			}
-		}
-		return calls;
+		return graph.vertexSet().stream()
+				.filter(ASMWrapper::isMethodCall)
+				.collect(toList());
 	}
 
 	/**

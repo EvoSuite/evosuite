@@ -20,6 +20,7 @@
 package org.evosuite.strategy;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.evosuite.ProgressMonitor;
@@ -46,6 +47,8 @@ import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.evosuite.utils.LoggingUtils;
+
+import static java.util.stream.Collectors.toCollection;
 
 /**
  * This is the abstract superclass of all techniques to generate a set of tests
@@ -123,12 +126,9 @@ public abstract class TestGenerationStrategy {
 	 * @return
 	 */
 	public static List<TestFitnessFactory<? extends TestFitnessFunction>> getFitnessFactories() {
-	    List<TestFitnessFactory<? extends TestFitnessFunction>> goalsFactory = new ArrayList<TestFitnessFactory<? extends TestFitnessFunction>>();
-	    for (int i = 0; i < Properties.CRITERION.length; i++) {
-	        goalsFactory.add(FitnessFunctions.getFitnessFactory(Properties.CRITERION[i]));
-	    }
-
-		return goalsFactory;
+		return Arrays.stream(Properties.CRITERION)
+				.map(FitnessFunctions::getFitnessFactory)
+				.collect(toCollection(ArrayList::new));
 	}
 	
 	/**

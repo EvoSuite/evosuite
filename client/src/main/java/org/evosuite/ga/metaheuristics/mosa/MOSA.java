@@ -20,7 +20,6 @@
 package org.evosuite.ga.metaheuristics.mosa;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -134,7 +133,7 @@ public class MOSA<T extends Chromosome> extends AbstractMOSA<T> {
 		// Remain is less than front(index).size, insert only the best one
 		if (remain > 0 && !front.isEmpty()) { // front contains individuals to insert
 			this.distance.fastEpsilonDominanceAssignment(front, uncoveredGoals);
-			Collections.sort(front, new OnlyCrowdingComparator());
+			front.sort(new OnlyCrowdingComparator());
 			for (int k = 0; k < remain; k++) {
 				this.population.add(front.get(k));
 			}

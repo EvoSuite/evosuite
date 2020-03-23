@@ -77,21 +77,15 @@ public class IBranchSuiteFitness extends TestSuiteFitnessFunction {
 			if (goal.getBranchGoal() != null && goal.getBranchGoal().getBranch() != null) {
 				int branchId = goal.getBranchGoal().getBranch().getActualBranchId();
 
-				Map<CallContext, Set<IBranchTestFitness>> innermap = goalsMap.get(branchId);
-				if (innermap == null) {
-					goalsMap.put(branchId, innermap = new LinkedHashMap<>());
-				}
-				Set<IBranchTestFitness> tempInSet = innermap.get(goal.getContext());
-				if (tempInSet == null) {
-					innermap.put(goal.getContext(), tempInSet = new LinkedHashSet<>());
-				}
+				Map<CallContext, Set<IBranchTestFitness>> innermap =
+						goalsMap.computeIfAbsent(branchId, k -> new LinkedHashMap<>());
+				Set<IBranchTestFitness> tempInSet =
+						innermap.computeIfAbsent(goal.getContext(), k -> new LinkedHashSet<>());
 				tempInSet.add(goal);
 			} else {
 				String methodName = goal.getTargetClass() + "." + goal.getTargetMethod();
-				Map<CallContext, IBranchTestFitness> innermap = methodsMap.get(methodName);
-				if (innermap == null) {
-					methodsMap.put(methodName, innermap = new LinkedHashMap<>());
-				}
+				Map<CallContext, IBranchTestFitness> innermap =
+						methodsMap.computeIfAbsent(methodName, k -> new LinkedHashMap<>());
 				innermap.put(goal.getContext(), goal);
 			}
 			if (Properties.TEST_ARCHIVE) {

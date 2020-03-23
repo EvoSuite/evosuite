@@ -49,6 +49,9 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.IntStream;
+
+import static java.util.stream.Collectors.*;
 
 /**
  * Chromosome representation of test cases
@@ -266,13 +269,9 @@ public class TestChromosome extends ExecutableChromosome {
 					continue;
 				}
 
-				int newPosition = -1;
-				for (int i = 0; i <= lastPosition; i++) {
-					if (test.getStatement(i) == mutation.getStatement()) {
-						newPosition = i;
-						break;
-					}
-				}
+				int newPosition = IntStream.rangeClosed(0, lastPosition)
+						.filter(pos -> test.getStatement(pos) == mutation.getStatement())
+						.findFirst().orElse(-1);
 
 				// Couldn't find statement, may have been deleted in other mutation?
 				assert (newPosition >= 0);
@@ -343,9 +342,8 @@ public class TestChromosome extends ExecutableChromosome {
 			setChanged(true);
 			test.clearCoveredGoals();
 		}
-		for (Statement s : test) {
-			s.isValid();
-		}
+
+		test.forEach(Statement::isValid);
 
 		// be sure that mutation did not break any constraint.
 		// if it happens, it means a bug in EvoSuite
@@ -586,11 +584,11 @@ public class TestChromosome extends ExecutableChromosome {
 			return false;
 
 		boolean mutated = false;
-		List<BranchCondition> targetBranches = new ArrayList<BranchCondition>();
-		for (BranchCondition branch : branches) {
-			if (TestCluster.isTargetClassName(branch.getClassName()))
-				targetBranches.add(branch);
-		}
+
+		List<BranchCondition> targetBranches = branches.stream()
+				.filter(b -> TestCluster.isTargetClassName(b.getClassName()))
+				.collect(toCollection(ArrayList::new));
+
 		// Select random branch
 		List<BranchCondition> bs = targetBranches.isEmpty() ? branches : targetBranches;
 		BranchCondition branch =  Randomness.choice(bs);

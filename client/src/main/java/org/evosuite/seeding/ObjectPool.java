@@ -134,12 +134,8 @@ public class ObjectPool implements Serializable {
 		if (pool.containsKey(clazz))
 			return true;
 
-		for (GenericClass poolClazz : pool.keySet()) {
-			if (poolClazz.isAssignableTo(clazz))
-				return true;
-		}
-
-		return false;
+		return pool.keySet().stream()
+				.anyMatch(poolClazz -> poolClazz.isAssignableTo(clazz));
 	}
 
 	public int getNumberOfClasses() {
@@ -147,11 +143,7 @@ public class ObjectPool implements Serializable {
 	}
 
 	public int getNumberOfSequences() {
-		int num = 0;
-		for (Set<TestCase> p : pool.values()) {
-			num += p.size();
-		}
-		return num;
+		return pool.values().stream().mapToInt(Set::size).sum();
 	}
 
 	public boolean isEmpty() {

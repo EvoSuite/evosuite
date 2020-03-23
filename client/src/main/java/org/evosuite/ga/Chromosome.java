@@ -22,11 +22,15 @@ package org.evosuite.ga;
 import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
+
 import org.evosuite.Properties;
 import org.evosuite.ga.localsearch.LocalSearchObjective;
 import org.evosuite.utils.PublicCloneable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static java.util.stream.Collectors.averagingDouble;
 
 /**
  * Abstract base class of chromosomes
@@ -102,14 +106,9 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	 * @return a double.
 	 */
 	public double getFitness() {
-		if (fitnessValues.size() > 1) {
-			double sumFitnesses = 0.0;
-			for (FitnessFunction<?> fitnessFunction : fitnessValues.keySet()) {
-				sumFitnesses += fitnessValues.get(fitnessFunction);
-			}
-			return sumFitnesses;
-		} else
-			return fitnessValues.isEmpty() ? 0.0 : fitnessValues.get(fitnessValues.keySet().iterator().next());
+        return fitnessValues.values().stream()
+                .mapToDouble(Double::doubleValue)
+                .sum();
 	}
 
 	public <T extends Chromosome> double getFitness(FitnessFunction<T> ff) {
@@ -223,13 +222,13 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	}
 
 	public boolean hasFitnessChanged() {
-		for (FitnessFunction<?> ff : fitnessValues.keySet()) {
-			if (!fitnessValues.get(ff).equals(previousFitnessValues.get(ff))) {
-				return true;
-			}
-		}
-		return false;
-	}
+        return fitnessValues.keySet().stream()
+                .anyMatch(ff -> {
+                    final double currentValue = fitnessValues.get(ff);
+                    final double previousValue = previousFitnessValues.get(ff);
+                    return currentValue != previousValue;
+                });
+    }
 
 	/**
 	 * {@inheritDoc}
@@ -383,29 +382,21 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	 * @return a double.
 	 */
 	public double getCoverage() {
-        double sum = 0;
-        for (FitnessFunction<?> fitnessFunction : coverageValues.keySet()) {
-            sum += coverageValues.get(fitnessFunction);
-        }
-        double cov = coverageValues.isEmpty() ? 0.0 : sum / coverageValues.size();
+        final double cov = coverageValues.values().stream().collect(averagingDouble(Double::doubleValue));
         assert (cov >= 0.0 && cov <= 1.0) : "Incorrect coverage value " + cov + ". Expected value between 0 and 1";
         return cov;
     }
 
 	public int getNumOfCoveredGoals() {
-        int sum = 0;
-        for (FitnessFunction<?> fitnessFunction : numsCoveredGoals.keySet()) {
-            sum += numsCoveredGoals.get(fitnessFunction);
-        }
-        return sum;
+        return numsCoveredGoals.values().stream()
+                .mapToInt(Integer::intValue)
+                .sum();
     }
 	
 	public int getNumOfNotCoveredGoals() {
-        int sum = 0;
-        for (FitnessFunction<?> fitnessFunction : numsNotCoveredGoals.keySet()) {
-            sum += numsNotCoveredGoals.get(fitnessFunction);
-        }
-        return sum;
+        return numsNotCoveredGoals.values().stream()
+                .mapToInt(Integer::intValue)
+                .sum();
     }
 
 	public void setNumsOfCoveredGoals(Map<FitnessFunction<?>, Integer> fits) {
@@ -449,7 +440,7 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	 * @return the number of covered goals for {@code ff}
 	 */
 	public double getCoverage(FitnessFunction<?> ff) {
-		return coverageValues.containsKey(ff) ? coverageValues.get(ff) : 0.0;
+        return coverageValues.getOrDefault(ff, 0.0);
 	}
 
 	/**
@@ -472,7 +463,7 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	 * @return the number of covered goals for {@code ff}
 	 */
 	public int getNumOfCoveredGoals(FitnessFunction<?> ff) {
-		return numsCoveredGoals.containsKey(ff) ? numsCoveredGoals.get(ff) : 0;
+        return numsCoveredGoals.getOrDefault(ff, 0);
 	}
 	
 	/**
@@ -483,7 +474,7 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	 * @return the number of covered goals for {@code ff}
 	 */
 	public int getNumOfNotCoveredGoals(FitnessFunction<?> ff) {
-		return numsNotCoveredGoals.containsKey(ff) ? numsNotCoveredGoals.get(ff) : 0;
+        return numsNotCoveredGoals.getOrDefault(ff, 0);
 	}
 
 	/**
@@ -523,19 +514,17 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	}
 
 	public double getFitnessInstanceOf(Class<?> clazz) {
-		for (FitnessFunction<?> fitnessFunction : fitnessValues.keySet()) {
-			if (clazz.isInstance(fitnessFunction))
-				return fitnessValues.get(fitnessFunction);
-		}
-		return 0.0;
+        Optional<FitnessFunction<?>> off = fitnessValues.keySet().stream()
+                .filter(clazz::isInstance)
+                .findFirst();
+        return off.map(fitnessValues::get).orElse(0.0);
 	}
 
 	public double getCoverageInstanceOf(Class<?> clazz) {
-		for (FitnessFunction<?> fitnessFunction : coverageValues.keySet()) {
-			if (clazz.isInstance(fitnessFunction))
-				return coverageValues.get(fitnessFunction);
-		}
-		return 0.0;
+        Optional<FitnessFunction<?>> off = coverageValues.keySet().stream()
+                .filter(clazz::isInstance)
+                .findFirst();
+        return off.map(coverageValues::get).orElse(0.0);
 	}
 
 	/**

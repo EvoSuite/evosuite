@@ -367,9 +367,8 @@ public class MultiCriteriaManager<T extends Chromosome> extends StructuralGoalMa
 		((TestChromosome) c).setLastExecutionResult(result);
 		c.setChanged(false);
 
-		if (result.hasTimeout() || result.hasTestException()){
-			for (FitnessFunction<T> f : currentGoals)
-				c.setFitness(f, Double.MAX_VALUE);
+		if (result.hasTimeout() || result.hasTestException()) {
+			currentGoals.forEach(f -> c.setFitness(f, Double.MAX_VALUE));
 			return;
 		}
 

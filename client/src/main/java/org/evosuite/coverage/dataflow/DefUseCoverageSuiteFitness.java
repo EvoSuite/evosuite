@@ -39,6 +39,8 @@ import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.evosuite.utils.LoggingUtils;
 
+import static java.util.stream.Collectors.*;
+
 /**
  * Evaluate fitness of a test suite with respect to all of its def-use pairs
  * 
@@ -391,8 +393,7 @@ public class DefUseCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	private void initCoverageMaps() {
 		for (DefUsePairType type : DefUseCoverageTestFitness.DefUsePairType.values()) {
 			coveredGoals.put(type, 0);
-			if (mostCoveredGoals.get(type) == null)
-				mostCoveredGoals.put(type, 0);
+			mostCoveredGoals.putIfAbsent(type, 0);
 		}
 	}
 
@@ -497,11 +498,8 @@ public class DefUseCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	 * @return
 	 */
 	private static ArrayList<DefUseCoverageTestFitness> getPairsOfType(DefUsePairType type) {
-		ArrayList<DefUseCoverageTestFitness> pairs = new ArrayList<DefUseCoverageTestFitness>();
-		for (DefUseCoverageTestFitness pair : DefUseCoverageFactory.getDUGoals()) {
-			if (pair.getType() == type)
-				pairs.add(pair);
-		}
-		return pairs;
+		return DefUseCoverageFactory.getDUGoals().stream()
+				.filter(pair -> pair.getType() == type)
+				.collect(toCollection(ArrayList::new));
 	}
 }

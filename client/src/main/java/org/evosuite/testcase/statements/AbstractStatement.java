@@ -25,6 +25,7 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.Objects;
 import java.util.Set;
 
 import org.evosuite.assertion.Assertion;
@@ -39,6 +40,8 @@ import org.evosuite.testcase.execution.EvosuiteError;
 import org.evosuite.utils.generic.GenericClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static java.util.stream.Collectors.*;
 
 /**
  * Abstract superclass of test case statements
@@ -198,12 +201,8 @@ public abstract class AbstractStatement implements Statement, Serializable {
 	 */
 	private boolean isAssignableFrom(Throwable concreteThrowable,
 	        Set<Class<? extends Throwable>> throwableClasses) {
-		for (Class<? extends Throwable> t : throwableClasses) {
-			if (t.isAssignableFrom(concreteThrowable.getClass())) {
-				return true;
-			}
-		}
-		return false;
+		final Class<? extends Throwable> clazz = concreteThrowable.getClass();
+		return throwableClasses.stream().anyMatch(t -> t.isAssignableFrom(clazz));
 	}
 
 	/* (non-Javadoc)
@@ -367,9 +366,7 @@ public abstract class AbstractStatement implements Statement, Serializable {
 	/** {@inheritDoc} */
 	@Override
 	public void setAssertions(Set<Assertion> assertions) {
-		for (Assertion assertion : assertions)
-			assertion.setStatement(this);
-
+		assertions.forEach(a -> a.setStatement(this));
 		this.assertions = assertions;
 	}
 
@@ -379,12 +376,10 @@ public abstract class AbstractStatement implements Statement, Serializable {
 	/** {@inheritDoc} */
 	@Override
 	public String getAssertionCode() {
-		String ret_val = "";
-		for (Assertion a : assertions) {
-			if (a != null)
-				ret_val += a.getCode() + "\n";
-		}
-		return ret_val;
+		return assertions.stream()
+				.filter(Objects::nonNull)
+				.map(Assertion::getCode)
+				.collect(joining("\n"));
 	}
 
 	/* (non-Javadoc)
@@ -451,11 +446,7 @@ public abstract class AbstractStatement implements Statement, Serializable {
 
 	@Override
 	public boolean isAccessible() {
-		for(VariableReference var : getVariableReferences()) {
-			if(!var.isAccessible()) 
-				return false;
-		}
-		return true;
+		return getVariableReferences().stream().allMatch(VariableReference::isAccessible);
 	}
 	
 	/** {@inheritDoc} */
@@ -498,12 +489,8 @@ public abstract class AbstractStatement implements Statement, Serializable {
 	/** {@inheritDoc} */
 	@Override
 	public void changeClassLoader(ClassLoader loader) {
-		for (VariableReference var : getVariableReferences()) {
-			var.changeClassLoader(loader);
-		}
-		for(Assertion assertion : assertions) {
-			assertion.changeClassLoader(loader);
-		}
+		getVariableReferences().forEach(v -> v.changeClassLoader(loader));
+		assertions.forEach(a -> a.changeClassLoader(loader));
 	}
 
 	/**

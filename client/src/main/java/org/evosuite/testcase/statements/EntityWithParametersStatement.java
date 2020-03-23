@@ -255,13 +255,7 @@ public abstract class EntityWithParametersStatement extends AbstractStatement{
         }
         if(avoidNull){
             //be sure to remove all references pointing to NULL
-            Iterator<VariableReference> iter = objects.iterator();
-            while(iter.hasNext()){
-                VariableReference ref = iter.next();
-                if(ref instanceof NullReference){
-                    iter.remove();
-                }
-            }
+            objects.removeIf(ref -> ref instanceof NullReference);
 
         } else {
             // If it's not a primitive, then changing to null is also an option

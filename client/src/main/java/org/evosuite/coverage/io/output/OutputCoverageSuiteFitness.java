@@ -183,11 +183,9 @@ public class OutputCoverageSuiteFitness extends TestSuiteFitnessFunction {
             }
         }
 
-        double distance = 0.0;
-        if (!mapDistances.isEmpty()) {
-            distance = mapDistances.values().stream().reduce(Double::sum).get().doubleValue();
-        }
-        return distance;
+        return mapDistances.values().stream()
+                .mapToDouble(Double::doubleValue)
+                .sum();
     }
 
     /**

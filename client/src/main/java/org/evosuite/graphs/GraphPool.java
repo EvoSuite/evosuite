@@ -362,15 +362,11 @@ public class GraphPool {
 	}
 
 	public static void clearAll(String className) {
-		for (GraphPool pool : instanceMap.values()) {
-			pool.clear(className);
-		}
+		instanceMap.values().forEach(pool -> pool.clear(className));
 	}
 
 	public static void clearAll(String className, String methodName) {
-		for (GraphPool pool : instanceMap.values()) {
-			pool.clear(className, methodName);
-		}
+		instanceMap.values().forEach(pool -> pool.clear(className, methodName));
 	}
 
 	public static void clearAll() {
