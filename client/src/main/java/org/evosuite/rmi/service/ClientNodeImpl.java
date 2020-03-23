@@ -140,10 +140,8 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 		 * Needs to be done on separated thread, otherwise the master will block on this
 		 * function call until end of the search, even if it is on remote process
 		 */
-		searchExecutor.submit(new Runnable() {
-			@Override
-			public void run() {
-				changeState(ClientState.STARTED);
+		searchExecutor.submit(() -> {
+			changeState(ClientState.STARTED);
 
 			//Before starting search, let's activate the sandbox
 			if (Properties.SANDBOX) {
@@ -177,16 +175,15 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 					Sandbox.resetDefaultSecurityManager();
 				}
 
-				/*
-				 * System is special due to the handling of properties
-				 * 
-				 *  TODO: re-add it once we save JUnit code in the 
-				 *  best individual. Otherwise, we wouldn't
-				 *  be able to properly create the JUnit files in the
-				 *  system test cases after the search
-				 */
-				//org.evosuite.runtime.System.fullReset();
-			}
+			/*
+			 * System is special due to the handling of properties
+			 *
+			 *  TODO: re-add it once we save JUnit code in the
+			 *  best individual. Otherwise, we wouldn't
+			 *  be able to properly create the JUnit files in the
+			 *  system test cases after the search
+			 */
+			//org.evosuite.runtime.System.fullReset();
 		});
 	}
 
@@ -463,38 +460,35 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 		 * Needs to be done on separated thread, otherwise the master will block on this
 		 * function call until end of the search, even if it is on remote process
 		 */
-		searchExecutor.submit(new Runnable() {
-			@Override
-			public void run() {
-				changeState(ClientState.STARTED);
-				Sandbox.goingToExecuteSUTCode();
-                TestGenerationContext.getInstance().goingToExecuteSUTCode();
-				Sandbox.goingToExecuteUnsafeCodeOnSameThread();
+		searchExecutor.submit(() -> {
+			changeState(ClientState.STARTED);
+			Sandbox.goingToExecuteSUTCode();
+			TestGenerationContext.getInstance().goingToExecuteSUTCode();
+			Sandbox.goingToExecuteUnsafeCodeOnSameThread();
 
-				try {
-					LoggingUtils.getEvoLogger().info("* Analyzing classpath (dependency analysis)");
-					DependencyAnalysis.analyzeClass(Properties.TARGET_CLASS,
-							Arrays.asList(ClassPathHandler.getInstance().getClassPathElementsForTargetProject()));
-					StringBuffer fileNames = new StringBuffer();
-					for(Class<?> clazz : TestCluster.getInstance().getAnalyzedClasses()) {
-						fileNames.append(clazz.getName());
-						fileNames.append("\n");
-					}
-					LoggingUtils.getEvoLogger().info("* Writing class dependencies to file "+fileName);
-					FileIOUtils.writeFile(fileNames.toString(), fileName);
-				} catch (Throwable t) {
-					logger.error("Error when analysing coverage for: "
-							+ Properties.TARGET_CLASS + " with seed "
-							+ Randomness.getSeed() + ". Configuration id : "
-							+ Properties.CONFIGURATION_ID, t);
-				} finally {
-					Sandbox.doneWithExecutingUnsafeCodeOnSameThread();
-					Sandbox.doneWithExecutingSUTCode();
-                    TestGenerationContext.getInstance().doneWithExecutingSUTCode();
+			try {
+				LoggingUtils.getEvoLogger().info("* Analyzing classpath (dependency analysis)");
+				DependencyAnalysis.analyzeClass(Properties.TARGET_CLASS,
+						Arrays.asList(ClassPathHandler.getInstance().getClassPathElementsForTargetProject()));
+				StringBuffer fileNames = new StringBuffer();
+				for (Class<?> clazz : TestCluster.getInstance().getAnalyzedClasses()) {
+					fileNames.append(clazz.getName());
+					fileNames.append("\n");
 				}
-
-				changeState(ClientState.DONE);
+				LoggingUtils.getEvoLogger().info("* Writing class dependencies to file " + fileName);
+				FileIOUtils.writeFile(fileNames.toString(), fileName);
+			} catch (Throwable t) {
+				logger.error("Error when analysing coverage for: "
+						+ Properties.TARGET_CLASS + " with seed "
+						+ Randomness.getSeed() + ". Configuration id : "
+						+ Properties.CONFIGURATION_ID, t);
+			} finally {
+				Sandbox.doneWithExecutingUnsafeCodeOnSameThread();
+				Sandbox.doneWithExecutingSUTCode();
+				TestGenerationContext.getInstance().doneWithExecutingSUTCode();
 			}
+
+			changeState(ClientState.DONE);
 		});
 	}
 
