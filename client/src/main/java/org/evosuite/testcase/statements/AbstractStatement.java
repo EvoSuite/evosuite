@@ -177,27 +177,7 @@ public abstract class AbstractStatement implements Statement, Serializable {
 			 * Signal an error in evosuite code and are therefore always thrown
 			 */
 			throw e;
-		} catch (Error e) {
-			if (isAssignableFrom(e, code.throwableExceptions()))
-				throw e;
-			else
-				return e;
-		} catch (RuntimeException e) {
-			if (isAssignableFrom(e, code.throwableExceptions()))
-				throw e;
-			else
-				return e;
-		} catch (InvocationTargetException e) {
-			if (isAssignableFrom(e, code.throwableExceptions()))
-				throw e;
-			else
-				return e;
-		} catch (IllegalAccessException e) {
-			if (isAssignableFrom(e, code.throwableExceptions()))
-				throw e;
-			else
-				return e;
-		} catch (InstantiationException e) {
+		} catch (Error | RuntimeException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
 			if (isAssignableFrom(e, code.throwableExceptions()))
 				throw e;
 			else

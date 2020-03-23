@@ -122,11 +122,7 @@ public class ClassPrimitiveStatement extends PrimitiveStatement<Class<?>> {
 			org.objectweb.asm.Type type = ConstantPoolManager.getInstance().getConstantPool().getRandomType();
 			try {
 				value = getType(type);
-			} catch (ClassNotFoundException e) {
-				logger.warn("Error loading class " + type.getClassName() + ": " + e);
-			} catch (NoClassDefFoundError e) {
-				logger.warn("Error loading class " + type.getClassName() + ": " + e);
-			} catch (ExceptionInInitializerError e) {
+			} catch (ClassNotFoundException | NoClassDefFoundError | ExceptionInInitializerError e) {
 				logger.warn("Error loading class " + type.getClassName() + ": " + e);
 			}
 		}
