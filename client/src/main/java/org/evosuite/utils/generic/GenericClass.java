@@ -715,7 +715,7 @@ public class GenericClass implements Serializable {
 		int numParam = 0;
 		
 		for (GenericClass parameterClass : getParameterClasses()) {
-			logger.debug("Current parameter to instantiate",  parameterClass);
+			logger.debug("Current parameter to instantiate: {}",  parameterClass);
 			/*
 			 * If the parameter is a parameterized type variable such as T extends Map<String, K extends Number>
 			 * then the boundaries of the parameters of the type variable need to be respected
