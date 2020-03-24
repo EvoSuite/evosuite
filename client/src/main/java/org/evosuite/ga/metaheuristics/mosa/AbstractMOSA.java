@@ -302,11 +302,11 @@ public abstract class AbstractMOSA<T extends Chromosome> extends GeneticAlgorith
 			isDominated = false;
 			List<T> dominatedSolutions = new ArrayList<>(solutions.size());
 			for (T best : next_front) {
-				int flag = comparator.compare(p, best);
-				if (flag == -1) {
+				final int flag = comparator.compare(p, best);
+				if (flag < 0) {
 					dominatedSolutions.add(best);
 				}
-				if (flag == +1) {
+				if (flag > 0) {
 					isDominated = true;
 				}
 			}
