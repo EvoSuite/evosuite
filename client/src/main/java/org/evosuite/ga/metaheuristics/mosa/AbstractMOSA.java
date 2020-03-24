@@ -466,7 +466,7 @@ public abstract class AbstractMOSA<T extends Chromosome> extends GeneticAlgorith
         if (ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.EXCEPTION)) {
           TestChromosome testChromosome = (TestChromosome) c;
           ExceptionCoverageSuiteFitness.calculateExceptionInfo(
-              Arrays.asList(testChromosome.getLastExecutionResult()),
+				  Collections.singletonList(testChromosome.getLastExecutionResult()),
               new HashMap<>(), new HashMap<>(), new HashMap<>(), new ExceptionCoverageSuiteFitness());
         }
 
@@ -492,10 +492,7 @@ public abstract class AbstractMOSA<T extends Chromosome> extends GeneticAlgorith
         // compute overall fitness and coverage
         this.computeCoverageAndFitness(bestTestCases);
 
-        List<T> bests = new ArrayList<T>(1);
-        bests.add((T) bestTestCases);
-
-        return bests;
+		return Collections.singletonList((T) bestTestCases);
     }
 
     /**
