@@ -38,6 +38,7 @@ import org.evosuite.utils.generic.GenericAccessibleObject;
  */
 public class PrimitiveExpression extends AbstractStatement {
 
+	// TODO: consider support for unary operators (!, ~, -) and the ternary operator (?:) ?
 	public static enum Operator {
 		TIMES("*"), //
 		DIVIDE("/"), //

@@ -57,13 +57,13 @@ public class AssignmentStatement extends AbstractStatement {
 
 	private static final long serialVersionUID = 2051431241124468349L;
 
-	protected VariableReference parameter;
+	protected VariableReference value;
 
 	/**
 	 * <p>
 	 * Constructor for AssignmentStatement.
 	 * </p>
-	 * 
+	 *
 	 * @param tc
 	 *            a {@link org.evosuite.testcase.TestCase} object.
 	 * @param var
@@ -73,7 +73,7 @@ public class AssignmentStatement extends AbstractStatement {
 	 */
 	public AssignmentStatement(TestCase tc, VariableReference var, VariableReference value) {
 		super(tc, var);
-		this.parameter = value;
+		this.value = value;
 
 		// TODO:
 		// Assignment of an "unassignable" type may happen if we have no generator for
@@ -86,18 +86,18 @@ public class AssignmentStatement extends AbstractStatement {
 	 * <p>
 	 * getValue
 	 * </p>
-	 * 
+	 *
 	 * @return a {@link org.evosuite.testcase.variable.VariableReference} object.
 	 */
 	public VariableReference getValue() {
-		return this.parameter;
+		return this.value;
 	}
 
 	/** {@inheritDoc} */
 	@Override
 	public Statement copy(TestCase newTestCase, int offset) {
 		try {
-			VariableReference newParam = parameter.copy(newTestCase, offset);
+			VariableReference newParam = value.copy(newTestCase, offset);
 			VariableReference newTarget;
 
 			// FIXXME: Return value should always be an existing variable
@@ -135,19 +135,19 @@ public class AssignmentStatement extends AbstractStatement {
 			        IllegalArgumentException, IllegalAccessException,
 			        InstantiationException, CodeUnderTestException {
 				try {
-					final Object value = parameter.getObject(scope);
+					final Object value = AssignmentStatement.this.value.getObject(scope);
 
 					if (checkNullDereference(scope)) {
 						throw new CodeUnderTestException(new NullPointerException());
 					}
-					
+
 					retval.setObject(scope, value);
 					//} catch (CodeUnderTestException e) {
 					//	throw CodeUnderTestException.throwException(e.getCause());
 				} catch (IllegalArgumentException e) {
 					logger.error("Error assigning value of type "
-					        + parameter.getSimpleClassName() + " defined at statement "
-					        + tc.getStatement(parameter.getStPosition()).getCode()
+					        + value.getSimpleClassName() + " defined at statement "
+					        + tc.getStatement(value.getStPosition()).getCode()
 					        + ", assignment statement: "
 					        + tc.getStatement(retval.getStPosition()).getCode()
 					        + "; SUT=" + Properties.TARGET_CLASS);
@@ -163,9 +163,9 @@ public class AssignmentStatement extends AbstractStatement {
 			}
 
 			/**
-			 * Returns true of the retval of the assignment is a field reference (i.e. expr.f) 
+			 * Returns true of the retval of the assignment is a field reference (i.e. expr.f)
 			 * such that expr==null
-			 * 
+			 *
 			 * @param scope
 			 * @return
 			 * @throws CodeUnderTestException (cause is NullPointerException)
@@ -173,11 +173,11 @@ public class AssignmentStatement extends AbstractStatement {
 			private boolean checkNullDereference(final Scope scope) throws CodeUnderTestException {
 				if (retval instanceof FieldReference) {
 					FieldReference fieldRef = (FieldReference)retval;
-					
+
 					if (fieldRef.getField().isStatic()) {
 						return false;
 					}
-					
+
 					VariableReference source = fieldRef.getSource();
 					Object sourceValue = source.getObject(scope);
 					return sourceValue == null;
@@ -200,12 +200,12 @@ public class AssignmentStatement extends AbstractStatement {
 	public Set<VariableReference> getVariableReferences() {
 		Set<VariableReference> vars = new LinkedHashSet<VariableReference>();
 		vars.add(retval);
-		vars.add(parameter);
+		vars.add(value);
 
 		if (retval.getAdditionalVariableReference() != null)
 			vars.add(retval.getAdditionalVariableReference());
-		if (parameter.getAdditionalVariableReference() != null)
-			vars.add(parameter.getAdditionalVariableReference());
+		if (value.getAdditionalVariableReference() != null)
+			vars.add(value.getAdditionalVariableReference());
 		vars.addAll(getAssertionReferences());
 
 		return vars;
@@ -216,13 +216,13 @@ public class AssignmentStatement extends AbstractStatement {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void replace(VariableReference var1, VariableReference var2) {
-		if (parameter.equals(var1))
-			parameter = var2;
+	public void replace(VariableReference oldVar, VariableReference newVar) {
+		if (value.equals(oldVar))
+			value = newVar;
 		//else if (retval.equals(var1))
 		//	retval = var2;
 		else
-			parameter.replaceAdditionalVariableReference(var1, var2);
+			value.replaceAdditionalVariableReference(oldVar, newVar);
 		//else if (var1.equals(retval.getAdditionalVariableReference()))
 		//	retval.setAdditionalVariableReference(var2);
 
@@ -233,7 +233,7 @@ public class AssignmentStatement extends AbstractStatement {
 	public int hashCode() {
 		final int prime = 31;
 		int result = prime + retval.hashCode()
-		        + +((parameter == null) ? 0 : parameter.hashCode());
+		        + +((value == null) ? 0 : value.hashCode());
 		return result;
 	}
 
@@ -247,10 +247,10 @@ public class AssignmentStatement extends AbstractStatement {
 		if (getClass() != obj.getClass())
 			return false;
 		AssignmentStatement other = (AssignmentStatement) obj;
-		if (parameter == null) {
-			if (other.parameter != null)
+		if (value == null) {
+			if (other.value != null)
 				return false;
-		} else if (!parameter.equals(other.parameter))
+		} else if (!value.equals(other.value))
 			return false;
 		if (retval == null) {
 			return other.retval == null;
@@ -259,7 +259,7 @@ public class AssignmentStatement extends AbstractStatement {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.evosuite.testcase.Statement#getUniqueVariableReferences()
 	 */
@@ -276,7 +276,7 @@ public class AssignmentStatement extends AbstractStatement {
 	@Override
 	public boolean isValid() {
 		assert (super.isValid());
-		parameter.getStPosition();
+		value.getStPosition();
 		//if (!retval.getVariableClass().isAssignableFrom(parameter.getVariableClass())) {
 		//	logger.error("Type mismatch: " + retval.getVariableClass() + " and "
 		//	        + parameter.getVariableClass());
@@ -298,10 +298,10 @@ public class AssignmentStatement extends AbstractStatement {
 			return false;
 
 		AssignmentStatement other = (AssignmentStatement) s;
-		if (parameter == null) {
-			if (other.parameter != null)
+		if (value == null) {
+			if (other.value != null)
 				return false;
-		} else if (!parameter.same(other.parameter))
+		} else if (!value.same(other.value))
 			return false;
 		if (retval == null) {
 			return other.retval == null;
@@ -311,7 +311,7 @@ public class AssignmentStatement extends AbstractStatement {
 	/**
 	 * Retrieve the set of FieldReference and ArrayIndex variables that can
 	 * serve as a replacement for retval
-	 * 
+	 *
 	 * @return
 	 */
 	private Set<VariableReference> getSourceReplacements() {
@@ -322,14 +322,14 @@ public class AssignmentStatement extends AbstractStatement {
 				continue;
 			if (value instanceof ArrayReference) {
 				if (GenericClass.isAssignable(value.getComponentType(),
-				                              parameter.getType())) {
+				                              this.value.getType())) {
 					for (int index = 0; index < ((ArrayReference) value).getArrayLength(); index++) {
 						variables.add(new ArrayIndex(tc, (ArrayReference) value, index));
 					}
 				}
 			} else if (value instanceof ArrayIndex) {
 				// Don't need to add this because array indices are created for array statement?
-				if (value.isAssignableFrom(parameter.getType())) {
+				if (value.isAssignableFrom(this.value.getType())) {
 					variables.add(value);
 				}
 			} else {
@@ -341,7 +341,7 @@ public class AssignmentStatement extends AbstractStatement {
 						FieldReference f = new FieldReference(tc, new GenericField(field,
 						        value.getGenericClass()), value);
 						if (f.getDepth() <= 2) {
-							if (f.isAssignableFrom(parameter.getType())) {
+							if (f.isAssignableFrom(this.value.getType())) {
 								variables.add(f);
 							}
 						}
@@ -364,18 +364,18 @@ public class AssignmentStatement extends AbstractStatement {
 		if (Randomness.nextDouble() < 0.5) {
 			Set<VariableReference> objects = getSourceReplacements();
 			objects.remove(retval);
-			objects.remove(parameter);
+			objects.remove(value);
 
 			if (!objects.isEmpty()) {
 				VariableReference newRetVal = Randomness.choice(objects);
 				// Need to double check, because we might try to replace e.g.
 				// a long with an int, which is assignable
 				// but if the long is assigned to a Long field, then it is not!
-				if(parameter.isAssignableTo(newRetVal)) {
-					
+				if(value.isAssignableTo(newRetVal)) {
+
 					// Need to check array status because commons lang
 					// is sometimes confused about what is assignable
-					if(parameter.isArray() == newRetVal.isArray()) {
+					if(value.isArray() == newRetVal.isArray()) {
 						retval = newRetVal;
 						assert (isValid());
 						return true;
@@ -385,23 +385,23 @@ public class AssignmentStatement extends AbstractStatement {
 
 		} else {
 
-			List<VariableReference> objects = test.getObjects(parameter.getType(),
+			List<VariableReference> objects = test.getObjects(value.getType(),
 			                                                  retval.getStPosition());
 			objects.remove(retval);
-			objects.remove(parameter);
+			objects.remove(value);
 			if (!objects.isEmpty()) {
 				VariableReference choice = Randomness.choice(objects);
 				if(choice.isAssignableTo(retval)) {
-					
+
 					// Need special care if it is a wrapper class
-					if(retval.getGenericClass().isWrapperType()) { 
+					if(retval.getGenericClass().isWrapperType()) {
 						Class<?> rawClass = ClassUtils.wrapperToPrimitive(retval.getVariableClass());
 						if(!retval.getVariableClass().equals(rawClass) && !retval.getVariableClass().equals(choice.getVariableClass())) {
 							return false;
 						}
 					}
 
-					parameter = choice;
+					value = choice;
 					assert (isValid());
 
 					return true;

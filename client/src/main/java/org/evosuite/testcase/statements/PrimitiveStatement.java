@@ -266,9 +266,9 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
      * {@inheritDoc}
      */
     @Override
-    public void replace(VariableReference var1, VariableReference var2) {
-        if (retval.equals(var1)) {
-            retval = var2;
+    public void replace(VariableReference oldVar, VariableReference newVar) {
+        if (retval.equals(oldVar)) {
+            retval = newVar;
         }
     }
 

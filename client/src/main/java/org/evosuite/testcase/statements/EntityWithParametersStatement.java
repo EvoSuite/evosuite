@@ -112,19 +112,19 @@ public abstract class EntityWithParametersStatement extends AbstractStatement{
 	 */
     /** {@inheritDoc} */
     @Override
-    public void replace(VariableReference var1, VariableReference var2) {
+    public void replace(VariableReference oldVar, VariableReference newVar) {
 
-        if (retval.equals(var1)) {
-            retval = var2;
+        if (retval.equals(oldVar)) {
+            retval = newVar;
             // TODO: Notify listener?
         }
 
         for (int i = 0; i < parameters.size(); i++) {
 
-            if (parameters.get(i).equals(var1))
-                parameters.set(i, var2);
+            if (parameters.get(i).equals(oldVar))
+                parameters.set(i, newVar);
             else
-                parameters.get(i).replaceAdditionalVariableReference(var1, var2);
+                parameters.get(i).replaceAdditionalVariableReference(oldVar, newVar);
         }
     }
 

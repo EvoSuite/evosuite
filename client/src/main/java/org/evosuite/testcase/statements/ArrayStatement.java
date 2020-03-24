@@ -61,6 +61,8 @@ public class ArrayStatement extends AbstractStatement {
 	private static int[] createRandom(int dimensions) {
 		int[] result = new int[dimensions];
 		for (int idx = 0; idx < dimensions; idx++) {
+			// FIXME: Properties.MAX_ARRAY gives the "maximum length of randomly generated
+			//  arrays", not the maximum value that one array index can take
 			result[idx] = Randomness.nextInt(Properties.MAX_ARRAY);
 		}
 		return result;

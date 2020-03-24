@@ -61,7 +61,7 @@ public class FieldStatement extends AbstractStatement {
 	 * <p>
 	 * Constructor for FieldStatement.
 	 * </p>
-	 * 
+	 *
 	 * @param tc
 	 *            a {@link org.evosuite.testcase.TestCase} object.
 	 * @param field
@@ -85,7 +85,7 @@ public class FieldStatement extends AbstractStatement {
 	 * as retvar. This should only be done, iff an old statement is replaced
 	 * with this statement. And already existing objects should in the future
 	 * reference this object.
-	 * 
+	 *
 	 * @param tc
 	 *            a {@link org.evosuite.testcase.TestCase} object.
 	 * @param field
@@ -107,7 +107,7 @@ public class FieldStatement extends AbstractStatement {
 	 * <p>
 	 * Getter for the field <code>source</code>.
 	 * </p>
-	 * 
+	 *
 	 * @return a {@link org.evosuite.testcase.variable.VariableReference} object.
 	 */
 	public VariableReference getSource() {
@@ -116,7 +116,7 @@ public class FieldStatement extends AbstractStatement {
 
 	/**
 	 * Try to replace source of field with all possible choices
-	 * 
+	 *
 	 * @param test
 	 * @param statement
 	 * @param objective
@@ -149,7 +149,7 @@ public class FieldStatement extends AbstractStatement {
 	 * <p>
 	 * Setter for the field <code>source</code>.
 	 * </p>
-	 * 
+	 *
 	 * @param source
 	 *            a {@link org.evosuite.testcase.variable.VariableReference} object.
 	 */
@@ -161,15 +161,15 @@ public class FieldStatement extends AbstractStatement {
 	public boolean isAccessible() {
 		if(!field.isAccessible())
 			return false;
-		
+
 		return super.isAccessible();
 	}
-	
+
 	/**
 	 * <p>
 	 * isStatic
 	 * </p>
-	 * 
+	 *
 	 * @return a boolean.
 	 */
 	public boolean isStatic() {
@@ -241,7 +241,7 @@ public class FieldStatement extends AbstractStatement {
 						throw new CodeUnderTestException(new ClassCastException());
 					}
 					try {
-						// FIXXME: isAssignableFrom int <- Integer does not return true 
+						// FIXXME: isAssignableFrom int <- Integer does not return true
 						//assert(ret==null || retval.getVariableClass().isAssignableFrom(ret.getClass())) : "we want an " + retval.getVariableClass() + " but got an " + ret.getClass();
 						retval.setObject(scope, ret);
 					} catch (CodeUnderTestException e) {
@@ -285,12 +285,12 @@ public class FieldStatement extends AbstractStatement {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void replace(VariableReference var1, VariableReference var2) {
+	public void replace(VariableReference oldVar, VariableReference newVar) {
 		if (!field.isStatic()) {
-			if (source.equals(var1))
-				source = var2;
+			if (source.equals(oldVar))
+				source = newVar;
 			else
-				source.replaceAdditionalVariableReference(var1, var2);
+				source.replaceAdditionalVariableReference(oldVar, newVar);
 		}
 	}
 
@@ -326,7 +326,7 @@ public class FieldStatement extends AbstractStatement {
 	 * <p>
 	 * Getter for the field <code>field</code>.
 	 * </p>
-	 * 
+	 *
 	 * @return a {@link java.lang.reflect.Field} object.
 	 */
 	public GenericField getField() {
@@ -337,7 +337,7 @@ public class FieldStatement extends AbstractStatement {
 	 * <p>
 	 * Setter for the field <code>field</code>.
 	 * </p>
-	 * 
+	 *
 	 * @param field
 	 *            a {@link java.lang.reflect.Field} object.
 	 */
@@ -348,7 +348,7 @@ public class FieldStatement extends AbstractStatement {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.evosuite.testcase.Statement#getUniqueVariableReferences()
 	 */
