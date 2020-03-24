@@ -302,7 +302,7 @@ public class TestCluster {
 				Class<?> clazz = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(className);
 				return !CoverageAnalysis.isTest(clazz);
 			} catch (ClassNotFoundException e) {
-				logger.info("Could not load class: ", className);
+				logger.info("Could not load class: {}", className);
 			}
 		}
 		if (className.equals(Properties.TARGET_CLASS)

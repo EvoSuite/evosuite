@@ -2529,7 +2529,7 @@ public class TestFactory {
 				logger.debug("Chosen call {}", call);
 				return addCallFor(test, var, call, position);
 			} catch (ConstructionFailedException e) {
-				logger.debug("Found no modifier: {}", e);
+				logger.debug("Found no modifier: {}", e.getMessage());
 			}
 		}
 
