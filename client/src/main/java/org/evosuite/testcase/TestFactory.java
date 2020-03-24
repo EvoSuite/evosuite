@@ -2141,7 +2141,7 @@ public class TestFactory {
 
 		try {
 			allCalls = TestCluster.getInstance().getGenerators(new GenericClass(
-			                                                           returnType), true);
+			                                                           returnType));
 		} catch (ConstructionFailedException e) {
 			return calls;
 		}
