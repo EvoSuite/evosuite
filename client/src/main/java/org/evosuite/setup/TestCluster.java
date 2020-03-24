@@ -791,18 +791,15 @@ public class TestCluster {
 	 * Get a list of all generator objects for the type
 	 *
 	 * @param clazz
-	 * @param resolve
 	 * @return
 	 * @throws ConstructionFailedException
 	 */
-	public Set<GenericAccessibleObject<?>> getGenerators(GenericClass clazz,
-	        boolean resolve) throws ConstructionFailedException {
-
+	public Set<GenericAccessibleObject<?>> getGenerators(GenericClass clazz) throws ConstructionFailedException {
 		// Instantiate generic type
 		if (clazz.hasWildcardOrTypeVariables()) {
 			GenericClass concreteClass = clazz.getGenericInstantiation();
 			if (!concreteClass.equals(clazz))
-				return getGenerators(concreteClass, false);
+				return getGenerators(concreteClass);
 		}
 
 		if (isSpecialCase(clazz)) {
@@ -959,13 +956,13 @@ public class TestCluster {
 		        CastClassManager.getInstance().getCastClasses());
 		for (GenericClass clazz : classes) {
 			try {
-				result.addAll(getGenerators(clazz, true));
+				result.addAll(getGenerators(clazz));
 			} catch (ConstructionFailedException e) {
 				// ignore
 			}
 		}
 		try {
-			result.addAll(getGenerators(new GenericClass(Object.class), true));
+			result.addAll(getGenerators(new GenericClass(Object.class)));
 		} catch (ConstructionFailedException e) {
 			// ignore
 		}
