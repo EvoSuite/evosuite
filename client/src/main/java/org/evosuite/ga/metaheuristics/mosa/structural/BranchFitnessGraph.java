@@ -42,7 +42,7 @@ import static java.util.stream.Collectors.*;
  * 
  * @author Annibale Panichella
  */
-public class BranchFitnessGraph<T extends Chromosome, V extends FitnessFunction<T>> implements Serializable {
+public class BranchFitnessGraph<T extends Chromosome> implements Serializable {
 
 	private static final long serialVersionUID = -8020578778906420503L;
 	

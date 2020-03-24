@@ -46,7 +46,7 @@ public class BranchesManager<T extends Chromosome> extends StructuralGoalManager
 
 	private static final Logger logger = LoggerFactory.getLogger(BranchesManager.class);
 
-	protected BranchFitnessGraph<T, FitnessFunction<T>> graph;
+	protected BranchFitnessGraph<T> graph;
 
 	protected final Map<Integer, FitnessFunction<T>> branchCoverageTrueMap = new HashMap<>();
 	protected final Map<Integer, FitnessFunction<T>> branchCoverageFalseMap = new HashMap<>();
@@ -149,7 +149,7 @@ public class BranchesManager<T extends Chromosome> extends StructuralGoalManager
 		}
 	}
 
-	public BranchFitnessGraph<T, FitnessFunction<T>> getGraph() {
+	public BranchFitnessGraph<T> getGraph() {
 		return graph;
 	}
 
