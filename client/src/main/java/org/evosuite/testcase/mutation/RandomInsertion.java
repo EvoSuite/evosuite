@@ -46,9 +46,9 @@ public class RandomInsertion implements InsertionStrategy {
 	private static final Logger logger = LoggerFactory.getLogger(RandomInsertion.class);
 
 	@Override
-	public int insertStatement(TestCase test, int lastPosition) {
-		double r = Randomness.nextDouble();
-		int oldSize = test.size();
+	public int insertStatement(final TestCase test, final int lastPosition) {
+		final double r = Randomness.nextDouble();
+		final int oldSize = test.size();
 
 		/*
 			TODO: if allow inserting a UUT method in the middle of a test,
@@ -95,18 +95,18 @@ public class RandomInsertion implements InsertionStrategy {
 			// in the test case). The idea is to mutate the parameter so that new program states
 			// can be reached in the function call.
 			VariableReference var = selectRandomVariableForCall(test, lastPosition);
+
 			if (var != null) {
 				// find the last position where the selected variable is used in the test case
-				final int lastUsage = test.getReferences(var).stream()
+				final int lastUsage = test.getVariablesDependingOn(var, true).stream()
 						.mapToInt(VariableReference::getStPosition)
 						.max().getAsInt(); // getAsInt() always succeeds as stream cannot be empty
 
-				int boundPosition = ConstraintHelper.getLastPositionOfBounded(var, test);
-				if(boundPosition >= 0 ){
+				final int boundPosition = ConstraintHelper.getLastPositionOfBounded(var, test);
+				if (boundPosition >= 0 ){
 					// if bounded variable, cannot add methods before its initialization
 					position = boundPosition + 1;
 				} else {
-
 					if (lastUsage > var.getStPosition() + 1) {
 						// If there is more than 1 statement where it is used, we randomly choose a position
 						position = Randomness.nextInt(var.getStPosition() + 1, // call has to be after the object is created
