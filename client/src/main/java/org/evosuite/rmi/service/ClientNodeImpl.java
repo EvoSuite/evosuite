@@ -133,7 +133,7 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 	@Override
 	public void startNewSearch() throws RemoteException, IllegalStateException {
 		if (!state.equals(ClientState.NOT_STARTED)) {
-			throw new IllegalArgumentException("Search has already been started");
+			throw new IllegalStateException("Search has already been started");
 		}
 
 		/*
