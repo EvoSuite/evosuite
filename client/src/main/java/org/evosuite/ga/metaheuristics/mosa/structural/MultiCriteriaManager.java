@@ -211,7 +211,7 @@ public class MultiCriteriaManager<T extends Chromosome> extends StructuralGoalMa
 	}
 
 	/**
-	 * This methods derive the dependencies between {@link InputCoverageTestFitness} and branches.
+	 * This methods derive the dependencies between {@link InputCoverageTestFitness} and branches. 
 	 * Therefore, it is used to update 'this.dependencies'
 	 */
 	private void addDependencies4Input() {
@@ -243,7 +243,7 @@ public class MultiCriteriaManager<T extends Chromosome> extends StructuralGoalMa
 	}
 
 	/**
-	 * This methods derive the dependencies between {@link MethodCoverageTestFitness} and branches.
+	 * This methods derive the dependencies between {@link MethodCoverageTestFitness} and branches. 
 	 * Therefore, it is used to update 'this.dependencies'
 	 */
 	@SuppressWarnings("unchecked")
@@ -286,7 +286,7 @@ public class MultiCriteriaManager<T extends Chromosome> extends StructuralGoalMa
 	}
 
 	/**
-	 * This methods derive the dependencies between {@link WeakMutationTestFitness} and branches.
+	 * This methods derive the dependencies between {@link WeakMutationTestFitness} and branches. 
 	 * Therefore, it is used to update 'this.dependencies'
 	 */
 	private void addDependencies4WeakMutation() {
@@ -330,7 +330,7 @@ public class MultiCriteriaManager<T extends Chromosome> extends StructuralGoalMa
 	}
 
 	/**
-	 * This methods derive the dependencies between  {@link LineCoverageTestFitness} and branches.
+	 * This methods derive the dependencies between  {@link LineCoverageTestFitness} and branches. 
 	 * Therefore, it is used to update 'this.dependencies'
 	 */
 	private void addDependencies4Line() {
@@ -355,7 +355,7 @@ public class MultiCriteriaManager<T extends Chromosome> extends StructuralGoalMa
 	}
 
 	/**
-	 * This methods derive the dependencies between  {@link StatementCoverageTestFitness} and branches.
+	 * This methods derive the dependencies between  {@link StatementCoverageTestFitness} and branches. 
 	 * Therefore, it is used to update 'this.dependencies'
 	 */
 	@SuppressWarnings("unchecked")
@@ -385,6 +385,7 @@ public class MultiCriteriaManager<T extends Chromosome> extends StructuralGoalMa
 	 *
 	 * @param c the chromosome whose fitness to calculate (must be a {@link TestChromosome})
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public void calculateFitness(T c) {
 		// Run the test and record the execution result.
