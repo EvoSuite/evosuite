@@ -35,6 +35,9 @@ import java.lang.reflect.Type;
 import java.util.*;
 
 /**
+ * A common superclass for statements that contain a call to an executable entity, i.e.,
+ * methods, constructors and functional mocks.
+ *
  * Created by Andrea Arcuri on 04/07/15.
  */
 public abstract class EntityWithParametersStatement extends AbstractStatement{

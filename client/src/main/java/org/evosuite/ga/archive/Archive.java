@@ -49,8 +49,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Archive.
- * 
+ * A partial mapping of test targets onto the shortest encountered test cases covering the given
+ * target.
+ *
+ * @param <F> the type of test targets, encoded as {@code TestFitnessFunction}
+ * @param <T> the type of test cases covering the target, encoded as {@code TestChromosome}
  * @author José Campos
  */
 public abstract class Archive<F extends TestFitnessFunction, T extends TestChromosome>
@@ -73,8 +76,8 @@ public abstract class Archive<F extends TestFitnessFunction, T extends TestChrom
 
   /**
    * Register a target.
-   * 
-   * @param target
+   *
+   * @param target the target to register
    */
   public void addTarget(F target) {
     assert target != null;
@@ -88,7 +91,7 @@ public abstract class Archive<F extends TestFitnessFunction, T extends TestChrom
   /**
    * Register a collection of targets.
    *
-   * @param targets
+   * @param targets the targets to register
    */
   public void addTargets(Collection<F> targets) {
     targets.forEach(this::addTarget);
@@ -131,9 +134,9 @@ public abstract class Archive<F extends TestFitnessFunction, T extends TestChrom
   /**
    * Updates the archive by adding a chromosome solution that covers a target, or by replacing an
    * existing solution if the new one is better.
-   * 
-   * @param target
-   * @param solution
+   *
+   * @param target the covered target
+   * @param solution the solution covering the target
    * @param fitnessValue
    */
   public void updateArchive(F target, T solution, double fitnessValue) {

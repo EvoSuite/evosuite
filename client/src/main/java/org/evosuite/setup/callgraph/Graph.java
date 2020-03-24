@@ -30,7 +30,7 @@ import java.util.Set;
  * simple implementation of a graph where edges are not classes.
  * @author mattia
  *
- * @param <E>
+ * @param <E> type of vertices used by the graph
  */
 public abstract class Graph<E> {
 

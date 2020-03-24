@@ -149,15 +149,13 @@ public class GenericClass implements Serializable {
 	}
 
 	/**
-	 * <p>
-	 * isAssignable
-	 * </p>
-	 * 
-	 * @param lhsType
+	 * Tells whether the type {@code rhsType} (on the right-hand side of an assignment) can be
+	 * assigned to the type {@code lhsType} (on the left-hand side of an assignment).
+	 *
+	 * @param lhsType the type on the left-hand side (target type)
+	 * @param rhsType the type on the right-hand side (subject type to be assigned to target type)
 	 *            a {@link java.lang.reflect.Type} object.
-	 * @param rhsType
-	 *            a {@link java.lang.reflect.Type} object.
-	 * @return a boolean.
+	 * @return {@code true} if {@code rhsType} is assignable to {@code lhsType}
 	 */
 	public static boolean isAssignable(Type lhsType, Type rhsType) {
 		if (rhsType == null || lhsType == null)
@@ -192,15 +190,11 @@ public class GenericClass implements Serializable {
 	}
 
 	/**
-	 * <p>
-	 * isSubclass
-	 * </p>
-	 * 
-	 * @param superclass
-	 *            a {@link java.lang.reflect.Type} object.
-	 * @param subclass
-	 *            a {@link java.lang.reflect.Type} object.
-	 * @return a boolean.
+	 * Tells whether {@code subclass} extends or implements the given {@code superclass}.
+	 *
+	 * @param superclass the superclass
+	 * @param subclass the subclass
+	 * @return {@code true} if {@code subclass} is a subclass of {@code superclass}
 	 */
 	public static boolean isSubclass(Type superclass, Type subclass) {
 		List<Class<?>> superclasses = ClassUtils.getAllSuperclasses((Class<?>) subclass);

@@ -401,6 +401,14 @@ public class TestChromosome extends ExecutableChromosome {
 		return changed;
 	}
 
+	/**
+	 * In the test case encoded by this chromosome, returns the position of the last statement that
+	 * can be mutated. If an exception occurred during the last execution of the test case, the
+	 * method returns the position of the last valid statement, i.e., the position of the statement
+	 * that directly precedes the exception-causing statement.
+	 *
+	 * @return the position of the last valid statement that can be mutated
+	 */
 	private int getLastMutatableStatement() {
 		final ExecutionResult result = getLastExecutionResult();
 		final int size = test.size();

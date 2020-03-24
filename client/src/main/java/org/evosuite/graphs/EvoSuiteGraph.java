@@ -87,8 +87,6 @@ public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 	 * <p>Constructor for EvoSuiteGraph.</p>
 	 *
 	 * @param edgeClass a {@link java.lang.Class} object.
-	 * @param <V> a V object.
-	 * @param <E> a E object.
 	 */
 	protected EvoSuiteGraph(Class<E> edgeClass) {
 

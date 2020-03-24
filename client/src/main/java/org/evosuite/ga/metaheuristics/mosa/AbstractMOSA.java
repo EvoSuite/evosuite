@@ -112,9 +112,9 @@ public abstract class AbstractMOSA<T extends Chromosome> extends GeneticAlgorith
 	}
 
 	/**
-	 * This method is used to generate new individuals (offsprings) from
-	 * the current population.
-	 * 
+	 * This method is used to generate new individuals (offspring) from
+	 * the current population. The offspring population has the same size as the parent population.
+	 *
 	 * @return offspring population
 	 */
 	@SuppressWarnings("unchecked")
@@ -181,9 +181,9 @@ public abstract class AbstractMOSA<T extends Chromosome> extends GeneticAlgorith
 
 	/**
 	 * Method used to mutate an offspring.
-	 * 
-	 * @param offspring
-	 * @param parent
+	 *
+	 * @param offspring the offspring chromosome
+	 * @param parent the parent chromosome that {@code offspring} was created from
 	 */
 	private void mutate(T offspring, T parent) {
 		offspring.mutate();
@@ -425,7 +425,7 @@ public abstract class AbstractMOSA<T extends Chromosome> extends GeneticAlgorith
 	 * evolves {@link org.evosuite.testsuite.TestChromosome} objects. Therefore, we must override
 	 * those methods and create a {@link org.evosuite.testsuite.TestSuiteChromosome} object with all
 	 * the evolved {@link org.evosuite.testsuite.TestChromosome} objects (either in the population or
-	 * in the {@link org.evosuite.ga.archive.Archive).
+	 * in the {@link org.evosuite.ga.archive.Archive}).
 	 */
 
 	/**
