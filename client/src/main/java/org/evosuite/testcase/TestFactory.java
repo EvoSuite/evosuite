@@ -55,12 +55,8 @@ import org.evosuite.testcase.statements.reflection.PrivateFieldStatement;
 import org.evosuite.testcase.statements.reflection.PrivateMethodStatement;
 import org.evosuite.testcase.statements.reflection.ReflectionFactory;
 import org.evosuite.testcase.variable.*;
+import org.evosuite.utils.generic.*;
 import org.evosuite.utils.generic.GenericAccessibleObject;
-import org.evosuite.utils.generic.GenericClass;
-import org.evosuite.utils.generic.GenericConstructor;
-import org.evosuite.utils.generic.GenericField;
-import org.evosuite.utils.generic.GenericMethod;
-import org.evosuite.utils.generic.GenericUtils;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -144,29 +140,29 @@ public class TestFactory {
 		int recursionDepth = 0;
 
 		try {
-			if (gao.isMethod()) {
-				GenericMethod method = (GenericMethod) gao;
+			if (call.isMethod()) {
+				GenericMethod method = (GenericMethod) call;
 				Class<?> declaringClass = method.getDeclaringClass();
 				Class<?> calleeClass = callee.getVariableClass();
-				if(gao.isStatic() || !declaringClass.isAssignableFrom(calleeClass)) {
+				if(call.isStatic() || !declaringClass.isAssignableFrom(calleeClass)) {
 					// Static methods / methods in other classes can be modifiers of the SUT if the SUT depends on static fields
 					addMethod(test, method, position, recursionDepth);
 				} else {
-					method = (GenericMethod) gao.copyWithNewOwner(callee.getGenericClass());
+					method = (GenericMethod) call.copyWithNewOwner(callee.getGenericClass());
 					addMethodFor(test, callee, method, position);
 				}
-			} else if (gao.isField()) {
+			} else if (call.isField()) {
 				// A modifier for the SUT could also be a static field in another class
-				if(gao.isStatic()) {
-					addFieldAssignment(test, (GenericField) gao, position, recursionDepth);
+				if(call.isStatic()) {
+					addFieldAssignment(test, (GenericField) call, position, recursionDepth);
 				} else {
-					addFieldFor(test, callee, (GenericField) gao.copyWithNewOwner(callee.getGenericClass()), position);
+					addFieldFor(test, callee, (GenericField) call.copyWithNewOwner(callee.getGenericClass()), position);
 				}
 			}
 			return true;
 		} catch (ConstructionFailedException e) {
 			// TODO: Check this!
-			logger.debug("Inserting call {} has failed: {} Removing statements", gao, e);
+			logger.debug("Inserting call {} has failed: {} Removing statements", call, e);
 			// TODO: Doesn't work if position != test.size()
 			int lengthDifference = test.size() - previousLength;
 
@@ -2145,7 +2141,7 @@ public class TestFactory {
 	 * @return
 	 */
 	private List<GenericAccessibleObject<?>> getPossibleCalls(Type returnType,
-	        List<VariableReference> objects) {
+															  List<VariableReference> objects) {
 		List<GenericAccessibleObject<?>> calls = new ArrayList<>();
 		Set<GenericAccessibleObject<?>> allCalls;
 
@@ -2314,27 +2310,29 @@ public class TestFactory {
 		int previousLength = test.size();
 		currentRecursion.clear();
 
-		List<GenericAccessibleObject<?>> shuffledOptions = TestCluster.getInstance().getRandomizedCallsToEnvironment();
-		if(shuffledOptions==null || shuffledOptions.isEmpty()){
+		final List<GenericAccessibleObject<?>> shuffledOptions =
+				TestCluster.getInstance().getRandomizedCallsToEnvironment();
+
+		if (shuffledOptions == null || shuffledOptions.isEmpty()) {
 			return -1;
 		}
 
 		//iterate (in random order) over all possible environment methods till we find one that can be inserted
-		for(GenericAccessibleObject<?> o : shuffledOptions) {
+		for(GenericAccessibleObject<?> gao : shuffledOptions) {
 			try {
-				int position = ConstraintVerifier.getAValidPositionForInsertion(o,test,lastValidPosition);
+				int position = ConstraintVerifier.getAValidPositionForInsertion(gao,test,lastValidPosition);
 
-				if(position < 0){
+				if (position < 0) {
 					//the given method/constructor cannot be added
 					continue;
 				}
 
-				if (o.isConstructor()) {
-					GenericConstructor c = (GenericConstructor) o;
+				if (gao.isConstructor()) {
+					GenericConstructor c = (GenericConstructor) gao;
 					addConstructor(test, c, position, 0);
 					return position;
-				} else if (o.isMethod()) {
-					GenericMethod m = (GenericMethod) o;
+				} else if (gao.isMethod()) {
+					GenericMethod m = (GenericMethod) gao;
 					if (!m.isStatic()) {
 
 						VariableReference callee = null;
