@@ -47,6 +47,7 @@ public enum JdkPureMethodsList {
 
 	instance;
 
+	public static final String JDK_PURE_METHODS_TXT = "/jdkPureMethods.txt";
 	private Set<String> pureMethods;
 
 	private JdkPureMethodsList() {
@@ -64,8 +65,7 @@ public enum JdkPureMethodsList {
 		Set<String> set = new HashSet<String>(2020);
 
 		try {
-			InputStream fstream = this.getClass().getResourceAsStream(
-                    "/jdkPureMethods.txt");
+			InputStream fstream = this.getClass().getResourceAsStream(JDK_PURE_METHODS_TXT);
 			DataInputStream in = new DataInputStream(fstream);
 			BufferedReader br = new BufferedReader(new InputStreamReader(in));
 			String strLine;
@@ -93,9 +93,9 @@ public enum JdkPureMethodsList {
 	 * @return {@code true} if the invoked method is cheap-pure, {@code false} otherwise
 	 */
 	public boolean checkPurity(BytecodeInstruction fieldCall) {
-		if(!fieldCall.isMethodCall())
+		if (!fieldCall.isMethodCall())
 			throw new IllegalArgumentException("method only accepts method calls");
-		
+
 		String paraz = fieldCall.getMethodCallDescriptor();
 		Type[] parameters = org.objectweb.asm.Type.getArgumentTypes(paraz);
 		String newParams = "";
@@ -129,9 +129,9 @@ public enum JdkPureMethodsList {
 	 */
 	public boolean isPureJDKMethod(Method method) {
 		String className = method.getDeclaringClass().getCanonicalName();
-		if(!className.startsWith("java."))
+		if (!className.startsWith("java."))
 			return false;
-		
+
 		String toAnalyze = className + "." + method.getName();
 
 		Type[] parameters = org.objectweb.asm.Type.getArgumentTypes(method);
@@ -143,7 +143,7 @@ public enum JdkPureMethodsList {
 			newParams = newParams.substring(1);
 		}
 		toAnalyze += "(" + newParams + ")";
-			//System.out.println(toAnalyze);
+		//System.out.println(toAnalyze);
 
 		return checkPurity(toAnalyze);
 	}
