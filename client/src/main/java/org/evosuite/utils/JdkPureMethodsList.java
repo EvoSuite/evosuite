@@ -103,7 +103,7 @@ public enum JdkPureMethodsList {
 			for (Type i : parameters) {
 				newParams = newParams + "," + i.getClassName();
 			}
-			newParams = newParams.substring(1, newParams.length());
+			newParams = newParams.substring(1);
 		}
 		String qualifiedName = fieldCall.getCalledMethodsClass() + "."
 				+ fieldCall.getCalledMethodName() + "(" + newParams + ")";
@@ -140,7 +140,7 @@ public enum JdkPureMethodsList {
 			for (Type i : parameters) {
 				newParams = newParams + "," + i.getClassName();
 			}
-			newParams = newParams.substring(1, newParams.length());
+			newParams = newParams.substring(1);
 		}
 		toAnalyze += "(" + newParams + ")";
 			//System.out.println(toAnalyze);
