@@ -206,7 +206,7 @@ public class LineCoverageTestFitness extends TestFitnessFunction {
 	/** {@inheritDoc} */
 	@Override
 	public String toString() {
-		return className + (methodName == "" ? "" : "." + methodName) + ": Line " + line;
+		return className + (methodName.isEmpty() ? "" : "." + methodName) + ": Line " + line;
 	}
 
 	/** {@inheritDoc} */
