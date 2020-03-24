@@ -58,4 +58,17 @@ public interface InsertionStrategy {
 	 * 		   number if insertion failed
 	 */
 	public int insertStatement(TestCase test, int lastPosition);
+
+	/**
+	 * Inserts a new statement after the end of the given test case. This is equivalent to calling
+	 * {@code insertStatement(test, test.size() - 1)}.
+	 *
+	 * @param test the test case in which to insert
+	 * @return the updated position of the last valid statement after insertion, or a negative
+	 * 	 	   number if insertion failed
+	 * @see InsertionStrategy#insertStatement
+	 */
+	public default int insertStatementAtEnd(TestCase test) {
+		return insertStatement(test, test.size() - 1);
+	}
 }
