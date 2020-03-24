@@ -265,11 +265,8 @@ public abstract class AbstractMOSA<T extends Chromosome> extends GeneticAlgorith
 
 		int num = 0;
 		for (Statement s : t) {
-			VariableReference var = s.getReturnValue();
-			boolean delete = false;
-			delete = delete || s instanceof PrimitiveStatement;
-			delete = delete || s instanceof ArrayStatement;
-			delete = delete || s instanceof StringPrimitiveStatement;
+			final VariableReference var = s.getReturnValue();
+			final boolean delete = s instanceof PrimitiveStatement || s instanceof ArrayStatement;
 			if (!t.hasReferences(var) && delete) {
 				to_delete.add(num);
 				has_deleted = true;
