@@ -426,10 +426,7 @@ public class ExecutionResult implements Cloneable {
 	/** {@inheritDoc} */
 	@Override
 	public String toString() {
-		String result = "";
-		result += "Trace:";
-		result += trace;
-		return result;
+		return "Trace:" + trace;
 	}
 
 	public Set<String> getReadProperties() {
