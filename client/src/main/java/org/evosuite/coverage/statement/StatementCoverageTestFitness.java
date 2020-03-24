@@ -21,6 +21,7 @@ package org.evosuite.coverage.statement;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
@@ -56,9 +57,7 @@ public class StatementCoverageTestFitness extends TestFitnessFunction {
 	 *            a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
 	 */
 	public StatementCoverageTestFitness(BytecodeInstruction goalInstruction) {
-		if (goalInstruction == null) {
-			throw new IllegalArgumentException("null given");
-		}
+		Objects.requireNonNull(goalInstruction);
 
 		this.className = goalInstruction.getClassName();
 		this.methodName = goalInstruction.getMethodName();
@@ -77,12 +76,9 @@ public class StatementCoverageTestFitness extends TestFitnessFunction {
 	 * @param instructionID the instruction identifier
 	 */
 	public StatementCoverageTestFitness(String className, String methodName, Integer instructionID) {
-		if ((className == null) || (methodName == null) || (instructionID == null)) {
-			throw new IllegalArgumentException("className, methodName and instructionID cannot be null");
-		}
-		this.className = className;
-		this.methodName = methodName;
-		this.instructionID = instructionID;
+		this.className = Objects.requireNonNull(className, "className cannot be null");
+		this.methodName = Objects.requireNonNull(methodName, "methodName cannot be null");
+		this.instructionID = Objects.requireNonNull(instructionID, "instructionID cannot be null");
 
 		BytecodeInstruction goalInstruction = BytecodeInstructionPool.getInstance(TestGenerationContext.getInstance().
 		    getClassLoaderForSUT()).getInstruction(this.className, this.methodName, this.instructionID);

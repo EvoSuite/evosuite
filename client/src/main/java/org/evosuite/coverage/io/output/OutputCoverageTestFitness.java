@@ -52,13 +52,9 @@ public class OutputCoverageTestFitness extends TestFitnessFunction {
 	 * Constructor - fitness is specific to a method
 	 *
 	 * @param goal the coverage goal
-	 * @throws IllegalArgumentException
 	 */
-	public OutputCoverageTestFitness(OutputCoverageGoal goal) throws IllegalArgumentException {
-		if (goal == null) {
-			throw new IllegalArgumentException("goal cannot be null");
-		}
-		this.goal = goal;
+	public OutputCoverageTestFitness(OutputCoverageGoal goal) {
+		this.goal = Objects.requireNonNull(goal, "goal cannot be null");
 		// add the observer to TestCaseExecutor if it is not included yet
 		boolean hasObserver = false;
 		TestCaseExecutor executor = TestCaseExecutor.getInstance();

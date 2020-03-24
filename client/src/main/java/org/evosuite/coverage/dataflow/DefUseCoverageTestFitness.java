@@ -22,6 +22,7 @@ package org.evosuite.coverage.dataflow;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.Objects;
 import java.util.Set;
 
 import org.evosuite.Properties;
@@ -200,12 +201,8 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 	 *            object.
 	 */
 	public DefUseCoverageTestFitness(Definition def, Use use, DefUsePairType type) {
-		if (def == null)
-			throw new IllegalArgumentException("null given for definition. type: "
-			        + type.toString());
-		if (use == null)
-			throw new IllegalArgumentException("null given for use. def was "
-			        + def.toString() + ". type: " + type.toString());
+		Objects.requireNonNull(def, "null given for definition. type: " + type.toString());
+		Objects.requireNonNull(use, "null given for use. def was " + def.toString() + ". type: " + type.toString());
 
 		initRegularDefUse(def, use, type);
 	}
