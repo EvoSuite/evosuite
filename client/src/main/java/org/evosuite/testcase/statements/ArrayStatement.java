@@ -384,9 +384,7 @@ public class ArrayStatement extends AbstractStatement {
 	 */
 	public void setLengths(int[] lengths) {
 		this.lengths = new int[lengths.length];
-		for (int i = 0; i < lengths.length; i++) {
-			this.lengths[i] = lengths[i];
-		}
+		System.arraycopy(lengths, 0, this.lengths, 0, lengths.length);
 		((ArrayReference) retval).setLengths(lengths);
 	}
 

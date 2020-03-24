@@ -55,8 +55,7 @@ public class FastNonDominatedSorting<T extends Chromosome> implements RankingFun
 	public void computeRankingAssignment(List<T> solutions, Set<FitnessFunction<T>> uncovered_goals) {
 		List<T>[] fronts = getNextNonDominatedFronts(solutions, uncovered_goals);
 		ranking_ = new ArrayList[fronts.length];
-		for (int i = 0; i < fronts.length; i++)
-			ranking_[i] = fronts[i];
+		System.arraycopy(fronts, 0, ranking_, 0, fronts.length);
 	}
 
 
