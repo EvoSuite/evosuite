@@ -60,17 +60,17 @@ public class RhoCoverageTestFitness extends TestFitnessFunction {
 
 			// no coverage
 			if (coveredLinesOrdered.size() == 0) {
-				updateIndividual(this, individual, 1.0);
+				updateIndividual(individual, 1.0);
 				return 1.0;
 			}
 			// already exists locally
 			else if (!tmp_coverage_matrix.add(coveredLinesOrdered)) {
-				updateIndividual(this, individual, 1.0);
+				updateIndividual(individual, 1.0);
 				return 1.0;
 			}
 			// already exists on the original test suite
 			else if (RhoCoverageFactory.exists(l_coveredLines)) {
-				updateIndividual(this, individual, 1.0);
+				updateIndividual(individual, 1.0);
 				return 1.0;
 			}
 			// good
@@ -91,7 +91,7 @@ public class RhoCoverageTestFitness extends TestFitnessFunction {
 			fitness = Math.abs(0.5 - fitness);
 		}
 
-		updateIndividual(this, individual, fitness);
+		updateIndividual(individual, fitness);
 		return fitness;
 	}
 

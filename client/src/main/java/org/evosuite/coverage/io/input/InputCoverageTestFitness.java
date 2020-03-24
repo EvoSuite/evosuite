@@ -148,7 +148,7 @@ public class InputCoverageTestFitness extends TestFitnessFunction {
         }
 
         assert fitness >= 0.0;
-        updateIndividual(this, individual, fitness);
+        updateIndividual(individual, fitness);
 
         if (fitness == 0.0) {
             individual.getTestCase().addCoveredGoal(this);

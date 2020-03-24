@@ -473,7 +473,7 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 			//suite.setCoverage(0.0);
 		}
 
-		updateIndividual(this, suite, fitness);
+		updateIndividual(suite, fitness);
 
 		assert (coverage <= totalGoals) : "Covered " + coverage + " vs total goals "
 		        + totalGoals;

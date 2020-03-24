@@ -97,7 +97,7 @@ public class AmbiguityCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 		//double fitness = AmbiguityCoverageFactory.getAmbiguity(this.goals.size(), groups) * 1.0 / AmbiguityCoverageFactory.getMaxAmbiguityScore();
 		double fitness = TestFitnessFunction.normalize(AmbiguityCoverageFactory.getAmbiguity(this.goals.size(), groups));
-		updateIndividual(this, suite, fitness);
+		updateIndividual(suite, fitness);
 
 		return fitness;
 	}

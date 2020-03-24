@@ -182,7 +182,7 @@ public class LineCoverageSuiteFitness extends TestSuiteFitnessFunction {
 			//suite.setCoverage(0.0);
 		}
 
-		updateIndividual(this, suite, fitness);
+		updateIndividual(suite, fitness);
 
 		assert (numCoveredLines <= totalLines) : "Covered " + numCoveredLines + " vs total goals " + totalLines;
 		assert (fitness >= 0.0);

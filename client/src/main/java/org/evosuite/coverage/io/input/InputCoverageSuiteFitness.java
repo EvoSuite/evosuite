@@ -114,7 +114,7 @@ public class InputCoverageSuiteFitness extends TestSuiteFitnessFunction {
         suite.setNumOfCoveredGoals(this, coveredGoals);
 
         printStatusMessages(suite, coveredGoals, fitness);
-        updateIndividual(this, suite, fitness);
+        updateIndividual(suite, fitness);
 
         assert (coveredGoals <= totalGoals) : "Covered " + coveredGoals + " vs total goals " + totalGoals;
         assert (fitness >= 0.0);

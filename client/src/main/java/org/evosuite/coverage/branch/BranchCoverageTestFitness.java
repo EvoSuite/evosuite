@@ -168,7 +168,7 @@ public class BranchCoverageTestFitness extends TestFitnessFunction {
 					+ " / branch distance = " + distance.getBranchDistance() + ", fitness = " + fitness);
 		}
 
-		updateIndividual(this, individual, fitness);
+		updateIndividual(individual, fitness);
 
 		if (fitness == 0.0) {
 			individual.getTestCase().addCoveredGoal(this);

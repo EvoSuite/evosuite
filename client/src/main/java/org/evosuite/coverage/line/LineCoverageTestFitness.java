@@ -190,7 +190,7 @@ public class LineCoverageTestFitness extends TestFitnessFunction {
 			fitness = r;
 		}
 		Properties.TEST_ARCHIVE = archive;
-		updateIndividual(this, individual, fitness);
+		updateIndividual(individual, fitness);
 
 		if (fitness == 0.0) {
 			individual.getTestCase().addCoveredGoal(this);

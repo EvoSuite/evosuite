@@ -152,7 +152,7 @@ public class StatementCoverageSuiteFitness extends TestSuiteFitnessFunction {
 			    + suite.getCoverage(this);
 		}
 
-		updateIndividual(this, suite, fitness);
+		updateIndividual(suite, fitness);
 
 		return fitness;
 	}

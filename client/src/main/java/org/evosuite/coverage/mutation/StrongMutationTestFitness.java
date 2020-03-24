@@ -388,7 +388,7 @@ public class StrongMutationTestFitness extends MutationTestFitness {
 		//	                         individual.getLastExecutionResult(mutation)) > 0);
 		//}
 
-		updateIndividual(this, individual, fitness);
+		updateIndividual(individual, fitness);
 		if (fitness == 0.0) {
 			individual.getTestCase().addCoveredGoal(this);
 			//assert(isCovered(individual, result));

@@ -61,7 +61,7 @@ public class SCH2<T extends NSGAChromosome> implements Problem
 				else if (x > 4.0)
                     fitness = x - 4.0;
 
-				updateIndividual(this, individual, fitness);
+				updateIndividual(individual, fitness);
 				return fitness;
 			}
 			@Override
@@ -81,7 +81,7 @@ public class SCH2<T extends NSGAChromosome> implements Problem
 				double x = ((DoubleVariable) individual.getVariables().get(0)).getValue();
 				double fitness = Math.pow(x - 5.0, 2.0);
 
-				updateIndividual(this, individual, fitness);
+				updateIndividual(individual, fitness);
 				return fitness;
 			}
 			@Override

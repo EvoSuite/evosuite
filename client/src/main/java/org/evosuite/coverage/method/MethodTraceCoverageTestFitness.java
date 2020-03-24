@@ -97,7 +97,7 @@ public class MethodTraceCoverageTestFitness extends TestFitnessFunction {
 			}
 		}
 
-		updateIndividual(this, individual, fitness);
+		updateIndividual(individual, fitness);
 
 		if (fitness == 0.0) {
 		  individual.getTestCase().addCoveredGoal(this);

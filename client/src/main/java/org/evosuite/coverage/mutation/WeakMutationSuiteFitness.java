@@ -61,7 +61,7 @@ public class WeakMutationSuiteFitness extends MutationSuiteFitness {
 		 * e.g. classes with only static constructors
 		 */
 		if (this.numMutants == 0) {
-			updateIndividual(this, individual, 0.0);
+			updateIndividual(individual, 0.0);
 			individual.setCoverage(this, 1.0);
 			individual.setNumOfCoveredGoals(this, 0);
 			return 0.0;
@@ -148,8 +148,8 @@ public class WeakMutationSuiteFitness extends MutationSuiteFitness {
 				covered++;
 			}
 		}
-		
-		updateIndividual(this, individual, fitness);
+
+		updateIndividual(individual, fitness);
 		individual.setCoverage(this, (double) covered / (double) this.numMutants);
 		individual.setNumOfCoveredGoals(this, covered);
 

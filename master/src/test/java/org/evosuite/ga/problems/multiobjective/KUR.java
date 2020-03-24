@@ -57,7 +57,7 @@ public class KUR<T extends NSGAChromosome> implements Problem
                     fitness += -10 * Math.exp(-0.2 * Math.sqrt( Math.pow(dv.getValue(), 2) + Math.pow(nextdv.getValue(), 2) ));
                 }
 
-				updateIndividual(this, individual, fitness);
+				updateIndividual(individual, fitness);
 				return fitness;
 			}
 			@Override
@@ -81,7 +81,7 @@ public class KUR<T extends NSGAChromosome> implements Problem
                     fitness += Math.pow(Math.abs(dv.getValue()), 0.8) + 5 * Math.sin(Math.pow(dv.getValue(), 3));
                 }
 
-				updateIndividual(this, individual, fitness);
+				updateIndividual(individual, fitness);
 				return fitness;
 			}
 			@Override

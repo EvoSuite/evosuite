@@ -121,7 +121,7 @@ public class IBranchTestFitness extends TestFitnessFunction {
 			fitness = getPredicateDistance(result.getTrace().getFalseDistancesContext());
 		}
 
-		updateIndividual(this, individual, fitness);
+		updateIndividual(individual, fitness);
 
 		if (fitness == 0.0) {
 			individual.getTestCase().addCoveredGoal(this);

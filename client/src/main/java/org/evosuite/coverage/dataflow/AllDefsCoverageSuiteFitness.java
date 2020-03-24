@@ -88,7 +88,7 @@ public class AllDefsCoverageSuiteFitness extends TestSuiteFitnessFunction {
 			fitness += goalFitness;
 		}
 
-		updateIndividual(this, individual, fitness);
+		updateIndividual(individual, fitness);
 		setSuiteCoverage(suite, coveredGoals);
 
 		return fitness;

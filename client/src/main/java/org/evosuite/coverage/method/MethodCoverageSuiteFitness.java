@@ -196,7 +196,7 @@ public class MethodCoverageSuiteFitness extends TestSuiteFitnessFunction {
 			//suite.setCoverage(0.0);
 		}
 
-		updateIndividual(this, suite, fitness);
+		updateIndividual(suite, fitness);
 
 		assert (coveredMethods <= totalMethods) : "Covered " + coveredMethods + " vs total goals " + totalMethods;
 		assert (fitness >= 0.0);

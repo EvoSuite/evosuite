@@ -306,7 +306,7 @@ public class RegressionSuiteFitness extends TestSuiteFitnessFunction {
     }
 
     individual.setCoverage(this, (bcFitness.totalCovered + bcFitnessRegression.totalCovered) / 2.0);
-    updateIndividual(this, individual, fitness);
+    updateIndividual(individual, fitness);
 
     if (fitness < bestFitness) {
       bestFitness = fitness;
