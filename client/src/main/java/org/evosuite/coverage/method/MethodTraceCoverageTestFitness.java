@@ -25,6 +25,8 @@ import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
 
+import java.util.Objects;
+
 /**
  * Fitness function for a single test on a single method.
  * 
@@ -42,14 +44,10 @@ public class MethodTraceCoverageTestFitness extends TestFitnessFunction {
 	 * Constructor - fitness is specific to a method
 	 * @param className the class name
 	 * @param methodName the method name
-	 * @throws IllegalArgumentException
 	 */
 	public MethodTraceCoverageTestFitness(String className, String methodName) throws IllegalArgumentException{
-		if ((className == null) || (methodName == null)) {
-			throw new IllegalArgumentException("className and methodName cannot be null");
-		}
-		this.className = className;
-		this.methodName = methodName;
+		this.className = Objects.requireNonNull(className, "className cannot be null");
+		this.methodName = Objects.requireNonNull(methodName, "methodName cannot be null");
 	}
 
 	/**

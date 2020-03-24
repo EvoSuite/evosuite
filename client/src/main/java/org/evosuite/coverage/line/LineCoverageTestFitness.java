@@ -25,6 +25,7 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
@@ -62,13 +63,10 @@ public class LineCoverageTestFitness extends TestFitnessFunction {
 	 * @param methodName the method name
 	 * @throws IllegalArgumentException
 	 */
-	public LineCoverageTestFitness(String className, String methodName, Integer line) throws IllegalArgumentException{
-		if ((className == null) || (methodName == null) || (line == null)) {
-			throw new IllegalArgumentException("className, methodName and line number cannot be null");
-		}
-		this.className = className;
-		this.methodName = methodName;
-		this.line = line;
+	public LineCoverageTestFitness(String className, String methodName, Integer line) {
+		this.className = Objects.requireNonNull(className, "className cannot be null");
+		this.methodName = Objects.requireNonNull(methodName, "methodName cannot be null");
+		this.line = Objects.requireNonNull(line, "line number cannot be null");
 		setupDependencies();
 	}
 

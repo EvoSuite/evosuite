@@ -22,6 +22,8 @@ package org.evosuite.coverage.method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
+
 import org.evosuite.Properties;
 import org.evosuite.ga.archive.Archive;
 import org.evosuite.testcase.TestChromosome;
@@ -49,14 +51,10 @@ public class MethodCoverageTestFitness extends TestFitnessFunction {
      * Constructor - fitness is specific to a method
      * @param className the class name
      * @param methodName the method name
-     * @throws IllegalArgumentException
      */
-    public MethodCoverageTestFitness(String className, String methodName) throws IllegalArgumentException{
-        if ((className == null) || (methodName == null)) {
-            throw new IllegalArgumentException("className and methodName cannot be null");
-        }
-        this.className = className;
-        this.methodName = methodName;
+    public MethodCoverageTestFitness(String className, String methodName) {
+        this.className = Objects.requireNonNull(className, "className cannot be null");
+        this.methodName = Objects.requireNonNull(methodName, "methodName cannot be null");
     }
 
     /**

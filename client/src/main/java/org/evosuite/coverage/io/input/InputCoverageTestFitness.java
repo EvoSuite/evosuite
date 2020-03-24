@@ -25,6 +25,8 @@ import static org.evosuite.coverage.io.IOCoverageConstants.CHAR_OTHER;
 import static org.evosuite.coverage.io.IOCoverageConstants.NUM_NEGATIVE;
 import static org.evosuite.coverage.io.IOCoverageConstants.NUM_POSITIVE;
 import static org.evosuite.coverage.io.IOCoverageConstants.NUM_ZERO;
+
+import java.util.Objects;
 import java.util.Set;
 import org.evosuite.Properties;
 import org.evosuite.ga.archive.Archive;
@@ -51,13 +53,9 @@ public class InputCoverageTestFitness extends TestFitnessFunction {
      * Constructor - fitness is specific to a method
      *
      * @param goal the coverage goal
-     * @throws IllegalArgumentException
      */
-    public InputCoverageTestFitness(InputCoverageGoal goal) throws IllegalArgumentException {
-        if (goal == null) {
-            throw new IllegalArgumentException("goal cannot be null");
-        }
-        this.goal = goal;
+    public InputCoverageTestFitness(InputCoverageGoal goal) {
+        this.goal = Objects.requireNonNull(goal, "goal cannot be null");
         // add the observer to TestCaseExecutor if it is not included yet
         boolean hasObserver = false;
         TestCaseExecutor executor = TestCaseExecutor.getInstance();
