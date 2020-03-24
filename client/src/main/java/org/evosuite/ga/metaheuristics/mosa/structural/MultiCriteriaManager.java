@@ -70,7 +70,7 @@ public class MultiCriteriaManager<T extends Chromosome> extends StructuralGoalMa
 
 	private static final long serialVersionUID = 8161137239404885564L;
 
-	protected BranchFitnessGraph<T, FitnessFunction<T>> graph;
+	protected BranchFitnessGraph<T> graph;
 
 	protected Map<BranchCoverageTestFitness, Set<FitnessFunction<T>>> dependencies;
 
