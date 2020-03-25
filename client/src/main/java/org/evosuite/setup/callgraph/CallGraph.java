@@ -19,14 +19,7 @@
  */
 package org.evosuite.setup.callgraph;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import org.evosuite.Properties;
 import org.evosuite.classpath.ResourceList;
@@ -169,25 +162,45 @@ public class CallGraph implements Iterable<CallGraphEntry> {
 		}
 	}
 
+	/**
+	 * Returns the set of public callers for the non-public executable specified by the given
+	 * non-null class name and method name. Returns an empty set if no public caller could be found.
+	 * If the specified callee is public, returns a singleton set consisting of just the callee.
+	 *
+	 * @param className the fully-qualified class name in which the method (callee) is located
+	 * @param methodName the method name + descriptor of the callee for which to find callers
+	 * @return the set of public callers of the method
+	 */
 	public Set<CallGraphEntry> getPublicCallersOf(String className, String methodName) {
+		Objects.requireNonNull(className);
+		Objects.requireNonNull(methodName);
 		return getPublicCallersOf(new CallGraphEntry(className, methodName));
 	}
 
-	public Set<CallGraphEntry> getPublicCallersOf(CallGraphEntry callee) {
-		final boolean isPublic = publicMethods.stream().anyMatch(cc ->
-				callee.getClassName().equals(cc.getRootClassName())
-						&& callee.getMethodName().equals(cc.getRootMethodName()));
+	private Set<CallGraphEntry> getPublicCallersOf(CallGraphEntry callee) {
+		final boolean isPublicCallee = publicMethods.stream().anyMatch(cc ->
+				Objects.equals(callee.getClassName(), cc.getRootClassName())
+						&& Objects.equals(callee.getMethodName(), cc.getRootMethodName()));
 
-		if (isPublic) {
+		if (isPublicCallee) {
 			return Collections.singleton(callee);
 		} else {
+			// The call graph is reversed, i.e., the edges point from callee to caller.
 			final Iterable<CallGraphEntry> callers = graph.getNeighbors(callee);
+
+			if (callers == null) { // may happen if callee node is not present in the call graph
+				return Collections.emptySet();
+			}
+
+			// Recursively traverse the graph until a public caller is found and include every
+			// such caller in the result set.
 			final Set<CallGraphEntry> result = new HashSet<>();
 			for (CallGraphEntry caller : callers) {
-				if (!caller.equals(callee)) { // filter out recursive methods
+				if (!caller.equals(callee)) { // filter out recursive calls
 					result.addAll(getPublicCallersOf(caller));
 				}
 			}
+
 			return result;
 		}
 	}
