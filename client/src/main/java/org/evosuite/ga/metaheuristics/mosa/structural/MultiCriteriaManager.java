@@ -40,6 +40,7 @@ import org.evosuite.coverage.mutation.WeakMutationTestFitness;
 import org.evosuite.coverage.statement.StatementCoverageTestFitness;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.FitnessFunction;
+import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.evosuite.graphs.cfg.BytecodeInstructionPool;
 import org.evosuite.graphs.cfg.ControlDependency;
@@ -386,17 +387,18 @@ public class MultiCriteriaManager<T extends Chromosome> extends StructuralGoalMa
 	 * @param c the chromosome whose fitness to calculate (must be a {@link TestChromosome})
 	 */
 	@Override
-	public void calculateFitness(T c) {
+
+	public void calculateFitness(T c, GeneticAlgorithm ga) {
 		// Run the test and record the execution result.
 		TestCase test = ((TestChromosome) c).getTestCase();
 		ExecutionResult result = TestCaseExecutor.runTest(test);
 		((TestChromosome) c).setLastExecutionResult(result);
 		c.setChanged(false);
 
-		// If the test failed to execute properly, it means none of the current gaols could be
-		// reached.
-		if (result.hasTimeout() || result.hasTestException()) {
-			currentGoals.forEach(f -> c.setFitness(f, Double.MAX_VALUE)); // assume minimization
+		// If the test failed to execute properly, or if the test does not cover anything,
+    // it means none of the current gaols could be reached.
+		if (result.hasTimeout() || result.hasTestException() || result.getTrace().getCoveredLines().size() == 0){
+      currentGoals.forEach(f -> c.setFitness(f, Double.MAX_VALUE)); // assume minimization
 			return;
 		}
 
@@ -404,7 +406,7 @@ public class MultiCriteriaManager<T extends Chromosome> extends StructuralGoalMa
 		LinkedList<FitnessFunction<T>> targets = new LinkedList<>(this.currentGoals);
 
 		// 1) We update the set of current goals.
-		while (targets.size() > 0) {
+		while (targets.size() > 0 && !ga.isFinished()) {
 			FitnessFunction<T> target = targets.poll();
 
 			int pastSize = visitedTargets.size();

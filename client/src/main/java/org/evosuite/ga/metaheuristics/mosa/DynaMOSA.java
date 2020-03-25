@@ -58,7 +58,7 @@ public class DynaMOSA<T extends Chromosome> extends AbstractMOSA<T> {
 
 	/**
 	 * Constructor based on the abstract class {@link AbstractMOSA}.
-	 * 
+	 *
 	 * @param factory
 	 */
 	public DynaMOSA(ChromosomeFactory<T> factory) {
@@ -188,7 +188,9 @@ public class DynaMOSA<T extends Chromosome> extends AbstractMOSA<T> {
 	 */
 	@Override
 	protected void calculateFitness(T c) {
-		this.goalsManager.calculateFitness(c); // this also updates the archive and the targets
-		this.notifyEvaluation(c);
+		if (!isFinished()) {
+            this.goalsManager.calculateFitness(c); // this also updates the archive and the targets
+            this.notifyEvaluation(c);
+        }
 	}
 }

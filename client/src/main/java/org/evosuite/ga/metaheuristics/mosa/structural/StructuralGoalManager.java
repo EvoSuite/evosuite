@@ -30,6 +30,7 @@ import java.util.Set;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.archive.Archive;
+import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 
@@ -83,7 +84,7 @@ public abstract class StructuralGoalManager<T extends Chromosome> implements Ser
 	 * @param c a TestChromosome
 	 * @return covered goals along with the corresponding test case
 	 */
-	public abstract void calculateFitness(T c);
+	public abstract void calculateFitness(T c, GeneticAlgorithm ga);
 
 	/**
 	 * Returns the set of yet uncovered goals.
