@@ -39,6 +39,7 @@ import org.evosuite.coverage.mutation.StrongMutationTestFitness;
 import org.evosuite.coverage.mutation.WeakMutationTestFitness;
 import org.evosuite.coverage.statement.StatementCoverageTestFitness;
 import org.evosuite.ga.FitnessFunction;
+import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.evosuite.graphs.cfg.BytecodeInstructionPool;
 import org.evosuite.graphs.cfg.ControlDependency;
@@ -384,16 +385,16 @@ public class MultiCriteriaManager extends StructuralGoalManager implements Seria
 	 * @param c the chromosome whose fitness to calculate (must be a {@link TestChromosome})
 	 */
 	@Override
-	public void calculateFitness(TestChromosome c) {
+	public void calculateFitness(TestChromosome c, GeneticAlgorithm ga) {
 		// Run the test and record the execution result.
 		TestCase test = c.getTestCase();
 		ExecutionResult result = TestCaseExecutor.runTest(test);
 		c.setLastExecutionResult(result);
 		c.setChanged(false);
 
-		// If the test failed to execute properly, it means none of the current gaols could be
-		// reached.
-		if (result.hasTimeout() || result.hasTestException()) {
+		// If the test failed to execute properly or does not cover anything,
+		// it means none of the current gaols could be reached.
+		if (result.hasTimeout() || result.hasTestException() || result.getTrace().getCoveredLines().size() == 0) {
 			currentGoals.forEach(g -> c.setFitness(g, Double.MAX_VALUE)); // assume minimization
 			if (test.getTarget() != null) {
 				increaseFailurePenalty(test.getTarget());
@@ -413,7 +414,7 @@ public class MultiCriteriaManager extends StructuralGoalManager implements Seria
 		LinkedList<TestFitnessFunction> targets = new LinkedList<>(this.currentGoals);
 
 		// 1) We update the set of current targets.
-		while (!targets.isEmpty()) {
+		while (!(targets.isEmpty() || ga.isFinished())) {
 			// We evaluate the given test case against all current targets.
 			// (There might have been serendipitous coverage of other targets, though.)
 			TestFitnessFunction target = targets.poll();

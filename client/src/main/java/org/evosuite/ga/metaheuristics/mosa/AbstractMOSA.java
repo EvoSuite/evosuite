@@ -46,6 +46,7 @@ import org.evosuite.ga.metaheuristics.TestSuiteAdapter;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
+import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.secondaryobjectives.TestCaseSecondaryObjective;
 import org.evosuite.testcase.statements.ArrayStatement;
 import org.evosuite.testcase.statements.ConstructorStatement;
@@ -166,7 +167,8 @@ public abstract class AbstractMOSA extends GeneticAlgorithm<TestChromosome, Test
 				this.clearCachedResults(offspring1);
 				offspring1.updateGeneration(this.currentIteration);
 				this.calculateFitness(offspring1);
-				offspringPopulation.add(offspring1);
+				if (!shouldIgnore(offspring1))
+					offspringPopulation.add(offspring1);
 			}
 
 			// apply mutation on offspring2
@@ -175,7 +177,8 @@ public abstract class AbstractMOSA extends GeneticAlgorithm<TestChromosome, Test
 				this.clearCachedResults(offspring2);
 				offspring2.updateGeneration(this.currentIteration);
 				this.calculateFitness(offspring2);
-				offspringPopulation.add(offspring2);
+				if (!shouldIgnore(offspring2))
+					offspringPopulation.add(offspring2);
 			}
 		}
 		// Add new randomly generate tests
@@ -197,6 +200,21 @@ public abstract class AbstractMOSA extends GeneticAlgorithm<TestChromosome, Test
 		}
 		logger.info("Number of offsprings = {}", offspringPopulation.size());
 		return offspringPopulation;
+	}
+
+	/**
+	 * This method check whether the offspring should be included in the new population
+	 * @param offspring
+	 * @return true (i.e., the test shuld be ignored) if it reached the timeout (too expensive test) or if
+	 * it has a test exception
+	 */
+	protected boolean shouldIgnore(T offspring){
+		TestChromosome tch = (TestChromosome) offspring;
+		ExecutionResult result = tch.getLastExecutionResult();
+		if (result == null)
+			return true;
+
+		return result.hasTimeout() || result.hasTestException();
 	}
 
 	/**

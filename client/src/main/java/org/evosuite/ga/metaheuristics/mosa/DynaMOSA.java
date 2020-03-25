@@ -19,13 +19,8 @@
  */
 package org.evosuite.ga.metaheuristics.mosa;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
 import org.evosuite.Properties;
 import org.evosuite.ga.ChromosomeFactory;
-import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.comparators.OnlyCrowdingComparator;
 import org.evosuite.ga.metaheuristics.mosa.structural.MultiCriteriaManager;
 import org.evosuite.ga.operators.ranking.CrowdingDistance;
@@ -34,6 +29,9 @@ import org.evosuite.testcase.mutation.MutationUtils;
 import org.evosuite.utils.LoggingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Implementation of the DynaMOSA (Many Objective Sorting Algorithm) described in the paper
@@ -58,7 +56,7 @@ public class DynaMOSA extends AbstractMOSA {
 
 	/**
 	 * Constructor based on the abstract class {@link AbstractMOSA}.
-	 * 
+	 *
 	 * @param factory
 	 */
 	public DynaMOSA(ChromosomeFactory<TestChromosome> factory) {
@@ -203,13 +201,16 @@ public class DynaMOSA extends AbstractMOSA {
 	 */
 	@Override
 	protected void calculateFitness(TestChromosome c) {
-		this.goalsManager.calculateFitness(c); // this also updates the archive and the targets
-		this.notifyEvaluation(c);
-	}
+		if (!isFinished()) {
+			this.goalsManager.calculateFitness(c, this); // also updates the archive and
+														 // the targets
+			this.notifyEvaluation(c);
+		}
 
 	@Override
 	public void initializePopulation() {
 		MutationUtils.registerGoalsManager(goalsManager);
 		super.initializePopulation();
+	}
 	}
 }

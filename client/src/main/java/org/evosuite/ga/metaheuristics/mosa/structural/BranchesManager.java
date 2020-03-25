@@ -22,6 +22,7 @@ package org.evosuite.ga.metaheuristics.mosa.structural;
 import org.evosuite.coverage.branch.BranchCoverageTestFitness;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.FitnessFunction;
+import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
@@ -79,7 +80,7 @@ public class BranchesManager extends StructuralGoalManager {
 		}
 	}
 
-	public void calculateFitness(TestChromosome c){
+	public void calculateFitness(TestChromosome c, GeneticAlgorithm ga){
 		// run the test
 		TestCase test = c.getTestCase();
 		ExecutionResult result = TestCaseExecutor.runTest(test);
@@ -95,7 +96,7 @@ public class BranchesManager extends StructuralGoalManager {
 		Set<TestFitnessFunction> visitedStatements = new HashSet<>(this.getUncoveredGoals().size() * 2);
 		LinkedList<TestFitnessFunction> targets = new LinkedList<>(this.currentGoals);
 
-		while (targets.size()>0){
+		while (targets.size()>0 && !ga.isFinished()){
 			TestFitnessFunction fitnessFunction = targets.poll();
 
 			int pastSize = visitedStatements.size();

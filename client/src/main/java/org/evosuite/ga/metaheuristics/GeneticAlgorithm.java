@@ -422,6 +422,7 @@ public abstract class GeneticAlgorithm<T extends Chromosome, F extends FitnessFu
             fitnessFunctions.forEach(individual::addFitness);
 
           newPopulation.add(individual);
+		  //logger.error("Created a new individual");
           if (isFinished())
               break;
       }
@@ -592,8 +593,12 @@ public abstract class GeneticAlgorithm<T extends Chromosome, F extends FitnessFu
 		Iterator<T> iterator = this.population.iterator();
 		while (iterator.hasNext()) {
 			T c = iterator.next();
-            if (isFinished() && c.isChanged()) {
-                iterator.remove();
+			if (isFinished() && c.isChanged()) {
+				break;
+			// TODO: do we need special treatment for c.isChanged()?
+			/* } else if (c.isChanged()) {
+					iterator.remove();
+			 */
             } else {
                 this.calculateFitness(c);
             }
