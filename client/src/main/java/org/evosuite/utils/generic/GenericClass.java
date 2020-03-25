@@ -19,10 +19,7 @@
  */
 package org.evosuite.utils.generic;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
+import java.io.*;
 import java.lang.reflect.Array;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Modifier;
@@ -30,6 +27,10 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.rmi.RemoteException;
 import java.util.*;
 
 import org.apache.commons.lang3.ClassUtils;
@@ -507,7 +508,7 @@ public class GenericClass implements Serializable {
 
 	public Collection<GenericClass> getGenericBounds() {
 		Set<GenericClass> bounds = new LinkedHashSet<GenericClass>();
-		
+
 		if (isRawClass() || !hasWildcardOrTypeVariables()) {
 			return bounds;
 		}
@@ -520,10 +521,10 @@ public class GenericClass implements Serializable {
 			getGenericTypeVarBounds(bounds);
 		} else if (isParameterizedType()) {
 			getGenericParameterizedTypeBounds(bounds);
-		}	
+		}
 		return bounds;
 	}
-	
+
 	private void getGenericWildcardBounds(Collection<GenericClass> bounds) {
 		for(Type t : ((WildcardType)type).getUpperBounds()) {
 			bounds.add(new GenericClass(t));
@@ -532,7 +533,7 @@ public class GenericClass implements Serializable {
 			bounds.add(new GenericClass(t));
 		}
 	}
-	
+
 	private void getGenericTypeVarBounds(Collection<GenericClass> bounds) {
 		for(Type t : ((TypeVariable<?>)type).getBounds()) {
 			bounds.add(new GenericClass(t));
@@ -540,13 +541,13 @@ public class GenericClass implements Serializable {
 	}
 
 	private void getGenericParameterizedTypeBounds(Collection<GenericClass> bounds) {
-		for(TypeVariable<?> typeVar : getTypeVariables()) {	
+		for(TypeVariable<?> typeVar : getTypeVariables()) {
 			for(Type t : typeVar.getBounds()) {
 				bounds.add(new GenericClass(t));
 			}
 		}
 	}
-	
+
 	/**
 	 * Instantiate all type variables randomly, but adhering to type boundaries
 	 * 
@@ -692,7 +693,7 @@ public class GenericClass implements Serializable {
 		                                                                            typeMap);
 		return selectedClass.getGenericInstantiation(typeMap, recursionLevel + 1);
 	}
-	
+
 	public List<GenericClass> getInterfaces() {
 		List<GenericClass> ret = new ArrayList<GenericClass>();
 		for(Class<?> intf : rawClass.getInterfaces()) {
@@ -723,9 +724,9 @@ public class GenericClass implements Serializable {
 
 		Type[] parameterTypes = new Type[typeParameters.size()];
 		Type ownerType = null;
-		
+
 		int numParam = 0;
-		
+
 		for (GenericClass parameterClass : getParameterClasses()) {
 			logger.debug("Current parameter to instantiate",  parameterClass);
 			/*
@@ -777,7 +778,7 @@ public class GenericClass implements Serializable {
 		}
 
 		return new GenericClass(new ParameterizedTypeImpl(rawClass, parameterTypes,
-		        ownerType)); 
+		        ownerType));
 	}
 
 	/**
@@ -807,7 +808,7 @@ public class GenericClass implements Serializable {
 	 * @return
 	 */
 	public List<Type> getParameterTypes() {
-		if (type instanceof ParameterizedType) {			
+		if (type instanceof ParameterizedType) {
 			return Arrays.asList(((ParameterizedType) type).getActualTypeArguments());
 		}
 		return new ArrayList<Type>();
@@ -899,7 +900,7 @@ public class GenericClass implements Serializable {
 	}
 
 	private Map<TypeVariable<?>, Type> typeVariableMap = null;
-	
+
 	public Map<TypeVariable<?>, Type> getTypeVariableMap() {
 		if(typeVariableMap != null)
 			return typeVariableMap;
@@ -1533,7 +1534,7 @@ public class GenericClass implements Serializable {
 			// Special case: Enum is defined as Enum<T extends Enum>
 			if (GenericTypeReflector.erase(theType).equals(Enum.class)) {
 				//logger.debug("Is ENUM case");
-				// if this is an enum then it's ok. 
+				// if this is an enum then it's ok.
 				if (isEnum()) {
 					//logger.debug("Class " + toString() + " is an enum!");
 
@@ -1554,7 +1555,7 @@ public class GenericClass implements Serializable {
 			//logger.debug("Bound after variable replacement: " + boundType);
 			if (!concreteClass.isAssignableTo(boundType) && !(boundType instanceof WildcardType)) {
 				//logger.debug("Not assignable: " + type + " and " + boundType);
-				// If the boundary is not assignable it may still be possible 
+				// If the boundary is not assignable it may still be possible
 				// to instantiate the generic to an assignable type
 				if (GenericTypeReflector.erase(boundType).isAssignableFrom(getRawClass())) {
 					//logger.debug("Raw classes are assignable: " + boundType + ", "
@@ -1562,7 +1563,7 @@ public class GenericClass implements Serializable {
 					Type instanceType = GenericTypeReflector.getExactSuperType(boundType,
 					                                                           getRawClass());
 					if (instanceType == null) {
-						// This happens when the raw class is not a supertype 
+						// This happens when the raw class is not a supertype
 						// of the boundary
 						//logger.debug("Instance type is null");
 						isAssignable = false;
@@ -1619,7 +1620,7 @@ public class GenericClass implements Serializable {
 			logger.debug("Checking upper bound "+theType);
 			// Special case: Enum is defined as Enum<T extends Enum>
 			if (GenericTypeReflector.erase(theType).equals(Enum.class)) {
-				// if this is an enum then it's ok. 
+				// if this is an enum then it's ok.
 				if (isEnum())
 					continue;
 				else {
@@ -1632,13 +1633,13 @@ public class GenericClass implements Serializable {
 			Type type = GenericUtils.replaceTypeVariables(theType, ownerVariableMap);
 			//logger.debug("Bound after variable replacement: " + type);
 			if (!isAssignableTo(type)) {
-				// If the boundary is not assignable it may still be possible 
+				// If the boundary is not assignable it may still be possible
 				// to instantiate the generic to an assignable type
 				if (GenericTypeReflector.erase(type).isAssignableFrom(getRawClass())) {
 					Type instanceType = GenericTypeReflector.getExactSuperType(type,
 					                                                           getRawClass());
 					if (instanceType == null) {
-						// This happens when the raw class is not a supertype 
+						// This happens when the raw class is not a supertype
 						// of the boundary
 						isAssignable = false;
 						break;
@@ -1665,7 +1666,7 @@ public class GenericClass implements Serializable {
 				logger.debug("Is assignable from "+toString()+"?");
 				if (!isAssignableFrom(type)) {
 					logger.debug("Not assignable from "+toString());
-					// If the boundary is not assignable it may still be possible 
+					// If the boundary is not assignable it may still be possible
 					// to instantiate the generic to an assignable type
 					if(type instanceof WildcardType)
 						continue;
@@ -1673,7 +1674,7 @@ public class GenericClass implements Serializable {
 						Type instanceType = GenericTypeReflector.getExactSuperType(type,
 						                                                           getRawClass());
 						if (instanceType == null) {
-							// This happens when the raw class is not a supertype 
+							// This happens when the raw class is not a supertype
 							// of the boundary
 							isAssignable = false;
 							break;
@@ -1717,6 +1718,21 @@ public class GenericClass implements Serializable {
 	 */
 	private void readObject(ObjectInputStream ois) throws ClassNotFoundException,
 	        IOException {
+		/*
+		// ProjectCP is added to ClassLoader to ensure Dependencies of the class can be loaded.
+		*/
+		ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
+		URL cpURL = new File(Properties.CP).toURI().toURL();
+		// If the ContextClassLoader contains already the project cp, we don't add another one
+		// We assume, that if the contextClassLoader is no URLClassLoader, it does not contain the projectCP
+		if(! (contextClassLoader instanceof URLClassLoader) ||
+				!Arrays.asList(((URLClassLoader) contextClassLoader).getURLs()).contains(cpURL)) {
+			URL[] urls;
+			urls = new URL[]{cpURL};
+			URLClassLoader urlClassLoader = new URLClassLoader(urls, contextClassLoader);
+			Thread.currentThread().setContextClassLoader(urlClassLoader);
+		}
+
 		String name = (String) ois.readObject();
 		if (name == null) {
 			this.rawClass = null;

@@ -25,8 +25,11 @@ import org.objectweb.asm.Opcodes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
+import java.net.URLClassLoader;
 
 /**
  * A ClassWriter that computes the common super class of two classes without
@@ -184,7 +187,7 @@ public class ComputeClassWriter extends ClassWriter {
      *             if the bytecode of 'type' cannot be found.
      */
     private ClassReader typeInfo(final String type) throws IOException, NullPointerException {
-        InputStream is = l.getResourceAsStream(type + ".class");
+        InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(type + ".class");
         try {
         	if(is == null)
         		throw new NullPointerException("Class not found "+type);
