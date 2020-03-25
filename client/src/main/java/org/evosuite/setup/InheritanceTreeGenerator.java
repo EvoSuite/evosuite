@@ -480,9 +480,9 @@ public class InheritanceTreeGenerator {
 		XStream xstream = new XStream();
 		XStream.setupDefaultSecurity(xstream);
 		xstream.allowTypesByWildcard(new String[] {"org.evosuite.**", "org.jgrapht.**"});
-		GZIPOutputStream output = new GZIPOutputStream(new FileOutputStream(file));
-		xstream.toXML(tree, output);
-		output.close();
+		try (GZIPOutputStream output = new GZIPOutputStream(new FileOutputStream(file))) {
+			xstream.toXML(tree, output);
+		}
 	}
 
 
