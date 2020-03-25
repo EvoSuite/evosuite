@@ -60,10 +60,9 @@ public class RhoCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		int number_of_test_cases = RhoCoverageFactory.getNumber_of_Test_Cases() + this.previous_number_of_test_cases;
 
 		List<ExecutionResult> results = runTestSuite(suite);
-		for (int i = 0; i < results.size(); i++) {
+		for (ExecutionResult result : results) {
 
 			// Execute test cases and collect the covered lines
-			ExecutionResult result = results.get(i);
 			Set<Integer> coveredLines = result.getTrace().getCoveredLines();
 
 			if (Properties.STRATEGY == Properties.Strategy.ENTBUG) {

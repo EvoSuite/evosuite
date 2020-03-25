@@ -109,11 +109,9 @@ public class DefaultTestCase implements TestCase, Serializable {
 	public void accept(TestVisitor visitor) {
 		visitor.visitTestCase(this);
 
-		Iterator<Statement> iterator = statements.iterator();
-		while (iterator.hasNext()) {
-			Statement statement = iterator.next();
-			logger.trace("Visiting statement " + statement.getCode());
-			visitor.visitStatement(statement);
+		for (Statement s : statements) {
+			logger.trace("Visiting statement " + s.getCode());
+			visitor.visitStatement(s);
 		}
 	}
 

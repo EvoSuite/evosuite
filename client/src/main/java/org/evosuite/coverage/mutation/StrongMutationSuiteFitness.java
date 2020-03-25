@@ -21,7 +21,6 @@ package org.evosuite.coverage.mutation;
 
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -149,10 +148,7 @@ public class StrongMutationSuiteFitness extends MutationSuiteFitness {
 			  continue;
 			}
 
-			Iterator<Entry<Integer, MutationTestFitness>> it = this.mutantMap.entrySet().iterator();
-			while (it.hasNext()) {
-				Entry<Integer, MutationTestFitness> entry = it.next();
-
+			for (final Entry<Integer, MutationTestFitness> entry : this.mutantMap.entrySet()) {
 				int mutantID = entry.getKey();
 				if (newKilled.contains(mutantID)) {
 					continue;

@@ -58,19 +58,20 @@ public class RandomLengthTestFactory implements ChromosomeFactory<TestChromosome
 		if (tracerEnabled)
 			ExecutionTracer.disable();
 
-		TestCase test = getNewTestCase();
-		int num = 0;
+		final TestCase test = getNewTestCase();
+		final TestFactory testFactory = TestFactory.getInstance();
 
 		// Choose a random length between 1 (inclusive) and size (exclusive).
 		final int length = Randomness.nextInt(1, size);
 
-		TestFactory testFactory = TestFactory.getInstance();
-
-		// Then add random stuff
-		while (test.size() < length && num < Properties.MAX_ATTEMPTS) {
+		// Then add random statements until the test case reaches the chosen length or we run out of
+		// generation attempts.
+		for (int num = 0; test.size() < length && num < Properties.MAX_ATTEMPTS; num++)
+			// NOTE: Even though extremely unlikely, insertRandomStatement could fail every time
+			// with return code -1, thus eventually exceeding MAX_ATTEMPTS. In this case, the
+			// returned test case would indeed be empty!
 			testFactory.insertRandomStatement(test, test.size() - 1);
-			num++;
-		}
+
 		if (logger.isDebugEnabled())
 			logger.debug("Randomized test case:" + test.toCode());
 
