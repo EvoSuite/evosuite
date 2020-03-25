@@ -19,7 +19,6 @@
  */
 package org.evosuite.coverage.io.output;
 
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -163,10 +162,7 @@ public class OutputCoverageSuiteFitness extends TestSuiteFitnessFunction {
             test.setLastExecutionResult(result);
             test.setChanged(false);
 
-            Iterator<OutputCoverageTestFitness> it = this.outputCoverageGoals.iterator();
-            while (it.hasNext()) {
-                OutputCoverageTestFitness testFitness = it.next();
-
+            for (final OutputCoverageTestFitness testFitness : this.outputCoverageGoals) {
                 if (!mapDistances.containsKey(testFitness)) {
                     continue;
                 }

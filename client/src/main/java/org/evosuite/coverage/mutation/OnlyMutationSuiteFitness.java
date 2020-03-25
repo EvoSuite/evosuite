@@ -90,10 +90,7 @@ public class OnlyMutationSuiteFitness extends MutationSuiteFitness {
 			test.setLastExecutionResult(result);
 			test.setChanged(false);
 
-			Iterator<Entry<Integer, MutationTestFitness>> it = this.mutantMap.entrySet().iterator();
-			while (it.hasNext()) {
-				Entry<Integer, MutationTestFitness> entry = it.next();
-
+			for (final Entry<Integer, MutationTestFitness> entry : this.mutantMap.entrySet()) {
 				int mutantID = entry.getKey();
 				TestFitnessFunction goal = entry.getValue();
 

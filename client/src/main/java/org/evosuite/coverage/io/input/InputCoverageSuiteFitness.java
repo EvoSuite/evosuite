@@ -19,12 +19,12 @@
  */
 package org.evosuite.coverage.io.input;
 
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 import org.evosuite.Properties;
 import org.evosuite.ga.archive.Archive;
 import org.evosuite.testcase.ExecutableChromosome;
@@ -163,10 +163,7 @@ public class InputCoverageSuiteFitness extends TestSuiteFitnessFunction {
             test.setLastExecutionResult(result);
             test.setChanged(false);
 
-            Iterator<InputCoverageTestFitness> it = this.inputCoverageMap.iterator();
-            while (it.hasNext()) {
-                InputCoverageTestFitness testFitness = it.next();
-
+            for (final InputCoverageTestFitness testFitness : this.inputCoverageMap) {
                 if (!mapDistances.containsKey(testFitness)) {
                     continue;
                 }

@@ -53,14 +53,13 @@ public class FixedLengthTestChromosomeFactory implements
 	 */
 	private TestCase getRandomTestCase(int size) {
 		TestCase test = new DefaultTestCase();
-		int num = 0;
 		TestFactory testFactory = TestFactory.getInstance();
 
 		// Then add random stuff
-		while (test.size() < size && num < Properties.MAX_ATTEMPTS) {
+		for (int num = 0; test.size() < size && num < Properties.MAX_ATTEMPTS; num++) {
 			testFactory.insertRandomStatement(test, test.size() - 1);
-			num++;
 		}
+
 		//logger.debug("Randomized test case:" + test.toCode());
 
 		return test;
