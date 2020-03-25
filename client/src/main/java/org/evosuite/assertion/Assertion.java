@@ -34,24 +34,26 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Abstract class of an executable code assertion
- * 
+ * Abstract class modelling an executable code assertion. It corresponds to the {@code assert}
+ * statement in Java or one of the assertion methods in JUnit (e.g., {@code assertTrue}, {@code
+ * assertNonNull}, etc.).
+ *
  * @author Gordon Fraser
  */
 public abstract class Assertion implements Serializable {
 
 	private static final long serialVersionUID = 1617423211706717599L;
 
-	/** Variable on which the assertion is made */
+	/** Variable on which the assertion is made. */
 	protected VariableReference source;
 
-	/** Expected value of variable */
+	/** Expected value of the referred to variable {@link Assertion#source}. */
 	protected Object value;
 
-	/** Statement to which the assertion is added */
+	/** Statement to which the assertion is added. */
 	protected Statement statement;
-	
-	/** Assertion Comment */
+
+	/** Assertion comment. */
 	protected String comment;
 
 	protected transient Set<Mutation> killedMutants = new LinkedHashSet<>();
@@ -155,8 +157,8 @@ public abstract class Assertion implements Serializable {
 	}
 
 	/**
-	 * This method returns the Java Code
-	 * 
+	 * Translates this assertion into Java code and returns it as a String.
+	 *
 	 * @return a {@link java.lang.String} object.
 	 */
 	public abstract String getCode();
@@ -194,8 +196,8 @@ public abstract class Assertion implements Serializable {
 	public abstract Assertion copy(TestCase newTestCase, int offset);
 
 	/**
-	 * Determine if assertion holds in current scope
-	 * 
+	 * Determines if the assertion holds in the given scope.
+	 *
 	 * @param scope
 	 *            The scope of the test case execution
 	 * @return a boolean.

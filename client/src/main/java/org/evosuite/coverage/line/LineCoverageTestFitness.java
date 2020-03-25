@@ -42,8 +42,8 @@ import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
 
 /**
- * Fitness function for a single test on a single branch
- * 
+ * Fitness function for a single test on a single line
+ *
  * @author Gordon Fraser, Jose Miguel Rojas
  */
 public class LineCoverageTestFitness extends TestFitnessFunction {

@@ -93,6 +93,13 @@ public class RankBasedPreferenceSorting<T extends Chromosome> implements Ranking
 		}
 	}
 
+	/**
+	 * Returns the first (i.e. non-dominated) sub-front.
+	 *
+	 * @param solutionSet the solutions to rank
+	 * @param uncovered_goals the goals used for ranking
+	 * @return the non-dominated solutions (first sub-front)
+	 */
 	private List<T> getZeroFront(List<T> solutionSet, Set<FitnessFunction<T>> uncovered_goals) {
 		Set<T> zero_front = new LinkedHashSet<>(solutionSet.size());
 		for (FitnessFunction<T> f : uncovered_goals) {

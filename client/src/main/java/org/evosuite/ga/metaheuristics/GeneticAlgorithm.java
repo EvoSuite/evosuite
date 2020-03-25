@@ -728,8 +728,8 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 	}
 
 	/**
-	 * Return the individual(s) with the highest fitChromosomeess
-	 * 
+     * Return the individual(s) with the highest fitness
+	 *
 	 * @return a list of {@link org.evosuite.ga.Chromosome} object(s).
 	 */
 	public List<T> getBestIndividuals() {

@@ -90,7 +90,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	private int id;
 
 	/**
-	 * Constructor
+	 * Constructs an empty test case, i.e., initially containing no statements.
 	 */
 	public DefaultTestCase() {
 		statements = new ListenableList<>(new ArrayList<>());

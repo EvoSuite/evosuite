@@ -47,8 +47,10 @@ import org.objectweb.asm.Type;
 import org.evosuite.dse.VM;
 
 /**
- * This statement represents a constructor call
- * 
+ * This statement represents a constructor call, generating a new instance of any given class, e.g.,
+ * {@code Stack stack = new Stack()}. Value and type of the of the statement are defined by the
+ * object constructed in the call.
+ *
  * @author Gordon Fraser
  */
 public class ConstructorStatement extends EntityWithParametersStatement {

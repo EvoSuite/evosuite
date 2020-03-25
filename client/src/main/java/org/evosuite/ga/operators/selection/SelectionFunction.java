@@ -31,8 +31,9 @@ import org.slf4j.LoggerFactory;
 import static java.util.stream.Collectors.*;
 
 /**
- * Abstract base class of selection functions
- * 
+ * Abstract base class of selection functions. Can be used to choose the parents for mutation or
+ * crossover operations.
+ *
  * @author Gordon Fraser
  */
 public abstract class SelectionFunction<T extends Chromosome> implements Serializable {

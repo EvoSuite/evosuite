@@ -50,13 +50,15 @@ import org.slf4j.LoggerFactory;
 import static java.util.stream.Collectors.toCollection;
 
 /**
+ * For a given system under test (SUT), the test cluster defines the set of available classes,
+ * their constructors, methods and fields.
+ *
  * @author Gordon Fraser
  *
  */
 public class TestCluster {
 
 	protected static final Logger logger = LoggerFactory.getLogger(TestCluster.class);
-
 
 	/** Singleton instance */
 	private static TestCluster instance = null;

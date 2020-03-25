@@ -48,7 +48,6 @@ import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.setup.callgraph.CallGraph;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
-import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.ExecutionTrace;
 import org.evosuite.testcase.execution.TestCaseExecutor;
@@ -62,6 +61,8 @@ import java.util.*;
 
 /**
  * A class for managing multiple coverage targets simultaneously.
+ *
+ * @param <T>
  */
 public class MultiCriteriaManager<T extends Chromosome> extends StructuralGoalManager<T> implements Serializable {
 
@@ -74,16 +75,16 @@ public class MultiCriteriaManager<T extends Chromosome> extends StructuralGoalMa
 	protected Map<BranchCoverageTestFitness, Set<FitnessFunction<T>>> dependencies;
 
 	/**
-	 * Maps branch IDs to the corresponding fitness function, only considering the branches we do
-	 * <em>not</em> want to take.
-	 */
-	protected final Map<Integer, FitnessFunction<T>> branchCoverageFalseMap = new LinkedHashMap<>();
-
-	/**
 	 * Maps branch IDs to the corresponding fitness function, only considering branches we want to
 	 * take.
 	 */
 	protected final Map<Integer, FitnessFunction<T>> branchCoverageTrueMap = new LinkedHashMap<>();
+
+	/**
+	 * Maps branch IDs to the corresponding fitness function, only considering the branches we do
+	 * <em>not</em> want to take.
+	 */
+	protected final Map<Integer, FitnessFunction<T>> branchCoverageFalseMap = new LinkedHashMap<>();
 
 	/**
 	 * Maps branch IDs to the corresponding fitness function, only considering root branches of
@@ -535,6 +536,6 @@ public class MultiCriteriaManager<T extends Chromosome> extends StructuralGoalMa
 		// initialize the maps
 		this.initializeMaps(setOfBranches);
 
-		return new BranchFitnessGraph(setOfBranches);
+		return new BranchFitnessGraph<>(setOfBranches);
 	}
 }

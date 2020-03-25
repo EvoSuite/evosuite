@@ -46,8 +46,9 @@ public class BranchCoverageFactory extends
 	
 	
 	/**
-	 * return coverage goals of the target class or of all the contextual branches, depending on the limitToCUT paramether
-	 * @param limitToCUT
+	 * return coverage goals of the target class or of all the contextual branches, depending on the limitToCUT parameter
+	 * @param limitToCUT whether to consider the class under test only ({@code true}) or all known
+	 *                   classes ({@code false})
 	 * @return
 	 */
 	private List<BranchCoverageTestFitness> computeCoverageGoals(boolean limitToCUT){
