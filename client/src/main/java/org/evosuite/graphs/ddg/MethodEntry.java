@@ -1,5 +1,7 @@
 package org.evosuite.graphs.ddg;
 
+import java.util.Objects;
+
 /**
  * Java Bean that represents a method or constructor of a class. The Bean holds the methods's or
  * constructor's name and descriptor, and the name of its owner class.
@@ -17,6 +19,9 @@ public class MethodEntry extends ClassMember {
     }
 
     public MethodEntry(String className, String methodNameDesc) {
+        Objects.requireNonNull(className);
+        Objects.requireNonNull(methodNameDesc);
+
         this.className = className.replaceAll("/", ".");
         final int splitIndex = methodNameDesc.indexOf('(');
 
