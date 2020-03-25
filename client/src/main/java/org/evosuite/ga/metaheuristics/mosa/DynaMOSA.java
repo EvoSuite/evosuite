@@ -190,8 +190,8 @@ public class DynaMOSA<T extends Chromosome> extends AbstractMOSA<T> {
 	protected void calculateFitness(T c) {
 		if (!isFinished()) {
 			// this also updates the archive and the targets
-            this.goalsManager.calculateFitness(c, this);
-            this.notifyEvaluation(c);
-        }
+			this.goalsManager.calculateFitness(c, this);
+			this.notifyEvaluation(c);
+		}
 	}
 }
