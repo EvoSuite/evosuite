@@ -423,6 +423,7 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
             fitnessFunctions.forEach(individual::addFitness);
 
           newPopulation.add(individual);
+		  //logger.error("Created a new individual");
           if (isFinished())
               break;
       }
@@ -593,15 +594,13 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 		Iterator<T> iterator = this.population.iterator();
 		while (iterator.hasNext()) {
 			T c = iterator.next();
-            if (isFinished() && c.isChanged()) {
-                iterator.remove();
-            } else {
-                this.calculateFitness(c);
-            }
-        }
-
-        //population.removeIf(c -> isFinished() && c.isChanged());
-        //population.forEach(this::calculateFitness);
+            
+			if (isFinished()) {
+				break;
+			} else {
+				this.calculateFitness(c);
+			}
+		}
 	}
 
 	/**
