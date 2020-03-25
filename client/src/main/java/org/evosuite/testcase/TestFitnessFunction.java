@@ -47,6 +47,8 @@ public abstract class TestFitnessFunction extends FitnessFunction<TestChromosome
 		implements Comparable<TestFitnessFunction> {
 
 	private static final long serialVersionUID = 5602125855207061901L;
+
+	// TODO: should/must they be synchronized?
 	private static final Map<String, Class<?>> classCache = new HashMap<>();
 	private static final Map<String, GenericExecutable<?, ?>> executableCache = new HashMap<>();
 
@@ -73,7 +75,17 @@ public abstract class TestFitnessFunction extends FitnessFunction<TestChromosome
 		this.failurePenalty = -cyclomaticComplexity;
 	}
 
-	private static Class<?> getTargetClass(final String className) {
+	// TODO: should we put this into ReflectionFactory?
+	/**
+	 * Returns the {@code Class} instance for the class with the specified fully qualified name.
+	 * If no matching {@code Class} definition can be found for the given name {@code null} is
+	 * returned.
+	 *
+	 * @param className the name of the class to reflect
+	 * @return the corresponding {@code Class} instance for the given name or {@code null} if no
+	 * definition is found
+	 */
+	public static Class<?> getTargetClass(final String className) {
 		if (classCache.containsKey(className)) {
 			return classCache.get(className);
 		} else {
@@ -92,20 +104,48 @@ public abstract class TestFitnessFunction extends FitnessFunction<TestChromosome
 	}
 
 	// TODO: should we put this into ReflectionFactory?
-	private static GenericExecutable<?, ?> getTargetExecutable(final String methodNameDesc,
-															   final Class<?> clazz) {
+	/**
+	 * Tries to reflect the method or constructor specified by the given owner class and method
+	 * name + descriptor, and creates a corresponding {@code GenericMethod} or
+	 * {@code GenericConstructor} object as appropriate. Callers may safely downcast the returned
+	 * {@code GenericExecutableMember} to a {@code GenericMethod} or {@code GenericConstructor} by
+	 * checking the concrete subtype via the methods {@link GenericExecutable#isMethod() isMethod()}
+	 * and {@link GenericExecutable#isConstructor() isConstructor()}. The method returns
+	 * {@code null} if no matching executable could be found. Throws an {@code
+     * IllegalArgumentException} if the method name + descriptor is malformed.
+     *
+     * @param methodNameDesc method name and descriptor of the executable to reflect. Must not be
+     *                       {@code null}
+     * @param clazz          the {@code Class} instance representing the owner class of the
+     *                       executable. Must not be {@code null}.
+     * @return the {@code GenericExecutableMember} object that represents the reflected method
+     * or constructor, or {@code null} if no such method or constructor can be found
+	 */
+	public static GenericExecutable<?, ?> getTargetExecutable(final String methodNameDesc,
+															  final Class<?> clazz) {
+		Objects.requireNonNull(methodNameDesc);
+		Objects.requireNonNull(clazz);
+
 		if (executableCache.containsKey(methodNameDesc)) {
 			return executableCache.get(methodNameDesc);
 		} else {
-			// methodNameDesc = name + descriptor, we have to split it into two parts to work with it
+			// methodNameDesc = name + descriptor
+			// We have to split it into two parts to work with it. The opening parenthesis
+			// indicates the start of the method descriptor. Every legal method name in
+			// Java must be at least one character long. Every legal descriptor starts
+			// with the opening parenthesis.
 			final int descriptorStartIndex = methodNameDesc.indexOf('(');
-			assert descriptorStartIndex > 0 : "malformed method name or descriptor";
+			if (descriptorStartIndex < 1) {
+				throw new IllegalArgumentException("malformed method name or descriptor");
+			}
+
 			final String name = methodNameDesc.substring(0, descriptorStartIndex);
 			final String descriptor = methodNameDesc.substring(descriptorStartIndex);
 
-			// Tries to reflect the argument types.
 			final ClassLoader classLoader =
 					TestGenerationContext.getInstance().getClassLoaderForSUT();
+
+			// Tries to reflect the argument types.
 			final Class<?>[] argumentTypes;
 			try {
 				argumentTypes = ClassLoaderUtils.getArgumentClasses(classLoader, descriptor);
@@ -339,10 +379,24 @@ public abstract class TestFitnessFunction extends FitnessFunction<TestChromosome
 		return methodName;
 	}
 
+    /**
+     * Computes the cyclomatic complexity of the executable specified by the given fully
+     * qualified name of the owner class and the executable's name + descriptor.
+     *
+     * @param className name of the owner class
+     * @param methodName name + descriptor of the executable
+     * @return the cyclomatic complexity
+     */
 	private static int computeCyclomaticComplexity(final String className, final String methodName) {
-		final InstrumentingClassLoader cl = TestGenerationContext.getInstance().getClassLoaderForSUT();
+		final InstrumentingClassLoader cl =
+                TestGenerationContext.getInstance().getClassLoaderForSUT();
 		final GraphPool gp = GraphPool.getInstance(cl);
 		final RawControlFlowGraph cfg = gp.getRawCFG(className, methodName);
+
+        // The graph has already been constructed as part of the static analysis of the CUT.
+        // Computing the cyclomatic complexity is just a matter of counting the number of nodes and
+        // edges in the graph, which is a very cheap operation. For this reason, the impact on the
+        // search budget is negligible.
 		final int cyclomaticComplexity = cfg.getCyclomaticComplexity();
 
 		assert cyclomaticComplexity > 0 : "cyclomatic complexity must be positive number";
@@ -352,7 +406,8 @@ public abstract class TestFitnessFunction extends FitnessFunction<TestChromosome
 
 	private static int computeCyclomaticComplexityInclCallees(final String className,
 															  final String methodName) {
-		final InstrumentingClassLoader cl = TestGenerationContext.getInstance().getClassLoaderForSUT();
+		final InstrumentingClassLoader cl =
+                TestGenerationContext.getInstance().getClassLoaderForSUT();
 		final GraphPool gp = GraphPool.getInstance(cl);
 
 		final RawControlFlowGraph cfg = gp.getRawCFG(className, methodName);
@@ -408,54 +463,54 @@ public abstract class TestFitnessFunction extends FitnessFunction<TestChromosome
 //		return cyclomaticComplexity;
 //	}
 
-	/**
-	 * Returns the cyclomatic complexity of the target method, including the cyclomatic complexities
-	 * of all methods <i>directly</i> called by the target method.
-	 * <p>
-	 * The rationale is to handle pathetic cases where very complicated methods are called by very
-	 * simple ones, such as this one:
-	 * <pre><code>
-	 * void foo() {
-	 *     veryComplicatedMethod(); // cyclomatic complexity = 42
-	 * }
-	 * </code></pre>
-	 * Using the traditional definition of the cyclomatic complexity as implemented in
-	 * {@link TestFitnessFunction#getCyclomaticComplexity()}, <code>foo()</code> would have a
-	 * cyclomatic complexity of just 1, despite the fact that it's calling a method
-	 * with a much higher complexity. In the case of test generation, this would make covering
-	 * <code>foo()</code> much more appealing, when in fact it's just as appealing as covering the
-	 * <code>veryComplicatedMethod()</code>. For this reason, this method treats <code>foo</code>
-	 * and <code>veryComplicatedMethod()</code> the same way by assigning them the same cyclomatic
-	 * complexity.
-	 * <p>
-	 * Conceptually, if we want to compute the cyclomatic complexity of a method while also
-	 * considering the cyclomatic complexities of its callee methods, we have to embed the entire
-	 * CFG of every callee method into the CFG of the target method. This is done by replacing the
-	 * vertex that calls another method with the corresponding CFG of that method. The incoming
-	 * edge of the vertex we just replaced is now connected to the method entry node of the called
-	 * method. In analogue, the outgoing edge of the vertex we replaced is now connected to the
-	 * method exit point of the called method.
-	 * <p>
-	 * This notion only works if the callee method is called only once. Otherwise, the exit node
-	 * of the embedded CFG would have an out-degree of more than 1, despite not being a decision
-	 * node. It also means that the results computed by this method will be slightly flawed in
-	 * case the callee gets called more than once. However, this method is not meant to produce
-	 * exact results, it's rather only intended to serve the purpose of returning a rough estimate
-	 * of the complexity of a method.
-	 * <p>
-	 * The computation uses raw CFGs, i.e., it does not summarize sequentially composed statements
-	 * to basic blocks. Therefore, we can compute the "recursive" cyclomatic complexity by
-	 * computing the cyclomatic complexities of all involved methods individually, then summing
-	 * it all up, and finally subtracting the number of individual callees to account for the
-	 * fact that we replaced some nodes with entire CFGs as explained earlier. Note that the
-	 * cyclomatic complexities of the callee methods are not computed recursively using this same
-	 * method. That is, callees of callees are not accounted for. Instead, for the sake of
-	 * efficiency and simplicity, the cyclomatic complexity of calles is computed using the
-	 * "traditional way" as implemented in {@code getCyclomaticComplexity()} and
-	 * {@link RawControlFlowGraph#getCyclomaticComplexity()}.
-	 *
-	 * @return the cyclomatic complexity
-	 */
+//	/**
+//	 * Returns the cyclomatic complexity of the target method, including the cyclomatic complexities
+//	 * of all methods <i>directly</i> called by the target method.
+//	 * <p>
+//	 * The rationale is to handle pathetic cases where very complicated methods are called by very
+//	 * simple ones, such as this one:
+//	 * <pre><code>
+//	 * void foo() {
+//	 *     veryComplicatedMethod(); // cyclomatic complexity = 42
+//	 * }
+//	 * </code></pre>
+//	 * Using the traditional definition of the cyclomatic complexity as implemented in
+//	 * {@link TestFitnessFunction#getCyclomaticComplexity()}, <code>foo()</code> would have a
+//	 * cyclomatic complexity of just 1, despite the fact that it's calling a method
+//	 * with a much higher complexity. In the case of test generation, this would make covering
+//	 * <code>foo()</code> much more appealing, when in fact it's just as appealing as covering the
+//	 * <code>veryComplicatedMethod()</code>. For this reason, this method treats <code>foo</code>
+//	 * and <code>veryComplicatedMethod()</code> the same way by assigning them the same cyclomatic
+//	 * complexity.
+//	 * <p>
+//	 * Conceptually, if we want to compute the cyclomatic complexity of a method while also
+//	 * considering the cyclomatic complexities of its callee methods, we have to embed the entire
+//	 * CFG of every callee method into the CFG of the target method. This is done by replacing the
+//	 * vertex that calls another method with the corresponding CFG of that method. The incoming
+//	 * edge of the vertex we just replaced is now connected to the method entry node of the called
+//	 * method. In analogue, the outgoing edge of the vertex we replaced is now connected to the
+//	 * method exit point of the called method.
+//	 * <p>
+//	 * This notion only works if the callee method is called only once. Otherwise, the exit node
+//	 * of the embedded CFG would have an out-degree of more than 1, despite not being a decision
+//	 * node. It also means that the results computed by this method will be slightly flawed in
+//	 * case the callee gets called more than once. However, this method is not meant to produce
+//	 * exact results, it's rather only intended to serve the purpose of returning a rough estimate
+//	 * of the complexity of a method.
+//	 * <p>
+//	 * The computation uses raw CFGs, i.e., it does not summarize sequentially composed statements
+//	 * to basic blocks. Therefore, we can compute the "recursive" cyclomatic complexity by
+//	 * computing the cyclomatic complexities of all involved methods individually, then summing
+//	 * it all up, and finally subtracting the number of individual callees to account for the
+//	 * fact that we replaced some nodes with entire CFGs as explained earlier. Note that the
+//	 * cyclomatic complexities of the callee methods are not computed recursively using this same
+//	 * method. That is, callees of callees are not accounted for. Instead, for the sake of
+//	 * efficiency and simplicity, the cyclomatic complexity of calles is computed using the
+//	 * "traditional way" as implemented in {@code getCyclomaticComplexity()} and
+//	 * {@link RawControlFlowGraph#getCyclomaticComplexity()}.
+//	 *
+//	 * @return the cyclomatic complexity
+//	 */
 //	public int getCyclomaticComplexityInclCallees() {
 //		// This method is thread-safe: the cyclomaticComplexity field is effectively final as long
 //		// as no setter exists. Then, race conditions cannot occur. The worst thing that can happen
@@ -467,42 +522,102 @@ public abstract class TestFitnessFunction extends FitnessFunction<TestChromosome
 //
 //		return cyclomaticComplexity;
 //	}
+
+	/**
+	 * Tells whether the executable (i.e., method or constructor) containing the coverage target is
+	 * public.
+	 *
+	 * @return {@code true} if the executable is public, {@code false} otherwise
+	 */
 	public boolean isPublic() {
 		return publicExecutable;
 	}
 
+	/**
+	 * Tells whether the method containing the coverage target is static.
+	 *
+	 * @return {@code true} if the method is static, {@code false} otherwise
+	 */
 	public boolean isStatic() {
 		return staticExecutable;
 	}
 
+	/**
+	 * Tells whether the executable containing the coverage target is a constructor.
+	 *
+	 * @return {@code true} if the target is inside a constructor, {@code false} otherwise
+	 */
 	public boolean isConstructor() {
 		return constructor;
 	}
 
+	/**
+	 * Returns the {@code Class} object that represents the class the target is located in.
+	 *
+	 * @return the reflected class that contains the target
+	 */
 	public Class<?> getClazz() {
 		return clazz;
 	}
 
+	/**
+	 * Returns the {@code GenericExecutable} that represents the executable (i.e., method or
+	 * constructor) the target is located in.
+	 *
+	 * @return the reflected executable containing the target
+	 */
 	public GenericExecutable<?, ?> getExecutable() {
 		return executable;
 	}
 
+	/**
+	 * Increases the failure penalty of the coverage target. This operation is a NO-OP if failure
+	 * penalties are disabled.
+	 *
+	 * @see Properties#ENABLE_FAILURE_PENALTIES
+	 */
 	public void increaseFailurePenalty() {
-		failurePenalty++;
+		if (Properties.ENABLE_FAILURE_PENALTIES) {
+			failurePenalty++;
+		}
 	}
 
+	/**
+	 * Resets the failure penalty for the coverage target. This operation is a NO-OP if failure
+	 * penalties are disabled.
+	 *
+	 * @see Properties#ENABLE_FAILURE_PENALTIES
+	 */
 	public void resetFailurePenalty() {
-		failurePenalty = -cyclomaticComplexity;
+		if (Properties.ENABLE_FAILURE_PENALTIES) {
+			failurePenalty = -cyclomaticComplexity;
+		}
 	}
 
+	/**
+	 * Returns the current failure penalty for the coverage target.
+	 *
+	 * @return the current failure penalty
+	 */
 	public int getFailurePenalty() {
 		return failurePenalty;
 	}
 
+	/**
+	 * Tells whether the failure penalty has been reached for the current target.
+	 *
+	 * @return {@code true} if the failure penalty has been reached, {@code false} otherwise
+	 * @see Properties#FAILURE_PENALTY
+	 */
 	public boolean isFailurePenaltyReached() {
 		return failurePenalty > Properties.FAILURE_PENALTY;
 	}
 
+	/**
+	 * Returns the cyclomatic complexity of the executable containing the coverage target.
+	 *
+	 * @return the cyclomatic complexity
+	 */
 	public int getCyclomaticComplexity() {
 		return cyclomaticComplexity;
 	}
