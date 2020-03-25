@@ -319,7 +319,7 @@ public class CBranchSuiteFitness extends TestSuiteFitnessFunction {
 		}
 		suite.setNumOfCoveredGoals(this, numCoveredGoals);
 		suite.setNumOfNotCoveredGoals(this, branchGoals.size() - numCoveredGoals);
-		updateIndividual(this, suite, fitness);
+		updateIndividual(suite, fitness);
 
 		return fitness;
 	}

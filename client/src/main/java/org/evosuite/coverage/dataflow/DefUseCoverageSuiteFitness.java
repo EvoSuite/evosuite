@@ -135,7 +135,7 @@ public class DefUseCoverageSuiteFitness extends TestSuiteFitnessFunction {
 			if (result.hasTimeout()) {
 				logger.debug("Skipping test with timeout");
 				double fitness = goals.size() * 100;
-				updateIndividual(this, individual, fitness);
+				updateIndividual(individual, fitness);
 				suite.setCoverage(this, 0.0);
 				logger.debug("Test case has timed out, setting fitness to max value "
 				        + fitness);
@@ -273,7 +273,7 @@ public class DefUseCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 		countCoveredGoals(coveredGoalsSet);
 		trackCoverageStatistics(suite);
-		updateIndividual(this, individual, fitness);
+		updateIndividual(individual, fitness);
 
 		int coveredGoalCount = countCoveredGoals();
 		int totalGoalCount = countTotalGoals();
@@ -361,7 +361,7 @@ public class DefUseCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 		countCoveredGoals(coveredGoalsSet);
 		trackCoverageStatistics(suite);
-		updateIndividual(this, suite, fitness);
+		updateIndividual(suite, fitness);
 
 		int coveredGoalCount = countCoveredGoals();
 		int totalGoalCount = countTotalGoals();

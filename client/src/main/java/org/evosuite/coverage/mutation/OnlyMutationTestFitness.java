@@ -49,7 +49,7 @@ public class OnlyMutationTestFitness extends MutationTestFitness {
 			logger.debug("Infection distance for mutation = " + fitness);
 		}
 
-		updateIndividual(this, individual, fitness);
+		updateIndividual(individual, fitness);
 
 		if (fitness == 0.0) {
 			individual.getTestCase().addCoveredGoal(this);

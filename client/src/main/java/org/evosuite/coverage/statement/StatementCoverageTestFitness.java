@@ -120,7 +120,7 @@ public class StatementCoverageTestFitness extends TestFitnessFunction {
                     "expect to know at least one fitness for goalInstruction");
  
         if (result.hasTimeout() || result.hasTestException()){
-            updateIndividual(this, individual, Double.MAX_VALUE);
+            updateIndividual(individual, Double.MAX_VALUE);
             return Double.MAX_VALUE;
         }
         
@@ -147,7 +147,7 @@ public class StatementCoverageTestFitness extends TestFitnessFunction {
 
         Properties.TEST_ARCHIVE = archive;
 
-        updateIndividual(this, individual, r);
+        updateIndividual(individual, r);
 
         if (r == 0.0) {
             individual.getTestCase().addCoveredGoal(this);

@@ -44,7 +44,7 @@ public class ReadabilitySuiteFitness extends TestSuiteFitnessFunction {
 
         average /= suite.getTestChromosomes().size();
 
-        updateIndividual(this, suite, average);
+        updateIndividual(suite, average);
         return average;
     }
 

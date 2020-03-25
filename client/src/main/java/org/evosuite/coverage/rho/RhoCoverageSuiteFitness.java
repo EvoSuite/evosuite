@@ -94,7 +94,7 @@ public class RhoCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		}
 
 		if (updateFitness) {
-			updateIndividual(this, suite, fitness);
+			updateIndividual(suite, fitness);
 		}
 		return fitness;
 	}
