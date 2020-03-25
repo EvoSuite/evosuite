@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -46,13 +46,14 @@ public class BranchCoverageFactory extends
 	
 	
 	/**
-	 * return coverage goals of the target class or of all the contextual branches, depending on the limitToCUT paramether
-	 * @param limitToCUT
+	 * return coverage goals of the target class or of all the contextual branches, depending on the limitToCUT parameter
+	 * @param limitToCUT whether to consider the class under test only ({@code true}) or all known
+	 *                   classes ({@code false})
 	 * @return
 	 */
 	private List<BranchCoverageTestFitness> computeCoverageGoals(boolean limitToCUT){
 		long start = System.currentTimeMillis();
-		List<BranchCoverageTestFitness> goals = new ArrayList<BranchCoverageTestFitness>();
+		List<BranchCoverageTestFitness> goals = new ArrayList<>();
 
 		// logger.info("Getting branches");
 		for (String className : BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).knownClasses()) {

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -34,9 +34,6 @@ public class UniformMutation extends MutationDistribution {
    */
   @Override
   public boolean toMutate(int index) {
-    if (Randomness.nextDouble() < 1.0 / (double) this.sizeOfDistribution) {
-      return true;
-    }
-    return false;
+    return Randomness.nextDouble() < 1.0 / (double) this.sizeOfDistribution;
   }
 }

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -36,20 +36,20 @@ public abstract class FitnessFunction<T extends Chromosome> implements Serializa
 	/** Constant <code>logger</code> */
 	protected static final Logger logger = LoggerFactory.getLogger(FitnessFunction.class);
 
-	/**
-	 * Make sure that the individual gets to know about its fitness
-	 * 
-	 * @param individual
-	 *            a {@link org.evosuite.ga.Chromosome} object.
-	 * @param fitness
-	 *            a double.
-	 */
-	protected void updateIndividual(FitnessFunction<?> ff, T individual, double fitness) {
-		individual.setFitness(ff, fitness);
-		// the following assumes updateIndividual is called from a 'getFitness' method,
-		// which seems to be case for all classes that extends 'FitnessFunction'
-		individual.increaseNumberOfEvaluations();
-	}
+    /**
+     * Make sure that the individual gets to know about its fitness
+     *
+     * @param individual
+     *            a {@link org.evosuite.ga.Chromosome} object.
+     * @param fitness
+     *            a double.
+     */
+    protected void updateIndividual(T individual, double fitness) {
+        individual.setFitness(this, fitness);
+        // the following assumes updateIndividual is called from a 'getFitness' method,
+        // which seems to be case for all classes that extends 'FitnessFunction'
+        individual.increaseNumberOfEvaluations();
+    }
 
 	/**
 	 * If the fitness function as an archive, returns the best individual in the archive.

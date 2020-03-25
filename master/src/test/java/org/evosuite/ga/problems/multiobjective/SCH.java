@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -59,7 +59,7 @@ public class SCH<T extends NSGAChromosome> implements Problem
 				double x = dv.getValue();
 				double fitness = x * x;
 
-				updateIndividual(this, individual, fitness);
+				updateIndividual(individual, fitness);
 				return fitness;
 			}
 			@Override
@@ -81,7 +81,7 @@ public class SCH<T extends NSGAChromosome> implements Problem
 				double x = dv.getValue();
 				double fitness = (x - 2) * (x - 2);
 
-				updateIndividual(this, individual, fitness);
+				updateIndividual(individual, fitness);
 				return fitness;
 			}
 			@Override

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -20,6 +20,7 @@
 package org.evosuite.strategy;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.evosuite.ProgressMonitor;
@@ -29,6 +30,7 @@ import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.FitnessFunctions;
 import org.evosuite.coverage.TestFitnessFactory;
 import org.evosuite.graphs.cfg.CFGMethodAdapter;
+import org.evosuite.instrumentation.InstrumentingClassLoader;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.stoppingconditions.GlobalTimeStoppingCondition;
@@ -45,6 +47,8 @@ import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.evosuite.utils.LoggingUtils;
+
+import static java.util.stream.Collectors.toCollection;
 
 /**
  * This is the abstract superclass of all techniques to generate a set of tests
@@ -82,7 +86,7 @@ public abstract class TestGenerationStrategy {
      * @return
      */
 	protected List<TestSuiteFitnessFunction> getFitnessFunctions() {
-	    List<TestSuiteFitnessFunction> ffs = new ArrayList<TestSuiteFitnessFunction>();
+	    List<TestSuiteFitnessFunction> ffs = new ArrayList<>();
 	    for (int i = 0; i < Properties.CRITERION.length; i++) {
 	    	TestSuiteFitnessFunction newFunction = FitnessFunctions.getFitnessFunction(Properties.CRITERION[i]);
 	    	
@@ -122,12 +126,9 @@ public abstract class TestGenerationStrategy {
 	 * @return
 	 */
 	public static List<TestFitnessFactory<? extends TestFitnessFunction>> getFitnessFactories() {
-	    List<TestFitnessFactory<? extends TestFitnessFunction>> goalsFactory = new ArrayList<TestFitnessFactory<? extends TestFitnessFunction>>();
-	    for (int i = 0; i < Properties.CRITERION.length; i++) {
-	        goalsFactory.add(FitnessFunctions.getFitnessFactory(Properties.CRITERION[i]));
-	    }
-
-		return goalsFactory;
+		return Arrays.stream(Properties.CRITERION)
+				.map(FitnessFunctions::getFitnessFactory)
+				.collect(toCollection(ArrayList::new));
 	}
 	
 	/**
@@ -148,8 +149,7 @@ public abstract class TestGenerationStrategy {
 		}
 
 		if (!(stoppingCondition instanceof MaxTimeStoppingCondition)) {
-			if (globalTime.isFinished())
-				return true;
+			return globalTime.isFinished();
 		}
 
 		return false;
@@ -178,9 +178,9 @@ public abstract class TestGenerationStrategy {
 
 	protected boolean canGenerateTestsForSUT() {
 		if (TestCluster.getInstance().getNumTestCalls() == 0) {
-			if(Properties.P_REFLECTION_ON_PRIVATE <= 0.0 || CFGMethodAdapter.getNumMethods(TestGenerationContext.getInstance().getClassLoaderForSUT()) == 0) {
-				return false;
-			}
+			final InstrumentingClassLoader cl = TestGenerationContext.getInstance().getClassLoaderForSUT();
+			final int numMethods = CFGMethodAdapter.getNumMethods(cl);
+			return !(Properties.P_REFLECTION_ON_PRIVATE <= 0.0) && numMethods != 0;
 		}
 		return true;
 	}

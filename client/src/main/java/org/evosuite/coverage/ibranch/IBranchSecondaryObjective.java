@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -74,13 +74,7 @@ public class IBranchSecondaryObjective extends SecondaryObjective<TestSuiteChrom
 
 		double minParents = Math.min(parent1.getFitness(ff), parent2.getFitness(ff));
 		double minChildren = Math.min(child1.getFitness(ff), child2.getFitness(ff));
-		if (minParents < minChildren) {
-			return -1;
-		}
-		if (minParents > minChildren) {
-			return 1;
-		}
-		return 0;
+		return Double.compare(minParents, minChildren);
 	}
 
 }

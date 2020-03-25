@@ -1,4 +1,4 @@
-/**
+/*
  *
  * This file is part of EvoSuite.
  *
@@ -25,25 +25,37 @@ import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.FitnessFunction;
 
 /**
- * Interface for ranking algorithms
- * @author Annibale Panichella, Fitsum M. Kifetew
+ * Interface for ranking algorithms.
  *
- * @param <T>
+ * @param <T> the type of chromosomes this ranking function works with
+ * @author Annibale Panichella, Fitsum M. Kifetew
  */
 public interface RankingFunction<T extends Chromosome> extends Serializable {
-	
+
+	/**
+	 * Computes the ranking assignment for the given population of solutions w.r.t. the given set
+	 * of coverage goals. More precisely, every individual in the population is assigned to a
+	 * specific dominance front, which can afterwards be retrieved by calling
+	 * {@link RankingFunction#getSubfront(int)}. The concrete dominance comparator
+	 * used for computing the ranking is defined by subclasses implementing this interface.
+	 *
+	 * @param solutions the population to rank
+	 * @param uncovered_goals the set of coverage goals to consider for the ranking assignment
+	 */
 	public void computeRankingAssignment(List<T> solutions, Set<FitnessFunction<T>> uncovered_goals);
 
 	/**
-	 * Returns a list of {@link org.evosuite.ga.Chromosome} objects of a given rank.
-	 * 
-	 * @param rank position
+	 * Returns the sub-front of {@link org.evosuite.ga.Chromosome} objects of the given rank. Sub-
+	 * fronts are ordered starting from 0 in ascending order, i.e., the first non-dominated front
+	 * has rank 0, the next sub-front rank 1 etc.
+	 *
+	 * @param rank the sub-front to retrieve
 	 * @return a list of solutions of a given rank.
 	 */
 	public List<T> getSubfront(int rank);
 
 	/**
-	 * Returns the total number of sub-fronts founds.
+	 * Returns the total number of sub-fronts found.
 	 */
 	public int getNumberOfSubfronts();
 

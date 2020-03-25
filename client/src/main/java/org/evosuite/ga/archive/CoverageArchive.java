@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -50,15 +50,15 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestChromo
    * Map used to store all covered targets (keys of the map) and the corresponding covering
    * solutions (values of the map)
    */
-  private final Map<F, T> covered = new LinkedHashMap<F, T>();
+  private final Map<F, T> covered = new LinkedHashMap<>();
 
   /**
    * Set used to store all targets that have not been covered yet
    */
-  private final Set<F> uncovered = new LinkedHashSet<F>();
+  private final Set<F> uncovered = new LinkedHashSet<>();
 
   public static final CoverageArchive<TestFitnessFunction, TestChromosome> instance =
-      new CoverageArchive<TestFitnessFunction, TestChromosome>();
+          new CoverageArchive<>();
 
   /**
    * {@inheritDoc}
@@ -188,7 +188,7 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestChromo
   }
 
   private Set<F> getTargets() {
-    Set<F> targets = new LinkedHashSet<F>();
+    Set<F> targets = new LinkedHashSet<>();
     targets.addAll(this.getCoveredTargets());
     targets.addAll(this.getUncoveredTargets());
     return targets;
@@ -216,7 +216,7 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestChromo
    */
   @Override
   public Set<T> getSolutions() {
-    return new LinkedHashSet<T>(this.covered.values());
+    return new LinkedHashSet<>(this.covered.values());
   }
 
   /**
@@ -272,7 +272,7 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestChromo
     // concurrent access
     Properties.TEST_ARCHIVE = false;
 
-    TestSuiteChromosome mergedSolution = (TestSuiteChromosome) solution.clone();
+    TestSuiteChromosome mergedSolution = solution.clone();
 
     // skip solutions that have been modified as those might not have been evaluated yet, or have
     // timeout or throw some exception and therefore they may slow down future analysis on the final
@@ -283,7 +283,7 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestChromo
                 || t.getLastExecutionResult().hasTestException())));
 
     // to avoid adding the same solution to 'mergedSolution' suite
-    Set<T> solutionsSampledFromArchive = new LinkedHashSet<T>();
+    Set<T> solutionsSampledFromArchive = new LinkedHashSet<>();
 
     for (F target : this.getTargets()) {
       // has target been covered? to answer it, we perform a local check rather than calling method

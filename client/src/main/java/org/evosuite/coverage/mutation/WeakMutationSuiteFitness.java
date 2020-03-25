@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -61,9 +61,9 @@ public class WeakMutationSuiteFitness extends MutationSuiteFitness {
 		 * e.g. classes with only static constructors
 		 */
 		if (this.numMutants == 0) {
-			updateIndividual(this, individual, 0.0);
-			((TestSuiteChromosome) individual).setCoverage(this, 1.0);
-			((TestSuiteChromosome) individual).setNumOfCoveredGoals(this, 0);
+			updateIndividual(individual, 0.0);
+			individual.setCoverage(this, 1.0);
+			individual.setNumOfCoveredGoals(this, 0);
 			return 0.0;
 		}
 
@@ -104,10 +104,7 @@ public class WeakMutationSuiteFitness extends MutationSuiteFitness {
 			test.setLastExecutionResult(result);
 			test.setChanged(false);
 
-			Iterator<Entry<Integer, MutationTestFitness>> it = this.mutantMap.entrySet().iterator();
-			while (it.hasNext()) {
-				Entry<Integer, MutationTestFitness> entry = it.next();
-
+			for (final Entry<Integer, MutationTestFitness> entry : this.mutantMap.entrySet()) {
 				int mutantID = entry.getKey();
 				TestFitnessFunction goal = entry.getValue();
 
@@ -151,10 +148,10 @@ public class WeakMutationSuiteFitness extends MutationSuiteFitness {
 				covered++;
 			}
 		}
-		
-		updateIndividual(this, individual, fitness);
-		((TestSuiteChromosome) individual).setCoverage(this, (double) covered / (double) this.numMutants);
-		((TestSuiteChromosome) individual).setNumOfCoveredGoals(this, covered);
+
+		updateIndividual(individual, fitness);
+		individual.setCoverage(this, (double) covered / (double) this.numMutants);
+		individual.setNumOfCoveredGoals(this, covered);
 
 		return fitness;
 	}

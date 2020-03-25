@@ -7,15 +7,10 @@ public abstract class NoveltyFunction<T extends Chromosome> {
     public abstract double getDistance(T individual1, T individual2);
 
     public double getNovelty(T individual, Collection<T> population) {
-        double distance = 0.0;
-
-        for(T other : population) {
-            if(other == individual)
-                continue;
-
-            double d = getDistance(individual, other);
-            distance += d;
-        }
+        double distance = population.stream()
+                .filter(other -> other != individual)
+                .mapToDouble(other -> getDistance(individual, other))
+                .sum();
 
         distance /= (population.size() - 1);
 

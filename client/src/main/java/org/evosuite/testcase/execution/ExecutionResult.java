@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 import com.sun.tools.javac.code.Attribute.Array;
 
 import java.util.*;
+import java.util.stream.IntStream;
 
 public class ExecutionResult implements Cloneable {
 
@@ -44,14 +45,11 @@ public class ExecutionResult implements Cloneable {
 	public Mutation mutation;
 
 	/** Map statement number to raised exception */
-	protected Map<Integer, Throwable> exceptions = new HashMap<Integer, Throwable>();
+	protected Map<Integer, Throwable> exceptions = new HashMap<>();
 
-	/** Record for each exception if it was explicitly thrown 
-	 * 
-	 * <p>
-	 * FIXME: internal data structures should never be null...
-	 * */
-	public Map<Integer, Boolean> explicitExceptions = new HashMap<Integer, Boolean>();
+	/** Record for each exception if it was explicitly thrown */
+	// FIXME: internal data structures should never be null...
+	public Map<Integer, Boolean> explicitExceptions = new HashMap<>();
 
 	/** Trace recorded during execution */
 	protected ExecutionTrace trace;
@@ -96,7 +94,7 @@ public class ExecutionResult implements Cloneable {
 	}
 
 	/** Output traces produced by observers */
-	protected final Map<Class<?>, OutputTrace<?>> traces = new HashMap<Class<?>, OutputTrace<?>>();
+	protected final Map<Class<?>, OutputTrace<?>> traces = new HashMap<>();
 
     private Map<Integer, Set<InputCoverageGoal>> inputGoals = new LinkedHashMap<>();
 
@@ -128,9 +126,7 @@ public class ExecutionResult implements Cloneable {
 	 */
 	public void setThrownExceptions(Map<Integer, Throwable> data) {
 		exceptions.clear();
-		for (Integer position : data.keySet()) {
-			reportNewThrownException(position, data.get(position));
-		}
+		data.forEach(this::reportNewThrownException);
 	}
 
 	
@@ -142,13 +138,9 @@ public class ExecutionResult implements Cloneable {
 	 * @return a {@link java.lang.Integer} object.
 	 */
 	public Integer getFirstPositionOfThrownException() {
-		Integer min = null;
-		for (Integer position : exceptions.keySet()) {
-			if (min == null || position < min) {
-				min = position;
-			}
-		}
-		return min;
+		return exceptions.keySet().stream()
+				.min(Comparator.naturalOrder())
+				.orElse(null);
 	}
 
 	/**
@@ -250,9 +242,7 @@ public class ExecutionResult implements Cloneable {
 	 * @return Mapping of statement indexes and thrown exceptions.
 	 */
 	public Map<Integer, Throwable> getCopyOfExceptionMapping() {
-		Map<Integer, Throwable> copy = new HashMap<Integer, Throwable>();
-		copy.putAll(exceptions);
-		return copy;
+		return new HashMap<>(exceptions);
 	}
 
 	/**
@@ -332,14 +322,9 @@ public class ExecutionResult implements Cloneable {
 		if (test == null)
 			return false;
 
-		int size = test.size();
-		if (exceptions.containsKey(size)) {
-			if (exceptions.get(size) instanceof TestCaseExecutor.TimeoutExceeded) {
-				return true;
-			}
-		}
-
-		return false;
+		final int size = test.size();
+		return exceptions.containsKey(size)
+				&& exceptions.get(size) instanceof TestCaseExecutor.TimeoutExceeded;
 	}
 
 	/**
@@ -351,12 +336,8 @@ public class ExecutionResult implements Cloneable {
 		if (test == null)
 			return false;
 
-		for (Throwable t : exceptions.values()) {
-			if (t instanceof CodeUnderTestException)
-				return true;
-		}
-
-		return false;
+		return exceptions.values().stream()
+				.anyMatch(t -> t instanceof CodeUnderTestException);
 	}
 
 	/**
@@ -368,7 +349,7 @@ public class ExecutionResult implements Cloneable {
 		if (test == null)
 			return false;
 
-		for (Integer i : exceptions.keySet()) {
+		for (int i : exceptions.keySet()) {
 			Throwable t = exceptions.get(i);
 			// Exceptions can be placed at test.size(), e.g. for timeouts
 			assert i>=0 && i<=test.size() : "Exception "+t+" at position "+i+" in test of length "+test.size()+": "+test.toCode(exceptions);
@@ -388,13 +369,9 @@ public class ExecutionResult implements Cloneable {
 	 * @return
      */
 	public boolean calledReflection() {
-		int executedStatements = getExecutedStatements();
-		for(int numStatement = 0; numStatement < executedStatements; numStatement++) {
-			Statement s = test.getStatement(numStatement);
-			if(s.isReflectionStatement())
-				return true;
-		}
-		return false;
+		return IntStream.range(0, getExecutedStatements())
+				.mapToObj(numStatement -> test.getStatement(numStatement))
+				.anyMatch(Statement::isReflectionStatement);
 	}
 
 
@@ -443,7 +420,7 @@ public class ExecutionResult implements Cloneable {
 			copy.traces.put(clazz, traces.get(clazz).clone());
 		}
 		if(readProperties!=null){
-			copy.readProperties = new LinkedHashSet<String>();
+			copy.readProperties = new LinkedHashSet<>();
 			copy.readProperties.addAll(readProperties);
 		}
 		copy.wasAnyPropertyWritten = wasAnyPropertyWritten;
@@ -455,10 +432,7 @@ public class ExecutionResult implements Cloneable {
 	/** {@inheritDoc} */
 	@Override
 	public String toString() {
-		String result = "";
-		result += "Trace:";
-		result += trace;
-		return result;
+		return "Trace:" + trace;
 	}
 
 	public Set<String> getReadProperties() {

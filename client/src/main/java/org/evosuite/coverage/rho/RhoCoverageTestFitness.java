@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -37,12 +37,12 @@ public class RhoCoverageTestFitness extends TestFitnessFunction {
 	private int previous_number_of_ones = 0;
 	private int previous_number_of_test_cases = 0;
 
-	private Set<Set<Integer>> coverage_matrix_generated_so_far = new LinkedHashSet<Set<Integer>>();
+	private Set<Set<Integer>> coverage_matrix_generated_so_far = new LinkedHashSet<>();
 
 	@Override
 	public double getFitness(TestChromosome individual, ExecutionResult result) {
 
-		Set<Set<Integer>> tmp_coverage_matrix = new LinkedHashSet<Set<Integer>>(this.coverage_matrix_generated_so_far);
+		Set<Set<Integer>> tmp_coverage_matrix = new LinkedHashSet<>(this.coverage_matrix_generated_so_far);
 
 		double fitness = 1.0;
 
@@ -54,26 +54,23 @@ public class RhoCoverageTestFitness extends TestFitnessFunction {
 
 		if (Properties.STRATEGY == Properties.Strategy.ENTBUG) {
 			// order set
-			List<Integer> l_coveredLines = new ArrayList<Integer>(coveredLines);
+			List<Integer> l_coveredLines = new ArrayList<>(coveredLines);
 			Collections.sort(l_coveredLines);
-			Set<Integer> coveredLinesOrdered = new LinkedHashSet<Integer>();
-			for (Integer coveredLine : l_coveredLines) {
-				coveredLinesOrdered.add(coveredLine);
-			}
+			Set<Integer> coveredLinesOrdered = new LinkedHashSet<>(l_coveredLines);
 
 			// no coverage
 			if (coveredLinesOrdered.size() == 0) {
-				updateIndividual(this, individual, 1.0);
+				updateIndividual(individual, 1.0);
 				return 1.0;
 			}
 			// already exists locally
-			else if (tmp_coverage_matrix.add(coveredLinesOrdered) == false) {
-				updateIndividual(this, individual, 1.0);
+			else if (!tmp_coverage_matrix.add(coveredLinesOrdered)) {
+				updateIndividual(individual, 1.0);
 				return 1.0;
 			}
 			// already exists on the original test suite
 			else if (RhoCoverageFactory.exists(l_coveredLines)) {
-				updateIndividual(this, individual, 1.0);
+				updateIndividual(individual, 1.0);
 				return 1.0;
 			}
 			// good
@@ -94,7 +91,7 @@ public class RhoCoverageTestFitness extends TestFitnessFunction {
 			fitness = Math.abs(0.5 - fitness);
 		}
 
-		updateIndividual(this, individual, fitness);
+		updateIndividual(individual, fitness);
 		return fitness;
 	}
 
@@ -133,9 +130,7 @@ public class RhoCoverageTestFitness extends TestFitnessFunction {
 			return false;
 		if (previous_number_of_ones != other.previous_number_of_ones)
 			return false;
-		if (previous_number_of_test_cases != other.previous_number_of_test_cases)
-			return false;
-		return true;
+		return previous_number_of_test_cases == other.previous_number_of_test_cases;
 	}
 
 	@Override

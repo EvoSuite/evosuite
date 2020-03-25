@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -51,7 +51,7 @@ public class ZDT6<T extends NSGAChromosome> implements Problem
 
 				double x = ((DoubleVariable)individual.getVariable(0)).getValue();
 				double fitness = 1.0 - Math.exp(-4.0 * x) * Math.pow(Math.sin(6.0 * Math.PI * x), 6.0);
-				updateIndividual(this, individual, fitness);
+				updateIndividual(individual, fitness);
 				return fitness;
 			}
 			@Override
@@ -83,7 +83,7 @@ public class ZDT6<T extends NSGAChromosome> implements Problem
 				double h = 1.0 - Math.pow(f1 / g, 2.0);
 
 				double fitness = g * h;
-				updateIndividual(this, individual, fitness);
+				updateIndividual(individual, fitness);
 				return fitness;
 			}
 			@Override

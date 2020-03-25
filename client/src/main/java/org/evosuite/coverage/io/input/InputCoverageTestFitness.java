@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -25,6 +25,8 @@ import static org.evosuite.coverage.io.IOCoverageConstants.CHAR_OTHER;
 import static org.evosuite.coverage.io.IOCoverageConstants.NUM_NEGATIVE;
 import static org.evosuite.coverage.io.IOCoverageConstants.NUM_POSITIVE;
 import static org.evosuite.coverage.io.IOCoverageConstants.NUM_ZERO;
+
+import java.util.Objects;
 import java.util.Set;
 import org.evosuite.Properties;
 import org.evosuite.ga.archive.Archive;
@@ -51,13 +53,9 @@ public class InputCoverageTestFitness extends TestFitnessFunction {
      * Constructor - fitness is specific to a method
      *
      * @param goal the coverage goal
-     * @throws IllegalArgumentException
      */
-    public InputCoverageTestFitness(InputCoverageGoal goal) throws IllegalArgumentException {
-        if (goal == null) {
-            throw new IllegalArgumentException("goal cannot be null");
-        }
-        this.goal = goal;
+    public InputCoverageTestFitness(InputCoverageGoal goal) {
+        this.goal = Objects.requireNonNull(goal, "goal cannot be null");
         // add the observer to TestCaseExecutor if it is not included yet
         boolean hasObserver = false;
         TestCaseExecutor executor = TestCaseExecutor.getInstance();
@@ -139,9 +137,7 @@ public class InputCoverageTestFitness extends TestFitnessFunction {
             for (InputCoverageGoal coveredGoal : coveredGoals) {
                 if (coveredGoal.equals(this.goal)) {
                     double distance = this.calculateDistance(coveredGoal);
-                    if (distance < 0.0) {
-                        continue;
-                    } else {
+                    if (!(distance < 0.0)) {
                         fitness = distance;
                         break;
                     }
@@ -150,7 +146,7 @@ public class InputCoverageTestFitness extends TestFitnessFunction {
         }
 
         assert fitness >= 0.0;
-        updateIndividual(this, individual, fitness);
+        updateIndividual(individual, fitness);
 
         if (fitness == 0.0) {
             individual.getTestCase().addCoveredGoal(this);
@@ -198,17 +194,18 @@ public class InputCoverageTestFitness extends TestFitnessFunction {
                   distanceToPositive = 0;
               }
 
-              if (coveredGoal.getValueDescriptor().equals(NUM_NEGATIVE)) {
-                  return distanceToNegative;
-              } else if (coveredGoal.getValueDescriptor().equals(NUM_ZERO)) {
-                  return distanceToZero;
-              } else if (coveredGoal.getValueDescriptor().equals(NUM_POSITIVE)) {
-                  return distanceToPositive;
+              switch (coveredGoal.getValueDescriptor()) {
+                  case NUM_NEGATIVE:
+                      return distanceToNegative;
+                  case NUM_ZERO:
+                      return distanceToZero;
+                  case NUM_POSITIVE:
+                      return distanceToPositive;
               }
 
               break;
           case Type.CHAR:
-              char charValue = (char)((Number) argValue).intValue();
+              char charValue = (char) argValue.intValue();
 
               double distanceToAlpha = 0.0;
               if (charValue < 'A') {
@@ -235,12 +232,13 @@ public class InputCoverageTestFitness extends TestFitnessFunction {
                   distanceToAlpha = Math.min(charValue - 'A', 'Z' - charValue);
               }
 
-              if (coveredGoal.getValueDescriptor().equals(CHAR_ALPHA)) {
-                  return distanceToAlpha;
-              } else if (coveredGoal.getValueDescriptor().equals(CHAR_DIGIT)) {
-                  return distanceToDigit;
-              } else if (coveredGoal.getValueDescriptor().equals(CHAR_OTHER)) {
-                  return distanceToOther;
+              switch (coveredGoal.getValueDescriptor()) {
+                  case CHAR_ALPHA:
+                      return distanceToAlpha;
+                  case CHAR_DIGIT:
+                      return distanceToDigit;
+                  case CHAR_OTHER:
+                      return distanceToOther;
               }
 
               break;

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -74,10 +74,8 @@ public class MOSuiteStrategy extends TestGenerationStrategy {
 
 		// What's the search target
 		List<TestFitnessFactory<? extends TestFitnessFunction>> goalFactories = getFitnessFactories();
-		List<TestFitnessFunction> fitnessFunctions = new ArrayList<TestFitnessFunction>();
-        for (TestFitnessFactory<? extends TestFitnessFunction> goalFactory : goalFactories) {
-            fitnessFunctions.addAll(goalFactory.getCoverageGoals());
-        }
+		List<TestFitnessFunction> fitnessFunctions = new ArrayList<>();
+		goalFactories.forEach(f -> fitnessFunctions.addAll(f.getCoverageGoals()));
 		algorithm.addFitnessFunctions((List)fitnessFunctions);
 
 		// if (Properties.SHOW_PROGRESS && !logger.isInfoEnabled())
@@ -114,7 +112,7 @@ public class MOSuiteStrategy extends TestGenerationStrategy {
 
 			algorithm.generateSolution();
 
-			testSuite = (TestSuiteChromosome) algorithm.getBestIndividual();
+			testSuite = algorithm.getBestIndividual();
 			if (testSuite.getTestChromosomes().isEmpty()) {
 				LoggingUtils.getEvoLogger().warn(ClientProcess.getPrettyPrintIdentifier() + "Could not generate any test case");
 			}

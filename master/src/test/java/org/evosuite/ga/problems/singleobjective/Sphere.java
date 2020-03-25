@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -53,7 +53,7 @@ public class Sphere<T extends NSGAChromosome> implements Problem
                 double x = ((DoubleVariable) individual.getVariables().get(0)).getValue();
 
                 double fitness = Math.pow(x, 2.0);
-                updateIndividual(this, individual, fitness);
+                updateIndividual(individual, fitness);
                 return fitness;
             }
             @Override
