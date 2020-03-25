@@ -51,9 +51,9 @@ public class FixedLengthTestChromosomeFactory implements
 	 * @param size the minimum intended size of the test case
 	 * @return a random test case
 	 */
-	private TestCase getRandomTestCase(int size) {
-		TestCase test = new DefaultTestCase();
-		TestFactory testFactory = TestFactory.getInstance();
+	private TestCase getRandomTestCase(final int size) {
+		final TestCase test = new DefaultTestCase();
+		final TestFactory testFactory = TestFactory.getInstance();
 
 		// Then add random stuff
 		for (int num = 0; test.size() < size && num < Properties.MAX_ATTEMPTS; num++) {
@@ -67,7 +67,7 @@ public class FixedLengthTestChromosomeFactory implements
 
 	/**
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * Generate a random chromosome
 	 */
 	@Override
