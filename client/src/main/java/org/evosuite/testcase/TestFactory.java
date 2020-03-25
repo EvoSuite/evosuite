@@ -1447,7 +1447,15 @@ public class TestFactory {
 
 
 	// -------------------------------------------------------------------
-	// DELEGATES
+	// DELEGATES for backwards compatibility
+	// The system tests have not been restructured yet.
+	// In order to prevent them from failing, the methods below this
+	// comment were added to the interface of TestFactory.
+	// In an effort to refactor the TestFactory, they were moved to their
+	// own class AbstractInsertionStrategy. However, the system tests still expect
+	// them to be in the TestFactory class. In the future, the system
+	// tests should be restructured as well so that we can remove the
+	// delegates.
 	// -------------------------------------------------------------------
 
 
