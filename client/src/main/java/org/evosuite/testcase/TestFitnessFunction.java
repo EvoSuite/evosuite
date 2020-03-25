@@ -257,6 +257,7 @@ public abstract class TestFitnessFunction extends FitnessFunction<TestChromosome
 	 * {@link TestFitnessFunction#getTargetMethod()}).
 	 *
 	 * @return the cyclomatic complexity of the target method
+     * @see RawControlFlowGraph#getCyclomaticComplexity()
 	 */
 	public int getCyclomaticComplexity() {
 		// This method is thread-safe: the cyclomaticComplexity field is effectively final as long
@@ -275,6 +276,54 @@ public abstract class TestFitnessFunction extends FitnessFunction<TestChromosome
 		return cyclomaticComplexity;
 	}
 
+    /**
+     * Returns the cyclomatic complexity of the target method, including the cyclomatic complexities
+     * of all methods <i>directly</i> called by the target method.
+     * <p>
+     * The rationale is to handle pathetic cases where very complicated methods are called by very
+     * simple ones, such as this one:
+     * <pre><code>
+     * void foo() {
+     *     veryComplicatedMethod(); // cyclomatic complexity = 42
+     * }
+     * </code></pre>
+     * Using the traditional definition of the cyclomatic complexity as implemented in
+     * {@link TestFitnessFunction#getCyclomaticComplexity()}, <code>foo()</code> would have a
+     * cyclomatic complexity of just 1, despite the fact that it's calling a method
+     * with a much higher complexity. In the case of test generation, this would make covering
+     * <code>foo()</code> much more appealing, when in fact it's just as appealing as covering the
+     * <code>veryComplicatedMethod()</code>. For this reason, this method treats <code>foo</code>
+     * and <code>veryComplicatedMethod()</code> the same way by assigning them the same cyclomatic
+     * complexity.
+     * <p>
+     * Conceptually, if we want to compute the cyclomatic complexity of a method while also
+     * considering the cyclomatic complexities of its callee methods, we have to embed the entire
+     * CFG of every callee method into the CFG of the target method. This is done by replacing the
+     * vertex that calls another method with the corresponding CFG of that method. The incoming
+     * edge of the vertex we just replaced is now connected to the method entry node of the called
+     * method. In analogue, the outgoing edge of the vertex we replaced is now connected to the
+     * method exit point of the called method.
+     * <p>
+     * This notion only works if the callee method is called only once. Otherwise, the exit node
+     * of the embedded CFG would have an out-degree of more than 1, despite not being a decision
+     * node. It also means that the results computed by this method will be slightly flawed in
+     * case the callee gets called more than once. However, this method is not meant to produce
+     * exact results, it's rather only intended to serve the purpose of returning a rough estimate
+     * of the complexity of a method.
+     * <p>
+     * The computation uses raw CFGs, i.e., it does not summarize sequentially composed statements
+     * to basic blocks. Therefore, we can compute the "recursive" cyclomatic complexity by
+     * computing the cyclomatic complexities of all involved methods individually, then summing
+     * it all up, and finally subtracting the number of individual callees to account for the
+     * fact that we replaced some nodes with entire CFGs as explained earlier. Note that the
+     * cyclomatic complexities of the callee methods are not computed recursively using this same
+     * method. That is, callees of callees are not accounted for. Instead, for the sake of
+     * efficiency and simplicity, the cyclomatic complexity of calles is computed using the
+     * "traditional way" as implemented in {@code getCyclomaticComplexity()} and
+     * {@link RawControlFlowGraph#getCyclomaticComplexity()}.
+     *
+     * @return the cyclomatic complexity
+     */
 	private int getCyclomaticComplexityWithCallees() {
 		// This method is thread-safe: the cyclomaticComplexity field is effectively final as long
 		// as no setter exists. Then, race conditions cannot occur. The worst thing that can happen
@@ -305,28 +354,15 @@ public abstract class TestFitnessFunction extends FitnessFunction<TestChromosome
 			callees.remove(method); // don't consider recursive invocations of the target method
 
 			// Computes the sum of the cyclomatic complexities of the callee methods, as well as
-			// the total number of callee methods.
+			// the total number of callee methods. A method, even if being called multiple times,
+			// is accounted for only once.
 			final IntSummaryStatistics calleeComplexities = callees.stream()
 					.map(callee -> gp.getRawCFG(targetClass, callee.getMethod()))
 					.collect(Collectors.summarizingInt(RawControlFlowGraph::getCyclomaticComplexity));
 			final int totalCalleeComplexity = (int) calleeComplexities.getSum();
-			final int numberOfCallees = (int) calleeComplexities.getCount();
+			final int numberOfCallees = (int) calleeComplexities.getCount(); // Individual callees!
 
-			/*
-			 * Conceptually, if we want to compute the cyclomatic complexity of the target method
-			 * recursively, i.e., by also considering the cyclomatic complexities of the callee
-			 * methods, we have to embed the entire CFG of every callee method into the CFG of
-			 * the target method. This is done by replacing the vertex that calls another method
-			 * with the corresponding CFG of that method. The incoming edge of the vertex we just
-			 * replaced is now connected to the method entry node of the called method. In analogue,
-			 * the outgoing edge of the vertex we replaced is now connected to the method exit point
-			 * of the called method. The computation uses raw CFGs, i.e., it does not summarize
-			 * sequentially composed statements to basic blocks. Therefore, we can compute the
-			 * recursive cyclomatic complexity by computing the cyclomatic complexities of all
-			 * involved methods individually, then summing it all up, and finally subtracting the
-			 * number of individual callees to account for the fact that we replaced some nodes
-			 * with entire CFGs as explained earlier.
-			 */
+			// Using the formula explained in the JavaDoc.
 			cyclomaticComplexity = ownComplexity + totalCalleeComplexity - numberOfCallees;
 		}
 
