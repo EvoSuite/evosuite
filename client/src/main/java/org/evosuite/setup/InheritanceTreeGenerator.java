@@ -358,11 +358,10 @@ public class InheritanceTreeGenerator {
 		return true;
 	}
 
-	private static List<String> classExceptions = Arrays.asList(new String[] {
-	        "java/lang/Class", "java/lang/Object", "java/lang/String",
-	        "java/lang/Comparable", "java/io/Serializable", "com/apple", "apple/",
-	        "sun/", "com/sun", "com/oracle", "sun/awt", "jdk/internal",
-	        "java/util/prefs/MacOSXPreferences" });
+	private static List<String> classExceptions = Arrays.asList("java/lang/Class", "java/lang/Object", "java/lang/String",
+			"java/lang/Comparable", "java/io/Serializable", "com/apple", "apple/",
+			"sun/", "com/sun", "com/oracle", "sun/awt", "jdk/internal",
+			"java/util/prefs/MacOSXPreferences");
 
 	/**
 	 * During runtime, we do not want to consider standard classes to safe some
