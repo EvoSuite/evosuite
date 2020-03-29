@@ -1081,6 +1081,14 @@ public class MSecurityManager extends SecurityManager {
 			return true;
 		}
 
+                /*
+                 * Required to allow use of locale sensitive services in java.text and java.util
+                 */
+                if(name.equals("localeServiceProvider")) {
+                        return true;
+                }
+
+
 		/*
 		 * we need it for reflection
 		 */
