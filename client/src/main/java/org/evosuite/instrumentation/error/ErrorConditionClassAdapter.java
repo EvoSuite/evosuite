@@ -54,7 +54,7 @@ public class ErrorConditionClassAdapter extends ClassVisitor {
 	 *            a {@link java.lang.String} object.
 	 */
 	public ErrorConditionClassAdapter(ClassVisitor cv, String className) {
-		super(Opcodes.ASM5, cv);
+		super(Opcodes.ASM7, cv);
 		this.className = className;
 	}
 

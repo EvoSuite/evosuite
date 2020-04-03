@@ -48,7 +48,7 @@ public class AccessibleClassAdapter extends ClassVisitor {
 	 * @param className a {@link java.lang.String} object.
 	 */
 	public AccessibleClassAdapter(ClassVisitor cv, String className) {
-		super(Opcodes.ASM5, cv);
+		super(Opcodes.ASM7, cv);
 		className = ResourceList.getClassNameFromResourcePath(className); 
 		String packageName = "";
 		if (className.contains("."))

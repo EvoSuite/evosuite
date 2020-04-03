@@ -76,8 +76,8 @@ public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 	 */
 	public ErrorConditionMethodAdapter(MethodVisitor mv, String className,
 	        String methodName, int access, String desc) {
-		//super(Opcodes.ASM5, mv, access, methodName, desc);
-		super(Opcodes.ASM5,
+		//super(Opcodes.ASM7, mv, access, methodName, desc);
+		super(Opcodes.ASM7,
 		        new AnnotatedMethodNode(access, methodName, desc, null, null), access,
 		        methodName, desc);
 		this.className = className;

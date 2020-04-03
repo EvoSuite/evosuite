@@ -32,7 +32,7 @@ public class StubClassVisitor extends ClassVisitor {
 	private String className;
 	
 	public StubClassVisitor(ClassVisitor parent, String className) {
-		super(Opcodes.ASM5, parent);
+		super(Opcodes.ASM7, parent);
 		this.className = className;
 	}
 	
