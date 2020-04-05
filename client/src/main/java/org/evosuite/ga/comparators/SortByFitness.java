@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -59,21 +59,8 @@ public class SortByFitness implements Comparator<Chromosome>, Serializable {
         double objetive1 = c1.getFitness(this.ff);
         double objetive2 = c2.getFitness(this.ff);
 
-        if (this.order) {
-            if (objetive1 < objetive2)
-                return 1;
-            else if (objetive1 > objetive2)
-                return -1;
-            else
-                return 0;
-        }
-        else {
-            if (objetive1 < objetive2)
-                return -1;
-            else if (objetive1 > objetive2)
-                return 1;
-            else
-                return 0;
-        }
+        return this.order
+                ? Double.compare(objetive2, objetive1)
+                : Double.compare(objetive1, objetive2);
     }
 }

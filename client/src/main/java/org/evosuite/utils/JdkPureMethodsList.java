@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -31,6 +31,18 @@ import java.util.Set;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.objectweb.asm.Type;
 
+/**
+ * This class maintains a set of methods from the Java API known to be cheap-pure.
+ * (For a definition of cheap-purity, refer to {@link org.evosuite.assertion.CheapPurityAnalyzer
+ * CheapPurityAnalyzer}.) For the sake of efficiency, the purity analysis has to be carried out
+ * offline, i.e., prior to starting EvoSuite, using some external tool. (Analyzing the entire JDK
+ * anew every time EvoSuite is launched would incur considerable overhead.) Instead, this class
+ * reads from a file {@link JdkPureMethodsList#JDK_PURE_METHODS_TXT} that contains the
+ * fully-qualified signature of all cheap-pure JDK methods (e.g.,
+ * {@code java.beans.Beans.getInstanceOf(java.lang.Object,java.lang.Class<?>)}) separated by
+ * newlines. The list of cheap-pure methods can then be accessed using
+ * {@code JdkPureMethodsList.instance}.
+ */
 public enum JdkPureMethodsList {
 
 	instance;
@@ -41,6 +53,13 @@ public enum JdkPureMethodsList {
 		pureMethods = loadInfo();
 	}
 
+	/**
+	 * Tries to read the file {@code JDK_PURE_METHODS_TXT} that contains the precomputed list
+	 * of cheap-pure JDK methods. Returns a set of Strings, where every String corresponds to the
+	 * fully qualified signature of a method.
+	 *
+	 * @return signatures of cheap-pure JDK methods
+	 */
 	private Set<String> loadInfo() {
 		Set<String> set = new HashSet<String>(2020);
 
@@ -65,6 +84,14 @@ public enum JdkPureMethodsList {
 		return set;
 	}
 
+	/**
+	 * Tells whether the given byte code instruction invokes a JDK method that is cheap-pure.
+	 * If the given instruction is not a method call, an {@code IllegalArgumentException} is
+	 * thrown.
+	 *
+	 * @param fieldCall the byte code instruction to test
+	 * @return {@code true} if the invoked method is cheap-pure, {@code false} otherwise
+	 */
 	public boolean checkPurity(BytecodeInstruction fieldCall) {
 		if(!fieldCall.isMethodCall())
 			throw new IllegalArgumentException("method only accepts method calls");
@@ -76,17 +103,30 @@ public enum JdkPureMethodsList {
 			for (Type i : parameters) {
 				newParams = newParams + "," + i.getClassName();
 			}
-			newParams = newParams.substring(1, newParams.length());
+			newParams = newParams.substring(1);
 		}
 		String qualifiedName = fieldCall.getCalledMethodsClass() + "."
 				+ fieldCall.getCalledMethodName() + "(" + newParams + ")";
 		return checkPurity(qualifiedName);
 	}
 
+	/**
+	 * Tells whether the method with the given fully-qualified signature (e.g.,
+	 * {@code java.beans.Beans.getInstanceOf(java.lang.Object,java.lang.Class<?>)}) is cheap-pure
+	 *
+	 * @param qualifiedName the fully-qualified method signature
+	 * @return {@code true} if the method is cheap-pure, {@code false} otherwise
+	 */
 	public boolean checkPurity(String qualifiedName) {
 		return pureMethods.contains(qualifiedName);
 	}
-	
+
+	/**
+	 * Tells whether the given {@code method} is cheap-pure.
+	 *
+	 * @param method the method to analyze
+	 * @return {@code true} if the method is cheap-pure, {@code false} otherwise
+	 */
 	public boolean isPureJDKMethod(Method method) {
 		String className = method.getDeclaringClass().getCanonicalName();
 		if(!className.startsWith("java."))
@@ -100,7 +140,7 @@ public enum JdkPureMethodsList {
 			for (Type i : parameters) {
 				newParams = newParams + "," + i.getClassName();
 			}
-			newParams = newParams.substring(1, newParams.length());
+			newParams = newParams.substring(1);
 		}
 		toAnalyze += "(" + newParams + ")";
 			//System.out.println(toAnalyze);

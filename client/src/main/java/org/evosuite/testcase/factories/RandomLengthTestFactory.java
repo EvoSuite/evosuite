@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -31,10 +31,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * <p>
- * RandomLengthTestFactory class.
- * </p>
- * 
+ * A factory that creates {@link TestChromosome}s of random length.
+ *
  * @author Gordon Fraser
  */
 public class RandomLengthTestFactory implements ChromosomeFactory<TestChromosome> {
@@ -45,30 +43,35 @@ public class RandomLengthTestFactory implements ChromosomeFactory<TestChromosome
 	protected static final Logger logger = LoggerFactory.getLogger(FixedLengthTestChromosomeFactory.class);
 
 	/**
-	 * Create a random individual
-	 * 
-	 * @param size
+	 * Creates a random test case (i.e., a test case consisting of random statements) with the given
+	 * {@code size} as an exclusive upper bound for the number of contained statements. In
+	 * particular, {@code size} is chosen at random from the interval [1, size). This means that
+	 * returned test cases contain at most {@code size - 1} statements. Usually, one can also expect
+	 * the test case to contain at least one statement, but it is still possible that an empty
+	 * test case is returned, although very unlikely.
+	 *
+	 * @param size the upper bound for the test case length
+	 * @return a random test case
 	 */
 	private TestCase getRandomTestCase(int size) {
 		boolean tracerEnabled = ExecutionTracer.isEnabled();
 		if (tracerEnabled)
 			ExecutionTracer.disable();
 
-		TestCase test = getNewTestCase();
-		int num = 0;
+		final TestCase test = getNewTestCase();
+		final TestFactory testFactory = TestFactory.getInstance();
 
-		// Choose a random length in 0 - size
-		int length = Randomness.nextInt(size);
-		while (length == 0)
-			length = Randomness.nextInt(size);
+		// Choose a random length between 1 (inclusive) and size (exclusive).
+		final int length = Randomness.nextInt(1, size);
 
-		TestFactory testFactory = TestFactory.getInstance();
-
-		// Then add random stuff
-		while (test.size() < length && num < Properties.MAX_ATTEMPTS) {
+		// Then add random statements until the test case reaches the chosen length or we run out of
+		// generation attempts.
+		for (int num = 0; test.size() < length && num < Properties.MAX_ATTEMPTS; num++)
+			// NOTE: Even though extremely unlikely, insertRandomStatement could fail every time
+			// with return code -1, thus eventually exceeding MAX_ATTEMPTS. In this case, the
+			// returned test case would indeed be empty!
 			testFactory.insertRandomStatement(test, test.size() - 1);
-			num++;
-		}
+
 		if (logger.isDebugEnabled())
 			logger.debug("Randomized test case:" + test.toCode());
 
@@ -97,7 +100,7 @@ public class RandomLengthTestFactory implements ChromosomeFactory<TestChromosome
 	 * @return a {@link org.evosuite.testcase.TestCase} object.
 	 */
 	protected TestCase getNewTestCase() {
-		return new DefaultTestCase();
+		return new DefaultTestCase(); // empty test case
 	}
 
 }

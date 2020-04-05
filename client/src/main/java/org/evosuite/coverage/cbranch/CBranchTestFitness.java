@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,6 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
 package org.evosuite.coverage.cbranch;
 
 import java.util.Map;
@@ -27,7 +24,6 @@ import java.util.Map.Entry;
 import org.evosuite.Properties;
 import org.evosuite.coverage.branch.Branch;
 import org.evosuite.coverage.branch.BranchCoverageGoal;
-import org.evosuite.coverage.branch.BranchCoverageTestFitness;
 import org.evosuite.ga.archive.Archive;
 import org.evosuite.setup.CallContext;
 import org.evosuite.testcase.TestChromosome;
@@ -121,7 +117,7 @@ public class CBranchTestFitness extends TestFitnessFunction {
 			fitness = getPredicateDistance(result.getTrace().getFalseDistancesContext());
 		}
 
-		updateIndividual(this, individual, fitness);
+		updateIndividual(individual, fitness);
 
 		if (fitness == 0.0) {
 			individual.getTestCase().addCoveredGoal(this);
@@ -216,11 +212,8 @@ public class CBranchTestFitness extends TestFitnessFunction {
 		} else if (!branchGoal.equals(other.branchGoal))
 			return false;
 		if (context == null) {
-			if (other.context != null)
-				return false;
-		} else if (!context.equals(other.context))
-			return false;
-		return true;
+			return other.context == null;
+		} else return context.equals(other.context);
 	}
 
 }

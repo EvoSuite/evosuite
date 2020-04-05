@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -31,6 +31,7 @@ import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
 import java.util.*;
+import java.util.stream.Stream;
 
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.reflect.TypeUtils;
@@ -60,10 +61,10 @@ public class GenericClass implements Serializable {
 	/**
 	 * Set of wrapper classes
 	 */
-	private static final Set<Class<?>> WRAPPER_TYPES = new LinkedHashSet<Class<?>>(
-	        Arrays.asList(Boolean.class, Character.class, Byte.class, Short.class,
-	                      Integer.class, Long.class, Float.class, Double.class,
-	                      Void.class));
+	private static final Set<Class<?>> WRAPPER_TYPES = new LinkedHashSet<>(
+			Arrays.asList(Boolean.class, Character.class, Byte.class, Short.class,
+					Integer.class, Long.class, Float.class, Double.class,
+					Void.class));
 
 	protected static Type addTypeParameters(Class<?> clazz) {
 		if (clazz.isArray()) {
@@ -148,15 +149,13 @@ public class GenericClass implements Serializable {
 	}
 
 	/**
-	 * <p>
-	 * isAssignable
-	 * </p>
-	 * 
-	 * @param lhsType
+	 * Tells whether the type {@code rhsType} (on the right-hand side of an assignment) can be
+	 * assigned to the type {@code lhsType} (on the left-hand side of an assignment).
+	 *
+	 * @param lhsType the type on the left-hand side (target type)
+	 * @param rhsType the type on the right-hand side (subject type to be assigned to target type)
 	 *            a {@link java.lang.reflect.Type} object.
-	 * @param rhsType
-	 *            a {@link java.lang.reflect.Type} object.
-	 * @return a boolean.
+	 * @return {@code true} if {@code rhsType} is assignable to {@code lhsType}
 	 */
 	public static boolean isAssignable(Type lhsType, Type rhsType) {
 		if (rhsType == null || lhsType == null)
@@ -191,24 +190,16 @@ public class GenericClass implements Serializable {
 	}
 
 	/**
-	 * <p>
-	 * isSubclass
-	 * </p>
-	 * 
-	 * @param superclass
-	 *            a {@link java.lang.reflect.Type} object.
-	 * @param subclass
-	 *            a {@link java.lang.reflect.Type} object.
-	 * @return a boolean.
+	 * Tells whether {@code subclass} extends or implements the given {@code superclass}.
+	 *
+	 * @param superclass the superclass
+	 * @param subclass the subclass
+	 * @return {@code true} if {@code subclass} is a subclass of {@code superclass}
 	 */
 	public static boolean isSubclass(Type superclass, Type subclass) {
 		List<Class<?>> superclasses = ClassUtils.getAllSuperclasses((Class<?>) subclass);
 		List<Class<?>> interfaces = ClassUtils.getAllInterfaces((Class<?>) subclass);
-		if (superclasses.contains(superclass) || interfaces.contains(superclass)) {
-			return true;
-		}
-
-		return false;
+		return superclasses.contains(superclass) || interfaces.contains(superclass);
 	}
 
 	transient Class<?> rawClass = null;
@@ -312,10 +303,7 @@ public class GenericClass implements Serializable {
 				if (equals(instantiation)) {
 					//logger.debug("Instantiation is equal to original, so I think we can't assign: "
 					//        + instantiation);
-					if (hasWildcardOrTypeVariables())
-						return false;
-					else
-						return true;
+					return !hasWildcardOrTypeVariables();
 				}
 				//logger.debug("Checking instantiation: " + instantiation);
 				return instantiation.canBeInstantiatedTo(otherType);
@@ -350,7 +338,7 @@ public class GenericClass implements Serializable {
 					// ownerType.type = pt.getOwnerType();
 					ownerType.changeClassLoader(loader);
 				}
-				List<GenericClass> parameterClasses = new ArrayList<GenericClass>();
+				List<GenericClass> parameterClasses = new ArrayList<>();
 				for (Type parameterType : pt.getActualTypeArguments()) {
 					GenericClass parameter = new GenericClass(parameterType);
 					// parameter.type = parameterType;
@@ -506,8 +494,8 @@ public class GenericClass implements Serializable {
 	}
 
 	public Collection<GenericClass> getGenericBounds() {
-		Set<GenericClass> bounds = new LinkedHashSet<GenericClass>();
-		
+		Set<GenericClass> bounds = new LinkedHashSet<>();
+
 		if (isRawClass() || !hasWildcardOrTypeVariables()) {
 			return bounds;
 		}
@@ -554,7 +542,7 @@ public class GenericClass implements Serializable {
 	 * @throws ConstructionFailedException
 	 */
 	public GenericClass getGenericInstantiation() throws ConstructionFailedException {
-		return getGenericInstantiation(new HashMap<TypeVariable<?>, Type>());
+		return getGenericInstantiation(new HashMap<>());
 	}
 
 	/**
@@ -651,7 +639,7 @@ public class GenericClass implements Serializable {
 					+ toString());
 		}
 		logger.debug("Getting instantiation of type variable {}: {}", toString(), selectedClass);
-		Map<TypeVariable<?>, Type> extendedMap = new HashMap<TypeVariable<?>, Type>(
+		Map<TypeVariable<?>, Type> extendedMap = new HashMap<>(
 				typeMap);
 		extendedMap.putAll(getTypeVariableMap());
 		for (Type bound : ((TypeVariable<?>) type).getBounds()) {
@@ -694,7 +682,7 @@ public class GenericClass implements Serializable {
 	}
 	
 	public List<GenericClass> getInterfaces() {
-		List<GenericClass> ret = new ArrayList<GenericClass>();
+		List<GenericClass> ret = new ArrayList<>();
 		for(Class<?> intf : rawClass.getInterfaces()) {
 			ret.add(new GenericClass(intf));
 		}
@@ -727,7 +715,7 @@ public class GenericClass implements Serializable {
 		int numParam = 0;
 		
 		for (GenericClass parameterClass : getParameterClasses()) {
-			logger.debug("Current parameter to instantiate",  parameterClass);
+			logger.debug("Current parameter to instantiate: {}",  parameterClass);
 			/*
 			 * If the parameter is a parameterized type variable such as T extends Map<String, K extends Number>
 			 * then the boundaries of the parameters of the type variable need to be respected
@@ -738,8 +726,8 @@ public class GenericClass implements Serializable {
 			} else {
 				logger.debug("Current parameter has type variables: " + parameterClass);
 
-				Map<TypeVariable<?>, Type> extendedMap = new HashMap<TypeVariable<?>, Type>(
-				        typeMap);
+				Map<TypeVariable<?>, Type> extendedMap = new HashMap<>(
+						typeMap);
 				extendedMap.putAll(parameterClass.getTypeVariableMap());
 				if(!extendedMap.containsKey(typeParameters.get(numParam)) && !parameterClass.isTypeVariable())
 					extendedMap.put(typeParameters.get(numParam), parameterClass.getType());
@@ -810,7 +798,7 @@ public class GenericClass implements Serializable {
 		if (type instanceof ParameterizedType) {			
 			return Arrays.asList(((ParameterizedType) type).getActualTypeArguments());
 		}
-		return new ArrayList<Type>();
+		return new ArrayList<>();
 	}
 
 	/**
@@ -820,13 +808,13 @@ public class GenericClass implements Serializable {
 	 */
 	public List<GenericClass> getParameterClasses() {
 		if (type instanceof ParameterizedType) {
-			List<GenericClass> parameters = new ArrayList<GenericClass>();
+			List<GenericClass> parameters = new ArrayList<>();
 			for (Type parameterType : ((ParameterizedType) type).getActualTypeArguments()) {
 				parameters.add(new GenericClass(parameterType));
 			}
 			return parameters;
 		}
-		return new ArrayList<GenericClass>();
+		return new ArrayList<>();
 	}
 
 	/**
@@ -906,7 +894,7 @@ public class GenericClass implements Serializable {
 		//logger.debug("Getting type variable map for " + type);
 		List<TypeVariable<?>> typeVariables = getTypeVariables();
 		List<Type> types = getParameterTypes();
-		Map<TypeVariable<?>, Type> typeMap = new LinkedHashMap<TypeVariable<?>, Type>();
+		Map<TypeVariable<?>, Type> typeMap = new LinkedHashMap<>();
 		try {
 			if (rawClass.getSuperclass() != null
 			        && !rawClass.isAnonymousClass()
@@ -953,7 +941,7 @@ public class GenericClass implements Serializable {
 	 * @return
 	 */
 	public List<TypeVariable<?>> getTypeVariables() {
-		List<TypeVariable<?>> typeVariables = new ArrayList<TypeVariable<?>>();
+		List<TypeVariable<?>> typeVariables = new ArrayList<>();
 		if (type instanceof ParameterizedType) {
 			//logger.debug("Type variables of "+rawClass+": ");
 			//for(TypeVariable<?> var : rawClass.getTypeParameters()) {
@@ -1196,10 +1184,7 @@ public class GenericClass implements Serializable {
 			return hasTypeVariables((ParameterizedType) type);
 		}
 
-		if (isTypeVariable())
-			return true;
-
-		return false;
+		return isTypeVariable();
 	}
 
 	private boolean hasTypeVariables(ParameterizedType parameterType) {
@@ -1230,12 +1215,7 @@ public class GenericClass implements Serializable {
 				return true;
 		}
 
-		if (type instanceof GenericArrayType) {
-			if (getComponentClass().hasWildcardOrTypeVariables())
-				return true;
-		}
-
-		return false;
+		return type instanceof GenericArrayType && getComponentClass().hasWildcardOrTypeVariables();
 	}
 
 	private boolean hasWildcardType(ParameterizedType parameterType) {
@@ -1256,10 +1236,7 @@ public class GenericClass implements Serializable {
 			return hasWildcardType((ParameterizedType) type);
 		}
 
-		if (isWildcardType())
-			return true;
-
-		return false;
+		return isWildcardType();
 	}
 
 	/**
@@ -1757,7 +1734,7 @@ public class GenericClass implements Serializable {
 				ParameterizedType pt = (ParameterizedType) type;
 				// oos.writeObject(new GenericClass(pt.getRawType()));
 				oos.writeObject(new GenericClass(pt.getOwnerType()));
-				List<GenericClass> parameterClasses = new ArrayList<GenericClass>();
+				List<GenericClass> parameterClasses = new ArrayList<>();
 				for (Type parameterType : pt.getActualTypeArguments()) {
 					parameterClasses.add(new GenericClass(parameterType));
 				}

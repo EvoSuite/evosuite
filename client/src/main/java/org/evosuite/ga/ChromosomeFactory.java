@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -22,17 +22,17 @@ package org.evosuite.ga;
 import java.io.Serializable;
 
 /**
- * Factory for chromosomes used by the GA
+ * Factory for chromosomes used by the GA, e.g., to generate the initial population of solutions.
  *
+ * @param <T> the type of chromosome this factory produces
  * @author Gordon Fraser
  */
 public interface ChromosomeFactory<T extends Chromosome> extends Serializable {
 
 	/**
-	 * <p>getChromosome</p>
+	 * Generates a new chromosome.
 	 *
-	 * @param <T> a T object.
-	 * @return a T object.
+	 * @return the newly generated chromosome
 	 */
 	public T getChromosome();
 

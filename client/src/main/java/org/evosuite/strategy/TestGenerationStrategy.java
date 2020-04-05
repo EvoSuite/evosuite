@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -32,6 +32,7 @@ import org.evosuite.ga.stoppingconditions.StoppingCondition;
 import org.evosuite.ga.stoppingconditions.StoppingConditionFactory;
 import org.evosuite.ga.stoppingconditions.ZeroFitnessStoppingCondition;
 import org.evosuite.graphs.cfg.CFGMethodAdapter;
+import org.evosuite.instrumentation.InstrumentingClassLoader;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.statistics.RuntimeVariable;
@@ -106,8 +107,7 @@ public abstract class TestGenerationStrategy {
 		}
 
 		if (!(stoppingCondition instanceof MaxTimeStoppingCondition)) {
-			if (globalTime.isFinished())
-				return true;
+			return globalTime.isFinished();
 		}
 
 		return false;
@@ -123,9 +123,9 @@ public abstract class TestGenerationStrategy {
 
 	protected boolean canGenerateTestsForSUT() {
 		if (TestCluster.getInstance().getNumTestCalls() == 0) {
-			if(Properties.P_REFLECTION_ON_PRIVATE <= 0.0 || CFGMethodAdapter.getNumMethods(TestGenerationContext.getInstance().getClassLoaderForSUT()) == 0) {
-				return false;
-			}
+			final InstrumentingClassLoader cl = TestGenerationContext.getInstance().getClassLoaderForSUT();
+			final int numMethods = CFGMethodAdapter.getNumMethods(cl);
+			return !(Properties.P_REFLECTION_ON_PRIVATE <= 0.0) && numMethods != 0;
 		}
 		return true;
 	}

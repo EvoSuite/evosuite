@@ -1,4 +1,4 @@
-/**
+/*
  *
  * This file is part of EvoSuite.
  *
@@ -43,12 +43,6 @@ public class OnlyCrowdingComparator implements Comparator<Chromosome>, Serializa
 	 */
 	@Override
 	public int compare(Chromosome c1, Chromosome c2) {
-		if (c1.getDistance() > c2.getDistance()) {
-			return -1;
-		} else if (c1.getDistance() < c2.getDistance()) {
-			return +1;
-		} else { 
-			return 0;
-		}
+		return Double.compare(c2.getDistance(), c1.getDistance());
 	}
 }

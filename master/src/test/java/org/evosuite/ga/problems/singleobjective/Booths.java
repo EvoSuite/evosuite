@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -54,7 +54,7 @@ public class Booths<T extends NSGAChromosome> implements Problem
                 double y = ((DoubleVariable) individual.getVariables().get(1)).getValue();
 
                 double fitness = Math.pow(x + 2.0 * y - 7.0, 2.0) + Math.pow(2.0 * x + y - 5.0, 2.0);
-                updateIndividual(this, individual, fitness);
+                updateIndividual(individual, fitness);
                 return fitness;
             }
             @Override

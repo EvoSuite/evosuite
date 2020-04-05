@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -49,8 +49,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Archive.
- * 
+ * A partial mapping of test targets onto the shortest encountered test cases covering the given
+ * target.
+ *
+ * @param <F> the type of test targets, encoded as {@code TestFitnessFunction}
+ * @param <T> the type of test cases covering the target, encoded as {@code TestChromosome}
  * @author José Campos
  */
 public abstract class Archive<F extends TestFitnessFunction, T extends TestChromosome>
@@ -64,8 +67,7 @@ public abstract class Archive<F extends TestFitnessFunction, T extends TestChrom
    * Map used to store all targets (values of the map) of each method (here represented by its name,
    * keys of the map)
    */
-  protected final Map<String, Set<F>> nonCoveredTargetsOfEachMethod =
-      new LinkedHashMap<String, Set<F>>();
+  protected final Map<String, Set<F>> nonCoveredTargetsOfEachMethod = new LinkedHashMap<>();
 
   /**
    * Has this archive been updated with new candidate solutions?
@@ -74,8 +76,8 @@ public abstract class Archive<F extends TestFitnessFunction, T extends TestChrom
 
   /**
    * Register a target.
-   * 
-   * @param target
+   *
+   * @param target the target to register
    */
   public void addTarget(F target) {
     assert target != null;
@@ -89,12 +91,10 @@ public abstract class Archive<F extends TestFitnessFunction, T extends TestChrom
   /**
    * Register a collection of targets.
    *
-   * @param targets
+   * @param targets the targets to register
    */
   public void addTargets(Collection<F> targets) {
-    for (F target : targets) {
-      this.addTarget(target);
-    }
+    targets.forEach(this::addTarget);
   }
 
   /**
@@ -118,10 +118,8 @@ public abstract class Archive<F extends TestFitnessFunction, T extends TestChrom
   protected void removeNonCoveredTargetOfAMethod(F target) {
     String targetMethod = this.getMethodFullName(target);
     if (this.nonCoveredTargetsOfEachMethod.containsKey(targetMethod)) {
-      if (this.nonCoveredTargetsOfEachMethod.get(targetMethod).contains(target)) {
-        // target has been covered, therefore we can remove it from the list of non-covered
-        this.nonCoveredTargetsOfEachMethod.get(targetMethod).remove(target);
-      }
+      // target has been covered, therefore we can remove it from the list of non-covered
+      this.nonCoveredTargetsOfEachMethod.get(targetMethod).remove(target);
 
       if (this.nonCoveredTargetsOfEachMethod.get(targetMethod).isEmpty()) {
         // method is fully covered, therefore we do not need to keep track of it
@@ -136,9 +134,9 @@ public abstract class Archive<F extends TestFitnessFunction, T extends TestChrom
   /**
    * Updates the archive by adding a chromosome solution that covers a target, or by replacing an
    * existing solution if the new one is better.
-   * 
-   * @param target
-   * @param solution
+   *
+   * @param target the covered target
+   * @param solution the solution covering the target
    * @param fitnessValue
    */
   public void updateArchive(F target, T solution, double fitnessValue) {
@@ -201,10 +199,7 @@ public abstract class Archive<F extends TestFitnessFunction, T extends TestChrom
           timesBetter--;
     }
 
-    if (timesBetter > 0)
-      return true;
-
-    return false;
+    return timesBetter > 0;
   }
 
   /**

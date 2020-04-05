@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -50,7 +50,7 @@ public class GraphPool {
 
 	private static Logger logger = LoggerFactory.getLogger(GraphPool.class);
 
-	private static Map<ClassLoader, GraphPool> instanceMap = new HashMap<ClassLoader, GraphPool>();
+	private static Map<ClassLoader, GraphPool> instanceMap = new HashMap<>();
 
 	private final ClassLoader classLoader;
 
@@ -76,7 +76,7 @@ public class GraphPool {
 	 * 
 	 * Maps from classNames to methodNames to corresponding RawCFGs
 	 */
-	private final Map<String, Map<String, RawControlFlowGraph>> rawCFGs = new HashMap<String, Map<String, RawControlFlowGraph>>();
+	private final Map<String, Map<String, RawControlFlowGraph>> rawCFGs = new HashMap<>();
 
 	/**
 	 * Minimized control flow graph. This graph only contains the first and last
@@ -85,34 +85,36 @@ public class GraphPool {
 	 * 
 	 * Maps from classNames to methodNames to corresponding ActualCFGs
 	 */
-	private final Map<String, Map<String, ActualControlFlowGraph>> actualCFGs = new HashMap<String, Map<String, ActualControlFlowGraph>>();
+	private final Map<String, Map<String, ActualControlFlowGraph>> actualCFGs = new HashMap<>();
 
 	/**
 	 * Control Dependence Graphs for each method.
 	 * 
 	 * Maps from classNames to methodNames to corresponding CDGs
 	 */
-	private final Map<String, Map<String, ControlDependenceGraph>> controlDependencies = new HashMap<String, Map<String, ControlDependenceGraph>>();
+	private final Map<String, Map<String, ControlDependenceGraph>> controlDependencies = new HashMap<>();
 
 	/**
 	 * Cache of all created CCFGs
 	 * 
 	 * Maps from classNames to computed CCFG of that class
 	 */
-	private final Map<String, ClassControlFlowGraph> ccfgs = new HashMap<String, ClassControlFlowGraph>();
+	private final Map<String, ClassControlFlowGraph> ccfgs = new HashMap<>();
 
 	// retrieve graphs
 
 	/**
-	 * <p>
-	 * getRawCFG
-	 * </p>
-	 * 
-	 * @param className
-	 *            a {@link java.lang.String} object.
-	 * @param methodName
-	 *            a {@link java.lang.String} object.
-	 * @return a {@link org.evosuite.graphs.cfg.RawControlFlowGraph} object.
+	 * Returns the {@link RawControlFlowGraph} of the specified method. To this end, one has to
+	 * provide
+	 * <ul>
+	 *     <li>the fully qualified name of the class containing the desired method, and</li>
+	 *     <li>a string consisting of the method name concatenated with the corresponding
+	 *     method descriptor.</li>
+	 * </ul>
+	 *
+	 * @param className the fully qualified name of the containing class
+	 * @param methodName concatenation of method name and descriptor
+	 * @return the raw control flow graph
 	 */
 	public RawControlFlowGraph getRawCFG(String className, String methodName) {
 
@@ -201,7 +203,7 @@ public class GraphPool {
 			        "expect class and method name of CFGs to be set before entering the GraphPool");
 
 		if (!rawCFGs.containsKey(className)) {
-			rawCFGs.put(className, new HashMap<String, RawControlFlowGraph>());
+			rawCFGs.put(className, new HashMap<>());
 		}
 		Map<String, RawControlFlowGraph> methods = rawCFGs.get(className);
 		logger.debug("Added complete CFG for class " + className + " and method "
@@ -230,7 +232,7 @@ public class GraphPool {
 			        "expect class and method name of CFGs to be set before entering the GraphPool");
 
 		if (!actualCFGs.containsKey(className)) {
-			actualCFGs.put(className, new HashMap<String, ActualControlFlowGraph>());
+			actualCFGs.put(className, new HashMap<>());
 			// diameters.put(className, new HashMap<String, Double>());
 		}
 		Map<String, ActualControlFlowGraph> methods = actualCFGs.get(className);
@@ -259,7 +261,7 @@ public class GraphPool {
 
 		if (!controlDependencies.containsKey(className))
 			controlDependencies.put(className,
-			                        new HashMap<String, ControlDependenceGraph>());
+					new HashMap<>());
 		Map<String, ControlDependenceGraph> cds = controlDependencies.get(className);
 
 		cds.put(methodName, cd);
@@ -362,15 +364,11 @@ public class GraphPool {
 	}
 
 	public static void clearAll(String className) {
-		for (GraphPool pool : instanceMap.values()) {
-			pool.clear(className);
-		}
+		instanceMap.values().forEach(pool -> pool.clear(className));
 	}
 
 	public static void clearAll(String className, String methodName) {
-		for (GraphPool pool : instanceMap.values()) {
-			pool.clear(className, methodName);
-		}
+		instanceMap.values().forEach(pool -> pool.clear(className, methodName));
 	}
 
 	public static void clearAll() {

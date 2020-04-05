@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -49,6 +49,9 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.IntStream;
+
+import static java.util.stream.Collectors.*;
 
 /**
  * Chromosome representation of test cases
@@ -65,10 +68,10 @@ public class TestChromosome extends ExecutableChromosome {
 	protected TestCase test = new DefaultTestCase();
 
 	/** To keep track of what has changed since last fitness evaluation */
-	protected MutationHistory<TestMutationHistoryEntry> mutationHistory = new MutationHistory<TestMutationHistoryEntry>();
+	protected MutationHistory<TestMutationHistoryEntry> mutationHistory = new MutationHistory<>();
 
 	/** Secondary objectives used during ranking */
-	private static final List<SecondaryObjective<TestChromosome>> secondaryObjectives = new ArrayList<SecondaryObjective<TestChromosome>>();
+	private static final List<SecondaryObjective<TestChromosome>> secondaryObjectives = new ArrayList<>();
 
 	/**
 	 * <p>
@@ -217,11 +220,8 @@ public class TestChromosome extends ExecutableChromosome {
 			return false;
 		TestChromosome other = (TestChromosome) obj;
 		if (test == null) {
-			if (other.test != null)
-				return false;
-		} else if (!test.equals(other.test))
-			return false;
-		return true;
+			return other.test == null;
+		} else return test.equals(other.test);
 	}
 
 	/** {@inheritDoc} */
@@ -250,7 +250,7 @@ public class TestChromosome extends ExecutableChromosome {
 		if (lastExecutionResult != null && !isChanged()) {
 			Integer lastPos = lastExecutionResult.getFirstPositionOfThrownException();
 			if (lastPos != null)
-				lastPosition = lastPos.intValue();
+				lastPosition = lastPos;
 		}
 
 		for (TestMutationHistoryEntry mutation : mutationHistory) {
@@ -269,13 +269,9 @@ public class TestChromosome extends ExecutableChromosome {
 					continue;
 				}
 
-				int newPosition = -1;
-				for (int i = 0; i <= lastPosition; i++) {
-					if (test.getStatement(i) == mutation.getStatement()) {
-						newPosition = i;
-						break;
-					}
-				}
+				int newPosition = IntStream.rangeClosed(0, lastPosition)
+						.filter(pos -> test.getStatement(pos) == mutation.getStatement())
+						.findFirst().orElse(-1);
 
 				// Couldn't find statement, may have been deleted in other mutation?
 				assert (newPosition >= 0);
@@ -346,9 +342,8 @@ public class TestChromosome extends ExecutableChromosome {
 			setChanged(true);
 			test.clearCoveredGoals();
 		}
-		for (Statement s : test) {
-			s.isValid();
-		}
+
+		test.forEach(Statement::isValid);
 
 		// be sure that mutation did not break any constraint.
 		// if it happens, it means a bug in EvoSuite
@@ -406,15 +401,25 @@ public class TestChromosome extends ExecutableChromosome {
 		return changed;
 	}
 
+	/**
+	 * In the test case encoded by this chromosome, returns the position of the last statement that
+	 * can be mutated. If an exception occurred during the last execution of the test case, the
+	 * method returns the position of the last valid statement, i.e., the position of the statement
+	 * that directly precedes the exception-causing statement.
+	 *
+	 * @return the position of the last valid statement that can be mutated
+	 */
 	private int getLastMutatableStatement() {
-		ExecutionResult result = getLastExecutionResult();
+		final ExecutionResult result = getLastExecutionResult();
+		final int size = test.size();
+
 		if (result != null && !result.noThrownExceptions()) {
-			int pos = result.getFirstPositionOfThrownException();
-			// It may happen that pos > size() after statements have been deleted
-			if (pos >= test.size())
-				return test.size() - 1;
-			else
-				return pos;
+			// If an exception was thrown during execution, the test case is only valid up to the
+			// point right before where the exception occurred.
+			final int pos = result.getFirstPositionOfThrownException();
+
+			// It may happen that pos > size() after statements have been deleted.
+			return pos >= size ? size - 1 : pos;
 		} else {
 			return test.size() - 1;
 		}
@@ -446,15 +451,11 @@ public class TestChromosome extends ExecutableChromosome {
 			if (Randomness.nextDouble() <= pl) {
 				changed |= deleteStatement(testFactory, num);
 
-				if(changed){
-					assert ConstraintVerifier.verifyTest(test);
-				}
+				assert !changed || ConstraintVerifier.verifyTest(test);
 			}
 		}
 
-		if(changed){
-			assert ConstraintVerifier.verifyTest(test);
-		}
+		assert !changed || ConstraintVerifier.verifyTest(test);
 
 		return changed;
 	}
@@ -540,9 +541,7 @@ public class TestChromosome extends ExecutableChromosome {
 			}
 		}
 
-		if(changed){
-			assert ConstraintVerifier.verifyTest(test);
-		}
+		assert !changed || ConstraintVerifier.verifyTest(test);
 
 		return changed;
 	}
@@ -593,17 +592,14 @@ public class TestChromosome extends ExecutableChromosome {
 			return false;
 
 		boolean mutated = false;
-		List<BranchCondition> targetBranches = new ArrayList<BranchCondition>();
-		for (BranchCondition branch : branches) {
-			if (TestCluster.isTargetClassName(branch.getClassName()))
-				targetBranches.add(branch);
-		}
+
+		List<BranchCondition> targetBranches = branches.stream()
+				.filter(b -> TestCluster.isTargetClassName(b.getClassName()))
+				.collect(toCollection(ArrayList::new));
+
 		// Select random branch
-		BranchCondition branch = null;
-		if (targetBranches.isEmpty())
-			branch = Randomness.choice(branches);
-		else
-			branch = Randomness.choice(targetBranches);
+		List<BranchCondition> bs = targetBranches.isEmpty() ? branches : targetBranches;
+		BranchCondition branch =  Randomness.choice(bs);
 
 		logger.debug("Trying to negate branch " + branch.getInstructionIndex()
 		        + " - have " + targetBranches.size() + "/" + branches.size()
@@ -668,8 +664,7 @@ public class TestChromosome extends ExecutableChromosome {
 	 * @return a boolean.
 	 */
 	public boolean hasException() {
-		return lastExecutionResult == null ? false
-		        : !lastExecutionResult.noThrownExceptions();
+		return lastExecutionResult != null && !lastExecutionResult.noThrownExceptions();
 	}
 
 

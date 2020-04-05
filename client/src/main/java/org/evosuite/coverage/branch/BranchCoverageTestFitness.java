@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -29,6 +29,8 @@ import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.MethodCall;
 import org.evosuite.utils.ArrayUtil;
 
+import java.util.Objects;
+
 /**
  * Fitness function for a single test on a single branch
  * 
@@ -48,11 +50,8 @@ public class BranchCoverageTestFitness extends TestFitnessFunction {
 	 *            a {@link org.evosuite.coverage.branch.BranchCoverageGoal}
 	 *            object.
 	 */
-	public BranchCoverageTestFitness(BranchCoverageGoal goal) throws IllegalArgumentException{
-		if(goal == null){
-			throw new IllegalArgumentException("goal cannot be null");
-		}
-		this.goal = goal;
+	public BranchCoverageTestFitness(BranchCoverageGoal goal) {
+		this.goal = Objects.requireNonNull(goal, "goal cannot be null");
 	}
 
 	/**
@@ -168,7 +167,7 @@ public class BranchCoverageTestFitness extends TestFitnessFunction {
 					+ " / branch distance = " + distance.getBranchDistance() + ", fitness = " + fitness);
 		}
 
-		updateIndividual(this, individual, fitness);
+		updateIndividual(individual, fitness);
 
 		if (fitness == 0.0) {
 			individual.getTestCase().addCoveredGoal(this);
@@ -212,11 +211,8 @@ public class BranchCoverageTestFitness extends TestFitnessFunction {
 			return false;
 		BranchCoverageTestFitness other = (BranchCoverageTestFitness) obj;
 		if (goal == null) {
-			if (other.goal != null)
-				return false;
-		} else if (!goal.equals(other.goal))
-			return false;
-		return true;
+			return other.goal == null;
+		} else return goal.equals(other.goal);
 	}
 
 	/* (non-Javadoc)
