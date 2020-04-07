@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -16,9 +16,6 @@
  *
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
- */
-/**
- * 
  */
 package org.evosuite.seeding;
 
@@ -58,7 +55,7 @@ public class ObjectPool implements Serializable {
 	private static final long serialVersionUID = 2016387518459994272L;
 
 	/** The actual object pool */
-	protected final Map<GenericClass, Set<TestCase>> pool = new HashMap<GenericClass, Set<TestCase>>();
+	protected final Map<GenericClass, Set<TestCase>> pool = new HashMap<>();
 
 	protected static final Logger logger = LoggerFactory.getLogger(ObjectPool.class);
 
@@ -82,7 +79,7 @@ public class ObjectPool implements Serializable {
 	 */
 	private void addSequence(ObjectSequence sequence) {
 		if (!pool.containsKey(sequence.getGeneratedClass()))
-			pool.put(sequence.getGeneratedClass(), new HashSet<TestCase>());
+			pool.put(sequence.getGeneratedClass(), new HashSet<>());
 
 		pool.get(sequence.getGeneratedClass()).add(sequence.getSequence());
 		logger.info("Added new sequence for " + sequence.getGeneratedClass());
@@ -112,7 +109,7 @@ public class ObjectPool implements Serializable {
 		if (pool.containsKey(clazz))
 			return pool.get(clazz);
 
-		Set<Set<TestCase>> candidates = new LinkedHashSet<Set<TestCase>>();
+		Set<Set<TestCase>> candidates = new LinkedHashSet<>();
 		for (GenericClass poolClazz : pool.keySet()) {
 			if (poolClazz.isAssignableTo(clazz))
 				candidates.add(pool.get(poolClazz));
@@ -137,12 +134,8 @@ public class ObjectPool implements Serializable {
 		if (pool.containsKey(clazz))
 			return true;
 
-		for (GenericClass poolClazz : pool.keySet()) {
-			if (poolClazz.isAssignableTo(clazz))
-				return true;
-		}
-
-		return false;
+		return pool.keySet().stream()
+				.anyMatch(poolClazz -> poolClazz.isAssignableTo(clazz));
 	}
 
 	public int getNumberOfClasses() {
@@ -150,11 +143,7 @@ public class ObjectPool implements Serializable {
 	}
 
 	public int getNumberOfSequences() {
-		int num = 0;
-		for (Set<TestCase> p : pool.values()) {
-			num += p.size();
-		}
-		return num;
+		return pool.values().stream().mapToInt(Set::size).sum();
 	}
 
 	public boolean isEmpty() {

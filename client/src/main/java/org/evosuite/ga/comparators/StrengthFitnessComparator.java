@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -46,12 +46,6 @@ public class StrengthFitnessComparator implements Comparator<Chromosome>, Serial
     double strengthC1 = c1.getDistance(); // TODO: should we change name of the function?
     double strengthC2 = c2.getDistance();
 
-    if (strengthC1 < strengthC2) {
-      return -1;
-    } else if (strengthC1 > strengthC2) {
-      return 1;
-    } else {
-      return 0;
-    }
+    return Double.compare(strengthC1, strengthC2);
   }
 }

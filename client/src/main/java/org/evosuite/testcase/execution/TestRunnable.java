@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -91,13 +91,8 @@ public class TestRunnable implements InterfaceTestRunnable {
 		this.scope = scope;
 		this.observers = observers;
 		runFinished = false;
-		
-		KillSwitch killSwitch = new KillSwitch() {			
-			@Override
-			public void setKillSwitch(boolean kill) {
-				ExecutionTracer.setKillSwitch(kill);
-			}
-		};
+
+		KillSwitch killSwitch = ExecutionTracer::setKillSwitch;
 		Set<String> threadsToIgnore = new LinkedHashSet<>();
 		threadsToIgnore.add(TestCaseExecutor.TEST_EXECUTION_THREAD);
 		threadsToIgnore.addAll(Arrays.asList(Properties.IGNORE_THREADS));
@@ -139,9 +134,7 @@ public class TestRunnable implements InterfaceTestRunnable {
 	protected void informObservers_before(Statement s) {
 		ExecutionTracer.disable();
 		try {
-			for (ExecutionObserver observer : observers) {
-				observer.beforeStatement(s, scope);
-			}
+			observers.forEach(o -> o.beforeStatement(s, scope));
 		} finally {
 			ExecutionTracer.enable();
 		}
@@ -159,9 +152,7 @@ public class TestRunnable implements InterfaceTestRunnable {
 	protected void informObservers_after(Statement s, Throwable exceptionThrown) {
 		ExecutionTracer.disable();
 		try {
-			for (ExecutionObserver observer : observers) {
-				observer.afterStatement(s, scope, exceptionThrown);
-			}
+			observers.forEach(o -> o.afterStatement(s, scope, exceptionThrown));
 		} finally {
 			ExecutionTracer.enable();
 		}
@@ -170,9 +161,7 @@ public class TestRunnable implements InterfaceTestRunnable {
 	protected void informObservers_finished(ExecutionResult result) {
 		ExecutionTracer.disable();
 		try {
-			for (ExecutionObserver observer : observers) {
-				observer.testExecutionFinished(result, scope);
-			}
+			observers.forEach(o -> o.testExecutionFinished(result, scope));
 		} finally {
 			ExecutionTracer.enable();
 		}
@@ -394,9 +383,7 @@ public class TestRunnable implements InterfaceTestRunnable {
 	/** {@inheritDoc} */
 	@Override
 	public Map<Integer, Throwable> getExceptionsThrown() {
-		HashMap<Integer, Throwable> copy = new HashMap<Integer, Throwable>();
-		copy.putAll(exceptionsThrown);
-		return copy;
+		return new HashMap<>(exceptionsThrown);
 	}
 
 	/** {@inheritDoc} */

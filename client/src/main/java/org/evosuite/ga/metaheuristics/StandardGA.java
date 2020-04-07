@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -55,11 +55,9 @@ public class StandardGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 	@Override
 	protected void evolve() {
 
-		List<T> newGeneration = new ArrayList<T>();
-
 		// Elitism
-		newGeneration.addAll(elitism());
-		
+		List<T> newGeneration = new ArrayList<>(elitism());
+
 		// new_generation.size() < population_size
 		while (!isNextPopulationFull(newGeneration)) {
 

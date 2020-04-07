@@ -25,6 +25,8 @@ import org.evosuite.testcase.*;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.utils.generic.GenericClass;
 
+import java.util.Objects;
+
 
 /**
  * Fitness function for a single test on a single exception
@@ -62,16 +64,15 @@ public class ExceptionCoverageTestFitness extends TestFitnessFunction {
      * Constructor - fitness is specific to a method
      * @param methodIdentifier the method name
      * @param exceptionClass the exception class
-     * @throws IllegalArgumentException
      */
-    public ExceptionCoverageTestFitness(String className, String methodIdentifier, Class<?> exceptionClass, ExceptionType type) throws IllegalArgumentException{
-        if ((methodIdentifier == null) || (exceptionClass == null) || type==null) {
-            throw new IllegalArgumentException("method name and exception class and type cannot be null");
-        }
+    public ExceptionCoverageTestFitness(String className, String methodIdentifier, Class<?> exceptionClass, ExceptionType type) {
         this.className = className;
+
+        Objects.requireNonNull(exceptionClass, "exception class cannot be null");
         this.exceptionClass = new GenericClass(exceptionClass);
-        this.methodIdentifier = methodIdentifier;
-        this.type = type;
+
+        this.methodIdentifier = Objects.requireNonNull(methodIdentifier, "method name cannot be null");
+        this.type = Objects.requireNonNull(type, "exception type cannot be null");
     }
 
     public String getKey(){

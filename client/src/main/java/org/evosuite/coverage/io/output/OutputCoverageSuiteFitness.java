@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -19,7 +19,6 @@
  */
 package org.evosuite.coverage.io.output;
 
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -114,7 +113,7 @@ public class OutputCoverageSuiteFitness extends TestSuiteFitnessFunction {
         suite.setNumOfCoveredGoals(this, coveredGoals);
 
         printStatusMessages(suite, coveredGoals, fitness);
-        updateIndividual(this, suite, fitness);
+        updateIndividual(suite, fitness);
 
         assert (coveredGoals <= totalGoals) : "Covered " + coveredGoals + " vs total goals " + totalGoals;
         assert (fitness >= 0.0);
@@ -163,10 +162,7 @@ public class OutputCoverageSuiteFitness extends TestSuiteFitnessFunction {
             test.setLastExecutionResult(result);
             test.setChanged(false);
 
-            Iterator<OutputCoverageTestFitness> it = this.outputCoverageGoals.iterator();
-            while (it.hasNext()) {
-                OutputCoverageTestFitness testFitness = it.next();
-
+            for (final OutputCoverageTestFitness testFitness : this.outputCoverageGoals) {
                 if (!mapDistances.containsKey(testFitness)) {
                     continue;
                 }
@@ -183,11 +179,9 @@ public class OutputCoverageSuiteFitness extends TestSuiteFitnessFunction {
             }
         }
 
-        double distance = 0.0;
-        if (!mapDistances.isEmpty()) {
-            distance = mapDistances.values().stream().reduce(Double::sum).get().doubleValue();
-        }
-        return distance;
+        return mapDistances.values().stream()
+                .mapToDouble(Double::doubleValue)
+                .sum();
     }
 
     /**

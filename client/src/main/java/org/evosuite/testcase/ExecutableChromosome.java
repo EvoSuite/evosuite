@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -34,7 +34,7 @@ public abstract class ExecutableChromosome extends Chromosome {
 
 	protected transient ExecutionResult lastExecutionResult = null;
 
-	protected transient Map<Mutation, MutationExecutionResult> lastMutationResult = new HashMap<Mutation, MutationExecutionResult>();
+	protected transient Map<Mutation, MutationExecutionResult> lastMutationResult = new HashMap<>();
 
 	/**
 	 * <p>Constructor for ExecutableChromosome.</p>
@@ -118,6 +118,6 @@ public abstract class ExecutableChromosome extends Chromosome {
     IOException {
 		ois.defaultReadObject();
 		lastExecutionResult = null;
-		lastMutationResult = new HashMap<Mutation, MutationExecutionResult>();
+		lastMutationResult = new HashMap<>();
 	}
 }

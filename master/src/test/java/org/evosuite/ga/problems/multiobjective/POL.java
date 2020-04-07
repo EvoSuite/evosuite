@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -58,7 +58,7 @@ public class POL<T extends NSGAChromosome> implements Problem
 				double B2 = 1.5 * Math.sin(x1) - Math.cos(x1) + 2.0 * Math.sin(x2) - 0.5 * Math.cos(x2);
 
 				double fitness = 1.0 + Math.pow(A1 - B1, 2.0) + Math.pow(A2 - B2, 2.0);
-				updateIndividual(this, individual, fitness);
+				updateIndividual(individual, fitness);
 				return fitness;
 			}
 			@Override
@@ -79,7 +79,7 @@ public class POL<T extends NSGAChromosome> implements Problem
                 double x2 = ((DoubleVariable)individual.getVariable(1)).getValue();
 
                 double fitness = Math.pow(x1 + 3.0, 2.0) + Math.pow(x2 + 1.0, 2.0);
-				updateIndividual(this, individual, fitness);
+				updateIndividual(individual, fitness);
 				return fitness;
 			}
 			@Override

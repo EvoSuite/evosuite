@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -16,9 +16,6 @@
  *
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
- */
-/**
- * 
  */
 package org.evosuite.ga.populationlimit;
 
@@ -43,10 +40,7 @@ public class SizePopulationLimit implements PopulationLimit {
 	/** {@inheritDoc} */
 	@Override
 	public boolean isPopulationFull(List<? extends Chromosome> population) {
-		int size = 0;
-		for (Chromosome chromosome : population)
-			size += chromosome.size();
-
+		final int size = population.stream().mapToInt(Chromosome::size).sum();
 		return size >= Properties.POPULATION;
 	}
 

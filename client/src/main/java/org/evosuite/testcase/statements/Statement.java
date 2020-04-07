@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -16,9 +16,6 @@
  *
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
- */
-/**
- * 
  */
 package org.evosuite.testcase.statements;
 
@@ -38,45 +35,44 @@ import org.evosuite.utils.generic.GenericAccessibleObject;
 import org.objectweb.asm.commons.GeneratorAdapter;
 
 /**
- * <p>
- * StatementInterface interface.
- * </p>
- * 
+ * Statements serve as the building blocks for test cases. Conceptually, a statement in EvoSuite
+ * test cases can be mapped to one or more statements in the Java language. Each statement in a test
+ * case represents a value v of some type T. EvoSuite distinguishes between different kinds of
+ * statements, each of which are implemented in subclasses of this interface.
+ *
  * @author Sebastian Steenbuck
  * @author Gordon Fraser
  */
 public interface Statement {
 
 	/**
-	 * Add a new assertion to statement
-	 * 
-	 * @param assertion
-	 *            Assertion to be added
+	 * Adds a new assertion to this statement.
+	 *
+	 * @param assertion the assertion to be added
 	 */
 	public void addAssertion(Assertion assertion);
 	
 	/**
-	 * A statement can have a textual comment that will be included
-	 * in the JUnit output
-	 * 
-	 * @param comment
+	 * Adds to this statement a textual comment that will be included in the JUnit output.
+	 *
+	 * @param comment the comment to add
 	 */
 	public void addComment(String comment);
 
 	/**
-	 * Class instances are bound to a class loader - if we want to reexecute a
+	 * Sets the class loader for this statement to the specified {@code loader}.
+	 * Class instances are bound to a class loader - if we want to re-execute a
 	 * test on a different classloader we need to be able to change the class of
-	 * the reflection object
-	 * 
-	 * @param loader
-	 *            a {@link java.lang.ClassLoader} object.
+	 * the reflection object.
+	 *
+	 * @param loader the class laoder to use
 	 */
 	public void changeClassLoader(ClassLoader loader);
 
 	/**
-	 * Create deep copy of statement
-	 * 
-	 * @return a {@link Statement} object.
+	 * Creates a deep copy of this statement.
+	 *
+	 * @return a deep copy of this statement
 	 */
 	public Statement clone();
 
@@ -126,15 +122,14 @@ public interface Statement {
 	public boolean equals(Object s);
 
 	/**
-	 * This method executes the statement under the given scope. If execution of
-	 * the statement is aborted abnormally (i.e. an exception is thrown.) The
-	 * exception is returned. Otherwise the return value is null.
-	 * 
-	 * @param scope
-	 *            the scope under which the statement is executed
-	 * @param out
-	 *            a {@link java.io.PrintStream} object.
-	 * @return if an exception was thrown during execution this is the exception
+	 * Executes the statement under the given scope. If execution of the statement
+	 * is aborted abnormally (i.e., an exception is thrown) the exception is returned.
+	 * Otherwise, the return value is {@code null}.
+	 *
+	 * @param scope the scope under which the statement is executed
+	 * @param out a {@link java.io.PrintStream} object.
+	 * @return the exception that was thrown during execution, or {@code null} if no exception
+	 * was thrown
 	 * @throws java.lang.reflect.InvocationTargetException
 	 *             if any.
 	 * @throws java.lang.IllegalArgumentException
@@ -150,8 +145,8 @@ public interface Statement {
 
 	/**
 	 * Returns the accessibleObject which is used to generate this kind of
-	 * statement E.g. the Field of a FieldStatement, the Method of a
-	 * MethodStatement and so on MAY return NULL (for example for
+	 * statement, e.g., the Field of a FieldStatement, the Method of a
+	 * MethodStatement and so on. MAY return NULL (for example for
 	 * NullStatements)
 	 * 
 	 * @return a {@link java.lang.reflect.AccessibleObject} object.
@@ -362,13 +357,13 @@ public interface Statement {
 
 	/**
 	 * Replace a VariableReference with another one
-	 * 
-	 * @param var1
+	 *
+	 * @param oldVar
 	 *            The old variable
-	 * @param var2
+	 * @param newVar
 	 *            The new variable
 	 */
-	public void replace(VariableReference var1, VariableReference var2);
+	public void replace(VariableReference oldVar, VariableReference newVar);
 
 	/**
 	 * Allows the comparing of Statements between TestCases. I.e. this is a more

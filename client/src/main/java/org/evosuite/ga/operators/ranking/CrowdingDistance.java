@@ -1,4 +1,4 @@
-/**
+/*
  *
  * This file is part of EvoSuite.
  *
@@ -19,7 +19,6 @@ package org.evosuite.ga.operators.ranking;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -57,8 +56,7 @@ public class CrowdingDistance<T extends Chromosome> implements Serializable {
 			return;
 		}
 
-		for (int i = 0; i < size; i++)
-			front.get(i).setDistance(0.0);
+		front.forEach(t -> t.setDistance(0.0));
 
 		double objetiveMaxn;
 		double objetiveMinn;
@@ -66,7 +64,7 @@ public class CrowdingDistance<T extends Chromosome> implements Serializable {
 
 		for (final FitnessFunction<?> ff : set) {
 			// Sort the population by Fit n
-			Collections.sort(front, new SortByFitness(ff, false));
+			front.sort(new SortByFitness(ff, false));
 
 			objetiveMinn = front.get(0).getFitness(ff);
 			objetiveMaxn = front.get(front.size() - 1).getFitness(ff);
@@ -101,8 +99,7 @@ public class CrowdingDistance<T extends Chromosome> implements Serializable {
 			return;
 		}
 
-		for (int i = 0; i < size; i++)
-			front.get(i).setDistance(Double.MAX_VALUE);
+		front.forEach(t -> t.setDistance(Double.MAX_VALUE));
 
 		int dominate1, dominate2;
 		for (int i = 0; i<front.size()-1; i++){
@@ -137,9 +134,7 @@ public class CrowdingDistance<T extends Chromosome> implements Serializable {
 	 */
 	public void fastEpsilonDominanceAssignment(List<T> front, Set<FitnessFunction<T>> set) {
 		double value;
-		for (T test : front){
-			test.setDistance(0);
-		}
+		front.forEach(test -> test.setDistance(0));
 
 		for (final FitnessFunction<T> ff : set) {
 			double min = Double.POSITIVE_INFINITY;

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -84,13 +84,12 @@ public class Randomness implements Serializable {
 	}
 
 	/**
-	 * <p>
-	 * nextInt
-	 * </p>
-	 * 
-	 * @param max
-	 *            a int.
-	 * @return a int.
+	 * Returns a pseudorandom, uniformly distributed int value between 0 (inclusive) and the
+	 * specified value {@code max} (exclusive).
+	 *
+	 * @param max the upper bound
+	 * @return a random number between 0 and {@code max - 1}
+	 * @see Random#nextInt(int)
 	 */
 	public static int nextInt(int max) {
 		return random.nextInt(max);
@@ -101,15 +100,12 @@ public class Randomness implements Serializable {
 	}
 	
 	/**
-	 * <p>
-	 * nextInt
-	 * </p>
-	 * 
-	 * @param min
-	 *            a int.
-	 * @param max
-	 *            a int.
-	 * @return a int.
+	 * Returns a pseudorandom, uniformly distributed int value between the lower bound {@code min}
+	 * (inclusive) and the upper bound {@code max} (exclusive).
+	 *
+	 * @param min the lower bound
+	 * @param max the upper bound
+	 * @return a random number between {@code min} and {@code max}
 	 */
 	public static int nextInt(int min, int max) {
 		return random.nextInt(max - min) + min;

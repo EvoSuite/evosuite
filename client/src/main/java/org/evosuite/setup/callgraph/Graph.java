@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -30,14 +30,14 @@ import java.util.Set;
  * simple implementation of a graph where edges are not classes.
  * @author mattia
  *
- * @param <E>
+ * @param <E> type of vertices used by the graph
  */
 public abstract class Graph<E> {
 
-	private final Map<E, Set<E>> edges = Collections.synchronizedMap(new HashMap<E, Set<E>>());
-	private final Map<E, Set<E>> reverseEdges = Collections.synchronizedMap(new HashMap<E, Set<E>>());
-	private final Set<E> vertexSet = Collections.synchronizedSet(new HashSet<E>());
-	
+	private final Map<E, Set<E>> edges = Collections.synchronizedMap(new HashMap<>());
+	private final Map<E, Set<E>> reverseEdges = Collections.synchronizedMap(new HashMap<>());
+	private final Set<E> vertexSet = Collections.synchronizedSet(new HashSet<>());
+
 	public Map<E, Set<E>> getEdges() {
 		return edges;
 	}
@@ -58,16 +58,10 @@ public abstract class Graph<E> {
 	public synchronized void addEdge(E src, E dest) {
 		vertexSet.add(src);
 		vertexSet.add(dest);
-		Set<E> srcNeighbors = this.edges.get(src);
-		if (srcNeighbors == null) {
-			this.edges.put(src, srcNeighbors = new LinkedHashSet<E>());
-		}
+		Set<E> srcNeighbors = this.edges.computeIfAbsent(src, k -> new LinkedHashSet<>());
 		srcNeighbors.add(dest);
-		
-		Set<E> rsrcNeighbors = this.reverseEdges.get(dest);
-		if (rsrcNeighbors == null) {
-			this.reverseEdges.put(dest, rsrcNeighbors = new LinkedHashSet<E>());
-		}
+
+		Set<E> rsrcNeighbors = this.reverseEdges.computeIfAbsent(dest, k -> new LinkedHashSet<>());
 		rsrcNeighbors.add(src);
 	}
 	

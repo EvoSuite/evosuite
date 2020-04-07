@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -16,9 +16,6 @@
  *
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
- */
-/**
- * 
  */
 package org.evosuite.setup;
 
@@ -361,11 +358,10 @@ public class InheritanceTreeGenerator {
 		return true;
 	}
 
-	private static List<String> classExceptions = Arrays.asList(new String[] {
-	        "java/lang/Class", "java/lang/Object", "java/lang/String",
-	        "java/lang/Comparable", "java/io/Serializable", "com/apple", "apple/",
-	        "sun/", "com/sun", "com/oracle", "sun/awt", "jdk/internal",
-	        "java/util/prefs/MacOSXPreferences" });
+	private static List<String> classExceptions = Arrays.asList("java/lang/Class", "java/lang/Object", "java/lang/String",
+			"java/lang/Comparable", "java/io/Serializable", "com/apple", "apple/",
+			"sun/", "com/sun", "com/oracle", "sun/awt", "jdk/internal",
+			"java/util/prefs/MacOSXPreferences");
 
 	/**
 	 * During runtime, we do not want to consider standard classes to safe some
@@ -484,9 +480,9 @@ public class InheritanceTreeGenerator {
 		XStream xstream = new XStream();
 		XStream.setupDefaultSecurity(xstream);
 		xstream.allowTypesByWildcard(new String[] {"org.evosuite.**", "org.jgrapht.**"});
-		GZIPOutputStream output = new GZIPOutputStream(new FileOutputStream(file));
-		xstream.toXML(tree, output);
-		output.close();
+		try (GZIPOutputStream output = new GZIPOutputStream(new FileOutputStream(file))) {
+			xstream.toXML(tree, output);
+		}
 	}
 
 

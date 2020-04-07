@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -16,9 +16,6 @@
  *
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
- */
-/**
- * 
  */
 package org.evosuite.utils.generic;
 
@@ -39,8 +36,13 @@ import org.slf4j.LoggerFactory;
 import com.googlecode.gentyref.GenericTypeReflector;
 
 /**
+ * This class is meant to mimic {@link java.lang.reflect.AccessibleObject AccessibleObject} from
+ * the Java Reflections API, enhanced with a few additions and convenience methods to work
+ * around the limitations of type erasure with regards to generics and to provide means for
+ * serialization. A {@code GenericAccessibleObject} is the object-representation of one of the
+ * following: a reflected field, reflected method, or reflected constructor of a class.
+ *
  * @author Gordon Fraser
- * 
  */
 public abstract class GenericAccessibleObject<T extends GenericAccessibleObject<?>>
         implements Serializable {
@@ -49,10 +51,13 @@ public abstract class GenericAccessibleObject<T extends GenericAccessibleObject<
 
 	private static final long serialVersionUID = 7069749492563662621L;
 
+	/**
+	 * The class in which this GenericAccessibleObject (i.e. field, method or constructor) is
+	 * located in.
+	 */
 	protected GenericClass owner;
 
 	protected List<GenericClass> typeVariables = new ArrayList<>();
-
 
 	protected static Type getTypeFromExactReturnType(GenericArrayType returnType,
 	        GenericArrayType type) {
@@ -155,10 +160,21 @@ public abstract class GenericAccessibleObject<T extends GenericAccessibleObject<
 		}
 	}
 
+	/**
+	 * Constructs a new GenericAccessibleObject with the given {@code owner} class.
+	 *
+	 * @param owner the class where this accessible object is located in
+	 */
 	public GenericAccessibleObject(GenericClass owner) {
 		this.owner = owner;
 	}
 
+	/**
+	 * Changes the class loader for the owning class of this {@code GenericAccessibleObject} and for
+	 * all of its type variables.
+	 *
+	 * @param loader the new class loader to set
+	 */
 	public void changeClassLoader(ClassLoader loader) {
 		owner.changeClassLoader(loader);
 		for (GenericClass typeVariable : typeVariables) {
@@ -172,6 +188,9 @@ public abstract class GenericAccessibleObject<T extends GenericAccessibleObject<
 		}
 	}
 
+	/**
+	 * Creates and returns a copy of this {@code GenericAccessibleObject}.
+	 */
 	public abstract T copy();
 
 	public abstract T copyWithNewOwner(GenericClass newOwner);

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -35,6 +35,8 @@ import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testsuite.localsearch.TestSuiteLocalSearch;
 
+import static java.util.stream.Collectors.toCollection;
+
 /**
  * <p>
  * TestSuiteChromosome class.
@@ -45,7 +47,7 @@ import org.evosuite.testsuite.localsearch.TestSuiteLocalSearch;
 public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromosome> {
 
 	/** Secondary objectives used during ranking */
-	private static final List<SecondaryObjective<TestSuiteChromosome>> secondaryObjectives = new ArrayList<SecondaryObjective<TestSuiteChromosome>>();
+	private static final List<SecondaryObjective<TestSuiteChromosome>> secondaryObjectives = new ArrayList<>();
 	private static int secondaryObjIndex = 0;
 	private static final long serialVersionUID = 88380759969800800L;
 
@@ -148,9 +150,7 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 
 	
 	public void clearMutationHistory() {
-		for(TestChromosome test : tests) {
-			test.getMutationHistory().clear();
-		}
+		tests.forEach(t -> t.getMutationHistory().clear());
 	}
 
 	/**
@@ -196,16 +196,9 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 	 */
 	public void deleteTest(TestCase testCase) {
 		if (testCase != null) {
-			for (int i = 0; i < tests.size(); i++) {
-				if (tests.get(i).getTestCase().equals((testCase))) {
-					tests.remove(i);
-				}
-			}
+			tests.removeIf(t -> t.getTestCase().equals(testCase));
 		}
 	}
-	
-	
-	
 
 	/**
 	 * <p>
@@ -215,18 +208,13 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 	 * @return a {@link java.util.Set} object.
 	 */
 	public Set<TestFitnessFunction> getCoveredGoals() {
-		Set<TestFitnessFunction> goals = new LinkedHashSet<TestFitnessFunction>();
-		for (TestChromosome test : tests) {
-			final Set<TestFitnessFunction> goalsForTest = test.getTestCase().getCoveredGoals();
-			goals.addAll(goalsForTest);
-		}
+		Set<TestFitnessFunction> goals = new LinkedHashSet<>();
+		tests.stream().map(t -> t.getTestCase().getCoveredGoals()).forEach(goals::addAll);
 		return goals;
 	}
 	
 	public void removeCoveredGoal(TestFitnessFunction f) {
-		for (TestChromosome test : tests) {
-			test.getTestCase().removeCoveredGoal(f);
-		}
+		tests.forEach(t -> t.getTestCase().removeCoveredGoal(f));
 	}
 
 	/**
@@ -237,11 +225,9 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 	 * @return a {@link java.util.List} object.
 	 */
 	public List<TestCase> getTests() {
-		List<TestCase> testcases = new ArrayList<TestCase>();
-		for (TestChromosome test : tests) {
-			testcases.add(test.getTestCase());
-		}
-		return testcases;
+		return tests.stream()
+				.map(TestChromosome::getTestCase)
+				.collect(toCollection(ArrayList::new));
 	}
 
 	@SuppressWarnings("unchecked")

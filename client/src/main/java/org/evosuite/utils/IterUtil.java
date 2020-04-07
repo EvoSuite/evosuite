@@ -18,6 +18,12 @@
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 package org.evosuite.utils;
+
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+
 public class IterUtil {
 	/** Constant <code>DEFAULT_JOIN_SEPARATOR=", "</code> */
 	public static final String DEFAULT_JOIN_SEPARATOR = ", ";
@@ -54,4 +60,32 @@ public class IterUtil {
 	public static String join(Iterable<?> iter) {
 		return join(iter, DEFAULT_JOIN_SEPARATOR);
 	}
+	
+  public static <T> List<T> minList(Iterable<T> collection, Comparator<? super T> comparator) {
+    List<T> minima = new LinkedList<T>();
+
+    if (collection == null) {
+      return minima;
+    }
+
+    Iterator<T> it = collection.iterator();
+
+    T currentMin = it.next();
+    minima.add(currentMin);
+
+    while (it.hasNext()) {
+      T element = it.next();
+      int comparison = comparator.compare(element, currentMin);
+
+      if (comparison < 0) {
+        minima.clear();
+        currentMin = element;
+        minima.add(element);
+      } else if (comparison == 0) {
+        minima.add(element);
+      }
+    }
+
+    return minima;
+  }
 }

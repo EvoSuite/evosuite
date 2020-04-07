@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -64,11 +64,10 @@ public class MaxLengthStoppingCondition extends StoppingConditionImpl {
 	/** {@inheritDoc} */
 	@Override
 	public void iteration(GeneticAlgorithm<?> algorithm) {
-		double avg = 0.0;
-		for (Chromosome c : algorithm.getPopulation()) {
-			avg += c.size();
-		}
-		averageLength = avg / algorithm.getPopulation().size();
+		averageLength = algorithm.getPopulation().stream()
+				.mapToInt(Chromosome::size)
+				.average()
+		 		.orElse(Double.NaN); // return NaN to retain original behaviour
 	}
 
 	/* (non-Javadoc)

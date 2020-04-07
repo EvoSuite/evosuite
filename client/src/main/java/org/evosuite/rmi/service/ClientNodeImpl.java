@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -96,11 +96,11 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 	protected Registry registry;
 
     protected final Collection<Listener<Set<? extends Chromosome>>> listeners = Collections.synchronizedList(
-                                                    new ArrayList<Listener<Set<? extends Chromosome>>>());
-	
+			new ArrayList<>());
+
 	protected final ExecutorService searchExecutor = Executors.newSingleThreadExecutor();
 
-	private final BlockingQueue<OutputVariable> outputVariableQueue = new LinkedBlockingQueue<OutputVariable>();
+	private final BlockingQueue<OutputVariable> outputVariableQueue = new LinkedBlockingQueue<>();
 
 	private Collection<Set<? extends Chromosome>> bestSolutions;
 	
@@ -116,7 +116,7 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 		clientRmiIdentifier = identifier;
 		doneLatch = new CountDownLatch(1);
 		finishedLatch = new CountDownLatch(1);
-		this.bestSolutions = Collections.synchronizedList(new ArrayList<Set<? extends Chromosome>>(Properties.NUM_PARALLEL_CLIENTS));
+		this.bestSolutions = Collections.synchronizedList(new ArrayList<>(Properties.NUM_PARALLEL_CLIENTS));
 	}
 
 	private static class OutputVariable {
@@ -133,23 +133,21 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 	@Override
 	public void startNewSearch() throws RemoteException, IllegalStateException {
 		if (!state.equals(ClientState.NOT_STARTED)) {
-			throw new IllegalArgumentException("Search has already been started");
+			throw new IllegalStateException("Search has already been started");
 		}
 
 		/*
 		 * Needs to be done on separated thread, otherwise the master will block on this
 		 * function call until end of the search, even if it is on remote process
 		 */
-		searchExecutor.submit(new Runnable() {
-			@Override
-			public void run() {
-				changeState(ClientState.STARTED);
+		searchExecutor.submit(() -> {
+			changeState(ClientState.STARTED);
 
-				//Before starting search, let's activate the sandbox
-				if (Properties.SANDBOX) {
-					Sandbox.initializeSecurityManagerForSUT();
-				}
-				List<TestGenerationResult> results = new ArrayList<TestGenerationResult>();
+			//Before starting search, let's activate the sandbox
+			if (Properties.SANDBOX) {
+				Sandbox.initializeSecurityManagerForSUT();
+			}
+			List<TestGenerationResult> results = new ArrayList<>();
 
 				try {
 					// Starting a new search
@@ -177,16 +175,15 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 					Sandbox.resetDefaultSecurityManager();
 				}
 
-				/*
-				 * System is special due to the handling of properties
-				 * 
-				 *  TODO: re-add it once we save JUnit code in the 
-				 *  best individual. Otherwise, we wouldn't
-				 *  be able to properly create the JUnit files in the
-				 *  system test cases after the search
-				 */
-				//org.evosuite.runtime.System.fullReset();
-			}
+			/*
+			 * System is special due to the handling of properties
+			 *
+			 *  TODO: re-add it once we save JUnit code in the
+			 *  best individual. Otherwise, we wouldn't
+			 *  be able to properly create the JUnit files in the
+			 *  system test cases after the search
+			 */
+			//org.evosuite.runtime.System.fullReset();
 		});
 	}
 
@@ -350,7 +347,7 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 	public void stop(){
 		if(statisticsThread!=null){
 			statisticsThread.interrupt();
-			List<OutputVariable> vars = new ArrayList<OutputVariable>();
+			List<OutputVariable> vars = new ArrayList<>();
 			outputVariableQueue.drainTo(vars);
 			for(OutputVariable ov : vars) {
 				try {
@@ -463,38 +460,35 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 		 * Needs to be done on separated thread, otherwise the master will block on this
 		 * function call until end of the search, even if it is on remote process
 		 */
-		searchExecutor.submit(new Runnable() {
-			@Override
-			public void run() {
-				changeState(ClientState.STARTED);
-				Sandbox.goingToExecuteSUTCode();
-                TestGenerationContext.getInstance().goingToExecuteSUTCode();
-				Sandbox.goingToExecuteUnsafeCodeOnSameThread();
+		searchExecutor.submit(() -> {
+			changeState(ClientState.STARTED);
+			Sandbox.goingToExecuteSUTCode();
+			TestGenerationContext.getInstance().goingToExecuteSUTCode();
+			Sandbox.goingToExecuteUnsafeCodeOnSameThread();
 
-				try {
-					LoggingUtils.getEvoLogger().info("* Analyzing classpath (dependency analysis)");
-					DependencyAnalysis.analyzeClass(Properties.TARGET_CLASS,
-							Arrays.asList(ClassPathHandler.getInstance().getClassPathElementsForTargetProject()));
-					StringBuffer fileNames = new StringBuffer();
-					for(Class<?> clazz : TestCluster.getInstance().getAnalyzedClasses()) {
-						fileNames.append(clazz.getName());
-						fileNames.append("\n");
-					}
-					LoggingUtils.getEvoLogger().info("* Writing class dependencies to file "+fileName);
-					FileIOUtils.writeFile(fileNames.toString(), fileName);
-				} catch (Throwable t) {
-					logger.error("Error when analysing coverage for: "
-							+ Properties.TARGET_CLASS + " with seed "
-							+ Randomness.getSeed() + ". Configuration id : "
-							+ Properties.CONFIGURATION_ID, t);
-				} finally {
-					Sandbox.doneWithExecutingUnsafeCodeOnSameThread();
-					Sandbox.doneWithExecutingSUTCode();
-                    TestGenerationContext.getInstance().doneWithExecutingSUTCode();
+			try {
+				LoggingUtils.getEvoLogger().info("* Analyzing classpath (dependency analysis)");
+				DependencyAnalysis.analyzeClass(Properties.TARGET_CLASS,
+						Arrays.asList(ClassPathHandler.getInstance().getClassPathElementsForTargetProject()));
+				StringBuffer fileNames = new StringBuffer();
+				for (Class<?> clazz : TestCluster.getInstance().getAnalyzedClasses()) {
+					fileNames.append(clazz.getName());
+					fileNames.append("\n");
 				}
-
-				changeState(ClientState.DONE);
+				LoggingUtils.getEvoLogger().info("* Writing class dependencies to file " + fileName);
+				FileIOUtils.writeFile(fileNames.toString(), fileName);
+			} catch (Throwable t) {
+				logger.error("Error when analysing coverage for: "
+						+ Properties.TARGET_CLASS + " with seed "
+						+ Randomness.getSeed() + ". Configuration id : "
+						+ Properties.CONFIGURATION_ID, t);
+			} finally {
+				Sandbox.doneWithExecutingUnsafeCodeOnSameThread();
+				Sandbox.doneWithExecutingSUTCode();
+				TestGenerationContext.getInstance().doneWithExecutingSUTCode();
 			}
+
+			changeState(ClientState.DONE);
 		});
 	}
 
@@ -578,7 +572,7 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
     public Set<Set<? extends Chromosome>> getBestSolutions() {
         do {
             if (bestSolutions.size() == (Properties.NUM_PARALLEL_CLIENTS - 1)) {
-                return new HashSet<Set<? extends Chromosome>>(bestSolutions);
+                return new HashSet<>(bestSolutions);
             }
         } while (finishedLatch.getCount() != 0);
         

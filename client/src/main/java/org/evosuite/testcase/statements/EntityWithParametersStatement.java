@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -35,6 +35,9 @@ import java.lang.reflect.Type;
 import java.util.*;
 
 /**
+ * A common superclass for statements that contain a call to an executable entity, i.e.,
+ * methods, constructors and functional mocks.
+ *
  * Created by Andrea Arcuri on 04/07/15.
  */
 public abstract class EntityWithParametersStatement extends AbstractStatement{
@@ -255,13 +258,7 @@ public abstract class EntityWithParametersStatement extends AbstractStatement{
         }
         if(avoidNull){
             //be sure to remove all references pointing to NULL
-            Iterator<VariableReference> iter = objects.iterator();
-            while(iter.hasNext()){
-                VariableReference ref = iter.next();
-                if(ref instanceof NullReference){
-                    iter.remove();
-                }
-            }
+            objects.removeIf(ref -> ref instanceof NullReference);
 
         } else {
             // If it's not a primitive, then changing to null is also an option
@@ -273,7 +270,7 @@ public abstract class EntityWithParametersStatement extends AbstractStatement{
 
         // If there are fewer objects than parameters of that type,
         // we consider adding an instance
-        if(getNumParametersOfType(parameter.getVariableClass()) + 1 < objects.size()) {
+        if(getNumParametersOfType(parameter.getVariableClass()) + 1 > objects.size()) {
             Statement originalStatement = test.getStatement(parameter.getStPosition());
             copy = originalStatement.clone(test);
             if (originalStatement instanceof PrimitiveStatement<?>) {
