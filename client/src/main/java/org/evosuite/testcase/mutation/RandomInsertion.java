@@ -99,7 +99,7 @@ public class RandomInsertion implements InsertionStrategy {
 				// find the last position where the selected variable is used in the test case
 				final int lastUsage = test.getReferences(var).stream()
 						.mapToInt(VariableReference::getStPosition)
-						.max().getAsInt(); // getAsInt() always succeeds as stream cannot be empty
+						.max().orElse(var.getStPosition());
 
 				int boundPosition = ConstraintHelper.getLastPositionOfBounded(var, test);
 				if(boundPosition >= 0 ){
