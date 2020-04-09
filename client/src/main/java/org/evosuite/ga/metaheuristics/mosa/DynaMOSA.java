@@ -203,14 +203,14 @@ public class DynaMOSA extends AbstractMOSA {
 	protected void calculateFitness(TestChromosome c) {
 		if (!isFinished()) {
 			this.goalsManager.calculateFitness(c, this); // also updates the archive and
-														 // the targets
+															 // the targets
 			this.notifyEvaluation(c);
 		}
+	}
 
 	@Override
 	public void initializePopulation() {
 		MutationUtils.registerGoalsManager(goalsManager);
 		super.initializePopulation();
-	}
 	}
 }

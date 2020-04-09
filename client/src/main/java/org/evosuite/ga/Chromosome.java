@@ -528,11 +528,11 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	}
 
 	public void updateAge(int generation) {
-		this.age = generation;
+		this.generation = generation;
 	}
 
 	public int getAge() {
-		return age;
+		return generation;
 	}
 
 	public int getRank() {

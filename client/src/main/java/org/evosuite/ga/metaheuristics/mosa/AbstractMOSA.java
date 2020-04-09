@@ -19,16 +19,9 @@
  */
 package org.evosuite.ga.metaheuristics.mosa;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
+
 import org.apache.commons.lang3.arch.Processor;
 import org.evosuite.ProgressMonitor;
 import org.evosuite.Properties;
@@ -156,7 +149,6 @@ public abstract class AbstractMOSA extends GeneticAlgorithm<TestChromosome, Test
 				logger.debug("CrossOver failed.");
 				continue;
 			}
-				}
 
 			this.removeUnusedVariables(offspring1);
 			this.removeUnusedVariables(offspring2);
@@ -165,7 +157,7 @@ public abstract class AbstractMOSA extends GeneticAlgorithm<TestChromosome, Test
 			this.mutate(offspring1, parent1);
 			if (offspring1.isChanged()) {
 				this.clearCachedResults(offspring1);
-				offspring1.updateGeneration(this.currentIteration);
+				offspring1.updateAge(this.currentIteration);
 				this.calculateFitness(offspring1);
 				if (!shouldIgnore(offspring1))
 					offspringPopulation.add(offspring1);
@@ -175,7 +167,7 @@ public abstract class AbstractMOSA extends GeneticAlgorithm<TestChromosome, Test
 			this.mutate(offspring2, parent2);
 			if (offspring2.isChanged()) {
 				this.clearCachedResults(offspring2);
-				offspring2.updateGeneration(this.currentIteration);
+				offspring2.updateAge(this.currentIteration);
 				this.calculateFitness(offspring2);
 				if (!shouldIgnore(offspring2))
 					offspringPopulation.add(offspring2);
@@ -193,7 +185,7 @@ public abstract class AbstractMOSA extends GeneticAlgorithm<TestChromosome, Test
 //				tch.mutate(); // TODO why is it mutated twice?
 			}
 			if (tch.isChanged()) {
-				tch.updateGeneration(this.currentIteration);
+				tch.updateAge(this.currentIteration);
 				this.calculateFitness(tch);
 				offspringPopulation.add(tch);
 			}
@@ -208,9 +200,8 @@ public abstract class AbstractMOSA extends GeneticAlgorithm<TestChromosome, Test
 	 * @return true (i.e., the test shuld be ignored) if it reached the timeout (too expensive test) or if
 	 * it has a test exception
 	 */
-	protected boolean shouldIgnore(T offspring){
-		TestChromosome tch = (TestChromosome) offspring;
-		ExecutionResult result = tch.getLastExecutionResult();
+	protected boolean shouldIgnore(TestChromosome offspring){
+		ExecutionResult result = offspring.getLastExecutionResult();
 		if (result == null)
 			return true;
 

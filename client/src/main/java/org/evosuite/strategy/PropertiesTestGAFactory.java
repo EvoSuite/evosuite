@@ -166,7 +166,7 @@ public class PropertiesTestGAFactory extends PropertiesSearchAlgorithmFactory<Te
             return new StandardChemicalReaction<>(factory);
         case MAP_ELITES:
           logger.info("Chosen search algorithm: MAP-Elites");
-          return new MAPElites<TestChromosome>(factory);
+          return new MAPElites(factory);
         case LIPS:
         	logger.info("Chosen search algorithm: LIPS");
             return new LIPS(factory);

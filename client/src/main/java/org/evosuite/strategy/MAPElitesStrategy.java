@@ -33,7 +33,7 @@ public class MAPElitesStrategy extends TestGenerationStrategy {
     LoggingUtils.getEvoLogger().info("* Setting up search algorithm for MAP-Elites search with choice {}", Properties.MAP_ELITES_CHOICE.name());
 
     PropertiesMapElitesSearchFactory algorithmFactory = new PropertiesMapElitesSearchFactory();
-    MAPElites<TestChromosome> algorithm = algorithmFactory.getSearchAlgorithm();
+    MAPElites algorithm = algorithmFactory.getSearchAlgorithm();
 
     if (Properties.SERIALIZE_GA || Properties.CLIENT_ON_THREAD)
       TestGenerationResultBuilder.getInstance().setGeneticAlgorithm(algorithm);

@@ -19,6 +19,7 @@
  */
 package org.evosuite.ga.metaheuristics;
 
+import junit.framework.TestSuite;
 import org.evosuite.ProgressMonitor;
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
@@ -26,6 +27,7 @@ import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.ConstructionFailedException;
+import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.comparators.SortByFitness;
 import org.evosuite.ga.metaheuristics.mosa.MOSA;
 import org.evosuite.ga.metaheuristics.mosa.structural.BranchesManager;
@@ -36,6 +38,7 @@ import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.TestCaseExecutor;
+import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.evosuite.utils.ArrayUtil;
 import org.evosuite.utils.BudgetConsumptionMonitor;
@@ -139,10 +142,10 @@ public class LIPS extends GeneticAlgorithm<TestChromosome, TestFitnessFunction> 
 				newGeneration.add(offspring2);
 
 				if(offspring1.isChanged()) {
-					offspring1.updateGeneration(currentIteration);
+					offspring1.updateAge(currentIteration);
 				}
 				if(offspring2.isChanged()) {
-					offspring2.updateGeneration(currentIteration);
+					offspring2.updateAge(currentIteration);
 				}
 			} catch (ConstructionFailedException e) {
 				logger.info("CrossOver/Mutation failed.");
@@ -415,29 +418,33 @@ public class LIPS extends GeneticAlgorithm<TestChromosome, TestFitnessFunction> 
 //	}
 
 
+//	@Override
+//	public List<TestChromosome> getBestIndividuals() {
+//		//get final test suite (i.e., non dominated solutions in Archive)
+//		TestSuiteChromosome bestTestCases = new TestSuiteChromosome();
+//		for (TestChromosome test : getFinalTestSuite()) {
+//			bestTestCases.addTest(test);
+//		}
+//		for (TestFitnessFunction f : this.archive.keySet()){
+//			bestTestCases.getCoveredGoals().add(f);
+//		}
+//		// compute overall fitness and coverage
+//		double fitness = this.fitnessFunctions.size() - numberOfCoveredTargets();
+//		double coverage = numberOfCoveredTargets() / ((double) this.fitnessFunctions.size());
+//		bestTestCases.setFitness(suiteFitness, fitness);
+//		bestTestCases.setCoverage(suiteFitness, coverage);
+//		bestTestCases.setNumOfCoveredGoals(suiteFitness, (int) numberOfCoveredTargets());
+//		bestTestCases.setNumOfNotCoveredGoals(suiteFitness, (int) (this.fitnessFunctions.size()-numberOfCoveredTargets()));
+//
+//		List<TestChromosome> bests = new ArrayList<>(1);
+//		bests.add(bestTestCases);
+//		return bests;
+//	}
+
+
 	@Override
 	public List<TestChromosome> getBestIndividuals() {
 		return getFinalTestSuite();
-	public List<T> getBestIndividuals() {
-		//get final test suite (i.e., non dominated solutions in Archive)
-		TestSuiteChromosome bestTestCases = new TestSuiteChromosome();
-		for (T test : getFinalTestSuite()) {
-			bestTestCases.addTest((TestChromosome) test);
-		}
-		for (FitnessFunction<T> f : this.archive.keySet()){
-			bestTestCases.getCoveredGoals().add((TestFitnessFunction) f);
-		}
-		// compute overall fitness and coverage
-		double fitness = this.fitnessFunctions.size() - numberOfCoveredTargets();
-		double coverage = ((double) numberOfCoveredTargets()) / ((double) this.fitnessFunctions.size());
-		bestTestCases.setFitness(suiteFitness, fitness);
-		bestTestCases.setCoverage(suiteFitness, coverage);
-		bestTestCases.setNumOfCoveredGoals(suiteFitness, (int) numberOfCoveredTargets());
-		bestTestCases.setNumOfNotCoveredGoals(suiteFitness, (int) (this.fitnessFunctions.size()-numberOfCoveredTargets()));
-
-		List<T> bests = new ArrayList<>(1);
-		bests.add((T) bestTestCases);
-		return bests;
 	}
 
 	protected List<TestChromosome> getFinalTestSuite() {

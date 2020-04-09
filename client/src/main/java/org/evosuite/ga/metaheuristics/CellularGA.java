@@ -118,7 +118,7 @@ public class CellularGA<T extends Chromosome, F extends FitnessFunction<T>> exte
 			bestOffspring.mutate();
 
 			if (bestOffspring.isChanged()) {
-				bestOffspring.updateGeneration(currentIteration);
+				bestOffspring.updateAge(currentIteration);
 			}
 
 			if (bestOffspring.size() > 0 && !isTooLong(bestOffspring))

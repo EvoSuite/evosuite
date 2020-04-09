@@ -38,7 +38,7 @@ import org.evosuite.utils.ResourceController;
 import sun.misc.Signal;
 
 public class PropertiesMapElitesSearchFactory
-    extends PropertiesSearchAlgorithmFactory<TestChromosome> {
+    extends PropertiesSearchAlgorithmFactory {
 
   private ChromosomeFactory<TestChromosome> getChromosomeFactory() {
     switch (Properties.TEST_FACTORY) {
@@ -53,9 +53,7 @@ public class PropertiesMapElitesSearchFactory
         return new ArchiveTestChromosomeFactory();
       case JUNIT:
         logger.info("Using seeding chromosome factory");
-        JUnitTestCarvedChromosomeFactory factory =
-            new JUnitTestCarvedChromosomeFactory(new RandomLengthTestFactory());
-        return factory;
+        return new JUnitTestCarvedChromosomeFactory(new RandomLengthTestFactory());
       case SERIALIZATION:
         logger.info("Using serialization seeding chromosome factory");
         return new RandomLengthTestFactory();
@@ -66,9 +64,9 @@ public class PropertiesMapElitesSearchFactory
   }
 
   @Override
-  public MAPElites<TestChromosome> getSearchAlgorithm() {
+  public MAPElites getSearchAlgorithm() {
     ChromosomeFactory<TestChromosome> factory = getChromosomeFactory();
-    MAPElites<TestChromosome> ga = new MAPElites<>(factory);
+    MAPElites ga = new MAPElites(factory);
 
     if (Properties.NEW_STATISTICS)
       ga.addListener(new StatisticsListener());

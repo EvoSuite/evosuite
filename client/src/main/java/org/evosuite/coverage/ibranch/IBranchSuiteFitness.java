@@ -83,7 +83,7 @@ public class IBranchSuiteFitness extends TestSuiteFitnessFunction {
 						innermap.computeIfAbsent(goal.getContext(), k -> new LinkedHashSet<>());
 				tempInSet.add(goal);
 			} else {
-				String methodName = goal.getTargetClassName() + "." + goal.getTargetMethod();
+				String methodName = goal.getTargetClassName() + "." + goal.getTargetMethodName();
 				Map<CallContext, IBranchTestFitness> innermap =
 						methodsMap.computeIfAbsent(methodName, k -> new LinkedHashMap<>());
 				innermap.put(goal.getContext(), goal);
