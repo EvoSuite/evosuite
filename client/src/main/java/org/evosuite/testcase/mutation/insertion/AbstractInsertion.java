@@ -291,7 +291,7 @@ public abstract class AbstractInsertion implements InsertionStrategy {
             // the last position where var is used in the test case
             final int lastUsage = test.getVariablesDependingOn(var, true).stream()
                     .mapToInt(VariableReference::getStPosition)
-                    .max().getAsInt(); // getAsInt() always succeeds as stream cannot be empty
+                    .max().orElse(var.getStPosition());
 
             final int boundPosition = ConstraintHelper.getLastPositionOfBounded(var, test);
             if (boundPosition >= 0) {
