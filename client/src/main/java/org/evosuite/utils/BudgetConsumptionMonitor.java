@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -22,26 +22,29 @@ package org.evosuite.utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Serializable;
+
 /**
  * Utility class used to keep track of the execution time needed to reach the maximum coverage
- * 
+ *
  * @author Annibale Panichella
  */
-public class BudgetConsumptionMonitor {
+public class BudgetConsumptionMonitor implements Serializable {
 
 	private static final Logger logger = LoggerFactory.getLogger(BudgetConsumptionMonitor.class);
+	private static final long serialVersionUID = -4282519578535413645L;
 
 	/** Coverage achieved in the previous generation */
 	private double past_coverage;
 
 	/** To keep track when the overall search started */
-	private long startGlobalSearch;
+	private final long startGlobalSearch;
 
 	/** Time required to achieve the maximum coverage */
 	private long time2MaxCoverage;
 
-	/** 
-	 * Constructor that initialises the counters 
+	/**
+	 * Constructor that initialises the counters
 	 */
 	public BudgetConsumptionMonitor(){
 		past_coverage = 0;
@@ -49,8 +52,8 @@ public class BudgetConsumptionMonitor {
 		time2MaxCoverage = 0;
 	}
 
-	/** 
-	 * This method updates the time needed to reach the maximum coverage if 
+	/**
+	 * This method updates the time needed to reach the maximum coverage if
 	 * the new coverage is greater than the previous one stored in "past_coverage"
 	 * @param coverage new coverage value
 	 */
