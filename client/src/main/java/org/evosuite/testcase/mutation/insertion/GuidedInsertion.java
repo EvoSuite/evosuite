@@ -250,7 +250,7 @@ public class GuidedInsertion extends AbstractInsertion {
      * @return {@code true} if the target executable is directly callable, {@code false} otherwise
      */
     private boolean isPromising(final TestFitnessFunction goal, final TestCase test) {
-        return goal.isPublic()
+        return goal.isAccessible()
                 && (goal.isStatic()
                 || goal.isConstructor()
                 || test.hasObject(goal.getClazz(), test.size())
@@ -312,7 +312,7 @@ public class GuidedInsertion extends AbstractInsertion {
          * actually be invoked. This might depend on many other factors, such as the particular
          * assignment of input parameter values, the object's current state, etc.
          */
-        if (!goal.isPublic()) {
+        if (!goal.isAccessible()) {
             if (retry) {
                 // When we already tried to call the non-public method before, but we didn't reach
                 // the target, we could try to insert yet another call to a public "proxy" method.
@@ -559,7 +559,7 @@ public class GuidedInsertion extends AbstractInsertion {
             // method calls that perform the mutations as side effect by writing to the field.
             final MethodEntry writingMethod;
 
-            if (previousGoal.isPublic()) {
+            if (previousGoal.isAccessible()) {
                 // The goal is located inside a public method. We insert a call to another method
                 // that holds a data dependency on the current method.
                 final List<EntityWithParametersStatement> calledMethods = test.getCalledMethods();

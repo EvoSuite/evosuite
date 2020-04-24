@@ -437,7 +437,7 @@ public class TestChromosome extends ExecutableChromosome {
             // because they're supposedly easier to cover. (We can call public methods directly,
             // whereas non-public methods are completely hidden and can only be reached indirectly.)
 		    final Map<Boolean, List<TestFitnessFunction>> newGoals = goals.stream()
-                            .collect(Collectors.partitioningBy(TestFitnessFunction::isPublic));
+                            .collect(Collectors.partitioningBy(TestFitnessFunction::isAccessible));
 
 		    // We check if there's a public goal for which the target method is already invoked.
             // If so, it means that control flow already enters the right method, but still misses
@@ -492,7 +492,7 @@ public class TestChromosome extends ExecutableChromosome {
 
             // Fuzz the input parameters of the public target or, if the goals is non-public,
             // one of its public callers.
-            if (previousGoal.isPublic()) {
+            if (previousGoal.isAccessible()) {
                 logger.debug("Trying to fuzz input parameters for current goal");
 
                 final EntityWithParametersStatement call = getStatementFor(previousGoal);

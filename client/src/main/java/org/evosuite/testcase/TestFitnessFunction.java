@@ -48,7 +48,7 @@ public abstract class TestFitnessFunction extends FitnessFunction<TestChromosome
 
 	protected final String className;
 	protected final String methodName;
-	private final boolean publicExecutable;
+	private final boolean accessibleExecutable;
 	private final boolean constructor;
 	private final boolean staticExecutable;
 	private final Class<?> clazz;
@@ -56,7 +56,7 @@ public abstract class TestFitnessFunction extends FitnessFunction<TestChromosome
 	private final int cyclomaticComplexity;
 	private int failurePenalty;
 
-	private int maxFailures;
+	private final int maxFailures;
 
 	protected TestFitnessFunction(final String className,
 								  final String methodNameDesc) {
@@ -64,7 +64,7 @@ public abstract class TestFitnessFunction extends FitnessFunction<TestChromosome
 		this.methodName = Objects.requireNonNull(methodNameDesc, "method name + descriptor cannot be null");
 		this.clazz = Objects.requireNonNull(ClassLoaderUtils.getClazz(className));
 		this.executable = Objects.requireNonNull(ClassLoaderUtils.getExecutable(methodNameDesc, clazz));
-		this.publicExecutable = executable.isPublic();
+		this.accessibleExecutable = !executable.isPrivate();
 		this.staticExecutable = executable.isStatic();
 		this.constructor = executable.isConstructor();
 		this.cyclomaticComplexity = computeCyclomaticComplexity(className, methodName);
@@ -425,12 +425,13 @@ public abstract class TestFitnessFunction extends FitnessFunction<TestChromosome
 
 	/**
 	 * Tells whether the executable (i.e., method or constructor) containing the coverage target is
-	 * public.
+	 * accessible (not private).
 	 *
-	 * @return {@code true} if the executable is public, {@code false} otherwise
+	 * @return {@code true} if the executable is accessible, {@code false}
+	 * otherwise
 	 */
-	public boolean isPublic() {
-		return publicExecutable;
+	public boolean isAccessible() {
+		return accessibleExecutable;
 	}
 
 	/**
