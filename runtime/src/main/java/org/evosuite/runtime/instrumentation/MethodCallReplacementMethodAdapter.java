@@ -62,7 +62,7 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 	 */
 	public MethodCallReplacementMethodAdapter(MethodVisitor mv, String className,
 			String superClassName, String methodName, int access, String desc) {
-		super(Opcodes.ASM5, mv, access, methodName, desc);
+		super(Opcodes.ASM7, mv, access, methodName, desc);
 		this.className = className;
 		this.superClassName = superClassName;
 		if (methodName.equals("<init>")) {

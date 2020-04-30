@@ -23,10 +23,8 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.Deque;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import org.evosuite.symbolic.expr.bv.IntegerConstant;
 import org.evosuite.symbolic.expr.fp.RealConstant;
@@ -39,12 +37,12 @@ import org.evosuite.dse.AbstractVM;
 
 /**
  * Explicit inter-procedural control transfer: InvokeXXX, Return, etc.
- * 
+ *
  * We ignore the CALLER_STACK_PARAM calls here, as we have maintained the
  * operand stack during the caller's execution, so we already know the operand
  * stack values and therefore the parameter values to be used for a given method
  * invocation.
- * 
+ *
  * @author csallner@uta.edu (Christoph Csallner)
  */
 public final class CallVM extends AbstractVM {
@@ -101,10 +99,10 @@ public final class CallVM extends AbstractVM {
 
 	/**
 	 * Begin of a basic block that is the begin of an exception handler.
-	 * 
+	 *
 	 * We could be in an entirely different invocation frame than the previous
 	 * instruction was in.
-	 * 
+	 *
 	 * TODO: Account for different call sites in the same method. This may lead
 	 * to the need to discard frames although they are of the same function as
 	 * indicated by the parameters.
@@ -189,20 +187,20 @@ public final class CallVM extends AbstractVM {
 
 	/**
 	 * Pop operands off caller stack
-	 * 
+	 *
 	 * Method methName is about to start execution.
-	 * 
+	 *
 	 * At this point we have either already seen (observed InvokeXXX) or missed
 	 * this invocation of the methName method.
-	 * 
+	 *
 	 * We miss any of the following: - invoke <clinit> (as there are no such
 	 * statements) - invoke <init> (as we do not add instrumentation code for
 	 * these)
-	 * 
+	 *
 	 * User code cannot call the <clinit>() method directly. Instead, the JVM
 	 * invokes a class's initializer implicitly, upon the first use of the
 	 * class.
-	 * 
+	 *
 	 * http://java.sun.com/docs/books/jvms/second_edition/html/Concepts.doc.html
 	 * #32316
 	 * http://java.sun.com/docs/books/jvms/second_edition/html/Concepts.doc
@@ -413,7 +411,7 @@ public final class CallVM extends AbstractVM {
 
 	/**
 	 * Asm method descriptor --> Method parameters as Java Reflection classes.
-	 * 
+	 *
 	 * Does not include the receiver for
 	 */
 	private Class<?>[] getArgumentClasses(String methDesc) {
@@ -427,35 +425,42 @@ public final class CallVM extends AbstractVM {
 		return classes;
 	}
 
+	private static Method findMethodFromClass(Class<?> clazz, String methodName, Class<?>[] argTypes){
+        Method method = null;
+	    try {
+            method = clazz.getDeclaredMethod(methodName, argTypes);
+        } catch (NoSuchMethodException ignored) {
+        }
+        return method;
+	}
+
 	/**
 	 * Resolves (static) method overloading.
-	 * 
+	 *
 	 * Ensures that owner class is prepared.
-	 * 
+	 *
 	 * FIXME: user code calling java.util.Deque.isEmpty() crashes this method
-	 * 
+	 *
 	 * @return method named name, declared by owner or one of its super-classes,
 	 *         which has the parameters encoded in methDesc.
 	 */
 	private Method resolveMethodOverloading(String owner, String name, String methDesc) {
+		if(owner.equals("com.sun.org.apache.xerces.internal.jaxp.SAXParserImpl")){
+			int y=0;
+		}
 		Method method = null;
 		final Deque<Class<?>> interfaces = new LinkedList<Class<?>>();
 
 		Class<?> claz = env.ensurePrepared(owner);
 		/* Resolve method overloading -- need method parameter types */
 		Class<?>[] argTypes = getArgumentClasses(methDesc);
-
 		while ((method == null) && (claz != null)) {
-			Class<?>[] ifaces = claz.getInterfaces();
-			for (Class<?> iface : ifaces)
-				interfaces.add(iface);
+			interfaces.addAll(Arrays.asList(claz.getInterfaces()));
 
-			try { // TODO: Need getDeclaredMethods here?
-				method = claz.getDeclaredMethod(name, argTypes);
-			} catch (NoSuchMethodException nsme) { // TODO: do not use
-													// exceptions
-				claz = claz.getSuperclass();
-			}
+			method = findMethodFromClass(claz,name,argTypes);
+
+			if(method == null)
+			    claz = claz.getSuperclass();
 
 			if (claz == null && !interfaces.isEmpty())
 				claz = interfaces.pop();
@@ -513,7 +518,7 @@ public final class CallVM extends AbstractVM {
 	 * <li>not a constructor <init></li>
 	 * <li>not a class initializer <clinit></li>
 	 * </ul>
-	 * 
+	 *
 	 * @return static method descriptor
 	 */
 	private Method methodCall(String className, String methName, String methDesc) {
@@ -543,9 +548,9 @@ public final class CallVM extends AbstractVM {
 	 * <li>private method</li>
 	 * <li>method of a superclass of the current class</li>
 	 * </ul>
-	 * 
+	 *
 	 * No dynamic dispatch (unlike InvokeVirtual)
-	 * 
+	 *
 	 * http://java.sun.com/docs/books/jvms/second_edition/html/Instructions2.
 	 * doc6.html#invokespecial
 	 * http://java.sun.com/docs/books/jvms/second_edition
@@ -581,11 +586,11 @@ public final class CallVM extends AbstractVM {
 	 * We get this callback right before the user code makes the corresponding
 	 * virtual call to method className.methName(methDesc). See:
 	 * {@link ConcolicMethodAdapter#visitMethodInsn}
-	 * 
+	 *
 	 * <p>
 	 * The current instrumentation system only calls this version of
 	 * INVOKEVIRTUAL for methods that take two or fewer parameters.
-	 * 
+	 *
 	 * http://java.sun.com/docs/books/jvms/second_edition/html/Instructions2.
 	 * doc6.html#invokevirtual
 	 */
@@ -620,7 +625,7 @@ public final class CallVM extends AbstractVM {
 	 * We get this callback right before the user code makes the corresponding
 	 * call to interface method className.methName(methDesc). See:
 	 * {@link ConcolicMethodAdapter#visitMethodInsn}
-	 * 
+	 *
 	 * <p>
 	 * http://java.sun.com/docs/books/jvms/second_edition/html/Instructions2.
 	 * doc6.html#invokeinterface
@@ -658,7 +663,7 @@ public final class CallVM extends AbstractVM {
 		/*
 		 * Heuristic: Do not encode the receiver type if a method is
 		 * "final native", e.g., Object.getClass().
-		 * 
+		 *
 		 * not( isNative(static method descriptor) && isFinal(static method
 		 * descriptor))
 		 */
@@ -720,7 +725,7 @@ public final class CallVM extends AbstractVM {
 
 	/**
 	 * No actual return value.
-	 * 
+	 *
 	 * If we invoked uninstrumented code, then throw away the parameters passed
 	 * to that uninstrumented code.
 	 */
@@ -764,7 +769,7 @@ public final class CallVM extends AbstractVM {
 
 	/**
 	 * int, short, byte all map to a BitVec32
-	 * 
+	 *
 	 * TODO: Will this work for char?
 	 */
 	@Override

@@ -31,7 +31,7 @@ public class RemoveFinalClassAdapter extends ClassVisitor {
 	public static final Set<String> finalClasses = new LinkedHashSet<String>();
 	
 	public RemoveFinalClassAdapter(ClassVisitor cv) {
-		super(Opcodes.ASM5, cv);
+		super(Opcodes.ASM7, cv);
 	}
 
 	/**

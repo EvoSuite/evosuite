@@ -53,7 +53,7 @@ public class ArrayAllocationLimitMethodAdapter extends GeneratorAdapter {
 	 */
 	public ArrayAllocationLimitMethodAdapter(MethodVisitor mv, String className,
 	        String methodName, int access, String desc) {
-		super(Opcodes.ASM5, mv, access, methodName, desc);
+		super(Opcodes.ASM7, mv, access, methodName, desc);
 	}
 
 	/* (non-Javadoc)

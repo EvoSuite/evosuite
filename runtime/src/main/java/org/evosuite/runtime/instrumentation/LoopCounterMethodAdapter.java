@@ -40,7 +40,7 @@ public class LoopCounterMethodAdapter extends MethodVisitor {
     private static final String LOOP_COUNTER = Type.getInternalName(LoopCounter.class);
 
     public LoopCounterMethodAdapter(MethodVisitor mv, String methodName, String desc) {
-        super(Opcodes.ASM5, mv);
+        super(Opcodes.ASM7, mv);
     }
 
     @Override
