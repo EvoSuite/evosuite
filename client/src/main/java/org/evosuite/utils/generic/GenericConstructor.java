@@ -50,16 +50,19 @@ public class GenericConstructor extends GenericExecutable<GenericConstructor,
 	public GenericConstructor(Constructor<?> constructor, Class<?> clazz) {
 		super(new GenericClass(clazz));
 		this.constructor = constructor;
+		this.constructor.setAccessible(true);
 	}
 
 	public GenericConstructor(Constructor<?> constructor, GenericClass owner) {
 		super(new GenericClass(owner));
 		this.constructor = constructor;
+		this.constructor.setAccessible(true);
 	}
 
 	public GenericConstructor(Constructor<?> constructor, Type type) {
 		super(new GenericClass(type));
 		this.constructor = constructor;
+		this.constructor.setAccessible(true);
 	}
 
 	@Override

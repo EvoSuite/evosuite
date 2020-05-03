@@ -66,6 +66,7 @@ public class GenericMethod extends GenericExecutable<GenericMethod, Method> {
 	public GenericMethod(Method method, GenericClass type) {
 		super(new GenericClass(type));
 		this.method = method;
+		this.method.setAccessible(true);
 		Inputs.checkNull(method, type);
 	}
 
@@ -79,6 +80,7 @@ public class GenericMethod extends GenericExecutable<GenericMethod, Method> {
 	public GenericMethod(Method method, Class<?> type) {
 		super(new GenericClass(type));
 		this.method = method;
+		this.method.setAccessible(true);
 		Inputs.checkNull(method, type);
 	}
 
@@ -92,6 +94,7 @@ public class GenericMethod extends GenericExecutable<GenericMethod, Method> {
 	public GenericMethod(Method method, Type type) {
 		super(new GenericClass(type));
 		this.method = method;
+		this.method.setAccessible(true);
 		Inputs.checkNull(method, type);
 	}
 
