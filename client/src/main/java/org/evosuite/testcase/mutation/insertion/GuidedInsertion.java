@@ -112,7 +112,7 @@ public class GuidedInsertion extends AbstractInsertion {
 
         // Whether the test case actually managed to cover the intended goal.
         final boolean previousGoalCovered = !goals().contains(previousGoal)
-                || (previousGoal == null && test.isEmpty());
+                || previousGoal == null || !test.isEmpty();
 
         debug("Previous goal has not been covered: {}", previousGoal);
 
@@ -447,7 +447,11 @@ public class GuidedInsertion extends AbstractInsertion {
             }
 
             // Return the first one that works out.
-            return ClassLoaderUtils.getExecutable(callerMethodNameDesc, clazz);
+            final GenericExecutable<?, ?> executable =
+                    ClassLoaderUtils.getExecutable(callerMethodNameDesc, clazz);
+            if (executable != null && executable.isAccessible()) {
+                return executable;
+            }
         }
 
         warn("No public caller for {} in {} could be reflected!", calleeMethodName, calleeClassName);

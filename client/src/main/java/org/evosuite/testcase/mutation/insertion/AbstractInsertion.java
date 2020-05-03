@@ -148,17 +148,18 @@ public abstract class AbstractInsertion implements InsertionStrategy {
             position = insertParam(test, lastPosition);
             success = (position >= 0);
 
-            if (!success)
+            if (!success) {
                 position = 0;
 
                 if (testCluster.getNumTestCalls() > 0) {
+                    // misleading logger message?
                     logger.debug("Adding new call on UUT because var was null");
                     //Why was it different from UUT insertion? ie, in random position instead of last
                     //position = Randomness.nextInt(max);
                     position = test.size();
-//                    success = insertRandomCall(test, position);
-                    success = insertUUT(test, position);
+                    success = insertRandomCall(test, position);
                 }
+            }
         }
 
         // This can happen if insertion had side effect of adding further previous statements in the
