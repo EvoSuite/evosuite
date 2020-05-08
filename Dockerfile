@@ -9,6 +9,9 @@ RUN adduser --system evosuite
 USER evosuite
 WORKDIR /home/evosuite
 
-RUN git clone ${GIT_REPO} evosuite && cd evosuite && git checkout ${GIT_COMMIT} && mvn package -DskipTests=${SKIP_TESTS}
+RUN mkdir -p /home/evosuite/results && git clone ${GIT_REPO} repo && cd repo && git checkout ${GIT_COMMIT} && mvn package -DskipTests=${SKIP_TESTS}
 
-ENTRYPOINT ["java", "-jar", "evosuite/master/target/evosuite-master-1.0.7-SNAPSHOT.jar"]
+WORKDIR /home/evosuite/results
+VOLUME /home/evosuite/results
+
+ENTRYPOINT ["java", "-jar", "/home/evosuite/repo/master/target/evosuite-master-1.0.7-SNAPSHOT.jar"]
