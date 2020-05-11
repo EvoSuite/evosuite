@@ -26,6 +26,8 @@ import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.coverage.aes.AbstractAESCoverageSuiteFitness.Metric;
 import org.evosuite.coverage.aes.branch.AESBranchCoverageSuiteFitness;
+import org.evosuite.coverage.aes.method.AESMethodCoverageSuiteFitness;
+import org.evosuite.coverage.aes.method.AESPublicMethodCoverageSuiteFitness;
 import org.evosuite.coverage.ambiguity.AmbiguityCoverageSuiteFitness;
 import org.evosuite.coverage.rho.RhoCoverageSuiteFitness;
 import org.evosuite.TestGenerationContext;
@@ -312,14 +314,32 @@ public class CoverageCriteriaAnalyzer {
             AmbiguityCoverageSuiteFitness ag = new AmbiguityCoverageSuiteFitness();
             ClientServices.getInstance().getClientNode().trackOutputVariable(
                     RuntimeVariable.AmbiguityScore, ag.getFitness(testSuite));
+        } else if (criterion == Properties.Criterion.DDU_BRANCH) {
+            AESBranchCoverageSuiteFitness branchFitness = new AESBranchCoverageSuiteFitness(Metric.AES);
+            ClientServices.getInstance().getClientNode().trackOutputVariable(
+                    RuntimeVariable.DDUBranchCoverage, branchFitness.getMetric(testSuite));
+            ClientServices.getInstance().getClientNode().trackOutputVariable(
+                    RuntimeVariable.DDUScore, Math.abs(0.5 - branchFitness.getFitness(testSuite)));
+            branchFitness = new AESBranchCoverageSuiteFitness(Metric.DTR);
+            ClientServices.getInstance().getClientNode().trackOutputVariable(
+                    RuntimeVariable.DDUBranchCoverageDTR, branchFitness.getMetric(testSuite));
+            AESMethodCoverageSuiteFitness methodFitness = new AESMethodCoverageSuiteFitness(Metric.AES);
+            ClientServices.getInstance().getClientNode().trackOutputVariable(
+                    RuntimeVariable.DDUMethodCoverage, methodFitness.getMetric(testSuite));
+            methodFitness = new AESMethodCoverageSuiteFitness(Metric.DTR);
+            ClientServices.getInstance().getClientNode().trackOutputVariable(
+                    RuntimeVariable.DDUMethodCoverageDTR, methodFitness.getMetric(testSuite));
+            AESPublicMethodCoverageSuiteFitness publicMethodFitness = new AESPublicMethodCoverageSuiteFitness(Metric.AES);
+            ClientServices.getInstance().getClientNode().trackOutputVariable(
+                    RuntimeVariable.DDUPublicMethodCoverage, publicMethodFitness.getMetric(testSuite));
+            publicMethodFitness = new AESPublicMethodCoverageSuiteFitness(Metric.DTR);
+            ClientServices.getInstance().getClientNode().trackOutputVariable(
+                  RuntimeVariable.DDUPublicMethodCoverageDTR, publicMethodFitness.getMetric(testSuite));
+        } else if (criterion == Properties.Criterion.VDDU) {
+            AESBranchCoverageSuiteFitness vddu = new AESBranchCoverageSuiteFitness(Metric.VDDU);
+            ClientServices.getInstance().getClientNode().trackOutputVariable(
+                    RuntimeVariable.VDDUScore, Math.abs(0.5 - vddu.getFitness(testSuite)));
         }
-
-        AESBranchCoverageSuiteFitness ddu = new AESBranchCoverageSuiteFitness(Metric.AES);
-        ClientServices.getInstance().getClientNode().trackOutputVariable(
-            RuntimeVariable.DDUScore, Math.abs(0.5 - ddu.getFitness(testSuite)));
-        AESBranchCoverageSuiteFitness vddu = new AESBranchCoverageSuiteFitness(Metric.VDDU);
-        ClientServices.getInstance().getClientNode().trackOutputVariable(
-            RuntimeVariable.VDDUScore, Math.abs(0.5 - vddu.getFitness(testSuite)));
     }
 
     public static RuntimeVariable getBitStringVariable(Properties.Criterion criterion) {

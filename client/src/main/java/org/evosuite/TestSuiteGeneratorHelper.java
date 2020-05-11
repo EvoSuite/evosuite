@@ -29,7 +29,6 @@ import org.evosuite.assertion.SimpleMutationAssertionGenerator;
 import org.evosuite.assertion.UnitAssertionGenerator;
 import org.evosuite.contracts.ContractChecker;
 import org.evosuite.coverage.branch.Branch;
-import org.evosuite.coverage.aes.AESUtils;
 import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.statistics.RuntimeVariable;

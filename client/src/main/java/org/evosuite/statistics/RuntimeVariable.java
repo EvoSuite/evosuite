@@ -125,6 +125,12 @@ public enum RuntimeVariable {
 	VDDUCoverage,
 	VDDUScore,
 	VDDUFitnessTimeline,
+	DDUBranchCoverage,
+	DDUBranchCoverageDTR,
+	DDUMethodCoverage,
+	DDUMethodCoverageDTR,
+	DDUPublicMethodCoverage,
+	DDUPublicMethodCoverageDTR,
 	/** The obtained ambiguity coverage */
 	AmbiguityScore,
 	AmbiguityScore_T0,
@@ -398,12 +404,6 @@ public enum RuntimeVariable {
 	/** Search budget needed to reach the maximum coverage */ 
 	/** Used in the comparison between LISP and MOSA */
 	Time2MaxCoverage,
-	BasicBranchCoverage,
-	BasicMethodCoverage,
-	BasicPublicMethodCoverage,
-	DDUBranchCoverage, DDUBranchCoverageDTR, 
-	DDUMethodCoverage, DDUMethodCoverageDTR,
-	DDUPublicMethodCoverage, DDUPublicMethodCoverageDTR
 	
 	;
 	/* -------------------------------------------------- */

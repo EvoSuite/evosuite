@@ -2,7 +2,6 @@ package org.evosuite.coverage.aes.method;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.io.*;
 import java.util.Map;
 
 import org.evosuite.coverage.aes.AbstractAESCoverageSuiteFitness;
