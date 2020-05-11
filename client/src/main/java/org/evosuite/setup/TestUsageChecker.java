@@ -28,6 +28,7 @@ import org.evosuite.runtime.annotation.EvoSuiteExclude;
 import org.evosuite.runtime.classhandling.ClassResetter;
 import org.evosuite.runtime.mock.MockList;
 import org.evosuite.runtime.util.AtMostOnceLogger;
+import org.evosuite.utils.Java9InvisiblePackage;
 import org.evosuite.utils.LoggingUtils;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -48,6 +49,7 @@ import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 
@@ -541,5 +543,13 @@ public class TestUsageChecker {
 
 		return false;
 	}
+
+    private static boolean isClassIncludedInPackage(String className, List<String> classList) {
+        String result = classList.stream()
+                .filter(class1 -> className.startsWith(class1))
+                .findAny()
+                .orElse(null);
+        return result != null ? true : false;
+    }
 
 }

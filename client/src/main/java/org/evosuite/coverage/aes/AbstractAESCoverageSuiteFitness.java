@@ -73,7 +73,7 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
 		double metric_value = getMetric(suite);
 		double fitness = metricToFitness(metric_value);
 
-		updateIndividual(this, suite, fitness);
+		updateIndividual(suite, fitness);
 		suite.setCoverage(this, metric_value);
 
 		return fitness;
