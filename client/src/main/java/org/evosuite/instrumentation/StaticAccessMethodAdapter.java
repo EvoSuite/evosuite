@@ -57,7 +57,7 @@ public class StaticAccessMethodAdapter extends MethodVisitor {
 	 *            a {@link java.lang.String} object.
 	 */
 	public StaticAccessMethodAdapter(String className, String methodName, MethodVisitor mv) {
-		super(Opcodes.ASM5, mv);
+		super(Opcodes.ASM7, mv);
 		this.className = className;
 		this.methodName = methodName;
 	}

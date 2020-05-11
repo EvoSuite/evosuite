@@ -66,7 +66,7 @@ public class ExecutionPathClassAdapter extends ClassVisitor {
 	 *            a {@link java.lang.String} object.
 	 */
 	public ExecutionPathClassAdapter(ClassVisitor visitor, String className) {
-		super(Opcodes.ASM5, visitor);
+		super(Opcodes.ASM7, visitor);
 		this.className = ResourceList.getClassNameFromResourcePath(className);
 	}
 

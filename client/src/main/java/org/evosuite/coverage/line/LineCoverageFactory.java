@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -71,7 +71,7 @@ public class LineCoverageFactory extends
 	/** {@inheritDoc} */
 	@Override
 	public List<LineCoverageTestFitness> getCoverageGoals() {
-		List<LineCoverageTestFitness> goals = new ArrayList<LineCoverageTestFitness>();
+		List<LineCoverageTestFitness> goals = new ArrayList<>();
 
 		long start = System.currentTimeMillis();
 

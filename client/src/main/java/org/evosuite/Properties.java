@@ -311,7 +311,7 @@ public class Properties {
 		// random
 		RANDOM_SEARCH,
 		// GAs
-		STANDARD_GA, MONOTONIC_GA, STEADY_STATE_GA, BREEDER_GA, CELLULAR_GA, STANDARD_CHEMICAL_REACTION,
+		STANDARD_GA, MONOTONIC_GA, STEADY_STATE_GA, BREEDER_GA, CELLULAR_GA, STANDARD_CHEMICAL_REACTION, MAP_ELITES,
 		// mu-lambda
 		ONE_PLUS_LAMBDA_LAMBDA_GA, ONE_PLUS_ONE_EA, MU_PLUS_LAMBDA_EA, MU_LAMBDA_EA,
 		// many-objective algorithms
@@ -330,6 +330,25 @@ public class Properties {
 	@Parameter(key = "ranking_type", group = "Runtime", description = "type of ranking to use in MOSA")
 	public static RankingType RANKING_TYPE = RankingType.PREFERENCE_SORTING;
 
+	public enum MapElitesChoice {
+	  ALL,
+	  SINGLE,
+	  SINGLE_AVG
+	}
+	
+	@Parameter(key = "map_elites_choice", group = "Search Algorithm", description = "Selection of chromosome branches to mutate")
+    public static MapElitesChoice MAP_ELITES_CHOICE = MapElitesChoice.SINGLE_AVG;
+	
+	@Parameter(key = "map_elites_mosa_mutations", group = "Search Algorithm", description = "Enable mosa style mutations for map elites")
+	public static boolean MAP_ELITES_MOSA_MUTATIONS = true;
+	
+	@Parameter(key = "map_elites_random", group = "Search Algorithm", description = "Probability used for adding new chromosomes")
+    @DoubleValue(min = 0.0, max = 1.0)
+    public static double MAP_ELITES_RANDOM = 0.5;
+	
+	@Parameter(key = "map_elites_ignore_features", group = "Search Algorithm", description = "Enable this to disable feature based mapping")
+    public static boolean MAP_ELITES_IGNORE_FEATURES = false;
+	
 	@Parameter(key = "algorithm", group = "Search Algorithm", description = "Search algorithm")
 	public static Algorithm ALGORITHM = Algorithm.MONOTONIC_GA;
 
@@ -898,8 +917,12 @@ public class Properties {
 	@Parameter(key = "junit_tests", group = "Output", description = "Create JUnit test suites")
 	public static boolean JUNIT_TESTS = true;
 
+	public enum JUnitCheckValues{
+		TRUE, OPTIONAL, FALSE
+	}
+
 	@Parameter(key = "junit_check", group = "Output", description = "Compile and run resulting JUnit test suite (if any was created)")
-	public static boolean JUNIT_CHECK = true;
+	public static JUnitCheckValues JUNIT_CHECK = JUnitCheckValues.TRUE;
 
 	@Parameter(key = "junit_check_on_separate_process", group = "Output", description = "Compile and run resulting JUnit test suite on a separate process")
 	@Deprecated
@@ -1087,6 +1110,7 @@ public class Properties {
 
 	@Parameter(key = "serialize_ga", group = "Output", description = "Include the GA instance in the test generation result")
 	public static boolean SERIALIZE_GA = false;
+
 
 	public enum StatisticsBackend {
 		NONE, CONSOLE, CSV, HTML, DEBUG;
@@ -1529,7 +1553,7 @@ public class Properties {
 	
 	
 	public enum Strategy {
-	    ONEBRANCH, EVOSUITE, RANDOM, RANDOM_FIXED, ENTBUG, REGRESSION, MOSUITE, DSE, NOVELTY
+	    ONEBRANCH, EVOSUITE, RANDOM, RANDOM_FIXED, ENTBUG, REGRESSION, MOSUITE, DSE, NOVELTY, MAP_ELITES
 	}
 
 	@Parameter(key = "strategy", group = "Runtime", description = "Which mode to use")

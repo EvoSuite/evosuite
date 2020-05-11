@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -169,7 +169,7 @@ public class OnlyLineCoverageSuiteFitness extends TestSuiteFitnessFunction {
 			//suite.setCoverage(0.0);
 		}
 
-		updateIndividual(this, suite, fitness);
+		updateIndividual(suite, fitness);
 
 		assert (numCoveredLines <= totalLines) : "Covered " + numCoveredLines + " vs total goals " + totalLines;
 		assert (fitness >= 0.0);

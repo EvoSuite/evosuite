@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -42,9 +42,11 @@ import java.lang.reflect.WildcardType;
 import java.util.*;
 
 /**
- * Statement assigning a primitive numeric value
+ * A common superclass for statements assigning a primitive (e.g., numeric, boolean, String or
+ * enumeration) value to a variable. The value and the type of the statement are defined by the
+ * primitive variable.
  *
- * @param <T>
+ * @param <T> the type of the primitive variable
  * @author Gordon Fraser
  */
 public abstract class PrimitiveStatement<T> extends AbstractStatement {

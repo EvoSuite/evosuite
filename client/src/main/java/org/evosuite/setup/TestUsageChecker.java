@@ -163,12 +163,17 @@ public class TestUsageChecker {
             }
         }
 
-        if (c.isAnonymousClass()) {
+				if (c.isAnonymousClass()) {
             return false;
         }
 
-        if (c.getName().startsWith("junit"))
+        if(isClassIncludedInPackage(c.getName(), Java9InvisiblePackage.instance.getClassesToBeIgnored())){
             return false;
+        }
+
+        if (c.getName().startsWith("junit")) {
+            return false;
+        }
 
         if (TestClusterUtils.isEvoSuiteClass(c) && !MockList.isAMockClass(c.getCanonicalName())) {
             return false;
@@ -350,6 +355,16 @@ public class TestUsageChecker {
         }
 
         if (m.getDeclaringClass().equals(java.lang.Object.class)) {
+            return false;
+        }
+
+        // FIXME: EvoSuite currently can't deal properly with the Map.of(...) methods introduced in Java 9
+        if(m.getDeclaringClass().equals(java.util.Map.class) && Modifier.isStatic(m.getModifiers())) {
+            return false;
+        }
+
+        // FIXME: EvoSuite currently can't deal properly with the Set.of(...) methods introduced in Java 9
+        if(m.getDeclaringClass().equals(java.util.Set.class) && Modifier.isStatic(m.getModifiers())) {
             return false;
         }
 

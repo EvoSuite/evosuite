@@ -39,7 +39,7 @@ public class FontSystemTest extends SystemTestBase {
 
 		Properties.TARGET_CLASS = targetClass;
 		Properties.JUNIT_TESTS = true;
-		Properties.JUNIT_CHECK = true;
+		Properties.JUNIT_CHECK = Properties.JUnitCheckValues.TRUE;
 		
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 

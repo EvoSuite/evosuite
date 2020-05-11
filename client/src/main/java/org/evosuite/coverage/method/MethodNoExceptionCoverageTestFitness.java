@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -31,6 +31,7 @@ import org.evosuite.testcase.statements.Statement;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Fitness function for a single test on a single method (no exception)
@@ -49,14 +50,10 @@ public class MethodNoExceptionCoverageTestFitness extends TestFitnessFunction {
 	 * Constructor - fitness is specific to a method
 	 * @param className the class name
 	 * @param methodName the method name
-	 * @throws IllegalArgumentException
 	 */
-	public MethodNoExceptionCoverageTestFitness(String className, String methodName) throws IllegalArgumentException{
-		if ((className == null) || (methodName == null)) {
-			throw new IllegalArgumentException("className and methodName cannot be null");
-		}
-		this.className = className;
-		this.methodName = methodName;
+	public MethodNoExceptionCoverageTestFitness(String className, String methodName) {
+		this.className = Objects.requireNonNull(className, "className cannot be null");
+		this.methodName = Objects.requireNonNull(methodName, "methodName cannot be null");
 	}
 
 	/**
@@ -127,7 +124,7 @@ public class MethodNoExceptionCoverageTestFitness extends TestFitnessFunction {
 			}
 		}
 
-		updateIndividual(this, individual, fitness);
+		updateIndividual(individual, fitness);
 
 		if (fitness == 0.0) {
 		  individual.getTestCase().addCoveredGoal(this);
@@ -165,9 +162,7 @@ public class MethodNoExceptionCoverageTestFitness extends TestFitnessFunction {
 		MethodNoExceptionCoverageTestFitness other = (MethodNoExceptionCoverageTestFitness) obj;
 		if (!className.equals(other.className)) {
 			return false;
-		} else if (! methodName.equals(other.methodName))
-			return false;
-		return true;
+		} else return methodName.equals(other.methodName);
 	}
 
 	/* (non-Javadoc)

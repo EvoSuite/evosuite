@@ -41,13 +41,13 @@ public class MockRandomSystemTest extends SystemTestBase {
 
 	private static final boolean REPLACE_CALLS = Properties.REPLACE_CALLS;
 	private static final boolean JUNIT_TESTS = Properties.JUNIT_TESTS;
-	private static final boolean JUNIT_CHECK = Properties.JUNIT_CHECK;
+	private static final Properties.JUnitCheckValues JUNIT_CHECK = Properties.JUNIT_CHECK;
 
 	@Before
 	public void setProperties() {
 		Properties.REPLACE_CALLS = true;
 		Properties.JUNIT_TESTS = true;
-		Properties.JUNIT_CHECK = true;
+		Properties.JUNIT_CHECK = Properties.JUnitCheckValues.TRUE;
 	}
 
 	@After

@@ -40,7 +40,7 @@ public class MockLocalDateSystemTest extends SystemTestBase {
 
         Properties.TARGET_CLASS = targetClass;
         Properties.JUNIT_TESTS = true;
-        Properties.JUNIT_CHECK = true;
+        Properties.JUNIT_CHECK = Properties.JUnitCheckValues.TRUE;
         Properties.REPLACE_CALLS = true;
         Properties.OUTPUT_VARIABLES=""+ RuntimeVariable.HadUnstableTests;
 

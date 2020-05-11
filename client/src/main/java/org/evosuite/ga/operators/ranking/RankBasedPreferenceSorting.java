@@ -1,4 +1,4 @@
-/**
+/*
  *
  * This file is part of EvoSuite.
  *
@@ -37,7 +37,6 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Annibale Panichella, Fitsum M. Kifetew
  */
-
 public class RankBasedPreferenceSorting<T extends Chromosome> implements RankingFunction<T> {
 
 	private static final long serialVersionUID = -6636175563989586394L;
@@ -59,7 +58,7 @@ public class RankBasedPreferenceSorting<T extends Chromosome> implements Ranking
 			return;
 		}
 
-		this.fronts = new ArrayList<List<T>>(solutions.size());
+		this.fronts = new ArrayList<>(solutions.size());
 
 		// first apply the "preference sorting" to the first front only
 		// then compute the ranks according to the non-dominate sorting algorithm
@@ -69,9 +68,9 @@ public class RankBasedPreferenceSorting<T extends Chromosome> implements Ranking
 
 		if (zero_front.size() < Properties.POPULATION) {
 			int rankedSolutions = zero_front.size();
-			DominanceComparator<T> comparator =  new DominanceComparator<T>(uncovered_goals);
+			DominanceComparator<T> comparator = new DominanceComparator<>(uncovered_goals);
 
-			List<T> remaining = new ArrayList<T>(solutions.size());
+			List<T> remaining = new ArrayList<>(solutions.size());
 			remaining.addAll(solutions);
 			remaining.removeAll(zero_front);
 			while(rankedSolutions < Properties.POPULATION && remaining.size() > 0) {
@@ -83,7 +82,7 @@ public class RankBasedPreferenceSorting<T extends Chromosome> implements Ranking
 			}
 
 		} else {
-			List<T> remaining = new ArrayList<T>(solutions.size());
+			List<T> remaining = new ArrayList<>(solutions.size());
 			remaining.addAll(solutions);
 			remaining.removeAll(zero_front);
 
@@ -94,11 +93,18 @@ public class RankBasedPreferenceSorting<T extends Chromosome> implements Ranking
 		}
 	}
 
+	/**
+	 * Returns the first (i.e. non-dominated) sub-front.
+	 *
+	 * @param solutionSet the solutions to rank
+	 * @param uncovered_goals the goals used for ranking
+	 * @return the non-dominated solutions (first sub-front)
+	 */
 	private List<T> getZeroFront(List<T> solutionSet, Set<FitnessFunction<T>> uncovered_goals) {
-		Set<T> zero_front = new LinkedHashSet<T>(solutionSet.size());
+		Set<T> zero_front = new LinkedHashSet<>(solutionSet.size());
 		for (FitnessFunction<T> f : uncovered_goals) {
 			// for each uncovered goal, peak up the best tests using the proper comparator
-			PreferenceSortingComparator<T> comp = new PreferenceSortingComparator<T>(f);
+			PreferenceSortingComparator<T> comp = new PreferenceSortingComparator<>(f);
 
 			T best = null;
 			for (T test : solutionSet) {
@@ -112,20 +118,20 @@ public class RankBasedPreferenceSorting<T extends Chromosome> implements Ranking
 			best.setRank(0);
 			zero_front.add(best);
 		}
-		return new ArrayList<T>(zero_front);
+		return new ArrayList<>(zero_front);
 	}
 
 	private List<T> getNonDominatedSolutions(List<T> solutions, DominanceComparator<T> comparator, int frontIndex) {
-		List<T> front = new ArrayList<T>(solutions.size());
+		List<T> front = new ArrayList<>(solutions.size());
 		for (T p : solutions) {
 			boolean isDominated = false;
-			List<T> dominatedSolutions = new ArrayList<T>(solutions.size());
+			List<T> dominatedSolutions = new ArrayList<>(solutions.size());
 			for (T best : front) {
 				int flag = comparator.compare(p, best);
-				if (flag == -1) {
+				if (flag < 0) {
 					dominatedSolutions.add(best);
 				}
-				if (flag == +1) {
+				if (flag > 0) {
 					isDominated = true;
 					break;
 				}
@@ -146,7 +152,7 @@ public class RankBasedPreferenceSorting<T extends Chromosome> implements Ranking
 	 */
 	public List<T> getSubfront(int rank) {
 		if (this.fronts == null || rank >= this.fronts.size()) {
-			return new ArrayList<T>();
+			return new ArrayList<>();
 		}
 		return this.fronts.get(rank);
 	}

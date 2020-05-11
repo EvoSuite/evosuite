@@ -186,7 +186,7 @@ public class MethodCallReplacement {
 			}
 
 			mv.pop2();//uninitialized reference (which is duplicated)
-			mv.newInstance(Type.getType(replacement.replacementClassName));
+			mv.newInstance(Type.getObjectType(replacement.replacementClassName));
 			mv.dup();
 
 			for (int i = 0; i < args.length; i++) {

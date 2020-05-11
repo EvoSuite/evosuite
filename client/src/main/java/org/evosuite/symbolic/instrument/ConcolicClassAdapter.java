@@ -41,7 +41,7 @@ final class ConcolicClassAdapter extends ClassVisitor {
   private final String className;
   
   ConcolicClassAdapter(ClassVisitor cv, String className) {
-    super(Opcodes.ASM4, cv);
+    super(Opcodes.ASM7, cv);
     this.className = className;
   }
   

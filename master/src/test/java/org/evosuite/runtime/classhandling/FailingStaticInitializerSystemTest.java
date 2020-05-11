@@ -57,7 +57,7 @@ public class FailingStaticInitializerSystemTest extends SystemTestBase {
 		
 		Properties.RESET_STATIC_FIELDS = true;
 		Properties.JUNIT_TESTS = true;
-		Properties.JUNIT_CHECK = true;
+		Properties.JUNIT_CHECK = Properties.JUnitCheckValues.TRUE;
 
 		final Path path = Paths.get(junitFileName);
 		Files.deleteIfExists(path);

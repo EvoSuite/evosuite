@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -21,9 +21,7 @@ package org.evosuite.testsuite;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.evosuite.Properties;
 import org.evosuite.ga.Chromosome;
@@ -31,13 +29,13 @@ import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.ga.localsearch.LocalSearchObjective;
 import org.evosuite.ga.operators.mutation.MutationDistribution;
-import org.evosuite.regression.RegressionTestChromosomeFactory;
 import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.execution.ExecutionResult;
-import org.evosuite.testcase.factories.RandomLengthTestFactory;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static java.util.stream.Collectors.*;
 
 public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome> extends Chromosome {
 
@@ -45,8 +43,8 @@ public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome
 	private static final long serialVersionUID = 1L;
 
 	private static final Logger logger = LoggerFactory.getLogger(AbstractTestSuiteChromosome.class);
-	
-	protected List<T> tests = new ArrayList<T>();
+
+	protected List<T> tests = new ArrayList<>();
 	protected ChromosomeFactory<T> testChromosomeFactory;
 
 	/**
@@ -84,9 +82,7 @@ public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome
 	protected AbstractTestSuiteChromosome(AbstractTestSuiteChromosome<T> source) {
 		this(source.testChromosomeFactory);
 
-		for (T test : source.tests) {
-			addTest((T) test.clone());
-		}
+		source.tests.forEach(t -> addTest((T) t.clone()));
 
 		//this.setFitness(source.getFitness());
 		this.setFitnessValues(source.getFitnessValues());
@@ -123,9 +119,7 @@ public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome
 	 * @param tests a {@link java.util.Collection} object.
 	 */
 	public void addTests(Collection<T> tests) {
-		for (T test : tests) {
-			this.tests.add(test);
-		}
+        this.tests.addAll(tests);
 		if (!tests.isEmpty())
 			this.setChanged(true);
 	}
@@ -205,12 +199,7 @@ public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome
 		if (other.size() != size())
 			return false;
 
-		for (int i = 0; i < size(); i++) {
-			if (!tests.get(i).equals(other.tests.get(i)))
-				return false;
-		}
-
-		return true;
+		return tests.equals(other.tests);
 	}
 
 	/** {@inheritDoc} */
@@ -250,14 +239,8 @@ public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome
 			logger.debug("Adding new test case");
 			changed = true;
 		}
-		
-		Iterator<T> testIterator = tests.iterator();
-		while(testIterator.hasNext()) {
-			T test = testIterator.next();
-			if(test.size() == 0)
-				testIterator.remove();
-		}
-		
+
+        tests.removeIf(test -> test.size() == 0);
 
 		if (changed) {
 			this.increaseNumberOfMutations();
@@ -271,10 +254,7 @@ public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome
 	 * @return Sum of the lengths of the test cases
 	 */
 	public int totalLengthOfTestCases() {
-		int length = 0;
-		for (T test : tests)
-			length += test.size();
-		return length;
+		return tests.stream().mapToInt(T::size).sum();
 	}
 
 	/** {@inheritDoc} */
@@ -311,7 +291,9 @@ public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome
 	}
 
 	public List<ExecutionResult> getLastExecutionResults() {
-		return tests.stream().map(t -> t.getLastExecutionResult()).collect(Collectors.toList());
+		return tests.stream()
+				.map(T::getLastExecutionResult)
+				.collect(toList());
 	}
 
 	/**

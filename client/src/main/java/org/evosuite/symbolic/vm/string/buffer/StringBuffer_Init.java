@@ -41,7 +41,7 @@ public abstract class StringBuffer_Init extends SymbolicFunction {
 		}
 
 		/**
-		 * new StringBuffer(String)
+		 *  new StringBuffer(String)
 		 */
 		@Override
 		public Object executeFunction() {

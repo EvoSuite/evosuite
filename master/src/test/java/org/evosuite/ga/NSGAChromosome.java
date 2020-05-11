@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -21,6 +21,7 @@ package org.evosuite.ga;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Arrays;
 
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ConstructionFailedException;
@@ -38,17 +39,16 @@ public class NSGAChromosome extends Chromosome
 	private static final long serialVersionUID = -2056801838518269049L;
 
 	/**  */
-	private List<Variable> variables = new ArrayList<Variable>();
+	private List<Variable> variables = new ArrayList<>();
 
 	public NSGAChromosome() {
 		// empty
 	}
 
 	public NSGAChromosome(double lowerBound, double upperBound, double ... values) {
-	    for (int i = 0; i < values.length; i++) {
-	        Variable v = new DoubleVariable(values[i], lowerBound, upperBound);
-	        this.addVariable(v);
-	    }
+		Arrays.stream(values)
+				.mapToObj(v -> new DoubleVariable(v, lowerBound, upperBound))
+				.forEachOrdered(this::addVariable);
     }
 
 	public NSGAChromosome(boolean ZDT4,
@@ -109,9 +109,7 @@ public class NSGAChromosome extends Chromosome
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this.hashCode() == obj.hashCode())
-			return true;
-		return false;
+		return this.hashCode() == obj.hashCode();
 	}
 
 	@Override

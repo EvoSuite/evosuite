@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -22,19 +22,15 @@ package org.evosuite.ga.metaheuristics.mosa;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.Set;
 import org.evosuite.Properties;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.comparators.OnlyCrowdingComparator;
-import org.evosuite.ga.metaheuristics.mosa.structural.MultiCriteriatManager;
+import org.evosuite.ga.metaheuristics.mosa.structural.MultiCriteriaManager;
 import org.evosuite.ga.metaheuristics.mosa.structural.StructuralGoalManager;
 import org.evosuite.ga.operators.ranking.CrowdingDistance;
-import org.evosuite.testcase.TestChromosome;
-import org.evosuite.testsuite.TestSuiteChromosome;
-import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.evosuite.utils.LoggingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,14 +48,17 @@ public class DynaMOSA<T extends Chromosome> extends AbstractMOSA<T> {
 
 	private static final Logger logger = LoggerFactory.getLogger(DynaMOSA.class);
 
+	// TODO: we implicitly assume that the population is sorted!
+	// protected List<T> population = new ArrayList<>();
+
 	/** Manager to determine the test goals to consider at each generation */
 	protected StructuralGoalManager<T> goalsManager = null;
 
-	protected CrowdingDistance<T> distance = new CrowdingDistance<T>();
+	protected CrowdingDistance<T> distance = new CrowdingDistance<>();
 
 	/**
 	 * Constructor based on the abstract class {@link AbstractMOSA}.
-	 * 
+	 *
 	 * @param factory
 	 */
 	public DynaMOSA(ChromosomeFactory<T> factory) {
@@ -69,17 +68,19 @@ public class DynaMOSA<T extends Chromosome> extends AbstractMOSA<T> {
 	/** {@inheritDoc} */
 	@Override
 	protected void evolve() {
+		// Generate offspring, compute their fitness, update the archive and coverage goals.
 		List<T> offspringPopulation = this.breedNextGeneration();
 
-		// Create the union of parents and offSpring
-		List<T> union = new ArrayList<T>(this.population.size() + offspringPopulation.size());
+		// Create the union of parents and offspring
+		List<T> union = new ArrayList<>(this.population.size() + offspringPopulation.size());
 		union.addAll(this.population);
 		union.addAll(offspringPopulation);
 
 		// Ranking the union
 		logger.debug("Union Size = {}", union.size());
 
-		// Ranking the union using the best rank algorithm (modified version of the non dominated sorting algorithm
+		// Ranking the union using the best rank algorithm (modified version of the non dominated
+		// sorting algorithm)
 		this.rankingFunction.computeRankingAssignment(union, this.goalsManager.getCurrentGoals());
 
 		// let's form the next population using "preference sorting and non-dominated sorting" on the
@@ -89,9 +90,13 @@ public class DynaMOSA<T extends Chromosome> extends AbstractMOSA<T> {
 		List<T> front = null;
 		this.population.clear();
 
-		// Obtain the next front
+		// Obtain the first front
 		front = this.rankingFunction.getSubfront(index);
 
+		// Successively iterate through the fronts (starting with the first non-dominated front)
+		// and insert their members into the population for the next generation. This is done until
+		// all fronts have been processed or we hit a front that is too big to fit into the next
+		// population as a whole.
 		while ((remain > 0) && (remain >= front.size()) && !front.isEmpty()) {
 			// Assign crowding distance to individuals
 			this.distance.fastEpsilonDominanceAssignment(front, this.goalsManager.getCurrentGoals());
@@ -109,10 +114,14 @@ public class DynaMOSA<T extends Chromosome> extends AbstractMOSA<T> {
 			}
 		}
 
-		// Remain is less than front(index).size, insert only the best one
+		// In case the population for the next generation has not been filled up completely yet,
+		// we insert the best individuals from the current front (the one that was too big to fit
+		// entirely) until there are no more free places left. To this end, and in an effort to
+		// promote diversity, we consider those individuals with a higher crowding distance as
+		// being better.
 		if (remain > 0 && !front.isEmpty()) { // front contains individuals to insert
 			this.distance.fastEpsilonDominanceAssignment(front, this.goalsManager.getCurrentGoals());
-			Collections.sort(front, new OnlyCrowdingComparator());
+			front.sort(new OnlyCrowdingComparator());
 			for (int k = 0; k < remain; k++) {
 				this.population.add(front.get(k));
 			}
@@ -135,29 +144,34 @@ public class DynaMOSA<T extends Chromosome> extends AbstractMOSA<T> {
 	public void generateSolution() {
 		logger.debug("executing generateSolution function");
 
-		this.goalsManager = new MultiCriteriatManager<T>(this.fitnessFunctions);
+		// Set up the targets to cover, which are initially free of any control dependencies.
+		// We are trying to optimize for multiple targets at the same time.
+		this.goalsManager = new MultiCriteriaManager<>(this.fitnessFunctions);
 
-		LoggingUtils.getEvoLogger().info("* Initial Number of Goals in DynMOSA = " +
+		LoggingUtils.getEvoLogger().info("* Initial Number of Goals in DynaMOSA = " +
 				this.goalsManager.getCurrentGoals().size() +" / "+ this.getUncoveredGoals().size());
 
 		logger.debug("Initial Number of Goals = " + this.goalsManager.getCurrentGoals().size());
 
-		//initialize population
+		// Initialize the population by creating solutions at random.
 		if (this.population.isEmpty()) {
 			this.initializePopulation();
 		}
 
-		// update current goals
+		// Compute the fitness for each population member, update the coverage information and the
+		// set of goals to cover. Finally, update the archive.
 		this.calculateFitness();
 
-		// Calculate dominance ranks and crowding distance
+		// Calculate dominance ranks and crowding distance. This is required to decide which
+		// individuals should be used for mutation and crossover in the first iteration of the main
+		// search loop.
 		this.rankingFunction.computeRankingAssignment(this.population, this.goalsManager.getCurrentGoals());
-
 		for (int i = 0; i < this.rankingFunction.getNumberOfSubfronts(); i++){
 			this.distance.fastEpsilonDominanceAssignment(this.rankingFunction.getSubfront(i), this.goalsManager.getCurrentGoals());
 		}
 
-		// next generations
+		// Evolve the population generation by generation until all gaols have been covered or the
+		// search budget has been consumed.
 		while (!isFinished() && this.goalsManager.getUncoveredGoals().size() > 0) {
 			this.evolve();
 			this.notifyIteration();
@@ -166,146 +180,18 @@ public class DynaMOSA<T extends Chromosome> extends AbstractMOSA<T> {
 		this.notifySearchFinished();
 	}
 
-	/** 
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected Set<FitnessFunction<T>> getCoveredGoals() {
-		return this.goalsManager.getCoveredGoals().keySet();
-	}
-
-	/** 
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected int getNumberOfCoveredGoals() {
-		return this.getCoveredGoals().size();
-	}
-
-	/** 
-	 * {@inheritDoc}
-	 */
-	protected Set<FitnessFunction<T>> getUncoveredGoals() {
-		return this.goalsManager.getUncoveredGoals();
-	}
-
-	/** 
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected int getNumberOfUncoveredGoals() {
-		return this.getUncoveredGoals().size();
-	}
-
-	/** 
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected int getTotalNumberOfGoals() {
-		return this.getNumberOfCoveredGoals() + this.getNumberOfUncoveredGoals();
-	}
-
-	/** 
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected List<T> getSolutions() {
-		List<T> suite = new ArrayList<T>(this.goalsManager.getArchive());
-		return suite;
-	}
-
-	/** 
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected TestSuiteChromosome generateSuite() {
-		TestSuiteChromosome suite = new TestSuiteChromosome();
-		for (T t : this.getSolutions()) {
-			TestChromosome test = (TestChromosome) t;
-			suite.addTest(test);
-		}
-		return suite;
-	}
-
-	/** 
-	 * {@inheritDoc}
+	/**
+	 * Calculates the fitness for the given individual. Also updates the list of targets to cover,
+	 * as well as the population of best solutions in the archive.
+	 *
+	 * @param c the chromosome whose fitness to compute
 	 */
 	@Override
 	protected void calculateFitness(T c) {
-		this.goalsManager.calculateFitness(c);
-		this.notifyEvaluation(c);
-	}
-
-	/** 
-	 * {@inheritDoc}
-	 */
-	@SuppressWarnings("unchecked")
-	@Override
-	public List<T> getBestIndividuals() {
-		TestSuiteChromosome bestTestCases = this.generateSuite();
-
-		if (bestTestCases.getTestChromosomes().isEmpty()) {
-			// trivial case where there are no branches to cover or the archive is empty
-			for (T test : this.population) {
-				bestTestCases.addTest((TestChromosome) test);
-			}
-		}
-
-		// compute overall fitness and coverage
-		this.computeCoverageAndFitness(bestTestCases);
-
-		List<T> bests = new ArrayList<T>(1);
-		bests.add((T) bestTestCases);
-
-		return bests;
-	}
-
-	/** 
-	 * {@inheritDoc}
-	 */
-	@SuppressWarnings("unchecked")
-	@Override
-	public T getBestIndividual() {
-		TestSuiteChromosome best = this.generateSuite();
-		if (best.getTestChromosomes().isEmpty()) {
-			for (T test : this.population) {
-				best.addTest((TestChromosome) test);
-			}
-			for (TestSuiteFitnessFunction suiteFitness : this.suiteFitnessFunctions.keySet()) {
-				best.setCoverage(suiteFitness, 0.0);
-				best.setFitness(suiteFitness,  1.0);
-			}
-			return (T) best;
-		}
-
-		// compute overall fitness and coverage
-		this.computeCoverageAndFitness(best);
-
-		return (T) best;
-	}
-
-	/** 
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected void computeCoverageAndFitness(TestSuiteChromosome suite) {
-		for (Entry<TestSuiteFitnessFunction, Class<?>> entry : this.suiteFitnessFunctions.entrySet()) {
-			TestSuiteFitnessFunction suiteFitnessFunction = entry.getKey();
-			Class<?> testFitnessFunction = entry.getValue();
-
-			int numberCoveredTargets = this.goalsManager.getNumberOfCoveredTargets(testFitnessFunction);
-			int numberUncoveredTargets = this.goalsManager.getNumberOfUncoveredTargets(testFitnessFunction);
-			int totalNumberTargets = numberCoveredTargets + numberUncoveredTargets;
-
-			double coverage = totalNumberTargets == 0 ? 0.0
-			    : ((double) numberCoveredTargets)
-			    / ((double) (numberCoveredTargets + numberUncoveredTargets));
-
-			suite.setFitness(suiteFitnessFunction, ((double) numberUncoveredTargets));
-			suite.setCoverage(suiteFitnessFunction, coverage);
-			suite.setNumOfCoveredGoals(suiteFitnessFunction, numberCoveredTargets);
-			suite.setNumOfNotCoveredGoals(suiteFitnessFunction, numberUncoveredTargets);
+		if (!isFinished()) {
+			// this also updates the archive and the targets
+			this.goalsManager.calculateFitness(c, this);
+			this.notifyEvaluation(c);
 		}
 	}
-
 }

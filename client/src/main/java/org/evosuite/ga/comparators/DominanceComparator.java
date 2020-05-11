@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -50,7 +50,7 @@ public class DominanceComparator<T extends Chromosome> implements Comparator<T>,
      * @param goals set of target goals to consider when computing the dominance relationship
      */
     public DominanceComparator(Set<FitnessFunction<T>> goals) {
-      this.objectives = new LinkedHashSet<FitnessFunction<?>>(goals);
+      this.objectives = new LinkedHashSet<>(goals);
     }
 
     /**
@@ -58,7 +58,7 @@ public class DominanceComparator<T extends Chromosome> implements Comparator<T>,
      * @param goal to consider when computing the dominance relationship
      */
     public DominanceComparator(FitnessFunction<T> goal) {
-      this.objectives = new LinkedHashSet<FitnessFunction<?>>();
+      this.objectives = new LinkedHashSet<>();
       this.objectives.add(goal);
     }
 

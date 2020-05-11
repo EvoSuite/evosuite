@@ -24,3 +24,4 @@ src/main/resources/log4j.properties
 master/dependency-reduced-pom.xml
 shaded/dependency-reduced-pom.xml
 standalone_runtime/dependency-reduced-pom.xml
+nbactions.xml

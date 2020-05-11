@@ -68,7 +68,7 @@ public class ContractViolation {
 	/**
 	 * List of all variables involved in the contract violation
 	 */
-	private final List<VariableReference> variables = new ArrayList<VariableReference>();
+	private final List<VariableReference> variables = new ArrayList<>();
 
 	private boolean isMinimized = false;
 

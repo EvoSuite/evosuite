@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -28,7 +28,7 @@ import org.evosuite.testsuite.TestSuiteChromosome;
 
 /**
  * Abstract base class for fitness functions for test case chromosomes
- * 
+ *
  * @author Gordon Fraser
  */
 public abstract class TestFitnessFunction extends FitnessFunction<TestChromosome>
@@ -42,7 +42,7 @@ public abstract class TestFitnessFunction extends FitnessFunction<TestChromosome
 	 * <p>
 	 * getFitness
 	 * </p>
-	 * 
+	 *
 	 * @param individual
 	 *            a {@link org.evosuite.testcase.TestChromosome} object.
 	 * @param result
@@ -63,14 +63,14 @@ public abstract class TestFitnessFunction extends FitnessFunction<TestChromosome
 		}
 
 		double fitness = getFitness(individual, origResult);
-		updateIndividual(this, individual, fitness);
+		updateIndividual(individual, fitness);
 
 		return fitness;
 	}
 
 	/**
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * Used to preorder goals by difficulty
 	 */
 	@Override
@@ -82,7 +82,7 @@ public abstract class TestFitnessFunction extends FitnessFunction<TestChromosome
 
 	@Override
 	public abstract int hashCode();
-	
+
 	@Override
 	public abstract boolean equals(Object other);
 
@@ -93,32 +93,24 @@ public abstract class TestFitnessFunction extends FitnessFunction<TestChromosome
 
 	/**
 	 * Determine if there is an existing test case covering this goal
-	 * 
+	 *
 	 * @param tests
 	 *            a {@link java.util.List} object.
 	 * @return a boolean.
 	 */
 	public boolean isCovered(List<TestCase> tests) {
-		for (TestCase test : tests) {
-			if (isCovered(test))
-				return true;
-		}
-		return false;
+		return tests.stream().anyMatch(this::isCovered);
 	}
 
 	/**
 	 * Determine if there is an existing test case covering this goal
-	 * 
+	 *
 	 * @param tests
 	 *            a {@link java.util.List} object.
 	 * @return a boolean.
 	 */
 	public boolean isCoveredByResults(List<ExecutionResult> tests) {
-		for (ExecutionResult result : tests) {
-			if (isCovered(result))
-				return true;
-		}
-		return false;
+		return tests.stream().anyMatch(this::isCovered);
 	}
 
 	public boolean isCoveredBy(TestSuiteChromosome testSuite) {
@@ -136,7 +128,7 @@ public abstract class TestFitnessFunction extends FitnessFunction<TestChromosome
 	 * <p>
 	 * isCovered
 	 * </p>
-	 * 
+	 *
 	 * @param test
 	 *            a {@link org.evosuite.testcase.TestCase} object.
 	 * @return a boolean.
@@ -151,7 +143,7 @@ public abstract class TestFitnessFunction extends FitnessFunction<TestChromosome
 	 * <p>
 	 * isCovered
 	 * </p>
-	 * 
+	 *
 	 * @param tc
 	 *            a {@link org.evosuite.testcase.TestChromosome} object.
 	 * @return a boolean.
@@ -175,7 +167,7 @@ public abstract class TestFitnessFunction extends FitnessFunction<TestChromosome
 	 * <p>
 	 * isCovered
 	 * </p>
-	 * 
+	 *
 	 * @param individual
 	 *            a {@link org.evosuite.testcase.TestChromosome} object.
 	 * @param result
@@ -192,7 +184,7 @@ public abstract class TestFitnessFunction extends FitnessFunction<TestChromosome
 
 	/**
 	 * Helper function if this is used without a chromosome
-	 * 
+	 *
 	 * @param result
 	 * @return
 	 */

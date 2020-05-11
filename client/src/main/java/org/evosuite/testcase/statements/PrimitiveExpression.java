@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -30,6 +30,12 @@ import org.evosuite.testcase.execution.Scope;
 import org.evosuite.utils.generic.GenericAccessibleObject;
 
 // TODO-JRO Implement methods of PrimitiveExpression as needed
+
+/**
+ * Represents a primitive expression of the form {@code lhs op rhs} where {@code op} is a binary
+ * operator, and {@code lhs} and {@code rhs} are the left-hand side and right-hand side of {@code
+ * op}, respectively.
+ */
 public class PrimitiveExpression extends AbstractStatement {
 
 	public static enum Operator {

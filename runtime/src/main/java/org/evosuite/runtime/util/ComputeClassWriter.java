@@ -19,12 +19,17 @@
  */
 package org.evosuite.runtime.util;
 
-import java.io.IOException;
-import java.io.InputStream;
-
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.net.URLClassLoader;
 
 /**
  * A ClassWriter that computes the common super class of two classes without
@@ -33,6 +38,8 @@ import org.objectweb.asm.Opcodes;
  * @author Eric Bruneton
  */
 public class ComputeClassWriter extends ClassWriter {
+
+    private Logger logger = LoggerFactory.getLogger(ComputeClassWriter.class);
 
 	private ClassLoader l = getClass().getClassLoader();
 	
@@ -180,7 +187,7 @@ public class ComputeClassWriter extends ClassWriter {
      *             if the bytecode of 'type' cannot be found.
      */
     private ClassReader typeInfo(final String type) throws IOException, NullPointerException {
-        InputStream is = l.getResourceAsStream(type + ".class");
+        InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(type + ".class");
         try {
         	if(is == null)
         		throw new NullPointerException("Class not found "+type);
