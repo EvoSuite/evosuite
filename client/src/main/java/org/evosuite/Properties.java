@@ -1445,10 +1445,6 @@ public class Properties {
             //these are basic criteria that should be always on by default
             Criterion.LINE, Criterion.BRANCH, Criterion.EXCEPTION, Criterion.WEAKMUTATION, Criterion.OUTPUT, Criterion.METHOD, Criterion.METHODNOEXCEPTION, Criterion.CBRANCH  };
 
-
-	@Parameter(key = "propertyfile", group = "Runtime", description = "Location of file where property is specified (in its first line). This is needed for operating systems like Windows where cannot have too long input parameters")
-	public static String PROPERTY_FILE_PATH = null;
-
 	/** Cache target class */
 	private static Class<?> TARGET_CLASS_INSTANCE = null;
 	
