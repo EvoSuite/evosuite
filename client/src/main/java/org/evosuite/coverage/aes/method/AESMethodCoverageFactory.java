@@ -33,7 +33,7 @@ public class AESMethodCoverageFactory extends
 	@Override
 	public List<MethodCoverageTestFitness> getCoverageGoals() {
 		String className = Properties.TARGET_CLASS;
-		Class<?> targetClass = Properties.getInitializedTargetClass();         //modified harsh
+		Class<?> targetClass = Properties.getInitializedTargetClass();
 		List<MethodCoverageTestFitness> goals = new ArrayList<MethodCoverageTestFitness>();
 		
 		if (targetClass != null) {

@@ -29,7 +29,7 @@ import org.evosuite.assertion.SimpleMutationAssertionGenerator;
 import org.evosuite.assertion.UnitAssertionGenerator;
 import org.evosuite.contracts.ContractChecker;
 import org.evosuite.coverage.branch.Branch;
-import org.evosuite.coverage.aes.AESUtils;             //modificatio harsh
+import org.evosuite.coverage.aes.AESUtils;
 import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.statistics.RuntimeVariable;
@@ -114,7 +114,6 @@ public class TestSuiteGeneratorHelper {
       case REGRESSION:
         LoggingUtils.getEvoLogger().info("  - Regression");
         break;
-        //modification start harsh
       case VDDU:
         LoggingUtils.getEvoLogger().info("  - VDDU Method Coverage");
         break;
@@ -152,7 +151,6 @@ public class TestSuiteGeneratorHelper {
       case DDU_BRANCH_DTR:
         LoggingUtils.getEvoLogger().info("  - DDU Branch Coverage");
         break;
-        //modification end harsh
       default:
         throw new IllegalArgumentException("Unrecognized criterion: " + criterion);
     }

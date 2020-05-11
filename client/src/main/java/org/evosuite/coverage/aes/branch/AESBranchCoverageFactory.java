@@ -19,7 +19,7 @@ public class AESBranchCoverageFactory extends
 	public List<TestFitnessFunction> getCoverageGoals() {
 		
 		String className = Properties.TARGET_CLASS;
-		Class<?> targetClass = Properties.getInitializedTargetClass();                     //modified harsh
+		Class<?> targetClass = Properties.getInitializedTargetClass();
 		BranchPool bpinstance = BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT());
 		
 		List<TestFitnessFunction> goals = new ArrayList<TestFitnessFunction>();
