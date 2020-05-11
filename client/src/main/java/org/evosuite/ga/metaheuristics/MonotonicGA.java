@@ -211,7 +211,7 @@ public class MonotonicGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 														// rounding error in LS,
 														// but hard to debug :(
 
-    /** {@inheritDoc} */
+	/** {@inheritDoc} */
 	@Override
 	public void generateSolution() {
 		if (Properties.ENABLE_SECONDARY_OBJECTIVE_AFTER > 0 || Properties.ENABLE_SECONDARY_OBJECTIVE_STARVATION) {
@@ -309,10 +309,10 @@ public class MonotonicGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 			logger.info("Best individual has fitness: " + population.get(0).getFitness());
 			logger.info("Worst individual has fitness: " + population.get(population.size() - 1).getFitness());
 
-
 		}
 		// archive
 		TimeController.execute(this::updateBestIndividualFromArchive, "update from archive", 5_000);
+
 		notifySearchFinished();
 	}
 

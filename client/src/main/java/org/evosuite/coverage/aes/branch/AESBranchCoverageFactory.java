@@ -34,7 +34,7 @@ public class AESBranchCoverageFactory extends
 			//branches
 			for (String methodName : bpinstance.knownMethods(className)) {
 				for (Branch b : bpinstance.retrieveBranchesInMethod(className, methodName)) {
-					if (!(b.getInstruction().isForcedBranch())) {
+					if (!b.isInstrumented()) {
 						goals.add(createBranchCoverageTestFitness(b, true));
 						goals.add(createBranchCoverageTestFitness(b, false));
 					}

@@ -69,7 +69,6 @@ public abstract class ASMWrapper {
 	// from ASM library
 	protected AbstractInsnNode asmNode;
 	protected CFGFrame frame;
-	protected boolean forcedBranch = false;
 
 
 	/**
@@ -177,10 +176,6 @@ public abstract class ASMWrapper {
 	 */
 	public boolean isSwitch() {
 		return isLookupSwitch() || isTableSwitch();
-	}
-
-	public void forceBranch() {
-		forcedBranch = true;
 	}
 
 	/**
@@ -315,17 +310,13 @@ public abstract class ASMWrapper {
 	 * @return a boolean.
 	 */
 	public boolean isBranch() {
-		return (isJump() && !isGoto()) || forcedBranch;
+		return (isJump() && !isGoto());
 	}
 
 	// public int getBranchId() {
 	// // return ((Integer)((LabelNode)node).getLabel().info).intValue();
 	// return line_no;
 	// }
-
-	public boolean isForcedBranch() {
-		return forcedBranch;
-	}
 
 	/**
 	 * <p>
