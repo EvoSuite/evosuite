@@ -1,14 +1,9 @@
 package org.evosuite.coverage.aes.branch;
 
-import java.io.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.json.simple.JSONArray;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
-import org.json.simple.JSONObject;
 import org.evosuite.coverage.aes.AbstractAESCoverageSuiteFitness;
 import org.evosuite.coverage.aes.Spectrum;
 import org.evosuite.coverage.branch.BranchCoverageTestFitness;
@@ -33,8 +28,6 @@ public class AESBranchCoverageSuiteFitness extends AbstractAESCoverageSuiteFitne
     /* mode signified whether we are using the priors or not. If set to false then all the components have equal chance of being faulty */
     private boolean mode;
     private int numberOfGoals = 0;
-    /* We want to parse the JSON object once. This variable value if 0 we parse the json object and increment it by 1. So that we don't end up parsing again */
-    private static int count = 0;
 
     public AESBranchCoverageSuiteFitness(Metric metric) {
         super(metric);
@@ -79,13 +72,6 @@ public class AESBranchCoverageSuiteFitness extends AbstractAESCoverageSuiteFitne
 
     @Override
     protected Spectrum getSpectrum(List<ExecutionResult> results) {
-
-       /* If count is 0, getSpectrum is getting called for the first time. We parse the JSON object now. This is done by first extracting the location of the JSON file
-       that has been stored as an environment variable "PRIOR_VAL". And then calling the "extract_data" function.*/
-        if (count == 0) {
-            extract_data(System.getenv("PRIOR_LOC"));
-        }
-        count++;
         determineCoverageGoals();
         Spectrum spectrum = new Spectrum(results.size(), this.numberOfGoals);
 
@@ -113,47 +99,6 @@ public class AESBranchCoverageSuiteFitness extends AbstractAESCoverageSuiteFitne
         }
 
         return spectrum;
-    }
-
-    private void extract_data(String filename) {
-        JSONParser jsonParser = new JSONParser();
-        try {
-            FileReader reader = new FileReader(filename);
-            mode = true;
-            Object obj = jsonParser.parse(reader);
-            JSONObject jobj = (JSONObject) obj;
-            parseJsonObject(jobj);
-
-        } catch (IOException e) {
-            mode = false;
-            return;
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void parseJsonObject(JSONObject jo) {
-        if (suspiciousnesScores == null)
-            suspiciousnesScores = new HashMap<>();
-
-        JSONArray javaArray = (JSONArray) jo.get("children");
-        for (int i = 0; i < javaArray.size(); i++) {
-            JSONObject javaObject = (JSONObject) javaArray.get(i);
-            JSONArray classArray = (JSONArray) javaObject.get("children");
-            for (int j = 0; j < classArray.size(); j++) {
-                JSONObject classObject = (JSONObject) classArray.get(j);
-                String className = (String) classObject.get("name");
-
-
-                JSONArray methodArray = (JSONArray) classObject.get("children");
-                for (int k = 0; k < methodArray.size(); k++) {
-                    JSONObject methodObject = (JSONObject) methodArray.get(k);
-                    suspiciousnesScores.put(className + "." + (String) methodObject.get("name"), Double.valueOf((String) methodObject.get("prob")));
-
-                }
-            }
-        }
-
     }
 
     /* This function maps the prior to the branches */
