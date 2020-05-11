@@ -1432,7 +1432,7 @@ public class Properties {
 	// ---------------------------------------------------------------
 	// Runtime parameters
 
-	public enum Criterion {                                //modification harsh
+	public enum Criterion {
 		EXCEPTION, DEFUSE, ALLDEFS, BRANCH, CBRANCH, STRONGMUTATION, WEAKMUTATION,
 		MUTATION, STATEMENT, RHO, AMBIGUITY, IBRANCH, READABILITY,
         ONLYBRANCH, ONLYMUTATION, METHODTRACE, METHOD, METHODNOEXCEPTION, LINE, ONLYLINE, OUTPUT, INPUT,
