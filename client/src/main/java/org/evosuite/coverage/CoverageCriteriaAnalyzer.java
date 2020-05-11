@@ -334,7 +334,7 @@ public class CoverageCriteriaAnalyzer {
                     RuntimeVariable.DDUPublicMethodCoverage, publicMethodFitness.getMetric(testSuite));
             publicMethodFitness = new AESPublicMethodCoverageSuiteFitness(Metric.DTR);
             ClientServices.getInstance().getClientNode().trackOutputVariable(
-                  RuntimeVariable.DDUPublicMethodCoverageDTR, publicMethodFitness.getMetric(testSuite));
+                    RuntimeVariable.DDUPublicMethodCoverageDTR, publicMethodFitness.getMetric(testSuite));
         } else if (criterion == Properties.Criterion.VDDU) {
             AESBranchCoverageSuiteFitness vddu = new AESBranchCoverageSuiteFitness(Metric.VDDU);
             ClientServices.getInstance().getClientNode().trackOutputVariable(
