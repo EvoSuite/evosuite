@@ -70,7 +70,6 @@ public abstract class ASMWrapper {
 	protected AbstractInsnNode asmNode;
 	protected CFGFrame frame;
 
-
 	/**
 	 * <p>
 	 * getASMNode
