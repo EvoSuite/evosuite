@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -58,7 +58,7 @@ public class ThreeHump<T extends NSGAChromosome> implements Problem
                                 + (Math.pow(x, 6.0) / 6.0)
                                 + (x * y)
                                 + (Math.pow(y, 2.0));
-                updateIndividual(this, individual, fitness);
+                updateIndividual(individual, fitness);
                 return fitness;
             }
             @Override

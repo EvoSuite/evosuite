@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -88,7 +88,7 @@ public class AllDefsCoverageSuiteFitness extends TestSuiteFitnessFunction {
 			fitness += goalFitness;
 		}
 
-		updateIndividual(this, individual, fitness);
+		updateIndividual(individual, fitness);
 		setSuiteCoverage(suite, coveredGoals);
 
 		return fitness;

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -42,7 +42,7 @@ public class RhoCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	private int previous_number_of_ones = 0;
 	private int previous_number_of_test_cases = 0;
 
-	private Set<Set<Integer>> coverage_matrix_generated_so_far = new LinkedHashSet<Set<Integer>>();
+	private Set<Set<Integer>> coverage_matrix_generated_so_far = new LinkedHashSet<>();
 
 	@Override
 	public double getFitness(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite) {
@@ -51,7 +51,7 @@ public class RhoCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 	protected double getFitness(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite, boolean updateFitness) {
 
-		Set<Set<Integer>> tmp_coverage_matrix = new LinkedHashSet<Set<Integer>>(this.coverage_matrix_generated_so_far);
+		Set<Set<Integer>> tmp_coverage_matrix = new LinkedHashSet<>(this.coverage_matrix_generated_so_far);
 
 		double fitness = 1.0;
 
@@ -60,35 +60,22 @@ public class RhoCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		int number_of_test_cases = RhoCoverageFactory.getNumber_of_Test_Cases() + this.previous_number_of_test_cases;
 
 		List<ExecutionResult> results = runTestSuite(suite);
-		for (int i = 0; i < results.size(); i++) {
+		for (ExecutionResult result : results) {
 
 			// Execute test cases and collect the covered lines
-			ExecutionResult result = results.get(i);
 			Set<Integer> coveredLines = result.getTrace().getCoveredLines();
 
 			if (Properties.STRATEGY == Properties.Strategy.ENTBUG) {
 				// order set
-				List<Integer> l_coveredLines = new ArrayList<Integer>(coveredLines);
+				List<Integer> l_coveredLines = new ArrayList<>(coveredLines);
 				Collections.sort(l_coveredLines);
-				Set<Integer> coveredLinesOrdered = new LinkedHashSet<Integer>();
-				for (Integer coveredLine : l_coveredLines) {
-					coveredLinesOrdered.add(coveredLine);
-				}
+				Set<Integer> coveredLinesOrdered = new LinkedHashSet<>(l_coveredLines);
 
-				// no coverage
-				if (coveredLinesOrdered.size() == 0) {
-					continue ;
-				}
-				// already exists locally
-				else if (tmp_coverage_matrix.add(coveredLinesOrdered) == false) {
-					continue ;
-				}
-				// already exists on the original test suite
-				else if (RhoCoverageFactory.exists(l_coveredLines)) {
-					continue ;
-				}
-				// good
-				else {
+				// there is coverage, and already exists on the original test
+				// suite, and already exists locally
+				if ((coveredLinesOrdered.size() != 0
+						&& tmp_coverage_matrix.add(coveredLinesOrdered))
+						&& !RhoCoverageFactory.exists(l_coveredLines)) {
 					number_of_ones += coveredLinesOrdered.size();
 					number_of_test_cases++;
 				}
@@ -107,7 +94,7 @@ public class RhoCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		}
 
 		if (updateFitness) {
-			updateIndividual(this, suite, fitness);
+			updateIndividual(suite, fitness);
 		}
 		return fitness;
 	}

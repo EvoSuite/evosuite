@@ -57,93 +57,15 @@ import static org.evosuite.symbolic.instrument.ConcolicConfig.VOID;
 import static org.evosuite.symbolic.instrument.ConcolicConfig.V_V;
 import static org.evosuite.symbolic.instrument.ConcolicConfig.ZGGG_V;
 import static org.evosuite.symbolic.instrument.ConcolicConfig.ZII_V;
-import static org.objectweb.asm.Opcodes.AALOAD;
-import static org.objectweb.asm.Opcodes.AASTORE;
-import static org.objectweb.asm.Opcodes.ALOAD;
-import static org.objectweb.asm.Opcodes.ANEWARRAY;
-import static org.objectweb.asm.Opcodes.ARRAYLENGTH;
-import static org.objectweb.asm.Opcodes.ASTORE;
-import static org.objectweb.asm.Opcodes.ATHROW;
-import static org.objectweb.asm.Opcodes.BALOAD;
-import static org.objectweb.asm.Opcodes.BASTORE;
-import static org.objectweb.asm.Opcodes.BIPUSH;
-import static org.objectweb.asm.Opcodes.CALOAD;
-import static org.objectweb.asm.Opcodes.CASTORE;
-import static org.objectweb.asm.Opcodes.CHECKCAST;
-import static org.objectweb.asm.Opcodes.DALOAD;
-import static org.objectweb.asm.Opcodes.DASTORE;
-import static org.objectweb.asm.Opcodes.DDIV;
-import static org.objectweb.asm.Opcodes.DLOAD;
-import static org.objectweb.asm.Opcodes.DREM;
-import static org.objectweb.asm.Opcodes.DUP;
-import static org.objectweb.asm.Opcodes.DUP2;
-import static org.objectweb.asm.Opcodes.FALOAD;
-import static org.objectweb.asm.Opcodes.FASTORE;
-import static org.objectweb.asm.Opcodes.FDIV;
-import static org.objectweb.asm.Opcodes.FLOAD;
-import static org.objectweb.asm.Opcodes.FREM;
-import static org.objectweb.asm.Opcodes.GETFIELD;
-import static org.objectweb.asm.Opcodes.GOTO;
-import static org.objectweb.asm.Opcodes.IALOAD;
-import static org.objectweb.asm.Opcodes.IASTORE;
-import static org.objectweb.asm.Opcodes.IDIV;
-import static org.objectweb.asm.Opcodes.IFEQ;
-import static org.objectweb.asm.Opcodes.IFGE;
-import static org.objectweb.asm.Opcodes.IFGT;
-import static org.objectweb.asm.Opcodes.IFLE;
-import static org.objectweb.asm.Opcodes.IFLT;
-import static org.objectweb.asm.Opcodes.IFNE;
-import static org.objectweb.asm.Opcodes.IFNONNULL;
-import static org.objectweb.asm.Opcodes.IFNULL;
-import static org.objectweb.asm.Opcodes.IF_ACMPEQ;
-import static org.objectweb.asm.Opcodes.IF_ACMPNE;
-import static org.objectweb.asm.Opcodes.IF_ICMPEQ;
-import static org.objectweb.asm.Opcodes.IF_ICMPGE;
-import static org.objectweb.asm.Opcodes.IF_ICMPGT;
-import static org.objectweb.asm.Opcodes.IF_ICMPLE;
-import static org.objectweb.asm.Opcodes.IF_ICMPLT;
-import static org.objectweb.asm.Opcodes.IF_ICMPNE;
-import static org.objectweb.asm.Opcodes.ILOAD;
-import static org.objectweb.asm.Opcodes.INSTANCEOF;
-import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
-import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
-import static org.objectweb.asm.Opcodes.INVOKESTATIC;
-import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
-import static org.objectweb.asm.Opcodes.IREM;
-import static org.objectweb.asm.Opcodes.ISTORE;
-import static org.objectweb.asm.Opcodes.JSR;
-import static org.objectweb.asm.Opcodes.LALOAD;
-import static org.objectweb.asm.Opcodes.LASTORE;
-import static org.objectweb.asm.Opcodes.LDC;
-import static org.objectweb.asm.Opcodes.LDIV;
-import static org.objectweb.asm.Opcodes.LLOAD;
-import static org.objectweb.asm.Opcodes.LOOKUPSWITCH;
-import static org.objectweb.asm.Opcodes.LREM;
-import static org.objectweb.asm.Opcodes.MULTIANEWARRAY;
-import static org.objectweb.asm.Opcodes.NEW;
-import static org.objectweb.asm.Opcodes.NEWARRAY;
-import static org.objectweb.asm.Opcodes.PUTFIELD;
-import static org.objectweb.asm.Opcodes.SALOAD;
-import static org.objectweb.asm.Opcodes.SASTORE;
-import static org.objectweb.asm.Opcodes.SIPUSH;
-import static org.objectweb.asm.Opcodes.TABLESWITCH;
+import static org.objectweb.asm.Opcodes.*;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
-import org.evosuite.TestGenerationContext;
-import org.evosuite.coverage.branch.Branch;
-import org.evosuite.coverage.branch.BranchPool;
-import org.evosuite.instrumentation.InstrumentingClassLoader;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.GeneratorAdapter;
-import org.objectweb.asm.tree.LabelNode;
 
 /*
     This class is taken and adapted from the DSC tool developed by Christoph Csallner.
@@ -184,7 +106,7 @@ public final class ConcolicMethodAdapter extends GeneratorAdapter {
 	 */
 	ConcolicMethodAdapter(MethodVisitor mv, int access, String className, String methName,
 	        String desc) {
-		super(Opcodes.ASM4, mv, access, methName, desc);
+		super(Opcodes.ASM7, mv, access, methName, desc);
 
 		this.access = access;
 		this.className = notNull(className);
@@ -224,13 +146,13 @@ public final class ConcolicMethodAdapter extends GeneratorAdapter {
 		 */
 		stack.pushInt(access);
 		stack.pushStrings(className, methName, methDescription);
-		mv.visitMethodInsn(INVOKESTATIC, VM_FQ, METHOD_BEGIN, IGGG_V);
+		mv.visitMethodInsn(INVOKESTATIC, VM_FQ, METHOD_BEGIN, IGGG_V,false);
 
 		final boolean needThis = !AccessFlags.isStatic(access)
 		        && !CLINIT.equals(methName);
 		if (needThis && !INIT.equals(methName)) {
 			mv.visitVarInsn(ALOAD, 0);
-			mv.visitMethodInsn(INVOKESTATIC, VM_FQ, METHOD_BEGIN_RECEIVER, L_V);
+			mv.visitMethodInsn(INVOKESTATIC, VM_FQ, METHOD_BEGIN_RECEIVER, L_V, false);
 		}
 
 		Type[] paramTypes = Type.getArgumentTypes(methDescription); // does not
@@ -290,7 +212,7 @@ public final class ConcolicMethodAdapter extends GeneratorAdapter {
 
 			stack.pushInt(paramNr);
 			stack.pushInt(calleeLocalsIndex);
-			mv.visitMethodInsn(INVOKESTATIC, VM_FQ, METHOD_BEGIN_PARAM, dscMethParamSign);
+			mv.visitMethodInsn(INVOKESTATIC, VM_FQ, METHOD_BEGIN_PARAM, dscMethParamSign, false);
 
 			paramNr += 1;
 			calleeLocalsIndex += type.getSize();
@@ -308,22 +230,22 @@ public final class ConcolicMethodAdapter extends GeneratorAdapter {
 		case IDIV:
 		case IREM:
 			mv.visitInsn(DUP);
-			mv.visitMethodInsn(INVOKESTATIC, VM_FQ, BYTECODE_NAME[opcode], I_V);
+			mv.visitMethodInsn(INVOKESTATIC, VM_FQ, BYTECODE_NAME[opcode], I_V, false);
 			break;
 		case LDIV:
 		case LREM:
 			mv.visitInsn(DUP2);
-			mv.visitMethodInsn(INVOKESTATIC, VM_FQ, BYTECODE_NAME[opcode], J_V);
+			mv.visitMethodInsn(INVOKESTATIC, VM_FQ, BYTECODE_NAME[opcode], J_V, false);
 			break;
 		case FDIV:
 		case FREM:
 			mv.visitInsn(DUP);
-			mv.visitMethodInsn(INVOKESTATIC, VM_FQ, BYTECODE_NAME[opcode], F_V);
+			mv.visitMethodInsn(INVOKESTATIC, VM_FQ, BYTECODE_NAME[opcode], F_V, false);
 			break;
 		case DDIV:
 		case DREM:
 			mv.visitInsn(DUP2);
-			mv.visitMethodInsn(INVOKESTATIC, VM_FQ, BYTECODE_NAME[opcode], D_V);
+			mv.visitMethodInsn(INVOKESTATIC, VM_FQ, BYTECODE_NAME[opcode], D_V, false);
 			break;
 
 		/*
@@ -338,7 +260,7 @@ public final class ConcolicMethodAdapter extends GeneratorAdapter {
 		case CALOAD:
 		case SALOAD:
 			mv.visitInsn(DUP2);
-			mv.visitMethodInsn(INVOKESTATIC, VM_FQ, BYTECODE_NAME[opcode], LI_V);
+			mv.visitMethodInsn(INVOKESTATIC, VM_FQ, BYTECODE_NAME[opcode], LI_V, false);
 			break;
 
 		/*
@@ -355,7 +277,7 @@ public final class ConcolicMethodAdapter extends GeneratorAdapter {
 			/* ..., arrayref, index, value, arrayref */
 			stack.c1b1a1__c1b1a1c1();
 			/* ..., arrayref, index, value, arrayref, index */
-			mv.visitMethodInsn(INVOKESTATIC, VM_FQ, BYTECODE_NAME[opcode], LI_V);
+			mv.visitMethodInsn(INVOKESTATIC, VM_FQ, BYTECODE_NAME[opcode], LI_V, false);
 			break;
 
 		case LASTORE:
@@ -365,17 +287,17 @@ public final class ConcolicMethodAdapter extends GeneratorAdapter {
 			/* ..., arrayref, index, value, arrayref */
 			stack.c1b2a1__c1b2a1c1();
 			/* ..., arrayref, index, value, arrayref, index */
-			mv.visitMethodInsn(INVOKESTATIC, VM_FQ, BYTECODE_NAME[opcode], LI_V);
+			mv.visitMethodInsn(INVOKESTATIC, VM_FQ, BYTECODE_NAME[opcode], LI_V, false);
 			break;
 
 		case ATHROW:
 		case ARRAYLENGTH: // http://java.sun.com/docs/books/jvms/second_edition/html/Instructions2.doc.html#ARRAYLENGTH
 			mv.visitInsn(DUP);
-			mv.visitMethodInsn(INVOKESTATIC, VM_FQ, BYTECODE_NAME[opcode], L_V);
+			mv.visitMethodInsn(INVOKESTATIC, VM_FQ, BYTECODE_NAME[opcode], L_V, false);
 			break;
 
 		default:
-			mv.visitMethodInsn(INVOKESTATIC, VM_FQ, BYTECODE_NAME[opcode], V_V);
+			mv.visitMethodInsn(INVOKESTATIC, VM_FQ, BYTECODE_NAME[opcode], V_V, false);
 		}
 
 		super.visitInsn(opcode); // user code ByteCode instruction
@@ -401,7 +323,7 @@ public final class ConcolicMethodAdapter extends GeneratorAdapter {
 			mv.visitLdcInsn(methName);
 			mv.visitLdcInsn(branchCounter++);
 			String IGGI_V = "(" + INT + STR + STR + INT + ")" + VOID;
-			mv.visitMethodInsn(INVOKESTATIC, VM_FQ, BYTECODE_NAME[opcode], IGGI_V);
+			mv.visitMethodInsn(INVOKESTATIC, VM_FQ, BYTECODE_NAME[opcode], IGGI_V, false);
 			break;
 
 		case IF_ICMPEQ: // http://java.sun.com/docs/books/jvms/second_edition/html/Instructions2.doc6.html#if_icmpcond
@@ -415,7 +337,7 @@ public final class ConcolicMethodAdapter extends GeneratorAdapter {
 			mv.visitLdcInsn(methName);
 			mv.visitLdcInsn(branchCounter++);
 			String IIGGI_V = "(" + INT + INT + STR + STR + INT + ")" + VOID;
-			mv.visitMethodInsn(INVOKESTATIC, VM_FQ, BYTECODE_NAME[opcode], IIGGI_V);
+			mv.visitMethodInsn(INVOKESTATIC, VM_FQ, BYTECODE_NAME[opcode], IIGGI_V, false);
 			break;
 
 		case IF_ACMPEQ: // http://java.sun.com/docs/books/jvms/second_edition/html/Instructions2.doc6.html#if_acmpcond
@@ -425,7 +347,7 @@ public final class ConcolicMethodAdapter extends GeneratorAdapter {
 			mv.visitLdcInsn(methName);
 			mv.visitLdcInsn(branchCounter++);
 			String LLGGI_V = "(" + REF + REF + STR + STR + INT + ")" + VOID;
-			mv.visitMethodInsn(INVOKESTATIC, VM_FQ, BYTECODE_NAME[opcode], LLGGI_V);
+			mv.visitMethodInsn(INVOKESTATIC, VM_FQ, BYTECODE_NAME[opcode], LLGGI_V, false);
 			break;
 
 		case IFNULL: // http://java.sun.com/docs/books/jvms/second_edition/html/Instructions2.doc6.html#ifnull
@@ -435,21 +357,18 @@ public final class ConcolicMethodAdapter extends GeneratorAdapter {
 			mv.visitLdcInsn(methName);
 			mv.visitLdcInsn(branchCounter++);
 			String LGGI_V = "(" + REF + STR + STR + INT + ")" + VOID;
-			mv.visitMethodInsn(INVOKESTATIC, VM_FQ, BYTECODE_NAME[opcode], LGGI_V);
+			mv.visitMethodInsn(INVOKESTATIC, VM_FQ, BYTECODE_NAME[opcode], LGGI_V, false);
 			break;
 
-		case GOTO: // http://java.sun.com/docs/books/jvms/second_edition/html/Instructions2.doc5.html#goto
-		case JSR:
-			mv.visitMethodInsn(INVOKESTATIC, VM_FQ, BYTECODE_NAME[opcode], V_V);
+			case GOTO: // http://java.sun.com/docs/books/jvms/second_edition/html/Instructions2.doc5.html#goto
+			case JSR:
+			case 200: // http://java.sun.com/docs/books/jvms/second_edition/html/Instructions2.doc5.html#goto_w
+			case 201:
+				mv.visitMethodInsn(INVOKESTATIC, VM_FQ, BYTECODE_NAME[opcode], V_V, false);
 			break;
 
-		case 200: // http://java.sun.com/docs/books/jvms/second_edition/html/Instructions2.doc5.html#goto_w
-		case 201:
-			mv.visitMethodInsn(INVOKESTATIC, VM_FQ, BYTECODE_NAME[opcode], V_V);
-			break;
-
-		default:
-			check(false, BYTECODE_NAME[opcode] + " is not a jump instruction.");
+			default:
+				check(false, BYTECODE_NAME[opcode] + " is not a jump instruction.");
 		}
 
 		/* All our code is added now to the basic block, before the jump */
@@ -460,7 +379,7 @@ public final class ConcolicMethodAdapter extends GeneratorAdapter {
 	@Override
 	public void visitLineNumber(int line, Label start) {
 		stack.pushInt(line);
-		mv.visitMethodInsn(INVOKESTATIC, VM_FQ, "SRC_LINE_NUMBER", I_V); //$NON-NLS-1$
+		mv.visitMethodInsn(INVOKESTATIC, VM_FQ, "SRC_LINE_NUMBER", I_V, false); //$NON-NLS-1$
 
 		super.visitLineNumber(line, start);
 	}
@@ -480,7 +399,7 @@ public final class ConcolicMethodAdapter extends GeneratorAdapter {
 		super.visitLabel(label);
 
 		if (!exceptionHandlers.contains(label)) {
-			mv.visitMethodInsn(INVOKESTATIC, VM_FQ, "BB_BEGIN", V_V); //$NON-NLS-1$
+			mv.visitMethodInsn(INVOKESTATIC, VM_FQ, "BB_BEGIN", V_V, false); //$NON-NLS-1$
 			return;
 		}
 
@@ -488,7 +407,7 @@ public final class ConcolicMethodAdapter extends GeneratorAdapter {
 
 		stack.pushInt(access);
 		stack.pushStrings(className, methName, methDescription);
-		mv.visitMethodInsn(INVOKESTATIC, VM_FQ, "HANDLER_BEGIN", IGGG_V); //$NON-NLS-1$
+		mv.visitMethodInsn(INVOKESTATIC, VM_FQ, "HANDLER_BEGIN", IGGG_V, false); //$NON-NLS-1$
 	}
 
 	/**
@@ -510,14 +429,14 @@ public final class ConcolicMethodAdapter extends GeneratorAdapter {
 			         // http://java.sun.com/docs/books/jvms/second_edition/html/Instructions2.doc13.html#sipush
 			super.visitIntInsn(opcode, operand); // user ByteCode instruction
 			mv.visitInsn(DUP);
-			mv.visitMethodInsn(INVOKESTATIC, VM_FQ, BYTECODE_NAME[opcode], I_V);
+			mv.visitMethodInsn(INVOKESTATIC, VM_FQ, BYTECODE_NAME[opcode], I_V, false);
 			return;
 
 		case NEWARRAY: // @see
 			           // http://java.sun.com/docs/books/jvms/second_edition/html/Instructions2.doc10.html#newarray
 			mv.visitInsn(DUP); // duplicate array length
 			mv.visitIntInsn(BIPUSH, operand); // push array componenet type
-			mv.visitMethodInsn(INVOKESTATIC, VM_FQ, BYTECODE_NAME[opcode], II_V);
+			mv.visitMethodInsn(INVOKESTATIC, VM_FQ, BYTECODE_NAME[opcode], II_V, false);
 			super.visitIntInsn(opcode, operand); // user ByteCode instruction
 			return;
 
@@ -553,24 +472,24 @@ public final class ConcolicMethodAdapter extends GeneratorAdapter {
 
 		if (constant instanceof Integer) {
 			mv.visitInsn(DUP);
-			mv.visitMethodInsn(INVOKESTATIC, VM_FQ, BYTECODE_NAME[LDC], I_V);
+			mv.visitMethodInsn(INVOKESTATIC, VM_FQ, BYTECODE_NAME[LDC], I_V, false);
 		} else if (constant instanceof Float) {
 			mv.visitInsn(DUP);
-			mv.visitMethodInsn(INVOKESTATIC, VM_FQ, BYTECODE_NAME[LDC], F_V);
+			mv.visitMethodInsn(INVOKESTATIC, VM_FQ, BYTECODE_NAME[LDC], F_V, false);
 		} else if (constant instanceof String) {
 			mv.visitInsn(DUP);
-			mv.visitMethodInsn(INVOKESTATIC, VM_FQ, BYTECODE_NAME[LDC], G_V);
+			mv.visitMethodInsn(INVOKESTATIC, VM_FQ, BYTECODE_NAME[LDC], G_V, false);
 		} else if (constant instanceof Type) {
 			mv.visitInsn(DUP);
 			mv.visitMethodInsn(INVOKESTATIC, VM_FQ, BYTECODE_NAME[LDC],
-			                   "(Ljava/lang/Class;)V"); //$NON-NLS-1$
+			                   "(Ljava/lang/Class;)V", false); //$NON-NLS-1$
 		} else { /* LDC2_W */
 			mv.visitInsn(DUP2);
 
 			if (constant instanceof Long)
-				mv.visitMethodInsn(INVOKESTATIC, VM_FQ, BYTECODE_NAME[20], J_V);
+				mv.visitMethodInsn(INVOKESTATIC, VM_FQ, BYTECODE_NAME[20], J_V, false);
 			else if (constant instanceof Double)
-				mv.visitMethodInsn(INVOKESTATIC, VM_FQ, BYTECODE_NAME[20], D_V);
+				mv.visitMethodInsn(INVOKESTATIC, VM_FQ, BYTECODE_NAME[20], D_V, false);
 			else
 				check(false);
 		}
@@ -593,7 +512,7 @@ public final class ConcolicMethodAdapter extends GeneratorAdapter {
 			 * we need to push value 33 onto the user's operand stack.
 			 */
 			stack.pushInt(var); // push local variable index
-			mv.visitMethodInsn(INVOKESTATIC, VM_FQ, BYTECODE_NAME[opcode], I_V);
+			mv.visitMethodInsn(INVOKESTATIC, VM_FQ, BYTECODE_NAME[opcode], I_V, false);
 		}
 
 		else {
@@ -601,7 +520,7 @@ public final class ConcolicMethodAdapter extends GeneratorAdapter {
 			 * Bytecode does not have an explicit parameter, the parameter is
 			 * hard-coded into the ByteCode, e.g., ILOAD_2
 			 */
-			mv.visitMethodInsn(INVOKESTATIC, VM_FQ, BYTECODE_NAME[opcode], V_V);
+			mv.visitMethodInsn(INVOKESTATIC, VM_FQ, BYTECODE_NAME[opcode], V_V, false);
 		}
 
 		super.visitVarInsn(opcode, var); // user ByteCode instruction
@@ -644,12 +563,13 @@ public final class ConcolicMethodAdapter extends GeneratorAdapter {
 			}
 
 			stack.pushStrings(owner, name, desc);
-			mv.visitMethodInsn(INVOKESTATIC, VM_FQ, BYTECODE_NAME[opcode], signInvoke);
+			mv.visitMethodInsn(INVOKESTATIC, VM_FQ, BYTECODE_NAME[opcode], signInvoke, false);
 
 		}
 		super.visitFieldInsn(opcode, owner, name, desc); // user ByteCode
 		                                                 // instruction
 	}
+
 
 	/**
 	 * Invoke a method/constructor/class initializer:
@@ -665,68 +585,63 @@ public final class ConcolicMethodAdapter extends GeneratorAdapter {
 	 * <li>
 	 * CALL_RESULT</li>
 	 * </ol>
-	 * 
+	 *
 	 * <p>
 	 * Add callback before any invocation. Besides all method calls (static,
 	 * instance, private, public, native, etc.) and all constructor calls, this
 	 * also works for the special case of the (implicit) super call that the
 	 * Java compiler adds to the beginning of each constructor:
 	 * "InvokeSpecial MySuperType <init>"
-	 * 
+	 *
 	 * <p>
 	 * Although the Java compiler does not allow any statement before this super
 	 * call, we can still add a callback at the JVM level. It seems that the
 	 * Java compiler (and language) is overly restrictive here.
-	 * 
+	 *
 	 * <p>
 	 * TODO: Pass receiver for more than two parameters.
-	 * 
+	 *
 	 * http://java.sun.com/docs/books/jvms/second_edition/html/Concepts.doc.html
 	 * #16411
 	 */
 	@Override
-	public void visitMethodInsn(int opcode, String owner, String name, String desc) {
-		Type[] argTypes = Type.getArgumentTypes(desc); // does not include
-		                                               // "this"
+	public void visitMethodInsn(int opcode, String owner, String name, String descriptor, boolean isInterface) {
+		// FIXME proper handling of INVOKEDYNAMIC (currently handled like INVOKESTATIC)
+		Type[] argTypes = Type.getArgumentTypes(descriptor); // does not include
+		// "this"
 
-		String signInvoke = GGG_V;
+		String signInvoke;
 
 		if (opcode == INVOKEVIRTUAL || opcode == INVOKEINTERFACE
-		        || (opcode == INVOKESPECIAL && !INIT.equals(name))) {
+				|| (opcode == INVOKESPECIAL && !INIT.equals(name))) {
 
 			// pop arguments
-			Type[] args = Type.getArgumentTypes(desc);
-			Map<Integer, Integer> to = new HashMap<Integer, Integer>();
-			for (int i = args.length - 1; i >= 0; i--) {
-				int loc = newLocal(args[i]);
-				storeLocal(loc);
-				to.put(i, loc);
-			}
+			Map<Integer, Integer> to = popArguments(argTypes);
 
 			// duplicate receiver
 			dup();// callee
 
 			// push arguments
-			for (int i = 0; i < args.length; i++) {
+			Type ownerType = Type.getObjectType(owner);
+			for (int i = 0; i < argTypes.length; i++){
 				loadLocal(to.get(i));
-				Type ownerType = Type.getType(owner);
-				swap(ownerType, args[i]);
+				swap(ownerType, argTypes[i]);
 			}
 
 			/* INVOKE_X with receiver */
 
 			// signInvoke = LGGG_V;
 			signInvoke = LGGG_V;
-			stack.pushStrings(owner, name, desc);
-			mv.visitMethodInsn(INVOKESTATIC, VM_FQ, BYTECODE_NAME[opcode], signInvoke);
+			stack.pushStrings(owner, name, descriptor);
+			mv.visitMethodInsn(INVOKESTATIC, VM_FQ, BYTECODE_NAME[opcode], signInvoke, false);
 
 		} else {
 
 			/* INVOKE_X with no receiver */
 
 			signInvoke = GGG_V;
-			stack.pushStrings(owner, name, desc);
-			mv.visitMethodInsn(INVOKESTATIC, VM_FQ, BYTECODE_NAME[opcode], signInvoke);
+			stack.pushStrings(owner, name, descriptor);
+			mv.visitMethodInsn(INVOKESTATIC, VM_FQ, BYTECODE_NAME[opcode], signInvoke, false);
 
 		}
 
@@ -735,60 +650,71 @@ public final class ConcolicMethodAdapter extends GeneratorAdapter {
 		 * to left, downwards the operand stack
 		 */
 		final boolean needThis = opcode == INVOKEVIRTUAL || opcode == INVOKEINTERFACE
-		        || opcode == INVOKESPECIAL;
+				|| opcode == INVOKESPECIAL;
 		passCallerStackParams(argTypes, needThis);
 
 		/* User's actual invoke instruction */
 
-		super.visitMethodInsn(opcode, owner, name, desc);
+		super.visitMethodInsn(opcode, owner, name, descriptor, isInterface);
 
 		/* CALL_RESULT */
 
-		Type returnType = Type.getReturnType(desc);
-		if (returnType.getSort() == Type.VOID) {
-			/* return; */// returns nothing
+		Type returnType = Type.getReturnType(descriptor);
+		if (returnType.getSort() != Type.VOID) {
+			int instruction = returnType.getSize() == 2 ? DUP2 : DUP;
+			mv.visitInsn(instruction);
 		}
-		/* Pass returned value and method signature to our VM */
-		else if (returnType.getSize() == 2)
-			mv.visitInsn(DUP2);
-		else
-			mv.visitInsn(DUP);
 
 		String signResult = null;
 		switch (returnType.getSort()) {
-		case Type.VOID:
-			signResult = GGG_V;
-			break;
-		case Type.DOUBLE:
-			signResult = DGGG_V;
-			break;
-		case Type.FLOAT:
-			signResult = FGGG_V;
-			break;
-		case Type.LONG:
-			signResult = JGGG_V;
-			break;
-		case Type.OBJECT:
-			signResult = LGGG_V;
-			break;
-		case Type.ARRAY:
-			signResult = LGGG_V;
-			break;
-		case Type.BOOLEAN:
-			signResult = ZGGG_V;
-			break;
-		case Type.SHORT:
-		case Type.BYTE:
-		case Type.CHAR:
-		case Type.INT:
-			signResult = IGGG_V;
-			break;
-		default:
-			check(false);
+			case Type.VOID:
+				signResult = GGG_V;
+				break;
+			case Type.DOUBLE:
+				signResult = DGGG_V;
+				break;
+			case Type.FLOAT:
+				signResult = FGGG_V;
+				break;
+			case Type.LONG:
+				signResult = JGGG_V;
+				break;
+			case Type.OBJECT:
+				signResult = LGGG_V;
+				break;
+			case Type.ARRAY:
+				signResult = LGGG_V;
+				break;
+			case Type.BOOLEAN:
+				signResult = ZGGG_V;
+				break;
+			case Type.SHORT:
+			case Type.BYTE:
+			case Type.CHAR:
+			case Type.INT:
+				signResult = IGGG_V;
+				break;
+			default:
+				check(false);
 		}
 
-		stack.pushStrings(owner, name, desc);
-		mv.visitMethodInsn(INVOKESTATIC, VM_FQ, CALL_RESULT, signResult);
+		stack.pushStrings(owner, name, descriptor);
+		mv.visitMethodInsn(INVOKESTATIC, VM_FQ, CALL_RESULT, signResult, false);
+	}
+
+	@Override
+	public void visitMethodInsn(int opcode, String owner, String name, String desc) {
+		this.visitMethodInsn(opcode, owner, name, desc, opcode == INVOKEINTERFACE);
+	}
+
+	private Map<Integer, Integer> popArguments(Type[] argTypes){
+		Map<Integer, Integer> to = new HashMap<>();
+		for (int i = argTypes.length - 1; i >= 0; i--) {
+			int loc = newLocal(argTypes[i]);
+			storeLocal(loc);
+			to.put(i, loc);
+		}
+		return to;
 	}
 
 	private void passCallerStackParams(Type[] argTypes, boolean needThis) {
@@ -796,18 +722,11 @@ public final class ConcolicMethodAdapter extends GeneratorAdapter {
 		if (argTypes == null || argTypes.length == 0)
 			return;
 
-		// pop arguments and store them as locals
-		Map<Integer, Integer> to = new HashMap<Integer, Integer>();
-		for (int i = argTypes.length - 1; i >= 0; i--) {
-			int loc = newLocal(argTypes[i]);
-			storeLocal(loc);
-			to.put(i, loc);
-		}
+		Map<Integer, Integer> to = popArguments(argTypes);
 
 		// restore all arguments for user invocation
-		for (int i = 0; i < argTypes.length; i++) {
+		for(int i = 0; i < to.size(); i++)
 			loadLocal(to.get(i));
-		}
 
 		// push arguments copy and paramNr and calleLocalsIndex
 		int calleeLocalsIndex = calculateCalleeLocalsIndex(argTypes, needThis);
@@ -844,7 +763,7 @@ public final class ConcolicMethodAdapter extends GeneratorAdapter {
 	public void visitIincInsn(int i, int value) {
 		stack.pushInt(i); // push local variable index
 		stack.pushInt(value); // push increment value
-		mv.visitMethodInsn(INVOKESTATIC, VM_FQ, BYTECODE_NAME[132], II_V);
+		mv.visitMethodInsn(INVOKESTATIC, VM_FQ, BYTECODE_NAME[132], II_V, false);
 
 		super.visitIincInsn(i, value); // user ByteCode instruction
 	}
@@ -867,7 +786,7 @@ public final class ConcolicMethodAdapter extends GeneratorAdapter {
 		                                // array type
 		mv.visitIntInsn(SIPUSH, nrDimensions); // push number of dimensions
 		                                       // (unsigned byte)
-		mv.visitMethodInsn(INVOKESTATIC, VM_FQ, BYTECODE_NAME[MULTIANEWARRAY], GI_V);
+		mv.visitMethodInsn(INVOKESTATIC, VM_FQ, BYTECODE_NAME[MULTIANEWARRAY], GI_V, false);
 
 		super.visitMultiANewArrayInsn(arrayTypeDesc, nrDimensions); // user
 		                                                            // ByteCode
@@ -891,7 +810,7 @@ public final class ConcolicMethodAdapter extends GeneratorAdapter {
 		mv.visitLdcInsn(methName);
 		mv.visitLdcInsn(currentBranchIndex);
 		String IIIGGI_V = "(" + INT + INT + INT + STR + STR + INT + ")" + VOID;
-		mv.visitMethodInsn(INVOKESTATIC, VM_FQ, BYTECODE_NAME[TABLESWITCH], IIIGGI_V);
+		mv.visitMethodInsn(INVOKESTATIC, VM_FQ, BYTECODE_NAME[TABLESWITCH], IIIGGI_V, false);
 
 		super.visitTableSwitchInsn(min, max, dflt, labels); // user ByteCode
 		                                                    // instruction
@@ -930,7 +849,7 @@ public final class ConcolicMethodAdapter extends GeneratorAdapter {
 
 		String IRGGI_V = "(" + INT + INT_ARR + STR + STR + INT + ")" + VOID;
 
-		mv.visitMethodInsn(INVOKESTATIC, VM_FQ, BYTECODE_NAME[LOOKUPSWITCH], IRGGI_V);
+		mv.visitMethodInsn(INVOKESTATIC, VM_FQ, BYTECODE_NAME[LOOKUPSWITCH], IRGGI_V, false);
 
 		super.visitLookupSwitchInsn(dflt, keys, labels); // user ByteCode
 		                                                 // instruction
@@ -947,18 +866,18 @@ public final class ConcolicMethodAdapter extends GeneratorAdapter {
 		case INSTANCEOF:
 			mv.visitInsn(DUP); // duplicate reference to be cast
 			mv.visitLdcInsn(type); // pass name of type to be cast to
-			mv.visitMethodInsn(INVOKESTATIC, VM_FQ, BYTECODE_NAME[opcode], LG_V);
+			mv.visitMethodInsn(INVOKESTATIC, VM_FQ, BYTECODE_NAME[opcode], LG_V, false);
 			break;
 
 		case NEW:
 			mv.visitLdcInsn(type);
-			mv.visitMethodInsn(INVOKESTATIC, VM_FQ, BYTECODE_NAME[opcode], G_V);
+			mv.visitMethodInsn(INVOKESTATIC, VM_FQ, BYTECODE_NAME[opcode], G_V, false);
 			break;
 
 		case ANEWARRAY:
 			mv.visitInsn(DUP); // duplicate array length
 			mv.visitLdcInsn(type); // name of component type
-			mv.visitMethodInsn(INVOKESTATIC, VM_FQ, BYTECODE_NAME[opcode], IG_V);
+			mv.visitMethodInsn(INVOKESTATIC, VM_FQ, BYTECODE_NAME[opcode], IG_V, false);
 			break;
 
 		default:
@@ -968,7 +887,7 @@ public final class ConcolicMethodAdapter extends GeneratorAdapter {
 		super.visitTypeInsn(opcode, type); // user ByteCode instruction
 	}
 
-	private final Set<Label> exceptionHandlers = new HashSet<Label>();
+	private final Set<Label> exceptionHandlers = new HashSet<>();
 
 	@Override
 	public void visitTryCatchBlock(Label start, Label end, Label handler, String type) {
@@ -981,7 +900,7 @@ public final class ConcolicMethodAdapter extends GeneratorAdapter {
 		stack.pushStrings(className, methName, methDescription);
 		stack.pushInt(maxStack);
 		stack.pushInt(maxLocals);
-		mv.visitMethodInsn(INVOKESTATIC, VM_FQ, "METHOD_MAXS", GGGII_V); //$NON-NLS-1$
+		mv.visitMethodInsn(INVOKESTATIC, VM_FQ, "METHOD_MAXS", GGGII_V, false); //$NON-NLS-1$
 		super.visitMaxs(maxStack, maxLocals);
 	}
 }

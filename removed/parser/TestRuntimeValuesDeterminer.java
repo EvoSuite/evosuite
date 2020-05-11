@@ -247,7 +247,7 @@ public class TestRuntimeValuesDeterminer extends RunListener {
 		private final String fullyQualifiedTargetClass;
 
 		public TestValuesDeterminerClassVisitor(String fullyQualifiedTargetClass, ClassWriter cw) {
-			super(Opcodes.ASM4, cw);
+			super(Opcodes.ASM7, cw);
 			this.fullyQualifiedTargetClass = fullyQualifiedTargetClass;
 		}
 
@@ -270,7 +270,7 @@ public class TestRuntimeValuesDeterminer extends RunListener {
 
 		public TestValuesDeterminerMethodVisitor(String fullyQualifiedTargetClass, MethodNode methodNode,
 				MethodVisitor next) {
-			super(Opcodes.ASM4, methodNode);
+			super(Opcodes.ASM7, methodNode);
 			this.fullyQualifiedTargetClass = fullyQualifiedTargetClass;
 			this.next = next;
 		}

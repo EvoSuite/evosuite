@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -44,7 +44,7 @@ public class ReadabilitySuiteFitness extends TestSuiteFitnessFunction {
 
         average /= suite.getTestChromosomes().size();
 
-        updateIndividual(this, suite, average);
+        updateIndividual(suite, average);
         return average;
     }
 

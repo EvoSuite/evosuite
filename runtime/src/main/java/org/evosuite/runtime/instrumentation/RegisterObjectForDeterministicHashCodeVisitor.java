@@ -31,7 +31,7 @@ public class RegisterObjectForDeterministicHashCodeVisitor extends AdviceAdapter
 	
 	
 	protected RegisterObjectForDeterministicHashCodeVisitor(MethodVisitor mv, int access, String name, String desc) {
-		super(Opcodes.ASM5, mv, access, name, desc);
+		super(Opcodes.ASM7, mv, access, name, desc);
 	}
 
 	@Override

@@ -42,6 +42,11 @@ public class StringBooleanInterpreter extends BasicInterpreter {
 	/** Constant <code>STRING_BOOLEAN</code> */
 	public final static BasicValue STRING_BOOLEAN = new BasicValue(null);
 
+        public StringBooleanInterpreter() {
+                super(Opcodes.ASM7);
+        }
+
+
 	/* (non-Javadoc)
 	 * @see org.objectweb.asm.tree.analysis.BasicInterpreter#naryOperation(org.objectweb.asm.tree.AbstractInsnNode, java.util.List)
 	 */

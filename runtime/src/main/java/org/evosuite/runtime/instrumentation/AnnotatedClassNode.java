@@ -35,7 +35,7 @@ import org.objectweb.asm.tree.MethodNode;
 public class AnnotatedClassNode extends ClassNode {
 	
 	public AnnotatedClassNode() {
-		super(Opcodes.ASM5);
+		super(Opcodes.ASM7);
 	}
 	
 	/** {@inheritDoc} */

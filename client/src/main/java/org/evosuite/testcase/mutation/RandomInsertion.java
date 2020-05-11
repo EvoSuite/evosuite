@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -20,10 +20,8 @@
 package org.evosuite.testcase.mutation;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import org.evosuite.Properties;
-import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.testcase.ConstraintHelper;
 import org.evosuite.testcase.ConstraintVerifier;
@@ -35,13 +33,14 @@ import org.evosuite.testcase.variable.NullReference;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.utils.ListUtil;
 import org.evosuite.utils.Randomness;
-import org.evosuite.utils.generic.GenericAccessibleObject;
-import org.evosuite.utils.generic.GenericClass;
-import org.evosuite.utils.generic.GenericConstructor;
-import org.evosuite.utils.generic.GenericMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static java.util.stream.Collectors.*;
+
+/**
+ * An insertion strategy that allows for modification of test cases by inserting random statements.
+ */
 public class RandomInsertion implements InsertionStrategy {
 
 	private static final Logger logger = LoggerFactory.getLogger(RandomInsertion.class);
@@ -55,23 +54,25 @@ public class RandomInsertion implements InsertionStrategy {
 			TODO: if allow inserting a UUT method in the middle of a test,
 			 we need to handle case of not breaking any initializing bounded variable
 		 */
-		int max = lastPosition;
-		if (max == test.size())
-			max += 1;
-
-		if (max <= 0)
-			max = 1;
 
 		int position = 0;
 
 		assert Properties.INSERTION_UUT + Properties.INSERTION_ENVIRONMENT + Properties.INSERTION_PARAMETER == 1.0;
 
-		boolean insertUUT = Properties.INSERTION_UUT > 0 &&
-				r <= Properties.INSERTION_UUT && TestCluster.getInstance().getNumTestCalls() > 0 ;
+		// Whether to insert a call on the unit under test at the end of the given test case.
+		final boolean insertUUT = Properties.INSERTION_UUT > 0
+				&& r <= Properties.INSERTION_UUT
+				&& TestCluster.getInstance().getNumTestCalls() > 0 ;
 
-		boolean insertEnv = !insertUUT && Properties.INSERTION_ENVIRONMENT > 0 &&
-				r > Properties.INSERTION_UUT && r <= Properties.INSERTION_UUT+Properties.INSERTION_ENVIRONMENT &&
-				TestCluster.getInstance().getNumOfEnvironmentCalls() > 0;
+		/*
+		 * Whether to insert a call on the environment of the unit under test at the end of the
+		 * given test case. The environment of a test case are external resources for the test case
+		 * such as handles to files on the file system, sockets that open network connections, etc.
+		 */
+		final boolean insertEnv = !insertUUT
+						&& Properties.INSERTION_ENVIRONMENT > 0
+						&& r > Properties.INSERTION_UUT && r <= Properties.INSERTION_UUT + Properties.INSERTION_ENVIRONMENT
+						&& TestCluster.getInstance().getNumOfEnvironmentCalls() > 0;
 
 		boolean insertParam = !insertUUT && !insertEnv;
 
@@ -82,21 +83,23 @@ public class RandomInsertion implements InsertionStrategy {
 			success = TestFactory.getInstance().insertRandomCall(test, lastPosition + 1);
 		} else if (insertEnv) {
 			/*
-				Insert a call to the environment. As such call is likely to depend on many constraints,
-				we do not specify here the position of where it ll happen.
+				Insert a call to the environment, i.e., external resources for the test case such
+				as handles to files on the file system, sockets that open network connections, etc.
+				As such call is likely to depend on many constraints, we do not specify here the
+				position of where it ll happen.
 			 */
 			position = TestFactory.getInstance().insertRandomCallOnEnvironment(test,lastPosition);
 			success = (position >= 0);
 		} else if (insertParam){
-			// Insert a call to a parameter
+			// Insert a call to a variable (one that is used as a parameter for some function call
+			// in the test case). The idea is to mutate the parameter so that new program states
+			// can be reached in the function call.
 			VariableReference var = selectRandomVariableForCall(test, lastPosition);
 			if (var != null) {
-				int lastUsage = var.getStPosition();
-
-				for (VariableReference usage : test.getReferences(var)) {
-					if (usage.getStPosition() > lastUsage)
-						lastUsage = usage.getStPosition();
-				}
+				// find the last position where the selected variable is used in the test case
+				final int lastUsage = test.getReferences(var).stream()
+						.mapToInt(VariableReference::getStPosition)
+						.max().orElse(var.getStPosition());
 
 				int boundPosition = ConstraintHelper.getLastPositionOfBounded(var, test);
 				if(boundPosition >= 0 ){
@@ -136,8 +139,8 @@ public class RandomInsertion implements InsertionStrategy {
 			}
 		}
 
-		//this can happen if insertion had side effect of adding further previous statements in the test,
-		//eg to handle input parameters
+		// This can happen if insertion had side effect of adding further previous statements in the
+		// test, e.g., to handle input parameters.
 		if (test.size() - oldSize > 1) {
 			position += (test.size() - oldSize - 1);
 		}
@@ -151,7 +154,16 @@ public class RandomInsertion implements InsertionStrategy {
 			return -1;
 		}
 	}
-	
+
+	/**
+	 * In the given test case {@code test}, returns a random variable up to the specified {@code
+	 * position} for a subsequent call. If the test case is empty or the position is {@code 0},
+	 * {@code null} is returned.
+	 *
+	 * @param test the test case from which to select the variable
+	 * @param position the position in the test case up to which a variable shoulb be selected
+	 * @return the selected variable or {@code null} (see above)
+	 */
 	private VariableReference selectRandomVariableForCall(TestCase test, int position) {
 		if (test.isEmpty() || position == 0)
 			return null;
@@ -166,6 +178,8 @@ public class RandomInsertion implements InsertionStrategy {
 					!var.getGenericClass().isObject() &&
 					!(test.getStatement(var.getStPosition()) instanceof PrimitiveStatement) &&
 					!var.isPrimitive() &&
+					!var.isWrapperType() &&
+					!var.isString() &&
 					(test.hasReferences(var) || var.getVariableClass().equals(Properties.getInitializedTargetClass()))&&
 					/* Note: this check has been added only recently,
 						to avoid having added calls to UUT in the middle of the test
@@ -186,7 +200,9 @@ public class RandomInsertion implements InsertionStrategy {
 		if(candidateVariables.isEmpty()) {
 			return null;
 		} else if(Properties.SORT_OBJECTS) {
-			candidateVariables = candidateVariables.stream().sorted(Comparator.comparingInt(item -> item.getDistance())).collect(Collectors.toList());
+			candidateVariables = candidateVariables.stream()
+					.sorted(Comparator.comparingInt(VariableReference::getDistance))
+					.collect(toList());
 			return ListUtil.selectRankBiased(candidateVariables);
 		} else {
 			return Randomness.choice(candidateVariables);

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -19,27 +19,25 @@
  */
 package org.evosuite.testcase;
 
-import org.evosuite.testcase.statements.Statement;
-
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import static java.util.stream.Collectors.*;
+
 public class StructuredTestCase extends DefaultTestCase {
 
 	private static final long serialVersionUID = -1896651382970358963L;
 
-	private final Set<TestFitnessFunction> primaryTargets = new HashSet<TestFitnessFunction>();
+	private final Set<TestFitnessFunction> primaryTargets = new HashSet<>();
 
-	private final Set<TestFitnessFunction> secondaryTargets = new HashSet<TestFitnessFunction>();
+	private final Set<TestFitnessFunction> secondaryTargets = new HashSet<>();
 
-	private final Set<Integer> targetStatements = new HashSet<Integer>();
+	private final Set<Integer> targetStatements = new HashSet<>();
 
 	public StructuredTestCase(TestCase test) {
-		for (Statement statement : test) {
-			addStatement(statement.clone(this));
-		}
+		test.forEach(statement -> addStatement(statement.clone(this)));
 	}
 
 	public void addPrimaryGoal(TestFitnessFunction goal) {
@@ -52,11 +50,9 @@ public class StructuredTestCase extends DefaultTestCase {
 	 * @return
 	 */
 	public Set<String> getTargetMethods() {
-		Set<String> targetMethods = new HashSet<String>();
-		for (TestFitnessFunction goal : primaryTargets) {
-			targetMethods.add(goal.getTargetMethod());
-		}
-		return targetMethods;
+		return primaryTargets.stream()
+				.map(TestFitnessFunction::getTargetMethod)
+				.collect(toCollection(HashSet::new));
 	}
 
 	/**

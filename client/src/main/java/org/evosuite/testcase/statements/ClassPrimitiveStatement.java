@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -41,7 +41,7 @@ public class ClassPrimitiveStatement extends PrimitiveStatement<Class<?>> {
 
 	private static final long serialVersionUID = -2728777640255424791L;
 
-	private transient Set<Class<?>> assignableClasses = new LinkedHashSet<Class<?>>();
+	private transient Set<Class<?>> assignableClasses = new LinkedHashSet<>();
 
 	public ClassPrimitiveStatement(TestCase tc, GenericClass type,
 	        Set<Class<?>> assignableClasses) {
@@ -122,11 +122,7 @@ public class ClassPrimitiveStatement extends PrimitiveStatement<Class<?>> {
 			org.objectweb.asm.Type type = ConstantPoolManager.getInstance().getConstantPool().getRandomType();
 			try {
 				value = getType(type);
-			} catch (ClassNotFoundException e) {
-				logger.warn("Error loading class " + type.getClassName() + ": " + e);
-			} catch (NoClassDefFoundError e) {
-				logger.warn("Error loading class " + type.getClassName() + ": " + e);
-			} catch (ExceptionInInitializerError e) {
+			} catch (ClassNotFoundException | NoClassDefFoundError | ExceptionInInitializerError e) {
 				logger.warn("Error loading class " + type.getClassName() + ": " + e);
 			}
 		}
@@ -143,7 +139,7 @@ public class ClassPrimitiveStatement extends PrimitiveStatement<Class<?>> {
 	private void writeObject(ObjectOutputStream oos) throws IOException {
 		oos.defaultWriteObject();
 		oos.writeObject(new GenericClass(value));
-		List<GenericClass> currentAssignableClasses = new ArrayList<GenericClass>();
+		List<GenericClass> currentAssignableClasses = new ArrayList<>();
 		for (Class<?> assignableClass : assignableClasses)
 			currentAssignableClasses.add(new GenericClass(assignableClass));
 		oos.writeObject(currentAssignableClasses);
@@ -155,7 +151,7 @@ public class ClassPrimitiveStatement extends PrimitiveStatement<Class<?>> {
 		ois.defaultReadObject();
 		this.value = ((GenericClass) ois.readObject()).getRawClass();
 		List<GenericClass> newAssignableClasses = (List<GenericClass>) ois.readObject();
-		assignableClasses = new LinkedHashSet<Class<?>>();
+		assignableClasses = new LinkedHashSet<>();
 		for (GenericClass assignableClass : newAssignableClasses) {
 			assignableClasses.add(assignableClass.getRawClass());
 		}

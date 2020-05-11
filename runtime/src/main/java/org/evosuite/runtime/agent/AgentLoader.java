@@ -19,6 +19,7 @@
  */
 package org.evosuite.runtime.agent;
 
+import net.bytebuddy.agent.ByteBuddyAgent;
 import org.evosuite.runtime.util.JarPathing;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -126,21 +127,7 @@ public class AgentLoader {
 			throw new RuntimeException("AttachProvider.providers() returned null values");
 		}
 
-		Class<?> clazz = toolLoader.loadClass("com.sun.tools.attach.VirtualMachine");
-		Method attach = clazz.getMethod("attach", string);
-
-		Object instance = null;
-		try {
-			instance = attach.invoke(null, pid);
-		} catch (Exception e){
-			throw new RuntimeException("Failed to attach Java Agent. Tool classloader: "+toolLoader,e);
-		}
-
-		Method loadAgent = clazz.getMethod("loadAgent", string, string);
-		loadAgent.invoke(instance, jarFilePath, "");
-
-		Method detach = clazz.getMethod("detach");
-		detach.invoke(instance);
+		ByteBuddyAgent.attach(new File(jarFilePath),pid);
 	}
 
 	private static boolean isEvoSuiteMainJar(String path) throws IllegalArgumentException{

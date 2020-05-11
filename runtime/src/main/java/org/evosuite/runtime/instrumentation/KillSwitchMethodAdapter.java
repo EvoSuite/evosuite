@@ -34,7 +34,7 @@ import org.objectweb.asm.Opcodes;
 public class KillSwitchMethodAdapter extends MethodVisitor {
 
 	public KillSwitchMethodAdapter(MethodVisitor mv, String methodName, String desc) {
-		super(Opcodes.ASM5, mv);
+		super(Opcodes.ASM7, mv);
 	}
 	
 	@Override

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -42,7 +42,7 @@ public class NullAssertion extends Assertion {
 	@Override
 	public boolean evaluate(Scope scope) {
 		try {
-			if (((Boolean) value).booleanValue()) {
+			if ((Boolean) value) {
 				return source.getObject(scope) == null;
 			} else {
 				return source.getObject(scope) != null;
@@ -56,7 +56,7 @@ public class NullAssertion extends Assertion {
 	/** {@inheritDoc} */
 	@Override
 	public String getCode() {
-		if (((Boolean) value).booleanValue()) {
+		if ((Boolean) value) {
 			return "assertNull(" + source.getName() + ");";
 		} else
 			return "assertNotNull(" + source.getName() + ");";

@@ -1,4 +1,4 @@
-/**
+/*
  *
  * This file is part of EvoSuite.
  *
@@ -48,15 +48,14 @@ public class FastNonDominatedSorting<T extends Chromosome> implements RankingFun
 	/**
 	 * Set used to store the goals that are covered from a population being sorted
 	 */
-	private Map<FitnessFunction<T>, T> newCoveredGoals = new LinkedHashMap<FitnessFunction<T>, T>();
+	private Map<FitnessFunction<T>, T> newCoveredGoals = new LinkedHashMap<>();
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public void computeRankingAssignment(List<T> solutions, Set<FitnessFunction<T>> uncovered_goals) {
 		List<T>[] fronts = getNextNonDominatedFronts(solutions, uncovered_goals);
 		ranking_ = new ArrayList[fronts.length];
-		for (int i = 0; i < fronts.length; i++)
-			ranking_[i] = fronts[i];
+		System.arraycopy(fronts, 0, ranking_, 0, fronts.length);
 	}
 
 
@@ -69,7 +68,7 @@ public class FastNonDominatedSorting<T extends Chromosome> implements RankingFun
 	@SuppressWarnings("unchecked")
 	private List<T>[] getNextNonDominatedFronts(List<T> solutionSet, Set<FitnessFunction<T>> uncovered_goals) {
 
-		DominanceComparator<T> criterion_ = new DominanceComparator<T>(uncovered_goals);
+		DominanceComparator<T> criterion_ = new DominanceComparator<>(uncovered_goals);
 		List<T> solutionSet_ = solutionSet;
 
 		// dominateMe[i] contains the number of solutions dominating i
@@ -86,7 +85,7 @@ public class FastNonDominatedSorting<T extends Chromosome> implements RankingFun
 
 		// Initialize the fronts
 		for (int i = 0; i < front.length; i++)
-			front[i] = new LinkedList<Integer>();
+			front[i] = new LinkedList<>();
 
 		// Initialize distance
 		for (int p = 0; p < (solutionSet_.size()); p++) {
@@ -97,7 +96,7 @@ public class FastNonDominatedSorting<T extends Chromosome> implements RankingFun
 		for (int p = 0; p < solutionSet_.size(); p++) {
 			// Initialize the list of individuals that i dominate and the number
 			// of individuals that dominate me
-			iDominate[p] = new LinkedList<Integer>();
+			iDominate[p] = new LinkedList<>();
 			dominateMe[p] = 0;
 		}
 
@@ -144,7 +143,7 @@ public class FastNonDominatedSorting<T extends Chromosome> implements RankingFun
 		List<T>[] fronts = new ArrayList[i];
 		// 0,1,2,....,i-1 are front, then i fronts
 		for (int j = 0; j < i; j++) {
-			fronts[j] = new ArrayList<T>();
+			fronts[j] = new ArrayList<>();
 			it1 = front[j].iterator();
 			while (it1.hasNext()) {
 				fronts[j].add(solutionSet.get(it1.next()));

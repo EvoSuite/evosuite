@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -23,8 +23,12 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Stream;
+
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.branch.BranchCoverageFactory;
@@ -39,8 +43,8 @@ import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
 
 /**
- * Fitness function for a single test on a single branch
- * 
+ * Fitness function for a single test on a single line
+ *
  * @author Gordon Fraser, Jose Miguel Rojas
  */
 public class LineCoverageTestFitness extends TestFitnessFunction {
@@ -61,13 +65,10 @@ public class LineCoverageTestFitness extends TestFitnessFunction {
 	 * @param methodName the method name
 	 * @throws IllegalArgumentException
 	 */
-	public LineCoverageTestFitness(String className, String methodName, Integer line) throws IllegalArgumentException{
-		if ((className == null) || (methodName == null) || (line == null)) {
-			throw new IllegalArgumentException("className, methodName and line number cannot be null");
-		}
-		this.className = className;
-		this.methodName = methodName;
-		this.line = line;
+	public LineCoverageTestFitness(String className, String methodName, Integer line) {
+		this.className = Objects.requireNonNull(className, "className cannot be null");
+		this.methodName = Objects.requireNonNull(methodName, "methodName cannot be null");
+		this.line = Objects.requireNonNull(line, "line number cannot be null");
 		setupDependencies();
 	}
 
@@ -132,24 +133,20 @@ public class LineCoverageTestFitness extends TestFitnessFunction {
 			        "an instruction is at least on the root branch of it's method");
 
 
-		branchFitnesses.sort((a,b) -> a.compareTo(b));
+		branchFitnesses.sort(Comparator.naturalOrder());
 	}
-	
+
 	@Override
 	public boolean isCovered(ExecutionResult result) {
-		for ( Integer coveredLine : result.getTrace().getCoveredLines()) {
-			if (coveredLine.intValue() == this.line.intValue()) {
-				return true;
-			}
-		}
-		return false;
+		Stream<Integer> coveredLines = result.getTrace().getCoveredLines().stream();
+		return coveredLines.anyMatch(coveredLine -> coveredLine.intValue() == this.line.intValue());
 	}
-	
+
 	/**
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * Calculate fitness
-	 * 
+	 *
 	 * @param individual
 	 *            a {@link org.evosuite.testcase.ExecutableChromosome} object.
 	 * @param result
@@ -189,7 +186,7 @@ public class LineCoverageTestFitness extends TestFitnessFunction {
 			fitness = r;
 		}
 		Properties.TEST_ARCHIVE = archive;
-		updateIndividual(this, individual, fitness);
+		updateIndividual(individual, fitness);
 
 		if (fitness == 0.0) {
 			individual.getTestCase().addCoveredGoal(this);
@@ -205,7 +202,7 @@ public class LineCoverageTestFitness extends TestFitnessFunction {
 	/** {@inheritDoc} */
 	@Override
 	public String toString() {
-		return className + (methodName == "" ? "" : "." + methodName) + ": Line " + line;
+		return className + (methodName.isEmpty() ? "" : "." + methodName) + ": Line " + line;
 	}
 
 	/** {@inheritDoc} */
@@ -229,9 +226,9 @@ public class LineCoverageTestFitness extends TestFitnessFunction {
 			return false;
 		} else if (! methodName.equals(other.methodName)) {
 			return false;
-		} else if (line.intValue() != other.line.intValue())
-			return false;
-		return true;
+		} else {
+			return line.intValue() == other.line.intValue();
+		}
 	}
 
 	/* (non-Javadoc)
@@ -268,17 +265,17 @@ public class LineCoverageTestFitness extends TestFitnessFunction {
 	public String getTargetMethod() {
 		return getMethod();
 	}
-	
+
 	private void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException {
 		ois.defaultReadObject();
-		branchFitnesses = new ArrayList<BranchCoverageTestFitness>();
+		branchFitnesses = new ArrayList<>();
 		if(GraphPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getActualCFG(className,
 				methodName) != null) {
 			// TODO: Figure out why the CFG may not exist
 			setupDependencies();
 		}
 	}
-	
+
 	private void writeObject(ObjectOutputStream oos) throws ClassNotFoundException, IOException {
 		oos.defaultWriteObject();
 	}

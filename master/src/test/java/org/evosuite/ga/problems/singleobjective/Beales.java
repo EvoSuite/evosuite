@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -56,7 +56,7 @@ public class Beales<T extends NSGAChromosome> implements Problem
                 double fitness = Math.pow(1.5 - x + x * y, 2.0) +
                                  Math.pow(2.25 - x + Math.pow(x * y, 2.0), 2.0) +
                                  Math.pow(2.625 - x + Math.pow(x * y, 3.0), 2.0);
-                updateIndividual(this, individual, fitness);
+                updateIndividual(individual, fitness);
                 return fitness;
             }
             @Override

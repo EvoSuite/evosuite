@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -20,7 +20,6 @@
 package org.evosuite.ga.metaheuristics;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -70,19 +69,19 @@ public class LIPS <T extends Chromosome> extends GeneticAlgorithm<T>{
 	private static final Logger logger = LoggerFactory.getLogger(LIPS.class);
 
 	/** Map used to store the covered test goals (keys of the map) and the corresponding covering test cases (values of the map) **/
-	protected Map<FitnessFunction<T>, T> archive = new  HashMap<FitnessFunction<T>, T>();
+	protected Map<FitnessFunction<T>, T> archive = new HashMap<>();
 
 	/** Set of branches yet to be covered **/
-	protected Set<FitnessFunction<T>> uncoveredBranches = new HashSet<FitnessFunction<T>>();
+	protected Set<FitnessFunction<T>> uncoveredBranches = new HashSet<>();
 
 	/**  Keep track of overall suite fitness and coverage */
 	protected TestSuiteFitnessFunction suiteFitness;
 
 	/** Worklist of branches that can be potentially considered as search targets */
-	protected LinkedList<FitnessFunction<T>> worklist = new LinkedList<FitnessFunction<T>>();
+	protected LinkedList<FitnessFunction<T>> worklist = new LinkedList<>();
 
 	/** List of branches that have been already considered as search targets but that are still uncovered */
-	protected LinkedList<FitnessFunction<T>> alreadyAttemptedBranches = new LinkedList<FitnessFunction<T>>();
+	protected LinkedList<FitnessFunction<T>> alreadyAttemptedBranches = new LinkedList<>();
 
 	/** Current branch used as fitness function */
 	protected FitnessFunction<T> currentTarget;
@@ -117,13 +116,13 @@ public class LIPS <T extends Chromosome> extends GeneticAlgorithm<T>{
 	@SuppressWarnings("unchecked")
 	@Override
 	protected void evolve() {
-		List<T> newGeneration = new ArrayList<T>();
+		List<T> newGeneration = new ArrayList<>();
 
 		// Elitism. It is not specified in original paper [1]. 
 		// However, we assume that LIPS uses elitism given the fact the 
 		// elitism has been shown to positively affect the convergence
 		// speed of GAs in various optimisation problems
-		Collections.sort(population, new SortByFitness(this.currentTarget,false));
+		population.sort(new SortByFitness(this.currentTarget, false));
 		newGeneration.add((T) population.get(0).clone());
 		newGeneration.add((T) population.get(1).clone());
 
@@ -156,7 +155,6 @@ public class LIPS <T extends Chromosome> extends GeneticAlgorithm<T>{
 				}
 			} catch (ConstructionFailedException e) {
 				logger.info("CrossOver/Mutation failed.");
-				continue;
 			}
 		}
 
@@ -179,7 +177,7 @@ public class LIPS <T extends Chromosome> extends GeneticAlgorithm<T>{
 	public void generateSolution() {
 		logger.info("executing generateSolution function");
 
-		CFG = new BranchesManager<T>(fitnessFunctions);
+		CFG = new BranchesManager<>(fitnessFunctions);
 
 		// generate the initial test t0
 		// and update the worklist 
@@ -203,15 +201,13 @@ public class LIPS <T extends Chromosome> extends GeneticAlgorithm<T>{
 				startSearch4Branch =  System.currentTimeMillis();
 			} else if  (Math.abs(System.currentTimeMillis() - startSearch4Branch) >= this.budget4branch) {
 				alreadyAttemptedBranches.add(this.currentTarget);
-				if (worklist.size() > 0){
-					this.currentTarget = worklist.removeLast();
-				} else {
-					// if the worklist is empty, we re-attempt the yet 
+				if (worklist.isEmpty()) {
+					// if the worklist is empty, we re-attempt the yet
 					// uncovered branches with the remaining budget
 					worklist.addAll(alreadyAttemptedBranches);
 					alreadyAttemptedBranches.clear();
-					this.currentTarget = worklist.removeLast();
 				}
+				this.currentTarget = worklist.removeLast();
 				startSearch4Branch =  System.currentTimeMillis();
 				logger.debug("SWITCHING TARGET");
 			}
@@ -270,9 +266,7 @@ public class LIPS <T extends Chromosome> extends GeneticAlgorithm<T>{
 		notifySearchStarted();
 
 		// keep track of covered goals
-		for (FitnessFunction<T> goal : fitnessFunctions) {
-			uncoveredBranches.add(goal);
-		}
+		uncoveredBranches.addAll(fitnessFunctions);
 		worklist.addAll(CFG.getGraph().getRootBranches());
 
 		// The first step is to randomly generate the first test case t0
@@ -330,8 +324,8 @@ public class LIPS <T extends Chromosome> extends GeneticAlgorithm<T>{
 	 * @param c test case (TestChromosome) to analised
 	 */
 	protected void updateWorkList(T c) {
-		// Set of newly covered branches 
-		Set<FitnessFunction<T>> coveredBranches = new HashSet<FitnessFunction<T>>();
+		// Set of newly covered branches
+		Set<FitnessFunction<T>> coveredBranches = new HashSet<>();
 
 		for (FitnessFunction<T> branch : fitnessFunctions){
 			double value = branch.getFitness(c);
@@ -403,11 +397,7 @@ public class LIPS <T extends Chromosome> extends GeneticAlgorithm<T>{
 	}
 
 	protected List<T> getArchive() {
-		Set<T> set = new HashSet<T>(); 
-		set.addAll(archive.values());
-		List<T> arch = new ArrayList<T>();
-		arch.addAll(set);
-		return arch;
+		return new ArrayList<>(new HashSet<>(archive.values()));
 	}
 
 
@@ -430,7 +420,7 @@ public class LIPS <T extends Chromosome> extends GeneticAlgorithm<T>{
 		bestTestCases.setNumOfCoveredGoals(suiteFitness, (int) numberOfCoveredTargets());
 		bestTestCases.setNumOfNotCoveredGoals(suiteFitness, (int) (this.fitnessFunctions.size()-numberOfCoveredTargets()));
 
-		List<T> bests = new ArrayList<T>(1);
+		List<T> bests = new ArrayList<>(1);
 		bests.add((T) bestTestCases);
 		return bests;
 	}
@@ -441,15 +431,14 @@ public class LIPS <T extends Chromosome> extends GeneticAlgorithm<T>{
 		if (this.numberOfCoveredTargets()==0) {
 			return getArchive();
 		}
-		if (archive.size() == 0)
-			if (population.size() > 0) {
-				ArrayList<T> list = new ArrayList<T>();
-				list.add(population.get(population.size() - 1));
-				return list;
-			} else
-				return getArchive();
-		List<T> final_tests = getArchive();
-		return final_tests;
+
+		if (archive.size() == 0 && population.size() > 0) {
+			ArrayList<T> list = new ArrayList<>();
+			list.add(population.get(population.size() - 1));
+			return list;
+		}
+
+		return getArchive();
 	}
 
 	protected double numberOfCoveredTargets(){

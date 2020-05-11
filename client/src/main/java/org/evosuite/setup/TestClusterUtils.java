@@ -36,6 +36,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Set of pure static methods
@@ -189,13 +190,10 @@ public class TestClusterUtils {
 	public static Set<Constructor<?>> getConstructors(Class<?> clazz) {
 		Map<String, Constructor<?>> helper = new TreeMap<>();
 
-		Set<Constructor<?>> constructors = new LinkedHashSet<>();
 		for (Constructor<?> c : Reflection.getDeclaredConstructors(clazz)) {
 			helper.put(org.objectweb.asm.Type.getConstructorDescriptor(c), c);
 		}
-		for (Constructor<?> c : helper.values()) {
-			constructors.add(c);
-		}
+		LinkedHashSet<Constructor<?>> constructors = new LinkedHashSet<>(helper.values().stream().sorted((o1, o2) -> o1.getName().compareTo(o2.getName())).collect(Collectors.toList()));
 		return constructors;
 	}
 
@@ -258,6 +256,7 @@ public class TestClusterUtils {
 				fields.add(f);
 			}
 		}
+		fields = new LinkedHashSet<>(fields.stream().sorted((o1, o2) -> o1.getName().compareTo(o2.getName())).collect(Collectors.toList()));
 
 		accessibleFieldCache.put(clazz, fields);
 		return fields;
@@ -294,8 +293,7 @@ public class TestClusterUtils {
 			helper.put(m.getName() + org.objectweb.asm.Type.getMethodDescriptor(m), m);
 		}
 
-		Set<Method> methods = new LinkedHashSet<>();
-		methods.addAll(helper.values());
+		LinkedHashSet<Method> methods = new LinkedHashSet<>(helper.values().stream().sorted((o1, o2) -> o1.getName().compareTo(o2.getName())).collect(Collectors.toList()));
 		methodCache.put(clazz, methods);
 		return methods;
 	}

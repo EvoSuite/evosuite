@@ -110,7 +110,7 @@ public class RegressionTestSuiteChromosome extends TestSuiteChromosome {
   }
 
   public List<TestCase> getTests() {
-    List<TestCase> tests = new ArrayList<TestCase>();
+    List<TestCase> tests = new ArrayList<>();
     for (TestChromosome test : this.tests) {
       RegressionTestChromosome rtc = (RegressionTestChromosome) test;
       tests.add(rtc.getTheTest().getTestCase());
