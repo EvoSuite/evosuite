@@ -7,7 +7,6 @@ import java.util.Map;
 
 import org.evosuite.coverage.aes.AbstractAESCoverageSuiteFitness;
 import org.evosuite.coverage.aes.Spectrum;
-import org.evosuite.coverage.aes.branch.BranchDetails;
 import org.evosuite.coverage.method.MethodCoverageTestFitness;
 import org.evosuite.testcase.execution.ExecutionResult;
 

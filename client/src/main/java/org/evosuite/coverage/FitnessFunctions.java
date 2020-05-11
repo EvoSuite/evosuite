@@ -94,7 +94,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
-import java.io.*;
 
 /**
  * factory class for fitness functions
@@ -279,7 +278,6 @@ public class FitnessFunctions {
 	 * @return a {@link java.lang.Class} object.
 	 */
 	public static Class<?> getTestFitnessFunctionClass(Criterion criterion) {
-
 		switch (criterion) {
 		case STRONGMUTATION:
 				return StrongMutationTestFitness.class;

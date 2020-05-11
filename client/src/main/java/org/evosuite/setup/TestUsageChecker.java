@@ -46,12 +46,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.text.MessageFormat;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-import java.util.Random;
+import java.util.*;
 
 /**
  * Created by Andrea Arcuri on 30/06/15.
@@ -165,7 +160,7 @@ public class TestUsageChecker {
             }
         }
 
-				if (c.isAnonymousClass()) {
+        if (c.isAnonymousClass()) {
             return false;
         }
 

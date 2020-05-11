@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
 import org.json.simple.JSONArray;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -15,7 +14,6 @@ import org.evosuite.coverage.aes.Spectrum;
 import org.evosuite.coverage.branch.BranchCoverageTestFitness;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
-
 
 public class AESBranchCoverageSuiteFitness extends AbstractAESCoverageSuiteFitness {
 
@@ -37,8 +35,6 @@ public class AESBranchCoverageSuiteFitness extends AbstractAESCoverageSuiteFitne
     private int numberOfGoals = 0;
     /* We want to parse the JSON object once. This variable value if 0 we parse the json object and increment it by 1. So that we don't end up parsing again */
     private static int count = 0;
-    private double sumWeights = -1d;
-    private static double otherWeight = 0d;
 
     public AESBranchCoverageSuiteFitness(Metric metric) {
         super(metric);
@@ -47,7 +43,6 @@ public class AESBranchCoverageSuiteFitness extends AbstractAESCoverageSuiteFitne
     public AESBranchCoverageSuiteFitness() {
         this(Metric.AES);
     }
-
 
     private void determineCoverageGoals() {
 
@@ -81,7 +76,6 @@ public class AESBranchCoverageSuiteFitness extends AbstractAESCoverageSuiteFitne
             }
         }
     }
-
 
     @Override
     protected Spectrum getSpectrum(List<ExecutionResult> results) {
@@ -120,24 +114,6 @@ public class AESBranchCoverageSuiteFitness extends AbstractAESCoverageSuiteFitne
 
         return spectrum;
     }
-
-    /* extract_data uses an external library to parse the JSON object.
-
-
-<dependencies>
-    <dependency>
-        <groupId>com.googlecode.json-simple</groupId>
-        <artifactId>json-simple</artifactId>
-        <version>1.1.1</version>
-    </dependency>
-</dependencies>
-
-    IMPORTANT:: Above mentioned code has been added to the POM file handle the dependency. This piece of code must be placed as a direct child of <project> tag. If it is placed
-    under <dependencyManagement>, it will not work.
-
-
-    The libraries required have been added using "import" at the top of the file
-    Please refer to online documents to resolve any queries on how the parsing is done. */
 
     private void extract_data(String filename) {
         JSONParser jsonParser = new JSONParser();
@@ -180,9 +156,7 @@ public class AESBranchCoverageSuiteFitness extends AbstractAESCoverageSuiteFitne
 
     }
 
-
     /* This function maps the prior to the branches */
-
     private void branchToSuspiciousnessMap(BranchCoverageTestFitness A, int component_no) {
         //uniform distribution
         if (!mode)
@@ -191,7 +165,6 @@ public class AESBranchCoverageSuiteFitness extends AbstractAESCoverageSuiteFitne
         //initialise weight map
         if (weights == null)
             weights = new HashMap<>();                    //mycode Integer=component_number, Double=Suspiciousness
-
 
         /* We first extract the method and class name from the goal object */
         String method_name = A.getMethod();
@@ -226,29 +199,5 @@ public class AESBranchCoverageSuiteFitness extends AbstractAESCoverageSuiteFitne
         //return sumWeights;
         return 0d;
     }
-
-    //temp
-//    private void printmyhashmap(Map<Integer, Double> A) {
-//
-//        if(A == null)
-//            return;
-//
-//        BufferedWriter out = null;
-//        for (Map.Entry<Integer, Double> entry : A.entrySet()) {
-//            try {
-//
-//                String str = String.valueOf(entry.getKey()) + "," + String.valueOf(entry.getValue()) + "," + String.valueOf(sumWeights) + "\n";
-//                out = new BufferedWriter(
-//                        new FileWriter("/tmp/weights.csv", true));
-//                out.write(str);
-//                out.close();
-//            } catch (IOException e) {
-//                System.out.println("exception occoured" + e);
-//            }
-//        }
-//
-//
-//    }
 }
-
 

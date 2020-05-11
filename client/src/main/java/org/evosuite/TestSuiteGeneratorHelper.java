@@ -120,7 +120,6 @@ public class TestSuiteGeneratorHelper {
       case VMDDU:
         LoggingUtils.getEvoLogger().info("  - VMDDU Method Coverage");
         break;
-
       case VCDDU:
         LoggingUtils.getEvoLogger().info("  - VCDDU Method Coverage");
         break;
