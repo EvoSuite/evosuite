@@ -37,7 +37,8 @@ import org.slf4j.LoggerFactory;
 
 import static java.util.stream.Collectors.*;
 
-public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome> extends Chromosome {
+public abstract class AbstractTestSuiteChromosome<C extends AbstractTestSuiteChromosome<C,T>,
+		T extends ExecutableChromosome<T>> extends Chromosome<AbstractTestSuiteChromosome<C,T>> {
 
 
 	private static final long serialVersionUID = 1L;
@@ -79,7 +80,7 @@ public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome
 	 * @param source a {@link org.evosuite.testsuite.AbstractTestSuiteChromosome} object.
 	 */
 	@SuppressWarnings("unchecked")
-	protected AbstractTestSuiteChromosome(AbstractTestSuiteChromosome<T> source) {
+	protected AbstractTestSuiteChromosome(AbstractTestSuiteChromosome<C,T> source) {
 		this(source.testChromosomeFactory);
 
 		source.tests.forEach(t -> addTest((T) t.clone()));
@@ -141,15 +142,8 @@ public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public void crossOver(Chromosome other, int position) throws ConstructionFailedException {
-		if (!(other instanceof AbstractTestSuiteChromosome<?>)) {
-			throw new IllegalArgumentException(
-					"AbstractTestSuiteChromosome.crossOver() called with parameter of unsupported type " + other.getClass());
-		}
-
-		AbstractTestSuiteChromosome<T> chromosome = (AbstractTestSuiteChromosome<T>) other;
-
-		T otherTest =  chromosome.tests.get(position);
+	public void crossOver(Chromosome<AbstractTestSuiteChromosome<C,T>> other, int position) throws ConstructionFailedException {
+		T otherTest =  other.self().tests.get(position);
 		T clonedTest = (T) otherTest.clone();
 		tests.add(clonedTest);
 
@@ -163,22 +157,15 @@ public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public void crossOver(Chromosome other, int position1, int position2)
+	public void crossOver(Chromosome<AbstractTestSuiteChromosome<C,T>> other, int position1, int position2)
 	        throws ConstructionFailedException {
-		if (!(other instanceof AbstractTestSuiteChromosome<?>)) {
-			throw new IllegalArgumentException(
-			        "AbstractTestSuiteChromosome.crossOver() called with parameter of unsupported type "
-			                + other.getClass());
-		}
-
-		AbstractTestSuiteChromosome<T> chromosome = (AbstractTestSuiteChromosome<T>) other;
 
 		while (tests.size() > position1) {
 			tests.remove(position1);
 		}
 
 		for (int num = position2; num < other.size(); num++) {
-			T otherTest =  chromosome.tests.get(num);
+			T otherTest =  other.self().tests.get(num);
 			T clonedTest = (T) otherTest.clone();
 			tests.add(clonedTest);
 		}
@@ -192,10 +179,10 @@ public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome
 		if (this == obj)
 			return true;
 
-		if (!(obj instanceof TestSuiteChromosome))
+		if (!(obj instanceof AbstractTestSuiteChromosome))
 			return false;
 
-		TestSuiteChromosome other = (TestSuiteChromosome) obj;
+		AbstractTestSuiteChromosome<C,T> other = (AbstractTestSuiteChromosome<C, T>) obj;
 		if (other.size() != size())
 			return false;
 
@@ -265,11 +252,11 @@ public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome
 
 	/** {@inheritDoc} */
 	@Override
-	public abstract boolean localSearch(LocalSearchObjective<? extends Chromosome> objective);
+	public abstract boolean localSearch(LocalSearchObjective<AbstractTestSuiteChromosome<C, T>> objective);
 
 	/** {@inheritDoc} */
 	@Override
-	public abstract Chromosome clone();
+	public abstract AbstractTestSuiteChromosome<C,T> clone();
 
 	/**
 	 * <p>getTestChromosome</p>

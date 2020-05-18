@@ -36,10 +36,11 @@ import org.evosuite.testcase.statements.Statement;
  * @author galeotti
  *
  */
-public class AVMTestCaseLocalSearch extends TestCaseLocalSearch {
+public class AVMTestCaseLocalSearch<T extends TestChromosome<T>> extends TestCaseLocalSearch<T> {
+
 
 	@Override
-	public boolean doSearch(TestChromosome individual, LocalSearchObjective<TestChromosome> objective) {
+	public boolean doSearch(T individual, LocalSearchObjective<T> objective) {
 
 		logger.info("Test before local search: " + individual.getTestCase().toCode());
 

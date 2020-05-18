@@ -24,6 +24,7 @@ package org.evosuite.testcase.localsearch;
 
 import org.evosuite.Properties;
 import org.evosuite.Properties.DSEType;
+import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.localsearch.LocalSearch;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
@@ -40,7 +41,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Gordon Fraser
  */
-public abstract class TestCaseLocalSearch implements LocalSearch<TestChromosome> {
+public abstract class TestCaseLocalSearch<T extends TestChromosome<T>> implements LocalSearch<TestChromosome<T>> {
 
 	protected static final Logger logger = LoggerFactory.getLogger(TestCaseLocalSearch.class);
 
@@ -50,13 +51,13 @@ public abstract class TestCaseLocalSearch implements LocalSearch<TestChromosome>
 	 * 
 	 * @return
 	 */
-	public static TestCaseLocalSearch selectTestCaseLocalSearch() {
+	public static<T extends TestChromosome<T>> TestCaseLocalSearch<T> selectTestCaseLocalSearch() {
 		final double nextDouble = Randomness.nextDouble();
 		boolean useDSE = nextDouble < Properties.DSE_PROBABILITY;
 		if (useDSE) {
-			return new DSETestCaseLocalSearch();
+			return new DSETestCaseLocalSearch<>();
 		} else {
-			return new AVMTestCaseLocalSearch();
+			return new AVMTestCaseLocalSearch<>();
 		}
 	}
 

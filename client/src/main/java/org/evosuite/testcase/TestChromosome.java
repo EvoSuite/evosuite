@@ -58,7 +58,7 @@ import static java.util.stream.Collectors.*;
  *
  * @author Gordon Fraser
  */
-public class TestChromosome extends ExecutableChromosome {
+public class TestChromosome<T extends TestChromosome<T>> extends ExecutableChromosome<TestChromosome<T>>  {
 
 	private static final long serialVersionUID = 7532366007973252782L;
 
@@ -71,7 +71,8 @@ public class TestChromosome extends ExecutableChromosome {
 	protected MutationHistory<TestMutationHistoryEntry> mutationHistory = new MutationHistory<>();
 
 	/** Secondary objectives used during ranking */
-	private static final List<SecondaryObjective<TestChromosome>> secondaryObjectives = new ArrayList<>();
+	private static final List<SecondaryObjective<? extends TestChromosome<?>>> secondaryObjectives =
+			new ArrayList<>();
 
 	/**
 	 * <p>
@@ -117,14 +118,19 @@ public class TestChromosome extends ExecutableChromosome {
 		}
 	}
 
+	@Override
+	public TestChromosome<T> self() {
+		return this;
+	}
+
 	/**
 	 * {@inheritDoc}
 	 *
 	 * Create a deep copy of the chromosome
 	 */
 	@Override
-	public Chromosome clone() {
-		TestChromosome c = new TestChromosome();
+	public TestChromosome<T> clone() {
+		TestChromosome<T> c = new TestChromosome<>();
 		c.test = test.clone();
 		c.setFitnessValues(getFitnessValues());
 		c.setPreviousFitnessValues(getPreviousFitnessValues());
@@ -151,7 +157,7 @@ public class TestChromosome extends ExecutableChromosome {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void copyCachedResults(ExecutableChromosome other) {
+	public void copyCachedResults(ExecutableChromosome<TestChromosome<T>> other) {
 		if (test == null)
 			throw new RuntimeException("Test is null!");
 
@@ -169,17 +175,19 @@ public class TestChromosome extends ExecutableChromosome {
 		}
 	}
 
+
+
 	/**
 	 * {@inheritDoc}
 	 *
 	 * Single point cross over
 	 */
 	@Override
-	public void crossOver(Chromosome other, int position1, int position2)
+	public void crossOver(Chromosome<TestChromosome<T>> other, int position1, int position2)
 	        throws ConstructionFailedException {
 		logger.debug("Crossover starting");
-		TestChromosome otherChromosome = (TestChromosome)other;
-		TestChromosome offspring = new TestChromosome();
+		TestChromosome<T> otherChromosome = other.self();
+		TestChromosome<T> offspring = new TestChromosome<>();
 		TestFactory testFactory = TestFactory.getInstance();
 
 		for (int i = 0; i < position1; i++) {
@@ -205,6 +213,8 @@ public class TestChromosome extends ExecutableChromosome {
 		}
 	}
 
+
+
 	/**
 	 * {@inheritDoc}
 	 *
@@ -218,7 +228,7 @@ public class TestChromosome extends ExecutableChromosome {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		TestChromosome other = (TestChromosome) obj;
+		TestChromosome<T> other = (TestChromosome<T>) obj;
 		if (test == null) {
 			return other.test == null;
 		} else return test.equals(other.test);
@@ -288,14 +298,16 @@ public class TestChromosome extends ExecutableChromosome {
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.Chromosome#localSearch()
 	 */
-	/** {@inheritDoc} */
+	/** {@inheritDoc}
+	 * @param objective*/
 	@SuppressWarnings("unchecked")
 	@Override
-	public boolean localSearch(LocalSearchObjective<? extends Chromosome> objective) {
-		TestCaseLocalSearch localSearch = TestCaseLocalSearch.selectTestCaseLocalSearch();
-		return localSearch.doSearch(this,
-		                            (LocalSearchObjective<TestChromosome>) objective);
+	public boolean localSearch(LocalSearchObjective<TestChromosome<T>> objective) {
+		TestCaseLocalSearch<T> localSearch = TestCaseLocalSearch.selectTestCaseLocalSearch();
+		return localSearch.doSearch(this.self(), objective);
 	}
+
+
 
 	/**
 	 * {@inheritDoc}
@@ -689,7 +701,7 @@ public class TestChromosome extends ExecutableChromosome {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public  <T extends Chromosome> int compareSecondaryObjective(T o) {
+	public  <T extends Chromosome<T>> int compareSecondaryObjective(T o) {
 		int objective = 0;
 		int c = 0;
 
@@ -709,7 +721,7 @@ public class TestChromosome extends ExecutableChromosome {
 	 * @param objective
 	 *            a {@link org.evosuite.ga.SecondaryObjective} object.
 	 */
-	public static void addSecondaryObjective(SecondaryObjective<TestChromosome> objective) {
+	public static<T extends TestChromosome<T>> void addSecondaryObjective(SecondaryObjective<TestChromosome<T>> objective) {
 		secondaryObjectives.add(objective);
 	}
 
@@ -738,7 +750,7 @@ public class TestChromosome extends ExecutableChromosome {
 	 *
 	 * @return a {@link java.util.List} object.
 	 */
-	public static List<SecondaryObjective<TestChromosome>> getSecondaryObjectives() {
+	public static List<SecondaryObjective<? extends TestChromosome<?>>> getSecondaryObjectives() {
 		return secondaryObjectives;
 	}
 

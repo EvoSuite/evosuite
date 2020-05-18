@@ -71,7 +71,7 @@ import static java.util.stream.Collectors.toList;
  * 
  * @author Annibale Panichella, Fitsum M. Kifetew
  */
-public abstract class AbstractMOSA<T extends Chromosome> extends GeneticAlgorithm<T> {
+public abstract class AbstractMOSA<T extends TestChromosome<T>> extends GeneticAlgorithm<T> {
 
 	private static final long serialVersionUID = 146182080947267628L;
 
@@ -189,8 +189,7 @@ public abstract class AbstractMOSA<T extends Chromosome> extends GeneticAlgorith
 	 * it has a test exception
 	 */
 	protected boolean shouldIgnore(T offspring){
-		TestChromosome tch = (TestChromosome) offspring;
-		ExecutionResult result = tch.getLastExecutionResult();
+		ExecutionResult result = offspring.getLastExecutionResult();
 		if (result == null)
 			return true;
 
@@ -205,16 +204,15 @@ public abstract class AbstractMOSA<T extends Chromosome> extends GeneticAlgorith
 	 */
 	private void mutate(T offspring, T parent) {
 		offspring.mutate();
-		TestChromosome tch = (TestChromosome) offspring;
 		if (!offspring.isChanged()) {
 			// if offspring is not changed, we try to mutate it once again
 			offspring.mutate();
 		}
 		if (!this.hasMethodCall(offspring)) {
-			tch.setTestCase(((TestChromosome) parent).getTestCase().clone());
-			boolean changed = tch.mutationInsert();
+			offspring.setTestCase(parent.getTestCase().clone());
+			boolean changed = offspring.mutationInsert();
 			if (changed) {
-				tch.getTestCase().forEach(Statement::isValid);
+				offspring.getTestCase().forEach(Statement::isValid);
 			}
 			offspring.setChanged(changed);
 		}

@@ -22,16 +22,13 @@
  */
 package org.evosuite.regression;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.evosuite.TestGenerationContext;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.ga.localsearch.LocalSearchObjective;
-import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.TestCase;
@@ -42,13 +39,13 @@ import org.evosuite.testsuite.TestSuiteFitnessFunction;
 /**
  * @author Gordon Fraser
  */
-public class RegressionTestChromosome extends TestChromosome {
+public class RegressionTestChromosome<T extends RegressionTestChromosome<T>> extends TestChromosome<T> {
 
   private static final long serialVersionUID = -6345178117840330196L;
 
-  private TestChromosome theTest;
+  private TestChromosome<?> theTest;
 
-  private TestChromosome theSameTestForTheOtherClassLoader;
+  private TestChromosome<?> theSameTestForTheOtherClassLoader;
 
 
   private transient ClassLoader theClassLoader = null;
@@ -69,8 +66,8 @@ public class RegressionTestChromosome extends TestChromosome {
    * @see org.evosuite.testcase.ExecutableChromosome#copyCachedResults(org.evosuite.testcase.ExecutableChromosome)
    */
   @Override
-  public void copyCachedResults(ExecutableChromosome other) {
-    RegressionTestChromosome otherChromosome = (RegressionTestChromosome) other;
+  public void copyCachedResults(ExecutableChromosome<T> other) {
+    RegressionTestChromosome<T> otherChromosome = (RegressionTestChromosome<T>) other;
     theTest.copyCachedResults(otherChromosome.theTest);
     theSameTestForTheOtherClassLoader
         .copyCachedResults(otherChromosome.theSameTestForTheOtherClassLoader);
@@ -187,7 +184,7 @@ public class RegressionTestChromosome extends TestChromosome {
    * @see org.evosuite.ga.Chromosome#crossOver(org.evosuite.ga.Chromosome, int, int)
    */
   @Override
-  public void crossOver(Chromosome other, int position1, int position2)
+  public void crossOver(Chromosome<TestChromosome<T>> other, int position1, int position2)
       throws ConstructionFailedException {
     RegressionTestChromosome otherChromosome = (RegressionTestChromosome) other;
     theTest.crossOver(otherChromosome.theTest, position1, position2);
@@ -209,7 +206,7 @@ public class RegressionTestChromosome extends TestChromosome {
    * @see org.evosuite.ga.Chromosome#localSearch(org.evosuite.ga.LocalSearchObjective)
    */
   @Override
-  public boolean localSearch(LocalSearchObjective objective) {
+  public boolean localSearch(LocalSearchObjective<T> objective) {
     boolean result = theTest.localSearch(objective);
     updateClassloader();
     return result;

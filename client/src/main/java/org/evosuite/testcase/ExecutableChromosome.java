@@ -29,7 +29,8 @@ import org.evosuite.coverage.mutation.MutationExecutionResult;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
-public abstract class ExecutableChromosome extends Chromosome {
+public abstract class ExecutableChromosome<T extends ExecutableChromosome<T>> extends Chromosome<T> {
+
 	private static final long serialVersionUID = 1L;
 
 	protected transient ExecutionResult lastExecutionResult = null;
@@ -103,7 +104,7 @@ public abstract class ExecutableChromosome extends Chromosome {
 	 *
 	 * @param other a {@link org.evosuite.testcase.ExecutableChromosome} object.
 	 */
-	protected abstract void copyCachedResults(ExecutableChromosome other);
+	protected abstract void copyCachedResults(ExecutableChromosome<T> other);
 
 	/**
 	 * <p>executeForFitnessFunction</p>

@@ -37,7 +37,7 @@ import org.evosuite.ga.FitnessFunction;
  *
  * @author Gordon Fraser
  */
-public interface LocalSearchObjective<T extends Chromosome> {
+public interface LocalSearchObjective<T extends Chromosome<T>> {
 
 	/**
 	 * true if the objective was achieved
