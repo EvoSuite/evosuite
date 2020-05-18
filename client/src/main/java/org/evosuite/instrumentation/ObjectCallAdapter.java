@@ -51,7 +51,7 @@ public class ObjectCallAdapter extends MethodVisitor {
 	 *            a {@link java.util.Map} object.
 	 */
 	public ObjectCallAdapter(MethodVisitor mv, Map<String, String> descriptors) {
-		super(Opcodes.ASM5, mv);
+		super(Opcodes.ASM7, mv);
 		this.descriptors = descriptors;
 	}
 

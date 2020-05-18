@@ -934,7 +934,7 @@ public final class Instrumenter
 				}
 			} else if(insn.getOpcode() == Opcodes.NEW || insn.getOpcode() == Opcodes.CHECKCAST) {
 				TypeInsnNode typeInsnNode = (TypeInsnNode)insn;
-				Type generatedType = Type.getType(typeInsnNode.desc);
+				Type generatedType = Type.getObjectType(typeInsnNode.desc);
 				String name = generatedType.getInternalName().replace('/', '.');
 				logger.debug("Checking for replacement of "+name);
 				for(Class<?> wrapperClass : wrapperClasses) {
@@ -1077,49 +1077,49 @@ public final class Instrumenter
 		{
 			il.add(new VarInsnNode(Opcodes.ILOAD, argLocation));
 			il.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "java/lang/Boolean",
-					"valueOf", "(Z)Ljava/lang/Boolean;"));
+					"valueOf", "(Z)Ljava/lang/Boolean;",false));
 		} 
 		else if (type.equals(Type.CHAR_TYPE)) 
 		{
 			il.add(new VarInsnNode(Opcodes.ILOAD, argLocation));
 			il.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "java/lang/Character",
-					"valueOf", "(C)Ljava/lang/Character;"));
+					"valueOf", "(C)Ljava/lang/Character;",false));
 		} 
 		else if (type.equals(Type.BYTE_TYPE)) 
 		{
 			il.add(new VarInsnNode(Opcodes.ILOAD, argLocation));
 			il.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "java/lang/Byte",
-					"valueOf", "(B)Ljava/lang/Byte;"));
+					"valueOf", "(B)Ljava/lang/Byte;",false));
 		} 
 		else if (type.equals(Type.SHORT_TYPE)) 
 		{
 			il.add(new VarInsnNode(Opcodes.ILOAD, argLocation));
 			il.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "java/lang/Short",
-					"valueOf", "(S)Ljava/lang/Short;"));
+					"valueOf", "(S)Ljava/lang/Short;",false));
 		} 
 		else if (type.equals(Type.INT_TYPE)) 
 		{
 			il.add(new VarInsnNode(Opcodes.ILOAD, argLocation));
 			il.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "java/lang/Integer",
-					"valueOf", "(I)Ljava/lang/Integer;"));
+					"valueOf", "(I)Ljava/lang/Integer;", false));
 		} 
 		else if (type.equals(Type.FLOAT_TYPE)) 
 		{
 			il.add(new VarInsnNode(Opcodes.FLOAD, argLocation));
 			il.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "java/lang/Float",
-					"valueOf", "(F)Ljava/lang/Float;"));
+					"valueOf", "(F)Ljava/lang/Float;", false));
 		} 
 		else if (type.equals(Type.LONG_TYPE)) 
 		{
 			il.add(new VarInsnNode(Opcodes.LLOAD, argLocation));
 			il.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "java/lang/Long",
-					"valueOf", "(J)Ljava/lang/Long;"));
+					"valueOf", "(J)Ljava/lang/Long;",false));
 		} 
 		else if (type.equals(Type.DOUBLE_TYPE)) 
 		{
 			il.add(new VarInsnNode(Opcodes.DLOAD, argLocation));
 			il.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "java/lang/Double",
-					"valueOf", "(D)Ljava/lang/Double;"));
+					"valueOf", "(D)Ljava/lang/Double;",false));
 		} 
 		else 
 		{
@@ -1134,42 +1134,42 @@ public final class Instrumenter
 		if (type.equals(Type.BOOLEAN_TYPE)) 
 		{
 			il.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "java/lang/Boolean",
-					"valueOf", "(Z)Ljava/lang/Boolean;"));
+					"valueOf", "(Z)Ljava/lang/Boolean;",false));
 		} 
 		else if (type.equals(Type.CHAR_TYPE)) 
 		{
 			il.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "java/lang/Character",
-					"valueOf", "(C)Ljava/lang/Character;"));
+					"valueOf", "(C)Ljava/lang/Character;",false));
 		} 
 		else if (type.equals(Type.BYTE_TYPE)) 
 		{
 			il.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "java/lang/Byte",
-					"valueOf", "(B)Ljava/lang/Byte;"));
+					"valueOf", "(B)Ljava/lang/Byte;",false));
 		} 
 		else if (type.equals(Type.SHORT_TYPE)) 
 		{
 			il.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "java/lang/Short",
-					"valueOf", "(S)Ljava/lang/Short;"));
+					"valueOf", "(S)Ljava/lang/Short;",false));
 		} 
 		else if (type.equals(Type.INT_TYPE)) 
 		{
 			il.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "java/lang/Integer",
-					"valueOf", "(I)Ljava/lang/Integer;"));
+					"valueOf", "(I)Ljava/lang/Integer;",false));
 		} 
 		else if (type.equals(Type.FLOAT_TYPE)) 
 		{
 			il.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "java/lang/Float",
-					"valueOf", "(F)Ljava/lang/Float;"));
+					"valueOf", "(F)Ljava/lang/Float;",false));
 		} 
 		else if (type.equals(Type.LONG_TYPE)) 
 		{
 			il.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "java/lang/Long",
-					"valueOf", "(J)Ljava/lang/Long;"));
+					"valueOf", "(J)Ljava/lang/Long;",false));
 		} 
 		else if (type.equals(Type.DOUBLE_TYPE)) 
 		{
 			il.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "java/lang/Double",
-					"valueOf", "(D)Ljava/lang/Double;"));
+					"valueOf", "(D)Ljava/lang/Double;",false));
 		} 
 	}
 	
@@ -1179,42 +1179,42 @@ public final class Instrumenter
 		if (type.equals(Type.BOOLEAN_TYPE)) 
 		{
 			il.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "java/lang/Boolean",
-					"booleanValue", "()Z"));
+					"booleanValue", "()Z",false));
 		} 
 		else if (type.equals(Type.CHAR_TYPE)) 
 		{
 			il.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "java/lang/Character",
-					"charValue", "()C"));
+					"charValue", "()C",false));
 		} 
 		else if (type.equals(Type.BYTE_TYPE)) 
 		{
 			il.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "java/lang/Byte",
-					"byteValue", "()B"));
+					"byteValue", "()B",false));
 		} 
 		else if (type.equals(Type.SHORT_TYPE)) 
 		{
 			il.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "java/lang/Short",
-					"shortValue", "()S"));
+					"shortValue", "()S",false));
 		} 
 		else if (type.equals(Type.INT_TYPE)) 
 		{
 			il.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "java/lang/Integer",
-					"intValue", "()I"));
+					"intValue", "()I",false));
 		} 
 		else if (type.equals(Type.FLOAT_TYPE)) 
 		{
 			il.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "java/lang/Float",
-					"floatValue", "()F"));
+					"floatValue", "()F",false));
 		} 
 		else if (type.equals(Type.LONG_TYPE)) 
 		{
 			il.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "java/lang/Long",
-					"longValue", "()J"));
+					"longValue", "()J",false));
 		} 
 		else if (type.equals(Type.DOUBLE_TYPE)) 
 		{
 			il.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "java/lang/Double",
-					"doubleValue", "()D"));
+					"doubleValue", "()D",false));
 		} 
 	}
 	

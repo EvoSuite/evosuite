@@ -32,7 +32,7 @@ public class StubClassVisitor extends ClassVisitor {
 	private String className;
 	
 	public StubClassVisitor(ClassVisitor parent, String className) {
-		super(Opcodes.ASM5, parent);
+		super(Opcodes.ASM7, parent);
 		this.className = className;
 	}
 	
@@ -140,7 +140,7 @@ public class StubClassVisitor extends ClassVisitor {
 		mg.push(className);
 		mg.push(m.getName() + m.getDescriptor());
 		mg.loadArgArray();
-		Type owner = Type.getType(PackageInfo.getNameWithSlash(Stubs.class));
+		Type owner = Type.getObjectType(PackageInfo.getNameWithSlash(Stubs.class));
 		Method method = new Method(methodName, desc);
 		mg.invokeStatic(owner, method);
 		insertReturnCast(mg, m);

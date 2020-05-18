@@ -501,6 +501,12 @@ public class MSecurityManager extends SecurityManager {
 				"getStackTrace".equals(perm.getName().trim())) {
 			return true;
 		}
+
+		// Required in Java 11. Otherwise MSecurityManager.testCanLoadSwingStuff() fails du to the denied permission.
+		if (perm instanceof RuntimePermission &&
+				"loggerFinder".equals(perm.getName().trim())){
+			return true;
+		}
 		
 		if(checkIfEvoSuiteRMI(perm) || checkIfRMIDuringTests(perm)) {
 			return true;
@@ -1075,6 +1081,14 @@ public class MSecurityManager extends SecurityManager {
 			return true;
 		}
 
+                /*
+                 * Required to allow use of locale sensitive services in java.text and java.util
+                 */
+                if(name.equals("localeServiceProvider")) {
+                        return true;
+                }
+
+
 		/*
 		 * we need it for reflection
 		 */
@@ -1325,11 +1339,12 @@ public class MSecurityManager extends SecurityManager {
 						return true;
 					}
 				}
-			} else if(fp.getName().contains("gzoltar")) {
-				/*
-				 * This is not 100% secure, but GZoltar support
-				 * is also important
-				 */
+			} else if (fp.getName().contains("gzoltar") || fp.getName().equals(System.getProperty("user.dir"))) {
+				// By default, GZoltar writes the gzoltar.ser file that holds the coverage
+				// of each test case to the user.dir defined in the scaffolding test class.
+				// As user.dir might not exist, EvoSuite must grant access write access to
+				// GZoltar.
+				// Note: The following is not 100% secure, but GZoltar support is important.
 				for (StackTraceElement e : Thread.currentThread().getStackTrace()) {
 					if(e.getClassName().startsWith("com.gzoltar.")) {
 						return true;

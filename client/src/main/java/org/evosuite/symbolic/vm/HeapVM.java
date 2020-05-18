@@ -543,7 +543,7 @@ public final class HeapVM extends AbstractVM {
 			return;
 
 		// create array class
-		Type componentType = Type.getType(componentTypeName.replace('/', '.'));
+		Type componentType = Type.getObjectType(componentTypeName.replace('/', '.'));
 		Class<? >componentClass = classLoader.getClassForType(componentType);
 		int[] lenghts = new int[] { 0 };
 		Class<?> array_class = Array.newInstance(componentClass, lenghts)
@@ -1345,7 +1345,7 @@ public final class HeapVM extends AbstractVM {
 
 		/* check reference initialization */
 		env.heap.initializeReference(conc_ref, symb_ref);
-		Type type = Type.getType(typeName);
+		Type type = Type.getObjectType(typeName);
 
 		Class<?> myClazz = classLoader.getClassForType(type);
 		boolean instanceOf = myClazz.isInstance(conc_ref);

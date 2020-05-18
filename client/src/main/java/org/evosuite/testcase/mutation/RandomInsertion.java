@@ -99,7 +99,7 @@ public class RandomInsertion implements InsertionStrategy {
 				// find the last position where the selected variable is used in the test case
 				final int lastUsage = test.getReferences(var).stream()
 						.mapToInt(VariableReference::getStPosition)
-						.max().getAsInt(); // getAsInt() always succeeds as stream cannot be empty
+						.max().orElse(var.getStPosition());
 
 				int boundPosition = ConstraintHelper.getLastPositionOfBounded(var, test);
 				if(boundPosition >= 0 ){
@@ -178,6 +178,8 @@ public class RandomInsertion implements InsertionStrategy {
 					!var.getGenericClass().isObject() &&
 					!(test.getStatement(var.getStPosition()) instanceof PrimitiveStatement) &&
 					!var.isPrimitive() &&
+					!var.isWrapperType() &&
+					!var.isString() &&
 					(test.hasReferences(var) || var.getVariableClass().equals(Properties.getInitializedTargetClass()))&&
 					/* Note: this check has been added only recently,
 						to avoid having added calls to UUT in the middle of the test

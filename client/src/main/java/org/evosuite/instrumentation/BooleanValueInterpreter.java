@@ -59,6 +59,7 @@ public class BooleanValueInterpreter extends BasicInterpreter {
 	 * @param isStatic a boolean.
 	 */
 	public BooleanValueInterpreter(String desc, boolean isStatic) {
+		super(ASM7);
 		this.types = Type.getArgumentTypes(desc);
 		this.isStatic = isStatic;
 	}

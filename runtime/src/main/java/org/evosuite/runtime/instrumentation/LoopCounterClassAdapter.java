@@ -29,7 +29,7 @@ import org.objectweb.asm.Opcodes;
 public class LoopCounterClassAdapter extends ClassVisitor {
 
     public LoopCounterClassAdapter(ClassVisitor cv) {
-        super(Opcodes.ASM5, cv);
+        super(Opcodes.ASM7, cv);
     }
 
     @Override
