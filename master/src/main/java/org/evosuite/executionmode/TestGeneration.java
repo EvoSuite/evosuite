@@ -57,6 +57,9 @@ public class TestGeneration {
 		
 		Strategy strategy = getChosenStrategy(javaOpts, line);
 
+		/** Updating properties strategy */
+		Properties.STRATEGY = strategy;
+
 		if (strategy == null) {
 			strategy = Strategy.EVOSUITE;
 		} 
@@ -535,18 +538,8 @@ public class TestGeneration {
 			LoggingUtils.getEvoLogger().info("* Could not connect to client process");
 		}
 
-		boolean hasFailed = false;
-		
-		if (Properties.NEW_STATISTICS) {
-			if(MasterServices.getInstance().getMasterNode() == null) {
-				logger.error("Cannot write results as RMI master node is not running");
-				hasFailed = true;
-			} else {
-				boolean written = SearchStatistics.getInstance().writeStatistics();
-				hasFailed = !written;
-			}
-		}
-		
+		boolean hasFailed = writeStatistics();
+
 		/*
 		 * FIXME: it is unclear what is the relation between TestGenerationResult and writeStatistics()
 		 */
@@ -578,6 +571,26 @@ public class TestGeneration {
 		}
 		
 		return results;
+	}
+
+	/**
+	 * Writes generation statistics.
+	 *
+	 * @return
+	 */
+	private static boolean writeStatistics() {
+		boolean hasFailed = false;
+
+		if (Properties.NEW_STATISTICS) {
+			if(MasterServices.getInstance().getMasterNode() == null) {
+				logger.error("Cannot write results as RMI master node is not running");
+				hasFailed = true;
+			} else {
+				boolean written = SearchStatistics.getInstance().writeStatistics();
+				hasFailed = !written;
+			}
+		}
+		return hasFailed;
 	}
 
 	private static void handleClassPath(List<String> cmdLine) {

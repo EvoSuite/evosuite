@@ -26,7 +26,7 @@ import org.evosuite.runtime.LoopCounter;
 import org.evosuite.runtime.Runtime;
 import org.evosuite.runtime.RuntimeSettings;
 import org.evosuite.runtime.sandbox.Sandbox;
-import org.evosuite.symbolic.DSE.algorithm.DSEAlgorithms;
+import org.evosuite.symbolic.dse.algorithm.DSEAlgorithms;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.FileIOUtils;
 import org.slf4j.Logger;
@@ -386,6 +386,15 @@ public class Properties {
 	public static boolean CHOP_MAX_LENGTH = true;
 
 	//----------- DSE, which is a special case of LS ---------------
+
+		/** ilebrero: Mostly for benchmarks for new module, I dont think the legacy strategy is gonna be used anymore **/
+	public enum DSE_MODULE_VERSION {
+		LEGACY,
+		NEW
+	}
+
+	@Parameter(key = "dse_module_version", group = "DSE", description = "Module version of DSE, mostly used for benchmarking between modules. For other things the new one is recomended.")
+	public static DSE_MODULE_VERSION CURRENT_DSE_MODULE_VERSION = DSE_MODULE_VERSION.NEW;
 
 	@Parameter(key = "dse_probability", group = "DSE", description = "Probability used to specify when to use DSE instead of regular LS when LS is applied")
     @DoubleValue(min = 0.0, max = 1.0)
@@ -2539,5 +2548,14 @@ public class Properties {
 		return isRegression;
 	}
 
+	public static boolean isDSEStrategySelected() {
+		return STRATEGY.equals(Strategy.DSE);
+	}
+
+	public static boolean isDSEEnabledInLocalSearch() {
+		return DSE_PROBABILITY > 0.0
+			&& LOCAL_SEARCH_RATE > 0
+			&& LOCAL_SEARCH_PROBABILITY > 0.0;
+	}
 
 }

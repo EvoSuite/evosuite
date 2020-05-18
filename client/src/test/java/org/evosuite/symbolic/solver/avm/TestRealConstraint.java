@@ -32,11 +32,10 @@ import org.evosuite.Properties.LocalSearchBudgetType;
 import org.evosuite.RandomizedTC;
 import org.evosuite.symbolic.expr.Comparator;
 import org.evosuite.symbolic.expr.Constraint;
-import org.evosuite.symbolic.expr.RealConstraint;
+import org.evosuite.symbolic.expr.constraint.RealConstraint;
 import org.evosuite.symbolic.expr.fp.RealConstant;
 import org.evosuite.symbolic.expr.fp.RealVariable;
 import org.evosuite.symbolic.solver.*;
-import org.evosuite.symbolic.solver.avm.EvoSuiteSolver;
 import org.junit.Test;
 
 public class TestRealConstraint extends RandomizedTC {

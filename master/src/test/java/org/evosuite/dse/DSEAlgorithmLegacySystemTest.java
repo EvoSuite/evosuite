@@ -33,7 +33,7 @@ import org.evosuite.Properties.StoppingCondition;
 import org.evosuite.Properties.Strategy;
 import org.evosuite.SystemTestBase;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
-import org.evosuite.symbolic.DSE.algorithm.DSEBaseAlgorithm;
+import org.evosuite.symbolic.dse.algorithm.DSEBaseAlgorithm;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -100,18 +100,16 @@ public class DSEAlgorithmLegacySystemTest extends SystemTestBase {
 		String targetClass = Max.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+		String[] command = new String[] { "-generateSuiteUsingDSE", "-class", targetClass, "-Ddse_module_version=LEGACY" };
 
 		Object result = evosuite.parseCommandLine(command);
-//		GeneticAlgorithm<?> ga = getGAFromResult(result);
-//		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
-		DSEBaseAlgorithm<?> dse = getDSEAFromResult(result);
-		TestSuiteChromosome best = dse.getGeneratedTestSuite();
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
 		assertFalse(best.getTests().isEmpty());
 
-		assertEquals(12, best.getNumOfCoveredGoals());
+		assertEquals(7, best.getNumOfCoveredGoals());
 		assertEquals(0, best.getNumOfNotCoveredGoals());
 	}
 
@@ -121,7 +119,7 @@ public class DSEAlgorithmLegacySystemTest extends SystemTestBase {
 		String targetClass = Add.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+		String[] command = new String[] { "-generateSuiteUsingDSE", "-class", targetClass, "-Ddse_module_version=LEGACY" };
 
 		Object results = evosuite.parseCommandLine(command);
 		GeneticAlgorithm<?> ga = getGAFromResult(results);
@@ -144,7 +142,7 @@ public class DSEAlgorithmLegacySystemTest extends SystemTestBase {
 		String targetClass = NoStaticMethod.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+		String[] command = new String[] { "-generateSuiteUsingDSE", "-class", targetClass, "-Ddse_module_version=LEGACY" };
 
 		Object results = evosuite.parseCommandLine(command);
 		GeneticAlgorithm<?> ga = getGAFromResult(results);
@@ -168,7 +166,7 @@ public class DSEAlgorithmLegacySystemTest extends SystemTestBase {
 		String targetClass = Min.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+		String[] command = new String[] { "-generateSuiteUsingDSE", "-class", targetClass, "-Ddse_module_version=LEGACY" };
 
 		Object result = evosuite.parseCommandLine(command);
 		GeneticAlgorithm<?> ga = getGAFromResult(result);
@@ -190,7 +188,7 @@ public class DSEAlgorithmLegacySystemTest extends SystemTestBase {
 		String targetClass = BooleanExample.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+		String[] command = new String[] { "-generateSuiteUsingDSE", "-class", targetClass, "-Ddse_module_version=LEGACY" };
 
 		Object result = evosuite.parseCommandLine(command);
 		GeneticAlgorithm<?> ga = getGAFromResult(result);
@@ -212,7 +210,7 @@ public class DSEAlgorithmLegacySystemTest extends SystemTestBase {
 		String targetClass = ShortExample.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+		String[] command = new String[] { "-generateSuiteUsingDSE", "-class", targetClass, "-Ddse_module_version=LEGACY" };
 
 		Object result = evosuite.parseCommandLine(command);
 		GeneticAlgorithm<?> ga = getGAFromResult(result);
@@ -234,7 +232,7 @@ public class DSEAlgorithmLegacySystemTest extends SystemTestBase {
 		String targetClass = ByteExample.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+		String[] command = new String[] { "-generateSuiteUsingDSE", "-class", targetClass, "-Ddse_module_version=LEGACY" };
 
 		Object result = evosuite.parseCommandLine(command);
 		GeneticAlgorithm<?> ga = getGAFromResult(result);
@@ -256,7 +254,7 @@ public class DSEAlgorithmLegacySystemTest extends SystemTestBase {
 		String targetClass = CharExample.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+		String[] command = new String[] { "-generateSuiteUsingDSE", "-class", targetClass, "-Ddse_module_version=LEGACY" };
 
 		Object result = evosuite.parseCommandLine(command);
 		GeneticAlgorithm<?> ga = getGAFromResult(result);
@@ -278,7 +276,7 @@ public class DSEAlgorithmLegacySystemTest extends SystemTestBase {
 		String targetClass = LongExample.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+		String[] command = new String[] { "-generateSuiteUsingDSE", "-class", targetClass, "-Ddse_module_version=LEGACY" };
 
 		Object result = evosuite.parseCommandLine(command);
 		GeneticAlgorithm<?> ga = getGAFromResult(result);
@@ -300,7 +298,7 @@ public class DSEAlgorithmLegacySystemTest extends SystemTestBase {
 		String targetClass = DoubleExample.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+		String[] command = new String[] { "-generateSuiteUsingDSE", "-class", targetClass, "-Ddse_module_version=LEGACY" };
 
 		Object result = evosuite.parseCommandLine(command);
 		GeneticAlgorithm<?> ga = getGAFromResult(result);
@@ -322,7 +320,7 @@ public class DSEAlgorithmLegacySystemTest extends SystemTestBase {
 		String targetClass = FloatExample.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+		String[] command = new String[] { "-generateSuiteUsingDSE", "-class", targetClass, "-Ddse_module_version=LEGACY" };
 
 		Object result = evosuite.parseCommandLine(command);
 		GeneticAlgorithm<?> ga = getGAFromResult(result);
@@ -344,7 +342,7 @@ public class DSEAlgorithmLegacySystemTest extends SystemTestBase {
 		String targetClass = MinUnreachableCode.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+		String[] command = new String[] { "-generateSuiteUsingDSE", "-class", targetClass, "-Ddse_module_version=LEGACY" };
 
 		Object result = evosuite.parseCommandLine(command);
 		GeneticAlgorithm<?> ga = getGAFromResult(result);
@@ -368,7 +366,7 @@ public class DSEAlgorithmLegacySystemTest extends SystemTestBase {
 		Properties.STOPPING_CONDITION = StoppingCondition.MAXTESTS;
 		Properties.SEARCH_BUDGET = 1;
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+		String[] command = new String[] { "-generateSuiteUsingDSE", "-class", targetClass, "-Ddse_module_version=LEGACY" };
 
 		Object result = evosuite.parseCommandLine(command);
 		GeneticAlgorithm<?> ga = getGAFromResult(result);
@@ -390,7 +388,7 @@ public class DSEAlgorithmLegacySystemTest extends SystemTestBase {
 		Properties.STOPPING_CONDITION = StoppingCondition.MAXFITNESSEVALUATIONS;
 		Properties.SEARCH_BUDGET = 2;
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+		String[] command = new String[] { "-generateSuiteUsingDSE", "-class", targetClass, "-Ddse_module_version=LEGACY" };
 
 		Object result = evosuite.parseCommandLine(command);
 		GeneticAlgorithm<?> ga = getGAFromResult(result);
@@ -412,7 +410,7 @@ public class DSEAlgorithmLegacySystemTest extends SystemTestBase {
 		Properties.STOPPING_CONDITION = StoppingCondition.MAXTIME;
 		Properties.SEARCH_BUDGET = -1;
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+		String[] command = new String[] { "-generateSuiteUsingDSE", "-class", targetClass, "-Ddse_module_version=LEGACY" };
 
 		Object result = evosuite.parseCommandLine(command);
 		GeneticAlgorithm<?> ga = getGAFromResult(result);
@@ -433,7 +431,7 @@ public class DSEAlgorithmLegacySystemTest extends SystemTestBase {
 		Properties.STOPPING_CONDITION = StoppingCondition.MAXSTATEMENTS;
 		Properties.SEARCH_BUDGET = 1;
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+		String[] command = new String[] { "-generateSuiteUsingDSE", "-class", targetClass, "-Ddse_module_version=LEGACY" };
 
 		Object result = evosuite.parseCommandLine(command);
 		GeneticAlgorithm<?> ga = getGAFromResult(result);
@@ -453,7 +451,7 @@ public class DSEAlgorithmLegacySystemTest extends SystemTestBase {
 		Properties.TARGET_CLASS = targetClass;
 		Properties.STOP_ZERO = true;
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+		String[] command = new String[] { "-generateSuiteUsingDSE", "-class", targetClass, "-Ddse_module_version=LEGACY" };
 
 		Object result = evosuite.parseCommandLine(command);
 		GeneticAlgorithm<?> ga = getGAFromResult(result);
@@ -473,7 +471,7 @@ public class DSEAlgorithmLegacySystemTest extends SystemTestBase {
 		String targetClass = ObjectExample.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+		String[] command = new String[] { "-generateSuiteUsingDSE", "-class", targetClass, "-Ddse_module_version=LEGACY" };
 
 		Object result = evosuite.parseCommandLine(command);
 		GeneticAlgorithm<?> ga = getGAFromResult(result);
@@ -493,7 +491,7 @@ public class DSEAlgorithmLegacySystemTest extends SystemTestBase {
 		String targetClass = StringExample.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+		String[] command = new String[] { "-generateSuiteUsingDSE", "-class", targetClass, "-Ddse_module_version=LEGACY" };
 
 		Object result = evosuite.parseCommandLine(command);
 		GeneticAlgorithm<?> ga = getGAFromResult(result);
@@ -507,6 +505,8 @@ public class DSEAlgorithmLegacySystemTest extends SystemTestBase {
 
 	}
 
+	// No longer relevant for legacy algorthm
+	@Ignore
 	@Test
 	public void testArrayLength() {
 
@@ -514,7 +514,7 @@ public class DSEAlgorithmLegacySystemTest extends SystemTestBase {
 		String targetClass = ArrayLengthExample.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+		String[] command = new String[] { "-generateSuiteUsingDSE", "-class", targetClass, "-Ddse_module_version=LEGACY" };
 
 		Object result = evosuite.parseCommandLine(command);
 		GeneticAlgorithm<?> ga = getGAFromResult(result);
@@ -528,7 +528,7 @@ public class DSEAlgorithmLegacySystemTest extends SystemTestBase {
 
 
 	/**
-	 * Given that the concolic engine makes the un-instrumented functions results concrete, the hashing case gets covered..
+	 * Given that the concolic engine makes the un-instrumented functions results concrete, the hashing case gets covered.
 	 *
 	 * See examples on: Patrice Godefroid - Higher-Order Test Generation.
 	 */
@@ -538,7 +538,7 @@ public class DSEAlgorithmLegacySystemTest extends SystemTestBase {
 		String targetClass = PathDivergeUsingHashExample.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+		String[] command = new String[] { "-generateSuiteUsingDSE", "-class", targetClass, "-Ddse_module_version=LEGACY" };
 
 		Object result = evosuite.parseCommandLine(command);
 		GeneticAlgorithm<?> ga = getGAFromResult(result);

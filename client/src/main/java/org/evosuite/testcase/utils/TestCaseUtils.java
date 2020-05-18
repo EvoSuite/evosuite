@@ -19,15 +19,95 @@
  */
 package org.evosuite.testcase.utils;
 
+import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.statements.PrimitiveStatement;
+import org.evosuite.testcase.statements.Statement;
+import org.evosuite.utils.Randomness;
 import org.objectweb.asm.Type;
 import org.evosuite.symbolic.TestCaseBuilder;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.variable.VariableReference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Map;
 
 public class TestCaseUtils {
+
+  private static final Logger logger = LoggerFactory.getLogger(TestCaseUtils.class);
+
+  @SuppressWarnings({ "rawtypes", "unchecked" })
+	public static TestCase updateTest(TestCase test, Map<String, Object> values) {
+
+		TestCase newTest = test.clone();
+		newTest.clearCoveredGoals();
+
+		for (Object key : values.keySet()) {
+			Object val = values.get(key);
+			if (val != null) {
+				logger.info("New value: " + key + ": " + val);
+				if (val instanceof Long) {
+					Long value = (Long) val;
+					String name = ((String) key).replace("__SYM", "");
+					// logger.warn("New long value for " + name + " is " +
+					// value);
+					PrimitiveStatement p = getStatement(newTest, name);
+					if (p.getValue().getClass().equals(Character.class)) {
+						char charValue = (char) value.intValue();
+						p.setValue(charValue);
+					} else if (p.getValue().getClass().equals(Long.class)) {
+						p.setValue(value);
+					} else if (p.getValue().getClass().equals(Integer.class)) {
+						p.setValue(value.intValue());
+					} else if (p.getValue().getClass().equals(Short.class)) {
+						p.setValue(value.shortValue());
+					} else if (p.getValue().getClass().equals(Boolean.class)) {
+						p.setValue(value.intValue() > 0);
+					} else if (p.getValue().getClass().equals(Byte.class)) {
+						p.setValue(value.byteValue());
+
+					} else
+						logger.warn("New value is of an unsupported type: " + p.getValue().getClass() + val);
+				} else if (val instanceof String) {
+					String name = ((String) key).replace("__SYM", "");
+					PrimitiveStatement p = getStatement(newTest, name);
+					// logger.warn("New string value for " + name + " is " +
+					// val);
+					assert (p != null) : "Could not find variable " + name + " in test: " + newTest.toCode()
+							+ " / Orig test: " + test.toCode() + ", seed: " + Randomness.getSeed();
+					if (p.getValue().getClass().equals(Character.class))
+						p.setValue((char) Integer.parseInt(val.toString()));
+					else
+						p.setValue(val.toString());
+				} else if (val instanceof Double) {
+					Double value = (Double) val;
+					String name = ((String) key).replace("__SYM", "");
+					PrimitiveStatement p = getStatement(newTest, name);
+					// logger.warn("New double value for " + name + " is " +
+					// value);
+					assert (p != null) : "Could not find variable " + name + " in test: " + newTest.toCode()
+							+ " / Orig test: " + test.toCode() + ", seed: " + Randomness.getSeed();
+
+					if (p.getValue().getClass().equals(Double.class))
+						p.setValue(value);
+					else if (p.getValue().getClass().equals(Float.class))
+						p.setValue(value.floatValue());
+					else
+						logger.warn("New value is of an unsupported type: " + val);
+				} else {
+					logger.debug("New value is of an unsupported type: " + val);
+				}
+			} else {
+				logger.debug("New value is null");
+
+			}
+		}
+		return newTest;
+
+	}
+
 
    /**
    * Builds a default test case for a static target method
@@ -115,4 +195,23 @@ public class TestCaseUtils {
 
     return testCase;
   }
+
+  /**
+	 * Get the statement that defines this variable
+	 *
+	 * @param test
+	 * @param name
+	 * @return
+	 */
+	private static PrimitiveStatement<?> getStatement(TestCase test, String name) {
+		for (Statement statement : test) {
+
+			if (statement instanceof PrimitiveStatement<?>) {
+				if (statement.getReturnValue().getName().equals(name))
+					return (PrimitiveStatement<?>) statement;
+			}
+		}
+		return null;
+	}
+
 }

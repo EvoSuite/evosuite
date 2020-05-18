@@ -33,13 +33,12 @@ import org.evosuite.RandomizedTC;
 import org.evosuite.symbolic.expr.Comparator;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.Operator;
-import org.evosuite.symbolic.expr.RealConstraint;
+import org.evosuite.symbolic.expr.constraint.RealConstraint;
 import org.evosuite.symbolic.expr.fp.RealBinaryExpression;
 import org.evosuite.symbolic.expr.fp.RealConstant;
 import org.evosuite.symbolic.expr.fp.RealVariable;
 import org.evosuite.symbolic.solver.DistanceEstimator;
 import org.evosuite.symbolic.solver.SolverTimeoutException;
-import org.evosuite.symbolic.solver.avm.EvoSuiteSolver;
 import org.junit.Test;
 
 public class TestRealSearch extends RandomizedTC {

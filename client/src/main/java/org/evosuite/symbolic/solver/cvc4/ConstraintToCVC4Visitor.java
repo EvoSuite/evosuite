@@ -20,12 +20,12 @@
 package org.evosuite.symbolic.solver.cvc4;
 
 import org.evosuite.symbolic.expr.Comparator;
-import org.evosuite.symbolic.expr.ConstraintVisitor;
+import org.evosuite.symbolic.expr.constraint.ConstraintVisitor;
 import org.evosuite.symbolic.expr.Expression;
-import org.evosuite.symbolic.expr.IntegerConstraint;
+import org.evosuite.symbolic.expr.constraint.IntegerConstraint;
 import org.evosuite.symbolic.expr.Operator;
-import org.evosuite.symbolic.expr.RealConstraint;
-import org.evosuite.symbolic.expr.StringConstraint;
+import org.evosuite.symbolic.expr.constraint.RealConstraint;
+import org.evosuite.symbolic.expr.constraint.StringConstraint;
 import org.evosuite.symbolic.expr.bv.IntegerConstant;
 import org.evosuite.symbolic.expr.bv.StringBinaryToIntegerExpression;
 import org.evosuite.symbolic.solver.SmtExprBuilder;

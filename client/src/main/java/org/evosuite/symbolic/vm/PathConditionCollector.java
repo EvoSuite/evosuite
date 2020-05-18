@@ -26,7 +26,7 @@ import org.evosuite.symbolic.BranchCondition;
 import org.evosuite.symbolic.IfBranchCondition;
 import org.evosuite.symbolic.SwitchBranchCondition;
 import org.evosuite.symbolic.expr.Constraint;
-import org.evosuite.symbolic.expr.IntegerConstraint;
+import org.evosuite.symbolic.expr.constraint.IntegerConstraint;
 
 /**
  * Collects a path condition during concolic execution

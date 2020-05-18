@@ -1,23 +1,20 @@
 package org.evosuite.symbolic.solver;
 
-import static org.evosuite.symbolic.solver.TestSolver.solve;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import org.evosuite.symbolic.expr.Comparator;
+import org.evosuite.symbolic.expr.Constraint;
+import org.evosuite.symbolic.expr.Operator;
+import org.evosuite.symbolic.expr.bv.IntegerConstant;
+import org.evosuite.symbolic.expr.bv.StringUnaryToIntegerExpression;
+import org.evosuite.symbolic.expr.constraint.IntegerConstraint;
+import org.evosuite.symbolic.expr.str.StringVariable;
+import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.evosuite.symbolic.expr.Comparator;
-import org.evosuite.symbolic.expr.Constraint;
-import org.evosuite.symbolic.expr.IntegerConstraint;
-import org.evosuite.symbolic.expr.Operator;
-import org.evosuite.symbolic.expr.bv.IntegerConstant;
-import org.evosuite.symbolic.expr.bv.StringUnaryToIntegerExpression;
-import org.evosuite.symbolic.expr.str.StringVariable;
-import org.junit.Test;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
 public abstract class TestSolverIsInteger extends TestSolver {
 

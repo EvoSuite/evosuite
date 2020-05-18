@@ -20,7 +20,7 @@
 package org.evosuite.symbolic.vm;
 
 import org.evosuite.symbolic.expr.Comparator;
-import org.evosuite.symbolic.expr.IntegerConstraint;
+import org.evosuite.symbolic.expr.constraint.IntegerConstraint;
 import org.evosuite.symbolic.expr.bv.IntegerValue;
 
 /**

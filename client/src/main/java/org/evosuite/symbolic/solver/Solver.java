@@ -27,7 +27,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.evosuite.symbolic.expr.Constraint;
-import org.evosuite.symbolic.expr.ConstraintEvaluator;
+import org.evosuite.symbolic.expr.constraint.ConstraintEvaluator;
 import org.evosuite.symbolic.expr.Variable;
 import org.evosuite.symbolic.expr.bv.IntegerVariable;
 import org.evosuite.symbolic.expr.fp.RealVariable;

@@ -38,7 +38,7 @@ import org.evosuite.runtime.mock.MockFramework;
 import org.evosuite.statistics.OutputVariable;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.statistics.backend.DebugStatisticsBackend;
-import org.evosuite.symbolic.DSE.algorithm.DSEBaseAlgorithm;
+import org.evosuite.symbolic.dse.algorithm.DSEBaseAlgorithm;
 import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.evosuite.testcase.execution.reset.ClassReInitializer;
 import org.evosuite.testsuite.TestSuiteChromosome;

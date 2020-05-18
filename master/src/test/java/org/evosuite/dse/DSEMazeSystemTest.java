@@ -31,27 +31,11 @@ import org.evosuite.Properties.SolverType;
 import org.evosuite.Properties.StoppingCondition;
 import org.evosuite.Properties.Strategy;
 import org.evosuite.SystemTestBase;
-import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
-import org.evosuite.symbolic.DSE.algorithm.DSEBaseAlgorithm;
+import org.evosuite.symbolic.dse.algorithm.DSEBaseAlgorithm;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.examples.with.different.packagename.dse.Add;
-import com.examples.with.different.packagename.dse.ArrayLengthExample;
-import com.examples.with.different.packagename.dse.BooleanExample;
-import com.examples.with.different.packagename.dse.ByteExample;
-import com.examples.with.different.packagename.dse.CharExample;
-import com.examples.with.different.packagename.dse.DoubleExample;
-import com.examples.with.different.packagename.dse.FloatExample;
-import com.examples.with.different.packagename.dse.LongExample;
-import com.examples.with.different.packagename.dse.Max;
-import com.examples.with.different.packagename.dse.Min;
-import com.examples.with.different.packagename.dse.MinUnreachableCode;
-import com.examples.with.different.packagename.dse.NoStaticMethod;
-import com.examples.with.different.packagename.dse.ObjectExample;
-import com.examples.with.different.packagename.dse.ShortExample;
-import com.examples.with.different.packagename.dse.StringExample;
 import com.examples.with.different.packagename.solver.MazeClient;
 
 public class DSEMazeSystemTest extends SystemTestBase {
@@ -93,7 +77,7 @@ public class DSEMazeSystemTest extends SystemTestBase {
 		String targetClass = MazeClient.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+		String[] command = new String[] { "-generateSuiteUsingDSE", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
 		DSEBaseAlgorithm<?> dse = getDSEAFromResult(result);
@@ -103,10 +87,8 @@ public class DSEMazeSystemTest extends SystemTestBase {
 
 		assertFalse(best.getTests().isEmpty());
 
-		assertEquals(58, best.getNumOfCoveredGoals());
-
-		// This is due to "private MazeClient() {};"
-        assertEquals(1, best.getNumOfNotCoveredGoals());
+		assertEquals(27, best.getNumOfCoveredGoals());
+		assertEquals(0, best.getNumOfNotCoveredGoals());
 	}
 
 }

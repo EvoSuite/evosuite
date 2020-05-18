@@ -121,6 +121,10 @@ public final class ConcolicConfig
   public static final String IGGG_V = "("+INT+STR+STR+STR+")"+VOID; //$NON-NLS-1$ //$NON-NLS-2$
   public static final String ZGGG_V = "("+BOOL+STR+STR+STR+")"+VOID; //$NON-NLS-1$ //$NON-NLS-2$
   public static final String LGGG_V = "("+REF+STR+STR+STR+")"+VOID; //$NON-NLS-1$ //$NON-NLS-2$
+  public static final String IGGI_V = "(" + INT + STR + STR + INT + ")" + VOID;
+	public static final String IIGGI_V = "(" + INT + INT + STR + STR + INT + ")" + VOID;
+	public static final String LLGGI_V = "(" + REF + REF + STR + STR + INT + ")" + VOID;
+	public static final String LGGI_V = "(" + REF + STR + STR + INT + ")" + VOID;
 
   public static final String CLASS_V = "("+CLASS+")"+VOID;
 

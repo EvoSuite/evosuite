@@ -25,7 +25,7 @@ import java.lang.reflect.Method;
 import java.util.List;
 
 import org.evosuite.Properties;
-import org.evosuite.symbolic.DSE.ConcolicEngine;
+import org.evosuite.symbolic.dse.ConcolicEngine;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.variable.VariableReference;
 import org.junit.After;

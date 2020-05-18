@@ -24,10 +24,9 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.evosuite.Properties;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
-import org.evosuite.symbolic.DSE.algorithm.DSEBaseAlgorithm;
+import org.evosuite.symbolic.dse.algorithm.DSEBaseAlgorithm;
 import org.evosuite.testcase.TestCase;
 
 class TestGenerationResultImpl implements TestGenerationResult {

@@ -42,6 +42,7 @@ import org.evosuite.rmi.service.ClientState;
 import org.evosuite.rmi.service.ClientStateInformation;
 import org.evosuite.runtime.util.AtMostOnceLogger;
 import org.evosuite.statistics.backend.*;
+import org.evosuite.symbolic.dse.DSEStatistics;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.Listener;
 import org.evosuite.utils.LoggingUtils;
@@ -94,25 +95,10 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 	private List<List<TestGenerationResult>> results = new ArrayList<List<TestGenerationResult>>();
 
 	private SearchStatistics() { 
-		switch(Properties.STATISTICS_BACKEND) {
-		case CONSOLE:
-			backend = new ConsoleStatisticsBackend();
-			break;
-		case CSV:
-			backend = new CSVStatisticsBackend();
-			break;
-		case HTML:
-			backend = new HTMLStatisticsBackend();
-			break;
-		case DEBUG:
-			backend = new DebugStatisticsBackend();
-			break;
-		case NONE:
-		default:
-			// If no backend is specified, there is no output
-			backend = null;
-		}
+		backend = StatisticsBackendFactory.getStatisticsBackend(Properties.STATISTICS_BACKEND);
+
 		initFactories();
+
 		setOutputVariable(RuntimeVariable.Random_Seed, Randomness.getSeed());
 		sequenceOutputVariableFactories.put(RuntimeVariable.CoverageTimeline.name(), new CoverageSequenceOutputVariableFactory());
 		sequenceOutputVariableFactories.put(RuntimeVariable.FitnessTimeline.name(), new FitnessSequenceOutputVariableFactory());
@@ -257,7 +243,12 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 				RuntimeVariable.Covered_Goals.toString()
 				};
 		variableNames.addAll(Arrays.asList(essentials));
-		
+
+		/** Fix for DSE as we want to save the output vars in this case */
+		if (Properties.isDSEStrategySelected()) {
+			variableNames.addAll(DSEStatistics.dseRuntimeVariables);
+		}
+
 		/* cannot use what we received, as due to possible bugs/errors those might not be constant
 		variableNames.addAll(outputVariables.keySet());
 		variableNames.addAll(variableFactories.keySet());

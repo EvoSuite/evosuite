@@ -29,7 +29,7 @@ import java.util.Set;
 import org.apache.commons.lang3.SystemUtils;
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
-import org.evosuite.symbolic.DSE.ConcolicEngine;
+import org.evosuite.symbolic.dse.ConcolicEngine;
 import org.evosuite.symbolic.expr.Variable;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.execution.TestCaseExecutor;

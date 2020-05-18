@@ -57,7 +57,7 @@ import org.evosuite.setup.ConcreteClassAnalyzer;
 import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.setup.TestClusterGenerator;
-import org.evosuite.symbolic.DSE.DSEStatistics;
+import org.evosuite.symbolic.dse.DSEStatistics;
 import org.evosuite.testcarver.extraction.CarvingManager;
 import org.evosuite.testcase.execution.ExecutionTracer;
 import org.evosuite.testcase.execution.TestCaseExecutor;
