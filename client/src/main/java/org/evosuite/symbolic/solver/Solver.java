@@ -90,7 +90,10 @@ public abstract class Solver {
 		SolverResult solverResult;
 		try {
 			solverResult = executeSolver(constraints);
-			solverCache.saveSolverResult(constraints, solverResult);
+
+			if (solverResult != null && !solverResult.isUnknown()) {
+				solverCache.saveSolverResult(constraints, solverResult);
+			}
 		} catch ( IllegalArgumentException | IOException e) {
 			solverResult = null;
 		}
