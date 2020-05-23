@@ -52,10 +52,10 @@ EvoSuite has a container image available on [Docker Hub](https://hub.docker.com/
 or by manually building the image locally:
 
 ```
-git clone github.com/EvoSuite/evosuite.git
+git clone https://github.com/EvoSuite/evosuite.git
 cd evosuite
 docker build -f Dockerfile.java8 . --tag evosuite/evosuite:latest-java-8
-docker build -f Dockerfile.java11 . --tage evosuite/evosuite:latest-java-11
+docker build -f Dockerfile.java11 . --tag evosuite/evosuite:latest-java-11
 ```
 
 EvoSuite can be called as follows:
