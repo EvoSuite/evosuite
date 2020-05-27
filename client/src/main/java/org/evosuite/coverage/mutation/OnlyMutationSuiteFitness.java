@@ -27,6 +27,7 @@ import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteChromosome;
+import org.evosuite.testsuite.TestSuiteFitnessFunction;
 
 import java.util.*;
 import java.util.Map.Entry;
@@ -38,7 +39,8 @@ import java.util.Map.Entry;
  *
  * @author fraser
  */
-public class OnlyMutationSuiteFitness extends MutationSuiteFitness {
+public class OnlyMutationSuiteFitness<T extends ExecutableChromosome<T>, X extends AbstractTestSuiteChromosome<T,X>>
+		extends MutationSuiteFitness<T,X> {
 
 	private static final long serialVersionUID = -8194940669364526758L;
 
@@ -51,8 +53,7 @@ public class OnlyMutationSuiteFitness extends MutationSuiteFitness {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public double getFitness(
-	        AbstractTestSuiteChromosome<? extends ExecutableChromosome> individual) {
+	public double getFitness(X individual) {
 		/**
 		 * e.g. classes with only static constructors
 		 */
@@ -139,5 +140,10 @@ public class OnlyMutationSuiteFitness extends MutationSuiteFitness {
 		individual.setNumOfCoveredGoals(this, covered);
 
 		return fitness;
+	}
+
+	@Override
+	public OnlyMutationSuiteFitness<T,X> self() {
+		return this;
 	}
 }

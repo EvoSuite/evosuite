@@ -22,10 +22,12 @@ package org.evosuite.testsuite;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.ExecutionTracer;
 import org.evosuite.testcase.execution.TestCaseExecutor;
@@ -36,11 +38,15 @@ import org.slf4j.LoggerFactory;
  * <p>
  * Abstract TestSuiteFitnessFunction class.
  * </p>
- * 
+ * @param <F> Type for selfTyped pattern
+ * @param <T> Type of the ExecutableChromosome in the TestSuiteChromosome.
+ * @param <X> Type of the AbstractTestSuiteChromosome
  * @author Gordon Fraser
  */
-public abstract class TestSuiteFitnessFunction extends
-        FitnessFunction<AbstractTestSuiteChromosome<? extends ExecutableChromosome>> {
+public abstract class TestSuiteFitnessFunction<F extends TestSuiteFitnessFunction<F,T,X>,
+		T extends ExecutableChromosome<T>, X extends AbstractTestSuiteChromosome<T,X>>
+		extends
+		FitnessFunction<X,F>{
 
 	private static final long serialVersionUID = 7243635497292960457L;
 
@@ -88,10 +94,10 @@ public abstract class TestSuiteFitnessFunction extends
 	 * @return a {@link java.util.List} object.
 	 */
 	protected List<ExecutionResult> runTestSuite(
-	        AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite) {
+	        X suite) {
 		List<ExecutionResult> results = new ArrayList<ExecutionResult>();
 
-		for (ExecutableChromosome chromosome : suite.getTestChromosomes()) {
+		for (ExecutableChromosome<T> chromosome : suite.getTestChromosomes()) {
 			// Only execute test if it hasn't been changed
 			if (chromosome.isChanged() || chromosome.getLastExecutionResult() == null) {
 				ExecutionResult result = chromosome.executeForFitnessFunction(this);

@@ -36,7 +36,7 @@ import org.evosuite.testsuite.TestSuiteChromosome;
 /**
  * @author Gordon Fraser
  */
-public class RegressionTestSuiteChromosome extends TestSuiteChromosome {
+public class RegressionTestSuiteChromosome<T extends TestSuiteChromosome<T> {
 
   private static final long serialVersionUID = 2279207996777829420L;
 
@@ -94,7 +94,7 @@ public class RegressionTestSuiteChromosome extends TestSuiteChromosome {
    * .ga.LocalSearchObjective)
    */
   @Override
-  public boolean localSearch(LocalSearchObjective objective) {
+  public boolean localSearch(LocalSearchObjective<AbstractTestSuiteChromosome> objective) {
     // Ignore for now
     return false;
   }

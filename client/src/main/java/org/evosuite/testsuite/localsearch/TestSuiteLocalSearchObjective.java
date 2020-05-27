@@ -50,9 +50,9 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective<TestC
 
 	private static final Logger logger = LoggerFactory.getLogger(TestSuiteLocalSearchObjective.class);
 
-	private final List<TestSuiteFitnessFunction> fitnessFunctions = new ArrayList<>();
+	private final List<TestSuiteFitnessFunction<TestChromosome>> fitnessFunctions = new ArrayList<>();
 
-	private final TestSuiteChromosome suite;
+	private final TestSuiteChromosome<TestChromosome> suite;
 
 	private final int testIndex;
 
@@ -61,9 +61,9 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective<TestC
 
 	private double lastFitnessSum = 0.0;
 
-	private Map<FitnessFunction<?>, Double> lastFitness = new HashMap<>();
+	private Map<FitnessFunction<TestSuiteChromosome<TestChromosome>,?>, Double> lastFitness = new HashMap<>();
 
-	private Map<FitnessFunction<?>, Double> lastCoverage = new HashMap<>();
+	private Map<FitnessFunction<TestSuiteChromosome<TestChromosome>,?>, Double> lastCoverage = new HashMap<>();
 
 	/**
 	 * Creates a Local Search objective for a TestCase that will be optimized
@@ -79,12 +79,13 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective<TestC
 	 *            be used to modify the testchromosome each time a changed has
 	 *            been applied.
 	 */
-	private TestSuiteLocalSearchObjective(List<TestSuiteFitnessFunction> fitness, TestSuiteChromosome suite,
+	private TestSuiteLocalSearchObjective(List<TestSuiteFitnessFunction<TestChromosome>> fitness,
+										  TestSuiteChromosome<TestChromosome> suite,
 			int index) {
 		this.fitnessFunctions.addAll(fitness);
 		this.suite = suite;
 		this.testIndex = index;
-		for (TestSuiteFitnessFunction ff : fitness) {
+		for (TestSuiteFitnessFunction<TestChromosome> ff : fitness) {
 			if (ff.isMaximizationFunction())
 				isMaximization = true;
 			else
@@ -112,10 +113,12 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective<TestC
 	 * @return
 	 */
 	public static TestSuiteLocalSearchObjective buildNewTestSuiteLocalSearchObjective(
-			List<FitnessFunction<? extends Chromosome>> fitness, TestSuiteChromosome suite, int index) {
-		List<TestSuiteFitnessFunction> ffs = new ArrayList<>();
-		for (FitnessFunction<? extends Chromosome> ff : fitness) {
-			TestSuiteFitnessFunction tff = (TestSuiteFitnessFunction) ff;
+			List<FitnessFunction<TestSuiteChromosome<TestChromosome>,TestSuiteFitnessFunction<TestChromosome>>> fitness,
+			TestSuiteChromosome<TestChromosome> suite,
+			int index) {
+		List<TestSuiteFitnessFunction<TestChromosome>> ffs = new ArrayList<>();
+		for (FitnessFunction<TestSuiteChromosome<TestChromosome>,TestSuiteFitnessFunction<TestChromosome>> ff : fitness) {
+			TestSuiteFitnessFunction<TestChromosome> tff = ff.self();
 			ffs.add(tff);
 		}
 		return new TestSuiteLocalSearchObjective(ffs, suite, index);
@@ -196,7 +199,7 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective<TestC
 		testCase.setChanged(true);
 		suite.setTestChromosome(testIndex, testCase);
 		LocalSearchBudget.getInstance().countFitnessEvaluation();
-		for (TestSuiteFitnessFunction fitnessFunction : fitnessFunctions)
+		for (TestSuiteFitnessFunction<TestChromosome> fitnessFunction : fitnessFunctions)
 			fitnessFunction.getFitness(suite);
 		double newFitness = suite.getFitness();
 
@@ -218,13 +221,15 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective<TestC
 		}
 	}
 
+
+
 	/**
 	 * Since the fitness is computed by the underlying test suite associated to
 	 * this local search objective, this function should not belong. TODO: Why
 	 * not simply returning the fitness functions of the suite?
 	 */
 	@Override
-	public List<FitnessFunction<? extends Chromosome>> getFitnessFunctions() {
+	public List<FitnessFunction<TestChromosome,?>> getFitnessFunctions() {
 		throw new NotImplementedException("This should not be called");
 	}
 
@@ -233,7 +238,7 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective<TestC
 	 * goal, this function should never be invoked.
 	 */
 	@Override
-	public void addFitnessFunction(FitnessFunction<? extends Chromosome> fitness) {
+	public void addFitnessFunction(FitnessFunction<TestChromosome,?> fitness) {
 		throw new NotImplementedException("This should not be called");
 	}
 

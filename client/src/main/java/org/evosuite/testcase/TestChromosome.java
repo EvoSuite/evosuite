@@ -58,7 +58,7 @@ import static java.util.stream.Collectors.*;
  *
  * @author Gordon Fraser
  */
-public class TestChromosome<T extends TestChromosome<T>> extends ExecutableChromosome<TestChromosome<T>>  {
+public class TestChromosome extends ExecutableChromosome<TestChromosome>  {
 
 	private static final long serialVersionUID = 7532366007973252782L;
 
@@ -71,7 +71,7 @@ public class TestChromosome<T extends TestChromosome<T>> extends ExecutableChrom
 	protected MutationHistory<TestMutationHistoryEntry> mutationHistory = new MutationHistory<>();
 
 	/** Secondary objectives used during ranking */
-	private static final List<SecondaryObjective<? extends TestChromosome<?>>> secondaryObjectives =
+	private static final List<SecondaryObjective<? extends TestChromosome>> secondaryObjectives =
 			new ArrayList<>();
 
 	/**
@@ -119,7 +119,7 @@ public class TestChromosome<T extends TestChromosome<T>> extends ExecutableChrom
 	}
 
 	@Override
-	public TestChromosome<T> self() {
+	public TestChromosome self() {
 		return this;
 	}
 
@@ -129,8 +129,8 @@ public class TestChromosome<T extends TestChromosome<T>> extends ExecutableChrom
 	 * Create a deep copy of the chromosome
 	 */
 	@Override
-	public TestChromosome<T> clone() {
-		TestChromosome<T> c = new TestChromosome<>();
+	public TestChromosome clone() {
+		TestChromosome c = new TestChromosome();
 		c.test = test.clone();
 		c.setFitnessValues(getFitnessValues());
 		c.setPreviousFitnessValues(getPreviousFitnessValues());
@@ -157,7 +157,7 @@ public class TestChromosome<T extends TestChromosome<T>> extends ExecutableChrom
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void copyCachedResults(ExecutableChromosome<TestChromosome<T>> other) {
+	public void copyCachedResults(ExecutableChromosome<TestChromosome> other) {
 		if (test == null)
 			throw new RuntimeException("Test is null!");
 
@@ -183,11 +183,11 @@ public class TestChromosome<T extends TestChromosome<T>> extends ExecutableChrom
 	 * Single point cross over
 	 */
 	@Override
-	public void crossOver(Chromosome<TestChromosome<T>> other, int position1, int position2)
+	public void crossOver(Chromosome<TestChromosome> other, int position1, int position2)
 	        throws ConstructionFailedException {
 		logger.debug("Crossover starting");
-		TestChromosome<T> otherChromosome = other.self();
-		TestChromosome<T> offspring = new TestChromosome<>();
+		TestChromosome otherChromosome = other.self();
+		TestChromosome offspring = new TestChromosome();
 		TestFactory testFactory = TestFactory.getInstance();
 
 		for (int i = 0; i < position1; i++) {
@@ -228,7 +228,7 @@ public class TestChromosome<T extends TestChromosome<T>> extends ExecutableChrom
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		TestChromosome<T> other = (TestChromosome<T>) obj;
+		TestChromosome other = (TestChromosome) obj;
 		if (test == null) {
 			return other.test == null;
 		} else return test.equals(other.test);
@@ -302,8 +302,8 @@ public class TestChromosome<T extends TestChromosome<T>> extends ExecutableChrom
 	 * @param objective*/
 	@SuppressWarnings("unchecked")
 	@Override
-	public boolean localSearch(LocalSearchObjective<TestChromosome<T>> objective) {
-		TestCaseLocalSearch<T> localSearch = TestCaseLocalSearch.selectTestCaseLocalSearch();
+	public boolean localSearch(LocalSearchObjective<TestChromosome> objective) {
+		TestCaseLocalSearch<TestChromosome> localSearch = TestCaseLocalSearch.selectTestCaseLocalSearch();
 		return localSearch.doSearch(this.self(), objective);
 	}
 
@@ -699,18 +699,19 @@ public class TestChromosome<T extends TestChromosome<T>> extends ExecutableChrom
 		return testSuiteFitnessFunction.runTest(this.test);
 	}
 
+
 	@Override
 	@SuppressWarnings("unchecked")
-	public  <T extends Chromosome<T>> int compareSecondaryObjective(T o) {
+	public  int compareSecondaryObjective(TestChromosome o) {
 		int objective = 0;
 		int c = 0;
 
 		while (c == 0 && objective < secondaryObjectives.size()) {
 
-			SecondaryObjective<T> so = (SecondaryObjective<T>) secondaryObjectives.get(objective++);
+			SecondaryObjective<TestChromosome> so = (SecondaryObjective<TestChromosome>) secondaryObjectives.get(objective++);
 			if (so == null)
 				break;
-			c = so.compareChromosomes((T) this, o);
+			c = so.compareChromosomes(this, o);
 		}
 		return c;
 	}
@@ -721,7 +722,7 @@ public class TestChromosome<T extends TestChromosome<T>> extends ExecutableChrom
 	 * @param objective
 	 *            a {@link org.evosuite.ga.SecondaryObjective} object.
 	 */
-	public static<T extends TestChromosome<T>> void addSecondaryObjective(SecondaryObjective<TestChromosome<T>> objective) {
+	public static<T extends TestChromosome> void addSecondaryObjective(SecondaryObjective<TestChromosome> objective) {
 		secondaryObjectives.add(objective);
 	}
 
@@ -750,7 +751,7 @@ public class TestChromosome<T extends TestChromosome<T>> extends ExecutableChrom
 	 *
 	 * @return a {@link java.util.List} object.
 	 */
-	public static List<SecondaryObjective<? extends TestChromosome<?>>> getSecondaryObjectives() {
+	public static List<SecondaryObjective<? extends TestChromosome>> getSecondaryObjectives() {
 		return secondaryObjectives;
 	}
 

@@ -26,10 +26,10 @@ import java.util.List;
 import java.util.Set;
 
 import org.evosuite.Properties;
-import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.SecondaryObjective;
 import org.evosuite.ga.localsearch.LocalSearchObjective;
+import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
@@ -44,12 +44,13 @@ import static java.util.stream.Collectors.toCollection;
  * 
  * @author Gordon Fraser
  */
-public class TestSuiteChromosome<C extends TestSuiteChromosome<C,T>, T extends TestChromosome<T>>
-		extends AbstractTestSuiteChromosome<TestSuiteChromosome<C,T>,T> {
+public class TestSuiteChromosome<T extends TestChromosome>
+		extends AbstractTestSuiteChromosome<TestSuiteChromosome<T>, TestChromosome> {
 
 
 	/** Secondary objectives used during ranking */
-	private static final List<SecondaryObjective<? extends TestSuiteChromosome<?,?>>> secondaryObjectives =
+	private static final List<SecondaryObjective<? extends AbstractTestSuiteChromosome<? extends TestSuiteChromosome<?>, ?
+			extends ExecutableChromosome<?>>>> secondaryObjectives =
 			new ArrayList<>();
 	private static int secondaryObjIndex = 0;
 	private static final long serialVersionUID = 88380759969800800L;
@@ -61,7 +62,7 @@ public class TestSuiteChromosome<C extends TestSuiteChromosome<C,T>, T extends T
 	 * @param objective
 	 *            a {@link org.evosuite.ga.SecondaryObjective} object.
 	 */
-	public static void addSecondaryObjective(SecondaryObjective<? extends TestSuiteChromosome<?,?>> objective) {
+	public static void addSecondaryObjective(SecondaryObjective<? extends TestSuiteChromosome<?>> objective) {
 		secondaryObjectives.add(objective);
 	}
 
@@ -96,7 +97,7 @@ public class TestSuiteChromosome<C extends TestSuiteChromosome<C,T>, T extends T
 	 * @param objective
 	 *            a {@link org.evosuite.ga.SecondaryObjective} object.
 	 */
-	public static void removeSecondaryObjective(SecondaryObjective<? extends TestSuiteChromosome<?,?>> objective) {
+	public static void removeSecondaryObjective(SecondaryObjective<? extends TestSuiteChromosome<?>> objective) {
 		secondaryObjectives.remove(objective);
 	}
 
@@ -105,7 +106,7 @@ public class TestSuiteChromosome<C extends TestSuiteChromosome<C,T>, T extends T
 	}
 
 	@Override
-	public TestSuiteChromosome<C,T> self() {
+	public TestSuiteChromosome<T> self() {
 		return this;
 	}
 
@@ -127,7 +128,7 @@ public class TestSuiteChromosome<C extends TestSuiteChromosome<C,T>, T extends T
 	 * @param testChromosomeFactory
 	 *            a {@link org.evosuite.ga.ChromosomeFactory} object.
 	 */
-	public TestSuiteChromosome(ChromosomeFactory<T> testChromosomeFactory) {
+	public TestSuiteChromosome(ChromosomeFactory<? extends T> testChromosomeFactory) {
 		super(testChromosomeFactory);
 	}
 
@@ -139,7 +140,7 @@ public class TestSuiteChromosome<C extends TestSuiteChromosome<C,T>, T extends T
 	 * @param source
 	 *            a {@link org.evosuite.testsuite.TestSuiteChromosome} object.
 	 */
-	protected TestSuiteChromosome(TestSuiteChromosome<C,T> source) {
+	protected TestSuiteChromosome(TestSuiteChromosome<T> source) {
 		super(source);
 	}
 
@@ -149,8 +150,8 @@ public class TestSuiteChromosome<C extends TestSuiteChromosome<C,T>, T extends T
 	 * @param test
 	 *            a {@link org.evosuite.testcase.TestCase} object.
 	 */
-	public TestChromosome<?> addTest(TestCase test) {
-		TestChromosome<?> c = new TestChromosome<>().self();
+	public TestChromosome addTest(TestCase test) {
+		TestChromosome c = new TestChromosome();
 		c.setTestCase(test);
 		addTest(c);
 
@@ -175,8 +176,8 @@ public class TestSuiteChromosome<C extends TestSuiteChromosome<C,T>, T extends T
 	 * Create a deep copy of this test suite
 	 */
 	@Override
-	public TestSuiteChromosome<C,T> clone() {
-		return new TestSuiteChromosome<C,T>(this);
+	public TestSuiteChromosome<T> clone() {
+		return new TestSuiteChromosome<T>(this);
 	}
 
 	/* (non-Javadoc)
@@ -185,14 +186,15 @@ public class TestSuiteChromosome<C extends TestSuiteChromosome<C,T>, T extends T
 	/** {@inheritDoc} */
 	@Override
 	@SuppressWarnings("unchecked")
-	public <O extends Chromosome<O>> int compareSecondaryObjective(O o) {
+	public int compareSecondaryObjective(TestSuiteChromosome<T> o) {
 		int objective = secondaryObjIndex;
 		int c = 0;
 		while (c == 0 && objective < secondaryObjectives.size()) {
-			SecondaryObjective<? extends TestSuiteChromosome<?,?> >so = secondaryObjectives.get(objective++);
+			SecondaryObjective<TestSuiteChromosome<T>> so = (SecondaryObjective<TestSuiteChromosome<T>>)
+					secondaryObjectives.get(objective++);
 			if (so == null)
 				break;
-			c = so.compareChromosomes(this, o);
+			c = so.compareChromosomes(this.self(), o.self());
 		} 
 		return c;
 	}
@@ -239,11 +241,12 @@ public class TestSuiteChromosome<C extends TestSuiteChromosome<C,T>, T extends T
 				.collect(toCollection(ArrayList::new));
 	}
 
+
 	@SuppressWarnings("unchecked")
 	@Override
-	public boolean localSearch(LocalSearchObjective<? extends Chromosome> objective) {
-		TestSuiteLocalSearch localSearch = TestSuiteLocalSearch.selectTestSuiteLocalSearch();
-		return localSearch.doSearch(this, (LocalSearchObjective<TestSuiteChromosome>) objective);
+	public boolean localSearch(LocalSearchObjective<TestSuiteChromosome<T>> objective) {
+		TestSuiteLocalSearch<T> localSearch = TestSuiteLocalSearch.selectTestSuiteLocalSearch();
+		return localSearch.doSearch(this, objective);
 	}
 	
 	/**
@@ -257,7 +260,7 @@ public class TestSuiteChromosome<C extends TestSuiteChromosome<C,T>, T extends T
 			super.mutate();
 		}
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 * 
@@ -285,5 +288,5 @@ public class TestSuiteChromosome<C extends TestSuiteChromosome<C,T>, T extends T
 		}
 		return result;
 	}
- 
+
 }

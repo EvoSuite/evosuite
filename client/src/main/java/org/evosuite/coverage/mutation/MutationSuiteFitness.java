@@ -30,12 +30,15 @@ import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.coverage.FitnessFunctions;
 import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
+import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.archive.Archive;
 import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
+import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 
 /**
@@ -45,18 +48,20 @@ import org.evosuite.testsuite.TestSuiteFitnessFunction;
  * 
  * @author Gordon Fraser
  */
-public abstract class MutationSuiteFitness extends TestSuiteFitnessFunction {
+public abstract class MutationSuiteFitness<T extends ExecutableChromosome<T>,
+		X extends AbstractTestSuiteChromosome<T,X>> extends TestSuiteFitnessFunction<
+		MutationSuiteFitness<T,X>,T,X> {
 
 	private static final long serialVersionUID = -8320078404661057113L;
 
-	protected final BranchCoverageSuiteFitness branchFitness;
+	protected final BranchCoverageSuiteFitness<T,X> branchFitness;
 
 	// target goals
-	protected final Map<Integer, MutationTestFitness> mutantMap = new LinkedHashMap<Integer, MutationTestFitness>();
+	protected final Map<Integer, MutationTestFitness> mutantMap = new LinkedHashMap<>();
 	protected final int numMutants;
 
-	protected final Set<Integer> removedMutants = new LinkedHashSet<Integer>();
-	protected final Set<Integer> toRemoveMutants = new LinkedHashSet<Integer>();
+	protected final Set<Integer> removedMutants = new LinkedHashSet<>();
+	protected final Set<Integer> toRemoveMutants = new LinkedHashSet<>();
 
 	public MutationSuiteFitness(Criterion criterion) {
 		if (criterion != Criterion.STRONGMUTATION && criterion != Criterion.WEAKMUTATION
@@ -69,7 +74,7 @@ public abstract class MutationSuiteFitness extends TestSuiteFitnessFunction {
 
 		boolean archive = Properties.TEST_ARCHIVE;
 		Properties.TEST_ARCHIVE = false;
-		branchFitness = new BranchCoverageSuiteFitness();
+		branchFitness = new BranchCoverageSuiteFitness<>();
 		Properties.TEST_ARCHIVE = archive;
 
 		for (MutationTestFitness goal : factory.getCoverageGoals()) {
@@ -88,7 +93,7 @@ public abstract class MutationSuiteFitness extends TestSuiteFitnessFunction {
 		}
 
 		for (Integer mutant : this.toRemoveMutants) {
-			TestFitnessFunction ff = this.mutantMap.remove(mutant);
+			TestFitnessFunction<?> ff = this.mutantMap.remove(mutant);
 			if (ff != null) {
 				this.removedMutants.add(mutant);
 			} else {
@@ -129,6 +134,6 @@ public abstract class MutationSuiteFitness extends TestSuiteFitnessFunction {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public abstract double getFitness(
-	        AbstractTestSuiteChromosome<? extends ExecutableChromosome> individual);
+	public abstract double getFitness(X individual);
+
 }

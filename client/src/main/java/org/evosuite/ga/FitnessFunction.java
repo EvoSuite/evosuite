@@ -29,7 +29,8 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Gordon Fraser
  */
-public abstract class FitnessFunction<T extends Chromosome> implements Serializable {
+public abstract class FitnessFunction<T extends Chromosome<T>, F extends FitnessFunction<T,F>> implements Serializable,
+		SelfTyped<F> {
 
 	private static final long serialVersionUID = -8876797554111396910L;
 
@@ -106,4 +107,6 @@ public abstract class FitnessFunction<T extends Chromosome> implements Serializa
 	public boolean updateCoveredGoals(){
 		return false;
 	}
+
+	public abstract F self();
 }

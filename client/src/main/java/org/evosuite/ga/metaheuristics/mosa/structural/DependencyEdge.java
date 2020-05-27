@@ -33,12 +33,12 @@ public class DependencyEdge extends DefaultEdge {
 	
 	//private static final Logger logger = LoggerFactory.getLogger(BranchFitnessGraph.class);
 
-	public FitnessFunction<?> getSource(){
-		return (FitnessFunction<?>) super.getSource();
+	public FitnessFunction<?,?> getSource(){
+		return (FitnessFunction<?,?>) super.getSource();
 	}
 	
-	public FitnessFunction<?> getTarget(){
-		return (FitnessFunction<?>) super.getTarget();
+	public FitnessFunction<?,?> getTarget(){
+		return (FitnessFunction<?,?>) super.getTarget();
 	}
 
 }

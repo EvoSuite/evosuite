@@ -84,7 +84,7 @@ public interface LocalSearchObjective<T extends Chromosome<T>> {
 	 */
 	public int hasChanged(T chromosome);
 
-	public void addFitnessFunction(FitnessFunction<? extends Chromosome> fitness);
+	public void addFitnessFunction(FitnessFunction<T,?> fitness);
 
 	/**
 	 * Returns a list with all the fitness functions stored in this local search
@@ -92,6 +92,6 @@ public interface LocalSearchObjective<T extends Chromosome<T>> {
 	 *
 	 * @return a {@link org.evosuite.ga.FitnessFunction} object.
 	 */
-	public List<FitnessFunction<? extends Chromosome>> getFitnessFunctions();
+	public List<FitnessFunction<T,?>> getFitnessFunctions();
 
 }

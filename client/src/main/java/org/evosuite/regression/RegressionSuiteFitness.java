@@ -44,7 +44,9 @@ import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 
 
-public class RegressionSuiteFitness extends TestSuiteFitnessFunction {
+public class RegressionSuiteFitness<T extends ExecutableChromosome<T>,
+        X extends AbstractTestSuiteChromosome<T,X>> extends TestSuiteFitnessFunction<RegressionSuiteFitness<T,X>,
+        T,X> {
 
   /**
    *
@@ -182,7 +184,7 @@ public class RegressionSuiteFitness extends TestSuiteFitnessFunction {
    * @see org.evosuite.ga.FitnessFunction#getFitness(org.evosuite.ga.Chromosome)
    */
   @Override
-  public double getFitness(AbstractTestSuiteChromosome<? extends ExecutableChromosome> individual) {
+  public double getFitness(X individual) {
 
     if (useMeasure(RegressionMeasure.STATE_DIFFERENCE)) {
       TestCaseExecutor.getInstance().addObserver(observer);
@@ -244,9 +246,9 @@ public class RegressionSuiteFitness extends TestSuiteFitnessFunction {
           (1.0 / (1.0 + distance)) * (maxBranchFitnessValueO + maxBranchFitnessValueR);
     }
 
-    AbstractTestSuiteChromosome<TestChromosome> testSuiteChromosome = suite.getTestSuite();
+    AbstractTestSuiteChromosome<T,?> testSuiteChromosome = suite.getTestSuite();
 
-    AbstractTestSuiteChromosome<TestChromosome> testRegressionSuiteChromosome = null;
+    AbstractTestSuiteChromosome<T,?> testRegressionSuiteChromosome = null;
     if (useMeasure(RegressionMeasure.COVERAGE_NEW)) {
       testRegressionSuiteChromosome = suite.getTestSuiteForTheOtherClassLoader();
     }

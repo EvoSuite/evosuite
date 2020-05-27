@@ -31,8 +31,8 @@ import org.evosuite.testsuite.TestSuiteChromosome;
  *
  * @author Gordon Fraser
  */
-public abstract class TestFitnessFunction extends FitnessFunction<TestChromosome>
-        implements Comparable<TestFitnessFunction> {
+public abstract class TestFitnessFunction<T extends TestFitnessFunction<T>> extends FitnessFunction<TestChromosome,T>
+        implements Comparable<TestFitnessFunction<T>> {
 
 	private static final long serialVersionUID = 5602125855207061901L;
 
@@ -113,7 +113,7 @@ public abstract class TestFitnessFunction extends FitnessFunction<TestChromosome
 		return tests.stream().anyMatch(this::isCovered);
 	}
 
-	public boolean isCoveredBy(TestSuiteChromosome testSuite) {
+	public boolean isCoveredBy(TestSuiteChromosome<TestChromosome> testSuite) {
 		int num = 1;
 		for (TestChromosome test : testSuite.getTestChromosomes()) {
 			logger.debug("Checking goal against test "+num+"/"+testSuite.size());

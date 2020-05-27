@@ -35,7 +35,9 @@ import org.evosuite.testsuite.TestSuiteFitnessFunction;
  * 
  * @author José Campos
  */
-public class RhoCoverageSuiteFitness extends TestSuiteFitnessFunction {
+public class RhoCoverageSuiteFitness<T extends ExecutableChromosome<T>, X extends AbstractTestSuiteChromosome<T,X>>
+		extends TestSuiteFitnessFunction<
+		RhoCoverageSuiteFitness<T,X>,T,X> {
 
 	private static final long serialVersionUID = 5460600509431741746L;
 
@@ -45,11 +47,16 @@ public class RhoCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	private Set<Set<Integer>> coverage_matrix_generated_so_far = new LinkedHashSet<>();
 
 	@Override
-	public double getFitness(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite) {
+	public double getFitness(X suite) {
 		return this.getFitness(suite, true);
 	}
 
-	protected double getFitness(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite, boolean updateFitness) {
+	@Override
+	public RhoCoverageSuiteFitness<T, X> self() {
+		return this;
+	}
+
+	protected double getFitness(X suite, boolean updateFitness) {
 
 		Set<Set<Integer>> tmp_coverage_matrix = new LinkedHashSet<>(this.coverage_matrix_generated_so_far);
 

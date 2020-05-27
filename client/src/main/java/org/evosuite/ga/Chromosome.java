@@ -54,10 +54,10 @@ public abstract class Chromosome<T extends Chromosome<T>> implements Comparable<
 		// empty
 	}
 	/** Last recorded fitness value */
-    private LinkedHashMap<FitnessFunction<T>, Double> fitnessValues = new LinkedHashMap<>();
+    private LinkedHashMap<FitnessFunction<T,?>, Double> fitnessValues = new LinkedHashMap<>();
 
 	/** Previous fitness, to see if there was an improvement */
-    private LinkedHashMap<FitnessFunction<T>, Double> previousFitnessValues = new LinkedHashMap<>();
+    private LinkedHashMap<FitnessFunction<T,?>, Double> previousFitnessValues = new LinkedHashMap<>();
 
 	/** Has this chromosome changed since its fitness was last evaluated? */
 	private boolean changed = true;
@@ -65,13 +65,13 @@ public abstract class Chromosome<T extends Chromosome<T>> implements Comparable<
 	/** Has local search been applied to this individual since it was last changed? */
 	private boolean localSearchApplied = false;
 
-    private LinkedHashMap<FitnessFunction<T>, Double> coverageValues = new LinkedHashMap<>();
+    private LinkedHashMap<FitnessFunction<T,?>, Double> coverageValues = new LinkedHashMap<>();
 
     /** The number of uncovered goals with regard to the fitness function given as key */
-    private LinkedHashMap<FitnessFunction<T>, Integer> numsNotCoveredGoals = new LinkedHashMap<>();
+    private LinkedHashMap<FitnessFunction<T,?>, Integer> numsNotCoveredGoals = new LinkedHashMap<>();
 
     /** The number of covered goals with regard to the fitness function given as key */
-    private LinkedHashMap<FitnessFunction<T>, Integer> numsCoveredGoals = new LinkedHashMap<>();
+    private LinkedHashMap<FitnessFunction<T,?>, Integer> numsCoveredGoals = new LinkedHashMap<>();
 
 	
 	// protected double coverage = 0.0;
@@ -122,16 +122,16 @@ public abstract class Chromosome<T extends Chromosome<T>> implements Comparable<
      * @param ff the fitness function
      * @return the fitness of this chromosome
      */
-	public double getFitness(FitnessFunction<T> ff) {
+	public double getFitness(FitnessFunction<T,?> ff) {
 		return fitnessValues.containsKey(ff) ? fitnessValues.get(ff) : ff.getFitness(this.self()); // Calculate new value
 		// if non is cached
 	}
 
-	public Map<FitnessFunction<T>, Double> getFitnessValues() {
+	public Map<FitnessFunction<T,?>, Double> getFitnessValues() {
 		return this.fitnessValues;
 	}
 
-	public Map<FitnessFunction<T>, Double> getPreviousFitnessValues() {
+	public Map<FitnessFunction<T,?>, Double> getPreviousFitnessValues() {
 		return this.previousFitnessValues;
 	}
 
@@ -142,17 +142,17 @@ public abstract class Chromosome<T extends Chromosome<T>> implements Comparable<
      * @param ff the fitness function
      * @return
      */
-    public boolean hasExecutedFitness(FitnessFunction<T> ff) {
+    public boolean hasExecutedFitness(FitnessFunction<T,?> ff) {
         return this.previousFitnessValues.containsKey(ff);
 	}
 
-	public void setFitnessValues(Map<FitnessFunction<T>, Double> fits) {
+	public void setFitnessValues(Map<FitnessFunction<T,?>, Double> fits) {
 		//TODO mainfitness?
 		this.fitnessValues.clear();
 		this.fitnessValues.putAll(fits);
 	}
 
-	public void setPreviousFitnessValues(Map<FitnessFunction<T>, Double> lastFits) {
+	public void setPreviousFitnessValues(Map<FitnessFunction<T,?>, Double> lastFits) {
 		this.previousFitnessValues.clear();
 		this.previousFitnessValues.putAll(lastFits);
 	}
@@ -164,7 +164,7 @@ public abstract class Chromosome<T extends Chromosome<T>> implements Comparable<
 	 * @param ff
 	 *            a fitness function
 	 */
-	public void addFitness(FitnessFunction<T> ff) {
+	public void addFitness(FitnessFunction<T,?> ff) {
         final double fitnessValue = ff.isMaximizationFunction() ? 0 : Double.MAX_VALUE;
         this.addFitness(ff, fitnessValue);
 	}
@@ -177,7 +177,7 @@ public abstract class Chromosome<T extends Chromosome<T>> implements Comparable<
 	 * @param fitnessValue
 	 *            the fitness value for {@code ff}
 	 */
-	public void addFitness(FitnessFunction<T> ff, double fitnessValue) {
+	public void addFitness(FitnessFunction<T,?> ff, double fitnessValue) {
 		this.addFitness(ff, fitnessValue, 0.0, 0);
 	}
 
@@ -192,7 +192,7 @@ public abstract class Chromosome<T extends Chromosome<T>> implements Comparable<
 	 * @param coverage
 	 *            the coverage value for {@code ff}
 	 */
-	public void addFitness(FitnessFunction<T> ff, double fitnessValue, double coverage) {
+	public void addFitness(FitnessFunction<T,?> ff, double fitnessValue, double coverage) {
 		this.addFitness(ff, fitnessValue, coverage, 0);
 	}
 
@@ -209,7 +209,7 @@ public abstract class Chromosome<T extends Chromosome<T>> implements Comparable<
 	 * @param numCoveredGoals
 	 *            the number of covered goals for {@code ff}
 	 */
-	public void addFitness(FitnessFunction<T> ff, double fitnessValue, double coverage,
+	public void addFitness(FitnessFunction<T,?> ff, double fitnessValue, double coverage,
 			int numCoveredGoals) { 
 		this.fitnessValues.put(ff, fitnessValue);
 		this.previousFitnessValues.put(ff, fitnessValue);
@@ -224,7 +224,7 @@ public abstract class Chromosome<T extends Chromosome<T>> implements Comparable<
 	 * @param value
 	 *            a double.
 	 */
-	public void setFitness(FitnessFunction<T> ff, double value) throws IllegalArgumentException {
+	public void setFitness(FitnessFunction<T,?> ff, double value) throws IllegalArgumentException {
         if (Double.isNaN(value) || (Double.isInfinite(value))) {
 //				 || ( value < 0 ) || ( ff == null ))
 			throw new IllegalArgumentException("Invalid value of Fitness: " + value + ", Fitness: "
@@ -294,7 +294,7 @@ public abstract class Chromosome<T extends Chromosome<T>> implements Comparable<
 	 *            a {@link org.evosuite.ga.Chromosome} object.
 	 * @return a int.
 	 */
-	public abstract <C extends Chromosome<C>> int compareSecondaryObjective(C o);
+	public abstract int compareSecondaryObjective(T o);
 
 	/**
 	 * Apply mutation
@@ -436,31 +436,31 @@ public abstract class Chromosome<T extends Chromosome<T>> implements Comparable<
                 .sum();
     }
 
-	public void setNumsOfCoveredGoals(Map<FitnessFunction<T>, Integer> fits) {
+	public void setNumsOfCoveredGoals(Map<FitnessFunction<T,?>, Integer> fits) {
 		this.numsCoveredGoals.clear();
 		this.numsCoveredGoals.putAll(fits);
 	}
 
-	public void setNumsOfNotCoveredGoals(Map<FitnessFunction<T>, Integer> fits) {
+	public void setNumsOfNotCoveredGoals(Map<FitnessFunction<T,?>, Integer> fits) {
 		this.numsNotCoveredGoals.clear();
 		this.numsNotCoveredGoals.putAll(fits);
 	}
-	public void setNumOfNotCoveredGoals(FitnessFunction<T> ff, int numCoveredGoals) {
+	public void setNumOfNotCoveredGoals(FitnessFunction<T,?> ff, int numCoveredGoals) {
 		this.numsNotCoveredGoals.put(ff, numCoveredGoals);
 	}
-	public Map<FitnessFunction<T>, Integer> getNumsOfCoveredGoals() {
+	public Map<FitnessFunction<T,?>, Integer> getNumsOfCoveredGoals() {
 		return this.numsCoveredGoals;
 	}
 	
-	public LinkedHashMap<FitnessFunction<T>, Integer> getNumsNotCoveredGoals() {
+	public LinkedHashMap<FitnessFunction<T,?>, Integer> getNumsNotCoveredGoals() {
 		return numsNotCoveredGoals;
 	}
 	
-	public Map<FitnessFunction<T>, Double> getCoverageValues() {
+	public Map<FitnessFunction<T,?>, Double> getCoverageValues() {
 		return this.coverageValues;
 	}
 
-	public void setCoverageValues(Map<FitnessFunction<T>, Double> coverages) {
+	public void setCoverageValues(Map<FitnessFunction<T,?>, Double> coverages) {
 		this.coverageValues.clear();
 		this.coverageValues.putAll(coverages);
 	}
@@ -476,7 +476,7 @@ public abstract class Chromosome<T extends Chromosome<T>> implements Comparable<
 	 *            a fitness function
 	 * @return the number of covered goals for {@code ff}
 	 */
-	public double getCoverage(FitnessFunction<T> ff) {
+	public double getCoverage(FitnessFunction<T,?> ff) {
         return coverageValues.getOrDefault(ff, 0.0);
 	}
 
@@ -488,7 +488,7 @@ public abstract class Chromosome<T extends Chromosome<T>> implements Comparable<
 	 * @param coverage
 	 *            the coverage value
 	 */
-	public void setCoverage(FitnessFunction<T> ff, double coverage) {
+	public void setCoverage(FitnessFunction<T,?> ff, double coverage) {
 		this.coverageValues.put(ff, coverage);
 	}
 
@@ -499,7 +499,7 @@ public abstract class Chromosome<T extends Chromosome<T>> implements Comparable<
 	 *            a fitness function
 	 * @return the number of covered goals for {@code ff}
 	 */
-	public int getNumOfCoveredGoals(FitnessFunction<?> ff) {
+	public int getNumOfCoveredGoals(FitnessFunction<?,?> ff) {
         return numsCoveredGoals.getOrDefault(ff, 0);
 	}
 	
@@ -510,7 +510,7 @@ public abstract class Chromosome<T extends Chromosome<T>> implements Comparable<
 	 *            a fitness function
 	 * @return the number of covered goals for {@code ff}
 	 */
-	public int getNumOfNotCoveredGoals(FitnessFunction<?> ff) {
+	public int getNumOfNotCoveredGoals(FitnessFunction<?,?> ff) {
         return numsNotCoveredGoals.getOrDefault(ff, 0);
 	}
 
@@ -522,7 +522,7 @@ public abstract class Chromosome<T extends Chromosome<T>> implements Comparable<
 	 * @param numCoveredGoals
 	 *            the number of covered goals
 	 */
-	public void setNumOfCoveredGoals(FitnessFunction<T> ff, int numCoveredGoals) {
+	public void setNumOfCoveredGoals(FitnessFunction<T,?> ff, int numCoveredGoals) {
 		this.numsCoveredGoals.put(ff, numCoveredGoals);
 	}
 
@@ -559,7 +559,7 @@ public abstract class Chromosome<T extends Chromosome<T>> implements Comparable<
      * @return
      */
 	public double getFitnessInstanceOf(Class<?> clazz) {
-        Optional<FitnessFunction<T>> off = fitnessValues.keySet().stream()
+        Optional<FitnessFunction<T,?>> off = fitnessValues.keySet().stream()
                 .filter(clazz::isInstance)
                 .findFirst();
         return off.map(fitnessValues::get).orElse(0.0);
@@ -574,7 +574,7 @@ public abstract class Chromosome<T extends Chromosome<T>> implements Comparable<
      * @return
      */
 	public double getCoverageInstanceOf(Class<?> clazz) {
-        Optional<FitnessFunction<T>> off = coverageValues.keySet().stream()
+        Optional<FitnessFunction<T,?>> off = coverageValues.keySet().stream()
                 .filter(clazz::isInstance)
                 .findFirst();
         return off.map(coverageValues::get).orElse(0.0);
