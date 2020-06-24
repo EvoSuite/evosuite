@@ -27,23 +27,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import org.evosuite.Properties;
-import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.localsearch.LocalSearch;
 import org.evosuite.ga.localsearch.LocalSearchBudget;
 import org.evosuite.ga.localsearch.LocalSearchObjective;
-import org.evosuite.testcase.ExecutableChromosome;
-import org.evosuite.testcase.TestCase;
-import org.evosuite.testcase.TestCaseExpander;
-import org.evosuite.testcase.TestChromosome;
+import org.evosuite.testcase.*;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.evosuite.testcase.localsearch.AVMTestCaseLocalSearch;
 import org.evosuite.testcase.localsearch.BranchCoverageMap;
 import org.evosuite.testcase.localsearch.DSETestCaseLocalSearch;
 import org.evosuite.testcase.localsearch.TestCaseLocalSearch;
+import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.evosuite.utils.Randomness;
@@ -63,9 +62,13 @@ import org.slf4j.LoggerFactory;
  * 
  * @author galeotti
  *
+ * @param <T> Actual Type of this.
+ * @param <E> Actual type of contained Chromosomes in T
  */
-public class TestSuiteLocalSearch<T extends TestChromosome>
-		implements LocalSearch<TestSuiteChromosome<T>> {
+public class TestSuiteLocalSearch<T extends AbstractTestSuiteChromosome<T,E>,
+		E extends AbstractTestChromosome<E>,
+		F extends FitnessFunction<F,T>>
+		implements LocalSearch<T,F> {
 
 	private static final Logger logger = LoggerFactory.getLogger(TestSuiteLocalSearch.class);
 
@@ -79,9 +82,9 @@ public class TestSuiteLocalSearch<T extends TestChromosome>
 	 * @param fitnessFunctions
 	 *            the list of fitness functions to be updated
 	 */
-	private void updateFitness(TestSuiteChromosome<T> individual,
-			List<FitnessFunction<TestSuiteChromosome<T>,?>> fitnessFunctions) {
-		for (FitnessFunction<TestSuiteChromosome<T>,?> ff : fitnessFunctions) {
+	private void updateFitness(T individual,
+			List<F> fitnessFunctions) {
+		for (F ff : fitnessFunctions) {
 			ff.getFitness(individual);
 		}
 	}
@@ -92,8 +95,10 @@ public class TestSuiteLocalSearch<T extends TestChromosome>
 	 * @return a <code>TestSuiteLocalSearch</code> instance to use for local
 	 *         search
 	 */
-	public static<T extends TestChromosome> TestSuiteLocalSearch<T> selectTestSuiteLocalSearch() {
-		return new TestSuiteLocalSearch<T>();
+	public static<T extends AbstractTestSuiteChromosome<T,E>, E extends AbstractTestChromosome<E>,
+			F extends FitnessFunction<F,T>> TestSuiteLocalSearch<T,E,F>
+			selectTestSuiteLocalSearch() {
+		return new TestSuiteLocalSearch<>();
 	}
 
 	/**
@@ -119,12 +124,12 @@ public class TestSuiteLocalSearch<T extends TestChromosome>
 	 * @param suite
 	 * @return
 	 */
-	private static<T extends TestChromosome> void expandTestSuite(TestSuiteChromosome<T> suite,
-			LocalSearchObjective<TestSuiteChromosome<T>> objective) {
+	private static<T extends AbstractTestSuiteChromosome<T,E>, E extends AbstractTestChromosome<E>>
+					void expandTestSuite(T suite, LocalSearchObjective<T, ?> objective) {
 		logger.debug("Expanding tests for local search");
 
-		TestSuiteChromosome<T> newTestSuite = new TestSuiteChromosome<T>();
-		for (TestChromosome test : suite.getTestChromosomes()) {
+		TestSuiteChromosome newTestSuite = new TestSuiteChromosome();
+		for (E test : suite.getTestChromosomes()) {
 
 			// First make sure we are up to date with the execution
 			if (test.getLastExecutionResult() == null || test.isChanged()) {
@@ -146,11 +151,9 @@ public class TestSuiteLocalSearch<T extends TestChromosome>
 			TestChromosome expandedTestChromosome = newTestSuite.addTest(expandedTest);
 			expandedTestChromosome.setLocalSearchApplied(hasLocalSearchBeenApplied);
 		}
-		List<TestChromosome> oldTests = suite.getTestChromosomes();
-		oldTests.clear();
-		oldTests.addAll(newTestSuite.getTestChromosomes());
+		suite.replaceWithTestChromosomes(newTestSuite.getTestChromosomes());
 		suite.setChanged(true);
-		for (FitnessFunction<TestSuiteChromosome<T>,?> ff : objective.getFitnessFunctions()) {
+		for (FitnessFunction<?,T> ff : objective.getFitnessFunctions()) {
 			ff.getFitness(suite);
 		}
 	}
@@ -195,16 +198,18 @@ public class TestSuiteLocalSearch<T extends TestChromosome>
 	 * the local search as an improving test case because it simply executes
 	 * again a predicate.
 	 */
-	protected static<T extends TestChromosome> void ensureDoubleExecution(TestSuiteChromosome<T> individual,
-			LocalSearchObjective<TestSuiteChromosome<T>> objective) {
+	protected static<T extends AbstractTestSuiteChromosome<T,E>, E extends AbstractTestChromosome<E>> void
+		ensureDoubleExecution(T individual,
+							  LocalSearchObjective<T, ? extends TestSuiteFitnessFunction<?,T,E>> objective) {
+
 		logger.debug("Ensuring double execution");
 
-		Set<TestChromosome> duplicates = new HashSet<TestChromosome>();
-		TestSuiteFitnessFunction defaultFitness = (TestSuiteFitnessFunction) objective.getFitnessFunctions().get(0).self();
+		Set<E> duplicates = new HashSet<>();
+		TestSuiteFitnessFunction<?,T,E> defaultFitness = objective.getFitnessFunctions().get(0);
 
-		Map<Integer, Integer> covered = new HashMap<Integer, Integer>();
-		Map<Integer, TestChromosome> testMap = new HashMap<Integer, TestChromosome>();
-		for (TestChromosome test : individual.getTestChromosomes()) {
+		Map<Integer, Integer> covered = new HashMap<>();
+		Map<Integer, E> testMap = new HashMap<>();
+		for (E test : individual.getTestChromosomes()) {
 
 			// Make sure we have an execution result
 			if (test.getLastExecutionResult() == null || test.isChanged()) {
@@ -227,7 +232,7 @@ public class TestSuiteLocalSearch<T extends TestChromosome>
 			int branchId = entry.getKey();
 			int count = entry.getValue();
 			if (count == 1) {
-				TestChromosome duplicate = (TestChromosome) testMap.get(branchId).clone();
+				E duplicate =  testMap.get(branchId).clone().self();
 				ExecutionResult result = duplicate.executeForFitnessFunction(defaultFitness);
 				duplicate.setLastExecutionResult(result); // .clone();
 				duplicate.setChanged(false);
@@ -237,11 +242,11 @@ public class TestSuiteLocalSearch<T extends TestChromosome>
 
 		if (!duplicates.isEmpty()) {
 			logger.info("Adding " + duplicates.size() + " tests to cover branches sufficiently");
-			for (TestChromosome test : duplicates) {
+			for (E test : duplicates) {
 				individual.addTest(test);
 			}
 			individual.setChanged(true);
-			for (FitnessFunction<TestSuiteChromosome<T>,?> ff : objective.getFitnessFunctions()) {
+			for (FitnessFunction<?,T> ff : objective.getFitnessFunctions()) {
 				ff.getFitness(individual);
 			}
 		}
@@ -254,9 +259,10 @@ public class TestSuiteLocalSearch<T extends TestChromosome>
 	 * @param suite
 	 * @return
 	 */
-	private static<T extends TestChromosome> Set<Integer> getCoveredTrueBranches(TestSuiteChromosome<T> suite) {
-		Set<Integer> covered = new LinkedHashSet<Integer>();
-		for (TestChromosome testChromosome : suite.getTestChromosomes()) {
+	private static<T extends AbstractTestSuiteChromosome<T,E>, E extends AbstractTestChromosome<E>> Set<Integer>
+											getCoveredTrueBranches(AbstractTestSuiteChromosome<T,E> suite) {
+		Set<Integer> covered = new LinkedHashSet<>();
+		for (E testChromosome : suite.getTestChromosomes()) {
 			ExecutionResult lastResult = testChromosome.getLastExecutionResult();
 			if (lastResult != null) {
 				covered.addAll(lastResult.getTrace().getCoveredTrueBranches());
@@ -272,9 +278,10 @@ public class TestSuiteLocalSearch<T extends TestChromosome>
 	 * @param suite
 	 * @return the set of predicate indexes whose false branch were covered
 	 */
-	private static<T extends TestChromosome> Set<Integer> getCoveredFalseBranches(TestSuiteChromosome<T> suite) {
-		Set<Integer> covered = new LinkedHashSet<Integer>();
-		for (TestChromosome testChromosome : suite.getTestChromosomes()) {
+	private static<T extends AbstractTestSuiteChromosome<T,E>,E extends AbstractTestChromosome<E>> Set<Integer>
+										getCoveredFalseBranches(AbstractTestSuiteChromosome<T,E> suite) {
+		Set<Integer> covered = new LinkedHashSet<>();
+		for (E testChromosome : suite.getTestChromosomes()) {
 			ExecutionResult lastResult = testChromosome.getLastExecutionResult();
 			if (lastResult != null) {
 				covered.addAll(lastResult.getTrace().getCoveredFalseBranches());
@@ -286,13 +293,13 @@ public class TestSuiteLocalSearch<T extends TestChromosome>
 	/**
 	 * Ensure that all branches are executed twice
 	 */
-	private void restoreBranchCoverage(TestSuiteChromosome<T> individual, TestSuiteFitnessFunction objective) {
+	private void restoreBranchCoverage(T individual) {
 		logger.debug("Adding branches already covered previously");
 
 		BranchCoverageMap branchMap = BranchCoverageMap.getInstance();
 
-		Set<Integer> uncoveredTrueBranches = new LinkedHashSet<Integer>(branchMap.getCoveredTrueBranches());
-		Set<Integer> uncoveredFalseBranches = new LinkedHashSet<Integer>(branchMap.getCoveredFalseBranches());
+		Set<Integer> uncoveredTrueBranches = new LinkedHashSet<>(branchMap.getCoveredTrueBranches());
+		Set<Integer> uncoveredFalseBranches = new LinkedHashSet<>(branchMap.getCoveredFalseBranches());
 
 		uncoveredTrueBranches.removeAll(getCoveredTrueBranches(individual));
 		uncoveredFalseBranches.removeAll(getCoveredFalseBranches(individual));
@@ -317,8 +324,8 @@ public class TestSuiteLocalSearch<T extends TestChromosome>
 	 *            the local search objective
 	 * @return true if fitness improved, false otherwise
 	 */
-	private boolean hasImproved(double fitnessBefore, TestSuiteChromosome<T> individual,
-			LocalSearchObjective<TestSuiteChromosome<T>> objective) {
+	private boolean hasImproved(double fitnessBefore, T individual,
+			LocalSearchObjective<T, ? extends FitnessFunction<?,T>> objective) {
 		return objective.isMaximizationObjective() ? fitnessBefore < individual.getFitness()
 				: fitnessBefore > individual.getFitness();
 	}
@@ -337,14 +344,16 @@ public class TestSuiteLocalSearch<T extends TestChromosome>
 	 * @return true iff the test suite has improved.
 	 */
 	@Override
-	public boolean doSearch(TestSuiteChromosome<T> suite, LocalSearchObjective<TestSuiteChromosome<T>> objective) {
+	public boolean doSearch(T suite,
+							LocalSearchObjective<T,F> objective) {
 
-		updateFitness(suite, objective.getFitnessFunctions());
+		updateFitness(suite,
+				objective.getFitnessFunctions().stream().map(FitnessFunction::self).collect(Collectors.toList()));
 		double fitnessBefore = suite.getFitness();
 		// logger.info("Test suite before local search: " + individual);
 
-		List<TestChromosome> originalTests = new ArrayList<>(suite.getTestChromosomes());
-		List<TestChromosome> tests = suite.getTestChromosomes();
+		List<E> originalTests = new ArrayList<>(suite.getTestChromosomes());
+		List<E> tests = suite.getTestChromosomes();
 		/*
 		 * When we apply local search, due to budget constraints we might not be
 		 * able to evaluate all the test cases in a test suite. When we apply LS
@@ -366,11 +375,11 @@ public class TestSuiteLocalSearch<T extends TestChromosome>
 		}
 
 		if (Properties.LOCAL_SEARCH_RESTORE_COVERAGE) {
-			restoreBranchCoverage(suite, (TestSuiteFitnessFunction) objective.getFitnessFunctions().get(0));
+			restoreBranchCoverage(suite);
 		}
 
 		if (Properties.LOCAL_SEARCH_EXPAND_TESTS) {
-			expandTestSuite(suite, objective);
+		    expandTestSuite(suite,objective);
 		}
 
 		applyLocalSearch(suite, objective);
@@ -457,8 +466,7 @@ public class TestSuiteLocalSearch<T extends TestChromosome>
 	 * @param objective
 	 *            the local search objective
 	 */
-	private void applyLocalSearch(TestSuiteChromosome<T> suite,
-								  LocalSearchObjective<TestSuiteChromosome<T>> objective) {
+	private void applyLocalSearch(T suite, LocalSearchObjective<T,F> objective) {
 
 		final LocalSearchSuiteType localSearchType;
 		localSearchType = chooseLocalSearchSuiteType();
@@ -466,16 +474,17 @@ public class TestSuiteLocalSearch<T extends TestChromosome>
 		/*
 		 * We make a copy of the original test cases before Local Search
 		 */
-		List<TestChromosome> originalTests = new ArrayList<TestChromosome>(suite.getTestChromosomes());
+		List<E> originalTests = new ArrayList<>(suite.getTestChromosomes());
 
-		for (final TestChromosome test : originalTests) {
+		for (final E test : originalTests) {
 
 			// If we have already tried local search before on this test
 			// without success, we reset all primitive values before trying
 			// again
 			if (test.hasLocalSearchBeenApplied()) {
 				TestCaseLocalSearch.randomizePrimitives(test.getTestCase());
-				updateFitness(suite, objective.getFitnessFunctions());
+				updateFitness(suite,
+						objective.getFitnessFunctions().stream().map(FitnessFunction::self).collect(Collectors.toList()));
 			}
 
 			if (LocalSearchBudget.getInstance().isFinished()) {
@@ -492,7 +501,7 @@ public class TestSuiteLocalSearch<T extends TestChromosome>
 			 * We create a cloned test case to play local search with it. This
 			 * resembles the deprecated ensureDoubleExecution
 			 */
-			TestChromosome clonedTest = test.clone();
+			E clonedTest = test.clone().self();
 			suite.addTest(clonedTest);
 			final int lastIndex = suite.size() - 1;
 
@@ -524,15 +533,14 @@ public class TestSuiteLocalSearch<T extends TestChromosome>
 	 * @param objective
 	 * @return
 	 */
-	private boolean applyAVM(TestSuiteChromosome<T> suite, int testIndex, TestChromosome test,
-			LocalSearchObjective<TestSuiteChromosome<T>> objective) {
+	private boolean applyAVM(T suite, int testIndex, E test,
+							 LocalSearchObjective<T,F> objective) {
 		logger.debug("Local search on test " + testIndex + ", current fitness: " + suite.getFitness());
-		final List<FitnessFunction<TestSuiteChromosome<T>,?>> fitnessFunctions =
-				objective.getFitnessFunctions();
-		TestSuiteLocalSearchObjective testCaseLocalSearchObjective = TestSuiteLocalSearchObjective
+		final List<F> fitnessFunctions = objective.getFitnessFunctions();
+		TestSuiteLocalSearchObjective<T,E,?> testCaseLocalSearchObjective = TestSuiteLocalSearchObjective
 				.buildNewTestSuiteLocalSearchObjective(fitnessFunctions, suite, testIndex);
 
-		AVMTestCaseLocalSearch<T> testCaselocalSearch = new AVMTestCaseLocalSearch<T>();
+		AVMTestCaseLocalSearch<E> testCaselocalSearch = new AVMTestCaseLocalSearch<>();
 		return testCaselocalSearch.doSearch(test, testCaseLocalSearchObjective);
 	}
 
@@ -545,13 +553,15 @@ public class TestSuiteLocalSearch<T extends TestChromosome>
 	 * @param objective
 	 * @return
 	 */
-	private boolean applyDSE(TestSuiteChromosome<T> suite, int testIndex, TestChromosome test,
-			LocalSearchObjective<TestSuiteChromosome<T>> objective) {
+	private boolean applyDSE(T suite, int testIndex, E test,
+							 LocalSearchObjective<T,F> objective) {
 
-		TestSuiteLocalSearchObjective testSuiteObject = TestSuiteLocalSearchObjective
-				.buildNewTestSuiteLocalSearchObjective(objective.getFitnessFunctions(), suite, testIndex);
+		List<TestSuiteFitnessFunction<?,T,E>> fitnessFunctions = new ArrayList<>(objective.getFitnessFunctions());
+		LocalSearchObjective<E, ? extends FitnessFunction<F,T>> testSuiteObject =
+				TestSuiteLocalSearchObjective.buildNewTestSuiteLocalSearchObjective(fitnessFunctions, suite,
+				testIndex);
 
-		DSETestCaseLocalSearch<T> dseTestCaseLocalSearch = new DSETestCaseLocalSearch<T>(suite);
+		DSETestCaseLocalSearch<?> dseTestCaseLocalSearch = new DSETestCaseLocalSearch<>(suite);
 
 		return dseTestCaseLocalSearch.doSearch(test, testSuiteObject);
 	}

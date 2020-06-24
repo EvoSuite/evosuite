@@ -28,12 +28,11 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.NotImplementedException;
-import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.localsearch.LocalSearchBudget;
 import org.evosuite.ga.localsearch.LocalSearchObjective;
-import org.evosuite.testcase.TestChromosome;
-import org.evosuite.testsuite.TestSuiteChromosome;
+import org.evosuite.testcase.AbstractTestChromosome;
+import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,13 +45,16 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Gordon Fraser
  */
-public class TestSuiteLocalSearchObjective implements LocalSearchObjective<TestChromosome> {
+public class TestSuiteLocalSearchObjective<T extends AbstractTestSuiteChromosome<T,E>,
+		E extends AbstractTestChromosome<E>,
+		F extends FitnessFunction<F,E>>
+		implements LocalSearchObjective<E,F> {
 
 	private static final Logger logger = LoggerFactory.getLogger(TestSuiteLocalSearchObjective.class);
 
-	private final List<TestSuiteFitnessFunction<TestChromosome>> fitnessFunctions = new ArrayList<>();
+	private final List<TestSuiteFitnessFunction<?,T,E>> fitnessFunctions = new ArrayList<>();
 
-	private final TestSuiteChromosome<TestChromosome> suite;
+	private final T suite;
 
 	private final int testIndex;
 
@@ -61,9 +63,9 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective<TestC
 
 	private double lastFitnessSum = 0.0;
 
-	private Map<FitnessFunction<TestSuiteChromosome<TestChromosome>,?>, Double> lastFitness = new HashMap<>();
+	private Map<FitnessFunction<?,T>, Double> lastFitness = new HashMap<>();
 
-	private Map<FitnessFunction<TestSuiteChromosome<TestChromosome>,?>, Double> lastCoverage = new HashMap<>();
+	private Map<FitnessFunction<?,T>, Double> lastCoverage = new HashMap<>();
 
 	/**
 	 * Creates a Local Search objective for a TestCase that will be optimized
@@ -79,17 +81,14 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective<TestC
 	 *            be used to modify the testchromosome each time a changed has
 	 *            been applied.
 	 */
-	private TestSuiteLocalSearchObjective(List<TestSuiteFitnessFunction<TestChromosome>> fitness,
-										  TestSuiteChromosome<TestChromosome> suite,
+	private TestSuiteLocalSearchObjective(List<TestSuiteFitnessFunction<?,T,E>> fitness,
+										  T suite,
 			int index) {
 		this.fitnessFunctions.addAll(fitness);
 		this.suite = suite;
 		this.testIndex = index;
-		for (TestSuiteFitnessFunction<TestChromosome> ff : fitness) {
-			if (ff.isMaximizationFunction())
-				isMaximization = true;
-			else
-				isMaximization = false;
+		for (TestSuiteFitnessFunction<?,T,E> ff : fitness) {
+			isMaximization = ff.isMaximizationFunction();
 			break;
 		}
 		updateLastFitness();
@@ -112,21 +111,19 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective<TestC
 	 *            replaced with a new test case
 	 * @return
 	 */
-	public static TestSuiteLocalSearchObjective buildNewTestSuiteLocalSearchObjective(
-			List<FitnessFunction<TestSuiteChromosome<TestChromosome>,TestSuiteFitnessFunction<TestChromosome>>> fitness,
-			TestSuiteChromosome<TestChromosome> suite,
-			int index) {
-		List<TestSuiteFitnessFunction<TestChromosome>> ffs = new ArrayList<>();
-		for (FitnessFunction<TestSuiteChromosome<TestChromosome>,TestSuiteFitnessFunction<TestChromosome>> ff : fitness) {
-			TestSuiteFitnessFunction<TestChromosome> tff = ff.self();
-			ffs.add(tff);
-		}
-		return new TestSuiteLocalSearchObjective(ffs, suite, index);
+	public static<T extends AbstractTestSuiteChromosome<T,E>,
+			E extends AbstractTestChromosome<E>,
+			F extends FitnessFunction<F,E>>
+				TestSuiteLocalSearchObjective<T,E,F> buildNewTestSuiteLocalSearchObjective(
+												List<TestSuiteFitnessFunction<?,T,E>> fitness,T suite,
+												int index) {
+		List<TestSuiteFitnessFunction<?,T,E>> ffs = new ArrayList<>(fitness);
+		return new TestSuiteLocalSearchObjective<>(ffs, suite, index);
 	}
 
 	private void updateLastFitness() {
 		lastFitnessSum = 0.0;
-		for (TestSuiteFitnessFunction fitness : fitnessFunctions) {
+		for (TestSuiteFitnessFunction<?,T,E> fitness : fitnessFunctions) {
 			double newFitness = fitness.getFitness(suite);
 			lastFitnessSum += newFitness;
 			lastFitness.put(fitness, newFitness);
@@ -134,7 +131,7 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective<TestC
 	}
 
 	private void updateLastCoverage() {
-		for (TestSuiteFitnessFunction fitness : fitnessFunctions) {
+		for (TestSuiteFitnessFunction<?,T,E> fitness : fitnessFunctions) {
 			lastCoverage.put(fitness, suite.getCoverage(fitness));
 		}
 	}
@@ -146,7 +143,7 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective<TestC
 	@Override
 	public boolean isDone() {
 
-		for (TestSuiteFitnessFunction fitness : fitnessFunctions) {
+		for (TestSuiteFitnessFunction<?,T,E> fitness : fitnessFunctions) {
 			if (fitness.isMaximizationFunction() || fitness.getFitness(suite) != 0.0)
 				return false;
 		}
@@ -158,7 +155,7 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective<TestC
 	 * TestChromosome.
 	 */
 	@Override
-	public boolean hasImproved(TestChromosome testCase) {
+	public boolean hasImproved(E testCase) {
 		return hasChanged(testCase) < 0;
 	}
 
@@ -168,7 +165,7 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective<TestC
 	 * resulting test suite has not worsened the fitness
 	 */
 	@Override
-	public boolean hasNotWorsened(TestChromosome testCase) {
+	public boolean hasNotWorsened(E testCase) {
 		return hasChanged(testCase) < 1;
 	}
 
@@ -195,11 +192,11 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective<TestC
 	 * fitness has not changed.
 	 */
 	@Override
-	public int hasChanged(TestChromosome testCase) {
+	public int hasChanged(E testCase) {
 		testCase.setChanged(true);
 		suite.setTestChromosome(testIndex, testCase);
 		LocalSearchBudget.getInstance().countFitnessEvaluation();
-		for (TestSuiteFitnessFunction<TestChromosome> fitnessFunction : fitnessFunctions)
+		for (TestSuiteFitnessFunction<?,T,E> fitnessFunction : fitnessFunctions)
 			fitnessFunction.getFitness(suite);
 		double newFitness = suite.getFitness();
 
@@ -221,15 +218,14 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective<TestC
 		}
 	}
 
-
-
 	/**
 	 * Since the fitness is computed by the underlying test suite associated to
 	 * this local search objective, this function should not belong. TODO: Why
 	 * not simply returning the fitness functions of the suite?
+	 * @return
 	 */
 	@Override
-	public List<FitnessFunction<TestChromosome,?>> getFitnessFunctions() {
+	public List<F> getFitnessFunctions() {
 		throw new NotImplementedException("This should not be called");
 	}
 
@@ -238,9 +234,11 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective<TestC
 	 * goal, this function should never be invoked.
 	 */
 	@Override
-	public void addFitnessFunction(FitnessFunction<TestChromosome,?> fitness) {
+	public void addFitnessFunction(F fitness) {
 		throw new NotImplementedException("This should not be called");
 	}
+
+
 
 	@Override
 	public boolean isMaximizationObjective() {

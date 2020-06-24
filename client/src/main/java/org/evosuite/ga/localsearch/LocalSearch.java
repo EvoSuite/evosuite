@@ -20,6 +20,7 @@
 package org.evosuite.ga.localsearch;
 
 import org.evosuite.ga.Chromosome;
+import org.evosuite.ga.FitnessFunction;
 
 /**
  * This class applies local search on an specific Chromosome.
@@ -30,8 +31,8 @@ import org.evosuite.ga.Chromosome;
  *
  * @param <T> the chromosome type
  */
-public interface LocalSearch<T extends Chromosome<T>> {
+public interface LocalSearch<T extends Chromosome<T>,F extends FitnessFunction<F,T>> {
 
-	public boolean doSearch(T individual, LocalSearchObjective<T> objective);
+	public boolean doSearch(T individual, LocalSearchObjective<T,F> objective);
 	
 }

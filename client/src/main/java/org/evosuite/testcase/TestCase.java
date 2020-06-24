@@ -175,7 +175,7 @@ public interface TestCase extends Iterable<Statement>, Cloneable, Listenable<Voi
 	 *
 	 * @return a {@link java.util.Set} object.
 	 */
-	public Set<TestFitnessFunction> getCoveredGoals();
+	public Set<TestFitnessFunction<?>> getCoveredGoals();
 	
 	/**
 	 * <p>getDeclaredExceptions</p>

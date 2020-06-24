@@ -19,12 +19,10 @@
  */
 package org.evosuite.testcase.localsearch;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import org.evosuite.Properties;
 import org.evosuite.ga.localsearch.LocalSearchBudget;
 import org.evosuite.ga.localsearch.LocalSearchObjective;
+import org.evosuite.testcase.AbstractTestChromosome;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.statements.Statement;
@@ -36,11 +34,11 @@ import org.evosuite.testcase.statements.Statement;
  * @author galeotti
  *
  */
-public class AVMTestCaseLocalSearch<T extends TestChromosome<T>> extends TestCaseLocalSearch<T> {
+public class AVMTestCaseLocalSearch<E extends AbstractTestChromosome<E>> extends TestCaseLocalSearch {
 
 
 	@Override
-	public boolean doSearch(T individual, LocalSearchObjective<T> objective) {
+	public boolean doSearch(E individual, LocalSearchObjective<E> objective) {
 
 		logger.info("Test before local search: " + individual.getTestCase().toCode());
 

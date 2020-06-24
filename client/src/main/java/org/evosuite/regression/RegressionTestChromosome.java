@@ -26,51 +26,53 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.evosuite.TestGenerationContext;
-import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ConstructionFailedException;
+import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.localsearch.LocalSearchObjective;
-import org.evosuite.testcase.DefaultTestCase;
-import org.evosuite.testcase.ExecutableChromosome;
-import org.evosuite.testcase.TestCase;
-import org.evosuite.testcase.TestChromosome;
+import org.evosuite.testcase.*;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 
 /**
  * @author Gordon Fraser
  */
-public class RegressionTestChromosome<T extends RegressionTestChromosome<T>> extends TestChromosome<T> {
+public class RegressionTestChromosome extends AbstractTestChromosome<RegressionTestChromosome> {
 
   private static final long serialVersionUID = -6345178117840330196L;
 
-  private TestChromosome<?> theTest;
+  private TestChromosome theTest;
 
-  private TestChromosome<?> theSameTestForTheOtherClassLoader;
+  private TestChromosome theSameTestForTheOtherClassLoader;
 
 
   private transient ClassLoader theClassLoader = null;
 
-  Map<String, Map<Integer, String>> diversityMap = new HashMap<String, Map<Integer, String>>();
+  Map<String, Map<Integer, String>> diversityMap = new HashMap<>();
 
   //public int assertionCount = 0;
   //public int exAssertionCount = 0;
 
   public boolean exCommentsAdded = false;
 
+  @Override
+  public RegressionTestChromosome self() {
+    return this;
+  }
+
   public RegressionTestChromosome() {
     // TODO Auto-generated constructor stub
     theClassLoader = TestGenerationContext.getInstance().getRegressionClassLoaderForSUT();
   }
 
+
   /* (non-Javadoc)
    * @see org.evosuite.testcase.ExecutableChromosome#copyCachedResults(org.evosuite.testcase.ExecutableChromosome)
    */
   @Override
-  public void copyCachedResults(ExecutableChromosome<T> other) {
-    RegressionTestChromosome<T> otherChromosome = (RegressionTestChromosome<T>) other;
-    theTest.copyCachedResults(otherChromosome.theTest);
+  public void copyCachedResults(RegressionTestChromosome other) {
+    theTest.copyCachedResults(other.theTest);
     theSameTestForTheOtherClassLoader
-        .copyCachedResults(otherChromosome.theSameTestForTheOtherClassLoader);
+        .copyCachedResults(other.theSameTestForTheOtherClassLoader);
 
   }
 
@@ -89,11 +91,11 @@ public class RegressionTestChromosome<T extends RegressionTestChromosome<T>> ext
    * @see org.evosuite.ga.Chromosome#clone()
    */
   @Override
-  public Chromosome clone() {
+  public RegressionTestChromosome clone() {
     RegressionTestChromosome copy = new RegressionTestChromosome();
     copy.theClassLoader = TestGenerationContext.getInstance()
         .getRegressionClassLoaderForSUT(); // I don't think this should be a member of this class to be honest!
-    copy.theTest = (TestChromosome) theTest.clone();
+    copy.theTest = theTest.clone();
     copy.theSameTestForTheOtherClassLoader = (TestChromosome) theSameTestForTheOtherClassLoader
         .clone();
     copy.setFitnessValues(getFitnessValues());
@@ -151,9 +153,8 @@ public class RegressionTestChromosome<T extends RegressionTestChromosome<T>> ext
    * @see org.evosuite.ga.Chromosome#compareSecondaryObjective(org.evosuite.ga.Chromosome)
    */
   @Override
-  public int compareSecondaryObjective(Chromosome o) {
-    RegressionTestChromosome otherChromosome = (RegressionTestChromosome) o;
-    return theTest.compareSecondaryObjective(otherChromosome.theTest);
+  public int compareSecondaryObjective(RegressionTestChromosome o) {
+    return theTest.compareSecondaryObjective(o.theTest);
   }
 
   /* (non-Javadoc)
@@ -184,10 +185,9 @@ public class RegressionTestChromosome<T extends RegressionTestChromosome<T>> ext
    * @see org.evosuite.ga.Chromosome#crossOver(org.evosuite.ga.Chromosome, int, int)
    */
   @Override
-  public void crossOver(Chromosome<TestChromosome<T>> other, int position1, int position2)
+  public void crossOver(RegressionTestChromosome other, int position1, int position2)
       throws ConstructionFailedException {
-    RegressionTestChromosome otherChromosome = (RegressionTestChromosome) other;
-    theTest.crossOver(otherChromosome.theTest, position1, position2);
+    theTest.crossOver(other.theTest, position1, position2);
     updateClassloader();
   }
 
@@ -196,7 +196,7 @@ public class RegressionTestChromosome<T extends RegressionTestChromosome<T>> ext
    */
   protected void updateClassloader() {
     if (theTest.isChanged()) {
-      theSameTestForTheOtherClassLoader = (TestChromosome) theTest.clone();
+      theSameTestForTheOtherClassLoader = theTest.clone();
       ((DefaultTestCase) theSameTestForTheOtherClassLoader.getTestCase())
           .changeClassLoader(TestGenerationContext.getInstance().getRegressionClassLoaderForSUT());
     }
@@ -206,7 +206,9 @@ public class RegressionTestChromosome<T extends RegressionTestChromosome<T>> ext
    * @see org.evosuite.ga.Chromosome#localSearch(org.evosuite.ga.LocalSearchObjective)
    */
   @Override
-  public boolean localSearch(LocalSearchObjective<T> objective) {
+  public<F extends FitnessFunction<F,RegressionTestChromosome>> boolean localSearch(LocalSearchObjective<RegressionTestChromosome, F> objective) {
+      // FIXME voglseb: Parameter needs to be a LocalSearchObjective for TestSuiteChromosome, but is a
+      //                LocalSearchObjective for RegressionTestChromosome
     boolean result = theTest.localSearch(objective);
     updateClassloader();
     return result;

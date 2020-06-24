@@ -27,9 +27,12 @@ import java.util.Map;
 import org.evosuite.coverage.mutation.Mutation;
 import org.evosuite.coverage.mutation.MutationExecutionResult;
 import org.evosuite.ga.Chromosome;
+import org.evosuite.ga.FitnessFunction;
+import org.evosuite.ga.localsearch.LocalSearchObjective;
+import org.evosuite.regression.RegressionSuiteFitness;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
-public abstract class ExecutableChromosome<T extends ExecutableChromosome<T>> extends Chromosome<T> {
+public abstract class ExecutableChromosome<E extends ExecutableChromosome<E>> extends Chromosome<E> {
 
 	private static final long serialVersionUID = 1L;
 
@@ -104,17 +107,8 @@ public abstract class ExecutableChromosome<T extends ExecutableChromosome<T>> ex
 	 *
 	 * @param other a {@link org.evosuite.testcase.ExecutableChromosome} object.
 	 */
-	protected abstract void copyCachedResults(ExecutableChromosome<T> other);
+	protected abstract void copyCachedResults(E other);
 
-	/**
-	 * <p>executeForFitnessFunction</p>
-	 *
-	 * @param testSuiteFitnessFunction a {@link org.evosuite.testsuite.TestSuiteFitnessFunction} object.
-	 * @return a {@link org.evosuite.testcase.execution.ExecutionResult} object.
-	 */
-	abstract public ExecutionResult executeForFitnessFunction(
-	        TestSuiteFitnessFunction testSuiteFitnessFunction);
-	
 	private void readObject(ObjectInputStream ois) throws ClassNotFoundException,
     IOException {
 		ois.defaultReadObject();

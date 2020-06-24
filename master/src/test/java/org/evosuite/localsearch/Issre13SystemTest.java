@@ -145,7 +145,7 @@ public class Issre13SystemTest extends SystemTestBase {
 		System.out.println("Test suite: "+suite);
 		
 		TestSuiteLocalSearch localSearch = TestSuiteLocalSearch.selectTestSuiteLocalSearch();
-		LocalSearchObjective<TestSuiteChromosome> localObjective = new DefaultLocalSearchObjective<TestSuiteChromosome>();
+		LocalSearchObjective<TestSuiteChromosome> localObjective = new DefaultLocalSearchObjective();
 		localObjective.addFitnessFunction(fitness);
 		localSearch.doSearch(suite, localObjective);
 		System.out.println("Fitness: "+fitness.getFitness(suite));

@@ -41,12 +41,14 @@ import org.evosuite.symbolic.solver.SolverCache;
 import org.evosuite.symbolic.solver.Solver;
 import org.evosuite.symbolic.solver.SolverFactory;
 import org.evosuite.symbolic.solver.SolverResult;
+import org.evosuite.testcase.AbstractTestChromosome;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.variable.VariableReference;
+import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testcase.statements.PrimitiveStatement;
 import org.evosuite.utils.Randomness;
@@ -61,9 +63,9 @@ import org.slf4j.LoggerFactory;
  * @author galeotti
  *
  */
-public class DSETestGenerator {
+public class DSETestGenerator<E extends AbstractTestChromosome<E>> {
 
-	private final TestSuiteChromosome suite;
+	private final AbstractTestSuiteChromosome<?,E> suite;
 
 	/**
 	 * Creates a new test generator with no suite. Only the test case will be used
@@ -78,7 +80,7 @@ public class DSETestGenerator {
 	 * 
 	 * @param suite
 	 */
-	public DSETestGenerator(TestSuiteChromosome suite) {
+	public DSETestGenerator(AbstractTestSuiteChromosome<?,E> suite) {
 		this.suite = suite;
 	}
 
@@ -100,8 +102,8 @@ public class DSETestGenerator {
 	 * @param objective
 	 *            the local search objective to measure fitness improvement.
 	 */
-	public TestChromosome generateNewTest(final TestChromosome test, Set<Integer> statementIndexes,
-			LocalSearchObjective<TestChromosome> objective) {
+	public E generateNewTest(final E test, Set<Integer> statementIndexes,
+			LocalSearchObjective<E,?> objective) {
 
 		logger.info("APPLYING DSE EEEEEEEEEEEEEEEEEEEEEEE");
 		logger.info(test.getTestCase().toCode());
@@ -123,7 +125,7 @@ public class DSETestGenerator {
 			logger.info(" -> " + c.getConstraint());
 		}
 
-		Set<VariableReference> symbolicVariables = new HashSet<VariableReference>();
+		Set<VariableReference> symbolicVariables = new HashSet<>();
 		for (Integer position : statementIndexes) {
 			final VariableReference variableReference = test.getTestCase().getStatement(position).getReturnValue();
 			symbolicVariables.add(variableReference);
@@ -242,7 +244,7 @@ public class DSETestGenerator {
 	 *            a path condition obtained from concolic execution
 	 * @return
 	 */
-	private List<Integer> computeConditionIndexesNotCoveredTwoWays(final TestChromosome test,
+	private List<Integer> computeConditionIndexesNotCoveredTwoWays(final E test,
 			final PathCondition collectedPathCondition) {
 		List<Integer> conditionIndexesNotCoveredTwoWays = new LinkedList<Integer>();
 		for (int conditionIndex = 0; conditionIndex < collectedPathCondition.size(); conditionIndex++) {
@@ -259,12 +261,10 @@ public class DSETestGenerator {
 	 * test case belongs to a whole test suite, then the coverage of the test suite
 	 * is used, otherwise the single test case is used.
 	 * 
-	 * @param className
-	 * @param methodName
 	 * @param branchIndex
 	 * @return
 	 */
-	private boolean isCoveredTwoWays(TestChromosome test, int branchIndex) {
+	private boolean isCoveredTwoWays(E test, int branchIndex) {
 
 		Set<Integer> trueIndexes = new HashSet<Integer>();
 		Set<Integer> falseIndexes = new HashSet<Integer>();
@@ -294,7 +294,6 @@ public class DSETestGenerator {
 	/**
 	 * Creates a Solver query give a branch condition
 	 * 
-	 * @param condition
 	 * @return
 	 */
 	public static List<Constraint<?>> buildQuery(PathCondition pc, int conditionIndexToNegate) {

@@ -27,9 +27,9 @@ import java.util.Set;
 
 import org.evosuite.Properties;
 import org.evosuite.ga.ChromosomeFactory;
+import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.SecondaryObjective;
 import org.evosuite.ga.localsearch.LocalSearchObjective;
-import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
@@ -43,15 +43,15 @@ import static java.util.stream.Collectors.toCollection;
  * </p>
  * 
  * @author Gordon Fraser
+ *
+ * Final in order to prevent breaking of self type.
  */
-public class TestSuiteChromosome<T extends TestChromosome>
-		extends AbstractTestSuiteChromosome<TestSuiteChromosome<T>, TestChromosome> {
-
+public final class TestSuiteChromosome
+		extends AbstractTestSuiteChromosome<TestSuiteChromosome, TestChromosome> {
 
 	/** Secondary objectives used during ranking */
-	private static final List<SecondaryObjective<? extends AbstractTestSuiteChromosome<? extends TestSuiteChromosome<?>, ?
-			extends ExecutableChromosome<?>>>> secondaryObjectives =
-			new ArrayList<>();
+	private static final List<SecondaryObjective<TestSuiteChromosome>>
+			secondaryObjectives = new ArrayList<>();
 	private static int secondaryObjIndex = 0;
 	private static final long serialVersionUID = 88380759969800800L;
 
@@ -62,7 +62,7 @@ public class TestSuiteChromosome<T extends TestChromosome>
 	 * @param objective
 	 *            a {@link org.evosuite.ga.SecondaryObjective} object.
 	 */
-	public static void addSecondaryObjective(SecondaryObjective<? extends TestSuiteChromosome<?>> objective) {
+	public static void addSecondaryObjective(SecondaryObjective<TestSuiteChromosome> objective) {
 		secondaryObjectives.add(objective);
 	}
 
@@ -97,7 +97,7 @@ public class TestSuiteChromosome<T extends TestChromosome>
 	 * @param objective
 	 *            a {@link org.evosuite.ga.SecondaryObjective} object.
 	 */
-	public static void removeSecondaryObjective(SecondaryObjective<? extends TestSuiteChromosome<?>> objective) {
+	public static void removeSecondaryObjective(SecondaryObjective<TestSuiteChromosome> objective) {
 		secondaryObjectives.remove(objective);
 	}
 
@@ -106,7 +106,7 @@ public class TestSuiteChromosome<T extends TestChromosome>
 	}
 
 	@Override
-	public TestSuiteChromosome<T> self() {
+	public TestSuiteChromosome self() {
 		return this;
 	}
 
@@ -128,7 +128,7 @@ public class TestSuiteChromosome<T extends TestChromosome>
 	 * @param testChromosomeFactory
 	 *            a {@link org.evosuite.ga.ChromosomeFactory} object.
 	 */
-	public TestSuiteChromosome(ChromosomeFactory<? extends T> testChromosomeFactory) {
+	public TestSuiteChromosome(ChromosomeFactory<TestChromosome> testChromosomeFactory) {
 		super(testChromosomeFactory);
 	}
 
@@ -140,7 +140,7 @@ public class TestSuiteChromosome<T extends TestChromosome>
 	 * @param source
 	 *            a {@link org.evosuite.testsuite.TestSuiteChromosome} object.
 	 */
-	protected TestSuiteChromosome(TestSuiteChromosome<T> source) {
+	protected TestSuiteChromosome(TestSuiteChromosome source) {
 		super(source);
 	}
 
@@ -151,33 +151,34 @@ public class TestSuiteChromosome<T extends TestChromosome>
 	 *            a {@link org.evosuite.testcase.TestCase} object.
 	 */
 	public TestChromosome addTest(TestCase test) {
-		TestChromosome c = new TestChromosome();
+	    TestChromosome c = new TestChromosome();
 		c.setTestCase(test);
 		addTest(c);
 
 		return c;
 	}
 
-	
+	@Override
+	public void addTestChromosome(TestChromosome testChromosome) {
+		this.addTest(testChromosome);
+	}
+
+
 	public void clearMutationHistory() {
 		tests.forEach(t -> t.getMutationHistory().clear());
 	}
 
-	/**
-	 * Remove all tests
-	 */
-	public void clearTests() {
-		tests.clear();
-	}
+
 
 	/**
 	 * {@inheritDoc}
 	 * 
 	 * Create a deep copy of this test suite
+	 * @return
 	 */
 	@Override
-	public TestSuiteChromosome<T> clone() {
-		return new TestSuiteChromosome<T>(this);
+	public TestSuiteChromosome clone() {
+		return new TestSuiteChromosome(this);
 	}
 
 	/* (non-Javadoc)
@@ -186,18 +187,18 @@ public class TestSuiteChromosome<T extends TestChromosome>
 	/** {@inheritDoc} */
 	@Override
 	@SuppressWarnings("unchecked")
-	public int compareSecondaryObjective(TestSuiteChromosome<T> o) {
+	public int compareSecondaryObjective(TestSuiteChromosome o) {
 		int objective = secondaryObjIndex;
 		int c = 0;
 		while (c == 0 && objective < secondaryObjectives.size()) {
-			SecondaryObjective<TestSuiteChromosome<T>> so = (SecondaryObjective<TestSuiteChromosome<T>>)
-					secondaryObjectives.get(objective++);
+			SecondaryObjective<TestSuiteChromosome> so = secondaryObjectives.get(objective++);
 			if (so == null)
 				break;
-			c = so.compareChromosomes(this.self(), o.self());
+			c = so.compareChromosomes(this.self(), o);
 		} 
 		return c;
 	}
+
 
 	/**
 	 * For manual algorithm
@@ -218,13 +219,16 @@ public class TestSuiteChromosome<T extends TestChromosome>
 	 * 
 	 * @return a {@link java.util.Set} object.
 	 */
-	public Set<TestFitnessFunction> getCoveredGoals() {
-		Set<TestFitnessFunction> goals = new LinkedHashSet<>();
-		tests.stream().map(t -> t.getTestCase().getCoveredGoals()).forEach(goals::addAll);
+	public Set<TestFitnessFunction<?>> getCoveredGoals() {
+		Set<TestFitnessFunction<?>> goals = new LinkedHashSet<>();
+		for (TestChromosome t : tests) {
+			Set<TestFitnessFunction<?>> coveredGoals = t.getTestCase().getCoveredGoals();
+			goals.addAll(coveredGoals);
+		}
 		return goals;
 	}
 	
-	public void removeCoveredGoal(TestFitnessFunction f) {
+	public void removeCoveredGoal(TestFitnessFunction<?> f) {
 		tests.forEach(t -> t.getTestCase().removeCoveredGoal(f));
 	}
 
@@ -242,10 +246,13 @@ public class TestSuiteChromosome<T extends TestChromosome>
 	}
 
 
+
+
 	@SuppressWarnings("unchecked")
 	@Override
-	public boolean localSearch(LocalSearchObjective<TestSuiteChromosome<T>> objective) {
-		TestSuiteLocalSearch<T> localSearch = TestSuiteLocalSearch.selectTestSuiteLocalSearch();
+	public<F extends FitnessFunction<F,TestSuiteChromosome>> boolean localSearch(LocalSearchObjective<TestSuiteChromosome,F> objective) {
+		TestSuiteLocalSearch<TestSuiteChromosome,TestChromosome,F > localSearch =
+				TestSuiteLocalSearch.selectTestSuiteLocalSearch();
 		return localSearch.doSearch(this, objective);
 	}
 	

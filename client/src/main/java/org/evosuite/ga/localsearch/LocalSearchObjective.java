@@ -26,6 +26,7 @@ import java.util.List;
 
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.FitnessFunction;
+import org.evosuite.testsuite.TestSuiteFitnessFunction;
 
 /**
  * Represents a local search objective that will be used during local search to
@@ -37,7 +38,7 @@ import org.evosuite.ga.FitnessFunction;
  *
  * @author Gordon Fraser
  */
-public interface LocalSearchObjective<T extends Chromosome<T>> {
+public interface LocalSearchObjective<T extends Chromosome<T>, F extends FitnessFunction<F,T>> {
 
 	/**
 	 * true if the objective was achieved
@@ -84,7 +85,7 @@ public interface LocalSearchObjective<T extends Chromosome<T>> {
 	 */
 	public int hasChanged(T chromosome);
 
-	public void addFitnessFunction(FitnessFunction<T,?> fitness);
+	public void addFitnessFunction(F fitness);
 
 	/**
 	 * Returns a list with all the fitness functions stored in this local search
@@ -92,6 +93,6 @@ public interface LocalSearchObjective<T extends Chromosome<T>> {
 	 *
 	 * @return a {@link org.evosuite.ga.FitnessFunction} object.
 	 */
-	public List<FitnessFunction<T,?>> getFitnessFunctions();
+	public List<F> getFitnessFunctions();
 
 }

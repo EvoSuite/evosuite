@@ -21,6 +21,7 @@ package org.evosuite.ga;
 
 import java.io.Serializable;
 
+import org.evosuite.testcase.TestChromosome;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,7 +30,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Gordon Fraser
  */
-public abstract class FitnessFunction<T extends Chromosome<T>, F extends FitnessFunction<T,F>> implements Serializable,
+public abstract class FitnessFunction<F extends FitnessFunction<F,T>, T extends Chromosome<T>> implements Serializable,
 		SelfTyped<F> {
 
 	private static final long serialVersionUID = -8876797554111396910L;

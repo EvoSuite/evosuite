@@ -22,12 +22,11 @@ package org.evosuite.testsuite;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
+import org.evosuite.testcase.AbstractTestChromosome;
 import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.TestCase;
-import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.ExecutionTracer;
 import org.evosuite.testcase.execution.TestCaseExecutor;
@@ -39,14 +38,15 @@ import org.slf4j.LoggerFactory;
  * Abstract TestSuiteFitnessFunction class.
  * </p>
  * @param <F> Type for selfTyped pattern
- * @param <T> Type of the ExecutableChromosome in the TestSuiteChromosome.
- * @param <X> Type of the AbstractTestSuiteChromosome
+ * @param <E> Type of the ExecutableChromosome in the TestSuiteChromosome.
+ * @param <T> Type of the AbstractTestSuiteChromosome
  * @author Gordon Fraser
  */
-public abstract class TestSuiteFitnessFunction<F extends TestSuiteFitnessFunction<F,T,X>,
-		T extends ExecutableChromosome<T>, X extends AbstractTestSuiteChromosome<T,X>>
+public abstract class TestSuiteFitnessFunction<F extends TestSuiteFitnessFunction<F,T,E>,
+		T extends AbstractTestSuiteChromosome<T,E>,
+		E extends AbstractTestChromosome<E>>
 		extends
-		FitnessFunction<X,F>{
+		FitnessFunction<F,T>{
 
 	private static final long serialVersionUID = 7243635497292960457L;
 
@@ -94,10 +94,10 @@ public abstract class TestSuiteFitnessFunction<F extends TestSuiteFitnessFunctio
 	 * @return a {@link java.util.List} object.
 	 */
 	protected List<ExecutionResult> runTestSuite(
-	        X suite) {
+	        T suite) {
 		List<ExecutionResult> results = new ArrayList<ExecutionResult>();
 
-		for (ExecutableChromosome<T> chromosome : suite.getTestChromosomes()) {
+		for (E chromosome : suite.getTestChromosomes()) {
 			// Only execute test if it hasn't been changed
 			if (chromosome.isChanged() || chromosome.getLastExecutionResult() == null) {
 				ExecutionResult result = chromosome.executeForFitnessFunction(this);

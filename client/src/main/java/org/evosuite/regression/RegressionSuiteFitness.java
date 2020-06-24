@@ -44,9 +44,8 @@ import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 
 
-public class RegressionSuiteFitness<T extends ExecutableChromosome<T>,
-        X extends AbstractTestSuiteChromosome<T,X>> extends TestSuiteFitnessFunction<RegressionSuiteFitness<T,X>,
-        T,X> {
+public final class RegressionSuiteFitness extends TestSuiteFitnessFunction<RegressionSuiteFitness,
+        RegressionTestSuiteChromosome, RegressionTestChromosome> {
 
   /**
    *
@@ -104,29 +103,26 @@ public class RegressionSuiteFitness<T extends ExecutableChromosome<T>,
     }
   }
 
-  private void executeChangedTestsAndUpdateResults(
-      AbstractTestSuiteChromosome<? extends ExecutableChromosome> changedSuite) {
+  private void executeChangedTestsAndUpdateResults(RegressionTestSuiteChromosome changedSuite) {
 
     observer.clearPools();
     diversityMap.clear();
 
-    RegressionTestSuiteChromosome suite = (RegressionTestSuiteChromosome) changedSuite;
-    for (TestChromosome chromosome : suite.getTestChromosomes()) {
-      RegressionTestChromosome c = (RegressionTestChromosome) chromosome;
+    for (RegressionTestChromosome chromosome : changedSuite.getTestChromosomes()) {
 
       observer.enable();
       observer.resetObjPool();
       observer.setRegressionFlag(false);
 
-      TestChromosome testChromosome = c.getTheTest();
-      TestChromosome otherChromosome = c.getTheSameTestForTheOtherClassLoader();
+      TestChromosome testChromosome = chromosome.getTheTest();
+      TestChromosome otherChromosome = chromosome.getTheSameTestForTheOtherClassLoader();
 
       // Only execute test if it hasn't been changed
       if (testChromosome.isChanged() || testChromosome.getLastExecutionResult() == null) {
 
         // record diversity
         if (Properties.REGRESSION_DIVERSITY) {
-          RegressionFitnessHelper.trackDiversity(c, testChromosome);
+          RegressionFitnessHelper.trackDiversity(chromosome, testChromosome);
         }
 
         ExecutionResult result = TestCaseExecutor.runTest(testChromosome.getTestCase());
@@ -152,7 +148,7 @@ public class RegressionSuiteFitness<T extends ExecutableChromosome<T>,
       }
 
       if (Properties.REGRESSION_DIVERSITY) {
-        measureDiversity(c);
+        measureDiversity(chromosome);
       }
     }
 
@@ -184,7 +180,7 @@ public class RegressionSuiteFitness<T extends ExecutableChromosome<T>,
    * @see org.evosuite.ga.FitnessFunction#getFitness(org.evosuite.ga.Chromosome)
    */
   @Override
-  public double getFitness(X individual) {
+  public double getFitness(RegressionTestSuiteChromosome individual) {
 
     if (useMeasure(RegressionMeasure.STATE_DIFFERENCE)) {
       TestCaseExecutor.getInstance().addObserver(observer);
@@ -196,24 +192,20 @@ public class RegressionSuiteFitness<T extends ExecutableChromosome<T>,
 
     // populate branches with a value of 2 (branch not covered yet)
     // branchDistanceMap = new HashMap<Integer, Double>();
-    branchDistanceMap = (Map<Integer, Double>) tempBranchDistanceMap.clone();
+    branchDistanceMap = new HashMap<>(tempBranchDistanceMap);
 
     int numDifferentExceptions = 0;
     int totalExceptions = 0;
 
     executeChangedTestsAndUpdateResults(individual);
 
-    RegressionTestSuiteChromosome suite = (RegressionTestSuiteChromosome) individual;
-
     List<Double> objectDistances = new ArrayList<>();
 
-    for (TestChromosome regressionTest : suite.getTestChromosomes()) {
+    for (RegressionTestChromosome regressionTest : individual.getTestChromosomes()) {
 
-      RegressionTestChromosome rtc = (RegressionTestChromosome) regressionTest;
+      ExecutionResult result1 = regressionTest.getTheTest().getLastExecutionResult();
 
-      ExecutionResult result1 = rtc.getTheTest().getLastExecutionResult();
-
-      ExecutionResult result2 = rtc.getTheSameTestForTheOtherClassLoader().getLastExecutionResult();
+      ExecutionResult result2 = regressionTest.getTheSameTestForTheOtherClassLoader().getLastExecutionResult();
 
       // calculating exception difference
       int numExceptionOrig = result1.getNumberOfThrownExceptions();
@@ -246,11 +238,11 @@ public class RegressionSuiteFitness<T extends ExecutableChromosome<T>,
           (1.0 / (1.0 + distance)) * (maxBranchFitnessValueO + maxBranchFitnessValueR);
     }
 
-    AbstractTestSuiteChromosome<T,?> testSuiteChromosome = suite.getTestSuite();
+    RegressionTestSuiteChromosome testSuiteChromosome = individual.getTestSuite();
 
-    AbstractTestSuiteChromosome<T,?> testRegressionSuiteChromosome = null;
+    RegressionTestSuiteChromosome testRegressionSuiteChromosome = null;
     if (useMeasure(RegressionMeasure.COVERAGE_NEW)) {
-      testRegressionSuiteChromosome = suite.getTestSuiteForTheOtherClassLoader();
+      testRegressionSuiteChromosome = individual.getTestSuiteForTheOtherClassLoader();
     }
 
     double coverageOld = 0, coverageNew = 0;
@@ -531,6 +523,11 @@ public class RegressionSuiteFitness<T extends ExecutableChromosome<T>,
   @Override
   public boolean isMaximizationFunction() {
     return false;
+  }
+
+  @Override
+  public RegressionSuiteFitness self() {
+    return this;
   }
 
 }

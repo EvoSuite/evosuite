@@ -24,6 +24,7 @@ import java.util.List;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.TestCaseExecutor;
+import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteChromosome;
 
 /**
@@ -31,8 +32,9 @@ import org.evosuite.testsuite.TestSuiteChromosome;
  *
  * @author Gordon Fraser
  */
-public abstract class TestFitnessFunction<T extends TestFitnessFunction<T>> extends FitnessFunction<TestChromosome,T>
-        implements Comparable<TestFitnessFunction<T>> {
+public abstract class TestFitnessFunction<F extends TestFitnessFunction<F>>
+		extends FitnessFunction<F, TestChromosome>
+        implements Comparable<TestFitnessFunction<F>> {
 
 	private static final long serialVersionUID = 5602125855207061901L;
 
@@ -74,9 +76,9 @@ public abstract class TestFitnessFunction<T extends TestFitnessFunction<T>> exte
 	 * Used to preorder goals by difficulty
 	 */
 	@Override
-	public abstract int compareTo(TestFitnessFunction other);
+	public abstract int compareTo(TestFitnessFunction<F> other);
 
-	protected final int compareClassName(TestFitnessFunction other){
+	protected final int compareClassName(TestFitnessFunction<F> other){
 		return this.getClass().getName().compareTo(other.getClass().getName());
 	}
 
@@ -113,7 +115,7 @@ public abstract class TestFitnessFunction<T extends TestFitnessFunction<T>> exte
 		return tests.stream().anyMatch(this::isCovered);
 	}
 
-	public boolean isCoveredBy(TestSuiteChromosome<TestChromosome> testSuite) {
+	public boolean isCoveredBy(AbstractTestSuiteChromosome<?,TestChromosome> testSuite) {
 		int num = 1;
 		for (TestChromosome test : testSuite.getTestChromosomes()) {
 			logger.debug("Checking goal against test "+num+"/"+testSuite.size());
