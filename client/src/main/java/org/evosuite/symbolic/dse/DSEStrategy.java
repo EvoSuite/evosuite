@@ -98,6 +98,9 @@ public class DSEStrategy extends TestGenerationStrategy {
 			// Builds the actual algorithm
 			ExplorationAlgorithm algorithm = buildDSEAlgorithm();
 
+			// Logs enabled features
+			logDSEEngineEnabledFeatures();
+
 			// ????
 			if (Properties.STOP_ZERO) {
 
@@ -141,6 +144,19 @@ public class DSEStrategy extends TestGenerationStrategy {
 
 		return testSuite;
 
+	}
+
+	private void logDSEEngineEnabledFeatures() {
+		LoggingUtils.getEvoLogger().info(
+			"* Symbolic arrays support enabled: {}",
+			Properties.IS_DSE_ARRAYS_SUPPORT_ENABLED);
+
+		if (Properties.IS_DSE_ARRAYS_SUPPORT_ENABLED) {
+			LoggingUtils.getEvoLogger().info(
+				"* Symbolic arrays implementation selected: {}",
+				Properties.SELECTED_DSE_ARRAYS_MEMORY_MODEL_VERSION.toString()
+			);
+		}
 	}
 
 	private ExplorationAlgorithm buildDSEAlgorithm() {
