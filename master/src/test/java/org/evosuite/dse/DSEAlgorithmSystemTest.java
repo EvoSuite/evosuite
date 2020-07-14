@@ -562,7 +562,25 @@ public class DSEAlgorithmSystemTest extends SystemTestBase {
 		TestSuiteChromosome best = dse.getGeneratedTestSuite();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
-		assertEquals(4, best.getNumOfCoveredGoals() );
+		assertEquals(6, best.getNumOfCoveredGoals() );
+		assertEquals(1, best.getNumOfNotCoveredGoals() );
+	}
+
+	@Test
+	public void testIntegerArrayAssignmentLazyVariables() {
+		EvoSuite evosuite = new EvoSuite();
+		String targetClass = IntegerArrayAssignmentExample2.class.getCanonicalName();
+		Properties.TARGET_CLASS = targetClass;
+		Properties.SELECTED_DSE_ARRAYS_MEMORY_MODEL_VERSION = Properties.DSE_ARRAYS_MEMORY_MODEL_VERSION.LAZY_VARIABLES;
+
+		String[] command = new String[] { "-generateSuiteUsingDSE", "-class", targetClass };
+
+		Object result = evosuite.parseCommandLine(command);
+		ExplorationAlgorithmBase<?> dse = getDSEAFromResult(result);
+		TestSuiteChromosome best = dse.getGeneratedTestSuite();
+		System.out.println("EvolvedTestSuite:\n" + best);
+
+		assertEquals(6, best.getNumOfCoveredGoals() );
 		assertEquals(1, best.getNumOfNotCoveredGoals() );
 	}
 
@@ -600,6 +618,23 @@ public class DSEAlgorithmSystemTest extends SystemTestBase {
 		assertEquals(1, best.getNumOfNotCoveredGoals() );
 	}
 
+	@Test
+	public void testRealArrayAssignmentLazyVariables() {
+		EvoSuite evosuite = new EvoSuite();
+		String targetClass = RealArrayAssignmentExample2.class.getCanonicalName();
+		Properties.TARGET_CLASS = targetClass;
+		Properties.SELECTED_DSE_ARRAYS_MEMORY_MODEL_VERSION = Properties.DSE_ARRAYS_MEMORY_MODEL_VERSION.LAZY_VARIABLES;
+
+		String[] command = new String[] { "-generateSuiteUsingDSE", "-class", targetClass };
+
+		Object result = evosuite.parseCommandLine(command);
+		ExplorationAlgorithmBase<?> dse = getDSEAFromResult(result);
+		TestSuiteChromosome best = dse.getGeneratedTestSuite();
+		System.out.println("EvolvedTestSuite:\n" + best);
+
+		assertEquals(10, best.getNumOfCoveredGoals() );
+		assertEquals(1, best.getNumOfNotCoveredGoals() );
+	}
 
 	/**
 	 * TODO: String arrays support not yet implemented

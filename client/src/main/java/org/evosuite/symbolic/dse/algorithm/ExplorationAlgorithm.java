@@ -98,14 +98,16 @@ public class ExplorationAlgorithm extends ExplorationAlgorithmBase {
     public static final String NEW_TEST_CASE_SCORE_DEBUG_MESSAGE = "New test case score: {}";
     public static final String NEW_TEST_CASE_CREATED_DEBUG_MESSAGE = "Created new test case from SAT solution: {}";
 
-    // Algorithm
+    // Exploration Algorithm
     public static final String PROGRESS_MSG_INFO = "Total progress: {}";
+    public static final String STRATEGY_CANNOT_BE_NULL = "Strategy cannot be null";
     public static final String ENTRY_POINTS_FOUND_DEBUG_MESSAGE = "Found {} as entry points for DSE";
     public static final String STOPPING_CONDITION_MET_DEBUG_MESSAGE = "A stoping condition was met. No more tests can be generated using DSE.";
     public static final String GENERATING_TESTS_FOR_ENTRY_DEBUG_MESSAGE = "Generating tests for entry method {}";
     public static final String TESTS_WERE_GENERATED_FOR_ENTRY_METHOD_DEBUG_MESSAGE = "{} tests were generated for entry method {}";
+    public static final String EXPLORATION_STRATEGIES_MUST_BE_INITIALIZED_TO_START_SEARCHING = "Exploration strategies must be initialized to start searching.";
 
-    /**
+      /**
      * A cache of previous results from the constraint solver
      **/
     protected final transient Map<Set<Constraint<?>>, SolverResult> queryCache
@@ -114,11 +116,11 @@ public class ExplorationAlgorithm extends ExplorationAlgorithmBase {
     /**
      * Exploration strategies
      **/
-    private final transient PathPruningStrategy pathPruningStrategy;
-    private final transient PathSelectionStrategy pathSelectionStrategy;
-    private final transient TestCaseBuildingStrategy testCaseBuildingStrategy;
-    private final transient TestCaseSelectionStrategy testCaseSelectionStrategy;
-    private final transient KeepSearchingCriteriaStrategy keepSearchingCriteriaStrategy;
+    private transient PathPruningStrategy pathPruningStrategy;
+    private transient PathSelectionStrategy pathSelectionStrategy;
+    private transient TestCaseBuildingStrategy testCaseBuildingStrategy;
+    private transient TestCaseSelectionStrategy testCaseSelectionStrategy;
+    private transient KeepSearchingCriteriaStrategy keepSearchingCriteriaStrategy;
 
     /**
      * Internal executor and solver
@@ -131,36 +133,26 @@ public class ExplorationAlgorithm extends ExplorationAlgorithmBase {
             SHOW_PROGRESS_DEFAULT_VALUE,
             DSEStatistics.getInstance(), //TODO: move this to a dependency injection schema
             new ConcolicExecutor(),
-            SolverFactory.getInstance().buildNewSolver(),
-
-            // Default Strategies
-            new AlreadySeenSkipStrategy(),
-            new LastExecutionCreatedATestCaseStrategy(),
-            new generationalGenerationStrategy(),
-            new DefaultTestCaseBuildingStrategy(),
-            new LastTestCaseSelectionStrategy()
+            SolverFactory.getInstance().buildNewSolver()
         );
+
+        // Default Strategies
+        this.pathPruningStrategy           = new AlreadySeenSkipStrategy();
+        this.pathSelectionStrategy         = new generationalGenerationStrategy();
+        this.testCaseBuildingStrategy      = new DefaultTestCaseBuildingStrategy();
+        this.testCaseSelectionStrategy     = new LastTestCaseSelectionStrategy();
+        this.keepSearchingCriteriaStrategy = new LastExecutionCreatedATestCaseStrategy();
     }
 
     public ExplorationAlgorithm(
         DSEStatistics statisticsLogger,
-        boolean showProgress,
-        PathPruningStrategy pathPruningStrategy,
-        KeepSearchingCriteriaStrategy keepSearchingCriteriaStrategy,
-        PathSelectionStrategy pathSelectionStrategy,
-        TestCaseBuildingStrategy testCaseBuildingStrategy,
-        TestCaseSelectionStrategy testCaseSelectionStrategy
+        boolean showProgress
     ) {
         this(
             showProgress,
             statisticsLogger,
             new ConcolicExecutor(),
-            SolverFactory.getInstance().buildNewSolver(),
-            pathPruningStrategy,
-            keepSearchingCriteriaStrategy,
-            pathSelectionStrategy,
-            testCaseBuildingStrategy,
-            testCaseSelectionStrategy
+            SolverFactory.getInstance().buildNewSolver()
         );
     }
 
@@ -168,23 +160,12 @@ public class ExplorationAlgorithm extends ExplorationAlgorithmBase {
             boolean showProgress,
             DSEStatistics dseStatistics,
             ConcolicExecutor engine,
-            Solver solver,
-            PathPruningStrategy pathPruningStrategy,
-            KeepSearchingCriteriaStrategy keepSearchingCriteriaStrategy,
-            PathSelectionStrategy pathSelectionStrategy,
-            TestCaseBuildingStrategy testCaseBuildingStrategy,
-            TestCaseSelectionStrategy testCaseSelectionStrategy
+            Solver solver
     ) {
         super(dseStatistics, showProgress);
 
         this.engine = engine;
         this.solver = solver;
-
-        this.pathPruningStrategy = pathPruningStrategy;
-        this.pathSelectionStrategy = pathSelectionStrategy;
-        this.testCaseBuildingStrategy = testCaseBuildingStrategy;
-        this.testCaseSelectionStrategy = testCaseSelectionStrategy;
-        this.keepSearchingCriteriaStrategy = keepSearchingCriteriaStrategy;
     }
 
     /**
@@ -342,6 +323,7 @@ public class ExplorationAlgorithm extends ExplorationAlgorithmBase {
      * @return
      */
      public TestSuiteChromosome explore() {
+         if (!strategiesInitialized()) throw new DSEExplorationException(EXPLORATION_STRATEGIES_MUST_BE_INITIALIZED_TO_START_SEARCHING);
          notifyGenerationStarted();
          final Class<?> targetClass = Properties.getTargetClassAndDontInitialise();
 
@@ -369,7 +351,19 @@ public class ExplorationAlgorithm extends ExplorationAlgorithmBase {
          return testSuite;
      }
 
-    /**
+      /**
+       * Checks that the internal algorithm strategies were initialized.
+       * @return
+       */
+      private boolean strategiesInitialized() {
+          return testCaseSelectionStrategy != null
+            && testCaseBuildingStrategy != null
+            && pathSelectionStrategy != null
+            && keepSearchingCriteriaStrategy != null
+            && pathPruningStrategy != null;
+      }
+
+      /**
      * Solves an SMT query
      *
      * TODO: check if moving the time estimation to a lower level layer improves precision.
@@ -440,4 +434,37 @@ public class ExplorationAlgorithm extends ExplorationAlgorithmBase {
 
         return new DSEPathCondition(result, currentGeneratedFromIndex);
     }
-}
+
+
+    /**
+     * Exploration strategies setters
+     */
+    public void setPathPruningStrategy(PathPruningStrategy pathPruningStrategy) {
+        checkStrategy(pathPruningStrategy);
+        this.pathPruningStrategy = pathPruningStrategy;
+    }
+
+    public void setPathSelectionStrategy(PathSelectionStrategy pathSelectionStrategy) {
+        checkStrategy(pathSelectionStrategy);
+        this.pathSelectionStrategy = pathSelectionStrategy;
+    }
+
+    public void setTestCaseBuildingStrategy(TestCaseBuildingStrategy testCaseBuildingStrategy) {
+        checkStrategy(testCaseBuildingStrategy);
+        this.testCaseBuildingStrategy = testCaseBuildingStrategy;
+    }
+
+    public void setTestCaseSelectionStrategy(TestCaseSelectionStrategy testCaseSelectionStrategy) {
+        checkStrategy(testCaseSelectionStrategy);
+        this.testCaseSelectionStrategy = testCaseSelectionStrategy;
+    }
+
+    public void setKeepSearchingCriteriaStrategy(KeepSearchingCriteriaStrategy keepSearchingCriteriaStrategy) {
+        checkStrategy(keepSearchingCriteriaStrategy);
+        this.keepSearchingCriteriaStrategy = keepSearchingCriteriaStrategy;
+    }
+
+    private void checkStrategy(Object strategy) {
+        if (strategy == null) throw new IllegalArgumentException(STRATEGY_CANNOT_BE_NULL);
+    }
+  }

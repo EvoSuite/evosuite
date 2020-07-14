@@ -74,13 +74,15 @@ public class DSEAlgorithmFactory {
     private ExplorationAlgorithm buildSAGEAlgorithm() {
         ExplorationAlgorithm algorithm = new ExplorationAlgorithm(
             dseStatistics,
-            showProgress,
-            new AlreadySeenSkipStrategy(),
-            new LastExecutionCreatedATestCaseStrategy(),
-            new generationalGenerationStrategy(),
-            new DefaultTestCaseBuildingStrategy(),
-            new LastTestCaseSelectionStrategy()
+            showProgress
         );
+
+        /** Setup the strategies */
+        algorithm.setPathPruningStrategy(new AlreadySeenSkipStrategy());
+        algorithm.setPathSelectionStrategy(new generationalGenerationStrategy());
+        algorithm.setTestCaseBuildingStrategy(new DefaultTestCaseBuildingStrategy());
+        algorithm.setTestCaseSelectionStrategy(new LastTestCaseSelectionStrategy());
+        algorithm.setKeepSearchingCriteriaStrategy(new LastExecutionCreatedATestCaseStrategy());
 
         List<TestSuiteFitnessFunction> sageFitnessFunctions = FitnessFunctionsUtils.getFitnessFunctions(DSEAlgorithms.SAGE.getCriteria());
         algorithm.addFitnessFunctions(sageFitnessFunctions);
@@ -88,4 +90,3 @@ public class DSEAlgorithmFactory {
         return algorithm;
     }
 }
-
