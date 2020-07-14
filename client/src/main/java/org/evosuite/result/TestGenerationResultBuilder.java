@@ -37,7 +37,7 @@ import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.instrumentation.LinePool;
 import org.evosuite.result.TestGenerationResult.Status;
-import org.evosuite.symbolic.dse.algorithm.DSEBaseAlgorithm;
+import org.evosuite.symbolic.dse.algorithm.ExplorationAlgorithmBase;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.utils.LoggingUtils;
@@ -148,7 +148,7 @@ public class TestGenerationResultBuilder {
 	
 	private GeneticAlgorithm<?> ga = null;
 
-	private DSEBaseAlgorithm<?> dse = null;
+	private ExplorationAlgorithmBase<?> dse = null;
 	
 	private Map<String, String> testCode = new LinkedHashMap<String, String>();
 
@@ -233,7 +233,7 @@ public class TestGenerationResultBuilder {
         }
 	}
 
-	public void setDSEAlgorithm(DSEBaseAlgorithm<?> dse) {
+	public void setDSEAlgorithm(ExplorationAlgorithmBase<?> dse) {
 		this.dse = dse;
         for (Map.Entry<FitnessFunction<?>, Double> e : dse.getGeneratedTestSuite().getCoverageValues().entrySet()) {
             targetCoverages.put(e.getKey(), e.getValue());

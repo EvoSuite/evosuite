@@ -390,6 +390,22 @@ public class ArrayStatement extends AbstractStatement {
 
 	/**
 	 * <p>
+	 * Setter for the field <code>lengths</code>.
+	 * </p>
+	 *
+	 * @param length
+	 *            an array of int.
+	 * @param index
+	 *            an int.
+	 */
+	public void setLength(int length, int index) {
+		lengths[index] = length;
+		((ArrayReference) retval).setLength(length, index);
+	}
+
+
+	/**
+	 * <p>
 	 * setSize
 	 * </p>
 	 *

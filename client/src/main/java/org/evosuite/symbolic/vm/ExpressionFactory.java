@@ -20,6 +20,11 @@
 package org.evosuite.symbolic.vm;
 
 import org.evosuite.symbolic.expr.Operator;
+import org.evosuite.symbolic.expr.ref.array.ArrayConstant;
+import org.evosuite.symbolic.expr.ref.array.ArrayStore;
+import org.evosuite.symbolic.expr.ref.array.ArrayVariable;
+import org.evosuite.symbolic.expr.ref.array.ArrayValue;
+import org.evosuite.symbolic.expr.ref.array.ArraySelect;
 import org.evosuite.symbolic.expr.bv.IntegerBinaryExpression;
 import org.evosuite.symbolic.expr.bv.IntegerConstant;
 import org.evosuite.symbolic.expr.bv.IntegerValue;
@@ -30,6 +35,7 @@ import org.evosuite.symbolic.expr.ref.ReferenceConstant;
 import org.evosuite.symbolic.expr.ref.ReferenceExpression;
 import org.evosuite.symbolic.expr.ref.ReferenceVariable;
 import org.evosuite.symbolic.expr.str.StringConstant;
+import org.evosuite.symbolic.expr.str.StringValue;
 import org.objectweb.asm.Type;
 
 
@@ -330,5 +336,62 @@ public abstract class ExpressionFactory {
 		referenceConstant.initializeReference(null);
 		return referenceConstant;
 	}
-	
+
+	/**************************** Arrays ****************************/
+
+	public static ArrayValue.IntegerArrayValue buildIntegerArrayConstantExpression(Type objectType, int instanceId) {
+		return new ArrayConstant.IntegerArrayConstant(objectType, instanceId);
+	}
+
+	public static ArrayValue.RealArrayValue buildRealArrayConstantExpression(Type objectType, int instanceId) {
+		return new ArrayConstant.RealArrayConstant(objectType, instanceId);
+	}
+
+	public static ArrayValue.StringArrayValue buildStringArrayConstantExpression(Type objectType, int instanceId) {
+		return new ArrayConstant.StringArrayConstant(objectType, instanceId);
+	}
+
+	public static ArrayValue.ReferenceArrayValue buildReferenceArrayConstantExpression(Type objectType, int instanceId) {
+		return new ArrayConstant.ReferenceArrayConstant(objectType, instanceId);
+	}
+
+	public static ArrayValue.IntegerArrayValue buildIntegerArrayVariableExpression(Type objectType, int instanceId, String arrayName, Object concreteArray) {
+		return new ArrayVariable.IntegerArrayVariable(objectType, instanceId, arrayName, concreteArray);
+	}
+
+	public static ArrayValue.RealArrayValue buildRealArrayVariableExpression(Type objectType, int instanceId, String arrayName, Object concreteArray) {
+		return new ArrayVariable.RealArrayVariable(objectType, instanceId, arrayName, concreteArray);
+	}
+
+	public static ArrayValue.StringArrayValue buildStringArrayVariableExpression(Type objectType, int instanceId, String arrayName, Object concreteArray) {
+		return new ArrayVariable.StringArrayVariable(objectType, instanceId, arrayName, concreteArray);
+	}
+
+	public static ArrayValue.ReferenceArrayValue buildReferenceArrayVariableExpression(Type objectType, int instanceId, String arrayName, Object concreteArray) {
+		return new ArrayVariable.ReferenceArrayVariable(objectType, instanceId, arrayName, concreteArray);
+	}
+
+  public static IntegerValue buildArraySelectExpression(ArrayValue.IntegerArrayValue arrayExpression, IntegerValue symb_index, IntegerValue symb_value) {
+		return new ArraySelect.IntegerArraySelect(arrayExpression, symb_index, symb_value);
+  }
+
+	public static RealValue buildArraySelectExpression(ArrayValue.RealArrayValue arrayExpression, IntegerValue symb_index, RealValue symb_value) {
+		return new ArraySelect.RealArraySelect(arrayExpression, symb_index, symb_value);
+  }
+
+  public static StringValue buildArraySelectExpression(ArrayValue.StringArrayValue arrayExpression, IntegerValue symb_index, StringValue symb_value) {
+		return new ArraySelect.StringArraySelect(arrayExpression, symb_index, symb_value);
+  }
+
+	public static ArrayValue.IntegerArrayValue buildArrayStoreExpression(ArrayValue.IntegerArrayValue symbolic_array_instance, IntegerValue symb_index, IntegerValue symb_value, Object concreteResultingArray) {
+		return new ArrayStore.IntegerArrayStore(symbolic_array_instance, symb_index, symb_value, concreteResultingArray);
+	}
+
+	public static ArrayValue.RealArrayValue buildArrayStoreExpression(ArrayValue.RealArrayValue symbolic_array_instance, IntegerValue symb_index, RealValue symb_value, Object concreteResultingArray) {
+		return new ArrayStore.RealArrayStore(symbolic_array_instance, symb_index, symb_value, concreteResultingArray);
+	}
+
+	public static ArrayValue.StringArrayValue buildArrayStoreExpression(ArrayValue.StringArrayValue symbolic_array_instance, IntegerValue symb_index, StringValue symb_value, Object concreteResultingArray) {
+		return new ArrayStore.StringArrayStore(symbolic_array_instance, symb_index, symb_value, concreteResultingArray);
+	}
 }

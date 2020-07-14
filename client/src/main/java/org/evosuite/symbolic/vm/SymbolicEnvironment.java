@@ -30,8 +30,9 @@ import java.util.LinkedList;
 import java.util.Set;
 
 import org.evosuite.symbolic.expr.ref.ReferenceExpression;
-import org.evosuite.symbolic.instrument.SymbolicInstrumentingClassLoader;
-import org.evosuite.testcase.execution.EvosuiteError;
+import org.evosuite.symbolic.instrument.ConcolicInstrumentingClassLoader;
+import org.evosuite.symbolic.vm.heap.SymbolicHeap;
+import org.evosuite.utils.TypeUtil;
 import org.objectweb.asm.Type;
 
 /**
@@ -58,9 +59,9 @@ public final class SymbolicEnvironment {
 	 */
 	private final Set<Class<?>> preparedClasses = new HashSet<Class<?>>();
 
-	private final SymbolicInstrumentingClassLoader instrumentingClassLoader;
+	private final ConcolicInstrumentingClassLoader instrumentingClassLoader;
 
-	public SymbolicEnvironment(SymbolicInstrumentingClassLoader instrumentingClassLoader) {
+	public SymbolicEnvironment(ConcolicInstrumentingClassLoader instrumentingClassLoader) {
 		this.instrumentingClassLoader = instrumentingClassLoader;
 	}
 
@@ -87,8 +88,8 @@ public final class SymbolicEnvironment {
 		Type ownerType = Type.getObjectType(className);
 		if (ownerType.getSort() == Type.ARRAY) {
 			Type elemType = ownerType.getElementType();
-			if (isValueType(elemType))
-				return primitiveClassType(elemType);
+			if (TypeUtil.isValue(elemType))
+				return TypeUtil.getPrimitiveArrayClassFromElementType(elemType);
 			else {
 				// ensurePrepared component class
 				className = elemType.getClassName();
@@ -104,36 +105,6 @@ public final class SymbolicEnvironment {
 			ensurePrepared(claz);
 			return claz;
 		}
-	}
-
-	private Class<?> primitiveClassType(Type t) {
-		if (t.equals(Type.BOOLEAN_TYPE))
-			return boolean[].class;
-		if (t.equals(Type.CHAR_TYPE))
-			return char[].class;
-		if (t.equals(Type.SHORT_TYPE))
-			return short[].class;
-		if (t.equals(Type.BYTE_TYPE))
-			return byte[].class;
-		if (t.equals(Type.INT_TYPE))
-			return int[].class;
-		if (t.equals(Type.LONG_TYPE))
-			return long[].class;
-		if (t.equals(Type.FLOAT_TYPE))
-			return float[].class;
-		if (t.equals(Type.DOUBLE_TYPE))
-			return double[].class;
-
-		throw new EvosuiteError(t.toString()
-				+ " is not a primitive value class!");
-
-	}
-
-	private boolean isValueType(Type t) {
-		return t.equals(Type.BOOLEAN_TYPE) || t.equals(Type.CHAR_TYPE)
-				|| t.equals(Type.SHORT_TYPE) || t.equals(Type.BYTE_TYPE)
-				|| t.equals(Type.INT_TYPE) || t.equals(Type.LONG_TYPE)
-				|| t.equals(Type.FLOAT_TYPE) || t.equals(Type.DOUBLE_TYPE);
 	}
 
 	public void ensurePrepared(Class<?> claz) {

@@ -20,7 +20,7 @@
 package org.evosuite.symbolic.dse.algorithm.listener.implementations;
 
 import org.evosuite.ga.Chromosome;
-import org.evosuite.symbolic.dse.algorithm.DSEBaseAlgorithm;
+import org.evosuite.symbolic.dse.algorithm.ExplorationAlgorithmBase;
 import org.evosuite.symbolic.dse.algorithm.listener.StoppingCondition;
 
 import java.io.Serializable;
@@ -40,12 +40,12 @@ public abstract class StoppingConditionImpl implements StoppingCondition, Serial
 
 
     @Override
-    public void iteration(DSEBaseAlgorithm algorithm) {
+    public void iteration(ExplorationAlgorithmBase algorithm) {
         //Nothing
     }
 
     @Override
-    public void generationFinished(DSEBaseAlgorithm algorithm) {
+    public void generationFinished(ExplorationAlgorithmBase algorithm) {
         //Nothing
     }
 
@@ -55,7 +55,7 @@ public abstract class StoppingConditionImpl implements StoppingCondition, Serial
     }
 
     @Override
-    public void generationStarted(DSEBaseAlgorithm algorithm) {
+    public void generationStarted(ExplorationAlgorithmBase algorithm) {
         //Nothing
     }
 }

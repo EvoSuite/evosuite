@@ -40,11 +40,11 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Abstract superclass of DSE algorithms
+ * Abstract superclass of DSE exploration algorithms
  *
  * @author Ignacio Lebrero
  */
-public abstract class DSEBaseAlgorithm<T extends Chromosome> implements Serializable {
+public abstract class ExplorationAlgorithmBase<T extends Chromosome> implements Serializable {
 
 	private static final long serialVersionUID = -3426910907322781226L;
 
@@ -59,15 +59,16 @@ public abstract class DSEBaseAlgorithm<T extends Chromosome> implements Serializ
 	public static final String CALCULATING_FITNESS_FOR_CURRENT_TEST_SUITE_DEBUG_MESSAGE = "Calculating fitness for current test suite";
 	public static final String ABOUT_TO_ADD_A_NEW_TEST_CASE_TO_THE_TEST_SUITE_DEBUG_MESSAGE = "About to add a new testCase to the test suite";
 
-	// TODO: this values can be moved to a general DSEAlgorithmConfig object later on
+	// TODO: this values can be moved to a general ExplorationAlgorithmConfig object later on
 	public static final long NORMALIZE_VALUE_LIMIT = 100;
 	public static final boolean SHOW_PROGRESS_DEFAULT_VALUE = false;
 
 	/** Path Divergence config */
 	public static final int PATH_DIVERGED_BASED_TEST_CASE_PENALTY_SCORE = 0;
 
-	private static final Logger logger = LoggerFactory.getLogger(DSEBaseAlgorithm.class);
+	private static final transient Logger logger = LoggerFactory.getLogger(ExplorationAlgorithmBase.class);
 
+	/** Test suite */
 	protected final TestSuiteChromosome testSuite = new TestSuiteChromosome();
 
 	/** Fitness Functions */
@@ -81,7 +82,7 @@ public abstract class DSEBaseAlgorithm<T extends Chromosome> implements Serializ
 
 	protected final boolean showProgress;
 
-	public DSEBaseAlgorithm(DSEStatistics dseStatistics, boolean showProgress) {
+	public ExplorationAlgorithmBase(DSEStatistics dseStatistics, boolean showProgress) {
 		this.showProgress = showProgress;
 		this.statisticsLogger = dseStatistics;
 	}
@@ -305,8 +306,8 @@ public abstract class DSEBaseAlgorithm<T extends Chromosome> implements Serializ
 	/**
 	 * Score calculation is based on coverage improvement against the current testSuite.
 	 *
-	 * TODO: This could be better if there was a way to run the testsuite alongside the new tests
-	 * 			 without having to rerun it without it to recover old values.
+	 * TODO: This could be better if there was a way to run calculate the coverage of adding a new test without changng
+	 *       the hole testSuite data.
 	 *
 	 * @param newTestCase
 	 * @param hasPathConditionDiverged

@@ -20,7 +20,7 @@
 package org.evosuite.symbolic.dse.algorithm;
 
 import org.evosuite.Properties;
-import org.evosuite.symbolic.dse.ConcolicEngine;
+import org.evosuite.symbolic.dse.ConcolicExecutor;
 import org.evosuite.symbolic.dse.DSEStatistics;
 import org.evosuite.symbolic.dse.DSETestCase;
 import org.evosuite.symbolic.dse.algorithm.strategies.KeepSearchingCriteriaStrategy;
@@ -47,7 +47,7 @@ import org.evosuite.symbolic.solver.SolverUtils;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.execution.TestCaseExecutor;
-import org.evosuite.testcase.utils.TestCaseUtils;
+import org.evosuite.testcase.TestCaseUpdater;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.ClassUtil;
 import org.slf4j.Logger;
@@ -63,20 +63,19 @@ import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Set;
 
-/**
-   * Structure of a DSE Algorithm,
+  /**
+   * Structure of a DSE Exploration algorithm,
    *
-   * Current implementation represents the high level algorithm of SAGE without the running&checking section
-   * since the goal is just to generate the test suite.
+   * Current implementation represents an abstracted version of SAGE's generational algorithm.
    *
    * For more details, please take a look at:
    *     Godefroid P., Levin Y. M. & Molnar D. (2008) Automated Whitebox Fuzz Testing
    *
    * @author Ignacio Lebrero
    */
-public class DSEAlgorithm extends DSEBaseAlgorithm {
+public class ExplorationAlgorithm extends ExplorationAlgorithmBase {
 
-    private static final Logger logger = LoggerFactory.getLogger(DSEAlgorithm.class);
+    private static final transient Logger logger = LoggerFactory.getLogger(ExplorationAlgorithm.class);
 
     /**
      * Logger Messages
@@ -109,11 +108,11 @@ public class DSEAlgorithm extends DSEBaseAlgorithm {
     /**
      * A cache of previous results from the constraint solver
      **/
-    protected final Map<Set<Constraint<?>>, SolverResult> queryCache
+    protected final transient Map<Set<Constraint<?>>, SolverResult> queryCache
             = new HashMap<Set<Constraint<?>>, SolverResult>();
 
     /**
-     * DSE Algorithm strategies
+     * Exploration strategies
      **/
     private final transient PathPruningStrategy pathPruningStrategy;
     private final transient PathSelectionStrategy pathSelectionStrategy;
@@ -122,16 +121,16 @@ public class DSEAlgorithm extends DSEBaseAlgorithm {
     private final transient KeepSearchingCriteriaStrategy keepSearchingCriteriaStrategy;
 
     /**
-     * Internal concolic engine and Solver
+     * Internal executor and solver
      **/
-    private final transient ConcolicEngine engine;
+    private final transient ConcolicExecutor engine;
     private final transient Solver solver;
 
-    public DSEAlgorithm() {
+    public ExplorationAlgorithm() {
         this(
             SHOW_PROGRESS_DEFAULT_VALUE,
             DSEStatistics.getInstance(), //TODO: move this to a dependency injection schema
-            new ConcolicEngine(),
+            new ConcolicExecutor(),
             SolverFactory.getInstance().buildNewSolver(),
 
             // Default Strategies
@@ -143,7 +142,7 @@ public class DSEAlgorithm extends DSEBaseAlgorithm {
         );
     }
 
-    public DSEAlgorithm(
+    public ExplorationAlgorithm(
         DSEStatistics statisticsLogger,
         boolean showProgress,
         PathPruningStrategy pathPruningStrategy,
@@ -155,7 +154,7 @@ public class DSEAlgorithm extends DSEBaseAlgorithm {
         this(
             showProgress,
             statisticsLogger,
-            new ConcolicEngine(),
+            new ConcolicExecutor(),
             SolverFactory.getInstance().buildNewSolver(),
             pathPruningStrategy,
             keepSearchingCriteriaStrategy,
@@ -165,10 +164,10 @@ public class DSEAlgorithm extends DSEBaseAlgorithm {
         );
     }
 
-    public DSEAlgorithm(
+    public ExplorationAlgorithm(
             boolean showProgress,
             DSEStatistics dseStatistics,
-            ConcolicEngine engine,
+            ConcolicExecutor engine,
             Solver solver,
             PathPruningStrategy pathPruningStrategy,
             KeepSearchingCriteriaStrategy keepSearchingCriteriaStrategy,
@@ -223,7 +222,7 @@ public class DSEAlgorithm extends DSEBaseAlgorithm {
             if (isFinished()) return;
 
             // Runs the current test case
-            DSEPathCondition currentExecutedPathCondition = executeConcolicEngine(currentTestCase);
+            DSEPathCondition currentExecutedPathCondition = executeTestCaseConcolically(currentTestCase);
             seenChildren.add(
                  normalize(
                      currentExecutedPathCondition.getPathCondition().getConstraints()));
@@ -288,7 +287,7 @@ public class DSEAlgorithm extends DSEBaseAlgorithm {
      * @return
      */
     private DSETestCase generateNewTestCase(DSETestCase currentConcreteTest, DSEPathCondition currentPathCondition, Map<String, Object> smtSolution, boolean hasPathConditionDiverged) {
-        TestCase newTestCase = TestCaseUtils.updateTest(currentConcreteTest.getTestCase(), smtSolution);
+        TestCase newTestCase = TestCaseUpdater.updateTest(currentConcreteTest.getTestCase(), smtSolution);
 
         DSETestCase newDSETestCase = new DSETestCase(
             newTestCase,
@@ -342,7 +341,7 @@ public class DSEAlgorithm extends DSEBaseAlgorithm {
      *
      * @return
      */
-     public TestSuiteChromosome generateSolution() {
+     public TestSuiteChromosome explore() {
          notifyGenerationStarted();
          final Class<?> targetClass = Properties.getTargetClassAndDontInitialise();
 
@@ -425,12 +424,17 @@ public class DSEAlgorithm extends DSEBaseAlgorithm {
      * @param currentTestCase
      * @return
      */
-    private DSEPathCondition executeConcolicEngine(DSETestCase currentTestCase) {
+    private DSEPathCondition executeTestCaseConcolically(DSETestCase currentTestCase) {
         logger.debug(EXECUTING_CONCOLICALLY_THE_CURRENT_TEST_CASE_DEBUG_MESSAGE);
 
         TestCase clonedCurrentTestCase = currentTestCase.getTestCase().clone();
         PathCondition result = engine.execute((DefaultTestCase) clonedCurrentTestCase);
-        int currentGeneratedFromIndex = currentTestCase.getOriginalPathCondition().getGeneratedFromIndex();
+
+        // In case of a divergence, we need to keep the lowest value
+        int currentGeneratedFromIndex = Math.min(
+          currentTestCase.getOriginalPathCondition().getGeneratedFromIndex(),
+          result.getPathConditionNodes().size()
+        );
 
         logger.debug(FINISHED_CONCOLIC_EXECUTION_DEBUG_MESSAGE);
 

@@ -16,14 +16,20 @@
  */
 package org.evosuite.symbolic.expr;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
+import org.apache.commons.lang3.NotImplementedException;
 import org.apache.oro.text.regex.MalformedPatternException;
 import org.apache.oro.text.regex.Pattern;
 import org.apache.oro.text.regex.Perl5Compiler;
 import org.apache.oro.text.regex.Perl5Matcher;
+import org.evosuite.symbolic.expr.ref.array.ArrayConstant;
+import org.evosuite.symbolic.expr.ref.array.ArrayStore;
+import org.evosuite.symbolic.expr.ref.array.ArrayVariable;
+import org.evosuite.symbolic.expr.ref.array.ArraySelect;
 import org.evosuite.symbolic.expr.bv.IntegerBinaryExpression;
 import org.evosuite.symbolic.expr.bv.IntegerComparison;
 import org.evosuite.symbolic.expr.bv.IntegerConstant;
@@ -58,6 +64,8 @@ import org.evosuite.symbolic.expr.token.HasMoreTokensExpr;
 import org.evosuite.symbolic.expr.token.NewTokenizerExpr;
 import org.evosuite.symbolic.expr.token.NextTokenizerExpr;
 import org.evosuite.symbolic.expr.token.StringNextTokenExpr;
+import org.evosuite.utils.ArrayUtil;
+import org.evosuite.utils.TypeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -288,7 +296,6 @@ public class ExpressionEvaluator implements ExpressionVisitor<Object, Void> {
     switch (op) {
       case STARTSWITH:
         long start = (Long) other_v.get(0).accept(this, null);
-
         return first.startsWith(second, (int) start) ? TRUE_VALUE : FALSE_VALUE;
 
       case REGIONMATCHES:
@@ -568,7 +575,6 @@ public class ExpressionEvaluator implements ExpressionVisitor<Object, Void> {
         log.warn("StringBinaryExpression: unimplemented operator! Operator" + op.toString());
         return null;
     }
-
   }
 
   @Override
@@ -699,4 +705,107 @@ public class ExpressionEvaluator implements ExpressionVisitor<Object, Void> {
     }
   }
 
+  @Override
+  public Object visit(ArrayStore.IntegerArrayStore r, Void arg) {
+    Object array = r.getSymbolicArray().accept(this, null);
+    Long index = (Long) r.getSymbolicIndex().accept(this, null);
+    Long value = (Long) r.getSymbolicValue().accept(this, null);
+
+    int intIndex = Math.toIntExact(index);
+
+    // We don't work on the returned array to not update the concrete internal array
+    Object newArray = ArrayUtil.createArrayCopy(array);
+    Array.set(
+      newArray,
+      intIndex,
+      TypeUtil.convertIntegerTo(value, newArray.getClass().getComponentType().getName())
+    );
+
+    return newArray;
+  }
+
+  @Override
+  public Object visit(ArraySelect.IntegerArraySelect r, Void arg) {
+    Object array = r.getSymbolicArray().accept(this, null);
+    Long index = (Long) r.getSymbolicIndex().accept(this, null);
+
+    int intIndex = Math.toIntExact(index);
+
+    return TypeUtil.unboxPrimitiveValue(Array.get(array, intIndex));
+  }
+
+  @Override
+  public Object visit(ArraySelect.RealArraySelect r, Void arg) {
+    Object array = r.getSymbolicArray().accept(this, null);
+    Long index = (Long) r.getSymbolicIndex().accept(this, null);
+
+    int intIndex = Math.toIntExact(index);
+
+    return TypeUtil.unboxPrimitiveValue(Array.get(array, intIndex));
+  }
+
+  @Override
+  public Object visit(ArraySelect.StringArraySelect r, Void arg) {
+    return null;
+  }
+
+  @Override
+  public Object visit(ArrayStore.RealArrayStore r, Void arg) {
+    Object array = r.getSymbolicArray().accept(this, null);
+    Long index = (Long) r.getSymbolicIndex().accept(this, null);
+    Double value = (Double) r.getSymbolicValue().accept(this, null);
+
+    int intIndex = Math.toIntExact(index);
+
+    // We don't work on the returned array to not update the concrete internal array
+    Object newArray = ArrayUtil.createArrayCopy(array);
+    Array.set(newArray, intIndex, TypeUtil.convertRealTo(value, newArray.getClass().getComponentType().getName()));
+
+    return newArray;
+  }
+
+  @Override
+  public Object visit(ArrayStore.StringArrayStore r, Void arg) {
+    throw new NotImplementedException("sdasd");
+  }
+
+  @Override
+  public Object visit(ArrayConstant.IntegerArrayConstant r, Void arg) {
+    return r.getConcreteValue();
+  }
+
+  @Override
+  public Object visit(ArrayConstant.RealArrayConstant r, Void arg) {
+    return r.getConcreteValue();
+  }
+
+  @Override
+  public Object visit(ArrayConstant.StringArrayConstant r, Void arg) {
+    throw new NotImplementedException("sdasd");
+  }
+
+  @Override
+  public Object visit(ArrayConstant.ReferenceArrayConstant r, Void arg) {
+    throw new NotImplementedException("sdasd");
+  }
+
+  @Override
+  public Object visit(ArrayVariable.IntegerArrayVariable r, Void arg) {
+    return r.getConcreteValue();
+  }
+
+  @Override
+  public Object visit(ArrayVariable.RealArrayVariable r, Void arg) {
+    return r.getConcreteValue();
+  }
+
+  @Override
+  public Object visit(ArrayVariable.StringArrayVariable r, Void arg) {
+    throw new NotImplementedException("sdasd");
+  }
+
+  @Override
+  public Object visit(ArrayVariable.ReferenceArrayVariable r, Void arg) {
+    throw new NotImplementedException("sdasd");
+  }
 }

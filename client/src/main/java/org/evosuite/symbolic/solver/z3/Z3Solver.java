@@ -37,6 +37,7 @@ import org.evosuite.symbolic.solver.SolverErrorException;
 import org.evosuite.symbolic.solver.SolverParseException;
 import org.evosuite.symbolic.solver.SolverResult;
 import org.evosuite.symbolic.solver.SolverTimeoutException;
+import org.evosuite.symbolic.solver.smt.SmtArrayVariable;
 import org.evosuite.symbolic.solver.smt.SmtAssertion;
 import org.evosuite.symbolic.solver.smt.SmtConstantDeclaration;
 import org.evosuite.symbolic.solver.smt.SmtExpr;
@@ -239,12 +240,27 @@ public class Z3Solver extends SmtSolver {
 			if (v1 instanceof SmtIntVariable) {
 				SmtConstantDeclaration constantDecl = SmtExprBuilder.mkIntConstantDeclaration(varName);
 				query.addConstantDeclaration(constantDecl);
+
 			} else if (v1 instanceof SmtRealVariable) {
 				SmtConstantDeclaration constantDecl = SmtExprBuilder.mkRealConstantDeclaration(varName);
 				query.addConstantDeclaration(constantDecl);
+
 			} else if (v1 instanceof SmtStringVariable) {
 				SmtConstantDeclaration constantDecl = SmtExprBuilder.mkStringConstantDeclaration(varName);
 				query.addConstantDeclaration(constantDecl);
+
+			} else if (v1 instanceof SmtArrayVariable.SmtRealArrayVariable) {
+				SmtConstantDeclaration arrayVar = SmtExprBuilder.mkRealArrayConstantDeclaration(varName);
+				query.addConstantDeclaration(arrayVar);
+
+			} else if (v1 instanceof SmtArrayVariable.SmtIntegerArrayVariable) {
+				SmtConstantDeclaration arrayVar = SmtExprBuilder.mkIntegerArrayConstantDeclaration(varName);
+				query.addConstantDeclaration(arrayVar);
+
+			} else if (v1 instanceof SmtArrayVariable.SmtStringArrayVariable) {
+				SmtConstantDeclaration arrayVar = SmtExprBuilder.mkStringArrayConstantDeclaration(varName);
+				query.addConstantDeclaration(arrayVar);
+
 			} else {
 				throw new RuntimeException("Unknown variable type " + v1.getClass().getCanonicalName());
 			}

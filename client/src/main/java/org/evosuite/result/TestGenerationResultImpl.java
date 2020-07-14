@@ -26,7 +26,7 @@ import java.util.Set;
 
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
-import org.evosuite.symbolic.dse.algorithm.DSEBaseAlgorithm;
+import org.evosuite.symbolic.dse.algorithm.ExplorationAlgorithmBase;
 import org.evosuite.testcase.TestCase;
 
 class TestGenerationResultImpl implements TestGenerationResult {
@@ -76,7 +76,7 @@ class TestGenerationResultImpl implements TestGenerationResult {
 	
 	private GeneticAlgorithm<?> ga = null;
 
-	private DSEBaseAlgorithm<?> dse = null;
+	private ExplorationAlgorithmBase<?> dse = null;
 	
 	/** Did test generation succeed? */
 	public Status getTestGenerationStatus() {
@@ -107,11 +107,11 @@ class TestGenerationResultImpl implements TestGenerationResult {
 	}
 
 	/** The entire DSEA in tirs final state */
-	public DSEBaseAlgorithm<?> getDSEAlgorithm() {
+	public ExplorationAlgorithmBase<?> getDSEAlgorithm() {
 		return dse;
 	}
 
-	public void setDSEAlgorithm(DSEBaseAlgorithm<?> dse) {
+	public void setDSEAlgorithm(ExplorationAlgorithmBase<?> dse) {
 		this.dse = dse;
 	}
 	

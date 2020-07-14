@@ -33,8 +33,8 @@ import java.util.Map;
 
 import org.evosuite.Properties;
 import org.evosuite.RandomizedTC;
-import org.evosuite.symbolic.BranchCondition;
-import org.evosuite.symbolic.dse.ConcolicEngine;
+import org.evosuite.symbolic.PathConditionNode;
+import org.evosuite.symbolic.dse.ConcolicExecutor;
 import org.evosuite.symbolic.PathCondition;
 import org.evosuite.symbolic.TestCaseBuilder;
 import org.evosuite.symbolic.expr.Constraint;
@@ -72,24 +72,24 @@ public class TestStringSearch2 extends RandomizedTC {
 	@Test
 	public void testCreatePathConstraint() throws SecurityException, NoSuchMethodException {
 		DefaultTestCase tc = buildTestCase("urn:pBth:/A/B/C/doc.html#gilada");
-		List<BranchCondition> branch_conditions = executeTest(tc);
+		List<PathConditionNode> branch_conditions = executeTest(tc);
 		assertEquals(11, branch_conditions.size());
 	}
 
 	@Test
 	public void testSolvePathConstraint() throws SecurityException, NoSuchMethodException {
 		DefaultTestCase tc = buildTestCase("urn:pBth:/A/B/C/doc.html#gilada");
-		List<BranchCondition> branch_conditions = executeTest(tc);
+		List<PathConditionNode> branch_conditions = executeTest(tc);
 
 		Collection<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
 
 		for (int i = 0; i < branch_conditions.size() - 1; i++) {
-			BranchCondition b = branch_conditions.get(i);
+			PathConditionNode b = branch_conditions.get(i);
 			constraints.addAll(b.getSupportingConstraints());
 			constraints.add(b.getConstraint());
 		}
 
-		BranchCondition last_branch = branch_conditions.get(branch_conditions.size() - 1);
+		PathConditionNode last_branch = branch_conditions.get(branch_conditions.size() - 1);
 		constraints.addAll(last_branch.getSupportingConstraints());
 		constraints.add(last_branch.getConstraint().negate());
 
@@ -108,15 +108,15 @@ public class TestStringSearch2 extends RandomizedTC {
 	@Test
 	public void testSolveIndexOfConstant() throws SecurityException, NoSuchMethodException {
 		DefaultTestCase tc = buildTestCase("V*X-:o%tp");
-		List<BranchCondition> branch_conditions = executeTest(tc);
+		List<PathConditionNode> branch_conditions = executeTest(tc);
 
 		Collection<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
 		for (int i = 0; i < branch_conditions.size() - 2; i++) {
-			BranchCondition b = branch_conditions.get(i);
+			PathConditionNode b = branch_conditions.get(i);
 			constraints.addAll(b.getSupportingConstraints());
 			constraints.add(b.getConstraint());
 		}
-		BranchCondition last_branch = branch_conditions.get(branch_conditions.size() - 2);
+		PathConditionNode last_branch = branch_conditions.get(branch_conditions.size() - 2);
 
 		constraints.addAll(last_branch.getSupportingConstraints());
 		constraints.add(last_branch.getConstraint().negate());
@@ -141,7 +141,7 @@ public class TestStringSearch2 extends RandomizedTC {
 		return tc.getDefaultTestCase();
 	}
 
-	private List<BranchCondition> executeTest(DefaultTestCase tc) {
+	private List<PathConditionNode> executeTest(DefaultTestCase tc) {
 		Properties.CLIENT_ON_THREAD = true;
 		Properties.PRINT_TO_SYSTEM = true;
 		Properties.TIMEOUT = 5000;
@@ -150,8 +150,8 @@ public class TestStringSearch2 extends RandomizedTC {
 		System.out.println("TestCase=");
 		System.out.println(tc.toCode());
 
-		PathCondition pc = new ConcolicEngine().execute(tc);
-		List<BranchCondition> branch_conditions = pc.getBranchConditions();
+		PathCondition pc = new ConcolicExecutor().execute(tc);
+		List<PathConditionNode> branch_conditions = pc.getPathConditionNodes();
 
 		printConstraints(branch_conditions);
 		return branch_conditions;

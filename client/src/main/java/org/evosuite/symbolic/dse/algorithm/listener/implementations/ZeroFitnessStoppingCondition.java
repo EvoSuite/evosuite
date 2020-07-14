@@ -1,6 +1,6 @@
 package org.evosuite.symbolic.dse.algorithm.listener.implementations;
 
-import org.evosuite.symbolic.dse.algorithm.DSEBaseAlgorithm;
+import org.evosuite.symbolic.dse.algorithm.ExplorationAlgorithmBase;
 
 /**
  * Adaptation of {@link org.evosuite.ga.stoppingconditions.ZeroFitnessStoppingCondition} for the DSE module.
@@ -40,12 +40,12 @@ public class ZeroFitnessStoppingCondition extends StoppingConditionImpl {
     }
 
     @Override
-    public void generationStarted(DSEBaseAlgorithm algorithm) {
+    public void generationStarted(ExplorationAlgorithmBase algorithm) {
 
     }
 
     @Override
-    public void iteration(DSEBaseAlgorithm algorithm) {
+    public void iteration(ExplorationAlgorithmBase algorithm) {
         // Why would the new iteration have worst fitness than the previous one????
         lastFitness = Math.min(lastFitness, algorithm.getGeneratedTestSuite().getFitness());
     }

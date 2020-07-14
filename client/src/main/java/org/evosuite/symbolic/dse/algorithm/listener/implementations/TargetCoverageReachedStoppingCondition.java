@@ -2,7 +2,7 @@ package org.evosuite.symbolic.dse.algorithm.listener.implementations;
 
 import org.evosuite.Properties;
 import org.evosuite.ga.Chromosome;
-import org.evosuite.symbolic.dse.algorithm.DSEBaseAlgorithm;
+import org.evosuite.symbolic.dse.algorithm.ExplorationAlgorithmBase;
 
 import java.security.InvalidParameterException;
 
@@ -64,7 +64,7 @@ public class TargetCoverageReachedStoppingCondition extends StoppingConditionImp
     }
 
     @Override
-    public void iteration(DSEBaseAlgorithm algorithm) {
+    public void iteration(ExplorationAlgorithmBase algorithm) {
         lastCoverage = Math.max(lastCoverage, normalizeCoverage(algorithm.getGeneratedTestSuite().getCoverage()));
     }
 

@@ -42,7 +42,7 @@ import org.objectweb.asm.Type;
  * @author galeotti
  *
  */
-public class SymbolicInstrumentingClassLoader extends ClassLoader {
+public class ConcolicInstrumentingClassLoader extends ClassLoader {
 	
 	//private final static Logger logger = LoggerFactory.getLogger(DscInstrumentingClassLoader.class);
 
@@ -50,11 +50,11 @@ public class SymbolicInstrumentingClassLoader extends ClassLoader {
 	private final BytecodeInstrumentation instrumentation;
 	private final Map<String, Class<?>> classes = new HashMap<String, Class<?>>();
 	
-	public SymbolicInstrumentingClassLoader(BytecodeInstrumentation instrumentation) {
-		super(SymbolicInstrumentingClassLoader.class.getClassLoader());
+	public ConcolicInstrumentingClassLoader(BytecodeInstrumentation instrumentation) {
+		super(ConcolicInstrumentingClassLoader.class.getClassLoader());
 
 		this.instrumentation = instrumentation;
-		this.classLoader = SymbolicInstrumentingClassLoader.class.getClassLoader();
+		this.classLoader = ConcolicInstrumentingClassLoader.class.getClassLoader();
 	}
 
 	@Override

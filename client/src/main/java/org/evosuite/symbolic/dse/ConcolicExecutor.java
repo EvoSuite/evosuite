@@ -25,14 +25,13 @@ import java.util.Set;
 
 import org.evosuite.Properties;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
-import org.evosuite.symbolic.BranchCondition;
+import org.evosuite.symbolic.PathConditionNode;
 import org.evosuite.symbolic.PathCondition;
-import org.evosuite.symbolic.SymbolicEngine;
 import org.evosuite.symbolic.SymbolicObserver;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.ExpressionEvaluator;
 import org.evosuite.symbolic.instrument.ConcolicBytecodeInstrumentation;
-import org.evosuite.symbolic.instrument.SymbolicInstrumentingClassLoader;
+import org.evosuite.symbolic.instrument.ConcolicInstrumentingClassLoader;
 import org.evosuite.symbolic.vm.ArithmeticVM;
 import org.evosuite.symbolic.vm.CallVM;
 import org.evosuite.symbolic.vm.HeapVM;
@@ -60,16 +59,15 @@ import org.evosuite.dse.VM;
  *
  * @author Gordon Fraser
  */
-public class ConcolicEngine extends SymbolicEngine {
+public class ConcolicExecutor {
 
-	private static Logger logger = LoggerFactory.getLogger(ConcolicEngine.class);
+	private static Logger logger = LoggerFactory.getLogger(ConcolicExecutor.class);
 
-	public ConcolicEngine() {
-		super(
-				new SymbolicInstrumentingClassLoader(
-						new ConcolicBytecodeInstrumentation()
-				)
-		);
+	/** Instrumenting class loader */
+	private final ConcolicInstrumentingClassLoader instrumentingClassLoader;
+
+	public ConcolicExecutor() {
+		this.instrumentingClassLoader = new ConcolicInstrumentingClassLoader(new ConcolicBytecodeInstrumentation());
 
 		/**
 		 * Prepare DSC configuration
@@ -84,12 +82,12 @@ public class ConcolicEngine extends SymbolicEngine {
 	 *            a {@link org.evosuite.testcase.TestChromosome} object.
 	 * @return a {@link java.util.List} object.
 	 */
-	public List<BranchCondition> getSymbolicPath(TestChromosome test) {
+	public List<PathConditionNode> getSymbolicPath(TestChromosome test) {
 		TestChromosome dscCopy = (TestChromosome) test.clone();
 		DefaultTestCase defaultTestCase = (DefaultTestCase) dscCopy.getTestCase();
 
 		PathCondition pathCondition = execute(defaultTestCase);
-		return pathCondition.getBranchConditions();
+		return pathCondition.getPathConditionNodes();
 	}
 
 	public PathCondition execute(DefaultTestCase defaultTestCase) {
@@ -132,25 +130,26 @@ public class ConcolicEngine extends SymbolicEngine {
 			result = executeTestCase(defaultTestCase);
 		} catch (Exception e) {
 			logger.error("Exception during concolic execution {}", e);
-			return new PathCondition(new ArrayList<BranchCondition>());
+			return new PathCondition(new ArrayList<PathConditionNode>());
 		} finally {
 			logger.debug("Cleaning concolic execution");
 			TestCaseExecutor.getInstance().setExecutionObservers(originalExecutionObservers);
 		}
 		VM.disableCallBacks(); // ignore all callbacks from now on
 
-		List<BranchCondition> branches = pathConditionCollector.getPathCondition();
-		logger.info("Concolic execution ended with " + branches.size() + " branches collected");
+		List<PathConditionNode> nodes = pathConditionCollector.getPathCondition();
+		logger.info("Concolic execution ended with " + nodes.size() + " nodes collected");
 		if (!result.noThrownExceptions()) {
 			int idx = result.getFirstPositionOfThrownException();
 			logger.info("Exception thrown: " + result.getExceptionThrownAtPosition(idx));
 		}
-		logNrOfConstraints(branches);
+
+		logNrOfConstraints(nodes);
 
 		logger.debug("Cleaning concolic execution");
 		TestCaseExecutor.getInstance().setExecutionObservers(originalExecutionObservers);
 
-		return new PathCondition(branches);
+		return new PathCondition(nodes);
 	}
 
 	private ExecutionResult executeTestCase(DefaultTestCase defaultTestCase) throws Exception {
@@ -180,19 +179,19 @@ public class ConcolicEngine extends SymbolicEngine {
 		VM.getInstance().prepareConcolicExecution();
 	}
 
-	private void logNrOfConstraints(List<BranchCondition> branches) {
+	private void logNrOfConstraints(List<PathConditionNode> branches) {
 		int nrOfConstraints = 0;
 
 		ExpressionEvaluator exprExecutor = new ExpressionEvaluator();
-		for (BranchCondition branchCondition : branches) {
+		for (PathConditionNode pathConditionNode : branches) {
 
-			for (Constraint<?> supporting_constraint : branchCondition.getSupportingConstraints()) {
+			for (Constraint<?> supporting_constraint : pathConditionNode.getSupportingConstraints()) {
 				supporting_constraint.getLeftOperand().accept(exprExecutor, null);
 				supporting_constraint.getRightOperand().accept(exprExecutor, null);
 				nrOfConstraints++;
 			}
 
-			Constraint<?> constraint = branchCondition.getConstraint();
+			Constraint<?> constraint = pathConditionNode.getConstraint();
 			constraint.getLeftOperand().accept(exprExecutor, null);
 			constraint.getRightOperand().accept(exprExecutor, null);
 			nrOfConstraints++;

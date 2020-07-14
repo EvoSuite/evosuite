@@ -39,6 +39,7 @@ import org.evosuite.symbolic.solver.SolverErrorException;
 import org.evosuite.symbolic.solver.SolverParseException;
 import org.evosuite.symbolic.solver.SolverResult;
 import org.evosuite.symbolic.solver.SolverTimeoutException;
+import org.evosuite.symbolic.solver.smt.SmtArrayVariable;
 import org.evosuite.symbolic.solver.smt.SmtAssertion;
 import org.evosuite.symbolic.solver.smt.SmtQuery;
 import org.evosuite.symbolic.solver.smt.SmtQueryPrinter;
@@ -244,6 +245,19 @@ public final class CVC4Solver extends SmtSolver {
 			} else if (var instanceof SmtStringVariable) {
 				SmtFunctionDeclaration stringVar = SmtExprBuilder.mkStringFunctionDeclaration(varName);
 				query.addFunctionDeclaration(stringVar);
+
+			} else if (var instanceof SmtArrayVariable.SmtRealArrayVariable) {
+				SmtFunctionDeclaration arrayVar = SmtExprBuilder.mkRealArrayFunctionDeclaration(varName);
+				query.addFunctionDeclaration(arrayVar);
+
+			} else if (var instanceof SmtArrayVariable.SmtIntegerArrayVariable) {
+				SmtFunctionDeclaration arrayVar = SmtExprBuilder.mkIntegerArrayFunctionDeclaration(varName);
+				query.addFunctionDeclaration(arrayVar);
+
+			} else if (var instanceof SmtArrayVariable.SmtStringArrayVariable) {
+				SmtFunctionDeclaration arrayVar = SmtExprBuilder.mkStringArrayFunctionDeclaration(varName);
+				query.addFunctionDeclaration(arrayVar);
+
 			} else {
 				throw new RuntimeException("Unknown variable type " + var.getClass().getCanonicalName());
 			}

@@ -19,15 +19,15 @@
  */
 package org.evosuite.symbolic.solver.smt;
 
+import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
-import org.apache.commons.text.StringEscapeUtils;
 import org.evosuite.symbolic.solver.ResultParser;
+import org.evosuite.symbolic.solver.SmtSort;
 import org.evosuite.symbolic.solver.SolverErrorException;
 import org.evosuite.symbolic.solver.SolverParseException;
 import org.evosuite.symbolic.solver.SolverResult;
@@ -37,19 +37,24 @@ import org.slf4j.LoggerFactory;
 
 public final class SmtModelParser extends ResultParser {
 
-	private static final String MODEL_TOKEN = "model";
 	private static final String SAT_TOKEN = "sat";
-	private static final String BLANK_SPACE_TOKEN = " ";
-	private static final String REAL_TOKEN = "Real";
-	private static final String QUOTE_TOKEN = "\"";
-	private static final String STRING_TOKEN = "String";
+	private static final String INT_TOKEN = SmtSort.INT.getName();
+	private static final String REAL_TOKEN = SmtSort.REAL.getName();
 	private static final String SLASH_TOKEN = "/";
 	private static final String MINUS_TOKEN = "-";
-	private static final String INT_TOKEN = "Int";
-	private static final String DEFINE_FUN_TOKEN = "define-fun";
-	private static final String RIGHT_PARENTHESIS_TOKEN = ")";
-	private static final String LEFT_PARENTHESIS_TOKEN = "(";
+	private static final String QUOTE_TOKEN = "\"";
+	private static final String MODEL_TOKEN = "model";
+	private static final String STORE_TOKEN = SmtOperation.Operator.STORE.toString();
+	private static final String ARRAY_TOKEN = SmtSort.ARRAY.getName();
+	private static final String STRING_TOKEN = SmtSort.STRING.getName();
 	private static final String NEW_LINE_TOKEN = "\n";
+	private static final String BLANK_SPACE_TOKEN = " ";
+	private static final String DEFINE_FUN_TOKEN = "define-fun";
+	private static final String LEFT_PARENTHESIS_TOKEN = "(";
+	private static final String RIGHT_PARENTHESIS_TOKEN = ")";
+	public static final String AS_TOKEN = "as";
+	public static final String CONST_TOKEN = "const";
+
 	private final Map<String, Object> initialValues;
 	static Logger logger = LoggerFactory.getLogger(SmtModelParser.class);
 
@@ -133,9 +138,18 @@ public final class SmtModelParser extends ResultParser {
 				} else if (token.equals(STRING_TOKEN)) {
 					value = parseStringValue(tokenizer);
 
+				} else if (token.equals(LEFT_PARENTHESIS_TOKEN)) {
+					token = consumeTokens(tokenizer, NEW_LINE_TOKEN, BLANK_SPACE_TOKEN);
+					checkExpectedToken(ARRAY_TOKEN, token);
+					value = parseArrayValue(tokenizer);
+
 				} else {
 					throw new IllegalArgumentException("Unknown data type " + token);
 				}
+
+				token = consumeTokens(tokenizer, NEW_LINE_TOKEN, BLANK_SPACE_TOKEN);
+				checkExpectedToken(RIGHT_PARENTHESIS_TOKEN, token);
+
 				solution.put(fun_name, value);
 				token = consumeTokens(tokenizer, NEW_LINE_TOKEN, BLANK_SPACE_TOKEN);
 			}
@@ -161,6 +175,147 @@ public final class SmtModelParser extends ResultParser {
 
 		SolverResult satResult = SolverResult.newSAT(solution);
 		return satResult;
+	}
+
+	private Object parseArrayValue(StringTokenizer tokenizer) {
+		Object arrayContents;
+		String contentType;
+		String token;
+
+		// index type
+		token = consumeTokens(tokenizer, NEW_LINE_TOKEN, BLANK_SPACE_TOKEN);
+		checkExpectedToken(INT_TOKEN, token);
+
+		contentType = consumeTokens(tokenizer, NEW_LINE_TOKEN, BLANK_SPACE_TOKEN);
+
+		token = consumeTokens(tokenizer, NEW_LINE_TOKEN, BLANK_SPACE_TOKEN);
+		checkExpectedToken(RIGHT_PARENTHESIS_TOKEN, token);
+
+		token = consumeTokens(tokenizer, NEW_LINE_TOKEN, BLANK_SPACE_TOKEN);
+		checkExpectedToken(LEFT_PARENTHESIS_TOKEN, token);
+
+		// Store expressions
+		token = consumeTokens(tokenizer, NEW_LINE_TOKEN, BLANK_SPACE_TOKEN);
+
+		int storeOperationsAmount = 0;
+		while (token.equals(STORE_TOKEN)) {
+			storeOperationsAmount++;
+
+			token = consumeTokens(tokenizer, NEW_LINE_TOKEN, BLANK_SPACE_TOKEN);
+			checkExpectedToken(LEFT_PARENTHESIS_TOKEN, token);
+
+			token = consumeTokens(tokenizer, NEW_LINE_TOKEN, BLANK_SPACE_TOKEN);
+		}
+
+		checkExpectedToken(LEFT_PARENTHESIS_TOKEN, token);
+
+		token = consumeTokens(tokenizer, NEW_LINE_TOKEN, BLANK_SPACE_TOKEN);
+		checkExpectedToken(AS_TOKEN, token);
+
+		token = consumeTokens(tokenizer, NEW_LINE_TOKEN, BLANK_SPACE_TOKEN);
+		checkExpectedToken(CONST_TOKEN, token);
+
+		token = consumeTokens(tokenizer, NEW_LINE_TOKEN, BLANK_SPACE_TOKEN);
+		checkExpectedToken(LEFT_PARENTHESIS_TOKEN, token);
+
+		token = consumeTokens(tokenizer, NEW_LINE_TOKEN, BLANK_SPACE_TOKEN);
+		checkExpectedToken(ARRAY_TOKEN, token);
+
+		token = consumeTokens(tokenizer, NEW_LINE_TOKEN, BLANK_SPACE_TOKEN);
+		checkExpectedToken(INT_TOKEN, token);
+
+		token = consumeTokens(tokenizer, NEW_LINE_TOKEN, BLANK_SPACE_TOKEN);
+		checkExpectedToken(contentType, token);
+
+		token = consumeTokens(tokenizer, NEW_LINE_TOKEN, BLANK_SPACE_TOKEN);
+		checkExpectedToken(RIGHT_PARENTHESIS_TOKEN, token);
+
+		token = consumeTokens(tokenizer, NEW_LINE_TOKEN, BLANK_SPACE_TOKEN);
+		checkExpectedToken(RIGHT_PARENTHESIS_TOKEN, token);
+
+		// This is the array default value, not checking it
+		consumeTokens(tokenizer, NEW_LINE_TOKEN, BLANK_SPACE_TOKEN);
+
+		token = consumeTokens(tokenizer, NEW_LINE_TOKEN, BLANK_SPACE_TOKEN);
+		checkExpectedToken(RIGHT_PARENTHESIS_TOKEN, token);
+
+		arrayContents = doParseArrayContent(tokenizer, contentType, token, storeOperationsAmount);
+
+		return arrayContents;
+	}
+
+	private Object doParseArrayContent(StringTokenizer tokenizer, String contentType, String token, int elementsAmount) {
+		Map<Integer, Object> arrayContents = new HashMap();
+		int maxIndex = 0;
+
+		while(elementsAmount > 0) {
+			int index = Math.toIntExact(parseIntegerValue(tokenizer));
+			Object content;
+
+			if (contentType.equals(INT_TOKEN)) {
+				content = parseIntegerValue(tokenizer);
+			} else if (contentType.equals(REAL_TOKEN)) {
+				//TODO: TestMe!
+				content = parseRealValue(tokenizer);
+			} else if (contentType.equals(STRING_TOKEN)) {
+				//TODO: TestMe!
+				content = parseStringValue(tokenizer);
+			} else {
+				throw new IllegalArgumentException("Unknown array content type data " + token);
+			}
+
+			arrayContents.put(index, content);
+			if (index > maxIndex) maxIndex = index;
+
+			token = consumeTokens(tokenizer, NEW_LINE_TOKEN, BLANK_SPACE_TOKEN);
+			checkExpectedToken(RIGHT_PARENTHESIS_TOKEN, token);
+			elementsAmount--;
+		}
+
+		Object array = buildNewArray(contentType, maxIndex+1);
+
+		for (Integer index : arrayContents.keySet()) {
+			if (contentType.equals(INT_TOKEN)) {
+				((long[]) array)[index] = ((Long) arrayContents.get(index)).longValue();
+
+			} else if (contentType.equals(REAL_TOKEN)) {
+				((double[]) array)[index] = ((Double) arrayContents.get(index)).doubleValue();
+
+			} else if (contentType.equals(STRING_TOKEN)) {
+				((String[]) array)[index] = (String) arrayContents.get(index);
+
+			} else {
+				throw new IllegalArgumentException("Unknown array content type data " + token);
+			}
+		}
+
+		return array;
+	}
+
+	/**
+	 * Creates a new array instance based on a content type and length
+	 *
+	 * @param contentType
+	 * @param length
+	 * @return
+	 */
+	private Object buildNewArray(String contentType, int length) {
+		Class componentTypeClass;
+
+		if (INT_TOKEN.equals(contentType)) {
+			componentTypeClass = long.class;
+		} else if (REAL_TOKEN.equals(contentType)) {
+			componentTypeClass = double.class;
+		} else if (STRING_TOKEN.equals(contentType)) {
+			componentTypeClass = String.class;
+		} else {
+			throw new IllegalStateException("Unexpected value: " + contentType);
+		}
+
+		return Array.newInstance(
+			componentTypeClass,
+			length
+		);
 	}
 
 	private static String consumeTokens(StringTokenizer tokenizer, String... tokensToConsume) {
@@ -196,8 +351,6 @@ public final class SmtModelParser extends ResultParser {
 		}
 		String stringWithNoQuotes = removeQuotes(strBuilder.toString());
 		String string = decode(stringWithNoQuotes);
-		token = consumeTokens(tokenizer, NEW_LINE_TOKEN, BLANK_SPACE_TOKEN);
-		checkExpectedToken(RIGHT_PARENTHESIS_TOKEN, token);
 
 		return string;
 	}
@@ -328,8 +481,6 @@ public final class SmtModelParser extends ResultParser {
 				}
 			}
 		}
-		token = consumeTokens(tokenizer, NEW_LINE_TOKEN, BLANK_SPACE_TOKEN);
-		checkExpectedToken(RIGHT_PARENTHESIS_TOKEN, token);
 
 		return value;
 	}
@@ -360,8 +511,6 @@ public final class SmtModelParser extends ResultParser {
 			token = consumeTokens(tokenizer, NEW_LINE_TOKEN, BLANK_SPACE_TOKEN);
 			checkExpectedToken(RIGHT_PARENTHESIS_TOKEN, token);
 		}
-		token = consumeTokens(tokenizer, NEW_LINE_TOKEN, BLANK_SPACE_TOKEN);
-		checkExpectedToken(RIGHT_PARENTHESIS_TOKEN, token);
 
 		return value;
 	}

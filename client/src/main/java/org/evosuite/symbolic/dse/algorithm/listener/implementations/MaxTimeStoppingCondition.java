@@ -1,7 +1,7 @@
 package org.evosuite.symbolic.dse.algorithm.listener.implementations;
 
 import org.evosuite.Properties;
-import org.evosuite.symbolic.dse.algorithm.DSEBaseAlgorithm;
+import org.evosuite.symbolic.dse.algorithm.ExplorationAlgorithmBase;
 
 /**
  * Taken from {@link org.evosuite.ga.stoppingconditions.MaxTimeStoppingCondition} for using on the DSE module.
@@ -18,7 +18,7 @@ public class MaxTimeStoppingCondition extends StoppingConditionImpl {
     private long startTime;
 
     @Override
-    public void generationStarted(DSEBaseAlgorithm algorithm) {
+    public void generationStarted(ExplorationAlgorithmBase algorithm) {
         reset();
     }
 

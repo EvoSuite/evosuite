@@ -2,7 +2,6 @@ package org.evosuite.symbolic;
 
 import java.util.List;
 
-import org.evosuite.classpath.ResourceList;
 import org.evosuite.symbolic.expr.Constraint;
 
 /**
@@ -12,7 +11,7 @@ import org.evosuite.symbolic.expr.Constraint;
  * @author jgaleotti
  *
  */
-public final class IfBranchCondition extends BranchCondition {
+public final class IfBranchCondition extends PathConditionNode {
 
 	private final boolean isTrueBranch;
 
@@ -21,14 +20,14 @@ public final class IfBranchCondition extends BranchCondition {
 	 * belonging to the class in the SUT, the target constraint and all the
 	 * suporting constraint for that particular branch (zero checks, etc)
 	 * 
+	 * @param className
+	 * @param methodName
+	 * @param instructionIndex
 	 * @param constraint
 	 *            TODO
 	 * @param supportingConstraints
 	 *            a {@link java.util.Set} object.
-	 * @param reachingConstraints
-	 *            a {@link java.util.Set} object.
-	 * @param ins
-	 *            a {@link gov.nasa.jpf.jvm.bytecode.Instruction} object.
+	 * @param isTrueBranch
 	 */
 	public IfBranchCondition(String className, String methodName, int instructionIndex, Constraint<?> constraint,
 			List<Constraint<?>> supportingConstraints, boolean isTrueBranch) {

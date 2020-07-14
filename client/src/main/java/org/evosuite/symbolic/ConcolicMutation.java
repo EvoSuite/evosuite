@@ -61,17 +61,17 @@ public class ConcolicMutation {
 	 * @param pathCondition
 	 * 
 	 * @param targetCondition
-	 *            a {@link org.evosuite.symbolic.BranchCondition} object.
+	 *            a {@link PathConditionNode} object.
 	 * @param test
 	 *            a {@link org.evosuite.testcase.TestCase} object.
 	 * @return a {@link org.evosuite.testcase.TestCase} object.
 	 */
 	// @SuppressWarnings({ "rawtypes", "unchecked" })
-	public static TestCase negateCondition(List<BranchCondition> pathCondition, BranchCondition targetCondition,
-										   TestCase test) {
+	public static TestCase negateCondition(List<PathConditionNode> pathCondition, PathConditionNode targetCondition,
+																				 TestCase test) {
 		List<Constraint<?>> constraints = new LinkedList<Constraint<?>>();
 
-		for (BranchCondition b : pathCondition) {
+		for (PathConditionNode b : pathCondition) {
 			constraints.addAll(b.getSupportingConstraints());
 			if (b == targetCondition) {
 				break;

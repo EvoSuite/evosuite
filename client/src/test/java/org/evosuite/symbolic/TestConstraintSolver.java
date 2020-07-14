@@ -30,9 +30,10 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.evosuite.Properties;
-import org.evosuite.symbolic.dse.ConcolicEngine;
+import org.evosuite.symbolic.dse.ConcolicExecutor;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.solver.SolverEmptyQueryException;
 import org.evosuite.symbolic.solver.SolverErrorException;
@@ -49,7 +50,7 @@ import com.examples.with.different.packagename.concolic.TestInput2;
 
 public class TestConstraintSolver {
 
-	private List<BranchCondition> executeTest(DefaultTestCase tc) {
+	private List<PathConditionNode> executeTest(DefaultTestCase tc) {
 		Properties.CLIENT_ON_THREAD = true;
 		Properties.PRINT_TO_SYSTEM = true;
 		Properties.TIMEOUT = 5000000;
@@ -58,8 +59,8 @@ public class TestConstraintSolver {
 		System.out.println("TestCase=");
 		System.out.println(tc.toCode());
 
-		PathCondition pc = new ConcolicEngine().execute(tc);
-		List<BranchCondition> branch_conditions = pc.getBranchConditions();
+		PathCondition pc = new ConcolicExecutor().execute(tc);
+		List<PathConditionNode> branch_conditions = pc.getPathConditionNodes();
 
 		return branch_conditions;
 	}
@@ -79,7 +80,7 @@ public class TestConstraintSolver {
 	public void testCase1() throws SecurityException, NoSuchMethodException, SolverEmptyQueryException {
 		DefaultTestCase tc = buildTestCase1();
 		// build patch condition
-		List<BranchCondition> branch_conditions = executeTest(tc);
+		List<PathConditionNode> branch_conditions = executeTest(tc);
 		assertEquals(2, branch_conditions.size());
 
 		// invoke seeker
@@ -93,16 +94,16 @@ public class TestConstraintSolver {
 
 	}
 
-	private SolverResult executeSolver(List<BranchCondition> branch_conditions)
+	private SolverResult executeSolver(List<PathConditionNode> branch_conditions)
 			throws SolverTimeoutException, SolverEmptyQueryException {
 
 		final int lastBranchIndex = branch_conditions.size() - 1;
-		BranchCondition last_branch = branch_conditions.get(lastBranchIndex);
+		PathConditionNode last_branch = branch_conditions.get(lastBranchIndex);
 
 		List<Constraint<?>> constraints = new LinkedList<Constraint<?>>();
 		
 		for(int i=0; i<lastBranchIndex; i++) {
-			BranchCondition c = branch_conditions.get(i);
+			PathConditionNode c = branch_conditions.get(i);
 			constraints.addAll(c.getSupportingConstraints());
 			constraints.add(c.getConstraint());
 		}
@@ -165,13 +166,14 @@ public class TestConstraintSolver {
 	public void testCase2() throws SecurityException, NoSuchMethodException, SolverEmptyQueryException {
 		DefaultTestCase tc = buildTestCase2();
 		// build patch condition
-		List<BranchCondition> branch_conditions = executeTest(tc);
-		assertEquals(57, branch_conditions.size());
+		List<PathConditionNode> pathConditionNodes = executeTest(tc);
+		assertEquals(84, pathConditionNodes.size());
+		assertEquals(57, getBranchconditions(pathConditionNodes).size());
 
 		// keep only 2 top-most branch conditions
-		List<BranchCondition> sublist = new ArrayList<BranchCondition>();
-		sublist.add(branch_conditions.get(0));
-		sublist.add(branch_conditions.get(1));
+		List<PathConditionNode> sublist = new ArrayList<PathConditionNode>();
+		sublist.add(pathConditionNodes.get(0));
+		sublist.add(pathConditionNodes.get(1));
 
 		// invoke seeker
 		try {
@@ -182,6 +184,10 @@ public class TestConstraintSolver {
 			fail();
 		}
 
+	}
+
+	private List<PathConditionNode> getBranchconditions(List<PathConditionNode> pathConditionNodes) {
+		return pathConditionNodes.stream().filter(node -> node instanceof IfBranchCondition || node instanceof SwitchBranchCondition).collect(Collectors.toList());
 	}
 
 }

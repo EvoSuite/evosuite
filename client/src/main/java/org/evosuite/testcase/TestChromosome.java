@@ -30,8 +30,8 @@ import org.evosuite.ga.operators.mutation.MutationHistory;
 import org.evosuite.runtime.javaee.injection.Injector;
 import org.evosuite.runtime.util.AtMostOnceLogger;
 import org.evosuite.setup.TestCluster;
-import org.evosuite.symbolic.BranchCondition;
-import org.evosuite.symbolic.dse.ConcolicEngine;
+import org.evosuite.symbolic.PathConditionNode;
+import org.evosuite.symbolic.dse.ConcolicExecutor;
 import org.evosuite.symbolic.ConcolicMutation;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.localsearch.TestCaseLocalSearch;
@@ -586,20 +586,20 @@ public class TestChromosome extends ExecutableChromosome {
 		// concolicExecution = new ConcolicExecution();
 
 		// Apply DSE to gather constraints
-		List<BranchCondition> branches = new ConcolicEngine().getSymbolicPath(this);
+		List<PathConditionNode> branches = new ConcolicExecutor().getSymbolicPath(this);
 		logger.debug("Conditions: " + branches);
 		if (branches.isEmpty())
 			return false;
 
 		boolean mutated = false;
 
-		List<BranchCondition> targetBranches = branches.stream()
+		List<PathConditionNode> targetBranches = branches.stream()
 				.filter(b -> TestCluster.isTargetClassName(b.getClassName()))
 				.collect(toCollection(ArrayList::new));
 
 		// Select random branch
-		List<BranchCondition> bs = targetBranches.isEmpty() ? branches : targetBranches;
-		BranchCondition branch =  Randomness.choice(bs);
+		List<PathConditionNode> bs = targetBranches.isEmpty() ? branches : targetBranches;
+		PathConditionNode branch =  Randomness.choice(bs);
 
 		logger.debug("Trying to negate branch " + branch.getInstructionIndex()
 		        + " - have " + targetBranches.size() + "/" + branches.size()

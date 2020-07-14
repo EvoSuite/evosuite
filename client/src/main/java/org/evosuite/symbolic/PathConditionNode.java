@@ -27,19 +27,19 @@ import org.evosuite.symbolic.expr.Constraint;
 
 /**
  * <p>
- * BranchCondition class.
+ * PathConditionNode class.
  * </p>
  * 
  * @author Gordon Fraser
  */
-public class BranchCondition {
+public class PathConditionNode {
 	/**
-	 * Class where the branch instruction is
+	 * Class where the node instruction is
 	 */
 	private final String className;
 
 	/**
-	 * Method where the branch instruction is
+	 * Method where the node instruction is
 	 */
 	private final String methodName;
 
@@ -53,9 +53,9 @@ public class BranchCondition {
 	private final List<Constraint<?>> supportingConstraints;
 
 	/**
-	 * A branch condition is identified by the className, methodName and branchIndex
+	 * A node condition is identified by the className, methodName and nodeIndex
 	 * belonging to the class in the SUT, the target constraint and all the
-	 * suporting constraint for that particular branch (zero checks, etc)
+	 * suporting constraint for that particular node (zero checks, etc)
 	 * 
 	 * @param className             
 	 * @param methodName
@@ -65,8 +65,8 @@ public class BranchCondition {
 	 * @param supportingConstraints
 	 *            a {@link java.util.Set} object.
 	 */
-	public BranchCondition(String className, String methodName, int instructionIndex, Constraint<?> constraint,
-			List<Constraint<?>> supportingConstraints) {
+	public PathConditionNode(String className, String methodName, int instructionIndex, Constraint<?> constraint,
+													 List<Constraint<?>> supportingConstraints) {
 
 		this.className = ResourceList.getClassNameFromResourcePath(className);
 		this.methodName = methodName;
@@ -101,7 +101,7 @@ public class BranchCondition {
 	}
 
 	/**
-	 * Returns the constraint for actual branch. This constraint has to be negated
+	 * Returns the constraint for actual node. This constraint has to be negated
 	 * to take another path.
 	 * 
 	 * @return
@@ -113,7 +113,7 @@ public class BranchCondition {
 	/**
 	 * Returns a list of implicit constraints (nullity checks, zero division, index
 	 * within bounds, negative size array length, etc.) collected before the current
-	 * branch condtion and after the last symbolic branch condition
+	 * node condtion and after the last symbolic node condition
 	 * 
 	 * @return
 	 */
@@ -130,15 +130,15 @@ public class BranchCondition {
 	 *
 	 * @return
 	 */
-	public BranchCondition getNegatedVersion() {
-		return new BranchCondition(className, methodName, instructionIndex, constraint.negate(), supportingConstraints);
+	public PathConditionNode getNegatedVersion() {
+		return new PathConditionNode(className, methodName, instructionIndex, constraint.negate(), supportingConstraints);
 	}
 
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		BranchCondition that = (BranchCondition) o;
+		PathConditionNode that = (PathConditionNode) o;
 		return instructionIndex == that.instructionIndex &&
 				className.equals(that.className) &&
 				methodName.equals(that.methodName) &&

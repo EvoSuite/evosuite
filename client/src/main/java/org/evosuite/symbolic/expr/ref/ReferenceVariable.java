@@ -34,7 +34,7 @@ import org.objectweb.asm.Type;
  * @author galeotti
  *
  */
-public final class ReferenceVariable extends ReferenceExpression implements Variable<Object> {
+public class ReferenceVariable extends ReferenceExpression implements Variable<Object> {
 
 	/**
 	 * 
@@ -106,5 +106,4 @@ public final class ReferenceVariable extends ReferenceExpression implements Vari
 	public <K, V> K accept(ExpressionVisitor<K, V> v, V arg) {
 		return v.visit(this, arg);
 	}
-
 }

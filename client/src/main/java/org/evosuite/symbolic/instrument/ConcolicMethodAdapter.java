@@ -44,12 +44,14 @@ import static org.evosuite.symbolic.instrument.ConcolicConfig.FII_V;
 import static org.evosuite.symbolic.instrument.ConcolicConfig.F_V;
 import static org.evosuite.symbolic.instrument.ConcolicConfig.GGGII_V;
 import static org.evosuite.symbolic.instrument.ConcolicConfig.GGG_V;
+import static org.evosuite.symbolic.instrument.ConcolicConfig.GIGG_V;
 import static org.evosuite.symbolic.instrument.ConcolicConfig.GI_V;
 import static org.evosuite.symbolic.instrument.ConcolicConfig.G_V;
 import static org.evosuite.symbolic.instrument.ConcolicConfig.IGGG_V;
 import static org.evosuite.symbolic.instrument.ConcolicConfig.IGGI_V;
 import static org.evosuite.symbolic.instrument.ConcolicConfig.IG_V;
 import static org.evosuite.symbolic.instrument.ConcolicConfig.IIGGI_V;
+import static org.evosuite.symbolic.instrument.ConcolicConfig.IIGG_V;
 import static org.evosuite.symbolic.instrument.ConcolicConfig.III_V;
 import static org.evosuite.symbolic.instrument.ConcolicConfig.II_V;
 import static org.evosuite.symbolic.instrument.ConcolicConfig.INT;
@@ -61,8 +63,11 @@ import static org.evosuite.symbolic.instrument.ConcolicConfig.J_V;
 import static org.evosuite.symbolic.instrument.ConcolicConfig.LGGG_V;
 import static org.evosuite.symbolic.instrument.ConcolicConfig.LGGI_V;
 import static org.evosuite.symbolic.instrument.ConcolicConfig.LG_V;
+import static org.evosuite.symbolic.instrument.ConcolicConfig.LIGG_V;
 import static org.evosuite.symbolic.instrument.ConcolicConfig.LII_V;
+import static org.evosuite.symbolic.instrument.ConcolicConfig.LILGG_V;
 import static org.evosuite.symbolic.instrument.ConcolicConfig.LI_V;
+import static org.evosuite.symbolic.instrument.ConcolicConfig.LIL_V;
 import static org.evosuite.symbolic.instrument.ConcolicConfig.LLGGI_V;
 import static org.evosuite.symbolic.instrument.ConcolicConfig.L_V;
 import static org.evosuite.symbolic.instrument.ConcolicConfig.SII_V;
@@ -340,7 +345,9 @@ public final class ConcolicMethodAdapter extends GeneratorAdapter {
 		case CALOAD:
 		case SALOAD:
 			mv.visitInsn(DUP2);
-			instructionDescriptor = LI_V;
+			mv.visitLdcInsn(className);
+			mv.visitLdcInsn(methName);
+			instructionDescriptor = LIGG_V;
 			break;
 
 		/*
@@ -351,14 +358,14 @@ public final class ConcolicMethodAdapter extends GeneratorAdapter {
 		case BASTORE:
 		case CASTORE:
 		case SASTORE:
-		case AASTORE:
-			// TODO: Dup????
 			/* ..., arrayref, index, value */
 			stack.c1b1a1__c1b1a1c1();
 			/* ..., arrayref, index, value, arrayref */
 			stack.c1b1a1__c1b1a1c1();
 			/* ..., arrayref, index, value, arrayref, index */
-			instructionDescriptor = LI_V;
+			mv.visitLdcInsn(className);
+			mv.visitLdcInsn(methName);
+			instructionDescriptor = LIGG_V;
 			break;
 
 		case LASTORE:
@@ -368,8 +375,23 @@ public final class ConcolicMethodAdapter extends GeneratorAdapter {
 			/* ..., arrayref, index, value, arrayref */
 			stack.c1b2a1__c1b2a1c1();
 			/* ..., arrayref, index, value, arrayref, index */
-			instructionDescriptor = LI_V;
+			mv.visitLdcInsn(className);
+			mv.visitLdcInsn(methName);
+			instructionDescriptor = LIGG_V;
 			break;
+
+		case AASTORE:
+			/* ..., arrayref, index, value */
+  		stack.c1b1a1__c1b1a1c1();
+  		/* ..., arrayref, index, value, arrayref */
+  		stack.c1b1a1__c1b1a1c1();
+  		/* ..., arrayref, index, value, arrayref, index */
+  		stack.c1b1a1__c1b1a1c1();
+  		/* ..., arrayref, index, value, arrayref, index, value */
+			mv.visitLdcInsn(className);
+			mv.visitLdcInsn(methName);
+  		instructionDescriptor = LILGG_V;
+  		break;
 
 		case ATHROW:
 		case ARRAYLENGTH: // http://java.sun.com/docs/books/jvms/second_edition/html/Instructions2.doc.html#ARRAYLENGTH
@@ -515,7 +537,9 @@ public final class ConcolicMethodAdapter extends GeneratorAdapter {
 			           // http://java.sun.com/docs/books/jvms/second_edition/html/Instructions2.doc10.html#newarray
 			mv.visitInsn(DUP); // duplicate array length
 			mv.visitIntInsn(BIPUSH, operand); // push array componenet type
-			insertCallback(BYTECODE_NAME[opcode], II_V, false);
+			mv.visitLdcInsn(className);
+			mv.visitLdcInsn(methName);
+			insertCallback(BYTECODE_NAME[opcode], IIGG_V, false);
 			super.visitIntInsn(opcode, operand); // user ByteCode instruction
 			return;
 
@@ -862,7 +886,9 @@ public final class ConcolicMethodAdapter extends GeneratorAdapter {
 		                                // array type
 		mv.visitIntInsn(SIPUSH, nrDimensions); // push number of dimensions
 		                                       // (unsigned byte)
-		insertCallback(BYTECODE_NAME[MULTIANEWARRAY], GI_V, false);
+		mv.visitLdcInsn(className);
+		mv.visitLdcInsn(methName);
+		insertCallback(BYTECODE_NAME[MULTIANEWARRAY], GIGG_V, false);
 
 		super.visitMultiANewArrayInsn(arrayTypeDesc, nrDimensions); // user
 		                                                            // ByteCode
@@ -953,7 +979,9 @@ public final class ConcolicMethodAdapter extends GeneratorAdapter {
 		case ANEWARRAY:
 			mv.visitInsn(DUP); // duplicate array length
 			mv.visitLdcInsn(type); // name of component type
-			insertCallback(BYTECODE_NAME[opcode], IG_V, false);
+			mv.visitLdcInsn(className);
+			mv.visitLdcInsn(methName);
+			insertCallback(BYTECODE_NAME[opcode], IGGG_V, false);
 			break;
 
 		default:
@@ -983,9 +1011,8 @@ public final class ConcolicMethodAdapter extends GeneratorAdapter {
 	/**
 	 * Insert a callback to org.evosuite.dse.VM.methodName(methodDesc)
 	 */
-	private void insertCallback(String methodName, String methodDesc, boolean isInterface)
-	{
-		mv.visitMethodInsn(INVOKESTATIC, VM_FQ, methodName, methodDesc, false);
+	private void insertCallback(String methodName, String methodDesc, boolean isInterface) {
+		mv.visitMethodInsn(INVOKESTATIC, VM_FQ, methodName, methodDesc, isInterface);
 	}
 
 }

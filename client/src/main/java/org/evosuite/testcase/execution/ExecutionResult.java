@@ -29,7 +29,7 @@ import org.evosuite.testcase.statements.Statement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.tools.javac.code.Attribute.Array;
+//import com.sun.tools.javac.code.Attribute.Array;
 
 import java.util.*;
 import java.util.stream.IntStream;

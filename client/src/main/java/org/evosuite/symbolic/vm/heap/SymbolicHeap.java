@@ -17,11 +17,9 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite.symbolic.vm;
+package org.evosuite.symbolic.vm.heap;
 
-import java.util.HashMap;
-import java.util.Map;
-
+import org.evosuite.Properties;
 import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.bv.IntegerValue;
 import org.evosuite.symbolic.expr.fp.RealValue;
@@ -29,9 +27,15 @@ import org.evosuite.symbolic.expr.ref.ReferenceConstant;
 import org.evosuite.symbolic.expr.ref.ReferenceExpression;
 import org.evosuite.symbolic.expr.ref.ReferenceVariable;
 import org.evosuite.symbolic.expr.str.StringValue;
+import org.evosuite.symbolic.vm.ExpressionFactory;
+import org.evosuite.symbolic.vm.heap.symbolicHeapSection.SymbolicHeapArraySection;
+import org.evosuite.symbolic.vm.heap.symbolicHeapSection.SymbolicHeapArraySectionFactory;
 import org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 
@@ -40,37 +44,24 @@ import org.slf4j.LoggerFactory;
  */
 public final class SymbolicHeap {
 
+	/** Field Value Constants **/
+	public static final String $INT_VALUE     = "$intValue";
+	public static final String $BYTE_VALUE    = "$byteValue";
+	public static final String $CHAR_VALUE    = "$charValue";
+	public static final String $LONG_VALUE    = "$longValue";
+	public static final String $SHORT_VALUE   = "$shortValue";
+	public static final String $FLOAT_VALUE   = "$floatValue";
+	public static final String $DOUBLE_VALUE  = "$doubleValue";
+	public static final String $STRING_VALUE  = "$stringValue";
+	public static final String $MATCHER_INPUT = "$matcherInput";
+	public static final String $BOOLEAN_VALUE = "$booleanValue";
+	public static final String $STRING_READER_VALUE  = "$stringReaderValue";
+	public static final String $BIG_INTEGER_CONTENTS = "$bigInteger_contents";
+	public static final String $STRING_TOKENIZER_VALUE  = "$stringTokenizerValue";
+	public static final String $STRING_BUFFER_CONTENTS  = "$stringBuffer_contents";
+	public static final String $STRING_BUILDER_CONTENTS = "$stringBuilder_contents";
+
 	protected static final Logger logger = LoggerFactory.getLogger(SymbolicHeap.class);
-
-	private static final class FieldKey {
-		private String owner;
-		private String name;
-
-		public FieldKey(String owner, String name) {
-			this.owner = owner;
-			this.name = name;
-		}
-
-		@Override
-		public int hashCode() {
-			return this.owner.hashCode() + this.name.hashCode();
-		}
-
-		@Override
-		public boolean equals(Object o) {
-			if (o != null && o.getClass().equals(FieldKey.class)) {
-				FieldKey that = (FieldKey) o;
-				return this.owner.equals(that.owner) && this.name.equals(that.name);
-			} else {
-				return false;
-			}
-		}
-
-		@Override
-		public String toString() {
-			return this.owner + "/" + this.name;
-		}
-	}
 
 	/**
 	 * Counter for instances
@@ -78,29 +69,14 @@ public final class SymbolicHeap {
 	private int newInstanceCount = 0;
 
 	/**
-	 * This constructor is for references created in instrumented code (NEW,
-	 * ANEW, NEWARRAY, etc).
-	 * 
-	 * It is the only way of creating uninitialized non-null references.
-	 * 
-	 * @param exceptionClassName
-	 * 
-	 * @return
+	 * Array's memory model
 	 */
-	public ReferenceConstant buildNewReferenceConstant(Type objectType) {
-
-		if (objectType.getClassName() == null)
-			throw new IllegalArgumentException();
-
-		final int newInstanceId = newInstanceCount++;
-		return new ReferenceConstant(objectType, newInstanceId);
-	}
+	private SymbolicHeapArraySection symbolicArrays;
 
 	/**
 	 * Stores a mapping between identityHashCodes and NonNullReferences. Every
 	 * time the NonNullReference for a given Object (non String) is needed, this
 	 * mapping is used.
-	 * 
 	 */
 	private final Map<Integer, ReferenceExpression> nonNullRefs = new HashMap<Integer, ReferenceExpression>();
 
@@ -115,6 +91,31 @@ public final class SymbolicHeap {
 	 * Expression<?> contains at least one symbolic variable.
 	 */
 	private final Map<FieldKey, Expression<?>> symb_static_fields = new HashMap<FieldKey, Expression<?>>();
+
+	/**
+	 * Constructor
+	 */
+	public SymbolicHeap() {
+		this.symbolicArrays = SymbolicHeapArraySectionFactory.getSymbolicHeapArray(Properties.SELECTED_DSE_ARRAYS_MEMORY_MODEL_VERSION);
+	}
+
+	/**
+	 * This constructor is for references created in instrumented code (NEW,
+	 * ANEW, NEWARRAY, etc).
+	 * 
+	 * It is the only way of creating uninitialized non-null references.
+	 * 
+	 * @param objectType
+	 * @return
+	 */
+	public ReferenceConstant buildNewReferenceConstant(Type objectType) {
+		if (objectType.getClassName() == null)
+			throw new IllegalArgumentException();
+
+		final int newInstanceId = newInstanceCount++;
+		return new ReferenceConstant(objectType, newInstanceId);
+	}
+
 
 	/**
 	 * Updates an instance field. The symbolic expression is stored iif it is
@@ -132,6 +133,30 @@ public final class SymbolicHeap {
 	 */
 	public void putField(String className, String fieldName, Object conc_receiver, ReferenceExpression symb_receiver,
 			Expression<?> symb_value) {
+
+		Map<ReferenceExpression, Expression<?>> symb_field = getOrCreateSymbolicField(className, fieldName);
+		if (symb_value == null || !symb_value.containsSymbolicVariable()) {
+			symb_field.remove(symb_receiver);
+		} else {
+			symb_field.put(symb_receiver, symb_value);
+		}
+	}
+
+	/**
+	 * Special updating case scenario for Reference expresion values
+	 *
+	 * @param className
+	 * @param fieldName
+	 * @param conc_receiver
+	 *            The concrete Object receiver instance
+	 * @param symb_receiver
+	 *            A symbolic NonNullReference instance
+	 * @param symb_value
+	 *            The Expression to be stored. Null value means the previous
+	 *            symbolic expression has to be erased.
+	 */
+	public void putField(String className, String fieldName, Object conc_receiver, ReferenceExpression symb_receiver,
+			ReferenceExpression symb_value) {
 
 		Map<ReferenceExpression, Expression<?>> symb_field = getOrCreateSymbolicField(className, fieldName);
 		if (symb_value == null || !symb_value.containsSymbolicVariable()) {
@@ -198,7 +223,6 @@ public final class SymbolicHeap {
 	}
 
 	/**
-	 * 
 	 * @param className
 	 * @param fieldName
 	 * @param conc_receiver
@@ -270,7 +294,6 @@ public final class SymbolicHeap {
 		}
 
 		return symb_value;
-
 	}
 
 	public StringValue getStaticField(String owner, String name, String conc_value) {
@@ -309,8 +332,15 @@ public final class SymbolicHeap {
 			} else {
 				// unknown object
 				final Type type = Type.getType(conc_ref.getClass());
-				ReferenceConstant ref_constant = new ReferenceConstant(type, newInstanceCount++);
-				ref_constant.initializeReference(conc_ref);
+				ReferenceConstant ref_constant;
+				if (conc_ref.getClass().isArray()) {
+					ref_constant = buildNewArrayReferenceConstant(type);
+				} else {
+					ref_constant = buildNewReferenceConstant(type);
+				}
+
+				initializeReference(conc_ref, ref_constant);
+//				ref_constant.initializeReference(conc_ref);
 				nonNullRefs.put(identityHashCode, ref_constant);
 				return ref_constant;
 			}
@@ -318,7 +348,7 @@ public final class SymbolicHeap {
 	}
 
 	/**
-	 * Builds a new reference variable using a var_name and a concrete obhect
+	 * Builds a new reference variable using a var_name and a concrete object
 	 * The concrete object can be null.
 	 * 
 	 * @param conc_object
@@ -337,98 +367,6 @@ public final class SymbolicHeap {
 		return r;
 	}
 
-	public void array_store(Object conc_array, ReferenceExpression symb_array, int conc_index,
-			Expression<?> symb_value) {
-
-		Map<Integer, Expression<?>> symb_array_contents = getOrCreateSymbolicArray(symb_array);
-
-		if (symb_value == null || !symb_value.containsSymbolicVariable()) {
-			symb_array_contents.remove(conc_index);
-		} else {
-			symb_array_contents.put(conc_index, symb_value);
-		}
-
-	}
-
-	private final Map<ReferenceExpression, Map<Integer, Expression<?>>> symb_arrays = new HashMap<ReferenceExpression, Map<Integer, Expression<?>>>();
-
-	public static final String $STRING_BUILDER_CONTENTS = "$stringBuilder_contents";
-
-	public static final String $STRING_BUFFER_CONTENTS = "$stringBuffer_contents";
-
-	public static final String $BIG_INTEGER_CONTENTS = "$bigInteger_contents";
-
-	public static final String $STRING_TOKENIZER_VALUE = "$stringTokenizerValue";
-
-	public static final String $STRING_READER_VALUE = "$stringReaderValue";
-
-	public static final String $MATCHER_INPUT = "$matcherInput";
-
-	public static final String $BOOLEAN_VALUE = "$booleanValue";
-
-	public static final String $BYTE_VALUE = "$byteValue";
-
-	public static final String $CHAR_VALUE = "$charValue";
-
-	public static final String $SHORT_VALUE = "$shortValue";
-
-	public static final String $LONG_VALUE = "$longValue";
-
-	public static final String $INT_VALUE = "$intValue";
-
-	public static final String $FLOAT_VALUE = "$floatValue";
-
-	public static final String $DOUBLE_VALUE = "$doubleValue";
-
-	public static final String $STRING_VALUE = "$stringValue";
-
-	private Map<Integer, Expression<?>> getOrCreateSymbolicArray(ReferenceExpression symb_array_ref) {
-
-		Map<Integer, Expression<?>> symb_array_contents = symb_arrays.get(symb_array_ref);
-		if (symb_array_contents == null) {
-			symb_array_contents = new HashMap<Integer, Expression<?>>();
-			symb_arrays.put(symb_array_ref, symb_array_contents);
-		}
-
-		return symb_array_contents;
-	}
-
-	public StringValue array_load(ReferenceExpression symb_array, int conc_index, String conc_value) {
-
-		Map<Integer, Expression<?>> symb_array_contents = getOrCreateSymbolicArray(symb_array);
-		StringValue symb_value = (StringValue) symb_array_contents.get(conc_index);
-		if (symb_value == null || !((String) symb_value.getConcreteValue()).equals(conc_value)) {
-			symb_value = ExpressionFactory.buildNewStringConstant(conc_value);
-			symb_array_contents.remove(conc_index);
-		}
-
-		return symb_value;
-	}
-
-	public IntegerValue array_load(ReferenceExpression symb_array, int conc_index, long conc_value) {
-
-		Map<Integer, Expression<?>> symb_array_contents = getOrCreateSymbolicArray(symb_array);
-		IntegerValue symb_value = (IntegerValue) symb_array_contents.get(conc_index);
-		if (symb_value == null || ((Long) symb_value.getConcreteValue()).longValue() != conc_value) {
-			symb_value = ExpressionFactory.buildNewIntegerConstant(conc_value);
-			symb_array_contents.remove(conc_index);
-		}
-
-		return symb_value;
-	}
-
-	public RealValue array_load(ReferenceExpression symb_array, int conc_index, double conc_value) {
-
-		Map<Integer, Expression<?>> symb_array_contents = getOrCreateSymbolicArray(symb_array);
-		RealValue symb_value = (RealValue) symb_array_contents.get(conc_index);
-		if (symb_value == null || ((Double) symb_value.getConcreteValue()).doubleValue() != conc_value) {
-			symb_value = ExpressionFactory.buildNewRealConstant(conc_value);
-			symb_array_contents.remove(conc_index);
-		}
-
-		return symb_value;
-	}
-
 	/**
 	 * Initializes a reference using a concrete object
 	 * 
@@ -439,15 +377,82 @@ public final class SymbolicHeap {
 		if (conc_ref != null) {
 			if (!symb_ref.isInitialized()) {
 				symb_ref.initializeReference(conc_ref);
-				int identityHashCode = System.identityHashCode(conc_ref);
+
+				if (conc_ref.getClass().isArray()) {
+					symbolicArrays.initializeArrayReference(symb_ref);
+				}
+			}
+
+			//Fix: Reference variables are initialized when created, so they were never set on the heap reference map.
+			int identityHashCode = symb_ref.getConcIdentityHashCode();
+			if (!nonNullRefs.keySet().contains(identityHashCode)) {
 				nonNullRefs.put(identityHashCode, symb_ref);
 			}
 		}
 	}
 
+	/******* Arrays Implementation *******/
+
 	/**
-	 * Constructor
+	 * This constructor is for references created in array related instrumented code (NEWARRAY, ANEWARRAY, MULTINEWARRAY).
+	 *
+	 * It is the only way of creating uninitialized non-null arrays.
+	 *
+	 * @param arrayType
+	 * @return
 	 */
-	public SymbolicHeap() {
+	public ReferenceConstant buildNewArrayReferenceConstant(Type arrayType) {
+		if (arrayType.getClassName() == null)
+			throw new IllegalArgumentException();
+
+		final int newInstanceId = newInstanceCount++;
+		return symbolicArrays.createConstantArray(arrayType, newInstanceId);
+	}
+
+	/**
+	 * Builds a new array reference variable using an array type,  and the name
+	 * The concrete array can be null.
+	 *
+	 * @param concreteArray
+	 * @param arrayVarName
+	 * @return
+	 */
+	public ReferenceVariable buildNewArrayReferenceVariable(Object concreteArray, String arrayVarName) {
+		final int newInstanceId = newInstanceCount++;
+		return symbolicArrays.createVariableArray(concreteArray, newInstanceId, arrayVarName);
+	}
+
+	/** Load operations */
+	public RealValue arrayLoad(ReferenceExpression symbolicArray, IntegerValue symbolicIndex, RealValue symbolicValue) {
+		return symbolicArrays.arrayLoad(symbolicArray, symbolicIndex, symbolicValue);
+	}
+
+	public StringValue arrayLoad(ReferenceExpression symbolicArray, IntegerValue symbolicIndex, StringValue symbolicValue) {
+		return symbolicArrays.arrayLoad(symbolicArray, symbolicIndex, symbolicValue);
+	}
+
+	public IntegerValue arrayLoad(ReferenceExpression symbolicArray, IntegerValue symbolicIndex, IntegerValue symbolicValue) {
+		return symbolicArrays.arrayLoad(symbolicArray, symbolicIndex, symbolicValue);
+	}
+
+  public ReferenceExpression arrayLoad(ReferenceExpression symbolicArray, IntegerValue symbolicIndex, ReferenceExpression symbolicValue) {
+		return symbolicArrays.arrayLoad(symbolicArray, symbolicIndex, symbolicValue);
+	}
+
+  /** Store operations */
+	public void arrayStore(Object concreteArray, ReferenceExpression symbolicArray, IntegerValue symbolicIndex, RealValue symbolicValue) {
+		symbolicArrays.arrayStore(concreteArray, symbolicArray, symbolicIndex, symbolicValue);
+	}
+
+	public void arrayStore(Object concreteArray, ReferenceExpression symbolicArray, IntegerValue symbolicIndex, StringValue symbolicValue) {
+		symbolicArrays.arrayStore(concreteArray, symbolicArray, symbolicIndex, symbolicValue);
+	}
+
+	public void arrayStore(Object concreteArray, ReferenceExpression symbolicArray, IntegerValue symbolicIndex, IntegerValue symbolicValue) {
+		symbolicArrays.arrayStore(concreteArray, symbolicArray, symbolicIndex, symbolicValue);
+	}
+
+	public void arrayStore(Object concreteArray, ReferenceExpression symbolicArray, IntegerValue symbolicIndex, ReferenceExpression symbolicValue) {
+		symbolicArrays.arrayStore(concreteArray, symbolicArray, symbolicIndex, symbolicValue);
 	}
 }

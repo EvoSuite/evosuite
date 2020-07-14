@@ -25,22 +25,22 @@ import java.util.List;
 import org.evosuite.symbolic.expr.Constraint;
 
 /**
- * Represents a sequence of branch conditions.
+ * Represents a sequence of path condition nodes.
  * 
  * @author galeotti
  *
  */
 public class PathCondition {
 
-	private final List<BranchCondition> pathCondition;
+	private final List<PathConditionNode> pathCondition;
 
 	/**
-	 * Creates a new path condition from a list of branch conditions
+	 * Creates a new path condition from a list of path condition nodes
 	 * 
-	 * @param branchConditions
+	 * @param pathConditionNodes
 	 */
-	public PathCondition(List<BranchCondition> branchConditions) {
-		this.pathCondition = new LinkedList<BranchCondition>(branchConditions);
+	public PathCondition(List<PathConditionNode> pathConditionNodes) {
+		this.pathCondition = new LinkedList<PathConditionNode>(pathConditionNodes);
 	}
 
 	/**
@@ -50,7 +50,7 @@ public class PathCondition {
 	 */
 	public List<Constraint<?>> getConstraints() {
 		List<Constraint<?>> constraints = new LinkedList<Constraint<?>>();
-		for (BranchCondition b : this.pathCondition) {
+		for (PathConditionNode b : this.pathCondition) {
 			constraints.addAll(b.getSupportingConstraints());
 			constraints.add(b.getConstraint());
 		}
@@ -58,11 +58,11 @@ public class PathCondition {
 	}
 
 	/**
-	 * Returns the list of branch conditions on this path condition
+	 * Returns the list of path condition nodes on this path condition
 	 * 
 	 * @return
 	 */
-	public List<BranchCondition> getBranchConditions() {
+	public List<PathConditionNode> getPathConditionNodes() {
 		return this.pathCondition;
 	}
 
@@ -76,7 +76,7 @@ public class PathCondition {
 	}
 
 	/**
-	 * The length of the path condition in terms of branch conditions
+	 * The length of the path condition in terms of path condition nodes
 	 * 
 	 * @return
 	 */
@@ -85,12 +85,12 @@ public class PathCondition {
 	}
 
 	/**
-	 * Returns the branch condition at position <code>index</code>
+	 * Returns the path condition node at position <code>index</code>
 	 * 
 	 * @param index
 	 * @return
 	 */
-	public BranchCondition get(int index) {
+	public PathConditionNode get(int index) {
 		return this.pathCondition.get(index);
 	}
 	

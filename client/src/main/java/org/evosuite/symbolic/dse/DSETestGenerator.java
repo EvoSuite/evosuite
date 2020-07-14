@@ -22,7 +22,7 @@ package org.evosuite.symbolic.dse;
 import org.evosuite.Properties;
 import org.evosuite.ga.localsearch.LocalSearchBudget;
 import org.evosuite.ga.localsearch.LocalSearchObjective;
-import org.evosuite.symbolic.BranchCondition;
+import org.evosuite.symbolic.PathConditionNode;
 import org.evosuite.symbolic.PathCondition;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.Variable;
@@ -32,7 +32,7 @@ import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.execution.ExecutionResult;
-import org.evosuite.testcase.utils.TestCaseUtils;
+import org.evosuite.testcase.TestCaseUpdater;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.slf4j.Logger;
@@ -102,7 +102,7 @@ public class DSETestGenerator {
 		test.clone(); // I am not sure what is the purpose of this
 
 		DefaultTestCase clone_test_case = (DefaultTestCase) test.getTestCase().clone();
-		final PathCondition collectedPathCondition = new ConcolicEngine().execute(clone_test_case);
+		final PathCondition collectedPathCondition = new ConcolicExecutor().execute(clone_test_case);
 
 		logger.info("Done concolic execution");
 
@@ -110,7 +110,7 @@ public class DSETestGenerator {
 			return null;
 		}
 
-		for (BranchCondition c : collectedPathCondition.getBranchConditions()) {
+		for (PathConditionNode c : collectedPathCondition.getPathConditionNodes()) {
 			logger.info(" -> " + c.getConstraint());
 		}
 
@@ -127,7 +127,7 @@ public class DSETestGenerator {
 
 		//
 		for (int conditionIndex = 0; conditionIndex < collectedPathCondition.size(); conditionIndex++) {
-			BranchCondition condition = collectedPathCondition.get(conditionIndex);
+			PathConditionNode condition = collectedPathCondition.get(conditionIndex);
 
 			if (LocalSearchBudget.getInstance().isFinished()) {
 				logger.debug("Local search budget used up: " + Properties.LOCAL_SEARCH_BUDGET_TYPE);
@@ -183,7 +183,7 @@ public class DSETestGenerator {
 				Map<String, Object> model = solverResult.getModel();
 				TestCase oldTest = test.getTestCase();
 				ExecutionResult oldResult = test.getLastExecutionResult().clone();
-				TestCase newTest = TestCaseUtils.updateTest(oldTest, model);
+				TestCase newTest = TestCaseUpdater.updateTest(oldTest, model);
 				logger.info("New test: " + newTest.toCode());
 				test.setTestCase(newTest);
 				// test.clearCachedMutationResults(); // TODO Mutation
@@ -224,7 +224,7 @@ public class DSETestGenerator {
 			final PathCondition collectedPathCondition) {
 		List<Integer> conditionIndexesNotCoveredTwoWays = new LinkedList<Integer>();
 		for (int conditionIndex = 0; conditionIndex < collectedPathCondition.size(); conditionIndex++) {
-			BranchCondition b = collectedPathCondition.get(conditionIndex);
+			PathConditionNode b = collectedPathCondition.get(conditionIndex);
 			if (!isCoveredTwoWays(test, b.getInstructionIndex())) {
 				conditionIndexesNotCoveredTwoWays.add(conditionIndex);
 			}

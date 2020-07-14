@@ -28,7 +28,7 @@ import org.evosuite.rmi.ClientServices;
 import org.evosuite.rmi.service.ClientState;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.strategy.TestGenerationStrategy;
-import org.evosuite.symbolic.dse.algorithm.DSEAlgorithm;
+import org.evosuite.symbolic.dse.algorithm.ExplorationAlgorithm;
 import org.evosuite.symbolic.dse.algorithm.DSEAlgorithmFactory;
 import org.evosuite.symbolic.dse.algorithm.DSEAlgorithms;
 import org.evosuite.symbolic.dse.algorithm.listener.implementations.MaxTimeStoppingCondition;
@@ -96,14 +96,14 @@ public class DSEStrategy extends TestGenerationStrategy {
 			ClientServices.getInstance().getClientNode().changeState(ClientState.SEARCH);
 
 			// Builds the actual algorithm
-			DSEAlgorithm algorithm = buildDSEAlgorithm();
+			ExplorationAlgorithm algorithm = buildDSEAlgorithm();
 
 			// ????
 			if (Properties.STOP_ZERO) {
 
 			}
 
-			testSuite = algorithm.generateSolution();
+			testSuite = algorithm.explore();
 
 			if (Properties.SERIALIZE_DSE || Properties.CLIENT_ON_THREAD) {
 				TestGenerationResultBuilder.getInstance().setDSEAlgorithm(algorithm);
@@ -143,12 +143,12 @@ public class DSEStrategy extends TestGenerationStrategy {
 
 	}
 
-	private DSEAlgorithm buildDSEAlgorithm() {
+	private ExplorationAlgorithm buildDSEAlgorithm() {
 		DSEAlgorithmFactory dseFactory = new DSEAlgorithmFactory();
 		DSEAlgorithms dseAlgorithmType = Properties.DSE_ALGORITHM_TYPE;
 
 		LoggingUtils.getEvoLogger().info("* Using DSE algorithm: {}", dseAlgorithmType.getName());
-		DSEAlgorithm algorithm = dseFactory.getDSEAlgorithm(dseAlgorithmType);
+		ExplorationAlgorithm algorithm = dseFactory.getDSEAlgorithm(dseAlgorithmType);
 
         // Adding stopping conditions
 		algorithm.addStoppingCondition(maxTimeStoppingCondition);

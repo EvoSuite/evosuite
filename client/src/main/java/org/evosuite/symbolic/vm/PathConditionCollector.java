@@ -19,14 +19,14 @@
  */
 package org.evosuite.symbolic.vm;
 
-import java.util.LinkedList;
-import java.util.List;
-
-import org.evosuite.symbolic.BranchCondition;
 import org.evosuite.symbolic.IfBranchCondition;
+import org.evosuite.symbolic.PathConditionNode;
 import org.evosuite.symbolic.SwitchBranchCondition;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.constraint.IntegerConstraint;
+
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Collects a path condition during concolic execution
@@ -36,7 +36,7 @@ import org.evosuite.symbolic.expr.constraint.IntegerConstraint;
  */
 public final class PathConditionCollector {
 
-	private final List<BranchCondition> branchConditions = new LinkedList<BranchCondition>();
+	private final List<PathConditionNode> pathConditionNodes = new LinkedList<PathConditionNode>();
 
 	private final LinkedList<Constraint<?>> currentSupportingConstraints = new LinkedList<Constraint<?>>();
 
@@ -49,11 +49,30 @@ public final class PathConditionCollector {
 	 * condition is currently added, then these supporting constraints will be added
 	 * to the new branch condition
 	 * 
-	 * @param c
+	 * @param constraint
 	 */
-	public void appendSupportingConstraint(IntegerConstraint c) {
-		Constraint<?> normalizedConstraint = normalizeConstraint(c);
+	public void appendSupportingConstraint(IntegerConstraint constraint) {
+		Constraint<?> normalizedConstraint = normalizeConstraint(constraint);
 		currentSupportingConstraints.add(normalizedConstraint);
+	}
+
+	/**
+	 * Add a new constraint to a branch condition for a IF instruction
+	 *
+	 * @param constraint
+	 *            the constraint for the branch condition
+	 * @param className
+	 * @param methodName
+	 */
+	public void appendSupportingCondition(IntegerConstraint constraint, String className, String methodName) {
+
+		Constraint<?> normalizedConstraint = normalizeConstraint(constraint);
+
+		/** Note (ilebrero): instruction index is kept for retro-compatibility only*/
+		PathConditionNode pathConditionNode = new PathConditionNode(className, methodName, Integer.MIN_VALUE, normalizedConstraint,
+				new LinkedList<>());
+
+		pathConditionNodes.add(pathConditionNode);
 	}
 
 	/**
@@ -74,12 +93,12 @@ public final class PathConditionCollector {
 		Constraint<?> normalizedConstraint = normalizeConstraint(c);
 
 		LinkedList<Constraint<?>> branch_supporting_constraints = new LinkedList<Constraint<?>>(
-				currentSupportingConstraints);
+			currentSupportingConstraints);
 
 		IfBranchCondition new_branch = new IfBranchCondition(className, methName, branchIndex, normalizedConstraint,
 				branch_supporting_constraints, isTrueBranch);
 
-		branchConditions.add(new_branch);
+		pathConditionNodes.add(new_branch);
 
 		currentSupportingConstraints.clear();
 	}
@@ -105,7 +124,7 @@ public final class PathConditionCollector {
 		SwitchBranchCondition new_branch = new SwitchBranchCondition(className, methodName, instructionIndex,
 				normalizedConstraint, branch_supporting_constraints, goal);
 
-		branchConditions.add(new_branch);
+		pathConditionNodes.add(new_branch);
 
 		currentSupportingConstraints.clear();
 
@@ -116,8 +135,8 @@ public final class PathConditionCollector {
 	 * 
 	 * @return
 	 */
-	public List<BranchCondition> getPathCondition() {
-		return new LinkedList<BranchCondition>(branchConditions);
+	public List<PathConditionNode> getPathCondition() {
+		return new LinkedList<PathConditionNode>(pathConditionNodes);
 	}
 
 	/**
@@ -135,12 +154,12 @@ public final class PathConditionCollector {
 		Constraint<?> normalizedConstraint = normalizeConstraint(c);
 
 		LinkedList<Constraint<?>> branch_supporting_constraints = new LinkedList<Constraint<?>>(
-				currentSupportingConstraints);
+			currentSupportingConstraints);
 
 		SwitchBranchCondition new_branch = new SwitchBranchCondition(className, methodName, instructionIndex,
 				normalizedConstraint, branch_supporting_constraints);
 
-		branchConditions.add(new_branch);
+		pathConditionNodes.add(new_branch);
 
 		currentSupportingConstraints.clear();
 

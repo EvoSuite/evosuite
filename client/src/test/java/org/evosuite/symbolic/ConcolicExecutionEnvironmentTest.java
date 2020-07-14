@@ -42,7 +42,7 @@ import org.evosuite.runtime.testdata.EvoSuiteURL;
 import org.evosuite.runtime.testdata.FileSystemHandling;
 import org.evosuite.runtime.testdata.NetworkHandling;
 import org.evosuite.runtime.vfs.VirtualFileSystem;
-import org.evosuite.symbolic.dse.ConcolicEngine;
+import org.evosuite.symbolic.dse.ConcolicExecutor;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.evosuite.testcase.variable.VariableReference;
@@ -68,14 +68,14 @@ public class ConcolicExecutionEnvironmentTest {
 	private static final boolean DEFAULT_MOCK_FRAMEWORK_ENABLED = MockFramework
 			.isEnabled();
 
-	private List<BranchCondition> executeTest(DefaultTestCase tc) {
+	private List<PathConditionNode> executeTest(DefaultTestCase tc) {
 
 		System.out.println("TestCase=");
 		System.out.println(tc.toCode());
 
 		// ConcolicExecution concolicExecutor = new ConcolicExecution();
-		PathCondition pc = new ConcolicEngine().execute(tc);
-		List<BranchCondition> branch_conditions = pc.getBranchConditions();
+		PathCondition pc = new ConcolicExecutor().execute(tc);
+		List<PathConditionNode> branch_conditions = pc.getPathConditionNodes();
 
 		printConstraints(branch_conditions);
 		return branch_conditions;
@@ -91,7 +91,7 @@ public class ConcolicExecutionEnvironmentTest {
 	public void testDseWithFile() throws SecurityException,
 			NoSuchMethodException {
 		DefaultTestCase tc = buildTestCaseWithFile();
-		List<BranchCondition> branch_conditions = executeTest(tc);
+		List<PathConditionNode> branch_conditions = executeTest(tc);
 		assertTrue(branch_conditions.size() > 0);
 	}
 
@@ -99,7 +99,7 @@ public class ConcolicExecutionEnvironmentTest {
 	public void testDseWithURL() throws SecurityException,
 			NoSuchMethodException {
 		DefaultTestCase tc = buildTestCaseWithURL();
-		List<BranchCondition> branch_conditions = executeTest(tc);
+		List<PathConditionNode> branch_conditions = executeTest(tc);
 		assertTrue(branch_conditions.size() > 0);
 	}
 
@@ -107,7 +107,7 @@ public class ConcolicExecutionEnvironmentTest {
 	public void testDseWithReset1() throws SecurityException,
 			NoSuchMethodException {
 		DefaultTestCase tc = buildTestCaseWithReset();
-		List<BranchCondition> branch_conditions = executeTest(tc);
+		List<PathConditionNode> branch_conditions = executeTest(tc);
 		assertEquals(1, branch_conditions.size());
 	}
 
@@ -115,7 +115,7 @@ public class ConcolicExecutionEnvironmentTest {
 	public void testDseWithReset2() throws SecurityException,
 			NoSuchMethodException {
 		DefaultTestCase tc = buildTestCaseWithReset();
-		List<BranchCondition> branch_conditions = executeTest(tc);
+		List<PathConditionNode> branch_conditions = executeTest(tc);
 		assertEquals(1, branch_conditions.size());
 	}
 

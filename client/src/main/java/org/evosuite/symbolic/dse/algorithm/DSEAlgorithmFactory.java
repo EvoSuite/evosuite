@@ -50,7 +50,7 @@ public class DSEAlgorithmFactory {
      */
     private final boolean showProgress = Properties.SHOW_PROGRESS;
 
-    public DSEAlgorithm getDSEAlgorithm(DSEAlgorithms dseAlgorithmType) {
+    public ExplorationAlgorithm getDSEAlgorithm(DSEAlgorithms dseAlgorithmType) {
         if (dseAlgorithmType == null) {
             throw new IllegalArgumentException(DSE_ALGORITHM_TYPE_NOT_PROVIDED);
         }
@@ -71,8 +71,8 @@ public class DSEAlgorithmFactory {
      *
      * @return
      */
-    private DSEAlgorithm buildSAGEAlgorithm() {
-        DSEAlgorithm algorithm = new DSEAlgorithm(
+    private ExplorationAlgorithm buildSAGEAlgorithm() {
+        ExplorationAlgorithm algorithm = new ExplorationAlgorithm(
             dseStatistics,
             showProgress,
             new AlreadySeenSkipStrategy(),

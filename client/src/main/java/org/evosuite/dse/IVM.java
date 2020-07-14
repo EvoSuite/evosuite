@@ -265,21 +265,21 @@ public interface IVM {
 	 * http://java.sun.com/docs/books/jvms/second_edition/html/Instructions2.
 	 * doc6.html#iaload
 	 */
-	public void IALOAD(Object receiver, int index);
+	public void IALOAD(Object receiver, int index, String className, String methodName);
 
-	public void LALOAD(Object receiver, int index);
+	public void LALOAD(Object receiver, int index, String className, String methodName);
 
-	public void FALOAD(Object receiver, int index);
+	public void FALOAD(Object receiver, int index, String className, String methodName);
 
-	public void DALOAD(Object receiver, int index);
+	public void DALOAD(Object receiver, int index, String className, String methodName);
 
-	public void AALOAD(Object receiver, int index);
+	public void AALOAD(Object receiver, int index, String className, String methodName);
 
-	public void BALOAD(Object receiver, int index);
+	public void BALOAD(Object receiver, int index, String className, String methodName);
 
-	public void CALOAD(Object receiver, int index);
+	public void CALOAD(Object receiver, int index, String className, String methodName);
 
-	public void SALOAD(Object receiver, int index);
+	public void SALOAD(Object receiver, int index, String className, String methodName);
 
 	/**
 	 * http://java.sun.com/docs/books/jvms/second_edition/html/Instructions2.
@@ -335,21 +335,21 @@ public interface IVM {
 
 	public void ASTORE_3();
 
-	public void IASTORE(Object receiver, int index);
+	public void IASTORE(Object receiver, int index, String className, String methodName);
 
-	public void LASTORE(Object receiver, int index);
+	public void LASTORE(Object receiver, int index, String className, String methodName);
 
-	public void FASTORE(Object receiver, int index);
+	public void FASTORE(Object receiver, int index, String className, String methodName);
 
-	public void DASTORE(Object receiver, int index);
+	public void DASTORE(Object receiver, int index, String className, String methodName);
 
-	public void AASTORE(Object receiver, int index);
+	public void BASTORE(Object receiver, int index, String className, String methodName);
 
-	public void BASTORE(Object receiver, int index);
+	public void CASTORE(Object receiver, int index, String className, String methodName);
 
-	public void CASTORE(Object receiver, int index);
+	public void SASTORE(Object receiver, int index, String className, String methodName);
 
-	public void SASTORE(Object receiver, int index);
+	public void AASTORE(Object receiver, int index, Object value, String className, String methodName);
 
 	public void POP();
 
@@ -578,9 +578,9 @@ public interface IVM {
 
 	public void NEW(String typeName);
 
-	public void NEWARRAY(int length, Class<?> componentType);
+	public void NEWARRAY(int length, Class<?> componentType, String className, String methodName);
 
-	public void ANEWARRAY(int length, String typeName);
+	public void ANEWARRAY(int length, String componentTypeName, String className, String typeName);
 
 	public void ARRAYLENGTH(Object reference);
 
@@ -596,7 +596,7 @@ public interface IVM {
 
 	public void WIDE();
 
-	public void MULTIANEWARRAY(String arrayTypeDesc, int nrDimensions);
+	public void MULTIANEWARRAY(String arrayTypeDesc, int nrDimensions, String className, String methodName);
 
 	public void IFNULL(String className, String methNane, int branchIndex,
 			Object param);

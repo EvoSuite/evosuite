@@ -30,20 +30,13 @@ public class MazeClient {
     }
 
     char[][] maze = new char[][] {
-        // row 0
-        "+-+---+---+".toCharArray(),
-        // row 1
-        "| |     |#|".toCharArray(),
-        // row 2
-        "| | --+ | |".toCharArray(),
-        // row 3
-        "| |   | | |".toCharArray(),
-        // row 4
-        "| +-- | | |".toCharArray(),
-        // row 5
-        "|     |   |".toCharArray(),
-        // row 6
-        "+-----+---+".toCharArray()};
+        "+-+---+---+".toCharArray(),  // row 0
+        "| |     |#|".toCharArray(),  // row 1
+        "| | --+ | |".toCharArray(),  // row 2
+        "| |   | | |".toCharArray(),  // row 3
+        "| +-- | | |".toCharArray(),  // row 4
+        "|     |   |".toCharArray(),  // row 5
+        "+-----+---+".toCharArray()}; // row 6
 
 
     int x, y; // Player position

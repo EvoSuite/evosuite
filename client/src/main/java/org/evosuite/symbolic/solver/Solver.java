@@ -19,21 +19,23 @@
  */
 package org.evosuite.symbolic.solver;
 
+import org.evosuite.symbolic.expr.Constraint;
+import org.evosuite.symbolic.expr.Variable;
+import org.evosuite.symbolic.expr.ref.array.ArrayVariable;
+import org.evosuite.symbolic.expr.bv.IntegerVariable;
+import org.evosuite.symbolic.expr.constraint.ConstraintEvaluator;
+import org.evosuite.symbolic.expr.fp.RealVariable;
+import org.evosuite.symbolic.expr.str.StringVariable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
-import org.evosuite.symbolic.expr.Constraint;
-import org.evosuite.symbolic.expr.constraint.ConstraintEvaluator;
-import org.evosuite.symbolic.expr.Variable;
-import org.evosuite.symbolic.expr.bv.IntegerVariable;
-import org.evosuite.symbolic.expr.fp.RealVariable;
-import org.evosuite.symbolic.expr.str.StringVariable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Interface for SMT solvers
@@ -176,6 +178,12 @@ public abstract class Solver {
 				RealVariable ir = (RealVariable) v;
 				Double concreteReal = (Double) concreteValue;
 				ir.setConcreteValue(concreteReal);
+			} else if (v instanceof ArrayVariable) {
+				ArrayVariable arr = (ArrayVariable) v;
+				arr.setConcreteValue(
+					getResizedArray(
+						arr.getConcreteValue(),
+						concreteValue));
 			} else {
 				logger.warn("unknow variable type " + v.getClass().getName());
 			}
@@ -216,6 +224,28 @@ public abstract class Solver {
 			// restore values
 			setConcreteValues(variables, initialValues);
 		}
+	}
+
+	/**
+	 * Returns a new aray with the longest length.
+	 *
+	 * TODO: Rework this in the future, the way we talk about lengths is probably not the best.
+	 *
+	 * @param originalArray
+	 * @param newArray
+	 * @return
+	 */
+	private static Object getResizedArray(Object originalArray, Object newArray) {
+		int originalLength = Array.getLength(originalArray);
+		int newLength = Array.getLength(newArray);
+
+		if (originalLength > newLength) {
+			Object copyArr = Array.newInstance(newArray.getClass().getComponentType(), originalLength);
+			System.arraycopy(newArray, 0, copyArr, 0, Math.min(originalLength, newLength));
+			return copyArr;
+		}
+
+		return newArray;
 	}
 
 }

@@ -19,9 +19,7 @@
  */
 package org.evosuite.symbolic;
 
-import org.evosuite.symbolic.instrument.SymbolicInstrumentingClassLoader;
-import org.evosuite.symbolic.vm.PathConditionCollector;
-import org.evosuite.symbolic.vm.SymbolicEnvironment;
+import org.evosuite.symbolic.instrument.ConcolicInstrumentingClassLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,9 +37,9 @@ public abstract class SymbolicEngine {
     private static Logger logger = LoggerFactory.getLogger(SymbolicEngine.class);
 
 	/** Instrumenting class loader */
-	protected final SymbolicInstrumentingClassLoader instrumentingClassLoader;
+	protected final ConcolicInstrumentingClassLoader instrumentingClassLoader;
 
-    public SymbolicEngine(SymbolicInstrumentingClassLoader instrumentingClassLoader) {
+    public SymbolicEngine(ConcolicInstrumentingClassLoader instrumentingClassLoader) {
         this.instrumentingClassLoader = instrumentingClassLoader;
     }
 }

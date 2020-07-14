@@ -24,14 +24,16 @@ import org.evosuite.Properties;
 /**
  * DSE Algorithms implemented.
  * Please, add your algorithm as well as a short description when you add a new one.
+ * TODO: Add the exploration strategies here and make them lazyly created when returned through an interface.
  *
  * @author ignacio lebrero
  */
 public enum DSEAlgorithms {
     SAGE(
-            "SAGE",
-            "Default implementation based on: Automated Whitebox Fuzz Testing, Godefroid, Levin, Molnar",
-            new Properties.Criterion[]{Properties.Criterion.BRANCH});
+      "SAGE",
+      "Default implementation based on: Automated Whitebox Fuzz Testing, Godefroid, Levin, Molnar",
+      new Properties.Criterion[]{Properties.Criterion.BRANCH}
+     );
 
     private String name;
     private String description;

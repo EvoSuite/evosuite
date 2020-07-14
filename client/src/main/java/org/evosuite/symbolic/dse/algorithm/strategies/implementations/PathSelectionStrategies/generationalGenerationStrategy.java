@@ -19,7 +19,7 @@
  */
 package org.evosuite.symbolic.dse.algorithm.strategies.implementations.PathSelectionStrategies;
 
-import org.evosuite.symbolic.BranchCondition;
+import org.evosuite.symbolic.PathConditionNode;
 import org.evosuite.symbolic.dse.algorithm.DSEPathCondition;
 import org.evosuite.symbolic.dse.algorithm.strategies.PathSelectionStrategy;
 import org.evosuite.symbolic.PathCondition;
@@ -37,25 +37,25 @@ public class generationalGenerationStrategy implements PathSelectionStrategy {
     @Override
     public List<DSEPathCondition> generateChildren(DSEPathCondition currentPathConditionChild) {
         List<DSEPathCondition> generatedChildren = new ArrayList<>();
-        List<BranchCondition> accumulatedBranchConditions = new ArrayList<>();
-        List<BranchCondition> currentPathConditionBranchConditions = currentPathConditionChild.getPathCondition().getBranchConditions();
+        List<PathConditionNode> accumulatedPathConditionNodes = new ArrayList<>();
+        List<PathConditionNode> currentPathConditionPathConditionNodes = currentPathConditionChild.getPathCondition().getPathConditionNodes();
         int currentPathConditionIndexGeneratedFrom = currentPathConditionChild.getGeneratedFromIndex();
 
         // adds the untouched prefix
         for (int indexBound = 0; indexBound < currentPathConditionIndexGeneratedFrom; ++indexBound) {
-            accumulatedBranchConditions.add(currentPathConditionBranchConditions.get(indexBound));
+            accumulatedPathConditionNodes.add(currentPathConditionPathConditionNodes.get(indexBound));
         }
 
         // Important!! We start from the index the test was generated from to avoid re-create already checked paths
-        for (int indexBound = currentPathConditionIndexGeneratedFrom; indexBound < currentPathConditionBranchConditions.size(); indexBound++) {
-            BranchCondition currentBranchCondition = currentPathConditionBranchConditions.get(indexBound);
+        for (int indexBound = currentPathConditionIndexGeneratedFrom; indexBound < currentPathConditionPathConditionNodes.size(); indexBound++) {
+            PathConditionNode currentPathConditionNode = currentPathConditionPathConditionNodes.get(indexBound);
 
             // Adds the negated BranchCondition version to the current created pathCondition
-            accumulatedBranchConditions.add(currentBranchCondition.getNegatedVersion());
+            accumulatedPathConditionNodes.add(currentPathConditionNode.getNegatedVersion());
 
             DSEPathCondition newChild = new DSEPathCondition(
                 new PathCondition(
-                        new ArrayList(accumulatedBranchConditions)
+                        new ArrayList(accumulatedPathConditionNodes)
                 ),
                 indexBound + 1
             );
@@ -64,9 +64,9 @@ public class generationalGenerationStrategy implements PathSelectionStrategy {
             generatedChildren.add(newChild);
 
             // replaces the negated branch condition with the original one for continuing generating
-            accumulatedBranchConditions.set(
-                accumulatedBranchConditions.size() - 1,
-                currentBranchCondition
+            accumulatedPathConditionNodes.set(
+                accumulatedPathConditionNodes.size() - 1,
+              currentPathConditionNode
             );
         }
 

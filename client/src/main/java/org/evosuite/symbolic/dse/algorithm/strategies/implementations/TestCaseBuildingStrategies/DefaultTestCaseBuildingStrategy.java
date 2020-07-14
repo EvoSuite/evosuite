@@ -24,7 +24,7 @@ import org.evosuite.symbolic.dse.algorithm.DSEPathCondition;
 import org.evosuite.symbolic.dse.algorithm.strategies.TestCaseBuildingStrategy;
 import org.evosuite.symbolic.PathCondition;
 import org.evosuite.testcase.TestCase;
-import org.evosuite.testcase.utils.TestCaseUtils;
+import org.evosuite.testcase.TestCaseUpdater;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -37,7 +37,7 @@ import java.util.ArrayList;
 public class DefaultTestCaseBuildingStrategy implements TestCaseBuildingStrategy {
     @Override
     public DSETestCase buildInitialTestCase(Method method) {
-        TestCase testCase = TestCaseUtils.buildTestCaseWithDefaultValues(method);
+        TestCase testCase = TestCaseUpdater.buildTestCaseWithDefaultValues(method);
         PathCondition emptyPathCondition = new PathCondition(new ArrayList());
 
         DSEPathCondition emptyDSEPathCondition = new DSEPathCondition(

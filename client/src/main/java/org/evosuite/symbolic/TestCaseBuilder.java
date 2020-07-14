@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.evosuite.runtime.testdata.EvoSuiteFile;
+import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.variable.ArrayIndex;
 import org.evosuite.testcase.variable.ArrayReference;
 import org.evosuite.testcase.DefaultTestCase;
@@ -58,30 +59,42 @@ import org.evosuite.utils.generic.GenericMethod;
 
 public class TestCaseBuilder {
 
-	private final DefaultTestCase tc = new DefaultTestCase();
+	private final DefaultTestCase testCase;
 	private final Map<Integer,Throwable> exceptions = new HashMap<Integer,Throwable>();
 
-	public VariableReference appendConstructor(Constructor<?> constructor,
-			VariableReference... parameters) {
+	private int nextPosition;
 
+	public TestCaseBuilder() {
+		this.testCase = new DefaultTestCase();
+		this.nextPosition = 0;
+	}
+
+	public TestCaseBuilder(DefaultTestCase testCase, int startingPosition) {
+		this.testCase = testCase;
+		this.nextPosition = startingPosition;
+	}
+
+	public VariableReference appendConstructor(Constructor<?> constructor, VariableReference... parameters) {
 		List<VariableReference> parameter_list = Arrays.asList(parameters);
-		ConstructorStatement constructorStmt = new ConstructorStatement(tc,
+		ConstructorStatement constructorStmt = new ConstructorStatement(testCase,
 				new GenericConstructor(constructor,
 						constructor.getDeclaringClass()), parameter_list);
-		tc.addStatement(constructorStmt);
+
+		addStatement(constructorStmt);
+
 
 		return constructorStmt.getReturnValue();
 	}
 
 	public VariableReference appendIntPrimitive(int intValue) {
-		IntPrimitiveStatement primitiveStmt = new IntPrimitiveStatement(tc,
+		IntPrimitiveStatement primitiveStmt = new IntPrimitiveStatement(testCase,
 				intValue);
-		tc.addStatement(primitiveStmt);
+		addStatement(primitiveStmt);
 		return primitiveStmt.getReturnValue();
 	}
 
 	public String toCode() {
-		return tc.toCode();
+		return testCase.toCode();
 	}
 
 	/**
@@ -97,38 +110,38 @@ public class TestCaseBuilder {
 		List<VariableReference> parameter_list = Arrays.asList(parameters);
 		MethodStatement methodStmt = null;
 		if (callee == null) {
-			methodStmt = new MethodStatement(tc, new GenericMethod(method,
+			methodStmt = new MethodStatement(testCase, new GenericMethod(method,
 					method.getDeclaringClass()), callee, parameter_list);
 		} else {
-			methodStmt = new MethodStatement(tc, new GenericMethod(method,
+			methodStmt = new MethodStatement(testCase, new GenericMethod(method,
 					callee.getType()), callee, parameter_list);
 		}
-		tc.addStatement(methodStmt);
+		addStatement(methodStmt);
 		return methodStmt.getReturnValue();
 	}
 
 	public DefaultTestCase getDefaultTestCase() {
-		return tc;
+		return testCase;
 	}
 
 	public VariableReference appendStringPrimitive(String string) {
 		StringPrimitiveStatement primitiveStmt = new StringPrimitiveStatement(
-				tc, string);
-		tc.addStatement(primitiveStmt);
+			testCase, string);
+		addStatement(primitiveStmt);
 		return primitiveStmt.getReturnValue();
 	}
 
 	public VariableReference appendBooleanPrimitive(boolean b) {
 		BooleanPrimitiveStatement primitiveStmt = new BooleanPrimitiveStatement(
-				tc, b);
-		tc.addStatement(primitiveStmt);
+			testCase, b);
+		addStatement(primitiveStmt);
 		return primitiveStmt.getReturnValue();
 	}
 
 	public VariableReference appendDoublePrimitive(double d) {
 		DoublePrimitiveStatement primitiveStmt = new DoublePrimitiveStatement(
-				tc, d);
-		tc.addStatement(primitiveStmt);
+			testCase, d);
+		addStatement(primitiveStmt);
 		return primitiveStmt.getReturnValue();
 	}
 
@@ -137,15 +150,15 @@ public class TestCaseBuilder {
 		FieldReference fieldReference;
 
 		if (receiver == null) {
-			fieldReference = new FieldReference(tc, new GenericField(field,
+			fieldReference = new FieldReference(testCase, new GenericField(field,
 					field.getDeclaringClass()));
 		} else {
-			fieldReference = new FieldReference(tc, new GenericField(field,
+			fieldReference = new FieldReference(testCase, new GenericField(field,
 					receiver.getType()), receiver);
 		}
-		AssignmentStatement stmt = new AssignmentStatement(tc, fieldReference,
+		AssignmentStatement stmt = new AssignmentStatement(testCase, fieldReference,
 				value);
-		tc.addStatement(stmt);
+		addStatement(stmt);
 	}
 
 	public VariableReference appendStaticFieldStmt(Field field) {
@@ -153,8 +166,8 @@ public class TestCaseBuilder {
 		final GenericField genericField = new GenericField(field,
 				declaringClass);
 		// static field (receiver is null)
-		FieldStatement stmt = new FieldStatement(tc, genericField, null);
-		tc.addStatement(stmt);
+		FieldStatement stmt = new FieldStatement(testCase, genericField, null);
+		addStatement(stmt);
 		return stmt.getReturnValue();
 	}
 
@@ -165,28 +178,28 @@ public class TestCaseBuilder {
 			throw new NullPointerException(
 					"Receiver object for a non-static field cannot be null");
 		}
-		FieldStatement stmt = new FieldStatement(tc, new GenericField(field,
+		FieldStatement stmt = new FieldStatement(testCase, new GenericField(field,
 				receiver.getType()), receiver);
-		tc.addStatement(stmt);
+		addStatement(stmt);
 		return stmt.getReturnValue();
 	}
 
 	public VariableReference appendNull(Type type) {
-		NullStatement stmt = new NullStatement(tc, type);
-		tc.addStatement(stmt);
+		NullStatement stmt = new NullStatement(testCase, type);
+		addStatement(stmt);
 		return stmt.getReturnValue();
 	}
 
 	public VariableReference appendEnumPrimitive(Enum<?> value) {
-		EnumPrimitiveStatement primitiveStmt = new EnumPrimitiveStatement(tc,
+		EnumPrimitiveStatement primitiveStmt = new EnumPrimitiveStatement(testCase,
 				value);
-		tc.addStatement(primitiveStmt);
+		addStatement(primitiveStmt);
 		return primitiveStmt.getReturnValue();
 	}
 
 	public ArrayReference appendArrayStmt(Type type, int... length) {
-		ArrayStatement arrayStmt = new ArrayStatement(tc, type, length);
-		tc.addStatement(arrayStmt);
+		ArrayStatement arrayStmt = new ArrayStatement(testCase, type, length);
+		addStatement(arrayStmt);
 		return (ArrayReference) arrayStmt.getReturnValue();
 	}
 
@@ -200,9 +213,24 @@ public class TestCaseBuilder {
 	public void appendAssignment(ArrayReference array, int index,
 			VariableReference var) {
 
-		ArrayIndex arrayIndex = new ArrayIndex(tc, array, index);
-		AssignmentStatement stmt = new AssignmentStatement(tc, arrayIndex, var);
-		tc.addStatement(stmt);
+		ArrayIndex arrayIndex = new ArrayIndex(testCase, array, index);
+		AssignmentStatement stmt = new AssignmentStatement(testCase, arrayIndex, var);
+		addStatement(stmt);
+	}
+
+	/**
+	 * array[index] := var
+	 *
+	 * @param array
+	 * @param index
+	 * @param var
+	 */
+	public void appendAssignment(ArrayReference array, List<Integer> index,
+			VariableReference var) {
+
+		ArrayIndex arrayIndex = new ArrayIndex(testCase, array, index);
+		AssignmentStatement stmt = new AssignmentStatement(testCase, arrayIndex, var);
+		addStatement(stmt);
 	}
 
 	/**
@@ -214,91 +242,92 @@ public class TestCaseBuilder {
 	 */
 	public void appendAssignment(VariableReference var, ArrayReference array,
 			int index) {
-		ArrayIndex arrayIndex = new ArrayIndex(tc, array, index);
-		AssignmentStatement stmt = new AssignmentStatement(tc, var, arrayIndex);
-		tc.addStatement(stmt);
+		ArrayIndex arrayIndex = new ArrayIndex(testCase, array, index);
+		AssignmentStatement stmt = new AssignmentStatement(testCase, var, arrayIndex);
+		addStatement(stmt);
 	}
 
 	public VariableReference appendLongPrimitive(long l) {
-		LongPrimitiveStatement primitiveStmt = new LongPrimitiveStatement(tc, l);
-		tc.addStatement(primitiveStmt);
+		LongPrimitiveStatement primitiveStmt = new LongPrimitiveStatement(testCase, l);
+		addStatement(primitiveStmt);
 		return primitiveStmt.getReturnValue();
 	}
 
 	public VariableReference appendFloatPrimitive(float f) {
-		FloatPrimitiveStatement primitiveStmt = new FloatPrimitiveStatement(tc,
+		FloatPrimitiveStatement primitiveStmt = new FloatPrimitiveStatement(testCase,
 				f);
-		tc.addStatement(primitiveStmt);
+		addStatement(primitiveStmt);
 		return primitiveStmt.getReturnValue();
 	}
 
 	public VariableReference appendShortPrimitive(short s) {
-		ShortPrimitiveStatement primitiveStmt = new ShortPrimitiveStatement(tc,
+		ShortPrimitiveStatement primitiveStmt = new ShortPrimitiveStatement(testCase,
 				s);
-		tc.addStatement(primitiveStmt);
+		addStatement(primitiveStmt);
 		return primitiveStmt.getReturnValue();
 	}
 
 	public VariableReference appendBytePrimitive(byte b) {
-		BytePrimitiveStatement primitiveStmt = new BytePrimitiveStatement(tc, b);
-		tc.addStatement(primitiveStmt);
+		BytePrimitiveStatement primitiveStmt = new BytePrimitiveStatement(testCase, b);
+		addStatement(primitiveStmt);
 		return primitiveStmt.getReturnValue();
 	}
 
 	public VariableReference appendCharPrimitive(char c) {
-		CharPrimitiveStatement primitiveStmt = new CharPrimitiveStatement(tc, c);
-		tc.addStatement(primitiveStmt);
+		CharPrimitiveStatement primitiveStmt = new CharPrimitiveStatement(testCase, c);
+		addStatement(primitiveStmt);
 		return primitiveStmt.getReturnValue();
 	}
 
 	public VariableReference appendClassPrimitive(Class<?> value) {
-		ClassPrimitiveStatement stmt = new ClassPrimitiveStatement(tc, value);
-		tc.addStatement(stmt);
+		ClassPrimitiveStatement stmt = new ClassPrimitiveStatement(testCase, value);
+		addStatement(stmt);
 		return stmt.getReturnValue();
 	}
 
 	public VariableReference appendFileNamePrimitive(EvoSuiteFile evosuiteFile) {
-		FileNamePrimitiveStatement stmt = new FileNamePrimitiveStatement(tc, evosuiteFile);
-		tc.addStatement(stmt);
+		FileNamePrimitiveStatement stmt = new FileNamePrimitiveStatement(testCase, evosuiteFile);
+		addStatement(stmt);
 		return stmt.getReturnValue();
 	}
 
 	
 	/**
 	 * x.f1 := y.f2
-	 *  
-	 * @param var
-	 * @param array
-	 * @param index
+	 *
+	 * @param receiver
+	 * @param field
+	 * @param src
+	 * @param fieldSrc
 	 */
 	public void appendAssignment(VariableReference receiver, Field field,
 			VariableReference src, Field fieldSrc) {
 		FieldReference dstFieldReference;
 		if (receiver == null) {
-			dstFieldReference = new FieldReference(tc, new GenericField(field,
+			dstFieldReference = new FieldReference(testCase, new GenericField(field,
 					field.getDeclaringClass()));
 		} else {
-			dstFieldReference = new FieldReference(tc, new GenericField(field,
+			dstFieldReference = new FieldReference(testCase, new GenericField(field,
 					receiver.getType()), receiver);
 		}
 		
 		FieldReference srcFieldReference;
 		if (src == null) {
-			srcFieldReference = new FieldReference(tc, new GenericField(fieldSrc,
+			srcFieldReference = new FieldReference(testCase, new GenericField(fieldSrc,
 					fieldSrc.getDeclaringClass()));
 		} else {
-			srcFieldReference = new FieldReference(tc, new GenericField(fieldSrc,
+			srcFieldReference = new FieldReference(testCase, new GenericField(fieldSrc,
 					src.getType()), src);
 		}
-		AssignmentStatement stmt = new AssignmentStatement(tc, dstFieldReference,
+		AssignmentStatement stmt = new AssignmentStatement(testCase, dstFieldReference,
 				srcFieldReference);
-		tc.addStatement(stmt);
+
+		addStatement(stmt);
 	}
 
 
-
 	public void addException(Throwable exception) {
-		int currentPos = this.tc.size()-1;
+		int currentPos = this.testCase.size()-1;
 		if (currentPos<0)
 			throw new IllegalStateException("Cannot add exception to empty test case");
 		
@@ -308,4 +337,16 @@ public class TestCaseBuilder {
 		
 		exceptions.put(currentPos, exception);
 	}
+
+	private void addStatement(Statement stmt) {
+
+		if (nextPosition == 0) {
+			testCase.addStatement(stmt);
+		} else {
+			testCase.addStatement(stmt, nextPosition);
+		}
+
+		nextPosition++;
+	}
+
 }

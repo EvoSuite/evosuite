@@ -171,11 +171,11 @@ public abstract class AbstractVM implements IVM {
 	}
 
 	@Override
-	public void AALOAD(Object receiver, int index) { /* stub */
+	public void AALOAD(Object receiver, int index, String className, String methodName) { /* stub */
 	}
 
 	@Override
-	public void AASTORE(Object receiver, int index) { /* stub */
+	public void AASTORE(Object receiver, int index, Object value, String className, String methodName) { /* stub */
 	}
 
 	@Override
@@ -187,7 +187,7 @@ public abstract class AbstractVM implements IVM {
 	}
 
 	@Override
-	public void ANEWARRAY(int length, String typeName) { /* stub */
+	public void ANEWARRAY(int length, String componentTypeName, String className, String typeName) { /* stub */
 	}
 
 	@Override
@@ -207,11 +207,11 @@ public abstract class AbstractVM implements IVM {
 	}
 
 	@Override
-	public void BALOAD(Object receiver, int index) { /* stub */
+	public void BALOAD(Object receiver, int index, String className, String methodName) { /* stub */
 	}
 
 	@Override
-	public void BASTORE(Object receiver, int index) { /* stub */
+	public void BASTORE(Object receiver, int index, String className, String methodName) { /* stub */
 	}
 
 	@Override
@@ -219,11 +219,11 @@ public abstract class AbstractVM implements IVM {
 	}
 
 	@Override
-	public void CALOAD(Object receiver, int index) { /* stub */
+	public void CALOAD(Object receiver, int index, String className, String methodName) { /* stub */
 	}
 
 	@Override
-	public void CASTORE(Object receiver, int index) { /* stub */
+	public void CASTORE(Object receiver, int index, String className, String methodName) { /* stub */
 	}
 
 	@Override
@@ -247,11 +247,11 @@ public abstract class AbstractVM implements IVM {
 	}
 
 	@Override
-	public void DALOAD(Object receiver, int index) { /* stub */
+	public void DALOAD(Object receiver, int index, String className, String methodName) { /* stub */
 	}
 
 	@Override
-	public void DASTORE(Object receiver, int index) { /* stub */
+	public void DASTORE(Object receiver, int index, String className, String methodName) { /* stub */
 	}
 
 	@Override
@@ -343,11 +343,11 @@ public abstract class AbstractVM implements IVM {
 	}
 
 	@Override
-	public void FALOAD(Object receiver, int index) { /* stub */
+	public void FALOAD(Object receiver, int index, String className, String methodName) { /* stub */
 	}
 
 	@Override
-	public void FASTORE(Object receiver, int index) { /* stub */
+	public void FASTORE(Object receiver, int index, String className, String methodName) { /* stub */
 	}
 
 	@Override
@@ -447,7 +447,7 @@ public abstract class AbstractVM implements IVM {
 	}
 
 	@Override
-	public void IALOAD(Object receiver, int index) { /* stub */
+	public void IALOAD(Object receiver, int index, String className, String methodName) { /* stub */
 	}
 
 	@Override
@@ -455,7 +455,7 @@ public abstract class AbstractVM implements IVM {
 	}
 
 	@Override
-	public void IASTORE(Object receiver, int index) { /* stub */
+	public void IASTORE(Object receiver, int index, String className, String methodName) { /* stub */
 	}
 
 	@Override
@@ -668,7 +668,7 @@ public abstract class AbstractVM implements IVM {
 	}
 
 	@Override
-	public void LALOAD(Object receiver, int index) { /* stub */
+	public void LALOAD(Object receiver, int index, String className, String methodName) { /* stub */
 	}
 
 	@Override
@@ -676,7 +676,7 @@ public abstract class AbstractVM implements IVM {
 	}
 
 	@Override
-	public void LASTORE(Object receiver, int index) { /* stub */
+	public void LASTORE(Object receiver, int index, String className, String methodName) { /* stub */
 	}
 
 	@Override
@@ -781,7 +781,7 @@ public abstract class AbstractVM implements IVM {
 	}
 
 	@Override
-	public void MULTIANEWARRAY(String arrayTypeDesc, int nrDimensions) { /* stub */
+	public void MULTIANEWARRAY(String arrayTypeDesc, int nrDimensions, String className, String methodName) { /* stub */
 	}
 
 	@Override
@@ -789,7 +789,7 @@ public abstract class AbstractVM implements IVM {
 	}
 
 	@Override
-	public void NEWARRAY(int length, Class<?> componentType) { /* stub */
+	public void NEWARRAY(int length, Class<?> componentType, String className, String methodName) { /* stub */
 	}
 
 	@Override
@@ -821,11 +821,11 @@ public abstract class AbstractVM implements IVM {
 	}
 
 	@Override
-	public void SALOAD(Object receiver, int index) { /* stub */
+	public void SALOAD(Object receiver, int index, String className, String methodName) { /* stub */
 	}
 
 	@Override
-	public void SASTORE(Object receiver, int index) { /* stub */
+	public void SASTORE(Object receiver, int index, String className, String methodName) { /* stub */
 	}
 
 	@Override

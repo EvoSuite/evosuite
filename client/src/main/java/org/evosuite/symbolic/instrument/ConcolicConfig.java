@@ -68,6 +68,7 @@ public final class ConcolicConfig
 
   public static final String    I_V = "("+INT+            ")"+VOID; //$NON-NLS-1$ //$NON-NLS-2$
   public static final String   II_V = "("+INT+INT+        ")"+VOID; //$NON-NLS-1$ //$NON-NLS-2$
+  public static final String IIGG_V = "("+INT+INT+STR+STR+")"+VOID; //$NON-NLS-1$ //$NON-NLS-2$
   public static final String  III_V = "("+INT+INT+INT+    ")"+VOID; //$NON-NLS-1$ //$NON-NLS-2$
 
   public static final String  IIR_V = "("+INT+INT_ARR+    ")"+VOID; //$NON-NLS-1$ //$NON-NLS-2$
@@ -104,12 +105,16 @@ public final class ConcolicConfig
   public static final String    L_V = "("+REF+            ")"+VOID; //$NON-NLS-1$//$NON-NLS-2$
   public static final String   LG_V = "("+REF+STR+        ")"+VOID; //$NON-NLS-1$ //$NON-NLS-2$
   public static final String   LI_V = "("+REF+INT+        ")"+VOID; //$NON-NLS-1$ //$NON-NLS-2$
+  public static final String LIGG_V = "("+REF+INT+STR+STR+")"+VOID; //$NON-NLS-1$ //$NON-NLS-2$
+  public static final String  LIL_V = "("+REF+INT+REF+   ")"+VOID; //$NON-NLS-1$ //$NON-NLS-2$
+  public static final String LILGG_V = "("+REF+INT+REF+STR+STR+")"+VOID; //$NON-NLS-1$ //$NON-NLS-2$
   public static final String  LII_V = "("+REF+INT+INT+    ")"+VOID; //$NON-NLS-1$ //$NON-NLS-2$
   public static final String   IL_V = "("+INT+REF+        ")"+VOID; //$NON-NLS-1$ //$NON-NLS-2$
   public static final String   LL_V = "("+REF+REF+        ")"+VOID; //$NON-NLS-1$ //$NON-NLS-2$
 
   public static final String    G_V = "("+STR+            ")"+VOID; //$NON-NLS-1$ //$NON-NLS-2$
   public static final String   GI_V = "("+STR+INT+        ")"+VOID; //$NON-NLS-1$ //$NON-NLS-2$
+  public static final String GIGG_V = "("+STR+INT+STR+STR+")"+VOID; //$NON-NLS-1$ //$NON-NLS-2$
   public static final String   IG_V = "("+INT+STR+        ")"+VOID; //$NON-NLS-1$ //$NON-NLS-2$
   public static final String  GGG_V = "("+STR+STR+STR+    ")"+VOID; //$NON-NLS-1$ //$NON-NLS-2$
   public static final String  GGGII_V = "("+STR+STR+STR+INT+INT+")"+VOID; //$NON-NLS-1$ //$NON-NLS-2$

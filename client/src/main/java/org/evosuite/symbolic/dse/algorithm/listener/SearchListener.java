@@ -20,7 +20,7 @@
 package org.evosuite.symbolic.dse.algorithm.listener;
 
 import org.evosuite.ga.Chromosome;
-import org.evosuite.symbolic.dse.algorithm.DSEBaseAlgorithm;
+import org.evosuite.symbolic.dse.algorithm.ExplorationAlgorithmBase;
 
 /**
  * Adaptation of {@link org.evosuite.ga.metaheuristics.SearchListener} for the DSE module.
@@ -31,23 +31,23 @@ public interface SearchListener {
     /**
 	 * Called when a new search is started
 	 *
-	 * @param algorithm a {@link org.evosuite.symbolic.dse.algorithm.DSEBaseAlgorithm} object.
+	 * @param algorithm a {@link ExplorationAlgorithmBase} object.
 	 */
-	public void generationStarted(DSEBaseAlgorithm algorithm);
+	public void generationStarted(ExplorationAlgorithmBase algorithm);
 
 	/**
 	 * Called after each iteration of the search
 	 *
-	 * @param algorithm a {@link org.evosuite.symbolic.dse.algorithm.DSEBaseAlgorithm} object.
+	 * @param algorithm a {@link ExplorationAlgorithmBase} object.
 	 */
-	public void iteration(DSEBaseAlgorithm algorithm);
+	public void iteration(ExplorationAlgorithmBase algorithm);
 
 	/**
 	 * Called after the last iteration
 	 *
-	 * @param algorithm a {@link org.evosuite.symbolic.dse.algorithm.DSEBaseAlgorithm} object.
+	 * @param algorithm a {@link ExplorationAlgorithmBase} object.
 	 */
-	public void generationFinished(DSEBaseAlgorithm algorithm);
+	public void generationFinished(ExplorationAlgorithmBase algorithm);
 
 	/**
 	 * Called after every single fitness evaluation
