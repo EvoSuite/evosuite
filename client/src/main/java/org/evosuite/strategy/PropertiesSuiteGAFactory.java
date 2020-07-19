@@ -147,7 +147,7 @@ public class PropertiesSuiteGAFactory
 			case STEADY_STATE_GA: {
 			logger.info("Chosen search algorithm: Steady-StateGA");
 				logger.info("Chosen search algorithm: Steady-StateGA");
-				SteadyStateGA<TestSuiteChromosome, FitnessFunction<TestSuiteChromosome>> ga = new SteadyStateGA<>(factory);
+				final var ga = new SteadyStateGA<>(factory);
 				if (Properties.REPLACEMENT_FUNCTION == TheReplacementFunction.FITNESSREPLACEMENT) {
 					// user has explicitly asked for this replacement function
 					ga.setReplacementFunction(new FitnessReplacementFunction<>());
@@ -281,25 +281,24 @@ public class PropertiesSuiteGAFactory
 
 	@Override
 	public GeneticAlgorithm<TestSuiteChromosome, FitnessFunction<TestSuiteChromosome>> getSearchAlgorithm() {
-		ChromosomeFactory<TestSuiteChromosome> factory = getChromosomeFactory();
+		final var factory = getChromosomeFactory();
 		
 		// FIXXME
-		GeneticAlgorithm<TestSuiteChromosome, FitnessFunction<TestSuiteChromosome>> ga =
-				getGeneticAlgorithm(factory);
+		final var ga = getGeneticAlgorithm(factory);
 
 		if (Properties.NEW_STATISTICS)
 			ga.addListener(new StatisticsListener<>());
 
 		// How to select candidates for reproduction
-		SelectionFunction<TestSuiteChromosome> selectionFunction = getSelectionFunction();
+		final var selectionFunction = getSelectionFunction();
 		selectionFunction.setMaximize(false);
 		ga.setSelectionFunction(selectionFunction);
 
-		RankingFunction<TestSuiteChromosome> ranking_function = getRankingFunction();
+		final var ranking_function = getRankingFunction();
 		ga.setRankingFunction(ranking_function);
 
 		// When to stop the search
-		StoppingCondition<TestSuiteChromosome> stopping_condition = getStoppingCondition();
+		final var stopping_condition = getStoppingCondition();
 		ga.setStoppingCondition(stopping_condition);
 		// ga.addListener(stopping_condition);
 		if (Properties.STOP_ZERO) {
@@ -324,7 +323,7 @@ public class PropertiesSuiteGAFactory
 		ga.setPopulationLimit(getPopulationLimit());
 
 		// How to cross over
-		CrossOverFunction crossover_function = getCrossoverFunction();
+		final var crossover_function = getCrossoverFunction();
 		ga.setCrossOverFunction(crossover_function);
 
 		// What to do about bloat
