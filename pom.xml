@@ -247,8 +247,8 @@
                 <jdk>[9,)</jdk>
             </activation>
             <properties>
-                <compiler.target>1.8</compiler.target>
-                <compiler.source>1.8</compiler.source>
+                <compiler.target>1.11</compiler.target>
+                <compiler.source>1.11</compiler.source>
                 <exclude.tests.concolic>**/*Concolic*.java</exclude.tests.concolic>
                 <exclude.tests.mimeType>**/*TestMIMEType.java</exclude.tests.mimeType>
             </properties>
