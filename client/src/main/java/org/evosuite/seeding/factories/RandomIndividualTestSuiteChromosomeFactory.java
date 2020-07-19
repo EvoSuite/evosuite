@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,6 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
 package org.evosuite.seeding.factories;
 
 import org.evosuite.Properties;
@@ -37,7 +34,7 @@ public class RandomIndividualTestSuiteChromosomeFactory implements
 	private static final long serialVersionUID = 1L;
 
 	private final ChromosomeFactory<TestSuiteChromosome> defaultFactory;
-	private final GeneticAlgorithm<TestSuiteChromosome> geneticAlgorithm;
+	private final GeneticAlgorithm<TestSuiteChromosome, ?> geneticAlgorithm;
 
 	/**
 	 * <p>
@@ -49,7 +46,7 @@ public class RandomIndividualTestSuiteChromosomeFactory implements
 	 */
 	public RandomIndividualTestSuiteChromosomeFactory(
 			ChromosomeFactory<TestSuiteChromosome> defaultFactory,
-			GeneticAlgorithm<TestSuiteChromosome> geneticAlgorithm) {
+			GeneticAlgorithm<TestSuiteChromosome, ?> geneticAlgorithm) {
 		this.defaultFactory = defaultFactory;
 		this.geneticAlgorithm = geneticAlgorithm;
 	}

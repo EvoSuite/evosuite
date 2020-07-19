@@ -1,5 +1,4 @@
 /*
- *
  * This file is part of EvoSuite.
  *
  * EvoSuite is free software: you can redistribute it and/or modify it
@@ -36,7 +35,7 @@ import org.evosuite.ga.comparators.DominanceComparator;
  * @author Annibale Panichella, Fitsum M. Kifetew
  */
 
-public class FastNonDominatedSorting<T extends Chromosome> implements RankingFunction<T> {
+public class FastNonDominatedSorting<T extends Chromosome<T>> implements RankingFunction<T> {
 
 	private static final long serialVersionUID = -5649595833522859850L;
 
@@ -48,11 +47,12 @@ public class FastNonDominatedSorting<T extends Chromosome> implements RankingFun
 	/**
 	 * Set used to store the goals that are covered from a population being sorted
 	 */
-	private Map<FitnessFunction<T>, T> newCoveredGoals = new LinkedHashMap<>();
+	private final Map<FitnessFunction<T>, T> newCoveredGoals = new LinkedHashMap<>();
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public void computeRankingAssignment(List<T> solutions, Set<FitnessFunction<T>> uncovered_goals) {
+	public void computeRankingAssignment(List<T> solutions,
+										 Set<? extends FitnessFunction<T>> uncovered_goals) {
 		List<T>[] fronts = getNextNonDominatedFronts(solutions, uncovered_goals);
 		ranking_ = new ArrayList[fronts.length];
 		System.arraycopy(fronts, 0, ranking_, 0, fronts.length);
@@ -66,7 +66,8 @@ public class FastNonDominatedSorting<T extends Chromosome> implements RankingFun
 	 * @return the list of fronts according to the uncovered goals
 	 */
 	@SuppressWarnings("unchecked")
-	private List<T>[] getNextNonDominatedFronts(List<T> solutionSet, Set<FitnessFunction<T>> uncovered_goals) {
+	private List<T>[] getNextNonDominatedFronts(List<T> solutionSet,
+												Set<? extends FitnessFunction<T>> uncovered_goals) {
 
 		DominanceComparator<T> criterion_ = new DominanceComparator<>(uncovered_goals);
 		List<T> solutionSet_ = solutionSet;

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -23,7 +23,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.evosuite.Properties;
-import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.localsearch.LocalSearchBudget;
 import org.evosuite.ga.localsearch.LocalSearchObjective;
 import org.evosuite.testcase.AbstractTestChromosome;
@@ -31,6 +30,7 @@ import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.execution.ExecutionTrace;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
+import org.evosuite.testsuite.TestSuiteChromosome;
 
 /**
  * Applies DSE on a given test case. If the test case belongs to a suite, it
@@ -42,8 +42,7 @@ import org.evosuite.testsuite.AbstractTestSuiteChromosome;
  * 
  * @author galeotti
  */
-public class DSETestCaseLocalSearch<F extends FitnessFunction<F, TestChromosome>> extends TestCaseLocalSearch<
-		F> {
+public class DSETestCaseLocalSearch extends TestCaseLocalSearch<TestChromosome> {
 
 	/**
 	 * Returns true iff the test reaches a decision (if/while) with an uncovered
@@ -53,8 +52,7 @@ public class DSETestCaseLocalSearch<F extends FitnessFunction<F, TestChromosome>
 	 * @param uncoveredBranches
 	 * @return
 	 */
-	private static<E extends AbstractTestChromosome<E>> boolean hasUncoveredBranch(E test,
-																		Set<Branch> uncoveredBranches) {
+	private static boolean hasUncoveredBranch(TestChromosome test, Set<Branch> uncoveredBranches) {
 		Set<Branch> testCoveredBranches = getCoveredBranches(test);
 		for (Branch b : testCoveredBranches) {
 			Branch negate = b.negate();
@@ -78,9 +76,9 @@ public class DSETestCaseLocalSearch<F extends FitnessFunction<F, TestChromosome>
 			this.isTrueBranch = isTrueBranch;
 		}
 
-		private int branchIndex;
+		private final int branchIndex;
 
-		private boolean isTrueBranch;
+		private final boolean isTrueBranch;
 
 		public Branch negate() {
 			return new Branch(branchIndex, !isTrueBranch);
@@ -118,7 +116,7 @@ public class DSETestCaseLocalSearch<F extends FitnessFunction<F, TestChromosome>
 
 	}
 
-	private final AbstractTestSuiteChromosome<?,TestChromosome> suite;
+	private final TestSuiteChromosome suite;
 
 	/**
 	 * Creates a DSE local search with no whole test suite
@@ -133,7 +131,7 @@ public class DSETestCaseLocalSearch<F extends FitnessFunction<F, TestChromosome>
 	 * 
 	 * @param suite
 	 */
-	public DSETestCaseLocalSearch(AbstractTestSuiteChromosome<?,TestChromosome> suite) {
+	public DSETestCaseLocalSearch(TestSuiteChromosome suite) {
 		this.suite = suite;
 	}
 
@@ -168,8 +166,7 @@ public class DSETestCaseLocalSearch<F extends FitnessFunction<F, TestChromosome>
 	 *            the fitness functions for the test chromosome
 	 */
 	@Override
-	public boolean doSearch(TestChromosome test,
-							LocalSearchObjective<TestChromosome,F> objective) {
+	public boolean doSearch(TestChromosome test, LocalSearchObjective<TestChromosome> objective) {
 		logger.info("Test before local search: " + test.getTestCase().toCode());
 
 		// gather covered branches true/false branch indexes
@@ -208,11 +205,11 @@ public class DSETestCaseLocalSearch<F extends FitnessFunction<F, TestChromosome>
 			fitnessHasImproved = false;
 		} else {
 			logger.info("Yes, now applying the search at positions {}!", targetStatementIndexes);
-			DSETestGenerator<TestChromosome> dseTestGenerator;
+			DSETestGenerator dseTestGenerator;
 			if (suite != null) {
-				dseTestGenerator = new DSETestGenerator<>(suite);
+				dseTestGenerator = new DSETestGenerator(suite);
 			} else {
-				dseTestGenerator = new DSETestGenerator<>();
+				dseTestGenerator = new DSETestGenerator();
 			}
 			final TestChromosome newTest = dseTestGenerator.generateNewTest(test, targetStatementIndexes, objective);
 			if (newTest != null) {
@@ -243,8 +240,8 @@ public class DSETestCaseLocalSearch<F extends FitnessFunction<F, TestChromosome>
 	 * @return a set with statement indexes in the test case with symbolic
 	 *         variables
 	 */
-	private static<E extends AbstractTestChromosome<E>> Set<Integer> collectStatementIndexesWithSymbolicVariables(E testChromosome,
-			LocalSearchObjective<E,?> localSearchObjective) {
+	private static Set<Integer> collectStatementIndexesWithSymbolicVariables(TestChromosome testChromosome,
+																			 LocalSearchObjective<TestChromosome> localSearchObjective) {
 
 		// Only apply local search up to the point where an exception was thrown
 		// TODO: Check whether this conflicts with test expansion

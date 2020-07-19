@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,6 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- *
- */
 package org.evosuite.assertion;
 
 import java.util.HashMap;
@@ -27,7 +24,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import org.evosuite.Properties;
-import org.evosuite.regression.ObjectDistanceCalculator;
 import org.evosuite.testcase.variable.VariableReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -113,14 +109,6 @@ public class SameTraceEntry implements OutputTraceEntry {
 
         if (!otherEntry.equalityMap.get(otherEntry.equalityMapIntVar.get(otherVar))
             .equals(equalityMap.get(equalityMapIntVar.get(otherVar)))) {
-          if (Properties.isRegression()) {
-            double distance = ObjectDistanceCalculator
-                .getObjectDistance(equalityMap.get(equalityMapIntVar.get(otherVar)),
-                    otherEntry.equalityMap.get(otherEntry.equalityMapIntVar.get(otherVar)));
-            if (distance == 0) {
-              return assertions;
-            }
-          }
           SameAssertion assertion = new SameAssertion();
           assertion.source = var;
           assertion.dest = equalityMapIntVar.get(otherVar);

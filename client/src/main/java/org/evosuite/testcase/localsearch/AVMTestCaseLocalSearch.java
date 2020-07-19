@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -20,6 +20,7 @@
 package org.evosuite.testcase.localsearch;
 
 import org.evosuite.Properties;
+import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.localsearch.LocalSearchBudget;
 import org.evosuite.ga.localsearch.LocalSearchObjective;
 import org.evosuite.testcase.AbstractTestChromosome;
@@ -34,11 +35,11 @@ import org.evosuite.testcase.statements.Statement;
  * @author galeotti
  *
  */
-public class AVMTestCaseLocalSearch<E extends AbstractTestChromosome<E>> extends TestCaseLocalSearch {
+public class AVMTestCaseLocalSearch extends TestCaseLocalSearch<TestChromosome> {
 
 
 	@Override
-	public boolean doSearch(E individual, LocalSearchObjective<E> objective) {
+	public boolean doSearch(TestChromosome individual, LocalSearchObjective<TestChromosome> objective) {
 
 		logger.info("Test before local search: " + individual.getTestCase().toCode());
 
@@ -50,7 +51,7 @@ public class AVMTestCaseLocalSearch<E extends AbstractTestChromosome<E>> extends
 		if (individual.getLastExecutionResult() != null && !individual.isChanged()) {
 			Integer lastPos = individual.getLastExecutionResult().getFirstPositionOfThrownException();
 			if (lastPos != null)
-				lastPosition = lastPos.intValue();
+				lastPosition = lastPos;
 		}
 		TestCase test = individual.getTestCase();
 

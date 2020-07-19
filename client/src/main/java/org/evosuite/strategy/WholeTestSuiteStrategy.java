@@ -21,16 +21,13 @@ package org.evosuite.strategy;
 
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
-import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.TestFitnessFactory;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
-import org.evosuite.graphs.cfg.CFGMethodAdapter;
 import org.evosuite.result.TestGenerationResultBuilder;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.rmi.service.ClientState;
-import org.evosuite.setup.TestCluster;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionTracer;
@@ -57,7 +54,8 @@ public class WholeTestSuiteStrategy extends TestGenerationStrategy {
 		// Set up search algorithm
 		LoggingUtils.getEvoLogger().info("* Setting up search algorithm for whole suite generation");
 		PropertiesSuiteGAFactory algorithmFactory = new PropertiesSuiteGAFactory();
-		GeneticAlgorithm<TestSuiteChromosome> algorithm = algorithmFactory.getSearchAlgorithm();
+		GeneticAlgorithm<TestSuiteChromosome, FitnessFunction<TestSuiteChromosome>> algorithm =
+				algorithmFactory.getSearchAlgorithm();
 		
 		if(Properties.SERIALIZE_GA || Properties.CLIENT_ON_THREAD)
 			TestGenerationResultBuilder.getInstance().setGeneticAlgorithm(algorithm);
@@ -67,8 +65,7 @@ public class WholeTestSuiteStrategy extends TestGenerationStrategy {
 		// What's the search target
 		List<TestSuiteFitnessFunction> fitnessFunctions = getFitnessFunctions();
 
-		// TODO: Argh, generics.
-		algorithm.addFitnessFunctions((List)fitnessFunctions);
+		algorithm.addFitnessFunctions(fitnessFunctions);
 //		for(TestSuiteFitnessFunction f : fitnessFunctions) 
 //			algorithm.addFitnessFunction(f);
 
@@ -113,11 +110,11 @@ public class WholeTestSuiteStrategy extends TestGenerationStrategy {
 			algorithm.generateSolution();
 			// TODO: Refactor MOO!
 			// bestSuites = (List<TestSuiteChromosome>) ga.getBestIndividuals();
-			testSuite = (TestSuiteChromosome) algorithm.getBestIndividual();
+			testSuite = algorithm.getBestIndividual();
 		} else {
 			zeroFitness.setFinished();
 			testSuite = new TestSuiteChromosome();
-			for (FitnessFunction<?> ff : fitnessFunctions) {
+			for (FitnessFunction<TestSuiteChromosome> ff : fitnessFunctions) {
 				testSuite.setCoverage(ff, 1.0);
 			}
 		}

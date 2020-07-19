@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -16,9 +16,6 @@
  *
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
- */
-/**
- * 
  */
 package org.evosuite.coverage;
 
@@ -43,9 +40,9 @@ import org.slf4j.LoggerFactory;
  *
  * @author Gordon Fraser
  */
-public class FitnessLogger implements SearchListener {
+public class FitnessLogger<T extends Chromosome<T>> implements SearchListener<T> {
 
-	private static Logger logger = LoggerFactory.getLogger(FitnessLogger.class);
+	private static final Logger logger = LoggerFactory.getLogger(FitnessLogger.class);
 
 	private final List<Integer> evaluations_history = new ArrayList<Integer>();
 
@@ -64,7 +61,7 @@ public class FitnessLogger implements SearchListener {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void searchStarted(GeneticAlgorithm<?> algorithm) {
+	public void searchStarted(GeneticAlgorithm<T, ?> algorithm) {
 		evaluations = 0;
 		evaluations_history.clear();
 		statements_history.clear();
@@ -85,7 +82,7 @@ public class FitnessLogger implements SearchListener {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void iteration(GeneticAlgorithm<?> algorithm) {
+	public void iteration(GeneticAlgorithm<T, ?> algorithm) {
 		if (algorithm.getPopulation().isEmpty())
 			return;
 
@@ -100,7 +97,7 @@ public class FitnessLogger implements SearchListener {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void searchFinished(GeneticAlgorithm<?> algorithm) {
+	public void searchFinished(GeneticAlgorithm<T, ?> algorithm) {
 		if (name == null)
 			return;
 
@@ -126,7 +123,7 @@ public class FitnessLogger implements SearchListener {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void fitnessEvaluation(Chromosome individual) {
+	public void fitnessEvaluation(T individual) {
 		evaluations++;
 	}
 
@@ -135,7 +132,7 @@ public class FitnessLogger implements SearchListener {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void modification(Chromosome individual) {
+	public void modification(T individual) {
 		// TODO Auto-generated method stub
 
 	}

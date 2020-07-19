@@ -19,7 +19,6 @@
  */
 package org.evosuite.assertion;
 
-import com.examples.with.different.packagename.ExampleNullAssertion;
 import com.examples.with.different.packagename.assertion.ExampleReturningEnum;
 import org.evosuite.EvoSuite;
 import org.evosuite.SystemTestBase;
@@ -47,7 +46,7 @@ public class EnumAssertionSystemTest extends SystemTestBase {
 
         Object result = evosuite.parseCommandLine(command);
 
-        GeneticAlgorithm<?> ga = getGAFromResult(result);
+        GeneticAlgorithm<?, DEFAULT_VALUE_XXX> ga = getGAFromResult(result);
         TestSuiteChromosome suite = (TestSuiteChromosome) ga.getBestIndividual();
         System.out.println(suite.toString());
 
@@ -81,7 +80,7 @@ public class EnumAssertionSystemTest extends SystemTestBase {
 
         Object result = evosuite.parseCommandLine(command);
 
-        GeneticAlgorithm<?> ga = getGAFromResult(result);
+        GeneticAlgorithm<?, DEFAULT_VALUE_XXX> ga = getGAFromResult(result);
         TestSuiteChromosome suite = (TestSuiteChromosome) ga.getBestIndividual();
         System.out.println(suite.toString());
 

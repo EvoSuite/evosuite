@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -16,9 +16,6 @@
  *
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
- */
-/**
- * 
  */
 package org.evosuite.testcase.localsearch;
 
@@ -52,8 +49,8 @@ public class NullReferenceSearch extends StatementLocalSearch {
 		TestCase oldTest = newTest.clone();
 		ExecutionResult oldResult = test.getLastExecutionResult();
 		//double oldFitness = test.getFitness();
-		Map<FitnessFunction<?>, Double> oldFitnesses = test.getFitnessValues();
-		Map<FitnessFunction<?>, Double> oldLastFitnesses = test.getPreviousFitnessValues();
+		Map<FitnessFunction<TestChromosome>, Double> oldFitnesses = test.getFitnessValues();
+		Map<FitnessFunction<TestChromosome>, Double> oldLastFitnesses = test.getPreviousFitnessValues();
 
 		try {
 			TestFactory.getInstance().attemptGeneration(newTest,

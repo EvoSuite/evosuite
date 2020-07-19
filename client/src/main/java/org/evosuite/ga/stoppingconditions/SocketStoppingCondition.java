@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,6 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
 package org.evosuite.ga.stoppingconditions;
 
 import java.io.IOException;
@@ -37,7 +34,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Gordon Fraser
  */
-public class SocketStoppingCondition implements StoppingCondition {
+public class SocketStoppingCondition<T extends Chromosome<T>> implements StoppingCondition<T> {
 
 	private volatile boolean interrupted = false;
 
@@ -47,31 +44,28 @@ public class SocketStoppingCondition implements StoppingCondition {
 	 * <p>accept</p>
 	 */
 	public void accept() {
-		Thread t = new Thread() {
-			@Override
-			public void run() {
-				ServerSocket serverSocket = null;
-				try {
-					serverSocket = new ServerSocket(Properties.STOPPING_PORT);
-					serverSocket.accept();
-					LoggingUtils.getEvoLogger().info("* Stopping request received");
-					interrupted = true;
+		Thread t = new Thread(() -> {
+			ServerSocket serverSocket = null;
+			try {
+				serverSocket = new ServerSocket(Properties.STOPPING_PORT);
+				serverSocket.accept();
+				LoggingUtils.getEvoLogger().info("* Stopping request received");
+				interrupted = true;
 
-				} catch (IOException e) {
-					LoggingUtils.getEvoLogger().warn("Failed to create socket on port "
-					                                         + Properties.STOPPING_PORT);
-				} finally {
-					if(serverSocket != null) {
-						try {
-							serverSocket.close();
-						} catch(IOException e) {
-							logger.info("Error while closing socket: "+e);
-						}
+			} catch (IOException e) {
+				LoggingUtils.getEvoLogger().warn("Failed to create socket on port "
+														 + Properties.STOPPING_PORT);
+			} finally {
+				if(serverSocket != null) {
+					try {
+						serverSocket.close();
+					} catch(IOException e) {
+						logger.info("Error while closing socket: "+e);
 					}
 				}
-
 			}
-		};
+
+		});
 		t.start();
 	}
 
@@ -80,7 +74,7 @@ public class SocketStoppingCondition implements StoppingCondition {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void searchStarted(GeneticAlgorithm<?> algorithm) {
+	public void searchStarted(GeneticAlgorithm<T, ?> algorithm) {
 		// TODO Auto-generated method stub
 
 	}
@@ -90,7 +84,7 @@ public class SocketStoppingCondition implements StoppingCondition {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void iteration(GeneticAlgorithm<?> algorithm) {
+	public void iteration(GeneticAlgorithm<T, ?> algorithm) {
 		// TODO Auto-generated method stub
 
 	}
@@ -100,7 +94,7 @@ public class SocketStoppingCondition implements StoppingCondition {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void searchFinished(GeneticAlgorithm<?> algorithm) {
+	public void searchFinished(GeneticAlgorithm<T, ?> algorithm) {
 		// TODO Auto-generated method stub
 
 	}
@@ -110,7 +104,7 @@ public class SocketStoppingCondition implements StoppingCondition {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void fitnessEvaluation(Chromosome individual) {
+	public void fitnessEvaluation(T individual) {
 		// TODO Auto-generated method stub
 
 	}
@@ -120,7 +114,7 @@ public class SocketStoppingCondition implements StoppingCondition {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void modification(Chromosome individual) {
+	public void modification(T individual) {
 		// TODO Auto-generated method stub
 
 	}

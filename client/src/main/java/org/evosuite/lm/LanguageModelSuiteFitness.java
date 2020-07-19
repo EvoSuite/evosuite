@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -23,6 +23,7 @@ import org.evosuite.Properties;
 import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
 import org.evosuite.testcase.*;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
+import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 
 import java.io.IOException;
@@ -32,7 +33,7 @@ import java.io.IOException;
  */
 public class LanguageModelSuiteFitness extends TestSuiteFitnessFunction {
 
-    private BranchCoverageSuiteFitness backingFitness;
+    private final BranchCoverageSuiteFitness backingFitness;
     private LangModel languageModel;
 
 
@@ -47,14 +48,13 @@ public class LanguageModelSuiteFitness extends TestSuiteFitnessFunction {
     }
 
     @Override
-    public double getFitness(AbstractTestSuiteChromosome<? extends ExecutableChromosome> individual) {
+    public double getFitness(TestSuiteChromosome individual) {
         double fitness = backingFitness.getFitness(individual);
 
 
         //TODO: replace this ugly code with a visitor; will TestVisitor work?
-        for(ExecutableChromosome chromosome : individual.getTestChromosomes()){
-            TestChromosome test = (TestChromosome)chromosome; //TODO: HACK!
-//
+//        for(TestChromosome test : individual.getTestChromosomes()){
+            //
 //            TestCase testCase = test.getTestCase();
 //            for(StatementInterface statement : testCase){
 //                if(statement instanceof StringPrimitiveStatement){
@@ -77,8 +77,8 @@ public class LanguageModelSuiteFitness extends TestSuiteFitnessFunction {
 //
 //                }
 //            }
-
-        }
+//
+//        }
 
         return fitness;
     }

@@ -94,7 +94,7 @@ public class NoveltyStrategy extends TestGenerationStrategy {
         } else {
             zeroFitness.setFinished();
             testSuite = new TestSuiteChromosome();
-            for (FitnessFunction<?> ff : fitnessFunctions) {
+            for (FitnessFunction<TestSuiteChromosome> ff : fitnessFunctions) {
                 testSuite.setCoverage(ff, 1.0);
             }
         }

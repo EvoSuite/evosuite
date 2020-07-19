@@ -58,7 +58,7 @@ public class SUTHighConstantSystemTest extends SystemTestBase {
 		};
 		
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, DEFAULT_VALUE_XXX> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome)ga.getBestIndividual();
 		System.out.println(best.toString());
 		/*
@@ -94,7 +94,7 @@ public class SUTHighConstantSystemTest extends SystemTestBase {
 		};
 		
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, DEFAULT_VALUE_XXX> ga = getGAFromResult(result);
 
 		Assert.assertEquals("Wrong number of generations: ", 0, ga.getAge());
 		TestSuiteChromosome best = (TestSuiteChromosome)ga.getBestIndividual();

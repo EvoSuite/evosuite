@@ -19,27 +19,19 @@
  */
 package org.evosuite.coverage.dataflow;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
 import org.evosuite.Properties;
 import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
 import org.evosuite.coverage.dataflow.DefUseCoverageTestFitness.DefUsePairType;
-import org.evosuite.ga.Chromosome;
-import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.execution.ExecutionResult;
-import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.evosuite.utils.LoggingUtils;
 
-import static java.util.stream.Collectors.*;
+import java.util.*;
+import java.util.Map.Entry;
+
+import static java.util.stream.Collectors.toCollection;
 
 /**
  * Evaluate fitness of a test suite with respect to all of its def-use pairs
@@ -105,9 +97,7 @@ public class DefUseCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 	// Not working yet
 	//@Override
-	public double getFitnessAlternative(
-	        AbstractTestSuiteChromosome<? extends ExecutableChromosome> individual) {
-		TestSuiteChromosome suite = (TestSuiteChromosome) individual;
+	public double getFitnessAlternative(TestSuiteChromosome suite) {
 		List<ExecutionResult> results = runTestSuite(suite);
 		if (DefUseCoverageFactory.detectAliasingGoals(results)) {
 			logger.debug("New total number of goals: " + goals.size());
@@ -135,7 +125,7 @@ public class DefUseCoverageSuiteFitness extends TestSuiteFitnessFunction {
 			if (result.hasTimeout()) {
 				logger.debug("Skipping test with timeout");
 				double fitness = goals.size() * 100;
-				updateIndividual(individual, fitness);
+				updateIndividual(suite, fitness);
 				suite.setCoverage(this, 0.0);
 				logger.debug("Test case has timed out, setting fitness to max value "
 				        + fitness);
@@ -184,7 +174,7 @@ public class DefUseCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		}
 
 		// 1. Need to reach each definition
-		double fitness = branchFitness.getFitness(individual);
+		double fitness = branchFitness.getFitness(suite);
 		// logger.info("Branch fitness: " + fitness);
 
 		// 3. For all covered defs, calculate minimal use distance
@@ -273,7 +263,7 @@ public class DefUseCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 		countCoveredGoals(coveredGoalsSet);
 		trackCoverageStatistics(suite);
-		updateIndividual(individual, fitness);
+		updateIndividual(suite, fitness);
 
 		int coveredGoalCount = countCoveredGoals();
 		int totalGoalCount = countTotalGoals();
@@ -289,8 +279,7 @@ public class DefUseCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	 * @see org.evosuite.ga.FitnessFunction#getFitness(org.evosuite.ga.Chromosome)
 	 */
 	@Override
-	public double getFitness(
-	        AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite) {
+	public double getFitness(TestSuiteChromosome suite) {
 		// Deactivate coverage archive while measuring fitness, as auxiliar fitness functions
 		// could attempt to claim coverage for it in the archive
 		boolean archive = Properties.TEST_ARCHIVE;
@@ -316,10 +305,9 @@ public class DefUseCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	 */
 	/** {@inheritDoc} */
 	//@Override
-	public double getFitnessOld(Chromosome individual) {
+	public double getFitnessOld(TestSuiteChromosome suite) {
 		logger.trace("Calculating defuse fitness");
 
-		TestSuiteChromosome suite = (TestSuiteChromosome) individual;
 		List<ExecutionResult> results = runTestSuite(suite);
 		double fitness = 0.0;
 

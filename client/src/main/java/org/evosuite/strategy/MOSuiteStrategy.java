@@ -31,6 +31,7 @@ import org.evosuite.result.TestGenerationResultBuilder;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.rmi.service.ClientState;
 import org.evosuite.statistics.RuntimeVariable;
+import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionTracer;
 import org.evosuite.testcase.factories.RandomLengthTestFactory;
@@ -60,11 +61,12 @@ public class MOSuiteStrategy extends TestGenerationStrategy {
 		// Set up search algorithm
 		PropertiesSuiteGAFactory algorithmFactory = new PropertiesSuiteGAFactory();
 
-		GeneticAlgorithm<TestSuiteChromosome> algorithm = algorithmFactory.getSearchAlgorithm();
+		GeneticAlgorithm<TestSuiteChromosome, FitnessFunction<TestSuiteChromosome>> algorithm =
+				algorithmFactory.getSearchAlgorithm();
 		
 		// Override chromosome factory
 		// TODO handle this better by introducing generics
-		ChromosomeFactory factory = new RandomLengthTestFactory();
+		ChromosomeFactory<TestChromosome> factory = new RandomLengthTestFactory();
 		algorithm.setChromosomeFactory(factory);
 		
 		if(Properties.SERIALIZE_GA || Properties.CLIENT_ON_THREAD)
@@ -76,7 +78,7 @@ public class MOSuiteStrategy extends TestGenerationStrategy {
 		List<TestFitnessFactory<? extends TestFitnessFunction>> goalFactories = getFitnessFactories();
 		List<TestFitnessFunction> fitnessFunctions = new ArrayList<>();
 		goalFactories.forEach(f -> fitnessFunctions.addAll(f.getCoverageGoals()));
-		algorithm.addFitnessFunctions((List)fitnessFunctions);
+		algorithm.addFitnessFunctions(fitnessFunctions);
 
 		// if (Properties.SHOW_PROGRESS && !logger.isInfoEnabled())
 		algorithm.addListener(progressMonitor); // FIXME progressMonitor may cause
@@ -119,7 +121,7 @@ public class MOSuiteStrategy extends TestGenerationStrategy {
 		} else {
 			zeroFitness.setFinished();
 			testSuite = new TestSuiteChromosome();
-			for (FitnessFunction<?> ff : testSuite.getFitnessValues().keySet()) {
+			for (FitnessFunction<TestSuiteChromosome> ff : testSuite.getFitnessValues().keySet()) {
 				testSuite.setCoverage(ff, 1.0);
 			}
 		}

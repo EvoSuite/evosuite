@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,6 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
 package org.evosuite.ga.populationlimit;
 
 import java.util.List;
@@ -33,7 +30,7 @@ import org.evosuite.ga.Chromosome;
  *
  * @author Gordon Fraser
  */
-public class IndividualPopulationLimit implements PopulationLimit {
+public class IndividualPopulationLimit<T extends Chromosome<T>> implements PopulationLimit<T> {
 
 	private static final long serialVersionUID = -3985726226793280031L;
 
@@ -42,7 +39,7 @@ public class IndividualPopulationLimit implements PopulationLimit {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public boolean isPopulationFull(List<? extends Chromosome> population) {
+	public boolean isPopulationFull(List<T> population) {
 		return population.size() >= Properties.POPULATION;
 	}
 

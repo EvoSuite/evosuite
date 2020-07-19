@@ -19,8 +19,8 @@
  */
 package org.evosuite.coverage.readability;
 
-import org.evosuite.testcase.ExecutableChromosome;
-import org.evosuite.testsuite.AbstractTestSuiteChromosome;
+import org.evosuite.testcase.TestChromosome;
+import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 
 public class ReadabilitySuiteFitness extends TestSuiteFitnessFunction {
@@ -34,11 +34,11 @@ public class ReadabilitySuiteFitness extends TestSuiteFitnessFunction {
      * 
      */
     @Override
-    public double getFitness(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite)
+    public double getFitness(TestSuiteChromosome suite)
     {
         double average = 0.0;
 
-        for (ExecutableChromosome ec : suite.getTestChromosomes()) {
+        for (TestChromosome ec : suite.getTestChromosomes()) {
             average += getScore(ec.toString());
         }
 

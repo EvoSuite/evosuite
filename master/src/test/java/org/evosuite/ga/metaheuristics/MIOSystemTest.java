@@ -47,7 +47,7 @@ public class MIOSystemTest extends SystemTestBase {
     String[] command = new String[] {"-generateSuite", "-class", targetClass};
 
     EvoSuite evoSuite = new EvoSuite();
-    GeneticAlgorithm<?> ga = getGAFromResult(evoSuite.parseCommandLine(command));
+    GeneticAlgorithm<?, DEFAULT_VALUE_XXX> ga = getGAFromResult(evoSuite.parseCommandLine(command));
     Assert.assertEquals(MIO.class, ga.getClass());
 
     TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();

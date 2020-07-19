@@ -19,19 +19,16 @@
  */
 package org.evosuite.testcase;
 
+import org.evosuite.coverage.mutation.Mutation;
+import org.evosuite.coverage.mutation.MutationExecutionResult;
+import org.evosuite.ga.Chromosome;
+import org.evosuite.testcase.execution.ExecutionResult;
+import org.evosuite.testsuite.TestSuiteFitnessFunction;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.HashMap;
 import java.util.Map;
-
-import org.evosuite.coverage.mutation.Mutation;
-import org.evosuite.coverage.mutation.MutationExecutionResult;
-import org.evosuite.ga.Chromosome;
-import org.evosuite.ga.FitnessFunction;
-import org.evosuite.ga.localsearch.LocalSearchObjective;
-import org.evosuite.regression.RegressionSuiteFitness;
-import org.evosuite.testcase.execution.ExecutionResult;
-import org.evosuite.testsuite.TestSuiteFitnessFunction;
 public abstract class ExecutableChromosome<E extends ExecutableChromosome<E>> extends Chromosome<E> {
 
 	private static final long serialVersionUID = 1L;
@@ -108,6 +105,15 @@ public abstract class ExecutableChromosome<E extends ExecutableChromosome<E>> ex
 	 * @param other a {@link org.evosuite.testcase.ExecutableChromosome} object.
 	 */
 	protected abstract void copyCachedResults(E other);
+
+	/**
+	 * <p>executeForFitnessFunction</p>
+	 *
+	 * @param testSuiteFitnessFunction a {@link org.evosuite.testsuite.TestSuiteFitnessFunction} object.
+	 * @return a {@link org.evosuite.testcase.execution.ExecutionResult} object.
+	 */
+	abstract public ExecutionResult executeForFitnessFunction(
+			TestSuiteFitnessFunction testSuiteFitnessFunction);
 
 	private void readObject(ObjectInputStream ois) throws ClassNotFoundException,
     IOException {

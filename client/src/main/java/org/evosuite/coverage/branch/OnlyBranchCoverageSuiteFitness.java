@@ -33,6 +33,7 @@ import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
+import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,8 +59,8 @@ public class OnlyBranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	public double bestFitness = Double.MAX_VALUE;
 
 	// Each test gets a set of distinct covered goals, these are mapped by branch id
-	private final Map<Integer, TestFitnessFunction> branchCoverageTrueMap = new LinkedHashMap<Integer, TestFitnessFunction>();
-	private final Map<Integer, TestFitnessFunction> branchCoverageFalseMap = new LinkedHashMap<Integer, TestFitnessFunction>();
+	private final Map<Integer, TestFitnessFunction> branchCoverageTrueMap = new LinkedHashMap<>();
+	private final Map<Integer, TestFitnessFunction> branchCoverageFalseMap = new LinkedHashMap<>();
 
 	private final Set<Integer> toRemoveBranchesT = new LinkedHashSet<>();
 	private final Set<Integer> toRemoveBranchesF = new LinkedHashSet<>();
@@ -123,14 +124,13 @@ public class OnlyBranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	 * 
 	 * @param results
 	 * @param predicateCount
-	 * @param callCount
 	 * @param trueDistance
 	 * @param falseDistance
 	 * @return
 	 */
-	private boolean analyzeTraces( AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite, List<ExecutionResult> results,
-	        Map<Integer, Integer> predicateCount, 
-	        Map<Integer, Double> trueDistance, Map<Integer, Double> falseDistance) {
+	private boolean analyzeTraces(TestSuiteChromosome suite, List<ExecutionResult> results,
+								  Map<Integer, Integer> predicateCount,
+								  Map<Integer, Double> trueDistance, Map<Integer, Double> falseDistance) {
 		
 		boolean hasTimeoutOrTestException = false;
 		for (ExecutionResult result : results) {
@@ -245,15 +245,14 @@ public class OnlyBranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	 * Execute all tests and count covered branches
 	 */
 	@Override
-	public double getFitness(
-	        AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite) {
+	public double getFitness(TestSuiteChromosome suite) {
 		logger.trace("Calculating branch fitness");
 		double fitness = 0.0;
 
 		List<ExecutionResult> results = runTestSuite(suite);
-		Map<Integer, Double> trueDistance = new LinkedHashMap<Integer, Double>();
-		Map<Integer, Double> falseDistance = new LinkedHashMap<Integer, Double>();
-		Map<Integer, Integer> predicateCount = new LinkedHashMap<Integer, Integer>();
+		Map<Integer, Double> trueDistance = new LinkedHashMap<>();
+		Map<Integer, Double> falseDistance = new LinkedHashMap<>();
+		Map<Integer, Integer> predicateCount = new LinkedHashMap<>();
 
 		// Collect stats in the traces 
 		boolean hasTimeoutOrTestException = analyzeTraces(suite, results, predicateCount,
@@ -336,11 +335,10 @@ public class OnlyBranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	 * Some useful debug information
 	 * 
 	 * @param coveredBranches
-	 * @param coveredMethods
+	 * @param coveredBranches
 	 * @param fitness
 	 */
-	private void printStatusMessages(
-	        AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite,
+	private void printStatusMessages(TestSuiteChromosome suite,
 	        int coveredBranches, double fitness) {
 		if (coveredBranches > maxCoveredBranches) {
 			maxCoveredBranches = coveredBranches;

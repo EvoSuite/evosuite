@@ -36,21 +36,6 @@ import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.examples.with.different.packagename.dse.Add;
-import com.examples.with.different.packagename.dse.ArrayLengthExample;
-import com.examples.with.different.packagename.dse.BooleanExample;
-import com.examples.with.different.packagename.dse.ByteExample;
-import com.examples.with.different.packagename.dse.CharExample;
-import com.examples.with.different.packagename.dse.DoubleExample;
-import com.examples.with.different.packagename.dse.FloatExample;
-import com.examples.with.different.packagename.dse.LongExample;
-import com.examples.with.different.packagename.dse.Max;
-import com.examples.with.different.packagename.dse.Min;
-import com.examples.with.different.packagename.dse.MinUnreachableCode;
-import com.examples.with.different.packagename.dse.NoStaticMethod;
-import com.examples.with.different.packagename.dse.ObjectExample;
-import com.examples.with.different.packagename.dse.ShortExample;
-import com.examples.with.different.packagename.dse.StringExample;
 import com.examples.with.different.packagename.solver.MazeClient;
 
 public class DSEMazeSystemTest extends SystemTestBase {
@@ -95,7 +80,7 @@ public class DSEMazeSystemTest extends SystemTestBase {
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, DEFAULT_VALUE_XXX> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 

@@ -274,10 +274,9 @@ public final class TestChromosome extends AbstractTestChromosome<TestChromosome>
 	 */
 	/** {@inheritDoc}
 	 * @param objective*/
-	@SuppressWarnings("unchecked")
 	@Override
-	public<F extends FitnessFunction<F,TestChromosome>> boolean localSearch(LocalSearchObjective<TestChromosome,F> objective) {
-		TestCaseLocalSearch<F> localSearch =
+	public boolean localSearch(LocalSearchObjective<TestChromosome> objective) {
+		TestCaseLocalSearch localSearch =
 				TestCaseLocalSearch.selectTestCaseLocalSearch();
 		return localSearch.doSearch(this, objective);
 	}
@@ -654,13 +653,12 @@ public final class TestChromosome extends AbstractTestChromosome<TestChromosome>
 	/** {@inheritDoc} */
 	@Override
 	public ExecutionResult executeForFitnessFunction(
-	        TestSuiteFitnessFunction<?,?,TestChromosome> testSuiteFitnessFunction) {
+	        TestSuiteFitnessFunction testSuiteFitnessFunction) {
 		return testSuiteFitnessFunction.runTest(this.test);
 	}
 
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public  int compareSecondaryObjective(TestChromosome o) {
 		int objective = 0;
 		int c = 0;
@@ -681,7 +679,7 @@ public final class TestChromosome extends AbstractTestChromosome<TestChromosome>
 	 * @param objective
 	 *            a {@link org.evosuite.ga.SecondaryObjective} object.
 	 */
-	public void addSecondaryObjective(SecondaryObjective<TestChromosome> objective) {
+	public static void addSecondaryObjective(SecondaryObjective<TestChromosome> objective) {
 		secondaryObjectives.add(objective);
 	}
 

@@ -27,7 +27,6 @@ import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.NSGAChromosome;
 import org.evosuite.ga.problems.Problem;
 import org.evosuite.ga.problems.multiobjective.FON;
-import org.evosuite.ga.problems.multiobjective.FONIntTest;
 import org.evosuite.ga.problems.singleobjective.Booths;
 import org.junit.Assert;
 import org.junit.Test;

@@ -69,7 +69,7 @@ public class ZDT1IntTest
 
         ChromosomeFactory<?> factory = new RandomFactory(false, 30, 0.0, 1.0);
 
-        GeneticAlgorithm<?> ga = new NSGAII(factory);
+        GeneticAlgorithm<?, DEFAULT_VALUE_XXX> ga = new NSGAII(factory);
         BinaryTournamentSelectionCrowdedComparison ts = new BinaryTournamentSelectionCrowdedComparison();
         ts.setMaximize(false);
         ga.setSelectionFunction(ts);

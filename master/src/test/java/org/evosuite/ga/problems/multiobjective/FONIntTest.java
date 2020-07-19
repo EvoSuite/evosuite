@@ -88,7 +88,7 @@ public class FONIntTest
 
         ChromosomeFactory<?> factory = new RandomFactory(false, 3, -4.0, 4.0);
 
-        GeneticAlgorithm<?> ga = new NSGAII(factory);
+        GeneticAlgorithm<?, DEFAULT_VALUE_XXX> ga = new NSGAII(factory);
         BinaryTournamentSelectionCrowdedComparison ts = new BinaryTournamentSelectionCrowdedComparison();
         ga.setSelectionFunction(ts);
         ga.setCrossOverFunction(new SBXCrossover());

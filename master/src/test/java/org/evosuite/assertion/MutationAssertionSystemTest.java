@@ -24,13 +24,10 @@ package org.evosuite.assertion;
 
 import com.examples.with.different.packagename.*;
 import org.evosuite.EvoSuite;
-import org.evosuite.Properties;
 import org.evosuite.SystemTestBase;
-import org.evosuite.coverage.TestCoverageGoal;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.strategy.TestGenerationStrategy;
 import org.evosuite.testcase.TestCase;
-import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.Assert;
 import org.junit.Test;
@@ -57,7 +54,7 @@ public class MutationAssertionSystemTest extends SystemTestBase {
 
 		Object result = evosuite.parseCommandLine(command);
 
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, DEFAULT_VALUE_XXX> ga = getGAFromResult(result);
 		return (TestSuiteChromosome) ga.getBestIndividual();
 	}
 
@@ -125,7 +122,7 @@ public class MutationAssertionSystemTest extends SystemTestBase {
 
 		Object result = evosuite.parseCommandLine(command);
 
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, DEFAULT_VALUE_XXX> ga = getGAFromResult(result);
 		TestSuiteChromosome suite = (TestSuiteChromosome) ga.getBestIndividual();
 
 		Assert.assertTrue(suite.size() > 0);

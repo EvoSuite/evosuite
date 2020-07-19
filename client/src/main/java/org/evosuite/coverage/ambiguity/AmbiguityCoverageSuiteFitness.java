@@ -31,6 +31,7 @@ import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
+import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 
 /**
@@ -51,17 +52,17 @@ public class AmbiguityCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	 */
 	public AmbiguityCoverageSuiteFitness() {
 
-		this.goals = new LinkedHashSet<Integer>();
+		this.goals = new LinkedHashSet<>();
 		for (LineCoverageTestFitness goal : AmbiguityCoverageFactory.getGoals()) {
 			this.goals.add(goal.getLine());
 		}
 	}
 
 	@Override
-	public double getFitness(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite) {
+	public double getFitness(TestSuiteChromosome suite) {
 
-		List<StringBuilder> transposedMatrix = new ArrayList<StringBuilder>(AmbiguityCoverageFactory.getTransposedMatrix());
-		List<Set<Integer>> coveredLines = new ArrayList<Set<Integer>>();
+		List<StringBuilder> transposedMatrix = new ArrayList<>(AmbiguityCoverageFactory.getTransposedMatrix());
+		List<Set<Integer>> coveredLines = new ArrayList<>();
 
 		// Execute test cases and collect the covered lines
 		List<ExecutionResult> results = runTestSuite(suite);
@@ -69,7 +70,7 @@ public class AmbiguityCoverageSuiteFitness extends TestSuiteFitnessFunction {
 			coveredLines.add(result.getTrace().getCoveredLines());
 		}
 
-		Map<String, Integer> groups = new HashMap<String, Integer>();
+		Map<String, Integer> groups = new HashMap<>();
 		int g_i = 0;
 
 		for (Integer goal : this.goals) {

@@ -295,7 +295,7 @@ public class SPEA2Test {
 
     ChromosomeFactory<?> factory = new RandomFactory(true, 10, -5.0, 5.0);
 
-    GeneticAlgorithm<?> ga = new SPEA2(factory);
+    GeneticAlgorithm<?, DEFAULT_VALUE_XXX> ga = new SPEA2(factory);
     BinaryTournamentSelectionCrowdedComparison ts =
         new BinaryTournamentSelectionCrowdedComparison();
     ts.setMaximize(false);

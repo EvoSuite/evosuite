@@ -12,8 +12,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang3.NotImplementedException;
 import org.evosuite.Properties;
+import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.runtime.classhandling.ClassResetter;
 import org.evosuite.symbolic.expr.Constraint;
@@ -39,10 +39,9 @@ import org.slf4j.LoggerFactory;
  * This class implements a DSE algorithm *as* a subclass of genetic algorithm.
  * 
  * @author jgaleotti
- *
- * @param <T>
  */
-public class DSEAlgorithm extends GeneticAlgorithm<TestSuiteChromosome> {
+public class DSEAlgorithm extends GeneticAlgorithm<TestSuiteChromosome,
+        FitnessFunction<TestSuiteChromosome>> {
 
   private static final Logger logger = LoggerFactory.getLogger(DSEAlgorithm.class);
 
@@ -50,7 +49,7 @@ public class DSEAlgorithm extends GeneticAlgorithm<TestSuiteChromosome> {
    * A cache of previous results from the constraint solver
    */
   private final Map<Set<Constraint<?>>, SolverResult> queryCache =
-      new HashMap<Set<Constraint<?>>, SolverResult>();
+          new HashMap<>();
 
   /**
    * Applies DSE test generation on a static non-private method until a stopping condition is met or
@@ -64,7 +63,7 @@ public class DSEAlgorithm extends GeneticAlgorithm<TestSuiteChromosome> {
     double fitnessBeforeAddingDefaultTest = this.getBestIndividual().getFitness();
     logger.debug("Fitness before adding default test case:" + fitnessBeforeAddingDefaultTest);
 
-    List<TestCase> generatedTests = new ArrayList<TestCase>();
+    List<TestCase> generatedTests = new ArrayList<>();
 
     TestCase testCaseWithDefaultValues = buildTestCaseWithDefaultValues(staticEntryMethod);
 
@@ -83,7 +82,7 @@ public class DSEAlgorithm extends GeneticAlgorithm<TestSuiteChromosome> {
       return;
     }
 
-    HashSet<Set<Constraint<?>>> pathConditions = new HashSet<Set<Constraint<?>>>();
+    HashSet<Set<Constraint<?>>> pathConditions = new HashSet<>();
 
     for (int currentTestIndex = 0; currentTestIndex < generatedTests
         .size(); currentTestIndex++) {
@@ -194,21 +193,20 @@ public class DSEAlgorithm extends GeneticAlgorithm<TestSuiteChromosome> {
 
     logger.debug("DSE test generation finished for method " + staticEntryMethod.getName()
         + ". Exiting with " + generatedTests.size() + " generated test cases");
-    return;
   }
 
   protected static HashSet<Constraint<?>> canonicalize(List<Constraint<?>> query) {
-    return new HashSet<Constraint<?>>(query);
+    return new HashSet<>(query);
   }
 
   private static List<Constraint<?>> createVarBounds(List<Constraint<?>> query) {
 
-    Set<Variable<?>> variables = new HashSet<Variable<?>>();
+    Set<Variable<?>> variables = new HashSet<>();
     for (Constraint<?> constraint : query) {
       variables.addAll(constraint.getVariables());
     }
 
-    List<Constraint<?>> boundsForVariables = new ArrayList<Constraint<?>>();
+    List<Constraint<?>> boundsForVariables = new ArrayList<>();
     for (Variable<?> variable : variables) {
       if (variable instanceof IntegerVariable) {
         IntegerVariable integerVariable = (IntegerVariable) variable;
@@ -268,7 +266,7 @@ public class DSEAlgorithm extends GeneticAlgorithm<TestSuiteChromosome> {
     Type[] argumentTypes = Type.getArgumentTypes(targetStaticMethod);
     Class<?>[] argumentClasses = targetStaticMethod.getParameterTypes();
 
-    ArrayList<VariableReference> arguments = new ArrayList<VariableReference>();
+    ArrayList<VariableReference> arguments = new ArrayList<>();
     for (int i = 0; i < argumentTypes.length; i++) {
 
       Type argumentType = argumentTypes[i];
@@ -382,7 +380,7 @@ public class DSEAlgorithm extends GeneticAlgorithm<TestSuiteChromosome> {
    */
   private static List<Method> getTargetStaticMethods(Class<?> targetClass) {
     Method[] declaredMethods = targetClass.getDeclaredMethods();
-    List<Method> targetStaticMethods = new LinkedList<Method>();
+    List<Method> targetStaticMethods = new LinkedList<>();
     for (Method m : declaredMethods) {
 
       if (!Modifier.isStatic(m.getModifiers())) {
@@ -413,7 +411,7 @@ public class DSEAlgorithm extends GeneticAlgorithm<TestSuiteChromosome> {
     final Class<?> targetClass = Properties.getTargetClassAndDontInitialise();
 
     List<Method> targetStaticMethods = getTargetStaticMethods(targetClass);
-    Collections.sort(targetStaticMethods, new MethodComparator());
+    targetStaticMethods.sort(new MethodComparator());
     logger.debug("Found " + targetStaticMethods.size() + " as entry points for DSE");
 
     for (Method entryMethod : targetStaticMethods) {

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,6 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- *
- */
 package org.evosuite.assertion;
 
 import java.util.HashMap;
@@ -27,7 +24,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import org.evosuite.Properties;
-import org.evosuite.regression.ObjectDistanceCalculator;
 import org.evosuite.testcase.variable.VariableReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,8 +37,8 @@ import org.slf4j.LoggerFactory;
 public class InspectorTraceEntry implements OutputTraceEntry {
 
   private final static Logger logger = LoggerFactory.getLogger(InspectorTraceEntry.class);
-  private final Map<Inspector, Object> inspectorMap = new HashMap<Inspector, Object>();
-  private final Map<String, Inspector> methodInspectorMap = new HashMap<String, Inspector>();
+  private final Map<Inspector, Object> inspectorMap = new HashMap<>();
+  private final Map<String, Inspector> methodInspectorMap = new HashMap<>();
   private final VariableReference var;
 
   /**
@@ -118,7 +114,7 @@ public class InspectorTraceEntry implements OutputTraceEntry {
    */
   @Override
   public Set<Assertion> getAssertions(OutputTraceEntry other) {
-    Set<Assertion> assertions = new HashSet<Assertion>();
+    Set<Assertion> assertions = new HashSet<>();
 
     if (other instanceof InspectorTraceEntry) {
       InspectorTraceEntry otherEntry = (InspectorTraceEntry) other;
@@ -164,7 +160,7 @@ public class InspectorTraceEntry implements OutputTraceEntry {
    */
   @Override
   public Set<Assertion> getAssertions() {
-    Set<Assertion> assertions = new HashSet<Assertion>();
+    Set<Assertion> assertions = new HashSet<>();
 
     for (Inspector inspector : inspectorMap.keySet()) {
       InspectorAssertion assertion = new InspectorAssertion();

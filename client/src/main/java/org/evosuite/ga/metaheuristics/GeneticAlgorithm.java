@@ -29,7 +29,6 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -71,7 +70,7 @@ import static java.util.stream.Collectors.*;
  *
  * @author Gordon Fraser
  */
-public abstract class GeneticAlgorithm<T extends Chromosome<T>> implements SearchAlgorithm,
+public abstract class GeneticAlgorithm<T extends Chromosome<T>, F extends FitnessFunction<T>> implements SearchAlgorithm,
         Serializable {
 
     private static final long serialVersionUID = 5155609385855093435L;
@@ -81,7 +80,7 @@ public abstract class GeneticAlgorithm<T extends Chromosome<T>> implements Searc
     /**
      * Fitness function to rank individuals
      */
-    protected List<FitnessFunction<T, ?>> fitnessFunctions = new ArrayList<>();
+    protected List<F> fitnessFunctions = new ArrayList<>();
 
     /**
      * Selection function to select parents
@@ -106,17 +105,17 @@ public abstract class GeneticAlgorithm<T extends Chromosome<T>> implements Searc
     /**
      * Listeners
      */
-    protected transient Set<SearchListener> listeners = new HashSet<>();
+    protected transient Set<SearchListener<T>> listeners = new HashSet<>();
 
     /**
      * List of conditions on which to end the search
      */
-    protected transient Set<StoppingCondition> stoppingConditions = new HashSet<>();
+    protected transient Set<StoppingCondition<T>> stoppingConditions = new HashSet<>();
 
     /**
      * Bloat control, to avoid too long chromosomes
      */
-    protected Set<BloatControlFunction> bloatControl = new HashSet<>();
+    protected Set<BloatControlFunction<T>> bloatControl = new HashSet<>();
 
     /**
      * Local search might need a different local objective
@@ -126,7 +125,7 @@ public abstract class GeneticAlgorithm<T extends Chromosome<T>> implements Searc
     /**
      * The population limit decides when an iteration is done
      */
-    protected PopulationLimit populationLimit = new IndividualPopulationLimit();
+    protected PopulationLimit<T> populationLimit = new IndividualPopulationLimit<>();
 
     /**
      * Age of the population
@@ -147,7 +146,7 @@ public abstract class GeneticAlgorithm<T extends Chromosome<T>> implements Searc
      */
     public GeneticAlgorithm(ChromosomeFactory<T> factory) {
         chromosomeFactory = factory;
-        addStoppingCondition(new MaxGenerationStoppingCondition());
+        addStoppingCondition(new MaxGenerationStoppingCondition<>());
         if (Properties.LOCAL_SEARCH_RATE > 0)
             addListener(LocalSearchBudget.getInstance());
         // addBloatControl(new MaxSizeBloatControl());
@@ -436,12 +435,12 @@ public abstract class GeneticAlgorithm<T extends Chromosome<T>> implements Searc
      *
      * @param function a {@link org.evosuite.ga.FitnessFunction} object.
      */
-    public void addFitnessFunction(FitnessFunction<T, ?> function) {
+    public void addFitnessFunction(F function) {
         fitnessFunctions.add(function);
         localObjective.addFitnessFunction(function);
     }
 
-    public void addFitnessFunctions(List<FitnessFunction<T, ?>> functions) {
+    public void addFitnessFunctions(List<? extends F> functions) {
         functions.forEach(this::addFitnessFunction);
     }
 
@@ -450,7 +449,7 @@ public abstract class GeneticAlgorithm<T extends Chromosome<T>> implements Searc
      *
      * @return a {@link org.evosuite.ga.FitnessFunction} object.
      */
-    public FitnessFunction<T, ?> getFitnessFunction() {
+    public F getFitnessFunction() {
         return fitnessFunctions.get(0);
     }
 
@@ -459,7 +458,7 @@ public abstract class GeneticAlgorithm<T extends Chromosome<T>> implements Searc
      *
      * @return a {@link org.evosuite.ga.FitnessFunction} object.
      */
-    public List<FitnessFunction<T, ?>> getFitnessFunctions() {
+    public List<F> getFitnessFunctions() {
         return fitnessFunctions;
     }
 
@@ -478,7 +477,7 @@ public abstract class GeneticAlgorithm<T extends Chromosome<T>> implements Searc
         for (T c : population) {
             str.append("\n  - test ").append(i);
 
-            for (FitnessFunction<T, ?> ff : this.fitnessFunctions) {
+            for (F ff : this.fitnessFunctions) {
                 DecimalFormat df = new DecimalFormat("#.#####");
                 str.append(", ")
                         .append(ff.getClass().getSimpleName().replace("CoverageSuiteFitness", ""))
@@ -537,7 +536,7 @@ public abstract class GeneticAlgorithm<T extends Chromosome<T>> implements Searc
      * @param bloat_control a {@link org.evosuite.ga.bloatcontrol.BloatControlFunction}
      *                      object.
      */
-    public void setBloatControl(BloatControlFunction bloat_control) {
+    public void setBloatControl(BloatControlFunction<T> bloat_control) {
         this.bloatControl.clear();
         addBloatControl(bloat_control);
     }
@@ -548,7 +547,7 @@ public abstract class GeneticAlgorithm<T extends Chromosome<T>> implements Searc
      * @param bloat_control a {@link org.evosuite.ga.bloatcontrol.BloatControlFunction}
      *                      object.
      */
-    public void addBloatControl(BloatControlFunction bloat_control) {
+    public void addBloatControl(BloatControlFunction<T> bloat_control) {
         this.bloatControl.add(bloat_control);
     }
 
@@ -623,7 +622,6 @@ public abstract class GeneticAlgorithm<T extends Chromosome<T>> implements Searc
      *
      * @return a {@link java.util.List} object.
      */
-    @SuppressWarnings("unchecked")
     protected List<T> elitism() {
         logger.debug("Elitism with ELITE = " + Properties.ELITE);
 
@@ -791,7 +789,7 @@ public abstract class GeneticAlgorithm<T extends Chromosome<T>> implements Searc
      * @param listener a {@link org.evosuite.ga.metaheuristics.SearchListener}
      *                 object.
      */
-    public void addListener(SearchListener listener) {
+    public void addListener(SearchListener<T> listener) {
         listeners.add(listener);
     }
 
@@ -801,7 +799,7 @@ public abstract class GeneticAlgorithm<T extends Chromosome<T>> implements Searc
      * @param listener a {@link org.evosuite.ga.metaheuristics.SearchListener}
      *                 object.
      */
-    public void removeListener(SearchListener listener) {
+    public void removeListener(SearchListener<T> listener) {
         listeners.remove(listener);
     }
 
@@ -886,7 +884,7 @@ public abstract class GeneticAlgorithm<T extends Chromosome<T>> implements Searc
      * @param limit a {@link org.evosuite.ga.populationlimit.PopulationLimit}
      *              object.
      */
-    public void setPopulationLimit(PopulationLimit limit) {
+    public void setPopulationLimit(PopulationLimit<T> limit) {
         this.populationLimit = limit;
     }
 
@@ -908,7 +906,7 @@ public abstract class GeneticAlgorithm<T extends Chromosome<T>> implements Searc
      * @param condition a {@link org.evosuite.ga.stoppingconditions.StoppingCondition}
      *                  object.
      */
-    public void addStoppingCondition(StoppingCondition condition) {
+    public void addStoppingCondition(StoppingCondition<T> condition) {
         final boolean contained = stoppingConditions.stream()
                 .anyMatch(obj -> obj.getClass().equals(condition.getClass()));
 
@@ -921,7 +919,7 @@ public abstract class GeneticAlgorithm<T extends Chromosome<T>> implements Searc
         addListener(condition);
     }
 
-    public Set<StoppingCondition> getStoppingConditions() {
+    public Set<StoppingCondition<T>> getStoppingConditions() {
         return stoppingConditions;
     }
 
@@ -933,7 +931,7 @@ public abstract class GeneticAlgorithm<T extends Chromosome<T>> implements Searc
      * @param condition a {@link org.evosuite.ga.stoppingconditions.StoppingCondition}
      *                  object.
      */
-    public void setStoppingCondition(StoppingCondition condition) {
+    public void setStoppingCondition(StoppingCondition<T> condition) {
         stoppingConditions.clear();
         logger.debug("Setting stopping condition");
         stoppingConditions.add(condition);
@@ -948,7 +946,7 @@ public abstract class GeneticAlgorithm<T extends Chromosome<T>> implements Searc
      * @param condition a {@link org.evosuite.ga.stoppingconditions.StoppingCondition}
      *                  object.
      */
-    public void removeStoppingCondition(StoppingCondition condition) {
+    public void removeStoppingCondition(StoppingCondition<T> condition) {
         final boolean removed = stoppingConditions
                 .removeIf(sc -> sc.getClass().equals(condition.getClass()));
         if (removed) removeListener(condition);
@@ -1038,7 +1036,7 @@ public abstract class GeneticAlgorithm<T extends Chromosome<T>> implements Searc
         long totalbudget = 0;
         long currentbudget = 0;
 
-        for (StoppingCondition sc : this.stoppingConditions) {
+        for (StoppingCondition<T> sc : this.stoppingConditions) {
             if (sc.getLimit() != 0) {
                 totalbudget += sc.getLimit();
                 currentbudget += sc.getCurrentValue();

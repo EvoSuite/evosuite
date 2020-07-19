@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,6 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
 package org.evosuite.coverage.mutation;
 
 import java.util.ArrayList;
@@ -29,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import junit.framework.TestSuite;
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.ga.Chromosome;
@@ -48,18 +46,18 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Gordon Fraser
  */
-public class MutationTestPool implements SearchListener {
+public class MutationTestPool implements SearchListener<TestSuiteChromosome> {
 
 	private final static Logger logger = LoggerFactory.getLogger(MutationTestPool.class);
 
 	/** Test cases for mutants we have already covered */
-	private static Map<Mutation, TestChromosome> testMap = new HashMap<Mutation, TestChromosome>();
+	private static final Map<Mutation, TestChromosome> testMap = new HashMap<>();
 
 	/** All known mutants */
 	private final static List<Mutation> allMutants = MutationPool.getMutants();
 
 	/** Complete set of fitness functions */
-	private final static List<MutationTestFitness> allMutantFitnessFunctions = new ArrayList<MutationTestFitness>();
+	private final static List<MutationTestFitness> allMutantFitnessFunctions = new ArrayList<>();
 
 	static {
 		for (Mutation m : allMutants) {
@@ -80,7 +78,7 @@ public class MutationTestPool implements SearchListener {
 	 * @return a {@link java.util.Set} object.
 	 */
 	public static Set<Mutation> getUncoveredMutants() {
-		Set<Mutation> mutants = new HashSet<Mutation>();
+		Set<Mutation> mutants = new HashSet<>();
 		for (Mutation m : allMutants) {
 			if (MutationTimeoutStoppingCondition.isDisabled(m))
 				continue;
@@ -112,7 +110,7 @@ public class MutationTestPool implements SearchListener {
 	 * @return a {@link java.util.Set} object.
 	 */
 	public static Set<MutationTestFitness> getUncoveredFitnessFunctions() {
-		Set<MutationTestFitness> mutants = new HashSet<MutationTestFitness>();
+		Set<MutationTestFitness> mutants = new HashSet<>();
 		//int num = 0;
 		for (MutationTestFitness m : allMutantFitnessFunctions) {
 			if (MutationTimeoutStoppingCondition.isDisabled(m.getMutation()))
@@ -153,7 +151,7 @@ public class MutationTestPool implements SearchListener {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void searchStarted(GeneticAlgorithm<?> algorithm) {
+	public void searchStarted(GeneticAlgorithm<TestSuiteChromosome, ?> algorithm) {
 
 	}
 
@@ -162,7 +160,7 @@ public class MutationTestPool implements SearchListener {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void iteration(GeneticAlgorithm<?> algorithm) {
+	public void iteration(GeneticAlgorithm<TestSuiteChromosome, ?> algorithm) {
 
 	}
 
@@ -171,8 +169,8 @@ public class MutationTestPool implements SearchListener {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void searchFinished(GeneticAlgorithm<?> algorithm) {
-		TestSuiteChromosome solution = (TestSuiteChromosome) algorithm.getBestIndividual();
+	public void searchFinished(GeneticAlgorithm<TestSuiteChromosome, ?> algorithm) {
+		TestSuiteChromosome solution = algorithm.getBestIndividual();
 
 		logger.info("Search finished with size " + solution.size());
 		for (TestChromosome test : testMap.values())
@@ -186,7 +184,7 @@ public class MutationTestPool implements SearchListener {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void fitnessEvaluation(Chromosome individual) {
+	public void fitnessEvaluation(TestSuiteChromosome individual) {
 		// TODO Auto-generated method stub
 
 	}
@@ -196,7 +194,7 @@ public class MutationTestPool implements SearchListener {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void modification(Chromosome individual) {
+	public void modification(TestSuiteChromosome individual) {
 		// TODO Auto-generated method stub
 
 	}

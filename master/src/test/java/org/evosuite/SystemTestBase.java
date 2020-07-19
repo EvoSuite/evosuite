@@ -161,7 +161,7 @@ public class SystemTestBase {
 	}
 
 
-	protected GeneticAlgorithm<?>  do100percentLineTestOnStandardCriteria(Class<?> target){
+	protected GeneticAlgorithm<?, DEFAULT_VALUE_XXX>  do100percentLineTestOnStandardCriteria(Class<?> target){
 		EvoSuite evosuite = new EvoSuite();
 
 		String targetClass = target.getCanonicalName();
@@ -173,7 +173,7 @@ public class SystemTestBase {
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, DEFAULT_VALUE_XXX> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
@@ -185,7 +185,7 @@ public class SystemTestBase {
 	}
 
 
-	protected GeneticAlgorithm<?>  do100percentLineTest(Class<?> target){
+	protected GeneticAlgorithm<?, DEFAULT_VALUE_XXX>  do100percentLineTest(Class<?> target){
 		EvoSuite evosuite = new EvoSuite();
 
 		String targetClass = target.getCanonicalName();
@@ -196,7 +196,7 @@ public class SystemTestBase {
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, DEFAULT_VALUE_XXX> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
@@ -205,7 +205,7 @@ public class SystemTestBase {
 		return ga;
 	}
 
-	protected GeneticAlgorithm<?>  doNonOptimalLineTest(Class<?> target){
+	protected GeneticAlgorithm<?, DEFAULT_VALUE_XXX>  doNonOptimalLineTest(Class<?> target){
 		EvoSuite evosuite = new EvoSuite();
 
 		String targetClass = target.getCanonicalName();
@@ -216,7 +216,7 @@ public class SystemTestBase {
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, DEFAULT_VALUE_XXX> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
@@ -345,7 +345,7 @@ public class SystemTestBase {
 	}
 	
 	@SuppressWarnings("unchecked")
-	protected GeneticAlgorithm<?> getGAFromResult(Object result) {
+	protected GeneticAlgorithm<?, DEFAULT_VALUE_XXX> getGAFromResult(Object result) {
 		assert(result instanceof List);
 		List<List<TestGenerationResult>> results = (List<List<TestGenerationResult>>)result;
 		assert(results.size() == 1);

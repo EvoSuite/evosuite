@@ -19,44 +19,32 @@
  */
 package org.evosuite.coverage.rho;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-
 import org.evosuite.Properties;
-import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.execution.ExecutionResult;
-import org.evosuite.testsuite.AbstractTestSuiteChromosome;
+import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
+
+import java.util.*;
 
 /**
  * 
  * @author José Campos
  */
-public class RhoCoverageSuiteFitness<T extends ExecutableChromosome<T>, X extends AbstractTestSuiteChromosome<T,X>>
-		extends TestSuiteFitnessFunction<
-		RhoCoverageSuiteFitness<T,X>,T,X> {
+public class RhoCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 	private static final long serialVersionUID = 5460600509431741746L;
 
 	private int previous_number_of_ones = 0;
 	private int previous_number_of_test_cases = 0;
 
-	private Set<Set<Integer>> coverage_matrix_generated_so_far = new LinkedHashSet<>();
+	private final Set<Set<Integer>> coverage_matrix_generated_so_far = new LinkedHashSet<>();
 
 	@Override
-	public double getFitness(X suite) {
+	public double getFitness(TestSuiteChromosome suite) {
 		return this.getFitness(suite, true);
 	}
 
-	@Override
-	public RhoCoverageSuiteFitness<T, X> self() {
-		return this;
-	}
-
-	protected double getFitness(X suite, boolean updateFitness) {
+	protected double getFitness(TestSuiteChromosome suite, boolean updateFitness) {
 
 		Set<Set<Integer>> tmp_coverage_matrix = new LinkedHashSet<>(this.coverage_matrix_generated_so_far);
 

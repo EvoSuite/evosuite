@@ -24,7 +24,7 @@ public class ContainsAssertionSystemTest extends SystemTestBase {
 
         Object result = evosuite.parseCommandLine(command);
 
-        GeneticAlgorithm<?> ga = getGAFromResult(result);
+        GeneticAlgorithm<?, DEFAULT_VALUE_XXX> ga = getGAFromResult(result);
         TestSuiteChromosome suite = (TestSuiteChromosome) ga.getBestIndividual();
         System.out.println(suite.toString());
 

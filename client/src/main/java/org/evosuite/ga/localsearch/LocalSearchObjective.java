@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,16 +17,12 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
 package org.evosuite.ga.localsearch;
 
 import java.util.List;
 
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.FitnessFunction;
-import org.evosuite.testsuite.TestSuiteFitnessFunction;
 
 /**
  * Represents a local search objective that will be used during local search to
@@ -38,7 +34,7 @@ import org.evosuite.testsuite.TestSuiteFitnessFunction;
  *
  * @author Gordon Fraser
  */
-public interface LocalSearchObjective<T extends Chromosome<T>, F extends FitnessFunction<F,T>> {
+public interface LocalSearchObjective<T extends Chromosome<T>> {
 
 	/**
 	 * true if the objective was achieved
@@ -85,7 +81,7 @@ public interface LocalSearchObjective<T extends Chromosome<T>, F extends Fitness
 	 */
 	public int hasChanged(T chromosome);
 
-	public void addFitnessFunction(F fitness);
+	public void addFitnessFunction(FitnessFunction<T> fitness);
 
 	/**
 	 * Returns a list with all the fitness functions stored in this local search
@@ -93,6 +89,6 @@ public interface LocalSearchObjective<T extends Chromosome<T>, F extends Fitness
 	 *
 	 * @return a {@link org.evosuite.ga.FitnessFunction} object.
 	 */
-	public List<F> getFitnessFunctions();
+	public List<FitnessFunction<T>> getFitnessFunctions();
 
 }

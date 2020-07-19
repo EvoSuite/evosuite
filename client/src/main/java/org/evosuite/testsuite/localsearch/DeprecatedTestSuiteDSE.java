@@ -21,7 +21,6 @@ package org.evosuite.testsuite.localsearch;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -29,7 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Set;
-import java.util.Map.Entry;
 
 import org.evosuite.Properties;
 import org.evosuite.ga.Chromosome;
@@ -49,10 +47,7 @@ import org.evosuite.symbolic.solver.SolverFactory;
 import org.evosuite.symbolic.solver.SolverResult;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
-import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.ExecutionTrace;
-import org.evosuite.testcase.localsearch.DSETestCaseLocalSearch;
-import org.evosuite.testcase.localsearch.TestCaseLocalSearch;
 import org.evosuite.testcase.statements.PrimitiveStatement;
 import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testsuite.TestSuiteChromosome;

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -80,7 +80,7 @@ public class EntBugTestStrategy extends TestGenerationStrategy {
 
 		// Set up genetic algorithm
 		PropertiesTestGAFactory factory = new PropertiesTestGAFactory();
-		GeneticAlgorithm<TestChromosome> ga = factory.getSearchAlgorithm();
+		GeneticAlgorithm<TestChromosome, TestFitnessFunction> ga = factory.getSearchAlgorithm();
 
 		if (Properties.SERIALIZE_GA || Properties.CLIENT_ON_THREAD) {
 			TestGenerationResultBuilder.getInstance().setGeneticAlgorithm(ga);
@@ -92,7 +92,7 @@ public class EntBugTestStrategy extends TestGenerationStrategy {
 		ga.addFitnessFunction(rhoTestFitnessFunction);
 
 		// Goals
-		List<TestFitnessFunction> goals = new ArrayList<TestFitnessFunction>(rhoFactory.getCoverageGoals());
+		List<TestFitnessFunction> goals = new ArrayList<>(rhoFactory.getCoverageGoals());
 		LoggingUtils.getEvoLogger().info("* Total number of test goals: ");        
         LoggingUtils.getEvoLogger().info("  - Rho " + goals.size());
 		ClientServices.getInstance().getClientNode().changeState(ClientState.SEARCH);

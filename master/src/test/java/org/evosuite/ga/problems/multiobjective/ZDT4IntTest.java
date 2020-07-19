@@ -95,7 +95,7 @@ public class ZDT4IntTest
 
         ChromosomeFactory<?> factory = new RandomFactory(true, 10, -5.0, 5.0);
 
-        GeneticAlgorithm<?> ga = new NSGAII(factory);
+        GeneticAlgorithm<?, DEFAULT_VALUE_XXX> ga = new NSGAII(factory);
         BinaryTournamentSelectionCrowdedComparison ts = new BinaryTournamentSelectionCrowdedComparison();
         ts.setMaximize(false);
         ga.setSelectionFunction(ts);

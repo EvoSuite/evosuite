@@ -3,21 +3,15 @@ package org.evosuite.strategy;
 import org.evosuite.Properties;
 import org.evosuite.ShutdownTestWriter;
 import org.evosuite.TestGenerationContext;
-import org.evosuite.Properties.Algorithm;
 import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.coverage.mutation.MutationTestPool;
 import org.evosuite.coverage.mutation.MutationTimeoutStoppingCondition;
 import org.evosuite.ga.ChromosomeFactory;
+import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.archive.ArchiveTestChromosomeFactory;
+import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
+import org.evosuite.ga.metaheuristics.SearchListener;
 import org.evosuite.ga.metaheuristics.mapelites.MAPElites;
-import org.evosuite.ga.operators.crossover.CrossOverFunction;
-import org.evosuite.ga.operators.ranking.RankingFunction;
-import org.evosuite.ga.operators.selection.BinaryTournamentSelectionCrowdedComparison;
-import org.evosuite.ga.operators.selection.FitnessProportionateSelection;
-import org.evosuite.ga.operators.selection.RankSelection;
-import org.evosuite.ga.operators.selection.SelectionFunction;
-import org.evosuite.ga.operators.selection.TournamentSelection;
-import org.evosuite.ga.operators.selection.TournamentSelectionRankAndCrowdingDistanceComparator;
 import org.evosuite.ga.stoppingconditions.GlobalTimeStoppingCondition;
 import org.evosuite.ga.stoppingconditions.MaxTimeStoppingCondition;
 import org.evosuite.ga.stoppingconditions.RMIStoppingCondition;
@@ -26,6 +20,7 @@ import org.evosuite.ga.stoppingconditions.StoppingCondition;
 import org.evosuite.ga.stoppingconditions.ZeroFitnessStoppingCondition;
 import org.evosuite.statistics.StatisticsListener;
 import org.evosuite.testcase.TestChromosome;
+import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.factories.AllMethodsTestChromosomeFactory;
 import org.evosuite.testcase.factories.JUnitTestCarvedChromosomeFactory;
 import org.evosuite.testcase.factories.RandomLengthTestFactory;
@@ -53,9 +48,7 @@ public class PropertiesMapElitesSearchFactory
         return new ArchiveTestChromosomeFactory();
       case JUNIT:
         logger.info("Using seeding chromosome factory");
-        JUnitTestCarvedChromosomeFactory factory =
-            new JUnitTestCarvedChromosomeFactory(new RandomLengthTestFactory());
-        return factory;
+        return new JUnitTestCarvedChromosomeFactory(new RandomLengthTestFactory());
       case SERIALIZATION:
         logger.info("Using serialization seeding chromosome factory");
         return new RandomLengthTestFactory();
@@ -66,37 +59,37 @@ public class PropertiesMapElitesSearchFactory
   }
 
   @Override
-  public MAPElites<TestChromosome> getSearchAlgorithm() {
+  public GeneticAlgorithm<TestChromosome, FitnessFunction<TestChromosome>> getSearchAlgorithm() {
     ChromosomeFactory<TestChromosome> factory = getChromosomeFactory();
-    MAPElites<TestChromosome> ga = new MAPElites<>(factory);
+    MAPElites ga = new MAPElites(factory);
 
     if (Properties.NEW_STATISTICS)
-      ga.addListener(new StatisticsListener());
+      ga.addListener(new StatisticsListener<>());
 
     // When to stop the search
-    StoppingCondition stopping_condition = getStoppingCondition();
+    StoppingCondition<TestChromosome> stopping_condition = getStoppingCondition();
     ga.setStoppingCondition(stopping_condition);
 
     if (Properties.STOP_ZERO) {
-      ga.addStoppingCondition(new ZeroFitnessStoppingCondition());
+      ga.addStoppingCondition(new ZeroFitnessStoppingCondition<>());
     }
 
     if (!(stopping_condition instanceof MaxTimeStoppingCondition)) {
-      ga.addStoppingCondition(new GlobalTimeStoppingCondition());
+      ga.addStoppingCondition(new GlobalTimeStoppingCondition<>());
     }
 
     if (ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.MUTATION)
         || ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.STRONGMUTATION)) {
       if (Properties.STRATEGY == Properties.Strategy.ONEBRANCH)
-        ga.addStoppingCondition(new MutationTimeoutStoppingCondition());
+        ga.addStoppingCondition(new MutationTimeoutStoppingCondition<>());
       else
         ga.addListener(new MutationTestPool());
     }
     ga.resetStoppingConditions();
 
     if (Properties.CHECK_BEST_LENGTH) {
-      RelativeSuiteLengthBloatControl bloat_control =
-          new org.evosuite.testsuite.RelativeSuiteLengthBloatControl();
+      RelativeSuiteLengthBloatControl<TestChromosome> bloat_control =
+              new RelativeSuiteLengthBloatControl<>();
       ga.addBloatControl(bloat_control);
       ga.addListener(bloat_control);
     }
@@ -119,7 +112,7 @@ public class PropertiesMapElitesSearchFactory
     }
 
     if (Properties.LOCAL_SEARCH_RESTORE_COVERAGE) {
-      org.evosuite.ga.metaheuristics.SearchListener map = BranchCoverageMap.getInstance();
+      SearchListener<TestChromosome> map = BranchCoverageMap.getInstance();
       ga.addListener(map);
     }
 

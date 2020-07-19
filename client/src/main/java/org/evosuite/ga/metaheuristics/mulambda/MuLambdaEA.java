@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -28,12 +28,15 @@ import org.evosuite.ga.FitnessFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static java.util.Collections.reverseOrder;
+
 /**
  * (Mu, Lambda) EA
  *
  * @author José Campos
  */
-public class MuLambdaEA<T extends Chromosome> extends AbstractMuLambda<T> {
+public class MuLambdaEA<T extends Chromosome<T>, F extends FitnessFunction<T>>
+        extends AbstractMuLambda<T,F> {
 
   private static final long serialVersionUID = -1104094637643130537L;
 
@@ -44,7 +47,6 @@ public class MuLambdaEA<T extends Chromosome> extends AbstractMuLambda<T> {
   }
 
   /** {@inheritDoc} */
-  @SuppressWarnings("unchecked")
   @Override
   protected void evolve() {
 
@@ -78,7 +80,7 @@ public class MuLambdaEA<T extends Chromosome> extends AbstractMuLambda<T> {
 
       // sort offspring from the one with the highest fitness value to the one with the lowest
       // fitness value
-      Collections.sort(offspring, Collections.reverseOrder());
+      offspring.sort(reverseOrder());
     } else {
       // sort offspring from the one with the lowest fitness value to the one with the highest
       // fitness value

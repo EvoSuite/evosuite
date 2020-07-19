@@ -1,5 +1,6 @@
 package org.evosuite.strategy;
 
+import junit.framework.TestSuite;
 import org.evosuite.Properties;
 import org.evosuite.ShutdownTestWriter;
 import org.evosuite.TestGenerationContext;
@@ -9,6 +10,7 @@ import org.evosuite.coverage.mutation.MutationTimeoutStoppingCondition;
 import org.evosuite.ga.archive.ArchiveTestChromosomeFactory;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.metaheuristics.NoveltySearch;
+import org.evosuite.ga.metaheuristics.SearchListener;
 import org.evosuite.ga.operators.crossover.CrossOverFunction;
 import org.evosuite.ga.operators.crossover.SinglePointCrossOver;
 import org.evosuite.ga.operators.crossover.SinglePointFixedCrossOver;
@@ -126,7 +128,7 @@ public class PropertiesNoveltySearchFactory extends PropertiesSearchAlgorithmFac
         NoveltySearch<TestChromosome> ga = new NoveltySearch<>(factory);
 
         if (Properties.NEW_STATISTICS)
-            ga.addListener(new StatisticsListener());
+            ga.addListener(new StatisticsListener<>());
 
         // How to select candidates for reproduction
         SelectionFunction<TestChromosome> selectionFunction = getSelectionFunction();
@@ -137,21 +139,21 @@ public class PropertiesNoveltySearchFactory extends PropertiesSearchAlgorithmFac
         ga.setRankingFunction(ranking_function);
 
         // When to stop the search
-        StoppingCondition stopping_condition = getStoppingCondition();
+        StoppingCondition<TestChromosome> stopping_condition = getStoppingCondition();
         ga.setStoppingCondition(stopping_condition);
         // ga.addListener(stopping_condition);
         if (Properties.STOP_ZERO) {
-            ga.addStoppingCondition(new ZeroFitnessStoppingCondition());
+            ga.addStoppingCondition(new ZeroFitnessStoppingCondition<>());
         }
 
         if (!(stopping_condition instanceof MaxTimeStoppingCondition)) {
-            ga.addStoppingCondition(new GlobalTimeStoppingCondition());
+            ga.addStoppingCondition(new GlobalTimeStoppingCondition<>());
         }
 
         if (ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.MUTATION)
                 || ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.STRONGMUTATION)) {
             if (Properties.STRATEGY == Properties.Strategy.ONEBRANCH)
-                ga.addStoppingCondition(new MutationTimeoutStoppingCondition());
+                ga.addStoppingCondition(new MutationTimeoutStoppingCondition<>());
             else
                 ga.addListener(new MutationTestPool());
             // } else if (Properties.CRITERION == Criterion.DEFUSE) {
@@ -170,7 +172,8 @@ public class PropertiesNoveltySearchFactory extends PropertiesSearchAlgorithmFac
         // ga.setBloatControl(bloat_control);
 
         if (Properties.CHECK_BEST_LENGTH) {
-            RelativeSuiteLengthBloatControl bloat_control = new org.evosuite.testsuite.RelativeSuiteLengthBloatControl();
+            RelativeSuiteLengthBloatControl<TestChromosome> bloat_control =
+                    new RelativeSuiteLengthBloatControl<>();
             ga.addBloatControl(bloat_control);
             ga.addListener(bloat_control);
         }
@@ -198,14 +201,14 @@ public class PropertiesNoveltySearchFactory extends PropertiesSearchAlgorithmFac
         }
 
         if (Properties.LOCAL_SEARCH_RESTORE_COVERAGE) {
-            org.evosuite.ga.metaheuristics.SearchListener map = BranchCoverageMap.getInstance();
+            SearchListener<TestSuiteChromosome> map = BranchCoverageMap.getInstance();
             ga.addListener(map);
         }
 
         if (Properties.SHUTDOWN_HOOK) {
             // ShutdownTestWriter writer = new
             // ShutdownTestWriter(Thread.currentThread());
-            ShutdownTestWriter writer = new ShutdownTestWriter();
+            ShutdownTestWriter<TestChromosome> writer = new ShutdownTestWriter<>();
             ga.addStoppingCondition(writer);
             RMIStoppingCondition rmi = RMIStoppingCondition.getInstance();
             ga.addStoppingCondition(rmi);

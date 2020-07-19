@@ -24,14 +24,9 @@ import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.SystemTestBase;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
-import org.evosuite.statistics.OutputVariable;
-import org.evosuite.statistics.RuntimeVariable;
-import org.evosuite.statistics.backend.DebugStatisticsBackend;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.Assert;
 import org.junit.Test;
-
-import java.util.Map;
 
 /**
  * Created by gordon on 04/01/2017.
@@ -49,7 +44,7 @@ public class StaticFinalFieldAssignmentSystemTest extends SystemTestBase {
 
         Object result = evosuite.parseCommandLine(command);
 
-        GeneticAlgorithm<?> ga = getGAFromResult(result);
+        GeneticAlgorithm<?, DEFAULT_VALUE_XXX> ga = getGAFromResult(result);
         TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
         String code = best.toString();

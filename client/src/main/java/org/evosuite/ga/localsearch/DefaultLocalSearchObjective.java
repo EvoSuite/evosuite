@@ -37,12 +37,12 @@ import org.evosuite.ga.FitnessFunction;
  *
  * @author Gordon Fraser
  */
-public class DefaultLocalSearchObjective<T extends Chromosome<T>, F extends FitnessFunction<F,T>> implements LocalSearchObjective<T,F>,
+public class DefaultLocalSearchObjective<T extends Chromosome<T>> implements LocalSearchObjective<T>,
 		Serializable {
 
 	private static final long serialVersionUID = -8640106627078837108L;
 
-	private final List<F> fitnessFunctions = new ArrayList<>();
+	private final List<FitnessFunction<T>> fitnessFunctions = new ArrayList<>();
 
 	// TODO: This assumes we are not doing NSGA-II
 	private boolean isMaximization = false;
@@ -64,8 +64,8 @@ public class DefaultLocalSearchObjective<T extends Chromosome<T>, F extends Fitn
 	}
 
 	@Override
-	public void addFitnessFunction(F fitness) {
-		for(FitnessFunction<?,T> ff : fitnessFunctions) {
+	public void addFitnessFunction(FitnessFunction<T> fitness) {
+		for(FitnessFunction<T> ff : fitnessFunctions) {
 			if(ff.isMaximizationFunction() != fitness.isMaximizationFunction()) {
 				throw new RuntimeException("Local search only supports composition of multiple criteria");
 			}
@@ -89,7 +89,7 @@ public class DefaultLocalSearchObjective<T extends Chromosome<T>, F extends Fitn
 	/** {@inheritDoc}
 	 * @return*/
 	@Override
-	public List<F> getFitnessFunctions() {
+	public List<FitnessFunction<T>> getFitnessFunctions() {
 		return fitnessFunctions;
 	}
 

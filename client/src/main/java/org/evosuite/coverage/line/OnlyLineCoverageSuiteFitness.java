@@ -31,6 +31,7 @@ import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
+import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,11 +43,11 @@ public class OnlyLineCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	private final static Logger logger = LoggerFactory.getLogger(OnlyLineCoverageSuiteFitness.class);
 
 	// Coverage targets
-	private final Map<Integer, TestFitnessFunction> lineGoals = new LinkedHashMap<Integer, TestFitnessFunction>();
+	private final Map<Integer, TestFitnessFunction> lineGoals = new LinkedHashMap<>();
 	private final int numLines;
 
-	private final Set<Integer> removedLines = new LinkedHashSet<Integer>();
-	private final Set<Integer> toRemoveLines = new LinkedHashSet<Integer>();
+	private final Set<Integer> removedLines = new LinkedHashSet<>();
+	private final Set<Integer> toRemoveLines = new LinkedHashSet<>();
 
 	// Some stuff for debug output
 	private int maxCoveredLines = 0;
@@ -137,15 +138,14 @@ public class OnlyLineCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	 * Execute all tests and count covered branches
 	 */
 	@Override
-	public double getFitness(
-	        AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite) {
+	public double getFitness(TestSuiteChromosome suite) {
 		logger.trace("Calculating branch fitness");
 		double fitness = 0.0;
 
 		List<ExecutionResult> results = runTestSuite(suite);
 
 		// Collect stats in the traces 
-		Set<Integer> coveredLines = new LinkedHashSet<Integer>();
+		Set<Integer> coveredLines = new LinkedHashSet<>();
 		boolean hasTimeoutOrTestException = analyzeTraces(results, coveredLines);
 
 		int totalLines = this.numLines;
@@ -187,8 +187,7 @@ public class OnlyLineCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	 * @param coveredLines
 	 * @param fitness
 	 */
-	private void printStatusMessages(
-	        AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite,
+	private void printStatusMessages(TestSuiteChromosome suite,
 	        int coveredLines, double fitness) {
 		if (coveredLines > maxCoveredLines) {
 			maxCoveredLines = coveredLines;

@@ -22,6 +22,7 @@ package org.evosuite.ga.metaheuristics.mosa.structural;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.evosuite.coverage.branch.Branch;
 import org.evosuite.coverage.branch.BranchCoverageGoal;
@@ -31,6 +32,8 @@ import org.evosuite.ga.FitnessFunction;
 import org.evosuite.graphs.cfg.ActualControlFlowGraph;
 import org.evosuite.graphs.cfg.BasicBlock;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
+import org.evosuite.testcase.TestChromosome;
+import org.evosuite.testcase.TestFitnessFunction;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,22 +45,22 @@ import static java.util.stream.Collectors.*;
  * 
  * @author Annibale Panichella
  */
-public class BranchFitnessGraph<T extends Chromosome> implements Serializable {
+public class BranchFitnessGraph implements Serializable {
 
 	private static final long serialVersionUID = -8020578778906420503L;
 	
 	private static final Logger logger = LoggerFactory.getLogger(BranchFitnessGraph.class);
 
-	protected DefaultDirectedGraph<FitnessFunction<T>, DependencyEdge> graph = new DefaultDirectedGraph<>(DependencyEdge.class);
+	protected DefaultDirectedGraph<TestFitnessFunction, DependencyEdge> graph =
+			new DefaultDirectedGraph<>(DependencyEdge.class);
 
-	protected Set<FitnessFunction<T>> rootBranches = new HashSet<>();
+	protected Set<TestFitnessFunction> rootBranches = new HashSet<>();
 
-	@SuppressWarnings("unchecked")
-	public BranchFitnessGraph(Set<FitnessFunction<T>> goals){
+	public BranchFitnessGraph(Set<TestFitnessFunction> goals){
 		goals.forEach(g -> graph.addVertex(g));
 
 		// derive dependencies among branches
-		for (FitnessFunction<T> fitness : goals){
+		for (TestFitnessFunction fitness : goals){
 			Branch branch = ((BranchCoverageTestFitness) fitness).getBranch();
 			if (branch==null){
 				this.rootBranches.add(fitness); 
@@ -80,11 +83,11 @@ public class BranchFitnessGraph<T extends Chromosome> implements Serializable {
 				
 				BranchCoverageGoal goal = new BranchCoverageGoal(newB, true, newB.getClassName(), newB.getMethodName());
 				BranchCoverageTestFitness newFitness = new BranchCoverageTestFitness(goal);
-				graph.addEdge((FitnessFunction<T>) newFitness, fitness);
+				graph.addEdge(newFitness, fitness);
 
 				BranchCoverageGoal goal2 = new BranchCoverageGoal(newB, false, newB.getClassName(), newB.getMethodName());
 				BranchCoverageTestFitness newfitness2 = new BranchCoverageTestFitness(goal2);
-				graph.addEdge((FitnessFunction<T>) newfitness2, fitness);
+				graph.addEdge(newfitness2, fitness);
 			}
 		}
 	}
@@ -134,22 +137,20 @@ public class BranchFitnessGraph<T extends Chromosome> implements Serializable {
 				return inst.toBranch();
 		return null;
 	}
-	
-	public Set<FitnessFunction<T>> getRootBranches(){
+
+	public Set<TestFitnessFunction> getRootBranches(){
 		return this.rootBranches;
 	}
-	
-	@SuppressWarnings("unchecked")
-	public Set<FitnessFunction<T>> getStructuralChildren(FitnessFunction<T> parent){
+
+	public Set<TestFitnessFunction> getStructuralChildren(TestFitnessFunction parent) {
 		return this.graph.outgoingEdgesOf(parent).stream()
-				.map(edge -> (FitnessFunction<T>) edge.getTarget())
+				.map(DependencyEdge::getTarget)
 				.collect(toSet());
 	}
-	
-	@SuppressWarnings("unchecked")
-	public Set<FitnessFunction<T>> getStructuralParents(FitnessFunction<T> parent){
+
+	public Set<TestFitnessFunction> getStructuralParents(TestFitnessFunction parent){
 		return this.graph.incomingEdgesOf(parent).stream()
-				.map(edge -> (FitnessFunction<T>) edge.getSource()
-				).collect(toSet());
+				.map(DependencyEdge::getSource)
+				.collect(toSet());
 	}
 }
