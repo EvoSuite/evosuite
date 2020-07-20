@@ -25,12 +25,12 @@ import org.evosuite.symbolic.dse.DSEStatistics;
 import org.evosuite.symbolic.dse.DSETestCase;
 import org.evosuite.symbolic.dse.algorithm.strategies.KeepSearchingCriteriaStrategy;
 import org.evosuite.symbolic.dse.algorithm.strategies.PathPruningStrategy;
-import org.evosuite.symbolic.dse.algorithm.strategies.PathSelectionStrategy;
+import org.evosuite.symbolic.dse.algorithm.strategies.PathExtensionStrategy;
 import org.evosuite.symbolic.dse.algorithm.strategies.TestCaseBuildingStrategy;
 import org.evosuite.symbolic.dse.algorithm.strategies.TestCaseSelectionStrategy;
-import org.evosuite.symbolic.dse.algorithm.strategies.implementations.KeepSearchingCriteriaStrategies.LastExecutionCreatedATestCaseStrategy;
+import org.evosuite.symbolic.dse.algorithm.strategies.implementations.KeepSearchingCriteriaStrategies.TestCasesPendingStrategy;
 import org.evosuite.symbolic.dse.algorithm.strategies.implementations.PathPruningStrategies.AlreadySeenSkipStrategy;
-import org.evosuite.symbolic.dse.algorithm.strategies.implementations.PathSelectionStrategies.generationalGenerationStrategy;
+import org.evosuite.symbolic.dse.algorithm.strategies.implementations.PathSelectionStrategies.ExpandExecutionStrategy;
 import org.evosuite.symbolic.dse.algorithm.strategies.implementations.TestCaseBuildingStrategies.DefaultTestCaseBuildingStrategy;
 import org.evosuite.symbolic.dse.algorithm.strategies.implementations.TestCaseSelectionStrategies.LastTestCaseSelectionStrategy;
 import org.evosuite.symbolic.MethodComparator;
@@ -107,7 +107,7 @@ public class ExplorationAlgorithm extends ExplorationAlgorithmBase {
     public static final String TESTS_WERE_GENERATED_FOR_ENTRY_METHOD_DEBUG_MESSAGE = "{} tests were generated for entry method {}";
     public static final String EXPLORATION_STRATEGIES_MUST_BE_INITIALIZED_TO_START_SEARCHING = "Exploration strategies must be initialized to start searching.";
 
-      /**
+    /**
      * A cache of previous results from the constraint solver
      **/
     protected final transient Map<Set<Constraint<?>>, SolverResult> queryCache
@@ -117,7 +117,7 @@ public class ExplorationAlgorithm extends ExplorationAlgorithmBase {
      * Exploration strategies
      **/
     private transient PathPruningStrategy pathPruningStrategy;
-    private transient PathSelectionStrategy pathSelectionStrategy;
+    private transient PathExtensionStrategy pathsExpansionStrategy;
     private transient TestCaseBuildingStrategy testCaseBuildingStrategy;
     private transient TestCaseSelectionStrategy testCaseSelectionStrategy;
     private transient KeepSearchingCriteriaStrategy keepSearchingCriteriaStrategy;
@@ -138,10 +138,10 @@ public class ExplorationAlgorithm extends ExplorationAlgorithmBase {
 
         // Default Strategies
         this.pathPruningStrategy           = new AlreadySeenSkipStrategy();
-        this.pathSelectionStrategy         = new generationalGenerationStrategy();
+        this.pathsExpansionStrategy        = new ExpandExecutionStrategy();
         this.testCaseBuildingStrategy      = new DefaultTestCaseBuildingStrategy();
         this.testCaseSelectionStrategy     = new LastTestCaseSelectionStrategy();
-        this.keepSearchingCriteriaStrategy = new LastExecutionCreatedATestCaseStrategy();
+        this.keepSearchingCriteriaStrategy = new TestCasesPendingStrategy();
     }
 
     public ExplorationAlgorithm(
@@ -169,12 +169,74 @@ public class ExplorationAlgorithm extends ExplorationAlgorithmBase {
     }
 
     /**
+     * Exploration strategies setters
+     */
+    public void setPathPruningStrategy(PathPruningStrategy pathPruningStrategy) {
+        checkStrategy(pathPruningStrategy);
+        this.pathPruningStrategy = pathPruningStrategy;
+    }
+
+    public void setPathsExpansionStrategy(PathExtensionStrategy pathsExpansionStrategy) {
+        checkStrategy(pathsExpansionStrategy);
+        this.pathsExpansionStrategy = pathsExpansionStrategy;
+    }
+
+    public void setTestCaseBuildingStrategy(TestCaseBuildingStrategy testCaseBuildingStrategy) {
+        checkStrategy(testCaseBuildingStrategy);
+        this.testCaseBuildingStrategy = testCaseBuildingStrategy;
+    }
+
+    public void setTestCaseSelectionStrategy(TestCaseSelectionStrategy testCaseSelectionStrategy) {
+        checkStrategy(testCaseSelectionStrategy);
+        this.testCaseSelectionStrategy = testCaseSelectionStrategy;
+    }
+
+    public void setKeepSearchingCriteriaStrategy(KeepSearchingCriteriaStrategy keepSearchingCriteriaStrategy) {
+        checkStrategy(keepSearchingCriteriaStrategy);
+        this.keepSearchingCriteriaStrategy = keepSearchingCriteriaStrategy;
+    }
+
+    /**
+     * Generates a solution for a given class
+     *
+     * @return
+     */
+     public TestSuiteChromosome explore() {
+         if (!strategiesInitialized()) throw new DSEExplorationException(EXPLORATION_STRATEGIES_MUST_BE_INITIALIZED_TO_START_SEARCHING);
+         notifyGenerationStarted();
+         final Class<?> targetClass = Properties.getTargetClassAndDontInitialise();
+
+         List<Method> targetStaticMethods = ClassUtil.getTargetClassStaticMethods(targetClass);
+         Collections.sort(targetStaticMethods, new MethodComparator());
+         logger.debug(ENTRY_POINTS_FOUND_DEBUG_MESSAGE, targetStaticMethods.size());
+
+         for (Method entryMethod : targetStaticMethods) {
+             if (this.isFinished()) {
+                  logger.debug(STOPPING_CONDITION_MET_DEBUG_MESSAGE);
+                  break;
+             }
+
+             logger.debug(GENERATING_TESTS_FOR_ENTRY_DEBUG_MESSAGE, entryMethod.getName());
+             int testCaseCount = testSuite.getTests().size();
+             explore(entryMethod);
+             int numOfGeneratedTestCases = testSuite.getTests().size() - testCaseCount;
+             logger.debug(TESTS_WERE_GENERATED_FOR_ENTRY_METHOD_DEBUG_MESSAGE, numOfGeneratedTestCases, entryMethod.getName());
+         }
+
+         // Run this before finish
+         notifyGenerationFinished();
+         statisticsLogger.reportTotalTestExecutionTime(TestCaseExecutor.timeExecuted);
+         statisticsLogger.logStatistics();
+         return testSuite;
+     }
+
+    /**
      * DSE algorithm
      *
      * @param method
      */
     @Override
-    protected void runAlgorithm(Method method) {
+    protected void explore(Method method) {
         // Path divergence check
         boolean hasPathConditionDiverged;
 
@@ -203,7 +265,7 @@ public class ExplorationAlgorithm extends ExplorationAlgorithmBase {
             if (isFinished()) return;
 
             // Runs the current test case
-            DSEPathCondition currentExecutedPathCondition = executeTestCaseConcolically(currentTestCase);
+            GenerationalSearchPathCondition currentExecutedPathCondition = executeTestCaseConcolically(currentTestCase);
             seenChildren.add(
                  normalize(
                      currentExecutedPathCondition.getPathCondition().getConstraints()));
@@ -215,15 +277,15 @@ public class ExplorationAlgorithm extends ExplorationAlgorithmBase {
             );
 
             // Generates the children
-            List<DSEPathCondition> children = pathSelectionStrategy.generateChildren(currentExecutedPathCondition);
+            List<GenerationalSearchPathCondition> children = pathsExpansionStrategy.generateChildren(currentExecutedPathCondition);
 
             processChildren(seenChildren, testCasesWorkList, currentTestCase, children, hasPathConditionDiverged);
         }
     }
 
-    private void processChildren(HashSet<Set<Constraint<?>>> seenChildren, PriorityQueue<DSETestCase> testCasesWorkList, DSETestCase currentTestCase, List<DSEPathCondition> children, boolean hasPathConditionDiverged) {
+    private void processChildren(HashSet<Set<Constraint<?>>> seenChildren, PriorityQueue<DSETestCase> testCasesWorkList, DSETestCase currentTestCase, List<GenerationalSearchPathCondition> children, boolean hasPathConditionDiverged) {
         // We look at all the children
-        for (DSEPathCondition child : children) {
+        for (GenerationalSearchPathCondition child : children) {
             List<Constraint<?>> childQuery = SolverUtils.buildQuery(child.getPathCondition());
             Set<Constraint<?>> normalizedChildQuery = normalize(childQuery);
 
@@ -267,7 +329,7 @@ public class ExplorationAlgorithm extends ExplorationAlgorithmBase {
      * @param hasPathConditionDiverged
      * @return
      */
-    private DSETestCase generateNewTestCase(DSETestCase currentConcreteTest, DSEPathCondition currentPathCondition, Map<String, Object> smtSolution, boolean hasPathConditionDiverged) {
+    private DSETestCase generateNewTestCase(DSETestCase currentConcreteTest, GenerationalSearchPathCondition currentPathCondition, Map<String, Object> smtSolution, boolean hasPathConditionDiverged) {
         TestCase newTestCase = TestCaseUpdater.updateTest(currentConcreteTest.getTestCase(), smtSolution);
 
         DSETestCase newDSETestCase = new DSETestCase(
@@ -317,40 +379,6 @@ public class ExplorationAlgorithm extends ExplorationAlgorithmBase {
         return solution;
     }
 
-    /**
-     * Generates a solution for a given class
-     *
-     * @return
-     */
-     public TestSuiteChromosome explore() {
-         if (!strategiesInitialized()) throw new DSEExplorationException(EXPLORATION_STRATEGIES_MUST_BE_INITIALIZED_TO_START_SEARCHING);
-         notifyGenerationStarted();
-         final Class<?> targetClass = Properties.getTargetClassAndDontInitialise();
-
-         List<Method> targetStaticMethods = ClassUtil.getTargetClassStaticMethods(targetClass);
-         Collections.sort(targetStaticMethods, new MethodComparator());
-         logger.debug(ENTRY_POINTS_FOUND_DEBUG_MESSAGE, targetStaticMethods.size());
-
-         for (Method entryMethod : targetStaticMethods) {
-             if (this.isFinished()) {
-                  logger.debug(STOPPING_CONDITION_MET_DEBUG_MESSAGE);
-                  break;
-             }
-
-             logger.debug(GENERATING_TESTS_FOR_ENTRY_DEBUG_MESSAGE, entryMethod.getName());
-             int testCaseCount = testSuite.getTests().size();
-             runAlgorithm(entryMethod);
-             int numOfGeneratedTestCases = testSuite.getTests().size() - testCaseCount;
-             logger.debug(TESTS_WERE_GENERATED_FOR_ENTRY_METHOD_DEBUG_MESSAGE, numOfGeneratedTestCases, entryMethod.getName());
-         }
-
-         // Run this before finish
-         notifyGenerationFinished();
-         statisticsLogger.reportTotalTestExecutionTime(TestCaseExecutor.timeExecuted);
-         statisticsLogger.logStatistics();
-         return testSuite;
-     }
-
       /**
        * Checks that the internal algorithm strategies were initialized.
        * @return
@@ -358,7 +386,7 @@ public class ExplorationAlgorithm extends ExplorationAlgorithmBase {
       private boolean strategiesInitialized() {
           return testCaseSelectionStrategy != null
             && testCaseBuildingStrategy != null
-            && pathSelectionStrategy != null
+            && pathsExpansionStrategy != null
             && keepSearchingCriteriaStrategy != null
             && pathPruningStrategy != null;
       }
@@ -387,21 +415,6 @@ public class ExplorationAlgorithm extends ExplorationAlgorithmBase {
         return smtQueryResult;
     }
 
-    private SolverResult doSolveQuery(List<Constraint<?>> SMTQuery) {
-        SolverResult smtQueryResult = null;
-
-        try {
-            smtQueryResult = solver.solve(SMTQuery);
-        } catch (SolverTimeoutException
-                | SolverParseException
-                | SolverEmptyQueryException
-                | SolverErrorException
-                | IOException e) {
-            logger.debug(SOLVER_ERROR_DEBUG_MESSAGE, e.getMessage());
-        }
-        return smtQueryResult;
-    }
-
     /**
      * Normalizes the query
      *
@@ -418,7 +431,7 @@ public class ExplorationAlgorithm extends ExplorationAlgorithmBase {
      * @param currentTestCase
      * @return
      */
-    private DSEPathCondition executeTestCaseConcolically(DSETestCase currentTestCase) {
+    private GenerationalSearchPathCondition executeTestCaseConcolically(DSETestCase currentTestCase) {
         logger.debug(EXECUTING_CONCOLICALLY_THE_CURRENT_TEST_CASE_DEBUG_MESSAGE);
 
         TestCase clonedCurrentTestCase = currentTestCase.getTestCase().clone();
@@ -432,36 +445,22 @@ public class ExplorationAlgorithm extends ExplorationAlgorithmBase {
 
         logger.debug(FINISHED_CONCOLIC_EXECUTION_DEBUG_MESSAGE);
 
-        return new DSEPathCondition(result, currentGeneratedFromIndex);
+        return new GenerationalSearchPathCondition(result, currentGeneratedFromIndex);
     }
 
+    private SolverResult doSolveQuery(List<Constraint<?>> SMTQuery) {
+        SolverResult smtQueryResult = null;
 
-    /**
-     * Exploration strategies setters
-     */
-    public void setPathPruningStrategy(PathPruningStrategy pathPruningStrategy) {
-        checkStrategy(pathPruningStrategy);
-        this.pathPruningStrategy = pathPruningStrategy;
-    }
-
-    public void setPathSelectionStrategy(PathSelectionStrategy pathSelectionStrategy) {
-        checkStrategy(pathSelectionStrategy);
-        this.pathSelectionStrategy = pathSelectionStrategy;
-    }
-
-    public void setTestCaseBuildingStrategy(TestCaseBuildingStrategy testCaseBuildingStrategy) {
-        checkStrategy(testCaseBuildingStrategy);
-        this.testCaseBuildingStrategy = testCaseBuildingStrategy;
-    }
-
-    public void setTestCaseSelectionStrategy(TestCaseSelectionStrategy testCaseSelectionStrategy) {
-        checkStrategy(testCaseSelectionStrategy);
-        this.testCaseSelectionStrategy = testCaseSelectionStrategy;
-    }
-
-    public void setKeepSearchingCriteriaStrategy(KeepSearchingCriteriaStrategy keepSearchingCriteriaStrategy) {
-        checkStrategy(keepSearchingCriteriaStrategy);
-        this.keepSearchingCriteriaStrategy = keepSearchingCriteriaStrategy;
+        try {
+            smtQueryResult = solver.solve(SMTQuery);
+        } catch (SolverTimeoutException
+                | SolverParseException
+                | SolverEmptyQueryException
+                | SolverErrorException
+                | IOException e) {
+            logger.debug(SOLVER_ERROR_DEBUG_MESSAGE, e.getMessage());
+        }
+        return smtQueryResult;
     }
 
     private void checkStrategy(Object strategy) {

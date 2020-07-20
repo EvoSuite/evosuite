@@ -19,15 +19,15 @@
  */
 package org.evosuite.symbolic.dse.algorithm.strategies;
 
-import org.evosuite.symbolic.dse.algorithm.DSEPathCondition;
+import org.evosuite.symbolic.dse.algorithm.GenerationalSearchPathCondition;
 
 import java.util.List;
 
 /**
- * Interface for path selection strategies
+ * Interface for path extension strategies
  *
  * @author ignacio lebrero
  */
-public interface PathSelectionStrategy {
-    List<DSEPathCondition> generateChildren(DSEPathCondition currentPathConditionChild);
+public interface PathExtensionStrategy {
+    List<GenerationalSearchPathCondition> generateChildren(GenerationalSearchPathCondition currentPathConditionChild);
 }

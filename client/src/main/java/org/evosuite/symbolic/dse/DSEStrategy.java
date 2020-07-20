@@ -31,9 +31,7 @@ import org.evosuite.strategy.TestGenerationStrategy;
 import org.evosuite.symbolic.dse.algorithm.ExplorationAlgorithm;
 import org.evosuite.symbolic.dse.algorithm.DSEAlgorithmFactory;
 import org.evosuite.symbolic.dse.algorithm.DSEAlgorithms;
-import org.evosuite.symbolic.dse.algorithm.listener.implementations.MaxTimeStoppingCondition;
-import org.evosuite.symbolic.dse.algorithm.listener.implementations.TargetCoverageReachedStoppingCondition;
-import org.evosuite.symbolic.dse.algorithm.listener.implementations.ZeroFitnessStoppingCondition;
+import org.evosuite.symbolic.dse.algorithm.listener.StoppingConditionFactory;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
@@ -58,10 +56,12 @@ public class DSEStrategy extends TestGenerationStrategy {
 	public static final String SETTING_UP_DSE_GENERATION_INFO_MESSAGE = "* Setting up DSE test suite generation";
 	public static final String NOT_SUITABLE_METHOD_FOUND_INFO_MESSAGE = "* Found no testable methods in the target class {}";
 
-	/** DSE Stopping conditions */
-	private final MaxTimeStoppingCondition maxTimeStoppingCondition = new MaxTimeStoppingCondition();
-	private final ZeroFitnessStoppingCondition zeroFitnessStoppingCondition = new ZeroFitnessStoppingCondition();
-	private final TargetCoverageReachedStoppingCondition targetCoverageReachedStoppingCondition = new TargetCoverageReachedStoppingCondition();
+	/** Default stopping conditions */
+	public static Properties.DSEStoppingCondition[] defaultStoppingConditions = {
+		Properties.DSEStoppingCondition.MAXTIME,
+		Properties.DSEStoppingCondition.ZEROFITNESS,
+		Properties.DSEStoppingCondition.TARGETCOVERAGE
+	};
 
 	@Override
 	public TestSuiteChromosome generateTests() {
@@ -166,10 +166,11 @@ public class DSEStrategy extends TestGenerationStrategy {
 		LoggingUtils.getEvoLogger().info("* Using DSE algorithm: {}", dseAlgorithmType.getName());
 		ExplorationAlgorithm algorithm = dseFactory.getDSEAlgorithm(dseAlgorithmType);
 
-        // Adding stopping conditions
-		algorithm.addStoppingCondition(maxTimeStoppingCondition);
-		algorithm.addStoppingCondition(zeroFitnessStoppingCondition);
-		algorithm.addStoppingCondition(targetCoverageReachedStoppingCondition);
+    // Adding default stopping conditions
+		/** Default conditions */
+		for (Properties.DSEStoppingCondition condition : defaultStoppingConditions) {
+			algorithm.addStoppingCondition(StoppingConditionFactory.getStoppingCondition(condition));
+		}
 
 		LoggingUtils.getEvoLogger().debug("* With timeout: {}", Properties.GLOBAL_TIMEOUT);
 		LoggingUtils.getEvoLogger().debug("* With target coverage: {}", Properties.DSE_TARGET_COVERAGE);

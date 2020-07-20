@@ -303,45 +303,59 @@ public abstract class ExplorationAlgorithmBase<T extends Chromosome> implements 
         return hasPathConditionDiverged;
     }
 
-	/**
-	 * Score calculation is based on coverage improvement against the current testSuite.
-	 *
-	 * TODO: This could be better if there was a way to run calculate the coverage of adding a new test without changng
-	 *       the hole testSuite data.
-	 *
-	 * @param newTestCase
-	 * @param hasPathConditionDiverged
-	 * @return
-	 */
+		/**
+		 * Score calculation is based on coverage improvement against the current testSuite.
+		 *
+		 * TODO: This could be better if there was a way to run calculate the coverage of adding a new test without changng
+		 *       the hole testSuite data.
+		 *
+		 * @param newTestCase
+		 * @param hasPathConditionDiverged
+		 * @return
+		 */
     protected double getTestScore(TestCase newTestCase, boolean hasPathConditionDiverged) {
-    	// In case of divergence we add the worst score that there could be
     	if (hasPathConditionDiverged) {
     		statisticsLogger.reportNewTestUnuseful();
     		return PATH_DIVERGED_BASED_TEST_CASE_PENALTY_SCORE;
 			}
 
-    	double oldCoverage;
-    	double newCoverage;
-    	double coverageDiff;
-
-    	oldCoverage = testSuite.getCoverage();
-
-			// New coverage calculation
-			testSuite.addTest(newTestCase);
-			calculateFitness();
-
-			newCoverage = testSuite.getCoverage();
-			coverageDiff = newCoverage - oldCoverage;
-
-			// Restore old values
-			testSuite.deleteTest(newTestCase);
-			calculateFitness();
-
-			logNewTestCoverageData(coverageDiff);
-
-			return coverageDiff;
+    	return getTestCaseAdditionIncrementalCoverage(newTestCase);
     }
 
+	/**
+	 * Returns the incremental coverage of adding a test case to the current test suite.
+	 *
+	 * @param newTestCase
+	 * @return
+	 */
+			private double getTestCaseAdditionIncrementalCoverage(TestCase newTestCase) {
+				double oldCoverage;
+				double newCoverage;
+				double coverageDiff;
+
+				oldCoverage = testSuite.getCoverage();
+
+				// New coverage calculation
+				testSuite.addTest(newTestCase);
+				calculateFitness();
+
+				newCoverage = testSuite.getCoverage();
+				coverageDiff = newCoverage - oldCoverage;
+
+				// Restore old values
+				testSuite.deleteTest(newTestCase);
+				calculateFitness();
+
+				logNewTestCoverageData(coverageDiff);
+
+				return coverageDiff;
+			}
+
+	/**
+	 * Logs new coverage data.
+	 *
+	 * @param coverageDiff
+	 */
 	private void logNewTestCoverageData(double coverageDiff) {
     	if (coverageDiff > 0) {
 			logger.debug(NEW_TEST_GENERATED_IMPROVES_FITNESS_INFO_MESSAGE);
@@ -372,6 +386,6 @@ public abstract class ExplorationAlgorithmBase<T extends Chromosome> implements 
      *
      * @param method
      */
-    protected abstract void runAlgorithm(Method method);
+    protected abstract void explore(Method method);
 
 }

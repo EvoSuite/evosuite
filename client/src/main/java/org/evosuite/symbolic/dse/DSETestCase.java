@@ -19,7 +19,7 @@
  */
 package org.evosuite.symbolic.dse;
 
-import org.evosuite.symbolic.dse.algorithm.DSEPathCondition;
+import org.evosuite.symbolic.dse.algorithm.GenerationalSearchPathCondition;
 import org.evosuite.testcase.TestCase;
 
 import java.util.Objects;
@@ -48,9 +48,9 @@ public class DSETestCase implements Comparable<DSETestCase>, Cloneable {
      * Path condition from wich the test case was created.
      * Useful for checking path divergences.
      */
-    private DSEPathCondition originalPathCondition;
+    private GenerationalSearchPathCondition originalPathCondition;
 
-    public DSETestCase(TestCase testCase, DSEPathCondition originalPathCondition, double score) {
+    public DSETestCase(TestCase testCase, GenerationalSearchPathCondition originalPathCondition, double score) {
         this.score = score;
         this.testCase = testCase;
         this.originalPathCondition = originalPathCondition;
@@ -64,7 +64,7 @@ public class DSETestCase implements Comparable<DSETestCase>, Cloneable {
         return testCase;
     }
 
-    public DSEPathCondition getOriginalPathCondition() {
+    public GenerationalSearchPathCondition getOriginalPathCondition() {
         return originalPathCondition;
     }
 

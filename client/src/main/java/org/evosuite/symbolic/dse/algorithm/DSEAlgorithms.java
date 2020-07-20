@@ -29,29 +29,28 @@ import org.evosuite.Properties;
  * @author ignacio lebrero
  */
 public enum DSEAlgorithms {
-    SAGE(
-      "SAGE",
+    SAGE("SAGE",
       "Default implementation based on: Automated Whitebox Fuzz Testing, Godefroid, Levin, Molnar",
-      new Properties.Criterion[]{Properties.Criterion.BRANCH}
-     );
+      new Properties.Criterion[]{Properties.Criterion.BRANCH},
+      new Properties.DSEStoppingCondition[]{});
 
     private String name;
     private String description;
     private Properties.Criterion[] criteria;
+    private Properties.DSEStoppingCondition[] stoppingConditions;
 
-    DSEAlgorithms(String name, String description, Properties.Criterion[] criteria) {
+    DSEAlgorithms(String name,
+                  String description,
+                  Properties.Criterion[] criteria,
+                  Properties.DSEStoppingCondition[] stoppingConditions) {
         this.name = name;
-        this.description = description;
         this.criteria = criteria;
+        this.description = description;
+        this.stoppingConditions = stoppingConditions;
     }
 
-    public String getName() {
-        return this.name;
-    }
-    public String getDescription() {
-        return description;
-    }
-    public Properties.Criterion[] getCriteria() {
-        return criteria;
-    }
+    public String getName() { return this.name; }
+    public String getDescription() { return description; }
+    public Properties.Criterion[] getCriteria() { return criteria; }
+    public Properties.DSEStoppingCondition[] getStoppingConditions() { return stoppingConditions; }
 }

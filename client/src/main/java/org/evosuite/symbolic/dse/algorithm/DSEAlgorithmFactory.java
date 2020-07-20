@@ -22,9 +22,10 @@ package org.evosuite.symbolic.dse.algorithm;
 import org.evosuite.Properties;
 import org.evosuite.coverage.FitnessFunctionsUtils;
 import org.evosuite.symbolic.dse.DSEStatistics;
-import org.evosuite.symbolic.dse.algorithm.strategies.implementations.KeepSearchingCriteriaStrategies.LastExecutionCreatedATestCaseStrategy;
+import org.evosuite.symbolic.dse.algorithm.listener.StoppingConditionFactory;
+import org.evosuite.symbolic.dse.algorithm.strategies.implementations.KeepSearchingCriteriaStrategies.TestCasesPendingStrategy;
 import org.evosuite.symbolic.dse.algorithm.strategies.implementations.PathPruningStrategies.AlreadySeenSkipStrategy;
-import org.evosuite.symbolic.dse.algorithm.strategies.implementations.PathSelectionStrategies.generationalGenerationStrategy;
+import org.evosuite.symbolic.dse.algorithm.strategies.implementations.PathSelectionStrategies.ExpandExecutionStrategy;
 import org.evosuite.symbolic.dse.algorithm.strategies.implementations.TestCaseBuildingStrategies.DefaultTestCaseBuildingStrategy;
 import org.evosuite.symbolic.dse.algorithm.strategies.implementations.TestCaseSelectionStrategies.LastTestCaseSelectionStrategy;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
@@ -77,15 +78,23 @@ public class DSEAlgorithmFactory {
             showProgress
         );
 
-        /** Setup the strategies */
+        /** Setups */
+
+        /** Strategies */
         algorithm.setPathPruningStrategy(new AlreadySeenSkipStrategy());
-        algorithm.setPathSelectionStrategy(new generationalGenerationStrategy());
+        algorithm.setPathsExpansionStrategy(new ExpandExecutionStrategy());
         algorithm.setTestCaseBuildingStrategy(new DefaultTestCaseBuildingStrategy());
         algorithm.setTestCaseSelectionStrategy(new LastTestCaseSelectionStrategy());
-        algorithm.setKeepSearchingCriteriaStrategy(new LastExecutionCreatedATestCaseStrategy());
+        algorithm.setKeepSearchingCriteriaStrategy(new TestCasesPendingStrategy());
 
+        /** Fitness functions */
         List<TestSuiteFitnessFunction> sageFitnessFunctions = FitnessFunctionsUtils.getFitnessFunctions(DSEAlgorithms.SAGE.getCriteria());
         algorithm.addFitnessFunctions(sageFitnessFunctions);
+
+        /** Stopping conditions */
+        for (Properties.DSEStoppingCondition condition : DSEAlgorithms.SAGE.getStoppingConditions()) {
+            algorithm.addStoppingCondition(StoppingConditionFactory.getStoppingCondition(condition));
+        }
 
         return algorithm;
     }

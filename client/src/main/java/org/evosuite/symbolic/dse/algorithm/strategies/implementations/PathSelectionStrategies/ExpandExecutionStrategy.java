@@ -20,8 +20,8 @@
 package org.evosuite.symbolic.dse.algorithm.strategies.implementations.PathSelectionStrategies;
 
 import org.evosuite.symbolic.PathConditionNode;
-import org.evosuite.symbolic.dse.algorithm.DSEPathCondition;
-import org.evosuite.symbolic.dse.algorithm.strategies.PathSelectionStrategy;
+import org.evosuite.symbolic.dse.algorithm.GenerationalSearchPathCondition;
+import org.evosuite.symbolic.dse.algorithm.strategies.PathExtensionStrategy;
 import org.evosuite.symbolic.PathCondition;
 
 import java.util.ArrayList;
@@ -32,11 +32,11 @@ import java.util.List;
  *
  * @author ignacio lebrero
  */
-public class generationalGenerationStrategy implements PathSelectionStrategy {
+public class ExpandExecutionStrategy implements PathExtensionStrategy {
 
     @Override
-    public List<DSEPathCondition> generateChildren(DSEPathCondition currentPathConditionChild) {
-        List<DSEPathCondition> generatedChildren = new ArrayList<>();
+    public List<GenerationalSearchPathCondition> generateChildren(GenerationalSearchPathCondition currentPathConditionChild) {
+        List<GenerationalSearchPathCondition> generatedChildren = new ArrayList<>();
         List<PathConditionNode> accumulatedPathConditionNodes = new ArrayList<>();
         List<PathConditionNode> currentPathConditionPathConditionNodes = currentPathConditionChild.getPathCondition().getPathConditionNodes();
         int currentPathConditionIndexGeneratedFrom = currentPathConditionChild.getGeneratedFromIndex();
@@ -53,7 +53,7 @@ public class generationalGenerationStrategy implements PathSelectionStrategy {
             // Adds the negated BranchCondition version to the current created pathCondition
             accumulatedPathConditionNodes.add(currentPathConditionNode.getNegatedVersion());
 
-            DSEPathCondition newChild = new DSEPathCondition(
+            GenerationalSearchPathCondition newChild = new GenerationalSearchPathCondition(
                 new PathCondition(
                         new ArrayList(accumulatedPathConditionNodes)
                 ),

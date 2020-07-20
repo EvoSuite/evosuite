@@ -20,7 +20,7 @@
 package org.evosuite.symbolic.dse.algorithm.strategies.implementations.TestCaseBuildingStrategies;
 
 import org.evosuite.symbolic.dse.DSETestCase;
-import org.evosuite.symbolic.dse.algorithm.DSEPathCondition;
+import org.evosuite.symbolic.dse.algorithm.GenerationalSearchPathCondition;
 import org.evosuite.symbolic.dse.algorithm.strategies.TestCaseBuildingStrategy;
 import org.evosuite.symbolic.PathCondition;
 import org.evosuite.testcase.TestCase;
@@ -40,14 +40,14 @@ public class DefaultTestCaseBuildingStrategy implements TestCaseBuildingStrategy
         TestCase testCase = TestCaseUpdater.buildTestCaseWithDefaultValues(method);
         PathCondition emptyPathCondition = new PathCondition(new ArrayList());
 
-        DSEPathCondition emptyDSEPathCondition = new DSEPathCondition(
+        GenerationalSearchPathCondition emptyGenerationalSearchPathCondition = new GenerationalSearchPathCondition(
             emptyPathCondition,
             0// Initial index is 0 to negate all branch conditions
         );
 
         return new DSETestCase(
             testCase,
-            emptyDSEPathCondition,
+            emptyGenerationalSearchPathCondition,
             0.0 // Initial test case will always be seen the first time.
         );
     }

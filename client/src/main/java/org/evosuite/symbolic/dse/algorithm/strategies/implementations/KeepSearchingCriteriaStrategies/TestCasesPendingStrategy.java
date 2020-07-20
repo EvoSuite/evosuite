@@ -25,11 +25,11 @@ import org.evosuite.symbolic.dse.algorithm.strategies.KeepSearchingCriteriaStrat
 import java.util.PriorityQueue;
 
 /**
- * Strategy for keep searching in case a new test case was generated in the last execution
+ * Strategy for keep searching in case there's still test cases left to explore.
  *
  * @author ignacio lebrero
  */
-public class LastExecutionCreatedATestCaseStrategy implements KeepSearchingCriteriaStrategy {
+public class TestCasesPendingStrategy implements KeepSearchingCriteriaStrategy {
     @Override
     public boolean ShouldKeepSearching(PriorityQueue<DSETestCase> generatedTests) {
         return generatedTests.size() > 0;
