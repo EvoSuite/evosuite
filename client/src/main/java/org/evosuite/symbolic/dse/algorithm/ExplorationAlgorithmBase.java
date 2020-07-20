@@ -46,8 +46,6 @@ import java.util.Set;
  */
 public abstract class ExplorationAlgorithmBase<T extends Chromosome> implements Serializable {
 
-	private static final long serialVersionUID = -3426910907322781226L;
-
 	/** Logger Messages */
 	public static final String PATH_DIVERGENCE_FOUND_WARNING_MESSAGE = "Warning | Path condition diverged";
 	public static final String SETTING_STOPPING_CONDITION_DEBUG_MESSAGE = "Setting stopping condition";
@@ -66,8 +64,6 @@ public abstract class ExplorationAlgorithmBase<T extends Chromosome> implements 
 	/** Path Divergence config */
 	public static final int PATH_DIVERGED_BASED_TEST_CASE_PENALTY_SCORE = 0;
 
-	private static final transient Logger logger = LoggerFactory.getLogger(ExplorationAlgorithmBase.class);
-
 	/** Test suite */
 	protected final TestSuiteChromosome testSuite = new TestSuiteChromosome();
 
@@ -82,10 +78,19 @@ public abstract class ExplorationAlgorithmBase<T extends Chromosome> implements 
 
 	protected final boolean showProgress;
 
+	private static final transient Logger logger = LoggerFactory.getLogger(ExplorationAlgorithmBase.class);
+
+	private static final long serialVersionUID = -3426910907322781226L;
+
 	public ExplorationAlgorithmBase(DSEStatistics dseStatistics, boolean showProgress) {
 		this.showProgress = showProgress;
 		this.statisticsLogger = dseStatistics;
 	}
+
+  /**
+   * Exploration entry point.
+   */
+  public abstract TestSuiteChromosome explore();
 
 	/**
 	 * Add new fitness function
@@ -160,6 +165,11 @@ public abstract class ExplorationAlgorithmBase<T extends Chromosome> implements 
 		stoppingConditions.add(condition);
 	}
 
+	/**
+	 * Getter for the stopping conditions.
+	 *
+	 * @return Set of stopping conditions
+	 */
 	public Set<StoppingCondition> getStoppingConditions() {
 		return stoppingConditions;
 	}
@@ -223,6 +233,15 @@ public abstract class ExplorationAlgorithmBase<T extends Chromosome> implements 
 	}
 
 	/**
+	 * Getter for the generated test suite.
+	 *
+	 * @return testSuite
+	 */
+	public TestSuiteChromosome getGeneratedTestSuite() {
+		return testSuite;
+	}
+
+	/**
 	 * Notify all search listeners of iteration
 	 */
 	protected void notifyIteration() {
@@ -267,22 +286,6 @@ public abstract class ExplorationAlgorithmBase<T extends Chromosome> implements 
 		}
 
 		return currentbudget / (double) totalbudget;
-	}
-
-	/**
-	 * Each stopping condition can have diferent limits, thus we normalize the values to just get the
-	 * correspondent "percentage" related to the limit it had.
-	 *
-	 * @param currentValue
-	 * @param limit
-	 * @return
-	 */
-	private double getNormalizedValue(long currentValue, long limit) {
-		return (double )(currentValue * NORMALIZE_VALUE_LIMIT) / (double) limit;
-	}
-
-	public TestSuiteChromosome getGeneratedTestSuite() {
-		return testSuite;
 	}
 	
     /**
@@ -352,21 +355,6 @@ public abstract class ExplorationAlgorithmBase<T extends Chromosome> implements 
 			}
 
 	/**
-	 * Logs new coverage data.
-	 *
-	 * @param coverageDiff
-	 */
-	private void logNewTestCoverageData(double coverageDiff) {
-    	if (coverageDiff > 0) {
-			logger.debug(NEW_TEST_GENERATED_IMPROVES_FITNESS_INFO_MESSAGE);
-			statisticsLogger.reportNewTestUseful();
-		} else {
-    		logger.debug(NEW_TEST_GENERATED_DIDNT_IMPROVES_FITNESS_INFO_MESSAGE);
-    		statisticsLogger.reportNewTestUnuseful();
-		}
-	}
-
-	/**
 	 * Prints old/new fitness values and adds the new test case.
 	 *
 	 * @param dseTestCase
@@ -388,4 +376,30 @@ public abstract class ExplorationAlgorithmBase<T extends Chromosome> implements 
      */
     protected abstract void explore(Method method);
 
+  /**
+	 * Logs new coverage data.
+	 *
+	 * @param coverageDiff
+	 */
+	private void logNewTestCoverageData(double coverageDiff) {
+    	if (coverageDiff > 0) {
+			logger.debug(NEW_TEST_GENERATED_IMPROVES_FITNESS_INFO_MESSAGE);
+			statisticsLogger.reportNewTestUseful();
+		} else {
+    		logger.debug(NEW_TEST_GENERATED_DIDNT_IMPROVES_FITNESS_INFO_MESSAGE);
+    		statisticsLogger.reportNewTestUnuseful();
+		}
+	}
+
+	/**
+	 * Each stopping condition can have diferent limits, thus we normalize the values to just get the
+	 * correspondent "percentage" related to the limit it had.
+	 *
+	 * @param currentValue
+	 * @param limit
+	 * @return
+	 */
+	private double getNormalizedValue(long currentValue, long limit) {
+		return (double )(currentValue * NORMALIZE_VALUE_LIMIT) / (double) limit;
+	}
 }

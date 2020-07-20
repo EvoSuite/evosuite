@@ -29,7 +29,7 @@ import java.util.Set;
 import org.apache.commons.lang3.SystemUtils;
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
-import org.evosuite.symbolic.dse.ConcolicExecutor;
+import org.evosuite.symbolic.dse.ConcolicExecutorImpl;
 import org.evosuite.symbolic.expr.Variable;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.execution.TestCaseExecutor;
@@ -173,7 +173,7 @@ public class ConcolicExecutionTest {
 		Properties.TIMEOUT = 5000;
 		Properties.CONCOLIC_TIMEOUT = 5000000;
 
-		PathCondition pc = new ConcolicExecutor().execute(tc);
+		PathCondition pc = new ConcolicExecutorImpl().execute(tc);
 		List<PathConditionNode> branch_conditions = pc.getPathConditionNodes();
 
 		return branch_conditions;

@@ -31,6 +31,7 @@ import org.evosuite.strategy.TestGenerationStrategy;
 import org.evosuite.symbolic.dse.algorithm.ExplorationAlgorithm;
 import org.evosuite.symbolic.dse.algorithm.DSEAlgorithmFactory;
 import org.evosuite.symbolic.dse.algorithm.DSEAlgorithms;
+import org.evosuite.symbolic.dse.algorithm.ExplorationAlgorithmBase;
 import org.evosuite.symbolic.dse.algorithm.listener.StoppingConditionFactory;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testsuite.TestSuiteChromosome;
@@ -57,10 +58,10 @@ public class DSEStrategy extends TestGenerationStrategy {
 	public static final String NOT_SUITABLE_METHOD_FOUND_INFO_MESSAGE = "* Found no testable methods in the target class {}";
 
 	/** Default stopping conditions */
-	public static Properties.DSEStoppingCondition[] defaultStoppingConditions = {
-		Properties.DSEStoppingCondition.MAXTIME,
-		Properties.DSEStoppingCondition.ZEROFITNESS,
-		Properties.DSEStoppingCondition.TARGETCOVERAGE
+	public static Properties.DSEStoppingConditionCriterion[] defaultStoppingConditions = {
+		Properties.DSEStoppingConditionCriterion.MAXTIME,
+		Properties.DSEStoppingConditionCriterion.ZEROFITNESS,
+		Properties.DSEStoppingConditionCriterion.TARGETCOVERAGE
 	};
 
 	@Override
@@ -166,10 +167,18 @@ public class DSEStrategy extends TestGenerationStrategy {
 		LoggingUtils.getEvoLogger().info("* Using DSE algorithm: {}", dseAlgorithmType.getName());
 		ExplorationAlgorithm algorithm = dseFactory.getDSEAlgorithm(dseAlgorithmType);
 
-    // Adding default stopping conditions
 		/** Default conditions */
-		for (Properties.DSEStoppingCondition condition : defaultStoppingConditions) {
+		for (Properties.DSEStoppingConditionCriterion condition : defaultStoppingConditions) {
 			algorithm.addStoppingCondition(StoppingConditionFactory.getStoppingCondition(condition));
+		}
+
+		/** Fitness functions */
+		List<TestSuiteFitnessFunction> sageFitnessFunctions = FitnessFunctionsUtils.getFitnessFunctions(dseAlgorithmType.getCriteria());
+		algorithm.addFitnessFunctions(sageFitnessFunctions);
+
+		/** Stopping conditions */
+		for (Properties.DSEStoppingConditionCriterion stoppingConditionCriterion : dseAlgorithmType.getStoppingConditionCriterions()) {
+			algorithm.addStoppingCondition(StoppingConditionFactory.getStoppingCondition(stoppingConditionCriterion));
 		}
 
 		LoggingUtils.getEvoLogger().debug("* With timeout: {}", Properties.GLOBAL_TIMEOUT);

@@ -20,35 +20,21 @@
 package org.evosuite.symbolic.dse.algorithm;
 
 import org.evosuite.Properties;
-import org.evosuite.coverage.FitnessFunctionsUtils;
 import org.evosuite.symbolic.dse.DSEStatistics;
-import org.evosuite.symbolic.dse.algorithm.listener.StoppingConditionFactory;
-import org.evosuite.symbolic.dse.algorithm.strategies.implementations.KeepSearchingCriteriaStrategies.TestCasesPendingStrategy;
-import org.evosuite.symbolic.dse.algorithm.strategies.implementations.PathPruningStrategies.AlreadySeenSkipStrategy;
-import org.evosuite.symbolic.dse.algorithm.strategies.implementations.PathSelectionStrategies.ExpandExecutionStrategy;
-import org.evosuite.symbolic.dse.algorithm.strategies.implementations.TestCaseBuildingStrategies.DefaultTestCaseBuildingStrategy;
-import org.evosuite.symbolic.dse.algorithm.strategies.implementations.TestCaseSelectionStrategies.LastTestCaseSelectionStrategy;
-import org.evosuite.testsuite.TestSuiteFitnessFunction;
-
-import java.util.List;
+import org.evosuite.symbolic.dse.algorithm.explorationalgorithms.SAGEExplorationAlgorithm;
 
 /**
  * Factory of DSE Algorithms
- * Please add a citation to the paper / source of information from which the algorithm is based.
  *
- * @author ilebrero
+ * @author Ignacio Lebrero
  */
 public class DSEAlgorithmFactory {
     private final static String DSE_ALGORITHM_TYPE_NOT_PROVIDED = "A DSE algorithm type must be provided";
 
-    /**
-    * Statistics object for when creating a customized algorithm
-    */
+    /** Statistics object for when creating a customized algorithm */
     private final DSEStatistics dseStatistics = DSEStatistics.getInstance();
 
-    /**
-     * Should lsog the algorithm progress throughout it's execution
-     */
+    /** Should log the algorithm progress throughout it's execution */
     private final boolean showProgress = Properties.SHOW_PROGRESS;
 
     public ExplorationAlgorithm getDSEAlgorithm(DSEAlgorithms dseAlgorithmType) {
@@ -58,44 +44,9 @@ public class DSEAlgorithmFactory {
 
         switch (dseAlgorithmType) {
             case SAGE:
-                return buildSAGEAlgorithm();
+                return new SAGEExplorationAlgorithm(dseStatistics, showProgress);
             default:
                 throw new IllegalStateException("DSEAlgorithm not yet implemented: " + dseAlgorithmType.name());
         }
-    }
-
-    /**
-     * Default version of the DSE algorithm.
-     * Based on Godefroid P., Levin Y. M. & Molnar D. (2008) Automated Whitebox Fuzz Testing
-     *
-     * OBS: the only difference is that we model the incremental block coverage as incremental line coverage.
-     *
-     * @return
-     */
-    private ExplorationAlgorithm buildSAGEAlgorithm() {
-        ExplorationAlgorithm algorithm = new ExplorationAlgorithm(
-            dseStatistics,
-            showProgress
-        );
-
-        /** Setups */
-
-        /** Strategies */
-        algorithm.setPathPruningStrategy(new AlreadySeenSkipStrategy());
-        algorithm.setPathsExpansionStrategy(new ExpandExecutionStrategy());
-        algorithm.setTestCaseBuildingStrategy(new DefaultTestCaseBuildingStrategy());
-        algorithm.setTestCaseSelectionStrategy(new LastTestCaseSelectionStrategy());
-        algorithm.setKeepSearchingCriteriaStrategy(new TestCasesPendingStrategy());
-
-        /** Fitness functions */
-        List<TestSuiteFitnessFunction> sageFitnessFunctions = FitnessFunctionsUtils.getFitnessFunctions(DSEAlgorithms.SAGE.getCriteria());
-        algorithm.addFitnessFunctions(sageFitnessFunctions);
-
-        /** Stopping conditions */
-        for (Properties.DSEStoppingCondition condition : DSEAlgorithms.SAGE.getStoppingConditions()) {
-            algorithm.addStoppingCondition(StoppingConditionFactory.getStoppingCondition(condition));
-        }
-
-        return algorithm;
     }
 }

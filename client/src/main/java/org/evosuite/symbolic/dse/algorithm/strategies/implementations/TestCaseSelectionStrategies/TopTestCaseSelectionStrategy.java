@@ -29,7 +29,7 @@ import java.util.PriorityQueue;
  *
  * @author ignacio lebrero
  */
-public class LastTestCaseSelectionStrategy implements TestCaseSelectionStrategy {
+public class TopTestCaseSelectionStrategy implements TestCaseSelectionStrategy {
     @Override
     public DSETestCase getCurrentIterationBasedTestCase(PriorityQueue<DSETestCase> generatedTests) {
         return generatedTests.poll();

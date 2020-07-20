@@ -23,34 +23,33 @@ import org.evosuite.Properties;
 
 /**
  * DSE Algorithms implemented.
- * Please, add your algorithm as well as a short description when you add a new one.
- * TODO: Add the exploration strategies here and make them lazyly created when returned through an interface.
+ * Please add a citation to the article / source of information / small explanation from which the algorithm is based.
  *
  * @author ignacio lebrero
  */
 public enum DSEAlgorithms {
     SAGE("SAGE",
-      "Default implementation based on: Automated Whitebox Fuzz Testing, Godefroid, Levin, Molnar",
+      "Based on generational search in Automated Whitebox Fuzz Testing, Godefroid, Levin, Molnar",
       new Properties.Criterion[]{Properties.Criterion.BRANCH},
-      new Properties.DSEStoppingCondition[]{});
+      new Properties.DSEStoppingConditionCriterion[]{});
 
     private String name;
     private String description;
     private Properties.Criterion[] criteria;
-    private Properties.DSEStoppingCondition[] stoppingConditions;
+    private Properties.DSEStoppingConditionCriterion[] stoppingConditionCriterions;
 
     DSEAlgorithms(String name,
                   String description,
                   Properties.Criterion[] criteria,
-                  Properties.DSEStoppingCondition[] stoppingConditions) {
+                  Properties.DSEStoppingConditionCriterion[] stoppingConditionCriterions) {
         this.name = name;
         this.criteria = criteria;
         this.description = description;
-        this.stoppingConditions = stoppingConditions;
+        this.stoppingConditionCriterions = stoppingConditionCriterions;
     }
 
     public String getName() { return this.name; }
     public String getDescription() { return description; }
     public Properties.Criterion[] getCriteria() { return criteria; }
-    public Properties.DSEStoppingCondition[] getStoppingConditions() { return stoppingConditions; }
+    public Properties.DSEStoppingConditionCriterion[] getStoppingConditionCriterions() { return stoppingConditionCriterions; }
 }

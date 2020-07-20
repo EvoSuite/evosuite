@@ -473,10 +473,10 @@ public class Properties {
 	@Parameter(key = "cvc4_path", group = "DSE", description = "Indicates the path to the CVC4 solver")
 	public static String CVC4_PATH = null;
 
-	public enum DSEStoppingCondition {
+	public enum DSEStoppingConditionCriterion {
 		TARGETCOVERAGE,
-        /** Max time in seconds */ MAXTIME,
-        ZEROFITNESS
+		MAXTIME, /** In seconds */
+    ZEROFITNESS
 	}
 
 	// --------- LS ---------

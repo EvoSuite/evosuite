@@ -35,7 +35,7 @@ import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.localsearch.LocalSearchBudget;
 import org.evosuite.ga.localsearch.LocalSearchObjective;
 import org.evosuite.symbolic.PathConditionNode;
-import org.evosuite.symbolic.dse.ConcolicExecutor;
+import org.evosuite.symbolic.dse.ConcolicExecutorImpl;
 import org.evosuite.symbolic.dse.DSEStatistics;
 import org.evosuite.symbolic.expr.Comparator;
 import org.evosuite.symbolic.expr.Constraint;
@@ -237,7 +237,7 @@ public class DeprecatedTestSuiteDSE {
 	 * @param test
 	 */
 	private void updatePathConstraints(TestChromosome test) {
-		List<PathConditionNode> pathCondition = new ConcolicExecutor().getSymbolicPath(test);
+		List<PathConditionNode> pathCondition = new ConcolicExecutorImpl().getSymbolicPath(test);
 		pathConditions.put(test, pathCondition);
 	}
 

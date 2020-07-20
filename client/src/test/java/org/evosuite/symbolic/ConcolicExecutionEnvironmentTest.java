@@ -42,7 +42,7 @@ import org.evosuite.runtime.testdata.EvoSuiteURL;
 import org.evosuite.runtime.testdata.FileSystemHandling;
 import org.evosuite.runtime.testdata.NetworkHandling;
 import org.evosuite.runtime.vfs.VirtualFileSystem;
-import org.evosuite.symbolic.dse.ConcolicExecutor;
+import org.evosuite.symbolic.dse.ConcolicExecutorImpl;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.evosuite.testcase.variable.VariableReference;
@@ -74,7 +74,7 @@ public class ConcolicExecutionEnvironmentTest {
 		System.out.println(tc.toCode());
 
 		// ConcolicExecution concolicExecutor = new ConcolicExecution();
-		PathCondition pc = new ConcolicExecutor().execute(tc);
+		PathCondition pc = new ConcolicExecutorImpl().execute(tc);
 		List<PathConditionNode> branch_conditions = pc.getPathConditionNodes();
 
 		printConstraints(branch_conditions);

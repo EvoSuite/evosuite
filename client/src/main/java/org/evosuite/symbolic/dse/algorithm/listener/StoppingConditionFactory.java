@@ -36,7 +36,7 @@ public class StoppingConditionFactory {
 	 * Convert property to actual stopping condition
 	 * @return
 	 */
-	public static StoppingCondition getStoppingCondition(Properties.DSEStoppingCondition stoppingCondition) {
+	public static StoppingCondition getStoppingCondition(Properties.DSEStoppingConditionCriterion stoppingCondition) {
 		switch (stoppingCondition) {
 		case MAXTIME:
 			return new MaxTimeStoppingCondition();

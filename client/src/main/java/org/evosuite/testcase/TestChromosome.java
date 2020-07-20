@@ -31,7 +31,7 @@ import org.evosuite.runtime.javaee.injection.Injector;
 import org.evosuite.runtime.util.AtMostOnceLogger;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.symbolic.PathConditionNode;
-import org.evosuite.symbolic.dse.ConcolicExecutor;
+import org.evosuite.symbolic.dse.ConcolicExecutorImpl;
 import org.evosuite.symbolic.ConcolicMutation;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.localsearch.TestCaseLocalSearch;
@@ -586,7 +586,7 @@ public class TestChromosome extends ExecutableChromosome {
 		// concolicExecution = new ConcolicExecution();
 
 		// Apply DSE to gather constraints
-		List<PathConditionNode> branches = new ConcolicExecutor().getSymbolicPath(this);
+		List<PathConditionNode> branches = new ConcolicExecutorImpl().getSymbolicPath(this);
 		logger.debug("Conditions: " + branches);
 		if (branches.isEmpty())
 			return false;

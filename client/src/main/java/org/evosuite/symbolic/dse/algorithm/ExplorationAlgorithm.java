@@ -20,21 +20,17 @@
 package org.evosuite.symbolic.dse.algorithm;
 
 import org.evosuite.Properties;
+import org.evosuite.symbolic.MethodComparator;
+import org.evosuite.symbolic.PathCondition;
 import org.evosuite.symbolic.dse.ConcolicExecutor;
+import org.evosuite.symbolic.dse.ConcolicExecutorImpl;
 import org.evosuite.symbolic.dse.DSEStatistics;
 import org.evosuite.symbolic.dse.DSETestCase;
 import org.evosuite.symbolic.dse.algorithm.strategies.KeepSearchingCriteriaStrategy;
-import org.evosuite.symbolic.dse.algorithm.strategies.PathPruningStrategy;
 import org.evosuite.symbolic.dse.algorithm.strategies.PathExtensionStrategy;
+import org.evosuite.symbolic.dse.algorithm.strategies.PathPruningStrategy;
 import org.evosuite.symbolic.dse.algorithm.strategies.TestCaseBuildingStrategy;
 import org.evosuite.symbolic.dse.algorithm.strategies.TestCaseSelectionStrategy;
-import org.evosuite.symbolic.dse.algorithm.strategies.implementations.KeepSearchingCriteriaStrategies.TestCasesPendingStrategy;
-import org.evosuite.symbolic.dse.algorithm.strategies.implementations.PathPruningStrategies.AlreadySeenSkipStrategy;
-import org.evosuite.symbolic.dse.algorithm.strategies.implementations.PathSelectionStrategies.ExpandExecutionStrategy;
-import org.evosuite.symbolic.dse.algorithm.strategies.implementations.TestCaseBuildingStrategies.DefaultTestCaseBuildingStrategy;
-import org.evosuite.symbolic.dse.algorithm.strategies.implementations.TestCaseSelectionStrategies.LastTestCaseSelectionStrategy;
-import org.evosuite.symbolic.MethodComparator;
-import org.evosuite.symbolic.PathCondition;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.solver.Solver;
 import org.evosuite.symbolic.solver.SolverEmptyQueryException;
@@ -46,8 +42,8 @@ import org.evosuite.symbolic.solver.SolverTimeoutException;
 import org.evosuite.symbolic.solver.SolverUtils;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.TestCase;
-import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.evosuite.testcase.TestCaseUpdater;
+import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.ClassUtil;
 import org.slf4j.Logger;
@@ -73,7 +69,7 @@ import java.util.Set;
    *
    * @author Ignacio Lebrero
    */
-public class ExplorationAlgorithm extends ExplorationAlgorithmBase {
+public abstract class ExplorationAlgorithm extends ExplorationAlgorithmBase {
 
     private static final transient Logger logger = LoggerFactory.getLogger(ExplorationAlgorithm.class);
 
@@ -131,17 +127,10 @@ public class ExplorationAlgorithm extends ExplorationAlgorithmBase {
     public ExplorationAlgorithm() {
         this(
             SHOW_PROGRESS_DEFAULT_VALUE,
-            DSEStatistics.getInstance(), //TODO: move this to a dependency injection schema
-            new ConcolicExecutor(),
+            DSEStatistics.getInstance(),
+            new ConcolicExecutorImpl(),
             SolverFactory.getInstance().buildNewSolver()
         );
-
-        // Default Strategies
-        this.pathPruningStrategy           = new AlreadySeenSkipStrategy();
-        this.pathsExpansionStrategy        = new ExpandExecutionStrategy();
-        this.testCaseBuildingStrategy      = new DefaultTestCaseBuildingStrategy();
-        this.testCaseSelectionStrategy     = new LastTestCaseSelectionStrategy();
-        this.keepSearchingCriteriaStrategy = new TestCasesPendingStrategy();
     }
 
     public ExplorationAlgorithm(
@@ -151,7 +140,7 @@ public class ExplorationAlgorithm extends ExplorationAlgorithmBase {
         this(
             showProgress,
             statisticsLogger,
-            new ConcolicExecutor(),
+            new ConcolicExecutorImpl(),
             SolverFactory.getInstance().buildNewSolver()
         );
     }
@@ -201,6 +190,7 @@ public class ExplorationAlgorithm extends ExplorationAlgorithmBase {
      *
      * @return
      */
+     @Override
      public TestSuiteChromosome explore() {
          if (!strategiesInitialized()) throw new DSEExplorationException(EXPLORATION_STRATEGIES_MUST_BE_INITIALIZED_TO_START_SEARCHING);
          notifyGenerationStarted();
