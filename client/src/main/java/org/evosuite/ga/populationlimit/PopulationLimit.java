@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,27 +17,25 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
 package org.evosuite.ga.populationlimit;
 
 import java.io.Serializable;
 import java.util.List;
 
 import org.evosuite.ga.Chromosome;
+import org.evosuite.testsuite.TestSuiteChromosome;
 
 /**
  * <p>PopulationLimit interface.</p>
  *
  * @author Gordon Fraser
  */
-public interface PopulationLimit extends Serializable {
+public interface PopulationLimit<T extends Chromosome<T>> extends Serializable {
 	/**
 	 * <p>isPopulationFull</p>
 	 *
 	 * @param population a {@link java.util.List} object.
 	 * @return a boolean.
 	 */
-	public boolean isPopulationFull(List<? extends Chromosome<?>> population);
+	public boolean isPopulationFull(List<T> population);
 }

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -25,6 +25,7 @@ import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 
 import org.evosuite.Properties;
+import org.evosuite.ga.Chromosome;
 import org.evosuite.rmi.service.ClientNodeImpl;
 import org.evosuite.rmi.service.ClientNodeLocal;
 import org.evosuite.rmi.service.ClientNodeRemote;
@@ -40,11 +41,11 @@ import org.slf4j.LoggerFactory;
  * @author arcuri
  *
  */
-public class ClientServices {
+public class ClientServices<T extends Chromosome<T>> {
 
 	private static Logger logger = LoggerFactory.getLogger(ClientServices.class);
 	
-	private static ClientServices instance = new ClientServices();
+	private static final ClientServices instance = new ClientServices();
 	
 	private volatile ClientNodeImpl clientNode = new DummyClientNodeImpl();
 	

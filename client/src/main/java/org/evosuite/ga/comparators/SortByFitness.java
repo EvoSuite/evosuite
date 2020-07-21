@@ -34,16 +34,16 @@ public class SortByFitness<T extends Chromosome<T>> implements Comparator<T>, Se
 
     private static final long serialVersionUID = 4982933698286500461L;
 
-    private FitnessFunction<?,T> ff;
+    private FitnessFunction<T> ff;
 
     private boolean order;
 
     /**
      * 
      * @param ff
-     * @param des descending order
+     * @param desc descending order
      */
-    public SortByFitness(FitnessFunction<?,T> ff, boolean desc) {
+    public SortByFitness(FitnessFunction<T> ff, boolean desc) {
         this.ff = ff;
         this.order = desc;
     }

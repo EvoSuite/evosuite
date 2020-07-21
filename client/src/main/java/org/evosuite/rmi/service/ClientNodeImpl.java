@@ -63,9 +63,10 @@ import org.evosuite.utils.FileIOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
+public class ClientNodeImpl<T extends Chromosome<T>>
+		implements ClientNodeLocal<T>, ClientNodeRemote<T> {
 
-	private static Logger logger = LoggerFactory.getLogger(ClientNodeImpl.class);
+	private static final Logger logger = LoggerFactory.getLogger(ClientNodeImpl.class);
 
 	/**
 	 * The current state/phase in which this client process is (eg, search or assertion generation)
@@ -95,14 +96,14 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 
 	protected Registry registry;
 
-    protected final Collection<Listener<Set<? extends Chromosome>>> listeners = Collections.synchronizedList(
+    protected final Collection<Listener<Set<T>>> listeners = Collections.synchronizedList(
 			new ArrayList<>());
 
 	protected final ExecutorService searchExecutor = Executors.newSingleThreadExecutor();
 
 	private final BlockingQueue<OutputVariable> outputVariableQueue = new LinkedBlockingQueue<>();
 
-	private Collection<Set<? extends Chromosome>> bestSolutions;
+	private Collection<Set<T>> bestSolutions;
 	
 	private Thread statisticsThread; 
 
@@ -204,12 +205,12 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 	public void waitUntilDone() {
 		try {
 			doneLatch.await();
-		} catch (InterruptedException e) {
+		} catch (InterruptedException ignored) {
 		}
 	}
 
     @Override
-    public void emigrate(Set<? extends Chromosome> immigrants) {
+    public void emigrate(Set<T> immigrants) {
         try {
             logger.debug(ClientProcess.getPrettyPrintIdentifier() + "Sending " + immigrants.size() + " immigrants");
             masterNode.evosuite_migrate(clientRmiIdentifier, immigrants);
@@ -219,7 +220,7 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
     }
 
     @Override
-    public void sendBestSolution(Set<? extends Chromosome> solutions) {
+    public void sendBestSolution(Set<T> solutions) {
         try {
             logger.debug(ClientProcess.getPrettyPrintIdentifier() + "sending best solutions to " + ClientProcess.DEFAULT_CLIENT_NAME);
             masterNode.evosuite_collectBestSolutions(clientRmiIdentifier, solutions);
@@ -259,7 +260,7 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 	}
 
 	@Override
-	public void updateStatistics(Chromosome individual) {
+	public void updateStatistics(T individual) {
 		logger.info("Sending current best individual to master process");
 
 		try {
@@ -529,25 +530,25 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 	}
 	
     @Override
-    public void immigrate(Set<? extends Chromosome> migrants) throws RemoteException {
+    public void immigrate(Set<T> migrants) throws RemoteException {
         logger.debug(ClientProcess.getPrettyPrintIdentifier() + "receiving "
                 + (migrants != null ? migrants.size() : 0) + " immigrants");
         fireEvent(migrants);
     }
 
     @Override
-    public void collectBestSolutions(Set<? extends Chromosome> solutions) throws RemoteException {
+    public void collectBestSolutions(Set<T> solutions) throws RemoteException {
         logger.debug(ClientProcess.getPrettyPrintIdentifier() + "added solution to set");
         bestSolutions.add(solutions);
     }
 
     @Override
-    public void addListener(Listener<Set<? extends Chromosome>> listener) {
+    public void addListener(Listener<Set<T>> listener) {
 	    listeners.add(listener);
     }
 
     @Override
-    public void deleteListener(Listener<Set<? extends Chromosome>> listener) {
+    public void deleteListener(Listener<Set<T>> listener) {
 	    listeners.remove(listener);
     }
 
@@ -557,8 +558,8 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
      * @param event
      *            the event to fire
      */
-    private void fireEvent(Set<? extends Chromosome> event) {
-        for (Listener<Set<? extends Chromosome>> listener : listeners) {
+    private void fireEvent(Set<T> event) {
+        for (Listener<Set<T>> listener : listeners) {
             listener.receiveEvent(event);
         }
     }
@@ -569,7 +570,7 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
      * 
      * @return the list of collected best solutions or null if there is a timeout
      */
-    public Set<Set<? extends Chromosome>> getBestSolutions() {
+    public Set<Set<T>> getBestSolutions() {
         do {
             if (bestSolutions.size() == (Properties.NUM_PARALLEL_CLIENTS - 1)) {
                 return new HashSet<>(bestSolutions);

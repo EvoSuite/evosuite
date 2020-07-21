@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -48,7 +48,7 @@ import org.evosuite.testsuite.TestSuiteChromosome;
  * 
  * @author Andre Mis
  */
-public final class TestCaseRecycler implements SearchListener {
+public final class TestCaseRecycler<T extends Chromosome<T>> implements SearchListener<T> {
 
 	private static TestCaseRecycler instance;
 
@@ -61,31 +61,31 @@ public final class TestCaseRecycler implements SearchListener {
 	 * 
 	 * @return a {@link org.evosuite.seeding.TestCaseRecycler} object.
 	 */
-	public static TestCaseRecycler getInstance() {
+	public static <T extends Chromosome<T>> TestCaseRecycler<T> getInstance() {
 		if (instance == null)
 			instance = new TestCaseRecycler();
-		return instance;
+		return (TestCaseRecycler<T>) instance;
 	}
 
 	private TestCaseRecycler() {
-		testPool = new LinkedHashSet<TestCase>();
+		testPool = new LinkedHashSet<>();
 	}
 
 
 	@Override
-	public void searchStarted(GeneticAlgorithm<?> algorithm) {
+	public void searchStarted(GeneticAlgorithm algorithm) {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void iteration(GeneticAlgorithm<?> algorithm) {
+	public void iteration(GeneticAlgorithm algorithm) {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void searchFinished(GeneticAlgorithm<?> algorithm) {
+	public void searchFinished(GeneticAlgorithm algorithm) {
 		Chromosome individual = algorithm.getBestIndividual();
 		if(individual instanceof TestChromosome) {
 			TestChromosome testChromosome = (TestChromosome)individual;

@@ -79,7 +79,7 @@ public class TestThreeHump
         ChromosomeFactory<?> factory = new RandomFactory(false, 2, -5.0, 5.0);
 
         //GeneticAlgorithm<?> ga = new NSGAII(factory);
-        GeneticAlgorithm<?> ga = new NSGAII(factory);
+        GeneticAlgorithm<?, DEFAULT_VALUE_XXX> ga = new NSGAII(factory);
         BinaryTournamentSelectionCrowdedComparison ts = new BinaryTournamentSelectionCrowdedComparison();
         //BinaryTournament ts = new BinaryTournament();
         ga.setSelectionFunction(ts);

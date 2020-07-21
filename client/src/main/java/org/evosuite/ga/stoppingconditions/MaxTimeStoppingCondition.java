@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -20,6 +20,7 @@
 package org.evosuite.ga.stoppingconditions;
 
 import org.evosuite.Properties;
+import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 
 
@@ -28,7 +29,7 @@ import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
  *
  * @author Gordon Fraser
  */
-public class MaxTimeStoppingCondition extends StoppingConditionImpl {
+public class MaxTimeStoppingCondition<T extends Chromosome<T>> extends StoppingConditionImpl<T> {
 
 	private static final long serialVersionUID = -4524853279562896768L;
 
@@ -39,7 +40,7 @@ public class MaxTimeStoppingCondition extends StoppingConditionImpl {
 
 	/** {@inheritDoc} */
 	@Override
-	public void searchStarted(GeneticAlgorithm<?> algorithm) {
+	public void searchStarted(GeneticAlgorithm<T,?> algorithm) {
 		startTime = System.currentTimeMillis();
 	}
 

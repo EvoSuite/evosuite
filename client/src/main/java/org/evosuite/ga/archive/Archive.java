@@ -53,12 +53,9 @@ import org.slf4j.LoggerFactory;
  * A partial mapping of test targets onto the shortest encountered test cases covering the given
  * target.
  *
- * @param <F> the type of test targets, encoded as {@code TestFitnessFunction}
- * @param <T> the type of test cases covering the target, encoded as {@code TestChromosome}
  * @author José Campos
  */
-public abstract class Archive<F extends TestFitnessFunction<F>, T extends AbstractTestChromosome<T>>
-    implements Serializable {
+public abstract class Archive implements Serializable {
 
   private static final long serialVersionUID = 2604119519478973245L;
 
@@ -68,7 +65,7 @@ public abstract class Archive<F extends TestFitnessFunction<F>, T extends Abstra
    * Map used to store all targets (values of the map) of each method (here represented by its name,
    * keys of the map)
    */
-  protected final Map<String, Set<F>> nonCoveredTargetsOfEachMethod = new LinkedHashMap<>();
+  protected final Map<String, Set<TestFitnessFunction>> nonCoveredTargetsOfEachMethod = new LinkedHashMap<>();
 
   /**
    * Has this archive been updated with new candidate solutions?
@@ -80,7 +77,7 @@ public abstract class Archive<F extends TestFitnessFunction<F>, T extends Abstra
    *
    * @param target the target to register
    */
-  public void addTarget(F target) {
+  public void addTarget(TestFitnessFunction target) {
     assert target != null;
 
     if (!ArchiveUtils.isCriterionEnabled(target)) {
@@ -94,7 +91,7 @@ public abstract class Archive<F extends TestFitnessFunction<F>, T extends Abstra
    *
    * @param targets the targets to register
    */
-  public void addTargets(Collection<F> targets) {
+  public void addTargets(Collection<TestFitnessFunction> targets) {
     targets.forEach(this::addTarget);
   }
 
@@ -103,10 +100,10 @@ public abstract class Archive<F extends TestFitnessFunction<F>, T extends Abstra
    * 
    * @param target
    */
-  protected void registerNonCoveredTargetOfAMethod(F target) {
+  protected void registerNonCoveredTargetOfAMethod(TestFitnessFunction target) {
     String targetMethod = this.getMethodFullName(target);
     if (!this.nonCoveredTargetsOfEachMethod.containsKey(targetMethod)) {
-      this.nonCoveredTargetsOfEachMethod.put(targetMethod, new LinkedHashSet<F>());
+      this.nonCoveredTargetsOfEachMethod.put(targetMethod, new LinkedHashSet<TestFitnessFunction>());
     }
     this.nonCoveredTargetsOfEachMethod.get(targetMethod).add(target);
   }
@@ -116,7 +113,7 @@ public abstract class Archive<F extends TestFitnessFunction<F>, T extends Abstra
    * 
    * @param target
    */
-  protected void removeNonCoveredTargetOfAMethod(F target) {
+  protected void removeNonCoveredTargetOfAMethod(TestFitnessFunction target) {
     String targetMethod = this.getMethodFullName(target);
     if (this.nonCoveredTargetsOfEachMethod.containsKey(targetMethod)) {
       // target has been covered, therefore we can remove it from the list of non-covered
@@ -140,7 +137,7 @@ public abstract class Archive<F extends TestFitnessFunction<F>, T extends Abstra
    * @param solution the solution covering the target
    * @param fitnessValue
    */
-  public void updateArchive(F target, T solution, double fitnessValue) {
+  public void updateArchive(TestFitnessFunction target, TestChromosome solution, double fitnessValue) {
     assert target != null;
     assert solution != null;
     assert fitnessValue >= 0.0;
@@ -159,7 +156,7 @@ public abstract class Archive<F extends TestFitnessFunction<F>, T extends Abstra
    * @param candidateSolution
    * @return true if a candidate solution is better than an existing one, false otherwise
    */
-  public boolean isBetterThanCurrent(T currentSolution, T candidateSolution) {
+  public boolean isBetterThanCurrent(TestChromosome currentSolution, TestChromosome candidateSolution) {
 
     ExecutionResult currentSolutionExecution = currentSolution.getLastExecutionResult();
     ExecutionResult candidateSolutionExecution = candidateSolution.getLastExecutionResult();
@@ -193,7 +190,7 @@ public abstract class Archive<F extends TestFitnessFunction<F>, T extends Abstra
     // If we try to add a test for a target we've already covered
     // and the new test is shorter, keep the shorter one
     int timesBetter = 0;
-    for (SecondaryObjective<T> obj : currentSolution.getSecondaryObjectives_()) {
+    for (SecondaryObjective<TestChromosome> obj : currentSolution.getSecondaryObjectives_()) {
       if (obj.compareChromosomes(candidateSolution, currentSolution) < 0)
           timesBetter++;
       else
@@ -238,7 +235,7 @@ public abstract class Archive<F extends TestFitnessFunction<F>, T extends Abstra
    * 
    * @return
    */
-  public abstract Set<F> getCoveredTargets();
+  public abstract Set<TestFitnessFunction> getCoveredTargets();
 
   /**
    * Returns the total number of targets that have not been covered by any solution.
@@ -261,7 +258,7 @@ public abstract class Archive<F extends TestFitnessFunction<F>, T extends Abstra
    * 
    * @return
    */
-  public abstract Set<F> getUncoveredTargets();
+  public abstract Set<TestFitnessFunction> getUncoveredTargets();
 
   /**
    * Returns true if the archive contains the specific target, false otherwise
@@ -269,7 +266,7 @@ public abstract class Archive<F extends TestFitnessFunction<F>, T extends Abstra
    * @param target
    * @return
    */
-  public abstract boolean hasTarget(F target);
+  public abstract boolean hasTarget(TestFitnessFunction target);
 
   /**
    * Returns the number of unique solutions in the archive.
@@ -299,7 +296,7 @@ public abstract class Archive<F extends TestFitnessFunction<F>, T extends Abstra
    * @param target
    * @return
    */
-  public abstract TestChromosome getSolution(F target);
+  public abstract TestChromosome getSolution(TestFitnessFunction target);
 
   /**
    * Returns true if the archive has a solution for the specific target, false otherwise.
@@ -308,7 +305,7 @@ public abstract class Archive<F extends TestFitnessFunction<F>, T extends Abstra
    * @param target
    * @return
    */
-  public abstract boolean hasSolution(F target);
+  public abstract boolean hasSolution(TestFitnessFunction target);
 
   /**
    * Returns the clone of a solution selected at random.
@@ -463,15 +460,15 @@ public abstract class Archive<F extends TestFitnessFunction<F>, T extends Abstra
    * @param target
    * @return
    */
-  protected String getMethodFullName(F target) {
+  protected String getMethodFullName(TestFitnessFunction target) {
     return this.getClassName(target) + this.getMethodName(target);
   }
 
-  private String getClassName(F target) {
+  private String getClassName(TestFitnessFunction target) {
     return target.getTargetClass();
   }
 
-  private String getMethodName(F target) {
+  private String getMethodName(TestFitnessFunction target) {
     return target.getTargetMethod();
   }
 
@@ -535,7 +532,7 @@ public abstract class Archive<F extends TestFitnessFunction<F>, T extends Abstra
    * 
    * @return
    */
-  public static Archive<? extends TestFitnessFunction<?>, ? extends AbstractTestChromosome<?>> getArchiveInstance() {
+  public static Archive getArchiveInstance() {
     switch (Properties.ARCHIVE_TYPE) {
       case COVERAGE:
       default:

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,13 +17,11 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
 package org.evosuite.ga.metaheuristics;
 
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
+import org.evosuite.ga.FitnessFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +32,8 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Gordon Fraser
  */
-public class RandomSearch<T extends Chromosome> extends GeneticAlgorithm<T> {
+public class RandomSearch<T extends Chromosome<T>, F extends FitnessFunction<T>>
+		extends GeneticAlgorithm<T, F> {
 
 	private static final Logger logger = LoggerFactory.getLogger(RandomSearch.class);
 

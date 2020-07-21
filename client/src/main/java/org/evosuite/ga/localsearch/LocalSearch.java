@@ -31,8 +31,8 @@ import org.evosuite.ga.FitnessFunction;
  *
  * @param <T> the chromosome type
  */
-public interface LocalSearch<T extends Chromosome<T>,F extends FitnessFunction<F,T>> {
+public interface LocalSearch<T extends Chromosome<T>> {
 
-	public boolean doSearch(T individual, LocalSearchObjective<T,F> objective);
+	public boolean doSearch(T individual, LocalSearchObjective<T> objective);
 	
 }

@@ -8,7 +8,11 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-public class NoveltySearch<T extends Chromosome> extends GeneticAlgorithm<T>  {
+import static java.util.Collections.reverseOrder;
+import static java.util.Comparator.comparingDouble;
+
+public class NoveltySearch<T extends Chromosome<T>>
+        extends GeneticAlgorithm<T, FitnessFunction<T>>  {
 
     private final static Logger logger = LoggerFactory.getLogger(NoveltySearch.class);
 
@@ -30,13 +34,7 @@ public class NoveltySearch<T extends Chromosome> extends GeneticAlgorithm<T>  {
      */
     protected void sortPopulation(List<T> population, Map<T, Double> noveltyMap) {
         // TODO: Handle case when no novelty value is stored in map
-        // TODO: Use lambdas
-        Collections.sort(population, Collections.reverseOrder(new Comparator<T>() {
-            @Override
-            public int compare(Chromosome c1, Chromosome c2) {
-                return Double.compare(noveltyMap.get(c1), noveltyMap.get(c2));
-            }
-        }));
+        population.sort(reverseOrder(comparingDouble(noveltyMap::get)));
     }
 
     /**
@@ -80,14 +78,14 @@ public class NoveltySearch<T extends Chromosome> extends GeneticAlgorithm<T>  {
     @Override
     protected void evolve() {
 
-        List<T> newGeneration = new ArrayList<T>();
+        List<T> newGeneration = new ArrayList<>();
 
         while (!isNextPopulationFull(newGeneration)) {
             T parent1 = selectionFunction.select(population);
             T parent2 = selectionFunction.select(population);
 
-            T offspring1 = (T)parent1.clone();
-            T offspring2 = (T)parent2.clone();
+            T offspring1 = parent1.clone();
+            T offspring2 = parent2.clone();
 
             try {
                 if (Randomness.nextDouble() <= Properties.CROSSOVER_RATE) {

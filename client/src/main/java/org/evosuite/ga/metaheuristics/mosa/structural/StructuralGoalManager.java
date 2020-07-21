@@ -20,15 +20,10 @@
 package org.evosuite.ga.metaheuristics.mosa.structural;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
-import org.evosuite.ga.Chromosome;
-import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.archive.Archive;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.testcase.AbstractTestChromosome;
@@ -40,10 +35,9 @@ import org.evosuite.testcase.TestFitnessFunction;
  * control dependence information of the UIT is used to derive the set of targets currently aimed
  * at. Also maintains an archive of the best chromosomes satisfying a given coverage goal.
  *
- * @param <T> the type of chromosome the gaols operate on
  * @author Annibale Panichella
  */
-public abstract class StructuralGoalManager<T extends AbstractTestChromosome<T>> implements Serializable {
+public abstract class StructuralGoalManager implements Serializable {
 
 	private static final long serialVersionUID = -2577487057354286024L;
 
@@ -61,10 +55,10 @@ public abstract class StructuralGoalManager<T extends AbstractTestChromosome<T>>
 	 * chromosome. All functions are required to be either minimization or maximization functions,
 	 * not a mix of both.
 	 */
-	protected Set<FitnessFunction<?,T>> currentGoals;
+	protected Set<TestFitnessFunction> currentGoals;
 
 	/** Archive of tests and corresponding covered targets*/
-	protected Archive<? extends FitnessFunction<?,T>> archive;
+	protected Archive archive;
 
 	/**
 	 * Creates a new {@code StructuralGoalManager} with the given list of targets.
@@ -72,7 +66,7 @@ public abstract class StructuralGoalManager<T extends AbstractTestChromosome<T>>
 	 * @param fitnessFunctions The targets to cover, with each individual target encoded as its own
 	 *                         fitness function.
 	 */
-	protected StructuralGoalManager(List<FitnessFunction<?,T>> fitnessFunctions){
+	protected StructuralGoalManager(List<TestFitnessFunction> fitnessFunctions){
 		currentGoals = new HashSet<>(fitnessFunctions.size());
 		archive = Archive.getArchiveInstance();
 
@@ -85,14 +79,15 @@ public abstract class StructuralGoalManager<T extends AbstractTestChromosome<T>>
 	 * @param c a TestChromosome
 	 * @return covered goals along with the corresponding test case
 	 */
-	public abstract void calculateFitness(T c, GeneticAlgorithm<T> ga);
+	public abstract void calculateFitness(TestChromosome c,
+										  GeneticAlgorithm<TestChromosome> ga);
 
 	/**
 	 * Returns the set of yet uncovered goals.
 	 *
 	 * @return uncovered goals
 	 */
-	public Set<FitnessFunction<?,T>> getUncoveredGoals() {
+	public Set<TestFitnessFunction> getUncoveredGoals() {
 		return this.archive.getUncoveredTargets();
 	}
 
@@ -102,7 +97,7 @@ public abstract class StructuralGoalManager<T extends AbstractTestChromosome<T>>
 	 *
 	 * @return all currently targeted goals
 	 */
-	public Set<FitnessFunction<T>> getCurrentGoals() {
+	public Set<TestFitnessFunction> getCurrentGoals() {
 		return currentGoals;
 	}
 
@@ -111,7 +106,7 @@ public abstract class StructuralGoalManager<T extends AbstractTestChromosome<T>>
 	 *
 	 * @return the covered goals
 	 */
-	public Set<FitnessFunction<T>> getCoveredGoals() {
+	public Set<TestFitnessFunction> getCoveredGoals() {
 		return this.archive.getCoveredTargets();
 	}
 
@@ -121,7 +116,7 @@ public abstract class StructuralGoalManager<T extends AbstractTestChromosome<T>>
 	 * @param target the goal to be covered
 	 * @return {@code true} if the archive contains a chromosome that covers the target
 	 */
-	protected boolean isAlreadyCovered(FitnessFunction<T> target){
+	protected boolean isAlreadyCovered(TestFitnessFunction target){
 		return this.archive.getCoveredTargets().contains(target);
 	}
 
@@ -131,13 +126,12 @@ public abstract class StructuralGoalManager<T extends AbstractTestChromosome<T>>
 	 * @param f the coverage goal to be satisfied
 	 * @param tc the chromosome satisfying the goal
 	 */
-	protected void updateCoveredGoals(FitnessFunction<T> f, T tc) {
+	protected void updateCoveredGoals(TestFitnessFunction f, TestChromosome tc) {
 		// the next two lines are needed since that coverage information are used
 		// during EvoSuite post-processing
-		TestChromosome tch = (TestChromosome) tc;
-		tch.getTestCase().getCoveredGoals().add((TestFitnessFunction) f);
+		tc.getTestCase().getCoveredGoals().add(f);
 
 		// update covered targets
-		this.archive.updateArchive((TestFitnessFunction) f, (TestChromosome) tc, tc.getFitness(f));
+		this.archive.updateArchive(f, tc, tc.getFitness(f));
 	}
 }

@@ -39,9 +39,9 @@ import org.evosuite.testsuite.TestSuiteChromosome;
  * @author gordon
  *
  */
-public class StatisticsListener implements SearchListener {
+public class StatisticsListener<T extends Chromosome<T>> implements SearchListener<T> {
 
-	private volatile BlockingQueue<Chromosome> individuals = new LinkedBlockingQueue<Chromosome>();
+	private final BlockingQueue<T> individuals = new LinkedBlockingQueue<>();
 	
 	private volatile boolean done = false;
 	
@@ -63,7 +63,7 @@ public class StatisticsListener implements SearchListener {
 			// Wait for new element in queue
 			// If there is a new element, then send it to master through RMI
 			while(!done || !individuals.isEmpty()) {
-				Chromosome individual;
+				T individual;
 				try {
 					individual = individuals.take();
 					StatisticsSender.sendIndividualToMaster(individual);
@@ -78,7 +78,7 @@ public class StatisticsListener implements SearchListener {
 
 
 	@Override
-	public void iteration(GeneticAlgorithm<?> algorithm) {
+	public void iteration(GeneticAlgorithm<T, ?> algorithm) {
 		
 		long elapsed = System.currentTimeMillis() - timeFromLastGenerationUpdate;
 		if(elapsed > Properties.TIMELINE_INTERVAL){
@@ -97,7 +97,7 @@ public class StatisticsListener implements SearchListener {
 	}
 
 	@Override
-	public void searchFinished(GeneticAlgorithm<?> algorithm) {
+	public void searchFinished(GeneticAlgorithm<T, ?> algorithm) {
 		
 		// If the search is finished, we may want to clear the queue and just send the final element?
 		//individuals.clear(); // TODO: Maybe have a check on size
@@ -125,7 +125,7 @@ public class StatisticsListener implements SearchListener {
 	}
 
 	@Override
-	public void searchStarted(GeneticAlgorithm<?> algorithm) {
+	public void searchStarted(GeneticAlgorithm<T, ?> algorithm) {
 		done = false;
 		if(algorithm.getFitnessFunction().isMaximizationFunction()) {
 			bestFitness = 0.0;
@@ -137,7 +137,7 @@ public class StatisticsListener implements SearchListener {
 	}
 	
 	@Override
-	public void fitnessEvaluation(Chromosome individual) {
+	public void fitnessEvaluation(T individual) {
 		numFitnessEvaluations++;
 		if(!(individual instanceof TestSuiteChromosome)) {
 			// Statistics expects TestSuiteChromosome individuals
@@ -160,7 +160,7 @@ public class StatisticsListener implements SearchListener {
 	}
 
 	@Override
-	public void modification(Chromosome individual) {
+	public void modification(T individual) {
 		// Nothing to do
 	}
 

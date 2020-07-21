@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -33,7 +33,7 @@ import java.util.Set;
  * 
  */
 
-public interface ClientNodeRemote extends Remote {
+public interface ClientNodeRemote<T extends Chromosome<T>> extends Remote {
 
 	public void startNewSearch() throws RemoteException;
 
@@ -55,7 +55,7 @@ public interface ClientNodeRemote extends Remote {
 
 	public void printClassStatistics() throws RemoteException;
 	
-	public void immigrate(Set<? extends Chromosome> migrants) throws RemoteException;
+	public void immigrate(Set<T> migrants) throws RemoteException;
 
-    public void collectBestSolutions(Set<? extends Chromosome> solutions) throws RemoteException;
+    public void collectBestSolutions(Set<T> solutions) throws RemoteException;
 }

@@ -31,8 +31,6 @@ import org.junit.Test;
 import com.examples.with.different.packagename.mock.java.lang.HookWithBranch;
 import com.examples.with.different.packagename.mock.java.lang.MemorySum;
 
-import java.util.ArrayList;
-
 public class MockRuntimeSystemTest extends SystemTestBase {
 
 	@Test
@@ -49,7 +47,7 @@ public class MockRuntimeSystemTest extends SystemTestBase {
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 		Object result = evosuite.parseCommandLine(command);
 
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, DEFAULT_VALUE_XXX> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		Assert.assertNotNull(best);
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
@@ -73,7 +71,7 @@ public class MockRuntimeSystemTest extends SystemTestBase {
 		String[] command = new String[] { "-generateSuite", "-class", targetClass};
 		Object result = evosuite.parseCommandLine(command);
 
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, DEFAULT_VALUE_XXX> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		Assert.assertNotNull(best);
 

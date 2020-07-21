@@ -32,9 +32,9 @@ import org.evosuite.testsuite.TestSuiteChromosome;
  *
  * @author Gordon Fraser
  */
-public abstract class TestFitnessFunction<F extends TestFitnessFunction<F>>
-		extends FitnessFunction<F, TestChromosome>
-        implements Comparable<TestFitnessFunction<F>> {
+public abstract class TestFitnessFunction
+		extends FitnessFunction<TestChromosome>
+		implements Comparable<TestFitnessFunction> {
 
 	private static final long serialVersionUID = 5602125855207061901L;
 
@@ -76,9 +76,9 @@ public abstract class TestFitnessFunction<F extends TestFitnessFunction<F>>
 	 * Used to preorder goals by difficulty
 	 */
 	@Override
-	public abstract int compareTo(TestFitnessFunction<F> other);
+	public abstract int compareTo(TestFitnessFunction other);
 
-	protected final int compareClassName(TestFitnessFunction<F> other){
+	protected final int compareClassName(TestFitnessFunction other){
 		return this.getClass().getName().compareTo(other.getClass().getName());
 	}
 
@@ -115,7 +115,7 @@ public abstract class TestFitnessFunction<F extends TestFitnessFunction<F>>
 		return tests.stream().anyMatch(this::isCovered);
 	}
 
-	public boolean isCoveredBy(AbstractTestSuiteChromosome<?,TestChromosome> testSuite) {
+	public boolean isCoveredBy(TestSuiteChromosome testSuite) {
 		int num = 1;
 		for (TestChromosome test : testSuite.getTestChromosomes()) {
 			logger.debug("Checking goal against test "+num+"/"+testSuite.size());

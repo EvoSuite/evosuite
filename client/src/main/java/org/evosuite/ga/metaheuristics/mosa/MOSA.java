@@ -39,6 +39,8 @@ import org.evosuite.ga.operators.selection.RankSelection;
 import org.evosuite.ga.operators.selection.SelectionFunction;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.statistics.RuntimeVariable;
+import org.evosuite.testcase.TestChromosome;
+import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.utils.Listener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,25 +51,26 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Annibale Panichella, Fitsum M. Kifetew
  */
-public class MOSA<T extends Chromosome> extends AbstractMOSA<T> {
+public class MOSA extends AbstractMOSA {
 
 	private static final long serialVersionUID = 146182080947267628L;
 
 	private static final Logger logger = LoggerFactory.getLogger(MOSA.class);
 
 	/** immigrant groups from neighbouring client */
-	private ConcurrentLinkedQueue<List<T>> immigrants = new ConcurrentLinkedQueue<>();
+	private final ConcurrentLinkedQueue<List<TestChromosome>> immigrants =
+			new ConcurrentLinkedQueue<>();
 
-	private SelectionFunction<T> emigrantsSelection;
+	private final SelectionFunction<TestChromosome> emigrantsSelection;
 
 	/** Crowding distance measure to use */
-	protected CrowdingDistance<T> distance = new CrowdingDistance<>();
+	protected CrowdingDistance<TestChromosome> distance = new CrowdingDistance<>();
 
 	/**
 	 * Constructor based on the abstract class {@link AbstractMOSA}
 	 * @param factory
 	 */
-	public MOSA(ChromosomeFactory<T> factory) {
+	public MOSA(ChromosomeFactory<TestChromosome> factory) {
 		super(factory);
 
 		switch (Properties.EMIGRANT_SELECTION_FUNCTION) {
@@ -87,10 +90,10 @@ public class MOSA<T extends Chromosome> extends AbstractMOSA<T> {
 	 */
 	@Override
 	protected void evolve() {
-		List<T> offspringPopulation = this.breedNextGeneration();
+		List<TestChromosome> offspringPopulation = this.breedNextGeneration();
 
 		// Create the union of parents and offSpring
-		List<T> union = new ArrayList<>();
+		List<TestChromosome> union = new ArrayList<>();
 		union.addAll(this.population);
 		union.addAll(offspringPopulation);
 
@@ -99,7 +102,7 @@ public class MOSA<T extends Chromosome> extends AbstractMOSA<T> {
 			union.addAll(immigrants.poll());
 		}
 
-		Set<FitnessFunction<T>> uncoveredGoals = this.getUncoveredGoals();
+		Set<TestFitnessFunction> uncoveredGoals = this.getUncoveredGoals();
 
 		// Ranking the union
 		logger.debug("Union Size =" + union.size());
@@ -108,7 +111,7 @@ public class MOSA<T extends Chromosome> extends AbstractMOSA<T> {
 
 		int remain = this.population.size();
 		int index = 0;
-		List<T> front = null;
+		List<TestChromosome> front = null;
 		this.population.clear();
 
 		// Obtain the next front
@@ -144,7 +147,8 @@ public class MOSA<T extends Chromosome> extends AbstractMOSA<T> {
 		// for parallel runs: collect best k individuals for migration
 		if (Properties.NUM_PARALLEL_CLIENTS > 1 && Properties.MIGRANTS_ITERATION_FREQUENCY > 0) {
 			if ((currentIteration + 1) % Properties.MIGRANTS_ITERATION_FREQUENCY == 0 && !this.population.isEmpty()) {
-				HashSet<T> emigrants = new HashSet<>(emigrantsSelection.select(this.population, Properties.MIGRANTS_COMMUNICATION_RATE));
+				HashSet<TestChromosome> emigrants = new HashSet<>(emigrantsSelection.select(this.population,
+						Properties.MIGRANTS_COMMUNICATION_RATE));
 				ClientServices.getInstance().getClientNode().emigrate(emigrants);
 			}
 		}
@@ -173,9 +177,9 @@ public class MOSA<T extends Chromosome> extends AbstractMOSA<T> {
 			this.distance.fastEpsilonDominanceAssignment(this.rankingFunction.getSubfront(i), this.getUncoveredGoals());
 		}
 
-		Listener<Set<? extends Chromosome>> listener = null;
+		Listener<Set<Chromosome<?>>> listener = null;
 		if (Properties.NUM_PARALLEL_CLIENTS > 1) {
-			listener = (Listener<Set<? extends Chromosome>>) event -> immigrants.add(new LinkedList<>((Set<? extends T>) event));
+			listener = (event) -> immigrants.add(new LinkedList<>(event));
 			ClientServices.getInstance().getClientNode().addListener(listener);
 		}
 
@@ -190,18 +194,18 @@ public class MOSA<T extends Chromosome> extends AbstractMOSA<T> {
 
 			if (ClientProcess.DEFAULT_CLIENT_NAME.equals(ClientProcess.getIdentifier())) {
 				//collect all end result test cases
-				Set<Set<? extends Chromosome>> collectedSolutions = ClientServices.getInstance()
+				Set<Set<TestChromosome>> collectedSolutions = ClientServices.getInstance()
 					.getClientNode().getBestSolutions();
 
 				logger.debug(ClientProcess.DEFAULT_CLIENT_NAME + ": Received " + collectedSolutions.size() + " solution sets");
-				for (Set<? extends Chromosome> solution : collectedSolutions) {
-					for (Chromosome t : solution) {
-						this.calculateFitness((T) t);
+				for (Set<TestChromosome> solution : collectedSolutions) {
+					for (TestChromosome t : solution) {
+						this.calculateFitness(t);
 					}
 				}
 			} else {
 				//send end result test cases to Client-0
-				Set<T> solutionsSet = new HashSet<>(getSolutions());
+				Set<TestChromosome> solutionsSet = new HashSet<>(getSolutions());
 				logger.debug(ClientProcess.getPrettyPrintIdentifier() + "Sending " + solutionsSet.size()
 											+ " solutions to " + ClientProcess.DEFAULT_CLIENT_NAME);
 				ClientServices.getInstance().getClientNode().sendBestSolution(solutionsSet);

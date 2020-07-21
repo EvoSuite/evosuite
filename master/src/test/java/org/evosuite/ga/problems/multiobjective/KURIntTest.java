@@ -88,7 +88,7 @@ public class KURIntTest
 
         ChromosomeFactory<?> factory = new RandomFactory(false, 3, -5.0, 5.0);
 
-        GeneticAlgorithm<?> ga = new NSGAII(factory);
+        GeneticAlgorithm<?, DEFAULT_VALUE_XXX> ga = new NSGAII(factory);
         BinaryTournamentSelectionCrowdedComparison ts = new BinaryTournamentSelectionCrowdedComparison();
         ga.setSelectionFunction(ts);
         ga.setCrossOverFunction(new SBXCrossover());

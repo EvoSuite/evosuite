@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -31,7 +31,7 @@ import java.util.Set;
  * @author arcuri
  *
  */
-public interface ClientNodeLocal extends Listenable<Set<? extends Chromosome>> {
+public interface ClientNodeLocal<T extends Chromosome<T>> extends Listenable<Set<T>> {
 
 	public boolean init();
 
@@ -43,7 +43,7 @@ public interface ClientNodeLocal extends Listenable<Set<? extends Chromosome>> {
 
 	public void changeState(ClientState state, ClientStateInformation information);
 
-	public void updateStatistics(Chromosome individual);
+	public void updateStatistics(T individual);
 
 	public void flushStatisticsForClassChange();
 
@@ -51,9 +51,9 @@ public interface ClientNodeLocal extends Listenable<Set<? extends Chromosome>> {
 
 	public void waitUntilDone();
 	
-	public void emigrate(Set<? extends Chromosome> immigrants);
+	public void emigrate(Set<T> immigrants);
 	
-	public void sendBestSolution(Set<? extends Chromosome> solutions);
+	public void sendBestSolution(Set<T> solutions);
 
-    public Set<Set<? extends Chromosome>> getBestSolutions();
+    public Set<Set<T>> getBestSolutions();
 }

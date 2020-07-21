@@ -4,19 +4,19 @@ import java.util.function.Consumer;
 
 import org.evosuite.ga.Chromosome;
 
-public class FunctionalSearchListener implements SearchListener {
+public class FunctionalSearchListener<T extends Chromosome<T>> implements SearchListener<T> {
 
-  private final Consumer<GeneticAlgorithm<?>> searchStartedHandler;
-  private final Consumer<GeneticAlgorithm<?>> searchFinishedHandler;
-  private final Consumer<GeneticAlgorithm<?>> iterationHandler;
-  private final Consumer<Chromosome> fitnessEvaluationHandler;
-  private final Consumer<Chromosome> modificationHandler;
+  private final Consumer<GeneticAlgorithm<T, ?>> searchStartedHandler;
+  private final Consumer<GeneticAlgorithm<T, ?>> searchFinishedHandler;
+  private final Consumer<GeneticAlgorithm<T, ?>> iterationHandler;
+  private final Consumer<Chromosome<T>> fitnessEvaluationHandler;
+  private final Consumer<Chromosome<T>> modificationHandler;
 
-  public FunctionalSearchListener(Consumer<GeneticAlgorithm<?>> searchStartedHandler,
-      Consumer<GeneticAlgorithm<?>> searchFinishedHandler,
-      Consumer<GeneticAlgorithm<?>> iterationHandler,
-      Consumer<Chromosome> fitnessEvaluationHandler,
-      Consumer<Chromosome> modificationHandler) {
+  public FunctionalSearchListener(Consumer<GeneticAlgorithm<T, ?>> searchStartedHandler,
+      Consumer<GeneticAlgorithm<T, ?>> searchFinishedHandler,
+      Consumer<GeneticAlgorithm<T, ?>> iterationHandler,
+      Consumer<Chromosome<T>> fitnessEvaluationHandler,
+      Consumer<Chromosome<T>> modificationHandler) {
     super();
     this.searchStartedHandler = orDefault(searchStartedHandler);
     this.searchFinishedHandler = orDefault(searchFinishedHandler);
@@ -25,32 +25,32 @@ public class FunctionalSearchListener implements SearchListener {
     this.modificationHandler = orDefault(modificationHandler);
   }
   
-  private <T> Consumer<T> orDefault(Consumer<T> handler) {
-      return handler == null ? (T arg) -> {} : handler;
+  private <U> Consumer<U> orDefault(Consumer<U> handler) {
+      return handler == null ? (U arg) -> {} : handler;
   }
 
   @Override
-  public void searchStarted(GeneticAlgorithm<?> algorithm) {
+  public void searchStarted(GeneticAlgorithm<T, ?> algorithm) {
     this.searchStartedHandler.accept(algorithm);
   }
 
   @Override
-  public void iteration(GeneticAlgorithm<?> algorithm) {
+  public void iteration(GeneticAlgorithm<T, ?> algorithm) {
     this.iterationHandler.accept(algorithm);
   }
 
   @Override
-  public void searchFinished(GeneticAlgorithm<?> algorithm) {
+  public void searchFinished(GeneticAlgorithm<T, ?> algorithm) {
     this.searchFinishedHandler.accept(algorithm);
   }
 
   @Override
-  public void fitnessEvaluation(Chromosome individual) {
+  public void fitnessEvaluation(T individual) {
     this.fitnessEvaluationHandler.accept(individual);
   }
 
   @Override
-  public void modification(Chromosome individual) {
+  public void modification(T individual) {
     this.modificationHandler.accept(individual);
   }
 

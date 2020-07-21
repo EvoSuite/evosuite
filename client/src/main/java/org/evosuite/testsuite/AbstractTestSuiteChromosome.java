@@ -24,7 +24,7 @@ import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.ga.operators.mutation.MutationDistribution;
-import org.evosuite.testcase.AbstractTestChromosome;
+import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.execution.ExecutionResult;
@@ -41,12 +41,10 @@ import static java.util.stream.Collectors.toList;
 /**
  *
  *
- * @param <T> Class for SelfTyped Pattern
- * @param <E> Actual TestChromosomes in this suite
+ * @param <E> Class for SelfTyped Pattern
  */
 public abstract class AbstractTestSuiteChromosome<T extends AbstractTestSuiteChromosome<T, E>,
-		E extends AbstractTestChromosome<E>>
-		extends Chromosome<T> {
+		E extends ExecutableChromosome<E>> extends Chromosome<T> {
 
 	private static final long serialVersionUID = 1L;
 
@@ -87,11 +85,10 @@ public abstract class AbstractTestSuiteChromosome<T extends AbstractTestSuiteChr
 	 *
 	 * @param source a {@link org.evosuite.testsuite.AbstractTestSuiteChromosome} object.
 	 */
-	@SuppressWarnings("unchecked")
-	protected AbstractTestSuiteChromosome(AbstractTestSuiteChromosome<T, E> source) {
+	protected AbstractTestSuiteChromosome(T source) {
 		this(source.testChromosomeFactory);
 
-		source.tests.forEach(e -> addTest((E) e.clone()));
+		source.tests.forEach(e -> addTest(e.clone()));
 
 		//this.setFitness(source.getFitness());
 		this.setFitnessValues(source.getFitnessValues());
@@ -157,10 +154,8 @@ public abstract class AbstractTestSuiteChromosome<T extends AbstractTestSuiteChr
 	 *
 	 * Replace chromosome at position
 	 */
-	@SuppressWarnings("unchecked")
 	@Override
-	public void crossOver(T other,
-						  int position) throws ConstructionFailedException {
+	public void crossOver(T other, int position) throws ConstructionFailedException {
 		E otherTest =  other.self().tests.get(position);
 		E clonedTest = otherTest.clone().self();
 		tests.add(clonedTest);
@@ -174,7 +169,6 @@ public abstract class AbstractTestSuiteChromosome<T extends AbstractTestSuiteChr
 	 *
 	 * Keep up to position1, append copy of other from position2 on
 	 */
-	@SuppressWarnings("unchecked")
 	@Override
 	public void crossOver(T other, int position1, int position2)
 	        throws ConstructionFailedException {
@@ -202,7 +196,7 @@ public abstract class AbstractTestSuiteChromosome<T extends AbstractTestSuiteChr
 			return false;
 		if(!obj.getClass().isInstance(this.getClass()))
 			return false;
-		AbstractTestSuiteChromosome<T, E> other = (AbstractTestSuiteChromosome<T,E>) obj;
+		TestSuiteChromosome other = (TestSuiteChromosome) obj;
 		if (other.size() != size())
 			return false;
 

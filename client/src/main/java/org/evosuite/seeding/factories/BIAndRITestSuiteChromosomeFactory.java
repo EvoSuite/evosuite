@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,6 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
 package org.evosuite.seeding.factories;
 
 import org.evosuite.Properties;
@@ -37,7 +34,7 @@ public class BIAndRITestSuiteChromosomeFactory implements
 	private static final long serialVersionUID = 1L;
 
 	private final ChromosomeFactory<TestSuiteChromosome> defaultFactory;
-	private final GeneticAlgorithm<TestSuiteChromosome> geneticAlgorithm;
+	private final GeneticAlgorithm<TestSuiteChromosome, ?> geneticAlgorithm;
 	private boolean seeded = false;
 
 	/**
@@ -50,7 +47,7 @@ public class BIAndRITestSuiteChromosomeFactory implements
 	 */
 	public BIAndRITestSuiteChromosomeFactory(
 			ChromosomeFactory<TestSuiteChromosome> defaultFactory,
-			GeneticAlgorithm<TestSuiteChromosome> geneticAlgorithm) {
+			GeneticAlgorithm<TestSuiteChromosome, ?> geneticAlgorithm) {
 		this.defaultFactory = defaultFactory;
 		this.geneticAlgorithm = geneticAlgorithm;
 	}
@@ -69,7 +66,7 @@ public class BIAndRITestSuiteChromosomeFactory implements
 		TestSuiteChromosome chrom = null;
 		if (!seeded && geneticAlgorithm != null) {
 			seeded = true;
-			chrom = (TestSuiteChromosome) geneticAlgorithm.getBestIndividual();
+			chrom = geneticAlgorithm.getBestIndividual();
 		} else if (geneticAlgorithm != null && Randomness.nextDouble() < Properties.SEED_PROBABILITY) {
 			int populationSize = geneticAlgorithm.getPopulation().size();
 			chrom =  geneticAlgorithm.getPopulation().get(Randomness.nextInt(populationSize));

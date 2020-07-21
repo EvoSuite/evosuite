@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -25,7 +25,7 @@ import java.rmi.registry.Registry;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.statistics.RuntimeVariable;
 
-public class DummyClientNodeImpl extends ClientNodeImpl {
+public class DummyClientNodeImpl<T extends Chromosome<T>> extends ClientNodeImpl<T> {
 
 	public DummyClientNodeImpl(){
 		
@@ -56,7 +56,7 @@ public class DummyClientNodeImpl extends ClientNodeImpl {
 	}
 
 	@Override
-	public void updateStatistics(Chromosome individual) {
+	public void updateStatistics(T individual) {
 		// TODO Auto-generated method stub
 		
 	}

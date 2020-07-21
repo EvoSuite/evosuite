@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,6 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
 package org.evosuite.coverage.mutation;
 
 import java.util.LinkedHashMap;
@@ -30,11 +27,9 @@ import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.coverage.FitnessFunctions;
 import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
-import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.archive.Archive;
 import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.TestCase;
-import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
@@ -48,13 +43,11 @@ import org.evosuite.testsuite.TestSuiteFitnessFunction;
  * 
  * @author Gordon Fraser
  */
-public abstract class MutationSuiteFitness<T extends ExecutableChromosome<T>,
-		X extends AbstractTestSuiteChromosome<T,X>> extends TestSuiteFitnessFunction<
-		MutationSuiteFitness<T,X>,T,X> {
+public abstract class MutationSuiteFitness extends TestSuiteFitnessFunction {
 
 	private static final long serialVersionUID = -8320078404661057113L;
 
-	protected final BranchCoverageSuiteFitness<T,X> branchFitness;
+	protected final BranchCoverageSuiteFitness branchFitness;
 
 	// target goals
 	protected final Map<Integer, MutationTestFitness> mutantMap = new LinkedHashMap<>();
@@ -74,7 +67,7 @@ public abstract class MutationSuiteFitness<T extends ExecutableChromosome<T>,
 
 		boolean archive = Properties.TEST_ARCHIVE;
 		Properties.TEST_ARCHIVE = false;
-		branchFitness = new BranchCoverageSuiteFitness<>();
+		branchFitness = new BranchCoverageSuiteFitness();
 		Properties.TEST_ARCHIVE = archive;
 
 		for (MutationTestFitness goal : factory.getCoverageGoals()) {
@@ -93,7 +86,7 @@ public abstract class MutationSuiteFitness<T extends ExecutableChromosome<T>,
 		}
 
 		for (Integer mutant : this.toRemoveMutants) {
-			TestFitnessFunction<?> ff = this.mutantMap.remove(mutant);
+			TestFitnessFunction ff = this.mutantMap.remove(mutant);
 			if (ff != null) {
 				this.removedMutants.add(mutant);
 			} else {
@@ -134,6 +127,6 @@ public abstract class MutationSuiteFitness<T extends ExecutableChromosome<T>,
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public abstract double getFitness(X individual);
+	public abstract double getFitness(TestSuiteChromosome individual);
 
 }

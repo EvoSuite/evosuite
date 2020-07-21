@@ -20,12 +20,12 @@
 package org.evosuite.coverage.readability;
 
 import org.evosuite.testcase.AbstractTestChromosome;
-import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
+import org.evosuite.testcase.TestChromosome;
+import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 
-public class ReadabilitySuiteFitness<T extends AbstractTestSuiteChromosome<T,E>, E extends AbstractTestChromosome<E>>
-        extends TestSuiteFitnessFunction<ReadabilitySuiteFitness<T,E>, T,E> {
+public class ReadabilitySuiteFitness extends TestSuiteFitnessFunction{
 
     /**
      * 
@@ -36,11 +36,11 @@ public class ReadabilitySuiteFitness<T extends AbstractTestSuiteChromosome<T,E>,
      * 
      */
     @Override
-    public double getFitness(T suite)
+    public double getFitness(TestSuiteChromosome suite)
     {
         double average = 0.0;
 
-        for (E ec : suite.getTestChromosomes()) {
+        for (TestChromosome ec : suite.getTestChromosomes()) {
             average += getScore(ec.toString());
         }
 
@@ -65,10 +65,5 @@ public class ReadabilitySuiteFitness<T extends AbstractTestSuiteChromosome<T,E>,
     @Override
     public boolean isMaximizationFunction() {
         return false;
-    }
-
-    @Override
-    public ReadabilitySuiteFitness<T, E> self() {
-        return this;
     }
 }

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -256,8 +256,6 @@ public class TestSuiteGeneratorHelper {
       return new FixedNumRandomTestStrategy();
     case ONEBRANCH:
       return new IndividualTestStrategy();
-    case REGRESSION:
-      return new RegressionSuiteStrategy();
     case ENTBUG:
       return new EntBugTestStrategy();
     case MOSUITE:

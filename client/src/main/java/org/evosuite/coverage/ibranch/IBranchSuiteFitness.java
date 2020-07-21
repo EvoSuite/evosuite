@@ -35,6 +35,7 @@ import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
+import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 
 /**
@@ -140,7 +141,7 @@ public class IBranchSuiteFitness extends TestSuiteFitnessFunction {
 		return null;
 	}
 
-	public double getFitness(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite, boolean updateChromosome) {
+	public double getFitness(TestSuiteChromosome suite, boolean updateChromosome) {
 		double fitness = 0.0; // branchFitness.getFitness(suite);
 		List<ExecutionResult> results = runTestSuite(suite);
 
@@ -266,7 +267,7 @@ public class IBranchSuiteFitness extends TestSuiteFitnessFunction {
 	 * org.evosuite.ga.FitnessFunction#getFitness(org.evosuite.ga.Chromosome)
 	 */
 	@Override
-	public double getFitness(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite) {
+	public double getFitness(TestSuiteChromosome suite) {
 		return getFitness(suite, true);
 	}
 

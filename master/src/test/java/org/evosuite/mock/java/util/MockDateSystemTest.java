@@ -19,7 +19,6 @@
  */
 package org.evosuite.mock.java.util;
 
-import com.examples.with.different.packagename.mock.java.time.LocalDateExample;
 import com.examples.with.different.packagename.mock.java.util.DateInConstructor;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
@@ -50,7 +49,7 @@ public class MockDateSystemTest extends SystemTestBase {
         String[] command = new String[] { "-generateSuite", "-class", targetClass };
         Object result = evosuite.parseCommandLine(command);
 
-        GeneticAlgorithm<?> ga = getGAFromResult(result);
+        GeneticAlgorithm<?, DEFAULT_VALUE_XXX> ga = getGAFromResult(result);
         TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
         Assert.assertNotNull(best);

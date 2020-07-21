@@ -36,7 +36,7 @@ public class DominanceComparator<T extends Chromosome<T>> implements Comparator<
 
     private static final long serialVersionUID = -2154238776555768364L;
 
-    private Set<FitnessFunction<?,T>> objectives;
+    private Set<FitnessFunction<T>> objectives;
 
     /**
      * 
@@ -49,7 +49,7 @@ public class DominanceComparator<T extends Chromosome<T>> implements Comparator<
      * 
      * @param goals set of target goals to consider when computing the dominance relationship
      */
-    public DominanceComparator(Set<FitnessFunction<?,T>> goals) {
+    public DominanceComparator(Set<? extends FitnessFunction<T>> goals) {
       this.objectives = new LinkedHashSet<>(goals);
     }
 
@@ -57,7 +57,7 @@ public class DominanceComparator<T extends Chromosome<T>> implements Comparator<
      * 
      * @param goal to consider when computing the dominance relationship
      */
-    public DominanceComparator(FitnessFunction<?,T> goal) {
+    public DominanceComparator(FitnessFunction<T> goal) {
       this.objectives = new LinkedHashSet<>();
       this.objectives.add(goal);
     }
@@ -87,7 +87,7 @@ public class DominanceComparator<T extends Chromosome<T>> implements Comparator<
           this.objectives = c1.getFitnessValues().keySet();
         }
 
-        for (FitnessFunction<?,T> ff : this.objectives) {
+        for (FitnessFunction<T> ff : this.objectives) {
             int flag = Double.compare(c1.getFitness(ff), c2.getFitness(ff));
 
             if (flag < 0) {

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,6 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- *
- */
 package org.evosuite.assertion;
 
 import java.lang.reflect.Field;
@@ -28,7 +25,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import org.evosuite.Properties;
-import org.evosuite.regression.ObjectDistanceCalculator;
 import org.evosuite.testcase.variable.VariableReference;
 
 
@@ -106,33 +102,6 @@ public class PrimitiveFieldTraceEntry implements OutputTraceEntry {
     if (other instanceof PrimitiveFieldTraceEntry) {
       PrimitiveFieldTraceEntry otherEntry = (PrimitiveFieldTraceEntry) other;
 
-      if (Properties.isRegression()) {
-        for (String fieldSignature : signatureFieldMap.keySet()) {
-          if (!otherEntry.signatureFieldMap.containsKey(fieldSignature)) {
-            continue;
-          }
-          if (!otherEntry.fieldMap.get(otherEntry.signatureFieldMap.get(fieldSignature))
-              .equals(fieldMap.get(signatureFieldMap.get(fieldSignature)))) {
-            double distance = ObjectDistanceCalculator
-                .getObjectDistance(fieldMap.get(signatureFieldMap.get(fieldSignature)),
-                    otherEntry.fieldMap.get(otherEntry.signatureFieldMap.get(fieldSignature)));
-            if (distance == 0) {
-              continue;
-            }
-            PrimitiveFieldAssertion assertion = new PrimitiveFieldAssertion();
-            assertion.value = fieldMap.get(signatureFieldMap.get(fieldSignature));
-            assertion.field = signatureFieldMap.get(fieldSignature);
-            assertion.source = var;
-            assertion.setComment(
-                "// (Field) Original Value: " + fieldMap.get(signatureFieldMap.get(fieldSignature))
-                    + " | Regression Value: " + otherEntry.fieldMap
-                    .get(otherEntry.signatureFieldMap.get(fieldSignature)));
-            assertions.add(assertion);
-            assert (assertion.isValid());
-          }
-        }
-      } else {
-
         for (Field field : fieldMap.keySet()) {
           if (!otherEntry.fieldMap.containsKey(field)) {
             continue;
@@ -150,7 +119,6 @@ public class PrimitiveFieldTraceEntry implements OutputTraceEntry {
         }
       }
 
-    }
     return assertions;
   }
 

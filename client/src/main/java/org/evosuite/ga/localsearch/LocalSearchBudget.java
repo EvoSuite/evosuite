@@ -56,7 +56,7 @@ public class LocalSearchBudget implements SearchListener, Serializable {
 	protected long startTime     = 0L;
 	protected long endTime       = 0L;
 
-	protected GeneticAlgorithm<?> ga = null;
+	protected GeneticAlgorithm<?,?> ga = null;
 
 	// Private constructor because of singleton type
 	private LocalSearchBudget() {
@@ -149,7 +149,7 @@ public class LocalSearchBudget implements SearchListener, Serializable {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void searchStarted(GeneticAlgorithm<?> algorithm) {
+	public void searchStarted(GeneticAlgorithm algorithm) {
 		ga = algorithm;
 		tests         = 0;
 		suites        = 0;
@@ -161,7 +161,7 @@ public class LocalSearchBudget implements SearchListener, Serializable {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void iteration(GeneticAlgorithm<?> algorithm) {
+	public void iteration(GeneticAlgorithm algorithm) {
 		tests         = 0;
 		suites        = 0;
 		fitnessEvaluations      = 0;
@@ -172,7 +172,7 @@ public class LocalSearchBudget implements SearchListener, Serializable {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void searchFinished(GeneticAlgorithm<?> algorithm) {
+	public void searchFinished(GeneticAlgorithm algorithm) {
 		ga = null;
 	}
 

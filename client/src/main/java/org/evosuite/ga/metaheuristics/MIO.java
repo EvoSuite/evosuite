@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -19,12 +19,8 @@
  */
 package org.evosuite.ga.metaheuristics;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
 import org.evosuite.Properties;
 import org.evosuite.TimeController;
-import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.archive.Archive;
 import org.evosuite.ga.metaheuristics.mosa.AbstractMOSA;
@@ -36,12 +32,16 @@ import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
 /**
  * Implementation of the Many Independent Objective (MIO) algorithm
  * 
  * @author José Campos
  */
-public class MIO<T extends Chromosome> extends AbstractMOSA<T> {
+public class MIO extends AbstractMOSA {
 
   private static final long serialVersionUID = -5660970130698891194L;
 
@@ -60,14 +60,13 @@ public class MIO<T extends Chromosome> extends AbstractMOSA<T> {
    * 
    * @param factory a {@link org.evosuite.ga.ChromosomeFactory} object.
    */
-  public MIO(ChromosomeFactory<T> factory) {
+  public MIO(ChromosomeFactory<TestChromosome> factory) {
     super(factory);
   }
 
   /**
    * {@inheritDoc}
    */
-  @SuppressWarnings("unchecked")
   @Override
   protected void evolve() {
 
@@ -108,7 +107,7 @@ public class MIO<T extends Chromosome> extends AbstractMOSA<T> {
     this.solution.mutate();
 
     // evaluate it
-    this.calculateFitness((T) this.solution);
+    this.calculateFitness(this.solution);
 
     double usedBudget = this.progress();
     if (Double.compare(usedBudget, Properties.EXPLOITATION_STARTS_AT_PERCENT) >= 0) {
@@ -146,7 +145,7 @@ public class MIO<T extends Chromosome> extends AbstractMOSA<T> {
     // will be randomly generated.
     this.generateInitialPopulation(1);
     assert this.population.size() == 1;
-    this.solution = (TestChromosome) this.population.get(0).clone();
+    this.solution = this.population.get(0).clone();
 
     // update fitness values of all individuals
     this.calculateFitnessAndSortPopulation();
@@ -180,7 +179,7 @@ public class MIO<T extends Chromosome> extends AbstractMOSA<T> {
         if (Archive.getArchiveInstance().hasBeenUpdated()) {
           Set<TestChromosome> testsInArchive = Archive.getArchiveInstance().getSolutions();
           if (!testsInArchive.isEmpty()) {
-            TestSuiteChromosome individualInPopulation = ((TestSuiteChromosome) this.population.get(0));
+            TestSuiteChromosome individualInPopulation =  this.population.get(0);
             individualInPopulation.clearTests();
             for (TestChromosome test : testsInArchive) {
               individualInPopulation.addTest(test.getTestCase().clone());
@@ -205,9 +204,8 @@ public class MIO<T extends Chromosome> extends AbstractMOSA<T> {
   /**
    * {@inheritDoc}
    */
-  @SuppressWarnings("unchecked")
   @Override
-  public List<T> getBestIndividuals() {
+  public List<TestChromosome> getBestIndividuals() {
       // get final test suite (i.e., non dominated solutions in Archive)
       TestSuiteChromosome bestTestCases = new TestSuiteChromosome();
       Set<TestChromosome> solutions = Archive.getArchiveInstance().getSolutions();
@@ -216,8 +214,8 @@ public class MIO<T extends Chromosome> extends AbstractMOSA<T> {
       // compute overall fitness and coverage
       this.computeCoverageAndFitness(bestTestCases);
 
-      List<T> bests = new ArrayList<T>(1);
-      bests.add((T) bestTestCases);
+      List<TestChromosome> bests = new ArrayList<>(1);
+      bests.add(bestTestCases);
 
       return bests;
   }
@@ -225,9 +223,8 @@ public class MIO<T extends Chromosome> extends AbstractMOSA<T> {
   /**
    * {@inheritDoc}
    */
-  @SuppressWarnings("unchecked")
   @Override
-  public T getBestIndividual() {
+  public TestChromosome getBestIndividual() {
       TestSuiteChromosome best = new TestSuiteChromosome();
       Set<TestChromosome> solutions = Archive.getArchiveInstance().getSolutions();
       best.addTests(solutions);
@@ -237,12 +234,12 @@ public class MIO<T extends Chromosome> extends AbstractMOSA<T> {
           best.setCoverage(suiteFitness, 0.0);
           best.setFitness(suiteFitness,  1.0);
         }
-        return (T) best;
+        return best;
       }
 
       // compute overall fitness and coverage
       this.computeCoverageAndFitness(best);
 
-      return (T) best;
+      return best;
   }
 }

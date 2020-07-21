@@ -30,7 +30,7 @@ import org.evosuite.ga.Chromosome;
  *
  * @author fraser
  */
-public class SizePopulationLimit implements PopulationLimit {
+public class SizePopulationLimit<T extends Chromosome<T>> implements PopulationLimit<T> {
 
 	private static final long serialVersionUID = 7978512501601348014L;
 
@@ -39,7 +39,7 @@ public class SizePopulationLimit implements PopulationLimit {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public boolean isPopulationFull(List<? extends Chromosome<?>> population) {
+	public boolean isPopulationFull(List<T> population) {
 		final int size = population.stream().mapToInt(Chromosome::size).sum();
 		return size >= Properties.POPULATION;
 	}

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -37,7 +37,7 @@ public interface TestGenerationResult extends Serializable {
 	public String getErrorMessage();
 	
 	/** The entire GA in its final state */
-	public GeneticAlgorithm<?> getGeneticAlgorithm();
+	public GeneticAlgorithm<?, ?> getGeneticAlgorithm();
 	
 	/** Map from test method to ContractViolation */
 	public Set<Failure> getContractViolations(String name);
@@ -49,7 +49,7 @@ public interface TestGenerationResult extends Serializable {
 	public String[] getTargetCriterion();
 	
 	/** Coverage level of the target criterion */
-	public double getTargetCoverage(FitnessFunction<?,?> function);
+	public double getTargetCoverage(FitnessFunction<?> function);
 	
 	/** Map from test method to EvoSuite test case */
 	public TestCase getTestCase(String name);

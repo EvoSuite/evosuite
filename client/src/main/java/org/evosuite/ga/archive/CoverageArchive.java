@@ -19,14 +19,9 @@
  */
 package org.evosuite.ga.archive;
 
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
 import org.evosuite.Properties;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.runtime.util.AtMostOnceLogger;
-import org.evosuite.testcase.AbstractTestChromosome;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
@@ -35,13 +30,17 @@ import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
+
 /**
  * Coverage Archive.
  * 
  * @author José Campos
  */
-public class CoverageArchive<F extends TestFitnessFunction<F>, E extends AbstractTestChromosome<E>>
-    extends Archive<F,E> {
+public class CoverageArchive extends Archive<TestFitnessFunction, TestChromosome> {
 
   private static final long serialVersionUID = -4046845573050661961L;
 
@@ -51,22 +50,21 @@ public class CoverageArchive<F extends TestFitnessFunction<F>, E extends Abstrac
    * Map used to store all covered targets (keys of the map) and the corresponding covering
    * solutions (values of the map)
    */
-  private final Map<F, TestChromosome> covered = new LinkedHashMap<>();
+  private final Map<TestFitnessFunction, TestChromosome> covered = new LinkedHashMap<>();
 
   /**
    * Set used to store all targets that have not been covered yet
    */
-  private final Set<F> uncovered = new LinkedHashSet<>();
+  private final Set<TestFitnessFunction> uncovered = new LinkedHashSet<>();
 
-  public static final CoverageArchive<? extends TestFitnessFunction<?>, ? extends AbstractTestChromosome<?>> instance =
-          new CoverageArchive<>();
+  public static final CoverageArchive instance = new CoverageArchive();
 
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public void addTarget(F target) {
+  public void addTarget(TestFitnessFunction target) {
     super.addTarget(target);
 
     if (!this.uncovered.contains(target)) {
@@ -81,7 +79,7 @@ public class CoverageArchive<F extends TestFitnessFunction<F>, E extends Abstrac
    * {@inheritDoc}
    */
   @Override
-  public void updateArchive(F target, TestChromosome solution, double fitnessValue) {
+  public void updateArchive(TestFitnessFunction target, TestChromosome solution, double fitnessValue) {
     super.updateArchive(target, solution, fitnessValue);
     assert this.covered.containsKey(target) || this.uncovered.contains(target) : "Unknown goal: "+target;
 
@@ -110,7 +108,7 @@ public class CoverageArchive<F extends TestFitnessFunction<F>, E extends Abstrac
     }
   }
 
-  private void addToArchive(F target, TestChromosome solution) {
+  private void addToArchive(TestFitnessFunction target, TestChromosome solution) {
     this.uncovered.remove(target);
     this.covered.put(target, solution);
     this.removeNonCoveredTargetOfAMethod(target);
@@ -161,7 +159,7 @@ public class CoverageArchive<F extends TestFitnessFunction<F>, E extends Abstrac
    * {@inheritDoc}
    */
   @Override
-  public Set<F> getCoveredTargets() {
+  public Set<TestFitnessFunction> getCoveredTargets() {
     return this.covered.keySet();
   }
 
@@ -185,12 +183,12 @@ public class CoverageArchive<F extends TestFitnessFunction<F>, E extends Abstrac
    * {@inheritDoc}
    */
   @Override
-  public Set<F> getUncoveredTargets() {
+  public Set<TestFitnessFunction> getUncoveredTargets() {
     return this.uncovered;
   }
 
-  private Set<F> getTargets() {
-    Set<F> targets = new LinkedHashSet<>();
+  private Set<TestFitnessFunction> getTargets() {
+    Set<TestFitnessFunction> targets = new LinkedHashSet<>();
     targets.addAll(this.getCoveredTargets());
     targets.addAll(this.getUncoveredTargets());
     return targets;
@@ -200,7 +198,7 @@ public class CoverageArchive<F extends TestFitnessFunction<F>, E extends Abstrac
    * {@inheritDoc}
    */
   @Override
-  public boolean hasTarget(F target) {
+  public boolean hasTarget(TestFitnessFunction target) {
     assert target != null;
     return this.covered.containsKey(target) || this.uncovered.contains(target);
   }
@@ -233,7 +231,7 @@ public class CoverageArchive<F extends TestFitnessFunction<F>, E extends Abstrac
    * {@inheritDoc}
    */
   @Override
-  public TestChromosome getSolution(F target) {
+  public TestChromosome getSolution(TestFitnessFunction target) {
     assert target != null;
     assert this.covered.containsKey(target);
     return this.covered.get(target);
@@ -243,7 +241,7 @@ public class CoverageArchive<F extends TestFitnessFunction<F>, E extends Abstrac
    * {@inheritDoc}
    */
   @Override
-  public boolean hasSolution(F target) {
+  public boolean hasSolution(TestFitnessFunction target) {
     assert target != null;
     return this.covered.containsKey(target);
   }
@@ -287,7 +285,7 @@ public class CoverageArchive<F extends TestFitnessFunction<F>, E extends Abstrac
     // to avoid adding the same solution to 'mergedSolution' suite
     Set<TestChromosome> solutionsSampledFromArchive = new LinkedHashSet<>();
 
-    for (F target : this.getTargets()) {
+    for (TestFitnessFunction target : this.getTargets()) {
       // has target been covered? to answer it, we perform a local check rather than calling method
       // {@link TestFitnessFunction.isCoveredBy} as it may perform a fitness evaluation to access
       // whether that 'target' is covered or not (and therefore, it could be more expensive)

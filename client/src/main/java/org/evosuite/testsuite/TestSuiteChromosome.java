@@ -186,7 +186,6 @@ public final class TestSuiteChromosome
 	 */
 	/** {@inheritDoc} */
 	@Override
-	@SuppressWarnings("unchecked")
 	public int compareSecondaryObjective(TestSuiteChromosome o) {
 		int objective = secondaryObjIndex;
 		int c = 0;
@@ -219,16 +218,16 @@ public final class TestSuiteChromosome
 	 * 
 	 * @return a {@link java.util.Set} object.
 	 */
-	public Set<TestFitnessFunction<?>> getCoveredGoals() {
-		Set<TestFitnessFunction<?>> goals = new LinkedHashSet<>();
+	public Set<TestFitnessFunction> getCoveredGoals() {
+		Set<TestFitnessFunction> goals = new LinkedHashSet<>();
 		for (TestChromosome t : tests) {
-			Set<TestFitnessFunction<?>> coveredGoals = t.getTestCase().getCoveredGoals();
+			Set<TestFitnessFunction> coveredGoals = t.getTestCase().getCoveredGoals();
 			goals.addAll(coveredGoals);
 		}
 		return goals;
 	}
 	
-	public void removeCoveredGoal(TestFitnessFunction<?> f) {
+	public void removeCoveredGoal(TestFitnessFunction f) {
 		tests.forEach(t -> t.getTestCase().removeCoveredGoal(f));
 	}
 
@@ -248,14 +247,12 @@ public final class TestSuiteChromosome
 
 
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public boolean localSearch(LocalSearchObjective<TestSuiteChromosome> objective) {
-		TestSuiteLocalSearch<TestSuiteChromosome,TestChromosome, ? extends FitnessFunction<?, TestSuiteChromosome> > localSearch =
-				TestSuiteLocalSearch.selectTestSuiteLocalSearch();
+		TestSuiteLocalSearch localSearch = TestSuiteLocalSearch.selectTestSuiteLocalSearch();
 		return localSearch.doSearch(this, objective);
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 * 

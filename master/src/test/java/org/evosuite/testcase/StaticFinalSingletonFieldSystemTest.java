@@ -34,7 +34,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.examples.with.different.packagename.staticfield.StaticFinalSingletonField;
-import com.examples.with.different.packagename.staticfield.SaticSingletonField;
 
 public class StaticFinalSingletonFieldSystemTest extends SystemTestBase {
 
@@ -62,7 +61,7 @@ public class StaticFinalSingletonFieldSystemTest extends SystemTestBase {
 
 		Object result = evosuite.parseCommandLine(command);
 
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, DEFAULT_VALUE_XXX> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
 		System.out.println(best.toString());

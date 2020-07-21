@@ -33,6 +33,7 @@ import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
+import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 
 /**
@@ -83,7 +84,7 @@ public class InputCoverageSuiteFitness extends TestSuiteFitnessFunction {
      * Execute all tests and count covered input goals
      */
     @Override
-    public double getFitness(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite) {
+    public double getFitness(TestSuiteChromosome suite) {
         logger.trace("Calculating test suite fitness");
         double fitness = 0.0;
 
@@ -148,7 +149,7 @@ public class InputCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
     private double computeDistance(List<ExecutionResult> results, Set<TestFitnessFunction> setOfCoveredGoals) {
 
-        Map<InputCoverageTestFitness, Double> mapDistances = new LinkedHashMap<InputCoverageTestFitness, Double>();
+        Map<InputCoverageTestFitness, Double> mapDistances = new LinkedHashMap<>();
         for (InputCoverageTestFitness testFitness : this.inputCoverageMap) {
             mapDistances.put(testFitness, 1.0);
         }
@@ -189,9 +190,7 @@ public class InputCoverageSuiteFitness extends TestSuiteFitnessFunction {
      * @param coveredGoals
      * @param fitness
      */
-    private void printStatusMessages(
-            AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite,
-            int coveredGoals, double fitness) {
+    private void printStatusMessages(TestSuiteChromosome suite, int coveredGoals, double fitness) {
         if (coveredGoals > maxCoveredGoals) {
             logger.info("(Input Goals) Best individual covers " + coveredGoals + "/"
                     + totalGoals + " input goals");

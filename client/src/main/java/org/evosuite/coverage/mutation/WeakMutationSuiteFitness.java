@@ -19,21 +19,15 @@
  */
 package org.evosuite.coverage.mutation;
 
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 import org.evosuite.Properties;
 import org.evosuite.ga.archive.Archive;
-import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
-import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteChromosome;
+
+import java.util.*;
+import java.util.Map.Entry;
 
 /**
  * <p>
@@ -55,9 +49,8 @@ public class WeakMutationSuiteFitness extends MutationSuiteFitness {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public double getFitness(
-	        AbstractTestSuiteChromosome<? extends ExecutableChromosome> individual) {
-		/**
+	public double getFitness(TestSuiteChromosome individual) {
+		/*
 		 * e.g. classes with only static constructors
 		 */
 		if (this.numMutants == 0) {
@@ -80,8 +73,8 @@ public class WeakMutationSuiteFitness extends MutationSuiteFitness {
 		double fitness = branchFitness.getFitness(individual);
 		Properties.TEST_ARCHIVE =  archive;
 
-		Map<Integer, Double> mutant_distance = new LinkedHashMap<Integer, Double>();
-		Set<Integer> touchedMutants = new LinkedHashSet<Integer>();
+		Map<Integer, Double> mutant_distance = new LinkedHashMap<>();
+		Set<Integer> touchedMutants = new LinkedHashSet<>();
 
 		for (ExecutionResult result : results) {
 			// Using private reflection can lead to false positives

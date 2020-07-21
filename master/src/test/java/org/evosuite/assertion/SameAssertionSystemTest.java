@@ -72,7 +72,7 @@ public class SameAssertionSystemTest extends SystemTestBase {
 
 		Object result = evosuite.parseCommandLine(command);
 
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, DEFAULT_VALUE_XXX> ga = getGAFromResult(result);
 
 		boolean hasSameAssertion = false;
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
@@ -101,7 +101,7 @@ public class SameAssertionSystemTest extends SystemTestBase {
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, DEFAULT_VALUE_XXX> ga = getGAFromResult(result);
 
 		boolean hasSameAssertion = false;
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
@@ -143,7 +143,7 @@ public class SameAssertionSystemTest extends SystemTestBase {
 
 		Object result = evosuite.parseCommandLine(command);
 
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, DEFAULT_VALUE_XXX> ga = getGAFromResult(result);
 		boolean hasSameAssertion = false;
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
@@ -183,7 +183,7 @@ public class SameAssertionSystemTest extends SystemTestBase {
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, DEFAULT_VALUE_XXX> ga = getGAFromResult(result);
 
 		boolean hasSameAssertion = false;
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();

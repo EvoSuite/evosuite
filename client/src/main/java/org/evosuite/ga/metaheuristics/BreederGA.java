@@ -4,6 +4,7 @@ import org.evosuite.Properties;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.ConstructionFailedException;
+import org.evosuite.ga.FitnessFunction;
 import org.evosuite.runtime.util.AtMostOnceLogger;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
@@ -22,7 +23,8 @@ import java.util.List;
  *
  * @param <T>
  */
-public class BreederGA<T extends Chromosome> extends StandardGA<T> {
+public class BreederGA<T extends Chromosome<T>, F extends FitnessFunction<T>>
+        extends StandardGA<T, F> {
 
     private final Logger logger = LoggerFactory.getLogger(BreederGA.class);
 
@@ -38,10 +40,9 @@ public class BreederGA<T extends Chromosome> extends StandardGA<T> {
 
     @Override
     protected void evolve() {
-        List<T> newGeneration = new ArrayList<>();
 
         // Elitism
-        newGeneration.addAll(elitism());
+        List<T> newGeneration = new ArrayList<>(elitism());
 
         // Truncation selection
         List<T> candidates = population.subList(0, (int)(population.size() * Properties.TRUNCATION_RATE));
@@ -63,8 +64,8 @@ public class BreederGA<T extends Chromosome> extends StandardGA<T> {
                 continue;
             }
 
-            T offspring1 = (T)parent1.clone();
-            T offspring2 = (T)parent2.clone();
+            T offspring1 = parent1.clone();
+            T offspring2 = parent2.clone();
 
             try {
                 crossoverFunction.crossOver(offspring1, offspring2);

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -21,7 +21,6 @@ package org.evosuite;
 
 import org.evosuite.classpath.ClassPathHandler;
 import org.evosuite.lm.MutationType;
-import org.evosuite.regression.RegressionMeasure;
 import org.evosuite.runtime.LoopCounter;
 import org.evosuite.runtime.Runtime;
 import org.evosuite.runtime.RuntimeSettings;
@@ -1519,9 +1518,6 @@ public class Properties {
 
     @Parameter(key = "regression_branch_distance", group = "Runtime", description = "Enable control-flow distance measurement for regression testing")
     public static boolean REGRESSION_BRANCH_DISTANCE = false;
-
-    @Parameter(key = "regression_fitness", group = "Runtime", description = "Set fitness function for EvosuiteR. [Defaults to Random search]")
-    public static RegressionMeasure REGRESSION_FITNESS = RegressionMeasure.RANDOM;
 
 	@Parameter(key = "regression_analyze", group = "Runtime", description = "Analyze the classes under test, to ensure the effectiveness of evosuite")
 	public static boolean REGRESSION_ANALYZE = false;

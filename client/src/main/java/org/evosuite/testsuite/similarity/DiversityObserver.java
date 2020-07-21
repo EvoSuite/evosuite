@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -19,7 +19,6 @@
  */
 package org.evosuite.testsuite.similarity;
 
-import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.ga.metaheuristics.SearchListener;
 import org.evosuite.rmi.ClientServices;
@@ -36,13 +35,13 @@ import java.util.List;
 /**
  * Created by gordon on 18/12/2015.
  */
-public class DiversityObserver implements SearchListener {
+public class DiversityObserver implements SearchListener<TestSuiteChromosome> {
 
     private static final Logger logger = LoggerFactory.getLogger(DiversityObserver.class);
 
     @Override
-    public void iteration(GeneticAlgorithm<?> algorithm) {
-        List<TestSuiteChromosome> individuals = (List<TestSuiteChromosome>) algorithm.getPopulation();
+    public void iteration(GeneticAlgorithm<TestSuiteChromosome, ?> algorithm) {
+        List<TestSuiteChromosome> individuals = algorithm.getPopulation();
         double diversity = 0.0;
         int numComparisons = 0;
         for(int i = 0; i < individuals.size() - 1; i++) {
@@ -177,22 +176,22 @@ public class DiversityObserver implements SearchListener {
     }
 
     @Override
-    public void searchStarted(GeneticAlgorithm<?> algorithm) {
+    public void searchStarted(GeneticAlgorithm<TestSuiteChromosome, ?> algorithm) {
 
     }
 
     @Override
-    public void searchFinished(GeneticAlgorithm<?> algorithm) {
+    public void searchFinished(GeneticAlgorithm<TestSuiteChromosome, ?> algorithm) {
 
     }
 
     @Override
-    public void fitnessEvaluation(Chromosome individual) {
+    public void fitnessEvaluation(TestSuiteChromosome individual) {
 
     }
 
     @Override
-    public void modification(Chromosome individual) {
+    public void modification(TestSuiteChromosome individual) {
 
     }
 }

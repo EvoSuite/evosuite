@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -27,6 +27,7 @@ import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
+import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,9 +68,8 @@ public class MethodNoExceptionCoverageSuiteFitness extends MethodCoverageSuiteFi
 	 * @param fitness
 	 */
 	@Override
-	protected void printStatusMessages(
-	        AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite,
-	        int coveredMethods, double fitness) {
+	protected void printStatusMessages(TestSuiteChromosome suite,
+									   int coveredMethods, double fitness) {
 		if (coveredMethods > maxCoveredMethods) {
 			logger.info("(Methods No-Exc) Best individual covers " + coveredMethods + "/"
 			        + totalMethods + " methods");
