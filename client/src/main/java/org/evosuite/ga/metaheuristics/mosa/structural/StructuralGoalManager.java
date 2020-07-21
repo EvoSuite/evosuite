@@ -31,6 +31,7 @@ import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.archive.Archive;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
+import org.evosuite.testcase.AbstractTestChromosome;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 
@@ -42,7 +43,7 @@ import org.evosuite.testcase.TestFitnessFunction;
  * @param <T> the type of chromosome the gaols operate on
  * @author Annibale Panichella
  */
-public abstract class StructuralGoalManager<T extends Chromosome> implements Serializable {
+public abstract class StructuralGoalManager<T extends AbstractTestChromosome<T>> implements Serializable {
 
 	private static final long serialVersionUID = -2577487057354286024L;
 
@@ -60,10 +61,10 @@ public abstract class StructuralGoalManager<T extends Chromosome> implements Ser
 	 * chromosome. All functions are required to be either minimization or maximization functions,
 	 * not a mix of both.
 	 */
-	protected Set<FitnessFunction<T>> currentGoals;
+	protected Set<FitnessFunction<?,T>> currentGoals;
 
 	/** Archive of tests and corresponding covered targets*/
-	protected Archive archive;
+	protected Archive<? extends FitnessFunction<?,T>> archive;
 
 	/**
 	 * Creates a new {@code StructuralGoalManager} with the given list of targets.
@@ -71,7 +72,7 @@ public abstract class StructuralGoalManager<T extends Chromosome> implements Ser
 	 * @param fitnessFunctions The targets to cover, with each individual target encoded as its own
 	 *                         fitness function.
 	 */
-	protected StructuralGoalManager(List<FitnessFunction<T>> fitnessFunctions){
+	protected StructuralGoalManager(List<FitnessFunction<?,T>> fitnessFunctions){
 		currentGoals = new HashSet<>(fitnessFunctions.size());
 		archive = Archive.getArchiveInstance();
 
@@ -84,14 +85,14 @@ public abstract class StructuralGoalManager<T extends Chromosome> implements Ser
 	 * @param c a TestChromosome
 	 * @return covered goals along with the corresponding test case
 	 */
-	public abstract void calculateFitness(T c, GeneticAlgorithm ga);
+	public abstract void calculateFitness(T c, GeneticAlgorithm<T> ga);
 
 	/**
 	 * Returns the set of yet uncovered goals.
 	 *
 	 * @return uncovered goals
 	 */
-	public Set<FitnessFunction<T>> getUncoveredGoals() {
+	public Set<FitnessFunction<?,T>> getUncoveredGoals() {
 		return this.archive.getUncoveredTargets();
 	}
 

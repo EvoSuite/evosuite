@@ -48,7 +48,7 @@ import org.slf4j.LoggerFactory;
 public class TestSuiteLocalSearchObjective<T extends AbstractTestSuiteChromosome<T,E>,
 		E extends AbstractTestChromosome<E>,
 		F extends FitnessFunction<F,E>>
-		implements LocalSearchObjective<E,F> {
+		implements LocalSearchObjective<E> {
 
 	private static final Logger logger = LoggerFactory.getLogger(TestSuiteLocalSearchObjective.class);
 
@@ -225,7 +225,7 @@ public class TestSuiteLocalSearchObjective<T extends AbstractTestSuiteChromosome
 	 * @return
 	 */
 	@Override
-	public List<F> getFitnessFunctions() {
+	public List<FitnessFunction<?,E>> getFitnessFunctions() {
 		throw new NotImplementedException("This should not be called");
 	}
 
@@ -234,7 +234,7 @@ public class TestSuiteLocalSearchObjective<T extends AbstractTestSuiteChromosome
 	 * goal, this function should never be invoked.
 	 */
 	@Override
-	public void addFitnessFunction(F fitness) {
+	public void addFitnessFunction(FitnessFunction<?,E> fitness) {
 		throw new NotImplementedException("This should not be called");
 	}
 

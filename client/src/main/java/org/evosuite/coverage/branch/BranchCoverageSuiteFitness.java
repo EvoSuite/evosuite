@@ -39,7 +39,6 @@ import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.statements.ConstructorStatement;
 import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
-import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.objectweb.asm.Type;
 import org.slf4j.Logger;
@@ -51,9 +50,9 @@ import org.slf4j.LoggerFactory;
  * @author Gordon Fraser
  */
 public class BranchCoverageSuiteFitness
-		<T extends ExecutableChromosome<T>,
-		X extends AbstractTestSuiteChromosome<T,X>>
-		extends TestSuiteFitnessFunction<BranchCoverageSuiteFitness<T,X>,T,X> {
+		<E extends ExecutableChromosome<E>,
+		T extends AbstractTestSuiteChromosome<E, T>>
+		extends TestSuiteFitnessFunction<BranchCoverageSuiteFitness<E, T>, E, T> {
 
 	private static final long serialVersionUID = 2991632394620406243L;
 
@@ -294,7 +293,7 @@ public class BranchCoverageSuiteFitness
 	 * @param falseDistance
 	 * @return
 	 */
-	private boolean analyzeTraces(X suite,
+	private boolean analyzeTraces(T suite,
 								  List<ExecutionResult> results,
 								  Map<Integer, Integer> predicateCount, Map<String, Integer> callCount,
 								  Map<Integer, Double> trueDistance, Map<Integer, Double> falseDistance) {
@@ -320,7 +319,7 @@ public class BranchCoverageSuiteFitness
 		}
 		return hasTimeoutOrTestException;
 	}
-	
+
 	@Override
 	public boolean updateCoveredGoals() {
 		if (!Properties.TEST_ARCHIVE) {
@@ -378,7 +377,7 @@ public class BranchCoverageSuiteFitness
 	}
 
 	@Override
-	public BranchCoverageSuiteFitness<T,X> self() {
+	public BranchCoverageSuiteFitness<E, T> self() {
 		return this;
 	}
 
@@ -388,7 +387,7 @@ public class BranchCoverageSuiteFitness
 	 * Execute all tests and count covered branches
 	 */
 	@Override
-	public double getFitness(X suite) {
+	public double getFitness(T suite) {
 		logger.trace("Calculating branch fitness");
 		double fitness = 0.0;
 
@@ -510,8 +509,8 @@ public class BranchCoverageSuiteFitness
 	 * @param coveredMethods
 	 * @param fitness
 	 */
-	private void printStatusMessages(X suite,
-	        int coveredBranches, int coveredMethods, double fitness) {
+	private void printStatusMessages(T suite,
+									 int coveredBranches, int coveredMethods, double fitness) {
 		if (coveredBranches > maxCoveredBranches) {
 			maxCoveredBranches = coveredBranches;
 			logger.info("(Branches) Best individual covers " + coveredBranches + "/"

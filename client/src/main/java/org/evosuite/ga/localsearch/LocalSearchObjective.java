@@ -38,7 +38,7 @@ import org.evosuite.testsuite.TestSuiteFitnessFunction;
  *
  * @author Gordon Fraser
  */
-public interface LocalSearchObjective<T extends Chromosome<T>, F extends FitnessFunction<F,T>> {
+public interface LocalSearchObjective<T extends Chromosome<T>> {
 
 	/**
 	 * true if the objective was achieved
@@ -85,7 +85,7 @@ public interface LocalSearchObjective<T extends Chromosome<T>, F extends Fitness
 	 */
 	public int hasChanged(T chromosome);
 
-	public void addFitnessFunction(F fitness);
+	public void addFitnessFunction(FitnessFunction<?,T> fitness);
 
 	/**
 	 * Returns a list with all the fitness functions stored in this local search
@@ -93,6 +93,6 @@ public interface LocalSearchObjective<T extends Chromosome<T>, F extends Fitness
 	 *
 	 * @return a {@link org.evosuite.ga.FitnessFunction} object.
 	 */
-	public List<F> getFitnessFunctions();
+	public List<FitnessFunction<?,T>> getFitnessFunctions();
 
 }

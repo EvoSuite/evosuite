@@ -43,22 +43,22 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Annibale Panichella, Fitsum Meshesha Kifetew
  */
-public class BranchesManager<T extends Chromosome> extends StructuralGoalManager<T>{
+public class BranchesManager<T extends Chromosome<T>> extends StructuralGoalManager<T>{
 
 	private static final Logger logger = LoggerFactory.getLogger(BranchesManager.class);
 
 	protected BranchFitnessGraph<T> graph;
 
-	protected final Map<Integer, FitnessFunction<T>> branchCoverageTrueMap = new HashMap<>();
-	protected final Map<Integer, FitnessFunction<T>> branchCoverageFalseMap = new HashMap<>();
-	private final Map<String, FitnessFunction<T>> branchlessMethodCoverageMap = new HashMap<>();
+	protected final Map<Integer, FitnessFunction<?,T>> branchCoverageTrueMap = new HashMap<>();
+	protected final Map<Integer, FitnessFunction<?,T>> branchCoverageFalseMap = new HashMap<>();
+	private final Map<String, FitnessFunction<?,T>> branchlessMethodCoverageMap = new HashMap<>();
 
 	/**
 	 * Constructor used to initialize the set of uncovered goals, and the initial set
 	 * of goals to consider as initial contrasting objectives
 	 * @param fitnessFunctions List of all FitnessFunction<T>
 	 */
-	public BranchesManager(List<FitnessFunction<T>> fitnessFunctions){
+	public BranchesManager(List<FitnessFunction<?,T>> fitnessFunctions){
 		super(fitnessFunctions);
 
 		graph = new BranchFitnessGraph<>(new HashSet<>(fitnessFunctions));

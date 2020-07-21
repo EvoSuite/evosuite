@@ -42,22 +42,23 @@ import static java.util.stream.Collectors.*;
  * 
  * @author Annibale Panichella
  */
-public class BranchFitnessGraph<T extends Chromosome> implements Serializable {
+public class BranchFitnessGraph<T extends Chromosome<T>> implements Serializable {
 
 	private static final long serialVersionUID = -8020578778906420503L;
 	
 	private static final Logger logger = LoggerFactory.getLogger(BranchFitnessGraph.class);
 
-	protected DefaultDirectedGraph<FitnessFunction<T>, DependencyEdge> graph = new DefaultDirectedGraph<>(DependencyEdge.class);
+	protected DefaultDirectedGraph<FitnessFunction<?,T>, DependencyEdge> graph =
+			new DefaultDirectedGraph<>(DependencyEdge.class);
 
-	protected Set<FitnessFunction<T>> rootBranches = new HashSet<>();
+	protected Set<FitnessFunction<?,T>> rootBranches = new HashSet<>();
 
 	@SuppressWarnings("unchecked")
-	public BranchFitnessGraph(Set<FitnessFunction<T>> goals){
+	public BranchFitnessGraph(Set<FitnessFunction<?,T>> goals){
 		goals.forEach(g -> graph.addVertex(g));
 
 		// derive dependencies among branches
-		for (FitnessFunction<T> fitness : goals){
+		for (FitnessFunction<?,T> fitness : goals){
 			Branch branch = ((BranchCoverageTestFitness) fitness).getBranch();
 			if (branch==null){
 				this.rootBranches.add(fitness); 
@@ -80,11 +81,11 @@ public class BranchFitnessGraph<T extends Chromosome> implements Serializable {
 				
 				BranchCoverageGoal goal = new BranchCoverageGoal(newB, true, newB.getClassName(), newB.getMethodName());
 				BranchCoverageTestFitness newFitness = new BranchCoverageTestFitness(goal);
-				graph.addEdge((FitnessFunction<T>) newFitness, fitness);
+				graph.addEdge(newFitness, fitness);
 
 				BranchCoverageGoal goal2 = new BranchCoverageGoal(newB, false, newB.getClassName(), newB.getMethodName());
 				BranchCoverageTestFitness newfitness2 = new BranchCoverageTestFitness(goal2);
-				graph.addEdge((FitnessFunction<T>) newfitness2, fitness);
+				graph.addEdge(newfitness2, fitness);
 			}
 		}
 	}
@@ -135,21 +136,21 @@ public class BranchFitnessGraph<T extends Chromosome> implements Serializable {
 		return null;
 	}
 	
-	public Set<FitnessFunction<T>> getRootBranches(){
+	public Set<FitnessFunction<?,T>> getRootBranches(){
 		return this.rootBranches;
 	}
 	
 	@SuppressWarnings("unchecked")
-	public Set<FitnessFunction<T>> getStructuralChildren(FitnessFunction<T> parent){
+	public Set<FitnessFunction<?,T>> getStructuralChildren(FitnessFunction<?,T> parent){
 		return this.graph.outgoingEdgesOf(parent).stream()
-				.map(edge -> (FitnessFunction<T>) edge.getTarget())
+				.map(edge -> (FitnessFunction<?,T>) edge.getTarget())
 				.collect(toSet());
 	}
 	
 	@SuppressWarnings("unchecked")
-	public Set<FitnessFunction<T>> getStructuralParents(FitnessFunction<T> parent){
+	public Set<FitnessFunction<?,T>> getStructuralParents(FitnessFunction<?,T> parent){
 		return this.graph.incomingEdgesOf(parent).stream()
-				.map(edge -> (FitnessFunction<T>) edge.getSource()
+				.map(edge -> (FitnessFunction<?,T>) edge.getSource()
 				).collect(toSet());
 	}
 }

@@ -32,6 +32,7 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.evosuite.Properties;
 import org.evosuite.ga.FitnessFunction;
+import org.evosuite.testcase.AbstractTestChromosome;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
@@ -48,7 +49,7 @@ import static java.util.stream.Collectors.*;
  * 
  * @author José Campos
  */
-public class MIOArchive<F extends TestFitnessFunction, T extends TestChromosome> extends Archive<F, T> {
+public class MIOArchive<F extends TestFitnessFunction<F>,T extends AbstractTestChromosome<?>> extends Archive<F, T> {
 
   private static final long serialVersionUID = -6100903230303784634L;
 
@@ -60,7 +61,7 @@ public class MIOArchive<F extends TestFitnessFunction, T extends TestChromosome>
    **/
   protected final Map<F, Population> archive = new LinkedHashMap<>();
 
-  public static final MIOArchive<TestFitnessFunction, TestChromosome> instance =
+  public static final MIOArchive<? extends TestFitnessFunction<?>, TestChromosome> instance =
           new MIOArchive<>();
 
   /**

@@ -23,11 +23,13 @@
 package org.evosuite.regression;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.evosuite.TestGenerationContext;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.ga.FitnessFunction;
+import org.evosuite.ga.SecondaryObjective;
 import org.evosuite.ga.localsearch.LocalSearchObjective;
 import org.evosuite.testcase.*;
 import org.evosuite.testcase.execution.ExecutionResult;
@@ -206,12 +208,13 @@ public class RegressionTestChromosome extends AbstractTestChromosome<RegressionT
    * @see org.evosuite.ga.Chromosome#localSearch(org.evosuite.ga.LocalSearchObjective)
    */
   @Override
-  public<F extends FitnessFunction<F,RegressionTestChromosome>> boolean localSearch(LocalSearchObjective<RegressionTestChromosome, F> objective) {
-      // FIXME voglseb: Parameter needs to be a LocalSearchObjective for TestSuiteChromosome, but is a
+  public boolean localSearch(LocalSearchObjective<RegressionTestChromosome> objective) {
+      // FIXME Parameter needs to be a LocalSearchObjective for TestSuiteChromosome, but is a
       //                LocalSearchObjective for RegressionTestChromosome
-    boolean result = theTest.localSearch(objective);
+    throw new UnsupportedOperationException("NOT IMPLEMENTED");
+    /*boolean result = theTest.localSearch(objective);
     updateClassloader();
-    return result;
+    return result;*/
   }
 
   /* (non-Javadoc)
@@ -266,4 +269,8 @@ public class RegressionTestChromosome extends AbstractTestChromosome<RegressionT
     return theSameTestForTheOtherClassLoader.getLastExecutionResult();
   }
 
+  @Override
+  public List<SecondaryObjective<RegressionTestChromosome>> getSecondaryObjectives_() {
+      throw new UnsupportedOperationException("NOT IMPLEMENTED");
+  }
 }

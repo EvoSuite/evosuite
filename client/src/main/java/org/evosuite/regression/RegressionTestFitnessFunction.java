@@ -34,7 +34,7 @@ import org.evosuite.testcase.execution.TestCaseExecutor;
  * @author Gordon Fraser
  */
 public class RegressionTestFitnessFunction extends
-    FitnessFunction<RegressionTestChromosome> {
+    FitnessFunction<RegressionTestFitnessFunction,RegressionTestChromosome> {
 
   /**
    *
@@ -90,6 +90,11 @@ public class RegressionTestFitnessFunction extends
   @Override
   public boolean isMaximizationFunction() {
     return false;
+  }
+
+  @Override
+  public RegressionTestFitnessFunction self() {
+    return this;
   }
 
 }

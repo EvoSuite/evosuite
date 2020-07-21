@@ -1,12 +1,14 @@
 package org.evosuite.testcase;
 
 import org.evosuite.ga.ConstructionFailedException;
-import org.evosuite.ga.FitnessFunction;
-import org.evosuite.ga.localsearch.LocalSearchObjective;
+import org.evosuite.ga.SecondaryObjective;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 
+import java.util.List;
+
 public abstract class AbstractTestChromosome<E extends AbstractTestChromosome<E>> extends ExecutableChromosome<E> {
+
 
     /**
      * The test case encoded in this chromosome
@@ -15,6 +17,13 @@ public abstract class AbstractTestChromosome<E extends AbstractTestChromosome<E>
 
     @Override
     public abstract void crossOver(E other, int position1, int position2) throws ConstructionFailedException;
+
+    /**
+     * Returns the static list of secondary objectives.
+     *
+     * @return
+     */
+    public abstract List<SecondaryObjective<E>> getSecondaryObjectives_();
 
     /**
      * <p>
@@ -40,5 +49,8 @@ public abstract class AbstractTestChromosome<E extends AbstractTestChromosome<E>
     public TestCase getTestCase() {
         return test;
     }
+
+    public abstract ExecutionResult executeForFitnessFunction(
+            TestSuiteFitnessFunction<?, ?, E> testSuiteFitnessFunction);
 }
 

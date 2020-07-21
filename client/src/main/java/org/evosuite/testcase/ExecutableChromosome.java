@@ -115,4 +115,6 @@ public abstract class ExecutableChromosome<E extends ExecutableChromosome<E>> ex
 		lastExecutionResult = null;
 		lastMutationResult = new HashMap<>();
 	}
+
+	//FIXME voglseb: Method wurde gelöscht.
 }

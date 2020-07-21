@@ -32,11 +32,11 @@ import org.evosuite.ga.FitnessFunction;
  * 
  * @author José Campos, Annibale Panichella
  */
-public class DominanceComparator<T extends Chromosome> implements Comparator<T>, Serializable {
+public class DominanceComparator<T extends Chromosome<T>> implements Comparator<T>, Serializable {
 
     private static final long serialVersionUID = -2154238776555768364L;
 
-    private Set<FitnessFunction<?>> objectives;
+    private Set<FitnessFunction<?,T>> objectives;
 
     /**
      * 
@@ -49,7 +49,7 @@ public class DominanceComparator<T extends Chromosome> implements Comparator<T>,
      * 
      * @param goals set of target goals to consider when computing the dominance relationship
      */
-    public DominanceComparator(Set<FitnessFunction<T>> goals) {
+    public DominanceComparator(Set<FitnessFunction<?,T>> goals) {
       this.objectives = new LinkedHashSet<>(goals);
     }
 
@@ -57,7 +57,7 @@ public class DominanceComparator<T extends Chromosome> implements Comparator<T>,
      * 
      * @param goal to consider when computing the dominance relationship
      */
-    public DominanceComparator(FitnessFunction<T> goal) {
+    public DominanceComparator(FitnessFunction<?,T> goal) {
       this.objectives = new LinkedHashSet<>();
       this.objectives.add(goal);
     }
@@ -72,7 +72,7 @@ public class DominanceComparator<T extends Chromosome> implements Comparator<T>,
      * @return -1 if c1 dominates c2, +1 if c2 dominates c1, 0 if both are non-dominated
      */
     @Override
-    public int compare(Chromosome c1, Chromosome c2) {
+    public int compare(T c1, T c2) {
 
         if (c1 == null) {
             return 1;
@@ -87,7 +87,7 @@ public class DominanceComparator<T extends Chromosome> implements Comparator<T>,
           this.objectives = c1.getFitnessValues().keySet();
         }
 
-        for (FitnessFunction<?> ff : this.objectives) {
+        for (FitnessFunction<?,T> ff : this.objectives) {
             int flag = Double.compare(c1.getFitness(ff), c2.getFitness(ff));
 
             if (flag < 0) {

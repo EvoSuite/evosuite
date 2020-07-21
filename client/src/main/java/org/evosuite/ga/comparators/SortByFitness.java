@@ -30,11 +30,11 @@ import org.evosuite.ga.FitnessFunction;
  * 
  * @author José Campos
  */
-public class SortByFitness implements Comparator<Chromosome>, Serializable {
+public class SortByFitness<T extends Chromosome<T>> implements Comparator<T>, Serializable {
 
     private static final long serialVersionUID = 4982933698286500461L;
 
-    private FitnessFunction<?> ff;
+    private FitnessFunction<?,T> ff;
 
     private boolean order;
 
@@ -43,13 +43,13 @@ public class SortByFitness implements Comparator<Chromosome>, Serializable {
      * @param ff
      * @param des descending order
      */
-    public SortByFitness(FitnessFunction<?> ff, boolean desc) {
+    public SortByFitness(FitnessFunction<?,T> ff, boolean desc) {
         this.ff = ff;
         this.order = desc;
     }
 
     @Override
-    public int compare(Chromosome c1, Chromosome c2)
+    public int compare(T c1, T c2)
     {
         if (c1 == null)
             return 1;

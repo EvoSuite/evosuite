@@ -42,7 +42,7 @@ public interface RankingFunction<T extends Chromosome<T>> extends Serializable {
 	 * @param solutions the population to rank
 	 * @param uncovered_goals the set of coverage goals to consider for the ranking assignment
 	 */
-	public void computeRankingAssignment(List<T> solutions, Set<FitnessFunction<T,?>> uncovered_goals);
+	public void computeRankingAssignment(List<T> solutions, Set<FitnessFunction<?,T>> uncovered_goals);
 
 	/**
 	 * Returns the sub-front of {@link org.evosuite.ga.Chromosome} objects of the given rank. Sub-

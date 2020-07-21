@@ -276,12 +276,11 @@ public final class TestChromosome extends AbstractTestChromosome<TestChromosome>
 	 * @param objective*/
 	@SuppressWarnings("unchecked")
 	@Override
-	public<F extends FitnessFunction<F,TestChromosome>> boolean localSearch(LocalSearchObjective<TestChromosome,F> objective) {
-		TestCaseLocalSearch<F> localSearch =
+	public boolean localSearch(LocalSearchObjective<TestChromosome> objective) {
+		TestCaseLocalSearch<? extends FitnessFunction<?,TestChromosome>> localSearch =
 				TestCaseLocalSearch.selectTestCaseLocalSearch();
 		return localSearch.doSearch(this, objective);
 	}
-
 
 	/**
 	 * {@inheritDoc}
@@ -659,6 +658,8 @@ public final class TestChromosome extends AbstractTestChromosome<TestChromosome>
 	}
 
 
+
+
 	@Override
 	@SuppressWarnings("unchecked")
 	public  int compareSecondaryObjective(TestChromosome o) {
@@ -714,4 +715,8 @@ public final class TestChromosome extends AbstractTestChromosome<TestChromosome>
 		return secondaryObjectives;
 	}
 
+	@Override
+	public List<SecondaryObjective<TestChromosome>> getSecondaryObjectives_() {
+		return secondaryObjectives;
+	}
 }

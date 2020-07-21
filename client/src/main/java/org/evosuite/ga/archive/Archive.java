@@ -31,6 +31,7 @@ import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.SecondaryObjective;
 import org.evosuite.runtime.util.AtMostOnceLogger;
 import org.evosuite.setup.TestCluster;
+import org.evosuite.testcase.AbstractTestChromosome;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
@@ -56,7 +57,7 @@ import org.slf4j.LoggerFactory;
  * @param <T> the type of test cases covering the target, encoded as {@code TestChromosome}
  * @author José Campos
  */
-public abstract class Archive<F extends TestFitnessFunction, T extends TestChromosome>
+public abstract class Archive<F extends TestFitnessFunction<F>, T extends AbstractTestChromosome<T>>
     implements Serializable {
 
   private static final long serialVersionUID = 2604119519478973245L;
@@ -192,7 +193,7 @@ public abstract class Archive<F extends TestFitnessFunction, T extends TestChrom
     // If we try to add a test for a target we've already covered
     // and the new test is shorter, keep the shorter one
     int timesBetter = 0;
-    for (SecondaryObjective<TestChromosome> obj : TestChromosome.getSecondaryObjectives()) {
+    for (SecondaryObjective<T> obj : currentSolution.getSecondaryObjectives_()) {
       if (obj.compareChromosomes(candidateSolution, currentSolution) < 0)
           timesBetter++;
       else
@@ -282,7 +283,7 @@ public abstract class Archive<F extends TestFitnessFunction, T extends TestChrom
    * 
    * @return
    */
-  public abstract Set<T> getSolutions();
+  public abstract Set<TestChromosome> getSolutions();
 
   /**
    * Returns a particular solution in the archive. The underline algorithm to select a solution
@@ -290,7 +291,7 @@ public abstract class Archive<F extends TestFitnessFunction, T extends TestChrom
    * 
    * @return
    */
-  public abstract T getSolution();
+  public abstract TestChromosome getSolution();
 
   /**
    * Returns the solution that covers a particular target.
@@ -298,7 +299,7 @@ public abstract class Archive<F extends TestFitnessFunction, T extends TestChrom
    * @param target
    * @return
    */
-  public abstract T getSolution(F target);
+  public abstract TestChromosome getSolution(F target);
 
   /**
    * Returns true if the archive has a solution for the specific target, false otherwise.
@@ -314,7 +315,7 @@ public abstract class Archive<F extends TestFitnessFunction, T extends TestChrom
    * 
    * @return
    */
-  public abstract T getRandomSolution();
+  public abstract TestChromosome getRandomSolution();
 
   /**
    * 
@@ -339,7 +340,7 @@ public abstract class Archive<F extends TestFitnessFunction, T extends TestChrom
    * @return a {@link org.evosuite.testsuite.TestSuiteChromosome} object.
    */
   @SuppressWarnings("unchecked")
-  public <C extends Chromosome> C mergeArchiveAndSolution(C solution) {
+  public <C extends Chromosome<C>> C mergeArchiveAndSolution(C solution) {
     if (solution instanceof TestChromosome) {
       return (C) this.createMergedSolution((TestChromosome) solution);
     } else if (solution instanceof TestSuiteChromosome) {
@@ -534,7 +535,7 @@ public abstract class Archive<F extends TestFitnessFunction, T extends TestChrom
    * 
    * @return
    */
-  public static final Archive<TestFitnessFunction, TestChromosome> getArchiveInstance() {
+  public static Archive<? extends TestFitnessFunction<?>, ? extends AbstractTestChromosome<?>> getArchiveInstance() {
     switch (Properties.ARCHIVE_TYPE) {
       case COVERAGE:
       default:

@@ -55,6 +55,7 @@ import org.evosuite.ga.stoppingconditions.MaxGenerationStoppingCondition;
 import org.evosuite.ga.stoppingconditions.StoppingCondition;
 import org.evosuite.symbolic.DSEStats;
 import org.evosuite.testcase.execution.ExecutionTracer;
+import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.ArrayUtil;
 import org.evosuite.utils.LoggingUtils;
@@ -71,7 +72,7 @@ import static java.util.stream.Collectors.*;
  *
  * @author Gordon Fraser
  */
-public abstract class GeneticAlgorithm<T extends Chromosome<T>> implements SearchAlgorithm,
+public abstract class GeneticAlgorithm<T extends AbstractTestSuiteChromosome<T,?>> implements SearchAlgorithm,
         Serializable {
 
     private static final long serialVersionUID = 5155609385855093435L;
@@ -81,7 +82,7 @@ public abstract class GeneticAlgorithm<T extends Chromosome<T>> implements Searc
     /**
      * Fitness function to rank individuals
      */
-    protected List<FitnessFunction<T, ?>> fitnessFunctions = new ArrayList<>();
+    protected List<FitnessFunction<?, T>> fitnessFunctions = new ArrayList<>();
 
     /**
      * Selection function to select parents
@@ -436,12 +437,12 @@ public abstract class GeneticAlgorithm<T extends Chromosome<T>> implements Searc
      *
      * @param function a {@link org.evosuite.ga.FitnessFunction} object.
      */
-    public void addFitnessFunction(FitnessFunction<T, ?> function) {
+    public void addFitnessFunction(FitnessFunction<?, T> function) {
         fitnessFunctions.add(function);
         localObjective.addFitnessFunction(function);
     }
 
-    public void addFitnessFunctions(List<FitnessFunction<T, ?>> functions) {
+    public void addFitnessFunctions(List<FitnessFunction<?, T>> functions) {
         functions.forEach(this::addFitnessFunction);
     }
 
@@ -450,7 +451,7 @@ public abstract class GeneticAlgorithm<T extends Chromosome<T>> implements Searc
      *
      * @return a {@link org.evosuite.ga.FitnessFunction} object.
      */
-    public FitnessFunction<T, ?> getFitnessFunction() {
+    public FitnessFunction<?, T> getFitnessFunction() {
         return fitnessFunctions.get(0);
     }
 
@@ -459,7 +460,7 @@ public abstract class GeneticAlgorithm<T extends Chromosome<T>> implements Searc
      *
      * @return a {@link org.evosuite.ga.FitnessFunction} object.
      */
-    public List<FitnessFunction<T, ?>> getFitnessFunctions() {
+    public List<FitnessFunction<?, T>> getFitnessFunctions() {
         return fitnessFunctions;
     }
 
@@ -478,7 +479,7 @@ public abstract class GeneticAlgorithm<T extends Chromosome<T>> implements Searc
         for (T c : population) {
             str.append("\n  - test ").append(i);
 
-            for (FitnessFunction<T, ?> ff : this.fitnessFunctions) {
+            for (FitnessFunction<?, T> ff : this.fitnessFunctions) {
                 DecimalFormat df = new DecimalFormat("#.#####");
                 str.append(", ")
                         .append(ff.getClass().getSimpleName().replace("CoverageSuiteFitness", ""))

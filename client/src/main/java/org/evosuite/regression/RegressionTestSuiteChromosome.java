@@ -24,6 +24,7 @@ package org.evosuite.regression;
 
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.FitnessFunction;
+import org.evosuite.ga.localsearch.LocalSearchObjective;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
@@ -114,7 +115,7 @@ public class RegressionTestSuiteChromosome
    * org.evosuite.testsuite.AbstractTestSuiteChromosome#localSearch(org.evosuite
    * .ga.LocalSearchObjective)
    */
-  public<F extends FitnessFunction<F,RegressionTestSuiteChromosome>> boolean localSearch(LocalSearchObjective<RegressionTestSuiteChromosome, F> objective) {
+  public boolean localSearch(LocalSearchObjective<RegressionTestSuiteChromosome> objective) {
     // Ignore for now
     return false;
   }

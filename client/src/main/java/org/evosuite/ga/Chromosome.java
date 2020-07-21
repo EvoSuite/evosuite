@@ -338,7 +338,7 @@ public abstract class Chromosome<T extends Chromosome<T>> implements Comparable<
 	 *            a {@link org.evosuite.ga.localsearch.LocalSearchObjective}
 	 *            object.
 	 */
-	public abstract<F extends FitnessFunction<F,T>> boolean localSearch(LocalSearchObjective<T,F> objective);
+	public abstract boolean localSearch(LocalSearchObjective<T> objective);
 
 	/**
 	 * Apply the local search

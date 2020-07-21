@@ -78,7 +78,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	protected final ListenableList<Statement> statements;
 
 	/** Coverage goals this test covers */
-	private transient Set<TestFitnessFunction> coveredGoals = new LinkedHashSet<>();
+	private transient Set<TestFitnessFunction<?>> coveredGoals = new LinkedHashSet<>();
 
 	/** Violations revealed by this test */
 	private transient Set<ContractViolation> contractViolations = new LinkedHashSet<>();
@@ -459,7 +459,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public Set<TestFitnessFunction> getCoveredGoals() {
+	public Set<TestFitnessFunction<?>> getCoveredGoals() {
 		return coveredGoals;
 	}
 

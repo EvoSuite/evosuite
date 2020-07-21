@@ -250,8 +250,8 @@ public final class TestSuiteChromosome
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public<F extends FitnessFunction<F,TestSuiteChromosome>> boolean localSearch(LocalSearchObjective<TestSuiteChromosome,F> objective) {
-		TestSuiteLocalSearch<TestSuiteChromosome,TestChromosome,F > localSearch =
+	public boolean localSearch(LocalSearchObjective<TestSuiteChromosome> objective) {
+		TestSuiteLocalSearch<TestSuiteChromosome,TestChromosome, ? extends FitnessFunction<?, TestSuiteChromosome> > localSearch =
 				TestSuiteLocalSearch.selectTestSuiteLocalSearch();
 		return localSearch.doSearch(this, objective);
 	}

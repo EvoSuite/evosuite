@@ -26,6 +26,7 @@ import java.util.Set;
 import org.evosuite.Properties;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.runtime.util.AtMostOnceLogger;
+import org.evosuite.testcase.AbstractTestChromosome;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
@@ -39,8 +40,8 @@ import org.slf4j.LoggerFactory;
  * 
  * @author José Campos
  */
-public class CoverageArchive<F extends TestFitnessFunction, T extends TestChromosome>
-    extends Archive<F, T> {
+public class CoverageArchive<F extends TestFitnessFunction<F>, E extends AbstractTestChromosome<E>>
+    extends Archive<F,E> {
 
   private static final long serialVersionUID = -4046845573050661961L;
 
@@ -50,15 +51,16 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestChromo
    * Map used to store all covered targets (keys of the map) and the corresponding covering
    * solutions (values of the map)
    */
-  private final Map<F, T> covered = new LinkedHashMap<>();
+  private final Map<F, TestChromosome> covered = new LinkedHashMap<>();
 
   /**
    * Set used to store all targets that have not been covered yet
    */
   private final Set<F> uncovered = new LinkedHashSet<>();
 
-  public static final CoverageArchive<TestFitnessFunction, TestChromosome> instance =
+  public static final CoverageArchive<? extends TestFitnessFunction<?>, ? extends AbstractTestChromosome<?>> instance =
           new CoverageArchive<>();
+
 
   /**
    * {@inheritDoc}
@@ -79,7 +81,7 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestChromo
    * {@inheritDoc}
    */
   @Override
-  public void updateArchive(F target, T solution, double fitnessValue) {
+  public void updateArchive(F target, TestChromosome solution, double fitnessValue) {
     super.updateArchive(target, solution, fitnessValue);
     assert this.covered.containsKey(target) || this.uncovered.contains(target) : "Unknown goal: "+target;
 
@@ -92,7 +94,7 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestChromo
     boolean isNewCoveredTarget = false;
     boolean isNewSolutionBetterThanCurrent = false;
 
-    T currentSolution = this.covered.get(target);
+    TestChromosome currentSolution = this.covered.get(target);
 
     if (currentSolution == null) {
       logger.debug("Solution for non-covered target '" + target + "'");
@@ -108,7 +110,7 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestChromo
     }
   }
 
-  private void addToArchive(F target, T solution) {
+  private void addToArchive(F target, TestChromosome solution) {
     this.uncovered.remove(target);
     this.covered.put(target, solution);
     this.removeNonCoveredTargetOfAMethod(target);
@@ -215,7 +217,7 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestChromo
    * {@inheritDoc}
    */
   @Override
-  public Set<T> getSolutions() {
+  public Set<TestChromosome> getSolutions() {
     return new LinkedHashSet<>(this.covered.values());
   }
 
@@ -223,7 +225,7 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestChromo
    * {@inheritDoc}
    */
   @Override
-  public T getSolution() {
+  public TestChromosome getSolution() {
     return this.getRandomSolution();
   }
 
@@ -231,7 +233,7 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestChromo
    * {@inheritDoc}
    */
   @Override
-  public T getSolution(F target) {
+  public TestChromosome getSolution(F target) {
     assert target != null;
     assert this.covered.containsKey(target);
     return this.covered.get(target);
@@ -251,15 +253,15 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestChromo
    */
   @SuppressWarnings("unchecked")
   @Override
-  public T getRandomSolution() {
+  public TestChromosome getRandomSolution() {
     // TODO this gives higher probability to tests that cover more targets. Maybe it is not the best
     // way, but likely the quickest to compute. A proper way to do it would be to first call
     // 'getSolutions' and only then select one at random.
-    T randomChoice = Randomness.choice(this.getSolutions());
+    TestChromosome randomChoice = Randomness.choice(this.getSolutions());
     if (randomChoice == null) {
       return null;
     }
-    return (T) randomChoice.clone();
+    return randomChoice.clone();
   }
 
   /**
@@ -283,7 +285,7 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestChromo
                 || t.getLastExecutionResult().hasTestException())));
 
     // to avoid adding the same solution to 'mergedSolution' suite
-    Set<T> solutionsSampledFromArchive = new LinkedHashSet<>();
+    Set<TestChromosome> solutionsSampledFromArchive = new LinkedHashSet<>();
 
     for (F target : this.getTargets()) {
       // has target been covered? to answer it, we perform a local check rather than calling method
@@ -298,7 +300,7 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestChromo
       }
 
       if (!isGoalCovered) {
-        T chromosome = this.covered.get(target);
+        TestChromosome chromosome = this.covered.get(target);
 
         // is there any solution in the archive that covers it, and has that solution not been
         // considered yet?
