@@ -29,6 +29,7 @@ import org.evosuite.symbolic.dse.DSETestCase;
 import org.evosuite.symbolic.dse.algorithm.strategies.KeepSearchingCriteriaStrategy;
 import org.evosuite.symbolic.dse.algorithm.strategies.PathExtensionStrategy;
 import org.evosuite.symbolic.dse.algorithm.strategies.PathPruningStrategy;
+import org.evosuite.symbolic.dse.algorithm.strategies.implementations.PathPruningStrategies.CacheCheckResult;
 import org.evosuite.symbolic.dse.algorithm.strategies.TestCaseBuildingStrategy;
 import org.evosuite.symbolic.dse.algorithm.strategies.TestCaseSelectionStrategy;
 import org.evosuite.symbolic.expr.Constraint;
@@ -106,8 +107,7 @@ public abstract class ExplorationAlgorithm extends ExplorationAlgorithmBase {
     /**
      * A cache of previous results from the constraint solver
      **/
-    protected final transient Map<Set<Constraint<?>>, SolverResult> queryCache
-            = new HashMap<Set<Constraint<?>>, SolverResult>();
+    protected final transient Map<Set<Constraint<?>>, SolverResult> queryCache = new HashMap<Set<Constraint<?>>, SolverResult>();
 
     /**
      * Exploration strategies
@@ -279,22 +279,31 @@ public abstract class ExplorationAlgorithm extends ExplorationAlgorithmBase {
             List<Constraint<?>> childQuery = SolverUtils.buildQuery(child.getPathCondition());
             Set<Constraint<?>> normalizedChildQuery = normalize(childQuery);
 
-            if (!pathPruningStrategy.shouldSkipCurrentPath(seenChildren, normalizedChildQuery, queryCache)) {
+            CacheCheckResult cacheCheckResult = pathPruningStrategy.shouldSkipCurrentPath(seenChildren, normalizedChildQuery, queryCache);
 
-                // Logs query data
+            // Path condition previously explored and unsatisfiable
+            if (!cacheCheckResult.isUnSat()) {
                 statisticsLogger.reportNewConstraints(childQuery);
+                Map<String, Object> smtSolution;
 
-                childQuery.addAll(
-                    SolverUtils.createBoundsForQueryVariables(childQuery)
-                );
+                // Path condition already solved before
+                if (cacheCheckResult.isSat()) {
+                    smtSolution = cacheCheckResult.getSmtSolution();
+                } else {
+                    // Path condition not explored
+                    assert(cacheCheckResult.isMissed());
+                    childQuery.addAll(
+                      SolverUtils.createBoundsForQueryVariables(childQuery)
+                    );
 
-                // Solves the SMT query
-                logger.debug(SOLVER_QUERY_STARTED_MESSAGE, childQuery.size());
-                SolverResult smtQueryResult = solveQuery(childQuery);
-                Map<String, Object> smtSolution = getQuerySolution(
-                    normalizedChildQuery,
-                    smtQueryResult
-                );
+                    // Solves the SMT query
+                    logger.debug(SOLVER_QUERY_STARTED_MESSAGE, childQuery.size());
+                    SolverResult smtQueryResult = solveQuery(childQuery);
+                    smtSolution = getQuerySolution(
+                      normalizedChildQuery,
+                      smtQueryResult
+                    );
+                }
 
                 if (smtSolution != null) {
                     // Generates the new tests based on the current solution
@@ -310,7 +319,7 @@ public abstract class ExplorationAlgorithm extends ExplorationAlgorithmBase {
         }
     }
 
-    /**
+      /**
      * Generates a new test case from the concolic execution data.
      *
      * @param currentConcreteTest

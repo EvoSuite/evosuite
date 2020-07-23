@@ -19,54 +19,91 @@
  */
 package org.evosuite.symbolic.dse.algorithm.strategies.implementations.PathPruningStrategies;
 
+import org.evosuite.symbolic.PathConditionUtils;
 import org.evosuite.symbolic.dse.DSEStatistics;
 import org.evosuite.symbolic.dse.algorithm.strategies.PathPruningStrategy;
-import org.evosuite.symbolic.PathConditionUtils;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.solver.SolverResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-
+/**
+ * Resembles checks (a) and (b) of a counter-example cache strategy.
+ *     (b) Is only performed only if exactly the same constraint set is found.
+ *     TODO: Implement the solution for supersets.
+ *
+ * Counter-example cache strategy: Maps sets of constraints to counter-examples and performs three optimizations:
+ *    (a)  When a subset of a constraint set has no solution, then neither does the original set. i.e. as the query x>10 ∧ x<5 has no solution, neither does the original query x>10 ∧ x<5 ∧ y=0
+ *    (b)  When a superset of a constraint set has a solution, that solution also satisfies the original set.  i.e. x=14 is the solution for the query x>0 ∧ x<5, thus it satisfies either x>0 or x<5 individually
+ *    (c)  When a subset of a constraint set has a solution, it is likely that this is also a solution for the original set
+ *
+ * @author Ignacio Lebrero
+ */
 public class AlreadySeenSkipStrategy implements PathPruningStrategy {
 
     private static final Logger logger = LoggerFactory.getLogger(AlreadySeenSkipStrategy.class);
     private static final DSEStatistics statisticsLogger = DSEStatistics.getInstance();
 
-    //TODO: recheck this conditions, is there something we can do with the unsat cached paths?
     @Override
-    public boolean shouldSkipCurrentPath(HashSet<Set<Constraint<?>>> alreadyGeneratedPathConditions, Set<Constraint<?>> constraintSet, Map<Set<Constraint<?>>, SolverResult> queryCache) {
+    public CacheCheckResult shouldSkipCurrentPath(HashSet<Set<Constraint<?>>> alreadyGeneratedPathConditions, Set<Constraint<?>> query, Map<Set<Constraint<?>>, SolverResult> queryCache) {
       statisticsLogger.reportNewQueryCacheCall();
 
-      if (queryCache.containsKey(constraintSet)) {
-        statisticsLogger.reportNewQueryCacheHit();
-        logger.debug("skipping solving of current query since it is in the query cache");
-        return true;
+      // Cache hit of an exact set solution
+      if (queryCache.keySet().contains(query)) {
+        SolverResult cachedResult = queryCache.get(query);
+
+        if (cachedResult.isSAT()) {
+          statisticsLogger.reportNewQueryCacheHit();
+          logger.debug("skipping solving of current query since it is in the query cache");
+          return new CacheCheckResult(cachedResult.getModel(), CacheQueryStatus.HIT_SAT);
+
+        } else if (cachedResult.isUNSAT()) {
+          statisticsLogger.reportNewQueryCacheHit();
+          logger.debug("skipping current query since it is in the query cache and it unsatisfiable");
+          return new CacheCheckResult(CacheQueryStatus.HIT_UNSAT);
+        }
       }
 
-      if (PathConditionUtils.isConstraintSetSubSetOf(constraintSet, queryCache.keySet())) {
-        statisticsLogger.reportNewQueryCacheHit();
-        logger.debug(
-            "skipping solving of current query because it is satisfiable and solved by previous path condition");
-        return true;
+      // Cache hit of a sub set solution
+      if (PathConditionUtils.isConstraintSetSupraSetOf(query, queryCache.keySet())) {
+        Set<Constraint<?>> subSetSolution = PathConditionUtils.getConstraintSetSupraSetOf(query, queryCache.keySet());
+        SolverResult cachedResult = queryCache.get(subSetSolution);
+
+        // Case (a) for sub sets: the query is a supra set of a sat solution. Heuristics can be implemented here
+        if (cachedResult.isSAT()) {
+          // TODO: implement me!
+          return new CacheCheckResult(CacheQueryStatus.MISS);
+
+        // Case (b) for sub sets: the query is a supra set of an unsat solution
+        } else if (cachedResult.isUNSAT()) {
+          statisticsLogger.reportNewQueryCacheHit();
+          logger.debug("skipping current query since it is in the query cache and it unsatisfiable");
+          return new CacheCheckResult(CacheQueryStatus.HIT_UNSAT);
+        }
+
       }
 
-      if (alreadyGeneratedPathConditions.contains(constraintSet)) {
-        logger.debug("skipping solving of current query because of existing path condition");
-        return true;
+      // Cache hit of a supra set solution
+      if (PathConditionUtils.isConstraintSetSubSetOf(query, queryCache.keySet())) {
+        Set<Constraint<?>> supraSetSolution = PathConditionUtils.getConstraintSetSubSetOf(query, queryCache.keySet());
+        SolverResult cachedResult = queryCache.get(supraSetSolution);
+
+        // Case (c) of Counter-example cache: Heuristics can be implemented here
+        if (cachedResult.isUNSAT()) {
+          // TODO: implement me!
+          return new CacheCheckResult(CacheQueryStatus.MISS);
+
+        // Case (b) for for supra sets: The query is sat as there was a bigger query that was SAT
+        } else if (cachedResult.isSAT()) {
+          // TODO: Implement me!
+          return new CacheCheckResult(CacheQueryStatus.MISS);
+        }
       }
 
-      if (PathConditionUtils.isConstraintSetSubSetOf(constraintSet, alreadyGeneratedPathConditions)) {
-        logger.debug(
-            "skipping solving of current query because it is satisfiable and solved by previous path condition");
-        return true;
-      }
-
-      return false;
+      return new CacheCheckResult(CacheQueryStatus.MISS);
     }
 }

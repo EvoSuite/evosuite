@@ -41,6 +41,27 @@ public class PathConditionUtils {
 
 
 	/**
+	 * Returns true if the constraints in the query are a supra set of any of the constraints in the set
+	 * of queries.
+	 *
+	 * @param query
+	 * @param queries
+	 * @return
+	 */
+	public static boolean isConstraintSetSupraSetOf(Set<Constraint<?>> query, Set<Set<Constraint<?>>> queries) {
+		if (query == null) throw new IllegalArgumentException(QUERY_CANNOT_BE_NULL_EXCEPTION_MESSAGE);
+		if (queries == null) throw new IllegalArgumentException(QUERIES_CANNOT_BE_NULL_EXCEPTION_MESSAGE);
+
+		for (Set<Constraint<?>> pathCondition : queries) {
+			if (query.containsAll(pathCondition)) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
 	 * Returns true if the constraints in the query are a subset of any of the constraints in the set
 	 * of queries.
 	 *
@@ -59,6 +80,48 @@ public class PathConditionUtils {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Returns the set that is a supra set of the given query.
+	 * of queries.
+	 *
+	 * @param query
+	 * @param queries
+	 * @return
+	 */
+	public static Set<Constraint<?>> getConstraintSetSubSetOf(Set<Constraint<?>> query, Collection<Set<Constraint<?>>> queries) {
+		if (query == null) throw new IllegalArgumentException(QUERY_CANNOT_BE_NULL_EXCEPTION_MESSAGE);
+		if (queries == null) throw new IllegalArgumentException(QUERIES_CANNOT_BE_NULL_EXCEPTION_MESSAGE);
+
+		for (Set<Constraint<?>> pathCondition : queries) {
+			if (pathCondition.containsAll(query)) {
+				return pathCondition;
+			}
+		}
+
+		throw new IllegalArgumentException("Query has to be a sub set of one of the given queries");
+	}
+
+	/**
+	 * Returns the set that is a supra set of the given query.
+	 * of queries.
+	 *
+	 * @param query
+	 * @param queries
+	 * @return
+	 */
+	public static Set<Constraint<?>> getConstraintSetSupraSetOf(Set<Constraint<?>> query, Collection<Set<Constraint<?>>> queries) {
+		if (query == null) throw new IllegalArgumentException(QUERY_CANNOT_BE_NULL_EXCEPTION_MESSAGE);
+		if (queries == null) throw new IllegalArgumentException(QUERIES_CANNOT_BE_NULL_EXCEPTION_MESSAGE);
+
+		for (Set<Constraint<?>> pathCondition : queries) {
+			if (query.containsAll(pathCondition)) {
+				return pathCondition;
+			}
+		}
+
+		throw new IllegalArgumentException("Query has to be a sub set of one of the given queries");
 	}
 
   /**

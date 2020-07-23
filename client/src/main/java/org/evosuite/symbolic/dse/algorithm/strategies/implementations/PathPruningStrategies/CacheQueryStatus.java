@@ -17,21 +17,11 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite.symbolic.dse.algorithm.strategies;
-
-import org.evosuite.symbolic.dse.algorithm.strategies.implementations.PathPruningStrategies.CacheCheckResult;
-import org.evosuite.symbolic.expr.Constraint;
-import org.evosuite.symbolic.solver.SolverResult;
-
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+package org.evosuite.symbolic.dse.algorithm.strategies.implementations.PathPruningStrategies;
 
 /**
- * Interface for path pruning strategies
+ * Enum for checking which case of skipping solving we are in.
  *
- * @author ignacio lebrero
+ * @author Ignacio Lebrero
  */
-public interface PathPruningStrategy {
-    CacheCheckResult shouldSkipCurrentPath(HashSet<Set<Constraint<?>>> alreadyGeneratedPathConditions, Set<Constraint<?>> constraintSet, Map<Set<Constraint<?>>, SolverResult> queryCache);
-}
+public enum CacheQueryStatus {HIT_UNSAT, HIT_SAT, MISS}
