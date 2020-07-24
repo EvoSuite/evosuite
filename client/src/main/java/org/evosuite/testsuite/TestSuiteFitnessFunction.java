@@ -89,11 +89,9 @@ public abstract class TestSuiteFitnessFunction extends FitnessFunction<TestSuite
 	 *            object.
 	 * @return a {@link java.util.List} object.
 	 */
-//	protected List<ExecutionResult> runTestSuite(T suite) {
 	protected List<ExecutionResult> runTestSuite(TestSuiteChromosome suite) {
 		List<ExecutionResult> results = new ArrayList<>();
 
-//		for (E chromosome : suite.getTestChromosomes()) {
 		for (TestChromosome chromosome : suite.getTestChromosomes()) {
 			// Only execute test if it hasn't been changed
 			if (chromosome.isChanged() || chromosome.getLastExecutionResult() == null) {

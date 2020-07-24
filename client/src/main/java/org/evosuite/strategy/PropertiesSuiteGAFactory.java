@@ -71,15 +71,13 @@ import sun.misc.Signal;
 public class PropertiesSuiteGAFactory
 		extends PropertiesSearchAlgorithmFactory<TestSuiteChromosome> {
 
-	
 	protected ChromosomeFactory<TestSuiteChromosome> getChromosomeFactory() {
 		switch (Properties.STRATEGY) {
 		case EVOSUITE:
 			switch (Properties.TEST_FACTORY) {
 			case ALLMETHODS:
 				logger.info("Using all methods chromosome factory");
-				return new TestSuiteChromosomeFactory(
-				        new AllMethodsTestChromosomeFactory());
+				return new TestSuiteChromosomeFactory(new AllMethodsTestChromosomeFactory());
 			case RANDOM:
 				logger.info("Using random chromosome factory");
 				return new TestSuiteChromosomeFactory(new RandomLengthTestFactory());
@@ -88,13 +86,11 @@ public class PropertiesSuiteGAFactory
 				return new TestSuiteChromosomeFactory(new ArchiveTestChromosomeFactory());
 			case JUNIT:
 				logger.info("Using seeding chromosome factory");
-				JUnitTestCarvedChromosomeFactory factory = new JUnitTestCarvedChromosomeFactory(
-				        new RandomLengthTestFactory());
+				final var factory = new JUnitTestCarvedChromosomeFactory(new RandomLengthTestFactory());
 				return new TestSuiteChromosomeFactory(factory);
             case SERIALIZATION:
                 logger.info("Using serialization seeding chromosome factory");
-                return new SerializationSuiteChromosomeFactory(
-                        new RandomLengthTestFactory());
+                return new SerializationSuiteChromosomeFactory(new RandomLengthTestFactory());
 			default:
 				throw new RuntimeException("Unsupported test factory: "
 				        + Properties.TEST_FACTORY);
@@ -106,8 +102,9 @@ public class PropertiesSuiteGAFactory
 					+ Properties.TEST_FACTORY);
 		}
 	}
-	
-	protected GeneticAlgorithm<TestSuiteChromosome, FitnessFunction<TestSuiteChromosome>> getGeneticAlgorithm(ChromosomeFactory<TestSuiteChromosome> factory) {
+
+	protected GeneticAlgorithm<TestSuiteChromosome, FitnessFunction<TestSuiteChromosome>>
+			getGeneticAlgorithm(ChromosomeFactory<TestSuiteChromosome> factory) {
 		switch (Properties.ALGORITHM) {
 			case ONE_PLUS_ONE_EA:
 				logger.info("Chosen search algorithm: (1+1)EA");
@@ -120,8 +117,7 @@ public class PropertiesSuiteGAFactory
 				return new MuLambdaEA<>(factory, Properties.MU, Properties.LAMBDA);
 			case MONOTONIC_GA: {
 				logger.info("Chosen search algorithm: MonotonicGA");
-				MonotonicGA<TestSuiteChromosome, FitnessFunction<TestSuiteChromosome>> ga =
-						new MonotonicGA<>(factory);
+				final var ga = new MonotonicGA<>(factory);
 				if (Properties.REPLACEMENT_FUNCTION == TheReplacementFunction.FITNESSREPLACEMENT) {
 					// user has explicitly asked for this replacement function
 					ga.setReplacementFunction(new FitnessReplacementFunction<>());
@@ -133,8 +129,7 @@ public class PropertiesSuiteGAFactory
 			}
 			case CELLULAR_GA: {
 				logger.info("Chosen search algorithm: CellularGA");
-				CellularGA<TestSuiteChromosome, FitnessFunction<TestSuiteChromosome>> ga =
-						new CellularGA<>(Properties.MODEL,	factory);
+				final var ga = new CellularGA<>(Properties.MODEL,	factory);
 				if (Properties.REPLACEMENT_FUNCTION == TheReplacementFunction.FITNESSREPLACEMENT) {
 					// user has explicitly asked for this replacement function
 					ga.setReplacementFunction(new FitnessReplacementFunction<>());
@@ -256,10 +251,9 @@ public class PropertiesSuiteGAFactory
 		case SINGLEPOINT:
 			return new SinglePointCrossOver();
 		case COVERAGE:
-			if (Properties.STRATEGY != Properties.Strategy.EVOSUITE)
-				throw new RuntimeException(
-				        "Coverage crossover function requires test suite mode");
-
+			if (Properties.STRATEGY != Properties.Strategy.EVOSUITE) {
+				throw new RuntimeException("Coverage crossover function requires test suite mode");
+			}
 			return new org.evosuite.ga.operators.crossover.CoverageCrossOver();
 		case UNIFORM:
 			return new UniformCrossOver();
@@ -331,8 +325,7 @@ public class PropertiesSuiteGAFactory
 		// ga.setBloatControl(bloat_control);
 
 		if (Properties.CHECK_BEST_LENGTH) {
-			RelativeSuiteLengthBloatControl<TestSuiteChromosome> bloat_control =
-					new RelativeSuiteLengthBloatControl<>();
+			final var bloat_control = new RelativeSuiteLengthBloatControl<TestSuiteChromosome>();
 			ga.addBloatControl(bloat_control);
 			ga.addListener(bloat_control);
 		}
@@ -360,20 +353,19 @@ public class PropertiesSuiteGAFactory
 		}
 
 		if (Properties.LOCAL_SEARCH_RESTORE_COVERAGE) {
-			SearchListener map = BranchCoverageMap.getInstance();
-			ga.addListener(map);
+			ga.addListener(BranchCoverageMap.getInstance());
 		}
 
 		if (Properties.SHUTDOWN_HOOK) {
 			// ShutdownTestWriter writer = new
 			// ShutdownTestWriter(Thread.currentThread());
-			ShutdownTestWriter<TestSuiteChromosome> writer = new ShutdownTestWriter<>();
+			final var writer = new ShutdownTestWriter<TestSuiteChromosome>();
 			ga.addStoppingCondition(writer);
 			RMIStoppingCondition rmi = RMIStoppingCondition.getInstance();
 			ga.addStoppingCondition(rmi);
 
 			if (Properties.STOPPING_PORT != -1) {
-				SocketStoppingCondition ss = new SocketStoppingCondition();
+				final var ss = new SocketStoppingCondition<TestSuiteChromosome>();
 				ss.accept();
 				ga.addStoppingCondition(ss);
 			}

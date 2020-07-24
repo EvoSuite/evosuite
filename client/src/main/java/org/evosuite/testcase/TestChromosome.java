@@ -276,8 +276,7 @@ public final class TestChromosome extends AbstractTestChromosome<TestChromosome>
 	 * @param objective*/
 	@Override
 	public boolean localSearch(LocalSearchObjective<TestChromosome> objective) {
-		TestCaseLocalSearch<TestChromosome> localSearch =
-				TestCaseLocalSearch.selectTestCaseLocalSearch();
+		final var localSearch = TestCaseLocalSearch.selectTestCaseLocalSearch();
 		return localSearch.doSearch(this, objective);
 	}
 
@@ -657,8 +656,6 @@ public final class TestChromosome extends AbstractTestChromosome<TestChromosome>
 	}
 
 
-
-
 	@Override
 	public  int compareSecondaryObjective(TestChromosome o) {
 		int objective = 0;
@@ -713,8 +710,4 @@ public final class TestChromosome extends AbstractTestChromosome<TestChromosome>
 		return secondaryObjectives;
 	}
 
-	@Override
-	public List<SecondaryObjective<TestChromosome>> getSecondaryObjectives_() {
-		return secondaryObjectives;
-	}
 }
