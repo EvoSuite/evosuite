@@ -284,7 +284,7 @@ public abstract class ExplorationAlgorithm extends ExplorationAlgorithmBase {
             seenChildren.contains(seenPathCondition)
               || PathConditionUtils.isConstraintSetSubSetOf(seenPathCondition, seenChildren));
     }
-gi
+
     private void processChildren(PriorityQueue<DSETestCase> testCasesWorkList, DSETestCase currentTestCase, List<GenerationalSearchPathCondition> children, boolean hasPathConditionDiverged) {
         // We look at all the children
         for (GenerationalSearchPathCondition child : children) {
