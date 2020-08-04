@@ -31,6 +31,7 @@ import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.localsearch.DSETestGenerator;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testsuite.TestSuiteChromosome;
+import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,8 +41,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author jgaleotti
  */
-public class DSEAlgorithm extends GeneticAlgorithm<TestSuiteChromosome,
-        FitnessFunction<TestSuiteChromosome>> {
+public class DSEAlgorithm extends GeneticAlgorithm<TestSuiteChromosome, TestSuiteFitnessFunction> {
 
   private static final Logger logger = LoggerFactory.getLogger(DSEAlgorithm.class);
 

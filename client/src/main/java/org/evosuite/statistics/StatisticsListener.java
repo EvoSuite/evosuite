@@ -25,6 +25,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import org.evosuite.Properties;
 import org.evosuite.coverage.exception.ExceptionCoverageSuiteFitness;
 import org.evosuite.ga.Chromosome;
+import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.ga.metaheuristics.SearchListener;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
@@ -39,7 +40,7 @@ import org.evosuite.testsuite.TestSuiteChromosome;
  * @author gordon
  *
  */
-public class StatisticsListener<T extends Chromosome<T>> implements SearchListener<T> {
+public class StatisticsListener<T extends Chromosome<T>, F extends FitnessFunction<T>> implements SearchListener<T, F> {
 
 	private final BlockingQueue<T> individuals = new LinkedBlockingQueue<>();
 	
@@ -78,7 +79,7 @@ public class StatisticsListener<T extends Chromosome<T>> implements SearchListen
 
 
 	@Override
-	public void iteration(GeneticAlgorithm<T, ?> algorithm) {
+	public void iteration(GeneticAlgorithm<T, F> algorithm) {
 		
 		long elapsed = System.currentTimeMillis() - timeFromLastGenerationUpdate;
 		if(elapsed > Properties.TIMELINE_INTERVAL){
@@ -97,7 +98,7 @@ public class StatisticsListener<T extends Chromosome<T>> implements SearchListen
 	}
 
 	@Override
-	public void searchFinished(GeneticAlgorithm<T, ?> algorithm) {
+	public void searchFinished(GeneticAlgorithm<T, F> algorithm) {
 		
 		// If the search is finished, we may want to clear the queue and just send the final element?
 		//individuals.clear(); // TODO: Maybe have a check on size
@@ -125,7 +126,7 @@ public class StatisticsListener<T extends Chromosome<T>> implements SearchListen
 	}
 
 	@Override
-	public void searchStarted(GeneticAlgorithm<T, ?> algorithm) {
+	public void searchStarted(GeneticAlgorithm<T, F> algorithm) {
 		done = false;
 		if(algorithm.getFitnessFunction().isMaximizationFunction()) {
 			bestFitness = 0.0;

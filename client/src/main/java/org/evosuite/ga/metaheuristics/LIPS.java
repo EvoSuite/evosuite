@@ -65,7 +65,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Annibale Panichella
  */
-public class LIPS extends GeneticAlgorithm<TestChromosome> {
+public class LIPS extends GeneticAlgorithm<TestChromosome,TestFitnessFunction> {
 
 	private static final long serialVersionUID = 146182080947267628L;
 
@@ -110,7 +110,7 @@ public class LIPS extends GeneticAlgorithm<TestChromosome> {
 	public LIPS(ChromosomeFactory<TestChromosome> factory) {
 		super(factory);
 		if (ArrayUtil.contains(Properties.CRITERION, Criterion.BRANCH)) {
-			suiteFitness = new BranchCoverageSuiteFitness<>();
+			suiteFitness = new BranchCoverageSuiteFitness();
 		}
 		startGlobalSearch = System.currentTimeMillis();
 		budgetMonitor = new BudgetConsumptionMonitor();
@@ -124,7 +124,7 @@ public class LIPS extends GeneticAlgorithm<TestChromosome> {
 		// However, we assume that LIPS uses elitism given the fact the
 		// elitism has been shown to positively affect the convergence
 		// speed of GAs in various optimisation problems
-		population.sort(new SortByFitness(this.currentTarget, false));
+		population.sort(new SortByFitness<>(this.currentTarget, false));
 		newGeneration.add(population.get(0).clone());
 		newGeneration.add(population.get(1).clone());
 
@@ -371,7 +371,7 @@ public class LIPS extends GeneticAlgorithm<TestChromosome> {
 	 */
 	@Override
 	protected void notifyEvaluation(TestChromosome chromosome) {
-		for (SearchListener<TestChromosome> listener : listeners) {
+		for (SearchListener<TestChromosome, TestFitnessFunction> listener : listeners) {
 			if (listener instanceof ProgressMonitor)
 				continue;
 			listener.fitnessEvaluation(chromosome);
@@ -386,7 +386,9 @@ public class LIPS extends GeneticAlgorithm<TestChromosome> {
 	 */
 	@Override @SuppressWarnings("unchecked")
 	public TestChromosome getBestIndividual() {
-		TestSuiteChromosome best = new TestSuiteChromosome();
+		// TODO voglseb
+		throw new UnsupportedOperationException("This method broke during refactoring");
+		/* TestSuiteChromosome best = new TestSuiteChromosome();
 		for (TestChromosome test : getArchive()) {
 			best.addTest(test);
 		}
@@ -396,7 +398,7 @@ public class LIPS extends GeneticAlgorithm<TestChromosome> {
 		best.setFitness(suiteFitness,  this.fitnessFunctions.size() - this.archive.size());
 		//suiteFitness.getFitness(best);
         // FIXME voglseb: Use Adapter
-		return best;
+		return best;*/
 	}
 //	public TestChromosome getBestIndividual() {
 //			best.addTest(test);

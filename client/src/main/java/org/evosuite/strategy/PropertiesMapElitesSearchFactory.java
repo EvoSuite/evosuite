@@ -32,6 +32,9 @@ import org.evosuite.utils.ResourceController;
 
 import sun.misc.Signal;
 
+/**
+ * TODO voglseb: I don't now exactly what is happening here!
+ */
 public class PropertiesMapElitesSearchFactory
     extends PropertiesSearchAlgorithmFactory<TestChromosome> {
 

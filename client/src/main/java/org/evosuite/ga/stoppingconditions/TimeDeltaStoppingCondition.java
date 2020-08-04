@@ -21,11 +21,12 @@ package org.evosuite.ga.stoppingconditions;
 
 import org.evosuite.Properties;
 import org.evosuite.ga.Chromosome;
+import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TimeDeltaStoppingCondition<T extends Chromosome<T>> extends StoppingConditionImpl<T> {
+public class TimeDeltaStoppingCondition<T extends Chromosome<T>, F extends FitnessFunction<T>> extends StoppingConditionImpl<T, F> {
 
 	private static final long serialVersionUID = -7029615280866928031L;
 
@@ -45,7 +46,7 @@ public class TimeDeltaStoppingCondition<T extends Chromosome<T>> extends Stoppin
 
 	/** {@inheritDoc} */
 	@Override
-	public void searchStarted(GeneticAlgorithm<T, ?> algorithm) {
+	public void searchStarted(GeneticAlgorithm<T, F> algorithm) {
 		if(algorithm.getFitnessFunction().isMaximizationFunction()) {
 			lastFitness = 0.0;
 		} else {
@@ -56,7 +57,7 @@ public class TimeDeltaStoppingCondition<T extends Chromosome<T>> extends Stoppin
 	}
 	
 	@Override
-	public void iteration(GeneticAlgorithm<T, ?> algorithm) {
+	public void iteration(GeneticAlgorithm<T, F> algorithm) {
 		double currentBestFitness = algorithm.getBestIndividual().getFitness();
 		if(algorithm.getFitnessFunction().isMaximizationFunction()) {
 			if(currentBestFitness > lastFitness) {

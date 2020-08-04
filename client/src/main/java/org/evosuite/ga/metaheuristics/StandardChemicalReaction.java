@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
  * @author José Campos
  */
 public class StandardChemicalReaction<T extends Chromosome<T>, F extends FitnessFunction<T>>
-        extends GeneticAlgorithm<T, F> {
+        extends GeneticAlgorithm<T,F> {
 
   private static final long serialVersionUID = 2723118789259809773L;
 
@@ -295,7 +295,7 @@ public class StandardChemicalReaction<T extends Chromosome<T>, F extends Fitness
 
     // evaluate it
 
-    for (FitnessFunction<T> fitnessFunction : this.fitnessFunctions) {
+    for (F fitnessFunction : this.fitnessFunctions) {
       fitnessFunction.getFitness(moleculeClone);
       this.notifyEvaluation(moleculeClone);
     }
@@ -357,7 +357,7 @@ public class StandardChemicalReaction<T extends Chromosome<T>, F extends Fitness
 
     // evaluate offspring
 
-    for (FitnessFunction<T> fitnessFunction : this.fitnessFunctions) {
+    for (F fitnessFunction : this.fitnessFunctions) {
       fitnessFunction.getFitness(offspring1);
       this.notifyEvaluation(offspring1);
       fitnessFunction.getFitness(offspring2);

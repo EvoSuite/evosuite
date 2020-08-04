@@ -30,8 +30,9 @@ import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testsuite.TestSuiteChromosome;
+import org.evosuite.testsuite.TestSuiteFitnessFunction;
 
-public class BranchCoverageMap implements SearchListener<TestSuiteChromosome> {
+public class BranchCoverageMap implements SearchListener<TestSuiteChromosome, TestSuiteFitnessFunction> {
 
 	public static BranchCoverageMap instance = null;
 	
@@ -75,18 +76,18 @@ public class BranchCoverageMap implements SearchListener<TestSuiteChromosome> {
 	}
 
 	@Override
-	public void searchStarted(GeneticAlgorithm<TestSuiteChromosome, ?> algorithm) {
+	public void searchStarted(GeneticAlgorithm<TestSuiteChromosome, TestSuiteFitnessFunction> algorithm) {
 		coveredTrueBranches  = new LinkedHashMap<>();
 		coveredFalseBranches = new LinkedHashMap<>();
 	}
 
 	@Override
-	public void iteration(GeneticAlgorithm<TestSuiteChromosome, ?> algorithm) {
+	public void iteration(GeneticAlgorithm<TestSuiteChromosome, TestSuiteFitnessFunction> algorithm) {
 		
 	}
 
 	@Override
-	public void searchFinished(GeneticAlgorithm<TestSuiteChromosome, ?> algorithm) {
+	public void searchFinished(GeneticAlgorithm<TestSuiteChromosome, TestSuiteFitnessFunction> algorithm) {
 		coveredTrueBranches  = null;
 		coveredFalseBranches = null;
 	}

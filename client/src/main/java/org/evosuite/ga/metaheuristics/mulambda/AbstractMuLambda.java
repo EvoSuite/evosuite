@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
  * @author José Campos
  */
 public abstract class AbstractMuLambda<T extends Chromosome<T>, F extends FitnessFunction<T>>
-        extends GeneticAlgorithm<T, F> {
+        extends GeneticAlgorithm<T,F> {
 
   private static final long serialVersionUID = 2738004761503761376L;
 

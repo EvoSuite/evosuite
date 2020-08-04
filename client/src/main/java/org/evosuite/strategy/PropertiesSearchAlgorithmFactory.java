@@ -45,7 +45,7 @@ import org.slf4j.LoggerFactory;
  *
  * @param <T>
  */
-public abstract class PropertiesSearchAlgorithmFactory<T extends Chromosome<T>>  {
+public abstract class PropertiesSearchAlgorithmFactory<T extends Chromosome<T>, F extends FitnessFunction<T>>  {
 
 	protected static final Logger logger = LoggerFactory.getLogger(PropertiesSearchAlgorithmFactory.class);
 
@@ -62,7 +62,7 @@ public abstract class PropertiesSearchAlgorithmFactory<T extends Chromosome<T>> 
 		}
 	}
 	
-	protected StoppingCondition<T> getStoppingCondition() {
+	protected StoppingCondition<T, F> getStoppingCondition() {
 		logger.info("Setting stopping condition: " + Properties.STOPPING_CONDITION);
 		switch (Properties.STOPPING_CONDITION) {
 		case MAXGENERATIONS:
@@ -83,5 +83,5 @@ public abstract class PropertiesSearchAlgorithmFactory<T extends Chromosome<T>> 
 		}
 	}
 	
-	public abstract GeneticAlgorithm<T, ?> getSearchAlgorithm();
+	public abstract GeneticAlgorithm<T,F> getSearchAlgorithm();
 }

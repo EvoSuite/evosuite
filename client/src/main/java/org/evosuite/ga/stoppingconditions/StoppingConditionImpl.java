@@ -19,12 +19,13 @@
  */
 package org.evosuite.ga.stoppingconditions;
 
-import java.io.Serializable;
-import java.text.NumberFormat;
-
 import org.apache.commons.lang3.StringUtils;
 import org.evosuite.ga.Chromosome;
+import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
+
+import java.io.Serializable;
+import java.text.NumberFormat;
 
 
 /**
@@ -32,7 +33,7 @@ import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
  *
  * @author Gordon Fraser
  */
-public abstract class StoppingConditionImpl<T extends Chromosome<T>> implements StoppingCondition<T>,
+public abstract class StoppingConditionImpl<T extends Chromosome<T>, F extends FitnessFunction<T>> implements StoppingCondition<T, F>,
 		Serializable {
 
 	private static final long serialVersionUID = -8221978873140881671L;
@@ -46,7 +47,7 @@ public abstract class StoppingConditionImpl<T extends Chromosome<T>> implements 
 
 	/** {@inheritDoc} */
 	@Override
-	public void searchStarted(GeneticAlgorithm<T, ?> algorithm) {
+	public void searchStarted(GeneticAlgorithm<T, F> algorithm) {
 
 	}
 
@@ -63,7 +64,7 @@ public abstract class StoppingConditionImpl<T extends Chromosome<T>> implements 
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void iteration(GeneticAlgorithm<T, ?> algorithm) {
+	public void iteration(GeneticAlgorithm<T, F> algorithm) {
 		// TODO Auto-generated method stub
 
 	}
@@ -75,7 +76,7 @@ public abstract class StoppingConditionImpl<T extends Chromosome<T>> implements 
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void searchFinished(GeneticAlgorithm<T, ?> algorithm) {
+	public void searchFinished(GeneticAlgorithm<T, F> algorithm) {
 		// TODO Auto-generated method stub
 
 	}

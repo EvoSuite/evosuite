@@ -20,6 +20,7 @@
 package org.evosuite.ga.stoppingconditions;
 
 import org.evosuite.ga.Chromosome;
+import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 
 /**

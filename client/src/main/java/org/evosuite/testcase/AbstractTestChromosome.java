@@ -51,6 +51,6 @@ public abstract class AbstractTestChromosome<E extends AbstractTestChromosome<E>
     }
 
     public abstract ExecutionResult executeForFitnessFunction(
-            TestSuiteFitnessFunction<?, ?, E> testSuiteFitnessFunction);
+            TestSuiteFitnessFunction testSuiteFitnessFunction);
 }
 

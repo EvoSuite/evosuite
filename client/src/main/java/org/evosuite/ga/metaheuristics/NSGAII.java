@@ -58,7 +58,7 @@ import org.slf4j.LoggerFactory;
  * @author José Campos
  */
 public class NSGAII<T extends Chromosome<T>, F extends FitnessFunction<T>>
-    extends GeneticAlgorithm<T, F>
+    extends GeneticAlgorithm<T,F>
 {
     private static final long serialVersionUID = 146182080947267628L;
 

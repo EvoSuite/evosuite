@@ -20,9 +20,10 @@
 package org.evosuite.ga.stoppingconditions;
 
 import org.evosuite.ga.Chromosome;
+import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.metaheuristics.SearchListener;
 
-public interface StoppingCondition<T extends Chromosome<T>> extends SearchListener<T> {
+public interface StoppingCondition<T extends Chromosome<T>, F extends FitnessFunction<T>> extends SearchListener<T,F> {
 
 	/**
 	 * Force a specific amount of used up budget. Handle with care!

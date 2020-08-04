@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
  * @author Yan Ge
  */
 public class OnePlusLambdaLambdaGA<T extends Chromosome<T>, F extends FitnessFunction<T>>
-        extends AbstractMuLambda<T, F> {
+        extends AbstractMuLambda<T,F> {
 
   private static final long serialVersionUID = 529089847512798127L;
 

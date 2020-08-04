@@ -1,6 +1,5 @@
 package org.evosuite.ga.metaheuristics;
 
-import junit.framework.TestSuite;
 import org.evosuite.ProgressMonitor;
 import org.evosuite.ShutdownTestWriter;
 import org.evosuite.ga.Chromosome;
@@ -19,11 +18,14 @@ import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testsuite.RelativeSuiteLengthBloatControl;
 import org.evosuite.testsuite.TestSuiteChromosome;
+import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.evosuite.utils.ResourceController;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * A wrapper class that facilitates the use of genetic algorithms operating on {@code
@@ -32,7 +34,7 @@ import java.util.Set;
  * @param <T> the type of adaptee genetic algorithm
  */
 public abstract class TestSuiteAdapter<T extends GeneticAlgorithm<TestChromosome, TestFitnessFunction>>
-        extends GeneticAlgorithm<TestSuiteChromosome, FitnessFunction<TestSuiteChromosome>> {
+        extends GeneticAlgorithm<TestSuiteChromosome, TestSuiteFitnessFunction> {
 
     private final T algorithm;
 
@@ -186,12 +188,12 @@ public abstract class TestSuiteAdapter<T extends GeneticAlgorithm<TestChromosome
     }
 
     @Override
-    public void addFitnessFunction(final FitnessFunction< TestSuiteChromosome> function) {
+    public void addFitnessFunction(final TestSuiteFitnessFunction function) {
         throw new UnsupportedOperationException("not implemented");
     }
 
     @Override
-    final public FitnessFunction<TestSuiteChromosome> getFitnessFunction() {
+    final public TestSuiteFitnessFunction getFitnessFunction() {
         return new TestSuiteFitnessFunctionWrapper(algorithm.getFitnessFunction());
     }
 
@@ -248,13 +250,14 @@ public abstract class TestSuiteAdapter<T extends GeneticAlgorithm<TestChromosome
     }
 
     @Override
-    final public void setBloatControl(BloatControlFunction bcf) {
+    final public void setBloatControl(BloatControlFunction<TestSuiteChromosome> bcf) {
         throw new UnsupportedOperationException("not implemented");
     }
 
     @Override
-    public void addBloatControl(BloatControlFunction bloatControl) { // (8)
-        algorithm.addBloatControl(bloatControl);
+    public void addBloatControl(BloatControlFunction<TestSuiteChromosome> bloatControl) { // (8)
+        throw new UnsupportedOperationException("unimplemented during refactoring");
+        // algorithm.addBloatControl(bloatControl);
     }
 
     @Override
@@ -313,7 +316,7 @@ public abstract class TestSuiteAdapter<T extends GeneticAlgorithm<TestChromosome
     }
 
     @Override
-    public void addListener(SearchListener<TestSuiteChromosome> listener) { // (1b)
+    public void addListener(SearchListener<TestSuiteChromosome, TestSuiteFitnessFunction> listener) { // (1b)
         if (algorithm != null) {
             if (listener instanceof StatisticsListener) {
                 super.addListener(listener);
@@ -336,7 +339,7 @@ public abstract class TestSuiteAdapter<T extends GeneticAlgorithm<TestChromosome
     }
 
     @Override
-    final public void removeListener(SearchListener listener) {
+    final public void removeListener(SearchListener<TestSuiteChromosome, TestSuiteFitnessFunction> listener) {
         throw new UnsupportedOperationException("not implemented");
     }
 
@@ -371,8 +374,10 @@ public abstract class TestSuiteAdapter<T extends GeneticAlgorithm<TestChromosome
     }
 
     @Override
-    public void setPopulationLimit(PopulationLimit limit) { // (6)
-        algorithm.setPopulationLimit(limit);
+    public void setPopulationLimit(PopulationLimit<TestSuiteChromosome> limit) { // (6)
+        // TODO voglseb
+        throw new UnsupportedOperationException("unimplemented during refactoring");
+        // algorithm.setPopulationLimit(limit);
     }
 
     @Override
@@ -381,15 +386,16 @@ public abstract class TestSuiteAdapter<T extends GeneticAlgorithm<TestChromosome
     }
 
     @Override
-    public void addStoppingCondition(StoppingCondition<TestSuiteChromosome> condition) { // (1a)
+    public void addStoppingCondition(StoppingCondition<TestSuiteChromosome, TestSuiteFitnessFunction> condition) { // (1a)
         if (algorithm != null) {
-            final StoppingCondition<TestChromosome> adapteeCondition;
+            final StoppingCondition<TestChromosome, TestFitnessFunction> adapteeCondition;
             if (condition instanceof ZeroFitnessStoppingCondition) {
                 super.addStoppingCondition(condition);
                 return;
             } else if (condition instanceof ShutdownTestWriter) {
                 adapteeCondition = new ShutdownTestWriter<>();
             } else if (condition instanceof RMIStoppingCondition) {
+                // TODO voglseb: This can break something? Looks so
                 algorithm.addStoppingCondition((RMIStoppingCondition) condition);
                 return;
             } else if (condition instanceof GlobalTimeStoppingCondition) {
@@ -406,26 +412,38 @@ public abstract class TestSuiteAdapter<T extends GeneticAlgorithm<TestChromosome
     }
 
     @Override
-    final public Set<StoppingCondition<Chromosome>> getStoppingConditions() {
-        return algorithm.getStoppingConditions();
+    final public Set<StoppingCondition<TestSuiteChromosome, TestSuiteFitnessFunction>> getStoppingConditions() {
+        return algorithm.getStoppingConditions().stream().map(
+                TestSuiteAdapter::<TestSuiteChromosome, TestSuiteFitnessFunction>mapStoppingCondition
+        ).collect(Collectors.toSet());
+    }
+
+    /**
+     * Exchanges the generic parameters of a Stopping condition (if possible).
+     *
+     * @param stoppingCondition the stopping condition with "wrong" generic parameters.
+     * @param <T> the desired chromosome type
+     * @param <F> the desired fitness function type.
+     * @return
+     */
+    static<T extends Chromosome<T>, F extends FitnessFunction<T>> StoppingCondition<T,F> mapStoppingCondition
+            (StoppingCondition stoppingCondition) {
+        if (stoppingCondition instanceof MaxTimeStoppingCondition) {
+            return new MaxTimeStoppingCondition<>();
+        } else if (stoppingCondition instanceof MaxGenerationStoppingCondition) {
+            return new MaxGenerationStoppingCondition<>();
+        } else
+            throw new IllegalArgumentException("Cannot map stopping condition from test suite level to test case level");
     }
 
     @Override
-    public void setStoppingCondition(StoppingCondition<TestSuiteChromosome> condition) { // (4)
-        final StoppingCondition<TestChromosome> adapteeCondition;
-        if (condition instanceof MaxTimeStoppingCondition) {
-            adapteeCondition = new MaxTimeStoppingCondition<>();
-        } else if (condition instanceof MaxGenerationStoppingCondition) {
-            adapteeCondition = new MaxGenerationStoppingCondition<>();
-        } else {
-            throw new IllegalArgumentException("cannot adapt stopping condition " + condition);
-        }
-        algorithm.setStoppingCondition(adapteeCondition);
+    public void setStoppingCondition(StoppingCondition<TestSuiteChromosome, TestSuiteFitnessFunction> condition) { // (4)
+        algorithm.setStoppingCondition(mapStoppingCondition(condition));
     }
 
     @Override
-    final public void removeStoppingCondition(StoppingCondition condition) {
-        throw new UnsupportedOperationException("not implemented");
+    final public void removeStoppingCondition(StoppingCondition<TestSuiteChromosome, TestSuiteFitnessFunction> condition) {
+        algorithm.removeStoppingCondition(mapStoppingCondition(condition));
     }
 
     @Override
@@ -472,15 +490,27 @@ public abstract class TestSuiteAdapter<T extends GeneticAlgorithm<TestChromosome
         return algorithm.getFitnessFunctions();
     }
 
+    static TestSuiteFitnessFunction mapFitnessFunctionToTestSuiteLevel(TestFitnessFunction fitnessFunction){
+        throw new IllegalArgumentException("Unsupported type of fitness function: " + fitnessFunction.getClass());
+    }
+
+    static TestFitnessFunction mapFitnessFunctionToTestCaseLevel(TestSuiteFitnessFunction fitnessFunction){
+        throw new IllegalArgumentException("Unsupported type of fitness function: " + fitnessFunction.getClass());
+    }
+
     @Override // (9)
-    public void addFitnessFunctions(List functions) { // FIXME avoid horrible raw type!!!
+    public void addFitnessFunctions(Collection<TestSuiteFitnessFunction> functions) { // FIXME avoid horrible raw
+        // type!!!
         // The following code still circumvents the type system by using unsafe raw types and
         // unchecked casts. The code only works if a certain assumption holds:
         // MOSuiteStrategy will only ever pass a list of TestFitnessFunctions to this method.
         // In all other cases, this code will blow up. This issue should be fixed as soon as
         // possible, e.g., by creating an adapter class for TestFitnessFunctions to dress up as
         // TestSuiteFitnessFunctions.
-        List<TestFitnessFunction> fs = (List<TestFitnessFunction>) functions;
+
+        // List<TestFitnessFunction> fs = (List<TestFitnessFunction>) functions
+        Collection<TestFitnessFunction> fs =
+                functions.stream().map(TestSuiteAdapter::mapFitnessFunctionToTestCaseLevel).collect(Collectors.toList());
 
         algorithm.addFitnessFunctions(fs);
     }
@@ -502,7 +532,7 @@ public abstract class TestSuiteAdapter<T extends GeneticAlgorithm<TestChromosome
      * So, recording this information in a wrapper and returning it properly to StatisticsListener
      * is fine.
      */
-    private static class TestSuiteFitnessFunctionWrapper extends FitnessFunction<TestSuiteChromosome> {
+    private static class TestSuiteFitnessFunctionWrapper extends TestSuiteFitnessFunction {
         private final boolean maximizationFunction;
 
         TestSuiteFitnessFunctionWrapper(TestFitnessFunction fitnessFunction) {

@@ -80,7 +80,7 @@ public abstract class StructuralGoalManager implements Serializable {
 	 * @return covered goals along with the corresponding test case
 	 */
 	public abstract void calculateFitness(TestChromosome c,
-										  GeneticAlgorithm<TestChromosome> ga);
+										  GeneticAlgorithm<TestChromosome, TestFitnessFunction> ga);
 
 	/**
 	 * Returns the set of yet uncovered goals.

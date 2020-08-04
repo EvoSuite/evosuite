@@ -23,6 +23,7 @@
 package org.evosuite;
 
 import org.evosuite.ga.Chromosome;
+import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.stoppingconditions.StoppingConditionImpl;
 import org.evosuite.utils.LoggingUtils;
 
@@ -37,7 +38,7 @@ import sun.misc.SignalHandler;
  * @author Gordon Fraser
  */
 @SuppressWarnings("restriction")
-public class ShutdownTestWriter<T extends Chromosome<T>> extends StoppingConditionImpl<T> implements SignalHandler {
+public class ShutdownTestWriter<T extends Chromosome<T>, F extends FitnessFunction<T>> extends StoppingConditionImpl<T, F> implements SignalHandler {
 
 	private static final long serialVersionUID = -5703624299360241009L;
 

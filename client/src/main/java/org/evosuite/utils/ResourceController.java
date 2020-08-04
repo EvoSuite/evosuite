@@ -23,6 +23,7 @@ import java.io.Serializable;
 
 import org.evosuite.Properties;
 import org.evosuite.ga.Chromosome;
+import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.ga.metaheuristics.SearchListener;
 import org.evosuite.ga.stoppingconditions.StoppingCondition;
@@ -41,14 +42,14 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Gordon Fraser
  */
-public class ResourceController<T extends Chromosome<T>> implements SearchListener<T>,
-		StoppingCondition<T>, Serializable {
+public class ResourceController<T extends Chromosome<T>, F extends FitnessFunction<T>> implements SearchListener<T,F>,
+		StoppingCondition<T,F>, Serializable {
 
 	private static final long serialVersionUID = -4459807323163275506L;
 
 	private static final Logger logger = LoggerFactory.getLogger(ResourceController.class);
 
-	private GeneticAlgorithm<T, ?> ga;
+	private GeneticAlgorithm<T, F> ga;
 	private boolean stopComputation;
 
 	private boolean hasExceededResources() {
@@ -85,20 +86,20 @@ public class ResourceController<T extends Chromosome<T>> implements SearchListen
 
 	/** {@inheritDoc} */
 	@Override
-	public void searchStarted(GeneticAlgorithm<T, ?> algorithm) {
+	public void searchStarted(GeneticAlgorithm<T, F> algorithm) {
 		ga = algorithm;
 	}
 
 	/** {@inheritDoc} */
 	@Override
-	public void iteration(GeneticAlgorithm<T, ?> algorithm) {
+	public void iteration(GeneticAlgorithm<T, F> algorithm) {
 		// TODO Auto-generated method stub
 
 	}
 
 	/** {@inheritDoc} */
 	@Override
-	public void searchFinished(GeneticAlgorithm<T, ?> algorithm) {
+	public void searchFinished(GeneticAlgorithm<T, F> algorithm) {
 		// TODO Auto-generated method stub
 
 	}

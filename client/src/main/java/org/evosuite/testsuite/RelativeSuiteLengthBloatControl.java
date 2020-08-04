@@ -21,6 +21,7 @@ package org.evosuite.testsuite;
 
 import org.evosuite.Properties;
 import org.evosuite.ga.Chromosome;
+import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.bloatcontrol.BloatControlFunction;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.ga.metaheuristics.SearchListener;
@@ -32,8 +33,8 @@ import org.evosuite.testcase.TestChromosome;
  *
  * @author Gordon Fraser
  */
-public class RelativeSuiteLengthBloatControl<T extends Chromosome<T>> implements BloatControlFunction<T>,
-		SearchListener<T> {
+public class RelativeSuiteLengthBloatControl<T extends Chromosome<T>, F extends FitnessFunction<T>> implements BloatControlFunction<T>,
+		SearchListener<T, F> {
 
 	private static final long serialVersionUID = -2352882640530431653L;
 
@@ -82,7 +83,7 @@ public class RelativeSuiteLengthBloatControl<T extends Chromosome<T>> implements
 	 * Set current max length to max of best chromosome
 	 */
 	@Override
-	public void iteration(GeneticAlgorithm<T, ?> algorithm) {
+	public void iteration(GeneticAlgorithm<T, F> algorithm) {
 		T best = algorithm.getBestIndividual();
 		if (best instanceof TestSuiteChromosome)
 			current_max = ((TestSuiteChromosome) best).totalLengthOfTestCases();
@@ -93,12 +94,12 @@ public class RelativeSuiteLengthBloatControl<T extends Chromosome<T>> implements
 
 	/** {@inheritDoc} */
 	@Override
-	public void searchFinished(GeneticAlgorithm<T,?> algorithm) {
+	public void searchFinished(GeneticAlgorithm<T, F> algorithm) {
 	}
 
 	/** {@inheritDoc} */
 	@Override
-	public void searchStarted(GeneticAlgorithm<T,?> algorithm) {
+	public void searchStarted(GeneticAlgorithm<T, F> algorithm) {
 	}
 
 	/** {@inheritDoc} */

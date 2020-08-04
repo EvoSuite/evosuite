@@ -3,8 +3,9 @@ package org.evosuite.ga.metaheuristics;
 import java.util.function.Consumer;
 
 import org.evosuite.ga.Chromosome;
+import org.evosuite.ga.FitnessFunction;
 
-public class FunctionalSearchListener<T extends Chromosome<T>> implements SearchListener<T> {
+public class FunctionalSearchListener<T extends Chromosome<T>, F extends FitnessFunction<T>> implements SearchListener<T,F> {
 
   private final Consumer<GeneticAlgorithm<T, ?>> searchStartedHandler;
   private final Consumer<GeneticAlgorithm<T, ?>> searchFinishedHandler;
@@ -30,17 +31,17 @@ public class FunctionalSearchListener<T extends Chromosome<T>> implements Search
   }
 
   @Override
-  public void searchStarted(GeneticAlgorithm<T, ?> algorithm) {
+  public void searchStarted(GeneticAlgorithm<T, F> algorithm) {
     this.searchStartedHandler.accept(algorithm);
   }
 
   @Override
-  public void iteration(GeneticAlgorithm<T, ?> algorithm) {
+  public void iteration(GeneticAlgorithm<T, F> algorithm) {
     this.iterationHandler.accept(algorithm);
   }
 
   @Override
-  public void searchFinished(GeneticAlgorithm<T, ?> algorithm) {
+  public void searchFinished(GeneticAlgorithm<T, F> algorithm) {
     this.searchFinishedHandler.accept(algorithm);
   }
 

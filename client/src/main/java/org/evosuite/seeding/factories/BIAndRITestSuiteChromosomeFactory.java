@@ -23,6 +23,7 @@ import org.evosuite.Properties;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.testsuite.TestSuiteChromosome;
+import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.evosuite.utils.Randomness;
 
 /**
@@ -34,7 +35,7 @@ public class BIAndRITestSuiteChromosomeFactory implements
 	private static final long serialVersionUID = 1L;
 
 	private final ChromosomeFactory<TestSuiteChromosome> defaultFactory;
-	private final GeneticAlgorithm<TestSuiteChromosome, ?> geneticAlgorithm;
+	private final GeneticAlgorithm<TestSuiteChromosome, TestSuiteFitnessFunction> geneticAlgorithm;
 	private boolean seeded = false;
 
 	/**
@@ -47,7 +48,7 @@ public class BIAndRITestSuiteChromosomeFactory implements
 	 */
 	public BIAndRITestSuiteChromosomeFactory(
 			ChromosomeFactory<TestSuiteChromosome> defaultFactory,
-			GeneticAlgorithm<TestSuiteChromosome, ?> geneticAlgorithm) {
+			GeneticAlgorithm<TestSuiteChromosome, TestSuiteFitnessFunction> geneticAlgorithm) {
 		this.defaultFactory = defaultFactory;
 		this.geneticAlgorithm = geneticAlgorithm;
 	}

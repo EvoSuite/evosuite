@@ -72,7 +72,7 @@ import org.evosuite.utils.ArrayUtil;
  *
  */
 public class PropertiesTestGAFactory
-		extends PropertiesSearchAlgorithmFactory<TestChromosome> {
+		extends PropertiesSearchAlgorithmFactory<TestChromosome, TestFitnessFunction> {
 
 	protected ChromosomeFactory<TestChromosome> getChromosomeFactory() {
 		switch (Properties.STRATEGY) {
@@ -236,7 +236,7 @@ public class PropertiesTestGAFactory
 		ga.setRankingFunction(ranking_function);
 
 		// When to stop the search
-		StoppingCondition<TestChromosome> stopping_condition = getStoppingCondition();
+		StoppingCondition<TestChromosome, TestFitnessFunction> stopping_condition = getStoppingCondition();
 		ga.setStoppingCondition(stopping_condition);
 		// ga.addListener(stopping_condition);
 		if (Properties.STOP_ZERO) {

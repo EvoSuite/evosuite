@@ -20,6 +20,7 @@
 package org.evosuite;
 
 import org.evosuite.ga.Chromosome;
+import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.ga.metaheuristics.SearchListener;
 import org.evosuite.ga.stoppingconditions.StoppingCondition;
@@ -36,11 +37,12 @@ import java.io.Serializable;
  * 
  * @author gordon
  */
-public class ProgressMonitor<T extends Chromosome<T>> implements SearchListener<T>, Serializable {
+public class ProgressMonitor<T extends Chromosome<T>, F extends FitnessFunction<T>> implements SearchListener<T, F>,
+		Serializable {
 
 	private static final long serialVersionUID = -8518559681906649686L;
 
-	private StoppingCondition<T> stoppingCondition = null;
+	private StoppingCondition<T, F> stoppingCondition = null;
 	private long max = 1;
 	private int currentCoverage = 0;
 
@@ -80,8 +82,8 @@ public class ProgressMonitor<T extends Chromosome<T>> implements SearchListener<
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void searchStarted(GeneticAlgorithm<T,?> algorithm) {
-		for(StoppingCondition<T> cond : algorithm.getStoppingConditions()) {
+	public void searchStarted(GeneticAlgorithm<T, F> algorithm) {
+		for(StoppingCondition<T, F> cond : algorithm.getStoppingConditions()) {
 			if(cond.getLimit() == 0) // No ZeroStoppingCondition
 				continue;
 			stoppingCondition = cond;
@@ -95,7 +97,7 @@ public class ProgressMonitor<T extends Chromosome<T>> implements SearchListener<
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void iteration(GeneticAlgorithm<T,?> algorithm) {
+	public void iteration(GeneticAlgorithm<T, F> algorithm) {
 		long current = stoppingCondition.getCurrentValue();
 		currentCoverage = (int) Math.floor(algorithm.getBestIndividual().getCoverage() * 100);
 		updateStatus((int) (100 * current / max));
@@ -107,7 +109,7 @@ public class ProgressMonitor<T extends Chromosome<T>> implements SearchListener<
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void searchFinished(GeneticAlgorithm<T, ?> algorithm) {
+	public void searchFinished(GeneticAlgorithm<T, F> algorithm) {
 		currentCoverage = (int) Math.floor(algorithm.getBestIndividual().getCoverage() * 100);
 		if(currentCoverage > lastCoverage) {
 			updateStatus((int) (100 * stoppingCondition.getCurrentValue() / max));

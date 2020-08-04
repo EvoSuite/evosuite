@@ -27,6 +27,7 @@ import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.runtime.Random;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testsuite.TestSuiteChromosome;
+import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.evosuite.utils.Randomness;
 
 /**
@@ -38,7 +39,7 @@ public class RandomMethodSeedingTestSuiteChromosomeFactory implements
 	private static final long serialVersionUID = 1L;
 
 	private final ChromosomeFactory<TestSuiteChromosome> defaultFactory;
-	private final GeneticAlgorithm<TestSuiteChromosome, ?> geneticAlgorithm;
+	private final GeneticAlgorithm<TestSuiteChromosome, TestSuiteFitnessFunction> geneticAlgorithm;
 
 	/**
 	 * <p>
@@ -50,7 +51,7 @@ public class RandomMethodSeedingTestSuiteChromosomeFactory implements
 	 */
 	public RandomMethodSeedingTestSuiteChromosomeFactory(
 			ChromosomeFactory<TestSuiteChromosome> defaultFactory,
-			GeneticAlgorithm<TestSuiteChromosome, ?> geneticAlgorithm) {
+			GeneticAlgorithm<TestSuiteChromosome, TestSuiteFitnessFunction> geneticAlgorithm) {
 		this.defaultFactory = defaultFactory;
 		this.geneticAlgorithm = geneticAlgorithm;
 	}

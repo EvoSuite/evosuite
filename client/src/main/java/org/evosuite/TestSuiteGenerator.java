@@ -744,9 +744,9 @@ public class TestSuiteGenerator {
 	 * 
 	 * So far only used for testing purposes in TestSuiteGenerator
 	 */
-	public void printBudget(GeneticAlgorithm<?, ?> algorithm) {
+	public void printBudget(GeneticAlgorithm<?,?> algorithm) {
 		LoggingUtils.getEvoLogger().info("* " + ClientProcess.getPrettyPrintIdentifier() + "Search Budget:");
-		for (StoppingCondition<?> sc : algorithm.getStoppingConditions())
+		for (StoppingCondition<?,?> sc : algorithm.getStoppingConditions())
 			LoggingUtils.getEvoLogger().info("\t- " + sc.toString());
 	}
 
@@ -757,12 +757,12 @@ public class TestSuiteGenerator {
 	 * 
 	 * @return a {@link java.lang.String} object.
 	 */
-	public String getBudgetString(GeneticAlgorithm<?, ?> algorithm) {
-		String r = "";
-		for (StoppingCondition<?> sc : algorithm.getStoppingConditions())
-			r += sc.toString() + " ";
+	public String getBudgetString(GeneticAlgorithm<?,?> algorithm) {
+		StringBuilder r = new StringBuilder();
+		for (StoppingCondition<?,?> sc : algorithm.getStoppingConditions())
+			r.append(sc.toString()).append(" ");
 
-		return r;
+		return r.toString();
 	}
 
 	/**
