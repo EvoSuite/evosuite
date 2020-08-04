@@ -22,7 +22,7 @@ package org.evosuite.symbolic.dse.algorithm.explorationalgorithms;
 import org.evosuite.symbolic.dse.DSEStatistics;
 import org.evosuite.symbolic.dse.algorithm.ExplorationAlgorithm;
 import org.evosuite.symbolic.dse.algorithm.strategies.implementations.KeepSearchingCriteriaStrategies.TestCasesPendingStrategy;
-import org.evosuite.symbolic.dse.algorithm.strategies.implementations.PathPruningStrategies.AlreadySeenSkipStrategy;
+import org.evosuite.symbolic.dse.algorithm.strategies.implementations.PathPruningStrategies.CounterExampleCache;
 import org.evosuite.symbolic.dse.algorithm.strategies.implementations.PathSelectionStrategies.ExpandExecutionStrategy;
 import org.evosuite.symbolic.dse.algorithm.strategies.implementations.TestCaseBuildingStrategies.DefaultTestCaseBuildingStrategy;
 import org.evosuite.symbolic.dse.algorithm.strategies.implementations.TestCaseSelectionStrategies.TopTestCaseSelectionStrategy;
@@ -38,7 +38,7 @@ public class SAGEExplorationAlgorithm extends ExplorationAlgorithm {
       super(statistics, showProgress);
 
       /** Strategies */
-      setPathPruningStrategy(new AlreadySeenSkipStrategy());
+      setCachingStrategy(new CounterExampleCache());
       setPathsExpansionStrategy(new ExpandExecutionStrategy());
       setTestCaseBuildingStrategy(new DefaultTestCaseBuildingStrategy());
       setTestCaseSelectionStrategy(new TopTestCaseSelectionStrategy());

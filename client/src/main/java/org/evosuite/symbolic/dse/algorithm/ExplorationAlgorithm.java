@@ -22,14 +22,15 @@ package org.evosuite.symbolic.dse.algorithm;
 import org.evosuite.Properties;
 import org.evosuite.symbolic.MethodComparator;
 import org.evosuite.symbolic.PathCondition;
+import org.evosuite.symbolic.PathConditionUtils;
 import org.evosuite.symbolic.dse.ConcolicExecutor;
 import org.evosuite.symbolic.dse.ConcolicExecutorImpl;
 import org.evosuite.symbolic.dse.DSEStatistics;
 import org.evosuite.symbolic.dse.DSETestCase;
 import org.evosuite.symbolic.dse.algorithm.strategies.KeepSearchingCriteriaStrategy;
 import org.evosuite.symbolic.dse.algorithm.strategies.PathExtensionStrategy;
-import org.evosuite.symbolic.dse.algorithm.strategies.PathPruningStrategy;
-import org.evosuite.symbolic.dse.algorithm.strategies.implementations.PathPruningStrategies.CacheCheckResult;
+import org.evosuite.symbolic.dse.algorithm.strategies.CachingStrategy;
+import org.evosuite.symbolic.dse.algorithm.strategies.implementations.PathPruningStrategies.CacheQueryResult;
 import org.evosuite.symbolic.dse.algorithm.strategies.TestCaseBuildingStrategy;
 import org.evosuite.symbolic.dse.algorithm.strategies.TestCaseSelectionStrategy;
 import org.evosuite.symbolic.expr.Constraint;
@@ -112,7 +113,7 @@ public abstract class ExplorationAlgorithm extends ExplorationAlgorithmBase {
     /**
      * Exploration strategies
      **/
-    private transient PathPruningStrategy pathPruningStrategy;
+    private transient CachingStrategy cachingStrategy;
     private transient PathExtensionStrategy pathsExpansionStrategy;
     private transient TestCaseBuildingStrategy testCaseBuildingStrategy;
     private transient TestCaseSelectionStrategy testCaseSelectionStrategy;
@@ -160,9 +161,9 @@ public abstract class ExplorationAlgorithm extends ExplorationAlgorithmBase {
     /**
      * Exploration strategies setters
      */
-    public void setPathPruningStrategy(PathPruningStrategy pathPruningStrategy) {
-        checkStrategy(pathPruningStrategy);
-        this.pathPruningStrategy = pathPruningStrategy;
+    public void setCachingStrategy(CachingStrategy cachingStrategy) {
+        checkStrategy(cachingStrategy);
+        this.cachingStrategy = cachingStrategy;
     }
 
     public void setPathsExpansionStrategy(PathExtensionStrategy pathsExpansionStrategy) {
@@ -221,15 +222,12 @@ public abstract class ExplorationAlgorithm extends ExplorationAlgorithmBase {
      }
 
     /**
-     * DSE algorithm
+     * Performs DSE on the given method
      *
      * @param method
      */
     @Override
     protected void explore(Method method) {
-        // Path divergence check
-        boolean hasPathConditionDiverged;
-
         // Children cache
         HashSet<Set<Constraint<?>>> seenChildren = new HashSet();
 
@@ -256,42 +254,58 @@ public abstract class ExplorationAlgorithm extends ExplorationAlgorithmBase {
 
             // Runs the current test case
             GenerationalSearchPathCondition currentExecutedPathCondition = executeTestCaseConcolically(currentTestCase);
-            seenChildren.add(
-                 normalize(
-                     currentExecutedPathCondition.getPathCondition().getConstraints()));
 
             // Checks for a divergence
-            hasPathConditionDiverged = checkPathConditionDivergence(
+            boolean hasPathConditionDiverged = checkPathConditionDivergence(
                 currentExecutedPathCondition.getPathCondition(),
                 currentTestCase.getOriginalPathCondition().getPathCondition()
             );
 
-            // Generates the children
-            List<GenerationalSearchPathCondition> children = pathsExpansionStrategy.generateChildren(currentExecutedPathCondition);
+            Set<Constraint<?>> normalizedPathCondition = normalize(
+                     currentExecutedPathCondition.getPathCondition().getConstraints());
 
-            processChildren(seenChildren, testCasesWorkList, currentTestCase, children, hasPathConditionDiverged);
+            // If a diverged path condition was previously explored, skip it
+            if (!shouldSkipCurrentPathcondition(hasPathConditionDiverged, normalizedPathCondition, seenChildren)) {
+
+                // Adds the new path condition to the already visited set
+                seenChildren.add(normalizedPathCondition);
+
+                // Generates the children
+                List<GenerationalSearchPathCondition> children = pathsExpansionStrategy.generateChildren(currentExecutedPathCondition);
+
+                processChildren(testCasesWorkList, currentTestCase, children, hasPathConditionDiverged);
+            }
+
         }
     }
 
-    private void processChildren(HashSet<Set<Constraint<?>>> seenChildren, PriorityQueue<DSETestCase> testCasesWorkList, DSETestCase currentTestCase, List<GenerationalSearchPathCondition> children, boolean hasPathConditionDiverged) {
+    private boolean shouldSkipCurrentPathcondition(boolean hasPathConditionDiverged, Set<Constraint<?>> seenPathCondition, HashSet<Set<Constraint<?>>> seenChildren) {
+        return hasPathConditionDiverged && (
+            seenChildren.contains(seenPathCondition)
+              || PathConditionUtils.isConstraintSetSubSetOf(seenPathCondition, seenChildren));
+    }
+gi
+    private void processChildren(PriorityQueue<DSETestCase> testCasesWorkList, DSETestCase currentTestCase, List<GenerationalSearchPathCondition> children, boolean hasPathConditionDiverged) {
         // We look at all the children
         for (GenerationalSearchPathCondition child : children) {
             List<Constraint<?>> childQuery = SolverUtils.buildQuery(child.getPathCondition());
             Set<Constraint<?>> normalizedChildQuery = normalize(childQuery);
 
-            CacheCheckResult cacheCheckResult = pathPruningStrategy.shouldSkipCurrentPath(seenChildren, normalizedChildQuery, queryCache);
+            CacheQueryResult cacheQueryResult = cachingStrategy.checkCache(normalizedChildQuery, queryCache);
 
             // Path condition previously explored and unsatisfiable
-            if (!cacheCheckResult.isUnSat()) {
+            if (!cacheQueryResult.hitUnSat()) {
                 statisticsLogger.reportNewConstraints(childQuery);
                 Map<String, Object> smtSolution;
 
                 // Path condition already solved before
-                if (cacheCheckResult.isSat()) {
-                    smtSolution = cacheCheckResult.getSmtSolution();
+                if (cacheQueryResult.hitSat()) {
+                    smtSolution = cacheQueryResult.getSmtSolution();
+
                 } else {
                     // Path condition not explored
-                    assert(cacheCheckResult.isMissed());
+                    assert(cacheQueryResult.missed());
+
                     childQuery.addAll(
                       SolverUtils.createBoundsForQueryVariables(childQuery)
                     );
@@ -387,7 +401,7 @@ public abstract class ExplorationAlgorithm extends ExplorationAlgorithmBase {
             && testCaseBuildingStrategy != null
             && pathsExpansionStrategy != null
             && keepSearchingCriteriaStrategy != null
-            && pathPruningStrategy != null;
+            && cachingStrategy != null;
       }
 
       /**

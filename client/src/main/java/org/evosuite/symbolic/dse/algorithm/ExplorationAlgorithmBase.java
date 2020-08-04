@@ -336,18 +336,18 @@ public abstract class ExplorationAlgorithmBase<T extends Chromosome> implements 
 				double newCoverage;
 				double coverageDiff;
 
-				oldCoverage = testSuite.getCoverage();
-
 				// New coverage calculation
 				testSuite.addTest(newTestCase);
 				calculateFitness();
 
 				newCoverage = testSuite.getCoverage();
-				coverageDiff = newCoverage - oldCoverage;
 
-				// Restore old values
+				// Restore old values and calculate old coverage
 				testSuite.deleteTest(newTestCase);
 				calculateFitness();
+
+				oldCoverage = testSuite.getCoverage();
+				coverageDiff = newCoverage - oldCoverage;
 
 				logNewTestCoverageData(coverageDiff);
 

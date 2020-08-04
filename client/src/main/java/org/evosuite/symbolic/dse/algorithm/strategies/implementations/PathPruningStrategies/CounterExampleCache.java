@@ -21,19 +21,18 @@ package org.evosuite.symbolic.dse.algorithm.strategies.implementations.PathPruni
 
 import org.evosuite.symbolic.PathConditionUtils;
 import org.evosuite.symbolic.dse.DSEStatistics;
-import org.evosuite.symbolic.dse.algorithm.strategies.PathPruningStrategy;
+import org.evosuite.symbolic.dse.algorithm.strategies.CachingStrategy;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.solver.SolverResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 /**
  * Resembles checks (a) and (b) of a counter-example cache strategy.
- *     (b) Is only performed only if exactly the same constraint set is found.
+ *     (b) Is performed only if exactly the same constraint set is found.
  *     TODO: Implement the solution for supersets.
  *
  * Counter-example cache strategy: Maps sets of constraints to counter-examples and performs three optimizations:
@@ -43,13 +42,13 @@ import java.util.Set;
  *
  * @author Ignacio Lebrero
  */
-public class AlreadySeenSkipStrategy implements PathPruningStrategy {
+public class CounterExampleCache implements CachingStrategy {
 
-    private static final Logger logger = LoggerFactory.getLogger(AlreadySeenSkipStrategy.class);
+    private static final Logger logger = LoggerFactory.getLogger(CounterExampleCache.class);
     private static final DSEStatistics statisticsLogger = DSEStatistics.getInstance();
 
     @Override
-    public CacheCheckResult shouldSkipCurrentPath(HashSet<Set<Constraint<?>>> alreadyGeneratedPathConditions, Set<Constraint<?>> query, Map<Set<Constraint<?>>, SolverResult> queryCache) {
+    public CacheQueryResult checkCache(Set<Constraint<?>> query, Map<Set<Constraint<?>>, SolverResult> queryCache) {
       statisticsLogger.reportNewQueryCacheCall();
 
       // Cache hit of an exact set solution
@@ -59,12 +58,12 @@ public class AlreadySeenSkipStrategy implements PathPruningStrategy {
         if (cachedResult.isSAT()) {
           statisticsLogger.reportNewQueryCacheHit();
           logger.debug("skipping solving of current query since it is in the query cache");
-          return new CacheCheckResult(cachedResult.getModel(), CacheQueryStatus.HIT_SAT);
+          return new CacheQueryResult(cachedResult.getModel(), CacheQueryStatus.HIT_SAT);
 
         } else if (cachedResult.isUNSAT()) {
           statisticsLogger.reportNewQueryCacheHit();
           logger.debug("skipping current query since it is in the query cache and it unsatisfiable");
-          return new CacheCheckResult(CacheQueryStatus.HIT_UNSAT);
+          return new CacheQueryResult(CacheQueryStatus.HIT_UNSAT);
         }
       }
 
@@ -76,13 +75,13 @@ public class AlreadySeenSkipStrategy implements PathPruningStrategy {
         // Case (a) for sub sets: the query is a supra set of a sat solution. Heuristics can be implemented here
         if (cachedResult.isSAT()) {
           // TODO: implement me!
-          return new CacheCheckResult(CacheQueryStatus.MISS);
+          return new CacheQueryResult(CacheQueryStatus.MISS);
 
         // Case (b) for sub sets: the query is a supra set of an unsat solution
         } else if (cachedResult.isUNSAT()) {
           statisticsLogger.reportNewQueryCacheHit();
           logger.debug("skipping current query since it is in the query cache and it unsatisfiable");
-          return new CacheCheckResult(CacheQueryStatus.HIT_UNSAT);
+          return new CacheQueryResult(CacheQueryStatus.HIT_UNSAT);
         }
 
       }
@@ -95,15 +94,17 @@ public class AlreadySeenSkipStrategy implements PathPruningStrategy {
         // Case (c) of Counter-example cache: Heuristics can be implemented here
         if (cachedResult.isUNSAT()) {
           // TODO: implement me!
-          return new CacheCheckResult(CacheQueryStatus.MISS);
+          return new CacheQueryResult(CacheQueryStatus.MISS);
 
         // Case (b) for for supra sets: The query is sat as there was a bigger query that was SAT
         } else if (cachedResult.isSAT()) {
           // TODO: Implement me!
-          return new CacheCheckResult(CacheQueryStatus.MISS);
+          // We cannot use all the solution model from the superset as it may differ with other elements of this path.
+          // Implementation idea: reuse only the necessary elements of the model.
+          return new CacheQueryResult(CacheQueryStatus.MISS);
         }
       }
 
-      return new CacheCheckResult(CacheQueryStatus.MISS);
+      return new CacheQueryResult(CacheQueryStatus.MISS);
     }
 }

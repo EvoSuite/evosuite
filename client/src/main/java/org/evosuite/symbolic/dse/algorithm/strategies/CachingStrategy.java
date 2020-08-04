@@ -19,19 +19,18 @@
  */
 package org.evosuite.symbolic.dse.algorithm.strategies;
 
-import org.evosuite.symbolic.dse.algorithm.strategies.implementations.PathPruningStrategies.CacheCheckResult;
+import org.evosuite.symbolic.dse.algorithm.strategies.implementations.PathPruningStrategies.CacheQueryResult;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.solver.SolverResult;
 
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 /**
- * Interface for path pruning strategies
+ * Interface for caching strategies
  *
  * @author ignacio lebrero
  */
-public interface PathPruningStrategy {
-    CacheCheckResult shouldSkipCurrentPath(HashSet<Set<Constraint<?>>> alreadyGeneratedPathConditions, Set<Constraint<?>> constraintSet, Map<Set<Constraint<?>>, SolverResult> queryCache);
+public interface CachingStrategy {
+    CacheQueryResult checkCache(Set<Constraint<?>> constraintSet, Map<Set<Constraint<?>>, SolverResult> queryCache);
 }
