@@ -44,13 +44,13 @@ public class FitnessLogger<T extends Chromosome<T>> implements SearchListener<T>
 
 	private static final Logger logger = LoggerFactory.getLogger(FitnessLogger.class);
 
-	private final List<Integer> evaluations_history = new ArrayList<Integer>();
+	private final List<Integer> evaluations_history = new ArrayList<>();
 
-	private final List<Long> statements_history = new ArrayList<Long>();
+	private final List<Long> statements_history = new ArrayList<>();
 
-	private final List<Double> fitness_history = new ArrayList<Double>();
+	private final List<Double> fitness_history = new ArrayList<>();
 
-	private final List<Integer> size_history = new ArrayList<Integer>();
+	private final List<Integer> size_history = new ArrayList<>();
 
 	private String name = null;
 

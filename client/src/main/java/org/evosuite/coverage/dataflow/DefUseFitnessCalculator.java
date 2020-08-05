@@ -510,7 +510,7 @@ public class DefUseFitnessCalculator {
 		String goalVariable = goal.getGoalVariable();
 		Definition goalDefinition = goal.getGoalDefinition();
 
-		Set<Integer> objectPool = new HashSet<Integer>();
+		Set<Integer> objectPool = new HashSet<>();
 		if (trace.getPassedUses(goalVariable) == null)
 			return objectPool;
 		if (trace.getPassedDefinitions(goalVariable) != null)
@@ -528,7 +528,7 @@ public class DefUseFitnessCalculator {
 			if (DEBUG) {
 				logger.debug("NON-Static-goalVariable " + goalVariable);
 				logger.debug("#unused objects: " + (oldSize - objectPool.size()));
-				Set<Integer> discardedObjects = new HashSet<Integer>();
+				Set<Integer> discardedObjects = new HashSet<>();
 				discardedObjects.addAll(trace.getPassedDefinitions(goalVariable).keySet());
 				discardedObjects.removeAll(trace.getPassedUses(goalVariable).keySet());
 				for (Integer id : discardedObjects) {

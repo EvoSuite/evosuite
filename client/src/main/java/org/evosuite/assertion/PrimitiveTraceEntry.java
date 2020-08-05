@@ -74,7 +74,7 @@ public class PrimitiveTraceEntry implements OutputTraceEntry {
    */
   @Override
   public Set<Assertion> getAssertions(OutputTraceEntry other) {
-    Set<Assertion> assertions = new HashSet<Assertion>();
+    Set<Assertion> assertions = new HashSet<>();
     if (other instanceof PrimitiveTraceEntry) {
       PrimitiveTraceEntry otherEntry = (PrimitiveTraceEntry) other;
       if (otherEntry != null && otherEntry.value != null && value != null
@@ -108,7 +108,7 @@ public class PrimitiveTraceEntry implements OutputTraceEntry {
    */
   @Override
   public Set<Assertion> getAssertions() {
-    Set<Assertion> assertions = new HashSet<Assertion>();
+    Set<Assertion> assertions = new HashSet<>();
     PrimitiveAssertion assertion = new PrimitiveAssertion();
     assertion.source = var;
     assertion.value = value;
