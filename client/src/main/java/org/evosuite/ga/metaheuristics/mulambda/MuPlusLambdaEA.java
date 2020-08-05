@@ -48,7 +48,7 @@ public class MuPlusLambdaEA<T extends Chromosome<T>, F extends FitnessFunction<T
     // create new offsprings by mutating current population
     for (int i = 0; i < this.mu; i++) {
       for (int j = 0; j < this.lambda / this.mu; j++) {
-        T offspring = (T) this.population.get(i).clone();
+        T offspring = this.population.get(i).clone();
         this.notifyMutation(offspring);
 
         do {
