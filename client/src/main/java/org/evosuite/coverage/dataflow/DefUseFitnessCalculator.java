@@ -681,7 +681,7 @@ public class DefUseFitnessCalculator {
 	 * @return a boolean.
 	 */
 	public static boolean traceCoversGoal(DefUseCoverageTestFitness goal,
-	        Chromosome individual, ExecutionTrace trace) {
+	        Chromosome<?> individual, ExecutionTrace trace) {
 		String goalVariable = goal.getGoalVariable();
 		Use goalUse = goal.getGoalUse();
 		Definition goalDefinition = goal.getGoalDefinition();

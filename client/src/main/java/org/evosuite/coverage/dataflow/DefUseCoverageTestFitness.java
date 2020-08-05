@@ -434,7 +434,7 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 		}
 	}
 
-	private void postFitnessDebugInfo(Chromosome individual, ExecutionResult result,
+	private void postFitnessDebugInfo(Chromosome<?> individual, ExecutionResult result,
 	        double fitness) {
 		if (DEBUG) {
 			if (fitness != 0) {
