@@ -40,8 +40,6 @@ import static java.util.stream.Collectors.averagingDouble;
 public abstract class Chromosome<T extends Chromosome<T>>
 		implements Comparable<T>, Serializable, PublicCloneable<T>, SelfTyped<T> {
 
-	public abstract T self();
-
 	private static final long serialVersionUID = -6921897301005213358L;
 
 	/** Constant <code>logger</code> */
@@ -54,10 +52,10 @@ public abstract class Chromosome<T extends Chromosome<T>>
 		// empty
 	}
 	/** Last recorded fitness value */
-    private LinkedHashMap<FitnessFunction<T>, Double> fitnessValues = new LinkedHashMap<>();
+    private final LinkedHashMap<FitnessFunction<T>, Double> fitnessValues = new LinkedHashMap<>();
 
 	/** Previous fitness, to see if there was an improvement */
-    private LinkedHashMap<FitnessFunction<T>, Double> previousFitnessValues = new LinkedHashMap<>();
+    private final LinkedHashMap<FitnessFunction<T>, Double> previousFitnessValues = new LinkedHashMap<>();
 
 	/** Has this chromosome changed since its fitness was last evaluated? */
 	private boolean changed = true;
@@ -65,13 +63,13 @@ public abstract class Chromosome<T extends Chromosome<T>>
 	/** Has local search been applied to this individual since it was last changed? */
 	private boolean localSearchApplied = false;
 
-    private LinkedHashMap<FitnessFunction<T>, Double> coverageValues = new LinkedHashMap<>();
+    private final LinkedHashMap<FitnessFunction<T>, Double> coverageValues = new LinkedHashMap<>();
 
     /** The number of uncovered goals with regard to the fitness function given as key */
-    private LinkedHashMap<FitnessFunction<T>, Integer> numsNotCoveredGoals = new LinkedHashMap<>();
+    private final LinkedHashMap<FitnessFunction<T>, Integer> numsNotCoveredGoals = new LinkedHashMap<>();
 
     /** The number of covered goals with regard to the fitness function given as key */
-    private LinkedHashMap<FitnessFunction<T>, Integer> numsCoveredGoals = new LinkedHashMap<>();
+    private final LinkedHashMap<FitnessFunction<T>, Integer> numsCoveredGoals = new LinkedHashMap<>();
 
 	
 	// protected double coverage = 0.0;
@@ -123,8 +121,9 @@ public abstract class Chromosome<T extends Chromosome<T>>
      * @return the fitness of this chromosome
      */
 	public double getFitness(FitnessFunction<T> ff) {
-		return fitnessValues.containsKey(ff) ? fitnessValues.get(ff) : ff.getFitness(this.self()); // Calculate new value
-		// if non is cached
+		return fitnessValues.containsKey(ff)
+				? fitnessValues.get(ff)
+				: ff.getFitness(self()); // Calculate new value if non is cached
 	}
 
 	public Map<FitnessFunction<T>, Double> getFitnessValues() {

@@ -34,9 +34,9 @@ public class SortByFitness<T extends Chromosome<T>> implements Comparator<T>, Se
 
     private static final long serialVersionUID = 4982933698286500461L;
 
-    private FitnessFunction<T> ff;
+    private final FitnessFunction<T> ff;
 
-    private boolean order;
+    private final boolean order;
 
     /**
      * 
