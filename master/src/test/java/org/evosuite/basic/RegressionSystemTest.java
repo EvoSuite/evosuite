@@ -59,7 +59,7 @@ import com.examples.with.different.packagename.test.SwitchTest;
  */
 public class RegressionSystemTest extends SystemTestBase {
 
-	private GeneticAlgorithm<?, DEFAULT_VALUE_XXX> runTest(String targetClass) {
+	private GeneticAlgorithm<?> runTest(String targetClass) {
 		EvoSuite evosuite = new EvoSuite();
 
 		//Properties.CLIENT_ON_THREAD = true;
@@ -73,12 +73,12 @@ public class RegressionSystemTest extends SystemTestBase {
 		//		        "-Dclient_on_thread=true", "-Dsearch_budget=100000" };
 
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?, DEFAULT_VALUE_XXX> ga = getGAFromResult(result);
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
 		return ga;
 	}
 
 	private void testCovered(String targetClass, int numGoals) {
-		GeneticAlgorithm<?, DEFAULT_VALUE_XXX> ga = runTest(targetClass);
+		GeneticAlgorithm<?> ga = runTest(targetClass);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println(best.toString());
 		// TODO: Need to fix the check, some reset is not working

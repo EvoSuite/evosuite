@@ -97,7 +97,7 @@ public class SCHIntTest
 
         ChromosomeFactory<?> factory = new RandomFactory(false, 1, Math.pow(-10.0, 3.0), Math.pow(10.0, 3.0));
 
-        GeneticAlgorithm<?, DEFAULT_VALUE_XXX> ga = new NSGAII(factory);
+        GeneticAlgorithm<?> ga = new NSGAII(factory);
         BinaryTournamentSelectionCrowdedComparison ts = new BinaryTournamentSelectionCrowdedComparison();
         ts.setMaximize(false);
         ga.setSelectionFunction(ts);

@@ -61,7 +61,7 @@ public class MOSuiteStrategy extends TestGenerationStrategy {
 		// Set up search algorithm
 		PropertiesSuiteGAFactory algorithmFactory = new PropertiesSuiteGAFactory();
 
-		GeneticAlgorithm<TestSuiteChromosome, FitnessFunction<TestSuiteChromosome>> algorithm =
+		GeneticAlgorithm<TestSuiteChromosome> algorithm =
 				algorithmFactory.getSearchAlgorithm();
 		
 		// Override chromosome factory

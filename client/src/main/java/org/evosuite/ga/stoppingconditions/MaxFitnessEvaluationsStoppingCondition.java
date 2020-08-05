@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Gordon Fraser
  */
-public class MaxFitnessEvaluationsStoppingCondition<T extends Chromosome<T>, F extends FitnessFunction<T>> extends StoppingConditionImpl<T, F> {
+public class MaxFitnessEvaluationsStoppingCondition<T extends Chromosome<T>> extends StoppingConditionImpl<T> {
 
 	private static final Logger logger = LoggerFactory.getLogger(MaxFitnessEvaluationsStoppingCondition.class);
 

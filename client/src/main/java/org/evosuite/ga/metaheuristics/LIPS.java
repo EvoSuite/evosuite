@@ -32,7 +32,6 @@ import org.evosuite.ProgressMonitor;
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
-import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.ga.FitnessFunction;
@@ -41,14 +40,11 @@ import org.evosuite.ga.metaheuristics.mosa.MOSA;
 import org.evosuite.ga.metaheuristics.mosa.structural.BranchesManager;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.statistics.RuntimeVariable;
-import org.evosuite.testcase.AbstractTestChromosome;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.TestCaseExecutor;
-import org.evosuite.testsuite.AbstractTestSuiteChromosome;
-import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.evosuite.utils.ArrayUtil;
 import org.evosuite.utils.BudgetConsumptionMonitor;
@@ -65,7 +61,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Annibale Panichella
  */
-public class LIPS extends GeneticAlgorithm<TestChromosome,TestFitnessFunction> {
+public class LIPS extends GeneticAlgorithm<TestChromosome> {
 
 	private static final long serialVersionUID = 146182080947267628L;
 
@@ -371,7 +367,7 @@ public class LIPS extends GeneticAlgorithm<TestChromosome,TestFitnessFunction> {
 	 */
 	@Override
 	protected void notifyEvaluation(TestChromosome chromosome) {
-		for (SearchListener<TestChromosome, TestFitnessFunction> listener : listeners) {
+		for (SearchListener<TestChromosome> listener : listeners) {
 			if (listener instanceof ProgressMonitor)
 				continue;
 			listener.fitnessEvaluation(chromosome);
@@ -384,7 +380,7 @@ public class LIPS extends GeneticAlgorithm<TestChromosome,TestFitnessFunction> {
 	 *
 	 * @return "SuiteChromosome" directly consumable by the Progress Monitor.
 	 */
-	@Override @SuppressWarnings("unchecked")
+	@Override
 	public TestChromosome getBestIndividual() {
 		// TODO voglseb
 		throw new UnsupportedOperationException("This method broke during refactoring");

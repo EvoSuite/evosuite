@@ -37,7 +37,7 @@ public class BIMethodSeedingTestSuiteChromosomeFactorySystemTest extends SystemT
 
 	ChromosomeSampleFactory defaultFactory = new ChromosomeSampleFactory();
 	TestSuiteChromosome bestIndividual;
-	GeneticAlgorithm<TestSuiteChromosome, DEFAULT_VALUE_XXX> ga;
+	GeneticAlgorithm<TestSuiteChromosome> ga;
 
 	@Before
 	public void setup() {
@@ -50,7 +50,7 @@ public class BIMethodSeedingTestSuiteChromosomeFactorySystemTest extends SystemT
 
 		Object result = evosuite.parseCommandLine(command);
 
-		ga = (GeneticAlgorithm<TestSuiteChromosome, DEFAULT_VALUE_XXX>) getGAFromResult(result);
+		ga = (GeneticAlgorithm<TestSuiteChromosome>) getGAFromResult(result);
 		bestIndividual = (TestSuiteChromosome) ga.getBestIndividual();
 	}
 

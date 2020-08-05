@@ -21,7 +21,6 @@ package org.evosuite.ga.metaheuristics;
 
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
-import org.evosuite.ga.FitnessFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,8 +31,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Gordon Fraser
  */
-public class RandomSearch<T extends Chromosome<T>, F extends FitnessFunction<T>>
-		extends GeneticAlgorithm<T, F> {
+public class RandomSearch<T extends Chromosome<T>> extends GeneticAlgorithm<T> {
 
 	private static final Logger logger = LoggerFactory.getLogger(RandomSearch.class);
 

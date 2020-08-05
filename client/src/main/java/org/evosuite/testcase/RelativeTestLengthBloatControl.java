@@ -69,21 +69,21 @@ public class RelativeTestLengthBloatControl<T extends ExecutableChromosome<T>>
 
 	/** {@inheritDoc} */
 	@Override
-	public void iteration(GeneticAlgorithm<T, ?> algorithm) {
+	public void iteration(GeneticAlgorithm<T> algorithm) {
 		current_max = algorithm.getBestIndividual().size();
 		best_fitness = algorithm.getBestIndividual().getFitness();
 	}
 
 	/** {@inheritDoc} */
 	@Override
-	public void searchFinished(GeneticAlgorithm<T, ?> algorithm) {
+	public void searchFinished(GeneticAlgorithm<T> algorithm) {
 		// TODO Auto-generated method stub
 
 	}
 
 	/** {@inheritDoc} */
 	@Override
-	public void searchStarted(GeneticAlgorithm<T, ?> algorithm) {
+	public void searchStarted(GeneticAlgorithm<T> algorithm) {
 		// TODO Auto-generated method stub
 
 	}

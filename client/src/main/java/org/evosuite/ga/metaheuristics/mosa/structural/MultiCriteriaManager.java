@@ -380,7 +380,7 @@ public class MultiCriteriaManager extends StructuralGoalManager implements Seria
 	 * @param c the chromosome whose fitness to calculate (must be a {@link TestChromosome})
 	 */
 	@Override
-	public void calculateFitness(TestChromosome c, GeneticAlgorithm<TestChromosome, TestFitnessFunction> ga) {
+	public void calculateFitness(TestChromosome c, GeneticAlgorithm<TestChromosome> ga) {
 		// Run the test and record the execution result.
 		TestCase test = c.getTestCase();
 		ExecutionResult result = TestCaseExecutor.runTest(test);

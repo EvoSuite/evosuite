@@ -40,7 +40,9 @@ import org.evosuite.coverage.mutation.StrongMutationTestFitness;
 import org.evosuite.coverage.mutation.WeakMutationTestFitness;
 import org.evosuite.coverage.rho.RhoCoverageTestFitness;
 import org.evosuite.coverage.statement.StatementCoverageTestFitness;
+import org.evosuite.ga.FitnessFunction;
 import org.evosuite.runtime.util.AtMostOnceLogger;
+import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,7 +59,7 @@ public final class ArchiveUtils {
    * @param goal a {@link org.evosuite.testcase.TestFitnessFunction} object
    * @return true if criterion of goal is enabled, false otherwise
    */
-  public static boolean isCriterionEnabled(TestFitnessFunction goal) {
+  public static boolean isCriterionEnabled(FitnessFunction<TestChromosome> goal) {
     for (Properties.Criterion criterion : Properties.CRITERION) {
       switch (criterion) {
         case EXCEPTION:

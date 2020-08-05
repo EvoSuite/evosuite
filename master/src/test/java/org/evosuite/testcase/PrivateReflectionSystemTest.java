@@ -108,7 +108,7 @@ public class PrivateReflectionSystemTest extends SystemTestBase {
         return best;
     }
 
-    protected GeneticAlgorithm<?, DEFAULT_VALUE_XXX>  do100percentLineTestOnStandardCriteriaWithMethodTrace(Class<?> target){
+    protected GeneticAlgorithm<?>  do100percentLineTestOnStandardCriteriaWithMethodTrace(Class<?> target){
         EvoSuite evosuite = new EvoSuite();
 
         String targetClass = target.getCanonicalName();
@@ -121,7 +121,7 @@ public class PrivateReflectionSystemTest extends SystemTestBase {
         String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
         Object result = evosuite.parseCommandLine(command);
-        GeneticAlgorithm<?, DEFAULT_VALUE_XXX> ga = getGAFromResult(result);
+        GeneticAlgorithm<?> ga = getGAFromResult(result);
         TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
         System.out.println("EvolvedTestSuite:\n" + best);
 
@@ -171,7 +171,7 @@ public class PrivateReflectionSystemTest extends SystemTestBase {
 
         String[] command = new String[] { "-generateSuite", "-class", targetClass };
         Object result = evosuite.parseCommandLine(command);
-        GeneticAlgorithm<?, DEFAULT_VALUE_XXX> ga = getGAFromResult(result);
+        GeneticAlgorithm<?> ga = getGAFromResult(result);
         TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
         assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
     }
@@ -188,7 +188,7 @@ public class PrivateReflectionSystemTest extends SystemTestBase {
 
         String[] command = new String[] { "-generateSuite", "-class", targetClass };
         Object result = evosuite.parseCommandLine(command);
-        GeneticAlgorithm<?, DEFAULT_VALUE_XXX> ga = getGAFromResult(result);
+        GeneticAlgorithm<?> ga = getGAFromResult(result);
         TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
         System.out.println(best.toString());
         assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
@@ -206,7 +206,7 @@ public class PrivateReflectionSystemTest extends SystemTestBase {
 
         String[] command = new String[] { "-generateSuite", "-class", targetClass };
         Object result = evosuite.parseCommandLine(command);
-        GeneticAlgorithm<?, DEFAULT_VALUE_XXX> ga = getGAFromResult(result);
+        GeneticAlgorithm<?> ga = getGAFromResult(result);
         TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
         assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
     }
@@ -222,7 +222,7 @@ public class PrivateReflectionSystemTest extends SystemTestBase {
 
         String[] command = new String[] { "-generateSuite", "-class", targetClass };
         Object result = evosuite.parseCommandLine(command);
-        GeneticAlgorithm<?, DEFAULT_VALUE_XXX> ga = getGAFromResult(result);
+        GeneticAlgorithm<?> ga = getGAFromResult(result);
         TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
         Assert.assertTrue(best.getCoverage() < 1d);
     }
@@ -238,7 +238,7 @@ public class PrivateReflectionSystemTest extends SystemTestBase {
 
         String[] command = new String[] { "-generateSuite", "-class", targetClass };
         Object result = evosuite.parseCommandLine(command);
-        GeneticAlgorithm<?, DEFAULT_VALUE_XXX> ga = getGAFromResult(result);
+        GeneticAlgorithm<?> ga = getGAFromResult(result);
         TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
         Assert.assertTrue( best.getCoverage() < 1d);
     }
@@ -254,7 +254,7 @@ public class PrivateReflectionSystemTest extends SystemTestBase {
 
         String[] command = new String[] { "-generateSuite", "-class", targetClass };
         Object result = evosuite.parseCommandLine(command);
-        GeneticAlgorithm<?, DEFAULT_VALUE_XXX> ga = getGAFromResult(result);
+        GeneticAlgorithm<?> ga = getGAFromResult(result);
         TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
         System.out.println(best.toString());
         assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
@@ -271,7 +271,7 @@ public class PrivateReflectionSystemTest extends SystemTestBase {
 
         String[] command = new String[] { "-generateSuite", "-class", targetClass };
         Object result = evosuite.parseCommandLine(command);
-        GeneticAlgorithm<?, DEFAULT_VALUE_XXX> ga = getGAFromResult(result);
+        GeneticAlgorithm<?> ga = getGAFromResult(result);
         TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
         System.out.println(best.toString());
         assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);

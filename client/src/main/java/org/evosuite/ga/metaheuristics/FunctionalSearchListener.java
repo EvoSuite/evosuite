@@ -3,19 +3,18 @@ package org.evosuite.ga.metaheuristics;
 import java.util.function.Consumer;
 
 import org.evosuite.ga.Chromosome;
-import org.evosuite.ga.FitnessFunction;
 
-public class FunctionalSearchListener<T extends Chromosome<T>, F extends FitnessFunction<T>> implements SearchListener<T,F> {
+public class FunctionalSearchListener<T extends Chromosome<T>> implements SearchListener<T> {
 
-  private final Consumer<GeneticAlgorithm<T, ?>> searchStartedHandler;
-  private final Consumer<GeneticAlgorithm<T, ?>> searchFinishedHandler;
-  private final Consumer<GeneticAlgorithm<T, ?>> iterationHandler;
+  private final Consumer<GeneticAlgorithm<T>> searchStartedHandler;
+  private final Consumer<GeneticAlgorithm<T>> searchFinishedHandler;
+  private final Consumer<GeneticAlgorithm<T>> iterationHandler;
   private final Consumer<Chromosome<T>> fitnessEvaluationHandler;
   private final Consumer<Chromosome<T>> modificationHandler;
 
-  public FunctionalSearchListener(Consumer<GeneticAlgorithm<T, ?>> searchStartedHandler,
-      Consumer<GeneticAlgorithm<T, ?>> searchFinishedHandler,
-      Consumer<GeneticAlgorithm<T, ?>> iterationHandler,
+  public FunctionalSearchListener(Consumer<GeneticAlgorithm<T>> searchStartedHandler,
+      Consumer<GeneticAlgorithm<T>> searchFinishedHandler,
+      Consumer<GeneticAlgorithm<T>> iterationHandler,
       Consumer<Chromosome<T>> fitnessEvaluationHandler,
       Consumer<Chromosome<T>> modificationHandler) {
     super();
@@ -31,17 +30,17 @@ public class FunctionalSearchListener<T extends Chromosome<T>, F extends Fitness
   }
 
   @Override
-  public void searchStarted(GeneticAlgorithm<T, F> algorithm) {
+  public void searchStarted(GeneticAlgorithm<T> algorithm) {
     this.searchStartedHandler.accept(algorithm);
   }
 
   @Override
-  public void iteration(GeneticAlgorithm<T, F> algorithm) {
+  public void iteration(GeneticAlgorithm<T> algorithm) {
     this.iterationHandler.accept(algorithm);
   }
 
   @Override
-  public void searchFinished(GeneticAlgorithm<T, F> algorithm) {
+  public void searchFinished(GeneticAlgorithm<T> algorithm) {
     this.searchFinishedHandler.accept(algorithm);
   }
 

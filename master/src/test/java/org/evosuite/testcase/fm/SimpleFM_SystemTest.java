@@ -74,7 +74,7 @@ public class SimpleFM_SystemTest extends SystemTestBase {
 
     @Test
     public void testSimpleReturnString(){
-        GeneticAlgorithm<?, DEFAULT_VALUE_XXX> ga = do100percentLineTest(SimpleFM_returnString.class);
+        GeneticAlgorithm<?> ga = do100percentLineTest(SimpleFM_returnString.class);
         TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
         String code = best.toString();
         Assert.assertTrue(code, code.contains("doReturn"));
@@ -100,7 +100,7 @@ public class SimpleFM_SystemTest extends SystemTestBase {
 
     @Test
     public void testSimpleGenericNullString(){
-        GeneticAlgorithm<?, DEFAULT_VALUE_XXX> ga = do100percentLineTest(SimpleFM_GenericsNullString.class);
+        GeneticAlgorithm<?> ga = do100percentLineTest(SimpleFM_GenericsNullString.class);
 
         TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
         String code = best.toString();
@@ -110,7 +110,7 @@ public class SimpleFM_SystemTest extends SystemTestBase {
 
     @Test
     public void testSimpleNullString(){
-        GeneticAlgorithm<?, DEFAULT_VALUE_XXX> ga = do100percentLineTest(SimpleFM_NullString.class);
+        GeneticAlgorithm<?> ga = do100percentLineTest(SimpleFM_NullString.class);
 
         TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
         String code = best.toString();

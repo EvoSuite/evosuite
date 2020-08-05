@@ -23,8 +23,7 @@ import java.util.List;
  *
  * @param <T>
  */
-public class BreederGA<T extends Chromosome<T>, F extends FitnessFunction<T>>
-        extends StandardGA<T, F> {
+public class BreederGA<T extends Chromosome<T>> extends StandardGA<T> {
 
     private final Logger logger = LoggerFactory.getLogger(BreederGA.class);
 

@@ -36,8 +36,8 @@ import org.evosuite.ga.stoppingconditions.StoppingConditionImpl;
  *
  * @author Gordon Fraser
  */
-public class MutationTimeoutStoppingCondition<T extends Chromosome<T>, F extends FitnessFunction<T>>
-		extends StoppingConditionImpl<T, F> {
+public class MutationTimeoutStoppingCondition<T extends Chromosome<T>>
+		extends StoppingConditionImpl<T> {
 
 	private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(MutationTimeoutStoppingCondition.class);
 

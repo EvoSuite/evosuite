@@ -38,7 +38,7 @@ public class BIMutatedMethodSeedingTestSuiteChromosomeFactorySystemTest extends 
 
 	ChromosomeSampleFactory defaultFactory = new ChromosomeSampleFactory();
 	TestSuiteChromosome bestIndividual;
-	GeneticAlgorithm<TestSuiteChromosome, DEFAULT_VALUE_XXX> ga;
+	GeneticAlgorithm<TestSuiteChromosome> ga;
 	private final static double SEED_PROBABILITY = Properties.SEED_PROBABILITY;
 	private final static int SEED_MUTATIONS = Properties.SEED_MUTATIONS;
 
@@ -53,7 +53,7 @@ public class BIMutatedMethodSeedingTestSuiteChromosomeFactorySystemTest extends 
 
 		Object result = evosuite.parseCommandLine(command);
 
-		ga = (GeneticAlgorithm<TestSuiteChromosome, DEFAULT_VALUE_XXX>) getGAFromResult(result);
+		ga = (GeneticAlgorithm<TestSuiteChromosome>) getGAFromResult(result);
 		bestIndividual = (TestSuiteChromosome) ga.getBestIndividual();
 	}
 	

@@ -752,7 +752,7 @@ public class JUnitTestCarvedChromosomeFactorySystemTest extends SystemTestBase {
 		String[] command = new String[] { "-generateSuite", "-class", targetClass};
 
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?, DEFAULT_VALUE_XXX> ga = getGAFromResult(result);
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
@@ -771,7 +771,7 @@ public class JUnitTestCarvedChromosomeFactorySystemTest extends SystemTestBase {
 		String[] command = new String[] { "-generateSuite", "-class", targetClass};
 
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?, DEFAULT_VALUE_XXX> ga = getGAFromResult(result);
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 

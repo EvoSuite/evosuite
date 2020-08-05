@@ -47,7 +47,7 @@ public class MockRuntimeSystemTest extends SystemTestBase {
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 		Object result = evosuite.parseCommandLine(command);
 
-		GeneticAlgorithm<?, DEFAULT_VALUE_XXX> ga = getGAFromResult(result);
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		Assert.assertNotNull(best);
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
@@ -71,7 +71,7 @@ public class MockRuntimeSystemTest extends SystemTestBase {
 		String[] command = new String[] { "-generateSuite", "-class", targetClass};
 		Object result = evosuite.parseCommandLine(command);
 
-		GeneticAlgorithm<?, DEFAULT_VALUE_XXX> ga = getGAFromResult(result);
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		Assert.assertNotNull(best);
 

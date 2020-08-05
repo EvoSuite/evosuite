@@ -56,7 +56,6 @@ import org.evosuite.seeding.TestCaseRecycler;
 import org.evosuite.testcase.RelativeTestLengthBloatControl;
 import org.evosuite.testcase.TestCaseReplacementFunction;
 import org.evosuite.testcase.TestChromosome;
-import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.factories.AllMethodsTestChromosomeFactory;
 import org.evosuite.testcase.factories.JUnitTestCarvedChromosomeFactory;
 import org.evosuite.testcase.factories.RandomLengthTestFactory;
@@ -70,7 +69,7 @@ import org.evosuite.utils.ArrayUtil;
  *
  */
 public class PropertiesTestGAFactory
-		extends PropertiesSearchAlgorithmFactory<TestChromosome, TestFitnessFunction> {
+		extends PropertiesSearchAlgorithmFactory<TestChromosome> {
 
 	protected ChromosomeFactory<TestChromosome> getChromosomeFactory() {
 		switch (Properties.STRATEGY) {
@@ -96,7 +95,7 @@ public class PropertiesTestGAFactory
 		        + Properties.TEST_FACTORY);
 	}
 	
-	private GeneticAlgorithm<TestChromosome, TestFitnessFunction> getGeneticAlgorithm(ChromosomeFactory<TestChromosome> factory) {
+	private GeneticAlgorithm<TestChromosome> getGeneticAlgorithm(ChromosomeFactory<TestChromosome> factory) {
 		switch (Properties.ALGORITHM) {
 		case ONE_PLUS_ONE_EA:
 			logger.info("Chosen search algorithm: (1+1)EA");
@@ -125,7 +124,7 @@ public class PropertiesTestGAFactory
 		case CELLULAR_GA:
 			logger.info("Chosen search algorithm: CellularGA");
 			{
-				CellularGA<TestChromosome, TestFitnessFunction> ga = new CellularGA<>(Properties.MODEL, factory);
+				CellularGA<TestChromosome> ga = new CellularGA<>(Properties.MODEL, factory);
 				if (Properties.REPLACEMENT_FUNCTION == TheReplacementFunction.FITNESSREPLACEMENT) {
 					// user has explicitly asked for this replacement function
 					ga.setReplacementFunction(new FitnessReplacementFunction<>());
@@ -216,11 +215,11 @@ public class PropertiesTestGAFactory
 	}
 
 	@Override
-	public GeneticAlgorithm<TestChromosome, TestFitnessFunction> getSearchAlgorithm() {
+	public GeneticAlgorithm<TestChromosome> getSearchAlgorithm() {
 		ChromosomeFactory<TestChromosome> factory = getChromosomeFactory();
 		
 		// FIXXME
-		GeneticAlgorithm<TestChromosome, TestFitnessFunction> ga = getGeneticAlgorithm(factory);
+		GeneticAlgorithm<TestChromosome> ga = getGeneticAlgorithm(factory);
 
 		if (Properties.NEW_STATISTICS)
 			ga.addListener(new org.evosuite.statistics.StatisticsListener<>());
@@ -234,7 +233,7 @@ public class PropertiesTestGAFactory
 		ga.setRankingFunction(ranking_function);
 
 		// When to stop the search
-		StoppingCondition<TestChromosome, TestFitnessFunction> stopping_condition = getStoppingCondition();
+		StoppingCondition<TestChromosome> stopping_condition = getStoppingCondition();
 		ga.setStoppingCondition(stopping_condition);
 		// ga.addListener(stopping_condition);
 		if (Properties.STOP_ZERO) {

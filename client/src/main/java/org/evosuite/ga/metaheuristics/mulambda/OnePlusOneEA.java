@@ -28,8 +28,7 @@ import org.evosuite.ga.FitnessFunction;
  *
  * @author Gordon Fraser
  */
-public class OnePlusOneEA<T extends Chromosome<T>, F extends FitnessFunction<T>>
-		extends MuPlusLambdaEA<T, F> {
+public class OnePlusOneEA<T extends Chromosome<T>> extends MuPlusLambdaEA<T> {
 
 	private static final long serialVersionUID = 5229089847512798127L;
 

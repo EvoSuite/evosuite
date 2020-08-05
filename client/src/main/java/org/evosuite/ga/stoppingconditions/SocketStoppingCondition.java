@@ -74,7 +74,7 @@ public class SocketStoppingCondition<T extends Chromosome<T>> implements Stoppin
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void searchStarted(GeneticAlgorithm<T, ?> algorithm) {
+	public void searchStarted(GeneticAlgorithm<T> algorithm) {
 		// TODO Auto-generated method stub
 
 	}
@@ -84,7 +84,7 @@ public class SocketStoppingCondition<T extends Chromosome<T>> implements Stoppin
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void iteration(GeneticAlgorithm<T, ?> algorithm) {
+	public void iteration(GeneticAlgorithm<T> algorithm) {
 		// TODO Auto-generated method stub
 
 	}
@@ -94,7 +94,7 @@ public class SocketStoppingCondition<T extends Chromosome<T>> implements Stoppin
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void searchFinished(GeneticAlgorithm<T, ?> algorithm) {
+	public void searchFinished(GeneticAlgorithm<T> algorithm) {
 		// TODO Auto-generated method stub
 
 	}

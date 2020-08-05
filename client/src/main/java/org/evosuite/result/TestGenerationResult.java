@@ -37,7 +37,7 @@ public interface TestGenerationResult extends Serializable {
 	public String getErrorMessage();
 	
 	/** The entire GA in its final state */
-	public GeneticAlgorithm<?, ?> getGeneticAlgorithm();
+	public GeneticAlgorithm<?> getGeneticAlgorithm();
 	
 	/** Map from test method to ContractViolation */
 	public Set<Failure> getContractViolations(String name);

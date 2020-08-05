@@ -87,7 +87,7 @@ public class LineCoverageFitnessFunctionSystemTest extends SystemTestBase {
 		
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?, DEFAULT_VALUE_XXX> ga = getGAFromResult(result);
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		Properties.TEST_ARCHIVE = archive;
 		
@@ -109,7 +109,7 @@ public class LineCoverageFitnessFunctionSystemTest extends SystemTestBase {
 		
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?, DEFAULT_VALUE_XXX> ga = getGAFromResult(result);
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		Properties.TEST_ARCHIVE = archive;
 		
@@ -131,7 +131,7 @@ public class LineCoverageFitnessFunctionSystemTest extends SystemTestBase {
 		
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?, DEFAULT_VALUE_XXX> ga = getGAFromResult(result);
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		Properties.TEST_ARCHIVE = archive;
 		
@@ -154,7 +154,7 @@ public class LineCoverageFitnessFunctionSystemTest extends SystemTestBase {
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?, DEFAULT_VALUE_XXX> ga = getGAFromResult(result);
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		Properties.TEST_ARCHIVE = archive;
 		
@@ -177,7 +177,7 @@ public class LineCoverageFitnessFunctionSystemTest extends SystemTestBase {
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?, DEFAULT_VALUE_XXX> ga = getGAFromResult(result);
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		Properties.TEST_ARCHIVE = archive;
 		
@@ -204,7 +204,7 @@ public class LineCoverageFitnessFunctionSystemTest extends SystemTestBase {
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?, DEFAULT_VALUE_XXX> ga = getGAFromResult(result);
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		Properties.TEST_ARCHIVE = archive;
 		
@@ -231,7 +231,7 @@ public class LineCoverageFitnessFunctionSystemTest extends SystemTestBase {
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?, DEFAULT_VALUE_XXX> ga = getGAFromResult(result);
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		Properties.TEST_ARCHIVE = archive;
 		
@@ -259,7 +259,7 @@ public class LineCoverageFitnessFunctionSystemTest extends SystemTestBase {
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?, DEFAULT_VALUE_XXX> ga = getGAFromResult(result);
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		Properties.TEST_ARCHIVE = archive;
 		
@@ -287,7 +287,7 @@ public class LineCoverageFitnessFunctionSystemTest extends SystemTestBase {
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?, DEFAULT_VALUE_XXX> ga = getGAFromResult(result);
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		Properties.TEST_ARCHIVE = archive;
 		
@@ -314,7 +314,7 @@ public class LineCoverageFitnessFunctionSystemTest extends SystemTestBase {
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?, DEFAULT_VALUE_XXX> ga = getGAFromResult(result);
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		Properties.TEST_ARCHIVE = archive;
 		
@@ -417,7 +417,7 @@ public class LineCoverageFitnessFunctionSystemTest extends SystemTestBase {
         EvoSuite evosuite = new EvoSuite();
 
         Object result = evosuite.parseCommandLine(command);
-        GeneticAlgorithm<?, DEFAULT_VALUE_XXX> ga = getGAFromResult(result);
+        GeneticAlgorithm<?> ga = getGAFromResult(result);
         TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
         // lines: 22, 24, 27, 30, 31, 32, 33, 35, 38

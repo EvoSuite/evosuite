@@ -84,7 +84,7 @@ public class POLIntTest
 
         ChromosomeFactory<?> factory = new RandomFactory(false, 2, -Math.PI, Math.PI);
 
-        GeneticAlgorithm<?, DEFAULT_VALUE_XXX> ga = new NSGAII(factory);
+        GeneticAlgorithm<?> ga = new NSGAII(factory);
         BinaryTournamentSelectionCrowdedComparison ts = new BinaryTournamentSelectionCrowdedComparison();
         ga.setSelectionFunction(ts);
         ga.setCrossOverFunction(new SBXCrossover());

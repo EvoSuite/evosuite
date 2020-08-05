@@ -32,7 +32,7 @@ import org.evosuite.utils.Randomness;
  *
  * @author Gordon Fraser
  */
-public class SteadyStateGA<T extends Chromosome<T>, F extends FitnessFunction<T>> extends MonotonicGA<T, F> {
+public class SteadyStateGA<T extends Chromosome<T>> extends MonotonicGA<T> {
 
 	private static final long serialVersionUID = 7301010503732698233L;
 	

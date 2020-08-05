@@ -11,8 +11,7 @@ import java.util.*;
 import static java.util.Collections.reverseOrder;
 import static java.util.Comparator.comparingDouble;
 
-public class NoveltySearch<T extends Chromosome<T>>
-        extends GeneticAlgorithm<T, FitnessFunction<T>>  {
+public class NoveltySearch<T extends Chromosome<T>> extends GeneticAlgorithm<T>  {
 
     private final static Logger logger = LoggerFactory.getLogger(NoveltySearch.class);
 

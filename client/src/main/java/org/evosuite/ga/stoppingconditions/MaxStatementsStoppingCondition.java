@@ -50,8 +50,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Gordon Fraser
  */
-public class MaxStatementsStoppingCondition<T extends Chromosome<T>, F extends FitnessFunction<T>> extends StoppingConditionImpl<T,
-		F> {
+public class MaxStatementsStoppingCondition<T extends Chromosome<T>> extends StoppingConditionImpl<T> {
 
 	private static final long serialVersionUID = 8521297417505862683L;
 

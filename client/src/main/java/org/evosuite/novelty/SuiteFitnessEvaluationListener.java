@@ -24,7 +24,7 @@ public class SuiteFitnessEvaluationListener implements SearchListener<TestSuiteC
         return suite;
     }
 
-    public TestSuiteChromosome getSuiteWithFitness(GeneticAlgorithm<TestChromosome, ?> algorithm) {
+    public TestSuiteChromosome getSuiteWithFitness(GeneticAlgorithm<TestChromosome> algorithm) {
         List<TestChromosome> population = algorithm.getPopulation();
         TestSuiteChromosome suite = createMergedSolution(population);
         for (TestSuiteFitnessFunction fitnessFunction : fitnessFunctions) {
@@ -35,7 +35,7 @@ public class SuiteFitnessEvaluationListener implements SearchListener<TestSuiteC
     }
 
     @Override
-    public void iteration(GeneticAlgorithm<TestSuiteChromosome, ?> algorithm) {
+    public void iteration(GeneticAlgorithm<TestSuiteChromosome> algorithm) {
         getSuiteWithFitness(algorithm);
 
         // Update fitness functions based on goals just added to archive
@@ -44,12 +44,12 @@ public class SuiteFitnessEvaluationListener implements SearchListener<TestSuiteC
 
 
     @Override
-    public void searchStarted(GeneticAlgorithm<TestSuiteChromosome, ?> algorithm) {
+    public void searchStarted(GeneticAlgorithm<TestSuiteChromosome> algorithm) {
 
     }
 
     @Override
-    public void searchFinished(GeneticAlgorithm<TestSuiteChromosome, ?> algorithm) {
+    public void searchFinished(GeneticAlgorithm<TestSuiteChromosome> algorithm) {
 
     }
 

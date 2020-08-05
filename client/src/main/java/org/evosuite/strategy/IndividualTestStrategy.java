@@ -158,7 +158,7 @@ public class IndividualTestStrategy extends TestGenerationStrategy {
 					continue;
 				}
 				
-				GeneticAlgorithm<TestChromosome, TestFitnessFunction> ga = factory.getSearchAlgorithm();
+				GeneticAlgorithm<TestChromosome> ga = factory.getSearchAlgorithm();
 
 				// ga.resetStoppingConditions();
 				// ga.clearPopulation();

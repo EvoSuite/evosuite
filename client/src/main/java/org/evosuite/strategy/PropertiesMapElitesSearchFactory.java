@@ -7,7 +7,6 @@ import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.coverage.mutation.MutationTestPool;
 import org.evosuite.coverage.mutation.MutationTimeoutStoppingCondition;
 import org.evosuite.ga.ChromosomeFactory;
-import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.archive.ArchiveTestChromosomeFactory;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.ga.metaheuristics.SearchListener;
@@ -20,7 +19,6 @@ import org.evosuite.ga.stoppingconditions.StoppingCondition;
 import org.evosuite.ga.stoppingconditions.ZeroFitnessStoppingCondition;
 import org.evosuite.statistics.StatisticsListener;
 import org.evosuite.testcase.TestChromosome;
-import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.factories.AllMethodsTestChromosomeFactory;
 import org.evosuite.testcase.factories.JUnitTestCarvedChromosomeFactory;
 import org.evosuite.testcase.factories.RandomLengthTestFactory;
@@ -62,7 +60,7 @@ public class PropertiesMapElitesSearchFactory
   }
 
   @Override
-  public GeneticAlgorithm<TestChromosome, FitnessFunction<TestChromosome>> getSearchAlgorithm() {
+  public GeneticAlgorithm<TestChromosome> getSearchAlgorithm() {
     ChromosomeFactory<TestChromosome> factory = getChromosomeFactory();
     MAPElites ga = new MAPElites(factory);
 

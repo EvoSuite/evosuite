@@ -39,8 +39,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Gordon Fraser
  */
-public class MonotonicGA<T extends Chromosome<T>, F extends FitnessFunction<T>>
-		extends GeneticAlgorithm<T, F> {
+public class MonotonicGA<T extends Chromosome<T>> extends GeneticAlgorithm<T> {
 
 	private static final long serialVersionUID = 7846967347821123201L;
 

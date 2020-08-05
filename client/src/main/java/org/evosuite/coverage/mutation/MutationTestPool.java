@@ -26,15 +26,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import junit.framework.TestSuite;
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
-import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.ga.metaheuristics.SearchListener;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testsuite.TestSuiteChromosome;
-import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.evosuite.utils.ArrayUtil;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
@@ -44,10 +41,10 @@ import org.slf4j.LoggerFactory;
  * <p>
  * MutationTestPool class.
  * </p>
- *
+ * 
  * @author Gordon Fraser
  */
-public class MutationTestPool implements SearchListener<TestSuiteChromosome, TestSuiteFitnessFunction> {
+public class MutationTestPool implements SearchListener<TestSuiteChromosome> {
 
 	private final static Logger logger = LoggerFactory.getLogger(MutationTestPool.class);
 
@@ -75,7 +72,7 @@ public class MutationTestPool implements SearchListener<TestSuiteChromosome, Tes
 	 * <p>
 	 * getUncoveredMutants
 	 * </p>
-	 *
+	 * 
 	 * @return a {@link java.util.Set} object.
 	 */
 	public static Set<Mutation> getUncoveredMutants() {
@@ -94,7 +91,7 @@ public class MutationTestPool implements SearchListener<TestSuiteChromosome, Tes
 	 * <p>
 	 * isCovered
 	 * </p>
-	 *
+	 * 
 	 * @param mutation
 	 *            a {@link org.evosuite.coverage.mutation.Mutation} object.
 	 * @return a boolean.
@@ -107,7 +104,7 @@ public class MutationTestPool implements SearchListener<TestSuiteChromosome, Tes
 	 * <p>
 	 * getUncoveredFitnessFunctions
 	 * </p>
-	 *
+	 * 
 	 * @return a {@link java.util.Set} object.
 	 */
 	public static Set<MutationTestFitness> getUncoveredFitnessFunctions() {
@@ -128,7 +125,7 @@ public class MutationTestPool implements SearchListener<TestSuiteChromosome, Tes
 	 * <p>
 	 * getCoveredMutants
 	 * </p>
-	 *
+	 * 
 	 * @return a int.
 	 */
 	public static int getCoveredMutants() {
@@ -137,14 +134,14 @@ public class MutationTestPool implements SearchListener<TestSuiteChromosome, Tes
 
 	/**
 	 * Keep a copy of a test that covers a mutant
-	 *
+	 * 
 	 * @param mutation
 	 *            a {@link org.evosuite.coverage.mutation.Mutation} object.
 	 * @param test
 	 *            a {@link org.evosuite.testcase.TestChromosome} object.
 	 */
 	public static void addTest(Mutation mutation, TestChromosome test) {
-		testMap.put(mutation, test);
+		testMap.put(mutation, test);		
 	}
 
 	/* (non-Javadoc)
@@ -152,7 +149,7 @@ public class MutationTestPool implements SearchListener<TestSuiteChromosome, Tes
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void searchStarted(GeneticAlgorithm<TestSuiteChromosome, TestSuiteFitnessFunction> algorithm) {
+	public void searchStarted(GeneticAlgorithm<TestSuiteChromosome> algorithm) {
 
 	}
 
@@ -161,7 +158,7 @@ public class MutationTestPool implements SearchListener<TestSuiteChromosome, Tes
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void iteration(GeneticAlgorithm<TestSuiteChromosome, TestSuiteFitnessFunction> algorithm) {
+	public void iteration(GeneticAlgorithm<TestSuiteChromosome> algorithm) {
 
 	}
 
@@ -170,7 +167,7 @@ public class MutationTestPool implements SearchListener<TestSuiteChromosome, Tes
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void searchFinished(GeneticAlgorithm<TestSuiteChromosome, TestSuiteFitnessFunction> algorithm) {
+	public void searchFinished(GeneticAlgorithm<TestSuiteChromosome> algorithm) {
 		TestSuiteChromosome solution = algorithm.getBestIndividual();
 
 		logger.info("Search finished with size " + solution.size());

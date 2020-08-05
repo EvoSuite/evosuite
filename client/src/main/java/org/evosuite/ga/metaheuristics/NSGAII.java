@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -20,7 +20,6 @@
 package org.evosuite.ga.metaheuristics;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 
@@ -57,8 +56,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author José Campos
  */
-public class NSGAII<T extends Chromosome<T>, F extends FitnessFunction<T>>
-    extends GeneticAlgorithm<T,F>
+public class NSGAII<T extends Chromosome<T>> extends GeneticAlgorithm<T>
 {
     private static final long serialVersionUID = 146182080947267628L;
 

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -16,9 +16,6 @@
  *
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
- */
-/**
- * 
  */
 package org.evosuite.ga.localsearch;
 
@@ -56,7 +53,7 @@ public class LocalSearchBudget implements SearchListener, Serializable {
 	protected long startTime     = 0L;
 	protected long endTime       = 0L;
 
-	protected GeneticAlgorithm<?,?> ga = null;
+	protected GeneticAlgorithm<?> ga = null;
 
 	// Private constructor because of singleton type
 	private LocalSearchBudget() {

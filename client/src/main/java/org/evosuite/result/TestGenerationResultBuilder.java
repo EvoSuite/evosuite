@@ -143,7 +143,7 @@ public class TestGenerationResultBuilder {
 	
 	private String code = "";
 	
-	private GeneticAlgorithm<?, ?> ga = null;
+	private GeneticAlgorithm<?> ga = null;
 	
 	private final Map<String, String> testCode = new LinkedHashMap<>();
 
@@ -221,7 +221,7 @@ public class TestGenerationResultBuilder {
 		this.code = code;
 	}
 	
-	public void setGeneticAlgorithm(GeneticAlgorithm<?,?> ga) {
+	public void setGeneticAlgorithm(GeneticAlgorithm<?> ga) {
 		this.ga = ga;
 		ga.getBestIndividual().getCoverageValues().forEach(targetCoverages::put);
 	}

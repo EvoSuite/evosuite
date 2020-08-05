@@ -73,7 +73,7 @@ class TestGenerationResultImpl implements TestGenerationResult {
 
     private final LinkedHashMap<FitnessFunction<?>, Double> targetCoverages = new LinkedHashMap<>();
 	
-	private GeneticAlgorithm<?,?> ga = null;
+	private GeneticAlgorithm<?> ga = null;
 	
 	/** Did test generation succeed? */
 	public Status getTestGenerationStatus() {
@@ -95,11 +95,11 @@ class TestGenerationResultImpl implements TestGenerationResult {
 	}
 	
 	/** The entire GA in its final state */
-	public GeneticAlgorithm<?,?> getGeneticAlgorithm() {
+	public GeneticAlgorithm<?> getGeneticAlgorithm() {
 		return ga;
 	}
 	
-	public void setGeneticAlgorithm(GeneticAlgorithm<?,?> ga) {
+	public void setGeneticAlgorithm(GeneticAlgorithm<?> ga) {
 		this.ga = ga;
 	}
 	

@@ -23,16 +23,14 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.ga.metaheuristics.SearchListener;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testsuite.TestSuiteChromosome;
-import org.evosuite.testsuite.TestSuiteFitnessFunction;
 
-public class BranchCoverageMap implements SearchListener<TestSuiteChromosome, TestSuiteFitnessFunction> {
+public class BranchCoverageMap implements SearchListener<TestSuiteChromosome> {
 
 	public static BranchCoverageMap instance = null;
 	
@@ -76,18 +74,18 @@ public class BranchCoverageMap implements SearchListener<TestSuiteChromosome, Te
 	}
 
 	@Override
-	public void searchStarted(GeneticAlgorithm<TestSuiteChromosome, TestSuiteFitnessFunction> algorithm) {
+	public void searchStarted(GeneticAlgorithm<TestSuiteChromosome> algorithm) {
 		coveredTrueBranches  = new LinkedHashMap<>();
 		coveredFalseBranches = new LinkedHashMap<>();
 	}
 
 	@Override
-	public void iteration(GeneticAlgorithm<TestSuiteChromosome, TestSuiteFitnessFunction> algorithm) {
+	public void iteration(GeneticAlgorithm<TestSuiteChromosome> algorithm) {
 		
 	}
 
 	@Override
-	public void searchFinished(GeneticAlgorithm<TestSuiteChromosome, TestSuiteFitnessFunction> algorithm) {
+	public void searchFinished(GeneticAlgorithm<TestSuiteChromosome> algorithm) {
 		coveredTrueBranches  = null;
 		coveredFalseBranches = null;
 	}

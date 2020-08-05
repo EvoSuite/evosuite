@@ -78,7 +78,7 @@ public class TestShere
         ChromosomeFactory<?> factory = new RandomFactory(false, 1, Math.pow(-10.0, 3.0), Math.pow(10.0, 3.0));
 
         //GeneticAlgorithm<?> ga = new NSGAII(factory);
-        GeneticAlgorithm<?, DEFAULT_VALUE_XXX> ga = new NSGAII(factory);
+        GeneticAlgorithm<?> ga = new NSGAII(factory);
         BinaryTournamentSelectionCrowdedComparison ts = new BinaryTournamentSelectionCrowdedComparison();
         //BinaryTournament ts = new BinaryTournament();
         ga.setSelectionFunction(ts);

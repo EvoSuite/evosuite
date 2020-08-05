@@ -7,7 +7,6 @@ import org.evosuite.Properties;
 import org.evosuite.assertion.Inspector;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.ConstructionFailedException;
-import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.ga.operators.crossover.CrossOverFunction;
 import org.evosuite.ga.operators.crossover.SinglePointCrossOver;
@@ -42,7 +41,7 @@ import static java.util.Comparator.comparing;
  * 
  * @author Felix Prasse
  */
-public class MAPElites extends GeneticAlgorithm<TestChromosome, TestFitnessFunction> {
+public class MAPElites extends GeneticAlgorithm<TestChromosome> {
   /**
    * Serial version UID
    */

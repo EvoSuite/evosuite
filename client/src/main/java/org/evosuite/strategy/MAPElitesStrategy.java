@@ -5,10 +5,7 @@ import java.util.List;
 
 import org.evosuite.Properties;
 import org.evosuite.coverage.TestFitnessFactory;
-import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
-import org.evosuite.ga.metaheuristics.SearchAlgorithm;
-import org.evosuite.ga.metaheuristics.mapelites.MAPElites;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import org.evosuite.novelty.SuiteFitnessEvaluationListener;
 import org.evosuite.result.TestGenerationResultBuilder;
@@ -36,7 +33,7 @@ public class MAPElitesStrategy extends TestGenerationStrategy {
     LoggingUtils.getEvoLogger().info("* Setting up search algorithm for MAP-Elites search with choice {}", Properties.MAP_ELITES_CHOICE.name());
 
     PropertiesMapElitesSearchFactory algorithmFactory = new PropertiesMapElitesSearchFactory();
-    GeneticAlgorithm<TestChromosome, FitnessFunction<TestChromosome>> algorithm =
+    GeneticAlgorithm<TestChromosome> algorithm =
             algorithmFactory.getSearchAlgorithm();
 
     if (Properties.SERIALIZE_GA || Properties.CLIENT_ON_THREAD)

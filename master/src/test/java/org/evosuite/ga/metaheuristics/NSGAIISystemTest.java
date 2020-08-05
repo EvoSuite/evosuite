@@ -322,7 +322,7 @@ public class NSGAIISystemTest extends SystemTestBase
         Object result = evosuite.parseCommandLine(command);
         Assert.assertNotNull(result);
 
-        GeneticAlgorithm<?, DEFAULT_VALUE_XXX> ga = getGAFromResult(result);
+        GeneticAlgorithm<?> ga = getGAFromResult(result);
 
         final FitnessFunction rho = ga.getFitnessFunctions().get(0);
         final FitnessFunction ag = ga.getFitnessFunctions().get(1);

@@ -20,7 +20,6 @@
 package org.evosuite.strategy;
 
 import org.evosuite.Properties;
-import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.populationlimit.IndividualPopulationLimit;
@@ -34,7 +33,6 @@ import org.evosuite.ga.stoppingconditions.MaxTimeStoppingCondition;
 import org.evosuite.ga.stoppingconditions.StoppingCondition;
 import org.evosuite.ga.stoppingconditions.TimeDeltaStoppingCondition;
 import org.evosuite.testsuite.StatementsPopulationLimit;
-import org.evosuite.testsuite.TestSuiteChromosome;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,9 +41,9 @@ import org.slf4j.LoggerFactory;
  * 
  * @author gordon
  *
- * @param <T>
+ * @param <T> the {@code Chromosome} type used by the genetic algorithm
  */
-public abstract class PropertiesSearchAlgorithmFactory<T extends Chromosome<T>, F extends FitnessFunction<T>>  {
+public abstract class PropertiesSearchAlgorithmFactory<T extends Chromosome<T>>  {
 
 	protected static final Logger logger = LoggerFactory.getLogger(PropertiesSearchAlgorithmFactory.class);
 
@@ -62,7 +60,7 @@ public abstract class PropertiesSearchAlgorithmFactory<T extends Chromosome<T>, 
 		}
 	}
 	
-	protected StoppingCondition<T, F> getStoppingCondition() {
+	protected StoppingCondition<T> getStoppingCondition() {
 		logger.info("Setting stopping condition: " + Properties.STOPPING_CONDITION);
 		switch (Properties.STOPPING_CONDITION) {
 		case MAXGENERATIONS:
@@ -83,5 +81,5 @@ public abstract class PropertiesSearchAlgorithmFactory<T extends Chromosome<T>, 
 		}
 	}
 	
-	public abstract GeneticAlgorithm<T,F> getSearchAlgorithm();
+	public abstract GeneticAlgorithm<T> getSearchAlgorithm();
 }

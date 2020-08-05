@@ -90,14 +90,14 @@ public class CompositionalFitnessSystemTest extends SystemTestBase {
 
         Object result = evosuite.parseCommandLine(command);
 
-        GeneticAlgorithm<?, DEFAULT_VALUE_XXX> ga = getGAFromResult(result);
+        GeneticAlgorithm<?> ga = getGAFromResult(result);
         TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
         System.out.println("EvolvedTestSuite:\n" + best);
 
-        Map<FitnessFunction<?>, Double> fitnesses = best.getFitnessValues();
+        Map<FitnessFunction<TestSuiteChromosome>, Double> fitnesses = best.getFitnessValues();
         double sum = 0.0;
         double cov = 0.0;
-        for (FitnessFunction<?> fitness : fitnesses.keySet()) {
+        for (FitnessFunction<TestSuiteChromosome> fitness : fitnesses.keySet()) {
             sum += fitnesses.get(fitness);
             cov += best.getCoverage(fitness);
             assert (fitnesses.get(fitness) == best.getFitness(fitness));
@@ -125,7 +125,7 @@ public class CompositionalFitnessSystemTest extends SystemTestBase {
 
         Object result = evosuite.parseCommandLine(command);
 
-        GeneticAlgorithm<?, DEFAULT_VALUE_XXX> ga = getGAFromResult(result);
+        GeneticAlgorithm<?> ga = getGAFromResult(result);
         TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
         System.out.println("EvolvedTestSuite:\n" + best);
 

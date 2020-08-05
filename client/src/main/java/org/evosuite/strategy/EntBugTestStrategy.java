@@ -80,7 +80,7 @@ public class EntBugTestStrategy extends TestGenerationStrategy {
 
 		// Set up genetic algorithm
 		PropertiesTestGAFactory factory = new PropertiesTestGAFactory();
-		GeneticAlgorithm<TestChromosome, TestFitnessFunction> ga = factory.getSearchAlgorithm();
+		GeneticAlgorithm<TestChromosome> ga = factory.getSearchAlgorithm();
 
 		if (Properties.SERIALIZE_GA || Properties.CLIENT_ON_THREAD) {
 			TestGenerationResultBuilder.getInstance().setGeneticAlgorithm(ga);

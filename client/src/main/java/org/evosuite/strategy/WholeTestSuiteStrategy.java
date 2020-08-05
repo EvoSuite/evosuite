@@ -54,8 +54,7 @@ public class WholeTestSuiteStrategy extends TestGenerationStrategy {
 		// Set up search algorithm
 		LoggingUtils.getEvoLogger().info("* Setting up search algorithm for whole suite generation");
 		PropertiesSuiteGAFactory algorithmFactory = new PropertiesSuiteGAFactory();
-		GeneticAlgorithm<TestSuiteChromosome, FitnessFunction<TestSuiteChromosome>> algorithm =
-				algorithmFactory.getSearchAlgorithm();
+		GeneticAlgorithm<TestSuiteChromosome> algorithm = algorithmFactory.getSearchAlgorithm();
 		
 		if(Properties.SERIALIZE_GA || Properties.CLIENT_ON_THREAD)
 			TestGenerationResultBuilder.getInstance().setGeneticAlgorithm(algorithm);

@@ -83,7 +83,7 @@ public class BranchesManager extends StructuralGoalManager {
 		}
 	}
 
-	public void calculateFitness(TestChromosome c, GeneticAlgorithm<TestChromosome, TestFitnessFunction> ga){
+	public void calculateFitness(TestChromosome c, GeneticAlgorithm<TestChromosome> ga){
 		// run the test
 		TestCase test = c.getTestCase();
 		ExecutionResult result = TestCaseExecutor.runTest(test);

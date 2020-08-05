@@ -55,7 +55,7 @@ public class IntOptimisationSystemTest extends SystemTestBase {
 
 		Assert.assertTrue(result != null);
 
-		GeneticAlgorithm<?, DEFAULT_VALUE_XXX> ga = getGAFromResult(result);
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 

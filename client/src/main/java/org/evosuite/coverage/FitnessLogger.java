@@ -61,7 +61,7 @@ public class FitnessLogger<T extends Chromosome<T>> implements SearchListener<T>
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void searchStarted(GeneticAlgorithm<T, ?> algorithm) {
+	public void searchStarted(GeneticAlgorithm<T> algorithm) {
 		evaluations = 0;
 		evaluations_history.clear();
 		statements_history.clear();
@@ -82,7 +82,7 @@ public class FitnessLogger<T extends Chromosome<T>> implements SearchListener<T>
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void iteration(GeneticAlgorithm<T, ?> algorithm) {
+	public void iteration(GeneticAlgorithm<T> algorithm) {
 		if (algorithm.getPopulation().isEmpty())
 			return;
 
@@ -97,7 +97,7 @@ public class FitnessLogger<T extends Chromosome<T>> implements SearchListener<T>
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void searchFinished(GeneticAlgorithm<T, ?> algorithm) {
+	public void searchFinished(GeneticAlgorithm<T> algorithm) {
 		if (name == null)
 			return;
 

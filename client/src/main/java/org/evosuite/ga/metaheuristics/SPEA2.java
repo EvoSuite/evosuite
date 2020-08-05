@@ -33,8 +33,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -55,8 +53,7 @@ import static java.util.Comparator.comparing;
  *
  * @author José Campos
  */
-public class SPEA2<T extends Chromosome<T>, F extends FitnessFunction<T>>
-        extends GeneticAlgorithm<T, F> {
+public class SPEA2<T extends Chromosome<T>> extends GeneticAlgorithm<T> {
 
   private static final long serialVersionUID = -7638497183625040479L;
 

@@ -68,14 +68,14 @@ public abstract class TestGenerationStrategy {
 	public abstract TestSuiteChromosome generateTests();
 	
 	/** There should only be one */
-	protected final ProgressMonitor<TestSuiteChromosome, TestSuiteFitnessFunction> progressMonitor = new ProgressMonitor<>();
+	protected final ProgressMonitor<TestSuiteChromosome> progressMonitor = new ProgressMonitor<>();
 
 	/** There should only be one */
-	protected ZeroFitnessStoppingCondition<TestSuiteChromosome, TestSuiteFitnessFunction> zeroFitness =
+	protected ZeroFitnessStoppingCondition<TestSuiteChromosome> zeroFitness =
 			new ZeroFitnessStoppingCondition<>();
 	
 	/** There should only be one */
-	protected StoppingCondition<TestSuiteChromosome, TestSuiteFitnessFunction> globalTime =
+	protected StoppingCondition<TestSuiteChromosome> globalTime =
 			new GlobalTimeStoppingCondition<>();
 
     protected void sendExecutionStatistics() {
@@ -142,7 +142,7 @@ public abstract class TestGenerationStrategy {
 	 * @return
 	 */
 	protected boolean isFinished(TestSuiteChromosome chromosome,
-								 StoppingCondition<TestSuiteChromosome,TestSuiteFitnessFunction> stoppingCondition) {
+								 StoppingCondition<TestSuiteChromosome> stoppingCondition) {
 		if (stoppingCondition.isFinished())
 			return true;
 
@@ -162,7 +162,7 @@ public abstract class TestGenerationStrategy {
 	 * Convert property to actual stopping condition
 	 * @return
 	 */
-	protected StoppingCondition<TestSuiteChromosome, TestSuiteFitnessFunction> getStoppingCondition() {
+	protected StoppingCondition<TestSuiteChromosome> getStoppingCondition() {
 		switch (Properties.STOPPING_CONDITION) {
 		case MAXGENERATIONS:
 			return new MaxGenerationStoppingCondition<>();

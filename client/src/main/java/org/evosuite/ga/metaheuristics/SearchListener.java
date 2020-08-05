@@ -20,7 +20,6 @@
 package org.evosuite.ga.metaheuristics;
 
 import org.evosuite.ga.Chromosome;
-import org.evosuite.ga.FitnessFunction;
 
 
 /**
@@ -28,28 +27,28 @@ import org.evosuite.ga.FitnessFunction;
  *
  * @author Gordon Fraser
  */
-public interface SearchListener<T extends Chromosome<T>, F extends FitnessFunction<T>> {
+public interface SearchListener<T extends Chromosome<T>> {
 
 	/**
 	 * Called when a new search is started
 	 *
 	 * @param algorithm a {@link org.evosuite.ga.metaheuristics.GeneticAlgorithm} object.
 	 */
-	public void searchStarted(GeneticAlgorithm<T, F> algorithm);
+	public void searchStarted(GeneticAlgorithm<T> algorithm);
 
 	/**
 	 * Called after each iteration of the search
 	 *
 	 * @param algorithm a {@link org.evosuite.ga.metaheuristics.GeneticAlgorithm} object.
 	 */
-	public void iteration(GeneticAlgorithm<T, F> algorithm);
+	public void iteration(GeneticAlgorithm<T> algorithm);
 
 	/**
 	 * Called after the last iteration
 	 *
 	 * @param algorithm a {@link org.evosuite.ga.metaheuristics.GeneticAlgorithm} object.
 	 */
-	public void searchFinished(GeneticAlgorithm<T, F> algorithm);
+	public void searchFinished(GeneticAlgorithm<T> algorithm);
 
 	/**
 	 * Called after every single fitness evaluation

@@ -35,8 +35,7 @@ import static java.util.Collections.reverseOrder;
  *
  * @author José Campos
  */
-public class MuLambdaEA<T extends Chromosome<T>, F extends FitnessFunction<T>>
-        extends AbstractMuLambda<T,F> {
+public class MuLambdaEA<T extends Chromosome<T>> extends AbstractMuLambda<T> {
 
   private static final long serialVersionUID = -1104094637643130537L;
 

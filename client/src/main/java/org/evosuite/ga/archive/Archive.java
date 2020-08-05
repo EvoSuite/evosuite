@@ -31,7 +31,6 @@ import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.SecondaryObjective;
 import org.evosuite.runtime.util.AtMostOnceLogger;
 import org.evosuite.setup.TestCluster;
-import org.evosuite.testcase.AbstractTestChromosome;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
@@ -49,6 +48,8 @@ import org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static org.evosuite.testcase.TestChromosome.getSecondaryObjectives;
+
 /**
  * A partial mapping of test targets onto the shortest encountered test cases covering the given
  * target.
@@ -65,7 +66,8 @@ public abstract class Archive implements Serializable {
    * Map used to store all targets (values of the map) of each method (here represented by its name,
    * keys of the map)
    */
-  protected final Map<String, Set<TestFitnessFunction>> nonCoveredTargetsOfEachMethod = new LinkedHashMap<>();
+  protected final Map<String, Set<TestFitnessFunction>> nonCoveredTargetsOfEachMethod =
+          new LinkedHashMap<>();
 
   /**
    * Has this archive been updated with new candidate solutions?
@@ -103,7 +105,7 @@ public abstract class Archive implements Serializable {
   protected void registerNonCoveredTargetOfAMethod(TestFitnessFunction target) {
     String targetMethod = this.getMethodFullName(target);
     if (!this.nonCoveredTargetsOfEachMethod.containsKey(targetMethod)) {
-      this.nonCoveredTargetsOfEachMethod.put(targetMethod, new LinkedHashSet<TestFitnessFunction>());
+      this.nonCoveredTargetsOfEachMethod.put(targetMethod, new LinkedHashSet<>());
     }
     this.nonCoveredTargetsOfEachMethod.get(targetMethod).add(target);
   }
@@ -137,7 +139,9 @@ public abstract class Archive implements Serializable {
    * @param solution the solution covering the target
    * @param fitnessValue
    */
-  public void updateArchive(TestFitnessFunction target, TestChromosome solution, double fitnessValue) {
+  public void updateArchive(TestFitnessFunction target,
+                            TestChromosome solution,
+                            double fitnessValue) {
     assert target != null;
     assert solution != null;
     assert fitnessValue >= 0.0;
@@ -190,7 +194,7 @@ public abstract class Archive implements Serializable {
     // If we try to add a test for a target we've already covered
     // and the new test is shorter, keep the shorter one
     int timesBetter = 0;
-    for (SecondaryObjective<TestChromosome> obj : currentSolution.getSecondaryObjectives_()) {
+    for (SecondaryObjective<TestChromosome> obj : getSecondaryObjectives()) {
       if (obj.compareChromosomes(candidateSolution, currentSolution) < 0)
           timesBetter++;
       else

@@ -23,7 +23,6 @@ import org.evosuite.Properties;
 import org.evosuite.TimeController;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
-import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,8 +32,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author José Campos
  */
-public abstract class AbstractMuLambda<T extends Chromosome<T>, F extends FitnessFunction<T>>
-        extends GeneticAlgorithm<T,F> {
+public abstract class AbstractMuLambda<T extends Chromosome<T>> extends GeneticAlgorithm<T> {
 
   private static final long serialVersionUID = 2738004761503761376L;
 

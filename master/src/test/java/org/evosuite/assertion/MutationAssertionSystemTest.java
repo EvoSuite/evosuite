@@ -54,7 +54,7 @@ public class MutationAssertionSystemTest extends SystemTestBase {
 
 		Object result = evosuite.parseCommandLine(command);
 
-		GeneticAlgorithm<?, DEFAULT_VALUE_XXX> ga = getGAFromResult(result);
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
 		return (TestSuiteChromosome) ga.getBestIndividual();
 	}
 
@@ -122,7 +122,7 @@ public class MutationAssertionSystemTest extends SystemTestBase {
 
 		Object result = evosuite.parseCommandLine(command);
 
-		GeneticAlgorithm<?, DEFAULT_VALUE_XXX> ga = getGAFromResult(result);
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
 		TestSuiteChromosome suite = (TestSuiteChromosome) ga.getBestIndividual();
 
 		Assert.assertTrue(suite.size() > 0);

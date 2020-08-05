@@ -29,7 +29,6 @@ import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.coverage.mutation.MutationTestPool;
 import org.evosuite.coverage.mutation.MutationTimeoutStoppingCondition;
 import org.evosuite.ga.ChromosomeFactory;
-import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.FitnessReplacementFunction;
 import org.evosuite.ga.archive.ArchiveTestChromosomeFactory;
 import org.evosuite.ga.metaheuristics.*;
@@ -103,8 +102,7 @@ public class PropertiesSuiteGAFactory
 		}
 	}
 
-	protected GeneticAlgorithm<TestSuiteChromosome, FitnessFunction<TestSuiteChromosome>>
-			getGeneticAlgorithm(ChromosomeFactory<TestSuiteChromosome> factory) {
+	protected GeneticAlgorithm<TestSuiteChromosome> getGeneticAlgorithm(ChromosomeFactory<TestSuiteChromosome> factory) {
 		switch (Properties.ALGORITHM) {
 			case ONE_PLUS_ONE_EA:
 				logger.info("Chosen search algorithm: (1+1)EA");
@@ -274,7 +272,7 @@ public class PropertiesSuiteGAFactory
 	}
 
 	@Override
-	public GeneticAlgorithm<TestSuiteChromosome, FitnessFunction<TestSuiteChromosome>> getSearchAlgorithm() {
+	public GeneticAlgorithm<TestSuiteChromosome> getSearchAlgorithm() {
 		final var factory = getChromosomeFactory();
 		
 		// FIXXME

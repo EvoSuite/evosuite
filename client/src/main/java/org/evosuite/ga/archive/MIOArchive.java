@@ -48,7 +48,7 @@ import static java.util.stream.Collectors.*;
  * 
  * @author José Campos
  */
-public class MIOArchive extends Archive<TestFitnessFunction, TestChromosome> {
+public class MIOArchive extends Archive {
 
   private static final long serialVersionUID = -6100903230303784634L;
 
@@ -202,7 +202,6 @@ public class MIOArchive extends Archive<TestFitnessFunction, TestChromosome> {
   /**
    * {@inheritDoc}
    */
-  @SuppressWarnings("unchecked")
   @Override
   public TestChromosome getSolution() {
 
@@ -241,7 +240,7 @@ public class MIOArchive extends Archive<TestFitnessFunction, TestChromosome> {
     potentialTargets.sort(Comparator.comparingInt(f -> archive.get(f).counter()));
 
     TestChromosome randomSolution = this.archive.get(potentialTargets.get(0)).sampleSolution();
-    return randomSolution == null ? null : (TestChromosome) randomSolution.clone();
+    return randomSolution == null ? null : randomSolution.clone();
   }
 
   /**
@@ -275,7 +274,6 @@ public class MIOArchive extends Archive<TestFitnessFunction, TestChromosome> {
   /**
    * {@inheritDoc}
    */
-  @SuppressWarnings({"unchecked", "rawtypes"})
   @Override
   protected TestSuiteChromosome createMergedSolution(TestSuiteChromosome solution) {
     // Deactivate in case a test is executed and would access the archive as this might cause a
@@ -307,8 +305,8 @@ public class MIOArchive extends Archive<TestFitnessFunction, TestChromosome> {
     }
 
     // re-evaluate merged solution
-    for (FitnessFunction fitnessFunction : solution.getFitnessValues().keySet()) {
-      fitnessFunction.getFitness(mergedSolution);
+    for (FitnessFunction<TestSuiteChromosome> ff : solution.getFitnessValues().keySet()) {
+      ff.getFitness(mergedSolution);
     }
 
     // re-active it
@@ -564,7 +562,6 @@ public class MIOArchive extends Archive<TestFitnessFunction, TestChromosome> {
     /**
      * {@inheritDoc}
      */
-    @SuppressWarnings("unchecked")
     @Override
     public boolean equals(Object obj) {
       if (this == obj) {

@@ -40,7 +40,7 @@ import java.util.Set;
  * 
  * @author José Campos
  */
-public class CoverageArchive extends Archive<TestFitnessFunction, TestChromosome> {
+public class CoverageArchive extends Archive {
 
   private static final long serialVersionUID = -4046845573050661961L;
 
@@ -249,7 +249,6 @@ public class CoverageArchive extends Archive<TestFitnessFunction, TestChromosome
   /**
    * {@inheritDoc}
    */
-  @SuppressWarnings("unchecked")
   @Override
   public TestChromosome getRandomSolution() {
     // TODO this gives higher probability to tests that cover more targets. Maybe it is not the best
@@ -265,7 +264,6 @@ public class CoverageArchive extends Archive<TestFitnessFunction, TestChromosome
   /**
    * {@inheritDoc}
    */
-  @SuppressWarnings({"unchecked", "rawtypes"})
   @Override
   protected TestSuiteChromosome createMergedSolution(TestSuiteChromosome solution) {
     // Deactivate in case a test is executed and would access the archive as this might cause a
@@ -310,8 +308,8 @@ public class CoverageArchive extends Archive<TestFitnessFunction, TestChromosome
     }
 
     // re-evaluate merged solution
-    for (FitnessFunction fitnessFunction : solution.getFitnessValues().keySet()) {
-      fitnessFunction.getFitness(mergedSolution);
+    for (FitnessFunction<TestSuiteChromosome> ff : solution.getFitnessValues().keySet()) {
+      ff.getFitness(mergedSolution);
     }
 
     // re-active it

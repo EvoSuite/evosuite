@@ -50,11 +50,15 @@ import java.util.*;
  *
  * @author Annibale Panichella, Fitsum M. Kifetew
  */
-public abstract class AbstractMOSA extends GeneticAlgorithm<TestChromosome, TestFitnessFunction> {
+public abstract class AbstractMOSA extends GeneticAlgorithm<TestChromosome> {
 
 	private static final long serialVersionUID = 146182080947267628L;
 
 	private static final Logger logger = LoggerFactory.getLogger(AbstractMOSA.class);
+
+	// Explicitly declared with a more special type than the one used in GeneticAlgorithm.
+	// This is required for the Archive, which currently only supports TestFitnessFunctions.
+	protected final List<TestFitnessFunction> fitnessFunctions = new ArrayList<>();
 
 	private MOSATestSuiteAdapter adapter = null;
 
