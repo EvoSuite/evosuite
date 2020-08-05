@@ -27,7 +27,6 @@ import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.coverage.mutation.MutationTimeoutStoppingCondition;
 import org.evosuite.ga.ChromosomeFactory;
-import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.FitnessReplacementFunction;
 import org.evosuite.ga.metaheuristics.*;
 import org.evosuite.ga.metaheuristics.mapelites.MAPElites;
@@ -62,7 +61,6 @@ import org.evosuite.testcase.factories.AllMethodsTestChromosomeFactory;
 import org.evosuite.testcase.factories.JUnitTestCarvedChromosomeFactory;
 import org.evosuite.testcase.factories.RandomLengthTestFactory;
 import org.evosuite.testcase.secondaryobjectives.TestCaseSecondaryObjective;
-import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.evosuite.utils.ArrayUtil;
 
 /**
@@ -115,7 +113,7 @@ public class PropertiesTestGAFactory
 		case MONOTONIC_GA:
 			logger.info("Chosen search algorithm: MonotonicGA");
 			{
-				MonotonicGA<TestChromosome, TestFitnessFunction> ga = new MonotonicGA<>(factory);
+				MonotonicGA<TestChromosome> ga = new MonotonicGA<>(factory);
 				if (Properties.REPLACEMENT_FUNCTION == TheReplacementFunction.FITNESSREPLACEMENT) {
 					// user has explicitly asked for this replacement function
 					ga.setReplacementFunction(new FitnessReplacementFunction<>());
@@ -139,7 +137,7 @@ public class PropertiesTestGAFactory
 		case STEADY_STATE_GA:
 			logger.info("Chosen search algorithm: Steady-StateGA");
 			{
-				SteadyStateGA<TestChromosome, TestFitnessFunction> ga = new SteadyStateGA<>(factory);
+				SteadyStateGA<TestChromosome> ga = new SteadyStateGA<>(factory);
 				if (Properties.REPLACEMENT_FUNCTION == TheReplacementFunction.FITNESSREPLACEMENT) {
 					// user has explicitly asked for this replacement function
 					ga.setReplacementFunction(new FitnessReplacementFunction<>());
