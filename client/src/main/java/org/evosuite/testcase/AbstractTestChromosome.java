@@ -19,13 +19,6 @@ public abstract class AbstractTestChromosome<E extends AbstractTestChromosome<E>
     public abstract void crossOver(E other, int position1, int position2) throws ConstructionFailedException;
 
     /**
-     * Returns the static list of secondary objectives.
-     *
-     * @return
-     */
-    public abstract List<SecondaryObjective<E>> getSecondaryObjectives_();
-
-    /**
      * <p>
      * setTestCase
      * </p>
