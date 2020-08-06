@@ -54,6 +54,7 @@ import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.ArrayUtil;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -86,7 +87,7 @@ public abstract class GeneticAlgorithm<T extends Chromosome<T>> implements Searc
     /**
      * CrossOver function
      */
-    protected CrossOverFunction crossoverFunction = new SinglePointCrossOver();
+    protected CrossOverFunction<T> crossoverFunction = new SinglePointCrossOver<>();
 
     /**
      * Current population
@@ -775,7 +776,7 @@ public abstract class GeneticAlgorithm<T extends Chromosome<T>> implements Searc
      *                  {@link org.evosuite.ga.operators.crossover.CrossOverFunction}
      *                  object.
      */
-    public void setCrossOverFunction(CrossOverFunction crossover) {
+    public void setCrossOverFunction(CrossOverFunction<T> crossover) {
         this.crossoverFunction = crossover;
     }
 

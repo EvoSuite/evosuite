@@ -10,10 +10,7 @@ import org.evosuite.ga.archive.ArchiveTestChromosomeFactory;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.metaheuristics.NoveltySearch;
 import org.evosuite.ga.metaheuristics.SearchListener;
-import org.evosuite.ga.operators.crossover.CrossOverFunction;
-import org.evosuite.ga.operators.crossover.SinglePointCrossOver;
-import org.evosuite.ga.operators.crossover.SinglePointFixedCrossOver;
-import org.evosuite.ga.operators.crossover.SinglePointRelativeCrossOver;
+import org.evosuite.ga.operators.crossover.*;
 import org.evosuite.ga.operators.ranking.FastNonDominatedSorting;
 import org.evosuite.ga.operators.ranking.RankBasedPreferenceSorting;
 import org.evosuite.ga.operators.ranking.RankingFunction;
@@ -86,20 +83,19 @@ public class PropertiesNoveltySearchFactory extends PropertiesSearchAlgorithmFac
         }
     }
 
-    protected CrossOverFunction getCrossoverFunction() {
+    protected CrossOverFunction<TestChromosome> getCrossoverFunction() {
         switch (Properties.CROSSOVER_FUNCTION) {
             case SINGLEPOINTFIXED:
-                return new SinglePointFixedCrossOver();
+                return new SinglePointFixedCrossOver<>();
             case SINGLEPOINTRELATIVE:
-                return new SinglePointRelativeCrossOver();
+                return new SinglePointRelativeCrossOver<>();
             case SINGLEPOINT:
-                return new SinglePointCrossOver();
+                return new SinglePointCrossOver<>();
             case COVERAGE:
                 if (Properties.STRATEGY != Properties.Strategy.EVOSUITE)
                     throw new RuntimeException(
                             "Coverage crossover function requires test suite mode");
-
-                return new org.evosuite.ga.operators.crossover.CoverageCrossOver();
+                return new CoverageCrossOver();
             default:
                 throw new RuntimeException("Unknown crossover function: "
                         + Properties.CROSSOVER_FUNCTION);
@@ -160,7 +156,7 @@ public class PropertiesNoveltySearchFactory extends PropertiesSearchAlgorithmFac
         ga.setPopulationLimit(getPopulationLimit());
 
         // How to cross over
-        CrossOverFunction crossover_function = getCrossoverFunction();
+        CrossOverFunction<TestChromosome> crossover_function = getCrossoverFunction();
         ga.setCrossOverFunction(crossover_function);
 
         // What to do about bloat

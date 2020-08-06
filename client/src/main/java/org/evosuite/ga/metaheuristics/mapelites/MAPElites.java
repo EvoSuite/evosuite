@@ -60,7 +60,7 @@ public class MAPElites extends GeneticAlgorithm<TestChromosome> {
   private static final List<FeatureVector> IGNORE_VECTORS =
       Arrays.asList(new FeatureVector(new Inspector[0], null));
   
-  private final CrossOverFunction crossoverFunction = new SinglePointCrossOver();
+  private final CrossOverFunction<TestChromosome> crossoverFunction = new SinglePointCrossOver<>();
   
   public MAPElites(ChromosomeFactory<TestChromosome> factory) {
     super(factory);

@@ -311,7 +311,7 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
     }
 
     @Override
-    public void setCrossOverFunction(CrossOverFunction crossover) { // (7)
+    public void setCrossOverFunction(CrossOverFunction<TestSuiteChromosome> crossover) { // (7)
         algorithm.setCrossOverFunction(crossover);
     }
 

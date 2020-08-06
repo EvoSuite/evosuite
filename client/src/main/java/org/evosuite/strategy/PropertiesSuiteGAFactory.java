@@ -250,14 +250,14 @@ public class PropertiesSuiteGAFactory
 		}
 	}
 	
-	protected CrossOverFunction getCrossoverFunction() {
+	protected CrossOverFunction<TestSuiteChromosome> getCrossoverFunction() {
 		switch (Properties.CROSSOVER_FUNCTION) {
 		case SINGLEPOINTFIXED:
-			return new SinglePointFixedCrossOver();
+			return new SinglePointFixedCrossOver<>();
 		case SINGLEPOINTRELATIVE:
-			return new SinglePointRelativeCrossOver();
+			return new SinglePointRelativeCrossOver<>();
 		case SINGLEPOINT:
-			return new SinglePointCrossOver();
+			return new SinglePointCrossOver<>();
 		case COVERAGE:
 			if (Properties.STRATEGY != Properties.Strategy.EVOSUITE) {
 				throw new RuntimeException("Coverage crossover function requires test suite mode");

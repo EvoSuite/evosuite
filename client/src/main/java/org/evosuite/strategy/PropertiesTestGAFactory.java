@@ -188,16 +188,16 @@ public class PropertiesTestGAFactory
 		}
 	}
 	
-	private CrossOverFunction getCrossoverFunction() {
+	private CrossOverFunction<TestChromosome> getCrossoverFunction() {
 		switch (Properties.CROSSOVER_FUNCTION) {
 		case SINGLEPOINTFIXED:
-			return new SinglePointFixedCrossOver();
+			return new SinglePointFixedCrossOver<>();
 		case SINGLEPOINTRELATIVE:
-			return new SinglePointRelativeCrossOver();
+			return new SinglePointRelativeCrossOver<>();
 		case SINGLEPOINT:
-			return new SinglePointCrossOver();
+			return new SinglePointCrossOver<>();
 		case UNIFORM:
-			return new UniformCrossOver();
+			return new UniformCrossOver<>();
 		default:
 			throw new RuntimeException("Unknown crossover function: "
 			        + Properties.CROSSOVER_FUNCTION);
@@ -252,7 +252,7 @@ public class PropertiesTestGAFactory
 		ga.setPopulationLimit(getPopulationLimit());
 
 		// How to cross over
-		CrossOverFunction crossover_function = getCrossoverFunction();
+		CrossOverFunction<TestChromosome> crossover_function = getCrossoverFunction();
 		ga.setCrossOverFunction(crossover_function);
 
 		// What to do about bloat
