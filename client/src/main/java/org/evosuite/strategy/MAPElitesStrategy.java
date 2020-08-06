@@ -1,18 +1,14 @@
 package org.evosuite.strategy;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.evosuite.Properties;
 import org.evosuite.coverage.TestFitnessFactory;
-import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
+import org.evosuite.ga.metaheuristics.mapelites.MAPElites;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import org.evosuite.novelty.SuiteFitnessEvaluationListener;
 import org.evosuite.result.TestGenerationResultBuilder;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.rmi.service.ClientState;
 import org.evosuite.statistics.RuntimeVariable;
-import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionTracer;
 import org.evosuite.testsuite.TestSuiteChromosome;
@@ -24,6 +20,9 @@ import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class MAPElitesStrategy extends TestGenerationStrategy {
   private static final Logger logger = LoggerFactory.getLogger(MAPElitesStrategy.class);
 
@@ -33,8 +32,7 @@ public class MAPElitesStrategy extends TestGenerationStrategy {
     LoggingUtils.getEvoLogger().info("* Setting up search algorithm for MAP-Elites search with choice {}", Properties.MAP_ELITES_CHOICE.name());
 
     PropertiesMapElitesSearchFactory algorithmFactory = new PropertiesMapElitesSearchFactory();
-    GeneticAlgorithm<TestChromosome> algorithm =
-            algorithmFactory.getSearchAlgorithm();
+    MAPElites algorithm = algorithmFactory.getSearchAlgorithm();
 
     if (Properties.SERIALIZE_GA || Properties.CLIENT_ON_THREAD)
       TestGenerationResultBuilder.getInstance().setGeneticAlgorithm(algorithm);

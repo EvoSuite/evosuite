@@ -60,7 +60,7 @@ public class PropertiesMapElitesSearchFactory
   }
 
   @Override
-  public GeneticAlgorithm<TestChromosome> getSearchAlgorithm() {
+  public MAPElites getSearchAlgorithm() {
     ChromosomeFactory<TestChromosome> factory = getChromosomeFactory();
     MAPElites ga = new MAPElites(factory);
 
