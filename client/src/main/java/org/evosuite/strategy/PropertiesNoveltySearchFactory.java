@@ -62,9 +62,7 @@ public class PropertiesNoveltySearchFactory extends PropertiesSearchAlgorithmFac
                 return new ArchiveTestChromosomeFactory();
             case JUNIT:
                 logger.info("Using seeding chromosome factory");
-                JUnitTestCarvedChromosomeFactory factory = new JUnitTestCarvedChromosomeFactory(
-                        new RandomLengthTestFactory());
-                return factory;
+                return new JUnitTestCarvedChromosomeFactory(new RandomLengthTestFactory());
             case SERIALIZATION:
                 logger.info("Using serialization seeding chromosome factory");
                 return new RandomLengthTestFactory();
@@ -72,7 +70,6 @@ public class PropertiesNoveltySearchFactory extends PropertiesSearchAlgorithmFac
                 throw new RuntimeException("Unsupported test factory: "
                         + Properties.TEST_FACTORY);
         }
-
     }
 
     protected SelectionFunction<TestChromosome> getSelectionFunction() {
