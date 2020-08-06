@@ -436,7 +436,7 @@ public abstract class GeneticAlgorithm<T extends Chromosome<T>> implements Searc
         localObjective.addFitnessFunction(function);
     }
 
-    public void addFitnessFunctions(Collection<FitnessFunction<T>> functions) {
+    public void addFitnessFunctions(Collection<? extends FitnessFunction<T>> functions) {
         functions.forEach(this::addFitnessFunction);
     }
 
