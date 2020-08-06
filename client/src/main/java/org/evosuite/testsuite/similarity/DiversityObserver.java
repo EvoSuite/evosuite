@@ -131,7 +131,7 @@ public class DiversityObserver implements SearchListener<TestSuiteChromosome> {
                 if(getUnderlyingType((ConstructorStatement) s1).equals(getUnderlyingType((ConstructorStatement) s2)))
                     similarity += 1;
             } else if(s1 instanceof PrimitiveStatement) {
-                if(getUnderlyingType((PrimitiveStatement) s1).equals(getUnderlyingType((PrimitiveStatement) s2)))
+                if(getUnderlyingType((PrimitiveStatement<?>) s1).equals(getUnderlyingType((PrimitiveStatement<?>) s2)))
                     similarity += 1;
             } else if(s1 instanceof MethodStatement) {
                 if(getUnderlyingType((MethodStatement) s1).equals(getUnderlyingType((MethodStatement) s2)))
@@ -161,7 +161,7 @@ public class DiversityObserver implements SearchListener<TestSuiteChromosome> {
         return fs.getField().getDeclaringClass();
     }
 
-    private static Class<?> getUnderlyingType(PrimitiveStatement ps) {
+    private static Class<?> getUnderlyingType(PrimitiveStatement<?> ps) {
         return ps.getReturnClass();
     }
 
