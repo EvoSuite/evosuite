@@ -31,7 +31,8 @@ import org.evosuite.ga.populationlimit.PopulationLimit;
  *
  * @author fraser
  */
-public class StatementsPopulationLimit<T extends Chromosome<T>> implements PopulationLimit<T> {
+public class StatementsPopulationLimit<T extends AbstractTestSuiteChromosome<T,?>>
+		implements PopulationLimit<T> {
 
 	private static final long serialVersionUID = 4794704248615412859L;
 
@@ -42,7 +43,7 @@ public class StatementsPopulationLimit<T extends Chromosome<T>> implements Popul
 	@Override
 	public boolean isPopulationFull(List<T> population) {
 		int numStatements = population.stream()
-				.mapToInt(AbstractTestSuiteChromosome::totalLengthOfTestCases)
+				.mapToInt(T::totalLengthOfTestCases)
 				.sum();
 		return numStatements >= Properties.POPULATION;
 	}

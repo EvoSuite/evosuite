@@ -44,6 +44,7 @@ import org.evosuite.ga.operators.ranking.FastNonDominatedSorting;
 import org.evosuite.ga.operators.ranking.RankBasedPreferenceSorting;
 import org.evosuite.ga.operators.ranking.RankingFunction;
 import org.evosuite.ga.operators.selection.*;
+import org.evosuite.ga.populationlimit.PopulationLimit;
 import org.evosuite.ga.stoppingconditions.*;
 import org.evosuite.statistics.StatisticsListener;
 import org.evosuite.testcase.factories.AllMethodsTestChromosomeFactory;
@@ -51,6 +52,7 @@ import org.evosuite.testcase.factories.JUnitTestCarvedChromosomeFactory;
 import org.evosuite.testcase.factories.RandomLengthTestFactory;
 import org.evosuite.testcase.localsearch.BranchCoverageMap;
 import org.evosuite.testsuite.RelativeSuiteLengthBloatControl;
+import org.evosuite.testsuite.StatementsPopulationLimit;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteReplacementFunction;
 import org.evosuite.testsuite.factories.SerializationSuiteChromosomeFactory;
@@ -59,6 +61,8 @@ import org.evosuite.testsuite.secondaryobjectives.TestSuiteSecondaryObjective;
 import org.evosuite.utils.ArrayUtil;
 import org.evosuite.utils.ResourceController;
 import sun.misc.Signal;
+import org.evosuite.Properties;
+
 
 /**
  * Factory for GA on test suites
@@ -100,6 +104,13 @@ public class PropertiesSuiteGAFactory
 			throw new RuntimeException("Unsupported test factory: "
 					+ Properties.TEST_FACTORY);
 		}
+	}
+
+	@Override
+	protected PopulationLimit<TestSuiteChromosome> getPopulationLimit() {
+		return Properties.POPULATION_LIMIT == Properties.PopulationLimit.STATEMENTS
+				? new StatementsPopulationLimit<>()
+				: super.getPopulationLimit();
 	}
 
 	protected GeneticAlgorithm<TestSuiteChromosome> getGeneticAlgorithm(ChromosomeFactory<TestSuiteChromosome> factory) {

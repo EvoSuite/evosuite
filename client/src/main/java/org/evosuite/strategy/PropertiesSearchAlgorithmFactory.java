@@ -53,8 +53,6 @@ public abstract class PropertiesSearchAlgorithmFactory<T extends Chromosome<T>> 
 			return new IndividualPopulationLimit<>();
 		case TESTS:
 			return new SizePopulationLimit<>();
-		case STATEMENTS:
-			return new StatementsPopulationLimit<>();
 		default:
 			throw new RuntimeException("Unsupported population limit");
 		}
