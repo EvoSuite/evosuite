@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -242,4 +243,27 @@ public class MIO extends AbstractMOSA {
 
       return best;
   }
+
+  protected void computeCoverageAndFitness(TestSuiteChromosome suite) {
+    for (Map.Entry<TestSuiteFitnessFunction, Class<?>> entry : this.suiteFitnessFunctions
+            .entrySet()) {
+      TestSuiteFitnessFunction suiteFitnessFunction = entry.getKey();
+      Class<?> testFitnessFunction = entry.getValue();
+
+      int numberCoveredTargets =
+              Archive.getArchiveInstance().getNumberOfCoveredTargets(testFitnessFunction);
+      int numberUncoveredTargets =
+              Archive.getArchiveInstance().getNumberOfUncoveredTargets(testFitnessFunction);
+      int totalNumberTargets = numberCoveredTargets + numberUncoveredTargets;
+
+      double coverage = totalNumberTargets == 0 ? 1.0
+              : ((double) numberCoveredTargets) / ((double) totalNumberTargets);
+
+      suite.setFitness(suiteFitnessFunction, ((double) numberUncoveredTargets));
+      suite.setCoverage(suiteFitnessFunction, coverage);
+      suite.setNumOfCoveredGoals(suiteFitnessFunction, numberCoveredTargets);
+      suite.setNumOfNotCoveredGoals(suiteFitnessFunction, numberUncoveredTargets);
+    }
+  }
+
 }
