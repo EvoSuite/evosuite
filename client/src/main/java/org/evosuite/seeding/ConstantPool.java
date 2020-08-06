@@ -37,7 +37,7 @@ public interface ConstantPool {
 	 * 
 	 * @return a {@link java.lang.String} object.
 	 */
-	public String getRandomString();
+    String getRandomString();
 	
 	/**
 	 * <p>
@@ -46,7 +46,7 @@ public interface ConstantPool {
 	 * 
 	 * @return a {@link org.objectweb.asm.Type} object.
 	 */
-	public Type getRandomType();
+    Type getRandomType();
 	
 	/**
 	 * <p>
@@ -55,7 +55,7 @@ public interface ConstantPool {
 	 * 
 	 * @return a int.
 	 */
-	public int getRandomInt();
+    int getRandomInt();
 
 	/**
 	 * <p>
@@ -64,7 +64,7 @@ public interface ConstantPool {
 	 * 
 	 * @return a float.
 	 */
-	public float getRandomFloat();
+    float getRandomFloat();
 
 	/**
 	 * <p>
@@ -73,7 +73,7 @@ public interface ConstantPool {
 	 * 
 	 * @return a double.
 	 */
-	public double getRandomDouble();
+    double getRandomDouble();
 
 	/**
 	 * <p>
@@ -82,7 +82,7 @@ public interface ConstantPool {
 	 * 
 	 * @return a long.
 	 */
-	public long getRandomLong();
+    long getRandomLong();
 
 	/**
 	 * <p>
@@ -92,7 +92,7 @@ public interface ConstantPool {
 	 * @param object
 	 *            a {@link java.lang.Object} object.
 	 */
-	public void add(Object object);
+    void add(Object object);
 	
-	public String toString();
+	String toString();
 }

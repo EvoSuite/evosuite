@@ -27,7 +27,7 @@ package org.evosuite.symbolic.expr;
  *
  * @author krusev
  */
-public abstract interface Cast<T> {
+public interface Cast<T> {
 
 	/**
 	 * <p>getConcreteObject</p>
@@ -35,5 +35,5 @@ public abstract interface Cast<T> {
 	 * @param <T> a T object.
 	 * @return a {@link org.evosuite.symbolic.expr.Expression} object.
 	 */
-	public Expression<T> getArgument();
+    Expression<T> getArgument();
 }

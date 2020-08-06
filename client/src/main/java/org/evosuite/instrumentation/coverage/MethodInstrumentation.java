@@ -50,8 +50,8 @@ public interface MethodInstrumentation {
 	 *            name, String descriptor, String signature, String[]
 	 *            exceptions))
 	 */
-	public void analyze(ClassLoader classLoader, MethodNode mn, String className,
-	        String methodName, int access);
+    void analyze(ClassLoader classLoader, MethodNode mn, String className,
+                 String methodName, int access);
 
 	/**
 	 * If this method returns true, the analyze method is also called on public
@@ -59,7 +59,7 @@ public interface MethodInstrumentation {
 	 * 
 	 * @return a boolean.
 	 */
-	public boolean executeOnMainMethod();
+    boolean executeOnMainMethod();
 
 	/**
 	 * if this method returns true the analyze method is also called on methods
@@ -67,6 +67,6 @@ public interface MethodInstrumentation {
 	 * 
 	 * @return a boolean.
 	 */
-	public boolean executeOnExcludedMethods();
+    boolean executeOnExcludedMethods();
 
 }

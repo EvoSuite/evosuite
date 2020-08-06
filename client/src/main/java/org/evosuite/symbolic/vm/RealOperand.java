@@ -28,5 +28,5 @@ import org.evosuite.symbolic.expr.fp.RealValue;
  */
 public interface RealOperand extends Operand {
 
-	public RealValue getRealExpression();
+	RealValue getRealExpression();
 }

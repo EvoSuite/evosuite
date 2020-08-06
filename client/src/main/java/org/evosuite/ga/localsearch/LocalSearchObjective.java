@@ -41,7 +41,7 @@ public interface LocalSearchObjective<T extends Chromosome<T>> {
 	 * 
 	 * @return
 	 */
-	public boolean isDone();
+    boolean isDone();
 
 	/**
 	 * Returns true if all the fitness functions are maximising functions
@@ -50,7 +50,7 @@ public interface LocalSearchObjective<T extends Chromosome<T>> {
 	 * 
 	 * @return
 	 */
-	public boolean isMaximizationObjective();
+    boolean isMaximizationObjective();
 
 	/**
 	 * Returns true if the individual has improved due to the applied local
@@ -60,7 +60,7 @@ public interface LocalSearchObjective<T extends Chromosome<T>> {
 	 *            a {@link org.evosuite.ga.Chromosome} object.
 	 * @return a boolean.
 	 */
-	public boolean hasImproved(T chromosome);
+    boolean hasImproved(T chromosome);
 
 	/**
 	 * Returns true if the individual has not worsened due to the applied local
@@ -70,7 +70,7 @@ public interface LocalSearchObjective<T extends Chromosome<T>> {
 	 *            a {@link org.evosuite.ga.Chromosome} object.
 	 * @return a boolean.
 	 */
-	public boolean hasNotWorsened(T chromosome);
+    boolean hasNotWorsened(T chromosome);
 
 	/**
 	 * Returns true if the individual has changed since local search started
@@ -79,9 +79,9 @@ public interface LocalSearchObjective<T extends Chromosome<T>> {
 	 *            a {@link org.evosuite.ga.Chromosome} object.
 	 * @return a int.
 	 */
-	public int hasChanged(T chromosome);
+    int hasChanged(T chromosome);
 
-	public void addFitnessFunction(FitnessFunction<T> fitness);
+	void addFitnessFunction(FitnessFunction<T> fitness);
 
 	/**
 	 * Returns a list with all the fitness functions stored in this local search
@@ -89,6 +89,6 @@ public interface LocalSearchObjective<T extends Chromosome<T>> {
 	 *
 	 * @return a {@link org.evosuite.ga.FitnessFunction} object.
 	 */
-	public List<FitnessFunction<T>> getFitnessFunctions();
+    List<FitnessFunction<T>> getFitnessFunctions();
 
 }

@@ -41,7 +41,7 @@ public interface UnitTestAdapter {
 	 *
 	 * @return a {@link java.lang.String} object.
 	 */
-	public String getImports();
+    String getImports();
 
 	/**
 	 * Get the framework specific definition of the test class
@@ -49,7 +49,7 @@ public interface UnitTestAdapter {
 	 * @param testName a {@link java.lang.String} object.
 	 * @return a {@link java.lang.String} object.
 	 */
-	public String getClassDefinition(String testName);
+    String getClassDefinition(String testName);
 
 	/**
 	 * Get the framework specific definition of a test method
@@ -57,7 +57,7 @@ public interface UnitTestAdapter {
 	 * @param testName a {@link java.lang.String} object.
 	 * @return a {@link java.lang.String} object.
 	 */
-	public String getMethodDefinition(String testName);
+    String getMethodDefinition(String testName);
 
 	/**
 	 * Get the class definition of a test suite
@@ -65,7 +65,7 @@ public interface UnitTestAdapter {
 	 * @param tests a {@link java.util.List} object.
 	 * @return a {@link java.lang.String} object.
 	 */
-	public String getSuite(List<String> tests);
+    String getSuite(List<String> tests);
 
 	/**
 	 * Return the sequence of method calls for a test
@@ -75,7 +75,7 @@ public interface UnitTestAdapter {
 	 * @param id a int.
 	 * @return a {@link java.lang.String} object.
 	 */
-	public String getTestString(int id, TestCase test, Map<Integer, Throwable> exceptions);
+    String getTestString(int id, TestCase test, Map<Integer, Throwable> exceptions);
 
 	/**
 	 * Return the sequence of method calls for a test
@@ -86,6 +86,6 @@ public interface UnitTestAdapter {
 	 * @param id a int.
 	 * @return a {@link java.lang.String} object.
 	 */
-	public String getTestString(int id, TestCase test,
-	        Map<Integer, Throwable> exceptions, TestCodeVisitor visitor);
+    String getTestString(int id, TestCase test,
+                         Map<Integer, Throwable> exceptions, TestCodeVisitor visitor);
 }

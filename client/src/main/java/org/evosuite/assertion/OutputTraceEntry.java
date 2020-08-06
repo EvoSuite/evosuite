@@ -34,7 +34,7 @@ public interface OutputTraceEntry {
 	 * @param other a {@link org.evosuite.assertion.OutputTraceEntry} object.
 	 * @return a boolean.
 	 */
-	public boolean differs(OutputTraceEntry other);
+    boolean differs(OutputTraceEntry other);
 
 	/**
 	 * <p>getAssertions</p>
@@ -42,14 +42,14 @@ public interface OutputTraceEntry {
 	 * @param other a {@link org.evosuite.assertion.OutputTraceEntry} object.
 	 * @return a {@link java.util.Set} object.
 	 */
-	public Set<Assertion> getAssertions(OutputTraceEntry other);
+    Set<Assertion> getAssertions(OutputTraceEntry other);
 
 	/**
 	 * <p>getAssertions</p>
 	 *
 	 * @return a {@link java.util.Set} object.
 	 */
-	public Set<Assertion> getAssertions();
+    Set<Assertion> getAssertions();
 
 	/**
 	 * <p>isDetectedBy</p>
@@ -57,13 +57,13 @@ public interface OutputTraceEntry {
 	 * @param assertion a {@link org.evosuite.assertion.Assertion} object.
 	 * @return a boolean.
 	 */
-	public boolean isDetectedBy(Assertion assertion);
+    boolean isDetectedBy(Assertion assertion);
 
 	/**
 	 * <p>cloneEntry</p>
 	 *
 	 * @return a {@link org.evosuite.assertion.OutputTraceEntry} object.
 	 */
-	public OutputTraceEntry cloneEntry();
+    OutputTraceEntry cloneEntry();
 
 }

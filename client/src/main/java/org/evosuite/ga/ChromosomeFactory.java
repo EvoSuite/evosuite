@@ -34,6 +34,6 @@ public interface ChromosomeFactory<T extends Chromosome<T>> extends Serializable
 	 *
 	 * @return the newly generated chromosome
 	 */
-	public T getChromosome();
+    T getChromosome();
 
 }

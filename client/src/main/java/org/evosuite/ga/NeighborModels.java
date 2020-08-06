@@ -10,18 +10,18 @@ import java.util.List;
 public interface NeighborModels {
 
 
-	public List<?> ringTopology(List<? extends Chromosome> collection, int position);
+	List<?> ringTopology(List<? extends Chromosome> collection, int position);
 	
-	public List<?> linearFive(List<? extends Chromosome> collection, int position);
+	List<?> linearFive(List<? extends Chromosome> collection, int position);
 	
-	public List<?> compactNine(List<? extends Chromosome> collection, int position);
+	List<?> compactNine(List<? extends Chromosome> collection, int position);
 	
-	public List<?> CompactThirteen(List<? extends Chromosome> collection, int position);
+	List<?> CompactThirteen(List<? extends Chromosome> collection, int position);
 
 	/*
 	 * Neighbourhood positions
 	 */
-	public enum Positions {
+    enum Positions {
 
 		N,
 		S,

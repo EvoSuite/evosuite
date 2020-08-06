@@ -28,5 +28,5 @@ import org.evosuite.symbolic.expr.bv.IntegerValue;
  */
 public interface IntegerOperand extends Operand {
 
-	public IntegerValue getIntegerExpression();
+	IntegerValue getIntegerExpression();
 }

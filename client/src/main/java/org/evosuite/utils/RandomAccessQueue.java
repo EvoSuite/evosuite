@@ -28,7 +28,7 @@ package org.evosuite.utils;
  */
 public interface RandomAccessQueue<T> {
 
-	public void restrictedAdd(T value);
+	void restrictedAdd(T value);
 
-	public T getRandomValue();
+	T getRandomValue();
 }

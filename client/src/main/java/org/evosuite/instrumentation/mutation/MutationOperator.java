@@ -47,8 +47,8 @@ public interface MutationOperator {
 	 * @param frame a {@link org.objectweb.asm.tree.analysis.Frame} object.
 	 * @return a {@link java.util.List} object.
 	 */
-	public List<Mutation> apply(MethodNode mn, String className, String methodName,
-	        BytecodeInstruction instruction, Frame frame);
+    List<Mutation> apply(MethodNode mn, String className, String methodName,
+                         BytecodeInstruction instruction, Frame frame);
 
 	/**
 	 * Check if the mutation operator is applicable to the instruction
@@ -56,6 +56,6 @@ public interface MutationOperator {
 	 * @param instruction a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
 	 * @return a boolean.
 	 */
-	public boolean isApplicable(BytecodeInstruction instruction);
+    boolean isApplicable(BytecodeInstruction instruction);
 
 }

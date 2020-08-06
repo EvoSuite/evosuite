@@ -38,6 +38,6 @@ public interface ClassAdapterFactory {
 	 * @param className a {@link java.lang.String} object.
 	 * @return a {@link org.objectweb.asm.ClassVisitor} object.
 	 */
-	public ClassVisitor getVisitor(ClassVisitor cv, String className);
+    ClassVisitor getVisitor(ClassVisitor cv, String className);
 
 }

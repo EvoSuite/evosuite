@@ -37,5 +37,5 @@ public interface PopulationLimit<T extends Chromosome<T>> extends Serializable {
 	 * @param population a {@link java.util.List} object.
 	 * @return a boolean.
 	 */
-	public boolean isPopulationFull(List<T> population);
+    boolean isPopulationFull(List<T> population);
 }

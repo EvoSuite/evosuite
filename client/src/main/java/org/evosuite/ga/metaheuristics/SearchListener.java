@@ -34,34 +34,34 @@ public interface SearchListener<T extends Chromosome<T>> {
 	 *
 	 * @param algorithm a {@link org.evosuite.ga.metaheuristics.GeneticAlgorithm} object.
 	 */
-	public void searchStarted(GeneticAlgorithm<T> algorithm);
+	void searchStarted(GeneticAlgorithm<T> algorithm);
 
 	/**
 	 * Called after each iteration of the search
 	 *
 	 * @param algorithm a {@link org.evosuite.ga.metaheuristics.GeneticAlgorithm} object.
 	 */
-	public void iteration(GeneticAlgorithm<T> algorithm);
+	void iteration(GeneticAlgorithm<T> algorithm);
 
 	/**
 	 * Called after the last iteration
 	 *
 	 * @param algorithm a {@link org.evosuite.ga.metaheuristics.GeneticAlgorithm} object.
 	 */
-	public void searchFinished(GeneticAlgorithm<T> algorithm);
+	void searchFinished(GeneticAlgorithm<T> algorithm);
 
 	/**
 	 * Called after every single fitness evaluation
 	 *
 	 * @param individual a {@link org.evosuite.ga.Chromosome} object.
 	 */
-	public void fitnessEvaluation(T individual);
+	void fitnessEvaluation(T individual);
 
 	/**
 	 * Called before a chromosome is mutated
 	 *
 	 * @param individual a {@link org.evosuite.ga.Chromosome} object.
 	 */
-	public void modification(T individual);
+	void modification(T individual);
 
 }

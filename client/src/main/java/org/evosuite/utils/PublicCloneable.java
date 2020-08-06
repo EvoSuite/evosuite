@@ -25,5 +25,5 @@ public interface PublicCloneable<T> extends Cloneable {
 	 * @param <T> a T object.
 	 * @return a T object.
 	 */
-	public T clone();
+    T clone();
 }

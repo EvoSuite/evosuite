@@ -47,8 +47,8 @@ public class ValueMinimizer extends TestVisitor {
 
 	private static Logger logger = LoggerFactory.getLogger(ValueMinimizer.class);
 
-	public static interface Minimization {
-		public boolean isNotWorse();
+	public interface Minimization {
+		boolean isNotWorse();
 	}
 
 	private static class TestMinimization implements Minimization {

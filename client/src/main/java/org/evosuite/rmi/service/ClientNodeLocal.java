@@ -33,27 +33,27 @@ import java.util.Set;
  */
 public interface ClientNodeLocal<T extends Chromosome<T>> extends Listenable<Set<T>> {
 
-	public boolean init();
+	boolean init();
 
-	public void trackOutputVariable(RuntimeVariable variable, Object value);
+	void trackOutputVariable(RuntimeVariable variable, Object value);
 	
-    public void publishPermissionStatistics();
+    void publishPermissionStatistics();
 
-	public void changeState(ClientState state);
+	void changeState(ClientState state);
 
-	public void changeState(ClientState state, ClientStateInformation information);
+	void changeState(ClientState state, ClientStateInformation information);
 
-	public void updateStatistics(T individual);
+	void updateStatistics(T individual);
 
-	public void flushStatisticsForClassChange();
+	void flushStatisticsForClassChange();
 
-	public void updateProperty(String propertyName, Object value);
+	void updateProperty(String propertyName, Object value);
 
-	public void waitUntilDone();
+	void waitUntilDone();
 	
-	public void emigrate(Set<T> immigrants);
+	void emigrate(Set<T> immigrants);
 	
-	public void sendBestSolution(Set<T> solutions);
+	void sendBestSolution(Set<T> solutions);
 
-    public Set<Set<T>> getBestSolutions();
+    Set<Set<T>> getBestSolutions();
 }

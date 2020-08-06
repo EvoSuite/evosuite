@@ -29,6 +29,6 @@ public interface SearchAlgorithm {
 	/**
 	 * Generate solution
 	 */
-	public void generateSolution();
+    void generateSolution();
 	
 }

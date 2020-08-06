@@ -37,12 +37,12 @@ public interface InterfaceTestRunnable extends Callable<ExecutionResult>{
 	 *
 	 * @return a {@link java.util.Map} object.
 	 */
-	public Map<Integer, Throwable> getExceptionsThrown(); 
+    Map<Integer, Throwable> getExceptionsThrown();
 	
 	/**
 	 * <p>isRunFinished</p>
 	 *
 	 * @return a boolean.
 	 */
-	public boolean isRunFinished();
+    boolean isRunFinished();
 }

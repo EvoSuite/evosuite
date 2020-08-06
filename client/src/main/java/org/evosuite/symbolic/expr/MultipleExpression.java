@@ -33,7 +33,7 @@ public interface MultipleExpression<T extends Object> {
 	 *            a T object.
 	 * @return a {@link org.evosuite.symbolic.expr.Operator} object.
 	 */
-	public Operator getOperator();
+    Operator getOperator();
 
 	/**
 	 * <p>
@@ -42,7 +42,7 @@ public interface MultipleExpression<T extends Object> {
 	 * 
 	 * @return a {@link org.evosuite.symbolic.expr.Expression} object.
 	 */
-	public Expression<T> getLeftOperand();
+    Expression<T> getLeftOperand();
 
 	/**
 	 * <p>
@@ -51,9 +51,9 @@ public interface MultipleExpression<T extends Object> {
 	 * 
 	 * @return a {@link org.evosuite.symbolic.expr.Expression} object.
 	 */
-	public Expression<?> getRightOperand();
+    Expression<?> getRightOperand();
 
-	public ArrayList<Expression<?>> getOther();
+	ArrayList<Expression<?>> getOther();
 	
 	
 

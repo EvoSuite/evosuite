@@ -35,5 +35,5 @@ public interface OutputTraceVisitor<T extends OutputTraceEntry> {
 	 * @param entry a T object.
 	 * @param <T> a T object.
 	 */
-	public void visit(T entry);
+    void visit(T entry);
 }

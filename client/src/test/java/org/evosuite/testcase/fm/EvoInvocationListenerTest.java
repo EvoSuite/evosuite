@@ -42,10 +42,10 @@ import static org.mockito.Mockito.withSettings;
 public class EvoInvocationListenerTest {
 
     public interface Foo{
-        public int parseString(String s);
-        public int parseString(String s, boolean flag);
-        public int parseString(String s, Object obj);
-        public int parseString(String s, Foo foo);
+        int parseString(String s);
+        int parseString(String s, boolean flag);
+        int parseString(String s, Object obj);
+        int parseString(String s, Foo foo);
     }
 
     public class AClassWithFinal{

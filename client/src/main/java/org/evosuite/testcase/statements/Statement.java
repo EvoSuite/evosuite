@@ -50,14 +50,14 @@ public interface Statement {
 	 *
 	 * @param assertion the assertion to be added
 	 */
-	public void addAssertion(Assertion assertion);
+    void addAssertion(Assertion assertion);
 	
 	/**
 	 * Adds to this statement a textual comment that will be included in the JUnit output.
 	 *
 	 * @param comment the comment to add
 	 */
-	public void addComment(String comment);
+    void addComment(String comment);
 
 	/**
 	 * Sets the class loader for this statement to the specified {@code loader}.
@@ -67,14 +67,14 @@ public interface Statement {
 	 *
 	 * @param loader the class laoder to use
 	 */
-	public void changeClassLoader(ClassLoader loader);
+    void changeClassLoader(ClassLoader loader);
 
 	/**
 	 * Creates a deep copy of this statement.
 	 *
 	 * @return a deep copy of this statement
 	 */
-	public Statement clone();
+    Statement clone();
 
 	/**
 	 * <p>
@@ -85,7 +85,7 @@ public interface Statement {
 	 *            the testcase in which this statement will be inserted
 	 * @return a {@link Statement} object.
 	 */
-	public Statement clone(TestCase newTestCase);
+    Statement clone(TestCase newTestCase);
 
 	/**
 	 * <p>
@@ -98,7 +98,7 @@ public interface Statement {
 	 *            a int.
 	 * @return a {@link Statement} object.
 	 */
-	public Statement copy(TestCase newTestCase, int offset);
+    Statement copy(TestCase newTestCase, int offset);
 
 	/**
 	 * <p>
@@ -111,7 +111,7 @@ public interface Statement {
 	 *            a int.
 	 * @return a {@link java.util.Set} object.
 	 */
-	public Set<Assertion> copyAssertions(TestCase newTestCase, int offset);
+    Set<Assertion> copyAssertions(TestCase newTestCase, int offset);
 
 	/**
 	 * {@inheritDoc}
@@ -119,7 +119,7 @@ public interface Statement {
 	 * Equality check
 	 */
 	@Override
-	public boolean equals(Object s);
+    boolean equals(Object s);
 
 	/**
 	 * Executes the statement under the given scope. If execution of the statement
@@ -139,7 +139,7 @@ public interface Statement {
 	 * @throws java.lang.InstantiationException
 	 *             if any.
 	 */
-	public Throwable execute(Scope scope, PrintStream out)
+    Throwable execute(Scope scope, PrintStream out)
 	        throws InvocationTargetException, IllegalArgumentException,
 	        IllegalAccessException, InstantiationException;
 
@@ -151,28 +151,28 @@ public interface Statement {
 	 * 
 	 * @return a {@link java.lang.reflect.AccessibleObject} object.
 	 */
-	public GenericAccessibleObject<?> getAccessibleObject();
+    GenericAccessibleObject<?> getAccessibleObject();
 
 	/**
 	 * Get Java code representation of assertions
 	 * 
 	 * @return String representing all assertions attached to this statement
 	 */
-	public String getAssertionCode();
+    String getAssertionCode();
 
 	/**
 	 * Return list of assertions
 	 * 
 	 * @return a {@link java.util.Set} object.
 	 */
-	public Set<Assertion> getAssertions();
+    Set<Assertion> getAssertions();
 
 	/**
 	 * Create a string representing the statement as Java code
 	 * 
 	 * @return a {@link java.lang.String} object.
 	 */
-	public String getCode();
+    String getCode();
 
 	/**
 	 * Create a string representing the statement as Java code
@@ -181,13 +181,13 @@ public interface Statement {
 	 *            a {@link java.lang.Throwable} object.
 	 * @return a {@link java.lang.String} object.
 	 */
-	public String getCode(Throwable exception);
+    String getCode(Throwable exception);
 
 	/**
 	 * Retrieve comment for this statement
 	 * @return
 	 */
-	public String getComment();
+    String getComment();
 	
 	
 	/**
@@ -197,14 +197,14 @@ public interface Statement {
 	 * 
 	 * @return a {@link java.util.Set} object.
 	 */
-	public Set<Class<?>> getDeclaredExceptions();
+    Set<Class<?>> getDeclaredExceptions();
 
 	/**
 	 * Retrieve the number of parameters of this statement
 	 * 
 	 * @return
 	 */
-	public int getNumParameters();
+    int getNumParameters();
 
 	/**
 	 * <p>
@@ -213,7 +213,7 @@ public interface Statement {
 	 * 
 	 * @return a int.
 	 */
-	public int getPosition();
+    int getPosition();
 
 	/**
 	 * <p>
@@ -222,7 +222,7 @@ public interface Statement {
 	 * 
 	 * @return Raw class of return value
 	 */
-	public Class<?> getReturnClass();
+    Class<?> getReturnClass();
 
 	/**
 	 * <p>
@@ -231,7 +231,7 @@ public interface Statement {
 	 * 
 	 * @return Generic type of return value
 	 */
-	public Type getReturnType();
+    Type getReturnType();
 
 	/**
 	 * <p>
@@ -240,14 +240,14 @@ public interface Statement {
 	 * 
 	 * @return Variable representing return value
 	 */
-	public VariableReference getReturnValue();
+    VariableReference getReturnValue();
 
 	/**
 	 * Retrieve the test case this statement is part of
 	 * 
 	 * @return
 	 */
-	public TestCase getTestCase();
+    TestCase getTestCase();
 	
 	/**
 	 * <p>
@@ -256,7 +256,7 @@ public interface Statement {
 	 * 
 	 * @return a {@link java.util.List} object.
 	 */
-	public List<VariableReference> getUniqueVariableReferences();
+    List<VariableReference> getUniqueVariableReferences();
 
 	/**
 	 * <p>
@@ -265,14 +265,14 @@ public interface Statement {
 	 * 
 	 * @return a {@link java.util.Set} object.
 	 */
-	public Set<VariableReference> getVariableReferences();
+    Set<VariableReference> getVariableReferences();
 
 	/**
 	 * Check if there are assertions
 	 * 
 	 * @return True if there are assertions
 	 */
-	public boolean hasAssertions();
+    boolean hasAssertions();
 
 	/**
 	 * {@inheritDoc}
@@ -280,13 +280,13 @@ public interface Statement {
 	 * Generate hash code
 	 */
 	@Override
-	public int hashCode();
+    int hashCode();
 
 	/**
 	 * Determine if the underlying reflection object is currently accessible 
 	 * @return
 	 */
-	public boolean isAccessible();
+    boolean isAccessible();
 	
 	/**
 	 * Returns true if this statement should be handled as an
@@ -296,9 +296,9 @@ public interface Statement {
 	 * 
 	 * @return a boolean.
 	 */
-	public boolean isAssignmentStatement();
+    boolean isAssignmentStatement();
 
-	public boolean isReflectionStatement();
+	boolean isReflectionStatement();
 
 	/**
 	 * Tests if the throwable defined by t is declared to be thrown by the
@@ -309,7 +309,7 @@ public interface Statement {
 	 *            a {@link java.lang.Throwable} object.
 	 * @return a boolean.
 	 */
-	public boolean isDeclaredException(Throwable t);
+    boolean isDeclaredException(Throwable t);
 
 	/**
 	 * Various consistency checks. This method might also return with an
@@ -318,7 +318,7 @@ public interface Statement {
 	 * 
 	 * @return a boolean.
 	 */
-	public boolean isValid();
+    boolean isValid();
 
 	/**
 	 * <p>
@@ -331,7 +331,7 @@ public interface Statement {
 	 *            a {@link org.evosuite.testcase.TestFactory} object.
 	 * @return a boolean.
 	 */
-	public boolean mutate(TestCase test, TestFactory factory);
+    boolean mutate(TestCase test, TestFactory factory);
 
 	/**
 	 * Check if the statement makes use of var
@@ -340,7 +340,7 @@ public interface Statement {
 	 *            Variable we are checking for
 	 * @return True if var is referenced
 	 */
-	public boolean references(VariableReference var);
+    boolean references(VariableReference var);
 
 	/**
 	 * Delete assertion attached to this statement
@@ -348,12 +348,12 @@ public interface Statement {
 	 * @param assertion
 	 *            a {@link org.evosuite.assertion.Assertion} object.
 	 */
-	public void removeAssertion(Assertion assertion);
+    void removeAssertion(Assertion assertion);
 
 	/**
 	 * Delete all assertions attached to this statement
 	 */
-	public void removeAssertions();
+    void removeAssertions();
 
 	/**
 	 * Replace a VariableReference with another one
@@ -363,7 +363,7 @@ public interface Statement {
 	 * @param newVar
 	 *            The new variable
 	 */
-	public void replace(VariableReference oldVar, VariableReference newVar);
+    void replace(VariableReference oldVar, VariableReference newVar);
 
 	/**
 	 * Allows the comparing of Statements between TestCases. I.e. this is a more
@@ -375,7 +375,7 @@ public interface Statement {
 	 *            a {@link Statement} object.
 	 * @return a boolean.
 	 */
-	public boolean same(Statement s);
+    boolean same(Statement s);
 
 	/**
 	 * Sets the set of assertions to statement
@@ -383,7 +383,7 @@ public interface Statement {
 	 * @param assertions
 	 *            a {@link java.util.Set} object.
 	 */
-	public void setAssertions(Set<Assertion> assertions);
+    void setAssertions(Set<Assertion> assertions);
 
 	/**
 	 * <p>
@@ -393,6 +393,6 @@ public interface Statement {
 	 * @param newRetVal
 	 *            a {@link org.evosuite.testcase.variable.VariableReference} object.
 	 */
-	public void setRetval(VariableReference newRetVal);
+    void setRetval(VariableReference newRetVal);
 
 }

@@ -72,7 +72,7 @@ public class OpenRegestryTest {
 	}
 	
 	interface Ifoo extends Remote{
-		public String getString() throws RemoteException;
+		String getString() throws RemoteException;
 	}
 	
 	class FooImpl implements Ifoo{

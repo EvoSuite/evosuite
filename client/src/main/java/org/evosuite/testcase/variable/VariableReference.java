@@ -45,7 +45,7 @@ public interface VariableReference extends Comparable<VariableReference>, Serial
 	 * 
 	 * @return a int.
 	 */
-	public int getStPosition();
+    int getStPosition();
 
 	/**
 	 * Distance metric used to select variables for mutation based on how close
@@ -53,7 +53,7 @@ public interface VariableReference extends Comparable<VariableReference>, Serial
 	 * 
 	 * @return a int.
 	 */
-	public int getDistance();
+    int getDistance();
 
 	/**
 	 * Set the distance metric
@@ -61,14 +61,14 @@ public interface VariableReference extends Comparable<VariableReference>, Serial
 	 * @param distance
 	 *            a int.
 	 */
-	public void setDistance(int distance);
+    void setDistance(int distance);
 
 	/**
 	 * Create a copy of the current variable
 	 * 
 	 * @return a {@link VariableReference} object.
 	 */
-	public abstract VariableReference clone();
+    VariableReference clone();
 
 	/**
 	 * Create a copy of the current variable for new test
@@ -77,7 +77,7 @@ public interface VariableReference extends Comparable<VariableReference>, Serial
 	 *            a {@link org.evosuite.testcase.TestCase} object.
 	 * @return a {@link VariableReference} object.
 	 */
-	public abstract VariableReference clone(TestCase newTest);
+    VariableReference clone(TestCase newTest);
 
 	/**
 	 * Create a copy of the current variable for new test
@@ -88,21 +88,21 @@ public interface VariableReference extends Comparable<VariableReference>, Serial
 	 *            a int.
 	 * @return a {@link VariableReference} object.
 	 */
-	public abstract VariableReference copy(TestCase newTest, int offset);
+    VariableReference copy(TestCase newTest, int offset);
 
 	/**
 	 * Return simple class name
 	 * 
 	 * @return a {@link java.lang.String} object.
 	 */
-	public String getSimpleClassName();
+    String getSimpleClassName();
 
 	/**
 	 * Return class name
 	 * 
 	 * @return a {@link java.lang.String} object.
 	 */
-	public String getClassName();
+    String getClassName();
 
 	/**
 	 * <p>
@@ -111,7 +111,7 @@ public interface VariableReference extends Comparable<VariableReference>, Serial
 	 * 
 	 * @return a {@link java.lang.String} object.
 	 */
-	public String getComponentName();
+    String getComponentName();
 
 	/**
 	 * <p>
@@ -120,7 +120,7 @@ public interface VariableReference extends Comparable<VariableReference>, Serial
 	 * 
 	 * @return a {@link java.lang.reflect.Type} object.
 	 */
-	public Type getComponentType();
+    Type getComponentType();
 
 	/**
 	 * <p>
@@ -129,7 +129,7 @@ public interface VariableReference extends Comparable<VariableReference>, Serial
 	 * 
 	 * @return a {@link GenericClass} object.
 	 */
-	public GenericClass getGenericClass();
+    GenericClass getGenericClass();
 	
 	/**
 	 * <p>
@@ -138,70 +138,70 @@ public interface VariableReference extends Comparable<VariableReference>, Serial
 	 * 
 	 * @return a {@link org.evosuite.testcase.TestCase} object.
 	 */
-	public TestCase getTestCase();
+    TestCase getTestCase();
 
 	/**
 	 * Return true if variable is an enumeration
 	 * 
 	 * @return a boolean.
 	 */
-	public boolean isEnum();
+    boolean isEnum();
 
 	/**
 	 * Return true if variable is a primitive type
 	 * 
 	 * @return a boolean.
 	 */
-	public boolean isPrimitive();
+    boolean isPrimitive();
 
 	/**
 	 * Return true if variable is void
 	 * 
 	 * @return a boolean.
 	 */
-	public boolean isVoid();
+    boolean isVoid();
 
 	/**
 	 * Return true if variable is an array
 	 * 
 	 * @return a boolean.
 	 */
-	public boolean isArray();
+    boolean isArray();
 	
 	/**
 	 * Return true if this is an index into an array variable
 	 * 
 	 * @return a boolean
 	 */
-	public boolean isArrayIndex();
+    boolean isArrayIndex();
 
 	/**
 	 * Return true if this is a reference to a public field
 	 *
 	 * @return a boolean
 	 */
-	public boolean isFieldReference();
+    boolean isFieldReference();
 
 	/**
 	 * Return true if variable is a string
 	 * 
 	 * @return a boolean.
 	 */
-	public boolean isString();
+    boolean isString();
 
 	/**
 	 * Return true if type of variable is a primitive wrapper
 	 * 
 	 * @return a boolean.
 	 */
-	public boolean isWrapperType();
+    boolean isWrapperType();
 
 	/**
 	 * Return true if we can validly access this variable. This might not be the case for a field reference if the owner class is not accessible
 	 * 
 	 * @return
 	 */
-	public boolean isAccessible();
+    boolean isAccessible();
 	
 	/**
 	 * Return true if other type can be assigned to this variable
@@ -210,7 +210,7 @@ public interface VariableReference extends Comparable<VariableReference>, Serial
 	 *            Right hand side of the assignment
 	 * @return a boolean.
 	 */
-	public boolean isAssignableFrom(Type other);
+    boolean isAssignableFrom(Type other);
 
 	/**
 	 * Return true if this variable can by assigned to a variable of other type
@@ -219,7 +219,7 @@ public interface VariableReference extends Comparable<VariableReference>, Serial
 	 *            Left hand side of the assignment
 	 * @return a boolean.
 	 */
-	public boolean isAssignableTo(Type other);
+    boolean isAssignableTo(Type other);
 
 	/**
 	 * Return true if other type can be assigned to this variable
@@ -228,7 +228,7 @@ public interface VariableReference extends Comparable<VariableReference>, Serial
 	 *            Right hand side of the assignment
 	 * @return a boolean.
 	 */
-	public boolean isAssignableFrom(VariableReference other);
+    boolean isAssignableFrom(VariableReference other);
 
 	/**
 	 * Return true if this variable can by assigned to a variable of other type
@@ -237,14 +237,14 @@ public interface VariableReference extends Comparable<VariableReference>, Serial
 	 *            Left hand side of the assignment
 	 * @return a boolean.
 	 */
-	public boolean isAssignableTo(VariableReference other);
+    boolean isAssignableTo(VariableReference other);
 
 	/**
 	 * Return type of this variable
 	 * 
 	 * @return a {@link java.lang.reflect.Type} object.
 	 */
-	public Type getType();
+    Type getType();
 
 	/**
 	 * Set type of this variable
@@ -252,21 +252,21 @@ public interface VariableReference extends Comparable<VariableReference>, Serial
 	 * @param type
 	 *            a {@link java.lang.reflect.Type} object.
 	 */
-	public void setType(Type type);
+    void setType(Type type);
 
 	/**
 	 * Return raw class of this variable
 	 * 
 	 * @return a {@link java.lang.Class} object.
 	 */
-	public Class<?> getVariableClass();
+    Class<?> getVariableClass();
 
 	/**
 	 * Return raw class of this variable's component
 	 * 
 	 * @return a {@link java.lang.Class} object.
 	 */
-	public Class<?> getComponentClass();
+    Class<?> getComponentClass();
 
 	/**
 	 * Return the actual object represented by this variable for a given scope
@@ -278,7 +278,7 @@ public interface VariableReference extends Comparable<VariableReference>, Serial
 	 *             the static init of a field)
 	 * @return a {@link java.lang.Object} object.
 	 */
-	public Object getObject(Scope scope) throws CodeUnderTestException;
+    Object getObject(Scope scope) throws CodeUnderTestException;
 
 	/**
 	 * <p>
@@ -288,7 +288,7 @@ public interface VariableReference extends Comparable<VariableReference>, Serial
 	 * @return the code this variable reference stems from or null if it was
 	 *         generated.
 	 */
-	public String getOriginalCode();
+    String getOriginalCode();
 
 	/**
 	 * Set the actual object represented by this variable in a given scope
@@ -301,7 +301,7 @@ public interface VariableReference extends Comparable<VariableReference>, Serial
 	 *             if code from the class under test throws an exception. (E.g.
 	 *             the static init of a field)
 	 */
-	public void setObject(Scope scope, Object value) throws CodeUnderTestException;
+    void setObject(Scope scope, Object value) throws CodeUnderTestException;
 
 	/**
 	 * Set the code fragment that defined this variable reference if imported
@@ -310,7 +310,7 @@ public interface VariableReference extends Comparable<VariableReference>, Serial
 	 * @param code
 	 *            The code fragment that defined this variable reference.
 	 */
-	public void setOriginalCode(String code);
+    void setOriginalCode(String code);
 
 	/**
 	 * {@inheritDoc}
@@ -318,14 +318,14 @@ public interface VariableReference extends Comparable<VariableReference>, Serial
 	 * Return string representation of the variable
 	 */
 	@Override
-	public String toString();
+    String toString();
 
 	/**
 	 * Return name for source code representation
 	 * 
 	 * @return a {@link java.lang.String} object.
 	 */
-	public String getName();
+    String getName();
 
 	/**
 	 * <p>
@@ -334,7 +334,7 @@ public interface VariableReference extends Comparable<VariableReference>, Serial
 	 * 
 	 * @return a {@link VariableReference} object.
 	 */
-	public VariableReference getAdditionalVariableReference();
+    VariableReference getAdditionalVariableReference();
 
 	/**
 	 * <p>
@@ -344,7 +344,7 @@ public interface VariableReference extends Comparable<VariableReference>, Serial
 	 * @param var
 	 *            a {@link VariableReference} object.
 	 */
-	public void setAdditionalVariableReference(VariableReference var);
+    void setAdditionalVariableReference(VariableReference var);
 
 	/**
 	 * <p>
@@ -356,8 +356,8 @@ public interface VariableReference extends Comparable<VariableReference>, Serial
 	 * @param var2
 	 *            a {@link VariableReference} object.
 	 */
-	public void replaceAdditionalVariableReference(VariableReference var1,
-	        VariableReference var2);
+    void replaceAdditionalVariableReference(VariableReference var1,
+                                            VariableReference var2);
 
 	/**
 	 * <p>
@@ -369,7 +369,7 @@ public interface VariableReference extends Comparable<VariableReference>, Serial
 	 * @param locals
 	 *            a {@link java.util.Map} object.
 	 */
-	public void loadBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals);
+    void loadBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals);
 
 	/**
 	 * <p>
@@ -381,7 +381,7 @@ public interface VariableReference extends Comparable<VariableReference>, Serial
 	 * @param locals
 	 *            a {@link java.util.Map} object.
 	 */
-	public void storeBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals);
+    void storeBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals);
 
 	/**
 	 * <p>
@@ -391,7 +391,7 @@ public interface VariableReference extends Comparable<VariableReference>, Serial
 	 * @param loader
 	 *            a {@link java.lang.ClassLoader} object.
 	 */
-	public void changeClassLoader(ClassLoader loader);
+    void changeClassLoader(ClassLoader loader);
 
 	/**
 	 * <p>
@@ -400,7 +400,7 @@ public interface VariableReference extends Comparable<VariableReference>, Serial
 	 * 
 	 * @return a {@link java.lang.Object} object.
 	 */
-	public Object getDefaultValue();
+    Object getDefaultValue();
 
 	/**
 	 * <p>
@@ -409,7 +409,7 @@ public interface VariableReference extends Comparable<VariableReference>, Serial
 	 * 
 	 * @return a {@link java.lang.String} object.
 	 */
-	public String getDefaultValueString();
+    String getDefaultValueString();
 
 	/*
 	 * (non-Javadoc)
@@ -418,7 +418,7 @@ public interface VariableReference extends Comparable<VariableReference>, Serial
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public int compareTo(VariableReference other);
+    int compareTo(VariableReference other);
 
 	/**
 	 * <p>
@@ -429,5 +429,5 @@ public interface VariableReference extends Comparable<VariableReference>, Serial
 	 *            a {@link VariableReference} object.
 	 * @return a boolean.
 	 */
-	public boolean same(VariableReference r);
+    boolean same(VariableReference r);
 }
