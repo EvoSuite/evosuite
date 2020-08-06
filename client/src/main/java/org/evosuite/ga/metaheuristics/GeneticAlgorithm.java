@@ -623,7 +623,7 @@ public abstract class GeneticAlgorithm<T extends Chromosome<T>> implements Searc
 
         List<T> elite = population.stream().limit(Properties.ELITE)
                 .peek(c -> logger.trace("Copying individual with fitness " + c.getFitness()))
-                .map(c -> (T) c.clone())
+                .map(Chromosome::clone)
                 .collect(toList());
 
         logger.trace("Done.");

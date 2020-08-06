@@ -11,7 +11,7 @@ import static java.util.stream.Collectors.*;
  * 
  * Select individual by highest fitness
  */
-public class BestKSelection<T extends Chromosome> extends SelectionFunction<T> {
+public class BestKSelection<T extends Chromosome<T>> extends SelectionFunction<T> {
 
     /**
      * {@inheritDoc}

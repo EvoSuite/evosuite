@@ -61,7 +61,6 @@ import org.evosuite.testsuite.secondaryobjectives.TestSuiteSecondaryObjective;
 import org.evosuite.utils.ArrayUtil;
 import org.evosuite.utils.ResourceController;
 import sun.misc.Signal;
-import org.evosuite.Properties;
 
 
 /**

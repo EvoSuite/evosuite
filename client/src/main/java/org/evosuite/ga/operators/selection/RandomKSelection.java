@@ -8,7 +8,7 @@ import java.util.List;
 /**
  * Select random individual
  */
-public class RandomKSelection<T extends Chromosome> extends SelectionFunction<T> {
+public class RandomKSelection<T extends Chromosome<T>> extends SelectionFunction<T> {
 
     @Override
     public int getIndex(List<T> population) {

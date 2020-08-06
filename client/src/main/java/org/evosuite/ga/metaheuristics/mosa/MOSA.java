@@ -30,7 +30,6 @@ import org.evosuite.ClientProcess;
 import org.evosuite.Properties;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
-import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.comparators.OnlyCrowdingComparator;
 import org.evosuite.ga.operators.ranking.CrowdingDistance;
 import org.evosuite.ga.operators.selection.BestKSelection;

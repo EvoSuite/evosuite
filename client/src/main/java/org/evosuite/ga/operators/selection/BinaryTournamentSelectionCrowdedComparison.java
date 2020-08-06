@@ -30,8 +30,8 @@ import org.evosuite.utils.Randomness;
  * 
  * @author José Campos
  */
-public class BinaryTournamentSelectionCrowdedComparison<T extends Chromosome> extends SelectionFunction<T>
-{
+public class BinaryTournamentSelectionCrowdedComparison<T extends Chromosome<T>>
+        extends SelectionFunction<T> {
 	private static final long serialVersionUID = -6887165634607218631L;
 
     /**
@@ -42,16 +42,16 @@ public class BinaryTournamentSelectionCrowdedComparison<T extends Chromosome> ex
     /**
      * indexes stores a permutation of ints
      */
-    private int indexes[];
+    private int[] indexes;
 
-    private RankAndCrowdingDistanceComparator<T> comparator;
+    private final RankAndCrowdingDistanceComparator<T> comparator;
 
     public BinaryTournamentSelectionCrowdedComparison() {
-        this.comparator = new RankAndCrowdingDistanceComparator<T>(this.maximize);
+        this.comparator = new RankAndCrowdingDistanceComparator<>(this.maximize);
     }
 
     public BinaryTournamentSelectionCrowdedComparison(boolean isToMaximize) {
-        this.comparator = new RankAndCrowdingDistanceComparator<T>(isToMaximize);
+        this.comparator = new RankAndCrowdingDistanceComparator<>(isToMaximize);
     }
 
 	@Override
@@ -69,9 +69,9 @@ public class BinaryTournamentSelectionCrowdedComparison<T extends Chromosome> ex
         this.index = (this.index + 2) % (population.size());
 
         int flag = this.comparator.compare(p1, p2);
-        if (flag == -1)
+        if (flag < 0)
             return index1;
-        else if (flag == 1)
+        else if (flag > 0)
             return index2;
 
 		return index1; // default

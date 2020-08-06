@@ -1,6 +1,5 @@
 package org.evosuite.strategy;
 
-import junit.framework.TestSuite;
 import org.evosuite.Properties;
 import org.evosuite.ShutdownTestWriter;
 import org.evosuite.TestGenerationContext;
