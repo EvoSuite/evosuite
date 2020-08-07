@@ -11,15 +11,19 @@ import org.evosuite.ga.operators.ranking.FastNonDominatedSorting;
 import org.evosuite.ga.operators.ranking.RankBasedPreferenceSorting;
 import org.evosuite.ga.operators.ranking.RankingFunction;
 import org.evosuite.ga.operators.selection.*;
+import org.evosuite.ga.populationlimit.IndividualPopulationLimit;
 import org.evosuite.ga.populationlimit.PopulationLimit;
+import org.evosuite.ga.populationlimit.SizePopulationLimit;
 import org.evosuite.ga.stoppingconditions.*;
 import org.evosuite.statistics.StatisticsListener;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testsuite.RelativeSuiteLengthBloatControl;
+import org.evosuite.testsuite.StatementsPopulationLimit;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.evosuite.utils.ResourceController;
+import org.hibernate.engine.jdbc.Size;
 
 import java.util.Collection;
 import java.util.List;
@@ -395,11 +399,27 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
         throw new UnsupportedOperationException("not implemented");
     }
 
+    @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public void setPopulationLimit(PopulationLimit<TestSuiteChromosome> limit) { // (6)
         // TODO voglseb
-        throw new UnsupportedOperationException("unimplemented during refactoring");
-        // algorithm.setPopulationLimit(limit);
+        if (algorithm != null) {
+            if (limit instanceof IndividualPopulationLimit) {
+                algorithm.setPopulationLimit(new IndividualPopulationLimit<>());
+            } else if (limit instanceof StatementsPopulationLimit) {
+                // StatementsPopulationLimit is defined on TestSuiteChromosome, thus cannot adapt to
+                // TestChromosomes.
+                throw new IllegalArgumentException("StatementsPopulationLimit not supported");
+            } else if (limit instanceof SizePopulationLimit) {
+                algorithm.setPopulationLimit(new SizePopulationLimit<>());
+            } else {
+                throw new IllegalArgumentException("cannot adapt population limit " + limit);
+            }
+        } else {
+            // When we hit this branch, this TestSuiteAdapter object is currently being
+            // constructed, and this method was invoked by the constructor of the super class
+            // (i.e., GeneticAlgorithm). We simply do nothing.
+        }
     }
 
     @Override
