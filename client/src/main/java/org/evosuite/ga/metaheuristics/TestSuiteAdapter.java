@@ -6,7 +6,7 @@ import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.bloatcontrol.BloatControlFunction;
-import org.evosuite.ga.operators.crossover.CrossOverFunction;
+import org.evosuite.ga.operators.crossover.*;
 import org.evosuite.ga.operators.ranking.FastNonDominatedSorting;
 import org.evosuite.ga.operators.ranking.RankBasedPreferenceSorting;
 import org.evosuite.ga.operators.ranking.RankingFunction;
@@ -310,11 +310,33 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
         throw new UnsupportedOperationException("not implemented");
     }
 
+    @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public void setCrossOverFunction(CrossOverFunction<TestSuiteChromosome> crossover) { // (7)
-        algorithm.setCrossOverFunction(crossover);
+        if (algorithm != null) {
+            if (crossover instanceof SinglePointRelativeCrossOver) {
+                algorithm.setCrossOverFunction(new SinglePointRelativeCrossOver<>());
+            } else if (crossover instanceof CoverageCrossOver) {
+                // CoverageCrossOver is defined on TestSuiteChromosome, thus cannot adapt to
+                // TestChromosomes.
+                throw new IllegalArgumentException("CoverageCrossOver not supported");
+            } else if (crossover instanceof UniformCrossOver) {
+                algorithm.setCrossOverFunction(new UniformCrossOver<>());
+            } else if (crossover instanceof SinglePointFixedCrossOver) {
+                algorithm.setCrossOverFunction(new SinglePointFixedCrossOver<>());
+            } else if (crossover instanceof SinglePointCrossOver) {
+                algorithm.setCrossOverFunction(new SinglePointCrossOver<>());
+            } else {
+                throw new IllegalArgumentException("cannot adapt crossover " + crossover);
+            }
+        } else  {
+            // When we hit this branch, this TestSuiteAdapter object is currently being
+            // constructed, and this method was invoked by the constructor of the super class
+            // (i.e., GeneticAlgorithm). We simply do nothing.
+        }
     }
 
+    @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public void addListener(SearchListener<TestSuiteChromosome> listener) { // (1b)
         if (algorithm != null) {
@@ -385,6 +407,7 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
         throw new UnsupportedOperationException("not implemented");
     }
 
+    @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public void addStoppingCondition(StoppingCondition<TestSuiteChromosome> condition) { // (1a)
         if (algorithm != null) {
@@ -423,7 +446,6 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
      *
      * @param stoppingCondition the stopping condition with "wrong" generic parameters.
      * @param <T> the desired chromosome type
-     * @param <F> the desired fitness function type.
      * @return
      */
     static<T extends Chromosome<T>> StoppingCondition<T> mapStoppingCondition
@@ -535,7 +557,7 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
     private static class TestSuiteFitnessFunctionWrapper extends TestSuiteFitnessFunction {
         private final boolean maximizationFunction;
 
-        TestSuiteFitnessFunctionWrapper(TestFitnessFunction fitnessFunction) {
+        TestSuiteFitnessFunctionWrapper(FitnessFunction<TestChromosome> fitnessFunction) {
             super();
             maximizationFunction = fitnessFunction.isMaximizationFunction();
         }
