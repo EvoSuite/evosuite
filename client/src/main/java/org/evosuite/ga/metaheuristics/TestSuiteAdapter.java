@@ -102,12 +102,12 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
     public abstract List<TestSuiteChromosome> getBestIndividuals();
 
     @Override
-    final protected void evolve() {
+    final protected void evolve() throws UnsupportedOperationException {
         throw new UnsupportedOperationException("not implemented");
     }
 
     @Override
-    final public void initializePopulation() {
+    final public void initializePopulation() throws UnsupportedOperationException {
         throw new UnsupportedOperationException("not implemented");
     }
 
@@ -122,77 +122,85 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
     }
 
     @Override
-    final protected void notifyMutation(TestSuiteChromosome chromosome) {
+    final protected void notifyMutation(TestSuiteChromosome chromosome)
+            throws UnsupportedOperationException {
         throw new UnsupportedOperationException("not implemented");
     }
 
     @Override
-    final protected void notifyEvaluation(TestSuiteChromosome chromosome) {
+    final protected void notifyEvaluation(TestSuiteChromosome chromosome)
+            throws UnsupportedOperationException {
         throw new UnsupportedOperationException("not implemented");
     }
 
     @Override
-    final protected boolean shouldApplyLocalSearch() {
+    final protected boolean shouldApplyLocalSearch()
+            throws UnsupportedOperationException {
         throw new UnsupportedOperationException("not implemented");
     }
 
     @Override
-    final protected void disableFirstSecondaryCriterion() {
+    final protected void disableFirstSecondaryCriterion() throws UnsupportedOperationException {
         throw new UnsupportedOperationException("not implemented");
     }
 
     @Override
-    final protected void enableFirstSecondaryCriterion() {
+    final protected void enableFirstSecondaryCriterion() throws UnsupportedOperationException {
         throw new UnsupportedOperationException("not implemented");
     }
 
     @Override
-    final protected void updateSecondaryCriterion(int starvationCounter) {
+    final protected void updateSecondaryCriterion(int starvationCounter)
+            throws UnsupportedOperationException {
         throw new UnsupportedOperationException("not implemented");
     }
 
     @Override
-    final protected void applyLocalSearch() {
+    final protected void applyLocalSearch() throws UnsupportedOperationException {
         throw new UnsupportedOperationException("not implemented");
     }
 
     @Override
-    final protected void updateProbability(boolean improvement) {
+    final protected void updateProbability(boolean improvement)
+            throws UnsupportedOperationException {
         throw new UnsupportedOperationException("not implemented");
     }
 
     @Override
-    final protected void generateInitialPopulation(int populationSize) {
+    final protected void generateInitialPopulation(int populationSize)
+            throws UnsupportedOperationException {
         throw new UnsupportedOperationException("not implemented");
     }
 
     @Override
-    final protected void starveToLimit(int limit) {
+    final protected void starveToLimit(int limit) throws UnsupportedOperationException {
         throw new UnsupportedOperationException("not implemented");
     }
 
     @Override
-    final protected void starveRandomly(int limit) {
+    final protected void starveRandomly(int limit) throws UnsupportedOperationException {
         throw new UnsupportedOperationException("not implemented");
     }
 
     @Override
-    final protected void starveByFitness(int limit) {
+    final protected void starveByFitness(int limit) throws UnsupportedOperationException {
         throw new UnsupportedOperationException("not implemented");
     }
 
     @Override
-    final protected void generateRandomPopulation(int populationSize) {
+    final protected void generateRandomPopulation(int populationSize)
+            throws UnsupportedOperationException {
         throw new UnsupportedOperationException("not implemented");
     }
 
     @Override
-    final public void clearPopulation() {
+    final public void clearPopulation() throws UnsupportedOperationException {
         throw new UnsupportedOperationException("not implemented");
     }
 
     @Override
-    public void addFitnessFunction(final FitnessFunction< TestSuiteChromosome> function) {
+    public void addFitnessFunction(final FitnessFunction< TestSuiteChromosome> function)
+            throws UnsupportedOperationException {
         throw new UnsupportedOperationException("not implemented");
     }
 
@@ -202,17 +210,19 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
     }
 
     @Override
-    final public int getNumberOfFitnessFunctions() {
+    final public int getNumberOfFitnessFunctions() throws UnsupportedOperationException {
         throw new UnsupportedOperationException("not implemented");
     }
 
     @Override
-    final public SelectionFunction<TestSuiteChromosome> getSelectionFunction() {
+    final public SelectionFunction<TestSuiteChromosome> getSelectionFunction()
+            throws UnsupportedOperationException {
         throw new UnsupportedOperationException("not implemented");
     }
 
     @Override
-    public void setSelectionFunction(SelectionFunction<TestSuiteChromosome> function) { // (2)
+    public void setSelectionFunction(SelectionFunction<TestSuiteChromosome> function)
+            throws IllegalArgumentException { // (2)
         final SelectionFunction<TestChromosome> adapteeFunction;
         if (function instanceof FitnessProportionateSelection) {
             adapteeFunction = new FitnessProportionateSelection<>();
@@ -236,12 +246,14 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
     }
 
     @Override
-    final public RankingFunction<TestSuiteChromosome> getRankingFunction() {
+    final public RankingFunction<TestSuiteChromosome> getRankingFunction()
+            throws UnsupportedOperationException {
         throw new UnsupportedOperationException("not implemented");
     }
 
     @Override
-    public void setRankingFunction(RankingFunction<TestSuiteChromosome> function) { // (3)
+    public void setRankingFunction(RankingFunction<TestSuiteChromosome> function)
+            throws IllegalArgumentException { // (3)
         final RankingFunction<TestChromosome> adapteeFunction;
         if (function instanceof FastNonDominatedSorting) {
             adapteeFunction = new FastNonDominatedSorting<>();
@@ -254,69 +266,76 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
     }
 
     @Override
-    final public void setBloatControl(BloatControlFunction<TestSuiteChromosome> bcf) {
+    final public void setBloatControl(BloatControlFunction<TestSuiteChromosome> bcf)
+            throws UnsupportedOperationException {
         throw new UnsupportedOperationException("not implemented");
     }
 
     @Override
-    public void addBloatControl(BloatControlFunction<TestSuiteChromosome> bloatControl) { // (8)
+    public void addBloatControl(BloatControlFunction<TestSuiteChromosome> bloatControl)
+            throws UnsupportedOperationException { // (8)
         throw new UnsupportedOperationException("unimplemented during refactoring");
         // algorithm.addBloatControl(bloatControl);
     }
 
     @Override
-    final public boolean isTooLong(TestSuiteChromosome chromosome) {
+    final public boolean isTooLong(TestSuiteChromosome chromosome)
+            throws UnsupportedOperationException {
         throw new UnsupportedOperationException("not implemented");
     }
 
     @Override
-    final protected void calculateFitness() {
+    final protected void calculateFitness() throws UnsupportedOperationException {
         throw new UnsupportedOperationException("not implemented");
     }
 
     @Override
-    final protected void calculateFitness(TestSuiteChromosome c) {
+    final protected void calculateFitness(TestSuiteChromosome c)
+            throws UnsupportedOperationException {
         throw new UnsupportedOperationException("not implemented");
     }
 
     @Override
-    final protected void calculateFitnessAndSortPopulation() {
+    final protected void calculateFitnessAndSortPopulation() throws UnsupportedOperationException {
         throw new UnsupportedOperationException("not implemented");
     }
 
     @Override
-    final public int getPopulationSize() {
+    final public int getPopulationSize() throws UnsupportedOperationException {
         throw new UnsupportedOperationException("not implemented");
     }
 
     @Override
-    final protected List<TestSuiteChromosome> elitism() {
+    final protected List<TestSuiteChromosome> elitism() throws UnsupportedOperationException {
         throw new UnsupportedOperationException("not implemented");
     }
 
     @Override
-    final protected List<TestSuiteChromosome> randomism() {
+    final protected List<TestSuiteChromosome> randomism() throws UnsupportedOperationException {
         throw new UnsupportedOperationException("not implemented");
     }
 
     @Override
-    final public void updateFitnessFunctionsAndValues() {
+    final public void updateFitnessFunctionsAndValues() throws UnsupportedOperationException {
         throw new UnsupportedOperationException("not implemented");
     }
 
     @Override
-    final public void writeIndividuals(List<TestSuiteChromosome> individuals) {
+    final public void writeIndividuals(List<TestSuiteChromosome> individuals)
+            throws UnsupportedOperationException {
         throw new UnsupportedOperationException("not implemented");
     }
 
     @Override
-    final public void setChromosomeFactory(ChromosomeFactory<TestSuiteChromosome> factory) {
+    final public void setChromosomeFactory(ChromosomeFactory<TestSuiteChromosome> factory)
+            throws UnsupportedOperationException {
         throw new UnsupportedOperationException("not implemented");
     }
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
-    public void setCrossOverFunction(CrossOverFunction<TestSuiteChromosome> crossover) { // (7)
+    public void setCrossOverFunction(CrossOverFunction<TestSuiteChromosome> crossover)
+            throws IllegalArgumentException { // (7)
         if (algorithm != null) {
             if (crossover instanceof SinglePointRelativeCrossOver) {
                 algorithm.setCrossOverFunction(new SinglePointRelativeCrossOver<>());
@@ -342,7 +361,8 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
-    public void addListener(SearchListener<TestSuiteChromosome> listener) { // (1b)
+    public void addListener(SearchListener<TestSuiteChromosome> listener)
+            throws IllegalArgumentException { // (1b)
         if (algorithm != null) {
             if (listener instanceof StatisticsListener) {
                 super.addListener(listener);
@@ -365,7 +385,8 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
     }
 
     @Override
-    final public void removeListener(SearchListener<TestSuiteChromosome> listener) {
+    final public void removeListener(SearchListener<TestSuiteChromosome> listener)
+            throws UnsupportedOperationException {
         throw new UnsupportedOperationException("not implemented");
     }
 
@@ -385,23 +406,25 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
     }
 
     @Override
-    final protected void sortPopulation() {
+    final protected void sortPopulation() throws UnsupportedOperationException {
         throw new UnsupportedOperationException("not implemented");
     }
 
     @Override
-    final public List<TestSuiteChromosome> getPopulation() {
+    final public List<TestSuiteChromosome> getPopulation() throws UnsupportedOperationException {
         throw new UnsupportedOperationException("not implemented");
     }
 
     @Override
-    final public boolean isNextPopulationFull(List<TestSuiteChromosome> nextGeneration) {
+    final public boolean isNextPopulationFull(List<TestSuiteChromosome> nextGeneration)
+            throws UnsupportedOperationException {
         throw new UnsupportedOperationException("not implemented");
     }
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
-    public void setPopulationLimit(PopulationLimit<TestSuiteChromosome> limit) { // (6)
+    public void setPopulationLimit(PopulationLimit<TestSuiteChromosome> limit)
+            throws IllegalArgumentException { // (6)
         // TODO voglseb
         if (algorithm != null) {
             if (limit instanceof IndividualPopulationLimit) {
@@ -423,13 +446,14 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
     }
 
     @Override
-    final public boolean isFinished() {
+    final public boolean isFinished() throws UnsupportedOperationException {
         throw new UnsupportedOperationException("not implemented");
     }
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
-    public void addStoppingCondition(StoppingCondition<TestSuiteChromosome> condition) { // (1a)
+    public void addStoppingCondition(StoppingCondition<TestSuiteChromosome> condition)
+            throws IllegalArgumentException { // (1a)
         if (algorithm != null) {
             final StoppingCondition<TestChromosome> adapteeCondition;
             if (condition instanceof ZeroFitnessStoppingCondition) {
@@ -494,33 +518,34 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
     }
 
     @Override
-    final public void setStoppingConditionLimit(int value) {
+    final public void setStoppingConditionLimit(int value) throws UnsupportedOperationException {
         throw new UnsupportedOperationException("not implemented");
     }
 
     @Override
-    final protected void updateBestIndividualFromArchive() {
+    final protected void updateBestIndividualFromArchive() throws UnsupportedOperationException {
         throw new UnsupportedOperationException("not implemented");
     }
 
     @Override
     final protected boolean isBetterOrEqual(TestSuiteChromosome chromosome1,
-                                            TestSuiteChromosome chromosome2) {
+                                            TestSuiteChromosome chromosome2)
+            throws UnsupportedOperationException {
         throw new UnsupportedOperationException("not implemented");
     }
 
     @Override
-    final public void printBudget() {
+    final public void printBudget() throws UnsupportedOperationException {
         throw new UnsupportedOperationException("not implemented");
     }
 
     @Override
-    final public String getBudgetString() {
+    final public String getBudgetString() throws UnsupportedOperationException {
         throw new UnsupportedOperationException("not implemented");
     }
 
     @Override
-    final protected double progress() {
+    final protected double progress() throws UnsupportedOperationException {
         throw new UnsupportedOperationException("not implemented");
     }
 
@@ -583,7 +608,8 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
         }
 
         @Override
-        public double getFitness(TestSuiteChromosome individual) {
+        public double getFitness(TestSuiteChromosome individual)
+                throws UnsupportedOperationException {
             throw new UnsupportedOperationException("cannot apply wrapped TestFitnessFunction to " +
                     "TestSuiteChromosome");
         }
