@@ -369,7 +369,7 @@ public class PropertiesSuiteGAFactory
 			// ShutdownTestWriter(Thread.currentThread());
 			final var writer = new ShutdownTestWriter<TestSuiteChromosome>();
 			ga.addStoppingCondition(writer);
-			RMIStoppingCondition rmi = RMIStoppingCondition.getInstance();
+			RMIStoppingCondition<TestSuiteChromosome> rmi = RMIStoppingCondition.getInstance();
 			ga.addStoppingCondition(rmi);
 
 			if (Properties.STOPPING_PORT != -1) {

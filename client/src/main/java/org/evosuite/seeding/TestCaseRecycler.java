@@ -50,7 +50,7 @@ import org.evosuite.testsuite.TestSuiteChromosome;
  */
 public final class TestCaseRecycler<T extends Chromosome<T>> implements SearchListener<T> {
 
-	private static TestCaseRecycler instance;
+	private static TestCaseRecycler<?> instance;
 
 	private final Set<TestCase> testPool;
 
@@ -61,9 +61,10 @@ public final class TestCaseRecycler<T extends Chromosome<T>> implements SearchLi
 	 * 
 	 * @return a {@link org.evosuite.seeding.TestCaseRecycler} object.
 	 */
+	@SuppressWarnings("unchecked")
 	public static <T extends Chromosome<T>> TestCaseRecycler<T> getInstance() {
 		if (instance == null)
-			instance = new TestCaseRecycler();
+			instance = new TestCaseRecycler<>();
 		return (TestCaseRecycler<T>) instance;
 	}
 
@@ -73,20 +74,20 @@ public final class TestCaseRecycler<T extends Chromosome<T>> implements SearchLi
 
 
 	@Override
-	public void searchStarted(GeneticAlgorithm algorithm) {
+	public void searchStarted(GeneticAlgorithm<T> algorithm) {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void iteration(GeneticAlgorithm algorithm) {
+	public void iteration(GeneticAlgorithm<T> algorithm) {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void searchFinished(GeneticAlgorithm algorithm) {
-		Chromosome individual = algorithm.getBestIndividual();
+	public void searchFinished(GeneticAlgorithm<T> algorithm) {
+		T individual = algorithm.getBestIndividual();
 		if(individual instanceof TestChromosome) {
 			TestChromosome testChromosome = (TestChromosome)individual;
 			testPool.add(testChromosome.getTestCase());
@@ -97,13 +98,13 @@ public final class TestCaseRecycler<T extends Chromosome<T>> implements SearchLi
 	}
 
 	@Override
-	public void fitnessEvaluation(Chromosome individual) {
+	public void fitnessEvaluation(T individual) {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void modification(Chromosome individual) {
+	public void modification(T individual) {
 		// TODO Auto-generated method stub
 		
 	}

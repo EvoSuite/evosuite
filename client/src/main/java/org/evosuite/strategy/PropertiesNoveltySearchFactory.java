@@ -202,11 +202,11 @@ public class PropertiesNoveltySearchFactory extends PropertiesSearchAlgorithmFac
             // ShutdownTestWriter(Thread.currentThread());
             ShutdownTestWriter<TestChromosome> writer = new ShutdownTestWriter<>();
             ga.addStoppingCondition(writer);
-            RMIStoppingCondition rmi = RMIStoppingCondition.getInstance();
+            RMIStoppingCondition<TestChromosome> rmi = RMIStoppingCondition.getInstance();
             ga.addStoppingCondition(rmi);
 
             if (Properties.STOPPING_PORT != -1) {
-                SocketStoppingCondition ss = new SocketStoppingCondition();
+                SocketStoppingCondition<TestChromosome> ss = new SocketStoppingCondition<>();
                 ss.accept();
                 ga.addStoppingCondition(ss);
             }
@@ -215,7 +215,7 @@ public class PropertiesNoveltySearchFactory extends PropertiesSearchAlgorithmFac
             Signal.handle(new Signal("INT"), writer);
         }
 
-        ga.addListener(new ResourceController());
+        ga.addListener(new ResourceController<>());
         return ga;
     }
 

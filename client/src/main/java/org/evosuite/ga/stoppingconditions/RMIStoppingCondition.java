@@ -20,16 +20,15 @@
 package org.evosuite.ga.stoppingconditions;
 
 import org.evosuite.ga.Chromosome;
-import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 
 /**
  * @author Gordon Fraser
  * 
  */
-public class RMIStoppingCondition implements StoppingCondition {
+public class RMIStoppingCondition<T extends Chromosome<T>> implements StoppingCondition<T> {
 
-	private static RMIStoppingCondition instance = null;
+	private static RMIStoppingCondition<?> instance = null;
 
 	private boolean isStopped = false;
 
@@ -37,11 +36,12 @@ public class RMIStoppingCondition implements StoppingCondition {
 
 	}
 
-	public static RMIStoppingCondition getInstance() {
+	@SuppressWarnings("unchecked")
+	public static <T extends Chromosome<T>> RMIStoppingCondition<T> getInstance() {
 		if (instance == null)
-			instance = new RMIStoppingCondition();
+			instance = new RMIStoppingCondition<>();
 
-		return instance;
+		return (RMIStoppingCondition<T>) instance;
 	}
 
 	public void stop() {
@@ -52,7 +52,7 @@ public class RMIStoppingCondition implements StoppingCondition {
 	 * @see org.evosuite.ga.SearchListener#searchStarted(org.evosuite.ga.GeneticAlgorithm)
 	 */
 	@Override
-	public void searchStarted(GeneticAlgorithm algorithm) {
+	public void searchStarted(GeneticAlgorithm<T> algorithm) {
 		// TODO Auto-generated method stub
 
 	}
@@ -61,7 +61,7 @@ public class RMIStoppingCondition implements StoppingCondition {
 	 * @see org.evosuite.ga.SearchListener#iteration(org.evosuite.ga.GeneticAlgorithm)
 	 */
 	@Override
-	public void iteration(GeneticAlgorithm algorithm) {
+	public void iteration(GeneticAlgorithm<T> algorithm) {
 		// TODO Auto-generated method stub
 
 	}
@@ -70,7 +70,7 @@ public class RMIStoppingCondition implements StoppingCondition {
 	 * @see org.evosuite.ga.SearchListener#searchFinished(org.evosuite.ga.GeneticAlgorithm)
 	 */
 	@Override
-	public void searchFinished(GeneticAlgorithm algorithm) {
+	public void searchFinished(GeneticAlgorithm<T> algorithm) {
 		// TODO Auto-generated method stub
 
 	}
@@ -79,7 +79,7 @@ public class RMIStoppingCondition implements StoppingCondition {
 	 * @see org.evosuite.ga.SearchListener#fitnessEvaluation(org.evosuite.ga.Chromosome)
 	 */
 	@Override
-	public void fitnessEvaluation(Chromosome individual) {
+	public void fitnessEvaluation(T individual) {
 		// TODO Auto-generated method stub
 
 	}
@@ -88,7 +88,7 @@ public class RMIStoppingCondition implements StoppingCondition {
 	 * @see org.evosuite.ga.SearchListener#modification(org.evosuite.ga.Chromosome)
 	 */
 	@Override
-	public void modification(Chromosome individual) {
+	public void modification(T individual) {
 		// TODO Auto-generated method stub
 
 	}

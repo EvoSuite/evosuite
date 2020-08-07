@@ -8,7 +8,6 @@ import org.evosuite.coverage.mutation.MutationTestPool;
 import org.evosuite.coverage.mutation.MutationTimeoutStoppingCondition;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.archive.ArchiveTestChromosomeFactory;
-import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.ga.metaheuristics.SearchListener;
 import org.evosuite.ga.metaheuristics.mapelites.MAPElites;
 import org.evosuite.ga.stoppingconditions.GlobalTimeStoppingCondition;
@@ -120,13 +119,13 @@ public class PropertiesMapElitesSearchFactory
     if (Properties.SHUTDOWN_HOOK) {
       // ShutdownTestWriter writer = new
       // ShutdownTestWriter(Thread.currentThread());
-      ShutdownTestWriter writer = new ShutdownTestWriter();
+      ShutdownTestWriter<TestChromosome> writer = new ShutdownTestWriter<>();
       ga.addStoppingCondition(writer);
-      RMIStoppingCondition rmi = RMIStoppingCondition.getInstance();
+      RMIStoppingCondition<TestChromosome> rmi = RMIStoppingCondition.getInstance();
       ga.addStoppingCondition(rmi);
 
       if (Properties.STOPPING_PORT != -1) {
-        SocketStoppingCondition ss = new SocketStoppingCondition();
+        SocketStoppingCondition<TestChromosome> ss = new SocketStoppingCondition<>();
         ss.accept();
         ga.addStoppingCondition(ss);
       }
@@ -134,7 +133,7 @@ public class PropertiesMapElitesSearchFactory
       Signal.handle(new Signal("INT"), writer);
     }
 
-    ga.addListener(new ResourceController());
+    ga.addListener(new ResourceController<>());
     return ga;
   }
 }

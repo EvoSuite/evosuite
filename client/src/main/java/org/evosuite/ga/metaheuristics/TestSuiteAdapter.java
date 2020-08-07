@@ -396,7 +396,7 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
                 adapteeCondition = new ShutdownTestWriter<>();
             } else if (condition instanceof RMIStoppingCondition) {
                 // TODO voglseb: This can break something? Looks so
-                algorithm.addStoppingCondition((RMIStoppingCondition) condition);
+                algorithm.addStoppingCondition((RMIStoppingCondition<T>) condition);
                 return;
             } else if (condition instanceof GlobalTimeStoppingCondition) {
                 adapteeCondition = new GlobalTimeStoppingCondition<>();
