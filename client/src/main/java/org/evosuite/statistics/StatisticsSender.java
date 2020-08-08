@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -58,15 +58,14 @@ public class StatisticsSender {
 	 * 
 	 * @param individual
 	 */
-	public static void sendIndividualToMaster(Chromosome individual) throws IllegalArgumentException{
+	public static <T extends Chromosome<T>> void sendIndividualToMaster(T individual) throws IllegalArgumentException{
 		if(individual == null){
 			throw new IllegalArgumentException("No defined individual to send");
 		}
 		if(!Properties.NEW_STATISTICS)
 			return;
 
-		ClientServices.getInstance().getClientNode().updateStatistics(individual);
-
+		ClientServices.<T>getInstance().getClientNode().updateStatistics(individual);
 	}
 
 
@@ -136,13 +135,13 @@ public class StatisticsSender {
 
 	private static void sendCoveredInfo(TestSuiteChromosome testSuite){
 
-		Set<String> coveredMethods = new HashSet<String>();
-		Set<Integer> coveredTrueBranches = new HashSet<Integer>();
-		Set<Integer> coveredFalseBranches = new HashSet<Integer>();
-		Set<String> coveredBranchlessMethods = new HashSet<String>();
-		Set<Integer> coveredLines = new HashSet<Integer>();
-		Set<Integer> coveredRealBranches = new HashSet<Integer>();
-		Set<Integer> coveredInstrumentedBranches = new HashSet<Integer>();
+		Set<String> coveredMethods = new HashSet<>();
+		Set<Integer> coveredTrueBranches = new HashSet<>();
+		Set<Integer> coveredFalseBranches = new HashSet<>();
+		Set<String> coveredBranchlessMethods = new HashSet<>();
+		Set<Integer> coveredLines = new HashSet<>();
+		Set<Integer> coveredRealBranches = new HashSet<>();
+		Set<Integer> coveredInstrumentedBranches = new HashSet<>();
 
 		for (TestChromosome test : testSuite.getTestChromosomes()) {
 			ExecutionTrace trace = test.getLastExecutionResult().getTrace();
