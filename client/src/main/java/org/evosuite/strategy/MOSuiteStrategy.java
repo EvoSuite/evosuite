@@ -25,7 +25,8 @@ import org.evosuite.Properties.Criterion;
 import org.evosuite.coverage.TestFitnessFactory;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.FitnessFunction;
-import org.evosuite.ga.TestChromosomeFactoryMock;
+import org.evosuite.ga.TestSuiteChromosomeFactoryMock;
+import org.evosuite.ga.TestSuiteFitnessFunctionMock;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import org.evosuite.result.TestGenerationResultBuilder;
@@ -36,12 +37,14 @@ import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionTracer;
 import org.evosuite.testcase.factories.RandomLengthTestFactory;
 import org.evosuite.testsuite.TestSuiteChromosome;
+import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.evosuite.utils.ArrayUtil;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Test generation with MOSA
@@ -66,7 +69,7 @@ public class MOSuiteStrategy extends TestGenerationStrategy {
 		// Override chromosome factory
 		// TODO handle this better by introducing generics
 		ChromosomeFactory<TestSuiteChromosome> factory =
-				new TestChromosomeFactoryMock(new RandomLengthTestFactory());
+				new TestSuiteChromosomeFactoryMock(new RandomLengthTestFactory());
 		algorithm.setChromosomeFactory(factory);
 		
 		if(Properties.SERIALIZE_GA || Properties.CLIENT_ON_THREAD)

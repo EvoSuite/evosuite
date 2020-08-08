@@ -39,7 +39,7 @@ public class ChromosomeFactoryMock<T extends Chromosome<T>, U extends Chromosome
      */
     @Override
     public U getChromosome() throws UnsupportedOperationException {
-        throw new UnsupportedOperationException("getChromosome() called on adapter");
+        throw new UnsupportedOperationException("getChromosome() called on mock");
     }
 
     /**
