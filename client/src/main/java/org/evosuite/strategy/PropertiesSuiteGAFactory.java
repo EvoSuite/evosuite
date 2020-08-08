@@ -202,11 +202,11 @@ public class PropertiesSuiteGAFactory
 //				return new MIO(factory);
 				if (factory instanceof TestSuiteChromosomeFactory) {
 					final TestSuiteChromosomeFactory tscf = (TestSuiteChromosomeFactory) factory;
-					return new MOSATestSuiteAdapter(new MIO(tscf.getTestChromosomeFactory()));
+					return new MIOTestSuiteAdapter(new MIO(tscf.getTestChromosomeFactory()));
 				} else {
 					logger.info("No specific factory for test cases given...");
 					logger.info("Using a default factory that creates tests with variable length");
-					return new MOSATestSuiteAdapter(new MIO(new RandomLengthTestFactory()));
+					return new MIOTestSuiteAdapter(new MIO(new RandomLengthTestFactory()));
 				}
 			case STANDARD_CHEMICAL_REACTION:
 				logger.info("Chosen search algorithm: Standard Chemical Reaction Optimization");

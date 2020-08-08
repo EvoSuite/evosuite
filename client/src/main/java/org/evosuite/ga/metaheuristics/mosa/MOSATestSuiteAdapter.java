@@ -6,9 +6,7 @@ import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * An adapter that allows all variants of the MOSA algorithm to be used in such contexts where
@@ -38,7 +36,6 @@ public class MOSATestSuiteAdapter extends TestSuiteAdapter<AbstractMOSA> {
         // get final test suite (i.e., non dominated solutions in Archive)
         TestSuiteChromosome bestTestCases = Archive.getArchiveInstance().mergeArchiveAndSolution(new TestSuiteChromosome());
         if (bestTestCases.getTestChromosomes().isEmpty()) {
-//            for (TestChromosome test : getAlgorithm().getNonDominatedSolutions(getAlgorithm().population)) {
             for (TestChromosome test : getAlgorithm().getBestIndividuals()) {
                 bestTestCases.addTest(test);
             }
@@ -67,7 +64,6 @@ public class MOSATestSuiteAdapter extends TestSuiteAdapter<AbstractMOSA> {
     public TestSuiteChromosome getBestIndividual() {
         TestSuiteChromosome best = getAlgorithm().generateSuite();
         if (best.getTestChromosomes().isEmpty()) {
-//            for (TestChromosome test : getAlgorithm().getNonDominatedSolutions(getAlgorithm().population)) {
             for (TestChromosome test : getAlgorithm().getBestIndividuals()) {
                 best.addTest(test);
             }
@@ -84,7 +80,7 @@ public class MOSATestSuiteAdapter extends TestSuiteAdapter<AbstractMOSA> {
         return best;
     }
 
-    private void computeCoverageAndFitness(TestSuiteChromosome suite) {
+    protected void computeCoverageAndFitness(TestSuiteChromosome suite) {
         for (Map.Entry<TestSuiteFitnessFunction, Class<?>> entry : getAlgorithm().suiteFitnessFunctions
                 .entrySet()) {
             TestSuiteFitnessFunction suiteFitnessFunction = entry.getKey();

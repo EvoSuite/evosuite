@@ -27,19 +27,17 @@ import org.evosuite.ga.metaheuristics.mosa.AbstractMOSA;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.factories.RandomLengthTestFactory;
 import org.evosuite.testsuite.TestSuiteChromosome;
-import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 /**
  * Implementation of the Many Independent Objective (MIO) algorithm
- * 
+ *
  * @author José Campos
  */
 public class MIO extends AbstractMOSA {
@@ -58,7 +56,7 @@ public class MIO extends AbstractMOSA {
 
   /**
    * Constructor.
-   * 
+   *
    * @param factory a {@link org.evosuite.ga.ChromosomeFactory} object.
    */
   public MIO(ChromosomeFactory<TestChromosome> factory) {
@@ -202,68 +200,8 @@ public class MIO extends AbstractMOSA {
     this.notifySearchFinished();
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public List<TestChromosome> getBestIndividuals() {
-      // get final test suite (i.e., non dominated solutions in Archive)
-      TestSuiteChromosome bestTestCases = new TestSuiteChromosome();
-      Set<TestChromosome> solutions = Archive.getArchiveInstance().getSolutions();
-      bestTestCases.addTests(solutions);
-
-      // compute overall fitness and coverage
-      this.computeCoverageAndFitness(bestTestCases);
-
-      List<TestChromosome> bests = new ArrayList<>(1);
-      bests.add(bestTestCases);
-
-      return bests;
+    return new ArrayList<>(Archive.getArchiveInstance().getSolutions());
   }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public TestChromosome getBestIndividual() {
-      TestSuiteChromosome best = new TestSuiteChromosome();
-      Set<TestChromosome> solutions = Archive.getArchiveInstance().getSolutions();
-      best.addTests(solutions);
-
-      if (solutions.isEmpty()) {
-        for (TestSuiteFitnessFunction suiteFitness : this.suiteFitnessFunctions.keySet()) {
-          best.setCoverage(suiteFitness, 0.0);
-          best.setFitness(suiteFitness,  1.0);
-        }
-        return best;
-      }
-
-      // compute overall fitness and coverage
-      this.computeCoverageAndFitness(best);
-
-      return best;
-  }
-
-  protected void computeCoverageAndFitness(TestSuiteChromosome suite) {
-    for (Map.Entry<TestSuiteFitnessFunction, Class<?>> entry : this.suiteFitnessFunctions
-            .entrySet()) {
-      TestSuiteFitnessFunction suiteFitnessFunction = entry.getKey();
-      Class<?> testFitnessFunction = entry.getValue();
-
-      int numberCoveredTargets =
-              Archive.getArchiveInstance().getNumberOfCoveredTargets(testFitnessFunction);
-      int numberUncoveredTargets =
-              Archive.getArchiveInstance().getNumberOfUncoveredTargets(testFitnessFunction);
-      int totalNumberTargets = numberCoveredTargets + numberUncoveredTargets;
-
-      double coverage = totalNumberTargets == 0 ? 1.0
-              : ((double) numberCoveredTargets) / ((double) totalNumberTargets);
-
-      suite.setFitness(suiteFitnessFunction, ((double) numberUncoveredTargets));
-      suite.setCoverage(suiteFitnessFunction, coverage);
-      suite.setNumOfCoveredGoals(suiteFitnessFunction, numberCoveredTargets);
-      suite.setNumOfNotCoveredGoals(suiteFitnessFunction, numberUncoveredTargets);
-    }
-  }
-
 }
