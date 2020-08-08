@@ -20,6 +20,7 @@
 package org.evosuite.rmi;
 
 import java.rmi.NoSuchObjectException;
+import java.rmi.Remote;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
@@ -43,17 +44,18 @@ import org.slf4j.LoggerFactory;
  */
 public class ClientServices<T extends Chromosome<T>> {
 
-	private static Logger logger = LoggerFactory.getLogger(ClientServices.class);
+	private static final Logger logger = LoggerFactory.getLogger(ClientServices.class);
 	
-	private static final ClientServices instance = new ClientServices();
+	private static final ClientServices<?> instance = new ClientServices<>();
 	
-	private volatile ClientNodeImpl clientNode = new DummyClientNodeImpl();
+	private volatile ClientNodeImpl<T> clientNode = new DummyClientNodeImpl<>();
 	
 	protected ClientServices(){		
 	}
-	
-	public static ClientServices getInstance(){
-		return instance;
+
+	@SuppressWarnings("unchecked")
+	public static <T extends Chromosome<T>> ClientServices<T> getInstance(){
+		return  (ClientServices<T>) instance;
 	}
 
 	public boolean registerServices(String identifier) {
@@ -63,8 +65,8 @@ public class ClientServices<T extends Chromosome<T>> {
 		try{
 			int port = Properties.PROCESS_COMMUNICATION_PORT;
 			Registry registry = LocateRegistry.getRegistry(port);
-			clientNode = new ClientNodeImpl(registry, identifier);
-			ClientNodeRemote stub = (ClientNodeRemote) UtilsRMI.exportObject(clientNode);
+			clientNode = new ClientNodeImpl<>(registry, identifier);
+			Remote stub = UtilsRMI.exportObject(clientNode);
 			registry.rebind(clientNode.getClientRmiIdentifier(), stub);
 			return clientNode.init();
 		} catch(Exception e){
@@ -73,7 +75,7 @@ public class ClientServices<T extends Chromosome<T>> {
 		}
 	}
 
-	public ClientNodeLocal getClientNode() {
+	public ClientNodeLocal<T> getClientNode() {
 		return clientNode;
 	}
 	
@@ -105,7 +107,7 @@ public class ClientServices<T extends Chromosome<T>> {
 				//this could happen if Master has removed the registry
 				logger.debug("Failed to delete ClientNode RMI instance",e);
 			}
-			clientNode = new DummyClientNodeImpl();
+			clientNode = new DummyClientNodeImpl<>();
 		}
 	}
 

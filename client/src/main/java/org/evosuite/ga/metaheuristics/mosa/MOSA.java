@@ -19,16 +19,8 @@
  */
 package org.evosuite.ga.metaheuristics.mosa;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.ConcurrentLinkedQueue;
-
 import org.evosuite.ClientProcess;
 import org.evosuite.Properties;
-import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.comparators.OnlyCrowdingComparator;
 import org.evosuite.ga.operators.ranking.CrowdingDistance;
@@ -44,10 +36,13 @@ import org.evosuite.utils.Listener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.*;
+import java.util.concurrent.ConcurrentLinkedQueue;
+
 /**
  * Implementation of the Many-Objective Sorting Algorithm (MOSA) described in the
  * paper "Reformulating branch coverage as a many-objective optimization problem".
- * 
+ *
  * @author Annibale Panichella, Fitsum M. Kifetew
  */
 public class MOSA extends AbstractMOSA {
@@ -148,7 +143,7 @@ public class MOSA extends AbstractMOSA {
 			if ((currentIteration + 1) % Properties.MIGRANTS_ITERATION_FREQUENCY == 0 && !this.population.isEmpty()) {
 				HashSet<TestChromosome> emigrants = new HashSet<>(emigrantsSelection.select(this.population,
 						Properties.MIGRANTS_COMMUNICATION_RATE));
-				ClientServices.getInstance().getClientNode().emigrate(emigrants);
+				ClientServices.<TestChromosome>getInstance().getClientNode().emigrate(emigrants);
 			}
 		}
 
@@ -176,10 +171,12 @@ public class MOSA extends AbstractMOSA {
 			this.distance.fastEpsilonDominanceAssignment(this.rankingFunction.getSubfront(i), this.getUncoveredGoals());
 		}
 
-		Listener<Set<Chromosome<?>>> listener = null;
+		final var clientNode = ClientServices.<TestChromosome>getInstance().getClientNode();
+
+		Listener<Set<TestChromosome>> listener = null;
 		if (Properties.NUM_PARALLEL_CLIENTS > 1) {
-			listener = (event) -> immigrants.add(new LinkedList<>(event));
-			ClientServices.getInstance().getClientNode().addListener(listener);
+			listener = event -> immigrants.add(new LinkedList<>(event));
+			clientNode.addListener(listener);
 		}
 
 		// TODO add here dynamic stopping condition
@@ -189,12 +186,11 @@ public class MOSA extends AbstractMOSA {
 		}
 
 		if (Properties.NUM_PARALLEL_CLIENTS > 1) {
-			ClientServices.getInstance().getClientNode().deleteListener(listener);
+			clientNode.deleteListener(listener);
 
 			if (ClientProcess.DEFAULT_CLIENT_NAME.equals(ClientProcess.getIdentifier())) {
 				//collect all end result test cases
-				Set<Set<TestChromosome>> collectedSolutions = ClientServices.getInstance()
-					.getClientNode().getBestSolutions();
+				Set<Set<TestChromosome>> collectedSolutions = clientNode.getBestSolutions();
 
 				logger.debug(ClientProcess.DEFAULT_CLIENT_NAME + ": Received " + collectedSolutions.size() + " solution sets");
 				for (Set<TestChromosome> solution : collectedSolutions) {
@@ -206,14 +202,14 @@ public class MOSA extends AbstractMOSA {
 				//send end result test cases to Client-0
 				Set<TestChromosome> solutionsSet = new HashSet<>(getSolutions());
 				logger.debug(ClientProcess.getPrettyPrintIdentifier() + "Sending " + solutionsSet.size()
-											+ " solutions to " + ClientProcess.DEFAULT_CLIENT_NAME);
-				ClientServices.getInstance().getClientNode().sendBestSolution(solutionsSet);
+						+ " solutions to " + ClientProcess.DEFAULT_CLIENT_NAME);
+				clientNode.sendBestSolution(solutionsSet);
 			}
 		}
 
 		// storing the time needed to reach the maximum coverage
-		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Time2MaxCoverage,
-                this.budgetMonitor.getTime2MaxCoverage());
+		clientNode.trackOutputVariable(RuntimeVariable.Time2MaxCoverage,
+				this.budgetMonitor.getTime2MaxCoverage());
 		this.notifySearchFinished();
 	}
 }
