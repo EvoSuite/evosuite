@@ -575,7 +575,11 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
         throw new IllegalArgumentException("Unsupported type of fitness function: " + fitnessFunction.getClass());
     }
 
-    private static TestFitnessFunction mapFitnessFunctionToTestCaseLevel(FitnessFunction<TestSuiteChromosome> fitnessFunction){
+    private static FitnessFunction<TestChromosome> mapFitnessFunctionToTestCaseLevel(FitnessFunction<TestSuiteChromosome> fitnessFunction){
+        if (fitnessFunction instanceof TestSuiteFitnessFunctionMock) {
+            return ((TestSuiteFitnessFunctionMock) fitnessFunction).getWrapped();
+        }
+
         throw new IllegalArgumentException("Unsupported type of fitness function: " + fitnessFunction.getClass());
     }
 
@@ -589,7 +593,7 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
         // TestSuiteFitnessFunctions.
 
         // List<TestFitnessFunction> fs = (List<TestFitnessFunction>) functions
-        Collection<TestFitnessFunction> fs = functions.stream()
+        Collection<FitnessFunction<TestChromosome>> fs = functions.stream()
                 .map(TestSuiteAdapter::mapFitnessFunctionToTestCaseLevel)
                 .collect(toList());
 

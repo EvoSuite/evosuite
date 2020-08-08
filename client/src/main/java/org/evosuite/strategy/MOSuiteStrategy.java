@@ -79,8 +79,15 @@ public class MOSuiteStrategy extends TestGenerationStrategy {
 
 		// What's the search target
 		List<TestFitnessFactory<? extends TestFitnessFunction>> goalFactories = getFitnessFactories();
-		List<TestFitnessFunction> fitnessFunctions = new ArrayList<>();
-		goalFactories.forEach(f -> fitnessFunctions.addAll(f.getCoverageGoals()));
+		List<FitnessFunction<TestSuiteChromosome>> fitnessFunctions = new ArrayList<>();
+
+		for (TestFitnessFactory<? extends TestFitnessFunction> f : goalFactories) {
+			for (TestFitnessFunction goal : f.getCoverageGoals()) {
+				FitnessFunction<TestSuiteChromosome> mock = new TestSuiteFitnessFunctionMock(goal);
+				fitnessFunctions.add(mock);
+			}
+		}
+
 		algorithm.addFitnessFunctions(fitnessFunctions);
 
 		// if (Properties.SHOW_PROGRESS && !logger.isInfoEnabled())
