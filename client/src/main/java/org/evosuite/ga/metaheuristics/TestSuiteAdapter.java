@@ -23,13 +23,14 @@ import org.evosuite.testsuite.StatementsPopulationLimit;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.evosuite.utils.ResourceController;
-import org.hibernate.engine.jdbc.Size;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
 
 /**
  * A wrapper class that facilitates the use of genetic algorithms operating on {@code
@@ -463,7 +464,7 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
                 adapteeCondition = new ShutdownTestWriter<>();
             } else if (condition instanceof RMIStoppingCondition) {
                 // TODO voglseb: This can break something? Looks so
-                algorithm.addStoppingCondition((RMIStoppingCondition<T>) condition);
+                algorithm.addStoppingCondition(RMIStoppingCondition.getInstance());
                 return;
             } else if (condition instanceof GlobalTimeStoppingCondition) {
                 adapteeCondition = new GlobalTimeStoppingCondition<>();
@@ -481,19 +482,20 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
     @Override
     final public Set<StoppingCondition<TestSuiteChromosome>> getStoppingConditions() {
         return algorithm.getStoppingConditions().stream()
-                .map(TestSuiteAdapter::mapStoppingCondition)
-                .collect(Collectors.toSet());
+                .map(TestSuiteAdapter::<TestSuiteChromosome,TestChromosome>mapStoppingCondition)
+                .collect(toSet());
     }
 
     /**
      * Exchanges the generic parameters of a Stopping condition (if possible).
      *
      * @param stoppingCondition the stopping condition with "wrong" generic parameters.
-     * @param <T> the desired chromosome type
+     * @param <T> the desired target chromosome type
+     * @param <U> the given source chromosome type
      * @return
      */
-    static<T extends Chromosome<T>> StoppingCondition<T> mapStoppingCondition
-            (StoppingCondition stoppingCondition) {
+    private static <T extends Chromosome<T>, U extends Chromosome<U>> StoppingCondition<T>
+            mapStoppingCondition(StoppingCondition<U> stoppingCondition) {
         if (stoppingCondition instanceof MaxTimeStoppingCondition) {
             return new MaxTimeStoppingCondition<>();
         } else if (stoppingCondition instanceof MaxGenerationStoppingCondition) {
@@ -550,24 +552,25 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
     }
 
     @Override // (12)
-    public List getFitnessFunctions() { // FIXME avoid horrible raw return type!!!
+    public List<FitnessFunction<TestSuiteChromosome>> getFitnessFunctions() {
         // This method returns a raw List of fitness functions. This is ugly but (at the time of
         // this writing) nothing bad actually happens because MOSuiteStrategy only invokes size()
         // on the returned list.
-        return algorithm.getFitnessFunctions();
+        return algorithm.getFitnessFunctions().stream()
+                .map(TestSuiteAdapter::mapFitnessFunctionToTestSuiteLevel)
+                .collect(toList());
     }
 
-    static TestSuiteFitnessFunction mapFitnessFunctionToTestSuiteLevel(TestFitnessFunction fitnessFunction){
+    private static TestSuiteFitnessFunction mapFitnessFunctionToTestSuiteLevel(FitnessFunction<TestChromosome> fitnessFunction){
         throw new IllegalArgumentException("Unsupported type of fitness function: " + fitnessFunction.getClass());
     }
 
-    static TestFitnessFunction mapFitnessFunctionToTestCaseLevel(TestSuiteFitnessFunction fitnessFunction){
+    private static TestFitnessFunction mapFitnessFunctionToTestCaseLevel(FitnessFunction<TestSuiteChromosome> fitnessFunction){
         throw new IllegalArgumentException("Unsupported type of fitness function: " + fitnessFunction.getClass());
     }
 
     @Override // (9)
-    public void addFitnessFunctions(Collection<TestSuiteFitnessFunction> functions) { // FIXME avoid horrible raw
-        // type!!!
+    public void addFitnessFunctions(Collection<? extends FitnessFunction<TestSuiteChromosome>> functions) {
         // The following code still circumvents the type system by using unsafe raw types and
         // unchecked casts. The code only works if a certain assumption holds:
         // MOSuiteStrategy will only ever pass a list of TestFitnessFunctions to this method.
@@ -576,8 +579,9 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
         // TestSuiteFitnessFunctions.
 
         // List<TestFitnessFunction> fs = (List<TestFitnessFunction>) functions
-        Collection<TestFitnessFunction> fs =
-                functions.stream().map(TestSuiteAdapter::mapFitnessFunctionToTestCaseLevel).collect(Collectors.toList());
+        Collection<TestFitnessFunction> fs = functions.stream()
+                .map(TestSuiteAdapter::mapFitnessFunctionToTestCaseLevel)
+                .collect(toList());
 
         algorithm.addFitnessFunctions(fs);
     }
