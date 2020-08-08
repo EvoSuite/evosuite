@@ -25,13 +25,13 @@ import org.evosuite.Properties.Criterion;
 import org.evosuite.coverage.TestFitnessFactory;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.FitnessFunction;
+import org.evosuite.ga.TestChromosomeFactoryMock;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import org.evosuite.result.TestGenerationResultBuilder;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.rmi.service.ClientState;
 import org.evosuite.statistics.RuntimeVariable;
-import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionTracer;
 import org.evosuite.testcase.factories.RandomLengthTestFactory;
@@ -61,12 +61,12 @@ public class MOSuiteStrategy extends TestGenerationStrategy {
 		// Set up search algorithm
 		PropertiesSuiteGAFactory algorithmFactory = new PropertiesSuiteGAFactory();
 
-		GeneticAlgorithm<TestSuiteChromosome> algorithm =
-				algorithmFactory.getSearchAlgorithm();
+		GeneticAlgorithm<TestSuiteChromosome> algorithm = algorithmFactory.getSearchAlgorithm();
 		
 		// Override chromosome factory
 		// TODO handle this better by introducing generics
-		ChromosomeFactory<TestChromosome> factory = new RandomLengthTestFactory();
+		ChromosomeFactory<TestSuiteChromosome> factory =
+				new TestChromosomeFactoryMock(new RandomLengthTestFactory());
 		algorithm.setChromosomeFactory(factory);
 		
 		if(Properties.SERIALIZE_GA || Properties.CLIENT_ON_THREAD)

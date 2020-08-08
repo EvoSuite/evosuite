@@ -2,9 +2,7 @@ package org.evosuite.ga.metaheuristics;
 
 import org.evosuite.ProgressMonitor;
 import org.evosuite.ShutdownTestWriter;
-import org.evosuite.ga.Chromosome;
-import org.evosuite.ga.ChromosomeFactory;
-import org.evosuite.ga.FitnessFunction;
+import org.evosuite.ga.*;
 import org.evosuite.ga.bloatcontrol.BloatControlFunction;
 import org.evosuite.ga.operators.crossover.*;
 import org.evosuite.ga.operators.ranking.FastNonDominatedSorting;
@@ -327,10 +325,22 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
         throw new UnsupportedOperationException("not implemented");
     }
 
+    @SuppressWarnings("StatementWithEmptyBody")
     @Override
     final public void setChromosomeFactory(ChromosomeFactory<TestSuiteChromosome> factory)
-            throws UnsupportedOperationException {
-        throw new UnsupportedOperationException("not implemented");
+            throws IllegalArgumentException {
+        if (algorithm != null) {
+            if (factory instanceof TestChromosomeFactoryMock) {
+                final var tcfw = (TestChromosomeFactoryMock) factory;
+                algorithm.setChromosomeFactory(tcfw.getWrapped());
+            } else {
+                throw new IllegalArgumentException("factory not supported: " + factory);
+            }
+        } else  {
+            // When we hit this branch, this TestSuiteAdapter object is currently being
+            // constructed, and this method was invoked by the constructor of the super class
+            // (i.e., GeneticAlgorithm). We simply do nothing.
+        }
     }
 
     @SuppressWarnings("StatementWithEmptyBody")
