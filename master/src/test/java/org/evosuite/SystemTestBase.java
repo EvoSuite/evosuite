@@ -344,7 +344,7 @@ public class SystemTestBase {
 		hasBeenAlreadyRun = false;
 	}
 	
-	@SuppressWarnings("unchecked")
+
 	protected GeneticAlgorithm<?> getGAFromResult(Object result) {
 		assert(result instanceof List);
 		List<List<TestGenerationResult>> results = (List<List<TestGenerationResult>>)result;

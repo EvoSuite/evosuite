@@ -49,7 +49,6 @@ import com.examples.with.different.packagename.Calculator;
  * 
  * @author José Campos
  */
-@SuppressWarnings({ "rawtypes", "unchecked" })
 public class NSGAIISystemTest extends SystemTestBase
 {
 	@BeforeClass

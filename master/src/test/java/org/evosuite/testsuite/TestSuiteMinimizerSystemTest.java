@@ -135,7 +135,7 @@ public class TestSuiteMinimizerSystemTest extends SystemTestBase {
         Assert.assertEquals(5, c.size());
     }
 
-    @SuppressWarnings("rawtypes")
+
 	@Test
     public void testWithTwo()
 	{

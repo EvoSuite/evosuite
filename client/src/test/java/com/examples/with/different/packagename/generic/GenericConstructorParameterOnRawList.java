@@ -31,7 +31,7 @@ import java.util.ListIterator;
  * @author Gordon Fraser
  *
  */
-@SuppressWarnings("rawtypes")
+
 public class GenericConstructorParameterOnRawList implements List {
 
     public GenericConstructorParameterOnRawList(List l) {

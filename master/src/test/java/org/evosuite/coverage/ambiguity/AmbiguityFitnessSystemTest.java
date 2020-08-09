@@ -44,7 +44,7 @@ import org.junit.Test;
 import com.examples.with.different.packagename.Compositional;
 import com.examples.with.different.packagename.coverage.IndirectlyCoverableBranches;
 
-@SuppressWarnings("unchecked")
+
 public class AmbiguityFitnessSystemTest extends SystemTestBase {
 
 	private static String MATRIX_CONTENT =

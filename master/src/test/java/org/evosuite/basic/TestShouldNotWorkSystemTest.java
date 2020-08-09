@@ -52,7 +52,7 @@ public class TestShouldNotWorkSystemTest extends SystemTestBase {
 		evosuite.parseCommandLine(command);
 	}
 	
-	@SuppressWarnings("unchecked")
+
 	@Test
 	public void testJavaPackageNotOnProjectCP(){
 		EvoSuite evosuite = new EvoSuite();

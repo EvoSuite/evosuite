@@ -35,7 +35,6 @@ import org.junit.Test;
  * 
  * @author José Campos
  */
-@SuppressWarnings({ "rawtypes", "unchecked" })
 public class TestDominanceComparator
 {
     @Test

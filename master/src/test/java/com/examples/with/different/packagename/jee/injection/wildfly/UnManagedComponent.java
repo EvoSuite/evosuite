@@ -72,7 +72,7 @@ public class UnManagedComponent {
         StringBuilder sb = new StringBuilder();
 
         if (key == null || key.length() == 0) {
-            @SuppressWarnings("unchecked")
+
             final List<KVPair_2> list = entityManager.createQuery("select k from KVPair_2 k").getResultList();
 
             for (KVPair_2 kvPair : list)

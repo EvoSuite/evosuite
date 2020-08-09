@@ -121,7 +121,7 @@ public final class L4_Collections {
 	}
 
 	public static boolean guessVectorWithSize(
-			@SuppressWarnings("rawtypes") Vector v) {
+			 Vector v) {
 		if (v.size() == 3) {
 			return true;
 		} else {
@@ -145,7 +145,7 @@ public final class L4_Collections {
 		}
 	}
 
-	public static boolean guessListWithSize(@SuppressWarnings("rawtypes") List l) {
+	public static boolean guessListWithSize( List l) {
 		if (l.size() == 3) {
 			return true;
 		} else {

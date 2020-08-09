@@ -33,7 +33,7 @@ public class GenericParameters7 {
 			return false;
 	}
 	
-	@SuppressWarnings("rawtypes")
+
 	public List getTargetList() {
 		List<Object> targetList = new ArrayList<Object>();
 		targetList.add(test);

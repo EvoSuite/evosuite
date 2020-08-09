@@ -21,7 +21,7 @@ package com.examples.with.different.packagename.generic;
 
 import java.util.ArrayList;
 
-@SuppressWarnings("rawtypes")
+
 public class GenericSuperclassOmittingTypeParameters extends ArrayList {
 
 	private static final long serialVersionUID = 1L;

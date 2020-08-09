@@ -31,7 +31,7 @@ import org.junit.Test;
  * 
  * @author José Campos
  */
-@SuppressWarnings("rawtypes")
+
 public class TestSBXCrossOver
 {
 	@BeforeClass

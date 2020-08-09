@@ -24,7 +24,7 @@ import java.util.HashSet;
 
 public class PartiallyGenericReturnType {
 
-	@SuppressWarnings("rawtypes")
+
 	public Collection<Class> foo(int x) {
 		Collection<Class> bar = new HashSet<Class>();
 		if(x == 42) {
