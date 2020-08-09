@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -18,11 +18,11 @@
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 package org.evosuite.utils;
+
 public interface PublicCloneable<T> extends Cloneable {
 	/**
 	 * <p>clone</p>
 	 *
-	 * @param <T> a T object.
 	 * @return a T object.
 	 */
     T clone();
