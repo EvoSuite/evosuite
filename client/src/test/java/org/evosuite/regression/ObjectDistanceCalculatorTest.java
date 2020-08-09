@@ -1,6 +1,6 @@
 package org.evosuite.regression;
 
-import static org.evosuite.regression.ObjectDistanceCalculator.getObjectDistance;
+import static org.evosuite.assertion.ObjectDistanceCalculator.getObjectDistance;
 import static org.junit.Assert.assertEquals;
 
 import com.examples.with.different.packagename.ClassWithPublicField;
