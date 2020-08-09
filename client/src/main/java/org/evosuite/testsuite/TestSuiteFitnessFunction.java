@@ -38,10 +38,6 @@ import org.slf4j.LoggerFactory;
  * </p>
  * @author Gordon Fraser
  */
-//public abstract class TestSuiteFitnessFunction<
-//			T extends AbstractTestSuiteChromosome<T, E>,
-//			E extends ExecutableChromosome<E>>
-//		extends FitnessFunction<T> {
 public abstract class TestSuiteFitnessFunction extends FitnessFunction<TestSuiteChromosome> {
 
 	private static final long serialVersionUID = 7243635497292960457L;
