@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -28,6 +28,7 @@ import org.evosuite.Properties;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.FitnessFunction;
+import org.evosuite.ga.NSGAChromosome;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.ga.metaheuristics.NSGAII;
 import org.evosuite.ga.metaheuristics.RandomFactory;
@@ -41,11 +42,12 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import static java.util.Comparator.*;
+
 /**
  * 
  * @author José Campos
  */
-@SuppressWarnings({ "rawtypes", "unchecked" })
 public class ZDT1IntTest
 {
     @Before
@@ -53,7 +55,7 @@ public class ZDT1IntTest
         Properties.POPULATION = 100;
         Properties.SEARCH_BUDGET = 10000;
         Properties.CROSSOVER_RATE = 0.9;
-        Properties.RANDOM_SEED = 1l;
+        Properties.RANDOM_SEED = 1L;
     }
 
     /**
@@ -67,38 +69,34 @@ public class ZDT1IntTest
     {
         Properties.MUTATION_RATE = 1d / 30d;
 
-        ChromosomeFactory<?> factory = new RandomFactory(false, 30, 0.0, 1.0);
+        ChromosomeFactory<NSGAChromosome> factory = new RandomFactory(false, 30, 0.0, 1.0);
 
-        GeneticAlgorithm<?> ga = new NSGAII(factory);
-        BinaryTournamentSelectionCrowdedComparison ts = new BinaryTournamentSelectionCrowdedComparison();
+        GeneticAlgorithm<NSGAChromosome> ga = new NSGAII<>(factory);
+        BinaryTournamentSelectionCrowdedComparison<NSGAChromosome> ts =
+                new BinaryTournamentSelectionCrowdedComparison<>();
         ts.setMaximize(false);
         ga.setSelectionFunction(ts);
         ga.setCrossOverFunction(new SBXCrossover());
 
-        Problem p = new ZDT1();
-        final FitnessFunction f1 = (FitnessFunction) p.getFitnessFunctions().get(0);
-        final FitnessFunction f2 = (FitnessFunction) p.getFitnessFunctions().get(1);
+        Problem<NSGAChromosome> p = new ZDT1();
+        final FitnessFunction<NSGAChromosome> f1 = p.getFitnessFunctions().get(0);
+        final FitnessFunction<NSGAChromosome> f2 = p.getFitnessFunctions().get(1);
         ga.addFitnessFunction(f1);
         ga.addFitnessFunction(f2);
 
         // execute
         ga.generateSolution();
 
-        List<Chromosome> chromosomes = (List<Chromosome>) ga.getPopulation();
-        Collections.sort(chromosomes, new Comparator<Chromosome>() {
-            @Override
-            public int compare(Chromosome arg0, Chromosome arg1) {
-                return Double.compare(arg0.getFitness(f1), arg1.getFitness(f1));
-            }
-        });
+        List<NSGAChromosome> chromosomes = ga.getPopulation();
+        chromosomes.sort(comparingDouble(chr -> chr.getFitness(f1)));
 
         double[][] front = new double[Properties.POPULATION][2];
         int index = 0;
 
-        for (Chromosome chromosome : chromosomes) {
+        for (NSGAChromosome chromosome : chromosomes) {
             System.out.printf("%f,%f\n", chromosome.getFitness(f1), chromosome.getFitness(f2));
-            front[index][0] = Double.valueOf(chromosome.getFitness(f1));
-            front[index][1] = Double.valueOf(chromosome.getFitness(f2));
+            front[index][0] = chromosome.getFitness(f1);
+            front[index][1] = chromosome.getFitness(f2);
 
             index++;
         }

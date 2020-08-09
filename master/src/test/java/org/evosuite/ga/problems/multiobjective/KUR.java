@@ -22,7 +22,6 @@ package org.evosuite.ga.problems.multiobjective;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.NSGAChromosome;
 import org.evosuite.ga.problems.Problem;
@@ -33,10 +32,10 @@ import org.evosuite.ga.variables.DoubleVariable;
  * 
  * @author José Campos
  */
-@SuppressWarnings({ "rawtypes", "unchecked", "serial" })
-public class KUR<T extends NSGAChromosome> implements Problem
+@SuppressWarnings({ "serial" })
+public class KUR implements Problem<NSGAChromosome>
 {
-	private List<FitnessFunction<T>> fitnessFunctions = new ArrayList<FitnessFunction<T>>();
+	private final List<FitnessFunction<NSGAChromosome>> fitnessFunctions = new ArrayList<>();
 
 	public KUR() {
 		super();
@@ -44,20 +43,19 @@ public class KUR<T extends NSGAChromosome> implements Problem
 		/**
 		 * First fitness function
 		 */
-		class f1FitnessFunction extends FitnessFunction {
+		class f1FitnessFunction extends FitnessFunction<NSGAChromosome> {
 			@Override
-			public double getFitness(Chromosome c) {
-				NSGAChromosome individual = (NSGAChromosome)c;
+			public double getFitness(NSGAChromosome c) {
 
 				double fitness = 0.0;
-                for (int i = 0; i < individual.getNumberOfVariables() - 1; i++) {
-                    DoubleVariable dv = (DoubleVariable) individual.getVariables().get(i);
-                    DoubleVariable nextdv = (DoubleVariable) individual.getVariables().get(i+1);
+                for (int i = 0; i < c.getNumberOfVariables() - 1; i++) {
+                    DoubleVariable dv = (DoubleVariable) c.getVariables().get(i);
+                    DoubleVariable nextdv = (DoubleVariable) c.getVariables().get(i+1);
 
                     fitness += -10 * Math.exp(-0.2 * Math.sqrt( Math.pow(dv.getValue(), 2) + Math.pow(nextdv.getValue(), 2) ));
                 }
 
-				updateIndividual(individual, fitness);
+				updateIndividual(c, fitness);
 				return fitness;
 			}
 			@Override
@@ -69,19 +67,18 @@ public class KUR<T extends NSGAChromosome> implements Problem
 		/**
 		 * Second fitness function
 		 */
-		class f2FitnessFunction extends FitnessFunction {
+		class f2FitnessFunction extends FitnessFunction<NSGAChromosome> {
 			@Override
-			public double getFitness(Chromosome c) {
-				NSGAChromosome individual = (NSGAChromosome)c;
+			public double getFitness(NSGAChromosome c) {
 
 				double fitness = 0.0;
-                for (int i = 0; i < individual.getNumberOfVariables(); i++) {
-                    DoubleVariable dv = (DoubleVariable) individual.getVariables().get(i);
+                for (int i = 0; i < c.getNumberOfVariables(); i++) {
+                    DoubleVariable dv = (DoubleVariable) c.getVariables().get(i);
 
                     fitness += Math.pow(Math.abs(dv.getValue()), 0.8) + 5 * Math.sin(Math.pow(dv.getValue(), 3));
                 }
 
-				updateIndividual(individual, fitness);
+				updateIndividual(c, fitness);
 				return fitness;
 			}
 			@Override
@@ -95,7 +92,7 @@ public class KUR<T extends NSGAChromosome> implements Problem
 	}
 
 	@Override
-	public List<FitnessFunction<T>> getFitnessFunctions() {
+	public List<FitnessFunction<NSGAChromosome>> getFitnessFunctions() {
 		return this.fitnessFunctions;
 	}
 }

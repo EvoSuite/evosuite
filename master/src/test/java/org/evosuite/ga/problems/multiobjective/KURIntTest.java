@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -43,11 +43,12 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import static java.util.Comparator.*;
+
 /**
  * 
  * @author José Campos
  */
-@SuppressWarnings({ "rawtypes", "unchecked" })
 public class KURIntTest
 {
     @Before
@@ -55,15 +56,15 @@ public class KURIntTest
         Properties.POPULATION = 100;
         Properties.SEARCH_BUDGET = 10000;
         Properties.CROSSOVER_RATE = 0.9;
-        Properties.RANDOM_SEED = 1l;
+        Properties.RANDOM_SEED = 1L;
     }
 
     @Test
     public void testKURFitnesses()
     {
-        Problem p = new KUR();
-        FitnessFunction f1 = (FitnessFunction) p.getFitnessFunctions().get(0);
-        FitnessFunction f2 = (FitnessFunction) p.getFitnessFunctions().get(1);
+        Problem<NSGAChromosome> p = new KUR();
+        FitnessFunction<NSGAChromosome> f1 = p.getFitnessFunctions().get(0);
+        FitnessFunction<NSGAChromosome> f2 = p.getFitnessFunctions().get(1);
 
         double[] values = {-2, 1, 3};
         NSGAChromosome c = new NSGAChromosome(-5.0, 5.0, values);
@@ -86,37 +87,33 @@ public class KURIntTest
     {
         Properties.MUTATION_RATE = 1d / 3d;
 
-        ChromosomeFactory<?> factory = new RandomFactory(false, 3, -5.0, 5.0);
+        ChromosomeFactory<NSGAChromosome> factory = new RandomFactory(false, 3, -5.0, 5.0);
 
-        GeneticAlgorithm<?> ga = new NSGAII(factory);
-        BinaryTournamentSelectionCrowdedComparison ts = new BinaryTournamentSelectionCrowdedComparison();
+        GeneticAlgorithm<NSGAChromosome> ga = new NSGAII<>(factory);
+        BinaryTournamentSelectionCrowdedComparison<NSGAChromosome> ts =
+                new BinaryTournamentSelectionCrowdedComparison<>();
         ga.setSelectionFunction(ts);
         ga.setCrossOverFunction(new SBXCrossover());
 
-        Problem p = new KUR();
-        final FitnessFunction f1 = (FitnessFunction) p.getFitnessFunctions().get(0);
-        final FitnessFunction f2 = (FitnessFunction) p.getFitnessFunctions().get(1);
+        Problem<NSGAChromosome> p = new KUR();
+        final FitnessFunction<NSGAChromosome> f1 = p.getFitnessFunctions().get(0);
+        final FitnessFunction<NSGAChromosome> f2 = p.getFitnessFunctions().get(1);
         ga.addFitnessFunction(f1);
         ga.addFitnessFunction(f2);
 
         // execute
         ga.generateSolution();
 
-        List<Chromosome> chromosomes = (List<Chromosome>) ga.getPopulation();
-        Collections.sort(chromosomes, new Comparator<Chromosome>() {
-            @Override
-            public int compare(Chromosome arg0, Chromosome arg1) {
-                return Double.compare(arg0.getFitness(f1), arg1.getFitness(f1));
-            }
-        });
+        List<NSGAChromosome> chromosomes = ga.getPopulation();
+        chromosomes.sort(comparingDouble(chr -> chr.getFitness(f1)));
 
         double[][] front = new double[Properties.POPULATION][2];
         int index = 0;
 
-        for (Chromosome chromosome : chromosomes) {
+        for (NSGAChromosome chromosome : chromosomes) {
             System.out.printf("%f,%f\n", chromosome.getFitness(f1), chromosome.getFitness(f2));
-            front[index][0] = Double.valueOf(chromosome.getFitness(f1));
-            front[index][1] = Double.valueOf(chromosome.getFitness(f2));
+            front[index][0] = chromosome.getFitness(f1);
+            front[index][1] = chromosome.getFitness(f2);
 
             index++;
         }
