@@ -36,7 +36,16 @@ public class SuiteFitnessEvaluationListener implements SearchListener<TestSuiteC
 
     @Override
     public void iteration(GeneticAlgorithm<TestSuiteChromosome> algorithm) {
-        getSuiteWithFitness(algorithm);
+        // ===========================================================================================
+        // FIXME: The following line contains a type error.
+        //  getSuiteWithFitness expects a GeneticAlgorithm<TestChromosome> but it receives a
+        //  GeneticAlgorithm<TestSuiteChromosome>
+//        getSuiteWithFitness(algorithm);
+        if (true) { // to avoid javac's "unreachable code" error
+            throw new RuntimeException("Broken code :("); // deliberately crashing the program
+        }
+        // ===========================================================================================
+
 
         // Update fitness functions based on goals just added to archive
         algorithm.updateFitnessFunctionsAndValues();

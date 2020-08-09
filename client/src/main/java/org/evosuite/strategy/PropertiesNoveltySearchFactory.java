@@ -92,10 +92,17 @@ public class PropertiesNoveltySearchFactory extends PropertiesSearchAlgorithmFac
             case SINGLEPOINT:
                 return new SinglePointCrossOver<>();
             case COVERAGE:
-                if (Properties.STRATEGY != Properties.Strategy.EVOSUITE)
+                if (Properties.STRATEGY != Properties.Strategy.EVOSUITE) {
                     throw new RuntimeException(
                             "Coverage crossover function requires test suite mode");
-                return new CoverageCrossOver();
+                }
+                // ===========================================================================================
+                // FIXME: The following line contains a type error.
+                //  CoverageCrossOver is defined on TestSuiteChromosomes but we expect
+                //  TestChromosomes
+//                return new CoverageCrossOver();
+                throw new RuntimeException("Broken code :(");
+                // ===========================================================================================
             default:
                 throw new RuntimeException("Unknown crossover function: "
                         + Properties.CROSSOVER_FUNCTION);
@@ -146,8 +153,15 @@ public class PropertiesNoveltySearchFactory extends PropertiesSearchAlgorithmFac
                 || ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.STRONGMUTATION)) {
             if (Properties.STRATEGY == Properties.Strategy.ONEBRANCH)
                 ga.addStoppingCondition(new MutationTimeoutStoppingCondition<>());
-            else
-                ga.addListener(new MutationTestPool());
+            else {
+                // ===========================================================================================
+                // FIXME: The following line contains a type error.
+                //  MutationTestPool is defined on TestSuiteChromosomes but we expect
+                //  TestChromosomes
+//                ga.addListener(new MutationTestPool());
+                throw new RuntimeException("Broken code :(");
+                // ===========================================================================================
+            }
             // } else if (Properties.CRITERION == Criterion.DEFUSE) {
             // if (Properties.STRATEGY == Strategy.EVOSUITE)
             // ga.addListener(new DefUseTestPool());
@@ -193,8 +207,13 @@ public class PropertiesNoveltySearchFactory extends PropertiesSearchAlgorithmFac
         }
 
         if (Properties.LOCAL_SEARCH_RESTORE_COVERAGE) {
-            SearchListener<TestSuiteChromosome> map = BranchCoverageMap.getInstance();
-            ga.addListener(map);
+            // ===========================================================================================
+            // FIXME: The following line contains a type error.
+            //  BranchCoverageMap is defined on TestSuiteChromosomes but we expect TestChromosomes
+//            SearchListener<TestSuiteChromosome> map = BranchCoverageMap.getInstance();
+//            ga.addListener(map);
+            throw new RuntimeException("Broken code :(");
+            // ===========================================================================================
         }
 
         if (Properties.SHUTDOWN_HOOK) {

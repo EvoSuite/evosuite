@@ -45,8 +45,15 @@ public class MAPElitesStrategy extends TestGenerationStrategy {
     
     //algorithm.addListener(listener);
     
-    if (Properties.TRACK_DIVERSITY)
-      algorithm.addListener(new DiversityObserver());
+    if (Properties.TRACK_DIVERSITY) {
+      // ===========================================================================================
+      // FIXME: The following line has a type error.
+      //  DiversityObserver requires TestSuiteChromosomes, but the MAPElites algorithm only works
+      //  with TestChromosomes.
+//      algorithm.addListener(new DiversityObserver());
+      throw new RuntimeException("Broken code :(");
+      // ===========================================================================================
+    }
 
     if (ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.DEFUSE)
         || ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.ALLDEFS)

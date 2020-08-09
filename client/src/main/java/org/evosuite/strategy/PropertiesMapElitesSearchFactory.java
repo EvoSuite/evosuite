@@ -82,8 +82,14 @@ public class PropertiesMapElitesSearchFactory
         || ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.STRONGMUTATION)) {
       if (Properties.STRATEGY == Properties.Strategy.ONEBRANCH)
         ga.addStoppingCondition(new MutationTimeoutStoppingCondition<>());
-      else
-        ga.addListener(new MutationTestPool());
+      else {
+        // ===========================================================================================
+        // FIXME: The following line contains a type error.
+        //  MutationTestPool is defined on TestSuiteChromosomes but the GA expects TestChromosomes.
+//        ga.addListener(new MutationTestPool());
+        throw new RuntimeException("Broken code :(");
+        // ===========================================================================================
+      }
     }
     ga.resetStoppingConditions();
 
@@ -112,8 +118,14 @@ public class PropertiesMapElitesSearchFactory
     }
 
     if (Properties.LOCAL_SEARCH_RESTORE_COVERAGE) {
-      SearchListener<TestChromosome> map = BranchCoverageMap.getInstance();
-      ga.addListener(map);
+      // ===========================================================================================
+      // FIXME: The following line contains a type error.
+      //  BranchCoverageMap is defined on TestSuiteChromosomes but the GA expects TestChromosomes.
+//      SearchListener<TestChromosome> map = BranchCoverageMap.getInstance();
+//      ga.addListener(map);
+        // Deliberately throwing an exception
+        throw new RuntimeException("Broken code :(");
+      // ===========================================================================================
     }
 
     if (Properties.SHUTDOWN_HOOK) {

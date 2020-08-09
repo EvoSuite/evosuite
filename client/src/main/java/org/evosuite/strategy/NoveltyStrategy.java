@@ -50,14 +50,34 @@ public class NoveltyStrategy extends TestGenerationStrategy {
         List<TestSuiteFitnessFunction> fitnessFunctions = getFitnessFunctions();
 
         SuiteFitnessEvaluationListener listener = new SuiteFitnessEvaluationListener(fitnessFunctions);
-        algorithm.addListener(listener);
+
+        // ===========================================================================================
+        // FIXME: The following line contains a type error.
+        //  NoveltySearch operates on TestChromosomes but the following line wants to add a listener
+        //  that is defined on TestSuiteChromosomes.
+//        algorithm.addListener(listener);
+        if (true) { // To avoid javac's "unreachable code" error
+            // Deliberately throwing an exception
+            throw new RuntimeException("Broken code :(");
+        }
+        // ===========================================================================================
+
         algorithm.setNoveltyFunction(new BranchNoveltyFunction());
 
         // if (Properties.SHOW_PROGRESS && !logger.isInfoEnabled())
         //algorithm.addListener(progressMonitor); // FIXME progressMonitor expects testsuitechromosomes
 
-        if(Properties.TRACK_DIVERSITY)
-            algorithm.addListener(new DiversityObserver());
+        // ===========================================================================================
+        // FIXME: The following line contains a type error.
+        //  DiversityObserver is defined on TestSuiteChromosomes, but Novelty Search only supports
+        //  TestChromosomes
+//        if(Properties.TRACK_DIVERSITY)
+//            algorithm.addListener(new DiversityObserver());
+        if (true) { // To avoid javac's "unreachable code" error
+            // Deliberately throwing an exception
+            throw new RuntimeException("Broken code :(");
+        }
+        // ===========================================================================================
 
         if (ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.DEFUSE)
                 || ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.ALLDEFS)

@@ -178,11 +178,18 @@ public class MIO extends AbstractMOSA {
         if (Archive.getArchiveInstance().hasBeenUpdated()) {
           Set<TestChromosome> testsInArchive = Archive.getArchiveInstance().getSolutions();
           if (!testsInArchive.isEmpty()) {
-            TestSuiteChromosome individualInPopulation =  this.population.get(0);
-            individualInPopulation.clearTests();
-            for (TestChromosome test : testsInArchive) {
-              individualInPopulation.addTest(test.getTestCase().clone());
-            }
+            // ===========================================================================================
+            // FIXME: The following lines contain a type error.
+            //  The population of MIO contains TestChromosomes but the following code assumes
+            //  TestSuiteChromosomes.
+//            TestSuiteChromosome individualInPopulation =  this.population.get(0);
+//            individualInPopulation.clearTests();
+//            for (TestChromosome test : testsInArchive) {
+//              individualInPopulation.addTest(test.getTestCase().clone());
+//            }
+            throw new RuntimeException("Broken code :(");
+            // ===========================================================================================
+
           }
         }
 
