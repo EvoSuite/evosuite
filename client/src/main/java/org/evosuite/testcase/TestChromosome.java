@@ -276,7 +276,8 @@ public final class TestChromosome extends AbstractTestChromosome<TestChromosome>
 	 * @param objective*/
 	@Override
 	public boolean localSearch(LocalSearchObjective<TestChromosome> objective) {
-		final var localSearch = TestCaseLocalSearch.selectTestCaseLocalSearch();
+		TestCaseLocalSearch<TestChromosome> localSearch =
+				TestCaseLocalSearch.selectTestCaseLocalSearch();
 		return localSearch.doSearch(this, objective);
 	}
 
