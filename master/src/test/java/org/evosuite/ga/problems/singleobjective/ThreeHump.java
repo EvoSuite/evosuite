@@ -34,9 +34,9 @@ import org.evosuite.ga.variables.DoubleVariable;
  * @author José Campos
  */
 @SuppressWarnings({ "serial" })
-public class ThreeHump<T extends NSGAChromosome> implements Problem
+public class ThreeHump implements Problem<NSGAChromosome>
 {
-    private List<FitnessFunction<T>> fitnessFunctions = new ArrayList<FitnessFunction<T>>();
+    private final List<FitnessFunction<NSGAChromosome>> fitnessFunctions = new ArrayList<>();
 
     public ThreeHump()
     {
@@ -45,20 +45,19 @@ public class ThreeHump<T extends NSGAChromosome> implements Problem
         /**
          * Fitness function
          */
-        class fFitnessFunction extends FitnessFunction {
+        class fFitnessFunction extends FitnessFunction<NSGAChromosome> {
             @Override
-            public double getFitness(Chromosome c) {
-                NSGAChromosome individual = (NSGAChromosome)c;
+            public double getFitness(NSGAChromosome c) {
 
-                double x = ((DoubleVariable) individual.getVariables().get(0)).getValue();
-                double y = ((DoubleVariable) individual.getVariables().get(1)).getValue();
+                double x = ((DoubleVariable) c.getVariables().get(0)).getValue();
+                double y = ((DoubleVariable) c.getVariables().get(1)).getValue();
 
                 double fitness = (2.0 * Math.pow(x, 2.0))
                                 - (1.05 * Math.pow(x, 4.0))
                                 + (Math.pow(x, 6.0) / 6.0)
                                 + (x * y)
                                 + (Math.pow(y, 2.0));
-                updateIndividual(individual, fitness);
+                updateIndividual(c, fitness);
                 return fitness;
             }
             @Override
@@ -71,7 +70,7 @@ public class ThreeHump<T extends NSGAChromosome> implements Problem
     }
 
     @Override
-    public List getFitnessFunctions() {
+    public List<FitnessFunction<NSGAChromosome>> getFitnessFunctions() {
         return this.fitnessFunctions;
     }
 }

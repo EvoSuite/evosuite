@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -54,16 +54,16 @@ public class NSGAIISystemTest extends SystemTestBase
 	@BeforeClass
 	public static void setUp() {
 		Properties.CROSSOVER_RATE = 0.9;
-		Properties.RANDOM_SEED = 1l;
+		Properties.RANDOM_SEED = 1L;
 	}
 
 	@Test
 	public void testUnionEmptyPopulation()
 	{
-	    NSGAII<NSGAChromosome> ga = new NSGAII<NSGAChromosome>(null);
+	    NSGAII<NSGAChromosome> ga = new NSGAII<>(null);
 
-	    List<NSGAChromosome> pop = new ArrayList<NSGAChromosome>();
-	    List<NSGAChromosome> off = new ArrayList<NSGAChromosome>();
+	    List<NSGAChromosome> pop = new ArrayList<>();
+	    List<NSGAChromosome> off = new ArrayList<>();
 	    List<NSGAChromosome> union = ga.union(pop, off);
 
 	    Assert.assertTrue(union.isEmpty());
@@ -72,17 +72,17 @@ public class NSGAIISystemTest extends SystemTestBase
 	@Test
     public void testUnion()
     {
-        NSGAII<NSGAChromosome> ga = new NSGAII<NSGAChromosome>(null);
+        NSGAII<NSGAChromosome> ga = new NSGAII<>(null);
 
         NSGAChromosome c1 = new NSGAChromosome();
         NSGAChromosome c2 = new NSGAChromosome();
         NSGAChromosome c3 = new NSGAChromosome();
 
-        List<NSGAChromosome> pop = new ArrayList<NSGAChromosome>();
+        List<NSGAChromosome> pop = new ArrayList<>();
         pop.add(c1);
         pop.add(c2);
 
-        List<NSGAChromosome> off = new ArrayList<NSGAChromosome>();
+        List<NSGAChromosome> off = new ArrayList<>();
         off.add(c3);
 
         List<NSGAChromosome> union = ga.union(pop, off);
@@ -92,9 +92,9 @@ public class NSGAIISystemTest extends SystemTestBase
 	@Test
 	public void testFastNonDominatedSort()
 	{
-		NSGAII<NSGAChromosome> ga = new NSGAII<NSGAChromosome>(null);
+		NSGAII<NSGAChromosome> ga = new NSGAII<>(null);
 
-		Problem p = new Booths<NSGAChromosome>();
+		Problem<NSGAChromosome> p = new Booths();
         List<FitnessFunction<NSGAChromosome>> fitnessFunctions = p.getFitnessFunctions();
         ga.addFitnessFunctions(fitnessFunctions);
 
@@ -121,7 +121,7 @@ public class NSGAIISystemTest extends SystemTestBase
 		c9.setFitness(fitnessFunctions.get(0), 0.6);
 		c10.setFitness(fitnessFunctions.get(0), 0.0);
 
-		List<NSGAChromosome> population = new ArrayList<NSGAChromosome>();
+		List<NSGAChromosome> population = new ArrayList<>();
 		population.add(c1);
 		population.add(c2);
 		population.add(c3);
@@ -133,38 +133,38 @@ public class NSGAIISystemTest extends SystemTestBase
 		population.add(c9);
 		population.add(c10);
 
-		ga.getRankingFunction().computeRankingAssignment(population, new LinkedHashSet<FitnessFunction<NSGAChromosome>>(fitnessFunctions));
+		ga.getRankingFunction().computeRankingAssignment(population, new LinkedHashSet<>(fitnessFunctions));
 
 		// Total number of Fronts
 		Assert.assertEquals(ga.getRankingFunction().getNumberOfSubfronts(), 5);
 
 		// Front 0
-		Assert.assertTrue(ga.getRankingFunction().getSubfront(0).get(0).getFitness() == 0.0);
+		Assert.assertEquals(0.0, ga.getRankingFunction().getSubfront(0).get(0).getFitness(), 0.0);
 		//Assert.assertTrue(ga.getRankingFunction().getSubfront(0).get(1).getFitness() == 0.0);
 
 		// Front 1
-		Assert.assertTrue(ga.getRankingFunction().getSubfront(1).get(0).getFitness() == 0.2);
-		Assert.assertTrue(ga.getRankingFunction().getSubfront(1).get(1).getFitness() == 0.2);
+		Assert.assertEquals(0.2, ga.getRankingFunction().getSubfront(1).get(0).getFitness(), 0.0);
+		Assert.assertEquals(0.2, ga.getRankingFunction().getSubfront(1).get(1).getFitness(), 0.0);
 
 		// Front 2
-		Assert.assertTrue(ga.getRankingFunction().getSubfront(2).get(0).getFitness() == 0.4);
-		Assert.assertTrue(ga.getRankingFunction().getSubfront(2).get(1).getFitness() == 0.4);
+		Assert.assertEquals(0.4, ga.getRankingFunction().getSubfront(2).get(0).getFitness(), 0.0);
+		Assert.assertEquals(0.4, ga.getRankingFunction().getSubfront(2).get(1).getFitness(), 0.0);
 
 		// Front 3
-		Assert.assertTrue(ga.getRankingFunction().getSubfront(3).get(0).getFitness() == 0.6);
-		Assert.assertTrue(ga.getRankingFunction().getSubfront(3).get(1).getFitness() == 0.6);
+		Assert.assertEquals(0.6, ga.getRankingFunction().getSubfront(3).get(0).getFitness(), 0.0);
+		Assert.assertEquals(0.6, ga.getRankingFunction().getSubfront(3).get(1).getFitness(), 0.0);
 
 		// Front 4
-		Assert.assertTrue(ga.getRankingFunction().getSubfront(4).get(0).getFitness() == 0.8);
-		Assert.assertTrue(ga.getRankingFunction().getSubfront(4).get(1).getFitness() == 0.8);
+		Assert.assertEquals(0.8, ga.getRankingFunction().getSubfront(4).get(0).getFitness(), 0.0);
+		Assert.assertEquals(0.8, ga.getRankingFunction().getSubfront(4).get(1).getFitness(), 0.0);
 	}
 
 	@Test
 	public void testCrowingDistanceAssignment_OneVariable()
 	{
-		NSGAII<NSGAChromosome> ga = new NSGAII<NSGAChromosome>(null);
+		NSGAII<NSGAChromosome> ga = new NSGAII<>(null);
 
-		Problem p = new Booths();
+		Problem<NSGAChromosome> p = new Booths();
 		List<FitnessFunction<NSGAChromosome>> fitnessFunctions = p.getFitnessFunctions();
 		ga.addFitnessFunctions(fitnessFunctions);
 
@@ -191,7 +191,7 @@ public class NSGAIISystemTest extends SystemTestBase
 		c9.setFitness(fitnessFunctions.get(0), 0.6);
 		c10.setFitness(fitnessFunctions.get(0), 0.8);
 
-		List<NSGAChromosome> population = new ArrayList<NSGAChromosome>();
+		List<NSGAChromosome> population = new ArrayList<>();
 		population.add(c1);
 		population.add(c2);
 		population.add(c3);
@@ -203,12 +203,12 @@ public class NSGAIISystemTest extends SystemTestBase
 		population.add(c9);
 		population.add(c10);
 
-		CrowdingDistance<NSGAChromosome> crowdingDistance = new CrowdingDistance<NSGAChromosome>();
+		CrowdingDistance<NSGAChromosome> crowdingDistance = new CrowdingDistance<>();
 		crowdingDistance.crowdingDistanceAssignment(population, fitnessFunctions);
-		Collections.sort(population, new RankAndCrowdingDistanceComparator(true));
+		population.sort(new RankAndCrowdingDistanceComparator<>(true));
 
-		Assert.assertTrue(population.get(0).getDistance() == Double.POSITIVE_INFINITY);
-		Assert.assertTrue(population.get(1).getDistance() == Double.POSITIVE_INFINITY);
+		Assert.assertEquals(population.get(0).getDistance(), Double.POSITIVE_INFINITY, 0.0);
+		Assert.assertEquals(population.get(1).getDistance(), Double.POSITIVE_INFINITY, 0.0);
 
 		double epsilon = 1e-10;
 		Assert.assertTrue(Math.abs(0.25 - population.get(2).getDistance()) < epsilon);
@@ -224,9 +224,9 @@ public class NSGAIISystemTest extends SystemTestBase
 	@Test
     public void testCrowingDistanceAssignment_SeveralVariables()
 	{
-        NSGAII<NSGAChromosome> ga = new NSGAII<NSGAChromosome>(null);
+        NSGAII<NSGAChromosome> ga = new NSGAII<>(null);
 
-        Problem p = new SCH();
+        Problem<NSGAChromosome> p = new SCH();
         List<FitnessFunction<NSGAChromosome>> fitnessFunctions = p.getFitnessFunctions();
         ga.addFitnessFunctions(fitnessFunctions);
 
@@ -265,7 +265,7 @@ public class NSGAIISystemTest extends SystemTestBase
         c9.setFitness(fitnessFunctions.get(1), 0.7);
         c10.setFitness(fitnessFunctions.get(1), 0.9);
 
-        List<NSGAChromosome> population = new ArrayList<NSGAChromosome>();
+        List<NSGAChromosome> population = new ArrayList<>();
         population.add(c1);
         population.add(c2);
         population.add(c3);
@@ -277,12 +277,12 @@ public class NSGAIISystemTest extends SystemTestBase
         population.add(c9);
         population.add(c10);
 
-        CrowdingDistance<NSGAChromosome> crowdingDistance = new CrowdingDistance<NSGAChromosome>();
+        CrowdingDistance<NSGAChromosome> crowdingDistance = new CrowdingDistance<>();
         crowdingDistance.crowdingDistanceAssignment(population, fitnessFunctions);
-        Collections.sort(population, new RankAndCrowdingDistanceComparator(true));
+        population.sort(new RankAndCrowdingDistanceComparator<>(true));
 
-        Assert.assertTrue(population.get(0).getDistance() == Double.POSITIVE_INFINITY);
-        Assert.assertTrue(population.get(1).getDistance() == Double.POSITIVE_INFINITY);
+		Assert.assertEquals(population.get(0).getDistance(), Double.POSITIVE_INFINITY, 0.0);
+		Assert.assertEquals(population.get(1).getDistance(), Double.POSITIVE_INFINITY, 0.0);
 
         double epsilon = 1e-10;
         Assert.assertTrue(Math.abs(0.5 - population.get(2).getDistance()) < epsilon);
@@ -321,13 +321,14 @@ public class NSGAIISystemTest extends SystemTestBase
         Object result = evosuite.parseCommandLine(command);
         Assert.assertNotNull(result);
 
-        GeneticAlgorithm<?> ga = getGAFromResult(result);
+        GeneticAlgorithm<NSGAChromosome> ga =
+				(GeneticAlgorithm<NSGAChromosome>) getGAFromResult(result);
 
-        final FitnessFunction rho = ga.getFitnessFunctions().get(0);
-        final FitnessFunction ag = ga.getFitnessFunctions().get(1);
+        final FitnessFunction<NSGAChromosome> rho = ga.getFitnessFunctions().get(0);
+        final FitnessFunction<NSGAChromosome> ag = ga.getFitnessFunctions().get(1);
 
-        List<Chromosome> population = new ArrayList<Chromosome>(ga.getBestIndividuals());
-        Collections.sort(population, new SortByFitness(rho, false));
+        List<NSGAChromosome> population = new ArrayList<>(ga.getBestIndividuals());
+        population.sort(new SortByFitness<>(rho, false));
 
         Assert.assertEquals(0.0, population.get(0).getFitness(rho), 0.0);
         Assert.assertEquals(0.0, population.get(0).getFitness(ag), 0.0);
