@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -40,7 +40,7 @@ public class TestDominanceComparator
     @Test
     public void testDominanceComparatorOneFitness()
     {
-        Problem p = new Booths<NSGAChromosome>();
+        Problem<NSGAChromosome> p = new Booths();
         List<FitnessFunction<NSGAChromosome>> fitnessFunctions = p.getFitnessFunctions();
         FitnessFunction<NSGAChromosome> ff = fitnessFunctions.get(0);
 
@@ -55,8 +55,7 @@ public class TestDominanceComparator
         population.add(c1);
         population.add(c2);
 
-        DominanceComparator dc = new DominanceComparator();
-        Collections.sort(population, dc);
+        population.sort(new DominanceComparator<>());
 
         Assert.assertEquals(population.get(0).getFitness(ff), 0.3, 0.0);
         Assert.assertEquals(population.get(1).getFitness(ff), 0.7, 0.0);
@@ -65,7 +64,7 @@ public class TestDominanceComparator
     @Test
     public void testDominanceComparatorSeveralFitnessesNoDomination()
     {
-        Problem p = new FON();
+        Problem<NSGAChromosome> p = new FON();
         List<FitnessFunction<NSGAChromosome>> fitnessFunctions = p.getFitnessFunctions();
         FitnessFunction<NSGAChromosome> ff_1 = fitnessFunctions.get(0);
         FitnessFunction<NSGAChromosome> ff_2 = fitnessFunctions.get(1);
@@ -83,8 +82,7 @@ public class TestDominanceComparator
         population.add(c1);
         population.add(c2);
 
-        DominanceComparator dc = new DominanceComparator();
-        Collections.sort(population, dc);
+        population.sort(new DominanceComparator<>());
 
         Assert.assertEquals(population.get(0).getFitness(ff_1), 0.7, 0.0);
         Assert.assertEquals(population.get(0).getFitness(ff_2), 0.2, 0.0);
@@ -95,7 +93,7 @@ public class TestDominanceComparator
     @Test
     public void testDominanceComparatorSeveralFitnessesDomination()
     {
-        Problem p = new FON();
+        Problem<NSGAChromosome> p = new FON();
         List<FitnessFunction<NSGAChromosome>> fitnessFunctions = p.getFitnessFunctions();
         FitnessFunction<NSGAChromosome> ff_1 = fitnessFunctions.get(0);
         FitnessFunction<NSGAChromosome> ff_2 = fitnessFunctions.get(1);
@@ -113,8 +111,7 @@ public class TestDominanceComparator
         population.add(c1);
         population.add(c2);
 
-        DominanceComparator dc = new DominanceComparator();
-        Collections.sort(population, dc);
+        population.sort(new DominanceComparator<>());
 
         Assert.assertEquals(population.get(0).getFitness(ff_1), 0.3, 0.0);
         Assert.assertEquals(population.get(0).getFitness(ff_2), 0.5, 0.0);
