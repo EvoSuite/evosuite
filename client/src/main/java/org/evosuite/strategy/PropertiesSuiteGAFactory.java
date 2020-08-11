@@ -62,7 +62,6 @@ import org.evosuite.utils.ArrayUtil;
 import org.evosuite.utils.ResourceController;
 import sun.misc.Signal;
 
-
 /**
  * Factory for GA on test suites
  * 
@@ -79,7 +78,8 @@ public class PropertiesSuiteGAFactory
 			switch (Properties.TEST_FACTORY) {
 			case ALLMETHODS:
 				logger.info("Using all methods chromosome factory");
-				return new TestSuiteChromosomeFactory(new AllMethodsTestChromosomeFactory());
+				return new TestSuiteChromosomeFactory(
+				        new AllMethodsTestChromosomeFactory());
 			case RANDOM:
 				logger.info("Using random chromosome factory");
 				return new TestSuiteChromosomeFactory(new RandomLengthTestFactory());
@@ -88,11 +88,13 @@ public class PropertiesSuiteGAFactory
 				return new TestSuiteChromosomeFactory(new ArchiveTestChromosomeFactory());
 			case JUNIT:
 				logger.info("Using seeding chromosome factory");
-				final var factory = new JUnitTestCarvedChromosomeFactory(new RandomLengthTestFactory());
+				JUnitTestCarvedChromosomeFactory factory = new JUnitTestCarvedChromosomeFactory(
+				        new RandomLengthTestFactory());
 				return new TestSuiteChromosomeFactory(factory);
             case SERIALIZATION:
                 logger.info("Using serialization seeding chromosome factory");
-                return new SerializationSuiteChromosomeFactory(new RandomLengthTestFactory());
+                return new SerializationSuiteChromosomeFactory(
+                        new RandomLengthTestFactory());
 			default:
 				throw new RuntimeException("Unsupported test factory: "
 				        + Properties.TEST_FACTORY);
@@ -125,7 +127,7 @@ public class PropertiesSuiteGAFactory
 				return new MuLambdaEA<>(factory, Properties.MU, Properties.LAMBDA);
 			case MONOTONIC_GA: {
 				logger.info("Chosen search algorithm: MonotonicGA");
-				final var ga = new MonotonicGA<>(factory);
+				MonotonicGA<TestSuiteChromosome> ga = new MonotonicGA<>(factory);
 				if (Properties.REPLACEMENT_FUNCTION == TheReplacementFunction.FITNESSREPLACEMENT) {
 					// user has explicitly asked for this replacement function
 					ga.setReplacementFunction(new FitnessReplacementFunction<>());
@@ -137,7 +139,7 @@ public class PropertiesSuiteGAFactory
 			}
 			case CELLULAR_GA: {
 				logger.info("Chosen search algorithm: CellularGA");
-				final var ga = new CellularGA<>(Properties.MODEL,	factory);
+				CellularGA<TestSuiteChromosome> ga = new CellularGA<>(Properties.MODEL,	factory);
 				if (Properties.REPLACEMENT_FUNCTION == TheReplacementFunction.FITNESSREPLACEMENT) {
 					// user has explicitly asked for this replacement function
 					ga.setReplacementFunction(new FitnessReplacementFunction<>());
@@ -150,7 +152,7 @@ public class PropertiesSuiteGAFactory
 			case STEADY_STATE_GA: {
 			logger.info("Chosen search algorithm: Steady-StateGA");
 				logger.info("Chosen search algorithm: Steady-StateGA");
-				final var ga = new SteadyStateGA<>(factory);
+				SteadyStateGA<TestSuiteChromosome> ga = new SteadyStateGA<>(factory);
 				if (Properties.REPLACEMENT_FUNCTION == TheReplacementFunction.FITNESSREPLACEMENT) {
 					// user has explicitly asked for this replacement function
 					ga.setReplacementFunction(new FitnessReplacementFunction<>());
@@ -283,24 +285,24 @@ public class PropertiesSuiteGAFactory
 
 	@Override
 	public GeneticAlgorithm<TestSuiteChromosome> getSearchAlgorithm() {
-		final var factory = getChromosomeFactory();
+		ChromosomeFactory<TestSuiteChromosome> factory = getChromosomeFactory();
 		
 		// FIXXME
-		final var ga = getGeneticAlgorithm(factory);
+		GeneticAlgorithm<TestSuiteChromosome> ga = getGeneticAlgorithm(factory);
 
 		if (Properties.NEW_STATISTICS)
 			ga.addListener(new StatisticsListener<>());
 
 		// How to select candidates for reproduction
-		final var selectionFunction = getSelectionFunction();
+		SelectionFunction<TestSuiteChromosome> selectionFunction = getSelectionFunction();
 		selectionFunction.setMaximize(false);
 		ga.setSelectionFunction(selectionFunction);
 
-		final var ranking_function = getRankingFunction();
+		RankingFunction<TestSuiteChromosome> ranking_function = getRankingFunction();
 		ga.setRankingFunction(ranking_function);
 
 		// When to stop the search
-		final var stopping_condition = getStoppingCondition();
+		StoppingCondition<TestSuiteChromosome> stopping_condition = getStoppingCondition();
 		ga.setStoppingCondition(stopping_condition);
 		// ga.addListener(stopping_condition);
 		if (Properties.STOP_ZERO) {
@@ -325,7 +327,7 @@ public class PropertiesSuiteGAFactory
 		ga.setPopulationLimit(getPopulationLimit());
 
 		// How to cross over
-		final var crossover_function = getCrossoverFunction();
+		CrossOverFunction<TestSuiteChromosome> crossover_function = getCrossoverFunction();
 		ga.setCrossOverFunction(crossover_function);
 
 		// What to do about bloat
@@ -333,7 +335,8 @@ public class PropertiesSuiteGAFactory
 		// ga.setBloatControl(bloat_control);
 
 		if (Properties.CHECK_BEST_LENGTH) {
-			final var bloat_control = new RelativeSuiteLengthBloatControl<TestSuiteChromosome>();
+			RelativeSuiteLengthBloatControl<TestSuiteChromosome> bloat_control =
+					new RelativeSuiteLengthBloatControl<>();
 			ga.addBloatControl(bloat_control);
 			ga.addListener(bloat_control);
 		}
@@ -367,13 +370,13 @@ public class PropertiesSuiteGAFactory
 		if (Properties.SHUTDOWN_HOOK) {
 			// ShutdownTestWriter writer = new
 			// ShutdownTestWriter(Thread.currentThread());
-			final var writer = new ShutdownTestWriter<TestSuiteChromosome>();
+			ShutdownTestWriter<TestSuiteChromosome> writer = new ShutdownTestWriter<>();
 			ga.addStoppingCondition(writer);
 			RMIStoppingCondition<TestSuiteChromosome> rmi = RMIStoppingCondition.getInstance();
 			ga.addStoppingCondition(rmi);
 
 			if (Properties.STOPPING_PORT != -1) {
-				final var ss = new SocketStoppingCondition<TestSuiteChromosome>();
+				SocketStoppingCondition<TestSuiteChromosome> ss = new SocketStoppingCondition<>();
 				ss.accept();
 				ga.addStoppingCondition(ss);
 			}

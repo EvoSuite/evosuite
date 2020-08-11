@@ -29,6 +29,7 @@ import org.evosuite.ga.operators.selection.RandomKSelection;
 import org.evosuite.ga.operators.selection.RankSelection;
 import org.evosuite.ga.operators.selection.SelectionFunction;
 import org.evosuite.rmi.ClientServices;
+import org.evosuite.rmi.service.ClientNodeLocal;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
@@ -171,7 +172,8 @@ public class MOSA extends AbstractMOSA {
 			this.distance.fastEpsilonDominanceAssignment(this.rankingFunction.getSubfront(i), this.getUncoveredGoals());
 		}
 
-		final var clientNode = ClientServices.<TestChromosome>getInstance().getClientNode();
+		final ClientNodeLocal<TestChromosome> clientNode =
+				ClientServices.<TestChromosome>getInstance().getClientNode();
 
 		Listener<Set<TestChromosome>> listener = null;
 		if (Properties.NUM_PARALLEL_CLIENTS > 1) {

@@ -331,7 +331,7 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
             throws IllegalArgumentException {
         if (algorithm != null) {
             if (factory instanceof TestSuiteChromosomeFactoryMock) {
-                final var tcfw = (TestSuiteChromosomeFactoryMock) factory;
+                TestSuiteChromosomeFactoryMock tcfw = (TestSuiteChromosomeFactoryMock) factory;
                 algorithm.setChromosomeFactory(tcfw.getWrapped());
             } else {
                 throw new IllegalArgumentException("factory not supported: " + factory);
