@@ -33,6 +33,10 @@ public class MaxLengthBloatControl implements BloatControlFunction<TestSuiteChro
 
 	private static final long serialVersionUID = -5019773997815280164L;
 
+	public MaxLengthBloatControl() {
+		// empty constructor
+	}
+
 	public MaxLengthBloatControl(final MaxLengthBloatControl that) {
 		// empty copy constructor
 	}

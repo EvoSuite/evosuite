@@ -40,13 +40,20 @@ public class RelativeSuiteLengthBloatControl<T extends Chromosome<T>> implements
 	/**
 	 * Longest individual in current generation
 	 */
-	protected int current_max = 0;
+	protected int current_max;
 
-	protected double best_fitness = Double.MAX_VALUE; // FIXXME: Assuming
-	                                                  // minimizing fitness!
+	protected double best_fitness;
+
+	public RelativeSuiteLengthBloatControl() {
+		current_max = 0;
+		best_fitness = Double.MAX_VALUE; // FIXXME: Assuming
+										 // minimizing fitness!
+	}
 
 	public RelativeSuiteLengthBloatControl(final RelativeSuiteLengthBloatControl<?> that) {
+		current_max = 0;
 		this.current_max = that.current_max;
+		best_fitness = Double.MAX_VALUE;
 		this.best_fitness = that.best_fitness;
 	}
 
