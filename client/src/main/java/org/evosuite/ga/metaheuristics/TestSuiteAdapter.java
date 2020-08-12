@@ -532,8 +532,9 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
             return new MaxTimeStoppingCondition<>();
         } else if (stoppingCondition instanceof MaxGenerationStoppingCondition) {
             return new MaxGenerationStoppingCondition<>();
-        } else
-            throw new IllegalArgumentException("Cannot map stopping condition from test suite level to test case level");
+        } else {
+            throw new IllegalArgumentException("cannot adapt stopping condition: " + stoppingCondition);
+        }
     }
 
     @Override
