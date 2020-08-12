@@ -41,15 +41,15 @@ import org.evosuite.testsuite.TestSuiteChromosome;
  */
 public class StatisticsListener<T extends Chromosome<T>> implements SearchListener<T> {
 
-	private final BlockingQueue<T> individuals = new LinkedBlockingQueue<>();
+	private final BlockingQueue<T> individuals;
 	
-	private volatile boolean done = false;
+	private volatile boolean done;
 	
-	private volatile double bestFitness = Double.MAX_VALUE;
+	private volatile double bestFitness;
 	
-	private volatile boolean minimizing = true;
+	private volatile boolean minimizing;
 	
-	private int numFitnessEvaluations = 0;
+	private int numFitnessEvaluations;
 	
 	private volatile Thread notifier;
 	
@@ -59,6 +59,12 @@ public class StatisticsListener<T extends Chromosome<T>> implements SearchListen
 	private volatile long timeFromLastGenerationUpdate = 0;
 	
 	public StatisticsListener() {
+		individuals = new LinkedBlockingQueue<>();
+		done = false;
+		bestFitness = Double.MAX_VALUE;
+		minimizing = true;
+		numFitnessEvaluations = 0;
+
 		notifier = new Thread(() -> {
 			// Wait for new element in queue
 			// If there is a new element, then send it to master through RMI
@@ -76,14 +82,17 @@ public class StatisticsListener<T extends Chromosome<T>> implements SearchListen
 		notifier.start();
 	}
 
-	public StatisticsListener(StatisticsListener<?> that) {
-//		this.individuals = new LinkedBlockingQueue<>(that.individuals);
+	public StatisticsListener(StatisticsListener<T> that) {
+		this.individuals = new LinkedBlockingQueue<>(that.individuals);
 		this.bestFitness = that.bestFitness;
 		this.done = that.done;
 		this.minimizing = that.minimizing;
-		this.notifier = new Thread(that.notifier);
 		this.numFitnessEvaluations = that.numFitnessEvaluations;
 		this.timeFromLastGenerationUpdate = that.timeFromLastGenerationUpdate;
+
+		this.notifier = new Thread(that.notifier);
+		Sandbox.addPrivilegedThread(this.notifier);
+		this.notifier.start();
 	}
 
 	@Override
