@@ -45,6 +45,11 @@ public class RelativeSuiteLengthBloatControl<T extends Chromosome<T>> implements
 	protected double best_fitness = Double.MAX_VALUE; // FIXXME: Assuming
 	                                                  // minimizing fitness!
 
+	public RelativeSuiteLengthBloatControl(final RelativeSuiteLengthBloatControl<?> that) {
+		this.current_max = that.current_max;
+		this.best_fitness = that.best_fitness;
+	}
+
 	/**
 	 * {@inheritDoc}
 	 *

@@ -23,6 +23,7 @@ import org.evosuite.Properties;
 import org.evosuite.ga.bloatcontrol.BloatControlFunction;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.ga.metaheuristics.SearchListener;
+import org.evosuite.testsuite.RelativeSuiteLengthBloatControl;
 
 
 /**
@@ -39,6 +40,11 @@ public class RelativeTestLengthBloatControl<T extends ExecutableChromosome<T>>
 
 	protected double best_fitness = Double.MAX_VALUE; // FIXXME: Assuming
 	                                                  // minimizing fitness!
+
+	public RelativeTestLengthBloatControl(final RelativeTestLengthBloatControl<?> that) {
+		this.current_max = that.current_max;
+		this.best_fitness = that.best_fitness;
+	}
 
 	/** {@inheritDoc} */
 	@Override
