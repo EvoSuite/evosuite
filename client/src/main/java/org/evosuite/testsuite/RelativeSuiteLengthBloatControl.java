@@ -51,7 +51,9 @@ public class RelativeSuiteLengthBloatControl<T extends Chromosome<T>> implements
 	}
 
 	public RelativeSuiteLengthBloatControl(final RelativeSuiteLengthBloatControl<?> that) {
+		current_max = 0;
 		this.current_max = that.current_max;
+		best_fitness = Double.MAX_VALUE;
 		this.best_fitness = that.best_fitness;
 	}
 

@@ -31,6 +31,10 @@ public class MaxSizeBloatControl<T extends Chromosome<T>> implements BloatContro
 
 	private static final long serialVersionUID = -8241127914702360972L;
 
+	public MaxSizeBloatControl() {
+		// empty constructor
+	}
+
 	public MaxSizeBloatControl(final MaxSizeBloatControl<?> that) {
 		// empty copy constructor
 	}

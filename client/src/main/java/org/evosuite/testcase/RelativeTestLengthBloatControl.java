@@ -37,7 +37,6 @@ public class RelativeTestLengthBloatControl<T extends ExecutableChromosome<T>>
 	private static final long serialVersionUID = -459141492060919204L;
 
 	protected int current_max;
-
 	protected double best_fitness;
 
 	public RelativeTestLengthBloatControl() {
