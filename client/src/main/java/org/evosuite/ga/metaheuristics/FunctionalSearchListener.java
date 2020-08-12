@@ -24,7 +24,16 @@ public class FunctionalSearchListener<T extends Chromosome<T>> implements Search
     this.fitnessEvaluationHandler = orDefault(fitnessEvaluationHandler);
     this.modificationHandler = orDefault(modificationHandler);
   }
-  
+
+  public FunctionalSearchListener(FunctionalSearchListener<T> that) {
+    // no deep copies
+    this.searchStartedHandler= that.searchStartedHandler;
+    this.searchFinishedHandler = that.searchFinishedHandler;
+    this.iterationHandler = that.iterationHandler;
+    this.fitnessEvaluationHandler = that.fitnessEvaluationHandler;
+    this.modificationHandler = that.modificationHandler;
+  }
+
   private <U> Consumer<U> orDefault(Consumer<U> handler) {
       return handler == null ? (U arg) -> {} : handler;
   }
