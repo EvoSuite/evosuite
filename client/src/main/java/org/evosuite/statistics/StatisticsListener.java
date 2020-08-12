@@ -76,6 +76,15 @@ public class StatisticsListener<T extends Chromosome<T>> implements SearchListen
 		notifier.start();
 	}
 
+	public StatisticsListener(StatisticsListener<?> that) {
+//		this.individuals = new LinkedBlockingQueue<>(that.individuals);
+		this.bestFitness = that.bestFitness;
+		this.done = that.done;
+		this.minimizing = that.minimizing;
+		this.notifier = new Thread(that.notifier);
+		this.numFitnessEvaluations = that.numFitnessEvaluations;
+		this.timeFromLastGenerationUpdate = that.timeFromLastGenerationUpdate;
+	}
 
 	@Override
 	public void iteration(GeneticAlgorithm<T> algorithm) {
