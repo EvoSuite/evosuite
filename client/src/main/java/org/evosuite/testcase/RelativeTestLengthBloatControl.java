@@ -36,10 +36,15 @@ public class RelativeTestLengthBloatControl<T extends ExecutableChromosome<T>>
 
 	private static final long serialVersionUID = -459141492060919204L;
 
-	protected int current_max = 0;
+	protected int current_max;
 
-	protected double best_fitness = Double.MAX_VALUE; // FIXXME: Assuming
-	                                                  // minimizing fitness!
+	protected double best_fitness;
+
+	public RelativeTestLengthBloatControl() {
+		current_max = 0;
+		best_fitness = Double.MAX_VALUE; // FIXXME: Assuming
+										 // minimizing fitness!
+	}
 
 	public RelativeTestLengthBloatControl(final RelativeTestLengthBloatControl<?> that) {
 		this.current_max = that.current_max;
