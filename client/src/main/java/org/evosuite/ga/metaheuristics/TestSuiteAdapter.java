@@ -272,19 +272,24 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
     @Override
     public void addBloatControl(BloatControlFunction<TestSuiteChromosome> bloatControl)
             throws IllegalArgumentException { // (8)
-        final BloatControlFunction<TestChromosome> adapteeFunction;
-        if (bloatControl instanceof RelativeTestLengthBloatControl) {
-            adapteeFunction = new RelativeTestLengthBloatControl<>();
-        } else if (bloatControl instanceof MaxLengthBloatControl) {
-            throw new IllegalArgumentException("MaxLengthBloatControl not supported");
-        } else if (bloatControl instanceof RelativeSuiteLengthBloatControl) {
-            adapteeFunction = new RelativeSuiteLengthBloatControl<>();
+        if (algorithm != null) {
+            algorithm.setBloatControl(mapBloatControlToTestLevel(bloatControl));
+        }
+    }
+
+    private BloatControlFunction<TestChromosome> mapBloatControlToTestLevel(
+            BloatControlFunction<TestSuiteChromosome> bloatControl) {
+        if (bloatControl instanceof RelativeSuiteLengthBloatControl) {
+            final RelativeSuiteLengthBloatControl<?> bcf =
+                    (RelativeSuiteLengthBloatControl<?>) bloatControl;
+            return new RelativeSuiteLengthBloatControl<>(bcf);
         } else if (bloatControl instanceof MaxSizeBloatControl) {
-            adapteeFunction = new MaxSizeBloatControl<>();
+            final MaxSizeBloatControl<?> bcf =
+                    (MaxSizeBloatControl<?>) bloatControl;
+            return new MaxSizeBloatControl<>(bcf);
         } else {
             throw new IllegalArgumentException("cannot adapt bloat control function " + bloatControl);
         }
-        algorithm.addBloatControl(adapteeFunction);
     }
 
     @Override
