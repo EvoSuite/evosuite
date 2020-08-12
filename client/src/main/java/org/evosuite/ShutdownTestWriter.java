@@ -50,7 +50,7 @@ public class ShutdownTestWriter<T extends Chromosome<T>> extends StoppingConditi
 	}
 
 	@Override
-	public StoppingCondition<T> clone() {
+	public ShutdownTestWriter<T> clone() {
 		return new ShutdownTestWriter<>(this);
 	}
 
