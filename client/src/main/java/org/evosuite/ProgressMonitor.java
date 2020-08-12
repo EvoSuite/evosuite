@@ -59,8 +59,8 @@ public class ProgressMonitor<T extends Chromosome<T>> implements SearchListener<
 		state = ClientState.INITIALIZATION;
 	}
 
-	public ProgressMonitor(ProgressMonitor<?> that) {
-//		this.stoppingCondition = that.stoppingCondition.clone(); // FIXME!
+	public ProgressMonitor(ProgressMonitor<T> that) {
+		this.stoppingCondition = that.stoppingCondition.clone();
 		this.max = that.max;
 		this.currentCoverage = that.currentCoverage;
 		this.lastCoverage = that.lastCoverage;
