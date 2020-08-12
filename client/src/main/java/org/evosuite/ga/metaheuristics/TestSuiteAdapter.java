@@ -4,6 +4,7 @@ import org.evosuite.ProgressMonitor;
 import org.evosuite.ShutdownTestWriter;
 import org.evosuite.ga.*;
 import org.evosuite.ga.bloatcontrol.BloatControlFunction;
+import org.evosuite.ga.bloatcontrol.MaxSizeBloatControl;
 import org.evosuite.ga.operators.crossover.*;
 import org.evosuite.ga.operators.ranking.FastNonDominatedSorting;
 import org.evosuite.ga.operators.ranking.RankBasedPreferenceSorting;
@@ -14,12 +15,9 @@ import org.evosuite.ga.populationlimit.PopulationLimit;
 import org.evosuite.ga.populationlimit.SizePopulationLimit;
 import org.evosuite.ga.stoppingconditions.*;
 import org.evosuite.statistics.StatisticsListener;
+import org.evosuite.testcase.RelativeTestLengthBloatControl;
 import org.evosuite.testcase.TestChromosome;
-import org.evosuite.testcase.TestFitnessFunction;
-import org.evosuite.testsuite.RelativeSuiteLengthBloatControl;
-import org.evosuite.testsuite.StatementsPopulationLimit;
-import org.evosuite.testsuite.TestSuiteChromosome;
-import org.evosuite.testsuite.TestSuiteFitnessFunction;
+import org.evosuite.testsuite.*;
 import org.evosuite.utils.ResourceController;
 
 import java.util.Collection;
@@ -273,9 +271,20 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
 
     @Override
     public void addBloatControl(BloatControlFunction<TestSuiteChromosome> bloatControl)
-            throws UnsupportedOperationException { // (8)
-        throw new UnsupportedOperationException("unimplemented during refactoring");
-        // algorithm.addBloatControl(bloatControl);
+            throws IllegalArgumentException { // (8)
+        final BloatControlFunction<TestChromosome> adapteeFunction;
+        if (bloatControl instanceof RelativeTestLengthBloatControl) {
+            adapteeFunction = new RelativeTestLengthBloatControl<>();
+        } else if (bloatControl instanceof MaxLengthBloatControl) {
+            throw new IllegalArgumentException("MaxLengthBloatControl not supported");
+        } else if (bloatControl instanceof RelativeSuiteLengthBloatControl) {
+            adapteeFunction = new RelativeSuiteLengthBloatControl<>();
+        } else if (bloatControl instanceof MaxSizeBloatControl) {
+            adapteeFunction = new MaxSizeBloatControl<>();
+        } else {
+            throw new IllegalArgumentException("cannot adapt bloat control function " + bloatControl);
+        }
+        algorithm.addBloatControl(adapteeFunction);
     }
 
     @Override
