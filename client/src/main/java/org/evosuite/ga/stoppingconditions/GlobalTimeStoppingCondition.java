@@ -44,6 +44,19 @@ public class GlobalTimeStoppingCondition<T extends Chromosome<T>> extends Stoppi
 	/** Constant <code>pause_time=0L</code> */
 	protected static long pauseTime = 0L;
 
+	public GlobalTimeStoppingCondition() {
+		// empty constructor
+	}
+
+	public GlobalTimeStoppingCondition(GlobalTimeStoppingCondition<?> that) {
+		// empty copy constructor
+	}
+
+	@Override
+	public GlobalTimeStoppingCondition<T> clone() {
+		return new GlobalTimeStoppingCondition<>(this);
+	}
+
 	/** {@inheritDoc} */
 	@Override
 	public void searchStarted(GeneticAlgorithm<T> algorithm) {

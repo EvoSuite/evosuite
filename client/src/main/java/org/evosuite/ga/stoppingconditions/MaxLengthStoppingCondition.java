@@ -37,8 +37,23 @@ public class MaxLengthStoppingCondition<T extends Chromosome<T>> extends Stoppin
 
 	private static final long serialVersionUID = 8537667219135128366L;
 
-	private double averageLength = 0.0;
-	private int maxLength = Properties.MAX_LENGTH;
+	private double averageLength;
+	private int maxLength;
+
+	public MaxLengthStoppingCondition() {
+		averageLength = 0.0;
+		maxLength = Properties.MAX_LENGTH;
+	}
+
+	public MaxLengthStoppingCondition(MaxLengthStoppingCondition<?> that) {
+		this.averageLength = that.averageLength;
+		this.maxLength = that.maxLength;
+	}
+
+	@Override
+	public MaxLengthStoppingCondition<T> clone() {
+		return new MaxLengthStoppingCondition<>(this);
+	}
 
 	/* (non-Javadoc)
 	 * @see org.ga.StoppingCondition#isFinished()

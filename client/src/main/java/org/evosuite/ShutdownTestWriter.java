@@ -20,6 +20,7 @@
 package org.evosuite;
 
 import org.evosuite.ga.Chromosome;
+import org.evosuite.ga.stoppingconditions.StoppingCondition;
 import org.evosuite.ga.stoppingconditions.StoppingConditionImpl;
 import org.evosuite.utils.LoggingUtils;
 
@@ -39,6 +40,19 @@ public class ShutdownTestWriter<T extends Chromosome<T>> extends StoppingConditi
 	private static final long serialVersionUID = -5703624299360241009L;
 
 	private static boolean interrupted = false;
+
+	public ShutdownTestWriter() {
+		// empty constructor
+	}
+
+	public ShutdownTestWriter(ShutdownTestWriter<?> that) {
+		// empty copy constructor
+	}
+
+	@Override
+	public StoppingCondition<T> clone() {
+		return new ShutdownTestWriter<>(this);
+	}
 
 	/* (non-Javadoc)
 	 * @see sun.misc.SignalHandler#handle(sun.misc.Signal)
