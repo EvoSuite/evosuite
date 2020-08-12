@@ -34,6 +34,22 @@ public class IndividualPopulationLimit<T extends Chromosome<T>> implements Popul
 
 	private static final long serialVersionUID = -3985726226793280031L;
 
+	public IndividualPopulationLimit() {
+	}
+
+	/**
+	 * Copy Constructor
+	 *
+	 * This constructor is used by {@link org.evosuite.ga.metaheuristics.TestSuiteAdapter} to adapt the generic type
+	 * parameter.
+	 *
+	 * This constructor shall preserve the current state of the IndividualPopulationLimit (if existing).
+	 *
+	 * @param other
+	 */
+	public IndividualPopulationLimit(IndividualPopulationLimit<?> other) {
+	}
+
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.PopulationLimit#isPopulationFull(java.util.List)
 	 */

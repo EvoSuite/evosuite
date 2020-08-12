@@ -34,6 +34,22 @@ public class SizePopulationLimit<T extends Chromosome<T>> implements PopulationL
 
 	private static final long serialVersionUID = 7978512501601348014L;
 
+	public SizePopulationLimit() {
+	}
+
+	/**
+	 * Copy constructor.
+	 *
+	 * This constructor is used by {@link org.evosuite.ga.metaheuristics.TestSuiteAdapter} to adapt the generic type
+	 * parameter.
+	 *
+	 * This constructor shall preserve the current state of the SizePopulationLimit (if existing).
+	 *
+	 * @param other
+	 */
+	public SizePopulationLimit(SizePopulationLimit<?> other) {
+	}
+
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.PopulationLimit#isPopulationFull(java.util.List)
 	 */

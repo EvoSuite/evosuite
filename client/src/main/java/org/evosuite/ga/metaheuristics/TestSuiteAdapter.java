@@ -436,23 +436,30 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
     @Override
     public void setPopulationLimit(PopulationLimit<TestSuiteChromosome> limit)
             throws IllegalArgumentException { // (6)
-        // TODO voglseb
         if (algorithm != null) {
-            if (limit instanceof IndividualPopulationLimit) {
-                algorithm.setPopulationLimit(new IndividualPopulationLimit<>());
-            } else if (limit instanceof StatementsPopulationLimit) {
-                // StatementsPopulationLimit is defined on TestSuiteChromosome, thus cannot adapt to
-                // TestChromosomes.
-                throw new IllegalArgumentException("StatementsPopulationLimit not supported");
-            } else if (limit instanceof SizePopulationLimit) {
-                algorithm.setPopulationLimit(new SizePopulationLimit<>());
-            } else {
-                throw new IllegalArgumentException("cannot adapt population limit " + limit);
-            }
+            algorithm.setPopulationLimit(mapPopulationLimitToTestLevel(limit));
         } else {
             // When we hit this branch, this TestSuiteAdapter object is currently being
             // constructed, and this method was invoked by the constructor of the super class
             // (i.e., GeneticAlgorithm). We simply do nothing.
+        }
+    }
+
+    /**
+     * This function converts
+     *
+     * @param limit
+     * @return
+     */
+    private PopulationLimit<TestChromosome> mapPopulationLimitToTestLevel(PopulationLimit<TestSuiteChromosome> limit){
+        if (limit instanceof IndividualPopulationLimit) {
+            return new IndividualPopulationLimit<>((IndividualPopulationLimit<?>) limit);
+        } else if (limit instanceof StatementsPopulationLimit) {
+            return new StatementsPopulationLimit<>((StatementsPopulationLimit<?>) limit);
+        } else if (limit instanceof SizePopulationLimit) {
+            return new SizePopulationLimit<>((SizePopulationLimit<?>) limit);
+        } else {
+            throw new IllegalArgumentException("cannot adapt population limit " + limit);
         }
     }
 
