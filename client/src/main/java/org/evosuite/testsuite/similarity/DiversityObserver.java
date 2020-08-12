@@ -39,6 +39,10 @@ public class DiversityObserver implements SearchListener<TestSuiteChromosome> {
 
     private static final Logger logger = LoggerFactory.getLogger(DiversityObserver.class);
 
+    public DiversityObserver() {
+        // empty default constructor
+    }
+
     public DiversityObserver(DiversityObserver that) {
         // empty copy constructor
     }
