@@ -39,6 +39,8 @@ import org.evosuite.testcase.statements.FunctionalMockStatement;
 import org.evosuite.testcase.statements.PrimitiveStatement;
 import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.variable.VariableReference;
+import org.evosuite.testsuite.AbstractTestSuiteChromosome;
+import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.evosuite.utils.Randomness;
 import org.evosuite.utils.generic.GenericAccessibleObject;
@@ -46,10 +48,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+import java.util.function.BiConsumer;
+import java.util.function.BinaryOperator;
+import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.stream.Collector;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toCollection;
 
@@ -710,5 +716,47 @@ public final class TestChromosome extends AbstractTestChromosome<TestChromosome>
 	public static List<SecondaryObjective<TestChromosome>> getSecondaryObjectives() {
 		return secondaryObjectives;
 	}
+
+
+	public TestSuiteChromosome toSuite(){
+		return Stream.of(this).collect(toTestSuiteCollector);
+	}
+
+	private final static TestChromosomeCollector toTestSuiteCollector = new TestChromosomeCollector();
+
+	public static class TestChromosomeCollector implements Collector<TestChromosome, TestSuiteChromosome, TestSuiteChromosome> {
+		private final static Set<Characteristics> characteristics =
+				Collections.unmodifiableSet(new HashSet<>(Arrays.asList(Characteristics.CONCURRENT, Characteristics.IDENTITY_FINISH,
+						Characteristics.UNORDERED)));
+
+		@Override
+		public Supplier<TestSuiteChromosome> supplier() {
+			return TestSuiteChromosome::new;
+		}
+
+		@Override
+		public BiConsumer<TestSuiteChromosome, TestChromosome> accumulator() {
+			return AbstractTestSuiteChromosome::addTest;
+		}
+
+		@Override
+		public BinaryOperator<TestSuiteChromosome> combiner() {
+			return (suite1, suite2) -> {
+				suite1.addTestChromosomes(suite2.getTestChromosomes());
+				return suite1;
+			};
+		}
+
+		@Override
+		public Function<TestSuiteChromosome, TestSuiteChromosome> finisher() {
+			return suite -> suite;
+		}
+
+		@Override
+		public Set<Characteristics> characteristics() {
+			return characteristics;
+		}
+	}
+
 
 }
