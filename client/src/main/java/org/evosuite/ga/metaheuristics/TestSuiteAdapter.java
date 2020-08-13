@@ -2,8 +2,6 @@ package org.evosuite.ga.metaheuristics;
 
 import org.evosuite.ProgressMonitor;
 import org.evosuite.ShutdownTestWriter;
-import org.evosuite.coverage.line.LineCoverageSuiteFitness;
-import org.evosuite.coverage.line.LineCoverageTestFitness;
 import org.evosuite.ga.*;
 import org.evosuite.ga.bloatcontrol.BloatControlFunction;
 import org.evosuite.ga.bloatcontrol.MaxSizeBloatControl;
@@ -18,7 +16,10 @@ import org.evosuite.ga.populationlimit.SizePopulationLimit;
 import org.evosuite.ga.stoppingconditions.*;
 import org.evosuite.statistics.StatisticsListener;
 import org.evosuite.testcase.TestChromosome;
-import org.evosuite.testsuite.*;
+import org.evosuite.testsuite.RelativeSuiteLengthBloatControl;
+import org.evosuite.testsuite.StatementsPopulationLimit;
+import org.evosuite.testsuite.TestSuiteChromosome;
+import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.evosuite.utils.ResourceController;
 
 import java.util.Collection;
@@ -110,12 +111,12 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
     }
 
     @Override
-    public void generateSolution() { // (10)
+    public void generateSolution() {
         algorithm.generateSolution();
     }
 
     @Override
-    public int getAge() { // (11)
+    public int getAge() {
         return algorithm.getAge();
     }
 
@@ -219,7 +220,7 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
 
     @Override
     public void setSelectionFunction(SelectionFunction<TestSuiteChromosome> function)
-            throws IllegalArgumentException { // (2)
+            throws IllegalArgumentException {
         final SelectionFunction<TestChromosome> adapteeFunction;
         if (function instanceof FitnessProportionateSelection) {
             adapteeFunction = new FitnessProportionateSelection<>();
@@ -250,7 +251,7 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
 
     @Override
     public void setRankingFunction(RankingFunction<TestSuiteChromosome> function)
-            throws IllegalArgumentException { // (3)
+            throws IllegalArgumentException {
         final RankingFunction<TestChromosome> adapteeFunction;
         if (function instanceof FastNonDominatedSorting) {
             adapteeFunction = new FastNonDominatedSorting<>();
@@ -270,7 +271,7 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
 
     @Override
     public void addBloatControl(BloatControlFunction<TestSuiteChromosome> bloatControl)
-            throws IllegalArgumentException { // (8)
+            throws IllegalArgumentException {
         if (algorithm != null) {
             algorithm.setBloatControl(mapBloatControlToTestLevel(bloatControl));
         }
@@ -360,7 +361,7 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public void setCrossOverFunction(CrossOverFunction<TestSuiteChromosome> crossover)
-            throws IllegalArgumentException { // (7)
+            throws IllegalArgumentException {
         if (algorithm != null) {
             if (crossover instanceof SinglePointRelativeCrossOver) {
                 algorithm.setCrossOverFunction(new SinglePointRelativeCrossOver<>());
@@ -387,7 +388,7 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public void addListener(SearchListener<TestSuiteChromosome> listener)
-            throws IllegalArgumentException { // (1b)
+            throws IllegalArgumentException {
         if (algorithm != null) {
             if (listener instanceof StatisticsListener) {
                 super.addListener(listener);
@@ -449,7 +450,7 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public void setPopulationLimit(PopulationLimit<TestSuiteChromosome> limit)
-            throws IllegalArgumentException { // (6)
+            throws IllegalArgumentException {
         if (algorithm != null) {
             algorithm.setPopulationLimit(mapPopulationLimitToTestLevel(limit));
         } else {
@@ -485,7 +486,7 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public void addStoppingCondition(StoppingCondition<TestSuiteChromosome> condition)
-            throws IllegalArgumentException { // (1a)
+            throws IllegalArgumentException {
         if (algorithm != null) {
             final StoppingCondition<TestChromosome> adapteeCondition;
             if (condition instanceof ZeroFitnessStoppingCondition) {
@@ -541,7 +542,7 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
     }
 
     @Override
-    public void setStoppingCondition(StoppingCondition<TestSuiteChromosome> condition) { // (4)
+    public void setStoppingCondition(StoppingCondition<TestSuiteChromosome> condition) {
         algorithm.setStoppingCondition(mapStoppingCondition(condition));
     }
 
@@ -551,7 +552,7 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
     }
 
     @Override
-    public void resetStoppingConditions() { // (5)
+    public void resetStoppingConditions() {
         algorithm.resetStoppingConditions();
     }
 
@@ -587,7 +588,7 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
         throw new UnsupportedOperationException("not implemented");
     }
 
-    @Override // (12)
+    @Override
     public List getFitnessFunctions() {
         // This method returns a raw List of fitness functions. This is ugly but (at the time of
         // this writing) nothing bad actually happens because MOSuiteStrategy only invokes size()
@@ -595,7 +596,8 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
         return algorithm.getFitnessFunctions();
     }
 
-    private static FitnessFunction<TestChromosome> mapFitnessFunctionToTestCaseLevel(FitnessFunction<TestSuiteChromosome> fitnessFunction){
+    private static FitnessFunction<TestChromosome> mapFitnessFunctionToTestCaseLevel(
+            FitnessFunction<TestSuiteChromosome> fitnessFunction) throws IllegalArgumentException {
         if (fitnessFunction instanceof TestSuiteFitnessFunctionMock) {
             return ((TestSuiteFitnessFunctionMock) fitnessFunction).getWrapped();
         }
@@ -603,20 +605,11 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
         throw new IllegalArgumentException("Unsupported type of fitness function: " + fitnessFunction.getClass());
     }
 
-    @Override // (9)
+    @Override
     public void addFitnessFunctions(Collection<? extends FitnessFunction<TestSuiteChromosome>> functions) {
-        // The following code still circumvents the type system by using unsafe raw types and
-        // unchecked casts. The code only works if a certain assumption holds:
-        // MOSuiteStrategy will only ever pass a list of TestFitnessFunctions to this method.
-        // In all other cases, this code will blow up. This issue should be fixed as soon as
-        // possible, e.g., by creating an adapter class for TestFitnessFunctions to dress up as
-        // TestSuiteFitnessFunctions.
-
-        // List<TestFitnessFunction> fs = (List<TestFitnessFunction>) functions
         Collection<FitnessFunction<TestChromosome>> fs = functions.stream()
                 .map(TestSuiteAdapter::mapFitnessFunctionToTestCaseLevel)
                 .collect(toList());
-
         algorithm.addFitnessFunctions(fs);
     }
 
