@@ -169,9 +169,6 @@ public final class ArchiveUtils {
             return true;
           }
           break;
-        case REGRESSION:
-        case REGRESSIONTESTS:
-          break;
         case TRYCATCH:
           if (goal instanceof TryCatchCoverageTestFitness) {
             return true;
