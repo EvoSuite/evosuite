@@ -153,7 +153,6 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
 
     @Override
     final protected void applyLocalSearch() throws UnsupportedOperationException {
-        // throw new UnsupportedOperationException("not implemented");
         algorithm.applyLocalSearch();
     }
 
