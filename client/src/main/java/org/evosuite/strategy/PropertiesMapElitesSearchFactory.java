@@ -4,7 +4,6 @@ import org.evosuite.Properties;
 import org.evosuite.ShutdownTestWriter;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.branch.BranchPool;
-import org.evosuite.coverage.mutation.MutationTestPool;
 import org.evosuite.coverage.mutation.MutationTimeoutStoppingCondition;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.archive.ArchiveTestChromosomeFactory;
@@ -29,8 +28,6 @@ import org.evosuite.utils.ResourceController;
 
 import sun.misc.Signal;
 
-/**
- */
 public class PropertiesMapElitesSearchFactory
     extends PropertiesSearchAlgorithmFactory<TestChromosome> {
 

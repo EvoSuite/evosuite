@@ -101,4 +101,11 @@ public class MOSATestSuiteAdapter extends TestSuiteAdapter<AbstractMOSA> {
             suite.setNumOfNotCoveredGoals(suiteFitnessFunction, numberUncoveredTargets);
         }
     }
+
+    void applyLocalSearch(final TestSuiteChromosome testSuite) {
+        population = new LinkedList<>();
+        population.add(testSuite);
+        super.applyLocalSearch();
+        population = null;
+    }
 }
