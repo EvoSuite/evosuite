@@ -41,10 +41,10 @@ import org.objectweb.asm.tree.InsnList;
 public class MutationPool {
 
 	// maps className -> method inside that class -> list of branches inside that method 
-	private static Map<String, Map<String, List<Mutation>>> mutationMap = new LinkedHashMap<String, Map<String, List<Mutation>>>();
+	private static Map<String, Map<String, List<Mutation>>> mutationMap = new LinkedHashMap<>();
 
 	// maps the mutationIDs assigned by this pool to their respective Mutations
-	private static Map<Integer, Mutation> mutationIdMap = new LinkedHashMap<Integer, Mutation>();
+	private static Map<Integer, Mutation> mutationIdMap = new LinkedHashMap<>();
 
 	private static int numMutations = 0;
 
@@ -64,10 +64,10 @@ public class MutationPool {
 	        AbstractInsnNode mutation, InsnList distance) {
 
 		if (!mutationMap.containsKey(className))
-			mutationMap.put(className, new HashMap<String, List<Mutation>>());
+			mutationMap.put(className, new HashMap<>());
 
 		if (!mutationMap.get(className).containsKey(methodName))
-			mutationMap.get(className).put(methodName, new ArrayList<Mutation>());
+			mutationMap.get(className).put(methodName, new ArrayList<>());
 
 		Mutation mutationObject = new Mutation(className, methodName, mutationName,
 		        numMutations++, instruction, mutation, distance);
@@ -93,10 +93,10 @@ public class MutationPool {
 	        InsnList distance) {
 
 		if (!mutationMap.containsKey(className))
-			mutationMap.put(className, new HashMap<String, List<Mutation>>());
+			mutationMap.put(className, new HashMap<>());
 
 		if (!mutationMap.get(className).containsKey(methodName))
-			mutationMap.get(className).put(methodName, new ArrayList<Mutation>());
+			mutationMap.get(className).put(methodName, new ArrayList<>());
 
 		Mutation mutationObject = new Mutation(className, methodName, mutationName,
 		        numMutations++, instruction, mutation, distance);
@@ -118,7 +118,7 @@ public class MutationPool {
 	 */
 	public static List<Mutation> retrieveMutationsInMethod(String className,
 	        String methodName) {
-		List<Mutation> r = new ArrayList<Mutation>();
+		List<Mutation> r = new ArrayList<>();
 		if (mutationMap.get(className) == null)
 			return r;
 		List<Mutation> mutants = mutationMap.get(className).get(methodName);
@@ -133,7 +133,7 @@ public class MutationPool {
 	 * @return a {@link java.util.List} object.
 	 */
 	public static List<Mutation> getMutants() {
-		return new ArrayList<Mutation>(mutationIdMap.values());
+		return new ArrayList<>(mutationIdMap.values());
 	}
 	
 	public static Mutation getMutant(int id) {
