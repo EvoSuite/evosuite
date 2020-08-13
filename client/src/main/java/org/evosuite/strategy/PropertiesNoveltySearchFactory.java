@@ -108,10 +108,10 @@ public class PropertiesNoveltySearchFactory extends PropertiesSearchAlgorithmFac
 
     @Override
     //public GeneticAlgorithm<TestChromosome> getSearchAlgorithm() {
-    public NoveltySearch<TestChromosome> getSearchAlgorithm() {
+    public NoveltySearch getSearchAlgorithm() {
         ChromosomeFactory<TestChromosome> factory = getChromosomeFactory();
 
-        NoveltySearch<TestChromosome> ga = new NoveltySearch<>(factory);
+        NoveltySearch ga = new NoveltySearch(factory);
 
         if (Properties.NEW_STATISTICS)
             ga.addListener(new StatisticsListener<>());
