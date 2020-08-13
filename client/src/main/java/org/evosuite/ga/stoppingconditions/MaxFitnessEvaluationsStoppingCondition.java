@@ -37,10 +37,23 @@ public class MaxFitnessEvaluationsStoppingCondition<T extends Chromosome<T>> ext
 	private static final long serialVersionUID = 208241490252275613L;
 
 	/** Maximum number of evaluations */
-	protected long maxEvaluations = Properties.SEARCH_BUDGET;
+	protected long maxEvaluations;
 
 	/** Maximum number of iterations */
 	protected static long currentEvaluation = 0;
+
+	public MaxFitnessEvaluationsStoppingCondition() {
+		maxEvaluations = Properties.SEARCH_BUDGET;
+	}
+
+	public MaxFitnessEvaluationsStoppingCondition(MaxFitnessEvaluationsStoppingCondition<?> that) {
+		this.maxEvaluations = that.maxEvaluations;
+	}
+
+	@Override
+	public MaxFitnessEvaluationsStoppingCondition<T> clone() {
+		return new MaxFitnessEvaluationsStoppingCondition<>(this);
+	}
 
 	/**
 	 * {@inheritDoc}

@@ -34,9 +34,23 @@ public class MaxTimeStoppingCondition<T extends Chromosome<T>> extends StoppingC
 	private static final long serialVersionUID = -4524853279562896768L;
 
 	/** Maximum number of seconds */
-	protected long maxSeconds = Properties.SEARCH_BUDGET;
+	protected long maxSeconds;
 
 	protected long startTime;
+
+	public MaxTimeStoppingCondition() {
+		maxSeconds = Properties.SEARCH_BUDGET;
+	}
+
+	public MaxTimeStoppingCondition(MaxTimeStoppingCondition<?> that) {
+		this.startTime = that.startTime;
+		this.maxSeconds = that.maxSeconds;
+	}
+
+	@Override
+	public MaxTimeStoppingCondition<T> clone() {
+		return new MaxTimeStoppingCondition<>(this);
+	}
 
 	/** {@inheritDoc} */
 	@Override
