@@ -175,7 +175,6 @@ public class LIPS extends GeneticAlgorithm<TestChromosome> {
 	public void generateSolution() {
 		logger.info("executing generateSolution function");
 
-		// FIXME voglseb: convert FitnessFunction<TestChromosome> to TestFitnessFunction in a nice way
 		CFG = new BranchesManager(fitnessFunctions.stream().map(ff -> (TestFitnessFunction) ff).collect(Collectors.toList()));
 
 		// generate the initial test t0
@@ -382,8 +381,7 @@ public class LIPS extends GeneticAlgorithm<TestChromosome> {
 	 */
 	@Override
 	public TestChromosome getBestIndividual() {
-		// TODO voglseb
-		throw new UnsupportedOperationException("This method broke during refactoring");
+		throw new UnsupportedOperationException("LIPS does not provide such functionality");
 		/* TestSuiteChromosome best = new TestSuiteChromosome();
 		for (TestChromosome test : getArchive()) {
 			best.addTest(test);
@@ -393,7 +391,6 @@ public class LIPS extends GeneticAlgorithm<TestChromosome> {
 		best.setCoverage(suiteFitness, coverage);
 		best.setFitness(suiteFitness,  this.fitnessFunctions.size() - this.archive.size());
 		//suiteFitness.getFitness(best);
-        // FIXME voglseb: Use Adapter
 		return best;*/
 	}
 //	public TestChromosome getBestIndividual() {
