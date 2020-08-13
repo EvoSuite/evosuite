@@ -132,7 +132,7 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
     @Override
     final protected boolean shouldApplyLocalSearch()
             throws UnsupportedOperationException {
-        throw new UnsupportedOperationException("not implemented");
+        return algorithm.shouldApplyLocalSearch();
     }
 
     @Override
@@ -154,7 +154,7 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
     @Override
     final protected void applyLocalSearch() throws UnsupportedOperationException {
         // throw new UnsupportedOperationException("not implemented");
-        super.applyLocalSearch();
+        algorithm.applyLocalSearch();
     }
 
     @Override
@@ -479,7 +479,7 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
 
     @Override
     final public boolean isFinished() throws UnsupportedOperationException {
-        throw new UnsupportedOperationException("not implemented");
+        return algorithm.isFinished();
     }
 
     @SuppressWarnings("StatementWithEmptyBody")
