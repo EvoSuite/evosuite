@@ -38,7 +38,7 @@ public class NoveltyStrategy extends TestGenerationStrategy {
         LoggingUtils.getEvoLogger().info("* Setting up search algorithm for novelty search");
 
         PropertiesNoveltySearchFactory algorithmFactory = new PropertiesNoveltySearchFactory();
-        NoveltySearch<TestChromosome> algorithm = algorithmFactory.getSearchAlgorithm();
+        NoveltySearch algorithm = algorithmFactory.getSearchAlgorithm();
         //NoveltySearch<TestChromosome, TestSuiteChromosome> algorithm = new NoveltySearch<TestChromosome, TestSuiteChromosome>(chromosomeFactory);
 
         if(Properties.SERIALIZE_GA || Properties.CLIENT_ON_THREAD)
@@ -50,32 +50,16 @@ public class NoveltyStrategy extends TestGenerationStrategy {
         List<TestSuiteFitnessFunction> fitnessFunctions = getFitnessFunctions();
 
         SuiteFitnessEvaluationListener listener = new SuiteFitnessEvaluationListener(fitnessFunctions);
-
-        // ===========================================================================================
-        // FIXME: The following line contains a type error.
-        //  NoveltySearch operates on TestChromosomes but the following line wants to add a listener
-        //  that is defined on TestSuiteChromosomes.
-//        algorithm.addListener(listener);
-        if (true) { // To avoid javac's "unreachable code" error
-            // Deliberately throwing an exception
-            throw new RuntimeException("Broken code :(");
-        }
-        // ===========================================================================================
-
+        algorithm.addListener(listener);
         algorithm.setNoveltyFunction(new BranchNoveltyFunction());
 
         // if (Properties.SHOW_PROGRESS && !logger.isInfoEnabled())
         //algorithm.addListener(progressMonitor); // FIXME progressMonitor expects testsuitechromosomes
 
-        // ===========================================================================================
-        // FIXME: The following line contains a type error.
-        //  DiversityObserver is defined on TestSuiteChromosomes, but Novelty Search only supports
-        //  TestChromosomes
-//        if(Properties.TRACK_DIVERSITY)
-//            algorithm.addListener(new DiversityObserver());
-        if (true) { // To avoid javac's "unreachable code" error
-            // Deliberately throwing an exception
-            throw new RuntimeException("Broken code :(");
+        if(Properties.TRACK_DIVERSITY) {
+            // The DiversityObserver is only implemented for test suites, so we can't use it here
+            // algorithm.addListener(new DiversityObserver());
+            throw new RuntimeException("Tracking population diversity is not supported by novelty search");
         }
         // ===========================================================================================
 
