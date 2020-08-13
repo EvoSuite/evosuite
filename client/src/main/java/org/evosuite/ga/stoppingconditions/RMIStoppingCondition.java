@@ -43,9 +43,12 @@ public class RMIStoppingCondition<T extends Chromosome<T>> implements StoppingCo
 
 	@SuppressWarnings("unchecked")
 	public static <T extends Chromosome<T>> RMIStoppingCondition<T> getInstance() {
-		if (instance == null)
+		if (instance == null) {
 			instance = new RMIStoppingCondition<>();
+		}
 
+		// Cast always succeeds because RMIStoppingCondition doesn't actually do anything with a
+		// `T` instance.
 		return (RMIStoppingCondition<T>) instance;
 	}
 
