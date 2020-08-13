@@ -22,15 +22,18 @@ package org.evosuite.utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Serializable;
+
 /**
  * Utility class used to keep track of the execution time needed to reach the maximum coverage
  * 
  * @author Annibale Panichella
  */
-public class BudgetConsumptionMonitor {
+public class BudgetConsumptionMonitor implements Serializable {
+
+	private static final long serialVersionUID = -4282519578535413645L;
 
 	private static final Logger logger = LoggerFactory.getLogger(BudgetConsumptionMonitor.class);
-
 	/** Coverage achieved in the previous generation */
 	private double past_coverage;
 
