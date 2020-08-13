@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class SuiteFitnessEvaluationListener implements SearchListener<TestSuiteChromosome> {
+public class SuiteFitnessEvaluationListener implements SearchListener<TestChromosome> {
 
     private final List<TestSuiteFitnessFunction> fitnessFunctions;
 
@@ -31,6 +31,7 @@ public class SuiteFitnessEvaluationListener implements SearchListener<TestSuiteC
     public TestSuiteChromosome getSuiteWithFitness(GeneticAlgorithm<TestChromosome> algorithm) {
         List<TestChromosome> population = algorithm.getPopulation();
         TestSuiteChromosome suite = createMergedSolution(population);
+
         for (TestSuiteFitnessFunction fitnessFunction : fitnessFunctions) {
             fitnessFunction.getFitness(suite);
         }
@@ -39,17 +40,8 @@ public class SuiteFitnessEvaluationListener implements SearchListener<TestSuiteC
     }
 
     @Override
-    public void iteration(GeneticAlgorithm<TestSuiteChromosome> algorithm) {
-        // ===========================================================================================
-        // FIXME: The following line contains a type error.
-        //  getSuiteWithFitness expects a GeneticAlgorithm<TestChromosome> but it receives a
-        //  GeneticAlgorithm<TestSuiteChromosome>
-//        getSuiteWithFitness(algorithm);
-        if (true) { // to avoid javac's "unreachable code" error
-            throw new RuntimeException("Broken code :("); // deliberately crashing the program
-        }
-        // ===========================================================================================
-
+    public void iteration(GeneticAlgorithm<TestChromosome> algorithm) {
+        getSuiteWithFitness(algorithm);
 
         // Update fitness functions based on goals just added to archive
         algorithm.updateFitnessFunctionsAndValues();
@@ -57,22 +49,22 @@ public class SuiteFitnessEvaluationListener implements SearchListener<TestSuiteC
 
 
     @Override
-    public void searchStarted(GeneticAlgorithm<TestSuiteChromosome> algorithm) {
+    public void searchStarted(GeneticAlgorithm<TestChromosome> algorithm) {
 
     }
 
     @Override
-    public void searchFinished(GeneticAlgorithm<TestSuiteChromosome> algorithm) {
+    public void searchFinished(GeneticAlgorithm<TestChromosome> algorithm) {
 
     }
 
     @Override
-    public void fitnessEvaluation(TestSuiteChromosome individual) {
+    public void fitnessEvaluation(TestChromosome individual) {
 
     }
 
     @Override
-    public void modification(TestSuiteChromosome individual) {
+    public void modification(TestChromosome individual) {
 
     }
 }

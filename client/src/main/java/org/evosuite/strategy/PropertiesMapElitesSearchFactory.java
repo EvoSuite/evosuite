@@ -4,7 +4,6 @@ import org.evosuite.Properties;
 import org.evosuite.ShutdownTestWriter;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.branch.BranchPool;
-import org.evosuite.coverage.mutation.MutationTestPool;
 import org.evosuite.coverage.mutation.MutationTimeoutStoppingCondition;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.archive.ArchiveTestChromosomeFactory;
@@ -29,9 +28,6 @@ import org.evosuite.utils.ResourceController;
 
 import sun.misc.Signal;
 
-/**
- * TODO voglseb: I don't now exactly what is happening here!
- */
 public class PropertiesMapElitesSearchFactory
     extends PropertiesSearchAlgorithmFactory<TestChromosome> {
 
@@ -82,14 +78,6 @@ public class PropertiesMapElitesSearchFactory
         || ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.STRONGMUTATION)) {
       if (Properties.STRATEGY == Properties.Strategy.ONEBRANCH)
         ga.addStoppingCondition(new MutationTimeoutStoppingCondition<>());
-      else {
-        // ===========================================================================================
-        // FIXME: The following line contains a type error.
-        //  MutationTestPool is defined on TestSuiteChromosomes but the GA expects TestChromosomes.
-//        ga.addListener(new MutationTestPool());
-        throw new RuntimeException("Broken code :(");
-        // ===========================================================================================
-      }
     }
     ga.resetStoppingConditions();
 
@@ -118,14 +106,11 @@ public class PropertiesMapElitesSearchFactory
     }
 
     if (Properties.LOCAL_SEARCH_RESTORE_COVERAGE) {
-      // ===========================================================================================
-      // FIXME: The following line contains a type error.
-      //  BranchCoverageMap is defined on TestSuiteChromosomes but the GA expects TestChromosomes.
-//      SearchListener<TestChromosome> map = BranchCoverageMap.getInstance();
-//      ga.addListener(map);
-        // Deliberately throwing an exception
-        throw new RuntimeException("Broken code :(");
-      // ===========================================================================================
+      // MapElites does not use local search
+      // hence we don't need to add the BranchCoverageMap
+      // SearchListener here
+      // SearchListener<TestChromosome> map = BranchCoverageMap.getInstance();
+      // ga.addListener(map);
     }
 
     if (Properties.SHUTDOWN_HOOK) {
