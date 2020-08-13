@@ -182,13 +182,11 @@ public class PropertiesNoveltySearchFactory extends PropertiesSearchAlgorithmFac
         }
 
         if (Properties.LOCAL_SEARCH_RESTORE_COVERAGE) {
-            // ===========================================================================================
-            // FIXME: The following line contains a type error.
-            //  BranchCoverageMap is defined on TestSuiteChromosomes but we expect TestChromosomes
-//            SearchListener<TestSuiteChromosome> map = BranchCoverageMap.getInstance();
-//            ga.addListener(map);
-            throw new RuntimeException("Broken code :(");
-            // ===========================================================================================
+            // Novelty search does not use local search yet
+            // hence we don't need to add the BranchCoverageMap
+            // SearchListener here
+            // SearchListener<TestChromosome> map = BranchCoverageMap.getInstance();
+            // ga.addListener(map);
         }
 
         if (Properties.SHUTDOWN_HOOK) {
