@@ -26,7 +26,6 @@ import org.evosuite.Properties.TheReplacementFunction;
 import org.evosuite.ShutdownTestWriter;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.branch.BranchPool;
-import org.evosuite.coverage.mutation.MutationTestPool;
 import org.evosuite.coverage.mutation.MutationTimeoutStoppingCondition;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.FitnessReplacementFunction;
@@ -317,11 +316,6 @@ public class PropertiesSuiteGAFactory
 		        || ArrayUtil.contains(Properties.CRITERION, Criterion.STRONGMUTATION)) {
 			if (Properties.STRATEGY == Strategy.ONEBRANCH)
 				ga.addStoppingCondition(new MutationTimeoutStoppingCondition<>());
-			else
-				ga.addListener(new MutationTestPool());
-			// } else if (Properties.CRITERION == Criterion.DEFUSE) {
-			// if (Properties.STRATEGY == Strategy.EVOSUITE)
-			// ga.addListener(new DefUseTestPool());
 		}
 		ga.resetStoppingConditions();
 		ga.setPopulationLimit(getPopulationLimit());
