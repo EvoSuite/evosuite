@@ -40,15 +40,34 @@ public class ProgressMonitor<T extends Chromosome<T>> implements SearchListener<
 
 	private static final long serialVersionUID = -8518559681906649686L;
 
-	private StoppingCondition<T> stoppingCondition = null;
-	private long max = 1;
-	private int currentCoverage = 0;
+	private StoppingCondition<T> stoppingCondition;
+	private long max;
+	private int currentCoverage;
 
-	protected int lastCoverage = 0;
-	protected int lastProgress = 0;
-	protected int iteration = 0;
-	protected ClientState state = ClientState.INITIALIZATION;
+	protected int lastCoverage;
+	protected int lastProgress;
+	protected int iteration;
+	protected ClientState state;
 
+	public ProgressMonitor() {
+		stoppingCondition = null;
+		max = 1;
+		currentCoverage = 0;
+		lastCoverage = 0;
+		lastProgress = 0;
+		iteration = 0;
+		state = ClientState.INITIALIZATION;
+	}
+
+	public ProgressMonitor(ProgressMonitor<T> that) {
+		this.stoppingCondition = that.stoppingCondition.clone();
+		this.max = that.max;
+		this.currentCoverage = that.currentCoverage;
+		this.lastCoverage = that.lastCoverage;
+		this.lastProgress = that.lastProgress;
+		this.iteration = that.iteration;
+		this.state = that.state;
+	}
 
 	/**
 	 * <p>

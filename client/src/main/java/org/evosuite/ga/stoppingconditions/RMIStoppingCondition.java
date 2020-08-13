@@ -33,7 +33,12 @@ public class RMIStoppingCondition<T extends Chromosome<T>> implements StoppingCo
 	private boolean isStopped = false;
 
 	private RMIStoppingCondition() {
+		// empty default constructor
+	}
 
+	@Override
+	public StoppingCondition<T> clone() {
+		throw new UnsupportedOperationException("cannot clone singleton");
 	}
 
 	@SuppressWarnings("unchecked")

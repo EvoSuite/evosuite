@@ -32,7 +32,20 @@ public class ZeroFitnessStoppingCondition<T extends Chromosome<T>> extends Stopp
 	private static final long serialVersionUID = -6925872054053635256L;
 
 	/** Keep track of lowest fitness seen so far */
-	private double lastFitness = Double.MAX_VALUE;
+	private double lastFitness;
+
+	public ZeroFitnessStoppingCondition() {
+		lastFitness = Double.MAX_VALUE;
+	}
+
+	public ZeroFitnessStoppingCondition(ZeroFitnessStoppingCondition<?> that) {
+		this.lastFitness = that.lastFitness;
+	}
+
+	@Override
+	public ZeroFitnessStoppingCondition<T> clone() {
+		return new ZeroFitnessStoppingCondition<>(this);
+	}
 
 	/**
 	 * {@inheritDoc}

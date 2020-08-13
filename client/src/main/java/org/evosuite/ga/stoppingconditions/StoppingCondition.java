@@ -21,8 +21,10 @@ package org.evosuite.ga.stoppingconditions;
 
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.metaheuristics.SearchListener;
+import org.evosuite.utils.PublicCloneable;
 
-public interface StoppingCondition<T extends Chromosome<T>> extends SearchListener<T> {
+public interface StoppingCondition<T extends Chromosome<T>> extends SearchListener<T>,
+		PublicCloneable<StoppingCondition<T>> {
 
 	/**
 	 * Force a specific amount of used up budget. Handle with care!

@@ -15,7 +15,6 @@ import org.evosuite.ga.populationlimit.PopulationLimit;
 import org.evosuite.ga.populationlimit.SizePopulationLimit;
 import org.evosuite.ga.stoppingconditions.*;
 import org.evosuite.statistics.StatisticsListener;
-import org.evosuite.testcase.RelativeTestLengthBloatControl;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testsuite.*;
 import org.evosuite.utils.ResourceController;
@@ -131,9 +130,8 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
     }
 
     @Override
-    final protected boolean shouldApplyLocalSearch()
-            throws UnsupportedOperationException {
-        throw new UnsupportedOperationException("not implemented");
+    final protected boolean shouldApplyLocalSearch() {
+        return algorithm.shouldApplyLocalSearch();
     }
 
     @Override
@@ -153,9 +151,8 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
     }
 
     @Override
-    final protected void applyLocalSearch() throws UnsupportedOperationException {
-        // throw new UnsupportedOperationException("not implemented");
-        super.applyLocalSearch();
+    final protected void applyLocalSearch() {
+        algorithm.applyLocalSearch();
     }
 
     @Override
@@ -479,8 +476,8 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
     }
 
     @Override
-    final public boolean isFinished() throws UnsupportedOperationException {
-        throw new UnsupportedOperationException("not implemented");
+    final public boolean isFinished() {
+        return algorithm.isFinished();
     }
 
     @SuppressWarnings("StatementWithEmptyBody")
@@ -529,9 +526,13 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
     private static <T extends Chromosome<T>, U extends Chromosome<U>> StoppingCondition<T>
             mapStoppingCondition(StoppingCondition<U> stoppingCondition) {
         if (stoppingCondition instanceof MaxTimeStoppingCondition) {
-            return new MaxTimeStoppingCondition<>();
+            return new MaxTimeStoppingCondition<>((MaxTimeStoppingCondition<?>) stoppingCondition);
         } else if (stoppingCondition instanceof MaxGenerationStoppingCondition) {
-            return new MaxGenerationStoppingCondition<>();
+            return new MaxGenerationStoppingCondition<>((MaxGenerationStoppingCondition<?>) stoppingCondition);
+        } else if (stoppingCondition instanceof RMIStoppingCondition) {
+            return RMIStoppingCondition.getInstance();
+        } else if (stoppingCondition instanceof ShutdownTestWriter) {
+            return new ShutdownTestWriter<>((ShutdownTestWriter<?>) stoppingCondition);
         } else {
             throw new IllegalArgumentException("cannot adapt stopping condition: " + stoppingCondition);
         }
@@ -585,7 +586,7 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
     }
 
     @Override // (12)
-    public List<FitnessFunction<TestSuiteChromosome>> getFitnessFunctions() {
+    public List<? extends FitnessFunction<TestSuiteChromosome>> getFitnessFunctions() {
         // This method returns a raw List of fitness functions. This is ugly but (at the time of
         // this writing) nothing bad actually happens because MOSuiteStrategy only invokes size()
         // on the returned list.

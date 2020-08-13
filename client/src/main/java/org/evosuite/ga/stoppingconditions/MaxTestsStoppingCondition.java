@@ -35,7 +35,20 @@ public class MaxTestsStoppingCondition<T extends Chromosome<T>> extends Stopping
 	protected static long numTests = 0;
 
 	/** Maximum number of evaluations */
-	protected long maxTests = Properties.SEARCH_BUDGET;
+	protected long maxTests;
+
+	public MaxTestsStoppingCondition() {
+		maxTests = Properties.SEARCH_BUDGET;
+	}
+
+	public MaxTestsStoppingCondition(MaxTestsStoppingCondition<?> that) {
+		this.maxTests = that.maxTests;
+	}
+
+	@Override
+	public MaxTestsStoppingCondition<T> clone() {
+		return new MaxTestsStoppingCondition<>(this);
+	}
 
 	/**
 	 * <p>getNumExecutedTests</p>

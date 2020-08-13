@@ -139,4 +139,6 @@ public abstract class StoppingConditionImpl<T extends Chromosome<T>> implements 
 		limit = StringUtils.rightPad(limit, 12);
 		return value + " / " + limit;
 	}
+
+	public abstract StoppingConditionImpl<T> clone();
 }

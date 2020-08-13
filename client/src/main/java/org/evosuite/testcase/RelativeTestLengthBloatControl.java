@@ -40,9 +40,9 @@ public class RelativeTestLengthBloatControl<T extends ExecutableChromosome<T>>
 	protected double best_fitness;
 
 	public RelativeTestLengthBloatControl() {
-		this.current_max = 0;
-		this.best_fitness = Double.MAX_VALUE; // FIXXME: Assuming
-		// minimizing fitness!
+		current_max = 0;
+		best_fitness = Double.MAX_VALUE; // FIXXME: Assuming
+										 // minimizing fitness!
 	}
 
 	public RelativeTestLengthBloatControl(final RelativeTestLengthBloatControl<?> that) {

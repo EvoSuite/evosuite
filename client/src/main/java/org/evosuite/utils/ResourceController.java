@@ -51,6 +51,20 @@ public class ResourceController<T extends Chromosome<T>> implements SearchListen
 	private GeneticAlgorithm<T> ga;
 	private boolean stopComputation;
 
+	public ResourceController() {
+		// empty default constructor
+	}
+
+	public ResourceController(ResourceController<T> that) {
+		this.ga = that.ga; // no deep copy
+		this.stopComputation = that.stopComputation;
+	}
+
+	@Override
+	public ResourceController<T> clone() {
+		return new ResourceController<>(this);
+	}
+
 	private boolean hasExceededResources() {
 
 		if (TestCaseExecutor.getInstance().getNumStalledThreads() >= Properties.MAX_STALLED_THREADS) {

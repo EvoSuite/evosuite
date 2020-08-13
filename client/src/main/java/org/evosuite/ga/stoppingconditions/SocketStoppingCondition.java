@@ -36,10 +36,23 @@ import org.slf4j.LoggerFactory;
  */
 public class SocketStoppingCondition<T extends Chromosome<T>> implements StoppingCondition<T> {
 
-	private volatile boolean interrupted = false;
+	private volatile boolean interrupted;
 
 	private static final Logger logger = LoggerFactory.getLogger(SocketStoppingCondition.class);
-	
+
+	public SocketStoppingCondition() {
+		this.interrupted = false;
+	}
+
+	public SocketStoppingCondition(SocketStoppingCondition<?> that) {
+		this.interrupted = that.interrupted;
+	}
+
+	@Override
+	public SocketStoppingCondition<T> clone() {
+		return new SocketStoppingCondition<>(this);
+	}
+
 	/**
 	 * <p>accept</p>
 	 */

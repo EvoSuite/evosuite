@@ -304,8 +304,8 @@ public abstract class GeneticAlgorithm<T extends Chromosome<T>> implements Searc
      *
      * @return
      */
-    protected final boolean isMaximizationFunction() {
-        return fitnessFunctions.get(0).isMaximizationFunction();
+    protected boolean isMaximizationFunction() {
+        return getFitnessFunction().isMaximizationFunction();
     }
 
     protected void updateProbability(boolean improvement) {
@@ -455,7 +455,7 @@ public abstract class GeneticAlgorithm<T extends Chromosome<T>> implements Searc
      *
      * @return a {@link org.evosuite.ga.FitnessFunction} object.
      */
-    public List<FitnessFunction<T>> getFitnessFunctions() {
+    public List<? extends FitnessFunction<T>> getFitnessFunctions() {
         return fitnessFunctions;
     }
 
