@@ -68,12 +68,7 @@ public class ExecutionResult implements Cloneable {
 	 * Keep track of whether any System property was written
 	 */
 	protected boolean wasAnyPropertyWritten;
-	
-	/*
-	 * Regression Object Distance
-	 */
-	public double regressionObjectDistance = 0;
-	
+
 	private List<FeatureVector> featureVectors = new ArrayList<FeatureVector>(1);
 	
 	/**
@@ -411,7 +406,6 @@ public class ExecutionResult implements Cloneable {
 		copy.trace = trace.lazyClone();
 		copy.explicitExceptions.putAll(explicitExceptions);
 		copy.executionTime = executionTime;
-		copy.regressionObjectDistance = regressionObjectDistance;
 		copy.inputGoals = new LinkedHashMap<>(inputGoals);
 		copy.outputGoals = new LinkedHashMap<>(outputGoals);
 		for (Class<?> clazz : traces.keySet()) {
