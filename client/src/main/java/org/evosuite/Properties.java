@@ -1275,9 +1275,6 @@ public class Properties {
 	@Parameter(key = "seed_dir", group = "Output", description = "Directory name where the best chromosomes are saved")
 	public static String SEED_DIR = "evosuite-seeds";
 
-	@Parameter(key = "serialize_regression_test_suite", group = "Output", description = "(Experimental) If enable, the best minimized test suite with assertions is saved")
-	public static boolean SERIALIZE_REGRESSION_TEST_SUITE = false;
-
 	@Parameter(key = "concolic_mutation", description = "Deprecated. Probability of using concolic mutation operator")
 	@DoubleValue(min = 0.0, max = 1.0)
 	@Deprecated
@@ -1496,53 +1493,6 @@ public class Properties {
 
 	@Parameter(key = "exclude_ibranches_cut", group = "Runtime", description = "Exclude ibranches in the cut, to speed up ibranch as secondary criterion")
 	public static boolean EXCLUDE_IBRANCHES_CUT = false;
-
-
-	/*** Evosuite regression testing properties ***/
-
-	@Parameter(key = "regressioncp", group = "Runtime", description = "Regression testing classpath")
-	public static String REGRESSIONCP = ".";
-
-	@Parameter(key = "regression_analysis_combinations", group = "Runtime", description = "What regression fitness combination stragetegy is used")
-	public static int REGRESSION_ANALYSIS_COMBINATIONS = 0;
-
-	@Parameter(key = "regression_analysis_branchdistance", group = "Runtime", description = "What regression branch distance fitness strategy is used")
-	public static int REGRESSION_ANALYSIS_BRANCHDISTANCE = 0;
-
-	@Parameter(key = "regression_analysis_objectdistance", group = "Runtime", description = "What regression object distance fitness strategy will be used")
-	public static int REGRESSION_ANALYSIS_OBJECTDISTANCE = 0;
-
-	@Deprecated
-	@Parameter(key = "regression_different_branches", group = "Runtime", description = "Classes under test have different branch orders")
-	public static boolean REGRESSION_DIFFERENT_BRANCHES = false;
-
-    @Parameter(key = "regression_branch_distance", group = "Runtime", description = "Enable control-flow distance measurement for regression testing")
-    public static boolean REGRESSION_BRANCH_DISTANCE = false;
-
-	@Parameter(key = "regression_analyze", group = "Runtime", description = "Analyze the classes under test, to ensure the effectiveness of evosuite")
-	public static boolean REGRESSION_ANALYZE = false;
-
-	@Parameter(key = "regression_random_strategy", group = "Runtime", description = "What strategy to take after the first fault is found")
-	public static int REGRESSION_RANDOM_STRATEGY = 3;
-
-	@Parameter(key = "regression_disable_special_assertions", group = "Runtime", description = "disable undesirable assertions")
-	public static boolean REGRESSION_DISABLE_SPECIAL_ASSERTIONS = false;
-
-	@Parameter(key = "regression_diversity", group = "Runtime", description = "Include diversity fitness measurement")
-	public static boolean REGRESSION_DIVERSITY = false;
-
-    @Parameter(key = "regression_skip_similar", group = "Runtime", description = "Skip running EvosuiteR on similar classes")
-    public static boolean REGRESSION_SKIP_SIMILAR = false;
-
-    @Parameter(key = "regression_skip_different_cfg", group = "Runtime", description = "Skip running EvosuiteR on classes with different control-flow-graph")
-    public static boolean REGRESSION_SKIP_DIFFERENT_CFG = false;
-
-    @Parameter(key = "regression_statistics", group = "Runtime", description = "Track extra search statistics during regression testing")
-    public static boolean REGRESSION_STATISTICS = false;
-
-	@Parameter(key = "keep_regression_archive", group = "Runtime", description = "Keep an archive of regression tests")
-	public static boolean KEEP_REGRESSION_ARCHIVE = false;
-	
 	
 	public enum Strategy {
 	    ONEBRANCH, EVOSUITE, RANDOM, RANDOM_FIXED, ENTBUG, MOSUITE, DSE, NOVELTY, MAP_ELITES

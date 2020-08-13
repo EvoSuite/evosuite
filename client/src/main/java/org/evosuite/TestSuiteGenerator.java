@@ -507,14 +507,6 @@ public class TestSuiteGenerator {
             else
                 logger.warn("Cannot run Junit test. Cause {}",ClassPathHacker.getCause());
         }
-
-		if (Properties.SERIALIZE_REGRESSION_TEST_SUITE) {
-			RegressionSuiteSerializer.appendToRegressionTestSuite(testSuite);
-		}
-
-		if(Properties.KEEP_REGRESSION_ARCHIVE){
-			RegressionSuiteSerializer.storeRegressionArchive();
-		}
 	}
 
 	/**
