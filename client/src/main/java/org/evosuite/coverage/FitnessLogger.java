@@ -44,6 +44,8 @@ public class FitnessLogger<T extends Chromosome<T>> implements SearchListener<T>
 
 	private static final Logger logger = LoggerFactory.getLogger(FitnessLogger.class);
 
+	private static final long serialVersionUID = 1914403470617343821L;
+
 	private final List<Integer> evaluations_history;
 	private final List<Long> statements_history;
 	private final List<Double> fitness_history;

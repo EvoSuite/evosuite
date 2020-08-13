@@ -41,6 +41,8 @@ import org.evosuite.testsuite.TestSuiteChromosome;
  */
 public class StatisticsListener<T extends Chromosome<T>> implements SearchListener<T> {
 
+	private static final long serialVersionUID = -8229756367168023616L;
+
 	private final BlockingQueue<T> individuals;
 	
 	private volatile boolean done;
