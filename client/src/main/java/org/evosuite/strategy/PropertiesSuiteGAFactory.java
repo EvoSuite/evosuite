@@ -370,7 +370,8 @@ public class PropertiesSuiteGAFactory
 			ga.addStoppingCondition(rmi);
 
 			if (Properties.STOPPING_PORT != -1) {
-				SocketStoppingCondition<TestSuiteChromosome> ss = new SocketStoppingCondition<>();
+				SocketStoppingCondition<TestSuiteChromosome> ss =
+						SocketStoppingCondition.getInstance();
 				ss.accept();
 				ga.addStoppingCondition(ss);
 			}

@@ -133,7 +133,7 @@ public class PropertiesMapElitesSearchFactory
       ga.addStoppingCondition(rmi);
 
       if (Properties.STOPPING_PORT != -1) {
-        SocketStoppingCondition<TestChromosome> ss = new SocketStoppingCondition<>();
+        SocketStoppingCondition<TestChromosome> ss = SocketStoppingCondition.getInstance();
         ss.accept();
         ga.addStoppingCondition(ss);
       }
