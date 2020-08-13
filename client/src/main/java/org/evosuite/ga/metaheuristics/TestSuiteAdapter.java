@@ -529,9 +529,13 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
     private static <T extends Chromosome<T>, U extends Chromosome<U>> StoppingCondition<T>
             mapStoppingCondition(StoppingCondition<U> stoppingCondition) {
         if (stoppingCondition instanceof MaxTimeStoppingCondition) {
-            return new MaxTimeStoppingCondition<>();
+            return new MaxTimeStoppingCondition<>((MaxTimeStoppingCondition<?>) stoppingCondition);
         } else if (stoppingCondition instanceof MaxGenerationStoppingCondition) {
-            return new MaxGenerationStoppingCondition<>();
+            return new MaxGenerationStoppingCondition<>((MaxGenerationStoppingCondition<?>) stoppingCondition);
+        } else if (stoppingCondition instanceof RMIStoppingCondition) {
+            return RMIStoppingCondition.getInstance();
+        } else if (stoppingCondition instanceof ShutdownTestWriter) {
+            return new ShutdownTestWriter<>((ShutdownTestWriter<?>) stoppingCondition);
         } else {
             throw new IllegalArgumentException("cannot adapt stopping condition: " + stoppingCondition);
         }
