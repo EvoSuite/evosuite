@@ -160,10 +160,10 @@ public class ObjectDistanceCalculatorTest {
     q.x = 43; // make q.x equal to p.x
     assertEquals(0.666, getDistance(p, q), 0.001);
 
-    q.z = new Integer(43); // there are now two different vars
+    q.z = 43; // there are now two different vars
     assertEquals(1, getDistance(p, q), 0.001);
 
-    q.z = new Integer(43000); // larger diff
+    q.z = 43000; // larger diff
     assertEquals(1.166, getDistance(p, q), 0.001);
   }
 
@@ -250,7 +250,7 @@ public class ObjectDistanceCalculatorTest {
     return constructed;
   }
 
-  class NestedBasicObjectWithPublicFields {
+  static class NestedBasicObjectWithPublicFields {
 
     ClassWithPublicField foo;
     ClassWithPublicField bar;
