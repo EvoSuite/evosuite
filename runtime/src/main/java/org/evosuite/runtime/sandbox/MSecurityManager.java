@@ -1339,11 +1339,12 @@ public class MSecurityManager extends SecurityManager {
 						return true;
 					}
 				}
-			} else if(fp.getName().contains("gzoltar")) {
-				/*
-				 * This is not 100% secure, but GZoltar support
-				 * is also important
-				 */
+			} else if (fp.getName().contains("gzoltar") || fp.getName().equals(System.getProperty("user.dir"))) {
+				// By default, GZoltar writes the gzoltar.ser file that holds the coverage
+				// of each test case to the user.dir defined in the scaffolding test class.
+				// As user.dir might not exist, EvoSuite must grant access write access to
+				// GZoltar.
+				// Note: The following is not 100% secure, but GZoltar support is important.
 				for (StackTraceElement e : Thread.currentThread().getStackTrace()) {
 					if(e.getClassName().startsWith("com.gzoltar.")) {
 						return true;
