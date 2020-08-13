@@ -117,9 +117,7 @@ public class TestGeneration {
 				new Option("generateSuite", "use whole suite generation. This is the default behavior"),
 				new Option("generateTests", "use individual test generation (old approach for reference purposes)"),
 				new Option("generateRandom", "use random test generation"),
-				new Option("generateNumRandom",true, "generate fixed number of random tests"),	
-				new Option("regressionSuite", "generate a regression test suite"),
-				new Option("regressionTests", "generate a regression test suite of individual tests"),
+				new Option("generateNumRandom",true, "generate fixed number of random tests"),
 				new Option("generateMOSuite", "use many objective test generation (MOSA). "),
 				new Option("generateSuiteUsingDSE", "use Dynamic Symbolic Execution to generate test suite")
 		};
