@@ -15,7 +15,6 @@ import org.evosuite.ga.populationlimit.PopulationLimit;
 import org.evosuite.ga.populationlimit.SizePopulationLimit;
 import org.evosuite.ga.stoppingconditions.*;
 import org.evosuite.statistics.StatisticsListener;
-import org.evosuite.testcase.RelativeTestLengthBloatControl;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testsuite.*;
 import org.evosuite.utils.ResourceController;
@@ -589,7 +588,7 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
     }
 
     @Override // (12)
-    public List<FitnessFunction<TestSuiteChromosome>> getFitnessFunctions() {
+    public List<? extends FitnessFunction<TestSuiteChromosome>> getFitnessFunctions() {
         // This method returns a raw List of fitness functions. This is ugly but (at the time of
         // this writing) nothing bad actually happens because MOSuiteStrategy only invokes size()
         // on the returned list.
