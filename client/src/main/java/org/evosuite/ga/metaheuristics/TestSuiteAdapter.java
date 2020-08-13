@@ -2,6 +2,8 @@ package org.evosuite.ga.metaheuristics;
 
 import org.evosuite.ProgressMonitor;
 import org.evosuite.ShutdownTestWriter;
+import org.evosuite.coverage.line.LineCoverageSuiteFitness;
+import org.evosuite.coverage.line.LineCoverageTestFitness;
 import org.evosuite.ga.*;
 import org.evosuite.ga.bloatcontrol.BloatControlFunction;
 import org.evosuite.ga.bloatcontrol.MaxSizeBloatControl;
@@ -586,17 +588,11 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
     }
 
     @Override // (12)
-    public List<? extends FitnessFunction<TestSuiteChromosome>> getFitnessFunctions() {
+    public List getFitnessFunctions() {
         // This method returns a raw List of fitness functions. This is ugly but (at the time of
         // this writing) nothing bad actually happens because MOSuiteStrategy only invokes size()
         // on the returned list.
-        return algorithm.getFitnessFunctions().stream()
-                .map(TestSuiteAdapter::mapFitnessFunctionToTestSuiteLevel)
-                .collect(toList());
-    }
-
-    private static TestSuiteFitnessFunction mapFitnessFunctionToTestSuiteLevel(FitnessFunction<TestChromosome> fitnessFunction){
-        throw new IllegalArgumentException("Unsupported type of fitness function: " + fitnessFunction.getClass());
+        return algorithm.getFitnessFunctions();
     }
 
     private static FitnessFunction<TestChromosome> mapFitnessFunctionToTestCaseLevel(FitnessFunction<TestSuiteChromosome> fitnessFunction){
