@@ -26,6 +26,7 @@ import java.lang.reflect.Modifier;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.mutation.Mutation;
 import org.evosuite.coverage.mutation.MutationPool;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
@@ -108,7 +109,7 @@ public class DeleteStatement implements MutationOperator {
 		mutation.add(getDefault(returnType));
 
 		// insert mutation into pool
-		Mutation mutationObject = MutationPool.addMutation(className,
+		Mutation mutationObject = MutationPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).addMutation(className,
 		                                                   methodName,
 		                                                   NAME + " "
 		                                                           + node.name

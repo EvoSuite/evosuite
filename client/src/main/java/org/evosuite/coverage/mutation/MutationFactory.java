@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.evosuite.Properties;
+import org.evosuite.TestGenerationContext;
 import org.evosuite.instrumentation.mutation.InsertUnaryOperator;
 import org.evosuite.instrumentation.mutation.ReplaceArithmeticOperator;
 import org.evosuite.instrumentation.mutation.ReplaceConstant;
@@ -113,7 +114,7 @@ public class MutationFactory extends AbstractFitnessFactory<MutationTestFitness>
 	 * is acceptable wrt the class limit
 	 */
 	private List<Mutation> getMutantsLimitedPerClass() {
-		List<Mutation> mutants = MutationPool.getMutants();
+		List<Mutation> mutants = MutationPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getMutants();
 		String[] operators = { ReplaceVariable.NAME, InsertUnaryOperator.NAME, ReplaceConstant.NAME, ReplaceArithmeticOperator.NAME };
 		if(mutants.size() > Properties.MAX_MUTANTS_PER_CLASS) {
 			for(String op : operators) {

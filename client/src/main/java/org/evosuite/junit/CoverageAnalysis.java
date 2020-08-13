@@ -472,7 +472,7 @@ public class CoverageAnalysis {
 
 		if (criterion == Criterion.MUTATION
 				|| criterion == Criterion.STRONGMUTATION) {
-			goals = MutationPool.getMutants();
+			goals = MutationPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getMutants();
 		} else {
 			goals = factory.getCoverageGoals();
 		}
@@ -502,7 +502,7 @@ public class CoverageAnalysis {
             if (criterion == Criterion.MUTATION
             		|| criterion ==  Criterion.STRONGMUTATION) {
             	for (Integer mutationID : trace.getTouchedMutants()) {
-            		Mutation mutation = MutationPool.getMutant(mutationID);
+					Mutation mutation = MutationPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getMutant(mutationID);
 
             		if (goals.contains(mutation)) {
             			MutationObserver.activateMutation(mutationID);

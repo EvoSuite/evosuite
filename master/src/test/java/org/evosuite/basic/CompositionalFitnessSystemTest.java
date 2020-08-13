@@ -168,6 +168,7 @@ public class CompositionalFitnessSystemTest extends SystemTestBase {
     @Test
     public void testCompositionalGetFitnessForSeveralFunctions() {
         Properties.TARGET_CLASS = Compositional.class.getCanonicalName();
+        Properties.TEST_ARCHIVE = false; // Otherwise archive complains that the target criterion is not correct
 
         TestSuiteChromosome c = new TestSuiteChromosome();
         MethodTraceCoverageSuiteFitness f1 = new MethodTraceCoverageSuiteFitness();

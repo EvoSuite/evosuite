@@ -25,6 +25,7 @@ package org.evosuite.instrumentation.mutation;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.mutation.Mutation;
 import org.evosuite.coverage.mutation.MutationPool;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
@@ -61,7 +62,7 @@ public class DeleteField implements MutationOperator {
 	@Override
 	public List<Mutation> apply(MethodNode mn, String className, String methodName,
 	        BytecodeInstruction instruction, Frame frame) {
-		List<Mutation> mutations = new LinkedList<Mutation>();
+		List<Mutation> mutations = new LinkedList<>();
 
 		FieldInsnNode node = (FieldInsnNode) instruction.getASMNode();
 		Type fieldType = Type.getType(node.desc);
@@ -75,7 +76,7 @@ public class DeleteField implements MutationOperator {
 		}
 		mutation.add(getDefault(fieldType));
 		// insert mutation into pool
-		Mutation mutationObject = MutationPool.addMutation(className,
+		Mutation mutationObject = MutationPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).addMutation(className,
 		                                                   methodName,
 		                                                   NAME + " " + node.name
 		                                                           + node.desc,

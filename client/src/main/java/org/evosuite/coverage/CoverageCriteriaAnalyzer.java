@@ -111,6 +111,7 @@ public class CoverageCriteriaAnalyzer {
             }
         }
 
+        boolean reinstrumented = false;
         for (String extraCriterion : Arrays.asList(criteria.toUpperCase().split(","))) {
             if (extraCriterion.equals("CBRANCH")) {
                 Properties.INSTRUMENT_METHOD_CALLS = true;
@@ -118,8 +119,16 @@ public class CoverageCriteriaAnalyzer {
             // Analyse coverage for extra criteria
             if (!ArrayUtil.contains(Properties.CRITERION, extraCriterion)) {
                 logger.debug("Measuring additional coverage of target criterion {}", extraCriterion);
+                reinstrumented = true;
                 analyzeCoverage(testSuite, extraCriterion);
             }
+        }
+
+        // If reinstrumentation happened, we might need to restore the original instrumentation
+        // otherwise things like the MutationPool may not be up to date
+        if (reinstrumented) {
+            TestGenerationContext.getInstance().resetContext();
+            Properties.getInitializedTargetClass();
         }
     }
 
