@@ -36,6 +36,7 @@ import org.slf4j.LoggerFactory;
  */
 public class SocketStoppingCondition<T extends Chromosome<T>> implements StoppingCondition<T> {
 
+	// There should only be one instance that opens the socket -> singleton design pattern
 	private static SocketStoppingCondition<?> instance = null;
 
 	private volatile boolean interrupted = false;
