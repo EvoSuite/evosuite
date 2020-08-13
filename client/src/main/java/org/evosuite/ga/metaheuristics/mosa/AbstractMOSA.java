@@ -25,6 +25,7 @@ import org.evosuite.coverage.FitnessFunctions;
 import org.evosuite.coverage.exception.ExceptionCoverageSuiteFitness;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.ConstructionFailedException;
+import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.archive.Archive;
 import org.evosuite.ga.comparators.DominanceComparator;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
@@ -104,6 +105,25 @@ public abstract class AbstractMOSA extends GeneticAlgorithm<TestChromosome> {
 		} else {
 			throw new IllegalStateException("adapter has already been set");
 		}
+	}
+
+	@Override
+	public void addFitnessFunction(final FitnessFunction<TestChromosome> function) {
+		if (function instanceof TestFitnessFunction) {
+			fitnessFunctions.add((TestFitnessFunction) function);
+		} else {
+			throw new IllegalArgumentException("Only TestFitnessFunctions are supported");
+		}
+	}
+
+	@Override
+	public FitnessFunction<TestChromosome> getFitnessFunction() {
+		return fitnessFunctions.get(0);
+	}
+
+	@Override
+	public List<? extends FitnessFunction<TestChromosome>> getFitnessFunctions() {
+		return fitnessFunctions;
 	}
 
 	/**
