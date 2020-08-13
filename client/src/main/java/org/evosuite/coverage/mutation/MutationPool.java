@@ -39,27 +39,29 @@ import org.objectweb.asm.tree.InsnList;
  * @author fraser
  */
 public class MutationPool {
+	private static Map<ClassLoader, MutationPool> instanceMap = new HashMap<>();
+
+	public static MutationPool getInstance(ClassLoader classLoader) {
+		if (!instanceMap.containsKey(classLoader)) {
+			instanceMap.put(classLoader, new MutationPool());
+		}
+
+		return instanceMap.get(classLoader);
+	}
+
+	private MutationPool() {
+
+	}
 
 	// maps className -> method inside that class -> list of branches inside that method 
-	private static Map<String, Map<String, List<Mutation>>> mutationMap = new LinkedHashMap<>();
+	private Map<String, Map<String, List<Mutation>>> mutationMap = new LinkedHashMap<>();
 
 	// maps the mutationIDs assigned by this pool to their respective Mutations
-	private static Map<Integer, Mutation> mutationIdMap = new LinkedHashMap<>();
+	private Map<Integer, Mutation> mutationIdMap = new LinkedHashMap<>();
 
-	private static int numMutations = 0;
+	private int numMutations = 0;
 
-	/**
-	 * <p>addMutation</p>
-	 *
-	 * @param className a {@link java.lang.String} object.
-	 * @param methodName a {@link java.lang.String} object.
-	 * @param mutationName a {@link java.lang.String} object.
-	 * @param instruction a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
-	 * @param mutation a {@link org.objectweb.asm.tree.AbstractInsnNode} object.
-	 * @param distance a {@link org.objectweb.asm.tree.InsnList} object.
-	 * @return a {@link org.evosuite.coverage.mutation.Mutation} object.
-	 */
-	public static Mutation addMutation(String className, String methodName,
+	public Mutation addMutation(String className, String methodName,
 	        String mutationName, BytecodeInstruction instruction,
 	        AbstractInsnNode mutation, InsnList distance) {
 
@@ -77,18 +79,7 @@ public class MutationPool {
 		return mutationObject;
 	}
 
-	/**
-	 * <p>addMutation</p>
-	 *
-	 * @param className a {@link java.lang.String} object.
-	 * @param methodName a {@link java.lang.String} object.
-	 * @param mutationName a {@link java.lang.String} object.
-	 * @param instruction a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
-	 * @param mutation a {@link org.objectweb.asm.tree.InsnList} object.
-	 * @param distance a {@link org.objectweb.asm.tree.InsnList} object.
-	 * @return a {@link org.evosuite.coverage.mutation.Mutation} object.
-	 */
-	public static Mutation addMutation(String className, String methodName,
+	public Mutation addMutation(String className, String methodName,
 	        String mutationName, BytecodeInstruction instruction, InsnList mutation,
 	        InsnList distance) {
 
@@ -116,7 +107,7 @@ public class MutationPool {
 	 * @param methodName a {@link java.lang.String} object.
 	 * @return a {@link java.util.List} object.
 	 */
-	public static List<Mutation> retrieveMutationsInMethod(String className,
+	public List<Mutation> retrieveMutationsInMethod(String className,
 	        String methodName) {
 		List<Mutation> r = new ArrayList<>();
 		if (mutationMap.get(className) == null)
@@ -132,18 +123,18 @@ public class MutationPool {
 	 *
 	 * @return a {@link java.util.List} object.
 	 */
-	public static List<Mutation> getMutants() {
+	public List<Mutation> getMutants() {
 		return new ArrayList<>(mutationIdMap.values());
 	}
 	
-	public static Mutation getMutant(int id) {
+	public Mutation getMutant(int id) {
 		return mutationIdMap.get(id);
 	}
 
 	/**
 	 * Remove all known mutants
 	 */
-	public static void clear() {
+	public void clear() {
 		mutationMap.clear();
 		mutationIdMap.clear();
 		numMutations = 0;
@@ -154,7 +145,7 @@ public class MutationPool {
 	 *
 	 * @return The number of currently known mutants
 	 */
-	public static int getMutantCounter() {
+	public int getMutantCounter() {
 		return numMutations;
 	}
 }

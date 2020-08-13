@@ -22,6 +22,7 @@
  */
 package org.evosuite.instrumentation.mutation;
 
+import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.mutation.Mutation;
 import org.evosuite.coverage.mutation.MutationPool;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
@@ -83,7 +84,7 @@ public class NegateCondition implements MutationOperator {
 		// insert mutation into bytecode with conditional
 		JumpInsnNode mutation = new JumpInsnNode(getOpposite(node.getOpcode()), target);
 		// insert mutation into pool
-		Mutation mutationObject = MutationPool.addMutation(className,
+		Mutation mutationObject = MutationPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).addMutation(className,
 		                                                   methodName,
 		                                                   NAME,
 		                                                   instruction,

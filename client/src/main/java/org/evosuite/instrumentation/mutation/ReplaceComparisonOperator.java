@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.evosuite.PackageInfo;
+import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.mutation.Mutation;
 import org.evosuite.coverage.mutation.MutationPool;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
@@ -131,7 +132,7 @@ public class ReplaceComparisonOperator implements MutationOperator {
 				// insert mutation into bytecode with conditional
 				JumpInsnNode mutation = new JumpInsnNode(op, target);
 				// insert mutation into pool
-				Mutation mutationObject = MutationPool.addMutation(className,
+				Mutation mutationObject = MutationPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).addMutation(className,
 				                                                   methodName,
 				                                                   NAME + " "
 				                                                           + getOp(node.getOpcode())
@@ -156,7 +157,7 @@ public class ReplaceComparisonOperator implements MutationOperator {
 					mutation.add(new LdcInsnNode(0));
 				}
 				mutation.add(new JumpInsnNode(Opcodes.IFNE, target));
-				Mutation mutationObject = MutationPool.addMutation(className,
+				Mutation mutationObject = MutationPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).addMutation(className,
 				                                                   methodName,
 				                                                   NAME + " "
 				                                                           + getOp(node.getOpcode())

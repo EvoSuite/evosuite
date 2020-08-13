@@ -178,7 +178,7 @@ public class TestGenerationContext {
 		BranchPool.getInstance(classLoader).reset();
 		RemoveFinalClassAdapter.reset();
 		LinePool.reset();
-		MutationPool.clear();
+		MutationPool.getInstance(classLoader).clear();
 
 		// TODO: Clear only pool of current classloader?
 		GraphPool.clearAll();

@@ -95,7 +95,7 @@ public class TestGenerationResultBuilder {
 			uncoveredBranches.add(new BranchInfo(b, true));
 			uncoveredBranches.add(new BranchInfo(b, false));
 		}
-		for(Mutation m : MutationPool.getMutants()) {
+		for(Mutation m : MutationPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getMutants()) {
 			uncoveredMutants.add(new MutationInfo(m));
 		}
 	}
@@ -111,7 +111,7 @@ public class TestGenerationResultBuilder {
 	private void fillInformationFromTestData(TestGenerationResultImpl result) {
 		
 		Set<MutationInfo> exceptionMutants = new LinkedHashSet<>();
-		for(Mutation m : MutationPool.getMutants()) {
+		for(Mutation m : MutationPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getMutants()) {
 			if(MutationTimeoutStoppingCondition.isDisabled(m)) {
 				MutationInfo info = new MutationInfo(m);
 				exceptionMutants.add(info);

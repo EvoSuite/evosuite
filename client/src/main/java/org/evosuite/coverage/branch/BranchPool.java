@@ -79,7 +79,7 @@ public class BranchPool {
 	// number of known Branches - used for actualBranchIds
 	private int branchCounter = 0;
 
-	private static Map<ClassLoader, BranchPool> instanceMap = new HashMap<ClassLoader, BranchPool>();
+	private static Map<ClassLoader, BranchPool> instanceMap = new HashMap<>();
 
 	public static BranchPool getInstance(ClassLoader classLoader) {
 		if (!instanceMap.containsKey(classLoader)) {

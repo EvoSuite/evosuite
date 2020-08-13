@@ -20,6 +20,7 @@
 package org.evosuite.coverage.mutation;
 
 import org.evosuite.Properties;
+import org.evosuite.TestGenerationContext;
 import org.evosuite.ga.archive.Archive;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
@@ -126,7 +127,7 @@ public class WeakMutationSuiteFitness extends MutationSuiteFitness {
 		}
 
 		// Second objective: touch all mutants?
-		fitness += MutationPool.getMutantCounter() - touchedMutants.size();
+		fitness += MutationPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getMutantCounter() - touchedMutants.size();
 		int covered = removedMutants.size();
 
 		for (Double distance : mutant_distance.values()) {
