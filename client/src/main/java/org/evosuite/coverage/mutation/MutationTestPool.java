@@ -68,6 +68,14 @@ public class MutationTestPool implements SearchListener<TestSuiteChromosome> {
 		Randomness.shuffle(allMutantFitnessFunctions);
 	}
 
+	public MutationTestPool() {
+		// empty constructor
+	}
+
+	public MutationTestPool(MutationTestPool that) {
+		// empty copy constructor
+	}
+
 	/**
 	 * <p>
 	 * getUncoveredMutants

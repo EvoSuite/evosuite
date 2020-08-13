@@ -28,6 +28,7 @@ import org.evosuite.Properties;
 import org.evosuite.Properties.Strategy;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.FitnessFunction;
+import org.evosuite.ga.stoppingconditions.StoppingCondition;
 import org.evosuite.ga.stoppingconditions.StoppingConditionImpl;
 
 
@@ -54,6 +55,19 @@ public class MutationTimeoutStoppingCondition<T extends Chromosome<T>>
 	private static int MAX_TIMEOUTS = Properties.MUTATION_TIMEOUTS;
 
 	private static Set<Mutation> disabled = new HashSet<>();
+
+	public MutationTimeoutStoppingCondition() {
+		// empty constructor, only static fields
+	}
+
+	public MutationTimeoutStoppingCondition(MutationTimeoutStoppingCondition<?> that) {
+		// empty copy constructor
+	}
+
+	@Override
+	public MutationTimeoutStoppingCondition<T> clone() {
+		return new MutationTimeoutStoppingCondition<>(this);
+	}
 
 	/**
 	 * <p>isDisabled</p>

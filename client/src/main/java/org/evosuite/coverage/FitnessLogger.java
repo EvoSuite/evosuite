@@ -44,17 +44,30 @@ public class FitnessLogger<T extends Chromosome<T>> implements SearchListener<T>
 
 	private static final Logger logger = LoggerFactory.getLogger(FitnessLogger.class);
 
-	private final List<Integer> evaluations_history = new ArrayList<>();
+	private final List<Integer> evaluations_history;
+	private final List<Long> statements_history;
+	private final List<Double> fitness_history;
+	private final List<Integer> size_history;
+	private String name;
+	private int evaluations;
 
-	private final List<Long> statements_history = new ArrayList<>();
+	public FitnessLogger() {
+		evaluations_history = new ArrayList<>();
+		statements_history = new ArrayList<>();
+		fitness_history = new ArrayList<>();
+		size_history = new ArrayList<>();
+		name = null;
+		evaluations = 0;
+	}
 
-	private final List<Double> fitness_history = new ArrayList<>();
-
-	private final List<Integer> size_history = new ArrayList<>();
-
-	private String name = null;
-
-	private int evaluations = 0;
+	public FitnessLogger(FitnessLogger<?> that) {
+		this.evaluations_history = new ArrayList<>(that.evaluations_history);
+		this.statements_history = new ArrayList<>(that.statements_history);
+		this.fitness_history = new ArrayList<>(that.fitness_history);
+		this.size_history = new ArrayList<>(that.size_history);
+		this.name = that.name;
+		this.evaluations = that.evaluations;
+	}
 
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.SearchListener#searchStarted(org.evosuite.ga.FitnessFunction)

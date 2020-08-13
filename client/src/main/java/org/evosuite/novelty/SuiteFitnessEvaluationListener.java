@@ -18,6 +18,10 @@ public class SuiteFitnessEvaluationListener implements SearchListener<TestSuiteC
         this.fitnessFunctions = new ArrayList<>(fitnessFunctions);
     }
 
+    public SuiteFitnessEvaluationListener(SuiteFitnessEvaluationListener that) {
+        this(that.fitnessFunctions);
+    }
+
     private TestSuiteChromosome createMergedSolution(Collection<TestChromosome> population) {
         TestSuiteChromosome suite = new TestSuiteChromosome();
         suite.addTests(population);

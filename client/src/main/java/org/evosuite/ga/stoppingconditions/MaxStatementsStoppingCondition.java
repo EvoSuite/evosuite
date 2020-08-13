@@ -60,6 +60,19 @@ public class MaxStatementsStoppingCondition<T extends Chromosome<T>> extends Sto
 	/** Maximum number of iterations */
 	protected static long currentStatement = 0;
 
+	public MaxStatementsStoppingCondition() {
+		// empty constructor
+	}
+
+	public MaxStatementsStoppingCondition(MaxStatementsStoppingCondition<?> that) {
+		// empty copy constructor
+	}
+
+	@Override
+	public MaxStatementsStoppingCondition<T> clone() {
+		return new MaxStatementsStoppingCondition<>(this);
+	}
+
 	/**
 	 * Add a given number of executed statements
 	 * 
