@@ -1,4 +1,4 @@
-package org.evosuite.regression;
+package org.evosuite.assertion;
 
 import static org.evosuite.assertion.ObjectDistanceCalculator.getObjectDistance;
 import static org.junit.Assert.assertEquals;
