@@ -500,6 +500,8 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
                 return;
             } else if (condition instanceof GlobalTimeStoppingCondition) {
                 adapteeCondition = new GlobalTimeStoppingCondition<>();
+            } else if (condition instanceof SocketStoppingCondition) {
+                adapteeCondition = SocketStoppingCondition.getInstance();
             } else {
                 throw new IllegalArgumentException("cannot adapt stopping condition " + condition);
             }
