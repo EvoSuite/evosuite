@@ -1578,12 +1578,6 @@ public class TestCodeVisitor extends TestVisitor {
 				//from class EvoAssertions
 				result += "   verifyException(\"" + sourceClass + "\", e);" + NEWLINE;
 		}
-		
-		// Add assertion on the message (feel free to remove the isRegression() Condition)
-		if (Properties.isRegression() && exception.getMessage() != null) {
-			result += "   assertTrue(e.getMessage().equals(\"" + StringEscapeUtils.escapeJava(exceptionMessage) + "\"));";
-			result += "   \n";
-		}
 
 		result += "}" + NEWLINE;// closing the catch block
 		return result;

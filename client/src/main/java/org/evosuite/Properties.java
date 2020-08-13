@@ -1545,7 +1545,7 @@ public class Properties {
 	
 	
 	public enum Strategy {
-	    ONEBRANCH, EVOSUITE, RANDOM, RANDOM_FIXED, ENTBUG, REGRESSION, MOSUITE, DSE, NOVELTY, MAP_ELITES
+	    ONEBRANCH, EVOSUITE, RANDOM, RANDOM_FIXED, ENTBUG, MOSUITE, DSE, NOVELTY, MAP_ELITES
 	}
 
 	@Parameter(key = "strategy", group = "Runtime", description = "Which mode to use")
@@ -2395,12 +2395,6 @@ public class Properties {
 			LoopCounter.getInstance().setActive(false);
 			TARGET_CLASS_INSTANCE = Class.forName(TARGET_CLASS, initialise,
 					TestGenerationContext.getInstance().getClassLoaderForSUT());
-			
-
-			if (STRATEGY == Strategy.REGRESSION) {
-				TARGET_REGRESSION_CLASS_INSTANCE = Class.forName(TARGET_CLASS, initialise,
-                        TestGenerationContext.getInstance().getRegressionClassLoaderForSUT());
-			}
 
 			setClassPrefix();
 
@@ -2511,14 +2505,4 @@ public class Properties {
 	}
 
 	public static final String JAVA_VERSION_WARN_MSG = "EvoSuite does not support Java versions > 8 yet";
-	
-	/*
-	 * whether or not the regression mode is running
-	 */
-	public static boolean isRegression(){
-		boolean isRegression = (STRATEGY == Strategy.REGRESSION);
-		return isRegression;
-	}
-
-
 }

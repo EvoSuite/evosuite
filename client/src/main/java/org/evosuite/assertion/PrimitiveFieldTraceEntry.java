@@ -156,15 +156,8 @@ public class PrimitiveFieldTraceEntry implements OutputTraceEntry {
       PrimitiveFieldAssertion ass = (PrimitiveFieldAssertion) assertion;
       //TODO: removed ` && fieldMap.containsKey(ass.field)` for regression testing.
       if (ass.source.equals(var)) {
-        if (Properties.isRegression()) {
-          if (ass.field != null && signatureFieldMap.containsKey(ass.field.toString()) &&
-              fieldMap.containsKey(signatureFieldMap.get(ass.field.toString()))) {
-            return !fieldMap.get(signatureFieldMap.get(ass.field.toString())).equals(ass.value);
-          }
-        } else {
-          if (fieldMap.containsKey(ass.field)) {
-            return !fieldMap.get(ass.field).equals(ass.value);
-          }
+        if (fieldMap.containsKey(ass.field)) {
+          return !fieldMap.get(ass.field).equals(ass.value);
         }
       }
     }

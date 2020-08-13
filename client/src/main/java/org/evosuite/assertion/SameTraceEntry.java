@@ -113,12 +113,6 @@ public class SameTraceEntry implements OutputTraceEntry {
           assertion.source = var;
           assertion.dest = equalityMapIntVar.get(otherVar);
           assertion.value = equalityMap.get(equalityMapIntVar.get(otherVar));
-          if (Properties.isRegression()) {
-            assertion.setComment(
-                "// (Same) Original Value: " + equalityMap.get(equalityMapIntVar.get(otherVar))
-                    + " | Regression Value: " + otherEntry.equalityMap
-                    .get(otherEntry.equalityMapIntVar.get(otherVar)));
-          }
           assertions.add(assertion);
           assert (assertion.isValid());
         }
@@ -165,16 +159,8 @@ public class SameTraceEntry implements OutputTraceEntry {
     if (assertion instanceof SameAssertion) {
       SameAssertion ass = (SameAssertion) assertion;
       if (ass.source.equals(var)) {
-        if (Properties.isRegression()) {
-          if (equalityMapIntVar.get(ass.dest.getStPosition()) != null &&
-              equalityMap.get(equalityMapIntVar.get(ass.dest.getStPosition())) != null) {
-            return !equalityMap.get(equalityMapIntVar.get(ass.dest.getStPosition()))
-                .equals(ass.value);
-          }
-        } else {
-          if (equalityMap.containsKey(ass.dest)) {
-            return !equalityMap.get(ass.dest).equals(ass.value);
-          }
+        if (equalityMap.containsKey(ass.dest)) {
+          return !equalityMap.get(ass.dest).equals(ass.value);
         }
       }
     }

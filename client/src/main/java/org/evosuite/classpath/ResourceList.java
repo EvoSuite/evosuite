@@ -494,11 +494,6 @@ public class ResourceList {
 
 		String cp = ClassPathHandler.getInstance().getTargetProjectClasspath();
 
-		// If running in regression mode and current ClassLoader is the regression ClassLoader
-		if(Properties.isRegression() && 
-				classLoader==TestGenerationContext.getInstance().getRegressionClassLoaderForSUT())
-			 cp = org.evosuite.Properties.REGRESSIONCP;
-
 		for(String entry : cp.split(File.pathSeparator)){
 			addEntry(entry);
 		}		

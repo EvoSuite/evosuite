@@ -478,7 +478,7 @@ public class TestSuiteGenerator {
 			}
 		}
 
-		if (Properties.ASSERTIONS && !Properties.isRegression()) {
+		if (Properties.ASSERTIONS) {
 			LoggingUtils.getEvoLogger().info("* " + ClientProcess.getPrettyPrintIdentifier() + "Generating assertions");
 			// progressMonitor.setCurrentPhase("Generating assertions");
 			ClientServices.getInstance().getClientNode().changeState(ClientState.ASSERTION_GENERATION);
@@ -512,7 +512,7 @@ public class TestSuiteGenerator {
 			RegressionSuiteSerializer.appendToRegressionTestSuite(testSuite);
 		}
 
-		if(Properties.isRegression() && Properties.KEEP_REGRESSION_ARCHIVE){
+		if(Properties.KEEP_REGRESSION_ARCHIVE){
 			RegressionSuiteSerializer.storeRegressionArchive();
 		}
 	}

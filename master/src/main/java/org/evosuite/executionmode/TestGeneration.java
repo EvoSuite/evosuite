@@ -143,8 +143,6 @@ public class TestGeneration {
 			strategy = Strategy.EVOSUITE;
 		} else if (line.hasOption("generateRandom")) {
 			strategy = Strategy.RANDOM;
-		} else if (line.hasOption("regressionSuite")) {
-			strategy = Strategy.REGRESSION;
 		} else if (line.hasOption("generateNumRandom")) {
 			strategy = Strategy.RANDOM_FIXED;
 			javaOpts.add("-Dnum_random_tests="
@@ -328,9 +326,6 @@ public class TestGeneration {
 			break;
 		case RANDOM_FIXED:
 			cmdLine.add("-Dstrategy=Random_Fixed");
-			break;
-		case REGRESSION:
-			cmdLine.add("-Dstrategy=Regression");
 			break;
 		case ENTBUG:
 			cmdLine.add("-Dstrategy=EntBug");

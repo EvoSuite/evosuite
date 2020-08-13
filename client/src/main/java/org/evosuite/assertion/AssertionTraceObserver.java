@@ -77,13 +77,7 @@ public abstract class AssertionTraceObserver<T extends OutputTraceEntry> extends
 	 */
 	protected void visitDependencies(Statement statement, Scope scope) {
 		Set<VariableReference> dependencies = currentTest.getDependencies(statement.getReturnValue());
-		
-		if(Properties.isRegression()){
-			if (!hasCUT(statement, dependencies)){
-				return;
-			}
-		}
-		
+
 		for (VariableReference var : dependencies) {
 			if(var.isVoid())
 				continue;
@@ -112,14 +106,6 @@ public abstract class AssertionTraceObserver<T extends OutputTraceEntry> extends
 	 *            a {@link org.evosuite.testcase.execution.Scope} object.
 	 */
 	protected void visitReturnValue(Statement statement, Scope scope) {
-		
-		if(Properties.isRegression()){
-			Set<VariableReference> dependencies = currentTest.getDependencies(statement.getReturnValue());
-			if (!hasCUT(statement, dependencies)){
-				return;
-			}
-		}
-		
 		if (statement.getReturnClass().equals(void.class))
 			return;
 		

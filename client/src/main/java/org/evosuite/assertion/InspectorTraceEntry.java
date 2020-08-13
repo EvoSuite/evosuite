@@ -137,11 +137,6 @@ public class InspectorTraceEntry implements OutputTraceEntry {
           assertion.value = inspectorMap.get(methodInspectorMap.get(inspector));
           assertion.inspector = methodInspectorMap.get(inspector);
           assertion.source = var;
-          if (Properties.isRegression()) {
-            assertion.setComment("// (Inspector) Original Value: "
-                + inspectorMap.get(methodInspectorMap.get(inspector)) + " | Regression Value: "
-                + otherEntry.inspectorMap.get(otherEntry.methodInspectorMap.get(inspector)));
-          }
           assertions.add(assertion);
           assert (assertion.isValid());
 
@@ -185,18 +180,9 @@ public class InspectorTraceEntry implements OutputTraceEntry {
     if (assertion instanceof InspectorAssertion) {
       InspectorAssertion ass = (InspectorAssertion) assertion;
       if (ass.source.same(var)) {
-        if (Properties.isRegression()) {
-          // Use the internal map to locate the inspector assertion
-          String key = ass.getInspector().getClassName() + " " + ass.getInspector().getMethodCall();
-          Inspector inspector = methodInspectorMap.get(key);
-          if (inspector != null && inspectorMap.get(inspector) != null && ass.value != null) {
-            return !inspectorMap.get(inspector).equals(ass.value);
-          }
-        } else {
-          if (inspectorMap.containsKey(ass.inspector)
-              && inspectorMap.get(ass.inspector) != null && ass.value != null) {
-            return !inspectorMap.get(ass.inspector).equals(ass.value);
-          }
+        if (inspectorMap.containsKey(ass.inspector)
+                && inspectorMap.get(ass.inspector) != null && ass.value != null) {
+          return !inspectorMap.get(ass.inspector).equals(ass.value);
         }
       }
     }
