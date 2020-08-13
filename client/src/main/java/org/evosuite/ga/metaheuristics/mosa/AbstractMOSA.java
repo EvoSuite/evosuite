@@ -586,4 +586,8 @@ public abstract class AbstractMOSA extends GeneticAlgorithm<TestChromosome> {
 //        suite.setNumOfNotCoveredGoals(suiteFitnessFunction, numberUncoveredTargets);
 //      }
 //    }
+
+	protected void applyLocalSearch(final TestSuiteChromosome testSuite) {
+		adapter.applyLocalSearch(testSuite);
+	}
 }

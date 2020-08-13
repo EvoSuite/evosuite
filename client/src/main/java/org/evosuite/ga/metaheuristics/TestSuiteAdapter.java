@@ -4,6 +4,7 @@ import org.evosuite.ProgressMonitor;
 import org.evosuite.ShutdownTestWriter;
 import org.evosuite.ga.*;
 import org.evosuite.ga.bloatcontrol.BloatControlFunction;
+import org.evosuite.ga.bloatcontrol.MaxSizeBloatControl;
 import org.evosuite.ga.operators.crossover.*;
 import org.evosuite.ga.operators.ranking.FastNonDominatedSorting;
 import org.evosuite.ga.operators.ranking.RankBasedPreferenceSorting;
@@ -15,11 +16,7 @@ import org.evosuite.ga.populationlimit.SizePopulationLimit;
 import org.evosuite.ga.stoppingconditions.*;
 import org.evosuite.statistics.StatisticsListener;
 import org.evosuite.testcase.TestChromosome;
-import org.evosuite.testcase.TestFitnessFunction;
-import org.evosuite.testsuite.RelativeSuiteLengthBloatControl;
-import org.evosuite.testsuite.StatementsPopulationLimit;
-import org.evosuite.testsuite.TestSuiteChromosome;
-import org.evosuite.testsuite.TestSuiteFitnessFunction;
+import org.evosuite.testsuite.*;
 import org.evosuite.utils.ResourceController;
 
 import java.util.Collection;
@@ -135,7 +132,7 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
     @Override
     final protected boolean shouldApplyLocalSearch()
             throws UnsupportedOperationException {
-        throw new UnsupportedOperationException("not implemented");
+        return algorithm.shouldApplyLocalSearch();
     }
 
     @Override
@@ -156,7 +153,7 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
 
     @Override
     final protected void applyLocalSearch() throws UnsupportedOperationException {
-        throw new UnsupportedOperationException("not implemented");
+        algorithm.applyLocalSearch();
     }
 
     @Override
@@ -272,9 +269,25 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
 
     @Override
     public void addBloatControl(BloatControlFunction<TestSuiteChromosome> bloatControl)
-            throws UnsupportedOperationException { // (8)
-        throw new UnsupportedOperationException("unimplemented during refactoring");
-        // algorithm.addBloatControl(bloatControl);
+            throws IllegalArgumentException { // (8)
+        if (algorithm != null) {
+            algorithm.setBloatControl(mapBloatControlToTestLevel(bloatControl));
+        }
+    }
+
+    private BloatControlFunction<TestChromosome> mapBloatControlToTestLevel(
+            BloatControlFunction<TestSuiteChromosome> bloatControl) {
+        if (bloatControl instanceof RelativeSuiteLengthBloatControl) {
+            final RelativeSuiteLengthBloatControl<?> bcf =
+                    (RelativeSuiteLengthBloatControl<?>) bloatControl;
+            return new RelativeSuiteLengthBloatControl<>(bcf);
+        } else if (bloatControl instanceof MaxSizeBloatControl) {
+            final MaxSizeBloatControl<?> bcf =
+                    (MaxSizeBloatControl<?>) bloatControl;
+            return new MaxSizeBloatControl<>(bcf);
+        } else {
+            throw new IllegalArgumentException("cannot adapt bloat control function " + bloatControl);
+        }
     }
 
     @Override
@@ -465,7 +478,7 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
 
     @Override
     final public boolean isFinished() throws UnsupportedOperationException {
-        throw new UnsupportedOperationException("not implemented");
+        return algorithm.isFinished();
     }
 
     @SuppressWarnings("StatementWithEmptyBody")
@@ -514,11 +527,16 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
     private static <T extends Chromosome<T>, U extends Chromosome<U>> StoppingCondition<T>
             mapStoppingCondition(StoppingCondition<U> stoppingCondition) {
         if (stoppingCondition instanceof MaxTimeStoppingCondition) {
-            return new MaxTimeStoppingCondition<>();
+            return new MaxTimeStoppingCondition<>((MaxTimeStoppingCondition<?>) stoppingCondition);
         } else if (stoppingCondition instanceof MaxGenerationStoppingCondition) {
-            return new MaxGenerationStoppingCondition<>();
-        } else
-            throw new IllegalArgumentException("Cannot map stopping condition from test suite level to test case level");
+            return new MaxGenerationStoppingCondition<>((MaxGenerationStoppingCondition<?>) stoppingCondition);
+        } else if (stoppingCondition instanceof RMIStoppingCondition) {
+            return RMIStoppingCondition.getInstance();
+        } else if (stoppingCondition instanceof ShutdownTestWriter) {
+            return new ShutdownTestWriter<>((ShutdownTestWriter<?>) stoppingCondition);
+        } else {
+            throw new IllegalArgumentException("cannot adapt stopping condition: " + stoppingCondition);
+        }
     }
 
     @Override
