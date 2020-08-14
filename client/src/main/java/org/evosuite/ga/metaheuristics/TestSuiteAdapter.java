@@ -536,6 +536,8 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
             return RMIStoppingCondition.getInstance();
         } else if (stoppingCondition instanceof ShutdownTestWriter) {
             return new ShutdownTestWriter<>((ShutdownTestWriter<?>) stoppingCondition);
+        } else if (stoppingCondition instanceof MaxStatementsStoppingCondition) {
+            return new MaxStatementsStoppingCondition<>((MaxStatementsStoppingCondition<?>) stoppingCondition);
         } else {
             throw new IllegalArgumentException("cannot adapt stopping condition: " + stoppingCondition);
         }
