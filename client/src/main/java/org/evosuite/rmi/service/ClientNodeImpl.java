@@ -430,7 +430,12 @@ public class ClientNodeImpl<T extends Chromosome<T>>
 				}
 
 				try {
+					// We have to deactivate the archive when measuring coverage
+					// otherwise it would complain about unknown goals
+					boolean archive = Properties.TEST_ARCHIVE;
+					Properties.TEST_ARCHIVE = false;
 					CoverageAnalysis.analyzeCoverage();
+					Properties.TEST_ARCHIVE = archive;
 
 				} catch (Throwable t) {
 					logger.error("Error when analysing coverage for: "

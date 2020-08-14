@@ -540,6 +540,10 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
             return RMIStoppingCondition.getInstance();
         } else if (stoppingCondition instanceof ShutdownTestWriter) {
             return new ShutdownTestWriter<>((ShutdownTestWriter<?>) stoppingCondition);
+        } else if (stoppingCondition instanceof MaxStatementsStoppingCondition) {
+            return new MaxStatementsStoppingCondition<>((MaxStatementsStoppingCondition<?>) stoppingCondition);
+        } else if (stoppingCondition instanceof GlobalTimeStoppingCondition) {
+            return new GlobalTimeStoppingCondition<>((GlobalTimeStoppingCondition<?>) stoppingCondition);
         } else if (stoppingCondition instanceof SocketStoppingCondition) {
             return SocketStoppingCondition.getInstance();
         } else {
