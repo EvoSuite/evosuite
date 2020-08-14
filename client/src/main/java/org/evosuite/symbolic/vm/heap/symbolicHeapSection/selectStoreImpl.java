@@ -38,7 +38,7 @@ import java.util.Map;
  *
  * @author Ignacio Lebrero
  */
-public class selectStoreImpl implements SymbolicHeapArraySection {
+public class selectStoreImpl implements ArraysSection {
 
   /**
    * Symbolic Arrays Memory model

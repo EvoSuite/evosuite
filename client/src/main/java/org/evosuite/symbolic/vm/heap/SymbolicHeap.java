@@ -28,7 +28,7 @@ import org.evosuite.symbolic.expr.ref.ReferenceExpression;
 import org.evosuite.symbolic.expr.ref.ReferenceVariable;
 import org.evosuite.symbolic.expr.str.StringValue;
 import org.evosuite.symbolic.vm.ExpressionFactory;
-import org.evosuite.symbolic.vm.heap.symbolicHeapSection.SymbolicHeapArraySection;
+import org.evosuite.symbolic.vm.heap.symbolicHeapSection.ArraysSection;
 import org.evosuite.symbolic.vm.heap.symbolicHeapSection.SymbolicHeapArraySectionFactory;
 import org.objectweb.asm.Type;
 import org.slf4j.Logger;
@@ -71,7 +71,7 @@ public final class SymbolicHeap {
 	/**
 	 * Array's memory model
 	 */
-	private SymbolicHeapArraySection symbolicArrays;
+	private ArraysSection symbolicArrays;
 
 	/**
 	 * Stores a mapping between identityHashCodes and NonNullReferences. Every

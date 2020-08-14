@@ -39,7 +39,7 @@ import java.util.Map;
  *
  * @author Ignacio Lebrero
  */
-public class LazyArraysImpl implements SymbolicHeapArraySection {
+public class LazyArraysImpl implements ArraysSection {
 
   /**
    * Symbolic Arrays Memory model

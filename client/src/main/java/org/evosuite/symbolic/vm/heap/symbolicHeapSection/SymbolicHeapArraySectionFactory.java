@@ -29,7 +29,7 @@ import org.evosuite.Properties;
 public class SymbolicHeapArraySectionFactory {
   private final static String DSE_ARRAYS_MEMORY_MODEL_NOT_PROVIDED = "An array memory model type must be provided.";
 
-  public static SymbolicHeapArraySection getSymbolicHeapArray(Properties.DSE_ARRAYS_MEMORY_MODEL_VERSION arraysMemoryModelVersion) {
+  public static ArraysSection getSymbolicHeapArray(Properties.DSE_ARRAYS_MEMORY_MODEL_VERSION arraysMemoryModelVersion) {
     if (arraysMemoryModelVersion == null) {
       throw new IllegalArgumentException(DSE_ARRAYS_MEMORY_MODEL_NOT_PROVIDED);
     }

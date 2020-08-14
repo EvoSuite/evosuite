@@ -34,7 +34,7 @@ import org.objectweb.asm.Type;
  *
  * @author Ignacio Lebrero
  */
-public interface SymbolicHeapArraySection {
+public interface ArraysSection {
 
 	/** Instances creation and initialization */
 	ReferenceVariable createVariableArray(Object concreteArray, int instanceId, String name);
