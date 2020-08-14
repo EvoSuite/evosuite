@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -44,13 +44,21 @@ public class MIOSystemTest extends SystemTestBase {
     String targetClass = BMICalculator.class.getCanonicalName();
     Properties.TARGET_CLASS = targetClass;
 
-    String[] command = new String[] {"-generateSuite", "-class", targetClass};
+    String[] command = new String[] {"-generateMOSuite", "-Dalgorithm=MIO", "-Dstrategy=MOSuite",
+            "-Dclient_on_thread=true",
+            "-class", targetClass};
 
     EvoSuite evoSuite = new EvoSuite();
-    GeneticAlgorithm<?> ga = getGAFromResult(evoSuite.parseCommandLine(command));
-    Assert.assertEquals(MIO.class, ga.getClass());
 
-    TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+    GeneticAlgorithm<?> ga = getGAFromResult(evoSuite.parseCommandLine(command));
+    Assert.assertEquals(TestSuiteAdapter.class, ga.getClass());
+
+    @SuppressWarnings("unchecked")
+    TestSuiteAdapter<MIO> mio = (TestSuiteAdapter<MIO>) ga;
+
+    Assert.assertEquals(MIO.class, mio.getAlgorithm().getClass());
+
+    TestSuiteChromosome best = mio.getBestIndividual();
     System.out.println("EvolvedTestSuite:\n" + best);
     Assert.assertEquals(0.0, best.getFitness(), 0.0);
     Assert.assertEquals(1d, best.getCoverage(), 0.001);

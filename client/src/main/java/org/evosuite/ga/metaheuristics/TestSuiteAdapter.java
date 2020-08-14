@@ -540,7 +540,10 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
             return new ShutdownTestWriter<>((ShutdownTestWriter<?>) stoppingCondition);
         } else if (stoppingCondition instanceof MaxStatementsStoppingCondition) {
             return new MaxStatementsStoppingCondition<>((MaxStatementsStoppingCondition<?>) stoppingCondition);
-        } else {
+        } else if (stoppingCondition instanceof GlobalTimeStoppingCondition) {
+            return new GlobalTimeStoppingCondition<>((GlobalTimeStoppingCondition<?>) stoppingCondition);
+        }
+        else {
             throw new IllegalArgumentException("cannot adapt stopping condition: " + stoppingCondition);
         }
     }
