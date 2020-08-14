@@ -83,6 +83,8 @@ public class TestSuiteGenerator {
 
 	private void initializeTargetClass() throws Throwable {
 		String cp = ClassPathHandler.getInstance().getTargetProjectClasspath();
+		DependencyAnalysis.analyzeClass(Properties.TARGET_CLASS, Arrays.asList(cp.split(File.pathSeparator)));
+
 		// Here is where the <clinit> code should be invoked for the first time
 		DefaultTestCase test = buildLoadTargetClassTestCase(Properties.TARGET_CLASS);
 		ExecutionResult execResult = TestCaseExecutor.getInstance().execute(test, Integer.MAX_VALUE);
@@ -98,7 +100,6 @@ public class TestSuiteGenerator {
 			throw t;
 		}
 
-		DependencyAnalysis.analyzeClass(Properties.TARGET_CLASS, Arrays.asList(cp.split(File.pathSeparator)));
 		LoggingUtils.getEvoLogger().info("* " + ClientProcess.getPrettyPrintIdentifier() + "Finished analyzing classpath");
 	}
 

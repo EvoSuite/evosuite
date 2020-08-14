@@ -213,6 +213,7 @@ public class ChangeMutationSystemTest extends SystemTestBase {
 	@Test
 	public void testTwoIntsLineCoverage() throws NoSuchMethodException, SecurityException, ClassNotFoundException, ConstructionFailedException {
 		Properties.TARGET_CLASS = IntExampleWithNoElse.class.getCanonicalName();
+		Properties.TEST_ARCHIVE = false;
 		TestChromosome test1 = new TestChromosome();
 		test1.setTestCase(getTwoIntTest(1000, 100));
 		TestChromosome test2 = new TestChromosome();
