@@ -13,6 +13,8 @@ import java.util.List;
  * {@code TestSuiteChromosome}s are expected instead of {@code TestChromosome}s.
  */
 public class LIPSTestSuiteAdapter extends TestSuiteAdapter<LIPS> {
+    private static final long serialVersionUID = 1117769624742868642L;
+
     public LIPSTestSuiteAdapter(LIPS algorithm) {
         super(algorithm);
     }

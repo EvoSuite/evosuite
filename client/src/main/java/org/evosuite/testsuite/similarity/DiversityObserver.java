@@ -39,6 +39,8 @@ public class DiversityObserver implements SearchListener<TestSuiteChromosome> {
 
     private static final Logger logger = LoggerFactory.getLogger(DiversityObserver.class);
 
+    private static final long serialVersionUID = -3761776930918618235L;
+
     public DiversityObserver() {
         // empty default constructor
     }
