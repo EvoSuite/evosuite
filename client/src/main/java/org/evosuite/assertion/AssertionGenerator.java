@@ -227,7 +227,7 @@ public abstract class AssertionGenerator {
 			Properties.resetTargetClass();
 			Properties.getInitializedTargetClass();
 
-			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Mutants, MutationPool.getMutantCounter());
+			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Mutants, MutationPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getMutantCounter());
 
 			for(TestChromosome test : suite.getTestChromosomes()) {
 				DefaultTestCase dtest = (DefaultTestCase) test.getTestCase();

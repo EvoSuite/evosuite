@@ -36,6 +36,8 @@ import org.slf4j.LoggerFactory;
  */
 public class SocketStoppingCondition<T extends Chromosome<T>> implements StoppingCondition<T> {
 
+	private static final long serialVersionUID = -8260473153410290373L;
+
 	// There should only be one instance that opens the socket -> singleton design pattern
 	private static SocketStoppingCondition<?> instance = null;
 

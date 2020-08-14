@@ -40,11 +40,11 @@ public class TryCatchCoverageSuiteFitness extends BranchCoverageSuiteFitness {
     /**
      * Make sure we only include artificial branches
      */
-    protected void determineCoverageGoals() {
+    protected void determineCoverageGoals(boolean updateArchive) {
         List<TryCatchCoverageTestFitness> goals = new TryCatchCoverageFactory().getCoverageGoals();
         for (TryCatchCoverageTestFitness goal : goals) {
 
-            if(Properties.TEST_ARCHIVE)
+            if(updateArchive && Properties.TEST_ARCHIVE)
                 Archive.getArchiveInstance().addTarget(goal);
 
             branchesId.add(goal.getBranch().getActualBranchId());

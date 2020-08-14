@@ -414,7 +414,7 @@ public class DependencyAnalysis {
 						.getInstance()
 						.getClientNode()
 						.trackOutputVariable(RuntimeVariable.Mutants,
-								MutationPool.getMutantCounter());
+								MutationPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getMutantCounter());
 				break;
 
 			default:

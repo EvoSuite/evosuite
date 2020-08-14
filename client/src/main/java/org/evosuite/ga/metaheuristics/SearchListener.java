@@ -21,13 +21,15 @@ package org.evosuite.ga.metaheuristics;
 
 import org.evosuite.ga.Chromosome;
 
+import java.io.Serializable;
+
 
 /**
  * A listener that can be attached to the search
  *
  * @author Gordon Fraser
  */
-public interface SearchListener<T extends Chromosome<T>> {
+public interface SearchListener<T extends Chromosome<T>> extends Serializable {
 
 	/**
 	 * Called when a new search is started

@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.evosuite.PackageInfo;
+import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.mutation.Mutation;
 import org.evosuite.coverage.mutation.MutationPool;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
@@ -194,7 +195,7 @@ public class ReplaceArithmeticOperator implements MutationOperator {
 
 			InsnNode mutation = new InsnNode(opcode);
 			// insert mutation into pool
-			Mutation mutationObject = MutationPool.addMutation(className,
+			Mutation mutationObject = MutationPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).addMutation(className,
 			                                                   methodName,
 			                                                   NAME + " "
 			                                                           + getOp(node.getOpcode())

@@ -32,6 +32,8 @@ import org.evosuite.testsuite.TestSuiteChromosome;
 
 public class BranchCoverageMap implements SearchListener<TestSuiteChromosome> {
 
+	private static final long serialVersionUID = -3498997999289782541L;
+
 	public static BranchCoverageMap instance = null;
 	
 	private Map<Integer, TestCase> coveredTrueBranches;

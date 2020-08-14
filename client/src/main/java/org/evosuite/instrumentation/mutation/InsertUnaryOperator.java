@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.mutation.Mutation;
 import org.evosuite.coverage.mutation.MutationPool;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
@@ -143,7 +144,7 @@ public class InsertUnaryOperator implements MutationOperator {
 		int i = 0;
 		for (InsnList mutation : mutationCode) {
 			// insert mutation into pool
-			Mutation mutationObject = MutationPool.addMutation(className,
+			Mutation mutationObject = MutationPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).addMutation(className,
 			                                                   methodName,
 			                                                   NAME + " "
 			                                                           + descriptions.get(i++),

@@ -112,6 +112,7 @@ public class SystemTestBase {
 		Properties.SERIALIZE_RESULT = false;
 		Properties.JUNIT_TESTS = false;
 		Properties.PLOT = false;
+		Properties.CLASS_PREFIX = "";
 
 		Properties.STOPPING_CONDITION = StoppingCondition.MAXSTATEMENTS;
 		Properties.SEARCH_BUDGET = 30000;

@@ -30,6 +30,7 @@ import java.util.Set;
 
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
+import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.mutation.Mutation;
 import org.evosuite.coverage.mutation.MutationObserver;
 import org.evosuite.coverage.mutation.MutationPool;
@@ -89,7 +90,7 @@ public abstract class MutationAssertionGenerator extends AssertionGenerator {
 	 * Default constructor
 	 */
 	public MutationAssertionGenerator() {
-		for (Mutation m : MutationPool.getMutants()) {
+		for (Mutation m : MutationPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getMutants()) {
 			mutants.put(m.getId(), m);
 		}
 		TestCaseExecutor.getInstance().newObservers();
@@ -186,7 +187,7 @@ public abstract class MutationAssertionGenerator extends AssertionGenerator {
 			ClassReInitializer.getInstance().setReInitializeAllClasses(reset_all_classes);
 		}
 		changeClassLoader(suite);
-		for (Mutation m : MutationPool.getMutants()) {
+		for (Mutation m : MutationPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getMutants()) {
 			mutants.put(m.getId(), m);
 		}
 	}
@@ -207,7 +208,7 @@ public abstract class MutationAssertionGenerator extends AssertionGenerator {
 	 * @param tkilled
 	 */
 	protected void calculateMutationScore(Set<Integer> tkilled) {
-		if (MutationPool.getMutantCounter() == 0) {
+		if (MutationPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getMutantCounter() == 0) {
 			Properties.CRITERION = oldCriterion;
 			// SearchStatistics.getInstance().mutationScore(1.0);
 			LoggingUtils.getEvoLogger()
@@ -215,7 +216,7 @@ public abstract class MutationAssertionGenerator extends AssertionGenerator {
 			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.MutationScore, 1.0);
 
 		} else {
-			double score = (double) tkilled.size() / (double) MutationPool.getMutantCounter();
+			double score = (double) tkilled.size() / (double) MutationPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getMutantCounter();
 			// SearchStatistics.getInstance().mutationScore(score);
 			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.MutationScore, score);
 			LoggingUtils.getEvoLogger().info(
@@ -232,7 +233,7 @@ public abstract class MutationAssertionGenerator extends AssertionGenerator {
 	protected int getNumKilledMutants(TestCase test, Map<Mutation, List<OutputTrace<?>>> mutation_traces,
 			List<Mutation> executedMutants) {
 		List<Assertion> assertions;
-		Set<Integer> killed = new HashSet<Integer>();
+		Set<Integer> killed = new HashSet<>();
 		assertions = test.getAssertions();
 		for (Assertion assertion : assertions) {
 			for (Mutation m : executedMutants) {

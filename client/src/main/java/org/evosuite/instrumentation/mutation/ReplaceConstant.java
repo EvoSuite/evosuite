@@ -25,6 +25,7 @@ package org.evosuite.instrumentation.mutation;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.mutation.Mutation;
 import org.evosuite.coverage.mutation.MutationPool;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
@@ -66,7 +67,7 @@ public class ReplaceConstant implements MutationOperator {
 			if (replacement instanceof String) {
 				summary = summary.replace("*/", "*_/");
 			}
-			Mutation mutationObject = MutationPool.addMutation(className,
+			Mutation mutationObject = MutationPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).addMutation(className,
 			                                                   methodName,
 			                                                   summary,
 			                                                   instruction,

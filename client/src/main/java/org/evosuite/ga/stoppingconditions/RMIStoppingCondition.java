@@ -28,6 +28,8 @@ import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
  */
 public class RMIStoppingCondition<T extends Chromosome<T>> implements StoppingCondition<T> {
 
+	private static final long serialVersionUID = 3073266508021896691L;
+
 	private static RMIStoppingCondition<?> instance = null;
 
 	private boolean isStopped = false;
