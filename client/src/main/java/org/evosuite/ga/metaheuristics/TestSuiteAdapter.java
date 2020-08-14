@@ -39,6 +39,8 @@ import static java.util.stream.Collectors.toSet;
 public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome>>
         extends GeneticAlgorithm<TestSuiteChromosome> {
 
+    private static final long serialVersionUID = -506409298544885038L;
+
     private final A algorithm;
 
     /**
@@ -631,6 +633,8 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
      * is fine.
      */
     private static class TestSuiteFitnessFunctionWrapper extends TestSuiteFitnessFunction {
+        private static final long serialVersionUID = 5136258490569674883L;
+
         private final boolean maximizationFunction;
 
         TestSuiteFitnessFunctionWrapper(FitnessFunction<TestChromosome> fitnessFunction) {

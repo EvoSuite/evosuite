@@ -13,6 +13,7 @@ import java.util.*;
  * {@code TestSuiteChromosome}s are expected instead of {@code TestChromosome}s.
  */
 public class MOSATestSuiteAdapter extends TestSuiteAdapter<AbstractMOSA> {
+    private static final long serialVersionUID = 1556980428376303737L;
 
     public MOSATestSuiteAdapter(final AbstractMOSA algorithm) {
         super(algorithm);
