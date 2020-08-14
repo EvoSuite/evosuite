@@ -36,6 +36,8 @@ import org.slf4j.LoggerFactory;
  */
 public class SocketStoppingCondition<T extends Chromosome<T>> implements StoppingCondition<T> {
 
+	private static final long serialVersionUID = -8260473153410290373L;
+
 	private volatile boolean interrupted;
 
 	private static final Logger logger = LoggerFactory.getLogger(SocketStoppingCondition.class);

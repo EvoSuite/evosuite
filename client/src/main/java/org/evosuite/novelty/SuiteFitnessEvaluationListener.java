@@ -12,6 +12,8 @@ import java.util.List;
 
 public class SuiteFitnessEvaluationListener implements SearchListener<TestChromosome> {
 
+    private static final long serialVersionUID = 3871230464292232335L;
+
     private final List<TestSuiteFitnessFunction> fitnessFunctions;
 
     public SuiteFitnessEvaluationListener(List<TestSuiteFitnessFunction> fitnessFunctions) {

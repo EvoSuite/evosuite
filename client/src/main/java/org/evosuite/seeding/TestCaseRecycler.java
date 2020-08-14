@@ -50,6 +50,8 @@ import org.evosuite.testsuite.TestSuiteChromosome;
  */
 public final class TestCaseRecycler<T extends Chromosome<T>> implements SearchListener<T> {
 
+	private static final long serialVersionUID = -2372656982678139994L;
+
 	private static TestCaseRecycler<?> instance;
 
 	private final Set<TestCase> testPool;
