@@ -228,7 +228,8 @@ public class DependencyAnalysis {
 				&& !className.startsWith("sunw.")
 				&& !className.startsWith("org.jcp.")
 				&& !className.startsWith("org.ietf.") 
-				&& !className.startsWith("daikon.");
+				&& !className.startsWith("daikon.")
+				&& !className.startsWith("jdk.");
 	}
 
 //	private static String getProjectPackageApprox(String qualifiedName) {
@@ -278,7 +279,8 @@ public class DependencyAnalysis {
 		// Also analyze if it is in the calltree and we are considering the
 		// context
 		if (Properties.INSTRUMENT_CONTEXT
-				|| ArrayUtil.contains(Properties.CRITERION, Criterion.DEFUSE)) {
+				|| ArrayUtil.contains(Properties.CRITERION, Criterion.DEFUSE)
+				|| ArrayUtil.contains(Properties.CRITERION, Criterion.IBRANCH)) {
 			CallGraph callGraph = callGraphs.get(Properties.TARGET_CLASS);
 			if (callGraph != null && callGraph.isCalledClass(className)) {
 				return true;
