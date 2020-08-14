@@ -38,21 +38,38 @@ public class SocketStoppingCondition<T extends Chromosome<T>> implements Stoppin
 
 	private static final long serialVersionUID = -8260473153410290373L;
 
-	private volatile boolean interrupted;
+	// There should only be one instance that opens the socket -> singleton design pattern
+	private static SocketStoppingCondition<?> instance = null;
+
+	private volatile boolean interrupted = false;
 
 	private static final Logger logger = LoggerFactory.getLogger(SocketStoppingCondition.class);
 
-	public SocketStoppingCondition() {
-		this.interrupted = false;
+	private SocketStoppingCondition() {
+		// singleton pattern
 	}
 
-	public SocketStoppingCondition(SocketStoppingCondition<?> that) {
-		this.interrupted = that.interrupted;
+	@SuppressWarnings("unchecked")
+	public static <T extends Chromosome<T>> SocketStoppingCondition<T> getInstance() {
+		if (instance == null) {
+			instance = new SocketStoppingCondition<>();
+		}
+
+		// Unchecked cast always succeeds as long as we're not actually doing anything with a `T`
+		// instance.
+		return (SocketStoppingCondition<T>) instance;
 	}
 
+	/**
+	 * Always throws an {@code UnsupportedOperationException} when called. Singletons cannot be
+	 * cloned.
+	 *
+	 * @return never returns, always fails
+	 * @throws UnsupportedOperationException always
+	 */
 	@Override
-	public SocketStoppingCondition<T> clone() {
-		return new SocketStoppingCondition<>(this);
+	public StoppingCondition<T> clone() throws UnsupportedOperationException {
+		throw new UnsupportedOperationException("cannot clone singleton");
 	}
 
 	/**
