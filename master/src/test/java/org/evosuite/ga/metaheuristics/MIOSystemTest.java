@@ -45,7 +45,6 @@ public class MIOSystemTest extends SystemTestBase {
     Properties.TARGET_CLASS = targetClass;
 
     String[] command = new String[] {"-generateMOSuite", "-Dalgorithm=MIO", "-Dstrategy=MOSuite",
-            "-Dclient_on_thread=true",
             "-class", targetClass};
 
     EvoSuite evoSuite = new EvoSuite();
