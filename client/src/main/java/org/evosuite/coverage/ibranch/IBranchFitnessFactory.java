@@ -52,7 +52,7 @@ public class IBranchFitnessFactory extends AbstractFitnessFactory<IBranchTestFit
 	@Override
 	public List<IBranchTestFitness> getCoverageGoals() {
 		//TODO this creates duplicate goals. Momentary fixed using a Set.
-		Set<IBranchTestFitness> goals = new HashSet<IBranchTestFitness>();
+		Set<IBranchTestFitness> goals = new HashSet<>();
 
 		// retrieve set of branches
 		BranchCoverageFactory branchFactory = new BranchCoverageFactory();
@@ -74,7 +74,7 @@ public class IBranchFitnessFactory extends AbstractFitnessFactory<IBranchTestFit
 		assert(goals.size()>=branchFactory.getCoverageGoals().size());
 		logger.info("Created " + goals.size() + " goals");
 		
-		return new ArrayList<IBranchTestFitness>(goals);
+		return new ArrayList<>(goals);
 	}
 }
 

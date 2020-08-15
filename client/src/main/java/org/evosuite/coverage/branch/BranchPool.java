@@ -303,9 +303,9 @@ public class BranchPool {
 		String methodName = b.getMethodName();
 
 		if (!branchMap.containsKey(className))
-			branchMap.put(className, new HashMap<String, List<Branch>>());
+			branchMap.put(className, new HashMap<>());
 		if (!branchMap.get(className).containsKey(methodName))
-			branchMap.get(className).put(methodName, new ArrayList<Branch>());
+			branchMap.get(className).put(methodName, new ArrayList<>());
 		branchMap.get(className).get(methodName).add(b);
 	}
 

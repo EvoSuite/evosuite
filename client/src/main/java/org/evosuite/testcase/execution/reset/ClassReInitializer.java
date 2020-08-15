@@ -49,7 +49,7 @@ import org.evosuite.testcase.variable.VariableReference;
  */
 public class ClassReInitializer {
 
-	private final List<String> initializedClasses = new LinkedList<String>();
+	private final List<String> initializedClasses = new LinkedList<>();
 
 	private static ClassReInitializer instance = null;
 
@@ -158,7 +158,7 @@ public class ClassReInitializer {
 				// reset only classes that were "observed" to have some
 				// GETSTATIC/PUTSTATIC updating their state during test
 				// execution
-				List<String> classesToReset = new LinkedList<String>();
+				List<String> classesToReset = new LinkedList<>();
 				classesToReset.addAll(trace.getClassesWithStaticWrites());
 				if (Properties.RESET_STATIC_FIELD_GETS) {
 					classesToReset.addAll(trace.getClassesWithStaticReads());
