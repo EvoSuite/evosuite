@@ -539,37 +539,41 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 	 */
 	@Override
 	public void clear() {
-		finishedCalls = new ArrayList<MethodCall>();
-		stack = new LinkedList<MethodCall>();
+		finishedCalls = new ArrayList<>();
+		stack = new LinkedList<>();
 
 		// stack.clear();
 		// finished_calls.clear();
 		stack.add(new MethodCall("", "", 0, 0, 0)); // Main method
-		coverage = new HashMap<String, Map<String, Map<Integer, Integer>>>();
-		returnData = new HashMap<String, Map<String, Map<Integer, Integer>>>();
+		coverage = new HashMap<>();
+		returnData = new HashMap<>();
 
 		methodId = 0;
 		duCounter = 0;
 		objectCounter = 0;
-		knownCallerObjects = new HashMap<Integer, Object>();
-		trueDistances = new HashMap<Integer, Double>();
-		falseDistances = new HashMap<Integer, Double>();
-		mutantDistances = new HashMap<Integer, Double>();
-		touchedMutants = new HashSet<Integer>();
-		coveredMethods = new HashMap<String, Integer>();
-		coveredBranchlessMethods = new HashMap<String, Integer>();
-		coveredPredicates = new HashMap<Integer, Integer>();
-		coveredTrue = new HashMap<Integer, Integer>();
-		coveredFalse = new HashMap<Integer, Integer>();
-		coveredDefs = new HashMap<Integer, Integer>();
-		passedDefinitions = new HashMap<String, HashMap<Integer, HashMap<Integer, Integer>>>();
-		passedUses = new HashMap<String, HashMap<Integer, HashMap<Integer, Integer>>>();
-		passedDefinitionObject = new HashMap<String, HashMap<Integer, HashMap<Integer, Object>>>();
-		passedUseObject = new HashMap<String, HashMap<Integer, HashMap<Integer, Object>>>();
-		branchesTrace = new ArrayList<BranchEval>();
-		coveredTrueContext = new HashMap<Integer, Map<CallContext, Double>>();
-		coveredFalseContext = new HashMap<Integer, Map<CallContext, Double>>();
-		coveredPredicateContext = new HashMap<Integer, Map<CallContext, Integer>>();
+		knownCallerObjects = new HashMap<>();
+		trueDistances = new HashMap<>();
+		falseDistances = new HashMap<>();
+		mutantDistances = new HashMap<>();
+		touchedMutants = new HashSet<>();
+		coveredMethods = new HashMap<>();
+		coveredBranchlessMethods = new HashMap<>();
+		coveredPredicates = new HashMap<>();
+		coveredTrue = new HashMap<>();
+		coveredFalse = new HashMap<>();
+		coveredDefs = new HashMap<>();
+		passedDefinitions = new HashMap<>();
+		passedUses = new HashMap<>();
+		passedDefinitionObject = new HashMap<>();
+		passedUseObject = new HashMap<>();
+		branchesTrace = new ArrayList<>();
+		coveredTrueContext = new HashMap<>();
+		coveredFalseContext = new HashMap<>();
+		coveredPredicateContext = new HashMap<>();
+
+		initializedClasses = new ArrayList<>();
+		classesWithStaticReads = new HashSet<>();
+		classesWithStaticWrites  = new HashSet<>();
 	}
 
 	/**
@@ -585,11 +589,11 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 			copy.finishedCalls.add(call.clone());
 		}
 		// copy.finished_calls.addAll(finished_calls);
-		copy.coverage = new HashMap<String, Map<String, Map<Integer, Integer>>>();
+		copy.coverage = new HashMap<>();
 		if (coverage != null) {
 			copy.coverage.putAll(coverage);
 		}
-		copy.returnData = new HashMap<String, Map<String, Map<Integer, Integer>>>();
+		copy.returnData = new HashMap<>();
 		copy.returnData.putAll(returnData);
 		/*
 		 * if(stack != null && !stack.isEmpty() && stack.peek().method_name !=
@@ -615,6 +619,10 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 		copy.coveredTrueContext.putAll(coveredTrueContext);
 		copy.coveredFalseContext.putAll(coveredFalseContext);
 		copy.coveredPredicateContext.putAll(coveredPredicateContext);
+
+		copy.initializedClasses.addAll(initializedClasses);
+		copy.classesWithStaticReads.addAll(classesWithStaticReads);
+		copy.classesWithStaticWrites.addAll(classesWithStaticWrites);
 
 		copy.methodId = methodId;
 		copy.duCounter = duCounter;
@@ -1762,7 +1770,7 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 	 * This set keeps those classes that have a static write (i.e. PUTSTATIC)
 	 * during test execution.
 	 */
-	private final HashSet<String> classesWithStaticWrites = new HashSet<String>();
+	private HashSet<String> classesWithStaticWrites = new HashSet<String>();
 
 	@Override
 	public void putStaticPassed(String classNameWithDots, String fieldName) {
@@ -1773,7 +1781,7 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 	 * This set keeps those classes that have a static read (i.e. GETSTATIC)
 	 * during test execution.
 	 */
-	private final HashSet<String> classesWithStaticReads = new HashSet<String>();
+	private HashSet<String> classesWithStaticReads = new HashSet<>();
 
 	@Override
 	public void getStaticPassed(String classNameWithDots, String fieldName) {
@@ -1790,7 +1798,7 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 	 * <clinit> was completed during this test execution). The list has no
 	 * repetitions.
 	 */
-	private final List<String> initializedClasses = new LinkedList<String>();
+	private List<String> initializedClasses = new LinkedList<>();
 
 	/**
 	 * Adds the class to the list of those classes that were initialized during
