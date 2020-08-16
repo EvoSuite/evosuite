@@ -104,7 +104,7 @@ public class DependencyAnalysis {
 
 	}
 
-	private static void analyze(String className, List<String> classPath) throws RuntimeException,
+	private static void analyze(String className) throws RuntimeException,
 			ClassNotFoundException {
 
 		if (!inheritanceTree.hasClass(Properties.TARGET_CLASS)) {
@@ -135,7 +135,7 @@ public class DependencyAnalysis {
 			ClassNotFoundException {
 
 		initInheritanceTree(classPath);
-		analyze(className, classPath);
+		analyze(className);
 	}
 
 	/**
@@ -151,7 +151,7 @@ public class DependencyAnalysis {
 		targetClasses = ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getAllClasses(target, false);
 		for (String className : targetClasses) {
 			Properties.TARGET_CLASS = className;
-			analyze(className, classPath);
+			analyze(className);
 		}
 
 		return targetClasses;

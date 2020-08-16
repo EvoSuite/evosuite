@@ -83,6 +83,10 @@ public class TestSuiteGenerator {
 
 	private void initializeTargetClass() throws Throwable {
 		String cp = ClassPathHandler.getInstance().getTargetProjectClasspath();
+
+		// Generate inheritance tree and call graph *before* loading the CUT
+		// as these are required for instrumentation for context-sensitive
+		// criteria (e.g. ibranch)
 		DependencyAnalysis.initInheritanceTree(Arrays.asList(cp.split(File.pathSeparator)));
 		DependencyAnalysis.initCallGraph(Properties.TARGET_CLASS);
 
@@ -101,6 +105,9 @@ public class TestSuiteGenerator {
 			throw t;
 		}
 
+		// Analysis has to happen *after* the CUT is loaded since it will cause
+		// several other classes to be loaded (including the CUT), but we require
+		// the CUT to be loaded first
 		DependencyAnalysis.analyzeClass(Properties.TARGET_CLASS, Arrays.asList(cp.split(File.pathSeparator)));
 		LoggingUtils.getEvoLogger().info("* " + ClientProcess.getPrettyPrintIdentifier() + "Finished analyzing classpath");
 	}
