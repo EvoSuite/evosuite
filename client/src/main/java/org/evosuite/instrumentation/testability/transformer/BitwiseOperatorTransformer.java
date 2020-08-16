@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -33,9 +33,7 @@ import org.objectweb.asm.tree.MethodNode;
  * Make sure bitwise operations on transformed Booleans are still valid
  */
 public class BitwiseOperatorTransformer extends MethodNodeTransformer {
-	/**
-	 * 
-	 */
+
 	private final BooleanTestabilityTransformation booleanTestabilityTransformation;
 
 	/**

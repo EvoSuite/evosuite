@@ -23,7 +23,6 @@ import java.io.Serializable;
 import java.util.List;
 
 import org.evosuite.ga.Chromosome;
-import org.evosuite.testsuite.TestSuiteChromosome;
 
 /**
  * <p>PopulationLimit interface.</p>

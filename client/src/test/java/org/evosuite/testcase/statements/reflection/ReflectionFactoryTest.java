@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -29,8 +29,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
 import java.lang.reflect.Field;
-
-import static org.junit.Assert.*;
 
 /**
  * Created by Andrea Arcuri on 11/08/15.

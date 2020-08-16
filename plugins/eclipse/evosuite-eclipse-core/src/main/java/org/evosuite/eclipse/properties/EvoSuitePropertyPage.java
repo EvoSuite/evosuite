@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -134,9 +134,7 @@ public class EvoSuitePropertyPage extends PropertyPage {
 	// public static QualifiedName RUNNER_PROP_KEY = new QualifiedName("EvoSuite",
 	//        "Use EvoSuite JUnit runner in generated test suites");
 
-	/**
-     * 
-     */
+
 	public EvoSuitePropertyPage() {
 		super();
 	}

@@ -1663,10 +1663,10 @@ public class Properties {
 	}
 
 	/** All fields representing values, inserted via reflection */
-	private static Map<String, Field> parameterMap = new HashMap<String, Field>();
+	private static Map<String, Field> parameterMap = new HashMap<>();
 
 	/** All fields representing values, inserted via reflection */
-	private static Map<Field, Object> defaultMap = new HashMap<Field, Object>();
+	private static Map<Field, Object> defaultMap = new HashMap<>();
 
 	static {
 		// need to do it once, to capture all the default values
@@ -1677,7 +1677,7 @@ public class Properties {
 	 * Keep track of which fields have been changed from their defaults during
 	 * loading
 	 */
-	private static Set<String> changedFields = new HashSet<String>();
+	private static Set<String> changedFields = new HashSet<>();
 
 	/**
 	 * Get class of parameter
@@ -2368,12 +2368,12 @@ public class Properties {
 			buffer.append(Properties.PROJECT_PREFIX);
 		buffer.append("\n");
 
-		Map<String, Set<Parameter>> fieldMap = new HashMap<String, Set<Parameter>>();
+		Map<String, Set<Parameter>> fieldMap = new HashMap<>();
 		for (Field f : Properties.class.getFields()) {
 			if (f.isAnnotationPresent(Parameter.class)) {
 				Parameter p = f.getAnnotation(Parameter.class);
 				if (!fieldMap.containsKey(p.group()))
-					fieldMap.put(p.group(), new HashSet<Parameter>());
+					fieldMap.put(p.group(), new HashSet<>());
 
 				fieldMap.get(p.group()).add(p);
 			}

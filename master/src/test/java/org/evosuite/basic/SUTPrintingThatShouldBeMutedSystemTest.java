@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -82,7 +82,7 @@ public class SUTPrintingThatShouldBeMutedSystemTest extends SystemTestBase {
 		evosuite.parseCommandLine(command);
 			
 		String printed = byteStream.toString();
-		Assert.assertTrue("PRINTED:\n"+printed,printed.contains("Starting client"));
+		Assert.assertTrue("PRINTED:\n"+printed,printed.contains("Starting Client"));
 		Assert.assertTrue("PRINTED:\n"+printed,printed.contains(msgSUT));		
 
 		//Properties.PRINT_TO_SYSTEM = false;
@@ -98,7 +98,7 @@ public class SUTPrintingThatShouldBeMutedSystemTest extends SystemTestBase {
 		evosuite.parseCommandLine(command);
 			
 		printed = byteStream.toString();
-		Assert.assertTrue("PRINTED:\n"+printed,printed.contains("Starting client"));
+		Assert.assertTrue("PRINTED:\n"+printed,printed.contains("Starting Client"));
 		Assert.assertFalse("PRINTED:\n"+printed,printed.contains(msgSUT));
 		Assert.assertFalse("PRINTED:\n"+printed,printed.contains("ERROR"));
 	}

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -178,7 +178,7 @@ public class IBranchSystemTest extends SystemTestBase {
 		System.out.println("EvolvedTestSuite:\n" + best);
 		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
 		Assert.assertEquals(27, goals );
-		Assert.assertEquals("Non-optimal coverage: ", 0.9259d, best.getCoverage(), 0.01);
+		Assert.assertEquals("Non-optimal coverage: ", 24.0/27.0, best.getCoverage(), 0.01);
 	}
 
 	@Test

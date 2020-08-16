@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite contributors
  *
  * This file is part of EvoSuite.
@@ -14,9 +14,7 @@
  * You should have received a copy of the GNU Lesser General Public License along with EvoSuite. If
  * not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
+
 package org.evosuite.symbolic.expr.str;
 
 import java.util.HashSet;
@@ -135,7 +133,7 @@ public final class StringVariable extends AbstractExpression<String>
 
   @Override
   public Set<Variable<?>> getVariables() {
-    Set<Variable<?>> variables = new HashSet<Variable<?>>();
+    Set<Variable<?>> variables = new HashSet<>();
     variables.add(this);
     return variables;
   }
@@ -148,7 +146,7 @@ public final class StringVariable extends AbstractExpression<String>
   @Override
   public Set<Object> getConstants() {
     // Do not include original values?
-    return new HashSet<Object>();
+    return new HashSet<>();
   }
 
   /*

@@ -2,7 +2,6 @@ package org.evosuite.instrumentation.error;
 
 import com.examples.with.different.packagename.errorbranch.*;
 import org.evosuite.Properties;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class DequeInstrumentationSystemTest extends AbstractErrorBranchTest {

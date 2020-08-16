@@ -28,21 +28,22 @@ import org.evosuite.ga.Chromosome;
  * 
  * @author Annibale Panichella, Fitsum M. Kifetew
  */
-public class OnlyCrowdingComparator implements Comparator<Chromosome>, Serializable {
+public class OnlyCrowdingComparator<T extends Chromosome<T>> implements Comparator<T>,
+		Serializable {
 	
 	private static final long serialVersionUID = -6576898111709166470L;
 
 	/**
 	 * Compare the crowd distance value of two chromosome objects.
 	 * 
-	 * @param c1 a {@link org.evosuite.ga.Chromosome} object
-	 * @param c2 a {@link org.evosuite.ga.Chromosome} object
+	 * @param c1 a {@link Chromosome} object
+	 * @param c2 a {@link Chromosome} object
 	 * @return -1 if crowd distance value of c1 is higher than the crowd distance of c2, 0 if the crowd
      *         distance of both objects is equal, or 1 if crowd distance value of c1 is lower than the
      *         crowd distance of c2.
 	 */
 	@Override
-	public int compare(Chromosome c1, Chromosome c2) {
+	public int compare(T c1, T c2) {
 		return Double.compare(c2.getDistance(), c1.getDistance());
 	}
 }

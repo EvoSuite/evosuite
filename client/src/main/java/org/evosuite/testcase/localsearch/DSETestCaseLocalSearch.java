@@ -142,7 +142,7 @@ public class DSETestCaseLocalSearch extends TestCaseLocalSearch<TestChromosome> 
 	 * @return
 	 */
 	private static Set<Branch> collectUncoveredBranches(Set<Branch> coveredBranches) {
-		Set<Branch> uncoveredBranches = new HashSet<Branch>();
+		Set<Branch> uncoveredBranches = new HashSet<>();
 		for (Branch b : coveredBranches) {
 			final Branch negate = b.negate();
 			if (!coveredBranches.contains(negate)) {

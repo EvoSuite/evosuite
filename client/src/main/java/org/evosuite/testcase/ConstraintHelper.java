@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -24,11 +24,9 @@ import org.evosuite.runtime.util.Inputs;
 import org.evosuite.testcase.statements.*;
 import org.evosuite.testcase.variable.NullReference;
 import org.evosuite.testcase.variable.VariableReference;
-import org.evosuite.utils.Randomness;
 import org.evosuite.utils.generic.GenericAccessibleObject;
 import org.evosuite.utils.generic.GenericMethod;
 
-import java.lang.reflect.AccessibleObject;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -148,7 +146,7 @@ public class ConstraintHelper {
                 continue;
             }
 
-            GenericAccessibleObject ao = st.getAccessibleObject();
+            GenericAccessibleObject<?> ao = st.getAccessibleObject();
             Class<?> declaringClass = ao.getDeclaringClass();
 
             for(String excluded : constraints.excludeOthers()) {
@@ -178,7 +176,7 @@ public class ConstraintHelper {
 
         Statement varSource = tc.getStatement(vr.getStPosition());
         if(varSource instanceof PrimitiveStatement){ //eg for String
-            Object obj = ((PrimitiveStatement)varSource).getValue();
+            Object obj = ((PrimitiveStatement<?>)varSource).getValue();
             if(obj==null){
                 return true;
             }

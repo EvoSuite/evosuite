@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -191,8 +191,8 @@ public class ExceptionTransformationMethodAdapter extends GeneratorAdapter {
         String type;
     }
 
-    private final List<TryCatchBlock> tryCatchBlocks = new LinkedList<TryCatchBlock>();
-    private final List<TryCatchBlock> instrumentedTryCatchBlocks = new LinkedList<TryCatchBlock>();
+    private final List<TryCatchBlock> tryCatchBlocks = new LinkedList<>();
+    private final List<TryCatchBlock> instrumentedTryCatchBlocks = new LinkedList<>();
 
     @Override
     public void visitTryCatchBlock(Label start, Label end, Label handler,

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -40,7 +40,7 @@ public abstract class ChromosomeOutputVariableFactory<T>  {
 	protected abstract T getData(TestSuiteChromosome individual);
 	
 	public OutputVariable<T> getVariable(TestSuiteChromosome chromosome) {
-		return new OutputVariable<T>(variable.name(), getData(chromosome));
+		return new OutputVariable<>(variable.name(), getData(chromosome));
 	}
 
 }

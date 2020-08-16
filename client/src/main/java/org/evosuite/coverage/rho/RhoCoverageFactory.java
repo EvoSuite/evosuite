@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -37,6 +37,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import static java.util.Comparator.comparingInt;
+
 /**
  * 
  * @author José Campos
@@ -48,10 +50,8 @@ public class RhoCoverageFactory extends
 
 	private static final Logger logger = LoggerFactory.getLogger(RhoCoverageFactory.class);
 
-	/**
-	 * 
-	 */
-	private static List<LineCoverageTestFitness> goals = new ArrayList<LineCoverageTestFitness>();
+
+	private static List<LineCoverageTestFitness> goals = new ArrayList<>();
 	
 	/**
 	 * Variables to calculate Rho value
@@ -59,15 +59,11 @@ public class RhoCoverageFactory extends
 	private static int number_of_ones = 0;
 	private static int number_of_test_cases = 0;
 
-	/**
-	 * 
-	 */
+
 	private static double rho = 1.0;
 
-	/**
-	 * 
-	 */
-	private static List<List<Integer>> matrix = new ArrayList<List<Integer>>();
+
+	private static List<List<Integer>> matrix = new ArrayList<>();
 
 	/**
 	 * Read the coverage of a test suite from a file
@@ -88,7 +84,7 @@ public class RhoCoverageFactory extends
 			while ((sCurrentLine = br.readLine()) != null) {
 				split = sCurrentLine.split(" ");
 
-				List<Integer> test = new ArrayList<Integer>();
+				List<Integer> test = new ArrayList<>();
 				for (int i = 0; i < split.length - 1; i++) { // - 1, because we do not want to consider test result
 					if (split[i].compareTo("1") == 0) {
 						test.add(goals.get(i).getLine());
@@ -144,12 +140,7 @@ public class RhoCoverageFactory extends
 		if (Properties.USE_EXISTING_COVERAGE) {
 			// extremely important: before loading any previous coverage (i.e., from a coverage
 			// matrix) goals need to be sorted. otherwise any previous coverage won't match!
-			Collections.sort(goals, new Comparator<LineCoverageTestFitness>() {
-				@Override
-				public int compare(LineCoverageTestFitness l1, LineCoverageTestFitness l2) {
-					return Integer.compare(l1.getLine(), l2.getLine());
-				}
-			});
+			goals.sort(comparingInt(LineCoverageTestFitness::getLine));
 			loadCoverage();
 		} else {
 			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.RhoScore_T0, 1.0);

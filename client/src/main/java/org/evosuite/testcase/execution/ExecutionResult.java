@@ -69,8 +69,8 @@ public class ExecutionResult implements Cloneable {
 	 */
 	protected boolean wasAnyPropertyWritten;
 
-	private List<FeatureVector> featureVectors = new ArrayList<FeatureVector>(1);
-	
+	private List<FeatureVector> featureVectors = new ArrayList<>(1);
+
 	/**
 	 * @return the executedStatements
 	 */

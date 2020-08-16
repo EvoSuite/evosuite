@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -38,7 +38,7 @@ public class StatementCoverageFactory extends
 		long start = System.currentTimeMillis();
 		String targetClass = Properties.TARGET_CLASS;
 
-		List<StatementCoverageTestFitness> goals = new ArrayList<StatementCoverageTestFitness>();
+		List<StatementCoverageTestFitness> goals = new ArrayList<>();
 
 		final MethodNameMatcher matcher = new MethodNameMatcher();
 		

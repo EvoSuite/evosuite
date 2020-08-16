@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
+
 package org.evosuite.utils;
 
 import java.lang.reflect.Constructor;
@@ -335,7 +333,7 @@ public class TestGenericAccessibleObject {
 
 		DefaultTestCase test = new DefaultTestCase();
 		MethodStatement ms1 = new MethodStatement(test, genericCreatorMethod,
-		        (VariableReference) null, new ArrayList<VariableReference>());
+				null, new ArrayList<>());
 		test.addStatement(ms1);
 
 		IntPrimitiveStatement ps1 = (IntPrimitiveStatement) PrimitiveStatement.getPrimitiveStatement(test,
@@ -344,13 +342,13 @@ public class TestGenericAccessibleObject {
 
 		GenericConstructor intConstructor = new GenericConstructor(intConst,
 		        Integer.class);
-		List<VariableReference> constParam = new ArrayList<VariableReference>();
+		List<VariableReference> constParam = new ArrayList<>();
 		constParam.add(ps1.getReturnValue());
 		ConstructorStatement cs1 = new ConstructorStatement(test, intConstructor,
 		        constParam);
 		//test.addStatement(cs1);
 
-		List<VariableReference> callParam = new ArrayList<VariableReference>();
+		List<VariableReference> callParam = new ArrayList<>();
 		callParam.add(ps1.getReturnValue());
 
 		MethodStatement ms2 = new MethodStatement(test, genericMethod,

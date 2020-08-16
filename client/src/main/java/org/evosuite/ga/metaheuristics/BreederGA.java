@@ -4,7 +4,6 @@ import org.evosuite.Properties;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.ConstructionFailedException;
-import org.evosuite.ga.FitnessFunction;
 import org.evosuite.runtime.util.AtMostOnceLogger;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
@@ -25,6 +24,7 @@ import java.util.List;
  */
 public class BreederGA<T extends Chromosome<T>> extends StandardGA<T> {
 
+    private static final long serialVersionUID = 8305884372813786175L;
     private final Logger logger = LoggerFactory.getLogger(BreederGA.class);
 
     /**

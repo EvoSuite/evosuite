@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -79,7 +79,7 @@ public class WriteDependencies {
 
 		ExternalProcessGroupHandler handler = new ExternalProcessGroupHandler();
 		int port = handler.openServer();
-		List<String> cmdLine = new ArrayList<String>();
+		List<String> cmdLine = new ArrayList<>();
 		cmdLine.add(JavaExecCmdUtil.getJavaBinExecutablePath(true)/*EvoSuite.JAVA_CMD*/);
 		cmdLine.add("-cp");
 		cmdLine.add(classPath);
@@ -142,8 +142,8 @@ public class WriteDependencies {
 		if (handler.startProcess(newArgs)) {
 			Set<ClientNodeRemote> clients = null;
 			try {
-				clients = new CopyOnWriteArraySet<ClientNodeRemote>(MasterServices.getInstance().getMasterNode()
-                        .getClientsOnceAllConnected(10000).values());
+				clients = new CopyOnWriteArraySet<>(MasterServices.getInstance().getMasterNode()
+						.getClientsOnceAllConnected(10000).values());
 			} catch (InterruptedException e) {
 			}
 			if (clients == null) {

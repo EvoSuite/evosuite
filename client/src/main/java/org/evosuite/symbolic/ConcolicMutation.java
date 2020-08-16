@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -71,7 +71,7 @@ public class ConcolicMutation {
 	// @SuppressWarnings({ "rawtypes", "unchecked" })
 	public static TestCase negateCondition(List<BranchCondition> pathCondition, BranchCondition targetCondition,
 			TestCase test) {
-		List<Constraint<?>> constraints = new LinkedList<Constraint<?>>();
+		List<Constraint<?>> constraints = new LinkedList<>();
 
 		for (BranchCondition b : pathCondition) {
 			constraints.addAll(b.getSupportingConstraints());
@@ -182,7 +182,7 @@ public class ConcolicMutation {
 		Constraint<?> target = constraints.get(constraints.size() - 1);
 		Set<Variable<?>> dependencies = getVariables(target);
 
-		LinkedList<Constraint<?>> coi = new LinkedList<Constraint<?>>();
+		LinkedList<Constraint<?>> coi = new LinkedList<>();
 		coi.add(target);
 
 		for (int i = constraints.size() - 2; i >= 0; i--) {
@@ -206,7 +206,7 @@ public class ConcolicMutation {
 	 * @return
 	 */
 	private static Set<Variable<?>> getVariables(Constraint<?> constraint) {
-		Set<Variable<?>> variables = new HashSet<Variable<?>>();
+		Set<Variable<?>> variables = new HashSet<>();
 		getVariables(constraint.getLeftOperand(), variables);
 		getVariables(constraint.getRightOperand(), variables);
 		return variables;

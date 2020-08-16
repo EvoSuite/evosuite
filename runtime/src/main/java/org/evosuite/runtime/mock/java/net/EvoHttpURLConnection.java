@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -133,8 +133,8 @@ public class EvoHttpURLConnection extends HttpURLConnection {
         // arbitrarily long.
 
 
-        for (int i = 0; i < methods.length; i++) {
-            if (methods[i].equals(method)) {
+        for (final String m : methods) {
+            if (m.equals(method)) {
                 this.method = method;
                 return;
             }

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
+
 package org.evosuite.setup;
 
 import org.evosuite.PackageInfo;
@@ -55,11 +53,11 @@ import java.util.*;
  */
 public class DependencyAnalysis {
 
-	private static Logger logger = LoggerFactory.getLogger(DependencyAnalysis.class);
+	private static final Logger logger = LoggerFactory.getLogger(DependencyAnalysis.class);
 
-	private static Map<String, ClassNode> classCache = new LinkedHashMap<String, ClassNode>();
+	private static Map<String, ClassNode> classCache = new LinkedHashMap<>();
 
-	private static Map<String, CallGraph> callGraphs = new LinkedHashMap<String, CallGraph>();
+	private static Map<String, CallGraph> callGraphs = new LinkedHashMap<>();
 
 	private static InheritanceTree inheritanceTree = null;
 
@@ -228,7 +226,8 @@ public class DependencyAnalysis {
 				&& !className.startsWith("sunw.")
 				&& !className.startsWith("org.jcp.")
 				&& !className.startsWith("org.ietf.") 
-				&& !className.startsWith("daikon.");
+				&& !className.startsWith("daikon.")
+				&& !className.startsWith("jdk.");
 	}
 
 //	private static String getProjectPackageApprox(String qualifiedName) {
@@ -278,7 +277,8 @@ public class DependencyAnalysis {
 		// Also analyze if it is in the calltree and we are considering the
 		// context
 		if (Properties.INSTRUMENT_CONTEXT
-				|| ArrayUtil.contains(Properties.CRITERION, Criterion.DEFUSE)) {
+				|| ArrayUtil.contains(Properties.CRITERION, Criterion.DEFUSE)
+				|| ArrayUtil.contains(Properties.CRITERION, Criterion.IBRANCH)) {
 			CallGraph callGraph = callGraphs.get(Properties.TARGET_CLASS);
 			if (callGraph != null && callGraph.isCalledClass(className)) {
 				return true;
@@ -414,7 +414,7 @@ public class DependencyAnalysis {
 						.getInstance()
 						.getClientNode()
 						.trackOutputVariable(RuntimeVariable.Mutants,
-								MutationPool.getMutantCounter());
+								MutationPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getMutantCounter());
 				break;
 
 			default:

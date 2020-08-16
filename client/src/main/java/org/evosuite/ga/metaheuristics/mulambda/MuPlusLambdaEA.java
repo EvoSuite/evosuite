@@ -42,7 +42,7 @@ public class MuPlusLambdaEA<T extends Chromosome<T>> extends AbstractMuLambda<T>
   @Override
   protected void evolve() {
 
-    List<T> offsprings = new ArrayList<T>(this.lambda);
+    List<T> offsprings = new ArrayList<>(this.lambda);
 
     // create new offsprings by mutating current population
     for (int i = 0; i < this.mu; i++) {

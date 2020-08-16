@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- *
- */
+
 package org.evosuite.coverage;
 
 import org.evosuite.Properties;
@@ -79,7 +77,7 @@ public class CoverageCriteriaAnalyzer {
             test.clearCachedResults(); // clears last execution result and last mutation result
         }
 
-        Properties.Criterion oldCriterion[] = Arrays.copyOf(Properties.CRITERION, Properties.CRITERION.length);
+        Properties.Criterion[] oldCriterion = Arrays.copyOf(Properties.CRITERION, Properties.CRITERION.length);
         Properties.CRITERION = new Properties.Criterion[]{criterion};
 
         logger.info("Re-instrumenting for criterion: " + criterion);
@@ -111,6 +109,7 @@ public class CoverageCriteriaAnalyzer {
             }
         }
 
+        boolean reinstrumented = false;
         for (String extraCriterion : Arrays.asList(criteria.toUpperCase().split(","))) {
             if (extraCriterion.equals("CBRANCH")) {
                 Properties.INSTRUMENT_METHOD_CALLS = true;
@@ -118,8 +117,16 @@ public class CoverageCriteriaAnalyzer {
             // Analyse coverage for extra criteria
             if (!ArrayUtil.contains(Properties.CRITERION, extraCriterion)) {
                 logger.debug("Measuring additional coverage of target criterion {}", extraCriterion);
+                reinstrumented = true;
                 analyzeCoverage(testSuite, extraCriterion);
             }
+        }
+
+        // If reinstrumentation happened, we might need to restore the original instrumentation
+        // otherwise things like the MutationPool may not be up to date
+        if (reinstrumented) {
+            TestGenerationContext.getInstance().resetContext();
+            Properties.getInitializedTargetClass();
         }
     }
 

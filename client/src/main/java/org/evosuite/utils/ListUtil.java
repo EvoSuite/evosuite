@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -19,10 +19,7 @@
  */
 package org.evosuite.utils;
 
-import org.evosuite.*;
-
 import java.util.*;
-import java.util.Properties;
 
 public abstract class ListUtil {
 	/**
@@ -62,7 +59,7 @@ public abstract class ListUtil {
 	 * @return a {@link java.util.List} object.
 	 */
 	public static <T> List<T> shuffledList(List<T> list) {
-		ArrayList<T> result = new ArrayList<T>(list);
+		ArrayList<T> result = new ArrayList<>(list);
 		Collections.shuffle(result);
 		return result;
 	}
@@ -76,7 +73,7 @@ public abstract class ListUtil {
 	 * @return a {@link java.util.List} object.
 	 */
 	public static <T> List<T> shuffledList(List<T> list, Random rnd) {
-		ArrayList<T> result = new ArrayList<T>(list);
+		ArrayList<T> result = new ArrayList<>(list);
 		Collections.shuffle(result, rnd);
 		return result;
 	}

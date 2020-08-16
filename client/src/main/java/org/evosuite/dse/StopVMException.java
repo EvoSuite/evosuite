@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -21,9 +21,7 @@ package org.evosuite.dse;
 
 public abstract class StopVMException extends RuntimeException {
 
-	/**
-	 * 
-	 */
+
 	private static final long serialVersionUID = 9179045415806106855L;
 
 	public StopVMException(String msg) {

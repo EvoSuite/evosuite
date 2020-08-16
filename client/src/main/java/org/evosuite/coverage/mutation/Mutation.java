@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
+
 package org.evosuite.coverage.mutation;
 
 import java.util.HashSet;
@@ -189,7 +187,7 @@ public class Mutation implements Comparable<Mutation> {
 	 * @return a {@link java.util.Set} object.
 	 */
 	public Set<BranchCoverageGoal> getControlDependencies() {
-		Set<BranchCoverageGoal> goals = new HashSet<BranchCoverageGoal>();
+		Set<BranchCoverageGoal> goals = new HashSet<>();
 		for (ControlDependency cd : original.getControlDependencies()) {
 			BranchCoverageGoal goal = new BranchCoverageGoal(cd, className, methodName);
 			goals.add(goal);

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -84,8 +84,7 @@ public class InstrumentingClassLoader extends ClassLoader {
 	}
 
 	public List<String> getViewOfInstrumentedClasses(){
-		List<String> list = new ArrayList<>();
-		list.addAll(classes.keySet());
+        List<String> list = new ArrayList<>(classes.keySet());
 		return list;
 	}
 	
@@ -218,7 +217,7 @@ public class InstrumentingClassLoader extends ClassLoader {
 	}
 	
 	public Set<String> getLoadedClasses() {
-		HashSet<String> loadedClasses = new HashSet<String>(this.classes.keySet());
+		HashSet<String> loadedClasses = new HashSet<>(this.classes.keySet());
 		return loadedClasses;
 	}
 

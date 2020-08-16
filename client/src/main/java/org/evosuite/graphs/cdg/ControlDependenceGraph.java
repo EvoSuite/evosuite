@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -19,7 +19,6 @@
  */
 package org.evosuite.graphs.cdg;
 
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -34,7 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 public class ControlDependenceGraph extends EvoSuiteGraph<BasicBlock, ControlFlowEdge> {
 
-	private static Logger logger = LoggerFactory.getLogger(ControlDependenceGraph.class);
+	private static final Logger logger = LoggerFactory.getLogger(ControlDependenceGraph.class);
 
 	private final ActualControlFlowGraph cfg;
 
@@ -491,7 +490,7 @@ public class ControlDependenceGraph extends EvoSuiteGraph<BasicBlock, ControlFlo
 	private void computeControlDependence() {
 
 		ActualControlFlowGraph rcfg = cfg.computeReverseCFG();
-		DominatorTree<BasicBlock> dt = new DominatorTree<BasicBlock>(rcfg);
+		DominatorTree<BasicBlock> dt = new DominatorTree<>(rcfg);
 
 		for (BasicBlock b : rcfg.vertexSet())
 			if (!b.isExitBlock()) {

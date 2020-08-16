@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -49,7 +49,7 @@ import org.evosuite.testcase.variable.VariableReference;
  */
 public class ClassReInitializer {
 
-	private final List<String> initializedClasses = new LinkedList<String>();
+	private final List<String> initializedClasses = new LinkedList<>();
 
 	private static ClassReInitializer instance = null;
 
@@ -72,7 +72,7 @@ public class ClassReInitializer {
 	 * the classes to reset as part of their execute() method
 	 */
 	private static HashSet<String> getMoreClassesToReset(TestCase tc, ExecutionResult result) {
-		HashSet<String> moreClassesForStaticReset = new HashSet<String>();
+		HashSet<String> moreClassesForStaticReset = new HashSet<>();
 		for (int position = 0; position < result.getExecutedStatements(); position++) {
 			Statement statement = tc.getStatement(position);
 
@@ -158,8 +158,7 @@ public class ClassReInitializer {
 				// reset only classes that were "observed" to have some
 				// GETSTATIC/PUTSTATIC updating their state during test
 				// execution
-				List<String> classesToReset = new LinkedList<String>();
-				classesToReset.addAll(trace.getClassesWithStaticWrites());
+                List<String> classesToReset = new LinkedList<>(trace.getClassesWithStaticWrites());
 				if (Properties.RESET_STATIC_FIELD_GETS) {
 					classesToReset.addAll(trace.getClassesWithStaticReads());
 				}
@@ -222,7 +221,7 @@ public class ClassReInitializer {
 	}
 
 	public List<String> getInitializedClasses() {
-		return new LinkedList<String>(this.initializedClasses);
+		return new LinkedList<>(this.initializedClasses);
 	}
 	
 

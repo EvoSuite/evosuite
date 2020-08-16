@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -31,7 +31,7 @@ public class ContainerHelpTest {
 
     @Test
     public void testContainsTransformation() {
-        Set<Integer> firstSet = new HashSet<Integer>();
+        Set<Integer> firstSet = new HashSet<>();
         firstSet.add(17);
         firstSet.add(626);
         Assert.assertEquals(1, ContainerHelper.collectionContains(firstSet, 17));
@@ -41,7 +41,7 @@ public class ContainerHelpTest {
 
     @Test
     public void testContainsTransformationList() {
-        List<Integer> list = new LinkedList<Integer>();
+        List<Integer> list = new LinkedList<>();
         list.add(17);
         list.add(626);
         list.add(17);
@@ -52,7 +52,7 @@ public class ContainerHelpTest {
 
     @Test
     public void testContainsStringTransformation() {
-        Set<String> firstSet = new HashSet<String>();
+        Set<String> firstSet = new HashSet<>();
         firstSet.add("foo");
         firstSet.add("bar");
         Assert.assertEquals(1, ContainerHelper.collectionContains(firstSet, "foo"));
@@ -62,7 +62,7 @@ public class ContainerHelpTest {
 
     @Test
     public void testContainsStringTransformationList() {
-        List<String> list = new LinkedList<String>();
+        List<String> list = new LinkedList<>();
         list.add("foo");
         list.add("bar");
         list.add("foo");
@@ -73,7 +73,7 @@ public class ContainerHelpTest {
 
     @Test
     public void testContainsAllTransformation() {
-        Set<Integer> firstSet = new HashSet<Integer>();
+        Set<Integer> firstSet = new HashSet<>();
         firstSet.add(17);
         firstSet.add(626);
         Assert.assertEquals(1, ContainerHelper.collectionContains(firstSet, 17));
@@ -83,7 +83,7 @@ public class ContainerHelpTest {
 
     @Test
     public void testContainsAllTransformationList() {
-        List<Integer> list = new LinkedList<Integer>();
+        List<Integer> list = new LinkedList<>();
         list.add(17);
         list.add(626);
         list.add(17);
@@ -94,7 +94,7 @@ public class ContainerHelpTest {
 
     @Test
     public void testCollectionEmptyTransformation2() {
-        Set<Integer> firstSet = new HashSet<Integer>();
+        Set<Integer> firstSet = new HashSet<>();
         firstSet.add(17);
         firstSet.add(626);
         Assert.assertEquals(-2, ContainerHelper.collectionIsEmpty(firstSet));
@@ -102,20 +102,20 @@ public class ContainerHelpTest {
 
     @Test
     public void testCollectionEmptyTransformation1() {
-        List<String> list = new LinkedList<String>();
+        List<String> list = new LinkedList<>();
         list.add("test");
         Assert.assertEquals(-1, ContainerHelper.collectionIsEmpty(list));
     }
 
     @Test
     public void testCollectionEmptyTransformation0() {
-        Set<Integer> firstSet = new HashSet<Integer>();
+        Set<Integer> firstSet = new HashSet<>();
         Assert.assertEquals(Integer.MAX_VALUE - 2, ContainerHelper.collectionIsEmpty(firstSet));
     }
 
     @Test
     public void testMapContainsKeyTransformation() {
-        Map<Integer, Integer> map = new HashMap<Integer, Integer>();
+        Map<Integer, Integer> map = new HashMap<>();
         map.put(17, 235235);
         map.put(23, 233);
         Assert.assertEquals(1, ContainerHelper.mapContainsKey(map, 17));
@@ -125,7 +125,7 @@ public class ContainerHelpTest {
 
     @Test
     public void testMapContainsValueTransformation() {
-        Map<Integer, Integer> map = new HashMap<Integer, Integer>();
+        Map<Integer, Integer> map = new HashMap<>();
         map.put(17, 235235);
         map.put(23, 233);
         Assert.assertEquals(1, ContainerHelper.mapContainsValue(map, 235235));

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -24,7 +24,7 @@ import java.util.Map;
 
 import org.objectweb.asm.tree.analysis.Frame;
 public class CFGFrame extends Frame { 
-	Map<Integer, CFGFrame> successors = new HashMap<Integer, CFGFrame>();
+	Map<Integer, CFGFrame> successors = new HashMap<>();
 	
 	/**
 	 * <p>Constructor for CFGFrame.</p>

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -36,7 +36,8 @@ import java.util.NoSuchElementException;
  * @author Stephen Colebourne
  */
 public class BufferUnderflowException extends NoSuchElementException {
-    
+
+    private static final long serialVersionUID = 6142514256825351121L;
     /** The root cause throwable */
     private final Throwable throwable;
 

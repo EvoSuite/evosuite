@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
+
 package org.evosuite.instrumentation;
 
 import java.util.HashMap;
@@ -126,7 +124,7 @@ public class ArrayAllocationLimitMethodAdapter extends GeneratorAdapter {
 		}
 
 		// Check each of the dimensions
-		Map<Integer, Integer> to = new HashMap<Integer, Integer>();
+		Map<Integer, Integer> to = new HashMap<>();
 		for (int i = dims - 1; i >= 0; i--) {
 			int loc = newLocal(Type.INT_TYPE);
 			storeLocal(loc);

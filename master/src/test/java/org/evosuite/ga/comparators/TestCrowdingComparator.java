@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -50,7 +50,7 @@ public class TestCrowdingComparator
         c2.setDistance(0.5);
         c3.setDistance(0.4);
 
-        List<NSGAChromosome> population = new ArrayList<NSGAChromosome>();
+        List<NSGAChromosome> population = new ArrayList<>();
         population.add(c1);
         population.add(c2);
         population.add(c3);
@@ -86,7 +86,7 @@ public class TestCrowdingComparator
         c2.setDistance(0.5);
         c3.setDistance(0.4);
 
-        List<NSGAChromosome> population = new ArrayList<NSGAChromosome>();
+        List<NSGAChromosome> population = new ArrayList<>();
         population.add(c1);
         population.add(c2);
         population.add(c3);

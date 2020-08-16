@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -68,7 +68,7 @@ public class ClassResetterTest {
         String cut = MutableEnum.class.getCanonicalName();
 
 
-        Class<?> klass = (Class<MutableEnum>) loader.loadClass(cut);
+        Class<?> klass = loader.loadClass(cut);
         Object[] enums = klass.getEnumConstants();
         Assert.assertEquals(2, enums.length);
         Method getter = klass.getDeclaredMethod("getLetter");

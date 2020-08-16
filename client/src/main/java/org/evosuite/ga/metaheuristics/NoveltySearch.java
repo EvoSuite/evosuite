@@ -15,6 +15,7 @@ import static java.util.Comparator.comparingDouble;
 public class NoveltySearch extends GeneticAlgorithm<TestChromosome>  {
 
     private final static Logger logger = LoggerFactory.getLogger(NoveltySearch.class);
+    private static final long serialVersionUID = -1047550745990198972L;
 
     private NoveltyFunction<TestChromosome> noveltyFunction;
 

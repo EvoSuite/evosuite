@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- *
- */
+
 package org.evosuite;
 
 import org.apache.commons.cli.CommandLine;
@@ -73,7 +71,7 @@ public class EvoSuite {
     //public final static String JAVA_CMD = javaHome + separator + "bin" + separator + "java";
 
     public static String base_dir_path = System.getProperty("user.dir");
-    private static Logger logger = LoggerFactory.getLogger(EvoSuite.class);
+    private static final Logger logger = LoggerFactory.getLogger(EvoSuite.class);
 
     private static String separator = System.getProperty("file.separator");
     //private static String javaHome = System.getProperty("java.home");
@@ -150,7 +148,7 @@ public class EvoSuite {
     public Object parseCommandLine(String[] args) {
         Options options = CommandLineParameters.getCommandLineOptions();
 
-        List<String> javaOpts = new ArrayList<String>();
+        List<String> javaOpts = new ArrayList<>();
 
         String version = EvoSuite.class.getPackage().getImplementationVersion();
         if (version == null) {

@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Set;
 
 public class MIOTestSuiteAdapter extends MOSATestSuiteAdapter {
+    private static final long serialVersionUID = 3297246957849185819L;
 
     public MIOTestSuiteAdapter(final MIO algorithm) {
         super(algorithm);

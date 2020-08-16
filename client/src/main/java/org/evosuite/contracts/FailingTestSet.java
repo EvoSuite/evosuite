@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
+
 package org.evosuite.contracts;
 
 import java.util.ArrayList;
@@ -45,14 +43,14 @@ import org.slf4j.LoggerFactory;
  */
 public class FailingTestSet {
 
-	private static Logger logger = LoggerFactory.getLogger(FailingTestSet.class);
+	private static final Logger logger = LoggerFactory.getLogger(FailingTestSet.class);
 
 	/*
 	 * FIXME: if actually used, need way to reset them
 	 */
 
 	/** The violated tracked */
-	private static final List<ContractViolation> violations = new ArrayList<ContractViolation>();
+	private static final List<ContractViolation> violations = new ArrayList<>();
 
 	private static int violationCount = 0;
 
@@ -118,7 +116,7 @@ public class FailingTestSet {
 	}
 
 	public static List<TestCase> getFailingTests() {
-		List<TestCase> tests = new ArrayList<TestCase>();
+		List<TestCase> tests = new ArrayList<>();
 		ContractChecker.setActive(false);
 		TestCaseExecutor.getInstance().newObservers();
 

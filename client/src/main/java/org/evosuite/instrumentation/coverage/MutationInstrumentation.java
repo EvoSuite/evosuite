@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
+
 package org.evosuite.instrumentation.coverage;
 
 import java.util.ArrayList;
@@ -72,7 +70,7 @@ import org.slf4j.LoggerFactory;
  */
 public class MutationInstrumentation implements MethodInstrumentation {
 
-	private static Logger logger = LoggerFactory.getLogger(MethodInstrumentation.class);
+	private static final Logger logger = LoggerFactory.getLogger(MethodInstrumentation.class);
 
 	private final List<MutationOperator> mutationOperators;
 
@@ -84,7 +82,7 @@ public class MutationInstrumentation implements MethodInstrumentation {
 	 * </p>
 	 */
 	public MutationInstrumentation() {
-		mutationOperators = new ArrayList<MutationOperator>();
+		mutationOperators = new ArrayList<>();
 
 		// FIXME: Don't include > < >= <= for boolean comparisons
 		mutationOperators.add(new ReplaceComparisonOperator());
@@ -163,7 +161,7 @@ public class MutationInstrumentation implements MethodInstrumentation {
 						continue;
 					}
 					MethodInsnNode cn = (MethodInsnNode) in;
-					Set<String> superClasses = new HashSet<String>();
+					Set<String> superClasses = new HashSet<>();
 					if(DependencyAnalysis.getInheritanceTree() != null && DependencyAnalysis.getInheritanceTree().hasClass(className))
 						superClasses.addAll(DependencyAnalysis.getInheritanceTree().getSuperclasses(className));
 					superClasses.add(className);
@@ -198,7 +196,7 @@ public class MutationInstrumentation implements MethodInstrumentation {
 				// If this is in the CFG
 				if (in.equals(v.getASMNode())) {
 					logger.info(v.toString());
-					List<Mutation> mutations = new LinkedList<Mutation>();
+					List<Mutation> mutations = new LinkedList<>();
 
 					// TODO: More than one mutation operator might apply to the same instruction
 					for (MutationOperator mutationOperator : mutationOperators) {

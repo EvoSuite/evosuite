@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
+
 package org.evosuite.assertion;
 
 import org.evosuite.Properties;
@@ -155,7 +153,7 @@ public abstract class AssertionGenerator {
 		// Make sure we are not keeping assertions influenced by static state
 		// TODO: Need to handle statically initialized classes
 		ExecutionResult result = runTest(test);
-		Set<Assertion> invalidAssertions = new HashSet<Assertion>();
+		Set<Assertion> invalidAssertions = new HashSet<>();
 		for(Assertion assertion : test.getAssertions()) {
 			for(OutputTrace<?> outputTrace : result.getTraces()) {
 				if(outputTrace.isDetectedBy(assertion)) {
@@ -171,8 +169,7 @@ public abstract class AssertionGenerator {
 	}
 
 	public void filterFailingAssertions(List<TestCase> testCases) {
-		List<TestCase> tests = new ArrayList<TestCase>();
-		tests.addAll(testCases);
+        List<TestCase> tests = new ArrayList<>(testCases);
 		for(TestCase test : tests) {
 			filterFailingAssertions(test);
 		}
@@ -225,7 +222,7 @@ public abstract class AssertionGenerator {
 			Properties.resetTargetClass();
 			Properties.getInitializedTargetClass();
 
-			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Mutants, MutationPool.getMutantCounter());
+			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Mutants, MutationPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getMutantCounter());
 
 			for(TestChromosome test : suite.getTestChromosomes()) {
 				DefaultTestCase dtest = (DefaultTestCase) test.getTestCase();

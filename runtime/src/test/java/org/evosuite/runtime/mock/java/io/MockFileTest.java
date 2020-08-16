@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -22,7 +22,6 @@ package org.evosuite.runtime.mock.java.io;
 import java.io.File;
 
 import org.evosuite.runtime.mock.java.io.MockFile;
-import org.junit.Assert;
 
 import org.junit.Test;
 

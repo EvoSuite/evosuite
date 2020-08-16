@@ -20,7 +20,7 @@ import org.junit.Test;
  */
 public class NeighbourhoodTest {
 	
-	List<Chromosome> population = new ArrayList<Chromosome>();
+	List<Chromosome> population = new ArrayList<>();
 	
 	public void constructPopulation(){
 		

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -37,9 +37,7 @@ import org.objectweb.asm.tree.analysis.Frame;
  */
 public class BooleanIfTransformer extends MethodNodeTransformer {
 
-	/**
-	 * 
-	 */
+
 	private final BooleanTestabilityTransformation booleanTestabilityTransformation;
 
 	/**

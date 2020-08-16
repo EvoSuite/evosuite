@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -28,7 +28,7 @@ import org.objectweb.asm.Opcodes;
 
 public class RemoveFinalClassAdapter extends ClassVisitor {
 	
-	public static final Set<String> finalClasses = new LinkedHashSet<String>();
+	public static final Set<String> finalClasses = new LinkedHashSet<>();
 	
 	public RemoveFinalClassAdapter(ClassVisitor cv) {
 		super(Opcodes.ASM7, cv);

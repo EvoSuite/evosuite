@@ -28,17 +28,14 @@ import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
  */
 public class RMIStoppingCondition<T extends Chromosome<T>> implements StoppingCondition<T> {
 
+	private static final long serialVersionUID = 3073266508021896691L;
+
 	private static RMIStoppingCondition<?> instance = null;
 
 	private boolean isStopped = false;
 
 	private RMIStoppingCondition() {
 		// empty default constructor
-	}
-
-	@Override
-	public StoppingCondition<T> clone() {
-		throw new UnsupportedOperationException("cannot clone singleton");
 	}
 
 	@SuppressWarnings("unchecked")
@@ -50,6 +47,18 @@ public class RMIStoppingCondition<T extends Chromosome<T>> implements StoppingCo
 		// Cast always succeeds because RMIStoppingCondition doesn't actually do anything with a
 		// `T` instance.
 		return (RMIStoppingCondition<T>) instance;
+	}
+
+	/**
+	 * Always throws an {@code UnsupportedOperationException} when called. Singletons cannot be
+	 * cloned.
+	 *
+	 * @return never returns, always fails
+	 * @throws UnsupportedOperationException always
+	 */
+	@Override
+	public StoppingCondition<T> clone() throws UnsupportedOperationException {
+		throw new UnsupportedOperationException("cannot clone singleton");
 	}
 
 	public void stop() {

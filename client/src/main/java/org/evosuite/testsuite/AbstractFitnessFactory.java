@@ -40,7 +40,7 @@ public abstract class AbstractFitnessFactory<T extends TestFitnessFunction> impl
 	 * coverage goals in this field in order to track this information in
 	 * SearchStatistics.
 	 */
-	public static long goalComputationTime = 0l;
+	public static long goalComputationTime = 0L;
 
 	
 	protected boolean isCUT(String className) {

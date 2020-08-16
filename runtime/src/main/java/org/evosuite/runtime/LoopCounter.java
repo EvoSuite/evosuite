@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -73,7 +73,7 @@ public class LoopCounter {
      */
     public int getNewIndex(){
         int index = counters.size();
-        counters.add(0l);
+        counters.add(0L);
         return index;
     }
 
@@ -101,14 +101,14 @@ public class LoopCounter {
         int size = counters.size();
         if(index >= size){
             for(int i=0; i < 1 + (index - size); i++){
-                counters.add(0l);
+                counters.add(0L);
             }
         }
         assert index < counters.size();
 
         //do increment
         try {
-            long value = counters.get(index) + 1l;
+            long value = counters.get(index) + 1L;
             counters.set(index, value);
 
             if(value >= RuntimeSettings.maxNumberOfIterationsPerLoop && !isInStaticInit()) {

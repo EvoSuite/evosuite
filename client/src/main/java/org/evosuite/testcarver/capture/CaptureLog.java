@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -73,7 +73,7 @@ public final class CaptureLog implements Cloneable {
 	public static final Object RETURN_TYPE_VOID = CaptureLog.class.getName()
 	        + ".RETURN_VOID";
 
-	private static final Set<String> NOT_OBSERVED_INIT_METHODS = Collections.synchronizedSet(new LinkedHashSet<String>());
+	private static final Set<String> NOT_OBSERVED_INIT_METHODS = Collections.synchronizedSet(new LinkedHashSet<>());
 	static {
 		NOT_OBSERVED_INIT_METHODS.add(NOT_OBSERVED_INIT);
 		NOT_OBSERVED_INIT_METHODS.add(COLLECTION_INIT);
@@ -141,23 +141,23 @@ public final class CaptureLog implements Cloneable {
 	 * Main constructor
 	 */
 	public CaptureLog() {
-		this.objectIds = new ArrayList<Integer>();
-		this.methodNames = new ArrayList<String>();
-		this.params = new ArrayList<Object[]>();
-		this.captureIds = new ArrayList<Integer>();
-		this.returnValues = new ArrayList<Object>();
-		this.descList = new ArrayList<String>();
+		this.objectIds = new ArrayList<>();
+		this.methodNames = new ArrayList<>();
+		this.params = new ArrayList<>();
+		this.captureIds = new ArrayList<>();
+		this.returnValues = new ArrayList<>();
+		this.descList = new ArrayList<>();
 
-		this.oidRecMapping = new LinkedHashMap<Integer, Integer>();
-		this.oidInitRecNo = new ArrayList<Integer>();
-		this.oidClassNames = new ArrayList<String>();
-		this.oids = new ArrayList<Integer>();
-		this.oidFirstInits = new ArrayList<Integer>();
-		this.oidDependencies = new ArrayList<Integer>();
+		this.oidRecMapping = new LinkedHashMap<>();
+		this.oidInitRecNo = new ArrayList<>();
+		this.oidClassNames = new ArrayList<>();
+		this.oids = new ArrayList<>();
+		this.oidFirstInits = new ArrayList<>();
+		this.oidDependencies = new ArrayList<>();
 
-		this.isStaticCallList = new ArrayList<Boolean>();
+		this.isStaticCallList = new ArrayList<>();
 
-		this.oidNamesOfAccessedFields = new LinkedHashMap<Integer, String>();
+		this.oidNamesOfAccessedFields = new LinkedHashMap<>();
 
 		this.xstream = new XStream();
 	}
@@ -172,7 +172,7 @@ public final class CaptureLog implements Cloneable {
 	}
 
 	public List<Integer> getTargetOIDs(final Set<String> observedClassNames) {
-		final List<Integer> targetOIDs = new ArrayList<Integer>();
+		final List<Integer> targetOIDs = new ArrayList<>();
 		final int numInfoRecs = oidClassNames.size();
 		for (int i = 0; i < numInfoRecs; i++) {
 			if (observedClassNames.contains(oidClassNames.get(i))) {

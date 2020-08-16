@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -23,7 +23,6 @@ import org.evosuite.testcase.statements.ConstructorStatement;
 import org.evosuite.testcase.statements.PrimitiveStatement;
 import org.evosuite.testcase.statements.numeric.IntPrimitiveStatement;
 import org.evosuite.testcase.statements.numeric.LongPrimitiveStatement;
-import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testsuite.similarity.DiversityObserver;
 import org.evosuite.utils.generic.GenericConstructor;
 import org.junit.Assert;
@@ -105,7 +104,7 @@ public class TestSimilarity {
         PrimitiveStatement<?> bInt = new IntPrimitiveStatement(test2, 42);
         test2.addStatement(bInt);
         Constructor<?> c = Object.class.getConstructors()[0];
-        ConstructorStatement cs = new ConstructorStatement(test2, new GenericConstructor(c, Object.class), new ArrayList<VariableReference>());
+        ConstructorStatement cs = new ConstructorStatement(test2, new GenericConstructor(c, Object.class), new ArrayList<>());
         test2.addStatement(cs);
 
         double score = DiversityObserver.getNeedlemanWunschScore(test1, test2);
@@ -126,7 +125,7 @@ public class TestSimilarity {
         PrimitiveStatement<?> bInt = new IntPrimitiveStatement(test2, 42);
         test2.addStatement(bInt);
         Constructor<?> c = Object.class.getConstructors()[0];
-        ConstructorStatement cs = new ConstructorStatement(test2, new GenericConstructor(c, Object.class), new ArrayList<VariableReference>());
+        ConstructorStatement cs = new ConstructorStatement(test2, new GenericConstructor(c, Object.class), new ArrayList<>());
         test2.addStatement(cs);
 
         double score = DiversityObserver.getNeedlemanWunschScore(test1, test2);

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -89,7 +89,7 @@ import org.slf4j.LoggerFactory;
  */
 public class MSecurityManager extends SecurityManager {
 
-	private static Logger logger = LoggerFactory.getLogger(MSecurityManager.class);
+	private static final Logger logger = LoggerFactory.getLogger(MSecurityManager.class);
 
 
 	/*
@@ -216,8 +216,7 @@ public class MSecurityManager extends SecurityManager {
     }
 
 	public Set<Thread> getPrivilegedThreads() {
-		Set<Thread> set = new LinkedHashSet<>();
-		set.addAll(privilegedThreads);
+		Set<Thread> set = new LinkedHashSet<>(privilegedThreads);
 		return set;
 	}
 
@@ -789,8 +788,7 @@ public class MSecurityManager extends SecurityManager {
         String action = perm.getActions();
         String name = perm.getName();
 
-        // TODO: Relaxing this a bit due to issues with statistics handling
-        if(action.contains("resolve") && name.equals(LOCALHOST_NAME) || name.contains(InetAddress.getLoopbackAddress().toString())) {
+        if(action.contains("resolve") && (name.equals(LOCALHOST_NAME) || name.contains(InetAddress.getLoopbackAddress().toString()))) {
             /*
                 this kind of special: we do allow resolve of local host, although we do mock InetAddress.
                 This is due to all kind of indirect calls in Swing that we do not fully mock, eg like
@@ -799,6 +797,8 @@ public class MSecurityManager extends SecurityManager {
                 JComponent.getFontMetrics
                 which is triggered by the very common
                 JComponent.getPreferredSize
+
+                Furthermore there are some issues with statistics handling if this is not enabled
              */
             return true;
         }

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -39,7 +39,7 @@ public final class SmtVariableCollector implements SmtExprVisitor<Void, Void> {
 		return null;
 	}
 
-	private final Set<SmtVariable> smtVariables = new HashSet<SmtVariable>();
+	private final Set<SmtVariable> smtVariables = new HashSet<>();
 
 	@Override
 	public Void visit(SmtIntVariable n, Void arg) {

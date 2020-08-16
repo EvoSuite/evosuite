@@ -52,7 +52,7 @@ public abstract class MutationTestFitness extends TestFitnessFunction {
 	
 	protected int mutantId;
 
-	protected final Set<BranchCoverageGoal> controlDependencies = new HashSet<BranchCoverageGoal>();
+	protected final Set<BranchCoverageGoal> controlDependencies = new HashSet<>();
 
 	protected final int diameter;
 
@@ -266,7 +266,7 @@ public abstract class MutationTestFitness extends TestFitnessFunction {
 		ois.defaultReadObject();
 
 		mutantId = ois.readInt();
-		this.mutation = MutationPool.getMutant(mutantId);
+		this.mutation = MutationPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getMutant(mutantId);
 		assert(this.mutation!=null):"mutation id not found " + mutantId;
 	}
 }

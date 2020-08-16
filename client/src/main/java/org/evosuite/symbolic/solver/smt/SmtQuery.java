@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -32,15 +32,15 @@ public final class SmtQuery {
 
 	static Logger logger = LoggerFactory.getLogger(SmtQuery.class);
 
-	private final List<SmtConstantDeclaration> constantDeclarations = new ArrayList<SmtConstantDeclaration>();
+	private final List<SmtConstantDeclaration> constantDeclarations = new ArrayList<>();
 
-	private final List<SmtFunctionDeclaration> functionDeclarations = new ArrayList<SmtFunctionDeclaration>();
+	private final List<SmtFunctionDeclaration> functionDeclarations = new ArrayList<>();
 
-	private final List<SmtFunctionDefinition> functionDefinitions = new ArrayList<SmtFunctionDefinition>();
+	private final List<SmtFunctionDefinition> functionDefinitions = new ArrayList<>();
 
-	private final List<SmtAssertion> assertions = new ArrayList<SmtAssertion>();
+	private final List<SmtAssertion> assertions = new ArrayList<>();
 
-	private final Map<String, String> options = new HashMap<String, String>();
+	private final Map<String, String> options = new HashMap<>();
 
 	private String smtLogic;
 

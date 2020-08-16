@@ -83,6 +83,8 @@ public class TestSuiteGenerator {
 
 	private void initializeTargetClass() throws Throwable {
 		String cp = ClassPathHandler.getInstance().getTargetProjectClasspath();
+		DependencyAnalysis.analyzeClass(Properties.TARGET_CLASS, Arrays.asList(cp.split(File.pathSeparator)));
+
 		// Here is where the <clinit> code should be invoked for the first time
 		DefaultTestCase test = buildLoadTargetClassTestCase(Properties.TARGET_CLASS);
 		ExecutionResult execResult = TestCaseExecutor.getInstance().execute(test, Integer.MAX_VALUE);
@@ -98,7 +100,6 @@ public class TestSuiteGenerator {
 			throw t;
 		}
 
-		DependencyAnalysis.analyzeClass(Properties.TARGET_CLASS, Arrays.asList(cp.split(File.pathSeparator)));
 		LoggingUtils.getEvoLogger().info("* " + ClientProcess.getPrettyPrintIdentifier() + "Finished analyzing classpath");
 	}
 
@@ -723,7 +724,7 @@ public class TestSuiteGenerator {
 	 *         objects.
 	 */
 	public static List<TestSuiteFitnessFunction> getFitnessFunctions() {
-		List<TestSuiteFitnessFunction> ffs = new ArrayList<TestSuiteFitnessFunction>();
+		List<TestSuiteFitnessFunction> ffs = new ArrayList<>();
 		for (int i = 0; i < Properties.CRITERION.length; i++) {
 			ffs.add(FitnessFunctions.getFitnessFunction(Properties.CRITERION[i]));
 		}
@@ -766,7 +767,7 @@ public class TestSuiteGenerator {
 	 *         objects.
 	 */
 	public static List<TestFitnessFactory<? extends TestFitnessFunction>> getFitnessFactories() {
-		List<TestFitnessFactory<? extends TestFitnessFunction>> goalsFactory = new ArrayList<TestFitnessFactory<? extends TestFitnessFunction>>();
+		List<TestFitnessFactory<? extends TestFitnessFunction>> goalsFactory = new ArrayList<>();
 		for (int i = 0; i < Properties.CRITERION.length; i++) {
 			goalsFactory.add(FitnessFunctions.getFitnessFactory(Properties.CRITERION[i]));
 		}

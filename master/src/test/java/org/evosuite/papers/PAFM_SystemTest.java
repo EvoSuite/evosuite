@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -23,7 +23,6 @@ import com.examples.with.different.packagename.papers.pafm.PAFM;
 import com.examples.with.different.packagename.papers.pafm.PAFM_old;
 import org.evosuite.Properties;
 import org.evosuite.SystemTestBase;
-import org.junit.Before;
 import org.junit.Test;
 
 public class PAFM_SystemTest extends SystemTestBase {

@@ -10,6 +10,8 @@ import org.evosuite.testsuite.TestSuiteChromosome;
 public class TestSuiteFitnessFunctionMock
         extends FitnessFunctionMock<TestChromosome, TestSuiteChromosome> {
 
+    private static final long serialVersionUID = 7438166177586343112L;
+
     /**
      * {@inheritDoc}
      */

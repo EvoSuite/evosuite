@@ -20,7 +20,6 @@
 package org.evosuite;
 
 import org.evosuite.ga.Chromosome;
-import org.evosuite.ga.stoppingconditions.StoppingCondition;
 import org.evosuite.ga.stoppingconditions.StoppingConditionImpl;
 import org.evosuite.utils.LoggingUtils;
 

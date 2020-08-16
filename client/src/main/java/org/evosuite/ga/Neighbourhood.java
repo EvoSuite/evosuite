@@ -22,7 +22,7 @@ public class Neighbourhood<T extends Chromosome> implements NeighborModels,Seria
 	private int _L, _R, _N, _S, _W, _E, _NE, _NW, _SE, _SW, _NN, _SS, _EE, _WW;
 	
 	/** An array that represents the grid **/
-	int neighbour[][];
+	int[][] neighbour;
 	
 	/** Number of chromosomes per one row of a grid **/
 	int columns;

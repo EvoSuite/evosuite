@@ -50,7 +50,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 public class TestGeneration {
 
-	private static Logger logger = LoggerFactory.getLogger(TestGeneration.class);
+	private static final Logger logger = LoggerFactory.getLogger(TestGeneration.class);
 	
 	public static List<List<TestGenerationResult>> executeTestGeneration(Options options, List<String> javaOpts,
 			CommandLine line) {

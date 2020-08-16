@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
+
 package org.evosuite.testcase.statements.environment;
 
 import java.io.IOException;
@@ -31,7 +29,6 @@ import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.utils.Randomness;
 import org.evosuite.utils.StringUtil;
-import org.objectweb.asm.commons.GeneratorAdapter;
 
 
 /**
@@ -60,7 +57,7 @@ public class FileNamePrimitiveStatement extends EnvironmentDataStatement<EvoSuit
         Object value = getValue();
 
         if (value != null) {
-            String escapedPath = StringUtil.getEscapedString(((EvoSuiteFile) value).toString());
+            String escapedPath = StringUtil.getEscapedString(value.toString());
             testCode += ((Class<?>) retval.getType()).getSimpleName() + " "
                     + varName + " = new "
                     + ((Class<?>) retval.getType()).getSimpleName() + "(\""

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -23,7 +23,7 @@ package com.examples.with.different.packagename.fm;
  * Created by gordon on 19/04/2017.
  */
 public class GenericFM_ConstrainedType {
-    public static interface Foo<T extends Number> {
+    public interface Foo<T extends Number> {
         String foo(T parameter);
     }
 

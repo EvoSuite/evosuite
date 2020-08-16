@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -212,12 +212,10 @@ public class EvoSuiteRunner {
 		 * TODO: this will need to be changed once we finalize how to 
 		 * distribute EvoSuite
 		 */
-		File[] jars = folder.listFiles(new FilenameFilter(){
-			@Override
-			public boolean accept(File dir, String name) {
-				String lc = name.toLowerCase();
-				return lc.startsWith("evosuite") && lc.endsWith(".jar");
-			}});
+		File[] jars = folder.listFiles((dir, name) -> {
+			String lc = name.toLowerCase();
+			return lc.startsWith("evosuite") && lc.endsWith(".jar");
+		});
 
 		if(jars.length == 0){
 			logger.error("No evosuite jar in "+folder.getPath());
@@ -228,11 +226,7 @@ public class EvoSuiteRunner {
 			 * sort in way the largest file is first.
 			 * this is needed if we put as HOME where we compile EvoSuite
 			 */
-			Arrays.sort(jars,new Comparator<File>(){
-				@Override
-				public int compare(File o1, File o2) {
-					return (int) (o2.length() - o1.length());
-				}});
+			Arrays.sort(jars, (o1, o2) -> (int) (o2.length() - o1.length()));
 		}
 
 		String evo = jars[0].getAbsolutePath();

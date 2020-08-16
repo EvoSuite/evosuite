@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -51,7 +51,6 @@ import org.mockito.Mockito;
 import java.lang.reflect.Constructor;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import static org.evosuite.junit.writer.TestSuiteWriterUtils.*;
 
@@ -413,8 +412,7 @@ public class Scaffolding {
 			bd.append(ClassStateSupport.class.getName() + ".initializeClasses(");
 			bd.append(testClassName + ".class.getClassLoader() ");
 
-			for (int i = 0; i < classesToInit.size(); i++) {
-				String className = classesToInit.get(i);
+			for (String className : classesToInit) {
 				if (!BytecodeInstrumentation.checkIfCanInstrument(className)) {
 					continue;
 				}
@@ -829,10 +827,9 @@ public class Scaffolding {
 		bd.append(" new " + ThreadStopper.class.getName() + " (");
 		bd.append("" + KillSwitchHandler.class.getName() + ".getInstance(), ");
 		bd.append("" + Properties.TIMEOUT + "");
-		Set<String> threadsToIgnore = new LinkedHashSet<>();
 		// this shouldn't appear among the threads in the generated tests
 		// threadsToIgnore.add(TestCaseExecutor.TEST_EXECUTION_THREAD);
-		threadsToIgnore.addAll(Arrays.asList(Properties.IGNORE_THREADS));
+		Set<String> threadsToIgnore = new LinkedHashSet<>(Arrays.asList(Properties.IGNORE_THREADS));
 		for (String s : threadsToIgnore) {
 			bd.append(", " + s);
 		}

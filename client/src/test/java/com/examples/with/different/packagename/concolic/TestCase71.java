@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -95,7 +95,7 @@ public class TestCase71 {
 
 		/* cons(i) is true <=> b[i] is a consonant. */
 
-		private final boolean cons(int i) {
+		private boolean cons(int i) {
 			switch (b[i]) {
 			case 'a':
 			case 'e':
@@ -119,7 +119,7 @@ public class TestCase71 {
 		 * 3 ....
 		 */
 
-		private final int m() {
+		private int m() {
 			int n = 0;
 			int i = 0;
 			while (true) {
@@ -153,7 +153,7 @@ public class TestCase71 {
 
 		/* vowelinstem() is true <=> 0,...j contains a vowel */
 
-		private final boolean vowelinstem() {
+		private boolean vowelinstem() {
 			int i;
 			for (i = 0; i <= j; i++)
 				if (!cons(i))
@@ -163,7 +163,7 @@ public class TestCase71 {
 
 		/* doublec(j) is true <=> j,(j-1) contain a double consonant. */
 
-		private final boolean doublec(int j) {
+		private boolean doublec(int j) {
 			if (j < 1)
 				return false;
 			if (b[j] != b[j - 1])
@@ -179,7 +179,7 @@ public class TestCase71 {
 		 * cav(e), lov(e), hop(e), crim(e), but snow, box, tray.
 		 */
 
-		private final boolean cvc(int i) {
+		private boolean cvc(int i) {
 			if (i < 2 || !cons(i) || cons(i - 1) || !cons(i - 2))
 				return false;
 			{
@@ -190,7 +190,7 @@ public class TestCase71 {
 			return true;
 		}
 
-		private final boolean ends(String s) {
+		private boolean ends(String s) {
 			int l = s.length();
 			int o = k - l + 1;
 			if (o < 0)
@@ -207,7 +207,7 @@ public class TestCase71 {
 		 * readjusting k.
 		 */
 
-		private final void setto(String s) {
+		private void setto(String s) {
 			int l = s.length();
 			int o = j + 1;
 			for (int i = 0; i < l; i++)
@@ -217,7 +217,7 @@ public class TestCase71 {
 
 		/* r(s) is used further down. */
 
-		private final void r(String s) {
+		private void r(String s) {
 			if (m() > 0)
 				setto(s);
 		}
@@ -236,7 +236,7 @@ public class TestCase71 {
 		 * meetings -> meet
 		 */
 
-		private final void step1() {
+		private void step1() {
 			if (b[k] == 's') {
 				if (ends("sses"))
 					k -= 2;
@@ -273,7 +273,7 @@ public class TestCase71 {
 		 * stem.
 		 */
 
-		private final void step2() {
+		private void step2() {
 			if (ends("y") && vowelinstem())
 				b[k] = 'i';
 		}
@@ -284,7 +284,7 @@ public class TestCase71 {
 		 * must give m() > 0.
 		 */
 
-		private final void step3() {
+		private void step3() {
 			if (k == 0)
 				return; /* For Bug 1 */
 			switch (b[k - 1]) {
@@ -392,7 +392,7 @@ public class TestCase71 {
 
 		/* step4() deals with -ic-, -full, -ness etc. similar strategy to step3. */
 
-		private final void step4() {
+		private void step4() {
 			switch (b[k]) {
 			case 'e':
 				if (ends("icate")) {
@@ -435,7 +435,7 @@ public class TestCase71 {
 
 		/* step5() takes off -ant, -ence etc., in context <c>vcvc<v>. */
 
-		private final void step5() {
+		private void step5() {
 			if (k == 0)
 				return; /* for Bug 1 */
 			switch (b[k - 1]) {
@@ -513,7 +513,7 @@ public class TestCase71 {
 
 		/* step6() removes a final -e if m() > 1. */
 
-		private final void step6() {
+		private void step6() {
 			j = k;
 			if (b[k] == 'e') {
 				int a = m();
@@ -577,7 +577,7 @@ public class TestCase71 {
 		charArray0[5] = char5;
 		charArray0[6] = char6;
 		charArray0[7] = char7;
-		stemmer0.add(charArray0, (int) char1);
+		stemmer0.add(charArray0, char1);
 		stemmer0.add(char8);
 		stemmer0.add(char8);
 		stemmer0.stem();

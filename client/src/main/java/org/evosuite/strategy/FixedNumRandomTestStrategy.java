@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -65,7 +65,7 @@ public class FixedNumRandomTestStrategy extends TestGenerationStrategy {
 		}
 
 		List<TestFitnessFactory<? extends TestFitnessFunction>> goalFactories = getFitnessFactories();
-		List<TestFitnessFunction> goals = new ArrayList<TestFitnessFunction>();
+		List<TestFitnessFunction> goals = new ArrayList<>();
 		LoggingUtils.getEvoLogger().info("* Total number of test goals: ");
 		for (TestFitnessFactory<? extends TestFitnessFunction> goalFactory : goalFactories) {
 			goals.addAll(goalFactory.getCoverageGoals());

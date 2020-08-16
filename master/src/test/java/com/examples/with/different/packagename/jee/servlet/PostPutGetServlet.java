@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -29,6 +29,8 @@ import java.io.IOException;
  * Created by Andrea Arcuri on 11/08/15.
  */
 public class PostPutGetServlet extends HttpServlet{
+
+    private static final long serialVersionUID = -8591459233803532529L;
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {

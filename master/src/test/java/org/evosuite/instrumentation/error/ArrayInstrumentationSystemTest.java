@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -21,28 +21,8 @@ package org.evosuite.instrumentation.error;
 
 import com.examples.with.different.packagename.errorbranch.ArrayAccess;
 import com.examples.with.different.packagename.errorbranch.ArrayCreation;
-import com.opencsv.CSVReader;
-import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
-import org.evosuite.SystemTestBase;
-import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
-import org.evosuite.statistics.OutputVariable;
-import org.evosuite.statistics.RuntimeVariable;
-import org.evosuite.statistics.backend.DebugStatisticsBackend;
-import org.evosuite.strategy.TestGenerationStrategy;
-import org.evosuite.testsuite.TestSuiteChromosome;
-import org.junit.Assert;
 import org.junit.Test;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 public class ArrayInstrumentationSystemTest extends AbstractErrorBranchTest {
 

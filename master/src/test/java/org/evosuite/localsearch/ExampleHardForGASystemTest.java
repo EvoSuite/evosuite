@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -18,8 +18,6 @@
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 package org.evosuite.localsearch;
-
-import static org.junit.Assert.assertEquals;
 
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;

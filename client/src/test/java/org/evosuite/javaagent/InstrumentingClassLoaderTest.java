@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -98,7 +98,7 @@ public class InstrumentingClassLoaderTest {
 			// expected
 		}
 		ExecutionTracer.getExecutionTracer().clear();
-		TestUtil.invokeMethod(changed, "assess", Integer.valueOf(6));
+		TestUtil.invokeMethod(changed, "assess", 6);
 		execTrace = ExecutionTracer.getExecutionTracer().getTrace();
 		Assert.assertFalse(execTrace.getTrueDistances().isEmpty());
 		Assert.assertFalse(execTrace.getFalseDistances().isEmpty());

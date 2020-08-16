@@ -7,7 +7,6 @@ import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.coverage.mutation.MutationTimeoutStoppingCondition;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.archive.ArchiveTestChromosomeFactory;
-import org.evosuite.ga.metaheuristics.SearchListener;
 import org.evosuite.ga.metaheuristics.mapelites.MAPElites;
 import org.evosuite.ga.stoppingconditions.GlobalTimeStoppingCondition;
 import org.evosuite.ga.stoppingconditions.MaxTimeStoppingCondition;
@@ -20,7 +19,6 @@ import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.factories.AllMethodsTestChromosomeFactory;
 import org.evosuite.testcase.factories.JUnitTestCarvedChromosomeFactory;
 import org.evosuite.testcase.factories.RandomLengthTestFactory;
-import org.evosuite.testcase.localsearch.BranchCoverageMap;
 import org.evosuite.testcase.secondaryobjectives.TestCaseSecondaryObjective;
 import org.evosuite.testsuite.RelativeSuiteLengthBloatControl;
 import org.evosuite.utils.ArrayUtil;
@@ -133,7 +131,7 @@ public class PropertiesMapElitesSearchFactory
       ga.addStoppingCondition(rmi);
 
       if (Properties.STOPPING_PORT != -1) {
-        SocketStoppingCondition<TestChromosome> ss = new SocketStoppingCondition<>();
+        SocketStoppingCondition<TestChromosome> ss = SocketStoppingCondition.getInstance();
         ss.accept();
         ga.addStoppingCondition(ss);
       }

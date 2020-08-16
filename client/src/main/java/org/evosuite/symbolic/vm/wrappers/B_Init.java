@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -34,7 +34,7 @@ public final class B_Init extends SymbolicFunction {
 	@Override
 	public Object executeFunction() {
 		IntegerValue bv32 = this.getSymbIntegerArgument(0);
-		ReferenceConstant symb_byte = (ReferenceConstant) this.getSymbReceiver();
+		ReferenceConstant symb_byte = this.getSymbReceiver();
 		env.heap.putField(Types.JAVA_LANG_BYTE, SymbolicHeap.$BYTE_VALUE,
 				null/* conc_integer */, symb_byte, bv32);
 

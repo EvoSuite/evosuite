@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -31,15 +31,15 @@ import org.evosuite.utils.Listenable;
  */
 public interface MasterNodeLocal extends Listenable<ClientStateInformation>{
 	
-	public String getSummaryOfClientStatuses();
+	String getSummaryOfClientStatuses();
 	
-	public Collection<ClientState> getCurrentState();
+	Collection<ClientState> getCurrentState();
 	
-	public ClientState getCurrentState(String clientId);
+	ClientState getCurrentState(String clientId);
 
-	public Collection<ClientStateInformation> getCurrentStateInformation();
+	Collection<ClientStateInformation> getCurrentStateInformation();
 
-	public Map<String, ClientNodeRemote> getClientsOnceAllConnected(long timeoutInMs) throws InterruptedException;
+	Map<String, ClientNodeRemote> getClientsOnceAllConnected(long timeoutInMs) throws InterruptedException;
 	
-	public void cancelAllClients();
+	void cancelAllClients();
 }

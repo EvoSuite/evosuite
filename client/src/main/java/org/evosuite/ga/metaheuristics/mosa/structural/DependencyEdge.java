@@ -19,7 +19,6 @@
  */
 package org.evosuite.ga.metaheuristics.mosa.structural;
 
-import org.evosuite.ga.FitnessFunction;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.jgrapht.graph.DefaultEdge;
 

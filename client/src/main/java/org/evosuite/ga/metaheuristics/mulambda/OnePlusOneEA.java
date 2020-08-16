@@ -21,7 +21,6 @@ package org.evosuite.ga.metaheuristics.mulambda;
 
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
-import org.evosuite.ga.FitnessFunction;
 
 /**
  * (1+1)EA

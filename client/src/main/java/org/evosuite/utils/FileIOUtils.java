@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -37,7 +37,7 @@ import com.thoughtworks.xstream.XStream;
  */
 public class FileIOUtils {
 
-	private static Logger logger = LoggerFactory.getLogger(FileIOUtils.class);
+	private static final Logger logger = LoggerFactory.getLogger(FileIOUtils.class);
 
 
 	/**
@@ -48,7 +48,7 @@ public class FileIOUtils {
 	 * @return content of the file in a list
 	 */
 	public static List<String> readFile(File file) {
-		List<String> content = new LinkedList<String>();
+		List<String> content = new LinkedList<>();
 		try {
 			Reader reader = new InputStreamReader(
 					new FileInputStream(file), "utf-8");

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
+
 package org.evosuite.instrumentation.mutation;
 
 import java.util.Arrays;
@@ -30,6 +28,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.evosuite.PackageInfo;
+import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.mutation.Mutation;
 import org.evosuite.coverage.mutation.MutationPool;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
@@ -55,13 +54,13 @@ public class ReplaceArithmeticOperator implements MutationOperator {
 
 	public static final String NAME = "ReplaceArithmeticOperator";
 	
-	private static Set<Integer> opcodesInt = new HashSet<Integer>();
+	private static Set<Integer> opcodesInt = new HashSet<>();
 
-	private static Set<Integer> opcodesLong = new HashSet<Integer>();
+	private static Set<Integer> opcodesLong = new HashSet<>();
 
-	private static Set<Integer> opcodesFloat = new HashSet<Integer>();
+	private static Set<Integer> opcodesFloat = new HashSet<>();
 
-	private static Set<Integer> opcodesDouble = new HashSet<Integer>();
+	private static Set<Integer> opcodesDouble = new HashSet<>();
 
 	private int numVariable = 0;
 
@@ -186,7 +185,7 @@ public class ReplaceArithmeticOperator implements MutationOperator {
 	        BytecodeInstruction instruction, Frame frame) {
 
 		numVariable = getNextIndex(mn);
-		List<Mutation> mutations = new LinkedList<Mutation>();
+		List<Mutation> mutations = new LinkedList<>();
 
 		InsnNode node = (InsnNode) instruction.getASMNode();
 
@@ -194,7 +193,7 @@ public class ReplaceArithmeticOperator implements MutationOperator {
 
 			InsnNode mutation = new InsnNode(opcode);
 			// insert mutation into pool
-			Mutation mutationObject = MutationPool.addMutation(className,
+			Mutation mutationObject = MutationPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).addMutation(className,
 			                                                   methodName,
 			                                                   NAME + " "
 			                                                           + getOp(node.getOpcode())
@@ -211,7 +210,7 @@ public class ReplaceArithmeticOperator implements MutationOperator {
 	}
 
 	private Set<Integer> getMutations(int opcode) {
-		Set<Integer> replacement = new HashSet<Integer>();
+		Set<Integer> replacement = new HashSet<>();
 		if (opcodesInt.contains(opcode))
 			replacement.addAll(opcodesInt);
 		else if (opcodesLong.contains(opcode))

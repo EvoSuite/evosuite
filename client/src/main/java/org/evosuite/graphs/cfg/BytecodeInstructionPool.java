@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -42,7 +42,7 @@ import org.slf4j.LoggerFactory;
  */
 public class BytecodeInstructionPool {
 
-	private static Logger logger = LoggerFactory.getLogger(BytecodeInstructionPool.class);
+	private static final Logger logger = LoggerFactory.getLogger(BytecodeInstructionPool.class);
 
 	private static Map<ClassLoader, BytecodeInstructionPool> instanceMap = new LinkedHashMap<>();
 
@@ -427,8 +427,7 @@ public class BytecodeInstructionPool {
 		        || instructionMap.get(className).get(methodName) == null)
 			return null;
 
-		List<BytecodeInstruction> r = new ArrayList<>();
-		r.addAll(instructionMap.get(className).get(methodName));
+		List<BytecodeInstruction> r = new ArrayList<>(instructionMap.get(className).get(methodName));
 
 		return r;
 	}

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -40,7 +40,7 @@ public final class StringBuilder_Init extends SymbolicFunction {
 	public Object executeFunction() {
 
 		// symbolic receiver (new object)
-		ReferenceConstant symb_str_builder = (ReferenceConstant) this
+		ReferenceConstant symb_str_builder = this
 				.getSymbReceiver();
 
 		// string argument

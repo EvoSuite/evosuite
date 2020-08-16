@@ -39,6 +39,8 @@ public class DiversityObserver implements SearchListener<TestSuiteChromosome> {
 
     private static final Logger logger = LoggerFactory.getLogger(DiversityObserver.class);
 
+    private static final long serialVersionUID = -3761776930918618235L;
+
     public DiversityObserver() {
         // empty default constructor
     }
@@ -175,9 +177,9 @@ public class DiversityObserver implements SearchListener<TestSuiteChromosome> {
 
 
     public static void printMatrix(int[][] matrix) {
-        for(int x = 0; x < matrix.length; x++) {
-            for(int y = 0; y < matrix[x].length; y++) {
-                System.out.print(" "+matrix[x][y]);
+        for (final int[] ints : matrix) {
+            for (final int i : ints) {
+                System.out.print(" " + i);
             }
             System.out.println();
         }

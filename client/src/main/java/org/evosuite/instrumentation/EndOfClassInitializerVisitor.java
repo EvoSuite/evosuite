@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -140,7 +140,7 @@ public class EndOfClassInitializerVisitor extends ClassVisitor {
 			String type;
 		}
 
-		private final List<TryCatchBlock> tryCatchBlocks = new LinkedList<TryCatchBlock>();
+		private final List<TryCatchBlock> tryCatchBlocks = new LinkedList<>();
 
 		@Override
 		public void visitTryCatchBlock(Label start, Label end, Label handler, String type) {
@@ -153,7 +153,7 @@ public class EndOfClassInitializerVisitor extends ClassVisitor {
 
 	}
 
-	private static Logger logger = LoggerFactory.getLogger(EndOfClassInitializerVisitor.class);
+	private static final Logger logger = LoggerFactory.getLogger(EndOfClassInitializerVisitor.class);
 
 	private final String className;
 
