@@ -531,7 +531,7 @@ public class MockFile extends File implements OverrideMock {
 		}
 		String ss[] = list();
 		if (ss == null) return null;
-		ArrayList<File> files = new ArrayList<File>();
+		ArrayList<File> files = new ArrayList<>();
 		for (String s : ss) {
 			File f = new MockFile(this,s);
 			if ((filter == null) || filter.accept(f))

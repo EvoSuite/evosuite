@@ -55,7 +55,7 @@ public final class L4_Collections {
 	}
 
 	public static boolean guessSize(int s) {
-		List<Integer> list = new ArrayList<Integer>();
+		List<Integer> list = new ArrayList<>();
 		list.add(10);
 		list.add(20);
 
@@ -67,7 +67,7 @@ public final class L4_Collections {
 	}
 
 	public static boolean guessElements(int a, int b) {
-		List<Integer> list = new ArrayList<Integer>();
+		List<Integer> list = new ArrayList<>();
 		list.add(10);
 		list.add(20);
 
@@ -79,7 +79,7 @@ public final class L4_Collections {
 	}
 
 	public static boolean guessSizeAndElements(int s, int a, int b) {
-		List<Integer> list = new ArrayList<Integer>();
+		List<Integer> list = new ArrayList<>();
 		list.add(10);
 		list.add(20);
 
@@ -91,7 +91,7 @@ public final class L4_Collections {
 	}
 
 	public static boolean guessIndices(int a, int b) {
-		List<Integer> list = new ArrayList<Integer>();
+		List<Integer> list = new ArrayList<>();
 		list.add(10);
 		list.add(20);
 		list.add(30);
@@ -106,7 +106,7 @@ public final class L4_Collections {
 	}
 
 	public static boolean guessElementAndIndex(int a, int i) {
-		List<Integer> list = new ArrayList<Integer>();
+		List<Integer> list = new ArrayList<>();
 		list.add(10);
 		list.add(20);
 		list.add(30);

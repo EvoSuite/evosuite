@@ -141,10 +141,10 @@ public class TestGenericClass {
 		 * 2)  public String run(Collection<BibtexEntry> bibtex) {
 		 */
 
-		Collection<?> col0 = new Stack<Object>();
+		Collection<?> col0 = new Stack<>();
 		Collection<A> col1 = new Stack();
 		Collection col2 = new Stack();
-		Collection col3 = new Stack<Object>();
+		Collection col3 = new Stack<>();
 
 		/*
 		 *  following does not compile
@@ -633,7 +633,7 @@ public class TestGenericClass {
 
 	@Test
 	public void testIterableAndListBoundaries() {
-		Map<TypeVariable<?>, Type> typeMap = new HashMap<TypeVariable<?>, Type>();
+		Map<TypeVariable<?>, Type> typeMap = new HashMap<>();
 		final GenericClass iterableIntegerClass = new GenericClass(
 		        new TypeToken<java.lang.Iterable<Integer>>() {
 		        }.getType());

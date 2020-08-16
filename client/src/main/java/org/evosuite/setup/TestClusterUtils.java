@@ -276,7 +276,7 @@ public class TestClusterUtils {
 		if(methodCache.containsKey(clazz)) {
 			return methodCache.get(clazz);
 		}
-		Map<String, Method> helper = new TreeMap<String, Method>();
+		Map<String, Method> helper = new TreeMap<>();
 
 		if (clazz.getSuperclass() != null) {
 			for (Method m : getMethods(clazz.getSuperclass())) {

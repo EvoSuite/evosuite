@@ -37,7 +37,7 @@ public abstract class TestSolverUNSAT extends TestSolver {
 			SolverErrorException {
 		Solver solver = getSolver();
 
-		Collection<Constraint<?>> constraints = new LinkedList<Constraint<?>>();
+		Collection<Constraint<?>> constraints = new LinkedList<>();
 		IntegerVariable x = new IntegerVariable("x", 1L, Long.MIN_VALUE, Long.MAX_VALUE);
 		IntegerConstraint unsat_constraint = ConstraintFactory.neq(x, x);
 		constraints.add(unsat_constraint);

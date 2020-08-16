@@ -61,7 +61,7 @@ public enum JdkPureMethodsList {
 	 * @return signatures of cheap-pure JDK methods
 	 */
 	private Set<String> loadInfo() {
-		Set<String> set = new HashSet<String>(2020);
+		Set<String> set = new HashSet<>(2020);
 
 		try {
 			InputStream fstream = this.getClass().getResourceAsStream(

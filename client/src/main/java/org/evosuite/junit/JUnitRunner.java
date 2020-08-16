@@ -51,7 +51,7 @@ public class JUnitRunner {
 	 * 
 	 */
 	public JUnitRunner(Class<?> junitClass) {
-		this.testResults = new ArrayList<JUnitResult>();
+		this.testResults = new ArrayList<>();
 		this.junitClass = junitClass;
 	}
 

@@ -47,7 +47,7 @@ public class DescriptorMapping {
 
 	private static int id = 0;
 
-	private final Map<String, String> descriptorMapping = new HashMap<String, String>();
+	private final Map<String, String> descriptorMapping = new HashMap<>();
 
 	private static Logger logger = LoggerFactory.getLogger(DescriptorMapping.class);
 
@@ -69,11 +69,11 @@ public class DescriptorMapping {
 		return instance;
 	}
 
-	final Map<String, String> originalDesc = new HashMap<String, String>();
+	final Map<String, String> originalDesc = new HashMap<>();
 
-	final Map<String, String> originalName = new HashMap<String, String>();
+	final Map<String, String> originalName = new HashMap<>();
 
-	private final Map<String, String> nameMapping = new HashMap<String, String>();
+	private final Map<String, String> nameMapping = new HashMap<>();
 
 	/**
 	 * <p>shouldTransform</p>
@@ -309,8 +309,8 @@ public class DescriptorMapping {
 	}
 
 	private boolean isOutsideMethod(String className, String methodName, String desc) {
-		Set<String> visited = new HashSet<String>();
-		Queue<String> parents = new LinkedList<String>();
+		Set<String> visited = new HashSet<>();
+		Queue<String> parents = new LinkedList<>();
 		parents.add(className);
 
 		while (!parents.isEmpty()) {
@@ -370,8 +370,8 @@ public class DescriptorMapping {
 
 	private String transformMethodName(String className, String methodName, String desc,
 	        String transformedDesc) {
-		Set<String> visited = new HashSet<String>();
-		Queue<String> parents = new LinkedList<String>();
+		Set<String> visited = new HashSet<>();
+		Queue<String> parents = new LinkedList<>();
 		parents.add(className);
 
 		while (!parents.isEmpty()) {
@@ -425,8 +425,8 @@ public class DescriptorMapping {
 	}
 
 	private boolean isOutsideField(String className, String fieldName, String desc) {
-		Set<String> visited = new HashSet<String>();
-		Queue<String> parents = new LinkedList<String>();
+		Set<String> visited = new HashSet<>();
+		Queue<String> parents = new LinkedList<>();
 		parents.add(className);
 
 		while (!parents.isEmpty()) {

@@ -317,7 +317,7 @@ public class ReplaceVariable implements MutationOperator {
 	 */
 	private Map<String, InsnList> getReplacements(MethodNode mn, String className,
 	        AbstractInsnNode node, Frame frame) {
-		Map<String, InsnList> variables = new HashMap<String, InsnList>();
+		Map<String, InsnList> variables = new HashMap<>();
 
 		if (node instanceof VarInsnNode) {
 			VarInsnNode var = (VarInsnNode) node;
@@ -388,7 +388,7 @@ public class ReplaceVariable implements MutationOperator {
 
 	private Map<String, InsnList> getLocalReplacements(MethodNode mn, String desc,
 	        AbstractInsnNode node, Frame frame) {
-		Map<String, InsnList> replacements = new HashMap<String, InsnList>();
+		Map<String, InsnList> replacements = new HashMap<>();
 
 		//if (desc.equals("I"))
 		//	return replacements;
@@ -446,7 +446,7 @@ public class ReplaceVariable implements MutationOperator {
 
 	private Map<String, InsnList> getLocalReplacementsInc(MethodNode mn, String desc,
 	        IincInsnNode node, Frame frame) {
-		Map<String, InsnList> replacements = new HashMap<String, InsnList>();
+		Map<String, InsnList> replacements = new HashMap<>();
 
 		int otherNum = -1;
 		otherNum = node.var;
@@ -491,7 +491,7 @@ public class ReplaceVariable implements MutationOperator {
 
 	private Map<String, InsnList> getFieldReplacements(MethodNode mn, String className,
 	        String desc, AbstractInsnNode node) {
-		Map<String, InsnList> alternatives = new HashMap<String, InsnList>();
+		Map<String, InsnList> alternatives = new HashMap<>();
 
 		boolean isStatic = (mn.access & Opcodes.ACC_STATIC) == Opcodes.ACC_STATIC;
 

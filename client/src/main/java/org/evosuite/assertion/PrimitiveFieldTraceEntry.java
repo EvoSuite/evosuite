@@ -35,7 +35,7 @@ import org.evosuite.testcase.variable.VariableReference;
  */
 public class PrimitiveFieldTraceEntry implements OutputTraceEntry {
 
-  private final Map<Field, Object> fieldMap = new HashMap<Field, Object>();
+  private final Map<Field, Object> fieldMap = new HashMap<>();
 
   private final Map<String, Field> signatureFieldMap = new HashMap<>();
 
@@ -97,7 +97,7 @@ public class PrimitiveFieldTraceEntry implements OutputTraceEntry {
    */
   @Override
   public Set<Assertion> getAssertions(OutputTraceEntry other) {
-    Set<Assertion> assertions = new HashSet<Assertion>();
+    Set<Assertion> assertions = new HashSet<>();
 
     if (other instanceof PrimitiveFieldTraceEntry) {
       PrimitiveFieldTraceEntry otherEntry = (PrimitiveFieldTraceEntry) other;
@@ -131,7 +131,7 @@ public class PrimitiveFieldTraceEntry implements OutputTraceEntry {
    */
   @Override
   public Set<Assertion> getAssertions() {
-    Set<Assertion> assertions = new HashSet<Assertion>();
+    Set<Assertion> assertions = new HashSet<>();
     for (Field field : fieldMap.keySet()) {
       PrimitiveFieldAssertion assertion = new PrimitiveFieldAssertion();
       assertion.value = fieldMap.get(field);

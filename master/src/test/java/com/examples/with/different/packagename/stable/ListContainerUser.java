@@ -25,9 +25,9 @@ import java.util.List;
 
 public class ListContainerUser {
 
-	private final List<Object> myList = new LinkedList<Object>();
+	private final List<Object> myList = new LinkedList<>();
 
-	private final List<Object> myEmptyList = new LinkedList<Object>();
+	private final List<Object> myEmptyList = new LinkedList<>();
 
 	private final boolean isMyContainsFlag;
 	private final boolean isMyContainsAllFlag;

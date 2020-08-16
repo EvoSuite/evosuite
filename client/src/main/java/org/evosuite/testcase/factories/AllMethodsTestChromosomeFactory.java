@@ -58,13 +58,13 @@ public class AllMethodsTestChromosomeFactory implements ChromosomeFactory<TestCh
 	protected static final Logger logger = LoggerFactory.getLogger(AllMethodsTestChromosomeFactory.class);
 
 	/** Methods we have already seen */
-	private static Set<GenericAccessibleObject<?>> attemptedMethods = new LinkedHashSet<GenericAccessibleObject<?>>();
+	private static Set<GenericAccessibleObject<?>> attemptedMethods = new LinkedHashSet<>();
 
 	/** Methods we have not already seen */
-	private static Set<GenericAccessibleObject<?>> remainingMethods = new LinkedHashSet<GenericAccessibleObject<?>>();
+	private static Set<GenericAccessibleObject<?>> remainingMethods = new LinkedHashSet<>();
 
 	/** Methods we have to cover */
-	private static List<GenericAccessibleObject<?>> allMethods = new LinkedList<GenericAccessibleObject<?>>();
+	private static List<GenericAccessibleObject<?>> allMethods = new LinkedList<>();
 
 	/**
 	 * Create a list of all methods

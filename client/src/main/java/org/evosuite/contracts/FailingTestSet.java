@@ -52,7 +52,7 @@ public class FailingTestSet {
 	 */
 
 	/** The violated tracked */
-	private static final List<ContractViolation> violations = new ArrayList<ContractViolation>();
+	private static final List<ContractViolation> violations = new ArrayList<>();
 
 	private static int violationCount = 0;
 
@@ -118,7 +118,7 @@ public class FailingTestSet {
 	}
 
 	public static List<TestCase> getFailingTests() {
-		List<TestCase> tests = new ArrayList<TestCase>();
+		List<TestCase> tests = new ArrayList<>();
 		ContractChecker.setActive(false);
 		TestCaseExecutor.getInstance().newObservers();
 

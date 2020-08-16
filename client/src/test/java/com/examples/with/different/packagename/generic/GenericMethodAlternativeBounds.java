@@ -36,7 +36,7 @@ public class GenericMethodAlternativeBounds {
 	}
 
 	public static <K extends Enum<K>> List<K> create(Class<K> keyType) {
-		List<K> list = new ArrayList<K>();
+		List<K> list = new ArrayList<>();
 		return list;
 	}
 }

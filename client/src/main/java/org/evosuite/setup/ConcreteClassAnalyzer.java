@@ -79,22 +79,22 @@ public class ConcreteClassAnalyzer {
             // We don't want to explicitly create iterators
             // This would only pull in java.util.Scanner, the only
             // concrete subclass
-            return new LinkedHashSet<Class<?>>();
+            return new LinkedHashSet<>();
         else if (clazz.equals(java.util.ListIterator.class))
             // We don't want to explicitly create iterators
-            return new LinkedHashSet<Class<?>>();
+            return new LinkedHashSet<>();
         else if (clazz.equals(java.io.Serializable.class))
-            return new LinkedHashSet<Class<?>>();
+            return new LinkedHashSet<>();
         else if (clazz.equals(Comparable.class))
             return getConcreteClassesComparable();
         else if (clazz.equals(java.util.Comparator.class))
-            return new LinkedHashSet<Class<?>>();
+            return new LinkedHashSet<>();
         else if (clazz.equals(java.io.Reader.class))
             return getConcreteClassesReader();
         else if (clazz.equals(java.io.Writer.class))
             return getConcreteClassesWriter();
 
-        Set<Class<?>> actualClasses = new LinkedHashSet<Class<?>>();
+        Set<Class<?>> actualClasses = new LinkedHashSet<>();
         if (Modifier.isAbstract(clazz.getModifiers())
                 || Modifier.isInterface(clazz.getModifiers()) || clazz.equals(Enum.class)) {
             // We have to use getName here and not getCanonicalName
@@ -105,7 +105,7 @@ public class ConcreteClassAnalyzer {
                 className = clazz.getSuperclass().getName();
             Set<String> subClasses = inheritanceTree.getSubclasses(className);
             logger.debug("Subclasses of " + clazz.getName() + ": " + subClasses);
-            Map<String, Integer> classDistance = new HashMap<String, Integer>();
+            Map<String, Integer> classDistance = new HashMap<>();
             int maxDistance = -1;
             String name = clazz.getName();
             if (clazz.equals(Enum.class)) {
@@ -197,7 +197,7 @@ public class ConcreteClassAnalyzer {
     }
 
     private Set<Class<?>> getConcreteClassesList() {
-        Set<Class<?>> mapClasses = new LinkedHashSet<Class<?>>();
+        Set<Class<?>> mapClasses = new LinkedHashSet<>();
         Class<?> mapClazz;
         try {
             mapClazz = Class.forName("java.util.LinkedList",
@@ -211,7 +211,7 @@ public class ConcreteClassAnalyzer {
     }
 
     private Set<Class<?>> getConcreteClassesSet() {
-        Set<Class<?>> mapClasses = new LinkedHashSet<Class<?>>();
+        Set<Class<?>> mapClasses = new LinkedHashSet<>();
         Class<?> setClazz;
         try {
             setClazz = Class.forName("java.util.LinkedHashSet",
@@ -225,7 +225,7 @@ public class ConcreteClassAnalyzer {
     }
 
     private Set<Class<?>> getConcreteClassesReader() {
-        Set<Class<?>> mapClasses = new LinkedHashSet<Class<?>>();
+        Set<Class<?>> mapClasses = new LinkedHashSet<>();
         Class<?> setClazz;
         try {
             setClazz = Class.forName("java.io.StringReader",
@@ -239,7 +239,7 @@ public class ConcreteClassAnalyzer {
     }
 
     private Set<Class<?>> getConcreteClassesWriter() {
-        Set<Class<?>> mapClasses = new LinkedHashSet<Class<?>>();
+        Set<Class<?>> mapClasses = new LinkedHashSet<>();
         Class<?> setClazz;
         try {
             setClazz = Class.forName("java.io.StringWriter",
@@ -253,7 +253,7 @@ public class ConcreteClassAnalyzer {
     }
 
     private Set<Class<?>> getConcreteClassesComparable() {
-        Set<Class<?>> comparableClasses = new LinkedHashSet<Class<?>>();
+        Set<Class<?>> comparableClasses = new LinkedHashSet<>();
         Class<?> comparableClazz;
         try {
             comparableClazz = Class.forName("java.lang.Integer",

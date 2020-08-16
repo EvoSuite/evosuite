@@ -110,7 +110,7 @@ public class MockJFileChooser extends  javax.swing.JFileChooser  implements Over
 	private String approveButtonText = null;
 	private String approveButtonToolTipText = null;
 	private int approveButtonMnemonic = 0;
-	private Vector<FileFilter> filters = new Vector<FileFilter>(5);
+	private Vector<FileFilter> filters = new Vector<>(5);
 	private JDialog dialog = null;
 	private int dialogType = OPEN_DIALOG;
 	private int returnValue = ERROR_OPTION;
@@ -656,7 +656,7 @@ public class MockJFileChooser extends  javax.swing.JFileChooser  implements Over
 		fileFilter = filter;
 		if (filter != null) {
 			if (isMultiSelectionEnabled() && selectedFiles != null && selectedFiles.length > 0) {
-				Vector<File> fList = new Vector<File>();
+				Vector<File> fList = new Vector<>();
 				boolean failed = false;
 				for (File file : selectedFiles) {
 					if (filter.accept(file)) {
@@ -858,7 +858,7 @@ public class MockJFileChooser extends  javax.swing.JFileChooser  implements Over
 		WeakReference<MockJFileChooser> jfcRef;
 
 		public MockWeakPCL(MockJFileChooser jfc) {
-			jfcRef = new WeakReference<MockJFileChooser>(jfc);
+			jfcRef = new WeakReference<>(jfc);
 		}
 		public void propertyChange(PropertyChangeEvent ev) {
 			assert ev.getPropertyName().equals(SHOW_HIDDEN_PROP);

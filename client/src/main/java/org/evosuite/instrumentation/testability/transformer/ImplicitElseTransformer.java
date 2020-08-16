@@ -65,10 +65,10 @@ public class ImplicitElseTransformer extends MethodNodeTransformer {
 		this.booleanTestabilityTransformation = booleanTestabilityTransformation;
 	}
 
-	private final Set<ControlDependency> addedNodes = new HashSet<ControlDependency>();
+	private final Set<ControlDependency> addedNodes = new HashSet<>();
 
 	/*** Keep track of inserted PUTFIELDs */
-	private final Set<AbstractInsnNode> addedInsns = new HashSet<AbstractInsnNode>();
+	private final Set<AbstractInsnNode> addedInsns = new HashSet<>();
 
 	@SuppressWarnings("unchecked")
 	private boolean isDefinedBefore(MethodNode mn, VarInsnNode var,

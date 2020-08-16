@@ -49,7 +49,7 @@ public abstract class AssertionTraceObserver<T extends OutputTraceEntry> extends
 	/** Constant <code>logger</code> */
 	protected static final Logger logger = LoggerFactory.getLogger(AssertionTraceObserver.class);
 
-	protected OutputTrace<T> trace = new OutputTrace<T>();
+	protected OutputTrace<T> trace = new OutputTrace<>();
 
 	protected boolean checkThread() {
 		return ExecutionTracer.isThreadNeqCurrentThread();

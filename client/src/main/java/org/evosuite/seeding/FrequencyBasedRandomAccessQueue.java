@@ -30,9 +30,9 @@ import java.util.*;
  */
 public class FrequencyBasedRandomAccessQueue<T> implements RandomAccessQueue<T> {
 
-    private final FrequencyBasedPool<T> values = new FrequencyBasedPool<T>();
+    private final FrequencyBasedPool<T> values = new FrequencyBasedPool<>();
 
-    private final Queue<T> queue = new ArrayDeque<T>();
+    private final Queue<T> queue = new ArrayDeque<>();
 
     /* (non-Javadoc)
      * @see org.evosuite.primitives.RandomAccessQueue#restrictedAdd(java.lang.Object)

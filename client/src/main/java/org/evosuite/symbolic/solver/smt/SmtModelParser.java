@@ -86,7 +86,7 @@ public final class SmtModelParser extends ResultParser {
 	}
 
 	private SolverResult parseModel(String cvc4ResultStr) {
-		Map<String, Object> solution = new HashMap<String, Object>();
+		Map<String, Object> solution = new HashMap<>();
 
 		String token;
 		StringTokenizer tokenizer = new StringTokenizer(cvc4ResultStr, "() \n\t", true);

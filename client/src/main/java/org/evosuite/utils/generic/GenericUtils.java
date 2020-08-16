@@ -179,7 +179,7 @@ public class GenericUtils {
 			return getMatchingTypeParameters((ParameterizedType) p1.getGenericComponentType(),
 			                                 (ParameterizedType) p2.getGenericComponentType());
 		} else {
-			Map<TypeVariable<?>, Type> map = new HashMap<TypeVariable<?>, Type>();
+			Map<TypeVariable<?>, Type> map = new HashMap<>();
 			return map;
 		}
 	}
@@ -194,7 +194,7 @@ public class GenericUtils {
 	public static Map<TypeVariable<?>, Type> getMatchingTypeParameters(
 	        ParameterizedType p1, ParameterizedType p2) {
 		logger.debug("Matching generic types between "+p1+" and "+p2);
-		Map<TypeVariable<?>, Type> map = new HashMap<TypeVariable<?>, Type>();
+		Map<TypeVariable<?>, Type> map = new HashMap<>();
 		if (!p1.getRawType().equals(p2.getRawType())) {
 			logger.debug("Raw types do not match!");
 			

@@ -33,7 +33,7 @@ public class TestStubbingClassLoader extends ClassLoader {
 
 	private final ClassLoader classLoader;
 	
-	private final Map<String, Class<?>> classes = new HashMap<String, Class<?>>();
+	private final Map<String, Class<?>> classes = new HashMap<>();
 	
 	public TestStubbingClassLoader() {
 		classLoader = TestStubbingClassLoader.class.getClassLoader();

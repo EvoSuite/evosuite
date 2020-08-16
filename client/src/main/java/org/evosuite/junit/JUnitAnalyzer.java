@@ -100,7 +100,7 @@ public class JUnitAnalyzer {
 			logger.debug("Created tmp folder: " + dir.getAbsolutePath());
 
 			try {
-				List<TestCase> singleList = new ArrayList<TestCase>();
+				List<TestCase> singleList = new ArrayList<>();
 				singleList.add(test);
 				List<File> generated = compileTests(singleList, dir);
 				if (generated == null) {
@@ -368,7 +368,7 @@ public class JUnitAnalyzer {
 				return null;
 			}
 
-			DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<JavaFileObject>();
+			DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
 			Locale locale = Locale.getDefault();
 			Charset charset = Charset.forName("UTF-8");
 			StandardJavaFileManager fileManager = compiler.getStandardFileManager(diagnostics,

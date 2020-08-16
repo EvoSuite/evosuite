@@ -73,7 +73,7 @@ public abstract class MockFileSystemView extends FileSystemView  implements Over
 
 
 	public MockFileSystemView() {
-		final WeakReference<MockFileSystemView> weakReference = new WeakReference<MockFileSystemView>(this);
+		final WeakReference<MockFileSystemView> weakReference = new WeakReference<>(this);
 
 		UIManager.addPropertyChangeListener(new PropertyChangeListener() {
 			public void propertyChange(PropertyChangeEvent evt) {
@@ -306,7 +306,7 @@ public abstract class MockFileSystemView extends FileSystemView  implements Over
 
 	@Override
 	public File[] getFiles(File dir, boolean useFileHiding) {
-		List<File> files = new ArrayList<File>();
+		List<File> files = new ArrayList<>();
 
 		if(dir==null){
 			return new File[0];

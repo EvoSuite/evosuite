@@ -52,7 +52,7 @@ public class OnlyBranchCoverageFactory extends
 	@Override
 	public List<OnlyBranchCoverageTestFitness> getCoverageGoals() {
 		long start = System.currentTimeMillis();
-		List<OnlyBranchCoverageTestFitness> goals = new ArrayList<OnlyBranchCoverageTestFitness>();
+		List<OnlyBranchCoverageTestFitness> goals = new ArrayList<>();
 
 		// logger.info("Getting branches");
 		for (String className : BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).knownClasses()) {

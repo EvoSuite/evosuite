@@ -37,7 +37,7 @@ public class VFolder extends FSObject{
 	public VFolder(String path, VFolder parent) {
 		super(path, parent);
 		
-		children = new CopyOnWriteArrayList<FSObject>();
+		children = new CopyOnWriteArrayList<>();
 	}
 	
 	@Override
@@ -77,7 +77,7 @@ public class VFolder extends FSObject{
 	}
 	
 	public String[] getChildrenNames(){
-		List<String> list = new ArrayList<String>(children.size());
+		List<String> list = new ArrayList<>(children.size());
 		Iterator<FSObject> iter = children.iterator();
 		while(iter.hasNext()){
 			list.add(iter.next().getName());

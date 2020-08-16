@@ -326,7 +326,7 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
      * @return
      */
     private List<ExecutionResult> getUpdatedResults(List<Properties.Criterion> requiredCriteria, List<ExecutionResult> origResults) {
-        List<ExecutionObserver> newObservers = new ArrayList<ExecutionObserver>();
+        List<ExecutionObserver> newObservers = new ArrayList<>();
         if(requiredCriteria.contains(Properties.Criterion.INPUT)) {
             newObservers.add(new InputObserver());
         }
@@ -339,7 +339,7 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
         for(ExecutionObserver observer : newObservers)
             TestCaseExecutor.getInstance().addObserver(observer);
 
-        List<ExecutionResult> newResults = new ArrayList<ExecutionResult>();
+        List<ExecutionResult> newResults = new ArrayList<>();
         for(ExecutionResult result : origResults) {
             ExecutionResult newResult = TestCaseExecutor.getInstance().runTest(result.test);
             newResults.add(newResult);
@@ -392,7 +392,7 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
         Map<TestCase, Set<T>> goalMapCopy = new LinkedHashMap<>();
 
         for(Map.Entry<TestCase, Set<T>> entry : testToGoals.entrySet()) {
-            Set<T> goalSet = new LinkedHashSet<T>(entry.getValue());
+            Set<T> goalSet = new LinkedHashSet<>(entry.getValue());
             for(Map.Entry<TestCase, Set<T>> otherEntry : testToGoals.entrySet()) {
                 if(entry == otherEntry)
                     continue;
@@ -425,7 +425,7 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
         }
 
         for(Map.Entry<TestCase, Set<T>> entry : testToGoals.entrySet()) {
-            Set<T> goalSet = new LinkedHashSet<T>(entry.getValue());
+            Set<T> goalSet = new LinkedHashSet<>(entry.getValue());
             goalSet.removeAll(commonGoals);
             goalMapCopy.put(entry.getKey(), goalSet);
         }

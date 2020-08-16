@@ -39,7 +39,7 @@ public class CollectParameterTypesVisitor extends SignatureVisitor {
 
 	private final static Logger logger = LoggerFactory.getLogger(CollectParameterTypesVisitor.class);
 
-	private final Set<Type> classes = new LinkedHashSet<Type>();
+	private final Set<Type> classes = new LinkedHashSet<>();
 
 	private final String className;
 

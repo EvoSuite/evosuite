@@ -54,9 +54,9 @@ public class GenericTypeInference extends TestVisitor {
 
 	private static Logger logger = LoggerFactory.getLogger(GenericTypeInference.class);
 
-	private final Map<VariableReference, Set<Type>> variableMap = new LinkedHashMap<VariableReference, Set<Type>>();
+	private final Map<VariableReference, Set<Type>> variableMap = new LinkedHashMap<>();
 
-	private final Map<Type, Set<VariableReference>> typeMap = new LinkedHashMap<Type, Set<VariableReference>>();
+	private final Map<Type, Set<VariableReference>> typeMap = new LinkedHashMap<>();
 
 	private TestCase test;
 
@@ -75,12 +75,12 @@ public class GenericTypeInference extends TestVisitor {
 
 	private void addVariable(Statement statement) {
 		VariableReference retVal = statement.getReturnValue();
-		variableMap.put(retVal, new LinkedHashSet<Type>());
+		variableMap.put(retVal, new LinkedHashSet<>());
 	}
 
 	private void addTypeAssignment(Type type, VariableReference value) {
 		if (!typeMap.containsKey(type)) {
-			typeMap.put(type, new LinkedHashSet<VariableReference>());
+			typeMap.put(type, new LinkedHashSet<>());
 		}
 		typeMap.get(type).add(value);
 		variableMap.get(value).add(type);
@@ -180,7 +180,7 @@ public class GenericTypeInference extends TestVisitor {
 	}
 
 	private Map<TypeVariable<?>, Type> getParameterType(Type parameterType, Type valueType) {
-		Map<TypeVariable<?>, Type> typeMap = new LinkedHashMap<TypeVariable<?>, Type>();
+		Map<TypeVariable<?>, Type> typeMap = new LinkedHashMap<>();
 		addToMap(parameterType, valueType, typeMap);
 		return typeMap;
 	}
@@ -258,7 +258,7 @@ public class GenericTypeInference extends TestVisitor {
 			logger.info("Setting types based on map: " + typeMap);
 			GenericClass owner = constructor.getOwnerClass();
 			List<TypeVariable<?>> variables = owner.getTypeVariables();
-			List<Type> types = new ArrayList<Type>();
+			List<Type> types = new ArrayList<>();
 			for (TypeVariable<?> var : variables) {
 				Type type = typeMap.get(var);
 				if (type == null) {

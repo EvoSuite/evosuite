@@ -34,7 +34,7 @@ public class OnlyMutationFactory extends MutationFactory {
 			return this.goals;
 		}
 
-		this.goals = new ArrayList<MutationTestFitness>();
+		this.goals = new ArrayList<>();
 
 		for (Mutation m : MutationPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getMutants()) {
 			//if (MutationTimeoutStoppingCondition.isDisabled(m))

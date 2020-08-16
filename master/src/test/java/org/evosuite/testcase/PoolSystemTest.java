@@ -214,7 +214,7 @@ public class PoolSystemTest extends SystemTestBase {
 		Properties.getTargetClassAndDontInitialise();
 		TestCase test = new DefaultTestCase();
 		VariableReference instance = test.addStatement(new ConstructorStatement(test, new GenericConstructor(DependencyClassWithException.class.getConstructors()[0], DependencyClassWithException.class),
-				new ArrayList<VariableReference>()));
+				new ArrayList<>()));
 		VariableReference int42 = test.addStatement(new IntPrimitiveStatement(test, 42));
 		GenericMethod foo = new GenericMethod(DependencyClassWithException.class.getMethod("foo", int.class), DependencyClassWithException.class);
 		test.addStatement(new MethodStatement(test, foo, instance, Arrays.asList(new VariableReference[] {int42})));

@@ -193,7 +193,7 @@ public class TestSuiteWriter implements Opcodes {
             throw new IllegalArgumentException("Test classes should have name ending with 'Test'. Invalid input name: " + name);
         }
 
-        List<File> generated = new ArrayList<File>();
+        List<File> generated = new ArrayList<>();
         String dir = TestSuiteWriterUtils.makeDirectory(directory);
         String content = "";
 
@@ -404,8 +404,8 @@ public class TestSuiteWriter implements Opcodes {
      */
     protected String getImports(List<ExecutionResult> results) {
         StringBuilder builder = new StringBuilder();
-        Set<Class<?>> imports = new HashSet<Class<?>>();
-        Set<Class<?>> accessedClasses = new HashSet<Class<?>>();
+        Set<Class<?>> imports = new HashSet<>();
+        Set<Class<?>> accessedClasses = new HashSet<>();
         boolean wasSecurityException = TestSuiteWriterUtils.hasAnySecurityException(results);
         boolean hasException = false;
 

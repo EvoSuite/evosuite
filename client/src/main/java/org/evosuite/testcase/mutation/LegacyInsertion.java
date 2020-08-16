@@ -94,7 +94,7 @@ public class LegacyInsertion implements InsertionStrategy {
 			return null;
 
 		List<VariableReference> allVariables = test.getObjects(position);
-		Set<VariableReference> candidateVariables = new LinkedHashSet<VariableReference>();
+		Set<VariableReference> candidateVariables = new LinkedHashSet<>();
 		for(VariableReference var : allVariables) {
 			if (!(var instanceof NullReference) &&
 					!var.isVoid() &&

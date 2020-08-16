@@ -26,9 +26,9 @@ public class GenericTripleParameter<X, Y, Z> {
 	
 	public Map<X, Y> foo(Z param) {
 		if(param == null)
-			return new HashMap<X, Y>();
+			return new HashMap<>();
 		else
-			return new HashMap<X, Y>();
+			return new HashMap<>();
 	}
 
 }

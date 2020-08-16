@@ -72,7 +72,7 @@ public class NullTraceEntry implements OutputTraceEntry {
 	/** {@inheritDoc} */
 	@Override
 	public Set<Assertion> getAssertions(OutputTraceEntry other) {
-		Set<Assertion> assertions = new HashSet<Assertion>();
+		Set<Assertion> assertions = new HashSet<>();
 
 		if (other instanceof NullTraceEntry) {
 			NullTraceEntry otherEntry = (NullTraceEntry) other;
@@ -96,7 +96,7 @@ public class NullTraceEntry implements OutputTraceEntry {
 	/** {@inheritDoc} */
 	@Override
 	public Set<Assertion> getAssertions() {
-		Set<Assertion> assertions = new HashSet<Assertion>();
+		Set<Assertion> assertions = new HashSet<>();
 		NullAssertion assertion = new NullAssertion();
 		assertion.value = isNull;
 		assertion.source = var;

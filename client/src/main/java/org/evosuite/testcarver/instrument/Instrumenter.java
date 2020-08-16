@@ -244,7 +244,7 @@ public final class Instrumenter
 		}
 		*/
 		
-		final ArrayList<MethodNode> wrappedMethods = new ArrayList<MethodNode>();
+		final ArrayList<MethodNode> wrappedMethods = new ArrayList<>();
 		MethodNode methodNode;
 		
 		final Iterator<MethodNode> methodIter = cn.methods.iterator();

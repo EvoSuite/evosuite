@@ -44,9 +44,9 @@ public class InspectorManager {
 	private static Logger logger = LoggerFactory
 			.getLogger(InspectorManager.class);
 
-	private final Map<Class<?>, List<Inspector>> inspectors = new HashMap<Class<?>, List<Inspector>>();
+	private final Map<Class<?>, List<Inspector>> inspectors = new HashMap<>();
 
-	private final Map<String, List<String>> blackList = new HashMap<String, List<String>>();
+	private final Map<String, List<String>> blackList = new HashMap<>();
 
 	private InspectorManager() {
 		// TODO: Need to replace this with proper analysis
@@ -230,7 +230,7 @@ public class InspectorManager {
 		}
 		if (!TestUsageChecker.canUse(clazz))
 			return;
-		List<Inspector> inspectorList = new ArrayList<Inspector>();
+		List<Inspector> inspectorList = new ArrayList<>();
 		for (Method method : clazz.getMethods()) {
 			if (isInspectorMethod(method)) { // FIXXME
 				logger.debug("Inspector for class " + clazz.getSimpleName()

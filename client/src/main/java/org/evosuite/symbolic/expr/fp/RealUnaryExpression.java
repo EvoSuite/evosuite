@@ -99,7 +99,7 @@ public final class RealUnaryExpression extends AbstractExpression<Double> implem
 
 	@Override
 	public Set<Variable<?>> getVariables() {
-		Set<Variable<?>> variables = new HashSet<Variable<?>>();
+		Set<Variable<?>> variables = new HashSet<>();
 		variables.addAll(this.expr.getVariables());
 		return variables;
 	}

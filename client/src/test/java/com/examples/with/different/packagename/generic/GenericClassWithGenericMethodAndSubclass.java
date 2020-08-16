@@ -41,7 +41,7 @@ public class GenericClassWithGenericMethodAndSubclass<T> {
 	}
 
 	public final <S extends T> Foo<S> wrap(S object) {
-		return new Foo<S>(object);
+		return new Foo<>(object);
 	}
 
 	public boolean test(Foo<T> foo1, Foo<T> foo2) {

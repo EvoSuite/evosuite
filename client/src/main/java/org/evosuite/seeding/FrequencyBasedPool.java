@@ -31,7 +31,7 @@ import java.util.Map;
  */
 public class FrequencyBasedPool<T> {
 
-    private Map<T, Integer> constants = Collections.synchronizedMap(new LinkedHashMap<T, Integer>());
+    private Map<T, Integer> constants = Collections.synchronizedMap(new LinkedHashMap<>());
 
     private int numConstants = 0;
 

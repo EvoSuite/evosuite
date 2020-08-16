@@ -74,7 +74,7 @@ public class HistorySchedule extends OneTimeSchedule {
     double timePerBranch =
         number_of_branches == 0.0 ? 0.0 : (double) extraTime / (double) number_of_branches;
 
-    List<ClassInfo> classesInfo = new ArrayList<ClassInfo>(data.getClassInfos());
+    List<ClassInfo> classesInfo = new ArrayList<>(data.getClassInfos());
 
     // classes that have been changed first
     Collections.sort(classesInfo, new Comparator<ClassInfo>() {
@@ -93,7 +93,7 @@ public class HistorySchedule extends OneTimeSchedule {
 
     int totalLeftOver = 0;
     int totalBudgetUsed = 0;
-    List<JobDefinition> jobs = new LinkedList<JobDefinition>();
+    List<JobDefinition> jobs = new LinkedList<>();
 
     for (ClassInfo c_info : classesInfo) {
       if (!c_info.isTestable()) {

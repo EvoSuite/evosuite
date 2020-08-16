@@ -43,7 +43,7 @@ public class GenericObjectWrapperWithListTest {
 		Foo foo = new Foo();
 		foo.setX(x);
 
-		GenericObjectWrapperWithList<Foo> wrapper = new GenericObjectWrapperWithList<Foo>();
+		GenericObjectWrapperWithList<Foo> wrapper = new GenericObjectWrapperWithList<>();
 		wrapper.add(foo);
 		List<Foo> list = wrapper.getList();
 		// list.clear();

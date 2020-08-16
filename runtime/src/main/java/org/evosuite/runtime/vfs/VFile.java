@@ -39,7 +39,7 @@ public class VFile extends FSObject{
 		super(path, parent);
 
 		//TODO might need a better type of data structure supporting multi-threading
-		data = new ArrayList<Byte>(1024);
+		data = new ArrayList<>(1024);
 	}
 
 	public void eraseData(){

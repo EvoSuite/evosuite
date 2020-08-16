@@ -44,8 +44,8 @@ public abstract class DefaultTestCaseConcolicExecutor {
 	public static Collection<Constraint<?>> execute(DefaultTestCase tc) {
 		List<BranchCondition> pc = getPathCondition(tc);
 
-		Set<Variable<?>> variables = new HashSet<Variable<?>>();
-		Collection<Constraint<?>> constraints = new LinkedList<Constraint<?>>();
+		Set<Variable<?>> variables = new HashSet<>();
+		Collection<Constraint<?>> constraints = new LinkedList<>();
 		for (BranchCondition condition : pc) {
 			constraints.addAll(condition.getSupportingConstraints());
 			Constraint<?> constraint = condition.getConstraint();

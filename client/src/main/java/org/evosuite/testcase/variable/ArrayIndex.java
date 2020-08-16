@@ -530,7 +530,7 @@ public class ArrayIndex extends VariableReferenceImpl {
 	 *            a {@link java.util.List} object.
 	 */
 	public void setArrayIndices(List<Integer> indices) {
-		this.indices = new ArrayList<Integer>();
+		this.indices = new ArrayList<>();
 		for (Integer i : indices)
 			this.indices.add(i);
 	}

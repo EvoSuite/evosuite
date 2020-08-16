@@ -49,13 +49,13 @@ public final class SymbolicEnvironment {
 	/**
 	 * Stack of function/method/constructor invocation frames
 	 */
-	private final Deque<Frame> stackFrame = new LinkedList<Frame>();
+	private final Deque<Frame> stackFrame = new LinkedList<>();
 
 	/**
 	 * Classes whose static fields have been set to the default zero value or a
 	 * dummy value.
 	 */
-	private final Set<Class<?>> preparedClasses = new HashSet<Class<?>>();
+	private final Set<Class<?>> preparedClasses = new HashSet<>();
 
 	private final ConcolicInstrumentingClassLoader classLoader;
 

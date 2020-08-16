@@ -85,7 +85,7 @@ public class DSEStats {
 	private double avg_constraint_size = 0;
 	private int constraint_count = 0;
 	private int path_condition_count = 0;
-	private final List<Boolean> changes = new LinkedList<Boolean>();
+	private final List<Boolean> changes = new LinkedList<>();
 	private final ConstraintTypeCounter constraintTypeCounter = new ConstraintTypeCounter();
 
 	public void reportNewUNSAT() {

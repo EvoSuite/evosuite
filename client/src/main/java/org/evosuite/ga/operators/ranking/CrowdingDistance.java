@@ -138,7 +138,7 @@ public class CrowdingDistance<T extends Chromosome<T>> implements Serializable {
 
 		for (final FitnessFunction<T> ff : set) {
 			double min = Double.POSITIVE_INFINITY;
-			List<T> minSet = new ArrayList<T>(front.size());
+			List<T> minSet = new ArrayList<>(front.size());
 			double max = 0;
 			for (T test : front){
 				value = test.getFitness(ff);

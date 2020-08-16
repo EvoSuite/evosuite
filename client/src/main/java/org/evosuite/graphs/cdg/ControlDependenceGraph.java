@@ -491,7 +491,7 @@ public class ControlDependenceGraph extends EvoSuiteGraph<BasicBlock, ControlFlo
 	private void computeControlDependence() {
 
 		ActualControlFlowGraph rcfg = cfg.computeReverseCFG();
-		DominatorTree<BasicBlock> dt = new DominatorTree<BasicBlock>(rcfg);
+		DominatorTree<BasicBlock> dt = new DominatorTree<>(rcfg);
 
 		for (BasicBlock b : rcfg.vertexSet())
 			if (!b.isExitBlock()) {

@@ -73,7 +73,7 @@ public class ClassPublicInterface {
         EventBindingInvocationHandler(final Object target, final String methodName, final String[] eventTypes) {
             this.target = target;
             this.methodName = methodName;
-            this.eventTypes = new HashSet<String>(Arrays.asList(eventTypes));
+            this.eventTypes = new HashSet<>(Arrays.asList(eventTypes));
         }
 
         /**

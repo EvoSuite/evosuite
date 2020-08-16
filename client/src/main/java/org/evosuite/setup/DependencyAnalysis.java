@@ -57,9 +57,9 @@ public class DependencyAnalysis {
 
 	private static Logger logger = LoggerFactory.getLogger(DependencyAnalysis.class);
 
-	private static Map<String, ClassNode> classCache = new LinkedHashMap<String, ClassNode>();
+	private static Map<String, ClassNode> classCache = new LinkedHashMap<>();
 
-	private static Map<String, CallGraph> callGraphs = new LinkedHashMap<String, CallGraph>();
+	private static Map<String, CallGraph> callGraphs = new LinkedHashMap<>();
 
 	private static InheritanceTree inheritanceTree = null;
 

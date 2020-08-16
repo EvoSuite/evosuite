@@ -49,7 +49,7 @@ public class GenericObjectWrapperSequenceTest {
 		Foo foo = new Foo();
 		foo.setX(x);
 
-		GenericObjectWrapper<Foo> wrapper = new GenericObjectWrapper<Foo>();
+		GenericObjectWrapper<Foo> wrapper = new GenericObjectWrapper<>();
 		wrapper.set(foo);
 		Assert.assertEquals(42, wrapper.get().getX());
 	}

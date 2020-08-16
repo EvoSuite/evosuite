@@ -29,7 +29,7 @@ public class CCFGNodeAttributeProvider implements ComponentAttributeProvider<CCF
 	/** {@inheritDoc} */
 	@Override
 	public Map<String, String> getComponentAttributes(CCFGNode node) {
-		Map<String, String> r = new HashMap<String, String>();
+		Map<String, String> r = new HashMap<>();
 		if(node instanceof CCFGFrameNode) {
 			r.put("shape", "diamond");
 			r.put("style", "filled");

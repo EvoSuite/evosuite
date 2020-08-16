@@ -71,7 +71,7 @@ public class PurityAnalysisClassVisitor extends ClassVisitor {
 	}
 
 	private final String className;
-	private final HashMap<MethodEntry, PurityAnalysisMethodVisitor> method_adapters = new HashMap<MethodEntry, PurityAnalysisMethodVisitor>();
+	private final HashMap<MethodEntry, PurityAnalysisMethodVisitor> method_adapters = new HashMap<>();
 
 	/**
 	 * <p>

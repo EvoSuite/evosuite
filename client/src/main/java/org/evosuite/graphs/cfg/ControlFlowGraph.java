@@ -107,9 +107,9 @@ public abstract class ControlFlowGraph<V> extends
 	 */
 	public boolean leadsToNode(ControlFlowEdge e, V b) {
 
-		Set<V> handled = new HashSet<V>();
+		Set<V> handled = new HashSet<>();
 
-		Queue<V> queue = new LinkedList<V>();
+		Queue<V> queue = new LinkedList<>();
 		queue.add(getEdgeTarget(e));
 		while (!queue.isEmpty()) {
 			V current = queue.poll();

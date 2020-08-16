@@ -78,7 +78,7 @@ public final class SmtExprPrinter implements SmtExprVisitor<String, Void> {
 
 	@Override
 	public String visit(SmtOperation n, Void arg) {
-		List<String> retValues = new LinkedList<String>();
+		List<String> retValues = new LinkedList<>();
 		for (SmtExpr argument : n.getArguments()) {
 			String retValue = argument.accept(this, null);
 			retValues.add(retValue);

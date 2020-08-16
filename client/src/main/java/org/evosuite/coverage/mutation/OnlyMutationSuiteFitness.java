@@ -66,8 +66,8 @@ public class OnlyMutationSuiteFitness extends MutationSuiteFitness {
 		List<ExecutionResult> results = runTestSuite(individual);
 
 		double fitness = 0.0;
-		Map<Integer, Double> mutant_distance = new LinkedHashMap<Integer, Double>();
-		Set<Integer> touchedMutants = new LinkedHashSet<Integer>();
+		Map<Integer, Double> mutant_distance = new LinkedHashMap<>();
+		Set<Integer> touchedMutants = new LinkedHashSet<>();
 
 		for (ExecutionResult result : results) {
 			// Using private reflection can lead to false positives

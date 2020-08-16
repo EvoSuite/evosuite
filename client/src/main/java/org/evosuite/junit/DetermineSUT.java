@@ -62,7 +62,7 @@ public class DetermineSUT {
 
 	private String targetName = "";
 
-	private Set<String> superClasses = new HashSet<String>();
+	private Set<String> superClasses = new HashSet<>();
 
 	public static class NoJUnitClassException extends Exception {
 
@@ -95,7 +95,7 @@ public class DetermineSUT {
 			e1.printStackTrace();
 		}
 		Set<String> targetClasses = ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getAllClasses(targetClassPath,false);
-		Set<String> candidateClasses = new HashSet<String>();
+		Set<String> candidateClasses = new HashSet<>();
 		boolean hasJUnit = false;
 		try {
 			candidateClasses.addAll(determineCalledClasses(fullyQualifiedTargetClass,
@@ -115,7 +115,7 @@ public class DetermineSUT {
 		if (candidateClasses.isEmpty())
 			return "<UNKNOWN>";
 
-		List<String> sortedNames = new ArrayList<String>(candidateClasses);
+		List<String> sortedNames = new ArrayList<>(candidateClasses);
 		Collections.sort(sortedNames, new TargetClassSorter(fullyQualifiedTargetClass));
 
 		//System.out.println("Sorted candidate classes: " + sortedNames);
@@ -125,7 +125,7 @@ public class DetermineSUT {
 	public Set<String> determineCalledClasses(String fullyQualifiedTargetClass,
 	        Set<String> targetClasses) throws ClassNotFoundException,
 	        NoJUnitClassException {
-		Set<String> calledClasses = new HashSet<String>();
+		Set<String> calledClasses = new HashSet<>();
 
 		String className = fullyQualifiedTargetClass.replace('.', '/');
 		try {

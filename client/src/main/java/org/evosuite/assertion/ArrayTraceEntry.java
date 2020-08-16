@@ -61,7 +61,7 @@ public class ArrayTraceEntry implements OutputTraceEntry {
 	 */
 	@Override
 	public Set<Assertion> getAssertions(OutputTraceEntry other) {
-		Set<Assertion> assertions = new HashSet<Assertion>();
+		Set<Assertion> assertions = new HashSet<>();
 		if (other instanceof ArrayTraceEntry) {
 			ArrayTraceEntry otherEntry = (ArrayTraceEntry) other;
 			if (!Arrays.equals(value, otherEntry.value)) {
@@ -80,7 +80,7 @@ public class ArrayTraceEntry implements OutputTraceEntry {
 	 */
 	@Override
 	public Set<Assertion> getAssertions() {
-		Set<Assertion> assertions = new HashSet<Assertion>();
+		Set<Assertion> assertions = new HashSet<>();
 		ArrayEqualsAssertion assertion = new ArrayEqualsAssertion();
 		assertion.source = var;
 		assertion.value = value;

@@ -77,9 +77,9 @@ public abstract class MutationAssertionGenerator extends AssertionGenerator {
 	protected final static ArrayLengthObserver arrayLengthObserver = new ArrayLengthObserver();
 	protected final static ContainsTraceObserver containsTraceObserver = new ContainsTraceObserver();
 
-	protected final static Map<Mutation, Integer> timedOutMutations = new HashMap<Mutation, Integer>();
+	protected final static Map<Mutation, Integer> timedOutMutations = new HashMap<>();
 
-	protected final static Map<Mutation, Integer> exceptionMutations = new HashMap<Mutation, Integer>();
+	protected final static Map<Mutation, Integer> exceptionMutations = new HashMap<>();
 
 	/** Constant <code>observerClasses</code> */
 	protected static Class<?>[] observerClasses = { PrimitiveTraceEntry.class, ComparisonTraceEntry.class,
@@ -344,7 +344,7 @@ public abstract class MutationAssertionGenerator extends AssertionGenerator {
 	 * @param test
 	 */
 	protected void filterRedundantNonnullAssertions(TestCase test) {
-		Set<Assertion> redundantAssertions = new HashSet<Assertion>();
+		Set<Assertion> redundantAssertions = new HashSet<>();
 		for (Statement statement : test) {
 			if (statement instanceof ConstructorStatement) {
 				ConstructorStatement cs = (ConstructorStatement) statement;
@@ -374,7 +374,7 @@ public abstract class MutationAssertionGenerator extends AssertionGenerator {
 	 * @param statement
 	 */
 	protected void filterInspectorPrimitiveDuplication(Statement statement) {
-		Set<Assertion> assertions = new HashSet<Assertion>(statement.getAssertions());
+		Set<Assertion> assertions = new HashSet<>(statement.getAssertions());
 		if (assertions.size() < 2)
 			return;
 

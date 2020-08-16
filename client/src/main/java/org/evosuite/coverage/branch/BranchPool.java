@@ -256,7 +256,7 @@ public class BranchPool {
 	private void registerSwitchLabel(Branch b, LabelNode targetLabel) {
 
 		if (switchLabels.get(targetLabel) == null)
-			switchLabels.put(targetLabel, new ArrayList<Branch>());
+			switchLabels.put(targetLabel, new ArrayList<>());
 
 		List<Branch> oldList = switchLabels.get(targetLabel);
 
@@ -282,7 +282,7 @@ public class BranchPool {
 			throw new IllegalArgumentException("switch instruction expected");
 
 		if (registeredSwitches.get(v) == null)
-			registeredSwitches.put(v, new ArrayList<Branch>());
+			registeredSwitches.put(v, new ArrayList<>());
 
 		List<Branch> oldList = registeredSwitches.get(v);
 
@@ -303,9 +303,9 @@ public class BranchPool {
 		String methodName = b.getMethodName();
 
 		if (!branchMap.containsKey(className))
-			branchMap.put(className, new HashMap<String, List<Branch>>());
+			branchMap.put(className, new HashMap<>());
 		if (!branchMap.get(className).containsKey(methodName))
-			branchMap.get(className).put(methodName, new ArrayList<Branch>());
+			branchMap.get(className).put(methodName, new ArrayList<>());
 		branchMap.get(className).get(methodName).add(b);
 	}
 

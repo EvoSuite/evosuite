@@ -66,7 +66,7 @@ public abstract class Substring extends SymbolicFunction {
 
 			StringMultipleExpression symb_value = new StringMultipleExpression(
 					str_expr, Operator.SUBSTRING, beginIndexExpr,
-					new ArrayList<Expression<?>>(Collections
+					new ArrayList<>(Collections
 							.singletonList(endIndexExpr)),
 					conc_ret_val);
 
@@ -104,7 +104,7 @@ public abstract class Substring extends SymbolicFunction {
 
 			StringMultipleExpression symb_value = new StringMultipleExpression(
 					str_expr, Operator.SUBSTRING, beginIndexExpr,
-					new ArrayList<Expression<?>>(Collections
+					new ArrayList<>(Collections
 							.singletonList(lengthExpr)),
 					conc_ret_val);
 

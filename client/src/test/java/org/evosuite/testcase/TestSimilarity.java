@@ -105,7 +105,7 @@ public class TestSimilarity {
         PrimitiveStatement<?> bInt = new IntPrimitiveStatement(test2, 42);
         test2.addStatement(bInt);
         Constructor<?> c = Object.class.getConstructors()[0];
-        ConstructorStatement cs = new ConstructorStatement(test2, new GenericConstructor(c, Object.class), new ArrayList<VariableReference>());
+        ConstructorStatement cs = new ConstructorStatement(test2, new GenericConstructor(c, Object.class), new ArrayList<>());
         test2.addStatement(cs);
 
         double score = DiversityObserver.getNeedlemanWunschScore(test1, test2);
@@ -126,7 +126,7 @@ public class TestSimilarity {
         PrimitiveStatement<?> bInt = new IntPrimitiveStatement(test2, 42);
         test2.addStatement(bInt);
         Constructor<?> c = Object.class.getConstructors()[0];
-        ConstructorStatement cs = new ConstructorStatement(test2, new GenericConstructor(c, Object.class), new ArrayList<VariableReference>());
+        ConstructorStatement cs = new ConstructorStatement(test2, new GenericConstructor(c, Object.class), new ArrayList<>());
         test2.addStatement(cs);
 
         double score = DiversityObserver.getNeedlemanWunschScore(test1, test2);

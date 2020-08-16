@@ -70,7 +70,7 @@ public final class RegionMatches5 extends SymbolicFunction {
 				|| ooffsetExpr.containsSymbolicVariable()
 				|| lenExpr.containsSymbolicVariable()) {
 
-			ArrayList<Expression<?>> other = new ArrayList<Expression<?>>();
+			ArrayList<Expression<?>> other = new ArrayList<>();
 			other.add(toffsetExpr);
 			other.add(ooffsetExpr);
 			other.add(lenExpr);

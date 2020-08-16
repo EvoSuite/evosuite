@@ -97,7 +97,7 @@ public abstract class ConcolicExecution {
 		/**
 		 * VM listeners
 		 */
-		List<IVM> listeners = new ArrayList<IVM>();
+		List<IVM> listeners = new ArrayList<>();
 		listeners.add(new CallVM(env, classLoader));
 		listeners.add(new JumpVM(env, pc));
 		listeners.add(new HeapVM(env, pc, classLoader));
@@ -132,7 +132,7 @@ public abstract class ConcolicExecution {
 
 		} catch (Exception e) {
 			logger.error("Exception during concolic execution {}", e);
-			return new PathCondition(new ArrayList<BranchCondition>());
+			return new PathCondition(new ArrayList<>());
 		} finally {
 			logger.debug("Cleaning concolic execution");
 			TestCaseExecutor.getInstance().setExecutionObservers(originalExecutionObservers);

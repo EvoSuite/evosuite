@@ -171,7 +171,7 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 	private ArrayList<VariableReference> getArguments(final Object[] methodArgs,
 	        final Class<?>[] methodParamTypeClasses) throws IllegalArgumentException {
 
-		ArrayList<VariableReference> args = new ArrayList<VariableReference>();
+		ArrayList<VariableReference> args = new ArrayList<>();
 
 		Integer argOID; // is either an oid or null
 		for (int i = 0; i < methodArgs.length; i++) {
@@ -574,7 +574,7 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 
 			for (int i = 0; i < params.length; i++) 
 			{
-				paramList = new ArrayList<VariableReference>(1);
+				paramList = new ArrayList<>(1);
 				argOID = (Integer) params[i];
 				if (argOID == null || !this.oidToVarRefMap.containsKey(argOID)) {
 					VariableReference var = testCase.addStatement(new NullStatement(testCase,
@@ -640,7 +640,7 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 
 			MethodStatement methodStmt;
 			Integer argOID; // is either an oid or null
-			ArrayList<VariableReference> paramList = new ArrayList<VariableReference>();
+			ArrayList<VariableReference> paramList = new ArrayList<>();
 
 			for (int i = 0; i < params.length; i++) {
 				argOID = (Integer) params[i];
@@ -663,7 +663,7 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 					methodStmt = new MethodStatement(testCase, new GenericMethod(method,
 					        collType), collRef, paramList);
 					testCase.addStatement(methodStmt);
-					paramList = new ArrayList<VariableReference>(2);
+					paramList = new ArrayList<>(2);
 				}
 
 			}

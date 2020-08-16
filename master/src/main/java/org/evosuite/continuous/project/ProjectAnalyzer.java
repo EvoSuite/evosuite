@@ -152,7 +152,7 @@ public class ProjectAnalyzer {
 			suts = ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getAllClasses(ClassPathHandler.getInstance().getTargetProjectClasspath(), prefix, false);
 		}
 
-		List<String> cuts = new LinkedList<String>();
+		List<String> cuts = new LinkedList<>();
 
 		for (String className : suts) {
 			

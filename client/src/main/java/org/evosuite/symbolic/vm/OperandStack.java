@@ -34,7 +34,7 @@ import org.evosuite.symbolic.expr.ref.ReferenceExpression;
  */
 public final class OperandStack implements Iterable<Operand> {
 
-	private final Deque<Operand> stack = new LinkedList<Operand>();
+	private final Deque<Operand> stack = new LinkedList<>();
 
 	public OperandStack() {
 	}

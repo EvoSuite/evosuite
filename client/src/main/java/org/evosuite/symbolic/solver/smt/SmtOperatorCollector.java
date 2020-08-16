@@ -56,7 +56,7 @@ public final class SmtOperatorCollector implements SmtExprVisitor<Void, Void> {
 		return null;
 	}
 
-	private final Set<Operator> operators = new HashSet<Operator>();
+	private final Set<Operator> operators = new HashSet<>();
 
 	@Override
 	public Void visit(SmtOperation n, Void arg) {

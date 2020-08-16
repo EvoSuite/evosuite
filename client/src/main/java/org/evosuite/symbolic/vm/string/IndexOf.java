@@ -99,7 +99,7 @@ public abstract class IndexOf extends SymbolicFunction {
 					|| fromIndexExpr.containsSymbolicVariable()) {
 				StringMultipleToIntegerExpression strBExpr = new StringMultipleToIntegerExpression(
 						left_expr, Operator.INDEXOFCI, right_expr,
-						new ArrayList<Expression<?>>(Collections
+						new ArrayList<>(Collections
 								.singletonList(fromIndexExpr)),
 						(long) res);
 
@@ -184,7 +184,7 @@ public abstract class IndexOf extends SymbolicFunction {
 
 					StringMultipleToIntegerExpression strBExpr = new StringMultipleToIntegerExpression(
 							left_expr, Operator.INDEXOFSI, right_expr,
-							new ArrayList<Expression<?>>(Collections
+							new ArrayList<>(Collections
 									.singletonList(fromIndexExpr)),
 							(long) res);
 

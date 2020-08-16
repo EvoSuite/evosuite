@@ -102,7 +102,7 @@ public class TimeoutHandler<T> {
 	private T executeWithTimeout(final Callable<T> testcase, ExecutorService executor,
 	        long timeout) throws InterruptedException, ExecutionException,
 	        TimeoutException {
-		task = new FutureTask<T>(testcase);
+		task = new FutureTask<>(testcase);
 		executor.execute(task);
 		T result = task.get(timeout, TimeUnit.MILLISECONDS);
 		return result;
@@ -113,7 +113,7 @@ public class TimeoutHandler<T> {
 	        ExecutionException, TimeoutException {
 		long[] other_thread_ids = bean.getAllThreadIds();
 
-		task = new FutureTask<T>(testcase);
+		task = new FutureTask<>(testcase);
 		executor.execute(task);
 		T result = null;
 

@@ -39,9 +39,9 @@ import org.evosuite.utils.generic.GenericClass;
 
 public class TestCaseExpander {
 
-	private final Set<VariableReference> usedVariables = new HashSet<VariableReference>();
+	private final Set<VariableReference> usedVariables = new HashSet<>();
 
-	public Map<Integer, Set<VariableReference>> variableMapping = new HashMap<Integer, Set<VariableReference>>();
+	public Map<Integer, Set<VariableReference>> variableMapping = new HashMap<>();
 
 	private int currentPosition = 0;
 
@@ -77,7 +77,7 @@ public class TestCaseExpander {
 
 		// Now replace references to concrete values with new primitive statements
 		Map<Integer, Object> concreteValues = observer.getConcreteValues();
-		List<Integer> positions = new ArrayList<Integer>(concreteValues.keySet());
+		List<Integer> positions = new ArrayList<>(concreteValues.keySet());
 		Collections.sort(positions, Collections.reverseOrder());
 
 		for (Integer position : positions) {
@@ -99,7 +99,7 @@ public class TestCaseExpander {
 		VariableReference copy = test.addStatement(statement.clone(test),
 		                                           owner.getStPosition() + 1);
 		if (!variableMapping.containsKey(owner.getStPosition())) {
-			variableMapping.put(owner.getStPosition(), new HashSet<VariableReference>());
+			variableMapping.put(owner.getStPosition(), new HashSet<>());
 			// variableMapping.get(owner.getStPosition()).add(owner);
 		}
 		variableMapping.get(owner.getStPosition()).add(copy);
@@ -109,7 +109,7 @@ public class TestCaseExpander {
 	private void addUnchangedMapping(TestCase test, VariableReference var) {
 		VariableReference copy = test.getStatement(var.getStPosition()).getReturnValue();
 		if (!variableMapping.containsKey(var.getStPosition())) {
-			variableMapping.put(var.getStPosition(), new HashSet<VariableReference>());
+			variableMapping.put(var.getStPosition(), new HashSet<>());
 			variableMapping.get(var.getStPosition()).add(var);
 		}
 		variableMapping.get(var.getStPosition()).add(copy);
@@ -172,7 +172,7 @@ public class TestCaseExpander {
 	public void visitArrayStatement(TestCase test, ArrayStatement statement) {
 		ArrayReference arrRef = (ArrayReference) statement.getReturnValue();
 
-		Set<Integer> assignments = new HashSet<Integer>();
+		Set<Integer> assignments = new HashSet<>();
 		int position = statement.getPosition() + 1;
 
 		while (position < test.size()) {

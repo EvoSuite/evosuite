@@ -93,7 +93,7 @@ public class CoverageAnalysis {
 
 	private static int totalGoals = 0;
 	private static int totalCoveredGoals = 0;
-	private static Set<String> targetClasses = new LinkedHashSet<String>();
+	private static Set<String> targetClasses = new LinkedHashSet<>();
 
 	/**
 	 * Identify all JUnit tests starting with the given name prefix, instrument
@@ -204,7 +204,7 @@ public class CoverageAnalysis {
         // Execution result of a dummy Test Case
         ExecutionResult executionResult = new ExecutionResult(dummy.getTestCase());
 
-		Set<TestFitnessFunction> coveredGoals = new HashSet<TestFitnessFunction>();
+		Set<TestFitnessFunction> coveredGoals = new HashSet<>();
 
 		List<JUnitResult> results = executeTests(testClass);
 		for (JUnitResult testResult : results) {
@@ -223,7 +223,7 @@ public class CoverageAnalysis {
 	}
 
 	private static List<Class<?>> getTestClassesFromClasspath() {
-		List<Class<?>> classes = new ArrayList<Class<?>>();
+		List<Class<?>> classes = new ArrayList<>();
 		for(String prefix : Properties.JUNIT.split(":")) {
 			
 			Set<String> suts = ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getAllClasses(
@@ -257,7 +257,7 @@ public class CoverageAnalysis {
 	}
 
 	private static List<Class<?>> getTestClasses() {
-		List<Class<?>> testClasses = new ArrayList<Class<?>>();
+		List<Class<?>> testClasses = new ArrayList<>();
 		
 		logger.debug("JUNIT: "+Properties.JUNIT);
 		
@@ -299,7 +299,7 @@ public class CoverageAnalysis {
 	 */
 	private static List<Class<?>> getTestClasses(File directory) {
 
-		List<Class<?>> testClasses = new ArrayList<Class<?>>();
+		List<Class<?>> testClasses = new ArrayList<>();
 
 		if (directory.getName().endsWith(".class")) {			
 			LoggingUtils.muteCurrentOutAndErrStream();
@@ -386,7 +386,7 @@ public class CoverageAnalysis {
 	 */
 	private static List<Class<?>> getTestClassesJar(File file) {
 
-		List<Class<?>> testClasses = new ArrayList<Class<?>>();
+		List<Class<?>> testClasses = new ArrayList<>();
 
 		ZipFile zf;
 		try {
@@ -632,7 +632,7 @@ public class CoverageAnalysis {
 		ExecutionTracer.setCheckCallerThread(false);
 		ExecutionTracer.getExecutionTracer().clear();
 
-		List<JUnitResult> results = new ArrayList<JUnitResult>();
+		List<JUnitResult> results = new ArrayList<>();
         for (Class<?> testClass : testClasses) {
         	LoggingUtils.getEvoLogger().info("  Executing " + testClass.getSimpleName());
         	// Set the context classloader in case the SUT requests it
@@ -679,7 +679,7 @@ public class CoverageAnalysis {
 			methods.addAll(tc.getAnnotatedMethods(Test.class));
 			methods.addAll(tc.getAnnotatedMethods(EvoSuiteTest.class));
 			for (FrameworkMethod method : methods) {
-				List<Throwable> errors = new ArrayList<Throwable>();
+				List<Throwable> errors = new ArrayList<>();
 				method.validatePublicVoidNoArg(false, errors);
 				if (errors.isEmpty()) {
 					return true;

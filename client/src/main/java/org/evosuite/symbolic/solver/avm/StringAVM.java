@@ -402,7 +402,7 @@ final class StringAVM extends VariableAVM {
 
 	private static Set<StringValue> getTokenDelimiters(Collection<Constraint<?>> constraints) {
 
-		Set<StringValue> delimiters = new HashSet<StringValue>();
+		Set<StringValue> delimiters = new HashSet<>();
 		for (Constraint<?> constraint : constraints) {
 			
 			if (constraint instanceof StringConstraint) {

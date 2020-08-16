@@ -73,7 +73,7 @@ public class CallContext implements Serializable {
 
         int startPos = stackTrace.length - 1;
 		int endPos = 0;
-		List<Call> context = new ArrayList<Call>();
+		List<Call> context = new ArrayList<>();
 
 		// Stack traces may be empty, e.g. if an exception is thrown in a constructor call in a test
 		while (startPos >= 0 && shouldSkipEntry(stackTrace[startPos].getClassName())) {
@@ -150,7 +150,7 @@ public class CallContext implements Serializable {
 	public CallContext(String className, String methodName) {
         addJUnitExcludes();
 
-        List<Call> context = new ArrayList<Call>();
+        List<Call> context = new ArrayList<>();
 		context.add(new Call(className, methodName));
 		this.context=context;
 		hcode = this.context.hashCode();
@@ -159,7 +159,7 @@ public class CallContext implements Serializable {
 	public CallContext() {
         addJUnitExcludes();
 
-        List<Call> context = new ArrayList<Call>();
+        List<Call> context = new ArrayList<>();
 		this.context=context;
 		hcode = this.context.hashCode();
 	}
@@ -167,7 +167,7 @@ public class CallContext implements Serializable {
 	public CallContext(Collection<Call> contextt) {
         addJUnitExcludes();
 
-		List<Call> context = new ArrayList<Call>();
+		List<Call> context = new ArrayList<>();
 		context.addAll(contextt);
 		this.context=context;
 		hcode = this.context.hashCode();

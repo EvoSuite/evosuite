@@ -53,13 +53,13 @@ public class ReplaceBitwiseOperator implements MutationOperator {
 
 	public static final String NAME = "ReplaceBitwiseOperator";
 	
-	private static Set<Integer> opcodesInt = new HashSet<Integer>();
+	private static Set<Integer> opcodesInt = new HashSet<>();
 
-	private static Set<Integer> opcodesIntShift = new HashSet<Integer>();
+	private static Set<Integer> opcodesIntShift = new HashSet<>();
 
-	private static Set<Integer> opcodesLong = new HashSet<Integer>();
+	private static Set<Integer> opcodesLong = new HashSet<>();
 
-	private static Set<Integer> opcodesLongShift = new HashSet<Integer>();
+	private static Set<Integer> opcodesLongShift = new HashSet<>();
 
 	private int numVariable = 0;
 
@@ -91,8 +91,8 @@ public class ReplaceBitwiseOperator implements MutationOperator {
 		// Should we do this via a method defined in the interface?
 		InsnNode node = (InsnNode) instruction.getASMNode();
 
-		List<Mutation> mutations = new LinkedList<Mutation>();
-		Set<Integer> replacement = new HashSet<Integer>();
+		List<Mutation> mutations = new LinkedList<>();
+		Set<Integer> replacement = new HashSet<>();
 		if (opcodesInt.contains(node.getOpcode()))
 			replacement.addAll(opcodesInt);
 		else if (opcodesIntShift.contains(node.getOpcode()))

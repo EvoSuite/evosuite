@@ -102,19 +102,19 @@ public final class SymbolicHeap {
 	 * mapping is used.
 	 * 
 	 */
-	private final Map<Integer, ReferenceExpression> nonNullRefs = new HashMap<Integer, ReferenceExpression>();
+	private final Map<Integer, ReferenceExpression> nonNullRefs = new HashMap<>();
 
 	/**
 	 * Stores a mapping between NonNullReferences and their symbolic values. The
 	 * Expression<?> contains at least one symbolic variable.
 	 */
-	private final Map<FieldKey, Map<ReferenceExpression, Expression<?>>> symb_fields = new HashMap<FieldKey, Map<ReferenceExpression, Expression<?>>>();
+	private final Map<FieldKey, Map<ReferenceExpression, Expression<?>>> symb_fields = new HashMap<>();
 
 	/**
 	 * Mapping between for symbolic values stored in static fields. The
 	 * Expression<?> contains at least one symbolic variable.
 	 */
-	private final Map<FieldKey, Expression<?>> symb_static_fields = new HashMap<FieldKey, Expression<?>>();
+	private final Map<FieldKey, Expression<?>> symb_static_fields = new HashMap<>();
 
 	/**
 	 * Updates an instance field. The symbolic expression is stored iif it is
@@ -145,7 +145,7 @@ public final class SymbolicHeap {
 		FieldKey k = new FieldKey(owner, name);
 		Map<ReferenceExpression, Expression<?>> symb_field = symb_fields.get(k);
 		if (symb_field == null) {
-			symb_field = new HashMap<ReferenceExpression, Expression<?>>();
+			symb_field = new HashMap<>();
 			symb_fields.put(k, symb_field);
 		}
 
@@ -350,7 +350,7 @@ public final class SymbolicHeap {
 
 	}
 
-	private final Map<ReferenceExpression, Map<Integer, Expression<?>>> symb_arrays = new HashMap<ReferenceExpression, Map<Integer, Expression<?>>>();
+	private final Map<ReferenceExpression, Map<Integer, Expression<?>>> symb_arrays = new HashMap<>();
 
 	public static final String $STRING_BUILDER_CONTENTS = "$stringBuilder_contents";
 
@@ -386,7 +386,7 @@ public final class SymbolicHeap {
 
 		Map<Integer, Expression<?>> symb_array_contents = symb_arrays.get(symb_array_ref);
 		if (symb_array_contents == null) {
-			symb_array_contents = new HashMap<Integer, Expression<?>>();
+			symb_array_contents = new HashMap<>();
 			symb_arrays.put(symb_array_ref, symb_array_contents);
 		}
 

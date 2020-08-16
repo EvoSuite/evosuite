@@ -32,7 +32,7 @@ public class ObjectWrapperSetTest {
 		ObjectWrapper wrapper = new ObjectWrapper();
 		Assert.assertNull(wrapper.get());
 
-		Set<Long> someSet = new HashSet<Long>();
+		Set<Long> someSet = new HashSet<>();
 		someSet.add(42l);
 		someSet.add(47l);
 		someSet.remove(42l);

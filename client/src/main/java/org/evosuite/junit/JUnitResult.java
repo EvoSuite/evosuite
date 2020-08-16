@@ -70,7 +70,7 @@ public class JUnitResult {
     /**
      * 
      */
-    private ArrayList<JUnitFailure> junitFailures = new ArrayList<JUnitFailure>();
+    private ArrayList<JUnitFailure> junitFailures = new ArrayList<>();
 
     /**
      * 

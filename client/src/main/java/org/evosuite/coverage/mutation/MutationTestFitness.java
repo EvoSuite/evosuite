@@ -52,7 +52,7 @@ public abstract class MutationTestFitness extends TestFitnessFunction {
 	
 	protected int mutantId;
 
-	protected final Set<BranchCoverageGoal> controlDependencies = new HashSet<BranchCoverageGoal>();
+	protected final Set<BranchCoverageGoal> controlDependencies = new HashSet<>();
 
 	protected final int diameter;
 

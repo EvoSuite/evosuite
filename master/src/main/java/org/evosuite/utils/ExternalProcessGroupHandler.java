@@ -145,7 +145,7 @@ public class ExternalProcessGroupHandler {
 	 * @return a boolean.
 	 */
 	public boolean startProcess(String[] commands) {
-		List<String[]> l_commands = new ArrayList<String[]>();
+		List<String[]> l_commands = new ArrayList<>();
 		l_commands.add(commands);
 		return this.startProcessGroup(l_commands);
 	}

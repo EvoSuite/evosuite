@@ -85,7 +85,7 @@ public final class IntegerToStringCast extends AbstractExpression<String> implem
 
 	@Override
 	public Set<Variable<?>> getVariables() {
-		Set<Variable<?>> variables = new HashSet<Variable<?>>();
+		Set<Variable<?>> variables = new HashSet<>();
 		variables.addAll(this.expr.getVariables());
 		return variables;
 	}

@@ -82,7 +82,7 @@ public class TestStringSearch2 extends RandomizedTC {
 		DefaultTestCase tc = buildTestCase("urn:pBth:/A/B/C/doc.html#gilada");
 		List<BranchCondition> branch_conditions = executeTest(tc);
 
-		Collection<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
+		Collection<Constraint<?>> constraints = new ArrayList<>();
 
 		for (int i = 0; i < branch_conditions.size() - 1; i++) {
 			BranchCondition b = branch_conditions.get(i);
@@ -111,7 +111,7 @@ public class TestStringSearch2 extends RandomizedTC {
 		DefaultTestCase tc = buildTestCase("V*X-:o%tp");
 		List<BranchCondition> branch_conditions = executeTest(tc);
 
-		Collection<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
+		Collection<Constraint<?>> constraints = new ArrayList<>();
 		for (int i = 0; i < branch_conditions.size() - 2; i++) {
 			BranchCondition b = branch_conditions.get(i);
 			constraints.addAll(b.getSupportingConstraints());

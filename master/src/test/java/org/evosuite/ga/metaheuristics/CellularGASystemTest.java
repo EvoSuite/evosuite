@@ -44,7 +44,7 @@ public class CellularGASystemTest extends SystemTestBase{
 
 	    GeneticAlgorithm<?> ga = getGAFromResult(result);
 	    
-	    List<Chromosome> population = new ArrayList<Chromosome>(ga.getBestIndividuals());
+	    List<Chromosome> population = new ArrayList<>(ga.getBestIndividuals());
 	    
 	    return population;
 	}

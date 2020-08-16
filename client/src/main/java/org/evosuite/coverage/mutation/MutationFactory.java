@@ -90,7 +90,7 @@ public class MutationFactory extends AbstractFitnessFactory<MutationTestFitness>
 		if (goals != null)
 			return goals;
 
-		goals = new ArrayList<MutationTestFitness>();
+		goals = new ArrayList<>();
 
 		for (Mutation m : getMutantsLimitedPerClass()) {
 			if (targetMethod != null && !m.getMethodName().endsWith(targetMethod))

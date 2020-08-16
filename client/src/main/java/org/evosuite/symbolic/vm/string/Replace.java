@@ -74,7 +74,7 @@ public abstract class Replace extends SymbolicFunction {
 
 				StringMultipleExpression symb_value = new StringMultipleExpression(
 						stringReceiverExpr, Operator.REPLACEC, oldCharExpr,
-						new ArrayList<Expression<?>>(Collections
+						new ArrayList<>(Collections
 								.singletonList(newCharExpr)),
 						conc_ret_val);
 
@@ -144,8 +144,8 @@ public abstract class Replace extends SymbolicFunction {
 
 					StringMultipleExpression symb_value = new StringMultipleExpression(
 							stringReceiverExpr, Operator.REPLACECS,
-							oldStringExpr, new ArrayList<Expression<?>>(
-									Collections.singletonList(newStringExpr)),
+							oldStringExpr, new ArrayList<>(
+							Collections.singletonList(newStringExpr)),
 							conc_ret_val);
 
 					env.heap.putField(Types.JAVA_LANG_STRING,

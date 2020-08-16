@@ -58,7 +58,7 @@ public final class SolverCache {
 
 	private static final SolverCache instance = new SolverCache();
 
-	private HashMap<Collection<Constraint<?>>, SolverResult> cached_solver_results = new HashMap<Collection<Constraint<?>>, SolverResult>();
+	private HashMap<Collection<Constraint<?>>, SolverResult> cached_solver_results = new HashMap<>();
 	private int cached_sat_result_count = 0;
 	private int cached_unsat_result_count = 0;
 

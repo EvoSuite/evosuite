@@ -79,7 +79,7 @@ public class ReferenceLocalSearch extends StatementLocalSearch {
 		        && !LocalSearchBudget.getInstance().isFinished()) {
 			logger.info("Current probe on statement " + statement + ": " + currentProbe);
 
-			List<Mutations> mutations = new ArrayList<Mutations>();
+			List<Mutations> mutations = new ArrayList<>();
 			mutations.add(Mutations.REPLACE);
 			Statement st = test.getTestCase().getStatement(statement);
 			if (!st.getReturnValue().isPrimitive() && !(st instanceof NullStatement)) {

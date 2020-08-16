@@ -42,7 +42,7 @@ public class CarvingClassLoader extends ClassLoader {
 	private final static Logger logger = LoggerFactory.getLogger(CarvingClassLoader.class);
 	private final Instrumenter instrumenter = new Instrumenter();
 	private final ClassLoader classLoader;
-	private final Map<String, Class<?>> classes = new HashMap<String, Class<?>>();
+	private final Map<String, Class<?>> classes = new HashMap<>();
 
 	/**
 	 * <p>

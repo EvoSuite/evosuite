@@ -51,7 +51,7 @@ public class ContractChecker extends ExecutionObserver {
 
 	private static Logger logger = LoggerFactory.getLogger(ContractChecker.class);
 
-	private final Set<Contract> contracts = new HashSet<Contract>();
+	private final Set<Contract> contracts = new HashSet<>();
 
 	/*
 	 * Maybe it was not a problem, but it all depends on when Properties.CHECK_CONTRACTS_END 
@@ -59,7 +59,7 @@ public class ContractChecker extends ExecutionObserver {
 	 */
 	//private static final boolean checkAtEnd = Properties.CHECK_CONTRACTS_END;
 
-	private static Set<Contract> invalid = new HashSet<Contract>();
+	private static Set<Contract> invalid = new HashSet<>();
 
 	//private static boolean valid = true;
 

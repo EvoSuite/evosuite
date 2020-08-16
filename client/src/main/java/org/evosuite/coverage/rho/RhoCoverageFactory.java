@@ -51,7 +51,7 @@ public class RhoCoverageFactory extends
 	/**
 	 * 
 	 */
-	private static List<LineCoverageTestFitness> goals = new ArrayList<LineCoverageTestFitness>();
+	private static List<LineCoverageTestFitness> goals = new ArrayList<>();
 	
 	/**
 	 * Variables to calculate Rho value
@@ -67,7 +67,7 @@ public class RhoCoverageFactory extends
 	/**
 	 * 
 	 */
-	private static List<List<Integer>> matrix = new ArrayList<List<Integer>>();
+	private static List<List<Integer>> matrix = new ArrayList<>();
 
 	/**
 	 * Read the coverage of a test suite from a file
@@ -88,7 +88,7 @@ public class RhoCoverageFactory extends
 			while ((sCurrentLine = br.readLine()) != null) {
 				split = sCurrentLine.split(" ");
 
-				List<Integer> test = new ArrayList<Integer>();
+				List<Integer> test = new ArrayList<>();
 				for (int i = 0; i < split.length - 1; i++) { // - 1, because we do not want to consider test result
 					if (split[i].compareTo("1") == 0) {
 						test.add(goals.get(i).getLine());

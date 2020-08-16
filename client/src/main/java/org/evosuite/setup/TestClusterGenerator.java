@@ -84,9 +84,9 @@ public class TestClusterGenerator {
 
 	private final Set<Class<?>> containerClasses = new LinkedHashSet<>();
 
-	private final Set<DependencyPair> dependencies = new LinkedHashSet<DependencyPair>();
+	private final Set<DependencyPair> dependencies = new LinkedHashSet<>();
 
-	private final Set<GenericClass> analyzedAbstractClasses = new LinkedHashSet<GenericClass>();
+	private final Set<GenericClass> analyzedAbstractClasses = new LinkedHashSet<>();
 
 	private final Set<Class<?>> analyzedClasses = new LinkedHashSet<>();
 
@@ -399,7 +399,7 @@ public class TestClusterGenerator {
 
 		TestCluster cluster = TestCluster.getInstance();
 
-		Set<Class<?>> targetClasses = new LinkedHashSet<Class<?>>();
+		Set<Class<?>> targetClasses = new LinkedHashSet<>();
 		if (targetClass == null) {
 			throw new RuntimeException("Failed to load " + Properties.TARGET_CLASS);
 		}
@@ -422,10 +422,10 @@ public class TestClusterGenerator {
 		// using an iterator. a simple workaround is to create a temporary set
 		// with the content
 		// of 'targetClasses' and iterate that one
-		Set<Class<?>> tmp_targetClasses = new LinkedHashSet<Class<?>>(targetClasses);
+		Set<Class<?>> tmp_targetClasses = new LinkedHashSet<>(targetClasses);
 		for (Class<?> _targetClass : tmp_targetClasses) {
 			ClassNode targetClassNode = DependencyAnalysis.getClassNode(_targetClass.getName());
-			Queue<InnerClassNode> innerClasses = new LinkedList<InnerClassNode>();
+			Queue<InnerClassNode> innerClasses = new LinkedList<>();
 			innerClasses.addAll(targetClassNode.innerClasses);
 			while (!innerClasses.isEmpty()) {
 				InnerClassNode icn = innerClasses.poll();

@@ -63,7 +63,7 @@ public class TestCaseMinimizer {
 	 * @return True if something was deleted
 	 */
 	public static boolean removeUnusedVariables(TestCase t) {
-		List<Integer> to_delete = new ArrayList<Integer>();
+		List<Integer> to_delete = new ArrayList<>();
 		boolean has_deleted = false;
 
 		int num = 0;

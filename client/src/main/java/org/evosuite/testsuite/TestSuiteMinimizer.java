@@ -53,7 +53,7 @@ public class TestSuiteMinimizer {
      */
     private final static Logger logger = LoggerFactory.getLogger(TestSuiteMinimizer.class);
 
-    private final List<TestFitnessFactory<?>> testFitnessFactories = new ArrayList<TestFitnessFactory<?>>();
+    private final List<TestFitnessFactory<?>> testFitnessFactories = new ArrayList<>();
 
     /**
      * Assume the search has not started until startTime != 0
@@ -150,7 +150,7 @@ public class TestSuiteMinimizer {
             test.setChanged(true); // implies test.clearCachedResults();
         }
 
-        List<TestFitnessFunction> goals = new ArrayList<TestFitnessFunction>();
+        List<TestFitnessFunction> goals = new ArrayList<>();
         for (TestFitnessFactory<?> ff : testFitnessFactories) {
             goals.addAll(ff.getCoverageGoals());
         }
@@ -162,8 +162,8 @@ public class TestSuiteMinimizer {
         if (Properties.MINIMIZE_SORT)
             Collections.sort(goals);
 
-        Set<TestFitnessFunction> covered = new LinkedHashSet<TestFitnessFunction>();
-        List<TestChromosome> minimizedTests = new ArrayList<TestChromosome>();
+        Set<TestFitnessFunction> covered = new LinkedHashSet<>();
+        List<TestChromosome> minimizedTests = new ArrayList<>();
         TestSuiteWriter minimizedSuite = new TestSuiteWriter();
 
         for (TestFitnessFunction goal : goals) {
@@ -199,7 +199,7 @@ public class TestSuiteMinimizer {
                 continue;
             }
 
-            List<TestChromosome> coveringTests = new ArrayList<TestChromosome>();
+            List<TestChromosome> coveringTests = new ArrayList<>();
             for (TestChromosome test : suite.getTestChromosomes()) {
                 if (goal.isCovered(test)) {
                     coveringTests.add(test);
@@ -307,8 +307,8 @@ public class TestSuiteMinimizer {
             });
         }
 
-        List<TestFitnessFunction> goals = new ArrayList<TestFitnessFunction>();
-        List<Double> fitness = new ArrayList<Double>();
+        List<TestFitnessFunction> goals = new ArrayList<>();
+        List<Double> fitness = new ArrayList<>();
         for (TestFitnessFactory<?> ff : testFitnessFactories) {
             goals.addAll(ff.getCoverageGoals());
             fitness.add(ff.getFitness(suite));
@@ -353,7 +353,7 @@ public class TestSuiteMinimizer {
                     testChromosome.setChanged(true);
                     testChromosome.getTestCase().clearCoveredGoals();
 
-                    List<Double> modifiedVerFitness = new ArrayList<Double>();
+                    List<Double> modifiedVerFitness = new ArrayList<>();
                     for (TestFitnessFactory<?> ff : testFitnessFactories)
                         modifiedVerFitness.add(ff.getFitness(suite));
 
@@ -420,8 +420,8 @@ public class TestSuiteMinimizer {
         logger.debug("Before removing redundant tests: " + tests.size());
 
         Collections.reverse(tests);
-        List<TestChromosome> finalTests = new ArrayList<TestChromosome>();
-        Set<TestFitnessFunction> coveredGoals = new LinkedHashSet<TestFitnessFunction>();
+        List<TestChromosome> finalTests = new ArrayList<>();
+        Set<TestFitnessFunction> coveredGoals = new LinkedHashSet<>();
 
         for (TestChromosome test : tests) {
             boolean addsNewGoals = false;

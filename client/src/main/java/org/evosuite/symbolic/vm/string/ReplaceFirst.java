@@ -80,7 +80,7 @@ public final class ReplaceFirst extends SymbolicFunction {
 
 				StringMultipleExpression symb_value = new StringMultipleExpression(
 						stringReceiverExpr, Operator.REPLACEFIRST, regexExpr,
-						new ArrayList<Expression<?>>(Collections
+						new ArrayList<>(Collections
 								.singletonList(replacementExpr)),
 						conc_ret_val);
 

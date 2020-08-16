@@ -133,7 +133,7 @@ public class TestTestSuiteMinimizer
         TestFactory testFactory = TestFactory.getInstance();
         testFactory.addConstructor(test, gc, 0, 0);
 
-        List<VariableReference> parameters = new ArrayList<VariableReference>();
+        List<VariableReference> parameters = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
             IntPrimitiveStatement ips = new IntPrimitiveStatement(test, 28234 + i);
             VariableReference vr = test.addStatement(ips, i + 1);
@@ -177,7 +177,7 @@ public class TestTestSuiteMinimizer
         TestFactory testFactory = TestFactory.getInstance();
         testFactory.addConstructor(test, gc, 0, 0);
 
-        List<VariableReference> parameters = new ArrayList<VariableReference>();
+        List<VariableReference> parameters = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
             IntPrimitiveStatement ips = new IntPrimitiveStatement(test, 28234 + i);
             VariableReference vr = test.addStatement(ips, i + 1);
@@ -200,7 +200,7 @@ public class TestTestSuiteMinimizer
         assertEquals(2.0, previous_branch_fitness, 0.0);
 
 
-        List<TestFitnessFactory<? extends TestFitnessFunction>> factories = new ArrayList<TestFitnessFactory<? extends TestFitnessFunction>>();
+        List<TestFitnessFactory<? extends TestFitnessFunction>> factories = new ArrayList<>();
         factories.add(new BranchCoverageFactory());
 
         TestSuiteMinimizer minimizer = new TestSuiteMinimizer(factories);
@@ -227,7 +227,7 @@ public class TestTestSuiteMinimizer
         TestFactory testFactory = TestFactory.getInstance();
         testFactory.addConstructor(test, gc, 0, 0);
 
-        List<VariableReference> parameters = new ArrayList<VariableReference>();
+        List<VariableReference> parameters = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
             IntPrimitiveStatement ips = new IntPrimitiveStatement(test, 28234 + i);
             VariableReference vr = test.addStatement(ips, i + 1);
@@ -239,7 +239,7 @@ public class TestTestSuiteMinimizer
         GenericMethod method = new GenericMethod(m, sut);
         testFactory.addMethod(test, method, 11, 0);
 
-        parameters = new ArrayList<VariableReference>();
+        parameters = new ArrayList<>();
         for (int i = 12; i < 15; i++) {
             IntPrimitiveStatement ips = new IntPrimitiveStatement(test, i);
             VariableReference vr = test.addStatement(ips, i);
@@ -279,7 +279,7 @@ public class TestTestSuiteMinimizer
         TestFactory testFactory = TestFactory.getInstance();
         testFactory.addConstructor(test, gc, 0, 0);
 
-        List<VariableReference> parameters = new ArrayList<VariableReference>();
+        List<VariableReference> parameters = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
             IntPrimitiveStatement ips = new IntPrimitiveStatement(test, 28234 + i);
             VariableReference vr = test.addStatement(ips, i + 1);
@@ -291,7 +291,7 @@ public class TestTestSuiteMinimizer
         GenericMethod method = new GenericMethod(m, sut);
         testFactory.addMethod(test, method, 11, 0);
 
-        parameters = new ArrayList<VariableReference>();
+        parameters = new ArrayList<>();
         for (int i = 12; i < 15; i++) {
             IntPrimitiveStatement ips = new IntPrimitiveStatement(test, i);
             VariableReference vr = test.addStatement(ips, i);
@@ -309,7 +309,7 @@ public class TestTestSuiteMinimizer
         tsc.setFitness(branch, previous_branch_fitness);
         assertEquals(0.0, previous_branch_fitness, 0.0);
 
-        List<TestFitnessFactory<? extends TestFitnessFunction>> factories = new ArrayList<TestFitnessFactory<? extends TestFitnessFunction>>();
+        List<TestFitnessFactory<? extends TestFitnessFunction>> factories = new ArrayList<>();
         factories.add(new BranchCoverageFactory());
 
         TestSuiteMinimizer minimizer = new TestSuiteMinimizer(factories);
@@ -336,7 +336,7 @@ public class TestTestSuiteMinimizer
         TestFactory testFactory = TestFactory.getInstance();
         testFactory.addConstructor(test, gc, 0, 0);
 
-        List<VariableReference> parameters = new ArrayList<VariableReference>();
+        List<VariableReference> parameters = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
             IntPrimitiveStatement ips = new IntPrimitiveStatement(test, 28234 + i);
             VariableReference vr = test.addStatement(ips, i + 1);
@@ -348,7 +348,7 @@ public class TestTestSuiteMinimizer
         GenericMethod method = new GenericMethod(m, sut);
         testFactory.addMethod(test, method, 11, 0);
 
-        parameters = new ArrayList<VariableReference>();
+        parameters = new ArrayList<>();
         for (int i = 12; i < 15; i++) {
             IntPrimitiveStatement ips = new IntPrimitiveStatement(test, i);
             VariableReference vr = test.addStatement(ips, i);
@@ -366,7 +366,7 @@ public class TestTestSuiteMinimizer
         tsc.setFitness(branch, previous_branch_fitness);
         assertEquals(0.0, previous_branch_fitness, 0.0);
 
-        List<TestFitnessFactory<? extends TestFitnessFunction>> factories = new ArrayList<TestFitnessFactory<? extends TestFitnessFunction>>();
+        List<TestFitnessFactory<? extends TestFitnessFunction>> factories = new ArrayList<>();
         factories.add(new BranchCoverageFactory());
 
         TestSuiteMinimizer minimizer = new TestSuiteMinimizer(factories);

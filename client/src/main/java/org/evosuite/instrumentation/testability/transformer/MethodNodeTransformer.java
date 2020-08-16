@@ -76,7 +76,7 @@ public class MethodNodeTransformer {
     /**
      * Types of the local variables of the method visited by this adapter.
      */
-    protected final List<Type> localTypes = new ArrayList<Type>();
+    protected final List<Type> localTypes = new ArrayList<>();
     
 	/**
 	 * <p>transform</p>
@@ -87,7 +87,7 @@ public class MethodNodeTransformer {
 
 		setupLocals(mn);
 		
-		Set<AbstractInsnNode> originalNodes = new HashSet<AbstractInsnNode>();
+		Set<AbstractInsnNode> originalNodes = new HashSet<>();
 		AbstractInsnNode node = mn.instructions.getFirst();
 		while (node != mn.instructions.getLast()) {
 			originalNodes.add(node);
@@ -388,7 +388,7 @@ public class MethodNodeTransformer {
     	// new VarInsnNode(type.getOpcode(Opcodes.ILOAD), index);
     }
 
-    protected Map<Integer, Integer> parameterToLocalMap = new HashMap<Integer, Integer>();
+    protected Map<Integer, Integer> parameterToLocalMap = new HashMap<>();
 
     protected void popParametersToLocals(MethodNode mn) {
     	Type[] args = Type.getArgumentTypes(mn.desc);

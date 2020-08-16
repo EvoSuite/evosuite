@@ -49,8 +49,8 @@ public class CsvJUnitData {
 	private static Logger logger = LoggerFactory.getLogger(CsvJUnitData.class);
 
 	private String targetClass;	
-	private Map<String, Double> coverageValues = new LinkedHashMap<String, Double>();
-	private Map<String, String> coverageBitString = new LinkedHashMap<String, String>();
+	private Map<String, Double> coverageValues = new LinkedHashMap<>();
+	private Map<String, String> coverageBitString = new LinkedHashMap<>();
 	private int totalNumberOfStatements;	
 	private int numberOfTests;	
 	private int totalNumberOfFailures;
@@ -144,7 +144,7 @@ public class CsvJUnitData {
 
 	public static List<String> getValues(List<String[]> rows, String columnName) {
 		String[] names = rows.get(0);
-		List<String> values = new ArrayList<String>();
+		List<String> values = new ArrayList<>();
 
 		for (int i = 0; i < names.length; i++) {
 			if (names[i].trim().equalsIgnoreCase(columnName.trim())) {

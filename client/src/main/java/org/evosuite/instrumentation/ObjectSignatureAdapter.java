@@ -48,7 +48,7 @@ public class ObjectSignatureAdapter extends ClassVisitor {
 
 	private boolean exclude = false;
 
-	private Map<String, String> descriptors = new HashMap<String, String>();
+	private Map<String, String> descriptors = new HashMap<>();
 
 	/**
 	 * <p>
@@ -75,7 +75,7 @@ public class ObjectSignatureAdapter extends ClassVisitor {
 			// mutation-report/className.obj contains method signatures
 			File file = new File(Properties.OUTPUT_DIR + "/" + className + ".obj");
 			List<String> lines = FileIOUtils.readFile(file);
-			descriptors = new HashMap<String, String>();
+			descriptors = new HashMap<>();
 			for (String line : lines) {
 				line = line.trim();
 				// Skip comments

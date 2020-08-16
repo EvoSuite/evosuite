@@ -67,7 +67,7 @@ public class CBranchFitnessFactory extends AbstractFitnessFactory<CBranchTestFit
 		} 
 		
 		logger.info("Created " + goals.size() + " goals");
-		return new ArrayList<CBranchTestFitness>(goals);
+		return new ArrayList<>(goals);
 	}
 }
 

@@ -101,7 +101,7 @@ public final class CVC4Solver extends SmtSolver {
 
 		long cvcTimeout = Properties.DSE_CONSTRAINT_SOLVER_TIMEOUT_MILLIS;
 
-		Set<Variable<?>> variables = new HashSet<Variable<?>>();
+		Set<Variable<?>> variables = new HashSet<>();
 		for (Constraint<?> c : constraints) {
 			Set<Variable<?>> c_variables = c.getVariables();
 			variables.addAll(c_variables);
@@ -115,7 +115,7 @@ public final class CVC4Solver extends SmtSolver {
 		}
 
 		if (query.getAssertions().isEmpty()) {
-			Map<String, Object> emptySolution = new HashMap<String, Object>();
+			Map<String, Object> emptySolution = new HashMap<>();
 			SolverResult emptySAT = SolverResult.newSAT(emptySolution);
 			return emptySAT;
 		}

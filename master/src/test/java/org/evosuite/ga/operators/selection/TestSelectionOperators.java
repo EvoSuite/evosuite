@@ -70,7 +70,7 @@ public class TestSelectionOperators
 		
 		for(boolean b : maximize)
 		{
-			List<Chromosome> population = new LinkedList<Chromosome>();
+			List<Chromosome> population = new LinkedList<>();
 			for(int i=0; i<N; i++)
 			{
 				ExecutableChromosome ind = new TestChromosome();

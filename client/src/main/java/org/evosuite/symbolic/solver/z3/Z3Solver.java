@@ -73,7 +73,7 @@ public class Z3Solver extends SmtSolver {
 
 		long hard_timeout = Properties.DSE_CONSTRAINT_SOLVER_TIMEOUT_MILLIS;
 
-		Set<Variable<?>> variables = new HashSet<Variable<?>>();
+		Set<Variable<?>> variables = new HashSet<>();
 		for (Constraint<?> c : constraints) {
 			Set<Variable<?>> c_variables = c.getVariables();
 			variables.addAll(c_variables);
@@ -87,7 +87,7 @@ public class Z3Solver extends SmtSolver {
 		}
 
 		if (query.getAssertions().isEmpty()) {
-			Map<String, Object> emptySolution = new HashMap<String, Object>();
+			Map<String, Object> emptySolution = new HashMap<>();
 			SolverResult emptySAT = SolverResult.newSAT(emptySolution);
 			return emptySAT;
 		}
@@ -232,7 +232,7 @@ public class Z3Solver extends SmtSolver {
 		Set<SmtVariable> smtVariables = varCollector.getSmtVariables();
 		Set<Operator> smtOperators = opCollector.getOperators();
 
-		Set<SmtVariable> smtVariablesToDeclare = new HashSet<SmtVariable>(smtVariables);
+		Set<SmtVariable> smtVariablesToDeclare = new HashSet<>(smtVariables);
 
 		for (SmtVariable v1 : smtVariablesToDeclare) {
 			String varName = v1.getName();

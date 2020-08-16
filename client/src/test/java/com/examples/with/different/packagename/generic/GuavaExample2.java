@@ -43,12 +43,12 @@ public class GuavaExample2<B> extends HashMap<Class<? extends B>, B> {
 	}
 
 	public static <B> Builder<B> builder() {
-		return new Builder<B>();
+		return new Builder<>();
 	}
 
 	public static final class Builder<B> {
 
-		private final Map<Class<? extends B>, B> map = new HashMap<Class<? extends B>, B>();
+		private final Map<Class<? extends B>, B> map = new HashMap<>();
 
 		public <T extends B> Builder<B> add(Class<T> key, T value) {
 			map.put(key, value);
@@ -57,10 +57,10 @@ public class GuavaExample2<B> extends HashMap<Class<? extends B>, B> {
 
 		public GuavaExample2<B> build() {
 			if (map.isEmpty())
-				return new GuavaExample2<B>();
+				return new GuavaExample2<>();
 			else {
 				Entry<Class<? extends B>, B> entry = map.entrySet().iterator().next();
-				return new GuavaExample2<B>(entry.getKey(), entry.getValue());
+				return new GuavaExample2<>(entry.getKey(), entry.getValue());
 			}
 		}
 	}

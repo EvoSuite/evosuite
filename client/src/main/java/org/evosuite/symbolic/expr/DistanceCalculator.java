@@ -496,7 +496,7 @@ public class DistanceCalculator implements ConstraintVisitor<Object, Void> {
 		}
 
 		StringTokenizer tokenizer = new StringTokenizer(concreteString, concreteDelimiter);
-		Vector<String> tokens = new Vector<String>();
+		Vector<String> tokens = new Vector<>();
 		while (tokenizer.hasMoreTokens()) {
 			tokens.add(tokenizer.nextToken());
 		}

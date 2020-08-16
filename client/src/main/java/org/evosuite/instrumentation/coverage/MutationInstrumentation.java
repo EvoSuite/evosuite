@@ -84,7 +84,7 @@ public class MutationInstrumentation implements MethodInstrumentation {
 	 * </p>
 	 */
 	public MutationInstrumentation() {
-		mutationOperators = new ArrayList<MutationOperator>();
+		mutationOperators = new ArrayList<>();
 
 		// FIXME: Don't include > < >= <= for boolean comparisons
 		mutationOperators.add(new ReplaceComparisonOperator());
@@ -198,7 +198,7 @@ public class MutationInstrumentation implements MethodInstrumentation {
 				// If this is in the CFG
 				if (in.equals(v.getASMNode())) {
 					logger.info(v.toString());
-					List<Mutation> mutations = new LinkedList<Mutation>();
+					List<Mutation> mutations = new LinkedList<>();
 
 					// TODO: More than one mutation operator might apply to the same instruction
 					for (MutationOperator mutationOperator : mutationOperators) {

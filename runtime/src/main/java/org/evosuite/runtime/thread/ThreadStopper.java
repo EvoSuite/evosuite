@@ -81,7 +81,7 @@ public class ThreadStopper {
 	}
 
 	public ThreadStopper(KillSwitch killSwitch,  long timeout, String ... threadsToIgnore){
-		this(killSwitch, new LinkedHashSet<String>(Arrays.asList(threadsToIgnore)), timeout);
+		this(killSwitch, new LinkedHashSet<>(Arrays.asList(threadsToIgnore)), timeout);
 	}
 	
 	public void startRecordingTime(){
@@ -106,7 +106,7 @@ public class ThreadStopper {
 	 */
 	public void storeCurrentThreads() {
 		if (currentRunningThreads == null) {
-			currentRunningThreads = Collections.newSetFromMap(new IdentityHashMap<Thread, Boolean>());
+			currentRunningThreads = Collections.newSetFromMap(new IdentityHashMap<>());
 		} else {
 			currentRunningThreads.clear();
 		}

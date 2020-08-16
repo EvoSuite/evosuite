@@ -120,7 +120,7 @@ public abstract class StartsWith extends SymbolicFunction {
 
           StringMultipleComparison strTExpr =
               new StringMultipleComparison(stringReceiverExpr, Operator.STARTSWITH, prefixExpr,
-                  new ArrayList<Expression<?>>(Collections.singletonList(offsetExpr)), (long) conV);
+                      new ArrayList<>(Collections.singletonList(offsetExpr)), (long) conV);
 
           return strTExpr;
         }

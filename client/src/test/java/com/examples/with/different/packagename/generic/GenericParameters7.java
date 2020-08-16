@@ -35,7 +35,7 @@ public class GenericParameters7 {
 	
 
 	public List getTargetList() {
-		List<Object> targetList = new ArrayList<Object>();
+		List<Object> targetList = new ArrayList<>();
 		targetList.add(test);
 		return targetList;
 	}

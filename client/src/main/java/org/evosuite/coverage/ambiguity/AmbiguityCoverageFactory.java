@@ -55,12 +55,12 @@ public class AmbiguityCoverageFactory extends
 	/**
 	 * 
 	 */
-	private static List<LineCoverageTestFitness> goals = new ArrayList<LineCoverageTestFitness>();
+	private static List<LineCoverageTestFitness> goals = new ArrayList<>();
 
 	/**
 	 * 
 	 */
-	private static List<StringBuilder> transposedMatrix = new ArrayList<StringBuilder>();
+	private static List<StringBuilder> transposedMatrix = new ArrayList<>();
 
 	/**
 	 * 
@@ -82,7 +82,7 @@ public class AmbiguityCoverageFactory extends
 			String sCurrentLine;
 			br = new BufferedReader(new FileReader(Properties.COVERAGE_MATRIX_FILENAME));
 
-			List<StringBuilder> matrix = new ArrayList<StringBuilder>();
+			List<StringBuilder> matrix = new ArrayList<>();
 			while ((sCurrentLine = br.readLine()) != null) {
 				sCurrentLine = sCurrentLine.replace(" ", "");
 				// we do not want to consider test result
@@ -171,7 +171,7 @@ public class AmbiguityCoverageFactory extends
 	private static List<StringBuilder> tranposeMatrix(List<StringBuilder> matrix) {
 
 		int number_of_components = matrix.get(0).length();
-		List<StringBuilder> new_matrix = new ArrayList<StringBuilder>();
+		List<StringBuilder> new_matrix = new ArrayList<>();
 
 		for (int c_i = 0; c_i < number_of_components; c_i++) {
 			StringBuilder str = new StringBuilder();
@@ -201,7 +201,7 @@ public class AmbiguityCoverageFactory extends
 	protected static double getDefaultAmbiguity(List<StringBuilder> matrix) {
 
 		int number_of_components = matrix.size();
-		Map<String, Integer> groups = new HashMap<String, Integer>();
+		Map<String, Integer> groups = new HashMap<>();
 
 		for (StringBuilder s : matrix) {
 			if (!groups.containsKey(s.toString())) {

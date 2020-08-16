@@ -128,7 +128,7 @@ public final class SmtExprEvaluator implements SmtExprVisitor<Object, Void> {
 
 	@Override
 	public Object visit(SmtOperation n, Void arg) {
-		List<Object> retValues = new LinkedList<Object>();
+		List<Object> retValues = new LinkedList<>();
 		for (SmtExpr argument : n.getArguments()) {
 			Object retValue = argument.accept(this, null);
 			retValues.add(retValue);

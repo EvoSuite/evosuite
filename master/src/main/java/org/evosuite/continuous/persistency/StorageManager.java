@@ -287,7 +287,7 @@ public class StorageManager {
 		info += "\nNew test suites: " + suites.size();
 
 		// identify for which CUTs we failed to generate tests
-		Set<String> missingCUTs = new LinkedHashSet<String>();
+		Set<String> missingCUTs = new LinkedHashSet<>();
 
 		db.setTotalNumberOfTestableClasses(BigInteger.valueOf(current.getTotalNumberOfTestableCUTs()));
 		for (String cut : current.getClassNames()) {
@@ -338,7 +338,7 @@ public class StorageManager {
 	 */
 	public List<TestsOnDisk> gatherGeneratedTestsOnDisk(){
 		
-		List<TestsOnDisk> list = new LinkedList<TestsOnDisk>();
+		List<TestsOnDisk> list = new LinkedList<>();
 		List<File> generatedTests = FileIOUtils.getRecursivelyAllFilesInAllSubfolders(tmpTests.getAbsolutePath(), ".java");
 		List<File> generatedReports = FileIOUtils.getRecursivelyAllFilesInAllSubfolders(tmpReports.getAbsolutePath(), ".csv");
 		List<File> generatedSerialized = FileIOUtils.getRecursivelyAllFilesInAllSubfolders(tmpSeeds.getAbsolutePath(), Properties.CTG_SEEDS_EXT);
@@ -573,7 +573,7 @@ public class StorageManager {
 		suite.setTotalNumberOfStatements(BigInteger.valueOf(csv.getTotalNumberOfStatements()));
 		suite.setTotalEffortInSeconds(BigInteger.valueOf(csv.getDurationInSeconds()));
 
-		List<Coverage> coverageValues = new ArrayList<Coverage>();
+		List<Coverage> coverageValues = new ArrayList<>();
 		for (String criterion : csv.getCoverageVariables()) {
 		    Coverage coverage = new Coverage();
 		    coverage.setCriterion(criterion);
@@ -709,7 +709,7 @@ public class StorageManager {
 		}
 
         // select the row of the Class Under Test
-        List<String[]> rowCUT = new ArrayList<String[]>();
+        List<String[]> rowCUT = new ArrayList<>();
         rowCUT.add(rows.get(0)); // add header (i.e., column names)
         for (String[] row : rows) {
         	if (ArrayUtil.contains(row, suite.cut)) {

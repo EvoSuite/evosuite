@@ -104,7 +104,7 @@ public abstract class ScheduleType {
 		ProjectStaticData data = scheduler.getProjectData();
 		int totalBudget = 60 * scheduler.getConfiguration().timeInMinutes * scheduler.getConfiguration().getNumberOfUsableCores(); 
 		
-		List<JobDefinition> jobs = new LinkedList<JobDefinition>();
+		List<JobDefinition> jobs = new LinkedList<>();
 
 		/*
 		 * TODO: when starting schedule, check how many classes we do already have test cases from previous runs.

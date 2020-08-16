@@ -132,7 +132,7 @@ public class ExitClassInitMethodAdapter extends MethodVisitor {
 		String type;
 	}
 
-	private final List<TryCatchBlock> tryCatchBlocks = new LinkedList<TryCatchBlock>();
+	private final List<TryCatchBlock> tryCatchBlocks = new LinkedList<>();
 
 	@Override
 	public void visitTryCatchBlock(Label start, Label end, Label handler,

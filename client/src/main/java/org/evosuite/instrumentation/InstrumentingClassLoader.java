@@ -234,7 +234,7 @@ public class InstrumentingClassLoader extends ClassLoader {
 	}
 	
 	public Set<String> getLoadedClasses() {
-		HashSet<String> loadedClasses = new HashSet<String>(this.classes.keySet());
+		HashSet<String> loadedClasses = new HashSet<>(this.classes.keySet());
 		return loadedClasses;
 	}
 

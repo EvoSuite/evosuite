@@ -44,7 +44,7 @@ public class TestIsInteger extends RandomizedTC {
 	@Test
 	public void testIsInteger() throws SolverEmptyQueryException {
 
-		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
+		List<Constraint<?>> constraints = new ArrayList<>();
 		constraints.add(new IntegerConstraint(
 				new StringUnaryToIntegerExpression(new StringVariable("var0",
 						"hello"), Operator.IS_INTEGER, 0L), Comparator.NE,

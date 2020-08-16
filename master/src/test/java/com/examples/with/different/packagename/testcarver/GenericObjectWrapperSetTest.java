@@ -35,10 +35,10 @@ import org.junit.Test;
 public class GenericObjectWrapperSetTest {
 	@Test
 	public void test01() {
-		GenericObjectWrapper<Set<Long>> wrapper = new GenericObjectWrapper<Set<Long>>();
+		GenericObjectWrapper<Set<Long>> wrapper = new GenericObjectWrapper<>();
 		Assert.assertNull(wrapper.get());
 
-		Set<Long> someSet = new HashSet<Long>();
+		Set<Long> someSet = new HashSet<>();
 		someSet.add(42l);
 		someSet.add(47l);
 		someSet.remove(42l);
@@ -47,7 +47,7 @@ public class GenericObjectWrapperSetTest {
 		wrapper.set(someSet);
 		Assert.assertNotNull(wrapper.get());
 
-		GenericObjectWrapper<Long> fortySeven = new GenericObjectWrapper<Long>();
+		GenericObjectWrapper<Long> fortySeven = new GenericObjectWrapper<>();
 		fortySeven.set(47l);
 
 		Set<Long> foo = wrapper.get();

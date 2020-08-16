@@ -340,7 +340,7 @@ public class TestSuiteLocalSearch implements LocalSearch<TestSuiteChromosome> {
 		double fitnessBefore = suite.getFitness();
 		// logger.info("Test suite before local search: " + individual);
 
-		List<TestChromosome> originalTests = new ArrayList<TestChromosome>(suite.getTestChromosomes());
+		List<TestChromosome> originalTests = new ArrayList<>(suite.getTestChromosomes());
 		List<TestChromosome> tests = suite.getTestChromosomes();
 		/*
 		 * When we apply local search, due to budget constraints we might not be
@@ -462,7 +462,7 @@ public class TestSuiteLocalSearch implements LocalSearch<TestSuiteChromosome> {
 		/*
 		 * We make a copy of the original test cases before Local Search
 		 */
-		List<TestChromosome> originalTests = new ArrayList<TestChromosome>(suite.getTestChromosomes());
+		List<TestChromosome> originalTests = new ArrayList<>(suite.getTestChromosomes());
 
 		for (final TestChromosome test : originalTests) {
 

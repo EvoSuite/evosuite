@@ -29,7 +29,7 @@ public class ImpureJdkInspector {
 		if (size < 0)
 			throw new IllegalArgumentException();
 
-		this.myVector = new Vector<String>(size);
+		this.myVector = new Vector<>(size);
 	}
 
 	public int getPureSize() {

@@ -33,8 +33,8 @@ import java.util.Set;
  *
  */
 public class PathFinderDFSIterator<E> implements Iterator<E> {
-	private Set<E> visited = new HashSet<E>();
-	private Deque<Iterator<E>> stack = new LinkedList<Iterator<E>>();
+	private Set<E> visited = new HashSet<>();
+	private Deque<Iterator<E>> stack = new LinkedList<>();
 	private Graph<E> graph;
 	private E next;
 	private Set<List<E>> paths = new HashSet<>();

@@ -63,7 +63,7 @@ public class DeleteStatement implements MutationOperator {
 	public List<Mutation> apply(MethodNode mn, String className, String methodName,
 	        BytecodeInstruction instruction, Frame frame) {
 
-		List<Mutation> mutations = new LinkedList<Mutation>();
+		List<Mutation> mutations = new LinkedList<>();
 
 		MethodInsnNode node = (MethodInsnNode) instruction.getASMNode();
 		Type returnType = Type.getReturnType(node.desc);

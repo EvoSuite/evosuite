@@ -49,7 +49,7 @@ public class Scope {
 	 * Constructor
 	 */
 	public Scope() {
-		pool = Collections.synchronizedMap(new LinkedHashMap<VariableReference, Object>());
+		pool = Collections.synchronizedMap(new LinkedHashMap<>());
 	}
 
 	/**
@@ -69,7 +69,7 @@ public class Scope {
 				        + " as array: " + o);
 			else if (o != null) {
 				Object value = o;
-				List<Integer> lengths = new ArrayList<Integer>();
+				List<Integer> lengths = new ArrayList<>();
 				int idx = 0;
 				while ((value != null) && value.getClass().isArray()) {
 					if (idx == lengths.size()) {
@@ -168,7 +168,7 @@ public class Scope {
 	 * @return List of VariableReferences
 	 */
 	public List<VariableReference> getElements(Type type) {
-		List<VariableReference> refs = new ArrayList<VariableReference>();
+		List<VariableReference> refs = new ArrayList<>();
 		for (Entry<VariableReference, Object> entry : pool.entrySet()) {
 			if (type.equals(entry.getKey().getType())
 			        || (entry.getValue() != null && type.equals(entry.getValue().getClass()))) {
@@ -211,7 +211,7 @@ public class Scope {
 	 */
 	// TODO: Need to add all fields and stuff as well?
 	public Collection<Object> getObjects(Type type) {
-		Set<Object> objects = new LinkedHashSet<Object>();
+		Set<Object> objects = new LinkedHashSet<>();
 		for (Object o : pool.values()) {
 			if (o != null && o.getClass().equals(type))
 				objects.add(o);

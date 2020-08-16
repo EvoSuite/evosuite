@@ -39,7 +39,7 @@ import org.evosuite.testcase.variable.VariableReference;
  */
 public class ConcreteValueObserver extends ExecutionObserver {
 
-	private final Map<Integer, Object> concreteValues = new HashMap<Integer, Object>();
+	private final Map<Integer, Object> concreteValues = new HashMap<>();
 
 	public Map<Integer, Object> getConcreteValues() {
 		return concreteValues;

@@ -31,7 +31,7 @@ import java.util.List;
  */
 public class GenericObjectWrapperWithList<T> {
 
-	private List<T> list = new ArrayList<T>();
+	private List<T> list = new ArrayList<>();
 
 	public void add(T obj) {
 		list.add(obj);

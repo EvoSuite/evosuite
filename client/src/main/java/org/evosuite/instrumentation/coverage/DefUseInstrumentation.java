@@ -255,7 +255,7 @@ public class DefUseInstrumentation implements MethodInstrumentation {
 		String descriptor = call.getMethodCallDescriptor();
 		Type[] args = Type.getArgumentTypes(descriptor);
 		int loc = getNextLocalNum(mn);
-		Map<Integer, Integer> to = new HashMap<Integer, Integer>();
+		Map<Integer, Integer> to = new HashMap<>();
 		for (int i = args.length - 1; i >= 0; i--) {
 			Type type = args[i];
 			instrumentation.add(new VarInsnNode(type.getOpcode(Opcodes.ISTORE), loc));

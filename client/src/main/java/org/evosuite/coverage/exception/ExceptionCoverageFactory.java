@@ -40,6 +40,6 @@ public class ExceptionCoverageFactory extends AbstractFitnessFactory<TestFitness
     /** {@inheritDoc} */
 	@Override
 	public List<TestFitnessFunction> getCoverageGoals() {
-		return new ArrayList<TestFitnessFunction>(goals.values());
+		return new ArrayList<>(goals.values());
 	}
 }

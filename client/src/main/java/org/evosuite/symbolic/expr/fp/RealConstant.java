@@ -64,7 +64,7 @@ public final class RealConstant extends AbstractExpression<Double> implements Re
 
 	@Override
 	public Set<Variable<?>> getVariables() {
-		Set<Variable<?>> variables = new HashSet<Variable<?>>();
+		Set<Variable<?>> variables = new HashSet<>();
 		return variables;
 	}
 

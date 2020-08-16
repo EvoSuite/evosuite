@@ -1880,11 +1880,11 @@ public class SymbolicObserver extends ExecutionObserver {
 		return stringRef;
 	}
 
-	private final Map<String, Expression<?>> symb_expressions = new HashMap<String, Expression<?>>();
-	private final Map<String, ReferenceExpression> symb_references = new HashMap<String, ReferenceExpression>();
-	private final Map<String, IntegerVariable> integerVariables = new HashMap<String, IntegerVariable>();
-	private final Map<String, RealVariable> realVariables = new HashMap<String, RealVariable>();
-	private final Map<String, StringVariable> stringVariables = new HashMap<String, StringVariable>();
+	private final Map<String, Expression<?>> symb_expressions = new HashMap<>();
+	private final Map<String, ReferenceExpression> symb_references = new HashMap<>();
+	private final Map<String, IntegerVariable> integerVariables = new HashMap<>();
+	private final Map<String, RealVariable> realVariables = new HashMap<>();
+	private final Map<String, StringVariable> stringVariables = new HashMap<>();
 
 	private void after(IntPrimitiveStatement statement, Scope scope) {
 		int valueOf = statement.getValue();

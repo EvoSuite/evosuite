@@ -36,9 +36,9 @@ import org.evosuite.Properties;
  */
 public class DefaultRandomAccessQueue<T> implements RandomAccessQueue<T> {
 
-	private final Set<T> valueSet = new HashSet<T>();
+	private final Set<T> valueSet = new HashSet<>();
 
-	private final Queue<T> queue = new ArrayDeque<T>();
+	private final Queue<T> queue = new ArrayDeque<>();
 
 	/* (non-Javadoc)
 	 * @see org.evosuite.primitives.RandomAccessQueue#restrictedAdd(java.lang.Object)

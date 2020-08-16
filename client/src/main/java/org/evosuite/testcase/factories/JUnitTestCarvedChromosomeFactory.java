@@ -45,7 +45,7 @@ public class JUnitTestCarvedChromosomeFactory implements
 
 	private static final Logger logger = LoggerFactory.getLogger(JUnitTestCarvedChromosomeFactory.class);
 
-	private final List<TestCase> junitTests = new ArrayList<TestCase>();
+	private final List<TestCase> junitTests = new ArrayList<>();
 
 	private final ChromosomeFactory<TestChromosome> defaultFactory;
 

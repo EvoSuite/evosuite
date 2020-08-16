@@ -314,7 +314,7 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
      */
     @Override
     public List<VariableReference> getUniqueVariableReferences() {
-        return new ArrayList<VariableReference>(getVariableReferences());
+        return new ArrayList<>(getVariableReferences());
     }
 
     /**

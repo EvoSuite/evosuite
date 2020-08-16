@@ -157,7 +157,7 @@ public abstract class AssertionGenerator {
 		// Make sure we are not keeping assertions influenced by static state
 		// TODO: Need to handle statically initialized classes
 		ExecutionResult result = runTest(test);
-		Set<Assertion> invalidAssertions = new HashSet<Assertion>();
+		Set<Assertion> invalidAssertions = new HashSet<>();
 		for(Assertion assertion : test.getAssertions()) {
 			for(OutputTrace<?> outputTrace : result.getTraces()) {
 				if(outputTrace.isDetectedBy(assertion)) {
@@ -173,7 +173,7 @@ public abstract class AssertionGenerator {
 	}
 
 	public void filterFailingAssertions(List<TestCase> testCases) {
-		List<TestCase> tests = new ArrayList<TestCase>();
+		List<TestCase> tests = new ArrayList<>();
 		tests.addAll(testCases);
 		for(TestCase test : tests) {
 			filterFailingAssertions(test);

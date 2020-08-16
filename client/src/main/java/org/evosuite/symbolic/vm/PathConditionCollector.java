@@ -36,9 +36,9 @@ import org.evosuite.symbolic.expr.IntegerConstraint;
  */
 public final class PathConditionCollector {
 
-	private final List<BranchCondition> branchConditions = new LinkedList<BranchCondition>();
+	private final List<BranchCondition> branchConditions = new LinkedList<>();
 
-	private final LinkedList<Constraint<?>> currentSupportingConstraints = new LinkedList<Constraint<?>>();
+	private final LinkedList<Constraint<?>> currentSupportingConstraints = new LinkedList<>();
 
 	private static Constraint<?> normalizeConstraint(IntegerConstraint c) {
 		return ConstraintNormalizer.normalize(c);
@@ -73,7 +73,7 @@ public final class PathConditionCollector {
 
 		Constraint<?> normalizedConstraint = normalizeConstraint(c);
 
-		LinkedList<Constraint<?>> branch_supporting_constraints = new LinkedList<Constraint<?>>(
+		LinkedList<Constraint<?>> branch_supporting_constraints = new LinkedList<>(
 				currentSupportingConstraints);
 
 		IfBranchCondition new_branch = new IfBranchCondition(className, methName, branchIndex, normalizedConstraint,
@@ -99,7 +99,7 @@ public final class PathConditionCollector {
 
 		Constraint<?> normalizedConstraint = normalizeConstraint(c);
 
-		LinkedList<Constraint<?>> branch_supporting_constraints = new LinkedList<Constraint<?>>(
+		LinkedList<Constraint<?>> branch_supporting_constraints = new LinkedList<>(
 				currentSupportingConstraints);
 
 		SwitchBranchCondition new_branch = new SwitchBranchCondition(className, methodName, instructionIndex,
@@ -117,7 +117,7 @@ public final class PathConditionCollector {
 	 * @return
 	 */
 	public List<BranchCondition> getPathCondition() {
-		return new LinkedList<BranchCondition>(branchConditions);
+		return new LinkedList<>(branchConditions);
 	}
 
 	/**
@@ -134,7 +134,7 @@ public final class PathConditionCollector {
 
 		Constraint<?> normalizedConstraint = normalizeConstraint(c);
 
-		LinkedList<Constraint<?>> branch_supporting_constraints = new LinkedList<Constraint<?>>(
+		LinkedList<Constraint<?>> branch_supporting_constraints = new LinkedList<>(
 				currentSupportingConstraints);
 
 		SwitchBranchCondition new_branch = new SwitchBranchCondition(className, methodName, instructionIndex,

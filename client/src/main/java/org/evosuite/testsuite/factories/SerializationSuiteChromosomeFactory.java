@@ -39,7 +39,7 @@ public class SerializationSuiteChromosomeFactory
 
     private static final Logger logger = LoggerFactory.getLogger(SerializationSuiteChromosomeFactory.class);
 
-    private List<TestChromosome> previousSuite = new ArrayList<TestChromosome>();
+    private List<TestChromosome> previousSuite = new ArrayList<>();
 
     private ChromosomeFactory<TestChromosome> defaultFactory;
 

@@ -62,10 +62,10 @@ public class DirectSequenceOutputVariableFactory<T extends Number> extends Seque
     }
     
     public static DirectSequenceOutputVariableFactory<Double> getDouble(RuntimeVariable variable) {
-      return new DirectSequenceOutputVariableFactory<Double>(variable, Double.class, 0.0);
+      return new DirectSequenceOutputVariableFactory<>(variable, Double.class, 0.0);
     }
     
     public static DirectSequenceOutputVariableFactory<Integer> getInteger(RuntimeVariable variable) {
-      return new DirectSequenceOutputVariableFactory<Integer>(variable, Integer.class, 0);
+      return new DirectSequenceOutputVariableFactory<>(variable, Integer.class, 0);
     }
 }

@@ -90,7 +90,7 @@ public class ResourceList {
 		public void addPrefix(String prefix, String cpEntry){
 			Set<String> classPathEntries = mapPrefixToCPs.get(prefix);
 			if(classPathEntries==null){
-				classPathEntries = new LinkedHashSet<String>();
+				classPathEntries = new LinkedHashSet<>();
 				mapPrefixToCPs.put(prefix, classPathEntries);
 			}
 			classPathEntries.add(cpEntry);
@@ -142,7 +142,7 @@ public class ResourceList {
 	/*
 	 * ResourceList for each ClassLoader
 	 */
-	private static Map<ClassLoader, ResourceList> instanceMap = new HashMap<ClassLoader, ResourceList>();
+	private static Map<ClassLoader, ResourceList> instanceMap = new HashMap<>();
 
 	private final ClassLoader classLoader;
 
@@ -303,7 +303,7 @@ public class ResourceList {
 	public Set<String> getAllClasses(String classPathEntry, String prefix, boolean includeInternalClasses, boolean excludeAnonymous){
 
 		if(classPathEntry.contains(File.pathSeparator)){
-			Set<String> retval = new LinkedHashSet<String>();
+			Set<String> retval = new LinkedHashSet<>();
 			for(String element : classPathEntry.split(File.pathSeparator)){
 				retval.addAll(getAllClasses(element,prefix,includeInternalClasses,excludeAnonymous));
 			}
@@ -513,7 +513,7 @@ public class ResourceList {
 			return; //this classpath entry has already been analyzed
 		}
 
-		getCache().mapCPtoClasses.put(classPathElement, new LinkedHashSet<String>());
+		getCache().mapCPtoClasses.put(classPathElement, new LinkedHashSet<>());
 
 
 		if (!file.exists()) {

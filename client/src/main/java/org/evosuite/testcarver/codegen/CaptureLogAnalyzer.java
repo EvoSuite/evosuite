@@ -43,7 +43,7 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 	@Override
 	public void analyze(final CaptureLog originalLog, final ICodeGenerator generator, final Class<?>... observedClasses) 
 	{
-		this.analyze(originalLog, generator, new HashSet<Class<?>>(), observedClasses);
+		this.analyze(originalLog, generator, new HashSet<>(), observedClasses);
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -174,7 +174,7 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 	private HashSet<String> extractObservedClassNames(
 			final Class<?>... observedClasses) {
 		//--- 1. step: extract class names
-		final HashSet<String> observedClassNames = new HashSet<String>();
+		final HashSet<String> observedClassNames = new HashSet<>();
 		for(int i = 0; i < observedClasses.length; i++){
 			observedClassNames.add(observedClasses[i].getName());
 		}

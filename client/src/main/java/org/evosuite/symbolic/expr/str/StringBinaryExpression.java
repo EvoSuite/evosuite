@@ -132,7 +132,7 @@ public final class StringBinaryExpression extends AbstractExpression<String> imp
 
 	@Override
 	public Set<Variable<?>> getVariables() {
-		Set<Variable<?>> variables = new HashSet<Variable<?>>();
+		Set<Variable<?>> variables = new HashSet<>();
 		variables.addAll(this.left.getVariables());
 		variables.addAll(this.right.getVariables());
 		return variables;
@@ -140,7 +140,7 @@ public final class StringBinaryExpression extends AbstractExpression<String> imp
 
 	@Override
 	public Set<Object> getConstants() {
-		Set<Object> result = new HashSet<Object>();
+		Set<Object> result = new HashSet<>();
 		result.addAll(this.left.getConstants());
 		result.addAll(this.right.getConstants());
 		return result;

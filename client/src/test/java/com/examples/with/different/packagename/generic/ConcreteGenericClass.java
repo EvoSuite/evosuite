@@ -33,6 +33,6 @@ public class ConcreteGenericClass<T> extends AbstractGenericClass<T> {
 	}
 
 	public static <S> ConcreteGenericClass<S> create(int value) {
-		return new ConcreteGenericClass<S>(value);
+		return new ConcreteGenericClass<>(value);
 	}
 }

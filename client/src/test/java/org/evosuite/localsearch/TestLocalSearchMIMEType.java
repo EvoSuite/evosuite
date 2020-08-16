@@ -252,7 +252,7 @@ public class TestLocalSearchMIMEType {
 				.getFitnessFunction(Criterion.METHODNOEXCEPTION);
 		TestSuiteFitnessFunction cbranchCoverage = FitnessFunctions.getFitnessFunction(Criterion.CBRANCH);
 
-		List<TestSuiteFitnessFunction> fitnessFunctions = new ArrayList<TestSuiteFitnessFunction>();
+		List<TestSuiteFitnessFunction> fitnessFunctions = new ArrayList<>();
 		fitnessFunctions.add(lineCoverage);
 		fitnessFunctions.add(branchCoverage);
 		fitnessFunctions.add(exceptionCoverage);

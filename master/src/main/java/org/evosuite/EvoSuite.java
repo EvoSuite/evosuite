@@ -148,7 +148,7 @@ public class EvoSuite {
     public Object parseCommandLine(String[] args) {
         Options options = CommandLineParameters.getCommandLineOptions();
 
-        List<String> javaOpts = new ArrayList<String>();
+        List<String> javaOpts = new ArrayList<>();
 
         String version = EvoSuite.class.getPackage().getImplementationVersion();
         if (version == null) {

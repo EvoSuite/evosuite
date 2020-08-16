@@ -77,7 +77,7 @@ public final class StringConstant extends AbstractExpression<String> implements
 
 	@Override
 	public Set<Variable<?>> getVariables() {
-		Set<Variable<?>> variables = new HashSet<Variable<?>>();
+		Set<Variable<?>> variables = new HashSet<>();
 		return variables;
 	}
 	

@@ -389,7 +389,7 @@ public class JobHandler extends Thread {
 
 	private List<String> getPoolInfo(JobDefinition job) {
 
-		List<String> commands = new ArrayList<String>();
+		List<String> commands = new ArrayList<>();
 		StorageManager storage = executor.getStorage();
 		File poolFolder = storage.getTmpPools();
 

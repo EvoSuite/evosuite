@@ -104,7 +104,7 @@ public class MethodCallReplacement {
 
 		if (popCallee) {
 			Type[] args = Type.getArgumentTypes(desc);
-			Map<Integer, Integer> to = new HashMap<Integer, Integer>();
+			Map<Integer, Integer> to = new HashMap<>();
 			for (int i = args.length - 1; i >= 0; i--) {
 				int loc = mv.newLocal(args[i]);
 				mv.storeLocal(loc);
@@ -178,7 +178,7 @@ public class MethodCallReplacement {
 			mv.visitLabel(annotationEndTag);
 
 			Type[] args = Type.getArgumentTypes(desc);
-			Map<Integer, Integer> to = new HashMap<Integer, Integer>();
+			Map<Integer, Integer> to = new HashMap<>();
 			for (int i = args.length - 1; i >= 0; i--) {
 				int loc = mv.newLocal(args[i]);
 				mv.storeLocal(loc);

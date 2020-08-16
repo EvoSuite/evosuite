@@ -59,7 +59,7 @@ import org.evosuite.utils.generic.GenericMethod;
 public class TestCaseBuilder {
 
 	private final DefaultTestCase tc = new DefaultTestCase();
-	private final Map<Integer,Throwable> exceptions = new HashMap<Integer,Throwable>();
+	private final Map<Integer,Throwable> exceptions = new HashMap<>();
 
 	public VariableReference appendConstructor(Constructor<?> constructor,
 			VariableReference... parameters) {

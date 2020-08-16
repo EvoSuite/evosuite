@@ -99,7 +99,7 @@ public abstract class LastIndexOf extends SymbolicFunction {
 					|| fromIndexExpr.containsSymbolicVariable()) {
 				StringMultipleToIntegerExpression strBExpr = new StringMultipleToIntegerExpression(
 						left_expr, Operator.LASTINDEXOFCI, right_expr,
-						new ArrayList<Expression<?>>(Collections
+						new ArrayList<>(Collections
 								.singletonList(fromIndexExpr)),
 						(long) res);
 
@@ -184,7 +184,7 @@ public abstract class LastIndexOf extends SymbolicFunction {
 
 					StringMultipleToIntegerExpression strBExpr = new StringMultipleToIntegerExpression(
 							left_expr, Operator.LASTINDEXOFSI, right_expr,
-							new ArrayList<Expression<?>>(Collections
+							new ArrayList<>(Collections
 									.singletonList(fromIndexExpr)),
 							(long) res);
 

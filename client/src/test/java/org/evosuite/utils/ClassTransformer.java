@@ -35,7 +35,7 @@ public class ClassTransformer {
 		return instance;
 	}
 
-	private final Map<String, Class<?>> instrumentedClasses = new HashMap<String, Class<?>>();
+	private final Map<String, Class<?>> instrumentedClasses = new HashMap<>();
 
 	private ClassTransformer() {
 		// private constructor

@@ -118,7 +118,7 @@ public class ConstantInliner extends ExecutionObserver {
 	 * @return True if something was deleted
 	 */
 	public boolean removeUnusedVariables(TestCase t) {
-		List<Integer> toDelete = new ArrayList<Integer>();
+		List<Integer> toDelete = new ArrayList<>();
 		boolean hasDeleted = false;
 
 		int num = 0;

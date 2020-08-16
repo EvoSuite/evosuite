@@ -62,7 +62,7 @@ public abstract class ListUtil {
 	 * @return a {@link java.util.List} object.
 	 */
 	public static <T> List<T> shuffledList(List<T> list) {
-		ArrayList<T> result = new ArrayList<T>(list);
+		ArrayList<T> result = new ArrayList<>(list);
 		Collections.shuffle(result);
 		return result;
 	}
@@ -76,7 +76,7 @@ public abstract class ListUtil {
 	 * @return a {@link java.util.List} object.
 	 */
 	public static <T> List<T> shuffledList(List<T> list, Random rnd) {
-		ArrayList<T> result = new ArrayList<T>(list);
+		ArrayList<T> result = new ArrayList<>(list);
 		Collections.shuffle(result, rnd);
 		return result;
 	}

@@ -59,7 +59,7 @@ public final class StringReaderExpr extends AbstractExpression<Long> implements
 
 	@Override
 	public Set<Variable<?>> getVariables() {
-		Set<Variable<?>> variables = new HashSet<Variable<?>>();
+		Set<Variable<?>> variables = new HashSet<>();
 		variables.addAll(this.string.getVariables());
 		return variables;
 	}
@@ -102,7 +102,7 @@ public final class StringReaderExpr extends AbstractExpression<Long> implements
 
 	@Override
 	public Set<Object> getConstants() {
-		Set<Object> result = new HashSet<Object>();
+		Set<Object> result = new HashSet<>();
 		result.add(string.getConcreteValue());
 		return result;
 	}

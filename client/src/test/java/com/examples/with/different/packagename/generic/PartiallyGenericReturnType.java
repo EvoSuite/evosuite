@@ -26,7 +26,7 @@ public class PartiallyGenericReturnType {
 
 
 	public Collection<Class> foo(int x) {
-		Collection<Class> bar = new HashSet<Class>();
+		Collection<Class> bar = new HashSet<>();
 		if(x == 42) {
 			bar.add(getClass());
 		}

@@ -25,7 +25,7 @@ import java.util.List;
 public class GenericMethodWithBounds {
 
 	public <T extends Comparable<T>> List<T> is(T element) {
-		List<T> list = new LinkedList<T>();
+		List<T> list = new LinkedList<>();
 		if(element != null) {
 			list.add(element);
 		}

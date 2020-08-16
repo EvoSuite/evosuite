@@ -335,7 +335,7 @@ public class TestGenericAccessibleObject {
 
 		DefaultTestCase test = new DefaultTestCase();
 		MethodStatement ms1 = new MethodStatement(test, genericCreatorMethod,
-		        (VariableReference) null, new ArrayList<VariableReference>());
+		        (VariableReference) null, new ArrayList<>());
 		test.addStatement(ms1);
 
 		IntPrimitiveStatement ps1 = (IntPrimitiveStatement) PrimitiveStatement.getPrimitiveStatement(test,
@@ -344,13 +344,13 @@ public class TestGenericAccessibleObject {
 
 		GenericConstructor intConstructor = new GenericConstructor(intConst,
 		        Integer.class);
-		List<VariableReference> constParam = new ArrayList<VariableReference>();
+		List<VariableReference> constParam = new ArrayList<>();
 		constParam.add(ps1.getReturnValue());
 		ConstructorStatement cs1 = new ConstructorStatement(test, intConstructor,
 		        constParam);
 		//test.addStatement(cs1);
 
-		List<VariableReference> callParam = new ArrayList<VariableReference>();
+		List<VariableReference> callParam = new ArrayList<>();
 		callParam.add(ps1.getReturnValue());
 
 		MethodStatement ms2 = new MethodStatement(test, genericMethod,

@@ -90,7 +90,7 @@ public class SystemInUtil extends InputStream{
 	 */
 	public static synchronized void resetSingleton(){
 		singleton.beingUsed = false;	
-		singleton.data = new ArrayList<Byte>();
+		singleton.data = new ArrayList<>();
 		singleton.counter = new AtomicInteger(0);
 		singleton.endReached = false;
 		System.setIn(defaultIn);
@@ -100,7 +100,7 @@ public class SystemInUtil extends InputStream{
 	 * Setup mocked/stubbed System.in for the test case
 	 */
 	public void initForTestCase(){
-		data = new ArrayList<Byte>();
+		data = new ArrayList<>();
 		counter = new AtomicInteger(0);
 		endReached = false;
 		if(RuntimeSettings.mockSystemIn){

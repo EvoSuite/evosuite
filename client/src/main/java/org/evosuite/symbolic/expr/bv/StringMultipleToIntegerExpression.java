@@ -179,7 +179,7 @@ public final class StringMultipleToIntegerExpression extends AbstractExpression<
 
 	@Override
 	public Set<Variable<?>> getVariables() {
-		Set<Variable<?>> variables = new HashSet<Variable<?>>();
+		Set<Variable<?>> variables = new HashSet<>();
 		variables.addAll(this.left.getVariables());
 		variables.addAll(this.right.getVariables());
 		for (Expression<?> other_e : this.other_v) {
@@ -190,7 +190,7 @@ public final class StringMultipleToIntegerExpression extends AbstractExpression<
 
 	@Override
 	public Set<Object> getConstants() {
-		Set<Object> result = new HashSet<Object>();
+		Set<Object> result = new HashSet<>();
 		result.addAll(this.left.getConstants());
 		result.addAll(this.right.getConstants());
 		for (Expression<?> other_e : this.other_v) {

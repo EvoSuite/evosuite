@@ -76,7 +76,7 @@ public abstract class AbstractExpression<T> implements Expression<T> {
 
 	@Override
 	public Set<Object> getConstants() {
-		Set<Object> result = new HashSet<Object>();
+		Set<Object> result = new HashSet<>();
 		result.add(this.concreteValue);
 		return result;
 	}

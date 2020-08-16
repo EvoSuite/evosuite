@@ -94,8 +94,8 @@ public class ProjectStaticData {
 	 * 
 	 */
 	public ProjectStaticData() {
-		classes = new ConcurrentHashMap<String, ClassInfo>();
-		this.modifiedFiles = new LinkedHashSet<String>();
+		classes = new ConcurrentHashMap<>();
+		this.modifiedFiles = new LinkedHashSet<>();
 	}
 
 	/**

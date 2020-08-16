@@ -178,7 +178,7 @@ public class CompareAssertion extends Assertion {
 	/** {@inheritDoc} */
 	@Override
 	public Set<VariableReference> getReferencedVariables() {
-		Set<VariableReference> vars = new HashSet<VariableReference>();
+		Set<VariableReference> vars = new HashSet<>();
 		vars.add(source);
 		vars.add(dest);
 		return vars;

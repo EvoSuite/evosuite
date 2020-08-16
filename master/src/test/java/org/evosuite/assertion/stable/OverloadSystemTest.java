@@ -97,17 +97,17 @@ public class OverloadSystemTest extends SystemTestBase {
 		TestCase test = new DefaultTestCase();
 		
 		GenericConstructor gc = new GenericConstructor(Overload.class.getConstructors()[0], Overload.class);
-		ConstructorStatement cs = new ConstructorStatement(test, gc, new ArrayList<VariableReference>());
+		ConstructorStatement cs = new ConstructorStatement(test, gc, new ArrayList<>());
 		VariableReference overloadInstance = test.addStatement(cs);
 
-		ConstructorStatement ocs = new ConstructorStatement(test, new GenericConstructor(Object.class.getConstructors()[0], Object.class), new ArrayList<VariableReference>());
+		ConstructorStatement ocs = new ConstructorStatement(test, new GenericConstructor(Object.class.getConstructors()[0], Object.class), new ArrayList<>());
 		VariableReference objectInstance = test.addStatement(ocs);
 
-		List<VariableReference> vars1 = new ArrayList<VariableReference>();
+		List<VariableReference> vars1 = new ArrayList<>();
 		vars1.add(overloadInstance);
 		vars1.add(overloadInstance);
 
-		List<VariableReference> vars2 = new ArrayList<VariableReference>();
+		List<VariableReference> vars2 = new ArrayList<>();
 		vars2.add(overloadInstance);
 		vars2.add(objectInstance);
 

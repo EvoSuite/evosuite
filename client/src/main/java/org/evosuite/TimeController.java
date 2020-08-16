@@ -140,7 +140,7 @@ public class TimeController {
 		if(timeSpentInEachPhase!=null){
 			timeSpentInEachPhase.clear();
 		} else {
-			timeSpentInEachPhase = new ConcurrentHashMap<ClientState,Long>();
+			timeSpentInEachPhase = new ConcurrentHashMap<>();
 		}
 	}
 

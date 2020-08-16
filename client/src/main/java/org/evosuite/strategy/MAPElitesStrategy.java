@@ -122,7 +122,7 @@ public class MAPElitesStrategy extends TestGenerationStrategy {
 
   private List<TestFitnessFunction> getGoals() {
     List<TestFitnessFactory<? extends TestFitnessFunction>> goalFactories = getFitnessFactories();
-    List<TestFitnessFunction> fitnessFunctions = new ArrayList<TestFitnessFunction>();
+    List<TestFitnessFunction> fitnessFunctions = new ArrayList<>();
           for (TestFitnessFactory<? extends TestFitnessFunction> goalFactory : goalFactories) {
               fitnessFunctions.addAll(goalFactory.getCoverageGoals());
           }

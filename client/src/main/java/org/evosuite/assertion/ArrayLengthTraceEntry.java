@@ -39,7 +39,7 @@ public class ArrayLengthTraceEntry implements OutputTraceEntry {
      */
     @Override
     public Set<Assertion> getAssertions(OutputTraceEntry other) {
-        Set<Assertion> assertions = new HashSet<Assertion>();
+        Set<Assertion> assertions = new HashSet<>();
         if (other instanceof ArrayLengthTraceEntry) {
             ArrayLengthTraceEntry otherEntry = (ArrayLengthTraceEntry) other;
             if (length != otherEntry.length) {
@@ -59,7 +59,7 @@ public class ArrayLengthTraceEntry implements OutputTraceEntry {
      */
     @Override
     public Set<Assertion> getAssertions() {
-        Set<Assertion> assertions = new HashSet<Assertion>();
+        Set<Assertion> assertions = new HashSet<>();
         ArrayLengthAssertion assertion = new ArrayLengthAssertion();
         assertion.source = var;
         assertion.length = length;

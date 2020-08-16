@@ -42,7 +42,7 @@ public class ResourceList {
 
 	
 	public static Collection<String> findResourceInClassPath(String fileName) {
-		final ArrayList<String> retval = new ArrayList<String>();
+		final ArrayList<String> retval = new ArrayList<>();
 		final String[] classPathElements = MainConfig.get().CLASS_PATH.split(":");
 
 		for (final String element : classPathElements) {

@@ -68,9 +68,9 @@ public class InsertUnaryOperator implements MutationOperator {
 		// TODO - need to keep InsnList in Mutation, not only Instruction?
 
 		// Mutation: Insert an INEG _after_ an iload 
-		List<Mutation> mutations = new LinkedList<Mutation>();
-		List<InsnList> mutationCode = new LinkedList<InsnList>();
-		List<String> descriptions = new LinkedList<String>();
+		List<Mutation> mutations = new LinkedList<>();
+		List<InsnList> mutationCode = new LinkedList<>();
+		List<String> descriptions = new LinkedList<>();
 
 		if (instruction.getASMNode() instanceof VarInsnNode) {
 			try {
@@ -110,7 +110,7 @@ public class InsertUnaryOperator implements MutationOperator {
 				}
 			} catch (VariableNotFoundException e) {
 				logger.info("Could not find variable: " + e);
-				return new ArrayList<Mutation>();
+				return new ArrayList<>();
 			}
 		} else {
 			InsnList mutation = new InsnList();

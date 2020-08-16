@@ -344,7 +344,7 @@ public class HTMLStatisticsBackend implements StatisticsBackend {
 
 		OutputVariable<?> ov_covered_lines = data.get(RuntimeVariable.Covered_Lines.name()); 
 		@SuppressWarnings("unchecked")
-		Set<Integer> coveredLines = (ov_covered_lines != null) ? (Set<Integer>) ov_covered_lines.getValue() : new HashSet<Integer>();
+		Set<Integer> coveredLines = (ov_covered_lines != null) ? (Set<Integer>) ov_covered_lines.getValue() : new HashSet<>();
 				
 		// Source code
 		try {
@@ -396,7 +396,7 @@ public class HTMLStatisticsBackend implements StatisticsBackend {
 				        && (name.endsWith(".html"));
 			}
 		};
-		List<String> filenames = new ArrayList<String>();
+		List<String> filenames = new ArrayList<>();
 
 		File[] files = (new File(getReportDir().getAbsolutePath() + "/html")).listFiles(filter);
 		if (files != null) {

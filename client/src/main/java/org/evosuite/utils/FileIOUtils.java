@@ -48,7 +48,7 @@ public class FileIOUtils {
 	 * @return content of the file in a list
 	 */
 	public static List<String> readFile(File file) {
-		List<String> content = new LinkedList<String>();
+		List<String> content = new LinkedList<>();
 		try {
 			Reader reader = new InputStreamReader(
 					new FileInputStream(file), "utf-8");

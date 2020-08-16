@@ -100,7 +100,7 @@ public abstract class GenerationUtil {
    */
   public static Set<String> getCriteria(Generation generation) {
     if (generation == null || generation.isFailed() || generation.getSuite() == null) {
-      return new HashSet<String>();
+      return new HashSet<>();
     }
 
     return generation.getSuite().getCoverage().parallelStream()

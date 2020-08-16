@@ -63,7 +63,7 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 	private static final long serialVersionUID = -1859683466333302151L;
 
 	/** Singleton instance */
-	private static Map<String, SearchStatistics> instances = new LinkedHashMap<String, SearchStatistics>();
+	private static Map<String, SearchStatistics> instances = new LinkedHashMap<>();
 
 	private static final Logger logger = LoggerFactory.getLogger(SearchStatistics.class);
 
@@ -74,13 +74,13 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 	private StatisticsBackend backend = null;
 
 	/** Output variables and their values */ 
-	private Map<String, OutputVariable<?>> outputVariables = new TreeMap<String, OutputVariable<?>>();
+	private Map<String, OutputVariable<?>> outputVariables = new TreeMap<>();
 
 	/** Variable factories to extract output variables from chromosomes */
-	private Map<String, ChromosomeOutputVariableFactory<?>> variableFactories = new TreeMap<String, ChromosomeOutputVariableFactory<?>>(); 
+	private Map<String, ChromosomeOutputVariableFactory<?>> variableFactories = new TreeMap<>();
 
 	/** Variable factories to extract sequence variables */
-	private Map<String, SequenceOutputVariableFactory<?>> sequenceOutputVariableFactories = new TreeMap<String, SequenceOutputVariableFactory<?>>();
+	private Map<String, SequenceOutputVariableFactory<?>> sequenceOutputVariableFactories = new TreeMap<>();
 
 	/** Keep track of how far EvoSuite progressed */
 	private ClientState currentState = ClientState.INITIALIZATION;
@@ -91,7 +91,7 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 
 	private long startTime = System.currentTimeMillis();
 
-	private List<List<TestGenerationResult>> results = new ArrayList<List<TestGenerationResult>>();
+	private List<List<TestGenerationResult>> results = new ArrayList<>();
 
 	private SearchStatistics() { 
 		switch(Properties.STATISTICS_BACKEND) {
@@ -212,7 +212,7 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 	 * @param value
 	 */
 	public void setOutputVariable(RuntimeVariable variable, Object value) {
-		setOutputVariable(new OutputVariable<Object>(variable.toString(), value));
+		setOutputVariable(new OutputVariable<>(variable.toString(), value));
 	}
 
 	public void setOutputVariable(OutputVariable<?> variable) {
@@ -246,7 +246,7 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 	 * @return
 	 */
 	private List<String> getAllOutputVariableNames() {
-		List<String> variableNames = new ArrayList<String>();
+		List<String> variableNames = new ArrayList<>();
 
 		String[] essentials = new String[] {  //TODO maybe add some more
 				"TARGET_CLASS" , "criterion", 
@@ -300,7 +300,7 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 	 * @return <code>null</code> if some data is missing
 	 */
 	private Map<String, OutputVariable<?>> getOutputVariables(TestSuiteChromosome individual, boolean skip_missing) {
-		Map<String, OutputVariable<?>> variables = new LinkedHashMap<String, OutputVariable<?>>();
+		Map<String, OutputVariable<?>> variables = new LinkedHashMap<>();
 		
 		for(String variableName : getOutputVariableNames()) {
 			if(outputVariables.containsKey(variableName)) {
@@ -322,7 +322,7 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 				}
 			} else if(skip_missing) {
 				// if variable doesn't exist, return an empty value instead
-				variables.put(variableName, new OutputVariable<String>(variableName, ""));
+				variables.put(variableName, new OutputVariable<>(variableName, ""));
 			} else {
 				logger.error("No obtained value for output variable: "+variableName);
 				return null;
@@ -444,7 +444,7 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 					factory.setStartTime(searchStartTime);
 				}
 			}
-			OutputVariable<Long> time = new OutputVariable<Long>("Time_"+currentState.getName(), System.currentTimeMillis() - currentStateStarted);
+			OutputVariable<Long> time = new OutputVariable<>("Time_" + currentState.getName(), System.currentTimeMillis() - currentStateStarted);
 			outputVariables.put(time.getName(), time);
 			currentState = information.getState();
 			currentStateStarted = System.currentTimeMillis();

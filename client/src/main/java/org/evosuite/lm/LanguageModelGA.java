@@ -116,7 +116,7 @@ public class LanguageModelGA extends LanguageModelSearch {
         int numElitesToSelect = (int)Math.round(ELITIST_RATE * population.size());
         //copy some elites over:
 
-        ArrayList<Chromosome> rankedPopulation = new ArrayList<Chromosome>(population.size());
+        ArrayList<Chromosome> rankedPopulation = new ArrayList<>(population.size());
         rankedPopulation.addAll(population);
         Collections.sort(rankedPopulation,Collections.reverseOrder(this));
 
@@ -221,7 +221,7 @@ public class LanguageModelGA extends LanguageModelSearch {
         Chromosome best = getBest(population, null);
 
         for(int generation = 0; generation < GENERATIONS && !isBudgetExpended(); generation++){
-            HashSet<Chromosome> newPopulation = new HashSet<Chromosome>();
+            HashSet<Chromosome> newPopulation = new HashSet<>();
 
             try{
                 generation(newPopulation);

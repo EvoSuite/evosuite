@@ -50,7 +50,7 @@ public class VariableReferenceImpl implements VariableReference {
 	 * The testCase in which this VariableReference is valid
 	 */
 	protected TestCase testCase;
-	protected final PassiveChangeListener<Void> changeListener = new PassiveChangeListener<Void>();
+	protected final PassiveChangeListener<Void> changeListener = new PassiveChangeListener<>();
 	protected Integer stPosition;
 	private String originalCode;
 

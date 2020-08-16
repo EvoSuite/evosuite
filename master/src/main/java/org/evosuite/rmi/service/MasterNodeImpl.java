@@ -51,7 +51,7 @@ public class MasterNodeImpl implements MasterNodeRemote, MasterNodeLocal {
 	private final Registry registry;
 	private final Map<String, ClientNodeRemote> clients;
 
-	protected final Collection<Listener<ClientStateInformation>> listeners = Collections.synchronizedList(new ArrayList<Listener<ClientStateInformation>>());
+	protected final Collection<Listener<ClientStateInformation>> listeners = Collections.synchronizedList(new ArrayList<>());
 
 	/**
 	 * It is important to keep track of client states for debugging reasons. For
@@ -64,9 +64,9 @@ public class MasterNodeImpl implements MasterNodeRemote, MasterNodeLocal {
 	private final Map<String, ClientStateInformation> clientStateInformation;
 
 	public MasterNodeImpl(Registry registry) {
-		clients = new ConcurrentHashMap<String, ClientNodeRemote>();
-		clientStates = new ConcurrentHashMap<String, ClientState>();
-		clientStateInformation = new ConcurrentHashMap<String, ClientStateInformation>();
+		clients = new ConcurrentHashMap<>();
+		clientStates = new ConcurrentHashMap<>();
+		clientStateInformation = new ConcurrentHashMap<>();
 		this.registry = registry;
 	}
 

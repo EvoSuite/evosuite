@@ -45,7 +45,7 @@ import java.util.Map;
  */
 public class NegateCondition implements MutationOperator {
 
-	private static Map<Integer, Integer> opcodeMap = new HashMap<Integer, Integer>();
+	private static Map<Integer, Integer> opcodeMap = new HashMap<>();
 
 	public static final String NAME = "NegateCondition";
 	
@@ -76,7 +76,7 @@ public class NegateCondition implements MutationOperator {
 	public List<Mutation> apply(MethodNode mn, String className, String methodName,
 	        BytecodeInstruction instruction, Frame frame) {
 
-		List<Mutation> mutations = new LinkedList<Mutation>();
+		List<Mutation> mutations = new LinkedList<>();
 
 		JumpInsnNode node = (JumpInsnNode) instruction.getASMNode();
 		LabelNode target = node.label;

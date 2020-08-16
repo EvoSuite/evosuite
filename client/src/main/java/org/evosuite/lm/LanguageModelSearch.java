@@ -139,7 +139,7 @@ public abstract class LanguageModelSearch implements Comparator<Chromosome> {
 
         do{
 
-            Set<Integer> choices = new HashSet<Integer>();
+            Set<Integer> choices = new HashSet<>();
             choices.addAll(Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7, 8, 9));
 
             boolean foundValidChar = false;

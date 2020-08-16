@@ -38,7 +38,7 @@ public class StatementCoverageFactory extends
 		long start = System.currentTimeMillis();
 		String targetClass = Properties.TARGET_CLASS;
 
-		List<StatementCoverageTestFitness> goals = new ArrayList<StatementCoverageTestFitness>();
+		List<StatementCoverageTestFitness> goals = new ArrayList<>();
 
 		final MethodNameMatcher matcher = new MethodNameMatcher();
 		

@@ -187,7 +187,7 @@ public class AssignmentStatement extends AbstractStatement {
 
 			@Override
 			public Set<Class<? extends Throwable>> throwableExceptions() {
-				Set<Class<? extends Throwable>> t = new LinkedHashSet<Class<? extends Throwable>>();
+				Set<Class<? extends Throwable>> t = new LinkedHashSet<>();
 				t.add(AssertionError.class);
 				return t;
 			}
@@ -198,7 +198,7 @@ public class AssignmentStatement extends AbstractStatement {
 	/** {@inheritDoc} */
 	@Override
 	public Set<VariableReference> getVariableReferences() {
-		Set<VariableReference> vars = new LinkedHashSet<VariableReference>();
+		Set<VariableReference> vars = new LinkedHashSet<>();
 		vars.add(retval);
 		vars.add(parameter);
 
@@ -266,7 +266,7 @@ public class AssignmentStatement extends AbstractStatement {
 	/** {@inheritDoc} */
 	@Override
 	public List<VariableReference> getUniqueVariableReferences() {
-		return new ArrayList<VariableReference>(getVariableReferences());
+		return new ArrayList<>(getVariableReferences());
 	}
 
 	/* (non-Javadoc)
@@ -315,7 +315,7 @@ public class AssignmentStatement extends AbstractStatement {
 	 * @return
 	 */
 	private Set<VariableReference> getSourceReplacements() {
-		Set<VariableReference> variables = new LinkedHashSet<VariableReference>();
+		Set<VariableReference> variables = new LinkedHashSet<>();
 		for (int i = 0; i < retval.getStPosition() && i < tc.size(); i++) {
 			VariableReference value = tc.getReturnValue(i);
 			if (value == null)

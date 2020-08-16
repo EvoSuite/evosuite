@@ -24,9 +24,9 @@ import java.util.Map;
 
 public class MapContainerUser {
 
-	private final Map<Object, Object> myMap = new HashMap<Object, Object>();
+	private final Map<Object, Object> myMap = new HashMap<>();
 
-	private final Map<Object, Object> emptyMap = new HashMap<Object, Object>();
+	private final Map<Object, Object> emptyMap = new HashMap<>();
 
 	private final Object myKey;
 

@@ -72,7 +72,7 @@ public final class StringBuffer_SetLength extends SymbolicFunction {
 				// StringBuffer contents equ
 				new_symb_value = new StringMultipleExpression(symb_value,
 						Operator.SUBSTRING, new IntegerConstant(0),
-						new ArrayList<Expression<?>>(Collections
+						new ArrayList<>(Collections
 								.singletonList(newSymbLength)),
 						conc_value);
 			}

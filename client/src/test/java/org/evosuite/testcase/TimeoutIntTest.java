@@ -39,7 +39,7 @@ public class TimeoutIntTest
 		ExecutorService executor = Executors.newSingleThreadExecutor();
 		Callable<Integer> call = new FakeTestCase();
 		
-		TimeoutHandler<Integer> handler = new TimeoutHandler<Integer>();
+		TimeoutHandler<Integer> handler = new TimeoutHandler<>();
 		
 		RESULT = -1;
 		
@@ -73,7 +73,7 @@ public class TimeoutIntTest
 		ExecutorService executor = Executors.newSingleThreadExecutor();
 		Callable<Integer> call = new FakeTestCase();
 		
-		TimeoutHandler<Integer> handler = new TimeoutHandler<Integer>();
+		TimeoutHandler<Integer> handler = new TimeoutHandler<>();
 		
 		RESULT = -1;
 		

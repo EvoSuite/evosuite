@@ -35,7 +35,7 @@ public abstract class ArrayUtil {
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T> Set<T> asSet(T... values) {
-		return new HashSet<T>(Arrays.asList(values));
+		return new HashSet<>(Arrays.asList(values));
 	}
 
 	/** Constant <code>DEFAULT_JOIN_SEPARATOR="IterUtil.DEFAULT_JOIN_SEPARATOR"</code> */

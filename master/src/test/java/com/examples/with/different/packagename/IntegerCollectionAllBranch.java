@@ -32,7 +32,7 @@ import java.util.List;
 public class IntegerCollectionAllBranch {
 
 	public boolean testMe(List<Integer> aList) {
-		List<Integer> anotherList = new ArrayList<Integer>();
+		List<Integer> anotherList = new ArrayList<>();
 
 		anotherList.add(17);
 		anotherList.add(34);

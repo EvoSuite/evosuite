@@ -126,7 +126,7 @@ public class ArrayAllocationLimitMethodAdapter extends GeneratorAdapter {
 		}
 
 		// Check each of the dimensions
-		Map<Integer, Integer> to = new HashMap<Integer, Integer>();
+		Map<Integer, Integer> to = new HashMap<>();
 		for (int i = dims - 1; i >= 0; i--) {
 			int loc = newLocal(Type.INT_TYPE);
 			storeLocal(loc);

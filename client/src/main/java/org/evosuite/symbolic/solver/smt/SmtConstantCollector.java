@@ -42,7 +42,7 @@ public final class SmtConstantCollector implements SmtExprVisitor<Void, Void> {
 		return null;
 	}
 
-	private final Set<SmtConstant> smtConstants = new HashSet<SmtConstant>();
+	private final Set<SmtConstant> smtConstants = new HashSet<>();
 
 	@Override
 	public Void visit(SmtIntVariable n, Void arg) {

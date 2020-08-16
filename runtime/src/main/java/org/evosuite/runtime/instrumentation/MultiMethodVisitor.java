@@ -34,7 +34,7 @@ public class MultiMethodVisitor extends MethodVisitor {
 	MethodVisitor mv1;
 	MethodVisitor mv2;
 
-	Map<Label, Label> label_mapping = new HashMap<Label, Label>();
+	Map<Label, Label> label_mapping = new HashMap<>();
 
 	/**
 	 * <p>Constructor for MultiMethodVisitor.</p>

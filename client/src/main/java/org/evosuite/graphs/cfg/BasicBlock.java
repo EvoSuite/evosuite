@@ -77,7 +77,7 @@ public class BasicBlock implements Serializable, Iterable<BytecodeInstruction> {
 
 	protected boolean isAuxiliaryBlock = false;
 
-	private final List<BytecodeInstruction> instructions = new ArrayList<BytecodeInstruction>();
+	private final List<BytecodeInstruction> instructions = new ArrayList<>();
 
 	// DONE reference each BytecodeInstruction's BasicBlock at the instruction
 	// DONE determine ControlDependentBranches once for each BasicBlock, then

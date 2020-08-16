@@ -170,7 +170,7 @@ public class ContractViolation {
 		}
 		TestCase origTest = test.clone();
 
-		List<Integer> positions = new ArrayList<Integer>();
+		List<Integer> positions = new ArrayList<>();
 
 		for (VariableReference var : variables)
 			positions.add(var.getStPosition());
