@@ -43,9 +43,7 @@ public final class StringConstraint extends Constraint<String> {
   private final Comparator cmp;
   private final IntegerConstant right;
 
-  /**
-   * 
-   */
+  
   private static final long serialVersionUID = -3187023627540040535L;
 
   @Override

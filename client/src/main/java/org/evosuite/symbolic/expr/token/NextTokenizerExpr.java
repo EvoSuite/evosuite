@@ -39,9 +39,7 @@ public final class NextTokenizerExpr extends TokenizerExpr {
 			throw new ConstraintTooLongException(getSize());
 	}
 
-	/**
-	 * 
-	 */
+
 	private static final long serialVersionUID = -5041244020293557448L;
 
 	@Override

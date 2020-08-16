@@ -38,9 +38,7 @@ import org.objectweb.asm.Type;
  */
 public final class ReferenceConstant extends ReferenceExpression {
 
-	/**
-	 * 
-	 */
+
 	private static final long serialVersionUID = 4288259851884045452L;
 
 	public ReferenceConstant(Type objectType, int instanceId) {

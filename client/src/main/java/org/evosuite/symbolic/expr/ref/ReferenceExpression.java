@@ -34,9 +34,7 @@ import org.objectweb.asm.Type;
  */
 public abstract class ReferenceExpression extends AbstractExpression<Object> implements SymbolicValue {
 
-	/**
-	 * 
-	 */
+	
 	private static final long serialVersionUID = 7925438069540850557L;
 
 	/**

@@ -33,13 +33,9 @@ import org.evosuite.symbolic.expr.str.StringValue;
 public final class StringReaderExpr extends AbstractExpression<Long> implements
 		IntegerValue {
 
-	/**
-	 * 
-	 */
+
 	private static final long serialVersionUID = -744964586007203884L;
-	/**
-	 * 
-	 */
+
 	private final StringValue string;
 	private final int readerPosition;
 

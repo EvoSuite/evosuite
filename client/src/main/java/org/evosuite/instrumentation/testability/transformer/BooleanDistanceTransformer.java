@@ -31,9 +31,7 @@ import org.objectweb.asm.tree.MethodNode;
  * predicate
  */
 public class BooleanDistanceTransformer extends MethodNodeTransformer {
-	/**
-	 * 
-	 */
+	
 	private final BooleanTestabilityTransformation booleanTestabilityTransformation;
 
 	/**

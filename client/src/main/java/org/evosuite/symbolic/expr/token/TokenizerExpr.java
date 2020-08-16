@@ -31,9 +31,7 @@ public abstract class TokenizerExpr extends AbstractExpression<StringTokenizer> 
 		super(null, size, containsSymbolicVariable);
 	}
 
-	/**
-	 * 
-	 */
+
 	private static final long serialVersionUID = 7584961134006709947L;
 
 	public abstract StringValue getDelimiter();

@@ -25,9 +25,7 @@ public final class SolverEmptyQueryException extends Exception {
 		super(errMsg);
 	}
 
-	/**
-	 * 
-	 */
+	
 	private static final long serialVersionUID = -1785572235903656252L;
 
 }

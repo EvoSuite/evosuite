@@ -52,19 +52,13 @@ public class AmbiguityCoverageFactory extends
 
 	private static final Logger logger = LoggerFactory.getLogger(AmbiguityCoverageFactory.class);
 
-	/**
-	 * 
-	 */
+
 	private static List<LineCoverageTestFitness> goals = new ArrayList<>();
 
-	/**
-	 * 
-	 */
+
 	private static List<StringBuilder> transposedMatrix = new ArrayList<>();
 
-	/**
-	 * 
-	 */
+
 	private static double max_ambiguity_score = Double.MAX_VALUE;
 
 	/**
@@ -113,9 +107,7 @@ public class AmbiguityCoverageFactory extends
 		}
 	}
 
-	/**
-	 * 
-	 */
+
 	@Override
 	public List<LineCoverageTestFitness> getCoverageGoals() {
 		return getGoals();

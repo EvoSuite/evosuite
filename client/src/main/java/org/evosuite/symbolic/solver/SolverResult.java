@@ -25,9 +25,7 @@ import java.util.Map;
 
 public class SolverResult implements Serializable {
 
-	/**
-	 * 
-	 */
+
 	private static final long serialVersionUID = -930589471876011035L;
 
 	private enum SolverResultType {

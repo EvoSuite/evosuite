@@ -12,15 +12,11 @@ import org.evosuite.assertion.Inspector;
  *
  */
 public final class FeatureVector implements Serializable {
-  /**
-   * 
-   */
+
   private static final long serialVersionUID = 1L;
  
   private final class Entry implements Serializable {
-    /**
-     * 
-     */
+
     private static final long serialVersionUID = 1L;
     
     private final String name;

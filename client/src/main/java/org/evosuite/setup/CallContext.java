@@ -17,9 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
+
 package org.evosuite.setup;
 
 import org.evosuite.PackageInfo;
@@ -47,9 +45,7 @@ import java.util.*;
  */
 public class CallContext implements Serializable {
 
-	/**
-	 * 
-	 */
+
 	private static final long serialVersionUID = 8650619230188403356L;
 
     private final List<Call> context;

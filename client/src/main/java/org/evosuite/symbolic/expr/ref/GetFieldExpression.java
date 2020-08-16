@@ -27,9 +27,7 @@ import org.objectweb.asm.Type;
 
 public final class GetFieldExpression extends ReferenceExpression {
 
-	/**
-	 * 
-	 */
+	
 	private static final long serialVersionUID = 4517401722564017247L;
 
 	private final ReferenceExpression receiverExpr;

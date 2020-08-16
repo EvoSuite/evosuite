@@ -17,9 +17,7 @@ import org.evosuite.testcase.statements.Statement;
  *
  */
 public class TestResultObserver extends ExecutionObserver implements Serializable {
-  /**
-   * 
-   */
+
   private static final long serialVersionUID = 1L;
   
   private final Inspector[] inspectors;

@@ -66,9 +66,7 @@ public class ThreadStopper {
 	private long startTime;
 	
 	
-	/**
-	 * 
-	 */
+	
 	public ThreadStopper(KillSwitch killSwitch, Set<String> threadsToIgnore, long timeout){
 		this.killSwitch = killSwitch;
 		this.timeout = timeout;

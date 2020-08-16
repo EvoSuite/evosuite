@@ -30,9 +30,7 @@ import org.evosuite.symbolic.expr.str.StringValue;
 
 public final class NewTokenizerExpr extends TokenizerExpr {
 
-	/**
-	 * 
-	 */
+
 	private static final long serialVersionUID = -6640965868758291282L;
 	private final StringValue string;
 	private final StringValue delim;

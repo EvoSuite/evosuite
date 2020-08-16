@@ -38,9 +38,7 @@ public class BooleanDefinitionTransformer extends MethodNodeTransformer {
 	// Get branch id
 	// Get last distance for this branch id, else +/-K
 
-	/**
-	 * 
-	 */
+
 	private final BooleanTestabilityTransformation booleanTestabilityTransformation;
 
 	/**

@@ -33,9 +33,7 @@ import org.objectweb.asm.tree.MethodNode;
  * Make sure bitwise operations on transformed Booleans are still valid
  */
 public class BitwiseOperatorTransformer extends MethodNodeTransformer {
-	/**
-	 * 
-	 */
+
 	private final BooleanTestabilityTransformation booleanTestabilityTransformation;
 
 	/**

@@ -17,9 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
+
 package org.evosuite.junit;
 
 import java.util.ArrayList;
@@ -37,19 +35,13 @@ import org.junit.runner.Request;
  */
 public class JUnitRunner {
 
-	/**
-	 * 
-	 */
+	
 	private List<JUnitResult> testResults;
 
-	/**
-	 * 
-	 */
+	
 	private final Class<?> junitClass;
 
-	/**
-	 * 
-	 */
+	
 	public JUnitRunner(Class<?> junitClass) {
 		this.testResults = new ArrayList<>();
 		this.junitClass = junitClass;

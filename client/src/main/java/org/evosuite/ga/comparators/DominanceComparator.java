@@ -38,9 +38,7 @@ public class DominanceComparator<T extends Chromosome<T>> implements Comparator<
 
     private Set<FitnessFunction<T>> objectives;
 
-    /**
-     * 
-     */
+
     public DominanceComparator() {
       this.objectives = null;
     }

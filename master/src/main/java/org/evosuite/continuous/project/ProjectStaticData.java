@@ -75,32 +75,22 @@ public class ProjectStaticData {
 	 */
 	private final Map<String, ClassInfo> classes;
 
-	/**
-     * 
-     */
+	
     private final Set<String> modifiedFiles;
 
-    /**
-     * 
-     */
+    
     private Project project = null;
 
-    /**
-     * 
-     */
+    
 	private ProjectGraph graph = null;
 
-	/**
-	 * 
-	 */
+	
 	public ProjectStaticData() {
 		classes = new ConcurrentHashMap<>();
 		this.modifiedFiles = new LinkedHashSet<>();
 	}
 
-	/**
-	 * 
-	 */
+	
 	public void initializeLocalHistory() {
 		if (Properties.CTG_HISTORY_FILE == null) {
 			logger.info("ctg history file is not set");

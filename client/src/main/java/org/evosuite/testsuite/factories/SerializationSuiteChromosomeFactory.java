@@ -61,9 +61,7 @@ public class SerializationSuiteChromosomeFactory
         }
     }
 
-    /**
-     * 
-     */
+
     @Override
     public TestSuiteChromosome getChromosome() {
 

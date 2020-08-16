@@ -52,9 +52,7 @@ import org.objectweb.asm.tree.VarInsnNode;
  */
 public class ImplicitElseTransformer extends MethodNodeTransformer {
 
-	/**
-	 * 
-	 */
+
 	private final BooleanTestabilityTransformation booleanTestabilityTransformation;
 
 	/**

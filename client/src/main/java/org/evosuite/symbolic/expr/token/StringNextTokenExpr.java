@@ -17,9 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
+
 package org.evosuite.symbolic.expr.token;
 
 import java.util.HashSet;
@@ -45,9 +43,7 @@ import org.slf4j.LoggerFactory;
 public final class StringNextTokenExpr extends AbstractExpression<String> implements
         StringValue {
 
-	/**
-	 * 
-	 */
+
 	private static final long serialVersionUID = -4594444543728364120L;
 
 	protected static Logger log = LoggerFactory.getLogger(StringNextTokenExpr.class);

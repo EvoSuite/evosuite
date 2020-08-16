@@ -147,9 +147,7 @@ public class InheritanceTreeGenerator {
 				inheritanceTree.getNumClasses());
 	}
 
-	/**
-	 * 
-	 */
+
 	private static void analyze(InheritanceTree inheritanceTree, File file) {
 		if (!file.canRead()) {
 			return;

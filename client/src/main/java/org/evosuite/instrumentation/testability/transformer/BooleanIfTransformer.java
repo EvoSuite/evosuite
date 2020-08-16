@@ -37,9 +37,7 @@ import org.objectweb.asm.tree.analysis.Frame;
  */
 public class BooleanIfTransformer extends MethodNodeTransformer {
 
-	/**
-	 * 
-	 */
+
 	private final BooleanTestabilityTransformation booleanTestabilityTransformation;
 
 	/**

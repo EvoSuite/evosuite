@@ -26,9 +26,7 @@ import org.evosuite.runtime.mock.OverrideMock;
 
 public class MockSecureRandom extends SecureRandom implements OverrideMock {
 
-	/**
-	 * 
-	 */
+
 	private static final long serialVersionUID = 3423648250373734907L;
 
 	public MockSecureRandom() {

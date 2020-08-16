@@ -48,9 +48,7 @@ public class RhoCoverageFactory extends
 
 	private static final Logger logger = LoggerFactory.getLogger(RhoCoverageFactory.class);
 
-	/**
-	 * 
-	 */
+
 	private static List<LineCoverageTestFitness> goals = new ArrayList<>();
 	
 	/**
@@ -59,14 +57,10 @@ public class RhoCoverageFactory extends
 	private static int number_of_ones = 0;
 	private static int number_of_test_cases = 0;
 
-	/**
-	 * 
-	 */
+
 	private static double rho = 1.0;
 
-	/**
-	 * 
-	 */
+
 	private static List<List<Integer>> matrix = new ArrayList<>();
 
 	/**

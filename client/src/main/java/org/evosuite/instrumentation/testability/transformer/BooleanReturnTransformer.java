@@ -33,9 +33,7 @@ import org.objectweb.asm.tree.MethodNode;
  * transform the int back to a Boolean
  */
 public class BooleanReturnTransformer extends MethodNodeTransformer {
-	/**
-	 * 
-	 */
+
 	private final BooleanTestabilityTransformation booleanTestabilityTransformation;
 
 	/**

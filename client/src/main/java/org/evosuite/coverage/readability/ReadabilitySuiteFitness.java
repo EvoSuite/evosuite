@@ -25,14 +25,10 @@ import org.evosuite.testsuite.TestSuiteFitnessFunction;
 
 public class ReadabilitySuiteFitness extends TestSuiteFitnessFunction{
 
-    /**
-     * 
-     */
+
     private static final long serialVersionUID = 6243235746473531638L;
 
-    /**
-     * 
-     */
+
     @Override
     public double getFitness(TestSuiteChromosome suite)
     {
@@ -48,18 +44,14 @@ public class ReadabilitySuiteFitness extends TestSuiteFitnessFunction{
         return average;
     }
 
-    /**
-     * 
-     */
+
     public double getScore(String test)
     {
         // TODO
         return 0.0;
     }
 
-    /**
-     * 
-     */
+
     @Override
     public boolean isMaximizationFunction() {
         return false;

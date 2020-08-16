@@ -36,9 +36,7 @@ import org.objectweb.asm.tree.TypeInsnNode;
  * Replace signatures of all calls/field accesses on Booleans
  */
 public class BooleanCallsTransformer extends MethodNodeTransformer {
-	/**
-	 * 
-	 */
+
 	private final BooleanTestabilityTransformation booleanTestabilityTransformation;
 
 	/**

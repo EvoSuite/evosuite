@@ -75,9 +75,7 @@ public class CoverageMojo extends AbstractMojo {
 	@Parameter( property = "global_timeout", defaultValue = "120" )
 	private int global_timeout;
 
-	/**
-	 * 
-	 */
+	
 	@Parameter( property = "output_variables", defaultValue = "TARGET_CLASS,criterion,Coverage,Total_Goals,Covered_Goals"
 															+ ",LineCoverage,LineCoverageBitString"
 															+ ",BranchCoverage,BranchCoverageBitString"

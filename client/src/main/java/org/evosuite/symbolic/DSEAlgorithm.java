@@ -338,9 +338,7 @@ public class DSEAlgorithm extends GeneticAlgorithm<TestSuiteChromosome> {
     super(null);
   }
 
-  /**
-   * 
-   */
+
   private static final long serialVersionUID = 964984026539409121L;
 
   /**
