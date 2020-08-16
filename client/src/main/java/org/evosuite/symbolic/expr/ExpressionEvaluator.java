@@ -236,7 +236,7 @@ public class ExpressionEvaluator implements ExpressionVisitor<Object, Void> {
   @Override
   public Object visit(StringBinaryToIntegerExpression n, Void arg) {
     String first = (String) n.getLeftOperand().accept(this, null);
-    Object second = (Object) n.getRightOperand().accept(this, null);
+    Object second = n.getRightOperand().accept(this, null);
 
     Operator op = n.getOperator();
     switch (op) {
@@ -308,7 +308,7 @@ public class ExpressionEvaluator implements ExpressionVisitor<Object, Void> {
   @Override
   public Object visit(StringMultipleToIntegerExpression n, Void arg) {
     String first = (String) n.getLeftOperand().accept(this, null);
-    Object second = (Object) n.getRightOperand().accept(this, null);
+    Object second = n.getRightOperand().accept(this, null);
     ArrayList<Expression<?>> other_v = n.getOther();
 
     long secLong, thrdLong;
@@ -531,7 +531,7 @@ public class ExpressionEvaluator implements ExpressionVisitor<Object, Void> {
   @Override
   public Object visit(StringBinaryExpression n, Void arg) {
     String first = (String) n.getLeftOperand().accept(this, null);
-    Object second = (Object) n.getRightOperand().accept(this, null);
+    Object second = n.getRightOperand().accept(this, null);
 
     Operator op = n.getOperator();
     switch (op) {
@@ -579,7 +579,7 @@ public class ExpressionEvaluator implements ExpressionVisitor<Object, Void> {
   @Override
   public Object visit(StringMultipleExpression n, Void arg) {
     String first = (String) n.getLeftOperand().accept(this, null);
-    Object right = (Object) n.getRightOperand().accept(this, null);
+    Object right = n.getRightOperand().accept(this, null);
     ArrayList<Expression<?>> other_v = n.getOther();
     long secLong, thrdLong;
     String secStr, thrdStr;

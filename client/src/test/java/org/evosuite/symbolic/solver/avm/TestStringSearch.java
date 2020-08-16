@@ -450,7 +450,7 @@ public class TestStringSearch extends RandomizedTC {
 		IntegerConstant colon_code = new IntegerConstant(58);
 		IntegerConstant minus_one = new IntegerConstant(-1);
 
-		int colon_int_code = (int) ':';
+		int colon_int_code = ':';
 		int concrete_value = var1value.indexOf(colon_int_code);
 		StringBinaryToIntegerExpression index_of_colon = new StringBinaryToIntegerExpression(var1, Operator.INDEXOFC,
 				colon_code, (long) concrete_value);
@@ -479,7 +479,7 @@ public class TestStringSearch extends RandomizedTC {
 		IntegerConstant colon_code = new IntegerConstant(58);
 		IntegerConstant minus_one = new IntegerConstant(-1);
 
-		int colon_int_code = (int) ':';
+		int colon_int_code = ':';
 		int concrete_value = var1value.indexOf(colon_int_code);
 		StringBinaryToIntegerExpression index_of_colon = new StringBinaryToIntegerExpression(var1, Operator.INDEXOFC,
 				colon_code, (long) concrete_value);

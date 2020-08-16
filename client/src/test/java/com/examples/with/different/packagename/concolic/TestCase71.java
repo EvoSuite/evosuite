@@ -577,7 +577,7 @@ public class TestCase71 {
 		charArray0[5] = char5;
 		charArray0[6] = char6;
 		charArray0[7] = char7;
-		stemmer0.add(charArray0, (int) char1);
+		stemmer0.add(charArray0, char1);
 		stemmer0.add(char8);
 		stemmer0.add(char8);
 		stemmer0.stem();

@@ -83,7 +83,7 @@ public class CoverageAnalysisCharSequenceSystemTest extends SystemTestBase {
         assertEquals(0.9, (Double) outputVariables.get(RuntimeVariable.LineCoverage.name()).getValue(), 0.0);
         assertEquals(1, (Integer) outputVariables.get(RuntimeVariable.Tests_Executed.name()).getValue(), 0.0);
         // the constructor of 'WordUtils' is not covered
-        assertEquals("0111111111", (String) outputVariables.get(RuntimeVariable.LineCoverageBitString.name()).getValue());
+        assertEquals("0111111111", outputVariables.get(RuntimeVariable.LineCoverageBitString.name()).getValue());
 
         // check coverage matrix
         String coveragematrix_file = System.getProperty("user.dir") + File.separator +

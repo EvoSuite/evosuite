@@ -209,7 +209,7 @@ public class StringPrimitiveStatement extends PrimitiveStatement<String> {
 				retval.setObject(scope, null);
 			else {
 				// String literals may not be longer than 32767
-				if(((String)value).length() >= 32767)
+				if(value.length() >= 32767)
 					throw new CodeUnderTestException(new IllegalArgumentException("Maximum string length exceeded"));
 
 				// In the JUnit code we produce, strings are generated as

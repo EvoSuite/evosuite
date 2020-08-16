@@ -128,7 +128,7 @@ public class EvoInvocationListenerTest {
         res = foo.parseString("bar", foo);
         Assert.assertEquals(4, res);
 
-        res = foo.parseString("bar", (Foo) null);
+        res = foo.parseString("bar", null);
         Assert.assertEquals(4, res);
 
         list = listener.getCopyOfMethodDescriptors();

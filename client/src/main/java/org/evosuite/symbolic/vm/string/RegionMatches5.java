@@ -44,7 +44,7 @@ public final class RegionMatches5 extends SymbolicFunction {
 	@Override
 	public Object executeFunction() {
 
-		ReferenceConstant symb_receiver = (ReferenceConstant) this
+		ReferenceConstant symb_receiver = this
 				.getSymbReceiver();
 		String conc_receiver = (String) this.getConcReceiver();
 		StringValue stringReceiverExpr = env.heap.getField(

@@ -248,14 +248,14 @@ public final class LocalsVM extends AbstractVM {
 
 	@Override
 	public void FLOAD(int i) {
-		RealValue realExpr = (RealValue) env.topFrame().localsTable
+		RealValue realExpr = env.topFrame().localsTable
 				.getFp32Local(i);
 		env.topFrame().operandStack.pushFp32(realExpr);
 	}
 
 	@Override
 	public void DLOAD(int i) {
-		RealValue realExpr = (RealValue) env.topFrame().localsTable
+		RealValue realExpr = env.topFrame().localsTable
 				.getFp64Local(i);
 		env.topFrame().operandStack.pushFp64(realExpr);
 	}

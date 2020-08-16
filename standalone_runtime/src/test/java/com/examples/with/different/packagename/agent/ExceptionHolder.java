@@ -42,7 +42,7 @@ public class ExceptionHolder extends Exception{
 	
 	
 	public StackTraceElement[] getTracesWhenCast(){		
-		Exception exception = (Exception) getNonMockedNPE();		
+		Exception exception = getNonMockedNPE();
 		return exception.getStackTrace();
 	}
 	

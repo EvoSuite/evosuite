@@ -24,7 +24,7 @@ import org.apache.commons.lang3.StringEscapeUtils;
 public abstract class StringUtil {
 
     public static String getEscapedString(String original) {
-        char[] charArray = StringEscapeUtils.escapeJava((String) original).toCharArray();
+        char[] charArray = StringEscapeUtils.escapeJava(original).toCharArray();
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < charArray.length; ++i) {
             char a = charArray[i];

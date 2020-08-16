@@ -112,13 +112,13 @@ public class MockSocket extends Socket implements OverrideMock {
 	public MockSocket(String host, int port)throws UnknownHostException, IOException {
 		this(host != null ? new MockInetSocketAddress(host, port) :
 			new MockInetSocketAddress(MockInetAddress.getByName(null), port),
-			(SocketAddress) null, true);
+				null, true);
 	}
 
 
 	public MockSocket(InetAddress address, int port) throws IOException {
 		this(address != null ? new MockInetSocketAddress(address, port) : null,
-				(SocketAddress) null, true);
+				null, true);
 	}
 
 
@@ -141,7 +141,7 @@ public class MockSocket extends Socket implements OverrideMock {
 	public MockSocket(String host, int port, boolean stream) throws IOException {
 		this(host != null ? new MockInetSocketAddress(host, port) :
 			new MockInetSocketAddress(MockInetAddress.getByName(null), port),
-			(SocketAddress) null, stream);
+				null, stream);
 	}
 
 

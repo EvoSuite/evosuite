@@ -112,7 +112,7 @@ public abstract class ExpressionFactory {
 		/*
 		 * (add 0 x) --> x
 		 */
-		if (((IntegerConstant) left).getConcreteValue() == 0) {
+		if (left.getConcreteValue() == 0) {
 			return right;
 		}
 
@@ -163,7 +163,7 @@ public abstract class ExpressionFactory {
 		/*
 		 * (add 0 x) --> x
 		 */
-		if (((RealConstant) left).getConcreteValue() == 0) {
+		if (left.getConcreteValue() == 0) {
 			return right;
 		}
 
@@ -235,7 +235,7 @@ public abstract class ExpressionFactory {
 		}
 
 		return new IntegerBinaryExpression(left, Operator.MUL, right,
-				(long) con);
+				con);
 	}
 
 	public static RealValue mul(RealValue left, RealValue right, double con) {
@@ -273,7 +273,7 @@ public abstract class ExpressionFactory {
 
 		}
 
-		return new RealBinaryExpression(left, Operator.MUL, right, (double) con);
+		return new RealBinaryExpression(left, Operator.MUL, right, con);
 	}
 
 	public static RealValue div(RealValue left, RealValue right, double con) {

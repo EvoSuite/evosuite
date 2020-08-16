@@ -51,7 +51,7 @@ public class BIMethodSeedingTestSuiteChromosomeFactorySystemTest extends SystemT
 		Object result = evosuite.parseCommandLine(command);
 
 		ga = (GeneticAlgorithm<TestSuiteChromosome>) getGAFromResult(result);
-		bestIndividual = (TestSuiteChromosome) ga.getBestIndividual();
+		bestIndividual = ga.getBestIndividual();
 	}
 
 	@Test

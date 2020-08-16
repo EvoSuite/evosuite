@@ -83,7 +83,7 @@ public class AVMTestCaseLocalSearch extends TestCaseLocalSearch<TestChromosome> 
 			if (search != null) {
 				logger.info("Applying local search of type " + search.getClass() + " to statement " + statement + " / "
 						+ individual.getTestCase().getStatement(i));
-				if (search.doSearch(individual, i, (LocalSearchObjective<TestChromosome>) objective)) {
+				if (search.doSearch(individual, i, objective)) {
 					improved = true;
 				}
 				// i = s.getPosition();

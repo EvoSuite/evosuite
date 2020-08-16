@@ -247,7 +247,7 @@ public class JobExecutor {
 				 * There might be useful heuristics to pick up one in a smart way but,
 				 * for now, we just choose the first (and so oldest)
 				 */
-				chosenJob = postponed.remove((int) 0); //it is important to get the oldest jobs
+				chosenJob = postponed.remove(0); //it is important to get the oldest jobs
 			}
 
 			if(chosenJob == null){

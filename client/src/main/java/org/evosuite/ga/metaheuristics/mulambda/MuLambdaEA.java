@@ -54,7 +54,7 @@ public class MuLambdaEA<T extends Chromosome<T>> extends AbstractMuLambda<T> {
     // create new offspring by mutating current population
     for (int i = 0; i < this.mu; i++) {
       for (int j = 0; j < this.lambda / this.mu; j++) {
-        T t = (T) this.population.get(i).clone();
+        T t = this.population.get(i).clone();
 
         do {
           this.notifyMutation(t);

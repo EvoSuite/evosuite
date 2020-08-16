@@ -101,7 +101,7 @@ public class RuntimeInstrumentation {
 
 		int readFlags = ClassReader.SKIP_FRAMES | ClassReader.SKIP_CODE;
 		reader.accept(classNode, readFlags);
-		for(String interfaceName : ((List<String>)classNode.interfaces)) {
+		for(String interfaceName : classNode.interfaces) {
 			if(InstrumentedClass.class.getName().equals(interfaceName.replace('/', '.')))
 				return true;
 		}

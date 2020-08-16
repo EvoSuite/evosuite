@@ -221,8 +221,8 @@ public class GenericUtils {
 						logger.debug(a+" is a type variable: "+((TypeVariable<?>)a).getGenericDeclaration());
 						if(b instanceof TypeVariable<?>) {
 							logger.debug(b+" is a type variable: "+((TypeVariable<?>)b).getGenericDeclaration());
-							if(commonsMap.containsKey((TypeVariable<?>)a) && !(commonsMap.get((TypeVariable<?>)a) instanceof WildcardType) && !(commonsMap.get((TypeVariable<?>)a) instanceof TypeVariable<?>))
-								map.put((TypeVariable<?>)b, commonsMap.get((TypeVariable<?>)a));
+							if(commonsMap.containsKey(a) && !(commonsMap.get(a) instanceof WildcardType) && !(commonsMap.get(a) instanceof TypeVariable<?>))
+								map.put((TypeVariable<?>)b, commonsMap.get(a));
 							//else
 							//	map.put((TypeVariable<?>)a, b);
 						}

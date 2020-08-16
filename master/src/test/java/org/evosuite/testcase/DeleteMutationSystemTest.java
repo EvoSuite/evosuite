@@ -104,7 +104,7 @@ public class DeleteMutationSystemTest extends SystemTestBase {
 		Properties.TARGET_CLASS = TrivialInt.class.getCanonicalName();
 		TestChromosome test1 = new TestChromosome();
 		test1.setTestCase(getIntTest(2938, -1000000));
-		TestChromosome test2 = (TestChromosome) test1.clone();
+		TestChromosome test2 = test1.clone();
 		
 		TestSuiteChromosome suite = new TestSuiteChromosome();
 		BranchCoverageSuiteFitness fitness = new BranchCoverageSuiteFitness();
@@ -128,7 +128,7 @@ public class DeleteMutationSystemTest extends SystemTestBase {
 		double oldFitness = suite.getFitness();
 		int notChanged = 0;
 		for(int i = 0; i < 100; i++) {
-			TestChromosome testNew = (TestChromosome) test1.clone();
+			TestChromosome testNew = test1.clone();
 			testNew.mutate();
 			if(testNew.isChanged()) {
 				suite.deleteTest(test1);
@@ -203,7 +203,7 @@ public class DeleteMutationSystemTest extends SystemTestBase {
 		int notChanged = 0;
 		System.out.println("Original: "+test1);
 		for(int i = 0; i < 100; i++) {
-			TestChromosome testNew = (TestChromosome) test1.clone();
+			TestChromosome testNew = test1.clone();
 			testNew.mutate();
 			if(testNew.isChanged()) {
 				System.out.println("Trying: "+testNew);

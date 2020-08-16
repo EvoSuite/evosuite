@@ -34,7 +34,7 @@ public class MethodReturnsPrimitive {
 	}
 	
 	public long testLong(long x, long y) {
-		return (long) (x - y);
+		return x - y;
 	}
 	
 	public char testChar(int x, int y) {

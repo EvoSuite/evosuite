@@ -373,7 +373,7 @@ public class BranchInstrumentation implements MethodInstrumentation {
 		int[] keys = new int[keySize];
 		LabelNode[] labels = new LabelNode[keySize];
 		for (int i = 0; i < keySize; i++) {
-			keys[i] = (Integer) toInstrument.keys.get(i);
+			keys[i] = toInstrument.keys.get(i);
 			labels[i] = caseLabel;
 		}
 

@@ -770,9 +770,9 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
                         if(valuesClass.equals(Character.class)){
                             value = (int) (Character) value;
                         } else if(valuesClass.equals(Byte.class)){
-                            value = (int) ((Byte)value).intValue();
+                            value = ((Byte)value).intValue();
                         } else if(valuesClass.equals(Short.class)){
-                            value = (int) ((Short)value).intValue();
+                            value = ((Short)value).intValue();
                         }
                     }
 

@@ -48,7 +48,7 @@ public abstract class StringBuilder_Append extends SymbolicFunction {
 	public final Object executeFunction() {
 		// string builder
 		StringBuilder conc_str_builder = (StringBuilder) this.getConcReceiver();
-		ReferenceConstant symb_str_builder = (ReferenceConstant) this
+		ReferenceConstant symb_str_builder = this
 				.getSymbReceiver();
 
 		// return value

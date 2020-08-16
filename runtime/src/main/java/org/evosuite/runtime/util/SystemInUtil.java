@@ -128,7 +128,7 @@ public class SystemInUtil extends InputStream{
 		synchronized(monitor){
 			String line = input+"\n";
 			for(byte b : line.getBytes()){
-				singleton.data.add((Byte)b);
+				singleton.data.add(b);
 			}	
 			singleton.endReached = false;
 		}

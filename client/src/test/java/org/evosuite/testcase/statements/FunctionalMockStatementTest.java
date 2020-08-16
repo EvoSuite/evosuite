@@ -312,7 +312,7 @@ public class FunctionalMockStatementTest {
         }
 
         try {
-            casted = Integer.TYPE.cast((Character) aChar);
+            casted = Integer.TYPE.cast(aChar);
             fail();
         } catch (Exception e){
             //expected: "cast" takes an Object as input, so it does autoboxing :(

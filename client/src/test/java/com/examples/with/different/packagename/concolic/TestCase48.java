@@ -602,9 +602,9 @@ public class TestCase48 {
 		String string2 = stemmer2.toString();
 		stemmer0.stem();
 		int int2 = stemmer2.getResultLength();
-		stemmer2.add(charArray2, (int) char6);
+		stemmer2.add(charArray2, char6);
 		int int3 = stemmer0.getResultLength();
-		stemmer1.add(charArray2, (int) char1);
+		stemmer1.add(charArray2, char1);
 		stemmer2.add(char7);
 		stemmer2.stem();
 		stemmer1.add(char8);

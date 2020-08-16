@@ -141,15 +141,15 @@ public class MockJFileChooser extends  javax.swing.JFileChooser  implements Over
 	 */
 
 	public MockJFileChooser() {
-		this((File) null, (FileSystemView) null);
+		this((File) null, null);
 	}
 
 	public MockJFileChooser(String currentDirectoryPath) {
-		this(currentDirectoryPath, (FileSystemView) null);
+		this(currentDirectoryPath, null);
 	}
 
 	public MockJFileChooser(File currentDirectory) {
-		this(currentDirectory, (FileSystemView) null);
+		this(currentDirectory, null);
 	}
 
 	public MockJFileChooser(FileSystemView fsv) {
@@ -499,7 +499,7 @@ public class MockJFileChooser extends  javax.swing.JFileChooser  implements Over
 	}
 
 	public void setApproveButtonMnemonic(char mnemonic) {
-		int vk = (int) mnemonic;
+		int vk = mnemonic;
 		if(vk >= 'a' && vk <='z') {
 			vk -= ('a' - 'A');
 		}

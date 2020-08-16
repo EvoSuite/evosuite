@@ -52,7 +52,7 @@ public class CSVStatisticsBackend implements StatisticsBackend {
 		StringBuilder r = new StringBuilder();
 		Iterator<Entry<String, OutputVariable<?>>> it = data.entrySet().iterator();
 		while (it.hasNext()) {
-			Entry<String, OutputVariable<?>> e = (Entry<String, OutputVariable<?>>)it.next();
+			Entry<String, OutputVariable<?>> e = it.next();
 			r.append(e.getKey());
 			if (it.hasNext())
 				r.append(",");
@@ -70,7 +70,7 @@ public class CSVStatisticsBackend implements StatisticsBackend {
 		StringBuilder r = new StringBuilder();
 		Iterator<Entry<String, OutputVariable<?>>> it = data.entrySet().iterator();
 		while (it.hasNext()) {
-			Entry<String, OutputVariable<?>> e = (Entry<String, OutputVariable<?>>)it.next();
+			Entry<String, OutputVariable<?>> e = it.next();
 			r.append(e.getValue().getValue());
 			if (it.hasNext())
 				r.append(",");

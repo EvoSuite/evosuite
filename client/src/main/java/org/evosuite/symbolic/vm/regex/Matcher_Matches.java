@@ -42,7 +42,7 @@ public final class Matcher_Matches extends SymbolicFunction {
 	@Override
 	public Object executeFunction() {
 		Matcher conc_matcher = (Matcher) this.getConcReceiver();
-		ReferenceConstant symb_matcher = (ReferenceConstant) this
+		ReferenceConstant symb_matcher = this
 				.getSymbReceiver();
 		boolean res = this.getConcBooleanRetVal();
 

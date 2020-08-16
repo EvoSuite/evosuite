@@ -64,7 +64,7 @@ public class MockFile extends File implements OverrideMock {
 	}
 
 	public MockFile(File parent, String child) {
-		this(parent == null ? (String) null : parent.getAbsolutePath()
+		this(parent == null ? null : parent.getAbsolutePath()
 				, child);
 	}
 

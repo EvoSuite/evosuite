@@ -465,7 +465,7 @@ public class HTMLStatisticsBackend implements StatisticsBackend {
 		        + getOutputVariableValue(data, RuntimeVariable.Total_Goals.name()) + " total goals\n");
 		if(data.containsKey(RuntimeVariable.MutationScore.name()))
 				buffer.append("<li>Mutation score: "
-						+ NumberFormat.getPercentInstance().format((Double)data.get(RuntimeVariable.MutationScore.name()).getValue()) + "\n");
+						+ NumberFormat.getPercentInstance().format(data.get(RuntimeVariable.MutationScore.name()).getValue()) + "\n");
 
 		buffer.append("</ul>\n");
 	}

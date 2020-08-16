@@ -47,7 +47,7 @@ public class EvoIPAddressUtil {
 					}
 
 					tmpValue *= 10L;
-					tmpValue += (long)digit;
+					tmpValue += digit;
 					newOctet = false;
 				}
 			}

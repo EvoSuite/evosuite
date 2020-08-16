@@ -38,7 +38,7 @@ public abstract class StatementLocalSearch {
     private TestChromosome backup = null;
 
     protected void backup(TestChromosome test) {
-        backup = (TestChromosome) test.clone();
+        backup = test.clone();
     }
 
     protected void restore(TestChromosome test) {

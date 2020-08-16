@@ -75,7 +75,7 @@ public class CoverageAnalysisStringInstrumentationSystemTest extends SystemTestB
         assertEquals(19, (Integer) outputVariables.get(RuntimeVariable.Covered_Goals.name()).getValue(), 0.0);
         assertEquals(0.95, (Double) outputVariables.get(RuntimeVariable.LineCoverage.name()).getValue(), 0.0);
         assertEquals(1, (Integer) outputVariables.get(RuntimeVariable.Tests_Executed.name()).getValue(), 0.0);
-        assertEquals("01111111111111111111", (String) outputVariables.get(RuntimeVariable.LineCoverageBitString.name()).getValue());
+        assertEquals("01111111111111111111", outputVariables.get(RuntimeVariable.LineCoverageBitString.name()).getValue());
 
         // check coverage matrix
         String coveragematrix_file = System.getProperty("user.dir") + File.separator +

@@ -59,7 +59,7 @@ public class FileNamePrimitiveStatement extends EnvironmentDataStatement<EvoSuit
         Object value = getValue();
 
         if (value != null) {
-            String escapedPath = StringUtil.getEscapedString(((EvoSuiteFile) value).toString());
+            String escapedPath = StringUtil.getEscapedString(value.toString());
             testCode += ((Class<?>) retval.getType()).getSimpleName() + " "
                     + varName + " = new "
                     + ((Class<?>) retval.getType()).getSimpleName() + "(\""

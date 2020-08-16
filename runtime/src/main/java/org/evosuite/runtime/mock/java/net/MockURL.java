@@ -350,7 +350,7 @@ public class MockURL implements StaticReplacementMock{
 
 	protected static URLStreamHandler getMockedURLStreamHandler(String protocol) throws MalformedURLException {
 
-		URLStreamHandler handler = (URLStreamHandler)handlers.get(protocol);
+		URLStreamHandler handler = handlers.get(protocol);
 		if (handler == null) {
 
 			// Use the factory (if any)

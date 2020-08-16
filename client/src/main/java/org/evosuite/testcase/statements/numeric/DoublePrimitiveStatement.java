@@ -152,7 +152,7 @@ public class DoublePrimitiveStatement extends NumericalPrimitiveStatement<Double
 	/** {@inheritDoc} */
 	@Override
 	public void setMid(Double min, Double max) {
-		value = (double) (min + ((max - min) / 2));
+		value = min + ((max - min) / 2);
 	}
 
 	/* (non-Javadoc)

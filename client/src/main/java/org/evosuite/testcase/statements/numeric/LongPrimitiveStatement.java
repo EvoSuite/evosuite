@@ -123,7 +123,7 @@ public class LongPrimitiveStatement extends NumericalPrimitiveStatement<Long> {
 	/** {@inheritDoc} */
 	@Override
 	public void setMid(Long min, Long max) {
-		value = (long) (min + ((max - min) / 2));
+		value = min + ((max - min) / 2);
 	}
 
 	/* (non-Javadoc)

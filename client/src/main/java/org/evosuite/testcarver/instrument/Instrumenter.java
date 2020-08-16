@@ -604,8 +604,8 @@ public final class Instrumenter
 		final MethodNode wrappingMethodNode = new MethodNode(methodNode.access, 
 															 methodNode.name, 
 															 methodNode.desc, 
-															 methodNode.signature, 
-															 (String[])methodNode.exceptions.toArray(new String[methodNode.exceptions.size()]));
+															 methodNode.signature,
+				methodNode.exceptions.toArray(new String[methodNode.exceptions.size()]));
 		wrappingMethodNode.maxStack = methodNode.maxStack;
 		
 		// assign annotations to wrapping method

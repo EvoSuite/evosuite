@@ -55,7 +55,7 @@ public class EnumAssertionSystemTest extends SystemTestBase {
             boolean hasEnumAssertion = false;
             for(Assertion ass : test.getAssertions()) {
                 if(ass instanceof PrimitiveAssertion) {
-                    Assert.assertTrue(((PrimitiveAssertion)ass).getValue().getClass().isEnum());
+                    Assert.assertTrue(ass.getValue().getClass().isEnum());
                     hasEnumAssertion = true;
                 }
             }
@@ -89,7 +89,7 @@ public class EnumAssertionSystemTest extends SystemTestBase {
             boolean hasEnumAssertion = false;
             for(Assertion ass : test.getAssertions()) {
                 if(ass instanceof PrimitiveAssertion) {
-                    Assert.assertTrue(((PrimitiveAssertion)ass).getValue().getClass().isEnum());
+                    Assert.assertTrue(ass.getValue().getClass().isEnum());
                     hasEnumAssertion = true;
                 }
             }

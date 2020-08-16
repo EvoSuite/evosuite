@@ -335,7 +335,7 @@ public class TestGenericAccessibleObject {
 
 		DefaultTestCase test = new DefaultTestCase();
 		MethodStatement ms1 = new MethodStatement(test, genericCreatorMethod,
-		        (VariableReference) null, new ArrayList<>());
+				null, new ArrayList<>());
 		test.addStatement(ms1);
 
 		IntPrimitiveStatement ps1 = (IntPrimitiveStatement) PrimitiveStatement.getPrimitiveStatement(test,

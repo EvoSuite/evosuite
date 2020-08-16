@@ -1364,7 +1364,7 @@ public class SymbolicObserver extends ExecutionObserver {
 				throw new IllegalStateException("Expected null concrete value");
 			}
 		} else {
-			urlRef = (ReferenceConstant) env.heap.getReference(conc_url);
+			urlRef = env.heap.getReference(conc_url);
 			if (urlRef.getConcreteValue() == null) {
 				throw new IllegalStateException("Expected non-null concrete value");
 			}
@@ -1865,7 +1865,7 @@ public class SymbolicObserver extends ExecutionObserver {
 				throw new IllegalStateException("Expected null concrete object");
 			}
 		} else {
-			fileRef = (ReferenceConstant) env.heap.getReference(conc_evosuite_file);
+			fileRef = env.heap.getReference(conc_evosuite_file);
 			if (fileRef.getConcreteValue() == null) {
 				throw new IllegalStateException("Expected non-null concrete object");
 			}

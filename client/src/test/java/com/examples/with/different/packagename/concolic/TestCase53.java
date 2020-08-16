@@ -611,7 +611,7 @@ public class TestCase53 {
 		stemmer0.add(charArray1, int0);
 		char char10 = '\u0006';
 		charArray0[7] = char10;
-		stemmer0.add(charArray0, (int) charArray0[2]);
+		stemmer0.add(charArray0, charArray0[2]);
 	}
 
 }

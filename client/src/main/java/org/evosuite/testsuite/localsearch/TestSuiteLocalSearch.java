@@ -486,7 +486,7 @@ public class TestSuiteLocalSearch implements LocalSearch<TestSuiteChromosome> {
 			 * We create a cloned test case to play local search with it. This
 			 * resembles the deprecated ensureDoubleExecution
 			 */
-			TestChromosome clonedTest = (TestChromosome) test.clone();
+			TestChromosome clonedTest = test.clone();
 			suite.addTest(clonedTest);
 			final int lastIndex = suite.size() - 1;
 

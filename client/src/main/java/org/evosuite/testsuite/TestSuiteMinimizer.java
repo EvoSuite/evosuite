@@ -210,7 +210,7 @@ public class TestSuiteMinimizer {
                 TestChromosome test = coveringTests.get(0);
                 org.evosuite.testcase.TestCaseMinimizer minimizer = new org.evosuite.testcase.TestCaseMinimizer(
                         goal);
-                TestChromosome copy = (TestChromosome) test.clone();
+                TestChromosome copy = test.clone();
                 minimizer.minimize(copy);
                 if (isTimeoutReached()) {
                     logger.warn("Minimization timeout. Roll back to original test suite");
@@ -333,7 +333,7 @@ public class TestSuiteMinimizer {
                     logger.debug("Deleting statement "
                             + testChromosome.getTestCase().getStatement(i).getCode()
                             + " from test");
-                    TestChromosome originalTestChromosome = (TestChromosome) testChromosome.clone();
+                    TestChromosome originalTestChromosome = testChromosome.clone();
 
                     boolean modified = false;
                     try {

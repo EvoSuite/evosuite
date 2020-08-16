@@ -152,7 +152,7 @@ public class FloatPrimitiveStatement extends NumericalPrimitiveStatement<Float> 
 	/** {@inheritDoc} */
 	@Override
 	public void setMid(Float min, Float max) {
-		value = (float) (min + ((max - min) / 2));
+		value = min + ((max - min) / 2);
 	}
 
 	/* (non-Javadoc)

@@ -365,7 +365,7 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
                         org.objectweb.asm.Type[] types = org.objectweb.asm.Type.getArgumentTypes(m);
                         if (types[index].equals(org.objectweb.asm.Type.BOOLEAN_TYPE)) {
                             logger.warn("MUTATING");
-                            ((IntPrimitiveStatement) this).negate();
+                            this.negate();
                             done = true;
                             break;
                         }
@@ -397,7 +397,7 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
                 if (Properties.TT && getClass().equals(IntPrimitiveStatement.class)) {
                     if (Randomness.nextDouble() <= Properties.RANDOM_PERTURBATION) {
                         // mutateTransformedBoolean(test);
-                        ((IntPrimitiveStatement) this).negate();
+                        this.negate();
 
                     } else
                         randomize();

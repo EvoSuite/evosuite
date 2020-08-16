@@ -70,7 +70,7 @@ public abstract class ConcolicExecution {
 	 * @return a {@link java.util.List} object.
 	 */
 	public static List<BranchCondition> getSymbolicPath(TestChromosome test) {
-		TestChromosome dscCopy = (TestChromosome) test.clone();
+		TestChromosome dscCopy = test.clone();
 		DefaultTestCase defaultTestCase = (DefaultTestCase) dscCopy.getTestCase();
 
 		PathCondition pathCondition = executeConcolic(defaultTestCase);

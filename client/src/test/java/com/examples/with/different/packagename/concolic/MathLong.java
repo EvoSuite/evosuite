@@ -54,7 +54,7 @@ public class MathLong {
 	}
 	
 	public long castToLong(long f) {
-		return (long)f;
+		return f;
 	}
 	
 	public char castToChar(long f) {

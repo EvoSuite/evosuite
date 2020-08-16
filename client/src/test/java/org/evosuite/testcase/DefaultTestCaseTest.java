@@ -28,7 +28,7 @@ public class DefaultTestCaseTest {
 	public void testClone(){
 				
 		DefaultTestCase tc = new DefaultTestCase();
-		DefaultTestCase clone = (DefaultTestCase) tc.clone();
+		DefaultTestCase clone = tc.clone();
 		Assert.assertTrue(tc.statements != clone.statements);
 	}
 }

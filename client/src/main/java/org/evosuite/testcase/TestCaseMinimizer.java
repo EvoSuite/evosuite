@@ -144,7 +144,7 @@ public class TestCaseMinimizer {
 				}
 				
 				logger.debug("Deleting statement {}", c.test.getStatement(i).getCode());
-				TestChromosome copy = (TestChromosome) c.clone();
+				TestChromosome copy = c.clone();
 				boolean modified;
 				try {
 					modified = TestFactory.getInstance().deleteStatementGracefully(c.test, i);

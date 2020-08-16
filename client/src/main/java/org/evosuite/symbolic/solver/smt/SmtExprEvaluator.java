@@ -139,7 +139,7 @@ public final class SmtExprEvaluator implements SmtExprVisitor<Object, Void> {
 			Object unaryRetVal = retValues.get(0);
 			Long integerOperand = (Long) unaryRetVal;
 			long absLong = Math.abs(integerOperand);
-			return (Long) absLong;
+			return absLong;
 		}
 		case ADD: {
 			// this could be integer or real
@@ -149,12 +149,12 @@ public final class SmtExprEvaluator implements SmtExprVisitor<Object, Void> {
 			if (isInteger(left, right)) {
 				Long leftInt = (Long) left;
 				Long rightInt = (Long) right;
-				Long add = (Long) (leftInt + rightInt);
+				Long add = leftInt + rightInt;
 				return add;
 			} else if (isReal(left, right)) {
 				Double leftReal = (Double) left;
 				Double rightReal = (Double) right;
-				Double add = (Double) (leftReal + rightReal);
+				Double add = leftReal + rightReal;
 				return add;
 			} else {
 				throw new IllegalArgumentException("ADD Type mismatch left="
@@ -178,7 +178,7 @@ public final class SmtExprEvaluator implements SmtExprVisitor<Object, Void> {
 			Object right = retValues.get(1);
 			String leftString = (String) left;
 			String rightString = (String) right;
-			return (Boolean) leftString.contains(rightString);
+			return leftString.contains(rightString);
 		}
 
 		case DIV: {
@@ -187,7 +187,7 @@ public final class SmtExprEvaluator implements SmtExprVisitor<Object, Void> {
 			Object right = retValues.get(1);
 			Long leftInteger = (Long) left;
 			Long rightInteger = (Long) right;
-			return (Long) leftInteger / rightInteger;
+			return leftInteger / rightInteger;
 
 		}
 		case STR_SUFFIXOF: {
@@ -195,7 +195,7 @@ public final class SmtExprEvaluator implements SmtExprVisitor<Object, Void> {
 			Object right = retValues.get(1);
 			String leftString = (String) left;
 			String rightString = (String) right;
-			return (Boolean) rightString.endsWith(leftString);
+			return rightString.endsWith(leftString);
 
 		}
 		case ENDSWITH: {
@@ -203,7 +203,7 @@ public final class SmtExprEvaluator implements SmtExprVisitor<Object, Void> {
 			Object right = retValues.get(1);
 			String leftString = (String) left;
 			String rightString = (String) right;
-			return (Boolean) leftString.endsWith(rightString);
+			return leftString.endsWith(rightString);
 		}
 		case STR_LEN:
 		case LENGTH: {
@@ -246,7 +246,7 @@ public final class SmtExprEvaluator implements SmtExprVisitor<Object, Void> {
 			Object right = retValues.get(1);
 			Double leftReal = (Double) left;
 			Double rightReal = (Double) right;
-			Double div = (Double) (leftReal / rightReal);
+			Double div = leftReal / rightReal;
 			return div;
 		}
 		case MUL: {
@@ -257,12 +257,12 @@ public final class SmtExprEvaluator implements SmtExprVisitor<Object, Void> {
 			if (isInteger(left, right)) {
 				Long leftInt = (Long) left;
 				Long rightInt = (Long) right;
-				Long mul = (Long) (leftInt * rightInt);
+				Long mul = leftInt * rightInt;
 				return mul;
 			} else if (isReal(left, right)) {
 				Double leftReal = (Double) left;
 				Double rightReal = (Double) right;
-				Double mul = (Double) (leftReal * rightReal);
+				Double mul = leftReal * rightReal;
 				return mul;
 			} else {
 				throw new IllegalArgumentException("MUL Type mismatch left="
@@ -277,10 +277,10 @@ public final class SmtExprEvaluator implements SmtExprVisitor<Object, Void> {
 				Object operand = retValues.get(0);
 				if (isInteger(operand)) {
 					Long intOperand = (Long) operand;
-					return (Long) (-intOperand);
+					return -intOperand;
 				} else if (isReal(operand)) {
 					Double realOperand = (Double) operand;
-					return (Double) (-realOperand);
+					return -realOperand;
 				} else {
 					throw new IllegalArgumentException(
 							"MINUS Type mismatch operand="
@@ -294,14 +294,14 @@ public final class SmtExprEvaluator implements SmtExprVisitor<Object, Void> {
 				if (isInteger(left, right)) {
 					Long leftInt = (Long) left;
 					Long rightInt = (Long) right;
-					Long minus = (Long) (leftInt - rightInt);
+					Long minus = leftInt - rightInt;
 					return minus;
 
 				} else if (isReal(left, right)) {
 
 					Double leftReal = (Double) left;
 					Double rightReal = (Double) right;
-					Double minus = (Double) (leftReal - rightReal);
+					Double minus = leftReal - rightReal;
 
 					return minus;
 				} else {
@@ -323,7 +323,7 @@ public final class SmtExprEvaluator implements SmtExprVisitor<Object, Void> {
 			Object right = retValues.get(1);
 			Long leftInteger = (Long) left;
 			Long rightInteger = (Long) right;
-			return (Long) leftInteger % rightInteger;
+			return leftInteger % rightInteger;
 
 		}
 		case GE: {
@@ -332,14 +332,14 @@ public final class SmtExprEvaluator implements SmtExprVisitor<Object, Void> {
 			if (isInteger(left, right)) {
 				Long leftInt = (Long) left;
 				Long rightInt = (Long) right;
-				Boolean ge = (Boolean) (leftInt >= rightInt);
+				Boolean ge = leftInt >= rightInt;
 				return ge;
 
 			} else if (isReal(left, right)) {
 
 				Double leftReal = (Double) left;
 				Double rightReal = (Double) right;
-				Boolean ge = (Boolean) (leftReal >= rightReal);
+				Boolean ge = leftReal >= rightReal;
 
 				return ge;
 			} else {
@@ -354,14 +354,14 @@ public final class SmtExprEvaluator implements SmtExprVisitor<Object, Void> {
 			if (isInteger(left, right)) {
 				Long leftInt = (Long) left;
 				Long rightInt = (Long) right;
-				Boolean gt = (Boolean) (leftInt > rightInt);
+				Boolean gt = leftInt > rightInt;
 				return gt;
 
 			} else if (isReal(left, right)) {
 
 				Double leftReal = (Double) left;
 				Double rightReal = (Double) right;
-				Boolean gt = (Boolean) (leftReal > rightReal);
+				Boolean gt = leftReal > rightReal;
 
 				return gt;
 			} else {
@@ -376,14 +376,14 @@ public final class SmtExprEvaluator implements SmtExprVisitor<Object, Void> {
 			if (isInteger(left, right)) {
 				Long leftInt = (Long) left;
 				Long rightInt = (Long) right;
-				Boolean le = (Boolean) (leftInt <= rightInt);
+				Boolean le = leftInt <= rightInt;
 				return le;
 
 			} else if (isReal(left, right)) {
 
 				Double leftReal = (Double) left;
 				Double rightReal = (Double) right;
-				Boolean le = (Boolean) (leftReal <= rightReal);
+				Boolean le = leftReal <= rightReal;
 
 				return le;
 			} else {
@@ -399,14 +399,14 @@ public final class SmtExprEvaluator implements SmtExprVisitor<Object, Void> {
 			if (isInteger(left, right)) {
 				Long leftInt = (Long) left;
 				Long rightInt = (Long) right;
-				Boolean lt = (Boolean) (leftInt < rightInt);
+				Boolean lt = leftInt < rightInt;
 				return lt;
 
 			} else if (isReal(left, right)) {
 
 				Double leftReal = (Double) left;
 				Double rightReal = (Double) right;
-				Boolean lt = (Boolean) (leftReal < rightReal);
+				Boolean lt = leftReal < rightReal;
 
 				return lt;
 			} else {
@@ -422,23 +422,23 @@ public final class SmtExprEvaluator implements SmtExprVisitor<Object, Void> {
 			if (isInteger(left, right)) {
 				Long leftInt = (Long) left;
 				Long rightInt = (Long) right;
-				Boolean eq = (Boolean) (leftInt.longValue() == rightInt
-						.longValue());
+				Boolean eq = leftInt.longValue() == rightInt
+						.longValue();
 				return eq;
 
 			} else if (isReal(left, right)) {
 
 				Double leftReal = (Double) left;
 				Double rightReal = (Double) right;
-				Boolean eq = (Boolean) (Math.abs(leftReal
-						- rightReal) < DELTA);
+				Boolean eq = Math.abs(leftReal
+						- rightReal) < DELTA;
 
 				return eq;
 			} else if (isString(left, right)) {
 
 				String leftString = (String) left;
 				String rightString = (String) right;
-				Boolean equals = (Boolean) (leftString.equals(rightString));
+				Boolean equals = leftString.equals(rightString);
 
 				return equals;
 			} else {
@@ -472,7 +472,7 @@ public final class SmtExprEvaluator implements SmtExprVisitor<Object, Void> {
 			Object right = retValues.get(1);
 			String leftString = (String) left;
 			String rightString = (String) right;
-			Boolean prefixOf = (Boolean) (rightString.startsWith(leftString));
+			Boolean prefixOf = rightString.startsWith(leftString);
 			return prefixOf;
 
 		}
@@ -482,7 +482,7 @@ public final class SmtExprEvaluator implements SmtExprVisitor<Object, Void> {
 			Object right = retValues.get(1);
 			String leftString = (String) left;
 			String rightString = (String) right;
-			Boolean startsWith = (Boolean) (leftString.startsWith(rightString));
+			Boolean startsWith = leftString.startsWith(rightString);
 			return startsWith;
 		}
 		case ITE: {
@@ -508,7 +508,7 @@ public final class SmtExprEvaluator implements SmtExprVisitor<Object, Void> {
 			Object right = retValues.get(1);
 			Long leftInteger = (Long) left;
 			Long rightInteger = (Long) right;
-			return (Long) (leftInteger + rightInteger);
+			return leftInteger + rightInteger;
 		}
 		case BV2Nat: {
 			// bit vectors are integers
@@ -521,7 +521,7 @@ public final class SmtExprEvaluator implements SmtExprVisitor<Object, Void> {
 			Object right = retValues.get(1);
 			Long leftInteger = (Long) left;
 			Long rightInteger = (Long) right;
-			return (Long) (leftInteger & rightInteger);
+			return leftInteger & rightInteger;
 		}
 		case BVASHR: {
 			// bit vectors are integers
@@ -529,7 +529,7 @@ public final class SmtExprEvaluator implements SmtExprVisitor<Object, Void> {
 			Object right = retValues.get(1);
 			Long leftInteger = (Long) left;
 			Long rightInteger = (Long) right;
-			return (Long) (leftInteger >> rightInteger);
+			return leftInteger >> rightInteger;
 		}
 		case BVLSHR: {
 			// bit vectors are integers
@@ -537,7 +537,7 @@ public final class SmtExprEvaluator implements SmtExprVisitor<Object, Void> {
 			Object right = retValues.get(1);
 			Long leftInteger = (Long) left;
 			Long rightInteger = (Long) right;
-			return (Long) (leftInteger >>> rightInteger);
+			return leftInteger >>> rightInteger;
 		}
 		case BVOR: {
 			// bit vectors are integers
@@ -545,7 +545,7 @@ public final class SmtExprEvaluator implements SmtExprVisitor<Object, Void> {
 			Object right = retValues.get(1);
 			Long leftInteger = (Long) left;
 			Long rightInteger = (Long) right;
-			return (Long) (leftInteger | rightInteger);
+			return leftInteger | rightInteger;
 		}
 		case BVSHL: {
 			// bit vectors are integers
@@ -553,7 +553,7 @@ public final class SmtExprEvaluator implements SmtExprVisitor<Object, Void> {
 			Object right = retValues.get(1);
 			Long leftInteger = (Long) left;
 			Long rightInteger = (Long) right;
-			return (Long) (leftInteger << rightInteger);
+			return leftInteger << rightInteger;
 		}
 		case BVXOR: {
 			// bit vectors are integers
@@ -561,7 +561,7 @@ public final class SmtExprEvaluator implements SmtExprVisitor<Object, Void> {
 			Object right = retValues.get(1);
 			Long leftInteger = (Long) left;
 			Long rightInteger = (Long) right;
-			return (Long) (leftInteger ^ rightInteger);
+			return leftInteger ^ rightInteger;
 		}
 
 		case INT2BV32: {
@@ -584,7 +584,7 @@ public final class SmtExprEvaluator implements SmtExprVisitor<Object, Void> {
 		case TO_INT: {
 			Object operand = retValues.get(0);
 			Double operandReal = (Double) operand;
-			return (Long) operandReal.longValue();
+			return operandReal.longValue();
 		}
 
 		case CHAR_TO_INT: {
@@ -596,13 +596,13 @@ public final class SmtExprEvaluator implements SmtExprVisitor<Object, Void> {
 								+ operandStr);
 			}
 			char charValue = operandStr.charAt(0);
-			return (Long) (long) charValue;
+			return (long) charValue;
 
 		}
 		case STR_TO_INT: {
 			Object operand = retValues.get(0);
 			String operandStr = (String) operand;
-			return (Long) Long.parseLong(operandStr);
+			return Long.parseLong(operandStr);
 		}
 
 		case STR_INDEXOF: {

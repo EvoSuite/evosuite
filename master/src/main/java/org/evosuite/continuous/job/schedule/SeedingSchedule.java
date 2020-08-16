@@ -142,7 +142,7 @@ public class SeedingSchedule extends OneTimeSchedule{
 				 * so just pick up one (the oldest)
 				 */
 				assert !postponed.isEmpty();
-				chosenJob = postponed.remove((int) 0);  
+				chosenJob = postponed.remove(0);
 			}
 
 			if(chosenJob == null){
