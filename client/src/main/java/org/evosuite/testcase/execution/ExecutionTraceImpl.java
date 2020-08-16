@@ -568,6 +568,10 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 		coveredTrueContext = new HashMap<>();
 		coveredFalseContext = new HashMap<>();
 		coveredPredicateContext = new HashMap<>();
+
+		initializedClasses = new ArrayList<>();
+		classesWithStaticReads = new HashSet<>();
+		classesWithStaticWrites  = new HashSet<>();
 	}
 
 	/**
@@ -613,6 +617,10 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 		copy.coveredTrueContext.putAll(coveredTrueContext);
 		copy.coveredFalseContext.putAll(coveredFalseContext);
 		copy.coveredPredicateContext.putAll(coveredPredicateContext);
+
+		copy.initializedClasses.addAll(initializedClasses);
+		copy.classesWithStaticReads.addAll(classesWithStaticReads);
+		copy.classesWithStaticWrites.addAll(classesWithStaticWrites);
 
 		copy.methodId = methodId;
 		copy.duCounter = duCounter;
@@ -1760,7 +1768,7 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 	 * This set keeps those classes that have a static write (i.e. PUTSTATIC)
 	 * during test execution.
 	 */
-	private final HashSet<String> classesWithStaticWrites = new HashSet<>();
+	private HashSet<String> classesWithStaticWrites = new HashSet<>();
 
 	@Override
 	public void putStaticPassed(String classNameWithDots, String fieldName) {
@@ -1771,7 +1779,7 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 	 * This set keeps those classes that have a static read (i.e. GETSTATIC)
 	 * during test execution.
 	 */
-	private final HashSet<String> classesWithStaticReads = new HashSet<>();
+	private HashSet<String> classesWithStaticReads = new HashSet<>();
 
 	@Override
 	public void getStaticPassed(String classNameWithDots, String fieldName) {
@@ -1788,7 +1796,7 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 	 * <clinit> was completed during this test execution). The list has no
 	 * repetitions.
 	 */
-	private final List<String> initializedClasses = new LinkedList<>();
+	private List<String> initializedClasses = new LinkedList<>();
 
 	/**
 	 * Adds the class to the list of those classes that were initialized during

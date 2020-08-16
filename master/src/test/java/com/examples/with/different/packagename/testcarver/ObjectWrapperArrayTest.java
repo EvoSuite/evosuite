@@ -39,7 +39,7 @@ public class ObjectWrapperArrayTest {
 
 		Long[] foo = (Long[]) wrapper.get();
 
-		Assert.assertTrue(foo[1].equals(fortySeven.get()));
+        Assert.assertEquals(foo[1], fortySeven.get());
 	}
 
 }

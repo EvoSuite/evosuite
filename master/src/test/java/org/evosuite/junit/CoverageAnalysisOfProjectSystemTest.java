@@ -139,7 +139,7 @@ public class CoverageAnalysisOfProjectSystemTest extends SystemTestBase {
 
         // assert Coverage
         List<String> coverages = CsvJUnitData.getValues(rows, "Coverage");
-        assertTrue(coverages.size() == 7);
+		assertEquals(7, coverages.size());
         Collections.sort(coverages);
         assertEquals(0.80, Double.valueOf(coverages.get(0)), 0.01);
         assertEquals(0.80, Double.valueOf(coverages.get(1)), 0.00);
@@ -176,7 +176,7 @@ public class CoverageAnalysisOfProjectSystemTest extends SystemTestBase {
 
         CSVReader reader = new CSVReader(new FileReader(statistics_file));
         List<String[]> rows = reader.readAll();
-        assertTrue(rows.size() == 8); // header + 7 classes
+		assertEquals(8, rows.size()); // header + 7 classes
         reader.close();
 
         // assert TargetClasses
@@ -191,7 +191,7 @@ public class CoverageAnalysisOfProjectSystemTest extends SystemTestBase {
 
         // assert Coverage
         List<String> coverages = CsvJUnitData.getValues(rows, "Coverage");
-        assertTrue(coverages.size() == 7);
+		assertEquals(7, coverages.size());
         Collections.sort(coverages);
 //        assertEquals(0.45, Double.valueOf(coverages.get(0)), 0.01);
 //        assertEquals(0.47, Double.valueOf(coverages.get(1)), 0.01);

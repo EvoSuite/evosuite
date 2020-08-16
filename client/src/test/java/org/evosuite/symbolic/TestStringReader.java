@@ -24,7 +24,6 @@ import static org.junit.Assert.assertTrue;
 import java.lang.reflect.Method;
 import java.util.Collection;
 
-import org.evosuite.symbolic.TestCaseBuilder;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.solver.DefaultTestCaseConcolicExecutor;
 import org.evosuite.symbolic.solver.SolverTimeoutException;

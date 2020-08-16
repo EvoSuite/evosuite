@@ -47,7 +47,7 @@ public class TestStringDistance extends RandomizedTC {
 		final String str2 = "abcd";
 		Collection<Constraint<?>> cnstr = createConstraints(str1, str2);
 		double distance = DistanceEstimator.getDistance(cnstr);
-		assertTrue(0.5 == distance);
+        assertEquals(0.5, distance, 0.0);
 	}
 
 	@Test
@@ -56,7 +56,7 @@ public class TestStringDistance extends RandomizedTC {
 		final String str2 = "abc";
 		Collection<Constraint<?>> cnstr = createConstraints(str1, str2);
 		double distance = DistanceEstimator.getDistance(cnstr);
-		assertTrue(0.5 == distance);
+        assertEquals(0.5, distance, 0.0);
 	}
 
 	@Test

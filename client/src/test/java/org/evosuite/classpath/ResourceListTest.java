@@ -136,7 +136,7 @@ public class ResourceListTest {
 
 		classes = ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getAllClasses(
 				ClassPathHandler.getInstance().getTargetProjectClasspath(), basePrefix+".subp", false);
-		Assert.assertTrue(! classes.contains(Foo.class.getName()));
+        Assert.assertFalse(classes.contains(Foo.class.getName()));
 		Assert.assertTrue(classes.contains(SubPackageFoo.class.getName()));
 	}
 	
@@ -145,7 +145,7 @@ public class ResourceListTest {
 		Collection<String> classes = ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getAllClasses(
 				ClassPathHandler.getInstance().getTargetProjectClasspath(), basePrefix, false);
 		Assert.assertTrue(classes.contains(Foo.class.getName()));
-		Assert.assertTrue( ! classes.contains(Foo.InternalFooClass.class.getName()));
+        Assert.assertFalse(classes.contains(Foo.InternalFooClass.class.getName()));
         Assert.assertEquals(2,classes.size()); //there is also SubPFoo
 	}
 

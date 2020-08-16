@@ -64,7 +64,7 @@ public class VirtualFileSystemTest {
 			String[] tokens = VirtualFileSystem.tokenize(path, '\\');
 			Assert.assertEquals(Arrays.toString(tokens),3, tokens.length);
 			for(String token : tokens){
-				Assert.assertTrue(token,!token.contains("\\"));
+                Assert.assertFalse(token, token.contains("\\"));
 			}
 		}
 	}
