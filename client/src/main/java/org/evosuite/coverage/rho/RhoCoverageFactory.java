@@ -37,6 +37,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import static java.util.Comparator.comparingInt;
+
 /**
  * 
  * @author José Campos
@@ -138,12 +140,7 @@ public class RhoCoverageFactory extends
 		if (Properties.USE_EXISTING_COVERAGE) {
 			// extremely important: before loading any previous coverage (i.e., from a coverage
 			// matrix) goals need to be sorted. otherwise any previous coverage won't match!
-			goals.sort(new Comparator<LineCoverageTestFitness>() {
-                @Override
-                public int compare(LineCoverageTestFitness l1, LineCoverageTestFitness l2) {
-                    return Integer.compare(l1.getLine(), l2.getLine());
-                }
-            });
+			goals.sort(comparingInt(LineCoverageTestFitness::getLine));
 			loadCoverage();
 		} else {
 			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.RhoScore_T0, 1.0);

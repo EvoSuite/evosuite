@@ -52,6 +52,8 @@ import org.evosuite.utils.LoggingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static java.util.Comparator.comparingInt;
+
 /**
  * @author Gordon Fraser
  * 
@@ -162,13 +164,7 @@ public class ClassStatisticsPrinter {
 			LoggingUtils.getEvoLogger().info("* Criterion " + Properties.CRITERION[numCriterion++]+ ": " + goals.size());
 			if (Properties.PRINT_GOALS) {
 				if (factory instanceof LineCoverageFactory) {
-					goals.sort(new Comparator<TestFitnessFunction>() {
-                        @Override
-                        public int compare(TestFitnessFunction l1, TestFitnessFunction l2) {
-                            return Integer.compare(((LineCoverageTestFitness) l1).getLine(),
-                                    ((LineCoverageTestFitness) l2).getLine());
-                        }
-                    });
+					goals.sort(comparingInt(l -> ((LineCoverageTestFitness) l).getLine()));
 				}
 				for (TestFitnessFunction goal : goals) {
 					allGoals.append(goal.toString() + java.lang.System.getProperty("line.separator"));

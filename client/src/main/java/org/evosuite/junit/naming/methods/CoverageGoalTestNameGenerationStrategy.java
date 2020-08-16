@@ -917,12 +917,7 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
     }
 
     public Comparator<TestCase> getComparator() {
-        return new Comparator<TestCase>() {
-            @Override
-            public int compare(TestCase o1, TestCase o2) {
-                return 0;
-            }
-        };
+        return (o1, o2) -> 0;
     }
 
     @Override

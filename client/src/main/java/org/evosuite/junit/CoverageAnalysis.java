@@ -708,12 +708,7 @@ public class CoverageAnalysis {
      * @param tests
      */
     private static void sortTestClasses(List<Class<?>> tests) {
-        tests.sort(new Comparator<Class<?>>() {
-			@Override
-			public int compare(Class<?> t0, Class<?> t1) {
-				return Integer.compare(t1.getName().length(), t0.getName().length());
-			}
-		});
+        tests.sort((t0, t1) -> Integer.compare(t1.getName().length(), t0.getName().length()));
     }
 
 	/**

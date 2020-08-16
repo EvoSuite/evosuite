@@ -39,6 +39,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
+import static java.util.Comparator.comparingInt;
+
 /**
  * <p>
  * TestSuiteMinimizer class.
@@ -291,20 +293,10 @@ public class TestSuiteMinimizer {
         if (strategy == SecondaryObjective.SIZE) {
             size = true;
             // If we want to remove tests, start with shortest
-            suite.tests.sort(new Comparator<TestChromosome>() {
-                @Override
-                public int compare(TestChromosome chromosome1, TestChromosome chromosome2) {
-                    return chromosome1.size() - chromosome2.size();
-                }
-            });
+            suite.tests.sort(comparingInt(TestChromosome::size));
         } else if (strategy == SecondaryObjective.MAX_LENGTH) {
             // If we want to remove the longest test, start with longest
-            suite.tests.sort(new Comparator<TestChromosome>() {
-                @Override
-                public int compare(TestChromosome chromosome1, TestChromosome chromosome2) {
-                    return chromosome2.size() - chromosome1.size();
-                }
-            });
+            suite.tests.sort((chromosome1, chromosome2) -> chromosome2.size() - chromosome1.size());
         }
 
         List<TestFitnessFunction> goals = new ArrayList<>();

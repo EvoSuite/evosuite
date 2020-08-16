@@ -552,12 +552,7 @@ public class EvoHttpServletRequest implements HttpServletRequest {
 			return null;
 		}
 
-		return new Principal() {
-			@Override
-			public String getName() {
-				return principalName;
-			}
-		};
+		return () -> principalName;
 	}
 
 	@Override

@@ -388,13 +388,9 @@ public class HTMLStatisticsBackend implements StatisticsBackend {
 	
 	protected int getNumber(final String className) {
 		int num = 0;
-		FilenameFilter filter = new FilenameFilter() {
-			@Override
-			public boolean accept(File dir, String name) {
-				// report-ncs.Triangle-0.html
-				return name.startsWith("report-" + className)
-				        && (name.endsWith(".html"));
-			}
+		FilenameFilter filter = (dir, name) -> {
+			// report-ncs.Triangle-0.html
+			return name.startsWith("report-" + className) && (name.endsWith(".html"));
 		};
 		List<String> filenames = new ArrayList<>();
 

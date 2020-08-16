@@ -56,17 +56,12 @@ public class CastClassManager {
 	public static List<GenericClass> sortByValue(Map<GenericClass, Integer> map) {
 		List<Map.Entry<GenericClass, Integer>> list = new LinkedList<>(
 				map.entrySet());
-		list.sort(new Comparator<Entry<GenericClass, Integer>>() {
-            @Override
-            public int compare(Entry<GenericClass, Integer> o1,
-                               Entry<GenericClass, Integer> o2) {
-                if (o1.getKey().getNumParameters() == o2.getKey().getNumParameters())
-                    return (o1.getValue()).compareTo(o2.getValue());
-                else
-                    return o1.getKey().getNumParameters()
-                            - o2.getKey().getNumParameters();
-            }
-        });
+		list.sort((o1, o2) -> {
+			if (o1.getKey().getNumParameters() == o2.getKey().getNumParameters())
+				return (o1.getValue()).compareTo(o2.getValue());
+			else
+				return o1.getKey().getNumParameters() - o2.getKey().getNumParameters();
+		});
 
 		List<GenericClass> result = new LinkedList<>();
 		for (Map.Entry<GenericClass, Integer> entry : list) {

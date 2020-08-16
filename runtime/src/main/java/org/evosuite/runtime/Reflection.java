@@ -33,6 +33,8 @@ import org.evosuite.runtime.instrumentation.InstrumentedClass;
 import org.evosuite.runtime.instrumentation.RemoveFinalClassAdapter;
 import org.evosuite.runtime.util.ReflectionUtils;
 
+import static java.util.Comparator.comparing;
+
 /**
  * The content of arrays in reflection methods may differ between classloaders, therefore
  * we sort the output alphabetically
@@ -44,12 +46,7 @@ public class Reflection {
 
 	private static <T> T[] sortArrayInPlace(T[] original) {
 		List<T> methods = Arrays.asList(original);
-		methods.sort(new Comparator<T>() {
-            @Override
-            public int compare(T o1, T o2) {
-                return o1.toString().compareTo(o2.toString());
-            }
-        });
+		methods.sort(comparing(Object::toString));
 		
 		methods.toArray(original);
 		return original;
