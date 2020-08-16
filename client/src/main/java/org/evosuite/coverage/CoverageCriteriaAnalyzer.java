@@ -214,12 +214,11 @@ public class CoverageCriteriaAnalyzer {
         analyzeCoverage(testSuite,criterion,true);
     }
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
     private static void analyzeCoverage(TestSuiteChromosome testSuite, Properties.Criterion criterion, boolean recalculate) {
 
         TestSuiteChromosome testSuiteCopy = testSuite.clone();
 
-        TestFitnessFactory factory = FitnessFunctions.getFitnessFactory(criterion);
+        TestFitnessFactory<? extends TestFitnessFunction> factory = FitnessFunctions.getFitnessFactory(criterion);
 
         if(recalculate) {
             reinstrument(testSuiteCopy, criterion);
@@ -237,7 +236,7 @@ public class CoverageCriteriaAnalyzer {
             }
         }
 
-        List<TestFitnessFunction> goals = factory.getCoverageGoals();
+        List<? extends TestFitnessFunction> goals = factory.getCoverageGoals();
         Collections.sort(goals);
 
         StringBuffer buffer = new StringBuffer(goals.size());
