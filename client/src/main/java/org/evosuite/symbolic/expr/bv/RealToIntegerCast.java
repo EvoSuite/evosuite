@@ -91,8 +91,7 @@ public final class RealToIntegerCast extends AbstractExpression<Long> implements
 
 	@Override
 	public Set<Variable<?>> getVariables() {
-		Set<Variable<?>> variables = new HashSet<>();
-		variables.addAll(this.expr.getVariables());
+        Set<Variable<?>> variables = new HashSet<>(this.expr.getVariables());
 		return variables;
 	}
 

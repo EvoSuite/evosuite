@@ -86,8 +86,7 @@ public final class HasMoreTokensExpr extends AbstractExpression<Long> implements
 
 	@Override
 	public Set<Variable<?>> getVariables() {
-		Set<Variable<?>> variables = new HashSet<>();
-		variables.addAll(this.tokenizerExpr.getVariables());
+        Set<Variable<?>> variables = new HashSet<>(this.tokenizerExpr.getVariables());
 		return variables;
 	}
 

@@ -134,8 +134,7 @@ public class AllUsesAnalysis {
 
 		Set<DefUseCoverageTestFitness> r = new HashSet<>();
 
-		LinkedList<ClassCallNode> toAnalyze = new LinkedList<>();
-		toAnalyze.addAll(getInitialPreAnalyzeableMethods());
+		LinkedList<ClassCallNode> toAnalyze = new LinkedList<>(getInitialPreAnalyzeableMethods());
 
 		while (!toAnalyze.isEmpty()) {
 			ClassCallNode currentMethod = toAnalyze.poll();

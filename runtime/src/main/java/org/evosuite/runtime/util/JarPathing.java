@@ -122,8 +122,7 @@ public class JarPathing {
 
 		logger.debug("Going to create jar pathing for: {}", classpath);
 
-        List<String> elements = new ArrayList<>();
-        elements.addAll(Arrays.asList(classpath.split(File.pathSeparator)));
+        List<String> elements = new ArrayList<>(Arrays.asList(classpath.split(File.pathSeparator)));
 
         StringBuffer escaped = new StringBuffer();
         while(!elements.isEmpty()) {

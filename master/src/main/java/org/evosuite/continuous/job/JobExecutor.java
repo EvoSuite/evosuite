@@ -207,8 +207,7 @@ public class JobExecutor {
 		long longestJob = -1L;
 		
 		//TODO handle memory
-		Queue<JobDefinition> toExecute = new LinkedList<>();
-		toExecute.addAll(jobs);
+		Queue<JobDefinition> toExecute = new LinkedList<>(jobs);
 		
 		List<JobDefinition> postponed = new LinkedList<>();
 		

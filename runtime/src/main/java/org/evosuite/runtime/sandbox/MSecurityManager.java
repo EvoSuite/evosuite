@@ -216,8 +216,7 @@ public class MSecurityManager extends SecurityManager {
     }
 
 	public Set<Thread> getPrivilegedThreads() {
-		Set<Thread> set = new LinkedHashSet<>();
-		set.addAll(privilegedThreads);
+		Set<Thread> set = new LinkedHashSet<>(privilegedThreads);
 		return set;
 	}
 

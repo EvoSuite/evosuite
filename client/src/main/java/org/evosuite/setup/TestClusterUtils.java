@@ -207,8 +207,7 @@ public class TestClusterUtils {
 		// TODO: Helper not necessary here!
 		Map<String, Field> helper = new TreeMap<>();
 
-		Set<Field> fields = new LinkedHashSet<>();
-		if (clazz.getSuperclass() != null) {
+        if (clazz.getSuperclass() != null) {
 			for (Field f : getFields(clazz.getSuperclass())) {
 				helper.put(f.toGenericString(), f);
 			}
@@ -223,7 +222,7 @@ public class TestClusterUtils {
 		for (Field f : Reflection.getDeclaredFields(clazz)) {
 			helper.put(f.toGenericString(), f);
 		}
-		fields.addAll(helper.values());
+        Set<Field> fields = new LinkedHashSet<>(helper.values());
 
 		return fields;
 	}

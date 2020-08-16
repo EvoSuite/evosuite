@@ -427,8 +427,7 @@ public class BytecodeInstructionPool {
 		        || instructionMap.get(className).get(methodName) == null)
 			return null;
 
-		List<BytecodeInstruction> r = new ArrayList<>();
-		r.addAll(instructionMap.get(className).get(methodName));
+		List<BytecodeInstruction> r = new ArrayList<>(instructionMap.get(className).get(methodName));
 
 		return r;
 	}

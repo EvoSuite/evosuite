@@ -97,8 +97,7 @@ public class InstrumentingClassLoader extends ClassLoader {
 	}
 
 	public List<String> getViewOfInstrumentedClasses(){
-		List<String> list = new ArrayList<>();
-		list.addAll(classes.keySet());
+        List<String> list = new ArrayList<>(classes.keySet());
 		return list;
 	}
 	

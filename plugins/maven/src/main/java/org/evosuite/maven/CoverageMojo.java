@@ -96,11 +96,10 @@ public class CoverageMojo extends AbstractMojo {
 
 		getLog().info("Going to measure the coverage of manually written test cases with EvoSuite");
 
-		List<String> target = new ArrayList<>();
-		Set<String> cp = new LinkedHashSet<>();
+        Set<String> cp = new LinkedHashSet<>();
 
 		// Get compile elements (i.e., classes under /target/classes)
-		target.addAll(ProjectUtils.getCompileClasspathElements(this.project));
+        List<String> target = new ArrayList<>(ProjectUtils.getCompileClasspathElements(this.project));
 
 		// Get JUnit elements (i.e., classes under /target/test-classes) and compiled
 		// elements (i.e., classes under /target/classes)

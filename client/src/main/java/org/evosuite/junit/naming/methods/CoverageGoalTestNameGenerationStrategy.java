@@ -824,8 +824,7 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
         }
         else {
             // is there any other implementation of the same method with same number of arguments?
-            Set<String> otherMethods = new HashSet<>();
-            otherMethods.addAll(methodCount.get(methodNameWithoutDescriptor));
+            Set<String> otherMethods = new HashSet<>(methodCount.get(methodNameWithoutDescriptor));
             otherMethods.remove(methodName);
             boolean sameCardinality = false;
             for (String otherMethod : otherMethods) {

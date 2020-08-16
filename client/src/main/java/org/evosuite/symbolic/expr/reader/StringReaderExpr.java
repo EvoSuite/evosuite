@@ -55,8 +55,7 @@ public final class StringReaderExpr extends AbstractExpression<Long> implements
 
 	@Override
 	public Set<Variable<?>> getVariables() {
-		Set<Variable<?>> variables = new HashSet<>();
-		variables.addAll(this.string.getVariables());
+        Set<Variable<?>> variables = new HashSet<>(this.string.getVariables());
 		return variables;
 	}
 

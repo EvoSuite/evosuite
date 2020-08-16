@@ -94,8 +94,7 @@ public final class StringNextTokenExpr extends AbstractExpression<String> implem
 
 	@Override
 	public Set<Variable<?>> getVariables() {
-		Set<Variable<?>> variables = new HashSet<>();
-		variables.addAll(this.tokenizerExpr.getVariables());
+        Set<Variable<?>> variables = new HashSet<>(this.tokenizerExpr.getVariables());
 		return variables;
 	}
 

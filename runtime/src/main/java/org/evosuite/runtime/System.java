@@ -161,10 +161,10 @@ public class System {
 	}
 
 	public static Set<String> getAllPropertiesReadSoFar(){
-		Set<String> copy = new LinkedHashSet<>();
+		Set<String> copy;
 
         synchronized (readProperties) {
-            copy.addAll(readProperties);
+            copy = new LinkedHashSet<>(readProperties);
         }
 
         return copy;

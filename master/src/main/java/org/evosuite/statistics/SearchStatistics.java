@@ -246,7 +246,6 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 	 * @return
 	 */
 	private List<String> getAllOutputVariableNames() {
-		List<String> variableNames = new ArrayList<>();
 
 		String[] essentials = new String[] {  //TODO maybe add some more
 				"TARGET_CLASS" , "criterion", 
@@ -256,7 +255,7 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 				RuntimeVariable.Total_Goals.toString(),
 				RuntimeVariable.Covered_Goals.toString()
 				};
-		variableNames.addAll(Arrays.asList(essentials));
+		List<String> variableNames = new ArrayList<>(Arrays.asList(essentials));
 		
 		/* cannot use what we received, as due to possible bugs/errors those might not be constant
 		variableNames.addAll(outputVariables.keySet());

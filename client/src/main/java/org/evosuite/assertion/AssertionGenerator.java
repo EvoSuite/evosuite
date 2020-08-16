@@ -171,8 +171,7 @@ public abstract class AssertionGenerator {
 	}
 
 	public void filterFailingAssertions(List<TestCase> testCases) {
-		List<TestCase> tests = new ArrayList<>();
-		tests.addAll(testCases);
+        List<TestCase> tests = new ArrayList<>(testCases);
 		for(TestCase test : tests) {
 			filterFailingAssertions(test);
 		}

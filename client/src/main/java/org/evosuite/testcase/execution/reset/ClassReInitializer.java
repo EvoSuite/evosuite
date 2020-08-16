@@ -158,8 +158,7 @@ public class ClassReInitializer {
 				// reset only classes that were "observed" to have some
 				// GETSTATIC/PUTSTATIC updating their state during test
 				// execution
-				List<String> classesToReset = new LinkedList<>();
-				classesToReset.addAll(trace.getClassesWithStaticWrites());
+                List<String> classesToReset = new LinkedList<>(trace.getClassesWithStaticWrites());
 				if (Properties.RESET_STATIC_FIELD_GETS) {
 					classesToReset.addAll(trace.getClassesWithStaticReads());
 				}

@@ -323,8 +323,7 @@ public class DeprecatedTestSuiteDSE {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private TestCase negateCondition(Set<Constraint<?>> reachingConstraints, Constraint<?> localConstraint,
 			TestCase test) {
-		List<Constraint<?>> constraints = new LinkedList<>();
-		constraints.addAll(reachingConstraints);
+		List<Constraint<?>> constraints = new LinkedList<>(reachingConstraints);
 
 		Constraint<?> targetConstraint = localConstraint.negate();
 		constraints.add(targetConstraint);

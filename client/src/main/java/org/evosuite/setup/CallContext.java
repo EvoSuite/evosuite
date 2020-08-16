@@ -163,8 +163,7 @@ public class CallContext implements Serializable {
 	public CallContext(Collection<Call> contextt) {
         addJUnitExcludes();
 
-		List<Call> context = new ArrayList<>();
-		context.addAll(contextt);
+        List<Call> context = new ArrayList<>(contextt);
 		this.context=context;
 		hcode = this.context.hashCode();
 	}

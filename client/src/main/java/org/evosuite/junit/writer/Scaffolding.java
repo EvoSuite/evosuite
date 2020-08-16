@@ -828,10 +828,9 @@ public class Scaffolding {
 		bd.append(" new " + ThreadStopper.class.getName() + " (");
 		bd.append("" + KillSwitchHandler.class.getName() + ".getInstance(), ");
 		bd.append("" + Properties.TIMEOUT + "");
-		Set<String> threadsToIgnore = new LinkedHashSet<>();
 		// this shouldn't appear among the threads in the generated tests
 		// threadsToIgnore.add(TestCaseExecutor.TEST_EXECUTION_THREAD);
-		threadsToIgnore.addAll(Arrays.asList(Properties.IGNORE_THREADS));
+		Set<String> threadsToIgnore = new LinkedHashSet<>(Arrays.asList(Properties.IGNORE_THREADS));
 		for (String s : threadsToIgnore) {
 			bd.append(", " + s);
 		}
