@@ -114,7 +114,7 @@ public class DynaMOSA extends AbstractMOSA {
 		// being better.
 		if (remain > 0 && !front.isEmpty()) { // front contains individuals to insert
 			this.distance.fastEpsilonDominanceAssignment(front, this.goalsManager.getCurrentGoals());
-			front.sort(new OnlyCrowdingComparator());
+			front.sort(new OnlyCrowdingComparator<>());
 			for (int k = 0; k < remain; k++) {
 				this.population.add(front.get(k));
 			}
