@@ -32,6 +32,8 @@ import java.util.Date;
  */
 public class MockSpinnerDateModel extends SpinnerDateModel implements OverrideMock {
 
+    private static final long serialVersionUID = -7236911608512230647L;
+
     public MockSpinnerDateModel(Date value, Comparable start, Comparable end, int calendarField) {
         super(value, start, end, calendarField);
         this.setValue(MockCalendar.getInstance());

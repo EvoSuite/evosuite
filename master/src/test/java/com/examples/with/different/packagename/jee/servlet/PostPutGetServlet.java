@@ -30,6 +30,8 @@ import java.io.IOException;
  */
 public class PostPutGetServlet extends HttpServlet{
 
+    private static final long serialVersionUID = -8591459233803532529L;
+
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         if(req!=null && resp!=null){

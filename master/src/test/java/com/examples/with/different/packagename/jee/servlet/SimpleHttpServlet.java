@@ -30,6 +30,8 @@ import java.io.IOException;
  */
 public class SimpleHttpServlet extends HttpServlet {
 
+    private static final long serialVersionUID = -368064161073592598L;
+
     public SimpleHttpServlet(){
         System.out.println("Called constructor");
     }

@@ -31,6 +31,7 @@ import java.util.Set;
  */
 public class JeeData implements Serializable{
 
+    private static final long serialVersionUID = 1047240994740470230L;
     /**
      * Keep track of all parameters that have been checked in a http servlet
      */

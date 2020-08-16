@@ -10,6 +10,8 @@ import org.evosuite.testsuite.TestSuiteChromosome;
 public class TestSuiteChromosomeFactoryMock
         extends ChromosomeFactoryMock<TestChromosome, TestSuiteChromosome> {
 
+    private static final long serialVersionUID = 8395282399919895283L;
+
     /**
      * {@inheritDoc}
      */

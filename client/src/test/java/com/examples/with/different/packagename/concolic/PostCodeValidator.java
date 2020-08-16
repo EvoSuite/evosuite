@@ -41,8 +41,9 @@ public final class PostCodeValidator  extends Validator
   * against
   */   
  private static final Pattern pattern =  Pattern.compile("(GIR 0AA)|((([A-Z][0-9][0-9]?)|(([A-Z][A-HJ-Y][0-9][0-9]?)|(([A-Z][0-9][A-Z])|([A-Z][A-HJ-Y][0-9]?[A-Z])))) [0-9][A-Z]{2})");
- 
- /**
+    private static final long serialVersionUID = -642706411732167018L;
+
+    /**
   * for gui
   */
   public PostCodeValidator()

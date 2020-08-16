@@ -13,6 +13,8 @@ import static java.util.stream.Collectors.*;
  */
 public class BestKSelection<T extends Chromosome<T>> extends SelectionFunction<T> {
 
+    private static final long serialVersionUID = -7106376944811871449L;
+
     /**
      * {@inheritDoc}
      * 

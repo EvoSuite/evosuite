@@ -34,7 +34,10 @@ import java.util.*;
 public class InstanceOnlyOnce {
 
     private static final Set<Class<?>> classes = Collections.unmodifiableSet(
-            new HashSet<Class<?>>(){{
+            new HashSet<Class<?>>(){
+                private static final long serialVersionUID = -926534357673433194L;
+
+                {
                 add(HttpServlet.class);
             }}
     );

@@ -27,7 +27,9 @@ import org.evosuite.statistics.RuntimeVariable;
 
 public class DummyClientNodeImpl<T extends Chromosome<T>> extends ClientNodeImpl<T> {
 
-	public DummyClientNodeImpl(){
+    private static final long serialVersionUID = -354329589467033654L;
+
+    public DummyClientNodeImpl(){
 		
 	}
 	

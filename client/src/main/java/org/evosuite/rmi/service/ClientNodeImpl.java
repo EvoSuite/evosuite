@@ -60,6 +60,7 @@ public class ClientNodeImpl<T extends Chromosome<T>>
 		implements ClientNodeLocal<T>, ClientNodeRemote<T> {
 
 	private static final Logger logger = LoggerFactory.getLogger(ClientNodeImpl.class);
+	private static final long serialVersionUID = 485858845631346580L;
 
 	/**
 	 * The current state/phase in which this client process is (eg, search or assertion generation)

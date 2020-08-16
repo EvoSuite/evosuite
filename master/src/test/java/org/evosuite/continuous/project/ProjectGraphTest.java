@@ -114,7 +114,9 @@ public class ProjectGraphTest {
 	}
 
 	abstract class G extends E implements F {
-		@Override
+        private static final long serialVersionUID = 6859796433912246090L;
+
+        @Override
 		void foo() {
 		}
 	}

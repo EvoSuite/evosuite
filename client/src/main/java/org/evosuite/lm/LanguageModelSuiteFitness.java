@@ -31,6 +31,7 @@ import java.io.IOException;
  */
 public class LanguageModelSuiteFitness extends TestSuiteFitnessFunction {
 
+    private static final long serialVersionUID = 8985543347957256453L;
     private final BranchCoverageSuiteFitness backingFitness;
     private LangModel languageModel;
 

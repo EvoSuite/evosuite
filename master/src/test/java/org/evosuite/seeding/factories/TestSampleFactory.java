@@ -25,8 +25,9 @@ import org.evosuite.testcase.TestChromosome;
 public class TestSampleFactory implements ChromosomeFactory<TestChromosome> {
 
 	public static final TestChromosome CHROMOSOME;
-	
-	static {
+    private static final long serialVersionUID = -3729823431724553477L;
+
+    static {
 		CHROMOSOME = new TestChromosome();
 	}
 	

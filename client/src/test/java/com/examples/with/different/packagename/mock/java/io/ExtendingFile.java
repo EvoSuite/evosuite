@@ -23,7 +23,9 @@ import java.io.File;
 
 public class ExtendingFile extends File{
 
-	public ExtendingFile(String pathname) {
+    private static final long serialVersionUID = -3575700212493895858L;
+
+    public ExtendingFile(String pathname) {
 		super(pathname);
 	}
 

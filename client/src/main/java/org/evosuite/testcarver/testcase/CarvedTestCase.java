@@ -25,6 +25,7 @@ import org.evosuite.testcase.DefaultTestCase;
  * Created by jmr on 26/10/2015.
  */
 public class CarvedTestCase extends DefaultTestCase {
+    private static final long serialVersionUID = -1780509246634782226L;
     private String name = "";
 
     public String getName() {

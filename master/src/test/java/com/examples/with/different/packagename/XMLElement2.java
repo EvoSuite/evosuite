@@ -103,6 +103,8 @@ public class XMLElement2 {
 
 	public static class XMLParseException extends RuntimeException {
 
+		private static final long serialVersionUID = -309385366770535305L;
+
 		public XMLParseException(String msg, int line, String ex) {
 		}
 

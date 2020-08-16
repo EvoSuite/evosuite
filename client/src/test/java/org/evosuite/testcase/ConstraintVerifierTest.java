@@ -63,6 +63,8 @@ public class ConstraintVerifierTest {
     }
 
     private static class FakeServlet extends HttpServlet{
+        private static final long serialVersionUID = -2982655228530943531L;
+
         public FakeServlet(){}
 
         public void foo(){}

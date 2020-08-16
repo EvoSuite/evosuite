@@ -58,6 +58,8 @@ public class HttpServletTest {
         final boolean[] val = new boolean[3];
 
         HttpServlet servlet = new HttpServlet() {
+            private static final long serialVersionUID = 4339365283728803774L;
+
             @Override
             public void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
                 val[0] = true;
@@ -106,6 +108,8 @@ public class HttpServletTest {
     public void testParts() throws ServletException, IOException{
 
         HttpServlet servlet = new HttpServlet() {
+            private static final long serialVersionUID = -2978352048790630810L;
+
             @Override
             public void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
                 Collection<Part> parts = req.getParts();
@@ -141,6 +145,8 @@ public class HttpServletTest {
     public void testContentType() throws ServletException, IOException {
 
         HttpServlet servlet = new HttpServlet() {
+            private static final long serialVersionUID = 5467093110749896755L;
+
             @Override
             public void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
                 String contentType = req.getContentType();
@@ -202,6 +208,8 @@ public class HttpServletTest {
         Assert.assertFalse(TestDataJavaEE.getInstance().getViewOfDispatchers().contains(delegate));
 
         HttpServlet servlet = new HttpServlet() {
+            private static final long serialVersionUID = 1686713572854912614L;
+
             @Override
             public void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
                 RequestDispatcher dispatcher = getServletContext().getRequestDispatcher(delegate);
@@ -245,6 +253,8 @@ public class HttpServletTest {
     public void testNoAsyn() throws ServletException {
 
         HttpServlet servlet = new HttpServlet() {
+            private static final long serialVersionUID = 7199485602002752003L;
+
             @Override
             public void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
             }
@@ -270,6 +280,8 @@ public class HttpServletTest {
 
     @WebServlet(value = "/bar", asyncSupported = true)
     private class AnnotatedServlet_for_testAsyn extends HttpServlet {
+        private static final long serialVersionUID = 7282993400998403921L;
+
         @Override
         public void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
             AsyncContext context = req.startAsync();

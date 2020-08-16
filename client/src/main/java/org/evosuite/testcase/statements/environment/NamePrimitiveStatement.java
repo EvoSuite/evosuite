@@ -31,6 +31,8 @@ import org.evosuite.utils.Randomness;
 public class NamePrimitiveStatement extends EnvironmentDataStatement<EvoName>{
 
 
+    private static final long serialVersionUID = -7052531760814573064L;
+
     public NamePrimitiveStatement(TestCase tc) {
         this(tc,null);
         randomize();

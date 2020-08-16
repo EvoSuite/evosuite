@@ -27,6 +27,8 @@ import org.evosuite.coverage.branch.BranchCoverageTestFitness;
  */
 public class TryCatchCoverageTestFitness extends BranchCoverageTestFitness {
 
+    private static final long serialVersionUID = -4566865257473233101L;
+
     public TryCatchCoverageTestFitness(BranchCoverageGoal goal) throws IllegalArgumentException {
         super(goal);
     }

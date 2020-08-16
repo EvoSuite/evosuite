@@ -29,6 +29,8 @@ import java.lang.reflect.Field;
  */
 public class MockDefaultListSelectionModel extends DefaultListSelectionModel implements OverrideMock {
 
+    private static final long serialVersionUID = 8871874273079985592L;
+
     public String toString() {
         String s =  ((getValueIsAdjusting()) ? "~" : "=");
         try {
