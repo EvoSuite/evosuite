@@ -55,8 +55,9 @@ public class TestCrowdingComparator
         population.add(c2);
         population.add(c3);
 
-        RankAndCrowdingDistanceComparator cc = new RankAndCrowdingDistanceComparator(false);
-        Collections.sort(population, cc);
+        RankAndCrowdingDistanceComparator<NSGAChromosome> cc =
+                new RankAndCrowdingDistanceComparator<>(false);
+        population.sort(cc);
 
         // assert by Rank
         Assert.assertEquals(0, population.get(0).getRank());
@@ -91,8 +92,9 @@ public class TestCrowdingComparator
         population.add(c2);
         population.add(c3);
 
-        RankAndCrowdingDistanceComparator cc = new RankAndCrowdingDistanceComparator(true);
-        Collections.sort(population, cc);
+        RankAndCrowdingDistanceComparator<NSGAChromosome> cc =
+                new RankAndCrowdingDistanceComparator<>(true);
+        population.sort(cc);
 
         // assert by Rank
         Assert.assertEquals(1, population.get(0).getRank());
