@@ -26,6 +26,6 @@ import org.evosuite.statistics.OutputVariable;
 
 public interface StatisticsBackend {
 
-	void writeData(Chromosome result, Map<String, OutputVariable<?>> data);
+	void writeData(Chromosome<?> result, Map<String, OutputVariable<?>> data);
 	
 }

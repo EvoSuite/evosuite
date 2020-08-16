@@ -33,7 +33,7 @@ import org.evosuite.statistics.OutputVariable;
 public class ConsoleStatisticsBackend implements StatisticsBackend {
 
 	@Override
-	public void writeData(Chromosome result, Map<String, OutputVariable<?>> data) {
+	public void writeData(Chromosome<?> result, Map<String, OutputVariable<?>> data) {
 		for(OutputVariable<?> var : data.values()) {
 			if (System.out!=null) {
 				System.out.println(var.getName()+": "+var.getValue());

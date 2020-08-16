@@ -49,6 +49,7 @@ import org.evosuite.testcase.execution.ExecutionTrace;
 import org.evosuite.testcase.execution.ExecutionTracer;
 import org.evosuite.testcase.factories.JUnitTestCarvedChromosomeFactory;
 import org.evosuite.testsuite.TestSuiteChromosome;
+import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.evosuite.utils.ExternalProcessUtilities;
 import org.evosuite.utils.LoggingUtils;
 import org.junit.Test;
@@ -167,10 +168,10 @@ public class CoverageAnalysis {
 				LoggingUtils.getEvoLogger().info("* " + ClientProcess.getPrettyPrintIdentifier()
                         + "Coverage analysis for criterion " + pc);
 
-				TestFitnessFactory ffactory = FitnessFunctions.getFitnessFactory(pc);
+				TestFitnessFactory<? extends TestFitnessFunction> ffactory = FitnessFunctions.getFitnessFactory(pc);
 				goals += ffactory.getCoverageGoals().size();
 
-				FitnessFunction ffunction = FitnessFunctions.getFitnessFunction(pc);
+				TestSuiteFitnessFunction ffunction = FitnessFunctions.getFitnessFunction(pc);
 				ffunction.getFitness(testSuite);
 
 				CoverageCriteriaAnalyzer.analyzeCoverage(testSuite, pc);

@@ -521,9 +521,8 @@ public class DeprecatedTestSuiteDSE {
 	}
 
 	private double getFitness(TestSuiteChromosome suite) {
-		for (FitnessFunction<? extends Chromosome> ff : objective.getFitnessFunctions()) {
-			TestSuiteFitnessFunction tff = (TestSuiteFitnessFunction) ff;
-			tff.getFitness(suite);
+		for (FitnessFunction<TestSuiteChromosome> ff : objective.getFitnessFunctions()) {
+			ff.getFitness(suite);
 		}
 		return suite.getFitness();
 	}

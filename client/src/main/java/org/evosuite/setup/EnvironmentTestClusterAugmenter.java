@@ -310,13 +310,13 @@ public class EnvironmentTestClusterAugmenter {
 
 		// only consider public constructors/methods
 
-		for (Constructor c : klass.getConstructors()) {
+		for (Constructor<?> c : klass.getConstructors()) {
 			// first check if it should be skipped
 			if (shouldSkip(excludeClass, c)) {
 				continue;
 			}
 
-			GenericAccessibleObject gc = new GenericConstructor(c, klass);
+			GenericAccessibleObject<GenericConstructor> gc = new GenericConstructor(c, klass);
 			TestCluster.getInstance().addEnvironmentTestCall(gc);
 			GenericClass genclass = new GenericClass(klass);
 			TestCluster.getInstance().invalidateGeneratorCache(genclass);
@@ -330,7 +330,7 @@ public class EnvironmentTestClusterAugmenter {
 				continue;
 			}
 
-			GenericAccessibleObject gm = new GenericMethod(m, klass);
+			GenericAccessibleObject<?> gm = new GenericMethod(m, klass);
 			TestCluster.getInstance().addEnvironmentTestCall(gm);
 
 			testClusterGenerator.addNewDependencies(Arrays.asList(m.getParameterTypes()));
@@ -361,7 +361,7 @@ public class EnvironmentTestClusterAugmenter {
 				continue;
 			}
 
-			GenericAccessibleObject gm = new GenericMethod(m, klass);
+			GenericAccessibleObject<?> gm = new GenericMethod(m, klass);
 			GenericClass gc = new GenericClass(klass);
 			TestCluster.getInstance().addModifier(gc, gm);
 

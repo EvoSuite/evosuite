@@ -38,7 +38,7 @@ public class ContainsTraceObserver extends AssertionTraceObserver<ContainsTraceE
             if(!(object instanceof Collection))
                 return;
 
-            Collection collectionObject = (Collection)object;
+            Collection<?> collectionObject = (Collection<?>)object;
 
             List<GenericClass> parameterClasses = var.getGenericClass().getParameterClasses();
             // Need to know exact type

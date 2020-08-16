@@ -186,7 +186,7 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 	 * 
 	 * @param individual best individual of current generation
 	 */
-	public void currentIndividual(Chromosome individual) {
+	public void currentIndividual(Chromosome<?> individual) {
 		if(backend == null)
 			return;
 

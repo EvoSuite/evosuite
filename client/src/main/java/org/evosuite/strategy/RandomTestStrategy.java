@@ -83,9 +83,9 @@ public class RandomTestStrategy extends TestGenerationStrategy {
 		}
 		ChromosomeFactory<TestChromosome> factory = getChromosomeFactory();
 
-		StoppingCondition stoppingCondition = getStoppingCondition();
-		for (FitnessFunction<?> fitness_function : fitnessFunctions)
-			((TestSuiteFitnessFunction)fitness_function).getFitness(suite);
+		StoppingCondition<TestSuiteChromosome> stoppingCondition = getStoppingCondition();
+		for (FitnessFunction<TestSuiteChromosome> fitness_function : fitnessFunctions)
+			fitness_function.getFitness(suite);
 		ClientServices.getInstance().getClientNode().changeState(ClientState.SEARCH);
 
 		int number_generations = 0;
@@ -94,8 +94,8 @@ public class RandomTestStrategy extends TestGenerationStrategy {
 			TestChromosome test = factory.getChromosome();
 			TestSuiteChromosome clone = suite.clone();
 			clone.addTest(test);
-			for (FitnessFunction<?> fitness_function : fitnessFunctions) {
-				((TestSuiteFitnessFunction)fitness_function).getFitness(clone);
+			for (FitnessFunction<TestSuiteChromosome> fitness_function : fitnessFunctions) {
+				fitness_function.getFitness(clone);
 				logger.debug("Old fitness: {}, new fitness: {}", suite.getFitness(),
 						clone.getFitness());
 			}

@@ -280,7 +280,7 @@ public class TestSuiteMinimizer {
 
         // Remove previous results as they do not contain method calls
         // in the case of whole suite generation
-        for (ExecutableChromosome test : suite.getTestChromosomes()) {
+        for (TestChromosome test : suite.getTestChromosomes()) {
             test.setChanged(true);
             test.clearCachedResults();
         }
@@ -406,7 +406,7 @@ public class TestSuiteMinimizer {
     private void removeEmptyTestCases(TestSuiteChromosome suite) {
         Iterator<TestChromosome> it = suite.tests.iterator();
         while (it.hasNext()) {
-            ExecutableChromosome test = it.next();
+            TestChromosome test = it.next();
             if (test.size() == 0) {
                 logger.debug("Removing empty test case");
                 it.remove();

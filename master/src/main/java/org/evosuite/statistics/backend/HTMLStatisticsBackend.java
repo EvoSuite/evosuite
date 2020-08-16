@@ -57,7 +57,7 @@ public class HTMLStatisticsBackend implements StatisticsBackend {
 	protected static final HtmlAnalyzer html_analyzer = new HtmlAnalyzer();
 
 	@Override
-	public void writeData(Chromosome result, Map<String, OutputVariable<?>> data) {
+	public void writeData(Chromosome<?> result, Map<String, OutputVariable<?>> data) {
 
 		new File(getReportDir().getAbsolutePath() + "/img").mkdirs();
 		new File(getReportDir().getAbsolutePath() + "/html/files/").mkdirs();

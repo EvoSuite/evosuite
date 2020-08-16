@@ -146,7 +146,7 @@ public class ConstraintHelper {
                 continue;
             }
 
-            GenericAccessibleObject ao = st.getAccessibleObject();
+            GenericAccessibleObject<?> ao = st.getAccessibleObject();
             Class<?> declaringClass = ao.getDeclaringClass();
 
             for(String excluded : constraints.excludeOthers()) {
@@ -176,7 +176,7 @@ public class ConstraintHelper {
 
         Statement varSource = tc.getStatement(vr.getStPosition());
         if(varSource instanceof PrimitiveStatement){ //eg for String
-            Object obj = ((PrimitiveStatement)varSource).getValue();
+            Object obj = ((PrimitiveStatement<?>)varSource).getValue();
             if(obj==null){
                 return true;
             }

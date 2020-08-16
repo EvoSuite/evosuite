@@ -68,7 +68,7 @@ public class FastNonDominatedSorting<T extends Chromosome<T>> implements Ranking
 	@SuppressWarnings("unchecked")
 	private List<T>[] getNextNonDominatedFronts(List<T> solutionSet,
 												Set<? extends FitnessFunction<T>> uncovered_goals) {
-		DominanceComparator<T> criterion_ = new DominanceComparator(uncovered_goals);
+		DominanceComparator<T> criterion_ = new DominanceComparator<>(uncovered_goals);
 
 		// dominateMe[i] contains the number of solutions dominating i
 		int[] dominateMe = new int[solutionSet.size()];

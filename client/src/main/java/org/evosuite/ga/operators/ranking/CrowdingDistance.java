@@ -64,7 +64,7 @@ public class CrowdingDistance<T extends Chromosome<T>> implements Serializable {
 
 		for (final FitnessFunction<T> ff : set) {
 			// Sort the population by Fit n
-			front.sort(new SortByFitness(ff, false));
+			front.sort(new SortByFitness<>(ff, false));
 
 			objetiveMinn = front.get(0).getFitness(ff);
 			objetiveMaxn = front.get(front.size() - 1).getFitness(ff);

@@ -391,7 +391,7 @@ public class ConstraintVerifier {
                 ConstructorStatement cs = (ConstructorStatement) st;
                 inputs = cs.getParameterReferences();
 
-                Constructor c = cs.getConstructor().getConstructor();
+                Constructor<?> c = cs.getConstructor().getConstructor();
                 reflectionRef = c;
                 methodAnnotations = c.getDeclaredAnnotations();
                 declaringClass = c.getDeclaringClass();

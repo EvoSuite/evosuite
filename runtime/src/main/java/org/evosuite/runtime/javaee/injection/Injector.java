@@ -241,12 +241,13 @@ public class Injector {
         String field = eventCache.getFieldName(clazz);
         assert field != null;
 
-        inject(instance, clazz, field, new EvoEvent()); //TODO this will likely need to change in the future
+        inject(instance, clazz, field, new EvoEvent<>()); //TODO this will likely need to change in
+                                                          // the future
     }
 
 
     @EvoSuiteExclude
-    public static boolean hasEvent( Class<?> klass) throws IllegalArgumentException {
+    public static boolean hasEvent(Class<?> klass) throws IllegalArgumentException {
         Inputs.checkNull(klass);
         return eventCache.hasField(klass);
     }
