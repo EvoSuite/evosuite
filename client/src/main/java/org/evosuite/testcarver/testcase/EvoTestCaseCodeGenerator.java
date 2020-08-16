@@ -332,7 +332,7 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 		}
 	}
 
-	private final Class<?> getClassFromType(final org.objectweb.asm.Type type) {
+	private Class<?> getClassFromType(final org.objectweb.asm.Type type) {
 
 		if (type.equals(org.objectweb.asm.Type.BOOLEAN_TYPE)) {
 			return Boolean.TYPE;
@@ -384,7 +384,7 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 		//		}
 	}
 
-	private final Class<?> getClassForName(String type) {
+	private Class<?> getClassForName(String type) {
 		try {
 			if (type.equals("boolean") || type.equals("java.lang.Boolean")) {
 				return Boolean.TYPE;

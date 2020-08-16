@@ -191,7 +191,7 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 		}
 	}
 
-	private final Class<?> getClassForName(String type)
+	private Class<?> getClassForName(String type)
 	{
 		try 
 		{
