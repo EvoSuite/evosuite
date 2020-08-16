@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
