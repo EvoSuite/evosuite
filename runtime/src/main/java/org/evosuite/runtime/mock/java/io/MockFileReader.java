@@ -92,7 +92,7 @@ public class MockFileReader extends FileReader  implements OverrideMock{
     }
 
     @Override
-    public int read(char cbuf[], int offset, int length) throws IOException {
+    public int read(char[] cbuf, int offset, int length) throws IOException {
 		if(!MockFramework.isEnabled()){
 			return super.read(cbuf, offset, length);
 		}

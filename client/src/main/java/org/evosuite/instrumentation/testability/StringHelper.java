@@ -75,9 +75,9 @@ public class StringHelper {
             return n;
         }
 
-        int p[] = new int[n + 1]; //'previous' cost array, horizontally
-        int d[] = new int[n + 1]; // cost array, horizontally
-        int _d[]; //placeholder to assist in swapping p and d
+        int[] p = new int[n + 1]; //'previous' cost array, horizontally
+        int[] d = new int[n + 1]; // cost array, horizontally
+        int[] _d; //placeholder to assist in swapping p and d
 
         // indexes into strings s and t
         int i; // iterates through s

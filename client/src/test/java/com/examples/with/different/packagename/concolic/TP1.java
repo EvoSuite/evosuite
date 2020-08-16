@@ -1721,7 +1721,7 @@ public class TP1 implements TPInterface4, TPInterface2 {
 
 	}
 
-	public static void main(String args[]) {
+	public static void main(String[] args) {
 		TP1 obj = new TP1();
 		obj.TPInterface4Method0(393, 344, 61, 24, 124, 70, 460);
 		obj.TPInterface4Method1(226, 401, 346, 447, 350, 325,

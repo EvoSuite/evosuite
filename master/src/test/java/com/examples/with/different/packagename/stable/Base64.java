@@ -193,7 +193,7 @@ public class Base64 {
 							+ Integer.MAX_VALUE);
 		}
 		int encodedDataLength = (int) encodedDataLengthLong;
-		byte encodedData[] = new byte[encodedDataLength];
+		byte[] encodedData = new byte[encodedDataLength];
 
 		byte k = 0, l = 0, b1 = 0, b2 = 0, b3 = 0;
 

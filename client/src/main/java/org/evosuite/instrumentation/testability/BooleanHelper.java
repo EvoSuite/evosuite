@@ -441,7 +441,7 @@ public class BooleanHelper {
 	 * @return a int.
 	 */
 	public static int editDistance_old(String s, String t) {
-		int d[][]; // matrix
+		int[][] d; // matrix
 		int n; // length of s
 		int m; // length of t
 		int i; // iterates through s

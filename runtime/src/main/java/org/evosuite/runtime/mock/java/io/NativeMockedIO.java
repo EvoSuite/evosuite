@@ -70,7 +70,7 @@ public class NativeMockedIO {
 	}	
 	
 	
-	public static void writeBytes(String path, AtomicInteger position, byte b[], int off, int len)
+	public static void writeBytes(String path, AtomicInteger position, byte[] b, int off, int len)
 			throws IOException{
 		
 		VFile vf = NativeMockedIO.getFileForWriting(path);

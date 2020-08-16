@@ -116,7 +116,7 @@ public class MockFileWriter extends FileWriter  implements OverrideMock{
 	}
 
 	@Override
-	public void write(char cbuf[], int off, int len) throws IOException {
+	public void write(char[] cbuf, int off, int len) throws IOException {
 		if(!MockFramework.isEnabled()){
 			super.write(cbuf, off, len);
 			return;

@@ -89,12 +89,12 @@ public class VFile extends FSObject{
 		return data.get(position) & 0xFF;
 	}
 
-	public synchronized int writeBytes(byte b[], int off, int len){
+	public synchronized int writeBytes(byte[] b, int off, int len){
 		return writeBytes(data.size(),b,off,len);
 	}
 
 	
-	public synchronized int writeBytes(int position, byte b[], int off, int len) throws IllegalArgumentException{
+	public synchronized int writeBytes(int position, byte[] b, int off, int len) throws IllegalArgumentException{
 
 		if(position<0){
 			throw new IllegalArgumentException("Position in the file cannot be negative");

@@ -136,7 +136,7 @@ public class MockThread extends Thread implements OverrideMock {
         return Thread.activeCount();
     }
 
-    public static int enumerate(Thread tarray[]) {
+    public static int enumerate(Thread[] tarray) {
         return Thread.enumerate(tarray);
     }
 

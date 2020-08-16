@@ -1522,7 +1522,7 @@ public class TP118 {
 
 	}
 
-	public static void main(String args[]) {
+	public static void main(String[] args) {
 		TP118 obj = new TP118();
 		TP118method0(489, 295, 206, 147, 488, 17, 139,
 				70, 157, 121, 400, 399, 275);

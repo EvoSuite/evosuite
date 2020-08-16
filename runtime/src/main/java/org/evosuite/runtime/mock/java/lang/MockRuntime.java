@@ -104,7 +104,7 @@ public class MockRuntime implements StaticReplacementMock{
 		return exec(runtime, cmdarray, envp, dir);
 	}
 
-	public static Process exec(Runtime runtime, String cmdarray[]) throws IOException {
+	public static Process exec(Runtime runtime, String[] cmdarray) throws IOException {
 		return exec(runtime, cmdarray, null, null);
 	}
 

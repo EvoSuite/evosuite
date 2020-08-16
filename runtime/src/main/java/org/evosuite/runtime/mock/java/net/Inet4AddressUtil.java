@@ -73,7 +73,7 @@ public class Inet4AddressUtil {
 		return null; 
 	}
 	
-	public static Inet4Address createNewInstance(String hostName, byte addr[]){
+	public static Inet4Address createNewInstance(String hostName, byte[] addr){
 		try {
 			return constructorStringByteArray.newInstance(hostName,addr);
 		} catch ( SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {

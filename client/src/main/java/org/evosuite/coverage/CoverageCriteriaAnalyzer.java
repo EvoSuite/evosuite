@@ -77,7 +77,7 @@ public class CoverageCriteriaAnalyzer {
             test.clearCachedResults(); // clears last execution result and last mutation result
         }
 
-        Properties.Criterion oldCriterion[] = Arrays.copyOf(Properties.CRITERION, Properties.CRITERION.length);
+        Properties.Criterion[] oldCriterion = Arrays.copyOf(Properties.CRITERION, Properties.CRITERION.length);
         Properties.CRITERION = new Properties.Criterion[]{criterion};
 
         logger.info("Re-instrumenting for criterion: " + criterion);

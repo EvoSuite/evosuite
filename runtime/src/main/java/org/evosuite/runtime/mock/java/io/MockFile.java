@@ -529,7 +529,7 @@ public class MockFile extends File implements OverrideMock {
 		if(!MockFramework.isEnabled()) {
 			return super.listFiles(filter);
 		}
-		String ss[] = list();
+		String[] ss = list();
 		if (ss == null) return null;
 		ArrayList<File> files = new ArrayList<>();
 		for (String s : ss) {
