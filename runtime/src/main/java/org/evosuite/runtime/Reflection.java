@@ -138,7 +138,7 @@ public class Reflection {
 		if (object instanceof Number) {
 			return ((Number) object).intValue();
 		} else if (object instanceof Character) {
-			return ((Character) object).charValue();
+			return (Character) object;
 		} else
 			return 0;
 	}
@@ -147,7 +147,7 @@ public class Reflection {
 		if (object instanceof Number) {
 			return ((Number) object).longValue();
 		} else if (object instanceof Character) {
-			return ((Character) object).charValue();
+			return (Character) object;
 		} else
 			return 0L;
 	}
@@ -156,7 +156,7 @@ public class Reflection {
 		if (object instanceof Number) {
 			return ((Number) object).floatValue();
 		} else if (object instanceof Character) {
-			return ((Character) object).charValue();
+			return (Character) object;
 		} else
 			return 0F;
 	}
@@ -165,14 +165,14 @@ public class Reflection {
 		if (object instanceof Number) {
 			return ((Number) object).doubleValue();
 		} else if (object instanceof Character) {
-			return ((Character) object).charValue();
+			return (Character) object;
 		} else
 			return 0.0;
 	}
 
 	private static char getCharValue(Object object) {
 		if (object instanceof Character) {
-			return ((Character) object).charValue();
+			return (Character) object;
 		} else if (object instanceof Number) {
 			return (char) ((Number) object).intValue();
 		} else

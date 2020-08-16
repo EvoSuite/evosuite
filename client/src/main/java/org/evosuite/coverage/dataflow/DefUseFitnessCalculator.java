@@ -662,7 +662,7 @@ public class DefUseFitnessCalculator {
 		if (objectDUMap.get(objectId) == null)
 			return false;
 		for (Integer defId : objectDUMap.get(objectId).values())
-			if (defId.intValue() == targetId)
+			if (defId == targetId)
 				return true;
 		return false;
 	}

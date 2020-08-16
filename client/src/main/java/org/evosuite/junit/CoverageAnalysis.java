@@ -513,7 +513,7 @@ public class CoverageAnalysis {
             				if (mR.getFailureCount() != tR.getFailureCount()) {
             					logger.info("Mutation killed: " + mutationID);
             					covered.set(mutation.getId());
-                                coverage_matrix[index_test][mutationID.intValue()] = true;
+                                coverage_matrix[index_test][mutationID] = true;
                                 break;
             				}
             			}

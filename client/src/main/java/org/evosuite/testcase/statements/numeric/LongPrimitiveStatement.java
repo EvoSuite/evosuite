@@ -71,7 +71,7 @@ public class LongPrimitiveStatement extends NumericalPrimitiveStatement<Long> {
 	/** {@inheritDoc} */
 	@Override
 	public void zero() {
-		value = new Long(0);
+		value = 0L;
 	}
 
 	/* (non-Javadoc)

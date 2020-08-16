@@ -106,7 +106,7 @@ public class NumberFormatter {
 				return "(short)" + value;
 		} else if (value.getClass().equals(int.class)
 		        || value.getClass().equals(Integer.class)) {
-			int val = ((Integer) value).intValue();
+			int val = (Integer) value;
 			if (val == Integer.MAX_VALUE)
 				return "Integer.MAX_VALUE";
 			else if (val == Integer.MIN_VALUE)

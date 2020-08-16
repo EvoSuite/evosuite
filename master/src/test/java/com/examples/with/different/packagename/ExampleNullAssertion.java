@@ -29,7 +29,7 @@ public class ExampleNullAssertion {
 		if ( v < 0 ) {
 			return null;
 		} else {
-			return Short.valueOf( v );
+			return v;
 		}
 	}
 	

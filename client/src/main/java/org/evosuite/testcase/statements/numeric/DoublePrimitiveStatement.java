@@ -74,7 +74,7 @@ public class DoublePrimitiveStatement extends NumericalPrimitiveStatement<Double
 	/** {@inheritDoc} */
 	@Override
 	public void zero() {
-		value = new Double(0.0);
+		value = 0.0;
 	}
 
 	/* (non-Javadoc)

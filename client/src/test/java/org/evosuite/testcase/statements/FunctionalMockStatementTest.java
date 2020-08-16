@@ -291,7 +291,7 @@ public class FunctionalMockStatementTest {
         assertEquals(99, i);
 
         Object aInt = i;
-        Object aInteger = Integer.valueOf(7);
+        Object aInteger = 7;
 
         Assert.assertTrue(aInt.getClass().equals(Integer.class));
         Assert.assertTrue(aInt.getClass().equals(aInteger.getClass()));
@@ -312,13 +312,13 @@ public class FunctionalMockStatementTest {
         }
 
         try {
-            casted = Integer.TYPE.cast(((Character) aChar).charValue());
+            casted = Integer.TYPE.cast((Character) aChar);
             fail();
         } catch (Exception e){
             //expected: "cast" takes an Object as input, so it does autoboxing :(
         }
 
-        casted = (int) ((Character) aChar).charValue();
+        casted = (int) (Character) aChar;
 
         assertTrue(casted.getClass().equals(Integer.class));
     }

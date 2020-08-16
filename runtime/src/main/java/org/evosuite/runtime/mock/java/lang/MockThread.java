@@ -330,7 +330,7 @@ public class MockThread extends Thread implements OverrideMock {
         synchronized (threadMap) {
             int identity = java.lang.System.identityHashCode(this);
             if (!threadMap.containsKey(identity)) {
-                threadMap.put(identity, Long.valueOf(threadMap.size()));
+                threadMap.put(identity, (long) threadMap.size());
             }
             return threadMap.get(identity);
         }

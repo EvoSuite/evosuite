@@ -167,7 +167,7 @@ public final class SymbolicHeap {
 
 		Map<ReferenceExpression, Expression<?>> symb_field = getOrCreateSymbolicField(owner, name);
 		IntegerValue symb_value = (IntegerValue) symb_field.get(symb_receiver);
-		if (symb_value == null || ((Long) symb_value.getConcreteValue()).longValue() != conc_value) {
+		if (symb_value == null || (Long) symb_value.getConcreteValue() != conc_value) {
 			symb_value = ExpressionFactory.buildNewIntegerConstant(conc_value);
 			symb_field.remove(symb_receiver);
 		}
@@ -189,7 +189,7 @@ public final class SymbolicHeap {
 
 		Map<ReferenceExpression, Expression<?>> symb_field = getOrCreateSymbolicField(className, fieldName);
 		RealValue symb_value = (RealValue) symb_field.get(symb_receiver);
-		if (symb_value == null || ((Double) symb_value.getConcreteValue()).doubleValue() != conc_value) {
+		if (symb_value == null || (Double) symb_value.getConcreteValue() != conc_value) {
 			symb_value = ExpressionFactory.buildNewRealConstant(conc_value);
 			symb_field.remove(symb_receiver);
 		}
@@ -251,7 +251,7 @@ public final class SymbolicHeap {
 
 		FieldKey k = new FieldKey(owner, name);
 		IntegerValue symb_value = (IntegerValue) symb_static_fields.get(k);
-		if (symb_value == null || ((Long) symb_value.getConcreteValue()).longValue() != conc_value) {
+		if (symb_value == null || (Long) symb_value.getConcreteValue() != conc_value) {
 			symb_value = ExpressionFactory.buildNewIntegerConstant(conc_value);
 			symb_static_fields.remove(k);
 		}
@@ -264,7 +264,7 @@ public final class SymbolicHeap {
 
 		FieldKey k = new FieldKey(owner, name);
 		RealValue symb_value = (RealValue) symb_static_fields.get(k);
-		if (symb_value == null || ((Double) symb_value.getConcreteValue()).doubleValue() != conc_value) {
+		if (symb_value == null || (Double) symb_value.getConcreteValue() != conc_value) {
 			symb_value = ExpressionFactory.buildNewRealConstant(conc_value);
 			symb_static_fields.remove(k);
 		}
@@ -409,7 +409,7 @@ public final class SymbolicHeap {
 
 		Map<Integer, Expression<?>> symb_array_contents = getOrCreateSymbolicArray(symb_array);
 		IntegerValue symb_value = (IntegerValue) symb_array_contents.get(conc_index);
-		if (symb_value == null || ((Long) symb_value.getConcreteValue()).longValue() != conc_value) {
+		if (symb_value == null || (Long) symb_value.getConcreteValue() != conc_value) {
 			symb_value = ExpressionFactory.buildNewIntegerConstant(conc_value);
 			symb_array_contents.remove(conc_index);
 		}
@@ -421,7 +421,7 @@ public final class SymbolicHeap {
 
 		Map<Integer, Expression<?>> symb_array_contents = getOrCreateSymbolicArray(symb_array);
 		RealValue symb_value = (RealValue) symb_array_contents.get(conc_index);
-		if (symb_value == null || ((Double) symb_value.getConcreteValue()).doubleValue() != conc_value) {
+		if (symb_value == null || (Double) symb_value.getConcreteValue() != conc_value) {
 			symb_value = ExpressionFactory.buildNewRealConstant(conc_value);
 			symb_array_contents.remove(conc_index);
 		}

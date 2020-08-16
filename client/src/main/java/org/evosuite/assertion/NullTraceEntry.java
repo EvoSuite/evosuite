@@ -115,7 +115,7 @@ public class NullTraceEntry implements OutputTraceEntry {
 		if (assertion instanceof NullAssertion) {
 			NullAssertion ass = (NullAssertion) assertion;
 			if (var.equals(ass.source))
-				return ((Boolean) ass.value).booleanValue() != isNull;
+				return (Boolean) ass.value != isNull;
 		}
 		return false;
 	}

@@ -65,7 +65,7 @@ public class SameAssertion extends Assertion {
 	/** {@inheritDoc} */
 	@Override
 	public String getCode() {
-		if (((Boolean) value).booleanValue())
+		if ((Boolean) value)
 			return "assertSame(" + source.getName() + ", " + dest.getName() + ");";
 		else
 			return "assertNotSame(" + source.getName() + ", " + dest.getName() + ");";
@@ -93,7 +93,7 @@ public class SameAssertion extends Assertion {
 	@Override
 	public boolean evaluate(Scope scope) {
 		try {
-			if (((Boolean) value).booleanValue()) {
+			if ((Boolean) value) {
 				if (source.getObject(scope) == null)
 					return dest.getObject(scope) == null;
 				else

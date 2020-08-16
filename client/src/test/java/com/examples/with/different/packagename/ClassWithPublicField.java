@@ -28,5 +28,5 @@ public class ClassWithPublicField {
 
     public String y = "Foo";
 
-    public Integer z = new Integer(42);
+    public Integer z = 42;
 }

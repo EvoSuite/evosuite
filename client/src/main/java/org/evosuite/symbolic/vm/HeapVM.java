@@ -933,7 +933,7 @@ public final class HeapVM extends AbstractVM {
 		Object object = Array.get(conc_array, conc_index);
 		int intValue;
 		if (object instanceof Boolean) {
-			boolean booleanValue = ((Boolean) object).booleanValue();
+			boolean booleanValue = (Boolean) object;
 			intValue = booleanValue ? 1 : 0;
 		} else {
 			assert object instanceof Byte;

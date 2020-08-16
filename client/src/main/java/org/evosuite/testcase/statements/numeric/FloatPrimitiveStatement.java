@@ -74,7 +74,7 @@ public class FloatPrimitiveStatement extends NumericalPrimitiveStatement<Float> 
 	/** {@inheritDoc} */
 	@Override
 	public void zero() {
-		value = new Float(0.0);
+		value = (float) 0.0;
 	}
 
 	/* (non-Javadoc)

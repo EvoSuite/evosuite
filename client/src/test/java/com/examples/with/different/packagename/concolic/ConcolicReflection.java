@@ -81,7 +81,7 @@ public class ConcolicReflection {
 	}
 
 	public boolean greaterThanZero(Integer x) {
-		int intValue = x.intValue();
+		int intValue = x;
 		if (intValue > 0) {
 			return true;
 		} else {

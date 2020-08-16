@@ -97,7 +97,7 @@ public class BytePrimitiveStatement extends NumericalPrimitiveStatement<Byte> {
 	@Override
 	public void delta() {
 		byte delta = (byte)Math.floor(Randomness.nextGaussian() * Properties.MAX_DELTA);
-		value = (byte) (value.byteValue() + delta);
+		value = (byte) (value + delta);
 	}
 
 	/* (non-Javadoc)

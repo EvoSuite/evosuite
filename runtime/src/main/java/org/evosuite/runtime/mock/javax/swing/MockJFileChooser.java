@@ -245,7 +245,7 @@ public class MockJFileChooser extends  javax.swing.JFileChooser  implements Over
 		Toolkit tk = Toolkit.getDefaultToolkit();
 		Object showHiddenProperty = tk.getDesktopProperty(SHOW_HIDDEN_PROP);
 		if (showHiddenProperty instanceof Boolean) {
-			useFileHiding = !((Boolean)showHiddenProperty).booleanValue();
+			useFileHiding = !(Boolean) showHiddenProperty;
 			showFilesListener = new MockWeakPCL(this);
 			tk.addPropertyChangeListener(SHOW_HIDDEN_PROP, showFilesListener);
 		}
@@ -774,7 +774,7 @@ public class MockJFileChooser extends  javax.swing.JFileChooser  implements Over
 				traversable = getFileSystemView().isTraversable(f);
 			}
 		}
-		return (traversable != null && traversable.booleanValue());
+		return (traversable != null && traversable);
 	}
 
 	public boolean accept(File f) {
@@ -870,7 +870,7 @@ public class MockJFileChooser extends  javax.swing.JFileChooser  implements Over
 			}
 			else {
 				boolean oldValue = jfc.useFileHiding;
-				jfc.useFileHiding = !((Boolean)ev.getNewValue()).booleanValue();
+				jfc.useFileHiding = !(Boolean) ev.getNewValue();
 				jfc.firePropertyChange(FILE_HIDING_CHANGED_PROPERTY, oldValue, jfc.useFileHiding);
 			}
 		}

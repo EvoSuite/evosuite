@@ -41,11 +41,11 @@ public class MathLong {
 		return a-b;
 	}
 	
-	private Long f = new Long(3215155154115L);
+	private Long f = 3215155154115L;
 	
 	public void unreach() {
 		if (f==null) {
-			f = new Long(3215155154115L);
+			f = 3215155154115L;
 		}
 	}
 	

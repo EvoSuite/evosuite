@@ -768,7 +768,7 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
 
                     if(expectedType.equals(Integer.TYPE)){
                         if(valuesClass.equals(Character.class)){
-                            value = (int) ((Character)value).charValue();
+                            value = (int) (Character) value;
                         } else if(valuesClass.equals(Byte.class)){
                             value = (int) ((Byte)value).intValue();
                         } else if(valuesClass.equals(Short.class)){
@@ -778,41 +778,41 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
 
                     if(expectedType.equals(Double.TYPE)) {
                         if(valuesClass.equals(Integer.class)){
-                            value = (double) ((Integer)value).intValue();
+                            value = (double) (Integer) value;
                         } else if(valuesClass.equals(Byte.class)){
                             value = (double) ((Byte)value).intValue();
                         } else if(valuesClass.equals(Character.class)){
-                            value = (double) ((Character)value).charValue();
+                            value = (double) (Character) value;
                         } else if(valuesClass.equals(Short.class)){
                             value = (double) ((Short)value).intValue();
                         } else if(valuesClass.equals(Long.class)){
-                            value = (double) ((Long)value).longValue();
+                            value = (double) (Long) value;
                         } else if(valuesClass.equals(Float.class)){
-                            value = (double) ((Float)value).floatValue();
+                            value = (double) (Float) value;
                         }
                     }
 
                     if(expectedType.equals(Float.TYPE)) {
                         if(valuesClass.equals(Integer.class)){
-                            value = (float) ((Integer)value).intValue();
+                            value = (float) (Integer) value;
                         } else if(valuesClass.equals(Byte.class)){
                             value = (float) ((Byte)value).intValue();
                         } else if(valuesClass.equals(Character.class)){
-                            value = (float) ((Character)value).charValue();
+                            value = (float) (Character) value;
                         } else if(valuesClass.equals(Short.class)){
                             value = (float) ((Short)value).intValue();
                         } else if(valuesClass.equals(Long.class)){
-                            value = (float) ((Long)value).longValue();
+                            value = (float) (Long) value;
                         }
                     }
 
                     if(expectedType.equals(Long.TYPE)) {
                         if(valuesClass.equals(Integer.class)){
-                            value = (long) ((Integer)value).intValue();
+                            value = (long) (Integer) value;
                         } else if(valuesClass.equals(Byte.class)){
                             value = (long) ((Byte)value).intValue();
                         } else if(valuesClass.equals(Character.class)){
-                            value = (long) ((Character)value).charValue();
+                            value = (long) (Character) value;
                         } else if(valuesClass.equals(Short.class)){
                             value = (long) ((Short)value).intValue();
                         }

@@ -81,7 +81,7 @@ public class ShortPrimitiveStatement extends NumericalPrimitiveStatement<Short> 
 	@Override
 	public void delta() {
 		short delta = (short)Math.floor(Randomness.nextGaussian() * Properties.MAX_DELTA);
-		value = (short) (value.shortValue() + delta);
+		value = (short) (value + delta);
 	}
 
 	/* (non-Javadoc)

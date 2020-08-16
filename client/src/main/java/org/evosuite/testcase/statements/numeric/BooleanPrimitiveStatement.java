@@ -69,7 +69,7 @@ public class BooleanPrimitiveStatement extends NumericalPrimitiveStatement<Boole
 	/** {@inheritDoc} */
 	@Override
 	public void delta() {
-		value = !value.booleanValue();
+		value = !value;
 	}
 
 	/* (non-Javadoc)

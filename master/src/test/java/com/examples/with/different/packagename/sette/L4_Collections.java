@@ -138,7 +138,7 @@ public final class L4_Collections {
 	}
 
 	public static boolean guessGenericVectorWithElement(Vector<Integer> v) {
-		if (v.size() == 3 && v.get(0).equals(new Integer(5))) {
+		if (v.size() == 3 && v.get(0).equals(5)) {
 			return true;
 		} else {
 			return false;
@@ -162,7 +162,7 @@ public final class L4_Collections {
 	}
 
 	public static boolean guessGenericListWithElement(List<Integer> l) {
-		if (l.size() == 3 && l.get(0).equals(new Integer(5))) {
+		if (l.size() == 3 && l.get(0).equals(5)) {
 			return true;
 		} else {
 			return false;

@@ -444,7 +444,7 @@ class MockUnixFileSystemView extends MockFileSystemView {
 		int i = 1;
 		while (newFolder.exists() && i < 100) {
 			newFolder = createFileObject(containingDir, MessageFormat.format(
-					newFolderNextString, new Integer(i)));
+					newFolderNextString, i));
 			i++;
 		}
 
@@ -493,7 +493,7 @@ class MockWindowsFileSystemView extends MockFileSystemView {
 			UIManager.getString("FileChooser.win32.newFolder.subsequent");
 
 	public Boolean isTraversable(File f) {
-		return Boolean.valueOf(isFileSystemRoot(f) || isComputerNode(f) || f.isDirectory());
+		return isFileSystemRoot(f) || isComputerNode(f) || f.isDirectory();
 	}
 
 	public File getChild(File parent, String fileName) {
@@ -556,7 +556,7 @@ class MockWindowsFileSystemView extends MockFileSystemView {
 		int i = 2;
 		while (newFolder.exists() && i < 100) {
 			newFolder = createFileObject(containingDir, MessageFormat.format(
-					newFolderNextString, new Integer(i)));
+					newFolderNextString, i));
 			i++;
 		}
 
