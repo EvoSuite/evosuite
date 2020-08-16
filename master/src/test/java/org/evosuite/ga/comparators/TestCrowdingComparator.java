@@ -55,18 +55,19 @@ public class TestCrowdingComparator
         population.add(c2);
         population.add(c3);
 
-        RankAndCrowdingDistanceComparator cc = new RankAndCrowdingDistanceComparator(false);
-        Collections.sort(population, cc);
+        RankAndCrowdingDistanceComparator<NSGAChromosome> cc =
+                new RankAndCrowdingDistanceComparator<>(false);
+        population.sort(cc);
 
         // assert by Rank
-        Assert.assertTrue(population.get(0).getRank() == 0);
-        Assert.assertTrue(population.get(1).getRank() == 0);
-        Assert.assertTrue(population.get(2).getRank() == 1);
+        Assert.assertEquals(0, population.get(0).getRank());
+        Assert.assertEquals(0, population.get(1).getRank());
+        Assert.assertEquals(1, population.get(2).getRank());
 
         // assert by Distance
-        Assert.assertTrue(population.get(0).getDistance() == 0.5);
-        Assert.assertTrue(population.get(1).getDistance() == 0.4);
-        Assert.assertTrue(population.get(2).getDistance() == 0.1);
+        Assert.assertEquals(0.5, population.get(0).getDistance(), 0.0);
+        Assert.assertEquals(0.4, population.get(1).getDistance(), 0.0);
+        Assert.assertEquals(0.1, population.get(2).getDistance(), 0.0);
     }
 
     @Test
@@ -91,17 +92,18 @@ public class TestCrowdingComparator
         population.add(c2);
         population.add(c3);
 
-        RankAndCrowdingDistanceComparator cc = new RankAndCrowdingDistanceComparator(true);
-        Collections.sort(population, cc);
+        RankAndCrowdingDistanceComparator<NSGAChromosome> cc =
+                new RankAndCrowdingDistanceComparator<>(true);
+        population.sort(cc);
 
         // assert by Rank
-        Assert.assertTrue(population.get(0).getRank() == 1);
-        Assert.assertTrue(population.get(1).getRank() == 0);
-        Assert.assertTrue(population.get(2).getRank() == 0);
+        Assert.assertEquals(1, population.get(0).getRank());
+        Assert.assertEquals(0, population.get(1).getRank());
+        Assert.assertEquals(0, population.get(2).getRank());
 
         // assert by Distance
-        Assert.assertTrue(population.get(0).getDistance() == 0.1);
-        Assert.assertTrue(population.get(1).getDistance() == 0.5);
-        Assert.assertTrue(population.get(2).getDistance() == 0.4);
+        Assert.assertEquals(0.1, population.get(0).getDistance(), 0.0);
+        Assert.assertEquals(0.5, population.get(1).getDistance(), 0.0);
+        Assert.assertEquals(0.4, population.get(2).getDistance(), 0.0);
     }
 }

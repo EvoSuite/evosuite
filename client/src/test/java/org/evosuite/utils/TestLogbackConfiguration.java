@@ -63,10 +63,8 @@ public class TestLogbackConfiguration {
 		                  printedOut.contains(warnMsg));
 		Assert.assertTrue("Content of std err is: " + printedErr,
 		                  printedErr.contains(errMsg));
-		Assert.assertTrue("Content of std out is: " + printedOut,
-		                  !printedOut.contains(errMsg));
-		Assert.assertTrue("Content of std err is: " + printedErr,
-		                  !printedErr.contains(warnMsg));
+        Assert.assertFalse("Content of std out is: " + printedOut, printedOut.contains(errMsg));
+        Assert.assertFalse("Content of std err is: " + printedErr, printedErr.contains(warnMsg));
 	}
 
 }

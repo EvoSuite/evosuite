@@ -105,7 +105,7 @@ public class CoverageAnalysisWithRefectionSystemTest extends SystemTestBase {
 
         CSVReader reader = new CSVReader(new FileReader(statistics_file));
         List<String[]> rows = reader.readAll();
-        assertTrue(rows.size() == 2);
+        assertEquals(2, rows.size());
         reader.close();
 
         assertEquals("14", CsvJUnitData.getValue(rows, RuntimeVariable.Total_Goals.name()));
@@ -120,7 +120,7 @@ public class CoverageAnalysisWithRefectionSystemTest extends SystemTestBase {
         System.out.println("matrix_file: " + matrix_file);
 
         List<String> lines = Files.readAllLines(FileSystems.getDefault().getPath(matrix_file));
-        assertTrue(lines.size() == 1);
+        assertEquals(1, lines.size());
 
         assertEquals(13 + 1 + 1, lines.get(0).replace(" ", "").length()); // number of goals + test result ('+' pass, '-' fail)
         assertTrue(lines.get(0).replace(" ", "").endsWith("+"));
@@ -161,7 +161,7 @@ public class CoverageAnalysisWithRefectionSystemTest extends SystemTestBase {
 
         CSVReader reader = new CSVReader(new FileReader(statistics_file));
         List<String[]> rows = reader.readAll();
-        assertTrue(rows.size() == 2);
+        assertEquals(2, rows.size());
         reader.close();
 
         // The number of lines seems to be different depending on the compiler
@@ -228,7 +228,7 @@ public class CoverageAnalysisWithRefectionSystemTest extends SystemTestBase {
         System.out.println("matrix_file: " + matrix_file);
 
         List<String> lines = Files.readAllLines(FileSystems.getDefault().getPath(matrix_file));
-        assertTrue(lines.size() == 1);
+        assertEquals(1, lines.size());
         assertTrue(lines.get(0).replace(" ", "").endsWith("+"));
 	}
 }

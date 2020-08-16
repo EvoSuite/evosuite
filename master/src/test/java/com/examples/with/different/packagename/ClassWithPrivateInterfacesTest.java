@@ -20,6 +20,7 @@
 package com.examples.with.different.packagename;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 import java.util.List;
 
@@ -60,6 +61,6 @@ public class ClassWithPrivateInterfacesTest {
         assertEquals(IF.class, list.get(4));
         assertEquals(IA.class, list.get(5));
 
-        assertEquals(null, ClassWithPrivateInterfaces.getAllInterfaces(null));
+        assertNull(ClassWithPrivateInterfaces.getAllInterfaces(null));
 	}
 }

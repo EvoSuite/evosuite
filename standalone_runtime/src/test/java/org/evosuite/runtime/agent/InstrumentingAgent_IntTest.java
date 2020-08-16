@@ -286,7 +286,7 @@ public class InstrumentingAgent_IntTest {
 		MockFramework.disable();
 		//even if SumRuntime is instrumented, should not return a mock sum now.
 		// note: it should be _extremely_ unlikely that original code returns such value by chance
-		Assert.assertFalse(SumRuntime.getSum() == 1101);
+        Assert.assertNotEquals(1101, SumRuntime.getSum());
 	}
 
     @Test

@@ -50,7 +50,7 @@ public class TestSelectionOperators
 			sf.setMaximize(true);
 			Assert.assertTrue(sf.isMaximize());
 			sf.setMaximize(false);
-			Assert.assertTrue(!sf.isMaximize());
+            Assert.assertFalse(sf.isMaximize());
 		}
 	}
 

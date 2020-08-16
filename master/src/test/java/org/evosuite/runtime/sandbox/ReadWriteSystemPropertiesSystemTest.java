@@ -105,7 +105,7 @@ public class ReadWriteSystemPropertiesSystemTest extends SystemTestBase {
 		 * is set to null. But that would lead to a lot of problems :( eg cases
 		 * in which we end up in reading hundreds of thousands variables that do not exist
 		 */
-		Assert.assertTrue("Test code:\n" + code, ! code.contains("debug"));
+        Assert.assertFalse("Test code:\n" + code, code.contains("debug"));
 	}
 
 	@Test

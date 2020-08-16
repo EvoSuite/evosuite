@@ -360,7 +360,7 @@ public class TestIntegerSearch extends RandomizedTC {
 				var2 = ((Number) model.get("test2")).intValue();
 			if (model.containsKey("test3"))
 				var3 = ((Number) model.get("test3")).intValue();
-			assertTrue(var1 == var2 + var3);
+            assertEquals(var1, var2 + var3);
 		} catch (SolverTimeoutException e) {
 			fail();
 		}
@@ -371,7 +371,7 @@ public class TestIntegerSearch extends RandomizedTC {
 		int var1 = 2;
 		int var2 = 1;
 		int var3 = 1;
-		assertTrue(var1 == var2 + var3);
+        assertEquals(var1, var2 + var3);
 
 		List<Constraint<?>> constraints = new ArrayList<>();
 		constraints.add(new IntegerConstraint(new IntegerVariable("test1", var1, -1000000, 1000000), Comparator.NE,
@@ -576,7 +576,7 @@ public class TestIntegerSearch extends RandomizedTC {
 				var1 = ((Number) model.get("test1")).intValue();
 			if (model.containsKey("test2"))
 				var2 = ((Number) model.get("test2")).intValue();
-			assertTrue(var1 * (var2 - 6860) == 8275);
+            assertEquals(8275, var1 * (var2 - 6860));
 		} catch (SolverTimeoutException e) {
 			fail();
 		}
@@ -707,7 +707,7 @@ public class TestIntegerSearch extends RandomizedTC {
 			Map<String, Object> model = solverResult.getModel();
 			var1 = ((Number) model.get("test1")).intValue();
 
-			assertTrue(var1 == 108);
+            assertEquals(108, var1);
 		} catch (SolverTimeoutException e) {
 			fail();
 		}

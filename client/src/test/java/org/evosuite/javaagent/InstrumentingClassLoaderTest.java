@@ -88,7 +88,7 @@ public class InstrumentingClassLoaderTest {
 		Class<?> changedClass = instrumentingClassLoader.loadClass(ClassLoaderTestSubject.class.getName());
 		Assert.assertEquals(instrumentingClassLoader, changedClass.getClassLoader());
 		Assert.assertTrue(changedClass.hashCode() != originalClass.hashCode());
-		Assert.assertFalse(changedClass.equals(originalClass));
+        Assert.assertNotEquals(changedClass, originalClass);
 		Object changed = changedClass.getConstructor().newInstance();
 		try {
 			@SuppressWarnings("unused")

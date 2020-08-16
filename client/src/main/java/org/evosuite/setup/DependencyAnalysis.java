@@ -70,7 +70,10 @@ public class DependencyAnalysis {
 		return inheritanceTree;
 	}
 
-	private static void initInheritanceTree(List<String> classPath) {
+	public static void initInheritanceTree(List<String> classPath) {
+		if (inheritanceTree != null) {
+			return;
+		}
 		logger.debug("Calculate inheritance hierarchy");
 		inheritanceTree = InheritanceTreeGenerator.createFromClassPath(classPath);
 		TestClusterGenerator clusterGenerator = new TestClusterGenerator(inheritanceTree);
@@ -78,22 +81,14 @@ public class DependencyAnalysis {
 		InheritanceTreeGenerator.gatherStatistics(inheritanceTree);
 	}
 
-	private static void analyze(String className, List<String> classPath) throws RuntimeException,
-			ClassNotFoundException {
-
-		if (!inheritanceTree.hasClass(Properties.TARGET_CLASS)) {
-			throw new ClassNotFoundException("Target class not found in inheritance tree");
-		}
-
+	public static void initCallGraph(String className) {
 		logger.debug("Calculate call tree");
 		CallGraph callGraph = CallGraphGenerator.analyze(className);
 		callGraphs.put(className, callGraph);
-		loadCallTreeClasses(callGraph);
-
 		// include all the project classes in the inheritance tree and in the callgraph.
 		if (ArrayUtil.contains(Properties.CRITERION, Criterion.IBRANCH)
-				|| Properties.INSTRUMENT_CONTEXT) { 
- 
+				|| Properties.INSTRUMENT_CONTEXT) {
+
 			for (String classn : inheritanceTree.getAllClasses()) {
 				if (isTargetProject(classn)) {
 					CallGraphGenerator.analyzeOtherClasses(callGraph, classn);
@@ -102,9 +97,20 @@ public class DependencyAnalysis {
 		}
 
 		// TODO: Need to make sure that all classes in calltree are instrumented
-
 		logger.debug("Update call tree with calls to overridden methods");
 		CallGraphGenerator.update(callGraph, inheritanceTree);
+
+	}
+
+	private static void analyze(String className) throws RuntimeException,
+			ClassNotFoundException {
+
+		if (!inheritanceTree.hasClass(Properties.TARGET_CLASS)) {
+			throw new ClassNotFoundException("Target class not found in inheritance tree");
+		}
+
+		CallGraph callGraph = callGraphs.get(className);
+		loadCallTreeClasses(callGraph);
 
 		logger.debug("Create test cluster");
 
@@ -127,7 +133,7 @@ public class DependencyAnalysis {
 			ClassNotFoundException {
 
 		initInheritanceTree(classPath);
-		analyze(className, classPath);
+		analyze(className);
 	}
 
 	/**
@@ -143,7 +149,7 @@ public class DependencyAnalysis {
 		targetClasses = ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getAllClasses(target, false);
 		for (String className : targetClasses) {
 			Properties.TARGET_CLASS = className;
-			analyze(className, classPath);
+			analyze(className);
 		}
 
 		return targetClasses;

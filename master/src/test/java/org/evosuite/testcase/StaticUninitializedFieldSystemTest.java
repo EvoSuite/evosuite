@@ -71,7 +71,7 @@ public class StaticUninitializedFieldSystemTest extends SystemTestBase {
         Assert.assertEquals("Unexpected unstabled test cases were generated",Boolean.FALSE, unstable.getValue());
 
         double best_fitness = best.getFitness();
-        Assert.assertTrue("Optimal coverage was not achieved ", best_fitness == 0.0);
+        Assert.assertEquals("Optimal coverage was not achieved ", 0.0, best_fitness, 0.0);
 
 
     }

@@ -119,7 +119,7 @@ public class RhoFitnessSystemTest extends SystemTestBase {
 
 		CSVReader reader = new CSVReader(new FileReader(statistics_file));
         List<String[]> rows = reader.readAll();
-        assertTrue(rows.size() == 2);
+        assertEquals(2, rows.size());
         reader.close();
 
         assertEquals("0.5", rows.get(1)[0]);
@@ -160,7 +160,7 @@ public class RhoFitnessSystemTest extends SystemTestBase {
 
 		CSVReader reader = new CSVReader(new FileReader(statistics_file));
         List<String[]> rows = reader.readAll();
-        assertTrue(rows.size() == 2);
+        assertEquals(2, rows.size());
         reader.close();
 
         assertEquals("0.5", rows.get(1)[0]);

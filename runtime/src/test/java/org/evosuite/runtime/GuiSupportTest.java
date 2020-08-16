@@ -49,6 +49,6 @@ public class GuiSupportTest {
 		Assert.assertTrue(GraphicsEnvironment.isHeadless());
 		
 		GuiSupport.restoreHeadlessMode(); //should restore headless
-		Assert.assertTrue(! GraphicsEnvironment.isHeadless());		
+        Assert.assertFalse(GraphicsEnvironment.isHeadless());
 	}
 }

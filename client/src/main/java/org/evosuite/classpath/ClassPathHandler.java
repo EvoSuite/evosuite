@@ -160,11 +160,10 @@ public class ClassPathHandler {
 			File file = File.createTempFile("EvoSuite_classpathFile",".txt");
 			file.deleteOnExit();
 
-			BufferedWriter out = new BufferedWriter(new FileWriter(file));
-			String line = classpath;
-			out.write(line);
-			out.newLine();
-			out.close();
+			try (BufferedWriter out = new BufferedWriter(new FileWriter(file))) {
+				out.write(classpath);
+				out.newLine();
+			}
 
 			return file.getAbsolutePath();
 
