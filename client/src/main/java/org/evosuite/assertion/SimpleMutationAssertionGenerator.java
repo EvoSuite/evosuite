@@ -30,7 +30,6 @@ import java.util.Set;
 import java.util.Map.Entry;
 
 import org.evosuite.Properties;
-import org.evosuite.TestSuiteGenerator;
 import org.evosuite.TimeController;
 import org.evosuite.coverage.mutation.Mutation;
 import org.evosuite.coverage.mutation.MutationTimeoutStoppingCondition;

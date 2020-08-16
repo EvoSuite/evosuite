@@ -20,7 +20,6 @@
 package org.evosuite.ga.comparators;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.evosuite.ga.FitnessFunction;

@@ -23,7 +23,6 @@ import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Test;
 
-import java.sql.Time;
 import java.util.TimeZone;
 
 /**

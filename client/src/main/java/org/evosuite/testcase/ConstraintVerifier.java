@@ -21,9 +21,7 @@ package org.evosuite.testcase;
 
 import org.evosuite.runtime.annotation.*;
 import org.evosuite.runtime.util.Inputs;
-import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.testcase.statements.*;
-import org.evosuite.testcase.variable.NullReference;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.utils.Randomness;
 import org.evosuite.utils.generic.GenericAccessibleObject;

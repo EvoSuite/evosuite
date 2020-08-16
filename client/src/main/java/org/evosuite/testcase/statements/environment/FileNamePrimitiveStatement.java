@@ -31,7 +31,6 @@ import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.utils.Randomness;
 import org.evosuite.utils.StringUtil;
-import org.objectweb.asm.commons.GeneratorAdapter;
 
 
 /**

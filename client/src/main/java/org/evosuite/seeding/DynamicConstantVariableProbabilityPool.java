@@ -20,7 +20,6 @@
 package org.evosuite.seeding;
 
 import org.evosuite.Properties;
-import org.evosuite.utils.DefaultRandomAccessQueue;
 import org.evosuite.utils.RandomAccessQueue;
 import org.objectweb.asm.Type;
 

@@ -22,7 +22,6 @@ package org.evosuite.runtime.mock.javax.naming;
 import org.evosuite.runtime.Runtime;
 import org.evosuite.runtime.RuntimeSettings;
 import org.evosuite.runtime.javaee.TestDataJavaEE;
-import org.evosuite.runtime.mock.MockFramework;
 import org.junit.Before;
 import org.junit.Test;
 

@@ -32,7 +32,6 @@ import org.evosuite.ga.stoppingconditions.MaxTestsStoppingCondition;
 import org.evosuite.ga.stoppingconditions.MaxTimeStoppingCondition;
 import org.evosuite.ga.stoppingconditions.StoppingCondition;
 import org.evosuite.ga.stoppingconditions.TimeDeltaStoppingCondition;
-import org.evosuite.testsuite.StatementsPopulationLimit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

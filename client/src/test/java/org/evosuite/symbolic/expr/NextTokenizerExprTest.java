@@ -22,7 +22,6 @@ package org.evosuite.symbolic.expr;
 import org.evosuite.symbolic.expr.str.StringConstant;
 import org.evosuite.symbolic.expr.token.NewTokenizerExpr;
 import org.evosuite.symbolic.expr.token.NextTokenizerExpr;
-import org.evosuite.symbolic.expr.token.StringNextTokenExpr;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

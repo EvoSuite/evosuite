@@ -25,7 +25,6 @@ package com.examples.with.different.packagename.jee.injection.wildfly;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.persistence.Table;
 import java.io.Serializable;
 
 @Entity

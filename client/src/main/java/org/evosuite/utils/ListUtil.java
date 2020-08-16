@@ -19,10 +19,7 @@
  */
 package org.evosuite.utils;
 
-import org.evosuite.*;
-
 import java.util.*;
-import java.util.Properties;
 
 public abstract class ListUtil {
 	/**

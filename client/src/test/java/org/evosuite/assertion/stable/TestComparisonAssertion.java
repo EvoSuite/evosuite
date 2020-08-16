@@ -20,7 +20,6 @@
 package org.evosuite.assertion.stable;
 
 import org.evosuite.assertion.ComparisonTraceEntry;
-import org.evosuite.assertion.ComparisonTraceObserver;
 import org.junit.Test;
 
 import static junit.framework.TestCase.assertFalse;

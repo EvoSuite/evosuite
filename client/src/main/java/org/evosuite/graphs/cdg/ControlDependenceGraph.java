@@ -19,7 +19,6 @@
  */
 package org.evosuite.graphs.cdg;
 
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 

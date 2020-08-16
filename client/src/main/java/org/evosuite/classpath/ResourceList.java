@@ -37,7 +37,6 @@ import java.util.jar.JarFile;
 
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
-import org.evosuite.runtime.InitializingListener;
 import org.evosuite.runtime.InitializingListenerUtils;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Opcodes;

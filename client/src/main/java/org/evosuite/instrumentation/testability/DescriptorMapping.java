@@ -32,7 +32,6 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
-import org.evosuite.PackageInfo;
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.classpath.ResourceList;

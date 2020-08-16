@@ -16,21 +16,6 @@
  */
 package org.evosuite.symbolic.expr;
 
-import java.util.StringTokenizer;
-import java.util.Vector;
-
-import org.evosuite.symbolic.expr.bv.IntegerConstant;
-import org.evosuite.symbolic.expr.bv.IntegerUnaryExpression;
-import org.evosuite.symbolic.expr.bv.StringBinaryComparison;
-import org.evosuite.symbolic.expr.bv.StringBinaryToIntegerExpression;
-import org.evosuite.symbolic.expr.bv.StringMultipleComparison;
-import org.evosuite.symbolic.expr.bv.StringMultipleToIntegerExpression;
-import org.evosuite.symbolic.expr.bv.StringUnaryToIntegerExpression;
-import org.evosuite.symbolic.expr.reader.StringReaderExpr;
-import org.evosuite.symbolic.expr.str.StringValue;
-import org.evosuite.symbolic.expr.token.HasMoreTokensExpr;
-import org.evosuite.symbolic.expr.token.TokenizerExpr;
-import org.evosuite.utils.RegexDistanceUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

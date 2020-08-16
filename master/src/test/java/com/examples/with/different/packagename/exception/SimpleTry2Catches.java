@@ -19,7 +19,6 @@
  */
 package com.examples.with.different.packagename.exception;
 
-import java.io.FileNotFoundException;
 import java.sql.SQLException;
 
 /**

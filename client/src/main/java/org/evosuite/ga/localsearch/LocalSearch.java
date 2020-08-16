@@ -20,7 +20,6 @@
 package org.evosuite.ga.localsearch;
 
 import org.evosuite.ga.Chromosome;
-import org.evosuite.ga.FitnessFunction;
 
 /**
  * This class applies local search on an specific Chromosome.

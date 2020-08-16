@@ -51,7 +51,6 @@ import org.mockito.Mockito;
 import java.lang.reflect.Constructor;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import static org.evosuite.junit.writer.TestSuiteWriterUtils.*;
 

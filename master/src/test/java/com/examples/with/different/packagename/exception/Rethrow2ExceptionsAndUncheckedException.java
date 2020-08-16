@@ -19,8 +19,6 @@
  */
 package com.examples.with.different.packagename.exception;
 
-import com.thoughtworks.xstream.mapper.Mapper;
-
 import java.sql.SQLException;
 
 /**

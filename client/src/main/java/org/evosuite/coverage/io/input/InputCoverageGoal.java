@@ -30,8 +30,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
 import static org.evosuite.coverage.io.IOCoverageConstants.*;
-import static org.evosuite.coverage.io.IOCoverageConstants.REF_NONNULL;
-import static org.evosuite.coverage.io.IOCoverageConstants.STRING_NONEMPTY;
 
 /**
  * A single input coverage goal.

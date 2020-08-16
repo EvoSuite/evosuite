@@ -22,13 +22,10 @@
  */
 package org.evosuite.testcase;
 
-import org.apache.commons.lang3.math.NumberUtils;
 import org.evosuite.Properties;
 import org.evosuite.lm.StringLMOptimizer;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.statements.*;
-import org.evosuite.testcase.statements.numeric.BooleanPrimitiveStatement;
-import org.evosuite.testcase.statements.numeric.NumericalPrimitiveStatement;
 import org.evosuite.testcase.variable.ConstantValue;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testsuite.TestSuiteChromosome;

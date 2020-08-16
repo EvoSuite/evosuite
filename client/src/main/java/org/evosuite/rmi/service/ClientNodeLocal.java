@@ -23,7 +23,6 @@ import org.evosuite.ga.Chromosome;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.utils.Listenable;
 
-import java.util.List;
 import java.util.Set;
 
 /**

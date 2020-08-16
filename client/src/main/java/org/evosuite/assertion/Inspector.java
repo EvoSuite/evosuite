@@ -27,7 +27,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import org.evosuite.TestGenerationContext;
-import org.evosuite.runtime.LoopCounter;
 import org.evosuite.runtime.sandbox.Sandbox;
 import org.evosuite.setup.TestClusterUtils;
 import org.evosuite.utils.LoggingUtils;

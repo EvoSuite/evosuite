@@ -20,7 +20,6 @@
 package org.evosuite.continuous.job.schedule;
 
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 

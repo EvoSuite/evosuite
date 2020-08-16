@@ -21,7 +21,6 @@ package com.examples.with.different.packagename.testcarver.joda;
 
 import org.junit.Test;
 
-import static junit.framework.TestCase.fail;
 import static org.junit.Assert.assertNotNull;
 
 /**

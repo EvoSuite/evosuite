@@ -19,8 +19,6 @@
  */
 package org.evosuite.coverage.readability;
 
-import org.evosuite.testcase.AbstractTestChromosome;
-import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;

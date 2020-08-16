@@ -2,7 +2,6 @@ package org.evosuite.symbolic;
 
 import java.util.List;
 
-import org.evosuite.classpath.ResourceList;
 import org.evosuite.symbolic.expr.Constraint;
 
 /**

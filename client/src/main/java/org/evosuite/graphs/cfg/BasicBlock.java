@@ -21,7 +21,6 @@ package org.evosuite.graphs.cfg;
 
 import java.io.Serializable;
 import java.util.*;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import org.evosuite.graphs.GraphPool;

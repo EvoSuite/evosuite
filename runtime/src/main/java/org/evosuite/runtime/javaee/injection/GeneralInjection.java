@@ -21,7 +21,6 @@ package org.evosuite.runtime.javaee.injection;
 
 import org.evosuite.runtime.Reflection;
 import org.evosuite.runtime.util.Inputs;
-import org.evosuite.runtime.util.ReflectionUtils;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;

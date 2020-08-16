@@ -19,9 +19,7 @@ package org.evosuite.symbolic.vm.string;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.Operator;
-import org.evosuite.symbolic.expr.bv.IntegerConstant;
 import org.evosuite.symbolic.expr.bv.IntegerValue;
 import org.evosuite.symbolic.expr.bv.StringBinaryComparison;
 import org.evosuite.symbolic.expr.bv.StringMultipleComparison;

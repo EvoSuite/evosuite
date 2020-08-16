@@ -20,7 +20,6 @@
 package org.evosuite.instrumentation;
 
 import org.evosuite.classpath.ResourceList;
-import org.evosuite.instrumentation.error.ErrorConditionMethodAdapter;
 import org.evosuite.runtime.classhandling.ClassResetter;
 import org.evosuite.setup.DependencyAnalysis;
 import org.objectweb.asm.ClassVisitor;
@@ -31,7 +30,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 

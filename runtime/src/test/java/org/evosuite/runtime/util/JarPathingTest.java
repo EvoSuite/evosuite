@@ -22,8 +22,6 @@ package org.evosuite.runtime.util;
 import org.junit.Test;
 
 import java.io.File;
-import java.net.URI;
-import java.net.URL;
 
 import static org.junit.Assert.*;
 

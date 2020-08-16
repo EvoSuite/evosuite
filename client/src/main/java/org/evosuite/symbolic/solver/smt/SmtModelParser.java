@@ -21,12 +21,10 @@ package org.evosuite.symbolic.solver.smt;
 
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
-import org.apache.commons.text.StringEscapeUtils;
 import org.evosuite.symbolic.solver.ResultParser;
 import org.evosuite.symbolic.solver.SolverErrorException;
 import org.evosuite.symbolic.solver.SolverParseException;

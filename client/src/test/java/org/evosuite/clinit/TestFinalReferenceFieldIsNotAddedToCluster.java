@@ -20,7 +20,6 @@
 package org.evosuite.clinit;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
 import java.io.File;
@@ -36,7 +35,6 @@ import org.evosuite.setup.TestClusterGenerator;
 import org.evosuite.utils.generic.GenericAccessibleObject;
 import org.junit.Test;
 
-import com.examples.with.different.packagename.clinit.FinalPrimitiveField;
 import com.examples.with.different.packagename.clinit.FinalReferenceField;
 
 public class TestFinalReferenceFieldIsNotAddedToCluster {

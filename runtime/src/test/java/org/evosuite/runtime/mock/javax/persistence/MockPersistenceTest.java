@@ -25,8 +25,6 @@ import org.junit.Test;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 
-import static org.junit.Assert.*;
-
 /**
  * Created by Andrea Arcuri on 30/05/15.
  */

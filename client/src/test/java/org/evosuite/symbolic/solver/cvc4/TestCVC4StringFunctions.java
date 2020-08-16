@@ -19,20 +19,8 @@
  */
 package org.evosuite.symbolic.solver.cvc4;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
-import java.util.Map;
-
-import org.evosuite.Properties;
 import org.evosuite.symbolic.solver.Solver;
-import org.evosuite.symbolic.solver.SolverTimeoutException;
 import org.evosuite.symbolic.solver.TestSolverStringFunctions;
-import org.evosuite.symbolic.solver.z3.Z3Solver;
-import org.junit.Test;
 
 public class TestCVC4StringFunctions extends TestSolverStringFunctions {
 

@@ -19,8 +19,6 @@
  */
 package com.examples.with.different.packagename.concolic;
 
-import java.util.regex.PatternSyntaxException;
-
 import static com.examples.with.different.packagename.concolic.Assertions.checkEquals;
 
 public class TestCase67 {

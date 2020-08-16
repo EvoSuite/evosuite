@@ -22,7 +22,6 @@ package org.evosuite.testcase.localsearch;
 import java.util.Set;
 
 import org.evosuite.Properties;
-import org.evosuite.Properties.DSEType;
 import org.evosuite.ga.localsearch.LocalSearchObjective;
 import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.TestChromosome;
@@ -33,7 +32,6 @@ import org.evosuite.testcase.statements.FieldStatement;
 import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testcase.statements.NullStatement;
 import org.evosuite.testcase.statements.PrimitiveStatement;
-import org.evosuite.utils.Randomness;
 
 public abstract class StatementLocalSearch {
 

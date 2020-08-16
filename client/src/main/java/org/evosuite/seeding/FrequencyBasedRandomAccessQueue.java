@@ -21,7 +21,6 @@ package org.evosuite.seeding;
 
 import org.evosuite.Properties;
 import org.evosuite.utils.RandomAccessQueue;
-import org.evosuite.utils.Randomness;
 
 import java.util.*;
 

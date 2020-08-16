@@ -24,7 +24,6 @@ package org.evosuite.assertion;
 
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.execution.ExecutionResult;
-import org.evosuite.testsuite.TestSuiteChromosome;
 
 /**
  * <p>

@@ -22,8 +22,6 @@
  */
 package org.evosuite.coverage.mutation;
 
-import org.evosuite.testcase.execution.ExecutionResult;
-
 /**
  * <p>MutationExecutionResult class.</p>
  *

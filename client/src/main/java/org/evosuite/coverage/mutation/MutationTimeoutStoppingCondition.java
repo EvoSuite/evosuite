@@ -27,8 +27,6 @@ import java.util.Set;
 import org.evosuite.Properties;
 import org.evosuite.Properties.Strategy;
 import org.evosuite.ga.Chromosome;
-import org.evosuite.ga.FitnessFunction;
-import org.evosuite.ga.stoppingconditions.StoppingCondition;
 import org.evosuite.ga.stoppingconditions.StoppingConditionImpl;
 
 

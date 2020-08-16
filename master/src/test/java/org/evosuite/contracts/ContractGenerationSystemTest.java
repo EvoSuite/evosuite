@@ -22,7 +22,6 @@ package org.evosuite.contracts;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.SystemTestBase;
-import org.evosuite.testcase.TestCase;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
