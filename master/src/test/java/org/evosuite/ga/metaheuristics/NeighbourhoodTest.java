@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.evosuite.Properties;
-import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.Neighbourhood;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.statements.StringPrimitiveStatement;
@@ -20,7 +19,7 @@ import org.junit.Test;
  */
 public class NeighbourhoodTest {
 	
-	List<Chromosome> population = new ArrayList<>();
+	List<TestSuiteChromosome> population = new ArrayList<>();
 	
 	public void constructPopulation(){
 		
@@ -45,14 +44,12 @@ public class NeighbourhoodTest {
 	    
 		this.constructPopulation();
 		
-	    Neighbourhood<Chromosome> neighbourhood = new Neighbourhood<>(Properties.POPULATION);
+	    Neighbourhood<TestSuiteChromosome> neighbourhood = new Neighbourhood<>(Properties.POPULATION);
+
+		List<TestSuiteChromosome> neighbors = neighbourhood.ringTopology(population, 2);
 	    
-	    List<Chromosome> neighbors = new ArrayList<>();
-	    
-	    neighbors = neighbourhood.ringTopology(population, 2);
-	    
-	    Chromosome exepcted_individual = population.get(1);
-	    Chromosome returned_individual = neighbors.get(0);
+	    TestSuiteChromosome exepcted_individual = population.get(1);
+	    TestSuiteChromosome returned_individual = neighbors.get(0);
 	    
 	    assertEquals(exepcted_individual, returned_individual);  
 	}
@@ -62,14 +59,12 @@ public class NeighbourhoodTest {
 	    
 		this.constructPopulation();
 		
-	    Neighbourhood<Chromosome> neighbourhood = new Neighbourhood<>(Properties.POPULATION);
+	    Neighbourhood<TestSuiteChromosome> neighbourhood = new Neighbourhood<>(Properties.POPULATION);
+
+		List<TestSuiteChromosome> neighbors = neighbourhood.ringTopology(population, 2);
 	    
-	    List<Chromosome> neighbors = new ArrayList<>();
-	    
-	    neighbors = neighbourhood.ringTopology(population, 2);
-	    
-	    Chromosome exepcted_individual = population.get(3);
-	    Chromosome returned_individual = neighbors.get(2);
+	    TestSuiteChromosome exepcted_individual = population.get(3);
+	    TestSuiteChromosome returned_individual = neighbors.get(2);
 	    
 	    assertEquals(exepcted_individual, returned_individual);  
 	}
@@ -79,14 +74,12 @@ public class NeighbourhoodTest {
 	    
 		this.constructPopulation();
 		
-	    Neighbourhood<Chromosome> neighbourhood = new Neighbourhood<>(Properties.POPULATION);
-	    
-	    List<Chromosome> neighbors = new ArrayList<>();
-	    
-	    neighbors = neighbourhood.ringTopology(population, 0);
-	    
-	    Chromosome exepcted_individual = population.get(15);
-	    Chromosome returned_individual = neighbors.get(0);
+	    Neighbourhood<TestSuiteChromosome> neighbourhood = new Neighbourhood<>(Properties.POPULATION);
+
+		List<TestSuiteChromosome> neighbors = neighbourhood.ringTopology(population, 0);
+
+		TestSuiteChromosome exepcted_individual = population.get(15);
+		TestSuiteChromosome returned_individual = neighbors.get(0);
 	    
 	    assertEquals(exepcted_individual, returned_individual);  
 	}
@@ -96,14 +89,12 @@ public class NeighbourhoodTest {
 	    
 		this.constructPopulation();
 		
-	    Neighbourhood<Chromosome> neighbourhood = new Neighbourhood<>(Properties.POPULATION);
+	    Neighbourhood<TestSuiteChromosome> neighbourhood = new Neighbourhood<>(Properties.POPULATION);
+
+		List<TestSuiteChromosome> neighbors = neighbourhood.ringTopology(population, 15);
 	    
-	    List<Chromosome> neighbors = new ArrayList<>();
-	    
-	    neighbors = neighbourhood.ringTopology(population, 15);
-	    
-	    Chromosome exepcted_individual = population.get(0);
-	    Chromosome returned_individual = neighbors.get(2);
+	    TestSuiteChromosome exepcted_individual = population.get(0);
+	    TestSuiteChromosome returned_individual = neighbors.get(2);
 	    
 	    assertEquals(exepcted_individual, returned_individual);  
 	}
@@ -113,14 +104,12 @@ public class NeighbourhoodTest {
 	    
 		this.constructPopulation();
 		
-	    Neighbourhood<Chromosome> neighbourhood = new Neighbourhood<>(Properties.POPULATION);
+	    Neighbourhood<TestSuiteChromosome> neighbourhood = new Neighbourhood<>(Properties.POPULATION);
+
+		List<TestSuiteChromosome> neighbors = neighbourhood.linearFive(population, 5);
 	    
-	    List<Chromosome> neighbors = new ArrayList<>();
-	    
-	    neighbors = neighbourhood.linearFive(population, 5);
-	    
-	    Chromosome exepcted_individual = population.get(1);
-	    Chromosome returned_individual = neighbors.get(0);
+	    TestSuiteChromosome exepcted_individual = population.get(1);
+	    TestSuiteChromosome returned_individual = neighbors.get(0);
 	    
 	    assertEquals(exepcted_individual, returned_individual);  
 	}
@@ -130,14 +119,12 @@ public class NeighbourhoodTest {
 	    
 		this.constructPopulation();
 		
-	    Neighbourhood<Chromosome> neighbourhood = new Neighbourhood<>(Properties.POPULATION);
+	    Neighbourhood<TestSuiteChromosome> neighbourhood = new Neighbourhood<>(Properties.POPULATION);
+
+		List<TestSuiteChromosome> neighbors = neighbourhood.linearFive(population, 5);
 	    
-	    List<Chromosome> neighbors = new ArrayList<>();
-	    
-	    neighbors = neighbourhood.linearFive(population, 5);
-	    
-	    Chromosome exepcted_individual = population.get(9);
-	    Chromosome returned_individual = neighbors.get(1);
+	    TestSuiteChromosome exepcted_individual = population.get(9);
+	    TestSuiteChromosome returned_individual = neighbors.get(1);
 	    
 	    assertEquals(exepcted_individual, returned_individual);  
 	}
@@ -147,14 +134,12 @@ public class NeighbourhoodTest {
 	    
 		this.constructPopulation();
 		
-	    Neighbourhood<Chromosome> neighbourhood = new Neighbourhood<>(Properties.POPULATION);
+	    Neighbourhood<TestSuiteChromosome> neighbourhood = new Neighbourhood<>(Properties.POPULATION);
+
+		List<TestSuiteChromosome> neighbors = neighbourhood.linearFive(population, 5);
 	    
-	    List<Chromosome> neighbors = new ArrayList<>();
-	    
-	    neighbors = neighbourhood.linearFive(population, 5);
-	    
-	    Chromosome exepcted_individual = population.get(6);
-	    Chromosome returned_individual = neighbors.get(2);
+	    TestSuiteChromosome exepcted_individual = population.get(6);
+	    TestSuiteChromosome returned_individual = neighbors.get(2);
 	    
 	    assertEquals(exepcted_individual, returned_individual);  
 	}
@@ -164,14 +149,12 @@ public class NeighbourhoodTest {
 	    
 		this.constructPopulation();
 		
-	    Neighbourhood<Chromosome> neighbourhood = new Neighbourhood<>(Properties.POPULATION);
+	    Neighbourhood<TestSuiteChromosome> neighbourhood = new Neighbourhood<>(Properties.POPULATION);
+
+		List<TestSuiteChromosome> neighbors = neighbourhood.linearFive(population, 5);
 	    
-	    List<Chromosome> neighbors = new ArrayList<>();
-	    
-	    neighbors = neighbourhood.linearFive(population, 5);
-	    
-	    Chromosome exepcted_individual = population.get(4);
-	    Chromosome returned_individual = neighbors.get(3);
+	    TestSuiteChromosome exepcted_individual = population.get(4);
+	    TestSuiteChromosome returned_individual = neighbors.get(3);
 	    
 	    assertEquals(exepcted_individual, returned_individual);  
 	}
@@ -181,14 +164,12 @@ public class NeighbourhoodTest {
 	    
 		this.constructPopulation();
 		
-	    Neighbourhood<Chromosome> neighbourhood = new Neighbourhood<>(Properties.POPULATION);
+	    Neighbourhood<TestSuiteChromosome> neighbourhood = new Neighbourhood<>(Properties.POPULATION);
+
+		List<TestSuiteChromosome> neighbors = neighbourhood.compactNine(population, 5);
 	    
-	    List<Chromosome> neighbors = new ArrayList<>();
-	    
-	    neighbors = neighbourhood.compactNine(population, 5);
-	    
-	    Chromosome exepcted_individual = population.get(2);
-	    Chromosome returned_individual = neighbors.get(6);
+	    TestSuiteChromosome exepcted_individual = population.get(2);
+	    TestSuiteChromosome returned_individual = neighbors.get(6);
 	    
 	    assertEquals(exepcted_individual, returned_individual);  
 	}
@@ -198,14 +179,12 @@ public class NeighbourhoodTest {
 	    
 		this.constructPopulation();
 		
-	    Neighbourhood<Chromosome> neighbourhood = new Neighbourhood<>(Properties.POPULATION);
+	    Neighbourhood<TestSuiteChromosome> neighbourhood = new Neighbourhood<>(Properties.POPULATION);
+
+		List<TestSuiteChromosome> neighbors = neighbourhood.compactNine(population, 5);
 	    
-	    List<Chromosome> neighbors = new ArrayList<>();
-	    
-	    neighbors = neighbourhood.compactNine(population, 5);
-	    
-	    Chromosome exepcted_individual = population.get(0);
-	    Chromosome returned_individual = neighbors.get(4);
+	    TestSuiteChromosome exepcted_individual = population.get(0);
+	    TestSuiteChromosome returned_individual = neighbors.get(4);
 	    
 	    assertEquals(exepcted_individual, returned_individual);  
 	}
@@ -215,14 +194,12 @@ public class NeighbourhoodTest {
 	    
 		this.constructPopulation();
 		
-	    Neighbourhood<Chromosome> neighbourhood = new Neighbourhood<>(Properties.POPULATION);
+	    Neighbourhood<TestSuiteChromosome> neighbourhood = new Neighbourhood<>(Properties.POPULATION);
+
+		List<TestSuiteChromosome> neighbors = neighbourhood.compactNine(population, 5);
 	    
-	    List<Chromosome> neighbors = new ArrayList<>();
-	    
-	    neighbors = neighbourhood.compactNine(population, 5);
-	    
-	    Chromosome exepcted_individual = population.get(10);
-	    Chromosome returned_individual = neighbors.get(7);
+	    TestSuiteChromosome exepcted_individual = population.get(10);
+	    TestSuiteChromosome returned_individual = neighbors.get(7);
 	    
 	    assertEquals(exepcted_individual, returned_individual);  
 	}
@@ -232,14 +209,12 @@ public class NeighbourhoodTest {
 	    
 		this.constructPopulation();
 		
-	    Neighbourhood<Chromosome> neighbourhood = new Neighbourhood<>(Properties.POPULATION);
+	    Neighbourhood<TestSuiteChromosome> neighbourhood = new Neighbourhood<>(Properties.POPULATION);
+
+		List<TestSuiteChromosome> neighbors = neighbourhood.compactNine(population, 5);
 	    
-	    List<Chromosome> neighbors = new ArrayList<>();
-	    
-	    neighbors = neighbourhood.compactNine(population, 5);
-	    
-	    Chromosome exepcted_individual = population.get(8);
-	    Chromosome returned_individual = neighbors.get(5);
+	    TestSuiteChromosome exepcted_individual = population.get(8);
+	    TestSuiteChromosome returned_individual = neighbors.get(5);
 	    
 	    assertEquals(exepcted_individual, returned_individual);  
 	}
@@ -249,14 +224,12 @@ public class NeighbourhoodTest {
 	    
 		this.constructPopulation();
 		
-	    Neighbourhood<Chromosome> neighbourhood = new Neighbourhood<>(Properties.POPULATION);
+	    Neighbourhood<TestSuiteChromosome> neighbourhood = new Neighbourhood<>(Properties.POPULATION);
+
+		List<TestSuiteChromosome> neighbors = neighbourhood.CompactThirteen(population, 10);
 	    
-	    List<Chromosome> neighbors = new ArrayList<>();
-	    
-	    neighbors = neighbourhood.CompactThirteen(population, 10);
-	    
-	    Chromosome exepcted_individual = population.get(2);
-	    Chromosome returned_individual = neighbors.get(8);
+	    TestSuiteChromosome exepcted_individual = population.get(2);
+	    TestSuiteChromosome returned_individual = neighbors.get(8);
 	    
 	    assertEquals(exepcted_individual, returned_individual);  
 	}
@@ -266,14 +239,12 @@ public class NeighbourhoodTest {
 	    
 		this.constructPopulation();
 		
-	    Neighbourhood<Chromosome> neighbourhood = new Neighbourhood<>(Properties.POPULATION);
+	    Neighbourhood<TestSuiteChromosome> neighbourhood = new Neighbourhood<>(Properties.POPULATION);
+
+		List<TestSuiteChromosome> neighbors = neighbourhood.CompactThirteen(population, 10);
 	    
-	    List<Chromosome> neighbors = new ArrayList<>();
-	    
-	    neighbors = neighbourhood.CompactThirteen(population, 10);
-	    
-	    Chromosome exepcted_individual = population.get(2);
-	    Chromosome returned_individual = neighbors.get(9);
+	    TestSuiteChromosome exepcted_individual = population.get(2);
+	    TestSuiteChromosome returned_individual = neighbors.get(9);
 	    
 	    assertEquals(exepcted_individual, returned_individual);  
 	}
@@ -283,14 +254,12 @@ public class NeighbourhoodTest {
 	    
 		this.constructPopulation();
 		
-	    Neighbourhood<Chromosome> neighbourhood = new Neighbourhood<>(Properties.POPULATION);
+	    Neighbourhood<TestSuiteChromosome> neighbourhood = new Neighbourhood<>(Properties.POPULATION);
+
+		List<TestSuiteChromosome> neighbors = neighbourhood.CompactThirteen(population, 10);
 	    
-	    List<Chromosome> neighbors = new ArrayList<>();
-	    
-	    neighbors = neighbourhood.CompactThirteen(population, 10);
-	    
-	    Chromosome exepcted_individual = population.get(8);
-	    Chromosome returned_individual = neighbors.get(10);
+	    TestSuiteChromosome exepcted_individual = population.get(8);
+	    TestSuiteChromosome returned_individual = neighbors.get(10);
 	    
 	    assertEquals(exepcted_individual, returned_individual);  
 	}
@@ -300,14 +269,12 @@ public class NeighbourhoodTest {
 	    
 		this.constructPopulation();
 		
-	    Neighbourhood<Chromosome> neighbourhood = new Neighbourhood<>(Properties.POPULATION);
+	    Neighbourhood<TestSuiteChromosome> neighbourhood = new Neighbourhood<>(Properties.POPULATION);
+
+		List<TestSuiteChromosome> neighbors = neighbourhood.CompactThirteen(population, 5);
 	    
-	    List<Chromosome> neighbors = new ArrayList<>();
-	    
-	    neighbors = neighbourhood.CompactThirteen(population, 5);
-	    
-	    Chromosome exepcted_individual = population.get(7);
-	    Chromosome returned_individual = neighbors.get(11);
+	    TestSuiteChromosome exepcted_individual = population.get(7);
+	    TestSuiteChromosome returned_individual = neighbors.get(11);
 	    	    
 	    assertEquals(exepcted_individual, returned_individual);  
 	}
@@ -317,14 +284,12 @@ public class NeighbourhoodTest {
 	    
 		this.constructPopulation();
 		
-	    Neighbourhood<Chromosome> neighbourhood = new Neighbourhood<>(Properties.POPULATION);
+	    Neighbourhood<TestSuiteChromosome> neighbourhood = new Neighbourhood<>(Properties.POPULATION);
+
+		List<TestSuiteChromosome> neighbors = neighbourhood.CompactThirteen(population, 0);
 	    
-	    List<Chromosome> neighbors = new ArrayList<>();
-	    
-	    neighbors = neighbourhood.CompactThirteen(population, 0);
-	    
-	    Chromosome exepcted_individual = population.get(15);
-	    Chromosome returned_individual = neighbors.get(4);
+	    TestSuiteChromosome exepcted_individual = population.get(15);
+	    TestSuiteChromosome returned_individual = neighbors.get(4);
 	    
 	    assertEquals(exepcted_individual, returned_individual);  
 	}
@@ -334,14 +299,12 @@ public class NeighbourhoodTest {
 	    
 		this.constructPopulation();
 		
-	    Neighbourhood<Chromosome> neighbourhood = new Neighbourhood<>(Properties.POPULATION);
+	    Neighbourhood<TestSuiteChromosome> neighbourhood = new Neighbourhood<>(Properties.POPULATION);
+
+		List<TestSuiteChromosome> neighbors = neighbourhood.CompactThirteen(population, 3);
 	    
-	    List<Chromosome> neighbors = new ArrayList<>();
-	    
-	    neighbors = neighbourhood.CompactThirteen(population, 3);
-	    
-	    Chromosome exepcted_individual = population.get(12);
-	    Chromosome returned_individual = neighbors.get(6);
+	    TestSuiteChromosome exepcted_individual = population.get(12);
+	    TestSuiteChromosome returned_individual = neighbors.get(6);
 	    
 	    assertEquals(exepcted_individual, returned_individual);  
 	}
@@ -351,14 +314,12 @@ public class NeighbourhoodTest {
 	    
 		this.constructPopulation();
 		
-	    Neighbourhood<Chromosome> neighbourhood = new Neighbourhood<>(Properties.POPULATION);
+	    Neighbourhood<TestSuiteChromosome> neighbourhood = new Neighbourhood<>(Properties.POPULATION);
+
+		List<TestSuiteChromosome> neighbors = neighbourhood.CompactThirteen(population, 12);
 	    
-	    List<Chromosome> neighbors = new ArrayList<>();
-	    
-	    neighbors = neighbourhood.CompactThirteen(population, 12);
-	    
-	    Chromosome exepcted_individual = population.get(3);
-	    Chromosome returned_individual = neighbors.get(5);
+	    TestSuiteChromosome exepcted_individual = population.get(3);
+	    TestSuiteChromosome returned_individual = neighbors.get(5);
 	    
 	    assertEquals(exepcted_individual, returned_individual);  
 	}
@@ -368,14 +329,12 @@ public class NeighbourhoodTest {
 	    
 		this.constructPopulation();
 		
-	    Neighbourhood<Chromosome> neighbourhood = new Neighbourhood<>(Properties.POPULATION);
+	    Neighbourhood<TestSuiteChromosome> neighbourhood = new Neighbourhood<>(Properties.POPULATION);
+
+		List<TestSuiteChromosome> neighbors = neighbourhood.CompactThirteen(population, 15);
 	    
-	    List<Chromosome> neighbors = new ArrayList<>();
-	    
-	    neighbors = neighbourhood.CompactThirteen(population, 15);
-	    
-	    Chromosome exepcted_individual = population.get(0);
-	    Chromosome returned_individual = neighbors.get(7);
+	    TestSuiteChromosome exepcted_individual = population.get(0);
+	    TestSuiteChromosome returned_individual = neighbors.get(7);
 	    
 	    assertEquals(exepcted_individual, returned_individual);  
 	}
