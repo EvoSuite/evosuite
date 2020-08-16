@@ -42,6 +42,7 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Method;
+import java.util.Objects;
 import java.util.Vector;
 
 import javax.accessibility.AccessibleContext;
@@ -473,7 +474,7 @@ public class MockJFileChooser extends  javax.swing.JFileChooser  implements Over
 
 
 	public void setApproveButtonToolTipText(String toolTipText) {
-		if(approveButtonToolTipText == toolTipText) {
+		if(Objects.equals(approveButtonToolTipText, toolTipText)) {
 			return;
 		}
 		String oldValue = approveButtonToolTipText;
@@ -508,7 +509,7 @@ public class MockJFileChooser extends  javax.swing.JFileChooser  implements Over
 
 
 	public void setApproveButtonText(String approveButtonText) {
-		if(this.approveButtonText == approveButtonText) {
+		if(Objects.equals(this.approveButtonText, approveButtonText)) {
 			return;
 		}
 		String oldValue = this.approveButtonText;

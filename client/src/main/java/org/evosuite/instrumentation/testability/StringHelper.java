@@ -24,6 +24,7 @@ import org.evosuite.instrumentation.RegexDistance;
 import org.evosuite.seeding.ConstantPoolManager;
 
 import java.lang.reflect.Field;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 

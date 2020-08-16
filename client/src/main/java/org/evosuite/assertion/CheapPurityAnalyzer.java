@@ -73,7 +73,7 @@ public class CheapPurityAnalyzer {
 	public List<String> getPureMethods(String className) {
 		ArrayList<String> list = new ArrayList<>();
 		for (MethodEntry m : methodEntries) {
-			if (m.className.equals(className) && isPure(m) && m.methodName != ClassResetter.STATIC_RESET) {
+			if (m.className.equals(className) && isPure(m) && !m.methodName.equals(ClassResetter.STATIC_RESET)) {
 				list.add(m.methodName + m.descriptor);
 			}
 		}
