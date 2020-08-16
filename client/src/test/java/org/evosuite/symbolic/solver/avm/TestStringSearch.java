@@ -67,7 +67,7 @@ public class TestStringSearch extends RandomizedTC {
 			result = solve(skr, constraints);
 			assertNotNull(result);
 			assertNotNull(result.get("test1"));
-			assertTrue(const2.equals(result.get("test1").toString()));
+            assertEquals(const2, result.get("test1").toString());
 		} catch (SolverTimeoutException e) {
 			fail();
 		}
@@ -89,7 +89,7 @@ public class TestStringSearch extends RandomizedTC {
 			result = solve(skr, constraints);
 			assertNotNull(result);
 			assertNotNull(result.get("test1"));
-			assertTrue(!const2.equals(result.get("test1").toString()));
+            assertFalse(const2.equals(result.get("test1").toString()));
 		} catch (SolverTimeoutException e) {
 			fail();
 		}

@@ -305,7 +305,7 @@ public abstract class TestSolverFloats extends TestSolver {
 		Double var0 = (Double) solution.get("var0");
 		Double var1 = (Double) solution.get("var1");
 
-		assertTrue(var0.doubleValue() == var1.doubleValue() * 2.0);
+        assertEquals(var0.doubleValue(), var1.doubleValue() * 2.0, 0.0);
 	}
 
 	@Test
@@ -318,7 +318,7 @@ public abstract class TestSolverFloats extends TestSolver {
 		Double var0 = (Double) solution.get("var0");
 		Double var1 = (Double) solution.get("var1");
 
-		assertTrue(var0.doubleValue() == var1.doubleValue() / 2.0);
+        assertEquals(var0.doubleValue(), var1.doubleValue() / 2.0, 0.0);
 	}
 
 	@Test

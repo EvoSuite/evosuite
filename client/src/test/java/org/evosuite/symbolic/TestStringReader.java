@@ -20,6 +20,7 @@
 package org.evosuite.symbolic;
 
 import static org.evosuite.symbolic.solver.TestSolver.solve;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.lang.reflect.Method;
@@ -52,7 +53,7 @@ public abstract class TestStringReader {
 
 		DefaultTestCase tc = buildTestStringReader();
 		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor.execute(tc);
-		assertTrue(!constraints.isEmpty());
+        assertFalse(constraints.isEmpty());
 	}
 
 }

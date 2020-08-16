@@ -339,7 +339,7 @@ public abstract class TestSolverSimpleMath extends TestSolver {
 		Double var0 = (Double) solution.get("var0");
 
 		assertTrue(var0.doubleValue() != 0);
-		assertTrue(var0.intValue() == 0);
+        assertEquals(0, var0.intValue());
 	}
 
 	@Test

@@ -41,9 +41,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * Created by Andrea Arcuri on 02/03/15.
@@ -84,7 +82,7 @@ public class PrivateReflectionSystemTest extends SystemTestBase {
         TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
         System.out.println("EvolvedTestSuite:\n" + best);
 
-        assertTrue(! best.getTests().isEmpty());
+        assertFalse(best.getTests().isEmpty());
 
         double cov = best.getCoverageInstanceOf(MethodCoverageSuiteFitness.class);
         Assert.assertEquals("Non-optimal method coverage: ", 1d, cov, 0.001);

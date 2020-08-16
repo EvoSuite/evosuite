@@ -293,11 +293,11 @@ public class FunctionalMockStatementTest {
         Object aInt = i;
         Object aInteger = Integer.valueOf(7);
 
-        Assert.assertTrue(aInt.getClass().equals(Integer.class));
-        Assert.assertTrue(aInt.getClass().equals(aInteger.getClass()));
+        assertEquals(aInt.getClass(), Integer.class);
+        assertEquals(aInt.getClass(), aInteger.getClass());
 
         Object aChar = c;
-        Assert.assertTrue(aChar.getClass().equals(Character.class));
+        assertEquals(aChar.getClass(), Character.class);
 
         //just recall the two diverge
         assertTrue(TypeUtils.isAssignable(aChar.getClass(), Integer.TYPE));
@@ -320,7 +320,7 @@ public class FunctionalMockStatementTest {
 
         casted = (int) ((Character) aChar).charValue();
 
-        assertTrue(casted.getClass().equals(Integer.class));
+        assertEquals(casted.getClass(), Integer.class);
     }
 
     @Test

@@ -133,11 +133,11 @@ public class CoverageAnalysisOfClassSystemTest extends SystemTestBase {
 
         CSVReader reader = new CSVReader(new FileReader(statistics_file));
         List<String[]> rows = reader.readAll();
-        assertTrue(rows.size() == 2);
+        assertEquals(2, rows.size());
         reader.close();
 
-        assertTrue(CsvJUnitData.getValue(rows, "TARGET_CLASS").equals(Calculator.class.getCanonicalName()));
-        assertTrue(CsvJUnitData.getValue(rows, "criterion").equals(Properties.Criterion.BRANCH.toString() + ";" + Properties.Criterion.LINE.toString()));
+        assertEquals(CsvJUnitData.getValue(rows, "TARGET_CLASS"), Calculator.class.getCanonicalName());
+        assertEquals(CsvJUnitData.getValue(rows, "criterion"), Properties.Criterion.BRANCH.toString() + ";" + Properties.Criterion.LINE.toString());
 
         assertEquals(0.8, Double.valueOf(CsvJUnitData.getValue(rows, RuntimeVariable.Coverage.name())), 0.01);
         assertEquals(8, (int)Integer.valueOf(CsvJUnitData.getValue(rows, RuntimeVariable.Covered_Goals.name())));

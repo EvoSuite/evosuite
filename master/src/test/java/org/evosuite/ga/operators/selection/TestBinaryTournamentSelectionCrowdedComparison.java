@@ -60,7 +60,7 @@ public class TestBinaryTournamentSelectionCrowdedComparison
 		population.add(c1);
 		population.add(c2);
 
-		Assert.assertTrue(ts.getIndex(population) == 1);
+        Assert.assertEquals(1, ts.getIndex(population));
 	}
 
 	@Test
@@ -82,7 +82,7 @@ public class TestBinaryTournamentSelectionCrowdedComparison
 		population.add(c1);
 		population.add(c2);
 
-		Assert.assertTrue(ts.getIndex(population) == 0);
+        Assert.assertEquals(0, ts.getIndex(population));
 	}
 
 	@Test
@@ -108,7 +108,7 @@ public class TestBinaryTournamentSelectionCrowdedComparison
 		population.add(c1);
 		population.add(c2);
 
-		Assert.assertTrue(ts.getIndex(population) == 1);
+        Assert.assertEquals(1, ts.getIndex(population));
 	}
 
 	@Test
@@ -134,6 +134,6 @@ public class TestBinaryTournamentSelectionCrowdedComparison
 		population.add(c1);
 		population.add(c2);
 
-		Assert.assertTrue(ts.getIndex(population) == 1);
+        Assert.assertEquals(1, ts.getIndex(population));
 	}
 }

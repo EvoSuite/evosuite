@@ -251,7 +251,7 @@ public class MSecurityManagerTest {
 		Assert.assertTrue(dir.exists());
 		dir.delete();
 		Thread.sleep(100);
-		Assert.assertTrue( ! dir.exists());
+        Assert.assertFalse(dir.exists());
 		
 		final File toDelete = createTempDir();
 		toDelete.deleteOnExit();
