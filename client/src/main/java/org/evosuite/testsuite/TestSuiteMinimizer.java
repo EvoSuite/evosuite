@@ -291,7 +291,7 @@ public class TestSuiteMinimizer {
         if (strategy == SecondaryObjective.SIZE) {
             size = true;
             // If we want to remove tests, start with shortest
-            Collections.sort(suite.tests, new Comparator<TestChromosome>() {
+            suite.tests.sort(new Comparator<TestChromosome>() {
                 @Override
                 public int compare(TestChromosome chromosome1, TestChromosome chromosome2) {
                     return chromosome1.size() - chromosome2.size();
@@ -299,7 +299,7 @@ public class TestSuiteMinimizer {
             });
         } else if (strategy == SecondaryObjective.MAX_LENGTH) {
             // If we want to remove the longest test, start with longest
-            Collections.sort(suite.tests, new Comparator<TestChromosome>() {
+            suite.tests.sort(new Comparator<TestChromosome>() {
                 @Override
                 public int compare(TestChromosome chromosome1, TestChromosome chromosome2) {
                     return chromosome2.size() - chromosome1.size();

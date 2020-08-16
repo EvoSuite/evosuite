@@ -77,18 +77,18 @@ public class HistorySchedule extends OneTimeSchedule {
     List<ClassInfo> classesInfo = new ArrayList<>(data.getClassInfos());
 
     // classes that have been changed first
-    Collections.sort(classesInfo, new Comparator<ClassInfo>() {
-      @Override
-      public int compare(ClassInfo a, ClassInfo b) {
-        if (a.hasChanged() && !b.hasChanged()) {
-          return -1;
-        } else if (!a.hasChanged() && b.hasChanged()) {
-          return 1;
-        }
+    classesInfo.sort(new Comparator<ClassInfo>() {
+        @Override
+        public int compare(ClassInfo a, ClassInfo b) {
+            if (a.hasChanged() && !b.hasChanged()) {
+                return -1;
+            } else if (!a.hasChanged() && b.hasChanged()) {
+                return 1;
+            }
 
-        // otherwise, get the most difficult classes first
-        return Integer.compare(b.numberOfBranches, a.numberOfBranches);
-      }
+            // otherwise, get the most difficult classes first
+            return Integer.compare(b.numberOfBranches, a.numberOfBranches);
+        }
     });
 
     int totalLeftOver = 0;

@@ -132,7 +132,7 @@ public class AmbiguityCoverageFactory extends
 		if (Properties.USE_EXISTING_COVERAGE) {
 			// extremely important: before loading any previous coverage (i.e., from a coverage
 			// matrix) goals need to be sorted. otherwise any previous coverage won't match!
-			Collections.sort(goals, new Comparator<LineCoverageTestFitness>() {
+			goals.sort(new Comparator<LineCoverageTestFitness>() {
 				@Override
 				public int compare(LineCoverageTestFitness l1, LineCoverageTestFitness l2) {
 					return Integer.compare(l1.getLine(), l2.getLine());

@@ -75,7 +75,7 @@ public class TestCaseMinimizer {
 			}
 			num++;
 		}
-		Collections.sort(to_delete, Collections.reverseOrder());
+		to_delete.sort(Collections.reverseOrder());
 		for (Integer position : to_delete) {
 			t.remove(position);
 		}

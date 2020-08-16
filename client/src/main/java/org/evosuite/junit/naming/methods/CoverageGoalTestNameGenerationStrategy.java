@@ -179,7 +179,7 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
                 if(goals.isEmpty()) {
                     goals.addAll(filterSupportedGoals(entry.getKey().getCoveredGoals()));
                 }
-                Collections.sort(goals, new GoalComparator());
+                goals.sort(new GoalComparator());
                 if(!goals.isEmpty()) {
                     TestFitnessFunction goal = goals.iterator().next();
                     entry.getValue().add(goal);
@@ -535,7 +535,7 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
      */
     private List<TestFitnessFunction> getTopGoals(Set<TestFitnessFunction> coveredGoals) {
         List<TestFitnessFunction> goalList = new ArrayList<>(coveredGoals);
-        Collections.sort(goalList, new GoalComparator());
+        goalList.sort(new GoalComparator());
 
         List<TestFitnessFunction> topGoals = new ArrayList<>();
         if(coveredGoals.isEmpty())

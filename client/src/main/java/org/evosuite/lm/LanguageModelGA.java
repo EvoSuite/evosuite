@@ -84,10 +84,10 @@ public class LanguageModelGA extends LanguageModelSearch {
         assert !sample.isEmpty();
 
         if(best) {
-            Collections.sort(sample, Collections.reverseOrder(this));
+            sample.sort(Collections.reverseOrder(this));
             return sample.get(0);
         }else{
-            Collections.sort(sample,this);
+            sample.sort(this);
             return sample.get(0);
         }
 
@@ -118,7 +118,7 @@ public class LanguageModelGA extends LanguageModelSearch {
 
         ArrayList<Chromosome> rankedPopulation = new ArrayList<>(population.size());
         rankedPopulation.addAll(population);
-        Collections.sort(rankedPopulation,Collections.reverseOrder(this));
+        rankedPopulation.sort(Collections.reverseOrder(this));
 
 
 

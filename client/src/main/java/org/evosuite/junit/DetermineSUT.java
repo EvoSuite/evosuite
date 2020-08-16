@@ -114,7 +114,7 @@ public class DetermineSUT {
 			return "<UNKNOWN>";
 
 		List<String> sortedNames = new ArrayList<>(candidateClasses);
-		Collections.sort(sortedNames, new TargetClassSorter(fullyQualifiedTargetClass));
+		sortedNames.sort(new TargetClassSorter(fullyQualifiedTargetClass));
 
 		//System.out.println("Sorted candidate classes: " + sortedNames);
 		return sortedNames.get(0);

@@ -44,12 +44,12 @@ public class Reflection {
 
 	private static <T> T[] sortArrayInPlace(T[] original) {
 		List<T> methods = Arrays.asList(original);
-		Collections.sort(methods, new Comparator<T>() {
-			@Override
-			public int compare(T o1, T o2) {
-				return o1.toString().compareTo(o2.toString());
-			}
-		});
+		methods.sort(new Comparator<T>() {
+            @Override
+            public int compare(T o1, T o2) {
+                return o1.toString().compareTo(o2.toString());
+            }
+        });
 		
 		methods.toArray(original);
 		return original;

@@ -76,7 +76,7 @@ public class TestCaseExpander {
 		// Now replace references to concrete values with new primitive statements
 		Map<Integer, Object> concreteValues = observer.getConcreteValues();
 		List<Integer> positions = new ArrayList<>(concreteValues.keySet());
-		Collections.sort(positions, Collections.reverseOrder());
+		positions.sort(Collections.reverseOrder());
 
 		for (Integer position : positions) {
 			Object value = concreteValues.get(position);

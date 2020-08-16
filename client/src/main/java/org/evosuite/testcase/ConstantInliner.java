@@ -131,7 +131,7 @@ public class ConstantInliner extends ExecutionObserver {
 			}
 			num++;
 		}
-		Collections.sort(toDelete, Collections.reverseOrder());
+		toDelete.sort(Collections.reverseOrder());
 		for (Integer position : toDelete) {
 			t.remove(position);
 		}

@@ -118,7 +118,7 @@ public class BudgetSchedule extends OneTimeSchedule{
 		 * as soon as possible
 		 */
 		
-		Collections.sort(jobs, (a, b) -> {
+		jobs.sort((a, b) -> {
             /*
              * the job with takes most time will be "lower".
              * recall that sorting is in ascending order
