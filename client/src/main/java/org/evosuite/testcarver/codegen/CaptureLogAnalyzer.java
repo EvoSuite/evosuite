@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
 
 public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 {
-	private static Logger logger = LoggerFactory.getLogger(CaptureLogAnalyzer.class);
+	private static final Logger logger = LoggerFactory.getLogger(CaptureLogAnalyzer.class);
 
 	@SuppressWarnings("rawtypes")
 	@Override

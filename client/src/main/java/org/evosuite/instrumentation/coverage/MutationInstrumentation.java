@@ -72,7 +72,7 @@ import org.slf4j.LoggerFactory;
  */
 public class MutationInstrumentation implements MethodInstrumentation {
 
-	private static Logger logger = LoggerFactory.getLogger(MethodInstrumentation.class);
+	private static final Logger logger = LoggerFactory.getLogger(MethodInstrumentation.class);
 
 	private final List<MutationOperator> mutationOperators;
 

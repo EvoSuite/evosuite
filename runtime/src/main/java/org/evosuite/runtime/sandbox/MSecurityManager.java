@@ -89,7 +89,7 @@ import org.slf4j.LoggerFactory;
  */
 public class MSecurityManager extends SecurityManager {
 
-	private static Logger logger = LoggerFactory.getLogger(MSecurityManager.class);
+	private static final Logger logger = LoggerFactory.getLogger(MSecurityManager.class);
 
 
 	/*

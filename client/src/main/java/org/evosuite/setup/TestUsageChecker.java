@@ -53,7 +53,7 @@ import java.util.*;
  */
 public class TestUsageChecker {
 
-	private static Logger logger = LoggerFactory.getLogger(TestUsageChecker.class);
+	private static final Logger logger = LoggerFactory.getLogger(TestUsageChecker.class);
 
 	public static boolean canUse(Constructor<?> c) {
 

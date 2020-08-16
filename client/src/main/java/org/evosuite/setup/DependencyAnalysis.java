@@ -55,7 +55,7 @@ import java.util.*;
  */
 public class DependencyAnalysis {
 
-	private static Logger logger = LoggerFactory.getLogger(DependencyAnalysis.class);
+	private static final Logger logger = LoggerFactory.getLogger(DependencyAnalysis.class);
 
 	private static Map<String, ClassNode> classCache = new LinkedHashMap<>();
 

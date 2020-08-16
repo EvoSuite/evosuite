@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
  */
 public class JUnitTestSuite {
 
-	private static Logger logger = LoggerFactory.getLogger(JUnitTestSuite.class);
+	private static final Logger logger = LoggerFactory.getLogger(JUnitTestSuite.class);
 
 	private Set<String> coveredMethods;
 

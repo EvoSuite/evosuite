@@ -36,7 +36,7 @@ import java.util.Set;
  */
 public abstract class LanguageModelSearch implements Comparator<Chromosome> {
     protected static final int GENERATIONS = 1000000;
-    private static Logger logger = LoggerFactory.getLogger(LanguageModelSearch.class);
+    private static final Logger logger = LoggerFactory.getLogger(LanguageModelSearch.class);
     protected final LangModel languageModel;
     protected final String startPoint;
     protected final ValueMinimizer.Minimization objective;

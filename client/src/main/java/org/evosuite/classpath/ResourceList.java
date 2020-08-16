@@ -56,7 +56,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ResourceList {
 
-	private static Logger logger = LoggerFactory.getLogger(ResourceList.class);
+	private static final Logger logger = LoggerFactory.getLogger(ResourceList.class);
 
 	private static class Cache{
 		/**

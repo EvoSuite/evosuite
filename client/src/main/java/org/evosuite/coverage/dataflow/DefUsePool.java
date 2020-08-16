@@ -45,7 +45,7 @@ import org.slf4j.LoggerFactory;
  */
 public class DefUsePool {
 
-	private static Logger logger = LoggerFactory.getLogger(DefUsePool.class);
+	private static final Logger logger = LoggerFactory.getLogger(DefUsePool.class);
 
 	// trees of all known definitions and uses
 

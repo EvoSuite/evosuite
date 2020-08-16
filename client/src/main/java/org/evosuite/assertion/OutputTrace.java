@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory;
 public class OutputTrace<T extends OutputTraceEntry> implements Cloneable {
 
 	@SuppressWarnings("unused")
-	private static Logger logger = LoggerFactory.getLogger(OutputTrace.class);
+	private static final Logger logger = LoggerFactory.getLogger(OutputTrace.class);
 
 	/** One entry per statement and per variable */
 	protected Map<Integer, Map<Integer, T>> trace = new HashMap<>();

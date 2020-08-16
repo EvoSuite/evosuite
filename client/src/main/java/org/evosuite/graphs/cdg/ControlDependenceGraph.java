@@ -33,7 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 public class ControlDependenceGraph extends EvoSuiteGraph<BasicBlock, ControlFlowEdge> {
 
-	private static Logger logger = LoggerFactory.getLogger(ControlDependenceGraph.class);
+	private static final Logger logger = LoggerFactory.getLogger(ControlDependenceGraph.class);
 
 	private final ActualControlFlowGraph cfg;
 

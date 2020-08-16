@@ -74,7 +74,7 @@ import org.slf4j.LoggerFactory;
  */
 public class TestClusterGenerator {
 
-	private static Logger logger = LoggerFactory.getLogger(TestClusterGenerator.class);
+	private static final Logger logger = LoggerFactory.getLogger(TestClusterGenerator.class);
 
 	private final Set<GenericAccessibleObject<?>> dependencyCache = new LinkedHashSet<>();
 

@@ -60,7 +60,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ProjectAnalyzer {
 
-	private static Logger logger = LoggerFactory.getLogger(ProjectAnalyzer.class);
+	private static final Logger logger = LoggerFactory.getLogger(ProjectAnalyzer.class);
 
 	/**
 	 * the folder/jar where to find the .class files used as CUTs

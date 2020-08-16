@@ -70,7 +70,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock> {
 
-	private static Logger logger = LoggerFactory.getLogger(ActualControlFlowGraph.class);
+	private static final Logger logger = LoggerFactory.getLogger(ActualControlFlowGraph.class);
 
 	private RawControlFlowGraph rawGraph;
 

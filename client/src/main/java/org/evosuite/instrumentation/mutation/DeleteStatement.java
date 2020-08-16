@@ -51,7 +51,7 @@ import org.slf4j.LoggerFactory;
  */
 public class DeleteStatement implements MutationOperator {
 
-	private static Logger logger = LoggerFactory.getLogger(DeleteStatement.class);
+	private static final Logger logger = LoggerFactory.getLogger(DeleteStatement.class);
 
 	public static final String NAME = "DeleteStatement";
 	

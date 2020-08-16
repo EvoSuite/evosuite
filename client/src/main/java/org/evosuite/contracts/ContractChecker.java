@@ -49,7 +49,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ContractChecker extends ExecutionObserver {
 
-	private static Logger logger = LoggerFactory.getLogger(ContractChecker.class);
+	private static final Logger logger = LoggerFactory.getLogger(ContractChecker.class);
 
 	private final Set<Contract> contracts = new HashSet<>();
 

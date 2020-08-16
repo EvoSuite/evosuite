@@ -37,7 +37,7 @@ import com.thoughtworks.xstream.XStream;
  */
 public class FileIOUtils {
 
-	private static Logger logger = LoggerFactory.getLogger(FileIOUtils.class);
+	private static final Logger logger = LoggerFactory.getLogger(FileIOUtils.class);
 
 
 	/**

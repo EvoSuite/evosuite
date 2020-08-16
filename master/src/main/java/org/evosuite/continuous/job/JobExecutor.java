@@ -63,7 +63,7 @@ import org.slf4j.LoggerFactory;
  */
 public class JobExecutor {
 
-	private static Logger logger = LoggerFactory.getLogger(JobExecutor.class);
+	private static final Logger logger = LoggerFactory.getLogger(JobExecutor.class);
 
 	private volatile boolean executing;
 	private long startTimeInMs;

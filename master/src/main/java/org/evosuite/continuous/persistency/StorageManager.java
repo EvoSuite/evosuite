@@ -67,7 +67,7 @@ import com.opencsv.CSVReader;
  */
 public class StorageManager {
 
-	private static Logger logger = LoggerFactory.getLogger(StorageManager.class);
+	private static final Logger logger = LoggerFactory.getLogger(StorageManager.class);
 
 	private static final String TMP_PREFIX = "tmp_";
 

@@ -42,7 +42,7 @@ public class LanguageModelGA extends LanguageModelSearch {
 
     private static int POPULATION_SIZE = 20;
 
-    private static Logger logger = LoggerFactory.getLogger(LanguageModelGA.class);
+    private static final Logger logger = LoggerFactory.getLogger(LanguageModelGA.class);
 
 
     public LanguageModelGA(ConstantValue constantValue, ValueMinimizer.Minimization objective){

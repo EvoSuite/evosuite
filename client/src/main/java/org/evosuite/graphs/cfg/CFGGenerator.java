@@ -55,7 +55,7 @@ import org.slf4j.LoggerFactory;
  */
 public class CFGGenerator {
 
-	private static Logger logger = LoggerFactory.getLogger(CFGGenerator.class);
+	private static final Logger logger = LoggerFactory.getLogger(CFGGenerator.class);
 
 	private RawControlFlowGraph rawGraph;
 

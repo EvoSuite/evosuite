@@ -41,7 +41,7 @@ import java.net.URLClassLoader;
  */
 public class ClassPathHacker {
 
-	private static Logger logger = LoggerFactory.getLogger(ClassPathHacker.class);
+	private static final Logger logger = LoggerFactory.getLogger(ClassPathHacker.class);
 
 	private static final Class<?>[] parameters = new Class[] { URL.class };
 

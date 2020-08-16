@@ -71,7 +71,7 @@ public class EvoSuite {
     //public final static String JAVA_CMD = javaHome + separator + "bin" + separator + "java";
 
     public static String base_dir_path = System.getProperty("user.dir");
-    private static Logger logger = LoggerFactory.getLogger(EvoSuite.class);
+    private static final Logger logger = LoggerFactory.getLogger(EvoSuite.class);
 
     private static String separator = System.getProperty("file.separator");
     //private static String javaHome = System.getProperty("java.home");

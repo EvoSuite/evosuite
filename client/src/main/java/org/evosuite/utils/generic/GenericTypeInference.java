@@ -52,7 +52,7 @@ import com.googlecode.gentyref.GenericTypeReflector;
  */
 public class GenericTypeInference extends TestVisitor {
 
-	private static Logger logger = LoggerFactory.getLogger(GenericTypeInference.class);
+	private static final Logger logger = LoggerFactory.getLogger(GenericTypeInference.class);
 
 	private final Map<VariableReference, Set<Type>> variableMap = new LinkedHashMap<>();
 

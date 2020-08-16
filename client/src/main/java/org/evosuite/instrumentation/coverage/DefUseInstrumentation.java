@@ -56,7 +56,7 @@ import org.slf4j.LoggerFactory;
  */
 public class DefUseInstrumentation implements MethodInstrumentation {
 
-	private static Logger logger = LoggerFactory.getLogger(DefUseInstrumentation.class);
+	private static final Logger logger = LoggerFactory.getLogger(DefUseInstrumentation.class);
 
 	/*
 	 * (non-Javadoc)

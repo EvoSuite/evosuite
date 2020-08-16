@@ -60,7 +60,7 @@ public class BasicBlock implements Serializable, Iterable<BytecodeInstruction> {
 
 	private static final long serialVersionUID = -3465486470017841484L;
 
-	private static Logger logger = LoggerFactory.getLogger(BasicBlock.class);
+	private static final Logger logger = LoggerFactory.getLogger(BasicBlock.class);
 
 	private static int blockCount = 0;
 

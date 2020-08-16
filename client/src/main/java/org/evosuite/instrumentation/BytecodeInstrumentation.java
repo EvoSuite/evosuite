@@ -58,7 +58,7 @@ import org.slf4j.LoggerFactory;
  */
 public class BytecodeInstrumentation {
 
-	private static Logger logger = LoggerFactory.getLogger(BytecodeInstrumentation.class);
+	private static final Logger logger = LoggerFactory.getLogger(BytecodeInstrumentation.class);
 
 	private final Instrumenter testCarvingInstrumenter;
 

@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
  */
 public class CSVStatisticsBackend implements StatisticsBackend {
 
-	private static Logger logger = LoggerFactory.getLogger(CSVStatisticsBackend.class);
+	private static final Logger logger = LoggerFactory.getLogger(CSVStatisticsBackend.class);
 	
 	/**
 	 * Retrieve header with variable names

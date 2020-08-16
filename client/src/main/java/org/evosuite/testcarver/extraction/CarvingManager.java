@@ -46,7 +46,7 @@ import org.slf4j.LoggerFactory;
 
 public class CarvingManager {
 
-	private static Logger logger = LoggerFactory.getLogger(CarvingManager.class);
+	private static final Logger logger = LoggerFactory.getLogger(CarvingManager.class);
 	
 	private static CarvingManager instance = null;
 	

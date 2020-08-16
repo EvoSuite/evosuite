@@ -41,7 +41,7 @@ public class InspectorManager {
 
 	private static InspectorManager instance = null;
 
-	private static Logger logger = LoggerFactory
+	private static final Logger logger = LoggerFactory
 			.getLogger(InspectorManager.class);
 
 	private final Map<Class<?>, List<Inspector>> inspectors = new HashMap<>();

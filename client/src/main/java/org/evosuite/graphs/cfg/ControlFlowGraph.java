@@ -50,7 +50,7 @@ import org.slf4j.LoggerFactory;
 public abstract class ControlFlowGraph<V> extends
 		EvoSuiteGraph<V, ControlFlowEdge> {
 
-	private static Logger logger = LoggerFactory
+	private static final Logger logger = LoggerFactory
 			.getLogger(ControlFlowGraph.class);
 
 	protected String className;

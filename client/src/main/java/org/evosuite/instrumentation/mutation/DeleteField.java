@@ -51,7 +51,7 @@ import org.slf4j.LoggerFactory;
  */
 public class DeleteField implements MutationOperator {
 
-	private static Logger logger = LoggerFactory.getLogger(DeleteField.class);
+	private static final Logger logger = LoggerFactory.getLogger(DeleteField.class);
 
 	public static final String NAME = "DeleteField";
 	

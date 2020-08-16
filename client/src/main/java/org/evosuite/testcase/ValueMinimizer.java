@@ -42,7 +42,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ValueMinimizer extends TestVisitor {
 
-	private static Logger logger = LoggerFactory.getLogger(ValueMinimizer.class);
+	private static final Logger logger = LoggerFactory.getLogger(ValueMinimizer.class);
 
 	public interface Minimization {
 		boolean isNotWorse();

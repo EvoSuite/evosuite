@@ -47,7 +47,7 @@ public class ExecutionPathClassAdapter extends ClassVisitor {
 	            || ArrayUtil.contains(Properties.CRITERION, Criterion.WEAKMUTATION);
 	}
 
-	private static Logger logger = LoggerFactory.getLogger(ExecutionPathClassAdapter.class);
+	private static final Logger logger = LoggerFactory.getLogger(ExecutionPathClassAdapter.class);
 
 	/** Skip methods on enums - at least some */
 	private boolean isEnum = false;

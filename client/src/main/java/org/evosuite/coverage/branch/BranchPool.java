@@ -53,7 +53,7 @@ import java.util.*;
  */
 public class BranchPool {
 
-	private static Logger logger = LoggerFactory.getLogger(BranchPool.class);
+	private static final Logger logger = LoggerFactory.getLogger(BranchPool.class);
 
 	// maps className -> method inside that class -> list of branches inside
 	// that method

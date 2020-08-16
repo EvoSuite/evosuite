@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
  */
 public class TransformationStatistics {
 
-	private static Logger logger = LoggerFactory.getLogger(TransformationStatistics.class);
+	private static final Logger logger = LoggerFactory.getLogger(TransformationStatistics.class);
 
 	/** Constant <code>transformedBooleanComparison=0</code> */
 	public static int transformedBooleanComparison = 0;

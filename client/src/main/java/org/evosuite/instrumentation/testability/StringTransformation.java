@@ -49,7 +49,7 @@ import org.slf4j.LoggerFactory;
  */
 public class StringTransformation {
 
-	private static Logger logger = LoggerFactory.getLogger(StringTransformation.class);
+	private static final Logger logger = LoggerFactory.getLogger(StringTransformation.class);
 
 	private final ClassNode cn;
 

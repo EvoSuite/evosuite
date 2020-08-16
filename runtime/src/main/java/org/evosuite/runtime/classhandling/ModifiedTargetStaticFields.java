@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ModifiedTargetStaticFields {
 
-	private static Logger logger = LoggerFactory.getLogger(ModifiedTargetStaticFields.class);
+	private static final Logger logger = LoggerFactory.getLogger(ModifiedTargetStaticFields.class);
 
 	/**
 	 * gets the current set of modified target static fields

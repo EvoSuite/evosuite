@@ -59,7 +59,7 @@ import org.slf4j.LoggerFactory;
  */
 public class JUnitAnalyzer {
 
-	private static Logger logger = LoggerFactory.getLogger(JUnitAnalyzer.class);
+	private static final Logger logger = LoggerFactory.getLogger(JUnitAnalyzer.class);
 
 	private static int dirCounter = 0;
 

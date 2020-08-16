@@ -31,7 +31,7 @@ import java.util.*;
 
 public class ConcreteClassAnalyzer {
 
-    private static Logger logger = LoggerFactory.getLogger(ConcreteClassAnalyzer.class);
+    private static final Logger logger = LoggerFactory.getLogger(ConcreteClassAnalyzer.class);
 
     private static ConcreteClassAnalyzer instance;
 

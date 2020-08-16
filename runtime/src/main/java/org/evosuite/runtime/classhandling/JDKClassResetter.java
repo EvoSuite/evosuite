@@ -34,7 +34,7 @@ import java.util.Map;
  */
 public class JDKClassResetter {
 
-    private static Logger logger = LoggerFactory.getLogger(JDKClassResetter.class);
+    private static final Logger logger = LoggerFactory.getLogger(JDKClassResetter.class);
 
     private static Map renderingHintsKeyIdentityMap;
     private static Map renderingHintsKeyIdentityMapCopy;

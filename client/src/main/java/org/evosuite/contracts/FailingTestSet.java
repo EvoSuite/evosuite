@@ -45,7 +45,7 @@ import org.slf4j.LoggerFactory;
  */
 public class FailingTestSet {
 
-	private static Logger logger = LoggerFactory.getLogger(FailingTestSet.class);
+	private static final Logger logger = LoggerFactory.getLogger(FailingTestSet.class);
 
 	/*
 	 * FIXME: if actually used, need way to reset them

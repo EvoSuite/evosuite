@@ -46,7 +46,7 @@ import org.slf4j.LoggerFactory;
  */
 public class GetStaticGraphGenerator {
 
-	private static Logger logger = LoggerFactory
+	private static final Logger logger = LoggerFactory
 			.getLogger(GetStaticGraphGenerator.class);
 
 	public static GetStaticGraph generate(String className) {

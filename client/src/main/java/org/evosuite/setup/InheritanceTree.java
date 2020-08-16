@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
  */
 public class InheritanceTree {
 
-    private static Logger logger = LoggerFactory.getLogger(InheritanceTree.class);
+    private static final Logger logger = LoggerFactory.getLogger(InheritanceTree.class);
 
 	private final Map<String, Set<String>> subclassCache = new LinkedHashMap<>();
 

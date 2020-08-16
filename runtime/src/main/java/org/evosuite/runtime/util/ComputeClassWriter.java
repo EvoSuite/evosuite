@@ -36,7 +36,7 @@ import java.io.InputStream;
  */
 public class ComputeClassWriter extends ClassWriter {
 
-    private Logger logger = LoggerFactory.getLogger(ComputeClassWriter.class);
+    private final Logger logger = LoggerFactory.getLogger(ComputeClassWriter.class);
 
 	private ClassLoader l = getClass().getClassLoader();
 	

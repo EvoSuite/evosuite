@@ -44,7 +44,7 @@ import org.slf4j.LoggerFactory;
  */
 public class SeedingSchedule extends OneTimeSchedule{
 
-	private static Logger logger = LoggerFactory.getLogger(SeedingSchedule.class);
+	private static final Logger logger = LoggerFactory.getLogger(SeedingSchedule.class);
 
 	protected final OneTimeSchedule base;
 

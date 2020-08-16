@@ -46,7 +46,7 @@ import org.slf4j.LoggerFactory;
 
 public class PrintStats {
 
-	private static Logger logger = LoggerFactory.getLogger(PrintStats.class);
+	private static final Logger logger = LoggerFactory.getLogger(PrintStats.class);
 	
 	public static final String NAME = "printStats";
 	

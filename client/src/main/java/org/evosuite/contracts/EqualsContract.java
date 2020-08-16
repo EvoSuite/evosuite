@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
 public class EqualsContract extends Contract {
 
 	@SuppressWarnings("unused")
-	private static Logger logger = LoggerFactory.getLogger(Contract.class);
+	private static final Logger logger = LoggerFactory.getLogger(Contract.class);
 
 	/* (non-Javadoc)
 	 * @see org.evosuite.contracts.Contract#check(org.evosuite.testcase.TestCase, org.evosuite.testcase.Statement, org.evosuite.testcase.Scope, java.lang.Throwable)

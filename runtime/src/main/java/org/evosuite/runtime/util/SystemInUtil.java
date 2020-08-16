@@ -44,7 +44,7 @@ public class SystemInUtil extends InputStream{
 	 */
 	private static final InputStream defaultIn = System.in;
 
-	private static Logger logger = LoggerFactory.getLogger(SystemInUtil.class);
+	private static final Logger logger = LoggerFactory.getLogger(SystemInUtil.class);
 
 	private static final SystemInUtil singleton = new SystemInUtil();
 

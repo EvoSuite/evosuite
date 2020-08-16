@@ -58,7 +58,7 @@ import org.jgrapht.graph.DefaultEdge;
  */
 public class DominatorTree<V> extends EvoSuiteGraph<DominatorNode<V>, DefaultEdge> {
 
-	private static Logger logger = LoggerFactory.getLogger(DominatorTree.class);
+	private static final Logger logger = LoggerFactory.getLogger(DominatorTree.class);
 
 	private int nodeCount = 0;
 	private final ControlFlowGraph<V> cfg;

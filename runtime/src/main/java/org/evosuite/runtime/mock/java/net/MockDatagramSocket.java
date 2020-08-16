@@ -41,7 +41,7 @@ import java.nio.channels.DatagramChannel;
  */
 public class MockDatagramSocket extends DatagramSocket implements OverrideMock{
 
-    private static Logger logger = LoggerFactory.getLogger(MockDatagramSocket.class);
+    private static final Logger logger = LoggerFactory.getLogger(MockDatagramSocket.class);
 
     private static final int ST_NOT_CONNECTED = 0;
     private static final int ST_CONNECTED = 1;

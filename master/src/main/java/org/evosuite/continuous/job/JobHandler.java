@@ -46,7 +46,7 @@ import org.slf4j.LoggerFactory;
  */
 public class JobHandler extends Thread {
 
-	private static Logger logger = LoggerFactory.getLogger(JobHandler.class);
+	private static final Logger logger = LoggerFactory.getLogger(JobHandler.class);
 
 	private final JobExecutor executor;
 

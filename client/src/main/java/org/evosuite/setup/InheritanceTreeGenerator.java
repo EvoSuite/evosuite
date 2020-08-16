@@ -51,7 +51,7 @@ import com.thoughtworks.xstream.XStream;
  */
 public class InheritanceTreeGenerator {
 
-	private static Logger logger = LoggerFactory.getLogger(InheritanceTreeGenerator.class);
+	private static final Logger logger = LoggerFactory.getLogger(InheritanceTreeGenerator.class);
 
 	private static final String resourceFolder = "client/src/main/resources/";
 	private static final String jdkFile =  "JDK_inheritance.xml";

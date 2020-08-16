@@ -42,7 +42,7 @@ import java.util.List;
  */
 public class RuntimeInstrumentation {
 
-	private static Logger logger = LoggerFactory.getLogger(RuntimeInstrumentation.class);
+	private static final Logger logger = LoggerFactory.getLogger(RuntimeInstrumentation.class);
 
 	/**
 	 * If we are re-instrumenting a class, then we cannot change its

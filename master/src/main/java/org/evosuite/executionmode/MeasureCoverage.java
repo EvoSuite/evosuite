@@ -46,7 +46,7 @@ import org.slf4j.LoggerFactory;
 
 public class MeasureCoverage {
 
-	private static Logger logger = LoggerFactory.getLogger(MeasureCoverage.class);
+	private static final Logger logger = LoggerFactory.getLogger(MeasureCoverage.class);
 
 	public static final String NAME = "measureCoverage";
 

@@ -64,7 +64,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ReplaceVariable implements MutationOperator {
 
-	private static Logger logger = LoggerFactory.getLogger(ReplaceVariable.class);
+	private static final Logger logger = LoggerFactory.getLogger(ReplaceVariable.class);
 
 	public static final String NAME = "ReplaceVariable";
 	

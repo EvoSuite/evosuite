@@ -53,7 +53,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ClientProcess {
 
-	private static Logger logger = LoggerFactory.getLogger(ClientProcess.class);
+	private static final Logger logger = LoggerFactory.getLogger(ClientProcess.class);
 
 	public final static String CLIENT_PREFIX = "Client-";
 

@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
  */
 public class JobDefinition {
 
-	private static Logger logger = LoggerFactory.getLogger(JobDefinition.class);
+	private static final Logger logger = LoggerFactory.getLogger(JobDefinition.class);
 	
 	/**
 	 * counter used to create unique ids in a thread-safe manner

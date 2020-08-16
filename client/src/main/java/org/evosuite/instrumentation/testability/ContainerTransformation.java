@@ -48,7 +48,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ContainerTransformation {
 
-	private static Logger logger = LoggerFactory
+	private static final Logger logger = LoggerFactory
 			.getLogger(ContainerTransformation.class);
 
 	private final ClassNode cn;

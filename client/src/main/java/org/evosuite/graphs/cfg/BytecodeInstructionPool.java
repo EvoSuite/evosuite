@@ -42,7 +42,7 @@ import org.slf4j.LoggerFactory;
  */
 public class BytecodeInstructionPool {
 
-	private static Logger logger = LoggerFactory.getLogger(BytecodeInstructionPool.class);
+	private static final Logger logger = LoggerFactory.getLogger(BytecodeInstructionPool.class);
 
 	private static Map<ClassLoader, BytecodeInstructionPool> instanceMap = new LinkedHashMap<>();
 

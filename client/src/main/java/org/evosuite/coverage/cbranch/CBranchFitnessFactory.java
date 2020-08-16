@@ -42,7 +42,7 @@ import org.slf4j.LoggerFactory;
  */
 public class CBranchFitnessFactory extends AbstractFitnessFactory<CBranchTestFitness> {
 
-	private static Logger logger = LoggerFactory.getLogger(CBranchFitnessFactory.class);
+	private static final Logger logger = LoggerFactory.getLogger(CBranchFitnessFactory.class);
 
 	/* (non-Javadoc)
 	 * @see org.evosuite.coverage.TestFitnessFactory#getCoverageGoals()

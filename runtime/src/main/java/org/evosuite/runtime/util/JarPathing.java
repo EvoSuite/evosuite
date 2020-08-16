@@ -40,7 +40,7 @@ import java.util.jar.Manifest;
  */
 public class JarPathing {
 
-    private static Logger logger = LoggerFactory.getLogger(JarPathing.class);
+    private static final Logger logger = LoggerFactory.getLogger(JarPathing.class);
 
     private static final String PATHING_JAR_PREFIX = "EvoSuite_pathingJar";
 

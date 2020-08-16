@@ -57,7 +57,7 @@ import org.evosuite.dse.VM;
  */
 public abstract class ConcolicExecution {
 
-	private static Logger logger = LoggerFactory.getLogger(ConcolicExecution.class);
+	private static final Logger logger = LoggerFactory.getLogger(ConcolicExecution.class);
 
 	/** Instrumenting class loader */
 	private static final ConcolicInstrumentingClassLoader classLoader = new ConcolicInstrumentingClassLoader();

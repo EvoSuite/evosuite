@@ -50,7 +50,7 @@ public class DefUseFitnessCalculator {
 
 	private final static boolean DEBUG = Properties.DEFUSE_DEBUG_MODE;
 
-	private static Logger logger = LoggerFactory.getLogger(DefUseFitnessCalculator.class);
+	private static final Logger logger = LoggerFactory.getLogger(DefUseFitnessCalculator.class);
 
 	private final DefUseCoverageTestFitness goal;
 	private final TestChromosome individual;

@@ -51,7 +51,7 @@ import org.slf4j.LoggerFactory;
 public class ContractViolation {
 
 	@SuppressWarnings("unused")
-	private static Logger logger = LoggerFactory.getLogger(ContractViolation.class);
+	private static final Logger logger = LoggerFactory.getLogger(ContractViolation.class);
 
 	private final Contract contract;
 

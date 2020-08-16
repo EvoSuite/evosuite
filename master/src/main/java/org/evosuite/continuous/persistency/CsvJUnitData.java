@@ -46,7 +46,7 @@ import com.opencsv.CSVReader;
  */
 public class CsvJUnitData {
 
-	private static Logger logger = LoggerFactory.getLogger(CsvJUnitData.class);
+	private static final Logger logger = LoggerFactory.getLogger(CsvJUnitData.class);
 
 	private String targetClass;	
 	private Map<String, Double> coverageValues = new LinkedHashMap<>();

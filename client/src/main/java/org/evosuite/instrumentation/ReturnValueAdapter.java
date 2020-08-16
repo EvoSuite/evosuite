@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
 public class ReturnValueAdapter extends MethodVisitor {
 
 	@SuppressWarnings("unused")
-	private static Logger logger = LoggerFactory.getLogger(LineNumberMethodAdapter.class);
+	private static final Logger logger = LoggerFactory.getLogger(LineNumberMethodAdapter.class);
 
 	private final String fullMethodName;
 

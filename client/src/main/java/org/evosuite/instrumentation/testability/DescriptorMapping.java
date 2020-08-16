@@ -48,7 +48,7 @@ public class DescriptorMapping {
 
 	private final Map<String, String> descriptorMapping = new HashMap<>();
 
-	private static Logger logger = LoggerFactory.getLogger(DescriptorMapping.class);
+	private static final Logger logger = LoggerFactory.getLogger(DescriptorMapping.class);
 
 	private static DescriptorMapping instance = null;
 

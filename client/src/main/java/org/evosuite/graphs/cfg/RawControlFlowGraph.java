@@ -54,7 +54,7 @@ import static java.util.stream.Collectors.*;
  */
 public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 
-	private static Logger logger = LoggerFactory.getLogger(RawControlFlowGraph.class);
+	private static final Logger logger = LoggerFactory.getLogger(RawControlFlowGraph.class);
 
 	private final ClassLoader classLoader;
 

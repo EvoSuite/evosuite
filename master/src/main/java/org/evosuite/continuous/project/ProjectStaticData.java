@@ -68,7 +68,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ProjectStaticData {
 
-	private static Logger logger = LoggerFactory.getLogger(ProjectStaticData.class);
+	private static final Logger logger = LoggerFactory.getLogger(ProjectStaticData.class);
 
 	/**
 	 * Map from CUT full class name (key) to ClassInfo object (value)

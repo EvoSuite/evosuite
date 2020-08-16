@@ -78,7 +78,7 @@ public class CreateClassResetClassAdapter extends ClassVisitor {
 	/** Constant <code>static_classes</code> */
 	public static List<String> staticClasses = new ArrayList<>();
 
-	private static Logger logger = LoggerFactory.getLogger(CreateClassResetClassAdapter.class);
+	private static final Logger logger = LoggerFactory.getLogger(CreateClassResetClassAdapter.class);
 
 	/**
 	 * Indicates if the current class being visited is an interface

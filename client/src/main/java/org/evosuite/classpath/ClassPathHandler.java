@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ClassPathHandler {
 
-	private static Logger logger = LoggerFactory.getLogger(ClassPathHandler.class);
+	private static final Logger logger = LoggerFactory.getLogger(ClassPathHandler.class);
 
 	private static final ClassPathHandler singleton = new ClassPathHandler();
 

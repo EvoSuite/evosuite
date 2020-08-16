@@ -45,7 +45,7 @@ public class MasterNodeImpl implements MasterNodeRemote, MasterNodeLocal {
 
 	private static final long serialVersionUID = -6329473514791197464L;
 
-	private static Logger logger = LoggerFactory.getLogger(MasterNodeImpl.class);
+	private static final Logger logger = LoggerFactory.getLogger(MasterNodeImpl.class);
 
 	private final Registry registry;
 	private final Map<String, ClientNodeRemote> clients;

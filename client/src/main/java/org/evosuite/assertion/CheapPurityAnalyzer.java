@@ -52,7 +52,7 @@ import java.util.*;
  */
 public class CheapPurityAnalyzer {
 
-	private static Logger logger = LoggerFactory
+	private static final Logger logger = LoggerFactory
 			.getLogger(CheapPurityAnalyzer.class);
 
 	private final HashSet<MethodEntry> updateFieldMethodList = new HashSet<>();

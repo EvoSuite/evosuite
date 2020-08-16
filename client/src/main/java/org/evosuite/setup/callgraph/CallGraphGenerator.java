@@ -46,7 +46,7 @@ import org.slf4j.LoggerFactory;
  */
 public class CallGraphGenerator {
 	
-	private static Logger logger = LoggerFactory.getLogger(CallGraphGenerator.class);
+	private static final Logger logger = LoggerFactory.getLogger(CallGraphGenerator.class);
 
 	public static CallGraph analyze(String className) {
 		ClassNode targetClass = DependencyAnalysis.getClassNode(className);

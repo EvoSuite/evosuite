@@ -42,7 +42,7 @@ import org.slf4j.LoggerFactory;
  */
 public class MasterServices {
 
-	private static Logger logger = LoggerFactory.getLogger(MasterServices.class);
+	private static final Logger logger = LoggerFactory.getLogger(MasterServices.class);
 	
 	private static MasterServices instance = new MasterServices();
 	

@@ -153,7 +153,7 @@ public class EndOfClassInitializerVisitor extends ClassVisitor {
 
 	}
 
-	private static Logger logger = LoggerFactory.getLogger(EndOfClassInitializerVisitor.class);
+	private static final Logger logger = LoggerFactory.getLogger(EndOfClassInitializerVisitor.class);
 
 	private final String className;
 

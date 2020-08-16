@@ -44,7 +44,7 @@ import org.slf4j.LoggerFactory;
 public class JobScheduler {
 	
 	
-	private static Logger logger = LoggerFactory.getLogger(JobScheduler.class);
+	private static final Logger logger = LoggerFactory.getLogger(JobScheduler.class);
 
 
 	private final ProjectStaticData projectData;

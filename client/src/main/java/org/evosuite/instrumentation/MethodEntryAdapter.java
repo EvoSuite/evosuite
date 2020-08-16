@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
 public class MethodEntryAdapter extends AdviceAdapter {
 
 	@SuppressWarnings("unused")
-	private static Logger logger = LoggerFactory.getLogger(MethodEntryAdapter.class);
+	private static final Logger logger = LoggerFactory.getLogger(MethodEntryAdapter.class);
 
 	String className;
 	String methodName;
