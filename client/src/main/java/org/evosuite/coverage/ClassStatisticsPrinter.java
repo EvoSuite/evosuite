@@ -153,11 +153,12 @@ public class ClassStatisticsPrinter {
 
 		StringBuilder allGoals = new StringBuilder();
 
-		List<TestFitnessFactory<?>> factories = TestGenerationStrategy.getFitnessFactories();
+		List<TestFitnessFactory<? extends TestFitnessFunction>> factories =
+				TestGenerationStrategy.getFitnessFactories();
 
 		int numCriterion = 0;
-		for (TestFitnessFactory<?> factory : factories) {
-			List<TestFitnessFunction> goals = (List<TestFitnessFunction>) factory.getCoverageGoals();
+		for (TestFitnessFactory<? extends TestFitnessFunction> factory : factories) {
+			List<? extends TestFitnessFunction> goals = factory.getCoverageGoals();
 			LoggingUtils.getEvoLogger().info("* Criterion " + Properties.CRITERION[numCriterion++]+ ": " + goals.size());
 			if (Properties.PRINT_GOALS) {
 				if (factory instanceof LineCoverageFactory) {
