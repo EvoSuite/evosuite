@@ -590,9 +590,8 @@ public class CoverageAnalysis {
                     + Properties.TARGET_CLASS);
 			ClientServices.getInstance().getClientNode().updateProperty("TARGET_CLASS", Properties.TARGET_CLASS);
 
-			for (int criterion_index = 0; criterion_index < criterion.length; criterion_index++) {
-				Properties.Criterion c = criterion[criterion_index];
-				Properties.CRITERION = new Criterion[] { c };
+			for (Criterion c : criterion) {
+				Properties.CRITERION = new Criterion[]{c};
 
 				analyzeCoverageCriterion(results, c);
 			}

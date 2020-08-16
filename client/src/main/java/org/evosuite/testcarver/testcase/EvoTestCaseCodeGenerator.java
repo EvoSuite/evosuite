@@ -572,22 +572,21 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 			ArrayList<VariableReference> paramList;
 			Method method;
 
-			for (int i = 0; i < params.length; i++) 
-			{
+			for (final Object param : params) {
 				paramList = new ArrayList<>(1);
-				argOID = (Integer) params[i];
+				argOID = (Integer) param;
+				final VariableReference var;
 				if (argOID == null || !this.oidToVarRefMap.containsKey(argOID)) {
-					VariableReference var = testCase.addStatement(new NullStatement(testCase,
-					        Object.class));
-					paramList.add(var);
+					var = testCase.addStatement(new NullStatement(testCase,
+							Object.class));
 				} else {
-					VariableReference var = this.oidToVarRefMap.get(argOID); 
-					paramList.add(var);
+					var = this.oidToVarRefMap.get(argOID);
 				}
+				paramList.add(var);
 
 				method = collType.getMethod("add", Object.class);
 				methodStmt = new MethodStatement(testCase, new GenericMethod(method,
-				        collType), collRef, paramList);
+						collType), collRef, paramList);
 				testCase.addStatement(methodStmt);
 			}
 		} 

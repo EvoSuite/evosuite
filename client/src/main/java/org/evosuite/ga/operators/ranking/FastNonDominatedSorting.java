@@ -87,8 +87,8 @@ public class FastNonDominatedSorting<T extends Chromosome<T>> implements Ranking
 			front[i] = new LinkedList<>();
 
 		// Initialize distance
-		for (int p = 0; p < (solutionSet.size()); p++) {
-			solutionSet.get(p).setDistance(Double.MAX_VALUE);
+		for (T solution : solutionSet) {
+			solution.setDistance(Double.MAX_VALUE);
 		}
 
 		// -> Fast non dominated sorting algorithm

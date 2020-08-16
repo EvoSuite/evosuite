@@ -412,8 +412,7 @@ public class Scaffolding {
 			bd.append(ClassStateSupport.class.getName() + ".initializeClasses(");
 			bd.append(testClassName + ".class.getClassLoader() ");
 
-			for (int i = 0; i < classesToInit.size(); i++) {
-				String className = classesToInit.get(i);
+			for (String className : classesToInit) {
 				if (!BytecodeInstrumentation.checkIfCanInstrument(className)) {
 					continue;
 				}

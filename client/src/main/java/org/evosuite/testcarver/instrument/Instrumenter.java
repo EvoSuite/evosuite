@@ -283,10 +283,7 @@ public final class Instrumenter
 		}
 		
 		final int numWM = wrappedMethods.size();
-		for(int i = 0; i < numWM; i++)
-		{
-			cn.methods.add(wrappedMethods.get(i));
-		}
+		cn.methods.addAll(wrappedMethods);
 		
 		TraceClassVisitor tcv = new TraceClassVisitor(new PrintWriter(System.err));
 		cn.accept(tcv);
@@ -701,13 +698,11 @@ public final class Instrumenter
 			
 			// consider method arguments to find right variable index
 			final Type[] argTypes = Type.getArgumentTypes(methodNode.desc);
-			for(int i = 0; i < argTypes.length; i++)
-			{
+			for (final Type argType : argTypes) {
 				varReturnValue++;
-				
+
 				// long/double take two registers
-				if(argTypes[i].equals(Type.LONG_TYPE) || argTypes[i].equals(Type.DOUBLE_TYPE) )
-				{
+				if (argType.equals(Type.LONG_TYPE) || argType.equals(Type.DOUBLE_TYPE)) {
 					varReturnValue++;
 				}
 			}
@@ -735,13 +730,11 @@ public final class Instrumenter
 		
 		
 		final Type[] argTypes = Type.getArgumentTypes(methodNode.desc);
-		for(int i = 0; i < argTypes.length; i++)
-		{
-			this.addLoadInsn(wInstructions, argTypes[i], var++);
-			
+		for (final Type argType : argTypes) {
+			this.addLoadInsn(wInstructions, argType, var++);
+
 			// long/double take two registers
-			if(argTypes[i].equals(Type.LONG_TYPE) || argTypes[i].equals(Type.DOUBLE_TYPE) )
-			{
+			if (argType.equals(Type.LONG_TYPE) || argType.equals(Type.DOUBLE_TYPE)) {
 				var++;
 			}
 		}

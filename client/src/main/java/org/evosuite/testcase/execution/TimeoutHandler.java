@@ -130,8 +130,8 @@ public class TimeoutHandler<T> {
 				long cpu_usage = 0;
 
 				outer: for (long id : all_thread_ids) {
-					for (int i = 0; i < other_thread_ids.length; i++)
-						if (id == other_thread_ids[i])
+					for (final long other_thread_id : other_thread_ids)
+						if (id == other_thread_id)
 							continue outer;
 
 					//id is "new"

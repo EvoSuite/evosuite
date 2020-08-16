@@ -37,20 +37,20 @@ public class CoverageReportGenerator {
 	public static void writeCoverage(boolean[][] coverage, Properties.Criterion criterion) {
 
 		StringBuilder suite = new StringBuilder();
-		for (int i = 0; i < coverage.length; i++) {
+		for (final boolean[] c : coverage) {
 			StringBuilder test = new StringBuilder();
 
-			for (int j = 0; j < coverage[i].length - 1; j++) {
-				if (coverage[i][j])
+			for (int j = 0; j < c.length - 1; j++) {
+				if (c[j])
 					test.append("1 ");
 				else
 					test.append("0 ");
 			}
 
 			if (!test.toString().contains("1")) // if a test case does not contains a "1", means it does not coverage anything
-				continue ;
+				continue;
 
-			if (coverage[i][coverage[i].length - 1])
+			if (c[c.length - 1])
 				test.append("+\n");
 			else
 				test.append("-\n");

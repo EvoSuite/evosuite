@@ -245,9 +245,9 @@ public class MethodNodeTransformer {
 	protected void setupLocals(MethodNode mn) {
         Type[] args = Type.getArgumentTypes(mn.desc);
         nextLocal = (Opcodes.ACC_STATIC & mn.access) == 0 ? 1 : 0;
-        for (int i = 0; i < args.length; i++) {
-            nextLocal += args[i].getSize();
-        }
+		for (final Type arg : args) {
+			nextLocal += arg.getSize();
+		}
         firstLocal = nextLocal;
 	}
 	

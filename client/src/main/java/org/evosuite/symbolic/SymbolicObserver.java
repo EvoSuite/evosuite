@@ -786,8 +786,7 @@ public class SymbolicObserver extends ExecutionObserver {
 		if (needThis)
 			calleeLocalsIndex++;
 
-		for (int i = 0; i < parameters.size(); i++) {
-			VariableReference p = parameters.get(i);
+		for (VariableReference p : parameters) {
 			calleeLocalsIndex += getSize(p.getType());
 		}
 

@@ -134,9 +134,8 @@ public class ClassStateSupport {
 	 * @param classNames
 	 */
 	public static void resetClasses(String... classNames) {
-		for (int i=0; i< classNames.length;i++) {
-			String classNameToReset = classNames[i];
-			ClassResetter.getInstance().reset(classNameToReset); 
+		for (String classNameToReset : classNames) {
+			ClassResetter.getInstance().reset(classNameToReset);
 		}
 	}
 
@@ -150,27 +149,25 @@ public class ClassStateSupport {
 
 		//assert !Sandbox.isSecurityManagerInitialized() || Sandbox.isOnAndExecutingSUTCode();
 
-		for (int i=0; i< classNames.length;i++) {
+		for (final String className : classNames) {
 
 			org.evosuite.runtime.Runtime.getInstance().resetRuntime();
-
-			String classNameToLoad = classNames[i];
 
 			Sandbox.goingToExecuteSUTCode();
 			boolean wasLoopCheckOn = LoopCounter.getInstance().isActivated();
 
 			try {
-				if(!safe){
+				if (!safe) {
 					Sandbox.goingToExecuteUnsafeCodeOnSameThread();
 				}
 				LoopCounter.getInstance().setActive(false);
-				Class<?> aClass = Class.forName(classNameToLoad, true, classLoader);
+				Class<?> aClass = Class.forName(className, true, classLoader);
 				classes.add(aClass);
 
 			} catch (Exception | Error ex) {
-				AtMostOnceLogger.error(logger,"Could not initialize " + classNameToLoad + ": " + ex.getMessage());
+				AtMostOnceLogger.error(logger, "Could not initialize " + className + ": " + ex.getMessage());
 			} finally {
-				if(!safe){
+				if (!safe) {
 					Sandbox.doneWithExecutingUnsafeCodeOnSameThread();
 				}
 				Sandbox.doneWithExecutingSUTCode();

@@ -111,8 +111,7 @@ public final class SmtExprPrinter implements SmtExprVisitor<String, Void> {
 	public static String encodeString(String str) {
 		char[] charArray = str.toCharArray();
 		String ret_val = "";
-		for (int i = 0; i < charArray.length; i++) {
-			char c = charArray[i];
+		for (char c : charArray) {
 			if (Character.isISOControl(c)) {
 				if (Integer.toHexString(c).length() == 1) {
 					// padding

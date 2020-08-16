@@ -47,8 +47,7 @@ public class StaticStateResetter extends BaseRule {
 
 	@Override
 	protected void after() {
-		for (int i=0; i< classNames.length;i++) {
-			String classNameToReset = classNames[i];
+		for (String classNameToReset : classNames) {
 			try {
 				org.evosuite.runtime.classhandling.ClassResetter.getInstance().reset(classNameToReset);
 			} catch (Throwable t) {

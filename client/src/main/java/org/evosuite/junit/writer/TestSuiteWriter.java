@@ -202,20 +202,19 @@ public class TestSuiteWriter implements Opcodes {
         LoopCounter.getInstance().setActive(true); //be sure it is active here, as JUnit checks might have left it to false
 
         List<ExecutionResult> results = new ArrayList<>();
-        for (int i = 0; i < testCases.size(); i++) {
-            TestCase test = testCases.get(i);
+        for (TestCase test : testCases) {
             boolean added = false;
-            if(!TimeController.getInstance().hasTimeToExecuteATestCase()) {
+            if (!TimeController.getInstance().hasTimeToExecuteATestCase()) {
                 logger.info("Using cached result");
-                for(ExecutionResult result : cachedResults) {
-                    if(result != null && result.test == test) {
+                for (ExecutionResult result : cachedResults) {
+                    if (result != null && result.test == test) {
                         results.add(result);
                         added = true;
                         break;
                     }
                 }
             }
-            if(!added) {
+            if (!added) {
                 ExecutionResult result = runTest(test);
                 results.add(result);
             }

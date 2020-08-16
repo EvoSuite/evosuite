@@ -156,13 +156,13 @@ public class ComputeClassWriter extends ClassWriter {
             throws IOException {
         while (!"java/lang/Object".equals(type)) {
             String[] itfs = info.getInterfaces();
-            for (int i = 0; i < itfs.length; ++i) {
-                if (itfs[i].equals(itf)) {
+            for (final String s : itfs) {
+                if (s.equals(itf)) {
                     return true;
                 }
             }
-            for (int i = 0; i < itfs.length; ++i) {
-                if (typeImplements(itfs[i], typeInfo(itfs[i]), itf)) {
+            for (final String s : itfs) {
+                if (typeImplements(s, typeInfo(s), itf)) {
                     return true;
                 }
             }

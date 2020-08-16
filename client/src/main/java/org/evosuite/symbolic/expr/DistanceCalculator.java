@@ -127,8 +127,7 @@ public class DistanceCalculator implements ConstraintVisitor<Object, Void> {
 			if (string.length() > 0) {
 				char[] charArray = string.toCharArray();
 				int maxDistance = 0;
-				for (int i = 0; i < charArray.length; i++) {
-					char c = charArray[i];
+				for (char c : charArray) {
 					int distance;
 					if (!Character.isDigit(c)) {
 						if (c < '0') {

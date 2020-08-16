@@ -191,13 +191,11 @@ public class SeedingSchedule extends OneTimeSchedule{
 
 		List<JobDefinition> list = new ArrayList<>(jobs.size());
 
-		for(int i=0; i<jobs.size(); i++){
-			JobDefinition job = jobs.get(i);
-
+		for (JobDefinition job : jobs) {
 			Set<String> inputs = calculateInputClasses(job);
 			Set<String> parents = calculateAncestors(job);
 
-			list.add(job.getByAddingDependencies(inputs,parents));
+			list.add(job.getByAddingDependencies(inputs, parents));
 		}
 
 		return list; 

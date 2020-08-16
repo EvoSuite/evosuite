@@ -125,8 +125,8 @@ public final class StringMultipleToIntegerExpression extends AbstractExpression<
 	@Override
 	public String toString() {
 		String str_other_v = "";
-		for (int i = 0; i < this.other_v.size(); i++) {
-			str_other_v += " " + this.other_v.get(i).toString();
+		for (Expression<?> expression : this.other_v) {
+			str_other_v += " " + expression.toString();
 		}
 
 		return "(" + left + op.toString() + (right == null ? "" : right) + str_other_v
