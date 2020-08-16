@@ -21,7 +21,6 @@ package org.evosuite.testcase.execution;
 
 import java.io.PrintStream;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;

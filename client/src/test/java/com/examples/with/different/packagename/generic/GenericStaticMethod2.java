@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -32,7 +32,7 @@ public class GenericStaticMethod2 {
 		} else if(inputCollection.iterator().next() instanceof List) {
 			System.out.println("OK 2");
 		} 
-        return new ArrayList<E>(inputCollection);
+        return new ArrayList<>(inputCollection);
     }
 	
 }

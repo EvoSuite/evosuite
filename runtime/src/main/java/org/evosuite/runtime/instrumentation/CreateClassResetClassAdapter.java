@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -76,9 +76,9 @@ public class CreateClassResetClassAdapter extends ClassVisitor {
 	private final String className;
 
 	/** Constant <code>static_classes</code> */
-	public static List<String> staticClasses = new ArrayList<String>();
+	public static List<String> staticClasses = new ArrayList<>();
 
-	private static Logger logger = LoggerFactory.getLogger(CreateClassResetClassAdapter.class);
+	private static final Logger logger = LoggerFactory.getLogger(CreateClassResetClassAdapter.class);
 
 	/**
 	 * Indicates if the current class being visited is an interface
@@ -108,7 +108,7 @@ public class CreateClassResetClassAdapter extends ClassVisitor {
 	/**
 	 * The final fields of this class
 	 */
-	private final List<String> finalFields = new ArrayList<String>();
+	private final List<String> finalFields = new ArrayList<>();
 
 	/**
 	 * Indicates if the current class being visited is an enumeration
@@ -181,13 +181,13 @@ public class CreateClassResetClassAdapter extends ClassVisitor {
 	/**
 	 * The list of the static fields declared in the class being visited
 	 */
-	private final List<StaticField> static_fields = new LinkedList<StaticField>();
+	private final List<StaticField> static_fields = new LinkedList<>();
 
 	/**
 	 * This list saves the static fields whose <code>final</code> modifier was
 	 * removed in the target class
 	 */
-	private final ArrayList<String> modifiedStaticFields = new ArrayList<String>();
+	private final ArrayList<String> modifiedStaticFields = new ArrayList<>();
 
 	/**
 	 * During the visit of each field, static fields are collected. If the

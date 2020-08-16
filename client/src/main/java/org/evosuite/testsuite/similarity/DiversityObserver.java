@@ -177,9 +177,9 @@ public class DiversityObserver implements SearchListener<TestSuiteChromosome> {
 
 
     public static void printMatrix(int[][] matrix) {
-        for(int x = 0; x < matrix.length; x++) {
-            for(int y = 0; y < matrix[x].length; y++) {
-                System.out.print(" "+matrix[x][y]);
+        for (final int[] ints : matrix) {
+            for (final int i : ints) {
+                System.out.print(" " + i);
             }
             System.out.println();
         }

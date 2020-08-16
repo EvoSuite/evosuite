@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -255,7 +255,9 @@ public class EvoHttpServletRequest implements HttpServletRequest {
 		 */
 
 		return Collections.unmodifiableMap(new LinkedHashMap<String, String[]>() {
-			{
+            private static final long serialVersionUID = 1871753415548774523L;
+
+            {
 				this.putAll(parameters);
 			}
 
@@ -263,7 +265,9 @@ public class EvoHttpServletRequest implements HttpServletRequest {
 			public Set<String> keySet() {
 				final Set<String> set = super.keySet();
 				return Collections.unmodifiableSet(new LinkedHashSet<String>() {
-					{
+                    private static final long serialVersionUID = 3038743265360409851L;
+
+                    {
 						this.addAll(set);
 					}
 
@@ -479,7 +483,10 @@ public class EvoHttpServletRequest implements HttpServletRequest {
 		}
 
 		TestDataJavaEE.getInstance().accessPart(null);
-		return new ArrayList<Part>(){{addAll(parts.values());}};
+		return new ArrayList<Part>(){
+            private static final long serialVersionUID = 7756732092240911613L;
+
+            {addAll(parts.values());}};
 	}
 
 	@Override
@@ -545,12 +552,7 @@ public class EvoHttpServletRequest implements HttpServletRequest {
 			return null;
 		}
 
-		return new Principal() {
-			@Override
-			public String getName() {
-				return principalName;
-			}
-		};
+		return () -> principalName;
 	}
 
 	@Override

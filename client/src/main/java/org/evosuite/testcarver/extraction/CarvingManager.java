@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -46,7 +46,7 @@ import org.slf4j.LoggerFactory;
 
 public class CarvingManager {
 
-	private static Logger logger = LoggerFactory.getLogger(CarvingManager.class);
+	private static final Logger logger = LoggerFactory.getLogger(CarvingManager.class);
 	
 	private static CarvingManager instance = null;
 	
@@ -74,7 +74,7 @@ public class CarvingManager {
 		}
 
 		String[] paths = prop.split(":");
-		Collection<String> junitTestNames = new HashSet<String>();
+		Collection<String> junitTestNames = new HashSet<>();
 		for (String s : paths) {
 			junitTestNames.add(s.trim());
 		}
@@ -110,7 +110,7 @@ public class CarvingManager {
 		runner.addListener(listener);
 
 
-		final List<Class<?>> junitTestClasses = new ArrayList<Class<?>>();
+		final List<Class<?>> junitTestClasses = new ArrayList<>();
 		final org.evosuite.testcarver.extraction.CarvingClassLoader classLoader = new org.evosuite.testcarver.extraction.CarvingClassLoader();
 		// TODO: This really needs to be done in a nicer way!
 		FieldRegistry.carvingClassLoader = classLoader;
@@ -223,7 +223,7 @@ public class CarvingManager {
 			readTestCases();
 		
 		if(!carvedTests.containsKey(clazz))
-			return new ArrayList<TestCase>();
+			return new ArrayList<>();
 		
 		return carvedTests.get(clazz);
 	}

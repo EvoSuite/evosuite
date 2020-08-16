@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -70,7 +70,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock> {
 
-	private static Logger logger = LoggerFactory.getLogger(ActualControlFlowGraph.class);
+	private static final Logger logger = LoggerFactory.getLogger(ActualControlFlowGraph.class);
 
 	private RawControlFlowGraph rawGraph;
 
@@ -154,7 +154,7 @@ public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock> {
 		if (exitPoints == null)
 			throw new IllegalArgumentException("null given");
 
-		this.exitPoints = new HashSet<BytecodeInstruction>();
+		this.exitPoints = new HashSet<>();
 
 		for (BytecodeInstruction exitPoint : exitPoints) {
 			if (!belongsToMethod(exitPoint))
@@ -173,7 +173,7 @@ public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock> {
 		if (joins == null)
 			throw new IllegalArgumentException("null given");
 
-		this.joins = new HashSet<BytecodeInstruction>();
+		this.joins = new HashSet<>();
 
 		for (BytecodeInstruction join : joins) {
 			if (!belongsToMethod(join))
@@ -191,7 +191,7 @@ public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock> {
 		if (rawGraph == null)
 			throw new IllegalArgumentException("null given");
 
-		this.joinSources = new HashSet<BytecodeInstruction>();
+		this.joinSources = new HashSet<>();
 
 		for (BytecodeInstruction join : joins)
 			for (ControlFlowEdge joinEdge : rawGraph.incomingEdgesOf(join))
@@ -202,7 +202,7 @@ public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock> {
 		if (branches == null)
 			throw new IllegalArgumentException("null given");
 
-		this.branches = new HashSet<BytecodeInstruction>();
+		this.branches = new HashSet<>();
 
 		for (BytecodeInstruction branch : branches) {
 			if (!belongsToMethod(branch))
@@ -239,7 +239,7 @@ public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock> {
 		if (rawGraph == null)
 			throw new IllegalArgumentException("null given");
 
-		this.branchTargets = new HashSet<BytecodeInstruction>();
+		this.branchTargets = new HashSet<>();
 
 		for (BytecodeInstruction branch : branches)
 			for (ControlFlowEdge branchEdge : rawGraph.outgoingEdgesOf(branch))
@@ -247,7 +247,7 @@ public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock> {
 	}
 
 	private Set<BytecodeInstruction> getInitiallyKnownInstructions() {
-		Set<BytecodeInstruction> r = new HashSet<BytecodeInstruction>();
+		Set<BytecodeInstruction> r = new HashSet<>();
 		r.add(entryPoint);
 		r.addAll(exitPoints);
 		r.addAll(branches);
@@ -836,7 +836,7 @@ public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock> {
 	 * @return a {@link java.util.Set} object.
 	 */
 	public Set<BytecodeInstruction> getExitPoints() {
-		return new HashSet<BytecodeInstruction>(exitPoints);
+		return new HashSet<>(exitPoints);
 	}
 
 	/**
@@ -847,7 +847,7 @@ public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock> {
 	 * @return a {@link java.util.Set} object.
 	 */
 	public Set<BytecodeInstruction> getBranches() {
-		return new HashSet<BytecodeInstruction>(branches);
+		return new HashSet<>(branches);
 	}
 
 	/**
@@ -858,7 +858,7 @@ public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock> {
 	 * @return a {@link java.util.Set} object.
 	 */
 	public Set<BytecodeInstruction> getJoins() {
-		return new HashSet<BytecodeInstruction>(joins);
+		return new HashSet<>(joins);
 	}
 
 	/** {@inheritDoc} */

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -338,8 +338,8 @@ public abstract class TestSolverSimpleMath extends TestSolver {
 		assertNotNull(solution);
 		Double var0 = (Double) solution.get("var0");
 
-		assertTrue(var0.doubleValue() != 0);
-        assertEquals(0, var0.intValue());
+		assertTrue(var0 != 0);
+		assertTrue(var0.intValue() == 0);
 	}
 
 	@Test

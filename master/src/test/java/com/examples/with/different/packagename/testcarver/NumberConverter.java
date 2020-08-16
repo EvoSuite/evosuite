@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -87,8 +87,8 @@ import com.examples.with.different.packagename.testcarver.ConversionException;
  */
 public abstract class NumberConverter extends AbstractConverter {
 
-    private static final Integer ZERO = new Integer(0);
-    private static final Integer ONE  = new Integer(1);
+    private static final Integer ZERO = 0;
+    private static final Integer ONE  = 1;
 
     private String pattern;
     private boolean allowDecimals;
@@ -233,17 +233,17 @@ public abstract class NumberConverter extends AbstractConverter {
 
         // Handle Boolean
         if (value instanceof Boolean) {
-            return toNumber(sourceType, targetType, ((Boolean)value).booleanValue() ? ONE : ZERO);
+            return toNumber(sourceType, targetType, (Boolean) value ? ONE : ZERO);
         }
 
         // Handle Date --> Long
         if (value instanceof Date && Long.class.equals(targetType)) {
-            return new Long(((Date)value).getTime());
+            return ((Date) value).getTime();
         }
 
         // Handle Calendar --> Long
         if (value instanceof Calendar  && Long.class.equals(targetType)) {
-            return new Long(((Calendar)value).getTime().getTime());
+            return ((Calendar) value).getTime().getTime();
         }
 
         // Convert all other types to String & handle
@@ -305,7 +305,7 @@ public abstract class NumberConverter extends AbstractConverter {
                 throw new ConversionException(toString(sourceType) + " value '" + value
                         + "' is too small " + toString(targetType));
             }
-            return new Byte(value.byteValue());
+            return value.byteValue();
         }
 
         // Short
@@ -319,7 +319,7 @@ public abstract class NumberConverter extends AbstractConverter {
                 throw new ConversionException(toString(sourceType) + " value '" + value
                         + "' is too small " + toString(targetType));
             }
-            return new Short(value.shortValue());
+            return value.shortValue();
         }
 
         // Integer
@@ -333,12 +333,12 @@ public abstract class NumberConverter extends AbstractConverter {
                 throw new ConversionException(toString(sourceType) + " value '" + value
                         + "' is too small " + toString(targetType));
             }
-            return new Integer(value.intValue());
+            return value.intValue();
         }
 
         // Long
         if (targetType.equals(Long.class)) {
-            return new Long(value.longValue());
+            return value.longValue();
         }
 
         // Float
@@ -347,12 +347,12 @@ public abstract class NumberConverter extends AbstractConverter {
                 throw new ConversionException(toString(sourceType) + " value '" + value
                         + "' is too large for " + toString(targetType));
             }
-            return new Float(value.floatValue());
+            return value.floatValue();
         }
 
         // Double
         if (targetType.equals(Double.class)) {
-            return new Double(value.doubleValue());
+            return value.doubleValue();
         }
 
         // BigDecimal

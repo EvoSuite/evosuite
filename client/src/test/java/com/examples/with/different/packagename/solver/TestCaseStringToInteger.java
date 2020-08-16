@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -24,7 +24,7 @@ public class TestCaseStringToInteger {
 	public static boolean test(String str) {
 		if (str != null && str.equals("1200")) {
 			Integer integer = Integer.parseInt(str);
-			if (integer.intValue() == 1200) {
+			if (integer == 1200) {
 				return true;
 			}
 		}

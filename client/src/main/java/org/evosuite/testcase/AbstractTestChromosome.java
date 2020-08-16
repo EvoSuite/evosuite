@@ -1,15 +1,13 @@
 package org.evosuite.testcase;
 
 import org.evosuite.ga.ConstructionFailedException;
-import org.evosuite.ga.SecondaryObjective;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
-
-import java.util.List;
 
 public abstract class AbstractTestChromosome<E extends AbstractTestChromosome<E>> extends ExecutableChromosome<E> {
 
 
+    private static final long serialVersionUID = 8274081309132365034L;
     /**
      * The test case encoded in this chromosome
      */

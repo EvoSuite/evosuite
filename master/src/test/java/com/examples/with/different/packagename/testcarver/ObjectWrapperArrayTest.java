@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -29,13 +29,13 @@ public class ObjectWrapperArrayTest {
 		ObjectWrapper wrapper = new ObjectWrapper();
 		Assert.assertNull(wrapper.get());
 
-		Long[] someArray = new Long[] { 1l, 47l };
+		Long[] someArray = new Long[] {1L, 47L};
 
 		wrapper.set(someArray);
 		Assert.assertNotNull(wrapper.get());
 
 		ObjectWrapper fortySeven = new ObjectWrapper();
-		fortySeven.set(47l);
+		fortySeven.set(47L);
 
 		Long[] foo = (Long[]) wrapper.get();
 

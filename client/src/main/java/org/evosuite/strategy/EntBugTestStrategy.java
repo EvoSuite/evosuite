@@ -116,7 +116,7 @@ public class EntBugTestStrategy extends TestGenerationStrategy {
 			ga.generateSolution();
 			number_of_generations--;
 
-			TestChromosome best = (TestChromosome) ga.getBestIndividual();
+			TestChromosome best = ga.getBestIndividual();
 			if (best.getLastExecutionResult() == null) {
 				// FIXME not sure yet how this can be null
 				// some timeout?

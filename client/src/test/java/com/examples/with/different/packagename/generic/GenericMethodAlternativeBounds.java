@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
+
 package com.examples.with.different.packagename.generic;
 
 import java.util.ArrayList;
@@ -36,7 +34,7 @@ public class GenericMethodAlternativeBounds {
 	}
 
 	public static <K extends Enum<K>> List<K> create(Class<K> keyType) {
-		List<K> list = new ArrayList<K>();
+		List<K> list = new ArrayList<>();
 		return list;
 	}
 }

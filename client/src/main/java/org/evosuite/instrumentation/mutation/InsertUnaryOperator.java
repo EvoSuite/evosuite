@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
+
 package org.evosuite.instrumentation.mutation;
 
 import java.util.ArrayList;
@@ -68,9 +66,9 @@ public class InsertUnaryOperator implements MutationOperator {
 		// TODO - need to keep InsnList in Mutation, not only Instruction?
 
 		// Mutation: Insert an INEG _after_ an iload 
-		List<Mutation> mutations = new LinkedList<Mutation>();
-		List<InsnList> mutationCode = new LinkedList<InsnList>();
-		List<String> descriptions = new LinkedList<String>();
+		List<Mutation> mutations = new LinkedList<>();
+		List<InsnList> mutationCode = new LinkedList<>();
+		List<String> descriptions = new LinkedList<>();
 
 		if (instruction.getASMNode() instanceof VarInsnNode) {
 			try {
@@ -110,7 +108,7 @@ public class InsertUnaryOperator implements MutationOperator {
 				}
 			} catch (VariableNotFoundException e) {
 				logger.info("Could not find variable: " + e);
-				return new ArrayList<Mutation>();
+				return new ArrayList<>();
 			}
 		} else {
 			InsnList mutation = new InsnList();

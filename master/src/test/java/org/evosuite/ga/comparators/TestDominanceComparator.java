@@ -20,7 +20,6 @@
 package org.evosuite.ga.comparators;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.evosuite.ga.FitnessFunction;
@@ -51,7 +50,7 @@ public class TestDominanceComparator
         c1.setFitness(ff, 0.7);
         c2.setFitness(ff, 0.3);
 
-        List<NSGAChromosome> population = new ArrayList<NSGAChromosome>();
+        List<NSGAChromosome> population = new ArrayList<>();
         population.add(c1);
         population.add(c2);
 
@@ -78,7 +77,7 @@ public class TestDominanceComparator
         c2.setFitness(ff_1, 0.3);
         c2.setFitness(ff_2, 0.5);
 
-        List<NSGAChromosome> population = new ArrayList<NSGAChromosome>();
+        List<NSGAChromosome> population = new ArrayList<>();
         population.add(c1);
         population.add(c2);
 
@@ -107,7 +106,7 @@ public class TestDominanceComparator
         c2.setFitness(ff_1, 0.3);
         c2.setFitness(ff_2, 0.5);
 
-        List<NSGAChromosome> population = new ArrayList<NSGAChromosome>();
+        List<NSGAChromosome> population = new ArrayList<>();
         population.add(c1);
         population.add(c2);
 

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -197,7 +197,7 @@ public class FooTestClassLoader {
 			return false; //fail
 		}
 
-		DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<JavaFileObject>();
+		DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
 		StandardJavaFileManager fileManager = compiler.getStandardFileManager(
 				diagnostics, Locale.getDefault(), Charset.forName("UTF-8"));
 		Iterable<? extends JavaFileObject> compilationUnits = fileManager
@@ -205,7 +205,7 @@ public class FooTestClassLoader {
 						.singletonList(javaFile));
 
 		List<String> optionList;
-		optionList = new ArrayList<String>();
+		optionList = new ArrayList<>();
 		optionList.addAll(Arrays.asList("-d", javaBinDirName));
 		CompilationTask task = compiler.getTask(null, fileManager, diagnostics,
 				optionList, null, compilationUnits);

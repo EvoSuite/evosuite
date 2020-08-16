@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
+
 package com.examples.with.different.packagename;
 
 import java.util.ArrayList;
@@ -32,7 +30,7 @@ import java.util.List;
 public class IntegerCollectionAllBranch {
 
 	public boolean testMe(List<Integer> aList) {
-		List<Integer> anotherList = new ArrayList<Integer>();
+		List<Integer> anotherList = new ArrayList<>();
 
 		anotherList.add(17);
 		anotherList.add(34);

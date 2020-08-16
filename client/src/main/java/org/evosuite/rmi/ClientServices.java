@@ -29,7 +29,6 @@ import org.evosuite.Properties;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.rmi.service.ClientNodeImpl;
 import org.evosuite.rmi.service.ClientNodeLocal;
-import org.evosuite.rmi.service.ClientNodeRemote;
 import org.evosuite.rmi.service.DummyClientNodeImpl;
 import org.evosuite.statistics.RuntimeVariable;
 import org.slf4j.Logger;

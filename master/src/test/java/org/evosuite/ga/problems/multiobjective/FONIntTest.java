@@ -20,12 +20,10 @@
 package org.evosuite.ga.problems.multiobjective;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
 import org.evosuite.Properties;
-import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.NSGAChromosome;
@@ -54,7 +52,7 @@ public class FONIntTest
         Properties.POPULATION = 100;
         Properties.SEARCH_BUDGET = 10000;
         Properties.CROSSOVER_RATE = 0.9;
-        Properties.RANDOM_SEED = 1l;
+        Properties.RANDOM_SEED = 1L;
     }
 
     @Test

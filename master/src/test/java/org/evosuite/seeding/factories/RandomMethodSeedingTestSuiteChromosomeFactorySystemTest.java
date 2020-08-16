@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -52,7 +52,7 @@ public class RandomMethodSeedingTestSuiteChromosomeFactorySystemTest extends Sys
 		Object result = evosuite.parseCommandLine(command);
 
 		ga = (GeneticAlgorithm<TestSuiteChromosome>) getGAFromResult(result);
-		bestIndividual = (TestSuiteChromosome) ga.getBestIndividual();
+		bestIndividual = ga.getBestIndividual();
 	}
 
 	@Test

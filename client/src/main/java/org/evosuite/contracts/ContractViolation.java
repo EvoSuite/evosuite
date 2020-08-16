@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
+
 package org.evosuite.contracts;
 
 import java.util.ArrayList;
@@ -51,7 +49,7 @@ import org.slf4j.LoggerFactory;
 public class ContractViolation {
 
 	@SuppressWarnings("unused")
-	private static Logger logger = LoggerFactory.getLogger(ContractViolation.class);
+	private static final Logger logger = LoggerFactory.getLogger(ContractViolation.class);
 
 	private final Contract contract;
 
@@ -170,7 +168,7 @@ public class ContractViolation {
 		}
 		TestCase origTest = test.clone();
 
-		List<Integer> positions = new ArrayList<Integer>();
+		List<Integer> positions = new ArrayList<>();
 
 		for (VariableReference var : variables)
 			positions.add(var.getStPosition());

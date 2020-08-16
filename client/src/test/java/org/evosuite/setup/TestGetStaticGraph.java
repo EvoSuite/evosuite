@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -60,26 +60,26 @@ public class TestGetStaticGraph {
 		GetStaticGraph graph = GetStaticGraphGenerator
 				.generate(targetClassName);
 
-		Set<String> expectedClasses = new HashSet<String>(Arrays.asList(
+		Set<String> expectedClasses = new HashSet<>(Arrays.asList(
 				Foo.class.getCanonicalName(), Bar1.class.getCanonicalName(),
 				Bar2.class.getCanonicalName(), Bar3.class.getCanonicalName(),
 				Bar4.class.getCanonicalName(), Bar5.class.getCanonicalName(),
 				Bar6.class.getCanonicalName(), Bar7.class.getCanonicalName(),
 				BarBar1.class.getCanonicalName()));
 
-		Set<String> allClasses = new HashSet<String>();
+		Set<String> allClasses = new HashSet<>();
 		allClasses.addAll(graph.getSourceClasses());
 		allClasses.addAll(graph.getTargetClasses());
 
 		assertEquals(expectedClasses, allClasses);
 
-		Map<String, Set<String>> expectedStaticFields = new HashMap<String, Set<String>>();
+		Map<String, Set<String>> expectedStaticFields = new HashMap<>();
 		expectedStaticFields.put(Bar2.class.getCanonicalName(),
-				new HashSet<String>(Arrays.asList("fieldBar2")));
+				new HashSet<>(Arrays.asList("fieldBar2")));
 		expectedStaticFields.put(Bar6.class.getCanonicalName(),
-				new HashSet<String>(Arrays.asList("fieldBar6")));
+				new HashSet<>(Arrays.asList("fieldBar6")));
 		expectedStaticFields.put(Bar7.class.getCanonicalName(),
-				new HashSet<String>(Arrays.asList("fieldBar7")));
+				new HashSet<>(Arrays.asList("fieldBar7")));
 
 		Map<String, Set<String>> staticFields = graph.getStaticFields();
 		assertEquals(expectedStaticFields, staticFields);
@@ -91,7 +91,7 @@ public class TestGetStaticGraph {
 		GetStaticGraph graph = GetStaticGraphGenerator
 				.generate(targetClassName);
 
-		Set<String> expectedSourceClasses = new HashSet<String>(Arrays.asList(
+		Set<String> expectedSourceClasses = new HashSet<>(Arrays.asList(
 				Cycle1.class.getCanonicalName(),
 				Cycle2.class.getCanonicalName()));
 

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -89,7 +89,7 @@ import org.slf4j.LoggerFactory;
  */
 public class MSecurityManager extends SecurityManager {
 
-	private static Logger logger = LoggerFactory.getLogger(MSecurityManager.class);
+	private static final Logger logger = LoggerFactory.getLogger(MSecurityManager.class);
 
 
 	/*
@@ -216,8 +216,7 @@ public class MSecurityManager extends SecurityManager {
     }
 
 	public Set<Thread> getPrivilegedThreads() {
-		Set<Thread> set = new LinkedHashSet<>();
-		set.addAll(privilegedThreads);
+		Set<Thread> set = new LinkedHashSet<>(privilegedThreads);
 		return set;
 	}
 

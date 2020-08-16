@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -50,11 +50,11 @@ public class MathInt {
 	}
 	
 	public int castToInt(int f) {
-		return (int)f;
+		return f;
 	}
 	
 	public long castToLong(int f) {
-		return (long)f;
+		return f;
 	}
 	
 	public char castToChar(int f) {

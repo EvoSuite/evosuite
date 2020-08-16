@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -56,7 +56,7 @@ public class InputCoverageFactory extends AbstractFitnessFactory<InputCoverageTe
      */
     @Override
     public List<InputCoverageTestFitness> getCoverageGoals() {
-        List<InputCoverageTestFitness> goals = new ArrayList<InputCoverageTestFitness>();
+        List<InputCoverageTestFitness> goals = new ArrayList<>();
 
         long start = System.currentTimeMillis();
         String targetClass = Properties.TARGET_CLASS;

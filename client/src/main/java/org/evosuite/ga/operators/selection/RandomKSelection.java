@@ -10,6 +10,8 @@ import java.util.List;
  */
 public class RandomKSelection<T extends Chromosome<T>> extends SelectionFunction<T> {
 
+    private static final long serialVersionUID = -2459623722712044154L;
+
     @Override
     public int getIndex(List<T> population) {
         double r = Randomness.nextDouble();

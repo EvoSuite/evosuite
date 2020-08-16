@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -23,7 +23,6 @@ import com.examples.with.different.packagename.agent.StartThreads;
 import org.evosuite.runtime.Runtime;
 import org.evosuite.runtime.RuntimeSettings;
 import org.evosuite.runtime.instrumentation.MethodCallReplacementCache;
-import org.evosuite.runtime.instrumentation.MethodCallReplacementClassAdapter;
 import org.evosuite.runtime.mock.MockFramework;
 import org.evosuite.runtime.thread.KillSwitchHandler;
 import org.evosuite.runtime.thread.ThreadStopper;

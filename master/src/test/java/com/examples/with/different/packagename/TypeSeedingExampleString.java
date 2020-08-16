@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -24,7 +24,7 @@ public class TypeSeedingExampleString {
 	
 	public boolean testMe(Object o) {
 		if(o instanceof String) {
-			if(((String)o).equals("test")) {
+			if(o.equals("test")) {
 				return true;
 			}
 		}

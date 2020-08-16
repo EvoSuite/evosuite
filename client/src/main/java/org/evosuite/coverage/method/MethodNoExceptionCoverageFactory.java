@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -58,7 +58,7 @@ public class MethodNoExceptionCoverageFactory extends
 	/** {@inheritDoc} */
 	@Override
 	public List<MethodNoExceptionCoverageTestFitness> getCoverageGoals() {
-		List<MethodNoExceptionCoverageTestFitness> goals = new ArrayList<MethodNoExceptionCoverageTestFitness>();
+		List<MethodNoExceptionCoverageTestFitness> goals = new ArrayList<>();
 
 		long start = System.currentTimeMillis();
 

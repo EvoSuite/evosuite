@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -21,9 +21,7 @@ package org.evosuite.testcase;
 
 import org.evosuite.runtime.annotation.*;
 import org.evosuite.runtime.util.Inputs;
-import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.testcase.statements.*;
-import org.evosuite.testcase.variable.NullReference;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.utils.Randomness;
 import org.evosuite.utils.generic.GenericAccessibleObject;
@@ -393,7 +391,7 @@ public class ConstraintVerifier {
                 ConstructorStatement cs = (ConstructorStatement) st;
                 inputs = cs.getParameterReferences();
 
-                Constructor c = cs.getConstructor().getConstructor();
+                Constructor<?> c = cs.getConstructor().getConstructor();
                 reflectionRef = c;
                 methodAnnotations = c.getDeclaredAnnotations();
                 declaringClass = c.getDeclaringClass();

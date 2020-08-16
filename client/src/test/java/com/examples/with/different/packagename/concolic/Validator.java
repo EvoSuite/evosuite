@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -41,7 +41,8 @@ public abstract class Validator implements  java.io.Serializable
     
     private static final String PROP_MANDATORY_PROPERTY = "Mandatory";
     private static final String PROP_ERRORTEXT_PROPERTY = "ErrorText";
-        
+    private static final long serialVersionUID = 2234853960901536845L;
+
     /** PropertyChange Support for use with
      * XBuilder GUI
      */

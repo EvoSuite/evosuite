@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -70,7 +70,7 @@ public class TestSelectionOperators
 		
 		for(boolean b : maximize)
 		{
-			List<Chromosome> population = new LinkedList<Chromosome>();
+			List<Chromosome> population = new LinkedList<>();
 			for(int i=0; i<N; i++)
 			{
 				ExecutableChromosome ind = new TestChromosome();

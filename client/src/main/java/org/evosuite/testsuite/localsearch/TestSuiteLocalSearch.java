@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -27,10 +27,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
-import java.util.stream.Collectors;
 
 import org.evosuite.Properties;
-import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.localsearch.LocalSearch;
 import org.evosuite.ga.localsearch.LocalSearchBudget;
@@ -340,7 +338,7 @@ public class TestSuiteLocalSearch implements LocalSearch<TestSuiteChromosome> {
 		double fitnessBefore = suite.getFitness();
 		// logger.info("Test suite before local search: " + individual);
 
-		List<TestChromosome> originalTests = new ArrayList<TestChromosome>(suite.getTestChromosomes());
+		List<TestChromosome> originalTests = new ArrayList<>(suite.getTestChromosomes());
 		List<TestChromosome> tests = suite.getTestChromosomes();
 		/*
 		 * When we apply local search, due to budget constraints we might not be
@@ -462,7 +460,7 @@ public class TestSuiteLocalSearch implements LocalSearch<TestSuiteChromosome> {
 		/*
 		 * We make a copy of the original test cases before Local Search
 		 */
-		List<TestChromosome> originalTests = new ArrayList<TestChromosome>(suite.getTestChromosomes());
+		List<TestChromosome> originalTests = new ArrayList<>(suite.getTestChromosomes());
 
 		for (final TestChromosome test : originalTests) {
 
@@ -488,7 +486,7 @@ public class TestSuiteLocalSearch implements LocalSearch<TestSuiteChromosome> {
 			 * We create a cloned test case to play local search with it. This
 			 * resembles the deprecated ensureDoubleExecution
 			 */
-			TestChromosome clonedTest = (TestChromosome) test.clone();
+			TestChromosome clonedTest = test.clone();
 			suite.addTest(clonedTest);
 			final int lastIndex = suite.size() - 1;
 

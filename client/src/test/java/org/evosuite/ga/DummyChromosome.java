@@ -29,6 +29,7 @@ import java.util.*;
  */
 public class DummyChromosome extends Chromosome<DummyChromosome> {
 
+    private static final long serialVersionUID = 1119496483428808761L;
     private final List<Integer> values = new ArrayList<>();
 
     public DummyChromosome(int... values) {

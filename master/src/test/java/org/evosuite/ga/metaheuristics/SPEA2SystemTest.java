@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -79,7 +79,7 @@ public class SPEA2SystemTest extends SystemTestBase {
     final FitnessFunction<?> branch = ga.getFitnessFunctions().get(0);
     final FitnessFunction<?> rho = ga.getFitnessFunctions().get(1);
 
-    List<Chromosome> population = new ArrayList<Chromosome>(ga.getBestIndividuals());
+    List<Chromosome> population = new ArrayList<>(ga.getBestIndividuals());
 
     double[][] front = new double[population.size()][2];
     for (int i = 0; i < population.size(); i++) {

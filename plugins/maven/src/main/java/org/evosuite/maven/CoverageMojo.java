@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -75,9 +75,7 @@ public class CoverageMojo extends AbstractMojo {
 	@Parameter( property = "global_timeout", defaultValue = "120" )
 	private int global_timeout;
 
-	/**
-	 * 
-	 */
+	
 	@Parameter( property = "output_variables", defaultValue = "TARGET_CLASS,criterion,Coverage,Total_Goals,Covered_Goals"
 															+ ",LineCoverage,LineCoverageBitString"
 															+ ",BranchCoverage,BranchCoverageBitString"
@@ -98,11 +96,10 @@ public class CoverageMojo extends AbstractMojo {
 
 		getLog().info("Going to measure the coverage of manually written test cases with EvoSuite");
 
-		List<String> target = new ArrayList<String>();
-		Set<String> cp = new LinkedHashSet<String>();
+        Set<String> cp = new LinkedHashSet<>();
 
 		// Get compile elements (i.e., classes under /target/classes)
-		target.addAll(ProjectUtils.getCompileClasspathElements(this.project));
+        List<String> target = new ArrayList<>(ProjectUtils.getCompileClasspathElements(this.project));
 
 		// Get JUnit elements (i.e., classes under /target/test-classes) and compiled
 		// elements (i.e., classes under /target/classes)

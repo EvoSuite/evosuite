@@ -149,7 +149,7 @@ public class SystemTestBase {
 	 * next month, and so on in a %12 ring
 	 * @return
      */
-	private final long getSeed(){
+	private long getSeed(){
 
 		String id = this.getClass().getName() + "#" + name.getMethodName();
 		Integer counter = executionCounter.computeIfAbsent(id, c -> 0);

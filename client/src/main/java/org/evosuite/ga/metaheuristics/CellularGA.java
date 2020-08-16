@@ -83,7 +83,7 @@ public class CellularGA<T extends Chromosome<T>> extends GeneticAlgorithm<T> {
 			List<T> neighbors = neighb.getNeighbors(population, i);
 			
 			if (getFitnessFunction().isMaximizationFunction()) {
-				Collections.sort(neighbors, Collections.reverseOrder());
+				neighbors.sort(Collections.reverseOrder());
 			} else {
 				Collections.sort(neighbors);
 			}

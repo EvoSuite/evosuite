@@ -21,8 +21,6 @@ package org.evosuite.lm;
 
 import org.evosuite.Properties;
 import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
-import org.evosuite.testcase.*;
-import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 
@@ -33,6 +31,7 @@ import java.io.IOException;
  */
 public class LanguageModelSuiteFitness extends TestSuiteFitnessFunction {
 
+    private static final long serialVersionUID = 8985543347957256453L;
     private final BranchCoverageSuiteFitness backingFitness;
     private LangModel languageModel;
 

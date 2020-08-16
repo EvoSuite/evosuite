@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -53,7 +53,7 @@ import java.util.*;
  */
 public class BranchPool {
 
-	private static Logger logger = LoggerFactory.getLogger(BranchPool.class);
+	private static final Logger logger = LoggerFactory.getLogger(BranchPool.class);
 
 	// maps className -> method inside that class -> list of branches inside
 	// that method
@@ -256,7 +256,7 @@ public class BranchPool {
 	private void registerSwitchLabel(Branch b, LabelNode targetLabel) {
 
 		if (switchLabels.get(targetLabel) == null)
-			switchLabels.put(targetLabel, new ArrayList<Branch>());
+			switchLabels.put(targetLabel, new ArrayList<>());
 
 		List<Branch> oldList = switchLabels.get(targetLabel);
 
@@ -282,7 +282,7 @@ public class BranchPool {
 			throw new IllegalArgumentException("switch instruction expected");
 
 		if (registeredSwitches.get(v) == null)
-			registeredSwitches.put(v, new ArrayList<Branch>());
+			registeredSwitches.put(v, new ArrayList<>());
 
 		List<Branch> oldList = registeredSwitches.get(v);
 

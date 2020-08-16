@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -46,7 +46,7 @@ public class JUnitFailure {
 	private final String message;
 	private final boolean isAssertionError;
 	private final String trace;
-	private final ArrayList<String> exceptionStackTrace = new ArrayList<String>();
+	private final ArrayList<String> exceptionStackTrace = new ArrayList<>();
 
 	public void addToExceptionStackTrace(String elemToString) {
 		exceptionStackTrace.add(elemToString);

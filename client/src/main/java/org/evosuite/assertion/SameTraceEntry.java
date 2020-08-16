@@ -37,8 +37,8 @@ public class SameTraceEntry implements OutputTraceEntry {
 
   private final static Logger logger = LoggerFactory.getLogger(SameTraceEntry.class);
   private final VariableReference var;
-  private final Map<VariableReference, Boolean> equalityMap = new HashMap<VariableReference, Boolean>();
-  private final Map<Integer, VariableReference> equalityMapIntVar = new HashMap<Integer, VariableReference>();
+  private final Map<VariableReference, Boolean> equalityMap = new HashMap<>();
+  private final Map<Integer, VariableReference> equalityMapIntVar = new HashMap<>();
 
   /**
    * <p>Constructor for SameTraceEntry.</p>
@@ -98,7 +98,7 @@ public class SameTraceEntry implements OutputTraceEntry {
    */
   @Override
   public Set<Assertion> getAssertions(OutputTraceEntry other) {
-    Set<Assertion> assertions = new HashSet<Assertion>();
+    Set<Assertion> assertions = new HashSet<>();
 
     if (other instanceof SameTraceEntry) {
       SameTraceEntry otherEntry = (SameTraceEntry) other;
@@ -136,7 +136,7 @@ public class SameTraceEntry implements OutputTraceEntry {
    */
   @Override
   public Set<Assertion> getAssertions() {
-    Set<Assertion> assertions = new HashSet<Assertion>();
+    Set<Assertion> assertions = new HashSet<>();
 
     for (VariableReference otherVar : equalityMap.keySet()) {
       if (otherVar == null) {

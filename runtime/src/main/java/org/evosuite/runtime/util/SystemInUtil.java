@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -44,7 +44,7 @@ public class SystemInUtil extends InputStream{
 	 */
 	private static final InputStream defaultIn = System.in;
 
-	private static Logger logger = LoggerFactory.getLogger(SystemInUtil.class);
+	private static final Logger logger = LoggerFactory.getLogger(SystemInUtil.class);
 
 	private static final SystemInUtil singleton = new SystemInUtil();
 
@@ -90,7 +90,7 @@ public class SystemInUtil extends InputStream{
 	 */
 	public static synchronized void resetSingleton(){
 		singleton.beingUsed = false;	
-		singleton.data = new ArrayList<Byte>();
+		singleton.data = new ArrayList<>();
 		singleton.counter = new AtomicInteger(0);
 		singleton.endReached = false;
 		System.setIn(defaultIn);
@@ -100,7 +100,7 @@ public class SystemInUtil extends InputStream{
 	 * Setup mocked/stubbed System.in for the test case
 	 */
 	public void initForTestCase(){
-		data = new ArrayList<Byte>();
+		data = new ArrayList<>();
 		counter = new AtomicInteger(0);
 		endReached = false;
 		if(RuntimeSettings.mockSystemIn){
@@ -128,7 +128,7 @@ public class SystemInUtil extends InputStream{
 		synchronized(monitor){
 			String line = input+"\n";
 			for(byte b : line.getBytes()){
-				singleton.data.add((Byte)b);
+				singleton.data.add(b);
 			}	
 			singleton.endReached = false;
 		}

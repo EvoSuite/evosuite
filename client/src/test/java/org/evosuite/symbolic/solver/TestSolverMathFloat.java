@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -60,7 +60,7 @@ public abstract class TestSolverMathFloat extends TestSolver {
 		assertNotNull(solution);
 		Double var0 = (Double) solution.get("var0");
 
-		assertTrue(Math.abs(var0.doubleValue()) > 0);
+		assertTrue(Math.abs(var0) > 0);
 	}
 
 	private static DefaultTestCase buildTestCaseFloatTrigonometry() throws SecurityException, NoSuchMethodException {
@@ -110,7 +110,7 @@ public abstract class TestSolverMathFloat extends TestSolver {
 		Double var0 = (Double) solution.get("var0");
 		Double var1 = (Double) solution.get("var1");
 
-		assertEquals(10, Math.max(var0.doubleValue(), var1.doubleValue()), DELTA);
+		assertEquals(10, Math.max(var0, var1), DELTA);
 	}
 
 	@Test
@@ -123,7 +123,7 @@ public abstract class TestSolverMathFloat extends TestSolver {
 		Double var0 = (Double) solution.get("var0");
 		Double var1 = (Double) solution.get("var1");
 
-		assertEquals(10, Math.min(var0.doubleValue(), var1.doubleValue()), DELTA);
+		assertEquals(10, Math.min(var0, var1), DELTA);
 	}
 
 	private static final double DELTA = 1e-15;
@@ -148,6 +148,6 @@ public abstract class TestSolverMathFloat extends TestSolver {
 		Double var0 = (Double) solution.get("var0");
 		Long var1 = (Long) solution.get("var1");
 
-		assertEquals(Math.round(var0.doubleValue()), var1.intValue());
+		assertEquals(Math.round(var0), var1.intValue());
 	}
 }

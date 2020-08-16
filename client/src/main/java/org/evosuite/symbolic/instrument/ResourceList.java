@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
+
 package org.evosuite.symbolic.instrument;
 
 /**
@@ -42,7 +40,7 @@ public class ResourceList {
 
 	
 	public static Collection<String> findResourceInClassPath(String fileName) {
-		final ArrayList<String> retval = new ArrayList<String>();
+		final ArrayList<String> retval = new ArrayList<>();
 		final String[] classPathElements = MainConfig.get().CLASS_PATH.split(":");
 
 		for (final String element : classPathElements) {

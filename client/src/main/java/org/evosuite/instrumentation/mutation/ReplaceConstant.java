@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
+
 package org.evosuite.instrumentation.mutation;
 
 import java.util.LinkedList;
@@ -56,7 +54,7 @@ public class ReplaceConstant implements MutationOperator {
 	public List<Mutation> apply(MethodNode mn, String className, String methodName,
 	        BytecodeInstruction instruction, Frame frame) {
 
-		List<Mutation> mutations = new LinkedList<Mutation>();
+		List<Mutation> mutations = new LinkedList<>();
 		Object value = getValue(instruction.getASMNode());
 
 		for (Object replacement : getReplacement(value)) {
@@ -139,7 +137,7 @@ public class ReplaceConstant implements MutationOperator {
 	}
 
 	private Object[] getReplacement(int value) {
-		List<Object> values = new LinkedList<Object>();
+		List<Object> values = new LinkedList<>();
 		// TODO: Should be replaced with a proper check for booleans
 		if (value == 0)
 			values.add(1);
@@ -162,7 +160,7 @@ public class ReplaceConstant implements MutationOperator {
 	}
 
 	private Object[] getReplacement(long value) {
-		List<Object> values = new LinkedList<Object>();
+		List<Object> values = new LinkedList<>();
 		if (value != 0L)
 			values.add(0L);
 		if (value != 1L)
@@ -178,7 +176,7 @@ public class ReplaceConstant implements MutationOperator {
 	}
 
 	private Object[] getReplacement(float value) {
-		List<Object> values = new LinkedList<Object>();
+		List<Object> values = new LinkedList<>();
 		if (value != 0.0F)
 			values.add(0.0F);
 		if (value != 1.0F)
@@ -194,7 +192,7 @@ public class ReplaceConstant implements MutationOperator {
 	}
 
 	private Object[] getReplacement(double value) {
-		List<Object> values = new LinkedList<Object>();
+		List<Object> values = new LinkedList<>();
 		if (value != 0.0)
 			values.add(0.0);
 		if (value != 1.0)
@@ -210,7 +208,7 @@ public class ReplaceConstant implements MutationOperator {
 	}
 
 	private Object[] getReplacement(String value) {
-		List<Object> values = new LinkedList<Object>();
+		List<Object> values = new LinkedList<>();
 		if (!value.equals(""))
 			values.add("");
 

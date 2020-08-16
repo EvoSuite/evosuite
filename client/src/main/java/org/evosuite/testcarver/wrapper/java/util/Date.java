@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -259,7 +259,7 @@ public class Date extends java.util.Date {
 		Capturer.enable(Instrumenter.CAPTURE_ID_JAVA_UTIL_DATE, this, CaptureLog.RETURN_TYPE_VOID);
     }
 
-    static final long getMillisOf(java.util.Date date) {
+    static long getMillisOf(java.util.Date date) {
     	
 		Capturer.capture(Instrumenter.CAPTURE_ID_JAVA_UTIL_DATE, CaptureUtil.loadClass("java/util/Date"), "getMillisOf", "(Ljava/util/Date;)J", new Object[] {date});
         long ret = date.getTime();

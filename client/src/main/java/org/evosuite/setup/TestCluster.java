@@ -698,7 +698,7 @@ public class TestCluster {
 				if (call.isConstructor() && call.getNumParameters() == 0) {
 					calls.add(call);
 				} else if (call.isMethod()
-				        && ((GenericMethod) call).getName().equals("add")
+				        && call.getName().equals("add")
 				        && call.getNumParameters() == 1) {
 					calls.add(call);
 				} else {
@@ -714,7 +714,7 @@ public class TestCluster {
 				if (call.isConstructor() && call.getNumParameters() == 0) {
 					calls.add(call);
 				} else if (call.isMethod()
-				        && ((GenericMethod) call).getName().equals("put")) {
+				        && call.getName().equals("put")) {
 					calls.add(call);
 				} else {
 					if (Randomness.nextDouble() < Properties.P_SPECIAL_TYPE_CALL) {

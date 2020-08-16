@@ -493,16 +493,13 @@ public class MIOArchive extends Archive {
      * DESC sort, i.e., from the pair with the highest h to the pair with the lowest h
      */
     private void sortPairSolutions() {
-      this.solutions.sort(new Comparator<Pair<Double, TestChromosome>>() {
-        @Override
-        public int compare(Pair<Double, TestChromosome> solution0, Pair<Double, TestChromosome> solution1) {
-          if (solution0.getLeft() < solution1.getLeft()) {
-            return 1;
-          } else if (solution0.getLeft() > solution1.getLeft()) {
-            return -1;
-          }
-          return 0;
+      this.solutions.sort((solution0, solution1) -> {
+        if (solution0.getLeft() < solution1.getLeft()) {
+          return 1;
+        } else if (solution0.getLeft() > solution1.getLeft()) {
+          return -1;
         }
+        return 0;
       });
     }
 

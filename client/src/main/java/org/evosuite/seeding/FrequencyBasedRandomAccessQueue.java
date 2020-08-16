@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -21,7 +21,6 @@ package org.evosuite.seeding;
 
 import org.evosuite.Properties;
 import org.evosuite.utils.RandomAccessQueue;
-import org.evosuite.utils.Randomness;
 
 import java.util.*;
 
@@ -30,9 +29,9 @@ import java.util.*;
  */
 public class FrequencyBasedRandomAccessQueue<T> implements RandomAccessQueue<T> {
 
-    private final FrequencyBasedPool<T> values = new FrequencyBasedPool<T>();
+    private final FrequencyBasedPool<T> values = new FrequencyBasedPool<>();
 
-    private final Queue<T> queue = new ArrayDeque<T>();
+    private final Queue<T> queue = new ArrayDeque<>();
 
     /* (non-Javadoc)
      * @see org.evosuite.primitives.RandomAccessQueue#restrictedAdd(java.lang.Object)
@@ -62,9 +61,7 @@ public class FrequencyBasedRandomAccessQueue<T> implements RandomAccessQueue<T> 
     @Override
     public String toString() {
         String res = "[ ";
-        Iterator<T> itr = queue.iterator();
-        while(itr.hasNext()) {
-            Object element = itr.next();
+        for (final Object element : queue) {
             res += element + " ";
         }
         res += "]";

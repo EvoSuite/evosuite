@@ -27,10 +27,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.evosuite.coverage.line.LineCoverageTestFitness;
-import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
-import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 
@@ -42,14 +40,10 @@ public class AmbiguityCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 	private static final long serialVersionUID = -2721073655092419390L;
 
-	/**
-	 * 
-	 */
+	
 	private final Set<Integer> goals;
 
-	/**
-	 * 
-	 */
+	
 	public AmbiguityCoverageSuiteFitness() {
 
 		this.goals = new LinkedHashSet<>();

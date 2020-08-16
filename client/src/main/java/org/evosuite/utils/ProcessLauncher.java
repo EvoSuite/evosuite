@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -43,7 +43,7 @@ public class ProcessLauncher {
 		this.input = input;
 	}
 
-	private static Logger logger = LoggerFactory.getLogger(ProcessLauncher.class);
+	private static final Logger logger = LoggerFactory.getLogger(ProcessLauncher.class);
 
 	public int launchNewProcess(String parsedCommand, int timeout) throws IOException, ProcessTimeoutException {
 		int ret_code = launchNewProcess(null, parsedCommand, timeout);

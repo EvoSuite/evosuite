@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -73,7 +73,7 @@ public class Z3Solver extends SmtSolver {
 
 		long hard_timeout = Properties.DSE_CONSTRAINT_SOLVER_TIMEOUT_MILLIS;
 
-		Set<Variable<?>> variables = new HashSet<Variable<?>>();
+		Set<Variable<?>> variables = new HashSet<>();
 		for (Constraint<?> c : constraints) {
 			Set<Variable<?>> c_variables = c.getVariables();
 			variables.addAll(c_variables);
@@ -87,7 +87,7 @@ public class Z3Solver extends SmtSolver {
 		}
 
 		if (query.getAssertions().isEmpty()) {
-			Map<String, Object> emptySolution = new HashMap<String, Object>();
+			Map<String, Object> emptySolution = new HashMap<>();
 			SolverResult emptySAT = SolverResult.newSAT(emptySolution);
 			return emptySAT;
 		}
@@ -146,8 +146,7 @@ public class Z3Solver extends SmtSolver {
 	private static String encodeString(String str) {
 		char[] charArray = str.toCharArray();
 		String ret_val = "";
-		for (int i = 0; i < charArray.length; i++) {
-			char c = charArray[i];
+		for (char c : charArray) {
 			// if (Character.isISOControl(c)) {
 			if (Integer.toHexString(c).length() == 1) {
 				// padding
@@ -232,7 +231,7 @@ public class Z3Solver extends SmtSolver {
 		Set<SmtVariable> smtVariables = varCollector.getSmtVariables();
 		Set<Operator> smtOperators = opCollector.getOperators();
 
-		Set<SmtVariable> smtVariablesToDeclare = new HashSet<SmtVariable>(smtVariables);
+		Set<SmtVariable> smtVariablesToDeclare = new HashSet<>(smtVariables);
 
 		for (SmtVariable v1 : smtVariablesToDeclare) {
 			String varName = v1.getName();

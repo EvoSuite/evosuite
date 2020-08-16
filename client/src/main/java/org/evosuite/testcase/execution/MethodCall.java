@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -51,11 +51,11 @@ public class MethodCall implements Cloneable {
 	        int callingObjectID, int callDepth) {
 		this.className = className;
 		this.methodName = methodName;
-		lineTrace = new ArrayList<Integer>();
-		branchTrace = new ArrayList<Integer>();
-		trueDistanceTrace = new ArrayList<Double>();
-		falseDistanceTrace = new ArrayList<Double>();
-		defuseCounterTrace = new ArrayList<Integer>();
+		lineTrace = new ArrayList<>();
+		branchTrace = new ArrayList<>();
+		trueDistanceTrace = new ArrayList<>();
+		falseDistanceTrace = new ArrayList<>();
+		defuseCounterTrace = new ArrayList<>();
 		this.methodId = methodId;
 		this.callingObjectID = callingObjectID;
 		this.callDepth = callDepth;
@@ -156,11 +156,11 @@ public class MethodCall implements Cloneable {
 	public MethodCall clone() {
 		MethodCall copy = new MethodCall(className, methodName, methodId,
 		        callingObjectID, callDepth);
-		copy.lineTrace = new ArrayList<Integer>(lineTrace);
-		copy.branchTrace = new ArrayList<Integer>(branchTrace);
-		copy.trueDistanceTrace = new ArrayList<Double>(trueDistanceTrace);
-		copy.falseDistanceTrace = new ArrayList<Double>(falseDistanceTrace);
-		copy.defuseCounterTrace = new ArrayList<Integer>(defuseCounterTrace);
+		copy.lineTrace = new ArrayList<>(lineTrace);
+		copy.branchTrace = new ArrayList<>(branchTrace);
+		copy.trueDistanceTrace = new ArrayList<>(trueDistanceTrace);
+		copy.falseDistanceTrace = new ArrayList<>(falseDistanceTrace);
+		copy.defuseCounterTrace = new ArrayList<>(defuseCounterTrace);
 		return copy;
 	}
 }

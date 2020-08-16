@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -21,7 +21,6 @@ package org.evosuite.graphs.cfg;
 
 import java.io.Serializable;
 import java.util.*;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import org.evosuite.graphs.GraphPool;
@@ -61,7 +60,7 @@ public class BasicBlock implements Serializable, Iterable<BytecodeInstruction> {
 
 	private static final long serialVersionUID = -3465486470017841484L;
 
-	private static Logger logger = LoggerFactory.getLogger(BasicBlock.class);
+	private static final Logger logger = LoggerFactory.getLogger(BasicBlock.class);
 
 	private static int blockCount = 0;
 
@@ -77,7 +76,7 @@ public class BasicBlock implements Serializable, Iterable<BytecodeInstruction> {
 
 	protected boolean isAuxiliaryBlock = false;
 
-	private final List<BytecodeInstruction> instructions = new ArrayList<BytecodeInstruction>();
+	private final List<BytecodeInstruction> instructions = new ArrayList<>();
 
 	// DONE reference each BytecodeInstruction's BasicBlock at the instruction
 	// DONE determine ControlDependentBranches once for each BasicBlock, then

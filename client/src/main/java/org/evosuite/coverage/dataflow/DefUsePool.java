@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -45,31 +45,31 @@ import org.slf4j.LoggerFactory;
  */
 public class DefUsePool {
 
-	private static Logger logger = LoggerFactory.getLogger(DefUsePool.class);
+	private static final Logger logger = LoggerFactory.getLogger(DefUsePool.class);
 
 	// trees of all known definitions and uses
 
 	// className -> methodName -> DUVarName -> List of Definitions in that
 	// method for the variable
-	private static Map<String, Map<String, Map<String, List<Definition>>>> defMap = new HashMap<String, Map<String, Map<String, List<Definition>>>>();
+	private static Map<String, Map<String, Map<String, List<Definition>>>> defMap = new HashMap<>();
 
 	// className -> methodName -> DUVarName -> List of Uses in that method for
 	// the variable
-	private static Map<String, Map<String, Map<String, List<Use>>>> useMap = new HashMap<String, Map<String, Map<String, List<Use>>>>();
+	private static Map<String, Map<String, Map<String, List<Use>>>> useMap = new HashMap<>();
 	// maps IDs to objects
-	private static Map<Integer, DefUse> defuseIdsToDefUses = new HashMap<Integer, DefUse>();
-	private static Map<Integer, Definition> defuseIdsToDefs = new HashMap<Integer, Definition>();
-	private static Map<Integer, Use> defuseIdsToUses = new HashMap<Integer, Use>();
+	private static Map<Integer, DefUse> defuseIdsToDefUses = new HashMap<>();
+	private static Map<Integer, Definition> defuseIdsToDefs = new HashMap<>();
+	private static Map<Integer, Use> defuseIdsToUses = new HashMap<>();
 
 	// maps objects to IDs
 	// register of all known DefUse-, Definition- and Use-IDs
-	private static Map<BytecodeInstruction, Integer> registeredDUs = new HashMap<BytecodeInstruction, Integer>();
-	private static Map<BytecodeInstruction, Integer> registeredDefs = new HashMap<BytecodeInstruction, Integer>();
-	private static Map<BytecodeInstruction, Integer> registeredUses = new HashMap<BytecodeInstruction, Integer>();
+	private static Map<BytecodeInstruction, Integer> registeredDUs = new HashMap<>();
+	private static Map<BytecodeInstruction, Integer> registeredDefs = new HashMap<>();
+	private static Map<BytecodeInstruction, Integer> registeredUses = new HashMap<>();
 	// an extra one to keep track of parameterUses
-	private static List<BytecodeInstruction> knownParameterUses = new ArrayList<BytecodeInstruction>();
+	private static List<BytecodeInstruction> knownParameterUses = new ArrayList<>();
 	// and an extra one to keep track of field method calls
-	private static List<BytecodeInstruction> knownFieldMethodCalls = new ArrayList<BytecodeInstruction>();
+	private static List<BytecodeInstruction> knownFieldMethodCalls = new ArrayList<>();
 
 	// keep track of known DUs and assign IDs accordingly
 	private static int defCounter = 0;
@@ -338,11 +338,11 @@ public class DefUsePool {
 	        String className, String methodName, String varName) {
 
 		if (!map.containsKey(className))
-			map.put(className, new HashMap<String, Map<String, List<T>>>());
+			map.put(className, new HashMap<>());
 		if (!map.get(className).containsKey(methodName))
-			map.get(className).put(methodName, new HashMap<String, List<T>>());
+			map.get(className).put(methodName, new HashMap<>());
 		if (!map.get(className).get(methodName).containsKey(varName))
-			map.get(className).get(methodName).put(varName, new ArrayList<T>());
+			map.get(className).get(methodName).put(varName, new ArrayList<>());
 	}
 
 	// functionality to retrieve information from the pool
@@ -454,7 +454,7 @@ public class DefUsePool {
 	 * @return a {@link java.util.Set} object.
 	 */
 	public static Set<Definition> retrieveRegisteredDefinitions() {
-		Set<Definition> r = new HashSet<Definition>();
+		Set<Definition> r = new HashSet<>();
 		for (Integer defId : registeredDefs.values()) {
 			r.add(getDefinitionByDefId(defId));
 		}
@@ -469,7 +469,7 @@ public class DefUsePool {
 	 * @return a {@link java.util.Set} object.
 	 */
 	public static Set<Use> retrieveRegisteredUses() {
-		Set<Use> r = new HashSet<Use>();
+		Set<Use> r = new HashSet<>();
 		for (Integer useId : registeredUses.values()) {
 			r.add(getUseByUseId(useId));
 		}
@@ -477,7 +477,7 @@ public class DefUsePool {
 	}
 
 	public static Set<BytecodeInstruction> retrieveFieldMethodCalls() {
-		return new HashSet<BytecodeInstruction>(knownFieldMethodCalls);
+		return new HashSet<>(knownFieldMethodCalls);
 
 	}
 
@@ -489,7 +489,7 @@ public class DefUsePool {
 	 * @return a {@link java.util.Set} object.
 	 */
 	public static Set<Use> retrieveRegisteredParameterUses() {
-		Set<Use> r = new HashSet<Use>();
+		Set<Use> r = new HashSet<>();
 		for (BytecodeInstruction instruction : knownParameterUses) {
 			r.add(getUseByUseId(registeredUses.get(instruction)));
 		}

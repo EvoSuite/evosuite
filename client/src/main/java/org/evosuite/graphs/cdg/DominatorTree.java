@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -58,14 +58,14 @@ import org.jgrapht.graph.DefaultEdge;
  */
 public class DominatorTree<V> extends EvoSuiteGraph<DominatorNode<V>, DefaultEdge> {
 
-	private static Logger logger = LoggerFactory.getLogger(DominatorTree.class);
+	private static final Logger logger = LoggerFactory.getLogger(DominatorTree.class);
 
 	private int nodeCount = 0;
 	private final ControlFlowGraph<V> cfg;
 
-	private final Map<V, DominatorNode<V>> dominatorNodesMap = new LinkedHashMap<V, DominatorNode<V>>();
-	private final Map<Integer, DominatorNode<V>> dominatorIDMap = new LinkedHashMap<Integer, DominatorNode<V>>();
-	private final Map<V, Set<V>> dominatingFrontiers = new LinkedHashMap<V, Set<V>>();
+	private final Map<V, DominatorNode<V>> dominatorNodesMap = new LinkedHashMap<>();
+	private final Map<Integer, DominatorNode<V>> dominatorIDMap = new LinkedHashMap<>();
+	private final Map<V, Set<V>> dominatingFrontiers = new LinkedHashMap<>();
 
 	/**
 	 * Will start the computation of all immediateDominators for the given CFG
@@ -138,7 +138,7 @@ public class DominatorTree<V> extends EvoSuiteGraph<DominatorNode<V>, DefaultEdg
 
 		Set<V> dominatingFrontier = dominatingFrontiers.get(currentNode);
 		if (dominatingFrontier == null)
-			dominatingFrontier = new HashSet<V>();
+			dominatingFrontier = new HashSet<>();
 
 		// "local"
 		for (V child : cfg.getChildren(currentNode.node)) {
@@ -215,7 +215,7 @@ public class DominatorTree<V> extends EvoSuiteGraph<DominatorNode<V>, DefaultEdg
 	private void createDominatorNodes() {
 
 		for (V v : cfg.vertexSet())
-			dominatorNodesMap.put(v, new DominatorNode<V>(v));
+			dominatorNodesMap.put(v, new DominatorNode<>(v));
 	}
 
 	private void depthFirstAnalyze(DominatorNode<V> currentNode) {

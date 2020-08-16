@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -24,8 +24,6 @@ import org.junit.Test;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
-
-import static org.junit.Assert.*;
 
 /**
  * Created by Andrea Arcuri on 30/05/15.

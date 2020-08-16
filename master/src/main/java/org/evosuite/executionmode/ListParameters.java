@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -46,7 +46,7 @@ public class ListParameters {
 
 	public static Object execute(){
 
-		List<Row> rows = new ArrayList<Row>();
+		List<Row> rows = new ArrayList<>();
 
 		/*
 		 * This is necessary, as reading from evosuite-files properties

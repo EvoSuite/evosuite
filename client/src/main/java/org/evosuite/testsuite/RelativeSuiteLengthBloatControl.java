@@ -79,7 +79,7 @@ public class RelativeSuiteLengthBloatControl<T extends Chromosome<T>> implements
 			if (chromosome instanceof TestSuiteChromosome)
 				length = ((TestSuiteChromosome) chromosome).totalLengthOfTestCases();
 			if (chromosome instanceof TestChromosome)
-				length = ((TestChromosome) chromosome).size();
+				length = chromosome.size();
 			return length > (Properties.BLOAT_FACTOR * current_max);
 		} else
 			return false; // Don't know max length so can't reject!

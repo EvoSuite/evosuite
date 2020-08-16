@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -56,8 +56,8 @@ public class TestCase62 {
 		
 		checkEquals(2,catchCount);
 		
-		int int0 = string0.lastIndexOf((int)'a');
-		int int1 = string0.lastIndexOf((int)'a',string0.length()-1);
+		int int0 = string0.lastIndexOf('a');
+		int int1 = string0.lastIndexOf('a',string0.length()-1);
 		int int2 = string0.lastIndexOf("a");
 		int int3 = string0.lastIndexOf("a",string0.length()-1);
 		int int4 = string1.lastIndexOf("a");

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -150,10 +150,10 @@ public class EvoRunner extends BlockJUnit4ClassRunner {
      */
     @Override
     protected List<FrameworkMethod> computeTestMethods() {
-        Set<FrameworkMethod> testMethods = new HashSet<FrameworkMethod>();
+        Set<FrameworkMethod> testMethods = new HashSet<>();
         testMethods.addAll(getTestClass().getAnnotatedMethods(EvoSuiteTest.class));
         testMethods.addAll(getTestClass().getAnnotatedMethods(Test.class));
-        return new ArrayList<FrameworkMethod>(testMethods);
+        return new ArrayList<>(testMethods);
     }
 
     /**
@@ -162,7 +162,7 @@ public class EvoRunner extends BlockJUnit4ClassRunner {
      */
     @Override
     protected void validateTestMethods(List<Throwable> errors) {
-        Set<FrameworkMethod> testMethods = new HashSet<FrameworkMethod>();
+        Set<FrameworkMethod> testMethods = new HashSet<>();
         testMethods.addAll(getTestClass().getAnnotatedMethods(EvoSuiteTest.class));
         testMethods.addAll(getTestClass().getAnnotatedMethods(Test.class));
         for (FrameworkMethod eachTestMethod : testMethods) {

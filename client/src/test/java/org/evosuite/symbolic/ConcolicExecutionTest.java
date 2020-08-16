@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -2023,7 +2023,7 @@ public class ConcolicExecutionTest {
 	public void testCase94() throws SecurityException, NoSuchMethodException {
 		DefaultTestCase tc = buildTestCase94();
 		List<BranchCondition> branch_conditions = executeTest(tc);
-		Set<Variable<?>> variables = new HashSet<Variable<?>>();
+		Set<Variable<?>> variables = new HashSet<>();
 		for (BranchCondition branchCondition : branch_conditions) {
 			variables.addAll(branchCondition.getConstraint().getVariables());
 		}

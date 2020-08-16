@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
+
 package com.examples.with.different.packagename.generic;
 
 import java.util.HashMap;
@@ -43,12 +41,12 @@ public class GuavaExample2<B> extends HashMap<Class<? extends B>, B> {
 	}
 
 	public static <B> Builder<B> builder() {
-		return new Builder<B>();
+		return new Builder<>();
 	}
 
 	public static final class Builder<B> {
 
-		private final Map<Class<? extends B>, B> map = new HashMap<Class<? extends B>, B>();
+		private final Map<Class<? extends B>, B> map = new HashMap<>();
 
 		public <T extends B> Builder<B> add(Class<T> key, T value) {
 			map.put(key, value);
@@ -57,10 +55,10 @@ public class GuavaExample2<B> extends HashMap<Class<? extends B>, B> {
 
 		public GuavaExample2<B> build() {
 			if (map.isEmpty())
-				return new GuavaExample2<B>();
+				return new GuavaExample2<>();
 			else {
 				Entry<Class<? extends B>, B> entry = map.entrySet().iterator().next();
-				return new GuavaExample2<B>(entry.getKey(), entry.getValue());
+				return new GuavaExample2<>(entry.getKey(), entry.getValue());
 			}
 		}
 	}

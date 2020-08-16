@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
+
 package org.evosuite.runtime;
 
 import java.util.Arrays;
@@ -67,11 +65,11 @@ public class System {
 		// We have to allow some system properties like "java.io.tmpdir",  "user.home",  "user.name"
 		// as otherwise tests using the VFS at runtime might break
 		// We are not including "user.dir" because that will break Jacoco and other instrumentation tools
-		systemProperties = new HashSet<String>(Arrays.asList(new String[]{"java.version", "java.vendor", "java.vendor.url", "java.home", "java.vm.specification.version", "java.vm.specification.vendor",	
-				"java.vm.specification.name", "java.vm.version", "java.vm.vendor", "java.vm.name", "java.specification.version", "java.specification.vendor", 	
+		systemProperties = new HashSet<>(Arrays.asList(new String[]{"java.version", "java.vendor", "java.vendor.url", "java.home", "java.vm.specification.version", "java.vm.specification.vendor",
+				"java.vm.specification.name", "java.vm.version", "java.vm.vendor", "java.vm.name", "java.specification.version", "java.specification.vendor",
 				"java.specification.name", "java.class.version", "java.class.path", "java.library.path", "java.compiler", "java.ext.dirs",
 				"os.name", "os.arch", "os.version", "file.separator", "path.separator", "line.separator", "java.endorsed.dirs",
-		        "awt.toolkit", "java.awt.graphicsenv", "java.awt.printerjob", "java.vm.info", "java.runtime.version", "java.runtime.name" }));
+				"awt.toolkit", "java.awt.graphicsenv", "java.awt.printerjob", "java.vm.info", "java.runtime.version", "java.runtime.name"}));
 
 	}
 
@@ -86,7 +84,7 @@ public class System {
 	/**
 	 * Keep track of which System properties were read
 	 */
-	private static final Set<String> readProperties = new LinkedHashSet<String>();
+	private static final Set<String> readProperties = new LinkedHashSet<>();
 
 	/**
 	 * Restore to their original values all the properties that have
@@ -163,10 +161,10 @@ public class System {
 	}
 
 	public static Set<String> getAllPropertiesReadSoFar(){
-		Set<String> copy = new LinkedHashSet<String>();
+		Set<String> copy;
 
         synchronized (readProperties) {
-            copy.addAll(readProperties);
+            copy = new LinkedHashSet<>(readProperties);
         }
 
         return copy;
@@ -230,7 +228,7 @@ public class System {
 		return currentTime; //++;
 	}
 
-	private static final Map<Integer, Integer> hashKeys = new HashMap<Integer, Integer>();
+	private static final Map<Integer, Integer> hashKeys = new HashMap<>();
 
 	public static void registerObjectForIdentityHashCode(Object o) {
 		identityHashCode(o);

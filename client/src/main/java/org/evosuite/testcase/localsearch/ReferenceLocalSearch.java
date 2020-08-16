@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- *
- */
+
 package org.evosuite.testcase.localsearch;
 
 import java.util.ArrayList;
@@ -81,7 +79,7 @@ public class ReferenceLocalSearch extends StatementLocalSearch {
 		        && !LocalSearchBudget.getInstance().isFinished()) {
 			logger.info("Current probe on statement " + statement + ": " + currentProbe);
 
-			List<Mutations> mutations = new ArrayList<Mutations>();
+			List<Mutations> mutations = new ArrayList<>();
 			mutations.add(Mutations.REPLACE);
 			Statement st = test.getTestCase().getStatement(statement);
 			if (!st.getReturnValue().isPrimitive() && !(st instanceof NullStatement)) {

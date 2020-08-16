@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -118,7 +118,7 @@ final class OperandStack {
 			mv.visitIntInsn(SIPUSH, i);
 			return;
 		}
-		mv.visitLdcInsn(Integer.valueOf(i));
+		mv.visitLdcInsn(i);
 	}
 	
 	

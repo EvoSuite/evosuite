@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -114,7 +114,7 @@ public class TestSuiteWriterUtils {
 		if (results == null) {
 			return null;
 		}
-		Set<String> set = new LinkedHashSet<String>();
+		Set<String> set = new LinkedHashSet<>();
 		for (ExecutionResult res : results) {
 			Set<String> props = res.getReadProperties();
 			if (props != null) {

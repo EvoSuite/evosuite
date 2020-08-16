@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -23,7 +23,6 @@ import org.evosuite.utils.Randomness;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -31,7 +30,7 @@ import java.util.Map;
  */
 public class FrequencyBasedPool<T> {
 
-    private Map<T, Integer> constants = Collections.synchronizedMap(new LinkedHashMap<T, Integer>());
+    private Map<T, Integer> constants = Collections.synchronizedMap(new LinkedHashMap<>());
 
     private int numConstants = 0;
 

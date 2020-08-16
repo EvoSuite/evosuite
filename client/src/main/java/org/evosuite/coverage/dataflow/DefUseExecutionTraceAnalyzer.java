@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -45,7 +45,7 @@ import org.evosuite.testcase.execution.MethodCall;
 public abstract class DefUseExecutionTraceAnalyzer {
 
 	/** Constant <code>timeGetCoveredGoals=0l</code> */
-	public static long timeGetCoveredGoals = 0l;
+	public static long timeGetCoveredGoals = 0L;
 
 	/**
 	 * Determines the definitionId for targetVar before tagetDUPos in the given
@@ -127,7 +127,7 @@ public abstract class DefUseExecutionTraceAnalyzer {
 	 */
 	public static List<Integer> getUsePositions(Use targetUse, ExecutionTrace trace,
 	        int objectId) {
-		ArrayList<Integer> r = new ArrayList<Integer>();
+		ArrayList<Integer> r = new ArrayList<>();
 		Map<Integer, HashMap<Integer, Integer>> objectMap = trace.getPassedUses(targetUse.getVariableName());
 		if (objectMap == null)
 			return r;
@@ -155,7 +155,7 @@ public abstract class DefUseExecutionTraceAnalyzer {
 	public static List<Integer> getDefinitionPositions(Definition targetDefinition,
 	        ExecutionTrace trace, int objectId) {
 
-		ArrayList<Integer> r = new ArrayList<Integer>();
+		ArrayList<Integer> r = new ArrayList<>();
 		Map<Integer, HashMap<Integer, Integer>> objectMap = trace.getPassedDefinitions(targetDefinition.getVariableName());
 		if (objectMap == null)
 			return r;
@@ -196,7 +196,7 @@ public abstract class DefUseExecutionTraceAnalyzer {
 
 		if (startingDUPos > endDUPos)
 			throw new IllegalArgumentException("start must be lower or equal end");
-		Map<Integer, Integer> r = new HashMap<Integer, Integer>();
+		Map<Integer, Integer> r = new HashMap<>();
 		Map<Integer, HashMap<Integer, Integer>> objectMap = trace.getPassedDefinitions(targetDefinition.getVariableName());
 		if (objectMap == null)
 			return r;
@@ -229,7 +229,7 @@ public abstract class DefUseExecutionTraceAnalyzer {
 	 */
 	public static Set<BytecodeInstruction> getDefinitionsIn(String targetVariable,
 	        Set<BytecodeInstruction> vertices) {
-		Set<BytecodeInstruction> r = new HashSet<BytecodeInstruction>();
+		Set<BytecodeInstruction> r = new HashSet<>();
 		for (BytecodeInstruction vertex : vertices) {
 			//			if (!vertex.isDefinition())
 			//				continue;
@@ -254,7 +254,7 @@ public abstract class DefUseExecutionTraceAnalyzer {
 	 */
 	public static Set<BytecodeInstruction> getOverwritingDefinitionsIn(
 	        Definition targetDefinition, Collection<BytecodeInstruction> vertices) {
-		Set<BytecodeInstruction> r = new HashSet<BytecodeInstruction>();
+		Set<BytecodeInstruction> r = new HashSet<>();
 		for (BytecodeInstruction vertex : vertices) {
 			if (!vertex.isDefinition())
 				continue;
@@ -460,7 +460,7 @@ public abstract class DefUseExecutionTraceAnalyzer {
 		//		System.out.println("start");
 		long start = System.currentTimeMillis();
 
-		Set<DefUseCoverageTestFitness> r = new HashSet<DefUseCoverageTestFitness>();
+		Set<DefUseCoverageTestFitness> r = new HashSet<>();
 
 		for (ExecutionResult result : results) {
 			Set<DefUseCoverageTestFitness> goals = getCoveredGoals(result);
@@ -484,7 +484,7 @@ public abstract class DefUseExecutionTraceAnalyzer {
 	 */
 	public static Set<DefUseCoverageTestFitness> getCoveredGoals(ExecutionResult result) {
 
-		Set<DefUseCoverageTestFitness> r = new HashSet<DefUseCoverageTestFitness>();
+		Set<DefUseCoverageTestFitness> r = new HashSet<>();
 
 		Map<String, HashMap<Integer, HashMap<Integer, Integer>>> passedDefs = result.getTrace().getDefinitionData();
 		Map<String, HashMap<Integer, HashMap<Integer, Integer>>> passedUses = result.getTrace().getUseData();
@@ -501,8 +501,8 @@ public abstract class DefUseExecutionTraceAnalyzer {
 				Map<Integer, Integer> currentDefMap = passedDefs.get(goalVariable).get(objectId);
 				Map<Integer, Integer> currentUseMap = passedUses.get(goalVariable).get(objectId);
 
-				List<Integer> duCounterTrace = new ArrayList<Integer>(
-				        currentDefMap.keySet());
+				List<Integer> duCounterTrace = new ArrayList<>(
+						currentDefMap.keySet());
 				duCounterTrace.addAll(currentUseMap.keySet());
 				//				System.out.println(duCounterTrace.size()); oO for ncs.Bessj these can be up to 50k entries big
 				Collections.sort(duCounterTrace);

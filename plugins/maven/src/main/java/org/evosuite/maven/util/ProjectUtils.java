@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -41,7 +41,7 @@ public class ProjectUtils {
 	 * @return
 	 */
 	public static List<String> getCompileClasspathElements(MavenProject project) {
-		List<String> compileClassPath = new ArrayList<String>();
+		List<String> compileClassPath = new ArrayList<>();
 
 		try {
 			project.getCompileClasspathElements()
@@ -65,7 +65,7 @@ public class ProjectUtils {
 	 * @return
 	 */
 	public static List<String> getTestClasspathElements(MavenProject project) {
-		List<String> testClassPath = new ArrayList<String>();
+		List<String> testClassPath = new ArrayList<>();
 
 		try {
 			project.getTestClasspathElements()
@@ -88,7 +88,7 @@ public class ProjectUtils {
 	 * @return
 	 */
 	public static List<String> getRuntimeClasspathElements(MavenProject project) {
-		List<String> runtimeClassPath = new ArrayList<String>();
+		List<String> runtimeClassPath = new ArrayList<>();
 
 		try {
 			project.getRuntimeClasspathElements()
@@ -109,7 +109,7 @@ public class ProjectUtils {
 	 * @return
 	 */
 	public static List<String> getDependencyPathElements(MavenProject project) {
-		List<String> dependencyArtifacts = new ArrayList<String>();
+		List<String> dependencyArtifacts = new ArrayList<>();
 
 		project.getDependencyArtifacts()
 			.stream()

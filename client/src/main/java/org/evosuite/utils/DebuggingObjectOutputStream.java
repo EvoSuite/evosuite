@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -42,7 +42,7 @@ public class DebuggingObjectOutputStream extends ObjectOutputStream {
 		}
 	}
 
-	final List<Object> stack = new ArrayList<Object>();
+	final List<Object> stack = new ArrayList<>();
 
 	/**
 	 * Indicates whether or not OOS has tried to write an IOException

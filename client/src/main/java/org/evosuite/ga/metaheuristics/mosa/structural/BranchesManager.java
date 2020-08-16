@@ -45,8 +45,9 @@ import org.slf4j.LoggerFactory;
 public class BranchesManager extends StructuralGoalManager {
 
 	private static final Logger logger = LoggerFactory.getLogger(BranchesManager.class);
+    private static final long serialVersionUID = 6453893627503159175L;
 
-	protected BranchFitnessGraph graph;
+    protected BranchFitnessGraph graph;
 
 	protected final Map<Integer, TestFitnessFunction> branchCoverageTrueMap = new HashMap<>();
 	protected final Map<Integer, TestFitnessFunction> branchCoverageFalseMap = new HashMap<>();

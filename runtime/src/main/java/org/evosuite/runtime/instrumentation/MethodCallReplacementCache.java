@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -54,7 +54,7 @@ public class MethodCallReplacementCache {
 	/**
 	 * method replacements, which are called with Opcodes.INVOKESTATIC
 	 */
-	private final Map<String, Map<String, MethodCallReplacement>> replacementCalls = new HashMap<String, Map<String, MethodCallReplacement>>();
+	private final Map<String, Map<String, MethodCallReplacement>> replacementCalls = new HashMap<>();
 
 	/**
 	 * method replacements, which are called with Opcodes.INVOKEVIRTUAL
@@ -65,7 +65,7 @@ public class MethodCallReplacementCache {
 	/**
 	 * method replacements, which are called with Opcodes.INVOKESPECIAL
 	 */
-	private final Map<String, Map<String, MethodCallReplacement>> specialReplacementCalls = new HashMap<String, Map<String, MethodCallReplacement>>();
+	private final Map<String, Map<String, MethodCallReplacement>> specialReplacementCalls = new HashMap<>();
 
 	private MethodCallReplacementCache() {
 
@@ -101,14 +101,14 @@ public class MethodCallReplacementCache {
 
 	private void addReplacementCall(MethodCallReplacement replacement) {
 		if (!replacementCalls.containsKey(replacement.getClassName())) {
-			replacementCalls.put(replacement.getClassName(), new HashMap<String, MethodCallReplacement>());
+			replacementCalls.put(replacement.getClassName(), new HashMap<>());
 		}
 		replacementCalls.get(replacement.getClassName()).put(replacement.getMethodNameWithDesc(), replacement);
 	}
 
 	private void addSpecialReplacementCall(MethodCallReplacement replacement) {
 		if (!specialReplacementCalls.containsKey(replacement.getClassName())) {
-			specialReplacementCalls.put(replacement.getClassName(), new HashMap<String, MethodCallReplacement>());
+			specialReplacementCalls.put(replacement.getClassName(), new HashMap<>());
 		}
 		specialReplacementCalls.get(replacement.getClassName()).put(replacement.getMethodNameWithDesc(), replacement);
 	}

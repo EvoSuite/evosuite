@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -476,9 +476,9 @@ public class TestCoverageGoalNameGeneration {
     public void testMultipleMethods() throws NoSuchMethodException {
         TestCase test = new DefaultTestCase();
         GenericConstructor gc = new GenericConstructor(Object.class.getConstructor(), Object.class);
-        VariableReference callee = test.addStatement(new ConstructorStatement(test, gc, new ArrayList<VariableReference>()));
+        VariableReference callee = test.addStatement(new ConstructorStatement(test, gc, new ArrayList<>()));
         GenericMethod gm = new GenericMethod(Object.class.getMethod("toString"), Object.class);
-        test.addStatement(new MethodStatement(test, gm, callee, new ArrayList<VariableReference>()));
+        test.addStatement(new MethodStatement(test, gm, callee, new ArrayList<>()));
         MethodCoverageTestFitness goal1 = new MethodCoverageTestFitness("FooClass", "toString()Ljava/lang/String;");
         test.addCoveredGoal(goal1);
         MethodCoverageTestFitness goal2 = new MethodCoverageTestFitness("FooClass", "foo()Ljava/lang/String;");

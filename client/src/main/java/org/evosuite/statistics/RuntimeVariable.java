@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -396,7 +396,7 @@ public enum RuntimeVariable {
 	/* -------------------------------------------------- */
 
 	
-	private static Logger logger = LoggerFactory.getLogger(RuntimeVariable.class);
+	private static final Logger logger = LoggerFactory.getLogger(RuntimeVariable.class);
 	
 	/**
 	 * check if the variables do satisfy a set of predefined constraints: eg, the

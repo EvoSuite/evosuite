@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -29,9 +29,9 @@ import javax.swing.DebugGraphics;
 
 public class Stubbing extends BaseRule {
 
-	private Map<String, String> propertiesToSet = new HashMap<String, String>();
+	private Map<String, String> propertiesToSet = new HashMap<>();
 	
-	private Set<String> propertiesToClear = new LinkedHashSet<String>();
+	private Set<String> propertiesToClear = new LinkedHashSet<>();
 	
 	private static final java.util.Properties defaultProperties = (java.util.Properties) java.lang.System.getProperties().clone();
 	

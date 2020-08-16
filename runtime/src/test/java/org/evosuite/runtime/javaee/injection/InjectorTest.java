@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -56,7 +56,7 @@ public class InjectorTest {
         Foo foo = new Foo();
 
         try {
-            Injector.inject(foo, Foo.class, "noTag", new Integer(1));
+            Injector.inject(foo, Foo.class, "noTag", 1);
             Assert.fail();
         } catch (Exception e){
             //expected
@@ -69,7 +69,7 @@ public class InjectorTest {
 
         Foo foo = new Foo();
 
-        Injector.inject(foo, Foo.class, "injectField", new Integer(1));
+        Injector.inject(foo, Foo.class, "injectField", 1);
 
         Assert.assertNotNull(foo.getInjectField());
     }
@@ -79,7 +79,7 @@ public class InjectorTest {
 
         Foo foo = new Foo();
 
-        Injector.inject(foo, Foo.class, "persistence", new Integer(1));
+        Injector.inject(foo, Foo.class, "persistence", 1);
 
         Assert.assertNotNull(foo.getPersistence());
     }

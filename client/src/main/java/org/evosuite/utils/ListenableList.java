@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -208,8 +208,8 @@ public class ListenableList<E> extends SimpleListenable<Void> implements List<E>
 	/** {@inheritDoc} */
 	@Override
 	public ListIterator<E> listIterator() {
-		ObservableListIterator<E> result = new ObservableListIterator<E>(
-		        delegate.listIterator());
+		ObservableListIterator<E> result = new ObservableListIterator<>(
+				delegate.listIterator());
 		result.addListener(listener);
 		return result;
 	}
@@ -217,8 +217,8 @@ public class ListenableList<E> extends SimpleListenable<Void> implements List<E>
 	/** {@inheritDoc} */
 	@Override
 	public ListIterator<E> listIterator(int index) {
-		ObservableListIterator<E> result = new ObservableListIterator<E>(
-		        delegate.listIterator(index));
+		ObservableListIterator<E> result = new ObservableListIterator<>(
+				delegate.listIterator(index));
 		result.addListener(listener);
 		return result;
 	}
@@ -272,8 +272,8 @@ public class ListenableList<E> extends SimpleListenable<Void> implements List<E>
 	/** {@inheritDoc} */
 	@Override
 	public List<E> subList(int fromIndex, int toIndex) {
-		ListenableList<E> result = new ListenableList<E>(delegate.subList(fromIndex,
-		                                                                  toIndex));
+		ListenableList<E> result = new ListenableList<>(delegate.subList(fromIndex,
+				toIndex));
 		result.addListener(listener);
 		return result;
 	}

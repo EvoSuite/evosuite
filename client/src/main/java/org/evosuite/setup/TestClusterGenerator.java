@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- *
- */
+
 package org.evosuite.setup;
 
 import java.lang.reflect.Constructor;
@@ -76,7 +74,7 @@ import org.slf4j.LoggerFactory;
  */
 public class TestClusterGenerator {
 
-	private static Logger logger = LoggerFactory.getLogger(TestClusterGenerator.class);
+	private static final Logger logger = LoggerFactory.getLogger(TestClusterGenerator.class);
 
 	private final Set<GenericAccessibleObject<?>> dependencyCache = new LinkedHashSet<>();
 
@@ -86,9 +84,9 @@ public class TestClusterGenerator {
 
 	private final Set<Class<?>> containerClasses = new LinkedHashSet<>();
 
-	private final Set<DependencyPair> dependencies = new LinkedHashSet<DependencyPair>();
+	private final Set<DependencyPair> dependencies = new LinkedHashSet<>();
 
-	private final Set<GenericClass> analyzedAbstractClasses = new LinkedHashSet<GenericClass>();
+	private final Set<GenericClass> analyzedAbstractClasses = new LinkedHashSet<>();
 
 	private final Set<Class<?>> analyzedClasses = new LinkedHashSet<>();
 
@@ -401,7 +399,7 @@ public class TestClusterGenerator {
 
 		TestCluster cluster = TestCluster.getInstance();
 
-		Set<Class<?>> targetClasses = new LinkedHashSet<Class<?>>();
+		Set<Class<?>> targetClasses = new LinkedHashSet<>();
 		if (targetClass == null) {
 			throw new RuntimeException("Failed to load " + Properties.TARGET_CLASS);
 		}
@@ -424,11 +422,10 @@ public class TestClusterGenerator {
 		// using an iterator. a simple workaround is to create a temporary set
 		// with the content
 		// of 'targetClasses' and iterate that one
-		Set<Class<?>> tmp_targetClasses = new LinkedHashSet<Class<?>>(targetClasses);
+		Set<Class<?>> tmp_targetClasses = new LinkedHashSet<>(targetClasses);
 		for (Class<?> _targetClass : tmp_targetClasses) {
 			ClassNode targetClassNode = DependencyAnalysis.getClassNode(_targetClass.getName());
-			Queue<InnerClassNode> innerClasses = new LinkedList<InnerClassNode>();
-			innerClasses.addAll(targetClassNode.innerClasses);
+			Queue<InnerClassNode> innerClasses = new LinkedList<>(targetClassNode.innerClasses);
 			while (!innerClasses.isEmpty()) {
 				InnerClassNode icn = innerClasses.poll();
 				try {

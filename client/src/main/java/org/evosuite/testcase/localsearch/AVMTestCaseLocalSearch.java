@@ -20,10 +20,8 @@
 package org.evosuite.testcase.localsearch;
 
 import org.evosuite.Properties;
-import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.localsearch.LocalSearchBudget;
 import org.evosuite.ga.localsearch.LocalSearchObjective;
-import org.evosuite.testcase.AbstractTestChromosome;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.statements.Statement;
@@ -85,7 +83,7 @@ public class AVMTestCaseLocalSearch extends TestCaseLocalSearch<TestChromosome> 
 			if (search != null) {
 				logger.info("Applying local search of type " + search.getClass() + " to statement " + statement + " / "
 						+ individual.getTestCase().getStatement(i));
-				if (search.doSearch(individual, i, (LocalSearchObjective<TestChromosome>) objective)) {
+				if (search.doSearch(individual, i, objective)) {
 					improved = true;
 				}
 				// i = s.getPosition();

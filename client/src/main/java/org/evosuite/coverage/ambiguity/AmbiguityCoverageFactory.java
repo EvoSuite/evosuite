@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -41,6 +41,8 @@ import org.evosuite.testsuite.AbstractFitnessFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static java.util.Comparator.comparingInt;
+
 /**
  * 
  * @author José Campos
@@ -52,19 +54,13 @@ public class AmbiguityCoverageFactory extends
 
 	private static final Logger logger = LoggerFactory.getLogger(AmbiguityCoverageFactory.class);
 
-	/**
-	 * 
-	 */
-	private static List<LineCoverageTestFitness> goals = new ArrayList<LineCoverageTestFitness>();
 
-	/**
-	 * 
-	 */
-	private static List<StringBuilder> transposedMatrix = new ArrayList<StringBuilder>();
+	private static List<LineCoverageTestFitness> goals = new ArrayList<>();
 
-	/**
-	 * 
-	 */
+
+	private static List<StringBuilder> transposedMatrix = new ArrayList<>();
+
+
 	private static double max_ambiguity_score = Double.MAX_VALUE;
 
 	/**
@@ -82,7 +78,7 @@ public class AmbiguityCoverageFactory extends
 			String sCurrentLine;
 			br = new BufferedReader(new FileReader(Properties.COVERAGE_MATRIX_FILENAME));
 
-			List<StringBuilder> matrix = new ArrayList<StringBuilder>();
+			List<StringBuilder> matrix = new ArrayList<>();
 			while ((sCurrentLine = br.readLine()) != null) {
 				sCurrentLine = sCurrentLine.replace(" ", "");
 				// we do not want to consider test result
@@ -113,9 +109,7 @@ public class AmbiguityCoverageFactory extends
 		}
 	}
 
-	/**
-	 * 
-	 */
+
 	@Override
 	public List<LineCoverageTestFitness> getCoverageGoals() {
 		return getGoals();
@@ -140,12 +134,7 @@ public class AmbiguityCoverageFactory extends
 		if (Properties.USE_EXISTING_COVERAGE) {
 			// extremely important: before loading any previous coverage (i.e., from a coverage
 			// matrix) goals need to be sorted. otherwise any previous coverage won't match!
-			Collections.sort(goals, new Comparator<LineCoverageTestFitness>() {
-				@Override
-				public int compare(LineCoverageTestFitness l1, LineCoverageTestFitness l2) {
-					return Integer.compare(l1.getLine(), l2.getLine());
-				}
-			});
+			goals.sort(comparingInt(LineCoverageTestFitness::getLine));
 			loadCoverage();
 		} else {
 			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.AmbiguityScore_T0, 1.0);
@@ -171,7 +160,7 @@ public class AmbiguityCoverageFactory extends
 	private static List<StringBuilder> tranposeMatrix(List<StringBuilder> matrix) {
 
 		int number_of_components = matrix.get(0).length();
-		List<StringBuilder> new_matrix = new ArrayList<StringBuilder>();
+		List<StringBuilder> new_matrix = new ArrayList<>();
 
 		for (int c_i = 0; c_i < number_of_components; c_i++) {
 			StringBuilder str = new StringBuilder();
@@ -201,7 +190,7 @@ public class AmbiguityCoverageFactory extends
 	protected static double getDefaultAmbiguity(List<StringBuilder> matrix) {
 
 		int number_of_components = matrix.size();
-		Map<String, Integer> groups = new HashMap<String, Integer>();
+		Map<String, Integer> groups = new HashMap<>();
 
 		for (StringBuilder s : matrix) {
 			if (!groups.containsKey(s.toString())) {

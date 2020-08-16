@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -34,9 +34,7 @@ import org.objectweb.asm.Type;
  */
 public abstract class ReferenceExpression extends AbstractExpression<Object> implements SymbolicValue {
 
-	/**
-	 * 
-	 */
+	
 	private static final long serialVersionUID = 7925438069540850557L;
 
 	/**

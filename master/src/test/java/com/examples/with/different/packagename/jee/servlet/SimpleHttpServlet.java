@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -29,6 +29,8 @@ import java.io.IOException;
  * Created by Andrea Arcuri on 01/07/15.
  */
 public class SimpleHttpServlet extends HttpServlet {
+
+    private static final long serialVersionUID = -368064161073592598L;
 
     public SimpleHttpServlet(){
         System.out.println("Called constructor");

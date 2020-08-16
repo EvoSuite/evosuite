@@ -741,7 +741,7 @@ public class TestSuiteGenerator {
 	 *         objects.
 	 */
 	public static List<TestSuiteFitnessFunction> getFitnessFunctions() {
-		List<TestSuiteFitnessFunction> ffs = new ArrayList<TestSuiteFitnessFunction>();
+		List<TestSuiteFitnessFunction> ffs = new ArrayList<>();
 		for (int i = 0; i < Properties.CRITERION.length; i++) {
 			ffs.add(FitnessFunctions.getFitnessFunction(Properties.CRITERION[i]));
 		}
@@ -784,7 +784,7 @@ public class TestSuiteGenerator {
 	 *         objects.
 	 */
 	public static List<TestFitnessFactory<? extends TestFitnessFunction>> getFitnessFactories() {
-		List<TestFitnessFactory<? extends TestFitnessFunction>> goalsFactory = new ArrayList<TestFitnessFactory<? extends TestFitnessFunction>>();
+		List<TestFitnessFactory<? extends TestFitnessFunction>> goalsFactory = new ArrayList<>();
 		for (int i = 0; i < Properties.CRITERION.length; i++) {
 			goalsFactory.add(FitnessFunctions.getFitnessFactory(Properties.CRITERION[i]));
 		}

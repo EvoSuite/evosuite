@@ -74,7 +74,7 @@ public class ExecutionResult implements Cloneable {
 	 */
 	public double regressionObjectDistance = 0;
 	
-	private List<FeatureVector> featureVectors = new ArrayList<FeatureVector>(1);
+	private List<FeatureVector> featureVectors = new ArrayList<>(1);
 	
 	/**
 	 * @return the executedStatements

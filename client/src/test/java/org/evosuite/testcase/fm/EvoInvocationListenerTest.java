@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -128,7 +128,7 @@ public class EvoInvocationListenerTest {
         res = foo.parseString("bar", foo);
         Assert.assertEquals(4, res);
 
-        res = foo.parseString("bar", (Foo) null);
+        res = foo.parseString("bar", null);
         Assert.assertEquals(4, res);
 
         list = listener.getCopyOfMethodDescriptors();

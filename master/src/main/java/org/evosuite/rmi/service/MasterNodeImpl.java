@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.evosuite.ClientProcess;
 import org.evosuite.Properties;
@@ -46,12 +45,12 @@ public class MasterNodeImpl implements MasterNodeRemote, MasterNodeLocal {
 
 	private static final long serialVersionUID = -6329473514791197464L;
 
-	private static Logger logger = LoggerFactory.getLogger(MasterNodeImpl.class);
+	private static final Logger logger = LoggerFactory.getLogger(MasterNodeImpl.class);
 
 	private final Registry registry;
 	private final Map<String, ClientNodeRemote> clients;
 
-	protected final Collection<Listener<ClientStateInformation>> listeners = Collections.synchronizedList(new ArrayList<Listener<ClientStateInformation>>());
+	protected final Collection<Listener<ClientStateInformation>> listeners = Collections.synchronizedList(new ArrayList<>());
 
 	/**
 	 * It is important to keep track of client states for debugging reasons. For
@@ -64,9 +63,9 @@ public class MasterNodeImpl implements MasterNodeRemote, MasterNodeLocal {
 	private final Map<String, ClientStateInformation> clientStateInformation;
 
 	public MasterNodeImpl(Registry registry) {
-		clients = new ConcurrentHashMap<String, ClientNodeRemote>();
-		clientStates = new ConcurrentHashMap<String, ClientState>();
-		clientStateInformation = new ConcurrentHashMap<String, ClientStateInformation>();
+		clients = new ConcurrentHashMap<>();
+		clientStates = new ConcurrentHashMap<>();
+		clientStateInformation = new ConcurrentHashMap<>();
 		this.registry = registry;
 	}
 

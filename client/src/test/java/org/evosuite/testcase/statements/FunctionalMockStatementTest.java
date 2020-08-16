@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -291,7 +291,7 @@ public class FunctionalMockStatementTest {
         assertEquals(99, i);
 
         Object aInt = i;
-        Object aInteger = Integer.valueOf(7);
+        Object aInteger = 7;
 
         assertEquals(aInt.getClass(), Integer.class);
         assertEquals(aInt.getClass(), aInteger.getClass());
@@ -312,13 +312,13 @@ public class FunctionalMockStatementTest {
         }
 
         try {
-            casted = Integer.TYPE.cast(((Character) aChar).charValue());
+            casted = Integer.TYPE.cast(aChar);
             fail();
         } catch (Exception e){
             //expected: "cast" takes an Object as input, so it does autoboxing :(
         }
 
-        casted = (int) ((Character) aChar).charValue();
+        casted = (int) (Character) aChar;
 
         assertEquals(casted.getClass(), Integer.class);
     }

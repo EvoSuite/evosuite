@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -41,7 +41,7 @@ public final class CaptureUtil {
 		}
 	}
 	
-	public static final Class<?> getClassFromDesc(final String desc)
+	public static Class<?> getClassFromDesc(final String desc)
 	{
 		final Type type = Type.getType(desc);
 		if(type.equals(Type.BOOLEAN_TYPE))
