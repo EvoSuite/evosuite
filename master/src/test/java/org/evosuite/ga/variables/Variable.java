@@ -30,5 +30,5 @@ public interface Variable {
 	 * 
 	 * @return an independent clone of this variable
 	 */
-	public Variable clone();
+	Variable clone();
 }

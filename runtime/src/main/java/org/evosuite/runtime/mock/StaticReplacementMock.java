@@ -51,6 +51,6 @@ public interface StaticReplacementMock extends EvoSuiteMock{
 	 * 
 	 * @return a fully qualifying String
 	 */
-	public String getMockedClassName();
+	String getMockedClassName();
 	
 }

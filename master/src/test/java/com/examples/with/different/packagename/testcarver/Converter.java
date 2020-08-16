@@ -53,7 +53,7 @@ public interface Converter {
      * @exception ConversionException if conversion cannot be performed
      *  successfully
      */
-    public Object convert(Class type, Object value);
+    Object convert(Class type, Object value);
 
 
 }

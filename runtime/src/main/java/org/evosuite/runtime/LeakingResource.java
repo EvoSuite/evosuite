@@ -33,6 +33,6 @@ public interface LeakingResource {
 	 * 
 	 * @throws Exception
 	 */
-	public void release() throws Exception;
+	void release() throws Exception;
 	
 }

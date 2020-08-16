@@ -30,8 +30,8 @@ import org.junit.Test;
  */
 public class ClassPublicInterfaceTest {
 
-	public static interface MultipleEventListener {
-        public void event1(Object e);
+	public interface MultipleEventListener {
+        void event1(Object e);
     }
 
 	public static class EventCounter

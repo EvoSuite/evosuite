@@ -21,8 +21,8 @@ package com.examples.with.different.packagename.purity;
 
 public interface InterfaceInspector {
 
-	public int pureInspector();
+	int pureInspector();
 	
-	public int impureInspector();
+	int impureInspector();
 	
 }

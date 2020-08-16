@@ -24,7 +24,7 @@ package com.examples.with.different.packagename.fm;
  */
 public class SimpleFM_Boolean {
 
-    public static interface Foo{
+    public interface Foo{
         boolean foo();
     }
 

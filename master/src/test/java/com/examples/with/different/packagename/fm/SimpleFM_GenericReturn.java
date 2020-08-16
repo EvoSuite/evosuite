@@ -23,9 +23,9 @@ import java.util.List;
 
 public class SimpleFM_GenericReturn {
 
-	public static interface Foo<T> {
+	public interface Foo<T> {
 	
-		public List<T> foo();
+		List<T> foo();
 	}
 	
     public boolean bar(Foo<String> bar, String x){

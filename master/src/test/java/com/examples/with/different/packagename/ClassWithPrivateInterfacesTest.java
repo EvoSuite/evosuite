@@ -31,17 +31,17 @@ import org.junit.Test;
  */
 public class ClassWithPrivateInterfacesTest {
 
-	private static interface IA {
+	private interface IA {
     }
-    private static interface IB {
+    private interface IB {
     }
-    private static interface IC extends ID, IE {
+    private interface IC extends ID, IE {
     }
-    private static interface ID {
+    private interface ID {
     }
-    private static interface IE extends IF {
+    private interface IE extends IF {
     }
-    private static interface IF {
+    private interface IF {
     }
     private static class CX implements IB, IA, IE {
     }

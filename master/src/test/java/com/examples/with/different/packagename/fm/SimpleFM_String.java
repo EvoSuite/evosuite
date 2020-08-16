@@ -24,7 +24,7 @@ package com.examples.with.different.packagename.fm;
  */
 public class SimpleFM_String {
 
-    public static interface Foo{
+    public interface Foo{
         String foo();
     }
 

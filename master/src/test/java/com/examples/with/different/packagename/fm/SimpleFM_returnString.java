@@ -27,7 +27,7 @@ public class SimpleFM_returnString {
     public final static String TRUE_BRANCH = "true branch";
     public final static String FALSE_BRANCH = "false branch";
 
-    public static interface Foo{
+    public interface Foo{
         boolean foo();
     }
 
