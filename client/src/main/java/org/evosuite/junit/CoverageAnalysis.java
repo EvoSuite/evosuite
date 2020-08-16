@@ -211,10 +211,9 @@ public class CoverageAnalysis {
             dummy.setLastExecutionResult(executionResult);
 
             for(TestFitnessFunction goal : allGoals) {
-            	if(coveredGoals.contains(goal))
-            		continue;
-            	else if (goal.isCovered(dummy))
-                    coveredGoals.add(goal);
+            	if (goal.isCovered(dummy)) {
+					coveredGoals.add(goal);
+				}
             }
 		}
 

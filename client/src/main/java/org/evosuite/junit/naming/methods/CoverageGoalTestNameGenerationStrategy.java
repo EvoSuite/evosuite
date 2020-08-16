@@ -242,9 +242,7 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
         boolean added = false;
         for(TestCase test : tests) {
             List<TestFitnessFunction> topGoals = getTopGoals(fullTestToGoals.get(test));
-            if(topGoals.isEmpty()) {
-                continue;
-            } else if(topGoals.size() > MAX_SIMILAR_GOALS) {
+            if(topGoals.size() > MAX_SIMILAR_GOALS) {
                 TestFitnessFunction newGoal = chooseRepresentativeGoal(test, topGoals);
                 Set<TestFitnessFunction> newGoals = new LinkedHashSet<>(testToGoals.get(test));
                 newGoals.add(newGoal);

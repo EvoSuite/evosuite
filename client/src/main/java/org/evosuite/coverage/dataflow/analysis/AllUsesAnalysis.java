@@ -407,9 +407,6 @@ public class AllUsesAnalysis {
 							investigatedMethod, child, handled,
 							handledBackEdges, activeDefs, freeUses, foundPairs,
 							nextCallStack, invocationCount, handleLoops);
-
-				if (invocationCount >= UPPER_PAIR_SEARCH_INVOCATION_BOUND)
-					continue;
 			}
 		return invocationCount;
 	}

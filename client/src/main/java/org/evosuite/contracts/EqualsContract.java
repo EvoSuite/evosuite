@@ -72,15 +72,14 @@ public class EqualsContract extends Contract {
 					return new ContractViolation(this, statement, exception, var);
 
 			} catch (NullPointerException e) {
-				continue;
 				// No nullpointer exceptions may be thrown if the parameter was not null
 				// TODO: Use UndeclaredExceptionContract instead?
 				// return new ContractViolation(this, statement, e, var);
 				// Returning this contract violation is definitely wrong as it would look like equals returned false
 				
 				
-			} catch (Throwable t) {
-				continue;
+			} catch (Throwable ignored) {
+				// ignored
 			}
 		}
 

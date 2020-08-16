@@ -276,7 +276,6 @@ public class AgentLoader {
 						}
 					} catch (Exception e) {
 						logger.error("Error while parsing URL "+url);
-						continue;
 					}
 				}
 			}

@@ -75,7 +75,6 @@ public class EqualsNullContract extends Contract {
 
 			} catch (Throwable t) {
 				logger.debug("Exception: "+t);
-				continue;
 			}
 		}
 
