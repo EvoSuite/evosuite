@@ -33,16 +33,16 @@ public class ObjectWrapperSetTest {
 		Assert.assertNull(wrapper.get());
 
 		Set<Long> someSet = new HashSet<>();
-		someSet.add(42l);
-		someSet.add(47l);
-		someSet.remove(42l);
-		someSet.add(48l);
+		someSet.add(42L);
+		someSet.add(47L);
+		someSet.remove(42L);
+		someSet.add(48L);
 
 		wrapper.set(someSet);
 		Assert.assertNotNull(wrapper.get());
 
 		ObjectWrapper fortySeven = new ObjectWrapper();
-		fortySeven.set(47l);
+		fortySeven.set(47L);
 
 		Set<?> foo = (Set<?>) wrapper.get();
 

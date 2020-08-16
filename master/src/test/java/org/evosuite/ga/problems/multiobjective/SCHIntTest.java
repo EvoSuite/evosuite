@@ -52,7 +52,7 @@ public class SCHIntTest
         Properties.POPULATION = 100;
         Properties.SEARCH_BUDGET = 10000;
         Properties.CROSSOVER_RATE = 0.9;
-        Properties.RANDOM_SEED = 1l;
+        Properties.RANDOM_SEED = 1L;
     }
 
     @Test

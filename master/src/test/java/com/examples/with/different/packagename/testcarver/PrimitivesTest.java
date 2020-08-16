@@ -32,7 +32,7 @@ public class PrimitivesTest {
 		char two = '2';
 		float three = 3f;
 		double four = 4d;
-		long five = 5l;
+		long five = 5L;
 		byte six = 6;
 		String seven = "7";
 

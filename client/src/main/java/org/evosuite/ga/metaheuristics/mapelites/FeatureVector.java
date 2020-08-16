@@ -56,7 +56,7 @@ public final class FeatureVector implements Serializable {
       } else if(value instanceof Byte) {
         return ((Byte) value).compareTo((byte) 0); 
       } else if(value instanceof Long) {
-        return ((Long) value).compareTo(0l); 
+        return ((Long) value).compareTo(0L);
       } else if(value instanceof Float) {
         return ((Float) value).compareTo(0f); 
       } else if(value instanceof Double) {

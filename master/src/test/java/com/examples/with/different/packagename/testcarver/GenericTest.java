@@ -31,7 +31,7 @@ public class GenericTest {
 		ObjectWrapper wrapper = new ObjectWrapper();
 
 		Set<Long> someSet = new HashSet<>();
-		someSet.add(42l);
+		someSet.add(42L);
 
 		wrapper.set(someSet);
 	}

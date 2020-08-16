@@ -38,7 +38,7 @@ public class TestBinaryTournamentSelectionCrowdedComparison
 {
 	@BeforeClass
 	public static void setUp() {
-		Properties.RANDOM_SEED = 1l;
+		Properties.RANDOM_SEED = 1L;
 	}
 
 	@Test

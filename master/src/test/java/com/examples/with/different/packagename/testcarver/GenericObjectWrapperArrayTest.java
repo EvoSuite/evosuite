@@ -35,13 +35,13 @@ public class GenericObjectWrapperArrayTest {
 		GenericObjectWrapper<Long[]> wrapper = new GenericObjectWrapper<>();
 		Assert.assertNull(wrapper.get());
 
-		Long[] someArray = new Long[] { 1l, 47l };
+		Long[] someArray = new Long[] {1L, 47L};
 
 		wrapper.set(someArray);
 		Assert.assertNotNull(wrapper.get());
 
 		GenericObjectWrapper<Long> fortySeven = new GenericObjectWrapper<>();
-		fortySeven.set(47l);
+		fortySeven.set(47L);
 
 		Long[] foo = wrapper.get();
 

@@ -57,7 +57,7 @@ public class PrivateAccessTest {
     public void testSetField_serialVersionUID(){
         try {
             //it should fail
-            PrivateAccess.setVariable(FooFields.class, null, "serialVersionUID", 42l);
+            PrivateAccess.setVariable(FooFields.class, null, "serialVersionUID", 42L);
             Assert.fail();
         } catch (IllegalArgumentException e){
             //expected

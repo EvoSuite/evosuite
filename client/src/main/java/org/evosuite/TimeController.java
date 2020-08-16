@@ -129,13 +129,13 @@ public class TimeController {
 		Properties.getInstance();
 
 
-		phaseTimeouts.put(ClientState.SEARCH, 1000l * getSearchBudgetInSeconds());
-		phaseTimeouts.put(ClientState.MINIMIZATION, 1000l * Properties.MINIMIZATION_TIMEOUT);
-		phaseTimeouts.put(ClientState.ASSERTION_GENERATION, 1000l * Properties.ASSERTION_TIMEOUT);
-		phaseTimeouts.put(ClientState.CARVING, 1000l * Properties.CARVING_TIMEOUT);
-		phaseTimeouts.put(ClientState.INITIALIZATION, 1000l * Properties.INITIALIZATION_TIMEOUT);
-        phaseTimeouts.put(ClientState.JUNIT_CHECK, 1000l * Properties.JUNIT_CHECK_TIMEOUT);
-		phaseTimeouts.put(ClientState.WRITING_TESTS, 1000l * Properties.WRITE_JUNIT_TIMEOUT);
+		phaseTimeouts.put(ClientState.SEARCH, 1000L * getSearchBudgetInSeconds());
+		phaseTimeouts.put(ClientState.MINIMIZATION, 1000L * Properties.MINIMIZATION_TIMEOUT);
+		phaseTimeouts.put(ClientState.ASSERTION_GENERATION, 1000L * Properties.ASSERTION_TIMEOUT);
+		phaseTimeouts.put(ClientState.CARVING, 1000L * Properties.CARVING_TIMEOUT);
+		phaseTimeouts.put(ClientState.INITIALIZATION, 1000L * Properties.INITIALIZATION_TIMEOUT);
+        phaseTimeouts.put(ClientState.JUNIT_CHECK, 1000L * Properties.JUNIT_CHECK_TIMEOUT);
+		phaseTimeouts.put(ClientState.WRITING_TESTS, 1000L * Properties.WRITE_JUNIT_TIMEOUT);
 
 		if(timeSpentInEachPhase!=null){
 			timeSpentInEachPhase.clear();

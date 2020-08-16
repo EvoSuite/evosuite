@@ -46,7 +46,7 @@ import org.slf4j.LoggerFactory;
 public class DefUseFitnessCalculator {
 
 	/** Constant <code>alternativeTime=0l</code> */
-	public static long alternativeTime = 0l;
+	public static long alternativeTime = 0L;
 
 	private final static boolean DEBUG = Properties.DEFUSE_DEBUG_MODE;
 

@@ -65,7 +65,7 @@ public class AllUsesAnalysis {
 	private Set<CCFGMethodEntryNode> analyzedMethods = new HashSet<>();
 
 	// debug profiling
-	private long timeSpentMingling = 0l;
+	private long timeSpentMingling = 0L;
 
 
 

@@ -142,7 +142,7 @@ public class JobExecutor {
 					handler.start();
 				}
 
-				long longestJob = -1l;
+				long longestJob = -1L;
 				
 				try{
 					LoggingUtils.getEvoLogger().info("Going to execute "+jobs.size()+" jobs");
@@ -204,7 +204,7 @@ public class JobExecutor {
 
 	protected long execute(List<JobDefinition> jobs){
 		
-		long longestJob = -1l;
+		long longestJob = -1L;
 		
 		//TODO handle memory
 		Queue<JobDefinition> toExecute = new LinkedList<>();

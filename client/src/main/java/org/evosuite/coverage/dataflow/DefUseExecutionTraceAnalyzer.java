@@ -45,7 +45,7 @@ import org.evosuite.testcase.execution.MethodCall;
 public abstract class DefUseExecutionTraceAnalyzer {
 
 	/** Constant <code>timeGetCoveredGoals=0l</code> */
-	public static long timeGetCoveredGoals = 0l;
+	public static long timeGetCoveredGoals = 0L;
 
 	/**
 	 * Determines the definitionId for targetVar before tagetDUPos in the given

@@ -164,7 +164,7 @@ public abstract class SequenceOutputVariableFactory<T extends Number> {
 		 * We cannot just look at the obtained history, because the search might
 		 * have finished earlier, eg if 100% coverage
 		 */
-		long totalTime = TimeController.getSearchBudgetInSeconds() * 1000l;
+		long totalTime = TimeController.getSearchBudgetInSeconds() * 1000L;
 		
 		int numberOfIntervals = (int) (totalTime / interval);
 		return numberOfIntervals;
