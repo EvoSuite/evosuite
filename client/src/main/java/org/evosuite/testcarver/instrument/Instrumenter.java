@@ -246,39 +246,35 @@ public final class Instrumenter
 		
 		final ArrayList<MethodNode> wrappedMethods = new ArrayList<>();
 		MethodNode methodNode;
-		
-		final Iterator<MethodNode> methodIter = cn.methods.iterator();
-		while(methodIter.hasNext())
-		{
-			methodNode = methodIter.next();
-			
+
+		for (final MethodNode node : cn.methods) {
+			methodNode = node;
+
 			// consider only public methods which are not abstract or native
-			if( ! TransformerUtil.isPrivate(methodNode.access)  &&
-				! TransformerUtil.isAbstract(methodNode.access) &&
-				! TransformerUtil.isNative(methodNode.access)   && 
-				! methodNode.name.equals("<clinit>"))
-			{
-				if(! TransformerUtil.isPublic(methodNode.access)) {
+			if (!TransformerUtil.isPrivate(methodNode.access) &&
+					!TransformerUtil.isAbstract(methodNode.access) &&
+					!TransformerUtil.isNative(methodNode.access) &&
+					!methodNode.name.equals("<clinit>")) {
+				if (!TransformerUtil.isPublic(methodNode.access)) {
 					//if(!Properties.CLASS_PREFIX.equals(packageName)) {
-						transformWrapperCalls(methodNode);
-						continue;
+					transformWrapperCalls(methodNode);
+					continue;
 					//}
 				}
-				if(methodNode.name.equals("<init>"))
-				{
-					if(TransformerUtil.isAbstract(cn.access)) {
+				if (methodNode.name.equals("<init>")) {
+					if (TransformerUtil.isAbstract(cn.access)) {
 						// We cannot invoke constructors of abstract classes directly
 						continue;
 					}
 					this.addFieldRegistryRegisterCall(methodNode);
 				}
-				
+
 				this.instrumentPUTXXXFieldAccesses(cn, internalClassName, methodNode);
 				this.instrumentGETXXXFieldAccesses(cn, internalClassName, methodNode);
-				
+
 				this.instrumentMethod(cn, internalClassName, methodNode, wrappedMethods);
 			} else {
-				transformWrapperCalls(methodNode);				
+				transformWrapperCalls(methodNode);
 			}
 		}
 		

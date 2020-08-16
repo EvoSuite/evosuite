@@ -61,9 +61,7 @@ public class FrequencyBasedRandomAccessQueue<T> implements RandomAccessQueue<T> 
     @Override
     public String toString() {
         String res = "[ ";
-        Iterator<T> itr = queue.iterator();
-        while(itr.hasNext()) {
-            Object element = itr.next();
+        for (final Object element : queue) {
             res += element + " ";
         }
         res += "]";

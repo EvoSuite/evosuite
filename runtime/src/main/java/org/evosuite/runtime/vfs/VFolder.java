@@ -78,9 +78,8 @@ public class VFolder extends FSObject{
 	
 	public String[] getChildrenNames(){
 		List<String> list = new ArrayList<>(children.size());
-		Iterator<FSObject> iter = children.iterator();
-		while(iter.hasNext()){
-			list.add(iter.next().getName());
+		for (final FSObject child : children) {
+			list.add(child.getName());
 		}		
 		return list.toArray(new String[0]);
 	}
@@ -89,12 +88,10 @@ public class VFolder extends FSObject{
 		if(name==null || name.isEmpty()){
 			throw new IllegalArgumentException("Empty name");
 		}
-		
-		Iterator<FSObject> iter = children.iterator();
-		while(iter.hasNext()){
-			FSObject current = iter.next();
-			if(name.equals(current.getName())){
-				return current;		
+
+		for (final FSObject current : children) {
+			if (name.equals(current.getName())) {
+				return current;
 			}
 		}
 		

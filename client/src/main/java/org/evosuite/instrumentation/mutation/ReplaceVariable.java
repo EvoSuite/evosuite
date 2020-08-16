@@ -335,9 +335,7 @@ public class ReplaceVariable implements MutationOperator {
 				variables.putAll(getFieldReplacements(mn, className, origVar.desc, node));
 			} catch (VariableNotFoundException e) {
 				logger.info("Could not find variable, not replacing it: " + var.var);
-				Iterator<?> it = mn.localVariables.iterator();
-				while (it.hasNext()) {
-					LocalVariableNode n = (LocalVariableNode) it.next();
+				for (final LocalVariableNode n : mn.localVariables) {
 					logger.info(n.index + ": " + n.name);
 				}
 				logger.info(e.toString());
