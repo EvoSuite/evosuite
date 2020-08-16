@@ -306,15 +306,12 @@ public class CoverageAnalysis {
 				File file = new File(directory.getPath());
 				byte[] array = new byte[(int) file.length()];
 				ByteArrayOutputStream out = new ByteArrayOutputStream(array.length);
-				InputStream in = new FileInputStream(file);
-				try {
+				try (InputStream in = new FileInputStream(file)) {
 					int length = in.read(array);
 					while (length > 0) {
 						out.write(array, 0, length);
 						length = in.read(array);
 					}
-				} finally {
-					in.close();
 				}
 				ClassReader reader = new ClassReader(array);
 				String className = reader.getClassName();

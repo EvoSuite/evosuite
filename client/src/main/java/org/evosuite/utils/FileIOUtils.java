@@ -20,6 +20,7 @@
 package org.evosuite.utils;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -50,16 +51,12 @@ public class FileIOUtils {
 	public static List<String> readFile(File file) {
 		List<String> content = new LinkedList<>();
 		try {
-			Reader reader = new InputStreamReader(
-					new FileInputStream(file), "utf-8");
-			BufferedReader in = new BufferedReader(reader);
-			try {
+			Reader reader = new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8);
+			try (BufferedReader in = new BufferedReader(reader)) {
 				String str;
 				while ((str = in.readLine()) != null) {
 					content.add(str);
 				}
-			} finally {
-				in.close();
 			}
 		} catch (Exception e) {
 			logger.error("Error while reading file "+file.getName()+" , "+
@@ -133,7 +130,7 @@ public class FileIOUtils {
 		XStream xstream = new XStream();
 		try {
 			Reader reader = new InputStreamReader(
-					new FileInputStream(fileName), "utf-8");
+					new FileInputStream(fileName), StandardCharsets.UTF_8);
 			BufferedReader in = new BufferedReader(reader);
 			return (T) xstream.fromXML(in);
 
