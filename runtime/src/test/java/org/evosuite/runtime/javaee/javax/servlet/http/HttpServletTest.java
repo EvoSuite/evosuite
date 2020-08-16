@@ -77,8 +77,8 @@ public class HttpServletTest {
         req.asPOST();
         servlet.service(req, EvoServletState.getResponse());
         Assert.assertTrue(val[0]);
-        Assert.assertTrue(!val[1]);
-        Assert.assertTrue(!val[2]);
+        Assert.assertFalse(val[1]);
+        Assert.assertFalse(val[2]);
 
         val[0] = false;
         EvoServletState.reset();
@@ -86,9 +86,9 @@ public class HttpServletTest {
         req = EvoServletState.getRequest();
         req.asGET();
         servlet.service(req, EvoServletState.getResponse());
-        Assert.assertTrue(!val[0]);
+        Assert.assertFalse(val[0]);
         Assert.assertTrue(val[1]);
-        Assert.assertTrue(! val[2]);
+        Assert.assertFalse(val[2]);
 
         val[1] = false;
         EvoServletState.reset();
@@ -96,8 +96,8 @@ public class HttpServletTest {
         req = EvoServletState.getRequest();
         req.asPUT();
         servlet.service(req, EvoServletState.getResponse());
-        Assert.assertTrue(!val[0]);
-        Assert.assertTrue(!val[1]);
+        Assert.assertFalse(val[0]);
+        Assert.assertFalse(val[1]);
         Assert.assertTrue(val[2]);
 
     }
@@ -133,8 +133,8 @@ public class HttpServletTest {
 
         servlet.service(req, EvoServletState.getResponse());
 
-        Assert.assertTrue(TestDataJavaEE.getInstance().getViewOfParts().size() == 0);
-        Assert.assertTrue(EvoServletState.getResponse().getBody().equals(msg0+msg1));
+        Assert.assertEquals(0, TestDataJavaEE.getInstance().getViewOfParts().size());
+        Assert.assertEquals(EvoServletState.getResponse().getBody(), msg0 + msg1);
     }
 
     @Test

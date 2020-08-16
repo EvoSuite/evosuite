@@ -96,6 +96,6 @@ public class CoverageAnalysisCharSequenceSystemTest extends SystemTestBase {
         // coverage of one test case
         assertEquals(1, lines.size());
         // all components except the WordUtils' constructor are covered ("1"), and the test case passes ("+")
-        assertTrue(lines.get(0).equals("0 1 1 1 1 1 1 1 1 1 +"));
+        assertEquals("0 1 1 1 1 1 1 1 1 1 +", lines.get(0));
     }
 }

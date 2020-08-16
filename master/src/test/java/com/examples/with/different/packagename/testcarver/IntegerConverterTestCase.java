@@ -151,7 +151,7 @@ public class IntegerConverterTestCase extends NumberConverterTestBase {
 
         // Too Small
         try {
-            assertEquals("Minimum - 1", null, converter.convert(clazz, minMinusOne));
+            assertNull("Minimum - 1", converter.convert(clazz, minMinusOne));
             fail("Less than minimum, expected ConversionException");
         } catch (Exception e) {
             // expected result
@@ -159,7 +159,7 @@ public class IntegerConverterTestCase extends NumberConverterTestBase {
 
         // Too Large
         try {
-            assertEquals("Maximum + 1", null, converter.convert(clazz, maxPlusOne));
+            assertNull("Maximum + 1", converter.convert(clazz, maxPlusOne));
             fail("More than maximum, expected ConversionException");
         } catch (Exception e) {
             // expected result

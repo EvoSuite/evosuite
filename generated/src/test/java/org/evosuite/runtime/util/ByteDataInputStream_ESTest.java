@@ -60,7 +60,7 @@ public class ByteDataInputStream_ESTest extends ByteDataInputStream_ESTest_scaff
       ByteDataInputStream byteDataInputStream0 = new ByteDataInputStream(byteArray0);
       int int0 = byteDataInputStream0.read();
       int int1 = byteDataInputStream0.read();
-      assertFalse(int1 == int0);
+      assertNotEquals(int1, int0);
       assertEquals((-1), int1);
   }
 

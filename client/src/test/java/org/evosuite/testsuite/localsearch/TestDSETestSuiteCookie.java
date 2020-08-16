@@ -202,7 +202,7 @@ public class TestDSETestSuiteCookie {
     assertTrue(coveredGoalsAfterLocalSearch > coveredGoalsBeforeLocalSearch);
 
     int finalSuiteSize = suite.size();
-    assertTrue(coveredGoalsAfterLocalSearch == 8);
+      assertEquals(8, coveredGoalsAfterLocalSearch);
     assertTrue(finalSuiteSize >= 5);
   }
 

@@ -35,6 +35,6 @@ public class TestWrongCommand {
 
 		Object result = evosuite.parseCommandLine(new String[] { "foo" });
 
-		Assert.assertTrue(result == null);
+		Assert.assertNull(result);
 	}
 }

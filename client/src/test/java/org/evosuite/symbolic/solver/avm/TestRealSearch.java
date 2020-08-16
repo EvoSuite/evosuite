@@ -56,7 +56,7 @@ public class TestRealSearch extends RandomizedTC {
 			result = solve(skr, constraints);
 			assertNotNull(result);
 			assertNotNull(result.get("test1"));
-			assertTrue(2.35082 == ((Number) result.get("test1")).doubleValue());
+            assertEquals(2.35082, ((Number) result.get("test1")).doubleValue(), 0.0);
 		} catch (SolverTimeoutException e) {
 			fail();
 		}
@@ -165,7 +165,7 @@ public class TestRealSearch extends RandomizedTC {
 			result = solve(skr, constraints);
 			assertNotNull(result);
 			assertNotNull(result.get("test1"));
-			assertTrue(0.35082 == ((Number) result.get("test1")).doubleValue());
+            assertEquals(0.35082, ((Number) result.get("test1")).doubleValue(), 0.0);
 		} catch (SolverTimeoutException e) {
 			fail();
 		}

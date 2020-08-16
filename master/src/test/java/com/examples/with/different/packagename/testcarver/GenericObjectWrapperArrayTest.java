@@ -45,6 +45,6 @@ public class GenericObjectWrapperArrayTest {
 
 		Long[] foo = wrapper.get();
 
-		Assert.assertTrue(foo[1].equals(fortySeven.get()));
+        Assert.assertEquals(foo[1], fortySeven.get());
 	}
 }
