@@ -33,7 +33,7 @@ public class XSDUtils {
    * @param i
    * @return
    */
-  public static final BigInteger convert(final long i) {
+  public static BigInteger convert(final long i) {
     return BigInteger.valueOf(i);
   }
 }
