@@ -1443,9 +1443,6 @@ public class Properties {
 
     /** Cache target class */
 	private static Class<?> TARGET_CLASS_INSTANCE = null;
-	
-	/** Cache target regression class */
-	private static Class<?> TARGET_REGRESSION_CLASS_INSTANCE = null;
 
 	@Parameter(key = "CP", group = "Runtime", description = "The classpath of the target classes")
 	public static String CP = "";
@@ -2255,30 +2252,6 @@ public class Properties {
 			}
 		}
 	}
-	
-	private static boolean toReturnRegression = false;
-	
-	/*
-	 * Get target class
-	 * 
-	 * @param isOriginal whether or not you want the original or the regression class.
-	 */
-	public static Class<?> getTargetClassRegression(boolean isOriginal){
-		if (isOriginal && TARGET_CLASS_INSTANCE != null
-		        && TARGET_CLASS_INSTANCE.getCanonicalName().equals(TARGET_CLASS))
-			return TARGET_CLASS_INSTANCE;
-		else if(!isOriginal && TARGET_REGRESSION_CLASS_INSTANCE != null
-		        && TARGET_REGRESSION_CLASS_INSTANCE.getCanonicalName().equals(TARGET_CLASS))
-			return TARGET_REGRESSION_CLASS_INSTANCE;
-		
-		if(isOriginal)
-		 toReturnRegression = true;
-		
-		 Class<?> targetClass = getTargetClass(true);
-		 
-		 toReturnRegression = false;
-		 return targetClass;
-	}
 
 	/**
 	 * Returns the target class. It required, it also executes the 
@@ -2355,7 +2328,7 @@ public class Properties {
 			LoopCounter.getInstance().setActive(wasLoopCheckOn);
 		}
 
-		return (Properties.toReturnRegression) ? TARGET_REGRESSION_CLASS_INSTANCE : TARGET_CLASS_INSTANCE;
+		return TARGET_CLASS_INSTANCE;
 	}
 
 	/**

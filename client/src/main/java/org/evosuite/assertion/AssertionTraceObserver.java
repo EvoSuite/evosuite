@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -16,9 +16,6 @@
  *
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
- */
-/**
- * 
  */
 package org.evosuite.assertion;
 
@@ -119,36 +116,6 @@ public abstract class AssertionTraceObserver<T extends OutputTraceEntry> extends
 			// ignore
 		}
 
-	}
-	
-	
-	/*
-	 * Whether or not the target has the class under test.
-	 * This is to avoid generating assertions for statements
-	 * that are not assignable from the CUT.
-	 */
-	private boolean hasCUT(Statement statement, Set<VariableReference> dependencies){
-		boolean hasCUT = false;
-		if (statement instanceof MethodStatement) {
-			MethodStatement ms = (MethodStatement) statement;
-			if (Properties
-					.getTargetClassRegression(
-							ms.getMethod().getDeclaringClass().getClassLoader() == TestGenerationContext.getInstance()
-									.getClassLoaderForSUT()).isAssignableFrom(
-							ms.getMethod().getDeclaringClass()))
-				hasCUT = true;
-		}
-		for (VariableReference var : dependencies) {
-			if (Properties
-					.getTargetClassRegression(
-							var.getVariableClass().getClassLoader() == TestGenerationContext.getInstance()
-									.getClassLoaderForSUT()).isAssignableFrom(
-							var.getVariableClass())) {
-				hasCUT = true;
-				break;
-			}
-		}
-		return hasCUT;
 	}
 
 	/**
