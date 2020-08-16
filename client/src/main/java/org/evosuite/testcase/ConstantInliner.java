@@ -180,7 +180,7 @@ public class ConstantInliner extends ExecutionObserver {
 				} else if (var.isString() && object != null) {
 					ConstantValue value = new ConstantValue(test, var.getGenericClass());
 					try {
-						String val = StringEscapeUtils.unescapeJava(new String(object.toString()));
+						String val = StringEscapeUtils.unescapeJava(object.toString());
 						if(val.length() < Properties.MAX_STRING) {
 							value.setValue(val);
 							statement.replace(var, value);

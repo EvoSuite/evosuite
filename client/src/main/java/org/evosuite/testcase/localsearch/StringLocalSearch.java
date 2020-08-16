@@ -50,13 +50,13 @@ public class StringLocalSearch extends StatementLocalSearch {
 	private boolean oldChanged;
 
 	private void backup(TestChromosome test, StringPrimitiveStatement p) {
-		oldValue = new String(p.getValue());
+		oldValue = p.getValue();
 		oldResult = test.getLastExecutionResult();
 		oldChanged = test.isChanged();
 	}
 
 	private void restore(TestChromosome test, StringPrimitiveStatement p) {
-		p.setValue(new String(oldValue));
+		p.setValue(oldValue);
 		test.setLastExecutionResult(oldResult);
 		test.setChanged(oldChanged);
 	}

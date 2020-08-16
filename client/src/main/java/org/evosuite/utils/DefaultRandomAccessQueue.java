@@ -67,7 +67,7 @@ public class DefaultRandomAccessQueue<T> implements RandomAccessQueue<T> {
 
 	@Override
 	public String toString() {
-		String res = new String("[ ");
+		String res = "[ ";
 		for (final Object element : queue) {
 			res += element + " ";
 		}

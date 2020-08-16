@@ -1841,8 +1841,7 @@ public class SymbolicObserver extends ExecutionObserver {
 
 		String string_instance;
 		try {
-			String string_interned = (String) varRef.getObject(scope);
-			string_instance = new String(string_interned);
+			string_instance = (String) varRef.getObject(scope);
 			scope.setObject(varRef, string_instance);
 		} catch (CodeUnderTestException e) {
 			throw new EvosuiteError(e);

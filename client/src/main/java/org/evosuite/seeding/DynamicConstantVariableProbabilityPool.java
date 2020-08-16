@@ -164,7 +164,7 @@ public class DynamicConstantVariableProbabilityPool implements ConstantPool {
 
     @Override
     public String toString() {
-        String res = new String("DynamicConstantPool:{");
+        String res = "DynamicConstantPool:{";
         res += "stringPool=" + stringPool.toString() + " ; ";
         res += "typePool=" + typePool.toString() + " ; ";
         res += "intPool=" + intPool.toString() + " ; ";
