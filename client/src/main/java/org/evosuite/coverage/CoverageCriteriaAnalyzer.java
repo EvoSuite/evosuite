@@ -181,8 +181,6 @@ public class CoverageCriteriaAnalyzer {
                 return RuntimeVariable.InputCoverage;
             case IBRANCH:
                 return RuntimeVariable.IBranchCoverage;
-            case REGRESSION:
-                return RuntimeVariable.BranchCoverage;
             case TRYCATCH:
                 return RuntimeVariable.TryCatchCoverage;
             default:
@@ -343,8 +341,6 @@ public class CoverageCriteriaAnalyzer {
             case LINE:
             case ONLYLINE:
                 return RuntimeVariable.LineCoverageBitString;
-            case REGRESSION:
-            case REGRESSIONTESTS:
             case TRYCATCH:
                 return null;
             default:

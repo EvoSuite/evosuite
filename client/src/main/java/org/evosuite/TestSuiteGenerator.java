@@ -488,7 +488,7 @@ public class TestSuiteGenerator {
 			}
 		}
 
-		if (Properties.ASSERTIONS && !Properties.isRegression()) {
+		if (Properties.ASSERTIONS) {
 			LoggingUtils.getEvoLogger().info("* " + ClientProcess.getPrettyPrintIdentifier() + "Generating assertions");
 			// progressMonitor.setCurrentPhase("Generating assertions");
 			ClientServices.getInstance().getClientNode().changeState(ClientState.ASSERTION_GENERATION);
@@ -517,14 +517,6 @@ public class TestSuiteGenerator {
             else
                 logger.warn("Cannot run Junit test. Cause {}",ClassPathHacker.getCause());
         }
-
-		if (Properties.SERIALIZE_REGRESSION_TEST_SUITE) {
-			RegressionSuiteSerializer.appendToRegressionTestSuite(testSuite);
-		}
-
-		if(Properties.isRegression() && Properties.KEEP_REGRESSION_ARCHIVE){
-			RegressionSuiteSerializer.storeRegressionArchive();
-		}
 	}
 
 	/**
