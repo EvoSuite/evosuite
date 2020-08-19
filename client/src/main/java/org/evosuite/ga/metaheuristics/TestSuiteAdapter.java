@@ -504,24 +504,7 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
     public void addStoppingCondition(StoppingCondition<TestSuiteChromosome> condition)
             throws IllegalArgumentException {
         if (algorithm != null) {
-            final StoppingCondition<TestChromosome> adapteeCondition;
-            if (condition instanceof ZeroFitnessStoppingCondition) {
-                super.addStoppingCondition(condition);
-                return;
-            } else if (condition instanceof ShutdownTestWriter) {
-                adapteeCondition = new ShutdownTestWriter<>();
-            } else if (condition instanceof RMIStoppingCondition) {
-                // TODO voglseb: This can break something? Looks so
-                algorithm.addStoppingCondition(RMIStoppingCondition.getInstance());
-                return;
-            } else if (condition instanceof GlobalTimeStoppingCondition) {
-                adapteeCondition = new GlobalTimeStoppingCondition<>();
-            } else if (condition instanceof SocketStoppingCondition) {
-                adapteeCondition = SocketStoppingCondition.getInstance();
-            } else {
-                throw new IllegalArgumentException("cannot adapt stopping condition " + condition);
-            }
-            algorithm.addStoppingCondition(adapteeCondition);
+            algorithm.addStoppingCondition(mapStoppingCondition(condition));
         } else {
             // When we hit this branch, this TestSuiteAdapter object is currently being
             // constructed, and this method was invoked by the constructor of the super class
@@ -532,7 +515,7 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
     @Override
     final public Set<StoppingCondition<TestSuiteChromosome>> getStoppingConditions() {
         return algorithm.getStoppingConditions().stream()
-                .map(TestSuiteAdapter::<TestSuiteChromosome,TestChromosome>mapStoppingCondition)
+                .map(TestSuiteAdapter::<TestSuiteChromosome>mapStoppingCondition)
                 .collect(toSet());
     }
 
@@ -541,11 +524,10 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
      *
      * @param stoppingCondition the stopping condition with "wrong" generic parameters.
      * @param <T> the desired target chromosome type
-     * @param <U> the given source chromosome type
      * @return
      */
-    private static <T extends Chromosome<T>, U extends Chromosome<U>> StoppingCondition<T>
-            mapStoppingCondition(StoppingCondition<U> stoppingCondition) {
+    private static <T extends Chromosome<T>> StoppingCondition<T>
+            mapStoppingCondition(StoppingCondition<?> stoppingCondition) {
         if (stoppingCondition instanceof MaxTimeStoppingCondition) {
             return new MaxTimeStoppingCondition<>((MaxTimeStoppingCondition<?>) stoppingCondition);
         } else if (stoppingCondition instanceof MaxGenerationStoppingCondition) {
