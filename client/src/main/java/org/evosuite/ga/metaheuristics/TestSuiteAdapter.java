@@ -251,23 +251,24 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
     }
 
     @Override
-    final public RankingFunction<TestSuiteChromosome> getRankingFunction()
-            throws UnsupportedOperationException {
-        throw new UnsupportedOperationException("not implemented");
+    final public RankingFunction<TestSuiteChromosome> getRankingFunction() {
+        return mapRankingFunction(algorithm.getRankingFunction());
     }
 
     @Override
-    public void setRankingFunction(RankingFunction<TestSuiteChromosome> function)
-            throws IllegalArgumentException {
-        final RankingFunction<TestChromosome> adapteeFunction;
+    public void setRankingFunction(RankingFunction<TestSuiteChromosome> function) {
+        final RankingFunction<TestChromosome> adapteeFunction = mapRankingFunction(function);
+        algorithm.setRankingFunction(adapteeFunction);
+    }
+
+    private static<T extends Chromosome<T>, X extends Chromosome<X>> RankingFunction<T> mapRankingFunction(RankingFunction<X> function){
         if (function instanceof FastNonDominatedSorting) {
-            adapteeFunction = new FastNonDominatedSorting<>();
+            return new FastNonDominatedSorting<>();
         } else if (function instanceof RankBasedPreferenceSorting) {
-            adapteeFunction = new RankBasedPreferenceSorting<>();
+            return new RankBasedPreferenceSorting<>();
         } else {
             throw new IllegalArgumentException("cannot adapt ranking function " + function);
         }
-        algorithm.setRankingFunction(adapteeFunction);
     }
 
     @Override
