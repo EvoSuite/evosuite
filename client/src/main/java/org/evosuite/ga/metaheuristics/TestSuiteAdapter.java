@@ -126,13 +126,17 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
     @Override
     final protected void notifyMutation(TestSuiteChromosome chromosome)
             throws UnsupportedOperationException {
-        throw new UnsupportedOperationException("not implemented");
+        // In contrast to the adaptee, the adapter does not mutate any chromosomes.
+        // Therefore, only the adaptee notifies about mutations
+        throw new UnsupportedOperationException("The adaptee should notify about mutations");
     }
 
     @Override
     final protected void notifyEvaluation(TestSuiteChromosome chromosome)
             throws UnsupportedOperationException {
-        throw new UnsupportedOperationException("not implemented");
+        // In contrast to the adaptee, the adapter does not evaluate any chromosomes.
+        // Therefore, only the adaptee notifies about evaluations.
+        throw new UnsupportedOperationException("The adaptee should notify about evaluations");
     }
 
     @Override
