@@ -52,6 +52,7 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
     protected TestSuiteAdapter(final A algorithm) {
         super(null);
         this.algorithm = Objects.requireNonNull(algorithm);
+        algorithm.addListener(new AdapteeListener(this));
         clear();
     }
 

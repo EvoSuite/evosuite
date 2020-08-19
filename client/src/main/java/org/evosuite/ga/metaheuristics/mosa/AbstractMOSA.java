@@ -466,25 +466,16 @@ public abstract class AbstractMOSA extends GeneticAlgorithm<TestChromosome> {
 	@Override
 	protected void notifySearchStarted() {
 		super.notifySearchStarted();
-		if (adapter != null) {
-			adapter.notifySearchStarted();
-		}
 	}
 
 	@Override
 	protected void notifyIteration() {
 		super.notifyIteration();
-		if (adapter != null) {
-			adapter.notifyIteration();
-		}
 	}
 
 	@Override
 	protected void notifySearchFinished() {
 		super.notifySearchFinished();
-		if (adapter != null) {
-			adapter.notifySearchFinished();
-		}
 	}
 
 	/**
