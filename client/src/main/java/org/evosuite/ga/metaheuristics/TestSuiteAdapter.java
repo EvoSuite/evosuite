@@ -468,7 +468,7 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
     public void setPopulationLimit(PopulationLimit<TestSuiteChromosome> limit)
             throws IllegalArgumentException {
         if (algorithm != null) {
-            algorithm.setPopulationLimit(mapPopulationLimitToTestLevel(limit));
+            algorithm.setPopulationLimit(mapPopulationLimit(limit));
         } else {
             // When we hit this branch, this TestSuiteAdapter object is currently being
             // constructed, and this method was invoked by the constructor of the super class
@@ -482,7 +482,7 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
      * @param limit
      * @return
      */
-    private PopulationLimit<TestChromosome> mapPopulationLimitToTestLevel(PopulationLimit<TestSuiteChromosome> limit){
+    private static<T extends Chromosome<T>> PopulationLimit<T> mapPopulationLimit(PopulationLimit<?> limit){
         if (limit instanceof IndividualPopulationLimit) {
             return new IndividualPopulationLimit<>((IndividualPopulationLimit<?>) limit);
         } else if (limit instanceof StatementsPopulationLimit) {
