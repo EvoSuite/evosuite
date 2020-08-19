@@ -45,6 +45,10 @@ public class RankAndCrowdingDistanceComparator<T extends Chromosome<T>> implemen
         this.isToMaximize = maximize;
     }
 
+    public RankAndCrowdingDistanceComparator(RankAndCrowdingDistanceComparator<?> other) {
+        this.isToMaximize = other.isToMaximize;
+    }
+
     /**
      * Compares two solutions.
      * 

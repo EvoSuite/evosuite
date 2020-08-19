@@ -54,7 +54,13 @@ public class BinaryTournamentSelectionCrowdedComparison<T extends Chromosome<T>>
         this.comparator = new RankAndCrowdingDistanceComparator<>(isToMaximize);
     }
 
-	@Override
+    public BinaryTournamentSelectionCrowdedComparison(BinaryTournamentSelectionCrowdedComparison<?> other) {
+        this.index = other.index;
+        this.indexes = other.indexes;
+        this.comparator = new RankAndCrowdingDistanceComparator<>(other.comparator);
+    }
+
+    @Override
 	public int getIndex(List<T> population)
 	{
 	    if (this.index == 0) // Create the permutation

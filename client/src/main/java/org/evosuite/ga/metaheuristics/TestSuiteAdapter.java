@@ -228,26 +228,39 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
     @Override
     public void setSelectionFunction(SelectionFunction<TestSuiteChromosome> function)
             throws IllegalArgumentException {
-        final SelectionFunction<TestChromosome> adapteeFunction;
+        final SelectionFunction<TestChromosome> adapteeFunction = mapSelectionFunction(function);
+        adapteeFunction.setMaximize(function.isMaximize());
+        algorithm.setSelectionFunction(adapteeFunction);
+    }
+
+    /**
+     * Converts a selection function from either TestSuite or Test case level to the other
+     *
+     * @param function The function to be converted
+     * @param <T> ToType of the conversion
+     * @param <X> FromType of the conversion
+     * @return The converted selection function.
+     */
+    private static<T extends Chromosome<T>, X extends Chromosome<X>> SelectionFunction<T> mapSelectionFunction(SelectionFunction<X> function){
         if (function instanceof FitnessProportionateSelection) {
-            adapteeFunction = new FitnessProportionateSelection<>();
+            return new FitnessProportionateSelection<>((FitnessProportionateSelection<?>) function);
         } else if (function instanceof TournamentSelection) {
-            adapteeFunction = new TournamentSelection<>();
+            return new TournamentSelection<>((TournamentSelection<?>) function);
         } else if (function instanceof BinaryTournamentSelectionCrowdedComparison) {
-            adapteeFunction = new BinaryTournamentSelectionCrowdedComparison<>();
+            return new BinaryTournamentSelectionCrowdedComparison<>(
+                    (BinaryTournamentSelectionCrowdedComparison<?>) function);
         } else if (function instanceof TournamentSelectionRankAndCrowdingDistanceComparator) {
-            adapteeFunction = new TournamentSelectionRankAndCrowdingDistanceComparator<>();
+            return new TournamentSelectionRankAndCrowdingDistanceComparator<>(
+                    (TournamentSelectionRankAndCrowdingDistanceComparator<?>) function);
         } else if (function instanceof BestKSelection) {
-            adapteeFunction = new BestKSelection<>();
+            return new BestKSelection<>((BestKSelection<?>) function);
         } else if (function instanceof RandomKSelection) {
-            adapteeFunction = new RandomKSelection<>();
+            return new RandomKSelection<>((RandomKSelection<?>) function);
         } else if (function instanceof RankSelection) {
-            adapteeFunction = new RankSelection<>();
+            return new RankSelection<>((RankSelection<?>) function);
         } else {
             throw new IllegalArgumentException("cannot adapt selection function " + function);
         }
-        adapteeFunction.setMaximize(function.isMaximize());
-        algorithm.setSelectionFunction(adapteeFunction);
     }
 
     @Override

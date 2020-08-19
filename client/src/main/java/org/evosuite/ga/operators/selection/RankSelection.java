@@ -35,6 +35,13 @@ public class RankSelection<T extends Chromosome<T>> extends SelectionFunction<T>
 
 	private static final long serialVersionUID = 7849303009915557682L;
 
+	public RankSelection() {
+	}
+
+	public RankSelection(RankSelection<?> other) {
+		// empty copy constructor
+	}
+
 	/**
 	 * Returns the index of the next individual selected from the given
 	 * population, which is assumed to be already sorted.
