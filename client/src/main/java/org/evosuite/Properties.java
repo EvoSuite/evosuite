@@ -1296,6 +1296,9 @@ public class Properties {
 	@Parameter(key = "TT", description = "Testability transformation")
 	public static boolean TT = false;
 
+	@Parameter(key = "TT_use_cdg_paths", description = "using the paths in the CDG instead of CFG")
+	public static boolean TT_USE_CDG_PATHS = true;
+
 	public enum TransformationScope {
 		TARGET, PREFIX, ALL
 	}

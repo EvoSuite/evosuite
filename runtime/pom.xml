@@ -180,6 +180,11 @@
             <version>1.3.2</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.evosuite</groupId>
+            <artifactId>BooleanTransformation</artifactId>
+        </dependency>
+
 
     </dependencies>
 

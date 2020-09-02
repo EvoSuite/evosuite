@@ -21,7 +21,9 @@ package org.evosuite.instrumentation;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Objects;
 
+import BooleanTransformation.BooleanToIntTransformer;
 import org.evosuite.PackageInfo;
 import org.evosuite.Properties;
 import org.evosuite.assertion.CheapPurityAnalyzer;
@@ -274,9 +276,10 @@ public class BytecodeInstrumentation {
 			if (shouldTransform(classNameWithDots)) {
 				logger.info("Testability Transforming " + className);
 
-				BooleanTestabilityTransformation tt = new BooleanTestabilityTransformation(cn, classLoader);
+				BooleanToIntTransformer tt = new BooleanToIntTransformer(this::shouldTransform, Properties.TT_USE_CDG_PATHS);
+				//new BooleanTestabilityTransformation(cn, classLoader);
 				try {
-					cn = tt.transform();
+					cn = tt.transform(cn, classLoader);
 				} catch (Throwable t) {
 					throw new Error(t);
 				}
