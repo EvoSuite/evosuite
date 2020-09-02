@@ -95,7 +95,7 @@ class ClassReInitializeExecutor {
 		// className.__STATIC_RESET() exists
 		logger.debug("Resetting class " + className);
 
-		int mutationActive = MutationObserver.activeMutation;
+		int mutationActive = MutationObserver.activeMutations.iterator().next();
 		MutationObserver.deactivateMutation();
 
 		// execute __STATIC_RESET()

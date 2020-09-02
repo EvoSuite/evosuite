@@ -23,6 +23,8 @@
 package org.evosuite.instrumentation.coverage;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -294,11 +296,30 @@ public class MutationInstrumentation implements MethodInstrumentation {
 			LabelNode nextLabel = new LabelNode();
 
 			LdcInsnNode mutationId = new LdcInsnNode(mutation.getId());
+//			instructions.add(mutationId);
+//			FieldInsnNode activeId = new FieldInsnNode(Opcodes.GETSTATIC,
+//			        Type.getInternalName(MutationObserver.class), "activeMutation", "I");
+			
+			FieldInsnNode activeIds = new FieldInsnNode(Opcodes.GETSTATIC,
+					Type.getInternalName(MutationObserver.class), "activeMutations", "Ljava/lang/Object;");
+			MethodInsnNode contains = new MethodInsnNode(Opcodes.INVOKEINTERFACE,
+					Type.getInternalName(Collections.class), "contains",
+					Type.getMethodDescriptor(Type.BOOLEAN_TYPE, Type.getType(Collection.class)), true);
+			
+			// Invoke the interface method Collection::contains() with the two operands being
+			// the static field MutationObserver.activeIds and this particular mutant's id.
+			// I.e. call MutationObserver.activeIds.contains(mutationId).
+			instructions.add(activeIds);
 			instructions.add(mutationId);
-			FieldInsnNode activeId = new FieldInsnNode(Opcodes.GETSTATIC,
-			        Type.getInternalName(MutationObserver.class), "activeMutation", "I");
-			instructions.add(activeId);
-			instructions.add(new JumpInsnNode(Opcodes.IF_ICMPNE, nextLabel));
+			instructions.add(contains);
+			
+			// Operand is now True iff the mutation is active, False iff not and we should jump
+			// to nextLabel to avoid running the mutated instruction.
+			instructions.add(new JumpInsnNode(Opcodes.IFEQ, nextLabel));
+			
+//			instructions.add(activeId);
+//			instructions.add(new JumpInsnNode(Opcodes.IF_ICMPNE, nextLabel));
+			
 			instructions.add(mutation.getMutation());
 			instructions.add(new JumpInsnNode(Opcodes.GOTO, endLabel));
 			instructions.add(nextLabel);
