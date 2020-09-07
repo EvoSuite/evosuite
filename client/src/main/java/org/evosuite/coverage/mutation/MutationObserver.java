@@ -34,6 +34,10 @@ import java.util.Set;
 public class MutationObserver {
 
 	public static Set<Integer> activeMutations = new HashSet<Integer>();
+	
+	public static boolean isActive(int mutationId) {
+		return activeMutations.contains(mutationId);
+	}
 
 	/**
 	 * <p>mutationTouched</p>

@@ -299,19 +299,14 @@ public class MutationInstrumentation implements MethodInstrumentation {
 //			instructions.add(mutationId);
 //			FieldInsnNode activeId = new FieldInsnNode(Opcodes.GETSTATIC,
 //			        Type.getInternalName(MutationObserver.class), "activeMutation", "I");
+			MethodInsnNode isActive = new MethodInsnNode(Opcodes.INVOKESTATIC,
+					Type.getInternalName(MutationObserver.class), "isActive",
+					Type.getMethodDescriptor(Type.BOOLEAN_TYPE, Type.INT_TYPE), false);
 			
-			FieldInsnNode activeIds = new FieldInsnNode(Opcodes.GETSTATIC,
-					Type.getInternalName(MutationObserver.class), "activeMutations", "Ljava/lang/Object;");
-			MethodInsnNode contains = new MethodInsnNode(Opcodes.INVOKEINTERFACE,
-					Type.getInternalName(Collections.class), "contains",
-					Type.getMethodDescriptor(Type.BOOLEAN_TYPE, Type.getType(Collection.class)), true);
-			
-			// Invoke the interface method Collection::contains() with the two operands being
-			// the static field MutationObserver.activeIds and this particular mutant's id.
-			// I.e. call MutationObserver.activeIds.contains(mutationId).
-			instructions.add(activeIds);
+			// Invoke the static class method MutationObserver.isActive() with mutationId in
+			// question as the operand.
 			instructions.add(mutationId);
-			instructions.add(contains);
+			instructions.add(isActive);
 			
 			// Operand is now True iff the mutation is active, False iff not and we should jump
 			// to nextLabel to avoid running the mutated instruction.
