@@ -721,7 +721,7 @@ public final class TestChromosome extends AbstractTestChromosome<TestChromosome>
 		return Stream.of(this).collect(toTestSuiteCollector);
 	}
 
-	private final static TestChromosomeCollector toTestSuiteCollector = new TestChromosomeCollector();
+	public final static TestChromosomeCollector toTestSuiteCollector = new TestChromosomeCollector();
 
 	public static class TestChromosomeCollector implements Collector<TestChromosome, TestSuiteChromosome, TestSuiteChromosome> {
 		private final static Set<Characteristics> characteristics =

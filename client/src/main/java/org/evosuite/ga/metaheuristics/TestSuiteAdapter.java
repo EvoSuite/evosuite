@@ -22,10 +22,7 @@ import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.evosuite.utils.ResourceController;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
@@ -453,8 +450,7 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
 
     @Override
     final public List<TestSuiteChromosome> getPopulation() throws UnsupportedOperationException {
-        // The documentation of GeneticAlgorithm::getPopulation states, that an accessor to the population is returned.
-        throw new UnsupportedOperationException("Can not access the population of an adapted algorithm");
+        return Collections.singletonList(algorithm.getPopulation().stream().collect(TestChromosome.toTestSuiteCollector));
     }
 
     @Override

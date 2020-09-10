@@ -856,12 +856,12 @@ public abstract class GeneticAlgorithm<T extends Chromosome<T>> implements Searc
     }
 
     /**
-     * Accessor for population Chromosome *
+     * Generates a view of the population List.
      *
      * @return a {@link java.util.List} object.
      */
     public List<T> getPopulation() {
-        return population;
+        return Collections.unmodifiableList(population);
     }
 
     /**
