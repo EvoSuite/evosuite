@@ -133,6 +133,8 @@ public class DependencyAnalysis {
 			ClassNotFoundException {
 
 		initInheritanceTree(classPath);
+		initCallGraph(className);
+
 		analyze(className);
 	}
 
