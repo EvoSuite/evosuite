@@ -20,6 +20,7 @@
 package org.evosuite.ga.problems.multiobjective;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -110,7 +111,7 @@ public class SCHIntTest
         // execute
         ga.generateSolution();
 
-        List<NSGAChromosome> chromosomes = ga.getPopulation();
+        List<NSGAChromosome> chromosomes = new ArrayList<>(ga.getPopulation());
         chromosomes.sort(Comparator.comparingDouble(chr -> chr.getFitness(f1)));
 
         double[][] front = new double[Properties.POPULATION][2];
