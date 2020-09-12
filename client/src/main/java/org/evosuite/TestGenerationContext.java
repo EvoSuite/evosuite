@@ -20,12 +20,9 @@
 
 package org.evosuite;
 
-import java.io.File;
-import java.util.Arrays;
 import java.util.List;
 
 import org.evosuite.assertion.InspectorManager;
-import org.evosuite.classpath.ClassPathHandler;
 import org.evosuite.contracts.ContractChecker;
 import org.evosuite.contracts.FailingTestSet;
 import org.evosuite.coverage.branch.BranchPool;
@@ -60,7 +57,6 @@ import org.evosuite.testcarver.extraction.CarvingManager;
 import org.evosuite.testcase.execution.ExecutionTracer;
 import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.evosuite.testcase.execution.reset.ClassReInitializer;
-import org.evosuite.utils.ArrayUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -137,15 +133,6 @@ public class TestGenerationContext {
 	    testClusterGenerator = generator;
     }
 
-	/**
-	 * @deprecated use {@code getInstance().getClassLoaderForSUT()}
-	 * 
-	 * @return
-	 */
-	public static ClassLoader getClassLoader() {
-		return getInstance().classLoader;
-	}
-
 	public void resetContext() {
 		logger.info("*** Resetting context");
 
@@ -202,24 +189,15 @@ public class TestGenerationContext {
 		ObjectPoolManager.getInstance().reset();
 		CarvingManager.getInstance().clear();
 
-		// TODO: Why are we doing this?
-		if (Properties.INSTRUMENT_CONTEXT || ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.DEFUSE)
-				|| ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.IBRANCH)) {
-			// || ArrayUtil.contains(Properties.CRITERION,
-			// Properties.Criterion.CBRANCH)) {
-			try {
-				// 1. Initialize the callGraph before using
-				String cp = ClassPathHandler.getInstance().getTargetProjectClasspath();
-				DependencyAnalysis.analyzeClass(Properties.TARGET_CLASS, Arrays.asList(cp.split(File.pathSeparator)));
-				testClusterGenerator = new TestClusterGenerator(
-						DependencyAnalysis.getInheritanceTree());
-				// 2. Use the callGraph
-				testClusterGenerator.generateCluster(DependencyAnalysis.getCallGraph());
-			} catch (RuntimeException e) {
-				logger.error(e.getMessage(), e);
-			} catch (ClassNotFoundException e) {
-				logger.error(e.getMessage(), e);
-			}
+		try {
+			// Regenerate test cluster
+			testClusterGenerator = new TestClusterGenerator(
+					DependencyAnalysis.getInheritanceTree());
+			testClusterGenerator.generateCluster(DependencyAnalysis.getCallGraph());
+		} catch (RuntimeException e) {
+			logger.error(e.getMessage(), e);
+		} catch (ClassNotFoundException e) {
+			logger.error(e.getMessage(), e);
 		}
 
 		if (Properties.CHECK_CONTRACTS) {
