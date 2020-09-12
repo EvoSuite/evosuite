@@ -71,11 +71,10 @@ public class DependencyAnalysis {
 	}
 
 	public static void initInheritanceTree(List<String> classPath) {
-		if (inheritanceTree != null) {
-			return;
+		if (inheritanceTree == null) {
+			logger.debug("Calculate inheritance hierarchy");
+			inheritanceTree = InheritanceTreeGenerator.createFromClassPath(classPath);
 		}
-		logger.debug("Calculate inheritance hierarchy");
-		inheritanceTree = InheritanceTreeGenerator.createFromClassPath(classPath);
 		TestClusterGenerator clusterGenerator = new TestClusterGenerator(inheritanceTree);
 		TestGenerationContext.getInstance().setTestClusterGenerator(clusterGenerator);
 		InheritanceTreeGenerator.gatherStatistics(inheritanceTree);
@@ -238,30 +237,6 @@ public class DependencyAnalysis {
 				&& !className.startsWith("daikon.")
 				&& !className.startsWith("jdk.");
 	}
-
-//	private static String getProjectPackageApprox(String qualifiedName) {
-//		if (qualifiedName == null)
-//			throw new IllegalArgumentException();
-//		String[] splitted = qualifiedName.split("\\.");
-//		String result = "";
-//		if (splitted.length == 0)
-//			result = qualifiedName;
-//		else if (splitted.length == 1)
-//			result = splitted[0];
-//		else if (splitted.length == 2)
-//			result = splitted[0];
-//		else if (splitted[0].equals("com") || splitted[0].equals("org")
-//				|| splitted[0].equals("net") || splitted[0].equals("de")
-//				|| splitted[0].equals("it") || splitted[0].equals("ch") || splitted[0].equals("fr")
-//				|| splitted[0].equals("br") || splitted[0].equals("edu")
-//				|| splitted[0].equals("osa") || splitted[0].equals("uk")
-//				|| splitted[0].equals("gov") || splitted[0].equals("dk")) {
-//			result = splitted[0] + "." + splitted[1];
-//		} else
-//			result = splitted[0];
-//
-//		return result;
-//	}
 	
 	/**
 	 * Determine if the given class should be analyzed or instrumented
