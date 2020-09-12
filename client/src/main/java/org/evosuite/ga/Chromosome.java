@@ -51,6 +51,7 @@ public abstract class Chromosome<T extends Chromosome<T>>
 	protected Chromosome() {
 		// empty
 	}
+
 	/** Last recorded fitness value */
     private final LinkedHashMap<FitnessFunction<T>, Double> fitnessValues = new LinkedHashMap<>();
 
@@ -71,7 +72,6 @@ public abstract class Chromosome<T extends Chromosome<T>>
     /** The number of covered goals with regard to the fitness function given as key */
     private final LinkedHashMap<FitnessFunction<T>, Integer> numsCoveredGoals = new LinkedHashMap<>();
 
-	
 	// protected double coverage = 0.0;
 
 	// protected int numOfCoveredGoals = 0;
@@ -230,13 +230,8 @@ public abstract class Chromosome<T extends Chromosome<T>>
 					+ ff.getClass().getName());
 		}
 
-		if (!fitnessValues.containsKey(ff)) {
-			previousFitnessValues.put(ff, value);
-			fitnessValues.put(ff, value);
-		} else {
-			previousFitnessValues.put(ff, fitnessValues.get(ff));
-			fitnessValues.put(ff, value);
-		}
+		previousFitnessValues.put(ff, fitnessValues.getOrDefault(ff, value));
+		fitnessValues.put(ff, value);
 	}
 
     /**
@@ -386,7 +381,6 @@ public abstract class Chromosome<T extends Chromosome<T>>
 		localSearchApplied = false;
 	}
 	
-	
 	public boolean hasLocalSearchBeenApplied() {
 		return localSearchApplied;
 	}
@@ -444,6 +438,7 @@ public abstract class Chromosome<T extends Chromosome<T>>
 		this.numsNotCoveredGoals.clear();
 		this.numsNotCoveredGoals.putAll(fits);
 	}
+
 	public void setNumOfNotCoveredGoals(FitnessFunction<T> ff, int numCoveredGoals) {
 		this.numsNotCoveredGoals.put(ff, numCoveredGoals);
 	}
