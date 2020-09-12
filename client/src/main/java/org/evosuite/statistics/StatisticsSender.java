@@ -140,8 +140,6 @@ public class StatisticsSender {
 		Set<Integer> coveredFalseBranches = new HashSet<>();
 		Set<String> coveredBranchlessMethods = new HashSet<>();
 		Set<Integer> coveredLines = new HashSet<>();
-		Set<Integer> coveredRealBranches = new HashSet<>();
-		Set<Integer> coveredInstrumentedBranches = new HashSet<>();
 
 		for (TestChromosome test : testSuite.getTestChromosomes()) {
 			ExecutionTrace trace = test.getLastExecutionResult().getTrace();
