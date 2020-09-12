@@ -308,7 +308,7 @@ public class SPEA2Test {
     // execute
     ga.generateSolution();
 
-    List<NSGAChromosome> chromosomes = ga.getPopulation();
+    List<NSGAChromosome> chromosomes = new ArrayList<>(ga.getPopulation());
     chromosomes.sort(Comparator.comparingDouble(chr -> chr.getFitness(f1)));
 
     double[][] front = new double[Properties.POPULATION][2];

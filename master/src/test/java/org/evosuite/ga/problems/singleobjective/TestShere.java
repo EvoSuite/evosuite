@@ -20,6 +20,7 @@
 package org.evosuite.ga.problems.singleobjective;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.evosuite.Properties;
@@ -90,7 +91,7 @@ public class TestShere
         // execute
         ga.generateSolution();
 
-        List<NSGAChromosome> chromosomes = ga.getPopulation();
+        List<NSGAChromosome> chromosomes = new ArrayList<>(ga.getPopulation());
         chromosomes.sort(comparingDouble(chr -> chr.getFitness(f1)));
 
         for (NSGAChromosome chromosome : chromosomes)

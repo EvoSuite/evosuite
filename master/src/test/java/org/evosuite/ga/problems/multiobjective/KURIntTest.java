@@ -20,6 +20,7 @@
 package org.evosuite.ga.problems.multiobjective;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.evosuite.Properties;
@@ -101,7 +102,7 @@ public class KURIntTest
         // execute
         ga.generateSolution();
 
-        List<NSGAChromosome> chromosomes = ga.getPopulation();
+        List<NSGAChromosome> chromosomes = new ArrayList<>(ga.getPopulation());
         chromosomes.sort(comparingDouble(chr -> chr.getFitness(f1)));
 
         double[][] front = new double[Properties.POPULATION][2];
