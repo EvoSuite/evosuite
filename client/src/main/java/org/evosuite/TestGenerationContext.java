@@ -139,7 +139,7 @@ public class TestGenerationContext {
 
 	/**
 	 * @deprecated use {@code getInstance().getClassLoaderForSUT()}
-	 * 
+	 *
 	 * @return
 	 */
 	public static ClassLoader getClassLoader() {
