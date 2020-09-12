@@ -93,7 +93,7 @@ public class TestCaseMinimizer {
 				return true;
 		}
 
-		for (SecondaryObjective objective : TestChromosome.getSecondaryObjectives()) {
+		for (SecondaryObjective<TestChromosome> objective : TestChromosome.getSecondaryObjectives()) {
 			if (objective.compareChromosomes(oldChromosome, newChromosome) < 0)
 				return true;
 		}

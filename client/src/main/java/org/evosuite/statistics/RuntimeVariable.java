@@ -219,9 +219,7 @@ public enum RuntimeVariable {
 	/** Was any test unstable in the generated JUnit files? */
 	HadUnstableTests, 
 	/** Number of unstable tests in the generated JUnit files */
-	NumUnstableTests, 
-	/** Number of regression test cases */
-	NumRegressionTestCases,
+	NumUnstableTests,
 	/** An estimate (ie not precise) of the maximum number of threads running at the same time in the CUT */
 	Threads,
 	/** Number of top-level methods throwing an undeclared exception explicitly with a 'throw new' */
@@ -262,13 +260,6 @@ public enum RuntimeVariable {
 	AudioPermission,
 	OtherPermission,
 	/* -------------------------------------------------------------------- */
-	/** Regression-related Variables */
-	Generated_Assertions,
-	Coverage_Old,
-	Coverage_New,
-	Exception_Difference,
-	State_Distance,
-	Testsuite_Diversity,
 	/** Timings */
 	Time_Assertion,
 	Time_Coverage,

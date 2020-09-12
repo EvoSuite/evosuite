@@ -7,22 +7,20 @@ import java.util.List;
  * 
  * @author Nasser Albunian
  */
-public interface NeighborModels {
+public interface NeighborModels<T extends Chromosome<T>> {
 
-
-	List<?> ringTopology(List<? extends Chromosome> collection, int position);
+	List<T> ringTopology(List<T> collection, int position);
 	
-	List<?> linearFive(List<? extends Chromosome> collection, int position);
+	List<T> linearFive(List<T> collection, int position);
 	
-	List<?> compactNine(List<? extends Chromosome> collection, int position);
+	List<T> compactNine(List<T> collection, int position);
 	
-	List<?> CompactThirteen(List<? extends Chromosome> collection, int position);
+	List<T> CompactThirteen(List<T> collection, int position);
 
 	/*
 	 * Neighbourhood positions
 	 */
     enum Positions {
-
 		N,
 		S,
 		E,
@@ -30,7 +28,6 @@ public interface NeighborModels {
 		NW,
 		SW,
 		NE,
-		SE;
-		
+		SE
 	}
 }

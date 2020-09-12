@@ -45,6 +45,11 @@ public class TournamentSelectionRankAndCrowdingDistanceComparator<T extends Chro
 		this.comparator = new RankAndCrowdingDistanceComparator<>(isToMaximize);
 	}
 
+	public TournamentSelectionRankAndCrowdingDistanceComparator(
+			TournamentSelectionRankAndCrowdingDistanceComparator<?> other) {
+		this.comparator = new RankAndCrowdingDistanceComparator<>(other.comparator);
+	}
+
 	/**
 	 * {@inheritDoc}
 	 *

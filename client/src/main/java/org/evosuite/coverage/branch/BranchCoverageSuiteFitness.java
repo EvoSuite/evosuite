@@ -81,9 +81,6 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	private final Set<Integer> removedBranchesF = new LinkedHashSet<>();
 	private final Set<String> removedRootBranches = new LinkedHashSet<>();
 	
-	// Total coverage value, used by Regression
-	public double totalCovered = 0.0;
-	
 	/**
 	 * <p>
 	 * Constructor for BranchCoverageSuiteFitness.
@@ -459,8 +456,6 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 			suite.setCoverage(this, (double) coverage / (double) totalGoals);
 		else 
             suite.setCoverage(this, 1);
-		
-		totalCovered = suite.getCoverage(this);
 
 		suite.setNumOfCoveredGoals(this, coverage);
 		suite.setNumOfNotCoveredGoals(this, totalGoals-coverage);

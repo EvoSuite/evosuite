@@ -35,6 +35,13 @@ public class TournamentSelection<T extends Chromosome<T>> extends SelectionFunct
 
 	private static final long serialVersionUID = -7465418404056357932L;
 
+	public TournamentSelection() {
+	}
+
+	public TournamentSelection(TournamentSelection<?> other) {
+		// empty copy constructor
+	}
+
 	/**
 	 * {@inheritDoc}
 	 *

@@ -431,12 +431,6 @@ public class MSecurityManager extends SecurityManager {
 		if (!allowPermission(perm)) {
 			String stack = "\n";
 			for (StackTraceElement e : Thread.currentThread().getStackTrace()) {
-				if (e.toString().contains(
-						//FIXME use ObjectFields.class, but without adding Maven dependency (which would create a cycle)
-						PackageInfo.getEvoSuitePackage()+".regression.ObjectFields")) {
-					statistics.permissionAllowed(perm);
-					return;
-				}
 				stack += e + "\n";
 			}
 			if (executingTestCase) {

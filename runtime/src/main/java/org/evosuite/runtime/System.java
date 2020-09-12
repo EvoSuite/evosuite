@@ -54,6 +54,16 @@ public class System {
 	private static final Set<String> systemProperties; 
 
 	static {
+
+		// We have to allow some system properties like "java.io.tmpdir",  "user.home",  "user.name"
+		// as otherwise tests using the VFS at runtime might break
+		// We are not including "user.dir" because that will break Jacoco and other instrumentation tools
+		systemProperties = new HashSet<>(Arrays.asList("java.version", "java.vendor", "java.vendor.url", "java.home", "java.vm.specification.version", "java.vm.specification.vendor",
+				"java.vm.specification.name", "java.vm.version", "java.vm.vendor", "java.vm.name", "java.specification.version", "java.specification.vendor",
+				"java.specification.name", "java.class.version", "java.class.path", "java.library.path", "java.compiler", "java.ext.dirs",
+				"os.name", "os.arch", "os.version", "file.separator", "path.separator", "line.separator", "java.endorsed.dirs",
+				"awt.toolkit", "java.awt.graphicsenv", "java.awt.printerjob", "java.vm.info", "java.runtime.version", "java.runtime.name"));
+
 		java.util.Properties prop = null;
 		try{
 			prop =  (java.util.Properties) java.lang.System.getProperties().clone();
@@ -61,16 +71,6 @@ public class System {
 			logger.error("Error while initializing System: "+e.getMessage());
 		}
 		defaultProperties = prop;
-
-		// We have to allow some system properties like "java.io.tmpdir",  "user.home",  "user.name"
-		// as otherwise tests using the VFS at runtime might break
-		// We are not including "user.dir" because that will break Jacoco and other instrumentation tools
-		systemProperties = new HashSet<>(Arrays.asList(new String[]{"java.version", "java.vendor", "java.vendor.url", "java.home", "java.vm.specification.version", "java.vm.specification.vendor",
-				"java.vm.specification.name", "java.vm.version", "java.vm.vendor", "java.vm.name", "java.specification.version", "java.specification.vendor",
-				"java.specification.name", "java.class.version", "java.class.path", "java.library.path", "java.compiler", "java.ext.dirs",
-				"os.name", "os.arch", "os.version", "file.separator", "path.separator", "line.separator", "java.endorsed.dirs",
-				"awt.toolkit", "java.awt.graphicsenv", "java.awt.printerjob", "java.vm.info", "java.runtime.version", "java.runtime.name"}));
-
 	}
 
 

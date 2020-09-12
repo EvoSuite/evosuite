@@ -191,20 +191,16 @@ public class EvoSuite {
                 ClassPathHacker.initializeToolJar();
             }
 
-            if (!line.hasOption("regressionSuite")) {
-                if (line.hasOption("criterion")) {
-                    //TODO should check if already defined
-                    javaOpts.add("-Dcriterion=" + line.getOptionValue("criterion"));
+            if (line.hasOption("criterion")) {
+                //TODO should check if already defined
+                javaOpts.add("-Dcriterion=" + line.getOptionValue("criterion"));
 
-                    //FIXME should really better handle the validation of javaOpts in the master, not client
-                    try {
-                        Properties.getInstance().setValue("criterion", line.getOptionValue("criterion"));
-                    } catch (Exception e) {
-                        throw new Error("Invalid value for criterion: " + e.getMessage());
-                    }
+                //FIXME should really better handle the validation of javaOpts in the master, not client
+                try {
+                    Properties.getInstance().setValue("criterion", line.getOptionValue("criterion"));
+                } catch (Exception e) {
+                    throw new Error("Invalid value for criterion: " + e.getMessage());
                 }
-            } else {
-                javaOpts.add("-Dcriterion=regression");
             }
 
             if (line.hasOption("parallel")) {

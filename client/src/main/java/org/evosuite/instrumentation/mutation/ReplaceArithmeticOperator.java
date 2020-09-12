@@ -115,13 +115,12 @@ public class ReplaceArithmeticOperator implements MutationOperator {
 	 * @param mn a {@link org.objectweb.asm.tree.MethodNode} object.
 	 * @return a int.
 	 */
-	@SuppressWarnings("rawtypes")
 	public static int getNextIndex(MethodNode mn) {
-		Iterator it = mn.localVariables.iterator();
+		Iterator<LocalVariableNode> it = mn.localVariables.iterator();
 		int max = 0;
 		int next = 0;
 		while (it.hasNext()) {
-			LocalVariableNode var = (LocalVariableNode) it.next();
+			LocalVariableNode var = it.next();
 			int index = var.index;
 			if (index >= max) {
 				max = index;
@@ -133,12 +132,11 @@ public class ReplaceArithmeticOperator implements MutationOperator {
 		return next;
 	}
 
-	@SuppressWarnings("rawtypes")
 	private static int getNextIndexFromLoad(MethodNode mn) {
-		Iterator it = mn.instructions.iterator();
+		Iterator<AbstractInsnNode> it = mn.instructions.iterator();
 		int index = 0;
 		while (it.hasNext()) {
-			AbstractInsnNode node = (AbstractInsnNode) it.next();
+			AbstractInsnNode node = it.next();
 			if (node instanceof VarInsnNode) {
 				VarInsnNode varNode = (VarInsnNode) node;
 				int varIndex = varNode.var;

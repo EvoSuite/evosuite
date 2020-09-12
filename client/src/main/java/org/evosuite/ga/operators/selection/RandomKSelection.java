@@ -12,6 +12,13 @@ public class RandomKSelection<T extends Chromosome<T>> extends SelectionFunction
 
     private static final long serialVersionUID = -2459623722712044154L;
 
+    public RandomKSelection() {
+    }
+
+    public RandomKSelection(RandomKSelection<?> other) {
+        // empty copy constructor
+    }
+
     @Override
     public int getIndex(List<T> population) {
         double r = Randomness.nextDouble();

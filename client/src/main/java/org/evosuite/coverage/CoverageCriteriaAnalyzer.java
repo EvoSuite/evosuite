@@ -181,8 +181,6 @@ public class CoverageCriteriaAnalyzer {
                 return RuntimeVariable.InputCoverage;
             case IBRANCH:
                 return RuntimeVariable.IBranchCoverage;
-            case REGRESSION:
-                return RuntimeVariable.BranchCoverage;
             case TRYCATCH:
                 return RuntimeVariable.TryCatchCoverage;
             default:
@@ -214,12 +212,11 @@ public class CoverageCriteriaAnalyzer {
         analyzeCoverage(testSuite,criterion,true);
     }
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
     private static void analyzeCoverage(TestSuiteChromosome testSuite, Properties.Criterion criterion, boolean recalculate) {
 
         TestSuiteChromosome testSuiteCopy = testSuite.clone();
 
-        TestFitnessFactory factory = FitnessFunctions.getFitnessFactory(criterion);
+        TestFitnessFactory<? extends TestFitnessFunction> factory = FitnessFunctions.getFitnessFactory(criterion);
 
         if(recalculate) {
             reinstrument(testSuiteCopy, criterion);
@@ -237,7 +234,7 @@ public class CoverageCriteriaAnalyzer {
             }
         }
 
-        List<TestFitnessFunction> goals = factory.getCoverageGoals();
+        List<? extends TestFitnessFunction> goals = factory.getCoverageGoals();
         Collections.sort(goals);
 
         StringBuffer buffer = new StringBuffer(goals.size());
@@ -344,8 +341,6 @@ public class CoverageCriteriaAnalyzer {
             case LINE:
             case ONLYLINE:
                 return RuntimeVariable.LineCoverageBitString;
-            case REGRESSION:
-            case REGRESSIONTESTS:
             case TRYCATCH:
                 return null;
             default:

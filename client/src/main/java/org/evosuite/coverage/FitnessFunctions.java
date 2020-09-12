@@ -257,8 +257,6 @@ public class FitnessFunctions {
 				return AllDefsCoverageTestFitness.class;
 		case EXCEPTION:
 				return ExceptionCoverageTestFitness.class;
-		case REGRESSION:
-				throw new RuntimeException("No test fitness function defined for " + criterion.name());
 		case READABILITY:
 				throw new RuntimeException("No test fitness function defined for " + criterion.name());
 		case ONLYBRANCH:

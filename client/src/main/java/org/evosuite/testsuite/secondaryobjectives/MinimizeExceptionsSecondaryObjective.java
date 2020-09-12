@@ -21,7 +21,7 @@
 package org.evosuite.testsuite.secondaryobjectives;
 
 import org.evosuite.ga.SecondaryObjective;
-import org.evosuite.testcase.ExecutableChromosome;
+import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testsuite.TestSuiteChromosome;
 
 
@@ -36,7 +36,7 @@ public class MinimizeExceptionsSecondaryObjective extends SecondaryObjective<Tes
 
 	private int getNumExceptions(TestSuiteChromosome chromosome) {
 		int sum = 0;
-		for (ExecutableChromosome test : chromosome.getTestChromosomes()) {
+		for (TestChromosome test : chromosome.getTestChromosomes()) {
 			if (test.getLastExecutionResult() != null)
 				sum += test.getLastExecutionResult().getNumberOfThrownExceptions();
 		}
