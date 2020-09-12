@@ -151,6 +151,7 @@ public class DependencyAnalysis {
 		targetClasses = ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getAllClasses(target, false);
 		for (String className : targetClasses) {
 			Properties.TARGET_CLASS = className;
+			initCallGraph(className);
 			analyze(className);
 		}
 
