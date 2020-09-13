@@ -36,6 +36,7 @@ import org.evosuite.ga.operators.ranking.CrowdingDistance;
 import org.evosuite.ga.problems.Problem;
 import org.evosuite.ga.problems.multiobjective.SCH;
 import org.evosuite.ga.problems.singleobjective.Booths;
+import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -319,13 +320,13 @@ public class NSGAIISystemTest extends SystemTestBase
         Object result = evosuite.parseCommandLine(command);
         Assert.assertNotNull(result);
 
-        GeneticAlgorithm<NSGAChromosome> ga =
-				(GeneticAlgorithm<NSGAChromosome>) getGAFromResult(result);
+        GeneticAlgorithm<TestSuiteChromosome> ga =
+				(GeneticAlgorithm<TestSuiteChromosome>) getGAFromResult(result);
 
-        final FitnessFunction<NSGAChromosome> rho = ga.getFitnessFunctions().get(0);
-        final FitnessFunction<NSGAChromosome> ag = ga.getFitnessFunctions().get(1);
+        final FitnessFunction<TestSuiteChromosome> rho = ga.getFitnessFunctions().get(0);
+        final FitnessFunction<TestSuiteChromosome> ag = ga.getFitnessFunctions().get(1);
 
-        List<NSGAChromosome> population = new ArrayList<>(ga.getBestIndividuals());
+        List<TestSuiteChromosome> population = new ArrayList<>(ga.getBestIndividuals());
         population.sort(new SortByFitness<>(rho, false));
 
         Assert.assertEquals(0.0, population.get(0).getFitness(rho), 0.0);
