@@ -538,6 +538,8 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
             return new GlobalTimeStoppingCondition<>((GlobalTimeStoppingCondition<?>) stoppingCondition);
         } else if (stoppingCondition instanceof SocketStoppingCondition) {
             return SocketStoppingCondition.getInstance();
+        } else if (stoppingCondition instanceof ZeroFitnessStoppingCondition) {
+            return new ZeroFitnessStoppingCondition<>((ZeroFitnessStoppingCondition<?>) stoppingCondition);
         } else {
             throw new IllegalArgumentException("cannot adapt stopping condition: " + stoppingCondition);
         }
