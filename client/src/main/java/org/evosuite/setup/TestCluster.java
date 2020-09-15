@@ -33,10 +33,7 @@ import org.evosuite.junit.CoverageAnalysis;
 import org.evosuite.runtime.util.AtMostOnceLogger;
 import org.evosuite.runtime.util.Inputs;
 import org.evosuite.seeding.CastClassManager;
-import org.evosuite.testcase.ConstraintHelper;
-import org.evosuite.testcase.ConstraintVerifier;
 import org.evosuite.testcase.TestCase;
-import org.evosuite.testcase.jee.InstanceOnlyOnce;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.utils.ListUtil;
 import org.evosuite.utils.generic.GenericAccessibleObject;
@@ -659,7 +656,6 @@ public class TestCluster {
 	        throws ConstructionFailedException {
 
 		Set<GenericAccessibleObject<?>> calls = getCallsFor(clazz, true);
-		calls.removeIf(gam -> !ConstraintVerifier.isValidPositionForInsertion(gam, test, position));
 
 		if (calls.isEmpty()) {
 			throw new ConstructionFailedException("No modifiers for " + clazz);
@@ -1049,24 +1045,6 @@ public class TestCluster {
 			cacheGenerators(clazz);
 			Set<GenericAccessibleObject<?>> candidates = new LinkedHashSet<>(generatorCache.get(clazz));
 			candidates.removeAll(excluded);
-
-			if(Properties.JEE) {
-				Iterator<GenericAccessibleObject<?>> iter = candidates.iterator();
-				while (iter.hasNext()) {
-					GenericAccessibleObject<?> gao = iter.next();
-					if (gao instanceof GenericConstructor) {
-						Class<?> klass = gao.getDeclaringClass();
-						if(InstanceOnlyOnce.canInstantiateOnlyOnce(klass) &&
-								ConstraintHelper.countNumberOfNewInstances(test, klass) != 0){
-							iter.remove();
-						}
-					}
-
-					if(! ConstraintVerifier.isValidPositionForInsertion(gao,test,position)){
-						iter.remove();
-					}
-				}
-			}
 
 			if(generatorRefToExclude != null){
 				//if current generator could be called from excluded ref, then we cannot use it

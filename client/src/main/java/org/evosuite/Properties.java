@@ -1167,11 +1167,13 @@ public class Properties {
 	// Experimental
 
 
+	@Deprecated
 	@Parameter(key = "jee" , description = "Support for JEE")
-	public static boolean JEE = true;
+	public static boolean JEE = false;
 
+	@Deprecated
 	@Parameter(key = "handle_servlets" , description = "Special treatment of JEE Servlets")
-	public static boolean HANDLE_SERVLETS = false; //TODO off for now, as we might not need it in the end
+	public static boolean HANDLE_SERVLETS = false;
 
 	@Parameter(key = "cluster_recursion", description = "The maximum level of recursion when calculating the dependencies in the test cluster")
 	public static int CLUSTER_RECURSION = 10;

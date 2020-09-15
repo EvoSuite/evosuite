@@ -21,14 +21,11 @@
 package org.evosuite.runtime;
 
 
-import org.evosuite.runtime.javaee.TestDataJavaEE;
-import org.evosuite.runtime.javaee.db.DBManager;
 import org.evosuite.runtime.mock.MockFramework;
 import org.evosuite.runtime.mock.java.lang.MockThread;
 import org.evosuite.runtime.mock.java.util.MockLocale;
 import org.evosuite.runtime.mock.java.util.MockTimeZone;
 import org.evosuite.runtime.mock.java.util.prefs.MockPreferences;
-import org.evosuite.runtime.mock.javax.naming.EvoNamingContext;
 import org.evosuite.runtime.thread.ThreadCounter;
 import org.evosuite.runtime.vfs.VirtualFileSystem;
 import org.evosuite.runtime.vnet.VirtualNetwork;
@@ -94,26 +91,6 @@ public class Runtime {
             VirtualNetwork.getInstance().reset();
             VirtualNetwork.getInstance().init();
         }
-
-		if(RuntimeSettings.useJEE){
-			TestDataJavaEE.getInstance().reset();
-
-			EvoNamingContext.getInstance().reset();
-
-			//TODO Tmp removed due to not using Servlets and having to configure standalone-runtime to include its packages
-			//EvoServletState.reset();
-
-			/*
-			 * NOTE: this is expensive (some seconds), but only the first time, so should not be a major bottleneck.
-			 */
-			if(DBManager.getInstance().isWasAccessed()) {
-				// DB Resetting may execute SUT code
-				boolean wasLoopCheckOn = LoopCounter.getInstance().isActivated();
-				LoopCounter.getInstance().setActive(false);
-				DBManager.getInstance().initDB();
-				LoopCounter.getInstance().setActive(wasLoopCheckOn);
-			}
-		}
 
         LoopCounter.getInstance().reset();
 	}

@@ -185,28 +185,24 @@ public class ContractViolation {
 				if (positions.contains(i))
 					continue;
 
-				try {
-					boolean deleted = testFactory.deleteStatement(test, i);
-					if(!deleted){
-						continue;
-					}
+				boolean deleted = testFactory.deleteStatement(test, i);
+				if(!deleted){
+					continue;
+				}
 
-					if (!contract.fails(test)) {
-						test = origTest.clone();
-					} else {
-						changed = true;
-						for (int j = 0; j < positions.size(); j++) {
-							if (positions.get(j) > i) {
-								positions.set(j,
-								              positions.get(j)
-								                      - (oldLength - test.size()));
-							}
-						}
-						origTest = test.clone();
-						oldLength = test.size();
-					}
-				} catch (ConstructionFailedException e) {
+				if (!contract.fails(test)) {
 					test = origTest.clone();
+				} else {
+					changed = true;
+					for (int j = 0; j < positions.size(); j++) {
+						if (positions.get(j) > i) {
+							positions.set(j,
+									positions.get(j)
+											- (oldLength - test.size()));
+						}
+					}
+					origTest = test.clone();
+					oldLength = test.size();
 				}
 			}
 		}

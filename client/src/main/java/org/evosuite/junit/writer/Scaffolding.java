@@ -32,7 +32,6 @@ import org.evosuite.runtime.annotation.EvoSuiteClassExclude;
 import org.evosuite.runtime.classhandling.ClassResetter;
 import org.evosuite.runtime.classhandling.ClassStateSupport;
 import org.evosuite.runtime.classhandling.JDKClassResetter;
-import org.evosuite.runtime.javaee.db.DBManager;
 import org.evosuite.runtime.jvm.ShutdownHookHandler;
 import org.evosuite.runtime.sandbox.Sandbox;
 import org.evosuite.runtime.thread.KillSwitchHandler;
@@ -769,12 +768,6 @@ public class Scaffolding {
 			// explicit call here
 			bd.append(BLOCK_SPACE);
 			bd.append(LoopCounter.class.getName() + ".getInstance().reset(); \n");
-		}
-		if (DBManager.getInstance().isWasAccessed()) {
-			// be sure it is called before any test is run, as to avoid timeout
-			// if init during a test case run
-			bd.append(BLOCK_SPACE);
-			bd.append(DBManager.class.getName() + ".getInstance().initDB(); \n");
 		}
 
 		if(TestSuiteWriterUtils.doesUseMocks(results)) {

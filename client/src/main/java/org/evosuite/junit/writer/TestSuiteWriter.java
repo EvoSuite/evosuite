@@ -572,10 +572,6 @@ public class TestSuiteWriter implements Opcodes {
             list.add("separateClassLoader = true");
         }
 
-        if(Properties.JEE){
-            list.add("useJEE = true");
-        }
-        
         if (Properties.REPLACE_GUI) {
             list.add("mockGUI = true");
         }

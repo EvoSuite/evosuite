@@ -44,8 +44,6 @@ import org.evosuite.runtime.Runtime;
 import org.evosuite.runtime.classhandling.ModifiedTargetStaticFields;
 import org.evosuite.runtime.instrumentation.MethodCallReplacementCache;
 import org.evosuite.runtime.instrumentation.RemoveFinalClassAdapter;
-import org.evosuite.runtime.javaee.db.DBManager;
-import org.evosuite.runtime.javaee.injection.Injector;
 import org.evosuite.runtime.util.JOptionPaneInputs;
 import org.evosuite.runtime.util.SystemInUtil;
 import org.evosuite.seeding.CastClassManager;
@@ -96,7 +94,6 @@ public class TestGenerationContext {
 	private TestGenerationContext() {
 		originalClassLoader = this.getClass().getClassLoader();
 		classLoader = new InstrumentingClassLoader();
-		DBManager.getInstance().setSutClassLoader(classLoader);
 	}
 
 	public static TestGenerationContext getInstance() {
@@ -152,10 +149,6 @@ public class TestGenerationContext {
 		// A fresh context needs a fresh class loader to make sure we can
 		// re-instrument classes
 		classLoader = new InstrumentingClassLoader();
-
-		if (!DBManager.getInstance().isWasAccessed()) {
-			DBManager.getInstance().setSutClassLoader(classLoader);
-		}
 
 		TestCaseExecutor.pullDown();
 
@@ -231,8 +224,6 @@ public class TestGenerationContext {
 		JOptionPaneInputs.resetSingleton();
 		Runtime.resetSingleton();
 		MethodCallReplacementCache.resetSingleton();
-
-		Injector.reset();
 
 		DSEStats.clear();
 

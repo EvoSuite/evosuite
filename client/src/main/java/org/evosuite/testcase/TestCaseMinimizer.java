@@ -125,8 +125,7 @@ public class TestCaseMinimizer {
 		}
 
 		logger.debug("Start fitness values: {}", fitness);
-		assert ConstraintVerifier.verifyTest(c);
-		
+
 		if (isTimeoutReached()) {
 			logger.debug("Timeout reached after verifying test");
 			return;
@@ -192,8 +191,6 @@ public class TestCaseMinimizer {
 			ValueMinimizer minimizer = new ValueMinimizer();
 			minimizer.minimize(c, fitnessFunction);
 		}
-
-		assert ConstraintVerifier.verifyTest(c);
 
 		if (logger.isDebugEnabled()) {
 			logger.debug("Minimized test case: ");
