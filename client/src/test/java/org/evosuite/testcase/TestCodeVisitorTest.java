@@ -48,8 +48,8 @@ import static org.junit.Assert.assertTrue;
  */
 public class TestCodeVisitorTest {
 
-    public static <T extends FakeAbstractClass> T foo(T servlet) {
-        return servlet;
+    public static <T extends FakeAbstractClass> T foo(T obj) {
+        return obj;
     }
 
     public static <T> T bar(T obj) {
@@ -57,8 +57,8 @@ public class TestCodeVisitorTest {
     }
 
     public static class ClassWithGeneric<T extends FakeAbstractClass> {
-        public T hello(T servlet) {
-            return servlet;
+        public T hello(T obj) {
+            return obj;
         }
     }
 
