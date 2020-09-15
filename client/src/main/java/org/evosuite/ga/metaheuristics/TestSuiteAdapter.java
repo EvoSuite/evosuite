@@ -16,10 +16,7 @@ import org.evosuite.ga.populationlimit.SizePopulationLimit;
 import org.evosuite.ga.stoppingconditions.*;
 import org.evosuite.statistics.StatisticsListener;
 import org.evosuite.testcase.TestChromosome;
-import org.evosuite.testsuite.RelativeSuiteLengthBloatControl;
-import org.evosuite.testsuite.StatementsPopulationLimit;
-import org.evosuite.testsuite.TestSuiteChromosome;
-import org.evosuite.testsuite.TestSuiteFitnessFunction;
+import org.evosuite.testsuite.*;
 import org.evosuite.utils.ResourceController;
 
 import java.util.*;
@@ -198,9 +195,8 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
     }
 
     @Override
-    public void addFitnessFunction(final FitnessFunction< TestSuiteChromosome> function)
-            throws UnsupportedOperationException {
-        throw new UnsupportedOperationException("not implemented");
+    public void addFitnessFunction(final FitnessFunction< TestSuiteChromosome> function){
+        algorithm.addFitnessFunction(mapFitnessFunctionToTestCaseLevel(function));
     }
 
     @Override
@@ -305,9 +301,8 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
     }
 
     @Override
-    final public boolean isTooLong(TestSuiteChromosome chromosome)
-            throws UnsupportedOperationException{
-        throw new UnsupportedOperationException("not implemented");
+    final public boolean isTooLong(TestSuiteChromosome chromosome) {
+        return chromosome.getTestChromosomes().stream().anyMatch(algorithm::isTooLong);
     }
 
     @Override
@@ -423,9 +418,27 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
     }
 
     @Override
-    final public void removeListener(SearchListener<TestSuiteChromosome> listener)
-            throws UnsupportedOperationException {
-        throw new UnsupportedOperationException("not implemented");
+    final public void removeListener(SearchListener<TestSuiteChromosome> listener) {
+        super.removeListener(listener);
+        if (algorithm != null) {
+            if (listener instanceof StatisticsListener) {
+                super.removeListener(listener);
+            } else if (listener instanceof RelativeSuiteLengthBloatControl) {
+                super.removeListener(listener);
+            } else if (listener instanceof ResourceController) {
+                algorithm.removeListener(new ResourceController<>());
+            } else if (listener instanceof ProgressMonitor) {
+                super.removeListener(listener);
+            } else if (listener instanceof ZeroFitnessStoppingCondition) {
+                super.removeListener(listener);
+            } else {
+                throw new IllegalArgumentException("cannot adapt listener " + listener);
+            }
+        } else {
+            // When we hit this branch, this TestSuiteAdapter object is currently being
+            // constructed, and this method was invoked by the constructor of the super class
+            // (i.e., GeneticAlgorithm). We simply do nothing.
+        }
     }
 
     @Override
@@ -456,7 +469,9 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
     @Override
     final public boolean isNextPopulationFull(List<TestSuiteChromosome> nextGeneration)
             throws UnsupportedOperationException {
-        throw new UnsupportedOperationException("not implemented");
+        List<TestChromosome> flatNextGeneration =
+                nextGeneration.stream().flatMap(s -> s.getTestChromosomes().stream()).distinct().collect(Collectors.toList());
+        return algorithm.isNextPopulationFull(flatNextGeneration);
     }
 
     @SuppressWarnings("StatementWithEmptyBody")
