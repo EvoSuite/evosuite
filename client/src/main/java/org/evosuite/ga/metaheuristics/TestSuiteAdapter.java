@@ -424,6 +424,7 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
 
     @Override
     final public void removeListener(SearchListener<TestSuiteChromosome> listener) {
+        super.removeListener(listener);
         if (algorithm != null) {
             if (listener instanceof StatisticsListener) {
                 super.removeListener(listener);
@@ -588,8 +589,8 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
 
     @Override
     final protected boolean isBetterOrEqual(TestSuiteChromosome chromosome1,
-                                            TestSuiteChromosome chromosome2) throws UnsupportedOperationException {
-        throw new UnsupportedOperationException("TestSuiteChromosome to TestChromosome conversion for this function not supported");
+                                            TestSuiteChromosome chromosome2) {
+        throw new UnsupportedOperationException("not implemented");
     }
 
     @Override
@@ -662,7 +663,8 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
         @Override
         public double getFitness(TestSuiteChromosome individual)
                 throws UnsupportedOperationException {
-            throw new UnsupportedOperationException("TestSuiteChromosome to TestChromosome conversion for this function not supported");
+            throw new UnsupportedOperationException("cannot apply wrapped TestFitnessFunction to " +
+                    "TestSuiteChromosome");
         }
 
         @Override
