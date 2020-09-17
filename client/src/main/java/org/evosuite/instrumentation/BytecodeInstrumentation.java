@@ -19,15 +19,28 @@
  */
 package org.evosuite.instrumentation;
 
+import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.lang.instrument.Instrumentation;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
+import BooleanTransformation.BooleanToIntClassVisitor;
 import BooleanTransformation.BooleanToIntTransformer;
+import MethodAnalyser.ByteCodeInstructions.ByteCodeInstruction;
 import org.evosuite.PackageInfo;
 import org.evosuite.Properties;
 import org.evosuite.assertion.CheapPurityAnalyzer;
 import org.evosuite.classpath.ResourceList;
+import org.evosuite.coverage.branch.Branch;
+import org.evosuite.coverage.branch.BranchPool;
+import org.evosuite.coverage.branch.BranchType;
 import org.evosuite.graphs.cfg.CFGClassAdapter;
 import org.evosuite.instrumentation.error.ErrorConditionClassAdapter;
 import org.evosuite.instrumentation.testability.BooleanTestabilityTransformation;
@@ -276,10 +289,24 @@ public class BytecodeInstrumentation {
 			if (shouldTransform(classNameWithDots)) {
 				logger.info("Testability Transforming " + className);
 
-				BooleanToIntTransformer tt = new BooleanToIntTransformer(this::shouldTransform, Properties.TT_USE_CDG_PATHS);
+				BooleanToIntTransformer tt = new BooleanToIntTransformer(Collections.emptyList(),
+						false, System.out, null,
+						s -> this.shouldTransform(s.replaceAll("/",".")),
+						Properties.TT_USE_CDG_PATHS);
 				//new BooleanTestabilityTransformation(cn, classLoader);
 				try {
-					cn = tt.transform(cn, classLoader);
+					URL cpURL = new File("../subjects").toURI().toURL();
+				    ClassLoader usedForAnalysisClassLoader =
+							new URLClassLoader(new URL[]{cpURL}, classLoader);
+					cn = tt.transform(cn, usedForAnalysisClassLoader);
+					Collection<ByteCodeInstruction> flagJumps = tt.getFlagJumps();
+					Collection<Branch> allBranches = BranchPool.getInstance(classLoader).getAllBranches();
+					for (ByteCodeInstruction booleanBranchingCondition: flagJumps) {
+						Collection<Integer> successors = booleanBranchingCondition.getSuccessors();
+						String methodName = booleanBranchingCondition.getMethodName();
+						Set<Branch> collect = allBranches.stream().filter(b -> b.getMethodName().equals(methodName)).filter(b -> successors.contains(b.getInstruction().getInstructionId())).collect(Collectors.toSet());
+						collect.forEach(b -> b.addBranchType(BranchType.BOOLEAN_CONDITION));
+					}
 				} catch (Throwable t) {
 					throw new Error(t);
 				}

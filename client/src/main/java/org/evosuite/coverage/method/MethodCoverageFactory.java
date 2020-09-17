@@ -101,7 +101,7 @@ public class MethodCoverageFactory extends
 					continue;
 				}
 				String methodName = m.getName() + Type.getMethodDescriptor(m);
-				if (!matcher.methodMatches(methodName)) {
+				if (!matcher.methodMatches(methodName) || className == null) {
 					logger.info("Method {} does not match criteria. ",methodName);
 					continue;
 				}

@@ -20,6 +20,8 @@
 package org.evosuite.coverage.branch;
 
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.objectweb.asm.tree.LabelNode;
@@ -55,6 +57,8 @@ public class Branch implements Serializable, Comparable<Branch> {
 	private final int actualBranchId;
 
 	private boolean isSwitch = false;
+
+	private Set<BranchType> branchTypes = new HashSet<>();
 
 	// for switch branches this value indicates to which case of the switch this
 	// branch belongs. if this value is null and this is in fact a switch this
@@ -308,5 +312,13 @@ public class Branch implements Serializable, Comparable<Branch> {
 
 	public void setIgnoreFalse(boolean value) {
 		ignoreFalse = value;
+	}
+
+	public void addBranchType(BranchType type){
+		branchTypes.add(type);
+	}
+
+	public boolean isType(BranchType type){
+		return branchTypes.contains(type);
 	}
 }
