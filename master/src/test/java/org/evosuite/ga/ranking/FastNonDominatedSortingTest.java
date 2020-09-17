@@ -23,8 +23,8 @@ public class FastNonDominatedSortingTest {
     @BeforeClass
     public static void init(){
         // create the set of fitness functions
-        TestFitnessFunction f1 = Mockito.mock(TestFitnessFunction.class);
-        TestFitnessFunction f2 = Mockito.mock(TestFitnessFunction.class);
+        FitnessFunction<TestChromosome> f1 = Mockito.mock(TestFitnessFunction.class);
+        FitnessFunction<TestChromosome> f2 = Mockito.mock(TestFitnessFunction.class);
         ff = new HashSet<>();
         ff.add(f1);
         ff.add(f2);
