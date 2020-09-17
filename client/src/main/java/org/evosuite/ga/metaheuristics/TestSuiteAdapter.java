@@ -35,6 +35,7 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
         extends GeneticAlgorithm<TestSuiteChromosome> {
 
     private static final long serialVersionUID = -506409298544885038L;
+    private final IdentityHashMap<SearchListener<TestSuiteChromosome>, SearchListener<TestChromosome>> searchListenerMapping = new IdentityHashMap<>();
 
     private final A algorithm;
 
@@ -301,8 +302,8 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
     }
 
     @Override
-    final public boolean isTooLong(TestSuiteChromosome chromosome) {
-        return chromosome.getTestChromosomes().stream().anyMatch(algorithm::isTooLong);
+    final public boolean isTooLong(TestSuiteChromosome chromosome) throws UnsupportedOperationException {
+        throw new UnsupportedOperationException("TestSuiteChromosome to TestChromosome conversion for this function not supported");
     }
 
     @Override
@@ -313,7 +314,7 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
     @Override
     final protected void calculateFitness(TestSuiteChromosome c)
             throws UnsupportedOperationException {
-        throw new UnsupportedOperationException("not implemented");
+        throw new UnsupportedOperationException("TestSuiteChromosome to TestChromosome conversion for this function not supported");
     }
 
     @Override
@@ -344,7 +345,7 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
     @Override
     final public void writeIndividuals(List<TestSuiteChromosome> individuals)
             throws UnsupportedOperationException {
-        throw new UnsupportedOperationException("not implemented");
+        throw new UnsupportedOperationException("TestSuiteChromosome to TestChromosome conversion for this function not supported");
     }
 
     @SuppressWarnings("StatementWithEmptyBody")
@@ -402,7 +403,11 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
             } else if (listener instanceof RelativeSuiteLengthBloatControl) {
                 super.addListener(listener);
             } else if (listener instanceof ResourceController) {
-                algorithm.addListener(new ResourceController<>());
+                if(!searchListenerMapping.containsKey(listener)){
+                    ResourceController<TestChromosome> adapteeListener = new ResourceController<>();
+                    searchListenerMapping.put(listener, adapteeListener);
+                    algorithm.addListener(adapteeListener);
+                }
             } else if (listener instanceof ProgressMonitor) {
                 super.addListener(listener);
             } else if (listener instanceof ZeroFitnessStoppingCondition) {
@@ -419,14 +424,14 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
 
     @Override
     final public void removeListener(SearchListener<TestSuiteChromosome> listener) {
-        super.removeListener(listener);
         if (algorithm != null) {
             if (listener instanceof StatisticsListener) {
                 super.removeListener(listener);
             } else if (listener instanceof RelativeSuiteLengthBloatControl) {
                 super.removeListener(listener);
             } else if (listener instanceof ResourceController) {
-                algorithm.removeListener(new ResourceController<>());
+                if(searchListenerMapping.containsKey(listener))
+                    algorithm.removeListener(searchListenerMapping.get(listener));
             } else if (listener instanceof ProgressMonitor) {
                 super.removeListener(listener);
             } else if (listener instanceof ZeroFitnessStoppingCondition) {
@@ -462,16 +467,14 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
     }
 
     @Override
-    final public List<TestSuiteChromosome> getPopulation() throws UnsupportedOperationException {
+    final public List<TestSuiteChromosome> getPopulation() {
         return Collections.singletonList(algorithm.getPopulation().stream().collect(TestChromosome.toTestSuiteCollector));
     }
 
     @Override
     final public boolean isNextPopulationFull(List<TestSuiteChromosome> nextGeneration)
             throws UnsupportedOperationException {
-        List<TestChromosome> flatNextGeneration =
-                nextGeneration.stream().flatMap(s -> s.getTestChromosomes().stream()).distinct().collect(Collectors.toList());
-        return algorithm.isNextPopulationFull(flatNextGeneration);
+        throw new UnsupportedOperationException("TestSuiteChromosome to TestChromosome conversion for this function not supported");
     }
 
     @SuppressWarnings("StatementWithEmptyBody")
@@ -585,8 +588,8 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
 
     @Override
     final protected boolean isBetterOrEqual(TestSuiteChromosome chromosome1,
-                                            TestSuiteChromosome chromosome2) {
-        throw new UnsupportedOperationException("not implemented");
+                                            TestSuiteChromosome chromosome2) throws UnsupportedOperationException {
+        throw new UnsupportedOperationException("TestSuiteChromosome to TestChromosome conversion for this function not supported");
     }
 
     @Override
@@ -659,8 +662,7 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
         @Override
         public double getFitness(TestSuiteChromosome individual)
                 throws UnsupportedOperationException {
-            throw new UnsupportedOperationException("cannot apply wrapped TestFitnessFunction to " +
-                    "TestSuiteChromosome");
+            throw new UnsupportedOperationException("TestSuiteChromosome to TestChromosome conversion for this function not supported");
         }
 
         @Override
