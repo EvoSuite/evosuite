@@ -279,7 +279,7 @@ public class EnvironmentTestClusterAugmenter {
 				continue;
 			}
 
-			GenericAccessibleObject<GenericConstructor> gc = new GenericConstructor(c, klass);
+			GenericAccessibleObject<?> gc = new GenericConstructor(c, klass);
 			TestCluster.getInstance().addEnvironmentTestCall(gc);
 			GenericClass genclass = new GenericClass(klass);
 			TestCluster.getInstance().invalidateGeneratorCache(genclass);

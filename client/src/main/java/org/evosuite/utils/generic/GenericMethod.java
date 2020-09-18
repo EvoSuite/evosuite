@@ -23,11 +23,7 @@ package org.evosuite.utils.generic;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.lang.reflect.AccessibleObject;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.Type;
-import java.lang.reflect.TypeVariable;
+import java.lang.reflect.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -43,27 +39,54 @@ import com.googlecode.gentyref.GenericTypeReflector;
 import org.evosuite.utils.LoggingUtils;
 
 /**
+ * A wrapper class around {@link java.lang.reflect.Method Method} from the Java Reflection API,
+ * aimed at simplifying the work with methods that feature generics.
+ *
  * @author Gordon Fraser
  *
  */
-public class GenericMethod extends GenericAccessibleObject<GenericMethod> {
+public class GenericMethod extends GenericExecutable<GenericMethod, Method> {
 
 	private static final long serialVersionUID = 6091851133071150237L;
 
+	/**
+	 * The enclosed {@link java.lang.reflect.Method Method} object.
+	 */
 	private transient Method method;
 
+	/**
+	 * Constructs a new {@code GenericMethod} according to the specified Java Reflection {@code
+	 * Method} object and the given owning {@code type}.
+	 *
+	 * @param method the method to enclose
+	 * @param type the owning type of the {@code method}
+	 */
 	public GenericMethod(Method method, GenericClass type) {
 		super(new GenericClass(type));
 		this.method = method;
 		Inputs.checkNull(method, type);
 	}
 
+	/**
+	 * Constructs a new {@code GenericMethod} according to the specified Java Reflection {@code
+	 * Method} object and the given owning {@code type}.
+	 *
+	 * @param method the method to enclose
+	 * @param type the owning type of the {@code method}
+	 */
 	public GenericMethod(Method method, Class<?> type) {
 		super(new GenericClass(type));
 		this.method = method;
 		Inputs.checkNull(method, type);
 	}
 
+	/**
+	 * Constructs a new {@code GenericMethod} according to the specified Java Reflection {@code
+	 * Method} object and the given owning {@code type}.
+	 *
+	 * @param method the method to enclose
+	 * @param type the owning type of the {@code method}
+	 */
 	public GenericMethod(Method method, Type type) {
 		super(new GenericClass(type));
 		this.method = method;
@@ -79,7 +102,7 @@ public class GenericMethod extends GenericAccessibleObject<GenericMethod> {
 
 	@Override
 	public GenericMethod copyWithOwnerFromReturnType(GenericClass returnType)
-	        throws ConstructionFailedException {
+			throws ConstructionFailedException {
 		GenericClass newOwner = getOwnerClass().getGenericInstantiation(returnType.getTypeVariableMap());
 		GenericMethod copy = new GenericMethod(method, newOwner);
 		copyTypeVariables(copy);
@@ -93,6 +116,11 @@ public class GenericMethod extends GenericAccessibleObject<GenericMethod> {
 		return copy;
 	}
 
+	/**
+	 * Returns the Java Reflection {@code Method} object enclosed by this instance.
+	 *
+	 * @return the Java Reflection {@code Method} object
+	 */
 	public Method getMethod() {
 		return method;
 	}
@@ -109,8 +137,14 @@ public class GenericMethod extends GenericAccessibleObject<GenericMethod> {
 		return method.getDeclaringClass();
 	}
 
+	@Override
 	public Type[] getParameterTypes() {
 		return getExactParameterTypes(method, owner.getType());
+	}
+
+	@Override
+	public Parameter[] getParameters() {
+		return method.getParameters();
 	}
 
 	public List<GenericClass> getParameterClasses() {
@@ -131,6 +165,7 @@ public class GenericMethod extends GenericAccessibleObject<GenericMethod> {
 		return method.getGenericParameterTypes();
 	}
 
+	@Override
 	public Class<?>[] getRawParameterTypes() {
 		return method.getParameterTypes();
 	}
@@ -140,6 +175,7 @@ public class GenericMethod extends GenericAccessibleObject<GenericMethod> {
 		return getReturnType();
 	}
 
+	@Override
 	public Type getReturnType() {
 		Type returnType = getExactReturnType(method, owner.getType());
 		if (returnType == null) {
@@ -185,7 +221,7 @@ public class GenericMethod extends GenericAccessibleObject<GenericMethod> {
 
 		if (exactDeclaringType == null) { // capture(type) is not a subtype of m.getDeclaringClass()
 			logger.info("The method " + m + " is not a member of type " + type
-			        + " - declared in " + m.getDeclaringClass());
+					+ " - declared in " + m.getDeclaringClass());
 			return m.getReturnType();
 		}
 
@@ -207,10 +243,10 @@ public class GenericMethod extends GenericAccessibleObject<GenericMethod> {
 	public Type[] getExactParameterTypes(Method m, Type type) {
 		Type[] parameterTypes = m.getGenericParameterTypes();
 		Type exactDeclaringType = GenericTypeReflector.getExactSuperType(GenericTypeReflector.capture(type),
-		                                                                 m.getDeclaringClass());
+				m.getDeclaringClass());
 		if (exactDeclaringType == null) { // capture(type) is not a subtype of m.getDeclaringClass()
 			logger.info("The method " + m + " is not a member of type " + type
-			        + " - declared in " + m.getDeclaringClass());
+					+ " - declared in " + m.getDeclaringClass());
 			return m.getParameterTypes();
 		}
 
@@ -245,7 +281,7 @@ public class GenericMethod extends GenericAccessibleObject<GenericMethod> {
 	public boolean isStatic() {
 		return Modifier.isStatic(method.getModifiers());
 	}
-	
+
 	public boolean isOverloaded() {
 		String methodName = getName();
 		Class<?> declaringClass = method.getDeclaringClass();
@@ -253,7 +289,7 @@ public class GenericMethod extends GenericAccessibleObject<GenericMethod> {
 			for(java.lang.reflect.Method otherMethod : declaringClass.getMethods()) {
 				if(otherMethod.equals(method))
 					continue;
-				
+
 				if(otherMethod.getName().equals(methodName)) {
 					return true;
 				}
@@ -265,7 +301,12 @@ public class GenericMethod extends GenericAccessibleObject<GenericMethod> {
 		return false;
 	}
 
+	@Override
+	public GenericMethod getGenericInstantiation(GenericClass calleeType) throws ConstructionFailedException {
+		return super.getGenericInstantiation(calleeType);
+	}
 
+	@Override
 	public boolean isOverloaded(List<VariableReference> parameters) {
 		String methodName = getName();
 		Class<?> declaringClass = method.getDeclaringClass();
@@ -289,7 +330,7 @@ public class GenericMethod extends GenericAccessibleObject<GenericMethod> {
 			for(java.lang.reflect.Method otherMethod : declaringClass.getMethods()) {
 				if(otherMethod.equals(method))
 					continue;
-				
+
 				if(otherMethod.getName().equals(methodName)) {
 					if(!Arrays.equals(otherMethod.getParameterTypes(), parameterTypes)) {
 						return true;
@@ -302,7 +343,7 @@ public class GenericMethod extends GenericAccessibleObject<GenericMethod> {
 //				return true;
 //			}
 		} catch (SecurityException e) {
-		//} catch (NoSuchMethodException e) {
+			//} catch (NoSuchMethodException e) {
 		}
 
 		return false;
@@ -323,10 +364,12 @@ public class GenericMethod extends GenericAccessibleObject<GenericMethod> {
 		return method.getName();
 	}
 
+	@Override
 	public String getNameWithDescriptor() {
 		return method.getName() + org.objectweb.asm.Type.getMethodDescriptor(method);
 	}
 
+	@Override
 	public String getDescriptor() {
 		return org.objectweb.asm.Type.getMethodDescriptor(method);
 	}
@@ -346,7 +389,7 @@ public class GenericMethod extends GenericAccessibleObject<GenericMethod> {
 
 	// assumes "static java.util.Date aDate;" declared
 	private void readObject(ObjectInputStream ois) throws ClassNotFoundException,
-	        IOException {
+			IOException {
 		ois.defaultReadObject();
 
 		// Read/initialize additional fields
