@@ -97,7 +97,7 @@ public class GenericField extends GenericAccessibleObject<GenericField> {
 		if(field.getGenericType() instanceof TypeVariable) {
 			return ArrayUtils.toArray((TypeVariable<?>)field.getGenericType());
 		} else {
-			return super.getTypeParameters();
+			return new TypeVariable<?>[] {};
 		}
 	}
 
@@ -160,12 +160,22 @@ public class GenericField extends GenericAccessibleObject<GenericField> {
 		return TestUsageChecker.canUse(field);
 	}
 
+	@Override
+	public boolean isConstructor() {
+		return false;
+	}
+
 	/* (non-Javadoc)
 	 * @see org.evosuite.utils.GenericAccessibleObject#isField()
 	 */
 	@Override
 	public boolean isField() {
 		return true;
+	}
+
+	@Override
+	public boolean isMethod() {
+		return false;
 	}
 
 	/* (non-Javadoc)

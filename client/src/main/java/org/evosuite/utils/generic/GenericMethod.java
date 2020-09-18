@@ -267,6 +267,10 @@ public class GenericMethod extends GenericExecutable<GenericMethod, Method> {
 		return TestUsageChecker.canUse(method);
 	}
 
+	@Override
+	public boolean isConstructor() {
+		return false;
+	}
 
 	@Override
 	public boolean isMethod() {

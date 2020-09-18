@@ -388,9 +388,7 @@ public abstract class GenericAccessibleObject<T extends GenericAccessibleObject<
 
 	public abstract Class<?> getRawGeneratedType();
 
-	public TypeVariable<?>[] getTypeParameters() {
-		return new TypeVariable<?>[] {};
-	}
+	public abstract TypeVariable<?>[] getTypeParameters();
 
 	protected Map<TypeVariable<?>, GenericClass> getTypeVariableMap() {
 		Map<TypeVariable<?>, GenericClass> typeMap = new HashMap<>();
@@ -410,21 +408,13 @@ public abstract class GenericAccessibleObject<T extends GenericAccessibleObject<
 
 	public abstract boolean isAccessible();
 	
-	public boolean isConstructor() {
-		return false;
-	}
+	public abstract boolean isConstructor();
 
-	public boolean isField() {
-		return false;
-	}
+	public abstract boolean isField();
 
-	public boolean isMethod() {
-		return false;
-	}
+	public abstract boolean isMethod();
 
-	public boolean isStatic() {
-		return false;
-	}
+	public abstract boolean isStatic();
 
 	public abstract boolean isPublic();
 

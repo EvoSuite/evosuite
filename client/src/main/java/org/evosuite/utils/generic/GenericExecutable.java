@@ -35,6 +35,11 @@ public abstract class GenericExecutable<T extends GenericExecutable<T, U>, U ext
 
     public abstract Parameter[] getParameters();
 
+    @Override
+    public final boolean isField() {
+        return false;
+    }
+
     /**
      * Tells whether there the owning class contains an overloaded executable with the given list
      * of parameters.

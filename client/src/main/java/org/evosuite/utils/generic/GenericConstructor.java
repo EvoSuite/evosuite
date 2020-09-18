@@ -95,8 +95,7 @@ public class GenericConstructor extends GenericExecutable<GenericConstructor, Co
 
 	@Override
 	public GenericConstructor copy() {
-		GenericConstructor copy = new GenericConstructor(constructor, new GenericClass(
-				owner));
+		GenericConstructor copy = new GenericConstructor(constructor, new GenericClass(owner));
 		copyTypeVariables(copy);
 		return copy;
 	}
@@ -249,6 +248,11 @@ public class GenericConstructor extends GenericExecutable<GenericConstructor, Co
 	@Override
 	public boolean isConstructor() {
 		return true;
+	}
+
+	@Override
+	public boolean isMethod() {
+		return false;
 	}
 
 	@Override
