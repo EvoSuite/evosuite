@@ -44,7 +44,7 @@ import com.googlecode.gentyref.GenericTypeReflector;
  *
  * @author Gordon Fraser
  */
-public abstract class GenericAccessibleObject<T extends GenericAccessibleObject<?>>
+public abstract class GenericAccessibleObject<T extends GenericAccessibleObject<T>>
         implements Serializable {
 
 	protected static final Logger logger = LoggerFactory.getLogger(GenericAccessibleObject.class);
