@@ -7,6 +7,6 @@ public class SearchStatisticsTest {
     @Test
     public void test_setOutputVariable() {
         SearchStatistics statistics = SearchStatistics.getInstance();
-        statistics.setOutputVariable(RuntimeVariable.CoverageTimeline, 0.42);
+        statistics.setOutputVariable(RuntimeVariable.DiversityTimeline, 0.42);
     }
 }
