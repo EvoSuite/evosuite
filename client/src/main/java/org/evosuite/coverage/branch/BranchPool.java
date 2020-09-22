@@ -745,10 +745,6 @@ public class BranchPool {
 		r.addAll(branchMap.keySet());
 		r.addAll(branchlessMethods.keySet());
 
-		if (logger.isDebugEnabled()) {
-			logger.debug("Known classes: " + r);
-		}
-
 		return r;
 	}
 
