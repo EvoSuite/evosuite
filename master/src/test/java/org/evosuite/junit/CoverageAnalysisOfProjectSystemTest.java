@@ -31,6 +31,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.Collections;
 import java.util.List;
 
+import com.opencsv.exceptions.CsvException;
 import org.apache.commons.io.FileUtils;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
@@ -100,7 +101,7 @@ public class CoverageAnalysisOfProjectSystemTest extends SystemTestBase {
 	}
 
 	@Test
-	public void testMoreThanOneClassOneCriterion() throws IOException {
+	public void testMoreThanOneClassOneCriterion() throws IOException, CsvException {
 		createFakeProject();
 
 		EvoSuite evosuite = new EvoSuite();
@@ -151,7 +152,7 @@ public class CoverageAnalysisOfProjectSystemTest extends SystemTestBase {
 	}
 
 	@Test
-	public void testMoreThanOneClassMoreThanOneCriterion() throws IOException {
+	public void testMoreThanOneClassMoreThanOneCriterion() throws IOException, CsvException {
 		createFakeProject();
 
 		EvoSuite evosuite = new EvoSuite();
@@ -209,7 +210,7 @@ public class CoverageAnalysisOfProjectSystemTest extends SystemTestBase {
 		assertTrue(Double.valueOf(coverages.get(6)) > 0.0);
 	}
 
-	private void createFakeProject() throws IOException {
+	private void createFakeProject() throws IOException, CsvException {
 		String classesRootDir = System.getProperty("user.dir") + File.separator + "target" + File.separator + "test-classes" + File.separator;
 
 		this.classes_directory = Files.createTempDirectory("fakeProject_classes_").toFile();

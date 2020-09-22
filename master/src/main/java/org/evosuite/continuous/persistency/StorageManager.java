@@ -39,6 +39,7 @@ import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 
+import com.opencsv.exceptions.CsvException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.evosuite.Properties;
@@ -703,7 +704,7 @@ public class StorageManager {
 			CSVReader reader = new CSVReader(new FileReader(statistics_file));
 			rows = reader.readAll();
 			reader.close();
-		} catch (IOException e) {
+		} catch (IOException | CsvException e) {
 			logger.error(e.getMessage());
 			return true;
 		}

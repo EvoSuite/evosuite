@@ -30,6 +30,7 @@ import java.nio.file.Files;
 import java.util.List;
 import java.util.Map;
 
+import com.opencsv.exceptions.CsvException;
 import org.apache.commons.io.FileUtils;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
@@ -71,7 +72,7 @@ public class CoverageAnalysisWithRefectionSystemTest extends SystemTestBase {
 	}
 
 	@Test
-	public void testGetAllInterfaces() throws IOException {
+	public void testGetAllInterfaces() throws IOException, CsvException {
 
 		EvoSuite evosuite = new EvoSuite();
 
@@ -127,7 +128,7 @@ public class CoverageAnalysisWithRefectionSystemTest extends SystemTestBase {
 	}
 
 	@Test
-	public void testHierarchyIncludingInterfaces() throws IOException {
+	public void testHierarchyIncludingInterfaces() throws IOException, CsvException {
 
 		EvoSuite evosuite = new EvoSuite();
 

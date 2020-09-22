@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+import com.opencsv.exceptions.CsvException;
 import org.apache.commons.io.FileUtils;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
@@ -100,7 +101,7 @@ public class CoverageAnalysisOfClassSystemTest extends SystemTestBase {
 	}
 
 	@Test
-	public void testOneClassMoreThanOneCriterion() throws IOException {
+	public void testOneClassMoreThanOneCriterion() throws IOException, CsvException {
 
 		EvoSuite evosuite = new EvoSuite();
 
