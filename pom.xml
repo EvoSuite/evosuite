@@ -38,7 +38,6 @@
         <module>plugins</module>
         <module>standalone_runtime</module>
         <module>shaded</module>
-        <module>generated</module>
     </modules>
 
     <prerequisites>
@@ -566,7 +565,6 @@
                         <exclude>IMPORTANT_README_FOR_DEVELOPERS.txt</exclude>
                         <exclude>removed/readme.txt</exclude>
                         <exclude>plugins/eclipse/README.txt</exclude>
-                        <exclude>generated/**</exclude>
                         <exclude>**/*.properties</exclude>
                         <exclude>**/.idea/**</exclude>
                         <exclude>**/*.js</exclude>
