@@ -73,7 +73,7 @@ public class MockJOptionPaneShowInputDialogTest {
 	@Test
 	public void testShowOptionDialog() throws Exception {
 		TestSuiteChromosome suite = new TestSuiteChromosome();
-		InstrumentingClassLoader cl = new InstrumentingClassLoader();
+		InstrumentingClassLoader cl = TestGenerationContext.getInstance().getClassLoaderForSUT();
 		TestCase t1 = buildTestCase0(cl);
 		suite.addTest(t1);
 
