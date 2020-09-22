@@ -74,7 +74,7 @@ public class MockJOptionPaneShowInternalInputDialogTest {
 	@Test
 	public void testShowInternalInputDialog() throws Exception {
 		TestSuiteChromosome suite = new TestSuiteChromosome();
-		InstrumentingClassLoader cl = new InstrumentingClassLoader();
+		InstrumentingClassLoader cl = TestGenerationContext.getInstance().getClassLoaderForSUT();
 		TestCase t1 = buildTestCase0(cl);
 		suite.addTest(t1);
 

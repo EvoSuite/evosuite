@@ -19,12 +19,11 @@
  */
 package org.evosuite.testcase;
 
-import org.evosuite.runtime.annotation.Constraints;
+
 import org.evosuite.runtime.util.Inputs;
 import org.evosuite.testcase.statements.*;
 import org.evosuite.testcase.variable.NullReference;
 import org.evosuite.testcase.variable.VariableReference;
-import org.evosuite.utils.generic.GenericAccessibleObject;
 import org.evosuite.utils.generic.GenericMethod;
 
 import java.util.ArrayList;
@@ -127,47 +126,6 @@ public class ConstraintHelper {
         return new String[]{klassName, methodName};
     }
 
-    /**
-     * Retrieve all blacklisted methods in the test.
-     * This is based on the 'excludeOthers' constraint
-     *
-     * @param tc
-     * @return
-     * @throws IllegalArgumentException
-     */
-    public static List<String[]> getExcludedMethods(TestCase tc) throws IllegalArgumentException{
-        Inputs.checkNull(tc);
-
-        List<String[]> list = new ArrayList<>();
-        for(int i=0; i<tc.size(); i++){
-            Statement st = tc.getStatement(i);
-            Constraints constraints = getConstraints(st);
-            if(constraints==null){
-                continue;
-            }
-
-            GenericAccessibleObject<?> ao = st.getAccessibleObject();
-            Class<?> declaringClass = ao.getDeclaringClass();
-
-            for(String excluded : constraints.excludeOthers()) {
-                String[] klassAndMethod = getClassAndMethod(excluded, declaringClass);
-                list.add(klassAndMethod);
-            }
-        }
-
-        return list;
-    }
-
-    public static Constraints getConstraints(Statement st){
-        if(st instanceof MethodStatement){
-            return ((MethodStatement) st).getMethod().getMethod().getAnnotation(Constraints.class);
-        } else if(st instanceof ConstructorStatement){
-            return ((ConstructorStatement)st).getConstructor().getConstructor().getAnnotation(Constraints.class);
-        } else {
-            return null;
-        }
-    }
-
     public static boolean isNull(VariableReference vr, TestCase tc){
 
         if(vr instanceof NullReference){
@@ -185,29 +143,4 @@ public class ConstraintHelper {
         return false;
     }
 
-    /**
-     *
-     * @param vr
-     * @param tc
-     * @return a negative value if the variable is not bounded
-     */
-    public static int getLastPositionOfBounded(VariableReference vr, TestCase tc){
-        Inputs.checkNull(vr,tc);
-
-        int p = vr.getStPosition();
-
-        int lastPos = -1;
-
-        for(int i=p+1; i<tc.size(); i++){
-            Statement st = tc.getStatement(i);
-            if(st instanceof EntityWithParametersStatement){
-                EntityWithParametersStatement es = (EntityWithParametersStatement) st;
-                if(es.isBounded(vr)){
-                    lastPos = i;
-                }
-            }
-        }
-
-        return lastPos;
-    }
 }

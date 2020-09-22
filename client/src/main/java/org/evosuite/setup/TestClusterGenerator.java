@@ -46,7 +46,6 @@ import org.evosuite.instrumentation.testability.BooleanTestabilityTransformation
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.runtime.PrivateAccess;
 import org.evosuite.runtime.classhandling.ModifiedTargetStaticFields;
-import org.evosuite.runtime.javaee.injection.Injector;
 import org.evosuite.runtime.mock.MockList;
 import org.evosuite.runtime.sandbox.Sandbox;
 import org.evosuite.runtime.util.Inputs;
@@ -138,10 +137,6 @@ public class TestClusterGenerator {
 
 		handleSpecialCases();
 
-		if (Properties.JEE) {
-			addInjectionDependencies(blackList);
-		}
-
 		logger.info("Removing unusable generators");
 		TestCluster.getInstance().removeUnusableGenerators();
 
@@ -165,33 +160,6 @@ public class TestClusterGenerator {
 	}
 
 	// -----------------------------------------------------------------------------
-
-	private void addInjectionDependencies(Set<String> blackList) {
-
-		Set<Class<?>> toAdd = new LinkedHashSet<>();
-
-		try {
-			analyzedClasses.stream().flatMap(c -> Injector.getAllFieldsToInject(c).stream()).map(f -> f.getType())
-					.forEach(t -> addInjectionRecursively(t, toAdd, blackList));
-		} catch(Throwable t) {
-			logger.warn("Error during initialisation of injection dependencies: "+t+", continuing anyway.");
-		}
-		toAdd.stream().forEach(c -> dependencies.add(new DependencyPair(0, new GenericClass(c).getRawClass())));
-		resolveDependencies(blackList);
-	}
-
-	private void addInjectionRecursively(Class<?> target, Set<Class<?>> toAdd, Set<String> blackList) {
-
-		if (toAdd.contains(target) || blackList.contains(target.getName())) {
-			return;
-		}
-
-		toAdd.add(target);
-
-		for (Field f : Injector.getAllFieldsToInject(target)) {
-			addInjectionRecursively(f.getType(), toAdd, blackList);
-		}
-	}
 
 	private void handleSpecialCases() {
 

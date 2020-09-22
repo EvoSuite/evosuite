@@ -53,8 +53,6 @@ public class EnvironmentStatements {
             return new RemoteAddressPrimitiveStatement(tc);
         } else if(clazz.equals(EvoSuiteURL.class)){
             return new UrlPrimitiveStatement(tc);
-        } else if(clazz.equals(EvoName.class)){
-            return new NamePrimitiveStatement(tc);
         }
 
         throw new RuntimeException("EvoSuite bug: unhandled class "+clazz.getName());

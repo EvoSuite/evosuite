@@ -26,7 +26,6 @@ import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.ga.SecondaryObjective;
 import org.evosuite.ga.localsearch.LocalSearchObjective;
 import org.evosuite.ga.operators.mutation.MutationHistory;
-import org.evosuite.runtime.javaee.injection.Injector;
 import org.evosuite.runtime.util.AtMostOnceLogger;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.symbolic.BranchCondition;
@@ -173,14 +172,6 @@ public final class TestChromosome extends AbstractTestChromosome<TestChromosome>
 		}
 
 		for (int i = position2; i < other.size(); i++) {
-			GenericAccessibleObject<?> accessibleObject = other.test.getStatement(i).getAccessibleObject();
-			if(accessibleObject != null) {
-				if (accessibleObject.getDeclaringClass().equals(Injector.class))
-					continue;
-				if(!ConstraintVerifier.isValidPositionForInsertion(accessibleObject, offspring.test, offspring.test.size())) {
-					continue;
-				}
-			}
 			testFactory.appendStatement(offspring.test,
 					other.test.getStatement(i));
 		}
@@ -333,11 +324,6 @@ public final class TestChromosome extends AbstractTestChromosome<TestChromosome>
 		}
 
 		test.forEach(Statement::isValid);
-
-		// be sure that mutation did not break any constraint.
-		// if it happens, it means a bug in EvoSuite
-		assert ConstraintVerifier.verifyTest(test);
-		assert ! ConstraintVerifier.hasAnyOnlyForAssertionMethod(test);
 	}
 
 
@@ -439,12 +425,8 @@ public final class TestChromosome extends AbstractTestChromosome<TestChromosome>
 			// Each statement is deleted with probability 1/l
 			if (Randomness.nextDouble() <= pl) {
 				changed |= deleteStatement(testFactory, num);
-
-				assert !changed || ConstraintVerifier.verifyTest(test);
 			}
 		}
-
-		assert !changed || ConstraintVerifier.verifyTest(test);
 
 		return changed;
 	}
@@ -507,11 +489,8 @@ public final class TestChromosome extends AbstractTestChromosome<TestChromosome>
 						mutationHistory.addMutationEntry(new TestMutationHistoryEntry(
 						        TestMutationHistoryEntry.TestMutation.CHANGE, statement));
 						assert (test.isValid());
-						assert ConstraintVerifier.verifyTest(test);
 
-					} else if (!statement.isAssignmentStatement() &&
-							ConstraintVerifier.canDelete(test,position)) {
-						//if a statement should not be deleted, then it cannot be either replaced by another one
+					} else if (!statement.isAssignmentStatement()) {
 
 						int pos = statement.getPosition();
 						if (testFactory.changeRandomCall(test, statement)) {
@@ -519,7 +498,6 @@ public final class TestChromosome extends AbstractTestChromosome<TestChromosome>
 							mutationHistory.addMutationEntry(new TestMutationHistoryEntry(
 							        TestMutationHistoryEntry.TestMutation.CHANGE,
 							        test.getStatement(pos)));
-							assert ConstraintVerifier.verifyTest(test);
 						}
 						assert (test.isValid());
 					}
@@ -529,8 +507,6 @@ public final class TestChromosome extends AbstractTestChromosome<TestChromosome>
 				}
 			}
 		}
-
-		assert !changed || ConstraintVerifier.verifyTest(test);
 
 		return changed;
 	}

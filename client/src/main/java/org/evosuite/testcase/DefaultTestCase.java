@@ -36,6 +36,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.commons.lang3.reflect.MethodUtils;
 import org.evosuite.assertion.Assertion;
 import org.evosuite.assertion.InspectorAssertion;
 import org.evosuite.assertion.PrimitiveFieldAssertion;
@@ -56,7 +57,6 @@ import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.springframework.util.ClassUtils;
 
 /**
  * A test case is a list of statements
@@ -972,11 +972,12 @@ public class DefaultTestCase implements TestCase, Serializable {
 	private boolean methodNeedsDownCast(MethodStatement methodStatement, VariableReference var, Class<?> abstractClass) {
 
 		if(!methodStatement.isStatic() && methodStatement.getCallee().equals(var)) {
-			if(!ClassUtils.hasMethod(abstractClass, methodStatement.getMethod().getName(), methodStatement.getMethod().getRawParameterTypes())) {
+
+			if(MethodUtils.getAccessibleMethod(abstractClass, methodStatement.getMethodName(), methodStatement.getMethod().getRawParameterTypes()) == null) {
 				// Need downcast for real
 				return true;
 			} else {
-				Method superClassMethod = ClassUtils.getMethod(abstractClass, methodStatement.getMethod().getName(), methodStatement.getMethod().getRawParameterTypes());
+				Method superClassMethod = MethodUtils.getMatchingMethod(abstractClass, methodStatement.getMethodName(), methodStatement.getMethod().getRawParameterTypes());
 				if(!methodStatement.getMethod().getRawGeneratedType().equals(superClassMethod.getReturnType())) {
 					// Overriding can also change return value, in which case we need to keep the downcast
 					return true;
@@ -1029,7 +1030,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 			if(assertion instanceof InspectorAssertion && assertion.getSource().equals(var)) {
 				InspectorAssertion inspectorAssertion = (InspectorAssertion)assertion;
 				Method inspectorMethod = inspectorAssertion.getInspector().getMethod();
-				if(!ClassUtils.hasMethod(abstractClass, inspectorMethod.getName(), inspectorMethod.getParameterTypes())) {
+				if(MethodUtils.getAccessibleMethod(abstractClass, inspectorMethod.getName(), inspectorMethod.getParameterTypes()) == null) {
 					return true;
 				}
 			} else if(assertion instanceof PrimitiveFieldAssertion && assertion.getSource().equals(var)) {

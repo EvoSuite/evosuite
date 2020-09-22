@@ -4,12 +4,12 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
+import org.apache.commons.lang3.StringUtils;
 import org.hamcrest.core.IsEqual;
 import org.junit.*;
 import org.junit.contrib.java.lang.system.EnvironmentVariables;
 import org.junit.contrib.java.lang.system.RestoreSystemProperties;
 import org.junit.runners.MethodSorters;
-import org.springframework.util.StringUtils;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class JavaExecCmdUtilUnixTest {
