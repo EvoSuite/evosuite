@@ -328,7 +328,7 @@
                 <!-- MIT -->
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-core</artifactId>
-                <version>3.0.0</version>
+                <version>3.5.11</version>
             </dependency>
             <dependency>
                 <!-- Common Public License Version 1.0 -->
