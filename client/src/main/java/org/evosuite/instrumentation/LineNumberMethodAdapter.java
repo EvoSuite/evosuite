@@ -63,7 +63,7 @@ public class LineNumberMethodAdapter extends MethodVisitor {
 	 */
 	public LineNumberMethodAdapter(MethodVisitor mv, String className, String methodName,
 	        String desc) {
-		super(Opcodes.ASM7, mv);
+		super(Opcodes.ASM9, mv);
 		fullMethodName = methodName + desc;
 		this.className = className;
 		this.methodName = methodName;

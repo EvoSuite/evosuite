@@ -43,7 +43,7 @@ public class AnnotatedMethodNode extends MethodNode {
 	 */
 	public AnnotatedMethodNode(int access, String name, String desc, String signature,
 	        String[] exceptions) {
-		super(Opcodes.ASM7, access, name, desc, signature, exceptions);
+		super(Opcodes.ASM9, access, name, desc, signature, exceptions);
 	}
 
 	/**

@@ -70,7 +70,7 @@ public class EndOfClassInitializerVisitor extends ClassVisitor {
 		 *            a {@link java.util.List} object.
 		 */
 		public EndOfClassInitializerMethodVisitor(String className, String methodName, MethodVisitor mv) {
-			super(Opcodes.ASM7, mv);
+			super(Opcodes.ASM9, mv);
 			this.className = className;
 			this.methodName = methodName;
 		}
@@ -158,7 +158,7 @@ public class EndOfClassInitializerVisitor extends ClassVisitor {
 	private final String className;
 
 	public EndOfClassInitializerVisitor(ClassVisitor visitor, String className) {
-		super(Opcodes.ASM7, visitor);
+		super(Opcodes.ASM9, visitor);
 		this.className = className;
 	}
 

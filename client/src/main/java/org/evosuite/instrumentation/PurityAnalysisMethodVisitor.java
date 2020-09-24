@@ -59,7 +59,7 @@ public class PurityAnalysisMethodVisitor extends MethodVisitor {
 	public PurityAnalysisMethodVisitor(String className, String methodName,
 			String descriptor, MethodVisitor mv,
 			CheapPurityAnalyzer purityAnalyzer) {
-		super(Opcodes.ASM7, mv);
+		super(Opcodes.ASM9, mv);
 		this.updatesField = false;
 		this.purityAnalyzer = purityAnalyzer;
 		this.classNameWithDots = className.replace('/', '.');

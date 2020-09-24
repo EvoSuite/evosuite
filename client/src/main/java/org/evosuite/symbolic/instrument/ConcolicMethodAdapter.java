@@ -106,7 +106,7 @@ public final class ConcolicMethodAdapter extends GeneratorAdapter {
 	 */
 	ConcolicMethodAdapter(MethodVisitor mv, int access, String className, String methName,
 	        String desc) {
-		super(Opcodes.ASM7, mv, access, methName, desc);
+		super(Opcodes.ASM9, mv, access, methName, desc);
 
 		this.access = access;
 		this.className = notNull(className);

@@ -129,7 +129,7 @@ public class CreateClassResetClassAdapter extends ClassVisitor {
 	 */
 	public CreateClassResetClassAdapter(ClassVisitor visitor, String className,
 			boolean removeFinalModifierOnStaticFields) {
-		super(Opcodes.ASM7, visitor);
+		super(Opcodes.ASM9, visitor);
 		this.className = className;
 		this.removeFinalModifierOnStaticFields = removeFinalModifierOnStaticFields;
 	}

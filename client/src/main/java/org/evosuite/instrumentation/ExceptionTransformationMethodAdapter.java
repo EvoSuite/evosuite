@@ -47,8 +47,8 @@ public class ExceptionTransformationMethodAdapter extends GeneratorAdapter {
 
     public ExceptionTransformationMethodAdapter(MethodVisitor mv, String className,
                                                 String methodName, int access, String desc) {
-        super(Opcodes.ASM7, mv, access, methodName, desc);
-        //super(Opcodes.ASM7,
+        super(Opcodes.ASM9, mv, access, methodName, desc);
+        //super(Opcodes.ASM9,
         //        new AnnotatedMethodNode(access, methodName, desc, null, null), access,
         //        methodName, desc);
         this.className = className;

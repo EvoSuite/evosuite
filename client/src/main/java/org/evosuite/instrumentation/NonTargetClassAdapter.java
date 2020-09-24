@@ -42,7 +42,7 @@ public class NonTargetClassAdapter extends ClassVisitor {
 	 * @param className a {@link java.lang.String} object.
 	 */
 	public NonTargetClassAdapter(ClassVisitor cv, String className) {
-		super(Opcodes.ASM7, cv);
+		super(Opcodes.ASM9, cv);
 		this.className = className;
 	}
 
