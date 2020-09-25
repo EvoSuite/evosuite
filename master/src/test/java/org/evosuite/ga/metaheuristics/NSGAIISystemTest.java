@@ -20,6 +20,7 @@
 package org.evosuite.ga.metaheuristics;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 
@@ -306,6 +307,7 @@ public class NSGAIISystemTest extends SystemTestBase
 	    Properties.MINIMIZE = false;
 	    Properties.INLINE = false;
 	    Properties.STOP_ZERO = false;
+	    Properties.RANKING_TYPE = Properties.RankingType.FAST_NON_DOMINATED_SORTING;
 
 	    EvoSuite evosuite = new EvoSuite();
 
@@ -320,8 +322,9 @@ public class NSGAIISystemTest extends SystemTestBase
         Object result = evosuite.parseCommandLine(command);
         Assert.assertNotNull(result);
 
+        @SuppressWarnings("unchecked")
         GeneticAlgorithm<TestSuiteChromosome> ga =
-				(GeneticAlgorithm<TestSuiteChromosome>) getGAFromResult(result);
+            (GeneticAlgorithm<TestSuiteChromosome>) getGAFromResult(result);
 
         final FitnessFunction<TestSuiteChromosome> rho = ga.getFitnessFunctions().get(0);
         final FitnessFunction<TestSuiteChromosome> ag = ga.getFitnessFunctions().get(1);
@@ -329,8 +332,21 @@ public class NSGAIISystemTest extends SystemTestBase
         List<TestSuiteChromosome> population = new ArrayList<>(ga.getBestIndividuals());
         population.sort(new SortByFitness<>(rho, false));
 
-        Assert.assertEquals(0.0, population.get(0).getFitness(rho), 0.0);
-        Assert.assertEquals(0.0, population.get(0).getFitness(ag), 0.0);
-        Assert.assertEquals(0, population.get(0).getRank());
+        // find the lowest rank id
+        int minRank = population.stream().mapToInt(v -> v.getRank()).min().getAsInt();
+
+        // get rid of all solutions but the ones in front id == lowest rank id
+        Iterator<TestSuiteChromosome> it = population.iterator();
+        while (it.hasNext()) {
+          TestSuiteChromosome next = it.next();
+          if (next.getRank() != minRank) {
+            it.remove();
+          }
+        }
+        Assert.assertFalse(population.isEmpty());
+
+        TestSuiteChromosome best = population.get(0);
+        Assert.assertEquals(0.0, best.getFitness(rho), 0.0);
+        Assert.assertEquals(0.0, best.getFitness(ag), 0.0);
 	}
 }
