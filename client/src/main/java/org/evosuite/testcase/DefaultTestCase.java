@@ -978,7 +978,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 				return true;
 			} else {
 				Method superClassMethod = MethodUtils.getMatchingMethod(abstractClass, methodStatement.getMethodName(), methodStatement.getMethod().getRawParameterTypes());
-				if(!methodStatement.getMethod().getRawGeneratedType().equals(superClassMethod.getReturnType())) {
+				if(superClassMethod != null && !methodStatement.getMethod().getRawGeneratedType().equals(superClassMethod.getReturnType())) {
 					// Overriding can also change return value, in which case we need to keep the downcast
 					return true;
 				}
@@ -1010,7 +1010,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	}
 
 	private boolean fieldNeedsDownCast(FieldReference fieldReference, VariableReference var, Class<?> abstractClass) {
-		if(fieldReference.getSource().equals(var)) {
+		if(fieldReference.getSource() != null && fieldReference.getSource().equals(var)) {
 			// Need downcast for real
 			return !fieldReference.getField().getDeclaringClass().isAssignableFrom(abstractClass);
 		}

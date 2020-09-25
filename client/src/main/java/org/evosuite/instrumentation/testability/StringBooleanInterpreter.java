@@ -41,7 +41,7 @@ public class StringBooleanInterpreter extends BasicInterpreter {
 	public final static BasicValue STRING_BOOLEAN = new BasicValue(null);
 
         public StringBooleanInterpreter() {
-                super(Opcodes.ASM7);
+                super(Opcodes.ASM9);
         }
 
 

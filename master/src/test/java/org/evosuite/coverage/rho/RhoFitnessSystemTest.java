@@ -29,6 +29,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 
+import com.opencsv.exceptions.CsvException;
 import org.apache.commons.io.FileUtils;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
@@ -94,7 +95,7 @@ public class RhoFitnessSystemTest extends SystemTestBase {
 	}
 
 	@Test
-	public void testZeroRhoScoreWithoutPreviousCoverage() throws IOException {
+	public void testZeroRhoScoreWithoutPreviousCoverage() throws IOException, CsvException {
 
 		EvoSuite evosuite = new EvoSuite();
 
@@ -126,7 +127,7 @@ public class RhoFitnessSystemTest extends SystemTestBase {
 	}
 
 	@Test
-	public void testZeroRhoScoreWithPreviousCoverage() throws IOException {
+	public void testZeroRhoScoreWithPreviousCoverage() throws IOException, CsvException {
 
 		EvoSuite evosuite = new EvoSuite();
 

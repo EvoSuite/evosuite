@@ -23,6 +23,7 @@ import com.opencsv.CSVReader;
 import com.examples.with.different.packagename.Calculator;
 import com.examples.with.different.packagename.PureEnum;
 import com.examples.with.different.packagename.mutation.MutationPropagation;
+import com.opencsv.exceptions.CsvException;
 import org.apache.commons.io.FileUtils;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
@@ -57,7 +58,7 @@ public class CoveredGoalsCountSystemTest extends SystemTestBase {
 	}
 
     @Test
-    public void testCoveredGoalsCountCSV_SingleCriterion() throws IOException {
+    public void testCoveredGoalsCountCSV_SingleCriterion() throws IOException, CsvException {
 
     	EvoSuite evosuite = new EvoSuite();
 
@@ -94,7 +95,7 @@ public class CoveredGoalsCountSystemTest extends SystemTestBase {
     }
 
     @Test
-    public void testCoveredGoalsCountCSV_MultipleCriterion() throws IOException {
+    public void testCoveredGoalsCountCSV_MultipleCriterion() throws IOException, CsvException {
 
     	EvoSuite evosuite = new EvoSuite();
 
@@ -133,7 +134,7 @@ public class CoveredGoalsCountSystemTest extends SystemTestBase {
     }
 
     @Test
-    public void testCoveredGoalsCountCSV_WithMinimizationTimeout() throws IOException {
+    public void testCoveredGoalsCountCSV_WithMinimizationTimeout() throws IOException, CsvException {
 
     	EvoSuite evosuite = new EvoSuite();
 
@@ -172,7 +173,7 @@ public class CoveredGoalsCountSystemTest extends SystemTestBase {
     }
     
     @Test
-    public void testCoveredGoalsCountCSV_SingleCriterionBranch_Enums() throws IOException {
+    public void testCoveredGoalsCountCSV_SingleCriterionBranch_Enums() throws IOException, CsvException {
 
     	EvoSuite evosuite = new EvoSuite();
 
@@ -210,7 +211,7 @@ public class CoveredGoalsCountSystemTest extends SystemTestBase {
     }
     
     @Test
-    public void testCoveredGoalsCountCSV_SingleCriterionBranch_Random_Enums() throws IOException {
+    public void testCoveredGoalsCountCSV_SingleCriterionBranch_Random_Enums() throws IOException, CsvException {
 
     	EvoSuite evosuite = new EvoSuite();
 

@@ -33,7 +33,7 @@ import org.objectweb.asm.Opcodes;
 public class KillSwitchClassAdapter  extends ClassVisitor{
 
 	public KillSwitchClassAdapter(ClassVisitor cv) {
-		super(Opcodes.ASM7, cv);
+		super(Opcodes.ASM9, cv);
 	}
 
 	@Override

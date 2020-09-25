@@ -51,7 +51,7 @@ public class CollectParameterTypesVisitor extends SignatureVisitor {
 	 * @param className
 	 */
 	public CollectParameterTypesVisitor(String className) {
-		super(Opcodes.ASM7);
+		super(Opcodes.ASM9);
 		this.className = className;
 		logger.debug("Target class name: " + className);
 	}

@@ -58,7 +58,7 @@ public class TestGeneration {
 		Strategy strategy = getChosenStrategy(javaOpts, line);
 
 		if (strategy == null) {
-			strategy = Strategy.EVOSUITE;
+			strategy = Strategy.MOSUITE;
 		} 
 
         List<List<TestGenerationResult>> results = new ArrayList<>();
@@ -348,7 +348,7 @@ public class TestGeneration {
 			}
 
 			if(!algorithmSet) {
-				cmdLine.add("-Dalgorithm=MOSA");
+				cmdLine.add("-Dalgorithm=DYNAMOSA");
 			}
 			break;
 		case DSE:

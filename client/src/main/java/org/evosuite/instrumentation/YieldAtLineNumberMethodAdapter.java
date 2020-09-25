@@ -54,7 +54,7 @@ public class YieldAtLineNumberMethodAdapter extends MethodVisitor {
 	 */
 	public YieldAtLineNumberMethodAdapter(MethodVisitor mv, String className,
 	        String methodName) {
-		super(Opcodes.ASM7, mv);
+		super(Opcodes.ASM9, mv);
 		this.className = className;
 		this.methodName = methodName;
 		if (!methodName.equals("<init>"))

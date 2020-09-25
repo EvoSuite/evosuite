@@ -44,7 +44,7 @@ public class StaticAccessClassAdapter extends ClassVisitor {
 	 *            a {@link java.lang.String} object.
 	 */
 	public StaticAccessClassAdapter(ClassVisitor visitor, String className) {
-		super(Opcodes.ASM7, visitor);
+		super(Opcodes.ASM9, visitor);
 		this.className = className;
 	}
 

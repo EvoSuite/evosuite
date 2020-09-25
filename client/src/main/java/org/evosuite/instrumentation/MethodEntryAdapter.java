@@ -53,7 +53,7 @@ public class MethodEntryAdapter extends AdviceAdapter {
 	 */
 	public MethodEntryAdapter(MethodVisitor mv, int access, String className,
 	        String methodName, String desc) {
-		super(Opcodes.ASM7, mv, access, methodName, desc);
+		super(Opcodes.ASM9, mv, access, methodName, desc);
 		this.className = className;
 		this.methodName = methodName;
 		this.fullMethodName = methodName + desc;
