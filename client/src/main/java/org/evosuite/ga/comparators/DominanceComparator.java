@@ -82,7 +82,7 @@ public class DominanceComparator<T extends Chromosome<T>> implements Comparator<
         boolean dominate2 = false;
 
         if (this.objectives == null) {
-          this.objectives = c1.getFitnessValues().keySet();
+          this.objectives = new LinkedHashSet<>(c1.getFitnessValues().keySet());
         }
 
         for (FitnessFunction<T> ff : this.objectives) {
