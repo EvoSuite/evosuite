@@ -62,7 +62,6 @@ public class SPEA2SystemTest extends SystemTestBase {
     Properties.ALGORITHM = Algorithm.SPEA2;
     Properties.SELECTION_FUNCTION = Properties.SelectionFunction.BINARY_TOURNAMENT;
     Properties.STOPPING_CONDITION = StoppingCondition.MAXGENERATIONS;
-    Properties.SEARCH_BUDGET = 20;
     Properties.MINIMIZE = false;
 
     EvoSuite evosuite = new EvoSuite();
@@ -96,6 +95,7 @@ public class SPEA2SystemTest extends SystemTestBase {
     String targetClass = BMICalculator.class.getCanonicalName();
 
     Properties.POPULATION = 50;
+    Properties.SEARCH_BUDGET = 10;
     double[][] front = test(targetClass);
 
     for (int i = 0; i < front.length; i++) {
@@ -115,6 +115,7 @@ public class SPEA2SystemTest extends SystemTestBase {
     String targetClass = BMICalculator.class.getCanonicalName();
 
     Properties.POPULATION = 10;
+    Properties.SEARCH_BUDGET = 40;
     double[][] front = test(targetClass);
 
     Spacing sp = new Spacing();
