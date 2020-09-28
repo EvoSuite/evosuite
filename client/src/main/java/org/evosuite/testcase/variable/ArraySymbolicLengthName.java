@@ -28,7 +28,7 @@ public class ArraySymbolicLengthName {
 
   public static final String ARRAY_LENGTH_NAME_SEPARATOR       = "_";
   public static final String ARRAY_LENGTH_NAME_SEPARATOR_REGEX = "\\_";
-  public static final String ARRAY_LENGTH_SYMBOLIC_NAME_SUFFIX = "dim";
+  public static final String ARRAY_LENGTH_SYMBOLIC_NAME_SUFFIX = "length";
   public static final String ARRAY_LENGTH_SYMBOLIC_NAME_INVALID_FOR_NAME_EXCEPTION = "Array length symbolic name invalid for name: ";
 
   public static final int ARRAY_LENGTH_SYMBOLIC_NAME_SECTIONS_AMOUNT         = 3;
