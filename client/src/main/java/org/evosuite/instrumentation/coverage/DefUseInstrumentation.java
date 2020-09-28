@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- *
- */
+
 package org.evosuite.instrumentation.coverage;
 
 import java.util.HashMap;
@@ -34,7 +32,6 @@ import org.evosuite.coverage.dataflow.DefUsePool;
 import org.evosuite.graphs.GraphPool;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.evosuite.graphs.cfg.RawControlFlowGraph;
-import org.evosuite.testcase.execution.ExecutionTrace;
 import org.evosuite.testcase.execution.ExecutionTracer;
 import org.evosuite.utils.ArrayUtil;
 import org.objectweb.asm.Opcodes;
@@ -59,7 +56,7 @@ import org.slf4j.LoggerFactory;
  */
 public class DefUseInstrumentation implements MethodInstrumentation {
 
-	private static Logger logger = LoggerFactory.getLogger(DefUseInstrumentation.class);
+	private static final Logger logger = LoggerFactory.getLogger(DefUseInstrumentation.class);
 
 	/*
 	 * (non-Javadoc)
@@ -257,7 +254,7 @@ public class DefUseInstrumentation implements MethodInstrumentation {
 		String descriptor = call.getMethodCallDescriptor();
 		Type[] args = Type.getArgumentTypes(descriptor);
 		int loc = getNextLocalNum(mn);
-		Map<Integer, Integer> to = new HashMap<Integer, Integer>();
+		Map<Integer, Integer> to = new HashMap<>();
 		for (int i = args.length - 1; i >= 0; i--) {
 			Type type = args[i];
 			instrumentation.add(new VarInsnNode(type.getOpcode(Opcodes.ISTORE), loc));

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -26,6 +26,6 @@ import org.evosuite.statistics.OutputVariable;
 
 public interface StatisticsBackend {
 
-	public void writeData(Chromosome result, Map<String, OutputVariable<?>> data);
+	void writeData(Chromosome<?> result, Map<String, OutputVariable<?>> data);
 	
 }

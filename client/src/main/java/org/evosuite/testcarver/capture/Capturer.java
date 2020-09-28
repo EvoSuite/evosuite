@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -38,11 +38,11 @@ public final class Capturer {
 	private static CaptureLog currentLog;
 	private static boolean isCaptureStarted = false;
 	private static boolean isShutdownHookAdded = false;
-	private static final ArrayList<CaptureLog> logs = new ArrayList<CaptureLog>();
+	private static final ArrayList<CaptureLog> logs = new ArrayList<>();
 
 	public static final String DEFAULT_SAVE_LOC = "captured.log";
 
-	private static final ArrayList<String[]> classesToBeObserved = new ArrayList<String[]>();
+	private static final ArrayList<String[]> classesToBeObserved = new ArrayList<>();
 
 	private static final transient Logger logger = LoggerFactory.getLogger(Capturer.class);
 
@@ -167,8 +167,8 @@ public final class Capturer {
 			throw new CapturerException(msg);
 		}
 
-		final ArrayList<String> args = new ArrayList<String>(
-		        Arrays.asList(classesToBeObservedString.split("\\s+")));
+		final ArrayList<String> args = new ArrayList<>(
+				Arrays.asList(classesToBeObservedString.split("\\s+")));
 		if (args.isEmpty()) {
 			final String msg = "no class to be observed specified";
 			logger.error(msg);

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -36,7 +36,7 @@ import java.util.Set;
  */
 public abstract class LanguageModelSearch implements Comparator<Chromosome> {
     protected static final int GENERATIONS = 1000000;
-    private static Logger logger = LoggerFactory.getLogger(LanguageModelSearch.class);
+    private static final Logger logger = LoggerFactory.getLogger(LanguageModelSearch.class);
     protected final LangModel languageModel;
     protected final String startPoint;
     protected final ValueMinimizer.Minimization objective;
@@ -139,8 +139,7 @@ public abstract class LanguageModelSearch implements Comparator<Chromosome> {
 
         do{
 
-            Set<Integer> choices = new HashSet<Integer>();
-            choices.addAll(Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7, 8, 9));
+            Set<Integer> choices = new HashSet<>(Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7, 8, 9));
 
             boolean foundValidChar = false;
             String nextChar;

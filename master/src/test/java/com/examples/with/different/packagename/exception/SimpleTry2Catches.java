@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -19,7 +19,6 @@
  */
 package com.examples.with.different.packagename.exception;
 
-import java.io.FileNotFoundException;
 import java.sql.SQLException;
 
 /**

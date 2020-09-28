@@ -31,14 +31,29 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Gordon Fraser
  */
-public class MaxLengthStoppingCondition extends StoppingConditionImpl {
+public class MaxLengthStoppingCondition<T extends Chromosome<T>> extends StoppingConditionImpl<T> {
 
 	private static final Logger logger = LoggerFactory.getLogger(MaxLengthStoppingCondition.class);
 
 	private static final long serialVersionUID = 8537667219135128366L;
 
-	private double averageLength = 0.0;
-	private int maxLength = Properties.MAX_LENGTH;
+	private double averageLength;
+	private int maxLength;
+
+	public MaxLengthStoppingCondition() {
+		averageLength = 0.0;
+		maxLength = Properties.MAX_LENGTH;
+	}
+
+	public MaxLengthStoppingCondition(MaxLengthStoppingCondition<?> that) {
+		this.averageLength = that.averageLength;
+		this.maxLength = that.maxLength;
+	}
+
+	@Override
+	public MaxLengthStoppingCondition<T> clone() {
+		return new MaxLengthStoppingCondition<>(this);
+	}
 
 	/* (non-Javadoc)
 	 * @see org.ga.StoppingCondition#isFinished()
@@ -63,11 +78,11 @@ public class MaxLengthStoppingCondition extends StoppingConditionImpl {
 
 	/** {@inheritDoc} */
 	@Override
-	public void iteration(GeneticAlgorithm<?> algorithm) {
+	public void iteration(GeneticAlgorithm<T> algorithm) {
 		averageLength = algorithm.getPopulation().stream()
 				.mapToInt(Chromosome::size)
 				.average()
-		 		.orElse(Double.NaN); // return NaN to retain original behaviour
+		 		.orElse(Double.NaN);
 	}
 
 	/* (non-Javadoc)

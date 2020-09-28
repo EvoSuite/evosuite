@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
+
 package org.evosuite.assertion;
 
 import java.util.HashSet;
@@ -72,7 +70,7 @@ public class NullTraceEntry implements OutputTraceEntry {
 	/** {@inheritDoc} */
 	@Override
 	public Set<Assertion> getAssertions(OutputTraceEntry other) {
-		Set<Assertion> assertions = new HashSet<Assertion>();
+		Set<Assertion> assertions = new HashSet<>();
 
 		if (other instanceof NullTraceEntry) {
 			NullTraceEntry otherEntry = (NullTraceEntry) other;
@@ -80,8 +78,6 @@ public class NullTraceEntry implements OutputTraceEntry {
 				NullAssertion assertion = new NullAssertion();
 				assertion.value = isNull;
 				assertion.source = var;
-				if(Properties.isRegression())
-					assertion.setComment("// (Null) Original Value: " + var +" | Regression Value: " + otherEntry.var);
 				assertions.add(assertion);
 				assert (assertion.isValid());
 			}
@@ -96,7 +92,7 @@ public class NullTraceEntry implements OutputTraceEntry {
 	/** {@inheritDoc} */
 	@Override
 	public Set<Assertion> getAssertions() {
-		Set<Assertion> assertions = new HashSet<Assertion>();
+		Set<Assertion> assertions = new HashSet<>();
 		NullAssertion assertion = new NullAssertion();
 		assertion.value = isNull;
 		assertion.source = var;
@@ -115,7 +111,7 @@ public class NullTraceEntry implements OutputTraceEntry {
 		if (assertion instanceof NullAssertion) {
 			NullAssertion ass = (NullAssertion) assertion;
 			if (var.equals(ass.source))
-				return ((Boolean) ass.value).booleanValue() != isNull;
+				return (Boolean) ass.value != isNull;
 		}
 		return false;
 	}

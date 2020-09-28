@@ -1,5 +1,4 @@
 /*
- *
  * This file is part of EvoSuite.
  *
  * EvoSuite is free software: you can redistribute it and/or modify it
@@ -37,7 +36,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Annibale Panichella, Fitsum M. Kifetew
  */
-public class RankBasedPreferenceSorting<T extends Chromosome> implements RankingFunction<T> {
+public class RankBasedPreferenceSorting<T extends Chromosome<T>> implements RankingFunction<T> {
 
 	private static final long serialVersionUID = -6636175563989586394L;
 
@@ -52,7 +51,8 @@ public class RankBasedPreferenceSorting<T extends Chromosome> implements Ranking
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void computeRankingAssignment(List<T> solutions, Set<FitnessFunction<T>> uncovered_goals) {
+	public void computeRankingAssignment(List<T> solutions,
+										 Set<? extends FitnessFunction<T>> uncovered_goals) {
 		if (solutions.isEmpty()) {
 			logger.debug("solution is empty");
 			return;
@@ -100,7 +100,7 @@ public class RankBasedPreferenceSorting<T extends Chromosome> implements Ranking
 	 * @param uncovered_goals the goals used for ranking
 	 * @return the non-dominated solutions (first sub-front)
 	 */
-	private List<T> getZeroFront(List<T> solutionSet, Set<FitnessFunction<T>> uncovered_goals) {
+	private List<T> getZeroFront(List<T> solutionSet, Set<? extends FitnessFunction<T>> uncovered_goals) {
 		Set<T> zero_front = new LinkedHashSet<>(solutionSet.size());
 		for (FitnessFunction<T> f : uncovered_goals) {
 			// for each uncovered goal, peak up the best tests using the proper comparator

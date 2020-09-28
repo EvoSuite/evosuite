@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import com.examples.with.different.packagename.solver.Maze;
 import com.examples.with.different.packagename.solver.MazeClient;
 
 public class TestMazeClient {

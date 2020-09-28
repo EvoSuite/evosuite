@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -20,14 +20,15 @@
 package org.evosuite.rmi;
 
 import java.rmi.NoSuchObjectException;
+import java.rmi.Remote;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 
 import org.evosuite.Properties;
+import org.evosuite.ga.Chromosome;
 import org.evosuite.rmi.service.ClientNodeImpl;
 import org.evosuite.rmi.service.ClientNodeLocal;
-import org.evosuite.rmi.service.ClientNodeRemote;
 import org.evosuite.rmi.service.DummyClientNodeImpl;
 import org.evosuite.statistics.RuntimeVariable;
 import org.slf4j.Logger;
@@ -40,19 +41,20 @@ import org.slf4j.LoggerFactory;
  * @author arcuri
  *
  */
-public class ClientServices {
+public class ClientServices<T extends Chromosome<T>> {
 
-	private static Logger logger = LoggerFactory.getLogger(ClientServices.class);
+	private static final Logger logger = LoggerFactory.getLogger(ClientServices.class);
 	
-	private static ClientServices instance = new ClientServices();
+	private static final ClientServices<?> instance = new ClientServices<>();
 	
-	private volatile ClientNodeImpl clientNode = new DummyClientNodeImpl();
+	private volatile ClientNodeImpl<T> clientNode = new DummyClientNodeImpl<>();
 	
 	protected ClientServices(){		
 	}
-	
-	public static ClientServices getInstance(){
-		return instance;
+
+	@SuppressWarnings("unchecked")
+	public static <T extends Chromosome<T>> ClientServices<T> getInstance(){
+		return  (ClientServices<T>) instance;
 	}
 
 	public boolean registerServices(String identifier) {
@@ -62,8 +64,8 @@ public class ClientServices {
 		try{
 			int port = Properties.PROCESS_COMMUNICATION_PORT;
 			Registry registry = LocateRegistry.getRegistry(port);
-			clientNode = new ClientNodeImpl(registry, identifier);
-			ClientNodeRemote stub = (ClientNodeRemote) UtilsRMI.exportObject(clientNode);
+			clientNode = new ClientNodeImpl<>(registry, identifier);
+			Remote stub = UtilsRMI.exportObject(clientNode);
 			registry.rebind(clientNode.getClientRmiIdentifier(), stub);
 			return clientNode.init();
 		} catch(Exception e){
@@ -72,7 +74,7 @@ public class ClientServices {
 		}
 	}
 
-	public ClientNodeLocal getClientNode() {
+	public ClientNodeLocal<T> getClientNode() {
 		return clientNode;
 	}
 	
@@ -104,7 +106,7 @@ public class ClientServices {
 				//this could happen if Master has removed the registry
 				logger.debug("Failed to delete ClientNode RMI instance",e);
 			}
-			clientNode = new DummyClientNodeImpl();
+			clientNode = new DummyClientNodeImpl<>();
 		}
 	}
 

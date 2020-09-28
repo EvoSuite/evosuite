@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -78,7 +78,7 @@ public final class SmtExprPrinter implements SmtExprVisitor<String, Void> {
 
 	@Override
 	public String visit(SmtOperation n, Void arg) {
-		List<String> retValues = new LinkedList<String>();
+		List<String> retValues = new LinkedList<>();
 		for (SmtExpr argument : n.getArguments()) {
 			String retValue = argument.accept(this, null);
 			retValues.add(retValue);
@@ -111,8 +111,7 @@ public final class SmtExprPrinter implements SmtExprVisitor<String, Void> {
 	public static String encodeString(String str) {
 		char[] charArray = str.toCharArray();
 		String ret_val = "";
-		for (int i = 0; i < charArray.length; i++) {
-			char c = charArray[i];
+		for (char c : charArray) {
 			if (Character.isISOControl(c)) {
 				if (Integer.toHexString(c).length() == 1) {
 					// padding

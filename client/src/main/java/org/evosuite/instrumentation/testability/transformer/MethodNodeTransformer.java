@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
+
 package org.evosuite.instrumentation.testability.transformer;
 
 import java.util.ArrayList;
@@ -76,7 +74,7 @@ public class MethodNodeTransformer {
     /**
      * Types of the local variables of the method visited by this adapter.
      */
-    protected final List<Type> localTypes = new ArrayList<Type>();
+    protected final List<Type> localTypes = new ArrayList<>();
     
 	/**
 	 * <p>transform</p>
@@ -87,7 +85,7 @@ public class MethodNodeTransformer {
 
 		setupLocals(mn);
 		
-		Set<AbstractInsnNode> originalNodes = new HashSet<AbstractInsnNode>();
+		Set<AbstractInsnNode> originalNodes = new HashSet<>();
 		AbstractInsnNode node = mn.instructions.getFirst();
 		while (node != mn.instructions.getLast()) {
 			originalNodes.add(node);
@@ -247,9 +245,9 @@ public class MethodNodeTransformer {
 	protected void setupLocals(MethodNode mn) {
         Type[] args = Type.getArgumentTypes(mn.desc);
         nextLocal = (Opcodes.ACC_STATIC & mn.access) == 0 ? 1 : 0;
-        for (int i = 0; i < args.length; i++) {
-            nextLocal += args[i].getSize();
-        }
+		for (final Type arg : args) {
+			nextLocal += arg.getSize();
+		}
         firstLocal = nextLocal;
 	}
 	
@@ -388,7 +386,7 @@ public class MethodNodeTransformer {
     	// new VarInsnNode(type.getOpcode(Opcodes.ILOAD), index);
     }
 
-    protected Map<Integer, Integer> parameterToLocalMap = new HashMap<Integer, Integer>();
+    protected Map<Integer, Integer> parameterToLocalMap = new HashMap<>();
 
     protected void popParametersToLocals(MethodNode mn) {
     	Type[] args = Type.getArgumentTypes(mn.desc);

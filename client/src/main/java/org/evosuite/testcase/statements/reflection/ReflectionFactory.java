@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -19,19 +19,14 @@
  */
 package org.evosuite.testcase.statements.reflection;
 
-import org.evosuite.Properties;
 import org.evosuite.runtime.Reflection;
-import org.evosuite.runtime.javaee.injection.Injector;
-import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.utils.Randomness;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Class used to get private fields/methods to construct statements in the generated tests
@@ -61,11 +56,7 @@ public class ReflectionFactory {
             }
         }
 
-        //do not use reflection on JEE injection
         List<Field> toSkip = null;
-        if(Properties.JEE){
-            toSkip = Injector.getAllFieldsToInject(target);
-        }
 
         for(Field f : Reflection.getDeclaredFields(target)){
             if(Modifier.isPrivate(f.getModifiers())

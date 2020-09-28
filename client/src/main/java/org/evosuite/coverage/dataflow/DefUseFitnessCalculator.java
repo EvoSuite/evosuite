@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -46,11 +46,11 @@ import org.slf4j.LoggerFactory;
 public class DefUseFitnessCalculator {
 
 	/** Constant <code>alternativeTime=0l</code> */
-	public static long alternativeTime = 0l;
+	public static long alternativeTime = 0L;
 
 	private final static boolean DEBUG = Properties.DEFUSE_DEBUG_MODE;
 
-	private static Logger logger = LoggerFactory.getLogger(DefUseFitnessCalculator.class);
+	private static final Logger logger = LoggerFactory.getLogger(DefUseFitnessCalculator.class);
 
 	private final DefUseCoverageTestFitness goal;
 	private final TestChromosome individual;
@@ -510,7 +510,7 @@ public class DefUseFitnessCalculator {
 		String goalVariable = goal.getGoalVariable();
 		Definition goalDefinition = goal.getGoalDefinition();
 
-		Set<Integer> objectPool = new HashSet<Integer>();
+		Set<Integer> objectPool = new HashSet<>();
 		if (trace.getPassedUses(goalVariable) == null)
 			return objectPool;
 		if (trace.getPassedDefinitions(goalVariable) != null)
@@ -528,8 +528,7 @@ public class DefUseFitnessCalculator {
 			if (DEBUG) {
 				logger.debug("NON-Static-goalVariable " + goalVariable);
 				logger.debug("#unused objects: " + (oldSize - objectPool.size()));
-				Set<Integer> discardedObjects = new HashSet<Integer>();
-				discardedObjects.addAll(trace.getPassedDefinitions(goalVariable).keySet());
+				Set<Integer> discardedObjects = new HashSet<>(trace.getPassedDefinitions(goalVariable).keySet());
 				discardedObjects.removeAll(trace.getPassedUses(goalVariable).keySet());
 				for (Integer id : discardedObjects) {
 					logger.debug("  discarded object " + id);
@@ -662,7 +661,7 @@ public class DefUseFitnessCalculator {
 		if (objectDUMap.get(objectId) == null)
 			return false;
 		for (Integer defId : objectDUMap.get(objectId).values())
-			if (defId.intValue() == targetId)
+			if (defId == targetId)
 				return true;
 		return false;
 	}
@@ -681,7 +680,7 @@ public class DefUseFitnessCalculator {
 	 * @return a boolean.
 	 */
 	public static boolean traceCoversGoal(DefUseCoverageTestFitness goal,
-	        Chromosome individual, ExecutionTrace trace) {
+	        Chromosome<?> individual, ExecutionTrace trace) {
 		String goalVariable = goal.getGoalVariable();
 		Use goalUse = goal.getGoalUse();
 		Definition goalDefinition = goal.getGoalDefinition();

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -34,7 +34,7 @@ public class MultiMethodVisitor extends MethodVisitor {
 	MethodVisitor mv1;
 	MethodVisitor mv2;
 
-	Map<Label, Label> label_mapping = new HashMap<Label, Label>();
+	Map<Label, Label> label_mapping = new HashMap<>();
 
 	/**
 	 * <p>Constructor for MultiMethodVisitor.</p>
@@ -43,7 +43,7 @@ public class MultiMethodVisitor extends MethodVisitor {
 	 * @param mv2 a {@link org.objectweb.asm.MethodVisitor} object.
 	 */
 	public MultiMethodVisitor(MethodVisitor mv1, MethodVisitor mv2) {
-		super(Opcodes.ASM7);
+		super(Opcodes.ASM9);
 		this.mv1 = mv1;
 		this.mv2 = mv2;
 	}

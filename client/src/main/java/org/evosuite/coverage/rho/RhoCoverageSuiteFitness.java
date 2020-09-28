@@ -19,17 +19,12 @@
  */
 package org.evosuite.coverage.rho;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-
 import org.evosuite.Properties;
-import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.execution.ExecutionResult;
-import org.evosuite.testsuite.AbstractTestSuiteChromosome;
+import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
+
+import java.util.*;
 
 /**
  * 
@@ -42,14 +37,14 @@ public class RhoCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	private int previous_number_of_ones = 0;
 	private int previous_number_of_test_cases = 0;
 
-	private Set<Set<Integer>> coverage_matrix_generated_so_far = new LinkedHashSet<>();
+	private final Set<Set<Integer>> coverage_matrix_generated_so_far = new LinkedHashSet<>();
 
 	@Override
-	public double getFitness(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite) {
+	public double getFitness(TestSuiteChromosome suite) {
 		return this.getFitness(suite, true);
 	}
 
-	protected double getFitness(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite, boolean updateFitness) {
+	protected double getFitness(TestSuiteChromosome suite, boolean updateFitness) {
 
 		Set<Set<Integer>> tmp_coverage_matrix = new LinkedHashSet<>(this.coverage_matrix_generated_so_far);
 

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -22,7 +22,6 @@ package org.evosuite.runtime.mock.java.net;
 import org.evosuite.runtime.mock.MockFramework;
 import org.evosuite.runtime.testdata.EvoSuiteLocalAddress;
 import org.evosuite.runtime.vnet.EndPointInfo;
-import org.evosuite.runtime.testdata.EvoSuiteAddress;
 import org.evosuite.runtime.testdata.NetworkHandling;
 import org.evosuite.runtime.vnet.VirtualNetwork;
 import org.junit.After;
@@ -32,8 +31,6 @@ import org.junit.Test;
 
 import java.net.DatagramPacket;
 import java.net.InetAddress;
-import java.net.SocketException;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;

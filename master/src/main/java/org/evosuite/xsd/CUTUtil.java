@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -131,7 +131,7 @@ public abstract class CUTUtil {
   public static Set<String> getCriteria(CUT cut) {
     Generation latestSuccessfulGeneration = CUTUtil.getLatestSuccessfulGeneration(cut);
     if (latestSuccessfulGeneration == null) {
-      return new HashSet<String>();
+      return new HashSet<>();
     }
 
     return GenerationUtil.getCriteria(latestSuccessfulGeneration);

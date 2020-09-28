@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -47,7 +47,7 @@ public class EvoIPAddressUtil {
 					}
 
 					tmpValue *= 10L;
-					tmpValue += (long)digit;
+					tmpValue += digit;
 					newOctet = false;
 				}
 			}

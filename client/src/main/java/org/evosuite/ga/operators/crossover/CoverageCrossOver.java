@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,6 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
 package org.evosuite.ga.operators.crossover;
 
 import java.util.HashMap;
@@ -28,7 +25,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
@@ -41,36 +37,33 @@ import org.evosuite.utils.Randomness;
  *
  * @author Gordon Fraser
  */
-public class CoverageCrossOver extends CrossOverFunction {
+public class CoverageCrossOver extends CrossOverFunction<TestSuiteChromosome> {
 
 	private static final long serialVersionUID = -2203276450790663024L;
 
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.CrossOverFunction#crossOver(org.evosuite.ga.Chromosome, org.evosuite.ga.Chromosome)
 	 */
-	/** {@inheritDoc} */
+	/** {@inheritDoc}
+	 * @param parent1
+	 * @param parent2*/
 	@Override
-	public void crossOver(Chromosome parent1, Chromosome parent2)
+	public void crossOver(TestSuiteChromosome parent1, TestSuiteChromosome parent2)
 	        throws ConstructionFailedException {
-		assert (parent1 instanceof TestSuiteChromosome);
-		assert (parent2 instanceof TestSuiteChromosome);
-
-		TestSuiteChromosome suite1 = (TestSuiteChromosome) parent1;
-		TestSuiteChromosome suite2 = (TestSuiteChromosome) parent2;
 
 		// Determine coverage information
-		Map<TestFitnessFunction, Set<TestChromosome>> goalMap = new HashMap<TestFitnessFunction, Set<TestChromosome>>();
-		populateCoverageMap(goalMap, suite1);
-		populateCoverageMap(goalMap, suite2);
+		Map<TestFitnessFunction, Set<TestChromosome>> goalMap = new HashMap<>();
+		populateCoverageMap(goalMap, parent1);
+		populateCoverageMap(goalMap, parent2);
 
 		// Extract set of tests that have unique coverage
 		// We need all of these tests in both offspring
 		Set<TestChromosome> unique = removeUniqueCoveringTests(goalMap);
 		logger.debug("Uniquely covering tests: " + unique.size());
 
-		Set<TestChromosome> offspring1 = new HashSet<TestChromosome>();
-		Set<TestChromosome> offspring2 = new HashSet<TestChromosome>();
-		Set<TestChromosome> workingSet = new HashSet<TestChromosome>();
+		Set<TestChromosome> offspring1 = new HashSet<>();
+		Set<TestChromosome> offspring2 = new HashSet<>();
+		Set<TestChromosome> workingSet = new HashSet<>();
 		for (TestFitnessFunction goal : goalMap.keySet()) {
 			workingSet.addAll(goalMap.get(goal));
 		}
@@ -91,19 +84,19 @@ public class CoverageCrossOver extends CrossOverFunction {
 
 		offspring1.addAll(workingSet);
 
-		suite1.clearTests();
-		suite2.clearTests();
+		parent1.clearTests();
+		parent2.clearTests();
 
 		// Add unique tests
 		for (TestChromosome test : unique) {
-			suite1.addTest((TestChromosome) test.clone());
-			suite2.addTest((TestChromosome) test.clone());
+			parent1.addTest(test.clone());
+			parent2.addTest(test.clone());
 		}
 
 		// Add redundancy tests
-		suite1.addTests(offspring1);
-		suite2.addTests(offspring2);
-		logger.debug("Final sizes: " + suite1.size() + ", " + suite2.size());
+		parent1.addTests(offspring1);
+		parent2.addTests(offspring2);
+		logger.debug("Final sizes: " + parent1.size() + ", " + parent2.size());
 
 	}
 
@@ -119,7 +112,7 @@ public class CoverageCrossOver extends CrossOverFunction {
 		for (TestChromosome test : suite.getTestChromosomes()) {
 			for (TestFitnessFunction goal : test.getTestCase().getCoveredGoals()) {
 				if (!goalMap.containsKey(goal))
-					goalMap.put(goal, new HashSet<TestChromosome>());
+					goalMap.put(goal, new HashSet<>());
 				goalMap.get(goal).add(test);
 			}
 
@@ -128,8 +121,8 @@ public class CoverageCrossOver extends CrossOverFunction {
 
 	private Set<TestChromosome> removeUniqueCoveringTests(
 	        Map<TestFitnessFunction, Set<TestChromosome>> goalMap) {
-		Set<TestChromosome> tests = new HashSet<TestChromosome>();
-		Set<TestFitnessFunction> uniqueGoals = new HashSet<TestFitnessFunction>();
+		Set<TestChromosome> tests = new HashSet<>();
+		Set<TestFitnessFunction> uniqueGoals = new HashSet<>();
 		for (Entry<TestFitnessFunction, Set<TestChromosome>> entry : goalMap.entrySet()) {
 			if (entry.getValue().size() == 1) {
 				uniqueGoals.add(entry.getKey());

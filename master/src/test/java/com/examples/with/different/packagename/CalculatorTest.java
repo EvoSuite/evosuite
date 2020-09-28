@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -19,6 +19,7 @@
  */
 package com.examples.with.different.packagename;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
@@ -29,21 +30,21 @@ public class CalculatorTest {
 
 	@Test
 	public void testMul() {
-		assertTrue(Calculator.mul(1, 2) == 2);
+        assertEquals(2, Calculator.mul(1, 2));
 	}
 
 	@Test
 	public void testDiv() {
-		assertTrue(Calculator.div(4, 2) == 2);
+        assertEquals(2, Calculator.div(4, 2));
 	}
 
 	@Test
 	public void testAdd() {
-		assertTrue(Calculator.add(1, 2) == 3);
+        assertEquals(3, Calculator.add(1, 2));
 	}
 
 	@Test
 	public void testSub() {
-		assertTrue(Calculator.sub(2, 1) == 1);
+        assertEquals(1, Calculator.sub(2, 1));
 	}
 }

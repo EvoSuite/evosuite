@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -57,15 +57,15 @@ public class AllUsesAnalysis {
 
 	// map methods to Sets of definitions that can be active at method
 	// return. map according to defined variables name
-	private Map<String, Set<Map<String, BytecodeInstruction>>> determinedActiveDefs = new HashMap<String, Set<Map<String, BytecodeInstruction>>>();
+	private Map<String, Set<Map<String, BytecodeInstruction>>> determinedActiveDefs = new HashMap<>();
 	// map methods to Sets of Uses that have a definition-free path
 	// from their methods entry
-	private Map<String, Set<BytecodeInstruction>> determinedFreeUses = new HashMap<String, Set<BytecodeInstruction>>();
+	private Map<String, Set<BytecodeInstruction>> determinedFreeUses = new HashMap<>();
 	
-	private Set<CCFGMethodEntryNode> analyzedMethods = new HashSet<CCFGMethodEntryNode>();
+	private Set<CCFGMethodEntryNode> analyzedMethods = new HashSet<>();
 
 	// debug profiling
-	private long timeSpentMingling = 0l;
+	private long timeSpentMingling = 0L;
 
 
 
@@ -132,10 +132,9 @@ public class AllUsesAnalysis {
 		// method that calls this one and also has to be analyzed still. if you
 		// find such a pair move the calling method in front of the called one
 
-		Set<DefUseCoverageTestFitness> r = new HashSet<DefUseCoverageTestFitness>();
+		Set<DefUseCoverageTestFitness> r = new HashSet<>();
 
-		LinkedList<ClassCallNode> toAnalyze = new LinkedList<ClassCallNode>();
-		toAnalyze.addAll(getInitialPreAnalyzeableMethods());
+		LinkedList<ClassCallNode> toAnalyze = new LinkedList<>(getInitialPreAnalyzeableMethods());
 
 		while (!toAnalyze.isEmpty()) {
 			ClassCallNode currentMethod = toAnalyze.poll();
@@ -181,7 +180,7 @@ public class AllUsesAnalysis {
 	 * initially pre-analyzed
 	 */
 	private Set<ClassCallNode> getInitialPreAnalyzeableMethods() {
-		Set<ClassCallNode> preAnalyzeable = new HashSet<ClassCallNode>();
+		Set<ClassCallNode> preAnalyzeable = new HashSet<>();
 		for (ClassCallNode ccgNode : ccfg.getCcg().vertexSet()) {
 			boolean add = true;
 			for (ClassCallNode child : ccfg.getCcg().getChildren(ccgNode)){
@@ -201,7 +200,7 @@ public class AllUsesAnalysis {
 	// intra-class pairs
 
 	private Set<DefUseCoverageTestFitness> createIntraClassPairs() {
-		Set<DefUseCoverageTestFitness> r = new HashSet<DefUseCoverageTestFitness>();
+		Set<DefUseCoverageTestFitness> r = new HashSet<>();
 
 		for (String method : determinedFreeUses.keySet()) {
 			if (!ccfg.isPublicMethod(method)) {
@@ -218,7 +217,7 @@ public class AllUsesAnalysis {
 			BytecodeInstruction freeUse) {
 		checkFreeUseSanity(freeUse);
 
-		Set<DefUseCoverageTestFitness> r = new HashSet<DefUseCoverageTestFitness>();
+		Set<DefUseCoverageTestFitness> r = new HashSet<>();
 		for (String method : determinedActiveDefs.keySet()) {
 			if (!ccfg.isPublicMethod(method)) {
 				continue;
@@ -257,15 +256,15 @@ public class AllUsesAnalysis {
 		warnedAboutAbortion = false;
 
 		// initialize variables
-		Set<DefUseCoverageTestFitness> foundPairs = new HashSet<DefUseCoverageTestFitness>();
+		Set<DefUseCoverageTestFitness> foundPairs = new HashSet<>();
 		Set<Map<String, VariableDefinition>> activeDefs = createInitialActiveDefs();
-		Set<BytecodeInstruction> freeUses = new HashSet<BytecodeInstruction>();
+		Set<BytecodeInstruction> freeUses = new HashSet<>();
 		Stack<MethodCall> callStack = createInitialCallStack(methodEntry);
 
 		// search
 		Integer calls = determineIntraInterMethodPairs(methodEntry,
-				methodEntry.getEntryInstruction(), new HashSet<CCFGNode>(),
-				new HashSet<CCFGEdge>(), activeDefs, freeUses, foundPairs,
+				methodEntry.getEntryInstruction(), new HashSet<>(),
+				new HashSet<>(), activeDefs, freeUses, foundPairs,
 				callStack, 0, true);
 
 		long spentTime = System.currentTimeMillis() - start;
@@ -396,11 +395,11 @@ public class AllUsesAnalysis {
 				// child
 				if (children.size() > 1)
 					invocationCount = determineIntraInterMethodPairs(
-							investigatedMethod, child, new HashSet<CCFGNode>(
-									handled), new HashSet<CCFGEdge>(
+							investigatedMethod, child, new HashSet<>(
+									handled), new HashSet<>(
 									handledBackEdges),
 							copyActiveDefs(activeDefs),
-							new HashSet<BytecodeInstruction>(freeUses),
+							new HashSet<>(freeUses),
 							foundPairs, copyCallStack(nextCallStack),
 							invocationCount, handleLoops);
 				else
@@ -408,9 +407,6 @@ public class AllUsesAnalysis {
 							investigatedMethod, child, handled,
 							handledBackEdges, activeDefs, freeUses, foundPairs,
 							nextCallStack, invocationCount, handleLoops);
-
-				if (invocationCount >= UPPER_PAIR_SEARCH_INVOCATION_BOUND)
-					continue;
 			}
 		return invocationCount;
 	}
@@ -700,9 +696,9 @@ public class AllUsesAnalysis {
 	private Set<Map<String, VariableDefinition>> copyActiveDefs(
 			Set<Map<String, VariableDefinition>> activeDefs) {
 
-		HashSet<Map<String, VariableDefinition>> r = new HashSet<Map<String, VariableDefinition>>();
+		HashSet<Map<String, VariableDefinition>> r = new HashSet<>();
 		for (Map<String, VariableDefinition> activeDef : activeDefs)
-			r.add(new HashMap<String, VariableDefinition>(activeDef));
+			r.add(new HashMap<>(activeDef));
 		return r;
 	}
 
@@ -744,7 +740,7 @@ public class AllUsesAnalysis {
 		Set<Map<String, BytecodeInstruction>> activeDefMapsInCallee = determinedActiveDefs
 				.get(callNode.getCalledMethod());
 
-		Set<Map<String, VariableDefinition>> activeDefMapsAfterCurrentCall = new HashSet<Map<String, VariableDefinition>>();
+		Set<Map<String, VariableDefinition>> activeDefMapsAfterCurrentCall = new HashSet<>();
 
 		long start = System.currentTimeMillis();
 
@@ -753,14 +749,14 @@ public class AllUsesAnalysis {
 		// mingle each of these maps with each of the currently active maps
 		for (Map<String, BytecodeInstruction> activeDefMapInCallee : activeDefMapsInCallee) {
 			for (Map<String, VariableDefinition> activeDefMapInCaller : activeDefMapsInCaller) {
-				Set<String> relevantVariables = new HashSet<String>(
+				Set<String> relevantVariables = new HashSet<>(
 						activeDefMapInCallee.keySet());
 				relevantVariables.addAll(activeDefMapInCaller.keySet());
 
 				// mingle both activeDefMaps from prior to the call and when
 				// returning from call to a new one that will be true after the
 				// call
-				Map<String, VariableDefinition> activeDefMapAfterCurrentCall = new HashMap<String, VariableDefinition>();
+				Map<String, VariableDefinition> activeDefMapAfterCurrentCall = new HashMap<>();
 				for (String variable : relevantVariables) {
 					BytecodeInstruction activeDefAfterCall = activeDefMapInCallee
 							.get(variable);
@@ -887,7 +883,7 @@ public class AllUsesAnalysis {
 
 		if (determinedActiveDefs.get(method) == null)
 			determinedActiveDefs.put(method,
-					new HashSet<Map<String, BytecodeInstruction>>());
+					new HashSet<>());
 
 		Set<Map<String, BytecodeInstruction>> defMaps = toRememberableBytecodeInstructionMap(activeDefMaps);
 
@@ -899,12 +895,12 @@ public class AllUsesAnalysis {
 	private void rememberFreeUses(String method,
 			Set<BytecodeInstruction> freeUses) {
 		if (determinedFreeUses.get(method) == null)
-			determinedFreeUses.put(method, new HashSet<BytecodeInstruction>());
+			determinedFreeUses.put(method, new HashSet<>());
 		determinedFreeUses.get(method).addAll(freeUses);
 	}
 
 	private Stack<MethodCall> copyCallStack(Stack<MethodCall> callStack) {
-		Stack<MethodCall> r = new Stack<MethodCall>();
+		Stack<MethodCall> r = new Stack<>();
 		r.setSize(callStack.size());
 		Collections.copy(r, callStack);
 		return r;
@@ -912,7 +908,7 @@ public class AllUsesAnalysis {
 
 	private Set<CCFGNode> filterHandledMapForMethodCallNode(
 			CCFGMethodCallNode callNode, Set<CCFGNode> handled) {
-		Set<CCFGNode> r = new HashSet<CCFGNode>();
+		Set<CCFGNode> r = new HashSet<>();
 		for (CCFGNode node : handled)
 			if (!nodeBelongsToMethod(node, callNode.getCalledMethod())
 					|| (node instanceof CCFGMethodCallNode))
@@ -1029,10 +1025,10 @@ public class AllUsesAnalysis {
 	private Set<Map<String, BytecodeInstruction>> toRememberableBytecodeInstructionMap(
 			Set<Map<String, VariableDefinition>> activeDefMaps) {
 
-		Set<Map<String, BytecodeInstruction>> r = new HashSet<Map<String, BytecodeInstruction>>();
+		Set<Map<String, BytecodeInstruction>> r = new HashSet<>();
 
 		for (Map<String, VariableDefinition> activeDefMap : activeDefMaps) {
-			Map<String, BytecodeInstruction> instructionMap = new HashMap<String, BytecodeInstruction>();
+			Map<String, BytecodeInstruction> instructionMap = new HashMap<>();
 			for (String var : activeDefMap.keySet()) {
 				VariableDefinition activeDef = activeDefMap.get(var);
 				if (activeDef.getDefinition().isLocalDU())
@@ -1046,15 +1042,15 @@ public class AllUsesAnalysis {
 
 
 	private Set<Map<String, VariableDefinition>> createInitialActiveDefs() {
-		Set<Map<String, VariableDefinition>> activeDefs = new HashSet<Map<String, VariableDefinition>>();
+		Set<Map<String, VariableDefinition>> activeDefs = new HashSet<>();
 		// add initial activeDefMap
-		activeDefs.add(new HashMap<String, VariableDefinition>());
+		activeDefs.add(new HashMap<>());
 		return activeDefs;
 	}
 
 	private Stack<MethodCall> createInitialCallStack(
 			CCFGMethodEntryNode publicMethodEntry) {
-		Stack<MethodCall> callStack = new Stack<MethodCall>();
+		Stack<MethodCall> callStack = new Stack<>();
 		// null will represent the public method call itself
 		callStack.add(new MethodCall(null, publicMethodEntry.getMethod()));
 

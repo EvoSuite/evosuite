@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,15 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
 package org.evosuite.testsuite.localsearch;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.lang3.NotImplementedException;
 import org.evosuite.ga.Chromosome;
@@ -37,6 +29,11 @@ import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Represents the fitness functions (the objective) for a whole test suite such that
@@ -61,14 +58,14 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective<TestC
 
 	private double lastFitnessSum = 0.0;
 
-	private Map<FitnessFunction<?>, Double> lastFitness = new HashMap<>();
+	private final Map<TestSuiteFitnessFunction, Double> lastFitness = new HashMap<>();
 
-	private Map<FitnessFunction<?>, Double> lastCoverage = new HashMap<>();
+	private final Map<TestSuiteFitnessFunction, Double> lastCoverage = new HashMap<>();
 
 	/**
 	 * Creates a Local Search objective for a TestCase that will be optimized
 	 * using a containing TestSuite to measure the changes in fitness values.
-	 * 
+	 *
 	 * @param fitness
 	 *            the list of fitness functions to use to compute the fitness of
 	 *            the TestSuiteChromosome
@@ -79,16 +76,14 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective<TestC
 	 *            be used to modify the testchromosome each time a changed has
 	 *            been applied.
 	 */
-	private TestSuiteLocalSearchObjective(List<TestSuiteFitnessFunction> fitness, TestSuiteChromosome suite,
-			int index) {
+	private TestSuiteLocalSearchObjective(List<TestSuiteFitnessFunction> fitness,
+										  TestSuiteChromosome suite,
+										  int index) {
 		this.fitnessFunctions.addAll(fitness);
 		this.suite = suite;
 		this.testIndex = index;
 		for (TestSuiteFitnessFunction ff : fitness) {
-			if (ff.isMaximizationFunction())
-				isMaximization = true;
-			else
-				isMaximization = false;
+			isMaximization = ff.isMaximizationFunction();
 			break;
 		}
 		updateLastFitness();
@@ -100,7 +95,7 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective<TestC
 	 * of fitness functions, a test suite and a <code>testIndex</code> for
 	 * replacing an optimised test case (i.e. a test case over which was applied
 	 * local search)
-	 * 
+	 *
 	 * @param fitness
 	 *            the list of fitness functions to be used on the modified test
 	 *            suite
@@ -111,10 +106,13 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective<TestC
 	 *            replaced with a new test case
 	 * @return
 	 */
-	public static TestSuiteLocalSearchObjective buildNewTestSuiteLocalSearchObjective(
-			List<FitnessFunction<? extends Chromosome>> fitness, TestSuiteChromosome suite, int index) {
+	public static <T extends Chromosome<T>> TestSuiteLocalSearchObjective
+	buildNewTestSuiteLocalSearchObjective(
+			List<FitnessFunction<T>> fitness,
+			TestSuiteChromosome suite,
+			int index) {
 		List<TestSuiteFitnessFunction> ffs = new ArrayList<>();
-		for (FitnessFunction<? extends Chromosome> ff : fitness) {
+		for (FitnessFunction<T> ff : fitness) {
 			TestSuiteFitnessFunction tff = (TestSuiteFitnessFunction) ff;
 			ffs.add(tff);
 		}
@@ -222,9 +220,10 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective<TestC
 	 * Since the fitness is computed by the underlying test suite associated to
 	 * this local search objective, this function should not belong. TODO: Why
 	 * not simply returning the fitness functions of the suite?
+	 * @return
 	 */
 	@Override
-	public List<FitnessFunction<? extends Chromosome>> getFitnessFunctions() {
+	public List<FitnessFunction<TestChromosome>> getFitnessFunctions() {
 		throw new NotImplementedException("This should not be called");
 	}
 
@@ -233,7 +232,7 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective<TestC
 	 * goal, this function should never be invoked.
 	 */
 	@Override
-	public void addFitnessFunction(FitnessFunction<? extends Chromosome> fitness) {
+	public void addFitnessFunction(FitnessFunction<TestChromosome> fitness) {
 		throw new NotImplementedException("This should not be called");
 	}
 

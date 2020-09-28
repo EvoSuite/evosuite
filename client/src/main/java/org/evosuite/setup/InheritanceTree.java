@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
+
 package org.evosuite.setup;
 
 import java.io.File;
@@ -40,17 +38,17 @@ import org.slf4j.LoggerFactory;
  */
 public class InheritanceTree {
 
-    private static Logger logger = LoggerFactory.getLogger(InheritanceTree.class);
+    private static final Logger logger = LoggerFactory.getLogger(InheritanceTree.class);
 
-	private final Map<String, Set<String>> subclassCache = new LinkedHashMap<String, Set<String>>();
+	private final Map<String, Set<String>> subclassCache = new LinkedHashMap<>();
 
 	private  Set<String> interfacesSet = new LinkedHashSet<>();
 	private  Set<String> abstractClassesSet = new LinkedHashSet<>();
 
 	private Map<String, Set<String>> analyzedMethods;
 		
-	private DirectedMultigraph<String, DefaultEdge> inheritanceGraph = new DirectedMultigraph<String, DefaultEdge>(
-	        DefaultEdge.class);
+	private DirectedMultigraph<String, DefaultEdge> inheritanceGraph = new DirectedMultigraph<>(
+			DefaultEdge.class);
 
 	private void initialiseMap(){
 		if (analyzedMethods == null)
@@ -146,9 +144,9 @@ public class InheritanceTree {
 		}
 
 		// TreeSet so that classes are sorted by name and thus deterministic across platforms
-		Set<String> result = new TreeSet<String>();
-		BreadthFirstIterator<String, DefaultEdge> bfi = new BreadthFirstIterator<String, DefaultEdge>(
-		        inheritanceGraph, classNameWithDots);
+		Set<String> result = new TreeSet<>();
+		BreadthFirstIterator<String, DefaultEdge> bfi = new BreadthFirstIterator<>(
+				inheritanceGraph, classNameWithDots);
 		while (bfi.hasNext()) {
 			result.add(bfi.next());
 		}
@@ -162,13 +160,13 @@ public class InheritanceTree {
 			LoggingUtils.logWarnAtMostOnce(logger, "Class not in inheritance graph: " + classNameWithDots);
 			return new LinkedHashSet<>();
 		}
-		EdgeReversedGraph<String, DefaultEdge> reverseGraph = new EdgeReversedGraph<String, DefaultEdge>(
-		        inheritanceGraph);
+		EdgeReversedGraph<String, DefaultEdge> reverseGraph = new EdgeReversedGraph<>(
+				inheritanceGraph);
 
 		// TreeSet so that classes are sorted by name and thus deterministic across platforms
 		Set<String> result = new TreeSet<>();
-		BreadthFirstIterator<String, DefaultEdge> bfi = new BreadthFirstIterator<String, DefaultEdge>(
-		        reverseGraph, classNameWithDots);
+		BreadthFirstIterator<String, DefaultEdge> bfi = new BreadthFirstIterator<>(
+				reverseGraph, classNameWithDots);
 		while (bfi.hasNext()) {
 			result.add(bfi.next());
 		}
@@ -181,11 +179,11 @@ public class InheritanceTree {
 			LoggingUtils.logWarnAtMostOnce(logger, "Class not in inheritance graph: " + classNameWithDots);
 			return new LinkedList<>();
 		}
-		EdgeReversedGraph<String, DefaultEdge> reverseGraph = new EdgeReversedGraph<String, DefaultEdge>(
-		        inheritanceGraph);
+		EdgeReversedGraph<String, DefaultEdge> reverseGraph = new EdgeReversedGraph<>(
+				inheritanceGraph);
 		List<String> orderedList = new LinkedList<>();
-		BreadthFirstIterator<String, DefaultEdge> bfi = new BreadthFirstIterator<String, DefaultEdge>(
-		        reverseGraph, classNameWithDots);
+		BreadthFirstIterator<String, DefaultEdge> bfi = new BreadthFirstIterator<>(
+				reverseGraph, classNameWithDots);
 		while (bfi.hasNext()) {
 			orderedList.add(bfi.next());
 		}

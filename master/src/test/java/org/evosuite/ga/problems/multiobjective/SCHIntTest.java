@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -20,12 +20,11 @@
 package org.evosuite.ga.problems.multiobjective;
 
 import java.io.IOException;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
 import org.evosuite.Properties;
-import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.NSGAChromosome;
@@ -47,23 +46,23 @@ import org.junit.Test;
  * 
  * @author José Campos
  */
-@SuppressWarnings({ "rawtypes", "unchecked" })
 public class SCHIntTest
 {
     @Before
     public void setUp() {
         Properties.POPULATION = 100;
-        Properties.SEARCH_BUDGET = 10000;
+        Properties.STOPPING_CONDITION = Properties.StoppingCondition.MAXGENERATIONS;
+        Properties.SEARCH_BUDGET = 10_000;
         Properties.CROSSOVER_RATE = 0.9;
-        Properties.RANDOM_SEED = 1l;
+        Properties.RANDOM_SEED = 1L;
     }
 
     @Test
     public void testSCHFitnesses()
     {
-        Problem p = new SCH();
-        FitnessFunction f1 = (FitnessFunction) p.getFitnessFunctions().get(0);
-        FitnessFunction f2 = (FitnessFunction) p.getFitnessFunctions().get(1);
+        Problem<NSGAChromosome> p = new SCH();
+        FitnessFunction<NSGAChromosome> f1 = p.getFitnessFunctions().get(0);
+        FitnessFunction<NSGAChromosome> f2 = p.getFitnessFunctions().get(1);
 
         double[] values_n = {-10};
         NSGAChromosome c = new NSGAChromosome(Math.pow(-10.0, 3.0), Math.pow(10.0, 3.0), values_n);
@@ -95,38 +94,34 @@ public class SCHIntTest
     {
         Properties.MUTATION_RATE = 1d / 1d;
 
-        ChromosomeFactory<?> factory = new RandomFactory(false, 1, Math.pow(-10.0, 3.0), Math.pow(10.0, 3.0));
+        ChromosomeFactory<NSGAChromosome> factory = new RandomFactory(false, 1, Math.pow(-10.0, 3.0), Math.pow(10.0, 3.0));
 
-        GeneticAlgorithm<?> ga = new NSGAII(factory);
-        BinaryTournamentSelectionCrowdedComparison ts = new BinaryTournamentSelectionCrowdedComparison();
+        GeneticAlgorithm<NSGAChromosome> ga = new NSGAII<>(factory);
+        BinaryTournamentSelectionCrowdedComparison<NSGAChromosome> ts =
+                new BinaryTournamentSelectionCrowdedComparison<>();
         ts.setMaximize(false);
         ga.setSelectionFunction(ts);
         ga.setCrossOverFunction(new SBXCrossover());
 
-        Problem p = new SCH();
-        final FitnessFunction f1 = (FitnessFunction) p.getFitnessFunctions().get(0);
-        final FitnessFunction f2 = (FitnessFunction) p.getFitnessFunctions().get(1);
+        Problem<NSGAChromosome> p = new SCH();
+        final FitnessFunction<NSGAChromosome> f1 = p.getFitnessFunctions().get(0);
+        final FitnessFunction<NSGAChromosome> f2 = p.getFitnessFunctions().get(1);
         ga.addFitnessFunction(f1);
         ga.addFitnessFunction(f2);
 
         // execute
         ga.generateSolution();
 
-        List<Chromosome> chromosomes = (List<Chromosome>) ga.getPopulation();
-        Collections.sort(chromosomes, new Comparator<Chromosome>() {
-            @Override
-            public int compare(Chromosome arg0, Chromosome arg1) {
-                return Double.compare(arg0.getFitness(f1), arg1.getFitness(f1));
-            }
-        });
+        List<NSGAChromosome> chromosomes = new ArrayList<>(ga.getPopulation());
+        chromosomes.sort(Comparator.comparingDouble(chr -> chr.getFitness(f1)));
 
         double[][] front = new double[Properties.POPULATION][2];
         int index = 0;
 
-        for (Chromosome chromosome : chromosomes) {
+        for (NSGAChromosome chromosome : chromosomes) {
             System.out.printf("%f,%f\n", chromosome.getFitness(f1), chromosome.getFitness(f2));
-            front[index][0] = Double.valueOf(chromosome.getFitness(f1));
-            front[index][1] = Double.valueOf(chromosome.getFitness(f2));
+            front[index][0] = chromosome.getFitness(f1);
+            front[index][1] = chromosome.getFitness(f2);
 
             index++;
         }
@@ -137,13 +132,16 @@ public class SCHIntTest
         GenerationalDistance gd = new GenerationalDistance();
         double gdd = gd.evaluate(front, trueParetoFront);
         System.out.println("GenerationalDistance: " + gdd);
-        Assert.assertEquals(gdd, 0.0006, 0.0001);
+        Assert.assertTrue(gdd < 0.001);
 
         Spacing sp = new Spacing();
         double spd = sp.evaluate(front);
         double spdt = sp.evaluate(trueParetoFront);
-        System.out.println("SpacingFront (" + spd + ") - SpacingTrueFront (" + spdt + ") = "
-                            + Math.abs(spd - spdt));
-        Assert.assertEquals(Math.abs(spd - spdt), 1.15, 0.05);
+        // compute difference between the generated front and a theoretical ideal front
+        // a difference of 0 (or any value < 1 and close to 0) means that the generated
+        // front is similar to a theoretical ideal front
+        double diff = Math.abs(spd - spdt);
+        System.out.println("SpacingFront (" + spd + ") - SpacingTrueFront (" + spdt + ") = " + diff);
+        Assert.assertTrue(diff < 0.85);
     }
 }

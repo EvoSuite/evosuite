@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -33,6 +33,8 @@ import org.evosuite.runtime.instrumentation.InstrumentedClass;
 import org.evosuite.runtime.instrumentation.RemoveFinalClassAdapter;
 import org.evosuite.runtime.util.ReflectionUtils;
 
+import static java.util.Comparator.comparing;
+
 /**
  * The content of arrays in reflection methods may differ between classloaders, therefore
  * we sort the output alphabetically
@@ -44,12 +46,7 @@ public class Reflection {
 
 	private static <T> T[] sortArrayInPlace(T[] original) {
 		List<T> methods = Arrays.asList(original);
-		Collections.sort(methods, new Comparator<T>() {
-			@Override
-			public int compare(T o1, T o2) {
-				return o1.toString().compareTo(o2.toString());
-			}
-		});
+		methods.sort(comparing(Object::toString));
 		
 		methods.toArray(original);
 		return original;
@@ -138,7 +135,7 @@ public class Reflection {
 		if (object instanceof Number) {
 			return ((Number) object).intValue();
 		} else if (object instanceof Character) {
-			return ((Character) object).charValue();
+			return (Character) object;
 		} else
 			return 0;
 	}
@@ -147,7 +144,7 @@ public class Reflection {
 		if (object instanceof Number) {
 			return ((Number) object).longValue();
 		} else if (object instanceof Character) {
-			return ((Character) object).charValue();
+			return (Character) object;
 		} else
 			return 0L;
 	}
@@ -156,7 +153,7 @@ public class Reflection {
 		if (object instanceof Number) {
 			return ((Number) object).floatValue();
 		} else if (object instanceof Character) {
-			return ((Character) object).charValue();
+			return (Character) object;
 		} else
 			return 0F;
 	}
@@ -165,14 +162,14 @@ public class Reflection {
 		if (object instanceof Number) {
 			return ((Number) object).doubleValue();
 		} else if (object instanceof Character) {
-			return ((Character) object).charValue();
+			return (Character) object;
 		} else
 			return 0.0;
 	}
 
 	private static char getCharValue(Object object) {
 		if (object instanceof Character) {
-			return ((Character) object).charValue();
+			return (Character) object;
 		} else if (object instanceof Number) {
 			return (char) ((Number) object).intValue();
 		} else

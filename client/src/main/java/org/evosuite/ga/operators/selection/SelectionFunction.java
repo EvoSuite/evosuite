@@ -36,7 +36,7 @@ import static java.util.stream.Collectors.*;
  *
  * @author Gordon Fraser
  */
-public abstract class SelectionFunction<T extends Chromosome> implements Serializable {
+public abstract class SelectionFunction<T extends Chromosome<T>> implements Serializable {
 
 	private static final long serialVersionUID = -2514933149542277609L;
 
@@ -52,7 +52,7 @@ public abstract class SelectionFunction<T extends Chromosome> implements Seriali
 	 * Return index of next offspring
 	 * 
 	 * @param population
-	 *            a {@link java.util.List} object.
+	 *            a {@link List} object.
 	 * @return a int.
 	 */
 	public abstract int getIndex(List<T> population);
@@ -61,7 +61,7 @@ public abstract class SelectionFunction<T extends Chromosome> implements Seriali
 	 * Return two parents
 	 * 
 	 * @param population
-	 *            a {@link java.util.List} object.
+	 *            a {@link List} object.
 	 * @return a {@link org.evosuite.ga.Chromosome} object.
 	 */
 	public T select(List<T> population) {
@@ -72,7 +72,7 @@ public abstract class SelectionFunction<T extends Chromosome> implements Seriali
 	 * Return n parents
 	 * 
 	 * @param population
-	 *            a {@link java.util.List} object.
+	 *            a {@link List} object.
 	 * @param number
 	 *            n
 	 * @return a {@link java.util.List} object.

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -244,49 +244,42 @@ public final class Instrumenter
 		}
 		*/
 		
-		final ArrayList<MethodNode> wrappedMethods = new ArrayList<MethodNode>();
+		final ArrayList<MethodNode> wrappedMethods = new ArrayList<>();
 		MethodNode methodNode;
-		
-		final Iterator<MethodNode> methodIter = cn.methods.iterator();
-		while(methodIter.hasNext())
-		{
-			methodNode = methodIter.next();
-			
+
+		for (final MethodNode node : cn.methods) {
+			methodNode = node;
+
 			// consider only public methods which are not abstract or native
-			if( ! TransformerUtil.isPrivate(methodNode.access)  &&
-				! TransformerUtil.isAbstract(methodNode.access) &&
-				! TransformerUtil.isNative(methodNode.access)   && 
-				! methodNode.name.equals("<clinit>"))
-			{
-				if(! TransformerUtil.isPublic(methodNode.access)) {
+			if (!TransformerUtil.isPrivate(methodNode.access) &&
+					!TransformerUtil.isAbstract(methodNode.access) &&
+					!TransformerUtil.isNative(methodNode.access) &&
+					!methodNode.name.equals("<clinit>")) {
+				if (!TransformerUtil.isPublic(methodNode.access)) {
 					//if(!Properties.CLASS_PREFIX.equals(packageName)) {
-						transformWrapperCalls(methodNode);
-						continue;
+					transformWrapperCalls(methodNode);
+					continue;
 					//}
 				}
-				if(methodNode.name.equals("<init>"))
-				{
-					if(TransformerUtil.isAbstract(cn.access)) {
+				if (methodNode.name.equals("<init>")) {
+					if (TransformerUtil.isAbstract(cn.access)) {
 						// We cannot invoke constructors of abstract classes directly
 						continue;
 					}
 					this.addFieldRegistryRegisterCall(methodNode);
 				}
-				
+
 				this.instrumentPUTXXXFieldAccesses(cn, internalClassName, methodNode);
 				this.instrumentGETXXXFieldAccesses(cn, internalClassName, methodNode);
-				
+
 				this.instrumentMethod(cn, internalClassName, methodNode, wrappedMethods);
 			} else {
-				transformWrapperCalls(methodNode);				
+				transformWrapperCalls(methodNode);
 			}
 		}
 		
 		final int numWM = wrappedMethods.size();
-		for(int i = 0; i < numWM; i++)
-		{
-			cn.methods.add(wrappedMethods.get(i));
-		}
+		cn.methods.addAll(wrappedMethods);
 		
 		TraceClassVisitor tcv = new TraceClassVisitor(new PrintWriter(System.err));
 		cn.accept(tcv);
@@ -604,8 +597,8 @@ public final class Instrumenter
 		final MethodNode wrappingMethodNode = new MethodNode(methodNode.access, 
 															 methodNode.name, 
 															 methodNode.desc, 
-															 methodNode.signature, 
-															 (String[])methodNode.exceptions.toArray(new String[methodNode.exceptions.size()]));
+															 methodNode.signature,
+				methodNode.exceptions.toArray(new String[methodNode.exceptions.size()]));
 		wrappingMethodNode.maxStack = methodNode.maxStack;
 		
 		// assign annotations to wrapping method
@@ -701,13 +694,11 @@ public final class Instrumenter
 			
 			// consider method arguments to find right variable index
 			final Type[] argTypes = Type.getArgumentTypes(methodNode.desc);
-			for(int i = 0; i < argTypes.length; i++)
-			{
+			for (final Type argType : argTypes) {
 				varReturnValue++;
-				
+
 				// long/double take two registers
-				if(argTypes[i].equals(Type.LONG_TYPE) || argTypes[i].equals(Type.DOUBLE_TYPE) )
-				{
+				if (argType.equals(Type.LONG_TYPE) || argType.equals(Type.DOUBLE_TYPE)) {
 					varReturnValue++;
 				}
 			}
@@ -735,13 +726,11 @@ public final class Instrumenter
 		
 		
 		final Type[] argTypes = Type.getArgumentTypes(methodNode.desc);
-		for(int i = 0; i < argTypes.length; i++)
-		{
-			this.addLoadInsn(wInstructions, argTypes[i], var++);
-			
+		for (final Type argType : argTypes) {
+			this.addLoadInsn(wInstructions, argType, var++);
+
 			// long/double take two registers
-			if(argTypes[i].equals(Type.LONG_TYPE) || argTypes[i].equals(Type.DOUBLE_TYPE) )
-			{
+			if (argType.equals(Type.LONG_TYPE) || argType.equals(Type.DOUBLE_TYPE)) {
 				var++;
 			}
 		}

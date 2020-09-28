@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -44,7 +44,7 @@ import org.slf4j.LoggerFactory;
  */
 public class SeedingSchedule extends OneTimeSchedule{
 
-	private static Logger logger = LoggerFactory.getLogger(SeedingSchedule.class);
+	private static final Logger logger = LoggerFactory.getLogger(SeedingSchedule.class);
 
 	protected final OneTimeSchedule base;
 
@@ -109,11 +109,11 @@ public class SeedingSchedule extends OneTimeSchedule{
 	 */
 	protected static List<JobDefinition> getSortedToSatisfyDependencies(List<JobDefinition> jobs){
 
-		Queue<JobDefinition> toAssign = new LinkedList<JobDefinition>(jobs);
-		List<JobDefinition> postponed = new LinkedList<JobDefinition>();
+		Queue<JobDefinition> toAssign = new LinkedList<>(jobs);
+		List<JobDefinition> postponed = new LinkedList<>();
 
-		List<JobDefinition> out = new ArrayList<JobDefinition>(jobs.size());
-		Set<String> assigned = new HashSet<String>();
+		List<JobDefinition> out = new ArrayList<>(jobs.size());
+		Set<String> assigned = new HashSet<>();
 
 		/*
 		 * Note: the code here is similar to what done in JobExecutor
@@ -142,7 +142,7 @@ public class SeedingSchedule extends OneTimeSchedule{
 				 * so just pick up one (the oldest)
 				 */
 				assert !postponed.isEmpty();
-				chosenJob = postponed.remove((int) 0);  
+				chosenJob = postponed.remove(0);
 			}
 
 			if(chosenJob == null){
@@ -189,15 +189,13 @@ public class SeedingSchedule extends OneTimeSchedule{
 	 */
 	protected List<JobDefinition> addDependenciesForSeeding(List<JobDefinition> jobs){
 
-		List<JobDefinition> list = new  ArrayList<JobDefinition>(jobs.size());
+		List<JobDefinition> list = new ArrayList<>(jobs.size());
 
-		for(int i=0; i<jobs.size(); i++){
-			JobDefinition job = jobs.get(i);
-
+		for (JobDefinition job : jobs) {
 			Set<String> inputs = calculateInputClasses(job);
 			Set<String> parents = calculateAncestors(job);
 
-			list.add(job.getByAddingDependencies(inputs,parents));
+			list.add(job.getByAddingDependencies(inputs, parents));
 		}
 
 		return list; 
@@ -213,7 +211,7 @@ public class SeedingSchedule extends OneTimeSchedule{
 	 */
 	private Set<String>  calculateInputClasses(JobDefinition job) {
 
-		Set<String> dep = new LinkedHashSet<String>();
+		Set<String> dep = new LinkedHashSet<>();
 
 		ProjectGraph graph = scheduler.getProjectData().getProjectGraph();
 		for(String input : graph.getCUTsDirectlyUsedAsInput(job.cut, true)){
@@ -265,7 +263,7 @@ public class SeedingSchedule extends OneTimeSchedule{
 	 */
 	private Set<String> calculateAncestors(JobDefinition job) {
 
-		Set<String> dep = new LinkedHashSet<String>();
+		Set<String> dep = new LinkedHashSet<>();
 
 		ProjectGraph graph = scheduler.getProjectData().getProjectGraph();
 

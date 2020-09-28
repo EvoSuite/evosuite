@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -124,7 +124,7 @@ public class TestGenericClass {
 	private static class A {
 	}
 
-	@SuppressWarnings({ "rawtypes", "unused", "unchecked" })
+	@SuppressWarnings({ "unused" })
 	@Test
 	public void test01() throws Throwable {
 
@@ -141,10 +141,10 @@ public class TestGenericClass {
 		 * 2)  public String run(Collection<BibtexEntry> bibtex) {
 		 */
 
-		Collection<?> col0 = new Stack<Object>();
+		Collection<?> col0 = new Stack<>();
 		Collection<A> col1 = new Stack();
 		Collection col2 = new Stack();
-		Collection col3 = new Stack<Object>();
+		Collection col3 = new Stack<>();
 
 		/*
 		 *  following does not compile
@@ -191,7 +191,7 @@ public class TestGenericClass {
 		Assert.assertFalse(listOfStringClass.isAssignableTo(listOfIntegerClass));
 	}
 
-	@SuppressWarnings("rawtypes")
+
 	@Test
 	public void test2() {
 		Type listOfString = new TypeToken<List<String>>() {
@@ -535,7 +535,7 @@ public class TestGenericClass {
 		Assert.assertFalse(listOfInteger.canBeInstantiatedTo(linkedlistOfWildcard));
 	}
 
-	@SuppressWarnings("rawtypes")
+
 	@Test
 	public void testGenericSuperclassToTypeVariableList() {
 		GenericClass listOfTypeVariable = new GenericClass(new TypeToken<List>() {
@@ -548,7 +548,7 @@ public class TestGenericClass {
 		Assert.assertFalse(listOfTypeVariable.canBeInstantiatedTo(linkedlistOfInteger));
 	}
 
-	@SuppressWarnings("rawtypes")
+
 	@Test
 	public void testGenericSuperclassFromTypeVariableList() {
 		GenericClass listOfInteger = new GenericClass(new TypeToken<List<Integer>>() {
@@ -570,7 +570,7 @@ public class TestGenericClass {
 		Assert.assertFalse(intClass.canBeInstantiatedTo(integerClass));
 	}
 
-	@SuppressWarnings("rawtypes")
+
 	@Test
 	public void testGenericInstantiationIntegerList() throws ConstructionFailedException {
 		GenericClass listOfInteger = new GenericClass(new TypeToken<List<Integer>>() {
@@ -584,7 +584,7 @@ public class TestGenericClass {
 		Assert.assertEquals(Integer.class, instantiatedClass.getParameterTypes().get(0));
 	}
 
-	@SuppressWarnings("rawtypes")
+
 	@Test
 	public void testGenericInstantiationMapSubclass() throws ConstructionFailedException {
 		GenericClass mapOfStringAndWildcard = new GenericClass(
@@ -630,10 +630,10 @@ public class TestGenericClass {
 		Assert.assertEquals(Integer.class, GenericTypeReflector.erase(parameterType));
 	}
 
-	@SuppressWarnings("rawtypes")
+
 	@Test
 	public void testIterableAndListBoundaries() {
-		Map<TypeVariable<?>, Type> typeMap = new HashMap<TypeVariable<?>, Type>();
+		Map<TypeVariable<?>, Type> typeMap = new HashMap<>();
 		final GenericClass iterableIntegerClass = new GenericClass(
 		        new TypeToken<java.lang.Iterable<Integer>>() {
 		        }.getType());

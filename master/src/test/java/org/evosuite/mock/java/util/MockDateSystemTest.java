@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -19,7 +19,6 @@
  */
 package org.evosuite.mock.java.util;
 
-import com.examples.with.different.packagename.mock.java.time.LocalDateExample;
 import com.examples.with.different.packagename.mock.java.util.DateInConstructor;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -28,12 +28,14 @@ import org.evosuite.ga.FitnessFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static java.util.Collections.reverseOrder;
+
 /**
  * (Mu, Lambda) EA
  *
  * @author José Campos
  */
-public class MuLambdaEA<T extends Chromosome> extends AbstractMuLambda<T> {
+public class MuLambdaEA<T extends Chromosome<T>> extends AbstractMuLambda<T> {
 
   private static final long serialVersionUID = -1104094637643130537L;
 
@@ -44,16 +46,15 @@ public class MuLambdaEA<T extends Chromosome> extends AbstractMuLambda<T> {
   }
 
   /** {@inheritDoc} */
-  @SuppressWarnings("unchecked")
   @Override
   protected void evolve() {
 
-    List<T> offspring = new ArrayList<T>(this.lambda);
+    List<T> offspring = new ArrayList<>(this.lambda);
 
     // create new offspring by mutating current population
     for (int i = 0; i < this.mu; i++) {
       for (int j = 0; j < this.lambda / this.mu; j++) {
-        T t = (T) this.population.get(i).clone();
+        T t = this.population.get(i).clone();
 
         do {
           this.notifyMutation(t);
@@ -78,7 +79,7 @@ public class MuLambdaEA<T extends Chromosome> extends AbstractMuLambda<T> {
 
       // sort offspring from the one with the highest fitness value to the one with the lowest
       // fitness value
-      Collections.sort(offspring, Collections.reverseOrder());
+      offspring.sort(reverseOrder());
     } else {
       // sort offspring from the one with the lowest fitness value to the one with the highest
       // fitness value

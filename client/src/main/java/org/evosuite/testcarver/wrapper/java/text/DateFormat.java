@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -76,7 +76,7 @@ public abstract class DateFormat extends java.text.DateFormat {
 	}
 
 	// TODO: This needs to create an instance of the wrapper class, which it currently doesn't do!
-	public final static java.text.DateFormat getTimeInstance_final()
+	public static java.text.DateFormat getTimeInstance_final()
 	{
 		Capturer.capture(Instrumenter.CAPTURE_ID_JAVA_TEXT_DATEFORMAT, CaptureUtil.loadClass("java/text/DateFormat"), "getTimeInstance", "()Ljava/text/DateFormat;", new Object[] {});
 		java.text.DateFormat ret = java.text.DateFormat.getTimeInstance();
@@ -86,7 +86,7 @@ public abstract class DateFormat extends java.text.DateFormat {
 	}
 
 	// TODO: This needs to create an instance of the wrapper class, which it currently doesn't do!
-	public final static java.text.DateFormat getTimeInstance_final(int style)
+	public static java.text.DateFormat getTimeInstance_final(int style)
 	{
 		Capturer.capture(Instrumenter.CAPTURE_ID_JAVA_TEXT_DATEFORMAT, CaptureUtil.loadClass("java/text/DateFormat"), "getTimeInstance", "(I)Ljava/text/DateFormat;", new Object[] {style});
 		java.text.DateFormat ret = java.text.DateFormat.getTimeInstance(style);
@@ -96,8 +96,8 @@ public abstract class DateFormat extends java.text.DateFormat {
 	}
 
 	// TODO: This needs to create an instance of the wrapper class, which it currently doesn't do!
-	public final static java.text.DateFormat getTimeInstance_final(int style,
-			Locale aLocale)
+	public static java.text.DateFormat getTimeInstance_final(int style,
+                                                             Locale aLocale)
 	{
 		Capturer.capture(Instrumenter.CAPTURE_ID_JAVA_TEXT_DATEFORMAT, CaptureUtil.loadClass("java/text/DateFormat"), "getTimeInstance", "(ILjava/util/Locale;)Ljava/text/DateFormat;", new Object[] {style, aLocale});
 		java.text.DateFormat ret = java.text.DateFormat.getTimeInstance(style, aLocale);
@@ -107,7 +107,7 @@ public abstract class DateFormat extends java.text.DateFormat {
 	}
 
 	// TODO: This needs to create an instance of the wrapper class, which it currently doesn't do!
-	public final static java.text.DateFormat getDateInstance_final()
+	public static java.text.DateFormat getDateInstance_final()
 	{
 		Capturer.capture(Instrumenter.CAPTURE_ID_JAVA_TEXT_DATEFORMAT, CaptureUtil.loadClass("java/text/DateFormat"), "getDateInstance", "()Ljava/text/DateFormat;", new Object[] {});
 		java.text.DateFormat ret = java.text.DateFormat.getDateInstance();
@@ -117,7 +117,7 @@ public abstract class DateFormat extends java.text.DateFormat {
 	}
 
 	// TODO: This needs to create an instance of the wrapper class, which it currently doesn't do!
-	public final static java.text.DateFormat getDateInstance_final(int style)
+	public static java.text.DateFormat getDateInstance_final(int style)
 	{
 		Capturer.capture(Instrumenter.CAPTURE_ID_JAVA_TEXT_DATEFORMAT, CaptureUtil.loadClass("java/text/DateFormat"), "getDateInstance", "(I)Ljava/text/DateFormat;", new Object[] {style});
 		java.text.DateFormat ret = java.text.DateFormat.getDateInstance(style);
@@ -127,8 +127,8 @@ public abstract class DateFormat extends java.text.DateFormat {
 	}
 
 	// TODO: This needs to create an instance of the wrapper class, which it currently doesn't do!
-	public final static java.text.DateFormat getDateInstance_final(int style,
-			Locale aLocale)
+	public static java.text.DateFormat getDateInstance_final(int style,
+                                                             Locale aLocale)
 	{
 		Capturer.capture(Instrumenter.CAPTURE_ID_JAVA_TEXT_DATEFORMAT, CaptureUtil.loadClass("java/text/DateFormat"), "getDateInstance", "(ILjava/util/Locale;)Ljava/text/DateFormat;", new Object[] {style, aLocale});
 		java.text.DateFormat ret = java.text.DateFormat.getDateInstance(style, aLocale);
@@ -138,7 +138,7 @@ public abstract class DateFormat extends java.text.DateFormat {
 	}
 
 	// TODO: This needs to create an instance of the wrapper class, which it currently doesn't do!
-	public final static java.text.DateFormat getDateTimeInstance_final()
+	public static java.text.DateFormat getDateTimeInstance_final()
 	{
 		Capturer.capture(Instrumenter.CAPTURE_ID_JAVA_TEXT_DATEFORMAT, CaptureUtil.loadClass("java/text/DateFormat"), "getDateTimeInstance", "()Ljava/text/DateFormat;", new Object[] {});
 		java.text.DateFormat ret = java.text.DateFormat.getDateInstance();
@@ -148,8 +148,8 @@ public abstract class DateFormat extends java.text.DateFormat {
 	}
 
 	// TODO: This needs to create an instance of the wrapper class, which it currently doesn't do!
-	public final static java.text.DateFormat getDateTimeInstance_final(int dateStyle,
-			int timeStyle)
+	public static java.text.DateFormat getDateTimeInstance_final(int dateStyle,
+                                                                 int timeStyle)
 	{
 		Capturer.capture(Instrumenter.CAPTURE_ID_JAVA_TEXT_DATEFORMAT, CaptureUtil.loadClass("java/text/DateFormat"), "getDateTimeInstance", "(II)Ljava/text/DateFormat;", new Object[] {dateStyle, timeStyle});
 		java.text.DateFormat ret = java.text.DateFormat.getDateTimeInstance(dateStyle, timeStyle);
@@ -159,7 +159,7 @@ public abstract class DateFormat extends java.text.DateFormat {
 	}
 
 	// TODO: This needs to create an instance of the wrapper class, which it currently doesn't do!
-	public final static java.text.DateFormat
+	public static java.text.DateFormat
 	getDateTimeInstance_final(int dateStyle, int timeStyle, Locale aLocale)
 	{
 		Capturer.capture(Instrumenter.CAPTURE_ID_JAVA_TEXT_DATEFORMAT, CaptureUtil.loadClass("java/text/DateFormat"), "getDateTimeInstance", "(IILjava/util/Locale;)Ljava/text/DateFormat;", new Object[] {dateStyle, timeStyle, aLocale});
@@ -170,7 +170,7 @@ public abstract class DateFormat extends java.text.DateFormat {
 	}
 
 	// TODO: This needs to create an instance of the wrapper class, which it currently doesn't do!
-	public final static java.text.DateFormat getInstance_final() {
+	public static java.text.DateFormat getInstance_final() {
 		Capturer.capture(Instrumenter.CAPTURE_ID_JAVA_TEXT_DATEFORMAT, CaptureUtil.loadClass("java/text/DateFormat"), "getInstance", "()Ljava/text/DateFormat;", new Object[] {});
 		java.text.DateFormat ret = java.text.DateFormat.getInstance();
 		FieldRegistry.register(ret);

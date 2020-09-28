@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
+
 package org.evosuite.ga.localsearch;
 
 import java.io.Serializable;
@@ -37,11 +35,12 @@ import org.evosuite.ga.FitnessFunction;
  *
  * @author Gordon Fraser
  */
-public class DefaultLocalSearchObjective<T extends Chromosome> implements LocalSearchObjective<T>, Serializable {
+public class DefaultLocalSearchObjective<T extends Chromosome<T>> implements LocalSearchObjective<T>,
+		Serializable {
 
 	private static final long serialVersionUID = -8640106627078837108L;
 
-	private final List<FitnessFunction<? extends Chromosome>> fitnessFunctions = new ArrayList<>();
+	private final List<FitnessFunction<T>> fitnessFunctions = new ArrayList<>();
 
 	// TODO: This assumes we are not doing NSGA-II
 	private boolean isMaximization = false;
@@ -61,10 +60,10 @@ public class DefaultLocalSearchObjective<T extends Chromosome> implements LocalS
 	public boolean hasImproved(T chromosome) {
 		throw new UnsupportedOperationException("Not implemented for default objective");
 	}
-	
+
 	@Override
-	public void addFitnessFunction(FitnessFunction<? extends Chromosome> fitness) {
-		for(FitnessFunction<? extends Chromosome> ff : fitnessFunctions) {
+	public void addFitnessFunction(FitnessFunction<T> fitness) {
+		for(FitnessFunction<T> ff : fitnessFunctions) {
 			if(ff.isMaximizationFunction() != fitness.isMaximizationFunction()) {
 				throw new RuntimeException("Local search only supports composition of multiple criteria");
 			}
@@ -85,9 +84,10 @@ public class DefaultLocalSearchObjective<T extends Chromosome> implements LocalS
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.LocalSearchObjective#getFitnessFunction()
 	 */
-	/** {@inheritDoc} */
+	/** {@inheritDoc}
+	 * @return*/
 	@Override
-	public List<FitnessFunction<? extends Chromosome>> getFitnessFunctions() {
+	public List<FitnessFunction<T>> getFitnessFunctions() {
 		return fitnessFunctions;
 	}
 

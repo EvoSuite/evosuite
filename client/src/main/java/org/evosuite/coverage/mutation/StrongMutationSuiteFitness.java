@@ -19,22 +19,15 @@
  */
 package org.evosuite.coverage.mutation;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 import org.evosuite.Properties;
-import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.ExecutionTrace;
-import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteChromosome;
+
+import java.util.*;
+import java.util.Map.Entry;
 
 /**
  * <p>
@@ -84,12 +77,10 @@ public class StrongMutationSuiteFitness extends MutationSuiteFitness {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public double getFitness(
-	        AbstractTestSuiteChromosome<? extends ExecutableChromosome> individual) {
-		runTestSuite(individual);
+	public double getFitness(TestSuiteChromosome suite) {
+		runTestSuite(suite);
 
 		// Set<MutationTestFitness> uncoveredMutants = MutationTestPool.getUncoveredFitnessFunctions();
-		TestSuiteChromosome suite = (TestSuiteChromosome) individual;
 
 		for (TestChromosome test : suite.getTestChromosomes()) {
 			ExecutionResult result = test.getLastExecutionResult();
@@ -98,7 +89,7 @@ public class StrongMutationSuiteFitness extends MutationSuiteFitness {
 				logger.debug("Skipping test with timeout");
 				double fitness = branchFitness.totalGoals * 2
 				        + branchFitness.totalMethods + 3 * this.numMutants;
-				updateIndividual(individual, fitness);
+				updateIndividual(suite, fitness);
 				suite.setCoverage(this, 0.0);
 				logger.info("Test case has timed out, setting fitness to max value "
 				        + fitness);
@@ -110,11 +101,11 @@ public class StrongMutationSuiteFitness extends MutationSuiteFitness {
 		logger.debug("Calculating branch fitness: ");
 		boolean archive = Properties.TEST_ARCHIVE;
 		Properties.TEST_ARCHIVE = false;
-		double fitness = branchFitness.getFitness(individual);
+		double fitness = branchFitness.getFitness(suite);
 		Properties.TEST_ARCHIVE = archive;
 
-		Set<Integer> touchedMutants = new LinkedHashSet<Integer>();
-		Map<Mutation, Double> minMutantFitness = new LinkedHashMap<Mutation, Double>();
+		Set<Integer> touchedMutants = new LinkedHashSet<>();
+		Map<Mutation, Double> minMutantFitness = new LinkedHashMap<>();
 
 		// For each mutant that is not in the archive:
 		//   3    -> not covered
@@ -127,7 +118,7 @@ public class StrongMutationSuiteFitness extends MutationSuiteFitness {
 		
 		int mutantsChecked = 0;
 		int numKilled = removedMutants.size();
-		Set<Integer> newKilled = new LinkedHashSet<Integer>();
+		Set<Integer> newKilled = new LinkedHashSet<>();
 
 		List<TestChromosome> executionOrder = prioritizeTests(suite); // Quicker tests first
 		for (TestChromosome test : executionOrder) {
@@ -198,7 +189,7 @@ public class StrongMutationSuiteFitness extends MutationSuiteFitness {
 
 		logger.debug("Mutants killed: {}, Checked: {}, Goals: {})", numKilled, mutantsChecked, this.numMutants);
 
-		updateIndividual(individual, fitness);
+		updateIndividual(suite, fitness);
 
 		assert numKilled ==newKilled.size() + removedMutants.size();
 		assert numKilled <= this.numMutants;

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -42,7 +42,7 @@ import java.util.List;
  */
 public class RuntimeInstrumentation {
 
-	private static Logger logger = LoggerFactory.getLogger(RuntimeInstrumentation.class);
+	private static final Logger logger = LoggerFactory.getLogger(RuntimeInstrumentation.class);
 
 	/**
 	 * If we are re-instrumenting a class, then we cannot change its
@@ -101,7 +101,7 @@ public class RuntimeInstrumentation {
 
 		int readFlags = ClassReader.SKIP_FRAMES | ClassReader.SKIP_CODE;
 		reader.accept(classNode, readFlags);
-		for(String interfaceName : ((List<String>)classNode.interfaces)) {
+		for(String interfaceName : classNode.interfaces) {
 			if(InstrumentedClass.class.getName().equals(interfaceName.replace('/', '.')))
 				return true;
 		}

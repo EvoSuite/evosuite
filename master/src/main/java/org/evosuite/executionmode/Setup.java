@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -77,9 +77,9 @@ public class Setup {
 		}
 
 		if (args.length > 0) {
-			for (int i = 0; i < args.length; i++) {
-				String element = args[i].trim();
-				if(element.isEmpty()){
+			for (final String arg : args) {
+				String element = arg.trim();
+				if (element.isEmpty()) {
 					continue;
 				}
 				addEntryToCP(element);

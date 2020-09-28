@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -66,7 +66,7 @@ public class TestStringSearch3 extends RandomizedTC {
 		IntegerConstraint cnstr3 = new IntegerConstraint(var3_charAt_0,
 				Comparator.EQ, new IntegerConstant(10));
 
-		ArrayList<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
+		ArrayList<Constraint<?>> constraints = new ArrayList<>();
 		constraints.add(cnstr1);
 		constraints.add(cnstr2);
 		constraints.add(cnstr3);

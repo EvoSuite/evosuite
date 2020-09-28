@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
  */
 public class CSVStatisticsBackend implements StatisticsBackend {
 
-	private static Logger logger = LoggerFactory.getLogger(CSVStatisticsBackend.class);
+	private static final Logger logger = LoggerFactory.getLogger(CSVStatisticsBackend.class);
 	
 	/**
 	 * Retrieve header with variable names
@@ -52,7 +52,7 @@ public class CSVStatisticsBackend implements StatisticsBackend {
 		StringBuilder r = new StringBuilder();
 		Iterator<Entry<String, OutputVariable<?>>> it = data.entrySet().iterator();
 		while (it.hasNext()) {
-			Entry<String, OutputVariable<?>> e = (Entry<String, OutputVariable<?>>)it.next();
+			Entry<String, OutputVariable<?>> e = it.next();
 			r.append(e.getKey());
 			if (it.hasNext())
 				r.append(",");
@@ -70,7 +70,7 @@ public class CSVStatisticsBackend implements StatisticsBackend {
 		StringBuilder r = new StringBuilder();
 		Iterator<Entry<String, OutputVariable<?>>> it = data.entrySet().iterator();
 		while (it.hasNext()) {
-			Entry<String, OutputVariable<?>> e = (Entry<String, OutputVariable<?>>)it.next();
+			Entry<String, OutputVariable<?>> e = it.next();
 			r.append(e.getValue().getValue());
 			if (it.hasNext())
 				r.append(",");
@@ -101,7 +101,7 @@ public class CSVStatisticsBackend implements StatisticsBackend {
 	}
 	
 	@Override
-	public void writeData(Chromosome result, Map<String, OutputVariable<?>> data) {
+	public void writeData(Chromosome<?> result, Map<String, OutputVariable<?>> data) {
 		// Write to evosuite-report/statistics.csv
 		try {
 			File outputDir = getReportDir();			

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -41,7 +41,7 @@ public class SimpleSchedule extends OneTimeSchedule{
 		ProjectStaticData data = scheduler.getProjectData();
 		int totalBudgetInSeconds = 60 * scheduler.getConfiguration().timeInMinutes * scheduler.getConfiguration().getNumberOfUsableCores(); 
 
-		List<JobDefinition> jobs = new LinkedList<JobDefinition>();
+		List<JobDefinition> jobs = new LinkedList<>();
 
 		//simple case, distribute budget equally
 		int cores = scheduler.getConfiguration().getNumberOfUsableCores();

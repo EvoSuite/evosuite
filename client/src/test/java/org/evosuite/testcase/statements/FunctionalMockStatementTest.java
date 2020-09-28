@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -291,13 +291,13 @@ public class FunctionalMockStatementTest {
         assertEquals(99, i);
 
         Object aInt = i;
-        Object aInteger = Integer.valueOf(7);
+        Object aInteger = 7;
 
-        Assert.assertTrue(aInt.getClass().equals(Integer.class));
-        Assert.assertTrue(aInt.getClass().equals(aInteger.getClass()));
+        assertEquals(aInt.getClass(), Integer.class);
+        assertEquals(aInt.getClass(), aInteger.getClass());
 
         Object aChar = c;
-        Assert.assertTrue(aChar.getClass().equals(Character.class));
+        assertEquals(aChar.getClass(), Character.class);
 
         //just recall the two diverge
         assertTrue(TypeUtils.isAssignable(aChar.getClass(), Integer.TYPE));
@@ -312,15 +312,15 @@ public class FunctionalMockStatementTest {
         }
 
         try {
-            casted = Integer.TYPE.cast(((Character) aChar).charValue());
+            casted = Integer.TYPE.cast(aChar);
             fail();
         } catch (Exception e){
             //expected: "cast" takes an Object as input, so it does autoboxing :(
         }
 
-        casted = (int) ((Character) aChar).charValue();
+        casted = (int) (Character) aChar;
 
-        assertTrue(casted.getClass().equals(Integer.class));
+        assertEquals(casted.getClass(), Integer.class);
     }
 
     @Test

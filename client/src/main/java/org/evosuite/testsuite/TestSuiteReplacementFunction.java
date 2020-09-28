@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -20,7 +20,6 @@
 package org.evosuite.testsuite;
 
 import org.evosuite.Properties;
-import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ReplacementFunction;
 
 /**
@@ -30,7 +29,7 @@ import org.evosuite.ga.ReplacementFunction;
  * 
  * @author Gordon Fraser
  */
-public class TestSuiteReplacementFunction extends ReplacementFunction {
+public class TestSuiteReplacementFunction extends ReplacementFunction<TestSuiteChromosome> {
 
 	private static final long serialVersionUID = -8472469271120247395L;
 
@@ -68,27 +67,22 @@ public class TestSuiteReplacementFunction extends ReplacementFunction {
 	 *            object.
 	 * @return a int.
 	 */
-	public int getLengthSum(AbstractTestSuiteChromosome<?> chromosome1,
-	        AbstractTestSuiteChromosome<?> chromosome2) {
-		return chromosome1.totalLengthOfTestCases()
-		        + chromosome2.totalLengthOfTestCases();
+	public int getLengthSum(TestSuiteChromosome chromosome1, TestSuiteChromosome chromosome2) {
+		return chromosome1.totalLengthOfTestCases() + chromosome2.totalLengthOfTestCases();
 	}
 
 	/** {@inheritDoc} */
 	@Override
-	public boolean keepOffspring(Chromosome parent1, Chromosome parent2,
-	        Chromosome offspring1, Chromosome offspring2) {
+	public boolean keepOffspring(TestSuiteChromosome parent1, TestSuiteChromosome parent2,
+	        TestSuiteChromosome offspring1, TestSuiteChromosome offspring2) {
 
 		// -1 if offspring has lower fitness, +1 if parent has lower fitness
-		int cmp = compareBestOffspringToBestParent(parent1, parent2, offspring1,
-		                                           offspring2);
+		int cmp = compareBestOffspringToBestParent(parent1, parent2, offspring1, offspring2);
 
 		if (Properties.CHECK_PARENTS_LENGTH) {
 
-			int offspringLength = getLengthSum((AbstractTestSuiteChromosome<?>) offspring1,
-			                                   (AbstractTestSuiteChromosome<?>) offspring2);
-			int parentLength = getLengthSum((AbstractTestSuiteChromosome<?>) parent1,
-			                                (AbstractTestSuiteChromosome<?>) parent2);
+			int offspringLength = getLengthSum(offspring1, offspring2);
+			int parentLength = getLengthSum(parent1, parent2);
 
 			//if equivalent, only accept if it does not increase the length
 			if (cmp == 0 && offspringLength <= parentLength) {

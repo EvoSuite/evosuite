@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -20,31 +20,51 @@
 package org.evosuite.ga.stoppingconditions;
 
 import org.evosuite.Properties;
+import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TimeDeltaStoppingCondition extends StoppingConditionImpl {
+public class TimeDeltaStoppingCondition<T extends Chromosome<T>> extends StoppingConditionImpl<T> {
 
 	private static final long serialVersionUID = -7029615280866928031L;
 
 	/** Assume the search has not started until start_time != 0 */
-	protected long startTime = 0L;
+	protected long startTime;
 
 	/** Time at which the best fitness value was last improved */
-	protected long lastImprovement = 0L;
+	protected long lastImprovement;
 
 	/** Time at which the fitness value was last checked */
-	protected long lastGeneration = 0L;
+	protected long lastGeneration;
 
 	/** Best fitness value observed so far */
-	protected double lastFitness = 0.0;
+	protected double lastFitness;
 	
 	private final static Logger logger = LoggerFactory.getLogger(TimeDeltaStoppingCondition.class);
 
+	public TimeDeltaStoppingCondition() {
+		startTime = 0L;
+		lastImprovement = 0L;
+		lastGeneration = 0L;
+		lastFitness = 0.0;
+	}
+
+	public TimeDeltaStoppingCondition(TimeDeltaStoppingCondition<?> that) {
+		this.startTime = that.startTime;
+		this.lastFitness = that.lastFitness;
+		this.lastImprovement = that.lastImprovement;
+		this.lastGeneration = that.lastGeneration;
+	}
+
+	@Override
+	public TimeDeltaStoppingCondition<T> clone() {
+		return new TimeDeltaStoppingCondition<>(this);
+	}
+
 	/** {@inheritDoc} */
 	@Override
-	public void searchStarted(GeneticAlgorithm<?> algorithm) {
+	public void searchStarted(GeneticAlgorithm<T> algorithm) {
 		if(algorithm.getFitnessFunction().isMaximizationFunction()) {
 			lastFitness = 0.0;
 		} else {
@@ -55,7 +75,7 @@ public class TimeDeltaStoppingCondition extends StoppingConditionImpl {
 	}
 	
 	@Override
-	public void iteration(GeneticAlgorithm<?> algorithm) {		
+	public void iteration(GeneticAlgorithm<T> algorithm) {
 		double currentBestFitness = algorithm.getBestIndividual().getFitness();
 		if(algorithm.getFitnessFunction().isMaximizationFunction()) {
 			if(currentBestFitness > lastFitness) {

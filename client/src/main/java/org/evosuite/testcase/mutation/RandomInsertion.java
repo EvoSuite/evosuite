@@ -23,8 +23,6 @@ import java.util.*;
 
 import org.evosuite.Properties;
 import org.evosuite.setup.TestCluster;
-import org.evosuite.testcase.ConstraintHelper;
-import org.evosuite.testcase.ConstraintVerifier;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestFactory;
 import org.evosuite.testcase.statements.FunctionalMockStatement;
@@ -101,24 +99,17 @@ public class RandomInsertion implements InsertionStrategy {
 						.mapToInt(VariableReference::getStPosition)
 						.max().orElse(var.getStPosition());
 
-				int boundPosition = ConstraintHelper.getLastPositionOfBounded(var, test);
-				if(boundPosition >= 0 ){
-					// if bounded variable, cannot add methods before its initialization
-					position = boundPosition + 1;
+				if (lastUsage > var.getStPosition() + 1) {
+					// If there is more than 1 statement where it is used, we randomly choose a position
+					position = Randomness.nextInt(var.getStPosition() + 1, // call has to be after the object is created
+							lastUsage                // but before the last usage
+					);
+				} else if(lastUsage == var.getStPosition()) {
+					// The variable isn't used
+					position = lastUsage + 1;
 				} else {
-
-					if (lastUsage > var.getStPosition() + 1) {
-						// If there is more than 1 statement where it is used, we randomly choose a position
-						position = Randomness.nextInt(var.getStPosition() + 1, // call has to be after the object is created
-								lastUsage                // but before the last usage
-						);
-					} else if(lastUsage == var.getStPosition()) {
-						// The variable isn't used
-						position = lastUsage + 1;
-					} else {
-						// The variable is used at only one position, we insert at exactly that position
-						position = lastUsage;
-					}
+					// The variable is used at only one position, we insert at exactly that position
+					position = lastUsage;
 				}
 
 				if(logger.isDebugEnabled()) {
@@ -146,9 +137,6 @@ public class RandomInsertion implements InsertionStrategy {
 		}
 
 		if (success) {
-			assert ConstraintVerifier.verifyTest(test);
-			assert ! ConstraintVerifier.hasAnyOnlyForAssertionMethod(test);
-
 			return position;
 		} else {
 			return -1;

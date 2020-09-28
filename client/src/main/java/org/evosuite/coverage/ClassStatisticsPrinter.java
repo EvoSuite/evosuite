@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
+
 package org.evosuite.coverage;
 
 import java.lang.reflect.Constructor;
@@ -33,7 +31,6 @@ import java.util.List;
 import java.util.Map.Entry;
 
 import org.evosuite.Properties;
-import org.evosuite.Properties.Criterion;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.classpath.ClassPathHandler;
 import org.evosuite.coverage.branch.BranchPool;
@@ -54,6 +51,8 @@ import org.evosuite.utils.FileIOUtils;
 import org.evosuite.utils.LoggingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static java.util.Comparator.comparingInt;
 
 /**
  * @author Gordon Fraser
@@ -156,21 +155,16 @@ public class ClassStatisticsPrinter {
 
 		StringBuilder allGoals = new StringBuilder();
 
-		List<TestFitnessFactory<?>> factories = TestGenerationStrategy.getFitnessFactories();
+		List<TestFitnessFactory<? extends TestFitnessFunction>> factories =
+				TestGenerationStrategy.getFitnessFactories();
 
 		int numCriterion = 0;
-		for (TestFitnessFactory<?> factory : factories) {
-			List<TestFitnessFunction> goals = (List<TestFitnessFunction>) factory.getCoverageGoals();
+		for (TestFitnessFactory<? extends TestFitnessFunction> factory : factories) {
+			List<? extends TestFitnessFunction> goals = factory.getCoverageGoals();
 			LoggingUtils.getEvoLogger().info("* Criterion " + Properties.CRITERION[numCriterion++]+ ": " + goals.size());
 			if (Properties.PRINT_GOALS) {
 				if (factory instanceof LineCoverageFactory) {
-					Collections.sort(goals, new Comparator<TestFitnessFunction>() {
-						@Override
-						public int compare(TestFitnessFunction l1, TestFitnessFunction l2) {
-							return Integer.compare(((LineCoverageTestFitness) l1).getLine(),
-									((LineCoverageTestFitness) l2).getLine());
-						}
-					});
+					goals.sort(comparingInt(l -> ((LineCoverageTestFitness) l).getLine()));
 				}
 				for (TestFitnessFunction goal : goals) {
 					allGoals.append(goal.toString() + java.lang.System.getProperty("line.separator"));

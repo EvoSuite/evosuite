@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
+
 package org.evosuite.setup;
 
 import org.evosuite.PackageInfo;
@@ -47,9 +45,7 @@ import java.util.*;
  */
 public class CallContext implements Serializable {
 
-	/**
-	 * 
-	 */
+
 	private static final long serialVersionUID = 8650619230188403356L;
 
     private final List<Call> context;
@@ -73,7 +69,7 @@ public class CallContext implements Serializable {
 
         int startPos = stackTrace.length - 1;
 		int endPos = 0;
-		List<Call> context = new ArrayList<Call>();
+		List<Call> context = new ArrayList<>();
 
 		// Stack traces may be empty, e.g. if an exception is thrown in a constructor call in a test
 		while (startPos >= 0 && shouldSkipEntry(stackTrace[startPos].getClassName())) {
@@ -150,7 +146,7 @@ public class CallContext implements Serializable {
 	public CallContext(String className, String methodName) {
         addJUnitExcludes();
 
-        List<Call> context = new ArrayList<Call>();
+        List<Call> context = new ArrayList<>();
 		context.add(new Call(className, methodName));
 		this.context=context;
 		hcode = this.context.hashCode();
@@ -159,7 +155,7 @@ public class CallContext implements Serializable {
 	public CallContext() {
         addJUnitExcludes();
 
-        List<Call> context = new ArrayList<Call>();
+        List<Call> context = new ArrayList<>();
 		this.context=context;
 		hcode = this.context.hashCode();
 	}
@@ -167,8 +163,7 @@ public class CallContext implements Serializable {
 	public CallContext(Collection<Call> contextt) {
         addJUnitExcludes();
 
-		List<Call> context = new ArrayList<Call>();
-		context.addAll(contextt);
+        List<Call> context = new ArrayList<>(contextt);
 		this.context=context;
 		hcode = this.context.hashCode();
 	}

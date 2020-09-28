@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -20,12 +20,10 @@
 package org.evosuite.testcase.mutation;
 
 import org.evosuite.Properties;
-import org.evosuite.TimeController;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestFactory;
 import org.evosuite.testcase.statements.PrimitiveStatement;
-import org.evosuite.testcase.statements.reflection.ReflectionFactory;
 import org.evosuite.testcase.variable.NullReference;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.utils.Randomness;
@@ -94,7 +92,7 @@ public class LegacyInsertion implements InsertionStrategy {
 			return null;
 
 		List<VariableReference> allVariables = test.getObjects(position);
-		Set<VariableReference> candidateVariables = new LinkedHashSet<VariableReference>();
+		Set<VariableReference> candidateVariables = new LinkedHashSet<>();
 		for(VariableReference var : allVariables) {
 			if (!(var instanceof NullReference) &&
 					!var.isVoid() &&

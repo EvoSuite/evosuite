@@ -30,7 +30,8 @@ import org.evosuite.ga.Chromosome;
  * 
  * @author José Campos
  */
-public class RankAndCrowdingDistanceComparator<T extends Chromosome> implements Comparator<T>, Serializable {
+public class RankAndCrowdingDistanceComparator<T extends Chromosome<T>> implements Comparator<T>,
+        Serializable {
 
     private static final long serialVersionUID = -1663917547588039444L;
 
@@ -44,6 +45,10 @@ public class RankAndCrowdingDistanceComparator<T extends Chromosome> implements 
         this.isToMaximize = maximize;
     }
 
+    public RankAndCrowdingDistanceComparator(RankAndCrowdingDistanceComparator<?> other) {
+        this.isToMaximize = other.isToMaximize;
+    }
+
     /**
      * Compares two solutions.
      * 
@@ -52,7 +57,7 @@ public class RankAndCrowdingDistanceComparator<T extends Chromosome> implements 
      * @return -1, or 0, or 1 according to the non-dominated ranks
      */
     @Override
-    public int compare(Chromosome c1, Chromosome c2) {
+    public int compare(T c1, T c2) {
 
         if (c1 == null) {
             return 1;

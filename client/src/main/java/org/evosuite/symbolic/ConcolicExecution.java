@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -25,7 +25,6 @@ import java.util.Set;
 
 import org.evosuite.Properties;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
-import org.evosuite.ga.stoppingconditions.MaxTestsStoppingCondition;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.ExpressionEvaluator;
 import org.evosuite.symbolic.instrument.ConcolicInstrumentingClassLoader;
@@ -43,7 +42,6 @@ import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.execution.ExecutionObserver;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.TestCaseExecutor;
-import org.evosuite.testcase.statements.Statement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.evosuite.dse.IVM;
@@ -59,7 +57,7 @@ import org.evosuite.dse.VM;
  */
 public abstract class ConcolicExecution {
 
-	private static Logger logger = LoggerFactory.getLogger(ConcolicExecution.class);
+	private static final Logger logger = LoggerFactory.getLogger(ConcolicExecution.class);
 
 	/** Instrumenting class loader */
 	private static final ConcolicInstrumentingClassLoader classLoader = new ConcolicInstrumentingClassLoader();
@@ -72,7 +70,7 @@ public abstract class ConcolicExecution {
 	 * @return a {@link java.util.List} object.
 	 */
 	public static List<BranchCondition> getSymbolicPath(TestChromosome test) {
-		TestChromosome dscCopy = (TestChromosome) test.clone();
+		TestChromosome dscCopy = test.clone();
 		DefaultTestCase defaultTestCase = (DefaultTestCase) dscCopy.getTestCase();
 
 		PathCondition pathCondition = executeConcolic(defaultTestCase);
@@ -97,7 +95,7 @@ public abstract class ConcolicExecution {
 		/**
 		 * VM listeners
 		 */
-		List<IVM> listeners = new ArrayList<IVM>();
+		List<IVM> listeners = new ArrayList<>();
 		listeners.add(new CallVM(env, classLoader));
 		listeners.add(new JumpVM(env, pc));
 		listeners.add(new HeapVM(env, pc, classLoader));
@@ -132,7 +130,7 @@ public abstract class ConcolicExecution {
 
 		} catch (Exception e) {
 			logger.error("Exception during concolic execution {}", e);
-			return new PathCondition(new ArrayList<BranchCondition>());
+			return new PathCondition(new ArrayList<>());
 		} finally {
 			logger.debug("Cleaning concolic execution");
 			TestCaseExecutor.getInstance().setExecutionObservers(originalExecutionObservers);

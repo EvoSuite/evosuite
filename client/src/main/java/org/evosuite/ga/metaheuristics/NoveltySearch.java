@@ -2,41 +2,40 @@ package org.evosuite.ga.metaheuristics;
 
 import org.evosuite.Properties;
 import org.evosuite.ga.*;
+import org.evosuite.testcase.TestChromosome;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-public class NoveltySearch<T extends Chromosome> extends GeneticAlgorithm<T>  {
+import static java.util.Collections.reverseOrder;
+import static java.util.Comparator.comparingDouble;
+
+public class NoveltySearch extends GeneticAlgorithm<TestChromosome>  {
 
     private final static Logger logger = LoggerFactory.getLogger(NoveltySearch.class);
+    private static final long serialVersionUID = -1047550745990198972L;
 
-    private NoveltyFunction<T> noveltyFunction;
+    private NoveltyFunction<TestChromosome> noveltyFunction;
 
-    public NoveltySearch(ChromosomeFactory<T> factory) {
+    public NoveltySearch(ChromosomeFactory<TestChromosome> factory) {
         super(factory);
 
         noveltyFunction = null; //(NoveltyFunction<T>) new BranchNoveltyFunction();
         // setReplacementFunction(new FitnessReplacementFunction());
     }
 
-    public void setNoveltyFunction(NoveltyFunction<T> function) {
+    public void setNoveltyFunction(NoveltyFunction<TestChromosome> function) {
         this.noveltyFunction = function;
     }
 
     /**
      * Sort the population by novelty
      */
-    protected void sortPopulation(List<T> population, Map<T, Double> noveltyMap) {
+    protected void sortPopulation(List<TestChromosome> population, Map<TestChromosome, Double> noveltyMap) {
         // TODO: Handle case when no novelty value is stored in map
-        // TODO: Use lambdas
-        Collections.sort(population, Collections.reverseOrder(new Comparator<T>() {
-            @Override
-            public int compare(Chromosome c1, Chromosome c2) {
-                return Double.compare(noveltyMap.get(c1), noveltyMap.get(c2));
-            }
-        }));
+        population.sort(reverseOrder(comparingDouble(noveltyMap::get)));
     }
 
     /**
@@ -45,11 +44,11 @@ public class NoveltySearch<T extends Chromosome> extends GeneticAlgorithm<T>  {
     protected void calculateNoveltyAndSortPopulation() {
         logger.debug("Calculating novelty for " + population.size() + " individuals");
 
-        Iterator<T> iterator = population.iterator();
-        Map<T, Double> noveltyMap = new LinkedHashMap<>();
+        Iterator<TestChromosome> iterator = population.iterator();
+        Map<TestChromosome, Double> noveltyMap = new LinkedHashMap<>();
 
         while (iterator.hasNext()) {
-            T c = iterator.next();
+            TestChromosome c = iterator.next();
             if (isFinished()) {
                 if (c.isChanged())
                     iterator.remove();
@@ -80,14 +79,14 @@ public class NoveltySearch<T extends Chromosome> extends GeneticAlgorithm<T>  {
     @Override
     protected void evolve() {
 
-        List<T> newGeneration = new ArrayList<T>();
+        List<TestChromosome> newGeneration = new ArrayList<>();
 
         while (!isNextPopulationFull(newGeneration)) {
-            T parent1 = selectionFunction.select(population);
-            T parent2 = selectionFunction.select(population);
+            TestChromosome parent1 = selectionFunction.select(population);
+            TestChromosome parent2 = selectionFunction.select(population);
 
-            T offspring1 = (T)parent1.clone();
-            T offspring2 = (T)parent2.clone();
+            TestChromosome offspring1 = parent1.clone();
+            TestChromosome offspring2 = parent2.clone();
 
             try {
                 if (Randomness.nextDouble() <= Properties.CROSSOVER_RATE) {

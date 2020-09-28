@@ -22,7 +22,6 @@ package org.evosuite.ga.problems.singleobjective;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.NSGAChromosome;
 import org.evosuite.ga.problems.Problem;
@@ -33,10 +32,10 @@ import org.evosuite.ga.variables.DoubleVariable;
  * 
  * @author José Campos
  */
-@SuppressWarnings({ "rawtypes", "unchecked", "serial" })
-public class Booths<T extends NSGAChromosome> implements Problem
+@SuppressWarnings({ "serial" })
+public class Booths implements Problem<NSGAChromosome>
 {
-    private List<FitnessFunction<T>> fitnessFunctions = new ArrayList<FitnessFunction<T>>();
+    private final List<FitnessFunction<NSGAChromosome>> fitnessFunctions = new ArrayList<>();
 
     public Booths()
     {
@@ -45,16 +44,14 @@ public class Booths<T extends NSGAChromosome> implements Problem
         /**
          * Fitness function
          */
-        class fFitnessFunction extends FitnessFunction {
+        class fFitnessFunction extends FitnessFunction<NSGAChromosome> {
             @Override
-            public double getFitness(Chromosome c) {
-                NSGAChromosome individual = (NSGAChromosome)c;
-
-                double x = ((DoubleVariable) individual.getVariables().get(0)).getValue();
-                double y = ((DoubleVariable) individual.getVariables().get(1)).getValue();
+            public double getFitness(NSGAChromosome c) {
+                double x = ((DoubleVariable) c.getVariables().get(0)).getValue();
+                double y = ((DoubleVariable) c.getVariables().get(1)).getValue();
 
                 double fitness = Math.pow(x + 2.0 * y - 7.0, 2.0) + Math.pow(2.0 * x + y - 5.0, 2.0);
-                updateIndividual(individual, fitness);
+                updateIndividual(c, fitness);
                 return fitness;
             }
             @Override
@@ -67,7 +64,7 @@ public class Booths<T extends NSGAChromosome> implements Problem
     }
 
     @Override
-    public List getFitnessFunctions() {
+    public List<FitnessFunction<NSGAChromosome>> getFitnessFunctions() {
         return this.fitnessFunctions;
     }
 }

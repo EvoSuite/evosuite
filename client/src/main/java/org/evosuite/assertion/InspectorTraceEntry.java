@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,17 +17,12 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- *
- */
 package org.evosuite.assertion;
 
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import org.evosuite.Properties;
-import org.evosuite.regression.ObjectDistanceCalculator;
 import org.evosuite.testcase.variable.VariableReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,8 +36,8 @@ import org.slf4j.LoggerFactory;
 public class InspectorTraceEntry implements OutputTraceEntry {
 
   private final static Logger logger = LoggerFactory.getLogger(InspectorTraceEntry.class);
-  private final Map<Inspector, Object> inspectorMap = new HashMap<Inspector, Object>();
-  private final Map<String, Inspector> methodInspectorMap = new HashMap<String, Inspector>();
+  private final Map<Inspector, Object> inspectorMap = new HashMap<>();
+  private final Map<String, Inspector> methodInspectorMap = new HashMap<>();
   private final VariableReference var;
 
   /**
@@ -118,7 +113,7 @@ public class InspectorTraceEntry implements OutputTraceEntry {
    */
   @Override
   public Set<Assertion> getAssertions(OutputTraceEntry other) {
-    Set<Assertion> assertions = new HashSet<Assertion>();
+    Set<Assertion> assertions = new HashSet<>();
 
     if (other instanceof InspectorTraceEntry) {
       InspectorTraceEntry otherEntry = (InspectorTraceEntry) other;
@@ -131,21 +126,10 @@ public class InspectorTraceEntry implements OutputTraceEntry {
 
         if (!otherEntry.inspectorMap.get(otherEntry.methodInspectorMap.get(inspector))
             .equals(inspectorMap.get(methodInspectorMap.get(inspector)))) {
-          double distance = ObjectDistanceCalculator
-              .getObjectDistance(inspectorMap.get(methodInspectorMap.get(inspector)),
-                  otherEntry.inspectorMap.get(otherEntry.methodInspectorMap.get(inspector)));
-          if (distance == 0) {
-            continue;
-          }
           InspectorAssertion assertion = new InspectorAssertion();
           assertion.value = inspectorMap.get(methodInspectorMap.get(inspector));
           assertion.inspector = methodInspectorMap.get(inspector);
           assertion.source = var;
-          if (Properties.isRegression()) {
-            assertion.setComment("// (Inspector) Original Value: "
-                + inspectorMap.get(methodInspectorMap.get(inspector)) + " | Regression Value: "
-                + otherEntry.inspectorMap.get(otherEntry.methodInspectorMap.get(inspector)));
-          }
           assertions.add(assertion);
           assert (assertion.isValid());
 
@@ -164,7 +148,7 @@ public class InspectorTraceEntry implements OutputTraceEntry {
    */
   @Override
   public Set<Assertion> getAssertions() {
-    Set<Assertion> assertions = new HashSet<Assertion>();
+    Set<Assertion> assertions = new HashSet<>();
 
     for (Inspector inspector : inspectorMap.keySet()) {
       InspectorAssertion assertion = new InspectorAssertion();
@@ -189,18 +173,9 @@ public class InspectorTraceEntry implements OutputTraceEntry {
     if (assertion instanceof InspectorAssertion) {
       InspectorAssertion ass = (InspectorAssertion) assertion;
       if (ass.source.same(var)) {
-        if (Properties.isRegression()) {
-          // Use the internal map to locate the inspector assertion
-          String key = ass.getInspector().getClassName() + " " + ass.getInspector().getMethodCall();
-          Inspector inspector = methodInspectorMap.get(key);
-          if (inspector != null && inspectorMap.get(inspector) != null && ass.value != null) {
-            return !inspectorMap.get(inspector).equals(ass.value);
-          }
-        } else {
-          if (inspectorMap.containsKey(ass.inspector)
-              && inspectorMap.get(ass.inspector) != null && ass.value != null) {
-            return !inspectorMap.get(ass.inspector).equals(ass.value);
-          }
+        if (inspectorMap.containsKey(ass.inspector)
+                && inspectorMap.get(ass.inspector) != null && ass.value != null) {
+          return !inspectorMap.get(ass.inspector).equals(ass.value);
         }
       }
     }

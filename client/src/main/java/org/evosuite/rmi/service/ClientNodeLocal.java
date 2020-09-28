@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -23,7 +23,6 @@ import org.evosuite.ga.Chromosome;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.utils.Listenable;
 
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -31,29 +30,29 @@ import java.util.Set;
  * @author arcuri
  *
  */
-public interface ClientNodeLocal extends Listenable<Set<? extends Chromosome>> {
+public interface ClientNodeLocal<T extends Chromosome<T>> extends Listenable<Set<T>> {
 
-	public boolean init();
+	boolean init();
 
-	public void trackOutputVariable(RuntimeVariable variable, Object value);
+	void trackOutputVariable(RuntimeVariable variable, Object value);
 	
-    public void publishPermissionStatistics();
+    void publishPermissionStatistics();
 
-	public void changeState(ClientState state);
+	void changeState(ClientState state);
 
-	public void changeState(ClientState state, ClientStateInformation information);
+	void changeState(ClientState state, ClientStateInformation information);
 
-	public void updateStatistics(Chromosome individual);
+	void updateStatistics(T individual);
 
-	public void flushStatisticsForClassChange();
+	void flushStatisticsForClassChange();
 
-	public void updateProperty(String propertyName, Object value);
+	void updateProperty(String propertyName, Object value);
 
-	public void waitUntilDone();
+	void waitUntilDone();
 	
-	public void emigrate(Set<? extends Chromosome> immigrants);
+	void emigrate(Set<T> immigrants);
 	
-	public void sendBestSolution(Set<? extends Chromosome> solutions);
+	void sendBestSolution(Set<T> solutions);
 
-    public Set<Set<? extends Chromosome>> getBestSolutions();
+    Set<Set<T>> getBestSolutions();
 }

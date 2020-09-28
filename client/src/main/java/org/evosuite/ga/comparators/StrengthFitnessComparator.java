@@ -29,7 +29,7 @@ import java.util.Comparator;
  * 
  * @author José Campos
  */
-public class StrengthFitnessComparator implements Comparator<Chromosome>, Serializable {
+public class StrengthFitnessComparator implements Comparator<Chromosome<?>>, Serializable {
 
   private static final long serialVersionUID = 1365198556267160032L;
 

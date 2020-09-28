@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Gordon Fraser
  */
-public abstract class SecondaryObjective<T extends Chromosome> implements Serializable {
+public abstract class SecondaryObjective<T extends Chromosome<T>> implements Serializable {
 
 	private static final long serialVersionUID = -4117187516650844086L;
 

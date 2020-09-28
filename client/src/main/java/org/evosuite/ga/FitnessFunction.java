@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Gordon Fraser
  */
-public abstract class FitnessFunction<T extends Chromosome> implements Serializable {
+public abstract class FitnessFunction<T extends Chromosome<T>> implements Serializable {
 
 	private static final long serialVersionUID = -8876797554111396910L;
 
@@ -54,6 +54,7 @@ public abstract class FitnessFunction<T extends Chromosome> implements Serializa
 	/**
 	 * If the fitness function as an archive, returns the best individual in the archive.
 	 * returns null otherwise
+	 *
 	 * @return
 	 */
 	public T getBestStoredIndividual(){

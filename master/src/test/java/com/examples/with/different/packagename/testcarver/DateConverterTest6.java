@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -259,7 +259,7 @@ public class DateConverterTest6 {
         invalidConversion(converter, "2006/10/01");
         invalidConversion(converter, "02/10/2006");
         invalidConversion(converter, "02/10/06");
-        invalidConversion(converter, new Integer(2));
+        invalidConversion(converter, 2);
 
     }
 

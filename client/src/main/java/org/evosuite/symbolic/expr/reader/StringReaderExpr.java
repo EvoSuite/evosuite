@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -33,13 +33,9 @@ import org.evosuite.symbolic.expr.str.StringValue;
 public final class StringReaderExpr extends AbstractExpression<Long> implements
 		IntegerValue {
 
-	/**
-	 * 
-	 */
+
 	private static final long serialVersionUID = -744964586007203884L;
-	/**
-	 * 
-	 */
+
 	private final StringValue string;
 	private final int readerPosition;
 
@@ -59,8 +55,7 @@ public final class StringReaderExpr extends AbstractExpression<Long> implements
 
 	@Override
 	public Set<Variable<?>> getVariables() {
-		Set<Variable<?>> variables = new HashSet<Variable<?>>();
-		variables.addAll(this.string.getVariables());
+        Set<Variable<?>> variables = new HashSet<>(this.string.getVariables());
 		return variables;
 	}
 
@@ -102,7 +97,7 @@ public final class StringReaderExpr extends AbstractExpression<Long> implements
 
 	@Override
 	public Set<Object> getConstants() {
-		Set<Object> result = new HashSet<Object>();
+		Set<Object> result = new HashSet<>();
 		result.add(string.getConcreteValue());
 		return result;
 	}

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -35,6 +35,6 @@ public class TestWrongCommand {
 
 		Object result = evosuite.parseCommandLine(new String[] { "foo" });
 
-		Assert.assertTrue(result == null);
+		Assert.assertNull(result);
 	}
 }

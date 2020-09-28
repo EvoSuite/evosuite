@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -275,7 +275,7 @@ public class ArrayIndex extends VariableReferenceImpl {
 		} else if (object instanceof Number) {
 			return ((Number) object).intValue();
 		} else if (object instanceof Character) {
-			return new Integer(((Character) object).charValue());
+			return (int) (Character) object;
 		} else
 			return 0;
 	}
@@ -286,7 +286,7 @@ public class ArrayIndex extends VariableReferenceImpl {
 		} else if (object instanceof Number) {
 			return (short)((Number) object).intValue();
 		} else if (object instanceof Character) {
-			return new Short((short)((Character) object).charValue());
+			return (short) ((Character) object).charValue();
 		} else
 			return 0;
 	}
@@ -297,7 +297,7 @@ public class ArrayIndex extends VariableReferenceImpl {
 		} else if (object instanceof Number) {
 			return (byte)((Number) object).intValue();
 		} else if (object instanceof Character) {
-			return new Byte((byte)((Character) object).charValue());
+			return (byte) ((Character) object).charValue();
 		} else
 			return 0;
 	}
@@ -308,7 +308,7 @@ public class ArrayIndex extends VariableReferenceImpl {
 		} else if (object instanceof Number) {
 			return ((Number) object).longValue();
 		} else if (object instanceof Character) {
-			return new Long(((Character) object).charValue());
+			return (long) (Character) object;
 		} else
 			return 0L;
 	}
@@ -319,7 +319,7 @@ public class ArrayIndex extends VariableReferenceImpl {
 		} else if (object instanceof Number) {
 			return ((Number) object).floatValue();
 		} else if (object instanceof Character) {
-			return new Float(((Character) object).charValue());
+			return (float) (Character) object;
 		} else
 			return 0F;
 	}
@@ -330,7 +330,7 @@ public class ArrayIndex extends VariableReferenceImpl {
 		} else if (object instanceof Number) {
 			return ((Number) object).doubleValue();
 		} else if (object instanceof Character) {
-			return new Double(((Character) object).charValue());
+			return (double) (Character) object;
 		} else
 			return 0.0;
 	}
@@ -339,7 +339,7 @@ public class ArrayIndex extends VariableReferenceImpl {
 		if (object==null) {
 			return null;
 		} else if (object instanceof Character) {
-			return ((Character) object).charValue();
+			return (Character) object;
 		} else if (object instanceof Number) {
 			return (char) ((Number) object).intValue();
 		} else
@@ -530,7 +530,7 @@ public class ArrayIndex extends VariableReferenceImpl {
 	 *            a {@link java.util.List} object.
 	 */
 	public void setArrayIndices(List<Integer> indices) {
-		this.indices = new ArrayList<Integer>();
+		this.indices = new ArrayList<>();
 		for (Integer i : indices)
 			this.indices.add(i);
 	}

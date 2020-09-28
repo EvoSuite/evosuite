@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -25,7 +25,7 @@ public class SimpleListenable<T> implements Listenable<T> {
 
 	private static final long serialVersionUID = 8100518628763448338L;
 
-	protected final Collection<Listener<T>> listeners = new ArrayList<Listener<T>>();
+	protected final Collection<Listener<T>> listeners = new ArrayList<>();
 
 	/** {@inheritDoc} */
 	@Override

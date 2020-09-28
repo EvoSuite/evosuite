@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -95,7 +95,7 @@ public class TestConstraintSolver {
 		final int lastBranchIndex = branch_conditions.size() - 1;
 		BranchCondition last_branch = branch_conditions.get(lastBranchIndex);
 
-		List<Constraint<?>> constraints = new LinkedList<Constraint<?>>();
+		List<Constraint<?>> constraints = new LinkedList<>();
 		
 		for(int i=0; i<lastBranchIndex; i++) {
 			BranchCondition c = branch_conditions.get(i);
@@ -167,7 +167,7 @@ public class TestConstraintSolver {
 		assertEquals(57, branch_conditions.size());
 
 		// keep only 2 top-most branch conditions
-		List<BranchCondition> sublist = new ArrayList<BranchCondition>();
+		List<BranchCondition> sublist = new ArrayList<>();
 		sublist.add(branch_conditions.get(0));
 		sublist.add(branch_conditions.get(1));
 

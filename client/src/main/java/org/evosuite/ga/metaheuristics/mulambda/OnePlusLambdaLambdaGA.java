@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Yan Ge
  */
-public class OnePlusLambdaLambdaGA<T extends Chromosome> extends AbstractMuLambda<T> {
+public class OnePlusLambdaLambdaGA<T extends Chromosome<T>> extends AbstractMuLambda<T> {
 
   private static final long serialVersionUID = 529089847512798127L;
 
@@ -43,17 +43,16 @@ public class OnePlusLambdaLambdaGA<T extends Chromosome> extends AbstractMuLambd
     super(factory, 1, lambda);
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   protected void evolve() {
 
-    List<T> mutants = new ArrayList<T>();
+    List<T> mutants = new ArrayList<>();
 
-    T parent = (T) population.get(0).clone();
+    T parent = population.get(0).clone();
 
     while (mutants.size() < this.lambda) {
       // clone firstly offspring from parent
-      T MutationOffspring = (T) parent.clone();
+      T MutationOffspring = parent.clone();
       notifyMutation(MutationOffspring);
 
       // perform mutation operation with high probability
@@ -72,12 +71,12 @@ public class OnePlusLambdaLambdaGA<T extends Chromosome> extends AbstractMuLambd
     T bestMutantOffspring = getBestIndividual();
 
     // start to execute uniform crossover operator
-    List<T> crossoverOffspring = new ArrayList<T>();
+    List<T> crossoverOffspring = new ArrayList<>();
 
     while (crossoverOffspring.size() < this.lambda) {
       try {
-        T p1 = (T) parent.clone();
-        T p2 = (T) bestMutantOffspring.clone();
+        T p1 = parent.clone();
+        T p2 = bestMutantOffspring.clone();
 
         crossoverFunction.crossOver(p1, p2);
 
@@ -85,7 +84,6 @@ public class OnePlusLambdaLambdaGA<T extends Chromosome> extends AbstractMuLambd
         crossoverOffspring.add(p2);
       } catch (ConstructionFailedException e) {
         logger.info("CrossOver failed.");
-        continue;
       }
     }
 

@@ -69,7 +69,7 @@ public abstract class NotSupportedBySolver extends TestSolver {
 		Double var0 = (Double) solution.get("var0");
 		Double var1 = (Double) solution.get("var1");
 
-		assertEquals(var0.doubleValue(), Math.cos(var1.doubleValue()), DELTA);
+		assertEquals(var0, Math.cos(var1), DELTA);
 	}
 
 	private static DefaultTestCase buildTestCaseExp() throws SecurityException, NoSuchMethodException {
@@ -92,7 +92,7 @@ public abstract class NotSupportedBySolver extends TestSolver {
 		Double var0 = (Double) solution.get("var0");
 		Double var1 = (Double) solution.get("var1");
 
-		assertEquals(var0.doubleValue(), Math.exp(var1.doubleValue()), DELTA);
+		assertEquals(var0, Math.exp(var1), DELTA);
 	}
 
 	private static DefaultTestCase buildTestCaseLog() throws SecurityException, NoSuchMethodException {
@@ -115,7 +115,7 @@ public abstract class NotSupportedBySolver extends TestSolver {
 		Double var0 = (Double) solution.get("var0");
 		Double var1 = (Double) solution.get("var1");
 	
-		assertEquals(var0.doubleValue(), Math.tan(var1.doubleValue()), DELTA);
+		assertEquals(var0, Math.tan(var1), DELTA);
 	}
 
 	private static DefaultTestCase buildTestCaseSin() throws SecurityException, NoSuchMethodException {
@@ -138,7 +138,7 @@ public abstract class NotSupportedBySolver extends TestSolver {
 		Double var0 = (Double) solution.get("var0");
 		Double var1 = (Double) solution.get("var1");
 	
-		assertEquals(var0.doubleValue(), Math.sin(var1.doubleValue()), DELTA);
+		assertEquals(var0, Math.sin(var1), DELTA);
 	}
 
 	private static DefaultTestCase buildTestCaseTan() throws SecurityException, NoSuchMethodException {
@@ -161,7 +161,7 @@ public abstract class NotSupportedBySolver extends TestSolver {
 		Double var0 = (Double) solution.get("var0");
 		Double var1 = (Double) solution.get("var1");
 	
-		assertEquals(var0.doubleValue(), Math.tan(var1.doubleValue()), DELTA);
+		assertEquals(var0, Math.tan(var1), DELTA);
 	}
 
 	private static DefaultTestCase buildTestCaseAcos() throws SecurityException, NoSuchMethodException {
@@ -215,7 +215,7 @@ public abstract class NotSupportedBySolver extends TestSolver {
 		Double var0 = (Double) solution.get("var0");
 		Double var1 = (Double) solution.get("var1");
 	
-		assertEquals(var0.doubleValue(), Math.acos(var1.doubleValue()), DELTA);
+		assertEquals(var0, Math.acos(var1), DELTA);
 	}
 
 	@Test
@@ -228,7 +228,7 @@ public abstract class NotSupportedBySolver extends TestSolver {
 		Double var0 = (Double) solution.get("var0");
 		Double var1 = (Double) solution.get("var1");
 	
-		assertEquals(var0.doubleValue(), Math.asin(var1.doubleValue()), DELTA);
+		assertEquals(var0, Math.asin(var1), DELTA);
 	}
 
 	@Test
@@ -241,7 +241,7 @@ public abstract class NotSupportedBySolver extends TestSolver {
 		Double var0 = (Double) solution.get("var0");
 		Double var1 = (Double) solution.get("var1");
 	
-		assertEquals(var0.doubleValue(), Math.atan(var1.doubleValue()), DELTA);
+		assertEquals(var0, Math.atan(var1), DELTA);
 	}
 
 	@Test
@@ -255,7 +255,7 @@ public abstract class NotSupportedBySolver extends TestSolver {
 		Double var1 = (Double) solution.get("var1");
 		Double var2 = (Double) solution.get("var2");
 	
-		assertEquals(var0.doubleValue(), Math.atan2(var1.doubleValue(), var2.doubleValue()), DELTA);
+		assertEquals(var0, Math.atan2(var1, var2), DELTA);
 	}
 
 	private static DefaultTestCase buildTestCaseSqrt() throws SecurityException, NoSuchMethodException {
@@ -277,7 +277,7 @@ public abstract class NotSupportedBySolver extends TestSolver {
 		Double var0 = (Double) solution.get("var0");
 		Double var1 = (Double) solution.get("var1");
 	
-		assertEquals(var0.doubleValue(), Math.sqrt(var1.doubleValue()), DELTA);
+		assertEquals(var0, Math.sqrt(var1), DELTA);
 	}
 
 	private static DefaultTestCase buildTestCaseRound() throws SecurityException, NoSuchMethodException {
@@ -300,7 +300,7 @@ public abstract class NotSupportedBySolver extends TestSolver {
 		Integer var0 = (Integer) solution.get("var0");
 		Double var1 = (Double) solution.get("var1");
 	
-		assertEquals(var0.intValue(), Math.round(var1.doubleValue()));
+		assertEquals(var0.intValue(), Math.round(var1));
 	}
 
 }

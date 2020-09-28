@@ -8,7 +8,6 @@ WORKDIR /build
 
 # Copy files and directories needed for building
 COPY pom.xml ./
-COPY generated ./generated/
 COPY shaded ./shaded/
 COPY standalone_runtime ./standalone_runtime/
 COPY plugins ./plugins/

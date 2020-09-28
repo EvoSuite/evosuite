@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,15 +17,14 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
+
 package org.evosuite.coverage.mutation;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.evosuite.Properties;
+import org.evosuite.TestGenerationContext;
 import org.evosuite.instrumentation.mutation.InsertUnaryOperator;
 import org.evosuite.instrumentation.mutation.ReplaceArithmeticOperator;
 import org.evosuite.instrumentation.mutation.ReplaceConstant;
@@ -89,7 +88,7 @@ public class MutationFactory extends AbstractFitnessFactory<MutationTestFitness>
 		if (goals != null)
 			return goals;
 
-		goals = new ArrayList<MutationTestFitness>();
+		goals = new ArrayList<>();
 
 		for (Mutation m : getMutantsLimitedPerClass()) {
 			if (targetMethod != null && !m.getMethodName().endsWith(targetMethod))
@@ -113,7 +112,7 @@ public class MutationFactory extends AbstractFitnessFactory<MutationTestFitness>
 	 * is acceptable wrt the class limit
 	 */
 	private List<Mutation> getMutantsLimitedPerClass() {
-		List<Mutation> mutants = MutationPool.getMutants();
+		List<Mutation> mutants = MutationPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getMutants();
 		String[] operators = { ReplaceVariable.NAME, InsertUnaryOperator.NAME, ReplaceConstant.NAME, ReplaceArithmeticOperator.NAME };
 		if(mutants.size() > Properties.MAX_MUTANTS_PER_CLASS) {
 			for(String op : operators) {

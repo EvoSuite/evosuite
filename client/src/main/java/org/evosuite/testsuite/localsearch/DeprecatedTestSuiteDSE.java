@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -21,7 +21,6 @@ package org.evosuite.testsuite.localsearch;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -29,7 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Set;
-import java.util.Map.Entry;
 
 import org.evosuite.Properties;
 import org.evosuite.ga.Chromosome;
@@ -49,10 +47,7 @@ import org.evosuite.symbolic.solver.SolverFactory;
 import org.evosuite.symbolic.solver.SolverResult;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
-import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.ExecutionTrace;
-import org.evosuite.testcase.localsearch.DSETestCaseLocalSearch;
-import org.evosuite.testcase.localsearch.TestCaseLocalSearch;
 import org.evosuite.testcase.statements.PrimitiveStatement;
 import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testsuite.TestSuiteChromosome;
@@ -133,11 +128,11 @@ public class DeprecatedTestSuiteDSE {
 	/**
 	 * Stores the path condition from each test execution
 	 */
-	private final Map<TestChromosome, List<BranchCondition>> pathConditions = new HashMap<TestChromosome, List<BranchCondition>>();
+	private final Map<TestChromosome, List<BranchCondition>> pathConditions = new HashMap<>();
 
-	private final Set<BranchCondition> unsolvableBranchConditions = new HashSet<BranchCondition>();
+	private final Set<BranchCondition> unsolvableBranchConditions = new HashSet<>();
 
-	private final Map<String, Integer> solutionAttempts = new HashMap<String, Integer>();
+	private final Map<String, Integer> solutionAttempts = new HashMap<>();
 
 	private Collection<TestBranchPair> unsolvedBranchConditions = null;
 
@@ -156,7 +151,7 @@ public class DeprecatedTestSuiteDSE {
 		}
 
 		private double computeRanking(List<BranchCondition> pathCondition, BranchCondition targetBranch) {
-			List<Constraint<?>> reachingConstraints = new LinkedList<Constraint<?>>();
+			List<Constraint<?>> reachingConstraints = new LinkedList<>();
 			for (BranchCondition b : pathCondition) {
 				reachingConstraints.addAll(b.getSupportingConstraints());
 				reachingConstraints.add(b.getConstraint());
@@ -202,7 +197,7 @@ public class DeprecatedTestSuiteDSE {
 				}
 			}
 		} else {
-			Map<String, Map<Comparator, Set<TestBranchPair>>> solvedConstraints = new HashMap<String, Map<Comparator, Set<TestBranchPair>>>();
+			Map<String, Map<Comparator, Set<TestBranchPair>>> solvedConstraints = new HashMap<>();
 			for (TestChromosome test : pathConditions.keySet()) {
 				final List<BranchCondition> pathCondition = pathConditions.get(test);
 				for (BranchCondition branch : pathCondition) {
@@ -212,12 +207,12 @@ public class DeprecatedTestSuiteDSE {
 
 					String index = getBranchIndex(branch);
 					if (!solvedConstraints.containsKey(index))
-						solvedConstraints.put(index, new HashMap<Comparator, Set<TestBranchPair>>());
+						solvedConstraints.put(index, new HashMap<>());
 
 					Constraint<?> c = branch.getConstraint();
 
 					if (!solvedConstraints.get(index).containsKey(c.getComparator()))
-						solvedConstraints.get(index).put(c.getComparator(), new HashSet<TestBranchPair>());
+						solvedConstraints.get(index).put(c.getComparator(), new HashSet<>());
 
 					solvedConstraints.get(index).get(c.getComparator())
 							.add(new TestBranchPair(test, pathCondition, branch));
@@ -328,8 +323,7 @@ public class DeprecatedTestSuiteDSE {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private TestCase negateCondition(Set<Constraint<?>> reachingConstraints, Constraint<?> localConstraint,
 			TestCase test) {
-		List<Constraint<?>> constraints = new LinkedList<Constraint<?>>();
-		constraints.addAll(reachingConstraints);
+		List<Constraint<?>> constraints = new LinkedList<>(reachingConstraints);
 
 		Constraint<?> targetConstraint = localConstraint.negate();
 		constraints.add(targetConstraint);
@@ -480,7 +474,7 @@ public class DeprecatedTestSuiteDSE {
 		Constraint<?> target = constraints.get(constraints.size() - 1);
 		Set<Variable<?>> dependencies = getVariables(target);
 
-		LinkedList<Constraint<?>> coi = new LinkedList<Constraint<?>>();
+		LinkedList<Constraint<?>> coi = new LinkedList<>();
 		if (dependencies.size() <= 0)
 			return coi;
 
@@ -507,7 +501,7 @@ public class DeprecatedTestSuiteDSE {
 	 * @return
 	 */
 	private Set<Variable<?>> getVariables(Constraint<?> constraint) {
-		Set<Variable<?>> variables = new HashSet<Variable<?>>();
+		Set<Variable<?>> variables = new HashSet<>();
 		getVariables(constraint.getLeftOperand(), variables);
 		getVariables(constraint.getRightOperand(), variables);
 		return variables;
@@ -526,9 +520,8 @@ public class DeprecatedTestSuiteDSE {
 	}
 
 	private double getFitness(TestSuiteChromosome suite) {
-		for (FitnessFunction<? extends Chromosome> ff : objective.getFitnessFunctions()) {
-			TestSuiteFitnessFunction tff = (TestSuiteFitnessFunction) ff;
-			tff.getFitness(suite);
+		for (FitnessFunction<TestSuiteChromosome> ff : objective.getFitnessFunctions()) {
+			ff.getFitness(suite);
 		}
 		return suite.getFitness();
 	}
@@ -551,7 +544,7 @@ public class DeprecatedTestSuiteDSE {
 	 * @return
 	 */
 	private static Set<Branch> getUncoveredBranches(Set<Branch> coveredBranches) {
-		Set<Branch> uncoveredBranches = new HashSet<Branch>();
+		Set<Branch> uncoveredBranches = new HashSet<>();
 		for (Branch b : coveredBranches) {
 			final Branch negate = b.negate();
 			if (!coveredBranches.contains(negate)) {
@@ -568,7 +561,7 @@ public class DeprecatedTestSuiteDSE {
 	 * @return
 	 */
 	private static Set<Branch> getCoveredBranches(TestSuiteChromosome suite) {
-		final Set<Branch> suiteCoveredBranches = new HashSet<Branch>();
+		final Set<Branch> suiteCoveredBranches = new HashSet<>();
 		for (TestChromosome test : suite.getTestChromosomes()) {
 			final Set<Branch> testCoveredBranches = getCoveredBranches(test);
 			suiteCoveredBranches.addAll(testCoveredBranches);
@@ -584,7 +577,7 @@ public class DeprecatedTestSuiteDSE {
 	 * @return
 	 */
 	private static Set<Branch> getCoveredBranches(TestChromosome test) {
-		final Set<Branch> testCoveredBranches = new HashSet<Branch>();
+		final Set<Branch> testCoveredBranches = new HashSet<>();
 
 		ExecutionTrace trace = test.getLastExecutionResult().getTrace();
 		{
@@ -631,7 +624,7 @@ public class DeprecatedTestSuiteDSE {
 
 			List<BranchCondition> pathCondition = next.pathCondition;
 
-			List<Constraint<?>> reachingConstraints = new LinkedList<Constraint<?>>();
+			List<Constraint<?>> reachingConstraints = new LinkedList<>();
 			for (BranchCondition b : pathCondition) {
 				reachingConstraints.addAll(b.getSupportingConstraints());
 				if (b == branch) {
@@ -640,9 +633,9 @@ public class DeprecatedTestSuiteDSE {
 				reachingConstraints.add(b.getConstraint());
 			}
 
-			List<Constraint<?>> constraints = new LinkedList<Constraint<?>>();
+			List<Constraint<?>> constraints = new LinkedList<>();
 
-			TestCase newTest = negateCondition(new HashSet<Constraint<?>>(reachingConstraints), branch.getConstraint(),
+			TestCase newTest = negateCondition(new HashSet<>(reachingConstraints), branch.getConstraint(),
 					next.test.getTestCase());
 
 			if (newTest != null) {

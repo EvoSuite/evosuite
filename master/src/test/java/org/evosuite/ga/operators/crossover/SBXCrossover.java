@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -19,7 +19,6 @@
  */
 package org.evosuite.ga.operators.crossover;
 
-import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.ga.NSGAChromosome;
 import org.evosuite.ga.variables.DoubleVariable;
@@ -31,8 +30,7 @@ import org.evosuite.utils.Randomness;
  * 
  * @author José Campos
  */
-public class SBXCrossover<T extends NSGAChromosome> extends CrossOverFunction
-{
+public class SBXCrossover extends CrossOverFunction<NSGAChromosome> {
     private static final long serialVersionUID = -4258729002155733390L;
 
     /**
@@ -41,16 +39,14 @@ public class SBXCrossover<T extends NSGAChromosome> extends CrossOverFunction
     private static final double EPS = 1e-10;
 
     @Override
-    public void crossOver(Chromosome p1, Chromosome p2)
+    public void crossOver(NSGAChromosome p1, NSGAChromosome p2)
         throws ConstructionFailedException
     {
-        NSGAChromosome n1 = (NSGAChromosome) p1;
-        NSGAChromosome n2 = (NSGAChromosome) p2;
 
-        for (int i = 0; i < n1.getNumberOfVariables(); i++)
+        for (int i = 0; i < p1.getNumberOfVariables(); i++)
         {
-            Variable v1 = n1.getVariable(i);
-            Variable v2 = n2.getVariable(i);
+            Variable v1 = p1.getVariable(i);
+            Variable v2 = p2.getVariable(i);
 
             if ((v1 instanceof DoubleVariable) && (v2 instanceof DoubleVariable))
                 this.doCrossover((DoubleVariable) v1, (DoubleVariable) v2);

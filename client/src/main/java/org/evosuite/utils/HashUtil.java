@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -29,7 +29,7 @@ public abstract class HashUtil {
 	 * @param components a {@link java.lang.Object} object.
 	 * @return a int.
 	 */
-	public static final int hashCodeWithPrime(int prime, Object... components) {
+	public static int hashCodeWithPrime(int prime, Object... components) {
 		int result = 1;
 		
 		for (Object component : components) {
@@ -46,7 +46,7 @@ public abstract class HashUtil {
 	 * @param componentHashCodes a int.
 	 * @return a int.
 	 */
-	public static final int hashCodeWithPrime(int prime, int... componentHashCodes) {
+	public static int hashCodeWithPrime(int prime, int... componentHashCodes) {
 		int result = 1;
 		
 		for (int componentHashCode : componentHashCodes) {
@@ -62,7 +62,7 @@ public abstract class HashUtil {
 	 * @param components a {@link java.lang.Object} object.
 	 * @return a int.
 	 */
-	public static final int hashCode(Object... components) {
+	public static int hashCode(Object... components) {
 		return hashCodeWithPrime(DEFAULT_PRIME, components);
 	}
 /*	

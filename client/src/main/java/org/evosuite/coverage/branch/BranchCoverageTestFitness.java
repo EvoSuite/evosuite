@@ -117,7 +117,7 @@ public class BranchCoverageTestFitness extends TestFitnessFunction {
 	 *            a {@link org.evosuite.testcase.execution.ExecutionResult} object.
 	 * @return a double.
 	 */
-	public double getUnfitness(ExecutableChromosome individual, ExecutionResult result) {
+	public double getUnfitness(ExecutableChromosome<?> individual, ExecutionResult result) {
 
 		double sum = 0.0;
 		boolean methodExecuted = false;

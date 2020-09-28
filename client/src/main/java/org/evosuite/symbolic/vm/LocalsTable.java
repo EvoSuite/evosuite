@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -36,7 +36,7 @@ public final class LocalsTable {
 	/**
 	 * List of local variables
 	 */
-	private final List<Operand> locals = new ArrayList<Operand>();
+	private final List<Operand> locals = new ArrayList<>();
 
 	public LocalsTable(int maxLocals) {
 		for (int i = 0; i < maxLocals; i++)

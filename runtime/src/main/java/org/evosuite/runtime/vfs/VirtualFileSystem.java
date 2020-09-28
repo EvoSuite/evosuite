@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -243,7 +243,7 @@ public final class VirtualFileSystem {
 	 * @return a set of file paths
 	 */
 	public Set<String> getAccessedFiles() {
-		return new HashSet<String>(accessedFiles);
+		return new HashSet<>(accessedFiles);
 	}
 
 	/**
@@ -429,7 +429,7 @@ public final class VirtualFileSystem {
 	
 	protected static String[] tokenize(String path, char separator) {
 		String[] tokens = path.split(separator == '\\' ? "\\\\" : File.separator);
-		List<String> list = new ArrayList<String>(tokens.length);
+		List<String> list = new ArrayList<>(tokens.length);
 		for (String token : tokens) {
 			if (!token.isEmpty()) {
 				list.add(token);

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -20,6 +20,7 @@
 package org.evosuite.ga.stoppingconditions;
 
 import org.evosuite.Properties;
+import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 
 /**
@@ -27,15 +28,30 @@ import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
  * 
  * @author Gordon Fraser
  */
-public class MaxGenerationStoppingCondition extends StoppingConditionImpl {
+public class MaxGenerationStoppingCondition<T extends Chromosome<T>> extends StoppingConditionImpl<T> {
 
 	private static final long serialVersionUID = 251196904115160351L;
 
 	/** Maximum number of iterations */
-	protected long maxIterations = Properties.SEARCH_BUDGET;
+	protected long maxIterations;
 
 	/** Maximum number of iterations */
-	protected long currentIteration = 0;
+	protected long currentIteration;
+
+	public MaxGenerationStoppingCondition() {
+		maxIterations = Properties.SEARCH_BUDGET;
+		currentIteration = 0;
+	}
+
+	public MaxGenerationStoppingCondition(MaxGenerationStoppingCondition<?> that) {
+		this.maxIterations = that.maxIterations;
+		this.currentIteration = that.currentIteration;
+	}
+
+	@Override
+	public MaxGenerationStoppingCondition<T> clone() {
+		return new MaxGenerationStoppingCondition<>(this);
+	}
 
 	/**
 	 * <p>
@@ -55,7 +71,7 @@ public class MaxGenerationStoppingCondition extends StoppingConditionImpl {
 	 * Increase iteration counter
 	 */
 	@Override
-	public void iteration(GeneticAlgorithm<?> algorithm) {
+	public void iteration(GeneticAlgorithm<T> algorithm) {
 		currentIteration++;
 	}
 
@@ -71,7 +87,7 @@ public class MaxGenerationStoppingCondition extends StoppingConditionImpl {
 
 	/** {@inheritDoc} */
 	@Override
-	public void searchFinished(GeneticAlgorithm<?> algorithm) {
+	public void searchFinished(GeneticAlgorithm<T> algorithm) {
 		currentIteration = 0;
 	}
 

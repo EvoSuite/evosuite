@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.evosuite.Properties;
-import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.SecondaryObjective;
 import org.evosuite.ga.localsearch.LocalSearchObjective;
@@ -43,11 +42,15 @@ import static java.util.stream.Collectors.toCollection;
  * </p>
  * 
  * @author Gordon Fraser
+ *
+ * Final in order to prevent breaking of self type.
  */
-public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromosome> {
+public final class TestSuiteChromosome
+		extends AbstractTestSuiteChromosome<TestSuiteChromosome, TestChromosome> {
 
 	/** Secondary objectives used during ranking */
-	private static final List<SecondaryObjective<TestSuiteChromosome>> secondaryObjectives = new ArrayList<>();
+	private static final List<SecondaryObjective<TestSuiteChromosome>>
+			secondaryObjectives = new ArrayList<>();
 	private static int secondaryObjIndex = 0;
 	private static final long serialVersionUID = 88380759969800800L;
 
@@ -101,6 +104,11 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 		secondaryObjectives.clear();
 	}
 
+	@Override
+	public TestSuiteChromosome self() {
+		return this;
+	}
+
 	/**
 	 * <p>
 	 * Constructor for TestSuiteChromosome.
@@ -109,6 +117,7 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 	public TestSuiteChromosome() {
 		super();
 	}
+
 
 	/**
 	 * <p>
@@ -141,29 +150,30 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 	 *            a {@link org.evosuite.testcase.TestCase} object.
 	 */
 	public TestChromosome addTest(TestCase test) {
-		TestChromosome c = new TestChromosome();
+	    TestChromosome c = new TestChromosome();
 		c.setTestCase(test);
 		addTest(c);
 
 		return c;
 	}
 
-	
+	@Override
+	public void addTestChromosome(TestChromosome testChromosome) {
+		this.addTest(testChromosome);
+	}
+
+
 	public void clearMutationHistory() {
 		tests.forEach(t -> t.getMutationHistory().clear());
 	}
 
-	/**
-	 * Remove all tests
-	 */
-	public void clearTests() {
-		tests.clear();
-	}
+
 
 	/**
 	 * {@inheritDoc}
 	 * 
 	 * Create a deep copy of this test suite
+	 * @return
 	 */
 	@Override
 	public TestSuiteChromosome clone() {
@@ -175,18 +185,18 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 	 */
 	/** {@inheritDoc} */
 	@Override
-	@SuppressWarnings("unchecked")
-	public  <T extends Chromosome> int compareSecondaryObjective(T o) {
+	public int compareSecondaryObjective(TestSuiteChromosome o) {
 		int objective = secondaryObjIndex;
 		int c = 0;
 		while (c == 0 && objective < secondaryObjectives.size()) {
-			SecondaryObjective<T> so = (SecondaryObjective<T>) secondaryObjectives.get(objective++);
+			SecondaryObjective<TestSuiteChromosome> so = secondaryObjectives.get(objective++);
 			if (so == null)
 				break;
-			c = so.compareChromosomes((T) this, o);
+			c = so.compareChromosomes(this.self(), o);
 		} 
 		return c;
 	}
+
 
 	/**
 	 * For manual algorithm
@@ -209,7 +219,10 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 	 */
 	public Set<TestFitnessFunction> getCoveredGoals() {
 		Set<TestFitnessFunction> goals = new LinkedHashSet<>();
-		tests.stream().map(t -> t.getTestCase().getCoveredGoals()).forEach(goals::addAll);
+		for (TestChromosome t : tests) {
+			Set<TestFitnessFunction> coveredGoals = t.getTestCase().getCoveredGoals();
+			goals.addAll(coveredGoals);
+		}
 		return goals;
 	}
 	
@@ -230,13 +243,15 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 				.collect(toCollection(ArrayList::new));
 	}
 
-	@SuppressWarnings("unchecked")
+
+
+
 	@Override
-	public boolean localSearch(LocalSearchObjective<? extends Chromosome> objective) {
+	public boolean localSearch(LocalSearchObjective<TestSuiteChromosome> objective) {
 		TestSuiteLocalSearch localSearch = TestSuiteLocalSearch.selectTestSuiteLocalSearch();
-		return localSearch.doSearch(this, (LocalSearchObjective<TestSuiteChromosome>) objective);
+		return localSearch.doSearch(this, objective);
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 * 
@@ -248,7 +263,7 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 			super.mutate();
 		}
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 * 
@@ -276,5 +291,5 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 		}
 		return result;
 	}
- 
+
 }

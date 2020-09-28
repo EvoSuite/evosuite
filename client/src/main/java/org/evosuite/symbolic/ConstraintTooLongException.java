@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -23,9 +23,7 @@ import org.evosuite.dse.StopVMException;
 
 public class ConstraintTooLongException extends StopVMException {
 
-	/**
-	 * 
-	 */
+
 	private static final long serialVersionUID = 4788691891779076515L;
 
 	private final int constraint_size;

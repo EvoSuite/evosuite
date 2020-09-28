@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -49,8 +49,8 @@ public class RegexDistanceUtils {
 	 * Automatons for regex can be expensive to build. So we cache them,
 	 * as we might need to access to them several times during the search
 	 */
-	private static Map<String, List<State>> regexStateCache = new HashMap<String, List<State>>();
-	private static Map<String, Automaton> regexAutomatonCache = new HashMap<String, Automaton>();
+	private static Map<String, List<State>> regexStateCache = new HashMap<>();
+	private static Map<String, Automaton> regexAutomatonCache = new HashMap<>();
 
 	public static Automaton getRegexAutomaton(String regex) {
 		if (!regexAutomatonCache.containsKey(regex)) {
@@ -190,9 +190,9 @@ public class RegexDistanceUtils {
 			int numRows) {
 		for (int row = 0; row <= numRows; row++) {
 			if (!transitions.containsKey(row))
-				transitions.put(row, new HashMap<State, Set<GraphTransition>>());
+				transitions.put(row, new HashMap<>());
 			if (!transitions.get(row).containsKey(state))
-				transitions.get(row).put(state, new HashSet<GraphTransition>());
+				transitions.get(row).put(state, new HashSet<>());
 		}
 	}
 
@@ -202,10 +202,10 @@ public class RegexDistanceUtils {
 		automaton.expandSingleton();
 
 		// We convert this to a graph without self-loops in order to determine the topological order
-		DirectedGraph<State, DefaultEdge> regexGraph = new DefaultDirectedGraph<State, DefaultEdge>(
+		DirectedGraph<State, DefaultEdge> regexGraph = new DefaultDirectedGraph<>(
 				DefaultEdge.class);
-		Set<State> visitedStates = new HashSet<State>();
-		Queue<State> states = new LinkedList<State>();
+		Set<State> visitedStates = new HashSet<>();
+		Queue<State> states = new LinkedList<>();
 		State initialState = automaton.getInitialState();
 		states.add(initialState);
 
@@ -221,7 +221,7 @@ public class RegexDistanceUtils {
 					regexGraph.addVertex(t.getDest());
 					regexGraph.addEdge(currentState, t.getDest());
 					states.add(t.getDest());
-					CycleDetector<State, DefaultEdge> det = new CycleDetector<State, DefaultEdge>(
+					CycleDetector<State, DefaultEdge> det = new CycleDetector<>(
 							regexGraph);
 					if (det.detectCycles()) {
 						regexGraph.removeEdge(currentState, t.getDest());
@@ -231,9 +231,9 @@ public class RegexDistanceUtils {
 			visitedStates.add(currentState);
 		}
 
-		TopologicalOrderIterator<State, DefaultEdge> iterator = new TopologicalOrderIterator<State, DefaultEdge>(
+		TopologicalOrderIterator<State, DefaultEdge> iterator = new TopologicalOrderIterator<>(
 				regexGraph);
-		List<State> topologicalOrder = new ArrayList<State>();
+		List<State> topologicalOrder = new ArrayList<>();
 		while (iterator.hasNext()) {
 			topologicalOrder.add(iterator.next());
 		}
@@ -387,10 +387,10 @@ public class RegexDistanceUtils {
 
 			List<State> topologicalOrder = regexStateCache.get(regex);
 
-			Map<Integer, Map<State, Set<GraphTransition>>> transitions = new HashMap<Integer, Map<State, Set<GraphTransition>>>();
+			Map<Integer, Map<State, Set<GraphTransition>>> transitions = new HashMap<>();
 
-			intToStateMap = new HashMap<Integer, State>();
-			stateToIntMap = new HashMap<State, Integer>();
+			intToStateMap = new HashMap<>();
+			stateToIntMap = new HashMap<>();
 			int numState = 0;
 
 			for (State currentState : topologicalOrder) {

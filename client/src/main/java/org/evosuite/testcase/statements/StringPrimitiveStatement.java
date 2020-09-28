@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
+
 package org.evosuite.testcase.statements;
 
 import java.io.IOException;
@@ -35,7 +33,6 @@ import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.execution.Scope;
 import org.evosuite.utils.Randomness;
-import org.objectweb.asm.commons.GeneratorAdapter;
 
 /**
  * <p>
@@ -210,7 +207,7 @@ public class StringPrimitiveStatement extends PrimitiveStatement<String> {
 				retval.setObject(scope, null);
 			else {
 				// String literals may not be longer than 32767
-				if(((String)value).length() >= 32767)
+				if(value.length() >= 32767)
 					throw new CodeUnderTestException(new IllegalArgumentException("Maximum string length exceeded"));
 
 				// In the JUnit code we produce, strings are generated as

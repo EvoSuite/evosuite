@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
+
 package org.evosuite.contracts;
 
 import java.lang.reflect.Method;
@@ -41,7 +39,7 @@ import org.slf4j.LoggerFactory;
 public class EqualsContract extends Contract {
 
 	@SuppressWarnings("unused")
-	private static Logger logger = LoggerFactory.getLogger(Contract.class);
+	private static final Logger logger = LoggerFactory.getLogger(Contract.class);
 
 	/* (non-Javadoc)
 	 * @see org.evosuite.contracts.Contract#check(org.evosuite.testcase.TestCase, org.evosuite.testcase.Statement, org.evosuite.testcase.Scope, java.lang.Throwable)
@@ -74,15 +72,14 @@ public class EqualsContract extends Contract {
 					return new ContractViolation(this, statement, exception, var);
 
 			} catch (NullPointerException e) {
-				continue;
 				// No nullpointer exceptions may be thrown if the parameter was not null
 				// TODO: Use UndeclaredExceptionContract instead?
 				// return new ContractViolation(this, statement, e, var);
 				// Returning this contract violation is definitely wrong as it would look like equals returned false
 				
 				
-			} catch (Throwable t) {
-				continue;
+			} catch (Throwable ignored) {
+				// ignored
 			}
 		}
 

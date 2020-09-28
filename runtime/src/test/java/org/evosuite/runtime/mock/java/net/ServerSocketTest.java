@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -27,7 +27,6 @@ import java.net.Socket;
 import java.util.Scanner;
 
 import org.evosuite.runtime.mock.MockFramework;
-import org.evosuite.runtime.testdata.EvoSuiteAddress;
 import org.evosuite.runtime.testdata.EvoSuiteLocalAddress;
 import org.evosuite.runtime.vnet.NativeTcp;
 import org.evosuite.runtime.testdata.NetworkHandling;

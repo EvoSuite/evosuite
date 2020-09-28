@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -20,10 +20,7 @@
 package org.evosuite.symbolic.solver.z3;
 
 import static org.evosuite.symbolic.solver.TestSolver.solve;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.lang.reflect.Method;
 import java.util.Collection;
@@ -48,7 +45,7 @@ public class TestZ3HardConstraints extends TestZ3 {
 
 		DefaultTestCase tc = buildTestCase0();
 		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor.execute(tc);
-		assertTrue(!constraints.isEmpty());
+		assertFalse(constraints.isEmpty());
 		Map<String, Object> solution = solve(solver, constraints);
 		assertNotNull(solution);
 
@@ -62,7 +59,7 @@ public class TestZ3HardConstraints extends TestZ3 {
 
 		DefaultTestCase tc = buildTestCase1();
 		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor.execute(tc);
-		assertTrue(!constraints.isEmpty());
+		assertFalse(constraints.isEmpty());
 		Map<String, Object> solution = solve(solver, constraints);
 		assertNotNull(solution);
 
@@ -76,7 +73,7 @@ public class TestZ3HardConstraints extends TestZ3 {
 
 		DefaultTestCase tc = buildTestCase2();
 		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor.execute(tc);
-		assertTrue(!constraints.isEmpty());
+		assertFalse(constraints.isEmpty());
 		Map<String, Object> solution = solve(solver, constraints);
 		assertNull(solution);
 	}

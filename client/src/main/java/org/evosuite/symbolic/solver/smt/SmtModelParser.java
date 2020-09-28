@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -21,12 +21,10 @@ package org.evosuite.symbolic.solver.smt;
 
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
-import org.apache.commons.text.StringEscapeUtils;
 import org.evosuite.symbolic.solver.ResultParser;
 import org.evosuite.symbolic.solver.SolverErrorException;
 import org.evosuite.symbolic.solver.SolverParseException;
@@ -86,7 +84,7 @@ public final class SmtModelParser extends ResultParser {
 	}
 
 	private SolverResult parseModel(String cvc4ResultStr) {
-		Map<String, Object> solution = new HashMap<String, Object>();
+		Map<String, Object> solution = new HashMap<>();
 
 		String token;
 		StringTokenizer tokenizer = new StringTokenizer(cvc4ResultStr, "() \n\t", true);

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -72,7 +72,7 @@ public class OpenRegestryTest {
 	}
 	
 	interface Ifoo extends Remote{
-		public String getString() throws RemoteException;
+		String getString() throws RemoteException;
 	}
 	
 	class FooImpl implements Ifoo{

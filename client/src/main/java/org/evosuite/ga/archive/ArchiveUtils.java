@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -40,8 +40,10 @@ import org.evosuite.coverage.mutation.StrongMutationTestFitness;
 import org.evosuite.coverage.mutation.WeakMutationTestFitness;
 import org.evosuite.coverage.rho.RhoCoverageTestFitness;
 import org.evosuite.coverage.statement.StatementCoverageTestFitness;
+import org.evosuite.ga.FitnessFunction;
 import org.evosuite.runtime.util.AtMostOnceLogger;
-import org.evosuite.testcase.TestFitnessFunction;
+import org.evosuite.testcase.TestChromosome;
+import org.evosuite.utils.ArrayUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,7 +59,7 @@ public final class ArchiveUtils {
    * @param goal a {@link org.evosuite.testcase.TestFitnessFunction} object
    * @return true if criterion of goal is enabled, false otherwise
    */
-  public static boolean isCriterionEnabled(TestFitnessFunction goal) {
+  public static boolean isCriterionEnabled(FitnessFunction<TestChromosome> goal) {
     for (Properties.Criterion criterion : Properties.CRITERION) {
       switch (criterion) {
         case EXCEPTION:
@@ -167,9 +169,6 @@ public final class ArchiveUtils {
             return true;
           }
           break;
-        case REGRESSION:
-        case REGRESSIONTESTS:
-          break;
         case TRYCATCH:
           if (goal instanceof TryCatchCoverageTestFitness) {
             return true;
@@ -180,6 +179,12 @@ public final class ArchiveUtils {
           break;
       }
     }
+    if (ArrayUtil.contains(Properties.SECONDARY_OBJECTIVE, Properties.SecondaryObjective.IBRANCH)) {
+      if (goal instanceof IBranchTestFitness) {
+        return true;
+      }
+    }
+
     return false;
   }
 }

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -116,7 +116,7 @@ public class MockFileWriter extends FileWriter  implements OverrideMock{
 	}
 
 	@Override
-	public void write(char cbuf[], int off, int len) throws IOException {
+	public void write(char[] cbuf, int off, int len) throws IOException {
 		if(!MockFramework.isEnabled()){
 			super.write(cbuf, off, len);
 			return;

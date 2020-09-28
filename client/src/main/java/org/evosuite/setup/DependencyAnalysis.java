@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
+
 package org.evosuite.setup;
 
 import org.evosuite.PackageInfo;
@@ -55,11 +53,11 @@ import java.util.*;
  */
 public class DependencyAnalysis {
 
-	private static Logger logger = LoggerFactory.getLogger(DependencyAnalysis.class);
+	private static final Logger logger = LoggerFactory.getLogger(DependencyAnalysis.class);
 
-	private static Map<String, ClassNode> classCache = new LinkedHashMap<String, ClassNode>();
+	private static Map<String, ClassNode> classCache = new LinkedHashMap<>();
 
-	private static Map<String, CallGraph> callGraphs = new LinkedHashMap<String, CallGraph>();
+	private static Map<String, CallGraph> callGraphs = new LinkedHashMap<>();
 
 	private static InheritanceTree inheritanceTree = null;
 
@@ -72,30 +70,24 @@ public class DependencyAnalysis {
 		return inheritanceTree;
 	}
 
-	private static void initInheritanceTree(List<String> classPath) {
-		logger.debug("Calculate inheritance hierarchy");
-		inheritanceTree = InheritanceTreeGenerator.createFromClassPath(classPath);
+	public static void initInheritanceTree(List<String> classPath) {
+		if (inheritanceTree == null) {
+			logger.debug("Calculate inheritance hierarchy");
+			inheritanceTree = InheritanceTreeGenerator.createFromClassPath(classPath);
+		}
 		TestClusterGenerator clusterGenerator = new TestClusterGenerator(inheritanceTree);
 		TestGenerationContext.getInstance().setTestClusterGenerator(clusterGenerator);
 		InheritanceTreeGenerator.gatherStatistics(inheritanceTree);
 	}
 
-	private static void analyze(String className, List<String> classPath) throws RuntimeException,
-			ClassNotFoundException {
-
-		if (!inheritanceTree.hasClass(Properties.TARGET_CLASS)) {
-			throw new ClassNotFoundException("Target class not found in inheritance tree");
-		}
-
+	public static void initCallGraph(String className) {
 		logger.debug("Calculate call tree");
 		CallGraph callGraph = CallGraphGenerator.analyze(className);
 		callGraphs.put(className, callGraph);
-		loadCallTreeClasses(callGraph);
-
 		// include all the project classes in the inheritance tree and in the callgraph.
 		if (ArrayUtil.contains(Properties.CRITERION, Criterion.IBRANCH)
-				|| Properties.INSTRUMENT_CONTEXT) { 
- 
+				|| Properties.INSTRUMENT_CONTEXT) {
+
 			for (String classn : inheritanceTree.getAllClasses()) {
 				if (isTargetProject(classn)) {
 					CallGraphGenerator.analyzeOtherClasses(callGraph, classn);
@@ -104,9 +96,20 @@ public class DependencyAnalysis {
 		}
 
 		// TODO: Need to make sure that all classes in calltree are instrumented
-
 		logger.debug("Update call tree with calls to overridden methods");
 		CallGraphGenerator.update(callGraph, inheritanceTree);
+
+	}
+
+	private static void analyze(String className) throws RuntimeException,
+			ClassNotFoundException {
+
+		if (!inheritanceTree.hasClass(Properties.TARGET_CLASS)) {
+			throw new ClassNotFoundException("Target class not found in inheritance tree");
+		}
+
+		CallGraph callGraph = callGraphs.get(className);
+		loadCallTreeClasses(callGraph);
 
 		logger.debug("Create test cluster");
 
@@ -129,7 +132,9 @@ public class DependencyAnalysis {
 			ClassNotFoundException {
 
 		initInheritanceTree(classPath);
-		analyze(className, classPath);
+		initCallGraph(className);
+
+		analyze(className);
 	}
 
 	/**
@@ -145,7 +150,8 @@ public class DependencyAnalysis {
 		targetClasses = ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getAllClasses(target, false);
 		for (String className : targetClasses) {
 			Properties.TARGET_CLASS = className;
-			analyze(className, classPath);
+			initCallGraph(className);
+			analyze(className);
 		}
 
 		return targetClasses;
@@ -228,32 +234,9 @@ public class DependencyAnalysis {
 				&& !className.startsWith("sunw.")
 				&& !className.startsWith("org.jcp.")
 				&& !className.startsWith("org.ietf.") 
-				&& !className.startsWith("daikon.");
+				&& !className.startsWith("daikon.")
+				&& !className.startsWith("jdk.");
 	}
-
-//	private static String getProjectPackageApprox(String qualifiedName) {
-//		if (qualifiedName == null)
-//			throw new IllegalArgumentException();
-//		String[] splitted = qualifiedName.split("\\.");
-//		String result = "";
-//		if (splitted.length == 0)
-//			result = qualifiedName;
-//		else if (splitted.length == 1)
-//			result = splitted[0];
-//		else if (splitted.length == 2)
-//			result = splitted[0];
-//		else if (splitted[0].equals("com") || splitted[0].equals("org")
-//				|| splitted[0].equals("net") || splitted[0].equals("de")
-//				|| splitted[0].equals("it") || splitted[0].equals("ch") || splitted[0].equals("fr")
-//				|| splitted[0].equals("br") || splitted[0].equals("edu")
-//				|| splitted[0].equals("osa") || splitted[0].equals("uk")
-//				|| splitted[0].equals("gov") || splitted[0].equals("dk")) {
-//			result = splitted[0] + "." + splitted[1];
-//		} else
-//			result = splitted[0];
-//
-//		return result;
-//	}
 	
 	/**
 	 * Determine if the given class should be analyzed or instrumented
@@ -278,7 +261,8 @@ public class DependencyAnalysis {
 		// Also analyze if it is in the calltree and we are considering the
 		// context
 		if (Properties.INSTRUMENT_CONTEXT
-				|| ArrayUtil.contains(Properties.CRITERION, Criterion.DEFUSE)) {
+				|| ArrayUtil.contains(Properties.CRITERION, Criterion.DEFUSE)
+				|| ArrayUtil.contains(Properties.CRITERION, Criterion.IBRANCH)) {
 			CallGraph callGraph = callGraphs.get(Properties.TARGET_CLASS);
 			if (callGraph != null && callGraph.isCalledClass(className)) {
 				return true;
@@ -414,7 +398,7 @@ public class DependencyAnalysis {
 						.getInstance()
 						.getClientNode()
 						.trackOutputVariable(RuntimeVariable.Mutants,
-								MutationPool.getMutantCounter());
+								MutationPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getMutantCounter());
 				break;
 
 			default:

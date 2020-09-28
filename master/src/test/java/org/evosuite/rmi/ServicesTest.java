@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -51,10 +51,10 @@ public class ServicesTest {
 		
 		Properties.PROCESS_COMMUNICATION_PORT = master.getRegistryPort();
 		
-		ClientServices clients = new ClientServices();
+		ClientServices<?> clients = new ClientServices<>();
 		clients.registerServices("ClientNode");
 		
-		ClientNodeLocal clientNode = clients.getClientNode();
+		ClientNodeLocal<?> clientNode = clients.getClientNode();
 		clientNode.changeState(ClientState.STARTED);
 		
 		MasterNodeLocal masterNode = master.getMasterNode();

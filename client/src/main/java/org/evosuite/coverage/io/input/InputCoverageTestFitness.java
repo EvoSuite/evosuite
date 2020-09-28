@@ -171,7 +171,7 @@ public class InputCoverageTestFitness extends TestFitnessFunction {
               assert (argValue != null);
               assert (argValue instanceof Number);
               // TODO: ideally we should be able to tell between Number as an object, and primitive numeric types
-              double doubleValue = ((Number) argValue).doubleValue();
+              double doubleValue = argValue.doubleValue();
               if (Double.isNaN(doubleValue)) { // EvoSuite generates Double.NaN
                   return -1;
               }

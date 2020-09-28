@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
+
 package org.evosuite.testcase;
 
 import java.util.ArrayList;
@@ -118,7 +116,7 @@ public class ConstantInliner extends ExecutionObserver {
 	 * @return True if something was deleted
 	 */
 	public boolean removeUnusedVariables(TestCase t) {
-		List<Integer> toDelete = new ArrayList<Integer>();
+		List<Integer> toDelete = new ArrayList<>();
 		boolean hasDeleted = false;
 
 		int num = 0;
@@ -133,7 +131,7 @@ public class ConstantInliner extends ExecutionObserver {
 			}
 			num++;
 		}
-		Collections.sort(toDelete, Collections.reverseOrder());
+		toDelete.sort(Collections.reverseOrder());
 		for (Integer position : toDelete) {
 			t.remove(position);
 		}
@@ -182,7 +180,7 @@ public class ConstantInliner extends ExecutionObserver {
 				} else if (var.isString() && object != null) {
 					ConstantValue value = new ConstantValue(test, var.getGenericClass());
 					try {
-						String val = StringEscapeUtils.unescapeJava(new String(object.toString()));
+						String val = StringEscapeUtils.unescapeJava(object.toString());
 						if(val.length() < Properties.MAX_STRING) {
 							value.setValue(val);
 							statement.replace(var, value);

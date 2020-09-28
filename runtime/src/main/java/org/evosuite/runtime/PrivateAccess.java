@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -19,13 +19,9 @@
  */
 package org.evosuite.runtime;
 
-import org.evosuite.runtime.annotation.Constraints;
-import org.evosuite.runtime.javaee.injection.InjectionList;
-import org.evosuite.runtime.util.ReflectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -66,25 +62,7 @@ public class PrivateAccess {
      * @throws IllegalArgumentException if klass or fieldName are null
      * @throws FalsePositiveException  if the the field does not exist anymore (eg due to refactoring)
      */
-    public  static <T> void setVariable(Class<T> klass, T instance, String fieldName, Object value)
-            throws IllegalArgumentException, FalsePositiveException {
-        setVariable(klass,instance,fieldName,value,null);
-    }
-
-    /**
-     * Use reflection to set the given field
-     *
-     * @param klass
-     * @param instance  null if field is static
-     * @param fieldName
-     * @param value
-     * @param <T>  the class type
-     * @param tagsToCheck if not null, then the field has to have at least one the tags in such list
-     * @throws IllegalArgumentException if klass or fieldName are null
-     * @throws FalsePositiveException  if the the field does not exist anymore (eg due to refactoring)
-     */
-    public  static <T> void setVariable(Class<?> klass, T instance, String fieldName, Object value,
-                                        List<Class<? extends Annotation>> tagsToCheck)
+    public  static <T> void setVariable(Class<?> klass, T instance, String fieldName, Object value)
             throws IllegalArgumentException, FalsePositiveException {
 
         if(klass == null){
@@ -116,22 +94,6 @@ public class PrivateAccess {
         assert field != null;
         field.setAccessible(true);
 
-        if(tagsToCheck != null){
-            boolean match = false;
-            for(Annotation ann : ReflectionUtils.getDeclaredAnnotations(field)){
-                Class<? extends Annotation> tag = ann.annotationType();
-                if(InjectionList.isValidForInjection(tag, tagsToCheck)){
-                    match = true;
-                    break;
-                }
-            }
-
-            if(!match){
-                throw new IllegalArgumentException("The field "+fieldName+" in class "+klass.getName()+
-                        "does not have any valid annotation");
-            }
-        }
-
         try {
             Reflection.setField(field, instance, value);
         } catch (IllegalAccessException e) {
@@ -148,7 +110,6 @@ public class PrivateAccess {
      *
      * @throws Throwable
      */
-    @Constraints(atMostOnce = true, notMutable = true)
     public static Object callDefaultConstructorOfTheClassUnderTest() throws Throwable{
 
         Class<?> cut = Thread.currentThread().getContextClassLoader().loadClass(RuntimeSettings.className);
@@ -165,7 +126,6 @@ public class PrivateAccess {
      * @param <T>
      * @throws Throwable
      */
-    @Constraints(atMostOnce = true, noNullInputs = true, notMutable = true)
     public static <T> T callDefaultConstructor(Class<T> klass) throws Throwable{
 
         //TODO: not only should be atMostOnce in a test, but in the whole suite/archive

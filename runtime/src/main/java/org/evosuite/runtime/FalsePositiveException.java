@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -36,6 +36,8 @@ import org.junit.internal.AssumptionViolatedException;
  * Created by Andrea Arcuri on 05/10/15.
  */
 public class FalsePositiveException extends AssumptionViolatedException{
+
+    private static final long serialVersionUID = -7779068356023351829L;
 
     public FalsePositiveException(String assumption) {
         super(assumption);

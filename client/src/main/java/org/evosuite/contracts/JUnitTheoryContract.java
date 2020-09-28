@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -91,7 +91,7 @@ public class JUnitTheoryContract extends Contract {
 		try {
 			Constructor<?> defaultConstructor = theoryReceiver.getClass().getConstructor();
 			GenericConstructor constructor = new GenericConstructor(defaultConstructor, theoryReceiver.getClass());
-			Statement st1 = new ConstructorStatement(test, constructor, new ArrayList<VariableReference>());
+			Statement st1 = new ConstructorStatement(test, constructor, new ArrayList<>());
 			VariableReference receiver = test.addStatement(st1, position + 1);
 			
 			Statement st2 = new MethodStatement(test, theoryMethod, receiver, Arrays.asList(new VariableReference[] {test.getStatement(pos).getReturnValue()}));

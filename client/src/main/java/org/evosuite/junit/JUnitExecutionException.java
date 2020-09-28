@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -30,9 +30,7 @@ public class JUnitExecutionException extends Exception {
 		super(e);
 	}
 
-	/**
-	 * 
-	 */
+
 	private static final long serialVersionUID = 9063744097191003972L;
 
 }

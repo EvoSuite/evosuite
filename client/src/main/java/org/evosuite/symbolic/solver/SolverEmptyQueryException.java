@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -25,9 +25,7 @@ public final class SolverEmptyQueryException extends Exception {
 		super(errMsg);
 	}
 
-	/**
-	 * 
-	 */
+	
 	private static final long serialVersionUID = -1785572235903656252L;
 
 }

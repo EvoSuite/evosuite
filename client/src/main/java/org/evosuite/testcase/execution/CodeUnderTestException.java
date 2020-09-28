@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -33,9 +33,7 @@ import org.slf4j.LoggerFactory;
  */
 public class CodeUnderTestException extends Exception{
 
-	/**
-	 * 
-	 */
+
 	private static final long serialVersionUID = 1L;
 	private static final Logger logger = LoggerFactory.getLogger(CodeUnderTestException.class);
 	

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -136,7 +136,7 @@ public class PutStaticMethodCollector {
 	@SuppressWarnings("unchecked")
 	public Set<MethodIdentifier> collectMethods() {
 
-		Set<MethodIdentifier> methods = new LinkedHashSet<MethodIdentifier>();
+		Set<MethodIdentifier> methods = new LinkedHashSet<>();
 
 		for (String calledClassName : getStaticFields.keySet()) {
 			ClassNode classNode = DependencyAnalysis

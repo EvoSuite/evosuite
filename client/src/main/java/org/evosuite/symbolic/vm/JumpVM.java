@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -284,7 +284,7 @@ public final class JumpVM extends AbstractVM {
 			int maxGoalValue) {
 		final IntegerValue value = env.topFrame().operandStack.popBv32();
 
-		Vector<IntegerConstraint> constraints = new Vector<IntegerConstraint>();
+		Vector<IntegerConstraint> constraints = new Vector<>();
 
 		// process each time in the same order: lowest to highest target
 		boolean isDefaultGoal = true;
@@ -340,7 +340,7 @@ public final class JumpVM extends AbstractVM {
 		// this array every time as a paremeter?
 		final IntegerValue goal = env.topFrame().operandStack.popBv32();
 
-		Vector<IntegerConstraint> constraints = new Vector<IntegerConstraint>();
+		Vector<IntegerConstraint> constraints = new Vector<>();
 
 		boolean isDefaultGoal = true;
 		for (int targetConcrete : targetsConcrete) {

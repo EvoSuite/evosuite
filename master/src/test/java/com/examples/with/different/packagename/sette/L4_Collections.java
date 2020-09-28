@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -55,7 +55,7 @@ public final class L4_Collections {
 	}
 
 	public static boolean guessSize(int s) {
-		List<Integer> list = new ArrayList<Integer>();
+		List<Integer> list = new ArrayList<>();
 		list.add(10);
 		list.add(20);
 
@@ -67,7 +67,7 @@ public final class L4_Collections {
 	}
 
 	public static boolean guessElements(int a, int b) {
-		List<Integer> list = new ArrayList<Integer>();
+		List<Integer> list = new ArrayList<>();
 		list.add(10);
 		list.add(20);
 
@@ -79,7 +79,7 @@ public final class L4_Collections {
 	}
 
 	public static boolean guessSizeAndElements(int s, int a, int b) {
-		List<Integer> list = new ArrayList<Integer>();
+		List<Integer> list = new ArrayList<>();
 		list.add(10);
 		list.add(20);
 
@@ -91,7 +91,7 @@ public final class L4_Collections {
 	}
 
 	public static boolean guessIndices(int a, int b) {
-		List<Integer> list = new ArrayList<Integer>();
+		List<Integer> list = new ArrayList<>();
 		list.add(10);
 		list.add(20);
 		list.add(30);
@@ -106,7 +106,7 @@ public final class L4_Collections {
 	}
 
 	public static boolean guessElementAndIndex(int a, int i) {
-		List<Integer> list = new ArrayList<Integer>();
+		List<Integer> list = new ArrayList<>();
 		list.add(10);
 		list.add(20);
 		list.add(30);
@@ -121,7 +121,7 @@ public final class L4_Collections {
 	}
 
 	public static boolean guessVectorWithSize(
-			@SuppressWarnings("rawtypes") Vector v) {
+			 Vector v) {
 		if (v.size() == 3) {
 			return true;
 		} else {
@@ -138,14 +138,14 @@ public final class L4_Collections {
 	}
 
 	public static boolean guessGenericVectorWithElement(Vector<Integer> v) {
-		if (v.size() == 3 && v.get(0).equals(new Integer(5))) {
+		if (v.size() == 3 && v.get(0).equals(5)) {
 			return true;
 		} else {
 			return false;
 		}
 	}
 
-	public static boolean guessListWithSize(@SuppressWarnings("rawtypes") List l) {
+	public static boolean guessListWithSize( List l) {
 		if (l.size() == 3) {
 			return true;
 		} else {
@@ -162,7 +162,7 @@ public final class L4_Collections {
 	}
 
 	public static boolean guessGenericListWithElement(List<Integer> l) {
-		if (l.size() == 3 && l.get(0).equals(new Integer(5))) {
+		if (l.size() == 3 && l.get(0).equals(5)) {
 			return true;
 		} else {
 			return false;

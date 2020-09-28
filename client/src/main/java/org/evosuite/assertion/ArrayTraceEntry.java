@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
+
 package org.evosuite.assertion;
 
 import java.util.Arrays;
@@ -61,7 +59,7 @@ public class ArrayTraceEntry implements OutputTraceEntry {
 	 */
 	@Override
 	public Set<Assertion> getAssertions(OutputTraceEntry other) {
-		Set<Assertion> assertions = new HashSet<Assertion>();
+		Set<Assertion> assertions = new HashSet<>();
 		if (other instanceof ArrayTraceEntry) {
 			ArrayTraceEntry otherEntry = (ArrayTraceEntry) other;
 			if (!Arrays.equals(value, otherEntry.value)) {
@@ -80,7 +78,7 @@ public class ArrayTraceEntry implements OutputTraceEntry {
 	 */
 	@Override
 	public Set<Assertion> getAssertions() {
-		Set<Assertion> assertions = new HashSet<Assertion>();
+		Set<Assertion> assertions = new HashSet<>();
 		ArrayEqualsAssertion assertion = new ArrayEqualsAssertion();
 		assertion.source = var;
 		assertion.value = value;

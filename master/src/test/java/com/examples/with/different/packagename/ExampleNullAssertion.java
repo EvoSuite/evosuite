@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -29,7 +29,7 @@ public class ExampleNullAssertion {
 		if ( v < 0 ) {
 			return null;
 		} else {
-			return Short.valueOf( v );
+			return v;
 		}
 	}
 	

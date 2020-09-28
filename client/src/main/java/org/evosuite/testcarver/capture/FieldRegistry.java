@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -34,16 +34,16 @@ import java.util.Map;
 import java.util.Set;
 
 public final class FieldRegistry {
-	private static final Map<String, ReferenceQueue<?>> classRefQueueMapping = new LinkedHashMap<String, ReferenceQueue<?>>();
-	private static final Map<String, List<MyWeakRef<?>>> classInstanceMapping = new LinkedHashMap<String, List<MyWeakRef<?>>>();
+	private static final Map<String, ReferenceQueue<?>> classRefQueueMapping = new LinkedHashMap<>();
+	private static final Map<String, List<MyWeakRef<?>>> classInstanceMapping = new LinkedHashMap<>();
 
-	private static final Map<Integer, Map<String, WeakReference<?>>> instanceRecentFieldValuesMapping = new LinkedHashMap<Integer, Map<String, WeakReference<?>>>();
+	private static final Map<Integer, Map<String, WeakReference<?>>> instanceRecentFieldValuesMapping = new LinkedHashMap<>();
 
-	private static final Map<String, Map<String, Field>> classFieldsMapping = new LinkedHashMap<String, Map<String, Field>>();
+	private static final Map<String, Map<String, Field>> classFieldsMapping = new LinkedHashMap<>();
 
-	private static final Set<Class<?>> CLASSES = new LinkedHashSet<Class<?>>();
+	private static final Set<Class<?>> CLASSES = new LinkedHashSet<>();
 
-	private static final Set<Integer> registeredObjects = new LinkedHashSet<Integer>();
+	private static final Set<Integer> registeredObjects = new LinkedHashSet<>();
 	
 	private static final Logger logger = LoggerFactory.getLogger(FieldRegistry.class);
 
@@ -75,7 +75,7 @@ public final class FieldRegistry {
 		if (observedFields == null) {
 			// determine observable fields
 
-			observedFields = new LinkedHashMap<String, Field>();
+			observedFields = new LinkedHashMap<>();
 
 			collectAccessibleFields(observedFields, clazz, null);
 

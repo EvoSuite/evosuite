@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -28,11 +28,11 @@ public class TestCase97 {
 		StringReader reader = new StringReader(string0);
 		try {
 			int int0 = reader.read();
-			int int2 = (int) "Togliere sta roba".charAt(0);
+			int int2 = "Togliere sta roba".charAt(0);
 			Assertions.checkEquals(int0, int2);
 			
 			int int1 = reader.read();
-			int int3 = (int) "Togliere sta roba".charAt(1);
+			int int3 = "Togliere sta roba".charAt(1);
 			Assertions.checkEquals(int1, int3);
 
 			// consume remaining reader

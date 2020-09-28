@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -38,7 +38,7 @@ public class Spacing extends Metrics
 {
     public double evaluate(double[][] front)
     {
-        double d[] = new double[front.length];
+        double[] d = new double[front.length];
         double dbar = 0.0;
 
         for (int i = 0; i < front.length; i++)

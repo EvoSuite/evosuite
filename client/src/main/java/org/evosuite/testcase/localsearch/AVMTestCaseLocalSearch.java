@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -19,9 +19,6 @@
  */
 package org.evosuite.testcase.localsearch;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import org.evosuite.Properties;
 import org.evosuite.ga.localsearch.LocalSearchBudget;
 import org.evosuite.ga.localsearch.LocalSearchObjective;
@@ -36,7 +33,8 @@ import org.evosuite.testcase.statements.Statement;
  * @author galeotti
  *
  */
-public class AVMTestCaseLocalSearch extends TestCaseLocalSearch {
+public class AVMTestCaseLocalSearch extends TestCaseLocalSearch<TestChromosome> {
+
 
 	@Override
 	public boolean doSearch(TestChromosome individual, LocalSearchObjective<TestChromosome> objective) {
@@ -51,7 +49,7 @@ public class AVMTestCaseLocalSearch extends TestCaseLocalSearch {
 		if (individual.getLastExecutionResult() != null && !individual.isChanged()) {
 			Integer lastPos = individual.getLastExecutionResult().getFirstPositionOfThrownException();
 			if (lastPos != null)
-				lastPosition = lastPos.intValue();
+				lastPosition = lastPos;
 		}
 		TestCase test = individual.getTestCase();
 
@@ -85,7 +83,7 @@ public class AVMTestCaseLocalSearch extends TestCaseLocalSearch {
 			if (search != null) {
 				logger.info("Applying local search of type " + search.getClass() + " to statement " + statement + " / "
 						+ individual.getTestCase().getStatement(i));
-				if (search.doSearch(individual, i, (LocalSearchObjective<TestChromosome>) objective)) {
+				if (search.doSearch(individual, i, objective)) {
 					improved = true;
 				}
 				// i = s.getPosition();

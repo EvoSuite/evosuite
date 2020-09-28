@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -19,7 +19,6 @@
  */
 package org.evosuite.testsuite.similarity;
 
-import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.ga.metaheuristics.SearchListener;
 import org.evosuite.rmi.ClientServices;
@@ -36,13 +35,23 @@ import java.util.List;
 /**
  * Created by gordon on 18/12/2015.
  */
-public class DiversityObserver implements SearchListener {
+public class DiversityObserver implements SearchListener<TestSuiteChromosome> {
 
     private static final Logger logger = LoggerFactory.getLogger(DiversityObserver.class);
 
+    private static final long serialVersionUID = -3761776930918618235L;
+
+    public DiversityObserver() {
+        // empty default constructor
+    }
+
+    public DiversityObserver(DiversityObserver that) {
+        // empty copy constructor
+    }
+
     @Override
-    public void iteration(GeneticAlgorithm<?> algorithm) {
-        List<TestSuiteChromosome> individuals = (List<TestSuiteChromosome>) algorithm.getPopulation();
+    public void iteration(GeneticAlgorithm<TestSuiteChromosome> algorithm) {
+        List<TestSuiteChromosome> individuals = algorithm.getPopulation();
         double diversity = 0.0;
         int numComparisons = 0;
         for(int i = 0; i < individuals.size() - 1; i++) {
@@ -132,7 +141,7 @@ public class DiversityObserver implements SearchListener {
                 if(getUnderlyingType((ConstructorStatement) s1).equals(getUnderlyingType((ConstructorStatement) s2)))
                     similarity += 1;
             } else if(s1 instanceof PrimitiveStatement) {
-                if(getUnderlyingType((PrimitiveStatement) s1).equals(getUnderlyingType((PrimitiveStatement) s2)))
+                if(getUnderlyingType((PrimitiveStatement<?>) s1).equals(getUnderlyingType((PrimitiveStatement<?>) s2)))
                     similarity += 1;
             } else if(s1 instanceof MethodStatement) {
                 if(getUnderlyingType((MethodStatement) s1).equals(getUnderlyingType((MethodStatement) s2)))
@@ -162,37 +171,37 @@ public class DiversityObserver implements SearchListener {
         return fs.getField().getDeclaringClass();
     }
 
-    private static Class<?> getUnderlyingType(PrimitiveStatement ps) {
+    private static Class<?> getUnderlyingType(PrimitiveStatement<?> ps) {
         return ps.getReturnClass();
     }
 
 
     public static void printMatrix(int[][] matrix) {
-        for(int x = 0; x < matrix.length; x++) {
-            for(int y = 0; y < matrix[x].length; y++) {
-                System.out.print(" "+matrix[x][y]);
+        for (final int[] ints : matrix) {
+            for (final int i : ints) {
+                System.out.print(" " + i);
             }
             System.out.println();
         }
     }
 
     @Override
-    public void searchStarted(GeneticAlgorithm<?> algorithm) {
+    public void searchStarted(GeneticAlgorithm<TestSuiteChromosome> algorithm) {
 
     }
 
     @Override
-    public void searchFinished(GeneticAlgorithm<?> algorithm) {
+    public void searchFinished(GeneticAlgorithm<TestSuiteChromosome> algorithm) {
 
     }
 
     @Override
-    public void fitnessEvaluation(Chromosome individual) {
+    public void fitnessEvaluation(TestSuiteChromosome individual) {
 
     }
 
     @Override
-    public void modification(Chromosome individual) {
+    public void modification(TestSuiteChromosome individual) {
 
     }
 }

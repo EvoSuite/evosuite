@@ -57,7 +57,7 @@ public class HTMLStatisticsBackend implements StatisticsBackend {
 	protected static final HtmlAnalyzer html_analyzer = new HtmlAnalyzer();
 
 	@Override
-	public void writeData(Chromosome result, Map<String, OutputVariable<?>> data) {
+	public void writeData(Chromosome<?> result, Map<String, OutputVariable<?>> data) {
 
 		new File(getReportDir().getAbsolutePath() + "/img").mkdirs();
 		new File(getReportDir().getAbsolutePath() + "/html/files/").mkdirs();
@@ -344,7 +344,7 @@ public class HTMLStatisticsBackend implements StatisticsBackend {
 
 		OutputVariable<?> ov_covered_lines = data.get(RuntimeVariable.Covered_Lines.name()); 
 		@SuppressWarnings("unchecked")
-		Set<Integer> coveredLines = (ov_covered_lines != null) ? (Set<Integer>) ov_covered_lines.getValue() : new HashSet<Integer>();
+		Set<Integer> coveredLines = (ov_covered_lines != null) ? (Set<Integer>) ov_covered_lines.getValue() : new HashSet<>();
 				
 		// Source code
 		try {
@@ -388,15 +388,11 @@ public class HTMLStatisticsBackend implements StatisticsBackend {
 	
 	protected int getNumber(final String className) {
 		int num = 0;
-		FilenameFilter filter = new FilenameFilter() {
-			@Override
-			public boolean accept(File dir, String name) {
-				// report-ncs.Triangle-0.html
-				return name.startsWith("report-" + className)
-				        && (name.endsWith(".html"));
-			}
+		FilenameFilter filter = (dir, name) -> {
+			// report-ncs.Triangle-0.html
+			return name.startsWith("report-" + className) && (name.endsWith(".html"));
 		};
-		List<String> filenames = new ArrayList<String>();
+		List<String> filenames = new ArrayList<>();
 
 		File[] files = (new File(getReportDir().getAbsolutePath() + "/html")).listFiles(filter);
 		if (files != null) {
@@ -465,7 +461,7 @@ public class HTMLStatisticsBackend implements StatisticsBackend {
 		        + getOutputVariableValue(data, RuntimeVariable.Total_Goals.name()) + " total goals\n");
 		if(data.containsKey(RuntimeVariable.MutationScore.name()))
 				buffer.append("<li>Mutation score: "
-						+ NumberFormat.getPercentInstance().format((Double)data.get(RuntimeVariable.MutationScore.name()).getValue()) + "\n");
+						+ NumberFormat.getPercentInstance().format(data.get(RuntimeVariable.MutationScore.name()).getValue()) + "\n");
 
 		buffer.append("</ul>\n");
 	}

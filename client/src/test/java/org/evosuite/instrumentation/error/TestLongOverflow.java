@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -45,7 +45,7 @@ public class TestLongOverflow {
 	@Parameters
 	public static Collection<Object[]> data() {
 		Object[] values = new Object[] { Long.MIN_VALUE, Long.MIN_VALUE/2, 0, Long.MAX_VALUE/ 2, Long.MAX_VALUE};
-		List<Object[]> valuePairs = new ArrayList<Object[]>();
+		List<Object[]> valuePairs = new ArrayList<>();
 		for(Object val1 : values) {
 			for(Object val2 : values) {
 				valuePairs.add(new Object[] {val1, val2});

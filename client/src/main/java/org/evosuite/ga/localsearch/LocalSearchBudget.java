@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -16,9 +16,6 @@
  *
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
- */
-/**
- * 
  */
 package org.evosuite.ga.localsearch;
 
@@ -40,14 +37,14 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Gordon Fraser
  */
-public class LocalSearchBudget implements SearchListener, Serializable {
+public class LocalSearchBudget<T extends Chromosome<T>> implements SearchListener<T>, Serializable {
 
 	private static final long serialVersionUID = 9152147170303160131L;
 
 	private final static Logger logger = LoggerFactory.getLogger(LocalSearchBudget.class);
 	
 	// Singleton instance
-	private static LocalSearchBudget instance = null;
+	private static LocalSearchBudget<?> instance = null;
 	
 	protected int fitnessEvaluations = 0;
 	protected int tests          = 0;
@@ -64,11 +61,12 @@ public class LocalSearchBudget implements SearchListener, Serializable {
 	}
 	
 	// Singleton accessor
-	public static LocalSearchBudget getInstance() {
+	@SuppressWarnings("unchecked")
+	public static <T extends Chromosome<T>> LocalSearchBudget<T> getInstance() {
 		if(instance == null)
-			instance = new LocalSearchBudget();
+			instance = new LocalSearchBudget<>();
 		
-		return instance;
+		return (LocalSearchBudget<T>) instance;
 	}
 	
 	/**
@@ -149,7 +147,7 @@ public class LocalSearchBudget implements SearchListener, Serializable {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void searchStarted(GeneticAlgorithm<?> algorithm) {
+	public void searchStarted(GeneticAlgorithm<T> algorithm) {
 		ga = algorithm;
 		tests         = 0;
 		suites        = 0;
@@ -161,7 +159,7 @@ public class LocalSearchBudget implements SearchListener, Serializable {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void iteration(GeneticAlgorithm<?> algorithm) {
+	public void iteration(GeneticAlgorithm<T> algorithm) {
 		tests         = 0;
 		suites        = 0;
 		fitnessEvaluations      = 0;
@@ -172,7 +170,7 @@ public class LocalSearchBudget implements SearchListener, Serializable {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void searchFinished(GeneticAlgorithm<?> algorithm) {
+	public void searchFinished(GeneticAlgorithm<T> algorithm) {
 		ga = null;
 	}
 
@@ -181,7 +179,7 @@ public class LocalSearchBudget implements SearchListener, Serializable {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void fitnessEvaluation(Chromosome individual) {
+	public void fitnessEvaluation(T individual) {
 		// TODO Auto-generated method stub
 
 	}
@@ -191,7 +189,7 @@ public class LocalSearchBudget implements SearchListener, Serializable {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void modification(Chromosome individual) {
+	public void modification(T individual) {
 		// TODO Auto-generated method stub
 
 	}

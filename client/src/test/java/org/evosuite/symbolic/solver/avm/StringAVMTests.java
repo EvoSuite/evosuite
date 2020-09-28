@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -19,6 +19,7 @@
  */
 package org.evosuite.symbolic.solver.avm;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Collections;
@@ -101,7 +102,7 @@ public class StringAVMTests extends RandomizedTC {
 		assertTrue(succeded);
 		
 		String result = var.getConcreteValue();
-		assertTrue("Length="+result.length(), result.length()==6);
+        assertEquals("Length=" + result.length(), 6, result.length());
 		assertTrue(result, result.endsWith(start));
 	}
 	
@@ -122,7 +123,7 @@ public class StringAVMTests extends RandomizedTC {
 		assertTrue(succeded);
 		
 		String result = var.getConcreteValue();
-		assertTrue("Length="+result.length(), result.length()==6);
+        assertEquals("Length=" + result.length(), 6, result.length());
 		assertTrue(result, result.startsWith(start));
 	}
 	

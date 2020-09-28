@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -170,9 +170,7 @@ import java.io.Serializable;
  */
 public class MersenneTwister extends java.util.Random implements Serializable, Cloneable
     {
-    /**
-	 * 
-	 */
+
 	private static final long serialVersionUID = 5029210897197009538L;
 	// Period parameters
     private static final int N = 624;
@@ -185,9 +183,9 @@ public class MersenneTwister extends java.util.Random implements Serializable, C
     private static final int TEMPERING_MASK_B = 0x9d2c5680;
     private static final int TEMPERING_MASK_C = 0xefc60000;
     
-    private int mt[]; // the array for the state vector
+    private int[] mt; // the array for the state vector
     private int mti; // mti==N+1 means mt[N] is not initialized
-    private int mag01[];
+    private int[] mag01;
     
     // a good initial seed (of int size, though stored in a long)
     //private static final long GOOD_SEED = 4357;
@@ -640,7 +638,7 @@ public class MersenneTwister extends java.util.Random implements Serializable, C
      *
      * @param args an array of {@link java.lang.String} objects.
      */
-    public static void main(String args[])
+    public static void main(String[] args)
         { 
         int j;
 

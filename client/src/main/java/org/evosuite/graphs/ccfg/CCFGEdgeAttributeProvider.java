@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -29,7 +29,7 @@ public class CCFGEdgeAttributeProvider implements ComponentAttributeProvider<CCF
 	/** {@inheritDoc} */
 	@Override
 	public Map<String, String> getComponentAttributes(CCFGEdge edge) {
-		Map<String, String> r = new HashMap<String, String>();
+		Map<String, String> r = new HashMap<>();
 		if(edge instanceof CCFGFrameEdge) {
 			r.put("style", "dotted");
 		} else if(edge instanceof CCFGMethodCallEdge) {

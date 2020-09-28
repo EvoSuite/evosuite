@@ -1,9 +1,7 @@
 package org.evosuite.symbolic.solver;
 
 import static org.evosuite.symbolic.solver.TestSolver.solve;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
@@ -25,7 +23,7 @@ public abstract class TestSolverIsInteger extends TestSolver {
 	public void testIsInteger()
 			throws SecurityException, NoSuchMethodException, SolverTimeoutException {
 
-		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
+		List<Constraint<?>> constraints = new ArrayList<>();
 
 		constraints.add(new IntegerConstraint(
 				new StringUnaryToIntegerExpression(new StringVariable("var0", "-123"), Operator.IS_INTEGER, 0L),

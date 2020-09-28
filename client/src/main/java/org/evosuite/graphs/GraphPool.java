@@ -48,7 +48,7 @@ import org.slf4j.LoggerFactory;
  */
 public class GraphPool {
 
-	private static Logger logger = LoggerFactory.getLogger(GraphPool.class);
+	private static final Logger logger = LoggerFactory.getLogger(GraphPool.class);
 
 	private static Map<ClassLoader, GraphPool> instanceMap = new HashMap<>();
 

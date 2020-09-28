@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -22,10 +22,8 @@ package org.evosuite.coverage.exception;
 import org.evosuite.Properties;
 import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
 import org.evosuite.ga.archive.Archive;
-import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.execution.ExecutionResult;
-import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 
 import java.util.List;
 import java.util.Map;
@@ -40,11 +38,11 @@ public class TryCatchCoverageSuiteFitness extends BranchCoverageSuiteFitness {
     /**
      * Make sure we only include artificial branches
      */
-    protected void determineCoverageGoals() {
+    protected void determineCoverageGoals(boolean updateArchive) {
         List<TryCatchCoverageTestFitness> goals = new TryCatchCoverageFactory().getCoverageGoals();
         for (TryCatchCoverageTestFitness goal : goals) {
 
-            if(Properties.TEST_ARCHIVE)
+            if(updateArchive && Properties.TEST_ARCHIVE)
                 Archive.getArchiveInstance().addTarget(goal);
 
             branchesId.add(goal.getBranch().getActualBranchId());
