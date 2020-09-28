@@ -22,7 +22,7 @@ public abstract class TestSolverIsInteger extends TestSolver {
 	public void testIsInteger()
 			throws SecurityException, NoSuchMethodException, SolverTimeoutException {
 
-		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
+		List<Constraint<?>> constraints = new ArrayList<>();
 
 		constraints.add(new IntegerConstraint(
 				new StringUnaryToIntegerExpression(new StringVariable("var0", "-123"), Operator.IS_INTEGER, 0L),

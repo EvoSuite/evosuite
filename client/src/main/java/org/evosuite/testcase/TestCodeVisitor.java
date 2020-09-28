@@ -46,7 +46,6 @@ import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.assertion.*;
 import org.evosuite.classpath.ResourceList;
-import org.evosuite.parameterize.InputVariable;
 import org.evosuite.runtime.TooManyResourcesException;
 import org.evosuite.runtime.mock.EvoSuiteMock;
 import org.evosuite.testcase.fm.MethodDescriptor;
@@ -360,8 +359,6 @@ public class TestCodeVisitor extends TestVisitor {
 			if(cval.getValue() != null && cval.getVariableClass().equals(Class.class)) {
 				return getClassName((Class<?>)cval.getValue())+".class";
 			}
-			return var.getName();
-		} else if (var instanceof InputVariable) {
 			return var.getName();
 		} else if (var instanceof FieldReference) {
 			VariableReference source = ((FieldReference) var).getSource();
@@ -1577,12 +1574,6 @@ public class TestCodeVisitor extends TestVisitor {
 
 				//from class EvoAssertions
 				result += "   verifyException(\"" + sourceClass + "\", e);" + NEWLINE;
-		}
-		
-		// Add assertion on the message (feel free to remove the isRegression() Condition)
-		if (Properties.isRegression() && exception.getMessage() != null) {
-			result += "   assertTrue(e.getMessage().equals(\"" + StringEscapeUtils.escapeJava(exceptionMessage) + "\"));";
-			result += "   \n";
 		}
 
 		result += "}" + NEWLINE;// closing the catch block

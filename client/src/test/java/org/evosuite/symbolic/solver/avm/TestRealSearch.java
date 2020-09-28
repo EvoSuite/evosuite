@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -45,7 +45,7 @@ public class TestRealSearch extends RandomizedTC {
 
 	@Test
 	public void testEQConstant() {
-		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
+		List<Constraint<?>> constraints = new ArrayList<>();
 		constraints.add(new RealConstraint(new RealVariable("test1", 0.675464, Float.MIN_VALUE, Float.MAX_VALUE),
 				Comparator.EQ, new RealConstant(2.35082)));
 
@@ -55,7 +55,7 @@ public class TestRealSearch extends RandomizedTC {
 			result = solve(skr, constraints);
 			assertNotNull(result);
 			assertNotNull(result.get("test1"));
-			assertTrue(2.35082 == ((Number) result.get("test1")).doubleValue());
+            assertEquals(2.35082, ((Number) result.get("test1")).doubleValue(), 0.0);
 		} catch (SolverTimeoutException e) {
 			fail();
 		}
@@ -63,7 +63,7 @@ public class TestRealSearch extends RandomizedTC {
 
 	@Test
 	public void testNEConstant() {
-		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
+		List<Constraint<?>> constraints = new ArrayList<>();
 		constraints.add(new RealConstraint(new RealVariable("test1", 2.35082, -1000000.0, 1000000.0), Comparator.NE,
 				new RealConstant(2.35082)));
 
@@ -82,7 +82,7 @@ public class TestRealSearch extends RandomizedTC {
 	@Test
 	public void testLEConstant() {
 
-		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
+		List<Constraint<?>> constraints = new ArrayList<>();
 		constraints.add(new RealConstraint(new RealVariable("test1", 5.35086, -1000000.0, 1000000.0), Comparator.LE,
 				new RealConstant(2.35082)));
 
@@ -100,7 +100,7 @@ public class TestRealSearch extends RandomizedTC {
 
 	@Test
 	public void testLTConstant() {
-		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
+		List<Constraint<?>> constraints = new ArrayList<>();
 		constraints.add(new RealConstraint(new RealVariable("test1", 5.35086, -1000000.0, 1000000.0), Comparator.LT,
 				new RealConstant(2.35082)));
 
@@ -118,7 +118,7 @@ public class TestRealSearch extends RandomizedTC {
 
 	@Test
 	public void testGEConstant() {
-		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
+		List<Constraint<?>> constraints = new ArrayList<>();
 		constraints.add(new RealConstraint(new RealVariable("test1", 0, -1000000.0, 1000000.0), Comparator.GE,
 				new RealConstant(2.35082)));
 
@@ -136,7 +136,7 @@ public class TestRealSearch extends RandomizedTC {
 
 	@Test
 	public void testGTConstant() {
-		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
+		List<Constraint<?>> constraints = new ArrayList<>();
 		constraints.add(new RealConstraint(new RealVariable("test1", 0, -1000000.0, 1000000.0), Comparator.GT,
 				new RealConstant(2.35082)));
 
@@ -154,7 +154,7 @@ public class TestRealSearch extends RandomizedTC {
 
 	@Test
 	public void testEQConstantAfterComma() {
-		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
+		List<Constraint<?>> constraints = new ArrayList<>();
 		constraints.add(new RealConstraint(new RealVariable("test1", 0, -1000000.0, 1000000.0), Comparator.EQ,
 				new RealConstant(0.35082)));
 
@@ -164,7 +164,7 @@ public class TestRealSearch extends RandomizedTC {
 			result = solve(skr, constraints);
 			assertNotNull(result);
 			assertNotNull(result.get("test1"));
-			assertTrue(0.35082 == ((Number) result.get("test1")).doubleValue());
+            assertEquals(0.35082, ((Number) result.get("test1")).doubleValue(), 0.0);
 		} catch (SolverTimeoutException e) {
 			fail();
 		}
@@ -173,7 +173,7 @@ public class TestRealSearch extends RandomizedTC {
 	@Test
 	public void testLEConstantAfterComma() {
 
-		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
+		List<Constraint<?>> constraints = new ArrayList<>();
 		constraints.add(new RealConstraint(new RealVariable("test1", 2.35086, -1000000.0, 1000000.0), Comparator.LE,
 				new RealConstant(2.35082)));
 
@@ -191,7 +191,7 @@ public class TestRealSearch extends RandomizedTC {
 
 	@Test
 	public void testLTConstantAfterComma() {
-		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
+		List<Constraint<?>> constraints = new ArrayList<>();
 		constraints.add(new RealConstraint(new RealVariable("test1", 2.35086, -1000000.0, 1000000.0), Comparator.LT,
 				new RealConstant(2.35082)));
 
@@ -209,7 +209,7 @@ public class TestRealSearch extends RandomizedTC {
 
 	@Test
 	public void testGEConstantAfterComma() {
-		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
+		List<Constraint<?>> constraints = new ArrayList<>();
 		constraints.add(new RealConstraint(new RealVariable("test1", 2.0, -1000000.0, 1000000.0), Comparator.GE,
 				new RealConstant(2.35082)));
 
@@ -227,7 +227,7 @@ public class TestRealSearch extends RandomizedTC {
 
 	@Test
 	public void testGTConstantAfterComma() {
-		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
+		List<Constraint<?>> constraints = new ArrayList<>();
 		constraints.add(new RealConstraint(new RealVariable("test1", 2.0, -1000000.0, 1000000.0), Comparator.GT,
 				new RealConstant(2.35082)));
 
@@ -247,7 +247,7 @@ public class TestRealSearch extends RandomizedTC {
 	public void testEQVariable() {
 		double var1 = 0.23123;
 		double var2 = 1.12321;
-		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
+		List<Constraint<?>> constraints = new ArrayList<>();
 		constraints.add(new RealConstraint(new RealVariable("test1", var1, -1000000.0, 1000000.0), Comparator.EQ,
 				new RealVariable("test2", var2, -1000000.0, 1000000.0)));
 
@@ -271,7 +271,7 @@ public class TestRealSearch extends RandomizedTC {
 	public void testNEVariable() {
 		double var1 = 1.5546;
 		double var2 = 1.5546;
-		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
+		List<Constraint<?>> constraints = new ArrayList<>();
 		constraints.add(new RealConstraint(new RealVariable("test1", var1, -1000000.0, 1000000.0), Comparator.NE,
 				new RealVariable("test2", var2, -1000000.0, 1000000.0)));
 
@@ -294,7 +294,7 @@ public class TestRealSearch extends RandomizedTC {
 	public void testLEVariable() {
 		double var1 = 2.6576;
 		double var2 = 1.434;
-		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
+		List<Constraint<?>> constraints = new ArrayList<>();
 		constraints.add(new RealConstraint(new RealVariable("test1", var1, -1000000.0, 1000000.0), Comparator.LE,
 				new RealVariable("test2", var2, -1000000.0, 1000000.0)));
 
@@ -317,7 +317,7 @@ public class TestRealSearch extends RandomizedTC {
 	public void testLTVariable() {
 		double var1 = 2.6576;
 		double var2 = 1.434;
-		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
+		List<Constraint<?>> constraints = new ArrayList<>();
 		constraints.add(new RealConstraint(new RealVariable("test1", var1, -1000000.0, 1000000.0), Comparator.LT,
 				new RealVariable("test2", var2, -1000000.0, 1000000.0)));
 
@@ -340,7 +340,7 @@ public class TestRealSearch extends RandomizedTC {
 	public void testGEVariable() {
 		double var1 = 0.7868;
 		double var2 = 1.9765;
-		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
+		List<Constraint<?>> constraints = new ArrayList<>();
 		constraints.add(new RealConstraint(new RealVariable("test1", var1, -1000000.0, 1000000.0), Comparator.GE,
 				new RealVariable("test2", var2, -1000000.0, 1000000.0)));
 
@@ -363,7 +363,7 @@ public class TestRealSearch extends RandomizedTC {
 	public void testGTVariable() {
 		double var1 = 0.7868;
 		double var2 = 1.9765;
-		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
+		List<Constraint<?>> constraints = new ArrayList<>();
 		constraints.add(new RealConstraint(new RealVariable("test1", var1, -1000000.0, 1000000.0), Comparator.GT,
 				new RealVariable("test2", var2, -1000000.0, 1000000.0)));
 
@@ -394,7 +394,7 @@ public class TestRealSearch extends RandomizedTC {
 		// x < y
 		// x >= 0
 
-		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
+		List<Constraint<?>> constraints = new ArrayList<>();
 		constraints.add(new RealConstraint(realVar1, Comparator.LE, new RealConstant(0)));
 		constraints.add(new RealConstraint(realVar1, Comparator.LT, realVar2));
 		constraints.add(new RealConstraint(realVar1, Comparator.GE, new RealConstant(0)));
@@ -423,7 +423,7 @@ public class TestRealSearch extends RandomizedTC {
 
 		RealVariable realVar = new RealVariable("test1", var1, -1000000, 1000000);
 
-		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
+		List<Constraint<?>> constraints = new ArrayList<>();
 		constraints.add(new RealConstraint(realVar, Comparator.GE, new RealConstant(0.0)));
 		constraints.add(new RealConstraint(realVar, Comparator.EQ, new RealConstant(0.0)));
 
@@ -449,7 +449,7 @@ public class TestRealSearch extends RandomizedTC {
 
 		RealVariable realVar1 = new RealVariable("test1", var1, -1000000, 1000000);
 		RealVariable realVar2 = new RealVariable("test2", var2, -1000000, 1000000);
-		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
+		List<Constraint<?>> constraints = new ArrayList<>();
 		constraints.add(new RealConstraint(
 				new RealBinaryExpression(new RealBinaryExpression(new RealConstant(1102.5), Operator.PLUS, realVar1,
 						1.22209997177135E16), Operator.MUL, realVar2, -5.57687492989087E32),
@@ -477,7 +477,7 @@ public class TestRealSearch extends RandomizedTC {
 		double var1 = 1.0;
 
 		RealVariable realVar1 = new RealVariable("test1", var1, Double.MIN_VALUE, Double.MAX_VALUE);
-		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
+		List<Constraint<?>> constraints = new ArrayList<>();
 		final double doubleValue = 2000.087658834634;
 
 		constraints.add(

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -34,7 +34,7 @@ public class MethodReturnsPrimitive {
 	}
 	
 	public long testLong(long x, long y) {
-		return (long) (x - y);
+		return x - y;
 	}
 	
 	public char testChar(int x, int y) {

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -48,9 +48,11 @@ import org.evosuite.testsuite.TestSuiteChromosome;
  * 
  * @author Andre Mis
  */
-public final class TestCaseRecycler implements SearchListener {
+public final class TestCaseRecycler<T extends Chromosome<T>> implements SearchListener<T> {
 
-	private static TestCaseRecycler instance;
+	private static final long serialVersionUID = -2372656982678139994L;
+
+	private static TestCaseRecycler<?> instance;
 
 	private final Set<TestCase> testPool;
 
@@ -61,32 +63,33 @@ public final class TestCaseRecycler implements SearchListener {
 	 * 
 	 * @return a {@link org.evosuite.seeding.TestCaseRecycler} object.
 	 */
-	public static TestCaseRecycler getInstance() {
+	@SuppressWarnings("unchecked")
+	public static <T extends Chromosome<T>> TestCaseRecycler<T> getInstance() {
 		if (instance == null)
-			instance = new TestCaseRecycler();
-		return instance;
+			instance = new TestCaseRecycler<>();
+		return (TestCaseRecycler<T>) instance;
 	}
 
 	private TestCaseRecycler() {
-		testPool = new LinkedHashSet<TestCase>();
+		testPool = new LinkedHashSet<>();
 	}
 
 
 	@Override
-	public void searchStarted(GeneticAlgorithm<?> algorithm) {
+	public void searchStarted(GeneticAlgorithm<T> algorithm) {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void iteration(GeneticAlgorithm<?> algorithm) {
+	public void iteration(GeneticAlgorithm<T> algorithm) {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void searchFinished(GeneticAlgorithm<?> algorithm) {
-		Chromosome individual = algorithm.getBestIndividual();
+	public void searchFinished(GeneticAlgorithm<T> algorithm) {
+		T individual = algorithm.getBestIndividual();
 		if(individual instanceof TestChromosome) {
 			TestChromosome testChromosome = (TestChromosome)individual;
 			testPool.add(testChromosome.getTestCase());
@@ -97,13 +100,13 @@ public final class TestCaseRecycler implements SearchListener {
 	}
 
 	@Override
-	public void fitnessEvaluation(Chromosome individual) {
+	public void fitnessEvaluation(T individual) {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void modification(Chromosome individual) {
+	public void modification(T individual) {
 		// TODO Auto-generated method stub
 		
 	}

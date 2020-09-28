@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -137,14 +137,14 @@ public abstract class Constraint<T extends Object> implements Serializable {
 	}
 
 	public Set<Variable<?>> getVariables() {
-		Set<Variable<?>> result = new HashSet<Variable<?>>();
+		Set<Variable<?>> result = new HashSet<>();
 		result.addAll(this.getLeftOperand().getVariables());
 		result.addAll(this.getRightOperand().getVariables());
 		return result;
 	}
 
 	public Set<Object> getConstants() {
-		Set<Object> result = new HashSet<Object>();
+		Set<Object> result = new HashSet<>();
 		result.addAll(this.getLeftOperand().getConstants());
 		result.addAll(this.getRightOperand().getConstants());
 		return result;

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -20,7 +20,7 @@
 package org.evosuite.symbolic.vm;
 
 import org.evosuite.symbolic.IfBranchCondition;
-import org.evosuite.symbolic.PathConditionNode;
+import org.evosuite.symbolic.BranchCondition;
 import org.evosuite.symbolic.SwitchBranchCondition;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.constraint.IntegerConstraint;
@@ -36,9 +36,9 @@ import java.util.List;
  */
 public final class PathConditionCollector {
 
-	private final List<PathConditionNode> pathConditionNodes = new LinkedList<PathConditionNode>();
+	private final List<BranchCondition> branchConditions = new LinkedList<>();
 
-	private final LinkedList<Constraint<?>> currentSupportingConstraints = new LinkedList<Constraint<?>>();
+	private final LinkedList<Constraint<?>> currentSupportingConstraints = new LinkedList<>();
 
 	private static Constraint<?> normalizeConstraint(IntegerConstraint c) {
 		return ConstraintNormalizer.normalize(c);
@@ -62,17 +62,19 @@ public final class PathConditionCollector {
 	 * @param constraint
 	 *            the constraint for the branch condition
 	 * @param className
+	 * 						the class name where the branch is
 	 * @param methodName
+	 * 						the method where the branch is
 	 */
 	public void appendSupportingCondition(IntegerConstraint constraint, String className, String methodName) {
 
 		Constraint<?> normalizedConstraint = normalizeConstraint(constraint);
 
-		/** Note (ilebrero): instruction index is kept for retro-compatibility only*/
-		PathConditionNode pathConditionNode = new PathConditionNode(className, methodName, Integer.MIN_VALUE, normalizedConstraint,
+		/** Note (ilebrero): instruction index is kept for retro-compatibility only */
+		BranchCondition branchCondition = new BranchCondition(className, methodName, Integer.MIN_VALUE, normalizedConstraint,
 				new LinkedList<>());
 
-		pathConditionNodes.add(pathConditionNode);
+		branchConditions.add(branchCondition);
 	}
 
 	/**
@@ -92,13 +94,13 @@ public final class PathConditionCollector {
 
 		Constraint<?> normalizedConstraint = normalizeConstraint(c);
 
-		LinkedList<Constraint<?>> branch_supporting_constraints = new LinkedList<Constraint<?>>(
-			currentSupportingConstraints);
+		LinkedList<Constraint<?>> branch_supporting_constraints = new LinkedList<>(
+				currentSupportingConstraints);
 
 		IfBranchCondition new_branch = new IfBranchCondition(className, methName, branchIndex, normalizedConstraint,
 				branch_supporting_constraints, isTrueBranch);
 
-		pathConditionNodes.add(new_branch);
+		branchConditions.add(new_branch);
 
 		currentSupportingConstraints.clear();
 	}
@@ -118,13 +120,13 @@ public final class PathConditionCollector {
 
 		Constraint<?> normalizedConstraint = normalizeConstraint(c);
 
-		LinkedList<Constraint<?>> branch_supporting_constraints = new LinkedList<Constraint<?>>(
+		LinkedList<Constraint<?>> branch_supporting_constraints = new LinkedList<>(
 				currentSupportingConstraints);
 
 		SwitchBranchCondition new_branch = new SwitchBranchCondition(className, methodName, instructionIndex,
 				normalizedConstraint, branch_supporting_constraints, goal);
 
-		pathConditionNodes.add(new_branch);
+		branchConditions.add(new_branch);
 
 		currentSupportingConstraints.clear();
 
@@ -135,8 +137,8 @@ public final class PathConditionCollector {
 	 * 
 	 * @return
 	 */
-	public List<PathConditionNode> getPathCondition() {
-		return new LinkedList<PathConditionNode>(pathConditionNodes);
+	public List<BranchCondition> getPathCondition() {
+		return new LinkedList<>(branchConditions);
 	}
 
 	/**
@@ -153,13 +155,13 @@ public final class PathConditionCollector {
 
 		Constraint<?> normalizedConstraint = normalizeConstraint(c);
 
-		LinkedList<Constraint<?>> branch_supporting_constraints = new LinkedList<Constraint<?>>(
-			currentSupportingConstraints);
+		LinkedList<Constraint<?>> branch_supporting_constraints = new LinkedList<>(
+				currentSupportingConstraints);
 
 		SwitchBranchCondition new_branch = new SwitchBranchCondition(className, methodName, instructionIndex,
 				normalizedConstraint, branch_supporting_constraints);
 
-		pathConditionNodes.add(new_branch);
+		branchConditions.add(new_branch);
 
 		currentSupportingConstraints.clear();
 

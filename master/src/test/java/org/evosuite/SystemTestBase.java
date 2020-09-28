@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -113,6 +113,7 @@ public class SystemTestBase {
 		Properties.SERIALIZE_RESULT = false;
 		Properties.JUNIT_TESTS = false;
 		Properties.PLOT = false;
+		Properties.CLASS_PREFIX = "";
 
 		Properties.STOPPING_CONDITION = StoppingCondition.MAXSTATEMENTS;
 		Properties.SEARCH_BUDGET = 30000;
@@ -149,7 +150,7 @@ public class SystemTestBase {
 	 * next month, and so on in a %12 ring
 	 * @return
      */
-	private final long getSeed(){
+	private long getSeed(){
 
 		String id = this.getClass().getName() + "#" + name.getMethodName();
 		Integer counter = executionCounter.computeIfAbsent(id, c -> 0);
@@ -345,7 +346,7 @@ public class SystemTestBase {
 		hasBeenAlreadyRun = false;
 	}
 	
-	@SuppressWarnings("unchecked")
+
 	protected GeneticAlgorithm<?> getGAFromResult(Object result) {
 		assert(result instanceof List);
 		List<List<TestGenerationResult>> results = (List<List<TestGenerationResult>>)result;
@@ -354,7 +355,7 @@ public class SystemTestBase {
 		return results.get(0).get(0).getGeneticAlgorithm();
 	}
 
-	protected ExplorationAlgorithmBase<?> getDSEAFromResult(Object result) {
+	protected ExplorationAlgorithmBase getDSEAFromResult(Object result) {
 		assert (result instanceof List);
 		List<List<TestGenerationResult>> results = (List<List<TestGenerationResult>>) result;
 		assert (results.size() == 1);

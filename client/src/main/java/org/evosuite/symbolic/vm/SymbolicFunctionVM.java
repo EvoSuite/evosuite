@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -283,7 +283,7 @@ public final class SymbolicFunctionVM extends AbstractVM {
 		return op.getReference();
 	}
 
-	private final Map<FunctionKey, SymbolicFunction> functionsTable = new HashMap<FunctionKey, SymbolicFunction>();
+	private final Map<FunctionKey, SymbolicFunction> functionsTable = new HashMap<>();
 
 	private SymbolicFunction getFunction(String owner, String name, String desc) {
 		FunctionKey k = new FunctionKey(owner, name, desc);

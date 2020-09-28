@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -26,18 +26,18 @@ public  interface Variable<T extends Object> extends Expression<T> {
 	 * @param <T> a T object.
 	 * @return a {@link java.lang.String} object.
 	 */
-	public String getName();
+    String getName();
 	
 	/**
 	 * <p>getMinValue</p>
 	 *
 	 * @return a T object.
 	 */
-	public T getMinValue();
+    T getMinValue();
 	/**
 	 * <p>getMaxValue</p>
 	 *
 	 * @return a T object.
 	 */
-	public T getMaxValue();
+    T getMaxValue();
 }

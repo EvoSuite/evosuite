@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
  */
 public class JUnitTestSuite {
 
-	private static Logger logger = LoggerFactory.getLogger(JUnitTestSuite.class);
+	private static final Logger logger = LoggerFactory.getLogger(JUnitTestSuite.class);
 
 	private Set<String> coveredMethods;
 
@@ -64,7 +64,7 @@ public class JUnitTestSuite {
 			JUnitCore.runClasses(forName);
 			ExecutionTrace trace = ExecutionTracer.getExecutionTracer().getTrace();
 
-			coveredMethods = new HashSet<String>();
+			coveredMethods = new HashSet<>();
 			coveredBranchesTrue = trace.getCoveredTrueBranches();
 			coveredBranchesFalse = trace.getCoveredFalseBranches();
 
@@ -84,9 +84,9 @@ public class JUnitTestSuite {
 	 * @param chromosome a {@link org.evosuite.testsuite.TestSuiteChromosome} object.
 	 */
 	public void runSuite(TestSuiteChromosome chromosome) {
-		coveredMethods = new HashSet<String>();
-		coveredBranchesTrue = new HashSet<Integer>();
-		coveredBranchesFalse = new HashSet<Integer>();
+		coveredMethods = new HashSet<>();
+		coveredBranchesTrue = new HashSet<>();
+		coveredBranchesFalse = new HashSet<>();
 
 		for (TestCase test : chromosome.getTests()) {
 			ExecutionResult result = runTest(test);

@@ -60,13 +60,15 @@ public abstract class TestGenerationStrategy {
 	public abstract TestSuiteChromosome generateTests();
 	
 	/** There should only be one */
-	protected final ProgressMonitor progressMonitor = new ProgressMonitor();
+	protected final ProgressMonitor<TestSuiteChromosome> progressMonitor = new ProgressMonitor<>();
 
 	/** There should only be one */
-	protected ZeroFitnessStoppingCondition zeroFitness = new ZeroFitnessStoppingCondition();
+	protected ZeroFitnessStoppingCondition<TestSuiteChromosome> zeroFitness =
+			new ZeroFitnessStoppingCondition<>();
 	
 	/** There should only be one */
-	protected StoppingCondition globalTime = new GlobalTimeStoppingCondition();
+	protected StoppingCondition<TestSuiteChromosome> globalTime =
+			new GlobalTimeStoppingCondition<>();
 
     protected void sendExecutionStatistics() {
         ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Statements_Executed, MaxStatementsStoppingCondition.getNumExecutedStatements());
@@ -97,7 +99,8 @@ public abstract class TestGenerationStrategy {
 	 * @param stoppingCondition
 	 * @return
 	 */
-	protected boolean isFinished(TestSuiteChromosome chromosome, StoppingCondition stoppingCondition) {
+	protected boolean isFinished(TestSuiteChromosome chromosome,
+								 StoppingCondition<TestSuiteChromosome> stoppingCondition) {
 		if (stoppingCondition.isFinished())
 			return true;
 
@@ -117,7 +120,7 @@ public abstract class TestGenerationStrategy {
 	 * Convert property to actual stopping condition
 	 * @return
 	 */
-	protected StoppingCondition getStoppingCondition() {
+	protected StoppingCondition<TestSuiteChromosome> getStoppingCondition() {
 		return StoppingConditionFactory.getStoppingCondition(Properties.STOPPING_CONDITION);
 	}
 

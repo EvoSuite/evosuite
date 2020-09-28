@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -22,7 +22,6 @@ package org.evosuite.symbolic.vm.string;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.Operator;
 import org.evosuite.symbolic.expr.bv.IntegerValue;
 import org.evosuite.symbolic.expr.bv.StringUnaryToIntegerExpression;
@@ -65,7 +64,7 @@ public abstract class Substring extends SymbolicFunction {
 
 			StringMultipleExpression symb_value = new StringMultipleExpression(
 					str_expr, Operator.SUBSTRING, beginIndexExpr,
-					new ArrayList<Expression<?>>(Collections
+					new ArrayList<>(Collections
 							.singletonList(endIndexExpr)),
 					conc_ret_val);
 
@@ -103,7 +102,7 @@ public abstract class Substring extends SymbolicFunction {
 
 			StringMultipleExpression symb_value = new StringMultipleExpression(
 					str_expr, Operator.SUBSTRING, beginIndexExpr,
-					new ArrayList<Expression<?>>(Collections
+					new ArrayList<>(Collections
 							.singletonList(lengthExpr)),
 					conc_ret_val);
 

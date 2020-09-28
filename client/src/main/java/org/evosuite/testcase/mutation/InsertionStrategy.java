@@ -57,5 +57,5 @@ public interface InsertionStrategy {
 	 * @return the updated position of the last valid statement after insertion, or a negative
 	 * 		   number if insertion failed
 	 */
-	public int insertStatement(TestCase test, int lastPosition);
+    int insertStatement(TestCase test, int lastPosition);
 }

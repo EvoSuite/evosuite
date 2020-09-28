@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -373,7 +373,7 @@ public class MockServerSocket extends ServerSocket implements OverrideMock {
         }
         if (isClosed())
 			throw new SocketException("Socket is closed");
-		getImpl().setOption(SocketOptions.SO_TIMEOUT, new Integer(timeout));
+		getImpl().setOption(SocketOptions.SO_TIMEOUT, timeout);
 	}
 
 	@Override
@@ -386,7 +386,7 @@ public class MockServerSocket extends ServerSocket implements OverrideMock {
 		Object o = getImpl().getOption(SocketOptions.SO_TIMEOUT);
 		/* extra type safety */
 		if (o instanceof Integer) {
-			return ((Integer) o).intValue();
+			return (Integer) o;
 		} else {
 			return 0;
 		}
@@ -400,7 +400,7 @@ public class MockServerSocket extends ServerSocket implements OverrideMock {
         }
         if (isClosed())
 			throw new SocketException("Socket is closed");
-		getImpl().setOption(SocketOptions.SO_REUSEADDR, Boolean.valueOf(on));
+		getImpl().setOption(SocketOptions.SO_REUSEADDR, on);
 	}
 
 	@Override
@@ -410,7 +410,7 @@ public class MockServerSocket extends ServerSocket implements OverrideMock {
         }
         if (isClosed())
 			throw new SocketException("Socket is closed");
-		return ((Boolean) (getImpl().getOption(SocketOptions.SO_REUSEADDR))).booleanValue();
+		return (Boolean) (getImpl().getOption(SocketOptions.SO_REUSEADDR));
 	}
 
 	@Override

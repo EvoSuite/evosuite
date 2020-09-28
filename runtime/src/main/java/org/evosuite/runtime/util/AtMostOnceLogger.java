@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -35,7 +35,7 @@ public class AtMostOnceLogger {
      * Keep tracks of messages that should be log only once.
      *	Note: yes, this is a static field, but has no impact on test generation, so not a big deal
      */
-    private static final Map<Logger, Set<String>> atMostOnceLogs = new ConcurrentHashMap();
+    private static final Map<Logger, Set<String>> atMostOnceLogs = new ConcurrentHashMap<>();
 
 
     private static synchronized void logAtMostOnce(Logger logger, String message, boolean error){

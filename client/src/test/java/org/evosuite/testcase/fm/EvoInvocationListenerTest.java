@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -42,10 +42,10 @@ import static org.mockito.Mockito.withSettings;
 public class EvoInvocationListenerTest {
 
     public interface Foo{
-        public int parseString(String s);
-        public int parseString(String s, boolean flag);
-        public int parseString(String s, Object obj);
-        public int parseString(String s, Foo foo);
+        int parseString(String s);
+        int parseString(String s, boolean flag);
+        int parseString(String s, Object obj);
+        int parseString(String s, Foo foo);
     }
 
     public class AClassWithFinal{
@@ -128,7 +128,7 @@ public class EvoInvocationListenerTest {
         res = foo.parseString("bar", foo);
         Assert.assertEquals(4, res);
 
-        res = foo.parseString("bar", (Foo) null);
+        res = foo.parseString("bar", null);
         Assert.assertEquals(4, res);
 
         list = listener.getCopyOfMethodDescriptors();

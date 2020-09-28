@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -29,11 +29,11 @@ public class GenericClassTwoParameters<K, V> {
 	}
 	
 	public static <X, Y> GenericClassTwoParameters<X, Y> create() {
-		return new GenericClassTwoParameters<X, Y>();
+		return new GenericClassTwoParameters<>();
 	}
 	
 	public List<V> get(K key) {
-		return new ArrayList<V>();
+		return new ArrayList<>();
 	}
 	
 	public int testMe() {

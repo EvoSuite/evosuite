@@ -46,7 +46,7 @@ public class LazyArraysImpl implements ArraysSection {
    *
    * TODO: Implement Strings and References
    */
-	private final Map<ReferenceExpression, SymbolicArray> symbolicArrays = new HashMap();
+	private final Map<ReferenceExpression, SymbolicArray> symbolicArrays = new HashMap<>();
 
   @Override
   public ReferenceExpression arrayLoad(ReferenceExpression symbolicArray, IntegerValue symbolicIndex, ReferenceExpression symbolicValue) {

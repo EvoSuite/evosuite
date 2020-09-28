@@ -24,17 +24,17 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Nasser Albunian
  */
-public class CellularGA<T extends Chromosome> extends GeneticAlgorithm<T>{
+public class CellularGA<T extends Chromosome<T>> extends GeneticAlgorithm<T> {
 	
 	private static final long serialVersionUID = 7846967347821123201L;
 	
 	private static final Logger logger = LoggerFactory.getLogger(CellularGA.class);
 
 	/** An object of ReplacementFunction **/
-	protected ReplacementFunction replacementFunction;
+	protected ReplacementFunction<T> replacementFunction;
 	
 	/** Constructing the neighbourhood **/
-	private Neighbourhood<T> neighb;
+	private final Neighbourhood<T> neighb;
 	
 	/** Constructing the temporary grid */
 	private List<T> temp_cells = new ArrayList<>();
@@ -46,9 +46,9 @@ public class CellularGA<T extends Chromosome> extends GeneticAlgorithm<T>{
 		
 		super(factory);
 		
-		neighb = new Neighbourhood<T>(Properties.POPULATION);
+		neighb = new Neighbourhood<>(Properties.POPULATION);
 		
-		setReplacementFunction(new FitnessReplacementFunction());
+		setReplacementFunction(new FitnessReplacementFunction<>());
 		
 		LoggingUtils.getEvoLogger().info("* Running the Cellular GA with the '" + Properties.MODEL + "' neighbourhoods model ");
 	}
@@ -83,7 +83,7 @@ public class CellularGA<T extends Chromosome> extends GeneticAlgorithm<T>{
 			List<T> neighbors = neighb.getNeighbors(population, i);
 			
 			if (getFitnessFunction().isMaximizationFunction()) {
-				Collections.sort(neighbors, Collections.reverseOrder());
+				neighbors.sort(Collections.reverseOrder());
 			} else {
 				Collections.sort(neighbors);
 			}
@@ -94,10 +94,8 @@ public class CellularGA<T extends Chromosome> extends GeneticAlgorithm<T>{
 			T parent1 = parents.get(0);
 			T parent2 = parents.get(1);
 			
-			@SuppressWarnings("unchecked")
-			T offspring1 = (T)parent1.clone();
-			@SuppressWarnings("unchecked")
-			T offspring2 = (T)parent2.clone();
+			T offspring1 = parent1.clone();
+			T offspring2 = parent2.clone();
 			
 			
 			try {
@@ -309,7 +307,7 @@ public class CellularGA<T extends Chromosome> extends GeneticAlgorithm<T>{
 	 * @param replacement_function
 	 *            a {@link org.evosuite.ga.ReplacementFunction} object.
 	 */
-	public void setReplacementFunction(ReplacementFunction replacement_function) {
+	public void setReplacementFunction(ReplacementFunction<T> replacement_function) {
 		this.replacementFunction = replacement_function;
 	}
 
@@ -320,7 +318,7 @@ public class CellularGA<T extends Chromosome> extends GeneticAlgorithm<T>{
 	 * 
 	 * @return a {@link org.evosuite.ga.ReplacementFunction} object.
 	 */
-	public ReplacementFunction getReplacementFunction() {
+	public ReplacementFunction<T> getReplacementFunction() {
 		return replacementFunction;
 	}
 

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -34,7 +34,7 @@ import org.objectweb.asm.Opcodes;
 public class KillSwitchMethodAdapter extends MethodVisitor {
 
 	public KillSwitchMethodAdapter(MethodVisitor mv, String methodName, String desc) {
-		super(Opcodes.ASM7, mv);
+		super(Opcodes.ASM9, mv);
 	}
 	
 	@Override

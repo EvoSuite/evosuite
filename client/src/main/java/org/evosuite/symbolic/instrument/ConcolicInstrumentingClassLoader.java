@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -47,10 +47,10 @@ public class ConcolicInstrumentingClassLoader extends ClassLoader {
 	//private final static Logger logger = LoggerFactory.getLogger(DscInstrumentingClassLoader.class);
 
 	private final ClassLoader classLoader;
-	private final BytecodeInstrumentation instrumentation;
-	private final Map<String, Class<?>> classes = new HashMap<String, Class<?>>();
-	
-	public ConcolicInstrumentingClassLoader(BytecodeInstrumentation instrumentation) {
+	private final ConcolicBytecodeInstrumentation instrumentation;
+	private final Map<String, Class<?>> classes = new HashMap<>();
+
+	public ConcolicInstrumentingClassLoader(ConcolicBytecodeInstrumentation instrumentation) {
 		super(ConcolicInstrumentingClassLoader.class.getClassLoader());
 
 		this.instrumentation = instrumentation;

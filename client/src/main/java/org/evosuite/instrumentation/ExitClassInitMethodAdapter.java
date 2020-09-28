@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
+
 package org.evosuite.instrumentation;
 
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
@@ -56,7 +54,7 @@ public class ExitClassInitMethodAdapter extends MethodVisitor {
 	 */
 	public ExitClassInitMethodAdapter(String className, String methodName,
 			MethodVisitor mv) {
-		super(Opcodes.ASM7, mv);
+		super(Opcodes.ASM9, mv);
 		this.className = className;
 		this.methodName = methodName;
 	}
@@ -132,7 +130,7 @@ public class ExitClassInitMethodAdapter extends MethodVisitor {
 		String type;
 	}
 
-	private final List<TryCatchBlock> tryCatchBlocks = new LinkedList<TryCatchBlock>();
+	private final List<TryCatchBlock> tryCatchBlocks = new LinkedList<>();
 
 	@Override
 	public void visitTryCatchBlock(Label start, Label end, Label handler,

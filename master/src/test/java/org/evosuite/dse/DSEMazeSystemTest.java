@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -21,7 +21,6 @@ package org.evosuite.dse;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeTrue;
 
 import com.examples.with.different.packagename.solver.MazeClientArrays;
@@ -81,7 +80,7 @@ public class DSEMazeSystemTest extends SystemTestBase {
 		String[] command = new String[] { "-generateSuiteUsingDSE", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		ExplorationAlgorithmBase<?> dse = getDSEAFromResult(result);
+		ExplorationAlgorithmBase dse = getDSEAFromResult(result);
 		TestSuiteChromosome best = dse.getGeneratedTestSuite();
 
 		System.out.println("EvolvedTestSuite:\n" + best);
@@ -103,7 +102,7 @@ public class DSEMazeSystemTest extends SystemTestBase {
 		String[] command = new String[] { "-generateSuiteUsingDSE", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		ExplorationAlgorithmBase<?> dse = getDSEAFromResult(result);
+		ExplorationAlgorithmBase dse = getDSEAFromResult(result);
 		TestSuiteChromosome best = dse.getGeneratedTestSuite();
 
 		System.out.println("EvolvedTestSuite:\n" + best);
@@ -125,7 +124,7 @@ public class DSEMazeSystemTest extends SystemTestBase {
 		String[] command = new String[] { "-generateSuiteUsingDSE", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		ExplorationAlgorithmBase<?> dse = getDSEAFromResult(result);
+		ExplorationAlgorithmBase dse = getDSEAFromResult(result);
 		TestSuiteChromosome best = dse.getGeneratedTestSuite();
 
 		System.out.println("EvolvedTestSuite:\n" + best);

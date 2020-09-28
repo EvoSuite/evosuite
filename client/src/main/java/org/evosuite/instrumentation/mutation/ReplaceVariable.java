@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- *
- */
+
 package org.evosuite.instrumentation.mutation;
 
 import java.io.FileDescriptor;
@@ -35,6 +33,7 @@ import java.util.Map.Entry;
 import org.apache.commons.lang3.ClassUtils;
 import org.evosuite.PackageInfo;
 import org.evosuite.Properties;
+import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.mutation.Mutation;
 import org.evosuite.coverage.mutation.MutationPool;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
@@ -65,7 +64,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ReplaceVariable implements MutationOperator {
 
-	private static Logger logger = LoggerFactory.getLogger(ReplaceVariable.class);
+	private static final Logger logger = LoggerFactory.getLogger(ReplaceVariable.class);
 
 	public static final String NAME = "ReplaceVariable";
 	
@@ -76,7 +75,7 @@ public class ReplaceVariable implements MutationOperator {
 	@Override
 	public List<Mutation> apply(MethodNode mn, String className, String methodName,
 	        BytecodeInstruction instruction, Frame frame) {
-		List<Mutation> mutations = new LinkedList<Mutation>();
+		List<Mutation> mutations = new LinkedList<>();
 		if (mn.localVariables.isEmpty()) {
 			logger.debug("Have no information about local variables - recompile with full debug information");
 			return mutations;
@@ -99,7 +98,7 @@ public class ReplaceVariable implements MutationOperator {
 				}
 
 				// insert mutation into pool
-				Mutation mutationObject = MutationPool.addMutation(className,
+				Mutation mutationObject = MutationPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).addMutation(className,
 				                                                   methodName,
 				                                                   NAME + " "
 				                                                           + origName
@@ -318,7 +317,7 @@ public class ReplaceVariable implements MutationOperator {
 	 */
 	private Map<String, InsnList> getReplacements(MethodNode mn, String className,
 	        AbstractInsnNode node, Frame frame) {
-		Map<String, InsnList> variables = new HashMap<String, InsnList>();
+		Map<String, InsnList> variables = new HashMap<>();
 
 		if (node instanceof VarInsnNode) {
 			VarInsnNode var = (VarInsnNode) node;
@@ -336,9 +335,7 @@ public class ReplaceVariable implements MutationOperator {
 				variables.putAll(getFieldReplacements(mn, className, origVar.desc, node));
 			} catch (VariableNotFoundException e) {
 				logger.info("Could not find variable, not replacing it: " + var.var);
-				Iterator<?> it = mn.localVariables.iterator();
-				while (it.hasNext()) {
-					LocalVariableNode n = (LocalVariableNode) it.next();
+				for (final LocalVariableNode n : mn.localVariables) {
 					logger.info(n.index + ": " + n.name);
 				}
 				logger.info(e.toString());
@@ -389,7 +386,7 @@ public class ReplaceVariable implements MutationOperator {
 
 	private Map<String, InsnList> getLocalReplacements(MethodNode mn, String desc,
 	        AbstractInsnNode node, Frame frame) {
-		Map<String, InsnList> replacements = new HashMap<String, InsnList>();
+		Map<String, InsnList> replacements = new HashMap<>();
 
 		//if (desc.equals("I"))
 		//	return replacements;
@@ -447,7 +444,7 @@ public class ReplaceVariable implements MutationOperator {
 
 	private Map<String, InsnList> getLocalReplacementsInc(MethodNode mn, String desc,
 	        IincInsnNode node, Frame frame) {
-		Map<String, InsnList> replacements = new HashMap<String, InsnList>();
+		Map<String, InsnList> replacements = new HashMap<>();
 
 		int otherNum = -1;
 		otherNum = node.var;
@@ -492,7 +489,7 @@ public class ReplaceVariable implements MutationOperator {
 
 	private Map<String, InsnList> getFieldReplacements(MethodNode mn, String className,
 	        String desc, AbstractInsnNode node) {
-		Map<String, InsnList> alternatives = new HashMap<String, InsnList>();
+		Map<String, InsnList> alternatives = new HashMap<>();
 
 		boolean isStatic = (mn.access & Opcodes.ACC_STATIC) == Opcodes.ACC_STATIC;
 

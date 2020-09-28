@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -53,7 +53,7 @@ public class RhoAux {
    * @return
    */
   public static List<LineCoverageTestFitness> getLineGoals() {
-    List<LineCoverageTestFitness> goals = new ArrayList<LineCoverageTestFitness>();
+    List<LineCoverageTestFitness> goals = new ArrayList<>();
 
     /*TestFitnessFactory<? extends TestFitnessFunction> factory = FitnessFunctions.getFitnessFactory(Properties.Criterion.ONLYLINE);
     for (TestFitnessFunction goal : factory.getCoverageGoals()) {
@@ -66,7 +66,7 @@ public class RhoAux {
         continue;
       }
 
-      Set<Integer> lines = new LinkedHashSet<Integer>();
+      Set<Integer> lines = new LinkedHashSet<>();
       for (String methodName : LinePool.getKnownMethodsFor(className)) {
         lines.addAll(LinePool.getLines(className, methodName));
       }

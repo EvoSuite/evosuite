@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -32,15 +32,15 @@ import org.evosuite.symbolic.expr.Constraint;
  */
 public class PathCondition {
 
-	private final List<PathConditionNode> pathCondition;
+	private final List<BranchCondition> pathCondition;
 
 	/**
 	 * Creates a new path condition from a list of path condition nodes
 	 * 
-	 * @param pathConditionNodes
+	 * @param branchConditions
 	 */
-	public PathCondition(List<PathConditionNode> pathConditionNodes) {
-		this.pathCondition = new LinkedList<PathConditionNode>(pathConditionNodes);
+	public PathCondition(List<BranchCondition> branchConditions) {
+		this.pathCondition = new LinkedList<>(branchConditions);
 	}
 
 	/**
@@ -49,8 +49,8 @@ public class PathCondition {
 	 * @return
 	 */
 	public List<Constraint<?>> getConstraints() {
-		List<Constraint<?>> constraints = new LinkedList<Constraint<?>>();
-		for (PathConditionNode b : this.pathCondition) {
+		List<Constraint<?>> constraints = new LinkedList<>();
+		for (BranchCondition b : this.pathCondition) {
 			constraints.addAll(b.getSupportingConstraints());
 			constraints.add(b.getConstraint());
 		}
@@ -62,7 +62,7 @@ public class PathCondition {
 	 * 
 	 * @return
 	 */
-	public List<PathConditionNode> getPathConditionNodes() {
+	public List<BranchCondition> getBranchConditions () {
 		return this.pathCondition;
 	}
 
@@ -90,7 +90,7 @@ public class PathCondition {
 	 * @param index
 	 * @return
 	 */
-	public PathConditionNode get(int index) {
+	public BranchCondition get(int index) {
 		return this.pathCondition.get(index);
 	}
 	

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,18 +17,13 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
+
 package org.evosuite.testcase;
 
-import org.apache.commons.lang3.math.NumberUtils;
 import org.evosuite.Properties;
 import org.evosuite.lm.StringLMOptimizer;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.statements.*;
-import org.evosuite.testcase.statements.numeric.BooleanPrimitiveStatement;
-import org.evosuite.testcase.statements.numeric.NumericalPrimitiveStatement;
 import org.evosuite.testcase.variable.ConstantValue;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testsuite.TestSuiteChromosome;
@@ -45,10 +40,10 @@ import org.slf4j.LoggerFactory;
  */
 public class ValueMinimizer extends TestVisitor {
 
-	private static Logger logger = LoggerFactory.getLogger(ValueMinimizer.class);
+	private static final Logger logger = LoggerFactory.getLogger(ValueMinimizer.class);
 
-	public static interface Minimization {
-		public boolean isNotWorse();
+	public interface Minimization {
+		boolean isNotWorse();
 	}
 
 	private static class TestMinimization implements Minimization {

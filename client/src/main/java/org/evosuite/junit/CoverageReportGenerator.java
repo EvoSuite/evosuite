@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
+
 package org.evosuite.junit;
 
 import java.io.File;
@@ -39,20 +37,20 @@ public class CoverageReportGenerator {
 	public static void writeCoverage(boolean[][] coverage, Properties.Criterion criterion) {
 
 		StringBuilder suite = new StringBuilder();
-		for (int i = 0; i < coverage.length; i++) {
+		for (final boolean[] c : coverage) {
 			StringBuilder test = new StringBuilder();
 
-			for (int j = 0; j < coverage[i].length - 1; j++) {
-				if (coverage[i][j])
+			for (int j = 0; j < c.length - 1; j++) {
+				if (c[j])
 					test.append("1 ");
 				else
 					test.append("0 ");
 			}
 
 			if (!test.toString().contains("1")) // if a test case does not contains a "1", means it does not coverage anything
-				continue ;
+				continue;
 
-			if (coverage[i][coverage[i].length - 1])
+			if (c[c.length - 1])
 				test.append("+\n");
 			else
 				test.append("-\n");

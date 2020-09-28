@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -28,27 +28,27 @@ import org.objectweb.asm.Type;
 
 public interface Types {
 
-	public static final String JAVA_UTIL_REGEX_MATCHER = Matcher.class
+	String JAVA_UTIL_REGEX_MATCHER = Matcher.class
 			.getName().replace('.', '/');
-	public static final String JAVA_UTIL_REGEX_PATTERN = Pattern.class
+	String JAVA_UTIL_REGEX_PATTERN = Pattern.class
 			.getName().replace('.', '/');
 
-	public static final Type STR_TYPE = Type.getType(String.class);
+	Type STR_TYPE = Type.getType(String.class);
 
-	public static final Type CHARSEQ_TYPE = Type.getType(CharSequence.class);
+	Type CHARSEQ_TYPE = Type.getType(CharSequence.class);
 
-	public static final Type MATCHER_TYPE = Type.getType(Matcher.class);
+	Type MATCHER_TYPE = Type.getType(Matcher.class);
 
-	public static final String CHARSEQ_TO_MATCHER = Type.getMethodDescriptor(
+	String CHARSEQ_TO_MATCHER = Type.getMethodDescriptor(
 			MATCHER_TYPE, CHARSEQ_TYPE);
-	public static final String TO_BOOLEAN = Type
+	String TO_BOOLEAN = Type
 			.getMethodDescriptor(Type.BOOLEAN_TYPE);
-	public static final String STR_CHARSEQ_TO_BOOLEAN = Type
+	String STR_CHARSEQ_TO_BOOLEAN = Type
 			.getMethodDescriptor(BOOLEAN_TYPE, STR_TYPE, CHARSEQ_TYPE);
 
-	public static final String JAVA_LANG_STRING = String.class.getName()
+	String JAVA_LANG_STRING = String.class.getName()
 			.replace('.', '/');
-	public static final String JAVA_LANG_STRING_BUILDER = StringBuilder.class
+	String JAVA_LANG_STRING_BUILDER = StringBuilder.class
 			.getName().replace('.', '/');
 
 }

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,12 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
 package org.evosuite;
-
-import java.io.Serializable;
 
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
@@ -31,7 +26,8 @@ import org.evosuite.ga.stoppingconditions.StoppingCondition;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.rmi.service.ClientState;
 import org.evosuite.rmi.service.ClientStateInformation;
-import org.evosuite.testsuite.TestSuiteChromosome;
+
+import java.io.Serializable;
 
 /**
  * <p>
@@ -40,19 +36,38 @@ import org.evosuite.testsuite.TestSuiteChromosome;
  * 
  * @author gordon
  */
-public class ProgressMonitor implements SearchListener, Serializable {
+public class ProgressMonitor<T extends Chromosome<T>> implements SearchListener<T>, Serializable {
 
 	private static final long serialVersionUID = -8518559681906649686L;
 
-	private StoppingCondition stoppingCondition = null;
-	private long max = 1;
-	private int currentCoverage = 0;
+	private StoppingCondition<T> stoppingCondition;
+	private long max;
+	private int currentCoverage;
 
-	protected int lastCoverage = 0;
-	protected int lastProgress = 0;
-	protected int iteration = 0;
-	protected ClientState state = ClientState.INITIALIZATION;
+	protected int lastCoverage;
+	protected int lastProgress;
+	protected int iteration;
+	protected ClientState state;
 
+	public ProgressMonitor() {
+		stoppingCondition = null;
+		max = 1;
+		currentCoverage = 0;
+		lastCoverage = 0;
+		lastProgress = 0;
+		iteration = 0;
+		state = ClientState.INITIALIZATION;
+	}
+
+	public ProgressMonitor(ProgressMonitor<T> that) {
+		this.stoppingCondition = that.stoppingCondition.clone();
+		this.max = that.max;
+		this.currentCoverage = that.currentCoverage;
+		this.lastCoverage = that.lastCoverage;
+		this.lastProgress = that.lastProgress;
+		this.iteration = that.iteration;
+		this.state = that.state;
+	}
 
 	/**
 	 * <p>
@@ -84,8 +99,8 @@ public class ProgressMonitor implements SearchListener, Serializable {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void searchStarted(GeneticAlgorithm<?> algorithm) {
-		for(StoppingCondition cond : algorithm.getStoppingConditions()) {
+	public void searchStarted(GeneticAlgorithm<T> algorithm) {
+		for(StoppingCondition<T> cond : algorithm.getStoppingConditions()) {
 			if(cond.getLimit() == 0) // No ZeroStoppingCondition
 				continue;
 			stoppingCondition = cond;
@@ -99,9 +114,9 @@ public class ProgressMonitor implements SearchListener, Serializable {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void iteration(GeneticAlgorithm<?> algorithm) {
+	public void iteration(GeneticAlgorithm<T> algorithm) {
 		long current = stoppingCondition.getCurrentValue();
-		currentCoverage = (int) Math.floor(((TestSuiteChromosome) algorithm.getBestIndividual()).getCoverage() * 100);
+		currentCoverage = (int) Math.floor(algorithm.getBestIndividual().getCoverage() * 100);
 		updateStatus((int) (100 * current / max));
 		iteration++;
 	}
@@ -111,8 +126,8 @@ public class ProgressMonitor implements SearchListener, Serializable {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void searchFinished(GeneticAlgorithm<?> algorithm) {
-		currentCoverage = (int) Math.floor(((TestSuiteChromosome) algorithm.getBestIndividual()).getCoverage() * 100);
+	public void searchFinished(GeneticAlgorithm<T> algorithm) {
+		currentCoverage = (int) Math.floor(algorithm.getBestIndividual().getCoverage() * 100);
 		if(currentCoverage > lastCoverage) {
 			updateStatus((int) (100 * stoppingCondition.getCurrentValue() / max));
 		}
@@ -124,9 +139,9 @@ public class ProgressMonitor implements SearchListener, Serializable {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void fitnessEvaluation(Chromosome individual) {
+	public void fitnessEvaluation(T individual) {
 		int current = (int) ((int)(100 * stoppingCondition.getCurrentValue())/max);
-		currentCoverage = (int) Math.floor(((TestSuiteChromosome) individual).getCoverage() * 100);
+		currentCoverage = (int) Math.floor(individual.getCoverage() * 100);
 		if(currentCoverage > lastCoverage || current > lastProgress)
 			updateStatus(current);
 	}
@@ -136,7 +151,7 @@ public class ProgressMonitor implements SearchListener, Serializable {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void modification(Chromosome individual) {
+	public void modification(T individual) {
 		// TODO Auto-generated method stub
 
 	}

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -42,7 +42,7 @@ import org.slf4j.LoggerFactory;
  */
 public class MasterServices {
 
-	private static Logger logger = LoggerFactory.getLogger(MasterServices.class);
+	private static final Logger logger = LoggerFactory.getLogger(MasterServices.class);
 	
 	private static MasterServices instance = new MasterServices();
 	

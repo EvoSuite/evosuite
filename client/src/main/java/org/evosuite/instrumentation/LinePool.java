@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
+
 package org.evosuite.instrumentation;
 
 import java.util.HashSet;
@@ -36,7 +34,7 @@ import java.util.Set;
 public class LinePool {
 
 	/** Map class names to methods to sets of line numbers */
-	private static Map<String, Map<String, Set<Integer>>> lineMap = new LinkedHashMap<String, Map<String, Set<Integer>>>();
+	private static Map<String, Map<String, Set<Integer>>> lineMap = new LinkedHashMap<>();
 
 	/**
 	 * Insert line into map for class
@@ -47,10 +45,10 @@ public class LinePool {
 	 */
 	public static void addLine(String className, String methodName, int lineNo) {
 		if (!lineMap.containsKey(className))
-			lineMap.put(className, new LinkedHashMap<String, Set<Integer>>());
+			lineMap.put(className, new LinkedHashMap<>());
 
 		if (!lineMap.get(className).containsKey(methodName))
-			lineMap.get(className).put(methodName, new LinkedHashSet<Integer>());
+			lineMap.get(className).put(methodName, new LinkedHashSet<>());
 
 		lineMap.get(className).get(methodName).add(lineNo);
 	}
@@ -67,7 +65,7 @@ public class LinePool {
 			if (lineMap.get(className).containsKey(methodName))
 				return lineMap.get(className).get(methodName);
 
-		return new HashSet<Integer>();
+		return new HashSet<>();
 	}
 
 	/**
@@ -77,7 +75,7 @@ public class LinePool {
 	 * @return a {@link java.util.Set} object.
 	 */
 	public static Set<Integer> getLines(String className) {
-		Set<Integer> lines = new LinkedHashSet<Integer>();
+		Set<Integer> lines = new LinkedHashSet<>();
 		if (lineMap.containsKey(className))
 			for (Set<Integer> methodLines : lineMap.get(className).values())
 				lines.addAll(methodLines);
@@ -90,7 +88,7 @@ public class LinePool {
 	 * @return a {@link java.util.Set} object.
 	 */
 	public static Set<Integer> getAllLines() {
-		Set<Integer> lines = new LinkedHashSet<Integer>();
+		Set<Integer> lines = new LinkedHashSet<>();
 		for (String className : lineMap.keySet())
 			for (Set<Integer> methodLines : lineMap.get(className).values())
 				lines.addAll(methodLines);
@@ -117,12 +115,12 @@ public class LinePool {
 	 * @return a {@link java.util.Set} object.
 	 */
 	public static Set<String> getKnownClasses() {
-		return new HashSet<String>(lineMap.keySet());
+		return new HashSet<>(lineMap.keySet());
 	}
 
 	public static Set<String> getKnownMethodsFor(String className) {
 		if(!lineMap.containsKey(className))
-			return new HashSet<String>();
+			return new HashSet<>();
 		else
 			return lineMap.get(className).keySet();
 	}

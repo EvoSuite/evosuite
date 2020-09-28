@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -28,10 +28,9 @@ import org.evosuite.rmi.ClientServices;
 import org.evosuite.rmi.service.ClientState;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.strategy.TestGenerationStrategy;
-import org.evosuite.symbolic.dse.algorithm.ExplorationAlgorithm;
 import org.evosuite.symbolic.dse.algorithm.DSEAlgorithmFactory;
 import org.evosuite.symbolic.dse.algorithm.DSEAlgorithms;
-import org.evosuite.symbolic.dse.algorithm.ExplorationAlgorithmBase;
+import org.evosuite.symbolic.dse.algorithm.ExplorationAlgorithm;
 import org.evosuite.symbolic.dse.algorithm.listener.StoppingConditionFactory;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testsuite.TestSuiteChromosome;
@@ -188,13 +187,13 @@ public class DSEStrategy extends TestGenerationStrategy {
 	}
 
 	private TestSuiteChromosome setNoGoalsCoverage(DSEAlgorithms algorithm) {
-		TestSuiteChromosome testSuite = new TestSuiteChromosome();;
+		TestSuiteChromosome testSuite = new TestSuiteChromosome();
 		List<TestSuiteFitnessFunction> fitnessFunctions = FitnessFunctionsUtils
 				.getFitnessFunctions(algorithm.getCriteria());
 
 		zeroFitness.setFinished();
 
-		for (FitnessFunction<?> ff : fitnessFunctions) {
+		for (FitnessFunction<TestSuiteChromosome> ff : fitnessFunctions) {
 			testSuite.setCoverage(ff, 1.0);
 		}
 		return testSuite;

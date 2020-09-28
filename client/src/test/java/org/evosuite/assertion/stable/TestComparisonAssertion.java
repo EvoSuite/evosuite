@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -20,7 +20,6 @@
 package org.evosuite.assertion.stable;
 
 import org.evosuite.assertion.ComparisonTraceEntry;
-import org.evosuite.assertion.ComparisonTraceObserver;
 import org.junit.Test;
 
 import static junit.framework.TestCase.assertFalse;
@@ -42,9 +41,9 @@ public class TestComparisonAssertion {
 
     @Test
     public void testIntWrapper() {
-        Integer x = new Integer(42);
-        Integer y = new Integer(42);
-        Integer z = new Integer(43);
+        Integer x = 42;
+        Integer y = 42;
+        Integer z = 43;
         assertTrue(ComparisonTraceEntry.equals(x, y));
         assertFalse(ComparisonTraceEntry.equals(x, z));
     }
@@ -69,9 +68,9 @@ public class TestComparisonAssertion {
 
     @Test
     public void testFloatWrapper() {
-        Float x = new Float(42.0F);
-        Float y = new Float(42.0F);
-        Float z = new Float(43.0F);
+        Float x = 42.0F;
+        Float y = 42.0F;
+        Float z = 43.0F;
         assertTrue(ComparisonTraceEntry.equals(x, y));
         assertFalse(ComparisonTraceEntry.equals(x, z));
     }
@@ -106,9 +105,9 @@ public class TestComparisonAssertion {
 
     @Test
     public void testDoubleWrapper() {
-        Double x = new Double(42);
-        Double y = new Double(42);
-        Double z = new Double(43);
+        Double x = 42d;
+        Double y = 42d;
+        Double z = 43d;
         assertTrue(ComparisonTraceEntry.equals(x, y));
         assertFalse(ComparisonTraceEntry.equals(x, z));
     }

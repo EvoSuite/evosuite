@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,6 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
 package org.evosuite.ga.stoppingconditions;
 
 import org.evosuite.ga.Chromosome;
@@ -29,21 +26,39 @@ import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
  * @author Gordon Fraser
  * 
  */
-public class RMIStoppingCondition implements StoppingCondition {
+public class RMIStoppingCondition<T extends Chromosome<T>> implements StoppingCondition<T> {
 
-	private static RMIStoppingCondition instance = null;
+	private static final long serialVersionUID = 3073266508021896691L;
+
+	private static RMIStoppingCondition<?> instance = null;
 
 	private boolean isStopped = false;
 
 	private RMIStoppingCondition() {
-
+		// empty default constructor
 	}
 
-	public static RMIStoppingCondition getInstance() {
-		if (instance == null)
-			instance = new RMIStoppingCondition();
+	@SuppressWarnings("unchecked")
+	public static <T extends Chromosome<T>> RMIStoppingCondition<T> getInstance() {
+		if (instance == null) {
+			instance = new RMIStoppingCondition<>();
+		}
 
-		return instance;
+		// Cast always succeeds because RMIStoppingCondition doesn't actually do anything with a
+		// `T` instance.
+		return (RMIStoppingCondition<T>) instance;
+	}
+
+	/**
+	 * Always throws an {@code UnsupportedOperationException} when called. Singletons cannot be
+	 * cloned.
+	 *
+	 * @return never returns, always fails
+	 * @throws UnsupportedOperationException always
+	 */
+	@Override
+	public StoppingCondition<T> clone() throws UnsupportedOperationException {
+		throw new UnsupportedOperationException("cannot clone singleton");
 	}
 
 	public void stop() {
@@ -54,7 +69,7 @@ public class RMIStoppingCondition implements StoppingCondition {
 	 * @see org.evosuite.ga.SearchListener#searchStarted(org.evosuite.ga.GeneticAlgorithm)
 	 */
 	@Override
-	public void searchStarted(GeneticAlgorithm<?> algorithm) {
+	public void searchStarted(GeneticAlgorithm<T> algorithm) {
 		// TODO Auto-generated method stub
 
 	}
@@ -63,7 +78,7 @@ public class RMIStoppingCondition implements StoppingCondition {
 	 * @see org.evosuite.ga.SearchListener#iteration(org.evosuite.ga.GeneticAlgorithm)
 	 */
 	@Override
-	public void iteration(GeneticAlgorithm<?> algorithm) {
+	public void iteration(GeneticAlgorithm<T> algorithm) {
 		// TODO Auto-generated method stub
 
 	}
@@ -72,7 +87,7 @@ public class RMIStoppingCondition implements StoppingCondition {
 	 * @see org.evosuite.ga.SearchListener#searchFinished(org.evosuite.ga.GeneticAlgorithm)
 	 */
 	@Override
-	public void searchFinished(GeneticAlgorithm<?> algorithm) {
+	public void searchFinished(GeneticAlgorithm<T> algorithm) {
 		// TODO Auto-generated method stub
 
 	}
@@ -81,7 +96,7 @@ public class RMIStoppingCondition implements StoppingCondition {
 	 * @see org.evosuite.ga.SearchListener#fitnessEvaluation(org.evosuite.ga.Chromosome)
 	 */
 	@Override
-	public void fitnessEvaluation(Chromosome individual) {
+	public void fitnessEvaluation(T individual) {
 		// TODO Auto-generated method stub
 
 	}
@@ -90,7 +105,7 @@ public class RMIStoppingCondition implements StoppingCondition {
 	 * @see org.evosuite.ga.SearchListener#modification(org.evosuite.ga.Chromosome)
 	 */
 	@Override
-	public void modification(Chromosome individual) {
+	public void modification(T individual) {
 		// TODO Auto-generated method stub
 
 	}

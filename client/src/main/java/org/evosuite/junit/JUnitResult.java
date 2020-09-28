@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -32,54 +32,34 @@ import org.evosuite.testcase.execution.ExecutionTrace;
  */
 public class JUnitResult {
 
-    /**
-     * 
-     */
+
     private String name;
 
-    /**
-     * 
-     */
+
     private boolean successful;
 
-    /**
-     * 
-     */
+
     private long runtime;
 
-    /**
-     * 
-     */
+
     private String trace;
 
-    /**
-     * 
-     */
+
     private ExecutionTrace executionTrace;
 
-    /**
-     * 
-     */
+
     private int failureCount;
 
-    /**
-     * 
-     */
+
     private int runCount;
 
-    /**
-     * 
-     */
-    private ArrayList<JUnitFailure> junitFailures = new ArrayList<JUnitFailure>();
 
-    /**
-     * 
-     */
+    private ArrayList<JUnitFailure> junitFailures = new ArrayList<>();
+
+
     private Class<?> junitClass;
 
-    /**
-     * 
-     */
+
     public JUnitResult(String name) {
         this.successful = true;
         this.name = name;
@@ -87,9 +67,7 @@ public class JUnitResult {
         this.runCount = 0;
     }
 
-    /**
-     * 
-     */
+
     public JUnitResult(String name, Class<?> junitClass) {
         this.successful = true;
         this.name = name;
@@ -234,9 +212,7 @@ public class JUnitResult {
     	return this.junitClass;
     }
 
-    /**
-     * 
-     */
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -249,9 +225,7 @@ public class JUnitResult {
 		return result;
 	}
 
-	/**
-	 * 
-	 */
+
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)

@@ -31,8 +31,9 @@ import org.evosuite.testsuite.TestSuiteChromosome;
  *
  * @author Gordon Fraser
  */
-public abstract class TestFitnessFunction extends FitnessFunction<TestChromosome>
-        implements Comparable<TestFitnessFunction> {
+public abstract class TestFitnessFunction
+		extends FitnessFunction<TestChromosome>
+		implements Comparable<TestFitnessFunction> {
 
 	private static final long serialVersionUID = 5602125855207061901L;
 

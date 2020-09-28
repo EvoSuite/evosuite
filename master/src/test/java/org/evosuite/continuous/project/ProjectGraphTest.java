@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -114,7 +114,9 @@ public class ProjectGraphTest {
 	}
 
 	abstract class G extends E implements F {
-		@Override
+        private static final long serialVersionUID = 6859796433912246090L;
+
+        @Override
 		void foo() {
 		}
 	}

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
+
 package org.evosuite.seeding;
 
 import java.util.Collections;
@@ -37,17 +35,17 @@ import org.objectweb.asm.Type;
  */
 public class StaticConstantPool implements ConstantPool {
 
-	private final Set<String> stringPool = Collections.synchronizedSet(new LinkedHashSet<String>());
+	private final Set<String> stringPool = Collections.synchronizedSet(new LinkedHashSet<>());
 
-	private final Set<Type> typePool = Collections.synchronizedSet(new LinkedHashSet<Type>());
+	private final Set<Type> typePool = Collections.synchronizedSet(new LinkedHashSet<>());
 
-	private final Set<Integer> intPool = Collections.synchronizedSet(new LinkedHashSet<Integer>());
+	private final Set<Integer> intPool = Collections.synchronizedSet(new LinkedHashSet<>());
 
-	private final Set<Double> doublePool = Collections.synchronizedSet(new LinkedHashSet<Double>());
+	private final Set<Double> doublePool = Collections.synchronizedSet(new LinkedHashSet<>());
 
-	private final Set<Long> longPool = Collections.synchronizedSet(new LinkedHashSet<Long>());
+	private final Set<Long> longPool = Collections.synchronizedSet(new LinkedHashSet<>());
 
-	private final Set<Float> floatPool = Collections.synchronizedSet(new LinkedHashSet<Float>());
+	private final Set<Float> floatPool = Collections.synchronizedSet(new LinkedHashSet<>());
 
 	public StaticConstantPool() {
 		/*

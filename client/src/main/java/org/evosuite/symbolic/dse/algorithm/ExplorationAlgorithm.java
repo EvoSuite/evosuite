@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2020 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -108,7 +108,7 @@ public abstract class ExplorationAlgorithm extends ExplorationAlgorithmBase {
     /**
      * A cache of previous results from the constraint solver
      **/
-    protected final transient Map<Set<Constraint<?>>, SolverResult> queryCache = new HashMap<Set<Constraint<?>>, SolverResult>();
+    protected final transient Map<Set<Constraint<?>>, SolverResult> queryCache = new HashMap<>();
 
     /**
      * Exploration strategies
@@ -232,7 +232,7 @@ public abstract class ExplorationAlgorithm extends ExplorationAlgorithmBase {
         HashSet<Set<Constraint<?>>> seenChildren = new HashSet();
 
         // WorkList
-        PriorityQueue<DSETestCase> testCasesWorkList = new PriorityQueue<DSETestCase>();
+        PriorityQueue<DSETestCase> testCasesWorkList = new PriorityQueue<>();
 
         // Initial element
         DSETestCase initialTestCase = testCaseBuildingStrategy.buildInitialTestCase(method);
@@ -435,7 +435,7 @@ public abstract class ExplorationAlgorithm extends ExplorationAlgorithmBase {
      * @return
      */
      private Set<Constraint<?>> normalize(List<Constraint<?>> query) {
-        return new HashSet<Constraint<?>>(query);
+        return new HashSet<>(query);
      }
 
     /**
@@ -453,7 +453,7 @@ public abstract class ExplorationAlgorithm extends ExplorationAlgorithmBase {
         // In case of a divergence, we need to keep the lowest value
         int currentGeneratedFromIndex = Math.min(
           currentTestCase.getOriginalPathCondition().getGeneratedFromIndex(),
-          result.getPathConditionNodes().size()
+          result.getBranchConditions().size()
         );
 
         logger.debug(FINISHED_CONCOLIC_EXECUTION_DEBUG_MESSAGE);

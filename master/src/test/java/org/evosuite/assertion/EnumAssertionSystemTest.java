@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -19,7 +19,6 @@
  */
 package org.evosuite.assertion;
 
-import com.examples.with.different.packagename.ExampleNullAssertion;
 import com.examples.with.different.packagename.assertion.ExampleReturningEnum;
 import org.evosuite.EvoSuite;
 import org.evosuite.SystemTestBase;
@@ -56,7 +55,7 @@ public class EnumAssertionSystemTest extends SystemTestBase {
             boolean hasEnumAssertion = false;
             for(Assertion ass : test.getAssertions()) {
                 if(ass instanceof PrimitiveAssertion) {
-                    Assert.assertTrue(((PrimitiveAssertion)ass).getValue().getClass().isEnum());
+                    Assert.assertTrue(ass.getValue().getClass().isEnum());
                     hasEnumAssertion = true;
                 }
             }
@@ -90,7 +89,7 @@ public class EnumAssertionSystemTest extends SystemTestBase {
             boolean hasEnumAssertion = false;
             for(Assertion ass : test.getAssertions()) {
                 if(ass instanceof PrimitiveAssertion) {
-                    Assert.assertTrue(((PrimitiveAssertion)ass).getValue().getClass().isEnum());
+                    Assert.assertTrue(ass.getValue().getClass().isEnum());
                     hasEnumAssertion = true;
                 }
             }

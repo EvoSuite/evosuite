@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -30,7 +30,7 @@ import java.util.List;
  *
  * @author José Campos
  */
-public class MuPlusLambdaEA<T extends Chromosome> extends AbstractMuLambda<T> {
+public class MuPlusLambdaEA<T extends Chromosome<T>> extends AbstractMuLambda<T> {
 
   private static final long serialVersionUID = -8685698059226067598L;
 
@@ -39,16 +39,15 @@ public class MuPlusLambdaEA<T extends Chromosome> extends AbstractMuLambda<T> {
   }
 
   /** {@inheritDoc} */
-  @SuppressWarnings("unchecked")
   @Override
   protected void evolve() {
 
-    List<T> offsprings = new ArrayList<T>(this.lambda);
+    List<T> offsprings = new ArrayList<>(this.lambda);
 
     // create new offsprings by mutating current population
     for (int i = 0; i < this.mu; i++) {
       for (int j = 0; j < this.lambda / this.mu; j++) {
-        T offspring = (T) this.population.get(i).clone();
+        T offspring = this.population.get(i).clone();
         this.notifyMutation(offspring);
 
         do {

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -36,7 +36,7 @@ public final class SolverCache {
 	private int cached_unsat_result_count = 0;
 	private boolean valid_cached_solution = false;
 
-	private HashMap<Collection<Constraint<?>>, SolverResult> cached_solver_results = new HashMap<Collection<Constraint<?>>, SolverResult>();
+	private HashMap<Collection<Constraint<?>>, SolverResult> cached_solver_results = new HashMap<>();
 	private SolverResult cached_solution = null;
 
 	public int getNumberOfUNSATs() {

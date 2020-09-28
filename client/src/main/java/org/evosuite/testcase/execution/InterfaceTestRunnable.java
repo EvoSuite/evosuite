@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
+
 package org.evosuite.testcase.execution;
 
 import java.util.Map;
@@ -37,12 +35,12 @@ public interface InterfaceTestRunnable extends Callable<ExecutionResult>{
 	 *
 	 * @return a {@link java.util.Map} object.
 	 */
-	public Map<Integer, Throwable> getExceptionsThrown(); 
+    Map<Integer, Throwable> getExceptionsThrown();
 	
 	/**
 	 * <p>isRunFinished</p>
 	 *
 	 * @return a boolean.
 	 */
-	public boolean isRunFinished();
+    boolean isRunFinished();
 }

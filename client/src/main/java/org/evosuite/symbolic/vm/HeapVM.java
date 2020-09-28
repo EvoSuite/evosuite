@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -51,7 +51,7 @@ import org.evosuite.dse.AbstractVM;
  */
 public final class HeapVM extends AbstractVM {
 
-	private static Logger logger = LoggerFactory.getLogger(HeapVM.class);
+	private static final Logger logger = LoggerFactory.getLogger(HeapVM.class);
 
 	public static final String ARRAY_LENGTH = "length";
 
@@ -160,57 +160,57 @@ public final class HeapVM extends AbstractVM {
 			if (type.equals(Type.INT_TYPE)) {
 
 				int value = concrete_field.getInt(null);
-				IntegerValue intExpr = (IntegerValue) env.heap.getStaticField(
-						owner, fieldName, (long) value);
+				IntegerValue intExpr = env.heap.getStaticField(
+						owner, fieldName, value);
 				env.topFrame().operandStack.pushBv32(intExpr);
 
 			} else if (type.equals(Type.CHAR_TYPE)) {
 
 				char value = concrete_field.getChar(null);
-				IntegerValue intExpr = (IntegerValue) env.heap.getStaticField(
-						owner, fieldName, (long) value);
+				IntegerValue intExpr = env.heap.getStaticField(
+						owner, fieldName, value);
 				env.topFrame().operandStack.pushBv32(intExpr);
 
 			} else if (type.equals(Type.SHORT_TYPE)) {
 
 				short value = concrete_field.getShort(null);
-				IntegerValue intExpr = (IntegerValue) env.heap.getStaticField(
-						owner, fieldName, (long) value);
+				IntegerValue intExpr = env.heap.getStaticField(
+						owner, fieldName, value);
 				env.topFrame().operandStack.pushBv32(intExpr);
 
 			} else if (type.equals(Type.BOOLEAN_TYPE)) {
 
 				boolean booleanValue = concrete_field.getBoolean(null);
 				int value = booleanValue ? 1 : 0;
-				IntegerValue intExpr = (IntegerValue) env.heap.getStaticField(
-						owner, fieldName, (long) value);
+				IntegerValue intExpr = env.heap.getStaticField(
+						owner, fieldName, value);
 				env.topFrame().operandStack.pushBv32(intExpr);
 
 			} else if (type.equals(Type.BYTE_TYPE)) {
 
 				byte value = concrete_field.getByte(null);
-				IntegerValue intExpr = (IntegerValue) env.heap.getStaticField(
-						owner, fieldName, (long) value);
+				IntegerValue intExpr = env.heap.getStaticField(
+						owner, fieldName, value);
 				env.topFrame().operandStack.pushBv32(intExpr);
 
 			} else if (type.equals(Type.LONG_TYPE)) {
 
 				long value = concrete_field.getLong(null);
-				IntegerValue intExpr = (IntegerValue) env.heap.getStaticField(
+				IntegerValue intExpr = env.heap.getStaticField(
 						owner, fieldName, value);
 				env.topFrame().operandStack.pushBv64(intExpr);
 
 			} else if (type.equals(Type.FLOAT_TYPE)) {
 
 				float value = concrete_field.getFloat(null);
-				RealValue fp32 = (RealValue) env.heap.getStaticField(owner,
-						fieldName, (double) value);
+				RealValue fp32 = env.heap.getStaticField(owner,
+						fieldName, value);
 				env.topFrame().operandStack.pushFp32(fp32);
 
 			} else if (type.equals(Type.DOUBLE_TYPE)) {
 
 				double value = concrete_field.getDouble(null);
-				RealValue fp64 = (RealValue) env.heap.getStaticField(owner,
+				RealValue fp64 = env.heap.getStaticField(owner,
 						fieldName, value);
 				env.topFrame().operandStack.pushFp64(fp64);
 
@@ -350,15 +350,15 @@ public final class HeapVM extends AbstractVM {
 			if (type.equals(Type.INT_TYPE)) {
 
 				int value = field.getInt(conc_receiver);
-				IntegerValue intExpr = (IntegerValue) env.heap.getField(
+				IntegerValue intExpr = env.heap.getField(
 						className, fieldName, conc_receiver, symb_receiver,
-						(long) value);
+					value);
 				env.topFrame().operandStack.pushBv32(intExpr);
 
 			} else if (type.equals(Type.LONG_TYPE)) {
 
 				long value = field.getLong(conc_receiver);
-				IntegerValue intExpr = (IntegerValue) env.heap.getField(
+				IntegerValue intExpr = env.heap.getField(
 						className, fieldName, conc_receiver, symb_receiver,
 						value);
 				env.topFrame().operandStack.pushBv64(intExpr);
@@ -366,49 +366,49 @@ public final class HeapVM extends AbstractVM {
 			} else if (type.equals(Type.FLOAT_TYPE)) {
 
 				float value = field.getFloat(conc_receiver);
-				RealValue fp32 = (RealValue) env.heap
+				RealValue fp32 = env.heap
 						.getField(className, fieldName, conc_receiver,
-								symb_receiver, (double) value);
+								symb_receiver, value);
 				env.topFrame().operandStack.pushFp32(fp32);
 
 			} else if (type.equals(Type.DOUBLE_TYPE)) {
 
 				double value = field.getDouble(conc_receiver);
-				RealValue fp64 = (RealValue) env.heap.getField(className,
+				RealValue fp64 = env.heap.getField(className,
 						fieldName, conc_receiver, symb_receiver, value);
 				env.topFrame().operandStack.pushFp64(fp64);
 
 			} else if (type.equals(Type.CHAR_TYPE)) {
 
 				char value = field.getChar(conc_receiver);
-				IntegerValue intExpr = (IntegerValue) env.heap.getField(
+				IntegerValue intExpr = env.heap.getField(
 						className, fieldName, conc_receiver, symb_receiver,
-						(long) value);
+					value);
 				env.topFrame().operandStack.pushBv32(intExpr);
 
 			} else if (type.equals(Type.SHORT_TYPE)) {
 
 				short value = field.getShort(conc_receiver);
-				IntegerValue intExpr = (IntegerValue) env.heap.getField(
+				IntegerValue intExpr = env.heap.getField(
 						className, fieldName, conc_receiver, symb_receiver,
-						(long) value);
+					value);
 				env.topFrame().operandStack.pushBv32(intExpr);
 
 			} else if (type.equals(Type.BOOLEAN_TYPE)) {
 
 				boolean booleanValue = field.getBoolean(conc_receiver);
 				int value = booleanValue ? 1 : 0;
-				IntegerValue intExpr = (IntegerValue) env.heap.getField(
+				IntegerValue intExpr = env.heap.getField(
 						className, fieldName, conc_receiver, symb_receiver,
-						(long) value);
+					value);
 				env.topFrame().operandStack.pushBv32(intExpr);
 
 			} else if (type.equals(Type.BYTE_TYPE)) {
 
 				byte value = field.getByte(conc_receiver);
-				IntegerValue intExpr = (IntegerValue) env.heap.getField(
+				IntegerValue intExpr = env.heap.getField(
 						className, fieldName, conc_receiver, symb_receiver,
-						(long) value);
+					value);
 				env.topFrame().operandStack.pushBv32(intExpr);
 
 			} else {
@@ -461,7 +461,7 @@ public final class HeapVM extends AbstractVM {
 			return;
 		}
 
-		ReferenceExpression symb_receiver = (ReferenceExpression) receiver_ref;
+		ReferenceExpression symb_receiver = receiver_ref;
 
 		/**
 		 * Compute new symbolic state
@@ -588,7 +588,7 @@ public final class HeapVM extends AbstractVM {
 		// push negartive length constraints
 		for (int i = 0; i < nrDimensions; i++) {
 			IntegerValue symb_length = env.topFrame().operandStack.popBv32();
-			int conc_length = ((Long) symb_length.getConcreteValue())
+			int conc_length = symb_length.getConcreteValue()
 					.intValue();
 			if (negativeArrayLengthViolation(conc_length, symb_length, className, methodName)) {
 				return;
@@ -616,9 +616,9 @@ public final class HeapVM extends AbstractVM {
 		}
 
 		int conc_array_length = Array.getLength(conc_array);
-		ReferenceExpression symb_array_ref = (ReferenceExpression) array_ref;
+		ReferenceExpression symb_array_ref = array_ref;
 
-		IntegerValue symb_array_length = (IntegerValue) env.heap.getField("",
+		IntegerValue symb_array_length = env.heap.getField("",
 				ARRAY_LENGTH, conc_array, symb_array_ref, conc_array_length);
 		env.topFrame().operandStack.pushBv32(symb_array_length);
 	}
@@ -651,7 +651,7 @@ public final class HeapVM extends AbstractVM {
 		}
 
 		/* out of bound index */
- 		ReferenceExpression symb_array_reference = (ReferenceExpression) array_ref;
+ 		ReferenceExpression symb_array_reference = array_ref;
 		int conc_array_length = Array.getLength(conc_array);
 		IntegerValue symb_array_length = env.heap.getField("", ARRAY_LENGTH,
 				conc_array, symb_array_reference, conc_array_length);
@@ -685,7 +685,7 @@ public final class HeapVM extends AbstractVM {
 		}
 
 		/* out of bound index */
-		ReferenceExpression symb_array_reference = (ReferenceExpression) array_ref;
+		ReferenceExpression symb_array_reference = array_ref;
 		int conc_array_length = Array.getLength(conc_array);
 		IntegerValue symb_array_length = env.heap.getField("", ARRAY_LENGTH,
 				conc_array, symb_array_reference, conc_array_length);
@@ -721,7 +721,7 @@ public final class HeapVM extends AbstractVM {
 		}
 
 		/* out of bound index */
-		ReferenceExpression symb_array_reference = (ReferenceExpression) array_ref;
+		ReferenceExpression symb_array_reference = array_ref;
 		int conc_array_length = Array.getLength(conc_array);
 		IntegerValue symb_array_length = env.heap.getField("", ARRAY_LENGTH,
 				conc_array, symb_array_reference, conc_array_length);
@@ -764,7 +764,7 @@ public final class HeapVM extends AbstractVM {
 			return;
 		}
 		/* out of bound index */
-		ReferenceExpression symb_array_reference = (ReferenceExpression) array_ref;
+		ReferenceExpression symb_array_reference = array_ref;
 		int conc_array_length = Array.getLength(conc_array);
 		IntegerValue symb_array_length = env.heap.getField("", ARRAY_LENGTH,
 				conc_array, symb_array_reference, conc_array_length);
@@ -799,7 +799,7 @@ public final class HeapVM extends AbstractVM {
 		}
 
 		/* out of bound index */
-		ReferenceExpression symb_array_reference = (ReferenceExpression) array_ref;
+		ReferenceExpression symb_array_reference = array_ref;
 		int conc_array_length = Array.getLength(conc_array);
 		IntegerValue symb_array_length = env.heap.getField("", ARRAY_LENGTH,
 				conc_array, symb_array_reference, conc_array_length);
@@ -952,7 +952,7 @@ public final class HeapVM extends AbstractVM {
 		Object object = Array.get(conc_array, conc_index);
 		int intValue;
 		if (object instanceof Boolean) {
-			boolean booleanValue = ((Boolean) object).booleanValue();
+			boolean booleanValue = (Boolean) object;
 			intValue = booleanValue ? 1 : 0;
 		} else {
 			assert object instanceof Byte;
@@ -1220,7 +1220,7 @@ public final class HeapVM extends AbstractVM {
 			StringValue stringValue = env.heap.getField(
 				Types.JAVA_LANG_STRING,
 				env.heap.$STRING_VALUE,
-				(String) conc_value,
+				conc_value,
 				env.heap.getReference(conc_value),
 				(String) conc_value
 			);

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -30,8 +30,6 @@ import org.junit.Test;
 
 import com.examples.with.different.packagename.mock.java.lang.HookWithBranch;
 import com.examples.with.different.packagename.mock.java.lang.MemorySum;
-
-import java.util.ArrayList;
 
 public class MockRuntimeSystemTest extends SystemTestBase {
 

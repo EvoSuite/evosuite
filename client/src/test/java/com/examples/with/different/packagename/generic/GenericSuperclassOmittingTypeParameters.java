@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -21,7 +21,7 @@ package com.examples.with.different.packagename.generic;
 
 import java.util.ArrayList;
 
-@SuppressWarnings("rawtypes")
+
 public class GenericSuperclassOmittingTypeParameters extends ArrayList {
 
 	private static final long serialVersionUID = 1L;

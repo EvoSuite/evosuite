@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -150,18 +150,18 @@ public class PathConditionUtils {
 		if (newPathCondition == null) throw new IllegalArgumentException(
 			NEW_PATH_CONDITION_CANNOT_BE_NULL);
 
-		List<PathConditionNode> expectedPrefixPathConditionNodes = expectedPrefixPathCondition.getPathConditionNodes();
-		List<PathConditionNode> newPathConditionNodes = newPathCondition.getPathConditionNodes();
+		List<BranchCondition> expectedPrefixBranchConditions = expectedPrefixPathCondition.getBranchConditions();
+		List<BranchCondition> newBranchConditions = newPathCondition.getBranchConditions();
 
 		// If the path is is less than the current one, we are in a trivial divergence
-		if (expectedPrefixPathCondition.size() > newPathConditionNodes.size()) return true;
+		if (expectedPrefixPathCondition.size() > newBranchConditions.size()) return true;
 
-		for (int currentBranchConditionIndex = 0; currentBranchConditionIndex < expectedPrefixPathConditionNodes.size(); ++currentBranchConditionIndex) {
-			PathConditionNode expectedPrefixPathConditionNode = expectedPrefixPathConditionNodes.get(currentBranchConditionIndex);
-			PathConditionNode newPathConditionNode = newPathConditionNodes.get(currentBranchConditionIndex);
+		for (int currentBranchConditionIndex = 0; currentBranchConditionIndex < expectedPrefixBranchConditions.size(); ++currentBranchConditionIndex) {
+			BranchCondition expectedPrefixBranchCondition = expectedPrefixBranchConditions.get(currentBranchConditionIndex);
+			BranchCondition newBranchCondition = newBranchConditions.get(currentBranchConditionIndex);
 
 			// if the expectedPrefix path is not a prefix of the new one, there's a divergence
-			if (!expectedPrefixPathConditionNode.equals(newPathConditionNode)) {
+			if (!expectedPrefixBranchCondition.equals(newBranchCondition)) {
 				return true;
 			}
 		}

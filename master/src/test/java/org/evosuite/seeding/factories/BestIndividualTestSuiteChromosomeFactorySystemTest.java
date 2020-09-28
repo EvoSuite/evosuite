@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -19,9 +19,6 @@
  */
 package org.evosuite.seeding.factories;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.SystemTestBase;
@@ -31,6 +28,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.examples.with.different.packagename.staticusage.Class1;
+
+import static org.junit.Assert.*;
 
 public class BestIndividualTestSuiteChromosomeFactorySystemTest extends SystemTestBase {
 	ChromosomeSampleFactory defaultFactory = new ChromosomeSampleFactory();
@@ -51,7 +50,7 @@ public class BestIndividualTestSuiteChromosomeFactorySystemTest extends SystemTe
 		Object result = evosuite.parseCommandLine(command);
 
 		ga = (GeneticAlgorithm<TestSuiteChromosome>) getGAFromResult(result);
-		bestIndividual = (TestSuiteChromosome) ga.getBestIndividual();
+		bestIndividual = ga.getBestIndividual();
 	}
 	
 	@Test
@@ -67,6 +66,6 @@ public class BestIndividualTestSuiteChromosomeFactorySystemTest extends SystemTe
 		BestIndividualTestSuiteChromosomeFactory bicf = new BestIndividualTestSuiteChromosomeFactory(
 				defaultFactory, bestIndividual);
 		bicf.getChromosome();
-		assertFalse(bicf.getChromosome().equals(bestIndividual));
+        assertNotEquals(bicf.getChromosome(), bestIndividual);
 	}
 }

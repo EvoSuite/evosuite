@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -25,7 +25,7 @@ import java.util.Set;
 
 import org.evosuite.Properties;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
-import org.evosuite.symbolic.PathConditionNode;
+import org.evosuite.symbolic.BranchCondition;
 import org.evosuite.symbolic.PathCondition;
 import org.evosuite.symbolic.SymbolicObserver;
 import org.evosuite.symbolic.expr.Constraint;
@@ -61,7 +61,7 @@ import org.evosuite.dse.VM;
  */
 public class ConcolicExecutorImpl implements ConcolicExecutor{
 
-	private static Logger logger = LoggerFactory.getLogger(ConcolicExecutorImpl.class);
+	private static final Logger logger = LoggerFactory.getLogger(ConcolicExecutorImpl.class);
 
 	/** Instrumenting class loader */
 	private final ConcolicInstrumentingClassLoader instrumentingClassLoader;
@@ -75,12 +75,19 @@ public class ConcolicExecutorImpl implements ConcolicExecutor{
 		MainConfig.setInstance();
 	}
 
-	public List<PathConditionNode> getSymbolicPath(TestChromosome test) {
-		TestChromosome dscCopy = (TestChromosome) test.clone();
+	/**
+	 * Retrieve the path condition for a given test case
+	 * 
+	 * @param test
+	 *            a {@link org.evosuite.testcase.TestChromosome} object.
+	 * @return a {@link java.util.List} object.
+	 */
+	public List<BranchCondition> getSymbolicPath(TestChromosome test) {
+		TestChromosome dscCopy = test.clone();
 		DefaultTestCase defaultTestCase = (DefaultTestCase) dscCopy.getTestCase();
 
 		PathCondition pathCondition = execute(defaultTestCase);
-		return pathCondition.getPathConditionNodes();
+		return pathCondition.getBranchConditions();
 	}
 
 	public PathCondition execute(DefaultTestCase defaultTestCase) {
@@ -123,14 +130,14 @@ public class ConcolicExecutorImpl implements ConcolicExecutor{
 			result = executeTestCase(defaultTestCase);
 		} catch (Exception e) {
 			logger.error("Exception during concolic execution {}", e);
-			return new PathCondition(new ArrayList<PathConditionNode>());
+			return new PathCondition(new ArrayList<>());
 		} finally {
 			logger.debug("Cleaning concolic execution");
 			TestCaseExecutor.getInstance().setExecutionObservers(originalExecutionObservers);
 		}
 		VM.disableCallBacks(); // ignore all callbacks from now on
 
-		List<PathConditionNode> nodes = pathConditionCollector.getPathCondition();
+		List<BranchCondition> nodes = pathConditionCollector.getPathCondition();
 		logger.info("Concolic execution ended with " + nodes.size() + " nodes collected");
 		if (!result.noThrownExceptions()) {
 			int idx = result.getFirstPositionOfThrownException();
@@ -160,7 +167,7 @@ public class ConcolicExecutorImpl implements ConcolicExecutor{
 	}
 
 	private void setUpVMListeners(SymbolicEnvironment symbolicEnvironment, PathConditionCollector pathConditionCollector) {
-		List<IVM> listeners = new ArrayList<IVM>();
+		List<IVM> listeners = new ArrayList<>();
 		listeners.add(new CallVM(symbolicEnvironment, instrumentingClassLoader));
 		listeners.add(new JumpVM(symbolicEnvironment, pathConditionCollector));
 		listeners.add(new HeapVM(symbolicEnvironment, pathConditionCollector, instrumentingClassLoader));
@@ -172,19 +179,19 @@ public class ConcolicExecutorImpl implements ConcolicExecutor{
 		VM.getInstance().prepareConcolicExecution();
 	}
 
-	private void logNrOfConstraints(List<PathConditionNode> branches) {
+	private void logNrOfConstraints(List< BranchCondition > branches) {
 		int nrOfConstraints = 0;
 
 		ExpressionEvaluator exprExecutor = new ExpressionEvaluator();
-		for (PathConditionNode pathConditionNode : branches) {
+		for (BranchCondition branchCondition : branches) {
 
-			for (Constraint<?> supporting_constraint : pathConditionNode.getSupportingConstraints()) {
+			for (Constraint<?> supporting_constraint : branchCondition.getSupportingConstraints()) {
 				supporting_constraint.getLeftOperand().accept(exprExecutor, null);
 				supporting_constraint.getRightOperand().accept(exprExecutor, null);
 				nrOfConstraints++;
 			}
 
-			Constraint<?> constraint = pathConditionNode.getConstraint();
+			Constraint<?> constraint = branchCondition.getConstraint();
 			constraint.getLeftOperand().accept(exprExecutor, null);
 			constraint.getRightOperand().accept(exprExecutor, null);
 			nrOfConstraints++;

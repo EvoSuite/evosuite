@@ -1,5 +1,4 @@
 /*
- *
  * This file is part of EvoSuite.
  *
  * EvoSuite is free software: you can redistribute it and/or modify it
@@ -36,7 +35,7 @@ import org.evosuite.ga.comparators.DominanceComparator;
  * @author Annibale Panichella, Fitsum M. Kifetew
  */
 
-public class FastNonDominatedSorting<T extends Chromosome> implements RankingFunction<T> {
+public class FastNonDominatedSorting<T extends Chromosome<T>> implements RankingFunction<T> {
 
 	private static final long serialVersionUID = -5649595833522859850L;
 
@@ -48,11 +47,12 @@ public class FastNonDominatedSorting<T extends Chromosome> implements RankingFun
 	/**
 	 * Set used to store the goals that are covered from a population being sorted
 	 */
-	private Map<FitnessFunction<T>, T> newCoveredGoals = new LinkedHashMap<>();
+	private final Map<FitnessFunction<T>, T> newCoveredGoals = new LinkedHashMap<>();
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public void computeRankingAssignment(List<T> solutions, Set<FitnessFunction<T>> uncovered_goals) {
+	public void computeRankingAssignment(List<T> solutions,
+										 Set<? extends FitnessFunction<T>> uncovered_goals) {
 		List<T>[] fronts = getNextNonDominatedFronts(solutions, uncovered_goals);
 		ranking_ = new ArrayList[fronts.length];
 		System.arraycopy(fronts, 0, ranking_, 0, fronts.length);
@@ -66,19 +66,18 @@ public class FastNonDominatedSorting<T extends Chromosome> implements RankingFun
 	 * @return the list of fronts according to the uncovered goals
 	 */
 	@SuppressWarnings("unchecked")
-	private List<T>[] getNextNonDominatedFronts(List<T> solutionSet, Set<FitnessFunction<T>> uncovered_goals) {
-
+	private List<T>[] getNextNonDominatedFronts(List<T> solutionSet,
+												Set<? extends FitnessFunction<T>> uncovered_goals) {
 		DominanceComparator<T> criterion_ = new DominanceComparator<>(uncovered_goals);
-		List<T> solutionSet_ = solutionSet;
 
 		// dominateMe[i] contains the number of solutions dominating i
-		int[] dominateMe = new int[solutionSet_.size()];
+		int[] dominateMe = new int[solutionSet.size()];
 
 		// iDominate[k] contains the list of solutions dominated by k
-		List<Integer>[] iDominate = new List[solutionSet_.size()];
+		List<Integer>[] iDominate = new List[solutionSet.size()];
 
 		// front[i] contains the list of individuals belonging to the front i
-		List<Integer>[] front = new List[solutionSet_.size() + 1];
+		List<Integer>[] front = new List[solutionSet.size() + 1];
 
 		// flagDominate is an auxiliary encodings.variable
 		int flagDominate;
@@ -88,21 +87,21 @@ public class FastNonDominatedSorting<T extends Chromosome> implements RankingFun
 			front[i] = new LinkedList<>();
 
 		// Initialize distance
-		for (int p = 0; p < (solutionSet_.size()); p++) {
-			solutionSet.get(p).setDistance(Double.MAX_VALUE);
+		for (T solution : solutionSet) {
+			solution.setDistance(Double.MAX_VALUE);
 		}
 
 		// -> Fast non dominated sorting algorithm
-		for (int p = 0; p < solutionSet_.size(); p++) {
+		for (int p = 0; p < solutionSet.size(); p++) {
 			// Initialize the list of individuals that i dominate and the number
 			// of individuals that dominate me
 			iDominate[p] = new LinkedList<>();
 			dominateMe[p] = 0;
 		}
 
-		for (int p = 0; p < (solutionSet_.size() - 1); p++) {
+		for (int p = 0; p < (solutionSet.size() - 1); p++) {
 			// For all q individuals , calculate if p dominates q or vice versa
-			for (int q = p + 1; q < solutionSet_.size(); q++) {
+			for (int q = p + 1; q < solutionSet.size(); q++) {
 				flagDominate = criterion_.compare(solutionSet.get(p), solutionSet.get(q));
 
 				if (flagDominate == -1) {
@@ -115,7 +114,7 @@ public class FastNonDominatedSorting<T extends Chromosome> implements RankingFun
 			}
 			// If nobody dominates p, p belongs to the first front
 		}
-		for (int p = 0; p < solutionSet_.size(); p++) {
+		for (int p = 0; p < solutionSet.size(); p++) {
 			if (dominateMe[p] == 0) {
 				front[0].add(p);
 				solutionSet.get(p).setRank(1);
@@ -135,7 +134,7 @@ public class FastNonDominatedSorting<T extends Chromosome> implements RankingFun
 					dominateMe[index]--;
 					if (dominateMe[index] == 0) {
 						front[i].add(index);
-						solutionSet_.get(index).setRank(i+1);
+						solutionSet.get(index).setRank(i+1);
 					}
 				}
 			}

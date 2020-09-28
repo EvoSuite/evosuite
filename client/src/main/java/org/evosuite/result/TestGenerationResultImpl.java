@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -37,33 +37,33 @@ class TestGenerationResultImpl implements TestGenerationResult {
 	
 	private String errorMessage = "";
 	
-	private Map<String, Set<Failure>> contractViolations = new LinkedHashMap<String, Set<Failure>>();
+	private final Map<String, Set<Failure>> contractViolations = new LinkedHashMap<>();
 	
-	private Map<String, TestCase> testCases = new LinkedHashMap<String, TestCase>();
+	private final Map<String, TestCase> testCases = new LinkedHashMap<>();
 	
-	private Map<String, String> testCode = new LinkedHashMap<String, String>();
+	private final Map<String, String> testCode = new LinkedHashMap<>();
 	
-	private Map<String, Set<Integer>> testLineCoverage = new LinkedHashMap<String, Set<Integer>>();
+	private final Map<String, Set<Integer>> testLineCoverage = new LinkedHashMap<>();
 
-	private Map<String, Set<BranchInfo>> testBranchCoverage = new LinkedHashMap<String, Set<BranchInfo>>();
+	private final Map<String, Set<BranchInfo>> testBranchCoverage = new LinkedHashMap<>();
 
-	private Map<String, Set<MutationInfo>> testMutantCoverage = new LinkedHashMap<String, Set<MutationInfo>>();
+	private final Map<String, Set<MutationInfo>> testMutantCoverage = new LinkedHashMap<>();
 
-	private Set<Integer> coveredLines = new LinkedHashSet<Integer>();
+	private final Set<Integer> coveredLines = new LinkedHashSet<>();
 
-	private Set<Integer> uncoveredLines = new LinkedHashSet<Integer>();
+	private final Set<Integer> uncoveredLines = new LinkedHashSet<>();
 
-	private Set<BranchInfo> coveredBranches = new LinkedHashSet<BranchInfo>();
+	private final Set<BranchInfo> coveredBranches = new LinkedHashSet<>();
 
-	private Set<BranchInfo> uncoveredBranches = new LinkedHashSet<BranchInfo>();
+	private final Set<BranchInfo> uncoveredBranches = new LinkedHashSet<>();
 
-	private Set<MutationInfo> coveredMutants = new LinkedHashSet<MutationInfo>();
+	private final Set<MutationInfo> coveredMutants = new LinkedHashSet<>();
 
-	private Set<MutationInfo> uncoveredMutants = new LinkedHashSet<MutationInfo>();
+	private final Set<MutationInfo> uncoveredMutants = new LinkedHashSet<>();
 	
-	private Set<MutationInfo> exceptionMutants = new LinkedHashSet<MutationInfo>();
+	private final Set<MutationInfo> exceptionMutants = new LinkedHashSet<>();
 
-	private Map<String, String> testComments = new LinkedHashMap<String, String>();
+	private final Map<String, String> testComments = new LinkedHashMap<>();
 	
 	private String testSuiteCode = "";
 	
@@ -72,11 +72,11 @@ class TestGenerationResultImpl implements TestGenerationResult {
 	//private String targetCriterion = "";
 	private String[] targetCriterion;
 
-    private LinkedHashMap<FitnessFunction<?>, Double> targetCoverages = new LinkedHashMap<FitnessFunction<?>, Double>();
+    private final LinkedHashMap<FitnessFunction<?>, Double> targetCoverages = new LinkedHashMap<>();
 	
 	private GeneticAlgorithm<?> ga = null;
 
-	private ExplorationAlgorithmBase<?> dse = null;
+	private ExplorationAlgorithmBase dse = null;
 	
 	/** Did test generation succeed? */
 	public Status getTestGenerationStatus() {
@@ -107,11 +107,11 @@ class TestGenerationResultImpl implements TestGenerationResult {
 	}
 
 	/** The entire DSEA in tirs final state */
-	public ExplorationAlgorithmBase<?> getDSEAlgorithm() {
+	public ExplorationAlgorithmBase getDSEAlgorithm() {
 		return dse;
 	}
 
-	public void setDSEAlgorithm(ExplorationAlgorithmBase<?> dse) {
+	public void setDSEAlgorithm(ExplorationAlgorithmBase dse) {
 		this.dse = dse;
 	}
 	
@@ -138,7 +138,7 @@ class TestGenerationResultImpl implements TestGenerationResult {
 	}
 	
 	public double getTargetCoverage(FitnessFunction<?> function) {
-		return this.targetCoverages.containsKey(function) ? this.targetCoverages.get(function) : 0.0;
+		return this.targetCoverages.getOrDefault(function, 0.0);
 	}
 	
 	@Override

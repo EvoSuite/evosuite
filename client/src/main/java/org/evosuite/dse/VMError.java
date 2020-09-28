@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -32,9 +32,7 @@ public class VMError extends Error {
 		super(arg0, arg1);
 	}
 
-	/**
-	 * 
-	 */
+
 	private static final long serialVersionUID = 4986434593568038501L;
 
 }

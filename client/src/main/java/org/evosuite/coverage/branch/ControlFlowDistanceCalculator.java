@@ -69,7 +69,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ControlFlowDistanceCalculator {
 
-	private static Logger logger = LoggerFactory.getLogger(ControlFlowDistanceCalculator.class);
+	private static final Logger logger = LoggerFactory.getLogger(ControlFlowDistanceCalculator.class);
 
 	// DONE hold intermediately calculated ControlFlowDistances in
 	// ExecutionResult during computation in order to speed up things -

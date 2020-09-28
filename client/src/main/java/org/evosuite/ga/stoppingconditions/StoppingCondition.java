@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -19,8 +19,12 @@
  */
 package org.evosuite.ga.stoppingconditions;
 
+import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.metaheuristics.SearchListener;
-public interface StoppingCondition extends SearchListener {
+import org.evosuite.utils.PublicCloneable;
+
+public interface StoppingCondition<T extends Chromosome<T>> extends SearchListener<T>,
+		PublicCloneable<StoppingCondition<T>> {
 
 	/**
 	 * Force a specific amount of used up budget. Handle with care!
@@ -28,14 +32,14 @@ public interface StoppingCondition extends SearchListener {
 	 * @param value
 	 *            The new amount of used up budget for this StoppingCondition
 	 */
-	public abstract void forceCurrentValue(long value);
+    void forceCurrentValue(long value);
 
 	/**
 	 * How much of the budget have we used up
 	 *
 	 * @return a long.
 	 */
-	public abstract long getCurrentValue();
+    long getCurrentValue();
 
 	/**
 	 * Get upper limit of resources
@@ -44,7 +48,7 @@ public interface StoppingCondition extends SearchListener {
 	 *
 	 * @return limit
 	 */
-	public abstract long getLimit();
+    long getLimit();
 
 	/**
 	 * <p>isFinished</p>

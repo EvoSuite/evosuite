@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -16,9 +16,6 @@
  *
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
- */
-/**
- * 
  */
 package org.evosuite.coverage;
 
@@ -43,28 +40,43 @@ import org.slf4j.LoggerFactory;
  *
  * @author Gordon Fraser
  */
-public class FitnessLogger implements SearchListener {
+public class FitnessLogger<T extends Chromosome<T>> implements SearchListener<T> {
 
-	private static Logger logger = LoggerFactory.getLogger(FitnessLogger.class);
+	private static final Logger logger = LoggerFactory.getLogger(FitnessLogger.class);
 
-	private final List<Integer> evaluations_history = new ArrayList<Integer>();
+	private static final long serialVersionUID = 1914403470617343821L;
 
-	private final List<Long> statements_history = new ArrayList<Long>();
+	private final List<Integer> evaluations_history;
+	private final List<Long> statements_history;
+	private final List<Double> fitness_history;
+	private final List<Integer> size_history;
+	private String name;
+	private int evaluations;
 
-	private final List<Double> fitness_history = new ArrayList<Double>();
+	public FitnessLogger() {
+		evaluations_history = new ArrayList<>();
+		statements_history = new ArrayList<>();
+		fitness_history = new ArrayList<>();
+		size_history = new ArrayList<>();
+		name = null;
+		evaluations = 0;
+	}
 
-	private final List<Integer> size_history = new ArrayList<Integer>();
-
-	private String name = null;
-
-	private int evaluations = 0;
+	public FitnessLogger(FitnessLogger<?> that) {
+		this.evaluations_history = new ArrayList<>(that.evaluations_history);
+		this.statements_history = new ArrayList<>(that.statements_history);
+		this.fitness_history = new ArrayList<>(that.fitness_history);
+		this.size_history = new ArrayList<>(that.size_history);
+		this.name = that.name;
+		this.evaluations = that.evaluations;
+	}
 
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.SearchListener#searchStarted(org.evosuite.ga.FitnessFunction)
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void searchStarted(GeneticAlgorithm<?> algorithm) {
+	public void searchStarted(GeneticAlgorithm<T> algorithm) {
 		evaluations = 0;
 		evaluations_history.clear();
 		statements_history.clear();
@@ -85,7 +97,7 @@ public class FitnessLogger implements SearchListener {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void iteration(GeneticAlgorithm<?> algorithm) {
+	public void iteration(GeneticAlgorithm<T> algorithm) {
 		if (algorithm.getPopulation().isEmpty())
 			return;
 
@@ -100,7 +112,7 @@ public class FitnessLogger implements SearchListener {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void searchFinished(GeneticAlgorithm<?> algorithm) {
+	public void searchFinished(GeneticAlgorithm<T> algorithm) {
 		if (name == null)
 			return;
 
@@ -126,7 +138,7 @@ public class FitnessLogger implements SearchListener {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void fitnessEvaluation(Chromosome individual) {
+	public void fitnessEvaluation(T individual) {
 		evaluations++;
 	}
 
@@ -135,7 +147,7 @@ public class FitnessLogger implements SearchListener {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void modification(Chromosome individual) {
+	public void modification(T individual) {
 		// TODO Auto-generated method stub
 
 	}

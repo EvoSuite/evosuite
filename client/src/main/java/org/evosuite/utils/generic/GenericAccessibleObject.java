@@ -232,7 +232,7 @@ public abstract class GenericAccessibleObject<T extends GenericAccessibleObject<
 
 		logger.debug("Getting random generic instantiation of method: " + toString()
 		        + " with owner type map: " + typeMap);
-		List<GenericClass> typeParameters = new ArrayList<GenericClass>();
+		List<GenericClass> typeParameters = new ArrayList<>();
 
 		// TODO: The bounds of this type parameter need to be updataed for the owner of the call
 		// which may instantiate some of the type parameters
@@ -269,7 +269,7 @@ public abstract class GenericAccessibleObject<T extends GenericAccessibleObject<
 			return copy;
 		}
 
-		List<GenericClass> typeParameters = new ArrayList<GenericClass>();
+		List<GenericClass> typeParameters = new ArrayList<>();
 		for (TypeVariable<?> parameter : getTypeParameters()) {
 			GenericClass concreteType = new GenericClass(parameter);
 			logger.debug("(I) Setting parameter " + parameter + " to type "
@@ -297,7 +297,7 @@ public abstract class GenericAccessibleObject<T extends GenericAccessibleObject<
 
 		// We just want to have the type variables defined in the generic method here
 		// and not type variables defined in the owner
-		Map<TypeVariable<?>, Type> concreteTypes = new HashMap<TypeVariable<?>, Type>();
+		Map<TypeVariable<?>, Type> concreteTypes = new HashMap<>();
 		logger.debug("Getting type map of generated type");
 		Map<TypeVariable<?>, Type> generatorTypes = generatedType.getTypeVariableMap();
 		logger.debug("Got type map of generated type: "+generatorTypes);
@@ -348,7 +348,7 @@ public abstract class GenericAccessibleObject<T extends GenericAccessibleObject<
 		// When resolving the type variables on a non-static generic method
 		// we need to look at the owner type, and not the return type!
 
-		List<GenericClass> typeParameters = new ArrayList<GenericClass>();
+		List<GenericClass> typeParameters = new ArrayList<>();
 		logger.debug("Setting parameters with map: " + concreteTypes);
 		for (TypeVariable<?> parameter : getTypeParameters()) {
 			GenericClass concreteType = new GenericClass(parameter);
@@ -393,7 +393,7 @@ public abstract class GenericAccessibleObject<T extends GenericAccessibleObject<
 	}
 
 	protected Map<TypeVariable<?>, GenericClass> getTypeVariableMap() {
-		Map<TypeVariable<?>, GenericClass> typeMap = new HashMap<TypeVariable<?>, GenericClass>();
+		Map<TypeVariable<?>, GenericClass> typeMap = new HashMap<>();
 		int pos = 0;
 		for (TypeVariable<?> variable : getTypeParameters()) {
 			if (typeVariables.size() <= pos)

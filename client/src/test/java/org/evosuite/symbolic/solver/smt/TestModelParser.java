@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -43,8 +43,8 @@ public class TestModelParser {
 		SmtModelParser parser = new SmtModelParser();
 		SolverResult solution = parser.parse(result_str);
 		assertTrue(solution.isSAT());
-		assertEquals(new Long(0), solution.getValue("var0"));
-		assertEquals(new Long(10), solution.getValue("var1"));
+		assertEquals(0L, solution.getValue("var0"));
+		assertEquals(10L, solution.getValue("var1"));
 	}
 
 	@Test
@@ -130,8 +130,8 @@ public class TestModelParser {
 		SmtModelParser parser = new SmtModelParser();
 		SolverResult solution = parser.parse(result_str);
 		assertTrue(solution.isSAT());
-		assertEquals(new Double(0.0), solution.getValue("var0"));
-		assertEquals(new Double(0.0), solution.getValue("var1"));
+		assertEquals(0.0, solution.getValue("var0"));
+		assertEquals(0.0, solution.getValue("var1"));
 	}
 
 	@Test
@@ -146,8 +146,8 @@ public class TestModelParser {
 		SmtModelParser parser = new SmtModelParser();
 		SolverResult solution = parser.parse(result_str);
 		assertTrue(solution.isSAT());
-		assertEquals(new Double(0.0), solution.getValue("var0"));
-		assertEquals(new Double(Math.PI), solution.getValue("var1"));
+		assertEquals(0.0, solution.getValue("var0"));
+		assertEquals(Math.PI, solution.getValue("var1"));
 	}
 
 	@Test

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -20,7 +20,6 @@
 package org.evosuite.instrumentation;
 
 import org.evosuite.PackageInfo;
-import org.evosuite.testcase.execution.ExecutionTrace;
 import org.evosuite.testcase.execution.ExecutionTracer;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -36,7 +35,7 @@ import org.slf4j.LoggerFactory;
 public class MethodEntryAdapter extends AdviceAdapter {
 
 	@SuppressWarnings("unused")
-	private static Logger logger = LoggerFactory.getLogger(MethodEntryAdapter.class);
+	private static final Logger logger = LoggerFactory.getLogger(MethodEntryAdapter.class);
 
 	String className;
 	String methodName;
@@ -54,7 +53,7 @@ public class MethodEntryAdapter extends AdviceAdapter {
 	 */
 	public MethodEntryAdapter(MethodVisitor mv, int access, String className,
 	        String methodName, String desc) {
-		super(Opcodes.ASM7, mv, access, methodName, desc);
+		super(Opcodes.ASM9, mv, access, methodName, desc);
 		this.className = className;
 		this.methodName = methodName;
 		this.fullMethodName = methodName + desc;

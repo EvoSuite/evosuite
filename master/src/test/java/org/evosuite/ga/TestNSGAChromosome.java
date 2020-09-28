@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -36,7 +36,7 @@ public class TestNSGAChromosome
         Properties.POPULATION = 100;
         Properties.SEARCH_BUDGET = 250;
         Properties.CROSSOVER_RATE = 0.9;
-        Properties.RANDOM_SEED = 1l;
+        Properties.RANDOM_SEED = 1L;
     }
 
     @Test
@@ -44,7 +44,7 @@ public class TestNSGAChromosome
     {
         double[] values = {-3.0};
         NSGAChromosome nsga = new NSGAChromosome(-5.0, 10.0, values);
-        Assert.assertTrue(nsga.getNumberOfVariables() == 1);
+        Assert.assertEquals(1, nsga.getNumberOfVariables());
 
         double v = ((DoubleVariable)nsga.getVariable(0)).getValue();
         Assert.assertEquals(v, -3.0, 0.0);

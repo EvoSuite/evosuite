@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -20,7 +20,6 @@
 package org.evosuite.ga.metaheuristics;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 
@@ -57,8 +56,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author José Campos
  */
-public class NSGAII<T extends Chromosome>
-    extends GeneticAlgorithm<T>
+public class NSGAII<T extends Chromosome<T>> extends GeneticAlgorithm<T>
 {
     private static final long serialVersionUID = 146182080947267628L;
 
@@ -73,16 +71,15 @@ public class NSGAII<T extends Chromosome>
      */
     public NSGAII(ChromosomeFactory<T> factory) {
         super(factory);
-        this.crowdingDistance = new CrowdingDistance<T>();
+        this.crowdingDistance = new CrowdingDistance<>();
     }
 
     /** {@inheritDoc} */
-    @SuppressWarnings("unchecked")
     @Override
     protected void evolve()
     {
         // Create the offSpring population
-        List<T> offspringPopulation = new ArrayList<T>(population.size());
+        List<T> offspringPopulation = new ArrayList<>(population.size());
 
         // execute binary tournment selection, crossover, and mutation to
         // create a offspring population Qt of size N
@@ -93,8 +90,8 @@ public class NSGAII<T extends Chromosome>
             T parent2 = selectionFunction.select(population);
 
             // Crossover
-            T offspring1 = (T) parent1.clone();
-            T offspring2 = (T) parent2.clone();
+            T offspring1 = parent1.clone();
+            T offspring2 = parent2.clone();
 
             try {
                 if (Randomness.nextDouble() <= Properties.CROSSOVER_RATE)
@@ -142,8 +139,7 @@ public class NSGAII<T extends Chromosome>
             // Assign crowding distance to individuals
             this.crowdingDistance.crowdingDistanceAssignment(front, this.getFitnessFunctions());
             // Add the individuals of this front
-            for (int k = 0; k < front.size(); k++)
-                population.add(front.get(k));
+            population.addAll(front);
 
             // Decrement remain
             remain = remain - front.size();
@@ -159,7 +155,7 @@ public class NSGAII<T extends Chromosome>
             // front contains individuals to insert
             this.crowdingDistance.crowdingDistanceAssignment(front, this.getFitnessFunctions());
 
-            Collections.sort(front, new RankAndCrowdingDistanceComparator<T>(true));
+            front.sort(new RankAndCrowdingDistanceComparator<>(true));
 
             for (int k = 0; k < remain; k++)
                 population.add(front.get(k));
@@ -221,9 +217,8 @@ public class NSGAII<T extends Chromosome>
             newSize = Properties.POPULATION;
 
         // Create a new population
-        List<T> union = new ArrayList<T>(newSize);
-        for (int i = 0; i < population.size(); i++)
-            union.add(population.get(i));
+        List<T> union = new ArrayList<>(newSize);
+        union.addAll(population);
 
         for (int i = population.size(); i < (population.size() + offspringPopulation.size()); i++)
             union.add(offspringPopulation.get(i - population.size()));

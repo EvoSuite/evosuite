@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
+
 package org.evosuite.assertion;
 
 /**
@@ -35,5 +33,5 @@ public interface OutputTraceVisitor<T extends OutputTraceEntry> {
 	 * @param entry a T object.
 	 * @param <T> a T object.
 	 */
-	public void visit(T entry);
+    void visit(T entry);
 }

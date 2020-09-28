@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
+
 package org.evosuite.symbolic.solver.avm;
 
 import static org.junit.Assert.assertEquals;
@@ -69,7 +67,7 @@ public class TestIntegerSearch extends RandomizedTC {
 	
 	@Test
 	public void testEQConstant() throws SolverEmptyQueryException {
-		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
+		List<Constraint<?>> constraints = new ArrayList<>();
 		constraints.add(new IntegerConstraint(new IntegerVariable("test1", 0, -1000000, 1000000), Comparator.EQ,
 				new IntegerConstant(235082)));
 
@@ -91,7 +89,7 @@ public class TestIntegerSearch extends RandomizedTC {
 		// TODO: Currently, the model returned by the search is null if the
 		// constraint is already satisfied,
 		// so in this example the concrete value has to be the target initially
-		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
+		List<Constraint<?>> constraints = new ArrayList<>();
 		constraints.add(new IntegerConstraint(new IntegerVariable("test1", 235082, -1000000, 1000000), Comparator.NE,
 				new IntegerConstant(235082)));
 
@@ -113,7 +111,7 @@ public class TestIntegerSearch extends RandomizedTC {
 		// TODO: Currently, the model returned by the search is null if the
 		// constraint is already satisfied,
 		// so in this example the concrete value has to be the target initially
-		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
+		List<Constraint<?>> constraints = new ArrayList<>();
 		constraints.add(new IntegerConstraint(new IntegerVariable("test1", 235086, -1000000, 1000000), Comparator.LE,
 				new IntegerConstant(235082)));
 
@@ -134,7 +132,7 @@ public class TestIntegerSearch extends RandomizedTC {
 		// TODO: Currently, the model returned by the search is null if the
 		// constraint is already satisfied,
 		// so in this example the concrete value has to be the target initially
-		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
+		List<Constraint<?>> constraints = new ArrayList<>();
 		constraints.add(new IntegerConstraint(new IntegerVariable("test1", 235086, -1000000, 1000000), Comparator.LT,
 				new IntegerConstant(235082)));
 
@@ -156,7 +154,7 @@ public class TestIntegerSearch extends RandomizedTC {
 		// TODO: Currently, the model returned by the search is null if the
 		// constraint is already satisfied,
 		// so in this example the concrete value has to be the target initially
-		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
+		List<Constraint<?>> constraints = new ArrayList<>();
 		constraints.add(new IntegerConstraint(new IntegerVariable("test1", 0, -1000000, 1000000), Comparator.GE,
 				new IntegerConstant(235082)));
 
@@ -178,7 +176,7 @@ public class TestIntegerSearch extends RandomizedTC {
 		// TODO: Currently, the model returned by the search is null if the
 		// constraint is already satisfied,
 		// so in this example the concrete value has to be the target initially
-		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
+		List<Constraint<?>> constraints = new ArrayList<>();
 		constraints.add(new IntegerConstraint(new IntegerVariable("test1", 0, -1000000, 1000000), Comparator.GT,
 				new IntegerConstant(235082)));
 
@@ -199,7 +197,7 @@ public class TestIntegerSearch extends RandomizedTC {
 	public void testEQVariable() throws SolverEmptyQueryException {
 		int var1 = 0;
 		int var2 = 1;
-		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
+		List<Constraint<?>> constraints = new ArrayList<>();
 		constraints.add(new IntegerConstraint(new IntegerVariable("test1", var1, -1000000, 1000000), Comparator.EQ,
 				new IntegerVariable("test2", var2, -1000000, 1000000)));
 
@@ -223,7 +221,7 @@ public class TestIntegerSearch extends RandomizedTC {
 	public void testNEVariable() throws SolverEmptyQueryException {
 		int var1 = 1;
 		int var2 = 1;
-		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
+		List<Constraint<?>> constraints = new ArrayList<>();
 		constraints.add(new IntegerConstraint(new IntegerVariable("test1", var1, -1000000, 1000000), Comparator.NE,
 				new IntegerVariable("test2", var2, -1000000, 1000000)));
 
@@ -247,7 +245,7 @@ public class TestIntegerSearch extends RandomizedTC {
 	public void testLEVariable() throws SolverEmptyQueryException {
 		int var1 = 2;
 		int var2 = 1;
-		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
+		List<Constraint<?>> constraints = new ArrayList<>();
 		constraints.add(new IntegerConstraint(new IntegerVariable("test1", var1, -1000000, 1000000), Comparator.LE,
 				new IntegerVariable("test2", var2, -1000000, 1000000)));
 
@@ -271,7 +269,7 @@ public class TestIntegerSearch extends RandomizedTC {
 	public void testLTVariable() throws SolverEmptyQueryException {
 		int var1 = 2;
 		int var2 = 1;
-		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
+		List<Constraint<?>> constraints = new ArrayList<>();
 		constraints.add(new IntegerConstraint(new IntegerVariable("test1", var1, -1000000, 1000000), Comparator.LT,
 				new IntegerVariable("test2", var2, -1000000, 1000000)));
 
@@ -295,7 +293,7 @@ public class TestIntegerSearch extends RandomizedTC {
 	public void testGEVariable() throws SolverEmptyQueryException {
 		int var1 = 0;
 		int var2 = 1;
-		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
+		List<Constraint<?>> constraints = new ArrayList<>();
 		constraints.add(new IntegerConstraint(new IntegerVariable("test1", var1, -1000000, 1000000), Comparator.GE,
 				new IntegerVariable("test2", var2, -1000000, 1000000)));
 
@@ -321,7 +319,7 @@ public class TestIntegerSearch extends RandomizedTC {
 		int var2 = 1;
 		 Properties.DSE_CONSTRAINT_SOLVER_TIMEOUT_MILLIS = Integer.MAX_VALUE;
 		 
-		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
+		List<Constraint<?>> constraints = new ArrayList<>();
 		constraints.add(new IntegerConstraint(new IntegerVariable("test1", var1, -1000000, 1000000), Comparator.GT,
 				new IntegerVariable("test2", var2, -1000000, 1000000)));
 
@@ -348,7 +346,7 @@ public class TestIntegerSearch extends RandomizedTC {
 		int var3 = 1;
 		assertTrue(var1 != var2 + var3);
 
-		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
+		List<Constraint<?>> constraints = new ArrayList<>();
 		constraints.add(new IntegerConstraint(new IntegerVariable("test1", var1, -1000000, 1000000), Comparator.EQ,
 				new IntegerBinaryExpression(new IntegerVariable("test2", var2, -1000000, 1000000), Operator.PLUS,
 						new IntegerVariable("test3", var3, -1000000, 1000000), 0L)));
@@ -365,7 +363,7 @@ public class TestIntegerSearch extends RandomizedTC {
 				var2 = ((Number) model.get("test2")).intValue();
 			if (model.containsKey("test3"))
 				var3 = ((Number) model.get("test3")).intValue();
-			assertTrue(var1 == var2 + var3);
+            assertEquals(var1, var2 + var3);
 		} catch (SolverTimeoutException | SolverParseException | SolverErrorException | IOException e) {
 			fail();
 		}
@@ -376,9 +374,9 @@ public class TestIntegerSearch extends RandomizedTC {
 		int var1 = 2;
 		int var2 = 1;
 		int var3 = 1;
-		assertTrue(var1 == var2 + var3);
+        assertEquals(var1, var2 + var3);
 
-		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
+		List<Constraint<?>> constraints = new ArrayList<>();
 		constraints.add(new IntegerConstraint(new IntegerVariable("test1", var1, -1000000, 1000000), Comparator.NE,
 				new IntegerBinaryExpression(new IntegerVariable("test2", var2, -1000000, 1000000), Operator.PLUS,
 						new IntegerVariable("test3", var3, -1000000, 1000000), 0L)));
@@ -408,7 +406,7 @@ public class TestIntegerSearch extends RandomizedTC {
 		int var3 = 1;
 		assertTrue(var1 > var2 + var3);
 
-		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
+		List<Constraint<?>> constraints = new ArrayList<>();
 		constraints.add(new IntegerConstraint(new IntegerVariable("test1", var1, -1000000, 1000000), Comparator.LE,
 				new IntegerBinaryExpression(new IntegerVariable("test2", var2, -1000000, 1000000), Operator.PLUS,
 						new IntegerVariable("test3", var3, -1000000, 1000000), 0L)));
@@ -438,7 +436,7 @@ public class TestIntegerSearch extends RandomizedTC {
 		int var3 = 1;
 		assertTrue(var1 >= var2 + var3);
 
-		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
+		List<Constraint<?>> constraints = new ArrayList<>();
 		constraints.add(new IntegerConstraint(new IntegerVariable("test1", var1, -1000000, 1000000), Comparator.LT,
 				new IntegerBinaryExpression(new IntegerVariable("test2", var2, -1000000, 1000000), Operator.PLUS,
 						new IntegerVariable("test3", var3, -1000000, 1000000), 0L)));
@@ -468,7 +466,7 @@ public class TestIntegerSearch extends RandomizedTC {
 		int var3 = 1;
 		assertTrue(var1 < var2 + var3);
 
-		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
+		List<Constraint<?>> constraints = new ArrayList<>();
 		constraints.add(new IntegerConstraint(new IntegerVariable("test1", var1, -1000000, 1000000), Comparator.GT,
 				new IntegerBinaryExpression(new IntegerVariable("test2", var2, -1000000, 1000000), Operator.PLUS,
 						new IntegerVariable("test3", var3, -1000000, 1000000), 0L)));
@@ -498,7 +496,7 @@ public class TestIntegerSearch extends RandomizedTC {
 		int var3 = 1;
 		assertTrue(var1 <= var2 + var3);
 
-		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
+		List<Constraint<?>> constraints = new ArrayList<>();
 		constraints.add(new IntegerConstraint(new IntegerVariable("test1", var1, -1000000, 1000000), Comparator.GE,
 				new IntegerBinaryExpression(new IntegerVariable("test2", var2, -1000000, 1000000), Operator.PLUS,
 						new IntegerVariable("test3", var3, -1000000, 1000000), 0L)));
@@ -527,7 +525,7 @@ public class TestIntegerSearch extends RandomizedTC {
 		int var1 = 1;
 		int var2 = 1;
 
-		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
+		List<Constraint<?>> constraints = new ArrayList<>();
 		constraints.add(new IntegerConstraint(new IntegerVariable("test1", var1, -1000000, 1000000), Comparator.LE,
 				new IntegerConstant(0)));
 		constraints.add(new IntegerConstraint(new IntegerVariable("test1", var1, -1000000, 1000000), Comparator.LT,
@@ -568,7 +566,7 @@ public class TestIntegerSearch extends RandomizedTC {
 		IntegerBinaryExpression sub = new IntegerBinaryExpression(ivar2, Operator.MINUS, iconst1, -7903L);
 		IntegerBinaryExpression mul = new IntegerBinaryExpression(ivar1, Operator.MUL, sub, -203273063L);
 
-		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
+		List<Constraint<?>> constraints = new ArrayList<>();
 		constraints.add(new IntegerConstraint(mul, Comparator.EQ, iconst2));
 
 		try {
@@ -581,7 +579,8 @@ public class TestIntegerSearch extends RandomizedTC {
 				var1 = ((Number) model.get("test1")).intValue();
 			if (model.containsKey("test2"))
 				var2 = ((Number) model.get("test2")).intValue();
-			assertTrue(var1 * (var2 - 6860) == 8275);
+
+			assertEquals(8275, var1 * (var2 - 6860));
 		} catch (SolverTimeoutException | SolverParseException | SolverErrorException | IOException e) {
 			fail();
 		}
@@ -700,7 +699,7 @@ public class TestIntegerSearch extends RandomizedTC {
 		StringBinaryToIntegerExpression sBExpr = new StringBinaryToIntegerExpression(strConst, Operator.CHARAT,
 				new IntegerConstant(0), (long) "y".charAt(0));
 
-		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
+		List<Constraint<?>> constraints = new ArrayList<>();
 		constraints.add(new IntegerConstraint(ivar1, Comparator.NE, sBExpr));
 		constraints.add(new IntegerConstraint(ivar1, Comparator.NE, iconst1));
 		constraints.add(new IntegerConstraint(ivar1, Comparator.EQ, iconst2));
@@ -712,7 +711,7 @@ public class TestIntegerSearch extends RandomizedTC {
 			Map<String, Object> model = solverResult.getModel();
 			var1 = ((Number) model.get("test1")).intValue();
 
-			assertTrue(var1 == 108);
+			assertEquals(108, var1);
 		} catch (SolverTimeoutException | SolverParseException | SolverErrorException | IOException e) {
 			fail();
 		}
@@ -742,7 +741,7 @@ public class TestIntegerSearch extends RandomizedTC {
 		IntegerVariable ivar1 = new IntegerVariable("test1", x, Integer.MIN_VALUE, Integer.MAX_VALUE);
 		IntegerVariable ivar2 = new IntegerVariable("test2", y, Integer.MIN_VALUE, Integer.MAX_VALUE);
 
-		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
+		List<Constraint<?>> constraints = new ArrayList<>();
 		constraints.add(new IntegerConstraint(ivar2, Comparator.GE, new IntegerConstant(0)));
 		constraints.add(new IntegerConstraint(ivar1, Comparator.LE, new IntegerConstant(0)));
 		constraints.add(new IntegerConstraint(ivar2, Comparator.LE, ivar1));

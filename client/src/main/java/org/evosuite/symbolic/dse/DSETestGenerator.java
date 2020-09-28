@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -22,7 +22,7 @@ package org.evosuite.symbolic.dse;
 import org.evosuite.Properties;
 import org.evosuite.ga.localsearch.LocalSearchBudget;
 import org.evosuite.ga.localsearch.LocalSearchObjective;
-import org.evosuite.symbolic.PathConditionNode;
+import org.evosuite.symbolic.BranchCondition;
 import org.evosuite.symbolic.PathCondition;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.Variable;
@@ -30,9 +30,9 @@ import org.evosuite.symbolic.solver.SolverResult;
 import org.evosuite.symbolic.solver.SolverUtils;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.TestCaseUpdater;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.execution.ExecutionResult;
-import org.evosuite.testcase.TestCaseUpdater;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.slf4j.Logger;
@@ -48,7 +48,7 @@ import java.util.Set;
  * Attempts to create a new test case by applying DSE. The algorithm
  * systematically negates all uncovered branches trying to satisfy the missing
  * branches.
- * 
+ *
  * @author galeotti
  *
  */
@@ -66,7 +66,7 @@ public class DSETestGenerator {
 	/**
 	 * Creates a new test generator using a test suite. The test case will be added
 	 * to the test suite.
-	 * 
+	 *
 	 * @param suite
 	 */
 	public DSETestGenerator(TestSuiteChromosome suite) {
@@ -79,22 +79,22 @@ public class DSETestGenerator {
 	 * Applies DSE to the passed test using as symbolic variables only those that
 	 * are declared in the set of statement indexes. The objective is used to detect
 	 * if the DSE has improved the fitness.
-	 * 
+	 *
 	 * @param test
 	 *            the test case to be used as parameterised unit test
-	 * 
+	 *
 	 * @param statementIndexes
 	 *            a set with statement indexes with primitive value declarations
 	 *            that can be used as symbolic variables. This set must be
 	 *            non-empty.
-	 * 
+	 *
 	 * @param objective
 	 *            the local search objective to measure fitness improvement.
 	 */
 	public TestChromosome generateNewTest(final TestChromosome test, Set<Integer> statementIndexes,
-			LocalSearchObjective<TestChromosome> objective) {
+										  LocalSearchObjective<TestChromosome> objective) {
 
-		logger.info("APPLYING DSE EEEEEEEEEEEEEEEEEEEEEEE");
+		logger.info("APPLYING DSE");
 		logger.info(test.getTestCase().toCode());
 		logger.info("Starting concolic execution");
 		// Backup copy
@@ -110,11 +110,11 @@ public class DSETestGenerator {
 			return null;
 		}
 
-		for (PathConditionNode c : collectedPathCondition.getPathConditionNodes()) {
+		for (BranchCondition c : collectedPathCondition.getBranchConditions()) {
 			logger.info(" -> " + c.getConstraint());
 		}
 
-		Set<VariableReference> symbolicVariables = new HashSet<VariableReference>();
+		Set<VariableReference> symbolicVariables = new HashSet<>();
 		for (Integer position : statementIndexes) {
 			final VariableReference variableReference = test.getTestCase().getStatement(position).getReturnValue();
 			symbolicVariables.add(variableReference);
@@ -127,7 +127,7 @@ public class DSETestGenerator {
 
 		//
 		for (int conditionIndex = 0; conditionIndex < collectedPathCondition.size(); conditionIndex++) {
-			PathConditionNode condition = collectedPathCondition.get(conditionIndex);
+			BranchCondition condition = collectedPathCondition.get(conditionIndex);
 
 			if (LocalSearchBudget.getInstance().isFinished()) {
 				logger.debug("Local search budget used up: " + Properties.LOCAL_SEARCH_BUDGET_TYPE);
@@ -213,7 +213,7 @@ public class DSETestGenerator {
 	 * covered two ways. If the test case belongs to a whole test suite, the
 	 * coverage of the whole test suite is used, otherwise, only the coverage of the
 	 * single test case.
-	 * 
+	 *
 	 * @param test
 	 *            the original test case
 	 * @param collectedPathCondition
@@ -221,10 +221,10 @@ public class DSETestGenerator {
 	 * @return
 	 */
 	private List<Integer> computeConditionIndexesNotCoveredTwoWays(final TestChromosome test,
-			final PathCondition collectedPathCondition) {
-		List<Integer> conditionIndexesNotCoveredTwoWays = new LinkedList<Integer>();
+																   final PathCondition collectedPathCondition) {
+		List<Integer> conditionIndexesNotCoveredTwoWays = new LinkedList<>();
 		for (int conditionIndex = 0; conditionIndex < collectedPathCondition.size(); conditionIndex++) {
-			PathConditionNode b = collectedPathCondition.get(conditionIndex);
+			BranchCondition b = collectedPathCondition.get(conditionIndex);
 			if (!isCoveredTwoWays(test, b.getInstructionIndex())) {
 				conditionIndexesNotCoveredTwoWays.add(conditionIndex);
 			}
@@ -236,15 +236,15 @@ public class DSETestGenerator {
 	 * Returns if the true and false branches for this were already covered. If the
 	 * test case belongs to a whole test suite, then the coverage of the test suite
 	 * is used, otherwise the single test case is used.
-	 * 
+	 *
 	 * @param test
 	 * @param branchIndex
 	 * @return
 	 */
 	private boolean isCoveredTwoWays(TestChromosome test, int branchIndex) {
 
-		Set<Integer> trueIndexes = new HashSet<Integer>();
-		Set<Integer> falseIndexes = new HashSet<Integer>();
+		Set<Integer> trueIndexes = new HashSet<>();
+		Set<Integer> falseIndexes = new HashSet<>();
 
 		if (suite != null) {
 			for (ExecutionResult execResult : this.suite.getLastExecutionResults()) {
@@ -270,14 +270,14 @@ public class DSETestGenerator {
 
 	/**
 	 * Returns true iff the constraint has at least one variable that is
-	 * 
+	 *
 	 * @param constraint
 	 * @param targets
 	 * @return
 	 */
 	private boolean isRelevant(Constraint<?> constraint, Set<VariableReference> targets) {
 		Set<Variable<?>> variables = constraint.getVariables();
-		Set<String> targetNames = new HashSet<String>();
+		Set<String> targetNames = new HashSet<>();
 		for (VariableReference v : targets) {
 			targetNames.add(v.getName());
 		}
@@ -287,5 +287,4 @@ public class DSETestGenerator {
 		}
 		return false;
 	}
-
 }

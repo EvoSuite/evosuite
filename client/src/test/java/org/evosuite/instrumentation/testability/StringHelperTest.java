@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -331,7 +331,7 @@ public class StringHelperTest {
 		int result2 = StringHelper.StringEquals("test3", str2);
 		int result4 = StringHelper.StringEquals("test3", str4);
 		assertTrue(result1 < result2);
-		assertTrue(result2 == result4);
+        assertEquals(result2, result4);
 		assertTrue(result1 < result4);
 
 	}

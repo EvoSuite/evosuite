@@ -19,7 +19,7 @@
  */
 package org.evosuite.symbolic.solver;
 
-import org.evosuite.symbolic.PathConditionNode;
+import org.evosuite.symbolic.BranchCondition;
 import org.evosuite.symbolic.PathCondition;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.Expression;
@@ -77,12 +77,12 @@ public abstract class SolverUtils {
 	 * @return
 	 */
      public static Collection<? extends Constraint<?>> createBoundsForQueryVariables(List<Constraint<?>> query) {
-        Set<Variable<?>> variables = new HashSet<Variable<?>>();
+        Set<Variable<?>> variables = new HashSet<>();
         for (Constraint<?> constraint : query) {
           variables.addAll(constraint.getVariables());
         }
 
-        List<Constraint<?>> boundsForVariables = new ArrayList<Constraint<?>>();
+        List<Constraint<?>> boundsForVariables = new ArrayList<>();
         for (Variable<?> variable : variables) {
         	if (variable instanceof IntegerVariable) {
             IntegerVariable integerVariable = (IntegerVariable) variable;
@@ -114,20 +114,18 @@ public abstract class SolverUtils {
         return boundsForVariables;
      }
 
-
-     /**
+   /**
 	 * Creates a Solver query give a branch condition
-	 * TODO: this is exclusive for DSE, it may be good to put it in some other utils
 	 *
 	 * @param pc
 	 * @return
 	 */
 	public static List<Constraint<?>> buildQuery(PathCondition pc) {
-		List<Constraint<?>> query = new LinkedList<Constraint<?>>();
+		List<Constraint<?>> query = new LinkedList<>();
 
-		for (PathConditionNode pathConditionNode : pc.getPathConditionNodes()) {
-			query.addAll(pathConditionNode.getSupportingConstraints());
-			query.add(pathConditionNode.getConstraint());
+		for (BranchCondition branchCondition : pc.getBranchConditions()) {
+			query.addAll(branchCondition.getSupportingConstraints());
+			query.add(branchCondition.getConstraint());
 		}
 
 		// Compute cone of influence reduction
@@ -143,14 +141,14 @@ public abstract class SolverUtils {
 	  * @return
 	 */
 	public static List<Constraint<?>> buildQueryNegatingIthCondition(PathCondition pc, int conditionIndexToNegate) {
-		List<Constraint<?>> query = new LinkedList<Constraint<?>>();
+		List<Constraint<?>> query = new LinkedList<>();
 		for (int i = 0; i < conditionIndexToNegate; i++) {
-			PathConditionNode b = pc.get(i);
+			BranchCondition b = pc.get(i);
 			query.addAll(b.getSupportingConstraints());
 			query.add(b.getConstraint());
 		}
 
-		PathConditionNode targetBranch = pc.get(conditionIndexToNegate);
+		BranchCondition targetBranch = pc.get(conditionIndexToNegate);
 		Constraint<?> negation = targetBranch.getConstraint().negate();
 		query.addAll(targetBranch.getSupportingConstraints());
 		query.add(negation);
@@ -172,7 +170,7 @@ public abstract class SolverUtils {
 		Constraint<?> target = constraints.get(constraints.size() - 1);
 		Set<Variable<?>> dependencies = getVariables(target);
 
-		LinkedList<Constraint<?>> coi = new LinkedList<Constraint<?>>();
+		LinkedList<Constraint<?>> coi = new LinkedList<>();
 		if (dependencies.size() <= 0)
 			return coi;
 
@@ -199,7 +197,7 @@ public abstract class SolverUtils {
 	 * @return
 	 */
 	private static Set<Variable<?>> getVariables(Constraint<?> constraint) {
-		Set<Variable<?>> variables = new HashSet<Variable<?>>();
+		Set<Variable<?>> variables = new HashSet<>();
 		getVariables(constraint.getLeftOperand(), variables);
 		getVariables(constraint.getRightOperand(), variables);
 		return variables;

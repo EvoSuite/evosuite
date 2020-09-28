@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,6 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
 package org.evosuite.testsuite;
 
 import java.util.List;
@@ -27,6 +24,7 @@ import java.util.List;
 import org.evosuite.Properties;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.populationlimit.PopulationLimit;
+import org.evosuite.testcase.TestChromosome;
 
 
 /**
@@ -34,21 +32,42 @@ import org.evosuite.ga.populationlimit.PopulationLimit;
  *
  * @author fraser
  */
-public class StatementsPopulationLimit implements PopulationLimit {
+public class StatementsPopulationLimit<T extends Chromosome<T>>
+		implements PopulationLimit<T> {
 
 	private static final long serialVersionUID = 4794704248615412859L;
+
+	public StatementsPopulationLimit() {
+	}
+
+	/**
+	 * Copy Constructor
+	 *
+	 * This constructor is used by {@link org.evosuite.ga.metaheuristics.TestSuiteAdapter} to adapt the generic type
+	 * parameter.
+	 *
+	 * This constructor shall preserve the current state of the StatementsPopulationLimit (if existing).
+	 *
+	 * @param other
+	 */
+	public StatementsPopulationLimit(StatementsPopulationLimit<?> other) {
+	}
 
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.PopulationLimit#isPopulationFull(java.util.List)
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public boolean isPopulationFull(List<? extends Chromosome> population) {
-		int numStatements = 0;
-		for (Chromosome chromosome : population) {
-			TestSuiteChromosome suite = (TestSuiteChromosome) chromosome;
-			numStatements += suite.totalLengthOfTestCases();
-		}
+	public boolean isPopulationFull(List<T> population) {
+		int numStatements = population.stream().map(x -> {
+			if(x instanceof TestSuiteChromosome)
+				return x;
+			if(x instanceof TestChromosome)
+				return ((TestChromosome) x).toSuite();
+			throw new IllegalArgumentException("Could not transform population to TestSuites");
+		})
+				.mapToInt(x-> ((TestSuiteChromosome) x).totalLengthOfTestCases())
+				.sum();
 		return numStatements >= Properties.POPULATION;
 	}
 

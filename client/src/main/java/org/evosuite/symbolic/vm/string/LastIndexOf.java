@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -22,7 +22,6 @@ package org.evosuite.symbolic.vm.string;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.Operator;
 import org.evosuite.symbolic.expr.bv.IntegerValue;
 import org.evosuite.symbolic.expr.bv.StringBinaryToIntegerExpression;
@@ -99,7 +98,7 @@ public abstract class LastIndexOf extends SymbolicFunction {
 					|| fromIndexExpr.containsSymbolicVariable()) {
 				StringMultipleToIntegerExpression strBExpr = new StringMultipleToIntegerExpression(
 						left_expr, Operator.LASTINDEXOFCI, right_expr,
-						new ArrayList<Expression<?>>(Collections
+						new ArrayList<>(Collections
 								.singletonList(fromIndexExpr)),
 						(long) res);
 
@@ -184,7 +183,7 @@ public abstract class LastIndexOf extends SymbolicFunction {
 
 					StringMultipleToIntegerExpression strBExpr = new StringMultipleToIntegerExpression(
 							left_expr, Operator.LASTINDEXOFSI, right_expr,
-							new ArrayList<Expression<?>>(Collections
+							new ArrayList<>(Collections
 									.singletonList(fromIndexExpr)),
 							(long) res);
 

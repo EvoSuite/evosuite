@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
+
 package org.evosuite.assertion;
 
 import java.util.Set;
@@ -49,7 +47,7 @@ public abstract class AssertionTraceObserver<T extends OutputTraceEntry> extends
 	/** Constant <code>logger</code> */
 	protected static final Logger logger = LoggerFactory.getLogger(AssertionTraceObserver.class);
 
-	protected OutputTrace<T> trace = new OutputTrace<T>();
+	protected OutputTrace<T> trace = new OutputTrace<>();
 
 	protected boolean checkThread() {
 		return ExecutionTracer.isThreadNeqCurrentThread();
@@ -77,13 +75,7 @@ public abstract class AssertionTraceObserver<T extends OutputTraceEntry> extends
 	 */
 	protected void visitDependencies(Statement statement, Scope scope) {
 		Set<VariableReference> dependencies = currentTest.getDependencies(statement.getReturnValue());
-		
-		if(Properties.isRegression()){
-			if (!hasCUT(statement, dependencies)){
-				return;
-			}
-		}
-		
+
 		for (VariableReference var : dependencies) {
 			if(var.isVoid())
 				continue;
@@ -112,14 +104,6 @@ public abstract class AssertionTraceObserver<T extends OutputTraceEntry> extends
 	 *            a {@link org.evosuite.testcase.execution.Scope} object.
 	 */
 	protected void visitReturnValue(Statement statement, Scope scope) {
-		
-		if(Properties.isRegression()){
-			Set<VariableReference> dependencies = currentTest.getDependencies(statement.getReturnValue());
-			if (!hasCUT(statement, dependencies)){
-				return;
-			}
-		}
-		
 		if (statement.getReturnClass().equals(void.class))
 			return;
 		
@@ -133,36 +117,6 @@ public abstract class AssertionTraceObserver<T extends OutputTraceEntry> extends
 			// ignore
 		}
 
-	}
-	
-	
-	/*
-	 * Whether or not the target has the class under test.
-	 * This is to avoid generating assertions for statements
-	 * that are not assignable from the CUT.
-	 */
-	private boolean hasCUT(Statement statement, Set<VariableReference> dependencies){
-		boolean hasCUT = false;
-		if (statement instanceof MethodStatement) {
-			MethodStatement ms = (MethodStatement) statement;
-			if (Properties
-					.getTargetClassRegression(
-							ms.getMethod().getDeclaringClass().getClassLoader() == TestGenerationContext.getInstance()
-									.getClassLoaderForSUT()).isAssignableFrom(
-							ms.getMethod().getDeclaringClass()))
-				hasCUT = true;
-		}
-		for (VariableReference var : dependencies) {
-			if (Properties
-					.getTargetClassRegression(
-							var.getVariableClass().getClassLoader() == TestGenerationContext.getInstance()
-									.getClassLoaderForSUT()).isAssignableFrom(
-							var.getVariableClass())) {
-				hasCUT = true;
-				break;
-			}
-		}
-		return hasCUT;
 	}
 
 	/**

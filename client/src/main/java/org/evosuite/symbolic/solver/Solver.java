@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -123,7 +123,7 @@ public abstract class Solver {
 	 */
 	protected static Map<String, Object> getConcreteValues(Set<Variable<?>> variables) {
 
-		Map<String, Object> concrete_values = new HashMap<String, Object>();
+		Map<String, Object> concrete_values = new HashMap<>();
 		for (Variable<?> v : variables) {
 			String var_name = v.getName();
 			Object concrete_value = v.getConcreteValue();
@@ -140,7 +140,7 @@ public abstract class Solver {
 	 * @return the set of variables in the constraint system
 	 */
 	protected static Set<Variable<?>> getVariables(Collection<Constraint<?>> constraints) {
-		Set<Variable<?>> variables = new HashSet<Variable<?>>();
+		Set<Variable<?>> variables = new HashSet<>();
 		for (Constraint<?> c : constraints) {
 			variables.addAll(c.getLeftOperand().getVariables());
 			variables.addAll(c.getRightOperand().getVariables());

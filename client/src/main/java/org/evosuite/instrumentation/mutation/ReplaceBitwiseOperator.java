@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
+
 package org.evosuite.instrumentation.mutation;
 
 import java.util.Arrays;
@@ -29,6 +27,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.evosuite.PackageInfo;
+import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.mutation.Mutation;
 import org.evosuite.coverage.mutation.MutationPool;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
@@ -52,13 +51,13 @@ public class ReplaceBitwiseOperator implements MutationOperator {
 
 	public static final String NAME = "ReplaceBitwiseOperator";
 	
-	private static Set<Integer> opcodesInt = new HashSet<Integer>();
+	private static Set<Integer> opcodesInt = new HashSet<>();
 
-	private static Set<Integer> opcodesIntShift = new HashSet<Integer>();
+	private static Set<Integer> opcodesIntShift = new HashSet<>();
 
-	private static Set<Integer> opcodesLong = new HashSet<Integer>();
+	private static Set<Integer> opcodesLong = new HashSet<>();
 
-	private static Set<Integer> opcodesLongShift = new HashSet<Integer>();
+	private static Set<Integer> opcodesLongShift = new HashSet<>();
 
 	private int numVariable = 0;
 
@@ -90,8 +89,8 @@ public class ReplaceBitwiseOperator implements MutationOperator {
 		// Should we do this via a method defined in the interface?
 		InsnNode node = (InsnNode) instruction.getASMNode();
 
-		List<Mutation> mutations = new LinkedList<Mutation>();
-		Set<Integer> replacement = new HashSet<Integer>();
+		List<Mutation> mutations = new LinkedList<>();
+		Set<Integer> replacement = new HashSet<>();
 		if (opcodesInt.contains(node.getOpcode()))
 			replacement.addAll(opcodesInt);
 		else if (opcodesIntShift.contains(node.getOpcode()))
@@ -106,7 +105,7 @@ public class ReplaceBitwiseOperator implements MutationOperator {
 
 			InsnNode mutation = new InsnNode(opcode);
 			// insert mutation into pool
-			Mutation mutationObject = MutationPool.addMutation(className,
+			Mutation mutationObject = MutationPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).addMutation(className,
 			                                                   methodName,
 			                                                   NAME + " "
 			                                                           + getOp(node.getOpcode())

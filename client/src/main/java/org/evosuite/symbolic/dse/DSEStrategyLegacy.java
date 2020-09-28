@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -74,8 +74,8 @@ public class DSEStrategyLegacy extends TestGenerationStrategy {
 			ClientServices.getInstance().getClientNode().changeState(ClientState.SEARCH);
 
 			DSELegacyAlgorithm algorithm = new DSELegacyAlgorithm();
-			StoppingCondition stoppingCondition = getStoppingCondition();
-			algorithm.addFitnessFunctions((List)fitnessFunctions);
+			StoppingCondition<TestSuiteChromosome> stoppingCondition = getStoppingCondition();
+			algorithm.addFitnessFunctions(fitnessFunctions);
 			if (Properties.STOP_ZERO) {
 				
 			}
@@ -90,7 +90,7 @@ public class DSEStrategyLegacy extends TestGenerationStrategy {
 		} else {
 			zeroFitness.setFinished();
 			testSuite = new TestSuiteChromosome();
-			for (FitnessFunction<?> ff : fitnessFunctions) {
+			for (FitnessFunction<TestSuiteChromosome> ff : fitnessFunctions) {
 				testSuite.setCoverage(ff, 1.0);
 			}
 		}

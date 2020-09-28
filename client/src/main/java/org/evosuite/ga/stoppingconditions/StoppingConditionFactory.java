@@ -16,17 +16,17 @@ public class StoppingConditionFactory {
 	public static StoppingCondition getStoppingCondition(Properties.StoppingCondition stoppingCondition) {
 		switch (stoppingCondition) {
 		case MAXGENERATIONS:
-			return new MaxGenerationStoppingCondition();
+			return new MaxGenerationStoppingCondition<>();
 		case MAXFITNESSEVALUATIONS:
-			return new MaxFitnessEvaluationsStoppingCondition();
+			return new MaxFitnessEvaluationsStoppingCondition<>();
 		case MAXTIME:
-			return new MaxTimeStoppingCondition();
+			return new MaxTimeStoppingCondition<>();
 		case MAXTESTS:
-			return new MaxTestsStoppingCondition();
+			return new MaxTestsStoppingCondition<>();
 		case MAXSTATEMENTS:
-			return new MaxStatementsStoppingCondition();
+			return new MaxStatementsStoppingCondition<>();
 		default:
-			return new MaxGenerationStoppingCondition();
+			return new MaxGenerationStoppingCondition<>();
 		}
 	}
 

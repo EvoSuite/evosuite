@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -42,7 +42,7 @@ public class SymbolicObserverTestNull {
 		builder.appendAssignment(var0, x_field, int0);
 		DefaultTestCase testCase = builder.getDefaultTestCase();
 		PathCondition pc = new ConcolicExecutorImpl().execute(testCase);
-		List<PathConditionNode> branch_conditions = pc.getPathConditionNodes();
+		List<BranchCondition> branch_conditions = pc.getBranchConditions();
 
 		assertTrue(branch_conditions.isEmpty());
 	}

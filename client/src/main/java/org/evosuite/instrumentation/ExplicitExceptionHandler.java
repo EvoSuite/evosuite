@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,14 +17,11 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
+
 package org.evosuite.instrumentation;
 
 import org.evosuite.PackageInfo;
 import org.evosuite.runtime.instrumentation.AnnotatedLabel;
-import org.evosuite.testcase.execution.ExecutionTrace;
 import org.evosuite.testcase.execution.ExecutionTracer;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
@@ -63,7 +60,7 @@ public class ExplicitExceptionHandler extends MethodVisitor {
 	 */
 	public ExplicitExceptionHandler(MethodVisitor mv, String className,
 	        String methodName, String desc) {
-		super(Opcodes.ASM7, mv);
+		super(Opcodes.ASM9, mv);
 		fullMethodName = methodName + desc;
 		this.className = className;
 	}

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -35,7 +35,7 @@ import com.examples.with.different.packagename.BMICalculator;
 public class StandardChemicalReactionSystemTest extends SystemTestBase {
 
   private GeneticAlgorithm<?> test(double molecular_collision_rate, int decomposition_threshold,
-      int synthesis_threshold) {
+                                   int synthesis_threshold) {
     Properties.ALGORITHM = Properties.Algorithm.STANDARD_CHEMICAL_REACTION;
     Properties.TEST_ARCHIVE = false;
     Properties.SEARCH_BUDGET = 15_000;

@@ -267,7 +267,7 @@ public class TestCaseUpdater {
     Type[] argumentTypes = Type.getArgumentTypes(targetStaticMethod);
     Class<?>[] argumentClasses = targetStaticMethod.getParameterTypes();
 
-    ArrayList<VariableReference> arguments = new ArrayList<VariableReference>();
+    ArrayList<VariableReference> arguments = new ArrayList<>();
     for (int i = 0; i < argumentTypes.length; i++) {
 
       Type argumentType = argumentTypes[i];
@@ -354,7 +354,7 @@ public class TestCaseUpdater {
     Type[] argumentTypes = Type.getArgumentTypes(targetStaticMethod);
     Class<?>[] argumentClasses = targetStaticMethod.getParameterTypes();
 
-    ArrayList<VariableReference> arguments = new ArrayList<VariableReference>();
+    ArrayList<VariableReference> arguments = new ArrayList<>();
     for (int i = 0; i < argumentTypes.length; i++) {
 
       Type argumentType = argumentTypes[i];

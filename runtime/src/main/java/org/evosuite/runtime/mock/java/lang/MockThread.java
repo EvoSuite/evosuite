@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -136,7 +136,7 @@ public class MockThread extends Thread implements OverrideMock {
         return Thread.activeCount();
     }
 
-    public static int enumerate(Thread tarray[]) {
+    public static int enumerate(Thread[] tarray) {
         return Thread.enumerate(tarray);
     }
 
@@ -330,7 +330,7 @@ public class MockThread extends Thread implements OverrideMock {
         synchronized (threadMap) {
             int identity = java.lang.System.identityHashCode(this);
             if (!threadMap.containsKey(identity)) {
-                threadMap.put(identity, Long.valueOf(threadMap.size()));
+                threadMap.put(identity, (long) threadMap.size());
             }
             return threadMap.get(identity);
         }

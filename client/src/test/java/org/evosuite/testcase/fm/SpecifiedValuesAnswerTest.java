@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -31,7 +31,7 @@ import static org.mockito.Mockito.when;
 public class SpecifiedValuesAnswerTest {
 
     public interface BaseString{
-        public String getString();
+        String getString();
     }
 
     private static boolean checkString_3different(BaseString s){
@@ -81,7 +81,7 @@ public class SpecifiedValuesAnswerTest {
 
 
     public interface BaseInteger{
-        public Integer getInteger();
+        Integer getInteger();
     }
 
     private static boolean checkInteger(BaseInteger i){
@@ -107,7 +107,7 @@ public class SpecifiedValuesAnswerTest {
     }
 
     public interface BaseInt{
-        public int getInt();
+        int getInt();
     }
 
     private static boolean checkInt(BaseInt i){

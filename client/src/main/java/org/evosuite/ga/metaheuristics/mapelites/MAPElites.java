@@ -1,27 +1,12 @@
 package org.evosuite.ga.metaheuristics.mapelites;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
 
 import org.evosuite.Properties;
 import org.evosuite.assertion.Inspector;
-import org.evosuite.coverage.branch.BranchCoverageFactory;
-import org.evosuite.coverage.branch.BranchCoverageTestFitness;
-import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.ConstructionFailedException;
-import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.ga.operators.crossover.CrossOverFunction;
 import org.evosuite.ga.operators.crossover.SinglePointCrossOver;
@@ -43,6 +28,9 @@ import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static java.util.Collections.reverseOrder;
+import static java.util.Comparator.comparing;
+
 /**
  * MAP-Elites implementation
  * 
@@ -52,10 +40,8 @@ import org.slf4j.LoggerFactory;
  * </p>
  * 
  * @author Felix Prasse
- *
- * @param <T> Solution type
  */
-public class MAPElites<T extends TestChromosome> extends GeneticAlgorithm<T> {
+public class MAPElites extends GeneticAlgorithm<TestChromosome> {
   /**
    * Serial version UID
    */
@@ -63,20 +49,20 @@ public class MAPElites<T extends TestChromosome> extends GeneticAlgorithm<T> {
 
   private static final Logger logger = LoggerFactory.getLogger(MAPElites.class);
 
-  private final Map<FitnessFunctionWrapper, Map<FeatureVector, T>> populationMap;
+  private final Map<FitnessFunctionWrapper, Map<FeatureVector, TestChromosome>> populationMap;
   private final Set<FeatureVector> droppedFeatureVectors;
   
   private final int featureVectorPossibilityCount;
   private final int featureCount;
   
-  private final List<T> bestIndividuals;
+  private final List<TestChromosome> bestIndividuals;
   
-  private static final List<FeatureVector> IGNORE_VECTORS = 
-      Arrays.asList(new FeatureVector[] { new FeatureVector(new Inspector[0], null) });
+  private static final List<FeatureVector> IGNORE_VECTORS =
+      Arrays.asList(new FeatureVector(new Inspector[0], null));
   
-  private CrossOverFunction crossoverFunction = new SinglePointCrossOver();
+  private final CrossOverFunction<TestChromosome> crossoverFunction = new SinglePointCrossOver<>();
   
-  public MAPElites(ChromosomeFactory<T> factory) {
+  public MAPElites(ChromosomeFactory<TestChromosome> factory) {
     super(factory);
     this.bestIndividuals = new LinkedList<>();
     this.droppedFeatureVectors = new LinkedHashSet<>();
@@ -91,7 +77,7 @@ public class MAPElites<T extends TestChromosome> extends GeneticAlgorithm<T> {
   public void addTestFitnessFunctions(List<TestFitnessFunction> functions) {
      for(TestFitnessFunction function : functions) {
        this.populationMap.put(new FitnessFunctionWrapper(function), new LinkedHashMap<>());
-       this.addFitnessFunction((FitnessFunction<T>) function);
+       this.addFitnessFunction(function);
      }
   }
   
@@ -99,8 +85,8 @@ public class MAPElites<T extends TestChromosome> extends GeneticAlgorithm<T> {
    * Mutate one branch on average
    * @return The chromosomes to be mutated
    */
-  private Set<T> getToMutateWithChance() {
-    Set<T> toMutate = new LinkedHashSet<>(1);
+  private Set<TestChromosome> getToMutateWithChance() {
+    Set<TestChromosome> toMutate = new LinkedHashSet<>(1);
 
     List<FitnessFunctionWrapper> minima = getMinimalBranches();
     
@@ -110,7 +96,7 @@ public class MAPElites<T extends TestChromosome> extends GeneticAlgorithm<T> {
       if (Randomness.nextDouble() <= chance) {
         branch.getCounter().increment();
         
-        T chromosome = Randomness.choice(this.populationMap.get(branch).values());
+        TestChromosome chromosome = Randomness.choice(this.populationMap.get(branch).values());
         
         if(chromosome != null) {
           toMutate.add(chromosome);
@@ -126,11 +112,11 @@ public class MAPElites<T extends TestChromosome> extends GeneticAlgorithm<T> {
    * Mutate every branch
    * @return The chromosomes to be mutated
    */
-  private Set<T> getToMutateAll() {
-    Set<T> toMutate = new LinkedHashSet<>(populationMap.values().size());
+  private Set<TestChromosome> getToMutateAll() {
+    Set<TestChromosome> toMutate = new LinkedHashSet<>(populationMap.values().size());
     
-    for(Map<FeatureVector, T> entry : populationMap.values()) {
-      T chromosome = Randomness.choice(entry.values());
+    for(Map<FeatureVector, TestChromosome> entry : populationMap.values()) {
+      TestChromosome chromosome = Randomness.choice(entry.values());
       
       if(chromosome != null) {
         toMutate.add(chromosome);
@@ -141,16 +127,16 @@ public class MAPElites<T extends TestChromosome> extends GeneticAlgorithm<T> {
   }
   
   private List<FitnessFunctionWrapper> getMinimalBranches() {
-    return IterUtil.minList(this.populationMap.keySet(), 
-        (a,b) -> a.getCounter().compareTo(b.getCounter()));
+    return IterUtil.minList(this.populationMap.keySet(),
+            comparing(FitnessFunctionWrapper::getCounter));
   }
   
   /**
    * Mutate exactly one branch and one chromosome
    * @return The chromosomes to be mutated
    */
-  private Set<T> getToMutateRandom() {
-    Set<T> toMutate = new LinkedHashSet<>(1);
+  private Set<TestChromosome> getToMutateRandom() {
+    Set<TestChromosome> toMutate = new LinkedHashSet<>(1);
     
     List<FitnessFunctionWrapper> minima = getMinimalBranches();
     
@@ -161,9 +147,9 @@ public class MAPElites<T extends TestChromosome> extends GeneticAlgorithm<T> {
     }
     
     selectedBranch.getCounter().increment();
-    Map<FeatureVector, T> entry = this.populationMap.get(selectedBranch);
-    
-    T chromosome = Randomness.choice(entry.values());
+    Map<FeatureVector, TestChromosome> entry = this.populationMap.get(selectedBranch);
+
+      TestChromosome chromosome = Randomness.choice(entry.values());
     
     if(chromosome != null) {
       toMutate.add(chromosome);
@@ -172,7 +158,7 @@ public class MAPElites<T extends TestChromosome> extends GeneticAlgorithm<T> {
     return toMutate;
   }
   
-  private Set<T> getToMutate() {
+  private Set<TestChromosome> getToMutate() {
 	  switch(Properties.MAP_ELITES_CHOICE) {
       case ALL:
         return this.getToMutateAll();
@@ -184,7 +170,7 @@ public class MAPElites<T extends TestChromosome> extends GeneticAlgorithm<T> {
     }
   }
   
-  private void applyMutation(T chromosome, T parent) {
+  private void applyMutation(TestChromosome chromosome, TestChromosome parent) {
       this.removeUnusedVariables(chromosome);
       
       if(Properties.MAP_ELITES_MOSA_MUTATIONS) {
@@ -201,17 +187,17 @@ public class MAPElites<T extends TestChromosome> extends GeneticAlgorithm<T> {
   
     @Override
     protected void evolve() {
-        Set<T> parents1 = this.getToMutate();
-        Set<T> parents2 = this.getToMutate();
+        Set<TestChromosome> parents1 = this.getToMutate();
+        Set<TestChromosome> parents2 = this.getToMutate();
 
-        Set<T> toMutate = new LinkedHashSet<T>();
+        Set<TestChromosome> toMutate = new LinkedHashSet<>();
 
-        for (T parent1 : parents1) {
-            T offspring1 = (T) parent1.clone();
+        for (TestChromosome parent1 : parents1) {
+            TestChromosome offspring1 = parent1.clone();
 
             if (parents2.size() > 0 && Randomness.nextDouble() <= Properties.CROSSOVER_RATE) {
-                T parent2 = Randomness.choice(parents2);
-                T offspring2 = (T) parent2.clone();
+                TestChromosome parent2 = Randomness.choice(parents2);
+                TestChromosome offspring2 = parent2.clone();
 
                 try {
                     this.crossoverFunction.crossOver(offspring1, offspring2);
@@ -241,18 +227,17 @@ public class MAPElites<T extends TestChromosome> extends GeneticAlgorithm<T> {
    * @param offspring
    * @param parent
    */
-  private void mutate(T offspring, T parent) {
+  private void mutate(TestChromosome offspring, TestChromosome parent) {
       offspring.mutate();
-      TestChromosome tch = (TestChromosome) offspring;
       if (!offspring.isChanged()) {
           // if offspring is not changed, we try to mutate it once again
           offspring.mutate();
       }
       if (!this.hasMethodCall(offspring)) {
-          tch.setTestCase(((TestChromosome) parent).getTestCase().clone());
-          boolean changed = tch.mutationInsert();
+          offspring.setTestCase(parent.getTestCase().clone());
+          boolean changed = offspring.mutationInsert();
           if (changed) {
-              for (Statement s : tch.getTestCase()) {
+              for (Statement s : offspring.getTestCase()) {
                   s.isValid();
               }
           }
@@ -272,9 +257,9 @@ public class MAPElites<T extends TestChromosome> extends GeneticAlgorithm<T> {
    * @return true if the test has at least one method or constructor call (i.e., the test may
    * cover something when executed; false otherwise
    */
-  private boolean hasMethodCall(T test) {
+  private boolean hasMethodCall(TestChromosome test) {
       boolean flag = false;
-      TestCase tc = ((TestChromosome) test).getTestCase();
+      TestCase tc = test.getTestCase();
       for (Statement s : tc) {
           if (s instanceof MethodStatement) {
               MethodStatement ms = (MethodStatement) s;
@@ -304,10 +289,10 @@ public class MAPElites<T extends TestChromosome> extends GeneticAlgorithm<T> {
    * @param chromosome
    * @return true or false depending on whether "unused variables" are removed
    */
-  private boolean removeUnusedVariables(T chromosome) {
+  private boolean removeUnusedVariables(TestChromosome chromosome) {
       int sizeBefore = chromosome.size();
-      TestCase t = ((TestChromosome) chromosome).getTestCase();
-      List<Integer> to_delete = new ArrayList<Integer>(chromosome.size());
+      TestCase t = chromosome.getTestCase();
+      List<Integer> to_delete = new ArrayList<>(chromosome.size());
       boolean has_deleted = false;
 
       int num = 0;
@@ -323,7 +308,7 @@ public class MAPElites<T extends TestChromosome> extends GeneticAlgorithm<T> {
           }
           num++;
       }
-      Collections.sort(to_delete, Collections.reverseOrder());
+      to_delete.sort(reverseOrder());
       for (Integer position : to_delete) {
           t.remove(position);
       }
@@ -369,14 +354,14 @@ public class MAPElites<T extends TestChromosome> extends GeneticAlgorithm<T> {
     return density;
   }
   
-  private void analyzeChromosome(final T chromosome) {
-    final Iterator<Entry<FitnessFunctionWrapper, Map<FeatureVector, T>>> it =
+  private void analyzeChromosome(final TestChromosome chromosome) {
+    final Iterator<Entry<FitnessFunctionWrapper, Map<FeatureVector, TestChromosome>>> it =
         this.populationMap.entrySet().iterator();
 
     while (it.hasNext()) {
-      final Entry<FitnessFunctionWrapper, Map<FeatureVector, T>> entry = it.next();
+      final Entry<FitnessFunctionWrapper, Map<FeatureVector, TestChromosome>> entry = it.next();
       final FitnessFunctionWrapper branchFitness = entry.getKey();
-      final Map<FeatureVector, T> featureMap = entry.getValue(); 
+      final Map<FeatureVector, TestChromosome> featureMap = entry.getValue();
       
       final double fitness = branchFitness.getFitness(chromosome);
       
@@ -389,7 +374,7 @@ public class MAPElites<T extends TestChromosome> extends GeneticAlgorithm<T> {
       }
       
       for (FeatureVector feature : features) {
-        T old = featureMap.get(feature);
+          TestChromosome old = featureMap.get(feature);
 
         if (old == null || branchFitness.getFitness(old) >= fitness) {
           featureMap.put(feature, chromosome);
@@ -414,19 +399,19 @@ public class MAPElites<T extends TestChromosome> extends GeneticAlgorithm<T> {
     currentIteration = 0;
 
     // Set up initial population
-    List<T> population = this.getRandomPopulation(Properties.POPULATION);
+    List<TestChromosome> population = this.getRandomPopulation(Properties.POPULATION);
 
     if(population.isEmpty()) {
       throw new IllegalStateException();
     }
     
-    for (T chromosome : population) {    
+    for (TestChromosome chromosome : population) {
       this.analyzeChromosome(chromosome);
     }
   }
   
   @Override
-  public T getBestIndividual() {
+  public TestChromosome getBestIndividual() {
     if(this.bestIndividuals.isEmpty()) {
         return this.chromosomeFactory.getChromosome();
     }
@@ -435,24 +420,24 @@ public class MAPElites<T extends TestChromosome> extends GeneticAlgorithm<T> {
   }
 
   @Override
-  public List<T> getBestIndividuals() {
+  public List<TestChromosome> getBestIndividuals() {
      throw new UnsupportedOperationException();
   }
   
   private void updateAndSortBest() {
-    for(Map<FeatureVector, T> branch : this.populationMap.values()) {
+    for(Map<FeatureVector, TestChromosome> branch : this.populationMap.values()) {
         this.bestIndividuals.addAll(branch.values());
     }
     
     if (isMaximizationFunction()) {
-      Collections.sort(this.bestIndividuals, Collections.reverseOrder());
+      this.bestIndividuals.sort(reverseOrder());
     } else {
       Collections.sort(this.bestIndividuals);
     }
   }
   
   @Override
-  public List<T> getPopulation() {
+  public List<TestChromosome> getPopulation() {
     return this.bestIndividuals;
   }
   

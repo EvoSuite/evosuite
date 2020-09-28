@@ -34,12 +34,12 @@ import org.evosuite.utils.Randomness;
  * 
  * @author José Campos
  */
-public class NSGAChromosome extends Chromosome
+public class NSGAChromosome extends Chromosome<NSGAChromosome>
 {
 	private static final long serialVersionUID = -2056801838518269049L;
 
 	/**  */
-	private List<Variable> variables = new ArrayList<>();
+	private final List<Variable> variables = new ArrayList<>();
 
 	public NSGAChromosome() {
 		// empty
@@ -88,7 +88,7 @@ public class NSGAChromosome extends Chromosome
 	}
 
 	@Override
-	public Chromosome clone() {
+	public NSGAChromosome clone() {
 		NSGAChromosome c = new NSGAChromosome();
 		c.setFitnessValues(this.getFitnessValues());
 		c.setPreviousFitnessValues(this.getPreviousFitnessValues());
@@ -124,7 +124,7 @@ public class NSGAChromosome extends Chromosome
 	}
 
 	@Override
-	public int compareSecondaryObjective(Chromosome o) {
+	public int compareSecondaryObjective(NSGAChromosome o) {
 		// empty
 		return 0;
 	}
@@ -178,14 +178,13 @@ public class NSGAChromosome extends Chromosome
 	}
 
 	@Override
-	public void crossOver(Chromosome other, int position1, int position2)
+	public void crossOver(NSGAChromosome other, int position1, int position2)
 	                throws ConstructionFailedException {
 		// empty
 	}
 
 	@Override
-	public boolean localSearch(
-			LocalSearchObjective<? extends Chromosome> objective) {
+	public boolean localSearch(LocalSearchObjective<NSGAChromosome> objective) {
 		// empty
 		return false;
 	}
@@ -194,5 +193,10 @@ public class NSGAChromosome extends Chromosome
 	public int size() {
 		// empty
 		return 0;
+	}
+
+	@Override
+	public NSGAChromosome self() {
+		return this;
 	}
 }

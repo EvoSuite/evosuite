@@ -156,7 +156,7 @@ public class PathConditionUtilsTest {
     );
 
     // Shouldn't diverge against a prefix
-    List<PathConditionNode> conditions = newPathEqual.getPathConditionNodes();
+    List<BranchCondition> conditions = newPathEqual.getBranchConditions();
 
     conditions.add(
       buildPathConditionNode(buildConstraintD(), 5)
@@ -243,8 +243,8 @@ public class PathConditionUtilsTest {
     );
   }
 
-  private PathConditionNode buildPathConditionNode(Constraint constraint, int instructionIndex) {
-    return new PathConditionNode(
+  private BranchCondition buildPathConditionNode(Constraint constraint, int instructionIndex) {
+    return new BranchCondition(
       TEST_CLASS_NAME,
       TEST_METHOD_NAME,
       instructionIndex,
@@ -254,7 +254,7 @@ public class PathConditionUtilsTest {
   }
 
   private PathCondition buildPathConditionA() {
-    List<PathConditionNode> pathConditionList = new ArrayList();
+    List<BranchCondition> pathConditionList = new ArrayList();
 
     pathConditionList.add( buildPathConditionNode(buildConstraintA(), 1) );
     pathConditionList.add( buildPathConditionNode(buildConstraintB(), 2) );
@@ -263,7 +263,7 @@ public class PathConditionUtilsTest {
   }
 
   private PathCondition buildPathConditionB() {
-    List<PathConditionNode> pathConditionList = new ArrayList();
+    List<BranchCondition> pathConditionList = new ArrayList();
 
     pathConditionList.add( buildPathConditionNode(buildConstraintA(), 1) );
     pathConditionList.add( buildPathConditionNode(buildConstraintC(), 2) );
@@ -272,7 +272,7 @@ public class PathConditionUtilsTest {
   }
 
   private PathCondition buildPathConditionC() {
-    List<PathConditionNode> pathConditionList = new ArrayList();
+    List<BranchCondition> pathConditionList = new ArrayList();
 
     pathConditionList.add( buildPathConditionNode(buildConstraintA(), 1) );
 

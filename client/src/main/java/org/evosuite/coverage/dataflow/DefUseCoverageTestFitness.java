@@ -165,7 +165,7 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 	private static final long serialVersionUID = 1L;
 
 	/** Constant <code>singleFitnessTime=0l</code> */
-	public static long singleFitnessTime = 0l;
+	public static long singleFitnessTime = 0L;
 
 	// debugging flags
 	private final static boolean DEBUG = Properties.DEFUSE_DEBUG_MODE;
@@ -434,7 +434,7 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 		}
 	}
 
-	private void postFitnessDebugInfo(Chromosome individual, ExecutionResult result,
+	private void postFitnessDebugInfo(Chromosome<?> individual, ExecutionResult result,
 	        double fitness) {
 		if (DEBUG) {
 			if (fitness != 0) {

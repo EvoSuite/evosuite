@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- *
- */
+
 package org.evosuite.junit.writer;
 
 import org.evosuite.Properties;
@@ -195,7 +193,7 @@ public class TestSuiteWriter implements Opcodes {
             throw new IllegalArgumentException("Test classes should have name ending with 'Test'. Invalid input name: " + name);
         }
 
-        List<File> generated = new ArrayList<File>();
+        List<File> generated = new ArrayList<>();
         String dir = TestSuiteWriterUtils.makeDirectory(directory);
         String content = "";
 
@@ -204,20 +202,19 @@ public class TestSuiteWriter implements Opcodes {
         LoopCounter.getInstance().setActive(true); //be sure it is active here, as JUnit checks might have left it to false
 
         List<ExecutionResult> results = new ArrayList<>();
-        for (int i = 0; i < testCases.size(); i++) {
-            TestCase test = testCases.get(i);
+        for (TestCase test : testCases) {
             boolean added = false;
-            if(!TimeController.getInstance().hasTimeToExecuteATestCase()) {
+            if (!TimeController.getInstance().hasTimeToExecuteATestCase()) {
                 logger.info("Using cached result");
-                for(ExecutionResult result : cachedResults) {
-                    if(result != null && result.test == test) {
+                for (ExecutionResult result : cachedResults) {
+                    if (result != null && result.test == test) {
                         results.add(result);
                         added = true;
                         break;
                     }
                 }
             }
-            if(!added) {
+            if (!added) {
                 ExecutionResult result = runTest(test);
                 results.add(result);
             }
@@ -406,8 +403,8 @@ public class TestSuiteWriter implements Opcodes {
      */
     protected String getImports(List<ExecutionResult> results) {
         StringBuilder builder = new StringBuilder();
-        Set<Class<?>> imports = new HashSet<Class<?>>();
-        Set<Class<?>> accessedClasses = new HashSet<Class<?>>();
+        Set<Class<?>> imports = new HashSet<>();
+        Set<Class<?>> accessedClasses = new HashSet<>();
         boolean wasSecurityException = TestSuiteWriterUtils.hasAnySecurityException(results);
         boolean hasException = false;
 
@@ -575,10 +572,6 @@ public class TestSuiteWriter implements Opcodes {
             list.add("separateClassLoader = true");
         }
 
-        if(Properties.JEE){
-            list.add("useJEE = true");
-        }
-        
         if (Properties.REPLACE_GUI) {
             list.add("mockGUI = true");
         }

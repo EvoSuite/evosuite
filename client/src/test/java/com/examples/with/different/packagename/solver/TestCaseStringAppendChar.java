@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -23,7 +23,7 @@ public class TestCaseStringAppendChar {
 
 	public static boolean test(String str) {
 		if (str != null) {
-			String concat = str + ((char)'X');
+			String concat = str + 'X';
 			if (concat.equals("haX")) {
 				return true;
 			}

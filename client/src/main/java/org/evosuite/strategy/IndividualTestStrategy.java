@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -83,7 +83,7 @@ public class IndividualTestStrategy extends TestGenerationStrategy {
 		// Get list of goals
         List<TestFitnessFactory<? extends TestFitnessFunction>> goalFactories = getFitnessFactories();
 		// long goalComputationStart = System.currentTimeMillis();
-		List<TestFitnessFunction> goals = new ArrayList<TestFitnessFunction>();
+		List<TestFitnessFunction> goals = new ArrayList<>();
 		LoggingUtils.getEvoLogger().info("* Total number of test goals: ");
         for (TestFitnessFactory<? extends TestFitnessFunction> goalFactory : goalFactories) {
             goals.addAll(goalFactory.getCoverageGoals());
@@ -113,9 +113,9 @@ public class IndividualTestStrategy extends TestGenerationStrategy {
 		//statistics.searchStarted(suiteGA);
 		ClientServices.getInstance().getClientNode().changeState(ClientState.SEARCH);
 
-		StoppingCondition stoppingCondition = getStoppingCondition();
-		TestSuiteChromosome suite = (TestSuiteChromosome) bootstrapRandomSuite(fitnessFunctions.get(0), goalFactories.get(0)); // FIXME: just one fitness and one factory?!
-		Set<Integer> covered = new HashSet<Integer>();
+		StoppingCondition<TestSuiteChromosome> stoppingCondition = getStoppingCondition();
+		TestSuiteChromosome suite = bootstrapRandomSuite(fitnessFunctions.get(0), goalFactories.get(0)); // FIXME: just one fitness and one factory?!
+		Set<Integer> covered = new HashSet<>();
 		int covered_goals = 0;
 		int num = 0;
 
@@ -193,7 +193,7 @@ public class IndividualTestStrategy extends TestGenerationStrategy {
 					// fitness_function.toString());
 					logger.info("Found solution, adding to test suite at "
 					        + MaxStatementsStoppingCondition.getNumExecutedStatements());
-					TestChromosome best = (TestChromosome) ga.getBestIndividual();
+					TestChromosome best = ga.getBestIndividual();
 					best.getTestCase().addCoveredGoal(fitnessFunction);
 					suite.addTest(best);
 					// Calculate and keep track of overall fitness
@@ -302,7 +302,7 @@ public class IndividualTestStrategy extends TestGenerationStrategy {
 	        List<? extends TestFitnessFunction> goals, Set<Integer> covered,
 	        TestChromosome best) {
 
-		Set<Integer> r = new HashSet<Integer>();
+		Set<Integer> r = new HashSet<>();
 		ExecutionResult result = best.getLastExecutionResult();
 		assert (result != null);
 		// if (result == null) {

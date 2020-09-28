@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -68,14 +68,14 @@ public class ConcolicExecutionEnvironmentTest {
 	private static final boolean DEFAULT_MOCK_FRAMEWORK_ENABLED = MockFramework
 			.isEnabled();
 
-	private List<PathConditionNode> executeTest(DefaultTestCase tc) {
+	private List<BranchCondition> executeTest(DefaultTestCase tc) {
 
 		System.out.println("TestCase=");
 		System.out.println(tc.toCode());
 
 		// ConcolicExecution concolicExecutor = new ConcolicExecution();
 		PathCondition pc = new ConcolicExecutorImpl().execute(tc);
-		List<PathConditionNode> branch_conditions = pc.getPathConditionNodes();
+		List<BranchCondition> branch_conditions = pc.getBranchConditions();
 
 		printConstraints(branch_conditions);
 		return branch_conditions;
@@ -91,7 +91,7 @@ public class ConcolicExecutionEnvironmentTest {
 	public void testDseWithFile() throws SecurityException,
 			NoSuchMethodException {
 		DefaultTestCase tc = buildTestCaseWithFile();
-		List<PathConditionNode> branch_conditions = executeTest(tc);
+		List<BranchCondition> branch_conditions = executeTest(tc);
 		assertTrue(branch_conditions.size() > 0);
 	}
 
@@ -99,7 +99,7 @@ public class ConcolicExecutionEnvironmentTest {
 	public void testDseWithURL() throws SecurityException,
 			NoSuchMethodException {
 		DefaultTestCase tc = buildTestCaseWithURL();
-		List<PathConditionNode> branch_conditions = executeTest(tc);
+		List<BranchCondition> branch_conditions = executeTest(tc);
 		assertTrue(branch_conditions.size() > 0);
 	}
 
@@ -107,7 +107,7 @@ public class ConcolicExecutionEnvironmentTest {
 	public void testDseWithReset1() throws SecurityException,
 			NoSuchMethodException {
 		DefaultTestCase tc = buildTestCaseWithReset();
-		List<PathConditionNode> branch_conditions = executeTest(tc);
+		List<BranchCondition> branch_conditions = executeTest(tc);
 		assertEquals(1, branch_conditions.size());
 	}
 
@@ -115,7 +115,7 @@ public class ConcolicExecutionEnvironmentTest {
 	public void testDseWithReset2() throws SecurityException,
 			NoSuchMethodException {
 		DefaultTestCase tc = buildTestCaseWithReset();
-		List<PathConditionNode> branch_conditions = executeTest(tc);
+		List<BranchCondition> branch_conditions = executeTest(tc);
 		assertEquals(1, branch_conditions.size());
 	}
 

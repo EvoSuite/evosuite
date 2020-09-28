@@ -81,7 +81,7 @@ public class AbstractErrorBranchTest extends SystemTestBase {
         Assert.assertEquals("Incorrect value for " + coveredGoals, coveredRealBranches + coveredInstrumentedBranches, (int)coveredGoals.getValue());
         Assert.assertEquals("Incorrect value for " + coveredBranches, coveredRealBranches + coveredInstrumentedBranches, coveredBranches.getValue() + coveredBranchlessMethods.getValue());
         Assert.assertEquals("Incorrect value for " + coveredBranchesInstrumented, coveredInstrumentedBranches, (int)coveredBranchesInstrumented.getValue());
-        Assert.assertEquals("Incorrect value for " + coveredBranchesReal, coveredRealBranches, (int)coveredBranchesReal.getValue() + (int)coveredBranchlessMethods.getValue());
+        Assert.assertEquals("Incorrect value for " + coveredBranchesReal, coveredRealBranches, coveredBranchesReal.getValue() + coveredBranchlessMethods.getValue());
     }
 
     protected void checkErrorBranches(Class<?> targetClass, int realBranches, int instrumentedBranches, int coveredRealBranches, int coveredInstrumentedBranches) {

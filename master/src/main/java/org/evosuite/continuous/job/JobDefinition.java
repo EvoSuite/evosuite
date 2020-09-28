@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
  */
 public class JobDefinition {
 
-	private static Logger logger = LoggerFactory.getLogger(JobDefinition.class);
+	private static final Logger logger = LoggerFactory.getLogger(JobDefinition.class);
 	
 	/**
 	 * counter used to create unique ids in a thread-safe manner
@@ -105,19 +105,19 @@ public class JobDefinition {
 		this.cut = cut;
 		this.configurationId = configurationId;
 
-		HashSet<String> union = new HashSet<String>();
+		HashSet<String> union = new HashSet<>();
 
 		if (inputDependencies != null && inputDependencies.size() > 0) {
-			this.inputClasses = Collections.unmodifiableSet(new HashSet<String>(
-			        inputDependencies));
+			this.inputClasses = Collections.unmodifiableSet(new HashSet<>(
+					inputDependencies));
 			union.addAll(inputClasses);
 		} else {
 			this.inputClasses = null;
 		}
 
 		if (parentDependencies != null && parentDependencies.size() > 0) {
-			this.parentClasses = Collections.unmodifiableSet(new HashSet<String>(
-			        parentDependencies));
+			this.parentClasses = Collections.unmodifiableSet(new HashSet<>(
+					parentDependencies));
 			union.addAll(parentClasses);
 		} else {
 			this.parentClasses = null;
@@ -126,8 +126,8 @@ public class JobDefinition {
 		if (union.size() == 0) {
 			this.dependentOnClasses = null;
 		} else {
-			this.dependentOnClasses = Collections.unmodifiableSet(new HashSet<String>(
-			        union));
+			this.dependentOnClasses = Collections.unmodifiableSet(new HashSet<>(
+					union));
 		}
 	}
 

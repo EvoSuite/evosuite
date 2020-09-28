@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -42,7 +42,7 @@ public class TestConstantInliner {
 	@Test
 	public void testArrayIndexInlining() throws NoSuchMethodException, SecurityException {
 		DefaultTestCase test = new DefaultTestCase();
-		ConstructorStatement cs = new ConstructorStatement(test, new GenericConstructor(Object.class.getConstructor(), Object.class), new ArrayList<VariableReference>());
+		ConstructorStatement cs = new ConstructorStatement(test, new GenericConstructor(Object.class.getConstructor(), Object.class), new ArrayList<>());
 		VariableReference objectVar = test.addStatement(cs);
 		
 		ArrayStatement as = new ArrayStatement(test, Object[].class, 3);
@@ -57,16 +57,16 @@ public class TestConstantInliner {
 		test.addStatement(new AssignmentStatement(test, ai1, objectVar));
 		test.addStatement(new AssignmentStatement(test, ai2, objectVar));
 		
-		ConstructorStatement sutCS = new ConstructorStatement(test, new GenericConstructor(ObjectParameter.class.getConstructor(), ObjectParameter.class), new ArrayList<VariableReference>());
+		ConstructorStatement sutCS = new ConstructorStatement(test, new GenericConstructor(ObjectParameter.class.getConstructor(), ObjectParameter.class), new ArrayList<>());
 		VariableReference sut = test.addStatement(sutCS);
 
-		List<VariableReference> parameters = new ArrayList<VariableReference>();
+		List<VariableReference> parameters = new ArrayList<>();
 		parameters.add(ai0);
 		test.addStatement(new MethodStatement(test, new GenericMethod(ObjectParameter.class.getMethods()[0], ObjectParameter.class), sut, parameters));
-		parameters = new ArrayList<VariableReference>();
+		parameters = new ArrayList<>();
 		parameters.add(ai1);
 		test.addStatement(new MethodStatement(test, new GenericMethod(ObjectParameter.class.getMethods()[0], ObjectParameter.class), sut, parameters));
-		parameters = new ArrayList<VariableReference>();
+		parameters = new ArrayList<>();
 		parameters.add(ai2);
 		test.addStatement(new MethodStatement(test, new GenericMethod(ObjectParameter.class.getMethods()[0], ObjectParameter.class), sut, parameters));
 		System.out.println(test.toCode());
@@ -99,7 +99,7 @@ public class TestConstantInliner {
 		ConstructorStatement sutCS = new ConstructorStatement(test, new GenericConstructor(TrivialInt.class.getConstructor(), TrivialInt.class), new ArrayList<>());
 		VariableReference sut = test.addStatement(sutCS);
 
-		List<VariableReference> parameters = new ArrayList<VariableReference>();
+		List<VariableReference> parameters = new ArrayList<>();
 		parameters.add(ai0);
 		test.addStatement(new MethodStatement(test, new GenericMethod(TrivialInt.class.getMethods()[0], TrivialInt.class), sut, parameters));
 		parameters = new ArrayList<>();
@@ -122,13 +122,13 @@ public class TestConstantInliner {
 	@Test
 	public void testStringQuoting() throws NoSuchMethodException, SecurityException {
 		DefaultTestCase test = new DefaultTestCase();
-		ConstructorStatement cs = new ConstructorStatement(test, new GenericConstructor(StringConstantInliningExample.class.getConstructor(), StringConstantInliningExample.class), new ArrayList<VariableReference>());
+		ConstructorStatement cs = new ConstructorStatement(test, new GenericConstructor(StringConstantInliningExample.class.getConstructor(), StringConstantInliningExample.class), new ArrayList<>());
 		VariableReference objectVar = test.addStatement(cs);
 		
 		StringPrimitiveStatement stringStatement = new StringPrimitiveStatement(test, "EXAMPLE");
 		VariableReference stringParam = test.addStatement(stringStatement);
 		
-		List<VariableReference> parameters = new ArrayList<VariableReference>();
+		List<VariableReference> parameters = new ArrayList<>();
 		parameters.add(stringParam);
 		test.addStatement(new MethodStatement(test, new GenericMethod(StringConstantInliningExample.class.getMethods()[0], StringConstantInliningExample.class), objectVar, parameters));
 		System.out.println(test.toCode());
@@ -145,13 +145,13 @@ public class TestConstantInliner {
 	@Test
 	public void testStringEndingWithClass() throws NoSuchMethodException, SecurityException {
 		DefaultTestCase test = new DefaultTestCase();
-		ConstructorStatement cs = new ConstructorStatement(test, new GenericConstructor(StringConstantInliningExample.class.getConstructor(), StringConstantInliningExample.class), new ArrayList<VariableReference>());
+		ConstructorStatement cs = new ConstructorStatement(test, new GenericConstructor(StringConstantInliningExample.class.getConstructor(), StringConstantInliningExample.class), new ArrayList<>());
 		VariableReference objectVar = test.addStatement(cs);
 		
 		StringPrimitiveStatement stringStatement = new StringPrimitiveStatement(test, "test.class");
 		VariableReference stringParam = test.addStatement(stringStatement);
 		
-		List<VariableReference> parameters = new ArrayList<VariableReference>();
+		List<VariableReference> parameters = new ArrayList<>();
 		parameters.add(stringParam);
 		test.addStatement(new MethodStatement(test, new GenericMethod(StringConstantInliningExample.class.getMethods()[0], StringConstantInliningExample.class), objectVar, parameters));
 		System.out.println(test.toCode());

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -16,9 +16,6 @@
  *
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
- */
-/**
- * 
  */
 /*
  * Copyright (C) 2010 Saarland University
@@ -41,6 +38,7 @@
 package org.evosuite.ga.stoppingconditions;
 
 import org.evosuite.Properties;
+import org.evosuite.ga.Chromosome;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,7 +49,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Gordon Fraser
  */
-public class MaxStatementsStoppingCondition extends StoppingConditionImpl {
+public class MaxStatementsStoppingCondition<T extends Chromosome<T>> extends StoppingConditionImpl<T> {
 
 	private static final long serialVersionUID = 8521297417505862683L;
 
@@ -60,6 +58,19 @@ public class MaxStatementsStoppingCondition extends StoppingConditionImpl {
 
 	/** Maximum number of iterations */
 	protected static long currentStatement = 0;
+
+	public MaxStatementsStoppingCondition() {
+		// empty constructor
+	}
+
+	public MaxStatementsStoppingCondition(MaxStatementsStoppingCondition<?> that) {
+		// empty copy constructor
+	}
+
+	@Override
+	public MaxStatementsStoppingCondition<T> clone() {
+		return new MaxStatementsStoppingCondition<>(this);
+	}
 
 	/**
 	 * Add a given number of executed statements

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,13 +17,10 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
+
 package org.evosuite.instrumentation;
 
 import org.evosuite.PackageInfo;
-import org.evosuite.testcase.execution.ExecutionTrace;
 import org.evosuite.testcase.execution.ExecutionTracer;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
@@ -38,7 +35,7 @@ import org.slf4j.LoggerFactory;
  */
 public class YieldAtLineNumberMethodAdapter extends MethodVisitor {
 	@SuppressWarnings("unused")
-	private static Logger logger = LoggerFactory.getLogger(LineNumberMethodAdapter.class);
+	private static final Logger logger = LoggerFactory.getLogger(LineNumberMethodAdapter.class);
 
 	private final String className;
 
@@ -57,7 +54,7 @@ public class YieldAtLineNumberMethodAdapter extends MethodVisitor {
 	 */
 	public YieldAtLineNumberMethodAdapter(MethodVisitor mv, String className,
 	        String methodName) {
-		super(Opcodes.ASM7, mv);
+		super(Opcodes.ASM9, mv);
 		this.className = className;
 		this.methodName = methodName;
 		if (!methodName.equals("<init>"))

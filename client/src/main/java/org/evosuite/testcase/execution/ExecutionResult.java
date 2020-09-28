@@ -29,8 +29,6 @@ import org.evosuite.testcase.statements.Statement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-//import com.sun.tools.javac.code.Attribute.Array;
-
 import java.util.*;
 import java.util.stream.IntStream;
 
@@ -70,14 +68,9 @@ public class ExecutionResult implements Cloneable {
 	 * Keep track of whether any System property was written
 	 */
 	protected boolean wasAnyPropertyWritten;
-	
-	/*
-	 * Regression Object Distance
-	 */
-	public double regressionObjectDistance = 0;
-	
-	private List<FeatureVector> featureVectors = new ArrayList<FeatureVector>(1);
-	
+
+	private List<FeatureVector> featureVectors = new ArrayList<>(1);
+
 	/**
 	 * @return the executedStatements
 	 */
@@ -413,7 +406,6 @@ public class ExecutionResult implements Cloneable {
 		copy.trace = trace.lazyClone();
 		copy.explicitExceptions.putAll(explicitExceptions);
 		copy.executionTime = executionTime;
-		copy.regressionObjectDistance = regressionObjectDistance;
 		copy.inputGoals = new LinkedHashMap<>(inputGoals);
 		copy.outputGoals = new LinkedHashMap<>(outputGoals);
 		for (Class<?> clazz : traces.keySet()) {

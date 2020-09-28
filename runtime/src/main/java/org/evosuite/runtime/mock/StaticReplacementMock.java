@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -51,6 +51,6 @@ public interface StaticReplacementMock extends EvoSuiteMock{
 	 * 
 	 * @return a fully qualifying String
 	 */
-	public String getMockedClassName();
+	String getMockedClassName();
 	
 }

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -48,7 +48,7 @@ public class PrimitivePoolMethodAdapter extends MethodVisitor {
 	 *            a {@link org.objectweb.asm.MethodVisitor} object.
 	 */
 	public PrimitivePoolMethodAdapter(MethodVisitor mv, String className) {
-		super(Opcodes.ASM7, mv);
+		super(Opcodes.ASM9, mv);
 		this.className = className;
 	}
 

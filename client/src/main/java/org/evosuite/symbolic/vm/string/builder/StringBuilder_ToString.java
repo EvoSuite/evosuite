@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -37,7 +37,7 @@ public final class StringBuilder_ToString extends SymbolicFunction {
 
 	@Override
 	public Object executeFunction() {
-		ReferenceConstant symb_str_builder = (ReferenceConstant) this
+		ReferenceConstant symb_str_builder = this
 				.getSymbReceiver();
 
 		// receiver
@@ -55,7 +55,7 @@ public final class StringBuilder_ToString extends SymbolicFunction {
 					SymbolicHeap.$STRING_BUILDER_CONTENTS, conc_str_builder,
 					symb_str_builder, conc_str_builder.toString());
 
-			String conc_receiver = (String) res;
+			String conc_receiver = res;
 			env.heap.putField(Types.JAVA_LANG_STRING,
 					SymbolicHeap.$STRING_VALUE, conc_receiver, symb_ret_val,
 					symb_value);

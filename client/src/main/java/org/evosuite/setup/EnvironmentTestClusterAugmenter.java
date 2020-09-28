@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -24,10 +24,6 @@ import org.evosuite.TestGenerationContext;
 import org.evosuite.runtime.*;
 import org.evosuite.runtime.System;
 import org.evosuite.runtime.annotation.*;
-import org.evosuite.runtime.javaee.JeeData;
-import org.evosuite.runtime.javaee.TestDataJavaEE;
-import org.evosuite.runtime.javaee.javax.servlet.EvoServletState;
-import org.evosuite.runtime.mock.javax.naming.EvoNamingContext;
 import org.evosuite.runtime.testdata.*;
 import org.evosuite.runtime.util.JOptionPaneInputs;
 import org.evosuite.runtime.util.JOptionPaneInputs.GUIAction;
@@ -132,10 +128,6 @@ public class EnvironmentTestClusterAugmenter {
 
 		if (Properties.VIRTUAL_NET) {
 			handleNetwork(test);
-		}
-
-		if (Properties.JEE) {
-			handleJEE(test);
 		}
 	}
 
@@ -264,35 +256,6 @@ public class EnvironmentTestClusterAugmenter {
 
 	}
 
-	private void handleJEE(TestCase test) {
-
-		JeeData jeeData = TestDataJavaEE.getInstance().getJeeData();
-		test.getAccessedEnvironment().setJeeData(jeeData);
-
-		if (jeeData.lookedUpContextNames.size() > 0) {
-			addEnvironmentClassToCluster(EvoNamingContext.class);
-
-			// TODO add method with right input type
-		}
-
-		if (!Properties.HANDLE_SERVLETS) {
-			/*
-			 * Started to prepare custom mocks for Servlets, but then realized
-			 * that their behavior is very basic. As such, most likely they are
-			 * not needed, as they could be much better replaced by functional
-			 * mocks with Mockito...
-			 */
-
-			return;
-		}
-
-		if (jeeData.wasAServletInitialized) {
-			addEnvironmentClassToCluster(EvoServletState.class);
-		}
-
-		// TODO TestDataJavaEE data for Servlets
-	}
-
 	/**
 	 * Add the given klass to the test cluster. Also recursively add (as
 	 * modifiers) all the other EvoSuite classes for which the given class is a
@@ -310,13 +273,13 @@ public class EnvironmentTestClusterAugmenter {
 
 		// only consider public constructors/methods
 
-		for (Constructor c : klass.getConstructors()) {
+		for (Constructor<?> c : klass.getConstructors()) {
 			// first check if it should be skipped
 			if (shouldSkip(excludeClass, c)) {
 				continue;
 			}
 
-			GenericAccessibleObject gc = new GenericConstructor(c, klass);
+			GenericAccessibleObject<GenericConstructor> gc = new GenericConstructor(c, klass);
 			TestCluster.getInstance().addEnvironmentTestCall(gc);
 			GenericClass genclass = new GenericClass(klass);
 			TestCluster.getInstance().invalidateGeneratorCache(genclass);
@@ -330,7 +293,7 @@ public class EnvironmentTestClusterAugmenter {
 				continue;
 			}
 
-			GenericAccessibleObject gm = new GenericMethod(m, klass);
+			GenericAccessibleObject<?> gm = new GenericMethod(m, klass);
 			TestCluster.getInstance().addEnvironmentTestCall(gm);
 
 			testClusterGenerator.addNewDependencies(Arrays.asList(m.getParameterTypes()));
@@ -361,7 +324,7 @@ public class EnvironmentTestClusterAugmenter {
 				continue;
 			}
 
-			GenericAccessibleObject gm = new GenericMethod(m, klass);
+			GenericAccessibleObject<?> gm = new GenericMethod(m, klass);
 			GenericClass gc = new GenericClass(klass);
 			TestCluster.getInstance().addModifier(gc, gm);
 
@@ -424,11 +387,6 @@ public class EnvironmentTestClusterAugmenter {
 			if (exclude) {
 				return true;
 			}
-		}
-
-		Constraints constraints = c.getAnnotation(Constraints.class);
-		if (constraints != null && constraints.noDirectInsertion()) {
-			return true;
 		}
 
 		return false;

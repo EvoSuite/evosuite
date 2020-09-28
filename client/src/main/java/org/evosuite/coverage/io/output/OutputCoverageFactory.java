@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -72,7 +72,7 @@ public class OutputCoverageFactory extends AbstractFitnessFactory<OutputCoverage
      */
     @Override
     public List<OutputCoverageTestFitness> getCoverageGoals() {
-        List<OutputCoverageTestFitness> goals = new ArrayList<OutputCoverageTestFitness>();
+        List<OutputCoverageTestFitness> goals = new ArrayList<>();
 
         long start = System.currentTimeMillis();
         String targetClass = Properties.TARGET_CLASS;

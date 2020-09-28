@@ -2,7 +2,7 @@ package org.evosuite.ga;
 
 import java.util.Collection;
 
-public abstract class NoveltyFunction<T extends Chromosome> {
+public abstract class NoveltyFunction<T extends Chromosome<T>> {
 
     public abstract double getDistance(T individual1, T individual2);
 

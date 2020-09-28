@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -119,7 +119,7 @@ public class DistanceCalculator implements ConstraintVisitor<Object, Void> {
 			IntegerConstant right_constant = (IntegerConstant) n.getRightOperand();
 			StringUnaryToIntegerExpression left_string_expr = (StringUnaryToIntegerExpression) n.getLeftOperand();
 
-			if (right_constant.getConcreteValue().longValue() != 0L) {
+			if (right_constant.getConcreteValue() != 0L) {
 				return -1;
 			}
 
@@ -131,8 +131,7 @@ public class DistanceCalculator implements ConstraintVisitor<Object, Void> {
 			if (string.length() > 0) {
 				char[] charArray = string.toCharArray();
 				int maxDistance = 0;
-				for (int i = 0; i < charArray.length; i++) {
-					char c = charArray[i];
+				for (char c : charArray) {
 					int distance;
 					if (!Character.isDigit(c)) {
 						if (c < '0') {
@@ -262,7 +261,7 @@ public class DistanceCalculator implements ConstraintVisitor<Object, Void> {
 			if (((IntegerUnaryExpression) n.getLeftOperand()).getOperator() == Operator.ISDIGIT) {
 				Long leftObject = (Long) ((IntegerUnaryExpression) n.getLeftOperand()).getOperand().accept(exprExecutor,
 						null);
-				long left_operand = leftObject.longValue();
+				long left_operand = leftObject;
 				char theChar = (char) left_operand;
 				if ((n.getComparator() == Comparator.EQ && rightVal == 1L)
 						|| (n.getComparator() == Comparator.NE && rightVal == 0L)) {
@@ -283,7 +282,7 @@ public class DistanceCalculator implements ConstraintVisitor<Object, Void> {
 			} else if (((IntegerUnaryExpression) n.getLeftOperand()).getOperator() == Operator.ISLETTER) {
 				Long leftObject = (Long) ((IntegerUnaryExpression) n.getLeftOperand()).getOperand().accept(exprExecutor,
 						null);
-				long left_operand = leftObject.longValue();
+				long left_operand = leftObject;
 				char theChar = (char) left_operand;
 				if ((n.getComparator() == Comparator.EQ && rightVal == 1L)
 						|| (n.getComparator() == Comparator.NE && rightVal == 0L)) {
@@ -500,7 +499,7 @@ public class DistanceCalculator implements ConstraintVisitor<Object, Void> {
 		}
 
 		StringTokenizer tokenizer = new StringTokenizer(concreteString, concreteDelimiter);
-		Vector<String> tokens = new Vector<String>();
+		Vector<String> tokens = new Vector<>();
 		while (tokenizer.hasMoreTokens()) {
 			tokens.add(tokenizer.nextToken());
 		}

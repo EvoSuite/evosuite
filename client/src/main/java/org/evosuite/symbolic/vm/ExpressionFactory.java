@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -32,8 +32,6 @@ import org.evosuite.symbolic.expr.fp.RealBinaryExpression;
 import org.evosuite.symbolic.expr.fp.RealConstant;
 import org.evosuite.symbolic.expr.fp.RealValue;
 import org.evosuite.symbolic.expr.ref.ReferenceConstant;
-import org.evosuite.symbolic.expr.ref.ReferenceExpression;
-import org.evosuite.symbolic.expr.ref.ReferenceVariable;
 import org.evosuite.symbolic.expr.str.StringConstant;
 import org.evosuite.symbolic.expr.str.StringValue;
 import org.objectweb.asm.Type;
@@ -120,7 +118,7 @@ public abstract class ExpressionFactory {
 		/*
 		 * (add 0 x) --> x
 		 */
-		if (((IntegerConstant) left).getConcreteValue() == 0) {
+		if (left.getConcreteValue() == 0) {
 			return right;
 		}
 
@@ -171,7 +169,7 @@ public abstract class ExpressionFactory {
 		/*
 		 * (add 0 x) --> x
 		 */
-		if (((RealConstant) left).getConcreteValue() == 0) {
+		if (left.getConcreteValue() == 0) {
 			return right;
 		}
 
@@ -243,7 +241,7 @@ public abstract class ExpressionFactory {
 		}
 
 		return new IntegerBinaryExpression(left, Operator.MUL, right,
-				(long) con);
+				con);
 	}
 
 	public static RealValue mul(RealValue left, RealValue right, double con) {
@@ -281,7 +279,7 @@ public abstract class ExpressionFactory {
 
 		}
 
-		return new RealBinaryExpression(left, Operator.MUL, right, (double) con);
+		return new RealBinaryExpression(left, Operator.MUL, right, con);
 	}
 
 	public static RealValue div(RealValue left, RealValue right, double con) {

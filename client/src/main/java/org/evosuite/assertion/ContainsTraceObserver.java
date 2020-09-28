@@ -38,7 +38,7 @@ public class ContainsTraceObserver extends AssertionTraceObserver<ContainsTraceE
             if(!(object instanceof Collection))
                 return;
 
-            Collection collectionObject = (Collection)object;
+            Collection<?> collectionObject = (Collection<?>)object;
 
             List<GenericClass> parameterClasses = var.getGenericClass().getParameterClasses();
             // Need to know exact type
@@ -51,8 +51,7 @@ public class ContainsTraceObserver extends AssertionTraceObserver<ContainsTraceE
             ContainsTraceEntry entry = new ContainsTraceEntry(var);
             int position = statement.getPosition();
 
-            Set<VariableReference> otherVariables = new LinkedHashSet<>();
-            otherVariables.addAll(scope.getElements(parameterType));
+            Set<VariableReference> otherVariables = new LinkedHashSet<>(scope.getElements(parameterType));
             for(int i = 0; i <= statement.getPosition(); i++) {
                 for(VariableReference candidateVar : currentTest.getStatement(i).getVariableReferences()) {
                     if(candidateVar instanceof ConstantValue && candidateVar.isAssignableTo(parameterType)) {

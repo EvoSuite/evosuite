@@ -19,12 +19,11 @@
  */
 package org.evosuite.symbolic.dse.algorithm;
 
-import org.evosuite.ga.Chromosome;
+import org.evosuite.symbolic.PathCondition;
+import org.evosuite.symbolic.PathConditionUtils;
 import org.evosuite.symbolic.dse.DSEStatistics;
 import org.evosuite.symbolic.dse.DSETestCase;
 import org.evosuite.symbolic.dse.algorithm.listener.StoppingCondition;
-import org.evosuite.symbolic.PathCondition;
-import org.evosuite.symbolic.PathConditionUtils;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
@@ -44,7 +43,7 @@ import java.util.Set;
  *
  * @author Ignacio Lebrero
  */
-public abstract class ExplorationAlgorithmBase<T extends Chromosome> implements Serializable {
+public abstract class ExplorationAlgorithmBase implements Serializable {
 
 	/** Logger Messages */
 	public static final String PATH_DIVERGENCE_FOUND_WARNING_MESSAGE = "Warning | Path condition diverged";

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -31,15 +31,17 @@ import org.evosuite.utils.Randomness;
  *
  * @author Yan Ge
  */
-public class UniformCrossOver extends CrossOverFunction {
+public class UniformCrossOver<T extends Chromosome<T>> extends CrossOverFunction<T> {
 
 	private static final long serialVersionUID = 2981387570766261795L;
 
 	/**
 	 * {@inheritDoc}
+	 * @param parent1
+	 * @param parent2
 	 */
 	@Override
-	public void crossOver(Chromosome parent1, Chromosome parent2)
+	public void crossOver(T parent1, T parent2)
 			throws ConstructionFailedException {
 
 		if (parent1.size() < 2 || parent2.size() < 2) {
@@ -48,8 +50,8 @@ public class UniformCrossOver extends CrossOverFunction {
 
 		int maxNumGenes = Math.min(parent1.size(), parent2.size());
 
-		Chromosome t1 = parent1.clone();
-		Chromosome t2 = parent2.clone();
+		T t1 = parent1.clone();
+		T t2 = parent2.clone();
 
 		for (int i = 0; i < maxNumGenes; i++) {
 			if (Randomness.nextDouble() <= Properties.CROSSOVER_RATE) {

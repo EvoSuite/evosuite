@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -45,11 +45,9 @@ import static org.evosuite.symbolic.instrument.ConcolicConfig.F_V;
 import static org.evosuite.symbolic.instrument.ConcolicConfig.GGGII_V;
 import static org.evosuite.symbolic.instrument.ConcolicConfig.GGG_V;
 import static org.evosuite.symbolic.instrument.ConcolicConfig.GIGG_V;
-import static org.evosuite.symbolic.instrument.ConcolicConfig.GI_V;
 import static org.evosuite.symbolic.instrument.ConcolicConfig.G_V;
 import static org.evosuite.symbolic.instrument.ConcolicConfig.IGGG_V;
 import static org.evosuite.symbolic.instrument.ConcolicConfig.IGGI_V;
-import static org.evosuite.symbolic.instrument.ConcolicConfig.IG_V;
 import static org.evosuite.symbolic.instrument.ConcolicConfig.IIGGI_V;
 import static org.evosuite.symbolic.instrument.ConcolicConfig.IIGG_V;
 import static org.evosuite.symbolic.instrument.ConcolicConfig.III_V;
@@ -66,8 +64,6 @@ import static org.evosuite.symbolic.instrument.ConcolicConfig.LG_V;
 import static org.evosuite.symbolic.instrument.ConcolicConfig.LIGG_V;
 import static org.evosuite.symbolic.instrument.ConcolicConfig.LII_V;
 import static org.evosuite.symbolic.instrument.ConcolicConfig.LILGG_V;
-import static org.evosuite.symbolic.instrument.ConcolicConfig.LI_V;
-import static org.evosuite.symbolic.instrument.ConcolicConfig.LIL_V;
 import static org.evosuite.symbolic.instrument.ConcolicConfig.LLGGI_V;
 import static org.evosuite.symbolic.instrument.ConcolicConfig.L_V;
 import static org.evosuite.symbolic.instrument.ConcolicConfig.SII_V;
@@ -189,7 +185,7 @@ public final class ConcolicMethodAdapter extends GeneratorAdapter {
 	 */
 	ConcolicMethodAdapter(MethodVisitor mv, int access, String className, String methName,
 	        String desc) {
-		super(Opcodes.ASM7, mv, access, methName, desc);
+		super(Opcodes.ASM9, mv, access, methName, desc);
 
 		this.access = access;
 		this.className = notNull(className);

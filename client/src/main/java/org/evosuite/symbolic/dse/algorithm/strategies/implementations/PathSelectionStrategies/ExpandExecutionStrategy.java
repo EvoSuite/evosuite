@@ -19,7 +19,7 @@
  */
 package org.evosuite.symbolic.dse.algorithm.strategies.implementations.PathSelectionStrategies;
 
-import org.evosuite.symbolic.PathConditionNode;
+import org.evosuite.symbolic.BranchCondition;
 import org.evosuite.symbolic.dse.algorithm.GenerationalSearchPathCondition;
 import org.evosuite.symbolic.dse.algorithm.strategies.PathExtensionStrategy;
 import org.evosuite.symbolic.PathCondition;
@@ -37,25 +37,25 @@ public class ExpandExecutionStrategy implements PathExtensionStrategy {
     @Override
     public List<GenerationalSearchPathCondition> generateChildren(GenerationalSearchPathCondition currentPathConditionChild) {
         List<GenerationalSearchPathCondition> generatedChildren = new ArrayList<>();
-        List<PathConditionNode> accumulatedPathConditionNodes = new ArrayList<>();
-        List<PathConditionNode> currentPathConditionPathConditionNodes = currentPathConditionChild.getPathCondition().getPathConditionNodes();
+        List<BranchCondition> accumulatedBranchConditions = new ArrayList<>();
+        List<BranchCondition> currentPathConditionBranchConditions = currentPathConditionChild.getPathCondition().getBranchConditions();
         int currentPathConditionIndexGeneratedFrom = currentPathConditionChild.getGeneratedFromIndex();
 
         // adds the untouched prefix
         for (int indexBound = 0; indexBound < currentPathConditionIndexGeneratedFrom; ++indexBound) {
-            accumulatedPathConditionNodes.add(currentPathConditionPathConditionNodes.get(indexBound));
+            accumulatedBranchConditions.add(currentPathConditionBranchConditions.get(indexBound));
         }
 
         // Important!! We start from the index the test was generated from to avoid re-create already checked paths
-        for (int indexBound = currentPathConditionIndexGeneratedFrom; indexBound < currentPathConditionPathConditionNodes.size(); indexBound++) {
-            PathConditionNode currentPathConditionNode = currentPathConditionPathConditionNodes.get(indexBound);
+        for (int indexBound = currentPathConditionIndexGeneratedFrom; indexBound < currentPathConditionBranchConditions.size(); indexBound++) {
+            BranchCondition currentBranchCondition = currentPathConditionBranchConditions.get(indexBound);
 
             // Adds the negated BranchCondition version to the current created pathCondition
-            accumulatedPathConditionNodes.add(currentPathConditionNode.getNegatedVersion());
+            accumulatedBranchConditions.add(currentBranchCondition.getNegatedVersion());
 
             GenerationalSearchPathCondition newChild = new GenerationalSearchPathCondition(
                 new PathCondition(
-                        new ArrayList(accumulatedPathConditionNodes)
+                        new ArrayList(accumulatedBranchConditions)
                 ),
                 indexBound + 1
             );
@@ -64,9 +64,9 @@ public class ExpandExecutionStrategy implements PathExtensionStrategy {
             generatedChildren.add(newChild);
 
             // replaces the negated branch condition with the original one for continuing generating
-            accumulatedPathConditionNodes.set(
-                accumulatedPathConditionNodes.size() - 1,
-              currentPathConditionNode
+            accumulatedBranchConditions.set(
+                accumulatedBranchConditions.size() - 1,
+              currentBranchCondition
             );
         }
 

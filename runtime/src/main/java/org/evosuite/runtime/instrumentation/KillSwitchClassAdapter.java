@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -33,7 +33,7 @@ import org.objectweb.asm.Opcodes;
 public class KillSwitchClassAdapter  extends ClassVisitor{
 
 	public KillSwitchClassAdapter(ClassVisitor cv) {
-		super(Opcodes.ASM7, cv);
+		super(Opcodes.ASM9, cv);
 	}
 
 	@Override

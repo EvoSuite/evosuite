@@ -20,7 +20,7 @@
 package org.evosuite.symbolic.dse;
 
 import org.evosuite.symbolic.PathCondition;
-import org.evosuite.symbolic.PathConditionNode;
+import org.evosuite.symbolic.BranchCondition;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.TestChromosome;
 
@@ -40,7 +40,7 @@ public interface ConcolicExecutor {
 	 *            a {@link org.evosuite.testcase.TestChromosome} object.
 	 * @return a {@link java.util.List} object.
 	 */
-  List<PathConditionNode> getSymbolicPath(TestChromosome test);
+  List<BranchCondition> getSymbolicPath(TestChromosome test);
 
   /**
 	 * Retrieve the path condition for a given test case

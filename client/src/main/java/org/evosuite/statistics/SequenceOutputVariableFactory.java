@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -38,8 +38,8 @@ public abstract class SequenceOutputVariableFactory<T extends Number> {
 
 	protected RuntimeVariable variable;
 	
-	protected List<Long> timeStamps = new ArrayList<Long>();
-	protected List<T> values = new ArrayList<T>();
+	protected List<Long> timeStamps = new ArrayList<>();
+	protected List<T> values = new ArrayList<>();
 	
 	private long startTime = 0L;
 	
@@ -59,7 +59,7 @@ public abstract class SequenceOutputVariableFactory<T extends Number> {
 	}
 	
 	public List<String> getVariableNames() {
-		List<String> variables = new ArrayList<String>();
+		List<String> variables = new ArrayList<>();
 		
 		for(String suffix : getTimelineHeaderSuffixes()) {
 			variables.add(variable.name() + suffix);
@@ -70,10 +70,10 @@ public abstract class SequenceOutputVariableFactory<T extends Number> {
 	}
 	
 	public List<OutputVariable<T>> getOutputVariables() {
-		List<OutputVariable<T>> variables = new ArrayList<OutputVariable<T>>();
+		List<OutputVariable<T>> variables = new ArrayList<>();
 
 		for(String variableName : getVariableNames()) {
-			OutputVariable<T> variable = new OutputVariable<T>(variableName, getTimeLineValue(variableName));
+			OutputVariable<T> variable = new OutputVariable<>(variableName, getTimeLineValue(variableName));
 			variables.add(variable);
 		}
 
@@ -164,7 +164,7 @@ public abstract class SequenceOutputVariableFactory<T extends Number> {
 		 * We cannot just look at the obtained history, because the search might
 		 * have finished earlier, eg if 100% coverage
 		 */
-		long totalTime = TimeController.getSearchBudgetInSeconds() * 1000l;
+		long totalTime = TimeController.getSearchBudgetInSeconds() * 1000L;
 		
 		int numberOfIntervals = (int) (totalTime / interval);
 		return numberOfIntervals;

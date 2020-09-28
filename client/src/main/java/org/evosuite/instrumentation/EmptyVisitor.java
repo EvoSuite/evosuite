@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
+
 package org.evosuite.instrumentation;
 
 import org.objectweb.asm.AnnotationVisitor;
@@ -35,7 +33,7 @@ import org.objectweb.asm.Opcodes;
  */
 public class EmptyVisitor extends ClassVisitor {
 
-	AnnotationVisitor av = new AnnotationVisitor(Opcodes.ASM7) {
+	AnnotationVisitor av = new AnnotationVisitor(Opcodes.ASM9) {
 
 		@Override
 		public AnnotationVisitor visitAnnotation(String name, String desc) {
@@ -52,7 +50,7 @@ public class EmptyVisitor extends ClassVisitor {
 	 * <p>Constructor for EmptyVisitor.</p>
 	 */
 	public EmptyVisitor() {
-		super(Opcodes.ASM7);
+		super(Opcodes.ASM9);
 	}
 
 	/** {@inheritDoc} */
@@ -65,7 +63,7 @@ public class EmptyVisitor extends ClassVisitor {
 	@Override
 	public FieldVisitor visitField(int access, String name, String desc,
 	        String signature, Object value) {
-		return new FieldVisitor(Opcodes.ASM7) {
+		return new FieldVisitor(Opcodes.ASM9) {
 
 			@Override
 			public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
@@ -78,7 +76,7 @@ public class EmptyVisitor extends ClassVisitor {
 	@Override
 	public MethodVisitor visitMethod(int access, String name, String desc,
 	        String signature, String[] exceptions) {
-		return new MethodVisitor(Opcodes.ASM7) {
+		return new MethodVisitor(Opcodes.ASM9) {
 
 			@Override
 			public AnnotationVisitor visitAnnotationDefault() {

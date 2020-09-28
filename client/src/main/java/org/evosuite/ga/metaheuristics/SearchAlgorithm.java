@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -29,6 +29,6 @@ public interface SearchAlgorithm {
 	/**
 	 * Generate solution
 	 */
-	public void generateSolution();
+    void generateSolution();
 	
 }

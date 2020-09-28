@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -63,7 +63,7 @@ import org.slf4j.LoggerFactory;
  */
 public class JobExecutor {
 
-	private static Logger logger = LoggerFactory.getLogger(JobExecutor.class);
+	private static final Logger logger = LoggerFactory.getLogger(JobExecutor.class);
 
 	private volatile boolean executing;
 	private long startTimeInMs;
@@ -142,7 +142,7 @@ public class JobExecutor {
 					handler.start();
 				}
 
-				long longestJob = -1l;
+				long longestJob = -1L;
 				
 				try{
 					LoggingUtils.getEvoLogger().info("Going to execute "+jobs.size()+" jobs");
@@ -204,11 +204,10 @@ public class JobExecutor {
 
 	protected long execute(List<JobDefinition> jobs){
 		
-		long longestJob = -1l;
+		long longestJob = -1L;
 		
 		//TODO handle memory
-		Queue<JobDefinition> toExecute = new LinkedList<>();
-		toExecute.addAll(jobs);
+		Queue<JobDefinition> toExecute = new LinkedList<>(jobs);
 		
 		List<JobDefinition> postponed = new LinkedList<>();
 		
@@ -247,7 +246,7 @@ public class JobExecutor {
 				 * There might be useful heuristics to pick up one in a smart way but,
 				 * for now, we just choose the first (and so oldest)
 				 */
-				chosenJob = postponed.remove((int) 0); //it is important to get the oldest jobs
+				chosenJob = postponed.remove(0); //it is important to get the oldest jobs
 			}
 
 			if(chosenJob == null){

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -20,8 +20,7 @@
 package org.evosuite.symbolic.solver.avm;
 
 import static org.evosuite.symbolic.solver.TestSolver.solve;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -63,7 +62,7 @@ public class TestStringEqualsIgnoreCase extends RandomizedTC {
 		String var0 = (String) solution.get("var0");
 
 		assertNotNull(var0);
-		assertTrue(!var0.equals("bar"));
+        assertFalse(var0.equals("bar"));
 		assertTrue(var0.equalsIgnoreCase("bar"));
 	}
 

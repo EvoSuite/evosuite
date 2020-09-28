@@ -19,7 +19,8 @@
  */
 package org.evosuite.symbolic.dse.algorithm.strategies.implementations.PathPruningStrategies;
 
-import org.hibernate.cache.CacheException;
+import org.evosuite.symbolic.dse.algorithm.DSEExplorationException;
+
 import java.util.Map;
 
 /**
@@ -42,7 +43,7 @@ public class CacheQueryResult {
   }
 
   public Map<String, Object> getSmtSolution() {
-    if (!cacheQueryStatus.equals(CacheQueryStatus.HIT_SAT)) throw new CacheException(
+    if (!cacheQueryStatus.equals(CacheQueryStatus.HIT_SAT)) throw new DSEExplorationException(
       "Only solutions from satisfiable queries can be retrieved.");
     return smtSolution;
   }

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -46,7 +46,7 @@ import org.slf4j.LoggerFactory;
  */
 public class JobHandler extends Thread {
 
-	private static Logger logger = LoggerFactory.getLogger(JobHandler.class);
+	private static final Logger logger = LoggerFactory.getLogger(JobHandler.class);
 
 	private final JobExecutor executor;
 
@@ -389,7 +389,7 @@ public class JobHandler extends Thread {
 
 	private List<String> getPoolInfo(JobDefinition job) {
 
-		List<String> commands = new ArrayList<String>();
+		List<String> commands = new ArrayList<>();
 		StorageManager storage = executor.getStorage();
 		File poolFolder = storage.getTmpPools();
 

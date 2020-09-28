@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -36,10 +36,10 @@ import org.slf4j.LoggerFactory;
 public class OutputTrace<T extends OutputTraceEntry> implements Cloneable {
 
 	@SuppressWarnings("unused")
-	private static Logger logger = LoggerFactory.getLogger(OutputTrace.class);
+	private static final Logger logger = LoggerFactory.getLogger(OutputTrace.class);
 
 	/** One entry per statement and per variable */
-	protected Map<Integer, Map<Integer, T>> trace = new HashMap<Integer, Map<Integer, T>>();
+	protected Map<Integer, Map<Integer, T>> trace = new HashMap<>();
 
 	/**
 	 * Insert a new entry into the trace
@@ -55,7 +55,7 @@ public class OutputTrace<T extends OutputTraceEntry> implements Cloneable {
 	 */
 	public synchronized void addEntry(int position, VariableReference var, T entry) {
 		if (!trace.containsKey(position))
-			trace.put(position, new HashMap<Integer, T>());
+			trace.put(position, new HashMap<>());
 
 		trace.get(position).put(var.getStPosition(), entry);
 	}
@@ -71,7 +71,7 @@ public class OutputTrace<T extends OutputTraceEntry> implements Cloneable {
 	 */
 	public synchronized T getEntry(int position, VariableReference var) {
 		if (!trace.containsKey(position)) {
-			trace.put(position, new HashMap<Integer, T>());
+			trace.put(position, new HashMap<>());
 			return null;
 		}
 
@@ -92,7 +92,7 @@ public class OutputTrace<T extends OutputTraceEntry> implements Cloneable {
 	 */
 	public boolean containsEntry(int position, VariableReference var) {
 		if (!trace.containsKey(position)) {
-			trace.put(position, new HashMap<Integer, T>());
+			trace.put(position, new HashMap<>());
 			return false;
 		}
 
@@ -257,9 +257,9 @@ public class OutputTrace<T extends OutputTraceEntry> implements Cloneable {
 	@SuppressWarnings("unchecked")
 	@Override
 	public synchronized OutputTrace<T> clone() {
-		OutputTrace<T> copy = new OutputTrace<T>();
+		OutputTrace<T> copy = new OutputTrace<>();
 		for (Integer position : trace.keySet()) {
-			copy.trace.put(position, new HashMap<Integer, T>());
+			copy.trace.put(position, new HashMap<>());
 			for (Integer var : trace.get(position).keySet()) {
 				copy.trace.get(position).put(var,
 				                             (T) trace.get(position).get(var).cloneEntry());

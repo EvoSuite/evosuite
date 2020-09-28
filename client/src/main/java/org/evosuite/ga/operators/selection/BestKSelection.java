@@ -11,7 +11,16 @@ import static java.util.stream.Collectors.*;
  * 
  * Select individual by highest fitness
  */
-public class BestKSelection<T extends Chromosome> extends SelectionFunction<T> {
+public class BestKSelection<T extends Chromosome<T>> extends SelectionFunction<T> {
+
+    private static final long serialVersionUID = -7106376944811871449L;
+
+    public BestKSelection() {
+    }
+
+    public BestKSelection(BestKSelection<?> other) {
+        // empty copy constructor
+    }
 
     /**
      * {@inheritDoc}

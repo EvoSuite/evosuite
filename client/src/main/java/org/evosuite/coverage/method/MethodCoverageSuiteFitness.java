@@ -19,42 +19,38 @@
  */
 package org.evosuite.coverage.method;
 
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import org.evosuite.Properties;
 import org.evosuite.ga.archive.Archive;
-import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.statements.ConstructorStatement;
 import org.evosuite.testcase.statements.Statement;
-import org.evosuite.testsuite.AbstractTestSuiteChromosome;
+import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.*;
 
 /**
  * Fitness function for a whole test suite for all methods, including exceptional behaviour
  *
  * @author Gordon Fraser, Jose Miguel Rojas
  */
-public class MethodCoverageSuiteFitness extends TestSuiteFitnessFunction {
+public class MethodCoverageSuiteFitness extends TestSuiteFitnessFunction{
 
 	private static final long serialVersionUID = 3359321076367091582L;
 
 	private final static Logger logger = LoggerFactory.getLogger(MethodCoverageSuiteFitness.class);
 
 	// Each test gets a set of distinct covered goals, these are mapped by branch id
-	protected final Map<String, TestFitnessFunction> methodCoverageMap = new LinkedHashMap<String, TestFitnessFunction>();
+	protected final Map<String, TestFitnessFunction> methodCoverageMap = new LinkedHashMap<>();
 	protected final int totalMethods;
 
-	private Set<String> toRemoveMethods = new LinkedHashSet<>();
-	private Set<String> removedMethods  = new LinkedHashSet<>();
+	private final Set<String> toRemoveMethods = new LinkedHashSet<>();
+	private final Set<String> removedMethods  = new LinkedHashSet<>();
 
     // Some stuff for debug output
     protected int maxCoveredMethods = 0;
@@ -87,8 +83,8 @@ public class MethodCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	 * If there is an exception in a super-constructor, then the corresponding
 	 * constructor might not be included in the execution trace
 	 *
-	 * @param suite
-	 * @param results
+	 * @param test
+	 * @param result
 	 * @param calledMethods
 	 */
 	protected void handleConstructorExceptions(TestChromosome test, ExecutionResult result, Set<String> calledMethods) {
@@ -165,15 +161,14 @@ public class MethodCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	 * Execute all tests and count covered branches
 	 */
 	@Override
-	public double getFitness(
-	        AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite) {
+	public double getFitness(TestSuiteChromosome suite) {
 		logger.trace("Calculating method fitness");
 		double fitness = 0.0;
 
 		List<ExecutionResult> results = runTestSuite(suite);
 
 		// Collect stats in the traces
-		Set<String> calledMethods = new LinkedHashSet<String>();
+		Set<String> calledMethods = new LinkedHashSet<>();
 		boolean hasTimeoutOrTestException = analyzeTraces(results, calledMethods);
 
 		int coveredMethods = calledMethods.size() + this.removedMethods.size();
@@ -214,8 +209,7 @@ public class MethodCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	 * @param coveredMethods
 	 * @param fitness
 	 */
-	protected void printStatusMessages(
-	        AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite,
+	protected void printStatusMessages(TestSuiteChromosome suite,
 	        int coveredMethods, double fitness) {
 		if (coveredMethods > maxCoveredMethods) {
 			logger.info("(Methods) Best individual covers " + coveredMethods + "/"

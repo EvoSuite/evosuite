@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -107,7 +107,7 @@ public class DSEAlgorithmSystemTest extends SystemTestBase {
 		String[] command = new String[] { "-generateSuiteUsingDSE", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		ExplorationAlgorithmBase<?> dse = getDSEAFromResult(result);
+		ExplorationAlgorithmBase dse = getDSEAFromResult(result);
 		TestSuiteChromosome best = dse.getGeneratedTestSuite();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
@@ -126,7 +126,7 @@ public class DSEAlgorithmSystemTest extends SystemTestBase {
 		String[] command = new String[] { "-generateSuiteUsingDSE", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		ExplorationAlgorithmBase<?> dse = getDSEAFromResult(result);
+		ExplorationAlgorithmBase dse = getDSEAFromResult(result);
 		TestSuiteChromosome best = dse.getGeneratedTestSuite();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
@@ -148,7 +148,7 @@ public class DSEAlgorithmSystemTest extends SystemTestBase {
 		String[] command = new String[] { "-generateSuiteUsingDSE", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		ExplorationAlgorithmBase<?> dse = getDSEAFromResult(result);
+		ExplorationAlgorithmBase dse = getDSEAFromResult(result);
 		TestSuiteChromosome best = dse.getGeneratedTestSuite();
 		assertTrue(best.getTests().isEmpty());
 
@@ -171,7 +171,7 @@ public class DSEAlgorithmSystemTest extends SystemTestBase {
 		String[] command = new String[] { "-generateSuiteUsingDSE", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		ExplorationAlgorithmBase<?> dse = getDSEAFromResult(result);
+		ExplorationAlgorithmBase dse = getDSEAFromResult(result);
 		TestSuiteChromosome best = dse.getGeneratedTestSuite();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
@@ -193,7 +193,7 @@ public class DSEAlgorithmSystemTest extends SystemTestBase {
 		String[] command = new String[] { "-generateSuiteUsingDSE", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		ExplorationAlgorithmBase<?> dse = getDSEAFromResult(result);
+		ExplorationAlgorithmBase dse = getDSEAFromResult(result);
 		TestSuiteChromosome best = dse.getGeneratedTestSuite();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
@@ -215,7 +215,7 @@ public class DSEAlgorithmSystemTest extends SystemTestBase {
 		String[] command = new String[] { "-generateSuiteUsingDSE", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		ExplorationAlgorithmBase<?> dse = getDSEAFromResult(result);
+		ExplorationAlgorithmBase dse = getDSEAFromResult(result);
 		TestSuiteChromosome best = dse.getGeneratedTestSuite();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
@@ -237,7 +237,7 @@ public class DSEAlgorithmSystemTest extends SystemTestBase {
 		String[] command = new String[] { "-generateSuiteUsingDSE", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		ExplorationAlgorithmBase<?> dse = getDSEAFromResult(result);
+		ExplorationAlgorithmBase dse = getDSEAFromResult(result);
 		TestSuiteChromosome best = dse.getGeneratedTestSuite();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
@@ -259,7 +259,7 @@ public class DSEAlgorithmSystemTest extends SystemTestBase {
 		String[] command = new String[] { "-generateSuiteUsingDSE", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		ExplorationAlgorithmBase<?> dse = getDSEAFromResult(result);
+		ExplorationAlgorithmBase dse = getDSEAFromResult(result);
 		TestSuiteChromosome best = dse.getGeneratedTestSuite();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
@@ -281,7 +281,7 @@ public class DSEAlgorithmSystemTest extends SystemTestBase {
 		String[] command = new String[] { "-generateSuiteUsingDSE", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		ExplorationAlgorithmBase<?> dse = getDSEAFromResult(result);
+		ExplorationAlgorithmBase dse = getDSEAFromResult(result);
 		TestSuiteChromosome best = dse.getGeneratedTestSuite();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
@@ -303,7 +303,7 @@ public class DSEAlgorithmSystemTest extends SystemTestBase {
 		String[] command = new String[] { "-generateSuiteUsingDSE", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		ExplorationAlgorithmBase<?> dse = getDSEAFromResult(result);
+		ExplorationAlgorithmBase dse = getDSEAFromResult(result);
 		TestSuiteChromosome best = dse.getGeneratedTestSuite();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
@@ -325,7 +325,7 @@ public class DSEAlgorithmSystemTest extends SystemTestBase {
 		String[] command = new String[] { "-generateSuiteUsingDSE", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		ExplorationAlgorithmBase<?> dse = getDSEAFromResult(result);
+		ExplorationAlgorithmBase dse = getDSEAFromResult(result);
 		TestSuiteChromosome best = dse.getGeneratedTestSuite();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
@@ -347,7 +347,7 @@ public class DSEAlgorithmSystemTest extends SystemTestBase {
 		String[] command = new String[] { "-generateSuiteUsingDSE", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		ExplorationAlgorithmBase<?> dse = getDSEAFromResult(result);
+		ExplorationAlgorithmBase dse = getDSEAFromResult(result);
 		TestSuiteChromosome best = dse.getGeneratedTestSuite();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
@@ -373,7 +373,7 @@ public class DSEAlgorithmSystemTest extends SystemTestBase {
 		String[] command = new String[] { "-generateSuiteUsingDSE", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		ExplorationAlgorithmBase<?> dse = getDSEAFromResult(result);
+		ExplorationAlgorithmBase dse = getDSEAFromResult(result);
 		TestSuiteChromosome best = dse.getGeneratedTestSuite();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
@@ -397,7 +397,7 @@ public class DSEAlgorithmSystemTest extends SystemTestBase {
 		String[] command = new String[] { "-generateSuiteUsingDSE", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		ExplorationAlgorithmBase<?> dse = getDSEAFromResult(result);
+		ExplorationAlgorithmBase dse = getDSEAFromResult(result);
 		TestSuiteChromosome best = dse.getGeneratedTestSuite();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
@@ -421,7 +421,7 @@ public class DSEAlgorithmSystemTest extends SystemTestBase {
 		String[] command = new String[] { "-generateSuiteUsingDSE", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		ExplorationAlgorithmBase<?> dse = getDSEAFromResult(result);
+		ExplorationAlgorithmBase dse = getDSEAFromResult(result);
 		TestSuiteChromosome best = dse.getGeneratedTestSuite();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
@@ -444,7 +444,7 @@ public class DSEAlgorithmSystemTest extends SystemTestBase {
 		String[] command = new String[] { "-generateSuiteUsingDSE", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		ExplorationAlgorithmBase<?> dse = getDSEAFromResult(result);
+		ExplorationAlgorithmBase dse = getDSEAFromResult(result);
 		TestSuiteChromosome best = dse.getGeneratedTestSuite();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
@@ -465,7 +465,7 @@ public class DSEAlgorithmSystemTest extends SystemTestBase {
 		String[] command = new String[] { "-generateSuiteUsingDSE", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		ExplorationAlgorithmBase<?> dse = getDSEAFromResult(result);
+		ExplorationAlgorithmBase dse = getDSEAFromResult(result);
 		TestSuiteChromosome best = dse.getGeneratedTestSuite();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
@@ -485,7 +485,7 @@ public class DSEAlgorithmSystemTest extends SystemTestBase {
 		String[] command = new String[] { "-generateSuiteUsingDSE", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		ExplorationAlgorithmBase<?> dse = getDSEAFromResult(result);
+		ExplorationAlgorithmBase dse = getDSEAFromResult(result);
 		TestSuiteChromosome best = dse.getGeneratedTestSuite();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
@@ -505,7 +505,7 @@ public class DSEAlgorithmSystemTest extends SystemTestBase {
 		String[] command = new String[] { "-generateSuiteUsingDSE", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		ExplorationAlgorithmBase<?> dse = getDSEAFromResult(result);
+		ExplorationAlgorithmBase dse = getDSEAFromResult(result);
 		TestSuiteChromosome best = dse.getGeneratedTestSuite();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
@@ -524,7 +524,7 @@ public class DSEAlgorithmSystemTest extends SystemTestBase {
 		String[] command = new String[] { "-generateSuiteUsingDSE", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		ExplorationAlgorithmBase<?> dse = getDSEAFromResult(result);
+		ExplorationAlgorithmBase dse = getDSEAFromResult(result);
 		TestSuiteChromosome best = dse.getGeneratedTestSuite();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
@@ -541,7 +541,7 @@ public class DSEAlgorithmSystemTest extends SystemTestBase {
 		String[] command = new String[] { "-generateSuiteUsingDSE", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		ExplorationAlgorithmBase<?> dse = getDSEAFromResult(result);
+		ExplorationAlgorithmBase dse = getDSEAFromResult(result);
 		TestSuiteChromosome best = dse.getGeneratedTestSuite();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
@@ -558,7 +558,7 @@ public class DSEAlgorithmSystemTest extends SystemTestBase {
 		String[] command = new String[] { "-generateSuiteUsingDSE", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		ExplorationAlgorithmBase<?> dse = getDSEAFromResult(result);
+		ExplorationAlgorithmBase dse = getDSEAFromResult(result);
 		TestSuiteChromosome best = dse.getGeneratedTestSuite();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
@@ -576,7 +576,7 @@ public class DSEAlgorithmSystemTest extends SystemTestBase {
 		String[] command = new String[] { "-generateSuiteUsingDSE", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		ExplorationAlgorithmBase<?> dse = getDSEAFromResult(result);
+		ExplorationAlgorithmBase dse = getDSEAFromResult(result);
 		TestSuiteChromosome best = dse.getGeneratedTestSuite();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
@@ -593,7 +593,7 @@ public class DSEAlgorithmSystemTest extends SystemTestBase {
 		String[] command = new String[] { "-generateSuiteUsingDSE", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		ExplorationAlgorithmBase<?> dse = getDSEAFromResult(result);
+		ExplorationAlgorithmBase dse = getDSEAFromResult(result);
 		TestSuiteChromosome best = dse.getGeneratedTestSuite();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
@@ -610,7 +610,7 @@ public class DSEAlgorithmSystemTest extends SystemTestBase {
 		String[] command = new String[] { "-generateSuiteUsingDSE", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		ExplorationAlgorithmBase<?> dse = getDSEAFromResult(result);
+		ExplorationAlgorithmBase dse = getDSEAFromResult(result);
 		TestSuiteChromosome best = dse.getGeneratedTestSuite();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
@@ -628,7 +628,7 @@ public class DSEAlgorithmSystemTest extends SystemTestBase {
 		String[] command = new String[] { "-generateSuiteUsingDSE", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		ExplorationAlgorithmBase<?> dse = getDSEAFromResult(result);
+		ExplorationAlgorithmBase dse = getDSEAFromResult(result);
 		TestSuiteChromosome best = dse.getGeneratedTestSuite();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
@@ -649,7 +649,7 @@ public class DSEAlgorithmSystemTest extends SystemTestBase {
 		String[] command = new String[] { "-generateSuiteUsingDSE", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		ExplorationAlgorithmBase<?> dse = getDSEAFromResult(result);
+		ExplorationAlgorithmBase dse = getDSEAFromResult(result);
 		TestSuiteChromosome best = dse.getGeneratedTestSuite();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
@@ -671,7 +671,7 @@ public class DSEAlgorithmSystemTest extends SystemTestBase {
 		String[] command = new String[] { "-generateSuiteUsingDSE", "-class", targetClass };
 		Object result = evosuite.parseCommandLine(command);
 
-		ExplorationAlgorithmBase<?> dse = getDSEAFromResult(result);
+		ExplorationAlgorithmBase dse = getDSEAFromResult(result);
 		TestSuiteChromosome best = dse.getGeneratedTestSuite();
 		System.out.println("EvolvedTestSuite:\n" + best);
 

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -19,6 +19,7 @@
  */
 package org.evosuite.symbolic;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.lang.reflect.Method;
@@ -102,47 +103,47 @@ public class TestConcolicReflection {
 	public void testClassNewInstanceNoReflection() throws NoSuchMethodException, SecurityException {
 		DefaultTestCase tc = buildNewInstanceNoReflectionTestCase();
 		PathCondition pc = new ConcolicExecutorImpl().execute(tc);
-		List<PathConditionNode> branch_conditions = pc.getPathConditionNodes();
-		assertTrue(!branch_conditions.isEmpty());
+		List<BranchCondition> branch_conditions = pc.getBranchConditions();
+        assertFalse(branch_conditions.isEmpty());
 	}
 
 	@Test
 	public void testClassNewInstance() throws NoSuchMethodException, SecurityException {
 		DefaultTestCase tc = buildClassNewInstanceTestCase();
 		PathCondition pc = new ConcolicExecutorImpl().execute(tc);
-		List<PathConditionNode> branch_conditions = pc.getPathConditionNodes();
-		assertTrue(!branch_conditions.isEmpty());
+		List<BranchCondition> branch_conditions = pc.getBranchConditions();
+        assertFalse(branch_conditions.isEmpty());
 	}
 
 	@Test
 	public void testConstructorNewInstance() throws NoSuchMethodException, SecurityException {
 		DefaultTestCase tc = buildConstructorNewInstanceTestCase();
 		PathCondition pc = new ConcolicExecutorImpl().execute(tc);
-		List<PathConditionNode> branch_conditions = pc.getPathConditionNodes();
-		assertTrue(!branch_conditions.isEmpty());
+		List<BranchCondition> branch_conditions = pc.getBranchConditions();
+        assertFalse(branch_conditions.isEmpty());
 	}
 
 	@Test
 	public void testMethodInvoke() throws NoSuchMethodException, SecurityException {
 		DefaultTestCase tc = buildMethodInvokeTestCase();
 		PathCondition pc = new ConcolicExecutorImpl().execute(tc);
-		List<PathConditionNode> branch_conditions = pc.getPathConditionNodes();
-		assertTrue(!branch_conditions.isEmpty());
+		List<BranchCondition> branch_conditions = pc.getBranchConditions();
+        assertFalse(branch_conditions.isEmpty());
 	}
 
 	@Test
 	public void testNotInstrumentedConstructorNewInstance() throws NoSuchMethodException, SecurityException {
 		DefaultTestCase tc = buildNotInstrumentedConstructorNewInstanceTestCase();
 		PathCondition pc = new ConcolicExecutorImpl().execute(tc);
-		List<PathConditionNode> branch_conditions = pc.getPathConditionNodes();
-		assertTrue(!branch_conditions.isEmpty());
+		List<BranchCondition> branch_conditions = pc.getBranchConditions();
+        assertFalse(branch_conditions.isEmpty());
 	}
 
 	@Test
 	public void testNotInstrumentedClassNewInstance() throws NoSuchMethodException, SecurityException {
 		DefaultTestCase tc = buildNotInstrumentedClassNewInstanceTestCase();
 		PathCondition pc = new ConcolicExecutorImpl().execute(tc);
-		List<PathConditionNode> branch_conditions = pc.getPathConditionNodes();
-		assertTrue(!branch_conditions.isEmpty());
+		List<BranchCondition> branch_conditions = pc.getBranchConditions();
+        assertFalse(branch_conditions.isEmpty());
 	}
 }

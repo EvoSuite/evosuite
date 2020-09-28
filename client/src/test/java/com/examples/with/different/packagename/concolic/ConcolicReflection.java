@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -81,7 +81,7 @@ public class ConcolicReflection {
 	}
 
 	public boolean greaterThanZero(Integer x) {
-		int intValue = x.intValue();
+		int intValue = x;
 		if (intValue > 0) {
 			return true;
 		} else {

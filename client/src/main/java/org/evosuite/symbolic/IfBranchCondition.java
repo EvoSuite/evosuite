@@ -11,7 +11,7 @@ import org.evosuite.symbolic.expr.Constraint;
  * @author jgaleotti
  *
  */
-public final class IfBranchCondition extends PathConditionNode {
+public final class IfBranchCondition extends BranchCondition {
 
 	private final boolean isTrueBranch;
 

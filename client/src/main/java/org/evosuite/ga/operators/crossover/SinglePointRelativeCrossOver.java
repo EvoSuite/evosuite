@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -28,7 +28,7 @@ import org.evosuite.utils.Randomness;
  *
  * @author Gordon Fraser
  */
-public class SinglePointRelativeCrossOver extends CrossOverFunction {
+public class SinglePointRelativeCrossOver<T extends Chromosome<T>> extends CrossOverFunction<T> {
 
 	private static final long serialVersionUID = -5320348525459502224L;
 
@@ -39,17 +39,19 @@ public class SinglePointRelativeCrossOver extends CrossOverFunction {
 	 * position 70% of n). For example, if n1=10 and n2=20 and splitting point
 	 * is 70%, we would have position 7 in the first and 14 in the second.
 	 * Therefore, the offspring d have n<=max(n1,n2)
+	 * @param parent1
+	 * @param parent2
 	 */
 	@Override
-	public void crossOver(Chromosome parent1, Chromosome parent2)
+	public void crossOver(T parent1, T parent2)
 	        throws ConstructionFailedException {
 
 		if (parent1.size() < 2 || parent2.size() < 2) {
 			return;
 		}
 
-		Chromosome t1 = parent1.clone();
-		Chromosome t2 = parent2.clone();
+		T t1 = parent1.clone();
+		T t2 = parent2.clone();
 		// Choose a position in the middle
 		float splitPoint = Randomness.nextFloat();
 

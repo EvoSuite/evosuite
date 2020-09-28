@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -60,7 +60,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ProjectAnalyzer {
 
-	private static Logger logger = LoggerFactory.getLogger(ProjectAnalyzer.class);
+	private static final Logger logger = LoggerFactory.getLogger(ProjectAnalyzer.class);
 
 	/**
 	 * the folder/jar where to find the .class files used as CUTs
@@ -152,7 +152,7 @@ public class ProjectAnalyzer {
 			suts = ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getAllClasses(ClassPathHandler.getInstance().getTargetProjectClasspath(), prefix, false);
 		}
 
-		List<String> cuts = new LinkedList<String>();
+		List<String> cuts = new LinkedList<>();
 
 		for (String className : suts) {
 			

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -54,7 +54,7 @@ public final class HasMoreTokens extends SymbolicFunction {
 
 		if (tokenizerExpr != null && tokenizerExpr.containsSymbolicVariable()) {
 			HasMoreTokensExpr hasMoreTokenExpr = new HasMoreTokensExpr(
-					tokenizerExpr, (long) (res ? 1L : 0L));
+					tokenizerExpr, res ? 1L : 0L);
 
 			return hasMoreTokenExpr;
 

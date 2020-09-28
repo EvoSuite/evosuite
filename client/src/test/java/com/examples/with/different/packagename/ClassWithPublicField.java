@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -28,5 +28,5 @@ public class ClassWithPublicField {
 
     public String y = "Foo";
 
-    public Integer z = new Integer(42);
+    public Integer z = 42;
 }

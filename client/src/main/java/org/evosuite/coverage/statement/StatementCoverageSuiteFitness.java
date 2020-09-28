@@ -24,11 +24,10 @@ import java.util.List;
 import java.util.Set;
 import org.evosuite.Properties;
 import org.evosuite.ga.archive.Archive;
-import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
-import org.evosuite.testsuite.AbstractTestSuiteChromosome;
+import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 
 /**
@@ -41,10 +40,10 @@ public class StatementCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	private static final long serialVersionUID = -3037573618694670748L;
 
 	private final int numStatements;
-	private final Set<TestFitnessFunction> statementGoals = new LinkedHashSet<TestFitnessFunction>();
+	private final Set<TestFitnessFunction> statementGoals = new LinkedHashSet<>();
 
-	private final Set<TestFitnessFunction> removedStatements = new LinkedHashSet<TestFitnessFunction>();
-	private final Set<TestFitnessFunction> toRemoveStatements = new LinkedHashSet<TestFitnessFunction>();
+	private final Set<TestFitnessFunction> removedStatements = new LinkedHashSet<>();
+	private final Set<TestFitnessFunction> toRemoveStatements = new LinkedHashSet<>();
 
 	public StatementCoverageSuiteFitness() {
 		List<StatementCoverageTestFitness> goals = new StatementCoverageFactory().getCoverageGoals();
@@ -121,11 +120,11 @@ public class StatementCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 	/** {@inheritDoc} */
 	@Override
-	public double getFitness(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite) {
+	public double getFitness(TestSuiteChromosome suite) {
 		List<ExecutionResult> results = runTestSuite(suite);
 		double fitness = 0.0;
 
-		Set<TestFitnessFunction> coveredStatements = new LinkedHashSet<TestFitnessFunction>();
+		Set<TestFitnessFunction> coveredStatements = new LinkedHashSet<>();
 		boolean hasTimeoutOrTestException = analyzeTraces(results, coveredStatements);
 
 		if (hasTimeoutOrTestException) {

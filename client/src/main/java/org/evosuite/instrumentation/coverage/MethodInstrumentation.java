@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
+
 package org.evosuite.instrumentation.coverage;
 
 import org.objectweb.asm.tree.MethodNode;
@@ -50,8 +48,8 @@ public interface MethodInstrumentation {
 	 *            name, String descriptor, String signature, String[]
 	 *            exceptions))
 	 */
-	public void analyze(ClassLoader classLoader, MethodNode mn, String className,
-	        String methodName, int access);
+    void analyze(ClassLoader classLoader, MethodNode mn, String className,
+                 String methodName, int access);
 
 	/**
 	 * If this method returns true, the analyze method is also called on public
@@ -59,7 +57,7 @@ public interface MethodInstrumentation {
 	 * 
 	 * @return a boolean.
 	 */
-	public boolean executeOnMainMethod();
+    boolean executeOnMainMethod();
 
 	/**
 	 * if this method returns true the analyze method is also called on methods
@@ -67,6 +65,6 @@ public interface MethodInstrumentation {
 	 * 
 	 * @return a boolean.
 	 */
-	public boolean executeOnExcludedMethods();
+    boolean executeOnExcludedMethods();
 
 }

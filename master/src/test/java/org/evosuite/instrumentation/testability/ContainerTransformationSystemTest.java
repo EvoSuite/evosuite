@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
+
 package org.evosuite.instrumentation.testability;
 
 import org.evosuite.EvoSuite;
@@ -53,7 +51,7 @@ public class ContainerTransformationSystemTest extends SystemTestBase {
 
 		Object result = evosuite.parseCommandLine(command);
 
-		Assert.assertTrue(result != null);
+        Assert.assertNotNull(result);
 		GeneticAlgorithm<?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
@@ -76,7 +74,7 @@ public class ContainerTransformationSystemTest extends SystemTestBase {
 
 		Object result = evosuite.parseCommandLine(command);
 
-		Assert.assertTrue(result != null);
+        Assert.assertNotNull(result);
 		GeneticAlgorithm<?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);

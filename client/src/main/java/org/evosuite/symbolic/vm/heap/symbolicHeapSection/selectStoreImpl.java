@@ -45,10 +45,10 @@ public class selectStoreImpl implements ArraysSection {
    *
    * TODO: Implement Strings and References
    */
-	private final Map<ReferenceExpression, ArrayValue.RealArrayValue> realArrays            = new HashMap();
-	private final Map<ReferenceExpression, ArrayValue.StringArrayValue> stringArrays        = new HashMap();
-	private final Map<ReferenceExpression, ArrayValue.IntegerArrayValue> integerArrays      = new HashMap();
-	private final Map<ReferenceExpression, ArrayValue.ReferenceArrayValue> referenceArrays  = new HashMap();
+	private final Map<ReferenceExpression, ArrayValue.RealArrayValue> realArrays            = new HashMap<>();
+	private final Map<ReferenceExpression, ArrayValue.StringArrayValue> stringArrays        = new HashMap<>();
+	private final Map<ReferenceExpression, ArrayValue.IntegerArrayValue> integerArrays      = new HashMap<>();
+	private final Map<ReferenceExpression, ArrayValue.ReferenceArrayValue> referenceArrays  = new HashMap<>();
 
 
   @Override
@@ -60,7 +60,7 @@ public class selectStoreImpl implements ArraysSection {
   @Override
   public ReferenceExpression arrayLoad(ReferenceExpression symbolicArray, IntegerValue symbolicIndex, ReferenceExpression symbolicValue) {
     ArrayValue.ReferenceArrayValue arrayExpression = referenceArrays.get(symbolicArray);
-    return null; //ExpressionFactory.buildArraySelectExpression(arrayExpression, symbolicIndex, symbolicValue);
+    return null;
   }
 
   @Override

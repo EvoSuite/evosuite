@@ -11,7 +11,7 @@ public class ArraySymbolicLengthNameTest {
 
   public static final String INVALID_SYMBOLIC_NAME = "test+-238132n";
   public static final String ARRAY_REFERENCE_NAME_TEST_VALUE = "var";
-  public static final String SYMBOLIC_NAME_BUILT_EXPECTED_RESULT = "var_dim_1";
+  public static final String SYMBOLIC_NAME_BUILT_EXPECTED_RESULT = "var_length_1";
 
   @Test
   public void isArraySymbolicLengthVariableName() {
@@ -26,8 +26,7 @@ public class ArraySymbolicLengthNameTest {
     
     assertFalse(ArraySymbolicLengthName.isArraySymbolicLengthVariableName(INVALID_SYMBOLIC_NAME));
   }
-
-
+  
   @Test
   public void buildSymbolicLengthDimensionName() {
     String name = ArraySymbolicLengthName.buildSymbolicLengthDimensionName(ARRAY_REFERENCE_NAME_TEST_VALUE, DIMENSION_TEST_VALUE);

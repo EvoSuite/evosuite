@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -60,7 +60,7 @@ import org.evosuite.utils.generic.GenericMethod;
 public class TestCaseBuilder {
 
 	private final DefaultTestCase testCase;
-	private final Map<Integer,Throwable> exceptions = new HashMap<Integer,Throwable>();
+	private final Map<Integer,Throwable> exceptions = new HashMap<>();
 
 	private int nextPosition;
 

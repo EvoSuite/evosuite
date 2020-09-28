@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -80,7 +80,7 @@ public class CarvingRunListener extends RunListener {
 	}
 
 	private List<Class<?>> getObservedClasses(final CaptureLog log) {
-		List<Class<?>> targetClasses = new ArrayList<Class<?>>();
+		List<Class<?>> targetClasses = new ArrayList<>();
 		final Class<?> targetClass = Properties.getTargetClassAndDontInitialise();
 		targetClasses.add(targetClass);
 		String prop = Properties.SELECTED_JUNIT;
@@ -90,13 +90,13 @@ public class CarvingRunListener extends RunListener {
 		}
 
 		String[] paths = prop.split(":");
-		Collection<String> junitTestNames = new HashSet<String>();
+		Collection<String> junitTestNames = new HashSet<>();
 		for (String s : paths) {
 			junitTestNames.add(s.trim());
 		}
 
 		if(Properties.CARVE_OBJECT_POOL) {
-			Set<String> uniqueClasses = new LinkedHashSet<String>(log.getObservedClasses());
+			Set<String> uniqueClasses = new LinkedHashSet<>(log.getObservedClasses());
 			for(String className : uniqueClasses) {
 				if(junitTestNames.contains(className)) {
 					logger.info("Skipping JUnit test class: "+className);
@@ -142,7 +142,7 @@ public class CarvingRunListener extends RunListener {
 			Class<?>[] targetClasses = new Class<?>[1];
 			targetClasses[0] = targetClass;
 			if(!carvedTests.containsKey(targetClass))
-				carvedTests.put(targetClass, new ArrayList<TestCase>());
+				carvedTests.put(targetClass, new ArrayList<>());
 
 			analyzer.analyze(log, codeGen, targetClasses);
 

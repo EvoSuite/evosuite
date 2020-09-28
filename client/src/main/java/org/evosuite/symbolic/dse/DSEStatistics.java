@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -138,7 +138,7 @@ public class DSEStatistics {
 	private int constraintTooLongCounter = 0;
 	private double avgConstraintSize = 0;
 
-	private final List<Boolean> changes = new LinkedList<Boolean>();
+	private final List<Boolean> changes = new LinkedList<>();
 	private final ConstraintTypeCounter constraintTypeCounter = new ConstraintTypeCounter();
 
 	public void reportNewUNSAT() {

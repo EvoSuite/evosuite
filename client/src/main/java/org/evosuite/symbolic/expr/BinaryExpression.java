@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -31,7 +31,7 @@ public interface BinaryExpression<T extends Object> {
 	 *            a T object.
 	 * @return a {@link org.evosuite.symbolic.expr.Operator} object.
 	 */
-	public Operator getOperator();
+    Operator getOperator();
 
 	/**
 	 * <p>
@@ -40,7 +40,7 @@ public interface BinaryExpression<T extends Object> {
 	 * 
 	 * @return a {@link org.evosuite.symbolic.expr.Expression} object.
 	 */
-	public Expression<T> getLeftOperand();
+    Expression<T> getLeftOperand();
 
 	/**
 	 * <p>
@@ -49,6 +49,6 @@ public interface BinaryExpression<T extends Object> {
 	 * 
 	 * @return a {@link org.evosuite.symbolic.expr.Expression} object.
 	 */
-	public Expression<?> getRightOperand();
+    Expression<?> getRightOperand();
 
 }

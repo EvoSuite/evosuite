@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -20,7 +20,6 @@
 package org.evosuite.instrumentation;
 
 import org.evosuite.classpath.ResourceList;
-import org.evosuite.instrumentation.error.ErrorConditionMethodAdapter;
 import org.evosuite.runtime.classhandling.ClassResetter;
 import org.evosuite.setup.DependencyAnalysis;
 import org.objectweb.asm.ClassVisitor;
@@ -31,7 +30,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -47,7 +45,7 @@ public class ExceptionTransformationClassAdapter extends ClassVisitor {
     public static Map<String, Map<String, Set<Type>>> methodExceptionMap = new LinkedHashMap<>();
 
     public ExceptionTransformationClassAdapter(ClassVisitor cv, String className) {
-        super(Opcodes.ASM7, cv);
+        super(Opcodes.ASM9, cv);
         this.className = className;
         if(!methodExceptionMap.containsKey(className))
             methodExceptionMap.put(className, new LinkedHashMap<>());

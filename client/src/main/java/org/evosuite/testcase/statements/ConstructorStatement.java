@@ -31,7 +31,6 @@ import java.util.Set;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.reflect.TypeUtils;
 import org.evosuite.Properties;
-import org.evosuite.runtime.annotation.Constraints;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestFactory;
 import org.evosuite.testcase.variable.VariableReference;
@@ -247,7 +246,7 @@ public class ConstructorStatement extends EntityWithParametersStatement {
 
 				@Override
 				public Set<Class<? extends Throwable>> throwableExceptions() {
-					Set<Class<? extends Throwable>> t = new LinkedHashSet<Class<? extends Throwable>>();
+					Set<Class<? extends Throwable>> t = new LinkedHashSet<>();
 					t.add(InvocationTargetException.class);
 					return t;
 				}
@@ -273,7 +272,7 @@ public class ConstructorStatement extends EntityWithParametersStatement {
 	/** {@inheritDoc} */
 	@Override
 	public Statement copy(TestCase newTestCase, int offset) {
-		ArrayList<VariableReference> new_params = new ArrayList<VariableReference>();
+		ArrayList<VariableReference> new_params = new ArrayList<>();
 		for (VariableReference r : parameters) {
 			new_params.add(r.copy(newTestCase, offset));
 		}
@@ -373,11 +372,6 @@ public class ConstructorStatement extends EntityWithParametersStatement {
 
 		if (Randomness.nextDouble() >= Properties.P_CHANGE_PARAMETER)
 			return false;
-
-		Constraints constraint = constructor.getConstructor().getAnnotation(Constraints.class);
-		if(constraint!=null && constraint.notMutable()){
-			return false;
-		}
 
 		List<VariableReference> parameters = getParameterReferences();
 		if (parameters.isEmpty())

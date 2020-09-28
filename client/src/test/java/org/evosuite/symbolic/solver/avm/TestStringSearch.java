@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -52,7 +52,7 @@ public class TestStringSearch extends RandomizedTC {
 
 	@Test
 	public void testEqualsTrueConstant() {
-		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
+		List<Constraint<?>> constraints = new ArrayList<>();
 		String var1 = "foo";
 		String const2 = "test";
 		StringVariable strVar = new StringVariable("test1", var1);
@@ -66,7 +66,7 @@ public class TestStringSearch extends RandomizedTC {
 			result = solve(skr, constraints);
 			assertNotNull(result);
 			assertNotNull(result.get("test1"));
-			assertTrue(const2.equals(result.get("test1").toString()));
+            assertEquals(const2, result.get("test1").toString());
 		} catch (SolverTimeoutException e) {
 			fail();
 		}
@@ -74,7 +74,7 @@ public class TestStringSearch extends RandomizedTC {
 
 	@Test
 	public void testEqualsFalseConstant() {
-		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
+		List<Constraint<?>> constraints = new ArrayList<>();
 		String var1 = "foo";
 		String const2 = "foo";
 		StringVariable strVar = new StringVariable("test1", var1);
@@ -88,7 +88,7 @@ public class TestStringSearch extends RandomizedTC {
 			result = solve(skr, constraints);
 			assertNotNull(result);
 			assertNotNull(result.get("test1"));
-			assertTrue(!const2.equals(result.get("test1").toString()));
+            assertFalse(const2.equals(result.get("test1").toString()));
 		} catch (SolverTimeoutException e) {
 			fail();
 		}
@@ -96,7 +96,7 @@ public class TestStringSearch extends RandomizedTC {
 
 	@Test
 	public void testEqualsIgnoreCaseTrueConstant() {
-		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
+		List<Constraint<?>> constraints = new ArrayList<>();
 		String var1 = "foo";
 		String const2 = "Fest";
 		StringVariable strVar = new StringVariable("test1", var1);
@@ -118,7 +118,7 @@ public class TestStringSearch extends RandomizedTC {
 
 	@Test
 	public void testEqualsIgnoreCaseFalseConstant() {
-		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
+		List<Constraint<?>> constraints = new ArrayList<>();
 		String var1 = "foo";
 		String const2 = "FOO";
 		StringVariable strVar = new StringVariable("test1", var1);
@@ -140,13 +140,13 @@ public class TestStringSearch extends RandomizedTC {
 
 	@Test
 	public void testStartsWithTrueConstant() {
-		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
+		List<Constraint<?>> constraints = new ArrayList<>();
 		String var1 = "foo";
 		String const2 = "test";
 		StringVariable strVar = new StringVariable("test1", var1);
 		StringConstant strConst = new StringConstant(const2);
 		IntegerConstant offs_expr = new IntegerConstant(2);
-		ArrayList<Expression<?>> other = new ArrayList<Expression<?>>();
+		ArrayList<Expression<?>> other = new ArrayList<>();
 		other.add(offs_expr);
 
 		StringMultipleComparison strComp = new StringMultipleComparison(strVar, Operator.STARTSWITH, strConst, other,
@@ -167,13 +167,13 @@ public class TestStringSearch extends RandomizedTC {
 
 	@Test
 	public void testStartsWithFalseConstant() {
-		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
+		List<Constraint<?>> constraints = new ArrayList<>();
 		String var1 = "footest";
 		String const2 = "test";
 		StringVariable strVar = new StringVariable("test1", var1);
 		StringConstant strConst = new StringConstant(const2);
 		IntegerConstant offs_expr = new IntegerConstant(3);
-		ArrayList<Expression<?>> other = new ArrayList<Expression<?>>();
+		ArrayList<Expression<?>> other = new ArrayList<>();
 		other.add(offs_expr);
 
 		StringMultipleComparison strComp = new StringMultipleComparison(strVar, Operator.STARTSWITH, strConst, other,
@@ -194,7 +194,7 @@ public class TestStringSearch extends RandomizedTC {
 
 	@Test
 	public void testEndsWithTrueConstant() {
-		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
+		List<Constraint<?>> constraints = new ArrayList<>();
 		String var1 = "foo";
 		String const2 = "test";
 		StringVariable strVar = new StringVariable("test1", var1);
@@ -217,7 +217,7 @@ public class TestStringSearch extends RandomizedTC {
 
 	@Test
 	public void testEndsWithFalseConstant() {
-		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
+		List<Constraint<?>> constraints = new ArrayList<>();
 		String var1 = "footest";
 		String const2 = "test";
 		StringVariable strVar = new StringVariable("test1", var1);
@@ -240,7 +240,7 @@ public class TestStringSearch extends RandomizedTC {
 
 	@Test
 	public void testContainsTrueConstant() {
-		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
+		List<Constraint<?>> constraints = new ArrayList<>();
 		String var1 = "foo";
 		String const2 = "test";
 		StringVariable strVar = new StringVariable("test1", var1);
@@ -263,7 +263,7 @@ public class TestStringSearch extends RandomizedTC {
 
 	@Test
 	public void testContainsFalseConstant() {
-		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
+		List<Constraint<?>> constraints = new ArrayList<>();
 		String var1 = "fotesto";
 		String const2 = "test";
 		StringVariable strVar = new StringVariable("test1", var1);
@@ -286,7 +286,7 @@ public class TestStringSearch extends RandomizedTC {
 
 	@Test
 	public void testRegionMatchesICTrueConstant() {
-		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
+		List<Constraint<?>> constraints = new ArrayList<>();
 		String var1 = "teXto";
 		String const2 = "rtestooo";
 		boolean ignore_case = true;
@@ -301,7 +301,7 @@ public class TestStringSearch extends RandomizedTC {
 		IntegerConstant offs_two = new IntegerConstant(offset2);
 		IntegerConstant ign_case = new IntegerConstant(ignore_case ? 1 : 0);
 
-		ArrayList<Expression<?>> other = new ArrayList<Expression<?>>();
+		ArrayList<Expression<?>> other = new ArrayList<>();
 		other.add(offs_one);
 		other.add(offs_two);
 		other.add(len_expr);
@@ -325,7 +325,7 @@ public class TestStringSearch extends RandomizedTC {
 
 	@Test
 	public void testRegionMatchesICFalseConstant() {
-		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
+		List<Constraint<?>> constraints = new ArrayList<>();
 		String var1 = "foTESTo";
 		String const2 = "rtestooo";
 		boolean ignore_case = true;
@@ -340,7 +340,7 @@ public class TestStringSearch extends RandomizedTC {
 		IntegerConstant offs_one = new IntegerConstant(offset1);
 		IntegerConstant ign_case = new IntegerConstant(ignore_case ? 1 : 0);
 
-		ArrayList<Expression<?>> other = new ArrayList<Expression<?>>();
+		ArrayList<Expression<?>> other = new ArrayList<>();
 		other.add(offs_one);
 		other.add(offs_two);
 		other.add(len_expr);
@@ -364,7 +364,7 @@ public class TestStringSearch extends RandomizedTC {
 
 	@Test
 	public void testInversionOfRegex() {
-		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
+		List<Constraint<?>> constraints = new ArrayList<>();
 
 		String var = "a+";
 		String regex = "aaa";
@@ -421,7 +421,7 @@ public class TestStringSearch extends RandomizedTC {
 
 	@Test
 	public void testRegexMatchesTrue() {
-		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
+		List<Constraint<?>> constraints = new ArrayList<>();
 		String var1 = "test";
 		String const2 = "TEST";
 		StringVariable strVar = new StringVariable("test1", var1);
@@ -449,14 +449,14 @@ public class TestStringSearch extends RandomizedTC {
 		IntegerConstant colon_code = new IntegerConstant(58);
 		IntegerConstant minus_one = new IntegerConstant(-1);
 
-		int colon_int_code = (int) ':';
+		int colon_int_code = ':';
 		int concrete_value = var1value.indexOf(colon_int_code);
 		StringBinaryToIntegerExpression index_of_colon = new StringBinaryToIntegerExpression(var1, Operator.INDEXOFC,
 				colon_code, (long) concrete_value);
 
 		IntegerConstraint constr1 = new IntegerConstraint(index_of_colon, Comparator.EQ, minus_one);
 
-		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
+		List<Constraint<?>> constraints = new ArrayList<>();
 		constraints.add(constr1);
 
 		EvoSuiteSolver solver = new EvoSuiteSolver();
@@ -478,14 +478,14 @@ public class TestStringSearch extends RandomizedTC {
 		IntegerConstant colon_code = new IntegerConstant(58);
 		IntegerConstant minus_one = new IntegerConstant(-1);
 
-		int colon_int_code = (int) ':';
+		int colon_int_code = ':';
 		int concrete_value = var1value.indexOf(colon_int_code);
 		StringBinaryToIntegerExpression index_of_colon = new StringBinaryToIntegerExpression(var1, Operator.INDEXOFC,
 				colon_code, (long) concrete_value);
 
 		IntegerConstraint constr1 = new IntegerConstraint(index_of_colon, Comparator.NE, minus_one);
 
-		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
+		List<Constraint<?>> constraints = new ArrayList<>();
 		constraints.add(constr1);
 
 		EvoSuiteSolver solver = new EvoSuiteSolver();
@@ -516,7 +516,7 @@ public class TestStringSearch extends RandomizedTC {
 		IntegerConstraint constr1 = new IntegerConstraint(index_of_colon, Comparator.EQ, minus_one);
 		IntegerConstraint constr2 = new IntegerConstraint(index_of_numeral, Comparator.NE, minus_one);
 
-		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
+		List<Constraint<?>> constraints = new ArrayList<>();
 		constraints.add(constr1);
 		constraints.add(constr2);
 
@@ -533,7 +533,7 @@ public class TestStringSearch extends RandomizedTC {
 
 	@Test
 	public void testRegexMatchesFalse() {
-		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
+		List<Constraint<?>> constraints = new ArrayList<>();
 		String var1 = "testsomestring";
 		String const2 = "testsomestring";
 		StringVariable strVar = new StringVariable("test1", var1);
@@ -563,7 +563,7 @@ public class TestStringSearch extends RandomizedTC {
 
 		StringConstraint constr3 = new StringConstraint(cmp3, Comparator.NE, new IntegerConstant(0));
 
-		Collection<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
+		Collection<Constraint<?>> constraints = new ArrayList<>();
 		constraints.add(constr3);
 
 		EvoSuiteSolver solver = new EvoSuiteSolver();
@@ -600,7 +600,7 @@ public class TestStringSearch extends RandomizedTC {
 		IntegerConstraint constr2 = new IntegerConstraint(index_of_numeral, Comparator.NE, minus_one);
 		IntegerConstraint constr3 = new IntegerConstraint(index_of_numeral, Comparator.LT, index_of_colon);
 
-		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
+		List<Constraint<?>> constraints = new ArrayList<>();
 		constraints.add(constr1);
 		constraints.add(constr2);
 		constraints.add(constr3);

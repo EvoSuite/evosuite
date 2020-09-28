@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -104,7 +104,7 @@ public class HtmlAnalyzer implements Serializable {
 		File startDirectory = new File(".");
 		String[] extensions = { "java" };
 		Collection<File> javaFiles = FileUtils.listFiles(startDirectory, extensions, true);
-		files = new HashSet<File>(javaFiles);
+		files = new HashSet<>(javaFiles);
 	}
 
 	private String getClassName(String name) {

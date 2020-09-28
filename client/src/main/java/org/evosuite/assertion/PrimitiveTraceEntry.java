@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,15 +17,10 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- *
- */
 package org.evosuite.assertion;
 
 import java.util.HashSet;
 import java.util.Set;
-import org.evosuite.Properties;
-import org.evosuite.regression.ObjectDistanceCalculator;
 import org.evosuite.testcase.variable.VariableReference;
 
 
@@ -78,23 +73,15 @@ public class PrimitiveTraceEntry implements OutputTraceEntry {
    */
   @Override
   public Set<Assertion> getAssertions(OutputTraceEntry other) {
-    Set<Assertion> assertions = new HashSet<Assertion>();
+    Set<Assertion> assertions = new HashSet<>();
     if (other instanceof PrimitiveTraceEntry) {
       PrimitiveTraceEntry otherEntry = (PrimitiveTraceEntry) other;
       if (otherEntry != null && otherEntry.value != null && value != null
           && var.getStPosition() == otherEntry.var.getStPosition()) {
         if (!value.equals(otherEntry.value)) {
-          double distance = ObjectDistanceCalculator.getObjectDistance(value, otherEntry.value);
-          if (distance == 0) {
-            return assertions;
-          }
           PrimitiveAssertion assertion = new PrimitiveAssertion();
           assertion.value = value;
           assertion.source = var;
-          if (Properties.isRegression()) {
-            assertion.setComment("// (Primitive) Original Value: " + value
-                + " | Regression Value: " + otherEntry.value);
-          }
           assertions.add(assertion);
           assert (assertion.isValid());
         }
@@ -112,7 +99,7 @@ public class PrimitiveTraceEntry implements OutputTraceEntry {
    */
   @Override
   public Set<Assertion> getAssertions() {
-    Set<Assertion> assertions = new HashSet<Assertion>();
+    Set<Assertion> assertions = new HashSet<>();
     PrimitiveAssertion assertion = new PrimitiveAssertion();
     assertion.source = var;
     assertion.value = value;

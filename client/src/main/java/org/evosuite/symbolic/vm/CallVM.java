@@ -158,7 +158,7 @@ public final class CallVM extends AbstractVM {
 		return discardFramesClassInitializer(className, methName);
 	}
 
-	private final HashMap<Member, MemberInfo> memberInfos = new HashMap<Member, MemberInfo>();
+	private final HashMap<Member, MemberInfo> memberInfos = new HashMap<>();
 	private final ConcolicInstrumentingClassLoader classLoader;
 
 	/**
@@ -278,7 +278,7 @@ public final class CallVM extends AbstractVM {
 		 * stack.
 		 */
 		Class<?>[] paramTypes = getArgumentClasses(methDesc);
-		final Deque<Operand> params = new LinkedList<Operand>();
+		final Deque<Operand> params = new LinkedList<>();
 		Iterator<Operand> it = env.topFrame().operandStack.iterator();
 		for (int i = paramTypes.length - 1; i >= 0; i--) {
 			// read parameters from caller operand srack
@@ -448,7 +448,7 @@ public final class CallVM extends AbstractVM {
 			int y=0;
 		}
 		Method method = null;
-		final Deque<Class<?>> interfaces = new LinkedList<Class<?>>();
+		final Deque<Class<?>> interfaces = new LinkedList<>();
 
 		Class<?> claz = env.ensurePrepared(owner);
 		/* Resolve method overloading -- need method parameter types */

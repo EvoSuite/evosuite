@@ -11,7 +11,7 @@ import org.evosuite.symbolic.expr.Constraint;
  * @author jgaleotti
  *
  */
-public final class SwitchBranchCondition extends PathConditionNode {
+public final class SwitchBranchCondition extends BranchCondition {
 
 	/**
 	 * Indicates if the current <code>switch</code> branch condition is the default

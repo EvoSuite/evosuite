@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -34,18 +34,17 @@ import org.junit.Test;
  * 
  * @author José Campos
  */
-@SuppressWarnings({ "rawtypes", "unchecked" })
 public class TestBinaryTournamentSelectionCrowdedComparison
 {
 	@BeforeClass
 	public static void setUp() {
-		Properties.RANDOM_SEED = 1l;
+		Properties.RANDOM_SEED = 1L;
 	}
 
 	@Test
 	public void testNonDominationRankMinimize()
 	{
-		NSGAII<NSGAChromosome> ga = new NSGAII<NSGAChromosome>(null);
+		NSGAII<NSGAChromosome> ga = new NSGAII<>(null);
 		BinaryTournamentSelectionCrowdedComparison ts = new BinaryTournamentSelectionCrowdedComparison(false);
 		ts.setMaximize(false);
 		ga.setSelectionFunction(ts);
@@ -57,17 +56,17 @@ public class TestBinaryTournamentSelectionCrowdedComparison
 		c1.setRank(1);
 		c2.setRank(0);
 
-		List<NSGAChromosome> population = new ArrayList<NSGAChromosome>();
+		List<NSGAChromosome> population = new ArrayList<>();
 		population.add(c1);
 		population.add(c2);
 
-		Assert.assertTrue(ts.getIndex(population) == 1);
+        Assert.assertEquals(1, ts.getIndex(population));
 	}
 
 	@Test
 	public void testNonDominationRankMaximize()
 	{
-		NSGAII<NSGAChromosome> ga = new NSGAII<NSGAChromosome>(null);
+		NSGAII<NSGAChromosome> ga = new NSGAII<>(null);
 		BinaryTournamentSelectionCrowdedComparison ts = new BinaryTournamentSelectionCrowdedComparison(true);
 		ts.setMaximize(true);
 		ga.setSelectionFunction(ts);
@@ -79,17 +78,17 @@ public class TestBinaryTournamentSelectionCrowdedComparison
 		c1.setRank(1);
 		c2.setRank(0);
 
-		List<NSGAChromosome> population = new ArrayList<NSGAChromosome>();
+		List<NSGAChromosome> population = new ArrayList<>();
 		population.add(c1);
 		population.add(c2);
 
-		Assert.assertTrue(ts.getIndex(population) == 0);
+        Assert.assertEquals(0, ts.getIndex(population));
 	}
 
 	@Test
 	public void testCrowdingDistanceMinimize()
 	{
-		NSGAII<NSGAChromosome> ga = new NSGAII<NSGAChromosome>(null);
+		NSGAII<NSGAChromosome> ga = new NSGAII<>(null);
 		BinaryTournamentSelectionCrowdedComparison ts = new BinaryTournamentSelectionCrowdedComparison(false);
 		ts.setMaximize(false);
 		ga.setSelectionFunction(ts);
@@ -105,17 +104,17 @@ public class TestBinaryTournamentSelectionCrowdedComparison
 		c1.setDistance(0.1);
 		c2.setDistance(0.5);
 
-		List<NSGAChromosome> population = new ArrayList<NSGAChromosome>();
+		List<NSGAChromosome> population = new ArrayList<>();
 		population.add(c1);
 		population.add(c2);
 
-		Assert.assertTrue(ts.getIndex(population) == 1);
+        Assert.assertEquals(1, ts.getIndex(population));
 	}
 
 	@Test
 	public void testCrowdingDistanceMaximize()
 	{
-		NSGAII<NSGAChromosome> ga = new NSGAII<NSGAChromosome>(null);
+		NSGAII<NSGAChromosome> ga = new NSGAII<>(null);
 		BinaryTournamentSelectionCrowdedComparison ts = new BinaryTournamentSelectionCrowdedComparison(true);
 		ts.setMaximize(true);
 		ga.setSelectionFunction(ts);
@@ -131,10 +130,10 @@ public class TestBinaryTournamentSelectionCrowdedComparison
 		c1.setDistance(0.1);
 		c2.setDistance(0.5);
 
-		List<NSGAChromosome> population = new ArrayList<NSGAChromosome>();
+		List<NSGAChromosome> population = new ArrayList<>();
 		population.add(c1);
 		population.add(c2);
 
-		Assert.assertTrue(ts.getIndex(population) == 1);
+        Assert.assertEquals(1, ts.getIndex(population));
 	}
 }

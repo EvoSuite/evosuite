@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -101,8 +101,8 @@ public final class VM {
 	// protected IVM[] listeners = new IVM[] { new InsnLogger() };
 	protected IVM[] listeners = new IVM[0];
 
-	protected List<IVM> prependListeners = new LinkedList<IVM>();
-	protected List<IVM> appendListeners = new LinkedList<IVM>();
+	protected List<IVM> prependListeners = new LinkedList<>();
+	protected List<IVM> appendListeners = new LinkedList<>();
 
 	/**
 	 * Registers paramListeners and any listernes previously queued via
@@ -111,7 +111,7 @@ public final class VM {
 	 * appendListeners).
 	 */
 	public void setListeners(List<IVM> paramListeners) {
-		List<IVM> list = new LinkedList<IVM>();
+		List<IVM> list = new LinkedList<>();
 		list.addAll(prependListeners);
 		list.addAll(paramListeners);
 		list.addAll(appendListeners);
@@ -3750,5 +3750,4 @@ public final class VM {
 	public static void clearInstance() {
 		vm = new VM();
 	}
-	
 }

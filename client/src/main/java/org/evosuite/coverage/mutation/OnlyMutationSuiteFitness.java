@@ -20,12 +20,11 @@
 package org.evosuite.coverage.mutation;
 
 import org.evosuite.Properties;
+import org.evosuite.TestGenerationContext;
 import org.evosuite.ga.archive.Archive;
-import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
-import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteChromosome;
 
 import java.util.*;
@@ -51,9 +50,8 @@ public class OnlyMutationSuiteFitness extends MutationSuiteFitness {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public double getFitness(
-	        AbstractTestSuiteChromosome<? extends ExecutableChromosome> individual) {
-		/**
+	public double getFitness(TestSuiteChromosome individual) {
+		/*
 		 * e.g. classes with only static constructors
 		 */
 		if (this.numMutants == 0) {
@@ -66,8 +64,8 @@ public class OnlyMutationSuiteFitness extends MutationSuiteFitness {
 		List<ExecutionResult> results = runTestSuite(individual);
 
 		double fitness = 0.0;
-		Map<Integer, Double> mutant_distance = new LinkedHashMap<Integer, Double>();
-		Set<Integer> touchedMutants = new LinkedHashSet<Integer>();
+		Map<Integer, Double> mutant_distance = new LinkedHashMap<>();
+		Set<Integer> touchedMutants = new LinkedHashSet<>();
 
 		for (ExecutionResult result : results) {
 			// Using private reflection can lead to false positives
@@ -119,7 +117,7 @@ public class OnlyMutationSuiteFitness extends MutationSuiteFitness {
 		}
 
 		// Second objective: touch all mutants?
-		fitness += MutationPool.getMutantCounter() - touchedMutants.size();
+		fitness += MutationPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getMutantCounter() - touchedMutants.size();
 		int covered = this.removedMutants.size();
 
 		for (Double distance : mutant_distance.values()) {
