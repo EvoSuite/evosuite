@@ -395,7 +395,7 @@ public class SymbolicObserverTest {
 		List<BranchCondition> branch_conditions = pc.getBranchConditions();
 
 		printConstraints(branch_conditions);
-		assertEquals(1, branch_conditions.size());
+		assertEquals(0, branch_conditions.size());
 	}
 
 	private static void test_input7() {

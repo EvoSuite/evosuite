@@ -317,6 +317,7 @@ public class MutationInstrumentation implements MethodInstrumentation {
 			
 			instructions.add(mutation.getMutation());
 			instructions.add(new JumpInsnNode(Opcodes.GOTO, endLabel));
+
 			instructions.add(nextLabel);
 		}
 
