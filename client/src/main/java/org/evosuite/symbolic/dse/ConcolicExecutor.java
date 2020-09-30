@@ -1,5 +1,5 @@
-/**
- * Copyright (C) 2010-2020 Gordon Fraser, Andrea Arcuri and EvoSuite
+/*
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -33,7 +33,7 @@ import java.util.List;
  */
 public interface ConcolicExecutor {
 
-  /**
+	/**
 	 * Retrieve the path condition for a given test case
 	 *
 	 * @param test

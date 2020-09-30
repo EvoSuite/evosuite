@@ -219,7 +219,7 @@ public class TestCaseBuilder {
 	}
 
 	/**
-	 * array[index] := var
+	 * array[index[0]][index[1]]...[index[n]] := var
 	 *
 	 * @param array
 	 * @param index
@@ -338,6 +338,11 @@ public class TestCaseBuilder {
 		exceptions.put(currentPos, exception);
 	}
 
+	/**
+	 * Inserts an statement on the current selected position.
+	 *
+	 * @param stmt
+	 */
 	private void addStatement(Statement stmt) {
 
 		if (nextPosition == 0) {

@@ -26,19 +26,18 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Utils related to the path condition
+ * Path condition related utils
  *
  * @author Ignacio Lebrero
  */
 public class PathConditionUtils {
 
+	public static final String PATH_AMOUNTS_CANNOT_BE_NEGATIVE 							 = "Path amounts cannot be negative";
 	public static final String NEW_PATH_CONDITION_CANNOT_BE_NULL 						 = "New path condition cannot be null.";
 	public static final String QUERY_CANNOT_BE_NULL_EXCEPTION_MESSAGE 			 = "Query cannot be null.";
 	public static final String QUERIES_CANNOT_BE_NULL_EXCEPTION_MESSAGE 		 = "Queries cannot be null.";
 	public static final String TOTAL_AMOUNT_OF_PATHS_HAS_TO_BE_HIGHER_THAN_0 = "Total amount of paths has to be higher than 0.";
 	public static final String EXPECTED_PREFIX_PATH_CONDITION_CANNOT_BE_NULL = "Expected prefix path condition cannot be null.";
-	public static final String PATH_AMOUNTS_CANNOT_BE_NEGATIVE = "Path amounts cannot be negative";
-
 
 	/**
 	 * Returns true if the constraints in the query are a supra set of any of the constraints in the set
@@ -153,14 +152,14 @@ public class PathConditionUtils {
 		List<BranchCondition> expectedPrefixBranchConditions = expectedPrefixPathCondition.getBranchConditions();
 		List<BranchCondition> newBranchConditions = newPathCondition.getBranchConditions();
 
-		// If the path is is less than the current one, we are in a trivial divergence
+		// If the new path traversed is smaller than the expected prefix one, we are in a trivial divergence
 		if (expectedPrefixPathCondition.size() > newBranchConditions.size()) return true;
 
 		for (int currentBranchConditionIndex = 0; currentBranchConditionIndex < expectedPrefixBranchConditions.size(); ++currentBranchConditionIndex) {
 			BranchCondition expectedPrefixBranchCondition = expectedPrefixBranchConditions.get(currentBranchConditionIndex);
 			BranchCondition newBranchCondition = newBranchConditions.get(currentBranchConditionIndex);
 
-			// if the expectedPrefix path is not a prefix of the new one, there's a divergence
+			// if the expected prefix path is not a prefix of the new one, there's a divergence
 			if (!expectedPrefixBranchCondition.equals(newBranchCondition)) {
 				return true;
 			}

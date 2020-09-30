@@ -307,31 +307,13 @@ public class SymbolicObserver extends ExecutionObserver {
 			ReferenceConstant old_symb_array = (ReferenceConstant) env.topFrame().operandStack.popRef();
 
 			//The reference should be variable as this is symbolic, so we re create it with the concrete array.
-			upgradeToSymbolicArrayVariable(arrayRef, conc_array);
+			upgradeSymbolicArrayLiteralToVariable(arrayRef, conc_array);
 
 		} catch (CodeUnderTestException e) {
 			throw new RuntimeException(e);
 		}
 
 	}
-
-	private void upgradeToSymbolicArrayVariable(ArrayReference arrayRef, Object conc_array) {
-		if (Properties.IS_DSE_ARRAYS_SUPPORT_ENABLED) {
-			ReferenceVariable new_sym_array = env.heap.buildNewArrayReferenceVariable(conc_array, arrayRef.getName());
-			env.heap.initializeReference(conc_array, new_sym_array);
-			env.heap.putField(
-				"",
-				ARRAY_LENGTH,
-				conc_array,
-				new_sym_array,
-				symb_expressions.get(new ArraySymbolicLengthName(arrayRef.getName(), UNIDIMENTIONAL_ARRAY_VALUE).getSymbolicName())
-			);
-
-			String varRef_name = arrayRef.getName();
-			symb_references.put(varRef_name, new_sym_array);
-		}
-	}
-
 
 	private void before(EnumPrimitiveStatement<?> s, Scope scope) {
 		/* do nothing */
@@ -692,6 +674,7 @@ public class SymbolicObserver extends ExecutionObserver {
 			String array_name = arrayReference.getName();
 			ReferenceExpression symb_array = symb_references.get(array_name);
 
+//			NOTE (ilebrero): we only want to update the symbolic environment outside the SUT.
 //			if (symb_value instanceof IntegerValue) {
 //				env.heap.arrayStore(conc_array, symb_array, symb_index, new IntegerConstant(((IntegerValue) symb_value).getConcreteValue()));
 //			} else if (symb_value instanceof RealValue) {
@@ -1981,6 +1964,30 @@ public class SymbolicObserver extends ExecutionObserver {
 			stringVariables.put(name, stringVariable);
 		}
 		return stringVariable;
+	}
+
+
+	/**
+	 * Upgrades a symbolic array from a literal to a variable in the symbolic heap.
+	 *
+	 * @param arrayRef
+	 * @param conc_array
+	 */
+	private void upgradeSymbolicArrayLiteralToVariable(ArrayReference arrayRef, Object conc_array) {
+		if (Properties.IS_DSE_ARRAYS_SUPPORT_ENABLED) {
+			ReferenceVariable new_sym_array = env.heap.buildNewArrayReferenceVariable(conc_array, arrayRef.getName());
+			env.heap.initializeReference(conc_array, new_sym_array);
+			env.heap.putField(
+				"",
+				ARRAY_LENGTH,
+				conc_array,
+				new_sym_array,
+				symb_expressions.get(new ArraySymbolicLengthName(arrayRef.getName(), UNIDIMENTIONAL_ARRAY_VALUE).getSymbolicName())
+			);
+
+			String varRef_name = arrayRef.getName();
+			symb_references.put(varRef_name, new_sym_array);
+		}
 	}
 
 	@Override

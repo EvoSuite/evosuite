@@ -54,7 +54,7 @@ import org.evosuite.dse.VM;
 
 /**
  * <p>
- * ConcolicEngine class.
+ * ConcolicExecutorImpl class.
  * </p>
  *
  * @author Gordon Fraser
@@ -75,13 +75,6 @@ public class ConcolicExecutorImpl implements ConcolicExecutor{
 		MainConfig.setInstance();
 	}
 
-	/**
-	 * Retrieve the path condition for a given test case
-	 * 
-	 * @param test
-	 *            a {@link org.evosuite.testcase.TestChromosome} object.
-	 * @return a {@link java.util.List} object.
-	 */
 	public List<BranchCondition> getSymbolicPath(TestChromosome test) {
 		TestChromosome dscCopy = test.clone();
 		DefaultTestCase defaultTestCase = (DefaultTestCase) dscCopy.getTestCase();
@@ -96,7 +89,7 @@ public class ConcolicExecutorImpl implements ConcolicExecutor{
 		/**
 		 * Memory model
 		 * Path constraint and symbolic environment
-		 * */
+		 */
 		SymbolicEnvironment symbolicEnvironment = new SymbolicEnvironment(instrumentingClassLoader);
 		PathConditionCollector pathConditionCollector = new PathConditionCollector();
 
@@ -137,19 +130,19 @@ public class ConcolicExecutorImpl implements ConcolicExecutor{
 		}
 		VM.disableCallBacks(); // ignore all callbacks from now on
 
-		List<BranchCondition> nodes = pathConditionCollector.getPathCondition();
-		logger.info("Concolic execution ended with " + nodes.size() + " nodes collected");
+		List<BranchCondition> branches = pathConditionCollector.getPathCondition();
+		logger.info("Concolic execution ended with " + branches.size() + " branches collected");
 		if (!result.noThrownExceptions()) {
 			int idx = result.getFirstPositionOfThrownException();
 			logger.info("Exception thrown: " + result.getExceptionThrownAtPosition(idx));
 		}
 
-		logNrOfConstraints(nodes);
+		logNrOfConstraints(branches);
 
 		logger.debug("Cleaning concolic execution");
 		TestCaseExecutor.getInstance().setExecutionObservers(originalExecutionObservers);
 
-		return new PathCondition(nodes);
+		return new PathCondition(branches);
 	}
 
 	private ExecutionResult executeTestCase(DefaultTestCase defaultTestCase) throws Exception {

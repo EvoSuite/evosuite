@@ -37,23 +37,23 @@ import org.slf4j.LoggerFactory;
 
 public final class SmtModelParser extends ResultParser {
 
-	private static final String SAT_TOKEN = "sat";
-	private static final String INT_TOKEN = SmtSort.INT.getName();
-	private static final String REAL_TOKEN = SmtSort.REAL.getName();
-	private static final String SLASH_TOKEN = "/";
-	private static final String MINUS_TOKEN = "-";
-	private static final String QUOTE_TOKEN = "\"";
-	private static final String MODEL_TOKEN = "model";
-	private static final String STORE_TOKEN = SmtOperation.Operator.STORE.toString();
-	private static final String ARRAY_TOKEN = SmtSort.ARRAY.getName();
-	private static final String STRING_TOKEN = SmtSort.STRING.getName();
-	private static final String NEW_LINE_TOKEN = "\n";
-	private static final String BLANK_SPACE_TOKEN = " ";
-	private static final String DEFINE_FUN_TOKEN = "define-fun";
-	private static final String LEFT_PARENTHESIS_TOKEN = "(";
-	private static final String RIGHT_PARENTHESIS_TOKEN = ")";
 	public static final String AS_TOKEN = "as";
+	public static final String SAT_TOKEN = "sat";
+	public static final String INT_TOKEN = SmtSort.INT.getName();
+	public static final String REAL_TOKEN = SmtSort.REAL.getName();
+	public static final String SLASH_TOKEN = "/";
+	public static final String MINUS_TOKEN = "-";
+	public static final String QUOTE_TOKEN = "\"";
+	public static final String MODEL_TOKEN = "model";
 	public static final String CONST_TOKEN = "const";
+	public static final String STORE_TOKEN = SmtOperation.Operator.STORE.toString();
+	public static final String ARRAY_TOKEN = SmtSort.ARRAY.getName();
+	public static final String STRING_TOKEN = SmtSort.STRING.getName();
+	public static final String NEW_LINE_TOKEN = "\n";
+	public static final String DEFINE_FUN_TOKEN = "define-fun";
+	public static final String BLANK_SPACE_TOKEN = " ";
+	public static final String LEFT_PARENTHESIS_TOKEN = "(";
+	public static final String RIGHT_PARENTHESIS_TOKEN = ")";
 
 	private final Map<String, Object> initialValues;
 	static Logger logger = LoggerFactory.getLogger(SmtModelParser.class);
@@ -66,35 +66,35 @@ public final class SmtModelParser extends ResultParser {
 		this.initialValues = null;
 	}
 
-	public SolverResult parse(String cvc4ResultStr)
+	public SolverResult parse(String solverResultStr)
 			throws SolverParseException, SolverErrorException, SolverTimeoutException {
-		if (cvc4ResultStr.startsWith(SAT_TOKEN)) {
-			logger.debug("CVC4 outcome was SAT");
-			SolverResult satResult = parseModel(cvc4ResultStr);
+		if (solverResultStr.startsWith(SAT_TOKEN)) {
+			logger.debug("Solver outcome was SAT");
+			SolverResult satResult = parseModel(solverResultStr);
 			return satResult;
-		} else if (cvc4ResultStr.startsWith("unsat")) {
-			logger.debug("CVC4 outcome was UNSAT");
+		} else if (solverResultStr.startsWith("unsat")) {
+			logger.debug("Solver outcome was UNSAT");
 			SolverResult unsatResult = SolverResult.newUNSAT();
 			return unsatResult;
-		} else if (cvc4ResultStr.startsWith("unknown")) {
-			logger.debug("CVC4 outcome was UNKNOWN (probably due to timeout)");
+		} else if (solverResultStr.startsWith("unknown")) {
+			logger.debug("Solver outcome was UNKNOWN (probably due to timeout)");
 			throw new SolverTimeoutException();
-		} else if (cvc4ResultStr.startsWith("(error")) {
-			logger.debug("CVC4 output was the following " + cvc4ResultStr);
-			throw new SolverErrorException("An error (probably an invalid input) occurred while executing CVC4");
+		} else if (solverResultStr.startsWith("(error")) {
+			logger.debug("Solver output was the following " + solverResultStr);
+			throw new SolverErrorException("An error (probably an invalid input) occurred while executing the solver");
 		} else {
-			logger.debug("The following CVC4 output could not be parsed " + cvc4ResultStr);
-			throw new SolverParseException("CVC4 output is unknown. We are unable to parse it to a proper solution!",
-					cvc4ResultStr);
+			logger.debug("The following solver output could not be parsed " + solverResultStr);
+			throw new SolverParseException("Solver output is unknown. We are unable to parse it to a proper solution!",
+					solverResultStr);
 		}
 
 	}
 
-	private SolverResult parseModel(String cvc4ResultStr) {
+	private SolverResult parseModel(String solverResultStr) {
 		Map<String, Object> solution = new HashMap<>();
 
 		String token;
-		StringTokenizer tokenizer = new StringTokenizer(cvc4ResultStr, "() \n\t", true);
+		StringTokenizer tokenizer = new StringTokenizer(solverResultStr, "() \n\t", true);
 		token = tokenizer.nextToken();
 		checkExpectedToken(SAT_TOKEN, token);
 
@@ -156,10 +156,10 @@ public final class SmtModelParser extends ResultParser {
 		}
 
 		if (solution.isEmpty()) {
-			logger.warn("The CVC4 model has no variables");
+			logger.warn("The solver model has no variables");
 			return null;
 		} else {
-			logger.debug("Parsed values from CVC4 output");
+			logger.debug("Parsed values from solver output");
 			for (String varName : solution.keySet()) {
 				String valueOf = String.valueOf(solution.get(varName));
 				logger.debug(varName + ":" + valueOf);
@@ -255,10 +255,9 @@ public final class SmtModelParser extends ResultParser {
 			if (contentType.equals(INT_TOKEN)) {
 				content = parseIntegerValue(tokenizer);
 			} else if (contentType.equals(REAL_TOKEN)) {
-				//TODO: TestMe!
 				content = parseRealValue(tokenizer);
 			} else if (contentType.equals(STRING_TOKEN)) {
-				//TODO: TestMe!
+				//TODO: TestMe when objects support are implemented!
 				content = parseStringValue(tokenizer);
 			} else {
 				throw new IllegalArgumentException("Unknown array content type data " + token);
@@ -272,20 +271,26 @@ public final class SmtModelParser extends ResultParser {
 			elementsAmount--;
 		}
 
+		// TODO (ilebrero): There's an incoherence between the result of SMT (arrays are modeled as undefined functions)
+		//  		 and the check we do after parsing this result to check if the solution is valid. We have to recreate the
+		//			 hole concrete array then and we don't have info at this point about the length variable (it may be bigger).
+		//
+		// We create the concrete array
 		Object array = buildNewArray(contentType, maxIndex+1);
 
+		// We fill the array with the new values
 		for (Integer index : arrayContents.keySet()) {
 			if (contentType.equals(INT_TOKEN)) {
-				((long[]) array)[index] = ((Long) arrayContents.get(index)).longValue();
+				((long[]) array)[index] = (Long) arrayContents.get(index);
 
 			} else if (contentType.equals(REAL_TOKEN)) {
-				((double[]) array)[index] = ((Double) arrayContents.get(index)).doubleValue();
+				((double[]) array)[index] = (Double) arrayContents.get(index);
 
 			} else if (contentType.equals(STRING_TOKEN)) {
 				((String[]) array)[index] = (String) arrayContents.get(index);
 
 			} else {
-				throw new IllegalArgumentException("Unknown array content type data " + token);
+				throw new IllegalArgumentException("Unknown array content type data " + contentType);
 			}
 		}
 
@@ -309,7 +314,7 @@ public final class SmtModelParser extends ResultParser {
 		} else if (STRING_TOKEN.equals(contentType)) {
 			componentTypeClass = String.class;
 		} else {
-			throw new IllegalStateException("Unexpected value: " + contentType);
+			throw new IllegalStateException("Unexpected array content type: " + contentType);
 		}
 
 		return Array.newInstance(
@@ -518,7 +523,7 @@ public final class SmtModelParser extends ResultParser {
 	private static void checkExpectedToken(String expectedToken, String actualToken) {
 		if (!actualToken.equals(expectedToken)) {
 			throw new IllegalArgumentException(
-					"Malformed CVC4 solution. Expected \"" + expectedToken + "\" but found \"" + actualToken + "\"");
+					"Malformed solver solution. Expected \"" + expectedToken + "\" but found \"" + actualToken + "\"");
 		}
 	}
 

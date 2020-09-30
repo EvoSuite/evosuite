@@ -96,7 +96,9 @@ public final class SymbolicHeap {
 	 * Constructor
 	 */
 	public SymbolicHeap() {
-		this.symbolicArrays = SymbolicHeapArraySectionFactory.getSymbolicHeapArraySection(Properties.SELECTED_DSE_ARRAYS_MEMORY_MODEL_VERSION);
+		this.symbolicArrays = SymbolicHeapArraySectionFactory
+			.getInstance()
+			.getSymbolicHeapArraySection(Properties.SELECTED_DSE_ARRAYS_MEMORY_MODEL_VERSION);
 	}
 
 	/**
@@ -340,7 +342,6 @@ public final class SymbolicHeap {
 				}
 
 				initializeReference(conc_ref, ref_constant);
-//				ref_constant.initializeReference(conc_ref);
 				nonNullRefs.put(identityHashCode, ref_constant);
 				return ref_constant;
 			}

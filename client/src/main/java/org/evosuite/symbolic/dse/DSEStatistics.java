@@ -55,7 +55,7 @@ public class DSEStatistics {
 	 * 	Tracking of runtime variables used in DSE,
 	 *  please add them here when adding a new one so they are saved in the backend
 	 **/
-	public static List<String> dseRuntimeVariables = new ArrayList( Arrays.asList(
+	public static List<String> dseRuntimeVariables = Arrays.asList(
 		// Solver
 		RuntimeVariable.NumberOfSATQueries.name(),
 		RuntimeVariable.NumberOfUNSATQueries.name(),
@@ -80,13 +80,13 @@ public class DSEStatistics {
 		RuntimeVariable.AvgPathConditionLength.name(),
 		RuntimeVariable.NumberOfPathsExplored.name(),
 		RuntimeVariable.NumberOfPathsDiverged.name()
-	));
+	);
 
 	private static DSEStatistics instance = null;
 
 	public static DSEStatistics getInstance() {
-		if (instance==null) {
-			instance=new DSEStatistics();
+		if (instance == null) {
+			instance = new DSEStatistics();
 		}
 		return instance;
 	}

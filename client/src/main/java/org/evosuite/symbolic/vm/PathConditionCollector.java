@@ -19,6 +19,7 @@
  */
 package org.evosuite.symbolic.vm;
 
+import org.evosuite.symbolic.ArrayAccessBranchCondition;
 import org.evosuite.symbolic.IfBranchCondition;
 import org.evosuite.symbolic.BranchCondition;
 import org.evosuite.symbolic.SwitchBranchCondition;
@@ -57,7 +58,13 @@ public final class PathConditionCollector {
 	}
 
 	/**
-	 * Add a new constraint to a branch condition for a IF instruction
+	 * Add a new constraint to a branch condition for an out of bounds usage of an array.
+	 * Instructions:
+	 * 			XSTORE, XLOAD, XASTORE, XALOAD -> Out of bounds index violation
+	 * 			NEWARRAY, ANEWARRAY, MULINEWARRAY -> Negative index violation
+	 *
+	 * TODO (ilebrero): As array accesses don't count as branches yet (probably an implementation on the static analysis
+	 * 									stage?), we model the instruction index as -1.
 	 *
 	 * @param constraint
 	 *            the constraint for the branch condition
@@ -66,13 +73,19 @@ public final class PathConditionCollector {
 	 * @param methodName
 	 * 						the method where the branch is
 	 */
-	public void appendSupportingCondition(IntegerConstraint constraint, String className, String methodName) {
+	public void appendArrayAccessCondition(IntegerConstraint constraint,
+																				 String className,
+																				 String methodName,
+																				 boolean isErrorBranch) {
 
 		Constraint<?> normalizedConstraint = normalizeConstraint(constraint);
 
 		/** Note (ilebrero): instruction index is kept for retro-compatibility only */
-		BranchCondition branchCondition = new BranchCondition(className, methodName, Integer.MIN_VALUE, normalizedConstraint,
-				new LinkedList<>());
+		BranchCondition branchCondition = new ArrayAccessBranchCondition(className,
+			methodName,
+			-1,
+			normalizedConstraint,
+			isErrorBranch);
 
 		branchConditions.add(branchCondition);
 	}

@@ -1,5 +1,5 @@
-/**
- * Copyright (C) 2010-2020 Gordon Fraser, Andrea Arcuri and EvoSuite
+/*
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -46,14 +46,14 @@ import java.util.Set;
 public abstract class ExplorationAlgorithmBase implements Serializable {
 
 	/** Logger Messages */
-	public static final String PATH_DIVERGENCE_FOUND_WARNING_MESSAGE = "Warning | Path condition diverged";
-	public static final String SETTING_STOPPING_CONDITION_DEBUG_MESSAGE = "Setting stopping condition";
-	public static final String ADDING_NEW_STOPPING_CONDITION_DEBUG_MESSAGE = "Adding new stopping condition";
-	public static final String FITNESS_AFTER_ADDING_NEW_TEST_DEBUG_MESSAGE = "Fitness after adding new test: {}";
-	public static final String FITNESS_BEFORE_ADDING_NEW_TEST__DEBUG_MESSAGE = "Fitness before adding new test: {}";
-	public static final String NEW_TEST_GENERATED_IMPROVES_FITNESS_INFO_MESSAGE = "New test generated improves fitness";
-	public static final String NEW_TEST_GENERATED_DIDNT_IMPROVES_FITNESS_INFO_MESSAGE = "New test generated doesn't improves fitness";
-	public static final String CALCULATING_FITNESS_FOR_CURRENT_TEST_SUITE_DEBUG_MESSAGE = "Calculating fitness for current test suite";
+	public static final String PATH_DIVERGENCE_FOUND_WARNING_MESSAGE 												= "Warning | Path condition diverged";
+	public static final String SETTING_STOPPING_CONDITION_DEBUG_MESSAGE 										= "Setting stopping condition";
+	public static final String ADDING_NEW_STOPPING_CONDITION_DEBUG_MESSAGE 									= "Adding new stopping condition";
+	public static final String FITNESS_AFTER_ADDING_NEW_TEST_DEBUG_MESSAGE 									= "Fitness after adding new test: {}";
+	public static final String FITNESS_BEFORE_ADDING_NEW_TEST__DEBUG_MESSAGE 								= "Fitness before adding new test: {}";
+	public static final String NEW_TEST_GENERATED_IMPROVES_FITNESS_INFO_MESSAGE 						= "New test generated improves fitness";
+	public static final String NEW_TEST_GENERATED_DIDNT_IMPROVES_FITNESS_INFO_MESSAGE 			= "New test generated doesn't improves fitness";
+	public static final String CALCULATING_FITNESS_FOR_CURRENT_TEST_SUITE_DEBUG_MESSAGE 		= "Calculating fitness for current test suite";
 	public static final String ABOUT_TO_ADD_A_NEW_TEST_CASE_TO_THE_TEST_SUITE_DEBUG_MESSAGE = "About to add a new testCase to the test suite";
 
 	// TODO: this values can be moved to a general ExplorationAlgorithmConfig object later on
@@ -66,7 +66,7 @@ public abstract class ExplorationAlgorithmBase implements Serializable {
 	/** Test suite */
 	protected final TestSuiteChromosome testSuite = new TestSuiteChromosome();
 
-	/** Fitness Functions */
+	/** Fitness Functions for calculating coverage*/
 	protected List<TestSuiteFitnessFunction> fitnessFunctions = new ArrayList();
 
 	/** List of conditions on which to end the search */
@@ -289,7 +289,9 @@ public abstract class ExplorationAlgorithmBase implements Serializable {
 	
     /**
      * Checks whether the current executed path condition diverged from the original one.
-     * TODO: Maybe we can give some info about the PathCondition that diverged later on
+     * TODO:
+		 * 			1) Maybe we can give some info about the PathCondition that diverged later on
+		 * 			2) Move this to PathConditionUtils
 	 	 *
      * @param currentPathCondition
      */
@@ -324,12 +326,12 @@ public abstract class ExplorationAlgorithmBase implements Serializable {
     	return getTestCaseAdditionIncrementalCoverage(newTestCase);
     }
 
-	/**
-	 * Returns the incremental coverage of adding a test case to the current test suite.
-	 *
-	 * @param newTestCase
-	 * @return
-	 */
+			/**
+			 * Returns the incremental coverage of adding a test case to the current test suite.
+			 *
+			 * @param newTestCase
+			 * @return
+			 */
 			private double getTestCaseAdditionIncrementalCoverage(TestCase newTestCase) {
 				double oldCoverage;
 				double newCoverage;
@@ -353,11 +355,11 @@ public abstract class ExplorationAlgorithmBase implements Serializable {
 				return coverageDiff;
 			}
 
-	/**
-	 * Prints old/new fitness values and adds the new test case.
-	 *
-	 * @param dseTestCase
-	 */
+		/**
+		 * Prints old/new fitness values and adds the new test case.
+		 *
+		 * @param dseTestCase
+		 */
     protected void addNewTestCaseToTestSuite(DSETestCase dseTestCase) {
         logger.debug(ABOUT_TO_ADD_A_NEW_TEST_CASE_TO_THE_TEST_SUITE_DEBUG_MESSAGE);
         logger.debug(FITNESS_BEFORE_ADDING_NEW_TEST__DEBUG_MESSAGE, testSuite.getFitness());
@@ -375,30 +377,30 @@ public abstract class ExplorationAlgorithmBase implements Serializable {
      */
     protected abstract void explore(Method method);
 
-  /**
-	 * Logs new coverage data.
-	 *
-	 * @param coverageDiff
-	 */
-	private void logNewTestCoverageData(double coverageDiff) {
-    	if (coverageDiff > 0) {
-			logger.debug(NEW_TEST_GENERATED_IMPROVES_FITNESS_INFO_MESSAGE);
-			statisticsLogger.reportNewTestUseful();
-		} else {
-    		logger.debug(NEW_TEST_GENERATED_DIDNT_IMPROVES_FITNESS_INFO_MESSAGE);
-    		statisticsLogger.reportNewTestUnuseful();
+		/**
+		 * Logs new coverage data.
+		 *
+		 * @param coverageDiff
+		 */
+		private void logNewTestCoverageData(double coverageDiff) {
+				if (coverageDiff > 0) {
+				logger.debug(NEW_TEST_GENERATED_IMPROVES_FITNESS_INFO_MESSAGE);
+				statisticsLogger.reportNewTestUseful();
+			} else {
+					logger.debug(NEW_TEST_GENERATED_DIDNT_IMPROVES_FITNESS_INFO_MESSAGE);
+					statisticsLogger.reportNewTestUnuseful();
+			}
 		}
-	}
 
-	/**
-	 * Each stopping condition can have diferent limits, thus we normalize the values to just get the
-	 * correspondent "percentage" related to the limit it had.
-	 *
-	 * @param currentValue
-	 * @param limit
-	 * @return
-	 */
-	private double getNormalizedValue(long currentValue, long limit) {
-		return (double )(currentValue * NORMALIZE_VALUE_LIMIT) / (double) limit;
-	}
+		/**
+		 * Each stopping condition can have diferent limits, thus we normalize the values to just get the
+		 * correspondent "percentage" related to the limit it had.
+		 *
+		 * @param currentValue
+		 * @param limit
+		 * @return
+		 */
+		private double getNormalizedValue(long currentValue, long limit) {
+			return (double )(currentValue * NORMALIZE_VALUE_LIMIT) / (double) limit;
+		}
 }

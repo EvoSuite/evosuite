@@ -1,5 +1,5 @@
-/**
- * Copyright (C) 2010-2020 Gordon Fraser, Andrea Arcuri and EvoSuite
+/*
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -28,6 +28,9 @@ import org.objectweb.asm.Type;
  * @author Ignacio Lebrero
  */
 public class TypeUtil {
+
+  public static final String UNEXPECTED_VALUE               = "Unexpected value: ";
+  public static final String IS_NOT_A_PRIMITIVE_VALUE_CLASS = " is not a primitive value class!";
 
   /** ASM Type related helpers */
 
@@ -121,8 +124,7 @@ public class TypeUtil {
 		if (t.equals(Type.DOUBLE_TYPE))
 			return double[].class;
 
-		throw new EvosuiteError(t.toString()
-				+ " is not a primitive value class!");
+		throw new EvosuiteError(t.toString() + IS_NOT_A_PRIMITIVE_VALUE_CLASS);
 	}
 
   public static Object unboxIntegerPrimitiveValue(Object o) {
@@ -138,7 +140,7 @@ public class TypeUtil {
       return ((Long) o).longValue();
     }
 
-    throw new IllegalStateException("Unexpected value: The object " + o.getClass().getName() + " is not a primitive type wrapper.");
+    throw new IllegalStateException(UNEXPECTED_VALUE + " The object " + o.getClass().getName() + " is not a primitive type wrapper.");
   }
 
   public static Object unboxRealPrimitiveValue(Object o) {
@@ -148,7 +150,7 @@ public class TypeUtil {
       return ((Double) o).doubleValue();
     }
 
-    throw new IllegalStateException("Unexpected value: The object " + o.getClass().getName() + " is not a primitive type wrapper.");
+    throw new IllegalStateException(UNEXPECTED_VALUE + " The object " + o.getClass().getName() + " is not a primitive type wrapper.");
   }
 
   public static Object unboxPrimitiveValue(Object o) {
@@ -170,7 +172,7 @@ public class TypeUtil {
       return ((Double) o).doubleValue();
     }
 
-    throw new IllegalStateException("Unexpected value: The object " + o.getClass().getName() + " is not a primitive type wrapper.");
+    throw new IllegalStateException(UNEXPECTED_VALUE + " The object " + o.getClass().getName() + " is not a primitive type wrapper.");
   }
 
    public static Object convertIntegerTo(Long value, String componentTypeName) {
@@ -188,7 +190,7 @@ public class TypeUtil {
       return value.longValue();
     }
 
-    throw new IllegalStateException("Unexpected value: " + componentTypeName);
+    throw new IllegalStateException(UNEXPECTED_VALUE + componentTypeName);
   }
 
   public static Object convertRealTo(Double value, String componentTypeName) {
@@ -198,6 +200,6 @@ public class TypeUtil {
       return value.doubleValue();
     }
 
-    throw new IllegalStateException("Unexpected value: " + componentTypeName);
+    throw new IllegalStateException(UNEXPECTED_VALUE + componentTypeName);
   }
 }

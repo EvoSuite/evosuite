@@ -46,15 +46,20 @@ import java.util.List;
  * DSEStrategy class.
  * </p>
  *
- * NOTE: even though we are on evosuite, this module is a bit out of context with the GA general framework.
- *       In the future rebuild it as a standalone library.
+ * NOTE (ilebrero): Even though we are on evosuite, this module is a bit out of context with the GA general framework.
+ *       In the future may be a good idea to rebuild it as a standalone library.
  *
  * @author ignacio lebrero
  */
 public class DSEStrategy extends TestGenerationStrategy {
 
-	public static final String SETTING_UP_DSE_GENERATION_INFO_MESSAGE = "* Setting up DSE test suite generation";
-	public static final String NOT_SUITABLE_METHOD_FOUND_INFO_MESSAGE = "* Found no testable methods in the target class {}";
+	public static final String WITH_TIMEOUT 													 = "* With timeout: {}";
+	public static final String USING_DSE_ALGORITHM 										 = "* Using DSE algorithm: {}";
+	public static final String WITH_TARGET_COVERAGE 									 = "* With target coverage: {}";
+	public static final String SYMBOLIC_ARRAYS_SUPPORT_ENABLED 				 = "* Symbolic arrays support enabled: {}";
+	public static final String SETTING_UP_DSE_GENERATION_INFO_MESSAGE  = "* Setting up DSE test suite generation";
+	public static final String NOT_SUITABLE_METHOD_FOUND_INFO_MESSAGE  = "* Found no testable methods in the target class {}";
+	public static final String SYMBOLIC_ARRAYS_IMPLEMENTATION_SELECTED = "* Symbolic arrays implementation selected: {}";
 
 	/** Default stopping conditions */
 	public static Properties.DSEStoppingConditionCriterion[] defaultStoppingConditions = {
@@ -85,7 +90,7 @@ public class DSEStrategy extends TestGenerationStrategy {
 		/*
 		 * Proceed with search if CRITERION=EXCEPTION, even if goals is empty
 		 */
-		TestSuiteChromosome testSuite = null;
+		TestSuiteChromosome testSuite;
 		if (!(Properties.STOP_ZERO && goals.isEmpty())
 				|| ArrayUtil.contains(criterion, Criterion.EXCEPTION)) {
 			// Perform search
@@ -100,11 +105,6 @@ public class DSEStrategy extends TestGenerationStrategy {
 
 			// Logs enabled features
 			logDSEEngineEnabledFeatures();
-
-			// ????
-			if (Properties.STOP_ZERO) {
-
-			}
 
 			testSuite = algorithm.explore();
 
@@ -148,12 +148,12 @@ public class DSEStrategy extends TestGenerationStrategy {
 
 	private void logDSEEngineEnabledFeatures() {
 		LoggingUtils.getEvoLogger().info(
-			"* Symbolic arrays support enabled: {}",
+			SYMBOLIC_ARRAYS_SUPPORT_ENABLED,
 			Properties.IS_DSE_ARRAYS_SUPPORT_ENABLED);
 
 		if (Properties.IS_DSE_ARRAYS_SUPPORT_ENABLED) {
 			LoggingUtils.getEvoLogger().info(
-				"* Symbolic arrays implementation selected: {}",
+				SYMBOLIC_ARRAYS_IMPLEMENTATION_SELECTED,
 				Properties.SELECTED_DSE_ARRAYS_MEMORY_MODEL_VERSION.toString()
 			);
 		}
@@ -163,7 +163,7 @@ public class DSEStrategy extends TestGenerationStrategy {
 		DSEAlgorithmFactory dseFactory = new DSEAlgorithmFactory();
 		DSEAlgorithms dseAlgorithmType = Properties.DSE_ALGORITHM_TYPE;
 
-		LoggingUtils.getEvoLogger().info("* Using DSE algorithm: {}", dseAlgorithmType.getName());
+		LoggingUtils.getEvoLogger().info(USING_DSE_ALGORITHM, dseAlgorithmType.getName());
 		ExplorationAlgorithm algorithm = dseFactory.getDSEAlgorithm(dseAlgorithmType);
 
 		/** Default conditions */
@@ -180,8 +180,8 @@ public class DSEStrategy extends TestGenerationStrategy {
 			algorithm.addStoppingCondition(StoppingConditionFactory.getStoppingCondition(stoppingConditionCriterion));
 		}
 
-		LoggingUtils.getEvoLogger().debug("* With timeout: {}", Properties.GLOBAL_TIMEOUT);
-		LoggingUtils.getEvoLogger().debug("* With target coverage: {}", Properties.DSE_TARGET_COVERAGE);
+		LoggingUtils.getEvoLogger().debug(WITH_TIMEOUT, Properties.GLOBAL_TIMEOUT);
+		LoggingUtils.getEvoLogger().debug(WITH_TARGET_COVERAGE, Properties.DSE_TARGET_COVERAGE);
 
 		return algorithm;
 	}

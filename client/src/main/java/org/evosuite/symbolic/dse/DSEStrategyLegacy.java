@@ -77,7 +77,7 @@ public class DSEStrategyLegacy extends TestGenerationStrategy {
 			StoppingCondition<TestSuiteChromosome> stoppingCondition = getStoppingCondition();
 			algorithm.addFitnessFunctions(fitnessFunctions);
 			if (Properties.STOP_ZERO) {
-				
+				// TODO(ilebrero): what is this supposed to do?
 			}
 			algorithm.setStoppingCondition(stoppingCondition);
 			algorithm.generateSolution();

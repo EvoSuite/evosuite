@@ -1,5 +1,5 @@
-/**
- * Copyright (C) 2010-2020 Gordon Fraser, Andrea Arcuri and EvoSuite
+/*
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -31,7 +31,7 @@ public class ZeroFitnessStoppingCondition extends StoppingConditionImpl {
     private static final long serialVersionUID = 6593889710447350828L;
 
     /** Keep track of lowest fitness seen so far */
-	private double lastFitness = Double.MAX_VALUE;
+    private double lastFitness = Double.MAX_VALUE;
 
     @Override
     public long getCurrentValue() {

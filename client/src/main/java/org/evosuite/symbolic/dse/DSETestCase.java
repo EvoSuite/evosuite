@@ -1,5 +1,5 @@
-/**
- * Copyright (C) 2010-2020 Gordon Fraser, Andrea Arcuri and EvoSuite
+/*
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -26,11 +26,15 @@ import java.util.Objects;
 
 /**
  * A DSE test case also contains a score and an original PathCondition.
- * Note: it's not extending TestCase to avoid coupling with current code.
  *
  * @author Ignacio Lebrero
  */
 public class DSETestCase implements Comparable<DSETestCase>, Cloneable {
+
+    public static final String SCORE                   = "score=";
+    public static final String TEST_CASE               = ", testCase=";
+    public static final String DSE_TEST_CASE           = "DSETestCase{";
+    public static final String ORIGINAL_PATH_CONDITION = ", originalPathCondition=";
 
     /**
      * A priority score based on any sort of metric.
@@ -39,14 +43,12 @@ public class DSETestCase implements Comparable<DSETestCase>, Cloneable {
      */
     private double score;
 
-    /**
-     * Test case in question
-     */
+    /** Test case */
     private TestCase testCase;
 
     /**
-     * Path condition from wich the test case was created.
-     * Useful for checking path divergences.
+     * Path condition from which the test case was created.
+     * Used for checking path divergences.
      */
     private GenerationalSearchPathCondition originalPathCondition;
 
@@ -105,12 +107,12 @@ public class DSETestCase implements Comparable<DSETestCase>, Cloneable {
     @Override
     public String toString() {
         return new StringBuilder()
-                .append("DSETestCase{")
-                .append("score=")
+                .append(DSE_TEST_CASE)
+                .append(SCORE)
                 .append(score)
-                .append(", testCase=")
+                .append(TEST_CASE)
                 .append(testCase)
-                .append(", originalPathCondition=")
+                .append(ORIGINAL_PATH_CONDITION)
                 .append(originalPathCondition)
                 .append('}').toString();
     }

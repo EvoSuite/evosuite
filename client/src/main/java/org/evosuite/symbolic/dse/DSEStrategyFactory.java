@@ -1,5 +1,5 @@
-/**
- * Copyright (C) 2010-2020 Gordon Fraser, Andrea Arcuri and EvoSuite
+/*
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -24,13 +24,13 @@ import org.evosuite.strategy.TestGenerationStrategy;
 
 /**
  * DSE strategies factory.
- * Probably this is only going to be used for creating the legacy strategy for benchmarking.
+ * Probably this is only going to be used for creating the legacy strategy for benchmarking due to it's search algorithm
  *
  * @author Ignacio Lebrero
  */
 public class DSEStrategyFactory {
 
-  public static final String DSE_MODULE_NOT_PROVIDED = "A DSE Module must be provided: ";
+  public static final String DSE_MODULE_NOT_PROVIDED        = "A DSE Module must be provided: ";
   public static final String DSE_MODULE_NOT_YET_IMPLEMENTED = "DSE Module not yet implemented: ";
 
   /**

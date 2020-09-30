@@ -1,5 +1,5 @@
-/**
- * Copyright (C) 2010-2020 Gordon Fraser, Andrea Arcuri and EvoSuite
+/*
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -30,6 +30,8 @@ import java.util.Map;
  */
 public class CacheQueryResult {
 
+  public static final String ONLY_SOLUTIONS_FROM_SATISFIABLE_QUERIES_CAN_BE_RETRIEVED = "Only solutions from satisfiable queries can be retrieved.";
+
   private Map<String, Object> smtSolution;
   private CacheQueryStatus cacheQueryStatus;
 
@@ -44,7 +46,7 @@ public class CacheQueryResult {
 
   public Map<String, Object> getSmtSolution() {
     if (!cacheQueryStatus.equals(CacheQueryStatus.HIT_SAT)) throw new DSEExplorationException(
-      "Only solutions from satisfiable queries can be retrieved.");
+      ONLY_SOLUTIONS_FROM_SATISFIABLE_QUERIES_CAN_BE_RETRIEVED);
     return smtSolution;
   }
 

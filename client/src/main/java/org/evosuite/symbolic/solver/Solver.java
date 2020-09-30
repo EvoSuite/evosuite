@@ -47,10 +47,6 @@ public abstract class Solver {
 	private final boolean addMissingVariables;
 	private final SolverCache solverCache;
 
-	protected boolean addMissingVariables() {
-		return addMissingVariables;
-	}
-
 	public Solver(boolean addMissingVariables) {
 		this(addMissingVariables, SolverCache.getInstance());
 	}
@@ -114,6 +110,10 @@ public abstract class Solver {
 	 */
 	public abstract SolverResult executeSolver(Collection<Constraint<?>> constraints) throws SolverTimeoutException,
 			IOException, SolverParseException, SolverEmptyQueryException, SolverErrorException;
+
+	protected boolean addMissingVariables() {
+		return addMissingVariables;
+	}
 
 	/**
 	 * Returns a mapping from variables to their current concrete values.
@@ -227,7 +227,7 @@ public abstract class Solver {
 	}
 
 	/**
-	 * Returns a new aray with the longest length.
+	 * Returns a new array with the longest length.
 	 *
 	 * TODO: Rework this in the future, the way we talk about lengths is probably not the best.
 	 *

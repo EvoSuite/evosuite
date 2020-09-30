@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010-2020 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -80,29 +80,29 @@ public abstract class ExplorationAlgorithm extends ExplorationAlgorithmBase {
      **/
 
     // Solver
-    public static final String SOLVER_ERROR_DEBUG_MESSAGE = "Solver threw an exception when running: {}";
-    public static final String SOLVER_QUERY_STARTED_MESSAGE = "Solving query with {} constraints";
-    public static final String SOLVER_SOLUTION_DEBUG_MESSAGE = "solver found solution {}";
-    public static final String SOLVER_OUTCOTE_NULL_DEBUG_MESSAGE = "Solver outcome is null (probably failure/unknown/timeout)";
-    public static final String SOLVER_OUTCOME_IS_SAT_DEBUG_MESSAGE = "query is SAT (solution found)";
-    public static final String SOLVER_OUTCOME_IS_UNSAT_DEBUG_MESSAGE = "query is UNSAT (no solution found)";
+    public static final String SOLVER_ERROR_DEBUG_MESSAGE              = "Solver threw an exception when running: {}";
+    public static final String SOLVER_QUERY_STARTED_MESSAGE            = "Solving query with {} constraints";
+    public static final String SOLVER_SOLUTION_DEBUG_MESSAGE           = "solver found solution {}";
+    public static final String SOLVER_OUTCOME_NULL_DEBUG_MESSAGE       = "Solver outcome is null (probably failure/unknown/timeout)";
+    public static final String SOLVER_OUTCOME_IS_SAT_DEBUG_MESSAGE     = "query is SAT (solution found)";
+    public static final String SOLVER_OUTCOME_IS_UNSAT_DEBUG_MESSAGE   = "query is UNSAT (no solution found)";
     public static final String SOLVING_CURRENT_SMT_QUERY_DEBUG_MESSAGE = "* Solving current SMT query";
 
     // Concolic Engine
-    public static final String FINISHED_CONCOLIC_EXECUTION_DEBUG_MESSAGE = "* Finished concolic execution.";
+    public static final String FINISHED_CONCOLIC_EXECUTION_DEBUG_MESSAGE                  = "* Finished concolic execution.";
     public static final String EXECUTING_CONCOLICALLY_THE_CURRENT_TEST_CASE_DEBUG_MESSAGE = "* Executing concolically the current test case";
 
     // TestCase generation
-    public static final String NEW_TEST_CASE_SCORE_DEBUG_MESSAGE = "New test case score: {}";
+    public static final String NEW_TEST_CASE_SCORE_DEBUG_MESSAGE   = "New test case score: {}";
     public static final String NEW_TEST_CASE_CREATED_DEBUG_MESSAGE = "Created new test case from SAT solution: {}";
 
     // Exploration Algorithm
-    public static final String PROGRESS_MSG_INFO = "Total progress: {}";
-    public static final String STRATEGY_CANNOT_BE_NULL = "Strategy cannot be null";
-    public static final String ENTRY_POINTS_FOUND_DEBUG_MESSAGE = "Found {} as entry points for DSE";
-    public static final String STOPPING_CONDITION_MET_DEBUG_MESSAGE = "A stoping condition was met. No more tests can be generated using DSE.";
-    public static final String GENERATING_TESTS_FOR_ENTRY_DEBUG_MESSAGE = "Generating tests for entry method {}";
-    public static final String TESTS_WERE_GENERATED_FOR_ENTRY_METHOD_DEBUG_MESSAGE = "{} tests were generated for entry method {}";
+    public static final String PROGRESS_MSG_INFO                                             = "Total progress: {}";
+    public static final String STRATEGY_CANNOT_BE_NULL                                       = "Strategy cannot be null";
+    public static final String ENTRY_POINTS_FOUND_DEBUG_MESSAGE                              = "Found {} as entry points for DSE";
+    public static final String STOPPING_CONDITION_MET_DEBUG_MESSAGE                          = "A stopping condition was met. No more tests can be generated using DSE.";
+    public static final String GENERATING_TESTS_FOR_ENTRY_DEBUG_MESSAGE                      = "Generating tests for entry method {}";
+    public static final String TESTS_WERE_GENERATED_FOR_ENTRY_METHOD_DEBUG_MESSAGE           = "{} tests were generated for entry method {}";
     public static final String EXPLORATION_STRATEGIES_MUST_BE_INITIALIZED_TO_START_SEARCHING = "Exploration strategies must be initialized to start searching.";
 
     /**
@@ -368,7 +368,7 @@ public abstract class ExplorationAlgorithm extends ExplorationAlgorithmBase {
          Map<String, Object> solution = null;
 
         if (smtQueryResult == null) {
-            logger.debug(SOLVER_OUTCOTE_NULL_DEBUG_MESSAGE);
+            logger.debug(SOLVER_OUTCOME_NULL_DEBUG_MESSAGE);
 
             // This doesn't necessarily is a timeout, but we model it this way
             statisticsLogger.reportSolverError();
@@ -404,10 +404,10 @@ public abstract class ExplorationAlgorithm extends ExplorationAlgorithmBase {
             && cachingStrategy != null;
       }
 
-      /**
+    /**
      * Solves an SMT query
      *
-     * TODO: check if moving the time estimation to a lower level layer improves precision.
+     * TODO: check how much moving the time estimation to a lower implementation layer improves precision.
      *
      * @param SMTQuery
      * @return

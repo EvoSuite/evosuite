@@ -1,3 +1,22 @@
+/*
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * contributors
+ *
+ * This file is part of EvoSuite.
+ *
+ * EvoSuite is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation, either version 3.0 of the License, or
+ * (at your option) any later version.
+ *
+ * EvoSuite is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.evosuite.symbolic;
 
 import org.evosuite.symbolic.expr.Comparator;
@@ -17,7 +36,6 @@ public class PathConditionUtilsTest {
 
   private static final String TEST_CLASS_NAME  = "test_class";
   private static final String TEST_METHOD_NAME = "test_method";
-  private static final int INSTRUCTION_INDEX_1 = 1;
 
   @Test
   public void isConstraintSetSubSetOfNullArguments() {
@@ -267,14 +285,6 @@ public class PathConditionUtilsTest {
 
     pathConditionList.add( buildPathConditionNode(buildConstraintA(), 1) );
     pathConditionList.add( buildPathConditionNode(buildConstraintC(), 2) );
-
-    return new PathCondition(pathConditionList);
-  }
-
-  private PathCondition buildPathConditionC() {
-    List<BranchCondition> pathConditionList = new ArrayList();
-
-    pathConditionList.add( buildPathConditionNode(buildConstraintA(), 1) );
 
     return new PathCondition(pathConditionList);
   }

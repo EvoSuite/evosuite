@@ -1,5 +1,5 @@
-/**
- * Copyright (C) 2010-2020 Gordon Fraser, Andrea Arcuri and EvoSuite
+/*
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -42,15 +42,13 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * SMT solver related Logic.
- * TODO: in the future it could a good idea to avoid using static objects and move
- * 		 to a dependency injection schema.
+ * Outside use of the SMT solver related utils Logic.
  *
  * @author ilebrero
  */
 public abstract class SolverUtils {
 
-    /**
+  /**
 	 * solves a given query (i.e. list of constraints).
 	 *
 	 * @param query
@@ -63,7 +61,8 @@ public abstract class SolverUtils {
 		try {
 			solverResult = solver.solve(query);
 		} catch (SolverTimeoutException | SolverParseException | SolverEmptyQueryException | SolverErrorException | IOException e) {
-//			TODO: see how we are going to handle this later on
+			// TODO: see how we are going to handle this later on.
+			// TODO: add statistics about this.
 			solverResult = null;
 		}
 

@@ -61,7 +61,7 @@ public class ConcolicMutation {
 	 * @param pathCondition
 	 * 
 	 * @param targetCondition
-	 *            a {@link BranchCondition} object.
+	 *            a {@link org.evosuite.symbolic.BranchCondition} object.
 	 * @param test
 	 *            a {@link org.evosuite.testcase.TestCase} object.
 	 * @return a {@link org.evosuite.testcase.TestCase} object.

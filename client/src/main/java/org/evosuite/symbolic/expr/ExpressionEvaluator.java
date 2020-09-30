@@ -21,7 +21,6 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
-import org.apache.commons.lang3.NotImplementedException;
 import org.apache.oro.text.regex.MalformedPatternException;
 import org.apache.oro.text.regex.Pattern;
 import org.apache.oro.text.regex.Perl5Compiler;
@@ -71,7 +70,9 @@ import org.slf4j.LoggerFactory;
 
 /**
  * returns the concrete evaluation for a given expression.
- * 
+ *
+ * NOTE (ilebrero): The arrays implementation may be a bit expensive.
+ *
  * @author galeotti
  *
  */
@@ -80,6 +81,7 @@ public class ExpressionEvaluator implements ExpressionVisitor<Object, Void> {
   private static final long TRUE_VALUE = 1L;
   private static final long FALSE_VALUE = 0L;
   protected static final Logger log = LoggerFactory.getLogger(ExpressionEvaluator.class);
+  public static final String IMPLEMENT_ME = "Implement me.";
 
   @Override
   public Object visit(IntegerBinaryExpression n, Void arg) {
@@ -766,7 +768,7 @@ public class ExpressionEvaluator implements ExpressionVisitor<Object, Void> {
 
   @Override
   public Object visit(ArrayStore.StringArrayStore r, Void arg) {
-    throw new NotImplementedException("sdasd");
+    throw new UnsupportedOperationException(IMPLEMENT_ME);
   }
 
   @Override
@@ -781,12 +783,12 @@ public class ExpressionEvaluator implements ExpressionVisitor<Object, Void> {
 
   @Override
   public Object visit(ArrayConstant.StringArrayConstant r, Void arg) {
-    throw new NotImplementedException("sdasd");
+    throw new UnsupportedOperationException(IMPLEMENT_ME);
   }
 
   @Override
   public Object visit(ArrayConstant.ReferenceArrayConstant r, Void arg) {
-    throw new NotImplementedException("sdasd");
+    throw new UnsupportedOperationException(IMPLEMENT_ME);
   }
 
   @Override
@@ -801,11 +803,11 @@ public class ExpressionEvaluator implements ExpressionVisitor<Object, Void> {
 
   @Override
   public Object visit(ArrayVariable.StringArrayVariable r, Void arg) {
-    throw new NotImplementedException("sdasd");
+    throw new UnsupportedOperationException(IMPLEMENT_ME);
   }
 
   @Override
   public Object visit(ArrayVariable.ReferenceArrayVariable r, Void arg) {
-    throw new NotImplementedException("sdasd");
+    throw new UnsupportedOperationException(IMPLEMENT_ME);
   }
 }

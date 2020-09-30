@@ -20,6 +20,7 @@
 package org.evosuite.symbolic.solver.smt;
 
 import org.evosuite.symbolic.solver.SmtSort;
+import org.evosuite.utils.StringUtil;
 
 import java.util.Arrays;
 import java.util.List;
@@ -110,14 +111,14 @@ public class SmtQueryPrinter {
 	}
 
 	/**
-	 * Transforms the sorts into strings.
+	 * Transforms sorts into strings.
 	 *
-	 * @param functionSorts
+	 * @param sorts
 	 * @return
 	 */
-	private Object buildSortsString(SmtSort[] functionSorts) {
-		List<String> stringSorts = Arrays.stream(functionSorts).map(a -> a.getName()).collect(Collectors.toList());
-		String str = StringUtils.joinStrings(StringUtils.SPACE_DELIMITER, stringSorts);
+	private String buildSortsString(SmtSort[] sorts) {
+		List<String> stringSorts = Arrays.stream(sorts).map(sort -> sort.getName()).collect(Collectors.toList());
+		String str = StringUtil.joinStrings(StringUtil.SPACE_DELIMITER, stringSorts);
 
 		if (stringSorts.size() > 1) {
 			return "(" + str + ")";

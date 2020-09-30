@@ -1,5 +1,5 @@
-/**
- * Copyright (C) 2010-2020 Gordon Fraser, Andrea Arcuri and EvoSuite
+/*
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -57,8 +57,8 @@ public final class SymbolicInputArray extends SymbolicArrayImpl {
   }
 
   /**
-   * We infer that an input variable should be initialized if the index was never setted and
-   * a get is used. (thus a value already setted before calling the SUT should be there)
+   * We infer that an input variable should be initialized if the index was never set and
+   * a get is used. (Thus a value already set before calling the SUT should be there)
    *
    * @param index
    * @return

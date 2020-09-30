@@ -385,6 +385,7 @@ public enum RuntimeVariable {
 	/** Used in the comparison between LISP and MOSA */
 	Time2MaxCoverage,
 
+	/* -------------------------------------------------------------------- */
 	/******* DSE related section *******/
 
 	/** Path condition related */

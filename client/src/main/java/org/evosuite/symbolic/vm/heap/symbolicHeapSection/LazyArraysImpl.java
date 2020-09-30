@@ -1,5 +1,5 @@
-/**
- * Copyright (C) 2010-2020 Gordon Fraser, Andrea Arcuri and EvoSuite
+/*
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -154,7 +154,8 @@ public class LazyArraysImpl implements ArraysSection {
     );
   }
 
-  /** Creational section */
+  /** Creation section */
+
 	private SymbolicArray getOrCreateSymbolicArray(ReferenceExpression symbolicArrayReference) {
 		Type contentType = symbolicArrayReference.getObjectType().getElementType();
 		SymbolicArray symbolicArrayContents = symbolicArrays.get(symbolicArrayReference);

@@ -1,5 +1,5 @@
-/**
- * Copyright (C) 2010-2020 Gordon Fraser, Andrea Arcuri and EvoSuite
+/*
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -34,7 +34,7 @@ public interface StoppingCondition extends SearchListener {
 	 *
 	 * @return a long.
 	 */
-	public abstract long getCurrentValue();
+	long getCurrentValue();
 
 	/**
 	 * Get upper limit of resources.
@@ -44,7 +44,7 @@ public interface StoppingCondition extends SearchListener {
 	 *
 	 * @return limit
 	 */
-	public abstract long getLimit();
+	long getLimit();
 
 	/**
 	 * <p>isFinished</p>

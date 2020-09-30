@@ -53,15 +53,18 @@ public class BranchCondition {
 	private final List<Constraint<?>> supportingConstraints;
 
 	/**
-	 * A branch condition is identified by the className, methodName and nodeIndex
+	 * A branch condition is identified by the className, methodName and branchIndex
 	 * belonging to the class in the SUT, the target constraint and all the
-	 * supporting constraint for that particular node (zero checks, etc)
+	 * supporting constraint for that particular branch (zero checks, etc)
 	 * 
-	 * @param className             
+	 * @param className
+	 *            a {@link java.lang.String} object
 	 * @param methodName
+	 *            a {@link java.lang.String} object
 	 * @param instructionIndex
+	 *            an {@link int} value
 	 * @param constraint
-	 *            TODO
+	 *            a {@link Constraint} object
 	 * @param supportingConstraints
 	 *            a {@link java.util.Set} object.
 	 */
@@ -101,7 +104,7 @@ public class BranchCondition {
 	}
 
 	/**
-	 * Returns the constraint for actual node. This constraint has to be negated
+	 * Returns the constraint for actual branch. This constraint has to be negated
 	 * to take another path.
 	 * 
 	 * @return
@@ -113,7 +116,7 @@ public class BranchCondition {
 	/**
 	 * Returns a list of implicit constraints (nullity checks, zero division, index
 	 * within bounds, negative size array length, etc.) collected before the current
-	 * node condtion and after the last symbolic node condition
+	 * branch condition and after the last symbolic branch condition
 	 * 
 	 * @return
 	 */

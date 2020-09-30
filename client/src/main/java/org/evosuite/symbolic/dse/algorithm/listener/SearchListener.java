@@ -1,5 +1,5 @@
-/**
- * Copyright (C) 2010-2020 Gordon Fraser, Andrea Arcuri and EvoSuite
+/*
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -28,31 +28,32 @@ import org.evosuite.symbolic.dse.algorithm.ExplorationAlgorithmBase;
  * @author Ignacio Lebrero
  */
 public interface SearchListener {
-    /**
+
+	/**
 	 * Called when a new search is started
 	 *
 	 * @param algorithm a {@link ExplorationAlgorithmBase} object.
 	 */
-	public void generationStarted(ExplorationAlgorithmBase algorithm);
+	void generationStarted(ExplorationAlgorithmBase algorithm);
 
 	/**
 	 * Called after each iteration of the search
 	 *
 	 * @param algorithm a {@link ExplorationAlgorithmBase} object.
 	 */
-	public void iteration(ExplorationAlgorithmBase algorithm);
+	void iteration(ExplorationAlgorithmBase algorithm);
 
 	/**
 	 * Called after the last iteration
 	 *
 	 * @param algorithm a {@link ExplorationAlgorithmBase} object.
 	 */
-	public void generationFinished(ExplorationAlgorithmBase algorithm);
+	void generationFinished(ExplorationAlgorithmBase algorithm);
 
 	/**
 	 * Called after every single fitness evaluation
 	 *
 	 * @param individual a {@link org.evosuite.ga.Chromosome} object.
 	 */
-	public void fitnessEvaluation(Chromosome individual);
+	void fitnessEvaluation(Chromosome individual);
 }

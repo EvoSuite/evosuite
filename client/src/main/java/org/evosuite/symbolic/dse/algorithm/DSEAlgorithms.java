@@ -1,5 +1,5 @@
-/**
- * Copyright (C) 2010-2020 Gordon Fraser, Andrea Arcuri and EvoSuite
+/*
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -23,7 +23,7 @@ import org.evosuite.Properties;
 
 /**
  * DSE Algorithms implemented.
- * Please add a citation to the article / source of information / small explanation from which the algorithm is based.
+ * Please add a citation to the article, source of information or small explanation from which the algorithm is based.
  *
  * @author ignacio lebrero
  */

@@ -1,5 +1,5 @@
-/**
- * Copyright (C) 2010-2020 Gordon Fraser, Andrea Arcuri and EvoSuite
+/*
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -27,9 +27,21 @@ import org.evosuite.Properties;
  * @author Ignacio Lebrero
  */
 public class SymbolicHeapArraySectionFactory {
-  private final static String DSE_ARRAYS_MEMORY_MODEL_NOT_PROVIDED = "An array memory model type must be provided.";
 
-  public static ArraysSection getSymbolicHeapArraySection(Properties.DSE_ARRAYS_MEMORY_MODEL_VERSION arraysMemoryModelVersion) {
+  public final static String DSE_ARRAYS_MEMORY_MODEL_NOT_PROVIDED    = "An array memory model type must be provided.";
+  public static final String ARRAYS_MEMORY_MODEL_NOT_YET_IMPLEMENTED = "Arrays memory model not yet implemented: ";
+
+  private static SymbolicHeapArraySectionFactory instance;
+
+  public static SymbolicHeapArraySectionFactory getInstance() {
+    if (instance == null) {
+      instance = new SymbolicHeapArraySectionFactory();
+    }
+
+    return instance;
+  }
+
+  public ArraysSection getSymbolicHeapArraySection(Properties.DSE_ARRAYS_MEMORY_MODEL_VERSION arraysMemoryModelVersion) {
     if (arraysMemoryModelVersion == null) {
       throw new IllegalArgumentException(DSE_ARRAYS_MEMORY_MODEL_NOT_PROVIDED);
     }
@@ -38,9 +50,9 @@ public class SymbolicHeapArraySectionFactory {
       case LAZY_VARIABLES:
         return new LazyArraysImpl();
       case SELECT_STORE_EXPRESSIONS:
-        return new selectStoreImpl();
+        return new SelectStoreImpl();
       default:
-        throw new IllegalStateException("Arrays memory model not yet implemented: " + arraysMemoryModelVersion.name());
+        throw new IllegalStateException(ARRAYS_MEMORY_MODEL_NOT_YET_IMPLEMENTED + arraysMemoryModelVersion.name());
     }
   }
 }

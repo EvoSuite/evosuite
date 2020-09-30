@@ -1,5 +1,5 @@
-/**
- * Copyright (C) 2010-2020 Gordon Fraser, Andrea Arcuri and EvoSuite
+/*
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -38,7 +38,7 @@ import java.util.Map;
  *
  * @author Ignacio Lebrero
  */
-public class selectStoreImpl implements ArraysSection {
+public class SelectStoreImpl implements ArraysSection {
 
   /**
    * Symbolic Arrays Memory model
@@ -57,6 +57,9 @@ public class selectStoreImpl implements ArraysSection {
 			return ExpressionFactory.buildArraySelectExpression(arrayExpression, symbolicIndex, symbolicValue);
 	}
 
+  /**
+   * TODO: Implement me!
+   */
   @Override
   public ReferenceExpression arrayLoad(ReferenceExpression symbolicArray, IntegerValue symbolicIndex, ReferenceExpression symbolicValue) {
     ArrayValue.ReferenceArrayValue arrayExpression = referenceArrays.get(symbolicArray);
@@ -104,6 +107,9 @@ public class selectStoreImpl implements ArraysSection {
 		realArrays.put(symbolicArray, new_symbolic_array_instance);
 	}
 
+  /**
+   * TODO: Implement me!
+   */
   @Override
   public void arrayStore(Object concreteArray, ReferenceExpression symbolicArray, IntegerValue symbolicIndex,
                          ReferenceExpression symbolicValue) {

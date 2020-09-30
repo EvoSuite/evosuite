@@ -1,5 +1,5 @@
-/**
- * Copyright (C) 2010-2020 Gordon Fraser, Andrea Arcuri and EvoSuite
+/*
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -26,7 +26,6 @@ import org.evosuite.symbolic.dse.algorithm.listener.implementations.ZeroFitnessS
 
 /**
  * Factory of stopping conditions.
- * TODO: Move this class to a dependency injection schema.
  *
  * @author Ignacio Lebrero
  */

@@ -1,5 +1,5 @@
-/**
- * Copyright (C) 2010-2020 Gordon Fraser, Andrea Arcuri and EvoSuite
+/*
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -51,11 +51,19 @@ public class TestCaseUpdater {
 
   private static final Logger logger = LoggerFactory.getLogger(TestCaseUpdater.class);
 
-  public static final int DEFAULT_STRING_LENGTH = 10;
+  public static final int DEFAULT_STRING_LENGTH       = 10;
   public static final int ARRAY_DIMENSION_LOWER_BOUND = 0;
-
-  /** At some point there can be a study about the max length that arrays usually have in open source projects */
+  /** TODO (ilebrero): At some point there can be an empirical study about the max length that arrays usually have in open source projects */
   public static final int DEFAULT_ARRAY_LENGTH_UPPER_BOUND = 20;
+
+  public static final String NEW_VALUE                                   = "New value: ";
+  public static final String UNEXPECTED_VALUE                            = "Unexpected value: ";
+  public static final String NEW_VALUE_IS_NULL                           = "New value is null";
+  public static final String COULD_NOT_FIND_ARRAY                        = "Could not find array ";
+  public static final String NEW_VALUE_IS_OF_AN_UNSUPPORTED_TYPE         = "New value is of an unsupported type: ";
+  public static final String NEW_REAL_VALUE_IS_OF_AN_UNSUPPORTED_TYPE    = "New real value is of an unsupported type: ";
+  public static final String NEW_INTEGER_VALUE_IS_OF_AN_UNSUPPORTED_TYPE = "New integer value is of an unsupported type: ";
+
 
   @SuppressWarnings({ "rawtypes", "unchecked" })
 	public static TestCase updateTest(TestCase test, Map<String, Object> updatedValues) {
@@ -66,7 +74,7 @@ public class TestCaseUpdater {
 		for (String symbolicVariableName : updatedValues.keySet()) {
 			Object updateValue = updatedValues.get(symbolicVariableName);
 			if (updateValue != null) {
-        logger.info("New value: " + symbolicVariableName + ": " + updateValue);
+        logger.info(NEW_VALUE + symbolicVariableName + ": " + updateValue);
 
         if (ArraySymbolicLengthName.isArraySymbolicLengthVariableName(symbolicVariableName)) {
           processArrayLengthValue(newTest, symbolicVariableName, (Long) updateValue);
@@ -81,10 +89,10 @@ public class TestCaseUpdater {
         } else if (Properties.isArraysTheoryImplementationSelected() && updateValue.getClass().isArray()) {
           processArray(test, newTest, symbolicVariableName, updateValue);
 				} else {
-					logger.debug("New value is of an unsupported type: " + updateValue);
+					logger.debug(NEW_VALUE_IS_OF_AN_UNSUPPORTED_TYPE + updateValue);
 				}
 			} else {
-				logger.debug("New value is null");
+				logger.debug(NEW_VALUE_IS_NULL);
 
 			}
 		}
@@ -98,7 +106,7 @@ public class TestCaseUpdater {
     String arrayVariableName = names[0].replace("__SYM", "");
     ArrayStatement arrayStatement = (ArrayStatement) getStatement(newTest, arrayVariableName, StatementClassChecker.ARRAY_STATEMENT);
 
-    assert (arrayStatement != null) : "Could not find array " + arrayVariableName + " in test: " + newTest.toCode()
+    assert (arrayStatement != null) : COULD_NOT_FIND_ARRAY + arrayVariableName + " in test: " + newTest.toCode()
         + " / Orig test: " + test.toCode() + ", seed: " + Randomness.getSeed();
 
     AssignmentStatement s = (AssignmentStatement) getStatement(
@@ -130,7 +138,7 @@ public class TestCaseUpdater {
     String arrayVariableName = symbolicArrayVariableName.replace("__SYM", "");
     ArrayStatement arrayStatement = (ArrayStatement) getStatement(newTest, arrayVariableName, StatementClassChecker.ARRAY_STATEMENT);
 
-    assert (arrayStatement != null) : "Could not find array " + arrayVariableName + " in test: " + newTest.toCode()
+    assert (arrayStatement != null) : COULD_NOT_FIND_ARRAY + arrayVariableName + " in test: " + newTest.toCode()
         + " / Orig test: " + test.toCode() + ", seed: " + Randomness.getSeed();
 
     ArrayUtil.MultiDimensionalArrayIterator arrayIterator = new ArrayUtil.MultiDimensionalArrayIterator(updatedArray);
@@ -148,13 +156,14 @@ public class TestCaseUpdater {
   /**
    * Updates the assignment of an element of an array
    *
-   * ** General algorithm **
+   * ***** General algorithm *****
    * if (! exists assignment statement for the current index)
    *  if (! current value is a default value (i.e. arr[i] = 0))
    *    Create primitive variable and assign new value (i.e. x = val)     | PrimitiveStatement
    *    Create assignment and use the previous variable (i.e. arr[i] = x) | AssignmentStatement
    * else
    *  update current primitive variable value
+   *
    * @param newTest
    * @param arrayReference
    * @param arrayVariableName
@@ -162,12 +171,14 @@ public class TestCaseUpdater {
    * @param newValue
    */
   private static void processArrayElement(TestCase newTest, ArrayReference arrayReference, String arrayVariableName, int[] indexes, Object newValue) {
-    // TODO: Improve this as we have to recreate the list on each iteration
+    // TODO (ilebrero): Improve this as we have to recreate the list on each iteration
     List<Integer> indexList = getIntegerList(indexes);
     String componentType = arrayReference.getComponentName();
 
+    // New test case builder starting at the statement position
     TestCaseBuilder testCaseBuilder = new TestCaseBuilder((DefaultTestCase) newTest, getStatementPosition(newTest, arrayReference.getName()) + 1);
 
+    // Possible assignment statement(if the variable was already used in a previous ran).
     AssignmentStatement s = (AssignmentStatement) getStatement(
       newTest,
       ArrayUtil.buildArrayIndexName(arrayVariableName, indexList),
@@ -180,12 +191,18 @@ public class TestCaseUpdater {
         testCaseBuilder.appendAssignment(arrayReference, indexList, newArrayElement);
       }
     } else {
-      // In case there exists a value
+      // In case there exists an statement (we already used that value before
       PrimitiveStatement valueStatement = getPrimitiveStatement(newTest, s.getValue().getName());
       updateStatement(newValue, valueStatement);
     }
   }
 
+  /**
+   * Updates a statement
+   *
+   * @param newValue
+   * @param valueStatement
+   */
   private static void updateStatement(Object newValue, PrimitiveStatement valueStatement) {
     if (Long.class.getName().equals(newValue.getClass().getName())) {
       updateIntegerValueStatement((Long) newValue, valueStatement);
@@ -201,16 +218,30 @@ public class TestCaseUpdater {
     }
   }
 
+  /**
+   * Transforms an array of integer to a list of Integer objects
+   *
+   * @param indexes
+   * @return
+   */
   private static List<Integer> getIntegerList(int[] indexes) {
-    List<Integer> elems = new ArrayList();
+    List<Integer> elements = new ArrayList();
 
     for(int index : indexes) {
-      elems.add(new Integer(index));
+      elements.add(index);
     }
 
-    return elems;
+    return elements;
   }
 
+  /**
+   * Updates the corresponding real statement given a symbolic variable and its updated value
+   *
+   * @param test
+   * @param newTest
+   * @param symbolicVariableName
+   * @param updateValue
+   */
   private static void processRealValue(TestCase test, TestCase newTest, String symbolicVariableName, Object updateValue) {
     Double value = (Double) updateValue;
     String name = symbolicVariableName.replace("__SYM", "");
@@ -223,6 +254,14 @@ public class TestCaseUpdater {
     updateRealValueStatement(value, p);
   }
 
+  /**
+   * Updates the corresponding string statement given a symbolic variable and its updated value
+   *
+   * @param test
+   * @param newTest
+   * @param symbolicVariableName
+   * @param updateValue
+   */
   private static void processStringValue(TestCase test, TestCase newTest, String symbolicVariableName, Object updateValue) {
     String name = symbolicVariableName.replace("__SYM", "");
     PrimitiveStatement p = getPrimitiveStatement(newTest, name);
@@ -236,6 +275,13 @@ public class TestCaseUpdater {
       p.setValue(updateValue.toString());
   }
 
+  /**
+   * Updates the corresponding long statement given a symbolic variable and its updated value
+   *
+   * @param newTest
+   * @param symbolicVariableName
+   * @param updateValue
+   */
   private static void processLongValue(TestCase newTest, String symbolicVariableName, Object updateValue) {
     Long value = (Long) updateValue;
 
@@ -246,6 +292,13 @@ public class TestCaseUpdater {
     updateIntegerValueStatement(value, p);
   }
 
+  /**
+   * Updates the corresponding array length statement given a symbolic variable and its updated value
+   *
+   * @param newTest
+   * @param symbolicVariableName
+   * @param updateValue
+   */
   private static void processArrayLengthValue(TestCase newTest, String symbolicVariableName, Long updateValue) {
     ArraySymbolicLengthName arraySymbolicLengthName = new ArraySymbolicLengthName(symbolicVariableName);
     ArrayStatement arrayStatement = (ArrayStatement) getStatement(newTest, arraySymbolicLengthName.getArrayReferenceName(), StatementClassChecker.ARRAY_STATEMENT);
@@ -448,13 +501,13 @@ public class TestCaseUpdater {
 		return null;
 	}
 
-	  /**
+	/**
 	 * Get the statement that defines this variable
 	 *
 	 * @param test
 	 * @param name
 	 * @param typeCheckFunction
-     * @return
+   * @return
 	 */
 	public static Statement getStatement(TestCase test, String name, StatementClassChecker typeCheckFunction) {
 		for (Statement statement : test) {
@@ -488,6 +541,12 @@ public class TestCaseUpdater {
 	  return index;
   }
 
+  /**
+   * Updates an integer statement
+   *
+   * @param value
+   * @param statement
+   */
   private static void updateIntegerValueStatement(Long value, PrimitiveStatement statement) {
     if (statement.getValue().getClass().equals(Character.class)) {
       char charValue = (char) value.intValue();
@@ -504,18 +563,30 @@ public class TestCaseUpdater {
       statement.setValue(value.byteValue());
 
     } else
-      logger.warn("New value is of an unsupported type: " + statement.getValue().getClass() + value);
+      logger.warn(NEW_INTEGER_VALUE_IS_OF_AN_UNSUPPORTED_TYPE + statement.getValue().getClass() + value);
   }
 
+  /**
+   * Updates a real statement
+   *
+   * @param value
+   * @param p
+   */
   private static void updateRealValueStatement(Double value, PrimitiveStatement p) {
     if (p.getValue().getClass().equals(Double.class))
       p.setValue(value);
     else if (p.getValue().getClass().equals(Float.class))
       p.setValue(value.floatValue());
     else
-      logger.warn("New value is of an unsupported type: " + value);
+      logger.warn(NEW_REAL_VALUE_IS_OF_AN_UNSUPPORTED_TYPE + value);
   }
 
+  /**
+   * Updates a string statement
+   *
+   * @param newValue
+   * @param p
+   */
   private static void updateStringValueStatement(String newValue, PrimitiveStatement p) {
 	  p.setValue(newValue);
 	}
@@ -541,7 +612,7 @@ public class TestCaseUpdater {
       return testCaseBuilder.appendDoublePrimitive((Double) newValue);
     }
 
-    throw new IllegalStateException("Unexpected value: " + componentName);
+    throw new IllegalStateException(UNEXPECTED_VALUE + componentName);
 
   }
 }

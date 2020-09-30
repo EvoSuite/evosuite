@@ -1,19 +1,40 @@
+/*
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * contributors
+ *
+ * This file is part of EvoSuite.
+ *
+ * EvoSuite is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation, either version 3.0 of the License, or
+ * (at your option) any later version.
+ *
+ * EvoSuite is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.evosuite.testcase;
 
 import java.util.function.Function;
 
 public enum DefaultValueChecker {
-    INTEGER((value) -> ((Integer) value).equals(0)),
-    BYTE((value) -> ((Byte) value).equals(0)),
-    SHORT((value) -> ((Short) value).equals(0)),
-    LONG((value) -> ((Long) value).equals(0L)),
-    CHAR((value) -> ((Character) value).equals('\u0000')),
+    INTEGER((value) -> value.equals(0)),
+    BYTE((value) -> value.equals(0)),
+    SHORT((value) -> value.equals(0)),
+    LONG((value) -> value.equals(0L)),
+    CHAR((value) -> value.equals('\u0000')),
     BOOLEAN((value) -> ((Boolean) value)),
-    STRING((value) -> !(((String)value) == null)),
-    FLOAT((value) -> ((Float) value).equals(0.0f)),
-    DOUBLE((value) -> ((Double) value).equals(0.0d));
+    STRING((value) -> !(value == null)),
+    FLOAT((value) -> value.equals(0.0f)),
+    DOUBLE((value) -> value.equals(0.0d));
 
-    private final Function<Object, Boolean> checker;
+  public static final String UNEXPECTED_VALUE = "Unexpected value: ";
+
+  private final Function<Object, Boolean> checker;
 
     DefaultValueChecker(final Function<Object, Boolean> statementCheck) {
       this.checker = statementCheck;
@@ -37,6 +58,6 @@ public enum DefaultValueChecker {
       } else if (Double.class.equals(value.getClass())) {
         return DOUBLE.checker.apply(value);
       }
-      throw new IllegalStateException("Unexpected value: " + value.getClass());
+      throw new IllegalStateException(UNEXPECTED_VALUE + value.getClass());
     }
 }

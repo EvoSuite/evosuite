@@ -1,5 +1,5 @@
-/**
- * Copyright (C) 2010-2020 Gordon Fraser, Andrea Arcuri and EvoSuite
+/*
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -34,15 +34,18 @@ public class TargetCoverageReachedStoppingCondition extends StoppingConditionImp
 
     private static final long serialVersionUID = 7235280321530441520L;
 
+    public static final String AND                                     = " and ";
+    public static final String ERROR_LIMIT_PARAMETER_MUST_BE_IN_BOUNDS = "ERROR | limit parameter must be in bounds ";
+
     /** Bound values for setLimit input */
     private static final long MINIMUM_LIMIT_INPUT_VALUE = 0;
     private static final long MAXIMUM_LIMIT_INPUT_VALUE = 100;
 
     /** Keep track of highest coverage seen so far */
-	private int lastCoverage = Chromosome.MIN_COVERAGE_REACHABLE;
+    private int lastCoverage = Chromosome.MIN_REACHABLE_COVERAGE;
 
-	/** Keep track of the target coverage */
-	private int targetCoverage = Properties.DSE_TARGET_COVERAGE;
+    /** Keep track of the target coverage */
+    private int targetCoverage = Properties.DSE_TARGET_COVERAGE;
 
     @Override
     public long getCurrentValue() {
@@ -61,8 +64,8 @@ public class TargetCoverageReachedStoppingCondition extends StoppingConditionImp
 
     @Override
     public void reset() {
-        lastCoverage = Chromosome.MIN_COVERAGE_REACHABLE;
-        targetCoverage = Chromosome.MAX_COVERAGE_REACHABLE;
+        lastCoverage = Chromosome.MIN_REACHABLE_COVERAGE;
+        targetCoverage = Chromosome.MAX_REACHABLE_COVERAGE;
     }
 
     /**
@@ -78,9 +81,9 @@ public class TargetCoverageReachedStoppingCondition extends StoppingConditionImp
         if (! isInputValid(limit)) {
             throw new InvalidParameterException(
                     new StringBuilder()
-                            .append("ERROR | limit parameter must be in bounds ")
+                            .append(ERROR_LIMIT_PARAMETER_MUST_BE_IN_BOUNDS)
                             .append(MINIMUM_LIMIT_INPUT_VALUE)
-                            .append(" and ")
+                            .append(AND)
                             .append(MAXIMUM_LIMIT_INPUT_VALUE).toString()
             );
         }
@@ -100,7 +103,7 @@ public class TargetCoverageReachedStoppingCondition extends StoppingConditionImp
      * @return
      */
     private int normalizeCoverage(double coverage) {
-        return (int) (coverage * Chromosome.MAX_COVERAGE_REACHABLE);
+        return (int) (coverage * Chromosome.MAX_REACHABLE_COVERAGE);
     }
 
     /**

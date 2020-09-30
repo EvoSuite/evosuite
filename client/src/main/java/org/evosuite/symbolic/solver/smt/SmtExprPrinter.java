@@ -174,14 +174,14 @@ public final class SmtExprPrinter implements SmtExprVisitor<String, Void> {
 		StringBuilder back  = new StringBuilder();
 		StringBuilder front = new StringBuilder();
 
-		// TODO: Ver que esta parte este bien
+		// TODO (ilebrero): Test this when objects support is added.
 		back.append("((as const (Array Int String)) \"\")");
 
 		Object arr = n.getConstantValue();
 		int length = Array.getLength(arr);
 
 		for (int index=0; index < length; index++) {
-			Object element = Array.get(arr, index);
+			String element = (String) Array.get(arr, index);
 
 			if (!DefaultValueChecker.isDefaultValue(element)) {
 				front.append("(store");
@@ -189,7 +189,7 @@ public final class SmtExprPrinter implements SmtExprVisitor<String, Void> {
 					.append(" ")
 					.append(index)
 					.append(" ")
-					.append(buildRealArrayValue(element))
+					.append(encodeString(element))
 					.append(")");
 			}
 		}
@@ -200,8 +200,7 @@ public final class SmtExprPrinter implements SmtExprVisitor<String, Void> {
 
 	@Override
 	public String visit(SmtArrayConstant.SmtReferenceArrayConstant n, Void arg) {
-		throw new UnsupportedOperationException(
-			"We shouldn't be using constant arrays as this point, they must be reduced to concrete values during execution.");
+		throw new UnsupportedOperationException("Implement me when complex objects support is added!");
 	}
 
 	@Override
@@ -231,6 +230,12 @@ public final class SmtExprPrinter implements SmtExprVisitor<String, Void> {
 		return ret_val;
 	}
 
+	/**
+	 * Returns the SMT string representation of a double value.
+	 *
+	 * @param doubleVal
+	 * @return a {@link java.lang.String} Object
+	 */
 	private String buildRealValueString(double doubleVal) {
 		if (doubleVal < 0) {
 			String magnitudeStr = DECIMAL_FORMAT.format(Math.abs(doubleVal));
@@ -241,6 +246,12 @@ public final class SmtExprPrinter implements SmtExprVisitor<String, Void> {
 		}
 	}
 
+	/**
+	 * Returns the SMT string representation of a double value.
+	 *
+	 * @param longValue
+	 * @return a {@link java.lang.String} Object
+	 */
 	private String buildIntegerString(long longValue) {
 		if (longValue == Long.MIN_VALUE) {
 			return "(- " + String.valueOf(Long.MIN_VALUE).replace("-", "") + ")";
@@ -252,11 +263,23 @@ public final class SmtExprPrinter implements SmtExprVisitor<String, Void> {
 		}
 	}
 
+	/**
+	 * Returns the SMT string representation of an double value.
+	 *
+	 * @param element
+	 * @return a {@link java.lang.String} Object
+	 */
 	private String buildIntegerArrayValue(Object element) {
 		long value = (long) TypeUtil.unboxIntegerPrimitiveValue(element);
 		return buildIntegerString(value);
 	}
 
+	/**
+	 * Returns the SMT string representation of a double value.
+	 *
+	 * @param element
+	 * @return a {@link java.lang.String} Object
+	 */
 	private String buildRealArrayValue(Object element) {
 		double value = (double) TypeUtil.unboxRealPrimitiveValue(element);
 		return buildRealValueString(value);

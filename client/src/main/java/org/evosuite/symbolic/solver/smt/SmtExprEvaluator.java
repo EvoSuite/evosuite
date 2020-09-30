@@ -115,12 +115,12 @@ public final class SmtExprEvaluator implements SmtExprVisitor<Object, Void> {
 					+ value.getClass().getName());
 		}
 
-		// ??: Makes sense to add this check? any generic object is going to be here
-//		if (!(value.getClass().getComponentType().getName().equals(Object.class.getName()))) {
-//			throw new ClassCastException("The component class of the array " + varName
-//					+ " should be Double but found type is "
-//					+ value.getClass().getComponentType().getName());
-//		}
+		// Ilebrero: Makes sense to add this check for references? any generic object is going to be here
+		//		if (!(value.getClass().getComponentType().getName().equals(Object.class.getName()))) {
+		//			throw new ClassCastException("The component class of the array " + varName
+		//					+ " should be Double but found type is "
+		//					+ value.getClass().getComponentType().getName());
+		//		}
 
 		return value;
 	}

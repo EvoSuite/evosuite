@@ -1,5 +1,5 @@
-/**
- * Copyright (C) 2010-2020 Gordon Fraser, Andrea Arcuri and EvoSuite
+/*
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -29,7 +29,8 @@ import org.evosuite.symbolic.dse.algorithm.explorationalgorithms.SAGEExploration
  * @author Ignacio Lebrero
  */
 public class DSEAlgorithmFactory {
-    private final static String DSE_ALGORITHM_TYPE_NOT_PROVIDED = "A DSE algorithm type must be provided";
+    public static final String DSE_ALGORITHM_TYPE_NOT_PROVIDED   = "A DSE algorithm type must be provided";
+    public static final String DSE_ALGORITHM_NOT_YET_IMPLEMENTED = "DSEAlgorithm not yet implemented: ";
 
     /** Statistics object for when creating a customized algorithm */
     private final DSEStatistics dseStatistics = DSEStatistics.getInstance();
@@ -46,7 +47,7 @@ public class DSEAlgorithmFactory {
             case SAGE:
                 return new SAGEExplorationAlgorithm(dseStatistics, showProgress);
             default:
-                throw new IllegalStateException("DSEAlgorithm not yet implemented: " + dseAlgorithmType.name());
+                throw new IllegalStateException(DSE_ALGORITHM_NOT_YET_IMPLEMENTED + dseAlgorithmType.name());
         }
     }
 }

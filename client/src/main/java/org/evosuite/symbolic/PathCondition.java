@@ -25,17 +25,16 @@ import java.util.List;
 import org.evosuite.symbolic.expr.Constraint;
 
 /**
- * Represents a sequence of path condition nodes.
+ * Represents a sequence of branch conditions.
  * 
  * @author galeotti
- *
  */
 public class PathCondition {
 
 	private final List<BranchCondition> pathCondition;
 
 	/**
-	 * Creates a new path condition from a list of path condition nodes
+	 * Creates a new path condition from a list of branch conditions
 	 * 
 	 * @param branchConditions
 	 */
@@ -58,7 +57,7 @@ public class PathCondition {
 	}
 
 	/**
-	 * Returns the list of path condition nodes on this path condition
+	 * Returns the list of branch conditions on this path condition
 	 * 
 	 * @return
 	 */
@@ -76,7 +75,7 @@ public class PathCondition {
 	}
 
 	/**
-	 * The length of the path condition in terms of path condition nodes
+	 * The length of the path condition in terms of branch conditions
 	 * 
 	 * @return
 	 */
@@ -85,7 +84,7 @@ public class PathCondition {
 	}
 
 	/**
-	 * Returns the path condition node at position <code>index</code>
+	 * Returns the branch condition at position <code>index</code>
 	 * 
 	 * @param index
 	 * @return

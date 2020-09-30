@@ -43,8 +43,8 @@ public abstract class Chromosome<T extends Chromosome<T>>
 	private static final long serialVersionUID = -6921897301005213358L;
 
 	/** General Class Related Constants */
-	public static final int MAX_COVERAGE_REACHABLE = 100;
-	public static final int MIN_COVERAGE_REACHABLE = 0;
+	public static final int MIN_REACHABLE_COVERAGE = 0;
+	public static final int MAX_REACHABLE_COVERAGE = 100;
 
 	/** Constant <code>logger</code> */
 	private static final Logger logger = LoggerFactory.getLogger(Chromosome.class);
