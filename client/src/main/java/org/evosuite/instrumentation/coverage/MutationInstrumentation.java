@@ -296,9 +296,6 @@ public class MutationInstrumentation implements MethodInstrumentation {
 			LabelNode nextLabel = new LabelNode();
 
 			LdcInsnNode mutationId = new LdcInsnNode(mutation.getId());
-//			instructions.add(mutationId);
-//			FieldInsnNode activeId = new FieldInsnNode(Opcodes.GETSTATIC,
-//			        Type.getInternalName(MutationObserver.class), "activeMutation", "I");
 			MethodInsnNode isActive = new MethodInsnNode(Opcodes.INVOKESTATIC,
 					Type.getInternalName(MutationObserver.class), "isActive",
 					Type.getMethodDescriptor(Type.BOOLEAN_TYPE, Type.INT_TYPE), false);
@@ -307,14 +304,11 @@ public class MutationInstrumentation implements MethodInstrumentation {
 			// question as the operand.
 			instructions.add(mutationId);
 			instructions.add(isActive);
-			
+
 			// Operand is now True iff the mutation is active, False iff not and we should jump
 			// to nextLabel to avoid running the mutated instruction.
 			instructions.add(new JumpInsnNode(Opcodes.IFEQ, nextLabel));
-			
-//			instructions.add(activeId);
-//			instructions.add(new JumpInsnNode(Opcodes.IF_ICMPNE, nextLabel));
-			
+
 			instructions.add(mutation.getMutation());
 			instructions.add(new JumpInsnNode(Opcodes.GOTO, endLabel));
 
