@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>org.evosuite</groupId>
 		<artifactId>evosuite</artifactId>
-		<version>1.0.7-SNAPSHOT</version>
+		<version>1.1.0</version>
 	</parent>
 
 	<artifactId>evosuite-client</artifactId>
