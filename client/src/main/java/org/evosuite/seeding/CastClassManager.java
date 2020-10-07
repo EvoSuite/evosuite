@@ -41,17 +41,25 @@ import com.googlecode.gentyref.GenericTypeReflector;
 
 import static java.util.Comparator.comparingInt;
 
-// TODO: re-order code such that fields come before constructors and methods
 public class CastClassManager {
 
-	private static CastClassManager instance = new CastClassManager();
-
 	private static final Logger logger = LoggerFactory.getLogger(CastClassManager.class);
-
+	private static CastClassManager instance = new CastClassManager();
 	/**
 	 * TODO:
 	 */
 	private final Map<GenericClass, Integer> classMap = new LinkedHashMap<>();
+	private final List<Class<?>> specialCases =
+			Arrays.asList(Comparable.class, Comparator.class, Iterable.class, Enum.class);
+
+	// Private constructor due to singleton pattern, use getInstance() instead
+	private CastClassManager() {
+		initDefaultClasses();
+	}
+
+    public static CastClassManager getInstance() {
+        return instance;
+    }
 
 	/**
 	 * Sorts the classes contained in the given map by the number of generic type parameters and, if
@@ -83,11 +91,6 @@ public class CastClassManager {
 		return candidates.get(RankSelection.getIdx(candidates));
 	}
 
-	// Private constructor due to singleton pattern, use getInstance() instead
-	private CastClassManager() {
-		initDefaultClasses();
-	}
-
 	/**
 	 * Fills the class map with some default classes.
 	 */
@@ -95,10 +98,6 @@ public class CastClassManager {
 		classMap.put(new GenericClass(Object.class), 0);
 		classMap.put(new GenericClass(String.class), 1);
 		classMap.put(new GenericClass(Integer.class), 1);
-	}
-
-	public static CastClassManager getInstance() {
-		return instance;
 	}
 
 	public void addCastClass(String className, int depth) {
@@ -171,9 +170,6 @@ public class CastClassManager {
 		// TODO
 		throw new UnsupportedOperationException("not yet implemented");
 	}
-
-	private final List<Class<?>> specialCases =
-			Arrays.asList(Comparable.class, Comparator.class, Iterable.class, Enum.class);
 
 	/**
 	 * True if this type variable is one of the java.* special cases
