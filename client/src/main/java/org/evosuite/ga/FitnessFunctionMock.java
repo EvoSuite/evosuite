@@ -52,14 +52,12 @@ public class FitnessFunctionMock<T extends Chromosome<T>, U extends Chromosome<U
     }
 
     /**
-     * Throws an {@code UnsupportedOperationException} when called.
+     * Tells whether the wrapped fitness function is a maximizing fitness function.
      *
-     * @return never completes, always throws {@code UnsupportedOperationException}
-     * @throws UnsupportedOperationException always fails, never succeeds
+     * @return {@code true} if maximizing, {@code false} otherwise
      */
     @Override
     public boolean isMaximizationFunction() {
-        throw new UnsupportedOperationException("isMaximizationFunction() called on mock");
-
+        return wrapped.isMaximizationFunction();
     }
 }
