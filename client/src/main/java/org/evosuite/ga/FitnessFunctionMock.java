@@ -16,25 +16,27 @@ import java.util.Objects;
  */
 public class FitnessFunctionMock<T extends Chromosome<T>, U extends Chromosome<U>>
         extends FitnessFunction<U> {
+
     private static final long serialVersionUID = -2764090795456211662L;
+
     /**
-     * The wrapped chromosome factory.
+     * The wrapped fitness function.
      */
     private final FitnessFunction<T> wrapped;
 
     /**
-     * Creates a new mock of the given factory.
+     * Creates a new mock of the given fitness function.
      *
-     * @param wrapped the chromosome factory to mock; must not be {@code null}
+     * @param wrapped the fitness function to mock; must not be {@code null}
      */
     public FitnessFunctionMock(final FitnessFunction<T> wrapped) {
         this.wrapped = Objects.requireNonNull(wrapped);
     }
 
     /**
-     * Returns the wrapped chromosome factory.
+     * Returns the wrapped fitness function.
      *
-     * @return the wrapped chromosome factory
+     * @return the wrapped fitness function
      */
     public FitnessFunction<T> getWrapped() {
         return wrapped;
