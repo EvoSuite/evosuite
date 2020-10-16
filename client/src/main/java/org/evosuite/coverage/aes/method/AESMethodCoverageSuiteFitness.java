@@ -55,13 +55,4 @@ public class AESMethodCoverageSuiteFitness extends AbstractAESCoverageSuiteFitne
 		return spectrum;
 	}
 
-    protected Map<Integer,Double> getWeights()
-    {
-        return null;
-    }
-
-    @Override
-    protected double getSumWeights() {
-        return -1d;
-    }
 }
