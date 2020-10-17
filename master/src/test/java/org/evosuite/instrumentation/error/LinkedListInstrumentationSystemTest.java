@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -21,13 +21,7 @@ package org.evosuite.instrumentation.error;
 
 import com.examples.with.different.packagename.errorbranch.LinkedListAccess;
 import com.examples.with.different.packagename.errorbranch.LinkedListAccessIndex;
-import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
-import org.evosuite.SystemTestBase;
-import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
-import org.evosuite.strategy.TestGenerationStrategy;
-import org.evosuite.testsuite.TestSuiteChromosome;
-import org.junit.Assert;
 import org.junit.Test;
 
 public class LinkedListInstrumentationSystemTest extends AbstractErrorBranchTest {

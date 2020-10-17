@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
+
 package org.evosuite.contracts;
 
 import java.util.ArrayList;
@@ -51,7 +49,7 @@ import org.slf4j.LoggerFactory;
 public class ContractViolation {
 
 	@SuppressWarnings("unused")
-	private static Logger logger = LoggerFactory.getLogger(ContractViolation.class);
+	private static final Logger logger = LoggerFactory.getLogger(ContractViolation.class);
 
 	private final Contract contract;
 
@@ -170,7 +168,7 @@ public class ContractViolation {
 		}
 		TestCase origTest = test.clone();
 
-		List<Integer> positions = new ArrayList<Integer>();
+		List<Integer> positions = new ArrayList<>();
 
 		for (VariableReference var : variables)
 			positions.add(var.getStPosition());
@@ -187,28 +185,24 @@ public class ContractViolation {
 				if (positions.contains(i))
 					continue;
 
-				try {
-					boolean deleted = testFactory.deleteStatement(test, i);
-					if(!deleted){
-						continue;
-					}
+				boolean deleted = testFactory.deleteStatement(test, i);
+				if(!deleted){
+					continue;
+				}
 
-					if (!contract.fails(test)) {
-						test = origTest.clone();
-					} else {
-						changed = true;
-						for (int j = 0; j < positions.size(); j++) {
-							if (positions.get(j) > i) {
-								positions.set(j,
-								              positions.get(j)
-								                      - (oldLength - test.size()));
-							}
-						}
-						origTest = test.clone();
-						oldLength = test.size();
-					}
-				} catch (ConstructionFailedException e) {
+				if (!contract.fails(test)) {
 					test = origTest.clone();
+				} else {
+					changed = true;
+					for (int j = 0; j < positions.size(); j++) {
+						if (positions.get(j) > i) {
+							positions.set(j,
+									positions.get(j)
+											- (oldLength - test.size()));
+						}
+					}
+					origTest = test.clone();
+					oldLength = test.size();
 				}
 			}
 		}

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -34,7 +34,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.examples.with.different.packagename.staticfield.StaticFinalSingletonField;
-import com.examples.with.different.packagename.staticfield.SaticSingletonField;
 
 public class StaticFinalSingletonFieldSystemTest extends SystemTestBase {
 
@@ -74,7 +73,7 @@ public class StaticFinalSingletonFieldSystemTest extends SystemTestBase {
 		Assert.assertEquals("Unexpected unstabled test cases were generated",Boolean.FALSE, unstable.getValue());
 
 		double best_fitness = best.getFitness();
-		Assert.assertTrue("Optimal coverage was not achieved ", best_fitness == 0.0);
+        Assert.assertEquals("Optimal coverage was not achieved ", 0.0, best_fitness, 0.0);
 		
 	}
 

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -21,7 +21,7 @@ package com.examples.with.different.packagename.test;
 
 import java.util.Date;
 
-@SuppressWarnings("rawtypes")
+
 public class StaticFieldTest {
 
 	/** String class */

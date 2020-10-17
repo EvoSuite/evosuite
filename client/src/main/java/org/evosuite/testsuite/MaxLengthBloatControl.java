@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -20,7 +20,6 @@
 package org.evosuite.testsuite;
 
 import org.evosuite.Properties;
-import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.bloatcontrol.BloatControlFunction;
 
 
@@ -29,9 +28,17 @@ import org.evosuite.ga.bloatcontrol.BloatControlFunction;
  *
  * @author Gordon Fraser
  */
-public class MaxLengthBloatControl implements BloatControlFunction {
+public class MaxLengthBloatControl implements BloatControlFunction<TestSuiteChromosome> {
 
 	private static final long serialVersionUID = -5019773997815280164L;
+
+	public MaxLengthBloatControl() {
+		// empty constructor
+	}
+
+	public MaxLengthBloatControl(final MaxLengthBloatControl that) {
+		// empty copy constructor
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -39,7 +46,7 @@ public class MaxLengthBloatControl implements BloatControlFunction {
 	 * Check whether the chromosome is bigger than the max length constant
 	 */
 	@Override
-	public boolean isTooLong(Chromosome chromosome) {
-		return ((TestSuiteChromosome) chromosome).totalLengthOfTestCases() > Properties.MAX_LENGTH;
+	public boolean isTooLong(TestSuiteChromosome chromosome) {
+		return chromosome.totalLengthOfTestCases() > Properties.MAX_LENGTH;
 	}
 }

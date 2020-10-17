@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -22,13 +22,10 @@ package org.evosuite.instrumentation;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.evosuite.TestGenerationContext;
 import org.evosuite.runtime.util.ComputeClassWriter;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
-
-import javax.persistence.Entity;
 
 public class NonInstrumentingClassLoader extends InstrumentingClassLoader {
 

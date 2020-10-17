@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -16,9 +16,6 @@
  *
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
- */
-/**
- *
  */
 package org.evosuite.assertion;
 
@@ -38,9 +35,9 @@ public class ComparisonTraceEntry implements OutputTraceEntry {
 
   private final VariableReference var;
 
-  private final Map<VariableReference, Boolean> equalityMap = new HashMap<VariableReference, Boolean>();
+  private final Map<VariableReference, Boolean> equalityMap = new HashMap<>();
 
-  private final Map<Integer, VariableReference> equalityMapIntVar = new HashMap<Integer, VariableReference>();
+  private final Map<Integer, VariableReference> equalityMapIntVar = new HashMap<>();
 
   /**
    * <p>Constructor for ComparisonTraceEntry.</p>
@@ -132,7 +129,7 @@ public class ComparisonTraceEntry implements OutputTraceEntry {
    */
   @Override
   public Set<Assertion> getAssertions(OutputTraceEntry other) {
-    Set<Assertion> assertions = new HashSet<Assertion>();
+    Set<Assertion> assertions = new HashSet<>();
     if (other instanceof ComparisonTraceEntry) {
       ComparisonTraceEntry otherEntry = (ComparisonTraceEntry) other;
       for (Integer otherVar : equalityMapIntVar.keySet()) {
@@ -150,12 +147,6 @@ public class ComparisonTraceEntry implements OutputTraceEntry {
           assertion.source = var;
           assertion.dest = equalityMapIntVar.get(otherVar);
           assertion.value = equalityMap.get(equalityMapIntVar.get(otherVar));
-          if (Properties.isRegression()) {
-            assertion.setComment(
-                "// (Comp) Original Value: " + equalityMap.get(equalityMapIntVar.get(otherVar))
-                    + " | Regression Value: " + otherEntry.equalityMap
-                    .get(otherEntry.equalityMapIntVar.get(otherVar)));
-          }
           assertions.add(assertion);
           assert (assertion.isValid());
         }
@@ -173,7 +164,7 @@ public class ComparisonTraceEntry implements OutputTraceEntry {
    */
   @Override
   public Set<Assertion> getAssertions() {
-    Set<Assertion> assertions = new HashSet<Assertion>();
+    Set<Assertion> assertions = new HashSet<>();
 
     for (VariableReference otherVar : equalityMap.keySet()) {
       if (otherVar == null) {

@@ -30,7 +30,7 @@ import org.evosuite.ga.FitnessFunction;
  * @param <T> the type of chromosomes this ranking function works with
  * @author Annibale Panichella, Fitsum M. Kifetew
  */
-public interface RankingFunction<T extends Chromosome> extends Serializable {
+public interface RankingFunction<T extends Chromosome<T>> extends Serializable {
 
 	/**
 	 * Computes the ranking assignment for the given population of solutions w.r.t. the given set
@@ -42,7 +42,8 @@ public interface RankingFunction<T extends Chromosome> extends Serializable {
 	 * @param solutions the population to rank
 	 * @param uncovered_goals the set of coverage goals to consider for the ranking assignment
 	 */
-	public void computeRankingAssignment(List<T> solutions, Set<FitnessFunction<T>> uncovered_goals);
+    void computeRankingAssignment(List<T> solutions,
+                                  Set<? extends FitnessFunction<T>> uncovered_goals);
 
 	/**
 	 * Returns the sub-front of {@link org.evosuite.ga.Chromosome} objects of the given rank. Sub-
@@ -52,11 +53,11 @@ public interface RankingFunction<T extends Chromosome> extends Serializable {
 	 * @param rank the sub-front to retrieve
 	 * @return a list of solutions of a given rank.
 	 */
-	public List<T> getSubfront(int rank);
+    List<T> getSubfront(int rank);
 
 	/**
 	 * Returns the total number of sub-fronts found.
 	 */
-	public int getNumberOfSubfronts();
+    int getNumberOfSubfronts();
 
 }

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -38,9 +38,7 @@ public class BooleanDefinitionTransformer extends MethodNodeTransformer {
 	// Get branch id
 	// Get last distance for this branch id, else +/-K
 
-	/**
-	 * 
-	 */
+
 	private final BooleanTestabilityTransformation booleanTestabilityTransformation;
 
 	/**

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -21,12 +21,13 @@ package org.evosuite.coverage.exception;
 
 import org.evosuite.coverage.branch.BranchCoverageGoal;
 import org.evosuite.coverage.branch.BranchCoverageTestFitness;
-import org.evosuite.testcase.TestFitnessFunction;
 
 /**
  * Created by gordon on 03/04/2016.
  */
 public class TryCatchCoverageTestFitness extends BranchCoverageTestFitness {
+
+    private static final long serialVersionUID = -4566865257473233101L;
 
     public TryCatchCoverageTestFitness(BranchCoverageGoal goal) throws IllegalArgumentException {
         super(goal);

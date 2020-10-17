@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,13 +17,10 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
+
 package org.evosuite.testcase.localsearch;
 
 import org.evosuite.Properties;
-import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.ga.localsearch.LocalSearchObjective;
 import org.evosuite.testcase.variable.ArrayReference;
 import org.evosuite.testcase.statements.Statement;
@@ -117,31 +114,25 @@ public class ArrayLocalSearch extends StatementLocalSearch {
 
 					logger.debug("Assigns to target array. Checking if we can remove it without worsening fitness");
 					backup(test);
-					try {
-						factory.deleteStatement(test.getTestCase(), position);
+					factory.deleteStatement(test.getTestCase(), position);
 
-						if (valueStatement instanceof PrimitiveStatement
-						        || valueStatement instanceof NullStatement) {
-							if (!test.getTestCase().hasReferences(valueStatement.getReturnValue())) {
-								if (valueStatement.getPosition() < statement.getPosition())
-									differenceDelta = 1;
-								currentDelta = 1;
-								logger.debug("Deleting primitive statement assigned to this array at "
-								        + valueStatement.getPosition());
-								factory.deleteStatement(test.getTestCase(),
-								                        valueStatement.getPosition());
-							}
+					if (valueStatement instanceof PrimitiveStatement
+							|| valueStatement instanceof NullStatement) {
+						if (!test.getTestCase().hasReferences(valueStatement.getReturnValue())) {
+							if (valueStatement.getPosition() < statement.getPosition())
+								differenceDelta = 1;
+							currentDelta = 1;
+							logger.debug("Deleting primitive statement assigned to this array at "
+									+ valueStatement.getPosition());
+							factory.deleteStatement(test.getTestCase(),
+									valueStatement.getPosition());
 						}
-						if (!objective.hasNotWorsened(test)) {
-							logger.debug("Fitness has decreased, so restoring test");
-							restore(test);
-							currentDelta = 0;
-							differenceDelta = 0;
-						}
-					} catch (ConstructionFailedException e) {
+					}
+					if (!objective.hasNotWorsened(test)) {
+						logger.debug("Fitness has decreased, so restoring test");
+						restore(test);
 						currentDelta = 0;
 						differenceDelta = 0;
-						restore(test);
 					}
 					position -= currentDelta;
 					difference += differenceDelta;

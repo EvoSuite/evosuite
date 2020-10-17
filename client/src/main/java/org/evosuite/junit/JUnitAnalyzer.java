@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -59,7 +59,7 @@ import org.slf4j.LoggerFactory;
  */
 public class JUnitAnalyzer {
 
-	private static Logger logger = LoggerFactory.getLogger(JUnitAnalyzer.class);
+	private static final Logger logger = LoggerFactory.getLogger(JUnitAnalyzer.class);
 
 	private static int dirCounter = 0;
 
@@ -100,7 +100,7 @@ public class JUnitAnalyzer {
 			logger.debug("Created tmp folder: " + dir.getAbsolutePath());
 
 			try {
-				List<TestCase> singleList = new ArrayList<TestCase>();
+				List<TestCase> singleList = new ArrayList<>();
 				singleList.add(test);
 				List<File> generated = compileTests(singleList, dir);
 				if (generated == null) {
@@ -368,7 +368,7 @@ public class JUnitAnalyzer {
 				return null;
 			}
 
-			DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<JavaFileObject>();
+			DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
 			Locale locale = Locale.getDefault();
 			Charset charset = Charset.forName("UTF-8");
 			StandardJavaFileManager fileManager = compiler.getStandardFileManager(diagnostics,
@@ -377,7 +377,6 @@ public class JUnitAnalyzer {
 
 			Iterable<? extends JavaFileObject> compilationUnits = fileManager.getJavaFileObjectsFromFiles(generated);
 
-			List<String> optionList = new ArrayList<>();
 			String evosuiteCP = ClassPathHandler.getInstance().getEvoSuiteClassPath();
 			if(JarPathing.containsAPathingJar(evosuiteCP)){
 				evosuiteCP = JarPathing.expandPathingJars(evosuiteCP);
@@ -390,7 +389,7 @@ public class JUnitAnalyzer {
 
 			String classpath = targetProjectCP + File.pathSeparator + evosuiteCP;
 
-			optionList.addAll(Arrays.asList("-classpath", classpath));
+			List<String> optionList = new ArrayList<>(Arrays.asList("-classpath", classpath));
 
 			CompilationTask task = compiler.getTask(null, fileManager, diagnostics,
 			                                        optionList, null, compilationUnits);

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
+
 package com.examples.with.different.packagename.generic;
 
 /**
@@ -33,6 +31,6 @@ public class ConcreteGenericClass<T> extends AbstractGenericClass<T> {
 	}
 
 	public static <S> ConcreteGenericClass<S> create(int value) {
-		return new ConcreteGenericClass<S>(value);
+		return new ConcreteGenericClass<>(value);
 	}
 }

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -120,7 +120,7 @@ public class MockFileOutputStream extends FileOutputStream implements LeakingRes
 
 
 
-	private void writeBytes(byte b[], int off, int len)
+	private void writeBytes(byte[] b, int off, int len)
 			throws IOException{
 
 		throwExceptionIfClosed();
@@ -140,7 +140,7 @@ public class MockFileOutputStream extends FileOutputStream implements LeakingRes
 	}
 
 	@Override
-	public void write(byte b[]) throws IOException {
+	public void write(byte[] b) throws IOException {
 		if(!MockFramework.isEnabled()){
 			super.write(b);
 			return;
@@ -149,7 +149,7 @@ public class MockFileOutputStream extends FileOutputStream implements LeakingRes
 	}
 
 	@Override
-	public void write(byte b[], int off, int len) throws IOException {
+	public void write(byte[] b, int off, int len) throws IOException {
 		if(!MockFramework.isEnabled()){
 			super.write(b, off, len);
 			return;

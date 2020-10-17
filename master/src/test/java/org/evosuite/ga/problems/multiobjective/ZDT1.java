@@ -22,7 +22,6 @@ package org.evosuite.ga.problems.multiobjective;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.NSGAChromosome;
 import org.evosuite.ga.problems.Problem;
@@ -33,10 +32,10 @@ import org.evosuite.ga.variables.DoubleVariable;
  * 
  * @author José Campos
  */
-@SuppressWarnings({ "rawtypes", "unchecked", "serial" })
-public class ZDT1<T extends NSGAChromosome> implements Problem
+@SuppressWarnings({ "serial" })
+public class ZDT1 implements Problem<NSGAChromosome>
 {
-	private List<FitnessFunction<T>> fitnessFunctions = new ArrayList<FitnessFunction<T>>();
+	private final List<FitnessFunction<NSGAChromosome>> fitnessFunctions = new ArrayList<>();
 
 	public ZDT1() {
 		super();
@@ -44,13 +43,12 @@ public class ZDT1<T extends NSGAChromosome> implements Problem
 		/**
 		 * First fitness function
 		 */
-		class f1FitnessFunction extends FitnessFunction {
+		class f1FitnessFunction extends FitnessFunction<NSGAChromosome> {
 			@Override
-			public double getFitness(Chromosome c) {
-				NSGAChromosome individual = (NSGAChromosome)c;
+			public double getFitness(NSGAChromosome c) {
 
-				double fitness = ((DoubleVariable)individual.getVariable(0)).getValue();
-				updateIndividual(individual, fitness);
+				double fitness = ((DoubleVariable) c.getVariable(0)).getValue();
+				updateIndividual(c, fitness);
 				return fitness;
 			}
 			@Override
@@ -62,23 +60,22 @@ public class ZDT1<T extends NSGAChromosome> implements Problem
 		/**
 		 * Second fitness function
 		 */
-		class f2FitnessFunction extends FitnessFunction {
+		class f2FitnessFunction extends FitnessFunction<NSGAChromosome> {
 			@Override
-			public double getFitness(Chromosome c) {
-				NSGAChromosome individual = (NSGAChromosome)c;
+			public double getFitness(NSGAChromosome c) {
 
-				double x0 = ((DoubleVariable)individual.getVariable(0)).getValue();
+				double x0 = ((DoubleVariable) c.getVariable(0)).getValue();
 
 				double sum = 0.0;
-				for (int i = 1; i < individual.getNumberOfVariables(); i++) {
-					double x = ((DoubleVariable) individual.getVariable(i)).getValue();
+				for (int i = 1; i < c.getNumberOfVariables(); i++) {
+					double x = ((DoubleVariable) c.getVariable(i)).getValue();
 					sum += x;
 				}
 
-				double g = 1.0 + 9.0 * sum / (individual.getNumberOfVariables() - 1);
+				double g = 1.0 + 9.0 * sum / (c.getNumberOfVariables() - 1);
 
 				double fitness = g * (1 - Math.sqrt(x0 / g));
-				updateIndividual(individual, fitness);
+				updateIndividual(c, fitness);
 				return fitness;
 			}
 			@Override
@@ -92,7 +89,7 @@ public class ZDT1<T extends NSGAChromosome> implements Problem
 	}
 
 	@Override
-	public List<FitnessFunction<T>> getFitnessFunctions() {
+	public List<FitnessFunction<NSGAChromosome>> getFitnessFunctions() {
 		return this.fitnessFunctions;
 	}
 }

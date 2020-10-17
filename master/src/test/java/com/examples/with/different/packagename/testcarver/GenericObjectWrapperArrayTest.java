@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
+
 package com.examples.with.different.packagename.testcarver;
 
 import org.junit.Assert;
@@ -32,19 +30,19 @@ import org.junit.Test;
 public class GenericObjectWrapperArrayTest {
 	@Test
 	public void test() {
-		GenericObjectWrapper<Long[]> wrapper = new GenericObjectWrapper<Long[]>();
+		GenericObjectWrapper<Long[]> wrapper = new GenericObjectWrapper<>();
 		Assert.assertNull(wrapper.get());
 
-		Long[] someArray = new Long[] { 1l, 47l };
+		Long[] someArray = new Long[] {1L, 47L};
 
 		wrapper.set(someArray);
 		Assert.assertNotNull(wrapper.get());
 
-		GenericObjectWrapper<Long> fortySeven = new GenericObjectWrapper<Long>();
-		fortySeven.set(47l);
+		GenericObjectWrapper<Long> fortySeven = new GenericObjectWrapper<>();
+		fortySeven.set(47L);
 
 		Long[] foo = wrapper.get();
 
-		Assert.assertTrue(foo[1].equals(fortySeven.get()));
+        Assert.assertEquals(foo[1], fortySeven.get());
 	}
 }

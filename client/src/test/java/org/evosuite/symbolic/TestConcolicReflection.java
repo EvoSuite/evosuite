@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -19,6 +19,7 @@
  */
 package org.evosuite.symbolic;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.lang.reflect.Method;
@@ -102,7 +103,7 @@ public class TestConcolicReflection {
 		DefaultTestCase tc = buildNewInstanceNoReflectionTestCase();
 		PathCondition pc = ConcolicExecution.executeConcolic(tc);
 		List<BranchCondition> branch_conditions = pc.getBranchConditions();
-		assertTrue(!branch_conditions.isEmpty());
+        assertFalse(branch_conditions.isEmpty());
 	}
 
 	@Test
@@ -110,7 +111,7 @@ public class TestConcolicReflection {
 		DefaultTestCase tc = buildClassNewInstanceTestCase();
 		PathCondition pc = ConcolicExecution.executeConcolic(tc);
 		List<BranchCondition> branch_conditions = pc.getBranchConditions();
-		assertTrue(!branch_conditions.isEmpty());
+        assertFalse(branch_conditions.isEmpty());
 	}
 
 	@Test
@@ -118,7 +119,7 @@ public class TestConcolicReflection {
 		DefaultTestCase tc = buildConstructorNewInstanceTestCase();
 		PathCondition pc = ConcolicExecution.executeConcolic(tc);
 		List<BranchCondition> branch_conditions = pc.getBranchConditions();
-		assertTrue(!branch_conditions.isEmpty());
+        assertFalse(branch_conditions.isEmpty());
 	}
 
 	@Test
@@ -126,7 +127,7 @@ public class TestConcolicReflection {
 		DefaultTestCase tc = buildMethodInvokeTestCase();
 		PathCondition pc = ConcolicExecution.executeConcolic(tc);
 		List<BranchCondition> branch_conditions = pc.getBranchConditions();
-		assertTrue(!branch_conditions.isEmpty());
+        assertFalse(branch_conditions.isEmpty());
 	}
 
 	@Test
@@ -134,7 +135,7 @@ public class TestConcolicReflection {
 		DefaultTestCase tc = buildNotInstrumentedConstructorNewInstanceTestCase();
 		PathCondition pc = ConcolicExecution.executeConcolic(tc);
 		List<BranchCondition> branch_conditions = pc.getBranchConditions();
-		assertTrue(!branch_conditions.isEmpty());
+        assertFalse(branch_conditions.isEmpty());
 	}
 
 	@Test
@@ -142,6 +143,6 @@ public class TestConcolicReflection {
 		DefaultTestCase tc = buildNotInstrumentedClassNewInstanceTestCase();
 		PathCondition pc = ConcolicExecution.executeConcolic(tc);
 		List<BranchCondition> branch_conditions = pc.getBranchConditions();
-		assertTrue(!branch_conditions.isEmpty());
+        assertFalse(branch_conditions.isEmpty());
 	}
 }

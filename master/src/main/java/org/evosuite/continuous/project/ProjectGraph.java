@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -81,7 +81,7 @@ public class ProjectGraph {
 
 		this.data = data;
 		inheritanceTree = InheritanceTreeGenerator.createFromClassList(data.getClassNames());
-		castInformation = new HashMap<String, Set<String>>();
+		castInformation = new HashMap<>();
 
 		if(logger.isDebugEnabled()){
 			logger.debug("Classes in inheritance tree: " + inheritanceTree.getAllClasses());
@@ -134,7 +134,7 @@ public class ProjectGraph {
 	protected Set<String> recursionToSearchDirectInputs(String aClass, boolean includeSubclasses){
 		if (includeSubclasses) {
 			Set<String> directlyUsed = recursionToSearchDirectInputs(aClass, false); //recursion
-			Set<String> all = new LinkedHashSet<String>(directlyUsed);
+			Set<String> all = new LinkedHashSet<>(directlyUsed);
 			for (String name : directlyUsed) {
 				all.addAll(getAllCUTsSubclasses(name));
 			}
@@ -177,14 +177,14 @@ public class ProjectGraph {
 	protected Set<String> recursionToSearchWhatUsesItAsInput(String aClass, boolean includeSuperClasses){
 		if (includeSuperClasses) {
 			Set<String> directlyUsed = recursionToSearchWhatUsesItAsInput(aClass, false); //recursion
-			Set<String> all = new LinkedHashSet<String>(directlyUsed);
+			Set<String> all = new LinkedHashSet<>(directlyUsed);
 			for (String name : getAllCUTsParents(aClass)) {
 				all.addAll(recursionToSearchWhatUsesItAsInput(name, false)); //recursion
 			}
 			return all;
 		}
 
-		Set<String> classNames = new LinkedHashSet<String>();
+		Set<String> classNames = new LinkedHashSet<>();
 		for (String className : inheritanceTree.getAllClasses()) {
 			if (className.equals(aClass)){
 				continue;
@@ -285,7 +285,7 @@ public class ProjectGraph {
 			set = inheritanceTree.getSubclasses(aClass);
 		} catch(Exception e){
 			logger.error("Bug in inheritanceTree: "+e);
-			return new HashSet<String>();
+			return new HashSet<>();
 		}
 		set.remove(aClass); 
 		removeNonCUT(set);
@@ -312,7 +312,7 @@ public class ProjectGraph {
 		}
 		catch(Exception e){
 			logger.error("Bug in inheritanceTree: "+e);
-			return new HashSet<String>();
+			return new HashSet<>();
 		}
 		set.remove(aClass); //it seems inheritanceTree returns 'cut' in the set
 		removeNonCUT(set);
@@ -357,7 +357,7 @@ public class ProjectGraph {
 			CastClassAnalyzer analyzer = new CastClassAnalyzer();
 			// The analyzer gets the classnode from the DependencyAnalysis classnode cache
 			Map<Type, Integer> castMap = analyzer.analyze(className);
-			Set<String> castClasses = new LinkedHashSet<String>();
+			Set<String> castClasses = new LinkedHashSet<>();
 			for (Type type : castMap.keySet()) {
 				String name = type.getClassName();
 				if (inheritanceTree.hasClass(name)) {
@@ -372,7 +372,7 @@ public class ProjectGraph {
 
 	@SuppressWarnings("unchecked")
 	private Set<String> getParameterClasses(String cut) {
-		Set<String> parameters = new LinkedHashSet<String>();
+		Set<String> parameters = new LinkedHashSet<>();
 		ClassNode node = getClassNode(cut);
 		List<MethodNode> methods = node.methods;
 		for (MethodNode methodNode : methods) {

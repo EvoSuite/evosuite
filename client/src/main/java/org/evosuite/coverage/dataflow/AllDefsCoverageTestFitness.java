@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -38,7 +38,7 @@ public class AllDefsCoverageTestFitness extends TestFitnessFunction {
 
 	private static final long serialVersionUID = 1L;
 	/** Constant <code>singleFitnessTime=0l</code> */
-	public static long singleFitnessTime = 0l;
+	public static long singleFitnessTime = 0L;
 
 	private final Definition targetDef;
 	private final TestFitnessFunction goalDefinitionFitness;

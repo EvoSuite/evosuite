@@ -49,7 +49,7 @@ public class ContainsAssertion extends Assertion {
                 Object container = source.getObject(scope);
                 Object object    = containedVariable.getObject(scope);
                 if(container instanceof Collection) {
-                    return ((Collection)container).contains(object);
+                    return ((Collection<?>)container).contains(object);
                 } else {
                     return false; // Is this possible?
                 }

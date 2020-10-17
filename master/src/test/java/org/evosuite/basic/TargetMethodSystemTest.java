@@ -17,7 +17,7 @@ public class TargetMethodSystemTest extends SystemTestBase {
         EvoSuite evosuite = new EvoSuite();
 
         String targetClass = TargetMethod.class.getCanonicalName();
-        String targetMethod = "fooDefUse(I)Z";
+        String targetMethod = "foo(Ljava/lang/Integer;)Z";
         Properties.TARGET_CLASS = targetClass;
         Properties.TARGET_METHOD = targetMethod;
         Properties.CRITERION = new Properties.Criterion[]{Properties.Criterion.BRANCH};
@@ -27,8 +27,8 @@ public class TargetMethodSystemTest extends SystemTestBase {
 
         GeneticAlgorithm<?> ga = getGAFromResult(result);
         TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
-        Assert.assertTrue(best.toString().contains("fooDefUse"));
-        Assert.assertFalse(best.toString().contains("barDefUse"));
+        Assert.assertTrue(best.toString().contains("foo"));
+        Assert.assertFalse(best.toString().contains("bar"));
     }
 
     @Test
@@ -36,7 +36,7 @@ public class TargetMethodSystemTest extends SystemTestBase {
         EvoSuite evosuite = new EvoSuite();
 
         String targetClass = TargetMethod.class.getCanonicalName();
-        String targetMethod = "fooDefUse(I)Z";
+        String targetMethod = "foo(Ljava/lang/Integer;)Z";
         Properties.TARGET_CLASS = targetClass;
         Properties.TARGET_METHOD = targetMethod;
         Properties.CRITERION = new Properties.Criterion[]{Properties.Criterion.IBRANCH};
@@ -46,9 +46,8 @@ public class TargetMethodSystemTest extends SystemTestBase {
 
         GeneticAlgorithm<?> ga = getGAFromResult(result);
         TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
-        System.out.println(best.toString());
-        Assert.assertTrue(best.toString().contains("fooDefUse"));
-        Assert.assertFalse(best.toString().contains("barDefUse"));
+        Assert.assertTrue(best.toString().contains("foo"));
+        Assert.assertFalse(best.toString().contains("bar"));
     }
 
     @Test
@@ -56,7 +55,7 @@ public class TargetMethodSystemTest extends SystemTestBase {
         EvoSuite evosuite = new EvoSuite();
 
         String targetClass = TargetMethod.class.getCanonicalName();
-        String targetMethod = "fooDefUse(I)Z";
+        String targetMethod = "foo(Ljava/lang/Integer;)Z";
         Properties.TARGET_CLASS = targetClass;
         Properties.TARGET_METHOD = targetMethod;
         Properties.CRITERION = new Properties.Criterion[]{Properties.Criterion.CBRANCH};
@@ -66,8 +65,8 @@ public class TargetMethodSystemTest extends SystemTestBase {
 
         GeneticAlgorithm<?> ga = getGAFromResult(result);
         TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
-        Assert.assertTrue(best.toString().contains("fooDefUse"));
-        Assert.assertFalse(best.toString().contains("barDefUse"));
+        Assert.assertTrue(best.toString().contains("foo"));
+        Assert.assertFalse(best.toString().contains("bar"));
     }
 
     @Test
@@ -75,7 +74,7 @@ public class TargetMethodSystemTest extends SystemTestBase {
         EvoSuite evosuite = new EvoSuite();
 
         String targetClass = TargetMethod.class.getCanonicalName();
-        String targetMethod = "fooDefUse(I)Z";
+        String targetMethod = "foo(Ljava/lang/Integer;)Z";
         Properties.TARGET_CLASS = targetClass;
         Properties.TARGET_METHOD = targetMethod;
         Properties.CRITERION = new Properties.Criterion[]{Properties.Criterion.OUTPUT};
@@ -85,8 +84,8 @@ public class TargetMethodSystemTest extends SystemTestBase {
 
         GeneticAlgorithm<?> ga = getGAFromResult(result);
         TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
-        Assert.assertTrue(best.toString().contains("fooDefUse"));
-        Assert.assertFalse(best.toString().contains("barDefUse"));
+        Assert.assertTrue(best.toString().contains("foo"));
+        Assert.assertFalse(best.toString().contains("bar"));
     }
 
     @Test
@@ -94,7 +93,7 @@ public class TargetMethodSystemTest extends SystemTestBase {
         EvoSuite evosuite = new EvoSuite();
 
         String targetClass = TargetMethod.class.getCanonicalName();
-        String targetMethod = "fooException()Z";
+        String targetMethod = "foo(Ljava/lang/Integer;)Z";
         Properties.TARGET_CLASS = targetClass;
         Properties.TARGET_METHOD = targetMethod;
         Properties.CRITERION = new Properties.Criterion[]{Properties.Criterion.EXCEPTION};
@@ -104,8 +103,8 @@ public class TargetMethodSystemTest extends SystemTestBase {
 
         GeneticAlgorithm<?> ga = getGAFromResult(result);
         TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
-        Assert.assertTrue(best.toString().contains("fooException"));
-        Assert.assertFalse(best.toString().contains("barException"));
+        Assert.assertTrue(best.toString().contains("foo"));
+        Assert.assertFalse(best.toString().contains("bar"));
     }
 
     @Test
@@ -113,7 +112,7 @@ public class TargetMethodSystemTest extends SystemTestBase {
         EvoSuite evosuite = new EvoSuite();
 
         String targetClass = TargetMethod.class.getCanonicalName();
-        String targetMethod = "fooDefUse(I)Z";
+        String targetMethod = "foo(Ljava/lang/Integer;)Z";
         Properties.TARGET_CLASS = targetClass;
         Properties.TARGET_METHOD = targetMethod;
         Properties.CRITERION = new Properties.Criterion[]{Properties.Criterion.STRONGMUTATION};
@@ -123,8 +122,8 @@ public class TargetMethodSystemTest extends SystemTestBase {
 
         GeneticAlgorithm<?> ga = getGAFromResult(result);
         TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
-        Assert.assertTrue(best.toString().contains("fooDefUse"));
-        Assert.assertFalse(best.toString().contains("barDefUse"));
+        Assert.assertTrue(best.toString().contains("foo"));
+        Assert.assertFalse(best.toString().contains("bar"));
     }
 
     @Test
@@ -132,7 +131,7 @@ public class TargetMethodSystemTest extends SystemTestBase {
         EvoSuite evosuite = new EvoSuite();
 
         String targetClass = TargetMethod.class.getCanonicalName();
-        String targetMethod = "fooDefUse(I)Z";
+        String targetMethod = "foo(Ljava/lang/Integer;)Z";
         Properties.TARGET_CLASS = targetClass;
         Properties.TARGET_METHOD = targetMethod;
         Properties.CRITERION = new Properties.Criterion[]{Properties.Criterion.WEAKMUTATION};
@@ -142,8 +141,8 @@ public class TargetMethodSystemTest extends SystemTestBase {
 
         GeneticAlgorithm<?> ga = getGAFromResult(result);
         TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
-        Assert.assertTrue(best.toString().contains("fooDefUse"));
-        Assert.assertFalse(best.toString().contains("barDefUse"));
+        Assert.assertTrue(best.toString().contains("foo"));
+        Assert.assertFalse(best.toString().contains("bar"));
     }
 
     @Test
@@ -151,7 +150,7 @@ public class TargetMethodSystemTest extends SystemTestBase {
         EvoSuite evosuite = new EvoSuite();
 
         String targetClass = TargetMethod.class.getCanonicalName();
-        String targetMethod = "fooDefUse(I)Z";
+        String targetMethod = "foo(Ljava/lang/Integer;)Z";
         Properties.TARGET_CLASS = targetClass;
         Properties.TARGET_METHOD = targetMethod;
         Properties.CRITERION = new Properties.Criterion[]{Properties.Criterion.METHODTRACE};
@@ -161,8 +160,8 @@ public class TargetMethodSystemTest extends SystemTestBase {
 
         GeneticAlgorithm<?> ga = getGAFromResult(result);
         TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
-        Assert.assertTrue(best.toString().contains("fooDefUse"));
-        Assert.assertFalse(best.toString().contains("barDefUse"));
+        Assert.assertTrue(best.toString().contains("foo"));
+        Assert.assertFalse(best.toString().contains("bar"));
     }
 
     @Test
@@ -170,7 +169,7 @@ public class TargetMethodSystemTest extends SystemTestBase {
         EvoSuite evosuite = new EvoSuite();
 
         String targetClass = TargetMethod.class.getCanonicalName();
-        String targetMethod = "fooDefUse(I)Z";
+        String targetMethod = "foo(Ljava/lang/Integer;)Z";
         Properties.TARGET_CLASS = targetClass;
         Properties.TARGET_METHOD = targetMethod;
         Properties.CRITERION = new Properties.Criterion[]{Properties.Criterion.METHOD};
@@ -180,8 +179,9 @@ public class TargetMethodSystemTest extends SystemTestBase {
 
         GeneticAlgorithm<?> ga = getGAFromResult(result);
         TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
-        Assert.assertTrue(best.toString().contains("fooDefUse"));
-        Assert.assertFalse(best.toString().contains("barDefUse"));
+        System.out.println(best.toString());
+        Assert.assertTrue(best.toString().contains("foo"));
+        Assert.assertFalse(best.toString().contains("bar"));
     }
 
     @Test
@@ -189,7 +189,7 @@ public class TargetMethodSystemTest extends SystemTestBase {
         EvoSuite evosuite = new EvoSuite();
 
         String targetClass = TargetMethod.class.getCanonicalName();
-        String targetMethod = "fooDefUse(I)Z";
+        String targetMethod = "foo(Ljava/lang/Integer;)Z";
         Properties.TARGET_CLASS = targetClass;
         Properties.TARGET_METHOD = targetMethod;
         Properties.CRITERION = new Properties.Criterion[]{Properties.Criterion.METHODNOEXCEPTION};
@@ -199,8 +199,8 @@ public class TargetMethodSystemTest extends SystemTestBase {
 
         GeneticAlgorithm<?> ga = getGAFromResult(result);
         TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
-        Assert.assertTrue(best.toString().contains("fooDefUse"));
-        Assert.assertFalse(best.toString().contains("barDefUse"));
+        Assert.assertTrue(best.toString().contains("foo"));
+        Assert.assertFalse(best.toString().contains("bar"));
     }
 
     @Test
@@ -208,7 +208,7 @@ public class TargetMethodSystemTest extends SystemTestBase {
         EvoSuite evosuite = new EvoSuite();
 
         String targetClass = TargetMethod.class.getCanonicalName();
-        String targetMethod = "fooDefUse(I)Z";
+        String targetMethod = "foo(Ljava/lang/Integer;)Z";
         Properties.TARGET_CLASS = targetClass;
         Properties.TARGET_METHOD = targetMethod;
         Properties.CRITERION = new Properties.Criterion[]{Properties.Criterion.LINE};
@@ -218,8 +218,8 @@ public class TargetMethodSystemTest extends SystemTestBase {
 
         GeneticAlgorithm<?> ga = getGAFromResult(result);
         TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
-        Assert.assertTrue(best.toString().contains("fooDefUse"));
-        Assert.assertFalse(best.toString().contains("barDefUse"));
+        Assert.assertTrue(best.toString().contains("foo"));
+        Assert.assertFalse(best.toString().contains("bar"));
     }
 
     @Test
@@ -227,7 +227,7 @@ public class TargetMethodSystemTest extends SystemTestBase {
         EvoSuite evosuite = new EvoSuite();
 
         String targetClass = TargetMethod.class.getCanonicalName();
-        String targetMethod = "fooDefUse(I)Z";
+        String targetMethod = "foo(Ljava/lang/Integer;)Z";
         Properties.TARGET_CLASS = targetClass;
         Properties.TARGET_METHOD = targetMethod;
         Properties.CRITERION = new Properties.Criterion[]{Properties.Criterion.ONLYLINE};
@@ -237,8 +237,8 @@ public class TargetMethodSystemTest extends SystemTestBase {
 
         GeneticAlgorithm<?> ga = getGAFromResult(result);
         TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
-        Assert.assertTrue(best.toString().contains("fooDefUse"));
-        Assert.assertFalse(best.toString().contains("barDefUse"));
+        Assert.assertTrue(best.toString().contains("foo"));
+        Assert.assertFalse(best.toString().contains("bar"));
     }
 
 
@@ -247,7 +247,7 @@ public class TargetMethodSystemTest extends SystemTestBase {
         EvoSuite evosuite = new EvoSuite();
 
         String targetClass = TargetMethod.class.getCanonicalName();
-        String targetMethod = "fooDefUse(I)Z";
+        String targetMethod = "foo(Ljava/lang/Integer;)Z";
         Properties.TARGET_CLASS = targetClass;
         Properties.TARGET_METHOD = targetMethod;
         Properties.CRITERION = new Properties.Criterion[]{Properties.Criterion.INPUT};
@@ -257,17 +257,17 @@ public class TargetMethodSystemTest extends SystemTestBase {
 
         GeneticAlgorithm<?> ga = getGAFromResult(result);
         TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
-        Assert.assertTrue(best.toString().contains("fooDefUse"));
-        Assert.assertFalse(best.toString().contains("barDefUse"));
+        Assert.assertTrue(best.toString().contains("foo"));
+        Assert.assertFalse(best.toString().contains("bar"));
     }
 
-    @Ignore
+    @Ignore // Why?
     @Test
     public void testTargetMethodWithALLDEFCoverage() {
         EvoSuite evosuite = new EvoSuite();
 
         String targetClass = TargetMethod.class.getCanonicalName();
-        String targetMethod = "fooDefUse(I)Z";
+        String targetMethod = "foo(Ljava/lang/Integer;)Z";
         Properties.TARGET_CLASS = targetClass;
         Properties.TARGET_METHOD = targetMethod;
         Properties.CRITERION = new Properties.Criterion[]{Properties.Criterion.ALLDEFS};
@@ -277,18 +277,16 @@ public class TargetMethodSystemTest extends SystemTestBase {
 
         GeneticAlgorithm<?> ga = getGAFromResult(result);
         TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
-        System.out.println(best.toString());
-        System.out.println(best.toString().contains("fooDefUse"));
-//        Assert.assertFalse(best.toString().contains("barDefUse"));
+        Assert.assertTrue(best.toString().contains("foo"));
+        Assert.assertFalse(best.toString().contains("bar"));
     }
 
-    @Ignore
     @Test
     public void testTargetMethodWithDEFUSECoverage() {
         EvoSuite evosuite = new EvoSuite();
 
         String targetClass = TargetMethod.class.getCanonicalName();
-        String targetMethod = "fooDefUse(I)Z";
+        String targetMethod = "foo(Ljava/lang/Integer;)Z";
         Properties.TARGET_CLASS = targetClass;
         Properties.TARGET_METHOD = targetMethod;
         Properties.CRITERION = new Properties.Criterion[]{Properties.Criterion.DEFUSE};
@@ -298,18 +296,17 @@ public class TargetMethodSystemTest extends SystemTestBase {
 
         GeneticAlgorithm<?> ga = getGAFromResult(result);
         TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
-        System.out.println(best.toString());
-        System.out.println(best.toString().contains("fooDefUse"));
-//        Assert.assertFalse(best.toString().contains("barDefUse"));
+        Assert.assertTrue(best.toString().contains("foo"));
+        Assert.assertFalse(best.toString().contains("bar"));
     }
 
-    @Ignore
+    //@Ignore
     @Test
     public void testTargetMethodWithOnlyBranchCoverage() {
         EvoSuite evosuite = new EvoSuite();
 
         String targetClass = TargetMethod.class.getCanonicalName();
-        String targetMethod = "fooDefUse(I)Z";
+        String targetMethod = "foo(Ljava/lang/Integer;)Z";
         Properties.TARGET_CLASS = targetClass;
         Properties.TARGET_METHOD = targetMethod;
         Properties.CRITERION = new Properties.Criterion[]{Properties.Criterion.ONLYBRANCH};
@@ -320,16 +317,17 @@ public class TargetMethodSystemTest extends SystemTestBase {
         GeneticAlgorithm<?> ga = getGAFromResult(result);
         TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
         System.out.println(best.toString());
-        System.out.println(best.toString().contains("fooDefUse"));
-//        Assert.assertFalse(best.toString().contains("barDefUse"));
+        System.out.println(best.toString().contains("foo"));
+        Assert.assertFalse(best.toString().contains("bar"));
     }
 
+    @Ignore
     @Test // No goals generated
     public void testTargetMethodWithTryCatchCoverage() {
         EvoSuite evosuite = new EvoSuite();
 
         String targetClass = TargetMethod.class.getCanonicalName();
-        String targetMethod = "foo()Z";
+        String targetMethod = "foo(Ljava/lang/Integer;)Z";
         Properties.TARGET_CLASS = targetClass;
         Properties.TARGET_METHOD = targetMethod;
         Properties.CRITERION = new Properties.Criterion[]{Properties.Criterion.TRYCATCH};
@@ -339,18 +337,18 @@ public class TargetMethodSystemTest extends SystemTestBase {
 
         GeneticAlgorithm<?> ga = getGAFromResult(result);
         TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
-        System.out.println(best.toString());
-//        Assert.assertTrue(best.toString().contains("foo"));
-//        Assert.assertFalse(best.toString().contains("bar"));
+
+        Assert.assertTrue(best.toString().contains("foo"));
+        Assert.assertFalse(best.toString().contains("bar"));
     }
 
-    @Ignore
+    // @Ignore
     @Test //TODO: Needs to be fixed
     public void testTargetMethodWithStatementCoverage() {
         EvoSuite evosuite = new EvoSuite();
 
         String targetClass = TargetMethod.class.getCanonicalName();
-        String targetMethod = "fooDefUse(I)Z";
+        String targetMethod = "foo(Ljava/lang/Integer;)Z";
         Properties.TARGET_CLASS = targetClass;
         Properties.TARGET_METHOD = targetMethod;
         Properties.CRITERION = new Properties.Criterion[]{Properties.Criterion.STATEMENT};
@@ -361,17 +359,17 @@ public class TargetMethodSystemTest extends SystemTestBase {
         GeneticAlgorithm<?> ga = getGAFromResult(result);
         TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
         System.out.println(best.toString());
-//        Assert.assertTrue(best.toString().contains("fooDefUse"));
-//        Assert.assertFalse(best.toString().contains("barDefUse"));
+        Assert.assertTrue(best.toString().contains("foo"));
+        Assert.assertFalse(best.toString().contains("bar"));
     }
 
-    @Ignore
+    // @Ignore
     @Test //TODO: Needs to be fixed
     public void testTargetMethodWithMutationCoverage() {
         EvoSuite evosuite = new EvoSuite();
 
         String targetClass = TargetMethod.class.getCanonicalName();
-        String targetMethod = "fooDefUse(I)Z";
+        String targetMethod = "foo(Ljava/lang/Integer;)Z";
         Properties.TARGET_CLASS = targetClass;
         Properties.TARGET_METHOD = targetMethod;
         Properties.CRITERION = new Properties.Criterion[]{Properties.Criterion.MUTATION};
@@ -382,17 +380,17 @@ public class TargetMethodSystemTest extends SystemTestBase {
         GeneticAlgorithm<?> ga = getGAFromResult(result);
         TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
         System.out.println(best.toString());
-//        Assert.assertTrue(best.toString().contains("fooDefUse"));
-//        Assert.assertFalse(best.toString().contains("barDefUse"));
+        Assert.assertTrue(best.toString().contains("foo"));
+        Assert.assertFalse(best.toString().contains("bar"));
     }
 
-    @Ignore
+    // @Ignore
     @Test // Todo: Needs to be fixed
     public void testTargetMethodWithOnlyMutationCoverage() {
         EvoSuite evosuite = new EvoSuite();
 
         String targetClass = TargetMethod.class.getCanonicalName();
-        String targetMethod = "fooDefUse(I)Z";
+        String targetMethod = "foo(Ljava/lang/Integer;)Z";
         Properties.TARGET_CLASS = targetClass;
         Properties.TARGET_METHOD = targetMethod;
         Properties.CRITERION = new Properties.Criterion[]{Properties.Criterion.ONLYMUTATION};
@@ -403,7 +401,7 @@ public class TargetMethodSystemTest extends SystemTestBase {
         GeneticAlgorithm<?> ga = getGAFromResult(result);
         TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
         System.out.println(best.toString());
-//        Assert.assertTrue(best.toString().contains("fooDefUse"));
-//        Assert.assertFalse(best.toString().contains("barDefUse"));
+        Assert.assertTrue(best.toString().contains("foo"));
+        Assert.assertFalse(best.toString().contains("bar"));
     }
 }

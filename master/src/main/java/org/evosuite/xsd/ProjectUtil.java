@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -131,7 +131,7 @@ public abstract class ProjectUtil {
    * @return all criteria used or an empty Set<> if there is not any {@code CUT}
    */
   public static Set<String> getUnionCriteria(Project project) {
-    Set<String> criteria = new LinkedHashSet<String>();
+    Set<String> criteria = new LinkedHashSet<>();
     if (project.getCut().isEmpty()) {
       return criteria;
     }
@@ -234,7 +234,7 @@ public abstract class ProjectUtil {
    *         there is not any successful generation at all
    */
   protected static List<Generation> getAllSuccessfulGenerations(Project project) {
-    List<Generation> all = new ArrayList<Generation>();
+    List<Generation> all = new ArrayList<>();
     if (project.getCut().isEmpty()) {
       return all;
     }

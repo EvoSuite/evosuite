@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -100,28 +100,28 @@ public class IntegerConverterTestCase extends NumberConverterTestBase {
             "1",
             "17",
             String.valueOf(Integer.MAX_VALUE),
-            new Byte((byte)7),
-            new Short((short)8),
-            new Integer(9),
-            new Long(10),
-            new Float(11.1),
-            new Double(12.2)
+                (byte) 7,
+                (short) 8,
+                9,
+                10L,
+                11.1f,
+                12.2
         };
         
-        Integer[] expected = { 
-            new Integer(Integer.MIN_VALUE),
-            new Integer(-17),
-            new Integer(-1),
-            new Integer(0),
-            new Integer(1),
-            new Integer(17),
-            new Integer(Integer.MAX_VALUE),
-            new Integer(7),
-            new Integer(8),
-            new Integer(9),
-            new Integer(10),
-            new Integer(11),
-            new Integer(12)
+        Integer[] expected = {
+                Integer.MIN_VALUE,
+                -17,
+                -1,
+                0,
+                1,
+                17,
+                Integer.MAX_VALUE,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12
         };
         
         for(int i=0;i<expected.length;i++) {
@@ -138,20 +138,20 @@ public class IntegerConverterTestCase extends NumberConverterTestBase {
         Converter converter = makeConverter();
         Class clazz = Integer.class;
 
-        Long min         = new Long(Integer.MIN_VALUE);
-        Long max         = new Long(Integer.MAX_VALUE);
-        Long minMinusOne = new Long(min.longValue() - 1);
-        Long maxPlusOne  = new Long(max.longValue() + 1);
+        Long min         = (long) Integer.MIN_VALUE;
+        Long max         = (long) Integer.MAX_VALUE;
+        Long minMinusOne = min - 1;
+        Long maxPlusOne  = max + 1;
 
         // Minimum
-        assertEquals("Minimum", new Integer(Integer.MIN_VALUE), converter.convert(clazz, min));
+        assertEquals("Minimum", Integer.MIN_VALUE, converter.convert(clazz, min));
 
         // Maximum
-        assertEquals("Maximum", new Integer(Integer.MAX_VALUE), converter.convert(clazz, max));
+        assertEquals("Maximum", Integer.MAX_VALUE, converter.convert(clazz, max));
 
         // Too Small
         try {
-            assertEquals("Minimum - 1", null, converter.convert(clazz, minMinusOne));
+            assertNull("Minimum - 1", converter.convert(clazz, minMinusOne));
             fail("Less than minimum, expected ConversionException");
         } catch (Exception e) {
             // expected result
@@ -159,7 +159,7 @@ public class IntegerConverterTestCase extends NumberConverterTestBase {
 
         // Too Large
         try {
-            assertEquals("Maximum + 1", null, converter.convert(clazz, maxPlusOne));
+            assertNull("Maximum + 1", converter.convert(clazz, maxPlusOne));
             fail("More than maximum, expected ConversionException");
         } catch (Exception e) {
             // expected result

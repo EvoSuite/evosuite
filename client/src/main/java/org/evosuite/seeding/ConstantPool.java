@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
+
 package org.evosuite.seeding;
 
 import org.objectweb.asm.Type;
@@ -37,7 +35,7 @@ public interface ConstantPool {
 	 * 
 	 * @return a {@link java.lang.String} object.
 	 */
-	public String getRandomString();
+    String getRandomString();
 	
 	/**
 	 * <p>
@@ -46,7 +44,7 @@ public interface ConstantPool {
 	 * 
 	 * @return a {@link org.objectweb.asm.Type} object.
 	 */
-	public Type getRandomType();
+    Type getRandomType();
 	
 	/**
 	 * <p>
@@ -55,7 +53,7 @@ public interface ConstantPool {
 	 * 
 	 * @return a int.
 	 */
-	public int getRandomInt();
+    int getRandomInt();
 
 	/**
 	 * <p>
@@ -64,7 +62,7 @@ public interface ConstantPool {
 	 * 
 	 * @return a float.
 	 */
-	public float getRandomFloat();
+    float getRandomFloat();
 
 	/**
 	 * <p>
@@ -73,7 +71,7 @@ public interface ConstantPool {
 	 * 
 	 * @return a double.
 	 */
-	public double getRandomDouble();
+    double getRandomDouble();
 
 	/**
 	 * <p>
@@ -82,7 +80,7 @@ public interface ConstantPool {
 	 * 
 	 * @return a long.
 	 */
-	public long getRandomLong();
+    long getRandomLong();
 
 	/**
 	 * <p>
@@ -92,7 +90,7 @@ public interface ConstantPool {
 	 * @param object
 	 *            a {@link java.lang.Object} object.
 	 */
-	public void add(Object object);
+    void add(Object object);
 	
-	public String toString();
+	String toString();
 }

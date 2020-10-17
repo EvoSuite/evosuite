@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -24,11 +24,11 @@ package com.examples.with.different.packagename.fm;
  */
 public class SimpleFM_DoubleMock {
 
-    public static interface Foo{
+    public interface Foo{
         boolean foo();
     }
 
-    public static interface Bar{
+    public interface Bar{
         boolean bar();
     }
 

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -40,7 +40,7 @@ import java.util.jar.Manifest;
  */
 public class JarPathing {
 
-    private static Logger logger = LoggerFactory.getLogger(JarPathing.class);
+    private static final Logger logger = LoggerFactory.getLogger(JarPathing.class);
 
     private static final String PATHING_JAR_PREFIX = "EvoSuite_pathingJar";
 
@@ -122,8 +122,7 @@ public class JarPathing {
 
 		logger.debug("Going to create jar pathing for: {}", classpath);
 
-        List<String> elements = new ArrayList<>();
-        elements.addAll(Arrays.asList(classpath.split(File.pathSeparator)));
+        List<String> elements = new ArrayList<>(Arrays.asList(classpath.split(File.pathSeparator)));
 
         StringBuffer escaped = new StringBuffer();
         while(!elements.isEmpty()) {

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -142,7 +142,7 @@ public class LocalSearchNumericSystemTest extends SystemTestBase {
 		assertEquals(1.0, fitness.getFitness(suite), 0.1F);
 		
 		TestSuiteLocalSearch localSearch = TestSuiteLocalSearch.selectTestSuiteLocalSearch();
-		LocalSearchObjective<TestSuiteChromosome> localObjective = new DefaultLocalSearchObjective<TestSuiteChromosome>();
+		LocalSearchObjective<TestSuiteChromosome> localObjective = new DefaultLocalSearchObjective();
 		localObjective.addFitnessFunction(fitness);
 		localSearch.doSearch(suite, localObjective);
 		System.out.println("Fitness: "+fitness.getFitness(suite));
@@ -200,7 +200,7 @@ public class LocalSearchNumericSystemTest extends SystemTestBase {
 		assertEquals(1.0, fitness.getFitness(suite), 0.1F);
 		
 		TestSuiteLocalSearch localSearch = TestSuiteLocalSearch.selectTestSuiteLocalSearch();
-		LocalSearchObjective<TestSuiteChromosome> localObjective = new DefaultLocalSearchObjective<TestSuiteChromosome>();
+		LocalSearchObjective<TestSuiteChromosome> localObjective = new DefaultLocalSearchObjective();
 		localObjective.addFitnessFunction(fitness);
 		localSearch.doSearch(suite, localObjective);
 		System.out.println("Fitness: "+fitness.getFitness(suite));
@@ -257,7 +257,7 @@ public class LocalSearchNumericSystemTest extends SystemTestBase {
 		assertEquals(1.0, fitness.getFitness(suite), 0.1F);
 		
 		TestSuiteLocalSearch localSearch = TestSuiteLocalSearch.selectTestSuiteLocalSearch();
-		LocalSearchObjective<TestSuiteChromosome> localObjective = new DefaultLocalSearchObjective<TestSuiteChromosome>();
+		LocalSearchObjective<TestSuiteChromosome> localObjective = new DefaultLocalSearchObjective();
 		localObjective.addFitnessFunction(fitness);
 		localSearch.doSearch(suite, localObjective);
 		System.out.println("Fitness: "+fitness.getFitness(suite));

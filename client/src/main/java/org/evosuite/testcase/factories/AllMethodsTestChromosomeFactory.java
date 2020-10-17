@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
+
 package org.evosuite.testcase.factories;
 
 import java.util.LinkedHashSet;
@@ -58,13 +56,13 @@ public class AllMethodsTestChromosomeFactory implements ChromosomeFactory<TestCh
 	protected static final Logger logger = LoggerFactory.getLogger(AllMethodsTestChromosomeFactory.class);
 
 	/** Methods we have already seen */
-	private static Set<GenericAccessibleObject<?>> attemptedMethods = new LinkedHashSet<GenericAccessibleObject<?>>();
+	private static Set<GenericAccessibleObject<?>> attemptedMethods = new LinkedHashSet<>();
 
 	/** Methods we have not already seen */
-	private static Set<GenericAccessibleObject<?>> remainingMethods = new LinkedHashSet<GenericAccessibleObject<?>>();
+	private static Set<GenericAccessibleObject<?>> remainingMethods = new LinkedHashSet<>();
 
 	/** Methods we have to cover */
-	private static List<GenericAccessibleObject<?>> allMethods = new LinkedList<GenericAccessibleObject<?>>();
+	private static List<GenericAccessibleObject<?>> allMethods = new LinkedList<>();
 
 	/**
 	 * Create a list of all methods

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -73,7 +73,7 @@ public class MethodTraceCoverageFactory extends
 	/** {@inheritDoc} */
 	@Override
     public List<MethodTraceCoverageTestFitness> getCoverageGoals() {
-        List<MethodTraceCoverageTestFitness> goals = new ArrayList<MethodTraceCoverageTestFitness>();
+        List<MethodTraceCoverageTestFitness> goals = new ArrayList<>();
 
         long start = System.currentTimeMillis();
 

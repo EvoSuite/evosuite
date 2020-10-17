@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -20,13 +20,9 @@
 package org.evosuite.classpath;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Scanner;
-import java.util.jar.*;
 
 import org.evosuite.Properties;
-import org.evosuite.runtime.util.Inputs;
 import org.evosuite.utils.LoggingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,7 +40,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ClassPathHandler {
 
-	private static Logger logger = LoggerFactory.getLogger(ClassPathHandler.class);
+	private static final Logger logger = LoggerFactory.getLogger(ClassPathHandler.class);
 
 	private static final ClassPathHandler singleton = new ClassPathHandler();
 
@@ -164,11 +160,10 @@ public class ClassPathHandler {
 			File file = File.createTempFile("EvoSuite_classpathFile",".txt");
 			file.deleteOnExit();
 
-			BufferedWriter out = new BufferedWriter(new FileWriter(file));
-			String line = classpath;
-			out.write(line);
-			out.newLine();
-			out.close();
+			try (BufferedWriter out = new BufferedWriter(new FileWriter(file))) {
+				out.write(classpath);
+				out.newLine();
+			}
 
 			return file.getAbsolutePath();
 

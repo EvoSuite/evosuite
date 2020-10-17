@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -20,25 +20,17 @@
 package org.evosuite.runtime.classhandling;
 
 import com.examples.with.different.packagename.reset.ClassWithMutableStatic;
-import com.examples.with.different.packagename.reset.SingletonObjectReset;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.SystemTestBase;
-import org.evosuite.TestGenerationContext;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.statistics.OutputVariable;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.statistics.backend.DebugStatisticsBackend;
-import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testsuite.TestSuiteChromosome;
-import org.evosuite.utils.Randomness;
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
-import java.lang.reflect.Field;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -69,7 +61,7 @@ public class FlakyGetStaticSystemTest extends SystemTestBase {
         TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
         System.out.println("EvolvedTestSuite:\n" + best);
         double best_fitness = best.getFitness();
-        Assert.assertTrue("Optimal coverage was not achieved ", best_fitness == 0.0);
+        Assert.assertEquals("Optimal coverage was not achieved ", 0.0, best_fitness, 0.0);
 
         Map<String, OutputVariable<?>> map = DebugStatisticsBackend.getLatestWritten();
         Assert.assertNotNull(map);

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -63,9 +63,9 @@ public class DefUseCoverageFactory extends
 	private static List<DefUseCoverageTestFitness> goals;
 
 	// map of all NON-parameter-goals
-	private static Map<Definition, Map<Use, DefUseCoverageTestFitness>> goalMap = new HashMap<Definition, Map<Use, DefUseCoverageTestFitness>>();
+	private static Map<Definition, Map<Use, DefUseCoverageTestFitness>> goalMap = new HashMap<>();
 
-	private static Map<DefUseCoverageTestFitness.DefUsePairType, Integer> goalCounts = new HashMap<DefUseCoverageTestFitness.DefUsePairType, Integer>();
+	private static Map<DefUseCoverageTestFitness.DefUsePairType, Integer> goalCounts = new HashMap<>();
 
 	/**
 	 * <p>
@@ -121,9 +121,9 @@ public class DefUseCoverageFactory extends
 
 		long start = System.currentTimeMillis();
 		LoggingUtils.getEvoLogger().info("starting DefUse-Coverage goal generation");
-		duGoals = new ArrayList<DefUseCoverageTestFitness>();
+		duGoals = new ArrayList<>();
 		if(!GraphPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).canMakeCCFGForClass(Properties.TARGET_CLASS)) {
-			goals = new ArrayList<DefUseCoverageTestFitness>();
+			goals = new ArrayList<>();
 			logger.info("Have no CFGs, is this an interface?");
 			return;
 		}
@@ -145,7 +145,7 @@ public class DefUseCoverageFactory extends
 		                                         + " parameter goals");
 
 		called = true;
-		goals = new ArrayList<DefUseCoverageTestFitness>();
+		goals = new ArrayList<>();
 		goals.addAll(duGoals);
 		long end = System.currentTimeMillis();
 		goalComputationTime = end - start;
@@ -306,7 +306,7 @@ public class DefUseCoverageFactory extends
 	private static boolean registerGoal(DefUseCoverageTestFitness goal) {
 		if (!goalMap.containsKey(goal.getGoalDefinition()))
 			goalMap.put(goal.getGoalDefinition(),
-			            new HashMap<Use, DefUseCoverageTestFitness>());
+					new HashMap<>());
 		if (goalMap.get(goal.getGoalDefinition()).containsKey(goal.getGoalUse()) /* && goal.isInterMethodPair() */)
 			// when intra-goal DUs also have free paths to method start and end
 			// it can be declared both an intra-goal and an inter-goal. in this
@@ -376,7 +376,7 @@ public class DefUseCoverageFactory extends
 	 * @return a {@link java.util.Set} object.
 	 */
 	public static Set<DefUseCoverageTestFitness> getParameterGoals() {
-		Set<DefUseCoverageTestFitness> r = new HashSet<DefUseCoverageTestFitness>();
+		Set<DefUseCoverageTestFitness> r = new HashSet<>();
 		Set<Use> parameterUses = DefUsePool.retrieveRegisteredParameterUses();
 		for (Use use : parameterUses) {
 			DefUseCoverageTestFitness goal = new DefUseCoverageTestFitness(use);
@@ -398,7 +398,7 @@ public class DefUseCoverageFactory extends
 	public static Set<Definition> getRegisteredDefinitions() {
 		if (!called)
 			computeGoals();
-		return new HashSet<Definition>(goalMap.keySet());
+		return new HashSet<>(goalMap.keySet());
 	}
 
 	/**
@@ -490,7 +490,7 @@ public class DefUseCoverageFactory extends
 		if (!Properties.DEFUSE_ALIASES)
 			return false;
 
-		Set<DefUseCoverageTestFitness> aliasingGoals = new HashSet<DefUseCoverageTestFitness>();
+		Set<DefUseCoverageTestFitness> aliasingGoals = new HashSet<>();
 
 		for (ExecutionResult result : results) {
 			aliasingGoals.addAll(detectAliasingGoals(result));
@@ -513,7 +513,7 @@ public class DefUseCoverageFactory extends
 		Map<String, HashMap<Integer, HashMap<Integer, Integer>>> passedDefs = result.getTrace().getDefinitionData();
 		Map<String, HashMap<Integer, HashMap<Integer, Integer>>> passedUses = result.getTrace().getUseData();
 
-		Set<DefUseCoverageTestFitness> aliasingGoals = new HashSet<DefUseCoverageTestFitness>();
+		Set<DefUseCoverageTestFitness> aliasingGoals = new HashSet<>();
 
 		for (String goalVariable : passedUsesObject.keySet()) {
 			for (Integer objectId : passedUsesObject.get(goalVariable).keySet()) {
@@ -526,8 +526,8 @@ public class DefUseCoverageFactory extends
 									Map<Integer, Integer> currentDefMap = passedDefs.get(otherGoalVariable).get(objectId);
 									Map<Integer, Integer> currentUseMap = passedUses.get(goalVariable).get(objectId);
 
-									List<Integer> duCounterTrace = new ArrayList<Integer>(
-									        currentDefMap.keySet());
+									List<Integer> duCounterTrace = new ArrayList<>(
+											currentDefMap.keySet());
 									duCounterTrace.addAll(currentUseMap.keySet());
 									//				System.out.println(duCounterTrace.size()); oO for ncs.Bessj these can be up to 50k entries big
 									Collections.sort(duCounterTrace);

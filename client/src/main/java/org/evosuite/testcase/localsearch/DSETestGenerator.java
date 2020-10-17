@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -19,14 +19,6 @@
  */
 package org.evosuite.testcase.localsearch;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.evosuite.Properties;
 import org.evosuite.ga.localsearch.LocalSearchBudget;
 import org.evosuite.ga.localsearch.LocalSearchObjective;
@@ -37,27 +29,29 @@ import org.evosuite.symbolic.PathCondition;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.Variable;
-import org.evosuite.symbolic.solver.SolverCache;
 import org.evosuite.symbolic.solver.Solver;
+import org.evosuite.symbolic.solver.SolverCache;
 import org.evosuite.symbolic.solver.SolverFactory;
 import org.evosuite.symbolic.solver.SolverResult;
 import org.evosuite.testcase.DefaultTestCase;
-import org.evosuite.testcase.execution.ExecutionResult;
-import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
+import org.evosuite.testcase.execution.ExecutionResult;
+import org.evosuite.testcase.statements.PrimitiveStatement;
+import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testsuite.TestSuiteChromosome;
-import org.evosuite.testcase.statements.PrimitiveStatement;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.*;
 
 /**
  * Attempts to create a new test case by applying DSE. The algorithm
  * systematically negates all uncovered branches trying to satisfy the missing
  * branches.
- * 
+ *
  * @author galeotti
  *
  */
@@ -75,7 +69,7 @@ public class DSETestGenerator {
 	/**
 	 * Creates a new test generator using a test suite. The test case will be added
 	 * to the test suite.
-	 * 
+	 *
 	 * @param suite
 	 */
 	public DSETestGenerator(TestSuiteChromosome suite) {
@@ -88,22 +82,22 @@ public class DSETestGenerator {
 	 * Applies DSE to the passed test using as symbolic variables only those that
 	 * are declared in the set of statement indexes. The objective is used to detect
 	 * if the DSE has improved the fitness.
-	 * 
+	 *
 	 * @param test
 	 *            the test case to be used as parameterised unit test
-	 * 
+	 *
 	 * @param statementIndexes
 	 *            a set with statement indexes with primitive value declarations
 	 *            that can be used as symbolic variables. This set must be
 	 *            non-empty.
-	 * 
+	 *
 	 * @param objective
 	 *            the local search objective to measure fitness improvement.
 	 */
 	public TestChromosome generateNewTest(final TestChromosome test, Set<Integer> statementIndexes,
-			LocalSearchObjective<TestChromosome> objective) {
+										  LocalSearchObjective<TestChromosome> objective) {
 
-		logger.info("APPLYING DSE EEEEEEEEEEEEEEEEEEEEEEE");
+		logger.info("APPLYING DSE");
 		logger.info(test.getTestCase().toCode());
 		logger.info("Starting concolic execution");
 		// Backup copy
@@ -123,7 +117,7 @@ public class DSETestGenerator {
 			logger.info(" -> " + c.getConstraint());
 		}
 
-		Set<VariableReference> symbolicVariables = new HashSet<VariableReference>();
+		Set<VariableReference> symbolicVariables = new HashSet<>();
 		for (Integer position : statementIndexes) {
 			final VariableReference variableReference = test.getTestCase().getStatement(position).getReturnValue();
 			symbolicVariables.add(variableReference);
@@ -219,7 +213,7 @@ public class DSETestGenerator {
 
 	/**
 	 * solves a given query (i.e. list of constraints).
-	 * 
+	 *
 	 * @param query
 	 * @return
 	 */
@@ -235,7 +229,7 @@ public class DSETestGenerator {
 	 * covered two ways. If the test case belongs to a whole test suite, the
 	 * coverage of the whole test suite is used, otherwise, only the coverage of the
 	 * single test case.
-	 * 
+	 *
 	 * @param test
 	 *            the original test case
 	 * @param collectedPathCondition
@@ -243,8 +237,8 @@ public class DSETestGenerator {
 	 * @return
 	 */
 	private List<Integer> computeConditionIndexesNotCoveredTwoWays(final TestChromosome test,
-			final PathCondition collectedPathCondition) {
-		List<Integer> conditionIndexesNotCoveredTwoWays = new LinkedList<Integer>();
+																   final PathCondition collectedPathCondition) {
+		List<Integer> conditionIndexesNotCoveredTwoWays = new LinkedList<>();
 		for (int conditionIndex = 0; conditionIndex < collectedPathCondition.size(); conditionIndex++) {
 			BranchCondition b = collectedPathCondition.get(conditionIndex);
 			if (!isCoveredTwoWays(test, b.getInstructionIndex())) {
@@ -258,16 +252,15 @@ public class DSETestGenerator {
 	 * Returns if the true and false branches for this were already covered. If the
 	 * test case belongs to a whole test suite, then the coverage of the test suite
 	 * is used, otherwise the single test case is used.
-	 * 
-	 * @param className
-	 * @param methodName
+	 *
+	 * @param test
 	 * @param branchIndex
 	 * @return
 	 */
 	private boolean isCoveredTwoWays(TestChromosome test, int branchIndex) {
 
-		Set<Integer> trueIndexes = new HashSet<Integer>();
-		Set<Integer> falseIndexes = new HashSet<Integer>();
+		Set<Integer> trueIndexes = new HashSet<>();
+		Set<Integer> falseIndexes = new HashSet<>();
 
 		if (suite != null) {
 			for (ExecutionResult execResult : this.suite.getLastExecutionResults()) {
@@ -293,8 +286,9 @@ public class DSETestGenerator {
 
 	/**
 	 * Creates a Solver query give a branch condition
-	 * 
-	 * @param condition
+	 *
+	 * @param pc
+	 * @param conditionIndexToNegate
 	 * @return
 	 */
 	public static List<Constraint<?>> buildQuery(PathCondition pc, int conditionIndexToNegate) {
@@ -303,7 +297,7 @@ public class DSETestGenerator {
 			throw new IndexOutOfBoundsException("The position " + conditionIndexToNegate + " does not exists");
 		}
 
-		List<Constraint<?>> query = new LinkedList<Constraint<?>>();
+		List<Constraint<?>> query = new LinkedList<>();
 		for (int i = 0; i < conditionIndexToNegate; i++) {
 			BranchCondition b = pc.get(i);
 			query.addAll(b.getSupportingConstraints());
@@ -323,14 +317,14 @@ public class DSETestGenerator {
 
 	/**
 	 * Returns true iff the constraint has at least one variable that is
-	 * 
+	 *
 	 * @param constraint
 	 * @param targets
 	 * @return
 	 */
 	private boolean isRelevant(Constraint<?> constraint, Set<VariableReference> targets) {
 		Set<Variable<?>> variables = constraint.getVariables();
-		Set<String> targetNames = new HashSet<String>();
+		Set<String> targetNames = new HashSet<>();
 		for (VariableReference v : targets) {
 			targetNames.add(v.getName());
 		}
@@ -414,7 +408,7 @@ public class DSETestGenerator {
 	/**
 	 * Apply cone of influence reduction to constraints with respect to the last
 	 * constraint in the list
-	 * 
+	 *
 	 * @param constraints
 	 * @return
 	 */
@@ -423,7 +417,7 @@ public class DSETestGenerator {
 		Constraint<?> target = constraints.get(constraints.size() - 1);
 		Set<Variable<?>> dependencies = getVariables(target);
 
-		LinkedList<Constraint<?>> coi = new LinkedList<Constraint<?>>();
+		LinkedList<Constraint<?>> coi = new LinkedList<>();
 		if (dependencies.size() <= 0)
 			return coi;
 
@@ -445,7 +439,7 @@ public class DSETestGenerator {
 
 	/**
 	 * Get the statement that defines this variable
-	 * 
+	 *
 	 * @param test
 	 * @param name
 	 * @return
@@ -463,12 +457,12 @@ public class DSETestGenerator {
 
 	/**
 	 * Determine the set of variable referenced by this constraint
-	 * 
+	 *
 	 * @param constraint
 	 * @return
 	 */
 	private static Set<Variable<?>> getVariables(Constraint<?> constraint) {
-		Set<Variable<?>> variables = new HashSet<Variable<?>>();
+		Set<Variable<?>> variables = new HashSet<>();
 		getVariables(constraint.getLeftOperand(), variables);
 		getVariables(constraint.getRightOperand(), variables);
 		return variables;
@@ -476,7 +470,7 @@ public class DSETestGenerator {
 
 	/**
 	 * Recursively determine constraints in expression
-	 * 
+	 *
 	 * @param expr
 	 *            a {@link org.evosuite.symbolic.expr.Expression} object.
 	 * @param variables

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
+
 package org.evosuite.instrumentation;
 
 import org.evosuite.assertion.CheapPurityAnalyzer;
@@ -61,7 +59,7 @@ public class PurityAnalysisMethodVisitor extends MethodVisitor {
 	public PurityAnalysisMethodVisitor(String className, String methodName,
 			String descriptor, MethodVisitor mv,
 			CheapPurityAnalyzer purityAnalyzer) {
-		super(Opcodes.ASM7, mv);
+		super(Opcodes.ASM9, mv);
 		this.updatesField = false;
 		this.purityAnalyzer = purityAnalyzer;
 		this.classNameWithDots = className.replace('/', '.');

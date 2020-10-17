@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -36,9 +36,7 @@ import org.objectweb.asm.Type;
  */
 public final class ReferenceVariable extends ReferenceExpression implements Variable<Object> {
 
-	/**
-	 * 
-	 */
+
 	private static final long serialVersionUID = -5785895234153444210L;
 
 	/**

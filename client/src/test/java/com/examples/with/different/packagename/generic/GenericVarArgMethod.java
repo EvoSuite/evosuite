@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
+
 package com.examples.with.different.packagename.generic;
 
 import java.util.ArrayList;
@@ -32,7 +30,7 @@ import java.util.List;
 public class GenericVarArgMethod {
 
 	public static <E extends Number> List<E> of(E e1, E e2, E... others) {
-		List<E> list = new ArrayList<E>();
+		List<E> list = new ArrayList<>();
 		list.add(e1);
 		list.add(e2);
 		for (E e : others)

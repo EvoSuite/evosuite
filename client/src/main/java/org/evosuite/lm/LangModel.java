@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -40,15 +40,15 @@ public class LangModel {
     /**
      * Probability of a unigram occurring.
      */
-    private Map<String, Double> unigram_probs = new HashMap<String, Double>();
+    private Map<String, Double> unigram_probs = new HashMap<>();
     /**
      * Unigram backoff probabilities (used in bigram probability estimation).
      */
-    private Map<String, Double> unigram_backoff_probs = new HashMap<String, Double>();
+    private Map<String, Double> unigram_backoff_probs = new HashMap<>();
     /**
      * Probability that Unigram2 follows Unigram1, where each key is of the form "Unigram1 Unigram2".
      */
-    private Map<String, Double> bigram_probs = new HashMap<String, Double>();
+    private Map<String, Double> bigram_probs = new HashMap<>();
 
     //Sentinel unigram values:
     public static final String START_OF_STRING = "<s>";
@@ -63,12 +63,12 @@ public class LangModel {
      * Mapping of the nth most likely unigrams to follow each unigram.
      * Encoded as: <code>(unigram)(n)> -> (unigram)</code>
      */
-    private HashMap<String, String> context_char = new HashMap<String, String>();
+    private HashMap<String, String> context_char = new HashMap<>();
     /**
      * Mapping of the probability of the nth most likely unigram to follow each unigram.
      * Encoded as: <code>(unigram)(n)> -> (log_probability)</code>
      */
-    private HashMap<String, Double> context_prob = new HashMap<String, Double>();
+    private HashMap<String, Double> context_prob = new HashMap<>();
 
     // Maximum number of characters to predict for each bigram
     int predicted_chars = 10;
@@ -160,7 +160,7 @@ public class LangModel {
         in.close();
 
         ValueComparator bvc = new ValueComparator(bigram_probs);
-        TreeMap<String, Double> sorted_bigram_probs = new TreeMap<String, Double>(
+        TreeMap<String, Double> sorted_bigram_probs = new TreeMap<>(
                 bvc);
 
         //Store bigrams sorted by probability:

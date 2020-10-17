@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -26,7 +26,6 @@ import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.coverage.TestFitnessFactory;
 import org.evosuite.ga.FitnessFunction;
-import org.evosuite.ga.archive.ArchiveTestChromosomeFactory;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import org.evosuite.ga.stoppingconditions.StoppingCondition;
 import org.evosuite.result.TestGenerationResultBuilder;
@@ -37,7 +36,6 @@ import org.evosuite.strategy.TestGenerationStrategy;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
-import org.evosuite.testsuite.factories.TestSuiteChromosomeFactory;
 import org.evosuite.utils.ArrayUtil;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
@@ -76,8 +74,8 @@ public class DSEStrategy extends TestGenerationStrategy {
 			ClientServices.getInstance().getClientNode().changeState(ClientState.SEARCH);
 
 			DSEAlgorithm algorithm = new DSEAlgorithm();
-			StoppingCondition stoppingCondition = getStoppingCondition();
-			algorithm.addFitnessFunctions((List)fitnessFunctions);
+			StoppingCondition<TestSuiteChromosome> stoppingCondition = getStoppingCondition();
+			algorithm.addFitnessFunctions(fitnessFunctions);
 			if (Properties.STOP_ZERO) {
 				
 			}
@@ -92,7 +90,7 @@ public class DSEStrategy extends TestGenerationStrategy {
 		} else {
 			zeroFitness.setFinished();
 			testSuite = new TestSuiteChromosome();
-			for (FitnessFunction<?> ff : fitnessFunctions) {
+			for (FitnessFunction<TestSuiteChromosome> ff : fitnessFunctions) {
 				testSuite.setCoverage(ff, 1.0);
 			}
 		}

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,6 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- *
- */
 package org.evosuite.assertion;
 
 import java.util.HashMap;
@@ -27,7 +24,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import org.evosuite.Properties;
-import org.evosuite.regression.ObjectDistanceCalculator;
 import org.evosuite.testcase.variable.VariableReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,8 +37,8 @@ public class SameTraceEntry implements OutputTraceEntry {
 
   private final static Logger logger = LoggerFactory.getLogger(SameTraceEntry.class);
   private final VariableReference var;
-  private final Map<VariableReference, Boolean> equalityMap = new HashMap<VariableReference, Boolean>();
-  private final Map<Integer, VariableReference> equalityMapIntVar = new HashMap<Integer, VariableReference>();
+  private final Map<VariableReference, Boolean> equalityMap = new HashMap<>();
+  private final Map<Integer, VariableReference> equalityMapIntVar = new HashMap<>();
 
   /**
    * <p>Constructor for SameTraceEntry.</p>
@@ -102,7 +98,7 @@ public class SameTraceEntry implements OutputTraceEntry {
    */
   @Override
   public Set<Assertion> getAssertions(OutputTraceEntry other) {
-    Set<Assertion> assertions = new HashSet<Assertion>();
+    Set<Assertion> assertions = new HashSet<>();
 
     if (other instanceof SameTraceEntry) {
       SameTraceEntry otherEntry = (SameTraceEntry) other;
@@ -113,24 +109,10 @@ public class SameTraceEntry implements OutputTraceEntry {
 
         if (!otherEntry.equalityMap.get(otherEntry.equalityMapIntVar.get(otherVar))
             .equals(equalityMap.get(equalityMapIntVar.get(otherVar)))) {
-          if (Properties.isRegression()) {
-            double distance = ObjectDistanceCalculator
-                .getObjectDistance(equalityMap.get(equalityMapIntVar.get(otherVar)),
-                    otherEntry.equalityMap.get(otherEntry.equalityMapIntVar.get(otherVar)));
-            if (distance == 0) {
-              return assertions;
-            }
-          }
           SameAssertion assertion = new SameAssertion();
           assertion.source = var;
           assertion.dest = equalityMapIntVar.get(otherVar);
           assertion.value = equalityMap.get(equalityMapIntVar.get(otherVar));
-          if (Properties.isRegression()) {
-            assertion.setComment(
-                "// (Same) Original Value: " + equalityMap.get(equalityMapIntVar.get(otherVar))
-                    + " | Regression Value: " + otherEntry.equalityMap
-                    .get(otherEntry.equalityMapIntVar.get(otherVar)));
-          }
           assertions.add(assertion);
           assert (assertion.isValid());
         }
@@ -148,7 +130,7 @@ public class SameTraceEntry implements OutputTraceEntry {
    */
   @Override
   public Set<Assertion> getAssertions() {
-    Set<Assertion> assertions = new HashSet<Assertion>();
+    Set<Assertion> assertions = new HashSet<>();
 
     for (VariableReference otherVar : equalityMap.keySet()) {
       if (otherVar == null) {
@@ -177,16 +159,8 @@ public class SameTraceEntry implements OutputTraceEntry {
     if (assertion instanceof SameAssertion) {
       SameAssertion ass = (SameAssertion) assertion;
       if (ass.source.equals(var)) {
-        if (Properties.isRegression()) {
-          if (equalityMapIntVar.get(ass.dest.getStPosition()) != null &&
-              equalityMap.get(equalityMapIntVar.get(ass.dest.getStPosition())) != null) {
-            return !equalityMap.get(equalityMapIntVar.get(ass.dest.getStPosition()))
-                .equals(ass.value);
-          }
-        } else {
-          if (equalityMap.containsKey(ass.dest)) {
-            return !equalityMap.get(ass.dest).equals(ass.value);
-          }
+        if (equalityMap.containsKey(ass.dest)) {
+          return !equalityMap.get(ass.dest).equals(ass.value);
         }
       }
     }

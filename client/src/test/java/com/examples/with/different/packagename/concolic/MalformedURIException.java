@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -21,7 +21,8 @@ package com.examples.with.different.packagename.concolic;
 
 public class MalformedURIException extends Exception
 {
-  /** The URI that could not be parsed.
+    private static final long serialVersionUID = 3846266456459657222L;
+    /** The URI that could not be parsed.
    */
   String uri;
 

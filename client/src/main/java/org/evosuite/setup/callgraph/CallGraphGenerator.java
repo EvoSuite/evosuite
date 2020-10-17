@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,20 +17,16 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
+
 package org.evosuite.setup.callgraph;
 
 import java.util.*;
 
 import org.evosuite.Properties;
 import org.evosuite.instrumentation.BytecodeInstrumentation;
-import org.evosuite.instrumentation.ExceptionTransformationClassAdapter;
 import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.setup.InheritanceTree;
 import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.InsnList;
@@ -48,7 +44,7 @@ import org.slf4j.LoggerFactory;
  */
 public class CallGraphGenerator {
 	
-	private static Logger logger = LoggerFactory.getLogger(CallGraphGenerator.class);
+	private static final Logger logger = LoggerFactory.getLogger(CallGraphGenerator.class);
 
 	public static CallGraph analyze(String className) {
 		ClassNode targetClass = DependencyAnalysis.getClassNode(className);

@@ -35,7 +35,6 @@ import org.evosuite.seeding.ConstantPoolManager;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.utils.generic.GenericClass;
 import org.evosuite.utils.Randomness;
-import org.objectweb.asm.commons.GeneratorAdapter;
 
 public class ClassPrimitiveStatement extends PrimitiveStatement<Class<?>> {
 

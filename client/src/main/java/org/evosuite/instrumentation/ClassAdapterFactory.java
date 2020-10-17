@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
+
 package org.evosuite.instrumentation;
 
 import org.objectweb.asm.ClassVisitor;
@@ -38,6 +36,6 @@ public interface ClassAdapterFactory {
 	 * @param className a {@link java.lang.String} object.
 	 * @return a {@link org.objectweb.asm.ClassVisitor} object.
 	 */
-	public ClassVisitor getVisitor(ClassVisitor cv, String className);
+    ClassVisitor getVisitor(ClassVisitor cv, String className);
 
 }

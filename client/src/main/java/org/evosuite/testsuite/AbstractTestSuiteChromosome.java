@@ -19,33 +19,40 @@
  */
 package org.evosuite.testsuite;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
 import org.evosuite.Properties;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.ConstructionFailedException;
-import org.evosuite.ga.localsearch.LocalSearchObjective;
 import org.evosuite.ga.operators.mutation.MutationDistribution;
 import org.evosuite.testcase.ExecutableChromosome;
+import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static java.util.stream.Collectors.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
-public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome> extends Chromosome {
+import static java.util.stream.Collectors.toList;
 
+/**
+ *
+ *
+ * @param <E> Class for SelfTyped Pattern
+ */
+public abstract class AbstractTestSuiteChromosome<T extends AbstractTestSuiteChromosome<T, E>,
+		E extends ExecutableChromosome<E>> extends Chromosome<T> {
 
 	private static final long serialVersionUID = 1L;
 
 	private static final Logger logger = LoggerFactory.getLogger(AbstractTestSuiteChromosome.class);
 
-	protected List<T> tests = new ArrayList<>();
-	protected ChromosomeFactory<T> testChromosomeFactory;
+	//
+	protected List<E> tests = new ArrayList<>();
+	protected ChromosomeFactory<E> testChromosomeFactory;
 
 	/**
 	 * only used for testing/debugging
@@ -53,14 +60,14 @@ public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome
 	protected AbstractTestSuiteChromosome(){
 		super();
 	}
-	
-	
+
+
 	/**
 	 * <p>Constructor for AbstractTestSuiteChromosome.</p>
 	 *
 	 * @param testChromosomeFactory a {@link org.evosuite.ga.ChromosomeFactory} object.
 	 */
-	protected AbstractTestSuiteChromosome(ChromosomeFactory<T> testChromosomeFactory) {
+	protected AbstractTestSuiteChromosome(ChromosomeFactory<E> testChromosomeFactory) {
 		this.testChromosomeFactory = testChromosomeFactory;
 	}
 
@@ -69,7 +76,7 @@ public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome
 	 *
 	 * @return a {@link org.evosuite.ga.ChromosomeFactory} object.
 	 */
-	public ChromosomeFactory<T> getTestChromosomeFactory() {
+	public ChromosomeFactory<? extends E> getTestChromosomeFactory() {
 		return testChromosomeFactory;
 	}
 
@@ -78,11 +85,10 @@ public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome
 	 *
 	 * @param source a {@link org.evosuite.testsuite.AbstractTestSuiteChromosome} object.
 	 */
-	@SuppressWarnings("unchecked")
-	protected AbstractTestSuiteChromosome(AbstractTestSuiteChromosome<T> source) {
+	protected AbstractTestSuiteChromosome(T source) {
 		this(source.testChromosomeFactory);
 
-		source.tests.forEach(t -> addTest((T) t.clone()));
+		source.tests.forEach(e -> addTest(e.clone()));
 
 		//this.setFitness(source.getFitness());
 		this.setFitnessValues(source.getFitnessValues());
@@ -102,26 +108,34 @@ public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome
 	 *
 	 * @param test a T object.
 	 */
-	public void addTest(T test) {
+	public void addTest(E test) {
 		tests.add(test);
 		this.setChanged(true);
 	}
-	
-	public void deleteTest(T test) {
+
+	public void deleteTest(E test) {
 		boolean changed = tests.remove(test);
 		if(changed)
 			this.setChanged(true);
 	}
+
+	public abstract E addTest(TestCase testCase);
 
 	/**
 	 * <p>addTests</p>
 	 *
 	 * @param tests a {@link java.util.Collection} object.
 	 */
-	public void addTests(Collection<T> tests) {
+	public void addTests(Collection<E> tests) {
         this.tests.addAll(tests);
 		if (!tests.isEmpty())
 			this.setChanged(true);
+	}
+
+	public abstract void addTestChromosome(TestChromosome testChromosome);
+
+	public void addTestChromosomes(Collection<TestChromosome> testChromosomes){
+		testChromosomes.forEach(this::addTestChromosome);
 	}
 
 	/**
@@ -129,57 +143,43 @@ public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome
 	 *
 	 * @param test a T object.
 	 */
-	public void addUnmodifiableTest(T test) {
+	public void addUnmodifiableTest(E test) {
 		tests.add(test);
 		this.setChanged(true);
 	}
+
 
 	/**
 	 * {@inheritDoc}
 	 *
 	 * Replace chromosome at position
 	 */
-	@SuppressWarnings("unchecked")
 	@Override
-	public void crossOver(Chromosome other, int position) throws ConstructionFailedException {
-		if (!(other instanceof AbstractTestSuiteChromosome<?>)) {
-			throw new IllegalArgumentException(
-					"AbstractTestSuiteChromosome.crossOver() called with parameter of unsupported type " + other.getClass());
-		}
-
-		AbstractTestSuiteChromosome<T> chromosome = (AbstractTestSuiteChromosome<T>) other;
-
-		T otherTest =  chromosome.tests.get(position);
-		T clonedTest = (T) otherTest.clone();
+	public void crossOver(T other, int position) throws ConstructionFailedException {
+		E otherTest =  other.self().tests.get(position);
+		E clonedTest = otherTest.clone().self();
 		tests.add(clonedTest);
 
 		this.setChanged(true);
 	}
+
 
 	/**
 	 * {@inheritDoc}
 	 *
 	 * Keep up to position1, append copy of other from position2 on
 	 */
-	@SuppressWarnings("unchecked")
 	@Override
-	public void crossOver(Chromosome other, int position1, int position2)
+	public void crossOver(T other, int position1, int position2)
 	        throws ConstructionFailedException {
-		if (!(other instanceof AbstractTestSuiteChromosome<?>)) {
-			throw new IllegalArgumentException(
-			        "AbstractTestSuiteChromosome.crossOver() called with parameter of unsupported type "
-			                + other.getClass());
-		}
-
-		AbstractTestSuiteChromosome<T> chromosome = (AbstractTestSuiteChromosome<T>) other;
 
 		while (tests.size() > position1) {
 			tests.remove(position1);
 		}
 
 		for (int num = position2; num < other.size(); num++) {
-			T otherTest =  chromosome.tests.get(num);
-			T clonedTest = (T) otherTest.clone();
+			E otherTest =  other.self().tests.get(num);
+			E clonedTest = otherTest.clone().self();
 			tests.add(clonedTest);
 		}
 
@@ -192,9 +192,10 @@ public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome
 		if (this == obj)
 			return true;
 
-		if (!(obj instanceof TestSuiteChromosome))
+		if (!(obj instanceof AbstractTestSuiteChromosome))
 			return false;
-
+		if(!obj.getClass().isInstance(this.getClass()))
+			return false;
 		TestSuiteChromosome other = (TestSuiteChromosome) obj;
 		if (other.size() != size())
 			return false;
@@ -221,7 +222,7 @@ public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome
 
 		// Mutate existing test cases
 		for (int i = 0; i < tests.size(); i++) {
-			T test = tests.get(i);
+			E test = tests.get(i);
 			if (probabilityDistribution.toMutate(i)) {
 				test.mutate();
 				if(test.isChanged())
@@ -234,7 +235,7 @@ public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome
 
 		for (int count = 1; Randomness.nextDouble() <= Math.pow(ALPHA, count)
 		        && size() < Properties.MAX_SIZE; count++) {
-			T test = testChromosomeFactory.getChromosome();
+			E test = testChromosomeFactory.getChromosome();
 			addTest(test);
 			logger.debug("Adding new test case");
 			changed = true;
@@ -254,7 +255,7 @@ public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome
 	 * @return Sum of the lengths of the test cases
 	 */
 	public int totalLengthOfTestCases() {
-		return tests.stream().mapToInt(T::size).sum();
+		return tests.stream().mapToInt(E::size).sum();
 	}
 
 	/** {@inheritDoc} */
@@ -263,13 +264,10 @@ public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome
 		return tests.size();
 	}
 
-	/** {@inheritDoc} */
+	/** {@inheritDoc}
+	 * @return*/
 	@Override
-	public abstract boolean localSearch(LocalSearchObjective<? extends Chromosome> objective);
-
-	/** {@inheritDoc} */
-	@Override
-	public abstract Chromosome clone();
+	public abstract T clone();
 
 	/**
 	 * <p>getTestChromosome</p>
@@ -277,7 +275,7 @@ public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome
 	 * @param index a int.
 	 * @return a T object.
 	 */
-	public T getTestChromosome(int index) {
+	public E getTestChromosome(int index) {
 		return tests.get(index);
 	}
 
@@ -286,13 +284,23 @@ public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome
 	 *
 	 * @return a {@link java.util.List} object.
 	 */
-	public List<T> getTestChromosomes() {
+	public List<E> getTestChromosomes() {
 		return tests;
+	}
+
+	public void replaceTests(List<E> newTests){
+		tests.clear();
+		tests.addAll(newTests);
+	}
+
+	public void replaceWithTestChromosomes(List<TestChromosome> newTests){
+		tests.clear();
+		addTestChromosomes(newTests);
 	}
 
 	public List<ExecutionResult> getLastExecutionResults() {
 		return tests.stream()
-				.map(T::getLastExecutionResult)
+				.map(E::getLastExecutionResult)
 				.collect(toList());
 	}
 
@@ -302,8 +310,15 @@ public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome
 	 * @param index a int.
 	 * @param test a T object.
 	 */
-	public void setTestChromosome(int index, T test) {
+	public void setTestChromosome(int index, E test) {
 		tests.set(index, test);
 		this.setChanged(true);
+	}
+
+	/**
+	 * Remove all tests
+	 */
+	public void clearTests() {
+		tests.clear();
 	}
 }

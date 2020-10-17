@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -28,66 +28,66 @@ import org.evosuite.testcase.TestCase;
 
 public interface TestGenerationResult extends Serializable {
 
-	public enum Status { SUCCESS, TIMEOUT, ERROR };
+	enum Status { SUCCESS, TIMEOUT, ERROR };
 	
 	/** Did test generation succeed? */
-	public Status getTestGenerationStatus();
+    Status getTestGenerationStatus();
 	
 	/** If there was an error, this contains the error message */
-	public String getErrorMessage();
+    String getErrorMessage();
 	
 	/** The entire GA in its final state */
-	public GeneticAlgorithm<?> getGeneticAlgorithm();
+    GeneticAlgorithm<?> getGeneticAlgorithm();
 	
 	/** Map from test method to ContractViolation */
-	public Set<Failure> getContractViolations(String name);
+    Set<Failure> getContractViolations(String name);
 	
 	/** Class that was tested */
-	public String getClassUnderTest();
+    String getClassUnderTest();
 	
 	/** Target coverage criterion used to create this test suite */
-	public String[] getTargetCriterion();
+    String[] getTargetCriterion();
 	
 	/** Coverage level of the target criterion */
-	public double getTargetCoverage(FitnessFunction<?> function);
+    double getTargetCoverage(FitnessFunction<?> function);
 	
 	/** Map from test method to EvoSuite test case */
-	public TestCase getTestCase(String name);
+    TestCase getTestCase(String name);
 
 	/** Map from test method to EvoSuite test case */
-	public String getTestCode(String name);
+    String getTestCode(String name);
 	
 	/** JUnit test suite source code */
-	public String getTestSuiteCode();
+    String getTestSuiteCode();
 	
-	/** Lines covered by test */ 
-	public Set<Integer> getCoveredLines(String name);
+	/** Lines covered by test */
+    Set<Integer> getCoveredLines(String name);
 	
-	public Set<BranchInfo> getCoveredBranches(String name);
+	Set<BranchInfo> getCoveredBranches(String name);
 
-	public Set<MutationInfo> getCoveredMutants(String name);
+	Set<MutationInfo> getCoveredMutants(String name);
 
-	public Set<MutationInfo> getExceptionMutants();
+	Set<MutationInfo> getExceptionMutants();
 
-	/** Lines covered by final test suite */ 
-	public Set<Integer> getCoveredLines();
+	/** Lines covered by final test suite */
+    Set<Integer> getCoveredLines();
 
-	/** Branches covered by final test suite */ 
-	public Set<BranchInfo> getCoveredBranches();
+	/** Branches covered by final test suite */
+    Set<BranchInfo> getCoveredBranches();
 
-	/** Mutants detected by final test suite */ 
-	public Set<MutationInfo> getCoveredMutants();
+	/** Mutants detected by final test suite */
+    Set<MutationInfo> getCoveredMutants();
 
-	/** Lines not covered by final test suite */ 
-	public Set<Integer> getUncoveredLines();
+	/** Lines not covered by final test suite */
+    Set<Integer> getUncoveredLines();
 
-	/** Branches not covered by final test suite */ 
-	public Set<BranchInfo> getUncoveredBranches();
+	/** Branches not covered by final test suite */
+    Set<BranchInfo> getUncoveredBranches();
 
-	/** Mutants not detected by final test suite */ 
-	public Set<MutationInfo> getUncoveredMutants();
+	/** Mutants not detected by final test suite */
+    Set<MutationInfo> getUncoveredMutants();
 
 	/** Comment for that test */
-	public String getComment(String name);
+    String getComment(String name);
 
 }

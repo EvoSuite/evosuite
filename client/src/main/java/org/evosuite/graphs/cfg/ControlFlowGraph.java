@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -50,7 +50,7 @@ import org.slf4j.LoggerFactory;
 public abstract class ControlFlowGraph<V> extends
 		EvoSuiteGraph<V, ControlFlowEdge> {
 
-	private static Logger logger = LoggerFactory
+	private static final Logger logger = LoggerFactory
 			.getLogger(ControlFlowGraph.class);
 
 	protected String className;
@@ -107,9 +107,9 @@ public abstract class ControlFlowGraph<V> extends
 	 */
 	public boolean leadsToNode(ControlFlowEdge e, V b) {
 
-		Set<V> handled = new HashSet<V>();
+		Set<V> handled = new HashSet<>();
 
-		Queue<V> queue = new LinkedList<V>();
+		Queue<V> queue = new LinkedList<>();
 		queue.add(getEdgeTarget(e));
 		while (!queue.isEmpty()) {
 			V current = queue.poll();

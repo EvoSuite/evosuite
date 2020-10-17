@@ -27,13 +27,13 @@ import java.io.Serializable;
  * @param <T> the type of chromosome this factory produces
  * @author Gordon Fraser
  */
-public interface ChromosomeFactory<T extends Chromosome> extends Serializable {
+public interface ChromosomeFactory<T extends Chromosome<T>> extends Serializable {
 
 	/**
 	 * Generates a new chromosome.
 	 *
 	 * @return the newly generated chromosome
 	 */
-	public T getChromosome();
+    T getChromosome();
 
 }

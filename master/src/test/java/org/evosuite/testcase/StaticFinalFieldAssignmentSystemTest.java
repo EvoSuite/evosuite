@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -24,14 +24,9 @@ import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.SystemTestBase;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
-import org.evosuite.statistics.OutputVariable;
-import org.evosuite.statistics.RuntimeVariable;
-import org.evosuite.statistics.backend.DebugStatisticsBackend;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.Assert;
 import org.junit.Test;
-
-import java.util.Map;
 
 /**
  * Created by gordon on 04/01/2017.

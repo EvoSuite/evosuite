@@ -12,12 +12,10 @@ import org.evosuite.result.TestGenerationResultBuilder;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.rmi.service.ClientState;
 import org.evosuite.statistics.RuntimeVariable;
-import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionTracer;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
-import org.evosuite.testsuite.similarity.DiversityObserver;
 import org.evosuite.utils.ArrayUtil;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
@@ -38,7 +36,7 @@ public class NoveltyStrategy extends TestGenerationStrategy {
         LoggingUtils.getEvoLogger().info("* Setting up search algorithm for novelty search");
 
         PropertiesNoveltySearchFactory algorithmFactory = new PropertiesNoveltySearchFactory();
-        NoveltySearch<TestChromosome> algorithm = algorithmFactory.getSearchAlgorithm();
+        NoveltySearch algorithm = algorithmFactory.getSearchAlgorithm();
         //NoveltySearch<TestChromosome, TestSuiteChromosome> algorithm = new NoveltySearch<TestChromosome, TestSuiteChromosome>(chromosomeFactory);
 
         if(Properties.SERIALIZE_GA || Properties.CLIENT_ON_THREAD)
@@ -56,8 +54,12 @@ public class NoveltyStrategy extends TestGenerationStrategy {
         // if (Properties.SHOW_PROGRESS && !logger.isInfoEnabled())
         //algorithm.addListener(progressMonitor); // FIXME progressMonitor expects testsuitechromosomes
 
-        if(Properties.TRACK_DIVERSITY)
-            algorithm.addListener(new DiversityObserver());
+        if(Properties.TRACK_DIVERSITY) {
+            // The DiversityObserver is only implemented for test suites, so we can't use it here
+            // algorithm.addListener(new DiversityObserver());
+            throw new RuntimeException("Tracking population diversity is not supported by novelty search");
+        }
+        // ===========================================================================================
 
         if (ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.DEFUSE)
                 || ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.ALLDEFS)
@@ -94,7 +96,7 @@ public class NoveltyStrategy extends TestGenerationStrategy {
         } else {
             zeroFitness.setFinished();
             testSuite = new TestSuiteChromosome();
-            for (FitnessFunction<?> ff : fitnessFunctions) {
+            for (FitnessFunction<TestSuiteChromosome> ff : fitnessFunctions) {
                 testSuite.setCoverage(ff, 1.0);
             }
         }

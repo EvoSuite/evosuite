@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
+
 package org.evosuite.instrumentation.testability;
 
 import java.util.List;
@@ -49,7 +47,7 @@ import org.slf4j.LoggerFactory;
  */
 public class StringTransformation {
 
-	private static Logger logger = LoggerFactory.getLogger(StringTransformation.class);
+	private static final Logger logger = LoggerFactory.getLogger(StringTransformation.class);
 
 	private final ClassNode cn;
 

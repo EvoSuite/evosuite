@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- *
- */
+
 package org.evosuite.setup;
 
 import java.lang.reflect.Constructor;
@@ -48,7 +46,6 @@ import org.evosuite.instrumentation.testability.BooleanTestabilityTransformation
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.runtime.PrivateAccess;
 import org.evosuite.runtime.classhandling.ModifiedTargetStaticFields;
-import org.evosuite.runtime.javaee.injection.Injector;
 import org.evosuite.runtime.mock.MockList;
 import org.evosuite.runtime.sandbox.Sandbox;
 import org.evosuite.runtime.util.Inputs;
@@ -76,7 +73,7 @@ import org.slf4j.LoggerFactory;
  */
 public class TestClusterGenerator {
 
-	private static Logger logger = LoggerFactory.getLogger(TestClusterGenerator.class);
+	private static final Logger logger = LoggerFactory.getLogger(TestClusterGenerator.class);
 
 	private final Set<GenericAccessibleObject<?>> dependencyCache = new LinkedHashSet<>();
 
@@ -86,9 +83,9 @@ public class TestClusterGenerator {
 
 	private final Set<Class<?>> containerClasses = new LinkedHashSet<>();
 
-	private final Set<DependencyPair> dependencies = new LinkedHashSet<DependencyPair>();
+	private final Set<DependencyPair> dependencies = new LinkedHashSet<>();
 
-	private final Set<GenericClass> analyzedAbstractClasses = new LinkedHashSet<GenericClass>();
+	private final Set<GenericClass> analyzedAbstractClasses = new LinkedHashSet<>();
 
 	private final Set<Class<?>> analyzedClasses = new LinkedHashSet<>();
 
@@ -104,7 +101,9 @@ public class TestClusterGenerator {
 
 		TestCluster.setInheritanceTree(inheritanceTree);
 
-		if (Properties.INSTRUMENT_CONTEXT || ArrayUtil.contains(Properties.CRITERION, Criterion.DEFUSE)) {
+		if (Properties.INSTRUMENT_CONTEXT
+				|| ArrayUtil.contains(Properties.CRITERION, Criterion.DEFUSE)
+				|| ArrayUtil.contains(Properties.CRITERION, Criterion.IBRANCH)) {
 			for (String callTreeClass : callGraph.getClasses()) {
 				try {
 					if (callGraph.isCalledClass(callTreeClass)) {
@@ -138,10 +137,6 @@ public class TestClusterGenerator {
 
 		handleSpecialCases();
 
-		if (Properties.JEE) {
-			addInjectionDependencies(blackList);
-		}
-
 		logger.info("Removing unusable generators");
 		TestCluster.getInstance().removeUnusableGenerators();
 
@@ -165,33 +160,6 @@ public class TestClusterGenerator {
 	}
 
 	// -----------------------------------------------------------------------------
-
-	private void addInjectionDependencies(Set<String> blackList) {
-
-		Set<Class<?>> toAdd = new LinkedHashSet<>();
-
-		try {
-			analyzedClasses.stream().flatMap(c -> Injector.getAllFieldsToInject(c).stream()).map(f -> f.getType())
-					.forEach(t -> addInjectionRecursively(t, toAdd, blackList));
-		} catch(Throwable t) {
-			logger.warn("Error during initialisation of injection dependencies: "+t+", continuing anyway.");
-		}
-		toAdd.stream().forEach(c -> dependencies.add(new DependencyPair(0, new GenericClass(c).getRawClass())));
-		resolveDependencies(blackList);
-	}
-
-	private void addInjectionRecursively(Class<?> target, Set<Class<?>> toAdd, Set<String> blackList) {
-
-		if (toAdd.contains(target) || blackList.contains(target.getName())) {
-			return;
-		}
-
-		toAdd.add(target);
-
-		for (Field f : Injector.getAllFieldsToInject(target)) {
-			addInjectionRecursively(f.getType(), toAdd, blackList);
-		}
-	}
 
 	private void handleSpecialCases() {
 
@@ -399,7 +367,7 @@ public class TestClusterGenerator {
 
 		TestCluster cluster = TestCluster.getInstance();
 
-		Set<Class<?>> targetClasses = new LinkedHashSet<Class<?>>();
+		Set<Class<?>> targetClasses = new LinkedHashSet<>();
 		if (targetClass == null) {
 			throw new RuntimeException("Failed to load " + Properties.TARGET_CLASS);
 		}
@@ -422,11 +390,10 @@ public class TestClusterGenerator {
 		// using an iterator. a simple workaround is to create a temporary set
 		// with the content
 		// of 'targetClasses' and iterate that one
-		Set<Class<?>> tmp_targetClasses = new LinkedHashSet<Class<?>>(targetClasses);
+		Set<Class<?>> tmp_targetClasses = new LinkedHashSet<>(targetClasses);
 		for (Class<?> _targetClass : tmp_targetClasses) {
 			ClassNode targetClassNode = DependencyAnalysis.getClassNode(_targetClass.getName());
-			Queue<InnerClassNode> innerClasses = new LinkedList<InnerClassNode>();
-			innerClasses.addAll(targetClassNode.innerClasses);
+			Queue<InnerClassNode> innerClasses = new LinkedList<>(targetClassNode.innerClasses);
 			while (!innerClasses.isEmpty()) {
 				InnerClassNode icn = innerClasses.poll();
 				try {

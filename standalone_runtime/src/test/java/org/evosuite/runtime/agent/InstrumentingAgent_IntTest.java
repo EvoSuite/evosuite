@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -22,7 +22,6 @@ package org.evosuite.runtime.agent;
 import java.io.File;
 import java.lang.instrument.Instrumentation;
 import java.lang.instrument.UnmodifiableClassException;
-import java.lang.reflect.Constructor;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLStreamHandler;
@@ -30,7 +29,6 @@ import java.net.URLStreamHandler;
 import com.examples.with.different.packagename.agent.*;
 import org.evosuite.runtime.instrumentation.InstrumentedClass;
 import org.evosuite.runtime.instrumentation.MethodCallReplacementCache;
-import org.evosuite.runtime.instrumentation.MethodCallReplacementClassAdapter;
 import org.evosuite.runtime.mock.java.net.EvoURLStreamHandler;
 import org.evosuite.runtime.mock.java.net.URLUtil;
 import org.junit.*;
@@ -288,7 +286,7 @@ public class InstrumentingAgent_IntTest {
 		MockFramework.disable();
 		//even if SumRuntime is instrumented, should not return a mock sum now.
 		// note: it should be _extremely_ unlikely that original code returns such value by chance
-		Assert.assertFalse(SumRuntime.getSum() == 1101);
+        Assert.assertNotEquals(1101, SumRuntime.getSum());
 	}
 
     @Test

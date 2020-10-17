@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -25,12 +25,12 @@ public class JdkPureInspector {
 	private final char char_value;
 	
 	public JdkPureInspector(char c) {
-		character = new Character(c);
+		character = c;
 		char_value = c;
 	}
 	
 	public boolean equalsToZ() {
-		return character.charValue()=='z';
+		return character =='z';
 	}
 	
 	public boolean isLowerCase() {

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -20,7 +20,6 @@
 package org.evosuite.testcase;
 
 import org.evosuite.Properties;
-import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.bloatcontrol.BloatControlFunction;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.ga.metaheuristics.SearchListener;
@@ -31,18 +30,28 @@ import org.evosuite.ga.metaheuristics.SearchListener;
  *
  * @author Gordon Fraser
  */
-public class RelativeTestLengthBloatControl implements BloatControlFunction, SearchListener {
+public class RelativeTestLengthBloatControl<T extends ExecutableChromosome<T>>
+		implements BloatControlFunction<T>, SearchListener<T> {
 
 	private static final long serialVersionUID = -459141492060919204L;
 
-	protected int current_max = 0;
+	protected int current_max;
+	protected double best_fitness;
 
-	protected double best_fitness = Double.MAX_VALUE; // FIXXME: Assuming
-	                                                  // minimizing fitness!
+	public RelativeTestLengthBloatControl() {
+		current_max = 0;
+		best_fitness = Double.MAX_VALUE; // FIXXME: Assuming
+										 // minimizing fitness!
+	}
+
+	public RelativeTestLengthBloatControl(final RelativeTestLengthBloatControl<?> that) {
+		this.current_max = that.current_max;
+		this.best_fitness = that.best_fitness;
+	}
 
 	/** {@inheritDoc} */
 	@Override
-	public boolean isTooLong(Chromosome chromosome) {
+	public boolean isTooLong(T chromosome) {
 		// Always accept if fitness is better
 		if (chromosome.getFitness() < best_fitness)
 			return false;
@@ -54,7 +63,7 @@ public class RelativeTestLengthBloatControl implements BloatControlFunction, Sea
 			// logger.debug("Bloat control: "+((TestSuiteChromosome)chromosome).length()
 			// +" > "+ bloat_factor * current_max);
 
-			return ((ExecutableChromosome) chromosome).size() > Properties.BLOAT_FACTOR
+			return chromosome.size() > Properties.BLOAT_FACTOR
 			        * current_max;
 		} else
 			return false; // Don't know max length so can't reject!
@@ -62,35 +71,35 @@ public class RelativeTestLengthBloatControl implements BloatControlFunction, Sea
 
 	/** {@inheritDoc} */
 	@Override
-	public void fitnessEvaluation(Chromosome result) {
+	public void fitnessEvaluation(T result) {
 		// TODO Auto-generated method stub
 
 	}
 
 	/** {@inheritDoc} */
 	@Override
-	public void iteration(GeneticAlgorithm<?> algorithm) {
-		current_max = ((ExecutableChromosome) algorithm.getBestIndividual()).size();
+	public void iteration(GeneticAlgorithm<T> algorithm) {
+		current_max = algorithm.getBestIndividual().size();
 		best_fitness = algorithm.getBestIndividual().getFitness();
 	}
 
 	/** {@inheritDoc} */
 	@Override
-	public void searchFinished(GeneticAlgorithm<?> algorithm) {
+	public void searchFinished(GeneticAlgorithm<T> algorithm) {
 		// TODO Auto-generated method stub
 
 	}
 
 	/** {@inheritDoc} */
 	@Override
-	public void searchStarted(GeneticAlgorithm<?> algorithm) {
+	public void searchStarted(GeneticAlgorithm<T> algorithm) {
 		// TODO Auto-generated method stub
 
 	}
 
 	/** {@inheritDoc} */
 	@Override
-	public void modification(Chromosome individual) {
+	public void modification(T individual) {
 		// TODO Auto-generated method stub
 
 	}

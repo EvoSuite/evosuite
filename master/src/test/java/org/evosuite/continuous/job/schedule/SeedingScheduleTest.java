@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -32,7 +32,7 @@ public class SeedingScheduleTest {
 
 	@Test
 	public void testSortingOneDependency(){
-		Set<String> dep1 = new HashSet<String>(Arrays.asList("e"));
+		Set<String> dep1 = new HashSet<>(Arrays.asList("e"));
 		
 		JobDefinition  a = new JobDefinition(1, 1, "a", 0, dep1, null);
 		JobDefinition  b = new JobDefinition(1, 1, "b", 0, null, null);
@@ -54,8 +54,8 @@ public class SeedingScheduleTest {
 
 	@Test
 	public void testSortingTwoDependencies(){
-		Set<String> dep1 = new HashSet<String>(Arrays.asList("e"));
-		Set<String> dep2 = new HashSet<String>(Arrays.asList("a","c"));
+		Set<String> dep1 = new HashSet<>(Arrays.asList("e"));
+		Set<String> dep2 = new HashSet<>(Arrays.asList("a", "c"));
 		
 		JobDefinition  a = new JobDefinition(1, 1, "a", 0, dep1, null);
 		JobDefinition  b = new JobDefinition(1, 1, "b", 0, dep2, null);
@@ -77,8 +77,8 @@ public class SeedingScheduleTest {
 
 	@Test
 	public void testSortingPostponedDependencies(){
-		Set<String> dep1 = new HashSet<String>(Arrays.asList("b"));
-		Set<String> dep2 = new HashSet<String>(Arrays.asList("c"));
+		Set<String> dep1 = new HashSet<>(Arrays.asList("b"));
+		Set<String> dep2 = new HashSet<>(Arrays.asList("c"));
 		
 		JobDefinition  a = new JobDefinition(1, 1, "a", 0, dep1, null);
 		JobDefinition  b = new JobDefinition(1, 1, "b", 0, dep2, null);

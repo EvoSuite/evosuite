@@ -273,7 +273,7 @@ public class OutputCoverageTestFitness extends TestFitnessFunction {
 	/*
 	 * TODO: Move somewhere else into a utility class
 	 */
-	private static final Class<?> getClassForName(String type)
+	private static Class<?> getClassForName(String type)
 	{
 		try
 		{

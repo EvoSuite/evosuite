@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -42,6 +42,7 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Method;
+import java.util.Objects;
 import java.util.Vector;
 
 import javax.accessibility.AccessibleContext;
@@ -110,7 +111,7 @@ public class MockJFileChooser extends  javax.swing.JFileChooser  implements Over
 	private String approveButtonText = null;
 	private String approveButtonToolTipText = null;
 	private int approveButtonMnemonic = 0;
-	private Vector<FileFilter> filters = new Vector<FileFilter>(5);
+	private Vector<FileFilter> filters = new Vector<>(5);
 	private JDialog dialog = null;
 	private int dialogType = OPEN_DIALOG;
 	private int returnValue = ERROR_OPTION;
@@ -141,15 +142,15 @@ public class MockJFileChooser extends  javax.swing.JFileChooser  implements Over
 	 */
 
 	public MockJFileChooser() {
-		this((File) null, (FileSystemView) null);
+		this((File) null, null);
 	}
 
 	public MockJFileChooser(String currentDirectoryPath) {
-		this(currentDirectoryPath, (FileSystemView) null);
+		this(currentDirectoryPath, null);
 	}
 
 	public MockJFileChooser(File currentDirectory) {
-		this(currentDirectory, (FileSystemView) null);
+		this(currentDirectory, null);
 	}
 
 	public MockJFileChooser(FileSystemView fsv) {
@@ -245,7 +246,7 @@ public class MockJFileChooser extends  javax.swing.JFileChooser  implements Over
 		Toolkit tk = Toolkit.getDefaultToolkit();
 		Object showHiddenProperty = tk.getDesktopProperty(SHOW_HIDDEN_PROP);
 		if (showHiddenProperty instanceof Boolean) {
-			useFileHiding = !((Boolean)showHiddenProperty).booleanValue();
+			useFileHiding = !(Boolean) showHiddenProperty;
 			showFilesListener = new MockWeakPCL(this);
 			tk.addPropertyChangeListener(SHOW_HIDDEN_PROP, showFilesListener);
 		}
@@ -473,7 +474,7 @@ public class MockJFileChooser extends  javax.swing.JFileChooser  implements Over
 
 
 	public void setApproveButtonToolTipText(String toolTipText) {
-		if(approveButtonToolTipText == toolTipText) {
+		if(Objects.equals(approveButtonToolTipText, toolTipText)) {
 			return;
 		}
 		String oldValue = approveButtonToolTipText;
@@ -499,7 +500,7 @@ public class MockJFileChooser extends  javax.swing.JFileChooser  implements Over
 	}
 
 	public void setApproveButtonMnemonic(char mnemonic) {
-		int vk = (int) mnemonic;
+		int vk = mnemonic;
 		if(vk >= 'a' && vk <='z') {
 			vk -= ('a' - 'A');
 		}
@@ -508,7 +509,7 @@ public class MockJFileChooser extends  javax.swing.JFileChooser  implements Over
 
 
 	public void setApproveButtonText(String approveButtonText) {
-		if(this.approveButtonText == approveButtonText) {
+		if(Objects.equals(this.approveButtonText, approveButtonText)) {
 			return;
 		}
 		String oldValue = this.approveButtonText;
@@ -656,7 +657,7 @@ public class MockJFileChooser extends  javax.swing.JFileChooser  implements Over
 		fileFilter = filter;
 		if (filter != null) {
 			if (isMultiSelectionEnabled() && selectedFiles != null && selectedFiles.length > 0) {
-				Vector<File> fList = new Vector<File>();
+				Vector<File> fList = new Vector<>();
 				boolean failed = false;
 				for (File file : selectedFiles) {
 					if (filter.accept(file)) {
@@ -774,7 +775,7 @@ public class MockJFileChooser extends  javax.swing.JFileChooser  implements Over
 				traversable = getFileSystemView().isTraversable(f);
 			}
 		}
-		return (traversable != null && traversable.booleanValue());
+		return (traversable != null && traversable);
 	}
 
 	public boolean accept(File f) {
@@ -858,7 +859,7 @@ public class MockJFileChooser extends  javax.swing.JFileChooser  implements Over
 		WeakReference<MockJFileChooser> jfcRef;
 
 		public MockWeakPCL(MockJFileChooser jfc) {
-			jfcRef = new WeakReference<MockJFileChooser>(jfc);
+			jfcRef = new WeakReference<>(jfc);
 		}
 		public void propertyChange(PropertyChangeEvent ev) {
 			assert ev.getPropertyName().equals(SHOW_HIDDEN_PROP);
@@ -870,7 +871,7 @@ public class MockJFileChooser extends  javax.swing.JFileChooser  implements Over
 			}
 			else {
 				boolean oldValue = jfc.useFileHiding;
-				jfc.useFileHiding = !((Boolean)ev.getNewValue()).booleanValue();
+				jfc.useFileHiding = !(Boolean) ev.getNewValue();
 				jfc.firePropertyChange(FILE_HIDING_CHANGED_PROPERTY, oldValue, jfc.useFileHiding);
 			}
 		}

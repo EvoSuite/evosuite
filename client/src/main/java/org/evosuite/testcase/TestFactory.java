@@ -35,18 +35,12 @@ import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.TimeController;
 import org.evosuite.ga.ConstructionFailedException;
-import org.evosuite.runtime.annotation.Constraints;
-import org.evosuite.runtime.javaee.injection.Injector;
-import org.evosuite.runtime.javaee.javax.servlet.EvoServletState;
 import org.evosuite.runtime.mock.MockList;
 import org.evosuite.runtime.util.AtMostOnceLogger;
 import org.evosuite.runtime.util.Inputs;
 import org.evosuite.seeding.CastClassManager;
 import org.evosuite.seeding.ObjectPoolManager;
 import org.evosuite.setup.*;
-import org.evosuite.testcase.jee.InjectionSupport;
-import org.evosuite.testcase.jee.InstanceOnlyOnce;
-import org.evosuite.testcase.jee.ServletSupport;
 import org.evosuite.testcase.mutation.RandomInsertion;
 import org.evosuite.testcase.statements.*;
 import org.evosuite.testcase.statements.environment.EnvironmentStatements;
@@ -66,8 +60,6 @@ import org.slf4j.LoggerFactory;
 
 import com.googlecode.gentyref.CaptureType;
 import com.googlecode.gentyref.GenericTypeReflector;
-
-import javax.servlet.http.HttpServlet;
 
 /*
  * A note about terminology: this class currently uses the term "object" or
@@ -284,10 +276,6 @@ public class TestFactory {
 
 		Class<?> klass = constructor.getRawGeneratedType();
 
-		if(Properties.JEE && InstanceOnlyOnce.canInstantiateOnlyOnce(klass) && ConstraintHelper.countNumberOfNewInstances(test,klass) != 0){
-			throw new ConstructionFailedException("Class "+klass.getName()+" can only be instantiated once");
-		}
-
 		int length = test.size();
 
 		try {
@@ -306,122 +294,11 @@ public class TestFactory {
 			Statement st = new ConstructorStatement(test, constructor, parameters);
 			VariableReference ref =  test.addStatement(st, position);
 
-			if(Properties.JEE) {
-				int injectPosition = doInjection(test, position, klass, ref, recursionDepth);
-
-				if(Properties.HANDLE_SERVLETS) {
-					if (HttpServlet.class.isAssignableFrom(klass)) {
-						//Servlets are treated specially, as part of JEE
-						if (ConstraintHelper.countNumberOfMethodCalls(test, EvoServletState.class, "initServlet") == 0) {
-							Statement ms = new MethodStatement(test, ServletSupport.getServletInit(), null,
-									Collections.singletonList(ref));
-							test.addStatement(ms, injectPosition++);
-						}
-					}
-				}
-			}
-
 			return ref;
 		} catch (Exception e) {
 			throw new ConstructionFailedException("Failed to add constructor for "+klass.getName()+
 					" due to "+e.getClass().getCanonicalName()+": "+e.getMessage());
 		}
-	}
-
-	private int doInjection(TestCase test, int position, Class<?> klass, VariableReference ref,
-							int recursionDepth) throws ConstructionFailedException {
-
-		int injectPosition = position + 1;
-		int startPos = injectPosition;
-
-		//check if this object needs any dependency injection
-
-		Class<?> target = klass;
-
-		while(target != null) {
-			VariableReference classConstant = new ConstantValue(test, new GenericClass(Class.class), target);
-
-			//first check all special fields
-			if (Injector.hasEntityManager(target)) {
-				Statement ms = new MethodStatement(test, InjectionSupport.getInjectorForEntityManager(), null,
-						Arrays.asList(ref, classConstant));
-				test.addStatement(ms, injectPosition++);
-			}
-			if (Injector.hasEntityManagerFactory(target)) {
-				Statement ms = new MethodStatement(test, InjectionSupport.getInjectorForEntityManagerFactory(), null,
-						Arrays.asList(ref, classConstant));
-				test.addStatement(ms, injectPosition++);
-			}
-			if (Injector.hasUserTransaction(target)) {
-				Statement ms = new MethodStatement(test, InjectionSupport.getInjectorForUserTransaction(), null,
-						Arrays.asList(ref, classConstant));
-				test.addStatement(ms, injectPosition++);
-			}
-			if (Injector.hasEvent(target)) {
-				Statement ms = new MethodStatement(test, InjectionSupport.getInjectorForEvent(), null,
-						Arrays.asList(ref, classConstant));
-				test.addStatement(ms, injectPosition++);
-			}
-
-			//then do the non-special fields that need injection
-			for (Field f : Injector.getGeneralFieldsToInject(target)) {
-
-				/*
-					Very tricky: if we allow to reuse a variable X, it might end up
-					that X is a bounded variable previously created for injection
-					but where the initialization calls have not been added yet to the test.
-					Handling it "properly" would be far too complicated :(
-					So we just avoid reusing existing variables in a recursive call, as
-					anyway we can always rely on FM to "save the day"
-				 */
-				boolean reuseVariables  = recursionDepth == 0;
-
-				int beforeLength = test.size();
-				VariableReference valueToInject = satisfyParameters(
-						test,
-						ref, // avoid calling methods of bounded variables
-						Collections.singletonList(f.getType()),
-						null, //Added 'null' as additional parameter - fix for @NotNull annotations issue on evo mailing list
-						injectPosition,
-						recursionDepth +1,
-						false, true, reuseVariables).get(0);
-				int afterLength = test.size();
-				injectPosition += (afterLength - beforeLength);
-
-				VariableReference fieldName = new ConstantValue(test, new GenericClass(String.class), f.getName());
-				Statement ms = new MethodStatement(test, InjectionSupport.getInjectorForGeneralField(), null,
-						Arrays.asList(ref, classConstant, fieldName, valueToInject));
-				test.addStatement(ms, injectPosition++);
-			}
-
-			target = target.getSuperclass();
-		}
-
-		if(injectPosition != startPos) {
-			//validate the bean, but only if there was any injection
-			VariableReference classConstant = new ConstantValue(test, new GenericClass(Class.class), klass);
-			Statement ms = new MethodStatement(test, InjectionSupport.getValidateBean(), null, Arrays.asList(ref, classConstant));
-			test.addStatement(ms, injectPosition++);
-		}
-
-		/*
-			finally, call the the postConstruct (if any), but be sure the ones in
-			 superclass(es) are called first
-		 */
-		int pos = injectPosition;
-		target = klass;
-
-		while(target != null) {
-			if (Injector.hasPostConstruct(target)) {
-				VariableReference classConstant = new ConstantValue(test, new GenericClass(Class.class), target);
-				Statement ms = new MethodStatement(test, InjectionSupport.getPostConstruct(), null,
-						Arrays.asList(ref,classConstant));
-				test.addStatement(ms, pos);
-				injectPosition++;
-			}
-			target = target.getSuperclass();
-		}
-		return injectPosition;
 	}
 
 	/**
@@ -672,10 +549,6 @@ public class TestFactory {
 		int length = test.size();
 
 		boolean allowNull = true;
-		Constraints constraints = method.getMethod().getAnnotation(Constraints.class);
-		if(constraints!=null && constraints.noNullInputs()){
-			allowNull = false;
-		}
 
 		// Added 'null' as additional parameter - fix for @NotNull annotations issue on evo mailing list
 		List<VariableReference> parameters = satisfyParameters(
@@ -1085,8 +958,7 @@ public class TestFactory {
 				|| tc.getStatement(var.getStPosition()) instanceof PrimitiveStatement
 				|| var.isPrimitive()
 				|| var.isWrapperType()
-				|| tc.getStatement(var.getStPosition()) instanceof FunctionalMockStatement
-				|| ConstraintHelper.getLastPositionOfBounded(var, tc) >= position);
+				|| tc.getStatement(var.getStPosition()) instanceof FunctionalMockStatement);
 
 		if (variables.isEmpty()) {
 			throw new ConstructionFailedException("Found no variables of type " + type
@@ -1110,13 +982,6 @@ public class TestFactory {
 				iter.remove();
 				continue;
 			}
-
-			int boundPosition = ConstraintHelper.getLastPositionOfBounded(ref, test);
-			if(boundPosition >= 0 && boundPosition >= statement.getPosition()){
-				// if bounded variable, cannot add methods before its initialization, and so cannot be
-				// used as a callee
-				iter.remove();
-			}
 		}
 
 		// TODO: replacing void calls with other void calls might not be the best idea
@@ -1125,11 +990,6 @@ public class TestFactory {
 		GenericAccessibleObject<?> ao = statement.getAccessibleObject();
 		if (ao != null && ao.getNumParameters() > 0) {
 			calls.remove(ao);
-		}
-
-		if(ConstraintHelper.getLastPositionOfBounded(statement.getReturnValue(),test) >= 0){
-			//if the return variable is bounded, we can only use a constructor on the right hand-side
-			calls.removeIf(k -> !(k instanceof GenericConstructor));
 		}
 
 		logger.debug("Got {} possible calls for {} objects",calls.size(),objects.size());
@@ -1645,11 +1505,6 @@ public class TestFactory {
 			assert !(!allowNull && ConstraintHelper.isNull(reference, test));
 			assert canUseMocks || !(test.getStatement(reference.getStPosition()) instanceof FunctionalMockStatement);
 
-			if(reference.getStPosition() < position && ConstraintHelper.getLastPositionOfBounded(reference, test) >= position){
-				AtMostOnceLogger.warn(logger, "Bounded variable issue when calling createVariable()");
-				return null;
-			}
-
 			return reference;
 		}
 
@@ -1717,20 +1572,6 @@ public class TestFactory {
 				}
 			}
 		}
-
-		//check for bounded variables
-		if(Properties.JEE){
-			iter = objects.iterator();
-			while(iter.hasNext()) {
-				VariableReference ref = iter.next();
-
-				if(ConstraintHelper.getLastPositionOfBounded(ref,test) >= position){
-					iter.remove();
-					additionalToRemove.add(ref);
-				}
-			}
-		}
-
 
 		//further remove all other vars that have the deleted ones as additionals
 		iter = objects.iterator();
@@ -1821,12 +1662,7 @@ public class TestFactory {
 	 * @return false if it was not possible to delete the statement
 	 * @throws ConstructionFailedException
 	 */
-	public boolean deleteStatement(TestCase test, int position)
-	        throws ConstructionFailedException {
-
-		if(! ConstraintVerifier.canDelete(test, position)){
-			return false;
-		}
+	public boolean deleteStatement(TestCase test, int position) {
 
 		logger.debug("Deleting target statement - {}", position);
 
@@ -1861,14 +1697,6 @@ public class TestFactory {
 		 */
 
 		for (int i : references) {
-
-			Set<Integer> constraintDependencies = ConstraintVerifier.dependentPositions(test, i);
-			if(constraintDependencies!=null){
-				for(int j : constraintDependencies){
-					recursiveDeleteInclusion(test,toDelete,j);
-				}
-			}
-
 			recursiveDeleteInclusion(test,toDelete,i);
 		}
 	}
@@ -2005,21 +1833,8 @@ public class TestFactory {
 							}
 						}
 					} else {
-						/*
-							if 'var' is a bounded variable used in 's', then it should not be
-							replaced with another one. should be left as it is, as to make it
-							deletable
-						 */
-						boolean bounded = false;
-						if(s instanceof EntityWithParametersStatement){
-							EntityWithParametersStatement es = (EntityWithParametersStatement) s;
-							bounded = es.isBounded(var);
-						}
-
-						if(!bounded) {
-							s.replace(var, Randomness.choice(alternatives));
-							changed = true;
-						}
+						s.replace(var, Randomness.choice(alternatives));
+						changed = true;
 					}
 				}
 			}
@@ -2311,11 +2126,11 @@ public class TestFactory {
 		//iterate (in random order) over all possible environment methods till we find one that can be inserted
 		for(GenericAccessibleObject<?> o : shuffledOptions) {
 			try {
-				int position = ConstraintVerifier.getAValidPositionForInsertion(o,test,lastValidPosition);
-
-				if(position < 0){
-					//the given method/constructor cannot be added
-					continue;
+				int position;
+				if(lastValidPosition <= 0){
+					position = 0;
+				} else {
+					position = Randomness.nextInt(0, lastValidPosition);
 				}
 
 				if (o.isConstructor()) {
@@ -2391,11 +2206,6 @@ public class TestFactory {
 				logger.warn("Have no target methods to test");
 				return false;
 			} else if (o.isConstructor()) {
-
-				if(InstanceOnlyOnce.canInstantiateOnlyOnce(o.getDeclaringClass()) &&
-						ConstraintHelper.countNumberOfNewInstances(test,o.getDeclaringClass()) != 0){
-					return false;
-				}
 
 				GenericConstructor c = (GenericConstructor) o;
 				logger.debug("Adding constructor call {}", c.getName());
@@ -2624,12 +2434,6 @@ public class TestFactory {
 			}
 
 			assert !(!allowNullForParameter && ConstraintHelper.isNull(var, test));
-
-			if (var.getStPosition() < position && ConstraintHelper.getLastPositionOfBounded(var, test) >= position) {
-				String msg = "Bounded variable issue when calling satisfyParameters()";
-				AtMostOnceLogger.warn(logger, msg);
-				throw new ConstructionFailedException(msg);
-			}
 
 			// Generics instantiation may lead to invalid types, so better
 			// double check

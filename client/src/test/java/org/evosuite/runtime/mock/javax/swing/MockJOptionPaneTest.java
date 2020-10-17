@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -106,7 +106,7 @@ public class MockJOptionPaneTest {
 
 		Properties.TIMEOUT = Integer.MAX_VALUE;
 
-		InstrumentingClassLoader cl = new InstrumentingClassLoader();
+		InstrumentingClassLoader cl = TestGenerationContext.getInstance().getClassLoaderForSUT();
 		TestCase t0 = buildTestCase0(cl);
 		TestCase t1 = buildTestCase1(cl);
 

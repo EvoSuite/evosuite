@@ -15,7 +15,7 @@ public class MethodReturnsWrapper {
     }
 
     public Long testLong(long x, long y) {
-        return (long) (x - y);
+        return x - y;
     }
 
     public Character testChar(int x, int y) {

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -33,8 +33,6 @@ import org.evosuite.utils.generic.WildcardTypeImpl;
 import org.junit.Assert;
 import org.junit.Test;
 
-import javax.servlet.Servlet;
-import javax.servlet.http.HttpServlet;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
@@ -50,25 +48,29 @@ import static org.junit.Assert.assertTrue;
  */
 public class TestCodeVisitorTest {
 
-    public static <T extends Servlet> T foo(T servlet) {
-        return servlet;
+    public static <T extends FakeAbstractClass> T foo(T obj) {
+        return obj;
     }
 
     public static <T> T bar(T obj) {
         return obj;
     }
 
-    public static class ClassWithGeneric<T extends Servlet> {
-        public T hello(T servlet) {
-            return servlet;
+    public static class ClassWithGeneric<T extends FakeAbstractClass> {
+        public T hello(T obj) {
+            return obj;
         }
     }
 
-    public static class FakeServlet extends HttpServlet {
+    public static class FakeServlet extends FakeAbstractClass {
         private static final long serialVersionUID = 1L;
 
         public FakeServlet() {
         }
+    }
+
+    public abstract static class FakeAbstractClass {
+
     }
 
     public static class Country {
@@ -97,7 +99,7 @@ public class TestCodeVisitorTest {
                 new GenericConstructor(ClassWithGeneric.class.getDeclaredConstructor(), ClassWithGeneric.class), 1, 0);
 
 
-        Method m = ClassWithGeneric.class.getDeclaredMethod("hello", Servlet.class);
+        Method m = ClassWithGeneric.class.getDeclaredMethod("hello", FakeAbstractClass.class);
         GenericMethod gm = new GenericMethod(m, ClassWithGeneric.class);
         TestFactory.getInstance().addMethodFor(tc, genericClass, gm, 2);
 
@@ -111,7 +113,7 @@ public class TestCodeVisitorTest {
         assertEquals(1, tv.getBounds().length);
 
         Class<?> upper = (Class<?>) tv.getBounds()[0];
-        assertEquals(Servlet.class, upper);
+        assertEquals(FakeAbstractClass.class, upper);
 
 
         //Finally, visit the test
@@ -159,7 +161,7 @@ public class TestCodeVisitorTest {
         TestFactory.getInstance().addConstructor(tc,
                 new GenericConstructor(FakeServlet.class.getDeclaredConstructor(), FakeServlet.class), 0, 0);
 
-        Method m = TestCodeVisitorTest.class.getDeclaredMethod("foo", Servlet.class);
+        Method m = TestCodeVisitorTest.class.getDeclaredMethod("foo", FakeAbstractClass.class);
         GenericMethod gm = new GenericMethod(m, TestCodeVisitorTest.class);
         TestFactory.getInstance().addMethod(tc, gm, 1, 0);
 

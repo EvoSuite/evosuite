@@ -26,12 +26,11 @@ import java.util.Map;
 import java.util.Set;
 import org.evosuite.Properties;
 import org.evosuite.ga.archive.Archive;
-import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.TestCaseExecutor;
-import org.evosuite.testsuite.AbstractTestSuiteChromosome;
+import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 
 /**
@@ -43,10 +42,10 @@ public class OutputCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
     //public final int numBranchlessMethods;
     public final int totalGoals;
-    private final Set<OutputCoverageTestFitness> outputCoverageGoals = new LinkedHashSet<OutputCoverageTestFitness>();
+    private final Set<OutputCoverageTestFitness> outputCoverageGoals = new LinkedHashSet<>();
 
-    private Set<OutputCoverageTestFitness> toRemoveGoals = new LinkedHashSet<>();
-    private Set<OutputCoverageTestFitness> removedGoals  = new LinkedHashSet<>();
+    private final Set<OutputCoverageTestFitness> toRemoveGoals = new LinkedHashSet<>();
+    private final Set<OutputCoverageTestFitness> removedGoals  = new LinkedHashSet<>();
 
     // Some stuff for debug output
     public int maxCoveredGoals = 0;
@@ -82,7 +81,7 @@ public class OutputCoverageSuiteFitness extends TestSuiteFitnessFunction {
      * Execute all tests and count covered output goals
      */
     @Override
-    public double getFitness(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite) {
+    public double getFitness(TestSuiteChromosome suite) {
         logger.trace("Calculating test suite fitness");
         double fitness = 0.0;
 
@@ -147,7 +146,7 @@ public class OutputCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
     public double computeDistance(List<ExecutionResult> results, Set<TestFitnessFunction> setOfCoveredGoals) {
 
-        Map<OutputCoverageTestFitness, Double> mapDistances = new LinkedHashMap<OutputCoverageTestFitness, Double>();
+        Map<OutputCoverageTestFitness, Double> mapDistances = new LinkedHashMap<>();
         for (OutputCoverageTestFitness testFitness : this.outputCoverageGoals) {
           mapDistances.put(testFitness, 1.0);
         }
@@ -190,8 +189,7 @@ public class OutputCoverageSuiteFitness extends TestSuiteFitnessFunction {
      * @param coveredGoals
      * @param fitness
      */
-    private void printStatusMessages(
-            AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite,
+    private void printStatusMessages(TestSuiteChromosome suite,
             int coveredGoals, double fitness) {
         if (coveredGoals > maxCoveredGoals) {
             logger.info("(Output Goals) Best individual covers " + coveredGoals + "/"

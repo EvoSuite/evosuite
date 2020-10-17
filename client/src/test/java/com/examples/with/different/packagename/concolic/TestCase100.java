@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -25,7 +25,7 @@ public class TestCase100 {
 		int intValue = int0;
 		try {
 			Integer i = Integer.parseInt(string0);
-			intValue = i.intValue();
+			intValue = i;
 		} catch (NumberFormatException ex) {
 			if (intValue == -1) {
 				return true;

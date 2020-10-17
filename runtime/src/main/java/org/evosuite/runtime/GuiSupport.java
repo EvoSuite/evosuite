@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -116,7 +116,7 @@ public class GuiSupport {
 		java.lang.System.setProperty("java.awt.headless", ""+isHeadless);
 
 		try {
-			headless.set(null, (Boolean) isHeadless);
+			headless.set(null, isHeadless);
 		} catch (IllegalAccessException e) {
 			//this should never happen. if it doesn't work, then all GUI tests would be messed up :(
 			throw new RuntimeException("ERROR: failed to change AWT Headless state: "+e.getMessage(),e);

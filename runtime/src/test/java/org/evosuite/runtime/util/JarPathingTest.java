@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -22,8 +22,6 @@ package org.evosuite.runtime.util;
 import org.junit.Test;
 
 import java.io.File;
-import java.net.URI;
-import java.net.URL;
 
 import static org.junit.Assert.*;
 

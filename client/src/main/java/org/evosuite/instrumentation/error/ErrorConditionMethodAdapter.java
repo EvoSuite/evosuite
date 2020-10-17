@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
+
 package org.evosuite.instrumentation.error;
 
 import java.util.ArrayList;
@@ -76,8 +74,8 @@ public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 	 */
 	public ErrorConditionMethodAdapter(MethodVisitor mv, String className,
 	        String methodName, int access, String desc) {
-		//super(Opcodes.ASM7, mv, access, methodName, desc);
-		super(Opcodes.ASM7,
+		//super(Opcodes.ASM9, mv, access, methodName, desc);
+		super(Opcodes.ASM9,
 		        new AnnotatedMethodNode(access, methodName, desc, null, null), access,
 		        methodName, desc);
 		this.className = className;

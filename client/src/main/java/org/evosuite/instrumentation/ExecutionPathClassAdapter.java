@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -47,7 +47,7 @@ public class ExecutionPathClassAdapter extends ClassVisitor {
 	            || ArrayUtil.contains(Properties.CRITERION, Criterion.WEAKMUTATION);
 	}
 
-	private static Logger logger = LoggerFactory.getLogger(ExecutionPathClassAdapter.class);
+	private static final Logger logger = LoggerFactory.getLogger(ExecutionPathClassAdapter.class);
 
 	/** Skip methods on enums - at least some */
 	private boolean isEnum = false;
@@ -66,7 +66,7 @@ public class ExecutionPathClassAdapter extends ClassVisitor {
 	 *            a {@link java.lang.String} object.
 	 */
 	public ExecutionPathClassAdapter(ClassVisitor visitor, String className) {
-		super(Opcodes.ASM7, visitor);
+		super(Opcodes.ASM9, visitor);
 		this.className = ResourceList.getClassNameFromResourcePath(className);
 	}
 

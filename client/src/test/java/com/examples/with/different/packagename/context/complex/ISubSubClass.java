@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -21,6 +21,6 @@ package com.examples.with.different.packagename.context.complex;
 
 public interface ISubSubClass {
 	
-	public boolean innermethod(int i);
+	boolean innermethod(int i);
 	
 }

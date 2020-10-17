@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -33,12 +33,12 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
+
+import static java.util.Comparator.comparing;
 
 /**
  * SPEA2 implementation.
@@ -53,30 +53,29 @@ import java.util.ListIterator;
  *
  * @author José Campos
  */
-public class SPEA2<T extends Chromosome> extends GeneticAlgorithm<T> {
+public class SPEA2<T extends Chromosome<T>> extends GeneticAlgorithm<T> {
 
   private static final long serialVersionUID = -7638497183625040479L;
 
   private static final Logger logger = LoggerFactory.getLogger(SPEA2.class);
 
-  private DominanceComparator<T> comparator;
+  private final DominanceComparator<T> comparator;
 
   // TODO should we use 'archive' from GeneticAlgorithm class?
   private List<T> archive = null;
 
   public SPEA2(ChromosomeFactory<T> factory) {
     super(factory);
-    this.comparator = new DominanceComparator<T>();
+    this.comparator = new DominanceComparator<>();
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   protected void evolve() {
     /*
      * Reproduction
      */
 
-    List<T> offspringPopulation = new ArrayList<T>(Properties.POPULATION);
+    List<T> offspringPopulation = new ArrayList<>(Properties.POPULATION);
     while (offspringPopulation.size() < Properties.POPULATION) {
       // TODO SelectionFunction has to be a BinaryTournamentSelection, i.e.,
       // a TournamenteSelection with 2 tournaments
@@ -84,8 +83,8 @@ public class SPEA2<T extends Chromosome> extends GeneticAlgorithm<T> {
       T parent1 = this.selectionFunction.select(this.archive);
       T parent2 = this.selectionFunction.select(this.archive);
 
-      T offspring1 = (T) parent1.clone();
-      T offspring2 = (T) parent2.clone();
+      T offspring1 = parent1.clone();
+      T offspring2 = parent2.clone();
 
       if (Randomness.nextDouble() <= Properties.CROSSOVER_RATE) {
         try {
@@ -136,7 +135,7 @@ public class SPEA2<T extends Chromosome> extends GeneticAlgorithm<T> {
     // Generate an initial population P0
     this.generateInitialPopulation(Properties.POPULATION);
     // and create an empty archive of the same size
-    this.archive = new ArrayList<T>(Properties.POPULATION);
+    this.archive = new ArrayList<>(Properties.POPULATION);
 
     for (T element : this.population) {
       for (final FitnessFunction<T> ff : this.getFitnessFunctions()) {
@@ -171,7 +170,7 @@ public class SPEA2<T extends Chromosome> extends GeneticAlgorithm<T> {
   }
 
   private void updateArchive() {
-    List<T> union = new ArrayList<T>(2 * Properties.POPULATION);
+    List<T> union = new ArrayList<>(2 * Properties.POPULATION);
     union.addAll(population);
     union.addAll(this.archive);
     this.computeStrength(union);
@@ -180,18 +179,18 @@ public class SPEA2<T extends Chromosome> extends GeneticAlgorithm<T> {
 
   /**
    * 
-   * @param population
+   * @param union
    * @return
    */
   protected List<T> environmentalSelection(List<T> union) {
 
-    List<T> populationCopy = new ArrayList<T>(union.size());
+    List<T> populationCopy = new ArrayList<>(union.size());
     populationCopy.addAll(union);
 
     // First step is to copy all nondominated individuals, i.e., those
     // which have a fitness lower than one, from archive and population
     // to the archive of the next generation
-    List<T> tmpPopulation = new ArrayList<T>(populationCopy.size());
+    List<T> tmpPopulation = new ArrayList<>(populationCopy.size());
     Iterator<T> it = populationCopy.iterator();
     while (it.hasNext()) {
       T individual = it.next();
@@ -209,7 +208,7 @@ public class SPEA2<T extends Chromosome> extends GeneticAlgorithm<T> {
     // If archive is too small, the best dominated individuals in the previous
     // archive and population are copied to the new archive
     else if (tmpPopulation.size() < Properties.POPULATION) {
-      Collections.sort(populationCopy, new StrengthFitnessComparator());
+      populationCopy.sort(new StrengthFitnessComparator());
       int remain = (union.size() < Properties.POPULATION ? union.size() : Properties.POPULATION) - tmpPopulation.size();
       for (int i = 0; i < remain; i++) {
         tmpPopulation.add(populationCopy.get(i));
@@ -227,9 +226,9 @@ public class SPEA2<T extends Chromosome> extends GeneticAlgorithm<T> {
 
     double[][] distance = this.euclideanDistanceMatrix(tmpPopulation);
 
-    List<List<Pair<Integer, Double>>> distanceList = new LinkedList<List<Pair<Integer, Double>>>();
+    List<List<Pair<Integer, Double>>> distanceList = new LinkedList<>();
     for (int i = 0; i < tmpPopulation.size(); i++) {
-      List<Pair<Integer, Double>> distanceNodeList = new LinkedList<Pair<Integer, Double>>();
+      List<Pair<Integer, Double>> distanceNodeList = new LinkedList<>();
 
       for (int j = 0; j < tmpPopulation.size(); j++) {
         if (i != j) {
@@ -239,18 +238,7 @@ public class SPEA2<T extends Chromosome> extends GeneticAlgorithm<T> {
 
       // sort by distance so that later we can just get the first element, i.e.,
       // the one with the smallest distance
-      Collections.sort(distanceNodeList, new Comparator<Pair<Integer, Double>>() {
-        @Override
-        public int compare(Pair<Integer, Double> pair1, Pair<Integer, Double> pair2) {
-          if (pair1.getRight() < pair2.getRight()) {
-            return -1;
-          } else if (pair1.getRight() > pair2.getRight()) {
-            return 1;
-          } else {
-            return 0;
-          }
-        }
-      });
+      distanceNodeList.sort(comparing(Pair::getRight));
 
       distanceList.add(distanceNodeList);
     }
@@ -312,7 +300,7 @@ public class SPEA2<T extends Chromosome> extends GeneticAlgorithm<T> {
 
   /**
    * 
-   * @param solutions
+   * @param solution
    */
   protected void computeStrength(List<T> solution) {
     // count the number of individuals each solution dominates
@@ -388,7 +376,7 @@ public class SPEA2<T extends Chromosome> extends GeneticAlgorithm<T> {
     double distance = 0.0;
 
     // perform euclidean distance
-    for (FitnessFunction<?> ff : t1.getFitnessValues().keySet()) {
+    for (FitnessFunction<T> ff : t1.getFitnessValues().keySet()) {
       double diff = t1.getFitness(ff) - t2.getFitness(ff);
       distance += Math.pow(diff, 2.0);
     }

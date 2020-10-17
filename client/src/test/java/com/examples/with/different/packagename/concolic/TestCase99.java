@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -23,7 +23,7 @@ public class TestCase99 {
 
 	public static boolean test(String myStr) {
 		Integer i = Integer.parseInt(myStr);
-		int intValue = i.intValue();
+		int intValue = i;
 		if (intValue == 10) {
 			return true;
 		} else {

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -63,7 +63,7 @@ public class TestCaseMinimizer {
 	 * @return True if something was deleted
 	 */
 	public static boolean removeUnusedVariables(TestCase t) {
-		List<Integer> to_delete = new ArrayList<Integer>();
+		List<Integer> to_delete = new ArrayList<>();
 		boolean has_deleted = false;
 
 		int num = 0;
@@ -75,7 +75,7 @@ public class TestCaseMinimizer {
 			}
 			num++;
 		}
-		Collections.sort(to_delete, Collections.reverseOrder());
+		to_delete.sort(Collections.reverseOrder());
 		for (Integer position : to_delete) {
 			t.remove(position);
 		}
@@ -93,7 +93,7 @@ public class TestCaseMinimizer {
 				return true;
 		}
 
-		for (SecondaryObjective objective : TestChromosome.getSecondaryObjectives()) {
+		for (SecondaryObjective<TestChromosome> objective : TestChromosome.getSecondaryObjectives()) {
 			if (objective.compareChromosomes(oldChromosome, newChromosome) < 0)
 				return true;
 		}
@@ -125,8 +125,7 @@ public class TestCaseMinimizer {
 		}
 
 		logger.debug("Start fitness values: {}", fitness);
-		assert ConstraintVerifier.verifyTest(c);
-		
+
 		if (isTimeoutReached()) {
 			logger.debug("Timeout reached after verifying test");
 			return;
@@ -144,7 +143,7 @@ public class TestCaseMinimizer {
 				}
 				
 				logger.debug("Deleting statement {}", c.test.getStatement(i).getCode());
-				TestChromosome copy = (TestChromosome) c.clone();
+				TestChromosome copy = c.clone();
 				boolean modified;
 				try {
 					modified = TestFactory.getInstance().deleteStatementGracefully(c.test, i);
@@ -192,8 +191,6 @@ public class TestCaseMinimizer {
 			ValueMinimizer minimizer = new ValueMinimizer();
 			minimizer.minimize(c, fitnessFunction);
 		}
-
-		assert ConstraintVerifier.verifyTest(c);
 
 		if (logger.isDebugEnabled()) {
 			logger.debug("Minimized test case: ");

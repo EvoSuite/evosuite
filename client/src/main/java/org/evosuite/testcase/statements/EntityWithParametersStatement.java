@@ -20,8 +20,6 @@
 package org.evosuite.testcase.statements;
 
 import org.evosuite.Properties;
-import org.evosuite.runtime.annotation.BoundInputVariable;
-import org.evosuite.runtime.annotation.Constraints;
 import org.evosuite.runtime.util.Inputs;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.variable.ArrayIndex;
@@ -201,19 +199,6 @@ public abstract class EntityWithParametersStatement extends AbstractStatement{
             return false;
         }
 
-        for(int i=0; i<parameters.size(); i++){
-            if(parameters.get(i).equals(var)){
-
-                for(int j=0; j<parameterAnnotations[i].length; j++){
-                    if(parameterAnnotations[i][j] instanceof BoundInputVariable){
-                        return true;
-                    }
-                }
-
-                break;
-            }
-        }
-
         return false;
     }
 
@@ -224,15 +209,6 @@ public abstract class EntityWithParametersStatement extends AbstractStatement{
                 num++;
         }
         return num;
-    }
-
-    protected Constraints getConstraints(){
-        for(Annotation annotation : annotations){
-            if(annotation instanceof Constraints){
-                return (Constraints)annotation;
-            }
-        }
-        return null;
     }
 
     protected boolean mutateParameter(TestCase test, int numParameter) {
@@ -247,9 +223,7 @@ public abstract class EntityWithParametersStatement extends AbstractStatement{
         NullStatement nullStatement = new NullStatement(test, parameter.getType());
         Statement copy = null;
 
-        //check if NULL is a valid option
-        Constraints constraint = getConstraints();
-        boolean avoidNull =  constraint!=null && constraint.noNullInputs();
+        boolean avoidNull = false;
 
         if(Properties.HONOUR_DATA_ANNOTATIONS && (numParameter < parameterAnnotations.length)) {
             if (GenericUtils.isAnnotationTypePresent(parameterAnnotations[numParameter], GenericUtils.NONNULL)) {

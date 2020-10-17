@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -76,7 +76,7 @@ public abstract class AbstractExpression<T> implements Expression<T> {
 
 	@Override
 	public Set<Object> getConstants() {
-		Set<Object> result = new HashSet<Object>();
+		Set<Object> result = new HashSet<>();
 		result.add(this.concreteValue);
 		return result;
 	}

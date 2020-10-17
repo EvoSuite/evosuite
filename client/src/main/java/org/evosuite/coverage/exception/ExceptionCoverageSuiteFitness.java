@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -22,10 +22,9 @@ package org.evosuite.coverage.exception;
 import org.evosuite.Properties;
 import org.evosuite.coverage.MethodNameMatcher;
 import org.evosuite.ga.archive.Archive;
-import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.execution.ExecutionResult;
-import org.evosuite.testsuite.AbstractTestSuiteChromosome;
+import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +40,7 @@ public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 	private static final long serialVersionUID = 1565793073526627496L;
 
-	private static Logger logger = LoggerFactory.getLogger(ExceptionCoverageSuiteFitness.class);
+	private static final Logger logger = LoggerFactory.getLogger(ExceptionCoverageSuiteFitness.class);
 
     private static int maxExceptionsCovered = 0;
 
@@ -53,8 +52,7 @@ public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
     }
 
 	@Override
-	public double getFitness(
-	        AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite) {
+	public double getFitness(TestSuiteChromosome suite) {
 		logger.trace("Calculating exception fitness");
 
 
@@ -176,19 +174,19 @@ public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
                         if (isExplicit) {
 
                             if (!explicitTypesOfExceptions.containsKey(methodIdentifier)) {
-                                explicitTypesOfExceptions.put(methodIdentifier, new HashSet<Class<?>>());
+                                explicitTypesOfExceptions.put(methodIdentifier, new HashSet<>());
                             }
                             explicitTypesOfExceptions.get(methodIdentifier).add(exceptionClass);
                         } else {
 
                             if (!implicitTypesOfExceptions.containsKey(methodIdentifier)) {
-                                implicitTypesOfExceptions.put(methodIdentifier, new HashSet<Class<?>>());
+                                implicitTypesOfExceptions.put(methodIdentifier, new HashSet<>());
                             }
                             implicitTypesOfExceptions.get(methodIdentifier).add(exceptionClass);
                         }
                     } else {
                         if (!declaredTypesOfExceptions.containsKey(methodIdentifier)) {
-                            declaredTypesOfExceptions.put(methodIdentifier, new HashSet<Class<?>>());
+                            declaredTypesOfExceptions.put(methodIdentifier, new HashSet<>());
                         }
                         declaredTypesOfExceptions.get(methodIdentifier).add(exceptionClass);
                     }
@@ -223,7 +221,7 @@ public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	}
 
 	public static int getNumClassExceptions(Map<String, Set<Class<?>>> exceptions) {
-		Set<Class<?>> classExceptions = new HashSet<Class<?>>();
+		Set<Class<?>> classExceptions = new HashSet<>();
 		for (Set<Class<?>> exceptionSet : exceptions.values()) {
 			classExceptions.addAll(exceptionSet);
 		}

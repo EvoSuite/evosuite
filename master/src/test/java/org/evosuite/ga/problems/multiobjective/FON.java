@@ -22,7 +22,6 @@ package org.evosuite.ga.problems.multiobjective;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.NSGAChromosome;
 import org.evosuite.ga.problems.Problem;
@@ -33,10 +32,10 @@ import org.evosuite.ga.variables.DoubleVariable;
  * 
  * @author José Campos
  */
-@SuppressWarnings({ "rawtypes", "unchecked", "serial" })
-public class FON<T extends NSGAChromosome> implements Problem
+@SuppressWarnings({ "serial" })
+public class FON implements Problem<NSGAChromosome>
 {
-	private List<FitnessFunction<T>> fitnessFunctions = new ArrayList<FitnessFunction<T>>();
+	private final List<FitnessFunction<NSGAChromosome>> fitnessFunctions = new ArrayList<>();
 
 	public FON() {
 		super();
@@ -44,19 +43,18 @@ public class FON<T extends NSGAChromosome> implements Problem
 		/**
 		 * First fitness function
 		 */
-		class f1FitnessFunction extends FitnessFunction {
+		class f1FitnessFunction extends FitnessFunction<NSGAChromosome> {
 			@Override
-			public double getFitness(Chromosome c) {
-				NSGAChromosome individual = (NSGAChromosome)c;
+			public double getFitness(NSGAChromosome c) {
 
 				double fitness = 0.0;
-				for (int i = 0; i < individual.getNumberOfVariables(); i++) {
-					DoubleVariable dv = (DoubleVariable) individual.getVariables().get(i);
+				for (int i = 0; i < c.getNumberOfVariables(); i++) {
+					DoubleVariable dv = (DoubleVariable) c.getVariables().get(i);
 					fitness += Math.pow(dv.getValue() - (1.0 / Math.sqrt(3.0)), 2.0);
 				}
 
 				fitness = 1.0 - Math.exp(-fitness);
-				updateIndividual(individual, fitness);
+				updateIndividual(c, fitness);
 				return fitness;
 			}
 			@Override
@@ -68,19 +66,18 @@ public class FON<T extends NSGAChromosome> implements Problem
 		/**
 		 * Second fitness function
 		 */
-		class f2FitnessFunction extends FitnessFunction {
+		class f2FitnessFunction extends FitnessFunction<NSGAChromosome> {
 			@Override
-			public double getFitness(Chromosome c) {
-				NSGAChromosome individual = (NSGAChromosome)c;
+			public double getFitness(NSGAChromosome c) {
 
 				double fitness = 0.0;
-				for (int i = 0; i < individual.getNumberOfVariables(); i++) {
-					DoubleVariable dv = (DoubleVariable) individual.getVariables().get(i);
+				for (int i = 0; i < c.getNumberOfVariables(); i++) {
+					DoubleVariable dv = (DoubleVariable) c.getVariables().get(i);
 					fitness += Math.pow(dv.getValue() + (1.0 / Math.sqrt(3.0)), 2.0);
 				}
 
 				fitness = 1.0 - Math.exp(-fitness);
-				updateIndividual(individual, fitness);
+				updateIndividual(c, fitness);
 				return fitness;
 			}
 			@Override
@@ -94,7 +91,7 @@ public class FON<T extends NSGAChromosome> implements Problem
 	}
 
 	@Override
-	public List<FitnessFunction<T>> getFitnessFunctions() {
+	public List<FitnessFunction<NSGAChromosome>> getFitnessFunctions() {
 		return this.fitnessFunctions;
 	}
 }

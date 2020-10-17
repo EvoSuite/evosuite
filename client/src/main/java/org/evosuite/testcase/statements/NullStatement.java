@@ -86,7 +86,7 @@ public class NullStatement extends PrimitiveStatement<Void> {
 	/** {@inheritDoc} */
 	@Override
 	public List<VariableReference> getUniqueVariableReferences() {
-		return new ArrayList<VariableReference>(getVariableReferences());
+		return new ArrayList<>(getVariableReferences());
 	}
 
 	/* (non-Javadoc)
@@ -95,7 +95,7 @@ public class NullStatement extends PrimitiveStatement<Void> {
 	/** {@inheritDoc} */
 	@Override
 	public Set<VariableReference> getVariableReferences() {
-		Set<VariableReference> references = new LinkedHashSet<VariableReference>();
+		Set<VariableReference> references = new LinkedHashSet<>();
 		references.add(retval);
 		return references;
 	}

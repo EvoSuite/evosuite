@@ -1,4 +1,4 @@
-/**
+/*
  *
  * This file is part of EvoSuite.
  *
@@ -30,18 +30,24 @@ import org.evosuite.utils.Randomness;
  *
  * @author Annibale Panichella, Fitsum M. Kifetew
  */
-public class TournamentSelectionRankAndCrowdingDistanceComparator<T extends Chromosome> extends SelectionFunction<T> {
+public class TournamentSelectionRankAndCrowdingDistanceComparator<T extends Chromosome<T>>
+		extends SelectionFunction<T> {
 
 	private static final long serialVersionUID = 781669365989544671L;
 
 	private final RankAndCrowdingDistanceComparator<T> comparator;
 
 	public TournamentSelectionRankAndCrowdingDistanceComparator() {
-		this.comparator = new RankAndCrowdingDistanceComparator<T>(this.maximize);
+		this.comparator = new RankAndCrowdingDistanceComparator<>(this.maximize);
 	}
 
 	public TournamentSelectionRankAndCrowdingDistanceComparator(boolean isToMaximize) {
-		this.comparator = new RankAndCrowdingDistanceComparator<T>(isToMaximize);
+		this.comparator = new RankAndCrowdingDistanceComparator<>(isToMaximize);
+	}
+
+	public TournamentSelectionRankAndCrowdingDistanceComparator(
+			TournamentSelectionRankAndCrowdingDistanceComparator<?> other) {
+		this.comparator = new RankAndCrowdingDistanceComparator<>(other.comparator);
 	}
 
 	/**
@@ -60,9 +66,9 @@ public class TournamentSelectionRankAndCrowdingDistanceComparator<T extends Chro
 			new_num = Randomness.nextInt(population.size());
 			if (new_num == winner)
 				new_num = (new_num+1) % population.size();
-			Chromosome selected = population.get(new_num);
+			T selected = population.get(new_num);
 			int flag = comparator.compare(selected, population.get(winner));
-			if (flag==-1) {
+			if (flag < 0) {
 				winner = new_num;
 			} 
 			round++;

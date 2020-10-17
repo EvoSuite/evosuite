@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -28,5 +28,5 @@ import org.evosuite.symbolic.expr.fp.RealValue;
  */
 public interface RealOperand extends Operand {
 
-	public RealValue getRealExpression();
+	RealValue getRealExpression();
 }

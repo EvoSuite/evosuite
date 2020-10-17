@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -27,7 +27,7 @@ public class GenericStaticMethod3 {
 
     public static <E> List<E> selectRejected(final Collection<? extends E> inputCollection,
             final Predicate<? super E> predicate) {
-    	List<E> result = new ArrayList<E>();
+    	List<E> result = new ArrayList<>();
     	for(E elem : inputCollection) {
     		if(predicate.evaluate(elem)) {
     			result.add(elem);
@@ -37,7 +37,7 @@ public class GenericStaticMethod3 {
     }
     
     public static <E> List<E> foo(E bla) {
-    	List<E> ret = new ArrayList<E>();
+    	List<E> ret = new ArrayList<>();
     	ret.add(bla);
     	if(bla instanceof Character) {
     		System.out.println("Foo");

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -46,7 +46,7 @@ public class AllDefsCoverageFactory extends
 	@Override
 	public List<AllDefsCoverageTestFitness> getCoverageGoals() {
 
-		List<AllDefsCoverageTestFitness> goals = new ArrayList<AllDefsCoverageTestFitness>();
+		List<AllDefsCoverageTestFitness> goals = new ArrayList<>();
 
 		Set<Definition> defs = DefUseCoverageFactory.getRegisteredDefinitions();
 

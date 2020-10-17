@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -24,8 +24,6 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -42,7 +40,6 @@ import org.evosuite.symbolic.solver.SolverTimeoutException;
 import org.evosuite.symbolic.solver.smt.SmtAssertion;
 import org.evosuite.symbolic.solver.smt.SmtQuery;
 import org.evosuite.symbolic.solver.smt.SmtQueryPrinter;
-import org.evosuite.symbolic.solver.smt.SmtConstantDeclaration;
 import org.evosuite.symbolic.solver.smt.SmtExpr;
 import org.evosuite.symbolic.solver.smt.SmtFunctionDeclaration;
 import org.evosuite.symbolic.solver.smt.SmtFunctionDefinition;
@@ -101,7 +98,7 @@ public final class CVC4Solver extends SmtSolver {
 
 		long cvcTimeout = Properties.DSE_CONSTRAINT_SOLVER_TIMEOUT_MILLIS;
 
-		Set<Variable<?>> variables = new HashSet<Variable<?>>();
+		Set<Variable<?>> variables = new HashSet<>();
 		for (Constraint<?> c : constraints) {
 			Set<Variable<?>> c_variables = c.getVariables();
 			variables.addAll(c_variables);
@@ -115,7 +112,7 @@ public final class CVC4Solver extends SmtSolver {
 		}
 
 		if (query.getAssertions().isEmpty()) {
-			Map<String, Object> emptySolution = new HashMap<String, Object>();
+			Map<String, Object> emptySolution = new HashMap<>();
 			SolverResult emptySAT = SolverResult.newSAT(emptySolution);
 			return emptySAT;
 		}

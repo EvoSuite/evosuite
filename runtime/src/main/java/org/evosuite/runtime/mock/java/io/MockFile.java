@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -64,7 +64,7 @@ public class MockFile extends File implements OverrideMock {
 	}
 
 	public MockFile(File parent, String child) {
-		this(parent == null ? (String) null : parent.getAbsolutePath()
+		this(parent == null ? null : parent.getAbsolutePath()
 				, child);
 	}
 
@@ -529,9 +529,9 @@ public class MockFile extends File implements OverrideMock {
 		if(!MockFramework.isEnabled()) {
 			return super.listFiles(filter);
 		}
-		String ss[] = list();
+		String[] ss = list();
 		if (ss == null) return null;
-		ArrayList<File> files = new ArrayList<File>();
+		ArrayList<File> files = new ArrayList<>();
 		for (String s : ss) {
 			File f = new MockFile(this,s);
 			if ((filter == null) || filter.accept(f))

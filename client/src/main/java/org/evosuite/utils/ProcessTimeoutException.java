@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -21,9 +21,7 @@ package org.evosuite.utils;
 
 public class ProcessTimeoutException extends Exception {
 
-	/**
-	 * 
-	 */
+	
 	private static final long serialVersionUID = 4491074449992139396L;
 
 	public ProcessTimeoutException(String msg) {

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -87,7 +87,6 @@ import org.evosuite.coverage.rho.RhoCoverageSuiteFitness;
 import org.evosuite.coverage.statement.StatementCoverageFactory;
 import org.evosuite.coverage.statement.StatementCoverageSuiteFitness;
 import org.evosuite.coverage.statement.StatementCoverageTestFitness;
-import org.evosuite.regression.RegressionSuiteFitness;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.slf4j.Logger;
@@ -102,7 +101,7 @@ import java.util.Arrays;
  */
 public class FitnessFunctions {
 	
-	private static Logger logger = LoggerFactory.getLogger(FitnessFunctions.class);
+	private static final Logger logger = LoggerFactory.getLogger(FitnessFunctions.class);
 
 	/**
 	 * <p>
@@ -141,8 +140,6 @@ public class FitnessFunctions {
 			return new AllDefsCoverageSuiteFitness();
 		case EXCEPTION:
 			return new ExceptionCoverageSuiteFitness();
-		case REGRESSION:
-			return new RegressionSuiteFitness();
 		case READABILITY:
 			return new ReadabilitySuiteFitness();
 		case ONLYBRANCH:
@@ -305,8 +302,6 @@ public class FitnessFunctions {
 				return AllDefsCoverageTestFitness.class;
 		case EXCEPTION:
 				return ExceptionCoverageTestFitness.class;
-		case REGRESSION:
-				throw new RuntimeException("No test fitness function defined for " + criterion.name());
 		case READABILITY:
 				throw new RuntimeException("No test fitness function defined for " + criterion.name());
 		case ONLYBRANCH:

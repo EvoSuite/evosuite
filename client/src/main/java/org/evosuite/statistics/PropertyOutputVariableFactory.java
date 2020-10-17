@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -37,10 +37,10 @@ public class PropertyOutputVariableFactory {
 	
 	public OutputVariable<String> getVariable() {
 		try {
-			return new OutputVariable<String>(propertyName, Properties.getStringValue(propertyName));
+			return new OutputVariable<>(propertyName, Properties.getStringValue(propertyName));
 		} catch (Exception e) {
 			// TODO: What would be better?
-			return new OutputVariable<String>(propertyName, "error");
+			return new OutputVariable<>(propertyName, "error");
 		}
 	}
 

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -21,13 +21,9 @@ package org.evosuite.coverage.io.output;
 
 
 import org.apache.commons.lang3.ClassUtils;
-import org.evosuite.Properties;
-import org.evosuite.TestGenerationContext;
 import org.evosuite.assertion.Inspector;
 import org.evosuite.assertion.InspectorManager;
 import org.evosuite.setup.DependencyAnalysis;
-import org.evosuite.testcase.TestFitnessFunction;
-import org.evosuite.testcase.statements.MethodStatement;
 import org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

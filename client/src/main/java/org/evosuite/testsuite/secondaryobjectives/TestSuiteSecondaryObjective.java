@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -25,14 +25,10 @@ import org.evosuite.coverage.rho.RhoTestSuiteSecondaryObjective;
 import org.evosuite.ga.SecondaryObjective;
 import org.evosuite.testsuite.TestSuiteChromosome;
 
-/**
- * 
- */
+
 public class TestSuiteSecondaryObjective {
 
-  /**
-   * 
-   */
+
   public static void setSecondaryObjectives() {
     for (Properties.SecondaryObjective secondaryObjective : Properties.SECONDARY_OBJECTIVE) {
       SecondaryObjective<TestSuiteChromosome> secondaryObjectiveInstance = null;

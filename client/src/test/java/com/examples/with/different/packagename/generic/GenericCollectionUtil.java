@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -26,7 +26,7 @@ import java.util.List;
 public class GenericCollectionUtil {
 
     public static <E> List<E> intersection(final List<? extends E> list1, final List<? extends E> list2) {
-        final List<E> result = new ArrayList<E>();
+        final List<E> result = new ArrayList<>();
 
         List<? extends E> smaller = list1;
         List<? extends E> larger = list2;
@@ -35,7 +35,7 @@ public class GenericCollectionUtil {
             larger = list1;
         }
 
-        final HashSet<E> hashSet = new HashSet<E>(smaller);
+        final HashSet<E> hashSet = new HashSet<>(smaller);
 
         for (final E e : larger) {
             if (hashSet.contains(e)) {

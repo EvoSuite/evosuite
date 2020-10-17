@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.evosuite.coverage.branch.Branch;
 import org.evosuite.coverage.branch.BranchPool;
@@ -55,7 +54,7 @@ import static java.util.stream.Collectors.*;
  */
 public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 
-	private static Logger logger = LoggerFactory.getLogger(RawControlFlowGraph.class);
+	private static final Logger logger = LoggerFactory.getLogger(RawControlFlowGraph.class);
 
 	private final ClassLoader classLoader;
 

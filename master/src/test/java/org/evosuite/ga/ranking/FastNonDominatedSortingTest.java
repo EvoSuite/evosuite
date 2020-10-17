@@ -3,6 +3,7 @@ package org.evosuite.ga.ranking;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.operators.ranking.FastNonDominatedSorting;
 import org.evosuite.testcase.TestChromosome;
+import org.evosuite.testcase.TestFitnessFunction;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -16,14 +17,14 @@ import static org.junit.Assert.assertEquals;
 
 public class FastNonDominatedSortingTest {
 
-    public static Set<FitnessFunction> ff;
+    public static Set<FitnessFunction<TestChromosome>> ff;
     public static List<TestChromosome> front;
 
     @BeforeClass
     public static void init(){
         // create the set of fitness functions
-        FitnessFunction f1 = Mockito.mock(FitnessFunction.class);
-        FitnessFunction f2 = Mockito.mock(FitnessFunction.class);
+        FitnessFunction<TestChromosome> f1 = Mockito.mock(TestFitnessFunction.class);
+        FitnessFunction<TestChromosome> f2 = Mockito.mock(TestFitnessFunction.class);
         ff = new HashSet<>();
         ff.add(f1);
         ff.add(f2);
@@ -48,8 +49,8 @@ public class FastNonDominatedSortingTest {
 
     @Test
     public void testComputeRankingAssignment() {
-        FastNonDominatedSorting sorting = new FastNonDominatedSorting();
-        sorting.computeRankingAssignment(front,ff);
+        FastNonDominatedSorting<TestChromosome> sorting = new FastNonDominatedSorting<>();
+        sorting.computeRankingAssignment(front, ff);
 
         assertEquals(2, sorting.getNumberOfSubfronts());
 

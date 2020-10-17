@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
+
 package org.evosuite.instrumentation.mutation;
 
 import java.util.Arrays;
@@ -29,6 +27,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.evosuite.PackageInfo;
+import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.mutation.Mutation;
 import org.evosuite.coverage.mutation.MutationPool;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
@@ -57,13 +56,13 @@ public class ReplaceComparisonOperator implements MutationOperator {
 
 	public static final String NAME = "ReplaceComparisonOperator";
 	
-	private static Set<Integer> opcodesReference = new HashSet<Integer>();
+	private static Set<Integer> opcodesReference = new HashSet<>();
 
-	private static Set<Integer> opcodesNull = new HashSet<Integer>();
+	private static Set<Integer> opcodesNull = new HashSet<>();
 
-	private static Set<Integer> opcodesInt = new HashSet<Integer>();
+	private static Set<Integer> opcodesInt = new HashSet<>();
 
-	private static Set<Integer> opcodesIntInt = new HashSet<Integer>();
+	private static Set<Integer> opcodesIntInt = new HashSet<>();
 
 	static {
 		opcodesReference.addAll(Arrays.asList(new Integer[] { Opcodes.IF_ACMPEQ,
@@ -120,7 +119,7 @@ public class ReplaceComparisonOperator implements MutationOperator {
 	public List<Mutation> apply(MethodNode mn, String className, String methodName,
 	        BytecodeInstruction instruction, Frame frame) {
 		JumpInsnNode node = (JumpInsnNode) instruction.getASMNode();
-		List<Mutation> mutations = new LinkedList<Mutation>();
+		List<Mutation> mutations = new LinkedList<>();
 		LabelNode target = node.label;
 
 		boolean isBoolean = frame.getStack(frame.getStackSize() - 1) == BooleanValueInterpreter.BOOLEAN_VALUE;
@@ -131,7 +130,7 @@ public class ReplaceComparisonOperator implements MutationOperator {
 				// insert mutation into bytecode with conditional
 				JumpInsnNode mutation = new JumpInsnNode(op, target);
 				// insert mutation into pool
-				Mutation mutationObject = MutationPool.addMutation(className,
+				Mutation mutationObject = MutationPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).addMutation(className,
 				                                                   methodName,
 				                                                   NAME + " "
 				                                                           + getOp(node.getOpcode())
@@ -156,7 +155,7 @@ public class ReplaceComparisonOperator implements MutationOperator {
 					mutation.add(new LdcInsnNode(0));
 				}
 				mutation.add(new JumpInsnNode(Opcodes.IFNE, target));
-				Mutation mutationObject = MutationPool.addMutation(className,
+				Mutation mutationObject = MutationPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).addMutation(className,
 				                                                   methodName,
 				                                                   NAME + " "
 				                                                           + getOp(node.getOpcode())
@@ -508,7 +507,7 @@ public class ReplaceComparisonOperator implements MutationOperator {
 	}
 
 	private Set<Integer> getOperators(int opcode, boolean isBoolean) {
-		Set<Integer> replacement = new HashSet<Integer>();
+		Set<Integer> replacement = new HashSet<>();
 		if (opcodesReference.contains(opcode))
 			replacement.addAll(opcodesReference);
 		else if (opcodesNull.contains(opcode))
@@ -576,7 +575,7 @@ public class ReplaceComparisonOperator implements MutationOperator {
 	private Set<Integer> getIntReplacement(int opcode) {
 		logger.debug("Getting int replacement");
 
-		Set<Integer> replacement = new HashSet<Integer>();
+		Set<Integer> replacement = new HashSet<>();
 		switch (opcode) {
 		case Opcodes.IFEQ:
 			replacement.add(Opcodes.IFGE);
@@ -621,7 +620,7 @@ public class ReplaceComparisonOperator implements MutationOperator {
 	private Set<Integer> getIntIntReplacement(int opcode) {
 		logger.info("Getting int int replacement");
 
-		Set<Integer> replacement = new HashSet<Integer>();
+		Set<Integer> replacement = new HashSet<>();
 		switch (opcode) {
 		case Opcodes.IF_ICMPEQ:
 			replacement.add(Opcodes.IF_ICMPGE);

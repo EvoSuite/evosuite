@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
+
 package org.evosuite.instrumentation.mutation;
 
 import java.util.List;
@@ -47,8 +45,8 @@ public interface MutationOperator {
 	 * @param frame a {@link org.objectweb.asm.tree.analysis.Frame} object.
 	 * @return a {@link java.util.List} object.
 	 */
-	public List<Mutation> apply(MethodNode mn, String className, String methodName,
-	        BytecodeInstruction instruction, Frame frame);
+    List<Mutation> apply(MethodNode mn, String className, String methodName,
+                         BytecodeInstruction instruction, Frame frame);
 
 	/**
 	 * Check if the mutation operator is applicable to the instruction
@@ -56,6 +54,6 @@ public interface MutationOperator {
 	 * @param instruction a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
 	 * @return a boolean.
 	 */
-	public boolean isApplicable(BytecodeInstruction instruction);
+    boolean isApplicable(BytecodeInstruction instruction);
 
 }

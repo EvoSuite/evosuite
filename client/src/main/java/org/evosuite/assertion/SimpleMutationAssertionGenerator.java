@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -30,7 +30,6 @@ import java.util.Set;
 import java.util.Map.Entry;
 
 import org.evosuite.Properties;
-import org.evosuite.TestSuiteGenerator;
 import org.evosuite.TimeController;
 import org.evosuite.coverage.mutation.Mutation;
 import org.evosuite.coverage.mutation.MutationTimeoutStoppingCondition;
@@ -143,8 +142,8 @@ public class SimpleMutationAssertionGenerator extends MutationAssertionGenerator
 			return;
 		}
 
-		Map<Mutation, List<OutputTrace<?>>> mutationTraces = new HashMap<Mutation, List<OutputTrace<?>>>();
-		List<Mutation> executedMutants = new ArrayList<Mutation>();
+		Map<Mutation, List<OutputTrace<?>>> mutationTraces = new HashMap<>();
+		List<Mutation> executedMutants = new ArrayList<>();
 
 		for (Integer mutationId : origResult.getTrace().getTouchedMutants()) {
 			if (!mutants.containsKey(mutationId)) {
@@ -208,8 +207,8 @@ public class SimpleMutationAssertionGenerator extends MutationAssertionGenerator
 				                                                              mutantResult.getTrace(observerClass));
 			}
 
-			List<OutputTrace<?>> traces = new ArrayList<OutputTrace<?>>(
-			        mutantResult.getTraces());
+			List<OutputTrace<?>> traces = new ArrayList<>(
+					mutantResult.getTraces());
 			mutationTraces.put(m, traces);
 
 			if (mutantResult.hasTimeout()) {
@@ -241,10 +240,10 @@ public class SimpleMutationAssertionGenerator extends MutationAssertionGenerator
 
 		List<Assertion> assertions = test.getAssertions();
 		logger.info("Got " + assertions.size() + " assertions");
-		Map<Integer, Set<Integer>> killMap = new HashMap<Integer, Set<Integer>>();
+		Map<Integer, Set<Integer>> killMap = new HashMap<>();
 		int num = 0;
 		for (Assertion assertion : assertions) {
-			Set<Integer> killedMutations = new HashSet<Integer>();
+			Set<Integer> killedMutations = new HashSet<>();
 			for (Mutation m : executedMutants) {
 
 				boolean isKilled = false;
@@ -358,8 +357,8 @@ public class SimpleMutationAssertionGenerator extends MutationAssertionGenerator
 					trace.getAllAssertions(test);
 				}
 
-				Set<Assertion> target = new HashSet<Assertion>(
-				        test.getStatement(test.size() - 1).getAssertions());
+				Set<Assertion> target = new HashSet<>(
+						test.getStatement(test.size() - 1).getAssertions());
 				logger.debug("Found assertions: " + target.size());
 
 				test.removeAssertions();
@@ -483,19 +482,19 @@ public class SimpleMutationAssertionGenerator extends MutationAssertionGenerator
 					return num_killed.compareTo(other.num_killed);
 			}
 		}
-		Set<Integer> to_kill = new HashSet<Integer>();
+		Set<Integer> to_kill = new HashSet<>();
 		for (Entry<Integer, Set<Integer>> entry : killMap.entrySet()) {
 			to_kill.addAll(entry.getValue());
 		}
 		logger.debug("Need to kill mutants: " + to_kill.size());
 
-		Set<Integer> killed = new HashSet<Integer>();
-		Set<Assertion> result = new HashSet<Assertion>();
+		Set<Integer> killed = new HashSet<>();
+		Set<Assertion> result = new HashSet<>();
 
 		boolean done = false;
 		while (!done) {
 			// logger.info("Have to kill "+to_kill.size());
-			List<Pair> a = new ArrayList<Pair>();
+			List<Pair> a = new ArrayList<>();
 			for (Entry<Integer, Set<Integer>> entry : killMap.entrySet()) {
 				int num = 0;
 				for (Integer m : entry.getValue()) {

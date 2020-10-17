@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -109,9 +109,6 @@ public class TestSuiteGeneratorHelper {
         break;
       case TRYCATCH:
         LoggingUtils.getEvoLogger().info("  - Try-Catch Branch Coverage");
-        break;
-      case REGRESSION:
-        LoggingUtils.getEvoLogger().info("  - Regression");
         break;
       case VDDU:
         LoggingUtils.getEvoLogger().info("  - VDDU Method Coverage");
@@ -292,8 +289,6 @@ public class TestSuiteGeneratorHelper {
       return new FixedNumRandomTestStrategy();
     case ONEBRANCH:
       return new IndividualTestStrategy();
-    case REGRESSION:
-      return new RegressionSuiteStrategy();
     case ENTBUG:
       return new EntBugTestStrategy();
     case MOSUITE:

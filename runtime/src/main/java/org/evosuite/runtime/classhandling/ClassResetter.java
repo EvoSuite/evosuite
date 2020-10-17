@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -42,7 +42,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ClassResetter {
 
-    private static Logger logger = LoggerFactory.getLogger(ClassResetter.class);
+    private static final Logger logger = LoggerFactory.getLogger(ClassResetter.class);
 
 	/**
 	 * The name of the instrumented duplication of the class initializer <clinit>

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -50,23 +50,24 @@ public class TestCrowdingComparator
         c2.setDistance(0.5);
         c3.setDistance(0.4);
 
-        List<NSGAChromosome> population = new ArrayList<NSGAChromosome>();
+        List<NSGAChromosome> population = new ArrayList<>();
         population.add(c1);
         population.add(c2);
         population.add(c3);
 
-        RankAndCrowdingDistanceComparator cc = new RankAndCrowdingDistanceComparator(false);
-        Collections.sort(population, cc);
+        RankAndCrowdingDistanceComparator<NSGAChromosome> cc =
+                new RankAndCrowdingDistanceComparator<>(false);
+        population.sort(cc);
 
         // assert by Rank
-        Assert.assertTrue(population.get(0).getRank() == 0);
-        Assert.assertTrue(population.get(1).getRank() == 0);
-        Assert.assertTrue(population.get(2).getRank() == 1);
+        Assert.assertEquals(0, population.get(0).getRank());
+        Assert.assertEquals(0, population.get(1).getRank());
+        Assert.assertEquals(1, population.get(2).getRank());
 
         // assert by Distance
-        Assert.assertTrue(population.get(0).getDistance() == 0.5);
-        Assert.assertTrue(population.get(1).getDistance() == 0.4);
-        Assert.assertTrue(population.get(2).getDistance() == 0.1);
+        Assert.assertEquals(0.5, population.get(0).getDistance(), 0.0);
+        Assert.assertEquals(0.4, population.get(1).getDistance(), 0.0);
+        Assert.assertEquals(0.1, population.get(2).getDistance(), 0.0);
     }
 
     @Test
@@ -86,22 +87,23 @@ public class TestCrowdingComparator
         c2.setDistance(0.5);
         c3.setDistance(0.4);
 
-        List<NSGAChromosome> population = new ArrayList<NSGAChromosome>();
+        List<NSGAChromosome> population = new ArrayList<>();
         population.add(c1);
         population.add(c2);
         population.add(c3);
 
-        RankAndCrowdingDistanceComparator cc = new RankAndCrowdingDistanceComparator(true);
-        Collections.sort(population, cc);
+        RankAndCrowdingDistanceComparator<NSGAChromosome> cc =
+                new RankAndCrowdingDistanceComparator<>(true);
+        population.sort(cc);
 
         // assert by Rank
-        Assert.assertTrue(population.get(0).getRank() == 1);
-        Assert.assertTrue(population.get(1).getRank() == 0);
-        Assert.assertTrue(population.get(2).getRank() == 0);
+        Assert.assertEquals(1, population.get(0).getRank());
+        Assert.assertEquals(0, population.get(1).getRank());
+        Assert.assertEquals(0, population.get(2).getRank());
 
         // assert by Distance
-        Assert.assertTrue(population.get(0).getDistance() == 0.1);
-        Assert.assertTrue(population.get(1).getDistance() == 0.5);
-        Assert.assertTrue(population.get(2).getDistance() == 0.4);
+        Assert.assertEquals(0.1, population.get(0).getDistance(), 0.0);
+        Assert.assertEquals(0.5, population.get(1).getDistance(), 0.0);
+        Assert.assertEquals(0.4, population.get(2).getDistance(), 0.0);
     }
 }

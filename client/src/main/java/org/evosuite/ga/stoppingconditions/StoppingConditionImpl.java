@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -32,7 +32,8 @@ import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
  *
  * @author Gordon Fraser
  */
-public abstract class StoppingConditionImpl implements StoppingCondition, Serializable {
+public abstract class StoppingConditionImpl<T extends Chromosome<T>> implements StoppingCondition<T>,
+		Serializable {
 
 	private static final long serialVersionUID = -8221978873140881671L;
 
@@ -45,13 +46,13 @@ public abstract class StoppingConditionImpl implements StoppingCondition, Serial
 
 	/** {@inheritDoc} */
 	@Override
-	public void searchStarted(GeneticAlgorithm<?> algorithm) {
+	public void searchStarted(GeneticAlgorithm<T> algorithm) {
 
 	}
 
 	/** {@inheritDoc} */
 	@Override
-	public void fitnessEvaluation(Chromosome chromosome) {
+	public void fitnessEvaluation(T chromosome) {
 
 	}
 
@@ -62,7 +63,7 @@ public abstract class StoppingConditionImpl implements StoppingCondition, Serial
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void iteration(GeneticAlgorithm<?> algorithm) {
+	public void iteration(GeneticAlgorithm<T> algorithm) {
 		// TODO Auto-generated method stub
 
 	}
@@ -74,7 +75,7 @@ public abstract class StoppingConditionImpl implements StoppingCondition, Serial
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void searchFinished(GeneticAlgorithm<?> algorithm) {
+	public void searchFinished(GeneticAlgorithm<T> algorithm) {
 		// TODO Auto-generated method stub
 
 	}
@@ -88,7 +89,7 @@ public abstract class StoppingConditionImpl implements StoppingCondition, Serial
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void modification(Chromosome individual) {
+	public void modification(T individual) {
 		// TODO Auto-generated method stub
 
 	}
@@ -138,4 +139,6 @@ public abstract class StoppingConditionImpl implements StoppingCondition, Serial
 		limit = StringUtils.rightPad(limit, 12);
 		return value + " / " + limit;
 	}
+
+	public abstract StoppingConditionImpl<T> clone();
 }

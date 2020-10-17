@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -23,7 +23,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 public abstract class ArrayUtil {
 	/**
@@ -35,7 +34,7 @@ public abstract class ArrayUtil {
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T> Set<T> asSet(T... values) {
-		return new HashSet<T>(Arrays.asList(values));
+		return new HashSet<>(Arrays.asList(values));
 	}
 
 	/** Constant <code>DEFAULT_JOIN_SEPARATOR="IterUtil.DEFAULT_JOIN_SEPARATOR"</code> */

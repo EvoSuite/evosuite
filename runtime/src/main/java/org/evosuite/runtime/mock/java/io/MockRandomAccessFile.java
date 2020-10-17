@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -148,7 +148,7 @@ public class MockRandomAccessFile extends RandomAccessFile implements LeakingRes
 		writeBytes(new byte[]{(byte)b},0,1);
 	}
 
-	private void writeBytes(byte b[], int off, int len) throws IOException{
+	private void writeBytes(byte[] b, int off, int len) throws IOException{
 		
 		if(closed || !canWrite){
 			throw new IOException();
@@ -212,7 +212,7 @@ public class MockRandomAccessFile extends RandomAccessFile implements LeakingRes
 	
 	// ---------   override methods ----------------
 	
-	private  int readBytes(byte b[], int off, int len) throws IOException{
+	private  int readBytes(byte[] b, int off, int len) throws IOException{
 		int counter = 0;
 		for(int i=0; i<len; i++){
 			int v = read();
@@ -229,7 +229,7 @@ public class MockRandomAccessFile extends RandomAccessFile implements LeakingRes
 	}
 	
 	@Override
-	public int read(byte b[], int off, int len) throws IOException {
+	public int read(byte[] b, int off, int len) throws IOException {
 		if(!MockFramework.isEnabled()){
 			return super.read(b, off, len);
 		}
@@ -238,7 +238,7 @@ public class MockRandomAccessFile extends RandomAccessFile implements LeakingRes
 	}
 
 	@Override
-	public int read(byte b[]) throws IOException {
+	public int read(byte[] b) throws IOException {
 		if(!MockFramework.isEnabled()){
 			return super.read(b);
 		}
@@ -256,7 +256,7 @@ public class MockRandomAccessFile extends RandomAccessFile implements LeakingRes
 	}
 
 	@Override
-	public void write(byte b[]) throws IOException {
+	public void write(byte[] b) throws IOException {
 		if(!MockFramework.isEnabled()){
 			super.write(b);
 			return;
@@ -266,7 +266,7 @@ public class MockRandomAccessFile extends RandomAccessFile implements LeakingRes
 	}
 
 	@Override
-	public void write(byte b[], int off, int len) throws IOException {
+	public void write(byte[] b, int off, int len) throws IOException {
 		if(!MockFramework.isEnabled()){
 			super.write(b, off, len);
 			return;

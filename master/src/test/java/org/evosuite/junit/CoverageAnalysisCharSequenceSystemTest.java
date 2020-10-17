@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -83,7 +83,7 @@ public class CoverageAnalysisCharSequenceSystemTest extends SystemTestBase {
         assertEquals(0.9, (Double) outputVariables.get(RuntimeVariable.LineCoverage.name()).getValue(), 0.0);
         assertEquals(1, (Integer) outputVariables.get(RuntimeVariable.Tests_Executed.name()).getValue(), 0.0);
         // the constructor of 'WordUtils' is not covered
-        assertEquals("0111111111", (String) outputVariables.get(RuntimeVariable.LineCoverageBitString.name()).getValue());
+        assertEquals("0111111111", outputVariables.get(RuntimeVariable.LineCoverageBitString.name()).getValue());
 
         // check coverage matrix
         String coveragematrix_file = System.getProperty("user.dir") + File.separator +
@@ -96,6 +96,6 @@ public class CoverageAnalysisCharSequenceSystemTest extends SystemTestBase {
         // coverage of one test case
         assertEquals(1, lines.size());
         // all components except the WordUtils' constructor are covered ("1"), and the test case passes ("+")
-        assertTrue(lines.get(0).equals("0 1 1 1 1 1 1 1 1 1 +"));
+        assertEquals("0 1 1 1 1 1 1 1 1 1 +", lines.get(0));
     }
 }

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -70,7 +70,7 @@ public class EndOfClassInitializerVisitor extends ClassVisitor {
 		 *            a {@link java.util.List} object.
 		 */
 		public EndOfClassInitializerMethodVisitor(String className, String methodName, MethodVisitor mv) {
-			super(Opcodes.ASM7, mv);
+			super(Opcodes.ASM9, mv);
 			this.className = className;
 			this.methodName = methodName;
 		}
@@ -140,7 +140,7 @@ public class EndOfClassInitializerVisitor extends ClassVisitor {
 			String type;
 		}
 
-		private final List<TryCatchBlock> tryCatchBlocks = new LinkedList<TryCatchBlock>();
+		private final List<TryCatchBlock> tryCatchBlocks = new LinkedList<>();
 
 		@Override
 		public void visitTryCatchBlock(Label start, Label end, Label handler, String type) {
@@ -153,12 +153,12 @@ public class EndOfClassInitializerVisitor extends ClassVisitor {
 
 	}
 
-	private static Logger logger = LoggerFactory.getLogger(EndOfClassInitializerVisitor.class);
+	private static final Logger logger = LoggerFactory.getLogger(EndOfClassInitializerVisitor.class);
 
 	private final String className;
 
 	public EndOfClassInitializerVisitor(ClassVisitor visitor, String className) {
-		super(Opcodes.ASM7, visitor);
+		super(Opcodes.ASM9, visitor);
 		this.className = className;
 	}
 

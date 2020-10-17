@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -41,15 +41,29 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Gordon Fraser
  */
-public class ResourceController implements SearchListener, StoppingCondition,
-        Serializable {
+public class ResourceController<T extends Chromosome<T>> implements SearchListener<T>,
+		StoppingCondition<T>, Serializable {
 
 	private static final long serialVersionUID = -4459807323163275506L;
 
 	private static final Logger logger = LoggerFactory.getLogger(ResourceController.class);
 
-	private GeneticAlgorithm<?> ga;
+	private GeneticAlgorithm<T> ga;
 	private boolean stopComputation;
+
+	public ResourceController() {
+		// empty default constructor
+	}
+
+	public ResourceController(ResourceController<T> that) {
+		this.ga = that.ga; // no deep copy
+		this.stopComputation = that.stopComputation;
+	}
+
+	@Override
+	public ResourceController<T> clone() {
+		return new ResourceController<>(this);
+	}
 
 	private boolean hasExceededResources() {
 
@@ -85,27 +99,27 @@ public class ResourceController implements SearchListener, StoppingCondition,
 
 	/** {@inheritDoc} */
 	@Override
-	public void searchStarted(GeneticAlgorithm<?> algorithm) {
+	public void searchStarted(GeneticAlgorithm<T> algorithm) {
 		ga = algorithm;
 	}
 
 	/** {@inheritDoc} */
 	@Override
-	public void iteration(GeneticAlgorithm<?> algorithm) {
+	public void iteration(GeneticAlgorithm<T> algorithm) {
 		// TODO Auto-generated method stub
 
 	}
 
 	/** {@inheritDoc} */
 	@Override
-	public void searchFinished(GeneticAlgorithm<?> algorithm) {
+	public void searchFinished(GeneticAlgorithm<T> algorithm) {
 		// TODO Auto-generated method stub
 
 	}
 
 	/** {@inheritDoc} */
 	@Override
-	public void fitnessEvaluation(Chromosome individual) {
+	public void fitnessEvaluation(T individual) {
 		if (hasExceededResources()) {
 			/*
 			 * TODO: for now, we just stop the search. in case of running out of memory, other options could
@@ -120,7 +134,7 @@ public class ResourceController implements SearchListener, StoppingCondition,
 
 	/** {@inheritDoc} */
 	@Override
-	public void modification(Chromosome individual) {
+	public void modification(T individual) {
 		// TODO Auto-generated method stub
 
 	}

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -19,14 +19,11 @@
  */
 package org.evosuite.symbolic;
 
-import static org.evosuite.symbolic.solver.TestSolver.solve;
 import static org.junit.Assert.assertTrue;
 
 import java.lang.reflect.Method;
 import java.util.Collection;
-import java.util.Map;
 
-import org.evosuite.symbolic.TestCaseBuilder;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.solver.DefaultTestCaseConcolicExecutor;
 import org.evosuite.symbolic.solver.SolverTimeoutException;

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -30,5 +30,5 @@ public interface Variable {
 	 * 
 	 * @return an independent clone of this variable
 	 */
-	public Variable clone();
+	Variable clone();
 }

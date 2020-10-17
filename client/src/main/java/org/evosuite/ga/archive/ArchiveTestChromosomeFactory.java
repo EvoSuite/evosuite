@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -21,7 +21,6 @@ package org.evosuite.ga.archive;
 
 import org.evosuite.Properties;
 import org.evosuite.ga.ChromosomeFactory;
-import org.evosuite.testcase.ConstraintVerifier;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.factories.RandomLengthTestFactory;
 import org.evosuite.testsuite.TestSuiteSerialization;
@@ -87,10 +86,6 @@ public class ArchiveTestChromosomeFactory implements ChromosomeFactory<TestChrom
       logger.info("Creating random test");
       test = defaultFactory.getChromosome();
     }
-
-    //be sure that the factory returned a valid test
-    assert ConstraintVerifier.verifyTest(test);
-    assert !ConstraintVerifier.hasAnyOnlyForAssertionMethod(test.getTestCase());
 
     return test;
   }

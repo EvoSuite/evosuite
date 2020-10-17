@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -29,17 +29,30 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Gordon Fraser
  */
-public class MaxFitnessEvaluationsStoppingCondition extends StoppingConditionImpl {
+public class MaxFitnessEvaluationsStoppingCondition<T extends Chromosome<T>> extends StoppingConditionImpl<T> {
 
 	private static final Logger logger = LoggerFactory.getLogger(MaxFitnessEvaluationsStoppingCondition.class);
 
 	private static final long serialVersionUID = 208241490252275613L;
 
 	/** Maximum number of evaluations */
-	protected long maxEvaluations = Properties.SEARCH_BUDGET;
+	protected long maxEvaluations;
 
 	/** Maximum number of iterations */
 	protected static long currentEvaluation = 0;
+
+	public MaxFitnessEvaluationsStoppingCondition() {
+		maxEvaluations = Properties.SEARCH_BUDGET;
+	}
+
+	public MaxFitnessEvaluationsStoppingCondition(MaxFitnessEvaluationsStoppingCondition<?> that) {
+		this.maxEvaluations = that.maxEvaluations;
+	}
+
+	@Override
+	public MaxFitnessEvaluationsStoppingCondition<T> clone() {
+		return new MaxFitnessEvaluationsStoppingCondition<>(this);
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -58,7 +71,7 @@ public class MaxFitnessEvaluationsStoppingCondition extends StoppingConditionImp
 	 * Keep track of the number of fitness evaluations
 	 */
 	@Override
-	public void fitnessEvaluation(Chromosome individual) {
+	public void fitnessEvaluation(T individual) {
 		currentEvaluation++;
 	}
 

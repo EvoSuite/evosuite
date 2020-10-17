@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -26,7 +26,7 @@ import java.io.Serializable;
  * 
  * @author Gordon Fraser
  */
-public abstract class ReplacementFunction implements Serializable {
+public abstract class ReplacementFunction<T extends Chromosome<T>> implements Serializable {
 
 	private static final long serialVersionUID = 8507488475265387482L;
 
@@ -55,7 +55,7 @@ public abstract class ReplacementFunction implements Serializable {
 	 *            a {@link org.evosuite.ga.Chromosome} object.
 	 * @return a boolean.
 	 */
-	protected boolean isBetter(Chromosome chromosome1, Chromosome chromosome2) {
+	protected boolean isBetter(T chromosome1, T chromosome2) {
 		if (maximize) {
 			return chromosome1.compareTo(chromosome2) > 0;
 		} else {
@@ -67,18 +67,18 @@ public abstract class ReplacementFunction implements Serializable {
 	 * <p>
 	 * isBetterOrEqual
 	 * </p>
-	 * 
+	 *
 	 * @param chromosome1
 	 *            a {@link org.evosuite.ga.Chromosome} object.
 	 * @param chromosome2
 	 *            a {@link org.evosuite.ga.Chromosome} object.
 	 * @return a boolean.
 	 */
-	protected boolean isBetterOrEqual(Chromosome chromosome1, Chromosome chromosome2) {
+	protected boolean isBetterOrEqual(T chromosome1, T chromosome2) {
 		if (maximize) {
-			return chromosome1.compareTo(chromosome2) >= 0;
+			return chromosome1.compareTo(chromosome2.self()) >= 0;
 		} else {
-			return chromosome1.compareTo(chromosome2) <= 0;
+			return chromosome1.compareTo(chromosome2.self()) <= 0;
 		}
 	}
 
@@ -93,7 +93,7 @@ public abstract class ReplacementFunction implements Serializable {
 	 *            a {@link org.evosuite.ga.Chromosome} object.
 	 * @return a {@link org.evosuite.ga.Chromosome} object.
 	 */
-	protected Chromosome getBest(Chromosome chromosome1, Chromosome chromosome2) {
+	protected T getBest(T chromosome1, T chromosome2) {
 		if (isBetter(chromosome1, chromosome2))
 			return chromosome1;
 		else
@@ -113,8 +113,8 @@ public abstract class ReplacementFunction implements Serializable {
 	 *            a {@link org.evosuite.ga.Chromosome} object.
 	 * @return a boolean.
 	 */
-	public boolean keepOffspring(Chromosome parent1, Chromosome parent2,
-	        Chromosome offspring1, Chromosome offspring2) {
+	public boolean keepOffspring(T parent1, T parent2,
+	        T offspring1, T offspring2) {
 		if (maximize) {
 			return compareBestOffspringToBestParent(parent1, parent2, offspring1,
 			                                        offspring2) >= 0;
@@ -137,11 +137,11 @@ public abstract class ReplacementFunction implements Serializable {
 	 *            a {@link org.evosuite.ga.Chromosome} object.
 	 * @return a int.
 	 */
-	protected int compareBestOffspringToBestParent(Chromosome parent1,
-	        Chromosome parent2, Chromosome offspring1, Chromosome offspring2) {
+	protected int compareBestOffspringToBestParent(T parent1,
+	        T parent2, T offspring1, T offspring2) {
 
-		Chromosome bestOffspring = getBest(offspring1, offspring2);
-		Chromosome bestParent = getBest(parent1, parent2);
+		T bestOffspring = getBest(offspring1, offspring2);
+		T bestParent = getBest(parent1, parent2);
 
 		return bestOffspring.compareTo(bestParent);
 	}
@@ -158,7 +158,7 @@ public abstract class ReplacementFunction implements Serializable {
 	 * @return a boolean.
 	 */
 	@Deprecated
-	public boolean keepOffspring(Chromosome parent, Chromosome offspring) {
+	public boolean keepOffspring(T parent, T offspring) {
 		return isBetterOrEqual(offspring, parent);
 	}
 }

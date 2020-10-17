@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -32,6 +32,8 @@ import java.util.Locale;
  * Created by gordon on 22/01/2016.
  */
 public class MockSimpleDateFormat extends java.text.SimpleDateFormat implements OverrideMock {
+
+    private static final long serialVersionUID = 8147368433302111653L;
 
     public MockSimpleDateFormat() {
         super();

@@ -32,7 +32,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.evosuite.PackageInfo;
 import org.evosuite.Properties;
-import org.evosuite.runtime.Runtime;
 import org.evosuite.runtime.System.SystemExitException;
 import org.evosuite.runtime.jvm.ShutdownHookHandler;
 import org.evosuite.runtime.thread.KillSwitch;

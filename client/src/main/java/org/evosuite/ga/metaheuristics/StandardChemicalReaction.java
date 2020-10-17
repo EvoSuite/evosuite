@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author José Campos
  */
-public class StandardChemicalReaction<T extends Chromosome> extends GeneticAlgorithm<T> {
+public class StandardChemicalReaction<T extends Chromosome<T>> extends GeneticAlgorithm<T> {
 
   private static final long serialVersionUID = 2723118789259809773L;
 
@@ -50,7 +50,7 @@ public class StandardChemicalReaction<T extends Chromosome> extends GeneticAlgor
 
   private double initialEnergy = 0.0;
 
-  private List<T> elite = new ArrayList<T>(Properties.ELITE);
+  private List<T> elite = new ArrayList<>(Properties.ELITE);
 
   /**
    * Constructor
@@ -190,9 +190,9 @@ public class StandardChemicalReaction<T extends Chromosome> extends GeneticAlgor
 
       if (Properties.ELITE > 0) {
         // perform elitism
-        for (int i = 0; i < this.elite.size(); i++) {
-          T best = (T) this.elite.get(i); // elite already includes a copy of each individual, so no
-                                          // need to clone it
+        for (T best : this.elite) {
+          // elite already includes a copy of each individual, so no
+          // need to clone it
 
           int moleculeIndex = Randomness.nextInt(this.population.size());
           T molecule = this.population.get(moleculeIndex);
@@ -271,14 +271,13 @@ public class StandardChemicalReaction<T extends Chromosome> extends GeneticAlgor
    * @param molecule a {@link org.evosuite.ga.Chromosome} object
    * @return a {@link org.evosuite.ga.Chromosome} object if new solution is found, null otherwise
    */
-  @SuppressWarnings("unchecked")
   private T onwallIneffectiveCollision(T molecule) {
 
     double potencialEnergy = molecule.getFitness();
     double kineticEnergy = molecule.getKineticEnergy();
     molecule.increaseNumCollisionsByOne();
 
-    T moleculeClone = (T) molecule.clone();
+    T moleculeClone = molecule.clone();
  
     // mutate it
 
@@ -326,7 +325,6 @@ public class StandardChemicalReaction<T extends Chromosome> extends GeneticAlgor
    * @return a {@link java.util.List} object with two offspring if new solutions are found, null
    *         otherwise
    */
-  @SuppressWarnings("unchecked")
   private List<T> decomposition(T molecule) {
 
     // The idea of decomposition is to allow the system to explore other regions of the solution
@@ -336,8 +334,8 @@ public class StandardChemicalReaction<T extends Chromosome> extends GeneticAlgor
     double potencialEnergy = molecule.getFitness();
     double kineticEnergy = molecule.getKineticEnergy();
 
-    T offspring1 = (T) molecule.clone();
-    T offspring2 = (T) molecule.clone();
+    T offspring1 = molecule.clone();
+    T offspring2 = molecule.clone();
 
     // mutate offspring
 
@@ -399,7 +397,7 @@ public class StandardChemicalReaction<T extends Chromosome> extends GeneticAlgor
     }
 
     if (decomposed) {
-      List<T> offsprings = new ArrayList<T>(2);
+      List<T> offsprings = new ArrayList<>(2);
       offsprings.add(offspring1);
       offsprings.add(offspring2);
 
@@ -433,7 +431,6 @@ public class StandardChemicalReaction<T extends Chromosome> extends GeneticAlgor
    * @return a pair of a {@link org.evosuite.ga.Chromosome} object if new solutions are found, null
    *         otherwise
    */
-  @SuppressWarnings("unchecked")
   private Pair<T, T> intermolecularIneffectiveCollision(T molecule1, T molecule2) {
 
     double potencialEnergy1 = molecule1.getFitness();
@@ -444,8 +441,8 @@ public class StandardChemicalReaction<T extends Chromosome> extends GeneticAlgor
     double kineticEnergy2 = molecule2.getKineticEnergy();
     molecule2.increaseNumCollisionsByOne();
 
-    T moleculeClone1 = (T) molecule1.clone();
-    T moleculeClone2 = (T) molecule2.clone();
+    T moleculeClone1 = molecule1.clone();
+    T moleculeClone2 = molecule2.clone();
 
     // mutate clones
 
@@ -489,7 +486,7 @@ public class StandardChemicalReaction<T extends Chromosome> extends GeneticAlgor
           + potencialEnergy2 + "," + kineticEnergy2 + ")" + " vs " + "(" + potencialEnergyClone2
           + "," + moleculeClone2.getKineticEnergy() + ")\n" + "Buffer: " + this.buffer);
 
-      return new ImmutablePair<T, T>(moleculeClone1, moleculeClone2);
+      return new ImmutablePair<>(moleculeClone1, moleculeClone2);
     }
 
     return null;
@@ -503,7 +500,6 @@ public class StandardChemicalReaction<T extends Chromosome> extends GeneticAlgor
    * @param molecule2 a {@link org.evosuite.ga.Chromosome} object
    * @return a {@link org.evosuite.ga.Chromosome} object if a new solution is found, null otherwise
    */
-  @SuppressWarnings("unchecked")
   private T synthesis(T molecule1, T molecule2) {
 
     // The idea behind synthesis is diversification of solutions, similar to what crossover does in
@@ -515,8 +511,8 @@ public class StandardChemicalReaction<T extends Chromosome> extends GeneticAlgor
     double potencialEnergy2 = molecule2.getFitness();
     double kineticEnergy2 = molecule2.getKineticEnergy();
 
-    T offspring1 = (T) molecule1.clone();
-    T offspring2 = (T) molecule2.clone();
+    T offspring1 = molecule1.clone();
+    T offspring2 = molecule2.clone();
 
     // crossover offspring
 

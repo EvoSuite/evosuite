@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
+
 package org.evosuite.instrumentation.testability;
 
 import java.util.HashMap;
@@ -47,7 +45,7 @@ public class BooleanHelper {
 
     public static final int FALSE = -K;
 
-    static Map<Integer, Integer> lastDistance = new HashMap<Integer, Integer>();
+    static Map<Integer, Integer> lastDistance = new HashMap<>();
 
 	/**
 	 * <p>
@@ -441,7 +439,7 @@ public class BooleanHelper {
 	 * @return a int.
 	 */
 	public static int editDistance_old(String s, String t) {
-		int d[][]; // matrix
+		int[][] d; // matrix
 		int n; // length of s
 		int m; // length of t
 		int i; // iterates through s
@@ -633,15 +631,15 @@ public class BooleanHelper {
 			return o1 != o2 ? K : -K;
 	}
 
-	private static Stack<Object> parametersObject = new Stack<Object>();
-	private static Stack<Boolean> parametersBoolean = new Stack<Boolean>();
-	private static Stack<Character> parametersChar = new Stack<Character>();
-	private static Stack<Byte> parametersByte = new Stack<Byte>();
-	private static Stack<Short> parametersShort = new Stack<Short>();
-	private static Stack<Integer> parametersInteger = new Stack<Integer>();
-	private static Stack<Float> parametersFloat = new Stack<Float>();
-	private static Stack<Long> parametersLong = new Stack<Long>();
-	private static Stack<Double> parametersDouble = new Stack<Double>();
+	private static Stack<Object> parametersObject = new Stack<>();
+	private static Stack<Boolean> parametersBoolean = new Stack<>();
+	private static Stack<Character> parametersChar = new Stack<>();
+	private static Stack<Byte> parametersByte = new Stack<>();
+	private static Stack<Short> parametersShort = new Stack<>();
+	private static Stack<Integer> parametersInteger = new Stack<>();
+	private static Stack<Float> parametersFloat = new Stack<>();
+	private static Stack<Long> parametersLong = new Stack<>();
+	private static Stack<Double> parametersDouble = new Stack<>();
 
 	/**
 	 * <p>

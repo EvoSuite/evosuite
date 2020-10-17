@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -30,8 +30,8 @@ public class GenericTest {
 	public void test() {
 		ObjectWrapper wrapper = new ObjectWrapper();
 
-		Set<Long> someSet = new HashSet<Long>();
-		someSet.add(42l);
+		Set<Long> someSet = new HashSet<>();
+		someSet.add(42L);
 
 		wrapper.set(someSet);
 	}

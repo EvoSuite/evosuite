@@ -28,11 +28,10 @@ import org.evosuite.ga.archive.Archive;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.evosuite.graphs.cfg.BytecodeInstructionPool;
 import org.evosuite.graphs.cfg.ControlDependency;
-import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
-import org.evosuite.testsuite.AbstractTestSuiteChromosome;
+import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,9 +58,9 @@ public class LineCoverageSuiteFitness extends TestSuiteFitnessFunction {
     private int maxCoveredLines = 0;
     private double bestFitness = Double.MAX_VALUE;
 
-    private Set<Integer> branchesToCoverTrue  = new LinkedHashSet<>();
-    private Set<Integer> branchesToCoverFalse = new LinkedHashSet<>();
-    private Set<Integer> branchesToCoverBoth  = new LinkedHashSet<>();
+    private final Set<Integer> branchesToCoverTrue  = new LinkedHashSet<>();
+    private final Set<Integer> branchesToCoverFalse = new LinkedHashSet<>();
+    private final Set<Integer> branchesToCoverBoth  = new LinkedHashSet<>();
 
 	public LineCoverageSuiteFitness() {
 		@SuppressWarnings("unused")
@@ -149,8 +148,7 @@ public class LineCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	 * Execute all tests and count covered branches
 	 */
 	@Override
-	public double getFitness(
-	        AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite) {
+	public double getFitness(TestSuiteChromosome suite) {
 		logger.trace("Calculating branch fitness");
 		double fitness = 0.0;
 
@@ -200,8 +198,7 @@ public class LineCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	 * @param coveredLines
 	 * @param fitness
 	 */
-	private void printStatusMessages(
-	        AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite,
+	private void printStatusMessages(TestSuiteChromosome suite,
 	        int coveredLines, double fitness) {
 		if (coveredLines > maxCoveredLines) {
 			maxCoveredLines = coveredLines;
@@ -268,9 +265,9 @@ public class LineCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	}
 
 	private double getControlDependencyGuidance(List<ExecutionResult> results) {
-		Map<Integer, Integer> predicateCount = new LinkedHashMap<Integer, Integer>();
-		Map<Integer, Double> trueDistance = new LinkedHashMap<Integer, Double>();
-		Map<Integer, Double> falseDistance = new LinkedHashMap<Integer, Double>();
+		Map<Integer, Integer> predicateCount = new LinkedHashMap<>();
+		Map<Integer, Double> trueDistance = new LinkedHashMap<>();
+		Map<Integer, Double> falseDistance = new LinkedHashMap<>();
 
 		for (ExecutionResult result : results) {
 			if (result.hasTimeout() || result.hasTestException()) {

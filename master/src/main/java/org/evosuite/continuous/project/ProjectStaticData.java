@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -68,39 +68,29 @@ import org.slf4j.LoggerFactory;
  */
 public class ProjectStaticData {
 
-	private static Logger logger = LoggerFactory.getLogger(ProjectStaticData.class);
+	private static final Logger logger = LoggerFactory.getLogger(ProjectStaticData.class);
 
 	/**
 	 * Map from CUT full class name (key) to ClassInfo object (value)
 	 */
 	private final Map<String, ClassInfo> classes;
 
-	/**
-     * 
-     */
+	
     private final Set<String> modifiedFiles;
 
-    /**
-     * 
-     */
+    
     private Project project = null;
 
-    /**
-     * 
-     */
+    
 	private ProjectGraph graph = null;
 
-	/**
-	 * 
-	 */
+	
 	public ProjectStaticData() {
-		classes = new ConcurrentHashMap<String, ClassInfo>();
-		this.modifiedFiles = new LinkedHashSet<String>();
+		classes = new ConcurrentHashMap<>();
+		this.modifiedFiles = new LinkedHashSet<>();
 	}
 
-	/**
-	 * 
-	 */
+	
 	public void initializeLocalHistory() {
 		if (Properties.CTG_HISTORY_FILE == null) {
 			logger.info("ctg history file is not set");

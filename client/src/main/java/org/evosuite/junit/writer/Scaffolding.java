@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -32,7 +32,6 @@ import org.evosuite.runtime.annotation.EvoSuiteClassExclude;
 import org.evosuite.runtime.classhandling.ClassResetter;
 import org.evosuite.runtime.classhandling.ClassStateSupport;
 import org.evosuite.runtime.classhandling.JDKClassResetter;
-import org.evosuite.runtime.javaee.db.DBManager;
 import org.evosuite.runtime.jvm.ShutdownHookHandler;
 import org.evosuite.runtime.sandbox.Sandbox;
 import org.evosuite.runtime.thread.KillSwitchHandler;
@@ -51,7 +50,6 @@ import org.mockito.Mockito;
 import java.lang.reflect.Constructor;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import static org.evosuite.junit.writer.TestSuiteWriterUtils.*;
 
@@ -413,8 +411,7 @@ public class Scaffolding {
 			bd.append(ClassStateSupport.class.getName() + ".initializeClasses(");
 			bd.append(testClassName + ".class.getClassLoader() ");
 
-			for (int i = 0; i < classesToInit.size(); i++) {
-				String className = classesToInit.get(i);
+			for (String className : classesToInit) {
 				if (!BytecodeInstrumentation.checkIfCanInstrument(className)) {
 					continue;
 				}
@@ -772,12 +769,6 @@ public class Scaffolding {
 			bd.append(BLOCK_SPACE);
 			bd.append(LoopCounter.class.getName() + ".getInstance().reset(); \n");
 		}
-		if (DBManager.getInstance().isWasAccessed()) {
-			// be sure it is called before any test is run, as to avoid timeout
-			// if init during a test case run
-			bd.append(BLOCK_SPACE);
-			bd.append(DBManager.class.getName() + ".getInstance().initDB(); \n");
-		}
 
 		if(TestSuiteWriterUtils.doesUseMocks(results)) {
 			bd.append(BLOCK_SPACE);
@@ -829,10 +820,9 @@ public class Scaffolding {
 		bd.append(" new " + ThreadStopper.class.getName() + " (");
 		bd.append("" + KillSwitchHandler.class.getName() + ".getInstance(), ");
 		bd.append("" + Properties.TIMEOUT + "");
-		Set<String> threadsToIgnore = new LinkedHashSet<>();
 		// this shouldn't appear among the threads in the generated tests
 		// threadsToIgnore.add(TestCaseExecutor.TEST_EXECUTION_THREAD);
-		threadsToIgnore.addAll(Arrays.asList(Properties.IGNORE_THREADS));
+		Set<String> threadsToIgnore = new LinkedHashSet<>(Arrays.asList(Properties.IGNORE_THREADS));
 		for (String s : threadsToIgnore) {
 			bd.append(", " + s);
 		}

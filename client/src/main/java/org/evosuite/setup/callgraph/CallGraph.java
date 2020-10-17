@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -62,17 +62,17 @@ public class CallGraph implements Iterable<CallGraphEntry> {
 
 	private final String className;
 
-	private final Set<CallGraphEntry> cutNodes = Collections.synchronizedSet(new LinkedHashSet<CallGraphEntry>());
+	private final Set<CallGraphEntry> cutNodes = Collections.synchronizedSet(new LinkedHashSet<>());
 
-	private final Set<String> callGraphClasses = Collections.synchronizedSet(new LinkedHashSet<String>());
+	private final Set<String> callGraphClasses = Collections.synchronizedSet(new LinkedHashSet<>());
 
-	private final Set<String> toTestClasses = Collections.synchronizedSet(new LinkedHashSet<String>());
-	private final Set<String> toTestMethods = Collections.synchronizedSet(new LinkedHashSet<String>());
+	private final Set<String> toTestClasses = Collections.synchronizedSet(new LinkedHashSet<>());
+	private final Set<String> toTestMethods = Collections.synchronizedSet(new LinkedHashSet<>());
 
-	private final Set<String> notToTestClasses = Collections.synchronizedSet(new LinkedHashSet<String>());
+	private final Set<String> notToTestClasses = Collections.synchronizedSet(new LinkedHashSet<>());
 
 	
-	private final Set<CallContext> publicMethods = Collections.synchronizedSet(new LinkedHashSet<CallContext>());
+	private final Set<CallContext> publicMethods = Collections.synchronizedSet(new LinkedHashSet<>());
 
 	public CallGraph(String className) {
 		this.className = className;
@@ -292,7 +292,7 @@ public class CallGraph implements Iterable<CallGraphEntry> {
 		Set<String> classes = new HashSet<>();
 		Set<String> methodclasses = new HashSet<>();
 		for (CallGraphEntry startingVertex : startingVertices) {
-			PathFinderDFSIterator<CallGraphEntry> dfs = new PathFinderDFSIterator<CallGraphEntry>(
+			PathFinderDFSIterator<CallGraphEntry> dfs = new PathFinderDFSIterator<>(
 					g, startingVertex, true);
 			while (dfs.hasNext()) {
 				CallGraphEntry e = dfs.next();
@@ -310,7 +310,7 @@ public class CallGraph implements Iterable<CallGraphEntry> {
 			return false;
 		}
 		Set<String> classes = new HashSet<>();
-		PathFinderDFSIterator<CallGraphEntry> dfs = new PathFinderDFSIterator<CallGraphEntry>(g, startingVertex);
+		PathFinderDFSIterator<CallGraphEntry> dfs = new PathFinderDFSIterator<>(g, startingVertex);
 		while (dfs.hasNext()) {
 			CallGraphEntry e = dfs.next();
 			classes.add(e.getClassName());
@@ -371,7 +371,7 @@ public class CallGraph implements Iterable<CallGraphEntry> {
 	 * @return a copy of the current vertexset
 	 */
 	public Set<CallGraphEntry> getViewOfCurrentMethods() {
-		return new LinkedHashSet<CallGraphEntry>(graph.getVertexSet());
+		return new LinkedHashSet<>(graph.getVertexSet());
 	}
 
 	/**

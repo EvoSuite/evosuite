@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -21,24 +21,17 @@ package org.evosuite.assertion.stable;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.Map;
-
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.SystemTestBase;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
-import org.evosuite.statistics.OutputVariable;
-import org.evosuite.statistics.RuntimeVariable;
-import org.evosuite.statistics.backend.DebugStatisticsBackend;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import com.examples.with.different.packagename.stable.RandomUUIDFromStringUser;
-import com.examples.with.different.packagename.stable.RandomUUIDUser;
 
 public class RandomUUIDFromStringSystemTest extends SystemTestBase {
 	private final boolean DEFAULT_REPLACE_CALLS = Properties.REPLACE_CALLS;

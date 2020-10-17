@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,13 +17,10 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
 package org.evosuite.testcase.localsearch;
 
 import org.evosuite.Properties;
-import org.evosuite.Properties.DSEType;
+import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.localsearch.LocalSearch;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
@@ -40,7 +37,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Gordon Fraser
  */
-public abstract class TestCaseLocalSearch implements LocalSearch<TestChromosome> {
+public abstract class TestCaseLocalSearch<T extends Chromosome<T>> implements LocalSearch<T> {
 
 	protected static final Logger logger = LoggerFactory.getLogger(TestCaseLocalSearch.class);
 
@@ -50,7 +47,7 @@ public abstract class TestCaseLocalSearch implements LocalSearch<TestChromosome>
 	 * 
 	 * @return
 	 */
-	public static TestCaseLocalSearch selectTestCaseLocalSearch() {
+	public static TestCaseLocalSearch<TestChromosome> selectTestCaseLocalSearch() {
 		final double nextDouble = Randomness.nextDouble();
 		boolean useDSE = nextDouble < Properties.DSE_PROBABILITY;
 		if (useDSE) {

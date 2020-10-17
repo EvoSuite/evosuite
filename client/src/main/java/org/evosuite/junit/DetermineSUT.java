@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
+
 package org.evosuite.junit;
 
 import java.io.IOException;
@@ -62,7 +60,7 @@ public class DetermineSUT {
 
 	private String targetName = "";
 
-	private Set<String> superClasses = new HashSet<String>();
+	private Set<String> superClasses = new HashSet<>();
 
 	public static class NoJUnitClassException extends Exception {
 
@@ -95,7 +93,7 @@ public class DetermineSUT {
 			e1.printStackTrace();
 		}
 		Set<String> targetClasses = ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getAllClasses(targetClassPath,false);
-		Set<String> candidateClasses = new HashSet<String>();
+		Set<String> candidateClasses = new HashSet<>();
 		boolean hasJUnit = false;
 		try {
 			candidateClasses.addAll(determineCalledClasses(fullyQualifiedTargetClass,
@@ -115,8 +113,8 @@ public class DetermineSUT {
 		if (candidateClasses.isEmpty())
 			return "<UNKNOWN>";
 
-		List<String> sortedNames = new ArrayList<String>(candidateClasses);
-		Collections.sort(sortedNames, new TargetClassSorter(fullyQualifiedTargetClass));
+		List<String> sortedNames = new ArrayList<>(candidateClasses);
+		sortedNames.sort(new TargetClassSorter(fullyQualifiedTargetClass));
 
 		//System.out.println("Sorted candidate classes: " + sortedNames);
 		return sortedNames.get(0);
@@ -125,7 +123,7 @@ public class DetermineSUT {
 	public Set<String> determineCalledClasses(String fullyQualifiedTargetClass,
 	        Set<String> targetClasses) throws ClassNotFoundException,
 	        NoJUnitClassException {
-		Set<String> calledClasses = new HashSet<String>();
+		Set<String> calledClasses = new HashSet<>();
 
 		String className = fullyQualifiedTargetClass.replace('.', '/');
 		try {

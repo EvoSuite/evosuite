@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -19,6 +19,7 @@
  */
 package org.evosuite.ga.stoppingconditions;
 
+import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 
 /**
@@ -26,12 +27,25 @@ import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
  *
  * @author Gordon Fraser
  */
-public class ZeroFitnessStoppingCondition extends StoppingConditionImpl {
+public class ZeroFitnessStoppingCondition<T extends Chromosome<T>> extends StoppingConditionImpl<T> {
 
 	private static final long serialVersionUID = -6925872054053635256L;
 
 	/** Keep track of lowest fitness seen so far */
-	private double lastFitness = Double.MAX_VALUE;
+	private double lastFitness;
+
+	public ZeroFitnessStoppingCondition() {
+		lastFitness = Double.MAX_VALUE;
+	}
+
+	public ZeroFitnessStoppingCondition(ZeroFitnessStoppingCondition<?> that) {
+		this.lastFitness = that.lastFitness;
+	}
+
+	@Override
+	public ZeroFitnessStoppingCondition<T> clone() {
+		return new ZeroFitnessStoppingCondition<>(this);
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -39,7 +53,7 @@ public class ZeroFitnessStoppingCondition extends StoppingConditionImpl {
 	 * Update information on currently lowest fitness
 	 */
 	@Override
-	public void iteration(GeneticAlgorithm<?> algorithm) {
+	public void iteration(GeneticAlgorithm<T> algorithm) {
 		lastFitness = Math.min(lastFitness, algorithm.getBestIndividual().getFitness());
 	}
 

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -247,7 +247,7 @@ public class DateConverterTest10 {
         invalidConversion(converter, "2006-10-2X");
         invalidConversion(converter, "10.28.06");
         invalidConversion(converter, "10-28-06");
-        invalidConversion(converter, new Integer(2));
+        invalidConversion(converter, 2);
 
         // Restore the default Locale
         Locale.setDefault(defaultLocale);

@@ -19,49 +19,43 @@
  */
 package org.evosuite.ga.metaheuristics.mosa;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
 import org.evosuite.Properties;
-import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
-import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.comparators.OnlyCrowdingComparator;
 import org.evosuite.ga.metaheuristics.mosa.structural.MultiCriteriaManager;
-import org.evosuite.ga.metaheuristics.mosa.structural.StructuralGoalManager;
 import org.evosuite.ga.operators.ranking.CrowdingDistance;
+import org.evosuite.testcase.TestChromosome;
 import org.evosuite.utils.LoggingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Implementation of the DynaMOSA (Many Objective Sorting Algorithm) described in the paper
  * "Automated Test Case Generation as a Many-Objective Optimisation Problem with Dynamic Selection
  * of the Targets".
- * 
+ *
  * @author Annibale Panichella, Fitsum M. Kifetew, Paolo Tonella
  */
-public class DynaMOSA<T extends Chromosome> extends AbstractMOSA<T> {
+public class DynaMOSA extends AbstractMOSA {
 
 	private static final long serialVersionUID = 146182080947267628L;
 
 	private static final Logger logger = LoggerFactory.getLogger(DynaMOSA.class);
 
-	// TODO: we implicitly assume that the population is sorted!
-	// protected List<T> population = new ArrayList<>();
-
 	/** Manager to determine the test goals to consider at each generation */
-	protected StructuralGoalManager<T> goalsManager = null;
+	protected MultiCriteriaManager goalsManager = null;
 
-	protected CrowdingDistance<T> distance = new CrowdingDistance<>();
+	protected CrowdingDistance<TestChromosome> distance = new CrowdingDistance<>();
 
 	/**
 	 * Constructor based on the abstract class {@link AbstractMOSA}.
 	 *
 	 * @param factory
 	 */
-	public DynaMOSA(ChromosomeFactory<T> factory) {
+	public DynaMOSA(ChromosomeFactory<TestChromosome> factory) {
 		super(factory);
 	}
 
@@ -69,10 +63,10 @@ public class DynaMOSA<T extends Chromosome> extends AbstractMOSA<T> {
 	@Override
 	protected void evolve() {
 		// Generate offspring, compute their fitness, update the archive and coverage goals.
-		List<T> offspringPopulation = this.breedNextGeneration();
+		List<TestChromosome> offspringPopulation = this.breedNextGeneration();
 
 		// Create the union of parents and offspring
-		List<T> union = new ArrayList<>(this.population.size() + offspringPopulation.size());
+		List<TestChromosome> union = new ArrayList<>(this.population.size() + offspringPopulation.size());
 		union.addAll(this.population);
 		union.addAll(offspringPopulation);
 
@@ -87,11 +81,10 @@ public class DynaMOSA<T extends Chromosome> extends AbstractMOSA<T> {
 		// updated set of goals
 		int remain = Math.max(Properties.POPULATION, this.rankingFunction.getSubfront(0).size());
 		int index = 0;
-		List<T> front = null;
 		this.population.clear();
 
 		// Obtain the first front
-		front = this.rankingFunction.getSubfront(index);
+		List<TestChromosome> front = this.rankingFunction.getSubfront(index);
 
 		// Successively iterate through the fronts (starting with the first non-dominated front)
 		// and insert their members into the population for the next generation. This is done until
@@ -121,12 +114,10 @@ public class DynaMOSA<T extends Chromosome> extends AbstractMOSA<T> {
 		// being better.
 		if (remain > 0 && !front.isEmpty()) { // front contains individuals to insert
 			this.distance.fastEpsilonDominanceAssignment(front, this.goalsManager.getCurrentGoals());
-			front.sort(new OnlyCrowdingComparator());
+			front.sort(new OnlyCrowdingComparator<>());
 			for (int k = 0; k < remain; k++) {
 				this.population.add(front.get(k));
 			}
-
-			remain = 0;
 		}
 
 		this.currentIteration++;
@@ -146,21 +137,21 @@ public class DynaMOSA<T extends Chromosome> extends AbstractMOSA<T> {
 
 		// Set up the targets to cover, which are initially free of any control dependencies.
 		// We are trying to optimize for multiple targets at the same time.
-		this.goalsManager = new MultiCriteriaManager<>(this.fitnessFunctions);
+		this.goalsManager = new MultiCriteriaManager(this.fitnessFunctions);
 
 		LoggingUtils.getEvoLogger().info("* Initial Number of Goals in DynaMOSA = " +
 				this.goalsManager.getCurrentGoals().size() +" / "+ this.getUncoveredGoals().size());
 
 		logger.debug("Initial Number of Goals = " + this.goalsManager.getCurrentGoals().size());
 
-		// Initialize the population by creating solutions at random.
 		if (this.population.isEmpty()) {
+			// Initialize the population by creating solutions at random.
 			this.initializePopulation();
 		}
 
 		// Compute the fitness for each population member, update the coverage information and the
 		// set of goals to cover. Finally, update the archive.
-		this.calculateFitness();
+		// this.calculateFitness(); // Not required, already done by this.initializePopulation();
 
 		// Calculate dominance ranks and crowding distance. This is required to decide which
 		// individuals should be used for mutation and crossover in the first iteration of the main
@@ -187,7 +178,7 @@ public class DynaMOSA<T extends Chromosome> extends AbstractMOSA<T> {
 	 * @param c the chromosome whose fitness to compute
 	 */
 	@Override
-	protected void calculateFitness(T c) {
+	protected void calculateFitness(TestChromosome c) {
 		if (!isFinished()) {
 			// this also updates the archive and the targets
 			this.goalsManager.calculateFitness(c, this);

@@ -11,9 +11,9 @@ public class ContainsTraceEntry implements OutputTraceEntry {
 
     protected VariableReference containerVar;
 
-    protected Map<VariableReference, Boolean> containsMap = new HashMap<VariableReference, Boolean>();
+    protected Map<VariableReference, Boolean> containsMap = new HashMap<>();
 
-    private final Map<Integer, VariableReference> containsMapIntVar = new HashMap<Integer, VariableReference>();
+    private final Map<Integer, VariableReference> containsMapIntVar = new HashMap<>();
 
     public ContainsTraceEntry(VariableReference containerVar) {
         this.containerVar = containerVar;
@@ -53,7 +53,7 @@ public class ContainsTraceEntry implements OutputTraceEntry {
      */
     @Override
     public Set<Assertion> getAssertions(OutputTraceEntry other) {
-        Set<Assertion> assertions = new HashSet<Assertion>();
+        Set<Assertion> assertions = new HashSet<>();
         if (other instanceof ContainsTraceEntry) {
             ContainsTraceEntry otherEntry = (ContainsTraceEntry) other;
             for (Integer otherVar : containsMapIntVar.keySet()) {
@@ -84,7 +84,7 @@ public class ContainsTraceEntry implements OutputTraceEntry {
      */
     @Override
     public Set<Assertion> getAssertions() {
-        Set<Assertion> assertions = new HashSet<Assertion>();
+        Set<Assertion> assertions = new HashSet<>();
 
         for (VariableReference otherVar : containsMap.keySet()) {
             if (otherVar == null) {

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -179,7 +179,7 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
                 if(goals.isEmpty()) {
                     goals.addAll(filterSupportedGoals(entry.getKey().getCoveredGoals()));
                 }
-                Collections.sort(goals, new GoalComparator());
+                goals.sort(new GoalComparator());
                 if(!goals.isEmpty()) {
                     TestFitnessFunction goal = goals.iterator().next();
                     entry.getValue().add(goal);
@@ -242,9 +242,7 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
         boolean added = false;
         for(TestCase test : tests) {
             List<TestFitnessFunction> topGoals = getTopGoals(fullTestToGoals.get(test));
-            if(topGoals.isEmpty()) {
-                continue;
-            } else if(topGoals.size() > MAX_SIMILAR_GOALS) {
+            if(topGoals.size() > MAX_SIMILAR_GOALS) {
                 TestFitnessFunction newGoal = chooseRepresentativeGoal(test, topGoals);
                 Set<TestFitnessFunction> newGoals = new LinkedHashSet<>(testToGoals.get(test));
                 newGoals.add(newGoal);
@@ -326,7 +324,7 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
      * @return
      */
     private List<ExecutionResult> getUpdatedResults(List<Properties.Criterion> requiredCriteria, List<ExecutionResult> origResults) {
-        List<ExecutionObserver> newObservers = new ArrayList<ExecutionObserver>();
+        List<ExecutionObserver> newObservers = new ArrayList<>();
         if(requiredCriteria.contains(Properties.Criterion.INPUT)) {
             newObservers.add(new InputObserver());
         }
@@ -339,7 +337,7 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
         for(ExecutionObserver observer : newObservers)
             TestCaseExecutor.getInstance().addObserver(observer);
 
-        List<ExecutionResult> newResults = new ArrayList<ExecutionResult>();
+        List<ExecutionResult> newResults = new ArrayList<>();
         for(ExecutionResult result : origResults) {
             ExecutionResult newResult = TestCaseExecutor.getInstance().runTest(result.test);
             newResults.add(newResult);
@@ -392,7 +390,7 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
         Map<TestCase, Set<T>> goalMapCopy = new LinkedHashMap<>();
 
         for(Map.Entry<TestCase, Set<T>> entry : testToGoals.entrySet()) {
-            Set<T> goalSet = new LinkedHashSet<T>(entry.getValue());
+            Set<T> goalSet = new LinkedHashSet<>(entry.getValue());
             for(Map.Entry<TestCase, Set<T>> otherEntry : testToGoals.entrySet()) {
                 if(entry == otherEntry)
                     continue;
@@ -425,7 +423,7 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
         }
 
         for(Map.Entry<TestCase, Set<T>> entry : testToGoals.entrySet()) {
-            Set<T> goalSet = new LinkedHashSet<T>(entry.getValue());
+            Set<T> goalSet = new LinkedHashSet<>(entry.getValue());
             goalSet.removeAll(commonGoals);
             goalMapCopy.put(entry.getKey(), goalSet);
         }
@@ -537,7 +535,7 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
      */
     private List<TestFitnessFunction> getTopGoals(Set<TestFitnessFunction> coveredGoals) {
         List<TestFitnessFunction> goalList = new ArrayList<>(coveredGoals);
-        Collections.sort(goalList, new GoalComparator());
+        goalList.sort(new GoalComparator());
 
         List<TestFitnessFunction> topGoals = new ArrayList<>();
         if(coveredGoals.isEmpty())
@@ -824,8 +822,7 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
         }
         else {
             // is there any other implementation of the same method with same number of arguments?
-            Set<String> otherMethods = new HashSet<>();
-            otherMethods.addAll(methodCount.get(methodNameWithoutDescriptor));
+            Set<String> otherMethods = new HashSet<>(methodCount.get(methodNameWithoutDescriptor));
             otherMethods.remove(methodName);
             boolean sameCardinality = false;
             for (String otherMethod : otherMethods) {
@@ -920,12 +917,7 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
     }
 
     public Comparator<TestCase> getComparator() {
-        return new Comparator<TestCase>() {
-            @Override
-            public int compare(TestCase o1, TestCase o2) {
-                return 0;
-            }
-        };
+        return (o1, o2) -> 0;
     }
 
     @Override

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,11 +17,9 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
 package org.evosuite;
 
+import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.stoppingconditions.StoppingConditionImpl;
 import org.evosuite.utils.LoggingUtils;
 
@@ -36,11 +34,24 @@ import sun.misc.SignalHandler;
  * @author Gordon Fraser
  */
 @SuppressWarnings("restriction")
-public class ShutdownTestWriter extends StoppingConditionImpl implements SignalHandler {
+public class ShutdownTestWriter<T extends Chromosome<T>> extends StoppingConditionImpl<T> implements SignalHandler {
 
 	private static final long serialVersionUID = -5703624299360241009L;
 
 	private static boolean interrupted = false;
+
+	public ShutdownTestWriter() {
+		// empty constructor
+	}
+
+	public ShutdownTestWriter(ShutdownTestWriter<?> that) {
+		// empty copy constructor
+	}
+
+	@Override
+	public ShutdownTestWriter<T> clone() {
+		return new ShutdownTestWriter<>(this);
+	}
 
 	/* (non-Javadoc)
 	 * @see sun.misc.SignalHandler#handle(sun.misc.Signal)

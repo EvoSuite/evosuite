@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -31,6 +31,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.Collections;
 import java.util.List;
 
+import com.opencsv.exceptions.CsvException;
 import org.apache.commons.io.FileUtils;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
@@ -100,7 +101,7 @@ public class CoverageAnalysisOfProjectSystemTest extends SystemTestBase {
 	}
 
 	@Test
-	public void testMoreThanOneClassOneCriterion() throws IOException {
+	public void testMoreThanOneClassOneCriterion() throws IOException, CsvException {
 		createFakeProject();
 
 		EvoSuite evosuite = new EvoSuite();
@@ -139,7 +140,7 @@ public class CoverageAnalysisOfProjectSystemTest extends SystemTestBase {
 
         // assert Coverage
         List<String> coverages = CsvJUnitData.getValues(rows, "Coverage");
-        assertTrue(coverages.size() == 7);
+		assertEquals(7, coverages.size());
         Collections.sort(coverages);
         assertEquals(0.80, Double.valueOf(coverages.get(0)), 0.01);
         assertEquals(0.80, Double.valueOf(coverages.get(1)), 0.00);
@@ -151,7 +152,7 @@ public class CoverageAnalysisOfProjectSystemTest extends SystemTestBase {
 	}
 
 	@Test
-	public void testMoreThanOneClassMoreThanOneCriterion() throws IOException {
+	public void testMoreThanOneClassMoreThanOneCriterion() throws IOException, CsvException {
 		createFakeProject();
 
 		EvoSuite evosuite = new EvoSuite();
@@ -176,7 +177,7 @@ public class CoverageAnalysisOfProjectSystemTest extends SystemTestBase {
 
         CSVReader reader = new CSVReader(new FileReader(statistics_file));
         List<String[]> rows = reader.readAll();
-        assertTrue(rows.size() == 8); // header + 7 classes
+		assertEquals(8, rows.size()); // header + 7 classes
         reader.close();
 
         // assert TargetClasses
@@ -191,7 +192,7 @@ public class CoverageAnalysisOfProjectSystemTest extends SystemTestBase {
 
         // assert Coverage
         List<String> coverages = CsvJUnitData.getValues(rows, "Coverage");
-        assertTrue(coverages.size() == 7);
+		assertEquals(7, coverages.size());
         Collections.sort(coverages);
 //        assertEquals(0.45, Double.valueOf(coverages.get(0)), 0.01);
 //        assertEquals(0.47, Double.valueOf(coverages.get(1)), 0.01);
@@ -209,7 +210,7 @@ public class CoverageAnalysisOfProjectSystemTest extends SystemTestBase {
 		assertTrue(Double.valueOf(coverages.get(6)) > 0.0);
 	}
 
-	private void createFakeProject() throws IOException {
+	private void createFakeProject() throws IOException, CsvException {
 		String classesRootDir = System.getProperty("user.dir") + File.separator + "target" + File.separator + "test-classes" + File.separator;
 
 		this.classes_directory = Files.createTempDirectory("fakeProject_classes_").toFile();

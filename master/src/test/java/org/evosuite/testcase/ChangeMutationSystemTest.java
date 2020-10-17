@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -103,7 +103,7 @@ public class ChangeMutationSystemTest extends SystemTestBase {
 		Properties.TARGET_CLASS = TrivialInt.class.getCanonicalName();
 		TestChromosome test1 = new TestChromosome();
 		test1.setTestCase(getIntTest(-1000000));
-		TestChromosome test2 = (TestChromosome) test1.clone();
+		TestChromosome test2 = test1.clone();
 		
 		TestSuiteChromosome suite = new TestSuiteChromosome();
 		BranchCoverageSuiteFitness fitness = new BranchCoverageSuiteFitness();
@@ -121,7 +121,7 @@ public class ChangeMutationSystemTest extends SystemTestBase {
 		double oldFitness = suite.getFitness();
 		int notChanged = 0;
 		for(int i = 0; i < 10000; i++) {
-			TestChromosome testNew = (TestChromosome) test1.clone();
+			TestChromosome testNew = test1.clone();
 			testNew.mutate();
 			if(testNew.isChanged()) {
 				suite.deleteTest(test1);
@@ -179,7 +179,7 @@ public class ChangeMutationSystemTest extends SystemTestBase {
 		double oldFitness = suite.getFitness();
 		int notChanged = 0;
 		for(int i = 0; i < 10000; i++) {
-			TestChromosome testNew = (TestChromosome) test1.clone();
+			TestChromosome testNew = test1.clone();
 			testNew.mutate();
 			if(testNew.isChanged()) {
 				suite.deleteTest(test1);
@@ -213,6 +213,7 @@ public class ChangeMutationSystemTest extends SystemTestBase {
 	@Test
 	public void testTwoIntsLineCoverage() throws NoSuchMethodException, SecurityException, ClassNotFoundException, ConstructionFailedException {
 		Properties.TARGET_CLASS = IntExampleWithNoElse.class.getCanonicalName();
+		Properties.TEST_ARCHIVE = false;
 		TestChromosome test1 = new TestChromosome();
 		test1.setTestCase(getTwoIntTest(1000, 100));
 		TestChromosome test2 = new TestChromosome();
@@ -230,7 +231,7 @@ public class ChangeMutationSystemTest extends SystemTestBase {
 		double oldFitness = fitness.getFitness(suite);
 		int notChanged = 0;
 		for(int i = 0; i < 10000; i++) {
-			TestChromosome testNew = (TestChromosome) test1.clone();
+			TestChromosome testNew = test1.clone();
 			testNew.mutate();
 			if(testNew.isChanged()) {
 				suite.deleteTest(test1);
@@ -281,7 +282,7 @@ public class ChangeMutationSystemTest extends SystemTestBase {
 		double oldFitness = fitness.getFitness(suite);
 		int notChanged = 0;
 		for(int i = 0; i < 10000; i++) {
-			TestChromosome testNew = (TestChromosome) test1.clone();
+			TestChromosome testNew = test1.clone();
 			testNew.mutate();
 			if(testNew.isChanged()) {
 				suite.deleteTest(test1);
