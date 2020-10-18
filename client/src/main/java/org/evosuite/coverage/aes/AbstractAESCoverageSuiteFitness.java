@@ -1,5 +1,5 @@
 package org.evosuite.coverage.aes;
-
+import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
@@ -25,20 +25,20 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
 		this.metric = metric;
 	}
 
-	public double getMetric(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite) {
+	public double getMetric(TestSuiteChromosome suite) {
 		List<ExecutionResult> results = runTestSuite(suite);
 		Spectrum spectrum = getSpectrum(results);
 		return getMetric(spectrum);
 	}
 
-	public double getBasicCoverage(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite) {
+	public double getBasicCoverage(TestSuiteChromosome suite) {
 		List<ExecutionResult> results = runTestSuite(suite);
 		Spectrum spectrum = getSpectrum(results);
 		return spectrum.basicCoverage();
 	}
 
 	@Override
-	public double getFitness(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite) {
+	public double getFitness(TestSuiteChromosome suite) {
 		double metric_value = getMetric(suite);
 		double fitness = metricToFitness(metric_value);
 
