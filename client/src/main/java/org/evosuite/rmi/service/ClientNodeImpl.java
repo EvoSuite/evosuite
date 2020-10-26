@@ -263,6 +263,7 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 		logger.info("Sending current best individual to master process");
 
 		try {
+			logger.debug("Collecting Statistics for individual: " + individual);
 			masterNode.evosuite_collectStatistics(clientRmiIdentifier, individual);
 		} catch (RemoteException e) {
 			logger.error("Cannot inform master of change of state", e);

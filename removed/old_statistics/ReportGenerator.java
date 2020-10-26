@@ -1511,7 +1511,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 
 		StatisticEntry entry = statistics.get(statistics.size() - 1);
 		try {
-			File f = new File(getReportDir().getAbsolutePath() + "/statistics.csv");
+			File f = new File(getReportDir().getAbsolutePath() + "/statistics_old.csv");
 			logger.info("Writing CSV to "+f.getAbsolutePath());
 			BufferedWriter out = new BufferedWriter(new FileWriter(f, true));
 			if (f.length() == 0L) {

@@ -70,7 +70,8 @@ public class MOSuiteStrategy extends TestGenerationStrategy {
 		if(Properties.SERIALIZE_GA || Properties.CLIENT_ON_THREAD)
 			TestGenerationResultBuilder.getInstance().setGeneticAlgorithm(algorithm);
 
-		long startTime = System.currentTimeMillis() / 1000;
+		long startTimeMillis = System.currentTimeMillis();
+		long startTime = startTimeMillis / 1000;
 
 		// What's the search target
 		List<TestFitnessFactory<? extends TestFitnessFunction>> goalFactories = getFitnessFactories();
@@ -124,7 +125,8 @@ public class MOSuiteStrategy extends TestGenerationStrategy {
 			}
 		}
 
-		long endTime = System.currentTimeMillis() / 1000;
+		long endTimeMillis = System.currentTimeMillis();
+		long endTime = endTimeMillis / 1000;
 
 //		goals = getGoals(false); //recalculated now after the search, eg to handle exception fitness
 //        ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Goals, goals.size());
@@ -134,6 +136,8 @@ public class MOSuiteStrategy extends TestGenerationStrategy {
 			LoggingUtils.getEvoLogger().info("");
 		
 		String text = " statements, best individual has fitness: ";
+		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Search_Time,
+				endTimeMillis-startTimeMillis);
 		LoggingUtils.getEvoLogger().info("* " + ClientProcess.getPrettyPrintIdentifier() + "Search finished after "
 				+ (endTime - startTime)
 				+ "s and "

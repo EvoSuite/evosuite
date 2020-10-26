@@ -309,7 +309,7 @@ public class Properties {
 	// Search algorithm
 	public enum Algorithm {
 		// random
-		RANDOM_SEARCH,
+		RANDOM_SEARCH, RANDOM_WALK,
 		// GAs
 		STANDARD_GA, MONOTONIC_GA, STEADY_STATE_GA, BREEDER_GA, CELLULAR_GA, STANDARD_CHEMICAL_REACTION, MAP_ELITES,
 		// mu-lambda
@@ -335,6 +335,9 @@ public class Properties {
 	  SINGLE,
 	  SINGLE_AVG
 	}
+
+	@Parameter(key="AC_step", group = "Search Algorithm", description = "Step for Autocorrelation")
+	public static int AC_STEP = 1;
 	
 	@Parameter(key = "map_elites_choice", group = "Search Algorithm", description = "Selection of chromosome branches to mutate")
     public static MapElitesChoice MAP_ELITES_CHOICE = MapElitesChoice.SINGLE_AVG;
@@ -1300,7 +1303,7 @@ public class Properties {
 	public static boolean TT_USE_CDG_PATHS = true;
 
 	public enum TransformationScope {
-		TARGET, PREFIX, ALL
+		TARGET, PREFIX, ALL, CALL_TREE
 	}
 
 	@Parameter(key = "tt_scope", description = "Testability transformation")

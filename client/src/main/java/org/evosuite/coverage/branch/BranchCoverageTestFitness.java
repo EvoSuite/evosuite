@@ -243,4 +243,6 @@ public class BranchCoverageTestFitness extends TestFitnessFunction {
 		return getMethod();
 	}
 
+
+
 }

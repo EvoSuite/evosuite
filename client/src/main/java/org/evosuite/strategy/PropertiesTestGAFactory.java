@@ -148,6 +148,8 @@ public class PropertiesTestGAFactory extends PropertiesSearchAlgorithmFactory<Te
 		case RANDOM_SEARCH:
 			logger.info("Chosen search algorithm: Random");
 			return new RandomSearch<>(factory);
+		case RANDOM_WALK:
+		    throw new IllegalStateException();
         case NSGAII:
             logger.info("Chosen search algorithm: NSGAII");
             return new NSGAII<>(factory);

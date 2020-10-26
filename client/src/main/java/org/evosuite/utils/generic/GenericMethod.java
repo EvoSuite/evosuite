@@ -33,6 +33,7 @@ import java.lang.reflect.TypeVariable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import org.evosuite.TestGenerationContext;
 import org.evosuite.ga.ConstructionFailedException;
@@ -43,6 +44,7 @@ import org.evosuite.testcase.variable.VariableReference;
 
 import com.googlecode.gentyref.GenericTypeReflector;
 import org.evosuite.utils.LoggingUtils;
+import org.evosuite.utils.ParameterizedTypeImpl;
 
 /**
  * @author Gordon Fraser
@@ -112,7 +114,11 @@ public class GenericMethod extends GenericAccessibleObject<GenericMethod> {
 	}
 
 	public Type[] getParameterTypes() {
-		return getExactParameterTypes(method, owner.getType());
+		try {
+			return getExactParameterTypes(method, owner.getType());
+		} catch (Exception e){
+			throw new IllegalArgumentException("Method: " + method + " " +owner.getType(),e);
+		}
 	}
 
 	public List<GenericClass> getParameterClasses() {
@@ -196,7 +202,7 @@ public class GenericMethod extends GenericAccessibleObject<GenericMethod> {
 		//	return returnType;
 		//}
 
-		return mapTypeParameters(returnType, exactDeclaringType);
+		return mapTypeParameters(returnType != null ? returnType : Object.class, exactDeclaringType);
 	}
 
 	/**
@@ -217,8 +223,10 @@ public class GenericMethod extends GenericAccessibleObject<GenericMethod> {
 		}
 
 		Type[] result = new Type[parameterTypes.length];
+
 		for (int i = 0; i < parameterTypes.length; i++) {
-			result[i] = mapTypeParameters(parameterTypes[i], exactDeclaringType);
+			result[i] = mapTypeParameters(parameterTypes[i] != null ? parameterTypes[i] : Object.class,
+						exactDeclaringType);
 		}
 		return result;
 	}

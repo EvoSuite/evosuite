@@ -30,6 +30,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -90,10 +91,20 @@ public class VarMap {
 			}
 		} else if (type instanceof ParameterizedType) {
 			ParameterizedType pType = (ParameterizedType) type;
-			return new ParameterizedTypeImpl((Class<?>) pType.getRawType(),
-			        map(pType.getActualTypeArguments()),
-			        pType.getOwnerType() == null ? pType.getOwnerType()
-			                : map(pType.getOwnerType()));
+			try {
+				Type[] actualTypeArguments = pType.getActualTypeArguments();
+				for (int i = 0; i < actualTypeArguments.length; i++) {
+					Type actualTypeArgument = actualTypeArguments[i];
+					actualTypeArguments[i] = actualTypeArgument == null ? Object.class : actualTypeArgument;
+				}
+				return new ParameterizedTypeImpl((Class<?>) pType.getRawType(),
+						map(actualTypeArguments),
+						pType.getOwnerType() == null ? pType.getOwnerType()
+								: map(pType.getOwnerType()));
+			} catch (Throwable t){
+				throw new IllegalArgumentException("Raw Type: " + pType.getRawType() + " ActualTypeArguments  " +
+						"OwnerType " + pType.getOwnerType(), t);
+			}
 		} else if (type instanceof WildcardType) {
 			WildcardType wType = (WildcardType) type;
 			return new WildcardTypeImpl(map(wType.getUpperBounds()),

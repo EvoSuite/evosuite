@@ -174,6 +174,8 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
 			case BREEDER_GA:
 				logger.info("Chosen search algorithm: BreederGA");
 				return new BreederGA<>(factory);
+			case RANDOM_WALK:
+				return new RandomWalk(factory);
 			case RANDOM_SEARCH:
 				logger.info("Chosen search algorithm: Random");
 				return new RandomSearch<>(factory);

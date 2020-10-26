@@ -23,6 +23,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.FileInputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -57,7 +60,8 @@ public class InstrumentingClassLoader extends ClassLoader {
 	private final ClassLoader classLoader;
 	private final Map<String, Class<?>> classes = new HashMap<>();
 	private boolean isRegression = false;
-	
+	private ClassLoader resourceStreamClassLoader = null;
+
 	/**
 	 * <p>
 	 * Constructor for InstrumentingClassLoader.
@@ -209,6 +213,21 @@ public class InstrumentingClassLoader extends ClassLoader {
 					throw new Error(e);
 				}
 		}
+	}
+
+	@Override
+	public InputStream getResourceAsStream(String name) {
+		InputStream resourceAsStream = super.getResourceAsStream(name);
+		if(resourceAsStream != null)
+			return resourceAsStream;
+		if(resourceStreamClassLoader == null) {
+			try {
+				resourceStreamClassLoader = new URLClassLoader(new URL[]{new File(Properties.CP).toURI().toURL()});
+			} catch (MalformedURLException e) {
+			    throw new IllegalArgumentException(e);
+			}
+		}
+		return resourceStreamClassLoader.getResourceAsStream(name);
 	}
 
 	/**

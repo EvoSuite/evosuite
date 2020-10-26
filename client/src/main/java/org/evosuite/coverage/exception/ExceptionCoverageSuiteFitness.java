@@ -163,6 +163,8 @@ public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 				if (sutException) {
 
+				    logger.info("Exception was thrown: {} at {}", result.exposeExceptionMapping().get(i).getMessage()
+							,i);
 					boolean notDeclared = ! ExceptionCoverageHelper.isDeclared(result,i);
 
                     if(notDeclared) {
@@ -184,6 +186,8 @@ public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
                             if (!implicitTypesOfExceptions.containsKey(methodIdentifier)) {
                                 implicitTypesOfExceptions.put(methodIdentifier, new HashSet<Class<?>>());
                             }
+                            logger.info("adding implicit type of exception {} to {}",exceptionClass.getName(),
+									methodIdentifier);
                             implicitTypesOfExceptions.get(methodIdentifier).add(exceptionClass);
                         }
                     } else {

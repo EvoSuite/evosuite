@@ -62,7 +62,8 @@ public class WholeTestSuiteStrategy extends TestGenerationStrategy {
 		if(Properties.SERIALIZE_GA || Properties.CLIENT_ON_THREAD)
 			TestGenerationResultBuilder.getInstance().setGeneticAlgorithm(algorithm);
 
-		long startTime = System.currentTimeMillis() / 1000;
+		long startTimeMillis = System.currentTimeMillis();
+		long startTime = startTimeMillis / 1000;
 
 		// What's the search target
 		List<TestSuiteFitnessFunction> fitnessFunctions = getFitnessFunctions();
@@ -122,7 +123,8 @@ public class WholeTestSuiteStrategy extends TestGenerationStrategy {
 			}
 		}
 
-		long endTime = System.currentTimeMillis() / 1000;
+		long endTimeMillis = System.currentTimeMillis();
+		long endTime = endTimeMillis / 1000;
 
 		goals = getGoals(false); //recalculated now after the search, eg to handle exception fitness
         ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Goals, goals.size());
@@ -132,6 +134,8 @@ public class WholeTestSuiteStrategy extends TestGenerationStrategy {
 			LoggingUtils.getEvoLogger().info("");
 		
 		if(!Properties.IS_RUNNING_A_SYSTEM_TEST) { //avoid printing time related info in system tests due to lack of determinism
+			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Search_Time,
+					endTimeMillis-startTimeMillis);
 			LoggingUtils.getEvoLogger().info("* Search finished after "
 					+ (endTime - startTime)
 					+ "s and "
