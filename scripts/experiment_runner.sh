@@ -42,13 +42,12 @@ Options:
   -h                       print help and exit
   -p <parallel_instances>  limit for the number of parallel executions (default: 1)
   -r <rounds>              number of rounds to execute each experiment (default: 1)
-  -R                       Randomize order of execution
   -t <timeout>             amount of time before EvoSuite process is killed (default: 10m)
 
 Examples:
   $0 configurations.csv projects.csv
   $0 -r 10 -p 4 configurations.csv projects.csv
-  $0 -t 1h -R configurations.csv projects.csv
+  $0 -t 1h configurations.csv projects.csv
 
 EOF
 }
@@ -59,7 +58,7 @@ ROUNDS=1             # The number of rounds to perform of the experiment
 TIMEOUT=10m          # The amount of time before the EvoSuite process is killed
 
 # Argument parsing
-while getopts ":hp:r:Rt:" o; do
+while getopts ":hp:r:t:" o; do
   case "${o}" in
     h)
       _usage
@@ -76,9 +75,6 @@ while getopts ":hp:r:Rt:" o; do
 
       # Exit when the ROUNDS are below 1
       (( ROUNDS < 1 )) && { _warn "Rounds should be at least 1"; _usage; exit 1; }
-      ;;
-    R)
-      RANDOM=true
       ;;
     t)
       TIMEOUT=${OPTARG}
@@ -189,7 +185,6 @@ _run_experiment() {
   _log "($ROUNDS) rounds"
   _log "($_num_configurations) configurations"
   _log "($_num_classes) classes"
-  [ "$RANDOM" == true ] && _log "Randomize order of execution"
 
   local _execution=1 # The current execution
 
@@ -220,10 +215,10 @@ _run_experiment() {
       	  wait -n        # Wait for the first sub-process to finish
       	  local _code=$? # Exit code of sub-process
         done
-      # Load configurations file without header; Sort randomly if RANDOM is true
-      done < <([ "$RANDOM" ] && tail -n +2 $CONFIGURATIONS_FILE | sort -R || tail -n +2 $CONFIGURATIONS_FILE)
-    # Load projects file without header; Sort randomly if RANDOM is true
-    done < <([ "$RANDOM" ] && tail -n +2 $PROJECTS_FILE | sort -R || tail -n +2 $PROJECTS_FILE)
+      # Load configurations file without header
+      done < <(tail -n +2 $CONFIGURATIONS_FILE)
+    # Load projects file without header
+    done < <(tail -n +2 $PROJECTS_FILE)
 
     IFS=$_old_ifs # Restore old separator
   done
