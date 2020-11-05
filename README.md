@@ -119,7 +119,7 @@ default60,-generateMOSuite -Dalgorithm=DynaMOSA -Dsearch_budget=60 -Dassertion_t
 default120,-generateMOSuite -Dalgorithm=DynaMOSA -Dsearch_budget=120 -Dassertion_timeout=120 -Dminimization_timeout=120
 ```
 
-The configuration for the projectCP, class, seed, output locations and output variables are already provided by the script.  
+The configuration for the projectCP, class, seed, and output locations are already provided by the script.
 
 projects.csv:
 ```

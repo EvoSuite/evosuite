@@ -162,7 +162,6 @@ _run_evosuite() {
   -seed "$_round" \
   -Dreport_dir="$_report_dir" \
   -Dtest_dir="$_test_dir" \
-  -Doutput_variables=TARGET_CLASS,criterion,configuration_id,Random_Seed,Total_Goals,Total_Branches,Lines,Covered_Goals,Generations,Statements_Executed,Fitness_Evaluations,Tests_Executed,Generations,Total_Time,Size,Result_Size,Length,Result_Length,Total_Branches_Real,Coverage,BranchCoverage,LineCoverage,WeakMutationScore \
   -Dshow_progress=false \
   -Dplot=false \
   -Dclient_on_thread=false \
