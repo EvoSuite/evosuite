@@ -40,36 +40,36 @@ Options:
   <configurations_file>    CSV file with configurations for EvoSuite (columns: name,configuration)
   <projects_file>          CSV file with projects and their corresponding classes to run (columns: project,class)
   -h                       print help and exit
-  -l <limit>               limit for the number of parallel executions (default: 1)
+  -p <parallel_instances>  limit for the number of parallel executions (default: 1)
   -r <rounds>              number of rounds to execute each experiment (default: 1)
   -R                       Randomize order of execution
   -t <timeout>             amount of time before EvoSuite process is killed (default: 10m)
 
 Examples:
   $0 configurations.csv projects.csv
-  $0 -r 10 -l 4 configurations.csv projects.csv
+  $0 -r 10 -p 4 configurations.csv projects.csv
   $0 -t 1h -R configurations.csv projects.csv
 
 EOF
 }
 
 # Default values
-LIMIT=1      # The amount of parallel executions the experiment should use
-ROUNDS=1     # The number of rounds to perform of the experiment
-TIMEOUT=10m  # The amount of time before the EvoSuite process is killed
+PARALLEL_INSTANCES=1 # The amount of parallel executions the experiment should use
+ROUNDS=1             # The number of rounds to perform of the experiment
+TIMEOUT=10m          # The amount of time before the EvoSuite process is killed
 
 # Argument parsing
-while getopts ":hl:r:Rt:" o; do
+while getopts ":hp:r:Rt:" o; do
   case "${o}" in
     h)
       _usage
       exit 0
       ;;
-    l)
-      LIMIT=${OPTARG}
+    p)
+      PARALLEL_INSTANCES=${OPTARG}
 
-      # Exit when the LIMIT is below 1
-      (( LIMIT < 1 )) && { _warn "Limit should be at least 1"; _usage; exit 1; }
+      # Exit when the PARALLEL_INSTANCES is below 1
+      (( PARALLEL_INSTANCES < 1 )) && { _warn "The number of parallel instances should be at least 1"; _usage; exit 1; }
       ;;
     r)
       ROUNDS=${OPTARG}
@@ -178,7 +178,6 @@ _run_evosuite() {
 
 # Run large scale experiment
 _run_experiment() {
-
   # Cancel execution if the results directory is present
   [ -d $RESULTS_DIRECTORY ] && { _die "$RESULTS_DIRECTORY is present, cancelling experiment"; }
 
@@ -216,7 +215,7 @@ _run_experiment() {
         ((_execution++)) # Increment execution number
 
         # Wait when the program reaches the limit of parallel executions
-        while [ $(jobs -p | wc -l) -ge $LIMIT ]
+        while [ $(jobs -p | wc -l) -ge $PARALLEL_INSTANCES ]
         do
       	  wait -n        # Wait for the first sub-process to finish
       	  local _code=$? # Exit code of sub-process
@@ -237,4 +236,3 @@ _run_experiment() {
 
 # Start experiment
 _run_experiment
-

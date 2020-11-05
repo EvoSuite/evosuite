@@ -92,7 +92,7 @@ The experiment runner can be called as follows:
 and has the following options:
 ```
 -h                       print help and exit
--l <limit>               limit for the number of parallel executions (default: 1)
+-p <parallel_instances>  limit for the number of parallel executions (default: 1)
 -r <rounds>              number of rounds to execute each experiment (default: 1)
 -R                       Randomize order of execution
 -t <timeout>             amount of time before EvoSuite process is killed (default: 10m)
