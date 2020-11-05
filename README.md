@@ -92,8 +92,10 @@ The experiment runner can be called as follows:
 and has the following options:
 ```
 -h                       print help and exit
+-m <memory>              memory limit (MB) for the EvoSuite client process (default: 2500)
 -p <parallel_instances>  limit for the number of parallel executions (default: 1)
 -r <rounds>              number of rounds to execute each experiment (default: 1)
+-s <seeds_file>          file with the seeds for the executions of the experiment (default: SEEDS)
 -t <timeout>             amount of time before EvoSuite process is killed (default: 10m)
 ```
 
@@ -119,19 +121,21 @@ default60,-generateMOSuite -Dalgorithm=DynaMOSA -Dsearch_budget=60 -Dassertion_t
 default120,-generateMOSuite -Dalgorithm=DynaMOSA -Dsearch_budget=120 -Dassertion_timeout=120 -Dminimization_timeout=120
 ```
 
-The configuration for the projectCP, class, seed, and output locations are already provided by the script.
+The configuration for the projectCP, class, seed, and output locations are already provided by the image.
 
 projects.csv:
 ```
 project_name,class
-<project1_name>,<com.project1.application>
+<project1_name>,com.project1.application
 ```
 
-The script will put the output of the experiment in the following locations (inside the current directory):
+The image will put the output of the experiment in the following locations (inside the current directory):
 
 - ```./results/<configuration_name>/<project_name>/logs/<round>```
 - ```./results/<configuration_name>/<project_name>/reports/<round>/```
 - ```./results/<configuration_name>/<project_name>/tests/<round>/```
+
+When you run the image, it will automatically generate a SEEDS file in the current directory containing the seeds it used for the experiment. When you want to replicate the experiment, you can put that file back in the same place and instead of creating new seeds the image will now use those seeds.
 
 When EvoSuite needs to be run in the background, you can use ```-d``` instead of ```-it```.
 
