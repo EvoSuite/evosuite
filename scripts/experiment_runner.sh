@@ -172,9 +172,9 @@ run_experiment() {
     grep -n -- "${line}" "${PROJECTS_FILE}"
   done
 
-  local num_configurations="$(( $(wc -l < "${CONFIGURATIONS_FILE}") - 1 ))"          # Number of configurations in experiment
-  local num_classes="$(( $(wc -l < "${PROJECTS_FILE}") - 1 ))"                       # Number of classes in experiment
-  local num_executions="$(( ROUNDS * num_configurations * num_classes ))" # Number of total executions
+  local num_configurations="$(( $(wc -l < "${CONFIGURATIONS_FILE}") - 1 ))" # Number of configurations in experiment
+  local num_classes="$(( $(wc -l < "${PROJECTS_FILE}") - 1 ))"              # Number of classes in experiment
+  local num_executions="$(( ROUNDS * num_configurations * num_classes ))"   # Number of total executions
 
   log "Start experiment with (${num_executions}) total executions across (${PARALLEL_INSTANCES}) parallel instances"
   log "Perform (${ROUNDS}) rounds with (${num_configurations}) configurations of (${num_classes}) classes"
@@ -219,7 +219,7 @@ run_experiment() {
   for round in $(seq 1 1 "${ROUNDS}"); do # Rounds loop
 
     local old_ifs="${IFS}" # Maintain the old separator
-    IFS=','                 # Set separator for CSV
+    IFS=','                # Set separator for CSV
 
     while read project_name class; do # Projects and classes loop
       while read configuration_name configuration; do # Configurations loop
@@ -233,7 +233,7 @@ run_experiment() {
 
         # Wait when the program reaches the limit of parallel executions
         while (( $(jobs -p | wc -l) >= PARALLEL_INSTANCES )); do
-      	  wait -n        # Wait for the first sub-process to finish
+      	  wait -n       # Wait for the first sub-process to finish
       	  local code=$? # Exit code of sub-process
         done
       done < <(tail -n +2 "${CONFIGURATIONS_FILE}") # Load configurations file without header
