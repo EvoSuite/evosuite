@@ -155,6 +155,24 @@ run_experiment() {
   # Cancel experiment if the results directory is present
   [[ -d "${RESULTS_DIRECTORY}" ]] && { die "($RESULTS_DIRECTORY) directory is present, cancelling experiment"; }
 
+  # Check for duplicates in the keys of the configurations file
+  for line in $(cut -d "," -f1 <(tail -n +2 "${CONFIGURATIONS_FILE}") | uniq -d); do
+    die "(${CONFIGURATIONS_FILE}) file contains a duplicate key, cancelling experiment"
+    grep -n -- "${line}" "${CONFIGURATIONS_FILE}" # Output duplicate lines including line numbers
+  done
+
+  # Check for duplicates in the pairs of the configurations file
+  for line in $(sort -t, -k1 -k2 <(tail -n +2 "${CONFIGURATIONS_FILE}") | uniq -d); do
+    die "(${CONFIGURATIONS_FILE}) file contains a duplicate pair, cancelling experiment"
+    grep -n -- "${line}" "${CONFIGURATIONS_FILE}"
+  done
+
+  # Check for duplicates in the pairs of the projects file
+  for line in $(sort -t, -k1 -k2 <(tail -n +2 "${PROJECTS_FILE}") | uniq -d); do
+    die "(${PROJECTS_FILE}) file contains a duplicate pair, cancelling experiment"
+    grep -n -- "${line}" "${PROJECTS_FILE}"
+  done
+
   local num_configurations="$(( $(wc -l < "${CONFIGURATIONS_FILE}") - 1 ))"          # Number of configurations in experiment
   local num_classes="$(( $(wc -l < "${PROJECTS_FILE}") - 1 ))"                       # Number of classes in experiment
   local num_executions="$(( ROUNDS * num_configurations * num_classes ))" # Number of total executions
