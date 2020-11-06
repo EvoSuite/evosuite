@@ -147,7 +147,6 @@ run_evosuite() {
 #   Writes seeds file to disk
 #######################################
 run_experiment() {
-
   # Cancel experiment if the configurations or projects file could not be found
   [[ ! -f "${CONFIGURATIONS_FILE}" ]] && { die "(${CONFIGURATIONS_FILE}) file not found, cancelling experiment"; }
   [[ ! -f "${PROJECTS_FILE}" ]] && { die "(${PROJECTS_FILE}) file not found, cancelling experiment"; }
