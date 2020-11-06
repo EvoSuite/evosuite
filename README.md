@@ -131,9 +131,9 @@ project_name,class
 
 The image will put the output of the experiment in the following locations (inside the current directory):
 
-- ```./results/<configuration_name>/<project_name>/logs/<round>```
-- ```./results/<configuration_name>/<project_name>/reports/<round>/```
-- ```./results/<configuration_name>/<project_name>/tests/<round>/```
+- ```./results/<configuration_name>/<project_name>/<class_name>/logs/<round>```
+- ```./results/<configuration_name>/<project_name>/<class_name>/reports/<round>/```
+- ```./results/<configuration_name>/<project_name>/<class_name>/tests/<round>/```
 
 When you run the image, it will automatically generate a SEEDS file in the current directory containing the seeds it used for the experiment. When you want to replicate the experiment, you can put that file back in the same place and instead of creating new seeds the image will now use those seeds.
 

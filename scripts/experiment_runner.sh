@@ -132,13 +132,13 @@ PROJECTS_FILE=$2       # CSV file with projects and their corresponding classes 
 # Determines the classpath based on the project and outputs this
 # Expects the following file structure: ./projects/<project>/<jars>
 _get_project_class_path() {
-  local _project=$1           # Project name
+  local _project_name=$1      # Project name
   local _search_depth=${2:-1} # Directory search depth (default: 1)
 
   # Find all paths of jars in the search directory and combine with a colon separator
-  local _project_cp=$(find $PROJECTS_DIRECTORY/$_project -maxdepth $_search_depth -type f -name "*.jar" -printf '%p:' | sed 's/:$//')
+  local _project_class_path=$(find $PROJECTS_DIRECTORY/$_project_name -maxdepth $_search_depth -type f -name "*.jar" -printf '%p:' | sed 's/:$//')
 
-  echo $_project_cp # Output value
+  echo $_project_class_path # Output value
 }
 
 # Runs a single configuration of EvoSuite
@@ -148,30 +148,31 @@ _run_evosuite() {
   local _round=$3              # Round number
   local _configuration_name=$4 # Name of configuration
   local _user_configuration=$5 # User configuration of EvoSuite
-  local _project=$6            # Project name
+  local _project_name=$6       # Project name
   local _class=$7              # Full class name
   local _seed=$8               # Seed
 
-  local _project_class_path=$(_get_project_class_path "$_project") # Project class path
+  local _project_class_path=$(_get_project_class_path "$_project_name") # Project class path
+  local _class_name=$(echo $_class | tr '.' '_') # Replace dots in class with underscores
 
   # Output locations
-  local _report_dir=$RESULTS_DIRECTORY/$_configuration_name/$_project/reports/$_round
-  local _test_dir=$RESULTS_DIRECTORY/$_configuration_name/$_project/tests/$_round
-  local _log_dir=$RESULTS_DIRECTORY/$_configuration_name/$_project/logs/
-  local _log_file=$RESULTS_DIRECTORY/$_configuration_name/$_project/logs/$_round
+  local _report_dir=$RESULTS_DIRECTORY/$_configuration_name/$_project_name/$_class_name/reports/$_round
+  local _test_dir=$RESULTS_DIRECTORY/$_configuration_name/$_project_name/$_class_name/tests/$_round
+  local _log_dir=$RESULTS_DIRECTORY/$_configuration_name/$_project_name/$_class_name/logs/
+  local _log_file=$RESULTS_DIRECTORY/$_configuration_name/$_project_name/$_class_name/logs/$_round
 
   mkdir -p $_log_dir # Create log directory
 
   # Convert configuration into seperate items
   local _old_ifs=$IFS; IFS=' '; read -ra _user_configuration_array <<< "$_user_configuration"; IFS=$_old_ifs;
 
-  _log "Execution ($_execution / $_num_executions): Running round ($_round) of configuration ($_configuration_name) for class ($_class) in project ($_project) with seed ($_seed)"
+  _log "Execution ($_execution / $_num_executions): Running round ($_round) of configuration ($_configuration_name) for class ($_class) in project ($_project_name) with seed ($_seed)"
 
   # Run EvoSuite in background
   timeout -k $TIMEOUT $TIMEOUT /usr/bin/env java -Xmx4G -jar /evosuite-bin/evosuite.jar \
   -mem "$MEMORY" \
   -Dconfiguration_id="$_configuration_name" \
-  -Dgroup_id="$_project" \
+  -Dgroup_id="$_project_name" \
   -projectCP "$_project_class_path" \
   -class "$_class" \
   -seed "$_seed" \
@@ -229,7 +230,7 @@ _run_experiment() {
 
   # Define local variables
   local _round              # Round number
-  local _project            # Project name
+  local _project_name       # Project name
   local _class              # Full class name
   local _configuration_name # Name of configuration
   local _configuration      # User configuration of EvoSuite
@@ -240,7 +241,7 @@ _run_experiment() {
     local _old_ifs=$IFS # Maintain the old separator
     IFS=','             # Set separator for CSV
 
-    while read _project _class # Projects loop
+    while read _project_name _class # Projects loop
     do
       while read _configuration_name _configuration # Configurations loop
       do
@@ -248,7 +249,7 @@ _run_experiment() {
         local _seed=${_seeds[_seed_index]}
 
         # Run a single configuration of EvoSuite as a sub-process
-        _run_evosuite "$_execution" "$_num_executions" "$_round" "$_configuration_name" "$_configuration" "$_project" "$_class" "$_seed"
+        _run_evosuite "$_execution" "$_num_executions" "$_round" "$_configuration_name" "$_configuration" "$_project_name" "$_class" "$_seed"
 
         ((_execution++)) # Increment execution number
 
