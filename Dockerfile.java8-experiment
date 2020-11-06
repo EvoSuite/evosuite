@@ -37,7 +37,7 @@ COPY --from=build /build/bin /evosuite-bin
 COPY scripts /evosuite-scripts
 
 # The executable is evosuite
-ENTRYPOINT ["/evosuite-scripts/experiment_runner.sh"]
+ENTRYPOINT ["/evosuite-scripts/experiment_runner"]
 
 # The default argument is the help menu
 # This can be overidden on the command line
