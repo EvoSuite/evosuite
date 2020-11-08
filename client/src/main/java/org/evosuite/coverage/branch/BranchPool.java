@@ -20,6 +20,7 @@
 package org.evosuite.coverage.branch;
 
 import org.evosuite.graphs.cfg.BytecodeInstruction;
+import org.evosuite.instrumentation.BytecodeInstrumentation;
 import org.evosuite.setup.DependencyAnalysis;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.LabelNode;
@@ -104,7 +105,8 @@ public class BranchPool {
 	        int lineNumber) {
 		if (!branchlessMethods.containsKey(className))
 			branchlessMethods.put(className, new HashMap<String, Integer>());
-		branchlessMethods.get(className).put(methodName, lineNumber);
+		if(BytecodeInstrumentation.coverMethod(methodName))
+			branchlessMethods.get(className).put(methodName, lineNumber);
 	}
 
 	/**

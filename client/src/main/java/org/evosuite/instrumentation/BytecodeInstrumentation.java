@@ -22,6 +22,7 @@ package org.evosuite.instrumentation;
 import BooleanTransformation.BooleanToIntMethodVisitor;
 import BooleanTransformation.BooleanToIntTransformer;
 import MethodAnalyser.ByteCodeInstructions.ByteCodeInstruction;
+import MethodAnalyser.Results.MethodIdentifier;
 import org.evosuite.PackageInfo;
 import org.evosuite.Properties;
 import org.evosuite.assertion.CheapPurityAnalyzer;
@@ -58,9 +59,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -79,6 +78,7 @@ public class BytecodeInstrumentation {
     private int dependentUpdates = 0;
 
     private final Instrumenter testCarvingInstrumenter;
+    private static List<MethodIdentifier> helperMethods = new ArrayList<>();
 
     /**
      * <p>
@@ -257,7 +257,7 @@ public class BytecodeInstrumentation {
 
         // Mock instrumentation (eg File and TCP).
         if (TestSuiteWriterUtils.needToUseAgent()) {
-            cv = new MethodCallReplacementClassAdapter(cv, className);
+             cv = new MethodCallReplacementClassAdapter(cv, className);
 
             /*
              * If the class is serializable, then doing any change (adding hashCode, static reset, etc)
@@ -301,7 +301,7 @@ public class BytecodeInstrumentation {
                 BooleanToIntTransformer tt = new BooleanToIntTransformer(Collections.emptyList(),
                         false, System.out, null,
                         s -> this.shouldTransform(s.replaceAll("/", ".")),
-                        Properties.TT_USE_CDG_PATHS, !isTargetClass);
+                        Properties.TT_USE_CDG_PATHS, true);
                 //new BooleanTestabilityTransformation(cn, classLoader);
                 try {
                     String name = cn.name;
@@ -312,6 +312,8 @@ public class BytecodeInstrumentation {
                     if (!tt.getFinishedInstrumentation().contains(name)) {
                         throw new IllegalStateException("Did not transform class: " + name);
                     }
+                    helperMethods.addAll(tt.getHelperMethods());
+                    logger.info("Added {} helper Methods for Class {}" , tt.getHelperMethods().size() ,className);
                     if (!isTargetClass)
                         timeFotTT += endMillis - startMillis;
                     ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.TT_TIME, timeFotTT);
@@ -391,6 +393,20 @@ public class BytecodeInstrumentation {
         }
 
         return cw.toByteArray();
+    }
+
+    public static boolean coverMethod(String method){
+
+        boolean b =
+                helperMethods.stream().map(i -> i.getInternalClassName().replaceAll("/",".")
+                        +"."+i.getMethodName()+i.getMethodDescriptor()).noneMatch(m -> m.equals(method));
+        MethodIdentifier id = null;
+        if(!b){
+            id =
+                    helperMethods.stream().filter(i -> (i.getInternalClassName().replaceAll("/",".")
+                            +"."+i.getMethodName()+i.getMethodDescriptor()).equals(method)).findFirst().get();
+        }
+        return b;
     }
 
     /**

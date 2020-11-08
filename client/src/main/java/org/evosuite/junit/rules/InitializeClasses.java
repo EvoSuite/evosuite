@@ -39,7 +39,7 @@ public class InitializeClasses extends BaseRule {
 			try {
 				Class.forName(classNameToLoad, true, classLoader);
 			 } catch (ExceptionInInitializerError ex) {
-				 System.err.println("Could not initialize " + classNameToLoad);
+				 System.err.println("Could not initialize " + classNameToLoad + ex.getMessage());
 			 } catch (Throwable t) {
 			 }
 		}

@@ -614,7 +614,7 @@ public class GenericClass implements Serializable {
 	        Map<TypeVariable<?>, Type> typeMap, int recursionLevel)
 	        throws ConstructionFailedException {
 		if (typeMap.containsKey(type)) {
-			logger.debug("Type contains {}: {}", toString(), typeMap);
+			// logger.debug("Type contains {}: {}", toString(), typeMap);
 			if(typeMap.get(type) == type) {
 				// FIXXME: How does this happen?
 				throw new ConstructionFailedException("Type points to itself");
@@ -630,7 +630,7 @@ public class GenericClass implements Serializable {
 				return selectedClass;
 			}
 		}
-		logger.debug("Type map does not contain {}: {}", toString(), typeMap);
+		// logger.debug("Type map does not contain {}: {}", toString(), typeMap);
 
 		GenericClass selectedClass = CastClassManager.getInstance().selectCastClass((TypeVariable<?>) type,
 				recursionLevel < Properties.MAX_GENERIC_DEPTH,

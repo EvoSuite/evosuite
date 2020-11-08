@@ -1544,9 +1544,7 @@ public class TestFactory {
 
 		} else if (!isPrimitiveOrSimilar && !objects.isEmpty() && (reuse <= Properties.OBJECT_REUSE_PROBABILITY)) {
 
-			if (logger.isDebugEnabled()) {
 				logger.debug(" Choosing from {} existing objects: {}", objects.size(), Arrays.toString(objects.toArray()));
-			}
 			VariableReference reference = Randomness.choice(objects);
 			//logger.debug(" Using existing object of type {}: {}", parameterType, reference);
 			return reference;
@@ -1800,9 +1798,10 @@ public class TestFactory {
 		if (reuse) { // Only reuse objects if they are related to a target call
 			List<VariableReference> candidates = getCandidatesForReuse(test, Object.class, position, exclude, allowNull, canUseMocks);
 			//List<VariableReference> candidates = test.getObjects(Object.class, position);
+			int size = candidates.size();
 			filterVariablesByCastClasses(candidates);
 			//filterVariablesByClass(candidates, Object.class);
-			logger.debug("Choosing object from: {}", candidates);
+			// logger.debug("Choosing object from: {}", candidates);
 			if (!candidates.isEmpty())
 				return Randomness.choice(candidates);
 		}

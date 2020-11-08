@@ -24,6 +24,7 @@ import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.MethodNameMatcher;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.evosuite.graphs.cfg.ControlDependency;
+import org.evosuite.instrumentation.BytecodeInstrumentation;
 import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.testsuite.AbstractFitnessFactory;
 import org.slf4j.Logger;
@@ -64,7 +65,7 @@ public class BranchCoverageFactory extends
 			final MethodNameMatcher matcher = new MethodNameMatcher();
 			// Branchless methods
 			for (String method : BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getBranchlessMethods(className)) {
-				if (matcher.fullyQualifiedMethodMatches(method)) {
+				if (matcher.fullyQualifiedMethodMatches(method) && BytecodeInstrumentation.coverMethod(method)) {
 					goals.add(createRootBranchTestFitness(className, method));
 				}
 			}
