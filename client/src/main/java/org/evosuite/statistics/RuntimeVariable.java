@@ -399,8 +399,8 @@ public enum RuntimeVariable {
 	TT_TIME,
 	INSTRUMENTED_CLASSES,
 	BOOLEAN_JUMPS,
-	DEPENDENT_UPDATES
-	
+	DEPENDENT_UPDATES,
+	CONDITIONAL_JUMPS
 	;
 	/* -------------------------------------------------- */
 
