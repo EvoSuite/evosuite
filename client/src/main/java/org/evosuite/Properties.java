@@ -111,6 +111,12 @@ public class Properties {
 	@Parameter(key = "string_replacement", group = "Test Creation", description = "Replace string.equals with levenshtein distance")
 	public static boolean STRING_REPLACEMENT = true;
 
+	@Parameter(key = "comparison_transformation", group= "Test Creation", description = "Replace floating point comparisons")
+	public static boolean COMPARISON_TRANSFORMATION = true;
+
+	@Parameter(key = "container_transformation", group = "Test Creation", description = "Replace calls to java container")
+	public static boolean CONTAINER_TRANSFORMATION = true;
+
 	@Parameter(key = "reset_static_fields", group = "Test Creation", description = "Call static constructors only after each static field was modified")
 	public static boolean RESET_STATIC_FIELDS = true;
 
