@@ -400,7 +400,8 @@ public enum RuntimeVariable {
 	INSTRUMENTED_CLASSES,
 	BOOLEAN_JUMPS,
 	DEPENDENT_UPDATES,
-	CONDITIONAL_JUMPS
+	CONDITIONAL_JUMPS,
+	BINARY_IMAGE_BRANCHES
 	;
 	/* -------------------------------------------------- */
 

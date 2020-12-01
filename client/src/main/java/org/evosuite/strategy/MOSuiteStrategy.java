@@ -23,6 +23,7 @@ import org.evosuite.ClientProcess;
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.coverage.TestFitnessFactory;
+import org.evosuite.coverage.branch.BranchCoverageTestFitness;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
@@ -41,6 +42,8 @@ import org.evosuite.utils.Randomness;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Test generation with MOSA
@@ -146,6 +149,11 @@ public class MOSuiteStrategy extends TestGenerationStrategy {
 				+ MaxStatementsStoppingCondition.getNumExecutedStatements()
 				+ text
 				+ testSuite.getFitness());
+
+		long binaryImageBranchDistances = computeBinaryImageBranchDistances(fitnessFunctions);
+		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.BINARY_IMAGE_BRANCHES,
+				binaryImageBranchDistances);
+
 		// Search is finished, send statistics
 		sendExecutionStatistics();
 
@@ -156,6 +164,25 @@ public class MOSuiteStrategy extends TestGenerationStrategy {
 		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Goals, algorithm.getFitnessFunctions().size());
 		
 		return testSuite;
+	}
+
+	/**
+	 * Compute how many Branch Distance Fitness Functions have a binary image
+	 *
+	 * @param fitnessFunctions The fitness functions, that should be filtered
+	 * @return The count of the fitness functions, which fulfill the condition.
+	 */
+	long computeBinaryImageBranchDistances(List<TestFitnessFunction> fitnessFunctions){
+
+		return fitnessFunctions.stream()
+				// Only branch distance fitness functions are relevant
+				.filter(ff -> ff instanceof BranchCoverageTestFitness)
+				// Map to unique fitness values
+				.map(ff -> ((BranchCoverageTestFitness) ff).getUniqueFitnessValueView())
+				// Ignore Approach Level and count unique values
+				.map(doubles -> doubles.stream().filter(d -> 0 <= d && d < 1).count()).map(Long::intValue)
+				.filter(i -> i >= 2)
+				.count();
 	}
 	
 }

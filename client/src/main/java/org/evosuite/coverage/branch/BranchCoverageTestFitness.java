@@ -29,7 +29,10 @@ import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.MethodCall;
 import org.evosuite.utils.ArrayUtil;
 
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * Fitness function for a single test on a single branch
@@ -39,6 +42,9 @@ import java.util.Objects;
 public class BranchCoverageTestFitness extends TestFitnessFunction {
 
 	private static final long serialVersionUID = -6310967747257242580L;
+
+	/** Unique Fitness Values */
+	private final Set<Double> fitnessValues = new HashSet<>();
 
 	/** Target branch */
 	private final BranchCoverageGoal goal;
@@ -181,7 +187,15 @@ public class BranchCoverageTestFitness extends TestFitnessFunction {
 				Archive.getArchiveInstance().updateArchive(this, individual, fitness);
 		}
 
+		fitnessValues.add(fitness);
 		return fitness;
+	}
+
+	/**
+	 * @return The unique fitness values evaluated until this point
+	 */
+	public Set<Double> getUniqueFitnessValueView(){
+		return Collections.unmodifiableSet(fitnessValues);
 	}
 
 
@@ -242,7 +256,4 @@ public class BranchCoverageTestFitness extends TestFitnessFunction {
 	public String getTargetMethod() {
 		return getMethod();
 	}
-
-
-
 }
