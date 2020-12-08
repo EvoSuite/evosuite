@@ -137,8 +137,6 @@ public class ClassPathHacker {
 			logger.info("Successfully added " + u + " to class path");
 		} else {
 			logger.info("Did not add " + u + ", because system class loader is no URLClassLoader");
-			logger.error("ContextClassLoader: {} vs {} (SysClassLoader) == {}", Thread.currentThread().getContextClassLoader(), ClassLoader.getSystemClassLoader(),
-					Thread.currentThread().getContextClassLoader() == ClassLoader.getSystemClassLoader());
 		}
 	}
 
