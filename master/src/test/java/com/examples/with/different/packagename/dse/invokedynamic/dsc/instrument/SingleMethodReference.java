@@ -19,42 +19,61 @@
  */
 package com.examples.with.different.packagename.dse.invokedynamic.dsc.instrument;
 
-/*
-    This class is taken and adapted from the DSC tool developed by Christoph Csallner.
-    Link at :
-    http://ranger.uta.edu/~csallner/dsc/index.html
+/**
+ * Tests for Method references implementation (InvokeDynamic)
+ *
+ * @author Ignacio Lebrero
  */
+public class SingleMethodReference {
 
-/** 
- * @author csallner@uta.edu (Christoph Csallner)
- */
-public class SingleMethodReference
-{	
-	interface GetInt {
-		int test(int y);
-	}
+    interface GetIntContext {
+        int testContext();
+    }
 
-	private static class MyIntegerClass implements GetInt {
-		private int val;
+    interface GetIntNoContext {
+        int testNoContext(int y);
+    }
 
-		public MyIntegerClass(int x) {
-			this.val = x;
-		}
+    private static class MyIntegerClassWithState implements GetIntContext {
+        private int val;
 
-		@Override
-		public int test(int y) {
-			if (this.val * y > 748)
-				return 0;
-			else
-				return 1;
-		}
-	}
-		
-	public static int instanceRef(int x, int y)
-	{
-		MyIntegerClass myInt = new MyIntegerClass(x);
-		
-		GetInt magic = myInt::test;
-		return magic.test(y);
-	}
+        public MyIntegerClassWithState(int x) {
+            this.val = x;
+        }
+
+        @Override
+        public int testContext() {
+            if (this.val == 5)
+                // TODO: This branch should be reached when the symbolic receiver gets fixed
+                return 0;
+            else
+                return 2;
+        }
+    }
+
+    private static class MyIntegerClassStateless implements GetIntNoContext {
+
+        @Override
+        public int testNoContext(int y) {
+            if (y == 5)
+                return 0;
+            else
+                return 2;
+        }
+
+    }
+
+    public static int instanceRefNoContext(int y) {
+        MyIntegerClassStateless myInt = new MyIntegerClassStateless();
+
+        GetIntNoContext magic = myInt::testNoContext;
+        return magic.testNoContext(y);
+    }
+
+    public static int instanceRefContext(int y) {
+        MyIntegerClassWithState myInt = new MyIntegerClassWithState(y);
+
+        GetIntContext magic = myInt::testContext;
+        return magic.testContext();
+    }
 }

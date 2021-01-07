@@ -180,16 +180,13 @@ public final class CallVM extends AbstractVM {
 
 		if (env.topFrame().weInvokedInstrumentedCode() == false
 				|| env.topFrame().weInvokedSyntheticLambdaCodeThatInvokesNonInstrCode()) {
-				/**
-					TODO: Stream API seems to need special treatment call stack is of the form:
+				/** TODO: Stream API seems to need special treatment as the call stack is of the form:
 				 				4 - lambda static method call (instrumented)
 				 				3 - lambda's call (non-instrumented)
-				 				2 - Stream API code (un-instrumented code)
+				 				2 - Stream API code (non-instrumented code)
 				 				1 - stream API call (instrumented)
 				 				0 - Code (Instruemnted)
-				 		  This way we loose track of symbolic elements in the first un-instrumented code section.
-				 */
-
+				 		  This way we loose track of symbolic elements in the first non-instrumented code section */
 			// An uninstrumented caller has called instrumented code
 			// This is problemtatic
 		}
@@ -579,10 +576,20 @@ public final class CallVM extends AbstractVM {
 		// Ilebrero: Lambdas doesn't seem to be instrumentable.
 		// The code itself is in the respective owner class.
 		if (LambdaUtils.isLambda(concreteReceiver.getClass())) {
+
 			// Check if we call non-instrumented code
 			Class anonymousClass = concreteReceiver.getClass();
 			LambdaSyntheticType lambdaReferenceType = (LambdaSyntheticType) env.heap.getReferenceType(anonymousClass);
+
+			// If this lambda hasn't been seen before, we assume it's not instrumented
+			env.topFrame().invokeInstrumentedCode(!lambdaReferenceType.callsNonInstrumentedCode());
 			env.topFrame().invokeLambdaSyntheticCodeThatInvokesNonInstrCode(lambdaReferenceType.callsNonInstrumentedCode());
+
+			// TODO(ilebrero): If this lambda is related to a method reference, we need to replace the lambda's symbolic
+			//                 receiver with the method reference's related instance as this is just a redirection,
+			//                 is this possible? Currently when trying to get a symbolic field, as the symbolic receiver
+			//                 is from the lambda, no previous symbolic elements of tat object instance are being used.
+
 			return;
 		}
 

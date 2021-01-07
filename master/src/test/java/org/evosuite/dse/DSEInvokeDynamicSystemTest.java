@@ -19,21 +19,15 @@
  */
 package org.evosuite.dse;
 
+import com.examples.with.different.packagename.dse.LambdaExample;
 import com.examples.with.different.packagename.dse.StreamAPIExample;
 import com.examples.with.different.packagename.dse.StringConcatenationExample;
 import com.examples.with.different.packagename.dse.TestClosureClass;
+import com.examples.with.different.packagename.dse.TestSAMConversions;
 import com.examples.with.different.packagename.dse.invokedynamic.dsc.instrument.SingleMethodReference;
-import com.examples.with.different.packagename.dse.LambdaExample;
 import org.apache.commons.lang3.NotImplementedException;
-import org.evosuite.EvoSuite;
-import org.evosuite.Properties;
-import org.evosuite.symbolic.dse.algorithm.ExplorationAlgorithmBase;
-import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.Ignore;
 import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 
 /**
  * Tests for the invokedynamic usages on java (JDK9 for now)
@@ -46,64 +40,24 @@ public class DSEInvokeDynamicSystemTest extends DSESystemTestBase {
 
 	@Test
 	public void testLambda() {
-		EvoSuite evosuite = new EvoSuite();
-		String targetClass = LambdaExample.class.getCanonicalName();
-		Properties.TARGET_CLASS = targetClass;
-		Properties.SHOW_PROGRESS = true;
-
-		String[] command = new String[] { "-generateSuiteUsingDSE", "-class", targetClass };
-
-		Object result = evosuite.parseCommandLine(command);
-		ExplorationAlgorithmBase dse = getDSEAFromResult(result);
-		TestSuiteChromosome generatedTestSuite = dse.getGeneratedTestSuite();
-		System.out.println("Generated Test Suite:\n" + generatedTestSuite);
-
-		assertFalse(generatedTestSuite.getTests().isEmpty());
-
-		assertEquals(6, generatedTestSuite.getNumOfCoveredGoals());
-		assertEquals(1, generatedTestSuite.getNumOfNotCoveredGoals()); // Constructor cannot be reached
+		testDSEExecution(6, 1, LambdaExample.class);
 	}
 
 	@Test
 	public void testClosure() {
-		EvoSuite evosuite = new EvoSuite();
-		String targetClass = TestClosureClass.class.getCanonicalName();
-		Properties.TARGET_CLASS = targetClass;
-		Properties.SHOW_PROGRESS = true;
+		testDSEExecution(8, 1, TestClosureClass.class);
+	}
 
-		String[] command = new String[] { "-generateSuiteUsingDSE", "-class", targetClass };
-
-		Object result = evosuite.parseCommandLine(command);
-		ExplorationAlgorithmBase dse = getDSEAFromResult(result);
-		TestSuiteChromosome generatedTestSuite = dse.getGeneratedTestSuite();
-		System.out.println("Generated Test Suite:\n" + generatedTestSuite);
-
-		assertFalse(generatedTestSuite.getTests().isEmpty());
-
-		assertEquals(8, generatedTestSuite.getNumOfCoveredGoals());
-		assertEquals(1, generatedTestSuite.getNumOfNotCoveredGoals());
+	@Test
+	public void SAMConversion() {
+		testDSEExecution(3, 1, TestSAMConversions.class);
 	}
 
 	/** Method references (JDK 8) */
 
 	@Test
 	public void testMethodReference() {
-		EvoSuite evosuite = new EvoSuite();
-		String targetClass = SingleMethodReference.class.getCanonicalName();
-		Properties.TARGET_CLASS = targetClass;
-		Properties.SHOW_PROGRESS = true;
-
-		String[] command = new String[] { "-generateSuiteUsingDSE", "-class", targetClass };
-
-		Object result = evosuite.parseCommandLine(command);
-		ExplorationAlgorithmBase dse = getDSEAFromResult(result);
-		TestSuiteChromosome generatedTestSuite = dse.getGeneratedTestSuite();
-		System.out.println("Generated Test Suite:\n" + generatedTestSuite);
-
-		assertFalse(generatedTestSuite.getTests().isEmpty());
-
-		assertEquals(7, generatedTestSuite.getNumOfCoveredGoals());
-		assertEquals(0, generatedTestSuite.getNumOfNotCoveredGoals());
+		testDSEExecution(6, 2, SingleMethodReference.class);
 	}
 
 	/**
@@ -111,50 +65,14 @@ public class DSEInvokeDynamicSystemTest extends DSESystemTestBase {
 	 */
 	@Test
 	public void testStreamAPI() {
-		EvoSuite evosuite = new EvoSuite();
-		String targetClass = StreamAPIExample.class.getCanonicalName();
-		Properties.TARGET_CLASS = targetClass;
-		Properties.SHOW_PROGRESS = true;
-
-		String[] command = new String[] { "-generateSuiteUsingDSE", "-class", targetClass };
-
-		Object result = evosuite.parseCommandLine(command);
-		ExplorationAlgorithmBase dse = getDSEAFromResult(result);
-		TestSuiteChromosome generatedTestSuite = dse.getGeneratedTestSuite();
-		System.out.println("Generated Test Suite:\n" + generatedTestSuite);
-
-		assertFalse(generatedTestSuite.getTests().isEmpty());
-
-		assertEquals(4, generatedTestSuite.getNumOfCoveredGoals());
-		assertEquals(8, generatedTestSuite.getNumOfNotCoveredGoals());
-	}
-
-	@Test
-	@Ignore
-	public void testAutoBoxingConversions() {
-		throw new NotImplementedException("Implement me!");
+		testDSEExecution(4, 8, StreamAPIExample.class);
 	}
 
 	/** String concatenation (JDK 9) */
 
 	@Test
 	public void testStringConcatenation() {
-		EvoSuite evosuite = new EvoSuite();
-		String targetClass = StringConcatenationExample.class.getCanonicalName();
-		Properties.TARGET_CLASS = targetClass;
-		Properties.SHOW_PROGRESS = true;
-
-		String[] command = new String[] { "-generateSuiteUsingDSE", "-class", targetClass };
-
-		Object result = evosuite.parseCommandLine(command);
-		ExplorationAlgorithmBase dse = getDSEAFromResult(result);
-		TestSuiteChromosome generatedTestSuite = dse.getGeneratedTestSuite();
-		System.out.println("Generated Test Suite:\n" + generatedTestSuite);
-
-		assertFalse(generatedTestSuite.getTests().isEmpty());
-
-		assertEquals(2, generatedTestSuite.getNumOfCoveredGoals());
-		assertEquals(1, generatedTestSuite.getNumOfNotCoveredGoals());
+		testDSEExecution(2, 1, StringConcatenationExample.class);
 	}
 
 	/** Method Handles (JDK 8) */

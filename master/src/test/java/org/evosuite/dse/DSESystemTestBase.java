@@ -1,9 +1,14 @@
 package org.evosuite.dse;
 
+import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.SystemTestBase;
+import org.evosuite.symbolic.dse.algorithm.ExplorationAlgorithmBase;
+import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.Before;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assume.assumeTrue;
 
 public class DSESystemTestBase extends SystemTestBase {
@@ -41,5 +46,31 @@ public class DSESystemTestBase extends SystemTestBase {
 		Properties.ASSERTIONS = true;
 
 		assumeTrue(Properties.CVC4_PATH != null);
+	}
+
+	/**
+	 * Runs DSE on a given SUT and checks for an expected amount of goals.
+	 *
+	 * @param expectedCoveredGoals
+	 * @param expectedNotCoveredGoals
+	 * @param SUT
+	 */
+	protected void testDSEExecution(int expectedCoveredGoals, int expectedNotCoveredGoals, Class SUT) {
+		EvoSuite evosuite = new EvoSuite();
+		String targetClass = SUT.getCanonicalName();
+		Properties.TARGET_CLASS = targetClass;
+		Properties.SHOW_PROGRESS = true;
+
+		String[] command = new String[]{"-generateSuiteUsingDSE", "-class", targetClass};
+
+		Object result = evosuite.parseCommandLine(command);
+		ExplorationAlgorithmBase dse = getDSEAFromResult(result);
+		TestSuiteChromosome generatedTestSuite = dse.getGeneratedTestSuite();
+		System.out.println("Generated Test Suite:\n" + generatedTestSuite);
+
+		assertFalse(generatedTestSuite.getTests().isEmpty());
+
+		assertEquals(expectedCoveredGoals, generatedTestSuite.getNumOfCoveredGoals());
+		assertEquals(expectedNotCoveredGoals, generatedTestSuite.getNumOfNotCoveredGoals());
 	}
 }
