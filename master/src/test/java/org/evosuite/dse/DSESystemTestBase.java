@@ -11,7 +11,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assume.assumeTrue;
 
-public class DSESystemTestBase extends SystemTestBase {
+public abstract class DSESystemTestBase extends SystemTestBase {
     @Before
 	public void init() {
 		Properties.VIRTUAL_FS = true;

@@ -1,4 +1,4 @@
-package com.examples.with.different.packagename.dse;
+package com.examples.with.different.packagename.dse.invokedynamic;
 
 import java.util.function.Function;
 

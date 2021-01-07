@@ -19,14 +19,13 @@
  */
 package org.evosuite.dse;
 
-import com.examples.with.different.packagename.dse.LambdaExample;
+import com.examples.with.different.packagename.dse.interfaces.InterfacePrivateMethodExample;
+import com.examples.with.different.packagename.dse.invokedynamic.LambdaExample;
 import com.examples.with.different.packagename.dse.StreamAPIExample;
 import com.examples.with.different.packagename.dse.StringConcatenationExample;
-import com.examples.with.different.packagename.dse.TestClosureClass;
-import com.examples.with.different.packagename.dse.TestSAMConversions;
-import com.examples.with.different.packagename.dse.invokedynamic.dsc.instrument.SingleMethodReference;
-import org.apache.commons.lang3.NotImplementedException;
-import org.junit.Ignore;
+import com.examples.with.different.packagename.dse.invokedynamic.TestClosureClass;
+import com.examples.with.different.packagename.dse.invokedynamic.TestSAMConversions;
+import com.examples.with.different.packagename.dse.invokedynamic.SingleMethodReference;
 import org.junit.Test;
 
 /**
@@ -34,47 +33,42 @@ import org.junit.Test;
  *
  * @author Ignacio Lebrero
  */
-public class DSEInvokeDynamicSystemTest extends DSESystemTestBase {
+public final class DSEJDK9SystemTest extends DSESystemTestBase {
+
+	/**************** InvokeDynamic ****************/
 
     /** Lambdas (JDK 8) */
-
-	@Test
-	public void testLambda() {
+	@Test public void testLambda() {
 		testDSEExecution(6, 1, LambdaExample.class);
 	}
-
-	@Test
-	public void testClosure() {
+	@Test public void testClosure() {
 		testDSEExecution(8, 1, TestClosureClass.class);
 	}
-
-	@Test
-	public void SAMConversion() {
+	@Test public void SAMConversion() {
 		testDSEExecution(3, 1, TestSAMConversions.class);
 	}
 
 	/** Method references (JDK 8) */
-
-	@Test
-	public void testMethodReference() {
+	@Test public void testMethodReference() {
 		testDSEExecution(6, 2, SingleMethodReference.class);
 	}
 
-	/**
-	 * We are not currently supporting the Stream API as it calls lambdas from a non-instrumented context.
-	 */
-	@Test
-	public void testStreamAPI() {
+	/** We are not currently supporting the Stream API as it calls lambdas from a non-instrumented context. */
+	@Test public void testStreamAPI() {
 		testDSEExecution(4, 8, StreamAPIExample.class);
 	}
 
 	/** String concatenation (JDK 9) */
-
-	@Test
-	public void testStringConcatenation() {
+	@Test public void testStringConcatenation() {
 		testDSEExecution(2, 1, StringConcatenationExample.class);
 	}
 
 	/** Method Handles (JDK 8) */
 	// TODO: complete eventually, for now we won't support it as we don't support the reflection API either
+
+	/**************** Milling Project Coin ****************/
+	@Test public void testPrivateMethodsInInterfaces() {
+		testDSEExecution(4, 1, InterfacePrivateMethodExample.class);
+	}
+
 }

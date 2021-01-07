@@ -17,32 +17,40 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package com.examples.with.different.packagename.dse;
+package com.examples.with.different.packagename.dse.invokedynamic;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.function.Function;
 
 /**
- * Simple closure example
+ * Simple lambda example code
  *
  * @author Ignacio Lebrero
  */
-public class TestClosureClass {
-    private static List<Integer> list = new ArrayList();
+public class LambdaExample {
 
-    public static int closureTest(int in) {
-        if (in == 0) list.add(1);
+    public interface Function2<One, Two, Three> {
+        public Three apply(One a, Two b);
+    }
 
-        Function<Integer, Integer> testClosure = (a) -> {
-            if (check(list, a)) return 0;
+    public static int test(int in, int in2) {
+        Function2<Integer, Integer, Integer> testLambda2 = (a, b) -> {
+            if (a * b == 20) return 0;
             return 1;
         };
 
-        return testClosure.apply(in);
+        Function<Integer, Integer> testLambda = (a) -> {
+            if (a == 2) return 0;
+            return 1;
+        };
+
+        int result1 = testLambda.apply(in);
+        int result2 = testLambda2.apply(result1, in2);
+
+        if (result2 == 0) {
+            return 2;
+        } else {
+            return 1;
+        }
     }
 
-    private static boolean check(List<Integer> vals, int val) {
-        return vals.size() > 0 || val > 6;
-    }
 }

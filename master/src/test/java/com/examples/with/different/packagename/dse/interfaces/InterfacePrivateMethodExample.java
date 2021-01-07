@@ -17,40 +17,34 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package com.examples.with.different.packagename.dse;
-
-import java.util.function.Function;
+package com.examples.with.different.packagename.dse.interfaces;
 
 /**
- * Simple lambda example code
+ * Simple interface private method using a default method on top of it.
  *
  * @author Ignacio Lebrero
  */
-public class LambdaExample {
+public class InterfacePrivateMethodExample {
 
-    public interface Function2<One, Two, Three> {
-        public Three apply(One a, Two b);
+    private interface testInterface {
+        default int apply(int val) {
+            return isTwenty(val);
+        }
+
+        private int isTwenty(int val) {
+            if (val == 20) {
+                return 1;
+            } else {
+                return 2;
+            }
+        }
     }
 
-    public static int test(int in, int in2) {
-        Function2<Integer, Integer, Integer> testLambda2 = (a, b) -> {
-            if (a * b == 20) return 0;
-            return 1;
-        };
+    private static class testClass implements testInterface {}
 
-        Function<Integer, Integer> testLambda = (a) -> {
-            if (a == 2) return 0;
-            return 1;
-        };
-
-        int result1 = testLambda.apply(in);
-        int result2 = testLambda2.apply(result1, in2);
-
-        if (result2 == 0) {
-            return 2;
-        } else {
-            return 1;
-        }
+    public static int test(int val) {
+        testInterface instance = new testClass();
+        return instance.apply(val);
     }
 
 }
