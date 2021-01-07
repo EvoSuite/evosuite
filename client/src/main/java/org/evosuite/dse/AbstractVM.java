@@ -608,6 +608,14 @@ public abstract class AbstractVM implements IVM {
 	}
 
 	@Override
+	public void INVOKEDYNAMIC(Object clazz, String owner) { /* stub */
+	}
+
+	@Override
+	public void INVOKEDYNAMIC(String concatenationResult, String stringOwnerClass, String stringRecipe) { /* stub */
+	}
+
+	@Override
 	public void IOR() { /* stub */
 	}
 

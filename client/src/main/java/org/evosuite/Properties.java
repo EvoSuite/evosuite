@@ -476,7 +476,18 @@ public class Properties {
 	public enum DSEStoppingConditionCriterion {
 		TARGETCOVERAGE,
 		MAXTIME, /** In seconds */
-    ZEROFITNESS
+    	ZEROFITNESS
+	}
+
+	@Parameter(key = "bytecode_logging_enabled", group = "DSE", description = "Indicates whether bytecode instructions that are being executed should be logged.")
+	public static boolean BYTECODE_LOGGING_ENABLED = false;
+
+	@Parameter(key = "bytecode_logging_mode", group = "DSE", description = "How to log executed bytecode")
+	public static DSEBytecodeLoggingMode BYTECODE_LOGGING_MODE = DSEBytecodeLoggingMode.STANDARD_LOGGING;
+
+	// TODO (ilebrero): add other modes (i.e. dump to text file)
+	public enum DSEBytecodeLoggingMode {
+		STANDARD_LOGGING
 	}
 
 	// --------- LS ---------

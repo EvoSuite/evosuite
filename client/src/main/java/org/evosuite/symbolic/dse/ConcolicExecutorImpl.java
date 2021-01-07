@@ -35,6 +35,7 @@ import org.evosuite.symbolic.instrument.ConcolicInstrumentingClassLoader;
 import org.evosuite.symbolic.vm.ArithmeticVM;
 import org.evosuite.symbolic.vm.CallVM;
 import org.evosuite.symbolic.vm.HeapVM;
+import org.evosuite.symbolic.vm.InstructionLoggerVM;
 import org.evosuite.symbolic.vm.JumpVM;
 import org.evosuite.symbolic.vm.LocalsVM;
 import org.evosuite.symbolic.vm.OtherVM;
@@ -168,6 +169,11 @@ public class ConcolicExecutorImpl implements ConcolicExecutor{
 		listeners.add(new ArithmeticVM(symbolicEnvironment, pathConditionCollector));
 		listeners.add(new OtherVM(symbolicEnvironment));
 		listeners.add(new SymbolicFunctionVM(symbolicEnvironment, pathConditionCollector));
+
+		if (Properties.BYTECODE_LOGGING_ENABLED) {
+			listeners.add(new InstructionLoggerVM(symbolicEnvironment));
+		}
+
 		VM.getInstance().setListeners(listeners);
 		VM.getInstance().prepareConcolicExecution();
 	}
