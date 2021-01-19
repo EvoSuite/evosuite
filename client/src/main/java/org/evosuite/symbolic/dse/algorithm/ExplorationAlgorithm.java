@@ -48,6 +48,7 @@ import org.evosuite.testcase.TestCaseUpdater;
 import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.ClassUtil;
+import org.evosuite.utils.LoggingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -207,8 +208,12 @@ public abstract class ExplorationAlgorithm extends ExplorationAlgorithmBase {
                   break;
              }
 
-             logger.debug(GENERATING_TESTS_FOR_ENTRY_DEBUG_MESSAGE, entryMethod.getName());
+             LoggingUtils.getEvoLogger().info("* " + GENERATING_TESTS_FOR_ENTRY_DEBUG_MESSAGE, entryMethod.getName());
              int testCaseCount = testSuite.getTests().size();
+
+             /** Setting up current method being targeted */
+             Properties.TARGET_METHOD = entryMethod.getName();
+
              explore(entryMethod);
              int numOfGeneratedTestCases = testSuite.getTests().size() - testCaseCount;
              logger.debug(TESTS_WERE_GENERATED_FOR_ENTRY_METHOD_DEBUG_MESSAGE, numOfGeneratedTestCases, entryMethod.getName());

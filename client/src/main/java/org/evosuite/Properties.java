@@ -483,11 +483,12 @@ public class Properties {
 	public static boolean BYTECODE_LOGGING_ENABLED = false;
 
 	@Parameter(key = "bytecode_logging_mode", group = "DSE", description = "How to log executed bytecode")
-	public static DSEBytecodeLoggingMode BYTECODE_LOGGING_MODE = DSEBytecodeLoggingMode.STANDARD_LOGGING;
+	public static DSEBytecodeLoggingMode BYTECODE_LOGGING_MODE = DSEBytecodeLoggingMode.STD_OUT;
 
-	// TODO (ilebrero): add other modes (i.e. dump to text file)
+	// TODO (ilebrero): add other modes
 	public enum DSEBytecodeLoggingMode {
-		STANDARD_LOGGING
+		STD_OUT,
+		FILE_DUMP
 	}
 
 	// --------- LS ---------
@@ -1063,6 +1064,9 @@ public class Properties {
 
 	@Parameter(key = "report_dir", group = "Output", description = "Directory in which to put HTML and CSV reports")
 	public static String REPORT_DIR = "evosuite-report";
+
+	@Parameter(key = "bytecode_logging_report_dir", group = "Output", description = "Directory in which to put TXT executed bytecode logs.")
+	public static String BYTECODE_LOGGING_REPORT_DIR = "executed-bytecode-logs";
 
 	@Parameter(key = "output_variables", group = "Output", description = "List of variables to output to CSV file. Variables are separated by commas. Null represents default values")
 	public static String OUTPUT_VARIABLES = null;

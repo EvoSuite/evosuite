@@ -17,14 +17,14 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite.symbolic.vm.util;
+package org.evosuite.symbolic.vm.instructionlogger.implementations;
 
+import org.evosuite.symbolic.vm.instructionlogger.IInstructionLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
-import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,9 +44,9 @@ import java.util.List;
  *
  * @author csallner@uta.edu (Christoph Csallner)
  */
-public abstract class Log {
+public abstract class AbstractInstructionLogger implements IInstructionLogger {
 
-    private static final transient Logger logger = LoggerFactory.getLogger(Log.class);
+    private static final transient Logger logger = LoggerFactory.getLogger(AbstractInstructionLogger.class);
     static List<String> instructionsExecuted = new ArrayList();
     static StringBuilder buffer = new StringBuilder();
 
@@ -54,49 +54,28 @@ public abstract class Log {
     public final static String FS = System.getProperty("file.separator");
 
     /**
-     * FIXME: need a logging system
-     */
-    protected final static PrintStream out = System.out;
-
-
-    /**
      * Log parameter as p.
      */
-    public static void log(int p) {
-        logger.info(String.valueOf(p));
-        buffer.append(p + " ");
-    }
-
-    /**
-     * Log parameter as p.
-     */
-    public static void log(String p) {
-        logger.info(p);
-        buffer.append(p + " ");
-    }
+    public abstract void log(String p);
 
     /**
      * Log newline.
      */
-    public static void logln() {
-        logger.info("");
-        instructionsExecuted.add(buffer.toString());
-        buffer = new StringBuilder();
-    }
+    public abstract void logln();
+
+    public abstract void cleanUp();
 
     /**
-     * Log parameter as p followed by newline.
+     * Log parameter as p.
      */
-    public static void logln(int p) {
-        logger.info(String.valueOf(p));
-        buffer.append(p + " ");
-        logln();
+    public void log(int p) {
+        log(String.valueOf(p));
     }
 
     /**
      * Log parameters as ab.
      */
-    public static void log(String a, String b) {
+    public void log(String a, String b) {
         log(a);
         log(b);
     }
@@ -104,7 +83,7 @@ public abstract class Log {
     /**
      * Log parameters as abc.
      */
-    public static void log(String a, String b, String c) {
+    public void log(String a, String b, String c) {
         log(a);
         log(b);
         log(c);
@@ -113,7 +92,7 @@ public abstract class Log {
     /**
      * Log parameters as abcd.
      */
-    public static void log(String a, String b, String c, String d) {
+    public void log(String a, String b, String c, String d) {
         log(a);
         log(b);
         log(c);
@@ -123,7 +102,7 @@ public abstract class Log {
     /**
      * Log parameters as abcde.
      */
-    public static void log(String a, String b, String c, String d, String e) {
+    public void log(String a, String b, String c, String d, String e) {
         log(a);
         log(b);
         log(c);
@@ -132,11 +111,19 @@ public abstract class Log {
     }
 
     /**
+     * Log parameter as p followed by newline.
+     */
+    public void logln(int p) {
+        log(p);
+        logln();
+    }
+
+    /**
      * Log stack trace of exception. If it is an exception thrown by the user
      * program, omit lower part of stack trace that shows Dsc invocation
      * machinery.
      */
-    public static void logln(Throwable e) {
+    public void logln(Throwable e) {
         if (e == null)
             return;
 
@@ -165,14 +152,14 @@ public abstract class Log {
     /**
      * Log parameter as p followed by newline.
      */
-    public static void logln(Object p) {
+    public void logln(Object p) {
         logln(p.toString());
     }
 
     /**
      * Log parameter as p followed by newline.
      */
-    public static void logln(String p) {
+    public void logln(String p) {
         logger.info(p);
         logln();
     }
@@ -180,7 +167,7 @@ public abstract class Log {
     /**
      * Log parameters as ab followed by newline.
      */
-    public static void logln(String a, String b) {
+    public void logln(String a, String b) {
         log(a, b);
         logln();
     }
@@ -188,7 +175,7 @@ public abstract class Log {
     /**
      * Log parameters as abc followed by newline.
      */
-    public static void logln(String a, String b, String c) {
+    public void logln(String a, String b, String c) {
         log(a, b, c);
         logln();
     }
@@ -196,7 +183,7 @@ public abstract class Log {
     /**
      * Log parameters as abcd followed by newline.
      */
-    public static void logln(String a, String b, String c, String d) {
+    public void logln(String a, String b, String c, String d) {
         log(a, b, c, d);
         logln();
     }
@@ -204,12 +191,12 @@ public abstract class Log {
     /**
      * Log parameters as abcde followed by newline.
      */
-    public static void logln(String a, String b, String c, String d, String e) {
+    public void logln(String a, String b, String c, String d, String e) {
         log(a, b, c, d, e);
         logln();
     }
 
-    public static void logfileIf(boolean doLog, Object o, String fileName) {
+    public void logfileIf(boolean doLog, Object o, String fileName) {
         if (!doLog)    // src-util should not depend on src-vm
             return;
 
@@ -226,7 +213,7 @@ public abstract class Log {
     /**
      * Logs parameter, if doLog.
      */
-    public static void logIf(boolean doLog, String s) {
+    public void logIf(boolean doLog, String s) {
         if (doLog)
             log(s);
     }
@@ -235,7 +222,7 @@ public abstract class Log {
     /**
      * Logs newline, if doLog.
      */
-    public static void loglnIf(boolean doLog) {
+    public void loglnIf(boolean doLog) {
         if (doLog)
             logln();
     }
@@ -243,7 +230,7 @@ public abstract class Log {
     /**
      * Logs parameter followed by newline, if doLog.
      */
-    public static void loglnIf(boolean doLog, String s) {
+    public void loglnIf(boolean doLog, String s) {
         if (doLog)
             logln(s);
     }
@@ -251,7 +238,7 @@ public abstract class Log {
     /**
      * Logs parameters as ab followed by newline, if doLog.
      */
-    public static void loglnIf(boolean doLog, String a, String b) {
+    public void loglnIf(boolean doLog, String a, String b) {
         if (doLog)
             logln(a, b);
     }
@@ -259,7 +246,7 @@ public abstract class Log {
     /**
      * Logs parameters as abc followed by newline, if doLog.
      */
-    public static void loglnIf(boolean doLog, String a, String b, String c) {
+    public void loglnIf(boolean doLog, String a, String b, String c) {
         if (doLog)
             logln(a, b, c);
     }
@@ -267,7 +254,7 @@ public abstract class Log {
     /**
      * Logs parameters as abcd followed by newline, if doLog.
      */
-    public static void loglnIf(boolean doLog, String a, String b, String c, String d) {
+    public void loglnIf(boolean doLog, String a, String b, String c, String d) {
         if (doLog)
             logln(a, b, c, d);
     }
@@ -275,7 +262,7 @@ public abstract class Log {
     /**
      * Logs parameters as abcde followed by newline, if doLog.
      */
-    public static void loglnIf(boolean doLog, String a, String b, String c, String d, String e) {
+    public void loglnIf(boolean doLog, String a, String b, String c, String d, String e) {
         if (doLog)
             logln(a, b, c, d, e);
     }

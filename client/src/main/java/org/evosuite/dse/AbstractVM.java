@@ -1069,6 +1069,11 @@ public abstract class AbstractVM implements IVM {
 				"Should never be called, as ASM redirects all LDC_W calls to LDC.");
 	}
 
+	@Override
+	public void cleanUp() {
+		/* stub */
+	}
+
 	// FIXME: Move this to a better place.
 	static final String[] BYTECODE_NAME = new String[] { "NOP", //$NON-NLS-1$
 			"ACONST_NULL", //$NON-NLS-1$

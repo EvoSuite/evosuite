@@ -130,6 +130,7 @@ public class ConcolicExecutorImpl implements ConcolicExecutor{
 			TestCaseExecutor.getInstance().setExecutionObservers(originalExecutionObservers);
 		}
 		VM.disableCallBacks(); // ignore all callbacks from now on
+		VM.getInstance().cleanUpListeners();
 
 		List<BranchCondition> branches = pathConditionCollector.getPathCondition();
 		logger.info("Concolic execution ended with " + branches.size() + " branches collected");
@@ -171,7 +172,7 @@ public class ConcolicExecutorImpl implements ConcolicExecutor{
 		listeners.add(new SymbolicFunctionVM(symbolicEnvironment, pathConditionCollector));
 
 		if (Properties.BYTECODE_LOGGING_ENABLED) {
-			listeners.add(new InstructionLoggerVM(symbolicEnvironment));
+			listeners.add(new InstructionLoggerVM());
 		}
 
 		VM.getInstance().setListeners(listeners);

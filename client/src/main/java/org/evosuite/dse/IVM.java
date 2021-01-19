@@ -611,4 +611,6 @@ public interface IVM {
 	void GOTO_W();
 
 	void JSR_W();
+
+    void cleanUp();
 }

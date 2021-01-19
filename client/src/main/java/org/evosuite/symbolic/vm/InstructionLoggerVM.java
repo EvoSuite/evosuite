@@ -19,14 +19,11 @@
  */
 package org.evosuite.symbolic.vm;
 
+import org.evosuite.Properties;
 import org.evosuite.dse.AbstractVM;
 import org.evosuite.symbolic.instrument.ConcolicConfig;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.evosuite.symbolic.vm.util.Log.log;
-import static org.evosuite.symbolic.vm.util.Log.logln;
+import org.evosuite.symbolic.vm.instructionlogger.IInstructionLogger;
+import org.evosuite.symbolic.vm.instructionlogger.InstructionLoggerFactory;
 
 /*
     This class is taken and adapted from the DSC tool developed by Christoph Csallner.
@@ -41,19 +38,17 @@ import static org.evosuite.symbolic.vm.util.Log.logln;
  */
 public class InstructionLoggerVM extends AbstractVM {
 
-    private final SymbolicEnvironment environment;
+    private final IInstructionLogger instructionLogger;
 
-    /**
-     * Constructor
-     */
-    public InstructionLoggerVM(SymbolicEnvironment environment) {
-        this.environment = environment;
+    /** Constructor */
+    public InstructionLoggerVM() {
+        this.instructionLogger = InstructionLoggerFactory.getInstance().getInstructionLogger(Properties.BYTECODE_LOGGING_MODE);
     }
 
     @Override
     public void SRC_LINE_NUMBER(int lineNr) {
-        log("\t\t\t\t\tsrc line: ");
-        logln(lineNr);
+        instructionLogger.log("\t\t\t\t\tsrc line: ");
+        instructionLogger.logln(lineNr);
     }
 
     @Override
@@ -98,13 +93,13 @@ public class InstructionLoggerVM extends AbstractVM {
 
     @Override
     public void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex, Object value) {
-        log("callerStackParam ");
-        log(nr);
+        instructionLogger.log("callerStackParam ");
+        instructionLogger.log(nr);
         // TODO: why theres a null value coming here? should that happend?
         if (value != null) {
-            logln(" ", value.toString());
+            instructionLogger.logln(" ", value.toString());
         } else {
-            logln(" ", "null");
+            instructionLogger.logln(" ", "null");
         }
     }
 
@@ -112,11 +107,11 @@ public class InstructionLoggerVM extends AbstractVM {
     @Override
     public void METHOD_BEGIN(int access, String className, String methName, String methDesc) {
         // FIXME: print modifiers (static, public, etc.)
-        log("-------------------", "enter method ");
-        log(className, " ");
-        log(methName, " ");
-        log(methDesc);
-        logln();
+        instructionLogger.log("-------------------", "enter method ");
+        instructionLogger.log(className, " ");
+        instructionLogger.log(methName, " ");
+        instructionLogger.log(methDesc);
+        instructionLogger.logln();
     }
 
     @Override
@@ -161,24 +156,24 @@ public class InstructionLoggerVM extends AbstractVM {
 
     @Override
     public void METHOD_BEGIN_PARAM(int nr, int calleeLocalsIndex, Object value) {
-        log("methodBeginParam ");
-        log(nr);
-        log(" ");
-        log(calleeLocalsIndex);
+        instructionLogger.log("methodBeginParam ");
+        instructionLogger.log(nr);
+        instructionLogger.log(" ");
+        instructionLogger.log(calleeLocalsIndex);
         if (value != null) {
-            logln(" ", value.toString());
+            instructionLogger.logln(" ", value.toString());
         } else {
-            logln(" ", "null");
+            instructionLogger.logln(" ", "null");
         }
     }
 
     @Override
     public void METHOD_BEGIN_RECEIVER(Object value) {
-        log("methodBeginReceiver ");
+        instructionLogger.log("methodBeginReceiver ");
         if (value != null) {
-            logln(" ", value.toString());
+            instructionLogger.logln(" ", value.toString());
         } else {
-            logln(" ", "null");
+            instructionLogger.logln(" ", "null");
         }
     }
 
@@ -219,20 +214,25 @@ public class InstructionLoggerVM extends AbstractVM {
     }
 
     protected void CALL_RESULT(Object res) {
-        log("\t ==> ");
-        logln(res.toString());
+        instructionLogger.log("\t ==> ");
+
+        if (res == null) {
+            instructionLogger.logln("null");
+        } else {
+            instructionLogger.logln(res.toString());
+        }
     }
 
     @Override
     public void BB_BEGIN() {
-        logln("---------- basic block");
+        instructionLogger.logln("---------- basic block");
     }
 
     @Override
     public void HANDLER_BEGIN(int access, String className, String methName,
                               String methDesc) {
-        log("---------- handler block in ");
-        logln(className, ".", methName);
+        instructionLogger.log("---------- handler block in ");
+        instructionLogger.logln(className, ".", methName);
     }
 
     /*
@@ -916,7 +916,7 @@ public class InstructionLoggerVM extends AbstractVM {
     } // visitLookupSwitch
 
     protected void exit() {
-        logln("-------------------- exit method");
+        instructionLogger.logln("-------------------- exit method");
     }
 
     @Override
@@ -1085,8 +1085,13 @@ public class InstructionLoggerVM extends AbstractVM {
         logInsn(201);
     }
 
+    @Override
+    public void cleanUp() {
+        instructionLogger.cleanUp();
+    }
+
     protected void logInsn(int opcode) {
-        logln(ConcolicConfig.BYTECODE_NAME[opcode]);
+        instructionLogger.logln(ConcolicConfig.BYTECODE_NAME[opcode]);
 //        logLoopIterations();
     }
 
@@ -1095,81 +1100,81 @@ public class InstructionLoggerVM extends AbstractVM {
     }
 
     protected void logInsn(int opcode, Object p) {
-        log(ConcolicConfig.BYTECODE_NAME[opcode], " ");
+        instructionLogger.log(ConcolicConfig.BYTECODE_NAME[opcode], " ");
         if (p != null) {
-            logln(" ", p.toString());
+            instructionLogger.logln(" ", p.toString());
         } else {
-            logln(" ", "null");
+            instructionLogger.logln(" ", "null");
         }
-//        log(p.toString());
-        logln();
+//        instructionLogger.log(p.toString());
+        instructionLogger.logln();
 //        logLoopIterations();
     }
 
     protected void logInsn(int opcode, Object p1, Object p2) {
-        log(ConcolicConfig.BYTECODE_NAME[opcode], " ");
+        instructionLogger.log(ConcolicConfig.BYTECODE_NAME[opcode], " ");
         if (p1 != null) {
-            logln(p1.toString(), " ");
+            instructionLogger.logln(p1.toString(), " ");
         } else {
-            logln("null", " ");
+            instructionLogger.logln("null", " ");
         }
 
         if (p2 != null) {
-            logln(p2.toString());
+            instructionLogger.logln(p2.toString());
         } else {
-            logln("null");
+            instructionLogger.logln("null");
         }
 
-//        log(p1.toString(), " ");
-//        log(p2.toString());
-        logln();
+//        instructionLogger.log(p1.toString(), " ");
+//        instructionLogger.log(p2.toString());
+        instructionLogger.logln();
 //        logLoopIterations();
     }
 
     protected void logInsn(int opcode, Object p1, Object p2, Object p3) {
-        log(ConcolicConfig.BYTECODE_NAME[opcode], " ");
+        instructionLogger.log(ConcolicConfig.BYTECODE_NAME[opcode], " ");
         if (p1 != null) {
-            logln(p1.toString(), " ");
+            instructionLogger.logln(p1.toString(), " ");
         } else {
-            logln("null", " ");
+            instructionLogger.logln("null", " ");
         }
         if (p2 != null) {
-            logln(p2.toString(), " ");
+            instructionLogger.logln(p2.toString(), " ");
         } else {
-            logln("null", " ");
+            instructionLogger.logln("null", " ");
         }
         if (p3 != null) {
-            logln(p3.toString());
+            instructionLogger.logln(p3.toString());
         } else {
-            logln("null");
+            instructionLogger.logln("null");
         }
-        logln();
+        instructionLogger.logln();
 //        logLoopIterations();
     }
 
     protected void logInsn(int opcode, Object p1, Object p2, Object p3, Object p4) {
-        log(ConcolicConfig.BYTECODE_NAME[opcode], " ");
+        instructionLogger.log(ConcolicConfig.BYTECODE_NAME[opcode], " ");
         if (p1 != null) {
-            logln(p1.toString(), " ");
+            instructionLogger.logln(p1.toString(), " ");
         } else {
-            logln("null", " ");
+            instructionLogger.logln("null", " ");
         }
         if (p2 != null) {
-            logln(p2.toString(), " ");
+            instructionLogger.logln(p2.toString(), " ");
         } else {
-            logln("null", " ");
+            instructionLogger.logln("null", " ");
         }
         if (p3 != null) {
-            logln(p3.toString(), " ");
+            instructionLogger.logln(p3.toString(), " ");
         } else {
-            logln("null", " ");
+            instructionLogger.logln("null", " ");
         }
         if (p4 != null) {
-            logln(p4.toString());
+            instructionLogger.logln(p4.toString());
         } else {
-            logln("null");
+            instructionLogger.logln("null");
         }
-        logln();
+        instructionLogger.logln();
 //        logLoopIterations();
     }
 
@@ -1184,9 +1189,9 @@ public class InstructionLoggerVM extends AbstractVM {
 //
 //        final TObjectIntHashMap<Loop> counts = topFrame().iterationCounts;
 //        for (Loop loop : counts.keys(new Loop[counts.size()])) {
-//            logln("\t" + counts.get(loop) + " " + loop.getHead());
+//            instructionLogger.logln("\t" + counts.get(loop) + " " + loop.getHead());
 //            for (Stmt stmt : loop.getLoopStatements())
-//                logln("\t\t" + stmt);
+//                instructionLogger.logln("\t\t" + stmt);
 //        }
 //    }
 }
