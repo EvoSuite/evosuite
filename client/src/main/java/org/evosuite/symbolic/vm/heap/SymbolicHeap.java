@@ -148,7 +148,11 @@ public final class SymbolicHeap {
 			Expression<?> symb_value) {
 
 		Map<ReferenceExpression, Expression<?>> symb_field = getOrCreateSymbolicField(className, fieldName);
-		if (symb_value == null || !symb_value.containsSymbolicVariable()) {
+
+		// NOTE (ilebrero): We need to store elements even if they are constant due to probable usage later on of their
+		//					reference (i.e. if the reference is bounded to an object like a closure.)
+		//		if (symb_value == null || !symb_value.containsSymbolicVariable()) {
+		if (symb_value == null) {
 			symb_field.remove(symb_receiver);
 		} else {
 			symb_field.put(symb_receiver, symb_value);
@@ -172,7 +176,11 @@ public final class SymbolicHeap {
 			ReferenceExpression symb_value) {
 
 		Map<ReferenceExpression, Expression<?>> symb_field = getOrCreateSymbolicField(className, fieldName);
-		if (symb_value == null || !symb_value.containsSymbolicVariable()) {
+
+		// NOTE (ilebrero): We need to store elements even if they are constant due to probable usage later on of their
+		//					reference (i.e. if the reference is bounded to an object like a closure.)
+		//		if (symb_value == null || !symb_value.containsSymbolicVariable()) {
+		if (symb_value == null) {
 			symb_field.remove(symb_receiver);
 		} else {
 			symb_field.put(symb_receiver, symb_value);

@@ -449,6 +449,11 @@ public class Properties {
 		SUITE;
 	}
 
+	// NOTE (ilebrero): This is the current method name being explored. This is NOT a good practice, but it's
+	//	     the only way I can imagine to get the current method name for saving the bytecodeLogging info in a file.
+	//		 TODO: Is there a better way of doing this?
+	public static String CURRENT_TARGET_METHOD = "";
+
     // NOTE: by default we use the sage implementation of the algorithm
 	@Parameter(key = "dse_algorithm", group = "DSE", description = "Type of DSE algorithm to use.")
 	public static DSEAlgorithms DSE_ALGORITHM_TYPE = DSEAlgorithms.SAGE;

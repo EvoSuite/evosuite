@@ -20,12 +20,16 @@
 package org.evosuite.dse;
 
 import com.examples.with.different.packagename.dse.interfaces.InterfacePrivateMethodExample;
+import com.examples.with.different.packagename.dse.invokedynamic.ClosureFieldTest;
+import com.examples.with.different.packagename.dse.invokedynamic.InvokeExactExample;
 import com.examples.with.different.packagename.dse.invokedynamic.LambdaExample;
 import com.examples.with.different.packagename.dse.StreamAPIExample;
 import com.examples.with.different.packagename.dse.StringConcatenationExample;
 import com.examples.with.different.packagename.dse.invokedynamic.TestClosureClass;
 import com.examples.with.different.packagename.dse.invokedynamic.TestSAMConversions;
 import com.examples.with.different.packagename.dse.invokedynamic.SingleMethodReference;
+import org.evosuite.EvoSuite;
+import org.evosuite.Properties;
 import org.junit.Test;
 
 /**
@@ -44,13 +48,16 @@ public final class DSEJDK9SystemTest extends DSESystemTestBase {
 	@Test public void testClosure() {
 		testDSEExecution(8, 1, TestClosureClass.class);
 	}
+	@Test public void testClosureAsAField() {
+		testDSEExecution(2, 1, ClosureFieldTest.class);
+	}
 	@Test public void SAMConversion() {
 		testDSEExecution(3, 1, TestSAMConversions.class);
 	}
 
 	/** Method references (JDK 8) */
 	@Test public void testMethodReference() {
-		testDSEExecution(6, 2, SingleMethodReference.class);
+		testDSEExecution(7, 1, SingleMethodReference.class);
 	}
 
 	/** We are not currently supporting the Stream API as it calls lambdas from a non-instrumented context. */
@@ -65,6 +72,10 @@ public final class DSEJDK9SystemTest extends DSESystemTestBase {
 
 	/** Method Handles (JDK 8) */
 	// TODO: complete eventually, for now we won't support it as we don't support the reflection API either
+	@Test public void testInvokeExact() {
+		// As we don't support the Method handles API, there should be an exception throughout execution and the result should be empty.
+		testDSEExecutionEmptyResult(InvokeExactExample.class);
+	}
 
 	/**************** Milling Project Coin ****************/
 	@Test public void testPrivateMethodsInInterfaces() {

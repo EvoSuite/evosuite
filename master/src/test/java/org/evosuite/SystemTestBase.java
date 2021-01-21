@@ -361,4 +361,10 @@ public class SystemTestBase {
 		assert (results.size() == 1);
 		return results.get(0).get(0).getDSEAlgorithm();
 	}
+
+	protected void checkDSEResultIsEmpty(Object result) {
+		assert (result instanceof List);
+		List<List<TestGenerationResult>> results = (List<List<TestGenerationResult>>) result;
+		assert (results.size() == 0);
+	}
 }

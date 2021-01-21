@@ -20,6 +20,9 @@
 package org.evosuite.symbolic.vm;
 
 import org.evosuite.symbolic.expr.Expression;
+import org.evosuite.symbolic.expr.bv.IntegerValue;
+import org.evosuite.symbolic.expr.fp.RealValue;
+import org.evosuite.symbolic.expr.ref.ReferenceExpression;
 
 /**
  * @author Ilebrero
@@ -38,6 +41,21 @@ public class OperandUtils {
 			return referenceOperand.getReference();
 		} else {
 			throw new IllegalStateException("Unexpected operandType: " + operand.getClass().getName() + " is not a supported operand.");
+		}
+	}
+
+	public static Operand expressionToOperand(Expression expression) {
+		if (expression instanceof IntegerValue) {
+			IntegerValue intExpression = (IntegerValue) expression;
+			return new Bv64Operand(intExpression);
+		} else if (expression instanceof RealValue) {
+			RealValue realExpression = (RealValue) expression;
+			return new Fp64Operand(realExpression);
+		} else if (expression instanceof ReferenceExpression) {
+			ReferenceExpression referenceExpression = (ReferenceExpression) expression;
+			return new ReferenceOperand(referenceExpression);
+		} else {
+			throw new IllegalStateException("Unexpected expression type: " + expression.getClass().getName() + " is not a supported operand.");
 		}
 	}
 

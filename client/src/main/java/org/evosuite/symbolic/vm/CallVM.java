@@ -250,6 +250,7 @@ public final class CallVM extends AbstractVM {
 		Class<?>[] paramTypes = getArgumentClasses(methDesc);
 		final Deque<Operand> params = new LinkedList<>();
 		Iterator<Operand> it = env.topFrame().operandStack.iterator();
+
 		for (int i = paramTypes.length - 1; i >= 0; i--) {
 			// read parameters from caller operand srack
 			Operand param = it.next();
@@ -460,7 +461,10 @@ public final class CallVM extends AbstractVM {
 		env.heap.buildNewLambdaConstant(anonymousClass, conf.isIgnored(owner));	// Add it as lambda owner
 		Type anonymousClassType = Type.getType(anonymousClass);
 		env.ensurePrepared(anonymousClass); // prepare symbolic fields
+
+		// Create reference
 		final ReferenceConstant symbolicRef = env.heap.buildNewReferenceConstant(anonymousClassType);
+		env.heap.initializeReference(indyResult, symbolicRef);
 
 		/**
 		 * emulate JVM's anonymous Lambda class instantiation: This
@@ -585,10 +589,61 @@ public final class CallVM extends AbstractVM {
 			env.topFrame().invokeInstrumentedCode(!lambdaReferenceType.callsNonInstrumentedCode());
 			env.topFrame().invokeLambdaSyntheticCodeThatInvokesNonInstrCode(lambdaReferenceType.callsNonInstrumentedCode());
 
+			// Nothing to do.
+			if (lambdaReferenceType.callsNonInstrumentedCode()) return;
+
 			// TODO(ilebrero): If this lambda is related to a method reference, we need to replace the lambda's symbolic
 			//                 receiver with the method reference's related instance as this is just a redirection,
 			//                 is this possible? Currently when trying to get a symbolic field, as the symbolic receiver
 			//                 is from the lambda, no previous symbolic elements of tat object instance are being used.
+
+			/**
+			 * for closures: In case we jump to a closure, we need to add the bounded closure elements to the stack
+			 * 				 as this is implicitly done by the JVM. Notice that at this point the descriptor won't
+			 * 				 tell us about this element (i.e (Ljava/lang/Object;)Ljava/lang/Object;) but the actual
+			 * 				 closure method will have extra elemenets on its descriptor (i.e.
+			 * 				 (Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;))
+			 * - pop original operands
+			 * - pop receiver
+			 * - push captured (as receiver fields) operands
+			 * - push original operands
+			 */
+			if (anonymousClass.getDeclaredFields().length > 0) {
+
+				// Pop current symbolic operands
+				final int interfaceParamsAmount = getArgumentClasses(methDesc).length;
+				final Operand[] symbolicArguments = new Operand[interfaceParamsAmount];
+				for (int i = interfaceParamsAmount - 1; i >= 0; i--) {
+					symbolicArguments[i] = env.topFrame().operandStack.popOperand();
+				}
+
+				// Pop receiver
+				final ReferenceExpression receiverSymbolic = env.topFrame().operandStack.popRef();
+
+				// Push closure bounded fields expressions
+				final Field[] fields = anonymousClass.getDeclaredFields();
+    			final Expression[] fieldExpressions = new Expression[fields.length];
+
+    			for (Field field : fields) {
+    				int fieldLoc = Integer.parseInt(field.getName().substring(4)) - 1;
+    				fieldExpressions[fieldLoc] = env.heap.getField(anonymousClass.getName(), field.getName(), anonymousClass, receiverSymbolic);
+				}
+
+    			// Push receiver
+				env.topFrame().operandStack.pushRef(receiverSymbolic);
+
+    			// Push new operands
+				for (Expression expression: fieldExpressions) {
+					Operand operand = OperandUtils.expressionToOperand(expression);
+					env.topFrame().operandStack.pushOperand(operand);
+				}
+
+				// Push original operands
+				for (int i=0; i<interfaceParamsAmount; i++) {
+					env.topFrame().operandStack.pushOperand(symbolicArguments[i]);
+				}
+
+			}
 
 			return;
 		}
@@ -1002,9 +1057,13 @@ public final class CallVM extends AbstractVM {
 			return false;
 
 		/* virtual method */
-
-		if (method.getDeclaringClass().isAnonymousClass()) {
-			// anonymous class
+		/** NOTE (ilebrero): are there other cases like this? */
+		/** TODO (ilebrero): Create a special case for local and anonymous classes goal tracking for DSE. So far,
+		 * 					 evosuite is skipping tracking those, even though in DSE they are symbolized and tests are
+		 * 					 created (In fact, they are being dropped by TestSuiteMinizer for not finding goals that
+		 * 					 they cover). */
+		if (method.getDeclaringClass().isAnonymousClass() || method.getDeclaringClass().isLocalClass()) {
+			// anonymous or local class
 			String name = method.getDeclaringClass().getName();
 			int indexOf = name.indexOf("$");
 			String fullyQualifiedTopLevelClassName = name.substring(0, indexOf);
