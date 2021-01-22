@@ -19,17 +19,15 @@
  */
 package org.evosuite.dse;
 
+import com.examples.with.different.packagename.dse.StreamAPIExample;
+import com.examples.with.different.packagename.dse.StringConcatenationExample;
 import com.examples.with.different.packagename.dse.interfaces.InterfacePrivateMethodExample;
 import com.examples.with.different.packagename.dse.invokedynamic.ClosureFieldTest;
 import com.examples.with.different.packagename.dse.invokedynamic.InvokeExactExample;
 import com.examples.with.different.packagename.dse.invokedynamic.LambdaExample;
-import com.examples.with.different.packagename.dse.StreamAPIExample;
-import com.examples.with.different.packagename.dse.StringConcatenationExample;
+import com.examples.with.different.packagename.dse.invokedynamic.SingleMethodReference;
 import com.examples.with.different.packagename.dse.invokedynamic.TestClosureClass;
 import com.examples.with.different.packagename.dse.invokedynamic.TestSAMConversions;
-import com.examples.with.different.packagename.dse.invokedynamic.SingleMethodReference;
-import org.evosuite.EvoSuite;
-import org.evosuite.Properties;
 import org.junit.Test;
 
 /**
