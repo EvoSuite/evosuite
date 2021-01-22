@@ -21,7 +21,7 @@ package org.evosuite.dse;
 
 import com.examples.with.different.packagename.dse.StreamAPIExample;
 import com.examples.with.different.packagename.dse.StringConcatenationExample;
-import com.examples.with.different.packagename.dse.interfaces.InterfacePrivateMethodExample;
+//import com.examples.with.different.packagename.dse.interfaces.InterfacePrivateMethodExample;
 import com.examples.with.different.packagename.dse.invokedynamic.ClosureFieldTest;
 import com.examples.with.different.packagename.dse.invokedynamic.InvokeExactExample;
 import com.examples.with.different.packagename.dse.invokedynamic.LambdaExample;
@@ -76,8 +76,9 @@ public final class DSEJDK9SystemTest extends DSESystemTestBase {
 	}
 
 	/**************** Milling Project Coin ****************/
-	@Test public void testPrivateMethodsInInterfaces() {
-		testDSEExecution(4, 1, InterfacePrivateMethodExample.class);
-	}
+// TODO: Uncomment test and class when we build evosuite with JDK 9, it should work fine
+// 	@Test public void testPrivateMethodsInInterfaces() {
+//		testDSEExecution(4, 1, InterfacePrivateMethodExample.class);
+//	}
 
 }
