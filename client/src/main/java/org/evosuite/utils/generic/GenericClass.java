@@ -1610,6 +1610,11 @@ public class GenericClass implements Serializable {
 			if (!isAssignableTo(type)) {
 				// If the boundary is not assignable it may still be possible
 				// to instantiate the generic to an assignable type
+				if (type instanceof WildcardType){
+					// TODO i don't know exactly how to handle this case, but it is necessary to prevent an Exception
+					isAssignable = false;
+					break;
+				}
 				if (GenericTypeReflector.erase(type).isAssignableFrom(getRawClass())) {
 					Type instanceType = GenericTypeReflector.getExactSuperType(type,
 					                                                           getRawClass());
