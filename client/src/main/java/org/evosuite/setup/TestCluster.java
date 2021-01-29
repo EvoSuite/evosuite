@@ -1312,7 +1312,7 @@ public class TestCluster {
 		try {
 			cacheGenerators(clazz);
 		} catch (ConstructionFailedException e) {
-			AtMostOnceLogger.error(logger, "Failed to check cache for "+clazz+" : "+e.getMessage());
+			AtMostOnceLogger.warn(logger, "Failed to check cache for "+clazz+" : "+e.getMessage());
 		}
 		if (!generatorCache.containsKey(clazz))
 			return false;
