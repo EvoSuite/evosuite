@@ -56,9 +56,9 @@ get_project_class_path() {
   local search_depth=${2:-1}
 
   # Find all paths of jars in the search directory and combine with a colon separator
-  local _project_class_path="$(find "${PROJECTS_DIRECTORY}"/"${project_name}" -maxdepth "${search_depth}" -type f -name "*.jar" -printf '%p:' | sed 's/:$//')"
+  local project_class_path="$(find "${PROJECTS_DIRECTORY}"/"${project_name}" -maxdepth "${search_depth}" -type f -name "*.jar" -printf '%p:' | sed 's/:$//')"
 
-  echo $_project_class_path
+  echo ${project_class_path}
 }
 
 #######################################
