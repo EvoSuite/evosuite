@@ -71,7 +71,7 @@ public class DSEStrategy extends TestGenerationStrategy {
 	@Override
 	public TestSuiteChromosome generateTests() {
 		LoggingUtils.getEvoLogger().info(SETTING_UP_DSE_GENERATION_INFO_MESSAGE);
-		Properties.CRITERION = Properties.DSE_ALGORITHM_TYPE.getCriteria();
+		Properties.CRITERION = Properties.DSE_EXPLORATION_ALGORITHM_TYPE.getCriteria();
 		Criterion[] criterion = Properties.CRITERION;
 
 		long startTime = System.currentTimeMillis() / 1000;
@@ -112,7 +112,7 @@ public class DSEStrategy extends TestGenerationStrategy {
 				TestGenerationResultBuilder.getInstance().setDSEAlgorithm(algorithm);
 			}
 		} else {
-			testSuite = setNoGoalsCoverage(Properties.DSE_ALGORITHM_TYPE);
+			testSuite = setNoGoalsCoverage(Properties.DSE_EXPLORATION_ALGORITHM_TYPE);
 		}
 
 		long endTime = System.currentTimeMillis() / 1000;
@@ -161,7 +161,7 @@ public class DSEStrategy extends TestGenerationStrategy {
 
 	private ExplorationAlgorithm buildDSEAlgorithm() {
 		DSEAlgorithmFactory dseFactory = new DSEAlgorithmFactory();
-		DSEAlgorithms dseAlgorithmType = Properties.DSE_ALGORITHM_TYPE;
+		DSEAlgorithms dseAlgorithmType = Properties.DSE_EXPLORATION_ALGORITHM_TYPE;
 
 		LoggingUtils.getEvoLogger().info(USING_DSE_ALGORITHM, dseAlgorithmType.getName());
 		ExplorationAlgorithm algorithm = dseFactory.getDSEAlgorithm(dseAlgorithmType);

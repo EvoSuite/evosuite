@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite.symbolic.dse.algorithm.strategies.implementations.PathSelectionStrategies;
+package org.evosuite.symbolic.dse.algorithm.strategies.implementations.PathExtensionStrategies;
 
 import org.evosuite.symbolic.BranchCondition;
 import org.evosuite.symbolic.dse.algorithm.GenerationalSearchPathCondition;

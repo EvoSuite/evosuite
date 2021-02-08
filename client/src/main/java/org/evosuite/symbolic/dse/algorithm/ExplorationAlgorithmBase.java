@@ -307,32 +307,13 @@ public abstract class ExplorationAlgorithmBase implements Serializable {
         return hasPathConditionDiverged;
     }
 
-		/**
-		 * Score calculation is based on coverage improvement against the current testSuite.
-		 *
-		 * TODO: This could be better if there was a way to run calculate the coverage of adding a new test without changng
-		 *       the hole testSuite data.
-		 *
-		 * @param newTestCase
-		 * @param hasPathConditionDiverged
-		 * @return
-		 */
-    protected double getTestScore(TestCase newTestCase, boolean hasPathConditionDiverged) {
-    	if (hasPathConditionDiverged) {
-    		statisticsLogger.reportNewTestUnuseful();
-    		return PATH_DIVERGED_BASED_TEST_CASE_PENALTY_SCORE;
-			}
-
-    	return getTestCaseAdditionIncrementalCoverage(newTestCase);
-    }
-
 			/**
 			 * Returns the incremental coverage of adding a test case to the current test suite.
 			 *
 			 * @param newTestCase
 			 * @return
 			 */
-			private double getTestCaseAdditionIncrementalCoverage(TestCase newTestCase) {
+			protected double getTestCaseAdditionIncrementalCoverage(TestCase newTestCase) {
 				double oldCoverage;
 				double newCoverage;
 				double coverageDiff;

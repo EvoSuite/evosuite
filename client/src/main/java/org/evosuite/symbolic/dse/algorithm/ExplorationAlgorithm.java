@@ -362,6 +362,20 @@ public abstract class ExplorationAlgorithm extends ExplorationAlgorithmBase {
         return newDSETestCase;
     }
 
+    		/**
+		 * Score calculation is based on coverage improvement against the current testSuite.
+		 *
+         * TODO: This could be a strategy.
+         *
+		 * TODO: This could be better if there was a way to run calculate the coverage of adding a new test without changng
+		 *       the hole testSuite data.
+		 *
+		 * @param newTestCase
+		 * @param hasPathConditionDiverged
+		 * @return
+		 */
+    abstract protected double getTestScore(TestCase newTestCase, boolean hasPathConditionDiverged);
+
     /**
      * Analyzes the results of an smtQuery.
      *

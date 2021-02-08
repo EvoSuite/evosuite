@@ -28,8 +28,12 @@ import org.evosuite.Properties;
  * @author ignacio lebrero
  */
 public enum DSEAlgorithms {
-    SAGE("SAGE",
+    GENERATIONAL_SEARCH("GENERATIONAL_SEARCH",
       "Based on generational search in Automated Whitebox Fuzz Testing, Godefroid, Levin, Molnar",
+      new Properties.Criterion[]{Properties.Criterion.BRANCH},
+      new Properties.DSEStoppingConditionCriterion[]{}),
+    DFS("DFS",
+      "Based on the classic DFS exploration (See Baldoni et. al., A Survey of Symbolic Execution Techniques.)",
       new Properties.Criterion[]{Properties.Criterion.BRANCH},
       new Properties.DSEStoppingConditionCriterion[]{});
 
