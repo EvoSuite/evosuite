@@ -22,6 +22,7 @@ package org.evosuite.symbolic.dse.algorithm.strategies;
 import org.evosuite.symbolic.dse.DSETestCase;
 
 import java.util.PriorityQueue;
+import java.util.Queue;
 
 /**
  * Interface for test case selection strategies.
@@ -29,5 +30,5 @@ import java.util.PriorityQueue;
  * @author ignacio lebrero
  */
 public interface TestCaseSelectionStrategy {
-    DSETestCase getCurrentIterationBasedTestCase(PriorityQueue<DSETestCase> generatedTests);
+    DSETestCase getCurrentIterationBasedTestCase(Queue<DSETestCase> generatedTests);
 }

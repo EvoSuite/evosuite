@@ -20,13 +20,17 @@
 package org.evosuite.symbolic.dse.algorithm.explorationalgorithms;
 
 import org.evosuite.symbolic.dse.DSEStatistics;
+import org.evosuite.symbolic.dse.DSETestCase;
 import org.evosuite.symbolic.dse.algorithm.ExplorationAlgorithm;
 import org.evosuite.symbolic.dse.algorithm.strategies.implementations.KeepSearchingCriteriaStrategies.TestCasesPendingStrategy;
 import org.evosuite.symbolic.dse.algorithm.strategies.implementations.PathExtensionStrategies.DFSStrategy;
-import org.evosuite.symbolic.dse.algorithm.strategies.implementations.PathPruningStrategies.CounterExampleCache;
+import org.evosuite.symbolic.dse.algorithm.strategies.implementations.CachingStrategies.CounterExampleCache;
 import org.evosuite.symbolic.dse.algorithm.strategies.implementations.TestCaseBuildingStrategies.DefaultTestCaseBuildingStrategy;
 import org.evosuite.symbolic.dse.algorithm.strategies.implementations.TestCaseSelectionStrategies.TopTestCaseSelectionStrategy;
 import org.evosuite.testcase.TestCase;
+
+import java.util.LinkedList;
+import java.util.Queue;
 
 /**
  * Classic DFS exploration algorithm.
@@ -42,8 +46,6 @@ import org.evosuite.testcase.TestCase;
  */
 public class DFSExplorationAlgorithm extends ExplorationAlgorithm {
 
-    double currentScore = Double.MAX_VALUE;
-
     public DFSExplorationAlgorithm(DSEStatistics statistics, boolean showProgress) {
         super(statistics, showProgress);
 
@@ -56,6 +58,17 @@ public class DFSExplorationAlgorithm extends ExplorationAlgorithm {
     }
 
     /**
+     * The DFS uses a simple queue for ordering the test cases as they are created. This strongly depends on the order
+     * given by {@link org.evosuite.symbolic.dse.algorithm.strategies.implementations.PathExtensionStrategies.DFSStrategy}.
+     *
+     * @return
+     */
+    @Override
+    protected Queue<DSETestCase> createWorkList() {
+        return new LinkedList();
+    }
+
+    /**
      * Returns the current position in the DFS exploration.
      *
      * @param newTestCase
@@ -64,12 +77,7 @@ public class DFSExplorationAlgorithm extends ExplorationAlgorithm {
      */
     @Override
     protected double getTestScore(TestCase newTestCase, boolean hasPathConditionDiverged) {
-        if (hasPathConditionDiverged) return 0;
-
-        double resultScore = currentScore;
-        currentScore--;
-
-        return resultScore;
-
+        /** Not relevant for DFS, the order is implicitly given by the construction of the path conditions */
+        return 0;
     }
 }

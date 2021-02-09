@@ -27,12 +27,12 @@ import org.evosuite.symbolic.dse.ConcolicExecutor;
 import org.evosuite.symbolic.dse.ConcolicExecutorImpl;
 import org.evosuite.symbolic.dse.DSEStatistics;
 import org.evosuite.symbolic.dse.DSETestCase;
+import org.evosuite.symbolic.dse.algorithm.strategies.CachingStrategy;
 import org.evosuite.symbolic.dse.algorithm.strategies.KeepSearchingCriteriaStrategy;
 import org.evosuite.symbolic.dse.algorithm.strategies.PathExtensionStrategy;
-import org.evosuite.symbolic.dse.algorithm.strategies.CachingStrategy;
-import org.evosuite.symbolic.dse.algorithm.strategies.implementations.PathPruningStrategies.CacheQueryResult;
 import org.evosuite.symbolic.dse.algorithm.strategies.TestCaseBuildingStrategy;
 import org.evosuite.symbolic.dse.algorithm.strategies.TestCaseSelectionStrategy;
+import org.evosuite.symbolic.dse.algorithm.strategies.implementations.CachingStrategies.CacheQueryResult;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.solver.Solver;
 import org.evosuite.symbolic.solver.SolverEmptyQueryException;
@@ -59,10 +59,10 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.PriorityQueue;
+import java.util.Queue;
 import java.util.Set;
 
-  /**
+/**
    * Structure of a DSE Exploration algorithm,
    *
    * Current implementation represents an abstracted version of SAGE's generational algorithm.
@@ -237,7 +237,7 @@ public abstract class ExplorationAlgorithm extends ExplorationAlgorithmBase {
         HashSet<Set<Constraint<?>>> seenChildren = new HashSet();
 
         // WorkList
-        PriorityQueue<DSETestCase> testCasesWorkList = new PriorityQueue<>();
+        Queue<DSETestCase> testCasesWorkList = createWorkList();
 
         // Initial element
         DSETestCase initialTestCase = testCaseBuildingStrategy.buildInitialTestCase(method);
@@ -278,11 +278,18 @@ public abstract class ExplorationAlgorithm extends ExplorationAlgorithmBase {
                 // Generates the children
                 List<GenerationalSearchPathCondition> children = pathsExpansionStrategy.generateChildren(currentExecutedPathCondition);
 
-                processChildren(testCasesWorkList, currentTestCase, children, hasPathConditionDiverged);
+                processChildren(testCasesWorkList, seenChildren, currentTestCase, children, hasPathConditionDiverged);
             }
 
         }
     }
+
+    /**
+     * Work list implementation. Depends on the subjacent algorithm that want's to be created.
+     *
+     * @return
+     */
+    protected abstract Queue<DSETestCase> createWorkList();
 
     private boolean shouldSkipCurrentPathcondition(boolean hasPathConditionDiverged, Set<Constraint<?>> seenPathCondition, HashSet<Set<Constraint<?>>> seenChildren) {
         return hasPathConditionDiverged && (
@@ -290,11 +297,14 @@ public abstract class ExplorationAlgorithm extends ExplorationAlgorithmBase {
               || PathConditionUtils.isConstraintSetSubSetOf(seenPathCondition, seenChildren));
     }
 
-    private void processChildren(PriorityQueue<DSETestCase> testCasesWorkList, DSETestCase currentTestCase, List<GenerationalSearchPathCondition> children, boolean hasPathConditionDiverged) {
+    private void processChildren(Queue<DSETestCase> testCasesWorkList, HashSet<Set<Constraint<?>>> seenChildren, DSETestCase currentTestCase, List<GenerationalSearchPathCondition> children, boolean hasPathConditionDiverged) {
         // We look at all the children
         for (GenerationalSearchPathCondition child : children) {
             List<Constraint<?>> childQuery = SolverUtils.buildQuery(child.getPathCondition());
             Set<Constraint<?>> normalizedChildQuery = normalize(childQuery);
+
+            if (shouldSkipChild(seenChildren, normalizedChildQuery)) continue;
+            if (this.isFinished()) return;
 
             CacheQueryResult cacheQueryResult = cachingStrategy.checkCache(normalizedChildQuery, queryCache);
 
@@ -338,6 +348,34 @@ public abstract class ExplorationAlgorithm extends ExplorationAlgorithmBase {
         }
     }
 
+      private boolean shouldSkipChild(HashSet<Set<Constraint<?>>> pathConditions, Set<Constraint<?>> constraintSet) {
+          if (queryCache.containsKey(constraintSet)) {
+              statisticsLogger.reportNewQueryCacheHit();
+              logger.debug("skipping exploring current child since it is in the query cache");
+              return true;
+          }
+
+          if (PathConditionUtils.isConstraintSetSubSetOf(constraintSet, queryCache.keySet())) {
+              statisticsLogger.reportNewQueryCacheHit();
+              logger.debug(
+                      "skipping exploring current child because it is satisfiable and solved by previous path condition");
+              return true;
+          }
+
+          if (pathConditions.contains(constraintSet)) {
+              logger.debug("skipping exploring current child because the path condition was already explored");
+              return true;
+          }
+
+          if (PathConditionUtils.isConstraintSetSubSetOf(constraintSet, pathConditions)) {
+              logger.debug(
+                      "skipping exploring current child because it is satisfiable and was solved by a previously explored path condition");
+              return true;
+          }
+
+          return false;
+      }
+
       /**
      * Generates a new test case from the concolic execution data.
      *
@@ -362,18 +400,17 @@ public abstract class ExplorationAlgorithm extends ExplorationAlgorithmBase {
         return newDSETestCase;
     }
 
-    		/**
-		 * Score calculation is based on coverage improvement against the current testSuite.
-		 *
-         * TODO: This could be a strategy.
-         *
-		 * TODO: This could be better if there was a way to run calculate the coverage of adding a new test without changng
-		 *       the hole testSuite data.
-		 *
-		 * @param newTestCase
-		 * @param hasPathConditionDiverged
-		 * @return
-		 */
+    /**
+     * Test Score calculation, depends on the subjacent implemented algorithm.
+     * <p>
+     *
+     * TODO (ilebrero): This could be better if there was a way to run calculate the coverage of adding a new test without changng
+     * the hole testSuite data.
+     *
+     * @param newTestCase
+     * @param hasPathConditionDiverged
+     * @return
+     */
     abstract protected double getTestScore(TestCase newTestCase, boolean hasPathConditionDiverged);
 
     /**

@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite.symbolic.dse.algorithm.strategies.implementations.PathPruningStrategies;
+package org.evosuite.symbolic.dse.algorithm.strategies.implementations.CachingStrategies;
 
 import org.evosuite.symbolic.dse.algorithm.DSEExplorationException;
 
@@ -28,18 +28,18 @@ import java.util.Map;
  *
  * @author Ignacio Lebrero.
  */
-public class CacheCheckResult {
+public class CacheQueryResult {
 
   public static final String ONLY_SOLUTIONS_FROM_SATISFIABLE_QUERIES_CAN_BE_RETRIEVED = "Only solutions from satisfiable queries can be retrieved.";
 
   private Map<String, Object> smtSolution;
   private CacheQueryStatus cacheQueryStatus;
 
-  public CacheCheckResult(CacheQueryStatus cacheQueryState) {
+  public CacheQueryResult(CacheQueryStatus cacheQueryState) {
     this.cacheQueryStatus = cacheQueryState;
   }
 
-  public CacheCheckResult(Map<String, Object> smtSolution, CacheQueryStatus cacheQueryState) {
+  public CacheQueryResult(Map<String, Object> smtSolution, CacheQueryStatus cacheQueryState) {
     this.smtSolution = smtSolution;
     this.cacheQueryStatus = cacheQueryState;
   }
@@ -50,15 +50,15 @@ public class CacheCheckResult {
     return smtSolution;
   }
 
-  public boolean isSat() {
+  public boolean hitSat() {
     return this.cacheQueryStatus.equals(CacheQueryStatus.HIT_SAT);
   }
 
-  public boolean isUnSat() {
+  public boolean hitUnSat() {
     return this.cacheQueryStatus.equals(CacheQueryStatus.HIT_UNSAT);
   }
 
-  public boolean isMissed() {
+  public boolean missed() {
     return this.cacheQueryStatus.equals(CacheQueryStatus.MISS);
   }
 }

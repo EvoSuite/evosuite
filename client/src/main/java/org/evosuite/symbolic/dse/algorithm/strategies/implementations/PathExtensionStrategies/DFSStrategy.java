@@ -22,6 +22,7 @@ package org.evosuite.symbolic.dse.algorithm.strategies.implementations.PathExten
 import org.evosuite.symbolic.BranchCondition;
 import org.evosuite.symbolic.PathCondition;
 import org.evosuite.symbolic.dse.algorithm.GenerationalSearchPathCondition;
+import org.evosuite.symbolic.dse.algorithm.strategies.PathExtensionStrategy;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -36,13 +37,12 @@ import java.util.Stack;
  *
  * @author Ignacio Lebrero
  */
-public class DFSStrategy extends ExpandExecutionStrategy {
+public class DFSStrategy implements PathExtensionStrategy {
 
     @Override
     public List<GenerationalSearchPathCondition> generateChildren(GenerationalSearchPathCondition currentPathConditionChild) {
         List<GenerationalSearchPathCondition> result = new ArrayList();
         List<BranchCondition> accumulatedBranchConditions = new ArrayList();
-        Stack<GenerationalSearchPathCondition> generatedChildren = new Stack<>();
         List<BranchCondition> currentPathConditionBranchConditions = currentPathConditionChild.getPathCondition().getBranchConditions();
 
         // Create the PCs from the longest to the shortest
@@ -60,7 +60,7 @@ public class DFSStrategy extends ExpandExecutionStrategy {
             );
 
             // Append the new PC
-            generatedChildren.add(newChild);
+            result.add(newChild);
 
             // Replace the negated branch condition with the original one for continuing generating
             accumulatedBranchConditions.set(
@@ -69,17 +69,9 @@ public class DFSStrategy extends ExpandExecutionStrategy {
             );
         }
 
-        // Reverse the order decrementally (from largest to shortest PC)
-        for (GenerationalSearchPathCondition PC : generatedChildren) {
-            result.add(PC);
-        }
+        // Revert it from largest to smallest
+        Collections.reverse(result);
+
         return result;
-
-// Change for this one if a "reverted" generational search wants to be used.
-//        List<GenerationalSearchPathCondition> generatedChildren = super.generateChildren(currentPathConditionChild);
-//        Collections.reverse(generatedChildren);
-//
-//        return generatedChildren;
-
     }
 }

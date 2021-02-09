@@ -20,16 +20,21 @@
 package org.evosuite.symbolic.dse.algorithm.explorationalgorithms;
 
 import org.evosuite.symbolic.dse.DSEStatistics;
+import org.evosuite.symbolic.dse.DSETestCase;
 import org.evosuite.symbolic.dse.algorithm.ExplorationAlgorithm;
 import org.evosuite.symbolic.dse.algorithm.strategies.implementations.KeepSearchingCriteriaStrategies.TestCasesPendingStrategy;
-import org.evosuite.symbolic.dse.algorithm.strategies.implementations.PathPruningStrategies.CounterExampleCache;
+import org.evosuite.symbolic.dse.algorithm.strategies.implementations.CachingStrategies.CounterExampleCache;
 import org.evosuite.symbolic.dse.algorithm.strategies.implementations.PathExtensionStrategies.ExpandExecutionStrategy;
 import org.evosuite.symbolic.dse.algorithm.strategies.implementations.TestCaseBuildingStrategies.DefaultTestCaseBuildingStrategy;
 import org.evosuite.symbolic.dse.algorithm.strategies.implementations.TestCaseSelectionStrategies.TopTestCaseSelectionStrategy;
 import org.evosuite.testcase.TestCase;
 
+import java.util.PriorityQueue;
+import java.util.Queue;
+
 /**
- * SAGE's implementation of generational search
+ * SAGE's implementation of generational search. It differs in that Evosuite uses incremental branch coverage
+ * instead of incremental line coverage to score the test cases.
  *
  * @author Ignacio Lebrero
  */
@@ -44,6 +49,17 @@ public class SAGEExplorationAlgorithm extends ExplorationAlgorithm {
         setTestCaseBuildingStrategy(new DefaultTestCaseBuildingStrategy());
         setTestCaseSelectionStrategy(new TopTestCaseSelectionStrategy());
         setKeepSearchingCriteriaStrategy(new TestCasesPendingStrategy());
+    }
+
+    /**
+     * Generational search uses a priority queue for ordering the tests cases by a score which is given by
+     * {@link #getTestScore(org.evosuite.testcase.TestCase, boolean)}.
+     *
+     * @return
+     */
+    @Override
+    protected Queue<DSETestCase> createWorkList() {
+        return new PriorityQueue();
     }
 
     /**
