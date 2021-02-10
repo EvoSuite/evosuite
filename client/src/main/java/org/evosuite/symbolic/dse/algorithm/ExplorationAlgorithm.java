@@ -106,6 +106,12 @@ public abstract class ExplorationAlgorithm extends ExplorationAlgorithmBase {
     public static final String TESTS_WERE_GENERATED_FOR_ENTRY_METHOD_DEBUG_MESSAGE           = "{} tests were generated for entry method {}";
     public static final String EXPLORATION_STRATEGIES_MUST_BE_INITIALIZED_TO_START_SEARCHING = "Exploration strategies must be initialized to start searching.";
 
+    // Path Pruning
+    public static final String PATH_PRUNING_SINCE_IT_IS_IN_THE_QUERY_CACHE                                                   = "skipping exploring current child since it is in the query cache";
+    public static final String PATH_PRUNING_BECAUSE_THE_PATH_CONDITION_WAS_ALREADY_EXPLORED                                  = "skipping exploring current child because the path condition was already explored";
+    public static final String PATH_PRUNING_BECAUSE_IT_IS_SATISFIABLE_AND_SOLVED_BY_PREVIOUS_PATH_CONDITION                  = "skipping exploring current child because it is satisfiable and solved by previous path condition";
+    public static final String PATH_PRUNING_BECAUSE_IT_IS_SATISFIABLE_AND_WAS_SOLVED_BY_A_PREVIOUSLY_EXPLORED_PATH_CONDITION = "skipping exploring current child because it is satisfiable and was solved by a previously explored path condition";
+
     /**
      * A cache of previous results from the constraint solver
      **/
@@ -351,25 +357,25 @@ public abstract class ExplorationAlgorithm extends ExplorationAlgorithmBase {
       private boolean shouldSkipChild(HashSet<Set<Constraint<?>>> pathConditions, Set<Constraint<?>> constraintSet) {
           if (queryCache.containsKey(constraintSet)) {
               statisticsLogger.reportNewQueryCacheHit();
-              logger.debug("skipping exploring current child since it is in the query cache");
+              logger.debug(PATH_PRUNING_SINCE_IT_IS_IN_THE_QUERY_CACHE);
               return true;
           }
 
           if (PathConditionUtils.isConstraintSetSubSetOf(constraintSet, queryCache.keySet())) {
               statisticsLogger.reportNewQueryCacheHit();
               logger.debug(
-                      "skipping exploring current child because it is satisfiable and solved by previous path condition");
+                      PATH_PRUNING_BECAUSE_IT_IS_SATISFIABLE_AND_SOLVED_BY_PREVIOUS_PATH_CONDITION);
               return true;
           }
 
           if (pathConditions.contains(constraintSet)) {
-              logger.debug("skipping exploring current child because the path condition was already explored");
+              logger.debug(PATH_PRUNING_BECAUSE_THE_PATH_CONDITION_WAS_ALREADY_EXPLORED);
               return true;
           }
 
           if (PathConditionUtils.isConstraintSetSubSetOf(constraintSet, pathConditions)) {
               logger.debug(
-                      "skipping exploring current child because it is satisfiable and was solved by a previously explored path condition");
+                      PATH_PRUNING_BECAUSE_IT_IS_SATISFIABLE_AND_WAS_SOLVED_BY_A_PREVIOUSLY_EXPLORED_PATH_CONDITION);
               return true;
           }
 
