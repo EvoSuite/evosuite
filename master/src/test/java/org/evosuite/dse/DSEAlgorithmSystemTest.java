@@ -44,8 +44,10 @@ import com.examples.with.different.packagename.dse.array.StringArrayAssignmentEx
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.Properties.StoppingCondition;
+import org.evosuite.symbolic.dse.algorithm.DSEAlgorithms;
 import org.evosuite.symbolic.dse.algorithm.ExplorationAlgorithmBase;
 import org.evosuite.testsuite.TestSuiteChromosome;
+import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -54,6 +56,14 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class DSEAlgorithmSystemTest extends DSESystemTestBase {
+
+	@Before
+	public void init() {
+		super.init();
+
+		Properties.DSE_EXPLORATION_ALGORITHM_TYPE = DSEAlgorithms.GENERATIONAL_SEARCH;
+		Properties.CURRENT_DSE_MODULE_VERSION = Properties.DSE_MODULE_VERSION.NEW;
+	}
 
 	@Test
 	public void testMax() {
@@ -94,7 +104,6 @@ public class DSEAlgorithmSystemTest extends DSESystemTestBase {
 
 		assertEquals(1, best.getNumOfCoveredGoals());
 		assertEquals(1, best.getNumOfNotCoveredGoals());
-
 	}
 
 	@Test
@@ -348,7 +357,6 @@ public class DSEAlgorithmSystemTest extends DSESystemTestBase {
 		EvoSuite evosuite = new EvoSuite();
 		String targetClass = Max.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
-
 		Properties.STOPPING_CONDITION = StoppingCondition.MAXFITNESSEVALUATIONS;
 		Properties.SEARCH_BUDGET = 2;
 
@@ -372,7 +380,6 @@ public class DSEAlgorithmSystemTest extends DSESystemTestBase {
 		EvoSuite evosuite = new EvoSuite();
 		String targetClass = Max.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
-
 		Properties.STOPPING_CONDITION = StoppingCondition.MAXTIME;
 		Properties.SEARCH_BUDGET = -1;
 
@@ -395,7 +402,6 @@ public class DSEAlgorithmSystemTest extends DSESystemTestBase {
 		EvoSuite evosuite = new EvoSuite();
 		String targetClass = Max.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
-
 		Properties.STOPPING_CONDITION = StoppingCondition.MAXSTATEMENTS;
 		Properties.SEARCH_BUDGET = 1;
 
@@ -616,7 +622,7 @@ public class DSEAlgorithmSystemTest extends DSESystemTestBase {
 	}
 
 	/**
-	 * Given that the concolic engine makes the un-instrumented functions results concrete, the hashing case gets covered..
+	 * Given that the concolic engine makes the un-instrumented functions results concrete, the hashing case gets covered.
 	 *
 	 * See examples on: Patrice Godefroid - Higher-Order Test Generation.
 	 */
