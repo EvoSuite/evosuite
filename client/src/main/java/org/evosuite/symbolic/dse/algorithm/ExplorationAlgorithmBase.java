@@ -297,7 +297,6 @@ public abstract class ExplorationAlgorithmBase implements Serializable {
      */
     protected boolean checkPathConditionDivergence(PathCondition currentPathCondition, PathCondition expectedPathCondition) {
 		boolean hasPathConditionDiverged = PathConditionUtils.hasPathConditionDiverged(expectedPathCondition, currentPathCondition);
-    	statisticsLogger.reportNewPathExplored();
 
         if (hasPathConditionDiverged) {
             logger.debug(PATH_DIVERGENCE_FOUND_WARNING_MESSAGE);

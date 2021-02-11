@@ -23,8 +23,8 @@ import org.evosuite.symbolic.dse.DSEStatistics;
 import org.evosuite.symbolic.dse.DSETestCase;
 import org.evosuite.symbolic.dse.algorithm.ExplorationAlgorithm;
 import org.evosuite.symbolic.dse.algorithm.strategies.implementations.KeepSearchingCriteriaStrategies.TestCasesPendingStrategy;
-import org.evosuite.symbolic.dse.algorithm.strategies.implementations.PathExtensionStrategies.DFSStrategy;
 import org.evosuite.symbolic.dse.algorithm.strategies.implementations.CachingStrategies.CounterExampleCache;
+import org.evosuite.symbolic.dse.algorithm.strategies.implementations.PathExtensionStrategies.RevertedExpandExecutionStrategy;
 import org.evosuite.symbolic.dse.algorithm.strategies.implementations.TestCaseBuildingStrategies.DefaultTestCaseBuildingStrategy;
 import org.evosuite.symbolic.dse.algorithm.strategies.implementations.TestCaseSelectionStrategies.TopTestCaseSelectionStrategy;
 import org.evosuite.testcase.TestCase;
@@ -51,7 +51,14 @@ public class DFSExplorationAlgorithm extends ExplorationAlgorithm {
 
         /** Strategies */
         setCachingStrategy(new CounterExampleCache());
-        setPathsExpansionStrategy(new DFSStrategy());
+
+        /**
+         * Note (ilebrero): Not sure why is not working so far, reverted generational search expansion
+         *                  algorithm should suffice for now.
+         */
+        // setPathsExpansionStrategy(new DFSStrategy());
+
+        setPathsExpansionStrategy(new RevertedExpandExecutionStrategy());
         setTestCaseBuildingStrategy(new DefaultTestCaseBuildingStrategy());
         setTestCaseSelectionStrategy(new TopTestCaseSelectionStrategy());
         setKeepSearchingCriteriaStrategy(new TestCasesPendingStrategy());

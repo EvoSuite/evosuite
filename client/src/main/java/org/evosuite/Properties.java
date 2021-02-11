@@ -481,8 +481,13 @@ public class Properties {
 	public enum DSEStoppingConditionCriterion {
 		TARGETCOVERAGE,
 		MAXTIME, /** In seconds */
-    	ZEROFITNESS
+    	ZEROFITNESS,
+		MAXTESTS,
+		DEFAULTS /** The ones that are setted by default on the algorithm + Strategy */
 	}
+
+	@Parameter(key = "dse_stopping_condition", group = "DSE", description = "Indicate which stopping condition to use.")
+	public static DSEStoppingConditionCriterion DSE_STOPPING_CONDITION = DSEStoppingConditionCriterion.DEFAULTS;
 
 	@Parameter(key = "bytecode_logging_enabled", group = "DSE", description = "Indicates whether bytecode instructions that are being executed should be logged.")
 	public static boolean BYTECODE_LOGGING_ENABLED = false;

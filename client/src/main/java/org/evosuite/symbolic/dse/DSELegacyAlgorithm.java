@@ -41,7 +41,11 @@ import java.util.Set;
 
 /**
  * This class implements a DSE algorithm *as* a subclass of genetic algorithm.
- * 
+ *
+ * Note (ilebrero): not working properly when using MAXTestsStoppingCondition. Recalculating the hole test suite
+ *                    fitness adds an extra count besides the concolic engine execution case,
+ *                    (see {@link org.evosuite.ga.stoppingconditions.MaxTestsStoppingCondition#testExecuted()} uses).
+ *
  * @author jgaleotti
  */
 public class DSELegacyAlgorithm extends GeneticAlgorithm<TestSuiteChromosome> {

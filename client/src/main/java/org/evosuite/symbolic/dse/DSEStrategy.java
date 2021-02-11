@@ -166,19 +166,26 @@ public class DSEStrategy extends TestGenerationStrategy {
 		LoggingUtils.getEvoLogger().info(USING_DSE_ALGORITHM, dseAlgorithmType.getName());
 		ExplorationAlgorithm algorithm = dseFactory.getDSEAlgorithm(dseAlgorithmType);
 
-		/** Default conditions */
-		for (Properties.DSEStoppingConditionCriterion condition : defaultStoppingConditions) {
-			algorithm.addStoppingCondition(StoppingConditionFactory.getStoppingCondition(condition));
+		if (Properties.DSE_STOPPING_CONDITION.equals(Properties.DSEStoppingConditionCriterion.DEFAULTS)) {
+			/** Default conditions */
+			for (Properties.DSEStoppingConditionCriterion condition : defaultStoppingConditions) {
+				algorithm.addStoppingCondition(StoppingConditionFactory.getStoppingCondition(condition));
+			}
+
+			/** Stopping conditions */
+			for (Properties.DSEStoppingConditionCriterion stoppingConditionCriterion : dseAlgorithmType.getStoppingConditionCriterions()) {
+				algorithm.addStoppingCondition(StoppingConditionFactory.getStoppingCondition(stoppingConditionCriterion));
+			}
+		} else {
+			/** User chosen Stopping Condition */
+			algorithm.addStoppingCondition(StoppingConditionFactory.getStoppingCondition(Properties.DSE_STOPPING_CONDITION));
 		}
+
 
 		/** Fitness functions */
-		List<TestSuiteFitnessFunction> sageFitnessFunctions = FitnessFunctionsUtils.getFitnessFunctions(dseAlgorithmType.getCriteria());
-		algorithm.addFitnessFunctions(sageFitnessFunctions);
+		List<TestSuiteFitnessFunction> fitnessFunctions = FitnessFunctionsUtils.getFitnessFunctions(dseAlgorithmType.getCriteria());
+		algorithm.addFitnessFunctions(fitnessFunctions);
 
-		/** Stopping conditions */
-		for (Properties.DSEStoppingConditionCriterion stoppingConditionCriterion : dseAlgorithmType.getStoppingConditionCriterions()) {
-			algorithm.addStoppingCondition(StoppingConditionFactory.getStoppingCondition(stoppingConditionCriterion));
-		}
 
 		LoggingUtils.getEvoLogger().debug(WITH_TIMEOUT, Properties.GLOBAL_TIMEOUT);
 		LoggingUtils.getEvoLogger().debug(WITH_TARGET_COVERAGE, Properties.DSE_TARGET_COVERAGE);

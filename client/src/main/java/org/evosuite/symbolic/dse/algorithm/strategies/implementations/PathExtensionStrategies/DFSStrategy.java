@@ -23,6 +23,8 @@ import org.evosuite.symbolic.BranchCondition;
 import org.evosuite.symbolic.PathCondition;
 import org.evosuite.symbolic.dse.algorithm.GenerationalSearchPathCondition;
 import org.evosuite.symbolic.dse.algorithm.strategies.PathExtensionStrategy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -39,6 +41,10 @@ import java.util.Stack;
  */
 public class DFSStrategy implements PathExtensionStrategy {
 
+    public static final String DEBUG_MSG_NEGATING_INDEX_OF_PATH_CONDITION   = "negating index {} of path condition";
+
+    Logger logger = LoggerFactory.getLogger(DFSStrategy.class);
+
     @Override
     public List<GenerationalSearchPathCondition> generateChildren(GenerationalSearchPathCondition currentPathConditionChild) {
         List<GenerationalSearchPathCondition> result = new ArrayList();
@@ -47,6 +53,8 @@ public class DFSStrategy implements PathExtensionStrategy {
 
         // Create the PCs from the longest to the shortest
         for (int i = 0; i < currentPathConditionBranchConditions.size(); i++) {
+            logger.debug(DEBUG_MSG_NEGATING_INDEX_OF_PATH_CONDITION, i);
+
             BranchCondition currentBranchCondition = currentPathConditionBranchConditions.get(i);
 
             // Add negated version of current branch
