@@ -29,8 +29,11 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * <p>ClassPathHacker class.</p>
@@ -46,6 +49,8 @@ public class ClassPathHacker {
 	private static boolean junitCheckAvailable = true;
 
 	private static String cause = "";
+
+	private static ClassLoader continuousClassLoader = null;
 
 	/**
 	 * Locate and add to classpath the tools.jar.
@@ -133,5 +138,48 @@ public class ClassPathHacker {
 		} else {
 			logger.info("Did not add " + u + ", because system class loader is no URLClassLoader");
 		}
+	}
+
+
+	public static void setupContinuousClassLoader(String cp) throws IOException {
+		setupContinuousClassLoader(cp.split(File.pathSeparator));
+	}
+
+	public static void setupContinuousClassLoader(String[] cpEntries) throws IOException {
+		List<URL> list = new ArrayList<>();
+		for (String cpEntry : cpEntries) {
+			File file = new File(cpEntry);
+			URI toURI = file.toURI();
+			URL toURL = toURI.toURL();
+			list.add(toURL);
+		}
+		URL[] urls = new URL[list.size()];
+		URL[] urlArray = list.toArray(urls);
+		ClassLoader sysloader = ClassLoader.getSystemClassLoader();
+		if(sysloader instanceof URLClassLoader){
+			try {
+				for (URL url : urlArray) {
+					Class<?> sysclass = URLClassLoader.class;
+					Method method = sysclass.getDeclaredMethod("addURL", parameters);
+					method.setAccessible(true);
+					method.invoke(sysloader, url);
+				}
+
+				continuousClassLoader = sysloader;
+			}
+			catch (Throwable t) {
+				throw new IOException("Error, could not add URL to system classloader");
+			}
+		} else {
+			URLClassLoader urlClassLoader = new URLClassLoader(urlArray, sysloader);
+			continuousClassLoader = urlClassLoader;
+		}
+	}
+
+	/**
+	 * get a classLoader that can load the cuts for continuous integration
+	 */
+	public static ClassLoader getContinuousClassLoader() {
+		return continuousClassLoader;
 	}
 }

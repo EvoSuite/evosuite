@@ -30,6 +30,7 @@ import java.util.Set;
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.Properties.AvailableSchedule;
+import org.evosuite.classpath.ClassPathHacker;
 import org.evosuite.classpath.ClassPathHandler;
 import org.evosuite.classpath.ResourceList;
 import org.evosuite.continuous.job.schedule.HistorySchedule;
@@ -166,7 +167,7 @@ public class ProjectAnalyzer {
 			}
 			
 			try {
-				Class<?> clazz = Class.forName(className);
+				Class<?> clazz = ClassPathHacker.getContinuousClassLoader().loadClass(className);
 				if (!CoverageAnalysis.isTest(clazz)){
 					cuts.add(className);
 				}
@@ -223,7 +224,7 @@ public class ProjectAnalyzer {
 				/*
 				 * just to avoid possible issues with instrumenting classloader
 				 */
-				theClass = ClassLoader.getSystemClassLoader().loadClass(className);
+				theClass = ClassPathHacker.getContinuousClassLoader().loadClass(className);
 
 				//TODO kind
 				//if(theClass.isInterface()){
