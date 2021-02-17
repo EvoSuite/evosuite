@@ -72,6 +72,8 @@ public class ParameterizedTypeImpl implements ParameterizedType {
 	private final Type[] actualTypeArguments;
 	private final Type ownerType;
 
+	// TODO: this should validate its constructor arguments, much like
+	//  sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl.make
 	public ParameterizedTypeImpl(Class<?> rawType, Type[] actualTypeArguments, Type owner) {
 		this.rawType = rawType;
 		this.actualTypeArguments = actualTypeArguments;

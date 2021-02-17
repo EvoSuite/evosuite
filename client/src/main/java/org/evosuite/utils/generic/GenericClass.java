@@ -45,6 +45,9 @@ import org.slf4j.LoggerFactory;
 import com.googlecode.gentyref.CaptureType;
 import com.googlecode.gentyref.GenericTypeReflector;
 
+// TODO: können wir gentyref loswerden (TypeReflector, ArrayComponentType)
+// TODO:  getExactSuperType auch in Apache?
+
 /**
  * Run-time representation of a Java datatype, similar in spirit to {@link java.lang.Class} and
  * {@link java.lang.reflect.Type} but enhanced with more functionality, such as reification of type
@@ -67,7 +70,9 @@ public class GenericClass implements Serializable {
     private static final List<String> primitiveClasses = Arrays.asList("char", "int", "short",
             "long", "boolean", "float", "double", "byte");
 
-    private transient Class<?> rawClass = null;
+    // Invariante: rawClass sollte (theoretisch) der raw class vom type entsprechen
+    //  -> entspricht dem was den Konstruktor public GenericClass(Type type) macht
+    private transient Class<?> rawClass;
 
     private transient Type type = null;
 
@@ -130,6 +135,8 @@ public class GenericClass implements Serializable {
         handleGenericArraySpecialCase(type);
     }
 
+    // TODO: Unsere ParameterizedTypeImpl könnte durch die Implementierung von TypeUtils ersetzt
+    //  werden
     protected static Type addTypeParameters(Class<?> clazz) {
         if (clazz.isArray()) {
             return GenericArrayTypeImpl.createArrayType(addTypeParameters(clazz.getComponentType()));
@@ -151,7 +158,7 @@ public class GenericClass implements Serializable {
     /**
      * Returns the erasure of the given type.
      */
-    private static Class<?> erase(Type type) {
+    private static Class<?> erase(Type type) { // TODO: TypeUtils könnte Ersatz haben (getRawType)
         if (type instanceof Class) {
             return (Class<?>) type;
         } else if (type instanceof ParameterizedType) {
@@ -161,7 +168,8 @@ public class GenericClass implements Serializable {
             if (tv.getBounds().length == 0) {
                 return Object.class;
             } else {
-                return erase(tv.getBounds()[0]);
+                return erase(tv.getBounds()[0]); // TODO: Bei mehreren bounds: was soll es sonst
+                                                 //  sein?
             }
         } else if (type instanceof GenericArrayType) {
             GenericArrayType aType = (GenericArrayType) type;
@@ -256,7 +264,7 @@ public class GenericClass implements Serializable {
         if (type instanceof ParameterizedType
                 || type instanceof GenericArrayType
                 || type instanceof TypeVariable
-                || type instanceof WildcardType) {
+                || type instanceof WildcardType) { // TODO what about CaptureType?
             return false;
         }
 
@@ -284,15 +292,16 @@ public class GenericClass implements Serializable {
      * @param otherType is the class we want to generate
      * @return
      */
-    public boolean canBeInstantiatedTo(GenericClass otherType) {
+    public boolean canBeInstantiatedTo(GenericClass otherType) { // TODO: eventuell durch isAssignableTo ersetzen
         if (isPrimitive() && otherType.isWrapperType()) {
             return false;
         }
 
-        if (isAssignableTo(otherType)) {
+        if (isAssignableTo(otherType)) { // TODO: hier wird ja schon isAssignable aufgerufen
             return true;
         }
 
+        // TODO: nur wenn nicht assignable ist, wird das ganze Zeug hier ausgeführt. Warum?
         if (!isTypeVariable() && !otherType.isTypeVariable()) {
             try {
                 if (otherType.isGenericSuperTypeOf(this)) {
@@ -313,6 +322,9 @@ public class GenericClass implements Serializable {
             //        + toString());
             Map<TypeVariable<?>, Type> typeMap = otherType.getTypeVariableMap();
             if (otherType.isParameterizedType()) {
+                // TODO: ParameterizedType heißt: man hat eine Typevariable, aber die Typvariable
+                //  kann wieder auf einen Type gemapped werden (muss nicht unbedingt ein konkreter
+                //  Typ sein
                 typeMap.putAll(TypeUtils.determineTypeArguments(rawClass,
                         (ParameterizedType) otherType.getType()));
             }
@@ -514,6 +526,7 @@ public class GenericClass implements Serializable {
      * @return a {@link java.lang.reflect.Type} object.
      */
     public Type getComponentType() {
+        // TODO: Das gibts auch schon in TypeUtils!
         return GenericTypeReflector.getArrayComponentType(type);
     }
 
@@ -631,6 +644,7 @@ public class GenericClass implements Serializable {
      * @return
      * @throws ConstructionFailedException
      */
+    // TODO: Vielleicht macht unrollVariables in TypeUtils bereits das gleiche
     private GenericClass getGenericTypeVariableInstantiation(
             Map<TypeVariable<?>, Type> typeMap, int recursionLevel)
             throws ConstructionFailedException {
@@ -653,9 +667,10 @@ public class GenericClass implements Serializable {
         }
         logger.debug("Type map does not contain {}: {}", toString(), typeMap);
 
-		GenericClass selectedClass = CastClassManager.getInstance().selectCastClass((TypeVariable<?>) type,
-				recursionLevel < Properties.MAX_GENERIC_DEPTH,
-				typeMap);
+        // Wird auch aufgerufen, wenn man ein Object als Parameter hat
+        GenericClass selectedClass = CastClassManager.getInstance().selectCastClass((TypeVariable<?>) type,
+                recursionLevel < Properties.MAX_GENERIC_DEPTH,
+                typeMap);
 
         if (selectedClass == null) {
             throw new ConstructionFailedException("Unable to instantiate "
@@ -961,7 +976,8 @@ public class GenericClass implements Serializable {
             logger.debug("Exception while getting type map: " + e);
         }
         for (int i = 0; i < typeVariables.size(); i++) {
-            if (types.get(i) != typeVariables.get(i)) {
+            if (types.get(i) != typeVariables.get(i)) { // TODO: warum der Vergleich? Und
+                                                        //  warum equals statt != ?
                 typeMap.put(typeVariables.get(i), types.get(i));
             }
         }
@@ -1469,6 +1485,7 @@ public class GenericClass implements Serializable {
      * @param typeVariable
      * @return
      */
+    // TODO: TypeUtils::typesSatisfyVariables oder TypeUtils::unrollVariables?
     public boolean satisfiesBoundaries(TypeVariable<?> typeVariable,
                                        Map<TypeVariable<?>, Type> typeMap) {
         boolean isAssignable = true;

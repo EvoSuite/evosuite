@@ -55,6 +55,8 @@ import static java.util.stream.Collectors.toCollection;
  */
 public class TestCluster {
 
+	// Bei FunctionalInterfaces kann der TestCluster auch MethodenReferenzen oder Lambdas einfügen
+
 	protected static final Logger logger = LoggerFactory.getLogger(TestCluster.class);
 
 	/** Singleton instance */
