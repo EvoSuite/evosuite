@@ -29,7 +29,7 @@ import org.evosuite.ga.operators.mutation.MutationHistory;
 import org.evosuite.runtime.util.AtMostOnceLogger;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.symbolic.BranchCondition;
-import org.evosuite.symbolic.ConcolicExecution;
+import org.evosuite.symbolic.dse.ConcolicExecutorImpl;
 import org.evosuite.symbolic.ConcolicMutation;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.localsearch.TestCaseLocalSearch;
@@ -41,7 +41,6 @@ import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.evosuite.utils.Randomness;
-import org.evosuite.utils.generic.GenericAccessibleObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -551,7 +550,7 @@ public final class TestChromosome extends AbstractTestChromosome<TestChromosome>
 		// concolicExecution = new ConcolicExecution();
 
 		// Apply DSE to gather constraints
-		List<BranchCondition> branches = ConcolicExecution.getSymbolicPath(this);
+		List<BranchCondition> branches = new ConcolicExecutorImpl().getSymbolicPath(this);
 		logger.debug("Conditions: " + branches);
 		if (branches.isEmpty())
 			return false;

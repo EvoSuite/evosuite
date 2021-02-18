@@ -25,6 +25,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -34,7 +35,7 @@ import org.evosuite.Properties;
 import org.evosuite.RandomizedTC;
 import org.evosuite.symbolic.expr.Comparator;
 import org.evosuite.symbolic.expr.Constraint;
-import org.evosuite.symbolic.expr.IntegerConstraint;
+import org.evosuite.symbolic.expr.constraint.IntegerConstraint;
 import org.evosuite.symbolic.expr.Operator;
 import org.evosuite.symbolic.expr.bv.IntegerBinaryExpression;
 import org.evosuite.symbolic.expr.bv.IntegerConstant;
@@ -42,10 +43,12 @@ import org.evosuite.symbolic.expr.bv.IntegerValue;
 import org.evosuite.symbolic.expr.bv.IntegerVariable;
 import org.evosuite.symbolic.expr.bv.StringBinaryToIntegerExpression;
 import org.evosuite.symbolic.expr.str.StringConstant;
+
 import org.evosuite.symbolic.solver.SolverEmptyQueryException;
+import org.evosuite.symbolic.solver.SolverErrorException;
+import org.evosuite.symbolic.solver.SolverParseException;
 import org.evosuite.symbolic.solver.SolverResult;
 import org.evosuite.symbolic.solver.SolverTimeoutException;
-import org.evosuite.symbolic.solver.avm.EvoSuiteSolver;
 import org.junit.After;
 import org.junit.Test;
 
@@ -76,7 +79,7 @@ public class TestIntegerSearch extends RandomizedTC {
 			assertNotNull(model);
 			assertNotNull(model.get("test1"));
 			assertEquals(235082, ((Number) model.get("test1")).intValue());
-		} catch (SolverTimeoutException e) {
+		} catch (SolverTimeoutException | SolverParseException | SolverErrorException | IOException e) {
 			fail();
 		}
 	}
@@ -98,7 +101,7 @@ public class TestIntegerSearch extends RandomizedTC {
 
 			assertNotNull(model.get("test1"));
 			assertTrue(235082 != ((Number) model.get("test1")).intValue());
-		} catch (SolverTimeoutException e) {
+		} catch (SolverTimeoutException | SolverParseException | SolverErrorException | IOException e) {
 			fail();
 		}
 	}
@@ -119,7 +122,7 @@ public class TestIntegerSearch extends RandomizedTC {
 			Map<String, Object> model = solverResult.getModel();
 			assertNotNull(model.get("test1"));
 			assertTrue(235082 >= ((Number) model.get("test1")).intValue());
-		} catch (SolverTimeoutException e) {
+		} catch (SolverTimeoutException | SolverParseException | SolverErrorException | IOException e) {
 			fail();
 		}
 	}
@@ -141,7 +144,7 @@ public class TestIntegerSearch extends RandomizedTC {
 
 			assertNotNull(model.get("test1"));
 			assertTrue(235082 > ((Number) model.get("test1")).intValue());
-		} catch (SolverTimeoutException e) {
+		} catch (SolverTimeoutException | SolverParseException | SolverErrorException | IOException e) {
 			fail();
 		}
 	}
@@ -163,7 +166,7 @@ public class TestIntegerSearch extends RandomizedTC {
 
 			assertNotNull(model.get("test1"));
 			assertTrue(235082 <= ((Number) model.get("test1")).intValue());
-		} catch (SolverTimeoutException e) {
+		} catch (SolverTimeoutException | SolverParseException | SolverErrorException | IOException e) {
 			fail();
 		}
 	}
@@ -185,7 +188,7 @@ public class TestIntegerSearch extends RandomizedTC {
 
 			assertNotNull(model.get("test1"));
 			assertTrue(235082 < ((Number) model.get("test1")).intValue());
-		} catch (SolverTimeoutException e) {
+		} catch (SolverTimeoutException | SolverParseException | SolverErrorException | IOException e) {
 			fail();
 		}
 	}
@@ -209,7 +212,7 @@ public class TestIntegerSearch extends RandomizedTC {
 			if (model.containsKey("test2"))
 				var2 = ((Number) model.get("test2")).intValue();
 			assertEquals(var1, var2);
-		} catch (SolverTimeoutException e) {
+		} catch (SolverTimeoutException | SolverParseException | SolverErrorException | IOException e) {
 			fail();
 		}
 	}
@@ -233,7 +236,7 @@ public class TestIntegerSearch extends RandomizedTC {
 			if (model.containsKey("test2"))
 				var2 = ((Number) model.get("test2")).intValue();
 			assertTrue(var1 != var2);
-		} catch (SolverTimeoutException e) {
+		} catch (SolverTimeoutException | SolverParseException | SolverErrorException | IOException e) {
 			fail();
 		}
 	}
@@ -257,7 +260,7 @@ public class TestIntegerSearch extends RandomizedTC {
 			if (model.containsKey("test2"))
 				var2 = ((Number) model.get("test2")).intValue();
 			assertTrue(var1 <= var2);
-		} catch (SolverTimeoutException e) {
+		} catch (SolverTimeoutException | SolverParseException | SolverErrorException | IOException e) {
 			fail();
 		}
 	}
@@ -281,7 +284,7 @@ public class TestIntegerSearch extends RandomizedTC {
 			if (model.containsKey("test2"))
 				var2 = ((Number) model.get("test2")).intValue();
 			assertTrue(var1 < var2);
-		} catch (SolverTimeoutException e) {
+		} catch (SolverTimeoutException | SolverParseException | SolverErrorException | IOException e) {
 			fail();
 		}
 	}
@@ -305,7 +308,7 @@ public class TestIntegerSearch extends RandomizedTC {
 			if (model.containsKey("test2"))
 				var2 = ((Number) model.get("test2")).intValue();
 			assertTrue(var1 >= var2);
-		} catch (SolverTimeoutException e) {
+		} catch (SolverTimeoutException | SolverParseException | SolverErrorException | IOException e) {
 			fail();
 		}
 	}
@@ -331,7 +334,7 @@ public class TestIntegerSearch extends RandomizedTC {
 			if (model.containsKey("test2"))
 				var2 = ((Number) model.get("test2")).intValue();
 			assertTrue(var1 > var2);
-		} catch (SolverTimeoutException e) {
+		} catch (SolverTimeoutException | SolverParseException | SolverErrorException | IOException e) {
 			fail();
 		}
 	}
@@ -361,7 +364,7 @@ public class TestIntegerSearch extends RandomizedTC {
 			if (model.containsKey("test3"))
 				var3 = ((Number) model.get("test3")).intValue();
             assertEquals(var1, var2 + var3);
-		} catch (SolverTimeoutException e) {
+		} catch (SolverTimeoutException | SolverParseException | SolverErrorException | IOException e) {
 			fail();
 		}
 	}
@@ -391,7 +394,7 @@ public class TestIntegerSearch extends RandomizedTC {
 			if (model.containsKey("test3"))
 				var3 = ((Number) model.get("test3")).intValue();
 			assertTrue(var1 != var2 + var3);
-		} catch (SolverTimeoutException e) {
+		} catch (SolverTimeoutException | SolverParseException | SolverErrorException | IOException e) {
 			fail();
 		}
 	}
@@ -421,7 +424,7 @@ public class TestIntegerSearch extends RandomizedTC {
 			if (model.containsKey("test3"))
 				var3 = ((Number) model.get("test3")).intValue();
 			assertTrue(var1 <= var2 + var3);
-		} catch (SolverTimeoutException e) {
+		} catch (SolverTimeoutException | SolverParseException | SolverErrorException | IOException e) {
 			fail();
 		}
 	}
@@ -451,7 +454,7 @@ public class TestIntegerSearch extends RandomizedTC {
 			if (model.containsKey("test3"))
 				var3 = ((Number) model.get("test3")).intValue();
 			assertTrue(var1 < var2 + var3);
-		} catch (SolverTimeoutException e) {
+		} catch (SolverTimeoutException | SolverParseException | SolverErrorException | IOException e) {
 			fail();
 		}
 	}
@@ -481,7 +484,7 @@ public class TestIntegerSearch extends RandomizedTC {
 			if (model.containsKey("test3"))
 				var3 = ((Number) model.get("test3")).intValue();
 			assertTrue(var1 >= var2 + var3);
-		} catch (SolverTimeoutException e) {
+		} catch (SolverTimeoutException | SolverParseException | SolverErrorException | IOException e) {
 			fail();
 		}
 	}
@@ -512,7 +515,7 @@ public class TestIntegerSearch extends RandomizedTC {
 			if (model.containsKey("test3"))
 				var3 = ((Number) model.get("test3")).intValue();
 			assertTrue(var1 >= var2 + var3);
-		} catch (SolverTimeoutException e) {
+		} catch (SolverTimeoutException | SolverParseException | SolverErrorException | IOException e) {
 			fail();
 		}
 	}
@@ -543,7 +546,7 @@ public class TestIntegerSearch extends RandomizedTC {
 				var2 = ((Number) model.get("test2")).intValue();
 			assertEquals(0, var1);
 			assertTrue(var1 < var2);
-		} catch (SolverTimeoutException e) {
+		} catch (SolverTimeoutException | SolverParseException | SolverErrorException | IOException e) {
 			fail();
 		}
 	}
@@ -576,8 +579,9 @@ public class TestIntegerSearch extends RandomizedTC {
 				var1 = ((Number) model.get("test1")).intValue();
 			if (model.containsKey("test2"))
 				var2 = ((Number) model.get("test2")).intValue();
-            assertEquals(8275, var1 * (var2 - 6860));
-		} catch (SolverTimeoutException e) {
+
+			assertEquals(8275, var1 * (var2 - 6860));
+		} catch (SolverTimeoutException | SolverParseException | SolverErrorException | IOException e) {
 			fail();
 		}
 	}
@@ -633,7 +637,7 @@ public class TestIntegerSearch extends RandomizedTC {
 			int v_14 = ((Number) model.get("var14")).intValue();
 
 			assertTrue((v_24 - (v_10 / v_14) * 19072) < 11060);
-		} catch (SolverTimeoutException e) {
+		} catch (SolverTimeoutException | SolverParseException | SolverErrorException | IOException e) {
 			fail();
 		}
 
@@ -668,7 +672,7 @@ public class TestIntegerSearch extends RandomizedTC {
 			int v_40 = ((Number) model.get("var40")).intValue();
 
 			assertTrue((12089 * v_40) - ((v_39 * 14414) % v_20) > 11060);
-		} catch (SolverTimeoutException e) {
+		} catch (SolverTimeoutException | SolverParseException | SolverErrorException | IOException e) {
 			fail();
 		}
 
@@ -707,8 +711,8 @@ public class TestIntegerSearch extends RandomizedTC {
 			Map<String, Object> model = solverResult.getModel();
 			var1 = ((Number) model.get("test1")).intValue();
 
-            assertEquals(108, var1);
-		} catch (SolverTimeoutException e) {
+			assertEquals(108, var1);
+		} catch (SolverTimeoutException | SolverParseException | SolverErrorException | IOException e) {
 			fail();
 		}
 
@@ -755,7 +759,7 @@ public class TestIntegerSearch extends RandomizedTC {
 			assertTrue(y >= 0);
 			assertTrue(x <= 0);
 			assertTrue(y <= x);
-		} catch (SolverTimeoutException e) {
+		} catch (SolverTimeoutException | SolverParseException | SolverErrorException | IOException e) {
 			fail();
 		}
 	}

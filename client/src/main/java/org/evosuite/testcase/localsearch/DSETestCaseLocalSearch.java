@@ -19,18 +19,19 @@
  */
 package org.evosuite.testcase.localsearch;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import org.evosuite.Properties;
 import org.evosuite.ga.localsearch.LocalSearchBudget;
 import org.evosuite.ga.localsearch.LocalSearchObjective;
+import org.evosuite.symbolic.dse.DSETestGenerator;
 import org.evosuite.testcase.AbstractTestChromosome;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.execution.ExecutionTrace;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteChromosome;
+
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Applies DSE on a given test case. If the test case belongs to a suite, it

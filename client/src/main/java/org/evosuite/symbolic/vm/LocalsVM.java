@@ -26,6 +26,9 @@ import org.evosuite.symbolic.expr.fp.RealValue;
 import org.evosuite.symbolic.expr.ref.ReferenceConstant;
 import org.evosuite.symbolic.expr.ref.ReferenceExpression;
 import org.evosuite.dse.AbstractVM;
+import org.evosuite.symbolic.expr.str.StringConstant;
+import org.evosuite.symbolic.vm.heap.SymbolicHeap;
+import org.evosuite.symbolic.vm.string.Types;
 
 /**
  * 
@@ -185,6 +188,7 @@ public final class LocalsVM extends AbstractVM {
 		} else {
 			ReferenceConstant stringRef = (ReferenceConstant) env.heap
 					.getReference(x);
+
 			env.topFrame().operandStack.pushRef(stringRef);
 		}
 	}

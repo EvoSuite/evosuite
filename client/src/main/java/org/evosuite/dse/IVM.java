@@ -49,7 +49,7 @@ public interface IVM {
 	 *            the different widths of category-1 and category-2 parameter
 	 *            types.
 	 */
-    void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex, int value);
+	void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex, int value);
 
 	void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex, boolean value);
 
@@ -70,19 +70,19 @@ public interface IVM {
 	/**
 	 * Line number in the Java source code.
 	 */
-    void SRC_LINE_NUMBER(int lineNr);
+	void SRC_LINE_NUMBER(int lineNr);
 
 	/**
 	 * Start of a new method
 	 */
-    void METHOD_BEGIN(int access, String className, String methName,
-                      String methDesc);
+	void METHOD_BEGIN(int access, String className, String methName,
+										String methDesc);
 
 	/**
 	 * Max values of a method
 	 */
-    void METHOD_MAXS(String className, String methName, String methDesc,
-                     int maxStack, int maxLocals);
+	void METHOD_MAXS(String className, String methName, String methDesc,
+									 int maxStack, int maxLocals);
 
 	/**
 	 * Pass index-th concrete parameter of the just called method. There will be
@@ -100,7 +100,7 @@ public interface IVM {
 	 *            the different widths of category-1 and category-2 parameter
 	 *            types.
 	 */
-    void METHOD_BEGIN_PARAM(int nr, int calleeLocalsIndex, int value);
+	void METHOD_BEGIN_PARAM(int nr, int calleeLocalsIndex, int value);
 
 	void METHOD_BEGIN_PARAM(int nr, int calleeLocalsIndex, boolean value);
 
@@ -122,12 +122,12 @@ public interface IVM {
 	 * METHOD_BEGIN_PARAM for the receiver instance ("this"), if this method is
 	 * a non-constructor instance method.
 	 */
-    void METHOD_BEGIN_RECEIVER(Object value);
+	void METHOD_BEGIN_RECEIVER(Object value);
 
 	/**
 	 * Value returned by the just completed method call
 	 */
-    void CALL_RESULT(String owner, String name, String desc);
+	void CALL_RESULT(String owner, String name, String desc);
 
 	void CALL_RESULT(boolean res, String owner, String name, String desc);
 
@@ -144,10 +144,10 @@ public interface IVM {
 	/**
 	 * Start of a new basic block
 	 */
-    void BB_BEGIN();
+	void BB_BEGIN();
 
 	void HANDLER_BEGIN(int access, String className, String methName,
-                       String methDesc);
+										 String methDesc);
 
 	/*
 	 * Some 200 JVM ByteCode instructions
@@ -193,7 +193,7 @@ public interface IVM {
 	 * http://java.sun.com/docs/books/jvms/second_edition/html/Instructions2.
 	 * doc8. html#ldc
 	 */
-    void LDC(String x);
+	void LDC(String x);
 
 	void LDC(Class<?> x);
 
@@ -211,7 +211,7 @@ public interface IVM {
 	 * http://java.sun.com/docs/books/jvms/second_edition/html/Instructions2.
 	 * doc6. html#iload
 	 */
-    void ILOAD(int i);
+	void ILOAD(int i);
 
 	void LLOAD(int i);
 
@@ -265,27 +265,27 @@ public interface IVM {
 	 * http://java.sun.com/docs/books/jvms/second_edition/html/Instructions2.
 	 * doc6.html#iaload
 	 */
-    void IALOAD(Object receiver, int index);
+	void IALOAD(Object receiver, int index, String className, String methodName);
 
-	void LALOAD(Object receiver, int index);
+	void LALOAD(Object receiver, int index, String className, String methodName);
 
-	void FALOAD(Object receiver, int index);
+	void FALOAD(Object receiver, int index, String className, String methodName);
 
-	void DALOAD(Object receiver, int index);
+	void DALOAD(Object receiver, int index, String className, String methodName);
 
-	void AALOAD(Object receiver, int index);
+	void AALOAD(Object receiver, int index, String className, String methodName);
 
-	void BALOAD(Object receiver, int index);
+	void BALOAD(Object receiver, int index, String className, String methodName);
 
-	void CALOAD(Object receiver, int index);
+	void CALOAD(Object receiver, int index, String className, String methodName);
 
-	void SALOAD(Object receiver, int index);
+	void SALOAD(Object receiver, int index, String className, String methodName);
 
 	/**
 	 * http://java.sun.com/docs/books/jvms/second_edition/html/Instructions2.
 	 * doc6.html#istore
 	 */
-    void ISTORE(int i);
+	void ISTORE(int i);
 
 	void LSTORE(int i);
 
@@ -335,21 +335,21 @@ public interface IVM {
 
 	void ASTORE_3();
 
-	void IASTORE(Object receiver, int index);
+	void IASTORE(Object receiver, int index, String className, String methodName);
 
-	void LASTORE(Object receiver, int index);
+	void LASTORE(Object receiver, int index, String className, String methodName);
 
-	void FASTORE(Object receiver, int index);
+	void FASTORE(Object receiver, int index, String className, String methodName);
 
-	void DASTORE(Object receiver, int index);
+	void DASTORE(Object receiver, int index, String className, String methodName);
 
-	void AASTORE(Object receiver, int index);
+	void BASTORE(Object receiver, int index, String className, String methodName);
 
-	void BASTORE(Object receiver, int index);
+	void CASTORE(Object receiver, int index, String className, String methodName);
 
-	void CASTORE(Object receiver, int index);
+	void SASTORE(Object receiver, int index, String className, String methodName);
 
-	void SASTORE(Object receiver, int index);
+	void AASTORE(Object receiver, int index, Object value, String className, String methodName);
 
 	void POP();
 
@@ -373,7 +373,7 @@ public interface IVM {
 	 * http://java.sun.com/docs/books/jvms/second_edition/html/Instructions2.
 	 * doc6. html#iadd
 	 */
-    void IADD();
+	void IADD();
 
 	void LADD();
 
@@ -488,46 +488,46 @@ public interface IVM {
 	void DCMPG();
 
 	void IFEQ(String className, String methNane, int branchIndex,
-              int param);
+						int param);
 
 	void IFNE(String className, String methNane, int branchIndex,
-              int param);
+						int param);
 
 	void IFLT(String className, String methNane, int branchIndex,
-              int param);
+						int param);
 
 	void IFGE(String className, String methNane, int branchIndex,
-              int param);
+						int param);
 
 	void IFGT(String className, String methNane, int branchIndex,
-              int param);
+						int param);
 
 	void IFLE(String className, String methNane, int branchIndex,
-              int param);
+						int param);
 
 	void IF_ICMPEQ(String className, String methNane, int branchIndex,
-                   int left, int right);
+								 int left, int right);
 
 	void IF_ICMPNE(String className, String methNane, int branchIndex,
-                   int left, int right);
+								 int left, int right);
 
 	void IF_ICMPLT(String className, String methNane, int branchIndex,
-                   int left, int right);
+								 int left, int right);
 
 	void IF_ICMPGE(String className, String methNane, int branchIndex,
-                   int left, int right);
+								 int left, int right);
 
 	void IF_ICMPGT(String className, String methNane, int branchIndex,
-                   int left, int right);
+								 int left, int right);
 
 	void IF_ICMPLE(String className, String methNane, int branchIndex,
-                   int left, int right);
+								 int left, int right);
 
 	void IF_ACMPEQ(String className, String methNane, int branchIndex,
-                   Object left, Object right);
+								 Object left, Object right);
 
 	void IF_ACMPNE(String className, String methNane, int branchIndex,
-                   Object left, Object right);
+								 Object left, Object right);
 
 	void GOTO();
 
@@ -536,10 +536,10 @@ public interface IVM {
 	void RET();
 
 	void TABLESWITCH(String className, String methName, int branchIndex,
-                     int target, int min, int max);
+									 int target, int min, int max);
 
 	void LOOKUPSWITCH(String className, String methName,
-                      int branchIndex, int target, int[] goals);
+										int branchIndex, int target, int[] goals);
 
 	void IRETURN();
 
@@ -566,21 +566,25 @@ public interface IVM {
 	void INVOKESPECIAL(String owner, String name, String desc);
 
 	void INVOKESPECIAL(Object receiver, String owner, String name,
-                       String desc);
+										 String desc);
 
 	void INVOKEVIRTUAL(Object receiver, String owner, String name,
-                       String desc);
+										 String desc);
 
 	void INVOKEINTERFACE(Object receiver, String owner, String name,
-                         String desc);
+											 String desc);
+
+	void INVOKEDYNAMIC(Object clazz, String owner);
+
+	void INVOKEDYNAMIC(String concatenationResult, String stringOwnerClass, String stringRecipe);
 
 	void UNUSED();
 
 	void NEW(String typeName);
 
-	void NEWARRAY(int length, Class<?> componentType);
+	void NEWARRAY(int length, Class<?> componentType, String className, String methodName);
 
-	void ANEWARRAY(int length, String typeName);
+	void ANEWARRAY(int length, String componentTypeName, String className, String typeName);
 
 	void ARRAYLENGTH(Object reference);
 
@@ -596,15 +600,17 @@ public interface IVM {
 
 	void WIDE();
 
-	void MULTIANEWARRAY(String arrayTypeDesc, int nrDimensions);
+	void MULTIANEWARRAY(String arrayTypeDesc, int nrDimensions, String className, String methodName);
 
 	void IFNULL(String className, String methNane, int branchIndex,
-                Object param);
+							Object param);
 
 	void IFNONNULL(String className, String methNane, int branchIndex,
-                   Object param);
+								 Object param);
 
 	void GOTO_W();
 
 	void JSR_W();
+
+    void cleanUp();
 }

@@ -43,6 +43,13 @@ public final class LocalsTable {
 			locals.add(null);
 	}
 
+	public void setOperand(int i, Operand operand) { locals.set(i, operand); }
+	public void setFp64Local(int i, RealValue r) { locals.set(i, new Fp64Operand(r)); }
+	public void setFp32Local(int i, RealValue r) { locals.set(i, new Fp32Operand(r)); }
+	public void setBv32Local(int i, IntegerValue e) { locals.set(i, new Bv32Operand(e)); }
+	public void setBv64Local(int i, IntegerValue e) { locals.set(i, new Bv64Operand(e)); }
+	public void setRefLocal(int i, ReferenceExpression o) {locals.set(i, new ReferenceOperand(o)); }
+
 	public ReferenceExpression getRefLocal(int i) {
 		Operand x = locals.get(i);
 		ReferenceOperand refOp = (ReferenceOperand) x;
@@ -52,10 +59,6 @@ public final class LocalsTable {
 	public Operand getOperand(int i) {
 		Operand x = locals.get(i);
 		return x;
-	}
-
-	public void setRefLocal(int i, ReferenceExpression o) {
-		locals.set(i, new ReferenceOperand(o));
 	}
 
 	public IntegerValue getBv64Local(int i) {
@@ -70,14 +73,6 @@ public final class LocalsTable {
 		return bv32.getIntegerExpression();
 	}
 
-	public void setBv32Local(int i, IntegerValue e) {
-		locals.set(i, new Bv32Operand(e));
-	}
-
-	public void setBv64Local(int i, IntegerValue e) {
-		locals.set(i, new Bv64Operand(e));
-	}
-
 	public RealValue getFp32Local(int i) {
 		Operand x = locals.get(i);
 		Fp32Operand fp32 = (Fp32Operand) x;
@@ -88,17 +83,5 @@ public final class LocalsTable {
 		Operand x = locals.get(i);
 		Fp64Operand fp64 = (Fp64Operand) x;
 		return fp64.getRealExpression();
-	}
-
-	public void setFp64Local(int i, RealValue r) {
-		locals.set(i, new Fp64Operand(r));
-	}
-
-	public void setFp32Local(int i, RealValue r) {
-		locals.set(i, new Fp32Operand(r));
-	}
-
-	public void setOperand(int i, Operand operand) {
-		locals.set(i, operand);
 	}
 }

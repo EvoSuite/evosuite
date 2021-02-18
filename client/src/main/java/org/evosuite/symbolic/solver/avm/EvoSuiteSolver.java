@@ -50,7 +50,7 @@ public final class EvoSuiteSolver extends Solver {
 	static Logger log = LoggerFactory.getLogger(EvoSuiteSolver.class);
 
 	@Override
-	public SolverResult solve(Collection<Constraint<?>> constraints)
+	public SolverResult executeSolver(Collection<Constraint<?>> constraints)
 			throws SolverTimeoutException, SolverEmptyQueryException {
 
 		long timeout = Properties.DSE_CONSTRAINT_SOLVER_TIMEOUT_MILLIS;

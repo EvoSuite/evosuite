@@ -29,6 +29,7 @@ import java.util.Map;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.execution.Scope;
+import org.evosuite.utils.ArrayUtil;
 import org.evosuite.utils.generic.GenericClass;
 import org.objectweb.asm.commons.GeneratorAdapter;
 
@@ -182,11 +183,7 @@ public class ArrayIndex extends VariableReferenceImpl {
 	 */
 	@Override
 	public String getName() {
-		String result = array.getName();
-		for (int index : indices) {
-			result += "[" + index + "]";
-		}
-		return result;
+		return ArrayUtil.buildArrayIndexName(array.getName(), indices);
 	}
 
 	/** {@inheritDoc} */

@@ -84,7 +84,12 @@ public final class SmtOperation extends SmtExpr {
 		CONTAINS("Contains"), //
 		STARTSWITH("StarsWith"), //
 		INDEXOF("Indexof"), //
-		LENGTH("Length");
+		LENGTH("Length"),
+
+		/** Arrays */
+		SELECT("select"),
+		STORE("store");
+
 
 		private final String rep;
 

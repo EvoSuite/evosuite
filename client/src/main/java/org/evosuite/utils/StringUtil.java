@@ -21,9 +21,14 @@ package org.evosuite.utils;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 
+import java.util.List;
+import java.util.StringJoiner;
+
 public abstract class StringUtil {
 
-    public static String getEscapedString(String original) {
+	public static final String SPACE_DELIMITER = " ";
+
+	public static String getEscapedString(String original) {
         char[] charArray = StringEscapeUtils.escapeJava(original).toCharArray();
         StringBuilder sb = new StringBuilder();
 		for (char c : charArray) {
@@ -190,5 +195,22 @@ public abstract class StringUtil {
 			return shortestStrLen;
 		}
 		return firstDiff;
+	}
+
+	/**
+	 * Joins several Strings using a custom delimiter
+	 *
+	 * @param delimiter
+	 * @param strings
+	 * @return
+	 */
+	public static String joinStrings(String delimiter, List<String> strings) {
+		StringJoiner joiner = new StringJoiner(delimiter);
+
+		for (String string : strings) {
+			joiner.add(string);
+		}
+
+		return joiner.toString();
 	}
 }

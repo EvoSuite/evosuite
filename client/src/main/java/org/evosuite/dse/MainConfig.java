@@ -40,6 +40,8 @@ import org.evosuite.PackageInfo;
  */
 public class MainConfig {
 
+	public static final String LAMBDA_CLASS_NAME_FRAGMENT = "$$Lambda$";
+
 	private static MainConfig singleton;
 
 	/**
