@@ -65,6 +65,9 @@ public final class SymbolicHeap {
 	public static final String $STRING_BUFFER_CONTENTS  = "$stringBuffer_contents";
 	public static final String $STRING_BUILDER_CONTENTS = "$stringBuilder_contents";
 
+	/** Reference Constants */
+	public static final int NULL_INSTANCE_ID = 0;
+
 	protected static final Logger logger = LoggerFactory.getLogger(SymbolicHeap.class);
 
 	/**

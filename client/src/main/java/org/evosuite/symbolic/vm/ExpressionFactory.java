@@ -20,6 +20,7 @@
 package org.evosuite.symbolic.vm;
 
 import org.evosuite.symbolic.expr.Operator;
+import org.evosuite.symbolic.expr.ref.NullReferenceExpression;
 import org.evosuite.symbolic.expr.ref.array.ArrayConstant;
 import org.evosuite.symbolic.expr.ref.array.ArrayStore;
 import org.evosuite.symbolic.expr.ref.array.ArrayVariable;
@@ -58,7 +59,7 @@ public abstract class ExpressionFactory {
 	public static final IntegerConstant ICONST_M1 = new IntegerConstant(-1);
 
 	/** Reference Constants */
-	public static final ReferenceConstant NULL_REFERENCE = buildNewNullExpression();
+	public static final ReferenceConstant NULL_REFERENCE = NullReferenceExpression.getInstance();
 
 	public static IntegerConstant buildNewIntegerConstant(int value) {
 		return buildNewIntegerConstant((long) value);
@@ -396,18 +397,4 @@ public abstract class ExpressionFactory {
 	public static LiteralNullType buildNewNullReferenceType() {
 		return new LiteralNullType();
 	}
-
-    /**
-     * As there should be only one instance of null this method should be called only once
-	 * from {@link org.evosuite.symbolic.vm.heap.SymbolicHeap}.
-     *
-     * @return
-     */
-	private static ReferenceConstant buildNewNullExpression() {
-		final Type objectType = Type.getType(Object.class);
-		final ReferenceConstant referenceConstant = new ReferenceConstant(objectType, 0);
-		referenceConstant.initializeReference(null);
-		return referenceConstant;
-	}
-
 }
