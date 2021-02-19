@@ -45,7 +45,7 @@ public final class OperandStack implements Iterable<Operand> {
 	public void pushRef(ReferenceExpression r) { stack.push(new ReferenceOperand(r)); }
 
 	public void pushNullRef() {
-		ReferenceExpression nullExpression = ExpressionFactory.buildNewNullExpression();
+		ReferenceExpression nullExpression = ExpressionFactory.NULL_REFERENCE;
 		this.stack.push(new ReferenceOperand(nullExpression));
 	}
 

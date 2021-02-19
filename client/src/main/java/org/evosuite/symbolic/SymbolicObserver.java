@@ -1455,7 +1455,7 @@ public class SymbolicObserver extends ExecutionObserver {
 	private void after(NullStatement s, Scope scope) {
 		VariableReference lhs = s.getReturnValue();
 		String lhs_name = lhs.getName();
-		ReferenceExpression nullConstant = ExpressionFactory.buildNewNullExpression();
+		ReferenceExpression nullConstant = ExpressionFactory.NULL_REFERENCE;
 		symb_references.put(lhs_name, nullConstant);
 	}
 

@@ -69,8 +69,10 @@ public final class SymbolicHeap {
 
 	/**
 	 * Counter for instances
+	 *
+	 * Note: 0 is reserved for the null constant.
 	 */
-	private int newInstanceCount = 0;
+	private int newInstanceCount = 1;
 
 	/**
 	 * Array's memory model
@@ -341,9 +343,8 @@ public final class SymbolicHeap {
 	 */
 	public ReferenceExpression getReference(Object conc_ref) {
 		if (conc_ref == null) {
-			// null reference
-			ReferenceConstant nullConstant = ExpressionFactory.buildNewNullExpression();
-			return nullConstant;
+			// null reference;
+			return ExpressionFactory.NULL_REFERENCE;
 		} else {
 			int identityHashCode = System.identityHashCode(conc_ref);
 			if (nonNullRefs.containsKey(identityHashCode)) {

@@ -803,7 +803,7 @@ public final class HeapVM extends AbstractVM {
 
 		ReferenceExpression symb_value;
 		if (conc_value == null) {
-			symb_value = ExpressionFactory.buildNewNullExpression();
+			symb_value = ExpressionFactory.NULL_REFERENCE;
 		} else {
 
 			/* Array load expression */

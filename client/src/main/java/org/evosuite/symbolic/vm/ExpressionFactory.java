@@ -39,12 +39,13 @@ import org.objectweb.asm.Type;
 
 
 /**
- * 
+ *
  * @author galeotti
- * 
+ *
  */
 public abstract class ExpressionFactory {
 
+    /** Primitive Constants */
 	public static final RealConstant RCONST_2 = new RealConstant(2);
 	public static final RealConstant RCONST_1 = new RealConstant(1);
 	public static final RealConstant RCONST_0 = new RealConstant(0);
@@ -55,6 +56,9 @@ public abstract class ExpressionFactory {
 	public static final IntegerConstant ICONST_1 = new IntegerConstant(1);
 	public static final IntegerConstant ICONST_0 = new IntegerConstant(0);
 	public static final IntegerConstant ICONST_M1 = new IntegerConstant(-1);
+
+	/** Reference Constants */
+	public static final ReferenceConstant NULL_REFERENCE = buildNewNullExpression();
 
 	public static IntegerConstant buildNewIntegerConstant(int value) {
 		return buildNewIntegerConstant((long) value);
@@ -329,13 +333,6 @@ public abstract class ExpressionFactory {
 		return new IntegerBinaryExpression(left, Operator.REM, right, con);
 	}
 
-	public static ReferenceConstant buildNewNullExpression() {
-		final Type objectType = Type.getType(Object.class);
-		final ReferenceConstant referenceConstant = new ReferenceConstant(objectType, 0);
-		referenceConstant.initializeReference(null);
-		return referenceConstant;
-	}
-
 	/**************************** Arrays ****************************/
 
 	public static ArrayValue.IntegerArrayValue buildIntegerArrayConstantExpression(Type objectType, int instanceId) {
@@ -399,4 +396,18 @@ public abstract class ExpressionFactory {
 	public static LiteralNullType buildNewNullReferenceType() {
 		return new LiteralNullType();
 	}
+
+    /**
+     * As there should be only one instance of null this method should be called only once
+	 * from {@link org.evosuite.symbolic.vm.heap.SymbolicHeap}.
+     *
+     * @return
+     */
+	private static ReferenceConstant buildNewNullExpression() {
+		final Type objectType = Type.getType(Object.class);
+		final ReferenceConstant referenceConstant = new ReferenceConstant(objectType, 0);
+		referenceConstant.initializeReference(null);
+		return referenceConstant;
+	}
+
 }
