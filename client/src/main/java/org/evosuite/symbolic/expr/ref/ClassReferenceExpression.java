@@ -22,37 +22,19 @@ package org.evosuite.symbolic.expr.ref;
 import org.evosuite.symbolic.expr.ExpressionVisitor;
 import org.objectweb.asm.Type;
 
-import static org.evosuite.symbolic.vm.heap.SymbolicHeap.NULL_INSTANCE_ID;
-
 /**
- * This class represents a reference to Null.
+ * Represents all constant references related to general classes.
  *
  * @author Ignacio Lebrero
  */
-public final class NullReferenceExpression extends ReferenceConstant {
+public final class ClassReferenceExpression extends NonNullReferenceExpression {
 
-    private static final long serialVersionUID = 8675423326479140020L;
+    public ClassReferenceExpression(Type objectType, int instanceId) {
+        super(objectType, instanceId);
+    }
 
-	/**
-	 * There should be only one instance of this object
-	 */
-    private static NullReferenceExpression instance;
-
-    public synchronized static NullReferenceExpression getInstance() {
-    	if (instance == null) {
-    		instance = new NullReferenceExpression();
-		}
-
-    	return instance;
-	}
-
-	@Override
+    @Override
 	public <K, V> K accept(ExpressionVisitor<K, V> v, V arg) {
 		return v.visit(this, arg);
 	}
-
-    private NullReferenceExpression() {
-        super(Type.getType(Object.class), NULL_INSTANCE_ID);
-        initializeReference(null);
-    }
 }
