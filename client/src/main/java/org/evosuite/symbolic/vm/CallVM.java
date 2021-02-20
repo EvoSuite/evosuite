@@ -25,6 +25,7 @@ import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.Operator;
 import org.evosuite.symbolic.expr.bv.IntegerConstant;
 import org.evosuite.symbolic.expr.fp.RealConstant;
+import org.evosuite.symbolic.expr.ref.ClassReferenceExpression;
 import org.evosuite.symbolic.expr.ref.ReferenceConstant;
 import org.evosuite.symbolic.expr.ref.ReferenceExpression;
 import org.evosuite.symbolic.expr.reftype.LambdaSyntheticType;
@@ -119,7 +120,7 @@ public final class CallVM extends AbstractVM {
 		 * instruction adds the corresponding exception. The handler will store
 		 * the exception to the locals table
 		 */
-		ReferenceConstant exception_reference = new ReferenceConstant(Type.getType(Exception.class), -1);
+		ReferenceConstant exception_reference = new ClassReferenceExpression(Type.getType(Exception.class), -1);
 		env.topFrame().operandStack.pushRef(exception_reference);
 	}
 
@@ -216,7 +217,7 @@ public final class CallVM extends AbstractVM {
 				 */
 				Class<?> clazz = classLoader.getClassForName(className);
 				Type objectType = Type.getType(clazz);
-				ReferenceConstant newObject = this.env.heap.buildNewReferenceConstant(objectType);
+				ReferenceConstant newObject = this.env.heap.buildNewClassReferenceConstant(objectType);
 				frame.localsTable.setRefLocal(0, newObject);
 			}
 		} else {
@@ -463,7 +464,7 @@ public final class CallVM extends AbstractVM {
 		env.ensurePrepared(anonymousClass); // prepare symbolic fields
 
 		// Create reference
-		final ReferenceConstant symbolicRef = env.heap.buildNewReferenceConstant(anonymousClassType);
+		final ReferenceConstant symbolicRef = env.heap.buildNewClassReferenceConstant(anonymousClassType);
 		env.heap.initializeReference(indyResult, symbolicRef);
 
 		/**

@@ -36,6 +36,7 @@ import org.evosuite.symbolic.expr.ref.ReferenceConstant;
 import org.evosuite.symbolic.expr.reftype.LiteralNullType;
 import org.evosuite.symbolic.expr.str.StringConstant;
 import org.evosuite.symbolic.expr.str.StringValue;
+import org.evosuite.utils.TypeUtil;
 import org.objectweb.asm.Type;
 
 
@@ -344,12 +345,49 @@ public abstract class ExpressionFactory {
 		return new ArrayConstant.RealArrayConstant(objectType, instanceId);
 	}
 
-	public static ArrayValue.StringArrayValue buildStringArrayConstantExpression(Type objectType, int instanceId) {
-		return new ArrayConstant.StringArrayConstant(objectType, instanceId);
+	public static ArrayValue.StringArrayValue buildStringArrayConstantExpression(int instanceId) {
+		return new ArrayConstant.StringArrayConstant(instanceId);
 	}
 
 	public static ArrayValue.ReferenceArrayValue buildReferenceArrayConstantExpression(Type objectType, int instanceId) {
 		return new ArrayConstant.ReferenceArrayConstant(objectType, instanceId);
+	}
+
+	public static ArrayValue buildArrayVariableExpression(int instanceId, String arrayName, Object concreteArray) {
+		Type arrayType = Type.getType(concreteArray.getClass());
+		Type elementType = arrayType.getElementType();
+
+		if (TypeUtil.isIntegerValue(elementType))
+			return buildIntegerArrayVariableExpression(arrayType, instanceId, arrayName, concreteArray);
+
+		if (TypeUtil.isRealValue(elementType))
+			return buildRealArrayVariableExpression(arrayType, instanceId, arrayName, concreteArray);
+
+		if (TypeUtil.isStringValue(elementType))
+			return buildStringArrayVariableExpression(arrayType, instanceId, arrayName, concreteArray);
+
+		if (TypeUtil.isReferenceValue(elementType))
+			return buildReferenceArrayVariableExpression(arrayType, instanceId, arrayName, concreteArray);
+
+		throw new IllegalArgumentException("Array type not yet implemented: " + arrayType.toString());
+	}
+
+	public static ArrayValue buildArrayConstantExpression(Type arrayType, int instanceId) {
+		Type elementType = arrayType.getElementType();
+
+		if (TypeUtil.isIntegerValue(elementType))
+		  return buildIntegerArrayConstantExpression(arrayType, instanceId);
+
+		if (TypeUtil.isRealValue(elementType))
+		  return buildRealArrayConstantExpression(arrayType, instanceId);
+
+		if (TypeUtil.isStringValue(elementType))
+		  return buildStringArrayConstantExpression(instanceId);
+
+		if (TypeUtil.isReferenceValue(elementType))
+		  return buildReferenceArrayConstantExpression(arrayType, instanceId);
+
+		throw new IllegalArgumentException("Array type not yet implemented: " + arrayType.toString());
 	}
 
 	public static ArrayValue.IntegerArrayValue buildIntegerArrayVariableExpression(Type objectType, int instanceId, String arrayName, Object concreteArray) {
@@ -361,7 +399,7 @@ public abstract class ExpressionFactory {
 	}
 
 	public static ArrayValue.StringArrayValue buildStringArrayVariableExpression(Type objectType, int instanceId, String arrayName, Object concreteArray) {
-		return new ArrayVariable.StringArrayVariable(objectType, instanceId, arrayName, concreteArray);
+		return new ArrayVariable.StringArrayVariable(instanceId, arrayName, concreteArray);
 	}
 
 	public static ArrayValue.ReferenceArrayValue buildReferenceArrayVariableExpression(Type objectType, int instanceId, String arrayName, Object concreteArray) {

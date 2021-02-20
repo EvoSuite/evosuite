@@ -24,6 +24,7 @@ import org.evosuite.symbolic.LambdaUtils;
 import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.bv.IntegerValue;
 import org.evosuite.symbolic.expr.fp.RealValue;
+import org.evosuite.symbolic.expr.ref.ClassReferenceExpression;
 import org.evosuite.symbolic.expr.ref.ReferenceConstant;
 import org.evosuite.symbolic.expr.ref.ReferenceExpression;
 import org.evosuite.symbolic.expr.ref.ReferenceVariable;
@@ -126,12 +127,12 @@ public final class SymbolicHeap {
 	 * @param objectType
 	 * @return
 	 */
-	public ReferenceConstant buildNewReferenceConstant(Type objectType) {
+	public ReferenceConstant buildNewClassReferenceConstant(Type objectType) {
 		if (objectType.getClassName() == null)
 			throw new IllegalArgumentException();
 
 		final int newInstanceId = newInstanceCount++;
-		return new ReferenceConstant(objectType, newInstanceId);
+		return new ClassReferenceExpression(objectType, newInstanceId);
 	}
 
 
@@ -361,7 +362,7 @@ public final class SymbolicHeap {
 				if (conc_ref.getClass().isArray()) {
 					ref_constant = buildNewArrayReferenceConstant(type);
 				} else {
-					ref_constant = buildNewReferenceConstant(type);
+					ref_constant = buildNewClassReferenceConstant(type);
 				}
 
 				initializeReference(conc_ref, ref_constant);

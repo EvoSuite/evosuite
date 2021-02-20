@@ -32,11 +32,11 @@ import org.objectweb.asm.Type;
  * concrete reference cannot be accessed until the <init> method finishes.
  * Therefore, we have to initialize the <code>ReferenceConstant</code> after the
  * <init> method ends.
- * 
+ *
  * @author galeotti
  * 
  */
-public class ReferenceConstant extends ReferenceExpression {
+public abstract class ReferenceConstant extends ReferenceExpression {
 
 
 	private static final long serialVersionUID = 4288259851884045452L;

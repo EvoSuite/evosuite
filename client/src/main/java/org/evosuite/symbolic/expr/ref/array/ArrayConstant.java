@@ -85,8 +85,8 @@ public abstract class ArrayConstant extends NonNullReferenceExpression implement
 
 	public static final class StringArrayConstant extends ArrayConstant implements ArrayValue.StringArrayValue {
 
-		public StringArrayConstant(Type arrayType, int instanceId) {
-			super(arrayType, instanceId);
+		public StringArrayConstant(int instanceId) {
+			super(Type.getType(String[].class), instanceId);
 		}
 
 		/**
