@@ -159,7 +159,7 @@ public class GenerateMojo extends AbstractMojo {
 					continue;
 				}
 
-				if(! file.getAbsolutePath().startsWith(project.getBasedir().getAbsolutePath()) ){
+				if(! file.getAbsolutePath().startsWith(project.getBuild().getOutputDirectory()) ){
 					/*
 						This can happen in multi-module projects when module A has dependency on
 						module B. Then, both A and B source folders will end up on compile classpath,

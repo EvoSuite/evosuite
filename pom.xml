@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.evosuite</groupId>
     <artifactId>evosuite</artifactId>
     <name>EvoSuite</name>
     <description>n/a</description>
-    <version>1.0.7-SNAPSHOT</version>
+    <version>1.1.1-SNAPSHOT</version>
     <packaging>pom</packaging>
     <url>http://www.evosuite.org/</url>
     <inceptionYear>2010</inceptionYear>
@@ -119,8 +118,8 @@
                 <integrationTests>**/*IntTest.java</integrationTests>
             </properties -->
             <properties>
-                <systemTests></systemTests>
-                <integrationTests></integrationTests>
+                <systemTests />
+                <integrationTests />
             </properties>
         </profile>
         <profile>
@@ -264,8 +263,8 @@
             <properties>
                 <compiler.target>1.8</compiler.target>
                 <compiler.source>1.8</compiler.source>
-                <exclude.tests.concolic></exclude.tests.concolic>
-                <exclude.tests.mimeType></exclude.tests.mimeType>
+                <exclude.tests.concolic />
+                <exclude.tests.mimeType />
             </properties>
         </profile>
     </profiles>

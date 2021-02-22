@@ -52,7 +52,8 @@ public class ZDT4IntTest
     @Before
     public void setUp() {
         Properties.POPULATION = 100;
-        Properties.SEARCH_BUDGET = 10000;
+        Properties.STOPPING_CONDITION = Properties.StoppingCondition.MAXGENERATIONS;
+        Properties.SEARCH_BUDGET = 10_000;
         Properties.CROSSOVER_RATE = 0.9;
         Properties.RANDOM_SEED = 1L;
     }
@@ -129,13 +130,16 @@ public class ZDT4IntTest
         GenerationalDistance gd = new GenerationalDistance();
         double gdd = gd.evaluate(front, trueParetoFront);
         System.out.println("GenerationalDistance: " + gdd);
-        Assert.assertEquals(gdd, 0.0006, 0.0001);
+        Assert.assertTrue(gdd < 0.001);
 
         Spacing sp = new Spacing();
         double spd = sp.evaluate(front);
         double spdt = sp.evaluate(trueParetoFront);
-        System.out.println("SpacingFront (" + spd + ") - SpacingTrueFront (" + spdt + ") = "
-                            + Math.abs(spd - spdt));
-        Assert.assertEquals(Math.abs(spd - spdt), 0.20, 0.10);
+        // compute difference between the generated front and a theoretical ideal front
+        // a difference of 0 (or any value < 1 and close to 0) means that the generated
+        // front is similar to a theoretical ideal front
+        double diff = Math.abs(spd - spdt);
+        System.out.println("SpacingFront (" + spd + ") - SpacingTrueFront (" + spdt + ") = " + diff);
+        Assert.assertTrue(diff < 0.20);
     }
 }

@@ -33,10 +33,7 @@ import org.evosuite.symbolic.expr.Variable;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.evosuite.testcase.variable.VariableReference;
-import org.junit.After;
-import org.junit.Assume;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 
 import com.examples.with.different.packagename.concolic.TestCase0;
 import com.examples.with.different.packagename.concolic.TestCase1;
@@ -2019,6 +2016,7 @@ public class ConcolicExecutionTest {
 		return tc.getDefaultTestCase();
 	}
 
+	@Ignore
 	@Test
 	public void testCase94() throws SecurityException, NoSuchMethodException {
 		DefaultTestCase tc = buildTestCase94();

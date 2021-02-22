@@ -6,14 +6,14 @@
   <parent>
     <groupId>org.evosuite.plugins</groupId>
     <artifactId>evosuite-plugins</artifactId>
-    <version>1.0.7-SNAPSHOT</version>
+    <version>1.1.1-SNAPSHOT</version>
   </parent>
 
   <artifactId>evosuite-eclipse-plugin</artifactId>
   <packaging>pom</packaging>
 
   <properties>
-    <tycho-version>1.2.0</tycho-version>
+    <tycho-version>1.7.0</tycho-version>
     <eclipse-repo.url>http://download.eclipse.org/releases/photon</eclipse-repo.url>
   </properties>
 
