@@ -381,22 +381,17 @@ public class ResourceList {
 
 	private static InputStream getClassAsStreamFromClassLoader(String name) {
 
-		String path = name.replace('.', '/') + ".class";
-		String windowsPath = name.replace(".", "\\") + ".class";
+		String path = name.replace('.', File.separatorChar) + ".class";
 
 		//first try with system classloader
 		InputStream is = ClassLoader.getSystemResourceAsStream(path);
 		if (is != null) {
 			return is;
+		} else {
+			// Use the ContextClassLoader
+			is = Thread.currentThread().getContextClassLoader().getResourceAsStream(path);
 		}
-		if (File.separatorChar != '/') {
-			is = ClassLoader.getSystemResourceAsStream(windowsPath);
-			if (is != null) {
-				return is;
-			}
-		}
-
-		return null;
+		return is;
 	}
 
 	private static boolean isClassAnInterface(InputStream input) throws IOException{
