@@ -21,9 +21,9 @@ package org.evosuite.symbolic.vm.heap.symbolicHeapSection;
 
 import org.evosuite.symbolic.expr.bv.IntegerValue;
 import org.evosuite.symbolic.expr.fp.RealValue;
-import org.evosuite.symbolic.expr.ref.ReferenceConstant;
 import org.evosuite.symbolic.expr.ref.ReferenceExpression;
-import org.evosuite.symbolic.expr.ref.ReferenceVariable;
+import org.evosuite.symbolic.expr.ref.array.ArrayConstant;
+import org.evosuite.symbolic.expr.ref.array.ArrayVariable;
 import org.evosuite.symbolic.expr.str.StringValue;
 import org.objectweb.asm.Type;
 
@@ -45,7 +45,7 @@ public interface ArraysSection {
 	 * @param name
 	 * @return
 	 */
-	ReferenceVariable createVariableArray(Object concreteArray, int instanceId, String name);
+	ArrayVariable createVariableArray(Object concreteArray, int instanceId, String name);
 
 	/**
 	 * Creates a symbolic array representing a symbolic literal.
@@ -54,7 +54,7 @@ public interface ArraysSection {
 	 * @param instanceId
 	 * @return
 	 */
-  ReferenceConstant createConstantArray(Type arrayType, int instanceId);
+  ArrayConstant createConstantArray(Type arrayType, int instanceId);
 
 	/**
 	 * Initialized an already created symbolic array

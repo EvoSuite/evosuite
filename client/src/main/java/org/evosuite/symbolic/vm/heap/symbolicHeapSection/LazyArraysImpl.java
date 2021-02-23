@@ -22,9 +22,9 @@ package org.evosuite.symbolic.vm.heap.symbolicHeapSection;
 import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.bv.IntegerValue;
 import org.evosuite.symbolic.expr.fp.RealValue;
-import org.evosuite.symbolic.expr.ref.ReferenceConstant;
 import org.evosuite.symbolic.expr.ref.ReferenceExpression;
-import org.evosuite.symbolic.expr.ref.ReferenceVariable;
+import org.evosuite.symbolic.expr.ref.array.ArrayConstant;
+import org.evosuite.symbolic.expr.ref.array.ArrayVariable;
 import org.evosuite.symbolic.expr.str.StringValue;
 import org.evosuite.symbolic.vm.ExpressionFactory;
 import org.evosuite.symbolic.vm.heap.SymbolicArray;
@@ -120,8 +120,8 @@ public class LazyArraysImpl implements ArraysSection {
 	}
 
   @Override
-  public ReferenceVariable createVariableArray(Object concreteArray, int instanceId, String arrayName) {
-  	ReferenceVariable symbolicArrayVariable = (ReferenceVariable) ExpressionFactory.buildArrayVariableExpression(instanceId, arrayName, concreteArray);
+  public ArrayVariable createVariableArray(Object concreteArray, int instanceId, String arrayName) {
+  	ArrayVariable symbolicArrayVariable = (ArrayVariable) ExpressionFactory.buildArrayVariableExpression(instanceId, arrayName, concreteArray);
 
     SymbolicArray symbolicArray = getOrCreateSymbolicArray(symbolicArrayVariable);
     symbolicArrays.put(symbolicArrayVariable, new SymbolicInputArray(symbolicArray, arrayName));
@@ -130,8 +130,8 @@ public class LazyArraysImpl implements ArraysSection {
   }
 
   @Override
-  public ReferenceConstant createConstantArray(Type arrayType, int instanceId) {
-	  ReferenceConstant arrayReference = (ReferenceConstant) ExpressionFactory.buildArrayConstantExpression(arrayType, instanceId);
+  public ArrayConstant createConstantArray(Type arrayType, int instanceId) {
+	  ArrayConstant arrayReference = (ArrayConstant) ExpressionFactory.buildArrayConstantExpression(arrayType, instanceId);
       getOrCreateSymbolicArray(arrayReference);
 
       return arrayReference;

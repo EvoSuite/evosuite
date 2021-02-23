@@ -22,8 +22,8 @@ package org.evosuite.symbolic.solver.smt;
 import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.ExpressionVisitor;
 import org.evosuite.symbolic.expr.Operator;
-import org.evosuite.symbolic.expr.ref.ClassReferenceExpression;
-import org.evosuite.symbolic.expr.ref.NullReferenceExpression;
+import org.evosuite.symbolic.expr.ref.ClassReferenceConstant;
+import org.evosuite.symbolic.expr.ref.NullReferenceConstant;
 import org.evosuite.symbolic.expr.ref.array.ArrayConstant;
 import org.evosuite.symbolic.expr.ref.array.ArraySelect;
 import org.evosuite.symbolic.expr.ref.array.ArrayStore;
@@ -51,7 +51,7 @@ import org.evosuite.symbolic.expr.fp.RealValue;
 import org.evosuite.symbolic.expr.fp.RealVariable;
 import org.evosuite.symbolic.expr.reader.StringReaderExpr;
 import org.evosuite.symbolic.expr.ref.GetFieldExpression;
-import org.evosuite.symbolic.expr.ref.ReferenceVariable;
+import org.evosuite.symbolic.expr.ref.ClassReferenceVariable;
 import org.evosuite.symbolic.expr.reftype.LambdaSyntheticType;
 import org.evosuite.symbolic.expr.reftype.LiteralClassType;
 import org.evosuite.symbolic.expr.reftype.LiteralNullType;
@@ -216,12 +216,12 @@ public class ExprToSmtVisitor implements ExpressionVisitor<SmtExpr, Void> {
 	}
 
 	@Override
-	public SmtExpr visit(NullReferenceExpression r, Void arg) {
+	public SmtExpr visit(NullReferenceConstant r, Void arg) {
 		return SmtExprBuilder.mkIntConstant(SymbolicHeap.NULL_INSTANCE_ID);
 	}
 
 	@Override
-	public SmtExpr visit(ClassReferenceExpression r, Void args) {
+	public SmtExpr visit(ClassReferenceConstant r, Void args) {
 		return SmtExprBuilder.mkIntConstant(r.getInstanceId());
 	}
 
@@ -464,7 +464,7 @@ public class ExprToSmtVisitor implements ExpressionVisitor<SmtExpr, Void> {
 	}
 
 	@Override
-	public final SmtExpr visit(ReferenceVariable r, Void arg) {
+	public final SmtExpr visit(ClassReferenceVariable r, Void arg) {
 		String varName = r.getName();
 		return SmtExprBuilder.mkIntVariable(varName);
 	}

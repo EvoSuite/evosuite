@@ -23,7 +23,7 @@ import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.bv.IntegerVariable;
 import org.evosuite.symbolic.expr.fp.RealVariable;
 import org.evosuite.symbolic.expr.ref.ReferenceExpression;
-import org.evosuite.symbolic.expr.ref.ReferenceVariable;
+import org.evosuite.symbolic.expr.ref.ClassReferenceVariable;
 import org.evosuite.symbolic.expr.ref.array.SymbolicArrayUtil;
 import org.evosuite.symbolic.expr.str.StringVariable;
 import org.evosuite.utils.TypeUtil;
@@ -104,7 +104,7 @@ public final class SymbolicInputArray extends SymbolicArrayImpl {
     }
 
     if (componentType.equals(ReferenceExpression.class)) {
-      return new ReferenceVariable(componentType, 0, symbolicArrayVariableName, null);
+      return new ClassReferenceVariable(componentType, 0, symbolicArrayVariableName, null);
     }
 
     throw new UnsupportedOperationException("Symbolic Array content type: " + componentType.toString() + " not yet supported");

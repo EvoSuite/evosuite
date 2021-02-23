@@ -20,7 +20,7 @@
 package org.evosuite.symbolic.vm;
 
 import org.evosuite.symbolic.expr.Operator;
-import org.evosuite.symbolic.expr.ref.NullReferenceExpression;
+import org.evosuite.symbolic.expr.ref.NullReferenceConstant;
 import org.evosuite.symbolic.expr.ref.array.ArrayConstant;
 import org.evosuite.symbolic.expr.ref.array.ArrayStore;
 import org.evosuite.symbolic.expr.ref.array.ArrayVariable;
@@ -32,7 +32,6 @@ import org.evosuite.symbolic.expr.bv.IntegerValue;
 import org.evosuite.symbolic.expr.fp.RealBinaryExpression;
 import org.evosuite.symbolic.expr.fp.RealConstant;
 import org.evosuite.symbolic.expr.fp.RealValue;
-import org.evosuite.symbolic.expr.ref.ReferenceConstant;
 import org.evosuite.symbolic.expr.reftype.LiteralNullType;
 import org.evosuite.symbolic.expr.str.StringConstant;
 import org.evosuite.symbolic.expr.str.StringValue;
@@ -60,7 +59,7 @@ public abstract class ExpressionFactory {
 	public static final IntegerConstant ICONST_M1 = new IntegerConstant(-1);
 
 	/** Reference Constants */
-	public static final NullReferenceExpression NULL_REFERENCE = NullReferenceExpression.getInstance();
+	public static final NullReferenceConstant NULL_REFERENCE = NullReferenceConstant.getInstance();
 
 	public static IntegerConstant buildNewIntegerConstant(int value) {
 		return buildNewIntegerConstant((long) value);

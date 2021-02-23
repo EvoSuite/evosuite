@@ -29,18 +29,18 @@ import static org.evosuite.symbolic.vm.heap.SymbolicHeap.NULL_INSTANCE_ID;
  *
  * @author Ignacio Lebrero
  */
-public final class NullReferenceExpression extends ReferenceConstant {
+public final class NullReferenceConstant extends ReferenceConstant {
 
     private static final long serialVersionUID = 8675423326479140020L;
 
 	/**
 	 * There should be only one instance of this object
 	 */
-    private static NullReferenceExpression instance;
+    private static NullReferenceConstant instance;
 
-    public synchronized static NullReferenceExpression getInstance() {
+    public synchronized static NullReferenceConstant getInstance() {
     	if (instance == null) {
-    		instance = new NullReferenceExpression();
+    		instance = new NullReferenceConstant();
 		}
 
     	return instance;
@@ -51,7 +51,7 @@ public final class NullReferenceExpression extends ReferenceConstant {
 		return v.visit(this, arg);
 	}
 
-    private NullReferenceExpression() {
+    private NullReferenceConstant() {
         super(Type.getType(Object.class), NULL_INSTANCE_ID);
         initializeReference(null);
     }

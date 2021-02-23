@@ -19,8 +19,8 @@
  */
 package org.evosuite.symbolic.expr;
 
-import org.evosuite.symbolic.expr.ref.ClassReferenceExpression;
-import org.evosuite.symbolic.expr.ref.NullReferenceExpression;
+import org.evosuite.symbolic.expr.ref.ClassReferenceConstant;
+import org.evosuite.symbolic.expr.ref.NullReferenceConstant;
 import org.evosuite.symbolic.expr.ref.array.ArrayConstant;
 import org.evosuite.symbolic.expr.ref.array.ArraySelect;
 import org.evosuite.symbolic.expr.ref.array.ArrayStore;
@@ -46,8 +46,7 @@ import org.evosuite.symbolic.expr.fp.RealUnaryExpression;
 import org.evosuite.symbolic.expr.fp.RealVariable;
 import org.evosuite.symbolic.expr.reader.StringReaderExpr;
 import org.evosuite.symbolic.expr.ref.GetFieldExpression;
-import org.evosuite.symbolic.expr.ref.ReferenceConstant;
-import org.evosuite.symbolic.expr.ref.ReferenceVariable;
+import org.evosuite.symbolic.expr.ref.ClassReferenceVariable;
 import org.evosuite.symbolic.expr.reftype.LambdaSyntheticType;
 import org.evosuite.symbolic.expr.reftype.LiteralClassType;
 import org.evosuite.symbolic.expr.reftype.LiteralNullType;
@@ -167,11 +166,11 @@ public interface ExpressionVisitor<K, V> {
 
     /********************** References *********************/
 
-    K visit(ReferenceVariable r, V arg);
+    K visit(ClassReferenceVariable r, V arg);
 
     K visit(GetFieldExpression r, V arg);
 
-    K visit(NullReferenceExpression r, V arg);
+    K visit(NullReferenceConstant r, V arg);
 
-    K visit(ClassReferenceExpression r, V args);
+    K visit(ClassReferenceConstant r, V args);
 }

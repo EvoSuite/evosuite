@@ -26,9 +26,9 @@ import org.objectweb.asm.Type;
  *
  * @author Ignacio Lebrero
  */
-public abstract class NonNullReferenceExpression extends ReferenceConstant {
+public abstract class NonNullReferenceConstant extends ReferenceConstant {
 
-    public NonNullReferenceExpression(Type objectType, int instanceId) {
+    public NonNullReferenceConstant(Type objectType, int instanceId) {
         super(objectType, instanceId);
     }
 

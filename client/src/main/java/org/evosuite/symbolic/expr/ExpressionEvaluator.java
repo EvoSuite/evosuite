@@ -25,8 +25,8 @@ import org.apache.oro.text.regex.MalformedPatternException;
 import org.apache.oro.text.regex.Pattern;
 import org.apache.oro.text.regex.Perl5Compiler;
 import org.apache.oro.text.regex.Perl5Matcher;
-import org.evosuite.symbolic.expr.ref.ClassReferenceExpression;
-import org.evosuite.symbolic.expr.ref.NullReferenceExpression;
+import org.evosuite.symbolic.expr.ref.ClassReferenceConstant;
+import org.evosuite.symbolic.expr.ref.NullReferenceConstant;
 import org.evosuite.symbolic.expr.ref.array.ArrayConstant;
 import org.evosuite.symbolic.expr.ref.array.ArrayStore;
 import org.evosuite.symbolic.expr.ref.array.ArrayVariable;
@@ -52,8 +52,7 @@ import org.evosuite.symbolic.expr.fp.RealUnaryExpression;
 import org.evosuite.symbolic.expr.fp.RealVariable;
 import org.evosuite.symbolic.expr.reader.StringReaderExpr;
 import org.evosuite.symbolic.expr.ref.GetFieldExpression;
-import org.evosuite.symbolic.expr.ref.ReferenceConstant;
-import org.evosuite.symbolic.expr.ref.ReferenceVariable;
+import org.evosuite.symbolic.expr.ref.ClassReferenceVariable;
 import org.evosuite.symbolic.expr.reftype.LambdaSyntheticType;
 import org.evosuite.symbolic.expr.reftype.LiteralClassType;
 import org.evosuite.symbolic.expr.reftype.LiteralNullType;
@@ -682,7 +681,7 @@ public class ExpressionEvaluator implements ExpressionVisitor<Object, Void> {
   }
 
   @Override
-  public Object visit(ReferenceVariable r, Void arg) {
+  public Object visit(ClassReferenceVariable r, Void arg) {
     return r.getConcreteValue();
   }
 
@@ -708,12 +707,12 @@ public class ExpressionEvaluator implements ExpressionVisitor<Object, Void> {
   }
 
   @Override
-  public Object visit(NullReferenceExpression r, Void arg) {
+  public Object visit(NullReferenceConstant r, Void arg) {
     return r.getConcreteValue();
   }
 
   @Override
-  public Object visit(ClassReferenceExpression r, Void args) {
+  public Object visit(ClassReferenceConstant r, Void args) {
     return r.getConcreteValue();
   }
 

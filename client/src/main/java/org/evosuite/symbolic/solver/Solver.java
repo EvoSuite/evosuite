@@ -21,7 +21,7 @@ package org.evosuite.symbolic.solver;
 
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.Variable;
-import org.evosuite.symbolic.expr.ref.ReferenceVariable;
+import org.evosuite.symbolic.expr.ref.ClassReferenceVariable;
 import org.evosuite.symbolic.expr.ref.array.ArrayVariable;
 import org.evosuite.symbolic.expr.bv.IntegerVariable;
 import org.evosuite.symbolic.expr.constraint.ConstraintEvaluator;
@@ -185,8 +185,8 @@ public abstract class Solver {
 					getResizedArray(
 						arr.getConcreteValue(),
 						concreteValue));
-			} else if (v instanceof ReferenceVariable) {
-				ReferenceVariable rv = (ReferenceVariable) v;
+			} else if (v instanceof ClassReferenceVariable) {
+				ClassReferenceVariable rv = (ClassReferenceVariable) v;
 				rv.initializeReference(concreteValue);
 			}
 

@@ -21,8 +21,8 @@ package org.evosuite.symbolic.solver.cvc4;
 
 import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.ExpressionVisitor;
-import org.evosuite.symbolic.expr.ref.ClassReferenceExpression;
-import org.evosuite.symbolic.expr.ref.NullReferenceExpression;
+import org.evosuite.symbolic.expr.ref.ClassReferenceConstant;
+import org.evosuite.symbolic.expr.ref.NullReferenceConstant;
 import org.evosuite.symbolic.expr.ref.array.ArrayConstant;
 import org.evosuite.symbolic.expr.ref.array.ArraySelect;
 import org.evosuite.symbolic.expr.ref.array.ArrayStore;
@@ -48,8 +48,7 @@ import org.evosuite.symbolic.expr.fp.RealUnaryExpression;
 import org.evosuite.symbolic.expr.fp.RealVariable;
 import org.evosuite.symbolic.expr.reader.StringReaderExpr;
 import org.evosuite.symbolic.expr.ref.GetFieldExpression;
-import org.evosuite.symbolic.expr.ref.ReferenceConstant;
-import org.evosuite.symbolic.expr.ref.ReferenceVariable;
+import org.evosuite.symbolic.expr.ref.ClassReferenceVariable;
 import org.evosuite.symbolic.expr.reftype.LambdaSyntheticType;
 import org.evosuite.symbolic.expr.reftype.LiteralClassType;
 import org.evosuite.symbolic.expr.reftype.LiteralNullType;
@@ -356,7 +355,7 @@ final class NonLinearExpressionVisitor implements ExpressionVisitor<Boolean, Voi
 	}
 
 	@Override
-	public Boolean visit(ReferenceVariable r, Void arg) {
+	public Boolean visit(ClassReferenceVariable r, Void arg) {
 		throw new UnsupportedOperationException(
 				"Removal of Non-Linear expressions for ReferenceVariable is not yet implemented!");
 	}
@@ -368,13 +367,13 @@ final class NonLinearExpressionVisitor implements ExpressionVisitor<Boolean, Voi
 	}
 
 	@Override
-	public Boolean visit(NullReferenceExpression r, Void arg) {
+	public Boolean visit(NullReferenceConstant r, Void arg) {
 		throw new UnsupportedOperationException(
 				"Removal of Non-Linear expressions for NullReferenceExpression is not yet implemented!");
 	}
 
 	@Override
-	public Boolean visit(ClassReferenceExpression r, Void args) {
+	public Boolean visit(ClassReferenceConstant r, Void args) {
 		throw new UnsupportedOperationException(
 				"Removal of Non-Linear expressions for ClassReferenceExpression is not yet implemented!");
 	}

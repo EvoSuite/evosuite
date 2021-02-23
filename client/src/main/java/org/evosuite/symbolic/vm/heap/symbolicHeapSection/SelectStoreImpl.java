@@ -21,10 +21,10 @@ package org.evosuite.symbolic.vm.heap.symbolicHeapSection;
 
 import org.evosuite.symbolic.expr.bv.IntegerValue;
 import org.evosuite.symbolic.expr.fp.RealValue;
-import org.evosuite.symbolic.expr.ref.ReferenceConstant;
 import org.evosuite.symbolic.expr.ref.ReferenceExpression;
-import org.evosuite.symbolic.expr.ref.ReferenceVariable;
+import org.evosuite.symbolic.expr.ref.array.ArrayConstant;
 import org.evosuite.symbolic.expr.ref.array.ArrayValue;
+import org.evosuite.symbolic.expr.ref.array.ArrayVariable;
 import org.evosuite.symbolic.expr.str.StringValue;
 import org.evosuite.symbolic.vm.ExpressionFactory;
 import org.evosuite.utils.TypeUtil;
@@ -140,8 +140,8 @@ public class SelectStoreImpl implements ArraysSection {
   }
 
   @Override
-  public ReferenceVariable createVariableArray(Object concreteArray, int instanceId, String arrayName) {
-    ReferenceVariable arrayVariable = (ReferenceVariable) ExpressionFactory.buildArrayVariableExpression(instanceId, arrayName, concreteArray);
+  public ArrayVariable createVariableArray(Object concreteArray, int instanceId, String arrayName) {
+    ArrayVariable arrayVariable = (ArrayVariable) ExpressionFactory.buildArrayVariableExpression(instanceId, arrayName, concreteArray);
 
     if (concreteArray != null) initializeArrayReference(arrayVariable);
 
@@ -149,8 +149,8 @@ public class SelectStoreImpl implements ArraysSection {
   }
 
   @Override
-	public ReferenceConstant createConstantArray(Type arrayType, int instanceId) {
-    ReferenceConstant arrayConstant = (ReferenceConstant) ExpressionFactory.buildArrayConstantExpression(arrayType, instanceId);
+	public ArrayConstant createConstantArray(Type arrayType, int instanceId) {
+    ArrayConstant arrayConstant = (ArrayConstant) ExpressionFactory.buildArrayConstantExpression(arrayType, instanceId);
     return arrayConstant;
   }
 

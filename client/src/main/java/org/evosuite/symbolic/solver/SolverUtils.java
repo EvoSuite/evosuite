@@ -28,7 +28,7 @@ import org.evosuite.symbolic.expr.bv.IntegerConstant;
 import org.evosuite.symbolic.expr.bv.IntegerVariable;
 import org.evosuite.symbolic.expr.constraint.IntegerConstraint;
 import org.evosuite.symbolic.expr.fp.RealVariable;
-import org.evosuite.symbolic.expr.ref.ReferenceVariable;
+import org.evosuite.symbolic.expr.ref.ClassReferenceVariable;
 import org.evosuite.symbolic.expr.ref.array.ArrayVariable;
 import org.evosuite.symbolic.expr.str.StringVariable;
 import org.evosuite.symbolic.vm.ConstraintFactory;
@@ -105,7 +105,7 @@ public abstract class SolverUtils {
 				// skip
 			} else if (variable instanceof ArrayVariable) {
 				// skip
-			} else if (variable instanceof ReferenceVariable) {
+			} else if (variable instanceof ClassReferenceVariable) {
 				//skip
           }else {
             throw new UnsupportedOperationException(

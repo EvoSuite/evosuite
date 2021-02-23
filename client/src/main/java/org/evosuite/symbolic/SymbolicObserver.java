@@ -19,13 +19,6 @@
  */
 package org.evosuite.symbolic;
 
-import java.lang.reflect.Array;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.evosuite.Properties;
 import org.evosuite.dse.VM;
 import org.evosuite.runtime.testdata.EvoSuiteFile;
@@ -43,8 +36,8 @@ import org.evosuite.symbolic.expr.fp.RealValue;
 import org.evosuite.symbolic.expr.fp.RealVariable;
 import org.evosuite.symbolic.expr.ref.ReferenceConstant;
 import org.evosuite.symbolic.expr.ref.ReferenceExpression;
-import org.evosuite.symbolic.expr.ref.ReferenceVariable;
 import org.evosuite.symbolic.expr.ref.ReferenceVariableUtil;
+import org.evosuite.symbolic.expr.ref.array.ArrayVariable;
 import org.evosuite.symbolic.expr.str.StringConstant;
 import org.evosuite.symbolic.expr.str.StringValue;
 import org.evosuite.symbolic.expr.str.StringVariable;
@@ -82,13 +75,20 @@ import org.evosuite.testcase.statements.numeric.IntPrimitiveStatement;
 import org.evosuite.testcase.statements.numeric.LongPrimitiveStatement;
 import org.evosuite.testcase.statements.numeric.ShortPrimitiveStatement;
 import org.evosuite.testcase.variable.ArrayIndex;
+import org.evosuite.testcase.variable.ArrayLengthSymbolicUtil;
 import org.evosuite.testcase.variable.ArrayReference;
 import org.evosuite.testcase.variable.ArraySymbolicLengthName;
 import org.evosuite.testcase.variable.FieldReference;
 import org.evosuite.testcase.variable.VariableReference;
-import org.evosuite.testcase.variable.ArrayLengthSymbolicUtil;
 import org.evosuite.utils.TypeUtil;
 import org.objectweb.asm.Type;
+
+import java.lang.reflect.Array;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static org.evosuite.symbolic.vm.HeapVM.ARRAY_LENGTH;
 import static org.evosuite.testcase.variable.ArrayLengthSymbolicUtil.UNIDIMENTIONAL_ARRAY_VALUE;
@@ -140,7 +140,7 @@ public class SymbolicObserver extends ExecutionObserver {
 		if (Properties.IS_DSE_OBJECTS_SUPPORT_ENABLED) {
 			// TODO (ilebrero): avoid recreating the object on the symbolic heap to use less instance ids
 			String referenceVariableName = ReferenceVariableUtil.getReferenceVariableName(varName);
-			nonNullRef = env.heap.buildNewReferenceVariable(nonNullRef.getConcreteValue(), referenceVariableName);
+			nonNullRef = env.heap.buildNewClassReferenceVariable(nonNullRef.getConcreteValue(), referenceVariableName);
 		}
 
 		symb_references.put(varName, nonNullRef);
@@ -1468,7 +1468,7 @@ public class SymbolicObserver extends ExecutionObserver {
 
 		if (Properties.IS_DSE_OBJECTS_SUPPORT_ENABLED) {
 			String referenceVariableName = ReferenceVariableUtil.getReferenceVariableName(lhs.getName());
-			nullReference = env.heap.buildNewReferenceVariable(nullReference.getConcreteValue(), referenceVariableName);
+			nullReference = env.heap.buildNewClassReferenceVariable(nullReference.getConcreteValue(), referenceVariableName);
 		}
 
 		symb_references.put(lhs_name, nullReference);
@@ -1990,7 +1990,7 @@ public class SymbolicObserver extends ExecutionObserver {
 	 */
 	private void upgradeSymbolicArrayLiteralToVariable(ArrayReference arrayRef, Object conc_array) {
 		if (Properties.IS_DSE_ARRAYS_SUPPORT_ENABLED) {
-			ReferenceVariable new_sym_array = env.heap.buildNewArrayReferenceVariable(conc_array, arrayRef.getName());
+			ArrayVariable new_sym_array = env.heap.buildNewArrayReferenceVariable(conc_array, arrayRef.getName());
 			env.heap.initializeReference(conc_array, new_sym_array);
 			env.heap.putField(
 				"",

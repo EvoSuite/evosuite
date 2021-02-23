@@ -25,7 +25,7 @@ import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.Operator;
 import org.evosuite.symbolic.expr.bv.IntegerConstant;
 import org.evosuite.symbolic.expr.fp.RealConstant;
-import org.evosuite.symbolic.expr.ref.ClassReferenceExpression;
+import org.evosuite.symbolic.expr.ref.ClassReferenceConstant;
 import org.evosuite.symbolic.expr.ref.ReferenceConstant;
 import org.evosuite.symbolic.expr.ref.ReferenceExpression;
 import org.evosuite.symbolic.expr.reftype.LambdaSyntheticType;
@@ -120,7 +120,7 @@ public final class CallVM extends AbstractVM {
 		 * instruction adds the corresponding exception. The handler will store
 		 * the exception to the locals table
 		 */
-		ReferenceConstant exception_reference = new ClassReferenceExpression(Type.getType(Exception.class), -1);
+		ReferenceConstant exception_reference = new ClassReferenceConstant(Type.getType(Exception.class), -1);
 		env.topFrame().operandStack.pushRef(exception_reference);
 	}
 

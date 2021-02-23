@@ -24,10 +24,12 @@ import org.evosuite.symbolic.LambdaUtils;
 import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.bv.IntegerValue;
 import org.evosuite.symbolic.expr.fp.RealValue;
-import org.evosuite.symbolic.expr.ref.ClassReferenceExpression;
+import org.evosuite.symbolic.expr.ref.ClassReferenceConstant;
 import org.evosuite.symbolic.expr.ref.ReferenceConstant;
 import org.evosuite.symbolic.expr.ref.ReferenceExpression;
-import org.evosuite.symbolic.expr.ref.ReferenceVariable;
+import org.evosuite.symbolic.expr.ref.ClassReferenceVariable;
+import org.evosuite.symbolic.expr.ref.array.ArrayConstant;
+import org.evosuite.symbolic.expr.ref.array.ArrayVariable;
 import org.evosuite.symbolic.expr.reftype.LambdaSyntheticType;
 import org.evosuite.symbolic.expr.reftype.LiteralClassType;
 import org.evosuite.symbolic.expr.reftype.ReferenceTypeExpression;
@@ -127,12 +129,12 @@ public final class SymbolicHeap {
 	 * @param objectType
 	 * @return
 	 */
-	public ReferenceConstant buildNewClassReferenceConstant(Type objectType) {
+	public ClassReferenceConstant buildNewClassReferenceConstant(Type objectType) {
 		if (objectType.getClassName() == null)
 			throw new IllegalArgumentException();
 
 		final int newInstanceId = newInstanceCount++;
-		return new ClassReferenceExpression(objectType, newInstanceId);
+		return new ClassReferenceConstant(objectType, newInstanceId);
 	}
 
 
@@ -380,7 +382,7 @@ public final class SymbolicHeap {
 	 * @param var_name
 	 * @return
 	 */
-	public ReferenceVariable buildNewReferenceVariable(Object concreteObject, String var_name) {
+	public ClassReferenceVariable buildNewClassReferenceVariable(Object concreteObject, String var_name) {
 		final Type referenceType;
 		if (concreteObject == null) {
 			referenceType = Type.getType(Object.class);
@@ -388,7 +390,7 @@ public final class SymbolicHeap {
 			referenceType = Type.getType(concreteObject.getClass());
 		}
 		final int newInstanceId = newInstanceCount++;
-		final ReferenceVariable r = new ReferenceVariable(referenceType, newInstanceId, var_name, concreteObject);
+		final ClassReferenceVariable r = new ClassReferenceVariable(referenceType, newInstanceId, var_name, concreteObject);
 		return r;
 	}
 
@@ -426,7 +428,7 @@ public final class SymbolicHeap {
 	 * @param arrayType
 	 * @return
 	 */
-	public ReferenceConstant buildNewArrayReferenceConstant(Type arrayType) {
+	public ArrayConstant buildNewArrayReferenceConstant(Type arrayType) {
 		if (arrayType.getClassName() == null)
 			throw new IllegalArgumentException();
 
@@ -441,7 +443,7 @@ public final class SymbolicHeap {
 	 * @param arrayVarName
 	 * @return
 	 */
-	public ReferenceVariable buildNewArrayReferenceVariable(Object concreteArray, String arrayVarName) {
+	public ArrayVariable buildNewArrayReferenceVariable(Object concreteArray, String arrayVarName) {
 		final int newInstanceId = newInstanceCount++;
 		return symbolicArrays.createVariableArray(concreteArray, newInstanceId, arrayVarName);
 	}
