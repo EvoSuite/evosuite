@@ -25,6 +25,8 @@ import org.apache.oro.text.regex.MalformedPatternException;
 import org.apache.oro.text.regex.Pattern;
 import org.apache.oro.text.regex.Perl5Compiler;
 import org.apache.oro.text.regex.Perl5Matcher;
+import org.evosuite.symbolic.expr.ref.ClassReferenceExpression;
+import org.evosuite.symbolic.expr.ref.NullReferenceExpression;
 import org.evosuite.symbolic.expr.ref.array.ArrayConstant;
 import org.evosuite.symbolic.expr.ref.array.ArrayStore;
 import org.evosuite.symbolic.expr.ref.array.ArrayVariable;
@@ -680,11 +682,6 @@ public class ExpressionEvaluator implements ExpressionVisitor<Object, Void> {
   }
 
   @Override
-  public Object visit(ReferenceConstant r, Void arg) {
-    return r.getConcreteValue();
-  }
-
-  @Override
   public Object visit(ReferenceVariable r, Void arg) {
     return r.getConcreteValue();
   }
@@ -708,6 +705,16 @@ public class ExpressionEvaluator implements ExpressionVisitor<Object, Void> {
         | IllegalAccessException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  @Override
+  public Object visit(NullReferenceExpression r, Void arg) {
+    return r.getConcreteValue();
+  }
+
+  @Override
+  public Object visit(ClassReferenceExpression r, Void args) {
+    return r.getConcreteValue();
   }
 
   @Override

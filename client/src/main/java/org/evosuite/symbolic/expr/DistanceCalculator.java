@@ -32,6 +32,7 @@ import org.evosuite.symbolic.expr.bv.StringUnaryToIntegerExpression;
 import org.evosuite.symbolic.expr.constraint.ConstraintVisitor;
 import org.evosuite.symbolic.expr.constraint.IntegerConstraint;
 import org.evosuite.symbolic.expr.constraint.RealConstraint;
+import org.evosuite.symbolic.expr.constraint.ReferenceConstraint;
 import org.evosuite.symbolic.expr.constraint.StringConstraint;
 import org.evosuite.symbolic.expr.reader.StringReaderExpr;
 import org.evosuite.symbolic.expr.str.StringValue;
@@ -221,6 +222,12 @@ public class DistanceCalculator implements ConstraintVisitor<Object, Void> {
 			return distance > 0 ? 0.0 : Double.MAX_VALUE;
 		}
 
+	}
+
+	@Override
+	public Object visit(ReferenceConstraint n, Void arg) {
+		//TODO: how should we calculate this?
+		return null;
 	}
 
 	private static long getDistanceIndexOfCEqualsK(IntegerConstraint n, long leftVal, long rightVal) {

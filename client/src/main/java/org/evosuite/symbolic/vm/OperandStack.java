@@ -25,6 +25,7 @@ import java.util.LinkedList;
 
 import org.evosuite.symbolic.expr.bv.IntegerValue;
 import org.evosuite.symbolic.expr.fp.RealValue;
+import org.evosuite.symbolic.expr.ref.NullReferenceExpression;
 import org.evosuite.symbolic.expr.ref.ReferenceExpression;
 
 /**
@@ -45,7 +46,7 @@ public final class OperandStack implements Iterable<Operand> {
 	public void pushRef(ReferenceExpression r) { stack.push(new ReferenceOperand(r)); }
 
 	public void pushNullRef() {
-		ReferenceExpression nullExpression = ExpressionFactory.NULL_REFERENCE;
+		NullReferenceExpression nullExpression = ExpressionFactory.NULL_REFERENCE;
 		this.stack.push(new ReferenceOperand(nullExpression));
 	}
 

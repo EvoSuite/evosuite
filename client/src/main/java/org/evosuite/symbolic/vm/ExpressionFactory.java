@@ -60,7 +60,7 @@ public abstract class ExpressionFactory {
 	public static final IntegerConstant ICONST_M1 = new IntegerConstant(-1);
 
 	/** Reference Constants */
-	public static final ReferenceConstant NULL_REFERENCE = NullReferenceExpression.getInstance();
+	public static final NullReferenceExpression NULL_REFERENCE = NullReferenceExpression.getInstance();
 
 	public static IntegerConstant buildNewIntegerConstant(int value) {
 		return buildNewIntegerConstant((long) value);

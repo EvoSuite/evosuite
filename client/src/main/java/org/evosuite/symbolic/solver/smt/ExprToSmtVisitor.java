@@ -22,6 +22,8 @@ package org.evosuite.symbolic.solver.smt;
 import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.ExpressionVisitor;
 import org.evosuite.symbolic.expr.Operator;
+import org.evosuite.symbolic.expr.ref.ClassReferenceExpression;
+import org.evosuite.symbolic.expr.ref.NullReferenceExpression;
 import org.evosuite.symbolic.expr.ref.array.ArrayConstant;
 import org.evosuite.symbolic.expr.ref.array.ArraySelect;
 import org.evosuite.symbolic.expr.ref.array.ArrayStore;
@@ -49,7 +51,6 @@ import org.evosuite.symbolic.expr.fp.RealValue;
 import org.evosuite.symbolic.expr.fp.RealVariable;
 import org.evosuite.symbolic.expr.reader.StringReaderExpr;
 import org.evosuite.symbolic.expr.ref.GetFieldExpression;
-import org.evosuite.symbolic.expr.ref.ReferenceConstant;
 import org.evosuite.symbolic.expr.ref.ReferenceVariable;
 import org.evosuite.symbolic.expr.reftype.LambdaSyntheticType;
 import org.evosuite.symbolic.expr.reftype.LiteralClassType;
@@ -67,6 +68,7 @@ import org.evosuite.symbolic.expr.token.NewTokenizerExpr;
 import org.evosuite.symbolic.expr.token.NextTokenizerExpr;
 import org.evosuite.symbolic.expr.token.StringNextTokenExpr;
 import org.evosuite.symbolic.solver.SmtExprBuilder;
+import org.evosuite.symbolic.vm.heap.SymbolicHeap;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -211,6 +213,16 @@ public class ExprToSmtVisitor implements ExpressionVisitor<SmtExpr, Void> {
 	public final SmtExpr visit(IntegerConstant e, Void v) {
 		long concreteValue = e.getConcreteValue();
 		return SmtExprBuilder.mkIntConstant(concreteValue);
+	}
+
+	@Override
+	public SmtExpr visit(NullReferenceExpression r, Void arg) {
+		return SmtExprBuilder.mkIntConstant(SymbolicHeap.NULL_INSTANCE_ID);
+	}
+
+	@Override
+	public SmtExpr visit(ClassReferenceExpression r, Void args) {
+		return SmtExprBuilder.mkIntConstant(r.getInstanceId());
 	}
 
 	@Override
@@ -452,6 +464,12 @@ public class ExprToSmtVisitor implements ExpressionVisitor<SmtExpr, Void> {
 	}
 
 	@Override
+	public final SmtExpr visit(ReferenceVariable r, Void arg) {
+		String varName = r.getName();
+		return SmtExprBuilder.mkIntVariable(varName);
+	}
+
+	@Override
 	public final SmtExpr visit(RealComparison e, Void v) {
 		throw new IllegalStateException("RealComparison should be removed during normalization");
 	}
@@ -514,17 +532,6 @@ public class ExprToSmtVisitor implements ExpressionVisitor<SmtExpr, Void> {
 	@Override
 	public final SmtExpr visit(NextTokenizerExpr e, Void v) {
 		return null;
-	}
-
-	@Override
-	public final SmtExpr visit(ReferenceConstant referenceConstant, Void arg) {
-		throw new UnsupportedOperationException("Translation to Z3 of ReferenceConstant is not yet implemented!");
-	}
-
-	@Override
-	public final SmtExpr visit(ReferenceVariable r, Void arg) {
-		throw new UnsupportedOperationException("Translation to Z3 of ReferenceVariable is not yet implemented!");
-
 	}
 
 	@Override

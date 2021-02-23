@@ -19,6 +19,8 @@
  */
 package org.evosuite.symbolic.expr;
 
+import org.evosuite.symbolic.expr.ref.ClassReferenceExpression;
+import org.evosuite.symbolic.expr.ref.NullReferenceExpression;
 import org.evosuite.symbolic.expr.ref.array.ArrayConstant;
 import org.evosuite.symbolic.expr.ref.array.ArraySelect;
 import org.evosuite.symbolic.expr.ref.array.ArrayStore;
@@ -125,12 +127,6 @@ public interface ExpressionVisitor<K, V> {
 
     K visit(StringNextTokenExpr n, V arg);
 
-    K visit(ReferenceConstant r, V arg);
-
-    K visit(ReferenceVariable r, V arg);
-
-    K visit(GetFieldExpression r, V arg);
-
     /********************** Arrays *********************/
 
     K visit(ArrayStore.IntegerArrayStore r, V arg);
@@ -161,9 +157,21 @@ public interface ExpressionVisitor<K, V> {
 
     K visit(ArrayVariable.ReferenceArrayVariable r, V arg);
 
+    /********************** Reference Types *********************/
+
     K visit(LambdaSyntheticType r, V arg);
 
     K visit(LiteralNullType r, V args);
 
     K visit(LiteralClassType r, V arg);
+
+    /********************** References *********************/
+
+    K visit(ReferenceVariable r, V arg);
+
+    K visit(GetFieldExpression r, V arg);
+
+    K visit(NullReferenceExpression r, V arg);
+
+    K visit(ClassReferenceExpression r, V args);
 }

@@ -49,9 +49,4 @@ public abstract class ReferenceConstant extends ReferenceExpression {
 	public Set<Variable<?>> getVariables() {
 		return Collections.emptySet();
 	}
-
-	@Override
-	public <K, V> K accept(ExpressionVisitor<K, V> v, V arg) {
-		return v.visit(this, arg);
-	}
 }

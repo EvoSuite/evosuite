@@ -21,6 +21,8 @@ package org.evosuite.symbolic.solver.cvc4;
 
 import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.ExpressionVisitor;
+import org.evosuite.symbolic.expr.ref.ClassReferenceExpression;
+import org.evosuite.symbolic.expr.ref.NullReferenceExpression;
 import org.evosuite.symbolic.expr.ref.array.ArrayConstant;
 import org.evosuite.symbolic.expr.ref.array.ArraySelect;
 import org.evosuite.symbolic.expr.ref.array.ArrayStore;
@@ -354,12 +356,6 @@ final class NonLinearExpressionVisitor implements ExpressionVisitor<Boolean, Voi
 	}
 
 	@Override
-	public Boolean visit(ReferenceConstant referenceConstant, Void arg) {
-		throw new UnsupportedOperationException(
-				"Removal of Non-Linear expressions for ReferenceConstant is not yet implemented!");
-	}
-
-	@Override
 	public Boolean visit(ReferenceVariable r, Void arg) {
 		throw new UnsupportedOperationException(
 				"Removal of Non-Linear expressions for ReferenceVariable is not yet implemented!");
@@ -369,6 +365,18 @@ final class NonLinearExpressionVisitor implements ExpressionVisitor<Boolean, Voi
 	public Boolean visit(GetFieldExpression r, Void arg) {
 		throw new UnsupportedOperationException(
 				"Removal of Non-Linear expressions for GetFieldExpression is not yet implemented!");
+	}
+
+	@Override
+	public Boolean visit(NullReferenceExpression r, Void arg) {
+		throw new UnsupportedOperationException(
+				"Removal of Non-Linear expressions for NullReferenceExpression is not yet implemented!");
+	}
+
+	@Override
+	public Boolean visit(ClassReferenceExpression r, Void args) {
+		throw new UnsupportedOperationException(
+				"Removal of Non-Linear expressions for ClassReferenceExpression is not yet implemented!");
 	}
 
 	@Override

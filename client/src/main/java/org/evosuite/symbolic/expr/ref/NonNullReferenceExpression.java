@@ -19,7 +19,6 @@
  */
 package org.evosuite.symbolic.expr.ref;
 
-import org.evosuite.symbolic.expr.ExpressionVisitor;
 import org.objectweb.asm.Type;
 
 /**
@@ -32,10 +31,5 @@ public abstract class NonNullReferenceExpression extends ReferenceConstant {
     public NonNullReferenceExpression(Type objectType, int instanceId) {
         super(objectType, instanceId);
     }
-
-    @Override
-	public <K, V> K accept(ExpressionVisitor<K, V> v, V arg) {
-		return v.visit(this, arg);
-	}
 
 }

@@ -23,6 +23,7 @@ import java.util.Vector;
 
 import org.evosuite.symbolic.expr.bv.IntegerConstant;
 import org.evosuite.symbolic.expr.bv.IntegerValue;
+import org.evosuite.symbolic.expr.constraint.ReferenceConstraint;
 import org.evosuite.symbolic.expr.ref.ReferenceExpression;
 import org.evosuite.symbolic.expr.constraint.IntegerConstraint;
 
@@ -229,6 +230,20 @@ public final class JumpVM extends AbstractVM {
 
 		env.heap.initializeReference(conc_left, left_ref);
 		env.heap.initializeReference(conc_right, right_ref);
+
+		ReferenceConstraint cnstr;
+		boolean isTrueBranch;
+		if (conc_left == conc_right) {
+			cnstr = ConstraintFactory.eq(left_ref, right_ref); // True Branch
+			isTrueBranch = true;
+		} else {
+			cnstr = ConstraintFactory.neq(left_ref, right_ref); // False branch
+			isTrueBranch = false;
+		}
+
+		// add branch condition iif local constraint is concrete
+		if (cnstr.getLeftOperand().containsSymbolicVariable() || cnstr.getRightOperand().containsSymbolicVariable())
+			pc.appendIfBranchCondition(className, methName, branchIndex, isTrueBranch, cnstr);
 	}
 
 	@Override

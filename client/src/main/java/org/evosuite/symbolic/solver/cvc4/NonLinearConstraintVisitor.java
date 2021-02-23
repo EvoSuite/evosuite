@@ -22,6 +22,7 @@ package org.evosuite.symbolic.solver.cvc4;
 import org.evosuite.symbolic.expr.constraint.ConstraintVisitor;
 import org.evosuite.symbolic.expr.constraint.IntegerConstraint;
 import org.evosuite.symbolic.expr.constraint.RealConstraint;
+import org.evosuite.symbolic.expr.constraint.ReferenceConstraint;
 import org.evosuite.symbolic.expr.constraint.StringConstraint;
 
 final class NonLinearConstraintVisitor implements ConstraintVisitor<Boolean, Void> {
@@ -60,6 +61,21 @@ final class NonLinearConstraintVisitor implements ConstraintVisitor<Boolean, Voi
 
 	@Override
 	public Boolean visit(StringConstraint n, Void arg) {
+		Boolean left_ret_val = n.getLeftOperand().accept(exprVisitor, null);
+		if (left_ret_val) {
+			return true;
+		}
+
+		Boolean right_ret_val = n.getRightOperand().accept(exprVisitor, null);
+		if (right_ret_val) {
+			return right_ret_val;
+		}
+
+		return false;
+	}
+
+	@Override
+	public Boolean visit(ReferenceConstraint n, Void arg) {
 		Boolean left_ret_val = n.getLeftOperand().accept(exprVisitor, null);
 		if (left_ret_val) {
 			return true;

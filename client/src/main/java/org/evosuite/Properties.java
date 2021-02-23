@@ -404,8 +404,22 @@ public class Properties {
 		LAZY_VARIABLES
 	}
 
+	/**
+	 * TODO (ilebrero) : Implement private fields tracking
+	 **/
+	public enum DSE_OBJECTS_MODEL_VERSION {
+		PUBLIC_FIELDS_NO_SUBCLASSES,
+		PUBLIC_FIELDS_AND_SUBCLASSES // TODO: Implement me!
+	}
+
 	@Parameter(key = "dse_module_version", group = "DSE", description = "Module version of DSE, mostly used for benchmarking between modules. For other things the new one is recomended.")
 	public static DSE_MODULE_VERSION CURRENT_DSE_MODULE_VERSION = DSE_MODULE_VERSION.NEW;
+
+	@Parameter(key = "dse_enable_objects_support", group = "DSE", description = "If objects should be supported by the concolic engine")
+	public static  boolean IS_DSE_OBJECTS_SUPPORT_ENABLED = false;
+
+	@Parameter(key = "selected_dse_module_objects_model_version", group = "DSE", description = "Which implementation of objects is used on the concolic engine.")
+	public static DSE_OBJECTS_MODEL_VERSION SELECTED_DSE_OBJECTS_MODEL_VERSION = DSE_OBJECTS_MODEL_VERSION.PUBLIC_FIELDS_NO_SUBCLASSES;
 
 	@Parameter(key = "dse_enable_arrays_support", group = "DSE", description = "If arrays should be supported by the concolic engine")
 	public static boolean IS_DSE_ARRAYS_SUPPORT_ENABLED = true;

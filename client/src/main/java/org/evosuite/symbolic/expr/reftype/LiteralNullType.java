@@ -35,6 +35,6 @@ public final class LiteralNullType extends LiteralClassType {
 
     @Override
     public <K, V> K accept(ExpressionVisitor<K, V> v, V arg) {
-        return null;
+        return v.visit(this, arg);
     }
 }
