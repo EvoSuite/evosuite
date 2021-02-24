@@ -608,6 +608,14 @@ public abstract class AbstractVM implements IVM {
 	}
 
 	@Override
+	public void INVOKEDYNAMIC(Object clazz, String owner) { /* stub */
+	}
+
+	@Override
+	public void INVOKEDYNAMIC(String concatenationResult, String stringOwnerClass, String stringRecipe) { /* stub */
+	}
+
+	@Override
 	public void IOR() { /* stub */
 	}
 
@@ -1059,6 +1067,11 @@ public abstract class AbstractVM implements IVM {
 	final public void LDC_W() {
 		Assertions.check(false,
 				"Should never be called, as ASM redirects all LDC_W calls to LDC.");
+	}
+
+	@Override
+	public void cleanUp() {
+		/* stub */
 	}
 
 	// FIXME: Move this to a better place.

@@ -32,6 +32,7 @@ import org.evosuite.symbolic.expr.fp.RealBinaryExpression;
 import org.evosuite.symbolic.expr.fp.RealConstant;
 import org.evosuite.symbolic.expr.fp.RealValue;
 import org.evosuite.symbolic.expr.ref.ReferenceConstant;
+import org.evosuite.symbolic.expr.reftype.LiteralNullType;
 import org.evosuite.symbolic.expr.str.StringConstant;
 import org.evosuite.symbolic.expr.str.StringValue;
 import org.objectweb.asm.Type;
@@ -98,7 +99,7 @@ public abstract class ExpressionFactory {
 	}
 
 	public static IntegerValue add(IntegerValue left, IntegerValue right,
-			long con) {
+								   long con) {
 		if (!(left instanceof IntegerConstant)
 				&& (right instanceof IntegerConstant)) {
 
@@ -109,7 +110,7 @@ public abstract class ExpressionFactory {
 	}
 
 	private static IntegerValue buildAddNormalized(IntegerValue left,
-			IntegerValue right, long con) {
+												   IntegerValue right, long con) {
 
 		// can only optimize if left is a literal
 		if (!(left instanceof IntegerConstant))
@@ -161,7 +162,7 @@ public abstract class ExpressionFactory {
 	}
 
 	private static RealValue buildAddNormalized(RealValue right,
-			RealValue left, double con) {
+												RealValue left, double con) {
 		// can only optimize if left is a literal
 		if (!(left instanceof RealConstant))
 			return new RealBinaryExpression(left, Operator.PLUS, right, con);
@@ -204,7 +205,7 @@ public abstract class ExpressionFactory {
 	}
 
 	public static IntegerValue mul(IntegerValue left, IntegerValue right,
-			long con) {
+								   long con) {
 
 		if ((!(left instanceof IntegerConstant))
 				&& (right instanceof IntegerConstant))
@@ -215,7 +216,7 @@ public abstract class ExpressionFactory {
 	}
 
 	private static IntegerValue buildMulNormalized(IntegerValue right,
-			IntegerValue left, long con) {
+												   IntegerValue left, long con) {
 
 		/*
 		 * (mul 0 x) --> 0
@@ -255,7 +256,7 @@ public abstract class ExpressionFactory {
 	}
 
 	private static RealValue buildMulNormalized(RealValue right,
-			RealValue left, double con) {
+												RealValue left, double con) {
 
 		/*
 		 * (mul 0 x) --> 0
@@ -294,7 +295,7 @@ public abstract class ExpressionFactory {
 	}
 
 	public static IntegerValue div(IntegerValue left, IntegerValue right,
-			long con) {
+								   long con) {
 
 		/*
 		 * (div 0 x) --> 0
@@ -317,7 +318,7 @@ public abstract class ExpressionFactory {
 	}
 
 	public static IntegerValue rem(IntegerValue left, IntegerValue right,
-			long con) {
+								   long con) {
 
 		/*
 		 * (rem 0 x) --> 0
@@ -369,17 +370,17 @@ public abstract class ExpressionFactory {
 		return new ArrayVariable.ReferenceArrayVariable(objectType, instanceId, arrayName, concreteArray);
 	}
 
-  public static IntegerValue buildArraySelectExpression(ArrayValue.IntegerArrayValue arrayExpression, IntegerValue symb_index, IntegerValue symb_value) {
+	public static IntegerValue buildArraySelectExpression(ArrayValue.IntegerArrayValue arrayExpression, IntegerValue symb_index, IntegerValue symb_value) {
 		return new ArraySelect.IntegerArraySelect(arrayExpression, symb_index, symb_value);
-  }
+	}
 
 	public static RealValue buildArraySelectExpression(ArrayValue.RealArrayValue arrayExpression, IntegerValue symb_index, RealValue symb_value) {
 		return new ArraySelect.RealArraySelect(arrayExpression, symb_index, symb_value);
-  }
+	}
 
-  public static StringValue buildArraySelectExpression(ArrayValue.StringArrayValue arrayExpression, IntegerValue symb_index, StringValue symb_value) {
+	public static StringValue buildArraySelectExpression(ArrayValue.StringArrayValue arrayExpression, IntegerValue symb_index, StringValue symb_value) {
 		return new ArraySelect.StringArraySelect(arrayExpression, symb_index, symb_value);
-  }
+	}
 
 	public static ArrayValue.IntegerArrayValue buildArrayStoreExpression(ArrayValue.IntegerArrayValue symbolic_array_instance, IntegerValue symb_index, IntegerValue symb_value, Object concreteResultingArray) {
 		return new ArrayStore.IntegerArrayStore(symbolic_array_instance, symb_index, symb_value, concreteResultingArray);
@@ -391,5 +392,11 @@ public abstract class ExpressionFactory {
 
 	public static ArrayValue.StringArrayValue buildArrayStoreExpression(ArrayValue.StringArrayValue symbolic_array_instance, IntegerValue symb_index, StringValue symb_value, Object concreteResultingArray) {
 		return new ArrayStore.StringArrayStore(symbolic_array_instance, symb_index, symb_value, concreteResultingArray);
+	}
+
+	/**************************** Reference Types ****************************/
+
+	public static LiteralNullType buildNewNullReferenceType() {
+		return new LiteralNullType();
 	}
 }

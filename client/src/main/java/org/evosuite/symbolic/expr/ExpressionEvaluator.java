@@ -52,6 +52,9 @@ import org.evosuite.symbolic.expr.reader.StringReaderExpr;
 import org.evosuite.symbolic.expr.ref.GetFieldExpression;
 import org.evosuite.symbolic.expr.ref.ReferenceConstant;
 import org.evosuite.symbolic.expr.ref.ReferenceVariable;
+import org.evosuite.symbolic.expr.reftype.LambdaSyntheticType;
+import org.evosuite.symbolic.expr.reftype.LiteralClassType;
+import org.evosuite.symbolic.expr.reftype.LiteralNullType;
 import org.evosuite.symbolic.expr.str.IntegerToStringCast;
 import org.evosuite.symbolic.expr.str.RealToStringCast;
 import org.evosuite.symbolic.expr.str.StringBinaryExpression;
@@ -808,6 +811,21 @@ public class ExpressionEvaluator implements ExpressionVisitor<Object, Void> {
 
   @Override
   public Object visit(ArrayVariable.ReferenceArrayVariable r, Void arg) {
+    throw new UnsupportedOperationException(IMPLEMENT_ME);
+  }
+
+  @Override
+  public Object visit(LambdaSyntheticType r, Void arg) {
+    throw new UnsupportedOperationException(IMPLEMENT_ME);
+  }
+
+  @Override
+  public Object visit(LiteralNullType r, Void arg) {
+    throw new UnsupportedOperationException(IMPLEMENT_ME);
+  }
+
+  @Override
+  public Object visit(LiteralClassType r, Void arg) {
     throw new UnsupportedOperationException(IMPLEMENT_ME);
   }
 }

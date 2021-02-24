@@ -48,6 +48,7 @@ import org.evosuite.testcase.TestCaseUpdater;
 import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.ClassUtil;
+import org.evosuite.utils.LoggingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -101,7 +102,7 @@ public abstract class ExplorationAlgorithm extends ExplorationAlgorithmBase {
     public static final String STRATEGY_CANNOT_BE_NULL                                       = "Strategy cannot be null";
     public static final String ENTRY_POINTS_FOUND_DEBUG_MESSAGE                              = "Found {} as entry points for DSE";
     public static final String STOPPING_CONDITION_MET_DEBUG_MESSAGE                          = "A stopping condition was met. No more tests can be generated using DSE.";
-    public static final String GENERATING_TESTS_FOR_ENTRY_DEBUG_MESSAGE                      = "Generating tests for entry method {}";
+    public static final String GENERATING_TESTS_FOR_ENTRY_DEBUG_MESSAGE                      = "Generating tests for entry method: {}";
     public static final String TESTS_WERE_GENERATED_FOR_ENTRY_METHOD_DEBUG_MESSAGE           = "{} tests were generated for entry method {}";
     public static final String EXPLORATION_STRATEGIES_MUST_BE_INITIALIZED_TO_START_SEARCHING = "Exploration strategies must be initialized to start searching.";
 
@@ -207,8 +208,12 @@ public abstract class ExplorationAlgorithm extends ExplorationAlgorithmBase {
                   break;
              }
 
-             logger.debug(GENERATING_TESTS_FOR_ENTRY_DEBUG_MESSAGE, entryMethod.getName());
+             LoggingUtils.getEvoLogger().info("* " + GENERATING_TESTS_FOR_ENTRY_DEBUG_MESSAGE, entryMethod.getName());
              int testCaseCount = testSuite.getTests().size();
+
+             /** Setting up current method being targeted */
+             Properties.CURRENT_TARGET_METHOD = entryMethod.getName();
+
              explore(entryMethod);
              int numOfGeneratedTestCases = testSuite.getTests().size() - testCaseCount;
              logger.debug(TESTS_WERE_GENERATED_FOR_ENTRY_METHOD_DEBUG_MESSAGE, numOfGeneratedTestCases, entryMethod.getName());

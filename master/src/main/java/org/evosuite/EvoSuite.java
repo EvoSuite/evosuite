@@ -257,10 +257,6 @@ public class EvoSuite {
                 }
             }
 
-            if (Properties.STRATEGY == Properties.Strategy.DSE && javaVersion >= 9){
-                throw new IllegalStateException("DSE is not supported for java versions >9 by EvoSuite");
-            }
-
             if (Properties.JEE == true){
                 throw new IllegalStateException("JEE is not supported due to the Java 9+ update of EvoSuite");
             }

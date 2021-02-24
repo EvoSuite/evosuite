@@ -36,27 +36,17 @@ public final class OperandStack implements Iterable<Operand> {
 
 	private final Deque<Operand> stack = new LinkedList<>();
 
-	public OperandStack() {
-	}
+	public OperandStack() {}
 
-	public void pushRef(ReferenceExpression r) {
-		stack.push(new ReferenceOperand(r));
-	}
+	public void pushBv32(IntegerValue e) { stack.push(new Bv32Operand(e)); }
+	public void pushBv64(IntegerValue e) { stack.push(new Bv64Operand(e)); }
+	public void pushFp32(RealValue e) {	stack.push(new Fp32Operand(e));	}
+	public void pushFp64(RealValue e) {	stack.push(new Fp64Operand(e));	}
+	public void pushRef(ReferenceExpression r) { stack.push(new ReferenceOperand(r)); }
 
-	public void pushBv32(IntegerValue e) {
-		stack.push(new Bv32Operand(e));
-	}
-
-	public void pushBv64(IntegerValue e) {
-		stack.push(new Bv64Operand(e));
-	}
-
-	public void pushFp32(RealValue e) {
-		stack.push(new Fp32Operand(e));
-	}
-
-	public void pushFp64(RealValue e) {
-		stack.push(new Fp64Operand(e));
+	public void pushNullRef() {
+		ReferenceExpression nullExpression = ExpressionFactory.buildNewNullExpression();
+		this.stack.push(new ReferenceOperand(nullExpression));
 	}
 
 	public ReferenceExpression popRef() {
@@ -92,10 +82,6 @@ public final class OperandStack implements Iterable<Operand> {
 	public Operand popOperand() {
 		Operand ret_val = this.stack.pop();
 		return ret_val;
-	}
-
-	public void clearOperands() {
-		stack.clear();
 	}
 
 	public void pushOperand(Operand operand) {
@@ -164,13 +150,6 @@ public final class OperandStack implements Iterable<Operand> {
 	public int size() {
 		return stack.size();
 	}
-
-	public boolean isEmpty() {
-		return stack.isEmpty();
-	}
-
-	public void pushNullRef() {
-		ReferenceExpression nullExpression = ExpressionFactory.buildNewNullExpression();
-		this.stack.push(new ReferenceOperand(nullExpression));
-	}
+	public boolean isEmpty() { return stack.isEmpty(); }
+	public void clearOperands() { stack.clear(); }
 }

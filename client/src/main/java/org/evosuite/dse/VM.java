@@ -21,6 +21,7 @@ package org.evosuite.dse;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.Consumer;
 
 
 /*
@@ -31,11 +32,11 @@ import java.util.List;
 
 /**
  * Entry-point
- * 
+ *
  * The instrumentation inserted into user code is hard-coded to call static
  * methods of this class. Here we just multiplex these incoming calls to a list
  * of registered listeners.
- * 
+ *
  * @author csallner@uta.edu (Christoph Csallner)
  */
 public final class VM {
@@ -47,7 +48,7 @@ public final class VM {
 
 	/**
 	 * Is this a recursive callback?
-	 * 
+	 *
 	 * <pre>
 	 * VM.meth()   // true
 	 * user.meth()
@@ -55,6 +56,7 @@ public final class VM {
 	 * </pre>
 	 */
 	private static boolean ignoreCallback = false;
+
 
 	public static void disableCallBacks() {
 		ignoreCallback = true;
@@ -119,6 +121,18 @@ public final class VM {
 	}
 
 	/**
+	 * Notifies the VMs that the concolic execution has finished.
+	 * Useful for closing any necessary connections and static states (if any).
+	 *
+	 * TODO (ilebrero): Eventually all VMs can be reused instead of just creating new ones.
+	 */
+	public void cleanUpListeners() {
+		for (IVM listener : this.listeners) {
+			listener.cleanUp();
+		}
+	}
+
+	/**
 	 * This method should be called before {@link #setListeners}. This method
 	 * queues listener ivm to be added to the list of listeners by setListeners.
 	 */
@@ -164,6 +178,10 @@ public final class VM {
 		 * Listeners are not supposed to throw exceptions to the VM except the
 		 * StopVMException.
 		 */
+
+		// Without differentiating between exceptions, execution is already finished so cleaning up first.
+		vm.cleanUpListeners();
+
 		if (t instanceof StopVMException) {
 			// No more callbacks are done since the list is erased
 			// TODO catch StopVMException in Listeners. Enforce no listener
@@ -3504,19 +3522,28 @@ public final class VM {
 		ignoreCallback = false;
 	}
 
-	public static void UNUSED() {
-		if (ignoreCallback)
-			return;
-		ignoreCallback = true;
-		vm.countCallback();
-		try {
-			for (IVM listener : vm.listeners)
-				listener.UNUSED();
-		} catch (Throwable t) {
-			handleException(t);
-		}
-		ignoreCallback = false;
-	}
+	/**
+	 * Lambdas, closures and method references
+	 *
+	 * @param instance
+	 * @param ownerClass
+	 */
+	public static void INVOKEDYNAMIC(Object instance, String ownerClass) {
+        if (!ignoreCallback)
+            interpret((IVM ivm) -> ivm.INVOKEDYNAMIC(instance, ownerClass));
+    }
+
+	/**
+	 * String concatenation
+	 *
+	 * @param concatenationResult
+	 * @param stringOwnerClass
+	 * @param stringRecipe
+	 */
+    public static void INVOKEDYNAMIC(String concatenationResult, String stringOwnerClass, String stringRecipe) {
+        if (!ignoreCallback)
+            interpret((IVM ivm) -> ivm.INVOKEDYNAMIC(concatenationResult, stringOwnerClass, stringRecipe));
+    }
 
 	protected static Class<?> getArrayComponentType(int componentTypeInt) {
 		switch (componentTypeInt) {
@@ -3746,8 +3773,29 @@ public final class VM {
 	public static VM getInstance() {
 		return vm;
 	}
-	
+
 	public static void clearInstance() {
 		vm = new VM();
+	}
+
+    /**
+     * External callbacks.
+     * Comes directly from instrumented user program.
+     *
+     * TODO: Refactor all calls to use this function in the same way as INVOKEDYNAMIC
+     *
+     * @param lambda
+     */
+    private static void interpret(Consumer<IVM> lambda) {
+  	    disableCallBacks();
+	    vm.countCallback();
+
+	    try {
+	      for (IVM ivm : vm.listeners) lambda.accept(ivm);
+	    } catch (Throwable t) {
+	      t.printStackTrace();
+	    } finally {
+	  	  enableCallBacks();
+	    }
 	}
 }

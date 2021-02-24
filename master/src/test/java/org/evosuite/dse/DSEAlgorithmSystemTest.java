@@ -19,83 +19,41 @@
  */
 package org.evosuite.dse;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assume.assumeTrue;
-
-import com.examples.with.different.packagename.dse.array.IntegerArrayAssignmentExample;
-import com.examples.with.different.packagename.dse.PathDivergeUsingHashExample;
-import com.examples.with.different.packagename.dse.array.IntegerArrayAssignmentExample2;
-import com.examples.with.different.packagename.dse.array.RealArrayAssignmentExample;
-import com.examples.with.different.packagename.dse.array.RealArrayAssignmentExample2;
-import com.examples.with.different.packagename.dse.array.StringArrayAssignmentExample;
-import org.evosuite.EvoSuite;
-import org.evosuite.Properties;
-import org.evosuite.Properties.Criterion;
-import org.evosuite.Properties.SolverType;
-import org.evosuite.Properties.StoppingCondition;
-import org.evosuite.Properties.Strategy;
-import org.evosuite.SystemTestBase;
-import org.evosuite.symbolic.dse.algorithm.ExplorationAlgorithmBase;
-import org.evosuite.testsuite.TestSuiteChromosome;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-
 import com.examples.with.different.packagename.dse.Add;
-import com.examples.with.different.packagename.dse.array.ArrayLengthExample;
 import com.examples.with.different.packagename.dse.BooleanExample;
 import com.examples.with.different.packagename.dse.ByteExample;
 import com.examples.with.different.packagename.dse.CharExample;
 import com.examples.with.different.packagename.dse.DoubleExample;
 import com.examples.with.different.packagename.dse.FloatExample;
+import com.examples.with.different.packagename.dse.LocalClassExample;
 import com.examples.with.different.packagename.dse.LongExample;
 import com.examples.with.different.packagename.dse.Max;
 import com.examples.with.different.packagename.dse.Min;
 import com.examples.with.different.packagename.dse.MinUnreachableCode;
 import com.examples.with.different.packagename.dse.NoStaticMethod;
 import com.examples.with.different.packagename.dse.ObjectExample;
+import com.examples.with.different.packagename.dse.PathDivergeUsingHashExample;
 import com.examples.with.different.packagename.dse.ShortExample;
 import com.examples.with.different.packagename.dse.StringExample;
+import com.examples.with.different.packagename.dse.array.ArrayLengthExample;
+import com.examples.with.different.packagename.dse.array.IntegerArrayAssignmentExample;
+import com.examples.with.different.packagename.dse.array.IntegerArrayAssignmentExample2;
+import com.examples.with.different.packagename.dse.array.RealArrayAssignmentExample;
+import com.examples.with.different.packagename.dse.array.RealArrayAssignmentExample2;
+import com.examples.with.different.packagename.dse.array.StringArrayAssignmentExample;
+import org.evosuite.EvoSuite;
+import org.evosuite.Properties;
+import org.evosuite.Properties.StoppingCondition;
+import org.evosuite.symbolic.dse.algorithm.ExplorationAlgorithmBase;
+import org.evosuite.testsuite.TestSuiteChromosome;
+import org.junit.Ignore;
+import org.junit.Test;
 
-public class DSEAlgorithmSystemTest extends SystemTestBase {
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
-	@Before
-	public void init() {
-		Properties.VIRTUAL_FS = true;
-		Properties.VIRTUAL_NET = true;
-		Properties.LOCAL_SEARCH_PROBABILITY = 1.0;
-		Properties.LOCAL_SEARCH_RATE = 1;
-		Properties.LOCAL_SEARCH_BUDGET_TYPE = Properties.LocalSearchBudgetType.TESTS;
-		Properties.LOCAL_SEARCH_BUDGET = 100;
-		Properties.SEARCH_BUDGET = 50000;
-		// Properties.CONCOLIC_TIMEOUT = Integer.MAX_VALUE;
-		Properties.RESET_STATIC_FIELD_GETS = true;
-
-		String cvc4_path = System.getenv("CVC4_PATH");
-		if (cvc4_path != null) {
-			Properties.CVC4_PATH = cvc4_path;
-		}
-
-		Properties.DSE_SOLVER = SolverType.CVC4_SOLVER;
-
-		Properties.STOPPING_CONDITION = StoppingCondition.MAXTIME;
-		Properties.SEARCH_BUDGET = 60 * 60 * 10; // 10 hours
-		Properties.MINIMIZATION_TIMEOUT = 60 * 60;
-		Properties.ASSERTION_TIMEOUT = 60 * 60;
-		// Properties.TIMEOUT = Integer.MAX_VALUE;
-
-		Properties.STRATEGY = Strategy.DSE;
-		Properties.SELECTED_DSE_ARRAYS_MEMORY_MODEL_VERSION = Properties.DSE_ARRAYS_MEMORY_MODEL_VERSION.SELECT_STORE_EXPRESSIONS;
-
-		Properties.CRITERION = new Criterion[] { Criterion.BRANCH };
-
-		Properties.MINIMIZE = true;
-		Properties.ASSERTIONS = true;
-
-		assumeTrue(Properties.CVC4_PATH != null);
-	}
+public class DSEAlgorithmSystemTest extends DSESystemTestBase {
 
 	@Test
 	public void testMax() {
@@ -677,5 +635,10 @@ public class DSEAlgorithmSystemTest extends SystemTestBase {
 
 		assertFalse(best.getTests().isEmpty());
 		assertTrue(best.getNumOfCoveredGoals() >= 3);
+	}
+
+	@Test
+	public void testLocalClass() {
+		testDSEExecution(4, 1, LocalClassExample.class);
 	}
 }

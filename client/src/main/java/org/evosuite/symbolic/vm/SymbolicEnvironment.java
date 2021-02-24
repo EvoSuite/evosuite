@@ -35,6 +35,8 @@ import org.evosuite.symbolic.vm.heap.SymbolicHeap;
 import org.evosuite.utils.TypeUtil;
 import org.objectweb.asm.Type;
 
+import static org.evosuite.dse.MainConfig.LAMBDA_CLASS_NAME_FRAGMENT;
+
 /**
  * 
  * @author galeotti
@@ -68,20 +70,15 @@ public final class SymbolicEnvironment {
 	public Frame topFrame() {
 		return stackFrame.peek();
 	}
-
-	public void pushFrame(Frame frame) {
-		stackFrame.push(frame);
-	}
+	public Frame popFrame() { return stackFrame.pop(); }
+	public boolean isEmpty() { return stackFrame.isEmpty(); }
+	public void pushFrame(Frame frame) { stackFrame.push(frame); }
 
 	public Frame callerFrame() {
 		Frame top = stackFrame.pop();
 		Frame res = stackFrame.peek();
 		stackFrame.push(top);
 		return res;
-	}
-
-	public Frame popFrame() {
-		return stackFrame.pop();
 	}
 
 	public Class<?> ensurePrepared(String className) {
@@ -176,9 +173,4 @@ public final class SymbolicEnvironment {
 		String declClass = method.getDeclaringClass().getCanonicalName();
 		return !MainConfig.get().isIgnored(declClass);
 	}
-
-	public boolean isEmpty() {
-		return stackFrame.isEmpty();
-	}
-
 }

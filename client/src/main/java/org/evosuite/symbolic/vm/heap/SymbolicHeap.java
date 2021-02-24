@@ -20,12 +20,16 @@
 package org.evosuite.symbolic.vm.heap;
 
 import org.evosuite.Properties;
+import org.evosuite.symbolic.LambdaUtils;
 import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.bv.IntegerValue;
 import org.evosuite.symbolic.expr.fp.RealValue;
 import org.evosuite.symbolic.expr.ref.ReferenceConstant;
 import org.evosuite.symbolic.expr.ref.ReferenceExpression;
 import org.evosuite.symbolic.expr.ref.ReferenceVariable;
+import org.evosuite.symbolic.expr.reftype.LambdaSyntheticType;
+import org.evosuite.symbolic.expr.reftype.LiteralClassType;
+import org.evosuite.symbolic.expr.reftype.ReferenceTypeExpression;
 import org.evosuite.symbolic.expr.str.StringValue;
 import org.evosuite.symbolic.vm.ExpressionFactory;
 import org.evosuite.symbolic.vm.heap.symbolicHeapSection.ArraysSection;
@@ -79,6 +83,13 @@ public final class SymbolicHeap {
 	 * mapping is used.
 	 */
 	private final Map<Integer, ReferenceExpression> nonNullRefs = new HashMap<>();
+
+	/**
+	 * Stores a mapping between Classes and ReferenceTypes. Every
+	 * time the ReferenceType for a given Object (non String) is needed, this
+	 * mapping is used.
+	 */
+	private final Map<Class, ReferenceTypeExpression> symbolicReferenceTypes = new HashMap<>();
 
 	/**
 	 * Stores a mapping between NonNullReferences and their symbolic values. The
@@ -137,7 +148,11 @@ public final class SymbolicHeap {
 			Expression<?> symb_value) {
 
 		Map<ReferenceExpression, Expression<?>> symb_field = getOrCreateSymbolicField(className, fieldName);
-		if (symb_value == null || !symb_value.containsSymbolicVariable()) {
+
+		// NOTE (ilebrero): We need to store elements even if they are constant due to probable usage later on of their
+		//					reference (i.e. if the reference is bounded to an object like a closure.)
+		//		if (symb_value == null || !symb_value.containsSymbolicVariable()) {
+		if (symb_value == null) {
 			symb_field.remove(symb_receiver);
 		} else {
 			symb_field.put(symb_receiver, symb_value);
@@ -161,7 +176,11 @@ public final class SymbolicHeap {
 			ReferenceExpression symb_value) {
 
 		Map<ReferenceExpression, Expression<?>> symb_field = getOrCreateSymbolicField(className, fieldName);
-		if (symb_value == null || !symb_value.containsSymbolicVariable()) {
+
+		// NOTE (ilebrero): We need to store elements even if they are constant due to probable usage later on of their
+		//					reference (i.e. if the reference is bounded to an object like a closure.)
+		//		if (symb_value == null || !symb_value.containsSymbolicVariable()) {
+		if (symb_value == null) {
 			symb_field.remove(symb_receiver);
 		} else {
 			symb_field.put(symb_receiver, symb_value);
@@ -544,5 +563,47 @@ public final class SymbolicHeap {
 	 */
 	public void arrayStore(Object concreteArray, ReferenceExpression symbolicArray, IntegerValue symbolicIndex, ReferenceExpression symbolicValue) {
 		symbolicArrays.arrayStore(concreteArray, symbolicArray, symbolicIndex, symbolicValue);
+	}
+
+
+	/******** Types Implementation *******/
+
+	public ReferenceTypeExpression buildNewLambdaConstant(Class<?> lambdaAnonymousClass, boolean ownerIsIgnored) {
+	 	if (lambdaAnonymousClass == null)
+			throw new IllegalArgumentException("Lambda Anonymous Class cannot be null.");
+
+		ReferenceTypeExpression lambdaExpression;
+		lambdaExpression = symbolicReferenceTypes.get(lambdaAnonymousClass);
+
+		if (lambdaExpression == null) {
+			 lambdaExpression = new LambdaSyntheticType(lambdaAnonymousClass, ownerIsIgnored);
+			 symbolicReferenceTypes.put(lambdaAnonymousClass, lambdaExpression);
+		}
+
+		return lambdaExpression;
+	}
+
+	/**
+	 * Retrieves the symbolic expression related to this class.
+	 *
+	 * @param type
+	 * @return
+	 */
+	public ReferenceTypeExpression getReferenceType(Class type) {
+		if (type == null) return ExpressionFactory.buildNewNullReferenceType();
+
+		ReferenceTypeExpression typeExpression;
+		typeExpression = symbolicReferenceTypes.get(type);
+
+		if (typeExpression == null) {
+			if (LambdaUtils.isLambda(type)) {
+				//If we haven't seen this lambda before then it's from non-instrumented sources
+				typeExpression = new LambdaSyntheticType(type, true);
+			} else {
+				typeExpression = new LiteralClassType(type);
+			}
+		}
+
+		return typeExpression;
 	}
 }

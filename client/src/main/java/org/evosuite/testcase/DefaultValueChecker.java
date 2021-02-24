@@ -51,6 +51,8 @@ public enum DefaultValueChecker {
         return LONG.checker.apply(value);
       } else if (Boolean.class.equals(value.getClass())) {
         return BOOLEAN.checker.apply(value);
+      } else if (Character.class.equals(value.getClass())) {
+        return CHAR.checker.apply(value);
       } else if (String.class.equals(value.getClass())) {
         return STRING.checker.apply(value);
       } else if (Float.class.equals(value.getClass())) {

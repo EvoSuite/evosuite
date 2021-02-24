@@ -37,6 +37,8 @@ public class CFGClassAdapter extends ClassVisitor {
 
 	private static final Logger logger = LoggerFactory.getLogger(CFGClassAdapter.class);
 
+	public static final String LAMBDA_METHOD_NAME = "lambda$";
+
 	/** Current class */
 	private final String className;
 
@@ -93,7 +95,7 @@ public class CFGClassAdapter extends ClassVisitor {
 		mv = new JSRInlinerAdapter(mv, methodAccess, name, descriptor, signature, exceptions);
 
 
-		if ((methodAccess & Opcodes.ACC_SYNTHETIC) != 0
+		if (((methodAccess & Opcodes.ACC_SYNTHETIC) != 0 && !isLambdaMethodName(name))
 		        || (methodAccess & Opcodes.ACC_BRIDGE) != 0) {
 			return mv;
 		}
@@ -124,4 +126,15 @@ public class CFGClassAdapter extends ClassVisitor {
 		        descriptor, signature, exceptions, mv);
 		return mv;
 	}
+
+	/**
+	 * Just checks wheter the name of the method is of a synthetic lambda.
+	 * TODO: we do the same on the concolic engine VMs, eventually move this to a commons space.
+	 *
+	 * @param methodName
+	 * @return
+	 */
+	private static boolean isLambdaMethodName(String methodName) {
+        return methodName.startsWith(LAMBDA_METHOD_NAME);
+    }
 }

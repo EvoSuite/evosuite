@@ -138,6 +138,8 @@ public class TypeUtil {
       return ((Boolean) o) ? 1L : 0L;
     } else if (Long.class.getName().equals(o.getClass().getName())) {
       return ((Long) o).longValue();
+    } else if (Character.class.getName().equals(o.getClass().getName())) {
+      return (long) ((Character) o).charValue();
     }
 
     throw new IllegalStateException(UNEXPECTED_VALUE + " The object " + o.getClass().getName() + " is not a primitive type wrapper.");

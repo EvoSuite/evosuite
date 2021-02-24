@@ -257,21 +257,12 @@ public final class HeapVM extends AbstractVM {
 		 * Update symbolic state (if needed)
 		 */
 		Operand value_operand = env.topFrame().operandStack.popOperand();
-		Expression<?> symb_value = null;
-		if (value_operand instanceof IntegerOperand) {
-			IntegerOperand intOp = (IntegerOperand) value_operand;
-			symb_value = intOp.getIntegerExpression();
-		} else if (value_operand instanceof RealOperand) {
-			RealOperand realOp = (RealOperand) value_operand;
-			symb_value = realOp.getRealExpression();
-		} else if (value_operand instanceof ReferenceOperand) {
+		Expression<?> symb_value = OperandUtils.retrieveOperandExpression(value_operand);
 
-			// NonNullReference are not stored in the symbolic heap fields
-			return;
+		// NonNullReference are not stored in the symbolic heap fields
+		if (symb_value instanceof ReferenceOperand) return;
 
-		}
 		env.heap.putStaticField(owner, name, symb_value);
-
 	}
 
 	/**

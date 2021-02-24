@@ -574,6 +574,10 @@ public interface IVM {
 	void INVOKEINTERFACE(Object receiver, String owner, String name,
 											 String desc);
 
+	void INVOKEDYNAMIC(Object clazz, String owner);
+
+	void INVOKEDYNAMIC(String concatenationResult, String stringOwnerClass, String stringRecipe);
+
 	void UNUSED();
 
 	void NEW(String typeName);
@@ -607,4 +611,6 @@ public interface IVM {
 	void GOTO_W();
 
 	void JSR_W();
+
+    void cleanUp();
 }

@@ -19,6 +19,8 @@
  */
 package org.evosuite.symbolic.instrument;
 
+import org.apache.commons.lang3.NotImplementedException;
+import org.objectweb.asm.Handle;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -121,6 +123,7 @@ import static org.objectweb.asm.Opcodes.IF_ICMPLT;
 import static org.objectweb.asm.Opcodes.IF_ICMPNE;
 import static org.objectweb.asm.Opcodes.ILOAD;
 import static org.objectweb.asm.Opcodes.INSTANCEOF;
+import static org.objectweb.asm.Opcodes.INVOKEDYNAMIC;
 import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
@@ -152,12 +155,12 @@ import static org.objectweb.asm.Opcodes.TABLESWITCH;
 
 /**
  * Main instrumentation class
- * 
+ *
  * <p>
  * Before each user ByteCode instruction, add a call to one of our static
  * methods, that reflects the particular ByteCode. In a few cases noted below,
  * we add our callback after the user ByteCode, instead of before.
- * 
+ *
  * @author csallner@uta.edu (Christoph Csallner)
  */
 public final class ConcolicMethodAdapter extends GeneratorAdapter {
@@ -172,13 +175,26 @@ public final class ConcolicMethodAdapter extends GeneratorAdapter {
 	private static final String METHOD_BEGIN_RECEIVER = "METHOD_BEGIN_RECEIVER"; //$NON-NLS-1$
 
 	private static final String CALL_RESULT = "CALL_RESULT"; //$NON-NLS-1$
+	private static final String METHOD_MAXS = "METHOD_MAXS"; //$NON-NLS-1$
+
+	/**
+	 * InokveDynamic bootstrap methods owner classes
+	 *
+	 * NOTE (ilebrero): We don't use class.getSimpleName() over LambdaMetaFactory and StringConcatFactory themselves
+	 * 					for retro compatibility with older JDK versions. Is there a more elegant way of doing this?
+	 */
+	private static final String LAMBDA_METAFACTORY = "LambdaMetafactory"; //$NON-NLS-1$
+	private static final String STRING_CONCAT_FACTORY = "StringConcatFactory"; //$NON-NLS-1$
 
 	private final int access;
 	private final String className;
 	private final String methName;
 	private final String methDescription;
 
+	private int branchCounter = 1;
+
 	private final OperandStack stack;
+	private final Set<Label> exceptionHandlers = new HashSet<>();
 
 	/**
 	 * Constructor
@@ -197,12 +213,12 @@ public final class ConcolicMethodAdapter extends GeneratorAdapter {
 
 	/**
 	 * Before first ByteCode of the method/constructor
-	 * 
+	 *
 	 * <p>
 	 * Issue one call per argument, excluding the "this" receiver for
 	 * non-constructor instance methods. Work left to right, starting with
 	 * receiver.
-	 * 
+	 *
 	 * <ol>
 	 * <li>
 	 * METHOD_BEGIN_RECEIVER(value) -- optional</li>
@@ -404,11 +420,9 @@ public final class ConcolicMethodAdapter extends GeneratorAdapter {
 		super.visitInsn(opcode); // user code ByteCode instruction
 	}
 
-	private int branchCounter = 1;
-
 	@Override
 	public void visitJumpInsn(int opcode, Label label) {
-		
+
 		// The use of branchCounter is inlined so that branchIds match
 		// what EvoSuite produces
 		//
@@ -484,7 +498,7 @@ public final class ConcolicMethodAdapter extends GeneratorAdapter {
 	/**
 	 * Pseudo-instruction, inserted directly before the corresponding target
 	 * instruction.
-	 * 
+	 *
 	 * <p>
 	 * Our instrumentation code does not change the shape of the instrumented
 	 * method's control flow graph. So hopefully we do not need to modify any
@@ -551,16 +565,12 @@ public final class ConcolicMethodAdapter extends GeneratorAdapter {
 	 * <li>
 	 * LDC2_W -- push category two constant from constant pool</li>
 	 * </ul>
-	 * 
+	 *
 	 * Insert call to our method after user ByteCode instruction, allows us to
 	 * use the result of LDC.
-	 * 
-	 * @see http 
-	 *      ://java.sun.com/docs/books/jvms/second_edition/html/Instructions2
-	 *      .doc8.html#ldc
-	 * @see http 
-	 *      ://java.sun.com/docs/books/jvms/second_edition/html/Instructions2
-	 *      .doc8.html#ldc2_w
+	 *
+	 * @see  <a href="http://java.sun.com/docs/books/jvms/second_edition/html/Instructions2.doc8.html#ldc">ldc doc</a>
+	 * @see  <a href="http://java.sun.com/docs/books/jvms/second_edition/html/Instructions2.doc8.html#ldc2_w">ldc2 doc</a>
 	 */
 	@Override
 	public void visitLdcInsn(Object constant) {
@@ -581,6 +591,8 @@ public final class ConcolicMethodAdapter extends GeneratorAdapter {
 		} else if (constant instanceof Type) {
 			mv.visitInsn(DUP);
 			insertCallback(BYTECODE_NAME[LDC], CLASS_V, false); //$NON-NLS-1$
+		// } else if (constant instanceof Handle) { // TODO: how are we supposed to handle this?
+		// } else if (constant instanceof ConstantDynamic) { // TODO: complete if intended JDK11 support.
 		} else { /* LDC2_W */
 			mv.visitInsn(DUP2);
 
@@ -595,7 +607,7 @@ public final class ConcolicMethodAdapter extends GeneratorAdapter {
 
 	/**
 	 * ILOAD, ISTORE, ILOAD_0, ILOAD_1, etc.
-	 * 
+	 *
 	 * <p>
 	 * These may follow a WIDE instruction.
 	 */
@@ -626,7 +638,7 @@ public final class ConcolicMethodAdapter extends GeneratorAdapter {
 
 	/**
 	 * GETFIELD, PUTFIELD, GETSTATIC, PUTSTATIC
-	 * 
+	 *
 	 * http://java.sun.com/docs/books/jvms/second_edition/html/Instructions2.
 	 * doc5.html#getfield
 	 * http://java.sun.com/docs/books/jvms/second_edition/html
@@ -668,6 +680,56 @@ public final class ConcolicMethodAdapter extends GeneratorAdapter {
 		                                                 // instruction
 	}
 
+	/**
+	 * INVOKEDYNAMIC
+	 *
+	 * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-6.html#jvms-6.5.invokedynamic">
+	 *     		invokedynamic doc
+	 *      </a>
+	 *
+	 * TODO: Add support for other InvokeDynamic based features.
+	 * 		 (e.g. milling coin project, local variable type inference, dynalink, etc...)
+	 *
+	 * @param name
+	 * @param methodDesc
+	 * @param bsm
+	 * @param bsmArgs
+	 */
+	@Override
+	public void visitInvokeDynamicInsn(String name, String methodDesc, Handle bsm, Object... bsmArgs) {
+		super.visitInvokeDynamicInsn(name, methodDesc, bsm, bsmArgs); // user ByteCode instruction
+
+		mv.visitInsn(DUP); // newly created indy result
+
+		String callbackMethodDesc;
+
+		/**
+		 * These two seems to be the only cases of invokedynamic uses in JDK 9.
+		 * Dynalink and other JVM invokedynamic features are still not being
+		 * used in java. If we want to support dynamic languages at some point (scala, jruby, etc.) we should
+		 * use a more general implementation of indy.
+		 */
+		if (ownerIsLambdaMetafactory(bsm)) {
+			// Lambda case, is either a method reference, lambda usage or SAM method conversion
+			push(((Handle) bsmArgs[1]).getOwner ());
+			callbackMethodDesc = LG_V;
+		} else if (ownerIsStringConcatFactory(bsm)){
+			// String concatenation case
+			push(bsm.getOwner());
+
+			/**
+			 * String concatenation recipe, all parameter are already pushed to the symbolic stack
+			 * @see  <a href="https://docs.oracle.com/javase/9/docs/api/java/lang/invoke/StringConcatFactory.html">ldc doc</a>
+			 */
+			push((String) bsmArgs[0]);
+			callbackMethodDesc = GGG_V;
+		} else {
+			throw new NotImplementedException("Invokedynamic's bootstrap method not supported yet: " + bsm.getOwner());
+		}
+
+		insertCallback(BYTECODE_NAME[INVOKEDYNAMIC], callbackMethodDesc, false);
+	}
+
 
 	/**
 	 * Invoke a method/constructor/class initializer:
@@ -704,7 +766,6 @@ public final class ConcolicMethodAdapter extends GeneratorAdapter {
 	 */
 	@Override
 	public void visitMethodInsn(int opcode, String owner, String name, String descriptor, boolean isInterface) {
-		// FIXME proper handling of INVOKEDYNAMIC (currently handled like INVOKESTATIC)
 		Type[] argTypes = Type.getArgumentTypes(descriptor); // does not include
 		// "this"
 
@@ -804,55 +865,12 @@ public final class ConcolicMethodAdapter extends GeneratorAdapter {
 		this.visitMethodInsn(opcode, owner, name, desc, opcode == INVOKEINTERFACE);
 	}
 
-	private Map<Integer, Integer> popArguments(Type[] argTypes){
-		Map<Integer, Integer> to = new HashMap<>();
-		for (int i = argTypes.length - 1; i >= 0; i--) {
-			int loc = newLocal(argTypes[i]);
-			storeLocal(loc);
-			to.put(i, loc);
-		}
-		return to;
-	}
-
-	private void passCallerStackParams(Type[] argTypes, boolean needThis) {
-
-		if (argTypes == null || argTypes.length == 0)
-			return;
-
-		Map<Integer, Integer> to = popArguments(argTypes);
-
-		// restore all arguments for user invocation
-		for(int i = 0; i < to.size(); i++)
-			loadLocal(to.get(i));
-
-		// push arguments copy and paramNr and calleLocalsIndex
-		int calleeLocalsIndex = calculateCalleeLocalsIndex(argTypes, needThis);
-
-		for (int i = argTypes.length - 1; i >= 0; i--) {
-			int localVarIndex = to.get(i);
-			loadLocal(localVarIndex);
-			Type argType = argTypes[i];
-			stack.passCallerStackParam(argType, i, calleeLocalsIndex);
-			calleeLocalsIndex -= argType.getSize();
-		}
-
-	}
-
-	private int calculateCalleeLocalsIndex(Type[] argTypes, boolean needThis) {
-		int calleeLocalsIndex = 0;
-		for (Type type : argTypes)
-			calleeLocalsIndex += type.getSize();
-		if (needThis)
-			calleeLocalsIndex += 1;
-		return calleeLocalsIndex;
-	}
-
 	/**
 	 * IINC
-	 * 
+	 *
 	 * <p>
 	 * Increment i-th local (int) variable by constant (int) value.
-	 * 
+	 *
 	 * <p>
 	 * May follow a WIDE instruction.
 	 */
@@ -866,7 +884,7 @@ public final class ConcolicMethodAdapter extends GeneratorAdapter {
 
 	/**
 	 * MULTIANEWARRAY
-	 * 
+	 *
 	 * <pre>
 	 * boolean[] b1 = new boolean[1]; // NEWARRAY T_BOOLEAN
 	 * Boolean[] B1 = new Boolean[1]; // ANEWARRAY java/lang/Boolean
@@ -896,8 +914,8 @@ public final class ConcolicMethodAdapter extends GeneratorAdapter {
 	 */
 	@Override
 	public void visitTableSwitchInsn(int min, int max, Label dflt, Label[] labels) {
-		
-		
+
+
 		int currentBranchIndex = branchCounter++;
 
 		mv.visitInsn(DUP); // pass concrete int value
@@ -916,7 +934,7 @@ public final class ConcolicMethodAdapter extends GeneratorAdapter {
 
 	/**
 	 * LOOKUPSWITCH
-	 * 
+	 *
 	 * <p>
 	 * TODO: Optimize this. Do we really need to create a new array every time
 	 * we execute this switch statement?
@@ -924,7 +942,7 @@ public final class ConcolicMethodAdapter extends GeneratorAdapter {
 	@Override
 	public void visitLookupSwitchInsn(Label dflt, int[] keys, Label[] labels) {
 
-		
+
 		int currentBranchIndex = branchCounter++;
 
 		mv.visitInsn(DUP); // pass concrete int value
@@ -987,8 +1005,6 @@ public final class ConcolicMethodAdapter extends GeneratorAdapter {
 		super.visitTypeInsn(opcode, type); // user ByteCode instruction
 	}
 
-	private final Set<Label> exceptionHandlers = new HashSet<>();
-
 	@Override
 	public void visitTryCatchBlock(Label start, Label end, Label handler, String type) {
 		exceptionHandlers.add(handler);
@@ -1000,7 +1016,7 @@ public final class ConcolicMethodAdapter extends GeneratorAdapter {
 		stack.pushStrings(className, methName, methDescription);
 		stack.pushInt(maxStack);
 		stack.pushInt(maxLocals);
-		insertCallback("METHOD_MAXS", GGGII_V, false); //$NON-NLS-1$
+		insertCallback(METHOD_MAXS, GGGII_V, false); //$NON-NLS-1$
 		super.visitMaxs(maxStack, maxLocals);
 	}
 
@@ -1011,4 +1027,54 @@ public final class ConcolicMethodAdapter extends GeneratorAdapter {
 		mv.visitMethodInsn(INVOKESTATIC, VM_FQ, methodName, methodDesc, isInterface);
 	}
 
+	private void passCallerStackParams(Type[] argTypes, boolean needThis) {
+
+		if (argTypes == null || argTypes.length == 0)
+			return;
+
+		Map<Integer, Integer> to = popArguments(argTypes);
+
+		// restore all arguments for user invocation
+		for(int i = 0; i < to.size(); i++)
+			loadLocal(to.get(i));
+
+		// push arguments copy and paramNr and calleLocalsIndex
+		int calleeLocalsIndex = calculateCalleeLocalsIndex(argTypes, needThis);
+
+		for (int i = argTypes.length - 1; i >= 0; i--) {
+			int localVarIndex = to.get(i);
+			loadLocal(localVarIndex);
+			Type argType = argTypes[i];
+			stack.passCallerStackParam(argType, i, calleeLocalsIndex);
+			calleeLocalsIndex -= argType.getSize();
+		}
+
+	}
+
+	private Map<Integer, Integer> popArguments(Type[] argTypes){
+		Map<Integer, Integer> to = new HashMap<>();
+		for (int i = argTypes.length - 1; i >= 0; i--) {
+			int loc = newLocal(argTypes[i]);
+			storeLocal(loc);
+			to.put(i, loc);
+		}
+		return to;
+	}
+
+	private int calculateCalleeLocalsIndex(Type[] argTypes, boolean needThis) {
+		int calleeLocalsIndex = 0;
+		for (Type type : argTypes)
+			calleeLocalsIndex += type.getSize();
+		if (needThis)
+			calleeLocalsIndex += 1;
+		return calleeLocalsIndex;
+	}
+
+	private boolean ownerIsLambdaMetafactory(Handle bsm) {
+		return bsm.getOwner().contains(LAMBDA_METAFACTORY);
+	}
+
+	private boolean ownerIsStringConcatFactory(Handle bsm) {
+		return bsm.getOwner().contains(STRING_CONCAT_FACTORY);
+	}
 }
