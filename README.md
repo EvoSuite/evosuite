@@ -137,6 +137,8 @@ The image will put the output of the experiment in the following locations (insi
 
 When you run the image, it will automatically generate a SEEDS file in the current directory containing the seeds it used for the experiment. When you want to replicate the experiment, you can put that file back in the same place and instead of creating new seeds the image will now use those seeds.
 
+When you want to set a manual class path instead of letting the script determine one for you, a file called, 'CLASSPATH' can be put inside the individual project folders where the first line is the class path for that project.
+
 When EvoSuite needs to be run in the background, you can use ```-d``` instead of ```-it```.
 
 ### EvoSuite plugin for Eclipse

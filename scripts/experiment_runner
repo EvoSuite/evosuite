@@ -15,6 +15,7 @@ TIMEOUT=10m          # The amount of time before the EvoSuite process is killed
 # Constants
 readonly PROJECTS_DIRECTORY='projects' # Directory where the projects are stored
 readonly RESULTS_DIRECTORY='results'   # Directory where the results should be stored
+readonly CLASS_PATH_FILE='CLASSPATH'   # Filename of manual classpath override
 
 # Warn helper functions
 warn() {
@@ -53,10 +54,17 @@ int_handler() {
 #######################################
 get_project_class_path() {
   local project_name=$1
-  local search_depth=${2:-1}
+  local search_depth=${2:-1} # Search depth (default: 1)
 
-  # Find all paths of jars in the search directory and combine with a colon separator
-  local project_class_path="$(find "${PROJECTS_DIRECTORY}"/"${project_name}" -maxdepth "${search_depth}" -type f -name "*.jar" -printf '%p:' | sed 's/:$//')"
+  local project_path="${PROJECTS_DIRECTORY}/${project_name}"         # Location of project
+  local project_class_path_file="${project_path}/${CLASS_PATH_FILE}" # Location of project class path file
+  local project_class_path
+  if [[ -f "${project_class_path_file}" ]]; then # If a manual classpath has been defined use that
+    read -r project_class_path < "${project_class_path_file}"
+  else # Otherwise include all jars in the directory
+    # Find all paths of jars in the search directory and combine with a colon separator
+    project_class_path="$(find "${project_path}" -maxdepth "${search_depth}" -type f -name "*.jar" -printf '%p:' | sed 's/:$//')"
+  fi
 
   echo ${project_class_path}
 }
