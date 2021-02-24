@@ -60,13 +60,86 @@ docker build -f Dockerfile.java11 . --tag evosuite/evosuite:latest-java-11
 
 EvoSuite can be called as follows:
 
-```docker run -it -u ${UID} -v ${PWD}:/evosuite evosuite/evosuite:<version> <options>```
+```docker run -it -u ${UID} -v ${PWD}:/evosuite evosuite/evosuite:<version>-java-<java_version> <options>```
 
 It assumes that the project to be tested is located in the current directory the command is called from. The current directory, ```${PWD}```, is mapped to the ```/evosuite``` directory inside the container. This location is also the working directory of EvoSuite. All results will be mapped back to the directory on the host system. The ```-u ${UID}``` makes sure that the results have the same file ownership as the user initiating the command.
 
 When EvoSuite needs to be run in the background, you can use ```-d``` instead of ```-it```.
 
 The ```<options>``` are the same as they would be when EvoSuite is called from the command line.
+
+
+#### Large-scale experiment runner
+
+The docker image also provides a tag (```evosuite/evosuite:<version>-java-<java_version>-experiment```) to run large-scale experiments easily. You can get this image by pulling it from [Docker Hub](https://hub.docker.com/r/evosuite/evosuite):
+
+```docker pull evosuite/evosuite:<version>-experiment```
+
+or by manually building the image locally:
+
+```
+git clone https://github.com/EvoSuite/evosuite.git
+cd evosuite
+git checkout <version> # e.g. git checkout v1.1.0
+docker build -f Dockerfile.java8-experiment . --tag evosuite/evosuite:<version>-java-8-experiment
+docker build -f Dockerfile.java11-experiment . --tag evosuite/evosuite:<version>-java-11-experiment
+```
+
+The experiment runner can be called as follows:
+
+```docker run -it -u ${UID} -v ${PWD}:/evosuite evosuite/evosuite:<version>-java-<java_version>-experiment [<options>] <configurations_file> <projects_file>```
+
+and has the following options:
+```
+-h                       print help and exit
+-m <memory>              memory limit (MB) for the EvoSuite client process (default: 2500)
+-p <parallel_instances>  limit for the number of parallel executions (default: 1)
+-r <rounds>              number of rounds to execute each experiment (default: 1)
+-s <seeds_file>          file with the seeds for the executions of the experiment (default: SEEDS)
+-t <timeout>             amount of time before EvoSuite process is killed (default: 10m)
+```
+
+It assumes that the current working directory has a folder named ```projects```, which contains a sub-directory for each project under test containing all jar files for that project. The current directory should also contain two csv files:
+
+- One for the different configurations of the experiment, with two columns for the ```configuration_name``` and the ```user_configuration```
+- One for the classes per project, with two columns for the ```project_name``` (which should be the same as the folder under ```projects```) and the ```class``` (which should be the full class path)
+
+An example of the directory structure would be:
+
+```
+./projects/<project1_name>/<first jar file of project 1>
+./projects/<project1_name>/<second jar file of project 1>
+./projects/<project2_name>/<jar file of project 2>
+./configurations.csv
+./projects.csv
+```
+
+configurations.csv:
+```
+configuration_name,user_configuration
+default60,-generateMOSuite -Dalgorithm=DynaMOSA -Dsearch_budget=60 -Dassertion_timeout=120 -Dminimization_timeout=120
+default120,-generateMOSuite -Dalgorithm=DynaMOSA -Dsearch_budget=120 -Dassertion_timeout=120 -Dminimization_timeout=120
+```
+
+The configuration for the projectCP, class, seed, and output locations are already provided by the image.
+
+projects.csv:
+```
+project_name,class
+<project1_name>,com.project1.application
+```
+
+The image will put the output of the experiment in the following locations (inside the current directory):
+
+- ```./results/<configuration_name>/<project_name>/<class_name>/logs/<round>```
+- ```./results/<configuration_name>/<project_name>/<class_name>/reports/<round>/```
+- ```./results/<configuration_name>/<project_name>/<class_name>/tests/<round>/```
+
+When you run the image, it will automatically generate a SEEDS file in the current directory containing the seeds it used for the experiment. When you want to replicate the experiment, you can put that file back in the same place and instead of creating new seeds the image will now use those seeds.
+
+When you want to set a manual class path instead of letting the script determine one for you, a file called, 'CLASSPATH' can be put inside the individual project folders where the first line is the class path for that project.
+
+When EvoSuite needs to be run in the background, you can use ```-d``` instead of ```-it```.
 
 ### EvoSuite plugin for Eclipse
 

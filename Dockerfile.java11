@@ -1,5 +1,6 @@
 # Container image for building the project
 FROM maven:3-openjdk-11-slim as build
+LABEL maintainer="Mitchell Olsthoorn"
 
 # Parameter for skipping the tests in the build process
 ARG SKIP_TESTS=true

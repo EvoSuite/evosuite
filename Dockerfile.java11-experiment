@@ -1,5 +1,5 @@
 # Container image for building the project
-FROM maven:3-openjdk-8-slim as build
+FROM maven:3-openjdk-11-slim as build
 LABEL maintainer="Mitchell Olsthoorn"
 
 # Parameter for skipping the tests in the build process
@@ -25,7 +25,7 @@ RUN mvn -e -B package -DskipTests=${SKIP_TESTS} && \
     mv master/target/evosuite-master-*.jar bin/evosuite.jar
 
 # Slim container image for running EvoSuite
-FROM openjdk:8-jdk-slim
+FROM openjdk:11-jdk-slim
 
 WORKDIR /evosuite
 VOLUME /evosuite
@@ -33,10 +33,13 @@ VOLUME /evosuite
 # Copy the evosuite jar from the builder to this container
 COPY --from=build /build/bin /evosuite-bin
 
+# Copy the EvoSuite experiment scripts to this container
+COPY scripts /evosuite-scripts
+
 # The executable is evosuite
-ENTRYPOINT ["java", "-jar", "/evosuite-bin/evosuite.jar"]
+ENTRYPOINT ["/evosuite-scripts/experiment_runner"]
 
 # The default argument is the help menu
 # This can be overidden on the command line
-CMD ["-help"]
+CMD ["-h"]
 
