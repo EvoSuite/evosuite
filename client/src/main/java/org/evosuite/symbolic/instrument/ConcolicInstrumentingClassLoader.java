@@ -49,14 +49,13 @@ public class ConcolicInstrumentingClassLoader extends ClassLoader {
 	private final ClassLoader classLoader;
 	private final ConcolicBytecodeInstrumentation instrumentation;
 	private final Map<String, Class<?>> classes = new HashMap<>();
-	
-	public ConcolicInstrumentingClassLoader() {
+
+	public ConcolicInstrumentingClassLoader(ConcolicBytecodeInstrumentation instrumentation) {
 		super(ConcolicInstrumentingClassLoader.class.getClassLoader());
-		this.instrumentation = new ConcolicBytecodeInstrumentation();
-		classLoader = ConcolicInstrumentingClassLoader.class.getClassLoader();
+
+		this.instrumentation = instrumentation;
+		this.classLoader = ConcolicInstrumentingClassLoader.class.getClassLoader();
 	}
-
-
 
 	@Override
 	public Class<?> loadClass(String name) throws ClassNotFoundException {
@@ -90,12 +89,9 @@ public class ConcolicInstrumentingClassLoader extends ClassLoader {
 
 	}
 
-	
 	private boolean checkIfCanInstrument(String name) {
 		return !MainConfig.get().isIgnored(name);
 	}
-
-
 
 	private Class<?> instrumentClass(String fullyQualifiedTargetClass)
 	        throws ClassNotFoundException {

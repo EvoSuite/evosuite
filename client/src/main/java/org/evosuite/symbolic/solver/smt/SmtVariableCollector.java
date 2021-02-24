@@ -67,6 +67,50 @@ public final class SmtVariableCollector implements SmtExprVisitor<Void, Void> {
 		return null;
 	}
 
+	@Override
+	public Void visit(SmtArrayVariable.SmtRealArrayVariable n, Void arg) {
+		smtVariables.add(n);
+		return null;
+	}
+
+	@Override
+	public Void visit(SmtArrayVariable.SmtStringArrayVariable n, Void arg) {
+		smtVariables.add(n);
+		return null;
+	}
+
+	@Override
+	public Void visit(SmtArrayVariable.SmtReferenceArrayVariable n, Void arg) {
+		smtVariables.add(n);
+		return null;
+	}
+
+	@Override
+	public Void visit(SmtArrayVariable.SmtIntegerArrayVariable n, Void arg) {
+		smtVariables.add(n);
+		return null;
+	}
+
+	@Override
+	public Void visit(SmtArrayConstant.SmtIntegerArrayConstant n, Void arg) {
+		return null;
+	}
+
+	@Override
+	public Void visit(SmtArrayConstant.SmtRealArrayConstant n, Void arg) {
+		return null;
+	}
+
+	@Override
+	public Void visit(SmtArrayConstant.SmtStringArrayConstant n, Void arg) {
+		return null;
+	}
+
+	@Override
+	public Void visit(SmtArrayConstant.SmtReferenceArrayConstant n, Void arg) {
+		return null;
+	}
+
 	public Set<SmtVariable> getSmtVariables() {
 		return smtVariables;
 	}

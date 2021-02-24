@@ -25,6 +25,7 @@ import org.evosuite.runtime.LoopCounter;
 import org.evosuite.runtime.Runtime;
 import org.evosuite.runtime.RuntimeSettings;
 import org.evosuite.runtime.sandbox.Sandbox;
+import org.evosuite.symbolic.dse.algorithm.DSEAlgorithms;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.FileIOUtils;
 import org.slf4j.Logger;
@@ -51,6 +52,8 @@ import java.util.Set;
  * @author Gordon Fraser
  */
 public class Properties {
+
+	public static final String JAVA_VERSION_WARN_MSG = "EvoSuite does not support Java versions > 8 yet";
 
 	private final static Logger logger = LoggerFactory.getLogger(Properties.class);
 
@@ -385,6 +388,31 @@ public class Properties {
 
 	//----------- DSE, which is a special case of LS ---------------
 
+	/** ilebrero: Mostly for benchmarks for new module, I dont think the legacy strategy is gonna be used anymore **/
+	public enum DSE_MODULE_VERSION {
+		LEGACY,
+		NEW
+	}
+
+	/**
+	 * ilebrero: Hope it doesn't make a lot of confusion that there are two versions of arrays supported.
+	 *           - ARRAYS_THEORY: Supports Integers and Reals.
+	 *           - LAZY_VARIABLES: Supports Integers and Reals.
+	 **/
+	public enum DSE_ARRAYS_MEMORY_MODEL_VERSION {
+		SELECT_STORE_EXPRESSIONS,
+		LAZY_VARIABLES
+	}
+
+	@Parameter(key = "dse_module_version", group = "DSE", description = "Module version of DSE, mostly used for benchmarking between modules. For other things the new one is recomended.")
+	public static DSE_MODULE_VERSION CURRENT_DSE_MODULE_VERSION = DSE_MODULE_VERSION.NEW;
+
+	@Parameter(key = "dse_enable_arrays_support", group = "DSE", description = "If arrays should be supported by the concolic engine")
+	public static boolean IS_DSE_ARRAYS_SUPPORT_ENABLED = true;
+
+	@Parameter(key = "selected_dse_module_arrays_support_version", group = "DSE", description = "Which implementation of arrays is used on the concolic engine.")
+	public static DSE_ARRAYS_MEMORY_MODEL_VERSION SELECTED_DSE_ARRAYS_MEMORY_MODEL_VERSION = DSE_ARRAYS_MEMORY_MODEL_VERSION.SELECT_STORE_EXPRESSIONS;
+
 	@Parameter(key = "dse_probability", group = "DSE", description = "Probability used to specify when to use DSE instead of regular LS when LS is applied")
     @DoubleValue(min = 0.0, max = 1.0)
 	public static double DSE_PROBABILITY = 0.5;
@@ -408,6 +436,10 @@ public class Properties {
 	@Parameter(key = "dse_variable_resets", group = "DSE", description = "Times DSE resets the int and real variables with random values")
 	public static int DSE_VARIABLE_RESETS = 2;
 
+    // By default the target is 100
+	@Parameter(key = "dse_target_coverage", group = "DSE", description = "Percentage (out of 100) of target coverage to cover")
+	public static int DSE_TARGET_COVERAGE = 100;
+
 	public enum DSEType {
 		/** apply DSE per statement */
 		STATEMENT,
@@ -416,6 +448,10 @@ public class Properties {
 		/** DSE on whole suites */
 		SUITE;
 	}
+
+    // NOTE: by default we use the sage implementation of the algorithm
+	@Parameter(key = "dse_algorithm", group = "DSE", description = "Type of DSE algorithm to use.")
+	public static DSEAlgorithms DSE_ALGORITHM_TYPE = DSEAlgorithms.SAGE;
 
 	@Parameter(key = "local_search_dse", group = "DSE", description = "Granularity of DSE application")
 	public static DSEType LOCAL_SEARCH_DSE = DSEType.TEST;
@@ -437,6 +473,11 @@ public class Properties {
 	@Parameter(key = "cvc4_path", group = "DSE", description = "Indicates the path to the CVC4 solver")
 	public static String CVC4_PATH = null;
 
+	public enum DSEStoppingConditionCriterion {
+		TARGETCOVERAGE,
+		MAXTIME, /** In seconds */
+    ZEROFITNESS
+	}
 
 	// --------- LS ---------
 
@@ -607,7 +648,6 @@ public class Properties {
         /** Max time in seconds */ MAXTIME,
         MAXGENERATIONS, MAXFITNESSEVALUATIONS, TIMEDELTA
 	}
-
 
 	@Parameter(key = "stopping_condition", group = "Search Algorithm", description = "What condition should be checked to end the search")
 	public static StoppingCondition STOPPING_CONDITION = StoppingCondition.MAXTIME;
@@ -1110,6 +1150,8 @@ public class Properties {
 	@Parameter(key = "serialize_ga", group = "Output", description = "Include the GA instance in the test generation result")
 	public static boolean SERIALIZE_GA = false;
 
+	@Parameter(key = "serialize_dse", group = "Output", description = "Include the DSE instance in the test generation result")
+	public static boolean SERIALIZE_DSE = false;
 
 	public enum StatisticsBackend {
 		NONE, CONSOLE, CSV, HTML, DEBUG;
@@ -2429,5 +2471,41 @@ public class Properties {
 		}
 	}
 
-	public static final String JAVA_VERSION_WARN_MSG = "EvoSuite does not support Java versions > 8 yet";
+	/**
+	 * Checks whether the current generation strategy is DSE.
+	 *
+	 * @return a boolean value.
+	 */
+	public static boolean isDSEStrategySelected() {
+		return STRATEGY.equals(Strategy.DSE);
+	}
+
+	/**
+	 * Checks whether DSE is enabled in Local Search.
+	 *
+	 * @return a boolean value.
+	 */
+	public static boolean isDSEEnabledInLocalSearch() {
+		return DSE_PROBABILITY > 0.0
+			&& LOCAL_SEARCH_RATE > 0
+			&& LOCAL_SEARCH_PROBABILITY > 0.0;
+	}
+
+	/**
+	 * Checks wheter the selected arrays implementation for DSE is arrays theory.
+	 *
+	 * @return a boolean value
+	 */
+  public static boolean isArraysTheoryImplementationSelected() {
+		return SELECTED_DSE_ARRAYS_MEMORY_MODEL_VERSION.equals(DSE_ARRAYS_MEMORY_MODEL_VERSION.SELECT_STORE_EXPRESSIONS);
+  }
+
+	/**
+	 * Checks wheter the selected arrays implementation for DSE is lazy arrays.
+	 *
+	 * @return a boolean value.
+	 */
+	public static boolean isLazyArraysImplementationSelected() {
+		return SELECTED_DSE_ARRAYS_MEMORY_MODEL_VERSION.equals(DSE_ARRAYS_MEMORY_MODEL_VERSION.LAZY_VARIABLES);
+	}
 }

@@ -702,23 +702,16 @@ public final class CallVM extends AbstractVM {
 		}
 	}
 
-	@Override
-	public void LRETURN() {
+	@Override public void LRETURN() {
 		IRETURN();
 	}
-
-	@Override
-	public void FRETURN() {
+	@Override public void FRETURN() {
 		IRETURN();
 	}
-
-	@Override
-	public void DRETURN() {
+	@Override public void DRETURN() {
 		IRETURN();
 	}
-
-	@Override
-	public void ARETURN() {
+	@Override public void ARETURN() {
 		IRETURN();
 	}
 
@@ -730,18 +723,16 @@ public final class CallVM extends AbstractVM {
 	 */
 	@Override
 	public void CALL_RESULT(String owner, String name, String desc) {
-
 		if (env.topFrame().weInvokedInstrumentedCode())
 			// RETURN already did it
 			return;
-		else {
-			/**
-			 * Since control flow is returning from un-instrumented code, we
-			 * must get rid of the method arguments since the callee did not
-			 * consume the method arguments.
-			 */
-			env.topFrame().disposeMethInvokeArgs(desc);
-		}
+
+		/**
+		 * Since control flow is returning from un-instrumented code, we
+		 * must get rid of the method arguments since the callee did not
+		 * consume the method arguments.
+		 */
+		env.topFrame().disposeMethInvokeArgs(desc);
 	}
 
 	/**

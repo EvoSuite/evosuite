@@ -48,16 +48,27 @@ import org.evosuite.setup.TestCluster;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.statistics.StatisticsSender;
 import org.evosuite.strategy.TestGenerationStrategy;
-import org.evosuite.symbolic.DSEStats;
-import org.evosuite.testcase.*;
-import org.evosuite.testcase.execution.*;
+import org.evosuite.symbolic.dse.DSEStatistics;
+import org.evosuite.testcase.ConstantInliner;
+import org.evosuite.testcase.DefaultTestCase;
+import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.TestChromosome;
+import org.evosuite.testcase.TestFitnessFunction;
+import org.evosuite.testcase.execution.EvosuiteError;
+import org.evosuite.testcase.execution.ExecutionResult;
+import org.evosuite.testcase.execution.ExecutionTrace;
+import org.evosuite.testcase.execution.ExecutionTracer;
+import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.evosuite.testcase.execution.reset.ClassReInitializer;
 import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.statements.StringPrimitiveStatement;
 import org.evosuite.testcase.statements.numeric.BooleanPrimitiveStatement;
 import org.evosuite.testcase.variable.VariableReference;
-import org.evosuite.testsuite.*;
+import org.evosuite.testsuite.TestSuiteChromosome;
+import org.evosuite.testsuite.TestSuiteFitnessFunction;
+import org.evosuite.testsuite.TestSuiteMinimizer;
+import org.evosuite.testsuite.TestSuiteSerialization;
 import org.evosuite.utils.ArrayUtil;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.generic.GenericMethod;
@@ -67,7 +78,11 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.lang.reflect.Method;
 import java.text.NumberFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Main entry point. Does all the static analysis, invokes a test generation
@@ -461,13 +476,10 @@ public class TestSuiteGenerator {
 		if (ArrayUtil.contains(Properties.CRITERION, Criterion.DEFUSE) && Properties.ANALYSIS_CRITERIA.isEmpty())
 			DefUseCoverageSuiteFitness.printCoverage();
 
-		DSEStats.getInstance().trackConstraintTypes();
+		DSEStatistics.getInstance().trackStatistics();
 
-		DSEStats.getInstance().trackSolverStatistics();
-
-		if (Properties.DSE_PROBABILITY > 0.0 && Properties.LOCAL_SEARCH_RATE > 0
-				&& Properties.LOCAL_SEARCH_PROBABILITY > 0.0) {
-			DSEStats.getInstance().logStatistics();
+		if (Properties.isDSEEnabledInLocalSearch() || Properties.isDSEStrategySelected()) {
+			DSEStatistics.getInstance().logStatistics();
 		}
 
 		if (Properties.FILTER_SANDBOX_TESTS) {

@@ -19,20 +19,20 @@
  */
 package org.evosuite.symbolic.vm.string.buffer;
 
-import java.util.ArrayList;
-import java.util.Collections;
-
-import org.evosuite.symbolic.expr.IntegerConstraint;
 import org.evosuite.symbolic.expr.Operator;
-import org.evosuite.symbolic.expr.str.StringConstant;
-import org.evosuite.symbolic.expr.str.StringMultipleExpression;
 import org.evosuite.symbolic.expr.bv.IntegerConstant;
 import org.evosuite.symbolic.expr.bv.IntegerValue;
+import org.evosuite.symbolic.expr.constraint.IntegerConstraint;
 import org.evosuite.symbolic.expr.ref.ReferenceConstant;
+import org.evosuite.symbolic.expr.str.StringConstant;
+import org.evosuite.symbolic.expr.str.StringMultipleExpression;
 import org.evosuite.symbolic.expr.str.StringValue;
-import org.evosuite.symbolic.vm.SymbolicFunction;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
-import org.evosuite.symbolic.vm.SymbolicHeap;
+import org.evosuite.symbolic.vm.SymbolicFunction;
+import org.evosuite.symbolic.vm.heap.SymbolicHeap;
+
+import java.util.ArrayList;
+import java.util.Collections;
 
 public final class StringBuffer_SetLength extends SymbolicFunction {
 

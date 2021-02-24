@@ -30,9 +30,7 @@ import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.UnaryExpression;
 import org.evosuite.symbolic.expr.Variable;
-import org.evosuite.symbolic.solver.SolverCache;
-import org.evosuite.symbolic.solver.Solver;
-import org.evosuite.symbolic.solver.SolverFactory;
+import org.evosuite.symbolic.solver.SolverUtils;
 import org.evosuite.symbolic.solver.SolverResult;
 import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.TestCase;
@@ -100,9 +98,7 @@ public class ConcolicMutation {
 			// logger.info("Now solving: " + constraints);
 		}
 
-		Solver solver = SolverFactory.getInstance().buildNewSolver();
-		SolverCache solverCache = SolverCache.getInstance();
-		SolverResult solverResult = solverCache.solve(solver, constraints);
+		SolverResult solverResult = SolverUtils.solveQuery(constraints);
 
 		if (solverResult != null) {
 			// logger.info(values.toString());

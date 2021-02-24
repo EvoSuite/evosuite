@@ -19,6 +19,13 @@
  */
 package org.evosuite.symbolic.solver.smt;
 
+import org.evosuite.symbolic.solver.SmtSort;
+import org.evosuite.utils.StringUtil;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
 public class SmtQueryPrinter {
 
 	public String print(SmtQuery query) {
@@ -88,14 +95,35 @@ public class SmtQueryPrinter {
 	}
 
 	public String print(SmtFunctionDeclaration functionDeclaration) {
-		String str = String.format("(declare-fun %s () %s)", functionDeclaration.getFunctionName(),
-				functionDeclaration.getFunctionSort());
+		String str = String.format(
+			"(declare-fun %s () %s)",
+			functionDeclaration.getFunctionName(),
+			buildSortsString(functionDeclaration.getFunctionSorts()));
 		return str;
 	}
 
 	public String print(SmtConstantDeclaration constantDeclaration) {
-		String str = String.format("(declare-const %s %s)", constantDeclaration.getConstantName(),
-				constantDeclaration.getConstantSort());
+		String str = String.format(
+			"(declare-const %s %s)",
+			constantDeclaration.getConstantName(),
+			buildSortsString(constantDeclaration.getConstantSorts()));
 		return str;
+	}
+
+	/**
+	 * Transforms sorts into strings.
+	 *
+	 * @param sorts
+	 * @return
+	 */
+	private String buildSortsString(SmtSort[] sorts) {
+		List<String> stringSorts = Arrays.stream(sorts).map(sort -> sort.getName()).collect(Collectors.toList());
+		String str = StringUtil.joinStrings(StringUtil.SPACE_DELIMITER, stringSorts);
+
+		if (stringSorts.size() > 1) {
+			return "(" + str + ")";
+		} else {
+			return str;
+		}
 	}
 }

@@ -23,7 +23,7 @@ import org.evosuite.symbolic.expr.bv.IntegerBinaryExpression;
 import org.evosuite.symbolic.expr.bv.IntegerComparison;
 import org.evosuite.symbolic.expr.bv.IntegerConstant;
 import org.evosuite.symbolic.expr.bv.IntegerValue;
-import org.evosuite.symbolic.expr.IntegerConstraint;
+import org.evosuite.symbolic.expr.constraint.IntegerConstraint;
 import org.evosuite.symbolic.expr.fp.IntegerToRealCast;
 import org.evosuite.symbolic.expr.fp.RealBinaryExpression;
 import org.evosuite.symbolic.expr.fp.RealUnaryExpression;
@@ -859,7 +859,7 @@ public final class ArithmeticVM extends AbstractVM {
 		long con = -param_concrete_value;
 
 		IntegerValue intExpr = new IntegerUnaryExpression(param, Operator.NEG,
-				con);
+			con);
 
 		env.topFrame().operandStack.pushBv64(intExpr);
 	}
@@ -1464,7 +1464,7 @@ public final class ArithmeticVM extends AbstractVM {
 			realExpr = ExpressionFactory.buildNewRealConstant(concreteValue);
 		} else {
 			realExpr = new IntegerToRealCast(integerExpr,
-					concreteValue);
+				concreteValue);
 		}
 		env.topFrame().operandStack.pushFp64(realExpr);
 	}
@@ -1500,7 +1500,7 @@ public final class ArithmeticVM extends AbstractVM {
 			realExpr = ExpressionFactory.buildNewRealConstant(concreteValue);
 		} else {
 			realExpr = new IntegerToRealCast(integerExpr,
-					concreteValue);
+				concreteValue);
 		}
 		env.topFrame().operandStack.pushFp64(realExpr);
 	}

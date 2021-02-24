@@ -93,6 +93,17 @@ public class AssignmentStatement extends AbstractStatement {
 		return this.parameter;
 	}
 
+	/**
+	 * <p>
+	 * setValue
+	 * </p>
+	 *
+	 * @param value
+	 */
+	public void setValue(VariableReference value) {
+		this.parameter = value;
+	}
+
 	/** {@inheritDoc} */
 	@Override
 	public Statement copy(TestCase newTestCase, int offset) {

@@ -146,6 +146,20 @@ public class ArrayReference extends VariableReferenceImpl {
 	}
 
 	/**
+	 * <p>
+	 * Setter for an element of the field <code>lengths</code>.
+	 * </p>
+	 *
+	 * @param length
+	 *            an int
+	 * @param index
+	 *            an int
+	 */
+	public void setLength(int length, int index) {
+		this.lengths[index] = length;
+	}
+
+	/**
 	 * {@inheritDoc}
 	 * 
 	 * Create a copy of the current variable
@@ -231,7 +245,7 @@ public class ArrayReference extends VariableReferenceImpl {
 		for (Statement s : testCase) {
 			if(pos++ >= position)
 				return false;
-			
+
 			if (s instanceof AssignmentStatement) {
 				VariableReference ret = s.getReturnValue();
 				if(ret instanceof ArrayIndex) {
