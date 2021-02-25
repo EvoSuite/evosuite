@@ -6,6 +6,7 @@ import org.evosuite.testcase.fm.EvoInvocationListener;
 import org.evosuite.testcase.fm.MethodDescriptor;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.utils.generic.GenericClass;
+import org.evosuite.utils.generic.GenericClassImpl;
 import org.mockito.MockSettings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,11 +24,11 @@ public class FunctionalMockForAbstractClassStatement extends FunctionalMockState
 
     private static final Logger logger = LoggerFactory.getLogger(FunctionalMockForAbstractClassStatement.class);
 
-    public FunctionalMockForAbstractClassStatement(TestCase tc, VariableReference retval, GenericClass targetClass) throws IllegalArgumentException {
+    public FunctionalMockForAbstractClassStatement(TestCase tc, VariableReference retval, GenericClass<?> targetClass) throws IllegalArgumentException {
         super(tc, retval, targetClass);
     }
 
-    public FunctionalMockForAbstractClassStatement(TestCase tc, Type retvalType, GenericClass targetClass) throws IllegalArgumentException {
+    public FunctionalMockForAbstractClassStatement(TestCase tc, Type retvalType, GenericClass<?> targetClass) throws IllegalArgumentException {
         super(tc, retvalType, targetClass);
     }
 

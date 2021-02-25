@@ -29,6 +29,8 @@ import java.util.List;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.execution.ExecutionTracer;
 import org.evosuite.utils.generic.GenericClass;
+import org.evosuite.utils.generic.GenericClassFactory;
+import org.evosuite.utils.generic.GenericClassImpl;
 import org.evosuite.utils.Randomness;
 
 /**
@@ -55,8 +57,6 @@ public class EnumPrimitiveStatement<T extends Enum<T>> extends PrimitiveStatemen
 	 *            a {@link org.evosuite.testcase.TestCase} object.
 	 * @param clazz
 	 *            a {@link java.lang.Class} object.
-	 * @param <T>
-	 *            a T object.
 	 */
 	@SuppressWarnings("unchecked")
 	public EnumPrimitiveStatement(TestCase tc, Class<T> clazz) {
@@ -242,7 +242,7 @@ public class EnumPrimitiveStatement<T extends Enum<T>> extends PrimitiveStatemen
 	}
 
 	private void writeObject(ObjectOutputStream oos) throws IOException {
-		GenericClass currentClass = new GenericClass(enumClass);
+		GenericClass<?> currentClass = GenericClassFactory.get(enumClass);
 		oos.writeObject(currentClass);
 		int pos = 0;
 		for (pos = 0; pos < constants.length; pos++) {
@@ -256,7 +256,7 @@ public class EnumPrimitiveStatement<T extends Enum<T>> extends PrimitiveStatemen
 	@SuppressWarnings("unchecked")
 	private void readObject(ObjectInputStream ois) throws ClassNotFoundException,
 	        IOException {
-		GenericClass enumGenericClass = (GenericClass) ois.readObject();
+		GenericClassImpl enumGenericClass = (GenericClassImpl) ois.readObject();
 		int pos = ois.readInt();
 		
 		enumClass = (Class<T>) enumGenericClass.getRawClass();

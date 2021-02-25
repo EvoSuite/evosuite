@@ -32,10 +32,7 @@ import org.evosuite.runtime.vfs.VirtualFileSystem;
 import org.evosuite.runtime.vnet.EndPointInfo;
 import org.evosuite.runtime.vnet.VirtualNetwork;
 import org.evosuite.testcase.TestCase;
-import org.evosuite.utils.generic.GenericAccessibleObject;
-import org.evosuite.utils.generic.GenericClass;
-import org.evosuite.utils.generic.GenericConstructor;
-import org.evosuite.utils.generic.GenericMethod;
+import org.evosuite.utils.generic.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -150,7 +147,7 @@ public class EnvironmentTestClusterAugmenter {
 				final Class<?> clazz = JOptionPaneInputs.class;
 				final String ENQUEUE_INPUT_STRING = "enqueueInputString";
 				final Method method_to_call = clazz.getMethod(ENQUEUE_INPUT_STRING, new Class<?>[] { String.class });
-				final GenericClass genericClass = new GenericClass(clazz);
+				final GenericClass<?> genericClass = GenericClassFactory.get(clazz);
 				final GenericMethod genericMethod = new GenericMethod(method_to_call, genericClass);
 
 				// adds JOptionPaneInputs.enqueueString() to the palette of
@@ -173,7 +170,7 @@ public class EnvironmentTestClusterAugmenter {
 				final String ENQUEUE_YES_NO_CANCEL_SELECTION = "enqueueYesNoCancelSelection";
 				final Method method_to_call = clazz.getMethod(ENQUEUE_YES_NO_CANCEL_SELECTION,
 						new Class<?>[] { int.class });
-				final GenericClass genericClass = new GenericClass(clazz);
+				final GenericClass<?> genericClass = GenericClassFactory.get(clazz);
 				final GenericMethod genericMethod = new GenericMethod(method_to_call, genericClass);
 
 				// adds JOptionPaneInputs.enqueueString() to the palette of
@@ -195,7 +192,7 @@ public class EnvironmentTestClusterAugmenter {
 				final Class<?> clazz = JOptionPaneInputs.class;
 				final String ENQUEUE_YES_NO_SELECTION = "enqueueYesNoSelection";
 				final Method method_to_call = clazz.getMethod(ENQUEUE_YES_NO_SELECTION, new Class<?>[] { int.class });
-				final GenericClass genericClass = new GenericClass(clazz);
+				final GenericClass<?> genericClass = GenericClassFactory.get(clazz);
 				final GenericMethod genericMethod = new GenericMethod(method_to_call, genericClass);
 
 				// adds JOptionPaneInputs.enqueueString() to the palette of
@@ -218,7 +215,7 @@ public class EnvironmentTestClusterAugmenter {
 				final String ENQUEUE_OK_CANCEL_SELECTION = "enqueueOkCancelSelection";
 				final Method method_to_call = clazz.getMethod(ENQUEUE_OK_CANCEL_SELECTION,
 						new Class<?>[] { int.class });
-				final GenericClass genericClass = new GenericClass(clazz);
+				final GenericClass<?> genericClass = GenericClassFactory.get(clazz);
 				final GenericMethod genericMethod = new GenericMethod(method_to_call, genericClass);
 
 				// adds JOptionPaneInputs.enqueueString() to the palette of
@@ -240,7 +237,7 @@ public class EnvironmentTestClusterAugmenter {
 				final Class<?> clazz = JOptionPaneInputs.class;
 				final String ENQUEUE_OPTION_SELECTION = "enqueueOptionSelection";
 				final Method method_to_call = clazz.getMethod(ENQUEUE_OPTION_SELECTION, new Class<?>[] { int.class });
-				final GenericClass genericClass = new GenericClass(clazz);
+				final GenericClass<?> genericClass = GenericClassFactory.get(clazz);
 				final GenericMethod genericMethod = new GenericMethod(method_to_call, genericClass);
 
 				// adds JOptionPaneInputs.enqueueString() to the palette of
@@ -281,7 +278,7 @@ public class EnvironmentTestClusterAugmenter {
 
 			GenericAccessibleObject<?> gc = new GenericConstructor(c, klass);
 			TestCluster.getInstance().addEnvironmentTestCall(gc);
-			GenericClass genclass = new GenericClass(klass);
+			GenericClass<?> genclass = GenericClassFactory.get(klass);
 			TestCluster.getInstance().invalidateGeneratorCache(genclass);
 			TestCluster.getInstance().addGenerator(genclass, gc);
 
@@ -300,7 +297,7 @@ public class EnvironmentTestClusterAugmenter {
 
 			Class<?> returnType = m.getReturnType();
 			if (!returnType.equals(Void.TYPE)) {
-				GenericClass genclass = new GenericClass(returnType);
+				GenericClass<?> genclass = GenericClassFactory.get(returnType);
 				TestCluster.getInstance().invalidateGeneratorCache(genclass);
 				TestCluster.getInstance().addGenerator(genclass, gm);
 				addEnvironmentDependency(returnType);
@@ -325,7 +322,7 @@ public class EnvironmentTestClusterAugmenter {
 			}
 
 			GenericAccessibleObject<?> gm = new GenericMethod(m, klass);
-			GenericClass gc = new GenericClass(klass);
+			GenericClass<?> gc = GenericClassFactory.get(klass);
 			TestCluster.getInstance().addModifier(gc, gm);
 
 			testClusterGenerator.addNewDependencies(Arrays.asList(m.getParameterTypes()));
@@ -333,7 +330,7 @@ public class EnvironmentTestClusterAugmenter {
 			Class<?> returnType = m.getReturnType();
 
 			if (!returnType.equals(Void.TYPE)) {
-				GenericClass genclass = new GenericClass(returnType);
+				GenericClass<?> genclass = GenericClassFactory.get(returnType);
 				TestCluster.getInstance().invalidateGeneratorCache(genclass);
 				TestCluster.getInstance().addGenerator(genclass, gm);
 				addEnvironmentDependency(returnType);
@@ -414,7 +411,7 @@ public class EnvironmentTestClusterAugmenter {
 						.addEnvironmentTestCall(new GenericMethod(
 								NetworkHandling.class.getMethod("createRemoteTextFile",
 										new Class<?>[] { EvoSuiteURL.class, String.class }),
-								new GenericClass(NetworkHandling.class)));
+								GenericClassFactory.get(NetworkHandling.class)));
 			} catch (Exception e) {
 				logger.error("Error while handling hasAddedRemoteURLs: " + e.getMessage(), e);
 			}
@@ -443,12 +440,12 @@ public class EnvironmentTestClusterAugmenter {
 										NetworkHandling.class.getMethod("sendUdpPacket",
 												new Class<?>[] { EvoSuiteLocalAddress.class,
 														EvoSuiteRemoteAddress.class, byte[].class }),
-										new GenericClass(NetworkHandling.class)));
+										GenericClassFactory.get(NetworkHandling.class)));
 				TestCluster.getInstance()
 						.addEnvironmentTestCall(new GenericMethod(
 								NetworkHandling.class.getMethod("sendUdpPacket",
 										new Class<?>[] { EvoSuiteLocalAddress.class, byte[].class }),
-								new GenericClass(NetworkHandling.class)));
+								GenericClassFactory.get(NetworkHandling.class)));
 			} catch (Exception e) {
 				logger.error("Error while handling hasAddedUdpSupport: " + e.getMessage(), e);
 			}
@@ -462,12 +459,12 @@ public class EnvironmentTestClusterAugmenter {
 						.addEnvironmentTestCall(new GenericMethod(
 								NetworkHandling.class.getMethod("sendDataOnTcp",
 										new Class<?>[] { EvoSuiteLocalAddress.class, byte[].class }),
-								new GenericClass(NetworkHandling.class)));
+								GenericClassFactory.get(NetworkHandling.class)));
 				TestCluster.getInstance()
 						.addEnvironmentTestCall(new GenericMethod(
 								NetworkHandling.class.getMethod("sendMessageOnTcp",
 										new Class<?>[] { EvoSuiteLocalAddress.class, String.class }),
-								new GenericClass(NetworkHandling.class)));
+								GenericClassFactory.get(NetworkHandling.class)));
 			} catch (Exception e) {
 				logger.error("Error while handling hasAddedTcpListeningSupport: " + e.getMessage(), e);
 			}
@@ -481,7 +478,7 @@ public class EnvironmentTestClusterAugmenter {
 						.addEnvironmentTestCall(new GenericMethod(
 								NetworkHandling.class.getMethod("openRemoteTcpServer",
 										new Class<?>[] { EvoSuiteRemoteAddress.class }),
-								new GenericClass(NetworkHandling.class)));
+								GenericClassFactory.get(NetworkHandling.class)));
 			} catch (Exception e) {
 				logger.error("Error while handling hasAddedTcpRemoteSupport: " + e.getMessage(), e);
 			}
@@ -499,7 +496,7 @@ public class EnvironmentTestClusterAugmenter {
 				TestCluster.getInstance()
 						.addEnvironmentTestCall(new GenericMethod(
 								SystemInUtil.class.getMethod("addInputLine", new Class<?>[] { String.class }),
-								new GenericClass(SystemInUtil.class)));
+								GenericClassFactory.get(SystemInUtil.class)));
 			} catch (SecurityException e) {
 				logger.error("Error while handling Random: " + e.getMessage(), e);
 			} catch (NoSuchMethodException e) {
@@ -527,7 +524,7 @@ public class EnvironmentTestClusterAugmenter {
 			try {
 				cluster.addTestCall(
 						new GenericMethod(Random.class.getMethod("setNextRandom", new Class<?>[] { int.class }),
-								new GenericClass(Random.class)));
+								GenericClassFactory.get(Random.class)));
 			} catch (SecurityException | NoSuchMethodException e) {
 				logger.error("Error while handling Random: " + e.getMessage(), e);
 			}
@@ -538,7 +535,7 @@ public class EnvironmentTestClusterAugmenter {
 			try {
 				cluster.addTestCall(
 						new GenericMethod(System.class.getMethod("setCurrentTimeMillis", new Class<?>[] { long.class }),
-								new GenericClass(System.class)));
+								GenericClassFactory.get(System.class)));
 			} catch (SecurityException e) {
 				logger.error("Error while handling System: " + e.getMessage(), e);
 			} catch (NoSuchMethodException e) {

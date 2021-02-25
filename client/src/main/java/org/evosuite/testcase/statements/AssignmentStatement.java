@@ -42,7 +42,8 @@ import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.execution.EvosuiteError;
 import org.evosuite.testcase.execution.Scope;
 import org.evosuite.utils.generic.GenericAccessibleObject;
-import org.evosuite.utils.generic.GenericClass;
+import org.evosuite.utils.generic.GenericClassImpl;
+import org.evosuite.utils.generic.GenericClassUtils;
 import org.evosuite.utils.generic.GenericField;
 import org.evosuite.utils.Randomness;
 
@@ -321,7 +322,7 @@ public class AssignmentStatement extends AbstractStatement {
 			if (value == null)
 				continue;
 			if (value instanceof ArrayReference) {
-				if (GenericClass.isAssignable(value.getComponentType(),
+				if (GenericClassUtils.isAssignable(value.getComponentType(),
 				                              parameter.getType())) {
 					for (int index = 0; index < ((ArrayReference) value).getArrayLength(); index++) {
 						variables.add(new ArrayIndex(tc, (ArrayReference) value, index));

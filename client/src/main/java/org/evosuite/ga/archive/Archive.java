@@ -40,10 +40,7 @@ import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.statements.reflection.PrivateFieldStatement;
 import org.evosuite.testcase.statements.reflection.PrivateMethodStatement;
 import org.evosuite.testsuite.TestSuiteChromosome;
-import org.evosuite.utils.generic.GenericAccessibleObject;
-import org.evosuite.utils.generic.GenericClass;
-import org.evosuite.utils.generic.GenericConstructor;
-import org.evosuite.utils.generic.GenericMethod;
+import org.evosuite.utils.generic.*;
 import org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -438,7 +435,7 @@ public abstract class Archive implements Serializable {
       if (statement instanceof FunctionalMockStatement) {
         FunctionalMockStatement fm = (FunctionalMockStatement) statement;
         Class<?> target = fm.getTargetClass();
-        GenericClass gc = new GenericClass(target);
+        GenericClass<?> gc = GenericClassFactory.get(target);
         if (TestCluster.getInstance().hasGenerator(gc)) {
           return true;
         }

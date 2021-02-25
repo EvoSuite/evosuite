@@ -43,7 +43,8 @@ import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.reset.ClassReInitializer;
 import org.evosuite.testcase.statements.FunctionalMockStatement;
 import org.evosuite.testcase.statements.Statement;
-import org.evosuite.utils.generic.GenericClass;
+import org.evosuite.utils.generic.GenericClassFactory;
+import org.evosuite.utils.generic.GenericClassImpl;
 import org.junit.rules.Timeout;
 import org.mockito.Mockito;
 
@@ -272,7 +273,7 @@ public class Scaffolding {
 			for (Statement st : er.test) {
 				if (st instanceof FunctionalMockStatement) {
 					FunctionalMockStatement fms = (FunctionalMockStatement) st;
-					String name = new GenericClass(fms.getReturnType()).getRawClass().getTypeName();
+					String name = GenericClassFactory.get(fms.getReturnType()).getRawClass().getTypeName();
 					mockStatements.add("mock(Class.forName(\""+name+"\", false, "+testClassName + ".class.getClassLoader()));");
 				}
 			}

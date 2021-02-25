@@ -10,6 +10,7 @@ import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.variable.ConstantValue;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.utils.generic.GenericClass;
+import org.evosuite.utils.generic.GenericClassImpl;
 
 import java.util.Collection;
 import java.util.LinkedHashSet;
@@ -40,7 +41,7 @@ public class ContainsTraceObserver extends AssertionTraceObserver<ContainsTraceE
 
             Collection<?> collectionObject = (Collection<?>)object;
 
-            List<GenericClass> parameterClasses = var.getGenericClass().getParameterClasses();
+            List<GenericClass<?>> parameterClasses = var.getGenericClass().getParameterClasses();
             // Need to know exact type
             if(parameterClasses.size() != 1)
                 return;

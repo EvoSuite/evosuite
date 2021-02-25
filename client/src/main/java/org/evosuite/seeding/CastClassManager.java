@@ -30,10 +30,11 @@ import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.ga.operators.selection.RankSelection;
-import org.evosuite.instrumentation.InstrumentingClassLoader;
 import org.evosuite.setup.*;
 import org.evosuite.utils.generic.GenericClass;
+import org.evosuite.utils.generic.GenericClassFactory;
 import org.evosuite.utils.Randomness;
+import org.evosuite.utils.generic.GenericClassUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,7 +49,7 @@ public class CastClassManager {
 	/**
 	 * TODO:
 	 */
-	private final Map<GenericClass, Integer> classMap = new LinkedHashMap<>();
+	private final Map<GenericClass<?>, Integer> classMap = new LinkedHashMap<>();
 	private final List<Class<?>> specialCases =
 			Arrays.asList(Comparable.class, Comparator.class, Iterable.class, Enum.class);
 
@@ -72,10 +73,10 @@ public class CastClassManager {
 	 * @param classPriorityMap assigns classes to priorities
 	 * @return list of classes ordered by number of generic type parameters, and by priority if tied
 	 */
-	public static List<GenericClass> sortByValue(Map<GenericClass, Integer> classPriorityMap) {
-		final List<GenericClass> classes = new LinkedList<>(classPriorityMap.keySet());
-		final Comparator<GenericClass> byNumParameters = comparingInt(GenericClass::getNumParameters);
-		final Comparator<GenericClass> byPriority = comparingInt(classPriorityMap::get);
+	public static List<GenericClass<?>> sortByValue(Map<GenericClass<?>, Integer> classPriorityMap) {
+		final List<GenericClass<?>> classes = new LinkedList<>(classPriorityMap.keySet());
+		final Comparator<GenericClass<?>> byNumParameters = comparingInt(GenericClass::getNumParameters);
+		final Comparator<GenericClass<?>> byPriority = comparingInt(classPriorityMap::get);
 		classes.sort(byNumParameters.thenComparing(byPriority));
 		return classes;
 	}
@@ -87,7 +88,7 @@ public class CastClassManager {
 	 * @param candidates list of candidates to choose from
 	 * @return a candidate from the list of candidates
 	 */
-	public static GenericClass selectClass(List<GenericClass> candidates) {
+	public static GenericClass<?> selectClass(List<GenericClass<?>> candidates) {
 		return candidates.get(RankSelection.getIdx(candidates));
 	}
 
@@ -95,9 +96,9 @@ public class CastClassManager {
 	 * Fills the class map with some default classes.
 	 */
 	private void initDefaultClasses() {
-		classMap.put(new GenericClass(Object.class), 0);
-		classMap.put(new GenericClass(String.class), 1);
-		classMap.put(new GenericClass(Integer.class), 1);
+		classMap.put(GenericClassFactory.get(Object.class), 0);
+		classMap.put(GenericClassFactory.get(String.class), 1);
+		classMap.put(GenericClassFactory.get(Integer.class), 1);
 	}
 
 	public void addCastClass(String className, int depth) {
@@ -110,16 +111,16 @@ public class CastClassManager {
 			logger.debug("Error including cast class " + className + " because: " + e);
 			return;
 		}
-		final GenericClass castClazz = new GenericClass(clazz);
+		final GenericClass<?> castClazz = GenericClassFactory.get(clazz);
 		addCastClass(castClazz.getWithWildcardTypes(), depth);
 	}
 
 	public void addCastClass(Type type, int depth) {
-		GenericClass castClazz = new GenericClass(type);
+		GenericClass<?> castClazz = GenericClassFactory.get(type);
 		addCastClass(castClazz.getWithWildcardTypes(), depth);
 	}
 
-	public void addCastClass(final GenericClass clazz, final int depth) {
+	public void addCastClass(final GenericClass<?> clazz, final int depth) {
 		final Class<?> rawClass = clazz.getRawClass();
 
 		if (rawClass == null) {
@@ -134,7 +135,7 @@ public class CastClassManager {
 			final Set<Class<?>> concreteClasses = analyzer.getConcreteClasses(rawClass, tree);
 
 			for (final Class<?> concreteClass : concreteClasses) {
-				final GenericClass c = new GenericClass(concreteClass);
+				final GenericClass<?> c = GenericClassFactory.get(concreteClass);
 				if (TestUsageChecker.canUse(c.getRawClass())) {
 					classMap.put(c, depth);
 				}
@@ -202,7 +203,7 @@ public class CastClassManager {
 			if (!TestUsageChecker.canUse(clazz))
 				continue;
 
-			final GenericClass genericClass = new GenericClass(clazz).getWithWildcardTypes();
+			final GenericClass<?> genericClass = GenericClassFactory.get(clazz).getWithWildcardTypes();
 			if (!genericClass.satisfiesBoundaries(wildcardType, typeMap)) {
 				logger.debug("Not assignable: " + clazz);
 			} else {
@@ -221,7 +222,7 @@ public class CastClassManager {
 				continue;
 			}
 
-			final GenericClass genericClass = new GenericClass(clazz).getWithWildcardTypes();
+			final GenericClass<?> genericClass = GenericClassFactory.get(clazz).getWithWildcardTypes();
 			if (!genericClass.satisfiesBoundaries(wildcardType, typeMap)) {
 				logger.debug("Not assignable: " + clazz);
 			} else {
@@ -243,10 +244,10 @@ public class CastClassManager {
 				continue;
 			}
 
-			final GenericClass genericClass = new GenericClass(t);
+			final GenericClass<?> genericClass = GenericClassFactory.get(t);
 			if (genericClass.hasTypeVariables()) {
 				logger.debug("Has type variables: " + genericClass);
-				final GenericClass wildcardClass = genericClass.getWithWildcardTypes();
+				final GenericClass<?> wildcardClass = genericClass.getWithWildcardTypes();
 				if (!wildcardClass.satisfiesBoundaries(wildcardType, typeMap)) {
 					logger.debug("Not assignable: " + clazz);
 				} else {
@@ -265,7 +266,7 @@ public class CastClassManager {
 
 		if (!assignableClasses.isEmpty()) {
 			final Class<?> clazz = Randomness.choice(assignableClasses);
-			final GenericClass castClass = new GenericClass(clazz);
+			final GenericClass<?> castClass = GenericClassFactory.get(clazz);
 			logger.debug("Adding cast class " + castClass);
 			classMap.put(castClass, 10);
 			return true;
@@ -285,7 +286,7 @@ public class CastClassManager {
 				continue;
 			}
 
-			final GenericClass genericClass = new GenericClass(clazz).getWithWildcardTypes();
+			final GenericClass<?> genericClass = GenericClassFactory.get(clazz).getWithWildcardTypes();
 
 			if (!genericClass.satisfiesBoundaries(typeVariable, typeMap)) {
 				logger.debug("Not assignable: " + clazz);
@@ -305,7 +306,7 @@ public class CastClassManager {
 				continue;
 			}
 
-			final GenericClass genericClass = new GenericClass(clazz).getWithWildcardTypes();
+			final GenericClass<?> genericClass = GenericClassFactory.get(clazz).getWithWildcardTypes();
 			if (!genericClass.satisfiesBoundaries(typeVariable, typeMap)) {
 				logger.debug("Not assignable: " + clazz);
 			} else {
@@ -348,7 +349,7 @@ public class CastClassManager {
 
 		if (!assignableClasses.isEmpty()) {
 			final Class<?> clazz = Randomness.choice(assignableClasses);
-			final GenericClass castClass = new GenericClass(clazz);
+			final GenericClass<?> castClass = GenericClassFactory.get(clazz);
 			logger.debug("Adding cast class " + castClass);
 			classMap.put(castClass, 10);
 			return true;
@@ -377,7 +378,7 @@ public class CastClassManager {
 					continue;
 				}
 
-				if (!GenericClass.isAssignable(bound, clazz)) {
+				if (!GenericClassUtils.isAssignable(bound, clazz)) {
 					isAssignable = false;
 					logger.debug("Not assignable: " + clazz + " to bound " + bound);
 					break;
@@ -408,7 +409,7 @@ public class CastClassManager {
 //					classMap.put(castClass, 10);
 //				}
 			final Class<?> clazz = Randomness.choice(assignableClasses);
-			final GenericClass castClass = new GenericClass(clazz);
+			final GenericClass<?> castClass = GenericClassFactory.get(clazz);
 			logger.debug("Adding cast class " + castClass);
 			classMap.put(castClass, 10);
 			return true;
@@ -417,15 +418,15 @@ public class CastClassManager {
 		return false;
 	}
 
-	private List<GenericClass> getAssignableClasses(
+	private List<GenericClass<?>> getAssignableClasses(
 			final WildcardType wildcardType,
 	        final boolean allowRecursion,
 			final Map<TypeVariable<?>, Type> ownerVariableMap) {
-		final Map<GenericClass, Integer> assignableClasses = new LinkedHashMap<>();
+		final Map<GenericClass<?>, Integer> assignableClasses = new LinkedHashMap<>();
 
 		logger.debug("Getting assignable classes for wildcard type " + wildcardType);
-		for (final Entry<GenericClass, Integer> entry : classMap.entrySet()) {
-			final GenericClass clazz = entry.getKey();
+		for (final Entry<GenericClass<?>, Integer> entry : classMap.entrySet()) {
+			final GenericClass<?> clazz = entry.getKey();
 			logger.debug("Current class for wildcard " + wildcardType + ": " + clazz);
 
 			if (!clazz.satisfiesBoundaries(wildcardType, ownerVariableMap)) {
@@ -446,15 +447,15 @@ public class CastClassManager {
 		return sortByValue(assignableClasses);
 	}
 
-	private List<GenericClass> getAssignableClasses(
+	private List<GenericClass<?>> getAssignableClasses(
 			final TypeVariable<?> typeVariable,
 	        final boolean allowRecursion,
 			final Map<TypeVariable<?>, Type> ownerVariableMap) {
-		final Map<GenericClass, Integer> assignableClasses = new LinkedHashMap<>();
+		final Map<GenericClass<?>, Integer> assignableClasses = new LinkedHashMap<>();
 
 		logger.debug("Getting assignable classes for type variable " + typeVariable);
-		for (final Entry<GenericClass, Integer> entry : classMap.entrySet()) {
-			final GenericClass clazz = entry.getKey();
+		for (final Entry<GenericClass<?>, Integer> entry : classMap.entrySet()) {
+			final GenericClass<?> clazz = entry.getKey();
 			logger.debug("Current class for type variable " + typeVariable + ": " + clazz);
 
 			if (!clazz.satisfiesBoundaries(typeVariable, ownerVariableMap)) {
@@ -475,16 +476,16 @@ public class CastClassManager {
 		return sortByValue(assignableClasses);
 	}
 
-	public GenericClass selectCastClass() {
-		final List<GenericClass> assignableClasses = sortByValue(classMap);
+	public GenericClass<?> selectCastClass() {
+		final List<GenericClass<?>> assignableClasses = sortByValue(classMap);
 		return selectClass(assignableClasses);
 	}
 
-	public GenericClass selectCastClass(
+	public GenericClass<?> selectCastClass(
 			final TypeVariable<?> typeVariable,
 	        final boolean allowRecursion,
 			final Map<TypeVariable<?>, Type> ownerVariableMap) {
-		List<GenericClass> assignableClasses =
+		List<GenericClass<?>> assignableClasses =
 				getAssignableClasses(typeVariable, allowRecursion, ownerVariableMap);
 
 		logger.debug("Assignable classes to " + typeVariable + ": " + assignableClasses);
@@ -522,12 +523,12 @@ public class CastClassManager {
 		return selectClass(assignableClasses);
 	}
 
-	public GenericClass selectCastClass(
+	public GenericClass<?> selectCastClass(
 			final WildcardType wildcardType,
 			final boolean allowRecursion, Map<TypeVariable<?>, Type> ownerVariableMap)
 			throws ConstructionFailedException {
 		logger.debug("Getting assignable classes for wildcard");
-		List<GenericClass> assignableClasses =
+		List<GenericClass<?>> assignableClasses =
 				getAssignableClasses(wildcardType, false, ownerVariableMap);
 		logger.debug("Assignable classes to " + wildcardType + ": " + assignableClasses);
 
@@ -563,7 +564,7 @@ public class CastClassManager {
 				.anyMatch(clazz -> clazz.getClassName().equals(className));
 	}
 
-	public Set<GenericClass> getCastClasses() {
+	public Set<GenericClass<?>> getCastClasses() {
 		return Collections.unmodifiableSet(classMap.keySet());
 	}
 

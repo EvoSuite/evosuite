@@ -61,8 +61,8 @@ public class GenericMethod extends GenericExecutable<GenericMethod, Method> {
 	 * @param method the method to enclose
 	 * @param type the owning type of the {@code method}
 	 */
-	public GenericMethod(Method method, GenericClass type) {
-		super(new GenericClass(type));
+	public GenericMethod(Method method, GenericClass<?> type) {
+		super(GenericClassFactory.get(type));
 		this.method = method;
 		Inputs.checkNull(method, type);
 	}
@@ -75,7 +75,7 @@ public class GenericMethod extends GenericExecutable<GenericMethod, Method> {
 	 * @param type the owning type of the {@code method}
 	 */
 	public GenericMethod(Method method, Class<?> type) {
-		super(new GenericClass(type));
+		super(GenericClassFactory.get(type));
 		this.method = method;
 		Inputs.checkNull(method, type);
 	}
@@ -88,22 +88,22 @@ public class GenericMethod extends GenericExecutable<GenericMethod, Method> {
 	 * @param type the owning type of the {@code method}
 	 */
 	public GenericMethod(Method method, Type type) {
-		super(new GenericClass(type));
+		super(GenericClassFactory.get(type));
 		this.method = method;
 		Inputs.checkNull(method, type);
 	}
 
 	@Override
-	public GenericMethod copyWithNewOwner(GenericClass newOwner) {
+	public GenericMethod copyWithNewOwner(GenericClass<?> newOwner) {
 		GenericMethod copy = new GenericMethod(method, newOwner);
 		copyTypeVariables(copy);
 		return copy;
 	}
 
 	@Override
-	public GenericMethod copyWithOwnerFromReturnType(GenericClass returnType)
+	public GenericMethod copyWithOwnerFromReturnType(GenericClass<?> returnType)
 			throws ConstructionFailedException {
-		GenericClass newOwner = getOwnerClass().getGenericInstantiation(returnType.getTypeVariableMap());
+		GenericClass<?> newOwner = getOwnerClass().getGenericInstantiation(returnType.getTypeVariableMap());
 		GenericMethod copy = new GenericMethod(method, newOwner);
 		copyTypeVariables(copy);
 		return copy;
@@ -111,7 +111,7 @@ public class GenericMethod extends GenericExecutable<GenericMethod, Method> {
 
 	@Override
 	public GenericMethod copy() {
-		GenericMethod copy = new GenericMethod(method, new GenericClass(owner));
+		GenericMethod copy = new GenericMethod(method, GenericClassFactory.get(owner));
 		copyTypeVariables(copy);
 		return copy;
 	}
@@ -147,8 +147,8 @@ public class GenericMethod extends GenericExecutable<GenericMethod, Method> {
 		return method.getParameters();
 	}
 
-	public List<GenericClass> getParameterClasses() {
-		List<GenericClass> parameters = new ArrayList<>();
+	public List<GenericClass<?>> getParameterClasses() {
+		List<GenericClass<?>> parameters = new ArrayList<>();
 
 		if(logger.isDebugEnabled()) {
 			logger.debug("Parameter types: " + Arrays.asList(method.getGenericParameterTypes()));
@@ -156,7 +156,7 @@ public class GenericMethod extends GenericExecutable<GenericMethod, Method> {
 
 		for (Type parameterType : getParameterTypes()) {
 			logger.debug("Adding parameter: {}", parameterType);
-			parameters.add(new GenericClass(parameterType));
+			parameters.add(GenericClassFactory.get(parameterType));
 		}
 		return parameters;
 	}
@@ -306,7 +306,7 @@ public class GenericMethod extends GenericExecutable<GenericMethod, Method> {
 	}
 
 	@Override
-	public GenericMethod getGenericInstantiation(GenericClass calleeType) throws ConstructionFailedException {
+	public GenericMethod getGenericInstantiation(GenericClass<?> calleeType) throws ConstructionFailedException {
 		return super.getGenericInstantiation(calleeType);
 	}
 

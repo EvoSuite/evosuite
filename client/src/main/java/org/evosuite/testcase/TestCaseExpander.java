@@ -33,7 +33,8 @@ import org.evosuite.testcase.statements.*;
 import org.evosuite.testcase.variable.ArrayIndex;
 import org.evosuite.testcase.variable.ArrayReference;
 import org.evosuite.testcase.variable.VariableReference;
-import org.evosuite.utils.generic.GenericClass;
+import org.evosuite.utils.generic.GenericClassFactory;
+import org.evosuite.utils.generic.GenericClassImpl;
 
 public class TestCaseExpander {
 
@@ -83,7 +84,7 @@ public class TestCaseExpander {
 			Statement statement = test.getStatement(position);
 
 			PrimitiveStatement primitive = PrimitiveStatement.getPrimitiveStatement(test,
-			                                                                        new GenericClass(
+			                                                                        GenericClassFactory.get(
 			                                                                                value.getClass()));
 			primitive.setValue(value);
 			VariableReference replacement = test.addStatement(primitive, position);

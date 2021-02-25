@@ -66,7 +66,7 @@ public class MethodDescriptor implements Comparable<MethodDescriptor>, Serializa
      * @param method the one that is going to be mocked
      * @param retvalType type of the class the mocked method belongs to. The type might be parameterized (ie generics)
      */
-    public MethodDescriptor(Method method, GenericClass retvalType){
+    public MethodDescriptor(Method method, GenericClass<?> retvalType){
         Inputs.checkNull(method, retvalType);
         this.method = new GenericMethod(method, retvalType);
         methodName = method.getName();
@@ -81,17 +81,17 @@ public class MethodDescriptor implements Comparable<MethodDescriptor>, Serializa
         this.inputParameterMatchers = inputParameterMatchers;
     }
 
-    private String initMatchers(GenericMethod method, GenericClass retvalType) {
+    private String initMatchers(GenericMethod method, GenericClass<?> retvalType) {
 
         String matchers = "";
         Type[] types = method.getParameterTypes();
-        List<GenericClass> parameterClasses = method.getParameterClasses();
+        List<GenericClass<?>> parameterClasses = method.getParameterClasses();
         for(int i=0; i<types.length; i++){
             if(i > 0){
                 matchers += " , ";
             }
 
-            GenericClass genericParameter = parameterClasses.get(i);
+            GenericClass<?> genericParameter = parameterClasses.get(i);
             Type type = genericParameter.getRawClass();
             if(type.equals(Integer.TYPE) || type.equals(Integer.class)){
                 matchers += "anyInt()";
@@ -213,8 +213,8 @@ public class MethodDescriptor implements Comparable<MethodDescriptor>, Serializa
         }
 
         Type[] types = method.getParameterTypes();
-        List<GenericClass> parameterClasses = method.getParameterClasses();
-        GenericClass parameterClass = parameterClasses.get(i);
+        List<GenericClass<?>> parameterClasses = method.getParameterClasses();
+        GenericClass<?> parameterClass = parameterClasses.get(i);
         Class<?> type = parameterClass.getRawClass();
 
         try {
@@ -262,11 +262,11 @@ public class MethodDescriptor implements Comparable<MethodDescriptor>, Serializa
         counter = 0;
     }
     
-    public GenericMethod getGenericMethodFor(GenericClass clazz) throws ConstructionFailedException {
+    public GenericMethod getGenericMethodFor(GenericClass<?> clazz) throws ConstructionFailedException {
         return method.getGenericInstantiation(clazz);
     }
 
-    public GenericClass getReturnClass() {
+    public GenericClass<?> getReturnClass() {
         return method.getGeneratedClass();
     }
 

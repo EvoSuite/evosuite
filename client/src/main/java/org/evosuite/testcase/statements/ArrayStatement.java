@@ -39,7 +39,8 @@ import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.execution.Scope;
 import org.evosuite.utils.generic.GenericAccessibleObject;
-import org.evosuite.utils.generic.GenericClass;
+import org.evosuite.utils.generic.GenericClassFactory;
+import org.evosuite.utils.generic.GenericClassImpl;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
 
@@ -164,7 +165,7 @@ public class ArrayStatement extends AbstractStatement {
 	 *            an array of int.
 	 */
 	public ArrayStatement(TestCase tc, java.lang.reflect.Type type, int[] length) {
-		this(tc, new ArrayReference(tc, new GenericClass(type), length), length);
+		this(tc, new ArrayReference(tc, GenericClassFactory.get(type), length), length);
 	}
 
 	/** {@inheritDoc} */

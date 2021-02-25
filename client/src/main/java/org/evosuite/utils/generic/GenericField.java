@@ -44,31 +44,31 @@ public class GenericField extends GenericAccessibleObject<GenericField> {
 
 	private transient Field field;
 
-	public GenericField(Field field, GenericClass owner) {
-		super(new GenericClass(owner));
+	public GenericField(Field field, GenericClass<?> owner) {
+		super(GenericClassFactory.get(owner));
 		this.field = field;
 		field.setAccessible(true);
 	}
 
 	public GenericField(Field field, Class<?> owner) {
-		super(new GenericClass(owner));
+		super(GenericClassFactory.get(owner));
 		this.field = field;
 		field.setAccessible(true);
 	}
 
 	public GenericField(Field field, Type owner) {
-		super(new GenericClass(owner));
+		super(GenericClassFactory.get(owner));
 		this.field = field;
 		field.setAccessible(true);
 	}
 
 	@Override
-	public GenericField copyWithNewOwner(GenericClass newOwner) {
+	public GenericField copyWithNewOwner(GenericClass<?> newOwner) {
 		return new GenericField(field, newOwner);
 	}
 
 	@Override
-	public GenericField copyWithOwnerFromReturnType(GenericClass returnType)
+	public GenericField copyWithOwnerFromReturnType(GenericClass<?> returnType)
 	        throws ConstructionFailedException {
 		return new GenericField(field,
 		        getOwnerClass().getGenericInstantiation(returnType.getTypeVariableMap()));
@@ -103,7 +103,7 @@ public class GenericField extends GenericAccessibleObject<GenericField> {
 
 	@Override
 	public GenericField copy() {
-		return new GenericField(field, new GenericClass(owner));
+		return new GenericField(field, GenericClassFactory.get(owner));
 	}
 
 	public Field getField() {

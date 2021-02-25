@@ -45,17 +45,17 @@ public class GenericConstructor extends GenericExecutable<GenericConstructor, Co
 	private transient Constructor<?> constructor;
 
 	public GenericConstructor(Constructor<?> constructor, Class<?> clazz) {
-		super(new GenericClass(clazz));
+		super(GenericClassFactory.get(clazz));
 		this.constructor = constructor;
 	}
 
-	public GenericConstructor(Constructor<?> constructor, GenericClass owner) {
-		super(new GenericClass(owner));
+	public GenericConstructor(Constructor<?> constructor, GenericClass<?> owner) {
+		super(new GenericClassImpl(owner));
 		this.constructor = constructor;
 	}
 
 	public GenericConstructor(Constructor<?> constructor, Type type) {
-		super(new GenericClass(type));
+		super(new GenericClassImpl(type));
 		this.constructor = constructor;
 	}
 
@@ -95,20 +95,20 @@ public class GenericConstructor extends GenericExecutable<GenericConstructor, Co
 
 	@Override
 	public GenericConstructor copy() {
-		GenericConstructor copy = new GenericConstructor(constructor, new GenericClass(owner));
+		GenericConstructor copy = new GenericConstructor(constructor, new GenericClassImpl(owner));
 		copyTypeVariables(copy);
 		return copy;
 	}
 
 	@Override
-	public GenericConstructor copyWithNewOwner(GenericClass newOwner) {
+	public GenericConstructor copyWithNewOwner(GenericClass<?> newOwner) {
 		GenericConstructor copy = new GenericConstructor(constructor, newOwner);
 		copyTypeVariables(copy);
 		return copy;
 	}
 
 	@Override
-	public GenericConstructor copyWithOwnerFromReturnType(GenericClass returnType) {
+	public GenericConstructor copyWithOwnerFromReturnType(GenericClass<?> returnType) {
 		GenericConstructor copy = new GenericConstructor(constructor, returnType);
 		copyTypeVariables(copy);
 		return copy;

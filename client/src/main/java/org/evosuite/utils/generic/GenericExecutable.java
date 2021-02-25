@@ -21,7 +21,7 @@ public abstract class GenericExecutable<T extends GenericExecutable<T, U>, U ext
     /**
      * @param owner the class where this accessible object is located in
      */
-    GenericExecutable(final GenericClass owner) {
+    GenericExecutable(final GenericClass<?> owner) {
         super(owner);
     }
 

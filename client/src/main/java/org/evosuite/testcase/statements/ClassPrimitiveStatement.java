@@ -34,6 +34,8 @@ import org.evosuite.TestGenerationContext;
 import org.evosuite.seeding.ConstantPoolManager;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.utils.generic.GenericClass;
+import org.evosuite.utils.generic.GenericClassFactory;
+import org.evosuite.utils.generic.GenericClassImpl;
 import org.evosuite.utils.Randomness;
 
 public class ClassPrimitiveStatement extends PrimitiveStatement<Class<?>> {
@@ -42,7 +44,7 @@ public class ClassPrimitiveStatement extends PrimitiveStatement<Class<?>> {
 
 	private transient Set<Class<?>> assignableClasses = new LinkedHashSet<>();
 
-	public ClassPrimitiveStatement(TestCase tc, GenericClass type,
+	public ClassPrimitiveStatement(TestCase tc, GenericClassImpl type,
 	        Set<Class<?>> assignableClasses) {
 		super(tc, type, Randomness.choice(assignableClasses));
 		this.assignableClasses.addAll(assignableClasses);
@@ -52,7 +54,7 @@ public class ClassPrimitiveStatement extends PrimitiveStatement<Class<?>> {
 		//		super(tc, new GenericClass(Class.class).getWithWildcardTypes(), value);
 		super(
 		        tc,
-		        new GenericClass(Class.class).getWithParameterTypes(new Type[] { value }),
+		        GenericClassFactory.get(Class.class).getWithParameterTypes(new Type[] { value }),
 		        value);
 		//		super(tc, new GenericClass(value.getClass()), value);
 		this.assignableClasses.add(value);
@@ -62,7 +64,7 @@ public class ClassPrimitiveStatement extends PrimitiveStatement<Class<?>> {
 		//		super(tc, new GenericClass(Class.class).getWithWildcardTypes(),
 		super(
 		        tc,
-		        new GenericClass(Class.class).getWithParameterTypes(new Type[] { Properties.getTargetClassAndDontInitialise() }),
+		        GenericClassFactory.get(Class.class).getWithParameterTypes(new Type[] { Properties.getTargetClassAndDontInitialise() }),
 		        Properties.getTargetClassAndDontInitialise());
 		//		super(tc, new GenericClass(Properties.getTargetClass()),
 		//		        Properties.getTargetClass());
@@ -130,17 +132,17 @@ public class ClassPrimitiveStatement extends PrimitiveStatement<Class<?>> {
 	@Override
 	public void changeClassLoader(ClassLoader loader) {
 		super.changeClassLoader(loader);
-		GenericClass genericClass = new GenericClass(value);
+		GenericClass<?> genericClass = GenericClassFactory.get(value);
 		genericClass.changeClassLoader(loader);
 		value = genericClass.getRawClass();
 	}
 
 	private void writeObject(ObjectOutputStream oos) throws IOException {
 		oos.defaultWriteObject();
-		oos.writeObject(new GenericClass(value));
-		List<GenericClass> currentAssignableClasses = new ArrayList<>();
+		oos.writeObject(GenericClassFactory.get(value));
+		List<GenericClass<?>> currentAssignableClasses = new ArrayList<>();
 		for (Class<?> assignableClass : assignableClasses)
-			currentAssignableClasses.add(new GenericClass(assignableClass));
+			currentAssignableClasses.add(GenericClassFactory.get(assignableClass));
 		oos.writeObject(currentAssignableClasses);
 	}
 
@@ -148,10 +150,10 @@ public class ClassPrimitiveStatement extends PrimitiveStatement<Class<?>> {
 	private void readObject(ObjectInputStream ois) throws ClassNotFoundException,
 	        IOException {
 		ois.defaultReadObject();
-		this.value = ((GenericClass) ois.readObject()).getRawClass();
-		List<GenericClass> newAssignableClasses = (List<GenericClass>) ois.readObject();
+		this.value = ((GenericClassImpl) ois.readObject()).getRawClass();
+		List<GenericClassImpl> newAssignableClasses = (List<GenericClassImpl>) ois.readObject();
 		assignableClasses = new LinkedHashSet<>();
-		for (GenericClass assignableClass : newAssignableClasses) {
+		for (GenericClassImpl assignableClass : newAssignableClasses) {
 			assignableClasses.add(assignableClass.getRawClass());
 		}
 	}
