@@ -21,9 +21,12 @@ package org.evosuite.testcase;
 
 import org.evosuite.Properties;
 import org.evosuite.symbolic.TestCaseBuilder;
+import org.evosuite.symbolic.expr.ref.ReferenceVariableUtil;
 import org.evosuite.symbolic.expr.ref.array.SymbolicArrayUtil;
 import org.evosuite.testcase.statements.ArrayStatement;
 import org.evosuite.testcase.statements.AssignmentStatement;
+import org.evosuite.testcase.statements.ConstructorStatement;
+import org.evosuite.testcase.statements.NullStatement;
 import org.evosuite.testcase.statements.PrimitiveStatement;
 import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.utils.StatementClassChecker;
@@ -32,6 +35,7 @@ import org.evosuite.testcase.variable.ArraySymbolicLengthName;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.utils.ArrayUtil;
 import org.evosuite.utils.Randomness;
+import org.evosuite.utils.generic.GenericConstructor;
 import org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,6 +43,7 @@ import org.slf4j.LoggerFactory;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -71,13 +76,20 @@ public class TestCaseUpdater {
 		TestCase newTest = test.clone();
 		newTest.clearCoveredGoals();
 
+        HashMap<Long, Object> created = new HashMap();
+
 		for (String symbolicVariableName : updatedValues.keySet()) {
 			Object updateValue = updatedValues.get(symbolicVariableName);
 			if (updateValue != null) {
         logger.info(NEW_VALUE + symbolicVariableName + ": " + updateValue);
 
+        // Reserved names cases
         if (ArraySymbolicLengthName.isArraySymbolicLengthVariableName(symbolicVariableName)) {
           processArrayLengthValue(newTest, symbolicVariableName, (Long) updateValue);
+        } else if (ReferenceVariableUtil.isReferenceVariableName(symbolicVariableName)) {
+          // TODO: not ready yet, needs classes
+          processObjectValue(newTest, symbolicVariableName, (Long) updateValue, created);
+        // Non-reserved names cases
         } else if (Properties.isLazyArraysImplementationSelected() && SymbolicArrayUtil.isArrayContentVariableName(symbolicVariableName)) {
           processArrayElement(test, newTest, symbolicVariableName, updateValue);
         } else if (updateValue instanceof Long) {
@@ -218,6 +230,8 @@ public class TestCaseUpdater {
     }
   }
 
+
+
   /**
    * Transforms an array of integer to a list of Integer objects
    *
@@ -253,6 +267,58 @@ public class TestCaseUpdater {
 
     updateRealValueStatement(value, p);
   }
+
+  /**
+   * Update Algorithm for reference variables. It executes the following high level idea:
+   *  1) Does the current variable already have a definition statement?
+   *    - No => We a create a nullStatement for it
+   *
+   *  2) Is the current instance already created?
+   *    - Yes => Assign that one
+   *    - No =>
+   *      3) it's a null statement, has to be a constructor?
+   *        - Yes => build a new constructor statement for it
+   *
+   *      4) It's a constructor statement, has to be null?
+   *        - Yes => Build a new null statement for the variable
+   *
+   * @param newTest
+   * @param symbolicVariableName
+   * @param updateValue
+   * @param createdInstances
+   */
+   private static void processObjectValue(TestCase newTest, String symbolicVariableName, Long updateValue, HashMap<Long, Object> createdInstances) {
+     String statementName = symbolicVariableName.split("\\_")[1];
+     Statement currentVariableStatement = getUncheckedStatement(newTest, statementName);
+
+     // 1) Does it have a definition statement?
+     if (currentVariableStatement == null) {
+       //TODO: Class needed
+       Class varClass = null; // will be added when keeping track of symbolic classes
+       currentVariableStatement = new NullStatement(newTest, varClass);
+       newTest.addStatement(currentVariableStatement);
+     }
+
+     // 2) Does this reference points to an already created instance?
+     if (createdInstances.keySet().contains(updateValue)) {
+       ConstructorStatement cst = (ConstructorStatement) createdInstances.get(updateValue);
+       AssignmentStatement ast = new AssignmentStatement(newTest, currentVariableStatement.getReturnValue(), cst.getReturnValue());
+       newTest.addStatement(ast);
+     } else {
+
+       // 3) is a null statement and a constructor is needed
+       if (currentVariableStatement instanceof NullStatement && updateValue != 0) {
+         //TODO: armar constructor statement
+         VariableReference varRef = currentVariableStatement.getReturnValue();
+
+         // 4) is a constructor statement and null is needed
+       } else if (currentVariableStatement instanceof ConstructorStatement && updateValue == 0) {
+         NullStatement currentVariableNullStatement = new NullStatement(newTest, currentVariableStatement.getReturnType());
+         newTest.remove(currentVariableStatement.getPosition());
+         newTest.addStatement(currentVariableNullStatement, currentVariableStatement.getPosition());
+       }
+     }
+   }
 
   /**
    * Updates the corresponding string statement given a symbolic variable and its updated value
@@ -500,6 +566,21 @@ public class TestCaseUpdater {
 		}
 		return null;
 	}
+
+  /**
+   * Get the statement that defines this variable
+   *
+   * @param test
+   * @param name
+   * @return
+   */
+  public static Statement getUncheckedStatement(TestCase test, String name) {
+    for (Statement statement : test) {
+      if (statement.getReturnValue().getName().equals(name))
+        return statement;
+    }
+    return null;
+  }
 
 	/**
 	 * Get the statement that defines this variable
