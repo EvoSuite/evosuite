@@ -1071,6 +1071,13 @@ public class GenericClassImpl implements Serializable, GenericClass<GenericClass
         for (Type theType : typeVariable.getBounds()) {
             //logger.debug("Current boundary of " + typeVariable + ": " + theType);
             // Special case: Enum is defined as Enum<T extends Enum>
+            // If the boundary is not assignable it may still be possible
+            // to instantiate the generic to an assignable type
+            if (type instanceof WildcardType){
+                // TODO i don't know exactly how to handle this case, but it is necessary to prevent an Exception
+                isAssignable = false;
+                break;
+            }
             if (GenericTypeReflector.erase(theType).equals(Enum.class)) {
                 //logger.debug("Is ENUM case");
                 // if this is an enum then it's ok.
