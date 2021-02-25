@@ -31,6 +31,7 @@ import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.execution.Scope;
 import org.evosuite.utils.generic.GenericClassFactory;
 import org.evosuite.utils.generic.GenericClassImpl;
+import org.evosuite.utils.ArrayUtil;
 import org.objectweb.asm.commons.GeneratorAdapter;
 
 import com.googlecode.gentyref.GenericTypeReflector;
@@ -183,11 +184,7 @@ public class ArrayIndex extends VariableReferenceImpl {
 	 */
 	@Override
 	public String getName() {
-		String result = array.getName();
-		for (int index : indices) {
-			result += "[" + index + "]";
-		}
-		return result;
+		return ArrayUtil.buildArrayIndexName(array.getName(), indices);
 	}
 
 	/** {@inheritDoc} */

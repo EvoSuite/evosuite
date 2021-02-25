@@ -19,6 +19,8 @@
  */
 package org.evosuite.symbolic.expr;
 
+import org.evosuite.symbolic.expr.constraint.ConstraintVisitor;
+
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;

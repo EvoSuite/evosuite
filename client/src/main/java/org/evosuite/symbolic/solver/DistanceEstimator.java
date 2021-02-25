@@ -23,9 +23,9 @@ import java.util.Collection;
 
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.DistanceCalculator;
-import org.evosuite.symbolic.expr.IntegerConstraint;
-import org.evosuite.symbolic.expr.RealConstraint;
-import org.evosuite.symbolic.expr.StringConstraint;
+import org.evosuite.symbolic.expr.constraint.IntegerConstraint;
+import org.evosuite.symbolic.expr.constraint.RealConstraint;
+import org.evosuite.symbolic.expr.constraint.StringConstraint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

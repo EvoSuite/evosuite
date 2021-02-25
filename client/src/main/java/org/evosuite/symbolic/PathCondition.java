@@ -28,7 +28,6 @@ import org.evosuite.symbolic.expr.Constraint;
  * Represents a sequence of branch conditions.
  * 
  * @author galeotti
- *
  */
 public class PathCondition {
 
@@ -62,7 +61,7 @@ public class PathCondition {
 	 * 
 	 * @return
 	 */
-	public List<BranchCondition> getBranchConditions() {
+	public List<BranchCondition> getBranchConditions () {
 		return this.pathCondition;
 	}
 

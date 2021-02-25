@@ -37,4 +37,20 @@ public interface SmtExprVisitor<K, V> {
 
 	K visit(SmtOperation n, V arg);
 
+  K visit(SmtArrayVariable.SmtIntegerArrayVariable n, V arg);
+
+  K visit(SmtArrayVariable.SmtRealArrayVariable n, V arg);
+
+  K visit(SmtArrayVariable.SmtStringArrayVariable n, V arg);
+
+  K visit(SmtArrayVariable.SmtReferenceArrayVariable n, V arg);
+
+  K visit(SmtArrayConstant.SmtIntegerArrayConstant n, V arg);
+
+  K visit(SmtArrayConstant.SmtRealArrayConstant n, V arg);
+
+  K visit(SmtArrayConstant.SmtStringArrayConstant n, V arg);
+
+  K visit(SmtArrayConstant.SmtReferenceArrayConstant n, V arg);
+
 }

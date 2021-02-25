@@ -31,8 +31,11 @@ import java.util.Set;
 
 import org.evosuite.symbolic.expr.ref.ReferenceExpression;
 import org.evosuite.symbolic.instrument.ConcolicInstrumentingClassLoader;
-import org.evosuite.testcase.execution.EvosuiteError;
+import org.evosuite.symbolic.vm.heap.SymbolicHeap;
+import org.evosuite.utils.TypeUtil;
 import org.objectweb.asm.Type;
+
+import static org.evosuite.dse.MainConfig.LAMBDA_CLASS_NAME_FRAGMENT;
 
 /**
  * 
@@ -43,6 +46,7 @@ public final class SymbolicEnvironment {
 
 	/**
 	 * Storage for symbolic information in the memory heap
+	 * This might be extended at some point
 	 */
 	public final SymbolicHeap heap = new SymbolicHeap();
 
@@ -57,19 +61,18 @@ public final class SymbolicEnvironment {
 	 */
 	private final Set<Class<?>> preparedClasses = new HashSet<>();
 
-	private final ConcolicInstrumentingClassLoader classLoader;
+	private final ConcolicInstrumentingClassLoader instrumentingClassLoader;
 
-	public SymbolicEnvironment(ConcolicInstrumentingClassLoader classLoader) {
-		this.classLoader = classLoader;
+	public SymbolicEnvironment(ConcolicInstrumentingClassLoader instrumentingClassLoader) {
+		this.instrumentingClassLoader = instrumentingClassLoader;
 	}
 
 	public Frame topFrame() {
 		return stackFrame.peek();
 	}
-
-	public void pushFrame(Frame frame) {
-		stackFrame.push(frame);
-	}
+	public Frame popFrame() { return stackFrame.pop(); }
+	public boolean isEmpty() { return stackFrame.isEmpty(); }
+	public void pushFrame(Frame frame) { stackFrame.push(frame); }
 
 	public Frame callerFrame() {
 		Frame top = stackFrame.pop();
@@ -78,20 +81,16 @@ public final class SymbolicEnvironment {
 		return res;
 	}
 
-	public Frame popFrame() {
-		return stackFrame.pop();
-	}
-
 	public Class<?> ensurePrepared(String className) {
 		Type ownerType = Type.getObjectType(className);
 		if (ownerType.getSort() == Type.ARRAY) {
 			Type elemType = ownerType.getElementType();
-			if (isValueType(elemType))
-				return primitiveClassType(elemType);
+			if (TypeUtil.isValue(elemType))
+				return TypeUtil.getPrimitiveArrayClassFromElementType(elemType);
 			else {
 				// ensurePrepared component class
 				className = elemType.getClassName();
-				Class<?> claz = classLoader.getClassForName(className);
+				Class<?> claz = instrumentingClassLoader.getClassForName(className);
 				ensurePrepared(claz);
 				
 				// returns claz[] instead of claz
@@ -99,40 +98,10 @@ public final class SymbolicEnvironment {
 				return arrayClaz;
 			}
 		} else {
-			Class<?> claz = classLoader.getClassForName(className);
+			Class<?> claz = instrumentingClassLoader.getClassForName(className);
 			ensurePrepared(claz);
 			return claz;
 		}
-	}
-
-	private Class<?> primitiveClassType(Type t) {
-		if (t.equals(Type.BOOLEAN_TYPE))
-			return boolean[].class;
-		if (t.equals(Type.CHAR_TYPE))
-			return char[].class;
-		if (t.equals(Type.SHORT_TYPE))
-			return short[].class;
-		if (t.equals(Type.BYTE_TYPE))
-			return byte[].class;
-		if (t.equals(Type.INT_TYPE))
-			return int[].class;
-		if (t.equals(Type.LONG_TYPE))
-			return long[].class;
-		if (t.equals(Type.FLOAT_TYPE))
-			return float[].class;
-		if (t.equals(Type.DOUBLE_TYPE))
-			return double[].class;
-
-		throw new EvosuiteError(t.toString()
-				+ " is not a primitive value class!");
-
-	}
-
-	private boolean isValueType(Type t) {
-		return t.equals(Type.BOOLEAN_TYPE) || t.equals(Type.CHAR_TYPE)
-				|| t.equals(Type.SHORT_TYPE) || t.equals(Type.BYTE_TYPE)
-				|| t.equals(Type.INT_TYPE) || t.equals(Type.LONG_TYPE)
-				|| t.equals(Type.FLOAT_TYPE) || t.equals(Type.DOUBLE_TYPE);
 	}
 
 	public void ensurePrepared(Class<?> claz) {
@@ -204,9 +173,4 @@ public final class SymbolicEnvironment {
 		String declClass = method.getDeclaringClass().getCanonicalName();
 		return !MainConfig.get().isIgnored(declClass);
 	}
-
-	public boolean isEmpty() {
-		return stackFrame.isEmpty();
-	}
-
 }

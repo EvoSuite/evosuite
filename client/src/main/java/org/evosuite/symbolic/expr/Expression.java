@@ -29,8 +29,6 @@ public interface Expression<T extends Object> extends Serializable {
 	 * getParent
 	 * </p>
 	 * 
-	 * @param <T>
-	 *            a T object.
 	 * @return a {@link org.evosuite.symbolic.expr.Expression} object.
 	 */
     Expression<?> getParent();

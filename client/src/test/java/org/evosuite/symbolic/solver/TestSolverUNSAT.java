@@ -25,7 +25,7 @@ import java.util.LinkedList;
 import static org.junit.Assert.assertTrue;
 
 import org.evosuite.symbolic.expr.Constraint;
-import org.evosuite.symbolic.expr.IntegerConstraint;
+import org.evosuite.symbolic.expr.constraint.IntegerConstraint;
 import org.evosuite.symbolic.expr.bv.IntegerVariable;
 import org.evosuite.symbolic.vm.ConstraintFactory;
 import org.junit.Test;

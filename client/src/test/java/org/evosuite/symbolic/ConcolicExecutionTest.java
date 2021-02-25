@@ -29,6 +29,7 @@ import java.util.Set;
 import org.apache.commons.lang3.SystemUtils;
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
+import org.evosuite.symbolic.dse.ConcolicExecutorImpl;
 import org.evosuite.symbolic.expr.Variable;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.execution.TestCaseExecutor;
@@ -164,12 +165,13 @@ public class ConcolicExecutionTest {
 	}
 
 	private List<BranchCondition> executeTest(DefaultTestCase tc) {
+		Properties.IS_DSE_ARRAYS_SUPPORT_ENABLED = false;
 		Properties.CLIENT_ON_THREAD = true;
 		Properties.PRINT_TO_SYSTEM = false;
 		Properties.TIMEOUT = 5000;
 		Properties.CONCOLIC_TIMEOUT = 5000000;
 
-		PathCondition pc = ConcolicExecution.executeConcolic(tc);
+		PathCondition pc = new ConcolicExecutorImpl().execute(tc);
 		List<BranchCondition> branch_conditions = pc.getBranchConditions();
 
 		return branch_conditions;
@@ -732,8 +734,8 @@ public class ConcolicExecutionTest {
 	@Test
 	public void testCase38() throws SecurityException, NoSuchMethodException {
 		DefaultTestCase tc = buildTestCase38();
-		List<BranchCondition> branch_conditions = executeTest(tc);
-		assertEquals(7, branch_conditions.size());
+		List<BranchCondition> branchConditions = executeTest(tc);
+		assertEquals(28, branchConditions.size());
 	}
 
 	// final int ARRAY_SIZE = 20;
@@ -752,8 +754,8 @@ public class ConcolicExecutionTest {
 	@Test
 	public void testCase39() throws SecurityException, NoSuchMethodException {
 		DefaultTestCase tc = buildTestCase39();
-		List<BranchCondition> branch_conditions = executeTest(tc);
-		assertEquals(2, branch_conditions.size());
+		List<BranchCondition> branchConditions = executeTest(tc);
+		assertEquals(9, branchConditions.size());
 	}
 
 	// int int0 = ConcolicMarker.mark(10, "int0");
@@ -774,7 +776,7 @@ public class ConcolicExecutionTest {
 	public void testCase40() throws SecurityException, NoSuchMethodException {
 		DefaultTestCase tc = buildTestCase40();
 		List<BranchCondition> branch_conditions = executeTest(tc);
-		assertEquals(1, branch_conditions.size());
+		assertEquals(6, branch_conditions.size());
 	}
 
 	// int int0 = ConcolicMarker.mark(0,"var0");
@@ -1025,7 +1027,7 @@ public class ConcolicExecutionTest {
 	public void testCase50() throws SecurityException, NoSuchMethodException {
 		DefaultTestCase tc = buildTestCase50();
 		List<BranchCondition> branch_conditions = executeTest(tc);
-		assertEquals(15, branch_conditions.size());
+		assertEquals(20, branch_conditions.size());
 	}
 
 	private DefaultTestCase buildTestCase51() throws SecurityException, NoSuchMethodException {
@@ -1504,7 +1506,7 @@ public class ConcolicExecutionTest {
 	public void testCase76() throws SecurityException, NoSuchMethodException {
 		DefaultTestCase tc = buildTestCase76();
 		List<BranchCondition> branch_conditions = executeTest(tc);
-		assertEquals(1, branch_conditions.size());
+		assertEquals(5, branch_conditions.size());
 	}
 
 	// int int0 = ConcolicMarker.mark(10,"int0");
@@ -1525,7 +1527,7 @@ public class ConcolicExecutionTest {
 	public void testCase77() throws SecurityException, NoSuchMethodException {
 		DefaultTestCase tc = buildTestCase77();
 		List<BranchCondition> branch_conditions = executeTest(tc);
-		assertEquals(0, branch_conditions.size());
+		assertEquals(3, branch_conditions.size());
 	}
 
 	// int int0 = ConcolicMarker.mark(10, "int0");

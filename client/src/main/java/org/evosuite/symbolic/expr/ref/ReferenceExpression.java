@@ -21,6 +21,7 @@ package org.evosuite.symbolic.expr.ref;
 
 import org.evosuite.symbolic.expr.AbstractExpression;
 import org.evosuite.symbolic.expr.SymbolicValue;
+import org.evosuite.utils.TypeUtil;
 import org.objectweb.asm.Type;
 
 /**
@@ -99,7 +100,7 @@ public abstract class ReferenceExpression extends AbstractExpression<Object> imp
 	 */
 	@Override
 	public String toString() {
-		return this.getClassName() + "$" + this.instanceId;
+		return this.getObjectType().getClassName() + "$" + this.getInstanceId();
 	}
 
 	/**
@@ -127,8 +128,17 @@ public abstract class ReferenceExpression extends AbstractExpression<Object> imp
 	 * 
 	 * @return
 	 */
-	public String getClassName() {
-		return this.objectType.getClassName();
+	public Type getObjectType() {
+		return this.objectType;
+	}
+
+	/**
+	 * Returns the instance id of this reference
+	 *
+	 * @return
+	 */
+	public int getInstanceId() {
+		return instanceId;
 	}
 
 	/**
@@ -137,8 +147,7 @@ public abstract class ReferenceExpression extends AbstractExpression<Object> imp
 	 * @return
 	 */
 	public boolean isString() {
-		Type stringType = Type.getType(String.class);
-		return this.objectType.equals(stringType);
+		return TypeUtil.isStringValue(this.objectType);
 	}
 
 }

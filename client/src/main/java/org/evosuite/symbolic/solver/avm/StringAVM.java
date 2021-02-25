@@ -25,7 +25,7 @@ import java.util.Set;
 
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.ExpressionEvaluator;
-import org.evosuite.symbolic.expr.StringConstraint;
+import org.evosuite.symbolic.expr.constraint.StringConstraint;
 import org.evosuite.symbolic.expr.str.StringValue;
 import org.evosuite.symbolic.expr.str.StringVariable;
 import org.evosuite.symbolic.expr.token.HasMoreTokensExpr;
