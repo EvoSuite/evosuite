@@ -49,9 +49,9 @@ import org.evosuite.symbolic.expr.fp.RealVariable;
 import org.evosuite.symbolic.expr.reader.StringReaderExpr;
 import org.evosuite.symbolic.expr.ref.GetFieldExpression;
 import org.evosuite.symbolic.expr.ref.ClassReferenceVariable;
-import org.evosuite.symbolic.expr.reftype.LambdaSyntheticType;
-import org.evosuite.symbolic.expr.reftype.LiteralClassType;
-import org.evosuite.symbolic.expr.reftype.LiteralNullType;
+import org.evosuite.symbolic.expr.reftype.LambdaSyntheticTypeConstant;
+import org.evosuite.symbolic.expr.reftype.ClassTypeConstant;
+import org.evosuite.symbolic.expr.reftype.NullTypeConstant;
 import org.evosuite.symbolic.expr.str.IntegerToStringCast;
 import org.evosuite.symbolic.expr.str.RealToStringCast;
 import org.evosuite.symbolic.expr.str.StringBinaryExpression;
@@ -503,11 +503,11 @@ final class NonLinearExpressionVisitor implements ExpressionVisitor<Boolean, Voi
 	}
 
 	@Override
-	public Boolean visit(LambdaSyntheticType r, Void arg) { return false; }
+	public Boolean visit(LambdaSyntheticTypeConstant r, Void arg) { return false; }
 
 	@Override
-    public Boolean visit(LiteralNullType r, Void arg) { return false; }
+    public Boolean visit(NullTypeConstant r, Void arg) { return false; }
 
     @Override
-    public Boolean visit(LiteralClassType r, Void arg) { return false; }
+    public Boolean visit(ClassTypeConstant r, Void arg) { return false; }
 }

@@ -20,25 +20,28 @@
 package org.evosuite.symbolic.expr.reftype;
 
 import org.evosuite.symbolic.expr.ExpressionVisitor;
-import org.evosuite.symbolic.expr.Variable;
-
-import java.util.Collections;
-import java.util.Set;
 
 /**
- * This is the superclass of all literal classes
+ * Symbolic representation of the null type.
+ * There should be only one instance of this object.
  *
  * @author Ignacio Lebrero
  */
-public class LiteralClassType extends ReferenceTypeExpression {
-    public LiteralClassType(Class concreteValue) {
-        super(concreteValue, 1, false);
+public final class NullTypeConstant extends ClassTypeConstant {
+
+    public static NullTypeConstant instance;
+
+    public static synchronized NullTypeConstant getInstance() {
+        if (instance == null) {
+            instance = new NullTypeConstant();
+        }
+
+        return instance;
     }
 
-    @Override
-	public Set<Variable<?>> getVariables() {
-		return Collections.emptySet();
-	}
+    private NullTypeConstant() {
+        super(null, 0);
+    }
 
     @Override
     public <K, V> K accept(ExpressionVisitor<K, V> v, V arg) {

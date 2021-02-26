@@ -30,8 +30,8 @@ import org.evosuite.symbolic.expr.ref.ReferenceExpression;
 import org.evosuite.symbolic.expr.ref.ClassReferenceVariable;
 import org.evosuite.symbolic.expr.ref.array.ArrayConstant;
 import org.evosuite.symbolic.expr.ref.array.ArrayVariable;
-import org.evosuite.symbolic.expr.reftype.LambdaSyntheticType;
-import org.evosuite.symbolic.expr.reftype.LiteralClassType;
+import org.evosuite.symbolic.expr.reftype.LambdaSyntheticTypeConstant;
+import org.evosuite.symbolic.expr.reftype.ClassTypeConstant;
 import org.evosuite.symbolic.expr.reftype.ReferenceTypeExpression;
 import org.evosuite.symbolic.expr.str.StringValue;
 import org.evosuite.symbolic.vm.ExpressionFactory;
@@ -71,6 +71,10 @@ public final class SymbolicHeap {
 	/** Reference Constants */
 	public static final int NULL_INSTANCE_ID = 0;
 
+	/** Reference Type Constants */
+	public static final int NULL_TYPE_ID = 0;
+	public static final int OBJECT_TYPE_ID = 1;
+
 	protected static final Logger logger = LoggerFactory.getLogger(SymbolicHeap.class);
 
 	/**
@@ -79,6 +83,13 @@ public final class SymbolicHeap {
 	 * Note: 0 is reserved for the null constant.
 	 */
 	private int newInstanceCount = 1;
+
+	/**
+	 * Counter for reference types found during execution
+	 *
+	 * Note: 0 is reserved for the null constant and 1 for Object
+	 */
+	private int newReferenceTypeCount = 2;
 
 	/**
 	 * Array's memory model
@@ -583,7 +594,9 @@ public final class SymbolicHeap {
 		lambdaExpression = symbolicReferenceTypes.get(lambdaAnonymousClass);
 
 		if (lambdaExpression == null) {
-			 lambdaExpression = new LambdaSyntheticType(lambdaAnonymousClass, ownerIsIgnored);
+			final int newReferenceTypeId = newReferenceTypeCount++;
+
+			 lambdaExpression = ExpressionFactory.buildLambdaSyntheticTypeConstant(lambdaAnonymousClass, ownerIsIgnored, newReferenceTypeId);
 			 symbolicReferenceTypes.put(lambdaAnonymousClass, lambdaExpression);
 		}
 
@@ -597,17 +610,21 @@ public final class SymbolicHeap {
 	 * @return
 	 */
 	public ReferenceTypeExpression getReferenceType(Class type) {
-		if (type == null) return ExpressionFactory.buildNewNullReferenceType();
+		if (type == null) return ExpressionFactory.NULL_TYPE_REFERENCE;
 
 		ReferenceTypeExpression typeExpression;
 		typeExpression = symbolicReferenceTypes.get(type);
 
 		if (typeExpression == null) {
+			final int newReferenceTypeId = newReferenceTypeCount++;
+
 			if (LambdaUtils.isLambda(type)) {
 				//If we haven't seen this lambda before then it's from non-instrumented sources
-				typeExpression = new LambdaSyntheticType(type, true);
+				typeExpression = new LambdaSyntheticTypeConstant(type, true, newReferenceTypeId);
+			} else if (type.isArray()){
+				throw new IllegalArgumentException("Array types should not be found along the execution here");
 			} else {
-				typeExpression = new LiteralClassType(type);
+				typeExpression = new ClassTypeConstant(type, newReferenceTypeId);
 			}
 		}
 

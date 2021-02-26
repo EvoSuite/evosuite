@@ -28,7 +28,7 @@ import org.evosuite.symbolic.expr.fp.RealConstant;
 import org.evosuite.symbolic.expr.ref.ClassReferenceConstant;
 import org.evosuite.symbolic.expr.ref.ReferenceConstant;
 import org.evosuite.symbolic.expr.ref.ReferenceExpression;
-import org.evosuite.symbolic.expr.reftype.LambdaSyntheticType;
+import org.evosuite.symbolic.expr.reftype.LambdaSyntheticTypeConstant;
 import org.evosuite.symbolic.expr.str.StringBinaryExpression;
 import org.evosuite.symbolic.expr.str.StringConstant;
 import org.evosuite.symbolic.instrument.ConcolicInstrumentingClassLoader;
@@ -584,7 +584,7 @@ public final class CallVM extends AbstractVM {
 
 			// Check if we call non-instrumented code
 			Class anonymousClass = concreteReceiver.getClass();
-			LambdaSyntheticType lambdaReferenceType = (LambdaSyntheticType) env.heap.getReferenceType(anonymousClass);
+			LambdaSyntheticTypeConstant lambdaReferenceType = (LambdaSyntheticTypeConstant) env.heap.getReferenceType(anonymousClass);
 
 			// If this lambda hasn't been seen before, we assume it's not instrumented
 			env.topFrame().invokeInstrumentedCode(!lambdaReferenceType.callsNonInstrumentedCode());

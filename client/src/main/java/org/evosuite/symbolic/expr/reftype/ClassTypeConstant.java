@@ -20,27 +20,26 @@
 package org.evosuite.symbolic.expr.reftype;
 
 import org.evosuite.symbolic.expr.ExpressionVisitor;
+import org.evosuite.symbolic.expr.Variable;
+
+import java.util.Collections;
+import java.util.Set;
 
 /**
- * General expression for anonymous jvm-created lambda classes (usually after invokedynamic is used).
- * <p>
- * TODO: Lambdas may be closures so a lot of fields may be attached to them.
+ * This is the superclass of all literal classes
  *
  * @author Ignacio Lebrero
  */
-public class LambdaSyntheticType extends LiteralClassType {
+public class ClassTypeConstant extends ReferenceTypeExpression {
 
-    private boolean callsNonInstrumentedCode;
-
-    public LambdaSyntheticType(Class concreteValue, boolean callsNonInstrumentedCode) {
-        super(concreteValue);
-
-        this.callsNonInstrumentedCode = callsNonInstrumentedCode;
+    public ClassTypeConstant(Class concreteValue, int referenceTypeId) {
+        super(concreteValue, 1, false, referenceTypeId);
     }
 
-    public boolean callsNonInstrumentedCode() {
-        return callsNonInstrumentedCode;
-    }
+    @Override
+	public Set<Variable<?>> getVariables() {
+		return Collections.emptySet();
+	}
 
     @Override
     public <K, V> K accept(ExpressionVisitor<K, V> v, V arg) {

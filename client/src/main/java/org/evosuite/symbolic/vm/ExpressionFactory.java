@@ -32,12 +32,14 @@ import org.evosuite.symbolic.expr.bv.IntegerValue;
 import org.evosuite.symbolic.expr.fp.RealBinaryExpression;
 import org.evosuite.symbolic.expr.fp.RealConstant;
 import org.evosuite.symbolic.expr.fp.RealValue;
-import org.evosuite.symbolic.expr.reftype.LiteralNullType;
+import org.evosuite.symbolic.expr.reftype.ClassTypeConstant;
+import org.evosuite.symbolic.expr.reftype.LambdaSyntheticTypeConstant;
+import org.evosuite.symbolic.expr.reftype.NullTypeConstant;
 import org.evosuite.symbolic.expr.str.StringConstant;
 import org.evosuite.symbolic.expr.str.StringValue;
+import org.evosuite.symbolic.vm.heap.SymbolicHeap;
 import org.evosuite.utils.TypeUtil;
 import org.objectweb.asm.Type;
-
 
 /**
  *
@@ -60,6 +62,10 @@ public abstract class ExpressionFactory {
 
 	/** Reference Constants */
 	public static final NullReferenceConstant NULL_REFERENCE = NullReferenceConstant.getInstance();
+
+	/** Reference Type Constants */
+	public static final NullTypeConstant NULL_TYPE_REFERENCE = NullTypeConstant.getInstance();
+	public static final ClassTypeConstant OBJECT_TYPE_REFERENCE = buildObjectTypeConstant();
 
 	public static IntegerConstant buildNewIntegerConstant(int value) {
 		return buildNewIntegerConstant((long) value);
@@ -431,7 +437,34 @@ public abstract class ExpressionFactory {
 
 	/**************************** Reference Types ****************************/
 
-	public static LiteralNullType buildNewNullReferenceType() {
-		return new LiteralNullType();
+	/**
+	 * Builds a new synthetic lambda reference type.
+	 *
+	 * @param lambdaAnonymousClass
+	 * @param ownerIsIgnored
+	 * @param newReferenceTypeId
+	 * @return*/
+	public static LambdaSyntheticTypeConstant buildLambdaSyntheticTypeConstant(Class<?> lambdaAnonymousClass, boolean ownerIsIgnored, int newReferenceTypeId) {
+		return new LambdaSyntheticTypeConstant(lambdaAnonymousClass, ownerIsIgnored, newReferenceTypeId);
+	}
+
+	/**
+	 * Builds a new Class reference type.
+	 *
+	 * @param classType
+	 * @param newReferenceTypeId
+	 * @return
+	 */
+	public static ClassTypeConstant buildClassTypeConstant(Class classType, int newReferenceTypeId) {
+		return new ClassTypeConstant(classType, newReferenceTypeId);
+	}
+
+	/**
+	 * Builds a new Object reference type.
+	 *
+	 * @return
+	 */
+	private static ClassTypeConstant buildObjectTypeConstant() {
+		return new ClassTypeConstant(Object.class, SymbolicHeap.OBJECT_TYPE_ID);
 	}
 }

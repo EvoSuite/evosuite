@@ -47,9 +47,9 @@ import org.evosuite.symbolic.expr.fp.RealVariable;
 import org.evosuite.symbolic.expr.reader.StringReaderExpr;
 import org.evosuite.symbolic.expr.ref.GetFieldExpression;
 import org.evosuite.symbolic.expr.ref.ClassReferenceVariable;
-import org.evosuite.symbolic.expr.reftype.LambdaSyntheticType;
-import org.evosuite.symbolic.expr.reftype.LiteralClassType;
-import org.evosuite.symbolic.expr.reftype.LiteralNullType;
+import org.evosuite.symbolic.expr.reftype.LambdaSyntheticTypeConstant;
+import org.evosuite.symbolic.expr.reftype.ClassTypeConstant;
+import org.evosuite.symbolic.expr.reftype.NullTypeConstant;
 import org.evosuite.symbolic.expr.str.IntegerToStringCast;
 import org.evosuite.symbolic.expr.str.RealToStringCast;
 import org.evosuite.symbolic.expr.str.StringBinaryExpression;
@@ -158,11 +158,11 @@ public interface ExpressionVisitor<K, V> {
 
     /********************** Reference Types *********************/
 
-    K visit(LambdaSyntheticType r, V arg);
+    K visit(LambdaSyntheticTypeConstant r, V arg);
 
-    K visit(LiteralNullType r, V args);
+    K visit(NullTypeConstant r, V args);
 
-    K visit(LiteralClassType r, V arg);
+    K visit(ClassTypeConstant r, V arg);
 
     /********************** References *********************/
 

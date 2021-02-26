@@ -22,15 +22,24 @@ package org.evosuite.symbolic.expr.reftype;
 import org.evosuite.symbolic.expr.ExpressionVisitor;
 
 /**
- * Symbolic representation of the null type
+ * General expression for anonymous jvm-created lambda classes (usually after invokedynamic is used).
+ * <p>
+ * TODO: Lambdas may be closures so a lot of fields may be attached to them.
  *
  * @author Ignacio Lebrero
  */
-public final class LiteralNullType extends LiteralClassType {
+public class LambdaSyntheticTypeConstant extends ClassTypeConstant {
 
-    //TODO(ilebrero): There should be a Null class as a concrete object -> model it evetually
-    public LiteralNullType() {
-        super(null);
+    private boolean callsNonInstrumentedCode;
+
+    public LambdaSyntheticTypeConstant(Class concreteValue, boolean callsNonInstrumentedCode, int referenceTypeId) {
+        super(concreteValue, referenceTypeId);
+
+        this.callsNonInstrumentedCode = callsNonInstrumentedCode;
+    }
+
+    public boolean callsNonInstrumentedCode() {
+        return callsNonInstrumentedCode;
     }
 
     @Override
