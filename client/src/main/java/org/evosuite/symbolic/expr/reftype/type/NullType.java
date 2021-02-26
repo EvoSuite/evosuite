@@ -17,35 +17,26 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite.symbolic.expr.reftype;
+package org.evosuite.symbolic.expr.reftype.type;
 
-import org.evosuite.symbolic.expr.ExpressionVisitor;
-import org.evosuite.symbolic.expr.reftype.type.NullType;
+import java.lang.reflect.Type;
 
 /**
- * Symbolic representation of the null type.
- * There should be only one instance of this object.
+ * Represents the null type.
  *
  * @author Ignacio Lebrero
  */
-public final class NullTypeConstant extends ReferenceTypeConstant {
+public class NullType implements Type {
 
-    public static NullTypeConstant instance;
+    private static NullType instance;
 
-    public static synchronized NullTypeConstant getInstance() {
+    public static NullType getInstance() {
         if (instance == null) {
-            instance = new NullTypeConstant();
+            instance = new NullType();
         }
 
         return instance;
     }
 
-    private NullTypeConstant() {
-        super(NullType.class, 0);
-    }
-
-    @Override
-    public <K, V> K accept(ExpressionVisitor<K, V> v, V arg) {
-        return v.visit(this, arg);
-    }
+    private NullType() {}
 }

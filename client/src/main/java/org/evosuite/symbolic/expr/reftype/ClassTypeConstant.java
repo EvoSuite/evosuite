@@ -20,26 +20,17 @@
 package org.evosuite.symbolic.expr.reftype;
 
 import org.evosuite.symbolic.expr.ExpressionVisitor;
-import org.evosuite.symbolic.expr.Variable;
-
-import java.util.Collections;
-import java.util.Set;
 
 /**
- * This is the superclass of all literal classes
+ * Represents a class type.
  *
  * @author Ignacio Lebrero
  */
-public class ClassTypeConstant extends ReferenceTypeExpression {
+public final class ClassTypeConstant extends NonNullReferenceTypeConstant {
 
     public ClassTypeConstant(Class concreteValue, int referenceTypeId) {
-        super(concreteValue, 1, false, referenceTypeId);
+        super(concreteValue, referenceTypeId);
     }
-
-    @Override
-	public Set<Variable<?>> getVariables() {
-		return Collections.emptySet();
-	}
 
     @Override
     public <K, V> K accept(ExpressionVisitor<K, V> v, V arg) {

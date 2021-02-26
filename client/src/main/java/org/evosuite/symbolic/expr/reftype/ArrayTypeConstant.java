@@ -20,28 +20,16 @@
 package org.evosuite.symbolic.expr.reftype;
 
 import org.evosuite.symbolic.expr.ExpressionVisitor;
-import org.evosuite.symbolic.expr.reftype.type.NullType;
 
 /**
- * Symbolic representation of the null type.
- * There should be only one instance of this object.
+ * Represents all array types
  *
  * @author Ignacio Lebrero
  */
-public final class NullTypeConstant extends ReferenceTypeConstant {
+public final class ArrayTypeConstant extends NonNullReferenceTypeConstant {
 
-    public static NullTypeConstant instance;
-
-    public static synchronized NullTypeConstant getInstance() {
-        if (instance == null) {
-            instance = new NullTypeConstant();
-        }
-
-        return instance;
-    }
-
-    private NullTypeConstant() {
-        super(NullType.class, 0);
+    public ArrayTypeConstant(Class concreteClass, int referenceTypeId) {
+        super(concreteClass, referenceTypeId);
     }
 
     @Override

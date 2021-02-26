@@ -30,6 +30,7 @@ import org.evosuite.symbolic.expr.ref.ReferenceExpression;
 import org.evosuite.symbolic.expr.ref.ClassReferenceVariable;
 import org.evosuite.symbolic.expr.ref.array.ArrayConstant;
 import org.evosuite.symbolic.expr.ref.array.ArrayVariable;
+import org.evosuite.symbolic.expr.reftype.ArrayTypeConstant;
 import org.evosuite.symbolic.expr.reftype.LambdaSyntheticTypeConstant;
 import org.evosuite.symbolic.expr.reftype.ClassTypeConstant;
 import org.evosuite.symbolic.expr.reftype.ReferenceTypeExpression;
@@ -586,6 +587,14 @@ public final class SymbolicHeap {
 
 	/******** Types Implementation *******/
 
+	/**
+	 * Special case scenario for lambda synthetic types.
+	 *
+	 * @param lambdaAnonymousClass
+	 * @param ownerIsIgnored
+	 * @return
+	 */
+
 	public ReferenceTypeExpression buildNewLambdaConstant(Class<?> lambdaAnonymousClass, boolean ownerIsIgnored) {
 	 	if (lambdaAnonymousClass == null)
 			throw new IllegalArgumentException("Lambda Anonymous Class cannot be null.");
@@ -622,10 +631,12 @@ public final class SymbolicHeap {
 				//If we haven't seen this lambda before then it's from non-instrumented sources
 				typeExpression = new LambdaSyntheticTypeConstant(type, true, newReferenceTypeId);
 			} else if (type.isArray()){
-				throw new IllegalArgumentException("Array types should not be found along the execution here");
+				typeExpression = new ArrayTypeConstant(type, newReferenceTypeId);
 			} else {
 				typeExpression = new ClassTypeConstant(type, newReferenceTypeId);
 			}
+
+			symbolicReferenceTypes.put(type, typeExpression);
 		}
 
 		return typeExpression;

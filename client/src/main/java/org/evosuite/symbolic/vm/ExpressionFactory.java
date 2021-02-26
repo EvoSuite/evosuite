@@ -32,6 +32,7 @@ import org.evosuite.symbolic.expr.bv.IntegerValue;
 import org.evosuite.symbolic.expr.fp.RealBinaryExpression;
 import org.evosuite.symbolic.expr.fp.RealConstant;
 import org.evosuite.symbolic.expr.fp.RealValue;
+import org.evosuite.symbolic.expr.reftype.ArrayTypeConstant;
 import org.evosuite.symbolic.expr.reftype.ClassTypeConstant;
 import org.evosuite.symbolic.expr.reftype.LambdaSyntheticTypeConstant;
 import org.evosuite.symbolic.expr.reftype.NullTypeConstant;
@@ -457,6 +458,17 @@ public abstract class ExpressionFactory {
 	 */
 	public static ClassTypeConstant buildClassTypeConstant(Class classType, int newReferenceTypeId) {
 		return new ClassTypeConstant(classType, newReferenceTypeId);
+	}
+
+	/**
+	 * Builds a new Array reference type.
+	 *
+	 * @param classType
+	 * @param newReferenceTypeId
+	 * @return
+	 */
+	public static ArrayTypeConstant buildArrayTypeConstant(Class classType, int newReferenceTypeId) {
+		return new ArrayTypeConstant(classType, newReferenceTypeId);
 	}
 
 	/**

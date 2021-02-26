@@ -23,13 +23,15 @@ import org.evosuite.symbolic.expr.ExpressionVisitor;
 
 /**
  * General expression for anonymous jvm-created lambda classes (usually after invokedynamic is used).
- * <p>
  * TODO: Lambdas may be closures so a lot of fields may be attached to them.
  *
  * @author Ignacio Lebrero
  */
-public class LambdaSyntheticTypeConstant extends ClassTypeConstant {
+public final class LambdaSyntheticTypeConstant extends NonNullReferenceTypeConstant {
 
+    /**
+     * Whether this lambda is called from non instrumented sources
+     */
     private boolean callsNonInstrumentedCode;
 
     public LambdaSyntheticTypeConstant(Class concreteValue, boolean callsNonInstrumentedCode, int referenceTypeId) {

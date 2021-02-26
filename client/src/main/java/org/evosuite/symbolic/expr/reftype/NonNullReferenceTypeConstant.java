@@ -19,33 +19,15 @@
  */
 package org.evosuite.symbolic.expr.reftype;
 
-import org.evosuite.symbolic.expr.ExpressionVisitor;
-import org.evosuite.symbolic.expr.reftype.type.NullType;
-
 /**
- * Symbolic representation of the null type.
- * There should be only one instance of this object.
+ * Represents all non null types.
  *
  * @author Ignacio Lebrero
  */
-public final class NullTypeConstant extends ReferenceTypeConstant {
+public abstract class NonNullReferenceTypeConstant extends ReferenceTypeConstant {
 
-    public static NullTypeConstant instance;
-
-    public static synchronized NullTypeConstant getInstance() {
-        if (instance == null) {
-            instance = new NullTypeConstant();
-        }
-
-        return instance;
+    public NonNullReferenceTypeConstant(Class concreteClass, int referenceTypeId) {
+        super(concreteClass, referenceTypeId);
     }
 
-    private NullTypeConstant() {
-        super(NullType.class, 0);
-    }
-
-    @Override
-    public <K, V> K accept(ExpressionVisitor<K, V> v, V arg) {
-        return v.visit(this, arg);
-    }
 }
