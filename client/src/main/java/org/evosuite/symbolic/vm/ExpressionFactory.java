@@ -445,7 +445,7 @@ public abstract class ExpressionFactory {
 	 * @param ownerIsIgnored
 	 * @param newReferenceTypeId
 	 * @return*/
-	public static LambdaSyntheticTypeConstant buildLambdaSyntheticTypeConstant(Class<?> lambdaAnonymousClass, boolean ownerIsIgnored, int newReferenceTypeId) {
+	public static LambdaSyntheticTypeConstant buildLambdaSyntheticTypeConstant(Type lambdaAnonymousClass, boolean ownerIsIgnored, int newReferenceTypeId) {
 		return new LambdaSyntheticTypeConstant(lambdaAnonymousClass, ownerIsIgnored, newReferenceTypeId);
 	}
 
@@ -456,7 +456,7 @@ public abstract class ExpressionFactory {
 	 * @param newReferenceTypeId
 	 * @return
 	 */
-	public static ClassTypeConstant buildClassTypeConstant(Class classType, int newReferenceTypeId) {
+	public static ClassTypeConstant buildClassTypeConstant(Type classType, int newReferenceTypeId) {
 		return new ClassTypeConstant(classType, newReferenceTypeId);
 	}
 
@@ -467,7 +467,7 @@ public abstract class ExpressionFactory {
 	 * @param newReferenceTypeId
 	 * @return
 	 */
-	public static ArrayTypeConstant buildArrayTypeConstant(Class classType, int newReferenceTypeId) {
+	public static ArrayTypeConstant buildArrayTypeConstant(Type classType, int newReferenceTypeId) {
 		return new ArrayTypeConstant(classType, newReferenceTypeId);
 	}
 
@@ -477,6 +477,6 @@ public abstract class ExpressionFactory {
 	 * @return
 	 */
 	private static ClassTypeConstant buildObjectTypeConstant() {
-		return new ClassTypeConstant(Object.class, SymbolicHeap.OBJECT_TYPE_ID);
+		return new ClassTypeConstant(Type.getType(Object.class), SymbolicHeap.OBJECT_TYPE_ID);
 	}
 }

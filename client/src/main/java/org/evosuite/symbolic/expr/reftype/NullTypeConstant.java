@@ -21,6 +21,8 @@ package org.evosuite.symbolic.expr.reftype;
 
 import org.evosuite.symbolic.expr.ExpressionVisitor;
 import org.evosuite.symbolic.expr.reftype.type.NullType;
+import org.evosuite.symbolic.vm.heap.SymbolicHeap;
+import org.objectweb.asm.Type;
 
 /**
  * Symbolic representation of the null type.
@@ -41,7 +43,7 @@ public final class NullTypeConstant extends ReferenceTypeConstant {
     }
 
     private NullTypeConstant() {
-        super(NullType.class, 0);
+        super(Type.getType(NullType.class), SymbolicHeap.NULL_TYPE_ID);
     }
 
     @Override

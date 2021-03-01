@@ -19,6 +19,7 @@
  */
 package org.evosuite.symbolic.expr.reftype;
 
+import org.objectweb.asm.Type;
 import org.evosuite.symbolic.expr.ExpressionVisitor;
 
 /**
@@ -28,7 +29,7 @@ import org.evosuite.symbolic.expr.ExpressionVisitor;
  */
 public final class ClassTypeConstant extends NonNullReferenceTypeConstant {
 
-    public ClassTypeConstant(Class concreteValue, int referenceTypeId) {
+    public ClassTypeConstant(Type concreteValue, int referenceTypeId) {
         super(concreteValue, referenceTypeId);
     }
 

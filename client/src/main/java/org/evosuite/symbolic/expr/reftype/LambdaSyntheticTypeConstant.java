@@ -19,6 +19,7 @@
  */
 package org.evosuite.symbolic.expr.reftype;
 
+import org.objectweb.asm.Type;
 import org.evosuite.symbolic.expr.ExpressionVisitor;
 
 /**
@@ -34,7 +35,7 @@ public final class LambdaSyntheticTypeConstant extends NonNullReferenceTypeConst
      */
     private boolean callsNonInstrumentedCode;
 
-    public LambdaSyntheticTypeConstant(Class concreteValue, boolean callsNonInstrumentedCode, int referenceTypeId) {
+    public LambdaSyntheticTypeConstant(Type concreteValue, boolean callsNonInstrumentedCode, int referenceTypeId) {
         super(concreteValue, referenceTypeId);
 
         this.callsNonInstrumentedCode = callsNonInstrumentedCode;

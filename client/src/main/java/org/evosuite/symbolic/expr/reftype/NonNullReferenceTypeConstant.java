@@ -19,6 +19,8 @@
  */
 package org.evosuite.symbolic.expr.reftype;
 
+import org.objectweb.asm.Type;
+
 /**
  * Represents all non null types.
  *
@@ -26,7 +28,7 @@ package org.evosuite.symbolic.expr.reftype;
  */
 public abstract class NonNullReferenceTypeConstant extends ReferenceTypeConstant {
 
-    public NonNullReferenceTypeConstant(Class concreteClass, int referenceTypeId) {
+    public NonNullReferenceTypeConstant(Type concreteClass, int referenceTypeId) {
         super(concreteClass, referenceTypeId);
     }
 

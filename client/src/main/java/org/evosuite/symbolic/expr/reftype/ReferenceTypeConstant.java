@@ -19,6 +19,7 @@
  */
 package org.evosuite.symbolic.expr.reftype;
 
+import org.objectweb.asm.Type;
 import org.evosuite.symbolic.expr.Variable;
 
 import java.util.Collections;
@@ -31,7 +32,7 @@ import java.util.Set;
  */
 public abstract class ReferenceTypeConstant extends ReferenceTypeExpression {
 
-    public ReferenceTypeConstant(Class concreteClass, int referenceTypeId) {
+    public ReferenceTypeConstant(Type concreteClass, int referenceTypeId) {
         super(concreteClass, 1, false, referenceTypeId);
     }
 

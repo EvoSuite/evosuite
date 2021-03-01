@@ -459,8 +459,8 @@ public final class CallVM extends AbstractVM {
 
 		if (!LambdaUtils.isLambda(anonymousClass)) throw new IllegalArgumentException("InvokeDynamic for things other than lambdas are not implemented yet!, class found: " + anonymousClass.getName());
 
-		env.heap.buildNewLambdaConstant(anonymousClass, conf.isIgnored(owner));	// Add it as lambda owner
 		Type anonymousClassType = Type.getType(anonymousClass);
+		env.heap.buildNewLambdaTypeConstant(anonymousClassType, conf.isIgnored(owner));	// Add it as lambda owner
 		env.ensurePrepared(anonymousClass); // prepare symbolic fields
 
 		// Create reference
@@ -584,7 +584,8 @@ public final class CallVM extends AbstractVM {
 
 			// Check if we call non-instrumented code
 			Class anonymousClass = concreteReceiver.getClass();
-			LambdaSyntheticTypeConstant lambdaReferenceType = (LambdaSyntheticTypeConstant) env.heap.getReferenceType(anonymousClass);
+			Type anonymousClassType = Type.getType(anonymousClass);
+			LambdaSyntheticTypeConstant lambdaReferenceType = (LambdaSyntheticTypeConstant) env.heap.getReferenceType(anonymousClassType);
 
 			// If this lambda hasn't been seen before, we assume it's not instrumented
 			env.topFrame().invokeInstrumentedCode(!lambdaReferenceType.callsNonInstrumentedCode());

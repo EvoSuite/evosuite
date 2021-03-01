@@ -20,6 +20,7 @@
 package org.evosuite.symbolic.expr.reftype;
 
 import org.evosuite.symbolic.expr.ExpressionVisitor;
+import org.objectweb.asm.Type;
 
 /**
  * Represents all array types
@@ -28,7 +29,7 @@ import org.evosuite.symbolic.expr.ExpressionVisitor;
  */
 public final class ArrayTypeConstant extends NonNullReferenceTypeConstant {
 
-    public ArrayTypeConstant(Class concreteClass, int referenceTypeId) {
+    public ArrayTypeConstant(Type concreteClass, int referenceTypeId) {
         super(concreteClass, referenceTypeId);
     }
 

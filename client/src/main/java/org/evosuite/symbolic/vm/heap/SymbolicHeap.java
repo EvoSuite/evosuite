@@ -109,7 +109,7 @@ public final class SymbolicHeap {
 	 * time the ReferenceType for a given Object (non String) is needed, this
 	 * mapping is used.
 	 */
-	private final Map<Class, ReferenceTypeExpression> symbolicReferenceTypes = new HashMap<>();
+	private final Map<Type, ReferenceTypeExpression> symbolicReferenceTypes = new HashMap<>();
 
 	/**
 	 * Stores a mapping between NonNullReferences and their symbolic values. The
@@ -594,8 +594,7 @@ public final class SymbolicHeap {
 	 * @param ownerIsIgnored
 	 * @return
 	 */
-
-	public ReferenceTypeExpression buildNewLambdaConstant(Class<?> lambdaAnonymousClass, boolean ownerIsIgnored) {
+	public ReferenceTypeExpression buildNewLambdaTypeConstant(Type lambdaAnonymousClass, boolean ownerIsIgnored) {
 	 	if (lambdaAnonymousClass == null)
 			throw new IllegalArgumentException("Lambda Anonymous Class cannot be null.");
 
@@ -613,30 +612,56 @@ public final class SymbolicHeap {
 	}
 
 	/**
-	 * Retrieves the symbolic expression related to this class.
+	 * General classes types constant references.
 	 *
 	 * @param type
 	 * @return
 	 */
-	public ReferenceTypeExpression getReferenceType(Class type) {
-		if (type == null) return ExpressionFactory.NULL_TYPE_REFERENCE;
+	public ReferenceTypeExpression buildNewClassTypeConstant(Type type) {
+	 	if (type == null)
+			throw new IllegalArgumentException("Class type cannot be null.");
+
+		ReferenceTypeExpression classExpression;
+		classExpression = symbolicReferenceTypes.get(type);
+
+		if (classExpression == null) {
+			final int newReferenceTypeId = newReferenceTypeCount++;
+
+			 classExpression = ExpressionFactory.buildClassTypeConstant(type, newReferenceTypeId);
+			 symbolicReferenceTypes.put(type, classExpression);
+		}
+
+		return classExpression;
+	}
+
+
+	/**
+	 * Retrieves the symbolic expression related to this class.
+	 *
+	 * @param classType
+	 * @return
+	 */
+	public ReferenceTypeExpression getReferenceType(Type classType) {
+		if (classType == null) return ExpressionFactory.NULL_TYPE_REFERENCE;
+		if (classType.getClass().equals(Object.class)) return ExpressionFactory.OBJECT_TYPE_REFERENCE;
 
 		ReferenceTypeExpression typeExpression;
-		typeExpression = symbolicReferenceTypes.get(type);
+		Class typeClass = classType.getClass();
+		typeExpression = symbolicReferenceTypes.get(classType);
 
 		if (typeExpression == null) {
 			final int newReferenceTypeId = newReferenceTypeCount++;
 
-			if (LambdaUtils.isLambda(type)) {
+			if (LambdaUtils.isLambda(typeClass)) {
 				//If we haven't seen this lambda before then it's from non-instrumented sources
-				typeExpression = new LambdaSyntheticTypeConstant(type, true, newReferenceTypeId);
-			} else if (type.isArray()){
-				typeExpression = new ArrayTypeConstant(type, newReferenceTypeId);
+				typeExpression = new LambdaSyntheticTypeConstant(classType, true, newReferenceTypeId);
+			} else if (typeClass.isArray()){
+				typeExpression = new ArrayTypeConstant(classType, newReferenceTypeId);
 			} else {
-				typeExpression = new ClassTypeConstant(type, newReferenceTypeId);
+				typeExpression = new ClassTypeConstant(classType, newReferenceTypeId);
 			}
 
-			symbolicReferenceTypes.put(type, typeExpression);
+			symbolicReferenceTypes.put(classType, typeExpression);
 		}
 
 		return typeExpression;
