@@ -3,18 +3,15 @@ package org.evosuite.utils.generic;
 import com.googlecode.gentyref.GenericTypeReflector;
 import org.apache.commons.lang3.reflect.TypeUtils;
 import org.evosuite.ga.ConstructionFailedException;
-import org.evosuite.instrumentation.ReturnValueAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.GenericArrayType;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class NewGenericClassImpl implements GenericClass<NewGenericClassImpl> {
 
@@ -47,22 +44,32 @@ public class NewGenericClassImpl implements GenericClass<NewGenericClassImpl> {
         type = genericTypeOf(clazz);
     }
 
+    /**
+     * Construct a generic class from a {@code Type} object.
+     *
+     * @param type the type that should be represented by this instance
+     */
     NewGenericClassImpl(Type type) {
         Objects.requireNonNull(type);
-        if (type instanceof Class<?>) {
-            Class<?> clazz = (Class<?>) type;
-            this.rawClass = clazz;
-            this.type = genericTypeOf(clazz);
+        if(type instanceof Class<?>){
+            this.rawClass = (Class<?>) type;
+            this.type = genericTypeOf(this.rawClass);
+        } else {
+            this.type = type;
+            this.rawClass = GenericClassUtils.getRawClass(type);
         }
-        // TODO what to do if the class is actually a type.
-        throw new UnsupportedOperationException("Not Implemented: NewGenericClassImpl#<init>");
     }
 
+
     /**
-     * @param type
-     * @param clazz
+     * Construct a generic class. This constructor sets it rawClass and the generic type directly.
+     * <p>
+     * It is not validated, whether {@param type} and {@param clazz} can be a generic class.
+     * Consequently, if this constructor is not used carefully, some functionality may brake.
+     *
+     * @param type  the generic type of the generic class.
+     * @param clazz the raw class of the generic class.
      */
-    @Deprecated
     NewGenericClassImpl(Type type, Class<?> clazz) {
         Objects.requireNonNull(type);
         Objects.requireNonNull(clazz);
@@ -74,10 +81,10 @@ public class NewGenericClassImpl implements GenericClass<NewGenericClassImpl> {
      * Converts a {@code Class} object to a {@code Type} object.
      * <p>
      * If {@param clazz} does not contain generics, it will be returned.
-     * Otherwise, a Type object is returned, that contains the generic information
+     * Otherwise, a Type object is returned, that contains the generic information.
      *
-     * @param clazz
-     * @return
+     * @param clazz the raw class object.
+     * @return the type containing generic information if present.
      */
     static Type genericTypeOf(Class<?> clazz) {
         if (clazz.isArray()) {
@@ -119,28 +126,30 @@ public class NewGenericClassImpl implements GenericClass<NewGenericClassImpl> {
          */
 
         // TODO: Understand this. Maybe we can't instantiate a wrapper type to a primitive?
-        if(isPrimitive() && otherType.isWrapperType())
-            return false;
+        if (isPrimitive() && otherType.isWrapperType()) return false;
 
         // If we can assign this type to the other type we can also instantiate it as such type.
-        if(isAssignableTo(otherType))
-            return true;
+        if (isAssignableTo(otherType)) return true;
 
         // If we can not assign it, we still maybe can instantiate it to the type.
-        if(!isTypeVariable() && !otherType.isTypeVariable()){
+        if (!isTypeVariable() && !otherType.isTypeVariable()) {
+            // FIXME in the original implementation, there is an Exception, that in my opinion should not happen.
+            //       In the original implementation we check if a GenericClass is an instance of a TypeVariable by:
+            //              this instanceof TypeVariable<?>
+            //       I have removed the "<?>" for this implementation. Hopefully, that fixes this issue.
+
             // None of the types are variables.
-            if(otherType.isGenericSuperTypeOf(this))
+            if (otherType.isGenericSuperTypeOf(this))
                 /* If the other type is a generic super type of this, we can surely instantiate this type to other type
                  *
                  * E.g: The type C can surely be assigned to A<? extends B>
-                 */
-                return true;
+                 */ return true;
         }
 
         // TODO: What happens if just one is a TypeVariable?
         //       Can this actually happen?
 
-        if (otherType.getRawClass().isAssignableFrom(rawClass)){
+        if (otherType.getRawClass().isAssignableFrom(rawClass)) {
             // TODO check if raw classes actually match
             throw new UnsupportedOperationException("Not Implemented: NewGenericClassImpl#canBeInstantiatedTo");
         }
@@ -200,27 +209,34 @@ public class NewGenericClassImpl implements GenericClass<NewGenericClassImpl> {
 
     @Override
     public List<NewGenericClassImpl> getInterfaces() {
-        throw new UnsupportedOperationException("Not Implemented: NewGenericClassImpl#getInterfaces");
+        return Arrays.stream(rawClass.getInterfaces()).map(NewGenericClassImpl::new).collect(Collectors.toList());
     }
 
     @Override
     public int getNumParameters() {
-        throw new UnsupportedOperationException("Not Implemented: NewGenericClassImpl#getNumParameters");
+        // TODO Can we simplify this to rawClass.getTypeParameters().length; ??
+        if(isParameterizedType()){
+            return ((ParameterizedType) type).getActualTypeArguments().length;
+        }
+        return 0;
     }
 
     @Override
     public NewGenericClassImpl getOwnerType() {
-        throw new UnsupportedOperationException("Not Implemented: NewGenericClassImpl#getOwnerType");
+        if(isParameterizedType()) return new NewGenericClassImpl(((ParameterizedType) type).getOwnerType());
+        else
+            throw new IllegalArgumentException("Can't compute the owner type, if type is not instance of ParameterizedType");
     }
 
     @Override
     public List<Type> getParameterTypes() {
-        throw new UnsupportedOperationException("Not Implemented: NewGenericClassImpl#getParameterTypes");
+        if(isParameterizedType()) return Arrays.asList(((ParameterizedType) type).getActualTypeArguments());
+        else return new ArrayList<>();
     }
 
     @Override
     public List<GenericClass<?>> getParameterClasses() {
-        throw new UnsupportedOperationException("Not Implemented: NewGenericClassImpl#getParameterClasses");
+        return getParameterTypes().stream().map(NewGenericClassImpl::new).collect(Collectors.toList());
     }
 
     @Override
@@ -357,7 +373,7 @@ public class NewGenericClassImpl implements GenericClass<NewGenericClassImpl> {
     public boolean isAssignableFrom(Type rhsType) {
         // TODO when is this function actually called with null?
         //      looks like that should not happen? -> throw Exception and fix it at call side?
-        if(rhsType == null)
+        if (rhsType == null)
             // throw new IllegalArgumentException();
             return false;
         return TypeUtils.isAssignable(rhsType, this.type);
@@ -367,7 +383,7 @@ public class NewGenericClassImpl implements GenericClass<NewGenericClassImpl> {
     public boolean isAssignableTo(GenericClass<?> lhsType) {
         // TODO when is this function actually called with null?
         //      looks like that should not happen? -> throw Exception and fix it at call side?
-        if(lhsType == null)
+        if (lhsType == null)
             // throw new IllegalArgumentException();
             return false;
         return TypeUtils.isAssignable(this.type, lhsType.getType());

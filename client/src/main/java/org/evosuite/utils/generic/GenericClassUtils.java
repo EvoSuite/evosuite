@@ -19,19 +19,17 @@ import java.util.Set;
  */
 public class GenericClassUtils {
 
-    private final static Logger logger = LoggerFactory.getLogger(GenericClassUtils.class);
-
     /**
      * Set of wrapper classes
      */
-    static final Set<Class<?>> WRAPPER_TYPES = new LinkedHashSet<>(Arrays.asList(Boolean.class,
-            Character.class, Byte.class, Short.class, Integer.class, Long.class, Float.class, Double.class,
-            Void.class));
+    static final Set<Class<?>> WRAPPER_TYPES = new LinkedHashSet<>(Arrays.asList(Boolean.class, Character.class,
+            Byte.class, Short.class, Integer.class, Long.class, Float.class, Double.class, Void.class));
+    static final List<String> primitiveClasses = Arrays.asList("char", "int", "short", "long", "boolean", "float",
+            "double", "byte");
+    private final static Logger logger = LoggerFactory.getLogger(GenericClassUtils.class);
 
-    static final List<String> primitiveClasses = Arrays.asList("char", "int", "short", "long", "boolean",
-            "float", "double", "byte");
-
-    private GenericClassUtils(){}
+    private GenericClassUtils() {
+    }
 
     // TODO: Unsere ParameterizedTypeImpl könnte durch die Implementierung von TypeUtils ersetzt
     //  werden
@@ -88,6 +86,56 @@ public class GenericClassUtils {
         } else {
             throw new RuntimeException("not supported: " + type.getClass());
         }
+    }
+
+    /**
+     * Computes the raw Type of a {@code Type} object.
+     *
+     * Supported are: Class, CaptureType, ParameterizedType, TypeVariable and WildcardType
+     *
+     * @param genericType
+     * @return
+     */
+    static Class<?> getRawClass(Type genericType) {
+        if (genericType instanceof Class) return getRawClass((Class<?>) genericType);
+        if (genericType instanceof CaptureType) return getRawClass((CaptureType) genericType);
+        if (genericType instanceof ParameterizedType) return getRawClass((ParameterizedType) genericType);
+        if (genericType instanceof TypeVariable) return getRawClass((TypeVariable<?>) genericType);
+        if (genericType instanceof WildcardType) return getRawClass((WildcardType) genericType);
+        throw new IllegalArgumentException("getRawClass of type " + genericType.getClass() + " not supported");
+    }
+
+    static Class<?> getRawClass(Type[] upperBounds){
+        if (upperBounds.length == 0)
+            // No upper bound => unbound
+            return Object.class;
+        else if (upperBounds.length == 1)
+            // One bound => This is the raw class.
+            return getRawClass(upperBounds[0]);
+        else
+            // TODO What to do here
+            //      The original implementation just uses the first bound
+            throw new IllegalStateException("Can't compute raw type of CaptureType with more than one bound");
+    }
+
+    static Class<?> getRawClass(WildcardType wildcardType){
+        return getRawClass(wildcardType.getUpperBounds());
+    }
+
+    static Class<?> getRawClass(CaptureType captureType) {
+        return getRawClass(captureType.getUpperBounds());
+    }
+
+    static Class<?> getRawClass(Class<?> clazz) {
+        return clazz;
+    }
+
+    static Class<?> getRawClass(ParameterizedType parameterizedType) {
+        return (Class<?>) parameterizedType.getRawType();
+    }
+
+    static Class<?> getRawClass(TypeVariable<?> typeVariable){
+        return getRawClass(typeVariable.getBounds());
     }
 
     /**

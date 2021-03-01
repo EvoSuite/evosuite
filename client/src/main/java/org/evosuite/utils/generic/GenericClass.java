@@ -21,7 +21,7 @@ public interface GenericClass<T extends GenericClass<T>> {
      * otherType
      *
      * @param otherType is the class we want to generate
-     * @return
+     * @return whether this generic class can be instantiated to the given type.
      */
     boolean canBeInstantiatedTo(GenericClass<?> otherType);
 
