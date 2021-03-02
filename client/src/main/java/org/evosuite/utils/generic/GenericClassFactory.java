@@ -3,6 +3,8 @@ package org.evosuite.utils.generic;
 import java.lang.reflect.Type;
 
 /**
+ * Interfaces to construct a {@code GenericClass}
+ *
  *
  */
 public class GenericClassFactory {

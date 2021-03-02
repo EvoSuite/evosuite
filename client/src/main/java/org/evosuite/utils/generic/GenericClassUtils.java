@@ -350,19 +350,23 @@ public class GenericClassUtils {
         List<Class<?>> interfaces = ClassUtils.getAllInterfaces((Class<?>) subclass);
         return superclasses.contains(superclass) || interfaces.contains(superclass);
     }
-
-    static boolean hasTypeVariables(ParameterizedType parameterType) {
-        for (Type t : parameterType.getActualTypeArguments()) {
-            if (t instanceof TypeVariable) {
+    /**
+     * Checks if a {@code ParameterizedType} contains any type variables.
+     *
+     * If the type parameter of {@param type} are as well parameterized types,
+     * these parameter types are checked recursively.
+     *
+     * E.g. A<B<T>> returns true, if T is a type variable
+     *
+     * @param type The type to be checked.
+     * @return Whether type has a type variable.
+     */
+    static boolean hasTypeVariables(ParameterizedType type){
+        return Arrays.stream(type.getActualTypeArguments()).anyMatch(t -> {
+            if(t instanceof TypeVariable)
                 return true;
-            } else if (t instanceof ParameterizedType) {
-                if (hasTypeVariables((ParameterizedType) t)) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
+            return t instanceof ParameterizedType && hasTypeVariables((ParameterizedType) t);
+        });
     }
 
     static Class<?> getBoxedType(Class<?> rawClass) {
@@ -390,6 +394,25 @@ public class GenericClassUtils {
             }
         }
         return rawClass;
+    }
+
+    /**
+     * Checks if a {@code ParameterizedType} contains any wildcard types.
+     *
+     * If the type parameter of {@param type} are as well parameterized types,
+     * these parameter types are checked recursively.
+     *
+     * E.g. A<B<?>> returns true.
+     *
+     * @param type The type to be checked.
+     * @return Whether type has a wildcard type.
+     */
+    static boolean hasWildcardTypes(ParameterizedType type){
+        return Arrays.stream(type.getActualTypeArguments()).anyMatch(t -> {
+            if(t instanceof WildcardType)
+                return true;
+            return t instanceof ParameterizedType && hasWildcardTypes((ParameterizedType) t);
+        });
     }
 
 }

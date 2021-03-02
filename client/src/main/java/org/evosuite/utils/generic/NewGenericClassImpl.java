@@ -6,21 +6,18 @@ import org.evosuite.ga.ConstructionFailedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.lang.reflect.TypeVariable;
-import java.lang.reflect.WildcardType;
+import java.lang.reflect.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class NewGenericClassImpl implements GenericClass<NewGenericClassImpl> {
+public abstract class NewGenericClassImpl<T extends Type> implements GenericClass<NewGenericClassImpl<T>> {
 
     private static final Logger logger = LoggerFactory.getLogger(NewGenericClassImpl.class);
 
     // raw class of the generic class, e.g. the class without the generic information.
-    private final Class<?> rawClass;
+    final Class<?> rawClass;
     // type represented by this generic class.
-    private final Type type;
+    final T type;
 
     /**
      * Copy Constructor for any {@code GenericClass} implementation.
@@ -51,7 +48,7 @@ public class NewGenericClassImpl implements GenericClass<NewGenericClassImpl> {
      */
     NewGenericClassImpl(Type type) {
         Objects.requireNonNull(type);
-        if(type instanceof Class<?>){
+        if (type instanceof Class<?>) {
             this.rawClass = (Class<?>) type;
             this.type = genericTypeOf(this.rawClass);
         } else {
@@ -189,6 +186,9 @@ public class NewGenericClassImpl implements GenericClass<NewGenericClassImpl> {
 
     @Override
     public Collection<NewGenericClassImpl> getGenericBounds() {
+        Set<NewGenericClassImpl> bounds = new HashSet<>();
+        if (isRawClass()) return bounds;
+        if (!hasWildcardOrTypeVariables()) return bounds;
         throw new UnsupportedOperationException("Not Implemented: NewGenericClassImpl#getGenericBounds");
     }
 
@@ -215,7 +215,7 @@ public class NewGenericClassImpl implements GenericClass<NewGenericClassImpl> {
     @Override
     public int getNumParameters() {
         // TODO Can we simplify this to rawClass.getTypeParameters().length; ??
-        if(isParameterizedType()){
+        if (isParameterizedType()) {
             return ((ParameterizedType) type).getActualTypeArguments().length;
         }
         return 0;
@@ -223,14 +223,15 @@ public class NewGenericClassImpl implements GenericClass<NewGenericClassImpl> {
 
     @Override
     public NewGenericClassImpl getOwnerType() {
-        if(isParameterizedType()) return new NewGenericClassImpl(((ParameterizedType) type).getOwnerType());
+        if (isParameterizedType()) return new NewGenericClassImpl(((ParameterizedType) type).getOwnerType());
         else
-            throw new IllegalArgumentException("Can't compute the owner type, if type is not instance of ParameterizedType");
+            throw new IllegalArgumentException("Can't compute the owner type, if type is not instance of " +
+                    "ParameterizedType");
     }
 
     @Override
     public List<Type> getParameterTypes() {
-        if(isParameterizedType()) return Arrays.asList(((ParameterizedType) type).getActualTypeArguments());
+        if (isParameterizedType()) return Arrays.asList(((ParameterizedType) type).getActualTypeArguments());
         else return new ArrayList<>();
     }
 
@@ -331,17 +332,25 @@ public class NewGenericClassImpl implements GenericClass<NewGenericClassImpl> {
 
     @Override
     public boolean hasTypeVariables() {
-        throw new UnsupportedOperationException("Not Implemented: NewGenericClassImpl#hasTypeVariables");
+        if (isParameterizedType())
+            return GenericClassUtils.hasTypeVariables((ParameterizedType) type);
+
+        return isTypeVariable();
     }
 
     @Override
     public boolean hasWildcardOrTypeVariables() {
-        throw new UnsupportedOperationException("Not Implemented: NewGenericClassImpl#hasWildcardOrTypeVariables");
+        if (isTypeVariable() || isWildcardType()) return true;
+        if (hasWildcardTypes() || hasTypeVariables()) return true;
+        if (hasOwnerType() && getOwnerType().hasWildcardOrTypeVariables()) return true;
+        return type instanceof GenericArrayType && getComponentClass().hasWildcardOrTypeVariables();
     }
 
     @Override
     public boolean hasWildcardTypes() {
-        throw new UnsupportedOperationException("Not Implemented: NewGenericClassImpl#hasWildcardTypes");
+        if(isParameterizedType())
+            return GenericClassUtils.hasWildcardTypes((ParameterizedType) type);
+        return isWildcardType();
     }
 
     @Override
