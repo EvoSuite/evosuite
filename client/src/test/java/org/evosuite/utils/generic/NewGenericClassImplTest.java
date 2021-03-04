@@ -16,54 +16,6 @@ import static org.junit.Assert.assertTrue;
 public class NewGenericClassImplTest {
 
 
-    /**
-     * Dummy class to understand what this class actually does
-     */
-
-    static class OneGenericUnboundParameter<T> {
-        private T t;
-
-        public OneGenericUnboundParameter(T t) {
-            this.t = t;
-        }
-    }
-
-    static class OneGenericBoundParameter<T extends Comparable<T>> {
-        private T t;
-
-        public OneGenericBoundParameter(T t) {
-            this.t = t;
-        }
-    }
-
-    static class DoubleBoundedParameter<T extends Comparable<T> & Cloneable> {
-        private T t;
-
-        public DoubleBoundedParameter(T t) {
-            this.t = t;
-        }
-    }
-
-    static class InnerGenerics<T extends OneGenericBoundParameter<?>> {
-        T t;
-
-        public InnerGenerics(T t) {
-            this.t = t;
-        }
-    }
-
-    static class TwoGenericUnboundParameters<A, B> {
-
-        private final A a;
-        private final B b;
-
-        public TwoGenericUnboundParameters(A a, B b) {
-            this.a = a;
-            this.b = b;
-        }
-    }
-
-
     @Test
     public void testOneGenericUnboundParameter() {
         NewGenericClassImpl genericClass = new NewGenericClassImpl(OneGenericUnboundParameter.class);
@@ -173,14 +125,6 @@ public class NewGenericClassImplTest {
         classes.forEach(this::eraseTestCase);
     }
 
-    void eraseTestCase(Class<?> cut) {
-        NewGenericClassImpl genericClass = new NewGenericClassImpl(cut);
-        Type type = genericClass.getType();
-        Class<?> expected = TypeUtils.getRawType(type, type);
-        Class<?> actual = GenericClassUtils.erase(type);
-        assertEquals(expected, actual);
-    }
-
     @Test
     public void testEraseTypeVariable() {
         NewGenericClassImpl genericClass = new NewGenericClassImpl(InnerGenerics.class);
@@ -195,5 +139,60 @@ public class NewGenericClassImplTest {
         actualTypeArgument = ((ParameterizedType) type).getActualTypeArguments()[0];
         erase = GenericClassUtils.erase(actualTypeArgument);
         assertEquals(erase, Object.class);
+    }
+
+    void eraseTestCase(Class<?> cut) {
+        NewGenericClassImpl genericClass = new NewGenericClassImpl(cut);
+        Type type = genericClass.getType();
+        Class<?> expected = TypeUtils.getRawType(type, type);
+        Class<?> actual = GenericClassUtils.erase(type);
+        assertEquals(expected, actual);
+    }
+
+    /**
+     * Dummy class to understand what this class actually does
+     */
+
+    static class OneGenericUnboundParameter<T> {
+        private T t;
+
+        public OneGenericUnboundParameter(T t) {
+            this.t = t;
+        }
+    }
+
+    static class OneGenericBoundParameter<T extends Comparable<T>> {
+        private T t;
+
+        public OneGenericBoundParameter(T t) {
+            this.t = t;
+        }
+    }
+
+    static class DoubleBoundedParameter<T extends Comparable<T> & Cloneable> {
+        private T t;
+
+        public DoubleBoundedParameter(T t) {
+            this.t = t;
+        }
+    }
+
+    static class InnerGenerics<T extends OneGenericBoundParameter<?>> {
+        T t;
+
+        public InnerGenerics(T t) {
+            this.t = t;
+        }
+    }
+
+    static class TwoGenericUnboundParameters<A, B> {
+
+        private final A a;
+        private final B b;
+
+        public TwoGenericUnboundParameters(A a, B b) {
+            this.a = a;
+            this.b = b;
+        }
     }
 }

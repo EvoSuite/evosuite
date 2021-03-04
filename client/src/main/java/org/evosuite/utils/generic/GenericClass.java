@@ -59,7 +59,7 @@ public interface GenericClass<T extends GenericClass<T>> {
      *
      * @return
      */
-    T getComponentClass();
+    GenericClass<?> getComponentClass();
 
     // TODO: write proper documentation.
     /**
@@ -80,7 +80,7 @@ public interface GenericClass<T extends GenericClass<T>> {
      *
      * @return
      */
-    Collection<T> getGenericBounds();
+    Collection<GenericClass<?>> getGenericBounds();
 
     /**
      * Instantiate all type variables randomly, but adhering to type boundaries.
@@ -132,17 +132,21 @@ public interface GenericClass<T extends GenericClass<T>> {
      */
     T getOwnerType();
 
-    // TODO: write proper documentation.
     /**
+     * A list containing the generic type parameters (as {@code Type} objects) of the represented generic class.
      *
-     * @return
+     * The order of the list is equal to the order of the generic parameters (from left to right).
+     *
+     * @return a view of the described list.
      */
     List<Type> getParameterTypes();
 
-    // TODO: write proper documentation.
     /**
+     * A list containing the generic type parameters (as {@code GenericClass} objects) of the represented generic class.
      *
-     * @return
+     * The order of the list is equal to the order of the generic parameters (from left to right).
+     *
+     * @return a view of the described list.
      */
     List<GenericClass<?>> getParameterClasses();
 
@@ -196,10 +200,11 @@ public interface GenericClass<T extends GenericClass<T>> {
      */
     Map<TypeVariable<?>, Type> getTypeVariableMap();
 
-    // TODO: write proper documentation.
     /**
+     * Return a list of type variables of this type, or an empty list if this is not a parameterized
+     * type
      *
-     * @return
+     * @return a view of the list.
      */
     List<TypeVariable<?>> getTypeVariables();
 
@@ -515,7 +520,7 @@ public interface GenericClass<T extends GenericClass<T>> {
      *
      * @return
      */
-    T getRawGenericClass();
+    GenericClass<?> getRawGenericClass();
 
     // TODO: write proper documentation.
     /**

@@ -10,14 +10,14 @@ import java.lang.reflect.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public abstract class NewGenericClassImpl<T extends Type> implements GenericClass<NewGenericClassImpl<T>> {
+public class NewGenericClassImpl implements GenericClass<NewGenericClassImpl> {
 
     private static final Logger logger = LoggerFactory.getLogger(NewGenericClassImpl.class);
 
     // raw class of the generic class, e.g. the class without the generic information.
     final Class<?> rawClass;
     // type represented by this generic class.
-    final T type;
+    final Type type;
 
     /**
      * Copy Constructor for any {@code GenericClass} implementation.
@@ -185,8 +185,8 @@ public abstract class NewGenericClassImpl<T extends Type> implements GenericClas
     }
 
     @Override
-    public Collection<NewGenericClassImpl> getGenericBounds() {
-        Set<NewGenericClassImpl> bounds = new HashSet<>();
+    public Collection<GenericClass<?>> getGenericBounds() {
+        Set<GenericClass<?>> bounds = new HashSet<>();
         if (isRawClass()) return bounds;
         if (!hasWildcardOrTypeVariables()) return bounds;
         throw new UnsupportedOperationException("Not Implemented: NewGenericClassImpl#getGenericBounds");

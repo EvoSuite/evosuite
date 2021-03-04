@@ -330,9 +330,9 @@ public class GenericClassImpl implements Serializable, GenericClass<GenericClass
     }
 
     @Override
-    public Collection<GenericClassImpl> getGenericBounds() {
+    public Collection<GenericClass<?>> getGenericBounds() {
 
-        Set<GenericClassImpl> bounds = new LinkedHashSet<>();
+        Set<GenericClass<?>> bounds = new LinkedHashSet<>();
 
         if (isRawClass() || !hasWildcardOrTypeVariables()) {
             return bounds;
@@ -1304,7 +1304,7 @@ public class GenericClassImpl implements Serializable, GenericClass<GenericClass
 
     // TODO make this return a Collection and extend eventually extend it at call side ...
     @Deprecated
-    private void getGenericWildcardBounds(Collection<GenericClassImpl> bounds) {
+    private void getGenericWildcardBounds(Collection<GenericClass<?>> bounds) {
         for (Type t : ((WildcardType) type).getUpperBounds()) {
             bounds.add(new GenericClassImpl(t));
         }
@@ -1315,7 +1315,7 @@ public class GenericClassImpl implements Serializable, GenericClass<GenericClass
 
     // TODO make this return a Collection and extend eventually extend it at call side ...
     @Deprecated
-    private void getGenericTypeVarBounds(Collection<GenericClassImpl> bounds) {
+    private void getGenericTypeVarBounds(Collection<GenericClass<?>> bounds) {
         for (Type t : ((TypeVariable<?>) type).getBounds()) {
             bounds.add(new GenericClassImpl(t));
         }
@@ -1323,7 +1323,7 @@ public class GenericClassImpl implements Serializable, GenericClass<GenericClass
 
     // TODO make this return a Collection and extend eventually extend it at call side ...
     @Deprecated
-    private void getGenericParameterizedTypeBounds(Collection<GenericClassImpl> bounds) {
+    private void getGenericParameterizedTypeBounds(Collection<GenericClass<?>> bounds) {
         for (TypeVariable<?> typeVar : getTypeVariables()) {
             for (Type t : typeVar.getBounds()) {
                 bounds.add(new GenericClassImpl(t));

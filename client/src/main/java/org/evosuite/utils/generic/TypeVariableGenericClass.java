@@ -1,0 +1,220 @@
+package org.evosuite.utils.generic;
+
+import org.evosuite.ga.ConstructionFailedException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
+import java.lang.reflect.WildcardType;
+import java.util.*;
+import java.util.stream.Collectors;
+
+public class TypeVariableGenericClass extends AbstractGenericClass<TypeVariable<?>> {
+    private static final Logger logger = LoggerFactory.getLogger(TypeVariableGenericClass.class);
+
+    public TypeVariableGenericClass(TypeVariable<?> type, Class<?> rawClass) {
+        super(type, rawClass);
+    }
+
+    @Override
+    boolean canBeInstantiatedTo(TypeVariableGenericClass otherType) {
+        throw new UnsupportedOperationException("Not Implemented: TypeVariableGenericClass#canBeInstantiatedTo");
+    }
+
+    @Override
+    boolean canBeInstantiatedTo(WildcardGenericClass otherType) {
+        throw new UnsupportedOperationException("Not Implemented: TypeVariableGenericClass#canBeInstantiatedTo");
+    }
+
+    @Override
+    boolean canBeInstantiatedTo(ArrayGenericClass otherType) {
+        throw new UnsupportedOperationException("Not Implemented: TypeVariableGenericClass#canBeInstantiatedTo");
+    }
+
+    @Override
+    boolean canBeInstantiatedTo(RawClassGenericClass otherType) {
+        throw new UnsupportedOperationException("Not Implemented: TypeVariableGenericClass#canBeInstantiatedTo");
+    }
+
+    @Override
+    boolean canBeInstantiatedTo(ParameterizedGenericClass otherType) {
+        throw new UnsupportedOperationException("Not Implemented: TypeVariableGenericClass#canBeInstantiatedTo");
+    }
+
+    @Override
+    GenericClass<?> getWithParametersFromSuperclass(TypeVariableGenericClass otherType) throws ConstructionFailedException {
+        throw new UnsupportedOperationException("Not Implemented: " +
+                "TypeVariableGenericClass#getWithParametersFromSuperclass");
+    }
+
+    @Override
+    GenericClass<?> getWithParametersFromSuperclass(WildcardGenericClass otherType) throws ConstructionFailedException {
+        throw new UnsupportedOperationException(
+                "Not Implemented: TypeVariableGenericClass#getWithParametersFromSuperclass");
+    }
+
+    @Override
+    GenericClass<?> getWithParametersFromSuperclass(ArrayGenericClass otherType) throws ConstructionFailedException {
+        throw new UnsupportedOperationException("Not Implemented: TypeVariableGenericClass" +
+                "#getWithParametersFromSuperclass");
+    }
+
+    @Override
+    GenericClass<?> getWithParametersFromSuperclass(RawClassGenericClass otherType) throws ConstructionFailedException {
+        throw new UnsupportedOperationException("Not Implemented: " +
+                "TypeVariableGenericClass#getWithParametersFromSuperclass");
+    }
+
+    @Override
+    GenericClass<?> getWithParametersFromSuperclass(ParameterizedGenericClass otherType) throws ConstructionFailedException {
+        throw new UnsupportedOperationException("Not Implemented: TypeVariableGenericClass#getWithParametersFromSuperclass");
+    }
+
+    @Override
+    public void changeClassLoader(ClassLoader loader) {
+        throw new UnsupportedOperationException("Not Implemented: TypeVariableGenericClass#changeClassLoader");
+    }
+
+    @Override
+    public Collection<GenericClass<?>> getGenericBounds() {
+        return Arrays.stream(type.getBounds()).map(GenericClassFactory::get).collect(Collectors.toList());
+    }
+
+    @Override
+    public GenericClass<?> getGenericInstantiation(Map<TypeVariable<?>, Type> typeMap, int recursionLevel) throws ConstructionFailedException {
+        throw new UnsupportedOperationException("Not Implemented: TypeVariableGenericClass#getGenericInstantiation");
+    }
+
+    @Override
+    public List<AbstractGenericClass<TypeVariable<?>>> getInterfaces() {
+        throw new UnsupportedOperationException("Not Implemented: TypeVariableGenericClass#getInterfaces");
+    }
+
+    @Override
+    public int getNumParameters() {
+        throw new UnsupportedOperationException("Not Implemented: TypeVariableGenericClass#getNumParameters");
+    }
+
+    @Override
+    public AbstractGenericClass<TypeVariable<?>> getOwnerType() {
+        throw new UnsupportedOperationException("Not Implemented: TypeVariableGenericClass#getOwnerType");
+    }
+
+    @Override
+    public List<Type> getParameterTypes() {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public Type getRawComponentClass() {
+        throw new UnsupportedOperationException("Not Implemented: TypeVariableGenericClass#getRawComponentClass");
+    }
+
+    @Override
+    public String getSimpleName() {
+        throw new UnsupportedOperationException("Not Implemented: TypeVariableGenericClass#getSimpleName");
+    }
+
+    @Override
+    public AbstractGenericClass<TypeVariable<?>> getSuperClass() {
+        throw new UnsupportedOperationException("Not Implemented: TypeVariableGenericClass#getSuperClass");
+    }
+
+    @Override
+    public String getTypeName() {
+        throw new UnsupportedOperationException("Not Implemented: TypeVariableGenericClass#getTypeName");
+    }
+
+    @Override
+    public Map<TypeVariable<?>, Type> getTypeVariableMap() {
+        throw new UnsupportedOperationException("Not Implemented: TypeVariableGenericClass#getTypeVariableMap");
+    }
+
+    @Override
+    public List<TypeVariable<?>> getTypeVariables() {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public Class<?> getUnboxedType() {
+        throw new UnsupportedOperationException("Not Implemented: TypeVariableGenericClass#getUnboxedType");
+    }
+
+    @Override
+    public GenericClass<?> getWithComponentClass(GenericClass<?> componentClass) {
+        return new TypeVariableGenericClass(type, rawClass);
+    }
+
+    @Override
+    public GenericClass<?> getWithGenericParameterTypes(List<AbstractGenericClass<TypeVariable<?>>> parameters) {
+        throw new UnsupportedOperationException(
+                "Not Implemented: TypeVariableGenericClass#getWithGenericParameterTypes");
+    }
+
+    @Override
+    public GenericClass<?> getWithParametersFromSuperclass(GenericClass<?> superClass) throws ConstructionFailedException {
+        throw new UnsupportedOperationException("Not Implemented: " +
+                "TypeVariableGenericClass#getWithParametersFromSuperclass");
+    }
+
+    @Override
+    public boolean hasOwnerType() {
+        return false;
+    }
+
+    @Override
+    public boolean hasWildcardOrTypeVariables() {
+        throw new UnsupportedOperationException("Not Implemented: TypeVariableGenericClass#hasWildcardOrTypeVariables");
+    }
+
+    @Override
+    public boolean hasTypeVariables() {
+        return true;
+    }
+
+    @Override
+    public boolean hasWildcardTypes() {
+        return false;
+    }
+
+    @Override
+    public boolean isGenericArray() {
+        throw new UnsupportedOperationException("Not Implemented: TypeVariableGenericClass#isGenericArray");
+    }
+
+    @Override
+    public boolean isParameterizedType() {
+        return false;
+    }
+
+    @Override
+    public boolean isRawClass() {
+        return false;
+    }
+
+    @Override
+    public boolean isTypeVariable() {
+        return true;
+    }
+
+    @Override
+    public boolean isWildcardType() {
+        return false;
+    }
+
+    @Override
+    public boolean satisfiesBoundaries(TypeVariable<?> typeVariable, Map<TypeVariable<?>, Type> typeMap) {
+        throw new UnsupportedOperationException("Not Implemented: TypeVariableGenericClass#satisfiesBoundaries");
+    }
+
+    @Override
+    public boolean satisfiesBoundaries(WildcardType wildcardType, Map<TypeVariable<?>, Type> typeMap) {
+        throw new UnsupportedOperationException("Not Implemented: TypeVariableGenericClass#satisfiesBoundaries");
+    }
+
+    @Override
+    public GenericClass<?> getGenericWildcardInstantiation(Map<TypeVariable<?>, Type> typeMap, int recursionLevel) throws ConstructionFailedException {
+        throw new UnsupportedOperationException("A type variable has no generic wildcard instantiation");
+    }
+}
