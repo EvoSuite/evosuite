@@ -1,5 +1,6 @@
 package org.evosuite.utils.generic;
 
+import org.evosuite.Properties;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.utils.ParameterizedTypeImpl;
 import org.slf4j.Logger;
@@ -38,7 +39,10 @@ public class RawClassGenericClass extends AbstractGenericClass<Class<?>> {
 
     @Override
     public GenericClass<?> getGenericInstantiation(Map<TypeVariable<?>, Type> typeMap, int recursionLevel) throws ConstructionFailedException {
-        throw new UnsupportedOperationException("Not Implemented: RawClassGenericClass#getGenericInstantiation");
+        logger.debug("Instantiation " + toString() + " with type map " + typeMap);
+        // If there are no type variables, create copy
+        logger.debug("Nothing to replace: " + toString() + ", " + isRawClass() + ", " + hasWildcardOrTypeVariables());
+        return GenericClassFactory.get(this);
     }
 
     @Override

@@ -57,7 +57,15 @@ public class WildcardGenericClass extends AbstractGenericClass<WildcardType> {
 
     @Override
     public GenericClass<?> getGenericInstantiation(Map<TypeVariable<?>, Type> typeMap, int recursionLevel) throws ConstructionFailedException {
-        throw new UnsupportedOperationException("Not Implemented: WildcardGenericClass#getGenericInstantiation");
+
+        logger.debug("Instantiation " + toString() + " with type map " + typeMap);
+        if (recursionLevel > Properties.MAX_GENERIC_DEPTH) {
+            logger.debug("Nothing to replace: " + toString() + ", " + isRawClass() + ", " + hasWildcardOrTypeVariables());
+            return GenericClassFactory.get(this);
+        }
+
+        logger.debug("Is wildcard type.");
+        return getGenericWildcardInstantiation(typeMap, recursionLevel);
     }
 
     @Override

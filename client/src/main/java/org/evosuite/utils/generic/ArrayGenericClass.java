@@ -1,6 +1,7 @@
 package org.evosuite.utils.generic;
 
 import org.apache.commons.lang3.reflect.TypeUtils;
+import org.evosuite.Properties;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.utils.ParameterizedTypeImpl;
 import org.slf4j.Logger;
@@ -14,56 +15,6 @@ public class ArrayGenericClass extends AbstractGenericClass<GenericArrayType> {
 
     public ArrayGenericClass(GenericArrayType type, Class<?> rawClass) {
         super(type, rawClass);
-    }
-
-    @Override
-    boolean canBeInstantiatedTo(TypeVariableGenericClass otherType) {
-        throw new UnsupportedOperationException("Not Implemented: ArrayGenericClass#canBeInstantiatedTo");
-    }
-
-    @Override
-    boolean canBeInstantiatedTo(WildcardGenericClass otherType) {
-        throw new UnsupportedOperationException("Not Implemented: ArrayGenericClass#canBeInstantiatedTo");
-    }
-
-    @Override
-    boolean canBeInstantiatedTo(ArrayGenericClass otherType) {
-        throw new UnsupportedOperationException("Not Implemented: ArrayGenericClass#canBeInstantiatedTo");
-    }
-
-    @Override
-    boolean canBeInstantiatedTo(RawClassGenericClass otherType) {
-        throw new UnsupportedOperationException("Not Implemented: ArrayGenericClass#canBeInstantiatedTo");
-    }
-
-    @Override
-    boolean canBeInstantiatedTo(ParameterizedGenericClass otherType) {
-        throw new UnsupportedOperationException("Not Implemented: ArrayGenericClass#canBeInstantiatedTo");
-    }
-
-    @Override
-    GenericClass<?> getWithParametersFromSuperclass(TypeVariableGenericClass otherType) throws ConstructionFailedException {
-        throw new UnsupportedOperationException("Not Implemented: ArrayGenericClass#getWithParametersFromSuperclass");
-    }
-
-    @Override
-    GenericClass<?> getWithParametersFromSuperclass(WildcardGenericClass otherType) throws ConstructionFailedException {
-        throw new UnsupportedOperationException("Not Implemented: ArrayGenericClass#getWithParametersFromSuperclass");
-    }
-
-    @Override
-    GenericClass<?> getWithParametersFromSuperclass(ArrayGenericClass otherType) throws ConstructionFailedException {
-        throw new UnsupportedOperationException("Not Implemented: ArrayGenericClass#getWithParametersFromSuperclass");
-    }
-
-    @Override
-    GenericClass<?> getWithParametersFromSuperclass(RawClassGenericClass otherType) throws ConstructionFailedException {
-        throw new UnsupportedOperationException("Not Implemented: ArrayGenericClass#getWithParametersFromSuperclass");
-    }
-
-    @Override
-    GenericClass<?> getWithParametersFromSuperclass(ParameterizedGenericClass otherType) throws ConstructionFailedException {
-        throw new UnsupportedOperationException("Not Implemented: ArrayGenericClass#getWithParametersFromSuperclass");
     }
 
     @Override
@@ -88,19 +39,24 @@ public class ArrayGenericClass extends AbstractGenericClass<GenericArrayType> {
     }
 
     @Override
-    public GenericClass<?> getComponentClass() {
-        Type arrayComponentType = TypeUtils.getArrayComponentType(this.type);
-        return GenericClassFactory.get(arrayComponentType);
-    }
-
-    @Override
     public Collection<GenericClass<?>> getGenericBounds() {
         throw new UnsupportedOperationException("Not Implemented: ArrayGenericClass#getGenericBounds");
     }
 
     @Override
     public GenericClass<?> getGenericInstantiation(Map<TypeVariable<?>, Type> typeMap, int recursionLevel) throws ConstructionFailedException {
-        throw new UnsupportedOperationException("Not Implemented: ArrayGenericClass#getGenericInstantiation");
+        logger.debug("Instantiation " + toString() + " with type map " + typeMap);
+        // If there are no type variables, create copy
+        if (!hasWildcardOrTypeVariables() || recursionLevel > Properties.MAX_GENERIC_DEPTH) {
+            logger.debug("Nothing to replace: " + toString() + ", " + isRawClass() + ", " + hasWildcardOrTypeVariables());
+            return GenericClassFactory.get(this);
+        }
+
+        return getGenericTypeVariableInstantiation(typeMap, recursionLevel);
+    }
+
+    private GenericClass<?> getGenericTypeVariableInstantiation(Map<TypeVariable<?>, Type> typeMap, int recursionLevel) {
+        throw new UnsupportedOperationException("Not Implemented: ArrayGenericClass#getGenericTypeVariableInstantiation");
     }
 
     @Override
@@ -169,11 +125,6 @@ public class ArrayGenericClass extends AbstractGenericClass<GenericArrayType> {
     }
 
     @Override
-    public GenericClass<?> getWithParametersFromSuperclass(GenericClass<?> superClass) throws ConstructionFailedException {
-        throw new UnsupportedOperationException("Not Implemented: ArrayGenericClass#getWithParametersFromSuperclass");
-    }
-
-    @Override
     public boolean hasOwnerType() {
         return false;
     }
@@ -231,5 +182,66 @@ public class ArrayGenericClass extends AbstractGenericClass<GenericArrayType> {
     @Override
     public GenericClass<?> getGenericWildcardInstantiation(Map<TypeVariable<?>, Type> typeMap, int recursionLevel) throws ConstructionFailedException {
         throw new UnsupportedOperationException("A generic array has no generic wildcard instantiation");
+    }
+
+    @Override
+    public GenericClass<?> getComponentClass() {
+        Type arrayComponentType = TypeUtils.getArrayComponentType(this.type);
+        return GenericClassFactory.get(arrayComponentType);
+    }
+
+    @Override
+    public GenericClass<?> getWithParametersFromSuperclass(GenericClass<?> superClass) throws ConstructionFailedException {
+        throw new UnsupportedOperationException("Not Implemented: ArrayGenericClass#getWithParametersFromSuperclass");
+    }
+
+    @Override
+    boolean canBeInstantiatedTo(TypeVariableGenericClass otherType) {
+        throw new UnsupportedOperationException("Not Implemented: ArrayGenericClass#canBeInstantiatedTo");
+    }
+
+    @Override
+    boolean canBeInstantiatedTo(WildcardGenericClass otherType) {
+        throw new UnsupportedOperationException("Not Implemented: ArrayGenericClass#canBeInstantiatedTo");
+    }
+
+    @Override
+    boolean canBeInstantiatedTo(ArrayGenericClass otherType) {
+        throw new UnsupportedOperationException("Not Implemented: ArrayGenericClass#canBeInstantiatedTo");
+    }
+
+    @Override
+    boolean canBeInstantiatedTo(RawClassGenericClass otherType) {
+        throw new UnsupportedOperationException("Not Implemented: ArrayGenericClass#canBeInstantiatedTo");
+    }
+
+    @Override
+    boolean canBeInstantiatedTo(ParameterizedGenericClass otherType) {
+        throw new UnsupportedOperationException("Not Implemented: ArrayGenericClass#canBeInstantiatedTo");
+    }
+
+    @Override
+    GenericClass<?> getWithParametersFromSuperclass(TypeVariableGenericClass otherType) throws ConstructionFailedException {
+        throw new UnsupportedOperationException("Not Implemented: ArrayGenericClass#getWithParametersFromSuperclass");
+    }
+
+    @Override
+    GenericClass<?> getWithParametersFromSuperclass(WildcardGenericClass otherType) throws ConstructionFailedException {
+        throw new UnsupportedOperationException("Not Implemented: ArrayGenericClass#getWithParametersFromSuperclass");
+    }
+
+    @Override
+    GenericClass<?> getWithParametersFromSuperclass(ArrayGenericClass otherType) throws ConstructionFailedException {
+        throw new UnsupportedOperationException("Not Implemented: ArrayGenericClass#getWithParametersFromSuperclass");
+    }
+
+    @Override
+    GenericClass<?> getWithParametersFromSuperclass(RawClassGenericClass otherType) throws ConstructionFailedException {
+        throw new UnsupportedOperationException("Not Implemented: ArrayGenericClass#getWithParametersFromSuperclass");
+    }
+
+    @Override
+    GenericClass<?> getWithParametersFromSuperclass(ParameterizedGenericClass otherType) throws ConstructionFailedException {
+        throw new UnsupportedOperationException("Not Implemented: ArrayGenericClass#getWithParametersFromSuperclass");
     }
 }

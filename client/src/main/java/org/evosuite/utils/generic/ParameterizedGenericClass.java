@@ -1,6 +1,7 @@
 package org.evosuite.utils.generic;
 
 import org.apache.commons.lang3.reflect.TypeUtils;
+import org.evosuite.Properties;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.utils.ParameterizedTypeImpl;
 import org.evosuite.utils.TypeUtil;
@@ -39,10 +40,8 @@ public class ParameterizedGenericClass extends AbstractGenericClass<Parameterize
                     parameterClasses.add(parameter);
                 }
                 Type[] parameterTypes = parameterClasses.stream().map(GenericClass::getType).toArray(Type[]::new);
-                if(ownerType == null)
-                    this.type = TypeUtils.parameterize(rawClass, parameterTypes);
-                else
-                    this.type = TypeUtils.parameterizeWithOwner(ownerType.getType(),rawClass, parameterTypes);
+                if (ownerType == null) this.type = TypeUtils.parameterize(rawClass, parameterTypes);
+                else this.type = TypeUtils.parameterizeWithOwner(ownerType.getType(), rawClass, parameterTypes);
             } else {
                 // TODO what to do if type == null?
                 throw new IllegalStateException("Type of generic class is null. Don't know what to do.");
@@ -61,7 +60,16 @@ public class ParameterizedGenericClass extends AbstractGenericClass<Parameterize
 
     @Override
     public GenericClass<?> getGenericInstantiation(Map<TypeVariable<?>, Type> typeMap, int recursionLevel) throws ConstructionFailedException {
-        throw new UnsupportedOperationException("Not Implemented: ParameterizedGenericClass#getGenericInstantiation");
+
+        logger.debug("Instantiation " + toString() + " with type map " + typeMap);
+        // If there are no type variables, create copy
+        if (!hasWildcardOrTypeVariables() || recursionLevel > Properties.MAX_GENERIC_DEPTH) {
+            logger.debug("Nothing to replace: " + toString() + ", " + isRawClass() + ", " + hasWildcardOrTypeVariables());
+            return GenericClassFactory.get(this);
+        }
+
+        logger.debug("Is parameterized type");
+        return getGenericParameterizedTypeInstantiation(typeMap, recursionLevel);
     }
 
     @Override
@@ -126,8 +134,8 @@ public class ParameterizedGenericClass extends AbstractGenericClass<Parameterize
 
     @Override
     public GenericClass<?> getWithGenericParameterTypes(List<AbstractGenericClass<ParameterizedType>> parameters) {
-        throw new UnsupportedOperationException("Not Implemented: " +
-                "ParameterizedGenericClass#getWithGenericParameterTypes");
+        throw new UnsupportedOperationException("Not Implemented: " + "ParameterizedGenericClass" +
+                "#getWithGenericParameterTypes");
     }
 
     @Override
@@ -230,8 +238,8 @@ public class ParameterizedGenericClass extends AbstractGenericClass<Parameterize
 
     @Override
     GenericClass<?> getWithParametersFromSuperclass(WildcardGenericClass otherType) throws ConstructionFailedException {
-        throw new UnsupportedOperationException("Not Implemented: " +
-                "ParameterizedGenericClass#getWithParametersFromSuperclass");
+        throw new UnsupportedOperationException("Not Implemented: " + "ParameterizedGenericClass" +
+                "#getWithParametersFromSuperclass");
     }
 
     @Override
@@ -248,7 +256,13 @@ public class ParameterizedGenericClass extends AbstractGenericClass<Parameterize
 
     @Override
     GenericClass<?> getWithParametersFromSuperclass(ParameterizedGenericClass otherType) throws ConstructionFailedException {
+        throw new UnsupportedOperationException("Not Implemented: " + "ParameterizedGenericClass" +
+                "#getWithParametersFromSuperclass");
+    }
+
+    private GenericClass<?> getGenericParameterizedTypeInstantiation(Map<TypeVariable<?>, Type> typeMap,
+                                                                     int recursionLevel) {
         throw new UnsupportedOperationException("Not Implemented: " +
-                "ParameterizedGenericClass#getWithParametersFromSuperclass");
+                "ParameterizedGenericClass#getGenericParameterizedTypeInstantiation");
     }
 }
