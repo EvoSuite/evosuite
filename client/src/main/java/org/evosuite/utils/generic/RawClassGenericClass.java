@@ -1,8 +1,6 @@
 package org.evosuite.utils.generic;
 
-import org.evosuite.Properties;
 import org.evosuite.ga.ConstructionFailedException;
-import org.evosuite.utils.ParameterizedTypeImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,11 +41,6 @@ public class RawClassGenericClass extends AbstractGenericClass<Class<?>> {
         // If there are no type variables, create copy
         logger.debug("Nothing to replace: " + toString() + ", " + isRawClass() + ", " + hasWildcardOrTypeVariables());
         return GenericClassFactory.get(this);
-    }
-
-    @Override
-    public List<AbstractGenericClass<Class<?>>> getInterfaces() {
-        throw new UnsupportedOperationException("Not Implemented: RawClassGenericClass#getInterfaces");
     }
 
     @Override

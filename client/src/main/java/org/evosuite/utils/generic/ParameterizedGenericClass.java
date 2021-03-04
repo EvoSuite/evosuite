@@ -3,14 +3,11 @@ package org.evosuite.utils.generic;
 import org.apache.commons.lang3.reflect.TypeUtils;
 import org.evosuite.Properties;
 import org.evosuite.ga.ConstructionFailedException;
-import org.evosuite.utils.ParameterizedTypeImpl;
-import org.evosuite.utils.TypeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.*;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class ParameterizedGenericClass extends AbstractGenericClass<ParameterizedType> {
     private static final Logger logger = LoggerFactory.getLogger(ParameterizedGenericClass.class);
@@ -70,11 +67,6 @@ public class ParameterizedGenericClass extends AbstractGenericClass<Parameterize
 
         logger.debug("Is parameterized type");
         return getGenericParameterizedTypeInstantiation(typeMap, recursionLevel);
-    }
-
-    @Override
-    public List<AbstractGenericClass<ParameterizedType>> getInterfaces() {
-        throw new UnsupportedOperationException("Not Implemented: ParameterizedGenericClass#getInterfaces");
     }
 
     @Override

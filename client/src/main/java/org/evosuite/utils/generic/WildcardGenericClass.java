@@ -3,7 +3,6 @@ package org.evosuite.utils.generic;
 import org.evosuite.Properties;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.seeding.CastClassManager;
-import org.evosuite.utils.ParameterizedTypeImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,11 +65,6 @@ public class WildcardGenericClass extends AbstractGenericClass<WildcardType> {
 
         logger.debug("Is wildcard type.");
         return getGenericWildcardInstantiation(typeMap, recursionLevel);
-    }
-
-    @Override
-    public List<AbstractGenericClass<WildcardType>> getInterfaces() {
-        throw new UnsupportedOperationException("Not Implemented: WildcardGenericClass#getInterfaces");
     }
 
     @Override

@@ -116,7 +116,7 @@ public interface GenericClass<T extends GenericClass<T>> {
      *
      * @return
      */
-    List<T> getInterfaces();
+    List<GenericClass<?>> getInterfaces();
 
     // TODO: write proper documentation.
     /**

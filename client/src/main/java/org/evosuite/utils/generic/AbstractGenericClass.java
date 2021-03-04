@@ -10,6 +10,7 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -222,6 +223,11 @@ public abstract class AbstractGenericClass<T extends Type> implements GenericCla
     @Override
     public GenericClass<?> getRawGenericClass() {
         return new RawClassGenericClass(rawClass);
+    }
+
+    @Override
+    public List<GenericClass<?>> getInterfaces() {
+        return Arrays.stream(rawClass.getInterfaces()).map(GenericClassFactory::get).collect(Collectors.toList());
     }
 
     /**

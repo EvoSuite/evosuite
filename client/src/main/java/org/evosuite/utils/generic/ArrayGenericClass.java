@@ -3,7 +3,6 @@ package org.evosuite.utils.generic;
 import org.apache.commons.lang3.reflect.TypeUtils;
 import org.evosuite.Properties;
 import org.evosuite.ga.ConstructionFailedException;
-import org.evosuite.utils.ParameterizedTypeImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,11 +56,6 @@ public class ArrayGenericClass extends AbstractGenericClass<GenericArrayType> {
 
     private GenericClass<?> getGenericTypeVariableInstantiation(Map<TypeVariable<?>, Type> typeMap, int recursionLevel) {
         throw new UnsupportedOperationException("Not Implemented: ArrayGenericClass#getGenericTypeVariableInstantiation");
-    }
-
-    @Override
-    public List<AbstractGenericClass<GenericArrayType>> getInterfaces() {
-        throw new UnsupportedOperationException("Not Implemented: ArrayGenericClass#getInterfaces");
     }
 
     @Override

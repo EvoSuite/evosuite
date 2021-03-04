@@ -403,8 +403,8 @@ public class GenericClassImpl implements Serializable, GenericClass<GenericClass
     }
 
     @Override
-    public List<GenericClassImpl> getInterfaces() {
-        List<GenericClassImpl> ret = new ArrayList<>();
+    public List<GenericClass<?>> getInterfaces() {
+        List<GenericClass<?>> ret = new ArrayList<>();
         for (Class<?> intf : rawClass.getInterfaces()) {
             ret.add(new GenericClassImpl(intf));
         }

@@ -2,7 +2,6 @@ package org.evosuite.utils.generic;
 
 import org.evosuite.Properties;
 import org.evosuite.ga.ConstructionFailedException;
-import org.evosuite.utils.ParameterizedTypeImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,11 +56,6 @@ public class TypeVariableGenericClass extends AbstractGenericClass<TypeVariable<
 
         logger.debug("Is type variable ");
         return getGenericTypeVariableInstantiation(typeMap, recursionLevel);
-    }
-
-    @Override
-    public List<AbstractGenericClass<TypeVariable<?>>> getInterfaces() {
-        throw new UnsupportedOperationException("Not Implemented: TypeVariableGenericClass#getInterfaces");
     }
 
     @Override
