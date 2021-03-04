@@ -44,11 +44,6 @@ public class RawClassGenericClass extends AbstractGenericClass<Class<?>> {
     }
 
     @Override
-    public int getNumParameters() {
-        throw new UnsupportedOperationException("Not Implemented: RawClassGenericClass#getNumParameters");
-    }
-
-    @Override
     public AbstractGenericClass<Class<?>> getOwnerType() {
         throw new UnsupportedOperationException("Not Implemented: RawClassGenericClass#getOwnerType");
     }

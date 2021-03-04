@@ -59,11 +59,6 @@ public class ArrayGenericClass extends AbstractGenericClass<GenericArrayType> {
     }
 
     @Override
-    public int getNumParameters() {
-        throw new UnsupportedOperationException("Not Implemented: ArrayGenericClass#getNumParameters");
-    }
-
-    @Override
     public AbstractGenericClass<GenericArrayType> getOwnerType() {
         throw new UnsupportedOperationException("Not Implemented: ArrayGenericClass#getOwnerType");
     }

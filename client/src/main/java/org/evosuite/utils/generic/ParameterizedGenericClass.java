@@ -71,7 +71,7 @@ public class ParameterizedGenericClass extends AbstractGenericClass<Parameterize
 
     @Override
     public int getNumParameters() {
-        throw new UnsupportedOperationException("Not Implemented: ParameterizedGenericClass#getNumParameters");
+        return type.getActualTypeArguments().length;
     }
 
     @Override

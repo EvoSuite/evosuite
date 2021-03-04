@@ -68,11 +68,6 @@ public class WildcardGenericClass extends AbstractGenericClass<WildcardType> {
     }
 
     @Override
-    public int getNumParameters() {
-        throw new UnsupportedOperationException("Not Implemented: WildcardGenericClass#getNumParameters");
-    }
-
-    @Override
     public AbstractGenericClass<WildcardType> getOwnerType() {
         throw new UnsupportedOperationException("Not Implemented: WildcardGenericClass#getOwnerType");
     }

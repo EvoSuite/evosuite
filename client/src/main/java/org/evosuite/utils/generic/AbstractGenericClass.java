@@ -230,6 +230,11 @@ public abstract class AbstractGenericClass<T extends Type> implements GenericCla
         return Arrays.stream(rawClass.getInterfaces()).map(GenericClassFactory::get).collect(Collectors.toList());
     }
 
+    @Override
+    public int getNumParameters() {
+        return 0;
+    }
+
     /**
      * Check whether the represented generic class can be instantiated to {@param otherType}
      *

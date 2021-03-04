@@ -59,11 +59,6 @@ public class TypeVariableGenericClass extends AbstractGenericClass<TypeVariable<
     }
 
     @Override
-    public int getNumParameters() {
-        throw new UnsupportedOperationException("Not Implemented: TypeVariableGenericClass#getNumParameters");
-    }
-
-    @Override
     public AbstractGenericClass<TypeVariable<?>> getOwnerType() {
         throw new UnsupportedOperationException("Not Implemented: TypeVariableGenericClass#getOwnerType");
     }
