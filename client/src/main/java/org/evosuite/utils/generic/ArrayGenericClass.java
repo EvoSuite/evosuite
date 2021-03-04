@@ -2,17 +2,12 @@ package org.evosuite.utils.generic;
 
 import org.apache.commons.lang3.reflect.TypeUtils;
 import org.evosuite.ga.ConstructionFailedException;
+import org.evosuite.utils.ParameterizedTypeImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.GenericArrayType;
-import java.lang.reflect.Type;
-import java.lang.reflect.TypeVariable;
-import java.lang.reflect.WildcardType;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.lang.reflect.*;
+import java.util.*;
 
 public class ArrayGenericClass extends AbstractGenericClass<GenericArrayType> {
     private static final Logger logger = LoggerFactory.getLogger(ArrayGenericClass.class);
@@ -72,8 +67,24 @@ public class ArrayGenericClass extends AbstractGenericClass<GenericArrayType> {
     }
 
     @Override
-    public void changeClassLoader(ClassLoader loader) {
-        throw new UnsupportedOperationException("Not Implemented: ArrayGenericClass#changeClassLoader");
+    public boolean changeClassLoader(ClassLoader loader) {
+        try {
+            if (rawClass != null) {
+                rawClass = GenericClassUtils.getClass(rawClass.getName(), loader);
+            }
+            if (type != null) {
+                GenericClass<?> componentClass = getComponentClass();
+                componentClass.changeClassLoader(loader);
+                this.type = TypeUtils.genericArrayType(componentClass.getType());
+            } else {
+                // TODO what to do if type == null?
+                throw new IllegalStateException("Type of generic class is null. Don't know what to do.");
+            }
+            return true;
+        } catch (ClassNotFoundException | SecurityException e) {
+            logger.warn("Class not found: " + rawClass + " - keeping old class loader ", e);
+        }
+        return false;
     }
 
     @Override

@@ -204,7 +204,7 @@ public class GenericClassImpl implements Serializable, GenericClass<GenericClass
      * @param loader a {@link java.lang.ClassLoader} object.
      */
     @Override
-    public void changeClassLoader(ClassLoader loader) {
+    public boolean changeClassLoader(ClassLoader loader) {
         try {
             if (rawClass != null) {
                 rawClass = GenericClassUtils.getClass(rawClass.getName(), loader);
@@ -266,11 +266,13 @@ public class GenericClassImpl implements Serializable, GenericClass<GenericClass
                 this.type = GenericClassUtils.addTypeParameters(rawClass); //GenericTypeReflector
                 // .addWildcardParameters(raw_class);
             }
+            return true;
         } catch (ClassNotFoundException e) {
             logger.warn("Class not found: " + rawClass + " - keeping old class loader ", e);
         } catch (SecurityException e) {
             logger.warn("Class not found: " + rawClass + " - keeping old class loader ", e);
         }
+        return false;
     }
 
     @Override

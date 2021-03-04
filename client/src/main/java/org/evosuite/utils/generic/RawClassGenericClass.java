@@ -1,16 +1,12 @@
 package org.evosuite.utils.generic;
 
 import org.evosuite.ga.ConstructionFailedException;
+import org.evosuite.utils.ParameterizedTypeImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.Type;
-import java.lang.reflect.TypeVariable;
-import java.lang.reflect.WildcardType;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.lang.reflect.*;
+import java.util.*;
 
 public class RawClassGenericClass extends AbstractGenericClass<Class<?>> {
     private static final Logger logger = LoggerFactory.getLogger(RawClassGenericClass.class);
@@ -20,8 +16,19 @@ public class RawClassGenericClass extends AbstractGenericClass<Class<?>> {
     }
 
     @Override
-    public void changeClassLoader(ClassLoader loader) {
-        throw new UnsupportedOperationException("Not Implemented: RawClassGenericClass#changeClassLoader");
+    public boolean changeClassLoader(ClassLoader loader) {
+        try {
+            if (rawClass != null) {
+                rawClass = GenericClassUtils.getClassByFullyQualifiedName(rawClass.getName(), loader);
+            }
+            if(rawClass != null && type != null){
+                this.type = rawClass;
+            }
+            return true;
+        } catch (ClassNotFoundException | SecurityException e) {
+            logger.warn("Class not found: " + rawClass + " - keeping old class loader ", e);
+        }
+        return false;
     }
 
     @Override

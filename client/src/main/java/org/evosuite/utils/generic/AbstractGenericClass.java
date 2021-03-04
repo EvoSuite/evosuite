@@ -19,8 +19,8 @@ import static org.evosuite.utils.generic.GenericClassUtils.WRAPPER_TYPES;
 
 public abstract class AbstractGenericClass<T extends Type> implements GenericClass<AbstractGenericClass<T>> {
     private static final Logger logger = LoggerFactory.getLogger(AbstractGenericClass.class);
-    protected final T type;
-    protected final Class<?> rawClass;
+    protected T type;
+    protected Class<?> rawClass;
 
     public AbstractGenericClass(T type, Class<?> rawClass) {
         this.type = type;

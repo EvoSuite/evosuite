@@ -2,17 +2,13 @@ package org.evosuite.utils.generic;
 
 import org.apache.commons.lang3.reflect.TypeUtils;
 import org.evosuite.ga.ConstructionFailedException;
+import org.evosuite.utils.ParameterizedTypeImpl;
+import org.evosuite.utils.TypeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.lang.reflect.TypeVariable;
-import java.lang.reflect.WildcardType;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.lang.reflect.*;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class ParameterizedGenericClass extends AbstractGenericClass<ParameterizedType> {
@@ -23,8 +19,39 @@ public class ParameterizedGenericClass extends AbstractGenericClass<Parameterize
     }
 
     @Override
-    public void changeClassLoader(ClassLoader loader) {
-        throw new UnsupportedOperationException("Not Implemented: ParameterizedGenericClass#changeClassLoader");
+    public boolean changeClassLoader(ClassLoader loader) {
+        try {
+            if (rawClass != null) {
+                // TODO check if this is even possible...
+                //      Every generic class should have a raw class?
+                rawClass = GenericClassUtils.getClassByFullyQualifiedName(rawClass.getName(), loader);
+            }
+            if (type != null) {
+                GenericClass<?> ownerType = null;
+                if (type.getOwnerType() != null) {
+                    ownerType = GenericClassFactory.get(type.getOwnerType());
+                    ownerType.changeClassLoader(loader);
+                }
+                List<GenericClass<?>> parameterClasses = new ArrayList<>();
+                for (Type parameterType : type.getActualTypeArguments()) {
+                    GenericClass<?> parameter = GenericClassFactory.get(parameterType);
+                    parameter.changeClassLoader(loader);
+                    parameterClasses.add(parameter);
+                }
+                Type[] parameterTypes = parameterClasses.stream().map(GenericClass::getType).toArray(Type[]::new);
+                if(ownerType == null)
+                    this.type = TypeUtils.parameterize(rawClass, parameterTypes);
+                else
+                    this.type = TypeUtils.parameterizeWithOwner(ownerType.getType(),rawClass, parameterTypes);
+            } else {
+                // TODO what to do if type == null?
+                throw new IllegalStateException("Type of generic class is null. Don't know what to do.");
+            }
+            return true;
+        } catch (ClassNotFoundException | SecurityException e) {
+            logger.warn("Class not found: " + rawClass + " - keeping old class loader ", e);
+        }
+        return false;
     }
 
     @Override

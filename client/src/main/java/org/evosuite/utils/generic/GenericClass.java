@@ -35,7 +35,7 @@ public interface GenericClass<T extends GenericClass<T>> {
      *
      * @param loader a {@link java.lang.ClassLoader} object.
      */
-    void changeClassLoader(ClassLoader loader);
+    boolean changeClassLoader(ClassLoader loader);
 
     // TODO: Why is this unused? Maybe we can remove this functionality / move it to a Utility function...
     /**

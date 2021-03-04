@@ -3,13 +3,13 @@ package org.evosuite.utils.generic;
 import org.evosuite.Properties;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.seeding.CastClassManager;
+import org.evosuite.utils.ParameterizedTypeImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.Type;
-import java.lang.reflect.TypeVariable;
-import java.lang.reflect.WildcardType;
+import java.lang.reflect.*;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class WildcardGenericClass extends AbstractGenericClass<WildcardType> {
@@ -20,8 +20,32 @@ public class WildcardGenericClass extends AbstractGenericClass<WildcardType> {
     }
 
     @Override
-    public void changeClassLoader(ClassLoader loader) {
-        throw new UnsupportedOperationException("Not Implemented: WildcardGenericClass#changeClassLoader");
+    public boolean changeClassLoader(ClassLoader loader) {
+        try {
+            if (rawClass != null) {
+                rawClass = GenericClassUtils.getClass(rawClass.getName(), loader);
+            }
+            if (type != null) {
+                Type[] oldUpperBounds = type.getUpperBounds();
+                Type[] oldLowerBounds = type.getLowerBounds();
+
+                Function<Type, Type> changeClassLoaderOfType = (Type type1) -> {
+                    GenericClass<?> genericClass = GenericClassFactory.get(type1);
+                    genericClass.changeClassLoader(loader);
+                    return genericClass.getType();
+                };
+                Type[] upperBounds = Arrays.stream(oldUpperBounds).map(changeClassLoaderOfType).toArray(Type[]::new);
+                Type[] lowerBounds = Arrays.stream(oldLowerBounds).map(changeClassLoaderOfType).toArray(Type[]::new);
+                this.type = new WildcardTypeImpl(upperBounds, lowerBounds);
+            } else {
+                // TODO what to do if type == null?
+                throw new IllegalStateException("Type of generic class is null. Don't know what to do.");
+            }
+            return true;
+        } catch (ClassNotFoundException | SecurityException e) {
+            logger.warn("Class not found: " + rawClass + " - keeping old class loader ", e);
+        }
+        return false;
     }
 
     @Override
@@ -202,8 +226,8 @@ public class WildcardGenericClass extends AbstractGenericClass<WildcardType> {
 
     @Override
     GenericClass<?> getWithParametersFromSuperclass(WildcardGenericClass otherType) throws ConstructionFailedException {
-        throw new UnsupportedOperationException("Not Implemented: " +
-                "WildcardGenericClass#getWithParametersFromSuperclass");
+        throw new UnsupportedOperationException("Not Implemented: " + "WildcardGenericClass" +
+                "#getWithParametersFromSuperclass");
     }
 
     @Override
@@ -220,7 +244,7 @@ public class WildcardGenericClass extends AbstractGenericClass<WildcardType> {
 
     @Override
     GenericClass<?> getWithParametersFromSuperclass(ParameterizedGenericClass otherType) throws ConstructionFailedException {
-        throw new UnsupportedOperationException("Not Implemented: " +
-                "WildcardGenericClass#getWithParametersFromSuperclass");
+        throw new UnsupportedOperationException("Not Implemented: " + "WildcardGenericClass" +
+                "#getWithParametersFromSuperclass");
     }
 }

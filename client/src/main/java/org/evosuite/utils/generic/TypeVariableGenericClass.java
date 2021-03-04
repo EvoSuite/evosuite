@@ -1,12 +1,11 @@
 package org.evosuite.utils.generic;
 
 import org.evosuite.ga.ConstructionFailedException;
+import org.evosuite.utils.ParameterizedTypeImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.Type;
-import java.lang.reflect.TypeVariable;
-import java.lang.reflect.WildcardType;
+import java.lang.reflect.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -72,8 +71,27 @@ public class TypeVariableGenericClass extends AbstractGenericClass<TypeVariable<
     }
 
     @Override
-    public void changeClassLoader(ClassLoader loader) {
-        throw new UnsupportedOperationException("Not Implemented: TypeVariableGenericClass#changeClassLoader");
+    public boolean changeClassLoader(ClassLoader loader) {
+        try {
+            if (rawClass != null) {
+                rawClass = GenericClassUtils.getClassByFullyQualifiedName(rawClass.getName(), loader);
+            }
+            if (type != null) {
+                for (TypeVariable<?> newVar : rawClass.getTypeParameters()) {
+                    if (newVar.getName().equals(type.getName())) {
+                        this.type = newVar;
+                        break;
+                    }
+                }
+            } else {
+                // TODO what to do if type == null?
+                throw new IllegalStateException("Type of generic class is null. Don't know what to do.");
+            }
+            return true;
+        } catch (ClassNotFoundException | SecurityException e) {
+            logger.warn("Class not found: " + rawClass + " - keeping old class loader ", e);
+        }
+        return false;
     }
 
     @Override
