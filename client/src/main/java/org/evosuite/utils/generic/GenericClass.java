@@ -177,7 +177,7 @@ public interface GenericClass<T extends GenericClass<T>> {
      *
      * @return
      */
-    T getSuperClass();
+    GenericClass<?> getSuperClass();
 
     // TODO: write proper documentation.
     /**

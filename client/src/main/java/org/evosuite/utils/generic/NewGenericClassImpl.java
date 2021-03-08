@@ -256,7 +256,7 @@ public class NewGenericClassImpl implements GenericClass<NewGenericClassImpl> {
     }
 
     @Override
-    public NewGenericClassImpl getSuperClass() {
+    public GenericClass<?> getSuperClass() {
         throw new UnsupportedOperationException("Not Implemented: NewGenericClassImpl#getSuperClass");
     }
 

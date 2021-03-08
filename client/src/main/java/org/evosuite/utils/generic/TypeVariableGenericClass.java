@@ -69,11 +69,6 @@ public class TypeVariableGenericClass extends AbstractGenericClass<TypeVariable<
     }
 
     @Override
-    public AbstractGenericClass<TypeVariable<?>> getSuperClass() {
-        throw new UnsupportedOperationException("Not Implemented: TypeVariableGenericClass#getSuperClass");
-    }
-
-    @Override
     public String getTypeName() {
         throw new UnsupportedOperationException("Not Implemented: TypeVariableGenericClass#getTypeName");
     }

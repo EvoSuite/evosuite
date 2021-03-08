@@ -85,11 +85,6 @@ public class ParameterizedGenericClass extends AbstractGenericClass<Parameterize
     }
 
     @Override
-    public AbstractGenericClass<ParameterizedType> getSuperClass() {
-        throw new UnsupportedOperationException("Not Implemented: ParameterizedGenericClass#getSuperClass");
-    }
-
-    @Override
     public String getTypeName() {
         throw new UnsupportedOperationException("Not Implemented: ParameterizedGenericClass#getTypeName");
     }

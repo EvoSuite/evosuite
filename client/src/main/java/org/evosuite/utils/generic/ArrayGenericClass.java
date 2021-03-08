@@ -66,11 +66,6 @@ public class ArrayGenericClass extends AbstractGenericClass<GenericArrayType> {
     @Override
     public List<Type> getParameterTypes() {
         return Collections.emptyList();
-    }}
-
-    @Override
-    public AbstractGenericClass<GenericArrayType> getSuperClass() {
-        throw new UnsupportedOperationException("Not Implemented: ArrayGenericClass#getSuperClass");
     }
 
     @Override

@@ -255,6 +255,11 @@ public abstract class AbstractGenericClass<T extends Type> implements GenericCla
         return name;
     }
 
+    @Override
+    public GenericClass<?> getSuperClass() {
+        return GenericClassFactory.get(GenericTypeReflector.getExactSuperType(type, rawClass.getSuperclass()));
+    }
+
     /**
      * Check whether the represented generic class can be instantiated to {@param otherType}
      *
