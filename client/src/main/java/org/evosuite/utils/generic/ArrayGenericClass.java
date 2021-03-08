@@ -54,10 +54,6 @@ public class ArrayGenericClass extends AbstractGenericClass<GenericArrayType> {
         return getGenericTypeVariableInstantiation(typeMap, recursionLevel);
     }
 
-    private GenericClass<?> getGenericTypeVariableInstantiation(Map<TypeVariable<?>, Type> typeMap, int recursionLevel) {
-        throw new UnsupportedOperationException("Not Implemented: ArrayGenericClass#getGenericTypeVariableInstantiation");
-    }
-
     @Override
     public AbstractGenericClass<GenericArrayType> getOwnerType() {
         throw new UnsupportedOperationException("A generic array has no owner type");
@@ -71,11 +67,6 @@ public class ArrayGenericClass extends AbstractGenericClass<GenericArrayType> {
     @Override
     public String getTypeName() {
         return type.toString();
-    }
-
-    @Override
-    public Map<TypeVariable<?>, Type> getTypeVariableMap() {
-        throw new UnsupportedOperationException("Not Implemented: ArrayGenericClass#getTypeVariableMap");
     }
 
     @Override
@@ -165,8 +156,23 @@ public class ArrayGenericClass extends AbstractGenericClass<GenericArrayType> {
     }
 
     @Override
+    public Map<TypeVariable<?>, Type> getTypeVariableMap() {
+        throw new UnsupportedOperationException("Not Implemented: ArrayGenericClass#getTypeVariableMap");
+    }
+
+    @Override
     public GenericClass<?> getWithParametersFromSuperclass(GenericClass<?> superClass) throws ConstructionFailedException {
         throw new UnsupportedOperationException("Not Implemented: ArrayGenericClass#getWithParametersFromSuperclass");
+    }
+
+    @Override
+    protected Map<TypeVariable<?>, Type> computeTypeVariableMapIfTypeVariable() {
+        return Collections.emptyMap();
+    }
+
+    @Override
+    protected Map<TypeVariable<?>, Type> updateInheritedTypeVariables(Map<TypeVariable<?>, Type> typeMap) {
+        return typeMap;
     }
 
     @Override
@@ -217,5 +223,11 @@ public class ArrayGenericClass extends AbstractGenericClass<GenericArrayType> {
     @Override
     GenericClass<?> getWithParametersFromSuperclass(ParameterizedGenericClass otherType) throws ConstructionFailedException {
         throw new UnsupportedOperationException("Not Implemented: ArrayGenericClass#getWithParametersFromSuperclass");
+    }
+
+    private GenericClass<?> getGenericTypeVariableInstantiation(Map<TypeVariable<?>, Type> typeMap,
+                                                                int recursionLevel) {
+        throw new UnsupportedOperationException("Not Implemented: " +
+                "ArrayGenericClass#getGenericTypeVariableInstantiation");
     }
 }

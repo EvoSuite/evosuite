@@ -20,7 +20,7 @@ public class RawClassGenericClass extends AbstractGenericClass<Class<?>> {
             if (rawClass != null) {
                 rawClass = GenericClassUtils.getClassByFullyQualifiedName(rawClass.getName(), loader);
             }
-            if(rawClass != null && type != null){
+            if (rawClass != null && type != null) {
                 this.type = rawClass;
             }
             return true;
@@ -60,11 +60,6 @@ public class RawClassGenericClass extends AbstractGenericClass<Class<?>> {
     }
 
     @Override
-    public Map<TypeVariable<?>, Type> getTypeVariableMap() {
-        throw new UnsupportedOperationException("Not Implemented: RawClassGenericClass#getTypeVariableMap");
-    }
-
-    @Override
     public List<TypeVariable<?>> getTypeVariables() {
         return Collections.emptyList();
     }
@@ -82,12 +77,6 @@ public class RawClassGenericClass extends AbstractGenericClass<Class<?>> {
     @Override
     public GenericClass<?> getWithGenericParameterTypes(List<AbstractGenericClass<Class<?>>> parameters) {
         throw new UnsupportedOperationException("Not Implemented: RawClassGenericClass#getWithGenericParameterTypes");
-    }
-
-    @Override
-    public GenericClass<?> getWithParametersFromSuperclass(GenericClass<?> superClass) throws ConstructionFailedException {
-        throw new UnsupportedOperationException("Not Implemented: " +
-                "RawClassGenericClass#getWithParametersFromSuperclass");
     }
 
     @Override
@@ -151,6 +140,27 @@ public class RawClassGenericClass extends AbstractGenericClass<Class<?>> {
     }
 
     @Override
+    public Map<TypeVariable<?>, Type> getTypeVariableMap() {
+        throw new UnsupportedOperationException("Not Implemented: RawClassGenericClass#getTypeVariableMap");
+    }
+
+    @Override
+    public GenericClass<?> getWithParametersFromSuperclass(GenericClass<?> superClass) throws ConstructionFailedException {
+        throw new UnsupportedOperationException("Not Implemented: " + "RawClassGenericClass" +
+                "#getWithParametersFromSuperclass");
+    }
+
+    @Override
+    protected Map<TypeVariable<?>, Type> computeTypeVariableMapIfTypeVariable() {
+        return Collections.emptyMap();
+    }
+
+    @Override
+    protected Map<TypeVariable<?>, Type> updateInheritedTypeVariables(Map<TypeVariable<?>, Type> typeMap) {
+        return typeMap;
+    }
+
+    @Override
     boolean canBeInstantiatedTo(TypeVariableGenericClass otherType) {
         throw new UnsupportedOperationException("Not Implemented: RawClassGenericClass#canBeInstantiatedTo");
     }
@@ -177,14 +187,14 @@ public class RawClassGenericClass extends AbstractGenericClass<Class<?>> {
 
     @Override
     GenericClass<?> getWithParametersFromSuperclass(TypeVariableGenericClass otherType) throws ConstructionFailedException {
-        throw new UnsupportedOperationException("Not Implemented: " +
-                "RawClassGenericClass#getWithParametersFromSuperclass");
+        throw new UnsupportedOperationException("Not Implemented: " + "RawClassGenericClass" +
+                "#getWithParametersFromSuperclass");
     }
 
     @Override
     GenericClass<?> getWithParametersFromSuperclass(WildcardGenericClass otherType) throws ConstructionFailedException {
-        throw new UnsupportedOperationException(
-                "Not Implemented: RawClassGenericClass#getWithParametersFromSuperclass");
+        throw new UnsupportedOperationException("Not Implemented: " + "RawClassGenericClass" +
+                "#getWithParametersFromSuperclass");
     }
 
     @Override
@@ -195,12 +205,13 @@ public class RawClassGenericClass extends AbstractGenericClass<Class<?>> {
 
     @Override
     GenericClass<?> getWithParametersFromSuperclass(RawClassGenericClass otherType) throws ConstructionFailedException {
-        throw new UnsupportedOperationException("Not Implemented: " +
-                "RawClassGenericClass#getWithParametersFromSuperclass");
+        throw new UnsupportedOperationException("Not Implemented: " + "RawClassGenericClass" +
+                "#getWithParametersFromSuperclass");
     }
 
     @Override
     GenericClass<?> getWithParametersFromSuperclass(ParameterizedGenericClass otherType) throws ConstructionFailedException {
-        throw new UnsupportedOperationException("Not Implemented: RawClassGenericClass#getWithParametersFromSuperclass");
+        throw new UnsupportedOperationException("Not Implemented: " + "RawClassGenericClass" +
+                "#getWithParametersFromSuperclass");
     }
 }

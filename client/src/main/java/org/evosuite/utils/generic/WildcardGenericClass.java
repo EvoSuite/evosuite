@@ -83,11 +83,6 @@ public class WildcardGenericClass extends AbstractGenericClass<WildcardType> {
     }
 
     @Override
-    public Map<TypeVariable<?>, Type> getTypeVariableMap() {
-        throw new UnsupportedOperationException("Not Implemented: WildcardGenericClass#getTypeVariableMap");
-    }
-
-    @Override
     public List<TypeVariable<?>> getTypeVariables() {
         return Collections.emptyList();
     }
@@ -170,9 +165,24 @@ public class WildcardGenericClass extends AbstractGenericClass<WildcardType> {
     }
 
     @Override
+    public Map<TypeVariable<?>, Type> getTypeVariableMap() {
+        throw new UnsupportedOperationException("Not Implemented: WildcardGenericClass#getTypeVariableMap");
+    }
+
+    @Override
     public GenericClass<?> getWithParametersFromSuperclass(GenericClass<?> superClass) throws ConstructionFailedException {
         throw new UnsupportedOperationException("Not Implemented: " + "WildcardGenericClass" +
                 "#getWithParametersFromSuperclass");
+    }
+
+    @Override
+    protected Map<TypeVariable<?>, Type> computeTypeVariableMapIfTypeVariable() {
+        return Collections.emptyMap();
+    }
+
+    @Override
+    protected Map<TypeVariable<?>, Type> updateInheritedTypeVariables(Map<TypeVariable<?>, Type> typeMap) {
+        return typeMap;
     }
 
     @Override

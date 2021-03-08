@@ -11,10 +11,7 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.evosuite.utils.generic.GenericClassUtils.WRAPPER_TYPES;
@@ -24,6 +21,7 @@ public abstract class AbstractGenericClass<T extends Type> implements GenericCla
     private static final Logger logger = LoggerFactory.getLogger(AbstractGenericClass.class);
     protected T type;
     protected Class<?> rawClass;
+    private Map<TypeVariable<?>, Type> typeVariableMap;
 
     public AbstractGenericClass(T type, Class<?> rawClass) {
         this.type = type;
@@ -71,6 +69,26 @@ public abstract class AbstractGenericClass<T extends Type> implements GenericCla
     }
 
     @Override
+    public GenericClass<?> getGenericInstantiation() throws ConstructionFailedException {
+        return getGenericInstantiation(new HashMap<>());
+    }
+
+    @Override
+    public GenericClass<?> getGenericInstantiation(Map<TypeVariable<?>, Type> typeMap) throws ConstructionFailedException {
+        return getGenericInstantiation(typeMap, 0);
+    }
+
+    @Override
+    public List<GenericClass<?>> getInterfaces() {
+        return Arrays.stream(rawClass.getInterfaces()).map(GenericClassFactory::get).collect(Collectors.toList());
+    }
+
+    @Override
+    public int getNumParameters() {
+        return 0;
+    }
+
+    @Override
     public List<GenericClass<?>> getParameterClasses() {
         return getParameterTypes().stream().map(GenericClassFactory::get).collect(Collectors.toList());
     }
@@ -81,8 +99,39 @@ public abstract class AbstractGenericClass<T extends Type> implements GenericCla
     }
 
     @Override
+    public Type getRawComponentClass() {
+        // TODO: TypeUtils#getComponentType can give us the generic Type of the component class, but not the raw class.
+        return GenericTypeReflector.erase(rawClass.getComponentType());
+    }
+
+    @Override
+    public String getSimpleName() {
+        // TODO: No idea what this method is supposed to do???
+        //       Looks like it is a special case for arrays???
+        final String name = ClassUtils.getShortClassName(rawClass).replace(";", "[]");
+        if (!isPrimitive() && primitiveClasses.contains(name)) {
+            return rawClass.getSimpleName().replace(";", "[]");
+        }
+
+        return name;
+    }
+
+    @Override
+    public GenericClass<?> getSuperClass() {
+        return GenericClassFactory.get(GenericTypeReflector.getExactSuperType(type, rawClass.getSuperclass()));
+    }
+
+    @Override
     public T getType() {
         return type;
+    }
+
+    @Override
+    public Map<TypeVariable<?>, Type> getTypeVariableMap() {
+        if (typeVariableMap == null) {
+            typeVariableMap = computeTypeVariableMap();
+        }
+        return typeVariableMap;
     }
 
     @Override
@@ -110,6 +159,16 @@ public abstract class AbstractGenericClass<T extends Type> implements GenericCla
     @Override
     public GenericClass<?> getWithWildcardTypes() {
         return GenericClassFactory.get(GenericTypeReflector.addWildcardParameters(rawClass));
+    }
+
+    @Override
+    public boolean hasGenericSuperType(GenericClass<?> superType) {
+        return hasGenericSuperType(superType.getType());
+    }
+
+    @Override
+    public boolean hasGenericSuperType(Type superType) {
+        return GenericTypeReflector.isSuperType(superType, type);
     }
 
     @Override
@@ -158,41 +217,6 @@ public abstract class AbstractGenericClass<T extends Type> implements GenericCla
     }
 
     @Override
-    public boolean isPrimitive() {
-        return rawClass.isPrimitive();
-    }
-
-    @Override
-    public boolean isString() {
-        return rawClass.equals(String.class);
-    }
-
-    @Override
-    public boolean isVoid() {
-        return rawClass.equals(Void.class) || rawClass.equals(void.class);
-    }
-
-    @Override
-    public GenericClass<?> getGenericInstantiation() throws ConstructionFailedException {
-        return getGenericInstantiation(new HashMap<>());
-    }
-
-    @Override
-    public GenericClass<?> getGenericInstantiation(Map<TypeVariable<?>, Type> typeMap) throws ConstructionFailedException {
-        return getGenericInstantiation(typeMap, 0);
-    }
-
-    @Override
-    public boolean hasGenericSuperType(GenericClass<?> superType) {
-        return hasGenericSuperType(superType.getType());
-    }
-
-    @Override
-    public boolean hasGenericSuperType(Type superType) {
-        return GenericTypeReflector.isSuperType(superType,type);
-    }
-
-    @Override
     public boolean isGenericSuperTypeOf(GenericClass<?> subType) {
         return isGenericSuperTypeOf(subType.getType());
     }
@@ -205,6 +229,21 @@ public abstract class AbstractGenericClass<T extends Type> implements GenericCla
     @Override
     public boolean isObject() {
         return rawClass.equals(Object.class);
+    }
+
+    @Override
+    public boolean isPrimitive() {
+        return rawClass.isPrimitive();
+    }
+
+    @Override
+    public boolean isString() {
+        return rawClass.equals(String.class);
+    }
+
+    @Override
+    public boolean isVoid() {
+        return rawClass.equals(Void.class) || rawClass.equals(void.class);
     }
 
     @Override
@@ -227,38 +266,69 @@ public abstract class AbstractGenericClass<T extends Type> implements GenericCla
         return new RawClassGenericClass(rawClass);
     }
 
-    @Override
-    public List<GenericClass<?>> getInterfaces() {
-        return Arrays.stream(rawClass.getInterfaces()).map(GenericClassFactory::get).collect(Collectors.toList());
-    }
-
-    @Override
-    public int getNumParameters() {
-        return 0;
-    }
-
-    @Override
-    public Type getRawComponentClass() {
-        // TODO: TypeUtils#getComponentType can give us the generic Type of the component class, but not the raw class.
-        return GenericTypeReflector.erase(rawClass.getComponentType());
-    }
-
-    @Override
-    public String getSimpleName() {
-        // TODO: No idea what this method is supposed to do???
-        //       Looks like it is a special case for arrays???
-        final String name = ClassUtils.getShortClassName(rawClass).replace(";", "[]");
-        if (!isPrimitive() && primitiveClasses.contains(name)) {
-            return rawClass.getSimpleName().replace(";", "[]");
+    /**
+     * Computes a mapping from the type variables of this type to a {@code Type} object.
+     * <p>
+     * This function also resolves the types of surrounding classes, superclasses and interfaces.
+     *
+     * @return the mapping.
+     */
+    protected Map<TypeVariable<?>, Type> computeTypeVariableMap() {
+        Map<TypeVariable<?>, Type> typeMap = new HashMap<>();
+        try {
+            typeMap.putAll(computeTypeVariableMapOfSuperClass());
+            typeMap.putAll(computeTypeVariableMapOfInterfaces());
+            typeMap.putAll(computeTypeVariableMapIfTypeVariable());
+        } catch (Exception e) {
+            logger.debug("Exception while getting type map: " + e);
         }
-
-        return name;
+        return updateInheritedTypeVariables(typeMap);
     }
 
-    @Override
-    public GenericClass<?> getSuperClass() {
-        return GenericClassFactory.get(GenericTypeReflector.getExactSuperType(type, rawClass.getSuperclass()));
+    /**
+     * Computes the type variable map of the super class of this generic type.
+     * <p>
+     * Only if the following 4 conditions are met, the class "sees" the type variables of it's super type.
+     * - Super class of the raw class must exist.
+     * - The raw class mustn't be an anonymous class.
+     * - The super class of the raw class mustn't be an anonymous class.
+     * - If this type has an owner type (e.g. outer class), the owner type mustn't be an anonymous class.
+     *
+     * @return the type variable map of the super class if this class sees these type variables, else an empty map.
+     */
+    protected Map<TypeVariable<?>, Type> computeTypeVariableMapOfSuperClass() {
+        // TODO: Why do we need this 4 conditions. Are anonymous classes always independent of surrounding type
+        //  variables?
+        if (rawClass.getSuperclass() != null && !rawClass.isAnonymousClass() && !rawClass.getSuperclass().isAnonymousClass() && !(hasOwnerType() && getOwnerType().getRawClass().isAnonymousClass())) {
+            return getSuperClass().getTypeVariableMap();
+        }
+        return Collections.emptyMap();
     }
+
+    /**
+     * Computes the type variable map of all interfaces of this generic type and merges them into one map.
+     *
+     * @return the merged map.
+     */
+    protected Map<TypeVariable<?>, Type> computeTypeVariableMapOfInterfaces() {
+        return Arrays.stream(rawClass.getInterfaces()).map(GenericClassFactory::get).map(GenericClass::getTypeVariableMap).map(Map::entrySet).flatMap(Collection::stream) // merges the List of EntrySets to one stream of entries.
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    }
+
+    /**
+     * Computes the type variable map of the boundaries, if this generic class is a type variable.
+     *
+     * @return The merged map of the type variables, if this generic class is a type variable, else an empty map.
+     */
+    protected abstract Map<TypeVariable<?>, Type> computeTypeVariableMapIfTypeVariable();
+
+    /**
+     * Update the inherited type variables, if this generic class adds constraints to the type variables.
+     *
+     * @param typeMap the inherited type variables.
+     * @return an updated copy of the Map, if any changes were made, else the Map itself.
+     */
+    protected abstract Map<TypeVariable<?>, Type> updateInheritedTypeVariables(Map<TypeVariable<?>, Type> typeMap);
 
     /**
      * Check whether the represented generic class can be instantiated to {@param otherType}

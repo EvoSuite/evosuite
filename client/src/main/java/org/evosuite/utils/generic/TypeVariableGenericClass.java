@@ -74,11 +74,6 @@ public class TypeVariableGenericClass extends AbstractGenericClass<TypeVariable<
     }
 
     @Override
-    public Map<TypeVariable<?>, Type> getTypeVariableMap() {
-        throw new UnsupportedOperationException("Not Implemented: TypeVariableGenericClass#getTypeVariableMap");
-    }
-
-    @Override
     public List<TypeVariable<?>> getTypeVariables() {
         return Collections.emptyList();
     }
@@ -95,8 +90,8 @@ public class TypeVariableGenericClass extends AbstractGenericClass<TypeVariable<
 
     @Override
     public GenericClass<?> getWithGenericParameterTypes(List<AbstractGenericClass<TypeVariable<?>>> parameters) {
-        throw new UnsupportedOperationException("Not Implemented: " +
-                "TypeVariableGenericClass#getWithGenericParameterTypes");
+        throw new UnsupportedOperationException("Not Implemented: " + "TypeVariableGenericClass" +
+                "#getWithGenericParameterTypes");
     }
 
     @Override
@@ -160,9 +155,24 @@ public class TypeVariableGenericClass extends AbstractGenericClass<TypeVariable<
     }
 
     @Override
+    public Map<TypeVariable<?>, Type> getTypeVariableMap() {
+        throw new UnsupportedOperationException("Not Implemented: TypeVariableGenericClass#getTypeVariableMap");
+    }
+
+    @Override
     public GenericClass<?> getWithParametersFromSuperclass(GenericClass<?> superClass) throws ConstructionFailedException {
         throw new UnsupportedOperationException("Not Implemented: " + "TypeVariableGenericClass" +
                 "#getWithParametersFromSuperclass");
+    }
+
+    @Override
+    protected Map<TypeVariable<?>, Type> computeTypeVariableMapIfTypeVariable() {
+        return Arrays.stream(type.getBounds()).map(GenericClassFactory::get).map(GenericClass::getTypeVariableMap).map(Map::entrySet).flatMap(Collection::stream).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    }
+
+    @Override
+    protected Map<TypeVariable<?>, Type> updateInheritedTypeVariables(Map<TypeVariable<?>, Type> typeMap) {
+        return typeMap;
     }
 
     @Override
@@ -198,8 +208,8 @@ public class TypeVariableGenericClass extends AbstractGenericClass<TypeVariable<
 
     @Override
     GenericClass<?> getWithParametersFromSuperclass(WildcardGenericClass otherType) throws ConstructionFailedException {
-        throw new UnsupportedOperationException("Not Implemented: " +
-                "TypeVariableGenericClass#getWithParametersFromSuperclass");
+        throw new UnsupportedOperationException("Not Implemented: " + "TypeVariableGenericClass" +
+                "#getWithParametersFromSuperclass");
     }
 
     @Override
@@ -216,13 +226,13 @@ public class TypeVariableGenericClass extends AbstractGenericClass<TypeVariable<
 
     @Override
     GenericClass<?> getWithParametersFromSuperclass(ParameterizedGenericClass otherType) throws ConstructionFailedException {
-        throw new UnsupportedOperationException("Not Implemented: " +
-                "TypeVariableGenericClass#getWithParametersFromSuperclass");
+        throw new UnsupportedOperationException("Not Implemented: " + "TypeVariableGenericClass" +
+                "#getWithParametersFromSuperclass");
     }
 
     private GenericClass<?> getGenericTypeVariableInstantiation(Map<TypeVariable<?>, Type> typeMap,
                                                                 int recursionLevel) {
-        throw new UnsupportedOperationException("Not implemented: " +
-                "TypeVariableGenericClass:getGenericTypeVariableInstantiation");
+        throw new UnsupportedOperationException("Not implemented: " + "TypeVariableGenericClass" +
+                ":getGenericTypeVariableInstantiation");
     }
 }

@@ -70,11 +70,6 @@ public class ParameterizedGenericClass extends AbstractGenericClass<Parameterize
     }
 
     @Override
-    public int getNumParameters() {
-        return type.getActualTypeArguments().length;
-    }
-
-    @Override
     public GenericClass<?> getOwnerType() {
         return GenericClassFactory.get(type.getOwnerType());
     }
@@ -87,11 +82,6 @@ public class ParameterizedGenericClass extends AbstractGenericClass<Parameterize
     @Override
     public String getTypeName() {
         return type.toString();
-    }
-
-    @Override
-    public Map<TypeVariable<?>, Type> getTypeVariableMap() {
-        throw new UnsupportedOperationException("Not Implemented: ParameterizedGenericClass#getTypeVariableMap");
     }
 
     @Override
@@ -177,9 +167,39 @@ public class ParameterizedGenericClass extends AbstractGenericClass<Parameterize
     }
 
     @Override
+    public int getNumParameters() {
+        return type.getActualTypeArguments().length;
+    }
+
+    @Override
+    public Map<TypeVariable<?>, Type> getTypeVariableMap() {
+        throw new UnsupportedOperationException("Not Implemented: ParameterizedGenericClass#getTypeVariableMap");
+    }
+
+    @Override
     public GenericClass<?> getWithParametersFromSuperclass(GenericClass<?> superClass) throws ConstructionFailedException {
         throw new UnsupportedOperationException("Not Implemented: " + "ParameterizedGenericClass" +
                 "#getWithParametersFromSuperclass");
+    }
+
+    @Override
+    protected Map<TypeVariable<?>, Type> computeTypeVariableMapIfTypeVariable() {
+        return Collections.emptyMap();
+    }
+
+    @Override
+    protected Map<TypeVariable<?>, Type> updateInheritedTypeVariables(Map<TypeVariable<?>, Type> typeMap) {
+        Map<TypeVariable<?>, Type> result = new HashMap<>(typeMap);
+        List<TypeVariable<?>> typeVariables = getTypeVariables();
+        List<Type> types = getParameterTypes();
+        boolean changed = false;
+        for (int i = 0; i < typeVariables.size(); i++) {
+            if (types.get(i) != typeVariables.get(i)) {
+                typeMap.put(typeVariables.get(i), types.get(i));
+                changed = true;
+            }
+        }
+        return changed ? result : typeMap;
     }
 
     @Override
@@ -239,7 +259,7 @@ public class ParameterizedGenericClass extends AbstractGenericClass<Parameterize
 
     private GenericClass<?> getGenericParameterizedTypeInstantiation(Map<TypeVariable<?>, Type> typeMap,
                                                                      int recursionLevel) {
-        throw new UnsupportedOperationException("Not Implemented: " +
-                "ParameterizedGenericClass#getGenericParameterizedTypeInstantiation");
+        throw new UnsupportedOperationException("Not Implemented: " + "ParameterizedGenericClass" +
+                "#getGenericParameterizedTypeInstantiation");
     }
 }
