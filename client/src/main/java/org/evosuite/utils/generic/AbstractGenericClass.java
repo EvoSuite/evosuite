@@ -1,6 +1,7 @@
 package org.evosuite.utils.generic;
 
 import com.googlecode.gentyref.GenericTypeReflector;
+import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.reflect.TypeUtils;
 import org.evosuite.ga.ConstructionFailedException;
 import org.slf4j.Logger;
@@ -17,6 +18,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.evosuite.utils.generic.GenericClassUtils.WRAPPER_TYPES;
+import static org.evosuite.utils.generic.GenericClassUtils.primitiveClasses;
 
 public abstract class AbstractGenericClass<T extends Type> implements GenericClass<AbstractGenericClass<T>> {
     private static final Logger logger = LoggerFactory.getLogger(AbstractGenericClass.class);
@@ -237,8 +239,20 @@ public abstract class AbstractGenericClass<T extends Type> implements GenericCla
 
     @Override
     public Type getRawComponentClass() {
-        // TypeUtils#getComponentType can give us the generic Type of the component class, but not the raw class.
+        // TODO: TypeUtils#getComponentType can give us the generic Type of the component class, but not the raw class.
         return GenericTypeReflector.erase(rawClass.getComponentType());
+    }
+
+    @Override
+    public String getSimpleName() {
+        // TODO: No idea what this method is supposed to do???
+        //       Looks like it is a special case for arrays???
+        final String name = ClassUtils.getShortClassName(rawClass).replace(";", "[]");
+        if (!isPrimitive() && primitiveClasses.contains(name)) {
+            return rawClass.getSimpleName().replace(";", "[]");
+        }
+
+        return name;
     }
 
     /**

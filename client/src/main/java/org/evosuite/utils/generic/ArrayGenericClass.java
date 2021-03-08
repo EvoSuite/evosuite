@@ -66,12 +66,7 @@ public class ArrayGenericClass extends AbstractGenericClass<GenericArrayType> {
     @Override
     public List<Type> getParameterTypes() {
         return Collections.emptyList();
-    }
-
-    @Override
-    public String getSimpleName() {
-        throw new UnsupportedOperationException("Not Implemented: ArrayGenericClass#getSimpleName");
-    }
+    }}
 
     @Override
     public AbstractGenericClass<GenericArrayType> getSuperClass() {

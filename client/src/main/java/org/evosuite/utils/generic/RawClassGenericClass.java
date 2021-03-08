@@ -54,11 +54,6 @@ public class RawClassGenericClass extends AbstractGenericClass<Class<?>> {
     }
 
     @Override
-    public String getSimpleName() {
-        throw new UnsupportedOperationException("Not Implemented: RawClassGenericClass#getSimpleName");
-    }
-
-    @Override
     public AbstractGenericClass<Class<?>> getSuperClass() {
         throw new UnsupportedOperationException("Not Implemented: RawClassGenericClass#getSuperClass");
     }
