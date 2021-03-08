@@ -70,7 +70,7 @@ public class ArrayGenericClass extends AbstractGenericClass<GenericArrayType> {
 
     @Override
     public String getTypeName() {
-        throw new UnsupportedOperationException("Not Implemented: ArrayGenericClass#getTypeName");
+        return type.toString();
     }
 
     @Override

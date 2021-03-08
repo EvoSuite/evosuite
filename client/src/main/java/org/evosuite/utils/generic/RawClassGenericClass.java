@@ -55,7 +55,8 @@ public class RawClassGenericClass extends AbstractGenericClass<Class<?>> {
 
     @Override
     public String getTypeName() {
-        throw new UnsupportedOperationException("Not Implemented: RawClassGenericClass#getTypeName");
+        // TODO: Check if this is actually identical to GenericTypeReflector#getTypeName(rawClass);
+        return rawClass.isArray() ? rawClass.getComponentType().getName() + "[]" : rawClass.getName();
     }
 
     @Override

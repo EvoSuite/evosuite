@@ -86,7 +86,7 @@ public class ParameterizedGenericClass extends AbstractGenericClass<Parameterize
 
     @Override
     public String getTypeName() {
-        throw new UnsupportedOperationException("Not Implemented: ParameterizedGenericClass#getTypeName");
+        return type.toString();
     }
 
     @Override

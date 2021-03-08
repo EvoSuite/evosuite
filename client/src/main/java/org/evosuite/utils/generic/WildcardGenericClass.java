@@ -79,7 +79,7 @@ public class WildcardGenericClass extends AbstractGenericClass<WildcardType> {
 
     @Override
     public String getTypeName() {
-        throw new UnsupportedOperationException("Not Implemented: WildcardGenericClass#getTypeName");
+        return type.toString();
     }
 
     @Override

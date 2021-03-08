@@ -70,7 +70,7 @@ public class TypeVariableGenericClass extends AbstractGenericClass<TypeVariable<
 
     @Override
     public String getTypeName() {
-        throw new UnsupportedOperationException("Not Implemented: TypeVariableGenericClass#getTypeName");
+        return type.toString();
     }
 
     @Override
