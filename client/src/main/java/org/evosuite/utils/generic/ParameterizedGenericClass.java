@@ -85,11 +85,6 @@ public class ParameterizedGenericClass extends AbstractGenericClass<Parameterize
     }
 
     @Override
-    public Type getRawComponentClass() {
-        throw new UnsupportedOperationException("Not Implemented: ParameterizedGenericClass#getRawComponentClass");
-    }
-
-    @Override
     public String getSimpleName() {
         throw new UnsupportedOperationException("Not Implemented: ParameterizedGenericClass#getSimpleName");
     }

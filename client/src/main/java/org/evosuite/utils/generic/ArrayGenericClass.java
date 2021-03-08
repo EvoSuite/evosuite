@@ -69,11 +69,6 @@ public class ArrayGenericClass extends AbstractGenericClass<GenericArrayType> {
     }
 
     @Override
-    public Type getRawComponentClass() {
-        throw new UnsupportedOperationException("Not Implemented: ArrayGenericClass#getRawComponentClass");
-    }
-
-    @Override
     public String getSimpleName() {
         throw new UnsupportedOperationException("Not Implemented: ArrayGenericClass#getSimpleName");
     }

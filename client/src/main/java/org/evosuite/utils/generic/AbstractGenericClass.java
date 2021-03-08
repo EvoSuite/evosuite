@@ -235,6 +235,12 @@ public abstract class AbstractGenericClass<T extends Type> implements GenericCla
         return 0;
     }
 
+    @Override
+    public Type getRawComponentClass() {
+        // TypeUtils#getComponentType can give us the generic Type of the component class, but not the raw class.
+        return GenericTypeReflector.erase(rawClass.getComponentType());
+    }
+
     /**
      * Check whether the represented generic class can be instantiated to {@param otherType}
      *

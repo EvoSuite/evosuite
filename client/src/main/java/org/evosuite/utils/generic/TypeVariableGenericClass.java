@@ -69,11 +69,6 @@ public class TypeVariableGenericClass extends AbstractGenericClass<TypeVariable<
     }
 
     @Override
-    public Type getRawComponentClass() {
-        throw new UnsupportedOperationException("Not Implemented: TypeVariableGenericClass#getRawComponentClass");
-    }
-
-    @Override
     public String getSimpleName() {
         throw new UnsupportedOperationException("Not Implemented: TypeVariableGenericClass#getSimpleName");
     }

@@ -78,11 +78,6 @@ public class WildcardGenericClass extends AbstractGenericClass<WildcardType> {
     }
 
     @Override
-    public Type getRawComponentClass() {
-        throw new UnsupportedOperationException("Not Implemented: WildcardGenericClass#getRawComponentClass");
-    }
-
-    @Override
     public String getSimpleName() {
         throw new UnsupportedOperationException("Not Implemented: WildcardGenericClass#getSimpleName");
     }
