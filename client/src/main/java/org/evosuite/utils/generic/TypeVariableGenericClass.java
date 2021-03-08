@@ -110,7 +110,7 @@ public class TypeVariableGenericClass extends AbstractGenericClass<TypeVariable<
 
     @Override
     public boolean isGenericArray() {
-        throw new UnsupportedOperationException("Not Implemented: TypeVariableGenericClass#isGenericArray");
+        return false;
     }
 
     @Override

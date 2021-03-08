@@ -119,7 +119,7 @@ public class WildcardGenericClass extends AbstractGenericClass<WildcardType> {
 
     @Override
     public boolean isGenericArray() {
-        throw new UnsupportedOperationException("Not Implemented: WildcardGenericClass#isGenericArray");
+        return false;
     }
 
     @Override

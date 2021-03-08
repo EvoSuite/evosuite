@@ -91,7 +91,7 @@ public class RawClassGenericClass extends AbstractGenericClass<Class<?>> {
 
     @Override
     public boolean isGenericArray() {
-        throw new UnsupportedOperationException("Not Implemented: RawClassGenericClass#isGenericArray");
+        return isArray() && GenericClassFactory.get(rawClass.getComponentType()).hasWildcardOrTypeVariables();
     }
 
     @Override

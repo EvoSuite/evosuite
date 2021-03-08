@@ -108,7 +108,7 @@ public class ArrayGenericClass extends AbstractGenericClass<GenericArrayType> {
 
     @Override
     public boolean isGenericArray() {
-        throw new UnsupportedOperationException("Not Implemented: ArrayGenericClass#isGenericArray");
+        return true;
     }
 
     @Override

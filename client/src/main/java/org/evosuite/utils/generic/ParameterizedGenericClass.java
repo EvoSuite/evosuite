@@ -134,7 +134,7 @@ public class ParameterizedGenericClass extends AbstractGenericClass<Parameterize
 
     @Override
     public boolean isGenericArray() {
-        throw new UnsupportedOperationException("Not Implemented: ParameterizedGenericClass#isGenericArray");
+        return false;
     }
 
     @Override
