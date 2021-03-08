@@ -79,8 +79,8 @@ public class TypeVariableGenericClass extends AbstractGenericClass<TypeVariable<
     }
 
     @Override
-    public Class<?> getUnboxedType() {
-        throw new UnsupportedOperationException("Not Implemented: TypeVariableGenericClass#getUnboxedType");
+    public Class<?> getUnboxedType() {;
+        return rawClass;
     }
 
     @Override

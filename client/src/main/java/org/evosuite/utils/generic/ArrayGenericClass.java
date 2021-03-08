@@ -78,7 +78,7 @@ public class ArrayGenericClass extends AbstractGenericClass<GenericArrayType> {
 
     @Override
     public Class<?> getUnboxedType() {
-        throw new UnsupportedOperationException("Not Implemented: ArrayGenericClass#getUnboxedType");
+        return rawClass;
     }
 
     @Override

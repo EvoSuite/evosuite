@@ -89,7 +89,7 @@ public class WildcardGenericClass extends AbstractGenericClass<WildcardType> {
 
     @Override
     public Class<?> getUnboxedType() {
-        throw new UnsupportedOperationException("Not Implemented: WildcardGenericClass#getUnboxedType");
+        return rawClass;
     }
 
     @Override

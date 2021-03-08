@@ -100,7 +100,7 @@ public class ParameterizedGenericClass extends AbstractGenericClass<Parameterize
 
     @Override
     public Class<?> getUnboxedType() {
-        throw new UnsupportedOperationException("Not Implemented: ParameterizedGenericClass#getUnboxedType");
+        return rawClass;
     }
 
     @Override

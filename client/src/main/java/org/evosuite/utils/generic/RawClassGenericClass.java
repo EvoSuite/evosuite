@@ -65,11 +65,6 @@ public class RawClassGenericClass extends AbstractGenericClass<Class<?>> {
     }
 
     @Override
-    public Class<?> getUnboxedType() {
-        throw new UnsupportedOperationException("Not Implemented: RawClassGenericClass#getUnboxedType");
-    }
-
-    @Override
     public GenericClass<?> getWithComponentClass(GenericClass<?> componentClass) {
         return new RawClassGenericClass(type);
     }
@@ -148,6 +143,34 @@ public class RawClassGenericClass extends AbstractGenericClass<Class<?>> {
     public GenericClass<?> getWithParametersFromSuperclass(GenericClass<?> superClass) throws ConstructionFailedException {
         throw new UnsupportedOperationException("Not Implemented: " + "RawClassGenericClass" +
                 "#getWithParametersFromSuperclass");
+    }
+
+    @Override
+    public Class<?> getUnboxedType() {
+        if (isWrapperType()) {
+            if (rawClass.equals(Integer.class)) {
+                return int.class;
+            } else if (rawClass.equals(Byte.class)) {
+                return byte.class;
+            } else if (rawClass.equals(Short.class)) {
+                return short.class;
+            } else if (rawClass.equals(Long.class)) {
+                return long.class;
+            } else if (rawClass.equals(Float.class)) {
+                return float.class;
+            } else if (rawClass.equals(Double.class)) {
+                return double.class;
+            } else if (rawClass.equals(Character.class)) {
+                return char.class;
+            } else if (rawClass.equals(Boolean.class)) {
+                return boolean.class;
+            } else if (rawClass.equals(Void.class)) {
+                return void.class;
+            } else {
+                throw new RuntimeException("Unknown boxed type: " + rawClass);
+            }
+        }
+        return rawClass;
     }
 
     @Override
