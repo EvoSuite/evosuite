@@ -53,15 +53,10 @@ public class ParameterizedGenericClass extends AbstractGenericClass<Parameterize
 
     @Override
     public Collection<GenericClass<?>> getGenericBounds() {
-        if (!hasWildcardOrTypeVariables()){
+        if (!hasWildcardOrTypeVariables()) {
             return Collections.emptySet();
         }
-        return getTypeVariables().stream()
-                .map(TypeVariable::getBounds)
-                .map(Arrays::asList)
-                .flatMap(Collection::stream)
-                .map(GenericClassFactory::get)
-                .collect(Collectors.toList());
+        return getTypeVariables().stream().map(TypeVariable::getBounds).map(Arrays::asList).flatMap(Collection::stream).map(GenericClassFactory::get).collect(Collectors.toList());
     }
 
     @Override
@@ -110,8 +105,9 @@ public class ParameterizedGenericClass extends AbstractGenericClass<Parameterize
 
     @Override
     public GenericClass<?> getWithGenericParameterTypes(List<AbstractGenericClass<ParameterizedType>> parameters) {
-        throw new UnsupportedOperationException("Not Implemented: " + "ParameterizedGenericClass" +
-                "#getWithGenericParameterTypes");
+        Type[] typeArray = parameters.stream().map(GenericClass::getType).toArray(Type[]::new);
+        return GenericClassFactory.get(TypeUtils.parameterizeWithOwner(type.getOwnerType(), rawClass, typeArray));
+
     }
 
     @Override

@@ -89,12 +89,6 @@ public class TypeVariableGenericClass extends AbstractGenericClass<TypeVariable<
     }
 
     @Override
-    public GenericClass<?> getWithGenericParameterTypes(List<AbstractGenericClass<TypeVariable<?>>> parameters) {
-        throw new UnsupportedOperationException("Not Implemented: " + "TypeVariableGenericClass" +
-                "#getWithGenericParameterTypes");
-    }
-
-    @Override
     public boolean hasOwnerType() {
         return false;
     }

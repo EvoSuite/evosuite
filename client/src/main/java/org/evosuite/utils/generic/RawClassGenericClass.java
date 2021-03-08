@@ -70,11 +70,6 @@ public class RawClassGenericClass extends AbstractGenericClass<Class<?>> {
     }
 
     @Override
-    public GenericClass<?> getWithGenericParameterTypes(List<AbstractGenericClass<Class<?>>> parameters) {
-        throw new UnsupportedOperationException("Not Implemented: RawClassGenericClass#getWithGenericParameterTypes");
-    }
-
-    @Override
     public boolean hasOwnerType() {
         throw new UnsupportedOperationException("Not Implemented: RawClassGenericClass#hasOwnerType");
     }

@@ -87,11 +87,6 @@ public class ArrayGenericClass extends AbstractGenericClass<GenericArrayType> {
     }
 
     @Override
-    public GenericClass<?> getWithGenericParameterTypes(List<AbstractGenericClass<GenericArrayType>> parameters) {
-        throw new UnsupportedOperationException("Not Implemented: ArrayGenericClass#getWithGenericParameterTypes");
-    }
-
-    @Override
     public boolean hasOwnerType() {
         return false;
     }

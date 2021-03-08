@@ -98,11 +98,6 @@ public class WildcardGenericClass extends AbstractGenericClass<WildcardType> {
     }
 
     @Override
-    public GenericClass<?> getWithGenericParameterTypes(List<AbstractGenericClass<WildcardType>> parameters) {
-        throw new UnsupportedOperationException("Not Implemented: WildcardGenericClass#getWithGenericParameterTypes");
-    }
-
-    @Override
     public boolean hasOwnerType() {
         return false;
     }

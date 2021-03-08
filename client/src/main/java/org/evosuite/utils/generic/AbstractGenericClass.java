@@ -135,6 +135,12 @@ public abstract class AbstractGenericClass<T extends Type> implements GenericCla
     }
 
     @Override
+    public GenericClass<?> getWithGenericParameterTypes(List<AbstractGenericClass<T>> parameters) {
+        Type[] typeArray = parameters.stream().map(GenericClass::getType).toArray(Type[]::new);
+        return GenericClassFactory.get(TypeUtils.parameterize(rawClass, typeArray));
+    }
+
+    @Override
     public GenericClass<?> getWithParametersFromSuperclass(GenericClass<?> superClass) throws ConstructionFailedException {
         if (superClass.isTypeVariable()) return getWithParametersFromSuperclass((TypeVariableGenericClass) superClass);
         else if (superClass.isWildcardType()) return getWithParametersFromSuperclass((WildcardGenericClass) superClass);
