@@ -93,7 +93,7 @@ public class ArrayGenericClass extends AbstractGenericClass<GenericArrayType> {
 
     @Override
     public boolean hasWildcardOrTypeVariables() {
-        throw new UnsupportedOperationException("Not Implemented: ArrayGenericClass#hasWildcardOrTypeVariables");
+        return getComponentClass().hasWildcardOrTypeVariables();
     }
 
     @Override

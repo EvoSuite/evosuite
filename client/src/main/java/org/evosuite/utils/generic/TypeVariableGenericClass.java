@@ -95,7 +95,7 @@ public class TypeVariableGenericClass extends AbstractGenericClass<TypeVariable<
 
     @Override
     public boolean hasWildcardOrTypeVariables() {
-        throw new UnsupportedOperationException("Not Implemented: TypeVariableGenericClass#hasWildcardOrTypeVariables");
+        return true;
     }
 
     @Override

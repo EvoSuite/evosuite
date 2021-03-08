@@ -117,8 +117,9 @@ public class ParameterizedGenericClass extends AbstractGenericClass<Parameterize
 
     @Override
     public boolean hasWildcardOrTypeVariables() {
-        throw new UnsupportedOperationException("Not Implemented: " + "ParameterizedGenericClass" +
-                "#hasWildcardOrTypeVariables");
+        if (hasWildcardTypes() || hasTypeVariables())
+            return true;
+        return hasOwnerType() && getOwnerType().hasWildcardOrTypeVariables();
     }
 
     @Override

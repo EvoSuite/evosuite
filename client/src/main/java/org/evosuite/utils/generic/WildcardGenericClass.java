@@ -104,7 +104,7 @@ public class WildcardGenericClass extends AbstractGenericClass<WildcardType> {
 
     @Override
     public boolean hasWildcardOrTypeVariables() {
-        throw new UnsupportedOperationException("Not Implemented: WildcardGenericClass#hasWildcardOrTypeVariables");
+        return true;
     }
 
     @Override
