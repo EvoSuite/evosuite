@@ -154,7 +154,7 @@ public class NewGenericClassImpl implements GenericClass<NewGenericClassImpl> {
     }
 
     @Override
-    public void changeClassLoader(ClassLoader loader) {
+    public boolean changeClassLoader(ClassLoader loader) {
         throw new UnsupportedOperationException("Not Implemented: NewGenericClassImpl#changeClassLoader");
     }
 
@@ -208,7 +208,7 @@ public class NewGenericClassImpl implements GenericClass<NewGenericClassImpl> {
     }
 
     @Override
-    public List<NewGenericClassImpl> getInterfaces() {
+    public List<GenericClass<?>> getInterfaces() {
         return Arrays.stream(rawClass.getInterfaces()).map(NewGenericClassImpl::new).collect(Collectors.toList());
     }
 

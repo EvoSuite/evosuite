@@ -241,7 +241,7 @@ public class GenericUtils {
 			}
 
 			
-			for(GenericClassImpl interfaceClass : ownerClass.getInterfaces()) {
+			for(GenericClass<?> interfaceClass : ownerClass.getInterfaces()) {
 				if(interfaceClass.isParameterizedType())
 					map.putAll(getMatchingTypeParameters(p1, (ParameterizedType)interfaceClass.getType()));
 				else
