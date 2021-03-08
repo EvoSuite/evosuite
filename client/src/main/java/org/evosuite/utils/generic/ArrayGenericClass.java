@@ -150,12 +150,7 @@ public class ArrayGenericClass extends AbstractGenericClass<GenericArrayType> {
     public GenericClass<?> getComponentClass() {
         Type arrayComponentType = TypeUtils.getArrayComponentType(this.type);
         return GenericClassFactory.get(arrayComponentType);
-    }
-
-    @Override
-    public Map<TypeVariable<?>, Type> getTypeVariableMap() {
-        throw new UnsupportedOperationException("Not Implemented: ArrayGenericClass#getTypeVariableMap");
-    }
+    }}
 
     @Override
     public GenericClass<?> getWithParametersFromSuperclass(GenericClass<?> superClass) throws ConstructionFailedException {
