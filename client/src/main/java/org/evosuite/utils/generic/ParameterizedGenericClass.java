@@ -154,7 +154,7 @@ public class ParameterizedGenericClass extends AbstractGenericClass<Parameterize
 
     @Override
     public boolean isWildcardType() {
-        throw new UnsupportedOperationException("Not Implemented: ParameterizedGenericClass#isWildcardType");
+        return false;
     }
 
     @Override
