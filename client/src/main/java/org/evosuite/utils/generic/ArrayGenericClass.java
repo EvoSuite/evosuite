@@ -39,7 +39,9 @@ public class ArrayGenericClass extends AbstractGenericClass<GenericArrayType> {
 
     @Override
     public Collection<GenericClass<?>> getGenericBounds() {
-        throw new UnsupportedOperationException("Not Implemented: ArrayGenericClass#getGenericBounds");
+        if (!hasWildcardOrTypeVariables())
+            return Collections.emptySet();
+        return getComponentClass().getGenericBounds();
     }
 
     @Override
@@ -227,7 +229,7 @@ public class ArrayGenericClass extends AbstractGenericClass<GenericArrayType> {
 
     private GenericClass<?> getGenericTypeVariableInstantiation(Map<TypeVariable<?>, Type> typeMap,
                                                                 int recursionLevel) {
-        throw new UnsupportedOperationException("Not Implemented: " +
-                "ArrayGenericClass#getGenericTypeVariableInstantiation");
+        throw new UnsupportedOperationException("Not Implemented: " + "ArrayGenericClass" +
+                "#getGenericTypeVariableInstantiation");
     }
 }

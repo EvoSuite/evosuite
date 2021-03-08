@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.*;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class ParameterizedGenericClass extends AbstractGenericClass<ParameterizedType> {
     private static final Logger logger = LoggerFactory.getLogger(ParameterizedGenericClass.class);
@@ -52,7 +53,15 @@ public class ParameterizedGenericClass extends AbstractGenericClass<Parameterize
 
     @Override
     public Collection<GenericClass<?>> getGenericBounds() {
-        throw new UnsupportedOperationException("Not Implemented: ParameterizedGenericClass#getGenericBounds");
+        if (!hasWildcardOrTypeVariables()){
+            return Collections.emptySet();
+        }
+        return getTypeVariables().stream()
+                .map(TypeVariable::getBounds)
+                .map(Arrays::asList)
+                .flatMap(Collection::stream)
+                .map(GenericClassFactory::get)
+                .collect(Collectors.toList());
     }
 
     @Override
