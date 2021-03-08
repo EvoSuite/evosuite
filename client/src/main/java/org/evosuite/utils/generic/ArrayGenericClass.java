@@ -60,7 +60,7 @@ public class ArrayGenericClass extends AbstractGenericClass<GenericArrayType> {
 
     @Override
     public AbstractGenericClass<GenericArrayType> getOwnerType() {
-        throw new UnsupportedOperationException("Not Implemented: ArrayGenericClass#getOwnerType");
+        throw new UnsupportedOperationException("A generic array has no owner type");
     }
 
     @Override

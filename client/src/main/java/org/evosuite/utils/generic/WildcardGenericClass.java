@@ -69,7 +69,7 @@ public class WildcardGenericClass extends AbstractGenericClass<WildcardType> {
 
     @Override
     public AbstractGenericClass<WildcardType> getOwnerType() {
-        throw new UnsupportedOperationException("Not Implemented: WildcardGenericClass#getOwnerType");
+        throw new UnsupportedOperationException("A wildcard type has no owner type");
     }
 
     @Override

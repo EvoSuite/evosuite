@@ -75,8 +75,8 @@ public class ParameterizedGenericClass extends AbstractGenericClass<Parameterize
     }
 
     @Override
-    public AbstractGenericClass<ParameterizedType> getOwnerType() {
-        throw new UnsupportedOperationException("Not Implemented: ParameterizedGenericClass#getOwnerType");
+    public GenericClass<?> getOwnerType() {
+        return GenericClassFactory.get(type.getOwnerType());
     }
 
     @Override

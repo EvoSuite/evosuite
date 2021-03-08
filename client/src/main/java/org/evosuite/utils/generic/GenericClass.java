@@ -130,7 +130,7 @@ public interface GenericClass<T extends GenericClass<T>> {
      *
      * @return
      */
-    T getOwnerType();
+    GenericClass<?> getOwnerType();
 
     /**
      * A list containing the generic type parameters (as {@code Type} objects) of the represented generic class.

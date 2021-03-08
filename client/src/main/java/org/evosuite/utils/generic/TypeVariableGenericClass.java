@@ -60,7 +60,7 @@ public class TypeVariableGenericClass extends AbstractGenericClass<TypeVariable<
 
     @Override
     public AbstractGenericClass<TypeVariable<?>> getOwnerType() {
-        throw new UnsupportedOperationException("Not Implemented: TypeVariableGenericClass#getOwnerType");
+        throw new UnsupportedOperationException("A type variable has no owner type");
     }
 
     @Override
