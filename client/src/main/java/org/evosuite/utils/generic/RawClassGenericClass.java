@@ -71,7 +71,7 @@ public class RawClassGenericClass extends AbstractGenericClass<Class<?>> {
 
     @Override
     public boolean hasOwnerType() {
-        throw new UnsupportedOperationException("Not Implemented: RawClassGenericClass#hasOwnerType");
+        return false;
     }
 
     @Override
