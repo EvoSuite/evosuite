@@ -130,12 +130,6 @@ public class RawClassGenericClass extends AbstractGenericClass<Class<?>> {
     }
 
     @Override
-    public GenericClass<?> getWithParametersFromSuperclass(GenericClass<?> superClass) throws ConstructionFailedException {
-        throw new UnsupportedOperationException("Not Implemented: " + "RawClassGenericClass" +
-                "#getWithParametersFromSuperclass");
-    }
-
-    @Override
     public Class<?> getUnboxedType() {
         if (isWrapperType()) {
             if (rawClass.equals(Integer.class)) {

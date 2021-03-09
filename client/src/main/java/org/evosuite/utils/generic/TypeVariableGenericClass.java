@@ -149,12 +149,6 @@ public class TypeVariableGenericClass extends AbstractGenericClass<TypeVariable<
     }
 
     @Override
-    public GenericClass<?> getWithParametersFromSuperclass(GenericClass<?> superClass) throws ConstructionFailedException {
-        throw new UnsupportedOperationException("Not Implemented: " + "TypeVariableGenericClass" +
-                "#getWithParametersFromSuperclass");
-    }
-
-    @Override
     protected Map<TypeVariable<?>, Type> computeTypeVariableMapIfTypeVariable() {
         return Arrays.stream(type.getBounds()).map(GenericClassFactory::get).map(GenericClass::getTypeVariableMap).map(Map::entrySet).flatMap(Collection::stream).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }

@@ -178,12 +178,6 @@ public class ParameterizedGenericClass extends AbstractGenericClass<Parameterize
     }
 
     @Override
-    public GenericClass<?> getWithParametersFromSuperclass(GenericClass<?> superClass) throws ConstructionFailedException {
-        throw new UnsupportedOperationException("Not Implemented: " + "ParameterizedGenericClass" +
-                "#getWithParametersFromSuperclass");
-    }
-
-    @Override
     protected Map<TypeVariable<?>, Type> computeTypeVariableMapIfTypeVariable() {
         return Collections.emptyMap();
     }

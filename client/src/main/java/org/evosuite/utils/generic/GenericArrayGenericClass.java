@@ -153,11 +153,6 @@ public class GenericArrayGenericClass extends AbstractGenericClass<GenericArrayT
     }
 
     @Override
-    public GenericClass<?> getWithParametersFromSuperclass(GenericClass<?> superClass) throws ConstructionFailedException {
-        throw new UnsupportedOperationException("Not Implemented: ArrayGenericClass#getWithParametersFromSuperclass");
-    }
-
-    @Override
     protected Map<TypeVariable<?>, Type> computeTypeVariableMapIfTypeVariable() {
         return Collections.emptyMap();
     }

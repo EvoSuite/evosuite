@@ -160,12 +160,6 @@ public class WildcardGenericClass extends AbstractGenericClass<WildcardType> {
     }
 
     @Override
-    public GenericClass<?> getWithParametersFromSuperclass(GenericClass<?> superClass) throws ConstructionFailedException {
-        throw new UnsupportedOperationException("Not Implemented: " + "WildcardGenericClass" +
-                "#getWithParametersFromSuperclass");
-    }
-
-    @Override
     protected Map<TypeVariable<?>, Type> computeTypeVariableMapIfTypeVariable() {
         return Collections.emptyMap();
     }
