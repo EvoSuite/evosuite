@@ -175,7 +175,7 @@ public class TypeVariableGenericClass extends AbstractGenericClass<TypeVariable<
     }
 
     @Override
-    boolean canBeInstantiatedTo(ArrayGenericClass otherType) {
+    boolean canBeInstantiatedTo(GenericArrayGenericClass otherType) {
         throw new UnsupportedOperationException("Not Implemented: TypeVariableGenericClass#canBeInstantiatedTo");
     }
 
@@ -202,7 +202,7 @@ public class TypeVariableGenericClass extends AbstractGenericClass<TypeVariable<
     }
 
     @Override
-    GenericClass<?> getWithParametersFromSuperclass(ArrayGenericClass otherType) throws ConstructionFailedException {
+    GenericClass<?> getWithParametersFromSuperclass(GenericArrayGenericClass otherType) throws ConstructionFailedException {
         throw new UnsupportedOperationException("Not Implemented: TypeVariableGenericClass" +
                 "#getWithParametersFromSuperclass");
     }

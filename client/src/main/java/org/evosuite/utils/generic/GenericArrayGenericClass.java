@@ -9,10 +9,10 @@ import org.slf4j.LoggerFactory;
 import java.lang.reflect.*;
 import java.util.*;
 
-public class ArrayGenericClass extends AbstractGenericClass<GenericArrayType> {
-    private static final Logger logger = LoggerFactory.getLogger(ArrayGenericClass.class);
+public class GenericArrayGenericClass extends AbstractGenericClass<GenericArrayType> {
+    private static final Logger logger = LoggerFactory.getLogger(GenericArrayGenericClass.class);
 
-    public ArrayGenericClass(GenericArrayType type, Class<?> rawClass) {
+    public GenericArrayGenericClass(GenericArrayType type, Class<?> rawClass) {
         super(type, rawClass);
     }
 
@@ -83,7 +83,7 @@ public class ArrayGenericClass extends AbstractGenericClass<GenericArrayType> {
 
     @Override
     public GenericClass<?> getWithComponentClass(GenericClass<?> componentClass) {
-        return new ArrayGenericClass(TypeUtils.genericArrayType(componentClass.getType()), rawClass);
+        return new GenericArrayGenericClass(TypeUtils.genericArrayType(componentClass.getType()), rawClass);
     }
 
     @Override
@@ -150,7 +150,7 @@ public class ArrayGenericClass extends AbstractGenericClass<GenericArrayType> {
     public GenericClass<?> getComponentClass() {
         Type arrayComponentType = TypeUtils.getArrayComponentType(this.type);
         return GenericClassFactory.get(arrayComponentType);
-    }}
+    }
 
     @Override
     public GenericClass<?> getWithParametersFromSuperclass(GenericClass<?> superClass) throws ConstructionFailedException {
@@ -178,7 +178,7 @@ public class ArrayGenericClass extends AbstractGenericClass<GenericArrayType> {
     }
 
     @Override
-    boolean canBeInstantiatedTo(ArrayGenericClass otherType) {
+    boolean canBeInstantiatedTo(GenericArrayGenericClass otherType) {
         throw new UnsupportedOperationException("Not Implemented: ArrayGenericClass#canBeInstantiatedTo");
     }
 
@@ -203,7 +203,7 @@ public class ArrayGenericClass extends AbstractGenericClass<GenericArrayType> {
     }
 
     @Override
-    GenericClass<?> getWithParametersFromSuperclass(ArrayGenericClass otherType) throws ConstructionFailedException {
+    GenericClass<?> getWithParametersFromSuperclass(GenericArrayGenericClass otherType) throws ConstructionFailedException {
         throw new UnsupportedOperationException("Not Implemented: ArrayGenericClass#getWithParametersFromSuperclass");
     }
 

@@ -186,7 +186,7 @@ public class WildcardGenericClass extends AbstractGenericClass<WildcardType> {
     }
 
     @Override
-    boolean canBeInstantiatedTo(ArrayGenericClass otherType) {
+    boolean canBeInstantiatedTo(GenericArrayGenericClass otherType) {
         throw new UnsupportedOperationException("Not Implemented: WildcardGenericClass#canBeInstantiatedTo");
     }
 
@@ -213,7 +213,7 @@ public class WildcardGenericClass extends AbstractGenericClass<WildcardType> {
     }
 
     @Override
-    GenericClass<?> getWithParametersFromSuperclass(ArrayGenericClass otherType) throws ConstructionFailedException {
+    GenericClass<?> getWithParametersFromSuperclass(GenericArrayGenericClass otherType) throws ConstructionFailedException {
         throw new UnsupportedOperationException("Not Implemented: WildcardGenericClass" +
                 "#getWithParametersFromSuperclass");
     }

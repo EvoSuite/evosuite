@@ -37,7 +37,7 @@ public abstract class AbstractGenericClass<T extends Type> implements GenericCla
     public boolean canBeInstantiatedTo(GenericClass<?> otherType) {
         if (otherType.isTypeVariable()) return canBeInstantiatedTo((TypeVariableGenericClass) otherType);
         else if (otherType.isWildcardType()) return canBeInstantiatedTo((WildcardGenericClass) otherType);
-        else if (otherType.isGenericArray()) return canBeInstantiatedTo((ArrayGenericClass) otherType);
+        else if (otherType.isGenericArray()) return canBeInstantiatedTo((GenericArrayGenericClass) otherType);
         else if (otherType.isRawClass()) return canBeInstantiatedTo((RawClassGenericClass) otherType);
         else if (otherType.isParameterizedType()) return canBeInstantiatedTo((ParameterizedGenericClass) otherType);
         else throw new IllegalArgumentException(otherType.getClass().getSimpleName() + " is not supported");
@@ -144,7 +144,7 @@ public abstract class AbstractGenericClass<T extends Type> implements GenericCla
     public GenericClass<?> getWithParametersFromSuperclass(GenericClass<?> superClass) throws ConstructionFailedException {
         if (superClass.isTypeVariable()) return getWithParametersFromSuperclass((TypeVariableGenericClass) superClass);
         else if (superClass.isWildcardType()) return getWithParametersFromSuperclass((WildcardGenericClass) superClass);
-        else if (superClass.isGenericArray()) return getWithParametersFromSuperclass((ArrayGenericClass) superClass);
+        else if (superClass.isGenericArray()) return getWithParametersFromSuperclass((GenericArrayGenericClass) superClass);
         else if (superClass.isRawClass()) return getWithParametersFromSuperclass((RawClassGenericClass) superClass);
         else if (superClass.isParameterizedType())
             return getWithParametersFromSuperclass((ParameterizedGenericClass) superClass);
@@ -358,7 +358,7 @@ public abstract class AbstractGenericClass<T extends Type> implements GenericCla
      * @param otherType the type as which the generic class should be instantiated.
      * @return whether this generic class can be instantiated as otherType.
      */
-    abstract boolean canBeInstantiatedTo(ArrayGenericClass otherType);
+    abstract boolean canBeInstantiatedTo(GenericArrayGenericClass otherType);
 
     /**
      * Check whether the represented generic class can be instantiated to {@param otherType}
@@ -419,7 +419,7 @@ public abstract class AbstractGenericClass<T extends Type> implements GenericCla
      * @param otherType the super class.
      * @return a generic class with the filled in Parameters.
      */
-    abstract GenericClass<?> getWithParametersFromSuperclass(ArrayGenericClass otherType) throws ConstructionFailedException;
+    abstract GenericClass<?> getWithParametersFromSuperclass(GenericArrayGenericClass otherType) throws ConstructionFailedException;
 
     /**
      * Fill the parameters of the super class to this generic class:
