@@ -123,7 +123,7 @@ public class GenericArrayGenericClass extends AbstractGenericClass<GenericArrayT
 
     @Override
     public boolean isTypeVariable() {
-        throw new UnsupportedOperationException("Not Implemented: ArrayGenericClass#isTypeVariable");
+        return false;
     }
 
     @Override
