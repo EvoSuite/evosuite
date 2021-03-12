@@ -387,73 +387,73 @@ public abstract class AbstractGenericClass<T extends Type> implements GenericCla
      * <p>
      * e.g:
      * if
-     * this == LinkedList<?> and {@param otherType} == List<Integer>
+     * this == LinkedList<?> and {@param superClass} == List<Integer>
      * <p>
      * then this function returns:
      * LinkedList<Integer>
      *
-     * @param otherType the super class.
+     * @param superClass the super class.
      * @return a generic class with the filled in Parameters.
      */
-    abstract GenericClass<?> getWithParametersFromSuperclass(TypeVariableGenericClass otherType) throws ConstructionFailedException;
+    abstract GenericClass<?> getWithParametersFromSuperclass(TypeVariableGenericClass superClass) throws ConstructionFailedException;
 
     /**
      * Fill the parameters of the super class to this generic class:
      * <p>
      * e.g:
      * if
-     * this == LinkedList<?> and {@param otherType} == List<Integer>
+     * this == LinkedList<?> and {@param superClass} == List<Integer>
      * <p>
      * then this function returns:
      * LinkedList<Integer>
      *
-     * @param otherType the super class.
+     * @param superClass the super class.
      * @return a generic class with the filled in Parameters.
      */
-    abstract GenericClass<?> getWithParametersFromSuperclass(WildcardGenericClass otherType) throws ConstructionFailedException;
+    abstract GenericClass<?> getWithParametersFromSuperclass(WildcardGenericClass superClass) throws ConstructionFailedException;
 
     /**
      * Fill the parameters of the super class to this generic class:
      * <p>
      * e.g:
      * if
-     * this == LinkedList<?> and {@param otherType} == List<Integer>
+     * this == LinkedList<?> and {@param superClass} == List<Integer>
      * <p>
      * then this function returns:
      * LinkedList<Integer>
      *
-     * @param otherType the super class.
+     * @param superClass the super class.
      * @return a generic class with the filled in Parameters.
      */
-    abstract GenericClass<?> getWithParametersFromSuperclass(GenericArrayGenericClass otherType) throws ConstructionFailedException;
+    abstract GenericClass<?> getWithParametersFromSuperclass(GenericArrayGenericClass superClass) throws ConstructionFailedException;
 
     /**
      * Fill the parameters of the super class to this generic class:
      * <p>
      * e.g:
      * if
-     * this == LinkedList<?> and {@param otherType} == List<Integer>
+     * this == LinkedList<?> and {@param superClass} == List<Integer>
      * <p>
      * then this function returns:
      * LinkedList<Integer>
      *
-     * @param otherType the super class.
+     * @param superClass the super class.
      * @return a generic class with the filled in Parameters.
      */
-    abstract GenericClass<?> getWithParametersFromSuperclass(RawClassGenericClass otherType) throws ConstructionFailedException;
+    abstract GenericClass<?> getWithParametersFromSuperclass(RawClassGenericClass superClass) throws ConstructionFailedException;
 
     /**
      * Fill the parameters of the super class to this generic class:
      * <p>
      * e.g:
      * if
-     * this == LinkedList<?> and {@param otherType} == List<Integer>
+     * this == LinkedList<?> and {@param superClass} == List<Integer>
      * <p>
      * then this function returns:
      * LinkedList<Integer>
      *
-     * @param otherType the super class.
+     * @param superClass the super class.
      * @return a generic class with the filled in Parameters.
      */
-    abstract GenericClass<?> getWithParametersFromSuperclass(ParameterizedGenericClass otherType) throws ConstructionFailedException;
+    abstract GenericClass<?> getWithParametersFromSuperclass(ParameterizedGenericClass superClass) throws ConstructionFailedException;
 }

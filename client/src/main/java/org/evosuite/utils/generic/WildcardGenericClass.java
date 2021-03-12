@@ -308,31 +308,31 @@ public class WildcardGenericClass extends AbstractGenericClass<WildcardType> {
     }
 
     @Override
-    GenericClass<?> getWithParametersFromSuperclass(TypeVariableGenericClass otherType) throws ConstructionFailedException {
+    GenericClass<?> getWithParametersFromSuperclass(TypeVariableGenericClass superClass) throws ConstructionFailedException {
         throw new UnsupportedOperationException("Not Implemented: " + "WildcardGenericClass" +
                 "#getWithParametersFromSuperclass");
     }
 
     @Override
-    GenericClass<?> getWithParametersFromSuperclass(WildcardGenericClass otherType) throws ConstructionFailedException {
+    GenericClass<?> getWithParametersFromSuperclass(WildcardGenericClass superClass) throws ConstructionFailedException {
         throw new UnsupportedOperationException("Not Implemented: " + "WildcardGenericClass" +
                 "#getWithParametersFromSuperclass");
     }
 
     @Override
-    GenericClass<?> getWithParametersFromSuperclass(GenericArrayGenericClass otherType) throws ConstructionFailedException {
+    GenericClass<?> getWithParametersFromSuperclass(GenericArrayGenericClass superClass) throws ConstructionFailedException {
         throw new UnsupportedOperationException("Not Implemented: WildcardGenericClass" +
                 "#getWithParametersFromSuperclass");
     }
 
     @Override
-    GenericClass<?> getWithParametersFromSuperclass(RawClassGenericClass otherType) throws ConstructionFailedException {
+    GenericClass<?> getWithParametersFromSuperclass(RawClassGenericClass superClass) throws ConstructionFailedException {
         throw new UnsupportedOperationException("Not Implemented: " + "WildcardGenericClass" +
                 "#getWithParametersFromSuperclass");
     }
 
     @Override
-    GenericClass<?> getWithParametersFromSuperclass(ParameterizedGenericClass otherType) throws ConstructionFailedException {
+    GenericClass<?> getWithParametersFromSuperclass(ParameterizedGenericClass superClass) throws ConstructionFailedException {
         throw new UnsupportedOperationException("Not Implemented: " + "WildcardGenericClass" +
                 "#getWithParametersFromSuperclass");
     }
