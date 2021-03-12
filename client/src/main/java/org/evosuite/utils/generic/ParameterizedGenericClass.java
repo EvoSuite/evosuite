@@ -199,27 +199,137 @@ public class ParameterizedGenericClass extends AbstractGenericClass<Parameterize
 
     @Override
     boolean canBeInstantiatedTo(TypeVariableGenericClass otherType) {
-        throw new UnsupportedOperationException("Not Implemented: ParameterizedGenericClass#canBeInstantiatedTo");
+        Class<?> otherRawClass = otherType.getRawClass();
+        if (otherRawClass.isAssignableFrom(rawClass)) {
+            Map<TypeVariable<?>, Type> typeMap = otherType.getTypeVariableMap();
+            try {
+                GenericClass<?> instantiation = getGenericInstantiation(typeMap);
+                return equals(instantiation) ? !hasWildcardOrTypeVariables() : instantiation.canBeInstantiatedTo(otherType);
+            } catch (ConstructionFailedException e) {
+                logger.debug("Failed to instantiate " + toString());
+                return false;
+            }
+        }
+        return false;
     }
 
     @Override
     boolean canBeInstantiatedTo(WildcardGenericClass otherType) {
-        throw new UnsupportedOperationException("Not Implemented: ParameterizedGenericClass#canBeInstantiatedTo");
+        try {
+            if (otherType.isGenericSuperTypeOf(this)) {
+                return true;
+            }
+        } catch (RuntimeException e) {
+            // FIXME: GentyRef sometimes throws:
+            // java.lang.RuntimeException: not implemented: class sun.reflect.generics.reflectiveObjects
+            // .TypeVariableImpl
+            // While I have no idea why, it should be safe to proceed if we can ignore this type
+            //return false;
+            throw new IllegalStateException("GentryRef threw an exception", e);
+        }
+
+        Class<?> otherRawClass = otherType.getRawClass();
+        if (otherRawClass.isAssignableFrom(rawClass)) {
+            Map<TypeVariable<?>, Type> typeMap = otherType.getTypeVariableMap();
+            try {
+                GenericClass<?> instantiation = getGenericInstantiation(typeMap);
+                return equals(instantiation) ? !hasWildcardOrTypeVariables() : instantiation.canBeInstantiatedTo(otherType);
+            } catch (ConstructionFailedException e) {
+                logger.debug("Failed to instantiate " + toString());
+                return false;
+            }
+        }
+        return false;
     }
 
     @Override
     boolean canBeInstantiatedTo(GenericArrayGenericClass otherType) {
-        throw new UnsupportedOperationException("Not Implemented: ParameterizedGenericClass#canBeInstantiatedTo");
+        try {
+            if (otherType.isGenericSuperTypeOf(this)) {
+                return true;
+            }
+        } catch (RuntimeException e) {
+            // FIXME: GentyRef sometimes throws:
+            // java.lang.RuntimeException: not implemented: class sun.reflect.generics.reflectiveObjects
+            // .TypeVariableImpl
+            // While I have no idea why, it should be safe to proceed if we can ignore this type
+            //return false;
+            throw new IllegalStateException("GentryRef threw an exception", e);
+        }
+
+        Class<?> otherRawClass = otherType.getRawClass();
+        if (otherRawClass.isAssignableFrom(rawClass)) {
+            Map<TypeVariable<?>, Type> typeMap = otherType.getTypeVariableMap();
+            try {
+                GenericClass<?> instantiation = getGenericInstantiation(typeMap);
+                return equals(instantiation) ? !hasWildcardOrTypeVariables() : instantiation.canBeInstantiatedTo(otherType);
+            } catch (ConstructionFailedException e) {
+                logger.debug("Failed to instantiate " + toString());
+                return false;
+            }
+        }
+        return false;
     }
 
     @Override
     boolean canBeInstantiatedTo(RawClassGenericClass otherType) {
-        throw new UnsupportedOperationException("Not Implemented: ParameterizedGenericClass#canBeInstantiatedTo");
+        try {
+            if (otherType.isGenericSuperTypeOf(this)) {
+                return true;
+            }
+        } catch (RuntimeException e) {
+            // FIXME: GentyRef sometimes throws:
+            // java.lang.RuntimeException: not implemented: class sun.reflect.generics.reflectiveObjects
+            // .TypeVariableImpl
+            // While I have no idea why, it should be safe to proceed if we can ignore this type
+            // return false;
+            throw new IllegalStateException("GentryRef threw an exception", e);
+        }
+
+        Class<?> otherRawClass = otherType.getRawClass();
+        if (otherRawClass.isAssignableFrom(rawClass)) {
+            Map<TypeVariable<?>, Type> typeMap = otherType.getTypeVariableMap();
+            try {
+                GenericClass<?> instantiation = getGenericInstantiation(typeMap);
+                return equals(instantiation) ? !hasWildcardOrTypeVariables() : instantiation.canBeInstantiatedTo(otherType);
+            } catch (ConstructionFailedException e) {
+                logger.debug("Failed to instantiate " + toString());
+                return false;
+            }
+        }
+
+        return false;
     }
 
     @Override
     boolean canBeInstantiatedTo(ParameterizedGenericClass otherType) {
-        throw new UnsupportedOperationException("Not Implemented: ParameterizedGenericClass#canBeInstantiatedTo");
+        try {
+            if (otherType.isGenericSuperTypeOf(this)) {
+                return true;
+            }
+        } catch (RuntimeException e) {
+            // FIXME: GentyRef sometimes throws:
+            // java.lang.RuntimeException: not implemented: class sun.reflect.generics.reflectiveObjects
+            // .TypeVariableImpl
+            // While I have no idea why, it should be safe to proceed if we can ignore this type
+            // return false;
+            throw new IllegalStateException("GentryRef threw an exception", e);
+        }
+
+        Class<?> otherRawClass = otherType.getRawClass();
+        if (otherRawClass.isAssignableFrom(rawClass)) {
+            Map<TypeVariable<?>, Type> typeMap = otherType.getTypeVariableMap();
+            if (otherType.isParameterizedType())
+                typeMap.putAll(TypeUtils.determineTypeArguments(rawClass, otherType.getType()));
+            try {
+                GenericClass<?> instantiation = getGenericInstantiation(typeMap);
+                return equals(instantiation) ? !hasWildcardOrTypeVariables() : instantiation.canBeInstantiatedTo(otherType);
+            } catch (ConstructionFailedException e) {
+                logger.debug("Failed to instantiate " + toString());
+                return false;
+            }
+        }
+        return false;
     }
 
     @Override

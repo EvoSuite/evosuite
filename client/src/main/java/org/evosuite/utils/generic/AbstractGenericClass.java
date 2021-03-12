@@ -35,6 +35,12 @@ public abstract class AbstractGenericClass<T extends Type> implements GenericCla
 
     @Override
     public boolean canBeInstantiatedTo(GenericClass<?> otherType) {
+        if (isPrimitive() && otherType.isWrapperType()) return false;
+
+        // If this can be assigned to the other type, it can also be instantiated to the other type.
+        if (isAssignableTo(otherType)) return true;
+
+        // Delegate to implementations of classes
         if (otherType.isTypeVariable()) return canBeInstantiatedTo((TypeVariableGenericClass) otherType);
         else if (otherType.isWildcardType()) return canBeInstantiatedTo((WildcardGenericClass) otherType);
         else if (otherType.isGenericArray()) return canBeInstantiatedTo((GenericArrayGenericClass) otherType);

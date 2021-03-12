@@ -1,5 +1,6 @@
 package org.evosuite.utils.generic;
 
+import org.apache.commons.lang3.reflect.TypeUtils;
 import org.evosuite.Properties;
 import org.evosuite.ga.ConstructionFailedException;
 import org.slf4j.Logger;
@@ -160,27 +161,87 @@ public class TypeVariableGenericClass extends AbstractGenericClass<TypeVariable<
 
     @Override
     boolean canBeInstantiatedTo(TypeVariableGenericClass otherType) {
-        throw new UnsupportedOperationException("Not Implemented: TypeVariableGenericClass#canBeInstantiatedTo");
+        Class<?> otherRawClass = otherType.getRawClass();
+        if (otherRawClass.isAssignableFrom(rawClass)) {
+            Map<TypeVariable<?>, Type> typeMap = otherType.getTypeVariableMap();
+            try {
+                GenericClass<?> instantiation = getGenericInstantiation(typeMap);
+                return equals(instantiation) ? !hasWildcardOrTypeVariables() : instantiation.canBeInstantiatedTo(otherType);
+            } catch (ConstructionFailedException e) {
+                logger.debug("Failed to instantiate " + toString());
+                return false;
+            }
+        }
+        return false;
     }
 
     @Override
     boolean canBeInstantiatedTo(WildcardGenericClass otherType) {
-        throw new UnsupportedOperationException("Not Implemented: TypeVariableGenericClass#canBeInstantiatedTo");
+        Class<?> otherRawClass = otherType.getRawClass();
+        if (otherRawClass.isAssignableFrom(rawClass)) {
+            Map<TypeVariable<?>, Type> typeMap = otherType.getTypeVariableMap();
+            try {
+                GenericClass<?> instantiation = getGenericInstantiation(typeMap);
+                if (equals(instantiation)) {
+                    return !hasWildcardOrTypeVariables();
+                }
+                return instantiation.canBeInstantiatedTo(otherType);
+            } catch (ConstructionFailedException e) {
+                logger.debug("Failed to instantiate " + toString());
+                return false;
+            }
+        }
+        return false;
     }
 
     @Override
     boolean canBeInstantiatedTo(GenericArrayGenericClass otherType) {
-        throw new UnsupportedOperationException("Not Implemented: TypeVariableGenericClass#canBeInstantiatedTo");
+        Class<?> otherRawClass = otherType.getRawClass();
+        if (otherRawClass.isAssignableFrom(rawClass)) {
+            Map<TypeVariable<?>, Type> typeMap = otherType.getTypeVariableMap();
+            try {
+                GenericClass<?> instantiation = getGenericInstantiation(typeMap);
+                return equals(instantiation) ? !hasWildcardOrTypeVariables() : instantiation.canBeInstantiatedTo(otherType);
+            } catch (ConstructionFailedException e) {
+                logger.debug("Failed to instantiate " + toString());
+                return false;
+            }
+        }
+        return false;
     }
 
     @Override
     boolean canBeInstantiatedTo(RawClassGenericClass otherType) {
-        throw new UnsupportedOperationException("Not Implemented: TypeVariableGenericClass#canBeInstantiatedTo");
+        Class<?> otherRawClass = otherType.getRawClass();
+        if (otherRawClass.isAssignableFrom(rawClass)) {
+            Map<TypeVariable<?>, Type> typeMap = otherType.getTypeVariableMap();
+            try {
+                GenericClass<?> instantiation = getGenericInstantiation(typeMap);
+                return equals(instantiation) ? !hasWildcardOrTypeVariables() : instantiation.canBeInstantiatedTo(otherType);
+            } catch (ConstructionFailedException e) {
+                logger.debug("Failed to instantiate " + toString());
+                return false;
+            }
+        }
+        return false;
     }
 
     @Override
     boolean canBeInstantiatedTo(ParameterizedGenericClass otherType) {
-        throw new UnsupportedOperationException("Not Implemented: TypeVariableGenericClass#canBeInstantiatedTo");
+        Class<?> otherRawClass = otherType.getRawClass();
+        if (otherRawClass.isAssignableFrom(rawClass)) {
+            Map<TypeVariable<?>, Type> typeMap = otherType.getTypeVariableMap();
+            if (otherType.isParameterizedType())
+                typeMap.putAll(TypeUtils.determineTypeArguments(rawClass, otherType.getType()));
+            try {
+                GenericClass<?> instantiation = getGenericInstantiation(typeMap);
+                return equals(instantiation) ? !hasWildcardOrTypeVariables() : instantiation.canBeInstantiatedTo(otherType);
+            } catch (ConstructionFailedException e) {
+                logger.debug("Failed to instantiate " + toString());
+                return false;
+            }
+        }
+        return false;
     }
 
     @Override
