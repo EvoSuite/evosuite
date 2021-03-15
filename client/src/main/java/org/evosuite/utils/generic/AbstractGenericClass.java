@@ -7,10 +7,7 @@ import org.evosuite.ga.ConstructionFailedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.Modifier;
-import java.lang.reflect.Type;
-import java.lang.reflect.TypeVariable;
-import java.lang.reflect.WildcardType;
+import java.lang.reflect.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -139,7 +136,7 @@ public abstract class AbstractGenericClass<T extends Type> implements GenericCla
         if (typeVariableMap == null) {
             typeVariableMap = computeTypeVariableMap();
         }
-        return typeVariableMap;
+        return Collections.unmodifiableMap(typeVariableMap);
     }
 
     @Override
@@ -274,6 +271,45 @@ public abstract class AbstractGenericClass<T extends Type> implements GenericCla
     @Override
     public boolean satisfiesBoundaries(WildcardType wildcardType) {
         return satisfiesBoundaries(wildcardType, getTypeVariableMap());
+    }
+
+    @Override
+    public boolean satisfiesBoundaries(TypeVariable<?> typeVariable, Map<TypeVariable<?>, Type> typeMap) {
+        // Compute the owner variable map, if this generic class can satisfy the type variable.
+        Map<TypeVariable<?>, Type> ownerVariableMap = mergeVariableTypeMap(Arrays.asList(typeVariable.getBounds()), typeMap);
+        ownerVariableMap = GenericClassUtils.resolveTypeVariableRedirects(ownerVariableMap);
+
+        // TODO: check if GenericUtils.replaceTypeVariables can really be replaced by TypeUtils.unrollVariables.
+        GenericClass<?> concreteClass = GenericClassFactory.get(TypeUtils.unrollVariables(ownerVariableMap, type));
+        Type[] bounds = typeVariable.getBounds();
+        for (int i = 0; i < bounds.length; i++) {
+            Type bound = bounds[i];
+            if (isWildcardType())
+                // TODO from reference implementation:
+                // TODO i don't know exactly how to handle this case, but it is necessary to prevent an Exception
+                return false;
+            if (GenericTypeReflector.erase(bound).equals(Enum.class)) {
+                // TODO: WTF??? Why should this not be redundant?
+                if (isEnum()) continue;
+                else return false;
+            }
+            Type boundType = TypeUtils.unrollVariables(ownerVariableMap, bound);
+            boundType = TypeUtils.unrollVariables(Collections.singletonMap(typeVariable, getType()), boundType);
+            if (TypeUtils.containsTypeVariables(boundType))
+                // TODO replace remaining Type Variables with bounded Wildcards.
+                throw new IllegalStateException("TODO: replace type variables with Wildcards here");
+            if (!concreteClass.isAssignableTo(boundType) && !(boundType instanceof WildcardType)) {
+                if (GenericTypeReflector.erase(boundType).isAssignableFrom(getRawClass())) {
+                    Type instanceType = GenericTypeReflector.getExactSuperType(boundType, getRawClass());
+                    if (instanceType == null) return false;
+
+                    boundType = TypeUtils.unrollVariables(Collections.singletonMap(typeVariable, instanceType), bound);
+                    if (GenericClassUtils.isAssignable(boundType, instanceType)) continue;
+                }
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override
@@ -471,5 +507,31 @@ public abstract class AbstractGenericClass<T extends Type> implements GenericCla
     @Override
     public int hashCode() {
         return Objects.hash(getTypeName());
+    }
+
+    /**
+     * Merge the type variable map with a collection of boundaries and enforce some type variables to be a given type.
+     *
+     * Only if the boundary is a parameterized type, the type variable map of this generic class is affected, since
+     * only parameterized types can fix type variables.
+     *
+     * @param bounds the collection of boundaries.
+     * @param typeMap Enforce type variables to be of a given type.
+     * @return the merged type variable map.
+     */
+    Map<TypeVariable<?>, Type> mergeVariableTypeMap(Collection<Type> bounds, Map<TypeVariable<?>,Type> typeMap){
+        Map<TypeVariable<?>, Type> ownerTypeVariableMap = new HashMap<>(getTypeVariableMap());
+        bounds.stream().filter(b -> b instanceof ParameterizedType).forEachOrdered(b -> {
+            Class<?> boundClass = GenericTypeReflector.erase(b);
+            if (boundClass.isAssignableFrom(rawClass)){
+                Map<TypeVariable<?>, Type> typeArguments = TypeUtils.determineTypeArguments(rawClass,
+                        (ParameterizedType) b);
+                ownerTypeVariableMap.putAll(typeArguments);
+            } else {
+                throw new IllegalStateException("I feel like this else-case should be handled");
+            }
+        });
+        ownerTypeVariableMap.putAll(typeMap);
+        return ownerTypeVariableMap;
     }
 }

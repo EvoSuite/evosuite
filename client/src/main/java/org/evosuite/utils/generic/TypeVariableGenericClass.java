@@ -135,11 +135,6 @@ public class TypeVariableGenericClass extends AbstractGenericClass<TypeVariable<
     }
 
     @Override
-    public boolean satisfiesBoundaries(TypeVariable<?> typeVariable, Map<TypeVariable<?>, Type> typeMap) {
-        throw new UnsupportedOperationException("Not Implemented: TypeVariableGenericClass#satisfiesBoundaries");
-    }
-
-    @Override
     public boolean satisfiesBoundaries(WildcardType wildcardType, Map<TypeVariable<?>, Type> typeMap) {
         throw new UnsupportedOperationException("Not Implemented: TypeVariableGenericClass#satisfiesBoundaries");
     }

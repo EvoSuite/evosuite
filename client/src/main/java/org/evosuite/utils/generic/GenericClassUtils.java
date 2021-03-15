@@ -9,10 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.*;
-import java.util.Arrays;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Utility class for {@code GenericClassImpl}.
@@ -90,7 +87,7 @@ public class GenericClassUtils {
 
     /**
      * Computes the raw Type of a {@code Type} object.
-     *
+     * <p>
      * Supported are: Class, CaptureType, ParameterizedType, TypeVariable and WildcardType
      *
      * @param genericType
@@ -105,7 +102,7 @@ public class GenericClassUtils {
         throw new IllegalArgumentException("getRawClass of type " + genericType.getClass() + " not supported");
     }
 
-    static Class<?> getRawClass(Type[] upperBounds){
+    static Class<?> getRawClass(Type[] upperBounds) {
         if (upperBounds.length == 0)
             // No upper bound => unbound
             return Object.class;
@@ -118,7 +115,7 @@ public class GenericClassUtils {
             throw new IllegalStateException("Can't compute raw type of CaptureType with more than one bound");
     }
 
-    static Class<?> getRawClass(WildcardType wildcardType){
+    static Class<?> getRawClass(WildcardType wildcardType) {
         return getRawClass(wildcardType.getUpperBounds());
     }
 
@@ -134,7 +131,7 @@ public class GenericClassUtils {
         return (Class<?>) parameterizedType.getRawType();
     }
 
-    static Class<?> getRawClass(TypeVariable<?> typeVariable){
+    static Class<?> getRawClass(TypeVariable<?> typeVariable) {
         return getRawClass(typeVariable.getBounds());
     }
 
@@ -350,21 +347,21 @@ public class GenericClassUtils {
         List<Class<?>> interfaces = ClassUtils.getAllInterfaces((Class<?>) subclass);
         return superclasses.contains(superclass) || interfaces.contains(superclass);
     }
+
     /**
      * Checks if a {@code ParameterizedType} contains any type variables.
-     *
+     * <p>
      * If the type parameter of {@param type} are as well parameterized types,
      * these parameter types are checked recursively.
-     *
+     * <p>
      * E.g. A<B<T>> returns true, if T is a type variable
      *
      * @param type The type to be checked.
      * @return Whether type has a type variable.
      */
-    static boolean hasTypeVariables(ParameterizedType type){
+    static boolean hasTypeVariables(ParameterizedType type) {
         return Arrays.stream(type.getActualTypeArguments()).anyMatch(t -> {
-            if(t instanceof TypeVariable)
-                return true;
+            if (t instanceof TypeVariable) return true;
             return t instanceof ParameterizedType && hasTypeVariables((ParameterizedType) t);
         });
     }
@@ -398,21 +395,63 @@ public class GenericClassUtils {
 
     /**
      * Checks if a {@code ParameterizedType} contains any wildcard types.
-     *
+     * <p>
      * If the type parameter of {@param type} are as well parameterized types,
      * these parameter types are checked recursively.
-     *
+     * <p>
      * E.g. A<B<?>> returns true.
      *
      * @param type The type to be checked.
      * @return Whether type has a wildcard type.
      */
-    static boolean hasWildcardTypes(ParameterizedType type){
+    static boolean hasWildcardTypes(ParameterizedType type) {
         return Arrays.stream(type.getActualTypeArguments()).anyMatch(t -> {
-            if(t instanceof WildcardType)
-                return true;
+            if (t instanceof WildcardType) return true;
             return t instanceof ParameterizedType && hasWildcardTypes((ParameterizedType) t);
         });
+    }
+
+    /**
+     * Resolve redirects of a type variable to another type variable.
+     * If a type variable A points to another type variable B, let A now point to the type B points to.
+     * <p>
+     * The changes are not made in place.
+     * <p>
+     * E.g:
+     * Let A, B  type variables and C be a type, then the type variable map:
+     * {A -> B, B -> C} is transformed to {A -> C, B -> C}.
+     *
+     * @param typeVariableMap the original type variable map.
+     * @return a new map with resolved redirects.
+     */
+    static Map<TypeVariable<?>, Type> resolveTypeVariableRedirects(Map<TypeVariable<?>, Type> typeVariableMap) {
+        typeVariableMap = new HashMap<>(typeVariableMap);
+        boolean changed = true;
+        while (changed) {
+            changed = false;
+            for (Map.Entry<TypeVariable<?>,Type> entry : typeVariableMap.entrySet()){
+                TypeVariable<?> key = entry.getKey();
+                if(entry.getValue() instanceof TypeVariable) {
+                    TypeVariable<?> value = (TypeVariable<?>) entry.getValue();
+                    if(typeVariableMap.containsKey(value)){
+                        Type other = typeVariableMap.get(value);
+                        if(other instanceof TypeVariable<?>){
+                            if(typeVariableMap.containsKey(other)){
+                                Type x = typeVariableMap.get(other);
+                                if(x == key || x == value || x == other)
+                                    // prevent infinity loop if type variable points indirectly to itself.
+                                    continue;
+                            }
+                        }
+                        if(key != other && value != other){
+                            typeVariableMap.put(key, other);
+                            changed = true;
+                        }
+                    }
+                }
+            }
+        }
+        return typeVariableMap;
     }
 
 }

@@ -493,20 +493,25 @@ public interface GenericClass<T extends GenericClass<T>> {
      */
     boolean isWrapperType();
 
-    // TODO: write proper documentation.
     /**
+     * Determine whether the boundaries of the type variable are satisfied
+     * without any additional constraints regarding the type variables.
      *
-     * @param typeVariable
-     * @return
+     * @param typeVariable the type variable to be checked
+     * @return whether this class satisfies the boundaries of the type variable.
      */
     boolean satisfiesBoundaries(TypeVariable<?> typeVariable);
 
-    // TODO: write proper documentation.
     /**
+     * Determine whether the boundaries of the type variable are satisfied by this class
+     * with additional constraints regarding the type variables.
      *
-     * @param typeVariable
-     * @param typeMap
-     * @return
+     * Every entry of {@param typeNap} is an constraint that enforces the key/type variable
+     * to be an instance of the value/type.
+     *
+     * @param typeVariable The type variable, that should be checked.
+     * @param typeMap The map of constraints.
+     * @return Wether the boundaries of the type variable are satisfied by this class for the given set of constraints.
      */
     boolean satisfiesBoundaries(TypeVariable<?> typeVariable, Map<TypeVariable<?>, Type> typeMap);
 

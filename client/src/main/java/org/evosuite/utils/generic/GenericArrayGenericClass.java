@@ -1,9 +1,11 @@
 package org.evosuite.utils.generic;
 
+import com.googlecode.gentyref.GenericTypeReflector;
 import org.apache.commons.lang3.reflect.TypeUtils;
 import org.evosuite.Properties;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.utils.ParameterizedTypeImpl;
+import org.evosuite.utils.TypeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -130,11 +132,6 @@ public class GenericArrayGenericClass extends AbstractGenericClass<GenericArrayT
     @Override
     public boolean isWildcardType() {
         return false;
-    }
-
-    @Override
-    public boolean satisfiesBoundaries(TypeVariable<?> typeVariable, Map<TypeVariable<?>, Type> typeMap) {
-        throw new UnsupportedOperationException("Not Implemented: ArrayGenericClass#satisfiesBoundaries");
     }
 
     @Override
