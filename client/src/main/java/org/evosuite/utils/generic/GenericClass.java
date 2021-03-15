@@ -54,24 +54,33 @@ public interface GenericClass<T extends GenericClass<T>> {
      */
     String getClassName();
 
-    // TODO: write proper documentation.
     /**
+     * If the represented generic class represents an array, return the component class of the array.
      *
-     * @return
+     * E.g:
+     *      GenericClass(int[].class) has the component type int
+     *      GenericClass(A<B>[].class) has the component type A<B>
+     *
+     * If the generic class is not an array, its behaviour is undefined.
+     *
+     * @return the component type of the array
      */
     GenericClass<?> getComponentClass();
 
-    // TODO: write proper documentation.
     /**
+     * If the represented generic class represents an aray, return the name of its component class.
      *
-     * @return
+     * If the generic class is not an array, its behaviour is undefined.
+     *
+     * @return the name of the component type.
      */
     String getComponentName();
 
     // TODO: write proper documentation.
     /**
+     * Alias for {@code TypeUtils#getArrayComponentType} with getType() as argument.
      *
-     * @return
+     * @return the component type of the array as provided from TypeUtils.
      */
     Type getComponentType();
 
@@ -111,24 +120,27 @@ public interface GenericClass<T extends GenericClass<T>> {
      */
     GenericClass<?> getGenericInstantiation(Map<TypeVariable<?>, Type> typeMap, int recursionLevel) throws ConstructionFailedException;
 
-    // TODO: write proper documentation.
     /**
+     * Get the interfaces, that this class implements.
      *
-     * @return
+     * @return a List of {@code GenericClass}, each element represents one interface.
      */
     List<GenericClass<?>> getInterfaces();
 
-    // TODO: write proper documentation.
     /**
+     * Get the number of type parameters of this type.
+     * This does not include type parameters of super classes that are fixed by this class.
      *
-     * @return
+     * @return the number of type parameters of this class.
      */
     int getNumParameters();
 
-    // TODO: write proper documentation.
     /**
+     * If this is a parameterized type, its owner type is returned as a GenericClass.
      *
-     * @return
+     * IF this is not a parameterized type, its behaviour is undefined.
+     *
+     * @return the owner type as {@code GenericClass}.
      */
     GenericClass<?> getOwnerType();
 
@@ -150,10 +162,10 @@ public interface GenericClass<T extends GenericClass<T>> {
      */
     List<GenericClass<?>> getParameterClasses();
 
-    // TODO: write proper documentation.
     /**
+     * Get the raw class (without generic information) of this class.
      *
-     * @return
+     * @return the raw class.
      */
     Class<?> getRawClass();
 

@@ -10,7 +10,7 @@ import java.util.Objects;
  */
 public class GenericClassFactory {
 
-    private final static boolean USE_NEW_GENERIC_CLASS_IMPLEMENTATION = true;
+    private final static boolean USE_NEW_GENERIC_CLASS_IMPLEMENTATION = false;
     private final static IGenericClassFactory<?> factory;
 
     static {

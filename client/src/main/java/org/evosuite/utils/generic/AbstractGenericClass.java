@@ -61,6 +61,8 @@ public abstract class AbstractGenericClass<T extends Type> implements GenericCla
 
     @Override
     public GenericClass<?> getComponentClass() {
+        if (!isArray())
+            throw new IllegalStateException("getComponentClass is called on a non-array type");
         return new RawClassGenericClass(rawClass.getComponentType());
     }
 
@@ -150,7 +152,8 @@ public abstract class AbstractGenericClass<T extends Type> implements GenericCla
     public GenericClass<?> getWithParametersFromSuperclass(GenericClass<?> superClass) throws ConstructionFailedException {
         if (superClass.isTypeVariable()) return getWithParametersFromSuperclass((TypeVariableGenericClass) superClass);
         else if (superClass.isWildcardType()) return getWithParametersFromSuperclass((WildcardGenericClass) superClass);
-        else if (superClass.isGenericArray()) return getWithParametersFromSuperclass((GenericArrayGenericClass) superClass);
+        else if (superClass.isGenericArray())
+            return getWithParametersFromSuperclass((GenericArrayGenericClass) superClass);
         else if (superClass.isRawClass()) return getWithParametersFromSuperclass((RawClassGenericClass) superClass);
         else if (superClass.isParameterizedType())
             return getWithParametersFromSuperclass((ParameterizedGenericClass) superClass);
@@ -456,4 +459,17 @@ public abstract class AbstractGenericClass<T extends Type> implements GenericCla
      * @return a generic class with the filled in Parameters.
      */
     abstract GenericClass<?> getWithParametersFromSuperclass(ParameterizedGenericClass superClass) throws ConstructionFailedException;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        AbstractGenericClass<?> that = (AbstractGenericClass<?>) o;
+        return Objects.equals(getTypeName(), that.getTypeName());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getTypeName());
+    }
 }
