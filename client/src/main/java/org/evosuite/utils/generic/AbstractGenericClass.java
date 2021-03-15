@@ -282,8 +282,7 @@ public abstract class AbstractGenericClass<T extends Type> implements GenericCla
         // TODO: check if GenericUtils.replaceTypeVariables can really be replaced by TypeUtils.unrollVariables.
         GenericClass<?> concreteClass = GenericClassFactory.get(TypeUtils.unrollVariables(ownerVariableMap, type));
         Type[] bounds = typeVariable.getBounds();
-        for (int i = 0; i < bounds.length; i++) {
-            Type bound = bounds[i];
+        for (Type bound : bounds) {
             if (isWildcardType())
                 // TODO from reference implementation:
                 // TODO i don't know exactly how to handle this case, but it is necessary to prevent an Exception
