@@ -135,11 +135,6 @@ public class GenericArrayGenericClass extends AbstractGenericClass<GenericArrayT
     }
 
     @Override
-    public boolean satisfiesBoundaries(WildcardType wildcardType, Map<TypeVariable<?>, Type> typeMap) {
-        throw new UnsupportedOperationException("Not Implemented: ArrayGenericClass#satisfiesBoundaries");
-    }
-
-    @Override
     public GenericClass<?> getGenericWildcardInstantiation(Map<TypeVariable<?>, Type> typeMap, int recursionLevel) throws ConstructionFailedException {
         throw new UnsupportedOperationException("A generic array has no generic wildcard instantiation");
     }

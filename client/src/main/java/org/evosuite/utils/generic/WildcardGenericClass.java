@@ -144,11 +144,6 @@ public class WildcardGenericClass extends AbstractGenericClass<WildcardType> {
     }
 
     @Override
-    public boolean satisfiesBoundaries(WildcardType wildcardType, Map<TypeVariable<?>, Type> typeMap) {
-        throw new UnsupportedOperationException("Not Implemented: WildcardGenericClass#satisfiesBoundaries");
-    }
-
-    @Override
     public GenericClass<?> getGenericWildcardInstantiation(Map<TypeVariable<?>, Type> typeMap, int recursionLevel) throws ConstructionFailedException {
         GenericClass<?> selectedClass = CastClassManager.getInstance().selectCastClass(type,
                 recursionLevel < Properties.MAX_GENERIC_DEPTH, typeMap);

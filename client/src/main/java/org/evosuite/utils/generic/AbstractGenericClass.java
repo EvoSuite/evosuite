@@ -11,8 +11,7 @@ import java.lang.reflect.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.evosuite.utils.generic.GenericClassUtils.WRAPPER_TYPES;
-import static org.evosuite.utils.generic.GenericClassUtils.primitiveClasses;
+import static org.evosuite.utils.generic.GenericClassUtils.*;
 
 public abstract class AbstractGenericClass<T extends Type> implements GenericClass<AbstractGenericClass<T>> {
     private static final Logger logger = LoggerFactory.getLogger(AbstractGenericClass.class);
@@ -58,8 +57,7 @@ public abstract class AbstractGenericClass<T extends Type> implements GenericCla
 
     @Override
     public GenericClass<?> getComponentClass() {
-        if (!isArray())
-            throw new IllegalStateException("getComponentClass is called on a non-array type");
+        if (!isArray()) throw new IllegalStateException("getComponentClass is called on a non-array type");
         return new RawClassGenericClass(rawClass.getComponentType());
     }
 
@@ -269,14 +267,10 @@ public abstract class AbstractGenericClass<T extends Type> implements GenericCla
     }
 
     @Override
-    public boolean satisfiesBoundaries(WildcardType wildcardType) {
-        return satisfiesBoundaries(wildcardType, getTypeVariableMap());
-    }
-
-    @Override
     public boolean satisfiesBoundaries(TypeVariable<?> typeVariable, Map<TypeVariable<?>, Type> typeMap) {
         // Compute the owner variable map, if this generic class can satisfy the type variable.
-        Map<TypeVariable<?>, Type> ownerVariableMap = mergeVariableTypeMap(Arrays.asList(typeVariable.getBounds()), typeMap);
+        Map<TypeVariable<?>, Type> ownerVariableMap = mergeVariableTypeMap(Arrays.asList(typeVariable.getBounds()),
+                typeMap);
         ownerVariableMap = GenericClassUtils.resolveTypeVariableRedirects(ownerVariableMap);
 
         // TODO: check if GenericUtils.replaceTypeVariables can really be replaced by TypeUtils.unrollVariables.
@@ -312,8 +306,34 @@ public abstract class AbstractGenericClass<T extends Type> implements GenericCla
     }
 
     @Override
+    public boolean satisfiesBoundaries(WildcardType wildcardType) {
+        return satisfiesBoundaries(wildcardType, getTypeVariableMap());
+    }
+
+    @Override
+    public boolean satisfiesBoundaries(WildcardType wildcardType, Map<TypeVariable<?>, Type> typeMap) {
+        HashMap<TypeVariable<?>, Type> ownerVariableMap = new HashMap<>(getTypeVariableMap());
+        ownerVariableMap.putAll(typeMap);
+        return satisfiesUpperWildcardBoundaries(wildcardType, ownerVariableMap) &&
+                satisfiesLowerWildcardBoundary(wildcardType, ownerVariableMap);
+    }
+
+    @Override
     public GenericClass<?> getRawGenericClass() {
         return new RawClassGenericClass(rawClass);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getTypeName());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        AbstractGenericClass<?> that = (AbstractGenericClass<?>) o;
+        return Objects.equals(getTypeName(), that.getTypeName());
     }
 
     /**
@@ -495,42 +515,87 @@ public abstract class AbstractGenericClass<T extends Type> implements GenericCla
      */
     abstract GenericClass<?> getWithParametersFromSuperclass(ParameterizedGenericClass superClass) throws ConstructionFailedException;
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        AbstractGenericClass<?> that = (AbstractGenericClass<?>) o;
-        return Objects.equals(getTypeName(), that.getTypeName());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(getTypeName());
-    }
-
     /**
      * Merge the type variable map with a collection of boundaries and enforce some type variables to be a given type.
-     *
+     * <p>
      * Only if the boundary is a parameterized type, the type variable map of this generic class is affected, since
      * only parameterized types can fix type variables.
      *
-     * @param bounds the collection of boundaries.
+     * @param bounds  the collection of boundaries.
      * @param typeMap Enforce type variables to be of a given type.
      * @return the merged type variable map.
      */
-    Map<TypeVariable<?>, Type> mergeVariableTypeMap(Collection<Type> bounds, Map<TypeVariable<?>,Type> typeMap){
+    Map<TypeVariable<?>, Type> mergeVariableTypeMap(Collection<Type> bounds, Map<TypeVariable<?>, Type> typeMap) {
         Map<TypeVariable<?>, Type> ownerTypeVariableMap = new HashMap<>(getTypeVariableMap());
         bounds.stream().filter(b -> b instanceof ParameterizedType).forEachOrdered(b -> {
             Class<?> boundClass = GenericTypeReflector.erase(b);
-            if (boundClass.isAssignableFrom(rawClass)){
+            if (boundClass.isAssignableFrom(rawClass)) {
                 Map<TypeVariable<?>, Type> typeArguments = TypeUtils.determineTypeArguments(rawClass,
                         (ParameterizedType) b);
                 ownerTypeVariableMap.putAll(typeArguments);
             } else {
+                // TODO why is this else case not handled???
                 throw new IllegalStateException("I feel like this else-case should be handled");
             }
         });
         ownerTypeVariableMap.putAll(typeMap);
         return ownerTypeVariableMap;
+    }
+
+    /**
+     * Checks if this generic class satisfies the upper boundaries of a wildcard type.
+     *
+     * The owner's variable map may be altered to fix type variables for this function call.
+     *
+     * @param wildcardType the wildcard type, this class should be checked against.
+     * @param ownerVariableMap the variable map of the owner.
+     * @return whether the upper boundaries are satisfied.
+     */
+    boolean satisfiesUpperWildcardBoundaries(WildcardType wildcardType, Map<TypeVariable<?>, Type> ownerVariableMap) {
+        for (Type upperBound : wildcardType.getUpperBounds()) {
+            if (GenericTypeReflector.erase(upperBound).equals(Enum.class)) {
+                if (isEnum()) continue;
+                else return false;
+            }
+            // TODO: check if GenericUtils.replaceTypeVariables can really be replaced by TypeUtils.unrollVariables.
+            Type type = TypeUtils.unrollVariables(ownerVariableMap, upperBound);
+            if (!isAssignableTo(type)) {
+                if (GenericTypeReflector.erase(type).isAssignableFrom(getRawClass())) {
+                    Type instanceType = GenericTypeReflector.getExactSuperType(type, getRawClass());
+                    if (instanceType == null) return false;
+                    if (GenericClassUtils.isAssignable(type, instanceType)) continue;
+                }
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Checks if this generic class satisfies the lower boundaries of a wildcard type.
+     *
+     * The owner's variable map may be altered to fix type variables for this function call.
+     *
+     * @param wildcardType the wildcard type, this class should be checked against.
+     * @param ownerVariableMap the variable map of the owner.
+     * @return whether the upper boundaries are satisfied.
+     */
+    boolean satisfiesLowerWildcardBoundary(WildcardType wildcardType, Map<TypeVariable<?>, Type> ownerVariableMap){
+        Type[] lowerBounds = wildcardType.getLowerBounds();
+        if(lowerBounds == null) return true;
+        for(Type lowerBound : lowerBounds){
+            Type type = TypeUtils.unrollVariables(ownerVariableMap, lowerBound);
+            if(!isAssignableFrom(type)){
+                if (type instanceof WildcardType)
+                    continue;
+                if (GenericTypeReflector.erase(type).isAssignableFrom(getRawClass())){
+                    Type instanceType = GenericTypeReflector.getExactSuperType(type, getRawClass());
+                    if(instanceType == null) return false;
+                    if(GenericClassUtils.isAssignable(type,instanceType)) continue;
+                }
+                return false;
+            }
+        }
+        return true;
     }
 }

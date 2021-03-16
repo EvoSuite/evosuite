@@ -158,11 +158,6 @@ public class ParameterizedGenericClass extends AbstractGenericClass<Parameterize
     }
 
     @Override
-    public boolean satisfiesBoundaries(WildcardType wildcardType, Map<TypeVariable<?>, Type> typeMap) {
-        throw new UnsupportedOperationException("Not Implemented: ParameterizedGenericClass#satisfiesBoundaries");
-    }
-
-    @Override
     public GenericClass<?> getGenericWildcardInstantiation(Map<TypeVariable<?>, Type> typeMap, int recursionLevel) throws ConstructionFailedException {
         throw new UnsupportedOperationException("A parameterized has no generic wildcard instantiation");
     }
@@ -313,7 +308,7 @@ public class ParameterizedGenericClass extends AbstractGenericClass<Parameterize
 
         Class<?> otherRawClass = otherType.getRawClass();
         if (otherRawClass.isAssignableFrom(rawClass)) {
-            Map<TypeVariable<?>, Type> typeMap = otherType.getTypeVariableMap();
+            Map<TypeVariable<?>, Type> typeMap = new HashMap<>(otherType.getTypeVariableMap());
             if (otherType.isParameterizedType())
                 typeMap.putAll(TypeUtils.determineTypeArguments(rawClass, otherType.getType()));
             try {

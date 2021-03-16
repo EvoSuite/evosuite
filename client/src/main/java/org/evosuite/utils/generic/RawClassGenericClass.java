@@ -116,11 +116,6 @@ public class RawClassGenericClass extends AbstractGenericClass<Class<?>> {
     }
 
     @Override
-    public boolean satisfiesBoundaries(WildcardType wildcardType, Map<TypeVariable<?>, Type> typeMap) {
-        throw new UnsupportedOperationException("Not Implemented: RawClassGenericClass#satisfiesBoundaries");
-    }
-
-    @Override
     public GenericClass<?> getGenericWildcardInstantiation(Map<TypeVariable<?>, Type> typeMap, int recursionLevel) throws ConstructionFailedException {
         throw new UnsupportedOperationException("A raw class has no generic wildcard instantiation");
     }
