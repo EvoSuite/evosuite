@@ -548,4 +548,12 @@ public interface GenericClass<T extends GenericClass<T>> {
      * @throws ConstructionFailedException
      */
     GenericClass<?> getGenericWildcardInstantiation(Map<TypeVariable<?>, Type> typeMap, int recursionLevel) throws ConstructionFailedException;
+
+    /**
+     * Sets the represented type of a copy of this generic class
+     *
+     * @param type the type to be set.
+     * @return the copy.
+     */
+    GenericClass<?> setType(Type type);
 }

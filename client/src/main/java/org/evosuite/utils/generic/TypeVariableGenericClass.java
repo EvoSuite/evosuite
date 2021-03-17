@@ -3,6 +3,7 @@ package org.evosuite.utils.generic;
 import org.apache.commons.lang3.reflect.TypeUtils;
 import org.evosuite.Properties;
 import org.evosuite.ga.ConstructionFailedException;
+import org.evosuite.seeding.CastClassManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -234,39 +235,35 @@ public class TypeVariableGenericClass extends AbstractGenericClass<TypeVariable<
         return false;
     }
 
-    @Override
-    GenericClass<?> getWithParametersFromSuperclass(TypeVariableGenericClass superClass) throws ConstructionFailedException {
-        throw new UnsupportedOperationException("Not Implemented: " + "TypeVariableGenericClass" +
-                "#getWithParametersFromSuperclass");
-    }
-
-    @Override
-    GenericClass<?> getWithParametersFromSuperclass(WildcardGenericClass superClass) throws ConstructionFailedException {
-        throw new UnsupportedOperationException("Not Implemented: " + "TypeVariableGenericClass" +
-                "#getWithParametersFromSuperclass");
-    }
-
-    @Override
-    GenericClass<?> getWithParametersFromSuperclass(GenericArrayGenericClass superClass) throws ConstructionFailedException {
-        throw new UnsupportedOperationException("Not Implemented: TypeVariableGenericClass" +
-                "#getWithParametersFromSuperclass");
-    }
-
-    @Override
-    GenericClass<?> getWithParametersFromSuperclass(RawClassGenericClass superClass) throws ConstructionFailedException {
-        throw new UnsupportedOperationException("Not Implemented: " + "TypeVariableGenericClass" +
-                "#getWithParametersFromSuperclass");
-    }
-
-    @Override
-    GenericClass<?> getWithParametersFromSuperclass(ParameterizedGenericClass superClass) throws ConstructionFailedException {
-        throw new UnsupportedOperationException("Not Implemented: " + "TypeVariableGenericClass" +
-                "#getWithParametersFromSuperclass");
-    }
-
     private GenericClass<?> getGenericTypeVariableInstantiation(Map<TypeVariable<?>, Type> typeMap,
-                                                                int recursionLevel) {
-        throw new UnsupportedOperationException("Not implemented: " + "TypeVariableGenericClass" +
-                ":getGenericTypeVariableInstantiation");
+                                                                int recursionLevel) throws ConstructionFailedException {
+        if (typeMap.containsKey(type)) {
+            if (typeMap.get(type) == type) throw new ConstructionFailedException("Type points to itself");
+            GenericClass<?> selectedClass = GenericClassFactory.get(typeMap.get(type)).getGenericInstantiation(typeMap,
+                    recursionLevel + 1);
+            if (selectedClass.satisfiesBoundaries(type))
+                return selectedClass;
+        }
+        GenericClass<?> selectedClass = CastClassManager.getInstance().selectCastClass(type,
+                recursionLevel < Properties.MAX_GENERIC_DEPTH, typeMap);
+
+        if (selectedClass == null) throw new ConstructionFailedException("Unable to instantiate " + toString());
+        Map<TypeVariable<?>, Type> extendedMap = new HashMap<>(typeMap);
+        extendedMap.putAll(getTypeVariableMap());
+        for (Type bound : type.getBounds()) {
+            GenericClass<?> boundClass = GenericClassFactory.get(bound);
+            extendedMap.putAll(boundClass.getTypeVariableMap());
+            if (boundClass.isParameterizedType()) {
+                Class<?> boundRawClass = boundClass.getRawClass();
+                if (boundRawClass.isAssignableFrom(selectedClass.getRawClass())) {
+                    Map<TypeVariable<?>, Type> xmap = TypeUtils.determineTypeArguments(selectedClass.getRawClass(),
+                            (ParameterizedType) boundClass.getType());
+                    extendedMap.putAll(xmap);
+                }
+            }
+        }
+        GenericClass<?> instantiation = selectedClass.getGenericInstantiation(extendedMap, recursionLevel + 1);
+        typeMap.put(type, instantiation.getType());
+        return instantiation;
     }
 }

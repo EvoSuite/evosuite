@@ -508,4 +508,9 @@ public class NewGenericClassImpl implements GenericClass<NewGenericClassImpl> {
     public GenericClass<?> getGenericWildcardInstantiation(Map<TypeVariable<?>, Type> typeMap, int recursionLevel) throws ConstructionFailedException {
         throw new UnsupportedOperationException("Not Implemented: NewGenericClassImpl#getGenericWildcardInstantiation");
     }
+
+    @Override
+    public GenericClass<?> setType(Type type) {
+        throw new UnsupportedOperationException("Not Implemented: NewGenericClassImpl#setType");
+    }
 }

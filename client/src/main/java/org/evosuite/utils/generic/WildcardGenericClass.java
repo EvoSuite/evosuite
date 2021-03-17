@@ -296,34 +296,4 @@ public class WildcardGenericClass extends AbstractGenericClass<WildcardType> {
 
         return false;
     }
-
-    @Override
-    GenericClass<?> getWithParametersFromSuperclass(TypeVariableGenericClass superClass) throws ConstructionFailedException {
-        throw new UnsupportedOperationException("Not Implemented: " + "WildcardGenericClass" +
-                "#getWithParametersFromSuperclass");
-    }
-
-    @Override
-    GenericClass<?> getWithParametersFromSuperclass(WildcardGenericClass superClass) throws ConstructionFailedException {
-        throw new UnsupportedOperationException("Not Implemented: " + "WildcardGenericClass" +
-                "#getWithParametersFromSuperclass");
-    }
-
-    @Override
-    GenericClass<?> getWithParametersFromSuperclass(GenericArrayGenericClass superClass) throws ConstructionFailedException {
-        throw new UnsupportedOperationException("Not Implemented: WildcardGenericClass" +
-                "#getWithParametersFromSuperclass");
-    }
-
-    @Override
-    GenericClass<?> getWithParametersFromSuperclass(RawClassGenericClass superClass) throws ConstructionFailedException {
-        throw new UnsupportedOperationException("Not Implemented: " + "WildcardGenericClass" +
-                "#getWithParametersFromSuperclass");
-    }
-
-    @Override
-    GenericClass<?> getWithParametersFromSuperclass(ParameterizedGenericClass superClass) throws ConstructionFailedException {
-        throw new UnsupportedOperationException("Not Implemented: " + "WildcardGenericClass" +
-                "#getWithParametersFromSuperclass");
-    }
 }

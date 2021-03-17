@@ -145,14 +145,7 @@ public abstract class AbstractGenericClass<T extends Type> implements GenericCla
 
     @Override
     public GenericClass<?> getWithParametersFromSuperclass(GenericClass<?> superClass) throws ConstructionFailedException {
-        if (superClass.isTypeVariable()) return getWithParametersFromSuperclass((TypeVariableGenericClass) superClass);
-        else if (superClass.isWildcardType()) return getWithParametersFromSuperclass((WildcardGenericClass) superClass);
-        else if (superClass.isGenericArray())
-            return getWithParametersFromSuperclass((GenericArrayGenericClass) superClass);
-        else if (superClass.isRawClass()) return getWithParametersFromSuperclass((RawClassGenericClass) superClass);
-        else if (superClass.isParameterizedType())
-            return getWithParametersFromSuperclass((ParameterizedGenericClass) superClass);
-        else throw new IllegalArgumentException(superClass.getClass().getSimpleName() + " is not supported");
+        return GenericClassFactory.get(type);
     }
 
     @Override
@@ -441,81 +434,6 @@ public abstract class AbstractGenericClass<T extends Type> implements GenericCla
     abstract boolean canBeInstantiatedTo(ParameterizedGenericClass otherType);
 
     /**
-     * Fill the parameters of the super class to this generic class:
-     * <p>
-     * e.g:
-     * if
-     * this == LinkedList<?> and {@param superClass} == List<Integer>
-     * <p>
-     * then this function returns:
-     * LinkedList<Integer>
-     *
-     * @param superClass the super class.
-     * @return a generic class with the filled in Parameters.
-     */
-    abstract GenericClass<?> getWithParametersFromSuperclass(TypeVariableGenericClass superClass) throws ConstructionFailedException;
-
-    /**
-     * Fill the parameters of the super class to this generic class:
-     * <p>
-     * e.g:
-     * if
-     * this == LinkedList<?> and {@param superClass} == List<Integer>
-     * <p>
-     * then this function returns:
-     * LinkedList<Integer>
-     *
-     * @param superClass the super class.
-     * @return a generic class with the filled in Parameters.
-     */
-    abstract GenericClass<?> getWithParametersFromSuperclass(WildcardGenericClass superClass) throws ConstructionFailedException;
-
-    /**
-     * Fill the parameters of the super class to this generic class:
-     * <p>
-     * e.g:
-     * if
-     * this == LinkedList<?> and {@param superClass} == List<Integer>
-     * <p>
-     * then this function returns:
-     * LinkedList<Integer>
-     *
-     * @param superClass the super class.
-     * @return a generic class with the filled in Parameters.
-     */
-    abstract GenericClass<?> getWithParametersFromSuperclass(GenericArrayGenericClass superClass) throws ConstructionFailedException;
-
-    /**
-     * Fill the parameters of the super class to this generic class:
-     * <p>
-     * e.g:
-     * if
-     * this == LinkedList<?> and {@param superClass} == List<Integer>
-     * <p>
-     * then this function returns:
-     * LinkedList<Integer>
-     *
-     * @param superClass the super class.
-     * @return a generic class with the filled in Parameters.
-     */
-    abstract GenericClass<?> getWithParametersFromSuperclass(RawClassGenericClass superClass) throws ConstructionFailedException;
-
-    /**
-     * Fill the parameters of the super class to this generic class:
-     * <p>
-     * e.g:
-     * if
-     * this == LinkedList<?> and {@param superClass} == List<Integer>
-     * <p>
-     * then this function returns:
-     * LinkedList<Integer>
-     *
-     * @param superClass the super class.
-     * @return a generic class with the filled in Parameters.
-     */
-    abstract GenericClass<?> getWithParametersFromSuperclass(ParameterizedGenericClass superClass) throws ConstructionFailedException;
-
-    /**
      * Merge the type variable map with a collection of boundaries and enforce some type variables to be a given type.
      * <p>
      * Only if the boundary is a parameterized type, the type variable map of this generic class is affected, since
@@ -597,5 +515,15 @@ public abstract class AbstractGenericClass<T extends Type> implements GenericCla
             }
         }
         return true;
+    }
+
+    @Override
+    public GenericClass<?> setType(Type type) {
+        if(type instanceof ParameterizedType) return new ParameterizedGenericClass((ParameterizedType) type, rawClass);
+        if(type instanceof TypeVariable) return new TypeVariableGenericClass((TypeVariable<?>) type, rawClass);
+        if(type instanceof GenericArrayType) return new GenericArrayGenericClass((GenericArrayType) type, rawClass);
+        if(type instanceof WildcardType) return new WildcardGenericClass((WildcardType) type, rawClass);
+        if(type instanceof Class) return new RawClassGenericClass((Class<?>) type);
+        throw new IllegalArgumentException("Unsupported generic type: " + type.toString());
     }
 }

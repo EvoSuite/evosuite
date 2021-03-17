@@ -3,10 +3,14 @@ package org.evosuite.utils.generic;
 import org.apache.commons.lang3.reflect.TypeUtils;
 import org.evosuite.Properties;
 import org.evosuite.ga.ConstructionFailedException;
+import org.evosuite.utils.ParameterizedTypeImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.*;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
+import java.lang.reflect.WildcardType;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -104,21 +108,13 @@ public class ParameterizedGenericClass extends AbstractGenericClass<Parameterize
     }
 
     @Override
-    public GenericClass<?> getWithGenericParameterTypes(List<AbstractGenericClass<ParameterizedType>> parameters) {
-        Type[] typeArray = parameters.stream().map(GenericClass::getType).toArray(Type[]::new);
-        return GenericClassFactory.get(TypeUtils.parameterizeWithOwner(type.getOwnerType(), rawClass, typeArray));
-
-    }
-
-    @Override
     public boolean hasOwnerType() {
         return type.getOwnerType() != null;
     }
 
     @Override
     public boolean hasWildcardOrTypeVariables() {
-        if (hasWildcardTypes() || hasTypeVariables())
-            return true;
+        if (hasWildcardTypes() || hasTypeVariables()) return true;
         return hasOwnerType() && getOwnerType().hasWildcardOrTypeVariables();
     }
 
@@ -168,6 +164,62 @@ public class ParameterizedGenericClass extends AbstractGenericClass<Parameterize
     }
 
     @Override
+    public GenericClass<?> getWithGenericParameterTypes(List<AbstractGenericClass<ParameterizedType>> parameters) {
+        Type[] typeArray = parameters.stream().map(GenericClass::getType).toArray(Type[]::new);
+        return GenericClassFactory.get(TypeUtils.parameterizeWithOwner(type.getOwnerType(), rawClass, typeArray));
+
+    }
+
+    @Override
+    public GenericClass<?> getWithParametersFromSuperclass(GenericClass<?> superClass) throws ConstructionFailedException {
+        GenericClass<?> exactClass = GenericClassFactory.get(type);
+        if (superClass.isParameterizedType()) {
+            Map<TypeVariable<?>, Type> typeMap = TypeUtils.determineTypeArguments(rawClass,
+                    (ParameterizedType) superClass.getType());
+            return getGenericInstantiation(typeMap);
+        }
+        Class<?> targetClass = superClass.getRawClass();
+        Class<?> currentClass = rawClass;
+        Type[] parameterTypes = new Type[superClass.getNumParameters()];
+        superClass.getParameterTypes().toArray(parameterTypes);
+
+        if (targetClass.equals(currentClass)) {
+            exactClass= exactClass.setType(TypeUtils.parameterizeWithOwner(type.getOwnerType(), currentClass, parameterTypes));
+        } else {
+            Type ownerType = type.getOwnerType();
+            Map<TypeVariable<?>, Type> superTypeMap = superClass.getTypeVariableMap();
+            Type[] origArguments = type.getActualTypeArguments();
+            Type[] arguments = new Type[origArguments.length];
+            System.arraycopy(origArguments, 0, arguments, 0, origArguments.length);
+
+            List<TypeVariable<?>> variables = getTypeVariables();
+            for (int i = 0; i < arguments.length; i++) {
+                TypeVariable<?> var = variables.get(i);
+                if (superTypeMap.containsKey(var)) {
+                    arguments[i] = superTypeMap.get(var);
+                } else if (arguments[i] instanceof WildcardType && i < parameterTypes.length) {
+                    if (!TypeUtils.isAssignable(parameterTypes[i], arguments[i])) {
+                        return null;
+                    } else {
+                        final int x = i;
+                        boolean assignable =
+                                Arrays.stream(variables.get(i).getBounds())
+                                        .anyMatch(bound -> TypeUtils.isAssignable(parameterTypes[x], bound));
+                        if (!assignable)
+                            return null;
+                    }
+                    arguments[i] = parameterTypes[i];
+                }
+            }
+            GenericClass<?> ownerClass = GenericClassFactory.get(ownerType).getWithParametersFromSuperclass(superClass);
+            if (ownerClass == null) return null;
+            exactClass = exactClass.setType(TypeUtils.parameterizeWithOwner(ownerType, currentClass, arguments));
+        }
+
+        return exactClass;
+    }
+
+    @Override
     protected Map<TypeVariable<?>, Type> computeTypeVariableMapIfTypeVariable() {
         return Collections.emptyMap();
     }
@@ -194,7 +246,8 @@ public class ParameterizedGenericClass extends AbstractGenericClass<Parameterize
             Map<TypeVariable<?>, Type> typeMap = otherType.getTypeVariableMap();
             try {
                 GenericClass<?> instantiation = getGenericInstantiation(typeMap);
-                return equals(instantiation) ? !hasWildcardOrTypeVariables() : instantiation.canBeInstantiatedTo(otherType);
+                return equals(instantiation) ? !hasWildcardOrTypeVariables() :
+                        instantiation.canBeInstantiatedTo(otherType);
             } catch (ConstructionFailedException e) {
                 logger.debug("Failed to instantiate " + toString());
                 return false;
@@ -223,7 +276,8 @@ public class ParameterizedGenericClass extends AbstractGenericClass<Parameterize
             Map<TypeVariable<?>, Type> typeMap = otherType.getTypeVariableMap();
             try {
                 GenericClass<?> instantiation = getGenericInstantiation(typeMap);
-                return equals(instantiation) ? !hasWildcardOrTypeVariables() : instantiation.canBeInstantiatedTo(otherType);
+                return equals(instantiation) ? !hasWildcardOrTypeVariables() :
+                        instantiation.canBeInstantiatedTo(otherType);
             } catch (ConstructionFailedException e) {
                 logger.debug("Failed to instantiate " + toString());
                 return false;
@@ -252,7 +306,8 @@ public class ParameterizedGenericClass extends AbstractGenericClass<Parameterize
             Map<TypeVariable<?>, Type> typeMap = otherType.getTypeVariableMap();
             try {
                 GenericClass<?> instantiation = getGenericInstantiation(typeMap);
-                return equals(instantiation) ? !hasWildcardOrTypeVariables() : instantiation.canBeInstantiatedTo(otherType);
+                return equals(instantiation) ? !hasWildcardOrTypeVariables() :
+                        instantiation.canBeInstantiatedTo(otherType);
             } catch (ConstructionFailedException e) {
                 logger.debug("Failed to instantiate " + toString());
                 return false;
@@ -281,7 +336,8 @@ public class ParameterizedGenericClass extends AbstractGenericClass<Parameterize
             Map<TypeVariable<?>, Type> typeMap = otherType.getTypeVariableMap();
             try {
                 GenericClass<?> instantiation = getGenericInstantiation(typeMap);
-                return equals(instantiation) ? !hasWildcardOrTypeVariables() : instantiation.canBeInstantiatedTo(otherType);
+                return equals(instantiation) ? !hasWildcardOrTypeVariables() :
+                        instantiation.canBeInstantiatedTo(otherType);
             } catch (ConstructionFailedException e) {
                 logger.debug("Failed to instantiate " + toString());
                 return false;
@@ -313,7 +369,8 @@ public class ParameterizedGenericClass extends AbstractGenericClass<Parameterize
                 typeMap.putAll(TypeUtils.determineTypeArguments(rawClass, otherType.getType()));
             try {
                 GenericClass<?> instantiation = getGenericInstantiation(typeMap);
-                return equals(instantiation) ? !hasWildcardOrTypeVariables() : instantiation.canBeInstantiatedTo(otherType);
+                return equals(instantiation) ? !hasWildcardOrTypeVariables() :
+                        instantiation.canBeInstantiatedTo(otherType);
             } catch (ConstructionFailedException e) {
                 logger.debug("Failed to instantiate " + toString());
                 return false;
@@ -322,39 +379,48 @@ public class ParameterizedGenericClass extends AbstractGenericClass<Parameterize
         return false;
     }
 
-    @Override
-    GenericClass<?> getWithParametersFromSuperclass(TypeVariableGenericClass superClass) throws ConstructionFailedException {
-        throw new UnsupportedOperationException("Not Implemented: " + "ParameterizedGenericClass" +
-                "#getWithParametersFromSuperclass");
-    }
-
-    @Override
-    GenericClass<?> getWithParametersFromSuperclass(WildcardGenericClass superClass) throws ConstructionFailedException {
-        throw new UnsupportedOperationException("Not Implemented: " + "ParameterizedGenericClass" +
-                "#getWithParametersFromSuperclass");
-    }
-
-    @Override
-    GenericClass<?> getWithParametersFromSuperclass(GenericArrayGenericClass superClass) throws ConstructionFailedException {
-        throw new UnsupportedOperationException("Not Implemented: ParameterizedGenericClass" +
-                "#getWithParametersFromSuperclass");
-    }
-
-    @Override
-    GenericClass<?> getWithParametersFromSuperclass(RawClassGenericClass superClass) throws ConstructionFailedException {
-        throw new UnsupportedOperationException("Not Implemented: " + "ParameterizedGenericClass" +
-                "#getWithParametersFromSuperclass");
-    }
-
-    @Override
-    GenericClass<?> getWithParametersFromSuperclass(ParameterizedGenericClass superClass) throws ConstructionFailedException {
-        throw new UnsupportedOperationException("Not Implemented: " + "ParameterizedGenericClass" +
-                "#getWithParametersFromSuperclass");
-    }
-
     private GenericClass<?> getGenericParameterizedTypeInstantiation(Map<TypeVariable<?>, Type> typeMap,
-                                                                     int recursionLevel) {
-        throw new UnsupportedOperationException("Not Implemented: " + "ParameterizedGenericClass" +
-                "#getGenericParameterizedTypeInstantiation");
+                                                                     int recursionLevel) throws ConstructionFailedException {
+        List<TypeVariable<?>> typeParameters = getTypeVariables();
+
+        Type[] parameterTypes = new Type[typeParameters.size()];
+        Type ownerType = null;
+
+        int numParam = 0;
+
+        for (GenericClass<?> parameterClass : getParameterClasses()) {
+            /*
+             * If the parameter is a parameterized type variable such as T extends Map<String, K extends Number>
+             * then the boundaries of the parameters of the type variable need to be respected
+             */
+            if (!parameterClass.hasWildcardOrTypeVariables()) {
+                parameterTypes[numParam++] = parameterClass.getType();
+            } else {
+                Map<TypeVariable<?>, Type> extendedMap = new HashMap<>(typeMap);
+                extendedMap.putAll(parameterClass.getTypeVariableMap());
+                if (!extendedMap.containsKey(typeParameters.get(numParam)) && !parameterClass.isTypeVariable())
+                    extendedMap.put(typeParameters.get(numParam), parameterClass.getType());
+
+                if (parameterClass.isWildcardType()) {
+                    GenericClass<?> parameterInstance = parameterClass.getGenericWildcardInstantiation(extendedMap,
+                            recursionLevel + 1);
+                    if (!parameterInstance.satisfiesBoundaries(typeParameters.get(numParam))) {
+                        throw new ConstructionFailedException("Invalid generic instance");
+                    }
+                    parameterTypes[numParam++] = parameterInstance.getType();
+                } else {
+                    GenericClass<?> parameterInstance = parameterClass.getGenericInstantiation(extendedMap,
+                            recursionLevel + 1);
+                    parameterTypes[numParam++] = parameterInstance.getType();
+                }
+            }
+        }
+
+        if (hasOwnerType()) {
+            GenericClass<?> ownerClass = getOwnerType().getGenericInstantiation(typeMap, recursionLevel);
+            ownerType = ownerClass.getType();
+        }
+
+        return GenericClassFactory.get(TypeUtils.parameterizeWithOwner(ownerType, rawClass, parameterTypes));
     }
 }

@@ -290,34 +290,4 @@ public class RawClassGenericClass extends AbstractGenericClass<Class<?>> {
         }
         return false;
     }
-
-    @Override
-    GenericClass<?> getWithParametersFromSuperclass(TypeVariableGenericClass superClass) throws ConstructionFailedException {
-        throw new UnsupportedOperationException("Not Implemented: " + "RawClassGenericClass" +
-                "#getWithParametersFromSuperclass");
-    }
-
-    @Override
-    GenericClass<?> getWithParametersFromSuperclass(WildcardGenericClass superClass) throws ConstructionFailedException {
-        throw new UnsupportedOperationException("Not Implemented: " + "RawClassGenericClass" +
-                "#getWithParametersFromSuperclass");
-    }
-
-    @Override
-    GenericClass<?> getWithParametersFromSuperclass(GenericArrayGenericClass superClass) throws ConstructionFailedException {
-        throw new UnsupportedOperationException("Not Implemented: RawClassGenericClass" +
-                "#getWithParametersFromSuperclass");
-    }
-
-    @Override
-    GenericClass<?> getWithParametersFromSuperclass(RawClassGenericClass superClass) throws ConstructionFailedException {
-        throw new UnsupportedOperationException("Not Implemented: " + "RawClassGenericClass" +
-                "#getWithParametersFromSuperclass");
-    }
-
-    @Override
-    GenericClass<?> getWithParametersFromSuperclass(ParameterizedGenericClass superClass) throws ConstructionFailedException {
-        throw new UnsupportedOperationException("Not Implemented: " + "RawClassGenericClass" +
-                "#getWithParametersFromSuperclass");
-    }
 }

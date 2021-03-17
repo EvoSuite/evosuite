@@ -1258,6 +1258,11 @@ public class GenericClassImpl implements Serializable, GenericClass<GenericClass
         return selectedClass.getGenericInstantiation(typeMap, recursionLevel + 1);
     }
 
+    @Override
+    public GenericClass<?> setType(Type type) {
+        throw new UnsupportedOperationException("Not Implemented: GenericClassImpl#setType");
+    }
+
     /* (non-Javadoc)
      * @see java.lang.Object#hashCode()
      */
