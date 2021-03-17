@@ -42,6 +42,10 @@ import com.googlecode.gentyref.GenericTypeReflector;
 
 import static java.util.Comparator.comparingInt;
 
+/**
+ * Searches primarily for classes that are used in casts in the ByteCode,
+ * because typically at casts, the java compiler did type erasure.
+ */
 public class CastClassManager {
 
 	private static final Logger logger = LoggerFactory.getLogger(CastClassManager.class);

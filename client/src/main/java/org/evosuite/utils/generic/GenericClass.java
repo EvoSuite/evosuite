@@ -1,5 +1,7 @@
 package org.evosuite.utils.generic;
 
+import com.googlecode.gentyref.GenericTypeReflector;
+import org.evosuite.Properties;
 import org.evosuite.ga.ConstructionFailedException;
 
 import java.lang.reflect.Type;
@@ -29,11 +31,10 @@ public interface GenericClass<T extends GenericClass<T>> {
     boolean canBeInstantiatedTo(GenericClass<?> otherType);
 
     /**
-     * <p>
-     * changeClassLoader
-     * </p>
+     * change the class loader of this generic class.
      *
-     * @param loader a {@link java.lang.ClassLoader} object.
+     * @param loader the class loader to be used.
+     * @return whether changing the class loader was successful,.
      */
     boolean changeClassLoader(ClassLoader loader);
 
@@ -76,7 +77,6 @@ public interface GenericClass<T extends GenericClass<T>> {
      */
     String getComponentName();
 
-    // TODO: write proper documentation.
     /**
      * Alias for {@code TypeUtils#getArrayComponentType} with getType() as argument.
      *
@@ -86,44 +86,58 @@ public interface GenericClass<T extends GenericClass<T>> {
 
     // TODO: write proper documentation.
     /**
+     * Compute the generic boundaries of this generic class.
      *
-     * @return
+     * @return the generic boundaries.
      */
     Collection<GenericClass<?>> getGenericBounds();
 
     /**
-     * Instantiate all type variables randomly, but adhering to type boundaries.
+     * Generate a possible instantiation of this generic class randomly.
+     * All type variables are instantiated randomly.
      *
-     * @return The generic class with randomly set type variables.
-     * @throws ConstructionFailedException If the generic class couldn't be constructed.
+     * The generic depth is assumed to be 0, e.g. this generic class is not used as parameter of another generic class.
+     *
+     * If this generic class has no wildcards or type variables, a copy of this generic class is returned.
+     *
+     * @return an instantiation of this generic class.
+     * @throws ConstructionFailedException if no instantiation could be constructed.
      */
     GenericClass<?> getGenericInstantiation() throws ConstructionFailedException;
 
     /**
-     * Instantiate type variables using map.
+     * Generate a possible instantiation of this generic class randomly.
      *
-     * All type variables not contained in {@param map} are set randomly.
+     * The generic depth is assumed to be 0, e.g. this generic class is not used as parameter of another generic class.
      *
-     * @param typeMap map of type variables that MUST be a given type.
-     * @return The generic class with type variables set as previously specified.
-     * @throws ConstructionFailedException If the generic class couldn't be constructed.
+     * If this generic class has no wildcards or type variables, a copy of this generic class is returned.
+     *
+     * @param typeMap Constraints to the type variables of this generic class.
+     * @return an instantiation of this generic class.
+     * @throws ConstructionFailedException if no instantiation could be constructed.
      */
     GenericClass<?> getGenericInstantiation(Map<TypeVariable<?>, Type> typeMap) throws ConstructionFailedException;
 
-    // TODO: write proper documentation.
     /**
+     * Generate a possible instantiation of this generic class randomly.
      *
-     * @param typeMap
-     * @param recursionLevel
-     * @return
-     * @throws ConstructionFailedException
+     * The current generic depth of the instantiation can be set with {@param recursionLevel} to ensure the
+     * maximal generic depth {@link Properties#MAX_GENERIC_DEPTH} is respected.
+     * This should only be relevant for instantiating the parameter of another generic class.
+     *
+     * If this generic class has no wildcards or type variables, a copy of this generic class is returned.
+     *
+     * @param typeMap Constraints to the type variables of this generic class.
+     * @param recursionLevel the maximal generic depth of the instantiation.
+     * @return an instantiation of this generic class.
+     * @throws ConstructionFailedException if no instantiation could be constructed.
      */
     GenericClass<?> getGenericInstantiation(Map<TypeVariable<?>, Type> typeMap, int recursionLevel) throws ConstructionFailedException;
 
     /**
      * Get the interfaces, that this class implements.
      *
-     * @return a List of {@code GenericClass}, each element represents one interface.
+     * @return a List of {@link GenericClass}, each element represents one interface.
      */
     List<GenericClass<?>> getInterfaces();
 
@@ -140,12 +154,12 @@ public interface GenericClass<T extends GenericClass<T>> {
      *
      * IF this is not a parameterized type, its behaviour is undefined.
      *
-     * @return the owner type as {@code GenericClass}.
+     * @return the owner type as {@link GenericClass}.
      */
     GenericClass<?> getOwnerType();
 
     /**
-     * A list containing the generic type parameters (as {@code Type} objects) of the represented generic class.
+     * A list containing the generic type parameters (as {@link Type} objects) of the represented generic class.
      *
      * The order of the list is equal to the order of the generic parameters (from left to right).
      *
@@ -154,7 +168,7 @@ public interface GenericClass<T extends GenericClass<T>> {
     List<Type> getParameterTypes();
 
     /**
-     * A list containing the generic type parameters (as {@code GenericClass} objects) of the represented generic class.
+     * A list containing the generic type parameters (as {@link GenericClass} objects) of the represented generic class.
      *
      * The order of the list is equal to the order of the generic parameters (from left to right).
      *
@@ -186,29 +200,33 @@ public interface GenericClass<T extends GenericClass<T>> {
 
     // TODO: write proper documentation.
     /**
+     * Get the generic super class of this generic class.
      *
-     * @return
+     * The generic information of the super class is inferred from this generic class.
+     *
+     * See {@link GenericTypeReflector#getExactSuperType} for additional information.
+     *
+     * @return the generic super class.
      */
     GenericClass<?> getSuperClass();
 
-    // TODO: write proper documentation.
     /**
-     *
-     * @return
+     * Get the represented {@link java.lang.reflect.Type} object.
      */
     Type getType();
 
-    // TODO: write proper documentation.
     /**
-     *
-     * @return
+     * Alias for {@link GenericTypeReflector#getTypeName} of the represented class.
      */
     String getTypeName();
 
-    // TODO: write proper documentation.
     /**
+     * The type variable map is a mapping from a {@link TypeVariable} to a {@link Type} object:
      *
-     * @return
+     * The key set of the mapping is the set of type variables of this generic class.
+     * THe value of every set is the constraint, of this type variable for this generic class.
+     *
+     * @return a view on the type variable map
      */
     Map<TypeVariable<?>, Type> getTypeVariableMap();
 
@@ -220,10 +238,10 @@ public interface GenericClass<T extends GenericClass<T>> {
      */
     List<TypeVariable<?>> getTypeVariables();
 
-    // TODO: write proper documentation.
     /**
+     * Return the unboxed type of this generic class if this is a wrapper type (e.g. {@link Integer})
      *
-     * @return
+     * @return the raw class of the unboxed type.
      */
     Class<?> getUnboxedType();
 
@@ -339,24 +357,18 @@ public interface GenericClass<T extends GenericClass<T>> {
      */
     boolean hasWildcardTypes();
 
-    // TODO: write proper documentation.
     /**
-     *
-     * @return
+     * @return Whether this generic class is abstract.
      */
     boolean isAbstract();
 
-    // TODO: write proper documentation.
     /**
-     *
-     * @return
+     * @return Whether this generic class is anonymous.
      */
     boolean isAnonymous();
 
-    // TODO: write proper documentation.
     /**
-     *
-     * @return
+     * @return whether this generic class is an array.
      */
     boolean isArray();
 
