@@ -49,7 +49,7 @@ public interface GenericClass<T extends GenericClass<T>> {
 
     /**
      * The name of the represented generic class.
-     * See {@see Class#getName()} for the exact format of the name.
+     * See {@link Class#getName()} for the exact format of the name.
      *
      * @return the name of the raw class.
      */
@@ -287,10 +287,13 @@ public interface GenericClass<T extends GenericClass<T>> {
      */
     GenericClass<?> getWithParameterTypes(Type[] parameters);
 
-    // TODO: write proper documentation.
     /**
+     * Replaces all type parameters with unbound wildcards ("?").
      *
-     * @return
+     * An example implementation on type level is: {@link GenericTypeReflector#addWildcardParameters(Class)}
+     * An implementation of this function may only be a wrapper of this function.
+     *
+     * @return This generic class with replaced parameters.
      */
     GenericClass<?> getWithWildcardTypes();
 
