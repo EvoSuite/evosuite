@@ -33,10 +33,13 @@ VOLUME /evosuite
 # Copy the evosuite jar from the builder to this container
 COPY --from=build /build/bin /evosuite-bin
 
+# Copy the EvoSuite experiment scripts to this container
+COPY scripts /evosuite-scripts
+
 # The executable is evosuite
-ENTRYPOINT ["java", "-jar", "/evosuite-bin/evosuite.jar"]
+ENTRYPOINT ["/evosuite-scripts/experiment_runner"]
 
 # The default argument is the help menu
 # This can be overidden on the command line
-CMD ["-help"]
+CMD ["-h"]
 
