@@ -222,7 +222,7 @@ public class JUnitAnalyzer {
 				        + failure.getExceptionClassName() + ": " + failure.getMessage());
 				
 				for (String elem : failure.getExceptionStackTrace()) {
-					logger.info(elem);
+					logger.info("Exception trace: {}", elem);
 				}
 
 				boolean toRemove = !(failure.isAssertionError());

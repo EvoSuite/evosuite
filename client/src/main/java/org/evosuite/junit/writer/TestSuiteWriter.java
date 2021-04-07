@@ -38,6 +38,7 @@ import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.evosuite.utils.ArrayUtil;
 import org.evosuite.utils.FileIOUtils;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.objectweb.asm.Opcodes;
@@ -440,7 +441,10 @@ public class TestSuiteWriter implements Opcodes {
         if (TestSuiteWriterUtils.needToUseAgent() && !Properties.NO_RUNTIME_DEPENDENCY) {
             imports.add(EvoRunner.class);
             imports.add(EvoRunnerParameters.class);
-            imports.add(RunWith.class);
+            if(Properties.TEST_FORMAT == Properties.OutputFormat.JUNIT5)
+                imports.add(ExtendWith.class);
+            else
+                imports.add(RunWith.class);
         }
 
         Set<String> importNames = new HashSet<>();
@@ -549,7 +553,9 @@ public class TestSuiteWriter implements Opcodes {
 
     private Object getRunner() {
 
-        String s = "@RunWith(EvoRunner.class) @EvoRunnerParameters(";
+
+        String s = Properties.TEST_FORMAT == Properties.OutputFormat.JUNIT5 ? "@ExtendWith(EvoRunner.class) @EvoRunnerParameters("
+                                    :"@RunWith(EvoRunner.class) @EvoRunnerParameters(";
         List<String> list = new ArrayList<>();
 
         if (Properties.REPLACE_CALLS) {

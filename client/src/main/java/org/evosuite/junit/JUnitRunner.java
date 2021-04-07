@@ -23,8 +23,13 @@ package org.evosuite.junit;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.evosuite.Properties;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Request;
+import org.junit.runner.notification.RunNotifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.junit.platform.runner.JUnitPlatform;
 
 /**
  * <p>
@@ -35,6 +40,7 @@ import org.junit.runner.Request;
  */
 public class JUnitRunner {
 
+	private static Logger logger = LoggerFactory.getLogger(JUnitRunner.class);
 	
 	private List<JUnitResult> testResults;
 
@@ -50,9 +56,18 @@ public class JUnitRunner {
 	public void run() {
 		Request request = Request.aClass(this.junitClass);
 
-		JUnitCore junit = new JUnitCore();
-		junit.addListener(new JUnitRunListener(this));
-		junit.run(request);
+		if(Properties.TEST_FORMAT == Properties.OutputFormat.JUNIT4) {
+			JUnitCore junit = new JUnitCore();
+			junit.addListener(new JUnitRunListener(this));
+			junit.run(request);
+		} else if(Properties.TEST_FORMAT == Properties.OutputFormat.JUNIT5){
+			JUnitPlatform platform = new JUnitPlatform(this.junitClass);
+			RunNotifier notifier = new RunNotifier();
+			notifier.addFirstListener(new JUnitRunListener(this));
+			platform.run(notifier);
+		} else {
+			logger.warn("Can't run junit test with test format: {}", Properties.TEST_FORMAT);
+		}
 	}
 
 	/**
