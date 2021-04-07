@@ -13,8 +13,8 @@ import java.util.stream.Collectors;
  *
  * @param <T> The class to be stored with priorities.
  */
-public class PriorityCollection<T> {
-    private static final Logger logger = LoggerFactory.getLogger(PriorityCollection.class);
+public class Prioritization<T> {
+    private static final Logger logger = LoggerFactory.getLogger(Prioritization.class);
 
     // The actual elements
     private final TreeSet<T> elements;
@@ -30,7 +30,7 @@ public class PriorityCollection<T> {
      *
      * @param baseComparator the base comparator
      */
-    public PriorityCollection(Comparator<T> baseComparator) {
+    public Prioritization(Comparator<T> baseComparator) {
         this(baseComparator, false);
     }
 
@@ -44,7 +44,7 @@ public class PriorityCollection<T> {
      * @param baseComparator the base comparator
      * @param reversed       reverse the comparator before initializing the SortedSet.
      */
-    public PriorityCollection(Comparator<T> baseComparator, boolean reversed) {
+    public Prioritization(Comparator<T> baseComparator, boolean reversed) {
         Comparator<T> comparator = baseComparator.thenComparingInt(this::getPriority);
         if (reversed) comparator = comparator.reversed();
         elements = new TreeSet<>(comparator);

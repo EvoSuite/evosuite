@@ -290,4 +290,9 @@ public class RawClassGenericClass extends AbstractGenericClass<Class<?>> {
         }
         return false;
     }
+
+    @Override
+    public String toString() {
+        return "RawClassGenericClass{" + "type=" + type + ", rawClass=" + rawClass + '}';
+    }
 }

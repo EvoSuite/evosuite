@@ -50,12 +50,12 @@ public class GenericConstructor extends GenericExecutable<GenericConstructor, Co
 	}
 
 	public GenericConstructor(Constructor<?> constructor, GenericClass<?> owner) {
-		super(new GenericClassImpl(owner));
+		super(GenericClassFactory.get(owner));
 		this.constructor = constructor;
 	}
 
 	public GenericConstructor(Constructor<?> constructor, Type type) {
-		super(new GenericClassImpl(type));
+		super(GenericClassFactory.get(type));
 		this.constructor = constructor;
 	}
 
@@ -95,7 +95,7 @@ public class GenericConstructor extends GenericExecutable<GenericConstructor, Co
 
 	@Override
 	public GenericConstructor copy() {
-		GenericConstructor copy = new GenericConstructor(constructor, new GenericClassImpl(owner));
+		GenericConstructor copy = new GenericConstructor(constructor, GenericClassFactory.get(owner));
 		copyTypeVariables(copy);
 		return copy;
 	}

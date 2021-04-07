@@ -39,9 +39,6 @@ import java.util.*;
 import static org.evosuite.utils.generic.GenericClassUtils.WRAPPER_TYPES;
 import static org.evosuite.utils.generic.GenericClassUtils.primitiveClasses;
 
-// TODO: können wir gentyref loswerden (TypeReflector, ArrayComponentType)
-// TODO:  getExactSuperType auch in Apache?
-
 /**
  * Run-time representation of a Java datatype, similar in spirit to {@link java.lang.Class} and
  * {@link java.lang.reflect.Type} but enhanced with more functionality, such as reification of type
@@ -72,7 +69,6 @@ public class GenericClassImpl implements Serializable, GenericClass<GenericClass
      * @param clazz a {@link java.lang.Class} object.
      */
     GenericClassImpl(Class<?> clazz) {
-        Objects.requireNonNull(clazz);
         this.type = GenericClassUtils.addTypeParameters(clazz); //GenericTypeReflector.addWildcardParameters(clazz);
         this.rawClass = clazz;
     }

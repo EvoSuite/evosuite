@@ -197,7 +197,7 @@ public class GenericUtils {
 		if (!p1.getRawType().equals(p2.getRawType())) {
 			logger.debug("Raw types do not match!");
 			
-			GenericClassImpl ownerClass = new GenericClassImpl(p2);
+			GenericClass<?> ownerClass = GenericClassFactory.get(p2);
 			
 			if(GenericClassUtils.isSubclass(p1.getRawType(), p2.getRawType())) {
 				logger.debug(p1 +" is a super type of "+p2);
@@ -248,7 +248,7 @@ public class GenericUtils {
 					logger.debug("Interface "+interfaceClass+" is not parameterized");
 			}
 			if(ownerClass.getRawClass().getSuperclass() != null) {
-				GenericClassImpl ownerSuperClass = ownerClass.getSuperClass();
+				GenericClass<?> ownerSuperClass = ownerClass.getSuperClass();
 				if(ownerSuperClass.isParameterizedType()) 
 					map.putAll(getMatchingTypeParameters(p1, (ParameterizedType)ownerSuperClass.getType()));
 				else

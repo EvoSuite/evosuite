@@ -42,8 +42,10 @@ public class ParameterizedGenericClass extends AbstractGenericClass<Parameterize
                     parameterClasses.add(parameter);
                 }
                 Type[] parameterTypes = parameterClasses.stream().map(GenericClass::getType).toArray(Type[]::new);
-                if (ownerType == null) this.type = TypeUtils.parameterize(rawClass, parameterTypes);
-                else this.type = TypeUtils.parameterizeWithOwner(ownerType.getType(), rawClass, parameterTypes);
+                if (ownerType == null) this.type = parameterizeWithOwner(null, rawClass, parameterTypes);
+                else
+                    this.type = parameterizeWithOwner(ownerType.getType(), rawClass,
+                            parameterTypes);
             } else {
                 // TODO what to do if type == null?
                 throw new IllegalStateException("Type of generic class is null. Don't know what to do.");
@@ -166,7 +168,8 @@ public class ParameterizedGenericClass extends AbstractGenericClass<Parameterize
     @Override
     public GenericClass<?> getWithGenericParameterTypes(List<AbstractGenericClass<ParameterizedType>> parameters) {
         Type[] typeArray = parameters.stream().map(GenericClass::getType).toArray(Type[]::new);
-        return GenericClassFactory.get(TypeUtils.parameterizeWithOwner(type.getOwnerType(), rawClass, typeArray));
+        return GenericClassFactory.get(AbstractGenericClass.parameterizeWithOwner(type.getOwnerType(), rawClass,
+                typeArray));
 
     }
 
@@ -184,7 +187,12 @@ public class ParameterizedGenericClass extends AbstractGenericClass<Parameterize
         superClass.getParameterTypes().toArray(parameterTypes);
 
         if (targetClass.equals(currentClass)) {
-            exactClass= exactClass.setType(TypeUtils.parameterizeWithOwner(type.getOwnerType(), currentClass, parameterTypes));
+            logger.debug("Create Parameterized type, owner: {}, current class: {}, param types: {}",
+                    type.getOwnerType(), currentClass, Arrays.toString(parameterTypes));
+//            exactClass= exactClass.setType(TypeUtils.parameterizeWithOwner(type.getOwnerType(), currentClass,
+//            parameterTypes));
+            exactClass = exactClass.setType(AbstractGenericClass.parameterizeWithOwner(type.getOwnerType(),
+                    currentClass, parameterTypes));
         } else {
             Type ownerType = type.getOwnerType();
             Map<TypeVariable<?>, Type> superTypeMap = superClass.getTypeVariableMap();
@@ -203,17 +211,16 @@ public class ParameterizedGenericClass extends AbstractGenericClass<Parameterize
                     } else {
                         final int x = i;
                         boolean assignable =
-                                Arrays.stream(variables.get(i).getBounds())
-                                        .anyMatch(bound -> TypeUtils.isAssignable(parameterTypes[x], bound));
-                        if (!assignable)
-                            return null;
+                                Arrays.stream(variables.get(i).getBounds()).anyMatch(bound -> TypeUtils.isAssignable(parameterTypes[x], bound));
+                        if (!assignable) return null;
                     }
                     arguments[i] = parameterTypes[i];
                 }
             }
             GenericClass<?> ownerClass = GenericClassFactory.get(ownerType).getWithParametersFromSuperclass(superClass);
             if (ownerClass == null) return null;
-            exactClass = exactClass.setType(TypeUtils.parameterizeWithOwner(ownerType, currentClass, arguments));
+            exactClass = exactClass.setType(AbstractGenericClass.parameterizeWithOwner(ownerType, currentClass,
+                    arguments));
         }
 
         return exactClass;
@@ -230,6 +237,8 @@ public class ParameterizedGenericClass extends AbstractGenericClass<Parameterize
         List<TypeVariable<?>> typeVariables = getTypeVariables();
         List<Type> types = getParameterTypes();
         boolean changed = false;
+        logger.debug("Updating inherited type variables - type: {}, typeVariables: {}, types: {}", type,
+                typeVariables, types);
         for (int i = 0; i < typeVariables.size(); i++) {
             if (types.get(i) != typeVariables.get(i)) {
                 typeMap.put(typeVariables.get(i), types.get(i));
@@ -421,6 +430,6 @@ public class ParameterizedGenericClass extends AbstractGenericClass<Parameterize
             ownerType = ownerClass.getType();
         }
 
-        return GenericClassFactory.get(TypeUtils.parameterizeWithOwner(ownerType, rawClass, parameterTypes));
+        return GenericClassFactory.get(AbstractGenericClass.parameterizeWithOwner(ownerType, rawClass, parameterTypes));
     }
 }

@@ -50,29 +50,15 @@ import static java.util.Comparator.comparingInt;
  * because typically at casts, the java compiler did type erasure.
  */
 public class CastClassManager {
-    /*
-    TODO - Check if the priority collections orders the elements correctly.
-         - Remove classMap completely.
-         - Validate the functionality of this class, e.g. We probably need tests, since the correctness of this class
-            can be affected by future changes in the Java Language Specification / JVM.
-     */
 
     private static final Logger logger = LoggerFactory.getLogger(CastClassManager.class);
-    private final static List<Class<?>> SPECIAL_CASES = Arrays.asList(Comparable.class, Comparator.class,
-            Iterable.class, Enum.class);
     private static CastClassManager instance = new CastClassManager();
-//    /**
-//     * The key is the generic class that can be used.
-//     * The value is the priority to use this class for casts. The priority is used as secondary sorting criteria,
-//     * when the number of type parameters are equal.
-//     */
-//    private final Map<GenericClass<?>, Integer> classMap = new LinkedHashMap<>();
 
     /**
      * Store the cast classes in a sorted data structure to prevent multiple sorts on the same set of classes.
      */
-    private final PriorityCollection<GenericClass<?>> priorityCollection =
-            new PriorityCollection<>(comparingInt(GenericClass::getNumParameters));
+    private final Prioritization<GenericClass<?>> prioritization =
+            new Prioritization<>(comparingInt(GenericClass::getNumParameters));
 
     // Private constructor due to singleton pattern, use getInstance() instead
     private CastClassManager() {
@@ -83,24 +69,6 @@ public class CastClassManager {
         return instance;
     }
 
-//    /**
-//     * Sorts the classes contained in the given map by the number of generic type parameters and, if
-//     * this number is equal, by their "priority" as given by the map. The rationale is that classes
-//     * with less generic parameter types are easier to instantiate. Such classes will be at the
-//     * front of the returned list. If the number of type parameters is equal for two classes they
-//     * will be sorted based on the priority retrieved form the given map, such that classes with
-//     * lower priority values proceed those with higher ones.
-//     *
-//     * @param classPriorityMap assigns classes to priorities
-//     * @return list of classes ordered by number of generic type parameters, and by priority if tied
-//     */
-//    public static List<GenericClass<?>> sortByValue(Map<GenericClass<?>, Integer> classPriorityMap) {
-//        final List<GenericClass<?>> classes = new LinkedList<>(classPriorityMap.keySet());
-//        final Comparator<GenericClass<?>> byNumParameters = comparingInt(GenericClass::getNumParameters);
-//        final Comparator<GenericClass<?>> byPriority = comparingInt(classPriorityMap::get);
-//        classes.sort(byNumParameters.thenComparing(byPriority));
-//        return classes;
-//    }
 
     /**
      * Chooses and returns a class among the given ones. Classes at the front of the list will
@@ -211,14 +179,8 @@ public class CastClassManager {
         }
     }
 
-//    public GenericClass<?> selectCastClass() {
-//        final List<GenericClass<?>> assignableClasses = sortByValue(classMap);
-//        return selectClass(assignableClasses);
-//    }
-
     public GenericClass<?> selectCastClass(final TypeVariable<?> typeVariable, final boolean allowRecursion,
                                            final Map<TypeVariable<?>, Type> ownerVariableMap) {
-        // TODO Make this function use the priority collection.
         List<GenericClass<?>> assignableClasses = getAssignableClasses(typeVariable, allowRecursion, ownerVariableMap);
 
         logger.debug("Assignable classes to " + typeVariable + ": " + assignableClasses);
@@ -293,7 +255,7 @@ public class CastClassManager {
      * @return Whether the class with the name is contained by this manager.
      */
     public boolean hasClass(final String className) {
-        return priorityCollection.anyMatch(clazz -> clazz.getClassName().equals(className));
+        return prioritization.anyMatch(clazz -> clazz.getClassName().equals(className));
     }
 
     /**
@@ -302,7 +264,7 @@ public class CastClassManager {
      * @return the view.
      */
     public Set<GenericClass<?>> getCastClasses() {
-        return Collections.unmodifiableSet(priorityCollection.getElements());
+        return Collections.unmodifiableSet(prioritization.getElements());
     }
 
     /**
@@ -310,7 +272,7 @@ public class CastClassManager {
      */
     public void clear() {
 //        classMap.clear();
-        priorityCollection.clear();
+        prioritization.clear();
         initDefaultClasses();
     }
 
@@ -322,44 +284,6 @@ public class CastClassManager {
         putCastClass(GenericClassFactory.get(String.class), 1);
         putCastClass(GenericClassFactory.get(Integer.class), 1);
     }
-
-//    private void handleComparable() {
-//        // TODO
-//        throw new UnsupportedOperationException("not yet implemented");
-//    }
-//
-//    private void handleComparator() {
-//        // TODO
-//        throw new UnsupportedOperationException("not yet implemented");
-//    }
-//
-//    private void handleEnum() {
-//        // TODO
-//        throw new UnsupportedOperationException("not yet implemented");
-//    }
-//
-//    private void handleIterable() {
-//        // TODO
-//        throw new UnsupportedOperationException("not yet implemented");
-//    }
-//
-//    /**
-//     * True if this type variable is one of the java.* special cases
-//     *
-//     * @return Whether this is a special case
-//     */
-//    private boolean isSpecialCase(TypeVariable<?> typeVariable) {
-//        return Arrays.stream(typeVariable.getBounds()).map(GenericTypeReflector::erase).anyMatch(SPECIAL_CASES::contains);
-//    }
-//
-//    /**
-//     * True if this wildcard type is one of the java.* special cases
-//     *
-//     * @return Whether this is a special case.
-//     */
-//    private boolean isSpecialCase(WildcardType wildcardType) {
-//        throw new UnsupportedOperationException("not yet implemented");
-//    }
 
     /**
      * Filters the analyzed classes of the test cluster for assignable classes.
@@ -639,30 +563,7 @@ public class CastClassManager {
         // Filter, whether a class is assignable.
         Predicate<GenericClass<?>> keepClass =
                 gc -> gc.satisfiesBoundaries(wildcardType, ownerVariableMap) && (allowRecursion || !gc.hasWildcardOrTypeVariables());
-        return priorityCollection.toSortedList(keepClass);
-//        final Map<GenericClass<?>, Integer> assignableClasses = new LinkedHashMap<>();
-//
-//        logger.debug("Getting assignable classes for wildcard type " + wildcardType);
-//        for (final Entry<GenericClass<?>, Integer> entry : classMap.entrySet()) {
-//            final GenericClass<?> clazz = entry.getKey();
-//            logger.debug("Current class for wildcard " + wildcardType + ": " + clazz);
-//
-//            if (!clazz.satisfiesBoundaries(wildcardType, ownerVariableMap)) {
-//                logger.debug("Does not satisfy boundaries");
-//                continue;
-//            }
-//
-//            if (!allowRecursion && clazz.hasWildcardOrTypeVariables()) {
-//                logger.debug("Stopping because of type recursion");
-//                continue;
-//            }
-//            logger.debug("Is assignable");
-//
-//            final int priority = entry.getValue();
-//            assignableClasses.put(clazz, priority);
-//        }
-//
-//        return sortByValue(assignableClasses);
+        return prioritization.toSortedList(keepClass);
     }
 
     /**
@@ -679,35 +580,11 @@ public class CastClassManager {
                                                        final Map<TypeVariable<?>, Type> ownerVariableMap) {
         Predicate<GenericClass<?>> keepClass =
                 gc -> gc.satisfiesBoundaries(typeVariable, ownerVariableMap) && (allowRecursion || !gc.hasWildcardOrTypeVariables());
-        return priorityCollection.toSortedList(keepClass);
-//        final Map<GenericClass<?>, Integer> assignableClasses = new LinkedHashMap<>();
-//
-//        logger.debug("Getting assignable classes for type variable " + typeVariable);
-//        for (final Entry<GenericClass<?>, Integer> entry : classMap.entrySet()) {
-//            final GenericClass<?> clazz = entry.getKey();
-//            logger.debug("Current class for type variable " + typeVariable + ": " + clazz);
-//
-//            if (!clazz.satisfiesBoundaries(typeVariable, ownerVariableMap)) {
-//                logger.debug("Bounds not satisfied");
-//                continue;
-//            }
-//
-//            if (!allowRecursion && clazz.hasWildcardOrTypeVariables()) {
-//                logger.debug("Recursion not allowed but type has wildcard or type variables");
-//                continue;
-//            }
-//
-//            assignableClasses.put(entry.getKey(), entry.getValue());
-//        }
-//
-//        logger.debug("Found assignable classes: " + assignableClasses.size());
-//
-//        return sortByValue(assignableClasses);
+        return prioritization.toSortedList(keepClass);
     }
 
     private void putCastClass(GenericClass<?> _class, int priority) {
-//        classMap.put(_class, priority);
-        priorityCollection.add(_class, priority);
+        prioritization.add(_class, priority);
     }
 
 }

@@ -10,7 +10,7 @@ import java.util.Objects;
  */
 public class GenericClassFactory {
 
-    private final static boolean USE_NEW_GENERIC_CLASS_IMPLEMENTATION = true;
+    private final static boolean USE_NEW_GENERIC_CLASS_IMPLEMENTATION = false;
     private final static IGenericClassFactory<?> factory;
 
     static {
@@ -120,7 +120,7 @@ public class GenericClassFactory {
                 Type arrayComponentType = TypeUtils.getArrayComponentType(clazz);
                 return TypeUtils.genericArrayType(arrayComponentType);
             } else if (clazz.getTypeParameters().length > 0) {
-                return TypeUtils.parameterize(clazz, clazz.getTypeParameters());
+                return GenericClassUtils.addTypeParameters(clazz);
             } else {
                 return clazz;
             }

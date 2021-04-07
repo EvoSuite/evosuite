@@ -57,7 +57,7 @@ public abstract class GenericAccessibleObject<T extends GenericAccessibleObject<
 	 */
 	protected GenericClass<?> owner;
 
-	protected List<GenericClassImpl> typeVariables = new ArrayList<>();
+	protected List<GenericClass<?>> typeVariables = new ArrayList<>();
 
 	protected static Type getTypeFromExactReturnType(GenericArrayType returnType,
 	        GenericArrayType type) {
@@ -177,14 +177,14 @@ public abstract class GenericAccessibleObject<T extends GenericAccessibleObject<
 	 */
 	public void changeClassLoader(ClassLoader loader) {
 		owner.changeClassLoader(loader);
-		for (GenericClassImpl typeVariable : typeVariables) {
+		for (GenericClass<?> typeVariable : typeVariables) {
 			typeVariable.changeClassLoader(loader);
 		}
 	}
 
 	protected void copyTypeVariables(GenericAccessibleObject<?> copy) {
-		for(GenericClassImpl variable : typeVariables) {
-			copy.typeVariables.add(new GenericClassImpl(variable));
+		for(GenericClass<?> variable : typeVariables) {
+			copy.typeVariables.add(GenericClassFactory.get(variable));
 		}
 	}
 
@@ -204,8 +204,8 @@ public abstract class GenericAccessibleObject<T extends GenericAccessibleObject<
 
 	public abstract Type getGeneratedType();
 
-	public GenericClassImpl getGeneratedClass() {
-		return new GenericClassImpl(getGeneratedType());
+	public GenericClass<?> getGeneratedClass() {
+		return GenericClassFactory.get(getGeneratedType());
 	}
 
 	public Type[] getGenericParameterTypes() {
@@ -237,7 +237,7 @@ public abstract class GenericAccessibleObject<T extends GenericAccessibleObject<
 		// TODO: The bounds of this type parameter need to be updataed for the owner of the call
 		// which may instantiate some of the type parameters
 		for (TypeVariable<?> parameter : getTypeParameters()) {
-			GenericClass<?> genericType = new GenericClassImpl(parameter);
+			GenericClass<?> genericType = GenericClassFactory.get(parameter);
 			GenericClass<?> concreteType = genericType.getGenericInstantiation(typeMap);
 			logger.debug("Setting parameter " + parameter + " to type "
 			        + concreteType.getTypeName());
@@ -271,7 +271,7 @@ public abstract class GenericAccessibleObject<T extends GenericAccessibleObject<
 
 		List<GenericClass<?>> typeParameters = new ArrayList<>();
 		for (TypeVariable<?> parameter : getTypeParameters()) {
-			GenericClassImpl concreteType = new GenericClassImpl(parameter);
+			GenericClass<?> concreteType = GenericClassFactory.get(parameter);
 			logger.debug("(I) Setting parameter " + parameter + " to type "
 			        + concreteType.getTypeName());
 			typeParameters.add(concreteType.getGenericInstantiation(typeMap));
@@ -351,7 +351,7 @@ public abstract class GenericAccessibleObject<T extends GenericAccessibleObject<
 		List<GenericClass<?>> typeParameters = new ArrayList<>();
 		logger.debug("Setting parameters with map: " + concreteTypes);
 		for (TypeVariable<?> parameter : getTypeParameters()) {
-			GenericClass<?> concreteType = new GenericClassImpl(parameter);
+			GenericClass<?> concreteType = GenericClassFactory.get(parameter);
 			logger.debug("(I) Setting parameter " + parameter + " to type "
 			        + concreteType.getTypeName());
 			GenericClass<?> instantiation = concreteType.getGenericInstantiation(concreteTypes);
@@ -390,8 +390,8 @@ public abstract class GenericAccessibleObject<T extends GenericAccessibleObject<
 
 	public abstract TypeVariable<?>[] getTypeParameters();
 
-	protected Map<TypeVariable<?>, GenericClassImpl> getTypeVariableMap() {
-		Map<TypeVariable<?>, GenericClassImpl> typeMap = new HashMap<>();
+	protected Map<TypeVariable<?>, GenericClass<?>> getTypeVariableMap() {
+		Map<TypeVariable<?>, GenericClass<?>> typeMap = new HashMap<>();
 		int pos = 0;
 		for (TypeVariable<?> variable : getTypeParameters()) {
 			if (typeVariables.size() <= pos)
@@ -455,7 +455,7 @@ public abstract class GenericAccessibleObject<T extends GenericAccessibleObject<
 	public void setTypeParameters(List<GenericClass<?>> parameterTypes) {
 		typeVariables.clear();
 		for(GenericClass<?> parameter : parameterTypes)
-			typeVariables.add(new GenericClassImpl(parameter));
+			typeVariables.add(GenericClassFactory.get(parameter));
 	}
 
 	@Override

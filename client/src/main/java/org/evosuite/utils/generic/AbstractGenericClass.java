@@ -4,6 +4,8 @@ import com.googlecode.gentyref.GenericTypeReflector;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.reflect.TypeUtils;
 import org.evosuite.ga.ConstructionFailedException;
+import org.evosuite.utils.ParameterizedTypeImpl;
+import org.evosuite.utils.TypeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -140,7 +142,11 @@ public abstract class AbstractGenericClass<T extends Type> implements GenericCla
     @Override
     public GenericClass<?> getWithGenericParameterTypes(List<AbstractGenericClass<T>> parameters) {
         Type[] typeArray = parameters.stream().map(GenericClass::getType).toArray(Type[]::new);
-        return GenericClassFactory.get(TypeUtils.parameterize(rawClass, typeArray));
+        Type ownerType = null;
+        if (type instanceof ParameterizedType) {
+            ownerType = ((ParameterizedType) type).getOwnerType();
+        }
+        return GenericClassFactory.get(parameterizeWithOwner(ownerType, rawClass, typeArray));
     }
 
     @Override
@@ -151,12 +157,21 @@ public abstract class AbstractGenericClass<T extends Type> implements GenericCla
     @Override
     public GenericClass<?> getWithParameterTypes(List<Type> parameters) {
         Type[] typeArray = new Type[parameters.size()];
-        return GenericClassFactory.get(TypeUtils.parameterize(rawClass, parameters.toArray(typeArray)));
+        Type[] typeArguments = parameters.toArray(typeArray);
+        Type ownerType = null;
+        if (type instanceof ParameterizedType) {
+            ownerType = ((ParameterizedType) type).getOwnerType();
+        }
+        return GenericClassFactory.get(parameterizeWithOwner(ownerType,rawClass, typeArguments));
     }
 
     @Override
     public GenericClass<?> getWithParameterTypes(Type[] parameters) {
-        return GenericClassFactory.get(TypeUtils.parameterize(rawClass, parameters));
+        Type ownerType = null;
+        if (type instanceof ParameterizedType) {
+            ownerType = ((ParameterizedType) type).getOwnerType();
+        }
+        return GenericClassFactory.get(parameterizeWithOwner(ownerType, rawClass, parameters));
     }
 
     @Override
@@ -525,5 +540,13 @@ public abstract class AbstractGenericClass<T extends Type> implements GenericCla
         if(type instanceof WildcardType) return new WildcardGenericClass((WildcardType) type, rawClass);
         if(type instanceof Class) return new RawClassGenericClass((Class<?>) type);
         throw new IllegalArgumentException("Unsupported generic type: " + type.toString());
+    }
+
+
+    static ParameterizedType parameterizeWithOwner(final Type owner, final Class<?> rawClass,
+          final Type... typeArguments){
+        return new ParameterizedTypeImpl(rawClass, typeArguments, owner);
+        // TODO why does Type Utils not work?
+//        return TypeUtils.parameterizeWithOwner(owner, rawClass, typeArguments);
     }
 }
