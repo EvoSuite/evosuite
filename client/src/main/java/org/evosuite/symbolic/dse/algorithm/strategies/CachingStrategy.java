@@ -19,7 +19,7 @@
  */
 package org.evosuite.symbolic.dse.algorithm.strategies;
 
-import org.evosuite.symbolic.dse.algorithm.strategies.implementations.PathPruningStrategies.CacheQueryResult;
+import org.evosuite.symbolic.dse.algorithm.strategies.implementations.CachingStrategies.CacheQueryResult;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.solver.SolverResult;
 

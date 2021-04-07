@@ -21,6 +21,7 @@ package org.evosuite.symbolic.dse.algorithm;
 
 import org.evosuite.Properties;
 import org.evosuite.symbolic.dse.DSEStatistics;
+import org.evosuite.symbolic.dse.algorithm.explorationalgorithms.DFSExplorationAlgorithm;
 import org.evosuite.symbolic.dse.algorithm.explorationalgorithms.SAGEExplorationAlgorithm;
 
 /**
@@ -30,7 +31,7 @@ import org.evosuite.symbolic.dse.algorithm.explorationalgorithms.SAGEExploration
  */
 public class DSEAlgorithmFactory {
     public static final String DSE_ALGORITHM_TYPE_NOT_PROVIDED   = "A DSE algorithm type must be provided";
-    public static final String DSE_ALGORITHM_NOT_YET_IMPLEMENTED = "DSEAlgorithm not yet implemented: ";
+    public static final String DSE_EXPLORATION_ALGORITHM_NOT_YET_IMPLEMENTED = "DSE exploration algorithm not yet implemented: ";
 
     /** Statistics object for when creating a customized algorithm */
     private final DSEStatistics dseStatistics = DSEStatistics.getInstance();
@@ -44,10 +45,12 @@ public class DSEAlgorithmFactory {
         }
 
         switch (dseAlgorithmType) {
-            case SAGE:
+            case GENERATIONAL_SEARCH:
                 return new SAGEExplorationAlgorithm(dseStatistics, showProgress);
+            case DFS:
+                return new DFSExplorationAlgorithm(dseStatistics, showProgress);
             default:
-                throw new IllegalStateException(DSE_ALGORITHM_NOT_YET_IMPLEMENTED + dseAlgorithmType.name());
+                throw new IllegalStateException(DSE_EXPLORATION_ALGORITHM_NOT_YET_IMPLEMENTED + dseAlgorithmType.name());
         }
     }
 }

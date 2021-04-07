@@ -22,7 +22,7 @@ package org.evosuite.symbolic.dse.algorithm.strategies.implementations.KeepSearc
 import org.evosuite.symbolic.dse.DSETestCase;
 import org.evosuite.symbolic.dse.algorithm.strategies.KeepSearchingCriteriaStrategy;
 
-import java.util.PriorityQueue;
+import java.util.Queue;
 
 /**
  * Strategy for keep searching in case there's still test cases left to explore.
@@ -31,7 +31,7 @@ import java.util.PriorityQueue;
  */
 public class TestCasesPendingStrategy implements KeepSearchingCriteriaStrategy {
     @Override
-    public boolean ShouldKeepSearching(PriorityQueue<DSETestCase> generatedTests) {
+public boolean shouldKeepSearching(Queue<DSETestCase> generatedTests) {
         return generatedTests.size() > 0;
     }
 }

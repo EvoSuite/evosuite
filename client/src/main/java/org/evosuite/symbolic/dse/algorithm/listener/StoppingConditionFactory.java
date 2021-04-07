@@ -20,6 +20,7 @@
 package org.evosuite.symbolic.dse.algorithm.listener;
 
 import org.evosuite.Properties;
+import org.evosuite.symbolic.dse.algorithm.listener.implementations.MaxTestsStoppingCondition;
 import org.evosuite.symbolic.dse.algorithm.listener.implementations.MaxTimeStoppingCondition;
 import org.evosuite.symbolic.dse.algorithm.listener.implementations.TargetCoverageReachedStoppingCondition;
 import org.evosuite.symbolic.dse.algorithm.listener.implementations.ZeroFitnessStoppingCondition;
@@ -31,21 +32,24 @@ import org.evosuite.symbolic.dse.algorithm.listener.implementations.ZeroFitnessS
  */
 public class StoppingConditionFactory {
 
-  /**
-	 * Convert property to actual stopping condition
-	 * @return
-	 */
-	public static StoppingCondition getStoppingCondition(Properties.DSEStoppingConditionCriterion stoppingCondition) {
-		switch (stoppingCondition) {
-		case MAXTIME:
-			return new MaxTimeStoppingCondition();
-    case TARGETCOVERAGE:
-      return new TargetCoverageReachedStoppingCondition();
-    case ZEROFITNESS:
-      return new ZeroFitnessStoppingCondition();
-		default:
-			return new MaxTimeStoppingCondition();
-		}
-	}
+    /**
+     * Convert property to actual stopping condition
+     *
+     * @return
+     */
+    public static StoppingCondition getStoppingCondition(Properties.DSEStoppingConditionCriterion stoppingCondition) {
+        switch (stoppingCondition) {
+            case MAXTIME:
+                return new MaxTimeStoppingCondition();
+            case TARGETCOVERAGE:
+                return new TargetCoverageReachedStoppingCondition();
+            case ZEROFITNESS:
+                return new ZeroFitnessStoppingCondition();
+			case MAXTESTS:
+				return new MaxTestsStoppingCondition();
+			default:
+                return new MaxTimeStoppingCondition();
+        }
+    }
 
 }

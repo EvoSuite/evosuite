@@ -71,7 +71,7 @@ public class DSEStrategy extends TestGenerationStrategy {
 	@Override
 	public TestSuiteChromosome generateTests() {
 		LoggingUtils.getEvoLogger().info(SETTING_UP_DSE_GENERATION_INFO_MESSAGE);
-		Properties.CRITERION = Properties.DSE_ALGORITHM_TYPE.getCriteria();
+		Properties.CRITERION = Properties.DSE_EXPLORATION_ALGORITHM_TYPE.getCriteria();
 		Criterion[] criterion = Properties.CRITERION;
 
 		long startTime = System.currentTimeMillis() / 1000;
@@ -112,7 +112,7 @@ public class DSEStrategy extends TestGenerationStrategy {
 				TestGenerationResultBuilder.getInstance().setDSEAlgorithm(algorithm);
 			}
 		} else {
-			testSuite = setNoGoalsCoverage(Properties.DSE_ALGORITHM_TYPE);
+			testSuite = setNoGoalsCoverage(Properties.DSE_EXPLORATION_ALGORITHM_TYPE);
 		}
 
 		long endTime = System.currentTimeMillis() / 1000;
@@ -161,24 +161,31 @@ public class DSEStrategy extends TestGenerationStrategy {
 
 	private ExplorationAlgorithm buildDSEAlgorithm() {
 		DSEAlgorithmFactory dseFactory = new DSEAlgorithmFactory();
-		DSEAlgorithms dseAlgorithmType = Properties.DSE_ALGORITHM_TYPE;
+		DSEAlgorithms dseAlgorithmType = Properties.DSE_EXPLORATION_ALGORITHM_TYPE;
 
 		LoggingUtils.getEvoLogger().info(USING_DSE_ALGORITHM, dseAlgorithmType.getName());
 		ExplorationAlgorithm algorithm = dseFactory.getDSEAlgorithm(dseAlgorithmType);
 
-		/** Default conditions */
-		for (Properties.DSEStoppingConditionCriterion condition : defaultStoppingConditions) {
-			algorithm.addStoppingCondition(StoppingConditionFactory.getStoppingCondition(condition));
+		if (Properties.DSE_STOPPING_CONDITION.equals(Properties.DSEStoppingConditionCriterion.DEFAULTS)) {
+			/** Default conditions */
+			for (Properties.DSEStoppingConditionCriterion condition : defaultStoppingConditions) {
+				algorithm.addStoppingCondition(StoppingConditionFactory.getStoppingCondition(condition));
+			}
+
+			/** Stopping conditions */
+			for (Properties.DSEStoppingConditionCriterion stoppingConditionCriterion : dseAlgorithmType.getStoppingConditionCriterions()) {
+				algorithm.addStoppingCondition(StoppingConditionFactory.getStoppingCondition(stoppingConditionCriterion));
+			}
+		} else {
+			/** User chosen Stopping Condition */
+			algorithm.addStoppingCondition(StoppingConditionFactory.getStoppingCondition(Properties.DSE_STOPPING_CONDITION));
 		}
+
 
 		/** Fitness functions */
-		List<TestSuiteFitnessFunction> sageFitnessFunctions = FitnessFunctionsUtils.getFitnessFunctions(dseAlgorithmType.getCriteria());
-		algorithm.addFitnessFunctions(sageFitnessFunctions);
+		List<TestSuiteFitnessFunction> fitnessFunctions = FitnessFunctionsUtils.getFitnessFunctions(dseAlgorithmType.getCriteria());
+		algorithm.addFitnessFunctions(fitnessFunctions);
 
-		/** Stopping conditions */
-		for (Properties.DSEStoppingConditionCriterion stoppingConditionCriterion : dseAlgorithmType.getStoppingConditionCriterions()) {
-			algorithm.addStoppingCondition(StoppingConditionFactory.getStoppingCondition(stoppingConditionCriterion));
-		}
 
 		LoggingUtils.getEvoLogger().debug(WITH_TIMEOUT, Properties.GLOBAL_TIMEOUT);
 		LoggingUtils.getEvoLogger().debug(WITH_TARGET_COVERAGE, Properties.DSE_TARGET_COVERAGE);

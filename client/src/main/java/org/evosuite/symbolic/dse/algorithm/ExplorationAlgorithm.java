@@ -27,12 +27,12 @@ import org.evosuite.symbolic.dse.ConcolicExecutor;
 import org.evosuite.symbolic.dse.ConcolicExecutorImpl;
 import org.evosuite.symbolic.dse.DSEStatistics;
 import org.evosuite.symbolic.dse.DSETestCase;
+import org.evosuite.symbolic.dse.algorithm.strategies.CachingStrategy;
 import org.evosuite.symbolic.dse.algorithm.strategies.KeepSearchingCriteriaStrategy;
 import org.evosuite.symbolic.dse.algorithm.strategies.PathExtensionStrategy;
-import org.evosuite.symbolic.dse.algorithm.strategies.CachingStrategy;
-import org.evosuite.symbolic.dse.algorithm.strategies.implementations.PathPruningStrategies.CacheQueryResult;
 import org.evosuite.symbolic.dse.algorithm.strategies.TestCaseBuildingStrategy;
 import org.evosuite.symbolic.dse.algorithm.strategies.TestCaseSelectionStrategy;
+import org.evosuite.symbolic.dse.algorithm.strategies.implementations.CachingStrategies.CacheQueryResult;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.solver.Solver;
 import org.evosuite.symbolic.solver.SolverEmptyQueryException;
@@ -59,10 +59,10 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.PriorityQueue;
+import java.util.Queue;
 import java.util.Set;
 
-  /**
+/**
    * Structure of a DSE Exploration algorithm,
    *
    * Current implementation represents an abstracted version of SAGE's generational algorithm.
@@ -81,17 +81,22 @@ public abstract class ExplorationAlgorithm extends ExplorationAlgorithmBase {
      **/
 
     // Solver
+    public static final String CACHE_CALL_MISSED                       = "Cache call missed";
+    public static final String CACHE_CALL_HIT_SAT                      = "cache call hit sat";
+    public static final String CACHE_CALL_HIT_UNSAT                    = "cache call hit unsat";
     public static final String SOLVER_ERROR_DEBUG_MESSAGE              = "Solver threw an exception when running: {}";
     public static final String SOLVER_QUERY_STARTED_MESSAGE            = "Solving query with {} constraints";
     public static final String SOLVER_SOLUTION_DEBUG_MESSAGE           = "solver found solution {}";
+    public static final String SOLVING_QUERY_WITH_CONSTRAINTS          = "Solving query with {} constraints";
     public static final String SOLVER_OUTCOME_NULL_DEBUG_MESSAGE       = "Solver outcome is null (probably failure/unknown/timeout)";
     public static final String SOLVER_OUTCOME_IS_SAT_DEBUG_MESSAGE     = "query is SAT (solution found)";
     public static final String SOLVER_OUTCOME_IS_UNSAT_DEBUG_MESSAGE   = "query is UNSAT (no solution found)";
     public static final String SOLVING_CURRENT_SMT_QUERY_DEBUG_MESSAGE = "* Solving current SMT query";
 
     // Concolic Engine
-    public static final String FINISHED_CONCOLIC_EXECUTION_DEBUG_MESSAGE                  = "* Finished concolic execution.";
-    public static final String EXECUTING_CONCOLICALLY_THE_CURRENT_TEST_CASE_DEBUG_MESSAGE = "* Executing concolically the current test case";
+    public static final String PATH_CONDITION_COLLECTED_SIZE                              = "Path condition collected with: {} branches";
+    public static final String FINISHED_CONCOLIC_EXECUTION_DEBUG_MESSAGE                  = "Finished concolic execution.";
+    public static final String EXECUTING_CONCOLICALLY_THE_CURRENT_TEST_CASE_DEBUG_MESSAGE = "Starting concolic execution of test case: {}";
 
     // TestCase generation
     public static final String NEW_TEST_CASE_SCORE_DEBUG_MESSAGE   = "New test case score: {}";
@@ -100,11 +105,18 @@ public abstract class ExplorationAlgorithm extends ExplorationAlgorithmBase {
     // Exploration Algorithm
     public static final String PROGRESS_MSG_INFO                                             = "Total progress: {}";
     public static final String STRATEGY_CANNOT_BE_NULL                                       = "Strategy cannot be null";
+    public static final String NUMBER_OF_SEEN_PATH_CONDITIONS = "Number of seen path condition: {}";
     public static final String ENTRY_POINTS_FOUND_DEBUG_MESSAGE                              = "Found {} as entry points for DSE";
     public static final String STOPPING_CONDITION_MET_DEBUG_MESSAGE                          = "A stopping condition was met. No more tests can be generated using DSE.";
     public static final String GENERATING_TESTS_FOR_ENTRY_DEBUG_MESSAGE                      = "Generating tests for entry method: {}";
-    public static final String TESTS_WERE_GENERATED_FOR_ENTRY_METHOD_DEBUG_MESSAGE           = "{} tests were generated for entry method {}";
+    public static final String TESTS_WERE_GENERATED_FOR_ENTRY_METHOD_DEBUG_MESSAGE           = "DSE test generation finished. Generated {} test for method {}.";
     public static final String EXPLORATION_STRATEGIES_MUST_BE_INITIALIZED_TO_START_SEARCHING = "Exploration strategies must be initialized to start searching.";
+
+    // Path Pruning
+    public static final String PATH_PRUNING_SINCE_IT_IS_IN_THE_QUERY_CACHE                                                   = "skipping exploring current child since it is in the query cache";
+    public static final String PATH_PRUNING_BECAUSE_THE_PATH_CONDITION_WAS_ALREADY_EXPLORED                                  = "skipping exploring current child because the path condition was already explored";
+    public static final String PATH_PRUNING_BECAUSE_IT_IS_SATISFIABLE_AND_SOLVED_BY_PREVIOUS_PATH_CONDITION                  = "skipping exploring current child because it is satisfiable and solved by previous path condition";
+    public static final String PATH_PRUNING_BECAUSE_IT_IS_SATISFIABLE_AND_WAS_SOLVED_BY_A_PREVIOUSLY_EXPLORED_PATH_CONDITION = "skipping exploring current child because it is satisfiable and was solved by a previously explored path condition";
 
     /**
      * A cache of previous results from the constraint solver
@@ -195,9 +207,10 @@ public abstract class ExplorationAlgorithm extends ExplorationAlgorithmBase {
      @Override
      public TestSuiteChromosome explore() {
          if (!strategiesInitialized()) throw new DSEExplorationException(EXPLORATION_STRATEGIES_MUST_BE_INITIALIZED_TO_START_SEARCHING);
-         notifyGenerationStarted();
-         final Class<?> targetClass = Properties.getTargetClassAndDontInitialise();
 
+         notifyGenerationStarted();
+
+         final Class<?> targetClass = Properties.getTargetClassAndDontInitialise();
          List<Method> targetStaticMethods = ClassUtil.getTargetClassStaticMethods(targetClass);
          Collections.sort(targetStaticMethods, new MethodComparator());
          logger.debug(ENTRY_POINTS_FOUND_DEBUG_MESSAGE, targetStaticMethods.size());
@@ -216,7 +229,7 @@ public abstract class ExplorationAlgorithm extends ExplorationAlgorithmBase {
 
              explore(entryMethod);
              int numOfGeneratedTestCases = testSuite.getTests().size() - testCaseCount;
-             logger.debug(TESTS_WERE_GENERATED_FOR_ENTRY_METHOD_DEBUG_MESSAGE, numOfGeneratedTestCases, entryMethod.getName());
+             LoggingUtils.getEvoLogger().info("* " + TESTS_WERE_GENERATED_FOR_ENTRY_METHOD_DEBUG_MESSAGE, numOfGeneratedTestCases, entryMethod.getName());
          }
 
          // Run this before finish
@@ -237,21 +250,18 @@ public abstract class ExplorationAlgorithm extends ExplorationAlgorithmBase {
         HashSet<Set<Constraint<?>>> seenChildren = new HashSet();
 
         // WorkList
-        PriorityQueue<DSETestCase> testCasesWorkList = new PriorityQueue<>();
+        Queue<DSETestCase> testCasesWorkList = createWorkList();
 
         // Initial element
         DSETestCase initialTestCase = testCaseBuildingStrategy.buildInitialTestCase(method);
 
         // Run & check
         testCasesWorkList.add(initialTestCase);
+        addNewTestCaseToTestSuite(initialTestCase);
 
-        while (keepSearchingCriteriaStrategy.ShouldKeepSearching(testCasesWorkList)) {
+        while (keepSearchingCriteriaStrategy.shouldKeepSearching(testCasesWorkList)) {
             // This gets wrapped into the building and fitness strategy selected due to the PriorityQueue sorting nature
             DSETestCase currentTestCase = testCaseSelectionStrategy.getCurrentIterationBasedTestCase(testCasesWorkList);
-
-            // NOTE: We consider Adding a testCase an iteration
-            addNewTestCaseToTestSuite(currentTestCase);
-            notifyIteration();
 
             // After iteration checks and logs
             if (showProgress) logger.info(PROGRESS_MSG_INFO, getProgress());
@@ -259,6 +269,8 @@ public abstract class ExplorationAlgorithm extends ExplorationAlgorithmBase {
 
             // Runs the current test case
             GenerationalSearchPathCondition currentExecutedPathCondition = executeTestCaseConcolically(currentTestCase);
+            statisticsLogger.reportNewPathExplored();
+            logger.debug(PATH_CONDITION_COLLECTED_SIZE, currentExecutedPathCondition.getPathCondition().size());
 
             // Checks for a divergence
             boolean hasPathConditionDiverged = checkPathConditionDivergence(
@@ -274,15 +286,23 @@ public abstract class ExplorationAlgorithm extends ExplorationAlgorithmBase {
 
                 // Adds the new path condition to the already visited set
                 seenChildren.add(normalizedPathCondition);
+                logger.debug(NUMBER_OF_SEEN_PATH_CONDITIONS, seenChildren.size());
 
                 // Generates the children
                 List<GenerationalSearchPathCondition> children = pathsExpansionStrategy.generateChildren(currentExecutedPathCondition);
 
-                processChildren(testCasesWorkList, currentTestCase, children, hasPathConditionDiverged);
+                processChildren(testCasesWorkList, seenChildren, currentTestCase, children, hasPathConditionDiverged);
             }
 
         }
     }
+
+    /**
+     * Work list implementation. Depends on the subjacent algorithm that want's to be created.
+     *
+     * @return
+     */
+    protected abstract Queue<DSETestCase> createWorkList();
 
     private boolean shouldSkipCurrentPathcondition(boolean hasPathConditionDiverged, Set<Constraint<?>> seenPathCondition, HashSet<Set<Constraint<?>>> seenChildren) {
         return hasPathConditionDiverged && (
@@ -290,26 +310,32 @@ public abstract class ExplorationAlgorithm extends ExplorationAlgorithmBase {
               || PathConditionUtils.isConstraintSetSubSetOf(seenPathCondition, seenChildren));
     }
 
-    private void processChildren(PriorityQueue<DSETestCase> testCasesWorkList, DSETestCase currentTestCase, List<GenerationalSearchPathCondition> children, boolean hasPathConditionDiverged) {
+    private void processChildren(Queue<DSETestCase> testCasesWorkList, HashSet<Set<Constraint<?>>> seenChildren, DSETestCase currentTestCase, List<GenerationalSearchPathCondition> children, boolean hasPathConditionDiverged) {
         // We look at all the children
         for (GenerationalSearchPathCondition child : children) {
             List<Constraint<?>> childQuery = SolverUtils.buildQuery(child.getPathCondition());
             Set<Constraint<?>> normalizedChildQuery = normalize(childQuery);
 
+            if (shouldSkipChild(seenChildren, normalizedChildQuery)) continue;
+            if (this.isFinished()) return;
+
             CacheQueryResult cacheQueryResult = cachingStrategy.checkCache(normalizedChildQuery, queryCache);
 
             // Path condition previously explored and unsatisfiable
             if (!cacheQueryResult.hitUnSat()) {
+                logger.debug(CACHE_CALL_HIT_UNSAT);
                 statisticsLogger.reportNewConstraints(childQuery);
                 Map<String, Object> smtSolution;
 
                 // Path condition already solved before
                 if (cacheQueryResult.hitSat()) {
+                    logger.debug(CACHE_CALL_HIT_SAT);
                     smtSolution = cacheQueryResult.getSmtSolution();
-
                 } else {
                     // Path condition not explored
                     assert(cacheQueryResult.missed());
+                    logger.debug(CACHE_CALL_MISSED);
+                    logger.debug(SOLVING_QUERY_WITH_CONSTRAINTS, childQuery.size());
 
                     childQuery.addAll(
                       SolverUtils.createBoundsForQueryVariables(childQuery)
@@ -333,10 +359,39 @@ public abstract class ExplorationAlgorithm extends ExplorationAlgorithmBase {
                         hasPathConditionDiverged);
 
                     testCasesWorkList.offer(newTestCase);
+                    addNewTestCaseToTestSuite(newTestCase);
+
+                    // NOTE: We consider adding a test case an iteration
+                    notifyIteration();
                 }
             }
         }
     }
+
+    /**
+     * Child PC is not processed if it was already explored, this is:
+     *     - Their constraints were already solved by a previous SMT query
+     *     - Their constraints are the same as a previous explored PC.
+     *
+     * @param pathConditions
+     * @param constraintSet
+     * @return
+     */
+      private boolean shouldSkipChild(HashSet<Set<Constraint<?>>> pathConditions, Set<Constraint<?>> constraintSet) {
+          statisticsLogger.reportNewQueryCacheCall();
+          if (queryCache.containsKey(constraintSet)) {
+              statisticsLogger.reportNewQueryCacheHit();
+              logger.debug(PATH_PRUNING_SINCE_IT_IS_IN_THE_QUERY_CACHE);
+              return true;
+          }
+
+          if (pathConditions.contains(constraintSet)) {
+              logger.debug(PATH_PRUNING_BECAUSE_THE_PATH_CONDITION_WAS_ALREADY_EXPLORED);
+              return true;
+          }
+
+          return false;
+      }
 
       /**
      * Generates a new test case from the concolic execution data.
@@ -361,6 +416,19 @@ public abstract class ExplorationAlgorithm extends ExplorationAlgorithmBase {
 
         return newDSETestCase;
     }
+
+    /**
+     * Test Score calculation, depends on the subjacent implemented algorithm.
+     * <p>
+     *
+     * TODO (ilebrero): This could be better if there was a way to run calculate the coverage of adding a new test without changng
+     * the hole testSuite data.
+     *
+     * @param newTestCase
+     * @param hasPathConditionDiverged
+     * @return
+     */
+    abstract protected double getTestScore(TestCase newTestCase, boolean hasPathConditionDiverged);
 
     /**
      * Analyzes the results of an smtQuery.
@@ -450,7 +518,7 @@ public abstract class ExplorationAlgorithm extends ExplorationAlgorithmBase {
      * @return
      */
     private GenerationalSearchPathCondition executeTestCaseConcolically(DSETestCase currentTestCase) {
-        logger.debug(EXECUTING_CONCOLICALLY_THE_CURRENT_TEST_CASE_DEBUG_MESSAGE);
+        logger.debug(EXECUTING_CONCOLICALLY_THE_CURRENT_TEST_CASE_DEBUG_MESSAGE, currentTestCase.getTestCase().toCode());
 
         TestCase clonedCurrentTestCase = currentTestCase.getTestCase().clone();
         PathCondition result = engine.execute((DefaultTestCase) clonedCurrentTestCase);
