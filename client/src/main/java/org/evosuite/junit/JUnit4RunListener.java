@@ -35,7 +35,7 @@ import org.junit.runner.notification.RunNotifier;
  * 
  * @author José Campos
  */
-public class JUnitRunListener extends RunListener {
+public class JUnit4RunListener extends RunListener {
 
 	
 	private JUnitRunner junitRunner = null;
@@ -50,7 +50,7 @@ public class JUnitRunListener extends RunListener {
 	 * 
 	 * @param jr
 	 */
-	public JUnitRunListener(JUnitRunner jR) {
+	public JUnit4RunListener(JUnitRunner jR) {
 		this.junitRunner = jR;
 	}
 

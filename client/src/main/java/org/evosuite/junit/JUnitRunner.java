@@ -24,7 +24,6 @@ import org.evosuite.Properties;
 import org.junit.platform.launcher.*;
 import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder;
 import org.junit.platform.launcher.core.LauncherFactory;
-import org.junit.platform.launcher.listeners.SummaryGeneratingListener;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Request;
 import org.slf4j.Logger;
@@ -64,7 +63,7 @@ public class JUnitRunner {
 			Request request = Request.aClass(this.junitClass);
 			logger.warn("Running Junit 4 test");
 			JUnitCore junit = new JUnitCore();
-			junit.addListener(new JUnitRunListener(this));
+			junit.addListener(new JUnit4RunListener(this));
 			junit.run(request);
 		} else if(Properties.TEST_FORMAT == Properties.OutputFormat.JUNIT5){
 			logger.warn("Running Junit 5 test");
