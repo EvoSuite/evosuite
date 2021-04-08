@@ -33,6 +33,7 @@ import javax.tools.StandardJavaFileManager;
 import javax.tools.ToolProvider;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.TimeController;
@@ -44,10 +45,17 @@ import org.evosuite.runtime.classhandling.JDKClassResetter;
 import org.evosuite.runtime.sandbox.Sandbox;
 import org.evosuite.runtime.util.JarPathing;
 import org.evosuite.testcase.TestCase;
+import org.junit.platform.engine.TestExecutionResult;
+import org.junit.platform.launcher.*;
+import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder;
+import org.junit.platform.launcher.core.LauncherFactory;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.junit.platform.engine.discovery.ClassNameFilter.includeClassNamePatterns;
+import static org.junit.platform.engine.discovery.DiscoverySelectors.selectPackage;
 
 /**
  * This class is used to check if a set of test cases are valid for JUnit: ie,
@@ -276,7 +284,62 @@ public class JUnitAnalyzer {
 		return runJUnitOnCurrentProcess(testClasses);
 	}
 
+	private static JUnitResult runJUnit5OnCurrentProcess(Class<?>[] testClasses) {
+
+		boolean wasSandboxOn = Sandbox.isSecurityManagerInitialized();
+
+		Set<Thread> privileged = null;
+		if(wasSandboxOn){
+			privileged = Sandbox.resetDefaultSecurityManager();
+		}
+
+		List<Pair<TestIdentifier, TestExecutionResult>> result = new ArrayList<>();
+		ClassLoader currentLoader = Thread.currentThread().getContextClassLoader();
+
+
+		try {
+			TestGenerationContext.getInstance().goingToExecuteSUTCode();
+			Thread.currentThread().setContextClassLoader(testClasses[0].getClassLoader());
+			JDKClassResetter.reset(); //be sure we reset it here, otherwise "init" in the test case would take current changed state
+			LauncherDiscoveryRequest request_ = LauncherDiscoveryRequestBuilder.request()
+					.selectors(selectPackage("com.baeldung.junit5.runfromjava"))
+					.filters(includeClassNamePatterns(".*Test"))
+					.build();
+			Launcher launcher = LauncherFactory.create();
+			TestPlan testPlan = launcher.discover(request_);
+			launcher.registerTestExecutionListeners(new TestExecutionListener() {
+				@Override
+				public void executionFinished(TestIdentifier testIdentifier, TestExecutionResult testExecutionResult) {
+					result.add(Pair.of(testIdentifier,testExecutionResult));
+				}
+			});
+
+			launcher.execute(request_);
+		} finally {
+			Thread.currentThread().setContextClassLoader(currentLoader);
+			TestGenerationContext.getInstance().doneWithExecutingSUTCode();
+		}
+
+
+		if(wasSandboxOn){
+			//only activate Sandbox if it was already active before
+			if(!Sandbox.isSecurityManagerInitialized())
+				Sandbox.initializeSecurityManagerForSUT(privileged);
+		} else {
+			if(Sandbox.isSecurityManagerInitialized()){
+				logger.warn("EvoSuite problem: tests set up a security manager, but they do not remove it after execution");
+				Sandbox.resetDefaultSecurityManager();
+			}
+		}
+
+		JUnitResultBuilder builder = new JUnitResultBuilder();
+		return builder.build(result);
+	}
+
 	private static JUnitResult runJUnitOnCurrentProcess(Class<?>[] testClasses) {
+	    if(Properties.TEST_FORMAT == Properties.OutputFormat.JUNIT5){
+	    	return runJUnit5OnCurrentProcess(testClasses);
+		}
 
 		JUnitCore runner = new JUnitCore();
 
