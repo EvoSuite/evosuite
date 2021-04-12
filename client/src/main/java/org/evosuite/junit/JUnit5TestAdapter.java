@@ -21,10 +21,12 @@
 package org.evosuite.junit;
 
 import org.evosuite.Properties;
+import org.evosuite.junit.writer.TestSuiteWriterUtils;
+import org.evosuite.runtime.vnet.NonFunctionalRequirementExtension;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestCodeVisitor;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Map;
@@ -37,6 +39,31 @@ import java.util.Map;
  * @author fraser
  */
 public class JUnit5TestAdapter implements UnitTestAdapter {
+
+	@Override
+	public Class<?> testAnnotation() {
+	    return org.junit.jupiter.api.Test.class;
+	}
+
+	@Override
+	public Class<?> beforeAll() {
+	    return org.junit.jupiter.api.BeforeAll.class;
+	}
+
+	@Override
+	public Class<?> beforeEach() {
+	    return org.junit.jupiter.api.BeforeEach.class;
+	}
+
+	@Override
+	public Class<?> afterAll() {
+	    return org.junit.jupiter.api.AfterAll.class;
+	}
+
+	@Override
+	public Class<?> afterEach() {
+	    return org.junit.jupiter.api.AfterEach.class;
+	}
 
 	private String getJUnitTestShortName() {
 		if (Properties.ECLIPSE_PLUGIN) {
@@ -127,5 +154,13 @@ public class JUnit5TestAdapter implements UnitTestAdapter {
 		test.accept(visitor);
 		visitor.clearExceptions();
 		return visitor.getCode();
+	}
+
+	@Override
+	public void addNFR(StringBuilder builder) {
+		builder.append(TestSuiteWriterUtils.METHOD_SPACE);
+		builder.append("@").append(RegisterExtension.class.getCanonicalName()).append("\n");
+		builder.append(TestSuiteWriterUtils.METHOD_SPACE);
+		builder.append("public ").append(NonFunctionalRequirementExtension.class.getName()).append(" nfr = new ").append(NonFunctionalRequirementExtension.class.getName()).append("();\n\n");
 	}
 }

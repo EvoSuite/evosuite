@@ -39,6 +39,7 @@ import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.evosuite.utils.ArrayUtil;
 import org.evosuite.utils.FileIOUtils;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.objectweb.asm.Opcodes;
@@ -439,12 +440,14 @@ public class TestSuiteWriter implements Opcodes {
         }
 
         if (TestSuiteWriterUtils.needToUseAgent() && !Properties.NO_RUNTIME_DEPENDENCY) {
-            imports.add(EvoRunner.class);
             imports.add(EvoRunnerParameters.class);
-            if(Properties.TEST_FORMAT == Properties.OutputFormat.JUNIT5)
-                imports.add(ExtendWith.class);
-            else
+            if(Properties.TEST_FORMAT == Properties.OutputFormat.JUNIT5) {
+                imports.add(EvoRunnerJUnit5.class);
+                imports.add(RegisterExtension.class);
+            } else {
                 imports.add(RunWith.class);
+                imports.add(EvoRunner.class);
+            }
         }
 
         Set<String> importNames = new HashSet<>();
@@ -543,18 +546,22 @@ public class TestSuiteWriter implements Opcodes {
         builder.append(adapter.getClassDefinition(test_name));
 
         if (Properties.TEST_SCAFFOLDING && !Properties.NO_RUNTIME_DEPENDENCY) {
-            builder.append(" extends " + Scaffolding.getFileName(scaffolding_name));
+            builder.append(" extends ").append(Scaffolding.getFileName(scaffolding_name));
         }
 
         builder.append(" {");
         builder.append(NEWLINE);
+        if(Properties.TEST_FORMAT == Properties.OutputFormat.JUNIT5){
+            builder.append("@RegisterExtension").append(NEWLINE);
+            builder.append(METHOD_SPACE).append("static EvoRunnerJUnit5 runner = new EvoRunnerJUnit5(").append(test_name).append(".class);").append(NEWLINE);
+        }
         return builder.toString();
     }
 
     private Object getRunner() {
 
 
-        String s = Properties.TEST_FORMAT == Properties.OutputFormat.JUNIT5 ? "@ExtendWith(EvoRunner.class) @EvoRunnerParameters("
+        String s = Properties.TEST_FORMAT == Properties.OutputFormat.JUNIT5 ? "@EvoRunnerParameters("
                                     :"@RunWith(EvoRunner.class) @EvoRunnerParameters(";
         List<String> list = new ArrayList<>();
 
