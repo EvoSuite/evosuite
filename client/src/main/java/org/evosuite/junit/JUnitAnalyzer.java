@@ -750,7 +750,6 @@ public abstract class JUnitAnalyzer {
 		@Override
 		JUnitResult runJUnitOnCurrentProcess(Class<?>[] testClasses) {
 
-			logger.warn("Running Junit 5 test");
 			boolean wasSandboxOn = Sandbox.isSecurityManagerInitialized();
 
 			Set<Thread> privileged = null;

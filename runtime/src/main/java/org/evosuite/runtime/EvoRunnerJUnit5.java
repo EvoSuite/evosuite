@@ -70,7 +70,7 @@ public class EvoRunnerJUnit5 implements TestInstanceFactory {
         if(RuntimeSettings.useSeparateClassLoader && useClassLoader){
             // JUnit does not allow us to instrument the tested class.
             // When this is supported we may implement this.
-            logger.error("EvoSuite can not run JUnit 5 tests with a separate ClassLoader");
+            logger.error("EvoSuite can't run JUnit 5 tests with a separate ClassLoader");
             throw new TestInstantiationException("Could not instantiate the class under test with a EvoClassLoader");
 //            EvoClassLoader classLoader = evoClassLoader == null ? new EvoClassLoader() : evoClassLoader;
 //            classLoader.skipInstrumentation(name);
