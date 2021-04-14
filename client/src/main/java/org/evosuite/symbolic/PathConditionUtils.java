@@ -160,7 +160,7 @@ public class PathConditionUtils {
 			BranchCondition newBranchCondition = newBranchConditions.get(currentBranchConditionIndex);
 
 			// if the expected prefix path is not a prefix of the new one, there's a divergence
-			if (!expectedPrefixBranchCondition.equals(newBranchCondition)) {
+			if (!expectedPrefixBranchCondition.getConstraint().equals(newBranchCondition.getConstraint())) {
 				return true;
 			}
 		}

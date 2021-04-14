@@ -22,7 +22,7 @@ package org.evosuite.symbolic.dse.algorithm.strategies.implementations.TestCaseS
 import org.evosuite.symbolic.dse.DSETestCase;
 import org.evosuite.symbolic.dse.algorithm.strategies.TestCaseSelectionStrategy;
 
-import java.util.PriorityQueue;
+import java.util.Queue;
 
 /**
  * Strategy for retrieving the last generated tests case for symbolic execution in the current iteration.
@@ -31,7 +31,7 @@ import java.util.PriorityQueue;
  */
 public class TopTestCaseSelectionStrategy implements TestCaseSelectionStrategy {
     @Override
-    public DSETestCase getCurrentIterationBasedTestCase(PriorityQueue<DSETestCase> generatedTests) {
+    public DSETestCase getCurrentIterationBasedTestCase(Queue<DSETestCase> generatedTests) {
         return generatedTests.poll();
     }
 }

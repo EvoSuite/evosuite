@@ -12,6 +12,7 @@ import org.evosuite.symbolic.expr.bv.IntegerConstant;
 import org.evosuite.symbolic.expr.bv.IntegerVariable;
 import org.evosuite.symbolic.expr.constraint.IntegerConstraint;
 import org.evosuite.symbolic.expr.fp.RealVariable;
+import org.evosuite.symbolic.expr.ref.array.ArrayVariable;
 import org.evosuite.symbolic.expr.str.StringVariable;
 import org.evosuite.symbolic.solver.SolverResult;
 import org.evosuite.symbolic.solver.SolverUtils;
@@ -40,7 +41,11 @@ import java.util.Set;
 
 /**
  * This class implements a DSE algorithm *as* a subclass of genetic algorithm.
- * 
+ *
+ * Note (ilebrero): not working properly when using MAXTestsStoppingCondition. Recalculating the hole test suite
+ *                    fitness adds an extra count besides the concolic engine execution case,
+ *                    (see {@link org.evosuite.ga.stoppingconditions.MaxTestsStoppingCondition#testExecuted()} uses).
+ *
  * @author jgaleotti
  */
 public class DSELegacyAlgorithm extends GeneticAlgorithm<TestSuiteChromosome> {
@@ -265,6 +270,8 @@ public class DSELegacyAlgorithm extends GeneticAlgorithm<TestSuiteChromosome> {
       } else if (variable instanceof RealVariable) {
         // skip
       } else if (variable instanceof StringVariable) {
+        // skip
+      } else if (variable instanceof ArrayVariable) {
         // skip
       } else {
         throw new UnsupportedOperationException(

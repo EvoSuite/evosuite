@@ -22,6 +22,7 @@ package org.evosuite.symbolic.dse.algorithm.strategies;
 import org.evosuite.symbolic.dse.DSETestCase;
 
 import java.util.PriorityQueue;
+import java.util.Queue;
 
 /**
  * Interface for extra stopping conditions on the generated test suite
@@ -29,5 +30,5 @@ import java.util.PriorityQueue;
  * @author ignacio lebrero
  */
 public interface KeepSearchingCriteriaStrategy {
-    boolean ShouldKeepSearching(PriorityQueue<DSETestCase> generatedTests);
+    boolean shouldKeepSearching(Queue<DSETestCase> generatedTests);
 }

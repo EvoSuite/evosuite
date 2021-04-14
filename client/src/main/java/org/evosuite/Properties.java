@@ -455,8 +455,8 @@ public class Properties {
 	public static String CURRENT_TARGET_METHOD = "";
 
     // NOTE: by default we use the sage implementation of the algorithm
-	@Parameter(key = "dse_algorithm", group = "DSE", description = "Type of DSE algorithm to use.")
-	public static DSEAlgorithms DSE_ALGORITHM_TYPE = DSEAlgorithms.SAGE;
+	@Parameter(key = "dse_exploration_algorithm", group = "DSE", description = "Type of DSE algorithm to use.")
+	public static DSEAlgorithms DSE_EXPLORATION_ALGORITHM_TYPE = DSEAlgorithms.GENERATIONAL_SEARCH;
 
 	@Parameter(key = "local_search_dse", group = "DSE", description = "Granularity of DSE application")
 	public static DSEType LOCAL_SEARCH_DSE = DSEType.TEST;
@@ -481,8 +481,13 @@ public class Properties {
 	public enum DSEStoppingConditionCriterion {
 		TARGETCOVERAGE,
 		MAXTIME, /** In seconds */
-    	ZEROFITNESS
+    	ZEROFITNESS,
+		MAXTESTS,
+		DEFAULTS /** The ones that are setted by default on the algorithm + Strategy */
 	}
+
+	@Parameter(key = "dse_stopping_condition", group = "DSE", description = "Indicate which stopping condition to use.")
+	public static DSEStoppingConditionCriterion DSE_STOPPING_CONDITION = DSEStoppingConditionCriterion.DEFAULTS;
 
 	@Parameter(key = "bytecode_logging_enabled", group = "DSE", description = "Indicates whether bytecode instructions that are being executed should be logged.")
 	public static boolean BYTECODE_LOGGING_ENABLED = false;
@@ -2497,7 +2502,7 @@ public class Properties {
 	 * @return a boolean value.
 	 */
 	public static boolean isDSEStrategySelected() {
-		return STRATEGY.equals(Strategy.DSE);
+		return STRATEGY == Strategy.DSE;
 	}
 
 	/**
@@ -2517,7 +2522,7 @@ public class Properties {
 	 * @return a boolean value
 	 */
   public static boolean isArraysTheoryImplementationSelected() {
-		return SELECTED_DSE_ARRAYS_MEMORY_MODEL_VERSION.equals(DSE_ARRAYS_MEMORY_MODEL_VERSION.SELECT_STORE_EXPRESSIONS);
+		return SELECTED_DSE_ARRAYS_MEMORY_MODEL_VERSION == DSE_ARRAYS_MEMORY_MODEL_VERSION.SELECT_STORE_EXPRESSIONS;
   }
 
 	/**
@@ -2526,6 +2531,6 @@ public class Properties {
 	 * @return a boolean value.
 	 */
 	public static boolean isLazyArraysImplementationSelected() {
-		return SELECTED_DSE_ARRAYS_MEMORY_MODEL_VERSION.equals(DSE_ARRAYS_MEMORY_MODEL_VERSION.LAZY_VARIABLES);
+		return SELECTED_DSE_ARRAYS_MEMORY_MODEL_VERSION == DSE_ARRAYS_MEMORY_MODEL_VERSION.LAZY_VARIABLES;
 	}
 }
