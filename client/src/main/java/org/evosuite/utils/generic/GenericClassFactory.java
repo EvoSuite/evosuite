@@ -17,7 +17,7 @@ public class GenericClassFactory {
     private final static Logger logger = LoggerFactory.getLogger(GenericClassFactory.class);
 
     static {
-        factory = Properties.USE_NEW_GENERIC_CLASS ? new NewGenericClassFactory() : new OldGenericClassFactory();
+        factory = new OldGenericClassFactory();
     }
 
     public static GenericClass<?> get(GenericClass<?> copy) {
@@ -76,81 +76,6 @@ public class GenericClassFactory {
         @Override
         public GenericClassImpl get(Type type, Class<?> clazz) {
             return new GenericClassImpl(type, clazz);
-        }
-    }
-
-    static class NewGenericClassFactory implements IGenericClassFactory<AbstractGenericClass<?>> {
-
-        @Override
-        public AbstractGenericClass<?> get(GenericClass<?> copy) {
-            Objects.requireNonNull(copy);
-            return setDirectly(copy.getType(), copy.getRawClass());
-        }
-
-        @Override
-        public AbstractGenericClass<?> get(Class<?> clazz) {
-            Objects.requireNonNull(clazz);
-            return setDirectly(GenericClassUtils.addTypeParameters(clazz), clazz);
-        }
-
-        @Override
-        public AbstractGenericClass<?> get(Type type) {
-            Objects.requireNonNull(type);
-            Type _type;
-            Class<?> rawClass;
-            if (type instanceof Class<?>) {
-                rawClass = (Class<?>) type;
-                _type = genericTypeOf(rawClass);
-            } else {
-                // TODO handle generic array special case
-                _type = type;
-                try {
-                    rawClass = GenericClassUtils.erase(type);
-                } catch (RuntimeException e){
-                    rawClass = Object.class;
-                }
-            }
-            return setDirectly(_type, rawClass);
-        }
-
-        /**
-         * Converts a {@code Class} object to a {@code Type} object.
-         * <p>
-         * If {@param clazz} does not contain generics, it will be returned.
-         * Otherwise, a Type object is returned, that contains the generic information.
-         *
-         * @param clazz the raw class object.
-         * @return the type containing generic information if present.
-         */
-        static Type genericTypeOf(Class<?> clazz) {
-            if (clazz.isArray()) {
-                // TODO don't know if this actually works.
-                Type arrayComponentType = TypeUtils.getArrayComponentType(clazz);
-                return TypeUtils.genericArrayType(arrayComponentType);
-            } else if (clazz.getTypeParameters().length > 0) {
-                return GenericClassUtils.addTypeParameters(clazz);
-            } else {
-                return clazz;
-            }
-        }
-
-        @Override
-        public AbstractGenericClass<?> get(Type type, Class<?> clazz) {
-            Objects.requireNonNull(type);
-            Objects.requireNonNull(clazz);
-            return setDirectly(type, clazz);
-        }
-
-        private AbstractGenericClass<?> setDirectly(Type type, Class<?> rawClass) {
-            if (type instanceof ParameterizedType)
-                return new ParameterizedGenericClass((ParameterizedType) type, rawClass);
-            else if (type instanceof WildcardType) return new WildcardGenericClass((WildcardType) type, rawClass);
-            else if (type instanceof TypeVariable)
-                return new TypeVariableGenericClass((TypeVariable<?>) type, rawClass);
-            else if (type instanceof Class) return new RawClassGenericClass((Class<?>) type);
-            else if (type instanceof GenericArrayType)
-                return new GenericArrayGenericClass((GenericArrayType) type, rawClass);
-            else throw new IllegalArgumentException("Can't create Generic Class for type " + type);
         }
     }
 }
