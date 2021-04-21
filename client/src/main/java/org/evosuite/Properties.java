@@ -1615,6 +1615,9 @@ public class Properties {
 	@Parameter(key = "honour_data_annotations", group = "Runtime", description = "Allows EvoSuite to generate tests with or without honouring the parameter data annotations")
 	public static boolean HONOUR_DATA_ANNOTATIONS = true;
 
+	@Parameter(key = "use_new_generic_class", group = "debug", description = "Whether the new Implementation of GenericClass should be used")
+	public static boolean USE_NEW_GENERIC_CLASS = false;
+
 	/**
 	 * Get all parameters that are available
 	 *

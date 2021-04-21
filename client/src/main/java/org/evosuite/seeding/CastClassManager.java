@@ -19,10 +19,7 @@
  */
 package org.evosuite.seeding;
 
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.lang.reflect.TypeVariable;
-import java.lang.reflect.WildcardType;
+import java.lang.reflect.*;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -51,7 +48,7 @@ import static java.util.Comparator.comparingInt;
  */
 public class CastClassManager {
 
-    private static final Logger logger = LoggerFactory.getLogger(CastClassManager.class);
+    static final Logger logger = LoggerFactory.getLogger(CastClassManager.class);
     private static CastClassManager instance = new CastClassManager();
 
     /**
@@ -78,7 +75,16 @@ public class CastClassManager {
      * @return a candidate from the list of candidates
      */
     public static GenericClass<?> selectClass(List<GenericClass<?>> candidates) {
-        return candidates.get(RankSelection.getIdx(candidates));
+        double r = Randomness.nextDouble();
+        double d = Properties.RANK_BIAS
+                - Math.sqrt((Properties.RANK_BIAS * Properties.RANK_BIAS)
+                - (4.0 * (Properties.RANK_BIAS - 1.0) * r));
+        int length = candidates.size();
+
+        d = d / 2.0 / (Properties.RANK_BIAS - 1.0);
+
+        int index = (int) (length * d);
+        return candidates.get(index);
     }
 
     /**
@@ -148,10 +154,11 @@ public class CastClassManager {
      * @param depth The secondary sorting criteria for the cast classes.
      */
     public void addCastClass(final GenericClass<?> clazz, final int depth) {
+        logger.debug("Adding cast class for {}", clazz.getSimpleName());
         final Class<?> rawClass = clazz.getRawClass();
 
         if (rawClass == null) {
-            logger.warn("ADDING NULL!");
+            logger.debug("ADDING NULL!");
             assert (false);
         }
 
@@ -164,6 +171,7 @@ public class CastClassManager {
             for (final Class<?> concreteClass : concreteClasses) {
                 final GenericClass<?> c = GenericClassFactory.get(concreteClass);
                 if (TestUsageChecker.canUse(c.getRawClass())) {
+                    logger.debug("adding concrete class {} for abstract class {}", c.getSimpleName(), clazz);
                     putCastClass(c, depth);
                 }
             }
@@ -171,19 +179,32 @@ public class CastClassManager {
             // If mocking is enabled, we can simply mock the abstract class in the generated tests.
             if (Properties.P_FUNCTIONAL_MOCKING > 0.0) {
                 if (TestUsageChecker.canUse(rawClass)) {
+                    logger.debug("abstract class {} is functional mockable", clazz.getSimpleName());
                     putCastClass(clazz, depth);
                 }
             }
         } else if (TestUsageChecker.canUse(rawClass)) {
+            logger.debug("add concrete class {}", clazz);
             putCastClass(clazz, depth);
         }
     }
 
     public GenericClass<?> selectCastClass(final TypeVariable<?> typeVariable, final boolean allowRecursion,
                                            final Map<TypeVariable<?>, Type> ownerVariableMap) {
+        logger.debug("selecting cast class for type variable {} with bounds {}, owner var map: {}", typeVariable, Arrays.toString(typeVariable.getBounds()), ownerVariableMap);
+        GenericDeclaration genericDeclaration = typeVariable.getGenericDeclaration();
+//        I have added this for debug information, we should remove it.
+        String declarationSimpleName = "<Unknown generic declaration>";
+        if(genericDeclaration instanceof Class<?>){
+            declarationSimpleName = ((Class<?>) genericDeclaration).getSimpleName();
+        } else if(genericDeclaration instanceof Method){
+            declarationSimpleName = ((Method) genericDeclaration).getDeclaringClass().getSimpleName() + "#" +((Method) genericDeclaration).getName();
+        } else if(genericDeclaration instanceof Constructor){
+            declarationSimpleName = ((Constructor) genericDeclaration).getDeclaringClass().getSimpleName() + "#" + "<init>";
+        }
         List<GenericClass<?>> assignableClasses = getAssignableClasses(typeVariable, allowRecursion, ownerVariableMap);
 
-        logger.debug("Assignable classes to " + typeVariable + ": " + assignableClasses);
+        logger.debug("Assignable classes to " + typeVariable + ": " + assignableClasses.size());
 
         // FIXME: If we disallow recursion immediately, then we will never actually
         // do recursion since we always have Object, Integer, and String as candidates.
@@ -200,26 +221,28 @@ public class CastClassManager {
         // special case
         if (assignableClasses.isEmpty()) {
             logger.debug("Trying to add new cast class");
-            if (addAssignableClass(typeVariable, ownerVariableMap)) {
+            GenericClass<?> genericClass = addAssignableClass(typeVariable, ownerVariableMap);
+            if (genericClass != null) {
                 logger.debug("Now trying again to get a class");
                 assignableClasses = getAssignableClasses(typeVariable, allowRecursion, ownerVariableMap);
                 if (assignableClasses.isEmpty()) {
-                    logger.debug("Nothing is assignable");
+                    logger.warn("Nothing is assignable after adding {} for type Variable {} with bounds {} of declaration {}. The owner var map is {}",
+                            genericClass,typeVariable, Arrays.toString(typeVariable.getBounds()), declarationSimpleName, ownerVariableMap);
                     return null;
                 }
             } else {
-                logger.debug("Nothing is assignable");
+                logger.debug("Nothing is assignable and couldn't add a class for type Variable {} with bounds {}",typeVariable, Arrays.toString(typeVariable.getBounds()));
                 return null;
             }
         }
-        logger.debug("Now we've got assignable classes: " + assignableClasses.size());
+        logger.debug("Now we've got assignable classes: " + assignableClasses);
 
         return selectClass(assignableClasses);
     }
 
     public GenericClass<?> selectCastClass(final WildcardType wildcardType, final boolean allowRecursion,
                                            Map<TypeVariable<?>, Type> ownerVariableMap) throws ConstructionFailedException {
-        logger.debug("Getting assignable classes for wildcard");
+        logger.debug("Getting assignable classes for wildcard {}", wildcardType);
         List<GenericClass<?>> assignableClasses = getAssignableClasses(wildcardType, false, ownerVariableMap);
         logger.debug("Assignable classes to " + wildcardType + ": " + assignableClasses);
 
@@ -232,11 +255,12 @@ public class CastClassManager {
         if (assignableClasses.isEmpty()) {
             logger.debug("Trying to add new cast class");
 
-            if (addAssignableClass(wildcardType, ownerVariableMap)) {
+            GenericClass<?> genericClass = addAssignableClass(wildcardType, ownerVariableMap);
+            if (genericClass != null) {
                 assignableClasses = getAssignableClasses(wildcardType, allowRecursion, ownerVariableMap);
 
                 if (assignableClasses.isEmpty()) {
-                    logger.debug("Nothing is assignable");
+                    logger.warn("Nothing is assignable after adding {} for wildcard {}", genericClass, wildcardType);
                     throw new ConstructionFailedException("Nothing is assignable to " + wildcardType);
                 }
             } else {
@@ -245,6 +269,7 @@ public class CastClassManager {
             }
         }
 
+        logger.debug("Now we've got assignable classes: " + assignableClasses.size());
         return selectClass(assignableClasses);
     }
 
@@ -357,17 +382,17 @@ public class CastClassManager {
      *
      * @param assignableClasses the collection of assignable classes.
      * @param priority          the priority stored in the class map.
-     * @return Whether a class was added to the class map.
+     * @return The class that has been added. Null if no class has been added.
      */
-    private boolean addToClassMapIfNotEmpty(Collection<Class<?>> assignableClasses, int priority) {
+    private GenericClass<?> addToClassMapIfNotEmpty(Collection<Class<?>> assignableClasses, int priority) {
         if (!assignableClasses.isEmpty()) {
             final Class<?> choice = Randomness.choice(assignableClasses);
             final GenericClass<?> castClass = GenericClassFactory.get(choice);
             logger.debug("Adding cast class " + castClass);
             putCastClass(castClass, priority);
-            return true;
+            return castClass;
         }
-        return false;
+        return null;
     }
 
     /**
@@ -424,9 +449,9 @@ public class CastClassManager {
      *
      * @param wildcardType the wildcard type to be instantiated.
      * @param typeMap      the type map.
-     * @return Whether an assignable class was added.
+     * @return The assignable class that was added. Null if none was added.
      */
-    private boolean addAssignableClass(final WildcardType wildcardType, final Map<TypeVariable<?>, Type> typeMap) {
+    private GenericClass<?> addAssignableClass(final WildcardType wildcardType, final Map<TypeVariable<?>, Type> typeMap) {
         // Predicate to decide if a class is assignable to the wildcard type
         final Predicate<Class<?>> isAssignableToWildcard =
                 c -> GenericClassFactory.get(c).getWithWildcardTypes().satisfiesBoundaries(wildcardType, typeMap);
@@ -505,7 +530,7 @@ public class CastClassManager {
      * @param typeMap      the type map.
      * @return Whether an assignable class was added.
      */
-    private boolean addAssignableClass(final TypeVariable<?> typeVariable, final Map<TypeVariable<?>, Type> typeMap) {
+    private GenericClass<?> addAssignableClass(final TypeVariable<?> typeVariable, final Map<TypeVariable<?>, Type> typeMap) {
         // Predicate to decide if a class is assignable to the wildcard type
         final Predicate<Class<?>> satisfiesBoundaries =
                 c -> GenericClassFactory.get(c).getWithWildcardTypes().satisfiesBoundaries(typeVariable, typeMap);
@@ -524,7 +549,8 @@ public class CastClassManager {
         logger.debug("From the type variables in the type variable map {} are {} assignable.", typeMap.values(),
                 assignableTypeVariables);
 
-        if (addToClassMapIfNotEmpty(assignableClasses, 10)) return true;
+        GenericClass<?> genericClass = addToClassMapIfNotEmpty(assignableClasses, 10);
+        if (genericClass != null) return genericClass;
 
         // Compute the bound candidates of the type variable.
         final Set<Class<?>> boundCandidates = Arrays.stream(typeVariable.getBounds()) //

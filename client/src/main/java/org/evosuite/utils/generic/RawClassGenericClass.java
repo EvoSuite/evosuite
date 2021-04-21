@@ -1,14 +1,19 @@
 package org.evosuite.utils.generic;
 
 import org.apache.commons.lang3.reflect.TypeUtils;
+import org.evosuite.Properties;
 import org.evosuite.ga.ConstructionFailedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.*;
 import java.lang.reflect.*;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.*;
+import java.util.function.Function;
 
-public class RawClassGenericClass extends AbstractGenericClass<Class<?>> {
+public class RawClassGenericClass extends AbstractGenericClass<Class<?>> implements Serializable {
     private static final Logger logger = LoggerFactory.getLogger(RawClassGenericClass.class);
 
     public RawClassGenericClass(Class<?> type) {
@@ -277,9 +282,9 @@ public class RawClassGenericClass extends AbstractGenericClass<Class<?>> {
         }
         Class<?> otherRawClass = otherType.getRawClass();
         if (otherRawClass.isAssignableFrom(rawClass)) {
-            Map<TypeVariable<?>, Type> typeMap = otherType.getTypeVariableMap();
+            Map<TypeVariable<?>, Type> typeMap =  new HashMap<>(otherType.getTypeVariableMap());
             if (otherType.isParameterizedType())
-                typeMap.putAll(TypeUtils.determineTypeArguments(rawClass, (ParameterizedType) otherType.getType()));
+                typeMap.putAll(TypeUtils.determineTypeArguments(rawClass, otherType.getType()));
             try {
                 GenericClass<?> instantiation = getGenericInstantiation(typeMap);
                 return equals(instantiation) ? !hasWildcardOrTypeVariables() : instantiation.canBeInstantiatedTo(otherType);
@@ -289,6 +294,50 @@ public class RawClassGenericClass extends AbstractGenericClass<Class<?>> {
             }
         }
         return false;
+    }
+
+
+
+
+
+
+    private void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException {
+        logger.warn("Reading {}", hashCode());
+        /*
+		// ProjectCP is added to ClassLoader to ensure Dependencies of the class can be loaded.
+		*/
+        ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
+        URL cpURL = new File(Properties.CP).toURI().toURL();
+        // If the ContextClassLoader contains already the project cp, we don't add another one
+        // We assume, that if the contextClassLoader is no URLClassLoader, it does not contain the projectCP
+        if (!(contextClassLoader instanceof URLClassLoader) || !Arrays.asList(((URLClassLoader) contextClassLoader).getURLs()).contains(cpURL)) {
+            URL[] urls;
+            urls = new URL[]{cpURL};
+            URLClassLoader urlClassLoader = new URLClassLoader(urls, contextClassLoader);
+            Thread.currentThread().setContextClassLoader(urlClassLoader);
+        }
+
+        String name = (String) ois.readObject();
+        if (name == null) {
+            this.rawClass = null;
+            this.type = null;
+            logger.warn("reading finished");
+            return;
+        }
+        this.rawClass = GenericClassUtils.getClassByFullyQualifiedName(name);
+        this.type = rawClass;
+        logger.warn("Reading - Finished {}", hashCode());
+    }
+
+    private void writeObject(ObjectOutputStream oos) throws IOException {
+        logger.warn("Writing {}", hashCode());
+        if(rawClass == null){
+            logger.warn("Writing - Finished {}", hashCode());
+            oos.writeObject(null);
+            return;
+        }
+        oos.writeObject(rawClass.getName());
+        logger.warn("Writing - Finished {}", hashCode());
     }
 
     @Override

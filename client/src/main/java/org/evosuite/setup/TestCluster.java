@@ -159,7 +159,7 @@ public class TestCluster {
 		removeOnlySelfGenerator();
 
 		removeDirectCycle();
-		
+
 		generatorCache.clear();
 	}
 
@@ -622,7 +622,7 @@ public class TestCluster {
 
 	/**
 	 * Return all calls that have a parameter with given type
-	 * 
+	 *
 	 * @param clazz
 	 * @param resolve
 	 * @return

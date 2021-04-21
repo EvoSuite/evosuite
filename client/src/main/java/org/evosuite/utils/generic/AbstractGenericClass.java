@@ -3,23 +3,27 @@ package org.evosuite.utils.generic;
 import com.googlecode.gentyref.GenericTypeReflector;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.reflect.TypeUtils;
+import org.evosuite.Properties;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.utils.ParameterizedTypeImpl;
 import org.evosuite.utils.TypeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.*;
 import java.lang.reflect.*;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.evosuite.utils.generic.GenericClassUtils.*;
 
-public abstract class AbstractGenericClass<T extends Type> implements GenericClass<AbstractGenericClass<T>> {
+public abstract class AbstractGenericClass<T extends Type> implements GenericClass<AbstractGenericClass<T>>, Serializable {
     private static final Logger logger = LoggerFactory.getLogger(AbstractGenericClass.class);
-    protected T type;
-    protected Class<?> rawClass;
-    private Map<TypeVariable<?>, Type> typeVariableMap;
+    protected transient T type;
+    protected transient Class<?> rawClass;
+    private transient Map<TypeVariable<?>, Type> typeVariableMap;
 
     public AbstractGenericClass(T type, Class<?> rawClass) {
         this.type = type;
@@ -281,24 +285,18 @@ public abstract class AbstractGenericClass<T extends Type> implements GenericCla
                 typeMap);
         ownerVariableMap = GenericClassUtils.resolveTypeVariableRedirects(ownerVariableMap);
 
-        // TODO: check if GenericUtils.replaceTypeVariables can really be replaced by TypeUtils.unrollVariables.
-        GenericClass<?> concreteClass = GenericClassFactory.get(TypeUtils.unrollVariables(ownerVariableMap, type));
+        GenericClass<?> concreteClass = GenericClassFactory.get(GenericUtils.replaceTypeVariables(type, ownerVariableMap));
         Type[] bounds = typeVariable.getBounds();
         for (Type bound : bounds) {
             if (isWildcardType())
-                // TODO from reference implementation:
-                // TODO i don't know exactly how to handle this case, but it is necessary to prevent an Exception
                 return false;
             if (GenericTypeReflector.erase(bound).equals(Enum.class)) {
-                // TODO: WTF??? Why should this not be redundant?
                 if (isEnum()) continue;
                 else return false;
             }
             Type boundType = TypeUtils.unrollVariables(ownerVariableMap, bound);
             boundType = TypeUtils.unrollVariables(Collections.singletonMap(typeVariable, getType()), boundType);
-            if (TypeUtils.containsTypeVariables(boundType))
-                // TODO replace remaining Type Variables with bounded Wildcards.
-                throw new IllegalStateException("TODO: replace type variables with Wildcards here");
+            boundType = GenericUtils.replaceTypeVariablesWithWildcards(boundType);;
             if (!concreteClass.isAssignableTo(boundType) && !(boundType instanceof WildcardType)) {
                 if (GenericTypeReflector.erase(boundType).isAssignableFrom(getRawClass())) {
                     Type instanceType = GenericTypeReflector.getExactSuperType(boundType, getRawClass());
@@ -328,7 +326,7 @@ public abstract class AbstractGenericClass<T extends Type> implements GenericCla
 
     @Override
     public GenericClass<?> getRawGenericClass() {
-        return new RawClassGenericClass(rawClass);
+        return GenericClassFactory.get(rawClass);
     }
 
     @Override
@@ -468,7 +466,7 @@ public abstract class AbstractGenericClass<T extends Type> implements GenericCla
                 ownerTypeVariableMap.putAll(typeArguments);
             } else {
                 // TODO why is this else case not handled???
-                throw new IllegalStateException("I feel like this else-case should be handled");
+//                throw new IllegalStateException("I feel like this else-case should be handled");
             }
         });
         ownerTypeVariableMap.putAll(typeMap);
@@ -490,8 +488,7 @@ public abstract class AbstractGenericClass<T extends Type> implements GenericCla
                 if (isEnum()) continue;
                 else return false;
             }
-            // TODO: check if GenericUtils.replaceTypeVariables can really be replaced by TypeUtils.unrollVariables.
-            Type type = TypeUtils.unrollVariables(ownerVariableMap, upperBound);
+            Type type = GenericUtils.replaceTypeVariables(upperBound, ownerVariableMap);
             if (!isAssignableTo(type)) {
                 if (GenericTypeReflector.erase(type).isAssignableFrom(getRawClass())) {
                     Type instanceType = GenericTypeReflector.getExactSuperType(type, getRawClass());
@@ -517,7 +514,8 @@ public abstract class AbstractGenericClass<T extends Type> implements GenericCla
         Type[] lowerBounds = wildcardType.getLowerBounds();
         if(lowerBounds == null) return true;
         for(Type lowerBound : lowerBounds){
-            Type type = TypeUtils.unrollVariables(ownerVariableMap, lowerBound);
+            Type type = GenericUtils.replaceTypeVariables(lowerBound, ownerVariableMap);
+//            Type type = TypeUtils.unrollVariables(ownerVariableMap, lowerBound);
             if(!isAssignableFrom(type)){
                 if (type instanceof WildcardType)
                     continue;
@@ -534,7 +532,11 @@ public abstract class AbstractGenericClass<T extends Type> implements GenericCla
 
     @Override
     public GenericClass<?> setType(Type type) {
-        if(type instanceof ParameterizedType) return new ParameterizedGenericClass((ParameterizedType) type, rawClass);
+        if(type instanceof ParameterizedType) {
+            ParameterizedGenericClass parameterizedGenericClass = new ParameterizedGenericClass((ParameterizedType) type, rawClass);
+            logger.warn("Set type results {} results in: {}",type.getTypeName(), parameterizedGenericClass);
+            return parameterizedGenericClass;
+        }
         if(type instanceof TypeVariable) return new TypeVariableGenericClass((TypeVariable<?>) type, rawClass);
         if(type instanceof GenericArrayType) return new GenericArrayGenericClass((GenericArrayType) type, rawClass);
         if(type instanceof WildcardType) return new WildcardGenericClass((WildcardType) type, rawClass);
@@ -549,4 +551,16 @@ public abstract class AbstractGenericClass<T extends Type> implements GenericCla
         // TODO why does Type Utils not work?
 //        return TypeUtils.parameterizeWithOwner(owner, rawClass, typeArguments);
     }
+
+    static WildcardType wildcardType(Type[] upperBounds, Type[] lowerBounds){
+        return TypeUtils.wildcardType().withUpperBounds(upperBounds).withLowerBounds(lowerBounds).build();
+    }
+
+
+    private void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException {
+    }
+
+    private void writeObject(ObjectOutputStream oos) throws IOException {
+    }
+
 }

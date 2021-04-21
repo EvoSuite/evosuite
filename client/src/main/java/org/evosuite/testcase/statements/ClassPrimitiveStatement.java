@@ -44,7 +44,7 @@ public class ClassPrimitiveStatement extends PrimitiveStatement<Class<?>> {
 
 	private transient Set<Class<?>> assignableClasses = new LinkedHashSet<>();
 
-	public ClassPrimitiveStatement(TestCase tc, GenericClassImpl type,
+	public ClassPrimitiveStatement(TestCase tc, GenericClass<?> type,
 	        Set<Class<?>> assignableClasses) {
 		super(tc, type, Randomness.choice(assignableClasses));
 		this.assignableClasses.addAll(assignableClasses);
@@ -150,10 +150,10 @@ public class ClassPrimitiveStatement extends PrimitiveStatement<Class<?>> {
 	private void readObject(ObjectInputStream ois) throws ClassNotFoundException,
 	        IOException {
 		ois.defaultReadObject();
-		this.value = ((GenericClassImpl) ois.readObject()).getRawClass();
-		List<GenericClassImpl> newAssignableClasses = (List<GenericClassImpl>) ois.readObject();
+		this.value = ((GenericClass<?>) ois.readObject()).getRawClass();
+		List<GenericClass<?>> newAssignableClasses = (List<GenericClass<?>>) ois.readObject();
 		assignableClasses = new LinkedHashSet<>();
-		for (GenericClassImpl assignableClass : newAssignableClasses) {
+		for (GenericClass<?> assignableClass : newAssignableClasses) {
 			assignableClasses.add(assignableClass.getRawClass());
 		}
 	}

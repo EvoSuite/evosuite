@@ -7,14 +7,17 @@ import org.evosuite.utils.ParameterizedTypeImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.*;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class ParameterizedGenericClass extends AbstractGenericClass<ParameterizedType> {
+public class ParameterizedGenericClass extends AbstractGenericClass<ParameterizedType> implements Serializable {
     private static final Logger logger = LoggerFactory.getLogger(ParameterizedGenericClass.class);
 
     ParameterizedGenericClass(ParameterizedType type, Class<?> clazz) {
@@ -43,9 +46,7 @@ public class ParameterizedGenericClass extends AbstractGenericClass<Parameterize
                 }
                 Type[] parameterTypes = parameterClasses.stream().map(GenericClass::getType).toArray(Type[]::new);
                 if (ownerType == null) this.type = parameterizeWithOwner(null, rawClass, parameterTypes);
-                else
-                    this.type = parameterizeWithOwner(ownerType.getType(), rawClass,
-                            parameterTypes);
+                else this.type = parameterizeWithOwner(ownerType.getType(), rawClass, parameterTypes);
             } else {
                 // TODO what to do if type == null?
                 throw new IllegalStateException("Type of generic class is null. Don't know what to do.");
@@ -191,6 +192,8 @@ public class ParameterizedGenericClass extends AbstractGenericClass<Parameterize
                     type.getOwnerType(), currentClass, Arrays.toString(parameterTypes));
 //            exactClass= exactClass.setType(TypeUtils.parameterizeWithOwner(type.getOwnerType(), currentClass,
 //            parameterTypes));
+            logger.warn("setType 1: {}, {}, {}", type.getOwnerType(), currentClass, Arrays.toString(parameterTypes));
+            logger.warn("{} equals {} from {}", currentClass, targetClass, superClass);
             exactClass = exactClass.setType(AbstractGenericClass.parameterizeWithOwner(type.getOwnerType(),
                     currentClass, parameterTypes));
         } else {
@@ -219,6 +222,7 @@ public class ParameterizedGenericClass extends AbstractGenericClass<Parameterize
             }
             GenericClass<?> ownerClass = GenericClassFactory.get(ownerType).getWithParametersFromSuperclass(superClass);
             if (ownerClass == null) return null;
+            logger.warn("setType 2: {}, {}, {}", ownerType, currentClass, arguments);
             exactClass = exactClass.setType(AbstractGenericClass.parameterizeWithOwner(ownerType, currentClass,
                     arguments));
         }
@@ -240,9 +244,14 @@ public class ParameterizedGenericClass extends AbstractGenericClass<Parameterize
         logger.debug("Updating inherited type variables - type: {}, typeVariables: {}, types: {}", type,
                 typeVariables, types);
         for (int i = 0; i < typeVariables.size(); i++) {
-            if (types.get(i) != typeVariables.get(i)) {
-                typeMap.put(typeVariables.get(i), types.get(i));
-                changed = true;
+            try {
+                if (types.get(i) != typeVariables.get(i)) {
+                    typeMap.put(typeVariables.get(i), types.get(i));
+                    changed = true;
+                }
+            } catch (ArrayIndexOutOfBoundsException e) {
+                logger.warn("Caught the exception in: {}", this);
+                throw e;
             }
         }
         return changed ? result : typeMap;
@@ -388,6 +397,12 @@ public class ParameterizedGenericClass extends AbstractGenericClass<Parameterize
         return false;
     }
 
+    @Override
+    public String toString() {
+        return "ParameterizedGenericClass{" + "type=" + type.getTypeName() + ", rawClass=" + rawClass + ", typeClass" +
+                "=" + type.getClass().getName() + '}';
+    }
+
     private GenericClass<?> getGenericParameterizedTypeInstantiation(Map<TypeVariable<?>, Type> typeMap,
                                                                      int recursionLevel) throws ConstructionFailedException {
         List<TypeVariable<?>> typeParameters = getTypeVariables();
@@ -431,5 +446,58 @@ public class ParameterizedGenericClass extends AbstractGenericClass<Parameterize
         }
 
         return GenericClassFactory.get(AbstractGenericClass.parameterizeWithOwner(ownerType, rawClass, parameterTypes));
+    }
+
+    private void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException {
+        logger.warn("Reading {}", hashCode());
+        /*
+		// ProjectCP is added to ClassLoader to ensure Dependencies of the class can be loaded.
+		*/
+        ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
+        URL cpURL = new File(Properties.CP).toURI().toURL();
+        // If the ContextClassLoader contains already the project cp, we don't add another one
+        // We assume, that if the contextClassLoader is no URLClassLoader, it does not contain the projectCP
+        if (!(contextClassLoader instanceof URLClassLoader) || !Arrays.asList(((URLClassLoader) contextClassLoader).getURLs()).contains(cpURL)) {
+            URL[] urls;
+            urls = new URL[]{cpURL};
+            URLClassLoader urlClassLoader = new URLClassLoader(urls, contextClassLoader);
+            Thread.currentThread().setContextClassLoader(urlClassLoader);
+        }
+
+        String name = (String) ois.readObject();
+        if (name == null) {
+            this.rawClass = null;
+            this.type = null;
+            logger.warn("reading finished");
+            return;
+        }
+        this.rawClass = GenericClassUtils.getClass(name);
+
+        Boolean isParameterized = (Boolean) ois.readObject();
+        // GenericClass rawType = (GenericClass) ois.readObject();
+        GenericClass<?> ownerType = (GenericClass<?>) ois.readObject();
+        List<GenericClass<?>> parameterClasses = (List<GenericClass<?>>) ois.readObject();
+        Type[] parameterTypes = new Type[parameterClasses.size()];
+        for (int i = 0; i < parameterClasses.size(); i++) {
+            parameterTypes[i] = parameterClasses.get(i).getType();
+        }
+        this.type = AbstractGenericClass.parameterizeWithOwner(ownerType.getType(), rawClass, parameterTypes);
+        logger.warn("Reading - Finished {}", hashCode());
+    }
+
+    private void writeObject(ObjectOutputStream oos) throws IOException {
+        logger.warn("Writing {}", hashCode());
+        if (rawClass == null) {
+            oos.writeObject(null);
+            logger.warn("Writing - Finished {}", hashCode());
+            return;
+        }
+        oos.writeObject(rawClass.getName());
+        if (type.getOwnerType() != null) oos.writeObject(GenericClassFactory.get(type.getOwnerType()));
+        else oos.writeObject(null);
+        List<GenericClass<?>> parameterClasses =
+                Arrays.stream(type.getActualTypeArguments()).map(GenericClassFactory::get).collect(Collectors.toList());
+        oos.writeObject(parameterClasses);
+        logger.warn("Writing - Finished {}", hashCode());
     }
 }

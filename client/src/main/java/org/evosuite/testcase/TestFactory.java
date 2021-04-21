@@ -1381,6 +1381,7 @@ public class TestFactory {
 	        int position, int recursionDepth, VariableReference exclude, boolean allowNull,
 													boolean excludeCalleeGenerators, boolean canUseMocks)
 	        throws ConstructionFailedException {
+	    logger.debug("create Or reuse Variable");
 
 		if (Properties.SEED_TYPES && parameterType.equals(Object.class)) {
 			return createOrReuseObjectVariable(test, position, recursionDepth, exclude, allowNull, canUseMocks);
@@ -1388,17 +1389,20 @@ public class TestFactory {
 
 		double reuse = Randomness.nextDouble();
 
+		logger.debug("create Or reuse Variable 1");
 		List<VariableReference> objects = getCandidatesForReuse(test, parameterType, position, exclude, allowNull, canUseMocks);
 
 		GenericClass<?> clazz = GenericClassFactory.get(parameterType);
 		boolean isPrimitiveOrSimilar = clazz.isPrimitive() || clazz.isWrapperType() || clazz.isEnum() || clazz.isClass() || clazz.isString();
 
 		if (isPrimitiveOrSimilar && !objects.isEmpty() && reuse <= Properties.PRIMITIVE_REUSE_PROBABILITY) {
+			logger.debug("create Or reuse Variable 2");
 			logger.debug(" Looking for existing object of type {}", parameterType);
 			VariableReference reference = Randomness.choice(objects);
 			return reference;
 
 		} else if (!isPrimitiveOrSimilar && !objects.isEmpty() && (reuse <= Properties.OBJECT_REUSE_PROBABILITY)) {
+			logger.debug("create Or reuse Variable 3");
 
 			if (logger.isDebugEnabled()) {
 				logger.debug(" Choosing from {} existing objects: {}", objects.size(), Arrays.toString(objects.toArray()));
@@ -1639,7 +1643,8 @@ public class TestFactory {
 			//List<VariableReference> candidates = test.getObjects(Object.class, position);
 			filterVariablesByCastClasses(candidates);
 			//filterVariablesByClass(candidates, Object.class);
-			logger.debug("Choosing object from: {}", candidates);
+			logger.debug("Choosing object from");
+//			logger.debug("Choosing object from: {}", candidates);
 			if (!candidates.isEmpty())
 				return Randomness.choice(candidates);
 		}

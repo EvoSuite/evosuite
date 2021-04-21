@@ -7,12 +7,15 @@ import org.evosuite.seeding.CastClassManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.*;
 import java.lang.reflect.*;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public class WildcardGenericClass extends AbstractGenericClass<WildcardType> {
+public class WildcardGenericClass extends AbstractGenericClass<WildcardType> implements Serializable {
     private static final Logger logger = LoggerFactory.getLogger(WildcardGenericClass.class);
 
     public WildcardGenericClass(WildcardType type, Class<?> rawClass) {
@@ -295,5 +298,54 @@ public class WildcardGenericClass extends AbstractGenericClass<WildcardType> {
         }
 
         return false;
+    }
+
+
+
+
+    private void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException {
+        logger.warn("reading");
+        ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
+        URL cpURL = new File(Properties.CP).toURI().toURL();
+        if (!(contextClassLoader instanceof URLClassLoader) || !Arrays.asList(((URLClassLoader) contextClassLoader).getURLs()).contains(cpURL)) {
+            URL[] urls;
+            urls = new URL[]{cpURL};
+            URLClassLoader urlClassLoader = new URLClassLoader(urls, contextClassLoader);
+            Thread.currentThread().setContextClassLoader(urlClassLoader);
+        }
+
+        String name = (String) ois.readObject();
+        if(name == null){
+            this.rawClass = null;
+            this.type = null;
+            return;
+        }
+        this.rawClass = GenericClassUtils.getClassByFullyQualifiedName(name);
+        List<String> uBounds = (List<String>) ois.readObject();
+        List<String> lBounds = (List<String>) ois.readObject();
+        Type[] upperBounds = new Type[uBounds.size()];
+        Type[] lowerBounds = new Type[lBounds.size()];
+        for (int i = 0; i < uBounds.size(); i++)
+            upperBounds[i] = GenericClassUtils.getClassByFullyQualifiedName(uBounds.get(i));
+        for (int i = 0; i < lBounds.size(); i++)
+            lowerBounds[i] = GenericClassUtils.getClassByFullyQualifiedName(lBounds.get(i));
+        type = AbstractGenericClass.wildcardType(upperBounds, lowerBounds);
+        logger.warn("Reading - Finished");
+    }
+
+    private void writeObject(ObjectOutputStream oos) throws IOException {
+        logger.warn("writing");
+        if(rawClass == null)
+            oos.writeObject(null);
+        else {
+            oos.writeObject(rawClass.getName());
+            Type[] upperBounds = type.getUpperBounds();
+            List<String> uBounds = Arrays.stream(upperBounds).map(Type::getTypeName).collect(Collectors.toList());
+            oos.writeObject(uBounds);
+            Type[] lowerBounds = type.getLowerBounds();
+            List<String> lBounds = Arrays.stream(lowerBounds).map(Type::getTypeName).collect(Collectors.toList());
+            oos.writeObject(lBounds);
+        }
+        logger.warn("Writing - Finished");
     }
 }

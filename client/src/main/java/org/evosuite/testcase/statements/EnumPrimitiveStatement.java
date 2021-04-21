@@ -30,7 +30,6 @@ import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.execution.ExecutionTracer;
 import org.evosuite.utils.generic.GenericClass;
 import org.evosuite.utils.generic.GenericClassFactory;
-import org.evosuite.utils.generic.GenericClassImpl;
 import org.evosuite.utils.Randomness;
 
 /**
@@ -256,7 +255,7 @@ public class EnumPrimitiveStatement<T extends Enum<T>> extends PrimitiveStatemen
 	@SuppressWarnings("unchecked")
 	private void readObject(ObjectInputStream ois) throws ClassNotFoundException,
 	        IOException {
-		GenericClassImpl enumGenericClass = (GenericClassImpl) ois.readObject();
+		GenericClass<?> enumGenericClass = (GenericClass<?>) ois.readObject();
 		int pos = ois.readInt();
 		
 		enumClass = (Class<T>) enumGenericClass.getRawClass();

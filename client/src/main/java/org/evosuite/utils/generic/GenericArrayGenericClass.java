@@ -9,10 +9,13 @@ import org.evosuite.utils.TypeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.*;
 import java.lang.reflect.*;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.*;
 
-public class GenericArrayGenericClass extends AbstractGenericClass<GenericArrayType> {
+public class GenericArrayGenericClass extends AbstractGenericClass<GenericArrayType> implements Serializable {
     private static final Logger logger = LoggerFactory.getLogger(GenericArrayGenericClass.class);
 
     public GenericArrayGenericClass(GenericArrayType type, Class<?> rawClass) {
@@ -290,8 +293,45 @@ public class GenericArrayGenericClass extends AbstractGenericClass<GenericArrayT
     }
 
     private GenericClass<?> getGenericTypeVariableInstantiation(Map<TypeVariable<?>, Type> typeMap,
-                                                                int recursionLevel) {
-        throw new UnsupportedOperationException("Not Implemented: " + "ArrayGenericClass" +
-                "#getGenericTypeVariableInstantiation");
+                                                                int recursionLevel) throws ConstructionFailedException {
+        GenericClass<?> componentClass = getComponentClass().getGenericInstantiation();
+        return getWithComponentClass(componentClass);
+    }
+
+
+
+    private void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException {
+        logger.warn("reading");
+        ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
+        URL cpURL = new File(Properties.CP).toURI().toURL();
+        if (!(contextClassLoader instanceof URLClassLoader) || !Arrays.asList(((URLClassLoader) contextClassLoader).getURLs()).contains(cpURL)) {
+            URL[] urls;
+            urls = new URL[]{cpURL};
+            URLClassLoader urlClassLoader = new URLClassLoader(urls, contextClassLoader);
+            Thread.currentThread().setContextClassLoader(urlClassLoader);
+        }
+
+        String name = (String) ois.readObject();
+        if (name == null) {
+            this.rawClass = null;
+            this.type = null;
+            return;
+        }
+        this.rawClass = GenericClassUtils.getClassByFullyQualifiedName(name);
+        GenericClass<?> componentGenericClass = (GenericClass<?>) ois.readObject();
+        this.type = TypeUtils.genericArrayType(componentGenericClass.getType());
+        logger.warn("reading finished");
+    }
+
+    private void writeObject(ObjectOutputStream oos) throws IOException {
+        logger.warn("writing");
+        if (rawClass == null) {
+            oos.writeObject(null);
+            return;
+        }
+        oos.writeObject(rawClass.getName());
+        Type genericComponentType = type.getGenericComponentType();
+        oos.writeObject(GenericClassFactory.get(genericComponentType));
+        logger.warn("Writing - Finished");
     }
 }

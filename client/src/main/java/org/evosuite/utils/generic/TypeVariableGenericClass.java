@@ -7,11 +7,14 @@ import org.evosuite.seeding.CastClassManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.*;
 import java.lang.reflect.*;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class TypeVariableGenericClass extends AbstractGenericClass<TypeVariable<?>> {
+public class TypeVariableGenericClass extends AbstractGenericClass<TypeVariable<?>> implements Serializable {
     private static final Logger logger = LoggerFactory.getLogger(TypeVariableGenericClass.class);
 
     public TypeVariableGenericClass(TypeVariable<?> type, Class<?> rawClass) {
@@ -237,6 +240,7 @@ public class TypeVariableGenericClass extends AbstractGenericClass<TypeVariable<
 
     private GenericClass<?> getGenericTypeVariableInstantiation(Map<TypeVariable<?>, Type> typeMap,
                                                                 int recursionLevel) throws ConstructionFailedException {
+        typeMap = new HashMap<>(typeMap);
         if (typeMap.containsKey(type)) {
             if (typeMap.get(type) == type) throw new ConstructionFailedException("Type points to itself");
             GenericClass<?> selectedClass = GenericClassFactory.get(typeMap.get(type)).getGenericInstantiation(typeMap,
@@ -266,4 +270,42 @@ public class TypeVariableGenericClass extends AbstractGenericClass<TypeVariable<
         typeMap.put(type, instantiation.getType());
         return instantiation;
     }
+
+
+
+
+    private void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException {
+        logger.warn("reading");
+        ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
+        URL cpURL = new File(Properties.CP).toURI().toURL();
+        // If the ContextClassLoader contains already the project cp, we don't add another one
+        // We assume, that if the contextClassLoader is no URLClassLoader, it does not contain the projectCP
+        if (!(contextClassLoader instanceof URLClassLoader) || !Arrays.asList(((URLClassLoader) contextClassLoader).getURLs()).contains(cpURL)) {
+            URL[] urls;
+            urls = new URL[]{cpURL};
+            URLClassLoader urlClassLoader = new URLClassLoader(urls, contextClassLoader);
+            Thread.currentThread().setContextClassLoader(urlClassLoader);
+        }
+
+        String name = (String) ois.readObject();
+        if (name == null) {
+            this.rawClass = null;
+            this.type = null;
+            return;
+        }
+        this.rawClass = GenericClassUtils.getClassByFullyQualifiedName(name);
+        this.type = null;
+        logger.warn("reading finished");
+    }
+
+    private void writeObject(ObjectOutputStream oos) throws IOException {
+        logger.warn("writing");
+        if(rawClass == null) {
+            oos.writeObject(null);
+            return;
+        }
+        oos.writeObject(rawClass.getName());
+        logger.warn("Writing - Finished");
+    }
+
 }

@@ -1,17 +1,17 @@
 package org.evosuite.seeding;
 
+import ch.qos.logback.classic.Level;
 import org.evosuite.utils.generic.GenericClass;
 import org.evosuite.utils.generic.GenericClassFactory;
 import org.junit.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.IsEqual.equalTo;
-import static org.hamcrest.core.IsCollectionContaining.*;
+import java.lang.reflect.*;
+import java.util.*;
+import java.util.function.Function;
 
-import java.lang.reflect.Type;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.IsCollectionContaining.hasItem;
+import static org.hamcrest.core.IsEqual.equalTo;
 
 
 public class TestCastClassManager {

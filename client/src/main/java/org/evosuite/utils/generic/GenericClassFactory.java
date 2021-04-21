@@ -1,6 +1,9 @@
 package org.evosuite.utils.generic;
 
 import org.apache.commons.lang3.reflect.TypeUtils;
+import org.evosuite.Properties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.*;
 import java.util.Objects;
@@ -10,11 +13,11 @@ import java.util.Objects;
  */
 public class GenericClassFactory {
 
-    private final static boolean USE_NEW_GENERIC_CLASS_IMPLEMENTATION = false;
     private final static IGenericClassFactory<?> factory;
+    private final static Logger logger = LoggerFactory.getLogger(GenericClassFactory.class);
 
     static {
-        factory = USE_NEW_GENERIC_CLASS_IMPLEMENTATION ? new NewGenericClassFactory() : new OldGenericClassFactory();
+        factory = Properties.USE_NEW_GENERIC_CLASS ? new NewGenericClassFactory() : new OldGenericClassFactory();
     }
 
     public static GenericClass<?> get(GenericClass<?> copy) {
@@ -43,7 +46,7 @@ public class GenericClassFactory {
         /**
          * Sets the raw class and the type of a generic class directly.
          * <p>
-         * Deprecated, because it is not checked if this makes actually makes sense.
+         * Deprecated, because it is not checked if this actually makes sense.
          * Probably its better to just use one of the 2 parameters.
          *
          * @param type  The actual generic type
@@ -54,10 +57,10 @@ public class GenericClassFactory {
         T get(Type type, Class<?> clazz);
     }
 
-    private static class OldGenericClassFactory implements IGenericClassFactory<GenericClassImpl> {
+    static class OldGenericClassFactory implements IGenericClassFactory<GenericClassImpl> {
         @Override
         public GenericClassImpl get(GenericClass<?> copy) {
-            return new GenericClassImpl(copy);
+            return new GenericClassImpl((GenericClassImpl) copy);
         }
 
         @Override
@@ -76,7 +79,7 @@ public class GenericClassFactory {
         }
     }
 
-    private static class NewGenericClassFactory implements IGenericClassFactory<AbstractGenericClass<?>> {
+    static class NewGenericClassFactory implements IGenericClassFactory<AbstractGenericClass<?>> {
 
         @Override
         public AbstractGenericClass<?> get(GenericClass<?> copy) {
@@ -99,8 +102,13 @@ public class GenericClassFactory {
                 rawClass = (Class<?>) type;
                 _type = genericTypeOf(rawClass);
             } else {
+                // TODO handle generic array special case
                 _type = type;
-                rawClass = GenericClassUtils.getRawClass(type);
+                try {
+                    rawClass = GenericClassUtils.erase(type);
+                } catch (RuntimeException e){
+                    rawClass = Object.class;
+                }
             }
             return setDirectly(_type, rawClass);
         }
