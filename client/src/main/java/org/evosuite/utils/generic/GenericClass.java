@@ -227,7 +227,7 @@ public interface GenericClass<T extends GenericClass<T>> extends Serializable {
      * The key set of the mapping is the set of type variables of this generic class.
      * THe value of every set is the constraint, of this type variable for this generic class.
      *
-     * @return a view on the type variable map
+     * @return an accessor of the type variable map
      */
     Map<TypeVariable<?>, Type> getTypeVariableMap();
 
@@ -246,45 +246,39 @@ public interface GenericClass<T extends GenericClass<T>> extends Serializable {
      */
     Class<?> getUnboxedType();
 
-    // TODO: write proper documentation.
     /**
+     * Get an instance of the generic class with a new component type.
      *
-     * @param componentClass
-     * @return
+     * @param componentClass the new component type
+     * @return The newly generated instance if this is an array type, else a copy of this type.
      */
     GenericClass<?> getWithComponentClass(GenericClass<?> componentClass);
 
     // TODO: Why is this unused? Maybe we can remove this functionality / move it to a Utility function...
-    // TODO: write proper documentation.
-    /**
-     *
-     * @param parameters
-     * @return
-     */
     GenericClass<?> getWithGenericParameterTypes(List<T> parameters);
 
-    // TODO: write proper documentation.
     /**
+     * Creates a new instance, with "inherited" type variables from a superclass.
      *
-     * @param superClass
-     * @return
-     * @throws ConstructionFailedException
+     * @param superClass the superclass.
+     * @return the new instance.
+     * @throws ConstructionFailedException if the new instance can't be constructed.
      */
     GenericClass<?> getWithParametersFromSuperclass(GenericClass<?> superClass) throws ConstructionFailedException;
 
-    // TODO: write proper documentation.
     /**
+     * Creates a new instance of this generic class with set parameter types.
      *
-     * @param parameters
-     * @return
+     * @param parameters the new parameter types.
+     * @return the new instance.
      */
     GenericClass<?> getWithParameterTypes(List<Type> parameters);
 
-    // TODO: write proper documentation.
     /**
+     * Creates a new instance of this generic class with set parameter types.
      *
-     * @param parameters
-     * @return
+     * @param parameters the new parameter types.
+     * @return the new instance.
      */
     GenericClass<?> getWithParameterTypes(Type[] parameters);
 
@@ -298,27 +292,22 @@ public interface GenericClass<T extends GenericClass<T>> extends Serializable {
      */
     GenericClass<?> getWithWildcardTypes();
 
-    // TODO: write proper documentation.
     /**
+     * Checks if another generic type is a super type of this type.
      *
-     * @param superType
-     * @return
+     * @param superType the type to be checked.
+     * @return Whether {@param superType} is a supertype of this
      */
     boolean hasGenericSuperType(GenericClass<?> superType);
 
     // TODO: Why is this unused? Maybe we can remove this functionality / move it to a Utility function...
-    // TODO: write proper documentation.
-    /**
-     *
-     * @param superType
-     * @return
-     */
     boolean hasGenericSuperType(Type superType);
 
     // TODO: write proper documentation.
     /**
+     * Whether the generic class has an owner type, e.g. is an inner class.
      *
-     * @return
+     * @return Whether an owner type is present.
      */
     boolean hasOwnerType();
 
@@ -376,136 +365,130 @@ public interface GenericClass<T extends GenericClass<T>> extends Serializable {
      */
     boolean isArray();
 
-    // TODO: write proper documentation.
     /**
+     * Check if this instance is assignable from {@param rhsType}.
      *
-     * @param rhsType
-     * @return
+     * @param rhsType the right-hand side of the check.
+     * @return Whether this instance is assignable to the other.
      */
     boolean isAssignableFrom(GenericClass<?> rhsType);
 
-    // TODO: write proper documentation.
     /**
+     * Check if this instance is assignable from {@param rhsType}.
      *
-     * @param rhsType
-     * @return
+     * @param rhsType the right-hand side of the check.
+     * @return Whether this instance is assignable to the other.
      */
     boolean isAssignableFrom(Type rhsType);
 
-    // TODO: write proper documentation.
     /**
+     * Check if this instance is assignable to {@param lhsType}.
      *
-     * @param lhsType
-     * @return
+     * @param lhsType the left-hand side of the check.
+     * @return Whether the other instance is assignable to this.
      */
     boolean isAssignableTo(GenericClass<?> lhsType);
 
-    // TODO: write proper documentation.
     /**
+     * Check if this instance is assignable to {@param lhsType}.
      *
-     * @param lhsType
-     * @return
+     * @param lhsType the left-hand side of the check.
+     * @return Whether the other instance is assignable to this.
      */
     boolean isAssignableTo(Type lhsType);
 
-    // TODO: write proper documentation.
     /**
+     * Checks if the raw class of this generic class equals {@link Class}
      *
-     * @return
+     * @return Whether the raw class is equal to {@link Class}
      */
     boolean isClass();
 
-    // TODO: write proper documentation.
     /**
+     * Checks if the raw class of this generic class equals {@link Enum}
      *
-     * @return
+     * @return Whether the raw class is equal to {@link Enum}
      */
     boolean isEnum();
 
-    // TODO: write proper documentation.
     /**
+     * Checks if the type of this generic class is of type {@link java.lang.reflect.GenericArrayType}
      *
-     * @return
+     * @return Whether the type is equal is of type {@link java.lang.reflect.GenericArrayType}
      */
     boolean isGenericArray();
 
-    // TODO: write proper documentation.
     /**
+     * Checks if this instance is a generic super type of {@param subtype}
      *
-     * @param subType
-     * @return
+     * @param subType The subtype to be checked
+     * @return Whether this is a supertype of {@param subtype}
      */
     boolean isGenericSuperTypeOf(GenericClass<?> subType);
 
     // TODO: Why is this unused? Maybe we can remove this functionality / move it to a Utility function...
-    // TODO: write proper documentation.
-    /**
-     *
-     * @param subType
-     * @return
-     */
     boolean isGenericSuperTypeOf(Type subType);
 
-    // TODO: write proper documentation.
     /**
+     * Checks if the raw class of this generic class equals {@link Object}
      *
-     * @return
+     * @return Whether the raw class is equal to {@link Object}
      */
     boolean isObject();
 
-    // TODO: write proper documentation.
     /**
+     * Checks if the type of this generic class is of type {@link java.lang.reflect.ParameterizedType}
      *
-     * @return
+     * @return Whether the type is equal is of type {@link java.lang.reflect.ParameterizedType}
      */
     boolean isParameterizedType();
 
-    // TODO: write proper documentation.
     /**
+     * Delegation to {@link Class#isPrimitive()} of the raw class.
      *
-     * @return
+     * @return Whatever {@link Class#isPrimitive()} returns.
      */
     boolean isPrimitive();
 
-    // TODO: write proper documentation.
     /**
+     * Checks if the type of this generic class is of type {@link Class}
      *
-     * @return
+     * @return Whether the type is equal is of type {@link Class}
      */
     boolean isRawClass();
 
-    // TODO: write proper documentation.
     /**
+     * Checks if the type of this generic class is of type {@link java.lang.reflect.TypeVariable}
      *
-     * @return
+     * @return Whether the type is equal is of type {@link java.lang.reflect.TypeVariable}
      */
     boolean isTypeVariable();
 
-    // TODO: write proper documentation.
     /**
+     * Checks if the type of this generic class is of type {@link java.lang.reflect.WildcardType}
      *
-     * @return
+     * @return Whether the type is equal is of type {@link java.lang.reflect.WildcardType}
      */
     boolean isWildcardType();
 
-    // TODO: write proper documentation.
     /**
+     * Checks if the raw class of this generic class equals {@link String}
      *
-     * @return
+     * @return Whether the raw class is equal to {@link String}
      */
     boolean isString();
 
-    // TODO: write proper documentation.
     /**
+     * Checks if the raw class of this generic class equals {@link Object}
      *
-     * @return
+     * @return Whether the raw class is equal to {@link Object}
      */
     boolean isVoid();
 
-    // TODO: write proper documentation.
     /**
+     * Checks if the raw class of this generic class equals a wrapper type, e.g. {@link Integer}
      *
-     * @return
+     * @return Whether the raw class is equals a wrapper type.
      */
     boolean isWrapperType();
 
@@ -531,37 +514,37 @@ public interface GenericClass<T extends GenericClass<T>> extends Serializable {
      */
     boolean satisfiesBoundaries(TypeVariable<?> typeVariable, Map<TypeVariable<?>, Type> typeMap);
 
-    // TODO: write proper documentation.
     /**
+     * Whether this instance satisfies the boundaries of a given wildcard type.
      *
-     * @param wildcardType
-     * @return
+     * @param wildcardType the given wildcard type
+     * @return Whether the boundaries are satisfied.
      */
     boolean satisfiesBoundaries(WildcardType wildcardType);
 
-    // TODO: write proper documentation.
     /**
+     * Whether the instance satisfies the boundaries of a given wildcard type.
      *
-     * @param wildcardType
-     * @param typeMap
-     * @return
+     * @param wildcardType the given wildcard type
+     * @param typeMap an additional mapping of type variable to type.
+     * @return Whether the boundaries are satisfied.
      */
     boolean satisfiesBoundaries(WildcardType wildcardType, Map<TypeVariable<?>, Type> typeMap);
 
-    // TODO: write proper documentation.
     /**
+     * Create a new instance of the generic class from the raw class, e.g. discard changes in the parameter types.
      *
-     * @return
+     * @return The new instance.
      */
     GenericClass<?> getRawGenericClass();
 
-    // TODO: write proper documentation.
     /**
+     * Instantiate this wildcard type instance.
      *
-     * @param typeMap
-     * @param recursionLevel
-     * @return
-     * @throws ConstructionFailedException
+     * @param typeMap a mapping from type variable to type map that shall be used.
+     * @param recursionLevel how deep the generic types shall be instantiated.
+     * @return Whether the boundaries are satisfied.
+     * @throws ConstructionFailedException If this instance can't be instantiated.
      */
     GenericClass<?> getGenericWildcardInstantiation(Map<TypeVariable<?>, Type> typeMap, int recursionLevel) throws ConstructionFailedException;
 
