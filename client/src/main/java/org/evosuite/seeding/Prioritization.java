@@ -82,7 +82,7 @@ public class Prioritization<T> {
      * @return an (ordered) list.
      */
     public List<T> toSortedList() {
-        return this.toSortedList(x -> true);
+        return new ArrayList<>(elements);
     }
 
     /**
