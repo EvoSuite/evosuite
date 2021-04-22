@@ -32,11 +32,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * <p>
- * JUnit4TestAdapter class.
- * </p>
- * 
- * @author fraser
+ * Used to adapt the internal representations of test suites to JUnit 5 test cases
  */
 public class JUnit5TestAdapter implements UnitTestAdapter {
 
