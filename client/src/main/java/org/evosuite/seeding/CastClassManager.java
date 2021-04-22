@@ -19,26 +19,24 @@
  */
 package org.evosuite.seeding;
 
+import com.googlecode.gentyref.GenericTypeReflector;
+import org.apache.commons.lang3.tuple.Pair;
+import org.evosuite.Properties;
+import org.evosuite.TestGenerationContext;
+import org.evosuite.ga.ConstructionFailedException;
+import org.evosuite.setup.*;
+import org.evosuite.utils.Randomness;
+import org.evosuite.utils.generic.GenericClass;
+import org.evosuite.utils.generic.GenericClassFactory;
+import org.evosuite.utils.generic.GenericClassUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.lang.reflect.*;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-
-import org.apache.commons.lang3.tuple.Pair;
-import org.evosuite.Properties;
-import org.evosuite.TestGenerationContext;
-import org.evosuite.ga.ConstructionFailedException;
-import org.evosuite.ga.operators.selection.RankSelection;
-import org.evosuite.setup.*;
-import org.evosuite.utils.generic.GenericClass;
-import org.evosuite.utils.generic.GenericClassFactory;
-import org.evosuite.utils.Randomness;
-import org.evosuite.utils.generic.GenericClassUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.googlecode.gentyref.GenericTypeReflector;
 
 import static java.util.Comparator.comparingInt;
 

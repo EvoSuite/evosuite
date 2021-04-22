@@ -67,7 +67,7 @@ public class GenericClassImpl implements Serializable,GenericClass<GenericClassI
     protected static Type addTypeParameters(Class<?> clazz) {
         if (clazz.isArray()) {
             return GenericArrayTypeImpl.createArrayType(addTypeParameters(clazz.getComponentType()));
-        } else if (isMissingTypeParameters(clazz)) {
+        } else if (GenericClassUtils.isMissingTypeParameters(clazz)) {
             TypeVariable<?>[] vars = clazz.getTypeParameters();
             // Type[] arguments = new Type[vars.length];
             // Arrays.fill(arguments, UNBOUND_WILDCARD);
@@ -155,49 +155,8 @@ public class GenericClassImpl implements Serializable,GenericClass<GenericClassI
      *            a {@link java.lang.reflect.Type} object.
      * @return {@code true} if {@code rhsType} is assignable to {@code lhsType}
      */
-    public static boolean isAssignable(Type lhsType, Type rhsType) {
-        if (rhsType == null || lhsType == null)
-            return false;
-
-        try {
-            return TypeUtils.isAssignable(rhsType, lhsType);
-        } catch (Throwable e) {
-            logger.debug("Found unassignable type: " + e);
-            return false;
-        }
-    }
-
-    public static boolean isMissingTypeParameters(Type type) {
-        if (type instanceof Class) {
-            for (Class<?> clazz = (Class<?>) type; clazz != null; clazz = clazz.getEnclosingClass()) {
-                if (clazz.getTypeParameters().length != 0)
-                    return true;
-            }
-            return false;
-        } else if (type instanceof ParameterizedType) {
-            return false;
-        } else if(type instanceof GenericArrayType) {
-            return false;
-        } else if(type instanceof TypeVariable) {
-            return false;
-        } else if(type instanceof WildcardType) {
-            return false;
-        } else {
-            throw new AssertionError("Unexpected type " + type.getClass());
-        }
-    }
-
-    /**
-     * Tells whether {@code subclass} extends or implements the given {@code superclass}.
-     *
-     * @param superclass the superclass
-     * @param subclass the subclass
-     * @return {@code true} if {@code subclass} is a subclass of {@code superclass}
-     */
-    public static boolean isSubclass(Type superclass, Type subclass) {
-        List<Class<?>> superclasses = ClassUtils.getAllSuperclasses((Class<?>) subclass);
-        List<Class<?>> interfaces = ClassUtils.getAllInterfaces((Class<?>) subclass);
-        return superclasses.contains(superclass) || interfaces.contains(superclass);
+    private static boolean isAssignable(Type lhsType, Type rhsType) {
+        return GenericClassUtils.isAssignable(lhsType, rhsType);
     }
 
     transient Class<?> rawClass = null;
