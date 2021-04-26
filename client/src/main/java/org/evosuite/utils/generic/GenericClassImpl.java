@@ -252,22 +252,16 @@ public class GenericClassImpl implements Serializable,GenericClass<GenericClassI
 
         Class<?> otherRawClass = otherType.getRawClass();
         if (otherRawClass.isAssignableFrom(rawClass)) {
-            //logger.debug("Raw classes are assignable: " + otherType + ", have: "
-            //        + toString());
             Map<TypeVariable<?>, Type> typeMap = otherType.getTypeVariableMap();
             if (otherType.isParameterizedType()) {
                 typeMap.putAll(TypeUtils.determineTypeArguments(rawClass,
                         (ParameterizedType) otherType.getType()));
             }
-            //logger.debug(typeMap.toString());
             try {
                 GenericClass instantiation = getGenericInstantiation(typeMap);
                 if (equals(instantiation)) {
-                    //logger.debug("Instantiation is equal to original, so I think we can't assign: "
-                    //        + instantiation);
                     return !hasWildcardOrTypeVariables();
                 }
-                //logger.debug("Checking instantiation: " + instantiation);
                 return instantiation.canBeInstantiatedTo(otherType);
             } catch (ConstructionFailedException e) {
                 logger.debug("Failed to instantiate " + toString());
@@ -367,7 +361,7 @@ public class GenericClassImpl implements Serializable,GenericClass<GenericClassI
             return false;
         if (getClass() != obj.getClass())
             return false;
-        GenericClass other = (GenericClass) obj;
+        GenericClassImpl other = (GenericClassImpl) obj;
         //return type.equals(other.type);
         return getTypeName().equals(other.getTypeName());
 		/*
@@ -545,8 +539,6 @@ public class GenericClassImpl implements Serializable,GenericClass<GenericClassI
             logger.debug("Is parameterized type");
             return getGenericParameterizedTypeInstantiation(typeMap, recursionLevel);
         }
-        // TODO
-
         return null;
     }
 
@@ -581,8 +573,6 @@ public class GenericClassImpl implements Serializable,GenericClass<GenericClassI
                 // FIXXME: How does this happen?
                 throw new ConstructionFailedException("Type points to itself");
             }
-            //TODO: If typeMap.get(type) is a wildcard we need to keep the bounds of the
-            //      type variable in mind anyway, so this needs to be rewritten/fixed.
             GenericClass<?> selectedClass = new GenericClassImpl(typeMap.get(type)).getGenericInstantiation(typeMap,
                     recursionLevel + 1);
             if (!selectedClass.satisfiesBoundaries((TypeVariable<?>) type)) {

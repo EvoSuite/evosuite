@@ -39,7 +39,6 @@ public interface GenericClass<T extends GenericClass<T>> extends Serializable {
      */
     boolean changeClassLoader(ClassLoader loader);
 
-    // TODO: Why is this unused? Maybe we can remove this functionality / move it to a Utility function...
     /**
      * Get the boxed type of the represented generic class, if it is a primitive type.
      * If not, the rawClass is returned.
@@ -85,7 +84,6 @@ public interface GenericClass<T extends GenericClass<T>> extends Serializable {
      */
     Type getComponentType();
 
-    // TODO: write proper documentation.
     /**
      * Compute the generic boundaries of this generic class.
      *
@@ -184,22 +182,20 @@ public interface GenericClass<T extends GenericClass<T>> extends Serializable {
      */
     Class<?> getRawClass();
 
-    // TODO: Why is this unused? Maybe we can remove this functionality / move it to a Utility function...
-    // TODO: write proper documentation.
     /**
+     * Get the raw component class of this instances raw class.
      *
-     * @return
+     * @return the raw component class, if it exists, else null
      */
     Type getRawComponentClass();
 
-    // TODO: write proper documentation.
     /**
+     * Get the simple name of the type represented by this instance.
      *
-     * @return
+     * @return the simple name.
      */
     String getSimpleName();
 
-    // TODO: write proper documentation.
     /**
      * Get the generic super class of this generic class.
      *
@@ -254,7 +250,6 @@ public interface GenericClass<T extends GenericClass<T>> extends Serializable {
      */
     GenericClass<?> getWithComponentClass(GenericClass<?> componentClass);
 
-    // TODO: Why is this unused? Maybe we can remove this functionality / move it to a Utility function...
     GenericClass<?> getWithGenericParameterTypes(List<T> parameters);
 
     /**
@@ -300,10 +295,8 @@ public interface GenericClass<T extends GenericClass<T>> extends Serializable {
      */
     boolean hasGenericSuperType(GenericClass<?> superType);
 
-    // TODO: Why is this unused? Maybe we can remove this functionality / move it to a Utility function...
     boolean hasGenericSuperType(Type superType);
 
-    // TODO: write proper documentation.
     /**
      * Whether the generic class has an owner type, e.g. is an inner class.
      *
@@ -426,7 +419,6 @@ public interface GenericClass<T extends GenericClass<T>> extends Serializable {
      */
     boolean isGenericSuperTypeOf(GenericClass<?> subType);
 
-    // TODO: Why is this unused? Maybe we can remove this functionality / move it to a Utility function...
     boolean isGenericSuperTypeOf(Type subType);
 
     /**

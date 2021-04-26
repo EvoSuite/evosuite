@@ -191,7 +191,6 @@ public class CastClassManager {
                                            final Map<TypeVariable<?>, Type> ownerVariableMap) {
         logger.debug("selecting cast class for type variable {} with bounds {}, owner var map: {}", typeVariable, Arrays.toString(typeVariable.getBounds()), ownerVariableMap);
         GenericDeclaration genericDeclaration = typeVariable.getGenericDeclaration();
-//        I have added this for debug information, we should remove it.
         String declarationSimpleName = "<Unknown generic declaration>";
         if(genericDeclaration instanceof Class<?>){
             declarationSimpleName = ((Class<?>) genericDeclaration).getSimpleName();
@@ -294,7 +293,6 @@ public class CastClassManager {
      * Clears all mappings
      */
     public void clear() {
-//        classMap.clear();
         prioritization.clear();
         initDefaultClasses();
     }
