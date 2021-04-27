@@ -20,20 +20,63 @@
 
 package org.evosuite.junit;
 
+import org.evosuite.Properties;
+import org.evosuite.junit.writer.TestSuiteWriterUtils;
+import org.evosuite.runtime.vnet.NonFunctionalRequirementExtension;
+import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.TestCodeVisitor;
+import org.junit.jupiter.api.extension.RegisterExtension;
+
+
 import java.util.List;
 import java.util.Map;
 
-import org.evosuite.junit.writer.TestSuiteWriterUtils;
-import org.evosuite.runtime.vnet.NonFunctionalRequirementRule;
-import org.evosuite.testcase.TestCase;
-import org.evosuite.testcase.TestCodeVisitor;
-
 /**
- * <p>JUnit3TestAdapter class.</p>
- *
- * @author fraser
+ * Used to adapt the internal representations of test suites to JUnit 5 test cases
  */
-public class JUnit3TestAdapter implements UnitTestAdapter {
+public class JUnit5TestAdapter implements UnitTestAdapter {
+
+	@Override
+	public Class<?> testAnnotation() {
+	    return org.junit.jupiter.api.Test.class;
+	}
+
+	@Override
+	public Class<?> beforeAll() {
+	    return org.junit.jupiter.api.BeforeAll.class;
+	}
+
+	@Override
+	public Class<?> beforeEach() {
+	    return org.junit.jupiter.api.BeforeEach.class;
+	}
+
+	@Override
+	public Class<?> afterAll() {
+	    return org.junit.jupiter.api.AfterAll.class;
+	}
+
+	@Override
+	public Class<?> afterEach() {
+	    return org.junit.jupiter.api.AfterEach.class;
+	}
+
+	private String getJUnitTestShortName() {
+		if (Properties.ECLIPSE_PLUGIN) {
+			String res = "";
+			if(Properties.TARGET_CLASS.equals("EvoSuiteTest"))
+				res = org.evosuite.annotations.EvoSuiteTest.class.getName();
+			else
+				res = "EvoSuiteTest";
+			res += " (checked = false)";
+			return res;
+		} else {
+			if(Properties.TARGET_CLASS.equals("Test"))
+				return "org.junit.jupiter.api.Test";
+			else
+				return "Test";
+		}
+	}
 
 	/* (non-Javadoc)
 	 * @see org.evosuite.junit.UnitTestAdapter#getImports()
@@ -41,7 +84,16 @@ public class JUnit3TestAdapter implements UnitTestAdapter {
 	/** {@inheritDoc} */
 	@Override
 	public String getImports() {
-		return "import junit.framework.TestCase;\n";
+		String imports = "";
+		if ((Properties.ECLIPSE_PLUGIN) && (!Properties.TARGET_CLASS.equals("EvoSuiteTest")))
+			imports += "import "+org.evosuite.annotations.EvoSuiteTest.class.getName()+";\n";
+		if(!Properties.TARGET_CLASS.equals("Test"))
+			imports += "import org.junit.jupiter.api.Test;\n";
+		imports += "import static org.junit.jupiter.api.Assertions.*;\n";
+		imports += "import org.junit.jupiter.api.Timeout;\n";
+		imports += "import java.util.concurrent.TimeUnit;\n";
+		
+		return imports;
 	}
 
 	/* (non-Javadoc)
@@ -50,7 +102,12 @@ public class JUnit3TestAdapter implements UnitTestAdapter {
 	/** {@inheritDoc} */
 	@Override
 	public String getClassDefinition(String testName) {
-		return "public class " + testName + " extends TestCase";
+		return "public class " + testName;
+	}
+
+
+	public String getTimeoutAnnotation(){
+		return "@Timeout(value = " + (Properties.TIMEOUT + 1000) + " , unit = TimeUnit.MILLISECONDS)";
 	}
 
 	/* (non-Javadoc)
@@ -59,7 +116,9 @@ public class JUnit3TestAdapter implements UnitTestAdapter {
 	/** {@inheritDoc} */
 	@Override
 	public String getMethodDefinition(String testName) {
-		return "public void " + testName + "() ";
+		//TODO remove once JUnit is fixed. See comments in Scaffolding regarding Timeout rule
+		return "  @" + getJUnitTestShortName() + "\n  " + getTimeoutAnnotation()
+				 + "\n" + "  public void " + testName + "() ";
 	}
 
 	/* (non-Javadoc)
@@ -68,33 +127,7 @@ public class JUnit3TestAdapter implements UnitTestAdapter {
 	/** {@inheritDoc} */
 	@Override
 	public String getSuite(List<String> suites) {
-		StringBuilder builder = new StringBuilder();
-		builder.append("import junit.framework.Test;\n");
-		builder.append("import junit.framework.TestCase;\n");
-		builder.append("import junit.framework.TestSuite;\n\n");
-
-		for (String suite : suites) {
-			builder.append("import ");
-			// builder.append(Properties.PROJECT_PREFIX);
-			builder.append(suite);
-			builder.append(";\n");
-		}
-		builder.append("\n");
-
-		builder.append(getClassDefinition("GeneratedTestSuite"));
-		builder.append(" {\n");
-		builder.append("  public static Test suite() {\n");
-		builder.append("    TestSuite suite = new TestSuite();\n");
-		for (String suite : suites) {
-			builder.append("    suite.addTestSuite(");
-			builder.append(suite.substring(suite.lastIndexOf(".") + 1));
-			builder.append(".class);\n");
-		}
-
-		builder.append("    return suite;\n");
-		builder.append("  }\n");
-		builder.append("}\n");
-		return builder.toString();
+	    throw new UnsupportedOperationException("getSuite is not supported in JUNIT 5");
 	}
 
 	/* (non-Javadoc)
@@ -120,36 +153,10 @@ public class JUnit3TestAdapter implements UnitTestAdapter {
 	}
 
 	@Override
-	public Class<?> testAnnotation() {
-		return org.junit.Test.class;
-	}
-
-	@Override
-	public Class<?> beforeAll() {
-		return org.junit.BeforeClass.class;
-	}
-
-	@Override
-	public Class<?> beforeEach() {
-		return org.junit.Before.class;
-	}
-
-	@Override
-	public Class<?> afterAll() {
-		return org.junit.AfterClass.class;
-	}
-
-	@Override
-	public Class<?> afterEach() {
-		return org.junit.After.class;
-	}
-
-	@Override
 	public void addNFR(StringBuilder builder) {
 		builder.append(TestSuiteWriterUtils.METHOD_SPACE);
-		builder.append("@").append(org.junit.Rule.class.getCanonicalName()).append("\n");
+		builder.append("@").append(RegisterExtension.class.getCanonicalName()).append("\n");
 		builder.append(TestSuiteWriterUtils.METHOD_SPACE);
-		builder.append("public ").append(NonFunctionalRequirementRule.class.getName()).append(" nfr = new ").append(NonFunctionalRequirementRule.class.getName()).append("();\n\n");
+		builder.append("public ").append(NonFunctionalRequirementExtension.class.getName()).append(" nfr = new ").append(NonFunctionalRequirementExtension.class.getName()).append("();\n\n");
 	}
-
 }

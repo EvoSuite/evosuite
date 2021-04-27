@@ -945,7 +945,7 @@ public class Properties {
 	// ---------------------------------------------------------------
 	// Output
 	public enum OutputFormat {
-		JUNIT3, JUNIT4, TESTNG
+		JUNIT3, JUNIT4, TESTNG, JUNIT5
 	}
 
 	@Parameter(key = "test_format", group = "Output", description = "Format of the resulting test cases")

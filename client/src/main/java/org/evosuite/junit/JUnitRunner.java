@@ -20,11 +20,20 @@
 
 package org.evosuite.junit;
 
+import org.evosuite.Properties;
+import org.junit.platform.launcher.*;
+import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder;
+import org.junit.platform.launcher.core.LauncherFactory;
+import org.junit.runner.JUnitCore;
+import org.junit.runner.Request;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.runner.JUnitCore;
-import org.junit.runner.Request;
+import static org.junit.platform.engine.discovery.ClassNameFilter.includeClassNamePatterns;
+import static org.junit.platform.engine.discovery.DiscoverySelectors.selectPackage;
 
 /**
  * <p>
@@ -35,6 +44,7 @@ import org.junit.runner.Request;
  */
 public class JUnitRunner {
 
+	private static Logger logger = LoggerFactory.getLogger(JUnitRunner.class);
 	
 	private List<JUnitResult> testResults;
 
@@ -48,11 +58,28 @@ public class JUnitRunner {
 	}
 
 	public void run() {
-		Request request = Request.aClass(this.junitClass);
 
-		JUnitCore junit = new JUnitCore();
-		junit.addListener(new JUnitRunListener(this));
-		junit.run(request);
+		if(Properties.TEST_FORMAT == Properties.OutputFormat.JUNIT4) {
+			Request request = Request.aClass(this.junitClass);
+			logger.warn("Running Junit 4 test");
+			JUnitCore junit = new JUnitCore();
+			junit.addListener(new JUnit4RunListener(this));
+			junit.run(request);
+		} else if(Properties.TEST_FORMAT == Properties.OutputFormat.JUNIT5){
+			logger.warn("Running Junit 5 test");
+
+			LauncherDiscoveryRequest request_ = LauncherDiscoveryRequestBuilder.request()
+					.selectors(selectPackage("com.baeldung.junit5.runfromjava"))
+					.filters(includeClassNamePatterns(".*Test"))
+					.build();
+			Launcher launcher = LauncherFactory.create();
+			TestPlan testPlan = launcher.discover(request_);
+			launcher.registerTestExecutionListeners( new JUnit5RunListener(this));
+
+			launcher.execute(request_);
+		} else {
+			logger.warn("Can't run junit test with test format: {}", Properties.TEST_FORMAT);
+		}
 	}
 
 	/**
