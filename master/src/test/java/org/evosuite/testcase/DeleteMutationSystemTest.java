@@ -35,6 +35,7 @@ import org.evosuite.testcase.statements.numeric.IntPrimitiveStatement;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.generic.GenericClass;
+import org.evosuite.utils.generic.GenericClassFactory;
 import org.evosuite.utils.generic.GenericConstructor;
 import org.evosuite.utils.generic.GenericMethod;
 import org.junit.After;
@@ -59,7 +60,7 @@ public class DeleteMutationSystemTest extends SystemTestBase {
 	
 	private TestCase getIntTest(int x, int y) throws NoSuchMethodException, SecurityException, ConstructionFailedException, ClassNotFoundException {
 		Class<?> sut = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(Properties.TARGET_CLASS);
-		GenericClass clazz = new GenericClass(sut);
+		GenericClass<?> clazz = GenericClassFactory.get(sut);
 		
 		DefaultTestCase test = new DefaultTestCase();
 		GenericConstructor gc = new GenericConstructor(clazz.getRawClass().getConstructors()[0], clazz);
@@ -79,7 +80,7 @@ public class DeleteMutationSystemTest extends SystemTestBase {
 	
 	private TestCase getTwoIntTest(int x, int y, int x1, int y1) throws NoSuchMethodException, SecurityException, ConstructionFailedException, ClassNotFoundException {
 		Class<?> sut = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(Properties.TARGET_CLASS);
-		GenericClass clazz = new GenericClass(sut);
+		GenericClass<?> clazz = GenericClassFactory.get(sut);
 		
 		DefaultTestCase test = new DefaultTestCase();
 		GenericConstructor gc = new GenericConstructor(clazz.getRawClass().getConstructors()[0], clazz);

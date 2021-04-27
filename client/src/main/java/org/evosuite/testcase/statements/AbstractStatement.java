@@ -38,6 +38,8 @@ import org.evosuite.testcase.variable.VariableReferenceImpl;
 import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.execution.EvosuiteError;
 import org.evosuite.utils.generic.GenericClass;
+import org.evosuite.utils.generic.GenericClassFactory;
+import org.evosuite.utils.generic.GenericClassImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -139,7 +141,7 @@ public abstract class AbstractStatement implements Statement, Serializable {
 			throw new IllegalArgumentException("type cannot be null");
 		}
 		
-		GenericClass c = new GenericClass(type);
+		GenericClass<?> c = GenericClassFactory.get(type);
 		if (c.isArray()) {
 			this.retval = new ArrayReference(tc, c, 0);
 		} else {

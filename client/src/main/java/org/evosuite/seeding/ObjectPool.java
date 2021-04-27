@@ -40,6 +40,8 @@ import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.DebuggingObjectOutputStream;
 import org.evosuite.utils.generic.GenericClass;
+import org.evosuite.utils.generic.GenericClassFactory;
+import org.evosuite.utils.generic.GenericClassImpl;
 import org.evosuite.utils.Randomness;
 import org.junit.runner.JUnitCore;
 import org.slf4j.Logger;
@@ -55,19 +57,18 @@ public class ObjectPool implements Serializable {
 	private static final long serialVersionUID = 2016387518459994272L;
 
 	/** The actual object pool */
-	protected final Map<GenericClass, Set<TestCase>> pool = new HashMap<>();
+	protected final Map<GenericClass<?>, Set<TestCase>> pool = new HashMap<>();
 
 	protected static final Logger logger = LoggerFactory.getLogger(ObjectPool.class);
 
 	/**
 	 * Insert a new sequence for given Type
-	 * 
-	 * @param clazz
+	 *  @param clazz
 	 *            a {@link java.lang.reflect.Type} object.
 	 * @param sequence
-	 *            a {@link org.evosuite.testcase.TestCase} object.
+	 *            a {@link TestCase} object.
 	 */
-	public void addSequence(GenericClass clazz, TestCase sequence) {
+	public void addSequence(GenericClass<?> clazz, TestCase sequence) {
 		ObjectSequence seq = new ObjectSequence(clazz, sequence);
 		addSequence(seq);
 	}
@@ -94,7 +95,7 @@ public class ObjectPool implements Serializable {
 	 *            a {@link java.lang.reflect.Type} object.
 	 * @return a {@link org.evosuite.testcase.TestCase} object.
 	 */
-	public TestCase getRandomSequence(GenericClass clazz) {
+	public TestCase getRandomSequence(GenericClass<?> clazz) {
 		return Randomness.choice(getSequences(clazz));
 	}
 
@@ -105,12 +106,12 @@ public class ObjectPool implements Serializable {
 	 *            a {@link java.lang.reflect.Type} object.
 	 * @return a {@link java.util.Set} object.
 	 */
-	public Set<TestCase> getSequences(GenericClass clazz) {
+	public Set<TestCase> getSequences(GenericClass<?> clazz) {
 		if (pool.containsKey(clazz))
 			return pool.get(clazz);
 
 		Set<Set<TestCase>> candidates = new LinkedHashSet<>();
-		for (GenericClass poolClazz : pool.keySet()) {
+		for (GenericClass<?> poolClazz : pool.keySet()) {
 			if (poolClazz.isAssignableTo(clazz))
 				candidates.add(pool.get(poolClazz));
 		}
@@ -119,7 +120,7 @@ public class ObjectPool implements Serializable {
 
 	}
 
-	public Set<GenericClass> getClasses() {
+	public Set<GenericClass<?>> getClasses() {
 		return pool.keySet();
 	}
 
@@ -130,7 +131,7 @@ public class ObjectPool implements Serializable {
 	 *            a {@link java.lang.reflect.Type} object.
 	 * @return a boolean.
 	 */
-	public boolean hasSequence(GenericClass clazz) {
+	public boolean hasSequence(GenericClass<?> clazz) {
 		if (pool.containsKey(clazz))
 			return true;
 
@@ -210,7 +211,7 @@ public class ObjectPool implements Serializable {
 			
 			if (!testChromosome.hasException()
 			        && test.hasObject(targetClass, test.size())) {
-				pool.addSequence(new GenericClass(targetClass), test);
+				pool.addSequence(GenericClassFactory.get(targetClass), test);
 			}
 		}
 
@@ -224,7 +225,7 @@ public class ObjectPool implements Serializable {
 	 * @param targetClass
 	 * @param testSuite
 	 */
-	public static ObjectPool getPoolFromJUnit(GenericClass targetClass, Class<?> testSuite) {
+	public static ObjectPool getPoolFromJUnit(GenericClass<?> targetClass, Class<?> testSuite) {
 		final JUnitCore runner = new JUnitCore();
 		final CarvingRunListener listener = new CarvingRunListener();
 		runner.addListener(listener);

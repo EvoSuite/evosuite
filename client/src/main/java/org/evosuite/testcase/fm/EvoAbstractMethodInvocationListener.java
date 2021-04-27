@@ -1,6 +1,7 @@
 package org.evosuite.testcase.fm;
 
 import org.evosuite.utils.generic.GenericClass;
+import org.evosuite.utils.generic.GenericClassImpl;
 
 import java.lang.reflect.Type;
 
@@ -11,7 +12,7 @@ public class EvoAbstractMethodInvocationListener extends EvoInvocationListener {
         super(retvalType);
     }
 
-    public EvoAbstractMethodInvocationListener(GenericClass retvalType) {
+    public EvoAbstractMethodInvocationListener(GenericClass<?> retvalType) {
         super(retvalType);
     }
 

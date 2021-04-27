@@ -27,6 +27,7 @@ import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.execution.Scope;
 import org.evosuite.utils.generic.GenericClass;
+import org.evosuite.utils.generic.GenericClassImpl;
 import org.objectweb.asm.commons.GeneratorAdapter;
 
 /**
@@ -127,9 +128,9 @@ public interface VariableReference extends Comparable<VariableReference>, Serial
 	 * getGenericClass
 	 * </p>
 	 * 
-	 * @return a {@link GenericClass} object.
+	 * @return a {@link GenericClassImpl} object.
 	 */
-    GenericClass getGenericClass();
+    GenericClass<?> getGenericClass();
 	
 	/**
 	 * <p>

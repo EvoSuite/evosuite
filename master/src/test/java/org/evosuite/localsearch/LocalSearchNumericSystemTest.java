@@ -43,9 +43,7 @@ import org.evosuite.testcase.statements.numeric.IntPrimitiveStatement;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.localsearch.TestSuiteLocalSearch;
-import org.evosuite.utils.generic.GenericClass;
-import org.evosuite.utils.generic.GenericConstructor;
-import org.evosuite.utils.generic.GenericMethod;
+import org.evosuite.utils.generic.*;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -72,7 +70,7 @@ public class LocalSearchNumericSystemTest extends SystemTestBase {
 	
 	private TestCase getIntTest(int x, int y) throws NoSuchMethodException, SecurityException, ConstructionFailedException, ClassNotFoundException {
 		Class<?> sut = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(Properties.TARGET_CLASS);
-		GenericClass clazz = new GenericClass(sut);
+		GenericClass<?> clazz = GenericClassFactory.get(sut);
 		
 		DefaultTestCase test = new DefaultTestCase();
 		GenericConstructor gc = new GenericConstructor(clazz.getRawClass().getConstructors()[0], clazz);
@@ -92,7 +90,7 @@ public class LocalSearchNumericSystemTest extends SystemTestBase {
 	
 	private TestCase getFloatTest(float x, float y) throws NoSuchMethodException, SecurityException, ConstructionFailedException, ClassNotFoundException {
 		Class<?> sut = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(Properties.TARGET_CLASS);
-		GenericClass clazz = new GenericClass(sut);
+		GenericClass<?> clazz = GenericClassFactory.get(sut);
 		
 		DefaultTestCase test = new DefaultTestCase();
 		GenericConstructor gc = new GenericConstructor(clazz.getRawClass().getConstructors()[0], clazz);
@@ -112,7 +110,7 @@ public class LocalSearchNumericSystemTest extends SystemTestBase {
 	
 	private TestCase getDoubleTest(double x, double y) throws NoSuchMethodException, SecurityException, ConstructionFailedException, ClassNotFoundException {
 		Class<?> sut = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(Properties.TARGET_CLASS);
-		GenericClass clazz = new GenericClass(sut);
+		GenericClass<?> clazz = GenericClassFactory.get(sut);
 		
 		DefaultTestCase test = new DefaultTestCase();
 		GenericConstructor gc = new GenericConstructor(clazz.getRawClass().getConstructors()[0], clazz);

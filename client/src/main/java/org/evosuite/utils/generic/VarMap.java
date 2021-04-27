@@ -61,9 +61,9 @@ public class VarMap {
 		}
 	}
 
-	public void addAll(Map<TypeVariable<?>, GenericClass> variables) throws IllegalArgumentException{
+	public void addAll(Map<TypeVariable<?>, GenericClass<?>> variables) throws IllegalArgumentException{
 		Inputs.checkNull(variables);
-		for (Entry<TypeVariable<?>, GenericClass> entry : variables.entrySet()) {
+		for (Entry<TypeVariable<?>, GenericClass<?>> entry : variables.entrySet()) {
 			add(entry.getKey(), entry.getValue().getType());
 		}
 	}
