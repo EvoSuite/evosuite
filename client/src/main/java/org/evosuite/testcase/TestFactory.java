@@ -48,12 +48,7 @@ import org.evosuite.testcase.statements.reflection.PrivateFieldStatement;
 import org.evosuite.testcase.statements.reflection.PrivateMethodStatement;
 import org.evosuite.testcase.statements.reflection.ReflectionFactory;
 import org.evosuite.testcase.variable.*;
-import org.evosuite.utils.generic.GenericAccessibleObject;
-import org.evosuite.utils.generic.GenericClass;
-import org.evosuite.utils.generic.GenericConstructor;
-import org.evosuite.utils.generic.GenericField;
-import org.evosuite.utils.generic.GenericMethod;
-import org.evosuite.utils.generic.GenericUtils;
+import org.evosuite.utils.generic.*;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -191,7 +186,7 @@ public class TestFactory {
 		}
 
 		//TODO this needs to be fixed once we handle Generics in mocks
-		FunctionalMockStatement fms = new FunctionalMockStatement(test, type, new GenericClass(type));
+		FunctionalMockStatement fms = new FunctionalMockStatement(test, type, GenericClassFactory.get(type));
 		VariableReference ref = test.addStatement(fms, position);
 
 		//note: when we add a new mock, by default it will have no parameter at the beginning
@@ -210,7 +205,9 @@ public class TestFactory {
 		}
 
 		//TODO this needs to be fixed once we handle Generics in mocks
-		FunctionalMockForAbstractClassStatement fms = new FunctionalMockForAbstractClassStatement(test, type, new GenericClass(type));
+		FunctionalMockForAbstractClassStatement fms = new FunctionalMockForAbstractClassStatement(test,
+				type,
+				GenericClassFactory.get(type));
 		VariableReference ref = test.addStatement(fms, position);
 
 		//note: when we add a new mock, by default it will have no parameter at the beginning
@@ -624,7 +621,7 @@ public class TestFactory {
 		List<VariableReference> objects = test.getObjects(array.getComponentType(),
 		                                                  position);
 		Iterator<VariableReference> iterator = objects.iterator();
-		GenericClass componentClass = new GenericClass(array.getComponentType());
+		GenericClass<?> componentClass = GenericClassFactory.get(array.getComponentType());
 		// Remove assignments from the same array
 		while (iterator.hasNext()) {
 			VariableReference var = iterator.next();
@@ -728,7 +725,7 @@ public class TestFactory {
 												  boolean canUseMocks, boolean canReuseExistingVariables)
 			throws ConstructionFailedException {
 
-		GenericClass clazz = new GenericClass(type);
+		GenericClass<?> clazz = GenericClassFactory.get(type);
 
 		if (clazz.isEnum()) {
 
@@ -826,16 +823,16 @@ public class TestFactory {
 			return createNull(test, Object.class, position, recursionDepth);
 		}
 
-		Set<GenericClass> castClasses = new LinkedHashSet<>(CastClassManager.getInstance().getCastClasses());
+		Set<GenericClass<?>> castClasses = new LinkedHashSet<>(CastClassManager.getInstance().getCastClasses());
 		//needed a copy because hasGenerator(c) does modify that set...
-		List<GenericClass> classes = castClasses.stream()
+		List<GenericClass<?>> classes = castClasses.stream()
 				.filter(c -> TestCluster.getInstance().hasGenerator(c) || c.isString())
 				.collect(Collectors.toList());
-		classes.add(new GenericClass(Object.class));
+		classes.add(GenericClassFactory.get(Object.class));
 
 		//TODO if classes is empty, should we use FM here?
 
-		GenericClass choice = Randomness.choice(classes);
+		GenericClass<?> choice = Randomness.choice(classes);
 		logger.debug("Chosen class for Object: {}", choice);
 		if(choice.isString()) {
 			return createOrReuseVariable(test, String.class, position,
@@ -1031,8 +1028,8 @@ public class TestFactory {
 	 * @return a reference to the created array
 	 * @throws ConstructionFailedException if creation failed
 	 */
-	private VariableReference createArray(TestCase test, GenericClass arrayClass,
-	        int position, int recursionDepth) throws ConstructionFailedException {
+	private VariableReference createArray(TestCase test, GenericClass<?> arrayClass,
+										  int position, int recursionDepth) throws ConstructionFailedException {
 
 		logger.debug("Creating array of type " + arrayClass.getTypeName());
 		if (arrayClass.hasWildcardOrTypeVariables()) {
@@ -1117,8 +1114,8 @@ public class TestFactory {
 	 * @return a reference to the created variable
 	 * @throws ConstructionFailedException if variable creation is not possible
 	 */
-	private VariableReference createPrimitive(TestCase test, GenericClass clazz,
-	        int position, int recursionDepth) throws ConstructionFailedException {
+	private VariableReference createPrimitive(TestCase test, GenericClass<?> clazz,
+											  int position, int recursionDepth) throws ConstructionFailedException {
 		// Special case: we cannot instantiate Class<Class<?>>
 		if (clazz.isClass()) {
 			if (clazz.hasWildcardOrTypeVariables()) {
@@ -1132,8 +1129,7 @@ public class TestFactory {
 				        "Cannot instantiate a class with a class");
 			}
 		}
-		Statement st = PrimitiveStatement.getRandomStatement(test, clazz,
-		                                                              position);
+		Statement st = PrimitiveStatement.getRandomStatement(test, clazz, position);
 		VariableReference ret = test.addStatement(st, position);
 		ret.setDistance(recursionDepth);
 		return ret;
@@ -1160,7 +1156,7 @@ public class TestFactory {
 	 */
 	private VariableReference createNull(TestCase test, Type type, int position,
 	        int recursionDepth) throws ConstructionFailedException {
-		GenericClass genericType = new GenericClass(type);
+		GenericClass<?> genericType = GenericClassFactory.get(type);
 
 		// For example, HashBasedTable.Factory in Guava is private but used as a parameter
 		// in a public method. This would lead to compile errors
@@ -1246,7 +1242,7 @@ public class TestFactory {
 	        int recursionDepth, VariableReference generatorRefToExclude,
 										  boolean allowNull, boolean canUseFunctionalMocks,
 										  boolean canReuseVariables) throws ConstructionFailedException {
-		GenericClass clazz = new GenericClass(type);
+		GenericClass<?> clazz = GenericClassFactory.get(type);
 
 		logger.debug("Going to create object for type {}", type);
 		VariableReference ret = null;
@@ -1394,7 +1390,7 @@ public class TestFactory {
 
 		List<VariableReference> objects = getCandidatesForReuse(test, parameterType, position, exclude, allowNull, canUseMocks);
 
-		GenericClass clazz = new GenericClass(parameterType);
+		GenericClass<?> clazz = GenericClassFactory.get(parameterType);
 		boolean isPrimitiveOrSimilar = clazz.isPrimitive() || clazz.isWrapperType() || clazz.isEnum() || clazz.isClass() || clazz.isString();
 
 		if (isPrimitiveOrSimilar && !objects.isEmpty() && reuse <= Properties.PRIMITIVE_REUSE_PROBABILITY) {
@@ -1474,7 +1470,7 @@ public class TestFactory {
 											 boolean excludeCalleeGenerators, boolean canUseMocks, boolean canReuseExistingVariables)
 			throws ConstructionFailedException {
 
-		GenericClass clazz = new GenericClass(parameterType);
+		GenericClass<?> clazz = GenericClassFactory.get(parameterType);
 
 		if (clazz.hasWildcardOrTypeVariables()) {
 			logger.debug("Getting generic instantiation of {}", clazz);
@@ -1721,12 +1717,12 @@ public class TestFactory {
 
 	private static void filterVariablesByCastClasses(Collection<VariableReference> variables) {
 		// Remove invalid classes if this is an Object.class reference
-		Set<GenericClass> castClasses = CastClassManager.getInstance().getCastClasses();
+		Set<GenericClass<?>> castClasses = CastClassManager.getInstance().getCastClasses();
 		Iterator<VariableReference> replacement = variables.iterator();
 		while (replacement.hasNext()) {
 			VariableReference r = replacement.next();
 			boolean isAssignable = false;
-			for(GenericClass clazz : castClasses) {
+			for(GenericClass<?> clazz : castClasses) {
 				if(r.isPrimitive())
 					continue;
 				if(clazz.isAssignableFrom(r.getVariableClass())) {
@@ -1955,7 +1951,7 @@ public class TestFactory {
 		Set<GenericAccessibleObject<?>> allCalls;
 
 		try {
-			allCalls = TestCluster.getInstance().getGenerators(new GenericClass(
+			allCalls = TestCluster.getInstance().getGenerators(GenericClassFactory.get(
 			                                                           returnType));
 		} catch (ConstructionFailedException e) {
 			return calls;
@@ -1967,7 +1963,7 @@ public class TestFactory {
 				GenericMethod method = (GenericMethod) call;
 				if (method.hasTypeParameters()) {
 					try {
-						call = method.getGenericInstantiation(new GenericClass(returnType));
+						call = method.getGenericInstantiation(GenericClassFactory.get(returnType));
 					} catch (ConstructionFailedException e) {
 						continue;
 					}
@@ -2403,7 +2399,7 @@ public class TestFactory {
 				throw new ConstructionFailedException("Cannot satisfy capture type");
 			}
 
-			GenericClass parameterClass = new GenericClass(parameterType);
+			GenericClass<?> parameterClass = GenericClassFactory.get(parameterType);
 			if (parameterClass.hasTypeVariables()) {
 				logger.debug("Parameter has type variables, replacing with wildcard");
 				parameterType = parameterClass.getWithWildcardTypes().getType();

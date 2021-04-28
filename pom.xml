@@ -336,6 +336,16 @@
                 <version>4.13.1</version>
             </dependency>
             <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter-api</artifactId>
+                <version>5.8.0-M1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter</artifactId>
+                <version>5.8.0-M1</version>
+            </dependency>
+            <dependency>
                 <!-- Adhoc license, copyright holder is INRIA -->
                 <groupId>org.ow2.asm</groupId>
                 <artifactId>asm</artifactId>
@@ -574,6 +584,7 @@
                         <exclude>**/how_to.txt</exclude>
                         <exclude>client/src/main/resources/report/**</exclude>
                         <exclude>client/src/main/resources/jdkPureMethods.txt</exclude>
+                        <exclude>**/java9_invisible_packages.txt</exclude>
                         <exclude>**/.hgignore</exclude>
                         <exclude>README.md</exclude>
                     </excludes>
