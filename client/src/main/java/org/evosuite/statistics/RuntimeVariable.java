@@ -397,7 +397,6 @@ public enum RuntimeVariable {
 	TARGET_BOOLEAN_JUMPS,
 	TARGET_CONDITIONAL_JUMPS,
 	TARGET_DEPENDENT_UPDATES,
-	BINARY_IMAGE_BRANCHES,
 	/* -------------------------------------------------------------------- */
 	/******* DSE related section *******/
 

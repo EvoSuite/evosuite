@@ -26,7 +26,7 @@ import java.lang.reflect.Array;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class RandomWalk<T extends Chromosome> extends GeneticAlgorithm<T> {
+public class RandomWalk<T extends Chromosome<T>> extends GeneticAlgorithm<T> {
     private static final Logger logger = LoggerFactory.getLogger(RandomSearch.class);
     private final Map<Pair<FitnessFunction<?>, Integer>, Double> fitnessValueCache = new HashMap<>();
 
@@ -82,7 +82,7 @@ public class RandomWalk<T extends Chromosome> extends GeneticAlgorithm<T> {
                 f.getFitness(newChromosome)));
         TestSuiteChromosome suite = new TestSuiteChromosome();
         suite.addTest((TestChromosome) newChromosome);
-        notifyEvaluation(suite);
+        notifyEvaluation((T) suite);
         population = Collections.emptyList();
         // calculateFitnessAndSortPopulation();
     }
@@ -183,7 +183,7 @@ public class RandomWalk<T extends Chromosome> extends GeneticAlgorithm<T> {
         List<BranchCoverageTestFitness> orderInBitStringSorted = new ArrayList<>(orderInBitString);
         Collections.sort(orderInBitStringSorted);
 
-        List<FitnessFunction<T>> fitnessFunctions = getFitnessFunctions();
+        List<FitnessFunction<T>> fitnessFunctions = (List<FitnessFunction<T>>) getFitnessFunctions();
 
         String pathname = Properties.REPORT_DIR + File.separator + "fitnessMeasurements.csv";
         boolean exists = new File(pathname).exists();

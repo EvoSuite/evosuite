@@ -415,6 +415,20 @@ public class BytecodeInstrumentation {
 		return cw.toByteArray();
 	}
 
+	public static boolean coverMethod(String method){
+
+		boolean b =
+				helperMethods.stream().map(i -> i.getInternalClassName().replaceAll("/",".")
+						+"."+i.getMethodName()+i.getMethodDescriptor()).noneMatch(m -> m.equals(method));
+		MethodIdentifier id = null;
+		if(!b){
+			id =
+					helperMethods.stream().filter(i -> (i.getInternalClassName().replaceAll("/",".")
+							+"."+i.getMethodName()+i.getMethodDescriptor()).equals(method)).findFirst().get();
+		}
+		return b;
+	}
+
 	/**
 	 * Adds the instrumentation to deal with re-iniatilizing classes: adding
 	 * __STATIC_RESET() methods, inserting callbacks for PUTSTATIC and GETSTATIC
