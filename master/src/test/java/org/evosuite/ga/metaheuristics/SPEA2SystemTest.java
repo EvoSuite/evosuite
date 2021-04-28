@@ -32,6 +32,7 @@ import org.evosuite.SystemTestBase;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.problems.metrics.Spacing;
+import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -78,13 +79,13 @@ public class SPEA2SystemTest extends SystemTestBase {
     final FitnessFunction<?> branch = ga.getFitnessFunctions().get(0);
     final FitnessFunction<?> rho = ga.getFitnessFunctions().get(1);
 
-    List<Chromosome> population = new ArrayList<>(ga.getBestIndividuals());
+    List<Chromosome<?>> population = new ArrayList<>(ga.getBestIndividuals());
 
     double[][] front = new double[population.size()][2];
     for (int i = 0; i < population.size(); i++) {
-      Chromosome c = population.get(i);
-      front[i][0] = c.getFitness(branch);
-      front[i][1] = c.getFitness(rho);
+      Chromosome<TestSuiteChromosome> c = (Chromosome<TestSuiteChromosome>) population.get(i);
+      front[i][0] = c.getFitness((FitnessFunction<TestSuiteChromosome>) branch);
+      front[i][1] = c.getFitness((FitnessFunction<TestSuiteChromosome>) rho);
     }
 
     return front;

@@ -40,9 +40,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * Created by Andrea Arcuri on 02/03/15.
@@ -78,7 +78,7 @@ public class PrivateReflectionSystemTest extends SystemTestBase {
         Properties.P_REFLECTION_ON_PRIVATE = 0.9;
         Properties.REFLECTION_START_PERCENT = 0.0;
 
-        GeneticAlgorithm ga = do100percentLineTestOnStandardCriteriaWithMethodTrace(PrivateConstructor.class);
+        GeneticAlgorithm<?> ga = do100percentLineTestOnStandardCriteriaWithMethodTrace(PrivateConstructor.class);
 
         TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
         System.out.println("EvolvedTestSuite:\n" + best);
@@ -88,11 +88,11 @@ public class PrivateReflectionSystemTest extends SystemTestBase {
         double cov = best.getCoverageInstanceOf(MethodCoverageSuiteFitness.class);
         Assert.assertEquals("Non-optimal method coverage: ", 1d, cov, 0.001);
 
-        Optional<FitnessFunction<?>> ff = ga.getFitnessFunctions().stream()
+        Optional<? extends FitnessFunction<?>> ff = ga.getFitnessFunctions().stream()
                 .filter(m -> m instanceof MethodCoverageSuiteFitness)
                 .findAny();
 
-
+        assertTrue(ff.isPresent());
         assertEquals(1, best.getNumOfCoveredGoals(ff.get()));
 
         cov = best.getCoverageInstanceOf(MethodTraceCoverageSuiteFitness.class);
@@ -102,6 +102,7 @@ public class PrivateReflectionSystemTest extends SystemTestBase {
                 .findAny();
 
 
+        assertTrue(ff.isPresent());
         assertEquals(1, best.getNumOfCoveredGoals(ff.get()));
 
         return best;

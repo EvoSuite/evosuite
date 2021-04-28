@@ -164,7 +164,7 @@ public class MasterNodeImpl implements MasterNodeRemote, MasterNodeLocal {
 	}
 
 	@Override
-	public void evosuite_collectStatistics(String clientRmiIdentifier, Chromosome individual) {
+	public void evosuite_collectStatistics(String clientRmiIdentifier, Chromosome<?> individual) {
 		SearchStatistics.getInstance(clientRmiIdentifier).currentIndividual(individual);
 	}
 
@@ -194,7 +194,7 @@ public class MasterNodeImpl implements MasterNodeRemote, MasterNodeLocal {
 	}
 
     @Override
-    public void evosuite_migrate(String clientRmiIdentifier, Set<? extends Chromosome> migrants)
+    public void evosuite_migrate(String clientRmiIdentifier, Set<? extends Chromosome<?>> migrants)
             throws RemoteException {
         //implements ring topology
         int idSender = Integer.parseInt(clientRmiIdentifier.replaceAll("[^0-9]", ""));
@@ -211,7 +211,7 @@ public class MasterNodeImpl implements MasterNodeRemote, MasterNodeLocal {
     }
 
     @Override
-    public void evosuite_collectBestSolutions(String clientRmiIdentifier, Set<? extends Chromosome> solutions) {
+    public void evosuite_collectBestSolutions(String clientRmiIdentifier, Set<? extends Chromosome<?>> solutions) {
         try {
             ClientNodeRemote node = clients.get(ClientProcess.DEFAULT_CLIENT_NAME);
             node.collectBestSolutions(solutions);

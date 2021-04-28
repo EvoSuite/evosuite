@@ -5,6 +5,7 @@ import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.operators.ranking.RankBasedPreferenceSorting;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.TestChromosome;
+import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.statements.numeric.BooleanPrimitiveStatement;
 import org.evosuite.testcase.statements.numeric.IntPrimitiveStatement;
 import org.junit.BeforeClass;
@@ -18,14 +19,14 @@ import static org.junit.Assert.assertTrue;
 
 public class RankBasedPreferenceSortingTest {
 
-    public static Set<FitnessFunction> ff;
+    public static Set<TestFitnessFunction> ff;
     public static List<TestChromosome> front;
 
     @BeforeClass
     public static void init(){
         // create the set of fitness functions
-        FitnessFunction f1 = Mockito.mock(FitnessFunction.class);
-        FitnessFunction f2 = Mockito.mock(FitnessFunction.class);
+        TestFitnessFunction f1 = Mockito.mock(TestFitnessFunction.class);
+        TestFitnessFunction f2 = Mockito.mock(TestFitnessFunction.class);
         ff = new HashSet<>();
         ff.add(f1);
         ff.add(f2);
@@ -62,7 +63,7 @@ public class RankBasedPreferenceSortingTest {
 
     @Test
     public void testComputeRankingAssignment() {
-        RankBasedPreferenceSorting sorting =  new RankBasedPreferenceSorting();
+        RankBasedPreferenceSorting<TestChromosome> sorting =  new RankBasedPreferenceSorting<>();
         sorting.computeRankingAssignment(front, ff);
         Properties.POPULATION = 4;
 
@@ -81,7 +82,7 @@ public class RankBasedPreferenceSortingTest {
 
     @Test
     public void testComputeRankingAssignment_smallPopulation() {
-        RankBasedPreferenceSorting sorting =  new RankBasedPreferenceSorting();
+        RankBasedPreferenceSorting<TestChromosome> sorting =  new RankBasedPreferenceSorting<>();
         sorting.computeRankingAssignment(front, ff);
         Properties.POPULATION = 2;
 

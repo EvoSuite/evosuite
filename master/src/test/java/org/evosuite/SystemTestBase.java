@@ -153,7 +153,7 @@ public class SystemTestBase {
 	private long getSeed(){
 
 		String id = this.getClass().getName() + "#" + name.getMethodName();
-		Integer counter = executionCounter.computeIfAbsent(id, c -> 0);
+		int counter = executionCounter.computeIfAbsent(id, c -> 0);
 
 		int month = (counter + new GregorianCalendar().get(Calendar.MONTH)) % 12;
 
@@ -229,19 +229,19 @@ public class SystemTestBase {
 
 
 
-	protected OutputVariable getOutputVariable(RuntimeVariable rv){
+	protected OutputVariable<?> getOutputVariable(RuntimeVariable rv){
 		if(!Properties.OUTPUT_VARIABLES.contains(rv.toString())){
 			throw new IllegalStateException("Properties.OUTPUT_VARIABLES needs to contain "+rv.toString());
 		}
 		Map<String, OutputVariable<?>> map = DebugStatisticsBackend.getLatestWritten();
 		Assert.assertNotNull(map);
-		OutputVariable out = map.get(rv.toString());
+		OutputVariable<?> out= map.get(rv.toString());
 		return out;
 	}
 
 
 	protected void checkUnstable() throws IllegalStateException{
-		OutputVariable unstable = getOutputVariable(RuntimeVariable.HadUnstableTests);
+		OutputVariable<?> unstable = getOutputVariable(RuntimeVariable.HadUnstableTests);
 		Assert.assertNotNull(unstable);
 		Assert.assertEquals(Boolean.FALSE, unstable.getValue());
 	}

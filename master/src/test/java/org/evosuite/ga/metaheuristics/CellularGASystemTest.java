@@ -23,7 +23,7 @@ import com.examples.with.different.packagename.XMLElement2;
  */
 public class CellularGASystemTest extends SystemTestBase{
 	
-	public List<Chromosome> setup(StoppingCondition sc, int budget, String cut){
+	public List<Chromosome<?>> setup(StoppingCondition sc, int budget, String cut){
 		Properties.CRITERION = new Criterion[1];
 		Properties.CRITERION[0] = Criterion.BRANCH;
 		Properties.ALGORITHM = Algorithm.CELLULAR_GA;
@@ -34,27 +34,24 @@ public class CellularGASystemTest extends SystemTestBase{
 
 	    EvoSuite evosuite = new EvoSuite();
 
-	    String targetClass = cut;
-	    Properties.TARGET_CLASS = targetClass;
+		Properties.TARGET_CLASS = cut;
 
-	    String[] command = new String[] {"-generateSuite", "-class", targetClass};
+	    String[] command = new String[] {"-generateSuite", "-class", cut};
 
 	    Object result = evosuite.parseCommandLine(command);
 	    Assert.assertNotNull(result);
 
 	    GeneticAlgorithm<?> ga = getGAFromResult(result);
-	    
-	    List<Chromosome> population = new ArrayList<>(ga.getBestIndividuals());
-	    
-	    return population;
+
+		return new ArrayList<>(ga.getBestIndividuals());
 	}
 
 	@Test
 	public void testCellularGAWithLimitedTime(){
 		
-		List<Chromosome> population = this.setup(StoppingCondition.MAXTIME, 15, XMLElement2.class.getCanonicalName());
+		List<Chromosome<?>> population = this.setup(StoppingCondition.MAXTIME, 15, XMLElement2.class.getCanonicalName());
 		
-	    for (Chromosome p : population) {
+	    for (Chromosome<?> p : population) {
             Assert.assertNotEquals(p.getCoverage(), 1.0);
         }
 	}
@@ -62,9 +59,9 @@ public class CellularGASystemTest extends SystemTestBase{
 	@Test
 	public void testCellularGAWithLimitedGenerations(){
 		
-	    List<Chromosome> population = this.setup(StoppingCondition.MAXGENERATIONS, 10, ClassHierarchyIncludingInterfaces.class.getCanonicalName());
+	    List<Chromosome<?>> population = this.setup(StoppingCondition.MAXGENERATIONS, 10, ClassHierarchyIncludingInterfaces.class.getCanonicalName());
 	    
-	    for (Chromosome p : population) {
+	    for (Chromosome<?> p : population) {
             Assert.assertNotEquals(p.getCoverage(), 1.0);
         }
 	}

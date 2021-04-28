@@ -39,13 +39,13 @@ public class TestSelectionOperators
 	@Test
 	public void testMaximizeVariable()
 	{
-		SelectionFunction[] v = new SelectionFunction[]{
-				new TournamentSelection(),
-				new FitnessProportionateSelection(),
-				new RankSelection()
+		SelectionFunction<?>[] v = new SelectionFunction[]{
+				new TournamentSelection<>(),
+				new FitnessProportionateSelection<>(),
+				new RankSelection<>()
 		};
 
-		for(SelectionFunction sf : v)
+		for(SelectionFunction<?> sf : v)
 		{
 			sf.setMaximize(true);
 			Assert.assertTrue(sf.isMaximize());
@@ -60,20 +60,20 @@ public class TestSelectionOperators
 	{
 		boolean[] maximize = new boolean[]{false,true};
 
-		SelectionFunction[] v = new SelectionFunction[]{
-				new TournamentSelection(),
-				new FitnessProportionateSelection(),
-				new RankSelection()
+		SelectionFunction<TestChromosome>[] v = new SelectionFunction[]{
+				new TournamentSelection<>(),
+				new FitnessProportionateSelection<>(),
+				new RankSelection<>()
 		};
 
 		final int N = 10;
 		
 		for(boolean b : maximize)
 		{
-			List<Chromosome> population = new LinkedList<>();
+			List<TestChromosome> population = new LinkedList<>();
 			for(int i=0; i<N; i++)
 			{
-				ExecutableChromosome ind = new TestChromosome();
+				TestChromosome ind = new TestChromosome();
 				double fit = b ? N-i : i;
 				//ind.setFitness(fit);
 				ind.addFitness(null, fit);
@@ -81,7 +81,7 @@ public class TestSelectionOperators
 				population.add(ind);
 			}
 			
-			for(SelectionFunction sf : v)
+			for(SelectionFunction<TestChromosome> sf : v)
 			{
 				sf.setMaximize(b);
 				
