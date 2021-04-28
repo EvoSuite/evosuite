@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -20,7 +20,6 @@
 package org.evosuite.testcase;
 
 import org.evosuite.Properties;
-import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ReplacementFunction;
 
 /**
@@ -30,7 +29,7 @@ import org.evosuite.ga.ReplacementFunction;
  * 
  * @author Gordon Fraser
  */
-public class TestCaseReplacementFunction extends ReplacementFunction {
+public class TestCaseReplacementFunction extends ReplacementFunction<TestChromosome> {
 
 	private static final long serialVersionUID = 2894768695219052674L;
 
@@ -66,25 +65,23 @@ public class TestCaseReplacementFunction extends ReplacementFunction {
 	 *            a {@link org.evosuite.testcase.ExecutableChromosome} object.
 	 * @return a int.
 	 */
-	public int getLengthSum(ExecutableChromosome chromosome1,
-	        ExecutableChromosome chromosome2) {
+	public int getLengthSum(TestChromosome chromosome1,
+	        TestChromosome chromosome2) {
 		return chromosome1.size() + chromosome2.size();
 	}
 
 	/** {@inheritDoc} */
 	@Override
-	public boolean keepOffspring(Chromosome parent1, Chromosome parent2,
-	        Chromosome offspring1, Chromosome offspring2) {
+	public boolean keepOffspring(TestChromosome parent1, TestChromosome parent2,
+	        TestChromosome offspring1, TestChromosome offspring2) {
 
 		int cmp = compareBestOffspringToBestParent(parent1, parent2, offspring1,
 		                                           offspring2);
 
 		if (Properties.CHECK_PARENTS_LENGTH) {
 
-			int offspringLength = getLengthSum((ExecutableChromosome) offspring1,
-			                                   (ExecutableChromosome) offspring2);
-			int parentLength = getLengthSum((ExecutableChromosome) parent1,
-			                                (ExecutableChromosome) parent2);
+			int offspringLength = getLengthSum(offspring1, offspring2);
+			int parentLength = getLengthSum(parent1, parent2);
 
 			//if equivalent, only accept if it does not increase the length
 			if (cmp == 0 && offspringLength <= parentLength) {

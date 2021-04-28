@@ -1,5 +1,23 @@
-/*
+/**
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * contributors
  *
+ * This file is part of EvoSuite.
+ *
+ * EvoSuite is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation, either version 3.0 of the License, or
+ * (at your option) any later version.
+ *
+ * EvoSuite is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ */
+/*
  * This file is part of EvoSuite.
  *
  * EvoSuite is free software: you can redistribute it and/or modify it
@@ -37,7 +55,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Annibale Panichella, Fitsum M. Kifetew
  */
-public class RankBasedPreferenceSorting<T extends Chromosome> implements RankingFunction<T> {
+public class RankBasedPreferenceSorting<T extends Chromosome<T>> implements RankingFunction<T> {
 
 	private static final long serialVersionUID = -6636175563989586394L;
 
@@ -52,7 +70,8 @@ public class RankBasedPreferenceSorting<T extends Chromosome> implements Ranking
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void computeRankingAssignment(List<T> solutions, Set<FitnessFunction<T>> uncovered_goals) {
+	public void computeRankingAssignment(List<T> solutions,
+										 Set<? extends FitnessFunction<T>> uncovered_goals) {
 		if (solutions.isEmpty()) {
 			logger.debug("solution is empty");
 			return;
@@ -100,7 +119,7 @@ public class RankBasedPreferenceSorting<T extends Chromosome> implements Ranking
 	 * @param uncovered_goals the goals used for ranking
 	 * @return the non-dominated solutions (first sub-front)
 	 */
-	private List<T> getZeroFront(List<T> solutionSet, Set<FitnessFunction<T>> uncovered_goals) {
+	private List<T> getZeroFront(List<T> solutionSet, Set<? extends FitnessFunction<T>> uncovered_goals) {
 		Set<T> zero_front = new LinkedHashSet<>(solutionSet.size());
 		for (FitnessFunction<T> f : uncovered_goals) {
 			// for each uncovered goal, peak up the best tests using the proper comparator

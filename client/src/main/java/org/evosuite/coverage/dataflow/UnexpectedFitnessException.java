@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -20,9 +20,7 @@
 package org.evosuite.coverage.dataflow;
 public class UnexpectedFitnessException extends Exception {
 
-	/**
-	 * 
-	 */
+
 	private static final long serialVersionUID = -2211094409507844711L;
 
 }

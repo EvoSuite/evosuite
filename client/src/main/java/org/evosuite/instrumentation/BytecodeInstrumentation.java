@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  * <p>
@@ -87,227 +87,216 @@ public class BytecodeInstrumentation {
     private final Instrumenter testCarvingInstrumenter;
     private static List<MethodIdentifier> helperMethods = new ArrayList<>();
 
-    /**
-     * <p>
-     * Constructor for BytecodeInstrumentation.
-     * </p>
-     */
-    public BytecodeInstrumentation() {
-        this.testCarvingInstrumenter = new Instrumenter();
-    }
+	/**
+	 * <p>
+	 * Constructor for BytecodeInstrumentation.
+	 * </p>
+	 */
+	public BytecodeInstrumentation() {
+		this.testCarvingInstrumenter = new Instrumenter();
+	}
 
-    private static String[] getEvoSuitePackages() {
-        return new String[]{PackageInfo.getEvoSuitePackage(), "org.exsyst", "de.unisb.cs.st.testcarver",
-                "de.unisb.cs.st.evosuite", "testing.generation.evosuite", "de.unisl.cs.st.bugex"};
-    }
+	private static String[] getEvoSuitePackages() {
+		return new String[] { PackageInfo.getEvoSuitePackage(), "org.exsyst", "de.unisb.cs.st.testcarver",
+				"de.unisb.cs.st.evosuite", "testing.generation.evosuite", "de.unisl.cs.st.bugex" };
+	}
 
-    /**
-     * Check if we can instrument the given class
-     *
-     * @param className a {@link java.lang.String} object.
-     * @return a boolean.
-     */
-    public static boolean checkIfCanInstrument(String className) {
-        return RuntimeInstrumentation.checkIfCanInstrument(className);
-    }
+	/**
+	 * Check if we can instrument the given class
+	 *
+	 * @param className
+	 *            a {@link java.lang.String} object.
+	 * @return a boolean.
+	 */
+	public static boolean checkIfCanInstrument(String className) {
+		return RuntimeInstrumentation.checkIfCanInstrument(className);
+	}
 
-    /**
-     * Check if we the class belongs to an EvoSuite package
-     *
-     * @param className a {@link java.lang.String} object.
-     * @return a boolean.
-     */
-    public static boolean checkIfEvoSuitePackage(String className) {
-        for (String s : BytecodeInstrumentation.getEvoSuitePackages()) {
-            if (className.startsWith(s)) {
-                return true;
-            }
-        }
-        return false;
-    }
+	/**
+	 * Check if we the class belongs to an EvoSuite package
+	 *
+	 * @param className
+	 *            a {@link java.lang.String} object.
+	 * @return a boolean.
+	 */
+	public static boolean checkIfEvoSuitePackage(String className) {
+		for (String s : BytecodeInstrumentation.getEvoSuitePackages()) {
+			if (className.startsWith(s)) {
+				return true;
+			}
+		}
+		return false;
+	}
 
-    private CallGraph callGraph;
+	/**
+	 * <p>
+	 * shouldTransform
+	 * </p>
+	 *
+	 * @param className
+	 *            a {@link java.lang.String} object.
+	 * @return a boolean.
+	 */
+	public boolean shouldTransform(String className) {
+		if (!Properties.TT)
+			return false;
+		switch (Properties.TT_SCOPE) {
+		case ALL:
+			logger.info("Allowing transformation of " + className);
+			return true;
+		case TARGET:
+			if (className.equals(Properties.TARGET_CLASS) || className.startsWith(Properties.TARGET_CLASS + "$"))
+				return true;
+			break;
+		case PREFIX:
+			if (className.startsWith(Properties.PROJECT_PREFIX))
+				return true;
 
-    /**
-     * <p>
-     * shouldTransform
-     * </p>
-     *
-     * @param className a {@link java.lang.String} object.
-     * @return a boolean.
-     */
-    public boolean shouldTransform(String className) {
-        if (!Properties.TT)
-            return false;
-        switch (Properties.TT_SCOPE) {
-            case ALL:
-                logger.info("Allowing transformation of " + className);
-                return true;
-            case TARGET:
-                if (className.equals(Properties.TARGET_CLASS) || className.startsWith(Properties.TARGET_CLASS + "$"))
-                    return true;
-                break;
-            case PREFIX:
-                if (className.startsWith(Properties.PROJECT_PREFIX))
-                    return true;
-                break;
-            case CALL_TREE:
-                if (className.equals(Properties.TARGET_CLASS) || className.startsWith(Properties.TARGET_CLASS + "$"))
-                    return true;
-                if (callGraph == null) callGraph = CallGraphGenerator.analyze(Properties.TARGET_CLASS);
-                return (callGraph.isCalledClass(className) && !className.startsWith("java")) ||
-                        (className.startsWith(Properties.PROJECT_PREFIX) && !Properties.PROJECT_PREFIX.equals(""));
+		}
+		logger.info("Preventing transformation of " + className);
+		return false;
+	}
 
-        }
-        logger.info("Preventing transformation of " + className);
-        return false;
-    }
+	private boolean isTargetClassName(String className) {
+		// TODO: Need to replace this in the long term
+		return TestCluster.isTargetClassName(className);
+	}
 
-    private boolean isTargetClassName(String className) {
-        // TODO: Need to replace this in the long term
-        return TestCluster.isTargetClassName(className);
-    }
+	/**
+	 * <p>
+	 * transformBytes
+	 * </p>
+	 *
+	 * @param className
+	 *            a {@link java.lang.String} object.
+	 * @param reader
+	 *            a {@link org.objectweb.asm.ClassReader} object.
+	 * @return an array of byte.
+	 */
+	public byte[] transformBytes(ClassLoader classLoader, String className, ClassReader reader) {
 
-    /**
-     * <p>
-     * transformBytes
-     * </p>
-     *
-     * @param className a {@link java.lang.String} object.
-     * @param reader    a {@link org.objectweb.asm.ClassReader} object.
-     * @return an array of byte.
-     */
-    public byte[] transformBytes(ClassLoader classLoader, String className, ClassReader reader) {
+		int readFlags = ClassReader.SKIP_FRAMES;
 
-        int readFlags = ClassReader.SKIP_FRAMES;
+		if (Properties.INSTRUMENTATION_SKIP_DEBUG)
+			readFlags |= ClassReader.SKIP_DEBUG;
 
-        if (Properties.INSTRUMENTATION_SKIP_DEBUG)
-            readFlags |= ClassReader.SKIP_DEBUG;
+		String classNameWithDots = ResourceList.getClassNameFromResourcePath(className);
 
-        String classNameWithDots = ResourceList.getClassNameFromResourcePath(className);
+		if (!checkIfCanInstrument(classNameWithDots)) {
+			throw new RuntimeException("Should not transform a shared class (" + classNameWithDots
+					+ ")! Load by parent (JVM) classloader.");
+		}
 
-        if (!checkIfCanInstrument(classNameWithDots)) {
-            throw new RuntimeException("Should not transform a shared class (" + classNameWithDots
-                    + ")! Load by parent (JVM) classloader.");
-        }
+		TransformationStatistics.reset();
 
-        TransformationStatistics.reset();
+		/*
+		 * To use COMPUTE_FRAMES we need to remove JSR commands. Therefore, we
+		 * have a JSRInlinerAdapter in NonTargetClassAdapter as well as
+		 * CFGAdapter.
+		 */
+		int asmFlags = ClassWriter.COMPUTE_FRAMES;
+		ClassWriter writer = new ComputeClassWriter(asmFlags);
 
-        /*
-         * To use COMPUTE_FRAMES we need to remove JSR commands. Therefore, we
-         * have a JSRInlinerAdapter in NonTargetClassAdapter as well as
-         * CFGAdapter.
-         */
-        int asmFlags = ClassWriter.COMPUTE_FRAMES;
-        ClassWriter writer = new ComputeClassWriter(asmFlags);
+		ClassVisitor cv = writer;
+		if (logger.isDebugEnabled()) {
+			cv = new TraceClassVisitor(cv, new PrintWriter(System.err));
+		}
 
-        ClassVisitor cv = writer;
-        if (logger.isDebugEnabled()) {
-            cv = new TraceClassVisitor(cv, new PrintWriter(System.err));
-        }
+		if (Properties.RESET_STATIC_FIELDS) {
+			cv = new StaticAccessClassAdapter(cv, className);
+		}
 
-        if (Properties.RESET_STATIC_FIELDS) {
-            cv = new StaticAccessClassAdapter(cv, className);
-        }
+		if (Properties.PURE_INSPECTORS) {
+			CheapPurityAnalyzer purityAnalyzer = CheapPurityAnalyzer.getInstance();
+			cv = new PurityAnalysisClassVisitor(cv, className, purityAnalyzer);
+		}
 
-        if (Properties.PURE_INSPECTORS) {
-            CheapPurityAnalyzer purityAnalyzer = CheapPurityAnalyzer.getInstance();
-            cv = new PurityAnalysisClassVisitor(cv, className, purityAnalyzer);
-        }
+		if (Properties.MAX_LOOP_ITERATIONS >= 0) {
+			cv = new LoopCounterClassAdapter(cv);
+		}
 
-        if (Properties.MAX_LOOP_ITERATIONS >= 0) {
-            cv = new LoopCounterClassAdapter(cv);
-        }
+		// Apply transformations to class under test and its owned classes
+		if (DependencyAnalysis.shouldAnalyze(classNameWithDots)) {
+			logger.debug("Applying target transformation to class " + classNameWithDots);
+			if (!Properties.TEST_CARVING && Properties.MAKE_ACCESSIBLE) {
+				cv = new AccessibleClassAdapter(cv, className);
+			}
 
-        // Apply transformations to class under test and its owned classes
-        if (DependencyAnalysis.shouldAnalyze(classNameWithDots)) {
-            logger.debug("Applying target transformation to class " + classNameWithDots);
-            if (!Properties.TEST_CARVING && Properties.MAKE_ACCESSIBLE) {
-                cv = new AccessibleClassAdapter(cv, className);
-            }
+			cv = new RemoveFinalClassAdapter(cv);
 
-            cv = new RemoveFinalClassAdapter(cv);
+			cv = new ExecutionPathClassAdapter(cv, className);
 
-            cv = new ExecutionPathClassAdapter(cv, className);
+			cv = new CFGClassAdapter(classLoader, cv, className);
 
-            cv = new CFGClassAdapter(classLoader, cv, className);
+			if (Properties.EXCEPTION_BRANCHES) {
+				cv = new ExceptionTransformationClassAdapter(cv, className);
+			}
 
-            if (Properties.EXCEPTION_BRANCHES) {
-                cv = new ExceptionTransformationClassAdapter(cv, className);
-            }
+			if (Properties.ERROR_BRANCHES) {
+				cv = new ErrorConditionClassAdapter(cv, className);
+			}
 
-            if (Properties.ERROR_BRANCHES) {
-                cv = new ErrorConditionClassAdapter(cv, className);
-            }
+		} else {
+			logger.debug("Not applying target transformation");
+			cv = new NonTargetClassAdapter(cv, className);
 
-        } else {
-            logger.debug("Not applying target transformation");
-            cv = new NonTargetClassAdapter(cv, className);
+			if (Properties.MAKE_ACCESSIBLE) {
+				cv = new AccessibleClassAdapter(cv, className);
+			}
 
-            if (Properties.MAKE_ACCESSIBLE) {
-                cv = new AccessibleClassAdapter(cv, className);
-            }
+			// If we are doing testability transformation on all classes we need
+			// to create the CFG first
+			if (Properties.TT && classNameWithDots.startsWith(Properties.CLASS_PREFIX)) {
+				cv = new CFGClassAdapter(classLoader, cv, className);
+			}
+		}
 
-            // If we are doing testability transformation on all classes we need
-            // to create the CFG first
-            if (Properties.TT && classNameWithDots.startsWith(Properties.CLASS_PREFIX)) {
-                cv = new CFGClassAdapter(classLoader, cv, className);
-            }
-        }
+		// Collect constant values for the value pool
+		cv = new PrimitiveClassAdapter(cv, className);
 
-        // Collect constant values for the value pool
-        cv = new PrimitiveClassAdapter(cv, className);
+		if (Properties.RESET_STATIC_FIELDS) {
+			cv = handleStaticReset(className, cv);
+		}
 
-        if (Properties.RESET_STATIC_FIELDS) {
-            cv = handleStaticReset(className, cv);
-        }
+		// Mock instrumentation (eg File and TCP).
+		if (TestSuiteWriterUtils.needToUseAgent()) {
+			cv = new MethodCallReplacementClassAdapter(cv, className);
 
-        // Mock instrumentation (eg File and TCP).
-        if (TestSuiteWriterUtils.needToUseAgent()) {
-             cv = new MethodCallReplacementClassAdapter(cv, className);
+			/*
+			 * If the class is serializable, then doing any change (adding hashCode, static reset, etc)
+			 * will change the serialVersionUID if it is not defined in the class.
+			 * Hence, if it is not defined, we have to define it to
+			 * avoid problems in serialising the class, as reading Master will not do instrumentation.
+			 * The serialVersionUID HAS to be the same as the un-instrumented class
+			 */
+			if(RuntimeSettings.applyUIDTransformation)
+				cv = new SerialVersionUIDAdder(cv);
+		}
 
-            /*
-             * If the class is serializable, then doing any change (adding hashCode, static reset, etc)
-             * will change the serialVersionUID if it is not defined in the class.
-             * Hence, if it is not defined, we have to define it to
-             * avoid problems in serialising the class, as reading Master will not do instrumentation.
-             * The serialVersionUID HAS to be the same as the un-instrumented class
-             */
-            if (RuntimeSettings.applyUIDTransformation)
-                cv = new SerialVersionUIDAdder(cv);
-        }
+		// Testability Transformations
+		if (classNameWithDots.startsWith(Properties.PROJECT_PREFIX)
+				|| (!Properties.TARGET_CLASS_PREFIX.isEmpty()
+						&& classNameWithDots.startsWith(Properties.TARGET_CLASS_PREFIX))
+				|| shouldTransform(classNameWithDots)) {
 
-        // Testability Transformations
-        if (classNameWithDots.startsWith(Properties.PROJECT_PREFIX)
-                || (!Properties.TARGET_CLASS_PREFIX.isEmpty()
-                && classNameWithDots.startsWith(Properties.TARGET_CLASS_PREFIX))
-                || shouldTransform(classNameWithDots)) {
+			ClassNode cn = new AnnotatedClassNode();
+			reader.accept(cn, readFlags);
+			logger.info("Starting transformation of " + className);
 
-            ClassNode cn = new AnnotatedClassNode();
-            reader.accept(cn, readFlags);
-            logger.info("Starting transformation of " + className);
+			if (Properties.STRING_REPLACEMENT) {
+				StringTransformation st = new StringTransformation(cn);
+				if (isTargetClassName(classNameWithDots) || shouldTransform(classNameWithDots))
+					cn = st.transform();
+			}
 
-            if (Properties.STRING_REPLACEMENT) {
-                StringTransformation st = new StringTransformation(cn);
-                if (isTargetClassName(classNameWithDots) || shouldTransform(classNameWithDots))
-                    cn = st.transform();
-            }
+			ComparisonTransformation cmp = new ComparisonTransformation(cn);
+			if (isTargetClassName(classNameWithDots) || shouldTransform(classNameWithDots)) {
+				cn = cmp.transform();
+				ContainerTransformation ct = new ContainerTransformation(cn);
+				cn = ct.transform();
+			}
 
-            if (isTargetClassName(classNameWithDots) || shouldTransform(classNameWithDots)) {
-                ComparisonTransformation cmp = new ComparisonTransformation(cn);
-                if(Properties.COMPARISON_TRANSFORMATION) {
-                    logger.debug("Applying comparison transformation");
-                    cn = cmp.transform();
-                }
-                ContainerTransformation ct = new ContainerTransformation(cn);
-                if(Properties.CONTAINER_TRANSFORMATION) {
-                    logger.debug("Applying container transformation");
-                    cn = ct.transform();
-                }
-            }
-
-            if (shouldTransform(classNameWithDots)) {
-                logger.info("Testability Transforming " + className);
+			if (shouldTransform(classNameWithDots)) {logger.info("Testability Transforming " + className);
                 boolean isTargetClass =
                         classNameWithDots.equals(Properties.TARGET_CLASS) || classNameWithDots.startsWith(Properties.TARGET_CLASS +
                                 "$");
@@ -394,90 +383,62 @@ public class BytecodeInstrumentation {
                         targetDependentUpdates);
             }
 
-            // -----
-            cn.accept(cv);
+			// -----
+			cn.accept(cv);
 
-            if (Properties.TEST_CARVING && TransformerUtil.isClassConsideredForInstrumentation(className)) {
-                return handleCarving(className, writer);
-            }
+			if (Properties.TEST_CARVING && TransformerUtil.isClassConsideredForInstrumentation(className)) {
+				return handleCarving(className, writer);
+			}
 
-        } else {
-            reader.accept(cv, readFlags);
-        }
+		} else {
+			reader.accept(cv, readFlags);
+		}
 
-        ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.TARGET_BOOLEAN_JUMPS,
-                targetBooleanJumps);
-        ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.TARGET_CONDITIONAL_JUMPS,
-                targetConditionalJumps);
-        ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.TARGET_DEPENDENT_UPDATES,
-                targetDependentUpdates);
+		return writer.toByteArray();
+	}
 
-        ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.TT_TIME, timeFotTT);
-        ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.BOOLEAN_JUMPS,
-                booleanJumps);
-        ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.DEPENDENT_UPDATES, dependentUpdates);
-        ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.INSTRUMENTED_CLASSES,
-                instrumentedClasses);
-        ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.CONDITIONAL_JUMPS,conditionalJumps);
-        return writer.toByteArray();
-    }
+	private byte[] handleCarving(String className, ClassWriter writer) {
+		ClassReader cr = new ClassReader(writer.toByteArray());
+		ClassNode cn2 = new ClassNode();
+		cr.accept(cn2, ClassReader.EXPAND_FRAMES);
 
-    private byte[] handleCarving(String className, ClassWriter writer) {
-        ClassReader cr = new ClassReader(writer.toByteArray());
-        ClassNode cn2 = new ClassNode();
-        cr.accept(cn2, ClassReader.EXPAND_FRAMES);
+		this.testCarvingInstrumenter.transformClassNode(cn2, className);
+		ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+		cn2.accept(cw);
 
-        this.testCarvingInstrumenter.transformClassNode(cn2, className);
-        ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
-        cn2.accept(cw);
+		if (logger.isDebugEnabled()) {
+			final StringWriter sw = new StringWriter();
+			cn2.accept(new TraceClassVisitor(new PrintWriter(sw)));
+			logger.debug("test carving instrumentation result:\n{}", sw);
+		}
 
-        if (logger.isDebugEnabled()) {
-            final StringWriter sw = new StringWriter();
-            cn2.accept(new TraceClassVisitor(new PrintWriter(sw)));
-            logger.debug("test carving instrumentation result:\n{}", sw);
-        }
+		return cw.toByteArray();
+	}
 
-        return cw.toByteArray();
-    }
+	/**
+	 * Adds the instrumentation to deal with re-iniatilizing classes: adding
+	 * __STATIC_RESET() methods, inserting callbacks for PUTSTATIC and GETSTATIC
+	 * instructions
+	 * 
+	 * @param className
+	 * @param cv
+	 * @return
+	 */
+	private static ClassVisitor handleStaticReset(String className, ClassVisitor cv) {
+		// Create a __STATIC_RESET() cloning the original <clinit> method or
+		// create one by default
+		final CreateClassResetClassAdapter resetClassAdapter;
+		if (Properties.RESET_STATIC_FINAL_FIELDS) {
+			resetClassAdapter= new CreateClassResetClassAdapter(cv, className, true);
+		} else {
+			resetClassAdapter= new CreateClassResetClassAdapter(cv, className, false);
+		}
+		cv = resetClassAdapter;
 
-    public static boolean coverMethod(String method){
-
-        boolean b =
-                helperMethods.stream().map(i -> i.getInternalClassName().replaceAll("/",".")
-                        +"."+i.getMethodName()+i.getMethodDescriptor()).noneMatch(m -> m.equals(method));
-        MethodIdentifier id = null;
-        if(!b){
-            id =
-                    helperMethods.stream().filter(i -> (i.getInternalClassName().replaceAll("/",".")
-                            +"."+i.getMethodName()+i.getMethodDescriptor()).equals(method)).findFirst().get();
-        }
-        return b;
-    }
-
-    /**
-     * Adds the instrumentation to deal with re-iniatilizing classes: adding
-     * __STATIC_RESET() methods, inserting callbacks for PUTSTATIC and GETSTATIC
-     * instructions
-     *
-     * @param className
-     * @param cv
-     * @return
-     */
-    private static ClassVisitor handleStaticReset(String className, ClassVisitor cv) {
-        // Create a __STATIC_RESET() cloning the original <clinit> method or
-        // create one by default
-        final CreateClassResetClassAdapter resetClassAdapter;
-        if (Properties.RESET_STATIC_FINAL_FIELDS) {
-            resetClassAdapter = new CreateClassResetClassAdapter(cv, className, true);
-        } else {
-            resetClassAdapter = new CreateClassResetClassAdapter(cv, className, false);
-        }
-        cv = resetClassAdapter;
-
-        // Adds a callback before leaving the <clinit> method
-        EndOfClassInitializerVisitor exitClassInitAdapter = new EndOfClassInitializerVisitor(cv, className);
-        cv = exitClassInitAdapter;
-        return cv;
-    }
+		// Adds a callback before leaving the <clinit> method
+		EndOfClassInitializerVisitor exitClassInitAdapter = new EndOfClassInitializerVisitor(cv, className);
+		cv = exitClassInitAdapter;
+		return cv;
+	}
 
 }

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -23,7 +23,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.ga.metaheuristics.SearchListener;
 import org.evosuite.testcase.TestCase;
@@ -31,7 +30,9 @@ import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testsuite.TestSuiteChromosome;
 
-public class BranchCoverageMap implements SearchListener {
+public class BranchCoverageMap implements SearchListener<TestSuiteChromosome> {
+
+	private static final long serialVersionUID = -3498997999289782541L;
 
 	public static BranchCoverageMap instance = null;
 	
@@ -75,47 +76,48 @@ public class BranchCoverageMap implements SearchListener {
 	}
 
 	@Override
-	public void searchStarted(GeneticAlgorithm<?> algorithm) {
-		coveredTrueBranches  = new LinkedHashMap<Integer, TestCase>();
-		coveredFalseBranches = new LinkedHashMap<Integer, TestCase>();		
+	public void searchStarted(GeneticAlgorithm<TestSuiteChromosome> algorithm) {
+		coveredTrueBranches  = new LinkedHashMap<>();
+		coveredFalseBranches = new LinkedHashMap<>();
 	}
 
 	@Override
-	public void iteration(GeneticAlgorithm<?> algorithm) {
+	public void iteration(GeneticAlgorithm<TestSuiteChromosome> algorithm) {
 		
 	}
 
 	@Override
-	public void searchFinished(GeneticAlgorithm<?> algorithm) {
+	public void searchFinished(GeneticAlgorithm<TestSuiteChromosome> algorithm) {
 		coveredTrueBranches  = null;
 		coveredFalseBranches = null;
 	}
 
 	@Override
-	public void fitnessEvaluation(Chromosome individual) {
-		if(individual instanceof TestSuiteChromosome) {
-			TestSuiteChromosome suite = (TestSuiteChromosome)individual;
-			for(TestChromosome testChromosome : suite.getTestChromosomes()) {
-				ExecutionResult lastResult = testChromosome.getLastExecutionResult();
-				if(lastResult != null) {
-					for(Integer branchId : lastResult.getTrace().getCoveredTrueBranches()) {
-						if(!coveredTrueBranches.containsKey(branchId)) {
-							coveredTrueBranches.put(branchId, testChromosome.getTestCase());
-						}
+	public void fitnessEvaluation(TestSuiteChromosome suite) {
+		if (suite == null) {
+			return;
+		}
+
+		for(TestChromosome testChromosome : suite.getTestChromosomes()) {
+			ExecutionResult lastResult = testChromosome.getLastExecutionResult();
+			if(lastResult != null) {
+				for(int branchId : lastResult.getTrace().getCoveredTrueBranches()) {
+					if(!coveredTrueBranches.containsKey(branchId)) {
+						coveredTrueBranches.put(branchId, testChromosome.getTestCase());
 					}
-					for(Integer branchId : lastResult.getTrace().getCoveredFalseBranches()) {
-						if(!coveredFalseBranches.containsKey(branchId)) {
-							coveredFalseBranches.put(branchId, testChromosome.getTestCase());
-						}
+				}
+				for(int branchId : lastResult.getTrace().getCoveredFalseBranches()) {
+					if(!coveredFalseBranches.containsKey(branchId)) {
+						coveredFalseBranches.put(branchId, testChromosome.getTestCase());
 					}
 				}
 			}
 		}
-		
+
 	}
 
 	@Override
-	public void modification(Chromosome individual) {
+	public void modification(TestSuiteChromosome individual) {
 		// TODO Auto-generated method stub
 		
 	}

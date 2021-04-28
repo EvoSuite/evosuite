@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -28,7 +28,7 @@ import org.evosuite.RandomizedTC;
 import org.evosuite.symbolic.expr.Comparator;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.Operator;
-import org.evosuite.symbolic.expr.StringConstraint;
+import org.evosuite.symbolic.expr.constraint.StringConstraint;
 import org.evosuite.symbolic.expr.bv.IntegerConstant;
 import org.evosuite.symbolic.expr.bv.StringBinaryComparison;
 import org.evosuite.symbolic.expr.str.StringConstant;
@@ -47,7 +47,7 @@ public class TestStringDistance extends RandomizedTC {
 		final String str2 = "abcd";
 		Collection<Constraint<?>> cnstr = createConstraints(str1, str2);
 		double distance = DistanceEstimator.getDistance(cnstr);
-		assertTrue(0.5 == distance);
+        assertEquals(0.5, distance, 0.0);
 	}
 
 	@Test
@@ -56,7 +56,7 @@ public class TestStringDistance extends RandomizedTC {
 		final String str2 = "abc";
 		Collection<Constraint<?>> cnstr = createConstraints(str1, str2);
 		double distance = DistanceEstimator.getDistance(cnstr);
-		assertTrue(0.5 == distance);
+        assertEquals(0.5, distance, 0.0);
 	}
 
 	@Test

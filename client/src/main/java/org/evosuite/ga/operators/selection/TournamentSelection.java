@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -31,9 +31,16 @@ import org.evosuite.utils.Randomness;
  *
  * @author Gordon Fraser
  */
-public class TournamentSelection<T extends Chromosome> extends SelectionFunction<T> {
+public class TournamentSelection<T extends Chromosome<T>> extends SelectionFunction<T> {
 
 	private static final long serialVersionUID = -7465418404056357932L;
+
+	public TournamentSelection() {
+	}
+
+	public TournamentSelection(TournamentSelection<?> other) {
+		// empty copy constructor
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -49,7 +56,7 @@ public class TournamentSelection<T extends Chromosome> extends SelectionFunction
 
 		while (round < Properties.TOURNAMENT_SIZE - 1) {
 			new_num = Randomness.nextInt(population.size());
-			Chromosome selected = population.get(new_num);
+			T selected = population.get(new_num);
 
 			if (maximize) {
 				if (selected.getFitness() > population.get(winner).getFitness()) {

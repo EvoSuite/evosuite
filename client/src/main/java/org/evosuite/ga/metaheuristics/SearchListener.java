@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -21,47 +21,49 @@ package org.evosuite.ga.metaheuristics;
 
 import org.evosuite.ga.Chromosome;
 
+import java.io.Serializable;
+
 
 /**
  * A listener that can be attached to the search
  *
  * @author Gordon Fraser
  */
-public interface SearchListener {
+public interface SearchListener<T extends Chromosome<T>> extends Serializable {
 
 	/**
 	 * Called when a new search is started
 	 *
 	 * @param algorithm a {@link org.evosuite.ga.metaheuristics.GeneticAlgorithm} object.
 	 */
-	public void searchStarted(GeneticAlgorithm<?> algorithm);
+	void searchStarted(GeneticAlgorithm<T> algorithm);
 
 	/**
 	 * Called after each iteration of the search
 	 *
 	 * @param algorithm a {@link org.evosuite.ga.metaheuristics.GeneticAlgorithm} object.
 	 */
-	public void iteration(GeneticAlgorithm<?> algorithm);
+	void iteration(GeneticAlgorithm<T> algorithm);
 
 	/**
 	 * Called after the last iteration
 	 *
 	 * @param algorithm a {@link org.evosuite.ga.metaheuristics.GeneticAlgorithm} object.
 	 */
-	public void searchFinished(GeneticAlgorithm<?> algorithm);
+	void searchFinished(GeneticAlgorithm<T> algorithm);
 
 	/**
 	 * Called after every single fitness evaluation
 	 *
 	 * @param individual a {@link org.evosuite.ga.Chromosome} object.
 	 */
-	public void fitnessEvaluation(Chromosome individual);
+	void fitnessEvaluation(T individual);
 
 	/**
 	 * Called before a chromosome is mutated
 	 *
 	 * @param individual a {@link org.evosuite.ga.Chromosome} object.
 	 */
-	public void modification(Chromosome individual);
+	void modification(T individual);
 
 }

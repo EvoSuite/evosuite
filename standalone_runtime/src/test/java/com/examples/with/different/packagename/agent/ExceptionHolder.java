@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -42,7 +42,7 @@ public class ExceptionHolder extends Exception{
 	
 	
 	public StackTraceElement[] getTracesWhenCast(){		
-		Exception exception = (Exception) getNonMockedNPE();		
+		Exception exception = getNonMockedNPE();
 		return exception.getStackTrace();
 	}
 	

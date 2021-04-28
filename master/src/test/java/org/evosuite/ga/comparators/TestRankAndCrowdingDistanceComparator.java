@@ -1,3 +1,22 @@
+/**
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * contributors
+ *
+ * This file is part of EvoSuite.
+ *
+ * EvoSuite is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation, either version 3.0 of the License, or
+ * (at your option) any later version.
+ *
+ * EvoSuite is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.evosuite.ga.comparators;
 
 import org.evosuite.testcase.DefaultTestCase;
@@ -20,7 +39,8 @@ public class TestRankAndCrowdingDistanceComparator {
         tch2.setRank(0);
         tch1.setDistance(0);
 
-        RankAndCrowdingDistanceComparator comparator = new RankAndCrowdingDistanceComparator();
+        RankAndCrowdingDistanceComparator<TestChromosome> comparator =
+                new RankAndCrowdingDistanceComparator<>();
         double result = comparator.compare(tch1, tch2);
         assertEquals(0, result, 0.00001);
     }
@@ -35,7 +55,8 @@ public class TestRankAndCrowdingDistanceComparator {
         tch2.setTestCase(new DefaultTestCase());
         tch2.setRank(1);
 
-        RankAndCrowdingDistanceComparator comparator = new RankAndCrowdingDistanceComparator();
+        RankAndCrowdingDistanceComparator<TestChromosome> comparator =
+                new RankAndCrowdingDistanceComparator<>();
         double result = comparator.compare(tch1, tch2);
         assertEquals(-1, result, 0.00001);
     }
@@ -50,7 +71,8 @@ public class TestRankAndCrowdingDistanceComparator {
         tch2.setTestCase(new DefaultTestCase());
         tch2.setRank(0);
 
-        RankAndCrowdingDistanceComparator comparator = new RankAndCrowdingDistanceComparator();
+        RankAndCrowdingDistanceComparator<TestChromosome> comparator =
+                new RankAndCrowdingDistanceComparator<>();
         double result = comparator.compare(tch1, tch2);
         assertEquals(+1, result, 0.00001);
     }
@@ -67,7 +89,8 @@ public class TestRankAndCrowdingDistanceComparator {
         tch2.setRank(0);
         tch2.setDistance(0);
 
-        RankAndCrowdingDistanceComparator comparator = new RankAndCrowdingDistanceComparator();
+        RankAndCrowdingDistanceComparator<TestChromosome> comparator =
+                new RankAndCrowdingDistanceComparator<>();
         double result = comparator.compare(tch1, tch2);
         assertEquals(-1, result, 0.00001);
     }
@@ -84,7 +107,8 @@ public class TestRankAndCrowdingDistanceComparator {
         tch2.setRank(0);
         tch2.setDistance(1);
 
-        RankAndCrowdingDistanceComparator comparator = new RankAndCrowdingDistanceComparator();
+        RankAndCrowdingDistanceComparator<TestChromosome> comparator =
+                new RankAndCrowdingDistanceComparator<>();
         double result = comparator.compare(tch1, tch2);
         assertEquals(+1, result, 0.00001);
     }
@@ -99,7 +123,8 @@ public class TestRankAndCrowdingDistanceComparator {
         tch2.setTestCase(new DefaultTestCase());
         tch2.setRank(1);
 
-        RankAndCrowdingDistanceComparator comparator = new RankAndCrowdingDistanceComparator(true);
+        RankAndCrowdingDistanceComparator<TestChromosome> comparator =
+                new RankAndCrowdingDistanceComparator<>(true);
         double result = comparator.compare(tch1, tch2);
         assertEquals(+1, result, 0.00001);
     }
@@ -114,7 +139,8 @@ public class TestRankAndCrowdingDistanceComparator {
         tch2.setTestCase(new DefaultTestCase());
         tch2.setRank(0);
 
-        RankAndCrowdingDistanceComparator comparator = new RankAndCrowdingDistanceComparator(true);
+        RankAndCrowdingDistanceComparator<TestChromosome> comparator =
+                new RankAndCrowdingDistanceComparator<>(true);
         double result = comparator.compare(tch1, tch2);
         assertEquals(-1, result, 0.00001);
     }
@@ -131,7 +157,8 @@ public class TestRankAndCrowdingDistanceComparator {
         tch2.setRank(0);
         tch2.setDistance(0);
 
-        RankAndCrowdingDistanceComparator comparator = new RankAndCrowdingDistanceComparator(true);
+        RankAndCrowdingDistanceComparator<TestChromosome> comparator =
+                new RankAndCrowdingDistanceComparator<>(true);
         double result = comparator.compare(tch1, tch2);
         assertEquals(-1, result, 0.00001);
     }
@@ -148,7 +175,8 @@ public class TestRankAndCrowdingDistanceComparator {
         tch2.setRank(0);
         tch2.setDistance(1);
 
-        RankAndCrowdingDistanceComparator comparator = new RankAndCrowdingDistanceComparator(true);
+        RankAndCrowdingDistanceComparator<TestChromosome> comparator =
+                new RankAndCrowdingDistanceComparator<>(true);
         double result = comparator.compare(tch1, tch2);
         assertEquals(+1, result, 0.00001);
     }
@@ -163,7 +191,8 @@ public class TestRankAndCrowdingDistanceComparator {
         tch2.setTestCase(new DefaultTestCase());
         tch2.setRank(0);
 
-        RankAndCrowdingDistanceComparator comparator = new RankAndCrowdingDistanceComparator();
+        RankAndCrowdingDistanceComparator<TestChromosome> comparator =
+                new RankAndCrowdingDistanceComparator<>();
         comparator.setMaximize(true);
         double result = comparator.compare(tch1, tch2);
         assertEquals(0, result, 0.00001);
@@ -174,7 +203,8 @@ public class TestRankAndCrowdingDistanceComparator {
         TestChromosome tch1 = new TestChromosome();
         tch1.setTestCase(new DefaultTestCase());
 
-        RankAndCrowdingDistanceComparator comparator = new RankAndCrowdingDistanceComparator();
+        RankAndCrowdingDistanceComparator<TestChromosome> comparator =
+                new RankAndCrowdingDistanceComparator<>();
         double value = comparator.compare(tch1, null);
         assertEquals(-1, value, 0.0001);
 

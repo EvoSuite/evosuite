@@ -46,7 +46,6 @@ import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.assertion.*;
 import org.evosuite.classpath.ResourceList;
-import org.evosuite.parameterize.InputVariable;
 import org.evosuite.runtime.TooManyResourcesException;
 import org.evosuite.runtime.mock.EvoSuiteMock;
 import org.evosuite.testcase.fm.MethodDescriptor;
@@ -58,10 +57,7 @@ import org.evosuite.utils.*;
 
 import com.googlecode.gentyref.CaptureType;
 import com.googlecode.gentyref.GenericTypeReflector;
-import org.evosuite.utils.generic.GenericClass;
-import org.evosuite.utils.generic.GenericConstructor;
-import org.evosuite.utils.generic.GenericField;
-import org.evosuite.utils.generic.GenericMethod;
+import org.evosuite.utils.generic.*;
 
 import static java.util.stream.Collectors.toCollection;
 
@@ -275,7 +271,7 @@ public class TestCodeVisitor extends TestVisitor {
 
 	public String getTypeName(VariableReference var) {
 
-		GenericClass clazz = var.getGenericClass();
+		GenericClass<?> clazz = var.getGenericClass();
 		return getTypeName(clazz.getType());
 	}
 
@@ -296,7 +292,7 @@ public class TestCodeVisitor extends TestVisitor {
 			return getClassName(clazz.getComponentType()) + "[]";
 		}
 
-		GenericClass c = new GenericClass(clazz);
+		GenericClass<?> c = GenericClassFactory.get(clazz);
 		String name = c.getSimpleName();
 		if (classNames.values().contains(name)) {
 			name = clazz.getCanonicalName();
@@ -360,8 +356,6 @@ public class TestCodeVisitor extends TestVisitor {
 			if(cval.getValue() != null && cval.getVariableClass().equals(Class.class)) {
 				return getClassName((Class<?>)cval.getValue())+".class";
 			}
-			return var.getName();
-		} else if (var instanceof InputVariable) {
 			return var.getName();
 		} else if (var instanceof FieldReference) {
 			VariableReference source = ((FieldReference) var).getSource();
@@ -1150,14 +1144,13 @@ public class TestCodeVisitor extends TestVisitor {
 				}
 			} else if (name.equals("null")) {
 				parameterString += "(" + getTypeName(declaredParamType) + ") ";
-			} else if (!GenericClass.isAssignable(declaredParamType, actualParamType)) {
+			} else if (!GenericClassUtils.isAssignable(declaredParamType, actualParamType)) {
 
 				if (TypeUtils.isArrayType(declaredParamType)
 				        && TypeUtils.isArrayType(actualParamType)) {
 					Class<?> componentClass = GenericTypeReflector.erase(declaredParamType).getComponentType();
 					if (componentClass.equals(Object.class)) {
-						GenericClass genericComponentClass = new GenericClass(
-						        componentClass);
+						GenericClass<?> genericComponentClass = GenericClassFactory.get(componentClass);
 						if (genericComponentClass.hasWildcardOrTypeVariables()) {
 							// If we are assigning a generic array, then we don't need to cast
 
@@ -1181,7 +1174,7 @@ public class TestCodeVisitor extends TestVisitor {
 				// We have to cast between wrappers and primitives in case there
 				// are overloaded signatures. This could be optimized by checking
 				// if there actually is a problem of overloaded signatures
-				GenericClass parameterClass = new GenericClass(declaredParamType);
+				GenericClass<?> parameterClass = GenericClassFactory.get(declaredParamType);
 				if (parameterClass.isWrapperType() && parameters.get(i).isPrimitive()) {
 					parameterString += "(" + getTypeName(declaredParamType) + ") ";
 				} else if (parameterClass.isPrimitive()
@@ -1219,7 +1212,7 @@ public class TestCodeVisitor extends TestVisitor {
 		//by construction, we should avoid cases like:
 		//  Object obj = mock(Foo.class);
 		//as it leads to problems when setting up "when(...)", and anyway it would make no sense
-		Class<?> rawClass = new GenericClass(retval.getType()).getRawClass();
+		Class<?> rawClass = GenericClassFactory.get(retval.getType()).getRawClass();
 		Class<?> targetClass = st.getTargetClass();
 		assert  rawClass.getName().equals(targetClass.getName()) :
 				"Mismatch between variable raw type "+rawClass+" and mocked "+targetClass;
@@ -1271,7 +1264,7 @@ public class TestCodeVisitor extends TestVisitor {
 
 			List<VariableReference> params = st.getParameters(md.getID());
 
-			GenericClass returnType = md.getReturnClass();
+			GenericClass<?> returnType = md.getReturnClass();
 			// Class<?> returnType = md.getMethod().getReturnType();
 
 			String parameter_string;
@@ -1330,7 +1323,7 @@ public class TestCodeVisitor extends TestVisitor {
 				continue;
 			}
 
-			GenericClass parameterClass = new GenericClass(parameterType);
+			GenericClass<?> parameterClass = GenericClassFactory.get(parameterType);
 			if (parameterClass.isWrapperType()){
 
 				boolean isRightWrapper = false;
@@ -1577,12 +1570,6 @@ public class TestCodeVisitor extends TestVisitor {
 
 				//from class EvoAssertions
 				result += "   verifyException(\"" + sourceClass + "\", e);" + NEWLINE;
-		}
-		
-		// Add assertion on the message (feel free to remove the isRegression() Condition)
-		if (Properties.isRegression() && exception.getMessage() != null) {
-			result += "   assertTrue(e.getMessage().equals(\"" + StringEscapeUtils.escapeJava(exceptionMessage) + "\"));";
-			result += "   \n";
 		}
 
 		result += "}" + NEWLINE;// closing the catch block

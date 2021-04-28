@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -67,7 +67,7 @@ public class ArrayConverterTestCase extends TestCase {
      */
     public void testComponentIntegerConverter() {
 
-        IntegerConverter intConverter = new IntegerConverter(new Integer(0));
+        IntegerConverter intConverter = new IntegerConverter(0);
         intConverter.setPattern("#,###");
         intConverter.setLocale(Locale.US);
         ArrayConverter arrayConverter = new ArrayConverter(int[].class, intConverter, 0);
@@ -80,8 +80,8 @@ public class ArrayConverterTestCase extends TestCase {
         String    stringB      = intArray[0]+ ";" + intArray[1] + ";" + intArray[2] + ";" +intArray[3];
         String[]  strArray     = new String[] {""+intArray[0], ""+intArray[1], ""+intArray[2], ""+intArray[3]};
         long[]    longArray    = new long[] {intArray[0], intArray[1], intArray[2], intArray[3]};
-        Long[]    LONGArray    = new Long[]    {new Long(intArray[0]),    new Long(intArray[1]),    new Long(intArray[2]),    new Long(intArray[3])};
-        Integer[] IntegerArray = new Integer[] {new Integer(intArray[0]), new Integer(intArray[1]), new Integer(intArray[2]), new Integer(intArray[3])};
+        Long[]    LONGArray    = new Long[]    {(long) intArray[0], (long) intArray[1], (long) intArray[2], (long) intArray[3]};
+        Integer[] IntegerArray = new Integer[] {intArray[0], intArray[1], intArray[2], intArray[3]};
         ArrayList strList = new ArrayList();
         ArrayList longList = new ArrayList();
         for (int i = 0; i < strArray.length; i++) {
@@ -225,7 +225,7 @@ public class ArrayConverterTestCase extends TestCase {
         // Expected results
         String msg = null;
         int[]     expectedInt     = new int[] {10, 11, 12, 13};
-        Integer[] expectedInteger = new Integer[] {new Integer(expectedInt[0]), new Integer(expectedInt[1]), new Integer(expectedInt[2]), new Integer(expectedInt[3])};
+        Integer[] expectedInteger = new Integer[] {expectedInt[0], expectedInt[1], expectedInt[2], expectedInt[3]};
 
         // Test String[] --> int[]
         try {
@@ -320,8 +320,8 @@ public class ArrayConverterTestCase extends TestCase {
         int[]  zeroArray  = new int[0];
         int[]  oneArray   = new int[1];
         IntegerConverter intConverter = new IntegerConverter();
-        
-        assertEquals("Null Default", null,   new ArrayConverter(int[].class, intConverter, -1).convert(int[].class, null));
+
+        assertNull("Null Default", new ArrayConverter(int[].class, intConverter, -1).convert(int[].class, null));
         checkArray("Zero Length",  zeroArray, new ArrayConverter(int[].class, intConverter, 0).convert(int[].class, null));
         checkArray("One Length",   oneArray,  new ArrayConverter(Integer[].class, intConverter, 1).convert(int[].class, null));
     }
@@ -334,7 +334,7 @@ public class ArrayConverterTestCase extends TestCase {
         IntegerConverter intConverter = new IntegerConverter();
         
         checkArray("Empty String",  zeroArray, new ArrayConverter(int[].class, intConverter, -1).convert(int[].class, ""));
-        assertEquals("Default String",  null, new ArrayConverter(int[].class, intConverter).convert(String.class, null));
+        assertNull("Default String", new ArrayConverter(int[].class, intConverter).convert(String.class, null));
     }
 
     /**

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -30,9 +30,7 @@ import org.evosuite.symbolic.expr.str.StringValue;
 
 public final class NewTokenizerExpr extends TokenizerExpr {
 
-	/**
-	 * 
-	 */
+
 	private static final long serialVersionUID = -6640965868758291282L;
 	private final StringValue string;
 	private final StringValue delim;
@@ -50,7 +48,7 @@ public final class NewTokenizerExpr extends TokenizerExpr {
 
 	@Override
 	public Set<Variable<?>> getVariables() {
-		Set<Variable<?>> variables = new HashSet<Variable<?>>();
+		Set<Variable<?>> variables = new HashSet<>();
 		variables.addAll(this.string.getVariables());
 		variables.addAll(this.delim.getVariables());
 		return variables;
@@ -100,7 +98,7 @@ public final class NewTokenizerExpr extends TokenizerExpr {
 
 	@Override
 	public Set<Object> getConstants() {
-		Set<Object> result = new HashSet<Object>();
+		Set<Object> result = new HashSet<>();
 		result.add(delim.getConcreteValue());
 		result.add(string.getConcreteValue());
 		return result;

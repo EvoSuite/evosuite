@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -19,12 +19,13 @@
  */
 package org.evosuite.symbolic.solver.smt;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.ExpressionVisitor;
 import org.evosuite.symbolic.expr.Operator;
+import org.evosuite.symbolic.expr.ref.array.ArrayConstant;
+import org.evosuite.symbolic.expr.ref.array.ArraySelect;
+import org.evosuite.symbolic.expr.ref.array.ArrayStore;
+import org.evosuite.symbolic.expr.ref.array.ArrayVariable;
 import org.evosuite.symbolic.expr.bv.IntegerBinaryExpression;
 import org.evosuite.symbolic.expr.bv.IntegerComparison;
 import org.evosuite.symbolic.expr.bv.IntegerConstant;
@@ -50,6 +51,9 @@ import org.evosuite.symbolic.expr.reader.StringReaderExpr;
 import org.evosuite.symbolic.expr.ref.GetFieldExpression;
 import org.evosuite.symbolic.expr.ref.ReferenceConstant;
 import org.evosuite.symbolic.expr.ref.ReferenceVariable;
+import org.evosuite.symbolic.expr.reftype.LambdaSyntheticType;
+import org.evosuite.symbolic.expr.reftype.LiteralClassType;
+import org.evosuite.symbolic.expr.reftype.LiteralNullType;
 import org.evosuite.symbolic.expr.str.IntegerToStringCast;
 import org.evosuite.symbolic.expr.str.RealToStringCast;
 import org.evosuite.symbolic.expr.str.StringBinaryExpression;
@@ -63,6 +67,9 @@ import org.evosuite.symbolic.expr.token.NewTokenizerExpr;
 import org.evosuite.symbolic.expr.token.NextTokenizerExpr;
 import org.evosuite.symbolic.expr.token.StringNextTokenExpr;
 import org.evosuite.symbolic.solver.SmtExprBuilder;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class ExprToSmtVisitor implements ExpressionVisitor<SmtExpr, Void> {
 
@@ -524,6 +531,173 @@ public class ExprToSmtVisitor implements ExpressionVisitor<SmtExpr, Void> {
 	public final SmtExpr visit(GetFieldExpression r, Void arg) {
 		throw new UnsupportedOperationException("Translation to Z3 of GetFieldExpression is not yet implemented!");
 
+	}
+
+	@Override
+	public SmtExpr visit(ArraySelect.IntegerArraySelect r, Void arg) {
+		SmtExpr arrayExpr = r.getSymbolicArray().accept(this, null);
+		SmtExpr indexExpr = r.getSymbolicIndex().accept(this, null);
+
+		if (arrayExpr == null || indexExpr == null) {
+			return null;
+		}
+
+		if (!arrayExpr.isSymbolic() && !indexExpr.isSymbolic()) {
+			Long arrayValue = r.getConcreteValue();
+			return SmtExprBuilder.mkIntConstant(arrayValue);
+		}
+
+		return SmtExprBuilder.mkArrayLoad(arrayExpr, indexExpr);
+	}
+
+	@Override
+	public SmtExpr visit(ArrayStore.IntegerArrayStore r, Void arg) {
+		SmtExpr arrayExpr = r.getSymbolicArray().accept(this, null);
+		SmtExpr indexExpr = r.getSymbolicIndex().accept(this, null);
+		SmtExpr valueExpression = r.getSymbolicValue().accept(this, null);
+
+		if (arrayExpr == null || indexExpr == null || valueExpression == null) {
+			return null;
+		}
+
+		if (!arrayExpr.isSymbolic() && !valueExpression.isSymbolic()) {
+			Object arrayValue = r.getConcreteValue();
+			return SmtExprBuilder.mkIntegerArrayConstant(arrayValue);
+		}
+
+		return SmtExprBuilder.mkArrayStore(arrayExpr, indexExpr, valueExpression);
+	}
+
+
+	@Override
+	public SmtExpr visit(ArraySelect.RealArraySelect r, Void arg) {
+		SmtExpr arrayExpr = r.getSymbolicArray().accept(this, null);
+		SmtExpr indexExpr = r.getSymbolicIndex().accept(this, null);
+
+		if (arrayExpr == null || indexExpr == null) {
+			return null;
+		}
+
+		if (!arrayExpr.isSymbolic() && !indexExpr.isSymbolic()) {
+			Double arrayValue = r.getConcreteValue();
+			return SmtExprBuilder.mkRealConstant(arrayValue);
+		}
+
+		return SmtExprBuilder.mkArrayLoad(arrayExpr, indexExpr);
+	}
+
+	@Override
+	public SmtExpr visit(ArraySelect.StringArraySelect r, Void arg) {
+		SmtExpr arrayExpr = r.getSymbolicArray().accept(this, null);
+		SmtExpr indexExpr = r.getSymbolicIndex().accept(this, null);
+
+		if (arrayExpr == null || indexExpr == null) {
+			return null;
+		}
+
+		if (!arrayExpr.isSymbolic() && !indexExpr.isSymbolic()) {
+			String arrayValue = r.getConcreteValue();
+			return SmtExprBuilder.mkStringConstant(arrayValue);
+		}
+
+		return SmtExprBuilder.mkArrayLoad(arrayExpr, indexExpr);
+	}
+
+	@Override
+	public SmtExpr visit(ArrayStore.RealArrayStore r, Void arg) {
+		SmtExpr arrayExpr = r.getSymbolicArray().accept(this, null);
+		SmtExpr indexExpr = r.getSymbolicIndex().accept(this, null);
+		SmtExpr valueExpression = r.getSymbolicValue().accept(this, null);
+
+		if (arrayExpr == null || indexExpr == null || valueExpression == null) {
+			return null;
+		}
+
+		if (!arrayExpr.isSymbolic() && !valueExpression.isSymbolic()) {
+			Object arrayValue = r.getConcreteValue();
+			return SmtExprBuilder.mkRealArrayConstant(arrayValue);
+		}
+
+		return SmtExprBuilder.mkArrayStore(arrayExpr, indexExpr, valueExpression);
+	}
+
+	@Override
+	public SmtExpr visit(ArrayStore.StringArrayStore r, Void arg) {
+		SmtExpr arrayExpr = r.getSymbolicArray().accept(this, null);
+		SmtExpr indexExpr = r.getSymbolicIndex().accept(this, null);
+		SmtExpr valueExpression = r.getSymbolicValue().accept(this, null);
+
+		if (arrayExpr == null || indexExpr == null || valueExpression == null) {
+			return null;
+		}
+
+		if (!arrayExpr.isSymbolic() && !valueExpression.isSymbolic()) {
+			Object arrayValue = r.getConcreteValue();
+			return SmtExprBuilder.mkRealArrayConstant(arrayValue);
+		}
+
+		return SmtExprBuilder.mkArrayStore(arrayExpr, indexExpr, valueExpression);
+	}
+
+	@Override
+	public SmtExpr visit(ArrayConstant.IntegerArrayConstant r, Void arg) {
+		Object concreteValue = r.getConcreteValue();
+		return SmtExprBuilder.mkIntegerArrayConstant(concreteValue);
+	}
+
+	@Override
+	public SmtExpr visit(ArrayConstant.RealArrayConstant r, Void arg) {
+		Object concreteValue = r.getConcreteValue();
+		return SmtExprBuilder.mkRealArrayConstant(concreteValue);
+	}
+
+	@Override
+	public SmtExpr visit(ArrayConstant.StringArrayConstant r, Void arg) {
+		Object concreteValue = r.getConcreteValue();
+		return SmtExprBuilder.mkStringArrayConstant(concreteValue);
+	}
+
+	@Override
+	public SmtExpr visit(ArrayConstant.ReferenceArrayConstant r, Void arg) {
+		Object concreteValue = r.getConcreteValue();
+		return SmtExprBuilder.mkReferenceArrayConstant(concreteValue);
+	}
+
+	@Override
+	public SmtExpr visit(ArrayVariable.IntegerArrayVariable r, Void arg) {
+		String varName = r.getName();
+		return SmtExprBuilder.mkIntegerArrayVariable(varName);
+	}
+
+	@Override
+	public SmtExpr visit(ArrayVariable.RealArrayVariable r, Void arg) {
+		String varName = r.getName();
+		return SmtExprBuilder.mkRealArrayVariable(varName);
+	}
+
+	@Override
+	public SmtExpr visit(ArrayVariable.StringArrayVariable r, Void arg) {
+		return null;
+	}
+
+	@Override
+	public SmtExpr visit(ArrayVariable.ReferenceArrayVariable r, Void arg) {
+		return null;
+	}
+
+	@Override
+	public SmtExpr visit(LambdaSyntheticType r, Void arg) {
+		return null;
+	}
+
+	@Override
+	public SmtExpr visit(LiteralNullType r, Void arg) {
+		return null;
+	}
+
+	@Override
+	public SmtExpr visit(LiteralClassType r, Void arg) {
+		return null;
 	}
 
 	@Override

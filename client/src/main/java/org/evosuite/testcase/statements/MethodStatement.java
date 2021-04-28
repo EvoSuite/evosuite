@@ -26,7 +26,6 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.reflect.TypeUtils;
 import org.evosuite.Properties;
-import org.evosuite.runtime.annotation.Constraints;
 import org.evosuite.testcase.variable.ArrayIndex;
 import org.evosuite.testcase.variable.ArrayReference;
 import org.evosuite.testcase.TestCase;
@@ -289,7 +288,7 @@ public class MethodStatement extends EntityWithParametersStatement {
 
 				@Override
 				public Set<Class<? extends Throwable>> throwableExceptions() {
-					Set<Class<? extends Throwable>> t = new LinkedHashSet<Class<? extends Throwable>>();
+					Set<Class<? extends Throwable>> t = new LinkedHashSet<>();
 					t.add(InvocationTargetException.class);
 					return t;
 				}
@@ -319,7 +318,7 @@ public class MethodStatement extends EntityWithParametersStatement {
 	/** {@inheritDoc} */
 	@Override
 	public Statement copy(TestCase newTestCase, int offset) {
-		ArrayList<VariableReference> newParams = new ArrayList<VariableReference>();
+		ArrayList<VariableReference> newParams = new ArrayList<>();
 		for (VariableReference r : parameters) {
 			newParams.add(r.copy(newTestCase, offset));
 		}
@@ -549,11 +548,6 @@ public class MethodStatement extends EntityWithParametersStatement {
 
 		if (Randomness.nextDouble() >= Properties.P_CHANGE_PARAMETER)
 			return false;
-
-		Constraints constraint = method.getMethod().getAnnotation(Constraints.class);
-		if(constraint!=null && constraint.notMutable()){
-			return false;
-		}
 
 		List<VariableReference> parameters = getParameterReferences();
 

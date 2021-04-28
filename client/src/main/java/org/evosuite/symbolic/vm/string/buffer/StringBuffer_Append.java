@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -19,7 +19,7 @@
  */
 package org.evosuite.symbolic.vm.string.buffer;
 
-import org.evosuite.symbolic.expr.IntegerConstraint;
+import org.evosuite.symbolic.expr.constraint.IntegerConstraint;
 import org.evosuite.symbolic.expr.Operator;
 import org.evosuite.symbolic.expr.bv.IntegerValue;
 import org.evosuite.symbolic.expr.fp.RealValue;
@@ -30,7 +30,7 @@ import org.evosuite.symbolic.expr.str.StringValue;
 import org.evosuite.symbolic.vm.ExpressionFactory;
 import org.evosuite.symbolic.vm.SymbolicFunction;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
-import org.evosuite.symbolic.vm.SymbolicHeap;
+import org.evosuite.symbolic.vm.heap.SymbolicHeap;
 
 public abstract class StringBuffer_Append extends SymbolicFunction {
 

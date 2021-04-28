@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -43,7 +43,7 @@ public class TestIntOverflow {
 	@Parameters
 	public static Collection<Object[]> data() {
 		Object[] values = new Object[] { Integer.MIN_VALUE, Integer.MIN_VALUE/2, 0, Integer.MAX_VALUE/ 2, Integer.MAX_VALUE};
-		List<Object[]> valuePairs = new ArrayList<Object[]>();
+		List<Object[]> valuePairs = new ArrayList<>();
 		for(Object val1 : values) {
 			for(Object val2 : values) {
 				valuePairs.add(new Object[] {val1, val2});

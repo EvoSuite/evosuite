@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -54,7 +54,7 @@ public class DoubleOptimisationSystemTest extends SystemTestBase {
 
 		Object result = evosuite.parseCommandLine(command);
 
-		Assert.assertTrue(result != null);
+        Assert.assertNotNull(result);
 
 		GeneticAlgorithm<?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
@@ -78,7 +78,7 @@ public class DoubleOptimisationSystemTest extends SystemTestBase {
 
 		Object result = evosuite.parseCommandLine(command);
 
-		Assert.assertTrue(result != null);
+        Assert.assertNotNull(result);
 
 		GeneticAlgorithm<?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();

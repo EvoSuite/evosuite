@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -74,26 +74,23 @@ public class HistorySchedule extends OneTimeSchedule {
     double timePerBranch =
         number_of_branches == 0.0 ? 0.0 : (double) extraTime / (double) number_of_branches;
 
-    List<ClassInfo> classesInfo = new ArrayList<ClassInfo>(data.getClassInfos());
+    List<ClassInfo> classesInfo = new ArrayList<>(data.getClassInfos());
 
     // classes that have been changed first
-    Collections.sort(classesInfo, new Comparator<ClassInfo>() {
-      @Override
-      public int compare(ClassInfo a, ClassInfo b) {
+    classesInfo.sort((a, b) -> {
         if (a.hasChanged() && !b.hasChanged()) {
-          return -1;
+            return -1;
         } else if (!a.hasChanged() && b.hasChanged()) {
-          return 1;
+            return 1;
         }
 
         // otherwise, get the most difficult classes first
         return Integer.compare(b.numberOfBranches, a.numberOfBranches);
-      }
     });
 
     int totalLeftOver = 0;
     int totalBudgetUsed = 0;
-    List<JobDefinition> jobs = new LinkedList<JobDefinition>();
+    List<JobDefinition> jobs = new LinkedList<>();
 
     for (ClassInfo c_info : classesInfo) {
       if (!c_info.isTestable()) {

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -23,14 +23,8 @@ import org.evosuite.Properties;
 import org.evosuite.ga.SecondaryObjective;
 import org.evosuite.testcase.TestChromosome;
 
-/**
- * 
- */
 public class TestCaseSecondaryObjective {
 
-  /**
-   * 
-   */
   public static void setSecondaryObjectives() {
     for (Properties.SecondaryObjective secondaryObjective : Properties.SECONDARY_OBJECTIVE) {
       try {

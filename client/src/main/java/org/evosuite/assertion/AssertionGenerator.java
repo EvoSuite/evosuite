@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
+
 package org.evosuite.assertion;
 
 import org.evosuite.Properties;
@@ -88,8 +86,7 @@ public abstract class AssertionGenerator {
 		TestCaseExecutor.getInstance().addObserver(fieldObserver);
 		TestCaseExecutor.getInstance().addObserver(nullObserver);
 		TestCaseExecutor.getInstance().addObserver(sameObserver);
-		if(!Properties.isRegression())
-			TestCaseExecutor.getInstance().addObserver(arrayObserver);
+		TestCaseExecutor.getInstance().addObserver(arrayObserver);
 		TestCaseExecutor.getInstance().addObserver(arrayLengthObserver);
 		TestCaseExecutor.getInstance().addObserver(containsTraceObserver);
 	}
@@ -141,8 +138,7 @@ public abstract class AssertionGenerator {
 			result.setTrace(fieldObserver.getTrace(), PrimitiveFieldTraceEntry.class);
 			result.setTrace(nullObserver.getTrace(), NullTraceEntry.class);
 			result.setTrace(sameObserver.getTrace(), SameTraceEntry.class);
-			if(!Properties.isRegression())
-				result.setTrace(arrayObserver.getTrace(), ArrayTraceEntry.class);
+			result.setTrace(arrayObserver.getTrace(), ArrayTraceEntry.class);
 			result.setTrace(arrayLengthObserver.getTrace(), ArrayLengthTraceEntry.class);
 			result.setTrace(containsTraceObserver.getTrace(), ContainsTraceEntry.class);
 		} catch (Exception e) {
@@ -157,7 +153,7 @@ public abstract class AssertionGenerator {
 		// Make sure we are not keeping assertions influenced by static state
 		// TODO: Need to handle statically initialized classes
 		ExecutionResult result = runTest(test);
-		Set<Assertion> invalidAssertions = new HashSet<Assertion>();
+		Set<Assertion> invalidAssertions = new HashSet<>();
 		for(Assertion assertion : test.getAssertions()) {
 			for(OutputTrace<?> outputTrace : result.getTraces()) {
 				if(outputTrace.isDetectedBy(assertion)) {
@@ -173,8 +169,7 @@ public abstract class AssertionGenerator {
 	}
 
 	public void filterFailingAssertions(List<TestCase> testCases) {
-		List<TestCase> tests = new ArrayList<TestCase>();
-		tests.addAll(testCases);
+        List<TestCase> tests = new ArrayList<>(testCases);
 		for(TestCase test : tests) {
 			filterFailingAssertions(test);
 		}
@@ -227,7 +222,7 @@ public abstract class AssertionGenerator {
 			Properties.resetTargetClass();
 			Properties.getInitializedTargetClass();
 
-			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Mutants, MutationPool.getMutantCounter());
+			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Mutants, MutationPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getMutantCounter());
 
 			for(TestChromosome test : suite.getTestChromosomes()) {
 				DefaultTestCase dtest = (DefaultTestCase) test.getTestCase();

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -27,6 +27,8 @@ import org.evosuite.Properties;
 import org.evosuite.testcarver.extraction.CarvingManager;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.utils.generic.GenericClass;
+import org.evosuite.utils.generic.GenericClassFactory;
+import org.evosuite.utils.generic.GenericClassImpl;
 import org.evosuite.utils.LoggingUtils;
 
 public class ObjectPoolManager extends ObjectPool {
@@ -46,7 +48,7 @@ public class ObjectPoolManager extends ObjectPool {
 	}
 	
 	public void addPool(ObjectPool pool) {
-		for(GenericClass clazz : pool.getClasses()) {
+		for(GenericClass<?> clazz : pool.getClasses()) {
 			Set<TestCase> tests = pool.getSequences(clazz);
 			if(this.pool.containsKey(clazz))
 				this.pool.get(clazz).addAll(tests);
@@ -73,7 +75,7 @@ public class ObjectPoolManager extends ObjectPool {
 				}
 			}
 			if(logger.isDebugEnabled()) {
-				for(GenericClass key : pool.keySet()) {
+				for(GenericClass<?> key : pool.keySet()) {
 					logger.debug("Have sequences for "+key+": "+pool.get(key).size());
 				}
 			}
@@ -83,7 +85,7 @@ public class ObjectPoolManager extends ObjectPool {
 			for(Class<?> targetClass : manager.getClassesWithTests()) {
 				List<TestCase> tests = manager.getTestsForClass(targetClass);
 				logger.info("Carved tests for {}: {}", targetClass.getName(), tests.size());
-				GenericClass cut = new GenericClass(targetClass);
+				GenericClass<?> cut = GenericClassFactory.get(targetClass);
 				for(TestCase test : tests) {
 					this.addSequence(cut, test);
 				}

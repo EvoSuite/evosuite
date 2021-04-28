@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -25,7 +25,7 @@ import java.util.LinkedList;
 import static org.junit.Assert.assertTrue;
 
 import org.evosuite.symbolic.expr.Constraint;
-import org.evosuite.symbolic.expr.IntegerConstraint;
+import org.evosuite.symbolic.expr.constraint.IntegerConstraint;
 import org.evosuite.symbolic.expr.bv.IntegerVariable;
 import org.evosuite.symbolic.vm.ConstraintFactory;
 import org.junit.Test;
@@ -37,7 +37,7 @@ public abstract class TestSolverUNSAT extends TestSolver {
 			SolverErrorException {
 		Solver solver = getSolver();
 
-		Collection<Constraint<?>> constraints = new LinkedList<Constraint<?>>();
+		Collection<Constraint<?>> constraints = new LinkedList<>();
 		IntegerVariable x = new IntegerVariable("x", 1L, Long.MIN_VALUE, Long.MAX_VALUE);
 		IntegerConstraint unsat_constraint = ConstraintFactory.neq(x, x);
 		constraints.add(unsat_constraint);

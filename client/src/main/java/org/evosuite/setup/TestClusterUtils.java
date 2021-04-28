@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -19,7 +19,6 @@
  */
 package org.evosuite.setup;
 
-import org.apache.commons.lang3.StringUtils;
 import org.evosuite.PackageInfo;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.runtime.Reflection;
@@ -27,7 +26,6 @@ import org.evosuite.runtime.mock.MockList;
 import org.evosuite.runtime.util.ReflectionUtils;
 import org.junit.Test;
 import org.junit.runners.Suite;
-import org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,7 +34,12 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.*;
-import java.util.stream.Collectors;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
+
+import static java.util.Comparator.comparing;
+import static java.util.stream.Collectors.toCollection;
+import static org.objectweb.asm.Type.getMethodDescriptor;
 
 /**
  * Set of pure static methods
@@ -49,9 +52,8 @@ public class TestClusterUtils {
 		Only final constants and caches should instantiated in this class
 	 */
 
-	private static final List<String> classExceptions = Collections.unmodifiableList(Arrays.asList(new String[] {
-	        "com.apple.", "apple.", "sun.", "com.sun.", "com.oracle.", "sun.awt."
-	}));
+	private static final List<String> classExceptions = Collections.unmodifiableList(
+			Arrays.asList("com.apple.", "apple.", "sun.", "com.sun.", "com.oracle.", "sun.awt."));
 	private final static Map<Class<?>, Set<Field>> accessibleFieldCache = new LinkedHashMap<>();
 	private final static Map<Class<?>, Set<Method>> methodCache = new LinkedHashMap<>();
 
@@ -86,7 +88,7 @@ public class TestClusterUtils {
 				}
 			}
 		} catch (ClassNotFoundException e) {
-			logger.info("Could not load class: ", className);
+			logger.info("Could not load class: {}", className);
 		}
 		return false;
 	}
@@ -131,32 +133,31 @@ public class TestClusterUtils {
     }
 
 	/**
-	 * Calculate package distance between two classnames
+	 * Calculates the package distance between two classes, which must be given by their
+	 * fully-qualified names. For example, the package distance between {@code "java.util.List"} and
+	 * {@code "java.util.Set"} is 0, and the distance between {@code "java.util.List"} and
+	 * {@code "java.lang.reflect.Class"} is 3.
 	 *
-	 * @param className1
-	 * @param className2
-	 * @return
+	 * @param className1 fully-qualified name of the first class
+	 * @param className2 fully-qualified name of the second class
+	 * @return the package distance between the two classes
 	 */
-	public static int getPackageDistance(String className1, String className2) {
+	public static int getPackageDistance(final String className1, final String className2) {
+		final String[] packages1 = className1.split("\\.");
+		final String[] packages2 = className2.split("\\.");
 
-		String[] package1 = StringUtils.split(className1, '.');
-		String[] package2 = StringUtils.split(className2, '.');
+		// We ignore the last array entries because they're just class names and thus irrelevant.
+		final int numPackages1 = packages1.length - 1;
+		final int numPackages2 = packages2.length - 1;
 
-		int distance = 0;
-		int same = 1;
-		int num = 0;
-		while (num < package1.length && num < package2.length
-		        && package1[num].equals(package2[num])) {
-			same++;
-			num++;
+		// Find the length of the longest common prefix.
+		int length = 0;
+		final int n = Math.min(numPackages1, numPackages2);
+		while (length < n && packages1[length].equals(packages2[length])) {
+			length++;
 		}
 
-		if (package1.length > same)
-			distance += package1.length - same;
-
-		if (package2.length > same)
-			distance += package2.length - same;
-
+		final int distance = numPackages1 + numPackages2 - 2 * length;
 		return distance;
 	}
 
@@ -167,18 +168,12 @@ public class TestClusterUtils {
 	 *            a {@link String} object.
 	 * @return a boolean.
 	 */
-	public static boolean checkIfCanUse(String className) {
-
+	public static boolean checkIfCanUse(final String className) {
 		if (MockList.shouldBeMocked(className)) {
 			return false;
 		}
 
-		for (String s : classExceptions) {
-			if (className.startsWith(s)) {
-				return false;
-			}
-		}
-		return true;
+		return classExceptions.stream().noneMatch(className::startsWith);
 	}
 
 	/**
@@ -188,12 +183,17 @@ public class TestClusterUtils {
 	 * @return
 	 */
 	public static Set<Constructor<?>> getConstructors(Class<?> clazz) {
-		Map<String, Constructor<?>> helper = new TreeMap<>();
+		final Map<String, Constructor<?>> helper = new TreeMap<>();
 
-		for (Constructor<?> c : Reflection.getDeclaredConstructors(clazz)) {
+		for (final Constructor<?> c : Reflection.getDeclaredConstructors(clazz)) {
 			helper.put(org.objectweb.asm.Type.getConstructorDescriptor(c), c);
 		}
-		LinkedHashSet<Constructor<?>> constructors = new LinkedHashSet<>(helper.values().stream().sorted((o1, o2) -> o1.getName().compareTo(o2.getName())).collect(Collectors.toList()));
+
+		final Set<Constructor<?>> constructors =
+				helper.values().stream()
+						.sorted(comparing(Constructor::getName))
+						.collect(toCollection(LinkedHashSet::new));
+
 		return constructors;
 	}
 
@@ -207,8 +207,7 @@ public class TestClusterUtils {
 		// TODO: Helper not necessary here!
 		Map<String, Field> helper = new TreeMap<>();
 
-		Set<Field> fields = new LinkedHashSet<>();
-		if (clazz.getSuperclass() != null) {
+        if (clazz.getSuperclass() != null) {
 			for (Field f : getFields(clazz.getSuperclass())) {
 				helper.put(f.toGenericString(), f);
 			}
@@ -223,20 +222,16 @@ public class TestClusterUtils {
 		for (Field f : Reflection.getDeclaredFields(clazz)) {
 			helper.put(f.toGenericString(), f);
 		}
-		fields.addAll(helper.values());
+        Set<Field> fields = new LinkedHashSet<>(helper.values());
 
 		return fields;
 	}
 
 	public static boolean hasStaticGenerator(Class<?> clazz) {
-		for(Method m : ReflectionUtils.getMethods(clazz)) {
-			if(Modifier.isStatic(m.getModifiers())) {
-				if(clazz.isAssignableFrom(m.getReturnType())) {
-					return true;
-				}
-			}
-		}
-		return false;
+		final Stream<Method> methods = Arrays.stream(ReflectionUtils.getMethods(clazz));
+		final Predicate<Method> isStaticGenerator = m ->
+				Modifier.isStatic(m.getModifiers()) && clazz.isAssignableFrom(m.getReturnType());
+		return methods.anyMatch(isStaticGenerator);
 	}
 
 	/**
@@ -245,21 +240,16 @@ public class TestClusterUtils {
 	 * @param clazz
 	 * @return
 	 */
-	public static Set<Field> getAccessibleFields(Class<?> clazz) {
-		if(accessibleFieldCache.containsKey(clazz)) {
-			return accessibleFieldCache.get(clazz);
-		}
+	public static Set<Field> getAccessibleFields(final Class<?> clazz) {
+		return accessibleFieldCache.computeIfAbsent(clazz, TestClusterUtils::computeAccessibleFields);
+	}
 
-		Set<Field> fields = new LinkedHashSet<>();
-		for (Field f : Reflection.getFields(clazz)) {
-			if (TestUsageChecker.canUse(f) && !Modifier.isFinal(f.getModifiers())) {
-				fields.add(f);
-			}
-		}
-		fields = new LinkedHashSet<>(fields.stream().sorted((o1, o2) -> o1.getName().compareTo(o2.getName())).collect(Collectors.toList()));
-
-		accessibleFieldCache.put(clazz, fields);
-		return fields;
+	private static Set<Field> computeAccessibleFields(final Class<?> clazz) {
+		final Set<Field> accessibleFields = Arrays.stream(Reflection.getFields(clazz))
+				.filter(f -> TestUsageChecker.canUse(f) && !Modifier.isFinal(f.getModifiers()))
+				.sorted(comparing(Field::getName))
+				.collect(toCollection(LinkedHashSet::new));
+		return accessibleFields;
 	}
 
 	/**
@@ -276,24 +266,27 @@ public class TestClusterUtils {
 		if(methodCache.containsKey(clazz)) {
 			return methodCache.get(clazz);
 		}
-		Map<String, Method> helper = new TreeMap<String, Method>();
+
+		final Map<String, Method> helper = new TreeMap<>();
 
 		if (clazz.getSuperclass() != null) {
-			for (Method m : getMethods(clazz.getSuperclass())) {
-				helper.put(m.getName() + org.objectweb.asm.Type.getMethodDescriptor(m), m);
+			for (final Method m : getMethods(clazz.getSuperclass())) {
+				helper.put(m.getName() + getMethodDescriptor(m), m);
 			}
 		}
-		for (Class<?> in : Reflection.getInterfaces(clazz)) {
-			for (Method m : getMethods(in)) {
-				helper.put(m.getName() + org.objectweb.asm.Type.getMethodDescriptor(m), m);
+		for (final Class<?> in : Reflection.getInterfaces(clazz)) {
+			for (final Method m : getMethods(in)) {
+				helper.put(m.getName() + getMethodDescriptor(m), m);
 			}
 		}
 
-		for (Method m : Reflection.getDeclaredMethods(clazz)) {
-			helper.put(m.getName() + org.objectweb.asm.Type.getMethodDescriptor(m), m);
+		for (final Method m : Reflection.getDeclaredMethods(clazz)) {
+			helper.put(m.getName() + getMethodDescriptor(m), m);
 		}
 
-		LinkedHashSet<Method> methods = new LinkedHashSet<>(helper.values().stream().sorted((o1, o2) -> o1.getName().compareTo(o2.getName())).collect(Collectors.toList()));
+		final LinkedHashSet<Method> methods = helper.values().stream()
+				.sorted(comparing(Method::getName))
+				.collect(toCollection(LinkedHashSet::new));
 		methodCache.put(clazz, methods);
 		return methods;
 	}
@@ -301,7 +294,7 @@ public class TestClusterUtils {
 	public static Method getMethod(Class<?> clazz, String methodName, String desc) {
 		for (Method method : Reflection.getMethods(clazz)) {
 			if (method.getName().equals(methodName)
-					&& Type.getMethodDescriptor(method).equals(desc))
+					&& getMethodDescriptor(method).equals(desc))
 				return method;
 		}
 		return null;

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -76,12 +76,10 @@ public class Continuous {
 		/*
 		 * Setup the classpath
 		 */
-		for (String classPathElement : cp.split(File.pathSeparator)) {			
-			try {
-				ClassPathHacker.addFile(classPathElement);
-			} catch (IOException e) {
-				// Ignore?
-			}
+		try {
+			ClassPathHacker.setupContinuousClassLoader(cp);
+		} catch (IOException e) {
+			// ignore?
 		}
 
 		String prefix = "";

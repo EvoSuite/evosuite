@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -16,9 +16,6 @@
  *
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
- */
-/**
- * 
  */
 package org.evosuite.seeding.factories;
 
@@ -69,7 +66,7 @@ public class BIAndRITestSuiteChromosomeFactory implements
 		TestSuiteChromosome chrom = null;
 		if (!seeded && geneticAlgorithm != null) {
 			seeded = true;
-			chrom = (TestSuiteChromosome) geneticAlgorithm.getBestIndividual();
+			chrom = geneticAlgorithm.getBestIndividual();
 		} else if (geneticAlgorithm != null && Randomness.nextDouble() < Properties.SEED_PROBABILITY) {
 			int populationSize = geneticAlgorithm.getPopulation().size();
 			chrom =  geneticAlgorithm.getPopulation().get(Randomness.nextInt(populationSize));

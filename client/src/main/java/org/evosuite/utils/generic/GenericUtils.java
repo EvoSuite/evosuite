@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -21,7 +21,6 @@ package org.evosuite.utils.generic;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.GenericArrayType;
-import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
@@ -47,7 +46,7 @@ public class GenericUtils {
 			// in its bounds
 			Type resolvedBoundType = GenericUtils.replaceTypeVariable(boundType,
 			                                                          typeVariable, type);
-			if (!GenericClass.isAssignable(resolvedBoundType, type)) {
+			if (!GenericClassUtils.isAssignable(resolvedBoundType, type)) {
 				isAssignable = false;
 				break;
 			}
@@ -179,7 +178,7 @@ public class GenericUtils {
 			return getMatchingTypeParameters((ParameterizedType) p1.getGenericComponentType(),
 			                                 (ParameterizedType) p2.getGenericComponentType());
 		} else {
-			Map<TypeVariable<?>, Type> map = new HashMap<TypeVariable<?>, Type>();
+			Map<TypeVariable<?>, Type> map = new HashMap<>();
 			return map;
 		}
 	}
@@ -194,13 +193,13 @@ public class GenericUtils {
 	public static Map<TypeVariable<?>, Type> getMatchingTypeParameters(
 	        ParameterizedType p1, ParameterizedType p2) {
 		logger.debug("Matching generic types between "+p1+" and "+p2);
-		Map<TypeVariable<?>, Type> map = new HashMap<TypeVariable<?>, Type>();
+		Map<TypeVariable<?>, Type> map = new HashMap<>();
 		if (!p1.getRawType().equals(p2.getRawType())) {
 			logger.debug("Raw types do not match!");
 			
-			GenericClass ownerClass = new GenericClass(p2);
+			GenericClass<?> ownerClass = GenericClassFactory.get(p2);
 			
-			if(GenericClass.isSubclass(p1.getRawType(), p2.getRawType())) {
+			if(GenericClassUtils.isSubclass(p1.getRawType(), p2.getRawType())) {
 				logger.debug(p1 +" is a super type of "+p2);
 				Map<TypeVariable<?>, Type> commonsMap = TypeUtils.determineTypeArguments((Class<?>)p2.getRawType(), p1);
 				logger.debug("Adding to map: "+commonsMap);
@@ -222,8 +221,8 @@ public class GenericUtils {
 						logger.debug(a+" is a type variable: "+((TypeVariable<?>)a).getGenericDeclaration());
 						if(b instanceof TypeVariable<?>) {
 							logger.debug(b+" is a type variable: "+((TypeVariable<?>)b).getGenericDeclaration());
-							if(commonsMap.containsKey((TypeVariable<?>)a) && !(commonsMap.get((TypeVariable<?>)a) instanceof WildcardType) && !(commonsMap.get((TypeVariable<?>)a) instanceof TypeVariable<?>))
-								map.put((TypeVariable<?>)b, commonsMap.get((TypeVariable<?>)a));
+							if(commonsMap.containsKey(a) && !(commonsMap.get(a) instanceof WildcardType) && !(commonsMap.get(a) instanceof TypeVariable<?>))
+								map.put((TypeVariable<?>)b, commonsMap.get(a));
 							//else
 							//	map.put((TypeVariable<?>)a, b);
 						}
@@ -242,14 +241,14 @@ public class GenericUtils {
 			}
 
 			
-			for(GenericClass interfaceClass : ownerClass.getInterfaces()) {
+			for(GenericClass<?> interfaceClass : ownerClass.getInterfaces()) {
 				if(interfaceClass.isParameterizedType())
 					map.putAll(getMatchingTypeParameters(p1, (ParameterizedType)interfaceClass.getType()));
 				else
 					logger.debug("Interface "+interfaceClass+" is not parameterized");
 			}
 			if(ownerClass.getRawClass().getSuperclass() != null) {
-				GenericClass ownerSuperClass = ownerClass.getSuperClass();
+				GenericClass<?> ownerSuperClass = ownerClass.getSuperClass();
 				if(ownerSuperClass.isParameterizedType()) 
 					map.putAll(getMatchingTypeParameters(p1, (ParameterizedType)ownerSuperClass.getType()));
 				else

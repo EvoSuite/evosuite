@@ -42,7 +42,8 @@ import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.execution.EvosuiteError;
 import org.evosuite.testcase.execution.Scope;
 import org.evosuite.utils.generic.GenericAccessibleObject;
-import org.evosuite.utils.generic.GenericClass;
+import org.evosuite.utils.generic.GenericClassImpl;
+import org.evosuite.utils.generic.GenericClassUtils;
 import org.evosuite.utils.generic.GenericField;
 import org.evosuite.utils.Randomness;
 
@@ -91,6 +92,17 @@ public class AssignmentStatement extends AbstractStatement {
 	 */
 	public VariableReference getValue() {
 		return this.parameter;
+	}
+
+	/**
+	 * <p>
+	 * setValue
+	 * </p>
+	 *
+	 * @param value
+	 */
+	public void setValue(VariableReference value) {
+		this.parameter = value;
 	}
 
 	/** {@inheritDoc} */
@@ -187,7 +199,7 @@ public class AssignmentStatement extends AbstractStatement {
 
 			@Override
 			public Set<Class<? extends Throwable>> throwableExceptions() {
-				Set<Class<? extends Throwable>> t = new LinkedHashSet<Class<? extends Throwable>>();
+				Set<Class<? extends Throwable>> t = new LinkedHashSet<>();
 				t.add(AssertionError.class);
 				return t;
 			}
@@ -198,7 +210,7 @@ public class AssignmentStatement extends AbstractStatement {
 	/** {@inheritDoc} */
 	@Override
 	public Set<VariableReference> getVariableReferences() {
-		Set<VariableReference> vars = new LinkedHashSet<VariableReference>();
+		Set<VariableReference> vars = new LinkedHashSet<>();
 		vars.add(retval);
 		vars.add(parameter);
 
@@ -266,7 +278,7 @@ public class AssignmentStatement extends AbstractStatement {
 	/** {@inheritDoc} */
 	@Override
 	public List<VariableReference> getUniqueVariableReferences() {
-		return new ArrayList<VariableReference>(getVariableReferences());
+		return new ArrayList<>(getVariableReferences());
 	}
 
 	/* (non-Javadoc)
@@ -315,13 +327,13 @@ public class AssignmentStatement extends AbstractStatement {
 	 * @return
 	 */
 	private Set<VariableReference> getSourceReplacements() {
-		Set<VariableReference> variables = new LinkedHashSet<VariableReference>();
+		Set<VariableReference> variables = new LinkedHashSet<>();
 		for (int i = 0; i < retval.getStPosition() && i < tc.size(); i++) {
 			VariableReference value = tc.getReturnValue(i);
 			if (value == null)
 				continue;
 			if (value instanceof ArrayReference) {
-				if (GenericClass.isAssignable(value.getComponentType(),
+				if (GenericClassUtils.isAssignable(value.getComponentType(),
 				                              parameter.getType())) {
 					for (int index = 0; index < ((ArrayReference) value).getArrayLength(); index++) {
 						variables.add(new ArrayIndex(tc, (ArrayReference) value, index));

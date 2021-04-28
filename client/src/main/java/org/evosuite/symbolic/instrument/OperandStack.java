@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -118,19 +118,19 @@ final class OperandStack {
 			mv.visitIntInsn(SIPUSH, i);
 			return;
 		}
-		mv.visitLdcInsn(Integer.valueOf(i));
+		mv.visitLdcInsn(i);
 	}
-	
-	
+
 	/**
 	 * ...
 	 * ==>
-	 * ..., a, b, c
+	 * ..., s[0], s[1], ..., s[n]
 	 */
-	void pushStrings(String a, String b, String c) {
-		mv.visitLdcInsn(a);
-		mv.visitLdcInsn(b);
-		mv.visitLdcInsn(c);
+
+	void pushStrings(String... strings) {
+		for (String string : strings) {
+			mv.visitLdcInsn(string);
+		}
 	}
 
 	/** 

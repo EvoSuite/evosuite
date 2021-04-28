@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -21,6 +21,7 @@ package org.evosuite.dse;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.Consumer;
 
 
 /*
@@ -31,11 +32,11 @@ import java.util.List;
 
 /**
  * Entry-point
- * 
+ *
  * The instrumentation inserted into user code is hard-coded to call static
  * methods of this class. Here we just multiplex these incoming calls to a list
  * of registered listeners.
- * 
+ *
  * @author csallner@uta.edu (Christoph Csallner)
  */
 public final class VM {
@@ -47,7 +48,7 @@ public final class VM {
 
 	/**
 	 * Is this a recursive callback?
-	 * 
+	 *
 	 * <pre>
 	 * VM.meth()   // true
 	 * user.meth()
@@ -55,6 +56,7 @@ public final class VM {
 	 * </pre>
 	 */
 	private static boolean ignoreCallback = false;
+
 
 	public static void disableCallBacks() {
 		ignoreCallback = true;
@@ -101,8 +103,8 @@ public final class VM {
 	// protected IVM[] listeners = new IVM[] { new InsnLogger() };
 	protected IVM[] listeners = new IVM[0];
 
-	protected List<IVM> prependListeners = new LinkedList<IVM>();
-	protected List<IVM> appendListeners = new LinkedList<IVM>();
+	protected List<IVM> prependListeners = new LinkedList<>();
+	protected List<IVM> appendListeners = new LinkedList<>();
 
 	/**
 	 * Registers paramListeners and any listernes previously queued via
@@ -111,11 +113,23 @@ public final class VM {
 	 * appendListeners).
 	 */
 	public void setListeners(List<IVM> paramListeners) {
-		List<IVM> list = new LinkedList<IVM>();
+		List<IVM> list = new LinkedList<>();
 		list.addAll(prependListeners);
 		list.addAll(paramListeners);
 		list.addAll(appendListeners);
 		this.listeners = list.toArray(new IVM[list.size()]);
+	}
+
+	/**
+	 * Notifies the VMs that the concolic execution has finished.
+	 * Useful for closing any necessary connections and static states (if any).
+	 *
+	 * TODO (ilebrero): Eventually all VMs can be reused instead of just creating new ones.
+	 */
+	public void cleanUpListeners() {
+		for (IVM listener : this.listeners) {
+			listener.cleanUp();
+		}
 	}
 
 	/**
@@ -164,6 +178,10 @@ public final class VM {
 		 * Listeners are not supposed to throw exceptions to the VM except the
 		 * StopVMException.
 		 */
+
+		// Without differentiating between exceptions, execution is already finished so cleaning up first.
+		vm.cleanUpListeners();
+
 		if (t instanceof StopVMException) {
 			// No more callbacks are done since the list is erased
 			// TODO catch StopVMException in Listeners. Enforce no listener
@@ -1461,112 +1479,112 @@ public final class VM {
 		ignoreCallback = false;
 	}
 
-	public static void IALOAD(Object receiver, int index) {
+	public static void IALOAD(Object receiver, int index, String className, String methodName) {
 		if (ignoreCallback)
 			return;
 		ignoreCallback = true;
 		vm.countCallback();
 		try {
 			for (IVM listener : vm.listeners)
-				listener.IALOAD(receiver, index);
+				listener.IALOAD(receiver, index, className, methodName);
 		} catch (Throwable t) {
 			handleException(t);
 		}
 		ignoreCallback = false;
 	}
 
-	public static void LALOAD(Object receiver, int index) {
+	public static void LALOAD(Object receiver, int index, String className, String methodName) {
 		if (ignoreCallback)
 			return;
 		ignoreCallback = true;
 		vm.countCallback();
 		try {
 			for (IVM listener : vm.listeners)
-				listener.LALOAD(receiver, index);
+				listener.LALOAD(receiver, index, className, methodName);
 		} catch (Throwable t) {
 			handleException(t);
 		}
 		ignoreCallback = false;
 	}
 
-	public static void FALOAD(Object receiver, int index) {
+	public static void FALOAD(Object receiver, int index, String className, String methodName) {
 		if (ignoreCallback)
 			return;
 		ignoreCallback = true;
 		vm.countCallback();
 		try {
 			for (IVM listener : vm.listeners)
-				listener.FALOAD(receiver, index);
+				listener.FALOAD(receiver, index, className, methodName);
 		} catch (Throwable t) {
 			handleException(t);
 		}
 		ignoreCallback = false;
 	}
 
-	public static void DALOAD(Object receiver, int index) {
+	public static void DALOAD(Object receiver, int index, String className, String methodName) {
 		if (ignoreCallback)
 			return;
 		ignoreCallback = true;
 		vm.countCallback();
 		try {
 			for (IVM listener : vm.listeners)
-				listener.DALOAD(receiver, index);
+				listener.DALOAD(receiver, index, className, methodName);
 		} catch (Throwable t) {
 			handleException(t);
 		}
 		ignoreCallback = false;
 	}
 
-	public static void AALOAD(Object receiver, int index) {
+	public static void AALOAD(Object receiver, int index, String className, String methodName) {
 		if (ignoreCallback)
 			return;
 		ignoreCallback = true;
 		vm.countCallback();
 		try {
 			for (IVM listener : vm.listeners)
-				listener.AALOAD(receiver, index);
+				listener.AALOAD(receiver, index, className, methodName);
 		} catch (Throwable t) {
 			handleException(t);
 		}
 		ignoreCallback = false;
 	}
 
-	public static void BALOAD(Object receiver, int index) {
+	public static void BALOAD(Object receiver, int index, String className, String methodName) {
 		if (ignoreCallback)
 			return;
 		ignoreCallback = true;
 		vm.countCallback();
 		try {
 			for (IVM listener : vm.listeners)
-				listener.BALOAD(receiver, index);
+				listener.BALOAD(receiver, index, className, methodName);
 		} catch (Throwable t) {
 			handleException(t);
 		}
 		ignoreCallback = false;
 	}
 
-	public static void CALOAD(Object receiver, int index) {
+	public static void CALOAD(Object receiver, int index, String className, String methodName) {
 		if (ignoreCallback)
 			return;
 		ignoreCallback = true;
 		vm.countCallback();
 		try {
 			for (IVM listener : vm.listeners)
-				listener.CALOAD(receiver, index);
+				listener.CALOAD(receiver, index, className, methodName);
 		} catch (Throwable t) {
 			handleException(t);
 		}
 		ignoreCallback = false;
 	}
 
-	public static void SALOAD(Object receiver, int index) {
+	public static void SALOAD(Object receiver, int index, String className, String methodName) {
 		if (ignoreCallback)
 			return;
 		ignoreCallback = true;
 		vm.countCallback();
 		try {
 			for (IVM listener : vm.listeners)
-				listener.SALOAD(receiver, index);
+				listener.SALOAD(receiver, index, className, methodName);
 		} catch (Throwable t) {
 			handleException(t);
 		}
@@ -1947,112 +1965,118 @@ public final class VM {
 		ignoreCallback = false;
 	}
 
-	public static void IASTORE(Object receiver, int index) {
+	public static void IASTORE(Object receiver, int index, String className, String methodName) {
 		if (ignoreCallback)
 			return;
 		ignoreCallback = true;
 		vm.countCallback();
 		try {
 			for (IVM listener : vm.listeners)
-				listener.IASTORE(receiver, index);
+				listener.IASTORE(receiver, index, className, methodName);
 		} catch (Throwable t) {
 			handleException(t);
 		}
 		ignoreCallback = false;
 	}
 
-	public static void LASTORE(Object receiver, int index) {
+	public static void LASTORE(Object receiver, int index, String className, String methodName) {
 		if (ignoreCallback)
 			return;
 		ignoreCallback = true;
 		vm.countCallback();
 		try {
 			for (IVM listener : vm.listeners)
-				listener.LASTORE(receiver, index);
+				listener.LASTORE(receiver, index, className, methodName);
 		} catch (Throwable t) {
 			handleException(t);
 		}
 		ignoreCallback = false;
 	}
 
-	public static void FASTORE(Object receiver, int index) {
+	public static void FASTORE(Object receiver, int index, String className, String methodName) {
 		if (ignoreCallback)
 			return;
 		ignoreCallback = true;
 		vm.countCallback();
 		try {
 			for (IVM listener : vm.listeners)
-				listener.FASTORE(receiver, index);
+				listener.FASTORE(receiver, index, className, methodName);
 		} catch (Throwable t) {
 			handleException(t);
 		}
 		ignoreCallback = false;
 	}
 
-	public static void DASTORE(Object receiver, int index) {
+	public static void DASTORE(Object receiver, int index, String className, String methodName) {
 		if (ignoreCallback)
 			return;
 		ignoreCallback = true;
 		vm.countCallback();
 		try {
 			for (IVM listener : vm.listeners)
-				listener.DASTORE(receiver, index);
+				listener.DASTORE(receiver, index, className, methodName);
 		} catch (Throwable t) {
 			handleException(t);
 		}
 		ignoreCallback = false;
 	}
 
-	public static void AASTORE(Object receiver, int index) {
+	public static void AASTORE(
+		Object receiver,
+		int index,
+		Object value,
+		String className,
+		String methodName)
+	{
 		if (ignoreCallback)
 			return;
 		ignoreCallback = true;
 		vm.countCallback();
 		try {
 			for (IVM listener : vm.listeners)
-				listener.AASTORE(receiver, index);
+				listener.AASTORE(receiver, index, value, className, methodName);
 		} catch (Throwable t) {
 			handleException(t);
 		}
 		ignoreCallback = false;
 	}
 
-	public static void BASTORE(Object receiver, int index) {
+	public static void BASTORE(Object receiver, int index, String className, String methodName) {
 		if (ignoreCallback)
 			return;
 		ignoreCallback = true;
 		vm.countCallback();
 		try {
 			for (IVM listener : vm.listeners)
-				listener.BASTORE(receiver, index);
+				listener.BASTORE(receiver, index, className, methodName);
 		} catch (Throwable t) {
 			handleException(t);
 		}
 		ignoreCallback = false;
 	}
 
-	public static void CASTORE(Object receiver, int index) {
+	public static void CASTORE(Object receiver, int index, String className, String methodName) {
 		if (ignoreCallback)
 			return;
 		ignoreCallback = true;
 		vm.countCallback();
 		try {
 			for (IVM listener : vm.listeners)
-				listener.CASTORE(receiver, index);
+				listener.CASTORE(receiver, index, className, methodName);
 		} catch (Throwable t) {
 			handleException(t);
 		}
 		ignoreCallback = false;
 	}
 
-	public static void SASTORE(Object receiver, int index) {
+	public static void SASTORE(Object receiver, int index, String className, String methodName) {
 		if (ignoreCallback)
 			return;
 		ignoreCallback = true;
 		vm.countCallback();
 		try {
 			for (IVM listener : vm.listeners)
-				listener.SASTORE(receiver, index);
+				listener.SASTORE(receiver, index, className, methodName);
 		} catch (Throwable t) {
 			handleException(t);
 		}
@@ -3498,19 +3522,28 @@ public final class VM {
 		ignoreCallback = false;
 	}
 
-	public static void UNUSED() {
-		if (ignoreCallback)
-			return;
-		ignoreCallback = true;
-		vm.countCallback();
-		try {
-			for (IVM listener : vm.listeners)
-				listener.UNUSED();
-		} catch (Throwable t) {
-			handleException(t);
-		}
-		ignoreCallback = false;
-	}
+	/**
+	 * Lambdas, closures and method references
+	 *
+	 * @param instance
+	 * @param ownerClass
+	 */
+	public static void INVOKEDYNAMIC(Object instance, String ownerClass) {
+        if (!ignoreCallback)
+            interpret((IVM ivm) -> ivm.INVOKEDYNAMIC(instance, ownerClass));
+    }
+
+	/**
+	 * String concatenation
+	 *
+	 * @param concatenationResult
+	 * @param stringOwnerClass
+	 * @param stringRecipe
+	 */
+    public static void INVOKEDYNAMIC(String concatenationResult, String stringOwnerClass, String stringRecipe) {
+        if (!ignoreCallback)
+            interpret((IVM ivm) -> ivm.INVOKEDYNAMIC(concatenationResult, stringOwnerClass, stringRecipe));
+    }
 
 	protected static Class<?> getArrayComponentType(int componentTypeInt) {
 		switch (componentTypeInt) {
@@ -3536,7 +3569,7 @@ public final class VM {
 		}
 	}
 
-	public static void NEWARRAY(int length, int componentTypeInt) {
+	public static void NEWARRAY(int length, int componentTypeInt, String className, String methodName) {
 		if (ignoreCallback)
 			return;
 		ignoreCallback = true;
@@ -3544,21 +3577,23 @@ public final class VM {
 		try {
 			for (IVM listener : vm.listeners)
 				listener.NEWARRAY(length,
-						getArrayComponentType(componentTypeInt));
+					getArrayComponentType(componentTypeInt),
+					className,
+					methodName);
 		} catch (Throwable t) {
 			handleException(t);
 		}
 		ignoreCallback = false;
 	}
 
-	public static void ANEWARRAY(int length, String componentTypeName) {
+	public static void ANEWARRAY(int length, String componentTypeName, String className, String methodName) {
 		if (ignoreCallback)
 			return;
 		ignoreCallback = true;
 		vm.countCallback();
 		try {
 			for (IVM listener : vm.listeners)
-				listener.ANEWARRAY(length, componentTypeName);
+				listener.ANEWARRAY(length, componentTypeName, className, methodName);
 		} catch (Throwable t) {
 			handleException(t);
 		}
@@ -3663,14 +3698,14 @@ public final class VM {
 		ignoreCallback = false;
 	}
 
-	public static void MULTIANEWARRAY(String arrayTypeDesc, int nrDimensions) {
+	public static void MULTIANEWARRAY(String arrayTypeDesc, int nrDimensions, String className, String methodName) {
 		if (ignoreCallback)
 			return;
 		ignoreCallback = true;
 		vm.countCallback();
 		try {
 			for (IVM listener : vm.listeners)
-				listener.MULTIANEWARRAY(arrayTypeDesc, nrDimensions);
+				listener.MULTIANEWARRAY(arrayTypeDesc, nrDimensions, className, methodName);
 		} catch (Throwable t) {
 			handleException(t);
 		}
@@ -3738,9 +3773,29 @@ public final class VM {
 	public static VM getInstance() {
 		return vm;
 	}
-	
+
 	public static void clearInstance() {
 		vm = new VM();
 	}
-	
+
+    /**
+     * External callbacks.
+     * Comes directly from instrumented user program.
+     *
+     * TODO: Refactor all calls to use this function in the same way as INVOKEDYNAMIC
+     *
+     * @param lambda
+     */
+    private static void interpret(Consumer<IVM> lambda) {
+  	    disableCallBacks();
+	    vm.countCallback();
+
+	    try {
+	      for (IVM ivm : vm.listeners) lambda.accept(ivm);
+	    } catch (Throwable t) {
+	      t.printStackTrace();
+	    } finally {
+	  	  enableCallBacks();
+	    }
+	}
 }

@@ -30,7 +30,6 @@ import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.FitnessReplacementFunction;
 import org.evosuite.ga.ReplacementFunction;
-import org.evosuite.ga.localsearch.LocalSearchBudget;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,11 +39,11 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Gordon Fraser
  */
-public class MonotonicGA<T extends Chromosome> extends GeneticAlgorithm<T> {
+public class MonotonicGA<T extends Chromosome<T>> extends GeneticAlgorithm<T> {
 
 	private static final long serialVersionUID = 7846967347821123201L;
 
-	protected ReplacementFunction replacementFunction;
+	protected ReplacementFunction<T> replacementFunction;
 
 	private final Logger logger = LoggerFactory.getLogger(MonotonicGA.class);
 
@@ -57,7 +56,7 @@ public class MonotonicGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 	public MonotonicGA(ChromosomeFactory<T> factory) {
 		super(factory);
 
-		setReplacementFunction(new FitnessReplacementFunction());
+		setReplacementFunction(new FitnessReplacementFunction<>());
 	}
 
 	/**
@@ -75,8 +74,8 @@ public class MonotonicGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 	 *            a {@link org.evosuite.ga.Chromosome} object.
 	 * @return a boolean.
 	 */
-	protected boolean keepOffspring(Chromosome parent1, Chromosome parent2, Chromosome offspring1,
-			Chromosome offspring2) {
+	protected boolean keepOffspring(T parent1, T parent2, T offspring1,
+			T offspring2) {
 		return replacementFunction.keepOffspring(parent1, parent2, offspring1, offspring2);
 	}
 
@@ -105,8 +104,8 @@ public class MonotonicGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 																// with existing
 																// individual
 
-			T offspring1 = (T) parent1.clone();
-			T offspring2 = (T) parent2.clone();
+			T offspring1 = parent1.clone();
+			T offspring2 = parent2.clone();
 
 			try {
 				// Crossover
@@ -187,7 +186,7 @@ public class MonotonicGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 
 	private T newRandomIndividual() {
 		T randomChromosome = chromosomeFactory.getChromosome();
-		for (FitnessFunction<?> fitnessFunction : this.fitnessFunctions) {
+		for (FitnessFunction<T> fitnessFunction : this.fitnessFunctions) {
 			randomChromosome.addFitness(fitnessFunction);
 		}
 		return randomChromosome;
@@ -332,7 +331,7 @@ public class MonotonicGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 	 * @param replacement_function
 	 *            a {@link org.evosuite.ga.ReplacementFunction} object.
 	 */
-	public void setReplacementFunction(ReplacementFunction replacement_function) {
+	public void setReplacementFunction(ReplacementFunction<T> replacement_function) {
 		this.replacementFunction = replacement_function;
 	}
 
@@ -343,7 +342,7 @@ public class MonotonicGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 	 * 
 	 * @return a {@link org.evosuite.ga.ReplacementFunction} object.
 	 */
-	public ReplacementFunction getReplacementFunction() {
+	public ReplacementFunction<T> getReplacementFunction() {
 		return replacementFunction;
 	}
 

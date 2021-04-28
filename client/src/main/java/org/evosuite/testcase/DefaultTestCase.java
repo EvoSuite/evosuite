@@ -36,6 +36,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.commons.lang3.reflect.MethodUtils;
 import org.evosuite.assertion.Assertion;
 import org.evosuite.assertion.InspectorAssertion;
 import org.evosuite.assertion.PrimitiveFieldAssertion;
@@ -48,16 +49,13 @@ import org.evosuite.testcase.statements.environment.AccessedEnvironment;
 import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.execution.Scope;
 import org.evosuite.testcase.variable.*;
-import org.evosuite.utils.generic.GenericClass;
-import org.evosuite.utils.generic.GenericField;
+import org.evosuite.utils.generic.*;
 import org.evosuite.utils.ListenableList;
 import org.evosuite.utils.Listener;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.googlecode.gentyref.GenericTypeReflector;
-import org.springframework.util.ClassUtils;
 
 /**
  * A test case is a list of statements
@@ -577,7 +575,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	public List<VariableReference> getObjects(Type type, int position) {
 		List<VariableReference> variables = new LinkedList<>();
 
-		GenericClass genericClass = new GenericClass(type);
+		GenericClass<?> genericClass = GenericClassFactory.get(type);
 		Class<?> rawClass = genericClass.getRawClass();
 		for (int i = 0; i < position && i < size(); i++) {
 			Statement statement = statements.get(i);
@@ -607,7 +605,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 					logger.debug("Array is assignable: " + value.getType() + " to "
 					        + type + ", " + value.isArray() + ", " + rawClass.isArray());
 					variables.add(value);
-				} else if (GenericClass.isAssignable(type, value.getComponentType())) {
+				} else if (GenericClassUtils.isAssignable(type, value.getComponentType())) {
 					Class<?> arrayClass = value.getComponentClass();
 					if (isClassUtilsBug(rawClass, arrayClass)) {
 						continue;
@@ -973,12 +971,13 @@ public class DefaultTestCase implements TestCase, Serializable {
 	private boolean methodNeedsDownCast(MethodStatement methodStatement, VariableReference var, Class<?> abstractClass) {
 
 		if(!methodStatement.isStatic() && methodStatement.getCallee().equals(var)) {
-			if(!ClassUtils.hasMethod(abstractClass, methodStatement.getMethod().getName(), methodStatement.getMethod().getRawParameterTypes())) {
+
+			if(MethodUtils.getAccessibleMethod(abstractClass, methodStatement.getMethodName(), methodStatement.getMethod().getRawParameterTypes()) == null) {
 				// Need downcast for real
 				return true;
 			} else {
-				Method superClassMethod = ClassUtils.getMethod(abstractClass, methodStatement.getMethod().getName(), methodStatement.getMethod().getRawParameterTypes());
-				if(!methodStatement.getMethod().getRawGeneratedType().equals(superClassMethod.getReturnType())) {
+				Method superClassMethod = MethodUtils.getMatchingMethod(abstractClass, methodStatement.getMethodName(), methodStatement.getMethod().getRawParameterTypes());
+				if(superClassMethod != null && !methodStatement.getMethod().getRawGeneratedType().equals(superClassMethod.getReturnType())) {
 					// Overriding can also change return value, in which case we need to keep the downcast
 					return true;
 				}
@@ -1010,7 +1009,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	}
 
 	private boolean fieldNeedsDownCast(FieldReference fieldReference, VariableReference var, Class<?> abstractClass) {
-		if(fieldReference.getSource().equals(var)) {
+		if(fieldReference.getSource() != null && fieldReference.getSource().equals(var)) {
 			// Need downcast for real
 			return !fieldReference.getField().getDeclaringClass().isAssignableFrom(abstractClass);
 		}
@@ -1030,7 +1029,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 			if(assertion instanceof InspectorAssertion && assertion.getSource().equals(var)) {
 				InspectorAssertion inspectorAssertion = (InspectorAssertion)assertion;
 				Method inspectorMethod = inspectorAssertion.getInspector().getMethod();
-				if(!ClassUtils.hasMethod(abstractClass, inspectorMethod.getName(), inspectorMethod.getParameterTypes())) {
+				if(MethodUtils.getAccessibleMethod(abstractClass, inspectorMethod.getName(), inspectorMethod.getParameterTypes()) == null) {
 					return true;
 				}
 			} else if(assertion instanceof PrimitiveFieldAssertion && assertion.getSource().equals(var)) {

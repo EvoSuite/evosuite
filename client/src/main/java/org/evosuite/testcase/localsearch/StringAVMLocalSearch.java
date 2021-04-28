@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
+
 package org.evosuite.testcase.localsearch;
 
 import java.util.Arrays;
@@ -48,13 +46,13 @@ public class StringAVMLocalSearch extends StatementLocalSearch {
 	private boolean oldChanged;
 
 	private void backup(TestChromosome test, StringPrimitiveStatement p) {
-		oldValue = new String(p.getValue());
+		oldValue = p.getValue();
 		oldResult = test.getLastExecutionResult();
 		oldChanged = test.isChanged();
 	}
 
 	private void restore(TestChromosome test, StringPrimitiveStatement p) {
-		p.setValue(new String(oldValue));
+		p.setValue(oldValue);
 		test.setLastExecutionResult(oldResult);
 		test.setChanged(oldChanged);
 	}

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -42,6 +42,7 @@ import org.evosuite.rmi.service.ClientState;
 import org.evosuite.rmi.service.ClientStateInformation;
 import org.evosuite.runtime.util.AtMostOnceLogger;
 import org.evosuite.statistics.backend.*;
+import org.evosuite.symbolic.dse.DSEStatistics;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.Listener;
 import org.evosuite.utils.LoggingUtils;
@@ -63,7 +64,7 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 	private static final long serialVersionUID = -1859683466333302151L;
 
 	/** Singleton instance */
-	private static Map<String, SearchStatistics> instances = new LinkedHashMap<String, SearchStatistics>();
+	private static Map<String, SearchStatistics> instances = new LinkedHashMap<>();
 
 	private static final Logger logger = LoggerFactory.getLogger(SearchStatistics.class);
 
@@ -74,13 +75,13 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 	private StatisticsBackend backend = null;
 
 	/** Output variables and their values */ 
-	private Map<String, OutputVariable<?>> outputVariables = new TreeMap<String, OutputVariable<?>>();
+	private Map<String, OutputVariable<?>> outputVariables = new TreeMap<>();
 
 	/** Variable factories to extract output variables from chromosomes */
-	private Map<String, ChromosomeOutputVariableFactory<?>> variableFactories = new TreeMap<String, ChromosomeOutputVariableFactory<?>>(); 
+	private Map<String, ChromosomeOutputVariableFactory<?>> variableFactories = new TreeMap<>();
 
 	/** Variable factories to extract sequence variables */
-	private Map<String, SequenceOutputVariableFactory<?>> sequenceOutputVariableFactories = new TreeMap<String, SequenceOutputVariableFactory<?>>();
+	private Map<String, SequenceOutputVariableFactory<?>> sequenceOutputVariableFactories = new TreeMap<>();
 
 	/** Keep track of how far EvoSuite progressed */
 	private ClientState currentState = ClientState.INITIALIZATION;
@@ -91,28 +92,13 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 
 	private long startTime = System.currentTimeMillis();
 
-	private List<List<TestGenerationResult>> results = new ArrayList<List<TestGenerationResult>>();
+	private List<List<TestGenerationResult>> results = new ArrayList<>();
 
 	private SearchStatistics() { 
-		switch(Properties.STATISTICS_BACKEND) {
-		case CONSOLE:
-			backend = new ConsoleStatisticsBackend();
-			break;
-		case CSV:
-			backend = new CSVStatisticsBackend();
-			break;
-		case HTML:
-			backend = new HTMLStatisticsBackend();
-			break;
-		case DEBUG:
-			backend = new DebugStatisticsBackend();
-			break;
-		case NONE:
-		default:
-			// If no backend is specified, there is no output
-			backend = null;
-		}
+		backend = StatisticsBackendFactory.getStatisticsBackend(Properties.STATISTICS_BACKEND);
+
 		initFactories();
+
 		setOutputVariable(RuntimeVariable.Random_Seed, Randomness.getSeed());
 		sequenceOutputVariableFactories.put(RuntimeVariable.CoverageTimeline.name(), new CoverageSequenceOutputVariableFactory());
 		sequenceOutputVariableFactories.put(RuntimeVariable.FitnessTimeline.name(), new FitnessSequenceOutputVariableFactory());
@@ -186,7 +172,7 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 	 * 
 	 * @param individual best individual of current generation
 	 */
-	public void currentIndividual(Chromosome individual) {
+	public void currentIndividual(Chromosome<?> individual) {
 		if(backend == null)
 			return;
 
@@ -212,7 +198,7 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 	 * @param value
 	 */
 	public void setOutputVariable(RuntimeVariable variable, Object value) {
-		setOutputVariable(new OutputVariable<Object>(variable.toString(), value));
+		setOutputVariable(new OutputVariable<>(variable.toString(), value));
 	}
 
 	public void setOutputVariable(OutputVariable<?> variable) {
@@ -246,7 +232,6 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 	 * @return
 	 */
 	private List<String> getAllOutputVariableNames() {
-		List<String> variableNames = new ArrayList<String>();
 
 		String[] essentials = new String[] {  //TODO maybe add some more
 				"TARGET_CLASS" , "criterion", 
@@ -256,8 +241,14 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 				RuntimeVariable.Total_Goals.toString(),
 				RuntimeVariable.Covered_Goals.toString()
 				};
-		variableNames.addAll(Arrays.asList(essentials));
-		
+
+		List<String> variableNames = new ArrayList<>(Arrays.asList(essentials));
+
+		/** Fix for DSE as we want to save the output vars in this case */
+		if (Properties.isDSEStrategySelected()) {
+			variableNames.addAll(DSEStatistics.dseRuntimeVariables);
+		}
+
 		/* cannot use what we received, as due to possible bugs/errors those might not be constant
 		variableNames.addAll(outputVariables.keySet());
 		variableNames.addAll(variableFactories.keySet());
@@ -300,7 +291,7 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 	 * @return <code>null</code> if some data is missing
 	 */
 	private Map<String, OutputVariable<?>> getOutputVariables(TestSuiteChromosome individual, boolean skip_missing) {
-		Map<String, OutputVariable<?>> variables = new LinkedHashMap<String, OutputVariable<?>>();
+		Map<String, OutputVariable<?>> variables = new LinkedHashMap<>();
 		
 		for(String variableName : getOutputVariableNames()) {
 			if(outputVariables.containsKey(variableName)) {
@@ -322,7 +313,7 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 				}
 			} else if(skip_missing) {
 				// if variable doesn't exist, return an empty value instead
-				variables.put(variableName, new OutputVariable<String>(variableName, ""));
+				variables.put(variableName, new OutputVariable<>(variableName, ""));
 			} else {
 				logger.error("No obtained value for output variable: "+variableName);
 				return null;
@@ -444,7 +435,7 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 					factory.setStartTime(searchStartTime);
 				}
 			}
-			OutputVariable<Long> time = new OutputVariable<Long>("Time_"+currentState.getName(), System.currentTimeMillis() - currentStateStarted);
+			OutputVariable<Long> time = new OutputVariable<>("Time_" + currentState.getName(), System.currentTimeMillis() - currentStateStarted);
 			outputVariables.put(time.getName(), time);
 			currentState = information.getState();
 			currentStateStarted = System.currentTimeMillis();

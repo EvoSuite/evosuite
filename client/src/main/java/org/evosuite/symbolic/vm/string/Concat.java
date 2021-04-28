@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -25,7 +25,7 @@ import org.evosuite.symbolic.expr.str.StringBinaryExpression;
 import org.evosuite.symbolic.expr.str.StringValue;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 import org.evosuite.symbolic.vm.SymbolicFunction;
-import org.evosuite.symbolic.vm.SymbolicHeap;
+import org.evosuite.symbolic.vm.heap.SymbolicHeap;
 
 public final class Concat extends SymbolicFunction {
 
@@ -54,11 +54,11 @@ public final class Concat extends SymbolicFunction {
 		String res = (String) this.getConcRetVal();
 		if (res != null) {
 			StringBinaryExpression symb_value = new StringBinaryExpression(
-					left_expr, Operator.CONCAT, right_expr, (String) res);
+					left_expr, Operator.CONCAT, right_expr, res);
 
 			ReferenceConstant symb_receiver = (ReferenceConstant) env.topFrame().operandStack
 					.peekRef();
-			String conc_receiver = (String) res;
+			String conc_receiver = res;
 			env.heap.putField(Types.JAVA_LANG_STRING,
 					SymbolicHeap.$STRING_VALUE, conc_receiver, symb_receiver,
 					symb_value);

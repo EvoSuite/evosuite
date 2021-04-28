@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -73,7 +73,7 @@ public abstract class MockFileSystemView extends FileSystemView  implements Over
 
 
 	public MockFileSystemView() {
-		final WeakReference<MockFileSystemView> weakReference = new WeakReference<MockFileSystemView>(this);
+		final WeakReference<MockFileSystemView> weakReference = new WeakReference<>(this);
 
 		UIManager.addPropertyChangeListener(new PropertyChangeListener() {
 			public void propertyChange(PropertyChangeEvent evt) {
@@ -306,7 +306,7 @@ public abstract class MockFileSystemView extends FileSystemView  implements Over
 
 	@Override
 	public File[] getFiles(File dir, boolean useFileHiding) {
-		List<File> files = new ArrayList<File>();
+		List<File> files = new ArrayList<>();
 
 		if(dir==null){
 			return new File[0];
@@ -444,7 +444,7 @@ class MockUnixFileSystemView extends MockFileSystemView {
 		int i = 1;
 		while (newFolder.exists() && i < 100) {
 			newFolder = createFileObject(containingDir, MessageFormat.format(
-					newFolderNextString, new Integer(i)));
+					newFolderNextString, i));
 			i++;
 		}
 
@@ -493,7 +493,7 @@ class MockWindowsFileSystemView extends MockFileSystemView {
 			UIManager.getString("FileChooser.win32.newFolder.subsequent");
 
 	public Boolean isTraversable(File f) {
-		return Boolean.valueOf(isFileSystemRoot(f) || isComputerNode(f) || f.isDirectory());
+		return isFileSystemRoot(f) || isComputerNode(f) || f.isDirectory();
 	}
 
 	public File getChild(File parent, String fileName) {
@@ -556,7 +556,7 @@ class MockWindowsFileSystemView extends MockFileSystemView {
 		int i = 2;
 		while (newFolder.exists() && i < 100) {
 			newFolder = createFileObject(containingDir, MessageFormat.format(
-					newFolderNextString, new Integer(i)));
+					newFolderNextString, i));
 			i++;
 		}
 

@@ -22,7 +22,6 @@ package org.evosuite.testcase.statements.numeric;
 import org.evosuite.Properties;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.utils.Randomness;
-import org.objectweb.asm.commons.GeneratorAdapter;
 
 
 /**

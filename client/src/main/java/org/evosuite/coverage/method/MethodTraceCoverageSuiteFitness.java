@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -19,13 +19,13 @@
  */
 package org.evosuite.coverage.method;
 
-import java.util.List;
 import org.evosuite.Properties;
 import org.evosuite.ga.archive.Archive;
-import org.evosuite.testcase.ExecutableChromosome;
-import org.evosuite.testsuite.AbstractTestSuiteChromosome;
+import org.evosuite.testsuite.TestSuiteChromosome;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
 
 /**
  * Fitness function for a whole test suite for all methods.
@@ -60,9 +60,7 @@ public class MethodTraceCoverageSuiteFitness extends MethodCoverageSuiteFitness 
 	 * @param fitness
 	 */
 	@Override
-	protected void printStatusMessages(
-	        AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite,
-	        int coveredMethods, double fitness) {
+	protected void printStatusMessages(TestSuiteChromosome suite, int coveredMethods, double fitness) {
 		if (coveredMethods > maxCoveredMethods) {
 			logger.info("(Methods) Best individual covers " + coveredMethods + "/"
 			        + totalMethods + " methods");

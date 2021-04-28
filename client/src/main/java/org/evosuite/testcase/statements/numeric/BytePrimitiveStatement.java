@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
+
 package org.evosuite.testcase.statements.numeric;
 
 import java.lang.reflect.Type;
@@ -29,7 +27,6 @@ import org.evosuite.seeding.ConstantPool;
 import org.evosuite.seeding.ConstantPoolManager;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.utils.Randomness;
-import org.objectweb.asm.commons.GeneratorAdapter;
 
 /**
  * <p>
@@ -98,7 +95,7 @@ public class BytePrimitiveStatement extends NumericalPrimitiveStatement<Byte> {
 	@Override
 	public void delta() {
 		byte delta = (byte)Math.floor(Randomness.nextGaussian() * Properties.MAX_DELTA);
-		value = (byte) (value.byteValue() + delta);
+		value = (byte) (value + delta);
 	}
 
 	/* (non-Javadoc)

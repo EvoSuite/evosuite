@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -38,29 +38,27 @@ import org.objectweb.asm.Type;
 /**
  * A ClassLoader very similar to the <code>org.evosuite.javaagent.InstrumentingClassLoader</code>
  * It must instrument java bytecode to allow recording constraints on the program.
- * 
+ *
  * @author galeotti
  *
  */
 public class ConcolicInstrumentingClassLoader extends ClassLoader {
-	
+
 	//private final static Logger logger = LoggerFactory.getLogger(DscInstrumentingClassLoader.class);
 
 	private final ClassLoader classLoader;
 	private final ConcolicBytecodeInstrumentation instrumentation;
-	private final Map<String, Class<?>> classes = new HashMap<String, Class<?>>();
-	
-	public ConcolicInstrumentingClassLoader() {
+	private final Map<String, Class<?>> classes = new HashMap<>();
+
+	public ConcolicInstrumentingClassLoader(ConcolicBytecodeInstrumentation instrumentation) {
 		super(ConcolicInstrumentingClassLoader.class.getClassLoader());
-		this.instrumentation = new ConcolicBytecodeInstrumentation();
-		classLoader = ConcolicInstrumentingClassLoader.class.getClassLoader();
+
+		this.instrumentation = instrumentation;
+		this.classLoader = ConcolicInstrumentingClassLoader.class.getClassLoader();
 	}
-
-
 
 	@Override
 	public Class<?> loadClass(String name) throws ClassNotFoundException {
-
 		if (!checkIfCanInstrument(name)) {
 			Class<?> result = findLoadedClass(name);
 			if (result != null) {
@@ -90,12 +88,9 @@ public class ConcolicInstrumentingClassLoader extends ClassLoader {
 
 	}
 
-	
 	private boolean checkIfCanInstrument(String name) {
 		return !MainConfig.get().isIgnored(name);
 	}
-
-
 
 	private Class<?> instrumentClass(String fullyQualifiedTargetClass)
 	        throws ClassNotFoundException {
@@ -108,13 +103,12 @@ public class ConcolicInstrumentingClassLoader extends ClassLoader {
 					is = findTargetResource(className + ".class");
 				} catch (FileNotFoundException e) {
 					throw new ClassNotFoundException("Class '" + className + ".class"
-					        + "' should be in target project, but could not be found!");
+							+ "' should be in target project, but could not be found!");
 				}
 			}
-			byte[] byteBuffer = instrumentation.transformBytes(className,
-			                                                   new ClassReader(is));
-			Class<?> result = defineClass(fullyQualifiedTargetClass, byteBuffer, 0,
-			                              byteBuffer.length);
+
+			byte[] byteBuffer = instrumentation.transformBytes(className, new ClassReader(is));
+			Class<?> result = defineClass(fullyQualifiedTargetClass, byteBuffer, 0, byteBuffer.length);
 			classes.put(fullyQualifiedTargetClass, result);
 			//logger.info("Keeping class: " + fullyQualifiedTargetClass);
 			return result;
@@ -122,9 +116,9 @@ public class ConcolicInstrumentingClassLoader extends ClassLoader {
 			throw new ClassNotFoundException(e.getMessage(), e);
 		}
 	}
-	
+
 	private InputStream findTargetResource(String name) throws FileNotFoundException {
-		Collection<String> resources = ResourceList.findResourceInClassPath(name); 
+		Collection<String> resources = ResourceList.findResourceInClassPath(name);
 		if (resources.isEmpty())
 			throw new FileNotFoundException(name);
 		else {
@@ -138,13 +132,13 @@ public class ConcolicInstrumentingClassLoader extends ClassLoader {
 
 	/**
 	 * Loads class named className, without initializing it.
-	 * 
+	 *
 	 * @param className
 	 *            either as p/q/MyClass or as p.q.MyClass
 	 */
 	public Class<?> getClassForName(String className) {
 		notNull(className);
-	
+
 		Class<?> res = null;
 		String classNameDot = className.replace('/', '.');
 		try {
@@ -159,7 +153,7 @@ public class ConcolicInstrumentingClassLoader extends ClassLoader {
 
 	/**
 	 * Loads class whose type is aType, without initializing it.
-	 * 
+	 *
 	 * @param aType
 	 */
 	public Class<?> getClassForType(Type aType) {
@@ -189,13 +183,13 @@ public class ConcolicInstrumentingClassLoader extends ClassLoader {
 			Class<?> array_class = Array.newInstance(elementClass, lenghts)
 					.getClass();
 			return array_class;
-	
+
 		}
 		default:
 			return this.getClassForName(aType.getInternalName());
-	
+
 		}
 	}
-	
+
 
 }

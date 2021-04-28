@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -28,7 +28,7 @@ public class DefaultTestCaseTest {
 	public void testClone(){
 				
 		DefaultTestCase tc = new DefaultTestCase();
-		DefaultTestCase clone = (DefaultTestCase) tc.clone();
+		DefaultTestCase clone = tc.clone();
 		Assert.assertTrue(tc.statements != clone.statements);
 	}
 }

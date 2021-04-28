@@ -1,13 +1,29 @@
+/**
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * contributors
+ *
+ * This file is part of EvoSuite.
+ *
+ * EvoSuite is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation, either version 3.0 of the License, or
+ * (at your option) any later version.
+ *
+ * EvoSuite is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.evosuite.strategy;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import org.evosuite.Properties;
 import org.evosuite.coverage.TestFitnessFactory;
+import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.ga.metaheuristics.mapelites.MAPElites;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
-import org.evosuite.novelty.SuiteFitnessEvaluationListener;
 import org.evosuite.result.TestGenerationResultBuilder;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.rmi.service.ClientState;
@@ -17,12 +33,15 @@ import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionTracer;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
-import org.evosuite.testsuite.similarity.DiversityObserver;
 import org.evosuite.utils.ArrayUtil;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 public class MAPElitesStrategy extends TestGenerationStrategy {
   private static final Logger logger = LoggerFactory.getLogger(MAPElitesStrategy.class);
@@ -33,7 +52,7 @@ public class MAPElitesStrategy extends TestGenerationStrategy {
     LoggingUtils.getEvoLogger().info("* Setting up search algorithm for MAP-Elites search with choice {}", Properties.MAP_ELITES_CHOICE.name());
 
     PropertiesMapElitesSearchFactory algorithmFactory = new PropertiesMapElitesSearchFactory();
-    MAPElites<TestChromosome> algorithm = algorithmFactory.getSearchAlgorithm();
+    MAPElites algorithm = algorithmFactory.getSearchAlgorithm();
 
     if (Properties.SERIALIZE_GA || Properties.CLIENT_ON_THREAD)
       TestGenerationResultBuilder.getInstance().setGeneticAlgorithm(algorithm);
@@ -42,12 +61,12 @@ public class MAPElitesStrategy extends TestGenerationStrategy {
 
     // What's the search target
     List<TestSuiteFitnessFunction> fitnessFunctions = getFitnessFunctions();
-    SuiteFitnessEvaluationListener listener = new SuiteFitnessEvaluationListener(fitnessFunctions);
-    
-    //algorithm.addListener(listener);
-    
-    if (Properties.TRACK_DIVERSITY)
-      algorithm.addListener(new DiversityObserver());
+
+    if (Properties.TRACK_DIVERSITY) {
+      //  DiversityObserver requires TestSuiteChromosomes, but the MAPElites algorithm only works
+      //  with TestChromosomes.
+      throw new RuntimeException("Tracking population diversity is not supported by MAPElites");
+    }
 
     if (ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.DEFUSE)
         || ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.ALLDEFS)
@@ -77,8 +96,8 @@ public class MAPElitesStrategy extends TestGenerationStrategy {
     ClientServices.getInstance().getClientNode().changeState(ClientState.SEARCH);
 
     algorithm.generateSolution();
-    TestSuiteChromosome testSuite = listener.getSuiteWithFitness(algorithm);
-    
+    TestSuiteChromosome testSuite = getSuiteWithFitness(algorithm, fitnessFunctions);
+
     long endTime = System.currentTimeMillis() / 1000;
     
     ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Goals, goals.size());
@@ -103,13 +122,29 @@ public class MAPElitesStrategy extends TestGenerationStrategy {
     
     return testSuite;
   }
-  
+
+  private TestSuiteChromosome createMergedSolution(Collection<TestChromosome> population) {
+    TestSuiteChromosome suite = new TestSuiteChromosome();
+    suite.addTests(population);
+    return suite;
+  }
+
+  private TestSuiteChromosome getSuiteWithFitness(GeneticAlgorithm<TestChromosome> algorithm, List<TestSuiteFitnessFunction> fitnessFunctions) {
+    List<TestChromosome> population = algorithm.getPopulation();
+    TestSuiteChromosome suite = createMergedSolution(population);
+    for (TestSuiteFitnessFunction fitnessFunction : fitnessFunctions) {
+      fitnessFunction.getFitness(suite);
+    }
+
+    return suite;
+  }
+
   private List<TestFitnessFunction> getGoals() {
     List<TestFitnessFactory<? extends TestFitnessFunction>> goalFactories = getFitnessFactories();
-    List<TestFitnessFunction> fitnessFunctions = new ArrayList<TestFitnessFunction>();
+    List<TestFitnessFunction> fitnessFunctions = new ArrayList<>();
           for (TestFitnessFactory<? extends TestFitnessFunction> goalFactory : goalFactories) {
               fitnessFunctions.addAll(goalFactory.getCoverageGoals());
           }
     return fitnessFunctions;
-}
+  }
 }

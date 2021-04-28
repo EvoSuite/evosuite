@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -45,9 +45,7 @@ import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.localsearch.TestSuiteLocalSearch;
 import org.evosuite.utils.Randomness;
-import org.evosuite.utils.generic.GenericClass;
-import org.evosuite.utils.generic.GenericConstructor;
-import org.evosuite.utils.generic.GenericMethod;
+import org.evosuite.utils.generic.*;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -102,7 +100,7 @@ public class Issre13SystemTest extends SystemTestBase {
 		
 		Class<?> sut = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(Properties.TARGET_CLASS);
 		Class<?> fooClass = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(DseFoo.class.getCanonicalName());
-		GenericClass clazz = new GenericClass(sut);
+		GenericClass<?> clazz = GenericClassFactory.get(sut);
 
 		DefaultTestCase test = new DefaultTestCase();
 
@@ -145,7 +143,7 @@ public class Issre13SystemTest extends SystemTestBase {
 		System.out.println("Test suite: "+suite);
 		
 		TestSuiteLocalSearch localSearch = TestSuiteLocalSearch.selectTestSuiteLocalSearch();
-		LocalSearchObjective<TestSuiteChromosome> localObjective = new DefaultLocalSearchObjective<TestSuiteChromosome>();
+		LocalSearchObjective<TestSuiteChromosome> localObjective = new DefaultLocalSearchObjective();
 		localObjective.addFitnessFunction(fitness);
 		localSearch.doSearch(suite, localObjective);
 		System.out.println("Fitness: "+fitness.getFitness(suite));

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -42,7 +42,7 @@ public class CastClassAnalyzer {
 
 	private static final Logger logger = LoggerFactory.getLogger(CastClassAnalyzer.class);
 
-	private final Map<Type, Integer> castClassMap = new HashMap<Type, Integer>();
+	private final Map<Type, Integer> castClassMap = new HashMap<>();
 
 	public Map<Type, Integer> analyze(String className) {
 		ClassNode targetClass = DependencyAnalysis.getClassNode(className);

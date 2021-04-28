@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
+
 package org.evosuite.symbolic.expr.bv;
 
 import java.util.HashSet;
@@ -27,7 +25,7 @@ import java.util.Set;
 
 import org.evosuite.Properties;
 import org.evosuite.symbolic.ConstraintTooLongException;
-import org.evosuite.symbolic.DSEStats;
+import org.evosuite.symbolic.dse.DSEStatistics;
 import org.evosuite.symbolic.expr.AbstractExpression;
 import org.evosuite.symbolic.expr.Cast;
 import org.evosuite.symbolic.expr.Expression;
@@ -62,7 +60,7 @@ public final class StringToIntegerCast extends AbstractExpression<Long> implemen
 		super(_concValue, 1 + _expr.getSize(), _expr.containsSymbolicVariable());
 		this.expr = _expr;
 		if (getSize() > Properties.DSE_CONSTRAINT_LENGTH) {
-			DSEStats.getInstance().reportConstraintTooLong(getSize());
+			DSEStatistics.getInstance().reportConstraintTooLong(getSize());
 			throw new ConstraintTooLongException(getSize());
 		}
 	}
@@ -104,8 +102,7 @@ public final class StringToIntegerCast extends AbstractExpression<Long> implemen
 
 	@Override
 	public Set<Variable<?>> getVariables() {
-		Set<Variable<?>> variables = new HashSet<Variable<?>>();
-		variables.addAll(this.expr.getVariables());
+        Set<Variable<?>> variables = new HashSet<>(this.expr.getVariables());
 		return variables;
 	}
 

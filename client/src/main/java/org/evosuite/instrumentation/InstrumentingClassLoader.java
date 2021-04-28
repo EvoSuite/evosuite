@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -37,12 +37,10 @@ import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.classpath.ResourceList;
 import org.evosuite.runtime.instrumentation.RuntimeInstrumentation;
-import org.evosuite.runtime.javaee.db.DBManager;
 import org.objectweb.asm.ClassReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.persistence.Entity;
 
 /**
  * <em>Note:</em> Do not inadvertently use multiple instances of this class in
@@ -72,18 +70,6 @@ public class InstrumentingClassLoader extends ClassLoader {
 		setClassAssertionStatus(Properties.TARGET_CLASS, true);
 		logger.debug("STANDARD classloader running now");
 	}
-	
-	/**
-	 * <p>
-	 * Constructor for InstrumentingClassLoader.
-	 * </p>
-	 */
-	public InstrumentingClassLoader(boolean isRegression) {
-		this(new BytecodeInstrumentation());
-		setClassAssertionStatus(Properties.TARGET_CLASS, true);
-		this.isRegression  = isRegression;
-		logger.debug("REGRESSION classloader running now");
-	}
 
 	/**
 	 * <p>
@@ -101,8 +87,7 @@ public class InstrumentingClassLoader extends ClassLoader {
 	}
 
 	public List<String> getViewOfInstrumentedClasses(){
-		List<String> list = new ArrayList<>();
-		list.addAll(classes.keySet());
+        List<String> list = new ArrayList<>(classes.keySet());
 		return list;
 	}
 	
@@ -131,26 +116,6 @@ public class InstrumentingClassLoader extends ClassLoader {
 	@Override
 	public Class<?> loadClass(String name) throws ClassNotFoundException {
         synchronized(getClassLoadingLock(name)) {
-            ClassLoader dbLoader = DBManager.getInstance().getSutClassLoader();
-            if (dbLoader != null && dbLoader != this && !isRegression) {
-                /*
-                    Check if we should rather use the class version loaded when the DB was initialized.
-                    This is tricky, as JPA with Hibernate uses the classes loaded when the DB was initialized.
-                    If we load those classes again, when we get all kinds of exceptions in Hibernate... :(
-    
-                    However, re-using already loaded (and instrumented) classes is not a big deal, as
-                    re-loading is (so far) done only in 2 cases: assertion generation with mutation
-                    and junit checks.
-                 */
-                Class<?> originalLoaded = dbLoader.loadClass(name);
-                if (originalLoaded.getAnnotation(Entity.class) != null) {
-                /*
-                    TODO: annotations Entity might not be the only way to specify an entity class...
-                 */
-                    return originalLoaded;
-                }
-            }
-    
             if ("<evosuite>".equals(name)) {
                 throw new ClassNotFoundException();
             }
@@ -185,10 +150,7 @@ public class InstrumentingClassLoader extends ClassLoader {
 		String className = fullyQualifiedTargetClass.replace('.', '/');
 		InputStream is = null;
 		try {
-			is = isRegression ?
-					ResourceList.getInstance(TestGenerationContext.getInstance().getRegressionClassLoaderForSUT()).getClassAsStream(fullyQualifiedTargetClass)
-					:
-					ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getClassAsStream(fullyQualifiedTargetClass);
+			is = ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getClassAsStream(fullyQualifiedTargetClass);
 			
 			if (is == null) {
 				throw new ClassNotFoundException("Class '" + className + ".class"
@@ -253,7 +215,7 @@ public class InstrumentingClassLoader extends ClassLoader {
 	}
 	
 	public Set<String> getLoadedClasses() {
-		HashSet<String> loadedClasses = new HashSet<String>(this.classes.keySet());
+		HashSet<String> loadedClasses = new HashSet<>(this.classes.keySet());
 		return loadedClasses;
 	}
 

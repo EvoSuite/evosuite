@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -20,7 +20,6 @@
 package org.evosuite.seeding;
 
 import org.evosuite.Properties;
-import org.evosuite.utils.DefaultRandomAccessQueue;
 import org.evosuite.utils.RandomAccessQueue;
 import org.objectweb.asm.Type;
 
@@ -165,7 +164,7 @@ public class DynamicConstantVariableProbabilityPool implements ConstantPool {
 
     @Override
     public String toString() {
-        String res = new String("DynamicConstantPool:{");
+        String res = "DynamicConstantPool:{";
         res += "stringPool=" + stringPool.toString() + " ; ";
         res += "typePool=" + typePool.toString() + " ; ";
         res += "intPool=" + intPool.toString() + " ; ";

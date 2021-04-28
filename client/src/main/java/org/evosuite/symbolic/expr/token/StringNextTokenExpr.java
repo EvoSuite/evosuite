@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
+
 package org.evosuite.symbolic.expr.token;
 
 import java.util.HashSet;
@@ -27,7 +25,7 @@ import java.util.Set;
 
 import org.evosuite.Properties;
 import org.evosuite.symbolic.ConstraintTooLongException;
-import org.evosuite.symbolic.DSEStats;
+import org.evosuite.symbolic.dse.DSEStatistics;
 import org.evosuite.symbolic.expr.AbstractExpression;
 import org.evosuite.symbolic.expr.ExpressionVisitor;
 import org.evosuite.symbolic.expr.Variable;
@@ -45,9 +43,7 @@ import org.slf4j.LoggerFactory;
 public final class StringNextTokenExpr extends AbstractExpression<String> implements
         StringValue {
 
-	/**
-	 * 
-	 */
+
 	private static final long serialVersionUID = -4594444543728364120L;
 
 	protected static Logger log = LoggerFactory.getLogger(StringNextTokenExpr.class);
@@ -59,7 +55,7 @@ public final class StringNextTokenExpr extends AbstractExpression<String> implem
 		this.tokenizerExpr = tokenizerExpr;
 
 		if (getSize() > Properties.DSE_CONSTRAINT_LENGTH) {
-			DSEStats.getInstance().reportConstraintTooLong(getSize());
+			DSEStatistics.getInstance().reportConstraintTooLong(getSize());
 			throw new ConstraintTooLongException(getSize());
 		}
 	}
@@ -98,8 +94,7 @@ public final class StringNextTokenExpr extends AbstractExpression<String> implem
 
 	@Override
 	public Set<Variable<?>> getVariables() {
-		Set<Variable<?>> variables = new HashSet<Variable<?>>();
-		variables.addAll(this.tokenizerExpr.getVariables());
+        Set<Variable<?>> variables = new HashSet<>(this.tokenizerExpr.getVariables());
 		return variables;
 	}
 

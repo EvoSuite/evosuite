@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -33,9 +33,7 @@ import org.objectweb.asm.tree.MethodNode;
  * transform the int back to a Boolean
  */
 public class BooleanReturnTransformer extends MethodNodeTransformer {
-	/**
-	 * 
-	 */
+
 	private final BooleanTestabilityTransformation booleanTestabilityTransformation;
 
 	/**

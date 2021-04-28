@@ -1,3 +1,22 @@
+/**
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * contributors
+ *
+ * This file is part of EvoSuite.
+ *
+ * EvoSuite is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation, either version 3.0 of the License, or
+ * (at your option) any later version.
+ *
+ * EvoSuite is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ */
 /*
  *
  * This file is part of EvoSuite.
@@ -31,7 +50,7 @@ import org.evosuite.ga.comparators.SortByFitness;
  * 
  * @author Annibale Panichella
  */
-public class CrowdingDistance<T extends Chromosome> implements Serializable {
+public class CrowdingDistance<T extends Chromosome<T>> implements Serializable {
 
 	private static final long serialVersionUID = 5700682318003298299L;
 
@@ -41,7 +60,7 @@ public class CrowdingDistance<T extends Chromosome> implements Serializable {
 	 * @param front front of non-dominated solutions/tests
 	 * @param set list of goals/targets (e.g., branches) to consider
 	 */
-	public void crowdingDistanceAssignment(List<T> front, List<FitnessFunction<T>> set) {
+	public void crowdingDistanceAssignment(List<T> front, List<? extends FitnessFunction<T>> set) {
 		int size = front.size();
 
 		if (size == 0)
@@ -62,9 +81,9 @@ public class CrowdingDistance<T extends Chromosome> implements Serializable {
 		double objetiveMinn;
 		double distance;
 
-		for (final FitnessFunction<?> ff : set) {
+		for (final FitnessFunction<T> ff : set) {
 			// Sort the population by Fit n
-			front.sort(new SortByFitness(ff, false));
+			front.sort(new SortByFitness<>(ff, false));
 
 			objetiveMinn = front.get(0).getFitness(ff);
 			objetiveMaxn = front.get(front.size() - 1).getFitness(ff);
@@ -132,13 +151,13 @@ public class CrowdingDistance<T extends Chromosome> implements Serializable {
 	 * @param front front of non-dominated solutions/tests
 	 * @param set set of goals/targets (e.g., branches) to consider
 	 */
-	public void fastEpsilonDominanceAssignment(List<T> front, Set<FitnessFunction<T>> set) {
+	public void fastEpsilonDominanceAssignment(List<T> front, Set<? extends FitnessFunction<T>> set) {
 		double value;
 		front.forEach(test -> test.setDistance(0));
 
 		for (final FitnessFunction<T> ff : set) {
 			double min = Double.POSITIVE_INFINITY;
-			List<T> minSet = new ArrayList<T>(front.size());
+			List<T> minSet = new ArrayList<>(front.size());
 			double max = 0;
 			for (T test : front){
 				value = test.getFitness(ff);

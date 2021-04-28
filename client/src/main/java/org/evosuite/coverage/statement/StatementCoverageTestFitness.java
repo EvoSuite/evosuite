@@ -44,7 +44,7 @@ public class StatementCoverageTestFitness extends TestFitnessFunction {
 	private final String methodName;
 	private final Integer instructionID;
 
-	protected final List<BranchCoverageTestFitness> branchFitnesses = new ArrayList<BranchCoverageTestFitness>();
+	protected final List<BranchCoverageTestFitness> branchFitnesses = new ArrayList<>();
 
 	protected transient BytecodeInstruction goalInstruction;
 

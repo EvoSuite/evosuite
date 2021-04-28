@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -24,7 +24,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Arrays;
 
-import org.evosuite.runtime.Runtime;
 import org.evosuite.runtime.mock.MockFramework;
 import org.evosuite.runtime.mock.java.io.MockFile;
 import org.evosuite.runtime.mock.java.io.MockFileInputStream;
@@ -65,7 +64,7 @@ public class VirtualFileSystemTest {
 			String[] tokens = VirtualFileSystem.tokenize(path, '\\');
 			Assert.assertEquals(Arrays.toString(tokens),3, tokens.length);
 			for(String token : tokens){
-				Assert.assertTrue(token,!token.contains("\\"));
+                Assert.assertFalse(token, token.contains("\\"));
 			}
 		}
 	}

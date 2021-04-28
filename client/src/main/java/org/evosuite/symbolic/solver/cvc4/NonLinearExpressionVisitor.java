@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -19,10 +19,12 @@
  */
 package org.evosuite.symbolic.solver.cvc4;
 
-import java.util.ArrayList;
-
 import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.ExpressionVisitor;
+import org.evosuite.symbolic.expr.ref.array.ArrayConstant;
+import org.evosuite.symbolic.expr.ref.array.ArraySelect;
+import org.evosuite.symbolic.expr.ref.array.ArrayStore;
+import org.evosuite.symbolic.expr.ref.array.ArrayVariable;
 import org.evosuite.symbolic.expr.bv.IntegerBinaryExpression;
 import org.evosuite.symbolic.expr.bv.IntegerComparison;
 import org.evosuite.symbolic.expr.bv.IntegerConstant;
@@ -46,6 +48,9 @@ import org.evosuite.symbolic.expr.reader.StringReaderExpr;
 import org.evosuite.symbolic.expr.ref.GetFieldExpression;
 import org.evosuite.symbolic.expr.ref.ReferenceConstant;
 import org.evosuite.symbolic.expr.ref.ReferenceVariable;
+import org.evosuite.symbolic.expr.reftype.LambdaSyntheticType;
+import org.evosuite.symbolic.expr.reftype.LiteralClassType;
+import org.evosuite.symbolic.expr.reftype.LiteralNullType;
 import org.evosuite.symbolic.expr.str.IntegerToStringCast;
 import org.evosuite.symbolic.expr.str.RealToStringCast;
 import org.evosuite.symbolic.expr.str.StringBinaryExpression;
@@ -57,6 +62,8 @@ import org.evosuite.symbolic.expr.token.HasMoreTokensExpr;
 import org.evosuite.symbolic.expr.token.NewTokenizerExpr;
 import org.evosuite.symbolic.expr.token.NextTokenizerExpr;
 import org.evosuite.symbolic.expr.token.StringNextTokenExpr;
+
+import java.util.ArrayList;
 
 final class NonLinearExpressionVisitor implements ExpressionVisitor<Boolean, Void> {
 
@@ -364,4 +371,136 @@ final class NonLinearExpressionVisitor implements ExpressionVisitor<Boolean, Voi
 				"Removal of Non-Linear expressions for GetFieldExpression is not yet implemented!");
 	}
 
+	@Override
+	public Boolean visit(ArraySelect.IntegerArraySelect r, Void arg) {
+		Boolean array = r.getSymbolicArray().accept(this, null);
+		if (array) return true;
+
+		Boolean index = r.getSymbolicIndex().accept(this, null);
+		if (index) return true;
+
+		Boolean value = r.getSymbolicSelectedValue().accept(this, null);
+		if (value) return true;
+
+		return false;
+	}
+
+	@Override
+	public Boolean visit(ArraySelect.RealArraySelect r, Void arg) {
+		Boolean array = r.getSymbolicArray().accept(this, null);
+		if (array) return true;
+
+		Boolean index = r.getSymbolicIndex().accept(this, null);
+		if (index) return true;
+
+		Boolean value = r.getSymbolicSelectedValue().accept(this, null);
+		if (value) return true;
+
+		return false;
+	}
+
+	@Override
+	public Boolean visit(ArraySelect.StringArraySelect r, Void arg) {
+		Boolean array = r.getSymbolicArray().accept(this, null);
+		if (array) return true;
+
+		Boolean index = r.getSymbolicIndex().accept(this, null);
+		if (index) return true;
+
+		Boolean value = r.getSymbolicSelectedValue().accept(this, null);
+		if (value) return true;
+
+		return false;
+	}
+
+	@Override
+	public Boolean visit(ArrayStore.RealArrayStore r, Void arg) {
+		Boolean array = r.getSymbolicArray().accept(this, null);
+		if (array) return true;
+
+		Boolean index = r.getSymbolicIndex().accept(this, null);
+		if (index) return true;
+
+		Boolean value = r.getSymbolicValue().accept(this, null);
+		if (value) return true;
+
+		return false;
+	}
+
+	@Override
+	public Boolean visit(ArrayStore.StringArrayStore r, Void arg) {
+		Boolean array = r.getSymbolicArray().accept(this, null);
+		if (array) return true;
+
+		Boolean index = r.getSymbolicIndex().accept(this, null);
+		if (index) return true;
+
+		Boolean value = r.getSymbolicValue().accept(this, null);
+		if (value) return true;
+
+		return false;
+	}
+
+	@Override
+	public Boolean visit(ArrayStore.IntegerArrayStore r, Void arg) {
+		Boolean array = r.getSymbolicArray().accept(this, null);
+		if (array) return true;
+
+		Boolean index = r.getSymbolicIndex().accept(this, null);
+		if (index) return true;
+
+		Boolean value = r.getSymbolicValue().accept(this, null);
+		if (value) return true;
+
+		return false;
+	}
+
+	@Override
+	public Boolean visit(ArrayConstant.IntegerArrayConstant r, Void arg) {
+		return false;
+	}
+
+	@Override
+	public Boolean visit(ArrayConstant.RealArrayConstant r, Void arg) {
+		return false;
+	}
+
+	@Override
+	public Boolean visit(ArrayConstant.StringArrayConstant r, Void arg) {
+		return false;
+	}
+
+	@Override
+	public Boolean visit(ArrayConstant.ReferenceArrayConstant r, Void arg) {
+		return false;
+	}
+
+	@Override
+	public Boolean visit(ArrayVariable.IntegerArrayVariable r, Void arg) {
+		return false;
+	}
+
+	@Override
+	public Boolean visit(ArrayVariable.RealArrayVariable r, Void arg) {
+		return false;
+	}
+
+	@Override
+	public Boolean visit(ArrayVariable.StringArrayVariable r, Void arg) {
+		return false;
+	}
+
+	@Override
+	public Boolean visit(ArrayVariable.ReferenceArrayVariable r, Void arg) {
+		return false;
+	}
+
+	@Override
+	public Boolean visit(LambdaSyntheticType r, Void arg) { return false; }
+
+	@Override
+    public Boolean visit(LiteralNullType r, Void arg) { return false; }
+
+    @Override
+    public Boolean visit(LiteralClassType r, Void arg) { return false; }
 }

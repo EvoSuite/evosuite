@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -19,6 +19,10 @@
  */
 package org.evosuite.symbolic.solver.smt;
 
+import org.evosuite.testcase.DefaultValueChecker;
+import org.evosuite.utils.TypeUtil;
+
+import java.lang.reflect.Array;
 import java.text.DecimalFormat;
 import java.util.LinkedList;
 import java.util.List;
@@ -28,14 +32,7 @@ public final class SmtExprPrinter implements SmtExprVisitor<String, Void> {
 	@Override
 	public String visit(SmtIntConstant n, Void arg) {
 		long longValue = n.getConstantValue();
-		if (longValue == Long.MIN_VALUE) {
-			return "(- " + String.valueOf(Long.MIN_VALUE).replace("-", "") + ")";
-		} else if (longValue < 0) {
-			long absoluteValue = Math.abs(longValue);
-			return "(- " + String.valueOf(absoluteValue) + ")";
-		} else {
-			return String.valueOf(longValue);
-		}
+		return buildIntegerString(longValue);
 	}
 
 	private static DecimalFormat DECIMAL_FORMAT = new DecimalFormat("################0.0################");
@@ -43,13 +40,7 @@ public final class SmtExprPrinter implements SmtExprVisitor<String, Void> {
 	@Override
 	public String visit(SmtRealConstant n, Void arg) {
 		double doubleVal = n.getConstantValue();
-		if (doubleVal < 0) {
-			String magnitudeStr = DECIMAL_FORMAT.format(Math.abs(doubleVal));
-			return "(- " + magnitudeStr + ")";
-		} else {
-			String doubleStr = DECIMAL_FORMAT.format(doubleVal);
-			return doubleStr;
-		}
+		return buildRealValueString(doubleVal);
 	}
 
 	@Override
@@ -78,7 +69,7 @@ public final class SmtExprPrinter implements SmtExprVisitor<String, Void> {
 
 	@Override
 	public String visit(SmtOperation n, Void arg) {
-		List<String> retValues = new LinkedList<String>();
+		List<String> retValues = new LinkedList<>();
 		for (SmtExpr argument : n.getArguments()) {
 			String retValue = argument.accept(this, null);
 			retValues.add(retValue);
@@ -100,6 +91,119 @@ public final class SmtExprPrinter implements SmtExprVisitor<String, Void> {
 	}
 
 	@Override
+	public String visit(SmtArrayVariable.SmtIntegerArrayVariable n, Void arg) {
+		String varName = n.getName();
+		return varName;
+	}
+
+	@Override
+	public String visit(SmtArrayVariable.SmtRealArrayVariable n, Void arg) {
+		String varName = n.getName();
+		return varName;
+	}
+
+	@Override
+	public String visit(SmtArrayVariable.SmtStringArrayVariable n, Void arg) {
+		String varName = n.getName();
+		return varName;
+	}
+
+	@Override
+	public String visit(SmtArrayVariable.SmtReferenceArrayVariable n, Void arg) {
+		String varName = n.getName();
+		return varName;
+	}
+
+	@Override
+	public String visit(SmtArrayConstant.SmtIntegerArrayConstant n, Void arg) {
+		StringBuilder back  = new StringBuilder();
+		StringBuilder front = new StringBuilder();
+
+		back.append("((as const (Array Int Int)) 0)");
+
+		Object arr = n.getConstantValue();
+		int length = Array.getLength(arr);
+
+		for (int index=0; index < length; index++) {
+			Object element = Array.get(arr, index);
+
+			if (!DefaultValueChecker.isDefaultValue(element)) {
+				front.append("(store");
+				back
+					.append(" ")
+					.append(index)
+					.append(" ")
+					.append(buildIntegerArrayValue(element))
+					.append(")");
+			}
+		}
+
+		return front.toString() + back.toString();
+	}
+
+	@Override
+	public String visit(SmtArrayConstant.SmtRealArrayConstant n, Void arg) {
+		StringBuilder back  = new StringBuilder();
+		StringBuilder front = new StringBuilder();
+
+		back.append("((as const (Array Int Real)) 0.0)");
+
+		Object arr = n.getConstantValue();
+		int length = Array.getLength(arr);
+
+		for (int index=0; index < length; index++) {
+			Object element = Array.get(arr, index);
+
+			if (!DefaultValueChecker.isDefaultValue(element)) {
+				front.append("(store");
+				back
+					.append(" ")
+					.append(index)
+					.append(" ")
+					.append(buildRealArrayValue(element))
+					.append(")");
+			}
+		}
+
+		back.append(")");
+		return front.toString() + back.toString();
+	}
+
+	@Override
+	public String visit(SmtArrayConstant.SmtStringArrayConstant n, Void arg) {
+		StringBuilder back  = new StringBuilder();
+		StringBuilder front = new StringBuilder();
+
+		// TODO (ilebrero): Test this when objects support is added.
+		back.append("((as const (Array Int String)) \"\")");
+
+		Object arr = n.getConstantValue();
+		int length = Array.getLength(arr);
+
+		for (int index=0; index < length; index++) {
+			String element = (String) Array.get(arr, index);
+
+			if (!DefaultValueChecker.isDefaultValue(element)) {
+				front.append("(store");
+				back
+					.append(" ")
+					.append(index)
+					.append(" ")
+					.append(encodeString(element))
+					.append(")");
+			}
+		}
+
+		back.append(")");
+		return front.toString() + back.toString();
+	}
+
+	@Override
+	public String visit(SmtArrayConstant.SmtReferenceArrayConstant n, Void arg) {
+		throw new UnsupportedOperationException("Implement me when complex objects support is added!");
+	}
+
+	@Override
 	public String visit(SmtBooleanConstant n, Void arg) {
 		if (n.booleanValue() == true) {
 			return "true";
@@ -111,8 +215,7 @@ public final class SmtExprPrinter implements SmtExprVisitor<String, Void> {
 	public static String encodeString(String str) {
 		char[] charArray = str.toCharArray();
 		String ret_val = "";
-		for (int i = 0; i < charArray.length; i++) {
-			char c = charArray[i];
+		for (char c : charArray) {
 			if (Character.isISOControl(c)) {
 				if (Integer.toHexString(c).length() == 1) {
 					// padding
@@ -127,4 +230,58 @@ public final class SmtExprPrinter implements SmtExprVisitor<String, Void> {
 		return ret_val;
 	}
 
+	/**
+	 * Returns the SMT string representation of a double value.
+	 *
+	 * @param doubleVal
+	 * @return a {@link java.lang.String} Object
+	 */
+	private String buildRealValueString(double doubleVal) {
+		if (doubleVal < 0) {
+			String magnitudeStr = DECIMAL_FORMAT.format(Math.abs(doubleVal));
+			return "(- " + magnitudeStr + ")";
+		} else {
+			String doubleStr = DECIMAL_FORMAT.format(doubleVal);
+			return doubleStr;
+		}
+	}
+
+	/**
+	 * Returns the SMT string representation of a double value.
+	 *
+	 * @param longValue
+	 * @return a {@link java.lang.String} Object
+	 */
+	private String buildIntegerString(long longValue) {
+		if (longValue == Long.MIN_VALUE) {
+			return "(- " + String.valueOf(Long.MIN_VALUE).replace("-", "") + ")";
+		} else if (longValue < 0) {
+			long absoluteValue = Math.abs(longValue);
+			return "(- " + String.valueOf(absoluteValue) + ")";
+		} else {
+			return String.valueOf(longValue);
+		}
+	}
+
+	/**
+	 * Returns the SMT string representation of an double value.
+	 *
+	 * @param element
+	 * @return a {@link java.lang.String} Object
+	 */
+	private String buildIntegerArrayValue(Object element) {
+		long value = (long) TypeUtil.unboxIntegerPrimitiveValue(element);
+		return buildIntegerString(value);
+	}
+
+	/**
+	 * Returns the SMT string representation of a double value.
+	 *
+	 * @param element
+	 * @return a {@link java.lang.String} Object
+	 */
+	private String buildRealArrayValue(Object element) {
+		double value = (double) TypeUtil.unboxRealPrimitiveValue(element);
+		return buildRealValueString(value);
+	}
 }

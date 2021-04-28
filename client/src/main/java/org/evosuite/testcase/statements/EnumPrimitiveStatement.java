@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
+
 package org.evosuite.testcase.statements;
 
 import java.io.IOException;
@@ -31,9 +29,8 @@ import java.util.List;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.execution.ExecutionTracer;
 import org.evosuite.utils.generic.GenericClass;
+import org.evosuite.utils.generic.GenericClassFactory;
 import org.evosuite.utils.Randomness;
-import org.objectweb.asm.Type;
-import org.objectweb.asm.commons.GeneratorAdapter;
 
 /**
  * <p>
@@ -59,8 +56,6 @@ public class EnumPrimitiveStatement<T extends Enum<T>> extends PrimitiveStatemen
 	 *            a {@link org.evosuite.testcase.TestCase} object.
 	 * @param clazz
 	 *            a {@link java.lang.Class} object.
-	 * @param <T>
-	 *            a T object.
 	 */
 	@SuppressWarnings("unchecked")
 	public EnumPrimitiveStatement(TestCase tc, Class<T> clazz) {
@@ -246,7 +241,7 @@ public class EnumPrimitiveStatement<T extends Enum<T>> extends PrimitiveStatemen
 	}
 
 	private void writeObject(ObjectOutputStream oos) throws IOException {
-		GenericClass currentClass = new GenericClass(enumClass);
+		GenericClass<?> currentClass = GenericClassFactory.get(enumClass);
 		oos.writeObject(currentClass);
 		int pos = 0;
 		for (pos = 0; pos < constants.length; pos++) {
@@ -260,7 +255,7 @@ public class EnumPrimitiveStatement<T extends Enum<T>> extends PrimitiveStatemen
 	@SuppressWarnings("unchecked")
 	private void readObject(ObjectInputStream ois) throws ClassNotFoundException,
 	        IOException {
-		GenericClass enumGenericClass = (GenericClass) ois.readObject();
+		GenericClass<?> enumGenericClass = (GenericClass<?>) ois.readObject();
 		int pos = ois.readInt();
 		
 		enumClass = (Class<T>) enumGenericClass.getRawClass();

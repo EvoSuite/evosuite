@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -19,14 +19,15 @@
  */
 package org.evosuite.symbolic.vm;
 
-import java.util.LinkedList;
-import java.util.List;
-
-import org.evosuite.symbolic.BranchCondition;
+import org.evosuite.symbolic.ArrayAccessBranchCondition;
 import org.evosuite.symbolic.IfBranchCondition;
+import org.evosuite.symbolic.BranchCondition;
 import org.evosuite.symbolic.SwitchBranchCondition;
 import org.evosuite.symbolic.expr.Constraint;
-import org.evosuite.symbolic.expr.IntegerConstraint;
+import org.evosuite.symbolic.expr.constraint.IntegerConstraint;
+
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Collects a path condition during concolic execution
@@ -36,9 +37,9 @@ import org.evosuite.symbolic.expr.IntegerConstraint;
  */
 public final class PathConditionCollector {
 
-	private final List<BranchCondition> branchConditions = new LinkedList<BranchCondition>();
+	private final List<BranchCondition> branchConditions = new LinkedList<>();
 
-	private final LinkedList<Constraint<?>> currentSupportingConstraints = new LinkedList<Constraint<?>>();
+	private final LinkedList<Constraint<?>> currentSupportingConstraints = new LinkedList<>();
 
 	private static Constraint<?> normalizeConstraint(IntegerConstraint c) {
 		return ConstraintNormalizer.normalize(c);
@@ -49,11 +50,44 @@ public final class PathConditionCollector {
 	 * condition is currently added, then these supporting constraints will be added
 	 * to the new branch condition
 	 * 
-	 * @param c
+	 * @param constraint
 	 */
-	public void appendSupportingConstraint(IntegerConstraint c) {
-		Constraint<?> normalizedConstraint = normalizeConstraint(c);
+	public void appendSupportingConstraint(IntegerConstraint constraint) {
+		Constraint<?> normalizedConstraint = normalizeConstraint(constraint);
 		currentSupportingConstraints.add(normalizedConstraint);
+	}
+
+	/**
+	 * Add a new constraint to a branch condition for an out of bounds usage of an array.
+	 * Instructions:
+	 * 			XSTORE, XLOAD, XASTORE, XALOAD -> Out of bounds index violation
+	 * 			NEWARRAY, ANEWARRAY, MULINEWARRAY -> Negative index violation
+	 *
+	 * TODO (ilebrero): As array accesses don't count as branches yet (probably an implementation on the static analysis
+	 * 									stage?), we model the instruction index as -1.
+	 *
+	 * @param constraint
+	 *            the constraint for the branch condition
+	 * @param className
+	 * 						the class name where the branch is
+	 * @param methodName
+	 * 						the method where the branch is
+	 */
+	public void appendArrayAccessCondition(IntegerConstraint constraint,
+																				 String className,
+																				 String methodName,
+																				 boolean isErrorBranch) {
+
+		Constraint<?> normalizedConstraint = normalizeConstraint(constraint);
+
+		/** Note (ilebrero): instruction index is kept for retro-compatibility only */
+		BranchCondition branchCondition = new ArrayAccessBranchCondition(className,
+			methodName,
+			-1,
+			normalizedConstraint,
+			isErrorBranch);
+
+		branchConditions.add(branchCondition);
 	}
 
 	/**
@@ -73,7 +107,7 @@ public final class PathConditionCollector {
 
 		Constraint<?> normalizedConstraint = normalizeConstraint(c);
 
-		LinkedList<Constraint<?>> branch_supporting_constraints = new LinkedList<Constraint<?>>(
+		LinkedList<Constraint<?>> branch_supporting_constraints = new LinkedList<>(
 				currentSupportingConstraints);
 
 		IfBranchCondition new_branch = new IfBranchCondition(className, methName, branchIndex, normalizedConstraint,
@@ -99,7 +133,7 @@ public final class PathConditionCollector {
 
 		Constraint<?> normalizedConstraint = normalizeConstraint(c);
 
-		LinkedList<Constraint<?>> branch_supporting_constraints = new LinkedList<Constraint<?>>(
+		LinkedList<Constraint<?>> branch_supporting_constraints = new LinkedList<>(
 				currentSupportingConstraints);
 
 		SwitchBranchCondition new_branch = new SwitchBranchCondition(className, methodName, instructionIndex,
@@ -117,7 +151,7 @@ public final class PathConditionCollector {
 	 * @return
 	 */
 	public List<BranchCondition> getPathCondition() {
-		return new LinkedList<BranchCondition>(branchConditions);
+		return new LinkedList<>(branchConditions);
 	}
 
 	/**
@@ -134,7 +168,7 @@ public final class PathConditionCollector {
 
 		Constraint<?> normalizedConstraint = normalizeConstraint(c);
 
-		LinkedList<Constraint<?>> branch_supporting_constraints = new LinkedList<Constraint<?>>(
+		LinkedList<Constraint<?>> branch_supporting_constraints = new LinkedList<>(
 				currentSupportingConstraints);
 
 		SwitchBranchCondition new_branch = new SwitchBranchCondition(className, methodName, instructionIndex,

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -20,7 +20,7 @@
 package org.evosuite.symbolic.vm;
 
 import org.objectweb.asm.Type;
-import org.evosuite.symbolic.expr.IntegerConstraint;
+import org.evosuite.symbolic.expr.constraint.IntegerConstraint;
 import org.evosuite.symbolic.expr.bv.IntegerValue;
 import org.evosuite.symbolic.expr.fp.RealValue;
 import org.evosuite.symbolic.expr.ref.ReferenceConstant;
@@ -188,7 +188,7 @@ public abstract class SymbolicFunction {
 	 */
 	final protected int getConcIntArgument(int i) {
 		Integer int0 = (Integer) this.conc_args[i];
-		return int0.intValue();
+		return int0;
 	}
 
 	/**
@@ -200,7 +200,7 @@ public abstract class SymbolicFunction {
 	 */
 	final protected short getConcShortArgument(int i) {
 		Short short0 = (Short) this.conc_args[i];
-		return short0.shortValue();
+		return short0;
 	}
 
 	/**
@@ -212,7 +212,7 @@ public abstract class SymbolicFunction {
 	 */
 	final protected char getConcCharArgument(int i) {
 		Character char0 = (Character) this.conc_args[i];
-		return char0.charValue();
+		return char0;
 	}
 
 	/**
@@ -225,7 +225,7 @@ public abstract class SymbolicFunction {
 	 */
 	final protected double getConcDoubleArgument(int i) {
 		Double double0 = (Double) this.conc_args[i];
-		return double0.doubleValue();
+		return double0;
 	}
 
 	/**
@@ -237,7 +237,7 @@ public abstract class SymbolicFunction {
 	 */
 	final protected float getConcFloatArgument(int i) {
 		Float float0 = (Float) this.conc_args[i];
-		return float0.floatValue();
+		return float0;
 	}
 
 	/**
@@ -250,7 +250,7 @@ public abstract class SymbolicFunction {
 	 */
 	final protected boolean getConcBooleanArgument(int i) {
 		Boolean boolean0 = (Boolean) this.conc_args[i];
-		return boolean0.booleanValue();
+		return boolean0;
 	}
 
 	/**
@@ -262,7 +262,7 @@ public abstract class SymbolicFunction {
 	 */
 	final protected byte getConcByteArgument(int i) {
 		Byte byte0 = (Byte) this.conc_args[i];
-		return byte0.byteValue();
+		return byte0;
 	}
 
 	/**
@@ -274,7 +274,7 @@ public abstract class SymbolicFunction {
 	 */
 	final protected long getConcLongArgument(int i) {
 		Long long0 = (Long) this.conc_args[i];
-		return long0.longValue();
+		return long0;
 	}
 
 	/**
@@ -381,7 +381,7 @@ public abstract class SymbolicFunction {
 	 */
 	final protected int getConcIntRetVal() {
 		Integer int0 = (Integer) this.conc_ret_val;
-		return int0.intValue();
+		return int0;
 	}
 
 	/**
@@ -414,7 +414,7 @@ public abstract class SymbolicFunction {
 	 */
 	final protected double getConcDoubleRetVal() {
 		Double double0 = (Double) this.conc_ret_val;
-		return double0.doubleValue();
+		return double0;
 	}
 
 	/**
@@ -425,7 +425,7 @@ public abstract class SymbolicFunction {
 	 */
 	final protected float getConcFloatRetVal() {
 		Float float0 = (Float) this.conc_ret_val;
-		return float0.floatValue();
+		return float0;
 	}
 
 	/**
@@ -436,7 +436,7 @@ public abstract class SymbolicFunction {
 	 */
 	final protected boolean getConcBooleanRetVal() {
 		Boolean boolean0 = (Boolean) this.conc_ret_val;
-		return boolean0.booleanValue();
+		return boolean0;
 	}
 
 	/**
@@ -458,7 +458,7 @@ public abstract class SymbolicFunction {
 	 */
 	final protected long getConcLongRetVal() {
 		Long long0 = (Long) this.conc_ret_val;
-		return long0.longValue();
+		return long0;
 	}
 
 	/**

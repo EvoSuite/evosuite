@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
+
 package org.evosuite.assertion;
 
 import java.util.HashSet;
@@ -65,7 +63,7 @@ public class SameAssertion extends Assertion {
 	/** {@inheritDoc} */
 	@Override
 	public String getCode() {
-		if (((Boolean) value).booleanValue())
+		if ((Boolean) value)
 			return "assertSame(" + source.getName() + ", " + dest.getName() + ");";
 		else
 			return "assertNotSame(" + source.getName() + ", " + dest.getName() + ");";
@@ -93,7 +91,7 @@ public class SameAssertion extends Assertion {
 	@Override
 	public boolean evaluate(Scope scope) {
 		try {
-			if (((Boolean) value).booleanValue()) {
+			if ((Boolean) value) {
 				if (source.getObject(scope) == null)
 					return dest.getObject(scope) == null;
 				else
@@ -150,7 +148,7 @@ public class SameAssertion extends Assertion {
 	/** {@inheritDoc} */
 	@Override
 	public Set<VariableReference> getReferencedVariables() {
-		Set<VariableReference> vars = new HashSet<VariableReference>();
+		Set<VariableReference> vars = new HashSet<>();
 		vars.add(source);
 		vars.add(dest);
 		return vars;

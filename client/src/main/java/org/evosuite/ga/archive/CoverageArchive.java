@@ -19,10 +19,6 @@
  */
 package org.evosuite.ga.archive;
 
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
 import org.evosuite.Properties;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.runtime.util.AtMostOnceLogger;
@@ -34,13 +30,17 @@ import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
+
 /**
  * Coverage Archive.
  * 
  * @author José Campos
  */
-public class CoverageArchive<F extends TestFitnessFunction, T extends TestChromosome>
-    extends Archive<F, T> {
+public class CoverageArchive extends Archive {
 
   private static final long serialVersionUID = -4046845573050661961L;
 
@@ -50,21 +50,21 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestChromo
    * Map used to store all covered targets (keys of the map) and the corresponding covering
    * solutions (values of the map)
    */
-  private final Map<F, T> covered = new LinkedHashMap<>();
+  private final Map<TestFitnessFunction, TestChromosome> covered = new LinkedHashMap<>();
 
   /**
    * Set used to store all targets that have not been covered yet
    */
-  private final Set<F> uncovered = new LinkedHashSet<>();
+  private final Set<TestFitnessFunction> uncovered = new LinkedHashSet<>();
 
-  public static final CoverageArchive<TestFitnessFunction, TestChromosome> instance =
-          new CoverageArchive<>();
+  public static final CoverageArchive instance = new CoverageArchive();
+
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public void addTarget(F target) {
+  public void addTarget(TestFitnessFunction target) {
     super.addTarget(target);
 
     if (!this.uncovered.contains(target)) {
@@ -79,7 +79,7 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestChromo
    * {@inheritDoc}
    */
   @Override
-  public void updateArchive(F target, T solution, double fitnessValue) {
+  public void updateArchive(TestFitnessFunction target, TestChromosome solution, double fitnessValue) {
     super.updateArchive(target, solution, fitnessValue);
     assert this.covered.containsKey(target) || this.uncovered.contains(target) : "Unknown goal: "+target;
 
@@ -92,7 +92,7 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestChromo
     boolean isNewCoveredTarget = false;
     boolean isNewSolutionBetterThanCurrent = false;
 
-    T currentSolution = this.covered.get(target);
+    TestChromosome currentSolution = this.covered.get(target);
 
     if (currentSolution == null) {
       logger.debug("Solution for non-covered target '" + target + "'");
@@ -108,7 +108,7 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestChromo
     }
   }
 
-  private void addToArchive(F target, T solution) {
+  private void addToArchive(TestFitnessFunction target, TestChromosome solution) {
     this.uncovered.remove(target);
     this.covered.put(target, solution);
     this.removeNonCoveredTargetOfAMethod(target);
@@ -159,7 +159,7 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestChromo
    * {@inheritDoc}
    */
   @Override
-  public Set<F> getCoveredTargets() {
+  public Set<TestFitnessFunction> getCoveredTargets() {
     return this.covered.keySet();
   }
 
@@ -183,12 +183,12 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestChromo
    * {@inheritDoc}
    */
   @Override
-  public Set<F> getUncoveredTargets() {
+  public Set<TestFitnessFunction> getUncoveredTargets() {
     return this.uncovered;
   }
 
-  private Set<F> getTargets() {
-    Set<F> targets = new LinkedHashSet<>();
+  private Set<TestFitnessFunction> getTargets() {
+    Set<TestFitnessFunction> targets = new LinkedHashSet<>();
     targets.addAll(this.getCoveredTargets());
     targets.addAll(this.getUncoveredTargets());
     return targets;
@@ -198,7 +198,7 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestChromo
    * {@inheritDoc}
    */
   @Override
-  public boolean hasTarget(F target) {
+  public boolean hasTarget(TestFitnessFunction target) {
     assert target != null;
     return this.covered.containsKey(target) || this.uncovered.contains(target);
   }
@@ -215,7 +215,7 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestChromo
    * {@inheritDoc}
    */
   @Override
-  public Set<T> getSolutions() {
+  public Set<TestChromosome> getSolutions() {
     return new LinkedHashSet<>(this.covered.values());
   }
 
@@ -223,7 +223,7 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestChromo
    * {@inheritDoc}
    */
   @Override
-  public T getSolution() {
+  public TestChromosome getSolution() {
     return this.getRandomSolution();
   }
 
@@ -231,7 +231,7 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestChromo
    * {@inheritDoc}
    */
   @Override
-  public T getSolution(F target) {
+  public TestChromosome getSolution(TestFitnessFunction target) {
     assert target != null;
     assert this.covered.containsKey(target);
     return this.covered.get(target);
@@ -241,7 +241,7 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestChromo
    * {@inheritDoc}
    */
   @Override
-  public boolean hasSolution(F target) {
+  public boolean hasSolution(TestFitnessFunction target) {
     assert target != null;
     return this.covered.containsKey(target);
   }
@@ -249,23 +249,21 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestChromo
   /**
    * {@inheritDoc}
    */
-  @SuppressWarnings("unchecked")
   @Override
-  public T getRandomSolution() {
+  public TestChromosome getRandomSolution() {
     // TODO this gives higher probability to tests that cover more targets. Maybe it is not the best
     // way, but likely the quickest to compute. A proper way to do it would be to first call
     // 'getSolutions' and only then select one at random.
-    T randomChoice = Randomness.choice(this.getSolutions());
+    TestChromosome randomChoice = Randomness.choice(this.getSolutions());
     if (randomChoice == null) {
       return null;
     }
-    return (T) randomChoice.clone();
+    return randomChoice.clone();
   }
 
   /**
    * {@inheritDoc}
    */
-  @SuppressWarnings({"unchecked", "rawtypes"})
   @Override
   protected TestSuiteChromosome createMergedSolution(TestSuiteChromosome solution) {
     // Deactivate in case a test is executed and would access the archive as this might cause a
@@ -283,9 +281,9 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestChromo
                 || t.getLastExecutionResult().hasTestException())));
 
     // to avoid adding the same solution to 'mergedSolution' suite
-    Set<T> solutionsSampledFromArchive = new LinkedHashSet<>();
+    Set<TestChromosome> solutionsSampledFromArchive = new LinkedHashSet<>();
 
-    for (F target : this.getTargets()) {
+    for (TestFitnessFunction target : this.getTargets()) {
       // has target been covered? to answer it, we perform a local check rather than calling method
       // {@link TestFitnessFunction.isCoveredBy} as it may perform a fitness evaluation to access
       // whether that 'target' is covered or not (and therefore, it could be more expensive)
@@ -298,7 +296,7 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestChromo
       }
 
       if (!isGoalCovered) {
-        T chromosome = this.covered.get(target);
+        TestChromosome chromosome = this.covered.get(target);
 
         // is there any solution in the archive that covers it, and has that solution not been
         // considered yet?
@@ -310,8 +308,8 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestChromo
     }
 
     // re-evaluate merged solution
-    for (FitnessFunction fitnessFunction : solution.getFitnessValues().keySet()) {
-      fitnessFunction.getFitness(mergedSolution);
+    for (FitnessFunction<TestSuiteChromosome> ff : solution.getFitnessValues().keySet()) {
+      ff.getFitness(mergedSolution);
     }
 
     // re-active it

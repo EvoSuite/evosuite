@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- *
- */
+
 package org.evosuite.utils.generic;
 
 import java.io.IOException;
@@ -46,31 +44,31 @@ public class GenericField extends GenericAccessibleObject<GenericField> {
 
 	private transient Field field;
 
-	public GenericField(Field field, GenericClass owner) {
-		super(new GenericClass(owner));
+	public GenericField(Field field, GenericClass<?> owner) {
+		super(GenericClassFactory.get(owner));
 		this.field = field;
 		field.setAccessible(true);
 	}
 
 	public GenericField(Field field, Class<?> owner) {
-		super(new GenericClass(owner));
+		super(GenericClassFactory.get(owner));
 		this.field = field;
 		field.setAccessible(true);
 	}
 
 	public GenericField(Field field, Type owner) {
-		super(new GenericClass(owner));
+		super(GenericClassFactory.get(owner));
 		this.field = field;
 		field.setAccessible(true);
 	}
 
 	@Override
-	public GenericField copyWithNewOwner(GenericClass newOwner) {
+	public GenericField copyWithNewOwner(GenericClass<?> newOwner) {
 		return new GenericField(field, newOwner);
 	}
 
 	@Override
-	public GenericField copyWithOwnerFromReturnType(GenericClass returnType)
+	public GenericField copyWithOwnerFromReturnType(GenericClass<?> returnType)
 	        throws ConstructionFailedException {
 		return new GenericField(field,
 		        getOwnerClass().getGenericInstantiation(returnType.getTypeVariableMap()));
@@ -99,13 +97,13 @@ public class GenericField extends GenericAccessibleObject<GenericField> {
 		if(field.getGenericType() instanceof TypeVariable) {
 			return ArrayUtils.toArray((TypeVariable<?>)field.getGenericType());
 		} else {
-			return super.getTypeParameters();
+			return new TypeVariable<?>[] {};
 		}
 	}
 
 	@Override
 	public GenericField copy() {
-		return new GenericField(field, new GenericClass(owner));
+		return new GenericField(field, GenericClassFactory.get(owner));
 	}
 
 	public Field getField() {
@@ -162,12 +160,22 @@ public class GenericField extends GenericAccessibleObject<GenericField> {
 		return TestUsageChecker.canUse(field);
 	}
 
+	@Override
+	public boolean isConstructor() {
+		return false;
+	}
+
 	/* (non-Javadoc)
 	 * @see org.evosuite.utils.GenericAccessibleObject#isField()
 	 */
 	@Override
 	public boolean isField() {
 		return true;
+	}
+
+	@Override
+	public boolean isMethod() {
+		return false;
 	}
 
 	/* (non-Javadoc)

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,14 +17,14 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
+
 package org.evosuite.junit;
 
 import java.util.List;
 import java.util.Map;
 
+import org.evosuite.junit.writer.TestSuiteWriterUtils;
+import org.evosuite.runtime.vnet.NonFunctionalRequirementRule;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestCodeVisitor;
 
@@ -117,6 +117,39 @@ public class JUnit3TestAdapter implements UnitTestAdapter {
 		test.accept(visitor);
 		visitor.clearExceptions();
 		return visitor.getCode();
+	}
+
+	@Override
+	public Class<?> testAnnotation() {
+		return org.junit.Test.class;
+	}
+
+	@Override
+	public Class<?> beforeAll() {
+		return org.junit.BeforeClass.class;
+	}
+
+	@Override
+	public Class<?> beforeEach() {
+		return org.junit.Before.class;
+	}
+
+	@Override
+	public Class<?> afterAll() {
+		return org.junit.AfterClass.class;
+	}
+
+	@Override
+	public Class<?> afterEach() {
+		return org.junit.After.class;
+	}
+
+	@Override
+	public void addNFR(StringBuilder builder) {
+		builder.append(TestSuiteWriterUtils.METHOD_SPACE);
+		builder.append("@").append(org.junit.Rule.class.getCanonicalName()).append("\n");
+		builder.append(TestSuiteWriterUtils.METHOD_SPACE);
+		builder.append("public ").append(NonFunctionalRequirementRule.class.getName()).append(" nfr = new ").append(NonFunctionalRequirementRule.class.getName()).append("();\n\n");
 	}
 
 }

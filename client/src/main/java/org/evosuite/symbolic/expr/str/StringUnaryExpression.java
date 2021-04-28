@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
+
 package org.evosuite.symbolic.expr.str;
 
 import java.util.HashSet;
@@ -27,7 +25,7 @@ import java.util.Set;
 
 import org.evosuite.Properties;
 import org.evosuite.symbolic.ConstraintTooLongException;
-import org.evosuite.symbolic.DSEStats;
+import org.evosuite.symbolic.dse.DSEStatistics;
 import org.evosuite.symbolic.expr.AbstractExpression;
 import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.ExpressionVisitor;
@@ -75,7 +73,7 @@ public final class StringUnaryExpression extends AbstractExpression<String> impl
 		this.op = op2;
 
 		if (getSize() > Properties.DSE_CONSTRAINT_LENGTH) {
-			DSEStats.getInstance().reportConstraintTooLong(getSize());
+			DSEStatistics.getInstance().reportConstraintTooLong(getSize());
 			throw new ConstraintTooLongException(getSize());
 		}
 	}
@@ -119,8 +117,7 @@ public final class StringUnaryExpression extends AbstractExpression<String> impl
 
 	@Override
 	public Set<Variable<?>> getVariables() {
-		Set<Variable<?>> variables = new HashSet<Variable<?>>();
-		variables.addAll(this.expr.getVariables());
+        Set<Variable<?>> variables = new HashSet<>(this.expr.getVariables());
 		return variables;
 	}
 

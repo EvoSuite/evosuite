@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -25,7 +25,7 @@ import java.util.Set;
 
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.ExpressionEvaluator;
-import org.evosuite.symbolic.expr.StringConstraint;
+import org.evosuite.symbolic.expr.constraint.StringConstraint;
 import org.evosuite.symbolic.expr.str.StringValue;
 import org.evosuite.symbolic.expr.str.StringVariable;
 import org.evosuite.symbolic.expr.token.HasMoreTokensExpr;
@@ -402,7 +402,7 @@ final class StringAVM extends VariableAVM {
 
 	private static Set<StringValue> getTokenDelimiters(Collection<Constraint<?>> constraints) {
 
-		Set<StringValue> delimiters = new HashSet<StringValue>();
+		Set<StringValue> delimiters = new HashSet<>();
 		for (Constraint<?> constraint : constraints) {
 			
 			if (constraint instanceof StringConstraint) {

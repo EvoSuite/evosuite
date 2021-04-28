@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
+
 package org.evosuite.instrumentation;
 
 import org.evosuite.runtime.instrumentation.RemoveFinalClassAdapter;
@@ -44,7 +42,7 @@ public class NonTargetClassAdapter extends ClassVisitor {
 	 * @param className a {@link java.lang.String} object.
 	 */
 	public NonTargetClassAdapter(ClassVisitor cv, String className) {
-		super(Opcodes.ASM7, cv);
+		super(Opcodes.ASM9, cv);
 		this.className = className;
 	}
 

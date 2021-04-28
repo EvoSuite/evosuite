@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -60,7 +60,7 @@ public class PrimitiveClassAdapter extends ClassVisitor {
 	 *            a {@link java.lang.String} object.
 	 */
 	public PrimitiveClassAdapter(ClassVisitor visitor, String className) {
-		super(Opcodes.ASM7, visitor);
+		super(Opcodes.ASM9, visitor);
 		this.className = className.replaceAll("/", ".");
 	}
 	

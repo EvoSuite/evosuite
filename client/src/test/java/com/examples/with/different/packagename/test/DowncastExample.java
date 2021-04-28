@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -26,9 +26,9 @@ public class DowncastExample {
 
     public Number getANumber(int x) {
         if(x == 42) {
-            return new Integer(42);
+            return 42;
         } else {
-            return new Double(0.0);
+            return 0.0;
         }
     }
 

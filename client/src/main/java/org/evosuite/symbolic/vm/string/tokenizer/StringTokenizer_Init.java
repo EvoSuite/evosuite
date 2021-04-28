@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -25,7 +25,7 @@ import org.evosuite.symbolic.expr.str.StringValue;
 import org.evosuite.symbolic.expr.token.NewTokenizerExpr;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 import org.evosuite.symbolic.vm.SymbolicFunction;
-import org.evosuite.symbolic.vm.SymbolicHeap;
+import org.evosuite.symbolic.vm.heap.SymbolicHeap;
 import org.evosuite.symbolic.vm.string.Types;
 
 public final class StringTokenizer_Init extends SymbolicFunction {
@@ -41,7 +41,7 @@ public final class StringTokenizer_Init extends SymbolicFunction {
 	public Object executeFunction() {
 
 		// symbolic receiver (new object)
-		ReferenceConstant symb_str_tokenizer = (ReferenceConstant) this
+		ReferenceConstant symb_str_tokenizer = this
 				.getSymbReceiver();
 
 		// string argument

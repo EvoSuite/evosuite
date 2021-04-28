@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -36,7 +36,8 @@ import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testcase.statements.numeric.IntPrimitiveStatement;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testsuite.TestSuiteChromosome;
-import org.evosuite.utils.generic.GenericClass;
+import org.evosuite.utils.generic.GenericClassFactory;
+import org.evosuite.utils.generic.GenericClassImpl;
 import org.evosuite.utils.generic.GenericConstructor;
 import org.evosuite.utils.generic.GenericMethod;
 import org.junit.After;
@@ -214,7 +215,7 @@ public class PoolSystemTest extends SystemTestBase {
 		Properties.getTargetClassAndDontInitialise();
 		TestCase test = new DefaultTestCase();
 		VariableReference instance = test.addStatement(new ConstructorStatement(test, new GenericConstructor(DependencyClassWithException.class.getConstructors()[0], DependencyClassWithException.class),
-				new ArrayList<VariableReference>()));
+				new ArrayList<>()));
 		VariableReference int42 = test.addStatement(new IntPrimitiveStatement(test, 42));
 		GenericMethod foo = new GenericMethod(DependencyClassWithException.class.getMethod("foo", int.class), DependencyClassWithException.class);
 		test.addStatement(new MethodStatement(test, foo, instance, Arrays.asList(new VariableReference[] {int42})));
@@ -226,7 +227,7 @@ public class PoolSystemTest extends SystemTestBase {
 		TestSuiteChromosome best = new TestSuiteChromosome();
 		best.addTest(test);
 		ObjectPool pool = new ObjectPool();
-		pool.addSequence(new GenericClass(DependencyClassWithException.class), test);
+		pool.addSequence(GenericClassFactory.get(DependencyClassWithException.class), test);
 		pool.writePool(filename);
 		System.out.println("EvolvedTestSuite:\n" + best);
 		

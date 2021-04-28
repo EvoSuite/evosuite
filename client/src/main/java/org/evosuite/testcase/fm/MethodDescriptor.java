@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -19,7 +19,6 @@
  */
 package org.evosuite.testcase.fm;
 
-import org.apache.commons.lang3.reflect.TypeUtils;
 import org.evosuite.Properties;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.runtime.util.Inputs;
@@ -67,7 +66,7 @@ public class MethodDescriptor implements Comparable<MethodDescriptor>, Serializa
      * @param method the one that is going to be mocked
      * @param retvalType type of the class the mocked method belongs to. The type might be parameterized (ie generics)
      */
-    public MethodDescriptor(Method method, GenericClass retvalType){
+    public MethodDescriptor(Method method, GenericClass<?> retvalType){
         Inputs.checkNull(method, retvalType);
         this.method = new GenericMethod(method, retvalType);
         methodName = method.getName();
@@ -82,18 +81,18 @@ public class MethodDescriptor implements Comparable<MethodDescriptor>, Serializa
         this.inputParameterMatchers = inputParameterMatchers;
     }
 
-    private String initMatchers(GenericMethod method, GenericClass retvalType) {
+    private String initMatchers(GenericMethod method, GenericClass<?> retvalType) {
 
         String matchers = "";
         Type[] types = method.getParameterTypes();
-        List<GenericClass> parameterClasses = method.getParameterClasses();
+        List<GenericClass<?>> parameterClasses = method.getParameterClasses();
         for(int i=0; i<types.length; i++){
             if(i > 0){
                 matchers += " , ";
             }
 
-            Type type = types[i];
-            GenericClass genericParameter = parameterClasses.get(i);
+            GenericClass<?> genericParameter = parameterClasses.get(i);
+            Type type = genericParameter.getRawClass();
             if(type.equals(Integer.TYPE) || type.equals(Integer.class)){
                 matchers += "anyInt()";
             }else if(type.equals(Long.TYPE) || type.equals(Long.class)){
@@ -110,15 +109,15 @@ public class MethodDescriptor implements Comparable<MethodDescriptor>, Serializa
                 matchers += "anyChar()";
             }else if(type.equals(String.class)){
                 matchers += "anyString()";
-            } else if (TypeUtils.isAssignable(type, List.class)) {
+            } else if (type.equals(List.class)) {
                 matchers += "anyList()";
-            } else if (TypeUtils.isAssignable(type, Set.class)) {
+            } else if (type.equals(Set.class)) {
                 matchers += "anySet()";
-            } else if (TypeUtils.isAssignable(type, Map.class)) {
+            } else if (type.equals(Map.class)) {
                 matchers += "anyMap()";
-            } else if (TypeUtils.isAssignable(type, Collection.class)) {
+            } else if (type.equals(Collection.class)) {
                 matchers += "anyCollection()";
-            } else if (TypeUtils.isAssignable(type, Iterable.class)) {
+            } else if (type.equals(Iterable.class)) {
                 matchers += "anyIterable()";
             }else{
                 if(type.getTypeName().equals(Object.class.getName())){
@@ -214,7 +213,9 @@ public class MethodDescriptor implements Comparable<MethodDescriptor>, Serializa
         }
 
         Type[] types = method.getParameterTypes();
-        Type type = types[i];
+        List<GenericClass<?>> parameterClasses = method.getParameterClasses();
+        GenericClass<?> parameterClass = parameterClasses.get(i);
+        Class<?> type = parameterClass.getRawClass();
 
         try {
             if (type.equals(Integer.TYPE) || type.equals(Integer.class)) {
@@ -233,19 +234,18 @@ public class MethodDescriptor implements Comparable<MethodDescriptor>, Serializa
                 return Mockito.anyChar();
             } else if (type.equals(String.class)) {
                 return Mockito.anyString();
-            } else if (TypeUtils.isAssignable(type, List.class)) {
+            } else if (type.equals(List.class)) {
                 return Mockito.anyList();
-            } else if (TypeUtils.isAssignable(type, Set.class)) {
+            } else if (type.equals(Set.class)) {
                 return Mockito.anySet();
-            } else if (TypeUtils.isAssignable(type, Map.class)) {
+            } else if (type.equals(Map.class)) {
                 return Mockito.anyMap();
-            } else if (TypeUtils.isAssignable(type, Collection.class)) {
+            } else if (type.equals(Collection.class)) {
                 return Mockito.anyCollection();
-            } else if (TypeUtils.isAssignable(type, Iterable.class)) {
+            } else if (type.equals(Iterable.class)) {
                 return Mockito.anyIterable();
             } else {
-                GenericClass gc = new GenericClass(type);
-                return Mockito.nullable(gc.getRawClass());
+                return Mockito.nullable(type);
             }
         } catch (Exception e){
             logger.error("Failed to executed Mockito matcher n{} of type {} in {}.{}: {}",i,type,className,methodName,e.getMessage());
@@ -262,11 +262,11 @@ public class MethodDescriptor implements Comparable<MethodDescriptor>, Serializa
         counter = 0;
     }
     
-    public GenericMethod getGenericMethodFor(GenericClass clazz) throws ConstructionFailedException {
+    public GenericMethod getGenericMethodFor(GenericClass<?> clazz) throws ConstructionFailedException {
         return method.getGenericInstantiation(clazz);
     }
 
-    public GenericClass getReturnClass() {
+    public GenericClass<?> getReturnClass() {
         return method.getGeneratedClass();
     }
 

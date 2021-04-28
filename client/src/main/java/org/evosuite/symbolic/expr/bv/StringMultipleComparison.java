@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
+
 package org.evosuite.symbolic.expr.bv;
 
 import java.util.ArrayList;
@@ -28,7 +26,7 @@ import java.util.Set;
 
 import org.evosuite.Properties;
 import org.evosuite.symbolic.ConstraintTooLongException;
-import org.evosuite.symbolic.DSEStats;
+import org.evosuite.symbolic.dse.DSEStatistics;
 import org.evosuite.symbolic.expr.AbstractExpression;
 import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.ExpressionVisitor;
@@ -87,7 +85,7 @@ public final class StringMultipleComparison extends AbstractExpression<Long> imp
 		this.other_v = _other;
 
 		if (getSize() > Properties.DSE_CONSTRAINT_LENGTH) {
-			DSEStats.getInstance().reportConstraintTooLong(getSize());
+			DSEStatistics.getInstance().reportConstraintTooLong(getSize());
 			throw new ConstraintTooLongException(getSize());
 		}
 	}
@@ -145,8 +143,8 @@ public final class StringMultipleComparison extends AbstractExpression<Long> imp
 	@Override
 	public String toString() {
 		String str_other_v = "";
-		for (int i = 0; i < this.other_v.size(); i++) {
-			str_other_v += " " + this.other_v.get(i).toString();
+		for (Expression<?> expression : this.other_v) {
+			str_other_v += " " + expression.toString();
 		}
 
 		return "(" + left + op.toString() + (right == null ? "" : right) + str_other_v
@@ -177,7 +175,7 @@ public final class StringMultipleComparison extends AbstractExpression<Long> imp
 
 	@Override
 	public Set<Variable<?>> getVariables() {
-		Set<Variable<?>> variables = new HashSet<Variable<?>>();
+		Set<Variable<?>> variables = new HashSet<>();
 		variables.addAll(this.left.getVariables());
 		variables.addAll(this.right.getVariables());
 		for (Expression<?> other_e : this.other_v) {
@@ -188,7 +186,7 @@ public final class StringMultipleComparison extends AbstractExpression<Long> imp
 
 	@Override
 	public Set<Object> getConstants() {
-		Set<Object> result = new HashSet<Object>();
+		Set<Object> result = new HashSet<>();
 		result.addAll(this.left.getConstants());
 		result.addAll(this.right.getConstants());
 		for (Expression<?> other_e : this.other_v) {

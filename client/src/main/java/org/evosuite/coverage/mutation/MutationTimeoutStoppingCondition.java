@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,6 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
 package org.evosuite.coverage.mutation;
 
 import java.util.HashMap;
@@ -29,6 +26,7 @@ import java.util.Set;
 
 import org.evosuite.Properties;
 import org.evosuite.Properties.Strategy;
+import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.stoppingconditions.StoppingConditionImpl;
 
 
@@ -37,11 +35,12 @@ import org.evosuite.ga.stoppingconditions.StoppingConditionImpl;
  *
  * @author Gordon Fraser
  */
-public class MutationTimeoutStoppingCondition extends StoppingConditionImpl {
+public class MutationTimeoutStoppingCondition<T extends Chromosome<T>>
+		extends StoppingConditionImpl<T> {
 
 	private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(MutationTimeoutStoppingCondition.class);
 
-	public static Map<Mutation, Integer> timeouts = new HashMap<Mutation, Integer>();
+	public static Map<Mutation, Integer> timeouts = new HashMap<>();
 
 	private static final long serialVersionUID = -7347443938884126325L;
 
@@ -49,11 +48,24 @@ public class MutationTimeoutStoppingCondition extends StoppingConditionImpl {
 
 	private static boolean hasException = false;
 
-	private static Set<Mutation> exceptions = new HashSet<Mutation>();
+	private static Set<Mutation> exceptions = new HashSet<>();
 	
 	private static int MAX_TIMEOUTS = Properties.MUTATION_TIMEOUTS;
 
-	private static Set<Mutation> disabled = new HashSet<Mutation>();
+	private static Set<Mutation> disabled = new HashSet<>();
+
+	public MutationTimeoutStoppingCondition() {
+		// empty constructor, only static fields
+	}
+
+	public MutationTimeoutStoppingCondition(MutationTimeoutStoppingCondition<?> that) {
+		// empty copy constructor
+	}
+
+	@Override
+	public MutationTimeoutStoppingCondition<T> clone() {
+		return new MutationTimeoutStoppingCondition<>(this);
+	}
 
 	/**
 	 * <p>isDisabled</p>
@@ -104,8 +116,8 @@ public class MutationTimeoutStoppingCondition extends StoppingConditionImpl {
 	@Override
 	public void reset() {
 		if (Properties.STRATEGY != Strategy.ONEBRANCH){
-			timeouts = new HashMap<Mutation, Integer>();
-			exceptions = new HashSet<Mutation>();
+			timeouts = new HashMap<>();
+			exceptions = new HashSet<>();
 		}else{
 			timeout = 0;
 			hasException = false;

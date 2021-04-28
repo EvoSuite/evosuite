@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -58,7 +58,7 @@ public class MethodCoverageFactory extends
 	/** {@inheritDoc} */
 	@Override
 	public List<MethodCoverageTestFitness> getCoverageGoals() {
-		List<MethodCoverageTestFitness> goals = new ArrayList<MethodCoverageTestFitness>();
+		List<MethodCoverageTestFitness> goals = new ArrayList<>();
 
 		long start = System.currentTimeMillis();
 
@@ -77,7 +77,7 @@ public class MethodCoverageFactory extends
 	}
 
 	private List<MethodCoverageTestFitness> getCoverageGoals(Class<?> clazz, String className) {
-		List<MethodCoverageTestFitness> goals = new ArrayList<MethodCoverageTestFitness>();
+		List<MethodCoverageTestFitness> goals = new ArrayList<>();
 		Constructor<?>[] allConstructors = clazz.getDeclaredConstructors();
 		for (Constructor<?> c : allConstructors) {
 			if (TestUsageChecker.canUse(c)) {

@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
         <groupId>org.evosuite</groupId>
         <artifactId>evosuite</artifactId>
-        <version>1.0.7-SNAPSHOT</version>
+        <version>1.1.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>evosuite-runtime</artifactId>
@@ -42,6 +41,16 @@
             -->
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
 
         <dependency>
             <!-- Only needed for listener used in Ant when running tests -->
@@ -75,6 +84,7 @@
             <scope>compile</scope>
         </dependency>
 
+        <!--
         <dependency>
             <groupId>org.jboss.spec.javax.servlet</groupId>
             <artifactId>jboss-servlet-api_3.1_spec</artifactId>
@@ -132,7 +142,7 @@
             <artifactId>spring-context</artifactId>
             <scope>compile</scope>
         </dependency>
-
+-->
         <!-- ////////////////////////////////// -->
 
         <dependency>

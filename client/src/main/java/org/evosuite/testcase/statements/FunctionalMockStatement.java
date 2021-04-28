@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -26,7 +26,6 @@ import org.evosuite.assertion.Assertion;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.runtime.FalsePositiveException;
 import org.evosuite.runtime.RuntimeSettings;
-import org.evosuite.runtime.classhandling.ClassResetter;
 import org.evosuite.runtime.instrumentation.InstrumentedClass;
 import org.evosuite.runtime.mock.EvoSuiteMock;
 import org.evosuite.runtime.mock.MockList;
@@ -41,13 +40,10 @@ import org.evosuite.testcase.execution.Scope;
 import org.evosuite.testcase.execution.UncompilableCodeException;
 import org.evosuite.testcase.variable.ConstantValue;
 import org.evosuite.testcase.variable.VariableReference;
-import org.evosuite.utils.LoggingUtils;
-import org.evosuite.utils.generic.GenericAccessibleObject;
-import org.evosuite.utils.generic.GenericClass;
+import org.evosuite.utils.generic.*;
 import org.mockito.MockSettings;
 import org.mockito.Mockito;
 import org.mockito.exceptions.base.MockitoException;
-import org.mockito.exceptions.misusing.InvalidUseOfMatchersException;
 import org.mockito.stubbing.OngoingStubbing;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -117,14 +113,14 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
      */
     protected final Map<String, int[]> methodParameters;
 
-    protected GenericClass targetClass;
+    protected GenericClass<?> targetClass;
 
     protected transient volatile EvoInvocationListener listener;
 
     protected transient Method mockCreator;
 
 
-    public FunctionalMockStatement(TestCase tc, VariableReference retval, GenericClass targetClass) throws IllegalArgumentException {
+    public FunctionalMockStatement(TestCase tc, VariableReference retval, GenericClass<?> targetClass) throws IllegalArgumentException {
         super(tc, retval);
         Inputs.checkNull(targetClass);
         this.targetClass = targetClass;
@@ -136,11 +132,11 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
     }
 
 
-    public FunctionalMockStatement(TestCase tc, Type retvalType, GenericClass targetClass) throws IllegalArgumentException {
+    public FunctionalMockStatement(TestCase tc, Type retvalType, GenericClass<?> targetClass) throws IllegalArgumentException {
         super(tc, retvalType);
         Inputs.checkNull(targetClass);
 
-        Class<?> rawType = new GenericClass(retvalType).getRawClass();
+        Class<?> rawType = GenericClassFactory.get(retvalType).getRawClass();
         if (!targetClass.getRawClass().equals(rawType)) {
             throw new IllegalArgumentException("Mismatch between raw type " + rawType + " and target class " + targetClass);
         }
@@ -188,7 +184,7 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
 
     public static boolean canBeFunctionalMockedIncludingSUT(Type type) {
 
-        Class<?> rawClass = new GenericClass(type).getRawClass();
+        Class<?> rawClass = GenericClassFactory.get(type).getRawClass();
 
         if (EvoSuiteMock.class.isAssignableFrom(rawClass) ||
                 MockList.isAMockClass(rawClass.getName()) ||
@@ -254,11 +250,11 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
 
     public static boolean canBeFunctionalMocked(Type type) {
 
-        Class<?> rawClass = new GenericClass(type).getRawClass();
+        Class<?> rawClass = GenericClassFactory.get(type).getRawClass();
 		final Class<?> targetClass = Properties.getTargetClassAndDontInitialise();
 
         if (Properties.hasTargetClassBeenLoaded()
-        		&& GenericClass.isAssignable(targetClass, rawClass)) {
+        		&& GenericClassUtils.isAssignable(targetClass, rawClass)) {
         	return false;
         }
 
@@ -429,7 +425,7 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
                 for (int i = existingParameters; i < md.getCounter() && i < Properties.FUNCTIONAL_MOCKING_INPUT_LIMIT; i++) {
                     // Create a copy as the typemap is stored in the class during generic instantiation
                     // but we might want to have a different type for each call of the same method invocation
-                    GenericClass calleeClass = new GenericClass(retval.getGenericClass());
+                    GenericClass<?> calleeClass = GenericClassFactory.get(retval.getGenericClass());
                     Type returnType = md.getGenericMethodFor(calleeClass).getGeneratedType();
                     assert !returnType.equals(Void.TYPE);
                     logger.debug("Return type: "+returnType +" for retval "+retval.getGenericClass());
@@ -521,7 +517,7 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
                         value = 'a';
                     }
                 }
-                parameters.set(i, new ConstantValue(tc, new GenericClass(expected), value));
+                parameters.set(i, new ConstantValue(tc, GenericClassFactory.get(expected), value));
             }
         }
     }
@@ -771,51 +767,51 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
 
                     if(expectedType.equals(Integer.TYPE)){
                         if(valuesClass.equals(Character.class)){
-                            value = (int) ((Character)value).charValue();
+                            value = (int) (Character) value;
                         } else if(valuesClass.equals(Byte.class)){
-                            value = (int) ((Byte)value).intValue();
+                            value = ((Byte)value).intValue();
                         } else if(valuesClass.equals(Short.class)){
-                            value = (int) ((Short)value).intValue();
+                            value = ((Short)value).intValue();
                         }
                     }
 
                     if(expectedType.equals(Double.TYPE)) {
                         if(valuesClass.equals(Integer.class)){
-                            value = (double) ((Integer)value).intValue();
+                            value = (double) (Integer) value;
                         } else if(valuesClass.equals(Byte.class)){
                             value = (double) ((Byte)value).intValue();
                         } else if(valuesClass.equals(Character.class)){
-                            value = (double) ((Character)value).charValue();
+                            value = (double) (Character) value;
                         } else if(valuesClass.equals(Short.class)){
                             value = (double) ((Short)value).intValue();
                         } else if(valuesClass.equals(Long.class)){
-                            value = (double) ((Long)value).longValue();
+                            value = (double) (Long) value;
                         } else if(valuesClass.equals(Float.class)){
-                            value = (double) ((Float)value).floatValue();
+                            value = (double) (Float) value;
                         }
                     }
 
                     if(expectedType.equals(Float.TYPE)) {
                         if(valuesClass.equals(Integer.class)){
-                            value = (float) ((Integer)value).intValue();
+                            value = (float) (Integer) value;
                         } else if(valuesClass.equals(Byte.class)){
                             value = (float) ((Byte)value).intValue();
                         } else if(valuesClass.equals(Character.class)){
-                            value = (float) ((Character)value).charValue();
+                            value = (float) (Character) value;
                         } else if(valuesClass.equals(Short.class)){
                             value = (float) ((Short)value).intValue();
                         } else if(valuesClass.equals(Long.class)){
-                            value = (float) ((Long)value).longValue();
+                            value = (float) (Long) value;
                         }
                     }
 
                     if(expectedType.equals(Long.TYPE)) {
                         if(valuesClass.equals(Integer.class)){
-                            value = (long) ((Integer)value).intValue();
+                            value = (long) (Integer) value;
                         } else if(valuesClass.equals(Byte.class)){
                             value = (long) ((Byte)value).intValue();
                         } else if(valuesClass.equals(Character.class)){
-                            value = (long) ((Character)value).charValue();
+                            value = (long) (Character) value;
                         } else if(valuesClass.equals(Short.class)){
                             value = (long) ((Short)value).intValue();
                         }

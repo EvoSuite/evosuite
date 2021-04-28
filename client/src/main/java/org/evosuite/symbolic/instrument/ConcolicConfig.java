@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -35,94 +35,105 @@ import org.evosuite.dse.VM;
  *
  * @author csallner@uta.edu (Christoph Csallner)
  */
-public final class ConcolicConfig 
-{
+public final class ConcolicConfig {
 
   /**
    * Log each class and if we rewrite it (y/n)
    */
   public static final boolean LOG_CLASS_NAMES = false;
 
-	/** 
-	 * Class whose methods the instrumentation code will call 
-	 */
+  /**
+   * Class whose methods the instrumentation code will call
+   */
 
-  public static final String VM_FQ    	= VM.class.getName().replace('.', '/'); //$NON-NLS-1$
+  public static final String VM_FQ = VM.class.getName().replace('.', '/'); //$NON-NLS-1$
 
-  public static final String VOID     = "V"; //$NON-NLS-1$
-  public static final String INT      = "I"; //$NON-NLS-1$
-  public static final String INT_ARR  = "[I"; //$NON-NLS-1$
-  public static final String BOOL     = "Z"; //$NON-NLS-1$
-  public static final String BYTE     = "B"; //$NON-NLS-1$
-  public static final String CHAR     = "C"; //$NON-NLS-1$
-  public static final String SHORT    = "S"; //$NON-NLS-1$
-  public static final String LONG     = "J"; //$NON-NLS-1$
-  public static final String FLOAT    = "F"; //$NON-NLS-1$
-  public static final String DOUBLE   = "D"; //$NON-NLS-1$
-  public static final String REF      = "Ljava/lang/Object;"; //$NON-NLS-1$
-  public static final String STR      = "Ljava/lang/String;"; //$NON-NLS-1$
-
-
-  public static final String    V_V = "("+                ")"+VOID; //$NON-NLS-1$ //$NON-NLS-2$
-
-  public static final String    I_V = "("+INT+            ")"+VOID; //$NON-NLS-1$ //$NON-NLS-2$
-  public static final String   II_V = "("+INT+INT+        ")"+VOID; //$NON-NLS-1$ //$NON-NLS-2$
-  public static final String  III_V = "("+INT+INT+INT+    ")"+VOID; //$NON-NLS-1$ //$NON-NLS-2$
-
-  public static final String  IIR_V = "("+INT+INT_ARR+    ")"+VOID; //$NON-NLS-1$ //$NON-NLS-2$
-
-  public static final String    Z_V = "("+BOOL+           ")"+VOID; //$NON-NLS-1$ //$NON-NLS-2$
-  public static final String  ZII_V = "("+BOOL+INT+INT+   ")"+VOID; //$NON-NLS-1$ //$NON-NLS-2$
-  public static final String   IZ_V = "("+INT+BOOL+       ")"+VOID; //$NON-NLS-1$ //$NON-NLS-2$
-  public static final String   IB_V = "("+INT+BYTE+       ")"+VOID; //$NON-NLS-1$ //$NON-NLS-2$
-  public static final String  BII_V = "("+BYTE+INT+INT+   ")"+VOID; //$NON-NLS-1$ //$NON-NLS-2$
-  public static final String   IC_V = "("+INT+CHAR+       ")"+VOID; //$NON-NLS-1$ //$NON-NLS-2$
-  public static final String  CII_V = "("+CHAR+INT+INT+   ")"+VOID; //$NON-NLS-1$ //$NON-NLS-2$
-  public static final String   IS_V = "("+INT+SHORT+      ")"+VOID; //$NON-NLS-1$ //$NON-NLS-2$
-  public static final String  SII_V = "("+SHORT+INT+INT+  ")"+VOID; //$NON-NLS-1$ //$NON-NLS-2$
+  public static final String VOID = "V"; //$NON-NLS-1$
+  public static final String INT = "I"; //$NON-NLS-1$
+  public static final String INT_ARR = "[I"; //$NON-NLS-1$
+  public static final String BOOL = "Z"; //$NON-NLS-1$
+  public static final String BYTE = "B"; //$NON-NLS-1$
+  public static final String CHAR = "C"; //$NON-NLS-1$
+  public static final String SHORT = "S"; //$NON-NLS-1$
+  public static final String LONG = "J"; //$NON-NLS-1$
+  public static final String FLOAT = "F"; //$NON-NLS-1$
+  public static final String DOUBLE = "D"; //$NON-NLS-1$
+  public static final String REF = "Ljava/lang/Object;"; //$NON-NLS-1$
+  public static final String STR = "Ljava/lang/String;"; //$NON-NLS-1$
+  public static final String CLASS = "Ljava/lang/Class;"; //$NON-NLS-1$
 
 
-  public static final String   ZI_V = "("+BOOL+INT+       ")"+VOID; //$NON-NLS-1$ //$NON-NLS-2$
-  public static final String   BI_V = "("+BYTE+INT+       ")"+VOID; //$NON-NLS-1$ //$NON-NLS-2$
-  public static final String   CI_V = "("+CHAR+INT+       ")"+VOID; //$NON-NLS-1$ //$NON-NLS-2$
-  public static final String   SI_V = "("+SHORT+INT+      ")"+VOID; //$NON-NLS-1$ //$NON-NLS-2$
+  public static final String V_V = "(" + ")" + VOID; //$NON-NLS-1$ //$NON-NLS-2$
 
-  public static final String    J_V = "("+LONG+           ")"+VOID; //$NON-NLS-1$ //$NON-NLS-2$
-  public static final String  JII_V = "("+LONG+INT+INT+   ")"+VOID; //$NON-NLS-1$ //$NON-NLS-2$
-  public static final String   IJ_V = "("+INT+LONG+       ")"+VOID; //$NON-NLS-1$ //$NON-NLS-2$
+  public static final String I_V = "(" + INT + ")" + VOID; //$NON-NLS-1$ //$NON-NLS-2$
+  public static final String II_V = "(" + INT + INT + ")" + VOID; //$NON-NLS-1$ //$NON-NLS-2$
+  public static final String IIGG_V = "(" + INT + INT + STR + STR + ")" + VOID; //$NON-NLS-1$ //$NON-NLS-2$
+  public static final String III_V = "(" + INT + INT + INT + ")" + VOID; //$NON-NLS-1$ //$NON-NLS-2$
 
-  public static final String    F_V = "("+FLOAT+          ")"+VOID; //$NON-NLS-1$ //$NON-NLS-2$
-  public static final String   IF_V = "("+INT+FLOAT+      ")"+VOID; //$NON-NLS-1$ //$NON-NLS-2$
-  public static final String   FI_V = "("+INT+FLOAT+      ")"+VOID; //$NON-NLS-1$ //$NON-NLS-2$
-  public static final String  FII_V = "("+FLOAT+INT+INT+  ")"+VOID; //$NON-NLS-1$ //$NON-NLS-2$
+  public static final String IIR_V = "(" + INT + INT_ARR + ")" + VOID; //$NON-NLS-1$ //$NON-NLS-2$
 
-  public static final String    D_V = "("+DOUBLE+         ")"+VOID; //$NON-NLS-1$ //$NON-NLS-2$
-  public static final String  DII_V = "("+DOUBLE+INT+INT+ ")"+VOID; //$NON-NLS-1$ //$NON-NLS-2$
-  public static final String   ID_V = "("+INT+DOUBLE+     ")"+VOID; //$NON-NLS-1$ //$NON-NLS-2$
-
-  public static final String    L_V = "("+REF+            ")"+VOID; //$NON-NLS-1$//$NON-NLS-2$
-  public static final String   LG_V = "("+REF+STR+        ")"+VOID; //$NON-NLS-1$ //$NON-NLS-2$
-  public static final String   LI_V = "("+REF+INT+        ")"+VOID; //$NON-NLS-1$ //$NON-NLS-2$
-  public static final String  LII_V = "("+REF+INT+INT+    ")"+VOID; //$NON-NLS-1$ //$NON-NLS-2$
-  public static final String   IL_V = "("+INT+REF+        ")"+VOID; //$NON-NLS-1$ //$NON-NLS-2$
-  public static final String   LL_V = "("+REF+REF+        ")"+VOID; //$NON-NLS-1$ //$NON-NLS-2$
-
-  public static final String    G_V = "("+STR+            ")"+VOID; //$NON-NLS-1$ //$NON-NLS-2$
-  public static final String   GI_V = "("+STR+INT+        ")"+VOID; //$NON-NLS-1$ //$NON-NLS-2$
-  public static final String   IG_V = "("+INT+STR+        ")"+VOID; //$NON-NLS-1$ //$NON-NLS-2$
-  public static final String  GGG_V = "("+STR+STR+STR+    ")"+VOID; //$NON-NLS-1$ //$NON-NLS-2$
-  public static final String  GGGII_V = "("+STR+STR+STR+INT+INT+")"+VOID; //$NON-NLS-1$ //$NON-NLS-2$
+  public static final String Z_V = "(" + BOOL + ")" + VOID; //$NON-NLS-1$ //$NON-NLS-2$
+  public static final String ZII_V = "(" + BOOL + INT + INT + ")" + VOID; //$NON-NLS-1$ //$NON-NLS-2$
+  public static final String IZ_V = "(" + INT + BOOL + ")" + VOID; //$NON-NLS-1$ //$NON-NLS-2$
+  public static final String IB_V = "(" + INT + BYTE + ")" + VOID; //$NON-NLS-1$ //$NON-NLS-2$
+  public static final String BII_V = "(" + BYTE + INT + INT + ")" + VOID; //$NON-NLS-1$ //$NON-NLS-2$
+  public static final String IC_V = "(" + INT + CHAR + ")" + VOID; //$NON-NLS-1$ //$NON-NLS-2$
+  public static final String CII_V = "(" + CHAR + INT + INT + ")" + VOID; //$NON-NLS-1$ //$NON-NLS-2$
+  public static final String IS_V = "(" + INT + SHORT + ")" + VOID; //$NON-NLS-1$ //$NON-NLS-2$
+  public static final String SII_V = "(" + SHORT + INT + INT + ")" + VOID; //$NON-NLS-1$ //$NON-NLS-2$
 
 
-  public static final String DGGG_V = "("+DOUBLE+STR+STR+STR+")"+VOID; //$NON-NLS-1$ //$NON-NLS-2$
-  public static final String FGGG_V = "("+FLOAT+STR+STR+STR+")"+VOID; //$NON-NLS-1$ //$NON-NLS-2$
-  public static final String JGGG_V = "("+LONG+STR+STR+STR+")"+VOID; //$NON-NLS-1$ //$NON-NLS-2$
-  public static final String IGGG_V = "("+INT+STR+STR+STR+")"+VOID; //$NON-NLS-1$ //$NON-NLS-2$
-  public static final String ZGGG_V = "("+BOOL+STR+STR+STR+")"+VOID; //$NON-NLS-1$ //$NON-NLS-2$
-  public static final String LGGG_V = "("+REF+STR+STR+STR+")"+VOID; //$NON-NLS-1$ //$NON-NLS-2$
+  public static final String ZI_V = "(" + BOOL + INT + ")" + VOID; //$NON-NLS-1$ //$NON-NLS-2$
+  public static final String BI_V = "(" + BYTE + INT + ")" + VOID; //$NON-NLS-1$ //$NON-NLS-2$
+  public static final String CI_V = "(" + CHAR + INT + ")" + VOID; //$NON-NLS-1$ //$NON-NLS-2$
+  public static final String SI_V = "(" + SHORT + INT + ")" + VOID; //$NON-NLS-1$ //$NON-NLS-2$
+
+  public static final String J_V = "(" + LONG + ")" + VOID; //$NON-NLS-1$ //$NON-NLS-2$
+  public static final String JII_V = "(" + LONG + INT + INT + ")" + VOID; //$NON-NLS-1$ //$NON-NLS-2$
+  public static final String IJ_V = "(" + INT + LONG + ")" + VOID; //$NON-NLS-1$ //$NON-NLS-2$
+
+  public static final String F_V = "(" + FLOAT + ")" + VOID; //$NON-NLS-1$ //$NON-NLS-2$
+  public static final String IF_V = "(" + INT + FLOAT + ")" + VOID; //$NON-NLS-1$ //$NON-NLS-2$
+  public static final String FI_V = "(" + INT + FLOAT + ")" + VOID; //$NON-NLS-1$ //$NON-NLS-2$
+  public static final String FII_V = "(" + FLOAT + INT + INT + ")" + VOID; //$NON-NLS-1$ //$NON-NLS-2$
+
+  public static final String D_V = "(" + DOUBLE + ")" + VOID; //$NON-NLS-1$ //$NON-NLS-2$
+  public static final String DII_V = "(" + DOUBLE + INT + INT + ")" + VOID; //$NON-NLS-1$ //$NON-NLS-2$
+  public static final String ID_V = "(" + INT + DOUBLE + ")" + VOID; //$NON-NLS-1$ //$NON-NLS-2$
+
+  public static final String L_V = "(" + REF + ")" + VOID; //$NON-NLS-1$//$NON-NLS-2$
+  public static final String LG_V = "(" + REF + STR + ")" + VOID; //$NON-NLS-1$ //$NON-NLS-2$
+  public static final String LI_V = "(" + REF + INT + ")" + VOID; //$NON-NLS-1$ //$NON-NLS-2$
+  public static final String LIGG_V = "(" + REF + INT + STR + STR + ")" + VOID; //$NON-NLS-1$ //$NON-NLS-2$
+  public static final String LIL_V = "(" + REF + INT + REF + ")" + VOID; //$NON-NLS-1$ //$NON-NLS-2$
+  public static final String LILGG_V = "(" + REF + INT + REF + STR + STR + ")" + VOID; //$NON-NLS-1$ //$NON-NLS-2$
+  public static final String LII_V = "(" + REF + INT + INT + ")" + VOID; //$NON-NLS-1$ //$NON-NLS-2$
+  public static final String IL_V = "(" + INT + REF + ")" + VOID; //$NON-NLS-1$ //$NON-NLS-2$
+  public static final String LL_V = "(" + REF + REF + ")" + VOID; //$NON-NLS-1$ //$NON-NLS-2$
+
+  public static final String G_V = "(" + STR + ")" + VOID; //$NON-NLS-1$ //$NON-NLS-2$
+  public static final String GI_V = "(" + STR + INT + ")" + VOID; //$NON-NLS-1$ //$NON-NLS-2$
+  public static final String GIGG_V = "(" + STR + INT + STR + STR + ")" + VOID; //$NON-NLS-1$ //$NON-NLS-2$
+  public static final String IG_V = "(" + INT + STR + ")" + VOID; //$NON-NLS-1$ //$NON-NLS-2$
+  public static final String GGG_V = "(" + STR + STR + STR + ")" + VOID; //$NON-NLS-1$ //$NON-NLS-2$
+  public static final String GGGII_V = "(" + STR + STR + STR + INT + INT + ")" + VOID; //$NON-NLS-1$ //$NON-NLS-2$
 
 
-  static final String[] BYTECODE_NAME = new String[] {
+  public static final String DGGG_V = "(" + DOUBLE + STR + STR + STR + ")" + VOID; //$NON-NLS-1$ //$NON-NLS-2$
+  public static final String FGGG_V = "(" + FLOAT + STR + STR + STR + ")" + VOID; //$NON-NLS-1$ //$NON-NLS-2$
+  public static final String JGGG_V = "(" + LONG + STR + STR + STR + ")" + VOID; //$NON-NLS-1$ //$NON-NLS-2$
+  public static final String IGGG_V = "(" + INT + STR + STR + STR + ")" + VOID; //$NON-NLS-1$ //$NON-NLS-2$
+  public static final String ZGGG_V = "(" + BOOL + STR + STR + STR + ")" + VOID; //$NON-NLS-1$ //$NON-NLS-2$
+  public static final String LGGG_V = "(" + REF + STR + STR + STR + ")" + VOID; //$NON-NLS-1$ //$NON-NLS-2$
+  public static final String IGGI_V = "(" + INT + STR + STR + INT + ")" + VOID;
+  public static final String IIGGI_V = "(" + INT + INT + STR + STR + INT + ")" + VOID;
+  public static final String LLGGI_V = "(" + REF + REF + STR + STR + INT + ")" + VOID;
+  public static final String LGGI_V = "(" + REF + STR + STR + INT + ")" + VOID;
+
+  public static final String CLASS_V = "(" + CLASS + ")" + VOID;
+
+  //TODO: Move this to a better place eventually
+  public static final String[] BYTECODE_NAME = new String[]{
     "NOP", //$NON-NLS-1$
     "ACONST_NULL", //$NON-NLS-1$
     "ICONST_M1", //$NON-NLS-1$
@@ -309,7 +320,7 @@ public final class ConcolicConfig
     "INVOKESPECIAL", //$NON-NLS-1$
     "INVOKESTATIC", //$NON-NLS-1$
     "INVOKEINTERFACE", //$NON-NLS-1$
-    "UNUSED", //$NON-NLS-1$
+    "INVOKEDYNAMIC", //$NON-NLS-1$
     "NEW", //$NON-NLS-1$
     "NEWARRAY", //$NON-NLS-1$
     "ANEWARRAY", //$NON-NLS-1$

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -37,7 +37,6 @@ import java.util.jar.JarFile;
 
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
-import org.evosuite.runtime.InitializingListener;
 import org.evosuite.runtime.InitializingListenerUtils;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Opcodes;
@@ -57,7 +56,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ResourceList {
 
-	private static Logger logger = LoggerFactory.getLogger(ResourceList.class);
+	private static final Logger logger = LoggerFactory.getLogger(ResourceList.class);
 
 	private static class Cache{
 		/**
@@ -90,7 +89,7 @@ public class ResourceList {
 		public void addPrefix(String prefix, String cpEntry){
 			Set<String> classPathEntries = mapPrefixToCPs.get(prefix);
 			if(classPathEntries==null){
-				classPathEntries = new LinkedHashSet<String>();
+				classPathEntries = new LinkedHashSet<>();
 				mapPrefixToCPs.put(prefix, classPathEntries);
 			}
 			classPathEntries.add(cpEntry);
@@ -142,7 +141,7 @@ public class ResourceList {
 	/*
 	 * ResourceList for each ClassLoader
 	 */
-	private static Map<ClassLoader, ResourceList> instanceMap = new HashMap<ClassLoader, ResourceList>();
+	private static Map<ClassLoader, ResourceList> instanceMap = new HashMap<>();
 
 	private final ClassLoader classLoader;
 
@@ -303,7 +302,7 @@ public class ResourceList {
 	public Set<String> getAllClasses(String classPathEntry, String prefix, boolean includeInternalClasses, boolean excludeAnonymous){
 
 		if(classPathEntry.contains(File.pathSeparator)){
-			Set<String> retval = new LinkedHashSet<String>();
+			Set<String> retval = new LinkedHashSet<>();
 			for(String element : classPathEntry.split(File.pathSeparator)){
 				retval.addAll(getAllClasses(element,prefix,includeInternalClasses,excludeAnonymous));
 			}
@@ -382,22 +381,17 @@ public class ResourceList {
 
 	private static InputStream getClassAsStreamFromClassLoader(String name) {
 
-		String path = name.replace('.', '/') + ".class";
-		String windowsPath = name.replace(".", "\\") + ".class";
+		String path = name.replace('.', File.separatorChar) + ".class";
 
 		//first try with system classloader
 		InputStream is = ClassLoader.getSystemResourceAsStream(path);
 		if (is != null) {
 			return is;
+		} else {
+			// Use the ContextClassLoader
+			is = Thread.currentThread().getContextClassLoader().getResourceAsStream(path);
 		}
-		if (File.separatorChar != '/') {
-			is = ClassLoader.getSystemResourceAsStream(windowsPath);
-			if (is != null) {
-				return is;
-			}
-		}
-
-		return null;
+		return is;
 	}
 
 	private static boolean isClassAnInterface(InputStream input) throws IOException{
@@ -494,11 +488,6 @@ public class ResourceList {
 
 		String cp = ClassPathHandler.getInstance().getTargetProjectClasspath();
 
-		// If running in regression mode and current ClassLoader is the regression ClassLoader
-		if(Properties.isRegression() && 
-				classLoader==TestGenerationContext.getInstance().getRegressionClassLoaderForSUT())
-			 cp = org.evosuite.Properties.REGRESSIONCP;
-
 		for(String entry : cp.split(File.pathSeparator)){
 			addEntry(entry);
 		}		
@@ -513,7 +502,7 @@ public class ResourceList {
 			return; //this classpath entry has already been analyzed
 		}
 
-		getCache().mapCPtoClasses.put(classPathElement, new LinkedHashSet<String>());
+		getCache().mapCPtoClasses.put(classPathElement, new LinkedHashSet<>());
 
 
 		if (!file.exists()) {

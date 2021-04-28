@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -19,7 +19,6 @@
  */
 package org.evosuite.symbolic.solver.cvc4;
 
-import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.Operator;
 import org.evosuite.symbolic.expr.bv.IntegerBinaryExpression;
 import org.evosuite.symbolic.expr.bv.StringBinaryComparison;

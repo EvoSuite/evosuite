@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -20,7 +20,7 @@
 package org.evosuite.symbolic.vm.wrappers;
 
 import org.evosuite.symbolic.expr.Comparator;
-import org.evosuite.symbolic.expr.IntegerConstraint;
+import org.evosuite.symbolic.expr.constraint.IntegerConstraint;
 import org.evosuite.symbolic.expr.Operator;
 import org.evosuite.symbolic.expr.bv.IntegerConstant;
 import org.evosuite.symbolic.expr.bv.StringToIntegerCast;
@@ -29,7 +29,7 @@ import org.evosuite.symbolic.expr.ref.ReferenceConstant;
 import org.evosuite.symbolic.expr.str.StringValue;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 import org.evosuite.symbolic.vm.SymbolicFunction;
-import org.evosuite.symbolic.vm.SymbolicHeap;
+import org.evosuite.symbolic.vm.heap.SymbolicHeap;
 
 public final class I_ParseInt extends SymbolicFunction {
 
@@ -54,7 +54,7 @@ public final class I_ParseInt extends SymbolicFunction {
 				SymbolicHeap.$STRING_VALUE, conc_string, symb_string_ref,
 				conc_string);
 
-		long longValue = (long) conc_integer;
+		long longValue = conc_integer;
 
 		StringToIntegerCast parse_int_value = new StringToIntegerCast(
 				symb_string_value, longValue);

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -19,13 +19,21 @@
  */
 package org.evosuite.utils;
 
+import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.evosuite.testcase.TestCaseUpdater;
+import org.objectweb.asm.Type;
+
 public abstract class ArrayUtil {
+
+	public static final char OPEN_SQUARE_BRACKET = '[';
+	public static final String INPUT_OBJECT_MUST_BE_AN_ARRAY_EXCEPTION_MESSAGE = "Input object must be an array.";
+
 	/**
 	 * <p>asSet</p>
 	 *
@@ -35,7 +43,7 @@ public abstract class ArrayUtil {
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T> Set<T> asSet(T... values) {
-		return new HashSet<T>(Arrays.asList(values));
+		return new HashSet<>(Arrays.asList(values));
 	}
 
 	/** Constant <code>DEFAULT_JOIN_SEPARATOR="IterUtil.DEFAULT_JOIN_SEPARATOR"</code> */
@@ -186,5 +194,208 @@ public abstract class ArrayUtil {
 	    arr = Arrays.copyOf(arr, N + 1);
 	    arr[N] = obj;
 	    return arr;
+	}
+
+	/**
+	 * Calculates the amount of dimensions the array contains.
+	 *
+	 * ClassName for arrays contains one '[' for each dimension as a prefix of the class name,
+	 * we just count them. (i.e. int[][] arr contains "[[I" as a class name).
+	 *
+	 * @param arr
+	 * @return
+	 */
+	public static int getDimensions(Object arr) {
+		if (!arr.getClass().isArray()) {
+			throw new IllegalArgumentException(INPUT_OBJECT_MUST_BE_AN_ARRAY_EXCEPTION_MESSAGE);
+		}
+
+		String className = arr.getClass().getName();
+		return 1 + className.lastIndexOf(OPEN_SQUARE_BRACKET);
+	}
+
+	/**
+	 * Recovers the array lengths for each dimension.
+	 *
+	 * @param arr
+	 * @return
+	 */
+	public static int[] getArrayLengths(Object arr) {
+		if (!arr.getClass().isArray()) {
+			throw new IllegalArgumentException(INPUT_OBJECT_MUST_BE_AN_ARRAY_EXCEPTION_MESSAGE);
+		}
+
+		int dimensions = ArrayUtil.getDimensions(arr);
+    int[] lengths = new int[dimensions];
+
+    Object array = arr;
+    for (int dimension = 0; dimension < dimensions; dimension++) {
+      lengths[dimension] = Array.getLength(array);
+
+      // We don't want to access the last one as it's not an array element
+      if (dimension < dimensions - 1) array = Array.get(array, 0);
+    }
+
+    return lengths;
+	}
+
+	public static String buildArrayIndexName(String arrayName, List<Integer> indices) {
+		String result = arrayName;
+		for (int index : indices) {
+			result += "[" + index + "]";
+		}
+		return result;
+	}
+
+  /**
+   * Creates the lengths array required to create the array referenes
+   *
+   * @param argumentType
+   * @return
+   */
+  public static int[] buildDimensionsArray(Type argumentType) {
+    int dimensions = argumentType.getDimensions();
+    int[] lengths = new int[dimensions];
+
+    for (int dimension = 0; dimension < dimensions; ++dimension) {
+      lengths[dimension] = 0;
+    }
+
+    return lengths;
+  }
+
+  /**
+   * Creates the random lengths array required to create the array referenes
+   *
+   * @param argumentType
+   * @return
+   */
+  public static int[] buildRandomDimensionsArray(Type argumentType) {
+    int dimensions = argumentType.getDimensions();
+    int[] lengths = new int[dimensions];
+
+    for (int dimension = 0; dimension < dimensions; ++dimension) {
+      lengths[dimension] = Randomness.nextInt(TestCaseUpdater.ARRAY_DIMENSION_LOWER_BOUND, TestCaseUpdater.DEFAULT_ARRAY_LENGTH_UPPER_BOUND);
+    }
+
+    return lengths;
+  }
+
+
+  public static Object createArrayCopy(Object originalArray) {
+    int length = Array.getLength(originalArray);
+    Object copyArr = Array.newInstance(originalArray.getClass().getComponentType(), length);
+
+    System.arraycopy(originalArray, 0, copyArr, 0, length);
+
+    return copyArr;
+  }
+
+  public static class MultiDimensionalArrayIterator {
+		private Object array;
+
+		private int[] lengths;
+		private int[] currentPositions;
+		private boolean hasNext;
+
+		public MultiDimensionalArrayIterator(Object array) {
+			this.hasNext = true;
+			this.lengths = ArrayUtil.getArrayLengths(array);
+			this.currentPositions = new int[lengths.length];
+			this.array = array;
+		}
+
+		/**
+		 * Obtains the next element and iterates over the array updating the internal state of the indexes.
+		 *
+		 * Precondition: hasNext has been checked before calling (access is inbounds).
+		 *
+		 * @return
+		 */
+		public Object getNextElement() {
+			Object element = array;
+
+			//In the last access the array becomes the element itself.
+			for (int index : currentPositions) {
+				element = Array.get(element, index);
+			}
+
+			// iterates
+			iterateIndexes();
+
+			return element;
+		}
+
+		/**
+		 * Returns whether the iterator has a next value.
+		 *
+		 * @return
+		 */
+		public boolean hasNext() {
+			return hasNext;
+		}
+
+		/**
+		 * Returns the current indexes
+		 *
+		 * @return
+		 */
+		public int[] getCurrentIndex() {
+			return currentPositions.clone();
+		}
+
+		/**
+		 * Iterates to the next position in the array
+		 *
+		 * *** General Algorithm **
+		 * if current dimension has maxed out its value
+		 * 	 if last dimension has been reached
+		 * 	 	 Then we checked all the elements -> IndexOutOfBounds
+		 *   else we can reset the value of this dimension and move on to the next one.
+		 * else we can update the current dimension and finish
+		 */
+		private void iterateIndexes() {
+			boolean changeableIndexFound = false;
+
+			int index = 0;
+			while (!changeableIndexFound) {
+
+				// Last this dimension is in the last position
+				if (currentPositions[index] == lengths[index]-1) {
+
+					// We are in the last dimension
+					if (index == lengths.length - 1) {
+						currentPositions[index] = currentPositions[index] + 1;
+						changeableIndexFound = true;
+					} else {
+						currentPositions[index] = 0;
+						index++;
+					}
+
+				// We are in an overflow
+				} else if (currentPositions[index] == lengths[index]) {
+					throw new IndexOutOfBoundsException();
+
+				// We are in an updateable position
+				} else {
+					currentPositions[index] = currentPositions[index] + 1;
+					changeableIndexFound = true;
+				}
+			}
+
+			checkHasNext(index);
+		}
+
+		/**
+		 * Checks whether the iterator has more elements ot check
+		 *
+		 * @param lastIndexUpdated
+		 */
+		private void checkHasNext(int lastIndexUpdated) {
+			if (lastIndexUpdated == currentPositions.length-1
+				&& currentPositions[lastIndexUpdated] == lengths[lastIndexUpdated]) {
+				hasNext = false;
+			}
+		}
 	}
 }

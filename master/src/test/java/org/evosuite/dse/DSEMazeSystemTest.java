@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -21,9 +21,9 @@ package org.evosuite.dse;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeTrue;
 
+import com.examples.with.different.packagename.solver.MazeClientArrays;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
@@ -31,26 +31,11 @@ import org.evosuite.Properties.SolverType;
 import org.evosuite.Properties.StoppingCondition;
 import org.evosuite.Properties.Strategy;
 import org.evosuite.SystemTestBase;
-import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
+import org.evosuite.symbolic.dse.algorithm.ExplorationAlgorithmBase;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.examples.with.different.packagename.dse.Add;
-import com.examples.with.different.packagename.dse.ArrayLengthExample;
-import com.examples.with.different.packagename.dse.BooleanExample;
-import com.examples.with.different.packagename.dse.ByteExample;
-import com.examples.with.different.packagename.dse.CharExample;
-import com.examples.with.different.packagename.dse.DoubleExample;
-import com.examples.with.different.packagename.dse.FloatExample;
-import com.examples.with.different.packagename.dse.LongExample;
-import com.examples.with.different.packagename.dse.Max;
-import com.examples.with.different.packagename.dse.Min;
-import com.examples.with.different.packagename.dse.MinUnreachableCode;
-import com.examples.with.different.packagename.dse.NoStaticMethod;
-import com.examples.with.different.packagename.dse.ObjectExample;
-import com.examples.with.different.packagename.dse.ShortExample;
-import com.examples.with.different.packagename.dse.StringExample;
 import com.examples.with.different.packagename.solver.MazeClient;
 
 public class DSEMazeSystemTest extends SystemTestBase {
@@ -63,7 +48,7 @@ public class DSEMazeSystemTest extends SystemTestBase {
 		// Properties.CONCOLIC_TIMEOUT = Integer.MAX_VALUE;
 		Properties.RESET_STATIC_FIELD_GETS = true;
 
-		String cvc4_path = System.getenv("cvc4_path");
+		String cvc4_path = System.getenv("CVC4_PATH");
 		if (cvc4_path != null) {
 			Properties.CVC4_PATH = cvc4_path;
 		}
@@ -92,18 +77,63 @@ public class DSEMazeSystemTest extends SystemTestBase {
 		String targetClass = MazeClient.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+		String[] command = new String[] { "-generateSuiteUsingDSE", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
-		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		ExplorationAlgorithmBase dse = getDSEAFromResult(result);
+		TestSuiteChromosome best = dse.getGeneratedTestSuite();
+
 		System.out.println("EvolvedTestSuite:\n" + best);
 
 		assertFalse(best.getTests().isEmpty());
 
 		assertEquals(27, best.getNumOfCoveredGoals());
-        assertEquals(0, best.getNumOfNotCoveredGoals());
-
+		assertEquals(0, best.getNumOfNotCoveredGoals());
 	}
+
+	@Test
+	public void testMazeClientInputForArraysSupportUsingLazyVariables() {
+
+		EvoSuite evosuite = new EvoSuite();
+		String targetClass = MazeClientArrays.class.getCanonicalName();
+		Properties.TARGET_CLASS = targetClass;
+		Properties.SELECTED_DSE_ARRAYS_MEMORY_MODEL_VERSION = Properties.DSE_ARRAYS_MEMORY_MODEL_VERSION.LAZY_VARIABLES;
+
+		String[] command = new String[] { "-generateSuiteUsingDSE", "-class", targetClass };
+
+		Object result = evosuite.parseCommandLine(command);
+		ExplorationAlgorithmBase dse = getDSEAFromResult(result);
+		TestSuiteChromosome best = dse.getGeneratedTestSuite();
+
+		System.out.println("EvolvedTestSuite:\n" + best);
+
+		assertFalse(best.getTests().isEmpty());
+
+		assertEquals(26, best.getNumOfCoveredGoals());
+		assertEquals(0, best.getNumOfNotCoveredGoals());
+	}
+
+	@Test
+	public void testMazeClientInputForArraysSupportUsingArrayExpressions() {
+
+		EvoSuite evosuite = new EvoSuite();
+		String targetClass = MazeClientArrays.class.getCanonicalName();
+		Properties.TARGET_CLASS = targetClass;
+		Properties.SELECTED_DSE_ARRAYS_MEMORY_MODEL_VERSION = Properties.DSE_ARRAYS_MEMORY_MODEL_VERSION.SELECT_STORE_EXPRESSIONS;
+
+		String[] command = new String[] { "-generateSuiteUsingDSE", "-class", targetClass };
+
+		Object result = evosuite.parseCommandLine(command);
+		ExplorationAlgorithmBase dse = getDSEAFromResult(result);
+		TestSuiteChromosome best = dse.getGeneratedTestSuite();
+
+		System.out.println("EvolvedTestSuite:\n" + best);
+
+		assertFalse(best.getTests().isEmpty());
+
+		assertEquals(26, best.getNumOfCoveredGoals());
+		assertEquals(0, best.getNumOfNotCoveredGoals());
+	}
+
 
 }

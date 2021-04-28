@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,6 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
 package org.evosuite.coverage.mutation;
 
 import java.util.LinkedHashMap;
@@ -31,11 +28,10 @@ import org.evosuite.Properties.Criterion;
 import org.evosuite.coverage.FitnessFunctions;
 import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
 import org.evosuite.ga.archive.Archive;
-import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
-import org.evosuite.testsuite.AbstractTestSuiteChromosome;
+import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 
 /**
@@ -52,11 +48,11 @@ public abstract class MutationSuiteFitness extends TestSuiteFitnessFunction {
 	protected final BranchCoverageSuiteFitness branchFitness;
 
 	// target goals
-	protected final Map<Integer, MutationTestFitness> mutantMap = new LinkedHashMap<Integer, MutationTestFitness>();
+	protected final Map<Integer, MutationTestFitness> mutantMap = new LinkedHashMap<>();
 	protected final int numMutants;
 
-	protected final Set<Integer> removedMutants = new LinkedHashSet<Integer>();
-	protected final Set<Integer> toRemoveMutants = new LinkedHashSet<Integer>();
+	protected final Set<Integer> removedMutants = new LinkedHashSet<>();
+	protected final Set<Integer> toRemoveMutants = new LinkedHashSet<>();
 
 	public MutationSuiteFitness(Criterion criterion) {
 		if (criterion != Criterion.STRONGMUTATION && criterion != Criterion.WEAKMUTATION
@@ -129,6 +125,6 @@ public abstract class MutationSuiteFitness extends TestSuiteFitnessFunction {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public abstract double getFitness(
-	        AbstractTestSuiteChromosome<? extends ExecutableChromosome> individual);
+	public abstract double getFitness(TestSuiteChromosome individual);
+
 }

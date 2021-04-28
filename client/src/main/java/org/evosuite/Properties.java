@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -21,11 +21,11 @@ package org.evosuite;
 
 import org.evosuite.classpath.ClassPathHandler;
 import org.evosuite.lm.MutationType;
-import org.evosuite.regression.RegressionMeasure;
 import org.evosuite.runtime.LoopCounter;
 import org.evosuite.runtime.Runtime;
 import org.evosuite.runtime.RuntimeSettings;
 import org.evosuite.runtime.sandbox.Sandbox;
+import org.evosuite.symbolic.dse.algorithm.DSEAlgorithms;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.FileIOUtils;
 import org.slf4j.Logger;
@@ -52,6 +52,8 @@ import java.util.Set;
  * @author Gordon Fraser
  */
 public class Properties {
+
+	public static final String JAVA_VERSION_WARN_MSG = "EvoSuite does not support Java versions > 8 yet";
 
 	private final static Logger logger = LoggerFactory.getLogger(Properties.class);
 
@@ -359,7 +361,7 @@ public class Properties {
     public static boolean MAP_ELITES_IGNORE_FEATURES = false;
 	
 	@Parameter(key = "algorithm", group = "Search Algorithm", description = "Search algorithm")
-	public static Algorithm ALGORITHM = Algorithm.MONOTONIC_GA;
+	public static Algorithm ALGORITHM = Algorithm.DYNAMOSA;
 
 	/** Different models of neighbourhoods in the Cellular GA **/
 	public enum CGA_Models{
@@ -395,6 +397,31 @@ public class Properties {
 
 	//----------- DSE, which is a special case of LS ---------------
 
+	/** ilebrero: Mostly for benchmarks for new module, I dont think the legacy strategy is gonna be used anymore **/
+	public enum DSE_MODULE_VERSION {
+		LEGACY,
+		NEW
+	}
+
+	/**
+	 * ilebrero: Hope it doesn't make a lot of confusion that there are two versions of arrays supported.
+	 *           - ARRAYS_THEORY: Supports Integers and Reals.
+	 *           - LAZY_VARIABLES: Supports Integers and Reals.
+	 **/
+	public enum DSE_ARRAYS_MEMORY_MODEL_VERSION {
+		SELECT_STORE_EXPRESSIONS,
+		LAZY_VARIABLES
+	}
+
+	@Parameter(key = "dse_module_version", group = "DSE", description = "Module version of DSE, mostly used for benchmarking between modules. For other things the new one is recomended.")
+	public static DSE_MODULE_VERSION CURRENT_DSE_MODULE_VERSION = DSE_MODULE_VERSION.NEW;
+
+	@Parameter(key = "dse_enable_arrays_support", group = "DSE", description = "If arrays should be supported by the concolic engine")
+	public static boolean IS_DSE_ARRAYS_SUPPORT_ENABLED = true;
+
+	@Parameter(key = "selected_dse_module_arrays_support_version", group = "DSE", description = "Which implementation of arrays is used on the concolic engine.")
+	public static DSE_ARRAYS_MEMORY_MODEL_VERSION SELECTED_DSE_ARRAYS_MEMORY_MODEL_VERSION = DSE_ARRAYS_MEMORY_MODEL_VERSION.SELECT_STORE_EXPRESSIONS;
+
 	@Parameter(key = "dse_probability", group = "DSE", description = "Probability used to specify when to use DSE instead of regular LS when LS is applied")
     @DoubleValue(min = 0.0, max = 1.0)
 	public static double DSE_PROBABILITY = 0.5;
@@ -418,6 +445,10 @@ public class Properties {
 	@Parameter(key = "dse_variable_resets", group = "DSE", description = "Times DSE resets the int and real variables with random values")
 	public static int DSE_VARIABLE_RESETS = 2;
 
+    // By default the target is 100
+	@Parameter(key = "dse_target_coverage", group = "DSE", description = "Percentage (out of 100) of target coverage to cover")
+	public static int DSE_TARGET_COVERAGE = 100;
+
 	public enum DSEType {
 		/** apply DSE per statement */
 		STATEMENT,
@@ -426,6 +457,15 @@ public class Properties {
 		/** DSE on whole suites */
 		SUITE;
 	}
+
+	// NOTE (ilebrero): This is the current method name being explored. This is NOT a good practice, but it's
+	//	     the only way I can imagine to get the current method name for saving the bytecodeLogging info in a file.
+	//		 TODO: Is there a better way of doing this?
+	public static String CURRENT_TARGET_METHOD = "";
+
+    // NOTE: by default we use the sage implementation of the algorithm
+	@Parameter(key = "dse_exploration_algorithm", group = "DSE", description = "Type of DSE algorithm to use.")
+	public static DSEAlgorithms DSE_EXPLORATION_ALGORITHM_TYPE = DSEAlgorithms.GENERATIONAL_SEARCH;
 
 	@Parameter(key = "local_search_dse", group = "DSE", description = "Granularity of DSE application")
 	public static DSEType LOCAL_SEARCH_DSE = DSEType.TEST;
@@ -447,6 +487,28 @@ public class Properties {
 	@Parameter(key = "cvc4_path", group = "DSE", description = "Indicates the path to the CVC4 solver")
 	public static String CVC4_PATH = null;
 
+	public enum DSEStoppingConditionCriterion {
+		TARGETCOVERAGE,
+		MAXTIME, /** In seconds */
+    	ZEROFITNESS,
+		MAXTESTS,
+		DEFAULTS /** The ones that are setted by default on the algorithm + Strategy */
+	}
+
+	@Parameter(key = "dse_stopping_condition", group = "DSE", description = "Indicate which stopping condition to use.")
+	public static DSEStoppingConditionCriterion DSE_STOPPING_CONDITION = DSEStoppingConditionCriterion.DEFAULTS;
+
+	@Parameter(key = "bytecode_logging_enabled", group = "DSE", description = "Indicates whether bytecode instructions that are being executed should be logged.")
+	public static boolean BYTECODE_LOGGING_ENABLED = false;
+
+	@Parameter(key = "bytecode_logging_mode", group = "DSE", description = "How to log executed bytecode")
+	public static DSEBytecodeLoggingMode BYTECODE_LOGGING_MODE = DSEBytecodeLoggingMode.STD_OUT;
+
+	// TODO (ilebrero): add other modes
+	public enum DSEBytecodeLoggingMode {
+		STD_OUT,
+		FILE_DUMP
+	}
 
 	// --------- LS ---------
 
@@ -617,7 +679,6 @@ public class Properties {
         /** Max time in seconds */ MAXTIME,
         MAXGENERATIONS, MAXFITNESSEVALUATIONS, TIMEDELTA
 	}
-
 
 	@Parameter(key = "stopping_condition", group = "Search Algorithm", description = "What condition should be checked to end the search")
 	public static StoppingCondition STOPPING_CONDITION = StoppingCondition.MAXTIME;
@@ -893,7 +954,7 @@ public class Properties {
 	// ---------------------------------------------------------------
 	// Output
 	public enum OutputFormat {
-		JUNIT3, JUNIT4, TESTNG
+		JUNIT3, JUNIT4, TESTNG, JUNIT5
 	}
 
 	@Parameter(key = "test_format", group = "Output", description = "Format of the resulting test cases")
@@ -1023,6 +1084,9 @@ public class Properties {
 	@Parameter(key = "report_dir", group = "Output", description = "Directory in which to put HTML and CSV reports")
 	public static String REPORT_DIR = "evosuite-report";
 
+	@Parameter(key = "bytecode_logging_report_dir", group = "Output", description = "Directory in which to put TXT executed bytecode logs.")
+	public static String BYTECODE_LOGGING_REPORT_DIR = "executed-bytecode-logs";
+
 	@Parameter(key = "output_variables", group = "Output", description = "List of variables to output to CSV file. Variables are separated by commas. Null represents default values")
 	public static String OUTPUT_VARIABLES = null;
 
@@ -1120,6 +1184,8 @@ public class Properties {
 	@Parameter(key = "serialize_ga", group = "Output", description = "Include the GA instance in the test generation result")
 	public static boolean SERIALIZE_GA = false;
 
+	@Parameter(key = "serialize_dse", group = "Output", description = "Include the DSE instance in the test generation result")
+	public static boolean SERIALIZE_DSE = false;
 
 	public enum StatisticsBackend {
 		NONE, CONSOLE, CSV, HTML, DEBUG;
@@ -1177,11 +1243,13 @@ public class Properties {
 	// Experimental
 
 
+	@Deprecated
 	@Parameter(key = "jee" , description = "Support for JEE")
-	public static boolean JEE = true;
+	public static boolean JEE = false;
 
+	@Deprecated
 	@Parameter(key = "handle_servlets" , description = "Special treatment of JEE Servlets")
-	public static boolean HANDLE_SERVLETS = false; //TODO off for now, as we might not need it in the end
+	public static boolean HANDLE_SERVLETS = false;
 
 	@Parameter(key = "cluster_recursion", description = "The maximum level of recursion when calculating the dependencies in the test cluster")
 	public static int CLUSTER_RECURSION = 10;
@@ -1284,9 +1352,6 @@ public class Properties {
 
 	@Parameter(key = "seed_dir", group = "Output", description = "Directory name where the best chromosomes are saved")
 	public static String SEED_DIR = "evosuite-seeds";
-
-	@Parameter(key = "serialize_regression_test_suite", group = "Output", description = "(Experimental) If enable, the best minimized test suite with assertions is saved")
-	public static boolean SERIALIZE_REGRESSION_TEST_SUITE = false;
 
 	@Parameter(key = "concolic_mutation", description = "Deprecated. Probability of using concolic mutation operator")
 	@DoubleValue(min = 0.0, max = 1.0)
@@ -1448,7 +1513,7 @@ public class Properties {
 		EXCEPTION, DEFUSE, ALLDEFS, BRANCH, CBRANCH, STRONGMUTATION, WEAKMUTATION,
 		MUTATION, STATEMENT, RHO, AMBIGUITY, IBRANCH, READABILITY,
         ONLYBRANCH, ONLYMUTATION, METHODTRACE, METHOD, METHODNOEXCEPTION, LINE, ONLYLINE, OUTPUT, INPUT,
-        REGRESSION,	REGRESSIONTESTS, TRYCATCH
+        TRYCATCH
 	}
 
     @Parameter(key = "criterion", group = "Runtime", description = "Coverage criterion. Can define more than one criterion by using a ':' separated list")
@@ -1459,9 +1524,6 @@ public class Properties {
 
     /** Cache target class */
 	private static Class<?> TARGET_CLASS_INSTANCE = null;
-	
-	/** Cache target regression class */
-	private static Class<?> TARGET_REGRESSION_CLASS_INSTANCE = null;
 
 	@Parameter(key = "CP", group = "Runtime", description = "The classpath of the target classes")
 	public static String CP = "";
@@ -1509,59 +1571,9 @@ public class Properties {
 
 	@Parameter(key = "exclude_ibranches_cut", group = "Runtime", description = "Exclude ibranches in the cut, to speed up ibranch as secondary criterion")
 	public static boolean EXCLUDE_IBRANCHES_CUT = false;
-
-
-	/*** Evosuite regression testing properties ***/
-
-	@Parameter(key = "regressioncp", group = "Runtime", description = "Regression testing classpath")
-	public static String REGRESSIONCP = ".";
-
-	@Parameter(key = "regression_analysis_combinations", group = "Runtime", description = "What regression fitness combination stragetegy is used")
-	public static int REGRESSION_ANALYSIS_COMBINATIONS = 0;
-
-	@Parameter(key = "regression_analysis_branchdistance", group = "Runtime", description = "What regression branch distance fitness strategy is used")
-	public static int REGRESSION_ANALYSIS_BRANCHDISTANCE = 0;
-
-	@Parameter(key = "regression_analysis_objectdistance", group = "Runtime", description = "What regression object distance fitness strategy will be used")
-	public static int REGRESSION_ANALYSIS_OBJECTDISTANCE = 0;
-
-	@Deprecated
-	@Parameter(key = "regression_different_branches", group = "Runtime", description = "Classes under test have different branch orders")
-	public static boolean REGRESSION_DIFFERENT_BRANCHES = false;
-
-    @Parameter(key = "regression_branch_distance", group = "Runtime", description = "Enable control-flow distance measurement for regression testing")
-    public static boolean REGRESSION_BRANCH_DISTANCE = false;
-
-    @Parameter(key = "regression_fitness", group = "Runtime", description = "Set fitness function for EvosuiteR. [Defaults to Random search]")
-    public static RegressionMeasure REGRESSION_FITNESS = RegressionMeasure.RANDOM;
-
-	@Parameter(key = "regression_analyze", group = "Runtime", description = "Analyze the classes under test, to ensure the effectiveness of evosuite")
-	public static boolean REGRESSION_ANALYZE = false;
-
-	@Parameter(key = "regression_random_strategy", group = "Runtime", description = "What strategy to take after the first fault is found")
-	public static int REGRESSION_RANDOM_STRATEGY = 3;
-
-	@Parameter(key = "regression_disable_special_assertions", group = "Runtime", description = "disable undesirable assertions")
-	public static boolean REGRESSION_DISABLE_SPECIAL_ASSERTIONS = false;
-
-	@Parameter(key = "regression_diversity", group = "Runtime", description = "Include diversity fitness measurement")
-	public static boolean REGRESSION_DIVERSITY = false;
-
-    @Parameter(key = "regression_skip_similar", group = "Runtime", description = "Skip running EvosuiteR on similar classes")
-    public static boolean REGRESSION_SKIP_SIMILAR = false;
-
-    @Parameter(key = "regression_skip_different_cfg", group = "Runtime", description = "Skip running EvosuiteR on classes with different control-flow-graph")
-    public static boolean REGRESSION_SKIP_DIFFERENT_CFG = false;
-
-    @Parameter(key = "regression_statistics", group = "Runtime", description = "Track extra search statistics during regression testing")
-    public static boolean REGRESSION_STATISTICS = false;
-
-	@Parameter(key = "keep_regression_archive", group = "Runtime", description = "Keep an archive of regression tests")
-	public static boolean KEEP_REGRESSION_ARCHIVE = false;
-	
 	
 	public enum Strategy {
-	    ONEBRANCH, EVOSUITE, RANDOM, RANDOM_FIXED, ENTBUG, REGRESSION, MOSUITE, DSE, NOVELTY, MAP_ELITES
+	    ONEBRANCH, EVOSUITE, RANDOM, RANDOM_FIXED, ENTBUG, MOSUITE, DSE, NOVELTY, MAP_ELITES
 	}
 
 	@Parameter(key = "strategy", group = "Runtime", description = "Which mode to use")
@@ -1732,10 +1744,10 @@ public class Properties {
 	}
 
 	/** All fields representing values, inserted via reflection */
-	private static Map<String, Field> parameterMap = new HashMap<String, Field>();
+	private static Map<String, Field> parameterMap = new HashMap<>();
 
 	/** All fields representing values, inserted via reflection */
-	private static Map<Field, Object> defaultMap = new HashMap<Field, Object>();
+	private static Map<Field, Object> defaultMap = new HashMap<>();
 
 	static {
 		// need to do it once, to capture all the default values
@@ -1746,7 +1758,7 @@ public class Properties {
 	 * Keep track of which fields have been changed from their defaults during
 	 * loading
 	 */
-	private static Set<String> changedFields = new HashSet<String>();
+	private static Set<String> changedFields = new HashSet<>();
 
 	/**
 	 * Get class of parameter
@@ -2321,30 +2333,6 @@ public class Properties {
 			}
 		}
 	}
-	
-	private static boolean toReturnRegression = false;
-	
-	/*
-	 * Get target class
-	 * 
-	 * @param isOriginal whether or not you want the original or the regression class.
-	 */
-	public static Class<?> getTargetClassRegression(boolean isOriginal){
-		if (isOriginal && TARGET_CLASS_INSTANCE != null
-		        && TARGET_CLASS_INSTANCE.getCanonicalName().equals(TARGET_CLASS))
-			return TARGET_CLASS_INSTANCE;
-		else if(!isOriginal && TARGET_REGRESSION_CLASS_INSTANCE != null
-		        && TARGET_REGRESSION_CLASS_INSTANCE.getCanonicalName().equals(TARGET_CLASS))
-			return TARGET_REGRESSION_CLASS_INSTANCE;
-		
-		if(isOriginal)
-		 toReturnRegression = true;
-		
-		 Class<?> targetClass = getTargetClass(true);
-		 
-		 toReturnRegression = false;
-		 return targetClass;
-	}
 
 	/**
 	 * Returns the target class. It required, it also executes the 
@@ -2411,12 +2399,6 @@ public class Properties {
 			LoopCounter.getInstance().setActive(false);
 			TARGET_CLASS_INSTANCE = Class.forName(TARGET_CLASS, initialise,
 					TestGenerationContext.getInstance().getClassLoaderForSUT());
-			
-
-			if (STRATEGY == Strategy.REGRESSION) {
-				TARGET_REGRESSION_CLASS_INSTANCE = Class.forName(TARGET_CLASS, initialise,
-                        TestGenerationContext.getInstance().getRegressionClassLoaderForSUT());
-			}
 
 			setClassPrefix();
 
@@ -2427,7 +2409,7 @@ public class Properties {
 			LoopCounter.getInstance().setActive(wasLoopCheckOn);
 		}
 
-		return (Properties.toReturnRegression) ? TARGET_REGRESSION_CLASS_INSTANCE : TARGET_CLASS_INSTANCE;
+		return TARGET_CLASS_INSTANCE;
 	}
 
 	/**
@@ -2467,12 +2449,12 @@ public class Properties {
 			buffer.append(Properties.PROJECT_PREFIX);
 		buffer.append("\n");
 
-		Map<String, Set<Parameter>> fieldMap = new HashMap<String, Set<Parameter>>();
+		Map<String, Set<Parameter>> fieldMap = new HashMap<>();
 		for (Field f : Properties.class.getFields()) {
 			if (f.isAnnotationPresent(Parameter.class)) {
 				Parameter p = f.getAnnotation(Parameter.class);
 				if (!fieldMap.containsKey(p.group()))
-					fieldMap.put(p.group(), new HashSet<Parameter>());
+					fieldMap.put(p.group(), new HashSet<>());
 
 				fieldMap.get(p.group()).add(p);
 			}
@@ -2526,15 +2508,41 @@ public class Properties {
 		}
 	}
 
-	public static final String JAVA_VERSION_WARN_MSG = "EvoSuite does not support Java versions > 8 yet";
-	
-	/*
-	 * whether or not the regression mode is running
+	/**
+	 * Checks whether the current generation strategy is DSE.
+	 *
+	 * @return a boolean value.
 	 */
-	public static boolean isRegression(){
-		boolean isRegression = (STRATEGY == Strategy.REGRESSION);
-		return isRegression;
+	public static boolean isDSEStrategySelected() {
+		return STRATEGY == Strategy.DSE;
 	}
 
+	/**
+	 * Checks whether DSE is enabled in Local Search.
+	 *
+	 * @return a boolean value.
+	 */
+	public static boolean isDSEEnabledInLocalSearch() {
+		return DSE_PROBABILITY > 0.0
+			&& LOCAL_SEARCH_RATE > 0
+			&& LOCAL_SEARCH_PROBABILITY > 0.0;
+	}
 
+	/**
+	 * Checks wheter the selected arrays implementation for DSE is arrays theory.
+	 *
+	 * @return a boolean value
+	 */
+  public static boolean isArraysTheoryImplementationSelected() {
+		return SELECTED_DSE_ARRAYS_MEMORY_MODEL_VERSION == DSE_ARRAYS_MEMORY_MODEL_VERSION.SELECT_STORE_EXPRESSIONS;
+  }
+
+	/**
+	 * Checks wheter the selected arrays implementation for DSE is lazy arrays.
+	 *
+	 * @return a boolean value.
+	 */
+	public static boolean isLazyArraysImplementationSelected() {
+		return SELECTED_DSE_ARRAYS_MEMORY_MODEL_VERSION == DSE_ARRAYS_MEMORY_MODEL_VERSION.LAZY_VARIABLES;
+	}
 }

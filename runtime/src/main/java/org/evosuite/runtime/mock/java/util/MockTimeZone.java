@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -30,6 +30,7 @@ import java.util.TimeZone;
 public abstract class MockTimeZone extends TimeZone{
 
     private static final TimeZone cloneGMT = (TimeZone) TimeZone.getTimeZone("GMT").clone();
+    private static final long serialVersionUID = 2606461171386129455L;
 
     public static void reset(){
         TimeZone.setDefault((TimeZone) cloneGMT.clone());

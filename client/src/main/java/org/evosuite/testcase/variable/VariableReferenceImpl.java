@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -27,6 +27,8 @@ import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.execution.Scope;
 import org.evosuite.utils.generic.GenericClass;
+import org.evosuite.utils.generic.GenericClassFactory;
+import org.evosuite.utils.generic.GenericClassImpl;
 import org.evosuite.utils.PassiveChangeListener;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.commons.GeneratorAdapter;
@@ -44,13 +46,13 @@ public class VariableReferenceImpl implements VariableReference {
 	/**
 	 * Type (class) of the variable
 	 */
-	protected GenericClass type;
+	protected GenericClass<?> type;
 
 	/**
 	 * The testCase in which this VariableReference is valid
 	 */
 	protected TestCase testCase;
-	protected final PassiveChangeListener<Void> changeListener = new PassiveChangeListener<Void>();
+	protected final PassiveChangeListener<Void> changeListener = new PassiveChangeListener<>();
 	protected Integer stPosition;
 	private String originalCode;
 
@@ -62,7 +64,7 @@ public class VariableReferenceImpl implements VariableReference {
 	 * @param type
 	 *            The type (class) of the variable
 	 */
-	public VariableReferenceImpl(TestCase testCase, GenericClass type) {
+	public VariableReferenceImpl(TestCase testCase, GenericClass<?> type) {
 		this.testCase = testCase;
 		this.type = type;
 		testCase.addListener(changeListener);
@@ -79,7 +81,7 @@ public class VariableReferenceImpl implements VariableReference {
 	 *            a {@link java.lang.reflect.Type} object.
 	 */
 	public VariableReferenceImpl(TestCase testCase, Type type) {
-		this(testCase, new GenericClass(type));
+		this(testCase, GenericClassFactory.get(type));
 	}
 
 	/**
@@ -170,7 +172,7 @@ public class VariableReferenceImpl implements VariableReference {
 	public String getSimpleClassName() {
 		// TODO: Workaround for bug in commons lang
 		if (type.isPrimitive()
-		        || (type.isArray() && new GenericClass(type.getComponentType()).isPrimitive()))
+		        || (type.isArray() && GenericClassFactory.get(type.getComponentType()).isPrimitive()))
 			return type.getRawClass().getSimpleName();
 
 		return type.getSimpleName();
@@ -336,7 +338,7 @@ public class VariableReferenceImpl implements VariableReference {
 	 */
 	@Override
 	public void setType(Type type) {
-		this.type = new GenericClass(type);
+		this.type = GenericClassFactory.get(type);
 	}
 
 	/**
@@ -515,7 +517,7 @@ public class VariableReferenceImpl implements VariableReference {
 
 	/** {@inheritDoc} */
 	@Override
-	public GenericClass getGenericClass() {
+	public GenericClass<?> getGenericClass() {
 		return type;
 	}
 

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -24,7 +24,7 @@ import java.util.Set;
 
 import org.evosuite.Properties;
 import org.evosuite.symbolic.ConstraintTooLongException;
-import org.evosuite.symbolic.DSEStats;
+import org.evosuite.symbolic.dse.DSEStatistics;
 import org.evosuite.symbolic.expr.AbstractExpression;
 import org.evosuite.symbolic.expr.Cast;
 import org.evosuite.symbolic.expr.Expression;
@@ -47,7 +47,7 @@ public final class RealToStringCast extends AbstractExpression<String> implement
 		this.expr = _expr;
 
 		if (getSize() > Properties.DSE_CONSTRAINT_LENGTH) {
-			DSEStats.getInstance().reportConstraintTooLong(getSize());
+			DSEStatistics.getInstance().reportConstraintTooLong(getSize());
 			throw new ConstraintTooLongException(getSize());
 		}
 
@@ -86,8 +86,7 @@ public final class RealToStringCast extends AbstractExpression<String> implement
 
 	@Override
 	public Set<Variable<?>> getVariables() {
-		Set<Variable<?>> variables = new HashSet<Variable<?>>();
-		variables.addAll(this.expr.getVariables());
+        Set<Variable<?>> variables = new HashSet<>(this.expr.getVariables());
 		return variables;
 	}
 

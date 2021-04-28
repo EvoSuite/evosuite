@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.mutation.Mutation;
 import org.evosuite.coverage.mutation.MutationObserver;
 import org.evosuite.coverage.mutation.MutationPool;
@@ -40,17 +41,17 @@ public class MutationAnalysisRunner extends BlockJUnit4ClassRunner {
 
 	private static final Logger logger = LoggerFactory.getLogger(MutationAnalysisRunner.class);
 	
-	private Set<Mutation> killedMutants = new LinkedHashSet<Mutation>();
+	private Set<Mutation> killedMutants = new LinkedHashSet<>();
 
 	private Set<Mutation> liveMutants;
 
 	public MutationAnalysisRunner(Class<?> klass, Collection<Mutation> allMutants) throws InitializationError {
 		super(klass);
-		this.liveMutants = new LinkedHashSet<Mutation>(allMutants);
+		this.liveMutants = new LinkedHashSet<>(allMutants);
 	}
 	
 	public MutationAnalysisRunner(Class<?> klass) throws InitializationError {
-		this(klass, MutationPool.getMutants());
+		this(klass, MutationPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getMutants());
 	}
 	
 	public Set<Mutation> getLiveMutants() {
@@ -92,7 +93,7 @@ public class MutationAnalysisRunner extends BlockJUnit4ClassRunner {
 		// Now run it for all touched mutants
 		for(Integer mutantID : touchedMutants) {
 			// logger.info("Current mutant: "+mutantID);
-			Mutation m = MutationPool.getMutant(mutantID);
+			Mutation m = MutationPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getMutant(mutantID);
 			if(killedMutants.contains(m)) {
 				// logger.info("Already dead: "+mutantID);
 				continue;

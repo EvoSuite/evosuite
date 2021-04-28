@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
+
 package org.evosuite.contracts;
 
 import java.lang.reflect.Constructor;
@@ -49,9 +47,9 @@ import org.slf4j.LoggerFactory;
  */
 public class ContractChecker extends ExecutionObserver {
 
-	private static Logger logger = LoggerFactory.getLogger(ContractChecker.class);
+	private static final Logger logger = LoggerFactory.getLogger(ContractChecker.class);
 
-	private final Set<Contract> contracts = new HashSet<Contract>();
+	private final Set<Contract> contracts = new HashSet<>();
 
 	/*
 	 * Maybe it was not a problem, but it all depends on when Properties.CHECK_CONTRACTS_END 
@@ -59,7 +57,7 @@ public class ContractChecker extends ExecutionObserver {
 	 */
 	//private static final boolean checkAtEnd = Properties.CHECK_CONTRACTS_END;
 
-	private static Set<Contract> invalid = new HashSet<Contract>();
+	private static Set<Contract> invalid = new HashSet<>();
 
 	//private static boolean valid = true;
 

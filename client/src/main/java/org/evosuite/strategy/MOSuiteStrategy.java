@@ -26,6 +26,8 @@ import org.evosuite.coverage.TestFitnessFactory;
 import org.evosuite.coverage.branch.BranchCoverageTestFitness;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.FitnessFunction;
+import org.evosuite.ga.TestSuiteChromosomeFactoryMock;
+import org.evosuite.ga.TestSuiteFitnessFunctionMock;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import org.evosuite.result.TestGenerationResultBuilder;
@@ -67,7 +69,8 @@ public class MOSuiteStrategy extends TestGenerationStrategy {
 		
 		// Override chromosome factory
 		// TODO handle this better by introducing generics
-		ChromosomeFactory factory = new RandomLengthTestFactory();
+		ChromosomeFactory<TestSuiteChromosome> factory =
+				new TestSuiteChromosomeFactoryMock(new RandomLengthTestFactory());
 		algorithm.setChromosomeFactory(factory);
 		
 		if(Properties.SERIALIZE_GA || Properties.CLIENT_ON_THREAD)
@@ -78,9 +81,16 @@ public class MOSuiteStrategy extends TestGenerationStrategy {
 
 		// What's the search target
 		List<TestFitnessFactory<? extends TestFitnessFunction>> goalFactories = getFitnessFactories();
-		List<TestFitnessFunction> fitnessFunctions = new ArrayList<>();
-		goalFactories.forEach(f -> fitnessFunctions.addAll(f.getCoverageGoals()));
-		algorithm.addFitnessFunctions((List)fitnessFunctions);
+		List<FitnessFunction<TestSuiteChromosome>> fitnessFunctions = new ArrayList<>();
+
+		for (TestFitnessFactory<? extends TestFitnessFunction> f : goalFactories) {
+			for (TestFitnessFunction goal : f.getCoverageGoals()) {
+				FitnessFunction<TestSuiteChromosome> mock = new TestSuiteFitnessFunctionMock(goal);
+				fitnessFunctions.add(mock);
+			}
+		}
+
+		algorithm.addFitnessFunctions(fitnessFunctions);
 
 		// if (Properties.SHOW_PROGRESS && !logger.isInfoEnabled())
 		algorithm.addListener(progressMonitor); // FIXME progressMonitor may cause
@@ -123,7 +133,7 @@ public class MOSuiteStrategy extends TestGenerationStrategy {
 		} else {
 			zeroFitness.setFinished();
 			testSuite = new TestSuiteChromosome();
-			for (FitnessFunction<?> ff : testSuite.getFitnessValues().keySet()) {
+			for (FitnessFunction<TestSuiteChromosome> ff : testSuite.getFitnessValues().keySet()) {
 				testSuite.setCoverage(ff, 1.0);
 			}
 		}

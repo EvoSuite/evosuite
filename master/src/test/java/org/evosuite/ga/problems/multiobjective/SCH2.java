@@ -22,7 +22,6 @@ package org.evosuite.ga.problems.multiobjective;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.NSGAChromosome;
 import org.evosuite.ga.problems.Problem;
@@ -33,10 +32,10 @@ import org.evosuite.ga.variables.DoubleVariable;
  * 
  * @author José Campos
  */
-@SuppressWarnings({ "rawtypes", "unchecked", "serial" })
-public class SCH2<T extends NSGAChromosome> implements Problem
+@SuppressWarnings({ "serial" })
+public class SCH2 implements Problem<NSGAChromosome>
 {
-	private List<FitnessFunction<T>> fitnessFunctions = new ArrayList<FitnessFunction<T>>();
+	private final List<FitnessFunction<NSGAChromosome>> fitnessFunctions = new ArrayList<>();
 
 	public SCH2() {
 		super();
@@ -44,12 +43,11 @@ public class SCH2<T extends NSGAChromosome> implements Problem
 		/**
 		 * First fitness function
 		 */
-		class f1FitnessFunction extends FitnessFunction {
+		class f1FitnessFunction extends FitnessFunction<NSGAChromosome> {
 			@Override
-			public double getFitness(Chromosome c) {
-				NSGAChromosome individual = (NSGAChromosome)c;
+			public double getFitness(NSGAChromosome c) {
 
-				double x = ((DoubleVariable) individual.getVariables().get(0)).getValue();
+				double x = ((DoubleVariable) c.getVariables().get(0)).getValue();
 
 				double fitness = 0.0;
 				if (x <= 1.0)
@@ -61,7 +59,7 @@ public class SCH2<T extends NSGAChromosome> implements Problem
 				else if (x > 4.0)
                     fitness = x - 4.0;
 
-				updateIndividual(individual, fitness);
+				updateIndividual(c, fitness);
 				return fitness;
 			}
 			@Override
@@ -73,15 +71,14 @@ public class SCH2<T extends NSGAChromosome> implements Problem
 		/**
 		 * Second fitness function
 		 */
-		class f2FitnessFunction extends FitnessFunction {
+		class f2FitnessFunction extends FitnessFunction<NSGAChromosome> {
 			@Override
-			public double getFitness(Chromosome c) {
-				NSGAChromosome individual = (NSGAChromosome)c;
+			public double getFitness(NSGAChromosome c) {
 
-				double x = ((DoubleVariable) individual.getVariables().get(0)).getValue();
+				double x = ((DoubleVariable) c.getVariables().get(0)).getValue();
 				double fitness = Math.pow(x - 5.0, 2.0);
 
-				updateIndividual(individual, fitness);
+				updateIndividual(c, fitness);
 				return fitness;
 			}
 			@Override
@@ -95,7 +92,7 @@ public class SCH2<T extends NSGAChromosome> implements Problem
 	}
 
 	@Override
-	public List<FitnessFunction<T>> getFitnessFunctions() {
+	public List<FitnessFunction<NSGAChromosome>> getFitnessFunctions() {
 		return this.fitnessFunctions;
 	}
 }

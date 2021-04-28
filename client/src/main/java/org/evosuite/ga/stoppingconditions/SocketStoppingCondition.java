@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,6 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
 package org.evosuite.ga.stoppingconditions;
 
 import java.io.IOException;
@@ -37,41 +34,70 @@ import org.slf4j.LoggerFactory;
  *
  * @author Gordon Fraser
  */
-public class SocketStoppingCondition implements StoppingCondition {
+public class SocketStoppingCondition<T extends Chromosome<T>> implements StoppingCondition<T> {
+
+	private static final long serialVersionUID = -8260473153410290373L;
+
+	// There should only be one instance that opens the socket -> singleton design pattern
+	private static SocketStoppingCondition<?> instance = null;
 
 	private volatile boolean interrupted = false;
 
 	private static final Logger logger = LoggerFactory.getLogger(SocketStoppingCondition.class);
-	
+
+	private SocketStoppingCondition() {
+		// singleton pattern
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <T extends Chromosome<T>> SocketStoppingCondition<T> getInstance() {
+		if (instance == null) {
+			instance = new SocketStoppingCondition<>();
+		}
+
+		// Unchecked cast always succeeds as long as we're not actually doing anything with a `T`
+		// instance.
+		return (SocketStoppingCondition<T>) instance;
+	}
+
+	/**
+	 * Always throws an {@code UnsupportedOperationException} when called. Singletons cannot be
+	 * cloned.
+	 *
+	 * @return never returns, always fails
+	 * @throws UnsupportedOperationException always
+	 */
+	@Override
+	public StoppingCondition<T> clone() throws UnsupportedOperationException {
+		throw new UnsupportedOperationException("cannot clone singleton");
+	}
+
 	/**
 	 * <p>accept</p>
 	 */
 	public void accept() {
-		Thread t = new Thread() {
-			@Override
-			public void run() {
-				ServerSocket serverSocket = null;
-				try {
-					serverSocket = new ServerSocket(Properties.STOPPING_PORT);
-					serverSocket.accept();
-					LoggingUtils.getEvoLogger().info("* Stopping request received");
-					interrupted = true;
+		Thread t = new Thread(() -> {
+			ServerSocket serverSocket = null;
+			try {
+				serverSocket = new ServerSocket(Properties.STOPPING_PORT);
+				serverSocket.accept();
+				LoggingUtils.getEvoLogger().info("* Stopping request received");
+				interrupted = true;
 
-				} catch (IOException e) {
-					LoggingUtils.getEvoLogger().warn("Failed to create socket on port "
-					                                         + Properties.STOPPING_PORT);
-				} finally {
-					if(serverSocket != null) {
-						try {
-							serverSocket.close();
-						} catch(IOException e) {
-							logger.info("Error while closing socket: "+e);
-						}
+			} catch (IOException e) {
+				LoggingUtils.getEvoLogger().warn("Failed to create socket on port "
+														 + Properties.STOPPING_PORT);
+			} finally {
+				if(serverSocket != null) {
+					try {
+						serverSocket.close();
+					} catch(IOException e) {
+						logger.info("Error while closing socket: "+e);
 					}
 				}
-
 			}
-		};
+
+		});
 		t.start();
 	}
 
@@ -80,7 +106,7 @@ public class SocketStoppingCondition implements StoppingCondition {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void searchStarted(GeneticAlgorithm<?> algorithm) {
+	public void searchStarted(GeneticAlgorithm<T> algorithm) {
 		// TODO Auto-generated method stub
 
 	}
@@ -90,7 +116,7 @@ public class SocketStoppingCondition implements StoppingCondition {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void iteration(GeneticAlgorithm<?> algorithm) {
+	public void iteration(GeneticAlgorithm<T> algorithm) {
 		// TODO Auto-generated method stub
 
 	}
@@ -100,7 +126,7 @@ public class SocketStoppingCondition implements StoppingCondition {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void searchFinished(GeneticAlgorithm<?> algorithm) {
+	public void searchFinished(GeneticAlgorithm<T> algorithm) {
 		// TODO Auto-generated method stub
 
 	}
@@ -110,7 +136,7 @@ public class SocketStoppingCondition implements StoppingCondition {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void fitnessEvaluation(Chromosome individual) {
+	public void fitnessEvaluation(T individual) {
 		// TODO Auto-generated method stub
 
 	}
@@ -120,7 +146,7 @@ public class SocketStoppingCondition implements StoppingCondition {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void modification(Chromosome individual) {
+	public void modification(T individual) {
 		// TODO Auto-generated method stub
 
 	}

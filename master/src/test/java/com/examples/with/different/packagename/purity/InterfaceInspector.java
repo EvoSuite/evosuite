@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -21,8 +21,8 @@ package com.examples.with.different.packagename.purity;
 
 public interface InterfaceInspector {
 
-	public int pureInspector();
+	int pureInspector();
 	
-	public int impureInspector();
+	int impureInspector();
 	
 }

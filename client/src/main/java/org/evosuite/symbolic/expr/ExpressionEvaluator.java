@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite contributors
  *
  * This file is part of EvoSuite.
@@ -16,6 +16,7 @@
  */
 package org.evosuite.symbolic.expr;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
@@ -24,6 +25,10 @@ import org.apache.oro.text.regex.MalformedPatternException;
 import org.apache.oro.text.regex.Pattern;
 import org.apache.oro.text.regex.Perl5Compiler;
 import org.apache.oro.text.regex.Perl5Matcher;
+import org.evosuite.symbolic.expr.ref.array.ArrayConstant;
+import org.evosuite.symbolic.expr.ref.array.ArrayStore;
+import org.evosuite.symbolic.expr.ref.array.ArrayVariable;
+import org.evosuite.symbolic.expr.ref.array.ArraySelect;
 import org.evosuite.symbolic.expr.bv.IntegerBinaryExpression;
 import org.evosuite.symbolic.expr.bv.IntegerComparison;
 import org.evosuite.symbolic.expr.bv.IntegerConstant;
@@ -47,6 +52,9 @@ import org.evosuite.symbolic.expr.reader.StringReaderExpr;
 import org.evosuite.symbolic.expr.ref.GetFieldExpression;
 import org.evosuite.symbolic.expr.ref.ReferenceConstant;
 import org.evosuite.symbolic.expr.ref.ReferenceVariable;
+import org.evosuite.symbolic.expr.reftype.LambdaSyntheticType;
+import org.evosuite.symbolic.expr.reftype.LiteralClassType;
+import org.evosuite.symbolic.expr.reftype.LiteralNullType;
 import org.evosuite.symbolic.expr.str.IntegerToStringCast;
 import org.evosuite.symbolic.expr.str.RealToStringCast;
 import org.evosuite.symbolic.expr.str.StringBinaryExpression;
@@ -58,12 +66,16 @@ import org.evosuite.symbolic.expr.token.HasMoreTokensExpr;
 import org.evosuite.symbolic.expr.token.NewTokenizerExpr;
 import org.evosuite.symbolic.expr.token.NextTokenizerExpr;
 import org.evosuite.symbolic.expr.token.StringNextTokenExpr;
+import org.evosuite.utils.ArrayUtil;
+import org.evosuite.utils.TypeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * returns the concrete evaluation for a given expression.
- * 
+ *
+ * NOTE (ilebrero): The arrays implementation may be a bit expensive.
+ *
  * @author galeotti
  *
  */
@@ -72,14 +84,15 @@ public class ExpressionEvaluator implements ExpressionVisitor<Object, Void> {
   private static final long TRUE_VALUE = 1L;
   private static final long FALSE_VALUE = 0L;
   protected static final Logger log = LoggerFactory.getLogger(ExpressionEvaluator.class);
+  public static final String IMPLEMENT_ME = "Implement me.";
 
   @Override
   public Object visit(IntegerBinaryExpression n, Void arg) {
     Long leftLong = (Long) n.getLeftOperand().accept(this, null);
     Long rightLong = (Long) n.getRightOperand().accept(this, null);
 
-    long leftVal = leftLong.longValue();
-    long rightVal = rightLong.longValue();
+    long leftVal = leftLong;
+    long rightVal = rightLong;
 
     Operator op = n.getOperator();
     switch (op) {
@@ -137,7 +150,7 @@ public class ExpressionEvaluator implements ExpressionVisitor<Object, Void> {
 
     Long longObject = (Long) n.getOperand().accept(this, null);
 
-    long leftVal = longObject.longValue();
+    long leftVal = longObject;
 
     Operator op = n.getOperator();
     switch (op) {
@@ -179,7 +192,7 @@ public class ExpressionEvaluator implements ExpressionVisitor<Object, Void> {
   @Override
   public Object visit(RealUnaryToIntegerExpression n, Void arg) {
     Double doubleObject = (Double) n.getOperand().accept(this, null);
-    double leftVal = doubleObject.doubleValue();
+    double leftVal = doubleObject;
 
     Operator op = n.getOperator();
     switch (op) {
@@ -236,7 +249,7 @@ public class ExpressionEvaluator implements ExpressionVisitor<Object, Void> {
   @Override
   public Object visit(StringBinaryToIntegerExpression n, Void arg) {
     String first = (String) n.getLeftOperand().accept(this, null);
-    Object second = (Object) n.getRightOperand().accept(this, null);
+    Object second = n.getRightOperand().accept(this, null);
 
     Operator op = n.getOperator();
     switch (op) {
@@ -288,7 +301,6 @@ public class ExpressionEvaluator implements ExpressionVisitor<Object, Void> {
     switch (op) {
       case STARTSWITH:
         long start = (Long) other_v.get(0).accept(this, null);
-
         return first.startsWith(second, (int) start) ? TRUE_VALUE : FALSE_VALUE;
 
       case REGIONMATCHES:
@@ -308,7 +320,7 @@ public class ExpressionEvaluator implements ExpressionVisitor<Object, Void> {
   @Override
   public Object visit(StringMultipleToIntegerExpression n, Void arg) {
     String first = (String) n.getLeftOperand().accept(this, null);
-    Object second = (Object) n.getRightOperand().accept(this, null);
+    Object second = n.getRightOperand().accept(this, null);
     ArrayList<Expression<?>> other_v = n.getOther();
 
     long secLong, thrdLong;
@@ -385,8 +397,8 @@ public class ExpressionEvaluator implements ExpressionVisitor<Object, Void> {
     Double leftDouble = (Double) n.getLeftOperand().accept(this, null);
     Double rightDouble = (Double) n.getRightOperand().accept(this, null);
 
-    double leftVal = leftDouble.doubleValue();
-    double rightVal = rightDouble.doubleValue();
+    double leftVal = leftDouble;
+    double rightVal = rightDouble;
 
     Operator op = n.getOperator();
     switch (op) {
@@ -435,7 +447,7 @@ public class ExpressionEvaluator implements ExpressionVisitor<Object, Void> {
   @Override
   public Object visit(RealUnaryExpression n, Void arg) {
     Double doubleObject = (Double) n.getOperand().accept(this, null);
-    double doubleVal = doubleObject.doubleValue();
+    double doubleVal = doubleObject;
 
     Operator op = n.getOperator();
     switch (op) {
@@ -531,7 +543,7 @@ public class ExpressionEvaluator implements ExpressionVisitor<Object, Void> {
   @Override
   public Object visit(StringBinaryExpression n, Void arg) {
     String first = (String) n.getLeftOperand().accept(this, null);
-    Object second = (Object) n.getRightOperand().accept(this, null);
+    Object second = n.getRightOperand().accept(this, null);
 
     Operator op = n.getOperator();
     switch (op) {
@@ -568,7 +580,6 @@ public class ExpressionEvaluator implements ExpressionVisitor<Object, Void> {
         log.warn("StringBinaryExpression: unimplemented operator! Operator" + op.toString());
         return null;
     }
-
   }
 
   @Override
@@ -579,7 +590,7 @@ public class ExpressionEvaluator implements ExpressionVisitor<Object, Void> {
   @Override
   public Object visit(StringMultipleExpression n, Void arg) {
     String first = (String) n.getLeftOperand().accept(this, null);
-    Object right = (Object) n.getRightOperand().accept(this, null);
+    Object right = n.getRightOperand().accept(this, null);
     ArrayList<Expression<?>> other_v = n.getOther();
     long secLong, thrdLong;
     String secStr, thrdStr;
@@ -699,4 +710,122 @@ public class ExpressionEvaluator implements ExpressionVisitor<Object, Void> {
     }
   }
 
+  @Override
+  public Object visit(ArrayStore.IntegerArrayStore r, Void arg) {
+    Object array = r.getSymbolicArray().accept(this, null);
+    Long index = (Long) r.getSymbolicIndex().accept(this, null);
+    Long value = (Long) r.getSymbolicValue().accept(this, null);
+
+    int intIndex = Math.toIntExact(index);
+
+    // We don't work on the returned array to not update the concrete internal array
+    Object newArray = ArrayUtil.createArrayCopy(array);
+    Array.set(
+      newArray,
+      intIndex,
+      TypeUtil.convertIntegerTo(value, newArray.getClass().getComponentType().getName())
+    );
+
+    return newArray;
+  }
+
+  @Override
+  public Object visit(ArraySelect.IntegerArraySelect r, Void arg) {
+    Object array = r.getSymbolicArray().accept(this, null);
+    Long index = (Long) r.getSymbolicIndex().accept(this, null);
+
+    int intIndex = Math.toIntExact(index);
+
+    return TypeUtil.unboxPrimitiveValue(Array.get(array, intIndex));
+  }
+
+  @Override
+  public Object visit(ArraySelect.RealArraySelect r, Void arg) {
+    Object array = r.getSymbolicArray().accept(this, null);
+    Long index = (Long) r.getSymbolicIndex().accept(this, null);
+
+    int intIndex = Math.toIntExact(index);
+
+    return TypeUtil.unboxPrimitiveValue(Array.get(array, intIndex));
+  }
+
+  @Override
+  public Object visit(ArraySelect.StringArraySelect r, Void arg) {
+    return null;
+  }
+
+  @Override
+  public Object visit(ArrayStore.RealArrayStore r, Void arg) {
+    Object array = r.getSymbolicArray().accept(this, null);
+    Long index = (Long) r.getSymbolicIndex().accept(this, null);
+    Double value = (Double) r.getSymbolicValue().accept(this, null);
+
+    int intIndex = Math.toIntExact(index);
+
+    // We don't work on the returned array to not update the concrete internal array
+    Object newArray = ArrayUtil.createArrayCopy(array);
+    Array.set(newArray, intIndex, TypeUtil.convertRealTo(value, newArray.getClass().getComponentType().getName()));
+
+    return newArray;
+  }
+
+  @Override
+  public Object visit(ArrayStore.StringArrayStore r, Void arg) {
+    throw new UnsupportedOperationException(IMPLEMENT_ME);
+  }
+
+  @Override
+  public Object visit(ArrayConstant.IntegerArrayConstant r, Void arg) {
+    return r.getConcreteValue();
+  }
+
+  @Override
+  public Object visit(ArrayConstant.RealArrayConstant r, Void arg) {
+    return r.getConcreteValue();
+  }
+
+  @Override
+  public Object visit(ArrayConstant.StringArrayConstant r, Void arg) {
+    throw new UnsupportedOperationException(IMPLEMENT_ME);
+  }
+
+  @Override
+  public Object visit(ArrayConstant.ReferenceArrayConstant r, Void arg) {
+    throw new UnsupportedOperationException(IMPLEMENT_ME);
+  }
+
+  @Override
+  public Object visit(ArrayVariable.IntegerArrayVariable r, Void arg) {
+    return r.getConcreteValue();
+  }
+
+  @Override
+  public Object visit(ArrayVariable.RealArrayVariable r, Void arg) {
+    return r.getConcreteValue();
+  }
+
+  @Override
+  public Object visit(ArrayVariable.StringArrayVariable r, Void arg) {
+    throw new UnsupportedOperationException(IMPLEMENT_ME);
+  }
+
+  @Override
+  public Object visit(ArrayVariable.ReferenceArrayVariable r, Void arg) {
+    throw new UnsupportedOperationException(IMPLEMENT_ME);
+  }
+
+  @Override
+  public Object visit(LambdaSyntheticType r, Void arg) {
+    throw new UnsupportedOperationException(IMPLEMENT_ME);
+  }
+
+  @Override
+  public Object visit(LiteralNullType r, Void arg) {
+    throw new UnsupportedOperationException(IMPLEMENT_ME);
+  }
+
+  @Override
+  public Object visit(LiteralClassType r, Void arg) {
+    throw new UnsupportedOperationException(IMPLEMENT_ME);
+  }
 }

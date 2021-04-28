@@ -1,3 +1,22 @@
+/**
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * contributors
+ *
+ * This file is part of EvoSuite.
+ *
+ * EvoSuite is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation, either version 3.0 of the License, or
+ * (at your option) any later version.
+ *
+ * EvoSuite is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.evosuite.ga.metaheuristics;
 
 import org.evosuite.Properties;
@@ -22,8 +41,9 @@ import java.util.List;
  *
  * @param <T>
  */
-public class BreederGA<T extends Chromosome> extends StandardGA<T> {
+public class BreederGA<T extends Chromosome<T>> extends StandardGA<T> {
 
+    private static final long serialVersionUID = 8305884372813786175L;
     private final Logger logger = LoggerFactory.getLogger(BreederGA.class);
 
     /**
@@ -38,10 +58,9 @@ public class BreederGA<T extends Chromosome> extends StandardGA<T> {
 
     @Override
     protected void evolve() {
-        List<T> newGeneration = new ArrayList<>();
 
         // Elitism
-        newGeneration.addAll(elitism());
+        List<T> newGeneration = new ArrayList<>(elitism());
 
         // Truncation selection
         List<T> candidates = population.subList(0, (int)(population.size() * Properties.TRUNCATION_RATE));
@@ -63,8 +82,8 @@ public class BreederGA<T extends Chromosome> extends StandardGA<T> {
                 continue;
             }
 
-            T offspring1 = (T)parent1.clone();
-            T offspring2 = (T)parent2.clone();
+            T offspring1 = parent1.clone();
+            T offspring2 = parent2.clone();
 
             try {
                 crossoverFunction.crossOver(offspring1, offspring2);

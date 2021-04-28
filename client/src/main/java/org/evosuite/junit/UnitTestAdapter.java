@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,14 +17,13 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
+
 package org.evosuite.junit;
 
 import java.util.List;
 import java.util.Map;
 
+import org.evosuite.junit.writer.JUnitAnnotationProvider;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestCodeVisitor;
 
@@ -34,14 +33,14 @@ import org.evosuite.testcase.TestCodeVisitor;
  *
  * @author fraser
  */
-public interface UnitTestAdapter {
+public interface UnitTestAdapter extends JUnitAnnotationProvider {
 
 	/**
 	 * Get all the framework dependent imports
 	 *
 	 * @return a {@link java.lang.String} object.
 	 */
-	public String getImports();
+    String getImports();
 
 	/**
 	 * Get the framework specific definition of the test class
@@ -49,7 +48,7 @@ public interface UnitTestAdapter {
 	 * @param testName a {@link java.lang.String} object.
 	 * @return a {@link java.lang.String} object.
 	 */
-	public String getClassDefinition(String testName);
+    String getClassDefinition(String testName);
 
 	/**
 	 * Get the framework specific definition of a test method
@@ -57,7 +56,7 @@ public interface UnitTestAdapter {
 	 * @param testName a {@link java.lang.String} object.
 	 * @return a {@link java.lang.String} object.
 	 */
-	public String getMethodDefinition(String testName);
+    String getMethodDefinition(String testName);
 
 	/**
 	 * Get the class definition of a test suite
@@ -65,7 +64,7 @@ public interface UnitTestAdapter {
 	 * @param tests a {@link java.util.List} object.
 	 * @return a {@link java.lang.String} object.
 	 */
-	public String getSuite(List<String> tests);
+    String getSuite(List<String> tests);
 
 	/**
 	 * Return the sequence of method calls for a test
@@ -75,7 +74,7 @@ public interface UnitTestAdapter {
 	 * @param id a int.
 	 * @return a {@link java.lang.String} object.
 	 */
-	public String getTestString(int id, TestCase test, Map<Integer, Throwable> exceptions);
+    String getTestString(int id, TestCase test, Map<Integer, Throwable> exceptions);
 
 	/**
 	 * Return the sequence of method calls for a test
@@ -86,6 +85,13 @@ public interface UnitTestAdapter {
 	 * @param id a int.
 	 * @return a {@link java.lang.String} object.
 	 */
-	public String getTestString(int id, TestCase test,
-	        Map<Integer, Throwable> exceptions, TestCodeVisitor visitor);
+    String getTestString(int id, TestCase test,
+                         Map<Integer, Throwable> exceptions, TestCodeVisitor visitor);
+
+	/**
+	 * Add the non-functional requirement to the test case.
+	 *
+	 * @param builder The string builder which should be extended.
+	 */
+	void addNFR(StringBuilder builder);
 }

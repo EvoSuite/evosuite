@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -37,6 +37,7 @@ import org.evosuite.symbolic.solver.SolverErrorException;
 import org.evosuite.symbolic.solver.SolverParseException;
 import org.evosuite.symbolic.solver.SolverResult;
 import org.evosuite.symbolic.solver.SolverTimeoutException;
+import org.evosuite.symbolic.solver.smt.SmtArrayVariable;
 import org.evosuite.symbolic.solver.smt.SmtAssertion;
 import org.evosuite.symbolic.solver.smt.SmtConstantDeclaration;
 import org.evosuite.symbolic.solver.smt.SmtExpr;
@@ -68,12 +69,12 @@ public class Z3Solver extends SmtSolver {
 	static Logger logger = LoggerFactory.getLogger(Z3Solver.class);
 
 	@Override
-	public SolverResult solve(Collection<Constraint<?>> constraints) throws SolverTimeoutException, IOException,
+	public SolverResult executeSolver(Collection<Constraint<?>> constraints) throws SolverTimeoutException, IOException,
 			SolverParseException, SolverEmptyQueryException, SolverErrorException {
 
 		long hard_timeout = Properties.DSE_CONSTRAINT_SOLVER_TIMEOUT_MILLIS;
 
-		Set<Variable<?>> variables = new HashSet<Variable<?>>();
+		Set<Variable<?>> variables = new HashSet<>();
 		for (Constraint<?> c : constraints) {
 			Set<Variable<?>> c_variables = c.getVariables();
 			variables.addAll(c_variables);
@@ -87,7 +88,7 @@ public class Z3Solver extends SmtSolver {
 		}
 
 		if (query.getAssertions().isEmpty()) {
-			Map<String, Object> emptySolution = new HashMap<String, Object>();
+			Map<String, Object> emptySolution = new HashMap<>();
 			SolverResult emptySAT = SolverResult.newSAT(emptySolution);
 			return emptySAT;
 		}
@@ -146,8 +147,7 @@ public class Z3Solver extends SmtSolver {
 	private static String encodeString(String str) {
 		char[] charArray = str.toCharArray();
 		String ret_val = "";
-		for (int i = 0; i < charArray.length; i++) {
-			char c = charArray[i];
+		for (char c : charArray) {
 			// if (Character.isISOControl(c)) {
 			if (Integer.toHexString(c).length() == 1) {
 				// padding
@@ -232,19 +232,34 @@ public class Z3Solver extends SmtSolver {
 		Set<SmtVariable> smtVariables = varCollector.getSmtVariables();
 		Set<Operator> smtOperators = opCollector.getOperators();
 
-		Set<SmtVariable> smtVariablesToDeclare = new HashSet<SmtVariable>(smtVariables);
+		Set<SmtVariable> smtVariablesToDeclare = new HashSet<>(smtVariables);
 
 		for (SmtVariable v1 : smtVariablesToDeclare) {
 			String varName = v1.getName();
 			if (v1 instanceof SmtIntVariable) {
 				SmtConstantDeclaration constantDecl = SmtExprBuilder.mkIntConstantDeclaration(varName);
 				query.addConstantDeclaration(constantDecl);
+
 			} else if (v1 instanceof SmtRealVariable) {
 				SmtConstantDeclaration constantDecl = SmtExprBuilder.mkRealConstantDeclaration(varName);
 				query.addConstantDeclaration(constantDecl);
+
 			} else if (v1 instanceof SmtStringVariable) {
 				SmtConstantDeclaration constantDecl = SmtExprBuilder.mkStringConstantDeclaration(varName);
 				query.addConstantDeclaration(constantDecl);
+
+			} else if (v1 instanceof SmtArrayVariable.SmtRealArrayVariable) {
+				SmtConstantDeclaration arrayVar = SmtExprBuilder.mkRealArrayConstantDeclaration(varName);
+				query.addConstantDeclaration(arrayVar);
+
+			} else if (v1 instanceof SmtArrayVariable.SmtIntegerArrayVariable) {
+				SmtConstantDeclaration arrayVar = SmtExprBuilder.mkIntegerArrayConstantDeclaration(varName);
+				query.addConstantDeclaration(arrayVar);
+
+			} else if (v1 instanceof SmtArrayVariable.SmtStringArrayVariable) {
+				SmtConstantDeclaration arrayVar = SmtExprBuilder.mkStringArrayConstantDeclaration(varName);
+				query.addConstantDeclaration(arrayVar);
+
 			} else {
 				throw new RuntimeException("Unknown variable type " + v1.getClass().getCanonicalName());
 			}

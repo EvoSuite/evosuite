@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -45,10 +45,6 @@ public class EnvironmentDataList {
             classes.add(EvoSuiteLocalAddress.class);
             classes.add(EvoSuiteRemoteAddress.class);
             classes.add(EvoSuiteURL.class);
-        }
-
-        if(RuntimeSettings.useJEE){
-            classes.add(EvoName.class);
         }
 
         return classes;

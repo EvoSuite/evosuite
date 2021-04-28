@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -27,7 +27,7 @@ import org.evosuite.symbolic.expr.token.StringNextTokenExpr;
 import org.evosuite.symbolic.expr.token.TokenizerExpr;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 import org.evosuite.symbolic.vm.SymbolicFunction;
-import org.evosuite.symbolic.vm.SymbolicHeap;
+import org.evosuite.symbolic.vm.heap.SymbolicHeap;
 import org.evosuite.symbolic.vm.string.Types;
 
 public final class NextToken extends SymbolicFunction {

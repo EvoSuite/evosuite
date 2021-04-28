@@ -50,15 +50,18 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 public class TestGeneration {
 
-	private static Logger logger = LoggerFactory.getLogger(TestGeneration.class);
+	private static final Logger logger = LoggerFactory.getLogger(TestGeneration.class);
 	
 	public static List<List<TestGenerationResult>> executeTestGeneration(Options options, List<String> javaOpts,
 			CommandLine line) {
 		
 		Strategy strategy = getChosenStrategy(javaOpts, line);
 
+		/** Updating properties strategy */
+		Properties.STRATEGY = strategy;
+
 		if (strategy == null) {
-			strategy = Strategy.EVOSUITE;
+			strategy = Strategy.MOSUITE;
 		} 
 
         List<List<TestGenerationResult>> results = new ArrayList<>();
@@ -117,9 +120,7 @@ public class TestGeneration {
 				new Option("generateSuite", "use whole suite generation. This is the default behavior"),
 				new Option("generateTests", "use individual test generation (old approach for reference purposes)"),
 				new Option("generateRandom", "use random test generation"),
-				new Option("generateNumRandom",true, "generate fixed number of random tests"),	
-				new Option("regressionSuite", "generate a regression test suite"),
-				new Option("regressionTests", "generate a regression test suite of individual tests"),
+				new Option("generateNumRandom",true, "generate fixed number of random tests"),
 				new Option("generateMOSuite", "use many objective test generation (MOSA). "),
 				new Option("generateSuiteUsingDSE", "use Dynamic Symbolic Execution to generate test suite")
 		};
@@ -143,8 +144,6 @@ public class TestGeneration {
 			strategy = Strategy.EVOSUITE;
 		} else if (line.hasOption("generateRandom")) {
 			strategy = Strategy.RANDOM;
-		} else if (line.hasOption("regressionSuite")) {
-			strategy = Strategy.REGRESSION;
 		} else if (line.hasOption("generateNumRandom")) {
 			strategy = Strategy.RANDOM_FIXED;
 			javaOpts.add("-Dnum_random_tests="
@@ -329,9 +328,6 @@ public class TestGeneration {
 		case RANDOM_FIXED:
 			cmdLine.add("-Dstrategy=Random_Fixed");
 			break;
-		case REGRESSION:
-			cmdLine.add("-Dstrategy=Regression");
-			break;
 		case ENTBUG:
 			cmdLine.add("-Dstrategy=EntBug");
 			break;
@@ -355,7 +351,7 @@ public class TestGeneration {
 			}
 
 			if(!algorithmSet) {
-				cmdLine.add("-Dalgorithm=MOSA");
+				cmdLine.add("-Dalgorithm=DYNAMOSA");
 			}
 			break;
 		case DSE:
@@ -535,18 +531,8 @@ public class TestGeneration {
 			LoggingUtils.getEvoLogger().info("* Could not connect to client process");
 		}
 
-		boolean hasFailed = false;
-		
-		if (Properties.NEW_STATISTICS) {
-			if(MasterServices.getInstance().getMasterNode() == null) {
-				logger.error("Cannot write results as RMI master node is not running");
-				hasFailed = true;
-			} else {
-				boolean written = SearchStatistics.getInstance().writeStatistics();
-				hasFailed = !written;
-			}
-		}
-		
+		boolean hasFailed = writeStatistics();
+
 		/*
 		 * FIXME: it is unclear what is the relation between TestGenerationResult and writeStatistics()
 		 */
@@ -578,6 +564,26 @@ public class TestGeneration {
 		}
 		
 		return results;
+	}
+
+	/**
+	 * Writes generation statistics.
+	 *
+	 * @return
+	 */
+	private static boolean writeStatistics() {
+		boolean hasFailed = false;
+
+		if (Properties.NEW_STATISTICS) {
+			if(MasterServices.getInstance().getMasterNode() == null) {
+				logger.error("Cannot write results as RMI master node is not running");
+				hasFailed = true;
+			} else {
+				boolean written = SearchStatistics.getInstance().writeStatistics();
+				hasFailed = !written;
+			}
+		}
+		return hasFailed;
 	}
 
 	private static void handleClassPath(List<String> cmdLine) {

@@ -31,7 +31,15 @@ import java.util.stream.DoubleStream;
  *
  * @author Gordon Fraser
  */
-public class FitnessProportionateSelection<T extends Chromosome> extends SelectionFunction<T> {
+public class FitnessProportionateSelection<T extends Chromosome<T>> extends SelectionFunction<T> {
+
+	public FitnessProportionateSelection() {
+	}
+
+	public FitnessProportionateSelection(FitnessProportionateSelection<?> other) {
+		// Copy Constructor
+		this.sumValue = other.sumValue;
+	}
 
 	private static final long serialVersionUID = 5206421079815585026L;
 

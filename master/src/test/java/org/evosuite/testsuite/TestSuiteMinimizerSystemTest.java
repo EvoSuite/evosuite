@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -135,7 +135,7 @@ public class TestSuiteMinimizerSystemTest extends SystemTestBase {
         Assert.assertEquals(5, c.size());
     }
 
-    @SuppressWarnings("rawtypes")
+
 	@Test
     public void testWithTwo()
 	{

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
+
 package org.evosuite.runtime.sandbox;
 
 import java.io.FilePermission;
@@ -74,10 +72,10 @@ public class PermissionStatistics {
 
     // Private constructor
 	private PermissionStatistics() {
-		allowedCount = new ConcurrentHashMap<String, Map<String, Integer>>();
-		deniedCount = new ConcurrentHashMap<String, Map<String, Integer>>();
-		deniedClassCount = new ConcurrentHashMap<Class<?>, Integer>();
-		recentAccess = Collections.synchronizedSet(new HashSet<String>());
+		allowedCount = new ConcurrentHashMap<>();
+		deniedCount = new ConcurrentHashMap<>();
+		deniedClassCount = new ConcurrentHashMap<>();
+		recentAccess = Collections.synchronizedSet(new HashSet<>());
 		maxThreads = 1;
 	}
 
@@ -137,7 +135,7 @@ public class PermissionStatistics {
 		String name = permission.getClass().getName();
 		String type = getPermissionType(permission);
 		if (!allowedCount.containsKey(name)) {
-			allowedCount.put(name, new HashMap<String, Integer>());
+			allowedCount.put(name, new HashMap<>());
 		}
 
 		if (allowedCount.get(name).containsKey(type)) {
@@ -187,7 +185,7 @@ public class PermissionStatistics {
 		String type = getPermissionType(permission);
 
 		if (!deniedCount.containsKey(permissionClassName)) {
-			deniedCount.put(permissionClassName, new HashMap<String, Integer>());
+			deniedCount.put(permissionClassName, new HashMap<>());
 		}
 
 		if (deniedCount.get(permissionClassName).containsKey(type)) {

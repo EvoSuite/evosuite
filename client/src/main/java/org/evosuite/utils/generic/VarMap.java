@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,21 +17,13 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
+
 package org.evosuite.utils.generic;
 
 import org.evosuite.runtime.util.Inputs;
 import org.evosuite.utils.ParameterizedTypeImpl;
 
-import java.lang.reflect.GenericArrayType;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.lang.reflect.TypeVariable;
-import java.lang.reflect.WildcardType;
-import java.util.Arrays;
-import java.util.HashMap;
+import java.lang.reflect.*;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -65,9 +57,9 @@ public class VarMap {
 		}
 	}
 
-	public void addAll(Map<TypeVariable<?>, GenericClass> variables) throws IllegalArgumentException{
+	public void addAll(Map<TypeVariable<?>, GenericClass<?>> variables) throws IllegalArgumentException{
 		Inputs.checkNull(variables);
-		for (Entry<TypeVariable<?>, GenericClass> entry : variables.entrySet()) {
+		for (Entry<TypeVariable<?>, GenericClass<?>> entry : variables.entrySet()) {
 			add(entry.getKey(), entry.getValue().getType());
 		}
 	}

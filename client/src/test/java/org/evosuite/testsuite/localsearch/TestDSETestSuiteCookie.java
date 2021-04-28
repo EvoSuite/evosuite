@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite contributors
  *
  * This file is part of EvoSuite.
@@ -202,7 +202,7 @@ public class TestDSETestSuiteCookie {
     assertTrue(coveredGoalsAfterLocalSearch > coveredGoalsBeforeLocalSearch);
 
     int finalSuiteSize = suite.size();
-    assertTrue(coveredGoalsAfterLocalSearch == 8);
+      assertEquals(8, coveredGoalsAfterLocalSearch);
     assertTrue(finalSuiteSize >= 5);
   }
 

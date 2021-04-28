@@ -1,5 +1,6 @@
 # Container image for building the project
 FROM maven:3-openjdk-8-slim as build
+LABEL maintainer="Mitchell Olsthoorn"
 
 # Parameter for skipping the tests in the build process
 ARG SKIP_TESTS=true
@@ -8,7 +9,6 @@ WORKDIR /build
 
 # Copy files and directories needed for building
 COPY pom.xml ./
-COPY generated ./generated/
 COPY shaded ./shaded/
 COPY standalone_runtime ./standalone_runtime/
 COPY plugins ./plugins/

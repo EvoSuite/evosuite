@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -24,6 +24,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
@@ -34,15 +35,17 @@ import org.evosuite.RandomizedTC;
 import org.evosuite.symbolic.expr.Comparator;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.Operator;
-import org.evosuite.symbolic.expr.StringConstraint;
+import org.evosuite.symbolic.expr.constraint.StringConstraint;
 import org.evosuite.symbolic.expr.bv.IntegerConstant;
 import org.evosuite.symbolic.expr.bv.StringBinaryComparison;
 import org.evosuite.symbolic.expr.str.StringConstant;
 import org.evosuite.symbolic.expr.str.StringVariable;
+
 import org.evosuite.symbolic.solver.SolverEmptyQueryException;
+import org.evosuite.symbolic.solver.SolverErrorException;
+import org.evosuite.symbolic.solver.SolverParseException;
 import org.evosuite.symbolic.solver.SolverResult;
 import org.evosuite.symbolic.solver.SolverTimeoutException;
-import org.evosuite.symbolic.solver.avm.EvoSuiteSolver;
 import org.junit.Test;
 
 public class TestConstraintSolver2 extends RandomizedTC {
@@ -92,7 +95,7 @@ public class TestConstraintSolver2 extends RandomizedTC {
 			System.out.println("Found: " + var0);
 
 			assertEquals(EXPECTED_STRING, var0);
-		} catch (SolverTimeoutException e) {
+		} catch (SolverTimeoutException | SolverParseException | SolverErrorException | IOException e) {
 			fail();
 		}
 

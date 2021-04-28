@@ -31,9 +31,16 @@ import org.evosuite.utils.Randomness;
  *
  * Selects an individual by its rank.
  */
-public class RankSelection<T extends Chromosome> extends SelectionFunction<T> {
+public class RankSelection<T extends Chromosome<T>> extends SelectionFunction<T> {
 
 	private static final long serialVersionUID = 7849303009915557682L;
+
+	public RankSelection() {
+	}
+
+	public RankSelection(RankSelection<?> other) {
+		// empty copy constructor
+	}
 
 	/**
 	 * Returns the index of the next individual selected from the given
@@ -49,11 +56,15 @@ public class RankSelection<T extends Chromosome> extends SelectionFunction<T> {
 	 */
 	@Override
 	public int getIndex(List<T> population) {
+		return RankSelection.getIdx(population);
+	}
+
+	public static int getIdx(final List<?> list) {
 		double r = Randomness.nextDouble();
 		double d = Properties.RANK_BIAS
-		        - Math.sqrt((Properties.RANK_BIAS * Properties.RANK_BIAS)
-		                - (4.0 * (Properties.RANK_BIAS - 1.0) * r));
-		int length = population.size();
+				- Math.sqrt((Properties.RANK_BIAS * Properties.RANK_BIAS)
+				- (4.0 * (Properties.RANK_BIAS - 1.0) * r));
+		int length = list.size();
 
 		d = d / 2.0 / (Properties.RANK_BIAS - 1.0);
 
@@ -64,5 +75,4 @@ public class RankSelection<T extends Chromosome> extends SelectionFunction<T> {
 		int index = (int) (length * d);
 		return index;
 	}
-
 }

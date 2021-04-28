@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -32,18 +32,18 @@ import java.util.Map;
  * the CSV files.
  * A runtime variable is either an output of the search (e.g., obtained branch coverage) 
  * or something that can only be determined once the CUT is analyzed (e.g., the number of branches) 
- * 
+ *
  * <p>
  * Note, it is perfectly fine to add new runtime variables in this enum, in any position.
  * But it is essential to provide JavaDoc <b>descriptions</b> for each new variable 
- * 
+ *
  * <p>
  * WARNING: do not change the name of any variable! If you do, current R
  * scripts will break. If you really need to change a name, please first
  * contact Andrea Arcuri.
- * 
+ *
  * @author arcuri
- * 
+ *
  */
 public enum RuntimeVariable {
 
@@ -52,53 +52,53 @@ public enum RuntimeVariable {
 	/** Number of added jump conditions through instrumentation */
 	Instrumented_Predicates,
 	/** Number of classes in classpath  */
-	Classpath_Classes,   
+	Classpath_Classes,
 	/**  Number of classes analyzed for test cluster */
-	Analyzed_Classes,   
+	Analyzed_Classes,
 	/** Total number of generators */
-	Generators,         
+	Generators,
 	/** Total number of modifiers */
-	Modifiers,          
+	Modifiers,
 	/** Total number of branches in CUT */
-	Total_Branches,     
+	Total_Branches,
 	/** Number of covered branches in CUT */
 	Covered_Branches,
 	/** Total number of gradient branches */
 	Gradient_Branches,
 	/** Total number of covered gradient branches */
-	Gradient_Branches_Covered,  
+	Gradient_Branches_Covered,
 	/** The number of lines in the CUT */
 	Lines,
 	/** The actual covered line numbers */
 	Covered_Lines,
 	/** Total number of methods in CUT */
-	Total_Methods,       
+	Total_Methods,
 	/** Number of methods covered */
-	Covered_Methods,    
+	Covered_Methods,
 	/** Number of methods without any predicates */
-	Branchless_Methods, 
+	Branchless_Methods,
 	/** Number of methods without predicates covered */
-	Covered_Branchless_Methods, 
+	Covered_Branchless_Methods,
 	/** Total number of coverage goals for current criterion */
-	Total_Goals,         
+	Total_Goals,
 	/** Total number of covered goals */
-	Covered_Goals,       
+	Covered_Goals,
 	/** Number of mutants */
-	Mutants,            
+	Mutants,
 	/** Total number of statements executed */
 	Statements_Executed,
 	/** The total number of tests executed during the search */
-	Tests_Executed, 
+	Tests_Executed,
 	/** The total number of fitness evaluations during the search */
 	Fitness_Evaluations,
 	/** Number of generations the search algorithm has been evolving */
 	Generations,
 	/** Obtained coverage of the chosen testing criterion */
-	Coverage,            
+	Coverage,
 	/** A bit string (0/1) representing whether goals (in order) are covered */
     CoverageBitString,
 	/** Fitness value of the best individual */
-	Fitness,            
+	Fitness,
 	/** Obtained coverage (of the chosen testing criterion) at different points in time  */
 	CoverageTimeline,
 	/** Obtained fitness values at different points in time */
@@ -197,9 +197,9 @@ public enum RuntimeVariable {
 	/** The total time EvoSuite spent generating the test cases */
 	Total_Time,
 	/** Number of tests in resulting test suite */
-	Size,                
+	Size,
 	/** Total number of statements in final test suite */
-	Length,   
+	Length,
 	/** Number of tests in resulting test suite before minimization */
 	Result_Size,
 	/** Total number of statements in final test suite before minimization */
@@ -215,26 +215,24 @@ public enum RuntimeVariable {
 	/** How many tests were carved, ie used as input seeds for the search */
 	CarvedTests,
 	/** The branch coverage of the carved tests */
-	CarvedCoverage, 
+	CarvedCoverage,
 	/** Was any test unstable in the generated JUnit files? */
-	HadUnstableTests, 
+	HadUnstableTests,
 	/** Number of unstable tests in the generated JUnit files */
-	NumUnstableTests, 
-	/** Number of regression test cases */
-	NumRegressionTestCases,
+	NumUnstableTests,
 	/** An estimate (ie not precise) of the maximum number of threads running at the same time in the CUT */
 	Threads,
 	/** Number of top-level methods throwing an undeclared exception explicitly with a 'throw new' */
-	Explicit_MethodExceptions, 
+	Explicit_MethodExceptions,
 	/** Number of undeclared exception types that were explicitly thrown with a 'throw new' at least once */
-	Explicit_TypeExceptions, 
+	Explicit_TypeExceptions,
 	/** Number of top-level methods throwing an undeclared exception implicitly (ie, no 'new throw') */
-	Implicit_MethodExceptions, 
+	Implicit_MethodExceptions,
 	/** Number of undeclared exception types that were implicitly thrown (ie, no 'new throw') at least once */
 	Implicit_TypeExceptions,
     /** Total number of exceptions covered */
     TotalExceptionsTimeline,
-    
+
     /**
      * Map Elites
      */
@@ -242,7 +240,7 @@ public enum RuntimeVariable {
     FeaturePartitionCount,
     FeatureCount,
     FeaturesFound,
-    
+
 	/* ----- number of unique permissions that were denied for each kind --- */
 	AllPermission,
 	SecurityPermission,
@@ -262,13 +260,6 @@ public enum RuntimeVariable {
 	AudioPermission,
 	OtherPermission,
 	/* -------------------------------------------------------------------- */
-	/** Regression-related Variables */
-	Generated_Assertions,
-	Coverage_Old,
-	Coverage_New,
-	Exception_Difference,
-	State_Distance,
-	Testsuite_Diversity,
 	/** Timings */
 	Time_Assertion,
 	Time_Coverage,
@@ -334,7 +325,7 @@ public enum RuntimeVariable {
 	/* --- Dataflow stuff. FIXME: Is this stuff still valid? --- */
 	AllDefCoverage,
 	AllDefCoverageBitString,
-	DefUseCoverage,	
+	DefUseCoverage,
 	DefUseCoverageBitString,
 	Definitions,
 	Uses,
@@ -357,38 +348,40 @@ public enum RuntimeVariable {
 	CoveredAliasIntraClassPairs,
 	CoveredAliasParameterPairs,
 	/* -------------------------------------------------------------------- */
-	/** The number of constraint made of integer constraints and no other type */ 
+	/** The number of constraint made of integer constraints and no other type */
 	IntegerOnlyConstraints,
-	/** The number of constraint made of real constraints and no other type */ 
+	/** The number of constraint made of real constraints and no other type */
 	RealOnlyConstraints,
-	/** The number of constraint made of real constraints and no other type */ 
+	/** The number of constraint made of real constraints and no other type */
 	StringOnlyConstraints,
-	/** The number of constraint made of integer and real constraints */ 
+	/** The number of constraint made of integer and real constraints */
 	IntegerAndRealConstraints,
-	/** The number of constraint made of integer and string constraints */ 
+	/** The number of constraint made of integer and string constraints */
 	IntegerAndStringConstraints,
-	/** The number of constraint made of real and string constraints */ 
+	/** The number of constraint made of real and string constraints */
 	RealAndStringConstraints,
 	/** Number of constraints containing all three types altogether */
 	IntegerRealAndStringConstraints,
 	/** The total number of constraints during the execution of the Genetic Algorithm*/
 	/** This total should be the sum of all the other types of constraints */
 	TotalNumberOfConstraints,
-	
+
 	/* -------------------------------------------------------------------- */
-	/** The number of SAT answers to Solver queries */ 
+	/** The number of SAT answers to Solver queries */
 	NumberOfSATQueries,
-	/** The number of UNSAT answers to Solver queries */ 
+	/** The number of UNSAT answers to Solver queries */
 	NumberOfUNSATQueries,
-	/** The number of TIMEOUTs when solving queries */ 
+	/** The number of TIMEOUTs when solving queries */
 	NumberOfTimeoutQueries,
-	/** How many SAT queries led to Useful (i.e. better fitness) new tests*/ 
+	/** How many SAT queries led to Useful (i.e. better fitness) new tests*/
 	NumberOfUsefulNewTests,
-	/** How many SAT queries led to Unuseful (i.e. no better fitness) new tests*/ 
+	/** How many SAT queries led to Unuseful (i.e. no better fitness) new tests*/
 	NumberOfUnusefulNewTests,
-	
+	/** How much time was spent solving constraints on the SMT solver*/
+	TotalTimeSpentSolvingConstraints,
+
 	/* -------------------------------------------------------------------- */
-	/** Search budget needed to reach the maximum coverage */ 
+	/** Search budget needed to reach the maximum coverage */
 	/** Used in the comparison between LISP and MOSA */
 	Time2MaxCoverage,
 
@@ -404,17 +397,36 @@ public enum RuntimeVariable {
 	TARGET_BOOLEAN_JUMPS,
 	TARGET_CONDITIONAL_JUMPS,
 	TARGET_DEPENDENT_UPDATES,
-	BINARY_IMAGE_BRANCHES
-	;
+	BINARY_IMAGE_BRANCHES,
+	/* -------------------------------------------------------------------- */
+	/******* DSE related section *******/
+
+	/** Path condition related */
+	MaxPathConditionLength,
+	MinPathConditionLength,
+	AvgPathConditionLength,
+
+	/** Path explotarion related */
+	NumberOfPathsExplored,
+	NumberOfPathsDiverged,
+
+	/** How much time was spent executing tests */
+	TotalTimeSpentExecutingConcolicaly,
+	TotalTimeSpentExecutingTestCases,
+	TotalTimeSpentExecutingNonConcolicTestCases,
+
+	/** Solver Cache Statistics */
+	QueryCacheSize,
+	QueryCacheCalls,
+	QueryCacheHitRate;
 	/* -------------------------------------------------- */
 
-	
-	private static Logger logger = LoggerFactory.getLogger(RuntimeVariable.class);
-	
+	private static final Logger logger = LoggerFactory.getLogger(RuntimeVariable.class);
+
 	/**
 	 * check if the variables do satisfy a set of predefined constraints: eg, the
 	 * number of covered targets cannot be higher than their total number
-	 * 
+	 *
 	 * @param map from (key->variable name) to (value -> output variable)
 	 * @return
 	 */
@@ -426,41 +438,41 @@ public enum RuntimeVariable {
         boolean valid = true;
 
 		try{
-			Integer totalBranches = getIntegerValue(map,Total_Branches); 
-			Integer coveredBranches = getIntegerValue(map,Covered_Branches); 
+			Integer totalBranches = getIntegerValue(map,Total_Branches);
+			Integer coveredBranches = getIntegerValue(map,Covered_Branches);
 
 			if(coveredBranches!=null && totalBranches!=null && coveredBranches > totalBranches){
 				logger.error("Obtained invalid branch count: covered "+coveredBranches+" out of "+totalBranches);
 				valid = false;
 			}
-			
+
 			Integer totalGoals = getIntegerValue(map,Total_Goals);
-			Integer coveredGoals = getIntegerValue(map,Covered_Goals); 
+			Integer coveredGoals = getIntegerValue(map,Covered_Goals);
 
 			if(coveredGoals!=null && totalGoals!=null && coveredGoals > totalGoals){
 				logger.error("Obtained invalid goal count: covered "+coveredGoals+" out of "+totalGoals);
 				valid = false;
 			}
-			
+
 			Integer totalMethods = getIntegerValue(map,Total_Methods);
-			Integer coveredMethods = getIntegerValue(map,Covered_Methods); 
+			Integer coveredMethods = getIntegerValue(map,Covered_Methods);
 
 			if(coveredMethods!=null && totalMethods!=null && coveredMethods > totalMethods){
 				logger.error("Obtained invalid method count: covered "+coveredMethods+" out of "+totalMethods);
 				valid = false;
 			}
-			
+
 			String[] criteria = null;
 			if(map.containsKey("criterion")){
 				criteria = map.get("criterion").toString().split(":");
 			}
-			
+
 			Double coverage = getDoubleValue(map,Coverage);
 			Double branchCoverage = getDoubleValue(map,BranchCoverage);
-			
+
 			if(criteria!=null && criteria.length==1 && criteria[0].equalsIgnoreCase(Criterion.BRANCH.toString())
 					&& coverage!=null && branchCoverage!=null){
-				
+
 				double diff = Math.abs(coverage - branchCoverage);
 				if(diff>0.001){
 					logger.error("Targeting branch coverage, but Coverage is different "+
@@ -468,12 +480,12 @@ public enum RuntimeVariable {
 					valid = false;
 				}
 			}
-			
-			
+
+
 			/*
 			 * TODO there are more things we could check here
 			 */
-			
+
 		} catch(Exception e){
 			logger.error("Exception while validating runtime variables: "+e.getMessage(),e);
 			valid = false;
@@ -481,7 +493,7 @@ public enum RuntimeVariable {
 
 		return valid;
 	}
-	
+
 	private static Integer getIntegerValue(Map<String,OutputVariable<?>> map, RuntimeVariable variable){
 		OutputVariable<?> out = map.get(variable.toString());
 		if( out != null){
@@ -490,7 +502,7 @@ public enum RuntimeVariable {
 			return null;
 		}
 	}
-	
+
 	private static Double getDoubleValue(Map<String,OutputVariable<?>> map, RuntimeVariable variable){
 		OutputVariable<?> out = map.get(variable.toString());
 		if( out != null){

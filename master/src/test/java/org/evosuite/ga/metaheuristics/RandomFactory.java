@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -30,10 +30,10 @@ public class RandomFactory implements ChromosomeFactory<NSGAChromosome>
 {
 	private static final long serialVersionUID = -6984639266849566298L;
 
-	private double upperBound;
-	private double lowerBound;
+	private final double upperBound;
+	private final double lowerBound;
 
-	private int number_of_variables;
+	private final int number_of_variables;
 
 	private boolean ZDT4 = false;
 
@@ -53,9 +53,8 @@ public class RandomFactory implements ChromosomeFactory<NSGAChromosome>
 
 	@Override
 	public NSGAChromosome getChromosome() {
-		NSGAChromosome c = new NSGAChromosome(this.ZDT4,
+		return new NSGAChromosome(this.ZDT4,
 				this.number_of_variables,
 				this.lowerBound, this.upperBound);
-		return c;
 	}
 }

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -62,7 +62,7 @@ public class IterUtil {
 	}
 	
   public static <T> List<T> minList(Iterable<T> collection, Comparator<? super T> comparator) {
-    List<T> minima = new LinkedList<T>();
+    List<T> minima = new LinkedList<>();
 
     if (collection == null) {
       return minima;

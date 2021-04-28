@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -34,9 +34,7 @@ import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testcase.statements.numeric.IntPrimitiveStatement;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testsuite.TestSuiteChromosome;
-import org.evosuite.utils.generic.GenericClass;
-import org.evosuite.utils.generic.GenericConstructor;
-import org.evosuite.utils.generic.GenericMethod;
+import org.evosuite.utils.generic.*;
 import org.junit.After;
 import org.junit.Test;
 
@@ -59,7 +57,7 @@ public class InsertionMutationSystemTest extends SystemTestBase {
 	
 	private TestCase getIntTest(int x) throws NoSuchMethodException, SecurityException, ConstructionFailedException, ClassNotFoundException {
 		Class<?> sut = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(Properties.TARGET_CLASS);
-		GenericClass clazz = new GenericClass(sut);
+		GenericClass<?> clazz = GenericClassFactory.get(sut);
 		
 		DefaultTestCase test = new DefaultTestCase();
 		GenericConstructor gc = new GenericConstructor(clazz.getRawClass().getConstructors()[0], clazz);
@@ -78,7 +76,7 @@ public class InsertionMutationSystemTest extends SystemTestBase {
 	
 	private TestCase getTwoIntTest(int x, int y) throws NoSuchMethodException, SecurityException, ConstructionFailedException, ClassNotFoundException {
 		Class<?> sut = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(Properties.TARGET_CLASS);
-		GenericClass clazz = new GenericClass(sut);
+		GenericClass<?> clazz = GenericClassFactory.get(sut);
 		
 		DefaultTestCase test = new DefaultTestCase();
 		GenericConstructor gc = new GenericConstructor(clazz.getRawClass().getConstructors()[0], clazz);
@@ -101,7 +99,7 @@ public class InsertionMutationSystemTest extends SystemTestBase {
 		Properties.TARGET_CLASS = TrivialInt.class.getCanonicalName();
 		TestChromosome test1 = new TestChromosome();
 		test1.setTestCase(getIntTest(-1000000));
-		TestChromosome test2 = (TestChromosome) test1.clone();
+		TestChromosome test2 = test1.clone();
 		
 		TestSuiteChromosome suite = new TestSuiteChromosome();
 		BranchCoverageSuiteFitness fitness = new BranchCoverageSuiteFitness();
@@ -125,7 +123,7 @@ public class InsertionMutationSystemTest extends SystemTestBase {
 		double oldFitness = suite.getFitness();
 		int notChanged = 0;
 		for(int i = 0; i < 100; i++) {
-			TestChromosome testNew = (TestChromosome) test1.clone();
+			TestChromosome testNew = test1.clone();
 			testNew.mutate();
 			if(testNew.isChanged()) {
 				suite.deleteTest(test1);
@@ -192,7 +190,7 @@ public class InsertionMutationSystemTest extends SystemTestBase {
 		double oldFitness = suite.getFitness();
 		int notChanged = 0;
 		for(int i = 0; i < 10000; i++) {
-			TestChromosome testNew = (TestChromosome) test1.clone();
+			TestChromosome testNew = test1.clone();
 			testNew.mutate();
 			if(testNew.isChanged()) {
 				suite.deleteTest(test1);

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -29,6 +29,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 
+import com.opencsv.exceptions.CsvException;
 import org.apache.commons.io.FileUtils;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
@@ -94,7 +95,7 @@ public class RhoFitnessSystemTest extends SystemTestBase {
 	}
 
 	@Test
-	public void testZeroRhoScoreWithoutPreviousCoverage() throws IOException {
+	public void testZeroRhoScoreWithoutPreviousCoverage() throws IOException, CsvException {
 
 		EvoSuite evosuite = new EvoSuite();
 
@@ -119,14 +120,14 @@ public class RhoFitnessSystemTest extends SystemTestBase {
 
 		CSVReader reader = new CSVReader(new FileReader(statistics_file));
         List<String[]> rows = reader.readAll();
-        assertTrue(rows.size() == 2);
+        assertEquals(2, rows.size());
         reader.close();
 
         assertEquals("0.5", rows.get(1)[0]);
 	}
 
 	@Test
-	public void testZeroRhoScoreWithPreviousCoverage() throws IOException {
+	public void testZeroRhoScoreWithPreviousCoverage() throws IOException, CsvException {
 
 		EvoSuite evosuite = new EvoSuite();
 
@@ -160,7 +161,7 @@ public class RhoFitnessSystemTest extends SystemTestBase {
 
 		CSVReader reader = new CSVReader(new FileReader(statistics_file));
         List<String[]> rows = reader.readAll();
-        assertTrue(rows.size() == 2);
+        assertEquals(2, rows.size());
         reader.close();
 
         assertEquals("0.5", rows.get(1)[0]);

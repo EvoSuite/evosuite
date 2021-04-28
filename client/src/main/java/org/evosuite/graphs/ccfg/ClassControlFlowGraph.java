@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -97,23 +97,23 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 	private final ClassLoader classLoader;
 	
 
-	private Map<String, CCFGMethodEntryNode> methodEntries = new HashMap<String, CCFGMethodEntryNode>();
-	private Map<String, CCFGMethodExitNode> methodExits = new HashMap<String, CCFGMethodExitNode>();
+	private Map<String, CCFGMethodEntryNode> methodEntries = new HashMap<>();
+	private Map<String, CCFGMethodExitNode> methodExits = new HashMap<>();
 
-	public Set<CCFGMethodEntryNode> publicMethods = new HashSet<CCFGMethodEntryNode>();
+	public Set<CCFGMethodEntryNode> publicMethods = new HashSet<>();
 
-	private Map<FrameNodeType, CCFGFrameNode> frameNodes = new HashMap<FrameNodeType, CCFGFrameNode>();
+	private Map<FrameNodeType, CCFGFrameNode> frameNodes = new HashMap<>();
 
 	// cache of already analyzed methods that are known to be pure or impure
 	// respectively
-	private Set<String> pureMethods = new HashSet<String>();
-	private Set<String> impureMethods = new HashSet<String>();
+	private Set<String> pureMethods = new HashSet<>();
+	private Set<String> impureMethods = new HashSet<>();
 
 	// auxilary set for purity analysis to keep track of methods that are
 	// currently
 	// being analyzed across several CCFGs. elements are of the form
 	// <className>.<methodName>
-	private static Set<String> methodsInPurityAnalysis = new HashSet<String>();
+	private static Set<String> methodsInPurityAnalysis = new HashSet<>();
 
 
 	/**
@@ -163,7 +163,7 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 		}
 
 		CCFGMethodEntryNode entry = getMethodEntryOf(methodName);
-		Set<CCFGNode> handled = new HashSet<CCFGNode>();
+		Set<CCFGNode> handled = new HashSet<>();
 
 		// LoggingUtils.getEvoLogger().info(
 		// "Starting purity analysis of " + methodName);
@@ -368,7 +368,7 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 	}
 
 	private void importCFGs() {
-		Map<RawControlFlowGraph, Map<BytecodeInstruction, CCFGCodeNode>> tempMap = new HashMap<RawControlFlowGraph, Map<BytecodeInstruction, CCFGCodeNode>>();
+		Map<RawControlFlowGraph, Map<BytecodeInstruction, CCFGCodeNode>> tempMap = new HashMap<>();
 		// replace each class call node with corresponding CFG
 		for (ClassCallNode ccgNode : ccg.vertexSet()) {
 			RawControlFlowGraph cfg = getRCFG(ccgNode);
@@ -428,7 +428,7 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 
 	private Map<BytecodeInstruction, CCFGCodeNode> importCFG(
 			RawControlFlowGraph cfg) {
-		Map<BytecodeInstruction, CCFGCodeNode> temp = new HashMap<BytecodeInstruction, CCFGCodeNode>();
+		Map<BytecodeInstruction, CCFGCodeNode> temp = new HashMap<>();
 
 		importCFGNodes(cfg, temp);
 		importCFGEdges(cfg, temp);

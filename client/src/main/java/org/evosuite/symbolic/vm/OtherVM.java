@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -26,7 +26,7 @@ import org.evosuite.dse.AbstractVM;
  * @author galeotti
  *
  */
-public final class OtherVM extends AbstractVM {
+public final class  OtherVM extends AbstractVM {
 
 	private final SymbolicEnvironment env;
 

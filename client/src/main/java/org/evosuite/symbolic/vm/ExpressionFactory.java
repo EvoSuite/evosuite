@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -20,6 +20,11 @@
 package org.evosuite.symbolic.vm;
 
 import org.evosuite.symbolic.expr.Operator;
+import org.evosuite.symbolic.expr.ref.array.ArrayConstant;
+import org.evosuite.symbolic.expr.ref.array.ArrayStore;
+import org.evosuite.symbolic.expr.ref.array.ArrayVariable;
+import org.evosuite.symbolic.expr.ref.array.ArrayValue;
+import org.evosuite.symbolic.expr.ref.array.ArraySelect;
 import org.evosuite.symbolic.expr.bv.IntegerBinaryExpression;
 import org.evosuite.symbolic.expr.bv.IntegerConstant;
 import org.evosuite.symbolic.expr.bv.IntegerValue;
@@ -27,9 +32,9 @@ import org.evosuite.symbolic.expr.fp.RealBinaryExpression;
 import org.evosuite.symbolic.expr.fp.RealConstant;
 import org.evosuite.symbolic.expr.fp.RealValue;
 import org.evosuite.symbolic.expr.ref.ReferenceConstant;
-import org.evosuite.symbolic.expr.ref.ReferenceExpression;
-import org.evosuite.symbolic.expr.ref.ReferenceVariable;
+import org.evosuite.symbolic.expr.reftype.LiteralNullType;
 import org.evosuite.symbolic.expr.str.StringConstant;
+import org.evosuite.symbolic.expr.str.StringValue;
 import org.objectweb.asm.Type;
 
 
@@ -94,7 +99,7 @@ public abstract class ExpressionFactory {
 	}
 
 	public static IntegerValue add(IntegerValue left, IntegerValue right,
-			long con) {
+								   long con) {
 		if (!(left instanceof IntegerConstant)
 				&& (right instanceof IntegerConstant)) {
 
@@ -105,7 +110,7 @@ public abstract class ExpressionFactory {
 	}
 
 	private static IntegerValue buildAddNormalized(IntegerValue left,
-			IntegerValue right, long con) {
+												   IntegerValue right, long con) {
 
 		// can only optimize if left is a literal
 		if (!(left instanceof IntegerConstant))
@@ -114,7 +119,7 @@ public abstract class ExpressionFactory {
 		/*
 		 * (add 0 x) --> x
 		 */
-		if (((IntegerConstant) left).getConcreteValue() == 0) {
+		if (left.getConcreteValue() == 0) {
 			return right;
 		}
 
@@ -157,7 +162,7 @@ public abstract class ExpressionFactory {
 	}
 
 	private static RealValue buildAddNormalized(RealValue right,
-			RealValue left, double con) {
+												RealValue left, double con) {
 		// can only optimize if left is a literal
 		if (!(left instanceof RealConstant))
 			return new RealBinaryExpression(left, Operator.PLUS, right, con);
@@ -165,7 +170,7 @@ public abstract class ExpressionFactory {
 		/*
 		 * (add 0 x) --> x
 		 */
-		if (((RealConstant) left).getConcreteValue() == 0) {
+		if (left.getConcreteValue() == 0) {
 			return right;
 		}
 
@@ -200,7 +205,7 @@ public abstract class ExpressionFactory {
 	}
 
 	public static IntegerValue mul(IntegerValue left, IntegerValue right,
-			long con) {
+								   long con) {
 
 		if ((!(left instanceof IntegerConstant))
 				&& (right instanceof IntegerConstant))
@@ -211,7 +216,7 @@ public abstract class ExpressionFactory {
 	}
 
 	private static IntegerValue buildMulNormalized(IntegerValue right,
-			IntegerValue left, long con) {
+												   IntegerValue left, long con) {
 
 		/*
 		 * (mul 0 x) --> 0
@@ -237,7 +242,7 @@ public abstract class ExpressionFactory {
 		}
 
 		return new IntegerBinaryExpression(left, Operator.MUL, right,
-				(long) con);
+				con);
 	}
 
 	public static RealValue mul(RealValue left, RealValue right, double con) {
@@ -251,7 +256,7 @@ public abstract class ExpressionFactory {
 	}
 
 	private static RealValue buildMulNormalized(RealValue right,
-			RealValue left, double con) {
+												RealValue left, double con) {
 
 		/*
 		 * (mul 0 x) --> 0
@@ -275,7 +280,7 @@ public abstract class ExpressionFactory {
 
 		}
 
-		return new RealBinaryExpression(left, Operator.MUL, right, (double) con);
+		return new RealBinaryExpression(left, Operator.MUL, right, con);
 	}
 
 	public static RealValue div(RealValue left, RealValue right, double con) {
@@ -290,7 +295,7 @@ public abstract class ExpressionFactory {
 	}
 
 	public static IntegerValue div(IntegerValue left, IntegerValue right,
-			long con) {
+								   long con) {
 
 		/*
 		 * (div 0 x) --> 0
@@ -313,7 +318,7 @@ public abstract class ExpressionFactory {
 	}
 
 	public static IntegerValue rem(IntegerValue left, IntegerValue right,
-			long con) {
+								   long con) {
 
 		/*
 		 * (rem 0 x) --> 0
@@ -330,5 +335,68 @@ public abstract class ExpressionFactory {
 		referenceConstant.initializeReference(null);
 		return referenceConstant;
 	}
-	
+
+	/**************************** Arrays ****************************/
+
+	public static ArrayValue.IntegerArrayValue buildIntegerArrayConstantExpression(Type objectType, int instanceId) {
+		return new ArrayConstant.IntegerArrayConstant(objectType, instanceId);
+	}
+
+	public static ArrayValue.RealArrayValue buildRealArrayConstantExpression(Type objectType, int instanceId) {
+		return new ArrayConstant.RealArrayConstant(objectType, instanceId);
+	}
+
+	public static ArrayValue.StringArrayValue buildStringArrayConstantExpression(Type objectType, int instanceId) {
+		return new ArrayConstant.StringArrayConstant(objectType, instanceId);
+	}
+
+	public static ArrayValue.ReferenceArrayValue buildReferenceArrayConstantExpression(Type objectType, int instanceId) {
+		return new ArrayConstant.ReferenceArrayConstant(objectType, instanceId);
+	}
+
+	public static ArrayValue.IntegerArrayValue buildIntegerArrayVariableExpression(Type objectType, int instanceId, String arrayName, Object concreteArray) {
+		return new ArrayVariable.IntegerArrayVariable(objectType, instanceId, arrayName, concreteArray);
+	}
+
+	public static ArrayValue.RealArrayValue buildRealArrayVariableExpression(Type objectType, int instanceId, String arrayName, Object concreteArray) {
+		return new ArrayVariable.RealArrayVariable(objectType, instanceId, arrayName, concreteArray);
+	}
+
+	public static ArrayValue.StringArrayValue buildStringArrayVariableExpression(Type objectType, int instanceId, String arrayName, Object concreteArray) {
+		return new ArrayVariable.StringArrayVariable(objectType, instanceId, arrayName, concreteArray);
+	}
+
+	public static ArrayValue.ReferenceArrayValue buildReferenceArrayVariableExpression(Type objectType, int instanceId, String arrayName, Object concreteArray) {
+		return new ArrayVariable.ReferenceArrayVariable(objectType, instanceId, arrayName, concreteArray);
+	}
+
+	public static IntegerValue buildArraySelectExpression(ArrayValue.IntegerArrayValue arrayExpression, IntegerValue symb_index, IntegerValue symb_value) {
+		return new ArraySelect.IntegerArraySelect(arrayExpression, symb_index, symb_value);
+	}
+
+	public static RealValue buildArraySelectExpression(ArrayValue.RealArrayValue arrayExpression, IntegerValue symb_index, RealValue symb_value) {
+		return new ArraySelect.RealArraySelect(arrayExpression, symb_index, symb_value);
+	}
+
+	public static StringValue buildArraySelectExpression(ArrayValue.StringArrayValue arrayExpression, IntegerValue symb_index, StringValue symb_value) {
+		return new ArraySelect.StringArraySelect(arrayExpression, symb_index, symb_value);
+	}
+
+	public static ArrayValue.IntegerArrayValue buildArrayStoreExpression(ArrayValue.IntegerArrayValue symbolic_array_instance, IntegerValue symb_index, IntegerValue symb_value, Object concreteResultingArray) {
+		return new ArrayStore.IntegerArrayStore(symbolic_array_instance, symb_index, symb_value, concreteResultingArray);
+	}
+
+	public static ArrayValue.RealArrayValue buildArrayStoreExpression(ArrayValue.RealArrayValue symbolic_array_instance, IntegerValue symb_index, RealValue symb_value, Object concreteResultingArray) {
+		return new ArrayStore.RealArrayStore(symbolic_array_instance, symb_index, symb_value, concreteResultingArray);
+	}
+
+	public static ArrayValue.StringArrayValue buildArrayStoreExpression(ArrayValue.StringArrayValue symbolic_array_instance, IntegerValue symb_index, StringValue symb_value, Object concreteResultingArray) {
+		return new ArrayStore.StringArrayStore(symbolic_array_instance, symb_index, symb_value, concreteResultingArray);
+	}
+
+	/**************************** Reference Types ****************************/
+
+	public static LiteralNullType buildNewNullReferenceType() {
+		return new LiteralNullType();
+	}
 }

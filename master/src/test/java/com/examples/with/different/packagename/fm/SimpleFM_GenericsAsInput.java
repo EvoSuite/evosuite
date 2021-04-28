@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -24,8 +24,8 @@ package com.examples.with.different.packagename.fm;
  */
 public class SimpleFM_GenericsAsInput {
 
-    public static interface Foo<T>{
-        public boolean isValid(T t);
+    public interface Foo<T>{
+        boolean isValid(T t);
     }
 
     public void bar(Foo<String> bar){

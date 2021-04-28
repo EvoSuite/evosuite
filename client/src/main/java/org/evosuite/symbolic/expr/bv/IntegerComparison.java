@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -24,7 +24,7 @@ import java.util.Set;
 
 import org.evosuite.Properties;
 import org.evosuite.symbolic.ConstraintTooLongException;
-import org.evosuite.symbolic.DSEStats;
+import org.evosuite.symbolic.dse.DSEStatistics;
 import org.evosuite.symbolic.expr.AbstractExpression;
 import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.ExpressionVisitor;
@@ -56,7 +56,7 @@ public final class IntegerComparison extends AbstractExpression<Long> implements
 		this.right = right;
 
 		if (getSize() > Properties.DSE_CONSTRAINT_LENGTH) {
-			DSEStats.getInstance().reportConstraintTooLong(getSize());
+			DSEStatistics.getInstance().reportConstraintTooLong(getSize());
 			throw new ConstraintTooLongException(getSize());
 		}
 	}
@@ -115,7 +115,7 @@ public final class IntegerComparison extends AbstractExpression<Long> implements
 
 	@Override
 	public Set<Variable<?>> getVariables() {
-		Set<Variable<?>> variables = new HashSet<Variable<?>>();
+		Set<Variable<?>> variables = new HashSet<>();
 		variables.addAll(this.left.getVariables());
 		variables.addAll(this.right.getVariables());
 		return variables;
@@ -123,7 +123,7 @@ public final class IntegerComparison extends AbstractExpression<Long> implements
 
 	@Override
 	public Set<Object> getConstants() {
-		Set<Object> result = new HashSet<Object>();
+		Set<Object> result = new HashSet<>();
 		result.addAll(this.left.getConstants());
 		result.addAll(this.right.getConstants());
 		return result;

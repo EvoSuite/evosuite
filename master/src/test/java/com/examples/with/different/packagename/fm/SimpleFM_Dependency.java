@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -24,7 +24,7 @@ package com.examples.with.different.packagename.fm;
  */
 public class SimpleFM_Dependency {
 
-    public static interface Bar{
+    public interface Bar{
         String getBar();
     }
 

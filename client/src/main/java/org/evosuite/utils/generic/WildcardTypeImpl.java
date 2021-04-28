@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -20,6 +20,7 @@
 package org.evosuite.utils.generic;
 
 import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
 import java.util.Arrays;
 
@@ -73,12 +74,21 @@ public class WildcardTypeImpl implements WildcardType {
 	@Override
 	public String toString() {
 		if (lowerBounds.length > 0) {
-			return "? super " + GenericTypeReflector.getTypeName(lowerBounds[0]);
+			return "? super " + stringifyTypeVariable(lowerBounds[0]);
 		} else if (upperBounds[0] == Object.class) {
 			return "?";
 		} else {
-			return "? extends " + GenericTypeReflector.getTypeName(upperBounds[0]);
+			return "? extends " + stringifyTypeVariable(upperBounds[0]);
 		}
 	}
 
+
+	private static String stringifyTypeVariable(Type upperBound){
+		if(upperBound instanceof TypeVariable<?>){
+			return "("+upperBound.getTypeName() + " extends " + Arrays.toString(((TypeVariable<?>) upperBound).getBounds())+")";
+		}
+
+		return GenericTypeReflector.getTypeName(upperBound);
+
+	}
 }

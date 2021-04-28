@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -29,7 +29,7 @@ import org.evosuite.symbolic.expr.ref.ReferenceConstant;
 import org.evosuite.symbolic.expr.str.StringValue;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 import org.evosuite.symbolic.vm.SymbolicFunction;
-import org.evosuite.symbolic.vm.SymbolicHeap;
+import org.evosuite.symbolic.vm.heap.SymbolicHeap;
 
 public final class RegionMatches extends SymbolicFunction {
 
@@ -43,7 +43,7 @@ public final class RegionMatches extends SymbolicFunction {
 	@Override
 	public Object executeFunction() {
 
-		ReferenceConstant symb_receiver = (ReferenceConstant) this
+		ReferenceConstant symb_receiver = this
 				.getSymbReceiver();
 		String conc_receiver = (String) this.getConcReceiver();
 		StringValue stringReceiverExpr = env.heap.getField(
@@ -69,7 +69,7 @@ public final class RegionMatches extends SymbolicFunction {
 				|| ooffsetExpr.containsSymbolicVariable()
 				|| lenExpr.containsSymbolicVariable()) {
 
-			ArrayList<Expression<?>> other = new ArrayList<Expression<?>>();
+			ArrayList<Expression<?>> other = new ArrayList<>();
 			other.add(toffsetExpr);
 			other.add(ooffsetExpr);
 			other.add(lenExpr);

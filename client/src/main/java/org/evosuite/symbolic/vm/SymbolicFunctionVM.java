@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -23,7 +23,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.evosuite.symbolic.expr.IntegerConstraint;
+import org.evosuite.symbolic.expr.constraint.IntegerConstraint;
 import org.evosuite.symbolic.expr.bv.IntegerValue;
 import org.evosuite.symbolic.expr.fp.RealValue;
 import org.evosuite.symbolic.expr.ref.ReferenceExpression;
@@ -191,197 +191,29 @@ public final class SymbolicFunctionVM extends AbstractVM {
 		fillFunctionsTable();
 	}
 
+	/**
+	 * Fills the symbolic functions table
+	 */
 	private void fillFunctionsTable() {
-
-		// java.lang.StringBuffer
-		addFunctionToTable(new StringBufferInit_S(env));
-		addFunctionToTable(new StringBuffer_ToString(env));
-		addFunctionToTable(new StringBufferAppend_B(env));
-		addFunctionToTable(new StringBufferAppend_C(env));
-		addFunctionToTable(new StringBufferAppend_I(env));
-		addFunctionToTable(new StringBufferAppend_L(env));
-		addFunctionToTable(new StringBufferAppend_F(env));
-		addFunctionToTable(new StringBufferAppend_D(env));
-		addFunctionToTable(new StringBufferAppend_STR(env));
-		addFunctionToTable(new StringBuffer_SetLength(env));
-
-		// java.lang.Integer
-		addFunctionToTable(new I_Init(env));
-		addFunctionToTable(new I_ValueOf(env));
-		addFunctionToTable(new I_IntValue(env));
-		addFunctionToTable(new I_ParseInt(env));
-
-		// java.lang.Long
-		addFunctionToTable(new J_Init(env));
-		addFunctionToTable(new J_ValueOf(env));
-		addFunctionToTable(new J_LongValue(env));
-		//
-		// java.lang.Float
-		addFunctionToTable(new F_Init(env));
-		addFunctionToTable(new F_ValueOf(env));
-		addFunctionToTable(new F_FloatValue(env));
-		//
-		// java.lang.Double
-		addFunctionToTable(new D_Init(env));
-		addFunctionToTable(new D_ValueOf(env));
-		addFunctionToTable(new D_DoubleValue(env));
-		//
-		// java.lang.Short
-		addFunctionToTable(new S_Init(env));
-		addFunctionToTable(new S_ValueOf(env));
-		addFunctionToTable(new S_ShortValue(env));
-		//
-		// java.lang.Byte
-		addFunctionToTable(new B_Init(env));
-		addFunctionToTable(new B_ValueOf(env));
-		addFunctionToTable(new B_ByteValue(env));
-		//
-		// java.lang.Character
-		addFunctionToTable(new C_Init(env));
-		addFunctionToTable(new C_ValueOf(env));
-		addFunctionToTable(new C_CharValue(env));
-		addFunctionToTable(new Character_getNumericValue(env));
-		addFunctionToTable(new Character_isDigit(env));
-		addFunctionToTable(new Character_isLetter(env));
-		//
-		// java.lang.Boolean
-		addFunctionToTable(new Z_Init(env));
-		addFunctionToTable(new Z_ValueOf(env));
-		addFunctionToTable(new Z_BooleanValue(env));
-		//
-		// java.lang.Math
-		addFunctionToTable(new ABS.ABS_I(env));
-		addFunctionToTable(new ABS.ABS_L(env));
-		addFunctionToTable(new ABS.ABS_F(env));
-		addFunctionToTable(new ABS.ABS_D(env));
-		addFunctionToTable(new ACOS(env));
-		addFunctionToTable(new ASIN(env));
-		addFunctionToTable(new ATAN(env));
-		addFunctionToTable(new ATAN2(env));
-		addFunctionToTable(new CBRT(env));
-		addFunctionToTable(new CEIL(env));
-		addFunctionToTable(new CopySign.CopySign_F(env));
-		addFunctionToTable(new CopySign.CopySign_D(env));
-		addFunctionToTable(new COS(env));
-		addFunctionToTable(new COSH(env));
-		addFunctionToTable(new EXP(env));
-		addFunctionToTable(new EXPM1(env));
-		addFunctionToTable(new FLOOR(env));
-		addFunctionToTable(new GetExponent.GetExponent_F(env));
-		addFunctionToTable(new GetExponent.GetExponent_D(env));
-		addFunctionToTable(new HYPOT(env));
-		addFunctionToTable(new IEEEremainder(env));
-		addFunctionToTable(new LOG(env));
-		addFunctionToTable(new LOG10(env));
-		addFunctionToTable(new LOG1P(env));
-		addFunctionToTable(new MIN.MIN_I(env));
-		addFunctionToTable(new MIN.MIN_L(env));
-		addFunctionToTable(new MIN.MIN_F(env));
-		addFunctionToTable(new MIN.MIN_D(env));
-		addFunctionToTable(new MAX.MAX_I(env));
-		addFunctionToTable(new MAX.MAX_L(env));
-		addFunctionToTable(new MAX.MAX_F(env));
-		addFunctionToTable(new MAX.MAX_D(env));
-		addFunctionToTable(new NextAfter.NextAfter_F(env));
-		addFunctionToTable(new NextAfter.NextAfter_D(env));
-		addFunctionToTable(new NextUp.NextUp_F(env));
-		addFunctionToTable(new NextUp.NextUp_D(env));
-		addFunctionToTable(new POW(env));
-		addFunctionToTable(new RINT(env));
-		addFunctionToTable(new Round.Round_F(env));
-		addFunctionToTable(new Round.Round_D(env));
-		addFunctionToTable(new SCALB.SCALB_F(env));
-		addFunctionToTable(new SCALB.SCALB_D(env));
-		addFunctionToTable(new SIGNUM.SIGNUM_F(env));
-		addFunctionToTable(new SIGNUM.SIGNUM_D(env));
-		addFunctionToTable(new SIN(env));
-		addFunctionToTable(new SINH(env));
-		addFunctionToTable(new SQRT(env));
-		addFunctionToTable(new TAN(env));
-		addFunctionToTable(new TANH(env));
-		addFunctionToTable(new ToDegrees(env));
-		addFunctionToTable(new ToRadians(env));
-		addFunctionToTable(new ULP.ULP_F(env));
-		addFunctionToTable(new ULP.ULP_D(env));
-
-		// java.lang.String
-		addFunctionToTable(new CharAt(env));
-		addFunctionToTable(new CompareTo(env));
-		addFunctionToTable(new CompareToIgnoreCase(env));
-		addFunctionToTable(new Concat(env));
-		addFunctionToTable(new Contains(env));
-		addFunctionToTable(new EndsWith(env));
-		addFunctionToTable(new Equals(env));
-		addFunctionToTable(new EqualsIgnoreCase(env));
-		addFunctionToTable(new IndexOf.IndexOf_C(env));
-		addFunctionToTable(new IndexOf.IndexOf_S(env));
-		addFunctionToTable(new IndexOf.IndexOf_CI(env));
-		addFunctionToTable(new IndexOf.IndexOf_SI(env));
-		addFunctionToTable(new LastIndexOf.LastIndexOf_C(env));
-		addFunctionToTable(new LastIndexOf.LastIndexOf_S(env));
-		addFunctionToTable(new LastIndexOf.LastIndexOf_CI(env));
-		addFunctionToTable(new LastIndexOf.LastIndexOf_SI(env));
-		addFunctionToTable(new Length(env));
-		addFunctionToTable(new Matches(env));
-		addFunctionToTable(new RegionMatches(env));
-		addFunctionToTable(new RegionMatches5(env));
-		addFunctionToTable(new Replace.Replace_C(env));
-		addFunctionToTable(new Replace.Replace_CS(env));
-		addFunctionToTable(new ReplaceAll(env));
-		addFunctionToTable(new ReplaceFirst(env));
-		addFunctionToTable(new StartsWith.StartsWith_S(env));
-		addFunctionToTable(new StartsWith.StartsWith_SI(env));
-		addFunctionToTable(new Substring.Substring_I(env));
-		addFunctionToTable(new Substring.Substring_II(env));
-		addFunctionToTable(new ToLowerCase(env));
-		addFunctionToTable(new ToString(env));
-		addFunctionToTable(new ToUpperCase(env));
-		addFunctionToTable(new Trim(env));
-		addFunctionToTable(new ValueOf.ValueOf_O(env));
-		addFunctionToTable(new ValueOf.ValueOf_I(env));
-		addFunctionToTable(new ValueOf.ValueOf_J(env));
-		addFunctionToTable(new ValueOf.ValueOf_C(env));
-		addFunctionToTable(new ValueOf.ValueOf_B(env));
-
-		// java.lang.StringBuilder
-		addFunctionToTable(new StringBuilder_Init(env));
-		addFunctionToTable(new StringBuilder_Append.Append_B(env));
-		addFunctionToTable(new StringBuilder_Append.Append_C(env));
-		addFunctionToTable(new StringBuilder_Append.Append_D(env));
-		addFunctionToTable(new StringBuilder_Append.Append_F(env));
-		addFunctionToTable(new StringBuilder_Append.Append_I(env));
-		addFunctionToTable(new StringBuilder_Append.Append_L(env));
-		addFunctionToTable(new StringBuilder_Append.Append_O(env));
-		addFunctionToTable(new StringBuilder_Append.Append_S(env));
-		addFunctionToTable(new StringBuilder_ToString(env));
-
-		// java.util.StringTokenizer
-		addFunctionToTable(new StringTokenizer_Init(env));
-		addFunctionToTable(new HasMoreTokens(env));
-		addFunctionToTable(new NextToken(env));
-
-		// java.io.StringReader
-		addFunctionToTable(new StringReader_Init(env));
-		addFunctionToTable(new StringReader_Read(env));
-
-		// java.io.Reader
-		addFunctionToTable(new Reader_Read(env));
-
-		// java.util.regex.Pattern
-		addFunctionToTable(new Pattern_Matches(env));
-		addFunctionToTable(new Pattern_Matcher(env));
-
-		// java.util.regex.Matcher
-		addFunctionToTable(new Matcher_Matches(env));
-
-		// org.apache.oro.text.regex
-		addFunctionToTable(new Perl5Matcher_Matches(env));
-
-		// java.math.BigInteger
-		addFunctionToTable(new BigInteger_Ctor(env));
-		addFunctionToTable(new BigInteger_IntValue(env));
-		addFunctionToTable(new BigInteger_DivideAndRemainder(env));
-
+		fillLong();
+		fillByte();
+		fillMath();
+		fillFloat();
+		fillShort();
+		fillDouble();
+		fillString();
+		fillReader();
+		fillInteger();
+		fillBoolean();
+		fillCharacter();
+		fillTextRegex();
+		fillBigInteger();
+		fillStringReader();
+		fillRegexPattern();
+		fillStringBuffer();
+		fillRegexMatcher();
+		fillStringBuilder();
+		fillStringTokenizer();
 	}
 
 	private void addFunctionToTable(SymbolicFunction f) {
@@ -451,7 +283,7 @@ public final class SymbolicFunctionVM extends AbstractVM {
 		return op.getReference();
 	}
 
-	private final Map<FunctionKey, SymbolicFunction> functionsTable = new HashMap<FunctionKey, SymbolicFunction>();
+	private final Map<FunctionKey, SymbolicFunction> functionsTable = new HashMap<>();
 
 	private SymbolicFunction getFunction(String owner, String name, String desc) {
 		FunctionKey k = new FunctionKey(owner, name, desc);
@@ -794,4 +626,232 @@ public final class SymbolicFunctionVM extends AbstractVM {
 		env.topFrame().operandStack.pushFp64(expr);
 	}
 
+	/** Function Table Fills */
+
+	private void fillBigInteger() {
+		// java.math.BigInteger
+		addFunctionToTable(new BigInteger_Ctor(env));
+		addFunctionToTable(new BigInteger_IntValue(env));
+		addFunctionToTable(new BigInteger_DivideAndRemainder(env));
+	}
+
+	private void fillTextRegex() {
+		// org.apache.oro.text.regex
+		addFunctionToTable(new Perl5Matcher_Matches(env));
+	}
+
+	private void fillRegexMatcher() {
+		// java.util.regex.Matcher
+		addFunctionToTable(new Matcher_Matches(env));
+	}
+
+	private void fillRegexPattern() {
+		// java.util.regex.Pattern
+		addFunctionToTable(new Pattern_Matches(env));
+		addFunctionToTable(new Pattern_Matcher(env));
+	}
+
+	private void fillReader() {
+		// java.io.Reader
+		addFunctionToTable(new Reader_Read(env));
+	}
+
+	private void fillStringReader() {
+		// java.io.StringReader
+		addFunctionToTable(new StringReader_Init(env));
+		addFunctionToTable(new StringReader_Read(env));
+	}
+
+	private void fillStringTokenizer() {
+		// java.util.StringTokenizer
+		addFunctionToTable(new StringTokenizer_Init(env));
+		addFunctionToTable(new HasMoreTokens(env));
+		addFunctionToTable(new NextToken(env));
+	}
+
+	private void fillStringBuilder() {
+		// java.lang.StringBuilder
+		addFunctionToTable(new StringBuilder_Init(env));
+		addFunctionToTable(new StringBuilder_Append.Append_B(env));
+		addFunctionToTable(new StringBuilder_Append.Append_C(env));
+		addFunctionToTable(new StringBuilder_Append.Append_D(env));
+		addFunctionToTable(new StringBuilder_Append.Append_F(env));
+		addFunctionToTable(new StringBuilder_Append.Append_I(env));
+		addFunctionToTable(new StringBuilder_Append.Append_L(env));
+		addFunctionToTable(new StringBuilder_Append.Append_O(env));
+		addFunctionToTable(new StringBuilder_Append.Append_S(env));
+		addFunctionToTable(new StringBuilder_ToString(env));
+	}
+
+	private void fillString() {
+		// java.lang.String
+		addFunctionToTable(new CharAt(env));
+		addFunctionToTable(new CompareTo(env));
+		addFunctionToTable(new CompareToIgnoreCase(env));
+		addFunctionToTable(new Concat(env));
+		addFunctionToTable(new Contains(env));
+		addFunctionToTable(new EndsWith(env));
+		addFunctionToTable(new Equals(env));
+		addFunctionToTable(new EqualsIgnoreCase(env));
+		addFunctionToTable(new IndexOf.IndexOf_C(env));
+		addFunctionToTable(new IndexOf.IndexOf_S(env));
+		addFunctionToTable(new IndexOf.IndexOf_CI(env));
+		addFunctionToTable(new IndexOf.IndexOf_SI(env));
+		addFunctionToTable(new LastIndexOf.LastIndexOf_C(env));
+		addFunctionToTable(new LastIndexOf.LastIndexOf_S(env));
+		addFunctionToTable(new LastIndexOf.LastIndexOf_CI(env));
+		addFunctionToTable(new LastIndexOf.LastIndexOf_SI(env));
+		addFunctionToTable(new Length(env));
+		addFunctionToTable(new Matches(env));
+		addFunctionToTable(new RegionMatches(env));
+		addFunctionToTable(new RegionMatches5(env));
+		addFunctionToTable(new Replace.Replace_C(env));
+		addFunctionToTable(new Replace.Replace_CS(env));
+		addFunctionToTable(new ReplaceAll(env));
+		addFunctionToTable(new ReplaceFirst(env));
+		addFunctionToTable(new StartsWith.StartsWith_S(env));
+		addFunctionToTable(new StartsWith.StartsWith_SI(env));
+		addFunctionToTable(new Substring.Substring_I(env));
+		addFunctionToTable(new Substring.Substring_II(env));
+		addFunctionToTable(new ToLowerCase(env));
+		addFunctionToTable(new ToString(env));
+		addFunctionToTable(new ToUpperCase(env));
+		addFunctionToTable(new Trim(env));
+		addFunctionToTable(new ValueOf.ValueOf_O(env));
+		addFunctionToTable(new ValueOf.ValueOf_I(env));
+		addFunctionToTable(new ValueOf.ValueOf_J(env));
+		addFunctionToTable(new ValueOf.ValueOf_C(env));
+		addFunctionToTable(new ValueOf.ValueOf_B(env));
+	}
+
+	private void fillMath() {
+		// java.lang.Math
+		addFunctionToTable(new ABS.ABS_I(env));
+		addFunctionToTable(new ABS.ABS_L(env));
+		addFunctionToTable(new ABS.ABS_F(env));
+		addFunctionToTable(new ABS.ABS_D(env));
+		addFunctionToTable(new ACOS(env));
+		addFunctionToTable(new ASIN(env));
+		addFunctionToTable(new ATAN(env));
+		addFunctionToTable(new ATAN2(env));
+		addFunctionToTable(new CBRT(env));
+		addFunctionToTable(new CEIL(env));
+		addFunctionToTable(new CopySign.CopySign_F(env));
+		addFunctionToTable(new CopySign.CopySign_D(env));
+		addFunctionToTable(new COS(env));
+		addFunctionToTable(new COSH(env));
+		addFunctionToTable(new EXP(env));
+		addFunctionToTable(new EXPM1(env));
+		addFunctionToTable(new FLOOR(env));
+		addFunctionToTable(new GetExponent.GetExponent_F(env));
+		addFunctionToTable(new GetExponent.GetExponent_D(env));
+		addFunctionToTable(new HYPOT(env));
+		addFunctionToTable(new IEEEremainder(env));
+		addFunctionToTable(new LOG(env));
+		addFunctionToTable(new LOG10(env));
+		addFunctionToTable(new LOG1P(env));
+		addFunctionToTable(new MIN.MIN_I(env));
+		addFunctionToTable(new MIN.MIN_L(env));
+		addFunctionToTable(new MIN.MIN_F(env));
+		addFunctionToTable(new MIN.MIN_D(env));
+		addFunctionToTable(new MAX.MAX_I(env));
+		addFunctionToTable(new MAX.MAX_L(env));
+		addFunctionToTable(new MAX.MAX_F(env));
+		addFunctionToTable(new MAX.MAX_D(env));
+		addFunctionToTable(new NextAfter.NextAfter_F(env));
+		addFunctionToTable(new NextAfter.NextAfter_D(env));
+		addFunctionToTable(new NextUp.NextUp_F(env));
+		addFunctionToTable(new NextUp.NextUp_D(env));
+		addFunctionToTable(new POW(env));
+		addFunctionToTable(new RINT(env));
+		addFunctionToTable(new Round.Round_F(env));
+		addFunctionToTable(new Round.Round_D(env));
+		addFunctionToTable(new SCALB.SCALB_F(env));
+		addFunctionToTable(new SCALB.SCALB_D(env));
+		addFunctionToTable(new SIGNUM.SIGNUM_F(env));
+		addFunctionToTable(new SIGNUM.SIGNUM_D(env));
+		addFunctionToTable(new SIN(env));
+		addFunctionToTable(new SINH(env));
+		addFunctionToTable(new SQRT(env));
+		addFunctionToTable(new TAN(env));
+		addFunctionToTable(new TANH(env));
+		addFunctionToTable(new ToDegrees(env));
+		addFunctionToTable(new ToRadians(env));
+		addFunctionToTable(new ULP.ULP_F(env));
+		addFunctionToTable(new ULP.ULP_D(env));
+	}
+
+	private void fillBoolean() {
+		// java.lang.Boolean
+		addFunctionToTable(new Z_Init(env));
+		addFunctionToTable(new Z_ValueOf(env));
+		addFunctionToTable(new Z_BooleanValue(env));
+	}
+
+	private void fillCharacter() {
+		// java.lang.Character
+		addFunctionToTable(new C_Init(env));
+		addFunctionToTable(new C_ValueOf(env));
+		addFunctionToTable(new C_CharValue(env));
+		addFunctionToTable(new Character_getNumericValue(env));
+		addFunctionToTable(new Character_isDigit(env));
+		addFunctionToTable(new Character_isLetter(env));
+	}
+
+	private void fillByte() {
+		// java.lang.Byte
+		addFunctionToTable(new B_Init(env));
+		addFunctionToTable(new B_ValueOf(env));
+		addFunctionToTable(new B_ByteValue(env));
+	}
+
+	private void fillShort() {
+		// java.lang.Short
+		addFunctionToTable(new S_Init(env));
+		addFunctionToTable(new S_ValueOf(env));
+		addFunctionToTable(new S_ShortValue(env));
+	}
+
+	private void fillDouble() {
+		// java.lang.Double
+		addFunctionToTable(new D_Init(env));
+		addFunctionToTable(new D_ValueOf(env));
+		addFunctionToTable(new D_DoubleValue(env));
+	}
+
+	private void fillFloat() {
+		// java.lang.Float
+		addFunctionToTable(new F_Init(env));
+		addFunctionToTable(new F_ValueOf(env));
+		addFunctionToTable(new F_FloatValue(env));
+	}
+
+	private void fillLong() {
+		// java.lang.Long
+		addFunctionToTable(new J_Init(env));
+		addFunctionToTable(new J_ValueOf(env));
+		addFunctionToTable(new J_LongValue(env));
+	}
+
+	private void fillInteger() {
+		// java.lang.Integer
+		addFunctionToTable(new I_Init(env));
+		addFunctionToTable(new I_ValueOf(env));
+		addFunctionToTable(new I_IntValue(env));
+		addFunctionToTable(new I_ParseInt(env));
+	}
+
+	private void fillStringBuffer() {
+		// java.lang.StringBuffer
+		addFunctionToTable(new StringBufferInit_S(env));
+		addFunctionToTable(new StringBuffer_ToString(env));
+		addFunctionToTable(new StringBufferAppend_B(env));
+		addFunctionToTable(new StringBufferAppend_C(env));
+		addFunctionToTable(new StringBufferAppend_I(env));
+		addFunctionToTable(new StringBufferAppend_L(env));
+		addFunctionToTable(new StringBufferAppend_F(env));
+		addFunctionToTable(new StringBufferAppend_D(env));
+		addFunctionToTable(new StringBufferAppend_STR(env));
+		addFunctionToTable(new StringBuffer_SetLength(env));
+	}
 }

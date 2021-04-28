@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -34,7 +34,7 @@ public class ClassNumberUtilsTest {
 	@Test
     public void testCreateBigInteger() {
 		assertEquals("createBigInteger(String) failed", new BigInteger("12345"), ClassNumberUtils.createBigInteger("12345"));
-        assertEquals("createBigInteger(null) failed", null, ClassNumberUtils.createBigInteger(null));
+        assertNull("createBigInteger(null) failed", ClassNumberUtils.createBigInteger(null));
         
         assertEquals("createBigInteger(String) failed", new BigInteger("255"), ClassNumberUtils.createBigInteger("0xff"));
         assertEquals("createBigInteger(String) failed", new BigInteger("255"), ClassNumberUtils.createBigInteger("0Xff"));

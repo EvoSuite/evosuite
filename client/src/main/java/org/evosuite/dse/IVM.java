@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -49,40 +49,40 @@ public interface IVM {
 	 *            the different widths of category-1 and category-2 parameter
 	 *            types.
 	 */
-	public void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex, int value);
+	void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex, int value);
 
-	public void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex, boolean value);
+	void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex, boolean value);
 
-	public void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex, short value);
+	void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex, short value);
 
-	public void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex, byte value);
+	void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex, byte value);
 
-	public void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex, char value);
+	void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex, char value);
 
-	public void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex, long value);
+	void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex, long value);
 
-	public void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex, float value);
+	void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex, float value);
 
-	public void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex, double value);
+	void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex, double value);
 
-	public void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex, Object value);
+	void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex, Object value);
 
 	/**
 	 * Line number in the Java source code.
 	 */
-	public void SRC_LINE_NUMBER(int lineNr);
+	void SRC_LINE_NUMBER(int lineNr);
 
 	/**
 	 * Start of a new method
 	 */
-	public void METHOD_BEGIN(int access, String className, String methName,
-			String methDesc);
+	void METHOD_BEGIN(int access, String className, String methName,
+										String methDesc);
 
 	/**
 	 * Max values of a method
 	 */
-	public void METHOD_MAXS(String className, String methName, String methDesc,
-			int maxStack, int maxLocals);
+	void METHOD_MAXS(String className, String methName, String methDesc,
+									 int maxStack, int maxLocals);
 
 	/**
 	 * Pass index-th concrete parameter of the just called method. There will be
@@ -100,511 +100,517 @@ public interface IVM {
 	 *            the different widths of category-1 and category-2 parameter
 	 *            types.
 	 */
-	public void METHOD_BEGIN_PARAM(int nr, int calleeLocalsIndex, int value);
+	void METHOD_BEGIN_PARAM(int nr, int calleeLocalsIndex, int value);
 
-	public void METHOD_BEGIN_PARAM(int nr, int calleeLocalsIndex, boolean value);
+	void METHOD_BEGIN_PARAM(int nr, int calleeLocalsIndex, boolean value);
 
-	public void METHOD_BEGIN_PARAM(int nr, int calleeLocalsIndex, short value);
+	void METHOD_BEGIN_PARAM(int nr, int calleeLocalsIndex, short value);
 
-	public void METHOD_BEGIN_PARAM(int nr, int calleeLocalsIndex, byte value);
+	void METHOD_BEGIN_PARAM(int nr, int calleeLocalsIndex, byte value);
 
-	public void METHOD_BEGIN_PARAM(int nr, int calleeLocalsIndex, char value);
+	void METHOD_BEGIN_PARAM(int nr, int calleeLocalsIndex, char value);
 
-	public void METHOD_BEGIN_PARAM(int nr, int calleeLocalsIndex, long value);
+	void METHOD_BEGIN_PARAM(int nr, int calleeLocalsIndex, long value);
 
-	public void METHOD_BEGIN_PARAM(int nr, int calleeLocalsIndex, float value);
+	void METHOD_BEGIN_PARAM(int nr, int calleeLocalsIndex, float value);
 
-	public void METHOD_BEGIN_PARAM(int nr, int calleeLocalsIndex, double value);
+	void METHOD_BEGIN_PARAM(int nr, int calleeLocalsIndex, double value);
 
-	public void METHOD_BEGIN_PARAM(int nr, int calleeLocalsIndex, Object value);
+	void METHOD_BEGIN_PARAM(int nr, int calleeLocalsIndex, Object value);
 
 	/**
 	 * METHOD_BEGIN_PARAM for the receiver instance ("this"), if this method is
 	 * a non-constructor instance method.
 	 */
-	public void METHOD_BEGIN_RECEIVER(Object value);
+	void METHOD_BEGIN_RECEIVER(Object value);
 
 	/**
 	 * Value returned by the just completed method call
 	 */
-	public void CALL_RESULT(String owner, String name, String desc);
+	void CALL_RESULT(String owner, String name, String desc);
 
-	public void CALL_RESULT(boolean res, String owner, String name, String desc);
+	void CALL_RESULT(boolean res, String owner, String name, String desc);
 
-	public void CALL_RESULT(int res, String owner, String name, String desc);
+	void CALL_RESULT(int res, String owner, String name, String desc);
 
-	public void CALL_RESULT(long res, String owner, String name, String desc);
+	void CALL_RESULT(long res, String owner, String name, String desc);
 
-	public void CALL_RESULT(double res, String owner, String name, String desc);
+	void CALL_RESULT(double res, String owner, String name, String desc);
 
-	public void CALL_RESULT(float res, String owner, String name, String desc);
+	void CALL_RESULT(float res, String owner, String name, String desc);
 
-	public void CALL_RESULT(Object res, String owner, String name, String desc);
+	void CALL_RESULT(Object res, String owner, String name, String desc);
 
 	/**
 	 * Start of a new basic block
 	 */
-	public void BB_BEGIN();
+	void BB_BEGIN();
 
-	public void HANDLER_BEGIN(int access, String className, String methName,
-			String methDesc);
+	void HANDLER_BEGIN(int access, String className, String methName,
+										 String methDesc);
 
 	/*
 	 * Some 200 JVM ByteCode instructions
 	 */
 
-	public void NOP();
+	void NOP();
 
-	public void ACONST_NULL();
+	void ACONST_NULL();
 
-	public void ICONST_M1();
+	void ICONST_M1();
 
-	public void ICONST_0();
+	void ICONST_0();
 
-	public void ICONST_1();
+	void ICONST_1();
 
-	public void ICONST_2();
+	void ICONST_2();
 
-	public void ICONST_3();
+	void ICONST_3();
 
-	public void ICONST_4();
+	void ICONST_4();
 
-	public void ICONST_5();
+	void ICONST_5();
 
-	public void LCONST_0();
+	void LCONST_0();
 
-	public void LCONST_1();
+	void LCONST_1();
 
-	public void FCONST_0();
+	void FCONST_0();
 
-	public void FCONST_1();
+	void FCONST_1();
 
-	public void FCONST_2();
+	void FCONST_2();
 
-	public void DCONST_0();
+	void DCONST_0();
 
-	public void DCONST_1();
+	void DCONST_1();
 
-	public void BIPUSH(int value);
+	void BIPUSH(int value);
 
-	public void SIPUSH(int value);
+	void SIPUSH(int value);
 
 	/**
 	 * http://java.sun.com/docs/books/jvms/second_edition/html/Instructions2.
 	 * doc8. html#ldc
 	 */
-	public void LDC(String x);
+	void LDC(String x);
 
-	public void LDC(Class<?> x);
+	void LDC(Class<?> x);
 
-	public void LDC(int x);
+	void LDC(int x);
 
-	public void LDC(float x);
+	void LDC(float x);
 
-	public void LDC_W();
+	void LDC_W();
 
-	public void LDC2_W(long x);
+	void LDC2_W(long x);
 
-	public void LDC2_W(double x);
+	void LDC2_W(double x);
 
 	/**
 	 * http://java.sun.com/docs/books/jvms/second_edition/html/Instructions2.
 	 * doc6. html#iload
 	 */
-	public void ILOAD(int i);
+	void ILOAD(int i);
 
-	public void LLOAD(int i);
+	void LLOAD(int i);
 
-	public void FLOAD(int i);
+	void FLOAD(int i);
 
-	public void DLOAD(int i);
+	void DLOAD(int i);
 
-	public void ALOAD(int i);
+	void ALOAD(int i);
 
-	public void ILOAD_0();
+	void ILOAD_0();
 
-	public void ILOAD_1();
+	void ILOAD_1();
 
-	public void ILOAD_2();
+	void ILOAD_2();
 
-	public void ILOAD_3();
+	void ILOAD_3();
 
-	public void LLOAD_0();
+	void LLOAD_0();
 
-	public void LLOAD_1();
+	void LLOAD_1();
 
-	public void LLOAD_2();
+	void LLOAD_2();
 
-	public void LLOAD_3();
+	void LLOAD_3();
 
-	public void FLOAD_0();
+	void FLOAD_0();
 
-	public void FLOAD_1();
+	void FLOAD_1();
 
-	public void FLOAD_2();
+	void FLOAD_2();
 
-	public void FLOAD_3();
+	void FLOAD_3();
 
-	public void DLOAD_0();
+	void DLOAD_0();
 
-	public void DLOAD_1();
+	void DLOAD_1();
 
-	public void DLOAD_2();
+	void DLOAD_2();
 
-	public void DLOAD_3();
+	void DLOAD_3();
 
-	public void ALOAD_0();
+	void ALOAD_0();
 
-	public void ALOAD_1();
+	void ALOAD_1();
 
-	public void ALOAD_2();
+	void ALOAD_2();
 
-	public void ALOAD_3();
+	void ALOAD_3();
 
 	/**
 	 * http://java.sun.com/docs/books/jvms/second_edition/html/Instructions2.
 	 * doc6.html#iaload
 	 */
-	public void IALOAD(Object receiver, int index);
+	void IALOAD(Object receiver, int index, String className, String methodName);
 
-	public void LALOAD(Object receiver, int index);
+	void LALOAD(Object receiver, int index, String className, String methodName);
 
-	public void FALOAD(Object receiver, int index);
+	void FALOAD(Object receiver, int index, String className, String methodName);
 
-	public void DALOAD(Object receiver, int index);
+	void DALOAD(Object receiver, int index, String className, String methodName);
 
-	public void AALOAD(Object receiver, int index);
+	void AALOAD(Object receiver, int index, String className, String methodName);
 
-	public void BALOAD(Object receiver, int index);
+	void BALOAD(Object receiver, int index, String className, String methodName);
 
-	public void CALOAD(Object receiver, int index);
+	void CALOAD(Object receiver, int index, String className, String methodName);
 
-	public void SALOAD(Object receiver, int index);
+	void SALOAD(Object receiver, int index, String className, String methodName);
 
 	/**
 	 * http://java.sun.com/docs/books/jvms/second_edition/html/Instructions2.
 	 * doc6.html#istore
 	 */
-	public void ISTORE(int i);
+	void ISTORE(int i);
 
-	public void LSTORE(int i);
+	void LSTORE(int i);
 
-	public void FSTORE(int i);
+	void FSTORE(int i);
 
-	public void DSTORE(int i);
+	void DSTORE(int i);
 
-	public void ASTORE(int i);
+	void ASTORE(int i);
 
-	public void ISTORE_0();
+	void ISTORE_0();
 
-	public void ISTORE_1();
+	void ISTORE_1();
 
-	public void ISTORE_2();
+	void ISTORE_2();
 
-	public void ISTORE_3();
+	void ISTORE_3();
 
-	public void LSTORE_0();
+	void LSTORE_0();
 
-	public void LSTORE_1();
+	void LSTORE_1();
 
-	public void LSTORE_2();
+	void LSTORE_2();
 
-	public void LSTORE_3();
+	void LSTORE_3();
 
-	public void FSTORE_0();
+	void FSTORE_0();
 
-	public void FSTORE_1();
+	void FSTORE_1();
 
-	public void FSTORE_2();
+	void FSTORE_2();
 
-	public void FSTORE_3();
+	void FSTORE_3();
 
-	public void DSTORE_0();
+	void DSTORE_0();
 
-	public void DSTORE_1();
+	void DSTORE_1();
 
-	public void DSTORE_2();
+	void DSTORE_2();
 
-	public void DSTORE_3();
+	void DSTORE_3();
 
-	public void ASTORE_0();
+	void ASTORE_0();
 
-	public void ASTORE_1();
+	void ASTORE_1();
 
-	public void ASTORE_2();
+	void ASTORE_2();
 
-	public void ASTORE_3();
+	void ASTORE_3();
 
-	public void IASTORE(Object receiver, int index);
+	void IASTORE(Object receiver, int index, String className, String methodName);
 
-	public void LASTORE(Object receiver, int index);
+	void LASTORE(Object receiver, int index, String className, String methodName);
 
-	public void FASTORE(Object receiver, int index);
+	void FASTORE(Object receiver, int index, String className, String methodName);
 
-	public void DASTORE(Object receiver, int index);
+	void DASTORE(Object receiver, int index, String className, String methodName);
 
-	public void AASTORE(Object receiver, int index);
+	void BASTORE(Object receiver, int index, String className, String methodName);
 
-	public void BASTORE(Object receiver, int index);
+	void CASTORE(Object receiver, int index, String className, String methodName);
 
-	public void CASTORE(Object receiver, int index);
+	void SASTORE(Object receiver, int index, String className, String methodName);
 
-	public void SASTORE(Object receiver, int index);
+	void AASTORE(Object receiver, int index, Object value, String className, String methodName);
 
-	public void POP();
+	void POP();
 
-	public void POP2();
+	void POP2();
 
-	public void DUP();
+	void DUP();
 
-	public void DUP_X1();
+	void DUP_X1();
 
-	public void DUP_X2();
+	void DUP_X2();
 
-	public void DUP2();
+	void DUP2();
 
-	public void DUP2_X1();
+	void DUP2_X1();
 
-	public void DUP2_X2();
+	void DUP2_X2();
 
-	public void SWAP();
+	void SWAP();
 
 	/**
 	 * http://java.sun.com/docs/books/jvms/second_edition/html/Instructions2.
 	 * doc6. html#iadd
 	 */
-	public void IADD();
+	void IADD();
 
-	public void LADD();
+	void LADD();
 
-	public void FADD();
+	void FADD();
 
-	public void DADD();
+	void DADD();
 
-	public void ISUB();
+	void ISUB();
 
-	public void LSUB();
+	void LSUB();
 
-	public void FSUB();
+	void FSUB();
 
-	public void DSUB();
+	void DSUB();
 
-	public void IMUL();
+	void IMUL();
 
-	public void LMUL();
+	void LMUL();
 
-	public void FMUL();
+	void FMUL();
 
-	public void DMUL();
+	void DMUL();
 
-	public void IDIV(int rhs);
+	void IDIV(int rhs);
 
-	public void LDIV(long rhs);
+	void LDIV(long rhs);
 
-	public void FDIV(float rhs);
+	void FDIV(float rhs);
 
-	public void DDIV(double rhs);
+	void DDIV(double rhs);
 
-	public void IREM(int rhs);
+	void IREM(int rhs);
 
-	public void LREM(long rhs);
+	void LREM(long rhs);
 
-	public void FREM(float rhs);
+	void FREM(float rhs);
 
-	public void DREM(double rhs);
+	void DREM(double rhs);
 
-	public void INEG();
+	void INEG();
 
-	public void LNEG();
+	void LNEG();
 
-	public void FNEG();
+	void FNEG();
 
-	public void DNEG();
+	void DNEG();
 
-	public void ISHL();
+	void ISHL();
 
-	public void LSHL();
+	void LSHL();
 
-	public void ISHR();
+	void ISHR();
 
-	public void LSHR();
+	void LSHR();
 
-	public void IUSHR();
+	void IUSHR();
 
-	public void LUSHR();
+	void LUSHR();
 
-	public void IAND();
+	void IAND();
 
-	public void LAND();
+	void LAND();
 
-	public void IOR();
+	void IOR();
 
-	public void LOR();
+	void LOR();
 
-	public void IXOR();
+	void IXOR();
 
-	public void LXOR();
+	void LXOR();
 
-	public void IINC(int i, int value);
+	void IINC(int i, int value);
 
-	public void I2L();
+	void I2L();
 
-	public void I2F();
+	void I2F();
 
-	public void I2D();
+	void I2D();
 
-	public void L2I();
+	void L2I();
 
-	public void L2F();
+	void L2F();
 
-	public void L2D();
+	void L2D();
 
-	public void F2I();
+	void F2I();
 
-	public void F2L();
+	void F2L();
 
-	public void F2D();
+	void F2D();
 
-	public void D2I();
+	void D2I();
 
-	public void D2L();
+	void D2L();
 
-	public void D2F();
+	void D2F();
 
-	public void I2B();
+	void I2B();
 
-	public void I2C();
+	void I2C();
 
-	public void I2S();
+	void I2S();
 
-	public void LCMP();
+	void LCMP();
 
-	public void FCMPL();
+	void FCMPL();
 
-	public void FCMPG();
+	void FCMPG();
 
-	public void DCMPL();
+	void DCMPL();
 
-	public void DCMPG();
+	void DCMPG();
 
-	public void IFEQ(String className, String methNane, int branchIndex,
-			int param);
+	void IFEQ(String className, String methNane, int branchIndex,
+						int param);
 
-	public void IFNE(String className, String methNane, int branchIndex,
-			int param);
+	void IFNE(String className, String methNane, int branchIndex,
+						int param);
 
-	public void IFLT(String className, String methNane, int branchIndex,
-			int param);
+	void IFLT(String className, String methNane, int branchIndex,
+						int param);
 
-	public void IFGE(String className, String methNane, int branchIndex,
-			int param);
+	void IFGE(String className, String methNane, int branchIndex,
+						int param);
 
-	public void IFGT(String className, String methNane, int branchIndex,
-			int param);
+	void IFGT(String className, String methNane, int branchIndex,
+						int param);
 
-	public void IFLE(String className, String methNane, int branchIndex,
-			int param);
+	void IFLE(String className, String methNane, int branchIndex,
+						int param);
 
-	public void IF_ICMPEQ(String className, String methNane, int branchIndex,
-			int left, int right);
+	void IF_ICMPEQ(String className, String methNane, int branchIndex,
+								 int left, int right);
 
-	public void IF_ICMPNE(String className, String methNane, int branchIndex,
-			int left, int right);
+	void IF_ICMPNE(String className, String methNane, int branchIndex,
+								 int left, int right);
 
-	public void IF_ICMPLT(String className, String methNane, int branchIndex,
-			int left, int right);
+	void IF_ICMPLT(String className, String methNane, int branchIndex,
+								 int left, int right);
 
-	public void IF_ICMPGE(String className, String methNane, int branchIndex,
-			int left, int right);
+	void IF_ICMPGE(String className, String methNane, int branchIndex,
+								 int left, int right);
 
-	public void IF_ICMPGT(String className, String methNane, int branchIndex,
-			int left, int right);
+	void IF_ICMPGT(String className, String methNane, int branchIndex,
+								 int left, int right);
 
-	public void IF_ICMPLE(String className, String methNane, int branchIndex,
-			int left, int right);
+	void IF_ICMPLE(String className, String methNane, int branchIndex,
+								 int left, int right);
 
-	public void IF_ACMPEQ(String className, String methNane, int branchIndex,
-			Object left, Object right);
+	void IF_ACMPEQ(String className, String methNane, int branchIndex,
+								 Object left, Object right);
 
-	public void IF_ACMPNE(String className, String methNane, int branchIndex,
-			Object left, Object right);
+	void IF_ACMPNE(String className, String methNane, int branchIndex,
+								 Object left, Object right);
 
-	public void GOTO();
+	void GOTO();
 
-	public void JSR();
+	void JSR();
 
-	public void RET();
+	void RET();
 
-	public void TABLESWITCH(String className, String methName, int branchIndex,
-			int target, int min, int max);
+	void TABLESWITCH(String className, String methName, int branchIndex,
+									 int target, int min, int max);
 
-	public void LOOKUPSWITCH(String className, String methName,
-			int branchIndex, int target, int[] goals);
+	void LOOKUPSWITCH(String className, String methName,
+										int branchIndex, int target, int[] goals);
 
-	public void IRETURN();
+	void IRETURN();
 
-	public void LRETURN();
+	void LRETURN();
 
-	public void FRETURN();
+	void FRETURN();
 
-	public void DRETURN();
+	void DRETURN();
 
-	public void ARETURN();
+	void ARETURN();
 
-	public void RETURN();
+	void RETURN();
 
-	public void GETSTATIC(String owner, String name, String desc);
+	void GETSTATIC(String owner, String name, String desc);
 
-	public void PUTSTATIC(String owner, String name, String desc);
+	void PUTSTATIC(String owner, String name, String desc);
 
-	public void GETFIELD(Object receiver, String owner, String name, String desc);
+	void GETFIELD(Object receiver, String owner, String name, String desc);
 
-	public void PUTFIELD(Object receiver, String owner, String name, String desc);
+	void PUTFIELD(Object receiver, String owner, String name, String desc);
 
-	public void INVOKESTATIC(String owner, String name, String desc);
+	void INVOKESTATIC(String owner, String name, String desc);
 
-	public void INVOKESPECIAL(String owner, String name, String desc);
+	void INVOKESPECIAL(String owner, String name, String desc);
 
-	public void INVOKESPECIAL(Object receiver, String owner, String name,
-			String desc);
+	void INVOKESPECIAL(Object receiver, String owner, String name,
+										 String desc);
 
-	public void INVOKEVIRTUAL(Object receiver, String owner, String name,
-			String desc);
+	void INVOKEVIRTUAL(Object receiver, String owner, String name,
+										 String desc);
 
-	public void INVOKEINTERFACE(Object receiver, String owner, String name,
-			String desc);
+	void INVOKEINTERFACE(Object receiver, String owner, String name,
+											 String desc);
 
-	public void UNUSED();
+	void INVOKEDYNAMIC(Object clazz, String owner);
 
-	public void NEW(String typeName);
+	void INVOKEDYNAMIC(String concatenationResult, String stringOwnerClass, String stringRecipe);
 
-	public void NEWARRAY(int length, Class<?> componentType);
+	void UNUSED();
 
-	public void ANEWARRAY(int length, String typeName);
+	void NEW(String typeName);
 
-	public void ARRAYLENGTH(Object reference);
+	void NEWARRAY(int length, Class<?> componentType, String className, String methodName);
 
-	public void ATHROW(Throwable object);
+	void ANEWARRAY(int length, String componentTypeName, String className, String typeName);
 
-	public void CHECKCAST(Object reference, String typeName);
+	void ARRAYLENGTH(Object reference);
 
-	public void INSTANCEOF(Object reference, String typeName);
+	void ATHROW(Throwable object);
 
-	public void MONITORENTER();
+	void CHECKCAST(Object reference, String typeName);
 
-	public void MONITOREXIT();
+	void INSTANCEOF(Object reference, String typeName);
 
-	public void WIDE();
+	void MONITORENTER();
 
-	public void MULTIANEWARRAY(String arrayTypeDesc, int nrDimensions);
+	void MONITOREXIT();
 
-	public void IFNULL(String className, String methNane, int branchIndex,
-			Object param);
+	void WIDE();
 
-	public void IFNONNULL(String className, String methNane, int branchIndex,
-			Object param);
+	void MULTIANEWARRAY(String arrayTypeDesc, int nrDimensions, String className, String methodName);
 
-	public void GOTO_W();
+	void IFNULL(String className, String methNane, int branchIndex,
+							Object param);
 
-	public void JSR_W();
+	void IFNONNULL(String className, String methNane, int branchIndex,
+								 Object param);
+
+	void GOTO_W();
+
+	void JSR_W();
+
+    void cleanUp();
 }

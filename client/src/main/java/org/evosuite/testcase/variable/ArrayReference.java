@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -28,6 +28,8 @@ import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.statements.ArrayStatement;
 import org.evosuite.testcase.statements.AssignmentStatement;
 import org.evosuite.utils.generic.GenericClass;
+import org.evosuite.utils.generic.GenericClassFactory;
+import org.evosuite.utils.generic.GenericClassImpl;
 
 /**
  * @author Gordon Fraser
@@ -55,7 +57,7 @@ public class ArrayReference extends VariableReferenceImpl {
 	 *            a {@link java.lang.Class} object.
 	 */
 	public ArrayReference(TestCase tc, Class<?> clazz) {
-		this(tc, new GenericClass(clazz),
+		this(tc, GenericClassFactory.get(clazz),
 		        new int[ArrayStatement.determineDimensions(clazz)]);
 	}
 
@@ -71,7 +73,7 @@ public class ArrayReference extends VariableReferenceImpl {
 	 * @param lengths
 	 *            an array of int.
 	 */
-	public ArrayReference(TestCase tc, GenericClass clazz, int[] lengths) {
+	public ArrayReference(TestCase tc, GenericClass<?> clazz, int[] lengths) {
 		super(tc, clazz);
 		assert (lengths.length > 0);
 		// this.lengths = lengths;
@@ -90,7 +92,7 @@ public class ArrayReference extends VariableReferenceImpl {
 	 * @param array_length
 	 *            a int.
 	 */
-	public ArrayReference(TestCase tc, GenericClass clazz, int array_length) {
+	public ArrayReference(TestCase tc, GenericClass<?> clazz, int array_length) {
 		this(tc, clazz, new int[] { array_length });
 	}
 
@@ -143,6 +145,20 @@ public class ArrayReference extends VariableReferenceImpl {
 		this.lengths = new int[lengths.length];
 		for (int i = 0; i < lengths.length; i++)
 			this.lengths[i] = lengths[i];
+	}
+
+	/**
+	 * <p>
+	 * Setter for an element of the field <code>lengths</code>.
+	 * </p>
+	 *
+	 * @param length
+	 *            an int
+	 * @param index
+	 *            an int
+	 */
+	public void setLength(int length, int index) {
+		this.lengths[index] = length;
 	}
 
 	/**
@@ -231,7 +247,7 @@ public class ArrayReference extends VariableReferenceImpl {
 		for (Statement s : testCase) {
 			if(pos++ >= position)
 				return false;
-			
+
 			if (s instanceof AssignmentStatement) {
 				VariableReference ret = s.getReturnValue();
 				if(ret instanceof ArrayIndex) {

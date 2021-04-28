@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -29,7 +29,9 @@ import java.util.Map;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.execution.Scope;
-import org.evosuite.utils.generic.GenericClass;
+import org.evosuite.utils.generic.GenericClassFactory;
+import org.evosuite.utils.generic.GenericClassImpl;
+import org.evosuite.utils.ArrayUtil;
 import org.objectweb.asm.commons.GeneratorAdapter;
 
 import com.googlecode.gentyref.GenericTypeReflector;
@@ -81,7 +83,7 @@ public class ArrayIndex extends VariableReferenceImpl {
 	 *            a {@link java.util.List} object.
 	 */
 	public ArrayIndex(TestCase testCase, ArrayReference array, List<Integer> indices) {
-		super(testCase, new GenericClass(getReturnType(array, indices.size())));
+		super(testCase, GenericClassFactory.get(getReturnType(array, indices.size())));
 		this.array = array;
 		setArrayIndices(indices);
 	}
@@ -182,11 +184,7 @@ public class ArrayIndex extends VariableReferenceImpl {
 	 */
 	@Override
 	public String getName() {
-		String result = array.getName();
-		for (int index : indices) {
-			result += "[" + index + "]";
-		}
-		return result;
+		return ArrayUtil.buildArrayIndexName(array.getName(), indices);
 	}
 
 	/** {@inheritDoc} */
@@ -275,7 +273,7 @@ public class ArrayIndex extends VariableReferenceImpl {
 		} else if (object instanceof Number) {
 			return ((Number) object).intValue();
 		} else if (object instanceof Character) {
-			return new Integer(((Character) object).charValue());
+			return (int) (Character) object;
 		} else
 			return 0;
 	}
@@ -286,7 +284,7 @@ public class ArrayIndex extends VariableReferenceImpl {
 		} else if (object instanceof Number) {
 			return (short)((Number) object).intValue();
 		} else if (object instanceof Character) {
-			return new Short((short)((Character) object).charValue());
+			return (short) ((Character) object).charValue();
 		} else
 			return 0;
 	}
@@ -297,7 +295,7 @@ public class ArrayIndex extends VariableReferenceImpl {
 		} else if (object instanceof Number) {
 			return (byte)((Number) object).intValue();
 		} else if (object instanceof Character) {
-			return new Byte((byte)((Character) object).charValue());
+			return (byte) ((Character) object).charValue();
 		} else
 			return 0;
 	}
@@ -308,7 +306,7 @@ public class ArrayIndex extends VariableReferenceImpl {
 		} else if (object instanceof Number) {
 			return ((Number) object).longValue();
 		} else if (object instanceof Character) {
-			return new Long(((Character) object).charValue());
+			return (long) (Character) object;
 		} else
 			return 0L;
 	}
@@ -319,7 +317,7 @@ public class ArrayIndex extends VariableReferenceImpl {
 		} else if (object instanceof Number) {
 			return ((Number) object).floatValue();
 		} else if (object instanceof Character) {
-			return new Float(((Character) object).charValue());
+			return (float) (Character) object;
 		} else
 			return 0F;
 	}
@@ -330,7 +328,7 @@ public class ArrayIndex extends VariableReferenceImpl {
 		} else if (object instanceof Number) {
 			return ((Number) object).doubleValue();
 		} else if (object instanceof Character) {
-			return new Double(((Character) object).charValue());
+			return (double) (Character) object;
 		} else
 			return 0.0;
 	}
@@ -339,7 +337,7 @@ public class ArrayIndex extends VariableReferenceImpl {
 		if (object==null) {
 			return null;
 		} else if (object instanceof Character) {
-			return ((Character) object).charValue();
+			return (Character) object;
 		} else if (object instanceof Number) {
 			return (char) ((Number) object).intValue();
 		} else
@@ -530,7 +528,7 @@ public class ArrayIndex extends VariableReferenceImpl {
 	 *            a {@link java.util.List} object.
 	 */
 	public void setArrayIndices(List<Integer> indices) {
-		this.indices = new ArrayList<Integer>();
+		this.indices = new ArrayList<>();
 		for (Integer i : indices)
 			this.indices.add(i);
 	}

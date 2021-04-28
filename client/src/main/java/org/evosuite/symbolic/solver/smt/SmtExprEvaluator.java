@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -31,6 +31,147 @@ public final class SmtExprEvaluator implements SmtExprVisitor<Object, Void> {
 
 	public SmtExprEvaluator(Map<String, Object> solution) {
 		this.solution = solution;
+	}
+
+
+	@Override
+	public Object visit(SmtArrayVariable.SmtRealArrayVariable n, Void arg) {
+		String varName = n.getName();
+		if (!solution.containsKey(varName)) {
+			throw new IllegalStateException("The variable " + varName
+					+ " is not defined in the given solution");
+		}
+
+		Object value = solution.get(varName);
+		if (value == null) {
+			throw new NullPointerException("The value of variable " + varName
+					+ " cannot be null");
+
+		}
+
+		if (!(value.getClass().isArray())) {
+			throw new ClassCastException("The value of variable " + varName
+					+ " should be an array but found type is "
+					+ value.getClass().getName());
+		}
+
+		if (!(value.getClass().getComponentType().getName().equals(Double.class.getName()))) {
+			throw new ClassCastException("The component class of the array " + varName
+					+ " should be Double but found type is "
+					+ value.getClass().getComponentType().getName());
+		}
+
+		return value;
+	}
+
+	@Override
+	public Object visit(SmtArrayVariable.SmtStringArrayVariable n, Void arg) {
+		String varName = n.getName();
+		if (!solution.containsKey(varName)) {
+			throw new IllegalStateException("The variable " + varName
+					+ " is not defined in the given solution");
+		}
+
+		Object value = solution.get(varName);
+		if (value == null) {
+			throw new NullPointerException("The value of variable " + varName
+					+ " cannot be null");
+
+		}
+
+		if (!(value.getClass().isArray())) {
+			throw new ClassCastException("The value of variable " + varName
+					+ " should be an array but found type is "
+					+ value.getClass().getName());
+		}
+
+		if (!(value.getClass().getComponentType().getName().equals(String.class.getName()))) {
+			throw new ClassCastException("The component class of the array " + varName
+					+ " should be Double but found type is "
+					+ value.getClass().getComponentType().getName());
+		}
+
+		return value;
+	}
+
+	@Override
+	public Object visit(SmtArrayVariable.SmtReferenceArrayVariable n, Void arg) {
+		String varName = n.getName();
+		if (!solution.containsKey(varName)) {
+			throw new IllegalStateException("The variable " + varName
+					+ " is not defined in the given solution");
+		}
+
+		Object value = solution.get(varName);
+		if (value == null) {
+			throw new NullPointerException("The value of variable " + varName
+					+ " cannot be null");
+
+		}
+
+		if (!(value.getClass().isArray())) {
+			throw new ClassCastException("The value of variable " + varName
+					+ " should be an array but found type is "
+					+ value.getClass().getName());
+		}
+
+		// Ilebrero: Makes sense to add this check for references? any generic object is going to be here
+		//		if (!(value.getClass().getComponentType().getName().equals(Object.class.getName()))) {
+		//			throw new ClassCastException("The component class of the array " + varName
+		//					+ " should be Double but found type is "
+		//					+ value.getClass().getComponentType().getName());
+		//		}
+
+		return value;
+	}
+
+	@Override
+	public Object visit(SmtArrayVariable.SmtIntegerArrayVariable n, Void arg) {
+		String varName = n.getName();
+		if (!solution.containsKey(varName)) {
+			throw new IllegalStateException("The variable " + varName
+					+ " is not defined in the given solution");
+		}
+
+		Object value = solution.get(varName);
+		if (value == null) {
+			throw new NullPointerException("The value of variable " + varName
+					+ " cannot be null");
+		}
+
+		if (!(value.getClass().isArray())) {
+			throw new ClassCastException("The value of variable " + varName
+					+ " should be an array but found type is "
+					+ value.getClass().getName());
+		}
+
+		if (!(value.getClass().getComponentType().getName().equals(Long.class.getName()))) {
+			throw new ClassCastException("The component class of the array " + varName
+					+ " should be Long but found type is "
+					+ value.getClass().getComponentType().getName());
+		}
+
+		return value;
+	}
+
+	@Override
+	public Object visit(SmtArrayConstant.SmtRealArrayConstant n, Void arg) {
+		return n.getConstantValue();
+	}
+
+	@Override
+	public Object visit(SmtArrayConstant.SmtStringArrayConstant n, Void arg) {
+		return n.getConstantValue();
+	}
+
+	@Override
+	public Object visit(SmtArrayConstant.SmtReferenceArrayConstant n, Void arg) {
+		return n.getConstantValue();
+	}
+
+	@Override
+	public Object visit(SmtArrayConstant.SmtIntegerArrayConstant n, Void arg) {
+		return n.getConstantValue();
 	}
 
 	@Override
@@ -128,7 +269,7 @@ public final class SmtExprEvaluator implements SmtExprVisitor<Object, Void> {
 
 	@Override
 	public Object visit(SmtOperation n, Void arg) {
-		List<Object> retValues = new LinkedList<Object>();
+		List<Object> retValues = new LinkedList<>();
 		for (SmtExpr argument : n.getArguments()) {
 			Object retValue = argument.accept(this, null);
 			retValues.add(retValue);
@@ -138,8 +279,8 @@ public final class SmtExprEvaluator implements SmtExprVisitor<Object, Void> {
 		case ABS: {
 			Object unaryRetVal = retValues.get(0);
 			Long integerOperand = (Long) unaryRetVal;
-			long absLong = Math.abs(integerOperand.longValue());
-			return (Long) absLong;
+			long absLong = Math.abs(integerOperand);
+			return absLong;
 		}
 		case ADD: {
 			// this could be integer or real
@@ -149,13 +290,12 @@ public final class SmtExprEvaluator implements SmtExprVisitor<Object, Void> {
 			if (isInteger(left, right)) {
 				Long leftInt = (Long) left;
 				Long rightInt = (Long) right;
-				Long add = (Long) (leftInt.longValue() + rightInt.longValue());
+				Long add = leftInt + rightInt;
 				return add;
 			} else if (isReal(left, right)) {
 				Double leftReal = (Double) left;
 				Double rightReal = (Double) right;
-				Double add = (Double) (leftReal.doubleValue() + rightReal
-						.doubleValue());
+				Double add = leftReal + rightReal;
 				return add;
 			} else {
 				throw new IllegalArgumentException("ADD Type mismatch left="
@@ -179,7 +319,7 @@ public final class SmtExprEvaluator implements SmtExprVisitor<Object, Void> {
 			Object right = retValues.get(1);
 			String leftString = (String) left;
 			String rightString = (String) right;
-			return (Boolean) leftString.contains(rightString);
+			return leftString.contains(rightString);
 		}
 
 		case DIV: {
@@ -188,7 +328,7 @@ public final class SmtExprEvaluator implements SmtExprVisitor<Object, Void> {
 			Object right = retValues.get(1);
 			Long leftInteger = (Long) left;
 			Long rightInteger = (Long) right;
-			return (Long) leftInteger.longValue() / rightInteger.longValue();
+			return leftInteger / rightInteger;
 
 		}
 		case STR_SUFFIXOF: {
@@ -196,7 +336,7 @@ public final class SmtExprEvaluator implements SmtExprVisitor<Object, Void> {
 			Object right = retValues.get(1);
 			String leftString = (String) left;
 			String rightString = (String) right;
-			return (Boolean) rightString.endsWith(leftString);
+			return rightString.endsWith(leftString);
 
 		}
 		case ENDSWITH: {
@@ -204,13 +344,13 @@ public final class SmtExprEvaluator implements SmtExprVisitor<Object, Void> {
 			Object right = retValues.get(1);
 			String leftString = (String) left;
 			String rightString = (String) right;
-			return (Boolean) leftString.endsWith(rightString);
+			return leftString.endsWith(rightString);
 		}
 		case STR_LEN:
 		case LENGTH: {
 			Object expr = retValues.get(0);
 			String exprString = (String) expr;
-			return new Long(exprString.length());
+			return (long) exprString.length();
 		}
 		case INDEXOF: {
 			// this is a string binary operation
@@ -218,7 +358,7 @@ public final class SmtExprEvaluator implements SmtExprVisitor<Object, Void> {
 			Object right = retValues.get(1);
 			String leftString = (String) left;
 			String rightString = (String) right;
-			return new Long(leftString.indexOf(rightString));
+			return (long) leftString.indexOf(rightString);
 		}
 		case STR_SUBSTR: {
 			Object s = retValues.get(0);
@@ -247,8 +387,7 @@ public final class SmtExprEvaluator implements SmtExprVisitor<Object, Void> {
 			Object right = retValues.get(1);
 			Double leftReal = (Double) left;
 			Double rightReal = (Double) right;
-			Double div = (Double) (leftReal.doubleValue() / rightReal
-					.doubleValue());
+			Double div = leftReal / rightReal;
 			return div;
 		}
 		case MUL: {
@@ -259,13 +398,12 @@ public final class SmtExprEvaluator implements SmtExprVisitor<Object, Void> {
 			if (isInteger(left, right)) {
 				Long leftInt = (Long) left;
 				Long rightInt = (Long) right;
-				Long mul = (Long) (leftInt.longValue() * rightInt.longValue());
+				Long mul = leftInt * rightInt;
 				return mul;
 			} else if (isReal(left, right)) {
 				Double leftReal = (Double) left;
 				Double rightReal = (Double) right;
-				Double mul = (Double) (leftReal.doubleValue() * rightReal
-						.doubleValue());
+				Double mul = leftReal * rightReal;
 				return mul;
 			} else {
 				throw new IllegalArgumentException("MUL Type mismatch left="
@@ -280,10 +418,10 @@ public final class SmtExprEvaluator implements SmtExprVisitor<Object, Void> {
 				Object operand = retValues.get(0);
 				if (isInteger(operand)) {
 					Long intOperand = (Long) operand;
-					return (Long) (-intOperand.longValue());
+					return -intOperand;
 				} else if (isReal(operand)) {
 					Double realOperand = (Double) operand;
-					return (Double) (-realOperand.doubleValue());
+					return -realOperand;
 				} else {
 					throw new IllegalArgumentException(
 							"MINUS Type mismatch operand="
@@ -297,16 +435,14 @@ public final class SmtExprEvaluator implements SmtExprVisitor<Object, Void> {
 				if (isInteger(left, right)) {
 					Long leftInt = (Long) left;
 					Long rightInt = (Long) right;
-					Long minus = (Long) (leftInt.longValue() - rightInt
-							.longValue());
+					Long minus = leftInt - rightInt;
 					return minus;
 
 				} else if (isReal(left, right)) {
 
 					Double leftReal = (Double) left;
 					Double rightReal = (Double) right;
-					Double minus = (Double) (leftReal.doubleValue() - rightReal
-							.doubleValue());
+					Double minus = leftReal - rightReal;
 
 					return minus;
 				} else {
@@ -328,7 +464,7 @@ public final class SmtExprEvaluator implements SmtExprVisitor<Object, Void> {
 			Object right = retValues.get(1);
 			Long leftInteger = (Long) left;
 			Long rightInteger = (Long) right;
-			return (Long) leftInteger.longValue() % rightInteger.longValue();
+			return leftInteger % rightInteger;
 
 		}
 		case GE: {
@@ -337,16 +473,14 @@ public final class SmtExprEvaluator implements SmtExprVisitor<Object, Void> {
 			if (isInteger(left, right)) {
 				Long leftInt = (Long) left;
 				Long rightInt = (Long) right;
-				Boolean ge = (Boolean) (leftInt.longValue() >= rightInt
-						.longValue());
+				Boolean ge = leftInt >= rightInt;
 				return ge;
 
 			} else if (isReal(left, right)) {
 
 				Double leftReal = (Double) left;
 				Double rightReal = (Double) right;
-				Boolean ge = (Boolean) (leftReal.doubleValue() >= rightReal
-						.doubleValue());
+				Boolean ge = leftReal >= rightReal;
 
 				return ge;
 			} else {
@@ -361,16 +495,14 @@ public final class SmtExprEvaluator implements SmtExprVisitor<Object, Void> {
 			if (isInteger(left, right)) {
 				Long leftInt = (Long) left;
 				Long rightInt = (Long) right;
-				Boolean gt = (Boolean) (leftInt.longValue() > rightInt
-						.longValue());
+				Boolean gt = leftInt > rightInt;
 				return gt;
 
 			} else if (isReal(left, right)) {
 
 				Double leftReal = (Double) left;
 				Double rightReal = (Double) right;
-				Boolean gt = (Boolean) (leftReal.doubleValue() > rightReal
-						.doubleValue());
+				Boolean gt = leftReal > rightReal;
 
 				return gt;
 			} else {
@@ -385,16 +517,14 @@ public final class SmtExprEvaluator implements SmtExprVisitor<Object, Void> {
 			if (isInteger(left, right)) {
 				Long leftInt = (Long) left;
 				Long rightInt = (Long) right;
-				Boolean le = (Boolean) (leftInt.longValue() <= rightInt
-						.longValue());
+				Boolean le = leftInt <= rightInt;
 				return le;
 
 			} else if (isReal(left, right)) {
 
 				Double leftReal = (Double) left;
 				Double rightReal = (Double) right;
-				Boolean le = (Boolean) (leftReal.doubleValue() <= rightReal
-						.doubleValue());
+				Boolean le = leftReal <= rightReal;
 
 				return le;
 			} else {
@@ -410,16 +540,14 @@ public final class SmtExprEvaluator implements SmtExprVisitor<Object, Void> {
 			if (isInteger(left, right)) {
 				Long leftInt = (Long) left;
 				Long rightInt = (Long) right;
-				Boolean lt = (Boolean) (leftInt.longValue() < rightInt
-						.longValue());
+				Boolean lt = leftInt < rightInt;
 				return lt;
 
 			} else if (isReal(left, right)) {
 
 				Double leftReal = (Double) left;
 				Double rightReal = (Double) right;
-				Boolean lt = (Boolean) (leftReal.doubleValue() < rightReal
-						.doubleValue());
+				Boolean lt = leftReal < rightReal;
 
 				return lt;
 			} else {
@@ -435,23 +563,23 @@ public final class SmtExprEvaluator implements SmtExprVisitor<Object, Void> {
 			if (isInteger(left, right)) {
 				Long leftInt = (Long) left;
 				Long rightInt = (Long) right;
-				Boolean eq = (Boolean) (leftInt.longValue() == rightInt
-						.longValue());
+				Boolean eq = leftInt.longValue() == rightInt
+						.longValue();
 				return eq;
 
 			} else if (isReal(left, right)) {
 
 				Double leftReal = (Double) left;
 				Double rightReal = (Double) right;
-				Boolean eq = (Boolean) (Math.abs(leftReal.doubleValue()
-						- rightReal.doubleValue()) < DELTA);
+				Boolean eq = Math.abs(leftReal
+						- rightReal) < DELTA;
 
 				return eq;
 			} else if (isString(left, right)) {
 
 				String leftString = (String) left;
 				String rightString = (String) right;
-				Boolean equals = (Boolean) (leftString.equals(rightString));
+				Boolean equals = leftString.equals(rightString);
 
 				return equals;
 			} else {
@@ -464,7 +592,7 @@ public final class SmtExprEvaluator implements SmtExprVisitor<Object, Void> {
 			// this is a boolean unary
 			Object operand = retValues.get(0);
 			Boolean operandBoolean = (Boolean) operand;
-			Boolean not = !operandBoolean.booleanValue();
+			Boolean not = !operandBoolean;
 			return not;
 		}
 		case STR_REPLACE:
@@ -485,7 +613,7 @@ public final class SmtExprEvaluator implements SmtExprVisitor<Object, Void> {
 			Object right = retValues.get(1);
 			String leftString = (String) left;
 			String rightString = (String) right;
-			Boolean prefixOf = (Boolean) (rightString.startsWith(leftString));
+			Boolean prefixOf = rightString.startsWith(leftString);
 			return prefixOf;
 
 		}
@@ -495,7 +623,7 @@ public final class SmtExprEvaluator implements SmtExprVisitor<Object, Void> {
 			Object right = retValues.get(1);
 			String leftString = (String) left;
 			String rightString = (String) right;
-			Boolean startsWith = (Boolean) (leftString.startsWith(rightString));
+			Boolean startsWith = leftString.startsWith(rightString);
 			return startsWith;
 		}
 		case ITE: {
@@ -521,7 +649,7 @@ public final class SmtExprEvaluator implements SmtExprVisitor<Object, Void> {
 			Object right = retValues.get(1);
 			Long leftInteger = (Long) left;
 			Long rightInteger = (Long) right;
-			return (Long) (leftInteger.longValue() + rightInteger.longValue());
+			return leftInteger + rightInteger;
 		}
 		case BV2Nat: {
 			// bit vectors are integers
@@ -534,7 +662,7 @@ public final class SmtExprEvaluator implements SmtExprVisitor<Object, Void> {
 			Object right = retValues.get(1);
 			Long leftInteger = (Long) left;
 			Long rightInteger = (Long) right;
-			return (Long) (leftInteger.longValue() & rightInteger.longValue());
+			return leftInteger & rightInteger;
 		}
 		case BVASHR: {
 			// bit vectors are integers
@@ -542,7 +670,7 @@ public final class SmtExprEvaluator implements SmtExprVisitor<Object, Void> {
 			Object right = retValues.get(1);
 			Long leftInteger = (Long) left;
 			Long rightInteger = (Long) right;
-			return (Long) (leftInteger.longValue() >> rightInteger.longValue());
+			return leftInteger >> rightInteger;
 		}
 		case BVLSHR: {
 			// bit vectors are integers
@@ -550,7 +678,7 @@ public final class SmtExprEvaluator implements SmtExprVisitor<Object, Void> {
 			Object right = retValues.get(1);
 			Long leftInteger = (Long) left;
 			Long rightInteger = (Long) right;
-			return (Long) (leftInteger.longValue() >>> rightInteger.longValue());
+			return leftInteger >>> rightInteger;
 		}
 		case BVOR: {
 			// bit vectors are integers
@@ -558,7 +686,7 @@ public final class SmtExprEvaluator implements SmtExprVisitor<Object, Void> {
 			Object right = retValues.get(1);
 			Long leftInteger = (Long) left;
 			Long rightInteger = (Long) right;
-			return (Long) (leftInteger.longValue() | rightInteger.longValue());
+			return leftInteger | rightInteger;
 		}
 		case BVSHL: {
 			// bit vectors are integers
@@ -566,7 +694,7 @@ public final class SmtExprEvaluator implements SmtExprVisitor<Object, Void> {
 			Object right = retValues.get(1);
 			Long leftInteger = (Long) left;
 			Long rightInteger = (Long) right;
-			return (Long) (leftInteger.longValue() << rightInteger.longValue());
+			return leftInteger << rightInteger;
 		}
 		case BVXOR: {
 			// bit vectors are integers
@@ -574,7 +702,7 @@ public final class SmtExprEvaluator implements SmtExprVisitor<Object, Void> {
 			Object right = retValues.get(1);
 			Long leftInteger = (Long) left;
 			Long rightInteger = (Long) right;
-			return (Long) (leftInteger.longValue() ^ rightInteger.longValue());
+			return leftInteger ^ rightInteger;
 		}
 
 		case INT2BV32: {
@@ -585,7 +713,7 @@ public final class SmtExprEvaluator implements SmtExprVisitor<Object, Void> {
 		case TO_REAL: {
 			Object operand = retValues.get(0);
 			Long operandInt = (Long) operand;
-			return new Double(operandInt.longValue());
+			return (double) operandInt;
 		}
 
 		case INT_TO_CHAR:
@@ -597,7 +725,7 @@ public final class SmtExprEvaluator implements SmtExprVisitor<Object, Void> {
 		case TO_INT: {
 			Object operand = retValues.get(0);
 			Double operandReal = (Double) operand;
-			return (Long) operandReal.longValue();
+			return operandReal.longValue();
 		}
 
 		case CHAR_TO_INT: {
@@ -609,13 +737,13 @@ public final class SmtExprEvaluator implements SmtExprVisitor<Object, Void> {
 								+ operandStr);
 			}
 			char charValue = operandStr.charAt(0);
-			return (Long) Long.valueOf(charValue);
+			return (long) charValue;
 
 		}
 		case STR_TO_INT: {
 			Object operand = retValues.get(0);
 			String operandStr = (String) operand;
-			return (Long) Long.parseLong(operandStr);
+			return Long.parseLong(operandStr);
 		}
 
 		case STR_INDEXOF: {
@@ -628,7 +756,7 @@ public final class SmtExprEvaluator implements SmtExprVisitor<Object, Void> {
 			String chString = (String) ch;
 			Long indexInt = (Long) index;
 			int indexOf = str.indexOf(chString, indexInt.intValue());
-			return new Long(indexOf);
+			return (long) indexOf;
 		}
 
 		case STR_AT: {

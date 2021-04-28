@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -95,7 +95,7 @@ public class FloydWarshall<V, E>
     {
         int sz = g.vertexSet().size();
         d = new double[sz][sz];
-        indices = new HashMap<V, Integer>();
+        indices = new HashMap<>();
 
         //Initialise distance to infinity, or the neighbours weight, or 0 if
         //same

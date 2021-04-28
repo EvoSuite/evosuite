@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -24,9 +24,9 @@ import java.util.HashSet;
 
 public class PartiallyGenericReturnType {
 
-	@SuppressWarnings("rawtypes")
+
 	public Collection<Class> foo(int x) {
-		Collection<Class> bar = new HashSet<Class>();
+		Collection<Class> bar = new HashSet<>();
 		if(x == 42) {
 			bar.add(getClass());
 		}

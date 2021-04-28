@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
+
 package org.evosuite.coverage.ibranch;
 
 import java.util.ArrayList;
@@ -44,7 +42,7 @@ import org.slf4j.LoggerFactory;
  */
 public class IBranchFitnessFactory extends AbstractFitnessFactory<IBranchTestFitness> {
 
-	private static Logger logger = LoggerFactory.getLogger(IBranchFitnessFactory.class);
+	private static final Logger logger = LoggerFactory.getLogger(IBranchFitnessFactory.class);
 
 	/* (non-Javadoc)
 	 * @see org.evosuite.coverage.TestFitnessFactory#getCoverageGoals()
@@ -52,7 +50,7 @@ public class IBranchFitnessFactory extends AbstractFitnessFactory<IBranchTestFit
 	@Override
 	public List<IBranchTestFitness> getCoverageGoals() {
 		//TODO this creates duplicate goals. Momentary fixed using a Set.
-		Set<IBranchTestFitness> goals = new HashSet<IBranchTestFitness>();
+		Set<IBranchTestFitness> goals = new HashSet<>();
 
 		// retrieve set of branches
 		BranchCoverageFactory branchFactory = new BranchCoverageFactory();
@@ -74,7 +72,7 @@ public class IBranchFitnessFactory extends AbstractFitnessFactory<IBranchTestFit
 		assert(goals.size()>=branchFactory.getCoverageGoals().size());
 		logger.info("Created " + goals.size() + " goals");
 		
-		return new ArrayList<IBranchTestFitness>(goals);
+		return new ArrayList<>(goals);
 	}
 }
 

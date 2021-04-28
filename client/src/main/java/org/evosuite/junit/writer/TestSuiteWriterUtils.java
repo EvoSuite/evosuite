@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -29,6 +29,7 @@ import org.evosuite.Properties;
 import org.evosuite.Properties.OutputFormat;
 import org.evosuite.junit.JUnit3TestAdapter;
 import org.evosuite.junit.JUnit4TestAdapter;
+import org.evosuite.junit.JUnit5TestAdapter;
 import org.evosuite.junit.UnitTestAdapter;
 import org.evosuite.testcarver.testcase.CarvedTestCase;
 import org.evosuite.testcase.TestCase;
@@ -114,7 +115,7 @@ public class TestSuiteWriterUtils {
 		if (results == null) {
 			return null;
 		}
-		Set<String> set = new LinkedHashSet<String>();
+		Set<String> set = new LinkedHashSet<>();
 		for (ExecutionResult res : results) {
 			Set<String> props = res.getReadProperties();
 			if (props != null) {
@@ -164,6 +165,8 @@ public class TestSuiteWriterUtils {
 			return new JUnit3TestAdapter();
 		else if (Properties.TEST_FORMAT == OutputFormat.JUNIT4)
 			return new JUnit4TestAdapter();
+		else if (Properties.TEST_FORMAT == OutputFormat.JUNIT5)
+			return new JUnit5TestAdapter();
 		else
 			throw new RuntimeException("Unknown output format: " + Properties.TEST_FORMAT);
 	}

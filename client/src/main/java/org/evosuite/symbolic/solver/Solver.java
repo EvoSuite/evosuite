@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -19,21 +19,23 @@
  */
 package org.evosuite.symbolic.solver;
 
+import org.evosuite.symbolic.expr.Constraint;
+import org.evosuite.symbolic.expr.Variable;
+import org.evosuite.symbolic.expr.ref.array.ArrayVariable;
+import org.evosuite.symbolic.expr.bv.IntegerVariable;
+import org.evosuite.symbolic.expr.constraint.ConstraintEvaluator;
+import org.evosuite.symbolic.expr.fp.RealVariable;
+import org.evosuite.symbolic.expr.str.StringVariable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
-import org.evosuite.symbolic.expr.Constraint;
-import org.evosuite.symbolic.expr.ConstraintEvaluator;
-import org.evosuite.symbolic.expr.Variable;
-import org.evosuite.symbolic.expr.bv.IntegerVariable;
-import org.evosuite.symbolic.expr.fp.RealVariable;
-import org.evosuite.symbolic.expr.str.StringVariable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Interface for SMT solvers
@@ -43,17 +45,20 @@ import org.slf4j.LoggerFactory;
 public abstract class Solver {
 
 	private final boolean addMissingVariables;
+	private final SolverCache solverCache;
 
-	protected boolean addMissingVariables() {
-		return addMissingVariables;
+	public Solver(boolean addMissingVariables) {
+		this(addMissingVariables, SolverCache.getInstance());
 	}
 
 	public Solver() {
-		addMissingVariables = false;
+		//TODO: Replace the getInstance methods with a dependency injection framework later on (e.g guice).
+		this(false, SolverCache.getInstance());
 	}
 
-	public Solver(boolean addMissingVariables) {
+	public Solver(boolean addMissingVariables, SolverCache solverCache) {
 		this.addMissingVariables = addMissingVariables;
+		this.solverCache = solverCache;
 	}
 
 	static Logger logger = LoggerFactory.getLogger(Solver.class);
@@ -75,8 +80,40 @@ public abstract class Solver {
 	 * @throws SolverErrorException
 	 *             the solver reported an error after its execution
 	 */
-	public abstract SolverResult solve(Collection<Constraint<?>> constraints) throws SolverTimeoutException,
+	public SolverResult solve(Collection<Constraint<?>> constraints) throws SolverTimeoutException, SolverParseException, SolverEmptyQueryException, SolverErrorException, IOException {
+		if (solverCache.hasCachedResult(constraints)) {
+			return solverCache.getCachedResult();
+		}
+
+		SolverResult solverResult;
+		try {
+			solverResult = executeSolver(constraints);
+
+			if (solverResult != null && !solverResult.isUnknown()) {
+				solverCache.saveSolverResult(constraints, solverResult);
+			}
+		} catch ( IllegalArgumentException | IOException e) {
+			solverResult = null;
+		}
+
+		return solverResult;
+	}
+
+	/**
+	 * @param constraints
+	 * @return
+	 * @throws SolverTimeoutException
+	 * @throws IOException
+	 * @throws SolverParseException
+	 * @throws SolverEmptyQueryException
+	 * @throws SolverErrorException
+	 */
+	public abstract SolverResult executeSolver(Collection<Constraint<?>> constraints) throws SolverTimeoutException,
 			IOException, SolverParseException, SolverEmptyQueryException, SolverErrorException;
+
+	protected boolean addMissingVariables() {
+		return addMissingVariables;
+	}
 
 	/**
 	 * Returns a mapping from variables to their current concrete values.
@@ -86,7 +123,7 @@ public abstract class Solver {
 	 */
 	protected static Map<String, Object> getConcreteValues(Set<Variable<?>> variables) {
 
-		Map<String, Object> concrete_values = new HashMap<String, Object>();
+		Map<String, Object> concrete_values = new HashMap<>();
 		for (Variable<?> v : variables) {
 			String var_name = v.getName();
 			Object concrete_value = v.getConcreteValue();
@@ -103,7 +140,7 @@ public abstract class Solver {
 	 * @return the set of variables in the constraint system
 	 */
 	protected static Set<Variable<?>> getVariables(Collection<Constraint<?>> constraints) {
-		Set<Variable<?>> variables = new HashSet<Variable<?>>();
+		Set<Variable<?>> variables = new HashSet<>();
 		for (Constraint<?> c : constraints) {
 			variables.addAll(c.getLeftOperand().getVariables());
 			variables.addAll(c.getRightOperand().getVariables());
@@ -141,6 +178,12 @@ public abstract class Solver {
 				RealVariable ir = (RealVariable) v;
 				Double concreteReal = (Double) concreteValue;
 				ir.setConcreteValue(concreteReal);
+			} else if (v instanceof ArrayVariable) {
+				ArrayVariable arr = (ArrayVariable) v;
+				arr.setConcreteValue(
+					getResizedArray(
+						arr.getConcreteValue(),
+						concreteValue));
 			} else {
 				logger.warn("unknow variable type " + v.getClass().getName());
 			}
@@ -181,6 +224,28 @@ public abstract class Solver {
 			// restore values
 			setConcreteValues(variables, initialValues);
 		}
+	}
+
+	/**
+	 * Returns a new array with the longest length.
+	 *
+	 * TODO: Rework this in the future, the way we talk about lengths is probably not the best.
+	 *
+	 * @param originalArray
+	 * @param newArray
+	 * @return
+	 */
+	private static Object getResizedArray(Object originalArray, Object newArray) {
+		int originalLength = Array.getLength(originalArray);
+		int newLength = Array.getLength(newArray);
+
+		if (originalLength > newLength) {
+			Object copyArr = Array.newInstance(newArray.getClass().getComponentType(), originalLength);
+			System.arraycopy(newArray, 0, copyArr, 0, Math.min(originalLength, newLength));
+			return copyArr;
+		}
+
+		return newArray;
 	}
 
 }

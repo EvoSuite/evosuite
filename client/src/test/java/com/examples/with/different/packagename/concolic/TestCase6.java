@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -33,7 +33,7 @@ public class TestCase6 {
 		short short0 = mathClass0.castToByte((float) long0);
 		mathClass0.unreach();
 		char char0 = mathClass0.castToChar(float1);
-		float float2 = mathClass0.substract((float) char0, float1);
+		float float2 = mathClass0.substract(char0, float1);
 		if (float2 != 0) {
 			mathClass0.castToInt(float2);
 		}

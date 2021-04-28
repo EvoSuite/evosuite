@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -27,7 +27,7 @@ import org.evosuite.ga.ChromosomeFactory;
  *
  * @author Gordon Fraser
  */
-public class OnePlusOneEA<T extends Chromosome> extends MuPlusLambdaEA<T> {
+public class OnePlusOneEA<T extends Chromosome<T>> extends MuPlusLambdaEA<T> {
 
 	private static final long serialVersionUID = 5229089847512798127L;
 

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -52,7 +52,7 @@ public class TestShouldNotWorkSystemTest extends SystemTestBase {
 		evosuite.parseCommandLine(command);
 	}
 	
-	@SuppressWarnings("unchecked")
+
 	@Test
 	public void testJavaPackageNotOnProjectCP(){
 		EvoSuite evosuite = new EvoSuite();

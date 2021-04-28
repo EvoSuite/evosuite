@@ -1,3 +1,22 @@
+/**
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * contributors
+ *
+ * This file is part of EvoSuite.
+ *
+ * EvoSuite is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation, either version 3.0 of the License, or
+ * (at your option) any later version.
+ *
+ * EvoSuite is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.evosuite.assertion;
 
 import org.evosuite.testcase.execution.CodeUnderTestException;
@@ -10,6 +29,7 @@ import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.variable.ConstantValue;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.utils.generic.GenericClass;
+import org.evosuite.utils.generic.GenericClassImpl;
 
 import java.util.Collection;
 import java.util.LinkedHashSet;
@@ -38,9 +58,9 @@ public class ContainsTraceObserver extends AssertionTraceObserver<ContainsTraceE
             if(!(object instanceof Collection))
                 return;
 
-            Collection collectionObject = (Collection)object;
+            Collection<?> collectionObject = (Collection<?>)object;
 
-            List<GenericClass> parameterClasses = var.getGenericClass().getParameterClasses();
+            List<GenericClass<?>> parameterClasses = var.getGenericClass().getParameterClasses();
             // Need to know exact type
             if(parameterClasses.size() != 1)
                 return;
@@ -51,8 +71,7 @@ public class ContainsTraceObserver extends AssertionTraceObserver<ContainsTraceE
             ContainsTraceEntry entry = new ContainsTraceEntry(var);
             int position = statement.getPosition();
 
-            Set<VariableReference> otherVariables = new LinkedHashSet<>();
-            otherVariables.addAll(scope.getElements(parameterType));
+            Set<VariableReference> otherVariables = new LinkedHashSet<>(scope.getElements(parameterType));
             for(int i = 0; i <= statement.getPosition(); i++) {
                 for(VariableReference candidateVar : currentTest.getStatement(i).getVariableReferences()) {
                     if(candidateVar instanceof ConstantValue && candidateVar.isAssignableTo(parameterType)) {

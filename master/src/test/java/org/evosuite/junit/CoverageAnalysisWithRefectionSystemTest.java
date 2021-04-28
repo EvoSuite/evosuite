@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -30,6 +30,7 @@ import java.nio.file.Files;
 import java.util.List;
 import java.util.Map;
 
+import com.opencsv.exceptions.CsvException;
 import org.apache.commons.io.FileUtils;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
@@ -71,7 +72,7 @@ public class CoverageAnalysisWithRefectionSystemTest extends SystemTestBase {
 	}
 
 	@Test
-	public void testGetAllInterfaces() throws IOException {
+	public void testGetAllInterfaces() throws IOException, CsvException {
 
 		EvoSuite evosuite = new EvoSuite();
 
@@ -105,7 +106,7 @@ public class CoverageAnalysisWithRefectionSystemTest extends SystemTestBase {
 
         CSVReader reader = new CSVReader(new FileReader(statistics_file));
         List<String[]> rows = reader.readAll();
-        assertTrue(rows.size() == 2);
+        assertEquals(2, rows.size());
         reader.close();
 
         assertEquals("14", CsvJUnitData.getValue(rows, RuntimeVariable.Total_Goals.name()));
@@ -120,14 +121,14 @@ public class CoverageAnalysisWithRefectionSystemTest extends SystemTestBase {
         System.out.println("matrix_file: " + matrix_file);
 
         List<String> lines = Files.readAllLines(FileSystems.getDefault().getPath(matrix_file));
-        assertTrue(lines.size() == 1);
+        assertEquals(1, lines.size());
 
         assertEquals(13 + 1 + 1, lines.get(0).replace(" ", "").length()); // number of goals + test result ('+' pass, '-' fail)
         assertTrue(lines.get(0).replace(" ", "").endsWith("+"));
 	}
 
 	@Test
-	public void testHierarchyIncludingInterfaces() throws IOException {
+	public void testHierarchyIncludingInterfaces() throws IOException, CsvException {
 
 		EvoSuite evosuite = new EvoSuite();
 
@@ -161,7 +162,7 @@ public class CoverageAnalysisWithRefectionSystemTest extends SystemTestBase {
 
         CSVReader reader = new CSVReader(new FileReader(statistics_file));
         List<String[]> rows = reader.readAll();
-        assertTrue(rows.size() == 2);
+        assertEquals(2, rows.size());
         reader.close();
 
         // The number of lines seems to be different depending on the compiler
@@ -228,7 +229,7 @@ public class CoverageAnalysisWithRefectionSystemTest extends SystemTestBase {
         System.out.println("matrix_file: " + matrix_file);
 
         List<String> lines = Files.readAllLines(FileSystems.getDefault().getPath(matrix_file));
-        assertTrue(lines.size() == 1);
+        assertEquals(1, lines.size());
         assertTrue(lines.get(0).replace(" ", "").endsWith("+"));
 	}
 }

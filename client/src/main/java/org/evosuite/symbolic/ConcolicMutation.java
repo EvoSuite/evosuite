@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -30,9 +30,7 @@ import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.UnaryExpression;
 import org.evosuite.symbolic.expr.Variable;
-import org.evosuite.symbolic.solver.SolverCache;
-import org.evosuite.symbolic.solver.Solver;
-import org.evosuite.symbolic.solver.SolverFactory;
+import org.evosuite.symbolic.solver.SolverUtils;
 import org.evosuite.symbolic.solver.SolverResult;
 import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.TestCase;
@@ -71,7 +69,7 @@ public class ConcolicMutation {
 	// @SuppressWarnings({ "rawtypes", "unchecked" })
 	public static TestCase negateCondition(List<BranchCondition> pathCondition, BranchCondition targetCondition,
 			TestCase test) {
-		List<Constraint<?>> constraints = new LinkedList<Constraint<?>>();
+		List<Constraint<?>> constraints = new LinkedList<>();
 
 		for (BranchCondition b : pathCondition) {
 			constraints.addAll(b.getSupportingConstraints());
@@ -100,9 +98,7 @@ public class ConcolicMutation {
 			// logger.info("Now solving: " + constraints);
 		}
 
-		Solver solver = SolverFactory.getInstance().buildNewSolver();
-		SolverCache solverCache = SolverCache.getInstance();
-		SolverResult solverResult = solverCache.solve(solver, constraints);
+		SolverResult solverResult = SolverUtils.solveQuery(constraints);
 
 		if (solverResult != null) {
 			// logger.info(values.toString());
@@ -182,7 +178,7 @@ public class ConcolicMutation {
 		Constraint<?> target = constraints.get(constraints.size() - 1);
 		Set<Variable<?>> dependencies = getVariables(target);
 
-		LinkedList<Constraint<?>> coi = new LinkedList<Constraint<?>>();
+		LinkedList<Constraint<?>> coi = new LinkedList<>();
 		coi.add(target);
 
 		for (int i = constraints.size() - 2; i >= 0; i--) {
@@ -206,7 +202,7 @@ public class ConcolicMutation {
 	 * @return
 	 */
 	private static Set<Variable<?>> getVariables(Constraint<?> constraint) {
-		Set<Variable<?>> variables = new HashSet<Variable<?>>();
+		Set<Variable<?>> variables = new HashSet<>();
 		getVariables(constraint.getLeftOperand(), variables);
 		getVariables(constraint.getRightOperand(), variables);
 		return variables;

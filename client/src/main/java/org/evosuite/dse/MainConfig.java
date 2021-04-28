@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -39,6 +39,8 @@ import org.evosuite.PackageInfo;
  * @author csallner@uta.edu (Christoph Csallner)
  */
 public class MainConfig {
+
+	public static final String LAMBDA_CLASS_NAME_FRAGMENT = "$$Lambda$";
 
 	private static MainConfig singleton;
 

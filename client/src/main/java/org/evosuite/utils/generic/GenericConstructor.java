@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,20 +17,13 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- *
- */
+
 package org.evosuite.utils.generic;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.lang.reflect.AccessibleObject;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.Type;
-import java.lang.reflect.TypeVariable;
-import java.util.Arrays;
+import java.lang.reflect.*;
 import java.util.List;
 
 import org.evosuite.TestGenerationContext;
@@ -45,24 +38,24 @@ import org.evosuite.utils.LoggingUtils;
  * @author Gordon Fraser
  *
  */
-public class GenericConstructor extends GenericAccessibleObject<GenericConstructor> {
+public class GenericConstructor extends GenericExecutable<GenericConstructor, Constructor<?>> {
 
 	private static final long serialVersionUID = 1361882947700615341L;
 
 	private transient Constructor<?> constructor;
 
 	public GenericConstructor(Constructor<?> constructor, Class<?> clazz) {
-		super(new GenericClass(clazz));
+		super(GenericClassFactory.get(clazz));
 		this.constructor = constructor;
 	}
 
-	public GenericConstructor(Constructor<?> constructor, GenericClass owner) {
-		super(new GenericClass(owner));
+	public GenericConstructor(Constructor<?> constructor, GenericClass<?> owner) {
+		super(GenericClassFactory.get(owner));
 		this.constructor = constructor;
 	}
 
 	public GenericConstructor(Constructor<?> constructor, Type type) {
-		super(new GenericClass(type));
+		super(GenericClassFactory.get(type));
 		this.constructor = constructor;
 	}
 
@@ -93,30 +86,29 @@ public class GenericConstructor extends GenericAccessibleObject<GenericConstruct
 			}
 		} catch (ClassNotFoundException e) {
 			LoggingUtils.getEvoLogger().info("Class not found - keeping old class loader ",
-			                                 e);
+					e);
 		} catch (SecurityException e) {
 			LoggingUtils.getEvoLogger().info("Class not found - keeping old class loader ",
-			                                 e);
+					e);
 		}
 	}
 
 	@Override
 	public GenericConstructor copy() {
-		GenericConstructor copy = new GenericConstructor(constructor, new GenericClass(
-		        owner));
+		GenericConstructor copy = new GenericConstructor(constructor, GenericClassFactory.get(owner));
 		copyTypeVariables(copy);
 		return copy;
 	}
 
 	@Override
-	public GenericConstructor copyWithNewOwner(GenericClass newOwner) {
+	public GenericConstructor copyWithNewOwner(GenericClass<?> newOwner) {
 		GenericConstructor copy = new GenericConstructor(constructor, newOwner);
 		copyTypeVariables(copy);
 		return copy;
 	}
 
 	@Override
-	public GenericConstructor copyWithOwnerFromReturnType(GenericClass returnType) {
+	public GenericConstructor copyWithOwnerFromReturnType(GenericClass<?> returnType) {
 		GenericConstructor copy = new GenericConstructor(constructor, returnType);
 		copyTypeVariables(copy);
 		return copy;
@@ -127,7 +119,7 @@ public class GenericConstructor extends GenericAccessibleObject<GenericConstruct
 	}
 
 	/* (non-Javadoc)
-	 * @see org.evosuite.utils.GenericAccessibleObject#getAccessibleObject()
+	 * @see org.evosuite.utils.GenericAccessibleMember#getAccessibleObject()
 	 */
 	@Override
 	public AccessibleObject getAccessibleObject() {
@@ -135,7 +127,7 @@ public class GenericConstructor extends GenericAccessibleObject<GenericConstruct
 	}
 
 	/* (non-Javadoc)
-	 * @see org.evosuite.utils.GenericAccessibleObject#getDeclaringClass()
+	 * @see org.evosuite.utils.GenericAccessibleMember#getDeclaringClass()
 	 */
 	@Override
 	public Class<?> getDeclaringClass() {
@@ -152,10 +144,10 @@ public class GenericConstructor extends GenericAccessibleObject<GenericConstruct
 	public Type[] getExactParameterTypes(Constructor<?> m, Type type) {
 		Type[] parameterTypes = m.getGenericParameterTypes();
 		Type exactDeclaringType = GenericTypeReflector.getExactSuperType(GenericTypeReflector.capture(type),
-		                                                                 m.getDeclaringClass());
+				m.getDeclaringClass());
 		if (exactDeclaringType == null) { // capture(type) is not a subtype of m.getDeclaringClass()
 			throw new IllegalArgumentException("The constructor " + m
-			        + " is not a member of type " + type);
+					+ " is not a member of type " + type);
 		}
 
 		Type[] result = new Type[parameterTypes.length];
@@ -185,17 +177,19 @@ public class GenericConstructor extends GenericAccessibleObject<GenericConstruct
 	}
 
 	/* (non-Javadoc)
-	 * @see org.evosuite.utils.GenericAccessibleObject#getName()
+	 * @see org.evosuite.utils.GenericAccessibleMember#getName()
 	 */
 	@Override
 	public String getName() {
 		return constructor.getName();
 	}
 
+	@Override
 	public String getNameWithDescriptor() {
 		return "<init>" + org.objectweb.asm.Type.getConstructorDescriptor(constructor);
 	}
 
+	@Override
 	public String getDescriptor() {
 		return org.objectweb.asm.Type.getConstructorDescriptor(constructor);
 	}
@@ -223,10 +217,17 @@ public class GenericConstructor extends GenericAccessibleObject<GenericConstruct
 		return types;
 	}
 
+	@Override
+	public Parameter[] getParameters() {
+		return constructor.getParameters();
+	}
+
+	@Override
 	public Type[] getRawParameterTypes() {
 		return constructor.getParameterTypes();
 	}
 
+	@Override
 	public Type getReturnType() {
 		return owner.getType();
 	}
@@ -242,7 +243,7 @@ public class GenericConstructor extends GenericAccessibleObject<GenericConstruct
 	}
 
 	/* (non-Javadoc)
-	 * @see org.evosuite.utils.GenericAccessibleObject#isConstructor()
+	 * @see org.evosuite.utils.GenericAccessibleMember#isConstructor()
 	 */
 	@Override
 	public boolean isConstructor() {
@@ -250,10 +251,16 @@ public class GenericConstructor extends GenericAccessibleObject<GenericConstruct
 	}
 
 	@Override
+	public boolean isMethod() {
+		return false;
+	}
+
+	@Override
 	public boolean isStatic() {
 		return Modifier.isStatic(constructor.getModifiers());
 	}
 
+	@Override
 	public boolean isOverloaded(List<VariableReference> parameters) {
 		Class<?> declaringClass = constructor.getDeclaringClass();
 		Class<?>[] parameterTypes = constructor.getParameterTypes();
@@ -283,7 +290,7 @@ public class GenericConstructor extends GenericAccessibleObject<GenericConstruct
 				Class<?>[] otherParameterTypes = otherConstructor.getParameterTypes();
 				for(int i = 0; i < parameterClasses.length; i++) {
 					if(parameters.get(i).isAssignableTo(parameterTypes[i]) !=
-					   parameters.get(i).isAssignableTo(otherParameterTypes[i])) {
+							parameters.get(i).isAssignableTo(otherParameterTypes[i])) {
 						parametersEqual = false;
 						break;
 					}
@@ -300,7 +307,7 @@ public class GenericConstructor extends GenericAccessibleObject<GenericConstruct
 
 	// assumes "static java.util.Date aDate;" declared
 	private void readObject(ObjectInputStream ois) throws ClassNotFoundException,
-	        IOException {
+			IOException {
 		ois.defaultReadObject();
 
 		// Read/initialize additional fields
@@ -317,7 +324,7 @@ public class GenericConstructor extends GenericAccessibleObject<GenericConstruct
 	}
 
 	/* (non-Javadoc)
-	 * @see org.evosuite.utils.GenericAccessibleObject#toString()
+	 * @see org.evosuite.utils.GenericAccessibleMember#toString()
 	 */
 	@Override
 	public String toString() {
@@ -368,6 +375,4 @@ public class GenericConstructor extends GenericAccessibleObject<GenericConstruct
 			return false;
 		return true;
 	}
-
-
 }

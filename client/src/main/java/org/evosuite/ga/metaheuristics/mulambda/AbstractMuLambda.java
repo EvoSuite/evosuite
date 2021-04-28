@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author José Campos
  */
-public abstract class AbstractMuLambda<T extends Chromosome> extends GeneticAlgorithm<T> {
+public abstract class AbstractMuLambda<T extends Chromosome<T>> extends GeneticAlgorithm<T> {
 
   private static final long serialVersionUID = 2738004761503761376L;
 

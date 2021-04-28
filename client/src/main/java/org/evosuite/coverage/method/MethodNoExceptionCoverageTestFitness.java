@@ -93,7 +93,7 @@ public class MethodNoExceptionCoverageTestFitness extends TestFitnessFunction {
 	public double getFitness(TestChromosome individual, ExecutionResult result) {
 		double fitness = 1.0;
 
-		List<Integer> exceptionPositions = new ArrayList<Integer>();
+		List<Integer> exceptionPositions = new ArrayList<>();
 		if (Properties.BREAK_ON_EXCEPTION) {
 			// we consider only the first thrown exception
 			if (!result.getPositionsWhereExceptionsWereThrown().isEmpty()){

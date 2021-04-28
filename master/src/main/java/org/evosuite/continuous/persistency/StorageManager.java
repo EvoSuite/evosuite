@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -39,6 +39,7 @@ import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 
+import com.opencsv.exceptions.CsvException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.evosuite.Properties;
@@ -67,7 +68,7 @@ import com.opencsv.CSVReader;
  */
 public class StorageManager {
 
-	private static Logger logger = LoggerFactory.getLogger(StorageManager.class);
+	private static final Logger logger = LoggerFactory.getLogger(StorageManager.class);
 
 	private static final String TMP_PREFIX = "tmp_";
 
@@ -287,7 +288,7 @@ public class StorageManager {
 		info += "\nNew test suites: " + suites.size();
 
 		// identify for which CUTs we failed to generate tests
-		Set<String> missingCUTs = new LinkedHashSet<String>();
+		Set<String> missingCUTs = new LinkedHashSet<>();
 
 		db.setTotalNumberOfTestableClasses(BigInteger.valueOf(current.getTotalNumberOfTestableCUTs()));
 		for (String cut : current.getClassNames()) {
@@ -338,7 +339,7 @@ public class StorageManager {
 	 */
 	public List<TestsOnDisk> gatherGeneratedTestsOnDisk(){
 		
-		List<TestsOnDisk> list = new LinkedList<TestsOnDisk>();
+		List<TestsOnDisk> list = new LinkedList<>();
 		List<File> generatedTests = FileIOUtils.getRecursivelyAllFilesInAllSubfolders(tmpTests.getAbsolutePath(), ".java");
 		List<File> generatedReports = FileIOUtils.getRecursivelyAllFilesInAllSubfolders(tmpReports.getAbsolutePath(), ".csv");
 		List<File> generatedSerialized = FileIOUtils.getRecursivelyAllFilesInAllSubfolders(tmpSeeds.getAbsolutePath(), Properties.CTG_SEEDS_EXT);
@@ -573,7 +574,7 @@ public class StorageManager {
 		suite.setTotalNumberOfStatements(BigInteger.valueOf(csv.getTotalNumberOfStatements()));
 		suite.setTotalEffortInSeconds(BigInteger.valueOf(csv.getDurationInSeconds()));
 
-		List<Coverage> coverageValues = new ArrayList<Coverage>();
+		List<Coverage> coverageValues = new ArrayList<>();
 		for (String criterion : csv.getCoverageVariables()) {
 		    Coverage coverage = new Coverage();
 		    coverage.setCriterion(criterion);
@@ -703,13 +704,13 @@ public class StorageManager {
 			CSVReader reader = new CSVReader(new FileReader(statistics_file));
 			rows = reader.readAll();
 			reader.close();
-		} catch (IOException e) {
+		} catch (IOException | CsvException e) {
 			logger.error(e.getMessage());
 			return true;
 		}
 
         // select the row of the Class Under Test
-        List<String[]> rowCUT = new ArrayList<String[]>();
+        List<String[]> rowCUT = new ArrayList<>();
         rowCUT.add(rows.get(0)); // add header (i.e., column names)
         for (String[] row : rows) {
         	if (ArrayUtil.contains(row, suite.cut)) {

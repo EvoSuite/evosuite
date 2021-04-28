@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- *
- */
+
 package org.evosuite.junit.writer;
 
 import org.evosuite.Properties;
@@ -40,6 +38,8 @@ import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.evosuite.utils.ArrayUtil;
 import org.evosuite.utils.FileIOUtils;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.objectweb.asm.Opcodes;
@@ -195,7 +195,7 @@ public class TestSuiteWriter implements Opcodes {
             throw new IllegalArgumentException("Test classes should have name ending with 'Test'. Invalid input name: " + name);
         }
 
-        List<File> generated = new ArrayList<File>();
+        List<File> generated = new ArrayList<>();
         String dir = TestSuiteWriterUtils.makeDirectory(directory);
         String content = "";
 
@@ -204,20 +204,19 @@ public class TestSuiteWriter implements Opcodes {
         LoopCounter.getInstance().setActive(true); //be sure it is active here, as JUnit checks might have left it to false
 
         List<ExecutionResult> results = new ArrayList<>();
-        for (int i = 0; i < testCases.size(); i++) {
-            TestCase test = testCases.get(i);
+        for (TestCase test : testCases) {
             boolean added = false;
-            if(!TimeController.getInstance().hasTimeToExecuteATestCase()) {
+            if (!TimeController.getInstance().hasTimeToExecuteATestCase()) {
                 logger.info("Using cached result");
-                for(ExecutionResult result : cachedResults) {
-                    if(result != null && result.test == test) {
+                for (ExecutionResult result : cachedResults) {
+                    if (result != null && result.test == test) {
                         results.add(result);
                         added = true;
                         break;
                     }
                 }
             }
-            if(!added) {
+            if (!added) {
                 ExecutionResult result = runTest(test);
                 results.add(result);
             }
@@ -406,8 +405,8 @@ public class TestSuiteWriter implements Opcodes {
      */
     protected String getImports(List<ExecutionResult> results) {
         StringBuilder builder = new StringBuilder();
-        Set<Class<?>> imports = new HashSet<Class<?>>();
-        Set<Class<?>> accessedClasses = new HashSet<Class<?>>();
+        Set<Class<?>> imports = new HashSet<>();
+        Set<Class<?>> accessedClasses = new HashSet<>();
         boolean wasSecurityException = TestSuiteWriterUtils.hasAnySecurityException(results);
         boolean hasException = false;
 
@@ -441,9 +440,14 @@ public class TestSuiteWriter implements Opcodes {
         }
 
         if (TestSuiteWriterUtils.needToUseAgent() && !Properties.NO_RUNTIME_DEPENDENCY) {
-            imports.add(EvoRunner.class);
             imports.add(EvoRunnerParameters.class);
-            imports.add(RunWith.class);
+            if(Properties.TEST_FORMAT == Properties.OutputFormat.JUNIT5) {
+                imports.add(EvoRunnerJUnit5.class);
+                imports.add(RegisterExtension.class);
+            } else {
+                imports.add(RunWith.class);
+                imports.add(EvoRunner.class);
+            }
         }
 
         Set<String> importNames = new HashSet<>();
@@ -542,17 +546,23 @@ public class TestSuiteWriter implements Opcodes {
         builder.append(adapter.getClassDefinition(test_name));
 
         if (Properties.TEST_SCAFFOLDING && !Properties.NO_RUNTIME_DEPENDENCY) {
-            builder.append(" extends " + Scaffolding.getFileName(scaffolding_name));
+            builder.append(" extends ").append(Scaffolding.getFileName(scaffolding_name));
         }
 
         builder.append(" {");
         builder.append(NEWLINE);
+        if(Properties.TEST_FORMAT == Properties.OutputFormat.JUNIT5){
+            builder.append("@RegisterExtension").append(NEWLINE);
+            builder.append(METHOD_SPACE).append("static EvoRunnerJUnit5 runner = new EvoRunnerJUnit5(").append(test_name).append(".class);").append(NEWLINE);
+        }
         return builder.toString();
     }
 
     private Object getRunner() {
 
-        String s = "@RunWith(EvoRunner.class) @EvoRunnerParameters(";
+
+        String s = Properties.TEST_FORMAT == Properties.OutputFormat.JUNIT5 ? "@EvoRunnerParameters("
+                                    :"@RunWith(EvoRunner.class) @EvoRunnerParameters(";
         List<String> list = new ArrayList<>();
 
         if (Properties.REPLACE_CALLS) {
@@ -575,10 +585,6 @@ public class TestSuiteWriter implements Opcodes {
             list.add("separateClassLoader = true");
         }
 
-        if(Properties.JEE){
-            list.add("useJEE = true");
-        }
-        
         if (Properties.REPLACE_GUI) {
             list.add("mockGUI = true");
         }

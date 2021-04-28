@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -22,7 +22,6 @@ package org.evosuite.symbolic.vm.string;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.Operator;
 import org.evosuite.symbolic.expr.ref.ReferenceConstant;
 import org.evosuite.symbolic.expr.ref.ReferenceExpression;
@@ -30,7 +29,7 @@ import org.evosuite.symbolic.expr.str.StringMultipleExpression;
 import org.evosuite.symbolic.expr.str.StringValue;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 import org.evosuite.symbolic.vm.SymbolicFunction;
-import org.evosuite.symbolic.vm.SymbolicHeap;
+import org.evosuite.symbolic.vm.heap.SymbolicHeap;
 
 public final class ReplaceAll extends SymbolicFunction {
 
@@ -80,7 +79,7 @@ public final class ReplaceAll extends SymbolicFunction {
 
 				StringMultipleExpression symb_value = new StringMultipleExpression(
 						stringReceiverExpr, Operator.REPLACEALL, regexExpr,
-						new ArrayList<Expression<?>>(Collections
+						new ArrayList<>(Collections
 								.singletonList(replacementExpr)),
 						conc_ret_val);
 

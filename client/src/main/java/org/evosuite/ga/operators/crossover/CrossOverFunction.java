@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Gordon Fraser
  */
-public abstract class CrossOverFunction implements Serializable {
+public abstract class CrossOverFunction<T extends Chromosome<T>> implements Serializable {
 
 	private static final long serialVersionUID = -4765602400132319324L;
 
@@ -42,13 +42,13 @@ public abstract class CrossOverFunction implements Serializable {
 	 * Replace parents with crossed over individuals
 	 * 
 	 * @param parent1
-	 *            a {@link org.evosuite.ga.Chromosome} object.
+	 *            a {@link Chromosome} object.
 	 * @param parent2
-	 *            a {@link org.evosuite.ga.Chromosome} object.
+	 *            a {@link Chromosome} object.
 	 * @throws org.evosuite.ga.ConstructionFailedException
 	 *             if any.
 	 */
-	public abstract void crossOver(Chromosome parent1, Chromosome parent2)
+	public abstract void crossOver(T parent1, T parent2)
 	        throws ConstructionFailedException;
 
 }

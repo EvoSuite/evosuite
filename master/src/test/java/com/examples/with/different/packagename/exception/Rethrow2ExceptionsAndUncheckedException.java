@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -18,8 +18,6 @@
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 package com.examples.with.different.packagename.exception;
-
-import com.thoughtworks.xstream.mapper.Mapper;
 
 import java.sql.SQLException;
 

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -19,28 +19,29 @@
  */
 package org.evosuite.symbolic.solver.smt;
 
+import org.evosuite.symbolic.solver.SmtSort;
+
 public final class SmtConstantDeclaration {
 
 	private final String name;
-	private final String sort;
+	private final SmtSort[] sorts;
 
-	public SmtConstantDeclaration(String constantName, String constantSort) {
+	public SmtConstantDeclaration(String constantName, SmtSort... constantSorts) {
 		this.name = constantName;
-		this.sort = constantSort;
+		this.sorts = constantSorts;
 	}
 
 	public String getConstantName() {
 		return name;
 	}
 
-	public String getConstantSort() {
-		return sort;
+	public SmtSort[] getConstantSorts() {
+		return sorts;
 	}
-	
+
 	public String toString() {
 		SmtQueryPrinter printer = new SmtQueryPrinter();
 		String str = printer.print(this);
 		return str;
 	}
-
 }

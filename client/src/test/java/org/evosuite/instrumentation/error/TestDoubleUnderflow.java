@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -45,7 +45,7 @@ public class TestDoubleUnderflow {
 	@Parameters
 	public static Collection<Object[]> data() {
 		Object[] values = new Object[] { -Double.MAX_VALUE, -Double.MIN_VALUE/2.0, 0.0, Double.MAX_VALUE/ 2.0, Double.MAX_VALUE};
-		List<Object[]> valuePairs = new ArrayList<Object[]>();
+		List<Object[]> valuePairs = new ArrayList<>();
 		for(Object val1 : values) {
 			for(Object val2 : values) {
 				valuePairs.add(new Object[] {val1, val2});

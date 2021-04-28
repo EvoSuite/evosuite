@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -33,7 +33,7 @@ import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.strategy.*;
-import org.evosuite.symbolic.DSEStrategy;
+import org.evosuite.symbolic.dse.DSEStrategyFactory;
 import org.evosuite.testcase.execution.ExecutionTraceImpl;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.LoggingUtils;
@@ -109,9 +109,6 @@ public class TestSuiteGeneratorHelper {
         break;
       case TRYCATCH:
         LoggingUtils.getEvoLogger().info("  - Try-Catch Branch Coverage");
-        break;
-      case REGRESSION:
-        LoggingUtils.getEvoLogger().info("  - Regression");
         break;
       default:
         throw new IllegalArgumentException("Unrecognized criterion: " + criterion);
@@ -256,14 +253,12 @@ public class TestSuiteGeneratorHelper {
       return new FixedNumRandomTestStrategy();
     case ONEBRANCH:
       return new IndividualTestStrategy();
-    case REGRESSION:
-      return new RegressionSuiteStrategy();
     case ENTBUG:
       return new EntBugTestStrategy();
     case MOSUITE:
       return new MOSuiteStrategy();
     case DSE:
-      return new DSEStrategy();
+      return DSEStrategyFactory.getDSEStrategy(Properties.CURRENT_DSE_MODULE_VERSION);
     case NOVELTY:
       return new NoveltyStrategy();
     case MAP_ELITES:

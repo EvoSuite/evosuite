@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -24,15 +24,20 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.evosuite.Properties;
+import org.evosuite.symbolic.dse.ConcolicExecutorImpl;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.solver.SolverEmptyQueryException;
+import org.evosuite.symbolic.solver.SolverErrorException;
+import org.evosuite.symbolic.solver.SolverParseException;
 import org.evosuite.symbolic.solver.SolverResult;
 import org.evosuite.symbolic.solver.SolverTimeoutException;
 import org.evosuite.symbolic.solver.avm.EvoSuiteSolver;
@@ -54,7 +59,7 @@ public class TestConstraintSolver {
 		System.out.println("TestCase=");
 		System.out.println(tc.toCode());
 
-		PathCondition pc = ConcolicExecution.executeConcolic(tc);
+		PathCondition pc = new ConcolicExecutorImpl().execute(tc);
 		List<BranchCondition> branch_conditions = pc.getBranchConditions();
 
 		return branch_conditions;
@@ -95,7 +100,7 @@ public class TestConstraintSolver {
 		final int lastBranchIndex = branch_conditions.size() - 1;
 		BranchCondition last_branch = branch_conditions.get(lastBranchIndex);
 
-		List<Constraint<?>> constraints = new LinkedList<Constraint<?>>();
+		List<Constraint<?>> constraints = new LinkedList<>();
 		
 		for(int i=0; i<lastBranchIndex; i++) {
 			BranchCondition c = branch_conditions.get(i);
@@ -114,7 +119,12 @@ public class TestConstraintSolver {
 		printConstraints(constraints);
 
 		EvoSuiteSolver solver = new EvoSuiteSolver();
-		SolverResult solverResult = solver.solve(constraints);
+		SolverResult solverResult;
+		try {
+			solverResult = solver.solve(constraints);
+		} catch (IOException | SolverParseException | SolverErrorException e) {
+			solverResult = null;
+		}
 
 		if (solverResult.isUNSAT())
 			System.out.println("No new model was found");
@@ -134,17 +144,10 @@ public class TestConstraintSolver {
 	}
 
 	/**
-	 * @param int0
-	 *            ==5
-	 * @param int1
-	 *            ==16
-	 * @param int2
-	 *            ==16
-	 * @param int3
-	 *            ==22
-	 * @param int4
-	 *            ==22
-	 * 
+	 *
+	 * @return
+	 * @throws SecurityException
+	 * @throws NoSuchMethodException
 	 */
 	private DefaultTestCase buildTestCase2() throws SecurityException, NoSuchMethodException {
 		TestCaseBuilder tc = new TestCaseBuilder();
@@ -163,13 +166,14 @@ public class TestConstraintSolver {
 	public void testCase2() throws SecurityException, NoSuchMethodException, SolverEmptyQueryException {
 		DefaultTestCase tc = buildTestCase2();
 		// build patch condition
-		List<BranchCondition> branch_conditions = executeTest(tc);
-		assertEquals(57, branch_conditions.size());
+		List<BranchCondition> branchConditions = executeTest(tc);
+		assertEquals(85, branchConditions.size());
+		assertEquals(58, getBranchConditions(branchConditions).size());
 
 		// keep only 2 top-most branch conditions
-		List<BranchCondition> sublist = new ArrayList<BranchCondition>();
-		sublist.add(branch_conditions.get(0));
-		sublist.add(branch_conditions.get(1));
+		List<BranchCondition> sublist = new ArrayList<>();
+		sublist.add(branchConditions.get(0));
+		sublist.add(branchConditions.get(1));
 
 		// invoke seeker
 		try {
@@ -180,6 +184,10 @@ public class TestConstraintSolver {
 			fail();
 		}
 
+	}
+
+	private List<BranchCondition> getBranchConditions(List<BranchCondition> branchConditions) {
+		return branchConditions.stream().filter(node -> node instanceof IfBranchCondition || node instanceof SwitchBranchCondition).collect(Collectors.toList());
 	}
 
 }

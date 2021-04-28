@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -20,6 +20,8 @@
 package org.evosuite.testcase.fm;
 
 import org.evosuite.utils.generic.GenericClass;
+import org.evosuite.utils.generic.GenericClassFactory;
+import org.evosuite.utils.generic.GenericClassImpl;
 import org.mockito.invocation.DescribedInvocation;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.listeners.InvocationListener;
@@ -52,14 +54,14 @@ public class EvoInvocationListener implements InvocationListener, Serializable {
      */
     private volatile boolean active = false;
 
-    private final GenericClass retvalType;
+    private final GenericClass<?> retvalType;
 
     public EvoInvocationListener(Type retvalType){
-        this.retvalType = new GenericClass(retvalType);
+        this.retvalType = GenericClassFactory.get(retvalType);
     }
 
 
-    public EvoInvocationListener(GenericClass retvalType){
+    public EvoInvocationListener(GenericClass<?> retvalType){
         this.retvalType = retvalType;
     }
 

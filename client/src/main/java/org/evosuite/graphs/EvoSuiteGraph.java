@@ -70,7 +70,7 @@ import static java.util.stream.Collectors.toCollection;
  */
 public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 
-	private static Logger logger = LoggerFactory.getLogger(EvoSuiteGraph.class);
+	private static final Logger logger = LoggerFactory.getLogger(EvoSuiteGraph.class);
 
 	private static int evoSuiteGraphs = 0;
 	protected int graphId;

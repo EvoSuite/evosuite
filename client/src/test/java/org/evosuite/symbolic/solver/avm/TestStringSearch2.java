@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -34,12 +34,11 @@ import java.util.Map;
 import org.evosuite.Properties;
 import org.evosuite.RandomizedTC;
 import org.evosuite.symbolic.BranchCondition;
-import org.evosuite.symbolic.ConcolicExecution;
+import org.evosuite.symbolic.dse.ConcolicExecutorImpl;
 import org.evosuite.symbolic.PathCondition;
 import org.evosuite.symbolic.TestCaseBuilder;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.solver.SolverTimeoutException;
-import org.evosuite.symbolic.solver.avm.EvoSuiteSolver;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.variable.VariableReference;
 import org.junit.Test;
@@ -82,7 +81,7 @@ public class TestStringSearch2 extends RandomizedTC {
 		DefaultTestCase tc = buildTestCase("urn:pBth:/A/B/C/doc.html#gilada");
 		List<BranchCondition> branch_conditions = executeTest(tc);
 
-		Collection<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
+		Collection<Constraint<?>> constraints = new ArrayList<>();
 
 		for (int i = 0; i < branch_conditions.size() - 1; i++) {
 			BranchCondition b = branch_conditions.get(i);
@@ -111,7 +110,7 @@ public class TestStringSearch2 extends RandomizedTC {
 		DefaultTestCase tc = buildTestCase("V*X-:o%tp");
 		List<BranchCondition> branch_conditions = executeTest(tc);
 
-		Collection<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
+		Collection<Constraint<?>> constraints = new ArrayList<>();
 		for (int i = 0; i < branch_conditions.size() - 2; i++) {
 			BranchCondition b = branch_conditions.get(i);
 			constraints.addAll(b.getSupportingConstraints());
@@ -151,7 +150,7 @@ public class TestStringSearch2 extends RandomizedTC {
 		System.out.println("TestCase=");
 		System.out.println(tc.toCode());
 
-		PathCondition pc = ConcolicExecution.executeConcolic(tc);
+		PathCondition pc = new ConcolicExecutorImpl().execute(tc);
 		List<BranchCondition> branch_conditions = pc.getBranchConditions();
 
 		printConstraints(branch_conditions);

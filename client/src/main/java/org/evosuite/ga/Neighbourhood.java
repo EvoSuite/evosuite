@@ -1,3 +1,22 @@
+/**
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * contributors
+ *
+ * This file is part of EvoSuite.
+ *
+ * EvoSuite is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation, either version 3.0 of the License, or
+ * (at your option) any later version.
+ *
+ * EvoSuite is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.evosuite.ga;
 
 import java.io.Serializable;
@@ -11,18 +30,18 @@ import org.evosuite.Properties;
  * 
  * @author Nasser Albunian
  */
-public class Neighbourhood<T extends Chromosome> implements NeighborModels,Serializable{
+public class Neighbourhood<T extends Chromosome<T>> implements NeighborModels<T>, Serializable {
 
 	private static final long serialVersionUID = 1L;
 
 	/** The population size **/
-	private int population_size;
+	private final int population_size;
 	
 	/** Position values of different neighbourhood based on the direction **/
 	private int _L, _R, _N, _S, _W, _E, _NE, _NW, _SE, _SW, _NN, _SS, _EE, _WW;
 	
 	/** An array that represents the grid **/
-	int neighbour[][];
+	int[][] neighbour;
 	
 	/** Number of chromosomes per one row of a grid **/
 	int columns;
@@ -30,8 +49,7 @@ public class Neighbourhood<T extends Chromosome> implements NeighborModels,Seria
 	/**
 	 * Collection of cells will be returned by different models of neighbourhood 
 	 */
-	private List<T> chromosomes = new ArrayList<>();
-	
+	private final List<T> chromosomes = new ArrayList<>();
 	
 	public Neighbourhood (int populationSize){
 		
@@ -140,8 +158,7 @@ public class Neighbourhood<T extends Chromosome> implements NeighborModels,Seria
 	 * @param position   The position of a chromosome which its neighbours will be retrieved
 	 * @return collection of neighbours 
 	 */
-	@SuppressWarnings("unchecked")
-	public List<T> ringTopology(List<? extends Chromosome> collection, int position) {
+	public List<T> ringTopology(List<T> collection, int position) {
 		
 		if (position-1 < 0){
 			_L = collection.size() - 1;
@@ -155,9 +172,9 @@ public class Neighbourhood<T extends Chromosome> implements NeighborModels,Seria
 			_R = position + 1;
 		}
 		
-		chromosomes.add((T) collection.get(_L));
-		chromosomes.add((T) collection.get(position));
-		chromosomes.add((T) collection.get(_R));
+		chromosomes.add(collection.get(_L));
+		chromosomes.add(collection.get(position));
+		chromosomes.add(collection.get(_R));
 		
 		return chromosomes;
 	}
@@ -168,19 +185,17 @@ public class Neighbourhood<T extends Chromosome> implements NeighborModels,Seria
 	 * @param position   The position of a chromosome which its neighbours will be retrieved
 	 * @return collection of neighbours 
 	 */
-	@SuppressWarnings("unchecked")
-	public List<T> linearFive(List<? extends Chromosome> collection, int position) {
-		
+	public List<T> linearFive(List<T> collection, int position) {
 		_N = neighbour[position][Positions.N.ordinal()];
 		_S = neighbour[position][Positions.S.ordinal()];
 		_E = neighbour[position][Positions.E.ordinal()];
 		_W = neighbour[position][Positions.W.ordinal()];
 		
-		chromosomes.add((T) collection.get(_N));
-		chromosomes.add((T) collection.get(_S));
-		chromosomes.add((T) collection.get(_E));
-		chromosomes.add((T) collection.get(_W));
-		chromosomes.add((T) collection.get(position));
+		chromosomes.add(collection.get(_N));
+		chromosomes.add(collection.get(_S));
+		chromosomes.add(collection.get(_E));
+		chromosomes.add(collection.get(_W));
+		chromosomes.add(collection.get(position));
 		
 		return chromosomes;
 	}
@@ -191,8 +206,7 @@ public class Neighbourhood<T extends Chromosome> implements NeighborModels,Seria
 	 * @param position   The position of a chromosome which its neighbours will be retrieved
 	 * @return collection of neighbours 
 	 */
-	@SuppressWarnings("unchecked")
-	public List<T> compactNine(List<? extends Chromosome> collection, int position) {
+	public List<T> compactNine(List<T> collection, int position) {
 		
 		_N  = neighbour[position][Positions.N.ordinal()];
 		_S  = neighbour[position][Positions.S.ordinal()];
@@ -203,15 +217,15 @@ public class Neighbourhood<T extends Chromosome> implements NeighborModels,Seria
 		_NE = neighbour[neighbour[position][Positions.N.ordinal()]][Positions.E.ordinal()];
 		_SE = neighbour[neighbour[position][Positions.S.ordinal()]][Positions.E.ordinal()];
 		
-		chromosomes.add((T) collection.get(_N));
-		chromosomes.add((T) collection.get(_S));
-		chromosomes.add((T) collection.get(_E));
-		chromosomes.add((T) collection.get(_W));
-		chromosomes.add((T) collection.get(_NW));
-		chromosomes.add((T) collection.get(_SW));
-		chromosomes.add((T) collection.get(_NE));
-		chromosomes.add((T) collection.get(_SE));
-		chromosomes.add((T) collection.get(position));
+		chromosomes.add(collection.get(_N));
+		chromosomes.add(collection.get(_S));
+		chromosomes.add(collection.get(_E));
+		chromosomes.add(collection.get(_W));
+		chromosomes.add(collection.get(_NW));
+		chromosomes.add(collection.get(_SW));
+		chromosomes.add(collection.get(_NE));
+		chromosomes.add(collection.get(_SE));
+		chromosomes.add(collection.get(position));
 		
 		return chromosomes;
 	}
@@ -222,9 +236,7 @@ public class Neighbourhood<T extends Chromosome> implements NeighborModels,Seria
 	 * @param position   The position of a chromosome which its neighbours will be retrieved
 	 * @return collection of neighbours 
 	 */
-	@SuppressWarnings("unchecked")
-	public List<T> CompactThirteen(List<? extends Chromosome> collection, int position) {
-		
+	public List<T> CompactThirteen(List<T> collection, int position) {
 		_N  = neighbour[position][Positions.N.ordinal()];
 		_S  = neighbour[position][Positions.S.ordinal()];
 		_E  = neighbour[position][Positions.E.ordinal()];
@@ -238,19 +250,19 @@ public class Neighbourhood<T extends Chromosome> implements NeighborModels,Seria
 		_EE = neighbour[_E][Positions.E.ordinal()];
 		_WW = neighbour[_W][Positions.W.ordinal()];
 		
-		chromosomes.add((T) collection.get(_N));
-		chromosomes.add((T) collection.get(_S));
-		chromosomes.add((T) collection.get(_E));
-		chromosomes.add((T) collection.get(_W));
-		chromosomes.add((T) collection.get(_NW));
-		chromosomes.add((T) collection.get(_SW));
-		chromosomes.add((T) collection.get(_NE));
-		chromosomes.add((T) collection.get(_SE));
-		chromosomes.add((T) collection.get(_NN));
-		chromosomes.add((T) collection.get(_SS));
-		chromosomes.add((T) collection.get(_EE));
-		chromosomes.add((T) collection.get(_WW));
-		chromosomes.add((T) collection.get(position));
+		chromosomes.add(collection.get(_N));
+		chromosomes.add(collection.get(_S));
+		chromosomes.add(collection.get(_E));
+		chromosomes.add(collection.get(_W));
+		chromosomes.add(collection.get(_NW));
+		chromosomes.add(collection.get(_SW));
+		chromosomes.add(collection.get(_NE));
+		chromosomes.add(collection.get(_SE));
+		chromosomes.add(collection.get(_NN));
+		chromosomes.add(collection.get(_SS));
+		chromosomes.add(collection.get(_EE));
+		chromosomes.add(collection.get(_WW));
+		chromosomes.add(collection.get(position));
 		
 		return chromosomes;
 	}

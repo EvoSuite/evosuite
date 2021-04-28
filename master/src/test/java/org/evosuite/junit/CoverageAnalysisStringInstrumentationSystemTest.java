@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -20,7 +20,6 @@
 package org.evosuite.junit;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -76,7 +75,7 @@ public class CoverageAnalysisStringInstrumentationSystemTest extends SystemTestB
         assertEquals(19, (Integer) outputVariables.get(RuntimeVariable.Covered_Goals.name()).getValue(), 0.0);
         assertEquals(0.95, (Double) outputVariables.get(RuntimeVariable.LineCoverage.name()).getValue(), 0.0);
         assertEquals(1, (Integer) outputVariables.get(RuntimeVariable.Tests_Executed.name()).getValue(), 0.0);
-        assertEquals("01111111111111111111", (String) outputVariables.get(RuntimeVariable.LineCoverageBitString.name()).getValue());
+        assertEquals("01111111111111111111", outputVariables.get(RuntimeVariable.LineCoverageBitString.name()).getValue());
 
         // check coverage matrix
         String coveragematrix_file = System.getProperty("user.dir") + File.separator +

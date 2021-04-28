@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -29,6 +29,7 @@ import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.variable.ConstantValue;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.utils.generic.GenericClass;
+import org.evosuite.utils.generic.GenericClassFactory;
 import org.evosuite.utils.generic.GenericMethod;
 
 import java.io.PrintStream;
@@ -59,8 +60,8 @@ public class PrivateMethodStatement extends MethodStatement {
         );
         reflectedMethod = new GenericMethod(method, klass);
         isStaticMethod = isStatic;
-        List<GenericClass> parameterTypes = new ArrayList<>();
-        parameterTypes.add(new GenericClass(klass));
+        List<GenericClass<?>> parameterTypes = new ArrayList<>();
+        parameterTypes.add(GenericClassFactory.get(klass));
         this.method.setTypeParameters(parameterTypes);
     }
 
@@ -68,16 +69,16 @@ public class PrivateMethodStatement extends MethodStatement {
                                                                VariableReference callee, List<VariableReference> inputs) {
 
         List<VariableReference> list = new ArrayList<>(3 + inputs.size()*2);
-        list.add(new ConstantValue(tc,new GenericClass(Class.class),klass));
+        list.add(new ConstantValue(tc,GenericClassFactory.get(Class.class),klass));
         list.add(callee);
-        list.add(new ConstantValue(tc, new GenericClass(String.class), method.getName()));
+        list.add(new ConstantValue(tc, GenericClassFactory.get(String.class), method.getName()));
 
         Class<?>[] parameterTypes = method.getParameterTypes();
         assert(parameterTypes.length == inputs.size());
         for(int parameterNum = 0; parameterNum < parameterTypes.length; parameterNum++) {
             VariableReference vr = inputs.get(parameterNum);
             list.add(vr);
-            list.add(new ConstantValue(tc,new GenericClass(Class.class), parameterTypes[parameterNum]));
+            list.add(new ConstantValue(tc,GenericClassFactory.get(Class.class), parameterTypes[parameterNum]));
         }
 
         return list;

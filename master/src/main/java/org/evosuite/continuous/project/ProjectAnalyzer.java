@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -30,6 +30,7 @@ import java.util.Set;
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.Properties.AvailableSchedule;
+import org.evosuite.classpath.ClassPathHacker;
 import org.evosuite.classpath.ClassPathHandler;
 import org.evosuite.classpath.ResourceList;
 import org.evosuite.continuous.job.schedule.HistorySchedule;
@@ -60,7 +61,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ProjectAnalyzer {
 
-	private static Logger logger = LoggerFactory.getLogger(ProjectAnalyzer.class);
+	private static final Logger logger = LoggerFactory.getLogger(ProjectAnalyzer.class);
 
 	/**
 	 * the folder/jar where to find the .class files used as CUTs
@@ -152,7 +153,7 @@ public class ProjectAnalyzer {
 			suts = ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getAllClasses(ClassPathHandler.getInstance().getTargetProjectClasspath(), prefix, false);
 		}
 
-		List<String> cuts = new LinkedList<String>();
+		List<String> cuts = new LinkedList<>();
 
 		for (String className : suts) {
 			
@@ -166,7 +167,7 @@ public class ProjectAnalyzer {
 			}
 			
 			try {
-				Class<?> clazz = Class.forName(className);
+				Class<?> clazz = ClassPathHacker.getContinuousClassLoader().loadClass(className);
 				if (!CoverageAnalysis.isTest(clazz)){
 					cuts.add(className);
 				}
@@ -223,7 +224,7 @@ public class ProjectAnalyzer {
 				/*
 				 * just to avoid possible issues with instrumenting classloader
 				 */
-				theClass = ClassLoader.getSystemClassLoader().loadClass(className);
+				theClass = ClassPathHacker.getContinuousClassLoader().loadClass(className);
 
 				//TODO kind
 				//if(theClass.isInterface()){

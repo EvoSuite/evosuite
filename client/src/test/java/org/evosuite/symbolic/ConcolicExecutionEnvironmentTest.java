@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -42,6 +42,7 @@ import org.evosuite.runtime.testdata.EvoSuiteURL;
 import org.evosuite.runtime.testdata.FileSystemHandling;
 import org.evosuite.runtime.testdata.NetworkHandling;
 import org.evosuite.runtime.vfs.VirtualFileSystem;
+import org.evosuite.symbolic.dse.ConcolicExecutorImpl;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.evosuite.testcase.variable.VariableReference;
@@ -73,7 +74,7 @@ public class ConcolicExecutionEnvironmentTest {
 		System.out.println(tc.toCode());
 
 		// ConcolicExecution concolicExecutor = new ConcolicExecution();
-		PathCondition pc = ConcolicExecution.executeConcolic(tc);
+		PathCondition pc = new ConcolicExecutorImpl().execute(tc);
 		List<BranchCondition> branch_conditions = pc.getBranchConditions();
 
 		printConstraints(branch_conditions);

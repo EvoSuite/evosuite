@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
+
 package org.evosuite.symbolic.expr;
 
 /**
@@ -27,7 +25,7 @@ package org.evosuite.symbolic.expr;
  *
  * @author krusev
  */
-public abstract interface Cast<T> {
+public interface Cast<T> {
 
 	/**
 	 * <p>getConcreteObject</p>
@@ -35,5 +33,5 @@ public abstract interface Cast<T> {
 	 * @param <T> a T object.
 	 * @return a {@link org.evosuite.symbolic.expr.Expression} object.
 	 */
-	public Expression<T> getArgument();
+    Expression<T> getArgument();
 }

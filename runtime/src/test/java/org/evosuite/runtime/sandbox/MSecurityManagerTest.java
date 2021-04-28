@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -27,10 +27,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.net.InetAddress;
 import java.net.URL;
 import java.net.URLConnection;
-import java.net.UnknownHostException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -39,10 +37,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.LogManager;
 
-import org.evosuite.runtime.RuntimeSettings;
 import  org.junit.*;
-
-import javax.swing.*;
 
 public class MSecurityManagerTest {
 
@@ -251,7 +246,7 @@ public class MSecurityManagerTest {
 		Assert.assertTrue(dir.exists());
 		dir.delete();
 		Thread.sleep(100);
-		Assert.assertTrue( ! dir.exists());
+        Assert.assertFalse(dir.exists());
 		
 		final File toDelete = createTempDir();
 		toDelete.deleteOnExit();

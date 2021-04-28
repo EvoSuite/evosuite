@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -75,7 +75,7 @@ public class MockJOptionPaneShowInternalConfirmDialogTest {
 	public void testShowInternalConfirmDialog() throws Exception {
 
 		TestSuiteChromosome suite = new TestSuiteChromosome();
-		InstrumentingClassLoader cl = new InstrumentingClassLoader();
+		InstrumentingClassLoader cl = TestGenerationContext.getInstance().getClassLoaderForSUT();
 		TestCase t0 = buildTestCase0(cl);
 		TestCase t1 = buildTestCase1(cl);
 		suite.addTest(t0);

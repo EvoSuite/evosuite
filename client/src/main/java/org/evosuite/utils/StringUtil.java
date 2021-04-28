@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -21,20 +21,24 @@ package org.evosuite.utils;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 
+import java.util.List;
+import java.util.StringJoiner;
+
 public abstract class StringUtil {
 
-    public static String getEscapedString(String original) {
-        char[] charArray = StringEscapeUtils.escapeJava((String) original).toCharArray();
+	public static final String SPACE_DELIMITER = " ";
+
+	public static String getEscapedString(String original) {
+        char[] charArray = StringEscapeUtils.escapeJava(original).toCharArray();
         StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < charArray.length; ++i) {
-            char a = charArray[i];
-            if (a > 255) {
-                sb.append("\\u");
-                sb.append(Integer.toHexString(a));
-            } else {
-                sb.append(a);
-            }
-        }
+		for (char c : charArray) {
+			if (c > 255) {
+				sb.append("\\u");
+				sb.append(Integer.toHexString(c));
+			} else {
+				sb.append(c);
+			}
+		}
         return sb.toString();
     }
 
@@ -148,14 +152,14 @@ public abstract class StringUtil {
 		// find the min and max string lengths; this avoids checking to make
 		// sure we are not exceeding the length of the string each time through
 		// the bottom loop.
-		for (int i = 0; i < arrayLen; i++) {
-			if (strs[i] == null) {
+		for (final String str : strs) {
+			if (str == null) {
 				anyStringNull = true;
 				shortestStrLen = 0;
 			} else {
 				allStringsNull = false;
-				shortestStrLen = Math.min(strs[i].length(), shortestStrLen);
-				longestStrLen = Math.max(strs[i].length(), longestStrLen);
+				shortestStrLen = Math.min(str.length(), shortestStrLen);
+				longestStrLen = Math.max(str.length(), longestStrLen);
 			}
 		}
 
@@ -191,5 +195,22 @@ public abstract class StringUtil {
 			return shortestStrLen;
 		}
 		return firstDiff;
+	}
+
+	/**
+	 * Joins several Strings using a custom delimiter
+	 *
+	 * @param delimiter
+	 * @param strings
+	 * @return
+	 */
+	public static String joinStrings(String delimiter, List<String> strings) {
+		StringJoiner joiner = new StringJoiner(delimiter);
+
+		for (String string : strings) {
+			joiner.add(string);
+		}
+
+		return joiner.toString();
 	}
 }

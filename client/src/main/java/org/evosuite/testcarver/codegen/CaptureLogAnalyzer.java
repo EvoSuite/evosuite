@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -37,13 +37,13 @@ import org.slf4j.LoggerFactory;
 
 public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 {
-	private static Logger logger = LoggerFactory.getLogger(CaptureLogAnalyzer.class);
+	private static final Logger logger = LoggerFactory.getLogger(CaptureLogAnalyzer.class);
 
 	@SuppressWarnings("rawtypes")
 	@Override
 	public void analyze(final CaptureLog originalLog, final ICodeGenerator generator, final Class<?>... observedClasses) 
 	{
-		this.analyze(originalLog, generator, new HashSet<Class<?>>(), observedClasses);
+		this.analyze(originalLog, generator, new HashSet<>(), observedClasses);
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -174,9 +174,9 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 	private HashSet<String> extractObservedClassNames(
 			final Class<?>... observedClasses) {
 		//--- 1. step: extract class names
-		final HashSet<String> observedClassNames = new HashSet<String>();
-		for(int i = 0; i < observedClasses.length; i++){
-			observedClassNames.add(observedClasses[i].getName());
+		final HashSet<String> observedClassNames = new HashSet<>();
+		for (final Class<?> observedClass : observedClasses) {
+			observedClassNames.add(observedClass.getName());
 		}
 		return observedClassNames;
 	}
@@ -191,7 +191,7 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 		}
 	}
 
-	private final Class<?> getClassForName(String type)
+	private Class<?> getClassForName(String type)
 	{
 		try 
 		{
@@ -356,13 +356,11 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 	private void restoreArgs(final Object[] args, final int currentRecord, final CaptureLog log, final ICodeGenerator generator, final Set<Class<?>> blackList)
 	{
 		Integer oid;
-		for(int i = 0; i < args.length; i++)
-		{
+		for (final Object arg : args) {
 			// there can only be OIDs or null
-			oid = (Integer) args[i];
+			oid = (Integer) arg;
 
-			if(oid != null)
-			{
+			if (oid != null) {
 				this.restoreCodeFromLastPosTo(log, generator, oid, currentRecord, blackList);
 			}
 		}
@@ -532,18 +530,17 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 
 					methodArgs = log.params.get(currentRecord);
 					logger.debug("Getting "+methodArgs.length+" method args: {}", methodArgs);
-					for(int i = 0; i < methodArgs.length; i++)
-					{
+					for (final Object methodArg : methodArgs) {
 						// there can only be OIDs or null
-						methodArgOID = (Integer) methodArgs[i];
+						methodArgOID = (Integer) methodArg;
 						logger.debug("Argument {}", methodArgOID);
 
 						//====================================================
 
 						// if method argument is equal to caller oid  look for alternative instance which is restorable
-						if(methodArgOID != null && (methodArgOID == callerOID )) {
+						if (methodArgOID != null && (methodArgOID == callerOID)) {
 							int r = currentRecord;
-							while(isBlackListed(callerOID, blackList, log)){
+							while (isBlackListed(callerOID, blackList, log)) {
 								callerOID = this.findCaller(log, ++r);
 							}
 
@@ -551,18 +548,17 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 							blackList.add(this.getClassFromOID(log, oid));
 
 							return new int[]{oid, callerOID};
-						}
-						else if(methodArgOID != null && isBlackListed(methodArgOID, blackList, log)){
+						} else if (methodArgOID != null && isBlackListed(methodArgOID, blackList, log)) {
 							logger.debug("arg in blacklist >>>> {}", blackList.contains(this.getClassFromOID(log, methodArgOID)));
 
 							return getExchange(log, currentRecord, oid, blackList); //new int[]{oid, callerOID};
 						}
 						//====================================================
 
-						if(methodArgOID != null && methodArgOID != oid) {
+						if (methodArgOID != null && methodArgOID != oid) {
 							logger.debug("Setting up code for argument {}", methodArgOID);
 							exchange = this.restoreCodeFromLastPosTo(log, generator, methodArgOID, currentRecord, blackList);
-							if(exchange != null) {
+							if (exchange != null) {
 								// we can not resolve all dependencies because they rely on other unresolvable object
 								blackList.add(this.getClassFromOID(log, oid));
 								return exchange;
@@ -598,11 +594,11 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 
 
 					// consider each passed argument as being modified at the end of the method call sequence
-					for(int i = 0; i < methodArgs.length; i++){
+					for (final Object methodArg : methodArgs) {
 						// there can only be OIDs or null
-						methodArgOID = (Integer) methodArgs[i];
+						methodArgOID = (Integer) methodArg;
 
-						if(methodArgOID != null && methodArgOID != oid) {
+						if (methodArgOID != null && methodArgOID != oid) {
 							this.updateInitRec(log, methodArgOID, currentRecord);
 						}
 					}

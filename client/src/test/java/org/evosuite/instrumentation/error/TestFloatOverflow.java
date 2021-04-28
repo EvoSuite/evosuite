@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -44,7 +44,7 @@ public class TestFloatOverflow {
 	@Parameters
 	public static Collection<Object[]> data() {
 		Object[] values = new Object[] { (- Float.MAX_VALUE), (- Float.MAX_VALUE)/2, 0, Float.MAX_VALUE/ 2, Float.MAX_VALUE};
-		List<Object[]> valuePairs = new ArrayList<Object[]>();
+		List<Object[]> valuePairs = new ArrayList<>();
 		for(Object val1 : values) {
 			for(Object val2 : values) {
 				valuePairs.add(new Object[] {val1, val2});

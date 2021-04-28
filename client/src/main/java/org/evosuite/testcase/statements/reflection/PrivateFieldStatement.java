@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -30,6 +30,7 @@ import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.utils.generic.GenericClass;
+import org.evosuite.utils.generic.GenericClassFactory;
 import org.evosuite.utils.generic.GenericMethod;
 import java.io.PrintStream;
 import java.lang.reflect.Field;
@@ -52,7 +53,7 @@ public class PrivateFieldStatement extends MethodStatement {
 
 	private static Method setVariable;
 
-    private GenericClass ownerClass;
+    private GenericClass<?> ownerClass;
 
     private String className;
 
@@ -77,18 +78,18 @@ public class PrivateFieldStatement extends MethodStatement {
                 new GenericMethod(setVariable, PrivateAccess.class),
                 null, //it is static
                 Arrays.asList(  // setVariable(Class<T> klass, T instance, String fieldName, Object value)
-                        new ConstantValue(tc, new GenericClass(Class.class), klass),  // Class<T> klass
+                        new ConstantValue(tc, GenericClassFactory.get(Class.class), klass),  // Class<T> klass
                         //new ClassPrimitiveStatement(tc,klass).getReturnValue(),  // Class<T> klass
                         callee, // T instance
-                        new ConstantValue(tc, new GenericClass(String.class), fieldName),  // String fieldName
+                        new ConstantValue(tc, GenericClassFactory.get(String.class), fieldName),  // String fieldName
                         param // Object value
                 )
         );
-        this.ownerClass = new GenericClass(klass);
+        this.ownerClass = GenericClassFactory.get(klass);
         this.className = this.ownerClass.getRawClass().getCanonicalName();
         this.fieldName = fieldName;
 
-        List<GenericClass> parameterTypes = new ArrayList<>();
+        List<GenericClass<?>> parameterTypes = new ArrayList<>();
         parameterTypes.add(this.ownerClass);
         this.method.setTypeParameters(parameterTypes);
         determineIfFieldIsStatic(klass, fieldName);

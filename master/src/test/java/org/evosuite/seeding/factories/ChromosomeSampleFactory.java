@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -25,7 +25,9 @@ import org.evosuite.testsuite.TestSuiteChromosome;
 public class ChromosomeSampleFactory implements ChromosomeFactory<TestSuiteChromosome> {
 	public static final TestSuiteChromosome CHROMOSOME;
 	private static final TestSampleFactory FACTORY;
-	static {
+    private static final long serialVersionUID = -5227032406625911394L;
+
+    static {
 		FACTORY = new TestSampleFactory();
 		CHROMOSOME = new TestSuiteChromosome();
 		for (int i = 0; i < 10; i++){

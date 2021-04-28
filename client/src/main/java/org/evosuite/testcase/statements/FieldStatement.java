@@ -254,7 +254,7 @@ public class FieldStatement extends AbstractStatement {
 
 				@Override
 				public Set<Class<? extends Throwable>> throwableExceptions() {
-					Set<Class<? extends Throwable>> t = new LinkedHashSet<Class<? extends Throwable>>();
+					Set<Class<? extends Throwable>> t = new LinkedHashSet<>();
 					t.add(InvocationTargetException.class);
 					return t;
 				}
@@ -269,7 +269,7 @@ public class FieldStatement extends AbstractStatement {
 	/** {@inheritDoc} */
 	@Override
 	public Set<VariableReference> getVariableReferences() {
-		Set<VariableReference> references = new LinkedHashSet<VariableReference>();
+		Set<VariableReference> references = new LinkedHashSet<>();
 		references.add(retval);
 		if (!isStatic()) {
 			references.add(source);
@@ -355,7 +355,7 @@ public class FieldStatement extends AbstractStatement {
 	/** {@inheritDoc} */
 	@Override
 	public List<VariableReference> getUniqueVariableReferences() {
-		return new ArrayList<VariableReference>(getVariableReferences());
+		return new ArrayList<>(getVariableReferences());
 	}
 
 	/** {@inheritDoc} */

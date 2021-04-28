@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -19,6 +19,7 @@
  */
 package org.evosuite.symbolic.solver.avm;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Collections;
@@ -29,13 +30,12 @@ import org.evosuite.RandomizedTC;
 import org.evosuite.symbolic.expr.Comparator;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.Operator;
-import org.evosuite.symbolic.expr.StringConstraint;
+import org.evosuite.symbolic.expr.constraint.StringConstraint;
 import org.evosuite.symbolic.expr.bv.IntegerConstant;
 import org.evosuite.symbolic.expr.bv.StringBinaryComparison;
 import org.evosuite.symbolic.expr.str.StringConstant;
 import org.evosuite.symbolic.expr.str.StringVariable;
 import org.evosuite.symbolic.solver.SolverTimeoutException;
-import org.evosuite.symbolic.solver.avm.StringAVM;
 import org.evosuite.symbolic.vm.ExpressionFactory;
 import org.junit.Test;
 
@@ -101,7 +101,7 @@ public class StringAVMTests extends RandomizedTC {
 		assertTrue(succeded);
 		
 		String result = var.getConcreteValue();
-		assertTrue("Length="+result.length(), result.length()==6);
+        assertEquals("Length=" + result.length(), 6, result.length());
 		assertTrue(result, result.endsWith(start));
 	}
 	
@@ -122,7 +122,7 @@ public class StringAVMTests extends RandomizedTC {
 		assertTrue(succeded);
 		
 		String result = var.getConcreteValue();
-		assertTrue("Length="+result.length(), result.length()==6);
+        assertEquals("Length=" + result.length(), 6, result.length());
 		assertTrue(result, result.startsWith(start));
 	}
 	

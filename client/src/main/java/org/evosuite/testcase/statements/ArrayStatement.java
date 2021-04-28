@@ -39,7 +39,8 @@ import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.execution.Scope;
 import org.evosuite.utils.generic.GenericAccessibleObject;
-import org.evosuite.utils.generic.GenericClass;
+import org.evosuite.utils.generic.GenericClassFactory;
+import org.evosuite.utils.generic.GenericClassImpl;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
 
@@ -164,7 +165,7 @@ public class ArrayStatement extends AbstractStatement {
 	 *            an array of int.
 	 */
 	public ArrayStatement(TestCase tc, java.lang.reflect.Type type, int[] length) {
-		this(tc, new ArrayReference(tc, new GenericClass(type), length), length);
+		this(tc, new ArrayReference(tc, GenericClassFactory.get(type), length), length);
 	}
 
 	/** {@inheritDoc} */
@@ -243,13 +244,13 @@ public class ArrayStatement extends AbstractStatement {
 	/** {@inheritDoc} */
 	@Override
 	public List<VariableReference> getUniqueVariableReferences() {
-		return new ArrayList<VariableReference>(getVariableReferences());
+		return new ArrayList<>(getVariableReferences());
 	}
 
 	/** {@inheritDoc} */
 	@Override
 	public Set<VariableReference> getVariableReferences() {
-		Set<VariableReference> references = new LinkedHashSet<VariableReference>();
+		Set<VariableReference> references = new LinkedHashSet<>();
 		references.add(retval);
 		return references;
 	}
@@ -387,6 +388,22 @@ public class ArrayStatement extends AbstractStatement {
 		System.arraycopy(lengths, 0, this.lengths, 0, lengths.length);
 		((ArrayReference) retval).setLengths(lengths);
 	}
+
+	/**
+	 * <p>
+	 * Setter for the field <code>lengths</code>.
+	 * </p>
+	 *
+	 * @param length
+	 *            an array of int.
+	 * @param index
+	 *            an int.
+	 */
+	public void setLength(int length, int index) {
+		lengths[index] = length;
+		((ArrayReference) retval).setLength(length, index);
+	}
+
 
 	/**
 	 * <p>

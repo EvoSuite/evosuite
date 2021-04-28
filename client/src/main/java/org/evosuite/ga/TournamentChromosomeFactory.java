@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
  * @author Gordon Fraser
  * @param <T>
  */
-public class TournamentChromosomeFactory<T extends Chromosome> implements
+public class TournamentChromosomeFactory<T extends Chromosome<T>> implements
         ChromosomeFactory<T> {
 
 	private static final long serialVersionUID = -2493386206236363431L;
@@ -52,8 +52,6 @@ public class TournamentChromosomeFactory<T extends Chromosome> implements
 	 *            a {@link org.evosuite.ga.FitnessFunction} object.
 	 * @param factory
 	 *            a {@link org.evosuite.ga.ChromosomeFactory} object.
-	 * @param <T>
-	 *            a T object.
 	 */
 	public TournamentChromosomeFactory(FitnessFunction<T> fitness,
 	        ChromosomeFactory<T> factory) {

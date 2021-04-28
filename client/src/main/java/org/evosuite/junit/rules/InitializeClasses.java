@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -31,15 +31,14 @@ public class InitializeClasses extends BaseRule {
 
 	@Override
 	protected void before() {
-		org.evosuite.runtime.agent.InstrumentingAgent.activate(); 
-		for (int i=0; i< classNames.length;i++) {
-			org.evosuite.runtime.Runtime.getInstance().resetRuntime(); 
-			String classNameToLoad = classNames[i];
+		org.evosuite.runtime.agent.InstrumentingAgent.activate();
+		for (final String className : classNames) {
+			org.evosuite.runtime.Runtime.getInstance().resetRuntime();
 			ClassLoader classLoader = getClass().getClassLoader();
 			try {
-				Class.forName(classNameToLoad, true, classLoader);
+				Class.forName(className, true, classLoader);
 			 } catch (ExceptionInInitializerError ex) {
-				 System.err.println("Could not initialize " + classNameToLoad + ex.getMessage());
+				 System.err.println("Could not initialize " + className + ex.getMessage());
 			 } catch (Throwable t) {
 			 }
 		}

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -27,6 +27,7 @@ import java.util.Set;
 import org.evosuite.annotations.EvoSuiteTest;
 import org.junit.Test;
 import org.evosuite.runtime.instrumentation.EvoClassLoader;
+import org.junit.jupiter.api.extension.Extension;
 import org.junit.runners.BlockJUnit4ClassRunner;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.InitializationError;
@@ -39,7 +40,7 @@ import org.slf4j.LoggerFactory;
  * @author arcuri
  *
  */
-public class EvoRunner extends BlockJUnit4ClassRunner {
+public class EvoRunner extends BlockJUnit4ClassRunner implements Extension{
 
 	/*
 	 * We need this class due to some weird behavior of JVM
@@ -150,10 +151,10 @@ public class EvoRunner extends BlockJUnit4ClassRunner {
      */
     @Override
     protected List<FrameworkMethod> computeTestMethods() {
-        Set<FrameworkMethod> testMethods = new HashSet<FrameworkMethod>();
+        Set<FrameworkMethod> testMethods = new HashSet<>();
         testMethods.addAll(getTestClass().getAnnotatedMethods(EvoSuiteTest.class));
         testMethods.addAll(getTestClass().getAnnotatedMethods(Test.class));
-        return new ArrayList<FrameworkMethod>(testMethods);
+        return new ArrayList<>(testMethods);
     }
 
     /**
@@ -162,7 +163,7 @@ public class EvoRunner extends BlockJUnit4ClassRunner {
      */
     @Override
     protected void validateTestMethods(List<Throwable> errors) {
-        Set<FrameworkMethod> testMethods = new HashSet<FrameworkMethod>();
+        Set<FrameworkMethod> testMethods = new HashSet<>();
         testMethods.addAll(getTestClass().getAnnotatedMethods(EvoSuiteTest.class));
         testMethods.addAll(getTestClass().getAnnotatedMethods(Test.class));
         for (FrameworkMethod eachTestMethod : testMethods) {

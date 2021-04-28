@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -56,7 +56,7 @@ public final class SmtOperatorCollector implements SmtExprVisitor<Void, Void> {
 		return null;
 	}
 
-	private final Set<Operator> operators = new HashSet<Operator>();
+	private final Set<Operator> operators = new HashSet<>();
 
 	@Override
 	public Void visit(SmtOperation n, Void arg) {
@@ -64,6 +64,46 @@ public final class SmtOperatorCollector implements SmtExprVisitor<Void, Void> {
 		for (SmtExpr argument : n.getArguments()) {
 			argument.accept(this, null);
 		}
+		return null;
+	}
+
+	@Override
+	public Void visit(SmtArrayVariable.SmtIntegerArrayVariable n, Void arg) {
+		return null;
+	}
+
+	@Override
+	public Void visit(SmtArrayVariable.SmtRealArrayVariable n, Void arg) {
+		return null;
+	}
+
+	@Override
+	public Void visit(SmtArrayVariable.SmtStringArrayVariable n, Void arg) {
+		return null;
+	}
+
+	@Override
+	public Void visit(SmtArrayVariable.SmtReferenceArrayVariable n, Void arg) {
+		return null;
+	}
+
+	@Override
+	public Void visit(SmtArrayConstant.SmtIntegerArrayConstant n, Void arg) {
+		return null;
+	}
+
+	@Override
+	public Void visit(SmtArrayConstant.SmtRealArrayConstant n, Void arg) {
+		return null;
+	}
+
+	@Override
+	public Void visit(SmtArrayConstant.SmtStringArrayConstant n, Void arg) {
+		return null;
+	}
+
+	@Override
+	public Void visit(SmtArrayConstant.SmtReferenceArrayConstant n, Void arg) {
 		return null;
 	}
 

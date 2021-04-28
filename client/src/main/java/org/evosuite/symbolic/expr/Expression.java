@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -22,18 +22,16 @@ package org.evosuite.symbolic.expr;
 import java.io.Serializable;
 import java.util.Set;
 
-public abstract interface Expression<T extends Object> extends Serializable {
+public interface Expression<T extends Object> extends Serializable {
 
 	/**
 	 * <p>
 	 * getParent
 	 * </p>
 	 * 
-	 * @param <T>
-	 *            a T object.
 	 * @return a {@link org.evosuite.symbolic.expr.Expression} object.
 	 */
-	public Expression<?> getParent();
+    Expression<?> getParent();
 
 	/**
 	 * <p>
@@ -43,7 +41,7 @@ public abstract interface Expression<T extends Object> extends Serializable {
 	 * @param expr
 	 *            a {@link org.evosuite.symbolic.expr.Expression} object.
 	 */
-	public void setParent(Expression<?> expr);
+    void setParent(Expression<?> expr);
 
 	/**
 	 * <p>
@@ -52,7 +50,7 @@ public abstract interface Expression<T extends Object> extends Serializable {
 	 * 
 	 * @return a {@link java.lang.Object} object.
 	 */
-	public T getConcreteValue();
+    T getConcreteValue();
 
 	/**
 	 * <p>
@@ -61,16 +59,16 @@ public abstract interface Expression<T extends Object> extends Serializable {
 	 * 
 	 * @return a int.
 	 */
-	public int getSize();
+    int getSize();
 
 	/**
 	 * Returns true iif
 	 */
-	public boolean containsSymbolicVariable();
+    boolean containsSymbolicVariable();
 
-	public Set<Variable<?>> getVariables();
+	Set<Variable<?>> getVariables();
 
-	public Set<Object> getConstants();
+	Set<Object> getConstants();
 
-	public <K,V> K accept(ExpressionVisitor<K,V> v, V arg) ;
+	<K,V> K accept(ExpressionVisitor<K, V> v, V arg) ;
 }

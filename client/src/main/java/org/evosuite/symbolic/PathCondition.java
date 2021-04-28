@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -28,7 +28,6 @@ import org.evosuite.symbolic.expr.Constraint;
  * Represents a sequence of branch conditions.
  * 
  * @author galeotti
- *
  */
 public class PathCondition {
 
@@ -40,7 +39,7 @@ public class PathCondition {
 	 * @param branchConditions
 	 */
 	public PathCondition(List<BranchCondition> branchConditions) {
-		this.pathCondition = new LinkedList<BranchCondition>(branchConditions);
+		this.pathCondition = new LinkedList<>(branchConditions);
 	}
 
 	/**
@@ -49,7 +48,7 @@ public class PathCondition {
 	 * @return
 	 */
 	public List<Constraint<?>> getConstraints() {
-		List<Constraint<?>> constraints = new LinkedList<Constraint<?>>();
+		List<Constraint<?>> constraints = new LinkedList<>();
 		for (BranchCondition b : this.pathCondition) {
 			constraints.addAll(b.getSupportingConstraints());
 			constraints.add(b.getConstraint());
@@ -62,7 +61,7 @@ public class PathCondition {
 	 * 
 	 * @return
 	 */
-	public List<BranchCondition> getBranchConditions() {
+	public List<BranchCondition> getBranchConditions () {
 		return this.pathCondition;
 	}
 

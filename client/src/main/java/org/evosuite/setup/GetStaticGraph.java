@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -44,8 +44,8 @@ public class GetStaticGraph {
 	private static final Logger logger = LoggerFactory
 			.getLogger(GetStaticGraph.class);
 
-	private final Set<StaticFieldReadEntry> staticFieldReads = new LinkedHashSet<StaticFieldReadEntry>();
-	private final Set<StaticMethodCallEntry> staticMethodCalls = new LinkedHashSet<StaticMethodCallEntry>();
+	private final Set<StaticFieldReadEntry> staticFieldReads = new LinkedHashSet<>();
+	private final Set<StaticMethodCallEntry> staticMethodCalls = new LinkedHashSet<>();
 
 	/**
 	 * Returns if there is a static method call egde (INVOKESTATIC bytecode 
@@ -158,7 +158,7 @@ public class GetStaticGraph {
 	 * @return
 	 */
 	public Set<String> getSourceClasses() {
-		Set<String> sourceClasses = new LinkedHashSet<String>();
+		Set<String> sourceClasses = new LinkedHashSet<>();
 		for (StaticFieldReadEntry entry : staticFieldReads) {
 			sourceClasses.add(entry.getSourceClass().replace('/', '.'));
 		}
@@ -176,7 +176,7 @@ public class GetStaticGraph {
 	 * @return
 	 */
 	public Set<String> getTargetClasses() {
-		Set<String> targetClasses = new LinkedHashSet<String>();
+		Set<String> targetClasses = new LinkedHashSet<>();
 		for (StaticFieldReadEntry entry : staticFieldReads) {
 			targetClasses.add(entry.getTargetClass().replace('/', '.'));
 		}
@@ -193,11 +193,11 @@ public class GetStaticGraph {
 	 * @return
 	 */
 	public Map<String, Set<String>> getStaticFields() {
-		Map<String, Set<String>> staticFields = new LinkedHashMap<String, Set<String>>();
+		Map<String, Set<String>> staticFields = new LinkedHashMap<>();
 		for (StaticFieldReadEntry read : this.staticFieldReads) {
 			String className = read.getTargetClass().replace('/', '.');
 			if (!staticFields.containsKey(className)) {
-				staticFields.put(className, new LinkedHashSet<String>());
+				staticFields.put(className, new LinkedHashSet<>());
 			}
 			staticFields.get(className).add(read.getTargetField());
 		}

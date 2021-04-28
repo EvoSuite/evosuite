@@ -1,3 +1,22 @@
+/**
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * contributors
+ *
+ * This file is part of EvoSuite.
+ *
+ * EvoSuite is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation, either version 3.0 of the License, or
+ * (at your option) any later version.
+ *
+ * EvoSuite is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.evosuite.ga.problems.metrics;
 
 import static org.junit.Assert.assertEquals;
@@ -8,7 +27,7 @@ public class MetricsTest {
 
   @Test
   public void testGetMaximumValue() {
-    double front[][] = new double [5][2];
+    double[][] front = new double [5][2];
     for (int i = 0; i < front.length; i++) {
       front[i][0] = 0.5;
       front[i][1] = 0.75;
@@ -22,7 +41,7 @@ public class MetricsTest {
 
   @Test
   public void testGetMinimumValue() {
-    double front[][] = new double [5][2];
+    double[][] front = new double [5][2];
     for (int i = 0; i < front.length; i++) {
       front[i][0] = 0.5;
       front[i][1] = 0.75;
@@ -36,7 +55,7 @@ public class MetricsTest {
 
   @Test
   public void testFrontWithIndividualEquidistanlySpaced() {
-    double front[][] = new double [5][2];
+    double[][] front = new double [5][2];
     for (int i = 0; i < front.length; i++) {
       front[i][0] = 0.5;
       front[i][1] = 0.75;
@@ -46,13 +65,13 @@ public class MetricsTest {
     double[] max = sp.getMaximumValues(front);
     double[] min = sp.getMinimumValues(front);
 
-    double normalizedFront[][] = sp.getNormalizedFront(front, max, min);
+    double[][] normalizedFront = sp.getNormalizedFront(front, max, min);
     assertEquals(0.0, sp.evaluate(normalizedFront), 0.0);
   }
 
   @Test
   public void testFrontWithIndividualNotEquidistanlySpaced() {
-    double front[][] = new double [5][2];
+    double[][] front = new double [5][2];
     front[0][0] = 0.05;
     front[0][1] = 0.10;
     front[1][0] = 0.15;
@@ -66,7 +85,7 @@ public class MetricsTest {
     double[] max = sp.getMaximumValues(front);
     double[] min = sp.getMinimumValues(front);
 
-    double normalizedFront[][] = sp.getNormalizedFront(front, max, min);
+    double[][] normalizedFront = sp.getNormalizedFront(front, max, min);
     assertNotEquals(0.0, sp.evaluate(normalizedFront), 0.0);
   }
 }

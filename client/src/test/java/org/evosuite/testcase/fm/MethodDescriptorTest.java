@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -19,7 +19,7 @@
  */
 package org.evosuite.testcase.fm;
 
-import org.evosuite.utils.generic.GenericClass;
+import org.evosuite.utils.generic.GenericClassFactory;
 import org.junit.Test;
 
 import java.awt.*;
@@ -38,7 +38,7 @@ public class MethodDescriptorTest {
         Class<?> klass = Graphics2D.class;
         Method m = klass.getDeclaredMethod("getRenderingHint",RenderingHints.Key.class);
 
-        MethodDescriptor md = new MethodDescriptor(m, new GenericClass(m.getReturnType()));
+        MethodDescriptor md = new MethodDescriptor(m, GenericClassFactory.get(m.getReturnType()));
 
         String res = md.getInputParameterMatchers();
         assertTrue(res, res.contains("any("));

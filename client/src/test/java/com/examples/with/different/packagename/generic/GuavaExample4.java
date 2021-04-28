@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
+
 package com.examples.with.different.packagename.generic;
 
 /**
@@ -31,6 +29,6 @@ public class GuavaExample4<T> {
 	// The tricky bit here is that T refers to the type variable defined 
 	// on the instance, and not the one on the return value (Iterable<S>)
 	public <S extends T> GuavaExample4<Iterable<S>> create() {
-		return new GuavaExample4<Iterable<S>>();
+		return new GuavaExample4<>();
 	}
 }

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,12 +17,10 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
 package org.evosuite.ga.stoppingconditions;
 
 import org.evosuite.Properties;
+import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +32,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Gordon Fraser
  */
-public class GlobalTimeStoppingCondition extends StoppingConditionImpl {
+public class GlobalTimeStoppingCondition<T extends Chromosome<T>> extends StoppingConditionImpl<T> {
 
 	private static final Logger logger = LoggerFactory.getLogger(GlobalTimeStoppingCondition.class);
 
@@ -46,9 +44,22 @@ public class GlobalTimeStoppingCondition extends StoppingConditionImpl {
 	/** Constant <code>pause_time=0L</code> */
 	protected static long pauseTime = 0L;
 
+	public GlobalTimeStoppingCondition() {
+		// empty constructor
+	}
+
+	public GlobalTimeStoppingCondition(GlobalTimeStoppingCondition<?> that) {
+		// empty copy constructor
+	}
+
+	@Override
+	public GlobalTimeStoppingCondition<T> clone() {
+		return new GlobalTimeStoppingCondition<>(this);
+	}
+
 	/** {@inheritDoc} */
 	@Override
-	public void searchStarted(GeneticAlgorithm<?> algorithm) {
+	public void searchStarted(GeneticAlgorithm<T> algorithm) {
 		if (startTime == 0)
 			reset();
 	}

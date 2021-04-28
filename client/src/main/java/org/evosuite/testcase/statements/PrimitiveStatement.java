@@ -32,6 +32,8 @@ import org.evosuite.testcase.execution.Scope;
 import org.evosuite.testcase.statements.numeric.*;
 import org.evosuite.utils.generic.GenericAccessibleObject;
 import org.evosuite.utils.generic.GenericClass;
+import org.evosuite.utils.generic.GenericClassFactory;
+import org.evosuite.utils.generic.GenericClassImpl;
 import org.evosuite.utils.Randomness;
 
 import java.io.PrintStream;
@@ -84,7 +86,7 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
         this.value = value;
     }
 
-    public PrimitiveStatement(TestCase tc, GenericClass clazz, T value) {
+    public PrimitiveStatement(TestCase tc, GenericClass<?> clazz, T value) {
         super(tc, new VariableReferenceImpl(tc, clazz));
         this.value = value;
     }
@@ -112,7 +114,7 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
     }
 
     public static PrimitiveStatement<?> getPrimitiveStatement(TestCase tc, Class<?> clazz) {
-        return getPrimitiveStatement(tc, new GenericClass(clazz));
+        return getPrimitiveStatement(tc, GenericClassFactory.get(clazz));
     }
 
     /**
@@ -125,7 +127,7 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
     public static PrimitiveStatement<?> getPrimitiveStatement(TestCase tc,
-                                                              GenericClass genericClass) {
+                                                              GenericClass<?> genericClass) {
         // TODO This kills the benefit of inheritance.
         // Let each class implement the clone method instead
 
@@ -214,7 +216,7 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
      * @return a {@link org.evosuite.testcase.statements.PrimitiveStatement} object.
      */
     public static PrimitiveStatement<?> getRandomStatement(TestCase tc,
-                                                           GenericClass clazz, int position) {
+                                                           GenericClass<?> clazz, int position) {
 
         PrimitiveStatement<?> statement = getPrimitiveStatement(tc, clazz);
         statement.randomize();
@@ -314,7 +316,7 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
      */
     @Override
     public List<VariableReference> getUniqueVariableReferences() {
-        return new ArrayList<VariableReference>(getVariableReferences());
+        return new ArrayList<>(getVariableReferences());
     }
 
     /**
@@ -365,7 +367,7 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
                         org.objectweb.asm.Type[] types = org.objectweb.asm.Type.getArgumentTypes(m);
                         if (types[index].equals(org.objectweb.asm.Type.BOOLEAN_TYPE)) {
                             logger.warn("MUTATING");
-                            ((IntPrimitiveStatement) this).negate();
+                            this.negate();
                             done = true;
                             break;
                         }
@@ -397,7 +399,7 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
                 if (Properties.TT && getClass().equals(IntPrimitiveStatement.class)) {
                     if (Randomness.nextDouble() <= Properties.RANDOM_PERTURBATION) {
                         // mutateTransformedBoolean(test);
-                        ((IntPrimitiveStatement) this).negate();
+                        this.negate();
 
                     } else
                         randomize();

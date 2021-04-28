@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -35,7 +35,9 @@ import org.slf4j.LoggerFactory;
  */
 public class CFGClassAdapter extends ClassVisitor {
 
-	private static Logger logger = LoggerFactory.getLogger(CFGClassAdapter.class);
+	private static final Logger logger = LoggerFactory.getLogger(CFGClassAdapter.class);
+
+	public static final String LAMBDA_METHOD_NAME = "lambda$";
 
 	/** Current class */
 	private final String className;
@@ -54,7 +56,7 @@ public class CFGClassAdapter extends ClassVisitor {
 	 *            a {@link java.lang.String} object.
 	 */
 	public CFGClassAdapter(ClassLoader classLoader, ClassVisitor visitor, String className) {
-		super(Opcodes.ASM7, visitor);
+		super(Opcodes.ASM9, visitor);
 		this.className = className;
 		this.classLoader = classLoader;
 	}
@@ -93,7 +95,7 @@ public class CFGClassAdapter extends ClassVisitor {
 		mv = new JSRInlinerAdapter(mv, methodAccess, name, descriptor, signature, exceptions);
 
 
-		if ((methodAccess & Opcodes.ACC_SYNTHETIC) != 0
+		if (((methodAccess & Opcodes.ACC_SYNTHETIC) != 0 && !isLambdaMethodName(name))
 		        || (methodAccess & Opcodes.ACC_BRIDGE) != 0) {
 			return mv;
 		}
@@ -124,4 +126,15 @@ public class CFGClassAdapter extends ClassVisitor {
 		        descriptor, signature, exceptions, mv);
 		return mv;
 	}
+
+	/**
+	 * Just checks wheter the name of the method is of a synthetic lambda.
+	 * TODO: we do the same on the concolic engine VMs, eventually move this to a commons space.
+	 *
+	 * @param methodName
+	 * @return
+	 */
+	private static boolean isLambdaMethodName(String methodName) {
+        return methodName.startsWith(LAMBDA_METHOD_NAME);
+    }
 }

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
+
 package org.evosuite.testcase;
 
 import java.util.ArrayList;
@@ -35,13 +33,14 @@ import org.evosuite.testcase.statements.*;
 import org.evosuite.testcase.variable.ArrayIndex;
 import org.evosuite.testcase.variable.ArrayReference;
 import org.evosuite.testcase.variable.VariableReference;
-import org.evosuite.utils.generic.GenericClass;
+import org.evosuite.utils.generic.GenericClassFactory;
+import org.evosuite.utils.generic.GenericClassImpl;
 
 public class TestCaseExpander {
 
-	private final Set<VariableReference> usedVariables = new HashSet<VariableReference>();
+	private final Set<VariableReference> usedVariables = new HashSet<>();
 
-	public Map<Integer, Set<VariableReference>> variableMapping = new HashMap<Integer, Set<VariableReference>>();
+	public Map<Integer, Set<VariableReference>> variableMapping = new HashMap<>();
 
 	private int currentPosition = 0;
 
@@ -77,15 +76,15 @@ public class TestCaseExpander {
 
 		// Now replace references to concrete values with new primitive statements
 		Map<Integer, Object> concreteValues = observer.getConcreteValues();
-		List<Integer> positions = new ArrayList<Integer>(concreteValues.keySet());
-		Collections.sort(positions, Collections.reverseOrder());
+		List<Integer> positions = new ArrayList<>(concreteValues.keySet());
+		positions.sort(Collections.reverseOrder());
 
 		for (Integer position : positions) {
 			Object value = concreteValues.get(position);
 			Statement statement = test.getStatement(position);
 
 			PrimitiveStatement primitive = PrimitiveStatement.getPrimitiveStatement(test,
-			                                                                        new GenericClass(
+			                                                                        GenericClassFactory.get(
 			                                                                                value.getClass()));
 			primitive.setValue(value);
 			VariableReference replacement = test.addStatement(primitive, position);
@@ -99,7 +98,7 @@ public class TestCaseExpander {
 		VariableReference copy = test.addStatement(statement.clone(test),
 		                                           owner.getStPosition() + 1);
 		if (!variableMapping.containsKey(owner.getStPosition())) {
-			variableMapping.put(owner.getStPosition(), new HashSet<VariableReference>());
+			variableMapping.put(owner.getStPosition(), new HashSet<>());
 			// variableMapping.get(owner.getStPosition()).add(owner);
 		}
 		variableMapping.get(owner.getStPosition()).add(copy);
@@ -109,7 +108,7 @@ public class TestCaseExpander {
 	private void addUnchangedMapping(TestCase test, VariableReference var) {
 		VariableReference copy = test.getStatement(var.getStPosition()).getReturnValue();
 		if (!variableMapping.containsKey(var.getStPosition())) {
-			variableMapping.put(var.getStPosition(), new HashSet<VariableReference>());
+			variableMapping.put(var.getStPosition(), new HashSet<>());
 			variableMapping.get(var.getStPosition()).add(var);
 		}
 		variableMapping.get(var.getStPosition()).add(copy);
@@ -172,7 +171,7 @@ public class TestCaseExpander {
 	public void visitArrayStatement(TestCase test, ArrayStatement statement) {
 		ArrayReference arrRef = (ArrayReference) statement.getReturnValue();
 
-		Set<Integer> assignments = new HashSet<Integer>();
+		Set<Integer> assignments = new HashSet<>();
 		int position = statement.getPosition() + 1;
 
 		while (position < test.size()) {

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -19,16 +19,19 @@
  */
 package org.evosuite.testcase.localsearch;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import org.evosuite.Properties;
 import org.evosuite.ga.localsearch.LocalSearchBudget;
 import org.evosuite.ga.localsearch.LocalSearchObjective;
+import org.evosuite.symbolic.dse.DSETestGenerator;
+import org.evosuite.testcase.AbstractTestChromosome;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.execution.ExecutionTrace;
+import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteChromosome;
+
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Applies DSE on a given test case. If the test case belongs to a suite, it
@@ -40,7 +43,7 @@ import org.evosuite.testsuite.TestSuiteChromosome;
  * 
  * @author galeotti
  */
-public class DSETestCaseLocalSearch extends TestCaseLocalSearch {
+public class DSETestCaseLocalSearch extends TestCaseLocalSearch<TestChromosome> {
 
 	/**
 	 * Returns true iff the test reaches a decision (if/while) with an uncovered
@@ -74,9 +77,9 @@ public class DSETestCaseLocalSearch extends TestCaseLocalSearch {
 			this.isTrueBranch = isTrueBranch;
 		}
 
-		private int branchIndex;
+		private final int branchIndex;
 
-		private boolean isTrueBranch;
+		private final boolean isTrueBranch;
 
 		public Branch negate() {
 			return new Branch(branchIndex, !isTrueBranch);
@@ -140,7 +143,7 @@ public class DSETestCaseLocalSearch extends TestCaseLocalSearch {
 	 * @return
 	 */
 	private static Set<Branch> collectUncoveredBranches(Set<Branch> coveredBranches) {
-		Set<Branch> uncoveredBranches = new HashSet<Branch>();
+		Set<Branch> uncoveredBranches = new HashSet<>();
 		for (Branch b : coveredBranches) {
 			final Branch negate = b.negate();
 			if (!coveredBranches.contains(negate)) {
@@ -149,6 +152,7 @@ public class DSETestCaseLocalSearch extends TestCaseLocalSearch {
 		}
 		return uncoveredBranches;
 	}
+
 
 	/**
 	 * Applies DSE on a test case using the passed local search objective. The
@@ -238,17 +242,18 @@ public class DSETestCaseLocalSearch extends TestCaseLocalSearch {
 	 *         variables
 	 */
 	private static Set<Integer> collectStatementIndexesWithSymbolicVariables(TestChromosome testChromosome,
-			LocalSearchObjective<TestChromosome> localSearchObjective) {
+																			 LocalSearchObjective<TestChromosome> localSearchObjective) {
+
 		// Only apply local search up to the point where an exception was thrown
 		// TODO: Check whether this conflicts with test expansion
 		int lastPosition = testChromosome.size() - 1;
 		if (testChromosome.getLastExecutionResult() != null && !testChromosome.isChanged()) {
 			Integer lastPos = testChromosome.getLastExecutionResult().getFirstPositionOfThrownException();
 			if (lastPos != null)
-				lastPosition = lastPos.intValue();
+				lastPosition = lastPos;
 		}
 		TestCase test = testChromosome.getTestCase();
-		Set<Integer> targetStatementIndexes = new HashSet<Integer>();
+		Set<Integer> targetStatementIndexes = new HashSet<>();
 
 		// We count down to make the code work when lines are
 		// added during the search (see NullReferenceSearch).
@@ -287,9 +292,9 @@ public class DSETestCaseLocalSearch extends TestCaseLocalSearch {
 	 * @param suite
 	 * @return
 	 */
-	private static Set<Branch> collectCoveredBranches(TestSuiteChromosome suite) {
-		final Set<Branch> suiteCoveredBranches = new HashSet<Branch>();
-		for (TestChromosome test : suite.getTestChromosomes()) {
+	private static<E extends AbstractTestChromosome<E>> Set<Branch> collectCoveredBranches(AbstractTestSuiteChromosome<?,E> suite) {
+		final Set<Branch> suiteCoveredBranches = new HashSet<>();
+		for (E test : suite.getTestChromosomes()) {
 			final Set<Branch> testCoveredBranches = getCoveredBranches(test);
 			suiteCoveredBranches.addAll(testCoveredBranches);
 		}
@@ -303,8 +308,8 @@ public class DSETestCaseLocalSearch extends TestCaseLocalSearch {
 	 * @param test
 	 * @return
 	 */
-	private static Set<Branch> getCoveredBranches(TestChromosome test) {
-		final Set<Branch> testCoveredBranches = new HashSet<Branch>();
+	private static<E extends AbstractTestChromosome<E>> Set<Branch> getCoveredBranches(E test) {
+		final Set<Branch> testCoveredBranches = new HashSet<>();
 
 		ExecutionTrace trace = test.getLastExecutionResult().getTrace();
 		{

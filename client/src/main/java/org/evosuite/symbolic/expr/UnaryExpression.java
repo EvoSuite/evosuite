@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -31,7 +31,7 @@ public interface UnaryExpression<T extends Object> {
 	 *            a T object.
 	 * @return a {@link org.evosuite.symbolic.expr.Expression} object.
 	 */
-	public Expression<T> getOperand();
+    Expression<T> getOperand();
 
 	/**
 	 * <p>
@@ -40,6 +40,6 @@ public interface UnaryExpression<T extends Object> {
 	 * 
 	 * @return a {@link org.evosuite.symbolic.expr.Operator} object.
 	 */
-	public Operator getOperator();
+    Operator getOperator();
 
 }

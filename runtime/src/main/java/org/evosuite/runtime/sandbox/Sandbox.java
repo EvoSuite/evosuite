@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -36,7 +36,7 @@ public class Sandbox {
         OFF, RECOMMENDED, IO
     }
 
-	private static Logger logger = LoggerFactory.getLogger(Sandbox.class);
+	private static final Logger logger = LoggerFactory.getLogger(Sandbox.class);
 
 	private static volatile MSecurityManager manager;
 

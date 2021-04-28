@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -136,7 +136,7 @@ public class JOptionPaneInputs {
 		return stringInputs.poll();
 	}
 
-	private final LinkedList<String> stringInputs = new LinkedList<String>();
+	private final LinkedList<String> stringInputs = new LinkedList<>();
 
 	private void enqueueInputString0(String str) {
 		stringInputs.add(str);
@@ -228,7 +228,7 @@ public class JOptionPaneInputs {
 		return !stringInputs.isEmpty();
 	}
 
-	private final LinkedList<Integer> yesNoCancelSelections = new LinkedList<Integer>();
+	private final LinkedList<Integer> yesNoCancelSelections = new LinkedList<>();
 
 	public boolean containsYesNoCancelSelection() {
 		return !yesNoCancelSelections.isEmpty();
@@ -242,9 +242,9 @@ public class JOptionPaneInputs {
 		return yesNoCancelSelections.poll();
 	}
 
-	private final LinkedList<Integer> yesNoSelections = new LinkedList<Integer>();
+	private final LinkedList<Integer> yesNoSelections = new LinkedList<>();
 
-	private final LinkedList<Integer> optionSelections = new LinkedList<Integer>();
+	private final LinkedList<Integer> optionSelections = new LinkedList<>();
 
 	public boolean containsYesNoSelection() {
 		return !yesNoSelections.isEmpty();
@@ -259,7 +259,7 @@ public class JOptionPaneInputs {
 		return yesNoSelections.poll();
 	}
 
-	private final LinkedList<Integer> okCancelSelections = new LinkedList<Integer>();
+	private final LinkedList<Integer> okCancelSelections = new LinkedList<>();
 
 	public boolean containsOkCancelSelection() {
 		return !okCancelSelections.isEmpty();
