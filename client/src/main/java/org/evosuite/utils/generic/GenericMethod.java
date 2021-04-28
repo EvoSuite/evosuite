@@ -114,11 +114,7 @@ public class GenericMethod extends GenericAccessibleObject<GenericMethod> {
 	}
 
 	public Type[] getParameterTypes() {
-		try {
-			return getExactParameterTypes(method, owner.getType());
-		} catch (Exception e){
-			throw new IllegalArgumentException("Method: " + method + " " +owner.getType(),e);
-		}
+		return getExactParameterTypes(method, owner.getType());
 	}
 
 	public List<GenericClass> getParameterClasses() {
@@ -202,7 +198,7 @@ public class GenericMethod extends GenericAccessibleObject<GenericMethod> {
 		//	return returnType;
 		//}
 
-		return mapTypeParameters(returnType != null ? returnType : Object.class, exactDeclaringType);
+		return mapTypeParameters(returnType, exactDeclaringType);
 	}
 
 	/**
@@ -225,8 +221,7 @@ public class GenericMethod extends GenericAccessibleObject<GenericMethod> {
 		Type[] result = new Type[parameterTypes.length];
 
 		for (int i = 0; i < parameterTypes.length; i++) {
-			result[i] = mapTypeParameters(parameterTypes[i] != null ? parameterTypes[i] : Object.class,
-						exactDeclaringType);
+			result[i] = mapTypeParameters(parameterTypes[i], exactDeclaringType);
 		}
 		return result;
 	}

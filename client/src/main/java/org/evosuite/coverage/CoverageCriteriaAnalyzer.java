@@ -236,13 +236,14 @@ public class CoverageCriteriaAnalyzer {
         StringBuffer buffer = new StringBuffer(goals.size());
         int covered = 0;
 
-        for (TestFitnessFunction goal : goals) {
+        for (int i = 0; i < goals.size(); i++) {
+            TestFitnessFunction goal = goals.get(i);
             if (goal.isCoveredBy(testSuiteCopy)) {
-                logger.debug("Goal {} is covered", goal);
+                logger.debug("Goal {} (idx {}) is covered", goal, i);
                 covered++;
                 buffer.append("1");
             } else {
-                logger.debug("Goal {} is not covered", goal);
+                logger.debug("Goal {} (idx {}) is not covered", goal, i);
                 buffer.append("0");
                 if (Properties.PRINT_MISSED_GOALS)
                     LoggingUtils.getEvoLogger().info(" - Missed goal {}", goal.toString());

@@ -91,20 +91,10 @@ public class VarMap {
 			}
 		} else if (type instanceof ParameterizedType) {
 			ParameterizedType pType = (ParameterizedType) type;
-			try {
-				Type[] actualTypeArguments = pType.getActualTypeArguments();
-				for (int i = 0; i < actualTypeArguments.length; i++) {
-					Type actualTypeArgument = actualTypeArguments[i];
-					actualTypeArguments[i] = actualTypeArgument == null ? Object.class : actualTypeArgument;
-				}
-				return new ParameterizedTypeImpl((Class<?>) pType.getRawType(),
-						map(actualTypeArguments),
-						pType.getOwnerType() == null ? pType.getOwnerType()
-								: map(pType.getOwnerType()));
-			} catch (Throwable t){
-				throw new IllegalArgumentException("Raw Type: " + pType.getRawType() + " ActualTypeArguments  " +
-						"OwnerType " + pType.getOwnerType(), t);
-			}
+			return new ParameterizedTypeImpl((Class<?>) pType.getRawType(),
+					map(pType.getActualTypeArguments()),
+					pType.getOwnerType() == null ? pType.getOwnerType()
+							: map(pType.getOwnerType()));
 		} else if (type instanceof WildcardType) {
 			WildcardType wType = (WildcardType) type;
 			return new WildcardTypeImpl(map(wType.getUpperBounds()),

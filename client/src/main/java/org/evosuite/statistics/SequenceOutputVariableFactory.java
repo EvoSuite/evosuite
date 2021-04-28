@@ -22,6 +22,8 @@ package org.evosuite.statistics;
 import org.evosuite.Properties;
 import org.evosuite.TimeController;
 import org.evosuite.testsuite.TestSuiteChromosome;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,6 +37,8 @@ import java.util.List;
  * @param <T>
  */
 public abstract class SequenceOutputVariableFactory<T extends Number> {
+
+	private static Logger logger = LoggerFactory.getLogger(SequenceOutputVariableFactory.class);
 
 	protected RuntimeVariable variable;
 	
@@ -54,8 +58,13 @@ public abstract class SequenceOutputVariableFactory<T extends Number> {
 	protected abstract T getValue(TestSuiteChromosome individual);
 	
 	public void update(TestSuiteChromosome individual) {
-		timeStamps.add(System.currentTimeMillis() - startTime);
-		values.add(getValue(individual));
+		try {
+			timeStamps.add(System.currentTimeMillis() - startTime);
+			values.add(getValue(individual));
+		} catch(ArrayIndexOutOfBoundsException e){
+			logger.error("Index out of bounds exception for Variable {}", this.variable);
+			throw e;
+		}
 	}
 	
 	public List<String> getVariableNames() {

@@ -19,13 +19,13 @@
  */
 package org.evosuite.instrumentation;
 
-import BooleanTransformation.BooleanToIntMethodVisitor;
-import BooleanTransformation.BooleanToIntTransformer;
-import BooleanTransformation.InstrumentationListeners.CollectingListener;
-import BooleanTransformation.InstrumentationListeners.CountingListener;
-import MethodAnalyser.ByteCodeInstructions.ByteCodeInstruction;
-import MethodAnalyser.ByteCodeInstructions.JumpInstructions.JumpInstruction;
-import MethodAnalyser.Results.MethodIdentifier;
+import org.evosuite.BooleanTransformation.BooleanToIntMethodVisitor;
+import org.evosuite.BooleanTransformation.BooleanToIntTransformer;
+import org.evosuite.BooleanTransformation.InstrumentationListeners.CollectingListener;
+import org.evosuite.BooleanTransformation.InstrumentationListeners.CountingListener;
+import org.evosuite.MethodAnalyser.ByteCodeInstructions.ByteCodeInstruction;
+import org.evosuite.MethodAnalyser.ByteCodeInstructions.JumpInstructions.JumpInstruction;
+import org.evosuite.MethodAnalyser.Results.MethodIdentifier;
 import org.evosuite.PackageInfo;
 import org.evosuite.Properties;
 import org.evosuite.assertion.CheapPurityAnalyzer;
@@ -63,7 +63,6 @@ import org.slf4j.LoggerFactory;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.*;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -81,6 +80,9 @@ public class BytecodeInstrumentation {
     private int booleanJumps = 0;
     private int dependentUpdates = 0;
     private int conditionalJumps = 0;
+    private int targetBooleanJumps = 0;
+    private int targetConditionalJumps = 0;
+    private int targetDependentUpdates = 0;
 
     private final Instrumenter testCarvingInstrumenter;
     private static List<MethodIdentifier> helperMethods = new ArrayList<>();
@@ -293,11 +295,15 @@ public class BytecodeInstrumentation {
 
             if (isTargetClassName(classNameWithDots) || shouldTransform(classNameWithDots)) {
                 ComparisonTransformation cmp = new ComparisonTransformation(cn);
-                if(Properties.COMPARISON_TRANSFORMATION)
+                if(Properties.COMPARISON_TRANSFORMATION) {
+                    logger.debug("Applying comparison transformation");
                     cn = cmp.transform();
+                }
                 ContainerTransformation ct = new ContainerTransformation(cn);
-                if(Properties.CONTAINER_TRANSFORMATION)
+                if(Properties.CONTAINER_TRANSFORMATION) {
+                    logger.debug("Applying container transformation");
                     cn = ct.transform();
+                }
             }
 
             if (shouldTransform(classNameWithDots)) {
@@ -306,7 +312,7 @@ public class BytecodeInstrumentation {
                         classNameWithDots.equals(Properties.TARGET_CLASS) || classNameWithDots.startsWith(Properties.TARGET_CLASS +
                                 "$");
                 BooleanToIntTransformer tt = new BooleanToIntTransformer(Collections.emptyList(),
-                        false, System.out,
+                        false,
                         s -> this.shouldTransform(s.replaceAll("/", ".")),
                         Properties.TT_USE_CDG_PATHS, true);
                 CollectingListener collectingListener = new CollectingListener();
@@ -334,6 +340,18 @@ public class BytecodeInstrumentation {
                     this.booleanJumps += booleanBranchingConditions;
                     this.dependentUpdates += dependentUpdates;
                     this.conditionalJumps += conditionalJumps;
+                    if(isTargetClass){
+                        this.targetBooleanJumps += booleanBranchingConditions;
+                        this.targetDependentUpdates += dependentUpdates;
+                        this.targetConditionalJumps += conditionalJumps;
+                    }
+                    ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.TARGET_BOOLEAN_JUMPS,
+                            targetBooleanJumps);
+                    ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.TARGET_CONDITIONAL_JUMPS,
+                            targetConditionalJumps);
+                    ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.TARGET_DEPENDENT_UPDATES,
+                            targetDependentUpdates);
+
                     ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.BOOLEAN_JUMPS,
                             booleanJumps);
                     ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.CONDITIONAL_JUMPS,
@@ -368,6 +386,12 @@ public class BytecodeInstrumentation {
                 ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.DEPENDENT_UPDATES, dependentUpdates);
                 ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.INSTRUMENTED_CLASSES,
                         instrumentedClasses);
+                ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.TARGET_BOOLEAN_JUMPS,
+                        targetBooleanJumps);
+                ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.TARGET_CONDITIONAL_JUMPS,
+                        targetConditionalJumps);
+                ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.TARGET_DEPENDENT_UPDATES,
+                        targetDependentUpdates);
             }
 
             // -----
@@ -380,6 +404,13 @@ public class BytecodeInstrumentation {
         } else {
             reader.accept(cv, readFlags);
         }
+
+        ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.TARGET_BOOLEAN_JUMPS,
+                targetBooleanJumps);
+        ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.TARGET_CONDITIONAL_JUMPS,
+                targetConditionalJumps);
+        ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.TARGET_DEPENDENT_UPDATES,
+                targetDependentUpdates);
 
         ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.TT_TIME, timeFotTT);
         ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.BOOLEAN_JUMPS,

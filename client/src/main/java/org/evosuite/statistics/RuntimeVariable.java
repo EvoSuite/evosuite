@@ -401,6 +401,9 @@ public enum RuntimeVariable {
 	BOOLEAN_JUMPS,
 	DEPENDENT_UPDATES,
 	CONDITIONAL_JUMPS,
+	TARGET_BOOLEAN_JUMPS,
+	TARGET_CONDITIONAL_JUMPS,
+	TARGET_DEPENDENT_UPDATES,
 	BINARY_IMAGE_BRANCHES
 	;
 	/* -------------------------------------------------- */

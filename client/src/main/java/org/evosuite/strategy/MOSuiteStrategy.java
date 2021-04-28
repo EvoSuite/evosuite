@@ -181,7 +181,7 @@ public class MOSuiteStrategy extends TestGenerationStrategy {
 				.map(ff -> ((BranchCoverageTestFitness) ff).getUniqueFitnessValueView())
 				// Ignore Approach Level and count unique values
 				.map(doubles -> doubles.stream().filter(d -> 0 <= d && d < 1).count()).map(Long::intValue)
-				.filter(i -> i >= 2)
+				.filter(i -> i <= 2)
 				.count();
 	}
 	
