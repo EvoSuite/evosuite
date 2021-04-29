@@ -87,7 +87,7 @@ public class NoClinitSystemTest extends SystemTestBase {
 
 		Map<String, OutputVariable<?>> map = DebugStatisticsBackend.getLatestWritten();
 		Assert.assertNotNull(map);
-		OutputVariable unstable = map.get(RuntimeVariable.HadUnstableTests.toString());
+		OutputVariable<?> unstable = map.get(RuntimeVariable.HadUnstableTests.toString());
 		Assert.assertNotNull(unstable);
 		Assert.assertEquals(Boolean.FALSE, unstable.getValue());
 	}

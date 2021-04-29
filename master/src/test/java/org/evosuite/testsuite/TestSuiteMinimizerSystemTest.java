@@ -158,12 +158,12 @@ public class TestSuiteMinimizerSystemTest extends SystemTestBase {
         Object result = evosuite.parseCommandLine(command);
         Assert.assertNotNull(result);
 
-        GeneticAlgorithm<?> ga = getGAFromResult(result);
+        GeneticAlgorithm<TestSuiteChromosome> ga = (GeneticAlgorithm<TestSuiteChromosome>) getGAFromResult(result);
 
-        TestSuiteChromosome c = (TestSuiteChromosome) ga.getBestIndividual();
+        TestSuiteChromosome c = ga.getBestIndividual();
 
-        final FitnessFunction onlybranch = ga.getFitnessFunctions().get(0);
-        final FitnessFunction line = ga.getFitnessFunctions().get(1);
+        final FitnessFunction<TestSuiteChromosome> onlybranch = ga.getFitnessFunctions().get(0);
+        final FitnessFunction<TestSuiteChromosome> line = ga.getFitnessFunctions().get(1);
 
         Assert.assertEquals(0.0, c.getFitness(onlybranch), 0.0);
         Assert.assertEquals(0.0, c.getFitness(line), 0.0);

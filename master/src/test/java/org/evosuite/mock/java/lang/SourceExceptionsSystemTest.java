@@ -51,9 +51,9 @@ public class SourceExceptionsSystemTest extends SystemTestBase {
         GeneticAlgorithm<?> ga = getGAFromResult(result);
         TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
         Assert.assertNotNull(best);
-        TestCaseExecutor.getInstance().initExecutor();
+        TestCaseExecutor.initExecutor();
         for(TestChromosome test : best.getTestChromosomes()) {
-        	ExecutionResult executionResult = TestCaseExecutor.getInstance().runTest(test.getTestCase());
+        	ExecutionResult executionResult = TestCaseExecutor.runTest(test.getTestCase());
         	test.setLastExecutionResult(executionResult);
         }
 

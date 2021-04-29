@@ -74,18 +74,18 @@ public class SPEA2SystemTest extends SystemTestBase {
     Object result = evosuite.parseCommandLine(command);
     Assert.assertNotNull(result);
 
-    GeneticAlgorithm<?> ga = getGAFromResult(result);
+    GeneticAlgorithm<TestSuiteChromosome> ga = (GeneticAlgorithm<TestSuiteChromosome>) getGAFromResult(result);
 
-    final FitnessFunction<?> branch = ga.getFitnessFunctions().get(0);
-    final FitnessFunction<?> rho = ga.getFitnessFunctions().get(1);
+    final FitnessFunction<TestSuiteChromosome> branch = ga.getFitnessFunctions().get(0);
+    final FitnessFunction<TestSuiteChromosome> rho = ga.getFitnessFunctions().get(1);
 
-    List<Chromosome<?>> population = new ArrayList<>(ga.getBestIndividuals());
+    List<TestSuiteChromosome> population = new ArrayList<>(ga.getBestIndividuals());
 
     double[][] front = new double[population.size()][2];
     for (int i = 0; i < population.size(); i++) {
-      Chromosome<TestSuiteChromosome> c = (Chromosome<TestSuiteChromosome>) population.get(i);
-      front[i][0] = c.getFitness((FitnessFunction<TestSuiteChromosome>) branch);
-      front[i][1] = c.getFitness((FitnessFunction<TestSuiteChromosome>) rho);
+      Chromosome<TestSuiteChromosome> c = population.get(i);
+      front[i][0] = c.getFitness(branch);
+      front[i][1] = c.getFitness(rho);
     }
 
     return front;
