@@ -19,13 +19,7 @@
  */
 package org.evosuite.instrumentation;
 
-import org.evosuite.BooleanTransformation.BooleanToIntMethodVisitor;
-import org.evosuite.BooleanTransformation.BooleanToIntTransformer;
-import org.evosuite.BooleanTransformation.InstrumentationListeners.CollectingListener;
-import org.evosuite.BooleanTransformation.InstrumentationListeners.CountingListener;
-import org.evosuite.MethodAnalyser.ByteCodeInstructions.ByteCodeInstruction;
-import org.evosuite.MethodAnalyser.ByteCodeInstructions.JumpInstructions.JumpInstruction;
-import org.evosuite.MethodAnalyser.Results.MethodIdentifier;
+import org.apache.commons.lang3.tuple.Pair;
 import org.evosuite.PackageInfo;
 import org.evosuite.Properties;
 import org.evosuite.assertion.CheapPurityAnalyzer;
@@ -34,6 +28,13 @@ import org.evosuite.coverage.branch.Branch;
 import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.coverage.branch.BranchType;
 import org.evosuite.graphs.cfg.CFGClassAdapter;
+import org.evosuite.instrumentation.certaintyTransformation.BooleanTransformation.BooleanToIntMethodVisitor;
+import org.evosuite.instrumentation.certaintyTransformation.BooleanTransformation.BooleanToIntTransformer;
+import org.evosuite.instrumentation.certaintyTransformation.BooleanTransformation.InstrumentationListeners.CollectingListener;
+import org.evosuite.instrumentation.certaintyTransformation.BooleanTransformation.InstrumentationListeners.CountingListener;
+import org.evosuite.instrumentation.certaintyTransformation.MethodAnalyser.ByteCodeInstructions.ByteCodeInstruction;
+import org.evosuite.instrumentation.certaintyTransformation.MethodAnalyser.ByteCodeInstructions.JumpInstructions.JumpInstruction;
+import org.evosuite.instrumentation.certaintyTransformation.MethodAnalyser.Results.MethodIdentifier;
 import org.evosuite.instrumentation.error.ErrorConditionClassAdapter;
 import org.evosuite.instrumentation.testability.ComparisonTransformation;
 import org.evosuite.instrumentation.testability.ContainerTransformation;
@@ -86,6 +87,10 @@ public class BytecodeInstrumentation {
 
     private final Instrumenter testCarvingInstrumenter;
     private static List<MethodIdentifier> helperMethods = new ArrayList<>();
+    private static Map<MethodIdentifier,MethodIdentifier> changedMethods = new HashMap<>();
+
+    private CallGraph callGraph;
+
 
 	/**
 	 * <p>
@@ -151,6 +156,12 @@ public class BytecodeInstrumentation {
 		case PREFIX:
 			if (className.startsWith(Properties.PROJECT_PREFIX))
 				return true;
+		case CALL_TREE:
+			if (className.equals(Properties.TARGET_CLASS) || className.startsWith(Properties.TARGET_CLASS + "$"))
+				return true;
+			if (callGraph == null) callGraph = CallGraphGenerator.analyze(Properties.TARGET_CLASS);
+			return (callGraph.isCalledClass(className) && !className.startsWith("java")) ||
+					(className.startsWith(Properties.PROJECT_PREFIX) && !Properties.PROJECT_PREFIX.equals(""));
 
 		}
 		logger.info("Preventing transformation of " + className);
@@ -318,6 +329,7 @@ public class BytecodeInstrumentation {
                         throw new IllegalStateException("Did not transform class: " + name);
                     }
                     helperMethods.addAll(collectingListener.getHelperMethods());
+                    changedMethods.putAll(collectingListener.getMethodIdentifierChanges());
                     logger.info("Added {} helper Methods for Class {}" , countingListener.getHelperMethodCount() ,className);
                     if (!isTargetClass)
                         timeFotTT += endMillis - startMillis;
@@ -433,7 +445,7 @@ public class BytecodeInstrumentation {
 	 * Adds the instrumentation to deal with re-iniatilizing classes: adding
 	 * __STATIC_RESET() methods, inserting callbacks for PUTSTATIC and GETSTATIC
 	 * instructions
-	 * 
+	 *
 	 * @param className
 	 * @param cv
 	 * @return
@@ -453,6 +465,13 @@ public class BytecodeInstrumentation {
 		EndOfClassInitializerVisitor exitClassInitAdapter = new EndOfClassInitializerVisitor(cv, className);
 		cv = exitClassInitAdapter;
 		return cv;
+	}
+
+	public static MethodIdentifier getOriginalMethodIdentifier(MethodIdentifier identifier){
+//		if(changedMethods.containsKey(identifier))
+//			logger.error("{} -> {}", identifier, changedMethods.get(identifier));
+		// If we haven't observed an change, just return the original.
+		return changedMethods.getOrDefault(identifier,identifier);
 	}
 
 }

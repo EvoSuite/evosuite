@@ -83,7 +83,7 @@ public class TestSuiteWriter implements Opcodes {
 
     private final UnitTestAdapter adapter = TestSuiteWriterUtils.getAdapter();
 
-    private TestCodeVisitor visitor = new TestCodeVisitor();
+    private TestCodeVisitor visitor = new TestCodeVisitor(true);
 
     private final static String NEWLINE = java.lang.System.getProperty("line.separator");
 

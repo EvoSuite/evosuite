@@ -28,13 +28,7 @@ import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
 import java.net.URLClassLoader;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import dk.brics.automaton.RegExp;
 import org.apache.commons.lang3.CharUtils;
@@ -46,8 +40,11 @@ import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.assertion.*;
 import org.evosuite.classpath.ResourceList;
+import org.evosuite.instrumentation.BytecodeInstrumentation;
+import org.evosuite.instrumentation.certaintyTransformation.MethodAnalyser.Results.MethodIdentifier;
 import org.evosuite.runtime.TooManyResourcesException;
 import org.evosuite.runtime.mock.EvoSuiteMock;
+import org.evosuite.setup.PutStaticMethodCollector;
 import org.evosuite.testcase.fm.MethodDescriptor;
 import org.evosuite.runtime.ViolatedAssumptionAnswer;
 import org.evosuite.testcase.statements.*;
@@ -83,6 +80,16 @@ public class TestCodeVisitor extends TestVisitor {
 	protected final Map<Class<?>, String> classNames = new HashMap<>();
 
 	protected final Map<String, Integer> nextIndices = new HashMap<>();
+
+	private boolean convertMethodsBack;
+
+	public TestCodeVisitor(){
+		this(false);
+	}
+
+	public TestCodeVisitor(boolean convertMethodsBack){
+		this.convertMethodsBack = convertMethodsBack;
+	}
 
 	/**
 	 * <p>
@@ -1119,13 +1126,25 @@ public class TestCodeVisitor extends TestVisitor {
 	}
 
 	private String getParameterString(Type[] parameterTypes,
+									  List<VariableReference> parameters, boolean isGenericMethod,
+									  boolean isOverloaded, int startPos) {
+		return getParameterString(parameterTypes, parameters, isGenericMethod, isOverloaded, startPos, Collections.emptyList());
+	}
+
+
+
+	private String getParameterString(Type[] parameterTypes,
 	        List<VariableReference> parameters, boolean isGenericMethod,
-	        boolean isOverloaded, int startPos) {
+	        boolean isOverloaded, int startPos, List<Integer> boolToIntConverted) {
 		String parameterString = "";
 
 		for (int i = startPos; i < parameters.size(); i++) {
 			if (i > startPos) {
 				parameterString += ", ";
+			}
+			String conversionString = "";
+			if(boolToIntConverted.contains(i)){
+				conversionString = " > 0";
 			}
 			Type declaredParamType = parameterTypes[i];
 			Type actualParamType = parameters.get(i).getType();
@@ -1189,6 +1208,7 @@ public class TestCodeVisitor extends TestVisitor {
 			}
 
 			parameterString += name;
+			parameterString += conversionString;
 		}
 
 		return parameterString;
@@ -1390,6 +1410,30 @@ public class TestCodeVisitor extends TestVisitor {
 	/** {@inheritDoc} */
 	@Override
 	public void visitMethodStatement(MethodStatement statement) {
+		String methodName = statement.getMethodName();
+		String declaringClassName = "";
+		String descriptor = statement.getDescriptor();
+		MethodIdentifier identifier = new MethodIdentifier(declaringClassName, methodName, descriptor);
+		MethodIdentifier originalMethodIdentifier = identifier;
+		if(convertMethodsBack) {
+			originalMethodIdentifier = BytecodeInstrumentation.getOriginalMethodIdentifier(identifier);
+		}
+		org.objectweb.asm.Type returnType =
+				org.objectweb.asm.Type.getReturnType(originalMethodIdentifier.getMethodDescriptor());
+		org.objectweb.asm.Type statementReturnType = org.objectweb.asm.Type.getReturnType(statement.getDescriptor());
+		org.objectweb.asm.Type[] statementTypes = org.objectweb.asm.Type.getArgumentTypes(statement.getDescriptor());
+		org.objectweb.asm.Type[] argumentTypes =
+		org.objectweb.asm.Type.getArgumentTypes(originalMethodIdentifier.getMethodDescriptor());
+		List<Integer> changedArguments = new ArrayList<>();
+		if(convertMethodsBack) {
+			for (int i = 0; i < argumentTypes.length; i++) {
+				org.objectweb.asm.Type statementType = statementTypes[i];
+				org.objectweb.asm.Type type = argumentTypes[i];
+				if (statementType.equals(org.objectweb.asm.Type.INT_TYPE) && type.equals(org.objectweb.asm.Type.BOOLEAN_TYPE)) {
+					changedArguments.add(i);
+				}
+			}
+		}
 		String result = "";
 		VariableReference retval = statement.getReturnValue();
 		GenericMethod method = statement.getMethod();
@@ -1422,7 +1466,7 @@ public class TestCodeVisitor extends TestVisitor {
 
 		String parameter_string = getParameterString(method.getParameterTypes(),
 		                                             parameters, isGenericMethod,
-		                                             method.isOverloaded(parameters), 0);
+		                                             method.isOverloaded(parameters), 0, changedArguments);
 
 		String callee_str = "";
 		if (!unused && !retval.isAssignableFrom(method.getReturnType())
@@ -1474,16 +1518,23 @@ public class TestCodeVisitor extends TestVisitor {
 		}
 
 		if (retval.isVoid()) {
-			result += callee_str + "." + method.getName() + "(" + parameter_string + ");";
+			result += callee_str + "." + originalMethodIdentifier.getMethodName() + "(" + parameter_string + ");";
 		} else {
 			// if (exception == null || !lastStatement)
-			if (!unused)
+			if (!unused) {
 				result += getVariableName(retval) + " = ";
+			}
 			// If unused, then we don't want to print anything:
 			//else
 			//	result += getClassName(retval) + " " + getVariableName(retval) + " = ";
 
-			result += callee_str + "." + method.getName() + "(" + parameter_string + ");";
+			result += callee_str + "." + originalMethodIdentifier.getMethodName() + "(" + parameter_string + ")";
+			if(!unused){
+				if(convertMethodsBack && returnType.equals(org.objectweb.asm.Type.BOOLEAN_TYPE) && statementReturnType.equals(org.objectweb.asm.Type.INT_TYPE)){
+					result += " ? 1 : 0";
+				}
+			}
+			result += ";";
 		}
 
 		if (shouldUseTryCatch(exception, statement.isDeclaredException(exception))) {

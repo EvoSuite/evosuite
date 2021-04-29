@@ -43,6 +43,11 @@ public class ComputeClassWriter extends ClassWriter {
     public ComputeClassWriter(final int flags) {
         super(flags);
     }
+
+    public ComputeClassWriter(final int flags, ClassLoader loader){
+        super(flags);
+        this.l = loader;
+    }
     
     @Override
     protected String getCommonSuperClass(final String type1, final String type2) {
