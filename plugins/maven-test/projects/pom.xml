@@ -24,6 +24,9 @@
         <cobertura.version>2.7</cobertura.version>
         <pit.version>1.1.9</pit.version>
         <forkCount>1</forkCount>
+        <evosuiteVersion>1.1.1-SNAPSHOT</evosuiteVersion>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
 
         <pit.tests>org.maven_test_project*</pit.tests>
 
