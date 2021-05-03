@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
  * @author arcuri
  *
  */
-public class EvoRunner extends BlockJUnit4ClassRunner implements Extension{
+public class EvoRunner extends BlockJUnit4ClassRunner {
 
 	/*
 	 * We need this class due to some weird behavior of JVM
