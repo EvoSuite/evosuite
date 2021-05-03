@@ -1,0 +1,7 @@
+package org.evosuite.instrumentation.certainty_transformation.boolean_transformation.instrumentation_listeners;
+
+import org.evosuite.instrumentation.certainty_transformation.boolean_transformation.BooleanToIntMethodVisitor;
+
+public interface DependentUpdateListener {
+    void notifyDependentUpdate(BooleanToIntMethodVisitor.DependentUpdate dependentUpdate);
+}

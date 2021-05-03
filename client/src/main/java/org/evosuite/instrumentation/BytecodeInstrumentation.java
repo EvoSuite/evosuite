@@ -19,7 +19,6 @@
  */
 package org.evosuite.instrumentation;
 
-import org.apache.commons.lang3.tuple.Pair;
 import org.evosuite.PackageInfo;
 import org.evosuite.Properties;
 import org.evosuite.assertion.CheapPurityAnalyzer;
@@ -28,13 +27,13 @@ import org.evosuite.coverage.branch.Branch;
 import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.coverage.branch.BranchType;
 import org.evosuite.graphs.cfg.CFGClassAdapter;
-import org.evosuite.instrumentation.certaintyTransformation.BooleanTransformation.BooleanToIntMethodVisitor;
-import org.evosuite.instrumentation.certaintyTransformation.BooleanTransformation.BooleanToIntTransformer;
-import org.evosuite.instrumentation.certaintyTransformation.BooleanTransformation.InstrumentationListeners.CollectingListener;
-import org.evosuite.instrumentation.certaintyTransformation.BooleanTransformation.InstrumentationListeners.CountingListener;
-import org.evosuite.instrumentation.certaintyTransformation.MethodAnalyser.ByteCodeInstructions.ByteCodeInstruction;
-import org.evosuite.instrumentation.certaintyTransformation.MethodAnalyser.ByteCodeInstructions.JumpInstructions.JumpInstruction;
-import org.evosuite.instrumentation.certaintyTransformation.MethodAnalyser.Results.MethodIdentifier;
+import org.evosuite.instrumentation.certainty_transformation.boolean_transformation.BooleanToIntMethodVisitor;
+import org.evosuite.instrumentation.certainty_transformation.boolean_transformation.BooleanToIntTransformer;
+import org.evosuite.instrumentation.certainty_transformation.boolean_transformation.instrumentation_listeners.CollectingListener;
+import org.evosuite.instrumentation.certainty_transformation.boolean_transformation.instrumentation_listeners.CountingListener;
+import org.evosuite.instrumentation.certainty_transformation.method_analyser.bytecodeinstructions.ByteCodeInstruction;
+import org.evosuite.instrumentation.certainty_transformation.method_analyser.bytecodeinstructions.jump_instructions.JumpInstruction;
+import org.evosuite.instrumentation.certainty_transformation.method_analyser.results.MethodIdentifier;
 import org.evosuite.instrumentation.error.ErrorConditionClassAdapter;
 import org.evosuite.instrumentation.testability.ComparisonTransformation;
 import org.evosuite.instrumentation.testability.ContainerTransformation;
