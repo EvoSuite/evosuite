@@ -29,6 +29,7 @@ import org.evosuite.Properties.StatisticsBackend;
 import org.evosuite.Properties.StoppingCondition;
 import org.evosuite.coverage.exception.ExceptionCoverageFactory;
 import org.evosuite.coverage.line.LineCoverageSuiteFitness;
+import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.archive.Archive;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.result.TestGenerationResult;
@@ -347,9 +348,9 @@ public class SystemTestBase {
 	}
 	
 
-	protected GeneticAlgorithm<?> getGAFromResult(Object result) {
+	protected<T extends Chromosome<T>> GeneticAlgorithm<T> getGAFromResult(Object result) {
 		assert(result instanceof List);
-		List<List<TestGenerationResult>> results = (List<List<TestGenerationResult>>)result;
+		List<List<TestGenerationResult<T>>> results = (List<List<TestGenerationResult<T>>>)result;
 		assert(results.size() == 1);
 		//return results.iterator().next().getGeneticAlgorithm();
 		return results.get(0).get(0).getGeneticAlgorithm();
@@ -357,14 +358,14 @@ public class SystemTestBase {
 
 	protected ExplorationAlgorithmBase getDSEAFromResult(Object result) {
 		assert (result instanceof List);
-		List<List<TestGenerationResult>> results = (List<List<TestGenerationResult>>) result;
+		List<List<TestGenerationResult<?>>> results = (List<List<TestGenerationResult<?>>>) result;
 		assert (results.size() == 1);
 		return results.get(0).get(0).getDSEAlgorithm();
 	}
 
 	protected void checkDSEResultIsEmpty(Object result) {
 		assert (result instanceof List);
-		List<List<TestGenerationResult>> results = (List<List<TestGenerationResult>>) result;
+		List<List<TestGenerationResult<?>>> results = (List<List<TestGenerationResult<?>>>) result;
 		assert (results.size() == 0);
 	}
 }
