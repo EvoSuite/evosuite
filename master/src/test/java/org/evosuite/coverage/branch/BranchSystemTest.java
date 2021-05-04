@@ -69,8 +69,8 @@ public class BranchSystemTest extends SystemTestBase {
 		
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
-		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+		TestSuiteChromosome best = ga.getBestIndividual();
 		Properties.TEST_ARCHIVE = archive;
 		
 		System.out.println("CoveredGoals:\n" + best.getCoveredGoals());
@@ -91,8 +91,8 @@ public class BranchSystemTest extends SystemTestBase {
 		
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
-		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+		TestSuiteChromosome best = ga.getBestIndividual();
 		Properties.TEST_ARCHIVE = archive;
 		
 		System.out.println("CoveredGoals:\n" + best.getCoveredGoals());
@@ -113,8 +113,8 @@ public class BranchSystemTest extends SystemTestBase {
 		
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
-		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+		TestSuiteChromosome best = ga.getBestIndividual();
 		Properties.TEST_ARCHIVE = archive;
 		
 		System.out.println("CoveredGoals:\n" + best.getCoveredGoals());
@@ -135,8 +135,8 @@ public class BranchSystemTest extends SystemTestBase {
 		
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
-		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+		TestSuiteChromosome best = ga.getBestIndividual();
 		Properties.TEST_ARCHIVE = archive;
 		
 		System.out.println("CoveredGoals:\n" + best.getCoveredGoals());

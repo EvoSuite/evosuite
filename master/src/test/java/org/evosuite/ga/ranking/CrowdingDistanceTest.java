@@ -22,6 +22,7 @@ package org.evosuite.ga.ranking;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.operators.ranking.CrowdingDistance;
 import org.evosuite.testcase.TestChromosome;
+import org.evosuite.testcase.TestFitnessFunction;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -34,13 +35,13 @@ import static org.junit.Assert.assertEquals;
 
 public class CrowdingDistanceTest {
 
-    public static List<FitnessFunction> ff;
+    public static List<FitnessFunction<TestChromosome>> ff;
 
     @BeforeClass
     public static void init(){
         // create the set of fitness functions
-        FitnessFunction f1 = Mockito.mock(FitnessFunction.class);
-        FitnessFunction f2 = Mockito.mock(FitnessFunction.class);
+        TestFitnessFunction f1 = Mockito.mock(TestFitnessFunction.class);
+        TestFitnessFunction f2 = Mockito.mock(TestFitnessFunction.class);
         ff = new LinkedList<>();
         ff.add(f1);
         ff.add(f2);
@@ -65,7 +66,7 @@ public class CrowdingDistanceTest {
         front.add(tch2);
         front.add(tch3);
 
-        CrowdingDistance distance = new CrowdingDistance();
+        CrowdingDistance<TestChromosome> distance = new CrowdingDistance<>();
         distance.crowdingDistanceAssignment(front, ff);
 
         assertEquals(Double.POSITIVE_INFINITY, tch1.getDistance(), 0.000001);
@@ -92,8 +93,8 @@ public class CrowdingDistanceTest {
         front.add(tch2);
         front.add(tch3);
 
-        CrowdingDistance distance = new CrowdingDistance();
-        distance.subvectorDominanceAssignment(front, new HashSet(ff));
+        CrowdingDistance<TestChromosome> distance = new CrowdingDistance<>();
+        distance.subvectorDominanceAssignment(front, new HashSet<>(ff));
 
         assertEquals(1.0, tch1.getDistance(), 0.000001);
         assertEquals(1.0, tch2.getDistance(), 0.000001);
@@ -119,8 +120,8 @@ public class CrowdingDistanceTest {
         front.add(tch2);
         front.add(tch3);
 
-        CrowdingDistance distance = new CrowdingDistance();
-        distance.fastEpsilonDominanceAssignment(front, new HashSet(ff));
+        CrowdingDistance<TestChromosome> distance = new CrowdingDistance<>();
+        distance.fastEpsilonDominanceAssignment(front, new HashSet<>(ff));
 
         assertEquals(2d/3d, tch1.getDistance(), 0.000001);
         assertEquals(0.0, tch2.getDistance(), 0.000001);
@@ -131,10 +132,10 @@ public class CrowdingDistanceTest {
     public void testEmptyFront() {
         // create front
         List<TestChromosome> front = new LinkedList<>();
-        CrowdingDistance distance = new CrowdingDistance();
+        CrowdingDistance<TestChromosome> distance = new CrowdingDistance<>();
         distance.crowdingDistanceAssignment(front,ff);
-        distance.fastEpsilonDominanceAssignment(front, new HashSet(ff));
-        distance.subvectorDominanceAssignment(front, new HashSet(ff));
+        distance.fastEpsilonDominanceAssignment(front, new HashSet<>(ff));
+        distance.subvectorDominanceAssignment(front, new HashSet<>(ff));
     }
 
     @Test
@@ -146,14 +147,14 @@ public class CrowdingDistanceTest {
         List<TestChromosome> front = new LinkedList<>();
         front.add(tch1);
 
-        CrowdingDistance distance = new CrowdingDistance();
+        CrowdingDistance<TestChromosome> distance = new CrowdingDistance<>();
         distance.crowdingDistanceAssignment(front,ff);
         assertEquals(Double.POSITIVE_INFINITY, tch1.getDistance(), 0.00001);
 
-        distance.fastEpsilonDominanceAssignment(front, new HashSet(ff));
+        distance.fastEpsilonDominanceAssignment(front, new HashSet<>(ff));
         assertEquals(0.0, tch1.getDistance(), 0.00001);
 
-        distance.subvectorDominanceAssignment(front, new HashSet(ff));
+        distance.subvectorDominanceAssignment(front, new HashSet<>(ff));
         assertEquals(Double.POSITIVE_INFINITY, tch1.getDistance(), 0.00001);
     }
 
@@ -169,16 +170,16 @@ public class CrowdingDistanceTest {
         List<TestChromosome> front = new LinkedList<>();
         front.add(tch1); front.add(tch2);
 
-        CrowdingDistance distance = new CrowdingDistance();
+        CrowdingDistance<TestChromosome> distance = new CrowdingDistance<>();
         distance.crowdingDistanceAssignment(front,ff);
         assertEquals(Double.POSITIVE_INFINITY, tch1.getDistance(), 0.00001);
         assertEquals(Double.POSITIVE_INFINITY, tch2.getDistance(), 0.00001);
 
-        distance.fastEpsilonDominanceAssignment(front, new HashSet(ff));
+        distance.fastEpsilonDominanceAssignment(front, new HashSet<>(ff));
         assertEquals(0.5, tch1.getDistance(), 0.00001);
         assertEquals(0.5, tch2.getDistance(), 0.00001);
 
-        distance.subvectorDominanceAssignment(front, new HashSet(ff));
+        distance.subvectorDominanceAssignment(front, new HashSet<>(ff));
         assertEquals(1.0, tch1.getDistance(), 0.00001);
         assertEquals(1.0, tch2.getDistance(), 0.00001);
     }

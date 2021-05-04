@@ -42,7 +42,7 @@ public class ExceptionInstrumentationSystemTest extends SystemTestBase {
 
     private static final Properties.Criterion[] defaultCriterion = Properties.CRITERION;
 
-    private static boolean defaultArchive = Properties.TEST_ARCHIVE;
+    private static final boolean defaultArchive = Properties.TEST_ARCHIVE;
 
     @After
     public void resetProperties() {
@@ -65,8 +65,8 @@ public class ExceptionInstrumentationSystemTest extends SystemTestBase {
         Properties.OUTPUT_VARIABLES = s.toString();
 
         Object result = evosuite.parseCommandLine(command);
-        GeneticAlgorithm<?> ga = getGAFromResult(result);
-        TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
         System.out.println("EvolvedTestSuite:\n" + best);
 
         Assert.assertEquals(branchGoals, TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size());

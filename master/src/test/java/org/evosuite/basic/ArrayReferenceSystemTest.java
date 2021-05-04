@@ -43,9 +43,8 @@ public class ArrayReferenceSystemTest extends SystemTestBase {
 
         Object result = evosuite.parseCommandLine(command);
 
-        GeneticAlgorithm<?> ga = getGAFromResult(result);
-        TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
-        return best;
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        return ga.getBestIndividual();
     }
 
     @Test

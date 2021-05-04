@@ -49,7 +49,7 @@ public class MIOSystemTest extends SystemTestBase {
 
     EvoSuite evoSuite = new EvoSuite();
 
-    GeneticAlgorithm<?> ga = getGAFromResult(evoSuite.parseCommandLine(command));
+    GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(evoSuite.parseCommandLine(command));
     Assert.assertEquals(TestSuiteAdapter.class, ga.getClass());
 
     @SuppressWarnings("unchecked")

@@ -24,12 +24,14 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.symbolic.dse.algorithm.ExplorationAlgorithmBase;
 import org.evosuite.testcase.TestCase;
+import org.evosuite.testsuite.TestSuiteChromosome;
 
-class TestGenerationResultImpl implements TestGenerationResult {
+class TestGenerationResultImpl<T extends Chromosome<T>> implements TestGenerationResult<T> {
 
 	private static final long serialVersionUID = 1306033906557741929L;
 
@@ -74,7 +76,7 @@ class TestGenerationResultImpl implements TestGenerationResult {
 
     private final LinkedHashMap<FitnessFunction<?>, Double> targetCoverages = new LinkedHashMap<>();
 	
-	private GeneticAlgorithm<?> ga = null;
+	private GeneticAlgorithm<T> ga = null;
 
 	private ExplorationAlgorithmBase dse = null;
 	
@@ -98,11 +100,11 @@ class TestGenerationResultImpl implements TestGenerationResult {
 	}
 	
 	/** The entire GA in its final state */
-	public GeneticAlgorithm<?> getGeneticAlgorithm() {
+	public GeneticAlgorithm<T> getGeneticAlgorithm() {
 		return ga;
 	}
 	
-	public void setGeneticAlgorithm(GeneticAlgorithm<?> ga) {
+	public void setGeneticAlgorithm(GeneticAlgorithm<T> ga) {
 		this.ga = ga;
 	}
 

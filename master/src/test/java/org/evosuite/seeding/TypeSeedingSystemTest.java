@@ -45,8 +45,8 @@ public class TypeSeedingSystemTest extends SystemTestBase {
 		String[] command = new String[] { "-generateSuite", "-class", targetClass};
 
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
-		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+		TestSuiteChromosome best = ga.getBestIndividual();
 
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
@@ -62,8 +62,8 @@ public class TypeSeedingSystemTest extends SystemTestBase {
 		String[] command = new String[] { "-generateSuite", "-class", targetClass};
 
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
-		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+		TestSuiteChromosome best = ga.getBestIndividual();
 
 		Assert.assertTrue("Did not expect optimal coverage: ", best.getCoverage() < 1);
 	}
@@ -81,9 +81,9 @@ public class TypeSeedingSystemTest extends SystemTestBase {
 
 		Object result = evosuite.parseCommandLine(command);
 		
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
 		
-		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		TestSuiteChromosome best = ga.getBestIndividual();
 
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
@@ -99,8 +99,8 @@ public class TypeSeedingSystemTest extends SystemTestBase {
 		String[] command = new String[] { "-generateSuite", "-class", targetClass};
 
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
-		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+		TestSuiteChromosome best = ga.getBestIndividual();
 
 		Assert.assertTrue("Did not expect optimal coverage: ", best.getCoverage() < 1);
 	}
@@ -121,9 +121,9 @@ public class TypeSeedingSystemTest extends SystemTestBase {
 
 		Object result = evosuite.parseCommandLine(command);
 
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
 
-		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		TestSuiteChromosome best = ga.getBestIndividual();
 
 		int goals = TestSuiteGenerator.getFitnessFactories().get(0).getCoverageGoals().size();
 		Assert.assertEquals("Wrong number of goals: ", 4, goals);
@@ -144,9 +144,9 @@ public class TypeSeedingSystemTest extends SystemTestBase {
 
 		Object result = evosuite.parseCommandLine(command);
 
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
 
-		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		TestSuiteChromosome best = ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
 		int goals = TestSuiteGenerator.getFitnessFactories().get(0).getCoverageGoals().size();
@@ -161,7 +161,7 @@ public class TypeSeedingSystemTest extends SystemTestBase {
 				sb.append(s[i]);
 			else
 				sb.append(", " + s[i]);
-		};
+		}
 		sb.append("]");
 		return sb.toString();
 	}

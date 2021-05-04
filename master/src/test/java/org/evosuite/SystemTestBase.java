@@ -29,6 +29,7 @@ import org.evosuite.Properties.StatisticsBackend;
 import org.evosuite.Properties.StoppingCondition;
 import org.evosuite.coverage.exception.ExceptionCoverageFactory;
 import org.evosuite.coverage.line.LineCoverageSuiteFitness;
+import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.archive.Archive;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.result.TestGenerationResult;
@@ -153,7 +154,7 @@ public class SystemTestBase {
 	private long getSeed(){
 
 		String id = this.getClass().getName() + "#" + name.getMethodName();
-		Integer counter = executionCounter.computeIfAbsent(id, c -> 0);
+		int counter = executionCounter.computeIfAbsent(id, c -> 0);
 
 		int month = (counter + new GregorianCalendar().get(Calendar.MONTH)) % 12;
 
@@ -175,8 +176,8 @@ public class SystemTestBase {
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
-		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+		TestSuiteChromosome best = ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
 		double cov = best.getCoverageInstanceOf(LineCoverageSuiteFitness.class);
@@ -198,8 +199,8 @@ public class SystemTestBase {
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
-		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+		TestSuiteChromosome best = ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
@@ -229,19 +230,19 @@ public class SystemTestBase {
 
 
 
-	protected OutputVariable getOutputVariable(RuntimeVariable rv){
+	protected OutputVariable<?> getOutputVariable(RuntimeVariable rv){
 		if(!Properties.OUTPUT_VARIABLES.contains(rv.toString())){
 			throw new IllegalStateException("Properties.OUTPUT_VARIABLES needs to contain "+rv.toString());
 		}
 		Map<String, OutputVariable<?>> map = DebugStatisticsBackend.getLatestWritten();
 		Assert.assertNotNull(map);
-		OutputVariable out = map.get(rv.toString());
+		OutputVariable<?> out= map.get(rv.toString());
 		return out;
 	}
 
 
 	protected void checkUnstable() throws IllegalStateException{
-		OutputVariable unstable = getOutputVariable(RuntimeVariable.HadUnstableTests);
+		OutputVariable<?> unstable = getOutputVariable(RuntimeVariable.HadUnstableTests);
 		Assert.assertNotNull(unstable);
 		Assert.assertEquals(Boolean.FALSE, unstable.getValue());
 	}
@@ -347,9 +348,9 @@ public class SystemTestBase {
 	}
 	
 
-	protected GeneticAlgorithm<?> getGAFromResult(Object result) {
+	protected<T extends Chromosome<T>> GeneticAlgorithm<T> getGAFromResult(Object result) {
 		assert(result instanceof List);
-		List<List<TestGenerationResult>> results = (List<List<TestGenerationResult>>)result;
+		List<List<TestGenerationResult<T>>> results = (List<List<TestGenerationResult<T>>>)result;
 		assert(results.size() == 1);
 		//return results.iterator().next().getGeneticAlgorithm();
 		return results.get(0).get(0).getGeneticAlgorithm();
@@ -357,14 +358,14 @@ public class SystemTestBase {
 
 	protected ExplorationAlgorithmBase getDSEAFromResult(Object result) {
 		assert (result instanceof List);
-		List<List<TestGenerationResult>> results = (List<List<TestGenerationResult>>) result;
+		List<List<TestGenerationResult<?>>> results = (List<List<TestGenerationResult<?>>>) result;
 		assert (results.size() == 1);
 		return results.get(0).get(0).getDSEAlgorithm();
 	}
 
 	protected void checkDSEResultIsEmpty(Object result) {
 		assert (result instanceof List);
-		List<List<TestGenerationResult>> results = (List<List<TestGenerationResult>>) result;
+		List<List<TestGenerationResult<?>>> results = (List<List<TestGenerationResult<?>>>) result;
 		assert (results.size() == 0);
 	}
 }

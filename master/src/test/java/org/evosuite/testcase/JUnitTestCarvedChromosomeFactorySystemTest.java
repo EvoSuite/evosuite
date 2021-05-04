@@ -752,8 +752,8 @@ public class JUnitTestCarvedChromosomeFactorySystemTest extends SystemTestBase {
 		String[] command = new String[] { "-generateSuite", "-class", targetClass};
 
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
-		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+		TestSuiteChromosome best = ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
 		Assert.assertTrue("Did not expect optimal coverage: ", best.getCoverage() < 1d);		
@@ -771,8 +771,8 @@ public class JUnitTestCarvedChromosomeFactorySystemTest extends SystemTestBase {
 		String[] command = new String[] { "-generateSuite", "-class", targetClass};
 
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
-		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+		TestSuiteChromosome best = ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
 		Assert.assertEquals("Expected optimal coverage: ", 1d, best.getCoverage(), 0.001);		
@@ -801,8 +801,8 @@ public class JUnitTestCarvedChromosomeFactorySystemTest extends SystemTestBase {
 	@Test
 	public void testCarvedTestNames() {
 
-		Properties.TARGET_CLASS = MethodWithSeveralInputArguments.class.getCanonicalName();;
-		Properties.SELECTED_JUNIT = TestMethodWithSeveralInputArguments.class.getCanonicalName();;
+		Properties.TARGET_CLASS = MethodWithSeveralInputArguments.class.getCanonicalName();
+		Properties.SELECTED_JUNIT = TestMethodWithSeveralInputArguments.class.getCanonicalName();
 
 		Properties.SEED_MUTATIONS = 1;
 		Properties.SEED_CLONE = 1;

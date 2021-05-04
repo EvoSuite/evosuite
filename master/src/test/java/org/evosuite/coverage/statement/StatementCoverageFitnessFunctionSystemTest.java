@@ -41,8 +41,8 @@ public class StatementCoverageFitnessFunctionSystemTest extends SystemTestBase {
     EvoSuite evosuite = new EvoSuite();
     String[] command = new String[] {"-class", targetClass, "-generateSuite"};
     Object result = evosuite.parseCommandLine(command);
-    GeneticAlgorithm<?> ga = getGAFromResult(result);
-    TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+    GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+    TestSuiteChromosome best = ga.getBestIndividual();
 
     System.out.println("CoveredGoals:\n" + best.getCoveredGoals());
     System.out.println("EvolvedTestSuite:\n" + best);
