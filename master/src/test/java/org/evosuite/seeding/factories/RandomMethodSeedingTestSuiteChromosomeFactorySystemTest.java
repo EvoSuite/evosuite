@@ -51,7 +51,7 @@ public class RandomMethodSeedingTestSuiteChromosomeFactorySystemTest extends Sys
 
 		Object result = evosuite.parseCommandLine(command);
 
-		ga = (GeneticAlgorithm<TestSuiteChromosome>) getGAFromResult(result);
+		ga = getGAFromResult(result);
 		bestIndividual = ga.getBestIndividual();
 	}
 

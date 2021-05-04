@@ -59,8 +59,8 @@ public class TrivialForDynamicSeedingSystemTest extends SystemTestBase {
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
-		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+		TestSuiteChromosome best = ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
@@ -80,9 +80,9 @@ public class TrivialForDynamicSeedingSystemTest extends SystemTestBase {
 
 		Object result = evosuite.parseCommandLine(command);
 
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
 
-		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		TestSuiteChromosome best = ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
 		Assert.assertEquals("Unexpected coverage: ", 2d / 3d, best.getCoverage(), 0.001);
@@ -102,9 +102,9 @@ public class TrivialForDynamicSeedingSystemTest extends SystemTestBase {
 
 		Object result = evosuite.parseCommandLine(command);
 
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
 
-		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		TestSuiteChromosome best = ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
@@ -124,9 +124,9 @@ public class TrivialForDynamicSeedingSystemTest extends SystemTestBase {
 
 		Object result = evosuite.parseCommandLine(command);
 
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
 
-		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		TestSuiteChromosome best = ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
 		Assert.assertEquals("Unexpected coverage: ", 2d / 3d, best.getCoverage(), 0.001);
@@ -146,9 +146,9 @@ public class TrivialForDynamicSeedingSystemTest extends SystemTestBase {
 
 		Object result = evosuite.parseCommandLine(command);
 
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
 
-		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		TestSuiteChromosome best = ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
@@ -168,9 +168,9 @@ public class TrivialForDynamicSeedingSystemTest extends SystemTestBase {
 
 		Object result = evosuite.parseCommandLine(command);
 
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
 
-		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		TestSuiteChromosome best = ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
 		Assert.assertEquals("Unexpected coverage: ", 2d / 3d, best.getCoverage(), 0.001);
@@ -190,9 +190,9 @@ public class TrivialForDynamicSeedingSystemTest extends SystemTestBase {
 
 		Object result = evosuite.parseCommandLine(command);
 
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
 
-		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		TestSuiteChromosome best = ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
@@ -212,9 +212,9 @@ public class TrivialForDynamicSeedingSystemTest extends SystemTestBase {
 
 		Object result = evosuite.parseCommandLine(command);
 
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
 
-		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		TestSuiteChromosome best = ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
 		Assert.assertEquals("Unexpected coverage: ", 2d / 3d, best.getCoverage(), 0.001);
@@ -234,9 +234,9 @@ public class TrivialForDynamicSeedingSystemTest extends SystemTestBase {
 
 		Object result = evosuite.parseCommandLine(command);
 
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
 
-		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		TestSuiteChromosome best = ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
@@ -256,9 +256,9 @@ public class TrivialForDynamicSeedingSystemTest extends SystemTestBase {
 
 		Object result = evosuite.parseCommandLine(command);
 
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
 
-		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		TestSuiteChromosome best = ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
 		Assert.assertEquals("Unexpected coverage: ", 2d / 3d, best.getCoverage(), 0.001);
@@ -283,9 +283,9 @@ public class TrivialForDynamicSeedingSystemTest extends SystemTestBase {
 
 		Object result = evosuite.parseCommandLine(command);
 
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
 
-		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		TestSuiteChromosome best = ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
 		ConstantPoolManager foo = ConstantPoolManager.getInstance();
@@ -308,9 +308,9 @@ public class TrivialForDynamicSeedingSystemTest extends SystemTestBase {
 
 		Object result = evosuite.parseCommandLine(command);
 
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
 
-		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		TestSuiteChromosome best = ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
 		Assert.assertEquals("Unexpected coverage: ", 2d / 3d, best.getCoverage(), 0.001);

@@ -47,8 +47,8 @@ public class InterfaceSystemTest extends SystemTestBase {
 
         Object result = evosuite.parseCommandLine(command);
 
-        GeneticAlgorithm<?> ga = getGAFromResult(result);
-        TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
         Assert.assertEquals(0.0, best.getFitness(), 0.0);
 
         for(TestFitnessFactory<? extends TestFitnessFunction> ff : TestGenerationStrategy.getFitnessFactories()) {
@@ -67,8 +67,8 @@ public class InterfaceSystemTest extends SystemTestBase {
 
         Object result = evosuite.parseCommandLine(command);
 
-        GeneticAlgorithm<?> ga = getGAFromResult(result);
-        TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
         Assert.assertEquals(0.0, best.getFitness(), 0.0);
 
         for(TestFitnessFactory<? extends TestFitnessFunction> ff : TestGenerationStrategy.getFitnessFactories()) {
@@ -88,8 +88,8 @@ public class InterfaceSystemTest extends SystemTestBase {
 
         Object result = evosuite.parseCommandLine(command);
 
-        GeneticAlgorithm<?> ga = getGAFromResult(result);
-        TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
         Assert.assertEquals(0.0, best.getFitness(), 0.0);
 
         for(TestFitnessFactory<? extends TestFitnessFunction> ff : TestGenerationStrategy.getFitnessFactories()) {
@@ -109,8 +109,8 @@ public class InterfaceSystemTest extends SystemTestBase {
 
         Object result = evosuite.parseCommandLine(command);
 
-        GeneticAlgorithm<?> ga = getGAFromResult(result);
-        TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
         Assert.assertEquals(0.0, best.getFitness(), 0.0);
 
         for(TestFitnessFactory<? extends TestFitnessFunction> ff : TestGenerationStrategy.getFitnessFactories()) {

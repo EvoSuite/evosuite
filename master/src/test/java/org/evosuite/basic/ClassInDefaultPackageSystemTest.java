@@ -43,8 +43,8 @@ public class ClassInDefaultPackageSystemTest extends SystemTestBase {
 		Object result = evosuite.parseCommandLine(command);
 
         Assert.assertNotNull(result);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
-		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+		TestSuiteChromosome best = ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
 		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function

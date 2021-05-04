@@ -72,10 +72,10 @@ public class SameAssertionSystemTest extends SystemTestBase {
 
 		Object result = evosuite.parseCommandLine(command);
 
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
 
 		boolean hasSameAssertion = false;
-		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		TestSuiteChromosome best = ga.getBestIndividual();
 		for(TestChromosome testChromosome : best.getTestChromosomes()) {
 			for(Assertion assertion : testChromosome.getTestCase().getAssertions()) {
 				if(assertion instanceof SameAssertion) {
@@ -101,10 +101,10 @@ public class SameAssertionSystemTest extends SystemTestBase {
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
 
 		boolean hasSameAssertion = false;
-		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		TestSuiteChromosome best = ga.getBestIndividual();
 		for(TestChromosome testChromosome : best.getTestChromosomes()) {
 			for(Assertion assertion : testChromosome.getTestCase().getAssertions()) {
 				if(assertion instanceof SameAssertion) {
@@ -143,9 +143,9 @@ public class SameAssertionSystemTest extends SystemTestBase {
 
 		Object result = evosuite.parseCommandLine(command);
 
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
 		boolean hasSameAssertion = false;
-		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		TestSuiteChromosome best = ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 		for(TestChromosome testChromosome : best.getTestChromosomes()) {
 			for(Assertion assertion : testChromosome.getTestCase().getAssertions()) {
@@ -183,10 +183,10 @@ public class SameAssertionSystemTest extends SystemTestBase {
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
 
 		boolean hasSameAssertion = false;
-		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		TestSuiteChromosome best = ga.getBestIndividual();
 		for(TestChromosome testChromosome : best.getTestChromosomes()) {
 			for(Assertion assertion : testChromosome.getTestCase().getAssertions()) {
 				if(assertion instanceof SameAssertion) {

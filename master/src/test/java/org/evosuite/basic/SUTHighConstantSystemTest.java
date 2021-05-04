@@ -58,8 +58,8 @@ public class SUTHighConstantSystemTest extends SystemTestBase {
 		};
 		
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
-		TestSuiteChromosome best = (TestSuiteChromosome)ga.getBestIndividual();
+		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+		TestSuiteChromosome best = ga.getBestIndividual();
 		System.out.println(best.toString());
 		/*
 		 * there are 2 branches and one method, so 3 targets, of which we cover only 2
@@ -94,10 +94,10 @@ public class SUTHighConstantSystemTest extends SystemTestBase {
 		};
 		
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
 
 		Assert.assertEquals("Wrong number of generations: ", 0, ga.getAge());
-		TestSuiteChromosome best = (TestSuiteChromosome)ga.getBestIndividual();
+		TestSuiteChromosome best = ga.getBestIndividual();
 		//Assert.assertEquals("Wrong number of test cases: ",2 , best.size());
 		Assert.assertEquals("Non-optimal coverage: ",1d, best.getCoverage(), 0.001);
 		//Assert.assertEquals("Wrong number of statements: ",3,best.getTestChromosome(0).getTestCase().size());

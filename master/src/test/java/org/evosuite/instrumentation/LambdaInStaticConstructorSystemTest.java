@@ -41,9 +41,9 @@ public class LambdaInStaticConstructorSystemTest extends SystemTestBase {
 
         Object result = evosuite.parseCommandLine(command);
 
-        GeneticAlgorithm<?> ga = getGAFromResult(result);
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
 
-        TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+        TestSuiteChromosome best = ga.getBestIndividual();
         System.out.println(best.toString());
 
     }

@@ -46,8 +46,8 @@ public class EnumAssertionSystemTest extends SystemTestBase {
 
         Object result = evosuite.parseCommandLine(command);
 
-        GeneticAlgorithm<?> ga = getGAFromResult(result);
-        TestSuiteChromosome suite = (TestSuiteChromosome) ga.getBestIndividual();
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome suite = ga.getBestIndividual();
         System.out.println(suite.toString());
 
         Assert.assertTrue(suite.size() > 0);
@@ -80,8 +80,8 @@ public class EnumAssertionSystemTest extends SystemTestBase {
 
         Object result = evosuite.parseCommandLine(command);
 
-        GeneticAlgorithm<?> ga = getGAFromResult(result);
-        TestSuiteChromosome suite = (TestSuiteChromosome) ga.getBestIndividual();
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome suite = ga.getBestIndividual();
         System.out.println(suite.toString());
 
         Assert.assertTrue(suite.size() > 0);

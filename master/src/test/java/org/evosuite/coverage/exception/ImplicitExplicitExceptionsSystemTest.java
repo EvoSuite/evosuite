@@ -42,7 +42,7 @@ public class ImplicitExplicitExceptionsSystemTest extends SystemTestBase {
 
     private static final Criterion[] defaultCriterion = Properties.CRITERION;
     
-    private static boolean defaultArchive = Properties.TEST_ARCHIVE;
+    private static final boolean defaultArchive = Properties.TEST_ARCHIVE;
 
 	@After
 	public void resetProperties() {
@@ -80,8 +80,8 @@ public class ImplicitExplicitExceptionsSystemTest extends SystemTestBase {
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
-		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+		TestSuiteChromosome best = ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
 		double fitness = best.getFitness();
@@ -111,8 +111,8 @@ public class ImplicitExplicitExceptionsSystemTest extends SystemTestBase {
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
-		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+		TestSuiteChromosome best = ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
 		double fitness = best.getFitness();

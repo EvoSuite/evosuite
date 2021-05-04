@@ -59,8 +59,8 @@ public class ClassWithProtectedConstructorSystemTest extends SystemTestBase {
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
-		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+		TestSuiteChromosome best = ga.getBestIndividual();
 
 		String name = targetClass.substring(targetClass.lastIndexOf(".") + 1) + Properties.JUNIT_SUFFIX;
 
@@ -70,7 +70,7 @@ public class ClassWithProtectedConstructorSystemTest extends SystemTestBase {
 				name + ".java";
 		Path path = Paths.get(junitFile);
 		Assert.assertTrue("Test Suite does not exist: "+path, Files.exists(path));
-		System.out.println(path.toString());
+		System.out.println(path);
 
 		String testCode = new String(Files.readAllBytes(path));
 		Files.delete(path);

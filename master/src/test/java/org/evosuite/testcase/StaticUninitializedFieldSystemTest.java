@@ -61,12 +61,12 @@ public class StaticUninitializedFieldSystemTest extends SystemTestBase {
 
         Object result = evosuite.parseCommandLine(command);
 
-        GeneticAlgorithm<?> ga = getGAFromResult(result);
-        TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
         System.out.println(best.toString());
         Map<String, OutputVariable<?>> map = DebugStatisticsBackend.getLatestWritten();
         Assert.assertNotNull(map);
-        OutputVariable unstable = map.get(RuntimeVariable.HadUnstableTests.toString());
+        OutputVariable<?> unstable = map.get(RuntimeVariable.HadUnstableTests.toString());
         Assert.assertNotNull(unstable);
         Assert.assertEquals("Unexpected unstabled test cases were generated",Boolean.FALSE, unstable.getValue());
 

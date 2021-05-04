@@ -78,8 +78,8 @@ public class DefUseAnalysisSystemTest extends SystemTestBase {
 
 		Object result = evosuite.parseCommandLine(command);
 
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
-		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+		TestSuiteChromosome best = ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
 		Assert.assertEquals(0, DefUseCoverageFactory.getInterMethodGoalsCount());
@@ -103,8 +103,8 @@ public class DefUseAnalysisSystemTest extends SystemTestBase {
 		
 		System.out.println("Def: "+DefUsePool.getDefCounter());
 		//DefUseCoverageFactory.computeGoals();
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
-		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+		TestSuiteChromosome best = ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 		Assert.assertEquals(0, DefUseCoverageFactory.getInterMethodGoalsCount());
 		Assert.assertEquals(0, DefUseCoverageFactory.getIntraClassGoalsCount());
@@ -127,8 +127,8 @@ public class DefUseAnalysisSystemTest extends SystemTestBase {
 
 		System.out.println("Def: "+DefUsePool.getDefCounter());
 		//DefUseCoverageFactory.computeGoals();
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
-		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+		TestSuiteChromosome best = ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 		Assert.assertEquals(0, DefUseCoverageFactory.getInterMethodGoalsCount());
 		Assert.assertEquals(0, DefUseCoverageFactory.getIntraClassGoalsCount());
@@ -151,8 +151,8 @@ public class DefUseAnalysisSystemTest extends SystemTestBase {
 
 		System.out.println("Def: "+DefUsePool.getDefCounter());
 		//DefUseCoverageFactory.computeGoals();
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
-		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+		TestSuiteChromosome best = ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 		Assert.assertEquals(1, DefUseCoverageFactory.getInterMethodGoalsCount());
 		Assert.assertEquals(1, DefUseCoverageFactory.getIntraClassGoalsCount());
@@ -170,8 +170,8 @@ public class DefUseAnalysisSystemTest extends SystemTestBase {
 		Object result = evosuite.parseCommandLine(command);
 
 		System.out.println("Def: "+DefUsePool.getDefCounter());
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
-		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+		TestSuiteChromosome best = ga.getBestIndividual();
 		System.out.print("EvolvedTestSuite:\n" + best.toString());
 		Assert.assertEquals(0, DefUseCoverageFactory.getInterMethodGoalsCount());
 		Assert.assertEquals(0, DefUseCoverageFactory.getIntraClassGoalsCount());

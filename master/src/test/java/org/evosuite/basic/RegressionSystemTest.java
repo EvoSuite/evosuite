@@ -71,8 +71,7 @@ public class RegressionSystemTest extends SystemTestBase {
 		//		        "-Dclient_on_thread=true", "-Dsearch_budget=100000" };
 
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
-		return ga;
+		return getGAFromResult(result);
 	}
 
 	private void testCovered(String targetClass, int numGoals) {

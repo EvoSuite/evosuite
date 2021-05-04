@@ -49,7 +49,7 @@ public class RandomIndividualTestSuiteChromosomeFactorySystemTest extends System
 
 		Object result = evosuite.parseCommandLine(command);
 
-		ga = (GeneticAlgorithm<TestSuiteChromosome>) getGAFromResult(result);
+		ga = getGAFromResult(result);
 		bestIndividual = ga.getBestIndividual();
 	}
 

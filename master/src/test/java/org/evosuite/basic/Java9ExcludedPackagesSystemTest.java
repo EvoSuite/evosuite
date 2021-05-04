@@ -39,8 +39,8 @@ public class Java9ExcludedPackagesSystemTest extends SystemTestBase {
 
         Object result = evosuite.parseCommandLine(command);
 
-        GeneticAlgorithm<?> ga = getGAFromResult(result);
-        TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
         System.out.print(best.toString());
         Assert.assertFalse(best.toString().contains("SunGraphics2D"));
         Assert.assertTrue(best.toString().contains("testMe"));
