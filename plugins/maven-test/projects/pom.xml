@@ -19,7 +19,7 @@
         <jacoco.version>0.7.6.201602180812</jacoco.version>
         <jmockit.version>1.23</jmockit.version>
         <junit.version>4.12</junit.version>
-        <surefire.version>2.19.1</surefire.version>
+        <surefire.version>2.21.0</surefire.version>
         <powermock.version>1.6.5</powermock.version>
         <cobertura.version>2.7</cobertura.version>
         <pit.version>1.1.9</pit.version>
