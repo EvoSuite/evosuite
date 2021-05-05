@@ -52,7 +52,7 @@ public abstract class DirectedGraphBuilder<T extends NodeContent> {
     public DirectedGraphBuilder<T> addEdge(T from, T to, double weight){
         Optional<Node<T>> fromOptional = nodes.stream().filter(n -> n.getContent().equals(from)).findAny();
         Optional<Node<T>> toOptional = nodes.stream().filter(n -> n.getContent().equals(to)).findAny();
-        if(fromOptional.isEmpty() || toOptional.isEmpty())
+        if(!fromOptional.isPresent() || !toOptional.isPresent())
             throw new IllegalArgumentException("Add nodes before adding their edges");
         return addEdge(new Edge<>(fromOptional.get(), toOptional.get(),
                 weight));

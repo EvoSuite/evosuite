@@ -9,9 +9,6 @@ import java.util.List;
 
 public class BooleanToIntAgent {
 
-    public final static PrintStream NO_OUTPUT_STREAM = new PrintStream(OutputStream.nullOutputStream());
-
-
     public static void premain(String agentArgument, Instrumentation instrumentation){
         BooleanToIntTransformer transformer;
         if(agentArgument != null && agentArgument.length() > 0) {

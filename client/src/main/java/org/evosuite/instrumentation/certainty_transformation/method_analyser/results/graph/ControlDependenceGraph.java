@@ -84,8 +84,8 @@ public class ControlDependenceGraph extends InstructionGraph {
     static Set<Edge<ByteCodeInstruction>> findEdgesBetweenNotPostDominatedNodes(ControlFlowGraph cfg,
                                                                                 PostDominatorTree pdt) {
         if(true)
-            return cfg.getEdges().stream().filter(e -> pdt.dijkstra(e.getDestination().getContent(),
-                    e.getSource().getContent()).isEmpty()).collect(Collectors.toSet());
+            return cfg.getEdges().stream().filter(e -> !pdt.dijkstra(e.getDestination().getContent(),
+                    e.getSource().getContent()).isPresent()).collect(Collectors.toSet());
         Collection<Edge<ByteCodeInstruction>> edges = cfg.getEdges();
         List<Edge<ByteCodeInstruction>> discard = new ArrayList<>();
         for (Edge<ByteCodeInstruction> edge : edges) {

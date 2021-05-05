@@ -1,5 +1,6 @@
 package org.evosuite.instrumentation.certainty_transformation.boolean_transformation;
 
+import org.apache.commons.io.IOUtils;
 import org.evosuite.instrumentation.certainty_transformation.boolean_transformation.instrumentation_listeners.InstrumentationListener;
 import org.evosuite.instrumentation.certainty_transformation.method_analyser.results.MethodAnalysisResultStorage;
 import org.evosuite.instrumentation.certainty_transformation.method_analyser.results.MethodIdentifier;
@@ -119,7 +120,7 @@ public class BooleanToIntClassVisitor extends ClassVisitor {
                 throw new IllegalStateException("Could not analyze super class: " + current.get() + " with loader: " + loader);
             }
             try {
-                byte[] bytes = superClassAsStream.readAllBytes();
+                byte[] bytes = IOUtils.toByteArray(superClassAsStream);
                 ClassReader reader = new ClassReader(bytes);
                 reader.accept(methodReaderClassVisitor, 0);
                 ClassWriter writer = new ClassWriter(reader, 0);

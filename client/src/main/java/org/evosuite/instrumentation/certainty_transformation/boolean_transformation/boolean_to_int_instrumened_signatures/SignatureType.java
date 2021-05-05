@@ -1,5 +1,6 @@
 package org.evosuite.instrumentation.certainty_transformation.boolean_transformation.boolean_to_int_instrumened_signatures;
 
+import org.apache.commons.lang3.StringUtils;
 import org.objectweb.asm.Type;
 
 import java.util.ArrayList;
@@ -22,7 +23,7 @@ public abstract class SignatureType {
     public static List<SignatureType> generate(String signature) {
         List<SignatureType> signatureTypes = new ArrayList<>();
         String remaining = signature;
-        while (!remaining.isBlank()) {
+        while (!StringUtils.isBlank(remaining)) {
             SignatureType type = getFirstType(remaining);
             signatureTypes.add(type);
             if(remaining.indexOf(type.toString().length() -1) == '.'){

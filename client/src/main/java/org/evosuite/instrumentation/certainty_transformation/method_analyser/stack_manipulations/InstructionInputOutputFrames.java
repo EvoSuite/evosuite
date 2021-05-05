@@ -149,7 +149,7 @@ public class InstructionInputOutputFrames {
             StackTypeSet firstPrevious = firstIterator.previous();
             StackTypeSet secondPrevious = secondIterator.previous();
             Optional<StackTypeSet> merge = merge(firstPrevious, secondPrevious);
-            if (merge.isEmpty()) {
+            if (!merge.isPresent()) {
                 throw new IllegalArgumentException("Frames can not be merged: first=" +first + " second="+second);
             }
             resultTypes.add(merge.get());
