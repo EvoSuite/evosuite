@@ -3,7 +3,7 @@
 
 # Certainty Transformation (CT)
 
-This branch contains the implementation of the certainty transformation of our Gecco'21 paper. The main idea behind this transformation is the replacement of boolean variables with integers that describe "how close" the variable. The estimate how close a boolean variable is to flip is derived from the branch distanc to the closest branch that would assign a different value.
+This branch contains the implementation of the certainty transformation of our Gecco'21 paper. The main idea behind this transformation is the replacement of boolean variables with integers that describe "how close" the variable is to flip. The estimate how close a boolean variable is to flip is derived from the branch distanc to the closest branch that would assign a different value.
 
 # Using the Certainty Transformation
 
