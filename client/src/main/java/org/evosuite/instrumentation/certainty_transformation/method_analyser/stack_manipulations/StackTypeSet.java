@@ -5,6 +5,7 @@ import org.objectweb.asm.Type;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -41,7 +42,7 @@ public class StackTypeSet implements Serializable{
             Type.FLOAT, Type.ARRAY, Type.OBJECT, Type.CHAR, Type.SHORT);
 
     private StackTypeSet(Collection<? extends Integer> c) {
-        types = Set.copyOf(c);
+        types = new HashSet<>(c);
     }
 
     private StackTypeSet(Integer... args) {
