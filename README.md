@@ -1,6 +1,32 @@
 [![Build Status](https://travis-ci.org/EvoSuite/evosuite.svg?branch=master)](https://travis-ci.org/EvoSuite/evosuite)
 [![CircleCI](https://circleci.com/gh/EvoSuite/evosuite.svg?style=svg&circle-token=f00c8d84b9dcf7dae4a82438441823f3be9df090)](https://circleci.com/gh/EvoSuite/evosuite)
 
+# Certainty Transformation (CT)
+
+This branch contains the implementation of the certainty transformation of our Gecco'21 paper. The main idea behind this transformation is the replacement of boolean variables with integers that describe "how close" the variable. The estimate how close a boolean variable is to flip is derived from the branch distanc to the closest branch that would assign a different value.
+
+# Using the Certainty Transformation
+
+In order to activate the CT the command line flag -DTT=true is required.
+<br> Besides activating the CT, one can specify, which classes should be transformed, with -Dtt_scope=&lt;scope>:
+- all: Transform all loaded classes, that are not part of EvoSuite or the CT itself.
+- prefix: Transform all classes starting with a prefix defined by -DPROJECT_PREFIX=&lt;prefix>
+- call_tree: Transform all classes in the call tree of the target class.
+- target: Transform only the target class.
+
+# Tracked Runtime Variables of CT
+
+The CT introduces new runtime variables that can be tracked by EvoSuite:
+- TT_TIME: Time spend transforming classes.
+- INSTRUMENTED_CLASSES: Number of classes instrumented.
+- BOOLEAN_JUMPS: Jumps based on a boolean variable in the transformation scope (incl. target)
+- DEPENDENT_UPDATES: Dependent updates in the transformation scope (incl. target)
+- CONDITIONAL_JUMPS: Conditional jumps in the transformation scope (incl. target)
+- TARGET_BOOLEAN_JUMPS: Jumps based on a boolean variable in the target class. 
+- TARGET_DEPENDENT_UPDATES: Dependent updates in the target class.
+- TARGET_CONDITIONAL_JUMPS: Conditional jumps in the target class.
+
+
 # What is EvoSuite?
 
 EvoSuite automatically generates JUnit test suites for Java classes, targeting code coverage criteria such as branch coverage. It uses an evolutionary approach based on a genetic algorithm to derive test suites. To improve readability, the generated unit tests are minimized, and regression assertions that capture the current behavior of the tested classes are added to the tests.
