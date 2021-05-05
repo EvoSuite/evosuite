@@ -166,7 +166,7 @@ public class DirectedGraph<T extends NodeContent> implements Serializable {
 
     private Node<T> getNodeOfContent(T content) {
         Optional<Node<T>> first = nodes.stream().filter(n -> n.getContent().equals(content)).findFirst();
-        if (first.isEmpty())
+        if (!first.isPresent())
             throw new IllegalArgumentException("No node of the graph contains: " + content);
         return first.get();
     }
