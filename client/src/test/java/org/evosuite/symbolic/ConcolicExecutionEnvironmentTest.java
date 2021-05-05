@@ -108,7 +108,7 @@ public class ConcolicExecutionEnvironmentTest {
 			NoSuchMethodException {
 		DefaultTestCase tc = buildTestCaseWithReset();
 		List<BranchCondition> branch_conditions = executeTest(tc);
-		assertEquals(1, branch_conditions.size());
+		assertEquals(0, branch_conditions.size());
 	}
 
 	@Test
@@ -116,7 +116,7 @@ public class ConcolicExecutionEnvironmentTest {
 			NoSuchMethodException {
 		DefaultTestCase tc = buildTestCaseWithReset();
 		List<BranchCondition> branch_conditions = executeTest(tc);
-		assertEquals(1, branch_conditions.size());
+		assertEquals(0, branch_conditions.size());
 	}
 
 	@After
