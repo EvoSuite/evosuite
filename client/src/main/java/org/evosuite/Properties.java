@@ -307,22 +307,22 @@ public class Properties {
     @Parameter(key = "migrants_communication_rate", group = "Test Creation", description = "Determines amount of migrants per communication step")
     public static int MIGRANTS_COMMUNICATION_RATE = 3;
 
-	// ---------------------------------------------------------------
-	// Search algorithm
-	public enum Algorithm {
-		// random
-		RANDOM_SEARCH,
-		// GAs
-		STANDARD_GA, MONOTONIC_GA, STEADY_STATE_GA, BREEDER_GA, CELLULAR_GA, STANDARD_CHEMICAL_REACTION, MAP_ELITES,
-		// mu-lambda
-		ONE_PLUS_LAMBDA_LAMBDA_GA, ONE_PLUS_ONE_EA, MU_PLUS_LAMBDA_EA, MU_LAMBDA_EA,
-		// many-objective algorithms
-		MOSA, DYNAMOSA, LIPS, MIO,
-		// multiple-objective optimisation algorithms
-		NSGAII, SPEA2,
-		// performance-based algorithm
-		PMOSA, PDMOSA
-	}
+    // ---------------------------------------------------------------
+    // Search algorithm
+    public enum Algorithm {
+        // random
+        RANDOM_SEARCH,
+        // GAs
+        STANDARD_GA, MONOTONIC_GA, STEADY_STATE_GA, BREEDER_GA, CELLULAR_GA, STANDARD_CHEMICAL_REACTION, MAP_ELITES,
+        // mu-lambda
+        ONE_PLUS_LAMBDA_LAMBDA_GA, ONE_PLUS_ONE_EA, MU_PLUS_LAMBDA_EA, MU_LAMBDA_EA,
+        // many-objective algorithms
+        MOSA, DYNAMOSA, LIPS, MIO,
+        // multiple-objective optimisation algorithms
+        NSGAII, SPEA2,
+        // adaptive approach for performance-based optimization
+        PDMOSA
+    }
 
     // MOSA PROPERTIES
     public enum RankingType {
@@ -331,46 +331,41 @@ public class Properties {
         FAST_NON_DOMINATED_SORTING
     }
 
-	/** Code for performance indicators **/
-	public enum PerformanceIndicators {
-		TEST_LENGTH,
-		METHOD_CALL,
-		COVERED_METHOD_CALL,
-		OBJECTS_INSTANTIATIONS,
-		STATEMENTS_COUNTER,
-		STATEMENTS_COVERED,
-		LOOP_COUNTER
-	}
+    /**
+     * Code for performance indicators
+     **/
+    public enum PerformanceIndicators {
+        TEST_LENGTH,
+        METHOD_CALL,
+        COVERED_METHOD_CALL,
+        OBJECTS_INSTANTIATIONS,
+        STATEMENTS_COUNTER,
+        STATEMENTS_COVERED,
+        LOOP_COUNTER
+    }
 
-	public enum PerformanceCombinationStrategy {
-		MIN_MAX,
-		SUM,
-		DOMINANCE
-	}
+    public enum PerformanceMOSAStrategy {
+        CROWDING_DISTANCE            // replace the crowding distance with the indicator comparison
+    }
 
-	public enum PerformanceMOSAStrategy {
-		PREFERENCE_CRITERION,		// use the indicator instead of the test length
-		CROWDING_DISTANCE			// replace the crowding distance with the indicator comparison
-	}
+    @Parameter(key = "performance_strategy", group = "Search Algorithm",
+            description = "Describe how the performance indicators should be included into the PerformanceMOSA algorithm")
+    public static PerformanceMOSAStrategy P_STRATEGY = PerformanceMOSAStrategy.CROWDING_DISTANCE;
 
-	@Parameter(key = "performance_strategy", group = "Search Algorithm",
-			description = "Describe how the performance indicators should be included into the PerformanceMOSA algorithm")
-	public static PerformanceMOSAStrategy P_STRATEGY = PerformanceMOSAStrategy.PREFERENCE_CRITERION;
+    @Parameter(key = "performance_indicators", group = "Search Algorithm", description = "Indicators to be used as" +
+            "a secondary objectives in AdaptiveDynaMOSA")
+    public static PerformanceIndicators[] MOSA_SECONDARY_OBJECTIVE = new PerformanceIndicators[]{
+            PerformanceIndicators.METHOD_CALL, PerformanceIndicators.COVERED_METHOD_CALL,
+            PerformanceIndicators.OBJECTS_INSTANTIATIONS, PerformanceIndicators.STATEMENTS_COUNTER,
+            PerformanceIndicators.STATEMENTS_COVERED, PerformanceIndicators.LOOP_COUNTER,
+            PerformanceIndicators.TEST_LENGTH};
 
-	@Parameter(key = "performance_indicators", group = "Search Algorithm", description = "Secondary Objective to use in MOSA")
-	public static PerformanceIndicators[] MOSA_SECONDARY_OBJECTIVE = new PerformanceIndicators[] {
-			PerformanceIndicators.METHOD_CALL, PerformanceIndicators.COVERED_METHOD_CALL, PerformanceIndicators.OBJECTS_INSTANTIATIONS, PerformanceIndicators.STATEMENTS_COUNTER, PerformanceIndicators.STATEMENTS_COVERED, PerformanceIndicators.LOOP_COUNTER, PerformanceIndicators.TEST_LENGTH};
+    @Parameter(key = "n_test_runs", group = "Search Algorithm",
+            description = "Number of times the test suites are re-executed at the end of the search")
+    public static int NUM_TEST_RUNS = 5;
 
-	@Parameter(key = "performance_combination_strategy", group = "Search Algorithm",
-			description = "Strategy used to combine together the computed performance indicators")
-	public static PerformanceCombinationStrategy P_COMBINATION_STRATEGY = PerformanceCombinationStrategy.MIN_MAX;
-
-	@Parameter(key = "n_test_runs", group = "Search Algorithm",
-			description = "Number of times the test suites are re-executed at the end of the search")
-	public static int NUM_TEST_RUNS = 5;
-
-	@Parameter(key = "ranking_type", group = "Runtime", description = "type of ranking to use in MOSA")
-	public static RankingType RANKING_TYPE = RankingType.PREFERENCE_SORTING;
+    @Parameter(key = "ranking_type", group = "Runtime", description = "type of ranking to use in MOSA")
+    public static RankingType RANKING_TYPE = RankingType.PREFERENCE_SORTING;
 
     public enum MapElitesChoice {
         ALL,

@@ -39,7 +39,7 @@ public class ObjectInstantiations extends AbstractIndicator {
 
     public ObjectInstantiations(){
         if (branches == null) {
-            branches = new HashMap();
+            branches = new HashMap<>();
             for (Branch b : BranchPool
                     .getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT())
                     .getAllBranches()) {
@@ -55,7 +55,7 @@ public class ObjectInstantiations extends AbstractIndicator {
                 if (nObjects > 0)
                     branches.put(b.getActualBranchId(), nObjects);
             }
-            methods = new HashMap();
+            methods = new HashMap<>();
             List<BytecodeInstruction> list = BytecodeInstructionPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getAllInstructions();
             for (BytecodeInstruction instr : list){
                 Integer set = methods.get(instr.getMethodName());

@@ -9,9 +9,8 @@ import org.evosuite.testcase.statements.reflection.PrivateMethodStatement;
 import org.evosuite.testsuite.TestSuiteChromosome;
 
 /**
- * @author annibale.panichella
- * @author sebastiano
- *
+ * @author Annibale Panichella, Sebastiano Panichella
+ * <p>
  * This class implements a static performance indicator: it measures the number of method calls contained
  * in a test case. Therefore, it does not look at the covered production code
  */
@@ -32,7 +31,7 @@ public class MethodCallCounter extends AbstractIndicator {
         TestChromosome tch = (TestChromosome) test;
         TestCase tc = tch.getTestCase();
 
-        for (Statement stmt : tc){
+        for (Statement stmt : tc) {
             if (isMethodCall(stmt))
                 nMethodCalls++;
         }

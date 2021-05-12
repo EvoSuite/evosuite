@@ -28,7 +28,7 @@ public class TestCaseSecondaryObjective {
     public static void setSecondaryObjectives() {
         for (Properties.SecondaryObjective secondaryObjective : Properties.SECONDARY_OBJECTIVE) {
             try {
-                SecondaryObjective<TestChromosome> secondaryObjectiveInstance = null;
+                SecondaryObjective<TestChromosome> secondaryObjectiveInstance;
                 switch (secondaryObjective) {
                     case AVG_LENGTH:
                     case MAX_LENGTH:
@@ -37,6 +37,9 @@ public class TestCaseSecondaryObjective {
                         break;
                     case EXCEPTIONS:
                         secondaryObjectiveInstance = new MinimizeExceptionsSecondaryObjective();
+                        break;
+                    case PERFORMANCE:
+                        secondaryObjectiveInstance = new MinimizePerformanceSecondaryObjective();
                         break;
                     default:
                         throw new RuntimeException("ERROR: asked for unknown secondary objective \""

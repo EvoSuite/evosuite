@@ -28,7 +28,7 @@ import org.evosuite.testsuite.TestSuiteChromosome;
  *
  * @author Annibale Panichella
  */
-public class MinimizePerformanceSecondaryObjective extends SecondaryObjective<TestSuiteChromosome> {
+public class MinimizeSuitePerformanceSecondaryObjective extends SecondaryObjective<TestSuiteChromosome> {
 
 	private static final long serialVersionUID = -6272641645062817112L;
 

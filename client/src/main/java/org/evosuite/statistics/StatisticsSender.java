@@ -90,10 +90,12 @@ public class StatisticsSender {
             }
         }
 
-		sendCoveredInfo(testSuite);
-		sendExceptionInfo(testSuite);
-		sendIndividualToMaster(testSuite);
-		/* ----------------------------call to performance indicators---------------------------------------------- */
+        sendCoveredInfo(testSuite);
+        sendExceptionInfo(testSuite);
+        sendIndividualToMaster(testSuite);
+
+        if (Properties.ALGORITHM == Properties.Algorithm.PDMOSA)
+            sendPerformanceInfo(testSuite);
 
 		sendRepeatedExecutionTime(testSuite);
 //		if (Properties.ALGORITHM == Properties.Algorithm.PMOSA || Properties.ALGORITHM == Properties.Algorithm.PDMOSA)
@@ -135,53 +137,54 @@ public class StatisticsSender {
          */
     }
 
-	/**
-	 * Utility method that re-execute the tests n times to have more realistic estimation of the execution time
-	 * @param testSuite the test suite
-	 */
-	private static void sendRepeatedExecutionTime(TestSuiteChromosome testSuite) {
-		// let's add the computation time for the suite
-		// the test suite is re-executed multiple times to have a more reliable measure
-		List<TestChromosome> chromosomes = testSuite.getTestChromosomes();
-		long executionTime = 0;
-		for (ExecutionResult res : testSuite.getLastExecutionResults())
-			executionTime += res.getExecutionTime();
+    /**
+     * Utility method that re-execute the tests n times to have more realistic estimation of the execution time
+     *
+     * @param testSuite the test suite
+     */
+    private static void sendRepeatedExecutionTime(TestSuiteChromosome testSuite) {
+        // let's add the computation time for the suite
+        // the test suite is re-executed multiple times to have a more reliable measure
+        List<TestChromosome> chromosomes = testSuite.getTestChromosomes();
+        long executionTime = 0;
+        for (ExecutionResult res : testSuite.getLastExecutionResults())
+            executionTime += res.getExecutionTime();
 
-		Set<FitnessFunction<?>> ffs = testSuite.getFitnessValues().keySet();
+		Set<FitnessFunction<TestSuiteChromosome>> ffs = testSuite.getFitnessValues().keySet();
 		for (int i = 0; i<Properties.NUM_TEST_RUNS -1; i++){
 			testSuite.setChanged(true);
-			for (TestChromosome test : chromosomes)
+			for (TestChromosome test : chromosomes) {
 				test.setChanged(true);
-			for (FitnessFunction f : ffs)
-				f.getFitness(testSuite);
-
-			for (ExecutionResult res : testSuite.getLastExecutionResults())
-				executionTime += res.getExecutionTime();
+				ExecutionResult result = TestCaseExecutor.runTest(test.getTestCase());
+				test.setLastExecutionResult(result);
+				executionTime += result.getExecutionTime();
+			}
 		}
 
-		executionTime = executionTime / (long) Properties.NUM_TEST_RUNS;
+        executionTime = executionTime / (long) Properties.NUM_TEST_RUNS;
 
-		ClientServices.getInstance().getClientNode().trackOutputVariable(
-				RuntimeVariable.TestExecutionTime, executionTime);
-	}
+        ClientServices.getInstance().getClientNode().trackOutputVariable(
+                RuntimeVariable.TestExecutionTime, executionTime);
+    }
 
-	/**
-	 * Collects the final results about the performance indicators for the generated test suite
-	 * @param testSuite the final test suite
-	 */
-	private static void sendPerformanceIndicator(TestSuiteChromosome testSuite) {
-		// Compute the performance metric at test suite level
-		List<AbstractIndicator> indicators = IndicatorsFactory.getPerformanceIndicator();
-		List<TestChromosome> chromosomes = testSuite.getTestChromosomes();
-		LoggingUtils.getEvoLogger().info("* Test suite size is {}", chromosomes.size());
-		for (AbstractIndicator indicator : indicators) {
-			double value = 0;
-			for (TestChromosome tch : chromosomes) {
-				if (tch.getIndicatorValues().containsKey(indicator.getIndicatorId()))
-					value += tch.getIndicatorValue(indicator.getIndicatorId());
-				else
-					value += indicator.getIndicatorValue(tch);
-			}
+    /**
+     * Collects the final results about the performance indicators for the generated test suite
+     *
+     * @param testSuite the final test suite
+     */
+    private static void sendPerformanceIndicator(TestSuiteChromosome testSuite) {
+        // Compute the performance metric at test suite level
+        List<AbstractIndicator> indicators = IndicatorsFactory.getPerformanceIndicator();
+        List<TestChromosome> chromosomes = testSuite.getTestChromosomes();
+        LoggingUtils.getEvoLogger().info("* Test suite size is {}", chromosomes.size());
+        for (AbstractIndicator indicator : indicators) {
+            double value = 0;
+            for (TestChromosome tch : chromosomes) {
+                if (tch.getIndicatorValues().containsKey(indicator.getIndicatorId()))
+                    value += tch.getIndicatorValue(indicator.getIndicatorId());
+                else
+                    value += indicator.getIndicatorValue(tch);
+            }
 
 			// Save the final scores into RuntimeVariable
 			if (indicator.getIndicatorId().equals(MethodCallCounter.class.getName()))
@@ -204,7 +207,7 @@ public class StatisticsSender {
 						RuntimeVariable.LoopCounter, value);
 		}
 	}
-
+	
 
     private static void sendCoveredInfo(TestSuiteChromosome testSuite) {
 

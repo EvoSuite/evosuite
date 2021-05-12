@@ -31,10 +31,11 @@ import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.FitnessReplacementFunction;
 import org.evosuite.ga.archive.ArchiveTestChromosomeFactory;
 import org.evosuite.ga.metaheuristics.*;
+import org.evosuite.ga.metaheuristics.mosa.AdaptiveDynaMOSA;
 import org.evosuite.ga.metaheuristics.mosa.DynaMOSA;
 import org.evosuite.ga.metaheuristics.mosa.MOSA;
 import org.evosuite.ga.metaheuristics.mosa.DynaMOSA;
-import org.evosuite.ga.metaheuristics.mosa.PerformanceDynaMOSA;
+import org.evosuite.ga.metaheuristics.mosa.MOSATestSuiteAdapter;
 import org.evosuite.ga.metaheuristics.mosa.MOSATestSuiteAdapter;
 import org.evosuite.ga.metaheuristics.mulambda.MuLambdaEA;
 import org.evosuite.ga.metaheuristics.mulambda.MuPlusLambdaEA;
@@ -188,22 +189,29 @@ public class PropertiesSuiteGAFactory
             case DYNAMOSA:
                 logger.info("Chosen search algorithm: DynaMOSA");
 //				return new DynaMOSA(factory);
-                if (factory instanceof TestSuiteChromosomeFactory) {
-                    final TestSuiteChromosomeFactory tscf = (TestSuiteChromosomeFactory) factory;
-                    return new MOSATestSuiteAdapter(new DynaMOSA(tscf.getTestChromosomeFactory()));
-                } else {
-                    logger.info("No specific factory for test cases given...");
-                    logger.info("Using a default factory that creates tests with variable length");
-                    return new MOSATestSuiteAdapter(new DynaMOSA(new RandomLengthTestFactory()));
-                }
+				if (factory instanceof TestSuiteChromosomeFactory) {
+					final TestSuiteChromosomeFactory tscf = (TestSuiteChromosomeFactory) factory;
+					return new MOSATestSuiteAdapter(new DynaMOSA(tscf.getTestChromosomeFactory()));
+				} else {
+					logger.info("No specific factory for test cases given...");
+					logger.info("Using a default factory that creates tests with variable length");
+					return new MOSATestSuiteAdapter(new DynaMOSA(new RandomLengthTestFactory()));
+				}
 			case PDMOSA:
 				logger.info("Chosen search algorithm: Performance DynaMOSA");
-				return new PerformanceDynaMOSA<>(factory);
-            case ONE_PLUS_LAMBDA_LAMBDA_GA:
-                logger.info("Chosen search algorithm: 1 + (lambda, lambda)GA");
-                return new OnePlusLambdaLambdaGA<>(factory, Properties.LAMBDA);
-            case MIO:
-                logger.info("Chosen search algorithm: MIO");
+				if (factory instanceof TestSuiteChromosomeFactory) {
+					final TestSuiteChromosomeFactory tscf = (TestSuiteChromosomeFactory) factory;
+					return new MOSATestSuiteAdapter(new PerformanceDynaMOSA(tscf.getTestChromosomeFactory()));
+				} else {
+					logger.info("No specific factory for test cases given...");
+					logger.info("Using a default factory that creates tests with variable length");
+					return new MOSATestSuiteAdapter(new PerformanceDynaMOSA(new RandomLengthTestFactory()));
+				}
+			case ONE_PLUS_LAMBDA_LAMBDA_GA:
+				logger.info("Chosen search algorithm: 1 + (lambda, lambda)GA");
+				return new OnePlusLambdaLambdaGA<>(factory, Properties.LAMBDA);
+			case MIO:
+				logger.info("Chosen search algorithm: MIO");
 //				return new MIO(factory);
                 if (factory instanceof TestSuiteChromosomeFactory) {
                     final TestSuiteChromosomeFactory tscf = (TestSuiteChromosomeFactory) factory;

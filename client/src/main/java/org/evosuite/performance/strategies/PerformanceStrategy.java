@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Giovanni Grano
+ * @author Giovanni Grano
  * The interface for the strategy that can be used in the dynamic approach to set the distances and sort the population
  * @param <T>
  */
