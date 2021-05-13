@@ -216,7 +216,6 @@ public class AdaptiveDynaMOSA extends DynaMOSA {
 
 //        logger.error("crowdingStagnation = {}", crowdingStagnation);
 //        logger.error("performanceStagnation = {}", performanceStagnation);
-        LoggingUtils.getEvoLogger().info("returning " + choice);
         return choice;
     }
 
