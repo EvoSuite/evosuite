@@ -1,7 +1,6 @@
 *.log
 *.dot
 *.iml
-log.txt
 *~
 target/
 evosuite-files
