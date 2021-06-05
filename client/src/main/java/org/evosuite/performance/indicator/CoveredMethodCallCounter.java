@@ -42,8 +42,9 @@ public class CoveredMethodCallCounter extends AbstractIndicator {
         // determine the covered lines
         double nMethodCalls = 0.0;
         for (Integer frequency : executedMethods.values()){
-            if (frequency >= 2)
-                nMethodCalls += frequency;
+            //todo: why should take into account frequencies >= 2?
+            //if (frequency >= 2)
+            nMethodCalls += frequency;
         }
 
         test.setIndicatorValues(this.getIndicatorId(), nMethodCalls);

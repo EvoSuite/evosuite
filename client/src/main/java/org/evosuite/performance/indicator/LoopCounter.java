@@ -3,15 +3,11 @@ package org.evosuite.performance.indicator;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.branch.Branch;
 import org.evosuite.coverage.branch.BranchPool;
-import org.evosuite.ga.Chromosome;
 import org.evosuite.graphs.cfg.ActualControlFlowGraph;
 import org.evosuite.graphs.cfg.BasicBlock;
-import org.evosuite.graphs.cfg.ControlDependency;
-import org.evosuite.graphs.cfg.ControlFlowEdge;
 import org.evosuite.performance.AbstractIndicator;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.execution.ExecutionResult;
-import org.evosuite.testsuite.TestSuiteChromosome;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,7 +15,6 @@ import java.util.*;
 
 /**
  * Counts the number of loops!
- * todo: still to test
  */
 public class LoopCounter extends AbstractIndicator {
 
@@ -88,6 +83,8 @@ public class LoopCounter extends AbstractIndicator {
                 counter += freq;
         }
 
+        // we evaluate the loop node once more than then actual number of loops
+        counter = counter > 0 ? counter - 1 : 0;
         test.setIndicatorValues(this.getIndicatorId(), counter);
         logger.info("No. definitions = " + counter);
         return counter;

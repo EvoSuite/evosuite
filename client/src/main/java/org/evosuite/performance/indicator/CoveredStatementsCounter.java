@@ -14,7 +14,9 @@ import org.evosuite.testsuite.TestSuiteChromosome;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author G. Grano, A. Panichella, S. Panichella
@@ -36,22 +38,18 @@ public class CoveredStatementsCounter extends AbstractIndicator {
     public CoveredStatementsCounter(){
         super();
         if (branches == null) {
-            branches = new HashMap();
+            branches = new HashMap<>();
             for (Branch b : BranchPool
                     .getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT())
                     .getAllBranches()) {
                 BasicBlock block = b.getInstruction().getBasicBlock();
-                branches.put(b.getActualBranchId(), (block.getLastLine()-block.getFirstLine())+1);
+                branches.put(b.getActualBranchId(), (block.getLastLine() - block.getFirstLine()) + 1);
             }
-            methods = new HashMap();
+            methods = new HashMap<>();
             List<BytecodeInstruction> list = BytecodeInstructionPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getAllInstructions();
-            for (BytecodeInstruction instr : list){
-                Integer set = methods.get(instr.getMethodName());
-                if (set == null){
-                    methods.put(instr.getMethodName(), 1);
-                } else {
-                    methods.put(instr.getMethodName(), set+1);
-                }
+            for (BytecodeInstruction instr : list) {
+                String fullyQualifiedName = instr.getClassName() + "." + instr.getMethodName();
+                methods.merge(fullyQualifiedName, 1, Integer::sum);
             }
         }
     }
