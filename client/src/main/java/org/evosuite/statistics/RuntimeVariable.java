@@ -405,8 +405,17 @@ public enum RuntimeVariable {
 	/** Solver Cache Statistics */
 	QueryCacheSize,
 	QueryCacheCalls,
-	QueryCacheHitRate;
+	QueryCacheHitRate,
 
+	/* ----------------------------performance indicators variables---------------------------------------------- */
+	MethodCall,
+	CoveredMethodCall,
+	ObjectsInstantiations,
+	StatementCounter,
+	StatementCovered,
+	LoopCounter,
+	TestExecutionTime
+	;
 	/* -------------------------------------------------- */
 
 	private static final Logger logger = LoggerFactory.getLogger(RuntimeVariable.class);

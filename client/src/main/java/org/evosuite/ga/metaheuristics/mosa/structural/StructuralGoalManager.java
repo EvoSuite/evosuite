@@ -29,6 +29,7 @@ import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 
+
 /**
  * A class for managing coverage targets based on structural dependencies. More specifically,
  * control dependence information of the UIT is used to derive the set of targets currently aimed
@@ -69,7 +70,7 @@ public abstract class StructuralGoalManager implements Serializable {
 		currentGoals = new HashSet<>(fitnessFunctions.size());
 		archive = Archive.getArchiveInstance();
 
-		// initialize uncovered goals
+		// initahialize uncovered goals
 		this.archive.addTargets(fitnessFunctions);
 	}
 

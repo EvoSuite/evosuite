@@ -447,15 +447,22 @@ public class MultiCriteriaManager extends StructuralGoalManager implements Seria
 		currentGoals.removeAll(this.getCoveredGoals());
 
 		// 2) We update the archive.
+		updateArchive(c, result);
+	}
+
+	/**
+	 * Handles the update of the archive
+	 */
+	protected void updateArchive(TestChromosome c, ExecutionResult result) {
 		final ExecutionTrace trace = result.getTrace();
-		for (int branchid : trace.getCoveredFalseBranches()){
-			TestFitnessFunction branch = this.branchCoverageFalseMap.get(branchid);
+		for (int branchId : trace.getCoveredFalseBranches()){
+			TestFitnessFunction branch = this.branchCoverageFalseMap.get(branchId);
 			if (branch == null)
 				continue;
 			updateCoveredGoals(branch, c);
 		}
-		for (int branchid : trace.getCoveredTrueBranches()){
-			TestFitnessFunction branch = this.branchCoverageTrueMap.get(branchid);
+		for (int branchId : trace.getCoveredTrueBranches()){
+			TestFitnessFunction branch = this.branchCoverageTrueMap.get(branchId);
 			if (branch == null)
 				continue;
 			updateCoveredGoals(branch, c);

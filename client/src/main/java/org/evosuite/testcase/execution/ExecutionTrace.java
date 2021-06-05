@@ -618,5 +618,13 @@ public interface ExecutionTrace {
 	 * 
 	 * @return
 	 */
-    List<String> getInitializedClasses();
+	List<String> getInitializedClasses();
+
+	/**
+	 * Return a map that contains the total number of execution for each conditional node;
+	 * The id of the branch is the key; the number of times a conditional node is seen it the value
+	 *
+	 * @return numberOfExecutionsPerBranch
+	 */
+	Map<Integer, Integer> getNoExecutionForConditionalNode();
 }

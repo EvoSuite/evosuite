@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -732,4 +732,10 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 	public List<String> getInitializedClasses() {
 		return trace.getInitializedClasses();
 	}
+
+	@Override
+	public Map<Integer, Integer> getNoExecutionForConditionalNode() {
+		return trace.getNoExecutionForConditionalNode();
+	}
+
 }

@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -259,10 +259,10 @@ public abstract class AbstractMOSA extends GeneticAlgorithm<TestChromosome> {
 	 * This method clears the cached results for a specific chromosome (e.g., fitness function
 	 * values computed in previous generations). Since a test case is changed via crossover
 	 * and/or mutation, previous data must be recomputed.
-	 *
+	 * 
 	 * @param chromosome TestChromosome to clean
 	 */
-	private void clearCachedResults(TestChromosome chromosome) {
+	protected void clearCachedResults(TestChromosome chromosome) {
 		chromosome.clearCachedMutationResults();
 		chromosome.clearCachedResults();
 		chromosome.clearMutationHistory();
@@ -338,7 +338,7 @@ public abstract class AbstractMOSA extends GeneticAlgorithm<TestChromosome> {
 		return nextFront;
 	}
 
-	/**
+	/** 
 	 * {@inheritDoc}
 	 */
 	@Override
