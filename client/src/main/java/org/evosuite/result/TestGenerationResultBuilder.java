@@ -33,6 +33,7 @@ import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.coverage.mutation.Mutation;
 import org.evosuite.coverage.mutation.MutationPool;
 import org.evosuite.coverage.mutation.MutationTimeoutStoppingCondition;
+import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.instrumentation.LinePool;
@@ -45,8 +46,8 @@ import org.evosuite.utils.LoggingUtils;
 
 public class TestGenerationResultBuilder {
 
-	public static TestGenerationResult buildErrorResult(String errorMessage) {
-		TestGenerationResultImpl result = new TestGenerationResultImpl();
+	public static<T extends Chromosome<T>> TestGenerationResult<T> buildErrorResult(String errorMessage) {
+		TestGenerationResultImpl<T> result = new TestGenerationResultImpl<T>();
 		result.setStatus(Status.ERROR);
 		result.setErrorMessage(errorMessage);
 		getInstance().fillInformationFromConfiguration(result);
@@ -55,8 +56,8 @@ public class TestGenerationResultBuilder {
 		return result;
 	}
 
-	public static TestGenerationResult buildTimeoutResult() {
-		TestGenerationResultImpl result = new TestGenerationResultImpl();
+	public static<T extends Chromosome<T>> TestGenerationResult<T> buildTimeoutResult() {
+		TestGenerationResultImpl<T> result = new TestGenerationResultImpl<T>();
 		result.setStatus(Status.TIMEOUT);
 		getInstance().fillInformationFromConfiguration(result);
 		getInstance().fillInformationFromTestData(result);
@@ -64,8 +65,8 @@ public class TestGenerationResultBuilder {
 		return result;
 	}
 
-	public static TestGenerationResult buildSuccessResult() {
-		TestGenerationResultImpl result = new TestGenerationResultImpl();
+	public static<T extends Chromosome<T>> TestGenerationResult<T> buildSuccessResult() {
+		TestGenerationResultImpl<T> result = new TestGenerationResultImpl<>();
 		result.setStatus(Status.SUCCESS);
 		getInstance().fillInformationFromConfiguration(result);
 		getInstance().fillInformationFromTestData(result);
@@ -82,7 +83,7 @@ public class TestGenerationResultBuilder {
 	public static TestGenerationResultBuilder getInstance() {
 		if(instance == null)
 			instance = new TestGenerationResultBuilder();
-		
+
 		return instance;
 	}
 	
@@ -103,7 +104,7 @@ public class TestGenerationResultBuilder {
 		}
 	}
 	
-	private void fillInformationFromConfiguration(TestGenerationResultImpl result) {
+	private void fillInformationFromConfiguration(TestGenerationResultImpl<?> result) {
 		result.setClassUnderTest(Properties.TARGET_CLASS);
 		String[] criteria = new String[Properties.CRITERION.length];
 		for (int i = 0; i < Properties.CRITERION.length; i++)
@@ -111,7 +112,7 @@ public class TestGenerationResultBuilder {
 		result.setTargetCriterion(criteria);
 	}
 	
-	private void fillInformationFromTestData(TestGenerationResultImpl result) {
+	private<T extends Chromosome<T>> void fillInformationFromTestData(TestGenerationResultImpl<T> result) {
 		
 		Set<MutationInfo> exceptionMutants = new LinkedHashSet<>();
 		for(Mutation m : MutationPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getMutants()) {
@@ -137,7 +138,7 @@ public class TestGenerationResultBuilder {
 		result.setUncoveredMutants(uncoveredMutants);
 		result.setExceptionMutants(exceptionMutants);
 		result.setTestSuiteCode(code);
-		result.setGeneticAlgorithm(ga);
+		result.setGeneticAlgorithm((GeneticAlgorithm<T>) ga);
 		result.setDSEAlgorithm(dse);
         for (Map.Entry<FitnessFunction<?>, Double> e : targetCoverages.entrySet()) {
             result.setTargetCoverage(e.getKey(), e.getValue());

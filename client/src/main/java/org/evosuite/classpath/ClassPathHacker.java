@@ -180,6 +180,6 @@ public class ClassPathHacker {
 	 * get a classLoader that can load the cuts for continuous integration
 	 */
 	public static ClassLoader getContinuousClassLoader() {
-		return continuousClassLoader;
+		return continuousClassLoader != null ? continuousClassLoader : Thread.currentThread().getContextClassLoader();
 	}
 }

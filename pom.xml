@@ -224,7 +224,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-surefire-report-plugin</artifactId>
-                        <version>2.20.1</version>
+                        <version>2.22.2</version>
                     </plugin>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
@@ -333,7 +333,17 @@
                 <!-- Common Public License Version 1.0 -->
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
-                <version>4.13</version>
+                <version>4.13.1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter-api</artifactId>
+                <version>5.8.0-M1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter</artifactId>
+                <version>5.8.0-M1</version>
             </dependency>
             <dependency>
                 <!-- Adhoc license, copyright holder is INRIA -->
@@ -382,7 +392,7 @@
                 <!-- BSD -->
                 <groupId>com.thoughtworks.xstream</groupId>
                 <artifactId>xstream</artifactId>
-                <version>1.4.13</version>
+                <version>1.4.15</version>
             </dependency>
             <dependency>
                 <!-- Apache 2 -->
@@ -574,6 +584,7 @@
                         <exclude>**/how_to.txt</exclude>
                         <exclude>client/src/main/resources/report/**</exclude>
                         <exclude>client/src/main/resources/jdkPureMethods.txt</exclude>
+                        <exclude>**/java9_invisible_packages.txt</exclude>
                         <exclude>**/.hgignore</exclude>
                         <exclude>README.md</exclude>
                     </excludes>
@@ -664,7 +675,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <version>2.20.1</version>
+                <version>2.22.2</version>
                 <configuration>
                     <!--<rerunFailingTestsCount>${rerunFailingTestsCount}</rerunFailingTestsCount>-->
                     <!-- includes>

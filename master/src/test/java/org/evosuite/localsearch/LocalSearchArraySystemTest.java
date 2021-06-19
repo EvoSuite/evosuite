@@ -45,9 +45,7 @@ import org.evosuite.testcase.variable.ArrayReference;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.localsearch.TestSuiteLocalSearch;
-import org.evosuite.utils.generic.GenericClass;
-import org.evosuite.utils.generic.GenericConstructor;
-import org.evosuite.utils.generic.GenericMethod;
+import org.evosuite.utils.generic.*;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -71,7 +69,7 @@ public class LocalSearchArraySystemTest extends SystemTestBase {
 	
 	private TestCase getArrayTest(int length) throws NoSuchMethodException, SecurityException, ConstructionFailedException, ClassNotFoundException {
 		Class<?> sut = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(Properties.TARGET_CLASS);
-		GenericClass clazz = new GenericClass(sut);
+		GenericClass<?> clazz = GenericClassFactory.get(sut);
 		
 		DefaultTestCase test = new DefaultTestCase();
 		GenericConstructor gc = new GenericConstructor(clazz.getRawClass().getConstructors()[0], clazz);

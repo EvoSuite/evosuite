@@ -46,7 +46,7 @@ public class GenericUtils {
 			// in its bounds
 			Type resolvedBoundType = GenericUtils.replaceTypeVariable(boundType,
 			                                                          typeVariable, type);
-			if (!GenericClass.isAssignable(resolvedBoundType, type)) {
+			if (!GenericClassUtils.isAssignable(resolvedBoundType, type)) {
 				isAssignable = false;
 				break;
 			}
@@ -197,9 +197,9 @@ public class GenericUtils {
 		if (!p1.getRawType().equals(p2.getRawType())) {
 			logger.debug("Raw types do not match!");
 			
-			GenericClass ownerClass = new GenericClass(p2);
+			GenericClass<?> ownerClass = GenericClassFactory.get(p2);
 			
-			if(GenericClass.isSubclass(p1.getRawType(), p2.getRawType())) {
+			if(GenericClassUtils.isSubclass(p1.getRawType(), p2.getRawType())) {
 				logger.debug(p1 +" is a super type of "+p2);
 				Map<TypeVariable<?>, Type> commonsMap = TypeUtils.determineTypeArguments((Class<?>)p2.getRawType(), p1);
 				logger.debug("Adding to map: "+commonsMap);
@@ -241,14 +241,14 @@ public class GenericUtils {
 			}
 
 			
-			for(GenericClass interfaceClass : ownerClass.getInterfaces()) {
+			for(GenericClass<?> interfaceClass : ownerClass.getInterfaces()) {
 				if(interfaceClass.isParameterizedType())
 					map.putAll(getMatchingTypeParameters(p1, (ParameterizedType)interfaceClass.getType()));
 				else
 					logger.debug("Interface "+interfaceClass+" is not parameterized");
 			}
 			if(ownerClass.getRawClass().getSuperclass() != null) {
-				GenericClass ownerSuperClass = ownerClass.getSuperClass();
+				GenericClass<?> ownerSuperClass = ownerClass.getSuperClass();
 				if(ownerSuperClass.isParameterizedType()) 
 					map.putAll(getMatchingTypeParameters(p1, (ParameterizedType)ownerSuperClass.getType()));
 				else

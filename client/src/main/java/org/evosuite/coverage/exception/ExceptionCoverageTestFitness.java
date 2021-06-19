@@ -24,6 +24,8 @@ import org.evosuite.ga.archive.Archive;
 import org.evosuite.testcase.*;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.utils.generic.GenericClass;
+import org.evosuite.utils.generic.GenericClassFactory;
+import org.evosuite.utils.generic.GenericClassImpl;
 
 import java.util.Objects;
 
@@ -56,7 +58,7 @@ public class ExceptionCoverageTestFitness extends TestFitnessFunction {
     /**
      * The class representing the thrown exception, eg NPE an IAE
      */
-    protected final GenericClass exceptionClass;
+    protected final GenericClass<?> exceptionClass;
 
     protected final ExceptionType type;
 
@@ -69,7 +71,7 @@ public class ExceptionCoverageTestFitness extends TestFitnessFunction {
         this.className = className;
 
         Objects.requireNonNull(exceptionClass, "exception class cannot be null");
-        this.exceptionClass = new GenericClass(exceptionClass);
+        this.exceptionClass = GenericClassFactory.get(exceptionClass);
 
         this.methodIdentifier = Objects.requireNonNull(methodIdentifier, "method name cannot be null");
         this.type = Objects.requireNonNull(type, "exception type cannot be null");

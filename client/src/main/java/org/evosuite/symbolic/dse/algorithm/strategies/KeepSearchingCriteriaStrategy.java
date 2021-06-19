@@ -30,5 +30,5 @@ import java.util.Queue;
  * @author ignacio lebrero
  */
 public interface KeepSearchingCriteriaStrategy {
-    boolean ShouldKeepSearching(Queue<DSETestCase> generatedTests);
+    boolean shouldKeepSearching(Queue<DSETestCase> generatedTests);
 }

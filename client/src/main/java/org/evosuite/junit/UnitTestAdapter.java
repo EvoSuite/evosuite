@@ -23,6 +23,7 @@ package org.evosuite.junit;
 import java.util.List;
 import java.util.Map;
 
+import org.evosuite.junit.writer.JUnitAnnotationProvider;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestCodeVisitor;
 
@@ -32,7 +33,7 @@ import org.evosuite.testcase.TestCodeVisitor;
  *
  * @author fraser
  */
-public interface UnitTestAdapter {
+public interface UnitTestAdapter extends JUnitAnnotationProvider {
 
 	/**
 	 * Get all the framework dependent imports
@@ -86,4 +87,11 @@ public interface UnitTestAdapter {
 	 */
     String getTestString(int id, TestCase test,
                          Map<Integer, Throwable> exceptions, TestCodeVisitor visitor);
+
+	/**
+	 * Add the non-functional requirement to the test case.
+	 *
+	 * @param builder The string builder which should be extended.
+	 */
+	void addNFR(StringBuilder builder);
 }

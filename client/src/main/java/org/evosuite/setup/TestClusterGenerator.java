@@ -56,11 +56,7 @@ import org.evosuite.setup.PutStaticMethodCollector.MethodIdentifier;
 import org.evosuite.setup.callgraph.CallGraph;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.utils.ArrayUtil;
-import org.evosuite.utils.generic.GenericAccessibleObject;
-import org.evosuite.utils.generic.GenericClass;
-import org.evosuite.utils.generic.GenericConstructor;
-import org.evosuite.utils.generic.GenericField;
-import org.evosuite.utils.generic.GenericMethod;
+import org.evosuite.utils.generic.*;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.InnerClassNode;
@@ -77,7 +73,7 @@ public class TestClusterGenerator {
 
 	private final Set<GenericAccessibleObject<?>> dependencyCache = new LinkedHashSet<>();
 
-	private final Set<GenericClass> genericCastClasses = new LinkedHashSet<>();
+	private final Set<GenericClass<?>> genericCastClasses = new LinkedHashSet<>();
 
 	private final Set<Class<?>> concreteCastClasses = new LinkedHashSet<>();
 
@@ -85,7 +81,7 @@ public class TestClusterGenerator {
 
 	private final Set<DependencyPair> dependencies = new LinkedHashSet<>();
 
-	private final Set<GenericClass> analyzedAbstractClasses = new LinkedHashSet<>();
+	private final Set<GenericClass<?>> analyzedAbstractClasses = new LinkedHashSet<>();
 
 	private final Set<Class<?>> analyzedClasses = new LinkedHashSet<>();
 
@@ -154,7 +150,7 @@ public class TestClusterGenerator {
 		Set<String> blackList = new LinkedHashSet<>();
 		initBlackListWithEvoSuitePrimitives(blackList);
 
-		rawTypes.stream().forEach(c -> dependencies.add(new DependencyPair(0, new GenericClass(c).getRawClass())));
+		rawTypes.stream().forEach(c -> dependencies.add(new DependencyPair(0, GenericClassFactory.get(c).getRawClass())));
 
 		resolveDependencies(blackList);
 	}
@@ -278,8 +274,8 @@ public class TestClusterGenerator {
 				return false;
 			}
 			// boolean added =
-			addDependency(new GenericClass(clazz), 1);
-			genericCastClasses.add(new GenericClass(clazz));
+			addDependency(GenericClassFactory.get(clazz), 1);
+			genericCastClasses.add(GenericClassFactory.get(clazz));
 			concreteCastClasses.add(clazz);
 
 			blackList.add(className);
@@ -461,7 +457,7 @@ public class TestClusterGenerator {
 					if (constructor.getDeclaringClass().equals(clazz))
 						cluster.addTestCall(genericConstructor);
 					// TODO: Add types!
-					cluster.addGenerator(new GenericClass(clazz), // .getWithWildcardTypes(),
+					cluster.addGenerator(GenericClassFactory.get(clazz), // .getWithWildcardTypes(),
 							genericConstructor);
 					addDependencies(genericConstructor, 1);
 					logger.debug("Keeping track of " + constructor.getDeclaringClass().getName() + "."
@@ -507,10 +503,10 @@ public class TestClusterGenerator {
 					// In the long run, covered methods maybe should be
 					// removed?
 					if (!CheapPurityAnalyzer.getInstance().isPure(method)) {
-						cluster.addModifier(new GenericClass(clazz), genericMethod);
+						cluster.addModifier(GenericClassFactory.get(clazz), genericMethod);
 					}
 					addDependencies(genericMethod, 1);
-					GenericClass retClass = new GenericClass(method.getReturnType());
+					GenericClass<?> retClass = GenericClassFactory.get(method.getReturnType());
 
 					// For the CUT, we may want to use primitives and Object return types as generators
 					//if (!retClass.isPrimitive() && !retClass.isVoid() && !retClass.isObject())
@@ -535,7 +531,7 @@ public class TestClusterGenerator {
 					GenericField genericField = new GenericField(field, clazz);
 
 					addDependencies(genericField, 1);
-					cluster.addGenerator(new GenericClass(field.getGenericType()), // .getWithWildcardTypes(),
+					cluster.addGenerator(GenericClassFactory.get(field.getGenericType()), // .getWithWildcardTypes(),
 							genericField);
 					logger.debug("Adding field " + field);
 					final boolean isFinalField = isFinalField(field);
@@ -544,7 +540,7 @@ public class TestClusterGenerator {
 						// Setting fields does not contribute to coverage, so we will only count it as a modifier
 						// if (field.getDeclaringClass().equals(clazz))
 						//	cluster.addTestCall(new GenericField(field, clazz));
-						cluster.addModifier(new GenericClass(clazz), genericField);
+						cluster.addModifier(GenericClassFactory.get(clazz), genericField);
 					} else {
 						logger.debug("Is final");
 						if (Modifier.isStatic(field.getModifiers()) && !field.getType().isPrimitive()) {
@@ -567,7 +563,7 @@ public class TestClusterGenerator {
 									if (!actualClass.isAssignableFrom(genericField.getRawGeneratedType())
 											&& genericField.getRawGeneratedType().isAssignableFrom(actualClass)) {
 										GenericField superClassField = new GenericField(field, clazz);
-										cluster.addGenerator(new GenericClass(actualClass), superClassField);
+										cluster.addGenerator(GenericClassFactory.get(actualClass), superClassField);
 									}
 								}
 							} catch (IllegalAccessException e) {
@@ -652,7 +648,7 @@ public class TestClusterGenerator {
 							// cluster.addTestCall(new GenericField(field, clazz));
 							// Count static field as modifier of SUT, not as test call:
 							GenericField genericField = new GenericField(field, clazz);
-							cluster.addModifier(new GenericClass(Properties.getTargetClassAndDontInitialise()), genericField);
+							cluster.addModifier(GenericClassFactory.get(Properties.getTargetClassAndDontInitialise()), genericField);
 						}
 					}
 				}
@@ -680,7 +676,7 @@ public class TestClusterGenerator {
 
 				// Setting static fields is a modifier of a SUT
 				// cluster.addTestCall(genericMethod);
-				cluster.addModifier(new GenericClass(Properties.getTargetClassAndDontInitialise()), genericMethod);
+				cluster.addModifier(GenericClassFactory.get(Properties.getTargetClassAndDontInitialise()), genericMethod);
 
 			}
 		}
@@ -727,7 +723,7 @@ public class TestClusterGenerator {
 
 		for (java.lang.reflect.Type parameterClass : constructor.getRawParameterTypes()) {
 			logger.debug("Adding dependency " + parameterClass);
-			addDependency(new GenericClass(parameterClass), recursionLevel);
+			addDependency(GenericClassFactory.get(parameterClass), recursionLevel);
 		}
 
 	}
@@ -747,7 +743,7 @@ public class TestClusterGenerator {
 
 		for (java.lang.reflect.Type parameter : method.getRawParameterTypes()) {
 			logger.debug("Current parameter " + parameter);
-			GenericClass parameterClass = new GenericClass(parameter);
+			GenericClass<?> parameterClass = GenericClassFactory.get(parameter);
 			if (parameterClass.isPrimitive() || parameterClass.isString())
 				continue;
 
@@ -762,7 +758,7 @@ public class TestClusterGenerator {
 		// Only look at the return values of direct dependencies as the
 		// number of dependencies otherwise might explode
 		if (Properties.P_FUNCTIONAL_MOCKING > 0 && recursionLevel == 1) {
-			GenericClass returnClass = method.getGeneratedClass();
+			GenericClass<?> returnClass = method.getGeneratedClass();
 			if (!returnClass.isPrimitive() && !returnClass.isString())
 				addDependency(returnClass, recursionLevel);
 		}
@@ -786,11 +782,11 @@ public class TestClusterGenerator {
 		dependencyCache.add(field);
 
 		logger.debug("Adding dependency " + field.getName());
-		addDependency(new GenericClass(field.getGenericFieldType()), recursionLevel);
+		addDependency(GenericClassFactory.get(field.getGenericFieldType()), recursionLevel);
 
 	}
 
-	private void addDependency(GenericClass clazz, int recursionLevel) {
+	private void addDependency(GenericClass<?> clazz, int recursionLevel) {
 
 		clazz = clazz.getRawGenericClass();
 
@@ -807,7 +803,7 @@ public class TestClusterGenerator {
 			return;
 
 		if (clazz.isArray()) {
-			addDependency(new GenericClass(clazz.getComponentType()), recursionLevel);
+			addDependency(GenericClassFactory.get(clazz.getComponentType()), recursionLevel);
 			return;
 		}
 
@@ -821,7 +817,7 @@ public class TestClusterGenerator {
 			 * in the generated JUnit test cases, but rather its mock.
 			 */
 			logger.debug("Adding mock {} instead of {}", mock, clazz);
-			clazz = new GenericClass(mock);
+			clazz = GenericClassFactory.get(mock);
 		} else {
 
 			if (!TestClusterUtils.checkIfCanUse(clazz.getClassName())) {
@@ -856,7 +852,7 @@ public class TestClusterGenerator {
 		}
 	}
 
-	private boolean addDependencyClass(GenericClass clazz, int recursionLevel) {
+	private boolean addDependencyClass(GenericClass<?> clazz, int recursionLevel) {
 		if (recursionLevel > Properties.CLUSTER_RECURSION) {
 			logger.debug("Maximum recursion level reached, not adding dependency {}", clazz.getClassName());
 			return false;
@@ -950,14 +946,14 @@ public class TestClusterGenerator {
 					try {
 						addDependencies(genericMethod, recursionLevel + 1);
 						if (!Properties.PURE_INSPECTORS) {
-							cluster.addModifier(new GenericClass(clazz), genericMethod);
+							cluster.addModifier(GenericClassFactory.get(clazz), genericMethod);
 						} else {
 							if (!CheapPurityAnalyzer.getInstance().isPure(method)) {
-								cluster.addModifier(new GenericClass(clazz), genericMethod);
+								cluster.addModifier(GenericClassFactory.get(clazz), genericMethod);
 							}
 						}
 
-						GenericClass retClass = new GenericClass(method.getReturnType());
+						GenericClass<?> retClass = GenericClassFactory.get(method.getReturnType());
 
 						// Only use as generator if its not any of the types with special treatment
 						if (!retClass.isPrimitive() && !retClass.isVoid() && !retClass.isObject() && !retClass.isString()) {
@@ -979,10 +975,10 @@ public class TestClusterGenerator {
 					logger.debug("Adding field " + field + " for class " + clazz);
 					try {
 						GenericField genericField = new GenericField(field, clazz);
-						GenericClass retClass = new GenericClass(field.getType());
+						GenericClass<?> retClass = GenericClassFactory.get(field.getType());
 						// Only use as generator if its not any of the types with special treatment
 						if(!retClass.isPrimitive() && !retClass.isObject() && !retClass.isString())
-							cluster.addGenerator(new GenericClass(field.getGenericType()), genericField);
+							cluster.addGenerator(GenericClassFactory.get(field.getGenericType()), genericField);
 						final boolean isFinalField = isFinalField(field);
 						if (!isFinalField) {
 							cluster.addModifier(clazz, // .getWithWildcardTypes(),
@@ -1069,24 +1065,24 @@ public class TestClusterGenerator {
 	// return enumClasses;
 	// }
 
-	private List<List<GenericClass>> getAssignableTypes(GenericClass clazz) {
-		List<List<GenericClass>> tuples = new ArrayList<>();
+	private List<List<GenericClass<?>>> getAssignableTypes(GenericClass<?> clazz) {
+		List<List<GenericClass<?>>> tuples = new ArrayList<>();
 		// logger.info("Parameters of " + clazz.getSimpleName() + ": "
 		// + clazz.getNumParameters());
 		boolean first = true;
 		for (java.lang.reflect.Type parameterType : clazz.getParameterTypes()) {
 			// logger.info("Current parameter: " + parameterType);
-			List<GenericClass> assignableClasses = getAssignableTypes(parameterType);
-			List<List<GenericClass>> newTuples = new ArrayList<>();
+			List<GenericClass<?>> assignableClasses = getAssignableTypes(parameterType);
+			List<List<GenericClass<?>>> newTuples = new ArrayList<>();
 
-			for (GenericClass concreteClass : assignableClasses) {
+			for (GenericClass<?> concreteClass : assignableClasses) {
 				if (first) {
-					List<GenericClass> tuple = new ArrayList<>();
+					List<GenericClass<?>> tuple = new ArrayList<>();
 					tuple.add(concreteClass);
 					newTuples.add(tuple);
 				} else {
-					for (List<GenericClass> t : tuples) {
-						List<GenericClass> tuple = new ArrayList<>(t);
+					for (List<GenericClass<?>> t : tuples) {
+						List<GenericClass<?>> tuple = new ArrayList<>(t);
 						tuple.add(concreteClass);
 						newTuples.add(tuple);
 					}
@@ -1109,15 +1105,15 @@ public class TestClusterGenerator {
 
 		concreteCastClasses.add(clazz);
 		// TODO: What if this is generic again?
-		genericCastClasses.add(new GenericClass(clazz));
+		genericCastClasses.add(GenericClassFactory.get(clazz));
 
 		CastClassManager.getInstance().addCastClass(clazz, 1);
-		TestCluster.getInstance().clearGeneratorCache(new GenericClass(clazz));
+		TestCluster.getInstance().clearGeneratorCache(GenericClassFactory.get(clazz));
 	}
 
-	private List<GenericClass> getAssignableTypes(java.lang.reflect.Type type) {
-		List<GenericClass> types = new ArrayList<>();
-		for (GenericClass clazz : genericCastClasses) {
+	private List<GenericClass<?>> getAssignableTypes(java.lang.reflect.Type type) {
+		List<GenericClass<?>> types = new ArrayList<>();
+		for (GenericClass<?> clazz : genericCastClasses) {
 			if (clazz.isAssignableTo(type)) {
 				logger.debug(clazz + " is assignable to " + type);
 				types.add(clazz);

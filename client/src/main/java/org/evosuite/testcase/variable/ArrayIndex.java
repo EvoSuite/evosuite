@@ -29,8 +29,9 @@ import java.util.Map;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.execution.Scope;
+import org.evosuite.utils.generic.GenericClassFactory;
+import org.evosuite.utils.generic.GenericClassImpl;
 import org.evosuite.utils.ArrayUtil;
-import org.evosuite.utils.generic.GenericClass;
 import org.objectweb.asm.commons.GeneratorAdapter;
 
 import com.googlecode.gentyref.GenericTypeReflector;
@@ -82,7 +83,7 @@ public class ArrayIndex extends VariableReferenceImpl {
 	 *            a {@link java.util.List} object.
 	 */
 	public ArrayIndex(TestCase testCase, ArrayReference array, List<Integer> indices) {
-		super(testCase, new GenericClass(getReturnType(array, indices.size())));
+		super(testCase, GenericClassFactory.get(getReturnType(array, indices.size())));
 		this.array = array;
 		setArrayIndices(indices);
 	}

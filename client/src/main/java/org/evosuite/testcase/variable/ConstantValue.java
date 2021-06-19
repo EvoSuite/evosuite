@@ -26,6 +26,8 @@ import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.execution.Scope;
 import org.evosuite.testcase.statements.Statement;
 import org.evosuite.utils.generic.GenericClass;
+import org.evosuite.utils.generic.GenericClassFactory;
+import org.evosuite.utils.generic.GenericClassImpl;
 import org.evosuite.utils.NumberFormatter;
 
 
@@ -42,13 +44,13 @@ public class ConstantValue extends VariableReferenceImpl {
 	 * <p>Constructor for ConstantValue.</p>
 	 *
 	 * @param testCase a {@link org.evosuite.testcase.TestCase} object.
-	 * @param type a {@link GenericClass} object.
+	 * @param type a {@link GenericClassImpl} object.
 	 */
-    public ConstantValue(TestCase testCase, GenericClass type) {
+    public ConstantValue(TestCase testCase, GenericClass<?> type) {
         super(testCase, type);
     }
 
-    public ConstantValue(TestCase testCase, GenericClass type, Object value) {
+    public ConstantValue(TestCase testCase, GenericClass<?> type, Object value) {
         super(testCase, type);
         setValue(value);
     }
@@ -60,7 +62,7 @@ public class ConstantValue extends VariableReferenceImpl {
 	 * @param type a {@link java.lang.reflect.Type} object.
 	 */
 	public ConstantValue(TestCase testCase, Type type) {
-		this(testCase, new GenericClass(type));
+		this(testCase, GenericClassFactory.get(type));
 	}
 
 	/**
@@ -178,7 +180,7 @@ public class ConstantValue extends VariableReferenceImpl {
 	public void changeClassLoader(ClassLoader loader) {
 		super.changeClassLoader(loader);
 		if(value instanceof Class<?>) {
-			GenericClass genericClass = new GenericClass((Class<?>)value);
+			GenericClass<?> genericClass = GenericClassFactory.get((Class<?>)value);
 			genericClass.changeClassLoader(loader);
 			value = genericClass.getRawClass();
 

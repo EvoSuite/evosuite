@@ -19,11 +19,14 @@
         <jacoco.version>0.7.6.201602180812</jacoco.version>
         <jmockit.version>1.23</jmockit.version>
         <junit.version>4.12</junit.version>
-        <surefire.version>2.19.1</surefire.version>
+        <surefire.version>2.21.0</surefire.version>
         <powermock.version>1.6.5</powermock.version>
         <cobertura.version>2.7</cobertura.version>
         <pit.version>1.1.9</pit.version>
         <forkCount>1</forkCount>
+        <evosuiteVersion>1.1.1-SNAPSHOT</evosuiteVersion>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
 
         <pit.tests>org.maven_test_project*</pit.tests>
 

@@ -259,7 +259,7 @@ public abstract class ExplorationAlgorithm extends ExplorationAlgorithmBase {
         testCasesWorkList.add(initialTestCase);
         addNewTestCaseToTestSuite(initialTestCase);
 
-        while (keepSearchingCriteriaStrategy.ShouldKeepSearching(testCasesWorkList)) {
+        while (keepSearchingCriteriaStrategy.shouldKeepSearching(testCasesWorkList)) {
             // This gets wrapped into the building and fitness strategy selected due to the PriorityQueue sorting nature
             DSETestCase currentTestCase = testCaseSelectionStrategy.getCurrentIterationBasedTestCase(testCasesWorkList);
 
