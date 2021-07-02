@@ -254,7 +254,7 @@ run_experiment() {
   sleep 30 # Allow some extra time for the sub-process to write out the files
 
   log "Experiment done with (${num_executions}) total executions"
-  local num_results="$(find grammar_120_0.1_no_recursion -mindepth 1 -type f -name "*.csv" -printf x | wc -c)"
+  local num_results="$(find ${RESULTS_DIRECTORY} -mindepth 1 -type f -name "*.csv" -printf x | wc -c)"
   log "(${num_results}) of which produced results"
 
   log "Store ${CONFIGURATIONS_FILE}, ${PROJECTS_FILE}, ${SEEDS_FILE}, and the 'projects' directory with the results to replicate the experiment"
