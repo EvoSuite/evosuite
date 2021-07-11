@@ -36,6 +36,7 @@ import org.evosuite.testcase.statements.numeric.IntPrimitiveStatement;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.utils.Randomness;
 import org.evosuite.utils.generic.GenericClass;
+import org.evosuite.utils.generic.GenericClassFactory;
 import org.evosuite.utils.generic.GenericConstructor;
 import org.evosuite.utils.generic.GenericMethod;
 import org.junit.After;
@@ -125,7 +126,7 @@ public class TestTestSuiteMinimizer
     {
         Properties.TARGET_CLASS = FlagExample1.class.getCanonicalName();
         Class<?> sut = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(Properties.TARGET_CLASS);
-        GenericClass clazz = new GenericClass(sut);
+        GenericClass<?> clazz = GenericClassFactory.get(sut);
 
         DefaultTestCase test = new DefaultTestCase();
         GenericConstructor gc = new GenericConstructor(clazz.getRawClass().getConstructors()[0], clazz);
@@ -169,7 +170,7 @@ public class TestTestSuiteMinimizer
     {
         Properties.TARGET_CLASS = FlagExample1.class.getCanonicalName();
         Class<?> sut = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(Properties.TARGET_CLASS);
-        GenericClass clazz = new GenericClass(sut);
+        GenericClass<?> clazz = GenericClassFactory.get(sut);
 
         DefaultTestCase test = new DefaultTestCase();
         GenericConstructor gc = new GenericConstructor(clazz.getRawClass().getConstructors()[0], clazz);
@@ -219,7 +220,7 @@ public class TestTestSuiteMinimizer
     {
         Properties.TARGET_CLASS = FlagExample1.class.getCanonicalName();
         Class<?> sut = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(Properties.TARGET_CLASS);
-        GenericClass clazz = new GenericClass(sut);
+        GenericClass<?> clazz = GenericClassFactory.get(sut);
 
         DefaultTestCase test = new DefaultTestCase();
         GenericConstructor gc = new GenericConstructor(clazz.getRawClass().getConstructors()[0], clazz);
@@ -271,7 +272,7 @@ public class TestTestSuiteMinimizer
     {
         Properties.TARGET_CLASS = FlagExample1.class.getCanonicalName();
         Class<?> sut = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(Properties.TARGET_CLASS);
-        GenericClass clazz = new GenericClass(sut);
+        GenericClass<?> clazz = GenericClassFactory.get(sut);
 
         DefaultTestCase test = new DefaultTestCase();
         GenericConstructor gc = new GenericConstructor(clazz.getRawClass().getConstructors()[0], clazz);
@@ -328,7 +329,7 @@ public class TestTestSuiteMinimizer
     {
         Properties.TARGET_CLASS = FlagExample1.class.getCanonicalName();
         Class<?> sut = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(Properties.TARGET_CLASS);
-        GenericClass clazz = new GenericClass(sut);
+        GenericClass<?> clazz = GenericClassFactory.get(sut);
 
         DefaultTestCase test = new DefaultTestCase();
         GenericConstructor gc = new GenericConstructor(clazz.getRawClass().getConstructors()[0], clazz);

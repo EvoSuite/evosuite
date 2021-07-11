@@ -47,7 +47,7 @@ public interface MasterNodeRemote extends Remote {
 	
 	void evosuite_informChangeOfStateInClient(String clientRmiIdentifier, ClientState state, ClientStateInformation information) throws RemoteException;
 	
-	void evosuite_collectStatistics(String clientRmiIdentifier, Chromosome individual) throws RemoteException;
+	void evosuite_collectStatistics(String clientRmiIdentifier, Chromosome<?> individual) throws RemoteException;
 
 	void evosuite_collectStatistics(String clientRmiIdentifier, RuntimeVariable variable, Object value) throws RemoteException;
 
@@ -57,7 +57,7 @@ public interface MasterNodeRemote extends Remote {
 
 	void evosuite_updateProperty(String clientRmiIdentifier, String propertyName, Object value) throws RemoteException, IllegalArgumentException, IllegalAccessException, NoSuchParameterException;
 	
-	void evosuite_migrate(String clientRmiIdentifier, Set<? extends Chromosome> migrants) throws RemoteException;
+	void evosuite_migrate(String clientRmiIdentifier, Set<? extends Chromosome<?>> migrants) throws RemoteException;
 
-    void evosuite_collectBestSolutions(String clientRmiIdentifier, Set<? extends Chromosome> solutions) throws RemoteException;
+    void evosuite_collectBestSolutions(String clientRmiIdentifier, Set<? extends Chromosome<?>> solutions) throws RemoteException;
 }

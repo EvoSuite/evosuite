@@ -45,9 +45,7 @@ import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.localsearch.TestSuiteLocalSearch;
 import org.evosuite.utils.Randomness;
-import org.evosuite.utils.generic.GenericClass;
-import org.evosuite.utils.generic.GenericConstructor;
-import org.evosuite.utils.generic.GenericMethod;
+import org.evosuite.utils.generic.*;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -87,8 +85,8 @@ public class Issre13SystemTest extends SystemTestBase {
 				targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
-		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+		TestSuiteChromosome best = ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(),
@@ -102,7 +100,7 @@ public class Issre13SystemTest extends SystemTestBase {
 		
 		Class<?> sut = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(Properties.TARGET_CLASS);
 		Class<?> fooClass = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(DseFoo.class.getCanonicalName());
-		GenericClass clazz = new GenericClass(sut);
+		GenericClass<?> clazz = GenericClassFactory.get(sut);
 
 		DefaultTestCase test = new DefaultTestCase();
 
@@ -114,7 +112,7 @@ public class Issre13SystemTest extends SystemTestBase {
 		ConstructorStatement fooConstructorStatement = new ConstructorStatement(test, fooConstructor, Arrays.asList(new VariableReference[] {}));
 		VariableReference fooVar = test.addStatement(fooConstructorStatement);
 
-		Method fooIncMethod = fooClass.getMethod("inc", new Class<?>[] { });
+		Method fooIncMethod = fooClass.getMethod("inc");
 		GenericMethod incMethod = new GenericMethod(fooIncMethod, fooClass);
 		test.addStatement(new MethodStatement(test, incMethod, fooVar, Arrays.asList(new VariableReference[] {})));
 		test.addStatement(new MethodStatement(test, incMethod, fooVar, Arrays.asList(new VariableReference[] {})));
@@ -124,13 +122,13 @@ public class Issre13SystemTest extends SystemTestBase {
 
 		// DseBar dseBar0 = new DseBar(string0);
 		GenericConstructor gc = new GenericConstructor(clazz.getRawClass().getConstructors()[0], clazz);
-		ConstructorStatement constructorStatement = new ConstructorStatement(test, gc, Arrays.asList(new VariableReference[] {stringVar}));
+		ConstructorStatement constructorStatement = new ConstructorStatement(test, gc, Arrays.asList(stringVar));
 		VariableReference callee = test.addStatement(constructorStatement);
 
 		// dseBar0.coverMe(dseFoo0);
-		Method m = clazz.getRawClass().getMethod("coverMe", new Class<?>[] { fooClass});
+		Method m = clazz.getRawClass().getMethod("coverMe", fooClass);
 		GenericMethod method = new GenericMethod(m, sut);
-		MethodStatement ms = new MethodStatement(test, method, callee, Arrays.asList(new VariableReference[] {fooVar}));
+		MethodStatement ms = new MethodStatement(test, method, callee, Arrays.asList(fooVar));
 		test.addStatement(ms);
 		System.out.println(test);
 		
@@ -172,8 +170,8 @@ public class Issre13SystemTest extends SystemTestBase {
 				targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
-		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+		TestSuiteChromosome best = ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(),
@@ -209,8 +207,8 @@ public class Issre13SystemTest extends SystemTestBase {
 				targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
-		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+		TestSuiteChromosome best = ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
 	}

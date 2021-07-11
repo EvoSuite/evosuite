@@ -49,9 +49,9 @@ public class OnePlusOneEASystemTest extends SystemTestBase {
 
     Object result = evoSuite.parseCommandLine(command);
 
-    GeneticAlgorithm<?> ga = getGAFromResult(result);
+    GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
 
-    TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+    TestSuiteChromosome best = ga.getBestIndividual();
     System.out.println("EvolvedTestSuite:\n" + best);
     Assert.assertEquals(0.0, best.getFitness(), 0.0);
     Assert.assertEquals(1d, best.getCoverage(), 0.001);

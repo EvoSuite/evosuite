@@ -42,7 +42,7 @@ public class GeneratedFilesEvenWithSandboxSystemTest extends SystemTestBase {
 	public static final boolean DEFAULT_SANDBOX = Properties.SANDBOX; 
 
 	
-	private File file = new File(OpenStream.FILE_NAME);
+	private final File file = new File(OpenStream.FILE_NAME);
 	
 	@Before
 	public void init(){
@@ -76,8 +76,8 @@ public class GeneratedFilesEvenWithSandboxSystemTest extends SystemTestBase {
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
-		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+		TestSuiteChromosome best = ga.getBestIndividual();
 
 		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
 		Assert.assertEquals("Wrong number of goals: ", 3, goals);
@@ -104,14 +104,14 @@ public class GeneratedFilesEvenWithSandboxSystemTest extends SystemTestBase {
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
-		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+		TestSuiteChromosome best = ga.getBestIndividual();
 
 		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
 		Assert.assertEquals("Wrong number of goals: ", 5, goals);
 		Assert.assertEquals("", 0.8d, best.getCoverage(), 0.001); //one branch is infeasible 
 
-		System.out.println(best.toString());
+		System.out.println(best);
 		
 		//SUT should not generate the file, even if full coverage and SecurityException is catch in the SUT
 		Assert.assertFalse(file.exists());	
@@ -134,14 +134,14 @@ public class GeneratedFilesEvenWithSandboxSystemTest extends SystemTestBase {
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
-		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+		TestSuiteChromosome best = ga.getBestIndividual();
 
 		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
 		Assert.assertEquals("Wrong number of goals: ", 3, goals);
 		Assert.assertTrue("Should not achive optimala coverage ", best.getCoverage() < 1);
 
-		System.out.println(best.toString());
+		System.out.println(best);
 		
 		//SUT should not generate the file, even if full coverage and SecurityException is catch in the SUT
 		Assert.assertFalse(file.exists());	

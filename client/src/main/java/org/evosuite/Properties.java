@@ -945,7 +945,7 @@ public class Properties {
 	// ---------------------------------------------------------------
 	// Output
 	public enum OutputFormat {
-		JUNIT3, JUNIT4, TESTNG
+		JUNIT3, JUNIT4, TESTNG, JUNIT5
 	}
 
 	@Parameter(key = "test_format", group = "Output", description = "Format of the resulting test cases")
@@ -2502,7 +2502,7 @@ public class Properties {
 	 * @return a boolean value.
 	 */
 	public static boolean isDSEStrategySelected() {
-		return STRATEGY.equals(Strategy.DSE);
+		return STRATEGY == Strategy.DSE;
 	}
 
 	/**
@@ -2522,7 +2522,7 @@ public class Properties {
 	 * @return a boolean value
 	 */
   public static boolean isArraysTheoryImplementationSelected() {
-		return SELECTED_DSE_ARRAYS_MEMORY_MODEL_VERSION.equals(DSE_ARRAYS_MEMORY_MODEL_VERSION.SELECT_STORE_EXPRESSIONS);
+		return SELECTED_DSE_ARRAYS_MEMORY_MODEL_VERSION == DSE_ARRAYS_MEMORY_MODEL_VERSION.SELECT_STORE_EXPRESSIONS;
   }
 
 	/**
@@ -2531,6 +2531,6 @@ public class Properties {
 	 * @return a boolean value.
 	 */
 	public static boolean isLazyArraysImplementationSelected() {
-		return SELECTED_DSE_ARRAYS_MEMORY_MODEL_VERSION.equals(DSE_ARRAYS_MEMORY_MODEL_VERSION.LAZY_VARIABLES);
+		return SELECTED_DSE_ARRAYS_MEMORY_MODEL_VERSION == DSE_ARRAYS_MEMORY_MODEL_VERSION.LAZY_VARIABLES;
 	}
 }

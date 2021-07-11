@@ -306,6 +306,8 @@ public class EvoSuite {
                 );
             }
 
+            checkProperties();
+
             /*
              * Following "options" are the actual (mutually exclusive) execution modes of EvoSuite
              */
@@ -352,6 +354,14 @@ public class EvoSuite {
         }
 
         return null;
+    }
+
+    private static void checkProperties(){
+        Logger evoLogger = LoggingUtils.getEvoLogger();
+        if(Properties.USE_SEPARATE_CLASSLOADER && Properties.TEST_FORMAT == Properties.OutputFormat.JUNIT5){
+            evoLogger.warn("* WARNING - Generating JUnit 5 tests with the option to use a separate classloader will result in not " +
+                    "runnable tests. Set either -Dtest_format=JUNIT4 or -Duse_separate_classloader=false");
+        }
     }
 
 }

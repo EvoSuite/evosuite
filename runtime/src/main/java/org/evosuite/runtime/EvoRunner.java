@@ -27,6 +27,7 @@ import java.util.Set;
 import org.evosuite.annotations.EvoSuiteTest;
 import org.junit.Test;
 import org.evosuite.runtime.instrumentation.EvoClassLoader;
+import org.junit.jupiter.api.extension.Extension;
 import org.junit.runners.BlockJUnit4ClassRunner;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.InitializationError;

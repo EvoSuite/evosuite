@@ -62,7 +62,7 @@ public class InputCoverageFitnessFunctionSystemTest extends SystemTestBase {
 
     private static final Criterion[] defaultCriterion = Properties.CRITERION;
     
-    private static boolean defaultArchive = Properties.TEST_ARCHIVE;
+    private static final boolean defaultArchive = Properties.TEST_ARCHIVE;
 
 	@After
 	public void resetProperties() {
@@ -86,8 +86,8 @@ public class InputCoverageFitnessFunctionSystemTest extends SystemTestBase {
 		Properties.SEARCH_BUDGET = 20000;
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
-		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+		TestSuiteChromosome best = ga.getBestIndividual();
 		List<?> goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals();
 		Assert.assertEquals(12, goals.size());
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
@@ -101,8 +101,8 @@ public class InputCoverageFitnessFunctionSystemTest extends SystemTestBase {
 		Properties.TARGET_CLASS = targetClass;
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
-		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+		TestSuiteChromosome best = ga.getBestIndividual();
 		List<?> goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals();
 		Assert.assertEquals(23, goals.size());
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
@@ -117,8 +117,8 @@ public class InputCoverageFitnessFunctionSystemTest extends SystemTestBase {
 		Properties.TARGET_CLASS = targetClass;
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
-		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+		TestSuiteChromosome best = ga.getBestIndividual();
 		List<?> goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals();
 		Assert.assertEquals(31, goals.size());
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
@@ -136,7 +136,7 @@ public class InputCoverageFitnessFunctionSystemTest extends SystemTestBase {
 
 		// classWithField0.testFoo(classWithField0.BOOLEAN_FIELD);
 		FieldReference field = new FieldReference(tc, new GenericField(sut.getDeclaredField("BOOLEAN_FIELD"), sut),obj);
-		Method m = sut.getMethod("testFoo", new Class<?>[] { Boolean.TYPE});
+		Method m = sut.getMethod("testFoo", Boolean.TYPE);
 		GenericMethod gm = new GenericMethod(m, sut);
 		tc.addStatement(new MethodStatement(tc, gm, obj, Arrays.asList(new VariableReference[] {field})));
 

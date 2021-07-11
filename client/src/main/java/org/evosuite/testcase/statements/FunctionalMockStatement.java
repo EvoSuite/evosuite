@@ -40,8 +40,7 @@ import org.evosuite.testcase.execution.Scope;
 import org.evosuite.testcase.execution.UncompilableCodeException;
 import org.evosuite.testcase.variable.ConstantValue;
 import org.evosuite.testcase.variable.VariableReference;
-import org.evosuite.utils.generic.GenericAccessibleObject;
-import org.evosuite.utils.generic.GenericClass;
+import org.evosuite.utils.generic.*;
 import org.mockito.MockSettings;
 import org.mockito.Mockito;
 import org.mockito.exceptions.base.MockitoException;
@@ -114,14 +113,14 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
      */
     protected final Map<String, int[]> methodParameters;
 
-    protected GenericClass targetClass;
+    protected GenericClass<?> targetClass;
 
     protected transient volatile EvoInvocationListener listener;
 
     protected transient Method mockCreator;
 
 
-    public FunctionalMockStatement(TestCase tc, VariableReference retval, GenericClass targetClass) throws IllegalArgumentException {
+    public FunctionalMockStatement(TestCase tc, VariableReference retval, GenericClass<?> targetClass) throws IllegalArgumentException {
         super(tc, retval);
         Inputs.checkNull(targetClass);
         this.targetClass = targetClass;
@@ -133,11 +132,11 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
     }
 
 
-    public FunctionalMockStatement(TestCase tc, Type retvalType, GenericClass targetClass) throws IllegalArgumentException {
+    public FunctionalMockStatement(TestCase tc, Type retvalType, GenericClass<?> targetClass) throws IllegalArgumentException {
         super(tc, retvalType);
         Inputs.checkNull(targetClass);
 
-        Class<?> rawType = new GenericClass(retvalType).getRawClass();
+        Class<?> rawType = GenericClassFactory.get(retvalType).getRawClass();
         if (!targetClass.getRawClass().equals(rawType)) {
             throw new IllegalArgumentException("Mismatch between raw type " + rawType + " and target class " + targetClass);
         }
@@ -185,7 +184,7 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
 
     public static boolean canBeFunctionalMockedIncludingSUT(Type type) {
 
-        Class<?> rawClass = new GenericClass(type).getRawClass();
+        Class<?> rawClass = GenericClassFactory.get(type).getRawClass();
 
         if (EvoSuiteMock.class.isAssignableFrom(rawClass) ||
                 MockList.isAMockClass(rawClass.getName()) ||
@@ -251,11 +250,11 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
 
     public static boolean canBeFunctionalMocked(Type type) {
 
-        Class<?> rawClass = new GenericClass(type).getRawClass();
+        Class<?> rawClass = GenericClassFactory.get(type).getRawClass();
 		final Class<?> targetClass = Properties.getTargetClassAndDontInitialise();
 
         if (Properties.hasTargetClassBeenLoaded()
-        		&& GenericClass.isAssignable(targetClass, rawClass)) {
+        		&& GenericClassUtils.isAssignable(targetClass, rawClass)) {
         	return false;
         }
 
@@ -426,7 +425,7 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
                 for (int i = existingParameters; i < md.getCounter() && i < Properties.FUNCTIONAL_MOCKING_INPUT_LIMIT; i++) {
                     // Create a copy as the typemap is stored in the class during generic instantiation
                     // but we might want to have a different type for each call of the same method invocation
-                    GenericClass calleeClass = new GenericClass(retval.getGenericClass());
+                    GenericClass<?> calleeClass = GenericClassFactory.get(retval.getGenericClass());
                     Type returnType = md.getGenericMethodFor(calleeClass).getGeneratedType();
                     assert !returnType.equals(Void.TYPE);
                     logger.debug("Return type: "+returnType +" for retval "+retval.getGenericClass());
@@ -518,7 +517,7 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
                         value = 'a';
                     }
                 }
-                parameters.set(i, new ConstantValue(tc, new GenericClass(expected), value));
+                parameters.set(i, new ConstantValue(tc, GenericClassFactory.get(expected), value));
             }
         }
     }

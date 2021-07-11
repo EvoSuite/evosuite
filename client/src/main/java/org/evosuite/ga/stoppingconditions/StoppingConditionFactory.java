@@ -20,6 +20,7 @@
 package org.evosuite.ga.stoppingconditions;
 
 import org.evosuite.Properties;
+import org.evosuite.ga.Chromosome;
 
 /**
  * Factory for StoppingConditions
@@ -32,7 +33,7 @@ public class StoppingConditionFactory {
 	 * Convert property to actual stopping condition
 	 * @return
 	 */
-	public static StoppingCondition getStoppingCondition(Properties.StoppingCondition stoppingCondition) {
+	public static<T extends Chromosome<T>> StoppingCondition<T> getStoppingCondition(Properties.StoppingCondition stoppingCondition) {
 		switch (stoppingCondition) {
 		case MAXGENERATIONS:
 			return new MaxGenerationStoppingCondition<>();

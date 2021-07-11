@@ -36,7 +36,8 @@ import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testcase.statements.numeric.IntPrimitiveStatement;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testsuite.TestSuiteChromosome;
-import org.evosuite.utils.generic.GenericClass;
+import org.evosuite.utils.generic.GenericClassFactory;
+import org.evosuite.utils.generic.GenericClassImpl;
 import org.evosuite.utils.generic.GenericConstructor;
 import org.evosuite.utils.generic.GenericMethod;
 import org.junit.After;
@@ -82,8 +83,8 @@ public class PoolSystemTest extends SystemTestBase {
 		Properties.SEARCH_BUDGET = 100000;
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
-		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+		TestSuiteChromosome best = ga.getBestIndividual();
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
 	
@@ -105,8 +106,8 @@ public class PoolSystemTest extends SystemTestBase {
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
-		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+		TestSuiteChromosome best = ga.getBestIndividual();
 		ObjectPool pool = ObjectPool.getPoolFromTestSuite(best);
 		pool.writePool(filename);
 		System.out.println("EvolvedTestSuite:\n" + best);
@@ -125,7 +126,7 @@ public class PoolSystemTest extends SystemTestBase {
 
 		result = evosuite.parseCommandLine(command);
 		ga = getGAFromResult(result);
-		TestSuiteChromosome best2 = (TestSuiteChromosome) ga.getBestIndividual();
+		TestSuiteChromosome best2 = ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best2);
 
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best2.getCoverage(), 0.001);
@@ -146,8 +147,8 @@ public class PoolSystemTest extends SystemTestBase {
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
-		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+		TestSuiteChromosome best = ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
 		Assert.assertTrue("Expected non-optimal coverage: ", best.getCoverage() < 1.0);
@@ -171,8 +172,8 @@ public class PoolSystemTest extends SystemTestBase {
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
-		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+		TestSuiteChromosome best = ga.getBestIndividual();
 		ObjectPool pool = ObjectPool.getPoolFromTestSuite(best);
 		pool.writePool(filename);
 		System.out.println("EvolvedTestSuite:\n" + best);
@@ -190,7 +191,7 @@ public class PoolSystemTest extends SystemTestBase {
 		result = evosuite.parseCommandLine(command);
 
 		ga = getGAFromResult(result);
-		best = (TestSuiteChromosome) ga.getBestIndividual();
+		best = ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
@@ -217,16 +218,16 @@ public class PoolSystemTest extends SystemTestBase {
 				new ArrayList<>()));
 		VariableReference int42 = test.addStatement(new IntPrimitiveStatement(test, 42));
 		GenericMethod foo = new GenericMethod(DependencyClassWithException.class.getMethod("foo", int.class), DependencyClassWithException.class);
-		test.addStatement(new MethodStatement(test, foo, instance, Arrays.asList(new VariableReference[] {int42})));
-		test.addStatement(new MethodStatement(test, foo, instance, Arrays.asList(new VariableReference[] {int42})));
-		test.addStatement(new MethodStatement(test, foo, instance, Arrays.asList(new VariableReference[] {int42})));
-		test.addStatement(new MethodStatement(test, foo, instance, Arrays.asList(new VariableReference[] {int42})));
-		test.addStatement(new MethodStatement(test, foo, instance, Arrays.asList(new VariableReference[] {int42})));
+		test.addStatement(new MethodStatement(test, foo, instance, Arrays.asList(int42)));
+		test.addStatement(new MethodStatement(test, foo, instance, Arrays.asList(int42)));
+		test.addStatement(new MethodStatement(test, foo, instance, Arrays.asList(int42)));
+		test.addStatement(new MethodStatement(test, foo, instance, Arrays.asList(int42)));
+		test.addStatement(new MethodStatement(test, foo, instance, Arrays.asList(int42)));
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 		TestSuiteChromosome best = new TestSuiteChromosome();
 		best.addTest(test);
 		ObjectPool pool = new ObjectPool();
-		pool.addSequence(new GenericClass(DependencyClassWithException.class), test);
+		pool.addSequence(GenericClassFactory.get(DependencyClassWithException.class), test);
 		pool.writePool(filename);
 		System.out.println("EvolvedTestSuite:\n" + best);
 		
@@ -244,8 +245,8 @@ public class PoolSystemTest extends SystemTestBase {
 
 		Object result = evosuite.parseCommandLine(command);
 
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
-		best = (TestSuiteChromosome) ga.getBestIndividual();
+		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+		best = ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
@@ -266,8 +267,8 @@ public class PoolSystemTest extends SystemTestBase {
 
 		Object result = evosuite.parseCommandLine(command);
 
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
-		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+		TestSuiteChromosome best = ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
 		Assert.assertTrue("Non-optimal coverage: ", best.getCoverage() < 1.0);

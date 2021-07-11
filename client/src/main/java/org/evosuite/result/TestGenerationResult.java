@@ -22,12 +22,14 @@ package org.evosuite.result;
 import java.io.Serializable;
 import java.util.Set;
 
+import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.symbolic.dse.algorithm.ExplorationAlgorithmBase;
 import org.evosuite.testcase.TestCase;
+import org.evosuite.testsuite.TestSuiteChromosome;
 
-public interface TestGenerationResult extends Serializable {
+public interface TestGenerationResult<T extends Chromosome<T>> extends Serializable {
 
 	enum Status { SUCCESS, TIMEOUT, ERROR };
 	
@@ -41,7 +43,7 @@ public interface TestGenerationResult extends Serializable {
 	ExplorationAlgorithmBase getDSEAlgorithm();
 
 	/** The entire GA in its final state */
-    GeneticAlgorithm<?> getGeneticAlgorithm();
+    GeneticAlgorithm<T> getGeneticAlgorithm();
 	
 	/** Map from test method to ContractViolation */
     Set<Failure> getContractViolations(String name);

@@ -50,7 +50,7 @@ public abstract class StoppingConditionImpl implements StoppingCondition, Serial
     }
 
     @Override
-    public void fitnessEvaluation(Chromosome individual) {
+    public void fitnessEvaluation(Chromosome<?> individual) {
         //Nothing
     }
 

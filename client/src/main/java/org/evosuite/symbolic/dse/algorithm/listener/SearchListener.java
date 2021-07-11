@@ -55,5 +55,5 @@ public interface SearchListener {
 	 *
 	 * @param individual a {@link org.evosuite.ga.Chromosome} object.
 	 */
-	void fitnessEvaluation(Chromosome individual);
+	void fitnessEvaluation(Chromosome<?> individual);
 }

@@ -58,9 +58,9 @@ public class SUTWithSimpleSingleMethodSystemTest extends SystemTestBase {
 		};
 		
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
 		Assert.assertEquals("Wrong number of generations: ", 0, ga.getAge());
-		TestSuiteChromosome best = (TestSuiteChromosome)ga.getBestIndividual();
+		TestSuiteChromosome best = ga.getBestIndividual();
 		Assert.assertEquals("Wrong number of test cases: ",1 , best.size());
 		Assert.assertEquals("Non-optimal coverage: ",1d, best.getCoverage(), 0.001);
 		Assert.assertEquals("Wrong number of statements: ",2,best.getTestChromosome(0).getTestCase().size());

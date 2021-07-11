@@ -34,7 +34,7 @@ public class StrengthFitnessComparator implements Comparator<Chromosome<?>>, Ser
   private static final long serialVersionUID = 1365198556267160032L;
 
   @Override
-  public int compare(Chromosome c1, Chromosome c2) {
+  public int compare(Chromosome<?> c1, Chromosome<?> c2) {
     if (c1 == null && c2 == null) {
       return 0;
     } else if (c1 == null) {

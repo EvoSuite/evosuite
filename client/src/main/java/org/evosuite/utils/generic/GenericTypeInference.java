@@ -254,7 +254,7 @@ public class GenericTypeInference extends TestVisitor {
 				}
 			}
 			logger.info("Setting types based on map: " + typeMap);
-			GenericClass owner = constructor.getOwnerClass();
+			GenericClass<?> owner = constructor.getOwnerClass();
 			List<TypeVariable<?>> variables = owner.getTypeVariables();
 			List<Type> types = new ArrayList<>();
 			for (TypeVariable<?> var : variables) {
