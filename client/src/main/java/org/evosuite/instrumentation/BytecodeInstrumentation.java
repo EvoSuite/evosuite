@@ -329,9 +329,9 @@ public class BytecodeInstrumentation {
 		// create one by default
 		final CreateClassResetClassAdapter resetClassAdapter;
 		if (Properties.RESET_STATIC_FINAL_FIELDS) {
-			resetClassAdapter= new CreateClassResetClassAdapter(cv, className, true);
+			resetClassAdapter = new CreateClassResetClassAdapter(cv, className, true);
 		} else {
-			resetClassAdapter= new CreateClassResetClassAdapter(cv, className, false);
+			resetClassAdapter = new CreateClassResetClassAdapter(cv, className, false);
 		}
 		cv = resetClassAdapter;
 
