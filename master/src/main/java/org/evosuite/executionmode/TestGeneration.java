@@ -82,7 +82,7 @@ public class TestGeneration {
 		if (line.hasOption("class")) {
 			results.addAll(generateTests(strategy, line.getOptionValue("class"), javaOpts));
 		} else if (line.hasOption("prefix")){
-			results.addAll(generateTestsPrefix(strategy, line.getOptionValue("prefix"),javaOpts));
+			results.addAll(generateTestsPrefix(strategy, line.getOptionValue("prefix"), javaOpts));
 		} else if (line.hasOption("target")) {			
 			String target = line.getOptionValue("target");
 			results.addAll(generateTestsTarget(strategy, target, javaOpts));			
@@ -186,7 +186,7 @@ public class TestGeneration {
 		for (String sut : classes) {
 			try {
 				if (ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).isClassAnInterface(sut)) {
-					LoggingUtils.getEvoLogger().info("* Skipping interface: "+sut);
+					LoggingUtils.getEvoLogger().info("* Skipping interface: " + sut);
 					continue;
 				}
 			} catch (IOException e) {
@@ -194,7 +194,7 @@ public class TestGeneration {
 				continue;
 			}
 			LoggingUtils.getEvoLogger().info("* Current class: "+ sut);
-			results.addAll(generateTests(Strategy.EVOSUITE,sut,args));
+			results.addAll(generateTests(strategy, sut, args));
 		}
 		return results;
 	}
@@ -628,7 +628,7 @@ public class TestGeneration {
 			// Ignore?
 		}
 		try {
-			if (Properties.INSTRUMENT_CONTEXT||Properties.INHERITANCE_FILE.isEmpty()) {
+			if (Properties.INSTRUMENT_CONTEXT || Properties.INHERITANCE_FILE.isEmpty()) {
 				String inheritanceFile = EvoSuite.generateInheritanceTree(cp);
 				args.add("-Dinheritance_file=" + inheritanceFile);
 			}
@@ -648,7 +648,7 @@ public class TestGeneration {
 				continue;
 			}
 			LoggingUtils.getEvoLogger().info("* Current class: " + sut);
-			results.addAll(generateTests(strategy,sut,args));
+			results.addAll(generateTests(strategy, sut, args));
 		}
 		
 		return results;
