@@ -564,6 +564,8 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
             mapStoppingCondition(StoppingCondition<?> stoppingCondition) {
         if (stoppingCondition instanceof MaxTimeStoppingCondition) {
             return new MaxTimeStoppingCondition<>((MaxTimeStoppingCondition<?>) stoppingCondition);
+        } else if (stoppingCondition instanceof TimeDeltaStoppingCondition) {
+            return new TimeDeltaStoppingCondition<>((TimeDeltaStoppingCondition<?>) stoppingCondition);
         } else if (stoppingCondition instanceof MaxGenerationStoppingCondition) {
             return new MaxGenerationStoppingCondition<>((MaxGenerationStoppingCondition<?>) stoppingCondition);
         } else if (stoppingCondition instanceof RMIStoppingCondition) {
