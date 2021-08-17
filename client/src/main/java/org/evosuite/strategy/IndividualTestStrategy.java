@@ -165,10 +165,8 @@ public class IndividualTestStrategy extends TestGenerationStrategy {
 				//ga.setChromosomeFactory(getChromosomeFactory(fitnessFunction));
 
 				if (Properties.PRINT_CURRENT_GOALS)
-					LoggingUtils.getEvoLogger().info("* Searching for goal " + num + ": "
+					LoggingUtils.getEvoLogger().info("* Searching for goal " + num + " (" + (total_goals - covered_goals) + "left) : "
 					                                         + fitnessFunction.toString());
-				logger.info("Goal " + num + "/" + (total_goals - covered_goals) + ": "
-				        + fitnessFunction);
 
 				if (ShutdownTestWriter.isInterrupted()) {
 					num++;
