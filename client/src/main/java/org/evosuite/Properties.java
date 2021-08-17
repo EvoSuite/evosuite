@@ -1100,7 +1100,7 @@ public class Properties {
 	public static boolean WRITE_ALL_GOALS_FILE = false;
 
 	@Parameter(key = "print_current_goals", group = "Output", description = "Print out current goal during test generation")
-	public static boolean PRINT_CURRENT_GOALS = false;
+	public static boolean PRINT_CURRENT_GOALS = true;
 
 	@Parameter(key = "print_covered_goals", group = "Output", description = "Print out covered goals during test generation")
 	public static boolean PRINT_COVERED_GOALS = false;
@@ -1565,7 +1565,7 @@ public class Properties {
 	}
 
 	@Parameter(key = "strategy", group = "Runtime", description = "Which mode to use")
-	public static Strategy STRATEGY = Strategy.EVOSUITE;
+	public static Strategy STRATEGY = Strategy.MOSUITE;
 
 	@Parameter(key = "process_communication_port", group = "Runtime", description = "Port at which the communication with the external process is done")
 	public static int PROCESS_COMMUNICATION_PORT = -1;

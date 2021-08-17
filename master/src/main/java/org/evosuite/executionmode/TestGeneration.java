@@ -117,11 +117,11 @@ public class TestGeneration {
 	
 	public static Option[] getOptions(){
 		return new Option[]{
-				new Option("generateSuite", "use whole suite generation. This is the default behavior"),
+				new Option("generateSuite", "use whole suite generation."),
 				new Option("generateTests", "use individual test generation (old approach for reference purposes)"),
 				new Option("generateRandom", "use random test generation"),
 				new Option("generateNumRandom",true, "generate fixed number of random tests"),
-				new Option("generateMOSuite", "use many objective test generation (MOSA). "),
+				new Option("generateMOSuite", "use many objective test generation (MOSA). This is the default behavior."),
 				new Option("generateSuiteUsingDSE", "use Dynamic Symbolic Execution to generate test suite")
 		};
 	}
@@ -318,9 +318,15 @@ public class TestGeneration {
 		switch (strategy) {
 		case EVOSUITE:
 			cmdLine.add("-Dstrategy=EvoSuite");
+			if (!args.stream().anyMatch(a -> a.startsWith("-Dalgorithm"))) {
+				cmdLine.add("-Dalgorithm=Monotonic_GA");
+			}
 			break;
 		case ONEBRANCH:
 			cmdLine.add("-Dstrategy=OneBranch");
+			if (!args.stream().anyMatch(a -> a.startsWith("-Dalgorithm"))) {
+				cmdLine.add("-Dalgorithm=Monotonic_GA");
+			}
 			break;
 		case RANDOM:
 			cmdLine.add("-Dstrategy=Random");
