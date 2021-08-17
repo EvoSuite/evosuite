@@ -33,8 +33,6 @@ import org.eclipse.ui.IStartup;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.evosuite.Properties;
 import org.evosuite.eclipse.properties.EvoSuitePreferencePage;
-import org.evosuite.eclipse.quickfixes.FileQueue;
-import org.evosuite.eclipse.quickfixes.RoamingJob;
 import org.osgi.framework.BundleContext;
 
 /**
@@ -58,10 +56,6 @@ public class Activator extends AbstractUIPlugin implements
 
 	// The shared instance
 	private static Activator plugin;
-
-	private RoamingJob roamingJob = null;
-
-	public static final FileQueue FILE_QUEUE = new FileQueue();
 
 	protected Shell shell;
 	// private IResourceChangeEvent event;
@@ -87,10 +81,12 @@ public class Activator extends AbstractUIPlugin implements
 		super.start(context);
 		// IPath containerPath = new IPath(JavaCore.J);
 		ResourcesPlugin.getWorkspace().addResourceChangeListener(this);
-		roamingJob = new RoamingJob("EvoSuite Roaming Job");
-		// rj.schedule(DELAY_BEFORE_ROAM);
 		plugin = this;
+	}
 
+	@Override
+	public boolean visit(IResourceDelta delta) throws CoreException {
+		return true;
 	}
 
 	/*
@@ -136,43 +132,8 @@ public class Activator extends AbstractUIPlugin implements
 		}
 	}
 
-	@Override
-	public boolean visit(IResourceDelta delta) throws CoreException {
-		boolean isAutomatic = getPreferenceStore().getBoolean(EvoSuitePreferencePage.AUTOMATIC_TEST_ON_SAVE);
-		if (isAutomatic // && markersEnabled() 
-				&& delta.getKind() == IResourceDelta.CHANGED 
-				&& delta.getFlags() != IResourceDelta.MARKERS 
-				&& delta.getResource() != null) {
-			final IResource res = delta.getResource();
-			
-			if (res.getType() == IResource.FILE
-					&& res.getName().toLowerCase().endsWith("java")
-					&& !res.getName().endsWith(JUNIT_IDENTIFIER)
-					&& !res.getName().endsWith(SCAFFOLDING_IDENTIFIER)) {
-				System.out.println("Resetting Roaming Job for " + res.getName());
-				FILE_QUEUE.addFile(res);
-				FILE_QUEUE.update();
-				resetRoamingJob(res);
-			}
-		}
-		return true;
-	}
-
-	public static boolean markersEnabled(){
-		return Activator.getDefault().getPreferenceStore().getBoolean(EvoSuitePreferencePage.MARKERS_ENABLED);
-	}
-
 	public static boolean organizeImports(){
 		return Activator.getDefault().getPreferenceStore().getBoolean(EvoSuitePreferencePage.ORGANIZE_IMPORTS);
-	}
-	
-	public void resetRoamingJob(IResource res) {
-		roamingJob.cancel();
-		int time = getPreferenceStore().getInt(EvoSuitePreferencePage.ROAMTIME) * 1000;
-		if (time > 0) {
-			roamingJob.schedule(time);
-			roamingJob.setProject(res.getProject());
-		}
 	}
 
 	@Override

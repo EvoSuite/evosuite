@@ -79,7 +79,6 @@ public class TestExtensionJob extends TestGenerationJob {
 	        String testClass) {
 		super(shell, target, targetClass, testClass);
 		newTests = new ArrayList<String>();
-		writeAllMarkers = false;
 		try {
 			tempDir = setupTempDir();
 		} catch (IOException e) {
@@ -252,9 +251,7 @@ public class TestExtensionJob extends TestGenerationJob {
 					newTests.add(newMethod.getName().toString());
 				}
 				classType.getCompilationUnit().commitWorkingCopy(false, null);
-				// write markers
-				writeMarkersExtendedTestSuite();
-				
+
 			} catch (JavaModelException e) {
 				e.printStackTrace();
 			} catch (IOException e) {
@@ -262,70 +259,5 @@ public class TestExtensionJob extends TestGenerationJob {
 			}
 		}
 		return status;
-	}
-
-	private void writeMarkersExtendedTestSuite() {
-		System.out.println("**********  Writing markers in test suite" + suiteClass);
-
-		String testClassFileName = getSuiteFileName(suiteClass);
-
-		final IFile fileTestClass = ResourcesPlugin.getWorkspace().getRoot().getFileForLocation(new Path(testClassFileName));
-
-		String fileContents = readFileToString(testClassFileName);
-		
-		
-		ASTParser parser = ASTParser.newParser(AST.JLS8);
-		parser.setKind(ASTParser.K_COMPILATION_UNIT);
-		parser.setStatementsRecovery(true);
-		
-		Map<String, String> COMPILER_OPTIONS = new HashMap<String, String>(JavaCore.getOptions());
-		 COMPILER_OPTIONS.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_7);
-		    COMPILER_OPTIONS.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_7);
-		    COMPILER_OPTIONS.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_7);
-		
-		parser.setUnitName(suiteClass);
-		String[] encodings = { ENCODING };
-		String[] classpaths = { classPath };
-		String[] sources = { new File(testClassFileName).getParent() };
-		parser.setEnvironment(classpaths, sources, encodings, true);
-		parser.setSource(fileContents.toCharArray());
-		
-		CompilationUnit compilationUnit = (CompilationUnit) parser.createAST(null);
-		MethodExtractingVisitor visitor = new MethodExtractingVisitor();
-		compilationUnit.accept(visitor);
-		List<MethodDeclaration> methods = visitor.getMethods();
-		
-		Display.getDefault().syncExec(new Runnable() {
-		    @Override
-		    public void run() {
-		        IWorkbenchWindow iw = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-		        IWorkbenchPage page = iw.getActivePage();
-		        try {
-					IDE.openEditor(page, fileTestClass, true);
-				} catch (PartInitException e1) {
-					System.out.println("Could not open test suite");
-					e1.printStackTrace();
-				}
-		    }
-		});
-		if (Activator.markersEnabled()) {
-			for (MethodDeclaration m : methods) {
-				if (newTests.contains(m.getName().toString())) {
-					int lineNumber = compilationUnit.getLineNumber(m.getStartPosition());
-					try {
-						IMarker mark = fileTestClass.createMarker("EvoSuiteQuickFixes.newtestmarker");
-						mark.setAttribute(IMarker.MESSAGE, "This test case needs to be verified.");
-						mark.setAttribute(IMarker.LINE_NUMBER, lineNumber);
-						mark.setAttribute(IMarker.PRIORITY, IMarker.PRIORITY_HIGH);
-						mark.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_WARNING);
-						mark.setAttribute(IMarker.LOCATION, fileTestClass.getName());
-						mark.setAttribute(IMarker.CHAR_START, m.getStartPosition());
-						mark.setAttribute(IMarker.CHAR_END, m.getStartPosition() + 1);
-					} catch (CoreException e) {
-						e.printStackTrace();
-					}
-				}
-			}
-		}
 	}
 }

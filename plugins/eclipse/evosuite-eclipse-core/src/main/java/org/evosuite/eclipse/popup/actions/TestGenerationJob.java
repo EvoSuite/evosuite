@@ -85,7 +85,6 @@ import org.evosuite.classpath.ResourceList;
 import org.evosuite.eclipse.Activator;
 import org.evosuite.eclipse.properties.EvoSuitePreferencePage;
 import org.evosuite.eclipse.properties.EvoSuitePropertyPage;
-import org.evosuite.eclipse.quickfixes.MarkerWriter;
 import org.evosuite.result.TestGenerationResult;
 import org.evosuite.rmi.MasterServices;
 import org.evosuite.rmi.service.ClientState;
@@ -108,7 +107,6 @@ public class TestGenerationJob extends Job {
 
 	protected boolean running = false;
 	protected boolean stopped = false;
-	protected boolean writeAllMarkers = true;
 	protected ClientStateInformation lastState = null;
 
 	protected String lastTest = "";
@@ -169,76 +167,16 @@ public class TestGenerationJob extends Job {
 					}
 				}
 			});
-			
-			// Generated tests should be checked by tester?
-			Boolean checkMarkers = System.getProperty("evosuite.markers.enforce") != null;
-			if ( checkMarkers ) {
-
-				String fileContents = readFileToString(suiteFileName);
-
-				ASTParser parser = ASTParser.newParser(AST.JLS8);
-				parser.setKind(ASTParser.K_COMPILATION_UNIT);
-				parser.setStatementsRecovery(true);
-
-				@SuppressWarnings("unchecked")
-				Map<String, String> COMPILER_OPTIONS = new HashMap<String, String>(JavaCore.getOptions());
-				COMPILER_OPTIONS.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_7);
-				COMPILER_OPTIONS.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_7);
-				COMPILER_OPTIONS.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_7);
-
-				parser.setUnitName(suiteClass);
-				String[] encodings = { ENCODING };
-				String[] classpaths = { classPath };
-				String[] sources = { new File(suiteFileName).getParent() };
-				parser.setEnvironment(classpaths, sources, encodings, true);
-				parser.setSource(fileContents.toCharArray());
-
-				CompilationUnit compilationUnit = (CompilationUnit) parser.createAST(null);
-				final List<String> uncheckedMethods = new ArrayList<String>();
-				compilationUnit.accept(new ASTVisitor() {
-					@Override
-					public boolean visit(MemberValuePair node) {
-						if (node.getName().toString().equals("checked") && ! ((BooleanLiteral)node.getValue()).booleanValue()) { 
-							NormalAnnotation ann = (NormalAnnotation) node.getParent();
-							MethodDeclaration method = (MethodDeclaration)ann.getParent();
-							uncheckedMethods.add(method.getName().toString());
-							return false;
-						}
-						return true;
-					}
-				});
-				if (uncheckedMethods.size() > 0) {
-					Display.getDefault().syncExec(new Runnable() {
-						@Override
-						public void run() {
-							MessageDialog dialog = new MessageDialog(
-									shell,
-									"JUnit test suite contains unit tests that need to be checked",
-									null, // image
-									"The JUnit test suite "
-									+ suiteClass
-									+ " contains test cases that need to be checked:\n"
-									+ uncheckedMethods.toString(),
-									MessageDialog.OK, new String[] { "Ok" }, 0);
-							dialog.open();
-						}					
-					});
-					return Status.OK_STATUS;
-				}
-			} else
-				System.out.println("Not checking markers.");
 		}
 		
 		setThread(new Thread());
 		running = true;
 		
-		clearMarkersTarget();
 
 		String oldTgr = getOldTestGenerationResult();
 		lastTest = oldTgr;
 		
 		ArrayList<TestGenerationResult> results = runEvoSuite(monitor);
-		writeMarkersTarget(results);
 		// should check here if any tests are generated/saved
 		IFile fileSuiteSaved = ResourcesPlugin.getWorkspace().getRoot().getFileForLocation(new Path(suiteFileName));
 		if ( fileSuiteSaved == null || !fileSuiteSaved.exists()){
@@ -257,10 +195,7 @@ public class TestGenerationJob extends Job {
 			});
 			return Status.CANCEL_STATUS;
 		}
-		//uncomment after experiment
-		if (writeAllMarkers)
-			writeMarkersTestSuite();
-		
+
 		try {
 			target.getProject().refreshLocal(IProject.DEPTH_INFINITE, null);
 //			if ("true".equals(target.getProject().getPersistentProperty(
@@ -324,7 +259,6 @@ public class TestGenerationJob extends Job {
 		running = false;
 		monitor.done();
 		done(ASYNC_FINISH);
-		Activator.FILE_QUEUE.update();
 		return Status.OK_STATUS;
 	}
 
@@ -595,7 +529,7 @@ public class TestGenerationJob extends Job {
 
 		int time = Activator.getDefault().getPreferenceStore().getInt("runtime");
 		commands.addAll(Arrays.asList(new String[] {
-				"-generateSuite",
+				"-generateMOSuite",
 				"-class", targetClass,
 				"-evosuiteCP", TestGenerationAction.getEvoSuiteJar(), 
 				"-projectCP", classPath, 
@@ -875,106 +809,13 @@ public class TestGenerationJob extends Job {
 		Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
 	}
 
-	protected void clearMarkersTarget() {
-		try {
-			MarkerWriter.clearMarkers(target);
-		} catch (CoreException e) {
-			e.printStackTrace();
-		}
-	}
-	
-	protected void writeMarkersTarget(ArrayList<TestGenerationResult> results) {
-		clearMarkersTarget();
-		if (Activator.markersEnabled()) {
-			System.out.println("**********  Writing markers in target class " + targetClass);
-			for (TestGenerationResult result : results) {
-				// any lines covered?
-				if (result.getCoveredLines().size() > 0) {
-					if (!stopped) {
-						MarkerWriter.write(target, result);
-					}
-					saveTestGenerationResult(result);
-				}
-			}
-		} else
-			System.out.println("**********  Markers are disabled");
-	}
-
 	protected String getSuiteFileName(String suiteClass) {
 		String tmp = suiteClass.replace('.', File.separatorChar);
 		String testClassFileName = new String(target.getProject().getLocation() + "/evosuite-tests/" + tmp + ".java");
 		return testClassFileName;
 	}
 
-	protected void writeMarkersTestSuite() {
-		if (Activator.markersEnabled()) {
-			System.out.println("**********  Writing markers in test suite" + suiteClass);
 
-			String testClassFileName = getSuiteFileName(suiteClass);
-
-			final IFile fileTestClass = ResourcesPlugin.getWorkspace().getRoot().getFileForLocation(new Path(testClassFileName));
-
-			String fileContents = readFileToString(testClassFileName);
-			if (fileContents.isEmpty()) {
-				System.out.println("Not writing markers in test suite " + testClassFileName + " (not found)");
-				return;
-			}
-
-			ASTParser parser = ASTParser.newParser(AST.JLS8);
-			parser.setKind(ASTParser.K_COMPILATION_UNIT);
-			parser.setStatementsRecovery(true);
-
-			@SuppressWarnings("unchecked")
-			Map<String, String> COMPILER_OPTIONS = new HashMap<String, String>(JavaCore.getOptions());
-			COMPILER_OPTIONS.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_7);
-			COMPILER_OPTIONS.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_7);
-			COMPILER_OPTIONS.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_7);
-
-			parser.setUnitName(suiteClass);
-			String[] encodings = { ENCODING };
-			String[] classpaths = { classPath };
-			String[] sources = { new File(testClassFileName).getParent() };
-			parser.setEnvironment(classpaths, sources, encodings, true);
-			parser.setSource(fileContents.toCharArray());
-
-			CompilationUnit compilationUnit = (CompilationUnit) parser.createAST(null);
-			MethodExtractingVisitor visitor = new MethodExtractingVisitor();
-			compilationUnit.accept(visitor);
-			List<MethodDeclaration> methods = visitor.getMethods();
-		
-			Display.getDefault().syncExec(new Runnable() {
-				@Override
-				public void run() {
-					IWorkbenchWindow iw = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-					IWorkbenchPage page = iw.getActivePage();
-					try {
-						IDE.openEditor(page, fileTestClass, true);
-					} catch (PartInitException e1) {
-						System.out.println("Could not open test suite");
-						e1.printStackTrace();
-					}
-				}
-			});
-
-			for (MethodDeclaration m : methods) {
-				int lineNumber = compilationUnit.getLineNumber(m.getStartPosition());
-				try {
-					IMarker mark = fileTestClass.createMarker("EvoSuiteQuickFixes.newtestmarker");
-					mark.setAttribute(IMarker.MESSAGE, "This test case needs to be verified.");
-					mark.setAttribute(IMarker.LINE_NUMBER, lineNumber);
-					mark.setAttribute(IMarker.PRIORITY, IMarker.PRIORITY_HIGH);
-					mark.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_WARNING);
-					mark.setAttribute(IMarker.LOCATION, fileTestClass.getName());
-					mark.setAttribute(IMarker.CHAR_START, m.getStartPosition());
-					mark.setAttribute(IMarker.CHAR_END, m.getStartPosition() + 1);
-				} catch (CoreException e) {
-					e.printStackTrace();
-				}
-			}
-		} else
-			System.out.println("**********  Markers are disabled");
-	}
-	
 	public static String readFileToString(String fileName) {
 		StringBuilder content = new StringBuilder();
 		try {
