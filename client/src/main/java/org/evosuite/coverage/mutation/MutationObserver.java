@@ -20,6 +20,10 @@
 
 package org.evosuite.coverage.mutation;
 
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * <p>MutationObserver class.</p>
  *
@@ -27,8 +31,11 @@ package org.evosuite.coverage.mutation;
  */
 public class MutationObserver {
 
-	/** Constant <code>activeMutation=-1</code> */
-	public static int activeMutation = -1;
+	public static Set<Integer> activeMutations = new HashSet<Integer>();
+	
+	public static boolean isActive(int mutationId) {
+		return activeMutations.contains(mutationId);
+	}
 
 	/**
 	 * <p>mutationTouched</p>
@@ -45,8 +52,7 @@ public class MutationObserver {
 	 * @param mutation a {@link org.evosuite.coverage.mutation.Mutation} object.
 	 */
 	public static void activateMutation(Mutation mutation) {
-		if (mutation != null)
-			activeMutation = mutation.getId();
+		activeMutations.add(mutation.getId());
 	}
 
 	/**
@@ -55,14 +61,14 @@ public class MutationObserver {
 	 * @param id a int.
 	 */
 	public static void activateMutation(int id) {
-		activeMutation = id;
+		activeMutations.add(id);
 	}
 
 	/**
 	 * <p>deactivateMutation</p>
 	 */
 	public static void deactivateMutation() {
-		activeMutation = -1;
+		activeMutations.clear();
 	}
 
 	/**
@@ -71,7 +77,14 @@ public class MutationObserver {
 	 * @param mutation a {@link org.evosuite.coverage.mutation.Mutation} object.
 	 */
 	public static void deactivateMutation(Mutation mutation) {
-		activeMutation = -1;
+		activeMutations.clear();
+	}
+
+	public static void activateMutations(Collection<Mutation> mutations) {
+		for (Mutation mutation : mutations) {
+			activeMutations.add(mutation.getId());
+		}
+		
 	}
 
 }

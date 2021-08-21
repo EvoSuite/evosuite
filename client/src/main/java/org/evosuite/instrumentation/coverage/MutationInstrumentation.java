@@ -21,6 +21,8 @@
 package org.evosuite.instrumentation.coverage;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -292,13 +294,22 @@ public class MutationInstrumentation implements MethodInstrumentation {
 			LabelNode nextLabel = new LabelNode();
 
 			LdcInsnNode mutationId = new LdcInsnNode(mutation.getId());
+			MethodInsnNode isActive = new MethodInsnNode(Opcodes.INVOKESTATIC,
+					Type.getInternalName(MutationObserver.class), "isActive",
+					Type.getMethodDescriptor(Type.BOOLEAN_TYPE, Type.INT_TYPE), false);
+			
+			// Invoke the static class method MutationObserver.isActive() with mutationId in
+			// question as the operand.
 			instructions.add(mutationId);
-			FieldInsnNode activeId = new FieldInsnNode(Opcodes.GETSTATIC,
-			        Type.getInternalName(MutationObserver.class), "activeMutation", "I");
-			instructions.add(activeId);
-			instructions.add(new JumpInsnNode(Opcodes.IF_ICMPNE, nextLabel));
+			instructions.add(isActive);
+
+			// Operand is now True iff the mutation is active, False iff not and we should jump
+			// to nextLabel to avoid running the mutated instruction.
+			instructions.add(new JumpInsnNode(Opcodes.IFEQ, nextLabel));
+
 			instructions.add(mutation.getMutation());
 			instructions.add(new JumpInsnNode(Opcodes.GOTO, endLabel));
+
 			instructions.add(nextLabel);
 		}
 
