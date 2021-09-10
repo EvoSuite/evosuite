@@ -71,7 +71,7 @@ public class ClassResetter {
 	}
 
 	public void setClassLoader(ClassLoader loader) throws IllegalArgumentException{
-		if(loader==null){
+		if (loader == null) {
 			throw new IllegalArgumentException("Null class loader");
 		}
 		this.loader = loader;
@@ -101,7 +101,7 @@ public class ClassResetter {
         try {
             Class<?> clazz = loader.loadClass(classNameWithDots);
 
-			if(clazz.isInterface() || clazz.isAnonymousClass()) {
+			if (clazz.isInterface() || clazz.isAnonymousClass()) {
 				return;
 			}
             
@@ -128,16 +128,16 @@ public class ClassResetter {
 	 * @param classNameWithDots the class for invoking the duplicated version of class initializer <clinit>
 	 */
 	public void reset(String classNameWithDots) throws IllegalArgumentException, IllegalStateException{
-		if(classNameWithDots==null || classNameWithDots.isEmpty()){
+		if (classNameWithDots == null || classNameWithDots.isEmpty()) {
 			throw new IllegalArgumentException("Empty class name in input");
 		}
 		
-		if(loader == null){					
+		if (loader == null) {
 			throw new IllegalStateException("No specified loader");
 		}
 		
 		Method m = getResetMethod(classNameWithDots);
-		if(m == null) {
+		if (m == null) {
             return;
         }
 
@@ -150,20 +150,20 @@ public class ClassResetter {
 		boolean wasLoopCheckOn = LoopCounter.getInstance().isActivated();
 
 		try {
-			if(!safe){
+			if (!safe) {
 				Sandbox.goingToExecuteUnsafeCodeOnSameThread();
 			}
 			LoopCounter.getInstance().setActive(false);
 			m.invoke(null, (Object[]) null);
 		} catch (IllegalAccessException | IllegalArgumentException e) {
-            logger.error(""+e,e);
-        } catch (NoClassDefFoundError e){
+            logger.error("" + e, e);
+        } catch (NoClassDefFoundError e) {
 			AtMostOnceLogger.error(logger,e.toString());
-        } catch(InvocationTargetException e){
+        } catch (InvocationTargetException e) {
 
 			Throwable cause = e.getCause();
-			if(cause instanceof TooManyResourcesException || cause instanceof NoClassDefFoundError){
-				logWarn(classNameWithDots, e.toString() + ", caused by: "+cause.toString());
+			if (cause instanceof TooManyResourcesException || cause instanceof NoClassDefFoundError) {
+				logWarn(classNameWithDots, e + ", caused by: "+cause);
 			} else {
 				StringWriter errors = new StringWriter();
 				cause.printStackTrace(new PrintWriter(errors));
@@ -171,7 +171,7 @@ public class ClassResetter {
 				// we are only interested in the stack trace of the cause
 			}
         } finally {
-			if(!safe){
+			if (!safe) {
 				Sandbox.doneWithExecutingUnsafeCodeOnSameThread();
 			}
 			LoopCounter.getInstance().setActive(wasLoopCheckOn);

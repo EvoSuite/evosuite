@@ -71,7 +71,7 @@ public class LoopCounter {
      *
      * @return the next valid index for a new loop
      */
-    public int getNewIndex(){
+    public int getNewIndex() {
         int index = counters.size();
         counters.add(0L);
         return index;
@@ -86,21 +86,22 @@ public class LoopCounter {
      * @throws IllegalArgumentException
      */
     public void checkLoop(int index) throws TooManyResourcesException, IllegalArgumentException{
-        if(index < 0){
+        if (index < 0) {
             throw new IllegalArgumentException("Loop index cannot be negative");
         }
         
-        if(!activated)
-        	return;
+        if (!activated) {
+            return;
+        }
 
-        if(RuntimeSettings.maxNumberOfIterationsPerLoop < 0){
+        if (RuntimeSettings.maxNumberOfIterationsPerLoop < 0) {
             return; //do nothing, no check
         }
         
         //first check initialization
         int size = counters.size();
-        if(index >= size){
-            for(int i=0; i < 1 + (index - size); i++){
+        if (index >= size) {
+            for (int i = 0; i < 1 + (index - size); i++) {
                 counters.add(0L);
             }
         }
@@ -111,12 +112,12 @@ public class LoopCounter {
             long value = counters.get(index) + 1L;
             counters.set(index, value);
 
-            if(value >= RuntimeSettings.maxNumberOfIterationsPerLoop && !isInStaticInit()) {
+            if (value >= RuntimeSettings.maxNumberOfIterationsPerLoop && !isInStaticInit()) {
                 this.reset();
                 throw new TooManyResourcesException("Loop has been executed more times than the allowed " +
                         RuntimeSettings.maxNumberOfIterationsPerLoop);
             }
-        } catch(NullPointerException e) {
+        } catch (NullPointerException e) {
             // Some weird Java internal NPE can happen:
             // https://github.com/EvoSuite/evosuite/issues/143
             // Seems safe to swallow this instead of crashing EvoSuite
