@@ -21,21 +21,21 @@ package org.evosuite.runtime;
 
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
 public class MockitoExtensionTest {
 
-    public static class OverrideToString{
+    public static class OverrideToString {
         @Override
-        public String toString(){
+        public String toString() {
             return "foo";
         }
     }
 
     @Test
-    public void testConfirmDoReturnChain(){
+    public void testConfirmDoReturnChain() {
         String a = "a";
         String b = "b";
 
@@ -49,12 +49,12 @@ public class MockitoExtensionTest {
     }
 
     @Test
-    public void testDoReturnMultiple(){
+    public void testDoReturnMultiple() {
         String a = "a";
         String b = "b";
 
         OverrideToString obj = mock(OverrideToString.class);
-        MockitoExtension.doReturn(a,b).when(obj).toString();
+        MockitoExtension.doReturn(a, b).when(obj).toString();
 
         assertEquals(a, obj.toString());
         assertEquals(b, obj.toString());
@@ -63,12 +63,12 @@ public class MockitoExtensionTest {
     }
 
     @Test
-    public void testDoReturnMultipleWithMockitoAPI(){
+    public void testDoReturnMultipleWithMockitoAPI() {
         String a = "a";
         String b = "b";
 
         OverrideToString obj = mock(OverrideToString.class);
-        doReturn(a,b).when(obj).toString();
+        doReturn(a, b).when(obj).toString();
 
         assertEquals(a, obj.toString());
         assertEquals(b, obj.toString());

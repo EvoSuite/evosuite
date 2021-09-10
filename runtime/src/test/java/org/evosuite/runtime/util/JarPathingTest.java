@@ -23,7 +23,8 @@ import org.junit.Test;
 
 import java.io.File;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Created by Andrea Arcuri on 21/11/15.
@@ -31,10 +32,10 @@ import static org.junit.Assert.*;
 public class JarPathingTest {
 
     @Test
-    public void testBase(){
+    public void testBase() {
 
-        String first = "target"+File.separator+"classes";
-        String second = "target"+File.separator+"test-classes";
+        String first = "target" + File.separator + "classes";
+        String second = "target" + File.separator + "test-classes";
 
         String classpath = first + File.pathSeparator + second;
 
@@ -50,12 +51,12 @@ public class JarPathingTest {
     }
 
     @Test
-    public void testSpace() throws Exception{
+    public void testSpace() throws Exception {
 
         String name = " a file with     many spaces.jar";
 
         File file = new File(name);
-        if(! file.exists()) {
+        if (!file.exists()) {
             assertTrue(file.createNewFile());
             file.deleteOnExit();
         }

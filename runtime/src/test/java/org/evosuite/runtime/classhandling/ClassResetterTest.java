@@ -33,7 +33,7 @@ public class ClassResetterTest {
 
 
     @Test
-    public void testResetOfEnum() throws Exception{
+    public void testResetOfEnum() throws Exception {
 
         ClassLoader loader = new EvoClassLoader();
         boolean resetValue = RuntimeSettings.resetStaticState;
@@ -61,7 +61,7 @@ public class ClassResetterTest {
     // TODO: We could consider providing a workaround to reset mutable enums.
     @Ignore
     @Test
-    public void testResetOfMutableEnum() throws Exception{
+    public void testResetOfMutableEnum() throws Exception {
 
         ClassLoader loader = new EvoClassLoader();
         RuntimeSettings.resetStaticState = true;

@@ -67,11 +67,11 @@ public class LoopCounterTest {
     }
 
     @Test
-    public void testNoNewIndex(){
-		LoopCounter.getInstance().checkLoop(0);
-		LoopCounter.getInstance().checkLoop(1);
-		LoopCounter.getInstance().checkLoop(2);
-		LoopCounter.getInstance().checkLoop(5);
-		LoopCounter.getInstance().checkLoop(6);
+    public void testNoNewIndex() {
+        LoopCounter.getInstance().checkLoop(0);
+        LoopCounter.getInstance().checkLoop(1);
+        LoopCounter.getInstance().checkLoop(2);
+        LoopCounter.getInstance().checkLoop(5);
+        LoopCounter.getInstance().checkLoop(6);
     }
 }

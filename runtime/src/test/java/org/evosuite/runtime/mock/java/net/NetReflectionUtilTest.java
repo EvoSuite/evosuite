@@ -24,8 +24,8 @@ import org.junit.Test;
 
 public class NetReflectionUtilTest {
 
-	@Test
-	public void test_anyLocalAddress(){
-		Assert.assertNotNull(NetReflectionUtil.anyLocalAddress());
-	}
+    @Test
+    public void test_anyLocalAddress() {
+        Assert.assertNotNull(NetReflectionUtil.anyLocalAddress());
+    }
 }
