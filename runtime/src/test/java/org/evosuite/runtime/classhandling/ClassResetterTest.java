@@ -36,6 +36,7 @@ public class ClassResetterTest {
     public void testResetOfEnum() throws Exception{
 
         ClassLoader loader = new EvoClassLoader();
+        boolean resetValue = RuntimeSettings.resetStaticState;
         RuntimeSettings.resetStaticState = true;
         ClassResetter.getInstance().setClassLoader(loader);
 
@@ -53,6 +54,7 @@ public class ClassResetterTest {
 
         //make sure that the reset does not create new enum instance values
         val = (Boolean) m.invoke(null);
+        RuntimeSettings.resetStaticState = resetValue;
         Assert.assertTrue(val);
     }
 
