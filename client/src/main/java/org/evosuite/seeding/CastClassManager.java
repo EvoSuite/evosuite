@@ -47,7 +47,7 @@ import static java.util.Comparator.comparingInt;
 public class CastClassManager {
 
     static final Logger logger = LoggerFactory.getLogger(CastClassManager.class);
-    private static CastClassManager instance = new CastClassManager();
+    private static final CastClassManager instance = new CastClassManager();
 
     /**
      * Store the cast classes in a sorted data structure to prevent multiple sorts on the same set of classes.
@@ -192,11 +192,11 @@ public class CastClassManager {
         logger.debug("selecting cast class for type variable {} with bounds {}, owner var map: {}", typeVariable, Arrays.toString(typeVariable.getBounds()), ownerVariableMap);
         GenericDeclaration genericDeclaration = typeVariable.getGenericDeclaration();
         String declarationSimpleName = "<Unknown generic declaration>";
-        if(genericDeclaration instanceof Class<?>){
+        if (genericDeclaration instanceof Class<?>) {
             declarationSimpleName = ((Class<?>) genericDeclaration).getSimpleName();
-        } else if(genericDeclaration instanceof Method){
-            declarationSimpleName = ((Method) genericDeclaration).getDeclaringClass().getSimpleName() + "#" +((Method) genericDeclaration).getName();
-        } else if(genericDeclaration instanceof Constructor){
+        } else if (genericDeclaration instanceof Method) {
+            declarationSimpleName = ((Method) genericDeclaration).getDeclaringClass().getSimpleName() + "#" + ((Method) genericDeclaration).getName();
+        } else if (genericDeclaration instanceof Constructor) {
             declarationSimpleName = ((Constructor) genericDeclaration).getDeclaringClass().getSimpleName() + "#" + "<init>";
         }
         List<GenericClass<?>> assignableClasses = getAssignableClasses(typeVariable, allowRecursion, ownerVariableMap);
@@ -224,11 +224,11 @@ public class CastClassManager {
                 assignableClasses = getAssignableClasses(typeVariable, allowRecursion, ownerVariableMap);
                 if (assignableClasses.isEmpty()) {
                     logger.warn("Nothing is assignable after adding {} for type Variable {} with bounds {} of declaration {}. The owner var map is {}",
-                            genericClass,typeVariable, Arrays.toString(typeVariable.getBounds()), declarationSimpleName, ownerVariableMap);
+                            genericClass, typeVariable, Arrays.toString(typeVariable.getBounds()), declarationSimpleName, ownerVariableMap);
                     return null;
                 }
             } else {
-                logger.debug("Nothing is assignable and couldn't add a class for type Variable {} with bounds {}",typeVariable, Arrays.toString(typeVariable.getBounds()));
+                logger.debug("Nothing is assignable and couldn't add a class for type Variable {} with bounds {}", typeVariable, Arrays.toString(typeVariable.getBounds()));
                 return null;
             }
         }

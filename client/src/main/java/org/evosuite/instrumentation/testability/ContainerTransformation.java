@@ -20,24 +20,17 @@
 
 package org.evosuite.instrumentation.testability;
 
+import org.evosuite.instrumentation.TransformationStatistics;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
+import org.objectweb.asm.tree.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
-
-import org.evosuite.instrumentation.TransformationStatistics;
-import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
-import org.objectweb.asm.tree.AbstractInsnNode;
-import org.objectweb.asm.tree.ClassNode;
-import org.objectweb.asm.tree.InsnList;
-import org.objectweb.asm.tree.InsnNode;
-import org.objectweb.asm.tree.JumpInsnNode;
-import org.objectweb.asm.tree.LabelNode;
-import org.objectweb.asm.tree.MethodInsnNode;
-import org.objectweb.asm.tree.MethodNode;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * <p>ContainerTransformation class.</p>
@@ -46,185 +39,181 @@ import org.slf4j.LoggerFactory;
  */
 public class ContainerTransformation {
 
-	private static final Logger logger = LoggerFactory
-			.getLogger(ContainerTransformation.class);
+    private static final Logger logger = LoggerFactory
+            .getLogger(ContainerTransformation.class);
 
-	private final ClassNode cn;
+    private final ClassNode cn;
 
-	/**
-	 * <p>Constructor for ContainerTransformation.</p>
-	 *
-	 * @param cn a {@link org.objectweb.asm.tree.ClassNode} object.
-	 */
-	public ContainerTransformation(ClassNode cn) {
-		this.cn = cn;
-	}
+    /**
+     * <p>Constructor for ContainerTransformation.</p>
+     *
+     * @param cn a {@link org.objectweb.asm.tree.ClassNode} object.
+     */
+    public ContainerTransformation(ClassNode cn) {
+        this.cn = cn;
+    }
 
-	/**
-	 * <p>transform</p>
-	 *
-	 * @return a {@link org.objectweb.asm.tree.ClassNode} object.
-	 */
-	@SuppressWarnings("unchecked")
-	public ClassNode transform() {
-		List<MethodNode> methodNodes = cn.methods;
-		for (MethodNode mn : methodNodes) {
-			if (transformMethod(mn)) {
-				mn.maxStack++;
-			}
-		}
+    /**
+     * <p>transform</p>
+     *
+     * @return a {@link org.objectweb.asm.tree.ClassNode} object.
+     */
+    @SuppressWarnings("unchecked")
+    public ClassNode transform() {
+        List<MethodNode> methodNodes = cn.methods;
+        for (MethodNode mn : methodNodes) {
+            if (transformMethod(mn)) {
+                mn.maxStack++;
+            }
+        }
 
-		return cn;
-	}
+        return cn;
+    }
 
-	/**
-	 * Replace boolean-returning method calls on Collection classes
-	 * 
-	 * @param mn
-	 */
-	@SuppressWarnings("unchecked")
-	public boolean transformMethod(MethodNode mn) {
-		boolean changed = false;
-		ListIterator<AbstractInsnNode> iterator = mn.instructions.iterator();
-		while (iterator.hasNext()) {
-			AbstractInsnNode node = iterator.next();
+    /**
+     * Replace boolean-returning method calls on Collection classes
+     *
+     * @param mn
+     */
+    @SuppressWarnings("unchecked")
+    public boolean transformMethod(MethodNode mn) {
+        boolean changed = false;
+        ListIterator<AbstractInsnNode> iterator = mn.instructions.iterator();
+        while (iterator.hasNext()) {
+            AbstractInsnNode node = iterator.next();
 
-			if (node instanceof MethodInsnNode) {
-				MethodInsnNode methodNode = (MethodInsnNode) node;
-				if (methodNode.owner.equals("java/util/Collection")
-				        || methodNode.owner.equals("java/util/List")
-				        || methodNode.owner.equals("java/util/ArrayList")
-				        || methodNode.owner.equals("java/util/Set")
-				        || methodNode.owner.equals("java/util/Queue")
-				        || methodNode.owner.equals("java/util/SortedSet")) {
-					if (methodNode.name.equals("isEmpty")) {
-						
-						logger.debug("Test Transformation of " + methodNode.owner + "." + methodNode.name 
-								+ " -> " +  Type.getInternalName(ContainerHelper.class) + "." + "collectionIsEmpty");
-						
-						MethodInsnNode n = new MethodInsnNode(
-						        Opcodes.INVOKESTATIC,
-						        Type.getInternalName(ContainerHelper.class),
-						        "collectionIsEmpty",
-						        Type.getMethodDescriptor(Type.INT_TYPE,
-						                                 new Type[] { Type.getType(Collection.class) }), false);
-						
-						InsnList il = createNewIfThenElse(n);
-						mn.instructions.insertBefore(node, il);
-						mn.instructions.remove(node);
-						TransformationStatistics.transformedContainerComparison();
-						
-						changed = true;
-					} else if (methodNode.name.equals("contains")) {
+            if (node instanceof MethodInsnNode) {
+                MethodInsnNode methodNode = (MethodInsnNode) node;
+                if (methodNode.owner.equals("java/util/Collection")
+                        || methodNode.owner.equals("java/util/List")
+                        || methodNode.owner.equals("java/util/ArrayList")
+                        || methodNode.owner.equals("java/util/Set")
+                        || methodNode.owner.equals("java/util/Queue")
+                        || methodNode.owner.equals("java/util/SortedSet")) {
+                    if (methodNode.name.equals("isEmpty")) {
 
-						logger.debug("Test Transformation of " + methodNode.owner + "." + methodNode.name 
-								+ " -> " +  Type.getInternalName(ContainerHelper.class) + "." + "collectionContains");
+                        logger.debug("Test Transformation of " + methodNode.owner + "." + methodNode.name
+                                + " -> " + Type.getInternalName(ContainerHelper.class) + "." + "collectionIsEmpty");
 
-						MethodInsnNode n = new MethodInsnNode(
-						        Opcodes.INVOKESTATIC,
-						        Type.getInternalName(ContainerHelper.class),
-						        "collectionContains",
-						        Type.getMethodDescriptor(Type.INT_TYPE,
-						                                 new Type[] {
-						                                         Type.getType(Collection.class),
-						                                         Type.getType(Object.class) }), false);
-						InsnList il = createNewIfThenElse(n);
-						mn.instructions.insertBefore(node, il);
-						mn.instructions.remove(node);
-						TransformationStatistics.transformedContainerComparison();
+                        MethodInsnNode n = new MethodInsnNode(
+                                Opcodes.INVOKESTATIC,
+                                Type.getInternalName(ContainerHelper.class),
+                                "collectionIsEmpty",
+                                Type.getMethodDescriptor(Type.INT_TYPE,
+                                        Type.getType(Collection.class)), false);
 
-						changed = true;
-					} else if (methodNode.name.equals("containsAll")) {
-						
-						logger.debug("Test Transformation of " + methodNode.owner + "." + methodNode.name 
-								+ " -> " +  Type.getInternalName(ContainerHelper.class) + "." + "collectionContainsAll");
-						
-						MethodInsnNode n = new MethodInsnNode(
-						        Opcodes.INVOKESTATIC,
-						        Type.getInternalName(ContainerHelper.class),
-						        "collectionContainsAll",
-						        Type.getMethodDescriptor(Type.INT_TYPE,
-						                                 new Type[] {
-						                                         Type.getType(Collection.class),
-						                                         Type.getType(Collection.class) }), false);
-						InsnList il = createNewIfThenElse(n);
-						mn.instructions.insertBefore(node, il);
-						mn.instructions.remove(node);
-						TransformationStatistics.transformedContainerComparison();
-						changed = true;
-					}
-				} else if (methodNode.owner.equals("java/util/Map")) {
-					if (methodNode.name.equals("isEmpty")) {
-						
-						logger.debug("Test Transformation of " + methodNode.owner + "." + methodNode.name 
-								+ " -> " +  Type.getInternalName(ContainerHelper.class) + "." + "mapIsEmpty");
+                        InsnList il = createNewIfThenElse(n);
+                        mn.instructions.insertBefore(node, il);
+                        mn.instructions.remove(node);
+                        TransformationStatistics.transformedContainerComparison();
 
-						MethodInsnNode n = new MethodInsnNode(
-						        Opcodes.INVOKESTATIC,
-						        Type.getInternalName(ContainerHelper.class),
-						        "mapIsEmpty",
-						        Type.getMethodDescriptor(Type.INT_TYPE,
-						                                 new Type[] { Type.getType(Map.class) }), false);
-						InsnList il = createNewIfThenElse(n);
-						mn.instructions.insertBefore(node, il);
-						mn.instructions.remove(node);
-						TransformationStatistics.transformedContainerComparison();
-						changed = true;
-					} else if (methodNode.name.equals("containsKey")) {
-						
-						logger.debug("Test Transformation of " + methodNode.owner + "." + methodNode.name 
-								+ " -> " +  Type.getInternalName(ContainerHelper.class) + "." + "mapContainsKey");
+                        changed = true;
+                    } else if (methodNode.name.equals("contains")) {
 
-						MethodInsnNode n = new MethodInsnNode(
-						        Opcodes.INVOKESTATIC,
-						        Type.getInternalName(ContainerHelper.class),
-						        "mapContainsKey",
-						        Type.getMethodDescriptor(Type.INT_TYPE,
-						                                 new Type[] {
-						                                         Type.getType(Map.class),
-						                                         Type.getType(Object.class) }), false);
-						InsnList il = createNewIfThenElse(n);
-						mn.instructions.insertBefore(node, il);
-						mn.instructions.remove(node);
-						TransformationStatistics.transformedContainerComparison();
-						changed = true;
-					} else if (methodNode.name.equals("containsValue")) {
-						
-						logger.debug("Test Transformation of " + methodNode.owner + "." + methodNode.name 
-								+ " -> " +  Type.getInternalName(ContainerHelper.class) + "." + "mapContainsValue");
-						
-						MethodInsnNode n = new MethodInsnNode(
-						        Opcodes.INVOKESTATIC,
-						        Type.getInternalName(ContainerHelper.class),
-						        "mapContainsValue",
-						        Type.getMethodDescriptor(Type.INT_TYPE,
-						                                 new Type[] {
-						                                         Type.getType(Map.class),
-						                                         Type.getType(Object.class) }), false);
-						InsnList il = createNewIfThenElse(n);
-						mn.instructions.insertBefore(node, il);
-						mn.instructions.remove(node);
-						TransformationStatistics.transformedContainerComparison();
-						changed = true;
-					}
-				}
-			}
-		}
-		return changed;
-	}
+                        logger.debug("Test Transformation of " + methodNode.owner + "." + methodNode.name
+                                + " -> " + Type.getInternalName(ContainerHelper.class) + "." + "collectionContains");
 
-	private static InsnList createNewIfThenElse(MethodInsnNode n) {
-		LabelNode labelIsNotEmpty = new LabelNode();
-		LabelNode labelEndif = new LabelNode();
-		InsnList il = new InsnList();
-		il.add(n);
-		il.add(new JumpInsnNode(Opcodes.IFLE, labelIsNotEmpty));
-		il.add(new InsnNode(Opcodes.ICONST_1));
-		il.add(new JumpInsnNode(Opcodes.GOTO, labelEndif));
-		il.add(labelIsNotEmpty);
-		il.add(new InsnNode(Opcodes.ICONST_0));
-		il.add(labelEndif);
-		return il;
-	}
+                        MethodInsnNode n = new MethodInsnNode(
+                                Opcodes.INVOKESTATIC,
+                                Type.getInternalName(ContainerHelper.class),
+                                "collectionContains",
+                                Type.getMethodDescriptor(Type.INT_TYPE,
+                                        Type.getType(Collection.class),
+                                        Type.getType(Object.class)), false);
+                        InsnList il = createNewIfThenElse(n);
+                        mn.instructions.insertBefore(node, il);
+                        mn.instructions.remove(node);
+                        TransformationStatistics.transformedContainerComparison();
+
+                        changed = true;
+                    } else if (methodNode.name.equals("containsAll")) {
+
+                        logger.debug("Test Transformation of " + methodNode.owner + "." + methodNode.name
+                                + " -> " + Type.getInternalName(ContainerHelper.class) + "." + "collectionContainsAll");
+
+                        MethodInsnNode n = new MethodInsnNode(
+                                Opcodes.INVOKESTATIC,
+                                Type.getInternalName(ContainerHelper.class),
+                                "collectionContainsAll",
+                                Type.getMethodDescriptor(Type.INT_TYPE,
+                                        Type.getType(Collection.class),
+                                        Type.getType(Collection.class)), false);
+                        InsnList il = createNewIfThenElse(n);
+                        mn.instructions.insertBefore(node, il);
+                        mn.instructions.remove(node);
+                        TransformationStatistics.transformedContainerComparison();
+                        changed = true;
+                    }
+                } else if (methodNode.owner.equals("java/util/Map")) {
+                    if (methodNode.name.equals("isEmpty")) {
+
+                        logger.debug("Test Transformation of " + methodNode.owner + "." + methodNode.name
+                                + " -> " + Type.getInternalName(ContainerHelper.class) + "." + "mapIsEmpty");
+
+                        MethodInsnNode n = new MethodInsnNode(
+                                Opcodes.INVOKESTATIC,
+                                Type.getInternalName(ContainerHelper.class),
+                                "mapIsEmpty",
+                                Type.getMethodDescriptor(Type.INT_TYPE,
+                                        Type.getType(Map.class)), false);
+                        InsnList il = createNewIfThenElse(n);
+                        mn.instructions.insertBefore(node, il);
+                        mn.instructions.remove(node);
+                        TransformationStatistics.transformedContainerComparison();
+                        changed = true;
+                    } else if (methodNode.name.equals("containsKey")) {
+
+                        logger.debug("Test Transformation of " + methodNode.owner + "." + methodNode.name
+                                + " -> " + Type.getInternalName(ContainerHelper.class) + "." + "mapContainsKey");
+
+                        MethodInsnNode n = new MethodInsnNode(
+                                Opcodes.INVOKESTATIC,
+                                Type.getInternalName(ContainerHelper.class),
+                                "mapContainsKey",
+                                Type.getMethodDescriptor(Type.INT_TYPE,
+                                        Type.getType(Map.class),
+                                        Type.getType(Object.class)), false);
+                        InsnList il = createNewIfThenElse(n);
+                        mn.instructions.insertBefore(node, il);
+                        mn.instructions.remove(node);
+                        TransformationStatistics.transformedContainerComparison();
+                        changed = true;
+                    } else if (methodNode.name.equals("containsValue")) {
+
+                        logger.debug("Test Transformation of " + methodNode.owner + "." + methodNode.name
+                                + " -> " + Type.getInternalName(ContainerHelper.class) + "." + "mapContainsValue");
+
+                        MethodInsnNode n = new MethodInsnNode(
+                                Opcodes.INVOKESTATIC,
+                                Type.getInternalName(ContainerHelper.class),
+                                "mapContainsValue",
+                                Type.getMethodDescriptor(Type.INT_TYPE,
+                                        Type.getType(Map.class),
+                                        Type.getType(Object.class)), false);
+                        InsnList il = createNewIfThenElse(n);
+                        mn.instructions.insertBefore(node, il);
+                        mn.instructions.remove(node);
+                        TransformationStatistics.transformedContainerComparison();
+                        changed = true;
+                    }
+                }
+            }
+        }
+        return changed;
+    }
+
+    private static InsnList createNewIfThenElse(MethodInsnNode n) {
+        LabelNode labelIsNotEmpty = new LabelNode();
+        LabelNode labelEndif = new LabelNode();
+        InsnList il = new InsnList();
+        il.add(n);
+        il.add(new JumpInsnNode(Opcodes.IFLE, labelIsNotEmpty));
+        il.add(new InsnNode(Opcodes.ICONST_1));
+        il.add(new JumpInsnNode(Opcodes.GOTO, labelEndif));
+        il.add(labelIsNotEmpty);
+        il.add(new InsnNode(Opcodes.ICONST_0));
+        il.add(labelEndif);
+        return il;
+    }
 
 }

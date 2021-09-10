@@ -19,100 +19,101 @@
  */
 package org.evosuite.symbolic.solver;
 
+import org.evosuite.symbolic.expr.Constraint;
+
 import java.util.Collection;
 import java.util.HashMap;
 
-import org.evosuite.symbolic.expr.Constraint;
-
 public final class SolverCache {
 
-	private static final SolverCache instance = new SolverCache();
-	private static final String CONTRAINT_NOT_CACHED_EXCEPTION_MESSAGE = "The constraint is not cached!";
-	private static final String SOLVER_RESULT_CANNOT_BE_NULL_EXCEPTION_MESSAGE = "Unable to save solver result as its null.";
+    private static final SolverCache instance = new SolverCache();
+    private static final String CONTRAINT_NOT_CACHED_EXCEPTION_MESSAGE = "The constraint is not cached!";
+    private static final String SOLVER_RESULT_CANNOT_BE_NULL_EXCEPTION_MESSAGE = "Unable to save solver result as its null.";
 
-	private int number_of_hits = 0;
-	private int number_of_accesses = 0;
-	private int cached_sat_result_count = 0;
-	private int cached_unsat_result_count = 0;
-	private boolean valid_cached_solution = false;
+    private int number_of_hits = 0;
+    private int number_of_accesses = 0;
+    private int cached_sat_result_count = 0;
+    private int cached_unsat_result_count = 0;
+    private boolean valid_cached_solution = false;
 
-	private HashMap<Collection<Constraint<?>>, SolverResult> cached_solver_results = new HashMap<>();
-	private SolverResult cached_solution = null;
+    private final HashMap<Collection<Constraint<?>>, SolverResult> cached_solver_results = new HashMap<>();
+    private SolverResult cached_solution = null;
 
-	public int getNumberOfUNSATs() {
-		return cached_unsat_result_count;
-	}
-	public int getNumberOfSATs() {
-		return cached_sat_result_count;
-	}
+    public int getNumberOfUNSATs() {
+        return cached_unsat_result_count;
+    }
 
-	private SolverCache() {
-		/* empty constructor */
-	}
+    public int getNumberOfSATs() {
+        return cached_sat_result_count;
+    }
 
-	public static SolverCache getInstance() {
-		return instance;
-	}
+    private SolverCache() {
+        /* empty constructor */
+    }
 
-	private void addUNSAT(Collection<Constraint<?>> unsat_constraints, SolverResult unsatResult) {
-		cached_solver_results.put(unsat_constraints, unsatResult);
-		cached_unsat_result_count++;
-	}
+    public static SolverCache getInstance() {
+        return instance;
+    }
 
-	private void addSAT(Collection<Constraint<?>> sat_constraints, SolverResult satResult) {
-		cached_solver_results.put(sat_constraints, satResult);
-		cached_sat_result_count++;
-	}
+    private void addUNSAT(Collection<Constraint<?>> unsat_constraints, SolverResult unsatResult) {
+        cached_solver_results.put(unsat_constraints, unsatResult);
+        cached_unsat_result_count++;
+    }
 
-	public boolean hasCachedResult(Collection<Constraint<?>> constraints) {
-		number_of_accesses++;
+    private void addSAT(Collection<Constraint<?>> sat_constraints, SolverResult satResult) {
+        cached_solver_results.put(sat_constraints, satResult);
+        cached_sat_result_count++;
+    }
 
-		if (this.cached_solver_results.containsKey(constraints)) {
-			valid_cached_solution = true;
-			cached_solution = this.cached_solver_results.get(constraints);
-			number_of_hits++;
-			return true;
-		} else {
-			valid_cached_solution = false;
-			return false;
-		}
-	}
+    public boolean hasCachedResult(Collection<Constraint<?>> constraints) {
+        number_of_accesses++;
 
-	public double getHitRate() {
-		return (double) this.number_of_hits / (double) this.number_of_accesses;
-	}
+        if (this.cached_solver_results.containsKey(constraints)) {
+            valid_cached_solution = true;
+            cached_solution = this.cached_solver_results.get(constraints);
+            number_of_hits++;
+            return true;
+        } else {
+            valid_cached_solution = false;
+            return false;
+        }
+    }
 
-	/**
-	 * If not in cache returns IllegalArgumentException()
-	 * 
-	 * @return
-	 */
-	public SolverResult getCachedResult() {
+    public double getHitRate() {
+        return (double) this.number_of_hits / (double) this.number_of_accesses;
+    }
 
-		if (valid_cached_solution == false) {
-			throw new IllegalArgumentException(CONTRAINT_NOT_CACHED_EXCEPTION_MESSAGE);
-		}
+    /**
+     * If not in cache returns IllegalArgumentException()
+     *
+     * @return
+     */
+    public SolverResult getCachedResult() {
 
-		valid_cached_solution = false;
-		return this.cached_solution;
-	}
+        if (valid_cached_solution == false) {
+            throw new IllegalArgumentException(CONTRAINT_NOT_CACHED_EXCEPTION_MESSAGE);
+        }
 
-	/**
-	 * Saves result to cache
-	 *
-	 * @param constraints
-	 * @param solverResult
-	 */
-	public void saveSolverResult(Collection<Constraint<?>> constraints, SolverResult solverResult) {
-		if (solverResult == null) {
-			throw new IllegalArgumentException(SOLVER_RESULT_CANNOT_BE_NULL_EXCEPTION_MESSAGE);
-		}
+        valid_cached_solution = false;
+        return this.cached_solution;
+    }
 
-		if (solverResult.isUNSAT()) {
-			addUNSAT(constraints, solverResult);
-		} else {
-			addSAT(constraints, solverResult);
-		}
-	}
+    /**
+     * Saves result to cache
+     *
+     * @param constraints
+     * @param solverResult
+     */
+    public void saveSolverResult(Collection<Constraint<?>> constraints, SolverResult solverResult) {
+        if (solverResult == null) {
+            throw new IllegalArgumentException(SOLVER_RESULT_CANNOT_BE_NULL_EXCEPTION_MESSAGE);
+        }
+
+        if (solverResult.isUNSAT()) {
+            addUNSAT(constraints, solverResult);
+        } else {
+            addSAT(constraints, solverResult);
+        }
+    }
 
 }

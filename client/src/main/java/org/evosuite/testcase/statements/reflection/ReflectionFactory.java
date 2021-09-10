@@ -30,7 +30,7 @@ import java.util.List;
 
 /**
  * Class used to get private fields/methods to construct statements in the generated tests
- *
+ * <p>
  * Created by Andrea Arcuri on 22/02/15.
  */
 public class ReflectionFactory {
@@ -40,17 +40,17 @@ public class ReflectionFactory {
     private final List<Method> methods;
 
 
-    public ReflectionFactory(Class<?> target) throws IllegalArgumentException{
+    public ReflectionFactory(Class<?> target) throws IllegalArgumentException {
         this.target = target;
-        if(target==null){
+        if (target == null) {
             throw new IllegalArgumentException("Target class cannot be null");
         }
 
         fields = new ArrayList<>();
         methods = new ArrayList<>();
 
-        for(Method m : Reflection.getDeclaredMethods(target)){
-            if(Modifier.isPrivate(m.getModifiers()) && !m.isBridge() && !m.isSynthetic()){
+        for (Method m : Reflection.getDeclaredMethods(target)) {
+            if (Modifier.isPrivate(m.getModifiers()) && !m.isBridge() && !m.isSynthetic()) {
                 //only interested in private methods, as the others can be called directly
                 methods.add(m);
             }
@@ -58,10 +58,10 @@ public class ReflectionFactory {
 
         List<Field> toSkip = null;
 
-        for(Field f : Reflection.getDeclaredFields(target)){
-            if(Modifier.isPrivate(f.getModifiers())
+        for (Field f : Reflection.getDeclaredFields(target)) {
+            if (Modifier.isPrivate(f.getModifiers())
                     && !f.isSynthetic()
-                    && (toSkip==null || ! toSkip.contains(f))
+                    && (toSkip == null || !toSkip.contains(f))
                     && !f.getName().equals("serialVersionUID")
                     // read/writeObject must not be invoked directly, otherwise it raises a java.io.NotActiveException
                     && !f.getName().equals("writeObject")
@@ -72,25 +72,25 @@ public class ReflectionFactory {
                     && !(Modifier.isFinal(f.getModifiers()) && f.getType().equals(String.class))
                     //static fields lead to just too many problems... although this could be set as a parameter
                     && !Modifier.isStatic(f.getModifiers())
-                    ) {
+            ) {
                 fields.add(f);
             }
         }
     }
 
-    public int getNumberOfUsableFields(){
+    public int getNumberOfUsableFields() {
         return fields.size();
     }
 
-    public boolean hasPrivateFieldsOrMethods(){
-        return  !(fields.isEmpty() && methods.isEmpty());
+    public boolean hasPrivateFieldsOrMethods() {
+        return !(fields.isEmpty() && methods.isEmpty());
     }
 
-    public boolean nextUseField(){
-        if(fields.isEmpty()){
+    public boolean nextUseField() {
+        if (fields.isEmpty()) {
             return false;
         }
-        if(methods.isEmpty()){
+        if (methods.isEmpty()) {
             assert !fields.isEmpty();
             return true;
         }
@@ -98,26 +98,26 @@ public class ReflectionFactory {
         assert !fields.isEmpty() && !methods.isEmpty();
 
         int tot = fields.size() + methods.size();
-        double ratio = (double)fields.size() / (double) tot;
+        double ratio = (double) fields.size() / (double) tot;
 
         return Randomness.nextDouble() <= ratio;
     }
 
-    public Field nextField() throws IllegalStateException{
-        if(fields.isEmpty()){
+    public Field nextField() throws IllegalStateException {
+        if (fields.isEmpty()) {
             throw new IllegalStateException("No private field");
         }
         return Randomness.choice(fields);
     }
 
-    public Method nextMethod()  throws IllegalStateException{
-        if(methods.isEmpty()){
+    public Method nextMethod() throws IllegalStateException {
+        if (methods.isEmpty()) {
             throw new IllegalStateException("No private method");
         }
         return Randomness.choice(methods);
     }
 
-    public Class<?> getReflectedClass(){
+    public Class<?> getReflectedClass() {
         return target;
     }
 }

@@ -33,47 +33,49 @@ import org.objectweb.asm.commons.JSRInlinerAdapter;
  */
 public class NonTargetClassAdapter extends ClassVisitor {
 
-	private final String className;
+    private final String className;
 
-	/**
-	 * <p>Constructor for NonTargetClassAdapter.</p>
-	 *
-	 * @param cv a {@link org.objectweb.asm.ClassVisitor} object.
-	 * @param className a {@link java.lang.String} object.
-	 */
-	public NonTargetClassAdapter(ClassVisitor cv, String className) {
-		super(Opcodes.ASM9, cv);
-		this.className = className;
-	}
+    /**
+     * <p>Constructor for NonTargetClassAdapter.</p>
+     *
+     * @param cv        a {@link org.objectweb.asm.ClassVisitor} object.
+     * @param className a {@link java.lang.String} object.
+     */
+    public NonTargetClassAdapter(ClassVisitor cv, String className) {
+        super(Opcodes.ASM9, cv);
+        this.className = className;
+    }
 
-	@Override
-	public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
-		if((access & Opcodes.ACC_FINAL) == Opcodes.ACC_FINAL) {
-			RemoveFinalClassAdapter.finalClasses.add(name.replace('/', '.'));
-		}
+    @Override
+    public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
+        if ((access & Opcodes.ACC_FINAL) == Opcodes.ACC_FINAL) {
+            RemoveFinalClassAdapter.finalClasses.add(name.replace('/', '.'));
+        }
 
-		// We are removing final access to allow mocking
-		super.visit(version, access & ~Opcodes.ACC_FINAL, name, signature, superName, interfaces);
-	}
-	
-	/** {@inheritDoc} */
-	@Override
-	public MethodVisitor visitMethod(int access, String name, String desc,
-	        String signature, final String[] exceptions) {
+        // We are removing final access to allow mocking
+        super.visit(version, access & ~Opcodes.ACC_FINAL, name, signature, superName, interfaces);
+    }
 
-		MethodVisitor mv = super.visitMethod(access & ~Opcodes.ACC_FINAL, name, desc, signature, exceptions);
-		mv = new JSRInlinerAdapter(mv, access, name, desc, signature, exceptions);
-		if(!"<clinit>".equals(name))
-			mv = new YieldAtLineNumberMethodAdapter(mv, className, name);
-		return mv; //new ArrayAllocationLimitMethodAdapter(mv, className, name, access, desc);
-	}
-	
-	@Override
-	public void visitInnerClass(String name, String outerName, String innerName, int access) {
-		if((access & Opcodes.ACC_FINAL) == Opcodes.ACC_FINAL) {
-			RemoveFinalClassAdapter.finalClasses.add(name.replace('/', '.'));
-		}
-		// We are removing final access to allow mocking
-		super.visitInnerClass(name, outerName, innerName, access & ~Opcodes.ACC_FINAL);
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public MethodVisitor visitMethod(int access, String name, String desc,
+                                     String signature, final String[] exceptions) {
+
+        MethodVisitor mv = super.visitMethod(access & ~Opcodes.ACC_FINAL, name, desc, signature, exceptions);
+        mv = new JSRInlinerAdapter(mv, access, name, desc, signature, exceptions);
+        if (!"<clinit>".equals(name))
+            mv = new YieldAtLineNumberMethodAdapter(mv, className, name);
+        return mv; //new ArrayAllocationLimitMethodAdapter(mv, className, name, access, desc);
+    }
+
+    @Override
+    public void visitInnerClass(String name, String outerName, String innerName, int access) {
+        if ((access & Opcodes.ACC_FINAL) == Opcodes.ACC_FINAL) {
+            RemoveFinalClassAdapter.finalClasses.add(name.replace('/', '.'));
+        }
+        // We are removing final access to allow mocking
+        super.visitInnerClass(name, outerName, innerName, access & ~Opcodes.ACC_FINAL);
+    }
 }

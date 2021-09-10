@@ -19,11 +19,11 @@
  */
 package org.evosuite.symbolic.expr.constraint;
 
-public interface ConstraintVisitor<K,V> {
+public interface ConstraintVisitor<K, V> {
 
-	K visit(IntegerConstraint n, V arg);
-	
-	K visit(RealConstraint n, V arg);
-	
-	K visit(StringConstraint n, V arg);
+    K visit(IntegerConstraint n, V arg);
+
+    K visit(RealConstraint n, V arg);
+
+    K visit(StringConstraint n, V arg);
 }

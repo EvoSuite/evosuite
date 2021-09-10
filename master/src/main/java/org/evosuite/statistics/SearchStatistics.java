@@ -27,13 +27,13 @@ import org.evosuite.coverage.branch.OnlyBranchCoverageSuiteFitness;
 import org.evosuite.coverage.cbranch.CBranchSuiteFitness;
 import org.evosuite.coverage.exception.ExceptionCoverageSuiteFitness;
 import org.evosuite.coverage.io.input.InputCoverageSuiteFitness;
+import org.evosuite.coverage.io.output.OutputCoverageSuiteFitness;
 import org.evosuite.coverage.line.LineCoverageSuiteFitness;
 import org.evosuite.coverage.method.MethodCoverageSuiteFitness;
 import org.evosuite.coverage.method.MethodNoExceptionCoverageSuiteFitness;
 import org.evosuite.coverage.method.MethodTraceCoverageSuiteFitness;
 import org.evosuite.coverage.mutation.OnlyMutationSuiteFitness;
 import org.evosuite.coverage.mutation.WeakMutationSuiteFitness;
-import org.evosuite.coverage.io.output.OutputCoverageSuiteFitness;
 import org.evosuite.coverage.rho.RhoCoverageSuiteFitness;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.result.TestGenerationResult;
@@ -41,7 +41,8 @@ import org.evosuite.rmi.MasterServices;
 import org.evosuite.rmi.service.ClientState;
 import org.evosuite.rmi.service.ClientStateInformation;
 import org.evosuite.runtime.util.AtMostOnceLogger;
-import org.evosuite.statistics.backend.*;
+import org.evosuite.statistics.backend.StatisticsBackend;
+import org.evosuite.statistics.backend.StatisticsBackendFactory;
 import org.evosuite.symbolic.dse.DSEStatistics;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.Listener;
@@ -55,59 +56,72 @@ import java.util.*;
 
 /**
  * A singleton of SearchStatistics collects all the data values reported by a single client node.
- * 
- * @author gordon
  *
+ * @author gordon
  */
-public class SearchStatistics implements Listener<ClientStateInformation>{
+public class SearchStatistics implements Listener<ClientStateInformation> {
 
-	private static final long serialVersionUID = -1859683466333302151L;
+    private static final long serialVersionUID = -1859683466333302151L;
 
-	/** Singleton instance */
-	private static Map<String, SearchStatistics> instances = new LinkedHashMap<>();
+    /**
+     * Singleton instance
+     */
+    private static final Map<String, SearchStatistics> instances = new LinkedHashMap<>();
 
-	private static final Logger logger = LoggerFactory.getLogger(SearchStatistics.class);
+    private static final Logger logger = LoggerFactory.getLogger(SearchStatistics.class);
 
-	/** Map of client id to best individual received from that client so far */
-	private TestSuiteChromosome bestIndividual = null;
+    /**
+     * Map of client id to best individual received from that client so far
+     */
+    private TestSuiteChromosome bestIndividual = null;
 
-	/** Backend used to output the data */
-	private StatisticsBackend backend = null;
+    /**
+     * Backend used to output the data
+     */
+    private StatisticsBackend backend = null;
 
-	/** Output variables and their values */ 
-	private Map<String, OutputVariable<?>> outputVariables = new TreeMap<>();
+    /**
+     * Output variables and their values
+     */
+    private final Map<String, OutputVariable<?>> outputVariables = new TreeMap<>();
 
-	/** Variable factories to extract output variables from chromosomes */
-	private Map<String, ChromosomeOutputVariableFactory<?>> variableFactories = new TreeMap<>();
+    /**
+     * Variable factories to extract output variables from chromosomes
+     */
+    private final Map<String, ChromosomeOutputVariableFactory<?>> variableFactories = new TreeMap<>();
 
-	/** Variable factories to extract sequence variables */
-	private Map<String, SequenceOutputVariableFactory<?>> sequenceOutputVariableFactories = new TreeMap<>();
+    /**
+     * Variable factories to extract sequence variables
+     */
+    private final Map<String, SequenceOutputVariableFactory<?>> sequenceOutputVariableFactories = new TreeMap<>();
 
-	/** Keep track of how far EvoSuite progressed */
-	private ClientState currentState = ClientState.INITIALIZATION;
+    /**
+     * Keep track of how far EvoSuite progressed
+     */
+    private ClientState currentState = ClientState.INITIALIZATION;
 
-	private long currentStateStarted = System.currentTimeMillis();
+    private long currentStateStarted = System.currentTimeMillis();
 
-	private long searchStartTime = 0L;
+    private long searchStartTime = 0L;
 
-	private long startTime = System.currentTimeMillis();
+    private final long startTime = System.currentTimeMillis();
 
-	private List<List<TestGenerationResult>> results = new ArrayList<>();
+    private final List<List<TestGenerationResult>> results = new ArrayList<>();
 
-	private SearchStatistics() { 
-		backend = StatisticsBackendFactory.getStatisticsBackend(Properties.STATISTICS_BACKEND);
+    private SearchStatistics() {
+        backend = StatisticsBackendFactory.getStatisticsBackend(Properties.STATISTICS_BACKEND);
 
-		initFactories();
+        initFactories();
 
-		setOutputVariable(RuntimeVariable.Random_Seed, Randomness.getSeed());
-		sequenceOutputVariableFactories.put(RuntimeVariable.CoverageTimeline.name(), new CoverageSequenceOutputVariableFactory());
-		sequenceOutputVariableFactories.put(RuntimeVariable.FitnessTimeline.name(), new FitnessSequenceOutputVariableFactory());
-		sequenceOutputVariableFactories.put(RuntimeVariable.SizeTimeline.name(), new SizeSequenceOutputVariableFactory());
-		sequenceOutputVariableFactories.put(RuntimeVariable.LengthTimeline.name(), new LengthSequenceOutputVariableFactory());
+        setOutputVariable(RuntimeVariable.Random_Seed, Randomness.getSeed());
+        sequenceOutputVariableFactories.put(RuntimeVariable.CoverageTimeline.name(), new CoverageSequenceOutputVariableFactory());
+        sequenceOutputVariableFactories.put(RuntimeVariable.FitnessTimeline.name(), new FitnessSequenceOutputVariableFactory());
+        sequenceOutputVariableFactories.put(RuntimeVariable.SizeTimeline.name(), new SizeSequenceOutputVariableFactory());
+        sequenceOutputVariableFactories.put(RuntimeVariable.LengthTimeline.name(), new LengthSequenceOutputVariableFactory());
         sequenceOutputVariableFactories.put(RuntimeVariable.TotalExceptionsTimeline.name(), DirectSequenceOutputVariableFactory.getInteger(RuntimeVariable.TotalExceptionsTimeline));
         sequenceOutputVariableFactories.put(RuntimeVariable.IBranchGoalsTimeline.name(), new IBranchGoalsSequenceOutputVariableFactory());
 
-		sequenceOutputVariableFactories.put(RuntimeVariable.BranchCoverageTimeline.name(), new BranchCoverageSequenceOutputVariableFactory());
+        sequenceOutputVariableFactories.put(RuntimeVariable.BranchCoverageTimeline.name(), new BranchCoverageSequenceOutputVariableFactory());
         sequenceOutputVariableFactories.put(RuntimeVariable.OnlyBranchFitnessTimeline.name(), new OnlyBranchFitnessSequenceOutputVariableFactory());
         sequenceOutputVariableFactories.put(RuntimeVariable.OnlyBranchCoverageTimeline.name(), new OnlyBranchCoverageSequenceOutputVariableFactory());
         sequenceOutputVariableFactories.put(RuntimeVariable.CBranchFitnessTimeline.name(), new CBranchFitnessSequenceOutputVariableFactory());
@@ -131,443 +145,443 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
         sequenceOutputVariableFactories.put(RuntimeVariable.WeakMutationCoverageTimeline.name(), new WeakMutationCoverageSequenceOutputVariableFactory());
         sequenceOutputVariableFactories.put(RuntimeVariable.OnlyMutationFitnessTimeline.name(), new OnlyMutationFitnessSequenceOutputVariableFactory());
         sequenceOutputVariableFactories.put(RuntimeVariable.OnlyMutationCoverageTimeline.name(), new OnlyMutationCoverageSequenceOutputVariableFactory());
-		sequenceOutputVariableFactories.put(RuntimeVariable.DiversityTimeline.name(), 
-            DirectSequenceOutputVariableFactory.getDouble(RuntimeVariable.DiversityTimeline));
-		
-		sequenceOutputVariableFactories.put(RuntimeVariable.DensityTimeline.name(), 
-		    DirectSequenceOutputVariableFactory.getDouble(RuntimeVariable.DensityTimeline));
-		
-		sequenceOutputVariableFactories.put(RuntimeVariable.FeaturesFound.name(), 
-            DirectSequenceOutputVariableFactory.getInteger(RuntimeVariable.FeaturesFound));
+        sequenceOutputVariableFactories.put(RuntimeVariable.DiversityTimeline.name(),
+                DirectSequenceOutputVariableFactory.getDouble(RuntimeVariable.DiversityTimeline));
+
+        sequenceOutputVariableFactories.put(RuntimeVariable.DensityTimeline.name(),
+                DirectSequenceOutputVariableFactory.getDouble(RuntimeVariable.DensityTimeline));
+
+        sequenceOutputVariableFactories.put(RuntimeVariable.FeaturesFound.name(),
+                DirectSequenceOutputVariableFactory.getInteger(RuntimeVariable.FeaturesFound));
 
         // sequenceOutputVariableFactories.put("Generation_History", new GenerationSequenceOutputVariableFactory());
-		if(MasterServices.getInstance().getMasterNode() != null)
-			MasterServices.getInstance().getMasterNode().addListener(this);
-	}
+        if (MasterServices.getInstance().getMasterNode() != null)
+            MasterServices.getInstance().getMasterNode().addListener(this);
+    }
 
-	public static SearchStatistics getInstance() {
-		return getInstance(ClientProcess.DEFAULT_CLIENT_NAME);
-	}
+    public static SearchStatistics getInstance() {
+        return getInstance(ClientProcess.DEFAULT_CLIENT_NAME);
+    }
 
-	public static SearchStatistics getInstance(String rmiClientIdentifier) {
-		SearchStatistics instance = instances.get(rmiClientIdentifier);
-		if (instance == null) {
-			instance = new SearchStatistics();
-			instances.put(rmiClientIdentifier, instance);
-		}
-		return instance;
-	}
+    public static SearchStatistics getInstance(String rmiClientIdentifier) {
+        SearchStatistics instance = instances.get(rmiClientIdentifier);
+        if (instance == null) {
+            instance = new SearchStatistics();
+            instances.put(rmiClientIdentifier, instance);
+        }
+        return instance;
+    }
 
-	public static void clearInstance() {
-		clearInstance(ClientProcess.DEFAULT_CLIENT_NAME);
-	}
+    public static void clearInstance() {
+        clearInstance(ClientProcess.DEFAULT_CLIENT_NAME);
+    }
 
-	public static void clearInstance(String rmiClientIdentifier) {
-		instances.remove(rmiClientIdentifier);
-	}
+    public static void clearInstance(String rmiClientIdentifier) {
+        instances.remove(rmiClientIdentifier);
+    }
 
-	/**
-	 * This method is called when a new individual is sent from a client.
-	 * The individual represents the best individual of the current generation.
-	 * 
-	 * @param individual best individual of current generation
-	 */
-	public void currentIndividual(Chromosome<?> individual) {
-		if(backend == null)
-			return;
+    /**
+     * This method is called when a new individual is sent from a client.
+     * The individual represents the best individual of the current generation.
+     *
+     * @param individual best individual of current generation
+     */
+    public void currentIndividual(Chromosome<?> individual) {
+        if (backend == null)
+            return;
 
-		if(!(individual instanceof TestSuiteChromosome)) {
-			AtMostOnceLogger.warn(logger, "searchStatistics expected a TestSuiteChromosome");
-			return;
-		}
+        if (!(individual instanceof TestSuiteChromosome)) {
+            AtMostOnceLogger.warn(logger, "searchStatistics expected a TestSuiteChromosome");
+            return;
+        }
 
-		logger.debug("Received individual");
-		bestIndividual = (TestSuiteChromosome) individual;
-        for(ChromosomeOutputVariableFactory<?> v : variableFactories.values()) {
+        logger.debug("Received individual");
+        bestIndividual = (TestSuiteChromosome) individual;
+        for (ChromosomeOutputVariableFactory<?> v : variableFactories.values()) {
             setOutputVariable(v.getVariable((TestSuiteChromosome) individual));
         }
-		for(SequenceOutputVariableFactory<?> v : sequenceOutputVariableFactories.values()) {
-			v.update((TestSuiteChromosome) individual);
-		}
-	}
+        for (SequenceOutputVariableFactory<?> v : sequenceOutputVariableFactories.values()) {
+            v.update((TestSuiteChromosome) individual);
+        }
+    }
 
-	/**
-	 * Set an output variable to a value directly 
-	 * 
-	 * @param variable
-	 * @param value
-	 */
-	public void setOutputVariable(RuntimeVariable variable, Object value) {
-		setOutputVariable(new OutputVariable<>(variable.toString(), value));
-	}
+    /**
+     * Set an output variable to a value directly
+     *
+     * @param variable
+     * @param value
+     */
+    public void setOutputVariable(RuntimeVariable variable, Object value) {
+        setOutputVariable(new OutputVariable<>(variable.toString(), value));
+    }
 
-	public void setOutputVariable(OutputVariable<?> variable) {
+    public void setOutputVariable(OutputVariable<?> variable) {
         /**
          * if the output variable is contained in sequenceOutputVariableFactories,
          * then it must be a DirectSequenceOutputVariableFactory, hence we set its
          * value so that it can be used to produce the next timeline variable.
          */
         if (sequenceOutputVariableFactories.containsKey(variable.getName())) {
-          DirectSequenceOutputVariableFactory<?> v = (DirectSequenceOutputVariableFactory<?>) sequenceOutputVariableFactories.get(variable.getName());
-          v.setValue(variable.getValue());
+            DirectSequenceOutputVariableFactory<?> v = (DirectSequenceOutputVariableFactory<?>) sequenceOutputVariableFactories.get(variable.getName());
+            v.setValue(variable.getValue());
         } else
             outputVariables.put(variable.getName(), variable);
     }
 
-	public void addTestGenerationResult(List<TestGenerationResult> result) {
-	    results.add(result);
-	}
+    public void addTestGenerationResult(List<TestGenerationResult> result) {
+        results.add(result);
+    }
 
-	public List<List<TestGenerationResult>> getTestGenerationResults() {
-		return results;
-	}
+    public List<List<TestGenerationResult>> getTestGenerationResults() {
+        return results;
+    }
 
-	public Map<String, OutputVariable<?>> getOutputVariables() {
-		return this.outputVariables;
-	}
+    public Map<String, OutputVariable<?>> getOutputVariables() {
+        return this.outputVariables;
+    }
 
-	/**
-	 * Retrieve list of possible variables
-	 *  
-	 * @return
-	 */
-	private List<String> getAllOutputVariableNames() {
+    /**
+     * Retrieve list of possible variables
+     *
+     * @return
+     */
+    private List<String> getAllOutputVariableNames() {
 
-		String[] essentials = new String[] {  //TODO maybe add some more
-				"TARGET_CLASS" , "criterion", 
-				RuntimeVariable.Coverage.toString(),
-				//TODO: why is this fixed?
-				//RuntimeVariable.BranchCoverage.toString(),
-				RuntimeVariable.Total_Goals.toString(),
-				RuntimeVariable.Covered_Goals.toString()
-				};
+        String[] essentials = new String[]{  //TODO maybe add some more
+                "TARGET_CLASS", "criterion",
+                RuntimeVariable.Coverage.toString(),
+                //TODO: why is this fixed?
+                //RuntimeVariable.BranchCoverage.toString(),
+                RuntimeVariable.Total_Goals.toString(),
+                RuntimeVariable.Covered_Goals.toString()
+        };
 
-		List<String> variableNames = new ArrayList<>(Arrays.asList(essentials));
+        List<String> variableNames = new ArrayList<>(Arrays.asList(essentials));
 
-		/** Fix for DSE as we want to save the output vars in this case */
-		if (Properties.isDSEStrategySelected()) {
-			variableNames.addAll(DSEStatistics.dseRuntimeVariables);
-		}
+        /** Fix for DSE as we want to save the output vars in this case */
+        if (Properties.isDSEStrategySelected()) {
+            variableNames.addAll(DSEStatistics.dseRuntimeVariables);
+        }
 
 		/* cannot use what we received, as due to possible bugs/errors those might not be constant
 		variableNames.addAll(outputVariables.keySet());
 		variableNames.addAll(variableFactories.keySet());
 		variableNames.addAll(sequenceOutputVariableFactories.keySet());
 		*/
-		return variableNames;
-	}
+        return variableNames;
+    }
 
-	/**
-	 * Retrieve list of output variables that the user will get to see.
-	 * If output_variables is not set, then all variables will be returned
-	 * 
-	 * @return
-	 */
-	private Collection<String> getOutputVariableNames() {
-		List<String> variableNames = new ArrayList<>();
-		if(Properties.OUTPUT_VARIABLES == null) {
-			variableNames.addAll(getAllOutputVariableNames());
-		} else {
-			for(String entry : Properties.OUTPUT_VARIABLES.split(",")){
-				variableNames.add(entry.trim());
-			}
-		}
-		return variableNames;
-	}
-	
-	/**
-	 * Shorthand for getOutputVariables(individual, false)
-	 */
-	private Map<String, OutputVariable<?>> getOutputVariables(TestSuiteChromosome individual) {
-		return getOutputVariables(individual, false);
-	}
+    /**
+     * Retrieve list of output variables that the user will get to see.
+     * If output_variables is not set, then all variables will be returned
+     *
+     * @return
+     */
+    private Collection<String> getOutputVariableNames() {
+        List<String> variableNames = new ArrayList<>();
+        if (Properties.OUTPUT_VARIABLES == null) {
+            variableNames.addAll(getAllOutputVariableNames());
+        } else {
+            for (String entry : Properties.OUTPUT_VARIABLES.split(",")) {
+                variableNames.add(entry.trim());
+            }
+        }
+        return variableNames;
+    }
 
-	/**
-	 * Extract output variables from input <code>individual</code>.
-	 * Add also all the other needed search-level variables. 
-	 * 
-	 * @param individual
-	 * @param skip_missing whether or not to skip missing output variables
-	 * @return <code>null</code> if some data is missing
-	 */
-	private Map<String, OutputVariable<?>> getOutputVariables(TestSuiteChromosome individual, boolean skip_missing) {
-		Map<String, OutputVariable<?>> variables = new LinkedHashMap<>();
-		
-		for(String variableName : getOutputVariableNames()) {
-			if(outputVariables.containsKey(variableName)) {
-				//values directly sent by the client
-				variables.put(variableName, outputVariables.get(variableName));
-			} else if(Properties.getParameters().contains(variableName)) {
-				// values used to define the search, ie the -D given as input to EvoSuite
-				variables.put(variableName, new PropertyOutputVariableFactory(variableName).getVariable());
-			} else if(variableFactories.containsKey(variableName)) {
-				//values extracted from the individual
-				variables.put(variableName, variableFactories.get(variableName).getVariable(individual));
-			} else if(sequenceOutputVariableFactories.containsKey(variableName)) {
-				/*
-				 * time related values, which will be expanded in a list of values
-				 * through time
-				 */
-				for(OutputVariable<?> var : sequenceOutputVariableFactories.get(variableName).getOutputVariables()) {
-					variables.put(var.getName(), var); 
-				}
-			} else if(skip_missing) {
-				// if variable doesn't exist, return an empty value instead
-				variables.put(variableName, new OutputVariable<>(variableName, ""));
-			} else {
-				logger.error("No obtained value for output variable: "+variableName);
-				return null;
-			}
-		}
+    /**
+     * Shorthand for getOutputVariables(individual, false)
+     */
+    private Map<String, OutputVariable<?>> getOutputVariables(TestSuiteChromosome individual) {
+        return getOutputVariables(individual, false);
+    }
 
-		return variables;
-	}
+    /**
+     * Extract output variables from input <code>individual</code>.
+     * Add also all the other needed search-level variables.
+     *
+     * @param individual
+     * @param skip_missing whether or not to skip missing output variables
+     * @return <code>null</code> if some data is missing
+     */
+    private Map<String, OutputVariable<?>> getOutputVariables(TestSuiteChromosome individual, boolean skip_missing) {
+        Map<String, OutputVariable<?>> variables = new LinkedHashMap<>();
 
-	/**
-	 * Write result to disk using selected backend
-	 * 
-	 * @return true if the writing was successful
-	 */
-	public boolean writeStatistics() {
-		logger.info("Writing statistics");
-		if(backend == null)
-			return false;
+        for (String variableName : getOutputVariableNames()) {
+            if (outputVariables.containsKey(variableName)) {
+                //values directly sent by the client
+                variables.put(variableName, outputVariables.get(variableName));
+            } else if (Properties.getParameters().contains(variableName)) {
+                // values used to define the search, ie the -D given as input to EvoSuite
+                variables.put(variableName, new PropertyOutputVariableFactory(variableName).getVariable());
+            } else if (variableFactories.containsKey(variableName)) {
+                //values extracted from the individual
+                variables.put(variableName, variableFactories.get(variableName).getVariable(individual));
+            } else if (sequenceOutputVariableFactories.containsKey(variableName)) {
+                /*
+                 * time related values, which will be expanded in a list of values
+                 * through time
+                 */
+                for (OutputVariable<?> var : sequenceOutputVariableFactories.get(variableName).getOutputVariables()) {
+                    variables.put(var.getName(), var);
+                }
+            } else if (skip_missing) {
+                // if variable doesn't exist, return an empty value instead
+                variables.put(variableName, new OutputVariable<>(variableName, ""));
+            } else {
+                logger.error("No obtained value for output variable: " + variableName);
+                return null;
+            }
+        }
 
-		outputVariables.put(RuntimeVariable.Total_Time.name(), new OutputVariable<Object>(RuntimeVariable.Total_Time.name(), System.currentTimeMillis() - startTime));
+        return variables;
+    }
 
-		if(bestIndividual == null) {
-			logger.error("No statistics has been saved because EvoSuite failed to generate any test case");
-			return false;
-		}	
+    /**
+     * Write result to disk using selected backend
+     *
+     * @return true if the writing was successful
+     */
+    public boolean writeStatistics() {
+        logger.info("Writing statistics");
+        if (backend == null)
+            return false;
 
-		TestSuiteChromosome individual = bestIndividual;
+        outputVariables.put(RuntimeVariable.Total_Time.name(), new OutputVariable<Object>(RuntimeVariable.Total_Time.name(), System.currentTimeMillis() - startTime));
 
-		Map<String,OutputVariable<?>> map = getOutputVariables(individual);
-		if(map==null){
+        if (bestIndividual == null) {
+            logger.error("No statistics has been saved because EvoSuite failed to generate any test case");
+            return false;
+        }
 
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-			}
+        TestSuiteChromosome individual = bestIndividual;
 
-			boolean couldBeFine = MasterServices.getInstance().getMasterNode().getCurrentState().stream()
-					.anyMatch(s -> s.equals(ClientState.DONE) || s.equals(ClientState.FINISHED));
+        Map<String, OutputVariable<?>> map = getOutputVariables(individual);
+        if (map == null) {
+
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+            }
+
+            boolean couldBeFine = MasterServices.getInstance().getMasterNode().getCurrentState().stream()
+                    .anyMatch(s -> s.equals(ClientState.DONE) || s.equals(ClientState.FINISHED));
 
 
-			if(couldBeFine){
-				//maybe data just didn't arrive yet
+            if (couldBeFine) {
+                //maybe data just didn't arrive yet
 
-				int counter = 0;
+                int counter = 0;
 
-				while (map == null && counter < 5) {
-					try {
-						Thread.sleep(1000);
-					} catch (InterruptedException e) {
-					}
+                while (map == null && counter < 5) {
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                    }
 
-					//retry
-					map = getOutputVariables(individual);
-					counter++;
-				}
-			}
-			
-			if(map == null && Properties.IGNORE_MISSING_STATISTICS){
-				map = getOutputVariables(individual, true);
-			}
+                    //retry
+                    map = getOutputVariables(individual);
+                    counter++;
+                }
+            }
 
-			if(map == null) {
-				logger.error("Not going to write down statistics data, as some are missing" );
-				return false;
-			}
-		} 			
+            if (map == null && Properties.IGNORE_MISSING_STATISTICS) {
+                map = getOutputVariables(individual, true);
+            }
 
-		boolean valid = RuntimeVariable.validateRuntimeVariables(map);
-		if(!valid){
-			logger.error("Not going to write down statistics data, as some data is invalid");
-			return false;
-		} else {
-			backend.writeData(individual, map);
-			return true;
-		}
-	}
-	
-	/**
-	 * Write result to disk using selected backend
-	 * 
-	 * @return true if the writing was successful
-	 */
-	public boolean writeStatisticsForAnalysis() {
-		logger.info("Writing statistics");
-		if(backend == null) {
-			LoggingUtils.getEvoLogger().info("Backend is null");
-			return false;
-		}
+            if (map == null) {
+                logger.error("Not going to write down statistics data, as some are missing");
+                return false;
+            }
+        }
 
-		outputVariables.put(RuntimeVariable.Total_Time.name(), new OutputVariable<Object>(RuntimeVariable.Total_Time.name(), System.currentTimeMillis() - startTime));
+        boolean valid = RuntimeVariable.validateRuntimeVariables(map);
+        if (!valid) {
+            logger.error("Not going to write down statistics data, as some data is invalid");
+            return false;
+        } else {
+            backend.writeData(individual, map);
+            return true;
+        }
+    }
 
-		TestSuiteChromosome individual = new TestSuiteChromosome();
-		Map<String,OutputVariable<?>> map = getOutputVariables(individual);
-		if(map==null){
-			logger.error("Not going to write down statistics data, as some are missing");
-			return false;
-		} 			
+    /**
+     * Write result to disk using selected backend
+     *
+     * @return true if the writing was successful
+     */
+    public boolean writeStatisticsForAnalysis() {
+        logger.info("Writing statistics");
+        if (backend == null) {
+            LoggingUtils.getEvoLogger().info("Backend is null");
+            return false;
+        }
 
-		boolean valid = RuntimeVariable.validateRuntimeVariables(map);
-		if(!valid){
-			logger.error("Not going to write down statistics data, as some data is invalid");
-			return false;
-		} else {
-			backend.writeData(individual, map);
-			return true;
-		}
-	}
+        outputVariables.put(RuntimeVariable.Total_Time.name(), new OutputVariable<Object>(RuntimeVariable.Total_Time.name(), System.currentTimeMillis() - startTime));
 
-	/**
-	 * Process status update event received from client
-	 */
-	@Override
-	public void receiveEvent(ClientStateInformation information) {
-		if(information.getState() != currentState) {
-			logger.info("Received status update: "+information);
-			if(information.getState() == ClientState.SEARCH) {
-				searchStartTime = System.currentTimeMillis();
-				for(SequenceOutputVariableFactory<?> factory : sequenceOutputVariableFactories.values()) {
-					factory.setStartTime(searchStartTime);
-				}
-			}
-			OutputVariable<Long> time = new OutputVariable<>("Time_" + currentState.getName(), System.currentTimeMillis() - currentStateStarted);
-			outputVariables.put(time.getName(), time);
-			currentState = information.getState();
-			currentStateStarted = System.currentTimeMillis();
-		}
+        TestSuiteChromosome individual = new TestSuiteChromosome();
+        Map<String, OutputVariable<?>> map = getOutputVariables(individual);
+        if (map == null) {
+            logger.error("Not going to write down statistics data, as some are missing");
+            return false;
+        }
 
-	}
+        boolean valid = RuntimeVariable.validateRuntimeVariables(map);
+        if (!valid) {
+            logger.error("Not going to write down statistics data, as some data is invalid");
+            return false;
+        } else {
+            backend.writeData(individual, map);
+            return true;
+        }
+    }
 
-	/**
-	 * Create default factories
-	 */
-	private void initFactories() {
-		variableFactories.put(RuntimeVariable.Length.name(), new ChromosomeLengthOutputVariableFactory());
-		variableFactories.put(RuntimeVariable.Size.name(), new ChromosomeSizeOutputVariableFactory());
-		variableFactories.put(RuntimeVariable.Coverage.name(), new ChromosomeCoverageOutputVariableFactory());
-		variableFactories.put(RuntimeVariable.Fitness.name(), new ChromosomeFitnessOutputVariableFactory());
-	}
+    /**
+     * Process status update event received from client
+     */
+    @Override
+    public void receiveEvent(ClientStateInformation information) {
+        if (information.getState() != currentState) {
+            logger.info("Received status update: " + information);
+            if (information.getState() == ClientState.SEARCH) {
+                searchStartTime = System.currentTimeMillis();
+                for (SequenceOutputVariableFactory<?> factory : sequenceOutputVariableFactories.values()) {
+                    factory.setStartTime(searchStartTime);
+                }
+            }
+            OutputVariable<Long> time = new OutputVariable<>("Time_" + currentState.getName(), System.currentTimeMillis() - currentStateStarted);
+            outputVariables.put(time.getName(), time);
+            currentState = information.getState();
+            currentStateStarted = System.currentTimeMillis();
+        }
 
-	/**
-	 * Total length of a test suite
-	 */
-	private static class ChromosomeLengthOutputVariableFactory extends ChromosomeOutputVariableFactory<Integer> {
-		public ChromosomeLengthOutputVariableFactory() {
-			super(RuntimeVariable.Length);
-		}
+    }
 
-		@Override
-		protected Integer getData(TestSuiteChromosome individual) {
-			return individual.totalLengthOfTestCases();
-		}
-	}
+    /**
+     * Create default factories
+     */
+    private void initFactories() {
+        variableFactories.put(RuntimeVariable.Length.name(), new ChromosomeLengthOutputVariableFactory());
+        variableFactories.put(RuntimeVariable.Size.name(), new ChromosomeSizeOutputVariableFactory());
+        variableFactories.put(RuntimeVariable.Coverage.name(), new ChromosomeCoverageOutputVariableFactory());
+        variableFactories.put(RuntimeVariable.Fitness.name(), new ChromosomeFitnessOutputVariableFactory());
+    }
 
-	/**
-	 * Number of tests in a test suite
-	 */
-	private static class ChromosomeSizeOutputVariableFactory extends ChromosomeOutputVariableFactory<Integer> {
-		public ChromosomeSizeOutputVariableFactory() {
-			super(RuntimeVariable.Size);
-		}
+    /**
+     * Total length of a test suite
+     */
+    private static class ChromosomeLengthOutputVariableFactory extends ChromosomeOutputVariableFactory<Integer> {
+        public ChromosomeLengthOutputVariableFactory() {
+            super(RuntimeVariable.Length);
+        }
 
-		@Override
-		protected Integer getData(TestSuiteChromosome individual) {
-			return individual.size();
-		}
-	}
+        @Override
+        protected Integer getData(TestSuiteChromosome individual) {
+            return individual.totalLengthOfTestCases();
+        }
+    }
 
-	/**
-	 * Fitness value of a test suite
-	 */
-	private static class ChromosomeFitnessOutputVariableFactory extends ChromosomeOutputVariableFactory<Double> {
-		public ChromosomeFitnessOutputVariableFactory() {
-			super(RuntimeVariable.Fitness);
-		}
+    /**
+     * Number of tests in a test suite
+     */
+    private static class ChromosomeSizeOutputVariableFactory extends ChromosomeOutputVariableFactory<Integer> {
+        public ChromosomeSizeOutputVariableFactory() {
+            super(RuntimeVariable.Size);
+        }
 
-		@Override
-		protected Double getData(TestSuiteChromosome individual) {
-			return individual.getFitness();
-		}
-	}
+        @Override
+        protected Integer getData(TestSuiteChromosome individual) {
+            return individual.size();
+        }
+    }
 
-	/**
-	 * Coverage value of a test suite
-	 */
-	private static class ChromosomeCoverageOutputVariableFactory extends ChromosomeOutputVariableFactory<Double> {
-		public ChromosomeCoverageOutputVariableFactory() {
-			super(RuntimeVariable.Coverage);
-		}
+    /**
+     * Fitness value of a test suite
+     */
+    private static class ChromosomeFitnessOutputVariableFactory extends ChromosomeOutputVariableFactory<Double> {
+        public ChromosomeFitnessOutputVariableFactory() {
+            super(RuntimeVariable.Fitness);
+        }
 
-		@Override
-		protected Double getData(TestSuiteChromosome individual) {
-			return individual.getCoverage();
-		}
-	}
+        @Override
+        protected Double getData(TestSuiteChromosome individual) {
+            return individual.getFitness();
+        }
+    }
 
-	/**
-	 * Sequence variable for fitness values
-	 */
-	private static class FitnessSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Double> {
+    /**
+     * Coverage value of a test suite
+     */
+    private static class ChromosomeCoverageOutputVariableFactory extends ChromosomeOutputVariableFactory<Double> {
+        public ChromosomeCoverageOutputVariableFactory() {
+            super(RuntimeVariable.Coverage);
+        }
 
-		public FitnessSequenceOutputVariableFactory() {
-			super(RuntimeVariable.FitnessTimeline);
-		}
+        @Override
+        protected Double getData(TestSuiteChromosome individual) {
+            return individual.getCoverage();
+        }
+    }
 
-		@Override
-		protected Double getValue(TestSuiteChromosome individual) {
-			return individual.getFitness();
-		}
-	}
+    /**
+     * Sequence variable for fitness values
+     */
+    private static class FitnessSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Double> {
 
-	/**
-	 * Sequence variable for coverage values
-	 */
-	private static class CoverageSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Double> {
+        public FitnessSequenceOutputVariableFactory() {
+            super(RuntimeVariable.FitnessTimeline);
+        }
 
-		public CoverageSequenceOutputVariableFactory() {
-			super(RuntimeVariable.CoverageTimeline);
-		}
+        @Override
+        protected Double getValue(TestSuiteChromosome individual) {
+            return individual.getFitness();
+        }
+    }
 
-		@Override
-		public Double getValue(TestSuiteChromosome individual) {
-			return individual.getCoverage();
-		}
-	}
+    /**
+     * Sequence variable for coverage values
+     */
+    private static class CoverageSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Double> {
 
-	/**
-	 * Sequence variable for number of tests
-	 */
-	private static class SizeSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Integer> {
+        public CoverageSequenceOutputVariableFactory() {
+            super(RuntimeVariable.CoverageTimeline);
+        }
 
-		public SizeSequenceOutputVariableFactory() {
-			super(RuntimeVariable.SizeTimeline);
-		}
+        @Override
+        public Double getValue(TestSuiteChromosome individual) {
+            return individual.getCoverage();
+        }
+    }
 
-		@Override
-		public Integer getValue(TestSuiteChromosome individual) {
-			return individual.size();
-		}
-	}
+    /**
+     * Sequence variable for number of tests
+     */
+    private static class SizeSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Integer> {
 
-	/**
-	 * Sequence variable for total length of tests
-	 */
-	private static class LengthSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Integer> {
+        public SizeSequenceOutputVariableFactory() {
+            super(RuntimeVariable.SizeTimeline);
+        }
 
-		public LengthSequenceOutputVariableFactory() {
-			super(RuntimeVariable.LengthTimeline);
-		}
+        @Override
+        public Integer getValue(TestSuiteChromosome individual) {
+            return individual.size();
+        }
+    }
 
-		@Override
-		public Integer getValue(TestSuiteChromosome individual) {
-			return individual.totalLengthOfTestCases();
-		}
-	}
+    /**
+     * Sequence variable for total length of tests
+     */
+    private static class LengthSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Integer> {
+
+        public LengthSequenceOutputVariableFactory() {
+            super(RuntimeVariable.LengthTimeline);
+        }
+
+        @Override
+        public Integer getValue(TestSuiteChromosome individual) {
+            return individual.totalLengthOfTestCases();
+        }
+    }
 
     /**
      * Sequence variable for coverage values

@@ -29,63 +29,79 @@ import org.evosuite.symbolic.dse.algorithm.ExplorationAlgorithmBase;
  */
 public class MaxTestsStoppingCondition extends StoppingConditionImpl {
 
-	/** Current number of tests */
-	protected static long numTests = 0;
+    /**
+     * Current number of tests
+     */
+    protected static long numTests = 0;
 
-	/** Maximum number of evaluations */
-	protected long maxTests;
+    /**
+     * Maximum number of evaluations
+     */
+    protected long maxTests;
 
-	public MaxTestsStoppingCondition() {
-		maxTests = Properties.SEARCH_BUDGET;
-	}
+    public MaxTestsStoppingCondition() {
+        maxTests = Properties.SEARCH_BUDGET;
+    }
 
-	public MaxTestsStoppingCondition(MaxTestsStoppingCondition that) {
-		this.maxTests = that.maxTests;
-	}
+    public MaxTestsStoppingCondition(MaxTestsStoppingCondition that) {
+        this.maxTests = that.maxTests;
+    }
 
-	@Override
-	public MaxTestsStoppingCondition clone() {
-		return new MaxTestsStoppingCondition(this);
-	}
+    @Override
+    public MaxTestsStoppingCondition clone() {
+        return new MaxTestsStoppingCondition(this);
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public void reset() {
-		numTests = 0;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void reset() {
+        numTests = 0;
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public boolean isFinished() {
-		return numTests >= maxTests;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isFinished() {
+        return numTests >= maxTests;
+    }
 
-	@Override
+    @Override
     public void iteration(ExplorationAlgorithmBase algorithm) {
         numTests++;
     }
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.ga.StoppingCondition#getCurrentValue()
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public long getCurrentValue() {
-		return numTests;
-	}
+    /* (non-Javadoc)
+     * @see org.evosuite.ga.StoppingCondition#getCurrentValue()
+     */
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.ga.StoppingCondition#setLimit(int)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public void setLimit(long limit) {
-		maxTests = limit;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getCurrentValue() {
+        return numTests;
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public long getLimit() {
-		return maxTests;
-	}
+    /* (non-Javadoc)
+     * @see org.evosuite.ga.StoppingCondition#setLimit(int)
+     */
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setLimit(long limit) {
+        maxTests = limit;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getLimit() {
+        return maxTests;
+    }
 }

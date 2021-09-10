@@ -19,15 +19,15 @@
  */
 package org.evosuite.runtime;
 
+import org.evosuite.runtime.agent.InstrumentingAgent;
+import org.junit.runner.Description;
+import org.junit.runner.notification.RunListener;
+
 import java.io.File;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
-
-import org.evosuite.runtime.agent.InstrumentingAgent;
-import org.junit.runner.Description;
-import org.junit.runner.notification.RunListener;
 
 /**
  * When running tests from a build tool (eg  "mvn test" when using Maven)
@@ -105,7 +105,7 @@ public class InitializingListener extends RunListener {
             We have 2 different approaches based on Maven and Ant.
             TODO: we ll need to handle also Gradle, and possibly find a simpler, unified way
          */
-        if(compiledTestsFolder == null){
+        if (compiledTestsFolder == null) {
             list = classesToInitFromScaffoldingFile();
         } else {
             list = InitializingListenerUtils.scanClassesToInit(new File(compiledTestsFolder));
@@ -123,10 +123,10 @@ public class InitializingListener extends RunListener {
                 m.setAccessible(true);
             } catch (NoSuchMethodException e) {
                 /*
-				 * this is ok.
-				 * Note: we could skip the test based on some pattern on the
-				 * name, but not really so important in the end
-				 */
+                 * this is ok.
+                 * Note: we could skip the test based on some pattern on the
+                 * name, but not really so important in the end
+                 */
             } catch (Exception e) {
                 java.lang.System.out.println("Exception while loading class " + name + ": " + e.getMessage());
             } finally {
@@ -146,8 +146,6 @@ public class InitializingListener extends RunListener {
     }
 
 
-
-
     private List<String> classesToInitFromScaffoldingFile() {
 
         List<String> list = new ArrayList<>();
@@ -161,7 +159,7 @@ public class InitializingListener extends RunListener {
             return list;
         }
 
-        try (Scanner in = new Scanner(scaffolding)){
+        try (Scanner in = new Scanner(scaffolding)) {
             while (in.hasNext()) {
                 list.add(in.next().trim());
             }

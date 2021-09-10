@@ -27,18 +27,18 @@ import org.evosuite.symbolic.vm.heap.SymbolicHeap;
 
 public final class D_Init extends SymbolicFunction {
 
-	public D_Init(SymbolicEnvironment env) {
-		super(env, Types.JAVA_LANG_DOUBLE, Types.INIT, Types.D_TO_VOID);
-	}
+    public D_Init(SymbolicEnvironment env) {
+        super(env, Types.JAVA_LANG_DOUBLE, Types.INIT, Types.D_TO_VOID);
+    }
 
-	@Override
-	public Object executeFunction() {
-		RealValue fp64 = this.getSymbRealArgument(0);
-		ReferenceConstant symb_double = this.getSymbReceiver();
-		env.heap.putField(Types.JAVA_LANG_DOUBLE, SymbolicHeap.$DOUBLE_VALUE,
-				null/* conc_double */, symb_double, fp64);
-		// return voids
-		return null;
-	}
+    @Override
+    public Object executeFunction() {
+        RealValue fp64 = this.getSymbRealArgument(0);
+        ReferenceConstant symb_double = this.getSymbReceiver();
+        env.heap.putField(Types.JAVA_LANG_DOUBLE, SymbolicHeap.$DOUBLE_VALUE,
+                null/* conc_double */, symb_double, fp64);
+        // return voids
+        return null;
+    }
 
 }

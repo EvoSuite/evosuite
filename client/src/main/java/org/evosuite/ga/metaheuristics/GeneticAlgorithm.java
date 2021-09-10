@@ -19,15 +19,6 @@
  */
 package org.evosuite.ga.metaheuristics;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.Serializable;
-import java.text.DecimalFormat;
-import java.util.*;
-
 import org.evosuite.Properties;
 import org.evosuite.Properties.Algorithm;
 import org.evosuite.ga.Chromosome;
@@ -57,9 +48,13 @@ import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.*;
+import java.text.DecimalFormat;
+import java.util.*;
 import java.util.stream.Stream;
 
-import static java.util.stream.Collectors.*;
+import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toList;
 
 /**
  * Abstract superclass of genetic algorithms

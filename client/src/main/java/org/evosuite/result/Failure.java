@@ -19,93 +19,93 @@
  */
 package org.evosuite.result;
 
-import java.io.Serializable;
-import java.util.Arrays;
-
 import org.evosuite.Properties;
 import org.evosuite.contracts.ContractViolation;
-import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.statements.ConstructorStatement;
 import org.evosuite.testcase.statements.MethodStatement;
+import org.evosuite.testcase.statements.Statement;
+
+import java.io.Serializable;
+import java.util.Arrays;
 
 public class Failure implements Serializable {
 
-	private static final long serialVersionUID = -6308624160029658643L;
+    private static final long serialVersionUID = -6308624160029658643L;
 
-	private String className;
-	
-	private String methodName;
-	
-	private String exceptionName;
+    private final String className;
 
-	private String exceptionMessage;
+    private String methodName;
 
-	private StackTraceElement[] stackTrace;
+    private String exceptionName;
 
-	private int lineNo;
-	
-	public Failure(ContractViolation violation) {
-		this.className = Properties.TARGET_CLASS;
-		this.lineNo = violation.getPosition();
-		initializeFromContractViolation(violation);
-	}
-	
-	public Failure(Throwable t, int position, TestCase test) {
-		this.className = Properties.TARGET_CLASS;
-		this.methodName = getMethodName(test, position);
-		this.exceptionName = t.getClass().getName();
-		this.exceptionMessage = t.getMessage();
-		this.stackTrace = t.getStackTrace();		
-		this.lineNo = position;
-	}
-	
-	private String getMethodName(TestCase test, int position) {
-		Statement statement = test.getStatement(position);
-		if(statement instanceof MethodStatement) {
-			return ((MethodStatement)statement).getMethod().getName();
-		} else if(statement instanceof ConstructorStatement) {
-			return ((ConstructorStatement)statement).getConstructor().getName();
-		} else {
-			return "";
-		}
-	}
-	
-	private void initializeFromContractViolation(ContractViolation violation) {
-		// TODO
-	}
+    private String exceptionMessage;
 
-	public String getClassName() {
-		return className;
-	}
+    private StackTraceElement[] stackTrace;
 
-	public String getMethodName() {
-		return methodName;
-	}
+    private final int lineNo;
 
-	public String getExceptionName() {
-		return exceptionName;
-	}
+    public Failure(ContractViolation violation) {
+        this.className = Properties.TARGET_CLASS;
+        this.lineNo = violation.getPosition();
+        initializeFromContractViolation(violation);
+    }
 
-	public String getExceptionMessage() {
-		return exceptionMessage;
-	}
+    public Failure(Throwable t, int position, TestCase test) {
+        this.className = Properties.TARGET_CLASS;
+        this.methodName = getMethodName(test, position);
+        this.exceptionName = t.getClass().getName();
+        this.exceptionMessage = t.getMessage();
+        this.stackTrace = t.getStackTrace();
+        this.lineNo = position;
+    }
 
-	public StackTraceElement[] getStackTrace() {
-		return stackTrace;
-	}
+    private String getMethodName(TestCase test, int position) {
+        Statement statement = test.getStatement(position);
+        if (statement instanceof MethodStatement) {
+            return ((MethodStatement) statement).getMethod().getName();
+        } else if (statement instanceof ConstructorStatement) {
+            return ((ConstructorStatement) statement).getConstructor().getName();
+        } else {
+            return "";
+        }
+    }
 
-	public int getLineNo() {
-		return lineNo;
-	}
+    private void initializeFromContractViolation(ContractViolation violation) {
+        // TODO
+    }
 
-	@Override
-	public String toString() {
-		return "Failure [className=" + className + ", methodName=" + methodName
-				+ ", exceptionName=" + exceptionName + ", exceptionMessage="
-				+ exceptionMessage + ", stackTrace="
-				+ Arrays.toString(stackTrace) + ", lineNo=" + lineNo + "]";
-	}
-	
-	
+    public String getClassName() {
+        return className;
+    }
+
+    public String getMethodName() {
+        return methodName;
+    }
+
+    public String getExceptionName() {
+        return exceptionName;
+    }
+
+    public String getExceptionMessage() {
+        return exceptionMessage;
+    }
+
+    public StackTraceElement[] getStackTrace() {
+        return stackTrace;
+    }
+
+    public int getLineNo() {
+        return lineNo;
+    }
+
+    @Override
+    public String toString() {
+        return "Failure [className=" + className + ", methodName=" + methodName
+                + ", exceptionName=" + exceptionName + ", exceptionMessage="
+                + exceptionMessage + ", stackTrace="
+                + Arrays.toString(stackTrace) + ", lineNo=" + lineNo + "]";
+    }
+
+
 }

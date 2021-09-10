@@ -19,10 +19,6 @@
  */
 package org.evosuite.ga.metaheuristics;
 
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-
 import org.evosuite.Properties;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
@@ -33,31 +29,32 @@ import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+
 /**
  * NSGA-II implementation
- * 
- * @article{Deb:2002,
-            author = {Deb, K. and Pratap, A. and Agarwal, S. and Meyarivan, T.},
-            title = {{A Fast and Elitist Multiobjective Genetic Algorithm: NSGA-II}},
-            journal = {Trans. Evol. Comp},
-            issue_date = {April 2002},
-            volume = {6},
-            number = {2},
-            month = apr,
-            year = {2002},
-            issn = {1089-778X},
-            pages = {182--197},
-            numpages = {16},
-            url = {http://dx.doi.org/10.1109/4235.996017},
-            doi = {10.1109/4235.996017},
-            acmid = {2221582},
-            publisher = {IEEE Press},
-            address = {Piscataway, NJ, USA}}
  *
  * @author José Campos
+ * @article{Deb:2002, author = {Deb, K. and Pratap, A. and Agarwal, S. and Meyarivan, T.},
+ * title = {{A Fast and Elitist Multiobjective Genetic Algorithm: NSGA-II}},
+ * journal = {Trans. Evol. Comp},
+ * issue_date = {April 2002},
+ * volume = {6},
+ * number = {2},
+ * month = apr,
+ * year = {2002},
+ * issn = {1089-778X},
+ * pages = {182--197},
+ * numpages = {16},
+ * url = {http://dx.doi.org/10.1109/4235.996017},
+ * doi = {10.1109/4235.996017},
+ * acmid = {2221582},
+ * publisher = {IEEE Press},
+ * address = {Piscataway, NJ, USA}}
  */
-public class NSGAII<T extends Chromosome<T>> extends GeneticAlgorithm<T>
-{
+public class NSGAII<T extends Chromosome<T>> extends GeneticAlgorithm<T> {
     private static final long serialVersionUID = 146182080947267628L;
 
     private static final Logger logger = LoggerFactory.getLogger(NSGAII.class);
@@ -66,7 +63,7 @@ public class NSGAII<T extends Chromosome<T>> extends GeneticAlgorithm<T>
 
     /**
      * Constructor
-     * 
+     *
      * @param factory a {@link org.evosuite.ga.ChromosomeFactory} object
      */
     public NSGAII(ChromosomeFactory<T> factory) {
@@ -74,17 +71,17 @@ public class NSGAII<T extends Chromosome<T>> extends GeneticAlgorithm<T>
         this.crowdingDistance = new CrowdingDistance<>();
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected void evolve()
-    {
+    protected void evolve() {
         // Create the offSpring population
         List<T> offspringPopulation = new ArrayList<>(population.size());
 
         // execute binary tournment selection, crossover, and mutation to
         // create a offspring population Qt of size N
-        for (int i = 0; i < (population.size() / 2); i++)
-        {
+        for (int i = 0; i < (population.size() / 2); i++) {
             // Selection
             T parent1 = selectionFunction.select(population);
             T parent2 = selectionFunction.select(population);
@@ -96,8 +93,7 @@ public class NSGAII<T extends Chromosome<T>> extends GeneticAlgorithm<T>
             try {
                 if (Randomness.nextDouble() <= Properties.CROSSOVER_RATE)
                     crossoverFunction.crossOver(offspring1, offspring2);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 logger.info("CrossOver failed");
             }
 
@@ -172,14 +168,15 @@ public class NSGAII<T extends Chromosome<T>> extends GeneticAlgorithm<T>
 			    t.isToBeUpdated(false);
 			}
 		}*/
-		//
+        //
         currentIteration++;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public void initializePopulation()
-    {
+    public void initializePopulation() {
         logger.info("executing initializePopulation function");
 
         notifySearchStarted();
@@ -191,17 +188,17 @@ public class NSGAII<T extends Chromosome<T>> extends GeneticAlgorithm<T>
         this.notifyIteration();
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public void generateSolution()
-    {
+    public void generateSolution() {
         logger.info("executing generateSolution function");
 
         if (population.isEmpty())
             initializePopulation();
 
-        while (!isFinished())
-        {
+        while (!isFinished()) {
             evolve();
             this.notifyIteration();
             this.writeIndividuals(this.population);
@@ -210,8 +207,7 @@ public class NSGAII<T extends Chromosome<T>> extends GeneticAlgorithm<T>
         notifySearchFinished();
     }
 
-    protected List<T> union(List<T> population, List<T> offspringPopulation)
-    {
+    protected List<T> union(List<T> population, List<T> offspringPopulation) {
         int newSize = population.size() + offspringPopulation.size();
         if (newSize < Properties.POPULATION)
             newSize = Properties.POPULATION;

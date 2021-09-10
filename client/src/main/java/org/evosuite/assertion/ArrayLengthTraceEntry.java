@@ -1,19 +1,19 @@
 /**
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * <p>
  * This file is part of EvoSuite.
- *
+ * <p>
  * EvoSuite is free software: you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
  * by the Free Software Foundation, either version 3.0 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * EvoSuite is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -47,8 +47,7 @@ public class ArrayLengthTraceEntry implements OutputTraceEntry {
     public boolean differs(OutputTraceEntry other) {
         if (other instanceof ArrayLengthTraceEntry) {
             ArrayLengthTraceEntry otherEntry = (ArrayLengthTraceEntry) other;
-            if (length !=  otherEntry.length)
-                return true;
+            return length != otherEntry.length;
         }
         return false;
     }
@@ -97,9 +96,7 @@ public class ArrayLengthTraceEntry implements OutputTraceEntry {
         if (assertion instanceof ArrayLengthAssertion) {
             ArrayLengthAssertion ass = (ArrayLengthAssertion) assertion;
             if (var.equals(ass.source)) {
-                if (length != ass.length) {
-                    return true;
-                }
+                return length != ass.length;
             }
         }
         return false;

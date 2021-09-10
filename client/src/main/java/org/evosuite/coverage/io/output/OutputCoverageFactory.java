@@ -19,21 +19,6 @@
  */
 package org.evosuite.coverage.io.output;
 
-import static org.evosuite.coverage.io.IOCoverageConstants.ARRAY_EMPTY;
-import static org.evosuite.coverage.io.IOCoverageConstants.ARRAY_NONEMPTY;
-import static org.evosuite.coverage.io.IOCoverageConstants.BOOL_FALSE;
-import static org.evosuite.coverage.io.IOCoverageConstants.BOOL_TRUE;
-import static org.evosuite.coverage.io.IOCoverageConstants.CHAR_ALPHA;
-import static org.evosuite.coverage.io.IOCoverageConstants.CHAR_DIGIT;
-import static org.evosuite.coverage.io.IOCoverageConstants.CHAR_OTHER;
-import static org.evosuite.coverage.io.IOCoverageConstants.NUM_NEGATIVE;
-import static org.evosuite.coverage.io.IOCoverageConstants.NUM_POSITIVE;
-import static org.evosuite.coverage.io.IOCoverageConstants.NUM_ZERO;
-import static org.evosuite.coverage.io.IOCoverageConstants.REF_NONNULL;
-import static org.evosuite.coverage.io.IOCoverageConstants.REF_NULL;
-import static org.evosuite.coverage.io.IOCoverageConstants.STRING_EMPTY;
-import static org.evosuite.coverage.io.IOCoverageConstants.STRING_NONEMPTY;
-
 import org.apache.commons.lang3.ClassUtils;
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
@@ -53,6 +38,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.evosuite.coverage.io.IOCoverageConstants.*;
+
 /**
  * @author Jose Miguel Rojas
  */
@@ -61,11 +48,11 @@ public class OutputCoverageFactory extends AbstractFitnessFactory<OutputCoverage
     private static final Logger logger = LoggerFactory.getLogger(OutputCoverageFactory.class);
 
     /*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.evosuite.coverage.TestCoverageFactory#getCoverageGoals()
-	 */
+     * (non-Javadoc)
+     *
+     * @see
+     * org.evosuite.coverage.TestCoverageFactory#getCoverageGoals()
+     */
 
     /**
      * {@inheritDoc}
@@ -89,9 +76,9 @@ public class OutputCoverageFactory extends AbstractFitnessFactory<OutputCoverage
                 Type returnType = Type.getReturnType(method);
 
                 int typeSort = returnType.getSort();
-                if(typeSort == Type.OBJECT) {
+                if (typeSort == Type.OBJECT) {
                     Class<?> typeClass = method.getReturnType();
-                    if(ClassUtils.isPrimitiveWrapper(typeClass)) {
+                    if (ClassUtils.isPrimitiveWrapper(typeClass)) {
                         typeSort = Type.getType(ClassUtils.wrapperToPrimitive(typeClass)).getSort();
                         goals.add(createGoal(className, methodName, returnType, REF_NULL));
                     }
@@ -132,7 +119,7 @@ public class OutputCoverageFactory extends AbstractFitnessFactory<OutputCoverage
                         }
                         boolean observerGoalsAdded = false;
                         Class<?> returnClazz = method.getReturnType();
-                        for(Inspector inspector : InspectorManager.getInstance().getInspectors(returnClazz)) {
+                        for (Inspector inspector : InspectorManager.getInstance().getInspectors(returnClazz)) {
                             String insp = inspector.getMethodCall() + Type.getMethodDescriptor(inspector.getMethod());
                             Type t = Type.getReturnType(inspector.getMethod());
                             if (t.getSort() == Type.BOOLEAN) {
@@ -177,7 +164,7 @@ public class OutputCoverageFactory extends AbstractFitnessFactory<OutputCoverage
         List<String> inspectors = new ArrayList<>();
         for (String pm : pureMethods) {
             if ((Type.getArgumentTypes(pm.substring(pm.indexOf('('))).length == 0) &&
-                    ! (pm.substring(0, pm.indexOf("(")).equals("<clinit>")))
+                    !(pm.substring(0, pm.indexOf("(")).equals("<clinit>")))
                 inspectors.add(pm);
         }
         return inspectors;

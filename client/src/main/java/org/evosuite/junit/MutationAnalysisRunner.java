@@ -19,10 +19,6 @@
  */
 package org.evosuite.junit;
 
-import java.util.Collection;
-import java.util.LinkedHashSet;
-import java.util.Set;
-
 import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.mutation.Mutation;
 import org.evosuite.coverage.mutation.MutationObserver;
@@ -37,95 +33,100 @@ import org.junit.runners.model.InitializationError;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collection;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 public class MutationAnalysisRunner extends BlockJUnit4ClassRunner {
 
-	private static final Logger logger = LoggerFactory.getLogger(MutationAnalysisRunner.class);
-	
-	private Set<Mutation> killedMutants = new LinkedHashSet<>();
+    private static final Logger logger = LoggerFactory.getLogger(MutationAnalysisRunner.class);
 
-	private Set<Mutation> liveMutants;
+    private final Set<Mutation> killedMutants = new LinkedHashSet<>();
 
-	public MutationAnalysisRunner(Class<?> klass, Collection<Mutation> allMutants) throws InitializationError {
-		super(klass);
-		this.liveMutants = new LinkedHashSet<>(allMutants);
-	}
-	
-	public MutationAnalysisRunner(Class<?> klass) throws InitializationError {
-		this(klass, MutationPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getMutants());
-	}
-	
-	public Set<Mutation> getLiveMutants() {
-		return liveMutants;
-	}
-	
-	public Set<Mutation> getKilledMutants() {
-		return killedMutants;
-	}
+    private final Set<Mutation> liveMutants;
 
-	private static class SimpleRunListener extends RunListener {
-		public boolean hasFailure = false;
-		public Failure lastFailure = null;
-		@Override
-		public void testFailure(Failure failure) throws Exception {
-			hasFailure = true;
-			lastFailure = failure;
-			super.testFailure(failure);
-		}		
-	}
-	
-	@Override
-	protected void runChild(FrameworkMethod method, RunNotifier notifier) {
-		logger.info("Running method "+method.getName());
-		SimpleRunListener resultListener = new SimpleRunListener();
-		notifier.addListener(resultListener);
-		
-		// First run without mutants
-		ExecutionTracer.enable();
-		super.runChild(method, notifier);
-		boolean result = resultListener.hasFailure;
-		logger.info("Result without mutant: "+result);
-		if(result) {
-			logger.info("Failure: "+resultListener.lastFailure.getMessage());
-		}
-		
-		Set<Integer> touchedMutants = ExecutionTracer.getExecutionTracer().getTrace().getTouchedMutants();
-		logger.info("Touched mutants: "+touchedMutants.size());
-		// Now run it for all touched mutants
-		for(Integer mutantID : touchedMutants) {
-			// logger.info("Current mutant: "+mutantID);
-			Mutation m = MutationPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getMutant(mutantID);
-			if(killedMutants.contains(m)) {
-				// logger.info("Already dead: "+mutantID);
-				continue;
-			}
+    public MutationAnalysisRunner(Class<?> klass, Collection<Mutation> allMutants) throws InitializationError {
+        super(klass);
+        this.liveMutants = new LinkedHashSet<>(allMutants);
+    }
 
-			ExecutionTracer.getExecutionTracer().clear();
-			resultListener.hasFailure = false;
-			MutationObserver.activateMutation(m);
-			super.runChild(method, notifier);
-			MutationObserver.deactivateMutation(m);
-			
-			// If killed
-			if(resultListener.hasFailure != result) {
-				logger.info("Now killed: "+mutantID);
-				try {
-				liveMutants.remove(m);
-				} catch(Throwable t) {
-					logger.info("Error: "+t);
-					t.printStackTrace();
-				}
-				try {
-				killedMutants.add(m);
-				} catch(Throwable t) {
-					logger.info("Error: "+t);
-					t.printStackTrace();
-				}
-				
-			//} else {
-			//	logger.info("Remains live: "+mutantID);
-			}
-		}
-		notifier.removeListener(resultListener);
-		logger.info("Done with "+method.getName());
-	}
+    public MutationAnalysisRunner(Class<?> klass) throws InitializationError {
+        this(klass, MutationPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getMutants());
+    }
+
+    public Set<Mutation> getLiveMutants() {
+        return liveMutants;
+    }
+
+    public Set<Mutation> getKilledMutants() {
+        return killedMutants;
+    }
+
+    private static class SimpleRunListener extends RunListener {
+        public boolean hasFailure = false;
+        public Failure lastFailure = null;
+
+        @Override
+        public void testFailure(Failure failure) throws Exception {
+            hasFailure = true;
+            lastFailure = failure;
+            super.testFailure(failure);
+        }
+    }
+
+    @Override
+    protected void runChild(FrameworkMethod method, RunNotifier notifier) {
+        logger.info("Running method " + method.getName());
+        SimpleRunListener resultListener = new SimpleRunListener();
+        notifier.addListener(resultListener);
+
+        // First run without mutants
+        ExecutionTracer.enable();
+        super.runChild(method, notifier);
+        boolean result = resultListener.hasFailure;
+        logger.info("Result without mutant: " + result);
+        if (result) {
+            logger.info("Failure: " + resultListener.lastFailure.getMessage());
+        }
+
+        Set<Integer> touchedMutants = ExecutionTracer.getExecutionTracer().getTrace().getTouchedMutants();
+        logger.info("Touched mutants: " + touchedMutants.size());
+        // Now run it for all touched mutants
+        for (Integer mutantID : touchedMutants) {
+            // logger.info("Current mutant: "+mutantID);
+            Mutation m = MutationPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getMutant(mutantID);
+            if (killedMutants.contains(m)) {
+                // logger.info("Already dead: "+mutantID);
+                continue;
+            }
+
+            ExecutionTracer.getExecutionTracer().clear();
+            resultListener.hasFailure = false;
+            MutationObserver.activateMutation(m);
+            super.runChild(method, notifier);
+            MutationObserver.deactivateMutation(m);
+
+            // If killed
+            if (resultListener.hasFailure != result) {
+                logger.info("Now killed: " + mutantID);
+                try {
+                    liveMutants.remove(m);
+                } catch (Throwable t) {
+                    logger.info("Error: " + t);
+                    t.printStackTrace();
+                }
+                try {
+                    killedMutants.add(m);
+                } catch (Throwable t) {
+                    logger.info("Error: " + t);
+                    t.printStackTrace();
+                }
+
+                //} else {
+                //	logger.info("Remains live: "+mutantID);
+            }
+        }
+        notifier.removeListener(resultListener);
+        logger.info("Done with " + method.getName());
+    }
 }

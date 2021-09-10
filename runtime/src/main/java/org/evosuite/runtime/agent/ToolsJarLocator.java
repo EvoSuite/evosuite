@@ -33,38 +33,38 @@ import java.util.List;
 
 public class ToolsJarLocator {
 
-	private static final Logger logger = LoggerFactory.getLogger(ToolsJarLocator.class);
+    private static final Logger logger = LoggerFactory.getLogger(ToolsJarLocator.class);
 
 
-	/**
-	 * Full name of a class in tools.jar that is used inside EvoSuite
-	 */
-	private static final String EXAMPLE_CLASS =  "com.sun.tools.attach.VirtualMachine";
+    /**
+     * Full name of a class in tools.jar that is used inside EvoSuite
+     */
+    private static final String EXAMPLE_CLASS = "com.sun.tools.attach.VirtualMachine";
 
     private String locationNotOnClasspath;
 
-    private String manuallySpecifiedToolLocation;
+    private final String manuallySpecifiedToolLocation;
 
     public ToolsJarLocator(String manuallySpecifiedToolLocation) {
         this.manuallySpecifiedToolLocation = manuallySpecifiedToolLocation;
     }
 
     /**
-	 * Try to locate tools.jar and return a classloader for it
-	 * 
-	 * @throws RuntimeException  if it was not possible to locate/load tools.jar
-	 */
-	public ClassLoader getLoaderForToolsJar() throws RuntimeException{
-		Integer javaVersion = Integer.valueOf(SystemUtils.JAVA_VERSION.split("\\.")[0]);
-		if(javaVersion >= 9){
-			try {
-				Class<?> clazz  = Class.forName(EXAMPLE_CLASS);
-				return clazz.getClassLoader();
-			} catch (ClassNotFoundException e) {
-				throw new RuntimeException("Did not manage to automatically find tools.jar. Use -Dtools_jar_location=<path> property");
-			}
+     * Try to locate tools.jar and return a classloader for it
+     *
+     * @throws RuntimeException if it was not possible to locate/load tools.jar
+     */
+    public ClassLoader getLoaderForToolsJar() throws RuntimeException {
+        Integer javaVersion = Integer.valueOf(SystemUtils.JAVA_VERSION.split("\\.")[0]);
+        if (javaVersion >= 9) {
+            try {
+                Class<?> clazz = Class.forName(EXAMPLE_CLASS);
+                return clazz.getClassLoader();
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException("Did not manage to automatically find tools.jar. Use -Dtools_jar_location=<path> property");
+            }
 
-		}
+        }
 
 		/*
 			This was a problem, as PowerMock and JMockit ship with their own version of tools.jar taken from OpenJDK
@@ -83,70 +83,70 @@ public class ToolsJarLocator {
 //		} catch (ClassNotFoundException e) {
 //			//OK, it is missing, so lets try to locate it
 //		}
-		
-		if(manuallySpecifiedToolLocation != null){
-			//if defined, then use it, and throws exception if it is not valid
-			return considerPathInProperties();
-		}
 
-		String javaHome = System.getProperty("java.home");
-		List<String> locations = new ArrayList<>(Arrays.asList(
-				javaHome + "/../lib/tools.jar", 
-				javaHome + "/lib/tools.jar", 
-				javaHome + "/../Classes/classes.jar" /* this for example happens in Mac */
-		));
-		
-		// Fix for when EvoSuite is wrongly run with a JRE (eg on Windows if JAVA_HOME is not properly set in PATH)
-		String javaHomeEnv = System.getenv("JAVA_HOME");
-		if(javaHomeEnv!=null && !javaHomeEnv.equals(javaHome)){
-			locations.addAll(Arrays.asList(
-					javaHomeEnv+"/../lib/tools.jar",
-					javaHomeEnv+"/lib/tools.jar",
-					javaHomeEnv+"/../Classes/classes.jar"
-			));
-		}
+        if (manuallySpecifiedToolLocation != null) {
+            //if defined, then use it, and throws exception if it is not valid
+            return considerPathInProperties();
+        }
 
-		for(String location : locations){
-			File file = new File(location);
-			if(file.exists()){
-				return validateAndGetLoader(location);
-			}
-		}
+        String javaHome = System.getProperty("java.home");
+        List<String> locations = new ArrayList<>(Arrays.asList(
+                javaHome + "/../lib/tools.jar",
+                javaHome + "/lib/tools.jar",
+                javaHome + "/../Classes/classes.jar" /* this for example happens in Mac */
+        ));
 
-		throw new RuntimeException("Did not manage to automatically find tools.jar. Use -Dtools_jar_location=<path> property");
-	}
+        // Fix for when EvoSuite is wrongly run with a JRE (eg on Windows if JAVA_HOME is not properly set in PATH)
+        String javaHomeEnv = System.getenv("JAVA_HOME");
+        if (javaHomeEnv != null && !javaHomeEnv.equals(javaHome)) {
+            locations.addAll(Arrays.asList(
+                    javaHomeEnv + "/../lib/tools.jar",
+                    javaHomeEnv + "/lib/tools.jar",
+                    javaHomeEnv + "/../Classes/classes.jar"
+            ));
+        }
 
-	private  ClassLoader considerPathInProperties() {
-		if(!manuallySpecifiedToolLocation.endsWith(".jar")){
-			throw new RuntimeException("Property tools_jar_location does not point to a jar file: "+manuallySpecifiedToolLocation);
-		}
+        for (String location : locations) {
+            File file = new File(location);
+            if (file.exists()) {
+                return validateAndGetLoader(location);
+            }
+        }
 
-		return validateAndGetLoader(manuallySpecifiedToolLocation);
-	}
+        throw new RuntimeException("Did not manage to automatically find tools.jar. Use -Dtools_jar_location=<path> property");
+    }
 
-	private  ClassLoader validateAndGetLoader(String location) {
+    private ClassLoader considerPathInProperties() {
+        if (!manuallySpecifiedToolLocation.endsWith(".jar")) {
+            throw new RuntimeException("Property tools_jar_location does not point to a jar file: " + manuallySpecifiedToolLocation);
+        }
 
-		ClassLoader loader = null;
-		try {
-			loader = URLClassLoader.newInstance(
-					new URL[] { new File(location).toURI().toURL() },
-					//ClassLoader.getSystemClassLoader()
-					null
-			);
-		} catch (MalformedURLException e) {
-			throw new RuntimeException("Malformed URL: "+location,e);
-		}
+        return validateAndGetLoader(manuallySpecifiedToolLocation);
+    }
 
-		try {
-			Class.forName(EXAMPLE_CLASS, true, loader);
-		} catch (ClassNotFoundException e) {
-			throw new RuntimeException("Missing "+EXAMPLE_CLASS+" in "+location);
-		}
+    private ClassLoader validateAndGetLoader(String location) {
+
+        ClassLoader loader = null;
+        try {
+            loader = URLClassLoader.newInstance(
+                    new URL[]{new File(location).toURI().toURL()},
+                    //ClassLoader.getSystemClassLoader()
+                    null
+            );
+        } catch (MalformedURLException e) {
+            throw new RuntimeException("Malformed URL: " + location, e);
+        }
+
+        try {
+            Class.forName(EXAMPLE_CLASS, true, loader);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException("Missing " + EXAMPLE_CLASS + " in " + location);
+        }
 
         locationNotOnClasspath = location;
 
-		return loader;
-	}
+        return loader;
+    }
 
     public String getLocationNotOnClasspath() {
         return locationNotOnClasspath;

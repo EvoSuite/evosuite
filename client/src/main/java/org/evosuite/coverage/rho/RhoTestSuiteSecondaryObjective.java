@@ -24,41 +24,45 @@ import org.evosuite.testsuite.TestSuiteChromosome;
 
 /**
  * RhoTestSuiteSecondaryObjective class.
- * 
+ *
  * @author José Campos
  */
 public class RhoTestSuiteSecondaryObjective extends SecondaryObjective<TestSuiteChromosome> {
 
-	private static final long serialVersionUID = 3483170260455441964L;
+    private static final long serialVersionUID = 3483170260455441964L;
 
-	private double getRhoFitnessValue(TestSuiteChromosome suite) {
-		RhoCoverageSuiteFitness fitness = new RhoCoverageSuiteFitness();
-		return fitness.getFitness(suite, false);
-	}
+    private double getRhoFitnessValue(TestSuiteChromosome suite) {
+        RhoCoverageSuiteFitness fitness = new RhoCoverageSuiteFitness();
+        return fitness.getFitness(suite, false);
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public int compareChromosomes(TestSuiteChromosome suite1, TestSuiteChromosome suite2) {
-		double c1 = this.getRhoFitnessValue(suite1);
-		double c2 = this.getRhoFitnessValue(suite2);
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int compareChromosomes(TestSuiteChromosome suite1, TestSuiteChromosome suite2) {
+        double c1 = this.getRhoFitnessValue(suite1);
+        double c2 = this.getRhoFitnessValue(suite2);
 
-		if (c1 == c2) {
-			return 0;
-		} else if (c1 < c2) {
-			// the Chromosome with the lowest rho value should be ranked first
-			return -1;
-		} else {
-			return 1;
-		}
-	}
+        if (c1 == c2) {
+            return 0;
+        } else if (c1 < c2) {
+            // the Chromosome with the lowest rho value should be ranked first
+            return -1;
+        } else {
+            return 1;
+        }
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public int compareGenerations(TestSuiteChromosome parent1, TestSuiteChromosome parent2,
-			TestSuiteChromosome child1, TestSuiteChromosome child2) {
-		// this function is not used
-		throw new RuntimeException(
-				"compareGenerations function of " + RhoTestSuiteSecondaryObjective.class.getCanonicalName()
-						+ " has not been implemented yet");
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int compareGenerations(TestSuiteChromosome parent1, TestSuiteChromosome parent2,
+                                  TestSuiteChromosome child1, TestSuiteChromosome child2) {
+        // this function is not used
+        throw new RuntimeException(
+                "compareGenerations function of " + RhoTestSuiteSecondaryObjective.class.getCanonicalName()
+                        + " has not been implemented yet");
+    }
 }

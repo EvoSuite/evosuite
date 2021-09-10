@@ -30,7 +30,7 @@ import org.evosuite.symbolic.expr.ExpressionVisitor;
  */
 public class LambdaSyntheticType extends LiteralClassType {
 
-    private boolean callsNonInstrumentedCode;
+    private final boolean callsNonInstrumentedCode;
 
     public LambdaSyntheticType(Class concreteValue, boolean callsNonInstrumentedCode) {
         super(concreteValue);

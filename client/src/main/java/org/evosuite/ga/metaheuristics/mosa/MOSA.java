@@ -48,170 +48,175 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  */
 public class MOSA extends AbstractMOSA {
 
-	private static final long serialVersionUID = 146182080947267628L;
+    private static final long serialVersionUID = 146182080947267628L;
 
-	private static final Logger logger = LoggerFactory.getLogger(MOSA.class);
+    private static final Logger logger = LoggerFactory.getLogger(MOSA.class);
 
-	/** immigrant groups from neighbouring client */
-	private final ConcurrentLinkedQueue<List<TestChromosome>> immigrants =
-			new ConcurrentLinkedQueue<>();
+    /**
+     * immigrant groups from neighbouring client
+     */
+    private final ConcurrentLinkedQueue<List<TestChromosome>> immigrants =
+            new ConcurrentLinkedQueue<>();
 
-	private final SelectionFunction<TestChromosome> emigrantsSelection;
+    private final SelectionFunction<TestChromosome> emigrantsSelection;
 
-	/** Crowding distance measure to use */
-	protected CrowdingDistance<TestChromosome> distance = new CrowdingDistance<>();
+    /**
+     * Crowding distance measure to use
+     */
+    protected CrowdingDistance<TestChromosome> distance = new CrowdingDistance<>();
 
-	/**
-	 * Constructor based on the abstract class {@link AbstractMOSA}
-	 * @param factory
-	 */
-	public MOSA(ChromosomeFactory<TestChromosome> factory) {
-		super(factory);
+    /**
+     * Constructor based on the abstract class {@link AbstractMOSA}
+     *
+     * @param factory
+     */
+    public MOSA(ChromosomeFactory<TestChromosome> factory) {
+        super(factory);
 
-		switch (Properties.EMIGRANT_SELECTION_FUNCTION) {
-			case RANK:
-				this.emigrantsSelection = new RankSelection<>();
-				break;
-			case RANDOMK:
-				this.emigrantsSelection = new RandomKSelection<>();
-				break;
-			default:
-				this.emigrantsSelection = new BestKSelection<>();
-		}
-	}
+        switch (Properties.EMIGRANT_SELECTION_FUNCTION) {
+            case RANK:
+                this.emigrantsSelection = new RankSelection<>();
+                break;
+            case RANDOMK:
+                this.emigrantsSelection = new RandomKSelection<>();
+                break;
+            default:
+                this.emigrantsSelection = new BestKSelection<>();
+        }
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected void evolve() {
-		List<TestChromosome> offspringPopulation = this.breedNextGeneration();
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void evolve() {
+        List<TestChromosome> offspringPopulation = this.breedNextGeneration();
 
-		// Create the union of parents and offSpring
-		List<TestChromosome> union = new ArrayList<>();
-		union.addAll(this.population);
-		union.addAll(offspringPopulation);
+        // Create the union of parents and offSpring
+        List<TestChromosome> union = new ArrayList<>();
+        union.addAll(this.population);
+        union.addAll(offspringPopulation);
 
-		// for parallel runs: integrate possible immigrants
-		if (Properties.NUM_PARALLEL_CLIENTS > 1 && !immigrants.isEmpty()) {
-			union.addAll(immigrants.poll());
-		}
+        // for parallel runs: integrate possible immigrants
+        if (Properties.NUM_PARALLEL_CLIENTS > 1 && !immigrants.isEmpty()) {
+            union.addAll(immigrants.poll());
+        }
 
-		Set<TestFitnessFunction> uncoveredGoals = this.getUncoveredGoals();
+        Set<TestFitnessFunction> uncoveredGoals = this.getUncoveredGoals();
 
-		// Ranking the union
-		logger.debug("Union Size =" + union.size());
-		// Ranking the union using the best rank algorithm (modified version of the non dominated sorting algorithm)
-		this.rankingFunction.computeRankingAssignment(union, uncoveredGoals);
+        // Ranking the union
+        logger.debug("Union Size =" + union.size());
+        // Ranking the union using the best rank algorithm (modified version of the non dominated sorting algorithm)
+        this.rankingFunction.computeRankingAssignment(union, uncoveredGoals);
 
-		int remain = this.population.size();
-		int index = 0;
-		List<TestChromosome> front = null;
-		this.population.clear();
+        int remain = this.population.size();
+        int index = 0;
+        List<TestChromosome> front = null;
+        this.population.clear();
 
-		// Obtain the next front
-		front = this.rankingFunction.getSubfront(index);
+        // Obtain the next front
+        front = this.rankingFunction.getSubfront(index);
 
-		while ((remain > 0) && (remain >= front.size()) && !front.isEmpty()) {
-			// Assign crowding distance to individuals
-			this.distance.fastEpsilonDominanceAssignment(front, uncoveredGoals);
-			// Add the individuals of this front
-			this.population.addAll(front);
+        while ((remain > 0) && (remain >= front.size()) && !front.isEmpty()) {
+            // Assign crowding distance to individuals
+            this.distance.fastEpsilonDominanceAssignment(front, uncoveredGoals);
+            // Add the individuals of this front
+            this.population.addAll(front);
 
-			// Decrement remain
-			remain = remain - front.size();
+            // Decrement remain
+            remain = remain - front.size();
 
-			// Obtain the next front
-			index++;
-			if (remain > 0) {
-				front = this.rankingFunction.getSubfront(index);
-			}
-		}
+            // Obtain the next front
+            index++;
+            if (remain > 0) {
+                front = this.rankingFunction.getSubfront(index);
+            }
+        }
 
-		// Remain is less than front(index).size, insert only the best one
-		if (remain > 0 && !front.isEmpty()) { // front contains individuals to insert
-			this.distance.fastEpsilonDominanceAssignment(front, uncoveredGoals);
-			front.sort(new OnlyCrowdingComparator<>());
-			for (int k = 0; k < remain; k++) {
-				this.population.add(front.get(k));
-			}
+        // Remain is less than front(index).size, insert only the best one
+        if (remain > 0 && !front.isEmpty()) { // front contains individuals to insert
+            this.distance.fastEpsilonDominanceAssignment(front, uncoveredGoals);
+            front.sort(new OnlyCrowdingComparator<>());
+            for (int k = 0; k < remain; k++) {
+                this.population.add(front.get(k));
+            }
 
-			remain = 0;
-		}
+            remain = 0;
+        }
 
-		// for parallel runs: collect best k individuals for migration
-		if (Properties.NUM_PARALLEL_CLIENTS > 1 && Properties.MIGRANTS_ITERATION_FREQUENCY > 0) {
-			if ((currentIteration + 1) % Properties.MIGRANTS_ITERATION_FREQUENCY == 0 && !this.population.isEmpty()) {
-				HashSet<TestChromosome> emigrants = new HashSet<>(emigrantsSelection.select(this.population,
-						Properties.MIGRANTS_COMMUNICATION_RATE));
-				ClientServices.<TestChromosome>getInstance().getClientNode().emigrate(emigrants);
-			}
-		}
+        // for parallel runs: collect best k individuals for migration
+        if (Properties.NUM_PARALLEL_CLIENTS > 1 && Properties.MIGRANTS_ITERATION_FREQUENCY > 0) {
+            if ((currentIteration + 1) % Properties.MIGRANTS_ITERATION_FREQUENCY == 0 && !this.population.isEmpty()) {
+                HashSet<TestChromosome> emigrants = new HashSet<>(emigrantsSelection.select(this.population,
+                        Properties.MIGRANTS_COMMUNICATION_RATE));
+                ClientServices.<TestChromosome>getInstance().getClientNode().emigrate(emigrants);
+            }
+        }
 
-		this.currentIteration++;
-	}
+        this.currentIteration++;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void generateSolution() {
-		logger.info("executing generateSolution function");
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void generateSolution() {
+        logger.info("executing generateSolution function");
 
-		// keep track of covered goals
-		this.fitnessFunctions.forEach(this::addUncoveredGoal);
+        // keep track of covered goals
+        this.fitnessFunctions.forEach(this::addUncoveredGoal);
 
-		// initialize population
-		if (this.population.isEmpty()) {
-			this.initializePopulation();
-		}
+        // initialize population
+        if (this.population.isEmpty()) {
+            this.initializePopulation();
+        }
 
-		// Calculate dominance ranks and crowding distance
-		this.rankingFunction.computeRankingAssignment(this.population, this.getUncoveredGoals());
-		for (int i = 0; i < this.rankingFunction.getNumberOfSubfronts(); i++) {
-			this.distance.fastEpsilonDominanceAssignment(this.rankingFunction.getSubfront(i), this.getUncoveredGoals());
-		}
+        // Calculate dominance ranks and crowding distance
+        this.rankingFunction.computeRankingAssignment(this.population, this.getUncoveredGoals());
+        for (int i = 0; i < this.rankingFunction.getNumberOfSubfronts(); i++) {
+            this.distance.fastEpsilonDominanceAssignment(this.rankingFunction.getSubfront(i), this.getUncoveredGoals());
+        }
 
-		final ClientNodeLocal<TestChromosome> clientNode =
-				ClientServices.<TestChromosome>getInstance().getClientNode();
+        final ClientNodeLocal<TestChromosome> clientNode =
+                ClientServices.<TestChromosome>getInstance().getClientNode();
 
-		Listener<Set<TestChromosome>> listener = null;
-		if (Properties.NUM_PARALLEL_CLIENTS > 1) {
-			listener = event -> immigrants.add(new LinkedList<>(event));
-			clientNode.addListener(listener);
-		}
+        Listener<Set<TestChromosome>> listener = null;
+        if (Properties.NUM_PARALLEL_CLIENTS > 1) {
+            listener = event -> immigrants.add(new LinkedList<>(event));
+            clientNode.addListener(listener);
+        }
 
-		// TODO add here dynamic stopping condition
-		while (!this.isFinished() && this.getNumberOfUncoveredGoals() > 0) {
-			this.evolve();
-			this.notifyIteration();
-		}
+        // TODO add here dynamic stopping condition
+        while (!this.isFinished() && this.getNumberOfUncoveredGoals() > 0) {
+            this.evolve();
+            this.notifyIteration();
+        }
 
-		if (Properties.NUM_PARALLEL_CLIENTS > 1) {
-			clientNode.deleteListener(listener);
+        if (Properties.NUM_PARALLEL_CLIENTS > 1) {
+            clientNode.deleteListener(listener);
 
-			if (ClientProcess.DEFAULT_CLIENT_NAME.equals(ClientProcess.getIdentifier())) {
-				//collect all end result test cases
-				Set<Set<TestChromosome>> collectedSolutions = clientNode.getBestSolutions();
+            if (ClientProcess.DEFAULT_CLIENT_NAME.equals(ClientProcess.getIdentifier())) {
+                //collect all end result test cases
+                Set<Set<TestChromosome>> collectedSolutions = clientNode.getBestSolutions();
 
-				logger.debug(ClientProcess.DEFAULT_CLIENT_NAME + ": Received " + collectedSolutions.size() + " solution sets");
-				for (Set<TestChromosome> solution : collectedSolutions) {
-					for (TestChromosome t : solution) {
-						this.calculateFitness(t);
-					}
-				}
-			} else {
-				//send end result test cases to Client-0
-				Set<TestChromosome> solutionsSet = new HashSet<>(getSolutions());
-				logger.debug(ClientProcess.getPrettyPrintIdentifier() + "Sending " + solutionsSet.size()
-						+ " solutions to " + ClientProcess.DEFAULT_CLIENT_NAME);
-				clientNode.sendBestSolution(solutionsSet);
-			}
-		}
+                logger.debug(ClientProcess.DEFAULT_CLIENT_NAME + ": Received " + collectedSolutions.size() + " solution sets");
+                for (Set<TestChromosome> solution : collectedSolutions) {
+                    for (TestChromosome t : solution) {
+                        this.calculateFitness(t);
+                    }
+                }
+            } else {
+                //send end result test cases to Client-0
+                Set<TestChromosome> solutionsSet = new HashSet<>(getSolutions());
+                logger.debug(ClientProcess.getPrettyPrintIdentifier() + "Sending " + solutionsSet.size()
+                        + " solutions to " + ClientProcess.DEFAULT_CLIENT_NAME);
+                clientNode.sendBestSolution(solutionsSet);
+            }
+        }
 
-		// storing the time needed to reach the maximum coverage
-		clientNode.trackOutputVariable(RuntimeVariable.Time2MaxCoverage,
-				this.budgetMonitor.getTime2MaxCoverage());
-		this.notifySearchFinished();
-	}
+        // storing the time needed to reach the maximum coverage
+        clientNode.trackOutputVariable(RuntimeVariable.Time2MaxCoverage,
+                this.budgetMonitor.getTime2MaxCoverage());
+        this.notifySearchFinished();
+    }
 }

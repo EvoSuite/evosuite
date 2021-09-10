@@ -22,11 +22,10 @@ package org.evosuite.utils;
 
 /**
  * @author Gordon Fraser
- * 
  */
 public interface RandomAccessQueue<T> {
 
-	void restrictedAdd(T value);
+    void restrictedAdd(T value);
 
-	T getRandomValue();
+    T getRandomValue();
 }

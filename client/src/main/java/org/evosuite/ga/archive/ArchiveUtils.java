@@ -49,142 +49,140 @@ import org.slf4j.LoggerFactory;
 
 public final class ArchiveUtils {
 
-  private static final Logger logger = LoggerFactory.getLogger(ArchiveUtils.class);
+    private static final Logger logger = LoggerFactory.getLogger(ArchiveUtils.class);
 
-  /**
-   * Checks whether a specific goal (i.e., a {@link org.evosuite.testcase.TestFitnessFunction}
-   * object) is of an enabled criterion. A criterion is considered enabled if and only if defined in
-   * {@link org.evosuite.Properties.CRITERION}.
-   * 
-   * @param goal a {@link org.evosuite.testcase.TestFitnessFunction} object
-   * @return true if criterion of goal is enabled, false otherwise
-   */
-  public static boolean isCriterionEnabled(FitnessFunction<TestChromosome> goal) {
-    for (Properties.Criterion criterion : Properties.CRITERION) {
-      switch (criterion) {
-        case EXCEPTION:
-          if (goal instanceof ExceptionCoverageTestFitness) {
-            return true;
-          }
-          break;
-        case DEFUSE:
-          if (goal instanceof DefUseCoverageTestFitness) {
-            return true;
-          }
-          break;
-        case ALLDEFS:
-          if (goal instanceof AllDefsCoverageTestFitness) {
-            return true;
-          }
-          break;
-        case BRANCH:
-          if (goal instanceof BranchCoverageTestFitness) {
-            return true;
-          }
-          break;
-        case CBRANCH:
-          if (goal instanceof CBranchTestFitness) {
-            return true;
-          }
-          break;
-        case STRONGMUTATION:
-          if (goal instanceof StrongMutationTestFitness) {
-            return true;
-          }
-          break;
-        case WEAKMUTATION:
-          if (goal instanceof WeakMutationTestFitness) {
-            return true;
-          }
-          break;
-        case MUTATION:
-          if (goal instanceof MutationTestFitness) {
-            return true;
-          }
-          break;
-        case STATEMENT:
-          if (goal instanceof StatementCoverageTestFitness) {
-            return true;
-          }
-          break;
-        case RHO:
-          if (goal instanceof RhoCoverageTestFitness) {
-            return true;
-          }
-          break;
-        case AMBIGUITY:
-          if (goal instanceof LineCoverageTestFitness) {
-            return true;
-          }
-          break;
-        case IBRANCH:
-          if (goal instanceof IBranchTestFitness) {
-            return true;
-          }
-          break;
-        case READABILITY:
-          break;
-        case ONLYBRANCH:
-          if (goal instanceof OnlyBranchCoverageTestFitness) {
-            return true;
-          }
-          break;
-        case ONLYMUTATION:
-          if (goal instanceof OnlyMutationTestFitness) {
-            return true;
-          }
-          break;
-        case METHODTRACE:
-          if (goal instanceof MethodTraceCoverageTestFitness) {
-            return true;
-          }
-          break;
-        case METHOD:
-          if (goal instanceof MethodCoverageTestFitness) {
-            return true;
-          }
-          break;
-        case METHODNOEXCEPTION:
-          if (goal instanceof MethodNoExceptionCoverageTestFitness) {
-            return true;
-          }
-          break;
-        case LINE:
-          if (goal instanceof LineCoverageTestFitness) {
-            return true;
-          }
-          break;
-        case ONLYLINE:
-          if (goal instanceof LineCoverageTestFitness) {
-            return true;
-          }
-          break;
-        case OUTPUT:
-          if (goal instanceof OutputCoverageTestFitness) {
-            return true;
-          }
-          break;
-        case INPUT:
-          if (goal instanceof InputCoverageTestFitness) {
-            return true;
-          }
-          break;
-        case TRYCATCH:
-          if (goal instanceof TryCatchCoverageTestFitness) {
-            return true;
-          }
-          break;
-        default:
-          AtMostOnceLogger.warn(logger, "Unknown criterion '" + criterion.name() + "'");
-          break;
-      }
-    }
-    if (ArrayUtil.contains(Properties.SECONDARY_OBJECTIVE, Properties.SecondaryObjective.IBRANCH)) {
-      if (goal instanceof IBranchTestFitness) {
-        return true;
-      }
-    }
+    /**
+     * Checks whether a specific goal (i.e., a {@link org.evosuite.testcase.TestFitnessFunction}
+     * object) is of an enabled criterion. A criterion is considered enabled if and only if defined in
+     * {@link org.evosuite.Properties.CRITERION}.
+     *
+     * @param goal a {@link org.evosuite.testcase.TestFitnessFunction} object
+     * @return true if criterion of goal is enabled, false otherwise
+     */
+    public static boolean isCriterionEnabled(FitnessFunction<TestChromosome> goal) {
+        for (Properties.Criterion criterion : Properties.CRITERION) {
+            switch (criterion) {
+                case EXCEPTION:
+                    if (goal instanceof ExceptionCoverageTestFitness) {
+                        return true;
+                    }
+                    break;
+                case DEFUSE:
+                    if (goal instanceof DefUseCoverageTestFitness) {
+                        return true;
+                    }
+                    break;
+                case ALLDEFS:
+                    if (goal instanceof AllDefsCoverageTestFitness) {
+                        return true;
+                    }
+                    break;
+                case BRANCH:
+                    if (goal instanceof BranchCoverageTestFitness) {
+                        return true;
+                    }
+                    break;
+                case CBRANCH:
+                    if (goal instanceof CBranchTestFitness) {
+                        return true;
+                    }
+                    break;
+                case STRONGMUTATION:
+                    if (goal instanceof StrongMutationTestFitness) {
+                        return true;
+                    }
+                    break;
+                case WEAKMUTATION:
+                    if (goal instanceof WeakMutationTestFitness) {
+                        return true;
+                    }
+                    break;
+                case MUTATION:
+                    if (goal instanceof MutationTestFitness) {
+                        return true;
+                    }
+                    break;
+                case STATEMENT:
+                    if (goal instanceof StatementCoverageTestFitness) {
+                        return true;
+                    }
+                    break;
+                case RHO:
+                    if (goal instanceof RhoCoverageTestFitness) {
+                        return true;
+                    }
+                    break;
+                case AMBIGUITY:
+                    if (goal instanceof LineCoverageTestFitness) {
+                        return true;
+                    }
+                    break;
+                case IBRANCH:
+                    if (goal instanceof IBranchTestFitness) {
+                        return true;
+                    }
+                    break;
+                case READABILITY:
+                    break;
+                case ONLYBRANCH:
+                    if (goal instanceof OnlyBranchCoverageTestFitness) {
+                        return true;
+                    }
+                    break;
+                case ONLYMUTATION:
+                    if (goal instanceof OnlyMutationTestFitness) {
+                        return true;
+                    }
+                    break;
+                case METHODTRACE:
+                    if (goal instanceof MethodTraceCoverageTestFitness) {
+                        return true;
+                    }
+                    break;
+                case METHOD:
+                    if (goal instanceof MethodCoverageTestFitness) {
+                        return true;
+                    }
+                    break;
+                case METHODNOEXCEPTION:
+                    if (goal instanceof MethodNoExceptionCoverageTestFitness) {
+                        return true;
+                    }
+                    break;
+                case LINE:
+                    if (goal instanceof LineCoverageTestFitness) {
+                        return true;
+                    }
+                    break;
+                case ONLYLINE:
+                    if (goal instanceof LineCoverageTestFitness) {
+                        return true;
+                    }
+                    break;
+                case OUTPUT:
+                    if (goal instanceof OutputCoverageTestFitness) {
+                        return true;
+                    }
+                    break;
+                case INPUT:
+                    if (goal instanceof InputCoverageTestFitness) {
+                        return true;
+                    }
+                    break;
+                case TRYCATCH:
+                    if (goal instanceof TryCatchCoverageTestFitness) {
+                        return true;
+                    }
+                    break;
+                default:
+                    AtMostOnceLogger.warn(logger, "Unknown criterion '" + criterion.name() + "'");
+                    break;
+            }
+        }
+        if (ArrayUtil.contains(Properties.SECONDARY_OBJECTIVE, Properties.SecondaryObjective.IBRANCH)) {
+            return goal instanceof IBranchTestFitness;
+        }
 
-    return false;
-  }
+        return false;
+    }
 }

@@ -20,93 +20,92 @@
 package org.evosuite.graphs.ccfg;
 
 import org.evosuite.graphs.cfg.BytecodeInstruction;
+
 /**
- * This class represent a method call of a field class. 
- * @author Mattia Vivanti
+ * This class represent a method call of a field class.
  *
+ * @author Mattia Vivanti
  */
 public class CCFGFieldClassCallNode extends CCFGCodeNode {
 
-	private String className;
-	private String methodName;
-	private String methodParameters;
-	
-		
+    private final String className;
+    private final String methodName;
+    private final String methodParameters;
+
+
 //	
-	/**
-	 * <p>Constructor for CCFGFieldClassCallNode.</p>
-	 *
-	 * @param code a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
-	 */
-	public CCFGFieldClassCallNode(BytecodeInstruction code, String className, String methodName, String methodParameters) {
-		super(code);
-		this.className=className;
-		this.methodName=methodName;
-		this.methodParameters = methodParameters;
-	}
 
-	/**
-	 * @return the className
-	 */
-	public String getClassName() {
-		return className;
-	}
+    /**
+     * <p>Constructor for CCFGFieldClassCallNode.</p>
+     *
+     * @param code a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
+     */
+    public CCFGFieldClassCallNode(BytecodeInstruction code, String className, String methodName, String methodParameters) {
+        super(code);
+        this.className = className;
+        this.methodName = methodName;
+        this.methodParameters = methodParameters;
+    }
 
-	/**
-	 * @return the methodName
-	 */
-	public String getMethodName() {
-		return methodName+methodParameters;
-	}
-	
-	public String getOnlyMethodName(){
-		return methodName;
-	}
-	
-	public String getOnlyParameters(){
-		return methodParameters;
-	}
+    /**
+     * @return the className
+     */
+    public String getClassName() {
+        return className;
+    }
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = super.hashCode();
-		result = prime * result
-				+ ((className == null) ? 0 : className.hashCode());
-		result = prime * result
-				+ ((methodName == null) ? 0 : methodName.hashCode());
-		result = prime
-				* result
-				+ ((methodParameters == null) ? 0 : methodParameters.hashCode());
-		return result;
-	}
+    /**
+     * @return the methodName
+     */
+    public String getMethodName() {
+        return methodName + methodParameters;
+    }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (!super.equals(obj))
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		CCFGFieldClassCallNode other = (CCFGFieldClassCallNode) obj;
-		if (className == null) {
-			if (other.className != null)
-				return false;
-		} else if (!className.equals(other.className))
-			return false;
-		if (methodName == null) {
-			if (other.methodName != null)
-				return false;
-		} else if (!methodName.equals(other.methodName))
-			return false;
-		if (methodParameters == null) {
-			if (other.methodParameters != null)
-				return false;
-		} else if (!methodParameters.equals(other.methodParameters))
-			return false;
-		return true;
-	}
- 
-	
+    public String getOnlyMethodName() {
+        return methodName;
+    }
+
+    public String getOnlyParameters() {
+        return methodParameters;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result
+                + ((className == null) ? 0 : className.hashCode());
+        result = prime * result
+                + ((methodName == null) ? 0 : methodName.hashCode());
+        result = prime
+                * result
+                + ((methodParameters == null) ? 0 : methodParameters.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!super.equals(obj))
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        CCFGFieldClassCallNode other = (CCFGFieldClassCallNode) obj;
+        if (className == null) {
+            if (other.className != null)
+                return false;
+        } else if (!className.equals(other.className))
+            return false;
+        if (methodName == null) {
+            if (other.methodName != null)
+                return false;
+        } else if (!methodName.equals(other.methodName))
+            return false;
+        if (methodParameters == null) {
+            return other.methodParameters == null;
+        } else return methodParameters.equals(other.methodParameters);
+    }
+
+
 }

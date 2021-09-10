@@ -28,20 +28,18 @@ import org.slf4j.LoggerFactory;
 /**
  * Created by mat on 07/04/2014.
  */
-public class LanguageModel11EA extends LanguageModelSearch{
+public class LanguageModel11EA extends LanguageModelSearch {
     protected static Logger logger = LoggerFactory.getLogger(LanguageModel11EA.class);
 
 
-    public  LanguageModel11EA(ConstantValue statement, ValueMinimizer.Minimization objective) {
+    public LanguageModel11EA(ConstantValue statement, ValueMinimizer.Minimization objective) {
         super(objective, statement);
     }
 
 
-
-
     @Override
     public String optimise() {
-        if(startPoint == null || startPoint.isEmpty()){
+        if (startPoint == null || startPoint.isEmpty()) {
             logger.info("Not trying to optimise null or empty string");
             return startPoint;
         }
@@ -52,14 +50,14 @@ public class LanguageModel11EA extends LanguageModelSearch{
         best.setFitness(evaluate(best));
         double originalStringScore = best.getFitness();
 
-        for(int generation = 0; generation < GENERATIONS && !isBudgetExpended() ; generation++){
+        for (int generation = 0; generation < GENERATIONS && !isBudgetExpended(); generation++) {
             double currentStringScore = best.getFitness();
 
             Chromosome mutant = mutate(best);
-            if(!mutant.isEvaluated())
+            if (!mutant.isEvaluated())
                 mutant.setFitness(evaluate(mutant));
 
-            if(mutant.compareTo(best) > 0){
+            if (mutant.compareTo(best) > 0) {
                 best = mutant;
             }
         }

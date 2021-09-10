@@ -19,10 +19,10 @@
  */
 package org.evosuite.ga.populationlimit;
 
+import org.evosuite.ga.Chromosome;
+
 import java.io.Serializable;
 import java.util.List;
-
-import org.evosuite.ga.Chromosome;
 
 /**
  * <p>PopulationLimit interface.</p>
@@ -30,11 +30,11 @@ import org.evosuite.ga.Chromosome;
  * @author Gordon Fraser
  */
 public interface PopulationLimit<T extends Chromosome<T>> extends Serializable {
-	/**
-	 * <p>isPopulationFull</p>
-	 *
-	 * @param population a {@link java.util.List} object.
-	 * @return a boolean.
-	 */
+    /**
+     * <p>isPopulationFull</p>
+     *
+     * @param population a {@link java.util.List} object.
+     * @return a boolean.
+     */
     boolean isPopulationFull(List<T> population);
 }

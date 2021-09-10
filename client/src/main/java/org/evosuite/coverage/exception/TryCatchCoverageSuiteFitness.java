@@ -33,7 +33,7 @@ import java.util.Map;
  */
 public class TryCatchCoverageSuiteFitness extends BranchCoverageSuiteFitness {
 
-     private static final long serialVersionUID = -8849382855802052405L;
+    private static final long serialVersionUID = -8849382855802052405L;
 
     /**
      * Make sure we only include artificial branches
@@ -42,7 +42,7 @@ public class TryCatchCoverageSuiteFitness extends BranchCoverageSuiteFitness {
         List<TryCatchCoverageTestFitness> goals = new TryCatchCoverageFactory().getCoverageGoals();
         for (TryCatchCoverageTestFitness goal : goals) {
 
-            if(updateArchive && Properties.TEST_ARCHIVE)
+            if (updateArchive && Properties.TEST_ARCHIVE)
                 Archive.getArchiveInstance().addTarget(goal);
 
             branchesId.add(goal.getBranch().getActualBranchId());

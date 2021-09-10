@@ -33,100 +33,109 @@ import org.evosuite.testcase.TestChromosome;
  * @author Gordon Fraser
  */
 public class RelativeSuiteLengthBloatControl<T extends Chromosome<T>> implements BloatControlFunction<T>,
-		SearchListener<T> {
+        SearchListener<T> {
 
-	private static final long serialVersionUID = -2352882640530431653L;
+    private static final long serialVersionUID = -2352882640530431653L;
 
-	/**
-	 * Longest individual in current generation
-	 */
-	protected int current_max;
+    /**
+     * Longest individual in current generation
+     */
+    protected int current_max;
 
-	protected double best_fitness;
+    protected double best_fitness;
 
-	public RelativeSuiteLengthBloatControl() {
-		current_max = 0;
-		best_fitness = Double.MAX_VALUE; // FIXXME: Assuming
-										 // minimizing fitness!
-	}
+    public RelativeSuiteLengthBloatControl() {
+        current_max = 0;
+        best_fitness = Double.MAX_VALUE; // FIXXME: Assuming
+        // minimizing fitness!
+    }
 
-	public RelativeSuiteLengthBloatControl(final RelativeSuiteLengthBloatControl<?> that) {
-		this.current_max = that.current_max;
-		this.best_fitness = that.best_fitness;
-	}
+    public RelativeSuiteLengthBloatControl(final RelativeSuiteLengthBloatControl<?> that) {
+        this.current_max = that.current_max;
+        this.best_fitness = that.best_fitness;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 *
-	 * Reject individuals that are larger than twice the length of the current
-	 * best individual
-	 */
-	@Override
-	public boolean isTooLong(T chromosome) {
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Reject individuals that are larger than twice the length of the current
+     * best individual
+     */
+    @Override
+    public boolean isTooLong(T chromosome) {
 
-		// Always accept if fitness is better
-		if (chromosome.getFitness() < best_fitness)
-			return false;
+        // Always accept if fitness is better
+        if (chromosome.getFitness() < best_fitness)
+            return false;
 
-		// logger.debug("Current - max: "+((TestSuiteChromosome)chromosome).length()+" - "+current_max);
-		if (current_max > 0) {
-			// if(((TestSuiteChromosome)chromosome).length() > bloat_factor *
-			// current_max)
-			// logger.debug("Bloat control: "+((TestSuiteChromosome)chromosome).length()
-			// +" > "+ bloat_factor * current_max);
+        // logger.debug("Current - max: "+((TestSuiteChromosome)chromosome).length()+" - "+current_max);
+        if (current_max > 0) {
+            // if(((TestSuiteChromosome)chromosome).length() > bloat_factor *
+            // current_max)
+            // logger.debug("Bloat control: "+((TestSuiteChromosome)chromosome).length()
+            // +" > "+ bloat_factor * current_max);
 
-			int length = 0;
-			if (chromosome instanceof TestSuiteChromosome)
-				length = ((TestSuiteChromosome) chromosome).totalLengthOfTestCases();
-			if (chromosome instanceof TestChromosome)
-				length = chromosome.size();
-			return length > (Properties.BLOAT_FACTOR * current_max);
-		} else
-			return false; // Don't know max length so can't reject!
+            int length = 0;
+            if (chromosome instanceof TestSuiteChromosome)
+                length = ((TestSuiteChromosome) chromosome).totalLengthOfTestCases();
+            if (chromosome instanceof TestChromosome)
+                length = chromosome.size();
+            return length > (Properties.BLOAT_FACTOR * current_max);
+        } else
+            return false; // Don't know max length so can't reject!
 
-	}
+    }
 
-	/**
-	 * {@inheritDoc}
-	 *
-	 * Set current max length to max of best chromosome
-	 */
-	@Override
-	public void iteration(GeneticAlgorithm<T> algorithm) {
-		T best = algorithm.getBestIndividual();
-		if (best instanceof TestSuiteChromosome)
-			current_max = ((TestSuiteChromosome) best).totalLengthOfTestCases();
-		if (best instanceof TestChromosome)
-			current_max = best.size();
-		best_fitness = best.getFitness();
-	}
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Set current max length to max of best chromosome
+     */
+    @Override
+    public void iteration(GeneticAlgorithm<T> algorithm) {
+        T best = algorithm.getBestIndividual();
+        if (best instanceof TestSuiteChromosome)
+            current_max = ((TestSuiteChromosome) best).totalLengthOfTestCases();
+        if (best instanceof TestChromosome)
+            current_max = best.size();
+        best_fitness = best.getFitness();
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public void searchFinished(GeneticAlgorithm<T> algorithm) {
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void searchFinished(GeneticAlgorithm<T> algorithm) {
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public void searchStarted(GeneticAlgorithm<T> algorithm) {
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void searchStarted(GeneticAlgorithm<T> algorithm) {
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public void fitnessEvaluation(T result) {
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void fitnessEvaluation(T result) {
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.evosuite.ga.SearchListener#mutation(org.evosuite
-	 * .ga.Chromosome)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public void modification(T individual) {
-		// TODO Auto-generated method stub
+    /*
+     * (non-Javadoc)
+     *
+     * @see
+     * org.evosuite.ga.SearchListener#mutation(org.evosuite
+     * .ga.Chromosome)
+     */
 
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void modification(T individual) {
+        // TODO Auto-generated method stub
+
+    }
 }

@@ -19,148 +19,141 @@
  */
 package org.evosuite.symbolic.vm.string;
 
-import static org.objectweb.asm.Type.BOOLEAN_TYPE;
-import static org.objectweb.asm.Type.CHAR_TYPE;
-import static org.objectweb.asm.Type.DOUBLE_TYPE;
-import static org.objectweb.asm.Type.FLOAT_TYPE;
-import static org.objectweb.asm.Type.INT_TYPE;
-import static org.objectweb.asm.Type.LONG_TYPE;
-import static org.objectweb.asm.Type.VOID_TYPE;
-import static org.objectweb.asm.Type.getMethodDescriptor;
+import org.objectweb.asm.Type;
 
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.StringTokenizer;
 
-import org.objectweb.asm.Type;
+import static org.objectweb.asm.Type.*;
 
 public interface Types {
 
-	Type CHARSEQ_TYPE = Type.getType(CharSequence.class);
+    Type CHARSEQ_TYPE = Type.getType(CharSequence.class);
 
-	Type OBJECT_TYPE = Type.getType(Object.class);
+    Type OBJECT_TYPE = Type.getType(Object.class);
 
-	Type STRING_TYPE = Type.getType(String.class);
+    Type STRING_TYPE = Type.getType(String.class);
 
-	Type STRING_BUILDER_TYPE = Type
-			.getType(StringBuilder.class);
+    Type STRING_BUILDER_TYPE = Type
+            .getType(StringBuilder.class);
 
-	String TO_INT_DESCRIPTOR = getMethodDescriptor(INT_TYPE);
+    String TO_INT_DESCRIPTOR = getMethodDescriptor(INT_TYPE);
 
-	String TO_STR_DESCRIPTOR = getMethodDescriptor(STRING_TYPE);
+    String TO_STR_DESCRIPTOR = getMethodDescriptor(STRING_TYPE);
 
-	String STR_TO_INT_DESCRIPTOR = getMethodDescriptor(
-			INT_TYPE, STRING_TYPE);
+    String STR_TO_INT_DESCRIPTOR = getMethodDescriptor(
+            INT_TYPE, STRING_TYPE);
 
-	String INT_TO_INT_DESCRIPTOR = getMethodDescriptor(
-			INT_TYPE, INT_TYPE);
+    String INT_TO_INT_DESCRIPTOR = getMethodDescriptor(
+            INT_TYPE, INT_TYPE);
 
-	String INT_TO_CHAR_DESCRIPTOR = getMethodDescriptor(
-			CHAR_TYPE, INT_TYPE);
+    String INT_TO_CHAR_DESCRIPTOR = getMethodDescriptor(
+            CHAR_TYPE, INT_TYPE);
 
-	String STR_TO_STR_DESCRIPTOR = getMethodDescriptor(
-			STRING_TYPE, STRING_TYPE);
+    String STR_TO_STR_DESCRIPTOR = getMethodDescriptor(
+            STRING_TYPE, STRING_TYPE);
 
-	String CHAR_CHAR_TO_STR_DESCRIPTOR = getMethodDescriptor(
-			STRING_TYPE, CHAR_TYPE, CHAR_TYPE);
+    String CHAR_CHAR_TO_STR_DESCRIPTOR = getMethodDescriptor(
+            STRING_TYPE, CHAR_TYPE, CHAR_TYPE);
 
-	String INT_INT_TO_STR_DESCRIPTOR = getMethodDescriptor(
-			STRING_TYPE, INT_TYPE, INT_TYPE);
+    String INT_INT_TO_STR_DESCRIPTOR = getMethodDescriptor(
+            STRING_TYPE, INT_TYPE, INT_TYPE);
 
-	String INT_TO_STR_DESCRIPTOR = getMethodDescriptor(
-			STRING_TYPE, INT_TYPE);
+    String INT_TO_STR_DESCRIPTOR = getMethodDescriptor(
+            STRING_TYPE, INT_TYPE);
 
-	String LONG_TO_STR_DESCRIPTOR = getMethodDescriptor(
-			STRING_TYPE, LONG_TYPE);
+    String LONG_TO_STR_DESCRIPTOR = getMethodDescriptor(
+            STRING_TYPE, LONG_TYPE);
 
-	String CHAR_TO_STR_DESCRIPTOR = getMethodDescriptor(
-			STRING_TYPE, CHAR_TYPE);
+    String CHAR_TO_STR_DESCRIPTOR = getMethodDescriptor(
+            STRING_TYPE, CHAR_TYPE);
 
-	String BOOLEAN_TO_STR_DESCRIPTOR = getMethodDescriptor(
-			STRING_TYPE, BOOLEAN_TYPE);
-	
-	String INT_INT_TO_INT_DESCRIPTOR = getMethodDescriptor(
-			INT_TYPE, INT_TYPE, INT_TYPE);
+    String BOOLEAN_TO_STR_DESCRIPTOR = getMethodDescriptor(
+            STRING_TYPE, BOOLEAN_TYPE);
 
-	String STR_STR_TO_STR_DESCRIPTOR = getMethodDescriptor(
-			STRING_TYPE, STRING_TYPE, STRING_TYPE);
+    String INT_INT_TO_INT_DESCRIPTOR = getMethodDescriptor(
+            INT_TYPE, INT_TYPE, INT_TYPE);
 
-	String STR_INT_TO_INT_DESCRIPTOR = getMethodDescriptor(
-			INT_TYPE, STRING_TYPE, INT_TYPE);
+    String STR_STR_TO_STR_DESCRIPTOR = getMethodDescriptor(
+            STRING_TYPE, STRING_TYPE, STRING_TYPE);
 
-	String OBJECT_TO_BOOL_DESCRIPTOR = getMethodDescriptor(
-			BOOLEAN_TYPE, OBJECT_TYPE);
+    String STR_INT_TO_INT_DESCRIPTOR = getMethodDescriptor(
+            INT_TYPE, STRING_TYPE, INT_TYPE);
 
-	String OBJECT_TO_STR_DESCRIPTOR = getMethodDescriptor(
-			STRING_TYPE, OBJECT_TYPE);
+    String OBJECT_TO_BOOL_DESCRIPTOR = getMethodDescriptor(
+            BOOLEAN_TYPE, OBJECT_TYPE);
 
-	String STR_TO_BOOL_DESCRIPTOR = getMethodDescriptor(
-			BOOLEAN_TYPE, STRING_TYPE);
+    String OBJECT_TO_STR_DESCRIPTOR = getMethodDescriptor(
+            STRING_TYPE, OBJECT_TYPE);
 
-	String STR_INT_TO_BOOL_DESCRIPTOR = getMethodDescriptor(
-			BOOLEAN_TYPE, STRING_TYPE, INT_TYPE);
+    String STR_TO_BOOL_DESCRIPTOR = getMethodDescriptor(
+            BOOLEAN_TYPE, STRING_TYPE);
 
-	String BOOL_INT_STR_INT_INT_TO_BOOL_DESCRIPTOR = getMethodDescriptor(
-			BOOLEAN_TYPE, Type.BOOLEAN_TYPE, INT_TYPE, STRING_TYPE, INT_TYPE,
-			INT_TYPE);
+    String STR_INT_TO_BOOL_DESCRIPTOR = getMethodDescriptor(
+            BOOLEAN_TYPE, STRING_TYPE, INT_TYPE);
 
-	String CHARSEQ_TO_BOOL_DESCRIPTOR = getMethodDescriptor(
-			BOOLEAN_TYPE, CHARSEQ_TYPE);
+    String BOOL_INT_STR_INT_INT_TO_BOOL_DESCRIPTOR = getMethodDescriptor(
+            BOOLEAN_TYPE, Type.BOOLEAN_TYPE, INT_TYPE, STRING_TYPE, INT_TYPE,
+            INT_TYPE);
 
-	String CHARSEQ_CHARSEQ_TO_STR_DESCRIPTOR = getMethodDescriptor(
-			STRING_TYPE, CHARSEQ_TYPE, CHARSEQ_TYPE);
+    String CHARSEQ_TO_BOOL_DESCRIPTOR = getMethodDescriptor(
+            BOOLEAN_TYPE, CHARSEQ_TYPE);
 
-	String STR_TO_VOID_DESCRIPTOR = getMethodDescriptor(
-			VOID_TYPE, STRING_TYPE);
+    String CHARSEQ_CHARSEQ_TO_STR_DESCRIPTOR = getMethodDescriptor(
+            STRING_TYPE, CHARSEQ_TYPE, CHARSEQ_TYPE);
 
-	String STR_TO_STRBUILDER_DESCRIPTOR = getMethodDescriptor(
-			STRING_BUILDER_TYPE, STRING_TYPE);
+    String STR_TO_VOID_DESCRIPTOR = getMethodDescriptor(
+            VOID_TYPE, STRING_TYPE);
 
-	String CHAR_TO_STRBUILDER_DESCRIPTOR = getMethodDescriptor(
-			STRING_BUILDER_TYPE, CHAR_TYPE);
+    String STR_TO_STRBUILDER_DESCRIPTOR = getMethodDescriptor(
+            STRING_BUILDER_TYPE, STRING_TYPE);
 
-	String CHARSEQ_TO_VOID_DESCRIPTOR = getMethodDescriptor(
-			VOID_TYPE, CHARSEQ_TYPE);
+    String CHAR_TO_STRBUILDER_DESCRIPTOR = getMethodDescriptor(
+            STRING_BUILDER_TYPE, CHAR_TYPE);
 
-	String INT_TO_STRBUILDER_DESCRIPTOR = getMethodDescriptor(
-			STRING_BUILDER_TYPE, INT_TYPE);
+    String CHARSEQ_TO_VOID_DESCRIPTOR = getMethodDescriptor(
+            VOID_TYPE, CHARSEQ_TYPE);
 
-	String LONG_TO_STRBUILDER_DESCRIPTOR = getMethodDescriptor(
-			STRING_BUILDER_TYPE, LONG_TYPE);
+    String INT_TO_STRBUILDER_DESCRIPTOR = getMethodDescriptor(
+            STRING_BUILDER_TYPE, INT_TYPE);
 
-	String BOOLEAN_TO_STRBUILDER_DESCRIPTOR = getMethodDescriptor(
-			STRING_BUILDER_TYPE, BOOLEAN_TYPE);
+    String LONG_TO_STRBUILDER_DESCRIPTOR = getMethodDescriptor(
+            STRING_BUILDER_TYPE, LONG_TYPE);
 
-	String FLOAT_TO_STRBUILDER_DESCRIPTOR = getMethodDescriptor(
-			STRING_BUILDER_TYPE, FLOAT_TYPE);
+    String BOOLEAN_TO_STRBUILDER_DESCRIPTOR = getMethodDescriptor(
+            STRING_BUILDER_TYPE, BOOLEAN_TYPE);
 
-	String DOUBLE_TO_STRBUILDER_DESCRIPTOR = getMethodDescriptor(
-			STRING_BUILDER_TYPE, DOUBLE_TYPE);
+    String FLOAT_TO_STRBUILDER_DESCRIPTOR = getMethodDescriptor(
+            STRING_BUILDER_TYPE, FLOAT_TYPE);
 
-	String OBJECT_TO_STRBUILDER_DESCRIPTOR = getMethodDescriptor(
-			STRING_BUILDER_TYPE, OBJECT_TYPE);
+    String DOUBLE_TO_STRBUILDER_DESCRIPTOR = getMethodDescriptor(
+            STRING_BUILDER_TYPE, DOUBLE_TYPE);
 
-	String JAVA_LANG_STRING = String.class.getName().replace(".",
-			"/");
+    String OBJECT_TO_STRBUILDER_DESCRIPTOR = getMethodDescriptor(
+            STRING_BUILDER_TYPE, OBJECT_TYPE);
 
-	String JAVA_LANG_STRING_BUILDER = StringBuilder.class
-			.getName().replace('.', '/');
+    String JAVA_LANG_STRING = String.class.getName().replace(".",
+            "/");
 
-	String JAVA_UTIL_STRING_TOKENIZER = StringTokenizer.class
-			.getName().replace('.', '/');
+    String JAVA_LANG_STRING_BUILDER = StringBuilder.class
+            .getName().replace('.', '/');
 
-	String STR_STR_TO_VOID_DESCRIPTOR = getMethodDescriptor(
-			VOID_TYPE, STRING_TYPE, STRING_TYPE);
+    String JAVA_UTIL_STRING_TOKENIZER = StringTokenizer.class
+            .getName().replace('.', '/');
 
-	String TO_BOOLEAN_DESCRIPTOR = getMethodDescriptor(BOOLEAN_TYPE);
+    String STR_STR_TO_VOID_DESCRIPTOR = getMethodDescriptor(
+            VOID_TYPE, STRING_TYPE, STRING_TYPE);
 
-	String INT_STR_INT_INT_TO_BOOL_DESCRIPTOR = getMethodDescriptor(
-			BOOLEAN_TYPE, INT_TYPE, STRING_TYPE, INT_TYPE, INT_TYPE);
+    String TO_BOOLEAN_DESCRIPTOR = getMethodDescriptor(BOOLEAN_TYPE);
 
-	String JAVA_IO_STRING_READER = StringReader.class.getName()
-			.replace('.', '/');
+    String INT_STR_INT_INT_TO_BOOL_DESCRIPTOR = getMethodDescriptor(
+            BOOLEAN_TYPE, INT_TYPE, STRING_TYPE, INT_TYPE, INT_TYPE);
 
-	String JAVA_IO_READER = Reader.class.getName().replace(
-			".", "/");
+    String JAVA_IO_STRING_READER = StringReader.class.getName()
+            .replace('.', '/');
+
+    String JAVA_IO_READER = Reader.class.getName().replace(
+            ".", "/");
 
 }

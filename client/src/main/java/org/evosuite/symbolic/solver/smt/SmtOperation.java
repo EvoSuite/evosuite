@@ -23,153 +23,153 @@ import java.util.Arrays;
 
 public final class SmtOperation extends SmtExpr {
 
-	public enum Operator {
-		MUL("*"), //
-		MINUS("-"), //
-		ADD("+"), //
-		MOD("mod"), //
-		INT2BV32("(_ int2bv 32)"), //
-		BVOR("bvor"), //
-		BV2Nat("bv2nat"), //
-		BVAND("bvand"), //
-		BVXOR("bvxor"), //
-		BV2INT("bv2int"), //
-		BVSHL("bvshl"), //
-		BVASHR("bvashr"), //
-		BVLSHR("bvlshr"), //
-		GT(">"), //
-		ITE("ite"), //
-		LT("<"), //
-		GE(">="), //
-		TO_INT("to_int"), //
-		TO_REAL("to_real"), //
-		DIV("div"), //
-		SLASH("/"), //
-		STR_SUBSTR("str.substr"), //
-		STR_REPLACE("str.replace"), //
-		STR_INDEXOF("str.indexof"), //
-		EQ("="), //
-		STR_CONCAT("str.++"), //
-		INT_TO_STR("int.to.str"), //
-		STR_SUFFIXOF("str.suffixof"), //
-		STR_CONTAINS("str.contains"), //
-		STR_AT("str.at"), //
-		CHAR_TO_INT("char_to_int"), //
-		STR_PREFIXOF("str.prefixof"), //
-		INT_TO_CHAR("int_to_char"), //
-		STR_LEN("str.len"), //
-		LE("<="), //
-		NOT("not"), //
-		STR_TO_INT("str.to.int"), //
-		ABS("abs"), //
-		BVADD("bvadd"), //
-		// regular expressions
-		STR_IN_RE("str.in.re"), //
-		STR_TO_RE("str.to.re"), //
-		RE_CONCAT("re.++"), //
-		RE_KLEENE_STAR("re.*"), //
-		RE_UNION("re.union"), //
-		RE_OPT("re.opt"), //
-		RE_ALLCHAR("re.allchar"), //
-		RE_KLEENE_CROSS("re.+"), //
-		RE_LOOP("re.loop"), //
-		RE_RANGE("re.range"), //
-		
-		
-		REM("rem"), //
-		CONCAT("Concat"), //
-		REPLACE("Replace"), //
-		SUBSTRING("Substring"), //
-		ENDSWITH("Endswith"), //
-		CONTAINS("Contains"), //
-		STARTSWITH("StarsWith"), //
-		INDEXOF("Indexof"), //
-		LENGTH("Length"),
-
-		/** Arrays */
-		SELECT("select"),
-		STORE("store");
+    public enum Operator {
+        MUL("*"), //
+        MINUS("-"), //
+        ADD("+"), //
+        MOD("mod"), //
+        INT2BV32("(_ int2bv 32)"), //
+        BVOR("bvor"), //
+        BV2Nat("bv2nat"), //
+        BVAND("bvand"), //
+        BVXOR("bvxor"), //
+        BV2INT("bv2int"), //
+        BVSHL("bvshl"), //
+        BVASHR("bvashr"), //
+        BVLSHR("bvlshr"), //
+        GT(">"), //
+        ITE("ite"), //
+        LT("<"), //
+        GE(">="), //
+        TO_INT("to_int"), //
+        TO_REAL("to_real"), //
+        DIV("div"), //
+        SLASH("/"), //
+        STR_SUBSTR("str.substr"), //
+        STR_REPLACE("str.replace"), //
+        STR_INDEXOF("str.indexof"), //
+        EQ("="), //
+        STR_CONCAT("str.++"), //
+        INT_TO_STR("int.to.str"), //
+        STR_SUFFIXOF("str.suffixof"), //
+        STR_CONTAINS("str.contains"), //
+        STR_AT("str.at"), //
+        CHAR_TO_INT("char_to_int"), //
+        STR_PREFIXOF("str.prefixof"), //
+        INT_TO_CHAR("int_to_char"), //
+        STR_LEN("str.len"), //
+        LE("<="), //
+        NOT("not"), //
+        STR_TO_INT("str.to.int"), //
+        ABS("abs"), //
+        BVADD("bvadd"), //
+        // regular expressions
+        STR_IN_RE("str.in.re"), //
+        STR_TO_RE("str.to.re"), //
+        RE_CONCAT("re.++"), //
+        RE_KLEENE_STAR("re.*"), //
+        RE_UNION("re.union"), //
+        RE_OPT("re.opt"), //
+        RE_ALLCHAR("re.allchar"), //
+        RE_KLEENE_CROSS("re.+"), //
+        RE_LOOP("re.loop"), //
+        RE_RANGE("re.range"), //
 
 
-		private final String rep;
+        REM("rem"), //
+        CONCAT("Concat"), //
+        REPLACE("Replace"), //
+        SUBSTRING("Substring"), //
+        ENDSWITH("Endswith"), //
+        CONTAINS("Contains"), //
+        STARTSWITH("StarsWith"), //
+        INDEXOF("Indexof"), //
+        LENGTH("Length"),
 
-		private Operator(String rep) {
-			this.rep = rep;
-		}
+        /**
+         * Arrays
+         */
+        SELECT("select"),
+        STORE("store");
 
-		@Override
-		public String toString() {
-			return rep;
-		}
-	}
 
-	private final Operator operator;
-	private final SmtExpr[] arguments;
+        private final String rep;
 
-	private final boolean hasSymbolicValues;
+        Operator(String rep) {
+            this.rep = rep;
+        }
 
-	/**
-	 * Unary operation
-	 * 
-	 * @param op
-	 * @param arg
-	 */
-	public SmtOperation(Operator op, SmtExpr... arg) {
-		this.operator = op;
-		this.arguments = arg;
-		this.hasSymbolicValues = hasSymbolicValue(arg);
-	}
+        @Override
+        public String toString() {
+            return rep;
+        }
+    }
 
-	@Override
-	public <K, V> K accept(SmtExprVisitor<K, V> v, V arg) {
-		return v.visit(this, arg);
-	}
+    private final Operator operator;
+    private final SmtExpr[] arguments;
 
-	public SmtExpr[] getArguments() {
-		return arguments;
-	}
+    private final boolean hasSymbolicValues;
 
-	public Operator getOperator() {
-		return operator;
-	}
+    /**
+     * Unary operation
+     *
+     * @param op
+     * @param arg
+     */
+    public SmtOperation(Operator op, SmtExpr... arg) {
+        this.operator = op;
+        this.arguments = arg;
+        this.hasSymbolicValues = hasSymbolicValue(arg);
+    }
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + Arrays.hashCode(arguments);
-		result = prime * result + ((operator == null) ? 0 : operator.hashCode());
-		return result;
-	}
+    @Override
+    public <K, V> K accept(SmtExprVisitor<K, V> v, V arg) {
+        return v.visit(this, arg);
+    }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		SmtOperation other = (SmtOperation) obj;
-		if (!Arrays.equals(arguments, other.arguments))
-			return false;
-		if (operator != other.operator)
-			return false;
-		return true;
-	}
+    public SmtExpr[] getArguments() {
+        return arguments;
+    }
 
-	@Override
-	public boolean isSymbolic() {
-		return hasSymbolicValues;
-	}
+    public Operator getOperator() {
+        return operator;
+    }
 
-	private static boolean hasSymbolicValue(SmtExpr[] arguments) {
-		for (SmtExpr smtExpr : arguments) {
-			if (smtExpr.isSymbolic()) {
-				return true;
-			}
-		}
-		return false;
-	}
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + Arrays.hashCode(arguments);
+        result = prime * result + ((operator == null) ? 0 : operator.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        SmtOperation other = (SmtOperation) obj;
+        if (!Arrays.equals(arguments, other.arguments))
+            return false;
+        return operator == other.operator;
+    }
+
+    @Override
+    public boolean isSymbolic() {
+        return hasSymbolicValues;
+    }
+
+    private static boolean hasSymbolicValue(SmtExpr[] arguments) {
+        for (SmtExpr smtExpr : arguments) {
+            if (smtExpr.isSymbolic()) {
+                return true;
+            }
+        }
+        return false;
+    }
 
 }

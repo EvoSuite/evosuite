@@ -24,73 +24,71 @@ import org.objectweb.asm.Type;
 
 /**
  * @author Gordon Fraser
- * 
  */
 public interface ConstantPool {
 
-	/**
-	 * <p>
-	 * getRandomString
-	 * </p>
-	 * 
-	 * @return a {@link java.lang.String} object.
-	 */
+    /**
+     * <p>
+     * getRandomString
+     * </p>
+     *
+     * @return a {@link java.lang.String} object.
+     */
     String getRandomString();
-	
-	/**
-	 * <p>
-	 * getRandomType
-	 * </p>
-	 * 
-	 * @return a {@link org.objectweb.asm.Type} object.
-	 */
+
+    /**
+     * <p>
+     * getRandomType
+     * </p>
+     *
+     * @return a {@link org.objectweb.asm.Type} object.
+     */
     Type getRandomType();
-	
-	/**
-	 * <p>
-	 * getRandomInt
-	 * </p>
-	 * 
-	 * @return a int.
-	 */
+
+    /**
+     * <p>
+     * getRandomInt
+     * </p>
+     *
+     * @return a int.
+     */
     int getRandomInt();
 
-	/**
-	 * <p>
-	 * getRandomFloat
-	 * </p>
-	 * 
-	 * @return a float.
-	 */
+    /**
+     * <p>
+     * getRandomFloat
+     * </p>
+     *
+     * @return a float.
+     */
     float getRandomFloat();
 
-	/**
-	 * <p>
-	 * getRandomDouble
-	 * </p>
-	 * 
-	 * @return a double.
-	 */
+    /**
+     * <p>
+     * getRandomDouble
+     * </p>
+     *
+     * @return a double.
+     */
     double getRandomDouble();
 
-	/**
-	 * <p>
-	 * getRandomLong
-	 * </p>
-	 * 
-	 * @return a long.
-	 */
+    /**
+     * <p>
+     * getRandomLong
+     * </p>
+     *
+     * @return a long.
+     */
     long getRandomLong();
 
-	/**
-	 * <p>
-	 * add
-	 * </p>
-	 * 
-	 * @param object
-	 *            a {@link java.lang.Object} object.
-	 */
+    /**
+     * <p>
+     * add
+     * </p>
+     *
+     * @param object a {@link java.lang.Object} object.
+     */
     void add(Object object);
-	
-	String toString();
+
+    String toString();
 }

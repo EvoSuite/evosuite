@@ -18,26 +18,28 @@
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 package org.evosuite.symbolic.expr;
-public  interface Variable<T extends Object> extends Expression<T> {
 
-	/**
-	 * <p>getName</p>
-	 *
-	 * @param <T> a T object.
-	 * @return a {@link java.lang.String} object.
-	 */
+public interface Variable<T extends Object> extends Expression<T> {
+
+    /**
+     * <p>getName</p>
+     *
+     * @param <T> a T object.
+     * @return a {@link java.lang.String} object.
+     */
     String getName();
-	
-	/**
-	 * <p>getMinValue</p>
-	 *
-	 * @return a T object.
-	 */
+
+    /**
+     * <p>getMinValue</p>
+     *
+     * @return a T object.
+     */
     T getMinValue();
-	/**
-	 * <p>getMaxValue</p>
-	 *
-	 * @return a T object.
-	 */
+
+    /**
+     * <p>getMaxValue</p>
+     *
+     * @return a T object.
+     */
     T getMaxValue();
 }

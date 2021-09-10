@@ -44,7 +44,7 @@ public abstract class LanguageModelSearch implements Comparator<Chromosome> {
 
     protected static final int MAX_EVALUATIONS;
 
-    static{
+    static {
         MAX_EVALUATIONS = Properties.LM_ITERATIONS;
     }
 
@@ -62,43 +62,43 @@ public abstract class LanguageModelSearch implements Comparator<Chromosome> {
             //FIXME: remove this garbage
             throw new RuntimeException("Couldn't create language model");
         }
-        this.startPoint = (String)constantValue.getValue();
+        this.startPoint = (String) constantValue.getValue();
         this.objective = objective;
         // this.statement = statement;
         this.constantValue = constantValue;
     }
 
-    public static String mutateRandom(final String input){
+    public static String mutateRandom(final String input) {
 
-        if (input == null || input.length() == 0){
+        if (input == null || input.length() == 0) {
             return input;
         }
 
-        int position = (int)(Math.abs(Randomness.nextDouble() * input.length()));
+        int position = (int) (Math.abs(Randomness.nextDouble() * input.length()));
 
-        String output = input.substring(0,position);
+        String output = input.substring(0, position);
 
         int tailSize = input.length() - position;
 
         assert tailSize >= 0;
 
         int replacementSize = 1;
-        if(tailSize > 1)
-            replacementSize = Randomness.nextInt(1,tailSize);
+        if (tailSize > 1)
+            replacementSize = Randomness.nextInt(1, tailSize);
 
         String replacementString = "";
-        for(int i =0; i < replacementSize; i++)
+        for (int i = 0; i < replacementSize; i++)
             replacementString += (char) Randomness.nextInt(' ', '~' + 1);
 
         output += replacementString;
 
-        output += input.substring(position+ replacementSize);
+        output += input.substring(position + replacementSize);
 
 
         return output;
     }
 
-    public static String mutateEvoSuite(final String input){
+    public static String mutateEvoSuite(final String input) {
 
         char[] array = input.toCharArray();
 
@@ -115,14 +115,14 @@ public abstract class LanguageModelSearch implements Comparator<Chromosome> {
         return String.valueOf(array);
     }
 
-    public String mutate(final String input){
-        if(Properties.LM_MUTATION_TYPE == MutationType.LANGMODEL) {
+    public String mutate(final String input) {
+        if (Properties.LM_MUTATION_TYPE == MutationType.LANGMODEL) {
             return mutateLangModel(input);
-        }else if(Properties.LM_MUTATION_TYPE == MutationType.RANDOM){
+        } else if (Properties.LM_MUTATION_TYPE == MutationType.RANDOM) {
             return mutateRandom(input);
-        }else if(Properties.LM_MUTATION_TYPE == MutationType.EVOSUITE){
+        } else if (Properties.LM_MUTATION_TYPE == MutationType.EVOSUITE) {
             return mutateEvoSuite(input);
-        }else{
+        } else {
             throw new RuntimeException("Mutation type " + Properties.LM_MUTATION_TYPE + " not supported");
         }
     }
@@ -130,58 +130,58 @@ public abstract class LanguageModelSearch implements Comparator<Chromosome> {
     /**
      * Build a random string that is at most maxStringLength characters long.
      */
-    public String generateRandomStringFromModel(int maxStringLength, String previousChar){
+    public String generateRandomStringFromModel(int maxStringLength, String previousChar) {
         //Start the string with a random choice from the 10 most likely characters to start a string:
 
 
         String newString = "";
 
 
-        do{
+        do {
 
             Set<Integer> choices = new HashSet<>(Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7, 8, 9));
 
             boolean foundValidChar = false;
             String nextChar;
 
-            do{
+            do {
                 int currentChoice = Randomness.choice(choices);
 
                 choices.remove(currentChoice);
 
-                if(previousChar == null){
+                if (previousChar == null) {
                     nextChar = languageModel.predict_char(currentChoice);
-                }else{
+                } else {
                     nextChar = languageModel.predict_char(previousChar, currentChoice);
                 }
 
                 foundValidChar = nextChar != null && !languageModel.isMagicChar(nextChar);
 
-            }while(!choices.isEmpty() && !foundValidChar);
+            } while (!choices.isEmpty() && !foundValidChar);
             //We keep trying until we get an actual char, or we run out of slots. After that, we give up and
             //reuse the input.
 
-            if(!foundValidChar){
+            if (!foundValidChar) {
                 logger.debug("Couldn't find any bigram or unigram for " + previousChar);
                 nextChar = "a"; //TODO: this is a kludge
             }
 
 
-            if(!languageModel.isEndOfSentence(nextChar))
+            if (!languageModel.isEndOfSentence(nextChar))
                 newString += nextChar;
 
             previousChar = nextChar;
 
-        }while(newString.length() < maxStringLength && !languageModel.isEndOfSentence(previousChar));
+        } while (newString.length() < maxStringLength && !languageModel.isEndOfSentence(previousChar));
 
         return newString;
     }
 
-    public String generateRandomStringFromModelWithExactLength(int targetStringLength, String previousChar){
-        String newString = generateRandomStringFromModel(targetStringLength,previousChar);
+    public String generateRandomStringFromModelWithExactLength(int targetStringLength, String previousChar) {
+        String newString = generateRandomStringFromModel(targetStringLength, previousChar);
 
-        while(newString.length() < targetStringLength){
-            newString += generateRandomStringFromModel(targetStringLength - newString.length(), newString.charAt(newString.length()-1) + "");
+        while (newString.length() < targetStringLength) {
+            newString += generateRandomStringFromModel(targetStringLength - newString.length(), newString.charAt(newString.length() - 1) + "");
         }
 
         assert newString.length() == targetStringLength;
@@ -189,11 +189,11 @@ public abstract class LanguageModelSearch implements Comparator<Chromosome> {
         return newString;
     }
 
-    public String generateRandomStringFromModelWithExactLength(int targetStringLength){
+    public String generateRandomStringFromModelWithExactLength(int targetStringLength) {
         return generateRandomStringFromModelWithExactLength(targetStringLength, null);
     }
 
-    public String generateRandomStringFromModel(int maxStringLength){
+    public String generateRandomStringFromModel(int maxStringLength) {
         return generateRandomStringFromModel(maxStringLength, null);
     }
 
@@ -201,13 +201,13 @@ public abstract class LanguageModelSearch implements Comparator<Chromosome> {
     /**
      * Produce a new string similar to input.
      * Selects a random substring of the string and for each character in that substring:
-     *  gets the character preceeding it
-     *  gets a character the language model predicts to follow that prefix
-     *  replaces the character with the predicted character
+     * gets the character preceeding it
+     * gets a character the language model predicts to follow that prefix
+     * replaces the character with the predicted character
      */
-    public String mutateLangModel(final String input){
+    public String mutateLangModel(final String input) {
 
-        if(input.length() == 0){
+        if (input.length() == 0) {
             //Mutation preserves length, so we can't do anything for empty string.
             return input;
         }
@@ -215,14 +215,14 @@ public abstract class LanguageModelSearch implements Comparator<Chromosome> {
         //e.g. string is "abcde"
         // point is 0..4
         //Since nextDouble never returns 1.0, taking the floor gives us values in the range 0..strlen-1:
-        int startPoint = (int)(Randomness.nextDouble() * (input.length()));
+        int startPoint = (int) (Randomness.nextDouble() * (input.length()));
 
         //we preserve string lengths; how many chars do we have to mutate?
-        int remainingLength = (int)Math.round(
+        int remainingLength = (int) Math.round(
                 Randomness.nextDouble() * (input.length() - startPoint)
         );
 
-        if(remainingLength == 0){
+        if (remainingLength == 0) {
             //Mutation size is zero, so there's nothing to do.
             return input;
         }
@@ -231,13 +231,13 @@ public abstract class LanguageModelSearch implements Comparator<Chromosome> {
         //substring is start (inclusive) to end (exclusive).
         //e.g. if startPoint is 3
         // output = "abc" at this point
-        String output = input.substring(0,startPoint);
+        String output = input.substring(0, startPoint);
 
-        String replacementChunk = generateRandomStringFromModelWithExactLength(remainingLength, ""+ input.charAt(startPoint));
+        String replacementChunk = generateRandomStringFromModelWithExactLength(remainingLength, "" + input.charAt(startPoint));
 
 
         output += replacementChunk;
-        output += input.substring(startPoint + remainingLength, input.length());
+        output += input.substring(startPoint + remainingLength);
 
         return output;
 
@@ -249,11 +249,11 @@ public abstract class LanguageModelSearch implements Comparator<Chromosome> {
      * @return the language model score of the string, plus 1 if it does not affect the coverage goal.
      */
     protected double evaluate(Chromosome individual) throws EvaluationBudgetExpendedException {
-        if(isBudgetExpended()){
+        if (isBudgetExpended()) {
             throw new EvaluationBudgetExpendedException();
         }
         evaluations++;
-        String oldValue = (String)constantValue.getValue();
+        String oldValue = (String) constantValue.getValue();
         constantValue.setValue(individual.getValue());
         boolean isNotWorse = objective.isNotWorse();
 
@@ -267,11 +267,10 @@ public abstract class LanguageModelSearch implements Comparator<Chromosome> {
         return evaluations >= MAX_EVALUATIONS;
     }
 
-    protected Chromosome mutate(Chromosome individual){
+    protected Chromosome mutate(Chromosome individual) {
         assert individual != null;
         return new Chromosome(mutate(individual.getValue()));
     }
-
 
 
     public abstract String optimise();

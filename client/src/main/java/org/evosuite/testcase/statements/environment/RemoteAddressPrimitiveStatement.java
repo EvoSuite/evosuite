@@ -32,11 +32,11 @@ import org.evosuite.utils.StringUtil;
 /**
  * Created by arcuri on 12/17/14.
  */
-public class RemoteAddressPrimitiveStatement extends EnvironmentDataStatement<EvoSuiteRemoteAddress>{
+public class RemoteAddressPrimitiveStatement extends EnvironmentDataStatement<EvoSuiteRemoteAddress> {
 
-	private static final long serialVersionUID = -4863601663573415059L;
+    private static final long serialVersionUID = -4863601663573415059L;
 
-	public RemoteAddressPrimitiveStatement(TestCase tc) {
+    public RemoteAddressPrimitiveStatement(TestCase tc) {
         this(tc, null);
         randomize();
     }
@@ -58,7 +58,7 @@ public class RemoteAddressPrimitiveStatement extends EnvironmentDataStatement<Ev
             testCode += ((Class<?>) retval.getType()).getSimpleName() + " "
                     + varName + " = new "
                     + ((Class<?>) retval.getType()).getSimpleName() + "(\""
-                    + escapedAddress +"\", "+port + ");\n";
+                    + escapedAddress + "\", " + port + ");\n";
         } else {
             testCode += ((Class<?>) retval.getType()).getSimpleName() + " "
                     + varName + " = null;\n";
@@ -83,13 +83,13 @@ public class RemoteAddressPrimitiveStatement extends EnvironmentDataStatement<Ev
         double threshold = 0.8; //TODO parameter
         boolean accessed = Randomness.nextDouble() <= threshold;
 
-        if(accessed && !tc.getAccessedEnvironment().getViewOfRemoteContactedPorts().isEmpty()){
+        if (accessed && !tc.getAccessedEnvironment().getViewOfRemoteContactedPorts().isEmpty()) {
             // use an address that the SUT tried to contact
             EndPointInfo info = Randomness.choice(tc.getAccessedEnvironment().getViewOfRemoteContactedPorts());
             String host = info.getHost();
             int port = info.getPort();//TODO check why it can be a 0 here
             port = getPort(port);
-            addr = new EvoSuiteRemoteAddress(host,port);
+            addr = new EvoSuiteRemoteAddress(host, port);
         } else {
             /*
                 make up an address based on string/int constants.
@@ -104,14 +104,14 @@ public class RemoteAddressPrimitiveStatement extends EnvironmentDataStatement<Ev
             String host = constantPool.getRandomString();
             int port = constantPool.getRandomInt();
             port = getPort(port);
-            addr = new EvoSuiteRemoteAddress(host,port);
+            addr = new EvoSuiteRemoteAddress(host, port);
         }
 
         setValue(addr);
     }
 
     private int getPort(int port) {
-        if(port<=0 || port > 65535){
+        if (port <= 0 || port > 65535) {
             port = 12345; //just a valid port number
         }
         return port;

@@ -36,19 +36,19 @@ import java.lang.reflect.Method;
  */
 public class ExceptionCoverageHelper {
 
-    public static Class<?> getExceptionClass(ExecutionResult result, int exceptionPosition){
+    public static Class<?> getExceptionClass(ExecutionResult result, int exceptionPosition) {
         Throwable t = result.getExceptionThrownAtPosition(exceptionPosition);
-        if(t instanceof OverrideMock){
+        if (t instanceof OverrideMock) {
             return t.getClass().getSuperclass();
         }
         return t.getClass();
     }
 
-    public static ExceptionCoverageTestFitness.ExceptionType getType(ExecutionResult result, int exceptionPosition){
-        if(isDeclared(result,exceptionPosition)){
+    public static ExceptionCoverageTestFitness.ExceptionType getType(ExecutionResult result, int exceptionPosition) {
+        if (isDeclared(result, exceptionPosition)) {
             return ExceptionCoverageTestFitness.ExceptionType.DECLARED;
         } else {
-            if(isExplicit(result,exceptionPosition)){
+            if (isExplicit(result, exceptionPosition)) {
                 return ExceptionCoverageTestFitness.ExceptionType.EXPLICIT;
             } else {
                 return ExceptionCoverageTestFitness.ExceptionType.IMPLICIT;
@@ -56,17 +56,17 @@ public class ExceptionCoverageHelper {
         }
     }
 
-    public static boolean isExplicit(ExecutionResult result, int exceptionPosition){
-            return result.explicitExceptions.containsKey(exceptionPosition)
-                    && result.explicitExceptions.get(exceptionPosition);
+    public static boolean isExplicit(ExecutionResult result, int exceptionPosition) {
+        return result.explicitExceptions.containsKey(exceptionPosition)
+                && result.explicitExceptions.get(exceptionPosition);
     }
 
-    public static boolean isDeclared(ExecutionResult result, int exceptionPosition){
+    public static boolean isDeclared(ExecutionResult result, int exceptionPosition) {
         Throwable t = result.getExceptionThrownAtPosition(exceptionPosition);
 
         // Check if thrown exception is declared, or subclass of a declared exception
-        for(Class<?> declaredExceptionClass : result.test.getStatement(exceptionPosition).getDeclaredExceptions()) {
-            if(declaredExceptionClass.isAssignableFrom(t.getClass())) {
+        for (Class<?> declaredExceptionClass : result.test.getStatement(exceptionPosition).getDeclaredExceptions()) {
+            if (declaredExceptionClass.isAssignableFrom(t.getClass())) {
                 return true;
             }
         }
@@ -74,7 +74,7 @@ public class ExceptionCoverageHelper {
         return false;
     }
 
-    public static String getMethodIdentifier(ExecutionResult result, int exceptionPosition){
+    public static String getMethodIdentifier(ExecutionResult result, int exceptionPosition) {
         if (result.test.getStatement(exceptionPosition) instanceof MethodStatement) {
             MethodStatement ms = (MethodStatement) result.test.getStatement(exceptionPosition);
             Method method = ms.getMethod().getMethod();
@@ -82,31 +82,27 @@ public class ExceptionCoverageHelper {
         } else if (result.test.getStatement(exceptionPosition) instanceof ConstructorStatement) {
             ConstructorStatement cs = (ConstructorStatement) result.test.getStatement(exceptionPosition);
             Constructor<?> constructor = cs.getConstructor().getConstructor();
-            return  "<init>" + Type.getConstructorDescriptor(constructor);
+            return "<init>" + Type.getConstructorDescriptor(constructor);
         }
         return "";
     }
 
-    public static boolean isSutException(ExecutionResult result, int exceptionPosition){
+    public static boolean isSutException(ExecutionResult result, int exceptionPosition) {
         if (result.test.getStatement(exceptionPosition) instanceof MethodStatement) {
             MethodStatement ms = (MethodStatement) result.test.getStatement(exceptionPosition);
             Method method = ms.getMethod().getMethod();
-			Class<?> targetClass = Properties.getTargetClassAndDontInitialise();
-            if (method.getDeclaringClass().equals(targetClass)){
-                return true;
-            }
+            Class<?> targetClass = Properties.getTargetClassAndDontInitialise();
+            return method.getDeclaringClass().equals(targetClass);
         } else if (result.test.getStatement(exceptionPosition) instanceof ConstructorStatement) {
             ConstructorStatement cs = (ConstructorStatement) result.test.getStatement(exceptionPosition);
             Constructor<?> constructor = cs.getConstructor().getConstructor();
-			Class<?> targetClass = Properties.getTargetClassAndDontInitialise();
-            if (constructor.getDeclaringClass().equals(targetClass)){
-                return true;
-            }
+            Class<?> targetClass = Properties.getTargetClassAndDontInitialise();
+            return constructor.getDeclaringClass().equals(targetClass);
         }
         return false;
     }
 
-    public static boolean shouldSkip(ExecutionResult result, int exceptionPosition){
+    public static boolean shouldSkip(ExecutionResult result, int exceptionPosition) {
         if (exceptionPosition >= result.test.size()) {
             // Timeouts are put after the last statement if the process was forcefully killed
             return true;
@@ -114,7 +110,7 @@ public class ExceptionCoverageHelper {
 
         //not interested in security exceptions when Sandbox is active
         Throwable t = result.getExceptionThrownAtPosition(exceptionPosition);
-        if (t instanceof SecurityException && Properties.SANDBOX){
+        if (t instanceof SecurityException && Properties.SANDBOX) {
             return true;
         }
 
@@ -125,18 +121,17 @@ public class ExceptionCoverageHelper {
 			Foo foo = null:
 			foo.bar();
 		 */
-        if (t instanceof CodeUnderTestException){
+        if (t instanceof CodeUnderTestException) {
             return true;
         }
 
         if (t.getStackTrace() != null && t.getStackTrace().length > 0 && t.getStackTrace()[0] != null) {
             // This is to cover cases not handled by CodeUnderTestException, or if bug in EvoSuite itself
-            if(t.getStackTrace()[0].getClassName().startsWith(PackageInfo.getEvoSuitePackage()+".testcase"))
+            if (t.getStackTrace()[0].getClassName().startsWith(PackageInfo.getEvoSuitePackage() + ".testcase"))
                 return true;
 
             // Enum valueOf exceptions are not interesting, they just result from invalid strings
-            if(t.getStackTrace()[0].getClassName().startsWith(Enum.class.getCanonicalName()) && t.getStackTrace()[0].getMethodName().startsWith("valueOf"))
-                return true;
+            return t.getStackTrace()[0].getClassName().startsWith(Enum.class.getCanonicalName()) && t.getStackTrace()[0].getMethodName().startsWith("valueOf");
         }
 
         return false;

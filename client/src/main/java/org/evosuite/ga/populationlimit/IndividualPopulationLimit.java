@@ -19,10 +19,10 @@
  */
 package org.evosuite.ga.populationlimit;
 
-import java.util.List;
-
 import org.evosuite.Properties;
 import org.evosuite.ga.Chromosome;
+
+import java.util.List;
 
 
 /**
@@ -32,31 +32,34 @@ import org.evosuite.ga.Chromosome;
  */
 public class IndividualPopulationLimit<T extends Chromosome<T>> implements PopulationLimit<T> {
 
-	private static final long serialVersionUID = -3985726226793280031L;
+    private static final long serialVersionUID = -3985726226793280031L;
 
-	public IndividualPopulationLimit() {
-	}
+    public IndividualPopulationLimit() {
+    }
 
-	/**
-	 * Copy Constructor
-	 *
-	 * This constructor is used by {@link org.evosuite.ga.metaheuristics.TestSuiteAdapter} to adapt the generic type
-	 * parameter.
-	 *
-	 * This constructor shall preserve the current state of the IndividualPopulationLimit (if existing).
-	 *
-	 * @param other
-	 */
-	public IndividualPopulationLimit(IndividualPopulationLimit<?> other) {
-	}
+    /**
+     * Copy Constructor
+     * <p>
+     * This constructor is used by {@link org.evosuite.ga.metaheuristics.TestSuiteAdapter} to adapt the generic type
+     * parameter.
+     * <p>
+     * This constructor shall preserve the current state of the IndividualPopulationLimit (if existing).
+     *
+     * @param other
+     */
+    public IndividualPopulationLimit(IndividualPopulationLimit<?> other) {
+    }
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.ga.PopulationLimit#isPopulationFull(java.util.List)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public boolean isPopulationFull(List<T> population) {
-		return population.size() >= Properties.POPULATION;
-	}
+    /* (non-Javadoc)
+     * @see org.evosuite.ga.PopulationLimit#isPopulationFull(java.util.List)
+     */
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isPopulationFull(List<T> population) {
+        return population.size() >= Properties.POPULATION;
+    }
 
 }

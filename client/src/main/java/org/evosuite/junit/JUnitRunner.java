@@ -21,7 +21,9 @@
 package org.evosuite.junit;
 
 import org.evosuite.Properties;
-import org.junit.platform.launcher.*;
+import org.junit.platform.launcher.Launcher;
+import org.junit.platform.launcher.LauncherDiscoveryRequest;
+import org.junit.platform.launcher.TestPlan;
 import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder;
 import org.junit.platform.launcher.core.LauncherFactory;
 import org.junit.runner.JUnitCore;
@@ -39,70 +41,67 @@ import static org.junit.platform.engine.discovery.DiscoverySelectors.selectPacka
  * <p>
  * JUnitRunner class
  * </p>
- * 
+ *
  * @author José Campos
  */
 public class JUnitRunner {
 
-	private static Logger logger = LoggerFactory.getLogger(JUnitRunner.class);
-	
-	private List<JUnitResult> testResults;
+    private static final Logger logger = LoggerFactory.getLogger(JUnitRunner.class);
 
-	
-	private final Class<?> junitClass;
+    private final List<JUnitResult> testResults;
 
-	
-	public JUnitRunner(Class<?> junitClass) {
-		this.testResults = new ArrayList<>();
-		this.junitClass = junitClass;
-	}
 
-	public void run() {
+    private final Class<?> junitClass;
 
-		if(Properties.TEST_FORMAT == Properties.OutputFormat.JUNIT4) {
-			Request request = Request.aClass(this.junitClass);
-			logger.warn("Running Junit 4 test");
-			JUnitCore junit = new JUnitCore();
-			junit.addListener(new JUnit4RunListener(this));
-			junit.run(request);
-		} else if(Properties.TEST_FORMAT == Properties.OutputFormat.JUNIT5){
-			logger.warn("Running Junit 5 test");
 
-			LauncherDiscoveryRequest request_ = LauncherDiscoveryRequestBuilder.request()
-					.selectors(selectPackage("com.baeldung.junit5.runfromjava"))
-					.filters(includeClassNamePatterns(".*Test"))
-					.build();
-			Launcher launcher = LauncherFactory.create();
-			TestPlan testPlan = launcher.discover(request_);
-			launcher.registerTestExecutionListeners( new JUnit5RunListener(this));
+    public JUnitRunner(Class<?> junitClass) {
+        this.testResults = new ArrayList<>();
+        this.junitClass = junitClass;
+    }
 
-			launcher.execute(request_);
-		} else {
-			logger.warn("Can't run junit test with test format: {}", Properties.TEST_FORMAT);
-		}
-	}
+    public void run() {
 
-	/**
-	 * 
-	 * @param testResult
-	 */
-	public void addResult(JUnitResult testResult) {
-		this.testResults.add(testResult);
-	}
+        if (Properties.TEST_FORMAT == Properties.OutputFormat.JUNIT4) {
+            Request request = Request.aClass(this.junitClass);
+            logger.warn("Running Junit 4 test");
+            JUnitCore junit = new JUnitCore();
+            junit.addListener(new JUnit4RunListener(this));
+            junit.run(request);
+        } else if (Properties.TEST_FORMAT == Properties.OutputFormat.JUNIT5) {
+            logger.warn("Running Junit 5 test");
 
-	/**
-	 * 
-	 * @return
-	 */
-	public List<JUnitResult> getTestResults() {
-		return this.testResults;
-	}
+            LauncherDiscoveryRequest request_ = LauncherDiscoveryRequestBuilder.request()
+                    .selectors(selectPackage("com.baeldung.junit5.runfromjava"))
+                    .filters(includeClassNamePatterns(".*Test"))
+                    .build();
+            Launcher launcher = LauncherFactory.create();
+            TestPlan testPlan = launcher.discover(request_);
+            launcher.registerTestExecutionListeners(new JUnit5RunListener(this));
 
-	/**
-	 * 
-	 * @return
-	 */
-	public Class<?> getJUnitClass() {
-		return this.junitClass;
-	}
+            launcher.execute(request_);
+        } else {
+            logger.warn("Can't run junit test with test format: {}", Properties.TEST_FORMAT);
+        }
+    }
+
+    /**
+     * @param testResult
+     */
+    public void addResult(JUnitResult testResult) {
+        this.testResults.add(testResult);
+    }
+
+    /**
+     * @return
+     */
+    public List<JUnitResult> getTestResults() {
+        return this.testResults;
+    }
+
+    /**
+     * @return
+     */
+    public Class<?> getJUnitClass() {
+        return this.junitClass;
+    }
 }

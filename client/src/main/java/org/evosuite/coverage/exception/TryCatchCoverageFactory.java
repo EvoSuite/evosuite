@@ -38,13 +38,16 @@ public class TryCatchCoverageFactory extends AbstractFitnessFactory<TryCatchCove
 
     private static final Logger logger = LoggerFactory.getLogger(TryCatchCoverageFactory.class);
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see
-	 * org.evosuite.coverage.TestCoverageFactory#getCoverageGoals()
-	 */
-    /** {@inheritDoc} */
+    /*
+     * (non-Javadoc)
+     *
+     * @see
+     * org.evosuite.coverage.TestCoverageFactory#getCoverageGoals()
+     */
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public List<TryCatchCoverageTestFitness> getCoverageGoals() {
         List<TryCatchCoverageTestFitness> goals = new ArrayList<>();
@@ -62,10 +65,10 @@ public class TryCatchCoverageFactory extends AbstractFitnessFactory<TryCatchCove
 
                 for (Branch b : BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).retrieveBranchesInMethod(className,
                         methodName)) {
-                    if(b.isInstrumented()) {
+                    if (b.isInstrumented()) {
                         goals.add(new TryCatchCoverageTestFitness(new BranchCoverageGoal(b,
                                 true, b.getClassName(), b.getMethodName())));
-                        if(!b.ignoreFalseBranch()) {
+                        if (!b.ignoreFalseBranch()) {
                             goals.add(new TryCatchCoverageTestFitness(new BranchCoverageGoal(b,
                                     false, b.getClassName(), b.getMethodName())));
                         }

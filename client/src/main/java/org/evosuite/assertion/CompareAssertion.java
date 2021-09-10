@@ -19,178 +19,183 @@
  */
 package org.evosuite.assertion;
 
+import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.execution.CodeUnderTestException;
+import org.evosuite.testcase.execution.Scope;
+import org.evosuite.testcase.variable.VariableReference;
+
 import java.util.HashSet;
 import java.util.Set;
 
-import org.evosuite.testcase.TestCase;
-import org.evosuite.testcase.variable.VariableReference;
-import org.evosuite.testcase.execution.CodeUnderTestException;
-import org.evosuite.testcase.execution.Scope;
-
 /**
  * Assertion on comparison value of two objects
- * 
+ *
  * @author Gordon Fraser
  */
 public class CompareAssertion extends Assertion {
 
-	private static final long serialVersionUID = 7415863202662602633L;
+    private static final long serialVersionUID = 7415863202662602633L;
 
-	protected VariableReference dest;
+    protected VariableReference dest;
 
-	/**
-	 * <p>
-	 * Getter for the field <code>dest</code>.
-	 * </p>
-	 * 
-	 * @return a {@link org.evosuite.testcase.variable.VariableReference} object.
-	 */
-	public VariableReference getDest() {
-		return dest;
-	}
+    /**
+     * <p>
+     * Getter for the field <code>dest</code>.
+     * </p>
+     *
+     * @return a {@link org.evosuite.testcase.variable.VariableReference} object.
+     */
+    public VariableReference getDest() {
+        return dest;
+    }
 
-	/**
-	 * <p>
-	 * Setter for the field <code>dest</code>.
-	 * </p>
-	 * 
-	 * @param dest
-	 *            a {@link org.evosuite.testcase.variable.VariableReference} object.
-	 */
-	public void setDest(VariableReference dest) {
-		this.dest = dest;
-	}
+    /**
+     * <p>
+     * Setter for the field <code>dest</code>.
+     * </p>
+     *
+     * @param dest a {@link org.evosuite.testcase.variable.VariableReference} object.
+     */
+    public void setDest(VariableReference dest) {
+        this.dest = dest;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 * 
-	 * Create a copy of the compare assertion
-	 */
-	@Override
-	public Assertion copy(TestCase newTestCase, int offset) {
-		CompareAssertion s = new CompareAssertion();
-		s.source = newTestCase.getStatement(source.getStPosition() + offset).getReturnValue();
-		s.dest = newTestCase.getStatement(dest.getStPosition() + offset).getReturnValue();
-		s.value = value;
-		s.comment = comment;
-		s.killedMutants.addAll(killedMutants);
-		return s;
-	}
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Create a copy of the compare assertion
+     */
+    @Override
+    public Assertion copy(TestCase newTestCase, int offset) {
+        CompareAssertion s = new CompareAssertion();
+        s.source = newTestCase.getStatement(source.getStPosition() + offset).getReturnValue();
+        s.dest = newTestCase.getStatement(dest.getStPosition() + offset).getReturnValue();
+        s.value = value;
+        s.comment = comment;
+        s.killedMutants.addAll(killedMutants);
+        return s;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 * 
-	 * This method returns the Java Code
-	 */
-	@Override
-	public String getCode() {
-		if (source.getType().equals(Integer.class)) {
-			if ((Integer) value == 0)
-				return "assertTrue(" + source.getName() + " == " + dest.getName() + ");";
-			else if ((Integer) value < 0)
-				return "assertTrue(" + source.getName() + " < " + dest.getName() + ");";
-			else
-				return "assertTrue(" + source.getName() + " > " + dest.getName() + ");";
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This method returns the Java Code
+     */
+    @Override
+    public String getCode() {
+        if (source.getType().equals(Integer.class)) {
+            if ((Integer) value == 0)
+                return "assertTrue(" + source.getName() + " == " + dest.getName() + ");";
+            else if ((Integer) value < 0)
+                return "assertTrue(" + source.getName() + " < " + dest.getName() + ");";
+            else
+                return "assertTrue(" + source.getName() + " > " + dest.getName() + ");";
 
-		} else {
-			return "assertEquals(" + source.getName() + ".compareTo(" + dest.getName()
-			        + "), " + value + ");";
-		}
-	}
+        } else {
+            return "assertEquals(" + source.getName() + ".compareTo(" + dest.getName()
+                    + "), " + value + ");";
+        }
+    }
 
-	/**
-	 * {@inheritDoc}
-	 * 
-	 * Determine if assertion holds in current scope
-	 */
-	@SuppressWarnings("unchecked")
-	@Override
-	public boolean evaluate(Scope scope) {
-		try {
-			Comparable<Object> comparable = (Comparable<Object>) source.getObject(scope);
-			if (comparable == null)
-				if ((Integer) value == 0)
-					return dest.getObject(scope) == null;
-				else
-					return true; // TODO - true or false?
-			else {
-				try {
-					return comparable.compareTo(dest.getObject(scope)) == (Integer) value;
-				} catch (Exception e) {
-					return true; // TODO - true or false?
-				}
-			}
-		} catch (CodeUnderTestException e) {
-			throw new UnsupportedOperationException();
-		}
-	}
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Determine if assertion holds in current scope
+     */
+    @SuppressWarnings("unchecked")
+    @Override
+    public boolean evaluate(Scope scope) {
+        try {
+            Comparable<Object> comparable = (Comparable<Object>) source.getObject(scope);
+            if (comparable == null)
+                if ((Integer) value == 0)
+                    return dest.getObject(scope) == null;
+                else
+                    return true; // TODO - true or false?
+            else {
+                try {
+                    return comparable.compareTo(dest.getObject(scope)) == (Integer) value;
+                } catch (Exception e) {
+                    return true; // TODO - true or false?
+                }
+            }
+        } catch (CodeUnderTestException e) {
+            throw new UnsupportedOperationException();
+        }
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = super.hashCode();
-		result = prime * result + ((dest == null) ? 0 : dest.hashCode());
-		return result;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result + ((dest == null) ? 0 : dest.hashCode());
+        return result;
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		CompareAssertion other = (CompareAssertion) obj;
-		if (dest == null) {
-			if (other.dest != null)
-				return false;
-		} else if (!dest.equals(other.dest))
-			return false;
-		if (source == null) {
-			if (other.source != null)
-				return false;
-		} else if (!source.equals(other.source))
-			return false;
-		if (value == null) {
-			if (other.value != null)
-				return false;
-		} else if ((Integer) value > 0) {
-			if ((Integer) other.value <= 0)
-				return false;
-		} else if ((Integer) value < 0) {
-			if ((Integer) other.value >= 0)
-				return false;
-		} else if ((Integer) value == 0) {
-			if ((Integer) other.value != 0)
-				return false;
-		}
-		return true;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        CompareAssertion other = (CompareAssertion) obj;
+        if (dest == null) {
+            if (other.dest != null)
+                return false;
+        } else if (!dest.equals(other.dest))
+            return false;
+        if (source == null) {
+            if (other.source != null)
+                return false;
+        } else if (!source.equals(other.source))
+            return false;
+        if (value == null) {
+            return other.value == null;
+        } else if ((Integer) value > 0) {
+            return (Integer) other.value > 0;
+        } else if ((Integer) value < 0) {
+            return (Integer) other.value < 0;
+        } else if ((Integer) value == 0) {
+            return (Integer) other.value == 0;
+        }
+        return true;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.evosuite.assertion.Assertion#getReferencedVariables()
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public Set<VariableReference> getReferencedVariables() {
-		Set<VariableReference> vars = new HashSet<>();
-		vars.add(source);
-		vars.add(dest);
-		return vars;
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see org.evosuite.assertion.Assertion#getReferencedVariables()
+     */
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.assertion.Assertion#isValid()
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public boolean isValid() {
-		return super.isValid() && dest != null;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Set<VariableReference> getReferencedVariables() {
+        Set<VariableReference> vars = new HashSet<>();
+        vars.add(source);
+        vars.add(dest);
+        return vars;
+    }
+
+    /* (non-Javadoc)
+     * @see org.evosuite.assertion.Assertion#isValid()
+     */
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isValid() {
+        return super.isValid() && dest != null;
+    }
 
 }

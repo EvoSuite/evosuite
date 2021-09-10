@@ -29,7 +29,9 @@ import org.evosuite.testcase.variable.VariableReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Jose Miguel Rojas
@@ -66,21 +68,21 @@ public class OutputObserver extends ExecutionObserver {
             MethodStatement methodStmt = (MethodStatement) statement;
             VariableReference varRef = methodStmt.getReturnValue();
 
-	        try {
-		        Object returnObject = varRef.getObject(scope);
-		        if (exception == null && !methodStmt.getReturnType().equals(Void.TYPE)) {
-			        // we don't save anything if there was an exception
-			        // we are only interested in methods whose return type != void
+            try {
+                Object returnObject = varRef.getObject(scope);
+                if (exception == null && !methodStmt.getReturnType().equals(Void.TYPE)) {
+                    // we don't save anything if there was an exception
+                    // we are only interested in methods whose return type != void
 
-			        String className  = methodStmt.getDeclaringClassName();
-			        String methodDesc = methodStmt.getDescriptor();
-			        String methodName = methodStmt.getMethodName();
+                    String className = methodStmt.getDeclaringClassName();
+                    String methodDesc = methodStmt.getDescriptor();
+                    String methodName = methodStmt.getMethodName();
 
-			        outputCoverage.put(statement.getPosition(), OutputCoverageGoal.createGoalsFromObject(className, methodName, methodDesc, returnObject));
-		        }
-	        } catch (CodeUnderTestException e) {
-		        // ignore?
-	        }
+                    outputCoverage.put(statement.getPosition(), OutputCoverageGoal.createGoalsFromObject(className, methodName, methodDesc, returnObject));
+                }
+            } catch (CodeUnderTestException e) {
+                // ignore?
+            }
         }
     }
 

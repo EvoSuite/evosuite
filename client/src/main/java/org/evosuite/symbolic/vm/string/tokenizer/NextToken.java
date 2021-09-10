@@ -19,8 +19,6 @@
  */
 package org.evosuite.symbolic.vm.string.tokenizer;
 
-import java.util.StringTokenizer;
-
 import org.evosuite.symbolic.expr.ref.ReferenceConstant;
 import org.evosuite.symbolic.expr.token.NextTokenizerExpr;
 import org.evosuite.symbolic.expr.token.StringNextTokenExpr;
@@ -30,49 +28,51 @@ import org.evosuite.symbolic.vm.SymbolicFunction;
 import org.evosuite.symbolic.vm.heap.SymbolicHeap;
 import org.evosuite.symbolic.vm.string.Types;
 
+import java.util.StringTokenizer;
+
 public final class NextToken extends SymbolicFunction {
 
-	private static final String NEXT_TOKEN = "nextToken";
+    private static final String NEXT_TOKEN = "nextToken";
 
-	public NextToken(SymbolicEnvironment env) {
-		super(env, Types.JAVA_UTIL_STRING_TOKENIZER, NEXT_TOKEN,
-				Types.TO_STR_DESCRIPTOR);
-	}
+    public NextToken(SymbolicEnvironment env) {
+        super(env, Types.JAVA_UTIL_STRING_TOKENIZER, NEXT_TOKEN,
+                Types.TO_STR_DESCRIPTOR);
+    }
 
-	@Override
-	public Object executeFunction() {
+    @Override
+    public Object executeFunction() {
 
-		ReferenceConstant symb_receiver = this.getSymbReceiver();
-		StringTokenizer conc_receiver = (StringTokenizer) this
-				.getConcReceiver();
+        ReferenceConstant symb_receiver = this.getSymbReceiver();
+        StringTokenizer conc_receiver = (StringTokenizer) this
+                .getConcReceiver();
 
-		TokenizerExpr tokenizerExpr = (TokenizerExpr) env.heap.getField(
-				Types.JAVA_UTIL_STRING_TOKENIZER,
-				SymbolicHeap.$STRING_TOKENIZER_VALUE, conc_receiver,
-				symb_receiver);
+        TokenizerExpr tokenizerExpr = (TokenizerExpr) env.heap.getField(
+                Types.JAVA_UTIL_STRING_TOKENIZER,
+                SymbolicHeap.$STRING_TOKENIZER_VALUE, conc_receiver,
+                symb_receiver);
 
-		if (tokenizerExpr != null && tokenizerExpr.containsSymbolicVariable()) {
+        if (tokenizerExpr != null && tokenizerExpr.containsSymbolicVariable()) {
 
-			ReferenceConstant symb_ret_val = (ReferenceConstant) this
-					.getSymbRetVal();
-			String conc_ret_val = (String) this.getConcRetVal();
+            ReferenceConstant symb_ret_val = (ReferenceConstant) this
+                    .getSymbRetVal();
+            String conc_ret_val = (String) this.getConcRetVal();
 
-			// create new NEXT_TOKEN string expression
-			StringNextTokenExpr string_next_token_expr = new StringNextTokenExpr(
-					tokenizerExpr, conc_ret_val);
-			env.heap.putField(Types.JAVA_LANG_STRING,
-					SymbolicHeap.$STRING_VALUE, conc_ret_val, symb_ret_val,
-					string_next_token_expr);
+            // create new NEXT_TOKEN string expression
+            StringNextTokenExpr string_next_token_expr = new StringNextTokenExpr(
+                    tokenizerExpr, conc_ret_val);
+            env.heap.putField(Types.JAVA_LANG_STRING,
+                    SymbolicHeap.$STRING_VALUE, conc_ret_val, symb_ret_val,
+                    string_next_token_expr);
 
-			// update StringTokenizer's symbolic state
-			NextTokenizerExpr nextTokenizerExpr = new NextTokenizerExpr(
-					tokenizerExpr);
+            // update StringTokenizer's symbolic state
+            NextTokenizerExpr nextTokenizerExpr = new NextTokenizerExpr(
+                    tokenizerExpr);
 
-			env.heap.putField(Types.JAVA_UTIL_STRING_TOKENIZER,
-					SymbolicHeap.$STRING_TOKENIZER_VALUE, conc_receiver,
-					symb_receiver, nextTokenizerExpr);
+            env.heap.putField(Types.JAVA_UTIL_STRING_TOKENIZER,
+                    SymbolicHeap.$STRING_TOKENIZER_VALUE, conc_receiver,
+                    symb_receiver, nextTokenizerExpr);
 
-		}
-		return this.getSymbRetVal();
-	}
+        }
+        return this.getSymbRetVal();
+    }
 }

@@ -28,13 +28,13 @@ import org.evosuite.symbolic.PathCondition;
  * @author Ignacio Lebrero
  */
 public class GenerationalSearchPathCondition {
-    private PathCondition pathCondition;
+    private final PathCondition pathCondition;
 
     /**
      * Index from which this path condition was generated.
      * Useful to avoid recreating the same path conditions
      */
-    private int generatedFromIndex;
+    private final int generatedFromIndex;
 
     public GenerationalSearchPathCondition(PathCondition pathCondition, int generatedFromIndex) {
         this.pathCondition = pathCondition;

@@ -26,9 +26,9 @@ package org.evosuite.ga.metaheuristics;
  */
 public interface SearchAlgorithm {
 
-	/**
-	 * Generate solution
-	 */
+    /**
+     * Generate solution
+     */
     void generateSolution();
-	
+
 }

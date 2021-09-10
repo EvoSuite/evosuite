@@ -32,17 +32,17 @@ import java.util.function.Function;
  * @author Ignacio Lebrero
  */
 public enum StatementClassChecker {
-    ARRAY_STATEMENT((statement)      -> (statement instanceof ArrayStatement)),
-    PRIMITIVE_STATEMENT((statement)  -> (statement instanceof PrimitiveStatement)),
+    ARRAY_STATEMENT((statement) -> (statement instanceof ArrayStatement)),
+    PRIMITIVE_STATEMENT((statement) -> (statement instanceof PrimitiveStatement)),
     ASSIGNMENT_STATEMENT((statement) -> (statement instanceof AssignmentStatement));
 
     private final Function<Statement, Boolean> statementCheck;
 
     StatementClassChecker(final Function<Statement, Boolean> statementCheck) {
-      this.statementCheck = statementCheck;
+        this.statementCheck = statementCheck;
     }
 
     public Boolean checkClassType(Statement statement) {
-      return statementCheck.apply(statement);
+        return statementCheck.apply(statement);
     }
 }

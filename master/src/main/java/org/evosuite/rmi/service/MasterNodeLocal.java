@@ -19,27 +19,27 @@
  */
 package org.evosuite.rmi.service;
 
+import org.evosuite.utils.Listenable;
+
 import java.util.Collection;
 import java.util.Map;
 
-import org.evosuite.utils.Listenable;
-
 /**
- * Master Node view in the master process.  
- * @author arcuri
+ * Master Node view in the master process.
  *
+ * @author arcuri
  */
-public interface MasterNodeLocal extends Listenable<ClientStateInformation>{
-	
-	String getSummaryOfClientStatuses();
-	
-	Collection<ClientState> getCurrentState();
-	
-	ClientState getCurrentState(String clientId);
+public interface MasterNodeLocal extends Listenable<ClientStateInformation> {
 
-	Collection<ClientStateInformation> getCurrentStateInformation();
+    String getSummaryOfClientStatuses();
 
-	Map<String, ClientNodeRemote> getClientsOnceAllConnected(long timeoutInMs) throws InterruptedException;
-	
-	void cancelAllClients();
+    Collection<ClientState> getCurrentState();
+
+    ClientState getCurrentState(String clientId);
+
+    Collection<ClientStateInformation> getCurrentStateInformation();
+
+    Map<String, ClientNodeRemote> getClientsOnceAllConnected(long timeoutInMs) throws InterruptedException;
+
+    void cancelAllClients();
 }

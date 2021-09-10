@@ -31,103 +31,129 @@ import org.evosuite.utils.Randomness;
  */
 public class BooleanPrimitiveStatement extends NumericalPrimitiveStatement<Boolean> {
 
-	/**
-	 * <p>Constructor for BooleanPrimitiveStatement.</p>
-	 *
-	 * @param tc a {@link org.evosuite.testcase.TestCase} object.
-	 * @param value a {@link java.lang.Boolean} object.
-	 */
-	public BooleanPrimitiveStatement(TestCase tc, Boolean value) {
-		super(tc, boolean.class, value);
-	}
+    /**
+     * <p>Constructor for BooleanPrimitiveStatement.</p>
+     *
+     * @param tc    a {@link org.evosuite.testcase.TestCase} object.
+     * @param value a {@link java.lang.Boolean} object.
+     */
+    public BooleanPrimitiveStatement(TestCase tc, Boolean value) {
+        super(tc, boolean.class, value);
+    }
 
-	/**
-	 * <p>Constructor for BooleanPrimitiveStatement.</p>
-	 *
-	 * @param tc a {@link org.evosuite.testcase.TestCase} object.
-	 */
-	public BooleanPrimitiveStatement(TestCase tc) {
-		super(tc, boolean.class, false);
-	}
+    /**
+     * <p>Constructor for BooleanPrimitiveStatement.</p>
+     *
+     * @param tc a {@link org.evosuite.testcase.TestCase} object.
+     */
+    public BooleanPrimitiveStatement(TestCase tc) {
+        super(tc, boolean.class, false);
+    }
 
-	private static final long serialVersionUID = 2864789903354543815L;
+    private static final long serialVersionUID = 2864789903354543815L;
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.PrimitiveStatement#zero()
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public void zero() {
-		value = false;
-	}
+    /* (non-Javadoc)
+     * @see org.evosuite.testcase.PrimitiveStatement#zero()
+     */
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.PrimitiveStatement#delta()
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public void delta() {
-		value = !value;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void zero() {
+        value = false;
+    }
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.PrimitiveStatement#increment(java.lang.Object)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public void increment(long delta) {
-		delta();
-	}
+    /* (non-Javadoc)
+     * @see org.evosuite.testcase.PrimitiveStatement#delta()
+     */
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.PrimitiveStatement#randomize()
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public void randomize() {
-		value = Randomness.nextBoolean();
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void delta() {
+        value = !value;
+    }
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.PrimitiveStatement#increment()
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public void increment() {
-		delta();
-	}
+    /* (non-Javadoc)
+     * @see org.evosuite.testcase.PrimitiveStatement#increment(java.lang.Object)
+     */
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.PrimitiveStatement#increment()
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public void decrement() {
-		delta();
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void increment(long delta) {
+        delta();
+    }
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.NumericalPrimitiveStatement#setMid(java.lang.Object, java.lang.Object)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public void setMid(Boolean min, Boolean max) {
-		// TODO Auto-generated method stub
+    /* (non-Javadoc)
+     * @see org.evosuite.testcase.PrimitiveStatement#randomize()
+     */
 
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void randomize() {
+        value = Randomness.nextBoolean();
+    }
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.NumericalPrimitiveStatement#isPositive()
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public boolean isPositive() {
-		return !value;
-	}
-	
-	/** {@inheritDoc} */
-	@Override
-	public void negate() {
-		value = !value;
-	}
+    /* (non-Javadoc)
+     * @see org.evosuite.testcase.PrimitiveStatement#increment()
+     */
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void increment() {
+        delta();
+    }
+
+    /* (non-Javadoc)
+     * @see org.evosuite.testcase.PrimitiveStatement#increment()
+     */
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void decrement() {
+        delta();
+    }
+
+    /* (non-Javadoc)
+     * @see org.evosuite.testcase.NumericalPrimitiveStatement#setMid(java.lang.Object, java.lang.Object)
+     */
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setMid(Boolean min, Boolean max) {
+        // TODO Auto-generated method stub
+
+    }
+
+    /* (non-Javadoc)
+     * @see org.evosuite.testcase.NumericalPrimitiveStatement#isPositive()
+     */
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isPositive() {
+        return !value;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void negate() {
+        value = !value;
+    }
 }

@@ -31,83 +31,97 @@ import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
  */
 public class MaxTimeStoppingCondition<T extends Chromosome<T>> extends StoppingConditionImpl<T> {
 
-	private static final long serialVersionUID = -4524853279562896768L;
+    private static final long serialVersionUID = -4524853279562896768L;
 
-	/** Maximum number of seconds */
-	protected long maxSeconds;
+    /**
+     * Maximum number of seconds
+     */
+    protected long maxSeconds;
 
-	protected long startTime;
+    protected long startTime;
 
-	public MaxTimeStoppingCondition() {
-		maxSeconds = Properties.SEARCH_BUDGET;
-	}
+    public MaxTimeStoppingCondition() {
+        maxSeconds = Properties.SEARCH_BUDGET;
+    }
 
-	public MaxTimeStoppingCondition(MaxTimeStoppingCondition<?> that) {
-		this.startTime = that.startTime;
-		this.maxSeconds = that.maxSeconds;
-	}
+    public MaxTimeStoppingCondition(MaxTimeStoppingCondition<?> that) {
+        this.startTime = that.startTime;
+        this.maxSeconds = that.maxSeconds;
+    }
 
-	@Override
-	public MaxTimeStoppingCondition<T> clone() {
-		return new MaxTimeStoppingCondition<>(this);
-	}
+    @Override
+    public MaxTimeStoppingCondition<T> clone() {
+        return new MaxTimeStoppingCondition<>(this);
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public void searchStarted(GeneticAlgorithm<T> algorithm) {
-		startTime = System.currentTimeMillis();
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void searchStarted(GeneticAlgorithm<T> algorithm) {
+        startTime = System.currentTimeMillis();
+    }
 
-	/**
-	 * {@inheritDoc}
-	 *
-	 * We are finished when the time is up
-	 */
-	@Override
-	public boolean isFinished() {
-		long currentTime = System.currentTimeMillis();
-		return (currentTime - startTime) / 1000 > maxSeconds;
-	}
+    /**
+     * {@inheritDoc}
+     * <p>
+     * We are finished when the time is up
+     */
+    @Override
+    public boolean isFinished() {
+        long currentTime = System.currentTimeMillis();
+        return (currentTime - startTime) / 1000 > maxSeconds;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 *
-	 * Reset
-	 */
-	@Override
-	public void reset() {
-		startTime = System.currentTimeMillis();
-	}
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Reset
+     */
+    @Override
+    public void reset() {
+        startTime = System.currentTimeMillis();
+    }
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.ga.StoppingCondition#setLimit(int)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public void setLimit(long limit) {
-		maxSeconds = limit;
-	}
+    /* (non-Javadoc)
+     * @see org.evosuite.ga.StoppingCondition#setLimit(int)
+     */
 
-	/** {@inheritDoc} */
-	@Override
-	public long getLimit() {
-		return maxSeconds;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setLimit(long limit) {
+        maxSeconds = limit;
+    }
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.ga.StoppingCondition#getCurrentValue()
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public long getCurrentValue() {
-		long currentTime = System.currentTimeMillis();
-		return (currentTime - startTime) / 1000;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getLimit() {
+        return maxSeconds;
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public void forceCurrentValue(long value) {
-		startTime = value;
-	}
+    /* (non-Javadoc)
+     * @see org.evosuite.ga.StoppingCondition#getCurrentValue()
+     */
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getCurrentValue() {
+        long currentTime = System.currentTimeMillis();
+        return (currentTime - startTime) / 1000;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void forceCurrentValue(long value) {
+        startTime = value;
+    }
 
 }

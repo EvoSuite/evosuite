@@ -30,70 +30,75 @@ import org.slf4j.LoggerFactory;
 
 public final class RealConstraint extends Constraint<Double> {
 
-	static Logger log = LoggerFactory.getLogger(RealConstraint.class);
+    static Logger log = LoggerFactory.getLogger(RealConstraint.class);
 
-	private static final long serialVersionUID = 6021027178547577289L;
+    private static final long serialVersionUID = 6021027178547577289L;
 
-	/**
-	 * <p>
-	 * Constructor for RealConstraint.
-	 * </p>
-	 * 
-	 * @param left
-	 *            a {@link org.evosuite.symbolic.expr.Expression} object.
-	 * @param cmp
-	 *            a {@link org.evosuite.symbolic.expr.Comparator} object.
-	 * @param right
-	 *            a {@link org.evosuite.symbolic.expr.Expression} object.
-	 */
-	public RealConstraint(Expression<Double> left, Comparator cmp,
-												Expression<Double> right) {
-		super();
-		this.left = left;
-		this.cmp = cmp;
-		this.right = right;
-		if (getSize() > Properties.DSE_CONSTRAINT_LENGTH) {
-			DSEStatistics.getInstance().reportConstraintTooLong(getSize());
-			throw new ConstraintTooLongException(getSize());
-		}
-	}
+    /**
+     * <p>
+     * Constructor for RealConstraint.
+     * </p>
+     *
+     * @param left  a {@link org.evosuite.symbolic.expr.Expression} object.
+     * @param cmp   a {@link org.evosuite.symbolic.expr.Comparator} object.
+     * @param right a {@link org.evosuite.symbolic.expr.Expression} object.
+     */
+    public RealConstraint(Expression<Double> left, Comparator cmp,
+                          Expression<Double> right) {
+        super();
+        this.left = left;
+        this.cmp = cmp;
+        this.right = right;
+        if (getSize() > Properties.DSE_CONSTRAINT_LENGTH) {
+            DSEStatistics.getInstance().reportConstraintTooLong(getSize());
+            throw new ConstraintTooLongException(getSize());
+        }
+    }
 
-	private final Expression<Double> left;
-	private final Comparator cmp;
-	private final Expression<Double> right;
+    private final Expression<Double> left;
+    private final Comparator cmp;
+    private final Expression<Double> right;
 
-	/** {@inheritDoc} */
-	@Override
-	public Comparator getComparator() {
-		return cmp;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Comparator getComparator() {
+        return cmp;
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public Expression<Double> getLeftOperand() {
-		return left;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Expression<Double> getLeftOperand() {
+        return left;
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public Expression<Double> getRightOperand() {
-		return right;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Expression<Double> getRightOperand() {
+        return right;
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public String toString() {
-		return left + cmp.toString() + right;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        return left + cmp.toString() + right;
+    }
 
-	@Override
-	public Constraint<Double> negate() {
-		return new RealConstraint(left, cmp.not(), right);
-	}
+    @Override
+    public Constraint<Double> negate() {
+        return new RealConstraint(left, cmp.not(), right);
+    }
 
-	@Override
-	public <K, V> K accept(ConstraintVisitor<K, V> v, V arg) {
-		return v.visit(this, arg);
-	}
+    @Override
+    public <K, V> K accept(ConstraintVisitor<K, V> v, V arg) {
+        return v.visit(this, arg);
+    }
 
 }

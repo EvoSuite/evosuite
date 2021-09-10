@@ -40,100 +40,102 @@ package org.evosuite.symbolic.expr;
 
 public enum Comparator {
 
-	EQ(" == ") {
-		@Override
-		public Comparator not() {
-			return NE;
-		}
+    EQ(" == ") {
+        @Override
+        public Comparator not() {
+            return NE;
+        }
 
-		@Override
-		public Comparator swap() {
-			return EQ;
-		}
-	},
-	NE(" != ") {
-		@Override
-		public Comparator not() {
-			return EQ;
-		}
+        @Override
+        public Comparator swap() {
+            return EQ;
+        }
+    },
+    NE(" != ") {
+        @Override
+        public Comparator not() {
+            return EQ;
+        }
 
-		@Override
-		public Comparator swap() {
-			return NE;
-		}
-	},
-	LT(" < ") {
-		@Override
-		public Comparator not() {
-			return GE;
-		}
+        @Override
+        public Comparator swap() {
+            return NE;
+        }
+    },
+    LT(" < ") {
+        @Override
+        public Comparator not() {
+            return GE;
+        }
 
-		@Override
-		public Comparator swap() {
-			return GT;
-		}
-	},
-	LE(" <= ") {
-		@Override
-		public Comparator not() {
-			return GT;
-		}
+        @Override
+        public Comparator swap() {
+            return GT;
+        }
+    },
+    LE(" <= ") {
+        @Override
+        public Comparator not() {
+            return GT;
+        }
 
-		@Override
-		public Comparator swap() {
-			return GE;
-		}
-	},
-	GT(" > ") {
-		@Override
-		public Comparator not() {
-			return LE;
-		}
+        @Override
+        public Comparator swap() {
+            return GE;
+        }
+    },
+    GT(" > ") {
+        @Override
+        public Comparator not() {
+            return LE;
+        }
 
-		@Override
-		public Comparator swap() {
-			return LT;
-		}
-	},
-	GE(" >= ") {
-		@Override
-		public Comparator not() {
-			return LT;
-		}
+        @Override
+        public Comparator swap() {
+            return LT;
+        }
+    },
+    GE(" >= ") {
+        @Override
+        public Comparator not() {
+            return LT;
+        }
 
-		@Override
-		public Comparator swap() {
-			return LE;
-		}
-	};
+        @Override
+        public Comparator swap() {
+            return LE;
+        }
+    };
 
-	private final String str;
+    private final String str;
 
-	Comparator(String str) {
-		this.str = str;
-	}
+    Comparator(String str) {
+        this.str = str;
+    }
 
-	/**
-	 * <p>
-	 * not
-	 * </p>
-	 * 
-	 * @return a {@link org.evosuite.symbolic.expr.Comparator} object.
-	 */
-	public abstract Comparator not();
+    /**
+     * <p>
+     * not
+     * </p>
+     *
+     * @return a {@link org.evosuite.symbolic.expr.Comparator} object.
+     */
+    public abstract Comparator not();
 
-	/**
-	 * <p>
-	 * swap
-	 * </p>
-	 * 
-	 * @return a {@link org.evosuite.symbolic.expr.Comparator} object.
-	 */
-	public abstract Comparator swap();
+    /**
+     * <p>
+     * swap
+     * </p>
+     *
+     * @return a {@link org.evosuite.symbolic.expr.Comparator} object.
+     */
+    public abstract Comparator swap();
 
-	/** {@inheritDoc} */
-	@Override
-	public String toString() {
-		return str;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        return str;
+    }
 }

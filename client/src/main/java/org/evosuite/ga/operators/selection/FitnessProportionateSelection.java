@@ -33,81 +33,83 @@ import java.util.stream.DoubleStream;
  */
 public class FitnessProportionateSelection<T extends Chromosome<T>> extends SelectionFunction<T> {
 
-	public FitnessProportionateSelection() {
-	}
+    public FitnessProportionateSelection() {
+    }
 
-	public FitnessProportionateSelection(FitnessProportionateSelection<?> other) {
-		// Copy Constructor
-		this.sumValue = other.sumValue;
-	}
+    public FitnessProportionateSelection(FitnessProportionateSelection<?> other) {
+        // Copy Constructor
+        this.sumValue = other.sumValue;
+    }
 
-	private static final long serialVersionUID = 5206421079815585026L;
+    private static final long serialVersionUID = 5206421079815585026L;
 
-	/**
-	 * Sum of fitness values, depending on minimization/maximization of the
-	 * fitness function
-	 */
-	private double sumValue = 0.0;
+    /**
+     * Sum of fitness values, depending on minimization/maximization of the
+     * fitness function
+     */
+    private double sumValue = 0.0;
 
-	/** {@inheritDoc} */
-	@Override
-	public int getIndex(List<T> population) {
-		//special case
-		if (sumValue == 0d) {
-			//here does not matter whether maximize or not.
-			//we need to take at random, otherwise it d be always the first that d be chosen
-			return Randomness.nextInt(population.size());
-		}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getIndex(List<T> population) {
+        //special case
+        if (sumValue == 0d) {
+            //here does not matter whether maximize or not.
+            //we need to take at random, otherwise it d be always the first that d be chosen
+            return Randomness.nextInt(population.size());
+        }
 
-		double rnd = Randomness.nextDouble() * sumValue;
+        double rnd = Randomness.nextDouble() * sumValue;
 
-		for (int i = 0; i < population.size(); i++) {
-			double fit = population.get(i).getFitness();
+        for (int i = 0; i < population.size(); i++) {
+            double fit = population.get(i).getFitness();
 
-			if (!maximize)
-				fit = invert(fit);
+            if (!maximize)
+                fit = invert(fit);
 
-			if (fit >= rnd)
-				return i;
-			else
-				rnd = rnd - fit;
-		}
+            if (fit >= rnd)
+                return i;
+            else
+                rnd = rnd - fit;
+        }
 
-		//now this should never happens, but possible issues with rounding errors in for example "rnd = rnd - fit"
-		//in such a case, we just return a random index and we log it
+        //now this should never happens, but possible issues with rounding errors in for example "rnd = rnd - fit"
+        //in such a case, we just return a random index and we log it
 
-		logger.debug("ATTENTION: Possible issue in FitnessProportionateSelection");
-		return Randomness.nextInt(population.size());
-	}
+        logger.debug("ATTENTION: Possible issue in FitnessProportionateSelection");
+        return Randomness.nextInt(population.size());
+    }
 
-	/**
-	 * Calculate total sum of fitnesses
-	 * 
-	 * @param population
-	 */
-	private void setSum(List<T> population) {
-		DoubleStream fitnessValues = population.stream().mapToDouble(Chromosome::getFitness);
-		if (!maximize) fitnessValues = fitnessValues.map(FitnessProportionateSelection::invert);
-		sumValue = fitnessValues.sum();
-	}
+    /**
+     * Calculate total sum of fitnesses
+     *
+     * @param population
+     */
+    private void setSum(List<T> population) {
+        DoubleStream fitnessValues = population.stream().mapToDouble(Chromosome::getFitness);
+        if (!maximize) fitnessValues = fitnessValues.map(FitnessProportionateSelection::invert);
+        sumValue = fitnessValues.sum();
+    }
 
-	/*
-	 * used to handle the case of minimizing the fitness
-	 */
-	private static double invert(final double x) {
-		return 1d / (x + 1d);
-	}
+    /*
+     * used to handle the case of minimizing the fitness
+     */
+    private static double invert(final double x) {
+        return 1d / (x + 1d);
+    }
 
-	/**
-	 * {@inheritDoc}
-	 *
-	 * Return n parents
-	 */
-	@Override
-	public List<T> select(List<T> population, int number) {
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Return n parents
+     */
+    @Override
+    public List<T> select(List<T> population, int number) {
 
-		setSum(population);
-		return super.select(population, number);
-	}
+        setSum(population);
+        return super.select(population, number);
+    }
 
 }

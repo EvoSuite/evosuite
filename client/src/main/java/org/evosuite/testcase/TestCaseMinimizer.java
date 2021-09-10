@@ -35,177 +35,174 @@ import java.util.List;
 
 /**
  * Remove all statements from a test case that do not contribute to the fitness
- * 
+ *
  * @author Gordon Fraser
  */
 public class TestCaseMinimizer {
 
-	private static final Logger logger = LoggerFactory.getLogger(TestCaseMinimizer.class);
+    private static final Logger logger = LoggerFactory.getLogger(TestCaseMinimizer.class);
 
-	private final TestFitnessFunction fitnessFunction;
+    private final TestFitnessFunction fitnessFunction;
 
-	/**
-	 * Constructor
-	 * 
-	 * @param fitnessFunction
-	 *            Fitness function with which to measure whether a statement is
-	 *            necessary
-	 */
-	public TestCaseMinimizer(TestFitnessFunction fitnessFunction) {
-		this.fitnessFunction = fitnessFunction;
-	}
+    /**
+     * Constructor
+     *
+     * @param fitnessFunction Fitness function with which to measure whether a statement is
+     *                        necessary
+     */
+    public TestCaseMinimizer(TestFitnessFunction fitnessFunction) {
+        this.fitnessFunction = fitnessFunction;
+    }
 
-	/**
-	 * Remove all unreferenced variables
-	 * 
-	 * @param t
-	 *            The test case
-	 * @return True if something was deleted
-	 */
-	public static boolean removeUnusedVariables(TestCase t) {
-		List<Integer> to_delete = new ArrayList<>();
-		boolean has_deleted = false;
+    /**
+     * Remove all unreferenced variables
+     *
+     * @param t The test case
+     * @return True if something was deleted
+     */
+    public static boolean removeUnusedVariables(TestCase t) {
+        List<Integer> to_delete = new ArrayList<>();
+        boolean has_deleted = false;
 
-		int num = 0;
-		for (Statement s : t) {
-			VariableReference var = s.getReturnValue();
-			if (!t.hasReferences(var)) {
-				to_delete.add(num);
-				has_deleted = true;
-			}
-			num++;
-		}
-		to_delete.sort(Collections.reverseOrder());
-		for (Integer position : to_delete) {
-			t.remove(position);
-		}
+        int num = 0;
+        for (Statement s : t) {
+            VariableReference var = s.getReturnValue();
+            if (!t.hasReferences(var)) {
+                to_delete.add(num);
+                has_deleted = true;
+            }
+            num++;
+        }
+        to_delete.sort(Collections.reverseOrder());
+        for (Integer position : to_delete) {
+            t.remove(position);
+        }
 
-		return has_deleted;
-	}
+        return has_deleted;
+    }
 
-	private static boolean isWorse(FitnessFunction<TestChromosome> fitness,
-	        TestChromosome oldChromosome, TestChromosome newChromosome) {
-		if (fitness.isMaximizationFunction()) {
-			if (oldChromosome.getFitness(fitness) > fitness.getFitness(newChromosome))
-				return true;
-		} else {
-			if (fitness.getFitness(newChromosome) > oldChromosome.getFitness(fitness))
-				return true;
-		}
+    private static boolean isWorse(FitnessFunction<TestChromosome> fitness,
+                                   TestChromosome oldChromosome, TestChromosome newChromosome) {
+        if (fitness.isMaximizationFunction()) {
+            if (oldChromosome.getFitness(fitness) > fitness.getFitness(newChromosome))
+                return true;
+        } else {
+            if (fitness.getFitness(newChromosome) > oldChromosome.getFitness(fitness))
+                return true;
+        }
 
-		for (SecondaryObjective<TestChromosome> objective : TestChromosome.getSecondaryObjectives()) {
-			if (objective.compareChromosomes(oldChromosome, newChromosome) < 0)
-				return true;
-		}
+        for (SecondaryObjective<TestChromosome> objective : TestChromosome.getSecondaryObjectives()) {
+            if (objective.compareChromosomes(oldChromosome, newChromosome) < 0)
+                return true;
+        }
 
-		return false;
-	}
-	
+        return false;
+    }
+
     private boolean isTimeoutReached() {
         return !TimeController.getInstance().isThereStillTimeInThisPhase();
     }
-    
-	/**
-	 * Central minimization function. Loop and try to remove until all
-	 * statements have been checked.
-	 * 
-	 * @param c
-	 *            a {@link org.evosuite.testcase.TestChromosome} object.
-	 */
-	public void minimize(TestChromosome c) {
-		if (!Properties.MINIMIZE) {
-			return;
-		}
-		logger.info("Minimizing test case");
+
+    /**
+     * Central minimization function. Loop and try to remove until all
+     * statements have been checked.
+     *
+     * @param c a {@link org.evosuite.testcase.TestChromosome} object.
+     */
+    public void minimize(TestChromosome c) {
+        if (!Properties.MINIMIZE) {
+            return;
+        }
+        logger.info("Minimizing test case");
 
 
-		double fitness = fitnessFunction.getFitness(c);
-		if (isTimeoutReached()) {
-			return;
-		}
+        double fitness = fitnessFunction.getFitness(c);
+        if (isTimeoutReached()) {
+            return;
+        }
 
-		logger.debug("Start fitness values: {}", fitness);
+        logger.debug("Start fitness values: {}", fitness);
 
-		if (isTimeoutReached()) {
-			logger.debug("Timeout reached after verifying test");
-			return;
-		}
-		
-		boolean changed = true;
+        if (isTimeoutReached()) {
+            logger.debug("Timeout reached after verifying test");
+            return;
+        }
 
-		while (changed) {
-			changed = false;
+        boolean changed = true;
 
-			for (int i = c.test.size() - 1; i >= 0; i--) {
-				if (isTimeoutReached()) {
-					logger.debug("Timeout reached before minimizing statement {}", c.test.getStatement(i).getCode());
-					return;
-				}
-				
-				logger.debug("Deleting statement {}", c.test.getStatement(i).getCode());
-				TestChromosome copy = c.clone();
-				boolean modified;
-				try {
-					modified = TestFactory.getInstance().deleteStatementGracefully(c.test, i);
-				} catch (ConstructionFailedException e) {
-					modified = false;
-				}
-				
-				if(!modified){
-					c.setChanged(false);
-					c.test = copy.test;
-					logger.debug("Deleting failed");
-					continue;
-				}
+        while (changed) {
+            changed = false;
 
-				c.setChanged(true);
+            for (int i = c.test.size() - 1; i >= 0; i--) {
+                if (isTimeoutReached()) {
+                    logger.debug("Timeout reached before minimizing statement {}", c.test.getStatement(i).getCode());
+                    return;
+                }
 
-				if (isTimeoutReached()) {
-					logger.debug("Keeping original version due to timeout");
-					restoreTestCase(c, copy);
-					return;
-				}
+                logger.debug("Deleting statement {}", c.test.getStatement(i).getCode());
+                TestChromosome copy = c.clone();
+                boolean modified;
+                try {
+                    modified = TestFactory.getInstance().deleteStatementGracefully(c.test, i);
+                } catch (ConstructionFailedException e) {
+                    modified = false;
+                }
 
-				if (! isWorse(fitnessFunction, copy, c)) {
-					logger.debug("Keeping shorter version");
-					changed = true;
-					break;
-				} else {
-					logger.debug("Keeping original version");
-					restoreTestCase(c, copy);
-				}
+                if (!modified) {
+                    c.setChanged(false);
+                    c.test = copy.test;
+                    logger.debug("Deleting failed");
+                    continue;
+                }
 
-			}
-		}
+                c.setChanged(true);
 
-		//TODO: add back this check
-		assert  (fitnessFunction.isMaximizationFunction() ?
-				fitnessFunction.getFitness(c) >= fitness : fitnessFunction.getFitness(c) <= fitness)
-				:
-				"Minimization worsened " + fitnessFunction.getClass().getName()+" fitness from "+fitness+
-						" to "+fitnessFunction.getFitness(c)+" on test "+c.getTestCase().toCode();
+                if (isTimeoutReached()) {
+                    logger.debug("Keeping original version due to timeout");
+                    restoreTestCase(c, copy);
+                    return;
+                }
+
+                if (!isWorse(fitnessFunction, copy, c)) {
+                    logger.debug("Keeping shorter version");
+                    changed = true;
+                    break;
+                } else {
+                    logger.debug("Keeping original version");
+                    restoreTestCase(c, copy);
+                }
+
+            }
+        }
+
+        //TODO: add back this check
+        assert (fitnessFunction.isMaximizationFunction() ?
+                fitnessFunction.getFitness(c) >= fitness : fitnessFunction.getFitness(c) <= fitness)
+                :
+                "Minimization worsened " + fitnessFunction.getClass().getName() + " fitness from " + fitness +
+                        " to " + fitnessFunction.getFitness(c) + " on test " + c.getTestCase().toCode();
 
 
-		if (Properties.MINIMIZE_VALUES) {
-			logger.info("Minimizing values of test case");
-			ValueMinimizer minimizer = new ValueMinimizer();
-			minimizer.minimize(c, fitnessFunction);
-		}
+        if (Properties.MINIMIZE_VALUES) {
+            logger.info("Minimizing values of test case");
+            ValueMinimizer minimizer = new ValueMinimizer();
+            minimizer.minimize(c, fitnessFunction);
+        }
 
-		if (logger.isDebugEnabled()) {
-			logger.debug("Minimized test case: ");
-			logger.debug(c.test.toCode());
-		}
+        if (logger.isDebugEnabled()) {
+            logger.debug("Minimized test case: ");
+            logger.debug(c.test.toCode());
+        }
 
-	}
+    }
 
-	private static void restoreTestCase(TestChromosome c, TestChromosome copy) {
-		c.test = copy.test;
-		c.copyCachedResults(copy);
-		//c.setFitness(copy.getFitness());
-		c.setFitnessValues(copy.getFitnessValues());
-		c.setPreviousFitnessValues(copy.getPreviousFitnessValues());
-		c.setChanged(false);
-	}
+    private static void restoreTestCase(TestChromosome c, TestChromosome copy) {
+        c.test = copy.test;
+        c.copyCachedResults(copy);
+        //c.setFitness(copy.getFitness());
+        c.setFitnessValues(copy.getFitnessValues());
+        c.setPreviousFitnessValues(copy.getPreviousFitnessValues());
+        c.setChanged(false);
+    }
 
 }

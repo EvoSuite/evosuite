@@ -29,51 +29,53 @@ import org.evosuite.utils.Randomness;
  * @author Thomas White
  */
 public class BIAndRITestSuiteChromosomeFactory implements
-		ChromosomeFactory<TestSuiteChromosome> {
+        ChromosomeFactory<TestSuiteChromosome> {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	private final ChromosomeFactory<TestSuiteChromosome> defaultFactory;
-	private final GeneticAlgorithm<TestSuiteChromosome> geneticAlgorithm;
-	private boolean seeded = false;
+    private final ChromosomeFactory<TestSuiteChromosome> defaultFactory;
+    private final GeneticAlgorithm<TestSuiteChromosome> geneticAlgorithm;
+    private boolean seeded = false;
 
-	/**
-	 * <p>
-	 * Constructor for BestIndividualAndRandomTestSuiteChromosomeFactory.
-	 * </p>
-	 * 
-	 * @param defaultFactory
-	 *            a {@link org.evosuite.ga.ChromosomeFactory} object.
-	 */
-	public BIAndRITestSuiteChromosomeFactory(
-			ChromosomeFactory<TestSuiteChromosome> defaultFactory,
-			GeneticAlgorithm<TestSuiteChromosome> geneticAlgorithm) {
-		this.defaultFactory = defaultFactory;
-		this.geneticAlgorithm = geneticAlgorithm;
-	}
+    /**
+     * <p>
+     * Constructor for BestIndividualAndRandomTestSuiteChromosomeFactory.
+     * </p>
+     *
+     * @param defaultFactory a {@link org.evosuite.ga.ChromosomeFactory} object.
+     */
+    public BIAndRITestSuiteChromosomeFactory(
+            ChromosomeFactory<TestSuiteChromosome> defaultFactory,
+            GeneticAlgorithm<TestSuiteChromosome> geneticAlgorithm) {
+        this.defaultFactory = defaultFactory;
+        this.geneticAlgorithm = geneticAlgorithm;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.evosuite.ga.ChromosomeFactory#getChromosome()
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public TestSuiteChromosome getChromosome() {
-		/*
-		 * double P_delta = 0.1d; double P_clone = 0.1d; int MAX_CHANGES = 10;
-		 */
-		TestSuiteChromosome chrom = null;
-		if (!seeded && geneticAlgorithm != null) {
-			seeded = true;
-			chrom = geneticAlgorithm.getBestIndividual();
-		} else if (geneticAlgorithm != null && Randomness.nextDouble() < Properties.SEED_PROBABILITY) {
-			int populationSize = geneticAlgorithm.getPopulation().size();
-			chrom =  geneticAlgorithm.getPopulation().get(Randomness.nextInt(populationSize));
-		}
-		if (chrom == null){
-			chrom = defaultFactory.getChromosome();
-		}
-		return chrom;
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see org.evosuite.ga.ChromosomeFactory#getChromosome()
+     */
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public TestSuiteChromosome getChromosome() {
+        /*
+         * double P_delta = 0.1d; double P_clone = 0.1d; int MAX_CHANGES = 10;
+         */
+        TestSuiteChromosome chrom = null;
+        if (!seeded && geneticAlgorithm != null) {
+            seeded = true;
+            chrom = geneticAlgorithm.getBestIndividual();
+        } else if (geneticAlgorithm != null && Randomness.nextDouble() < Properties.SEED_PROBABILITY) {
+            int populationSize = geneticAlgorithm.getPopulation().size();
+            chrom = geneticAlgorithm.getPopulation().get(Randomness.nextInt(populationSize));
+        }
+        if (chrom == null) {
+            chrom = defaultFactory.getChromosome();
+        }
+        return chrom;
+    }
 }

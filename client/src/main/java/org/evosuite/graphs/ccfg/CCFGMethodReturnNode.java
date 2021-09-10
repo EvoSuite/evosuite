@@ -20,68 +20,72 @@
 package org.evosuite.graphs.ccfg;
 
 import org.evosuite.graphs.cfg.BytecodeInstruction;
+
 public class CCFGMethodReturnNode extends CCFGNode {
 
-	private BytecodeInstruction callInstruction;
-	
-	/**
-	 * <p>Constructor for CCFGMethodReturnNode.</p>
-	 *
-	 * @param callInstruction a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
-	 */
-	public CCFGMethodReturnNode(BytecodeInstruction callInstruction) {
-		this.callInstruction = callInstruction;
-	}
-	
-	/**
-	 * <p>getMethod</p>
-	 *
-	 * @return a {@link java.lang.String} object.
-	 */
-	public String getMethod() {
-		return callInstruction.getMethodName();
-	}
-	
-	/**
-	 * <p>Getter for the field <code>callInstruction</code>.</p>
-	 *
-	 * @return a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
-	 */
-	public BytecodeInstruction getCallInstruction() {
-		return callInstruction;
-	}
-	
-	/** {@inheritDoc} */
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result
-				+ ((callInstruction == null) ? 0 : callInstruction.hashCode());
-		return result;
-	}
+    private final BytecodeInstruction callInstruction;
 
-	/** {@inheritDoc} */
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		CCFGMethodReturnNode other = (CCFGMethodReturnNode) obj;
-		if (callInstruction == null) {
-			if (other.callInstruction != null)
-				return false;
-		} else if (!callInstruction.equals(other.callInstruction))
-			return false;
-		return true;
-	}
+    /**
+     * <p>Constructor for CCFGMethodReturnNode.</p>
+     *
+     * @param callInstruction a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
+     */
+    public CCFGMethodReturnNode(BytecodeInstruction callInstruction) {
+        this.callInstruction = callInstruction;
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public String toString() {
-		return "RETURN from "+callInstruction.toString();
-	}
+    /**
+     * <p>getMethod</p>
+     *
+     * @return a {@link java.lang.String} object.
+     */
+    public String getMethod() {
+        return callInstruction.getMethodName();
+    }
+
+    /**
+     * <p>Getter for the field <code>callInstruction</code>.</p>
+     *
+     * @return a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
+     */
+    public BytecodeInstruction getCallInstruction() {
+        return callInstruction;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result
+                + ((callInstruction == null) ? 0 : callInstruction.hashCode());
+        return result;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        CCFGMethodReturnNode other = (CCFGMethodReturnNode) obj;
+        if (callInstruction == null) {
+            return other.callInstruction == null;
+        } else return callInstruction.equals(other.callInstruction);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        return "RETURN from " + callInstruction.toString();
+    }
 }

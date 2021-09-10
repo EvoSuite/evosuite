@@ -20,12 +20,12 @@
 
 package org.evosuite.junit;
 
-import java.util.List;
-import java.util.Map;
-
 import org.evosuite.junit.writer.JUnitAnnotationProvider;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestCodeVisitor;
+
+import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -35,63 +35,63 @@ import org.evosuite.testcase.TestCodeVisitor;
  */
 public interface UnitTestAdapter extends JUnitAnnotationProvider {
 
-	/**
-	 * Get all the framework dependent imports
-	 *
-	 * @return a {@link java.lang.String} object.
-	 */
+    /**
+     * Get all the framework dependent imports
+     *
+     * @return a {@link java.lang.String} object.
+     */
     String getImports();
 
-	/**
-	 * Get the framework specific definition of the test class
-	 *
-	 * @param testName a {@link java.lang.String} object.
-	 * @return a {@link java.lang.String} object.
-	 */
+    /**
+     * Get the framework specific definition of the test class
+     *
+     * @param testName a {@link java.lang.String} object.
+     * @return a {@link java.lang.String} object.
+     */
     String getClassDefinition(String testName);
 
-	/**
-	 * Get the framework specific definition of a test method
-	 *
-	 * @param testName a {@link java.lang.String} object.
-	 * @return a {@link java.lang.String} object.
-	 */
+    /**
+     * Get the framework specific definition of a test method
+     *
+     * @param testName a {@link java.lang.String} object.
+     * @return a {@link java.lang.String} object.
+     */
     String getMethodDefinition(String testName);
 
-	/**
-	 * Get the class definition of a test suite
-	 *
-	 * @param tests a {@link java.util.List} object.
-	 * @return a {@link java.lang.String} object.
-	 */
+    /**
+     * Get the class definition of a test suite
+     *
+     * @param tests a {@link java.util.List} object.
+     * @return a {@link java.lang.String} object.
+     */
     String getSuite(List<String> tests);
 
-	/**
-	 * Return the sequence of method calls for a test
-	 *
-	 * @param test a {@link org.evosuite.testcase.TestCase} object.
-	 * @param exceptions a {@link java.util.Map} object.
-	 * @param id a int.
-	 * @return a {@link java.lang.String} object.
-	 */
+    /**
+     * Return the sequence of method calls for a test
+     *
+     * @param test       a {@link org.evosuite.testcase.TestCase} object.
+     * @param exceptions a {@link java.util.Map} object.
+     * @param id         a int.
+     * @return a {@link java.lang.String} object.
+     */
     String getTestString(int id, TestCase test, Map<Integer, Throwable> exceptions);
 
-	/**
-	 * Return the sequence of method calls for a test
-	 *
-	 * @param test a {@link org.evosuite.testcase.TestCase} object.
-	 * @param exceptions a {@link java.util.Map} object.
-	 * @param visitor a {@link org.evosuite.testcase.TestCodeVisitor} object.
-	 * @param id a int.
-	 * @return a {@link java.lang.String} object.
-	 */
+    /**
+     * Return the sequence of method calls for a test
+     *
+     * @param test       a {@link org.evosuite.testcase.TestCase} object.
+     * @param exceptions a {@link java.util.Map} object.
+     * @param visitor    a {@link org.evosuite.testcase.TestCodeVisitor} object.
+     * @param id         a int.
+     * @return a {@link java.lang.String} object.
+     */
     String getTestString(int id, TestCase test,
                          Map<Integer, Throwable> exceptions, TestCodeVisitor visitor);
 
-	/**
-	 * Add the non-functional requirement to the test case.
-	 *
-	 * @param builder The string builder which should be extended.
-	 */
-	void addNFR(StringBuilder builder);
+    /**
+     * Add the non-functional requirement to the test case.
+     *
+     * @param builder The string builder which should be extended.
+     */
+    void addNFR(StringBuilder builder);
 }

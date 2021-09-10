@@ -29,27 +29,27 @@ import org.evosuite.ga.Chromosome;
  */
 public class StoppingConditionFactory {
 
-   	/**
-	 * Convert property to actual stopping condition
-	 * @return
-	 */
-	public static<T extends Chromosome<T>> StoppingCondition<T> getStoppingCondition(Properties.StoppingCondition stoppingCondition) {
-		switch (stoppingCondition) {
-		case MAXGENERATIONS:
-			return new MaxGenerationStoppingCondition<>();
-		case MAXFITNESSEVALUATIONS:
-			return new MaxFitnessEvaluationsStoppingCondition<>();
-		case MAXTIME:
-			return new MaxTimeStoppingCondition<>();
-		case MAXTESTS:
-			return new MaxTestsStoppingCondition<>();
-		case MAXSTATEMENTS:
-			return new MaxStatementsStoppingCondition<>();
-		default:
-			return new MaxGenerationStoppingCondition<>();
-		}
-	}
-
+    /**
+     * Convert property to actual stopping condition
+     *
+     * @return
+     */
+    public static <T extends Chromosome<T>> StoppingCondition<T> getStoppingCondition(Properties.StoppingCondition stoppingCondition) {
+        switch (stoppingCondition) {
+            case MAXGENERATIONS:
+                return new MaxGenerationStoppingCondition<>();
+            case MAXFITNESSEVALUATIONS:
+                return new MaxFitnessEvaluationsStoppingCondition<>();
+            case MAXTIME:
+                return new MaxTimeStoppingCondition<>();
+            case MAXTESTS:
+                return new MaxTestsStoppingCondition<>();
+            case MAXSTATEMENTS:
+                return new MaxStatementsStoppingCondition<>();
+            default:
+                return new MaxGenerationStoppingCondition<>();
+        }
+    }
 
 
 }

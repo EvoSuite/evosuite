@@ -19,11 +19,11 @@
  */
 package org.evosuite.lm;
 
-import java.io.IOException;
-
 import org.evosuite.Properties;
 import org.evosuite.testcase.ValueMinimizer;
 import org.evosuite.testcase.variable.ConstantValue;
+
+import java.io.IOException;
 
 /**
  * Uses a language model to locate more readable alternatives
@@ -31,32 +31,27 @@ import org.evosuite.testcase.variable.ConstantValue;
  */
 public class StringLMOptimizer {
 
-	private String originalString;
-	private ConstantValue constantValue;
+    private final String originalString;
+    private final ConstantValue constantValue;
 
-	private LangModel languageModel;
-
+    private final LangModel languageModel;
 
 
     ValueMinimizer.Minimization objective;
 
-	public StringLMOptimizer(ConstantValue constantValue, ValueMinimizer.Minimization objective) {
-		// this.statement = originalStatement;
-		this.constantValue = constantValue;
+    public StringLMOptimizer(ConstantValue constantValue, ValueMinimizer.Minimization objective) {
+        // this.statement = originalStatement;
+        this.constantValue = constantValue;
         this.objective = objective;
 
-        this.originalString = (String)constantValue.getValue();
+        this.originalString = (String) constantValue.getValue();
 
-		try {
-			languageModel = new LangModel(Properties.LM_SRC);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-
-
-
+        try {
+            languageModel = new LangModel(Properties.LM_SRC);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
 
     /**
@@ -65,9 +60,9 @@ public class StringLMOptimizer {
      * yields a greater score according to the model (almost inevitable) AND doesn't result in a reduction in the objective
      * value, the mutated string becomes the new value.
      */
-	public String optimize() {
+    public String optimize() {
         LanguageModelSearch search = new LanguageModel11EA(constantValue, objective);
         return search.optimise();
-	}
-	
+    }
+
 }

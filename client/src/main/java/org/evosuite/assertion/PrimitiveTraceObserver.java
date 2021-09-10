@@ -19,112 +19,117 @@
  */
 package org.evosuite.assertion;
 
-import java.lang.reflect.Modifier;
-import java.util.regex.Pattern;
-
 import org.evosuite.Properties;
-import org.evosuite.testcase.statements.Statement;
-import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.Scope;
 import org.evosuite.testcase.statements.FunctionalMockStatement;
 import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testcase.statements.PrimitiveStatement;
+import org.evosuite.testcase.statements.Statement;
+import org.evosuite.testcase.variable.VariableReference;
+
+import java.lang.reflect.Modifier;
+import java.util.regex.Pattern;
 
 public class PrimitiveTraceObserver extends AssertionTraceObserver<PrimitiveTraceEntry> {
 
-	private static Pattern addressPattern = Pattern.compile(".*[\\w+\\.]+@[abcdef\\d]+.*", Pattern.MULTILINE);
+    private static final Pattern addressPattern = Pattern.compile(".*[\\w+\\.]+@[abcdef\\d]+.*", Pattern.MULTILINE);
 
-	/** {@inheritDoc} */
-	@Override
-	public synchronized void afterStatement(Statement statement, Scope scope,
-	        Throwable exception) {
-		// By default, no assertions are created for statements that threw exceptions
-		if(exception != null)
-			return;
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public synchronized void afterStatement(Statement statement, Scope scope,
+                                            Throwable exception) {
+        // By default, no assertions are created for statements that threw exceptions
+        if (exception != null)
+            return;
 
-		// No assertions are created for mock statements
-		if(statement instanceof FunctionalMockStatement)
-			return;
+        // No assertions are created for mock statements
+        if (statement instanceof FunctionalMockStatement)
+            return;
 
-		visitReturnValue(statement, scope);
-	}
+        visitReturnValue(statement, scope);
+    }
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.assertion.AssertionTraceObserver#visit(org.evosuite.testcase.StatementInterface, org.evosuite.testcase.Scope, org.evosuite.testcase.VariableReference)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	protected void visit(Statement statement, Scope scope, VariableReference var) {
-		if(statement.isAssignmentStatement())
-			return;
+    /* (non-Javadoc)
+     * @see org.evosuite.assertion.AssertionTraceObserver#visit(org.evosuite.testcase.StatementInterface, org.evosuite.testcase.Scope, org.evosuite.testcase.VariableReference)
+     */
 
-		logger.debug("Checking primitive " + var);
-		try {
-			// Need only legal values
-			if (var == null)
-				return;
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void visit(Statement statement, Scope scope, VariableReference var) {
+        if (statement.isAssignmentStatement())
+            return;
 
-			// We don't need assertions on constant values
-			if (statement instanceof PrimitiveStatement<?>)
-				return;
-			
-			if(statement instanceof MethodStatement) {
-				if(((MethodStatement)statement).getMethod().getName().equals("hashCode"))
-					return;
-			}
+        logger.debug("Checking primitive " + var);
+        try {
+            // Need only legal values
+            if (var == null)
+                return;
 
-			Object object = var.getObject(scope);
+            // We don't need assertions on constant values
+            if (statement instanceof PrimitiveStatement<?>)
+                return;
 
-			// We don't need to compare to null
-			if (object == null)
-				return;
+            if (statement instanceof MethodStatement) {
+                if (((MethodStatement) statement).getMethod().getName().equals("hashCode"))
+                    return;
+            }
 
-			// We can't check private member enums
-			if (object.getClass().isEnum()
-			        && !Modifier.isPublic(object.getClass().getModifiers()))
-				return;
+            Object object = var.getObject(scope);
 
-			if (object.getClass().isPrimitive() || object.getClass().isEnum()
-			        || isWrapperType(object.getClass()) || object instanceof String) {
-				if(object instanceof String) {
-					int length = ((String) object).length();
-					// Maximum length of strings we look at
-					if(length > Properties.MAX_STRING) {
-						return;
-					}
-					// String literals may not be longer than 32767
-					if(length >= 32767) {
-						return;
-					}
-					// Avoid asserting anything on values referring to mockito proxy objects
-					if(((String)object).toLowerCase().contains("EnhancerByMockito")) {
-						return;
-					}
-					// The word "hashCode" is also suspicious
-					if(((String)object).toLowerCase().contains("hashcode")) {
-						return;
-					}
-					// Check if there is a reference that would make the test fail
-					if(addressPattern.matcher((String)object).find()) {
-						return;
-					}
+            // We don't need to compare to null
+            if (object == null)
+                return;
 
-				}
-				logger.debug("Observed value " + object + " for statement "
-				        + statement.getCode());
-				trace.addEntry(statement.getPosition(), var, new PrimitiveTraceEntry(var,
-				        object));
+            // We can't check private member enums
+            if (object.getClass().isEnum()
+                    && !Modifier.isPublic(object.getClass().getModifiers()))
+                return;
 
-			}
-		} catch (CodeUnderTestException e) {
-			logger.debug("", e);			
-		}
-	}
+            if (object.getClass().isPrimitive() || object.getClass().isEnum()
+                    || isWrapperType(object.getClass()) || object instanceof String) {
+                if (object instanceof String) {
+                    int length = ((String) object).length();
+                    // Maximum length of strings we look at
+                    if (length > Properties.MAX_STRING) {
+                        return;
+                    }
+                    // String literals may not be longer than 32767
+                    if (length >= 32767) {
+                        return;
+                    }
+                    // Avoid asserting anything on values referring to mockito proxy objects
+                    if (((String) object).toLowerCase().contains("EnhancerByMockito")) {
+                        return;
+                    }
+                    // The word "hashCode" is also suspicious
+                    if (((String) object).toLowerCase().contains("hashcode")) {
+                        return;
+                    }
+                    // Check if there is a reference that would make the test fail
+                    if (addressPattern.matcher((String) object).find()) {
+                        return;
+                    }
 
-	@Override
-	public void testExecutionFinished(ExecutionResult r, Scope s) {
-		// do nothing
-	}
+                }
+                logger.debug("Observed value " + object + " for statement "
+                        + statement.getCode());
+                trace.addEntry(statement.getPosition(), var, new PrimitiveTraceEntry(var,
+                        object));
+
+            }
+        } catch (CodeUnderTestException e) {
+            logger.debug("", e);
+        }
+    }
+
+    @Override
+    public void testExecutionFinished(ExecutionResult r, Scope s) {
+        // do nothing
+    }
 }

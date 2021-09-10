@@ -23,23 +23,23 @@ import org.objectweb.asm.Opcodes;
 
 public class DivisionByZeroInstrumentation extends ErrorBranchInstrumenter {
 
-	public DivisionByZeroInstrumentation(ErrorConditionMethodAdapter mv) {
-		super(mv);
-	}
+    public DivisionByZeroInstrumentation(ErrorConditionMethodAdapter mv) {
+        super(mv);
+    }
 
-	@Override
-	public void visitInsn(int opcode) {
-		// Check *DIV for divisonbyzero
-		if (opcode == Opcodes.IDIV || opcode == Opcodes.IREM) {
-			mv.visitInsn(Opcodes.DUP);
-			insertBranch(Opcodes.IFNE, "java/lang/ArithmeticException");
+    @Override
+    public void visitInsn(int opcode) {
+        // Check *DIV for divisonbyzero
+        if (opcode == Opcodes.IDIV || opcode == Opcodes.IREM) {
+            mv.visitInsn(Opcodes.DUP);
+            insertBranch(Opcodes.IFNE, "java/lang/ArithmeticException");
 
-		} else if (opcode == Opcodes.LDIV || opcode == Opcodes.LREM) {
-			mv.visitInsn(Opcodes.DUP2);
-			mv.visitLdcInsn(0L);
-			mv.visitInsn(Opcodes.LCMP);
-			insertBranch(Opcodes.IFNE, "java/lang/ArithmeticException");
-		}
-		// TODO: Could add a branch also for doubles, but not throw an exception?
-	}
+        } else if (opcode == Opcodes.LDIV || opcode == Opcodes.LREM) {
+            mv.visitInsn(Opcodes.DUP2);
+            mv.visitLdcInsn(0L);
+            mv.visitInsn(Opcodes.LCMP);
+            insertBranch(Opcodes.IFNE, "java/lang/ArithmeticException");
+        }
+        // TODO: Could add a branch also for doubles, but not throw an exception?
+    }
 }

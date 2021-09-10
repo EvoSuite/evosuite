@@ -19,9 +19,6 @@
  */
 package org.evosuite.junit;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.execution.ExecutionResult;
@@ -33,6 +30,9 @@ import org.junit.runner.JUnitCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashSet;
+import java.util.Set;
+
 
 /**
  * <p>JUnitTestSuite class.</p>
@@ -41,111 +41,111 @@ import org.slf4j.LoggerFactory;
  */
 public class JUnitTestSuite {
 
-	private static final Logger logger = LoggerFactory.getLogger(JUnitTestSuite.class);
+    private static final Logger logger = LoggerFactory.getLogger(JUnitTestSuite.class);
 
-	private Set<String> coveredMethods;
+    private Set<String> coveredMethods;
 
-	private Set<Integer> coveredBranchesTrue;
+    private Set<Integer> coveredBranchesTrue;
 
-	private Set<Integer> coveredBranchesFalse;
+    private Set<Integer> coveredBranchesFalse;
 
-	private final TestCaseExecutor executor = TestCaseExecutor.getInstance();
+    private final TestCaseExecutor executor = TestCaseExecutor.getInstance();
 
-	/**
-	 * <p>runSuite</p>
-	 *
-	 * @param name a {@link java.lang.String} object.
-	 */
-	public void runSuite(String name) {
-		try {
-			Class<?> forName = null;
-			forName = Class.forName(name);
-			logger.info("Running against JUnit test suite " + name);
-			JUnitCore.runClasses(forName);
-			ExecutionTrace trace = ExecutionTracer.getExecutionTracer().getTrace();
+    /**
+     * <p>runSuite</p>
+     *
+     * @param name a {@link java.lang.String} object.
+     */
+    public void runSuite(String name) {
+        try {
+            Class<?> forName = null;
+            forName = Class.forName(name);
+            logger.info("Running against JUnit test suite " + name);
+            JUnitCore.runClasses(forName);
+            ExecutionTrace trace = ExecutionTracer.getExecutionTracer().getTrace();
 
-			coveredMethods = new HashSet<>();
-			coveredBranchesTrue = trace.getCoveredTrueBranches();
-			coveredBranchesFalse = trace.getCoveredFalseBranches();
+            coveredMethods = new HashSet<>();
+            coveredBranchesTrue = trace.getCoveredTrueBranches();
+            coveredBranchesFalse = trace.getCoveredFalseBranches();
 
-			for (String methodName : trace.getCoveredMethods()) {
-				if (!methodName.contains("$"))
-					coveredMethods.add(methodName);
-			}
+            for (String methodName : trace.getCoveredMethods()) {
+                if (!methodName.contains("$"))
+                    coveredMethods.add(methodName);
+            }
 
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		}
-	}
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
 
-	/**
-	 * <p>runSuite</p>
-	 *
-	 * @param chromosome a {@link org.evosuite.testsuite.TestSuiteChromosome} object.
-	 */
-	public void runSuite(TestSuiteChromosome chromosome) {
-		coveredMethods = new HashSet<>();
-		coveredBranchesTrue = new HashSet<>();
-		coveredBranchesFalse = new HashSet<>();
+    /**
+     * <p>runSuite</p>
+     *
+     * @param chromosome a {@link org.evosuite.testsuite.TestSuiteChromosome} object.
+     */
+    public void runSuite(TestSuiteChromosome chromosome) {
+        coveredMethods = new HashSet<>();
+        coveredBranchesTrue = new HashSet<>();
+        coveredBranchesFalse = new HashSet<>();
 
-		for (TestCase test : chromosome.getTests()) {
-			ExecutionResult result = runTest(test);
-			coveredMethods.addAll(result.getTrace().getCoveredMethods());
-			coveredBranchesTrue.addAll(result.getTrace().getCoveredTrueBranches());
-			coveredBranchesFalse.addAll(result.getTrace().getCoveredFalseBranches());
-		}
-	}
+        for (TestCase test : chromosome.getTests()) {
+            ExecutionResult result = runTest(test);
+            coveredMethods.addAll(result.getTrace().getCoveredMethods());
+            coveredBranchesTrue.addAll(result.getTrace().getCoveredTrueBranches());
+            coveredBranchesFalse.addAll(result.getTrace().getCoveredFalseBranches());
+        }
+    }
 
-	/**
-	 * <p>Getter for the field <code>coveredMethods</code>.</p>
-	 *
-	 * @return a {@link java.util.Set} object.
-	 */
-	public Set<String> getCoveredMethods() {
-		return coveredMethods;
-	}
+    /**
+     * <p>Getter for the field <code>coveredMethods</code>.</p>
+     *
+     * @return a {@link java.util.Set} object.
+     */
+    public Set<String> getCoveredMethods() {
+        return coveredMethods;
+    }
 
-	/**
-	 * <p>getTrueCoveredBranches</p>
-	 *
-	 * @return a {@link java.util.Set} object.
-	 */
-	public Set<Integer> getTrueCoveredBranches() {
-		return coveredBranchesTrue;
-	}
+    /**
+     * <p>getTrueCoveredBranches</p>
+     *
+     * @return a {@link java.util.Set} object.
+     */
+    public Set<Integer> getTrueCoveredBranches() {
+        return coveredBranchesTrue;
+    }
 
-	/**
-	 * <p>getFalseCoveredBranches</p>
-	 *
-	 * @return a {@link java.util.Set} object.
-	 */
-	public Set<Integer> getFalseCoveredBranches() {
-		return coveredBranchesFalse;
-	}
+    /**
+     * <p>getFalseCoveredBranches</p>
+     *
+     * @return a {@link java.util.Set} object.
+     */
+    public Set<Integer> getFalseCoveredBranches() {
+        return coveredBranchesFalse;
+    }
 
-	/**
-	 * <p>runTest</p>
-	 *
-	 * @param test a {@link org.evosuite.testcase.TestCase} object.
-	 * @return a {@link org.evosuite.testcase.execution.ExecutionResult} object.
-	 */
-	public ExecutionResult runTest(TestCase test) {
+    /**
+     * <p>runTest</p>
+     *
+     * @param test a {@link org.evosuite.testcase.TestCase} object.
+     * @return a {@link org.evosuite.testcase.execution.ExecutionResult} object.
+     */
+    public ExecutionResult runTest(TestCase test) {
 
-		ExecutionResult result = new ExecutionResult(test, null);
+        ExecutionResult result = new ExecutionResult(test, null);
 
-		try {
-			logger.debug("Executing test");
-			result = executor.execute(test);
+        try {
+            logger.debug("Executing test");
+            result = executor.execute(test);
 
-			int num = test.size();
-			MaxStatementsStoppingCondition.statementsExecuted(num);
-			//result.touched.addAll(HOMObserver.getTouched());
+            int num = test.size();
+            MaxStatementsStoppingCondition.statementsExecuted(num);
+            //result.touched.addAll(HOMObserver.getTouched());
 
-		} catch (Exception e) {
-			throw new Error(e);
-		}
+        } catch (Exception e) {
+            throw new Error(e);
+        }
 
-		return result;
-	}
+        return result;
+    }
 
 }

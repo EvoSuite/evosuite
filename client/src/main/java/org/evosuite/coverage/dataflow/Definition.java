@@ -24,43 +24,42 @@ import org.evosuite.graphs.cfg.BytecodeInstruction;
 /**
  * An object of this class corresponds to a Definition inside the class under
  * test.
- * 
+ * <p>
  * Definitions are created by the DefUseFactory via the DefUsePool.
- * 
+ *
  * @author Andre Mis
  */
 public class Definition extends DefUse {
 
-	private static final long serialVersionUID = 1141846324999759006L;
+    private static final long serialVersionUID = 1141846324999759006L;
 
-	Definition(BytecodeInstruction wrap) {
-		super(wrap);
-		if (!DefUsePool.isKnownAsDefinition(wrap))
-			throw new IllegalArgumentException(
-			        "Instruction must be known as a Definition by the DefUsePool");
-	}
+    Definition(BytecodeInstruction wrap) {
+        super(wrap);
+        if (!DefUsePool.isKnownAsDefinition(wrap))
+            throw new IllegalArgumentException(
+                    "Instruction must be known as a Definition by the DefUsePool");
+    }
 
-	/**
-	 * Determines whether this Definition can be an active definition for the
-	 * given instruction.
-	 * 
-	 * This is the case if instruction constitutes a Use for the same variable
-	 * as this Definition
-	 * 
-	 * Not to be confused with DefUse.canBecomeActiveDefinitionFor, which is
-	 * sort of the dual to this method
-	 * 
-	 * @param instruction
-	 *            a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
-	 * @return a boolean.
-	 */
-	public boolean canBeActiveFor(BytecodeInstruction instruction) {
-		if (!instruction.isUse())
-			return false;
-		//		if(!DefUsePool.isKnownAsUse(instruction))
-		//			return false;
+    /**
+     * Determines whether this Definition can be an active definition for the
+     * given instruction.
+     * <p>
+     * This is the case if instruction constitutes a Use for the same variable
+     * as this Definition
+     * <p>
+     * Not to be confused with DefUse.canBecomeActiveDefinitionFor, which is
+     * sort of the dual to this method
+     *
+     * @param instruction a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
+     * @return a boolean.
+     */
+    public boolean canBeActiveFor(BytecodeInstruction instruction) {
+        if (!instruction.isUse())
+            return false;
+        //		if(!DefUsePool.isKnownAsUse(instruction))
+        //			return false;
 
-		//		Use use = DefUseFactory.makeUse(instruction);
-		return sharesVariableWith(instruction);
-	}
+        //		Use use = DefUseFactory.makeUse(instruction);
+        return sharesVariableWith(instruction);
+    }
 }

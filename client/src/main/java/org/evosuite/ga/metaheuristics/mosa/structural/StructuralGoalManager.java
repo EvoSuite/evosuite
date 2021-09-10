@@ -19,15 +19,15 @@
  */
 package org.evosuite.ga.metaheuristics.mosa.structural;
 
-import java.io.Serializable;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import org.evosuite.ga.archive.Archive;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
+
+import java.io.Serializable;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * A class for managing coverage targets based on structural dependencies. More specifically,
@@ -38,99 +38,102 @@ import org.evosuite.testcase.TestFitnessFunction;
  */
 public abstract class StructuralGoalManager implements Serializable {
 
-	private static final long serialVersionUID = -2577487057354286024L;
+    private static final long serialVersionUID = -2577487057354286024L;
 
-	/**
-	 * Set of goals currently used as objectives.
-	 * <p>
-	 * The idea is to consider only those gaols that are independent from any other targets. That
-	 * is, the gaols that
-	 * <ol>
-	 *     <li>are free of control dependencies, or</li>
-	 *     <li>only have direct control dependencies to already covered gaols.</li>
-	 * </ol>
-	 * <p>
-	 * Each goal is encoded by a corresponding fitness function, which returns an optimal fitness value if the goal has been reached by a given
-	 * chromosome. All functions are required to be either minimization or maximization functions,
-	 * not a mix of both.
-	 */
-	protected Set<TestFitnessFunction> currentGoals;
+    /**
+     * Set of goals currently used as objectives.
+     * <p>
+     * The idea is to consider only those gaols that are independent from any other targets. That
+     * is, the gaols that
+     * <ol>
+     *     <li>are free of control dependencies, or</li>
+     *     <li>only have direct control dependencies to already covered gaols.</li>
+     * </ol>
+     * <p>
+     * Each goal is encoded by a corresponding fitness function, which returns an optimal fitness value if the goal has been reached by a given
+     * chromosome. All functions are required to be either minimization or maximization functions,
+     * not a mix of both.
+     */
+    protected Set<TestFitnessFunction> currentGoals;
 
-	/** Archive of tests and corresponding covered targets*/
-	protected Archive archive;
+    /**
+     * Archive of tests and corresponding covered targets
+     */
+    protected Archive archive;
 
-	/**
-	 * Creates a new {@code StructuralGoalManager} with the given list of targets.
-	 *
-	 * @param fitnessFunctions The targets to cover, with each individual target encoded as its own
-	 *                         fitness function.
-	 */
-	protected StructuralGoalManager(List<TestFitnessFunction> fitnessFunctions){
-		currentGoals = new HashSet<>(fitnessFunctions.size());
-		archive = Archive.getArchiveInstance();
+    /**
+     * Creates a new {@code StructuralGoalManager} with the given list of targets.
+     *
+     * @param fitnessFunctions The targets to cover, with each individual target encoded as its own
+     *                         fitness function.
+     */
+    protected StructuralGoalManager(List<TestFitnessFunction> fitnessFunctions) {
+        currentGoals = new HashSet<>(fitnessFunctions.size());
+        archive = Archive.getArchiveInstance();
 
-		// initialize uncovered goals
-		this.archive.addTargets(fitnessFunctions);
-	}
+        // initialize uncovered goals
+        this.archive.addTargets(fitnessFunctions);
+    }
 
-	/**
-	 * Update the set of covered goals and the set of current goals (actual objectives)
-	 * @param c a TestChromosome
-	 * @return covered goals along with the corresponding test case
-	 */
-	public abstract void calculateFitness(TestChromosome c,
-										  GeneticAlgorithm<TestChromosome> ga);
+    /**
+     * Update the set of covered goals and the set of current goals (actual objectives)
+     *
+     * @param c a TestChromosome
+     * @return covered goals along with the corresponding test case
+     */
+    public abstract void calculateFitness(TestChromosome c,
+                                          GeneticAlgorithm<TestChromosome> ga);
 
-	/**
-	 * Returns the set of yet uncovered goals.
-	 *
-	 * @return uncovered goals
-	 */
-	public Set<TestFitnessFunction> getUncoveredGoals() {
-		return this.archive.getUncoveredTargets();
-	}
+    /**
+     * Returns the set of yet uncovered goals.
+     *
+     * @return uncovered goals
+     */
+    public Set<TestFitnessFunction> getUncoveredGoals() {
+        return this.archive.getUncoveredTargets();
+    }
 
-	/**
-	 * Returns the subset of uncovered goals that are currently targeted. Each such goal has a
-	 * direct control dependency to one of the already covered goals.
-	 *
-	 * @return all currently targeted goals
-	 */
-	public Set<TestFitnessFunction> getCurrentGoals() {
-		return currentGoals;
-	}
+    /**
+     * Returns the subset of uncovered goals that are currently targeted. Each such goal has a
+     * direct control dependency to one of the already covered goals.
+     *
+     * @return all currently targeted goals
+     */
+    public Set<TestFitnessFunction> getCurrentGoals() {
+        return currentGoals;
+    }
 
-	/**
-	 * Returns the set of already covered goals.
-	 *
-	 * @return the covered goals
-	 */
-	public Set<TestFitnessFunction> getCoveredGoals() {
-		return this.archive.getCoveredTargets();
-	}
+    /**
+     * Returns the set of already covered goals.
+     *
+     * @return the covered goals
+     */
+    public Set<TestFitnessFunction> getCoveredGoals() {
+        return this.archive.getCoveredTargets();
+    }
 
-	/**
-	 * Tells whether an individual covering the given target is already present in the archive.
-	 *
-	 * @param target the goal to be covered
-	 * @return {@code true} if the archive contains a chromosome that covers the target
-	 */
-	protected boolean isAlreadyCovered(TestFitnessFunction target){
-		return this.archive.getCoveredTargets().contains(target);
-	}
+    /**
+     * Tells whether an individual covering the given target is already present in the archive.
+     *
+     * @param target the goal to be covered
+     * @return {@code true} if the archive contains a chromosome that covers the target
+     */
+    protected boolean isAlreadyCovered(TestFitnessFunction target) {
+        return this.archive.getCoveredTargets().contains(target);
+    }
 
-	/**
-	 * Records that the given coverage goal is satisfied by the given chromosome.
-	 *
-	 * @param f the coverage goal to be satisfied
-	 * @param tc the chromosome satisfying the goal
-	 */
-	protected void updateCoveredGoals(TestFitnessFunction f, TestChromosome tc) {
-		// the next two lines are needed since that coverage information are used
-		// during EvoSuite post-processing
-		tc.getTestCase().getCoveredGoals().add(f);
+    /**
+     * Records that the given coverage goal is satisfied by the given chromosome.
+     *
+     * @param f  the coverage goal to be satisfied
+     * @param tc the chromosome satisfying the goal
+     */
+    protected void updateCoveredGoals(TestFitnessFunction f, TestChromosome tc) {
+        // the next two lines are needed since that coverage information are used
+        // during EvoSuite post-processing
+        tc.getTestCase().getCoveredGoals().add(f);
 
-		// update covered targets
-		this.archive.updateArchive(f, tc, tc.getFitness(f));
-	}
+        // update covered targets
+        this.archive.updateArchive(f, tc, tc.getFitness(f));
+    }
 }

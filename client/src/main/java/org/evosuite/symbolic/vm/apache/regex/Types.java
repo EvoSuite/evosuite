@@ -25,14 +25,14 @@ import org.objectweb.asm.Type;
 
 public interface Types {
 
-	Type STR_TYPE = Type.getType(String.class);
+    Type STR_TYPE = Type.getType(String.class);
 
-	Type PATTERN_TYPE = Type.getType(Pattern.class);
+    Type PATTERN_TYPE = Type.getType(Pattern.class);
 
-	String STR_STR_TO_BOOLEAN = Type.getMethodDescriptor(
-			Type.BOOLEAN_TYPE, STR_TYPE, PATTERN_TYPE);
+    String STR_STR_TO_BOOLEAN = Type.getMethodDescriptor(
+            Type.BOOLEAN_TYPE, STR_TYPE, PATTERN_TYPE);
 
-	String ORG_APACHE_ORO_TEXT_REGEX_PERL5MATCHER = Perl5Matcher.class
-			.getName().replace('.', '/');
+    String ORG_APACHE_ORO_TEXT_REGEX_PERL5MATCHER = Perl5Matcher.class
+            .getName().replace('.', '/');
 
 }

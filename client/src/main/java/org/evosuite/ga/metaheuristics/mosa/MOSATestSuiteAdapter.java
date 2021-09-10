@@ -1,19 +1,19 @@
 /**
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * <p>
  * This file is part of EvoSuite.
- *
+ * <p>
  * EvoSuite is free software: you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
  * by the Free Software Foundation, either version 3.0 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * EvoSuite is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -25,7 +25,10 @@ import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * An adapter that allows all variants of the MOSA algorithm to be used in such contexts where
@@ -41,10 +44,10 @@ public class MOSATestSuiteAdapter extends TestSuiteAdapter<AbstractMOSA> {
 
     /*
      * Some methods of the super class (i.e., {@link org.evosuite.ga.metaheuristics.GeneticAlgorithm}
-	 * class) require a {@link org.evosuite.testsuite.TestSuiteChromosome} object. However, MOSA
-	 * evolves {@link org.evosuite.testsuite.TestChromosome} objects. Therefore, we must override
-	 * those methods and create a {@link org.evosuite.testsuite.TestSuiteChromosome} object with all
-	 * the evolved {@link org.evosuite.testsuite.TestChromosome} objects (either in the population or
+     * class) require a {@link org.evosuite.testsuite.TestSuiteChromosome} object. However, MOSA
+     * evolves {@link org.evosuite.testsuite.TestChromosome} objects. Therefore, we must override
+     * those methods and create a {@link org.evosuite.testsuite.TestSuiteChromosome} object with all
+     * the evolved {@link org.evosuite.testsuite.TestChromosome} objects (either in the population or
      * in the {@link org.evosuite.ga.archive.Archive}).
      *
      * The following code has been copied from org.evosuite.ga.metaheuristics.mosa.AbstractMOSA
@@ -89,7 +92,7 @@ public class MOSATestSuiteAdapter extends TestSuiteAdapter<AbstractMOSA> {
             }
             for (TestSuiteFitnessFunction suiteFitness : getAlgorithm().suiteFitnessFunctions.keySet()) {
                 best.setCoverage(suiteFitness, 0.0);
-                best.setFitness(suiteFitness,  1.0);
+                best.setFitness(suiteFitness, 1.0);
             }
             return best;
         }

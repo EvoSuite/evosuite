@@ -21,10 +21,10 @@
 package org.evosuite.assertion;
 
 import org.evosuite.Properties;
-import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.statements.MethodStatement;
+import org.evosuite.testcase.statements.Statement;
 
 
 /**
@@ -34,40 +34,42 @@ import org.evosuite.testcase.statements.MethodStatement;
  */
 public class UnitAssertionGenerator extends AssertionGenerator {
 
-	private boolean isRelevant(Statement s, TestCase t) {
-		// Always allow assertions on the last statement
-		if (s.getPosition() == (t.size() - 1))
-			return true;
+    private boolean isRelevant(Statement s, TestCase t) {
+        // Always allow assertions on the last statement
+        if (s.getPosition() == (t.size() - 1))
+            return true;
 
-		// Allow assertions after method calls on the UUT
-		if (s instanceof MethodStatement) {
-			MethodStatement ms = (MethodStatement) s;
-			String declaringClass = ms.getMethod().getDeclaringClass().getName();
-			while (declaringClass.contains("$"))
-				declaringClass = declaringClass.substring(0, declaringClass.indexOf("$"));
+        // Allow assertions after method calls on the UUT
+        if (s instanceof MethodStatement) {
+            MethodStatement ms = (MethodStatement) s;
+            String declaringClass = ms.getMethod().getDeclaringClass().getName();
+            while (declaringClass.contains("$"))
+                declaringClass = declaringClass.substring(0, declaringClass.indexOf("$"));
 
-			if (declaringClass.equals(Properties.TARGET_CLASS) || (!Properties.TARGET_CLASS_PREFIX.isEmpty() && declaringClass.startsWith(Properties.TARGET_CLASS_PREFIX)))
-				return true;
-		}
-		return false;
-	}
+            return declaringClass.equals(Properties.TARGET_CLASS) || (!Properties.TARGET_CLASS_PREFIX.isEmpty() && declaringClass.startsWith(Properties.TARGET_CLASS_PREFIX));
+        }
+        return false;
+    }
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.assertion.AssertionGenerator#addAssertions(org.evosuite.testcase.TestCase)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public void addAssertions(TestCase test) {
-		ExecutionResult result = runTest(test);
-		for (OutputTrace<?> trace : result.getTraces()) {
-			trace.getAllAssertions(test);
-		}
+    /* (non-Javadoc)
+     * @see org.evosuite.assertion.AssertionGenerator#addAssertions(org.evosuite.testcase.TestCase)
+     */
 
-		for (int i = 0; i < test.size(); i++) {
-			Statement s = test.getStatement(i);
-			if (!isRelevant(s, test))
-				s.removeAssertions();
-		}
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void addAssertions(TestCase test) {
+        ExecutionResult result = runTest(test);
+        for (OutputTrace<?> trace : result.getTraces()) {
+            trace.getAllAssertions(test);
+        }
+
+        for (int i = 0; i < test.size(); i++) {
+            Statement s = test.getStatement(i);
+            if (!isRelevant(s, test))
+                s.removeAssertions();
+        }
+    }
 
 }

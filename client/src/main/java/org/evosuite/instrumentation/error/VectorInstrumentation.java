@@ -30,57 +30,57 @@ import java.util.Vector;
 public class VectorInstrumentation extends ErrorBranchInstrumenter {
 
 
-	private static final String VECTORNAME = Vector.class.getCanonicalName().replace('.', '/');
-	
-	private final List<String> emptyListMethods = Arrays.asList(new String[] {"firstElement", "lastElement"});
+    private static final String VECTORNAME = Vector.class.getCanonicalName().replace('.', '/');
 
-	private final List<String> indexListMethods = Arrays.asList(new String[] {"elementAt", "removeElementAt"});
-	
-	// Missing:
-	// indexOf, lastIndexOf, removeRange, insertElementAt, setElementAt, subList 
-	
-	public VectorInstrumentation(ErrorConditionMethodAdapter mv) {
-		super(mv);
-	}
+    private final List<String> emptyListMethods = Arrays.asList("firstElement", "lastElement");
 
-	@Override
-	public void visitMethodInsn(int opcode, String owner, String name,
-			String desc, boolean itf) {
-		if(owner.equals(VECTORNAME)) {
-			if(emptyListMethods.contains(name)) {
-				// empty
-				Map<Integer, Integer> tempVariables = getMethodCallee(desc);
+    private final List<String> indexListMethods = Arrays.asList("elementAt", "removeElementAt");
 
-				//tagBranchStart();
-				mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, VECTORNAME,
-	                      "isEmpty", "()Z", false);
-				insertBranch(Opcodes.IFLE, "java/util/NoSuchElementException");
-				// tagBranchEnd();
-				restoreMethodParameters(tempVariables, desc);
-				
-			} else if(indexListMethods.contains(name)) {
-				Type[] args = Type.getArgumentTypes(desc);
-				if(args.length == 0)
-					return;
-				if(!args[0].equals(Type.INT_TYPE))
-					return;
-				
-				Map<Integer, Integer> tempVariables = getMethodCallee(desc);
-				tagBranchStart();
-				mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, VECTORNAME,
-	                      "size", "()I", false);
-				
-				// index >= size
-				mv.loadLocal(tempVariables.get(0));
-				insertBranch(Opcodes.IF_ICMPGT, "java/lang/IndexOutOfBoundsException");
-					
-				// index < 0
-				mv.loadLocal(tempVariables.get(0));
-				insertBranch(Opcodes.IFGE, "java/lang/IndexOutOfBoundsException");
-				tagBranchEnd();
+    // Missing:
+    // indexOf, lastIndexOf, removeRange, insertElementAt, setElementAt, subList
 
-				restoreMethodParameters(tempVariables, desc);
-			}
-		}
-	}
+    public VectorInstrumentation(ErrorConditionMethodAdapter mv) {
+        super(mv);
+    }
+
+    @Override
+    public void visitMethodInsn(int opcode, String owner, String name,
+                                String desc, boolean itf) {
+        if (owner.equals(VECTORNAME)) {
+            if (emptyListMethods.contains(name)) {
+                // empty
+                Map<Integer, Integer> tempVariables = getMethodCallee(desc);
+
+                //tagBranchStart();
+                mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, VECTORNAME,
+                        "isEmpty", "()Z", false);
+                insertBranch(Opcodes.IFLE, "java/util/NoSuchElementException");
+                // tagBranchEnd();
+                restoreMethodParameters(tempVariables, desc);
+
+            } else if (indexListMethods.contains(name)) {
+                Type[] args = Type.getArgumentTypes(desc);
+                if (args.length == 0)
+                    return;
+                if (!args[0].equals(Type.INT_TYPE))
+                    return;
+
+                Map<Integer, Integer> tempVariables = getMethodCallee(desc);
+                tagBranchStart();
+                mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, VECTORNAME,
+                        "size", "()I", false);
+
+                // index >= size
+                mv.loadLocal(tempVariables.get(0));
+                insertBranch(Opcodes.IF_ICMPGT, "java/lang/IndexOutOfBoundsException");
+
+                // index < 0
+                mv.loadLocal(tempVariables.get(0));
+                insertBranch(Opcodes.IFGE, "java/lang/IndexOutOfBoundsException");
+                tagBranchEnd();
+
+                restoreMethodParameters(tempVariables, desc);
+            }
+        }
+    }
 }

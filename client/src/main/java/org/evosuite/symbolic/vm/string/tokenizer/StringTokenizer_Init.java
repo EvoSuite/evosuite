@@ -30,54 +30,54 @@ import org.evosuite.symbolic.vm.string.Types;
 
 public final class StringTokenizer_Init extends SymbolicFunction {
 
-	private static final String INIT = "<init>";
+    private static final String INIT = "<init>";
 
-	public StringTokenizer_Init(SymbolicEnvironment env) {
-		super(env, Types.JAVA_UTIL_STRING_TOKENIZER, INIT,
-				Types.STR_STR_TO_VOID_DESCRIPTOR);
-	}
+    public StringTokenizer_Init(SymbolicEnvironment env) {
+        super(env, Types.JAVA_UTIL_STRING_TOKENIZER, INIT,
+                Types.STR_STR_TO_VOID_DESCRIPTOR);
+    }
 
-	@Override
-	public Object executeFunction() {
+    @Override
+    public Object executeFunction() {
 
-		// symbolic receiver (new object)
-		ReferenceConstant symb_str_tokenizer = this
-				.getSymbReceiver();
+        // symbolic receiver (new object)
+        ReferenceConstant symb_str_tokenizer = this
+                .getSymbReceiver();
 
-		// string argument
-		String conc_str = (String) this.getConcArgument(0);
-		ReferenceExpression symb_str = this.getSymbArgument(0);
+        // string argument
+        String conc_str = (String) this.getConcArgument(0);
+        ReferenceExpression symb_str = this.getSymbArgument(0);
 
-		// delim argument
-		String conc_delim = (String) this.getConcArgument(1);
-		ReferenceExpression symb_delim = this.getSymbArgument(1);
+        // delim argument
+        String conc_delim = (String) this.getConcArgument(1);
+        ReferenceExpression symb_delim = this.getSymbArgument(1);
 
-		if (symb_str instanceof ReferenceConstant
-				&& symb_delim instanceof ReferenceConstant) {
-			ReferenceConstant non_null_symb_string = (ReferenceConstant) symb_str;
-			assert conc_str != null;
+        if (symb_str instanceof ReferenceConstant
+                && symb_delim instanceof ReferenceConstant) {
+            ReferenceConstant non_null_symb_string = (ReferenceConstant) symb_str;
+            assert conc_str != null;
 
-			StringValue strExpr = env.heap.getField(Types.JAVA_LANG_STRING,
-					SymbolicHeap.$STRING_VALUE, conc_str, non_null_symb_string,
-					conc_str);
+            StringValue strExpr = env.heap.getField(Types.JAVA_LANG_STRING,
+                    SymbolicHeap.$STRING_VALUE, conc_str, non_null_symb_string,
+                    conc_str);
 
-			ReferenceConstant non_null_symb_delim = (ReferenceConstant) symb_delim;
-			assert conc_delim != null;
+            ReferenceConstant non_null_symb_delim = (ReferenceConstant) symb_delim;
+            assert conc_delim != null;
 
-			StringValue delimExpr = env.heap.getField(Types.JAVA_LANG_STRING,
-					SymbolicHeap.$STRING_VALUE, conc_delim,
-					non_null_symb_delim, conc_delim);
+            StringValue delimExpr = env.heap.getField(Types.JAVA_LANG_STRING,
+                    SymbolicHeap.$STRING_VALUE, conc_delim,
+                    non_null_symb_delim, conc_delim);
 
-			NewTokenizerExpr newTokenizerExpr = new NewTokenizerExpr(strExpr,
-					delimExpr);
+            NewTokenizerExpr newTokenizerExpr = new NewTokenizerExpr(strExpr,
+                    delimExpr);
 
-			// update symbolic heap
-			env.heap.putField(Types.JAVA_UTIL_STRING_TOKENIZER,
-					SymbolicHeap.$STRING_TOKENIZER_VALUE, null,
-					symb_str_tokenizer, newTokenizerExpr);
-		}
+            // update symbolic heap
+            env.heap.putField(Types.JAVA_UTIL_STRING_TOKENIZER,
+                    SymbolicHeap.$STRING_TOKENIZER_VALUE, null,
+                    symb_str_tokenizer, newTokenizerExpr);
+        }
 
-		// constructor returns void
-		return null;
-	}
+        // constructor returns void
+        return null;
+    }
 }

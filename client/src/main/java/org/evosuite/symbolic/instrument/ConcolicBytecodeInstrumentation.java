@@ -34,52 +34,50 @@ import org.objectweb.asm.ClassWriter;
 /**
  * This class performns the bytecode transformation. It adds new bytecode for
  * registering the constraints during execution.
- * 
+ *
  * @author galeotti
- * 
  */
 public class ConcolicBytecodeInstrumentation {
 
-	//private static Logger logger = LoggerFactory.getLogger(DscBytecodeInstrumentation.class);
+    //private static Logger logger = LoggerFactory.getLogger(DscBytecodeInstrumentation.class);
 
-	/**
-	 * Applies DscClassAdapter to the className in the argument
-	 * 
-	 */
-	public byte[] transformBytes(String className, ClassReader reader) {
-		int readFlags = ClassReader.SKIP_FRAMES;
+    /**
+     * Applies DscClassAdapter to the className in the argument
+     */
+    public byte[] transformBytes(String className, ClassReader reader) {
+        int readFlags = ClassReader.SKIP_FRAMES;
 
-		ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
+        ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
 
-		ClassVisitor cv = writer;
+        ClassVisitor cv = writer;
 
         if (Properties.RESET_STATIC_FIELDS) {
             cv = new StaticAccessClassAdapter(cv, className);
         }
 
-		// Apply transformations to class under test and its owned
-		// classes
-		// cv = new TraceClassVisitor(cv, new PrintWriter(System.err));
-		cv = new ConcolicClassAdapter(cv, className);
+        // Apply transformations to class under test and its owned
+        // classes
+        // cv = new TraceClassVisitor(cv, new PrintWriter(System.err));
+        cv = new ConcolicClassAdapter(cv, className);
 
         // If we need to reset static constructors, make them explicit methods
         if (Properties.RESET_STATIC_FIELDS) {
             // Create a __STATIC_RESET() cloning the original <clinit> method or create one by default
-            final CreateClassResetClassAdapter resetClassAdapter ;
-            resetClassAdapter= new CreateClassResetClassAdapter(cv, className,Properties.RESET_STATIC_FINAL_FIELDS);
+            final CreateClassResetClassAdapter resetClassAdapter;
+            resetClassAdapter = new CreateClassResetClassAdapter(cv, className, Properties.RESET_STATIC_FINAL_FIELDS);
             cv = resetClassAdapter;
             // Add a callback before leaving the <clinit> method
 
             cv = new EndOfClassInitializerVisitor(cv, className);
         }
-		
+
         // Mock instrumentation (eg File and TCP).
         if (TestSuiteWriterUtils.needToUseAgent()) {
             cv = new MethodCallReplacementClassAdapter(cv, className);
         }
-		
-		reader.accept(cv, readFlags);
 
-		return writer.toByteArray();
-	}
+        reader.accept(cv, readFlags);
+
+        return writer.toByteArray();
+    }
 }

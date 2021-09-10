@@ -30,21 +30,23 @@ import java.lang.reflect.Type;
  */
 public class NullReference extends VariableReferenceImpl {
 
-	private static final long serialVersionUID = -6172885297590386463L;
+    private static final long serialVersionUID = -6172885297590386463L;
 
-	/**
-	 * <p>Constructor for NullReference.</p>
-	 *
-	 * @param type a {@link java.lang.reflect.Type} object.
-	 * @param testCase a {@link org.evosuite.testcase.TestCase} object.
-	 */
-	public NullReference(TestCase testCase, Type type) {
-		super(testCase, type);
-	}
+    /**
+     * <p>Constructor for NullReference.</p>
+     *
+     * @param type     a {@link java.lang.reflect.Type} object.
+     * @param testCase a {@link org.evosuite.testcase.TestCase} object.
+     */
+    public NullReference(TestCase testCase, Type type) {
+        super(testCase, type);
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public VariableReference clone() {
-		throw new UnsupportedOperationException();
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public VariableReference clone() {
+        throw new UnsupportedOperationException();
+    }
 }

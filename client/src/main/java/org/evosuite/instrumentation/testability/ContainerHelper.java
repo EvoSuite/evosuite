@@ -33,8 +33,7 @@ public class ContainerHelper {
     /**
      * Helper function that is called instead of Map.isEmpty
      *
-     * @param m
-     *            a {@link java.util.Map} object.
+     * @param m a {@link java.util.Map} object.
      * @return a int.
      */
     public static int mapIsEmpty(Map<?, ?> m) {
@@ -44,8 +43,7 @@ public class ContainerHelper {
     /**
      * Helper function that is called instead of Collection.isEmpty
      *
-     * @param c
-     *            a {@link java.util.Collection} object.
+     * @param c a {@link java.util.Collection} object.
      * @return a int.
      */
     public static int collectionIsEmpty(Collection<?> c) {
@@ -55,14 +53,12 @@ public class ContainerHelper {
     /**
      * Helper function that is called instead of Collection.contains
      *
-     * @param c
-     *            a {@link java.util.Collection} object.
-     * @param o1
-     *            a {@link java.lang.Object} object.
+     * @param c  a {@link java.util.Collection} object.
+     * @param o1 a {@link java.lang.Object} object.
      * @return a int.
      */
     public static int collectionContains(Collection<?> c, Object o1) {
-        if(o1 != null) {
+        if (o1 != null) {
             TestCluster.getInstance().addCastClassForContainer(o1.getClass());
         }
         int matching = 0;
@@ -103,10 +99,8 @@ public class ContainerHelper {
     /**
      * Helper function that is called instead of Collection.containsAll
      *
-     * @param c
-     *            a {@link java.util.Collection} object.
-     * @param c2
-     *            a {@link java.util.Collection} object.
+     * @param c  a {@link java.util.Collection} object.
+     * @param c2 a {@link java.util.Collection} object.
      * @return a int.
      */
     public static int collectionContainsAll(Collection<?> c, Collection<?> c2) {
@@ -115,20 +109,18 @@ public class ContainerHelper {
             if (!c.contains(o))
                 mismatch++;
         }
-        return mismatch > 0 ? -mismatch : c2.size() +1;
+        return mismatch > 0 ? -mismatch : c2.size() + 1;
     }
 
     /**
      * Helper function that is called instead of Map.containsKey
      *
-     * @param o1
-     *            a {@link java.lang.Object} object.
-     * @param m
-     *            a {@link java.util.Map} object.
+     * @param o1 a {@link java.lang.Object} object.
+     * @param m  a {@link java.util.Map} object.
      * @return a int.
      */
     public static int mapContainsKey(Map<?, ?> m, Object o1) {
-        if(o1 != null)
+        if (o1 != null)
             TestCluster.getInstance().addCastClassForContainer(o1.getClass());
 
         return collectionContains(m.keySet(), o1);
@@ -137,14 +129,12 @@ public class ContainerHelper {
     /**
      * Helper function that is called instead of Map.containsValue
      *
-     * @param o1
-     *            a {@link java.lang.Object} object.
-     * @param m
-     *            a {@link java.util.Map} object.
+     * @param o1 a {@link java.lang.Object} object.
+     * @param m  a {@link java.util.Map} object.
      * @return a int.
      */
     public static int mapContainsValue(Map<?, ?> m, Object o1) {
-        if(o1 != null)
+        if (o1 != null)
             TestCluster.getInstance().addCastClassForContainer(o1.getClass());
 
         return collectionContains(m.values(), o1);

@@ -19,174 +19,159 @@
  */
 package org.evosuite.setup;
 
-import java.util.LinkedHashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.tree.AbstractInsnNode;
-import org.objectweb.asm.tree.ClassNode;
-import org.objectweb.asm.tree.FieldInsnNode;
-import org.objectweb.asm.tree.InsnList;
-import org.objectweb.asm.tree.MethodNode;
+import org.objectweb.asm.tree.*;
+
+import java.util.*;
 
 /**
- * Collects a set of MethodIdentifier of those 
+ * Collects a set of MethodIdentifier of those
  * classes in the callTree including an update to a static field
  * that is used in the GetStatic relation.
- * 
- * @author galeotti
  *
+ * @author galeotti
  */
 public class PutStaticMethodCollector {
 
-	private static final String CLINIT = "<clinit>";
+    private static final String CLINIT = "<clinit>";
 
-	public static class MethodIdentifier {
-		private final String className;
-		private final String methodName;
-		private final String desc;
+    public static class MethodIdentifier {
+        private final String className;
+        private final String methodName;
+        private final String desc;
 
-		public MethodIdentifier(String className, String methodName, String desc) {
-			this.className = className;
-			this.methodName = methodName;
-			this.desc = desc;
-		}
+        public MethodIdentifier(String className, String methodName, String desc) {
+            this.className = className;
+            this.methodName = methodName;
+            this.desc = desc;
+        }
 
-		public String toString() {
-			return className + "." + methodName + this.desc;
-		}
+        public String toString() {
+            return className + "." + methodName + this.desc;
+        }
 
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result
-					+ ((className == null) ? 0 : className.hashCode());
-			result = prime * result + ((desc == null) ? 0 : desc.hashCode());
-			result = prime * result
-					+ ((methodName == null) ? 0 : methodName.hashCode());
-			return result;
-		}
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result
+                    + ((className == null) ? 0 : className.hashCode());
+            result = prime * result + ((desc == null) ? 0 : desc.hashCode());
+            result = prime * result
+                    + ((methodName == null) ? 0 : methodName.hashCode());
+            return result;
+        }
 
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
-				return true;
-			if (obj == null)
-				return false;
-			if (getClass() != obj.getClass())
-				return false;
-			MethodIdentifier other = (MethodIdentifier) obj;
-			if (className == null) {
-				if (other.className != null)
-					return false;
-			} else if (!className.equals(other.className))
-				return false;
-			if (desc == null) {
-				if (other.desc != null)
-					return false;
-			} else if (!desc.equals(other.desc))
-				return false;
-			if (methodName == null) {
-				if (other.methodName != null)
-					return false;
-			} else if (!methodName.equals(other.methodName))
-				return false;
-			return true;
-		}
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            MethodIdentifier other = (MethodIdentifier) obj;
+            if (className == null) {
+                if (other.className != null)
+                    return false;
+            } else if (!className.equals(other.className))
+                return false;
+            if (desc == null) {
+                if (other.desc != null)
+                    return false;
+            } else if (!desc.equals(other.desc))
+                return false;
+            if (methodName == null) {
+                return other.methodName == null;
+            } else return methodName.equals(other.methodName);
+        }
 
-		public String getClassName() {
-			return className;
-		}
+        public String getClassName() {
+            return className;
+        }
 
-		public String getMethodName() {
-			return methodName;
-		}
+        public String getMethodName() {
+            return methodName;
+        }
 
-		public String getDesc() {
-			return desc;
-		}
-	}
+        public String getDesc() {
+            return desc;
+        }
+    }
 
-	//private static final Logger logger = LoggerFactory
-	//		.getLogger(PutStaticMethodCollector.class);
+    //private static final Logger logger = LoggerFactory
+    //		.getLogger(PutStaticMethodCollector.class);
 
-	private static Map<String, Set<String>> createStaticFields(
-			String targetClassName) {
-		GetStaticGraph getStaticGraph = GetStaticGraphGenerator
-				.generate(targetClassName);
-		return getStaticGraph.getStaticFields();
-	}
+    private static Map<String, Set<String>> createStaticFields(
+            String targetClassName) {
+        GetStaticGraph getStaticGraph = GetStaticGraphGenerator
+                .generate(targetClassName);
+        return getStaticGraph.getStaticFields();
+    }
 
-	public PutStaticMethodCollector(String targetClassName) {
-		this(targetClassName, createStaticFields(targetClassName));
-	}
+    public PutStaticMethodCollector(String targetClassName) {
+        this(targetClassName, createStaticFields(targetClassName));
+    }
 
-	public PutStaticMethodCollector(String targetClassName,
-			Map<String, Set<String>> getStaticFields) {
-		this.getStaticFields = getStaticFields;
-		// this.targetClassName = targetClassName;
-	}
+    public PutStaticMethodCollector(String targetClassName,
+                                    Map<String, Set<String>> getStaticFields) {
+        this.getStaticFields = getStaticFields;
+        // this.targetClassName = targetClassName;
+    }
 
-	private final Map<String, Set<String>> getStaticFields;
+    private final Map<String, Set<String>> getStaticFields;
 
-	@SuppressWarnings("unchecked")
-	public Set<MethodIdentifier> collectMethods() {
+    @SuppressWarnings("unchecked")
+    public Set<MethodIdentifier> collectMethods() {
 
-		Set<MethodIdentifier> methods = new LinkedHashSet<>();
+        Set<MethodIdentifier> methods = new LinkedHashSet<>();
 
-		for (String calledClassName : getStaticFields.keySet()) {
-			ClassNode classNode = DependencyAnalysis
-					.getClassNode(calledClassName);
-			List<MethodNode> classMethods = classNode.methods;
-			for (MethodNode mn : classMethods) {
-				if (mn.name.equals(CLINIT))
-					continue;
+        for (String calledClassName : getStaticFields.keySet()) {
+            ClassNode classNode = DependencyAnalysis
+                    .getClassNode(calledClassName);
+            List<MethodNode> classMethods = classNode.methods;
+            for (MethodNode mn : classMethods) {
+                if (mn.name.equals(CLINIT))
+                    continue;
 
-				InsnList instructions = mn.instructions;
-				Iterator<AbstractInsnNode> it = instructions.iterator();
-				while (it.hasNext()) {
-					AbstractInsnNode insn = it.next();
-					if (insn instanceof FieldInsnNode) {
-						FieldInsnNode fieldInsn = (FieldInsnNode) insn;
-						if (fieldInsn.getOpcode() != Opcodes.PUTSTATIC) {
-							continue;
-						}
-						String calleeClassName = fieldInsn.owner.replaceAll(
-								"/", ".");
-						String calleeFieldName = fieldInsn.name;
+                InsnList instructions = mn.instructions;
+                Iterator<AbstractInsnNode> it = instructions.iterator();
+                while (it.hasNext()) {
+                    AbstractInsnNode insn = it.next();
+                    if (insn instanceof FieldInsnNode) {
+                        FieldInsnNode fieldInsn = (FieldInsnNode) insn;
+                        if (fieldInsn.getOpcode() != Opcodes.PUTSTATIC) {
+                            continue;
+                        }
+                        String calleeClassName = fieldInsn.owner.replaceAll(
+                                "/", ".");
+                        String calleeFieldName = fieldInsn.name;
 
-						if (contains(getStaticFields, calleeClassName,
-								calleeFieldName)) {
+                        if (contains(getStaticFields, calleeClassName,
+                                calleeFieldName)) {
 
-							MethodIdentifier methodIdentifier = new MethodIdentifier(
-									calledClassName, mn.name, mn.desc);
-							methods.add(methodIdentifier);
+                            MethodIdentifier methodIdentifier = new MethodIdentifier(
+                                    calledClassName, mn.name, mn.desc);
+                            methods.add(methodIdentifier);
 
-						}
-					}
-				}
+                        }
+                    }
+                }
 
-			}
+            }
 
-		}
-		return methods;
-	}
+        }
+        return methods;
+    }
 
-	// private final String targetClassName;
+    // private final String targetClassName;
 
-	private boolean contains(Map<String, Set<String>> fields, String className,
-			String fieldName) {
-		if (!fields.containsKey(className))
-			return false;
+    private boolean contains(Map<String, Set<String>> fields, String className,
+                             String fieldName) {
+        if (!fields.containsKey(className))
+            return false;
 
-		if (!fields.get(className).contains(fieldName))
-			return false;
-
-		return true;
-	}
+        return fields.get(className).contains(fieldName);
+    }
 
 }

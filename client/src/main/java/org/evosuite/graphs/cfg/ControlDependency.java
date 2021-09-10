@@ -19,50 +19,51 @@
  */
 package org.evosuite.graphs.cfg;
 
+import org.evosuite.coverage.branch.Branch;
+
 import java.io.Serializable;
 import java.util.Objects;
 
-import org.evosuite.coverage.branch.Branch;
 public class ControlDependency implements Serializable, Comparable<ControlDependency> {
 
-	private static final long serialVersionUID = 6288839964561655730L;
+    private static final long serialVersionUID = 6288839964561655730L;
 
-	private final Branch branch;
-	private final boolean branchExpressionValue;
+    private final Branch branch;
+    private final boolean branchExpressionValue;
 
-	/**
-	 * <p>Constructor for ControlDependency.</p>
-	 *
-	 * @param branch a {@link org.evosuite.coverage.branch.Branch} object.
-	 * @param branchExpressionValue a boolean.
-	 */
-	public ControlDependency(Branch branch, boolean branchExpressionValue) {
-		if (branch == null)
-			throw new IllegalArgumentException(
-			        "control dependencies for the root branch are not permitted (null)");
+    /**
+     * <p>Constructor for ControlDependency.</p>
+     *
+     * @param branch                a {@link org.evosuite.coverage.branch.Branch} object.
+     * @param branchExpressionValue a boolean.
+     */
+    public ControlDependency(Branch branch, boolean branchExpressionValue) {
+        if (branch == null)
+            throw new IllegalArgumentException(
+                    "control dependencies for the root branch are not permitted (null)");
 
-		this.branch = branch;
-		this.branchExpressionValue = branchExpressionValue;
-	}
+        this.branch = branch;
+        this.branchExpressionValue = branchExpressionValue;
+    }
 
-	/**
-	 * <p>Getter for the field <code>branch</code>.</p>
-	 *
-	 * @return a {@link org.evosuite.coverage.branch.Branch} object.
-	 */
-	public Branch getBranch() {
-		return branch;
-	}
+    /**
+     * <p>Getter for the field <code>branch</code>.</p>
+     *
+     * @return a {@link org.evosuite.coverage.branch.Branch} object.
+     */
+    public Branch getBranch() {
+        return branch;
+    }
 
-	/**
-	 * <p>Getter for the field <code>branchExpressionValue</code>.</p>
-	 *
-	 * @return a boolean.
-	 */
-	public boolean getBranchExpressionValue() {
-		return branchExpressionValue;
-	}
-	
+    /**
+     * <p>Getter for the field <code>branchExpressionValue</code>.</p>
+     *
+     * @return a boolean.
+     */
+    public boolean getBranchExpressionValue() {
+        return branchExpressionValue;
+    }
+
 //	@Override
 //	public int hashCode() {
 //		final int prime = 31;
@@ -91,49 +92,51 @@ public class ControlDependency implements Serializable, Comparable<ControlDepend
 //		return true;
 //	}
 
-	/** {@inheritDoc} */
-	@Override
-	public String toString() {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
 
-		String r = "CD " + branch.toString();
+        String r = "CD " + branch;
 
-		if (!branch.isSwitchCaseBranch()) {
-			if (branchExpressionValue)
-				r += " - TRUE";
-			else
-				r += " - FALSE";
-		}
+        if (!branch.isSwitchCaseBranch()) {
+            if (branchExpressionValue)
+                r += " - TRUE";
+            else
+                r += " - FALSE";
+        }
 
-		return r;
-	}
+        return r;
+    }
 
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-		ControlDependency that = (ControlDependency) o;
-		return branchExpressionValue == that.branchExpressionValue &&
-				Objects.equals(branch, that.branch);
-	}
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ControlDependency that = (ControlDependency) o;
+        return branchExpressionValue == that.branchExpressionValue &&
+                Objects.equals(branch, that.branch);
+    }
 
-	@Override
-	public int hashCode() {
+    @Override
+    public int hashCode() {
 
-		return Objects.hash(branch, branchExpressionValue);
-	}
+        return Objects.hash(branch, branchExpressionValue);
+    }
 
-	@Override
-	public int compareTo(ControlDependency o) {
-		int x = branch.compareTo(o.branch);
-		if(x != 0)
-			return x;
+    @Override
+    public int compareTo(ControlDependency o) {
+        int x = branch.compareTo(o.branch);
+        if (x != 0)
+            return x;
 
-		if(branchExpressionValue == o.branchExpressionValue) {
-			return 0;
-		} else if(branchExpressionValue) {
-			return 1;
-		} else {
-			return -1;
-		}
-	}
+        if (branchExpressionValue == o.branchExpressionValue) {
+            return 0;
+        } else if (branchExpressionValue) {
+            return 1;
+        } else {
+            return -1;
+        }
+    }
 }

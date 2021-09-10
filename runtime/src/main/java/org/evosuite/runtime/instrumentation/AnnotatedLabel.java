@@ -25,52 +25,52 @@ import org.objectweb.asm.tree.LabelNode;
 
 /**
  * Annotated labels are used to identify instrumented code
- * such that EvoSuite knows how to deal with  
+ * such that EvoSuite knows how to deal with
  *
  * @author fraser
  */
 public class AnnotatedLabel extends Label {
 
-	private boolean isStart = false;
-	
-	private boolean ignore = false;
+    private boolean isStart = false;
 
-	private boolean ignoreFalse = false;
-	
-	private LabelNode parent = null;
-	
-	public AnnotatedLabel(boolean ignore, boolean start) {
-		this.ignore = ignore;
-		this.isStart = start;
-	}
-	
-	public AnnotatedLabel(boolean ignore, boolean start, LabelNode parent) {
-		this.ignore = ignore;
-		this.isStart = start;
-		this.parent = parent;
-	}
+    private boolean ignore = false;
 
-	public boolean isStartTag() {
-		return isStart;
-	}
-	
-	public boolean shouldIgnore() {
-		return ignore;
-	}
+    private boolean ignoreFalse = false;
 
-	public void setIgnoreFalse(boolean value) {
-		ignoreFalse = value;
-	}
+    private LabelNode parent = null;
 
-	public boolean shouldIgnoreFalse() {
-		return ignoreFalse;
-	}
+    public AnnotatedLabel(boolean ignore, boolean start) {
+        this.ignore = ignore;
+        this.isStart = start;
+    }
 
-	public LabelNode getParent() {
-		return parent;
-	}
-	
-	public void setParent(LabelNode parent) {
-		this.parent = parent;
-	}
+    public AnnotatedLabel(boolean ignore, boolean start, LabelNode parent) {
+        this.ignore = ignore;
+        this.isStart = start;
+        this.parent = parent;
+    }
+
+    public boolean isStartTag() {
+        return isStart;
+    }
+
+    public boolean shouldIgnore() {
+        return ignore;
+    }
+
+    public void setIgnoreFalse(boolean value) {
+        ignoreFalse = value;
+    }
+
+    public boolean shouldIgnoreFalse() {
+        return ignoreFalse;
+    }
+
+    public LabelNode getParent() {
+        return parent;
+    }
+
+    public void setParent(LabelNode parent) {
+        this.parent = parent;
+    }
 }

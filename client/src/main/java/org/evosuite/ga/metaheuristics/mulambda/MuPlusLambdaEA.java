@@ -22,6 +22,7 @@ package org.evosuite.ga.metaheuristics.mulambda;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.FitnessFunction;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,65 +33,67 @@ import java.util.List;
  */
 public class MuPlusLambdaEA<T extends Chromosome<T>> extends AbstractMuLambda<T> {
 
-  private static final long serialVersionUID = -8685698059226067598L;
+    private static final long serialVersionUID = -8685698059226067598L;
 
-  public MuPlusLambdaEA(ChromosomeFactory<T> factory, int mu, int lambda) {
-    super(factory, mu, lambda);
-  }
-
-  /** {@inheritDoc} */
-  @Override
-  protected void evolve() {
-
-    List<T> offsprings = new ArrayList<>(this.lambda);
-
-    // create new offsprings by mutating current population
-    for (int i = 0; i < this.mu; i++) {
-      for (int j = 0; j < this.lambda / this.mu; j++) {
-        T offspring = this.population.get(i).clone();
-        this.notifyMutation(offspring);
-
-        do {
-          offspring.mutate();
-        } while (!offspring.isChanged());
-
-        offsprings.add(offspring);
-      }
+    public MuPlusLambdaEA(ChromosomeFactory<T> factory, int mu, int lambda) {
+        super(factory, mu, lambda);
     }
 
-    // update fitness values of offsprings
-    for (T offspring : offsprings) {
-      for (FitnessFunction<T> fitnessFunction : this.fitnessFunctions) {
-        fitnessFunction.getFitness(offspring);
-        this.notifyEvaluation(offspring);
-      }
-    }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void evolve() {
 
-    for (int i = 0; i < this.population.size(); i++) {
-      T bestOffspring = this.population.get(i);
+        List<T> offsprings = new ArrayList<>(this.lambda);
 
-      boolean offspring_is_better = false;
-      for (T offspring : offsprings) {
-        if (isBetterOrEqual(offspring, bestOffspring)) {
-          bestOffspring = offspring;
-          offspring_is_better = true;
+        // create new offsprings by mutating current population
+        for (int i = 0; i < this.mu; i++) {
+            for (int j = 0; j < this.lambda / this.mu; j++) {
+                T offspring = this.population.get(i).clone();
+                this.notifyMutation(offspring);
+
+                do {
+                    offspring.mutate();
+                } while (!offspring.isChanged());
+
+                offsprings.add(offspring);
+            }
         }
-      }
 
-      if (offspring_is_better) {
-        // replace individual with a better one
-        this.population.set(i, bestOffspring);
-        // to prevent a population with only equal and dominant
-        // individuals, here the best offspring is remove so that
-        // it cannot be chosen again. in case of 1+1 and 1+Lambda EA
-        // this optimization has no effect.
-        offsprings.remove(bestOffspring);
-      }
+        // update fitness values of offsprings
+        for (T offspring : offsprings) {
+            for (FitnessFunction<T> fitnessFunction : this.fitnessFunctions) {
+                fitnessFunction.getFitness(offspring);
+                this.notifyEvaluation(offspring);
+            }
+        }
 
-      this.population.get(i).updateAge(this.currentIteration);
+        for (int i = 0; i < this.population.size(); i++) {
+            T bestOffspring = this.population.get(i);
+
+            boolean offspring_is_better = false;
+            for (T offspring : offsprings) {
+                if (isBetterOrEqual(offspring, bestOffspring)) {
+                    bestOffspring = offspring;
+                    offspring_is_better = true;
+                }
+            }
+
+            if (offspring_is_better) {
+                // replace individual with a better one
+                this.population.set(i, bestOffspring);
+                // to prevent a population with only equal and dominant
+                // individuals, here the best offspring is remove so that
+                // it cannot be chosen again. in case of 1+1 and 1+Lambda EA
+                // this optimization has no effect.
+                offsprings.remove(bestOffspring);
+            }
+
+            this.population.get(i).updateAge(this.currentIteration);
+        }
+        assert this.population.size() == this.mu;
+
+        this.currentIteration++;
     }
-    assert this.population.size() == this.mu;
-
-    this.currentIteration++;
-  }
 }

@@ -31,26 +31,28 @@ import java.util.Objects;
  */
 public class DSETestCase implements Comparable<DSETestCase>, Cloneable {
 
-    public static final String SCORE                   = "score=";
-    public static final String TEST_CASE               = ", testCase=";
-    public static final String DSE_TEST_CASE           = "DSETestCase{";
+    public static final String SCORE = "score=";
+    public static final String TEST_CASE = ", testCase=";
+    public static final String DSE_TEST_CASE = "DSETestCase{";
     public static final String ORIGINAL_PATH_CONDITION = ", originalPathCondition=";
 
     /**
      * A priority score based on any sort of metric.
-     *
+     * <p>
      * e.g.: Godefroid P., Levin Y. M. & Molnar D. (2008) Automated White Box Fuzz Testing, pg. 5.
      */
-    private double score;
+    private final double score;
 
-    /** Test case */
-    private TestCase testCase;
+    /**
+     * Test case
+     */
+    private final TestCase testCase;
 
     /**
      * Path condition from which the test case was created.
      * Used for checking path divergences.
      */
-    private GenerationalSearchPathCondition originalPathCondition;
+    private final GenerationalSearchPathCondition originalPathCondition;
 
     public DSETestCase(TestCase testCase, GenerationalSearchPathCondition originalPathCondition, double score) {
         this.score = score;
@@ -72,9 +74,9 @@ public class DSETestCase implements Comparable<DSETestCase>, Cloneable {
 
     public DSETestCase clone() {
         return new DSETestCase(
-            testCase.clone(),
-            originalPathCondition,
-            score
+                testCase.clone(),
+                originalPathCondition,
+                score
         );
     }
 

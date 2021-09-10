@@ -23,87 +23,87 @@ import org.slf4j.LoggerFactory;
 
 public class ConstraintEvaluator implements ConstraintVisitor<Object, Void> {
 
-  static Logger log = LoggerFactory.getLogger(ConstraintEvaluator.class);
+    static Logger log = LoggerFactory.getLogger(ConstraintEvaluator.class);
 
-  @Override
-  public Object visit(IntegerConstraint n, Void arg) {
+    @Override
+    public Object visit(IntegerConstraint n, Void arg) {
 
-    ExpressionEvaluator visitor = new ExpressionEvaluator();
-    long left = (Long) n.getLeftOperand().accept(visitor, null);
-    long right = (Long) n.getRightOperand().accept(visitor, null);
+        ExpressionEvaluator visitor = new ExpressionEvaluator();
+        long left = (Long) n.getLeftOperand().accept(visitor, null);
+        long right = (Long) n.getRightOperand().accept(visitor, null);
 
-    Comparator cmpr = n.getComparator();
+        Comparator cmpr = n.getComparator();
 
-    switch (cmpr) {
-      case EQ:
-        return left == right;
-      case NE:
-        return left != right;
-      case LT:
-        return left < right;
-      case LE:
-        return left <= right;
-      case GT:
-        return left > right;
-      case GE:
-        return left >= right;
-      default:
-        throw new IllegalArgumentException("unimplemented comparator");
-    }
-  }
-
-  @Override
-  public Object visit(RealConstraint n, Void arg) {
-    ExpressionEvaluator visitor = new ExpressionEvaluator();
-    double left = (Double) n.getLeftOperand().accept(visitor, null);
-    double right = (Double) n.getRightOperand().accept(visitor, null);
-
-    Comparator cmpr = n.getComparator();
-
-    switch (cmpr) {
-      case EQ:
-        return left == right;
-      case NE:
-        return left != right;
-      case LT:
-        return left < right;
-      case LE:
-        return left <= right;
-      case GT:
-        return left > right;
-      case GE:
-        return left >= right;
-      default:
-        throw new IllegalArgumentException("unimplemented comparator");
+        switch (cmpr) {
+            case EQ:
+                return left == right;
+            case NE:
+                return left != right;
+            case LT:
+                return left < right;
+            case LE:
+                return left <= right;
+            case GT:
+                return left > right;
+            case GE:
+                return left >= right;
+            default:
+                throw new IllegalArgumentException("unimplemented comparator");
+        }
     }
 
-  }
+    @Override
+    public Object visit(RealConstraint n, Void arg) {
+        ExpressionEvaluator visitor = new ExpressionEvaluator();
+        double left = (Double) n.getLeftOperand().accept(visitor, null);
+        double right = (Double) n.getRightOperand().accept(visitor, null);
 
-  @Override
-  public Object visit(StringConstraint n, Void arg) {
+        Comparator cmpr = n.getComparator();
 
-    ExpressionEvaluator visitor = new ExpressionEvaluator();
-    long left = (Long) n.getLeftOperand().accept(visitor, null);
-    long right = (Long) n.getRightOperand().accept(visitor, null);
-    Comparator cmpr = n.getComparator();
+        switch (cmpr) {
+            case EQ:
+                return left == right;
+            case NE:
+                return left != right;
+            case LT:
+                return left < right;
+            case LE:
+                return left <= right;
+            case GT:
+                return left > right;
+            case GE:
+                return left >= right;
+            default:
+                throw new IllegalArgumentException("unimplemented comparator");
+        }
 
-    switch (cmpr) {
-      case EQ:
-        return left == right;
-      case NE:
-        return left != right;
-      case LT:
-        return left < right;
-      case LE:
-        return left <= right;
-      case GT:
-        return left > right;
-      case GE:
-        return left >= right;
-      default:
-        throw new IllegalArgumentException("unimplemented comparator");
     }
 
-  }
+    @Override
+    public Object visit(StringConstraint n, Void arg) {
+
+        ExpressionEvaluator visitor = new ExpressionEvaluator();
+        long left = (Long) n.getLeftOperand().accept(visitor, null);
+        long right = (Long) n.getRightOperand().accept(visitor, null);
+        Comparator cmpr = n.getComparator();
+
+        switch (cmpr) {
+            case EQ:
+                return left == right;
+            case NE:
+                return left != right;
+            case LT:
+                return left < right;
+            case LE:
+                return left <= right;
+            case GT:
+                return left > right;
+            case GE:
+                return left >= right;
+            default:
+                throw new IllegalArgumentException("unimplemented comparator");
+        }
+
+    }
 
 }

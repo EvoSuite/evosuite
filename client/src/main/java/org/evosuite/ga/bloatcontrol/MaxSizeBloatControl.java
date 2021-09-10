@@ -29,24 +29,24 @@ import org.evosuite.ga.Chromosome;
  */
 public class MaxSizeBloatControl<T extends Chromosome<T>> implements BloatControlFunction<T> {
 
-	private static final long serialVersionUID = -8241127914702360972L;
+    private static final long serialVersionUID = -8241127914702360972L;
 
-	public MaxSizeBloatControl() {
-		// empty constructor
-	}
+    public MaxSizeBloatControl() {
+        // empty constructor
+    }
 
-	public MaxSizeBloatControl(final MaxSizeBloatControl<?> that) {
-		// empty copy constructor
-	}
+    public MaxSizeBloatControl(final MaxSizeBloatControl<?> that) {
+        // empty copy constructor
+    }
 
-	/**
-	 * {@inheritDoc}
-	 *
-	 * Check whether the chromosome is bigger than the max length constant
-	 */
-	@Override
-	public boolean isTooLong(T chromosome) {
-		return chromosome.size() > Properties.MAX_SIZE;
-	}
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Check whether the chromosome is bigger than the max length constant
+     */
+    @Override
+    public boolean isTooLong(T chromosome) {
+        return chromosome.size() > Properties.MAX_SIZE;
+    }
 
 }

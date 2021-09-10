@@ -22,24 +22,23 @@ package org.evosuite.symbolic.expr;
 
 public interface UnaryExpression<T extends Object> {
 
-	/**
-	 * <p>
-	 * getOperand
-	 * </p>
-	 * 
-	 * @param <T>
-	 *            a T object.
-	 * @return a {@link org.evosuite.symbolic.expr.Expression} object.
-	 */
+    /**
+     * <p>
+     * getOperand
+     * </p>
+     *
+     * @param <T> a T object.
+     * @return a {@link org.evosuite.symbolic.expr.Expression} object.
+     */
     Expression<T> getOperand();
 
-	/**
-	 * <p>
-	 * getOperator
-	 * </p>
-	 * 
-	 * @return a {@link org.evosuite.symbolic.expr.Operator} object.
-	 */
+    /**
+     * <p>
+     * getOperator
+     * </p>
+     *
+     * @return a {@link org.evosuite.symbolic.expr.Operator} object.
+     */
     Operator getOperator();
 
 }

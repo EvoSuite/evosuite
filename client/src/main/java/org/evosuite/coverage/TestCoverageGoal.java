@@ -19,8 +19,6 @@
  */
 package org.evosuite.coverage;
 
-import java.util.List;
-
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.execution.EvosuiteError;
 import org.evosuite.testcase.execution.ExecutionResult;
@@ -28,89 +26,87 @@ import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
+
 /**
  * <p>
  * Abstract TestCoverageGoal class.
  * </p>
- * 
+ *
  * @author Gordon Fraser
  */
 public abstract class TestCoverageGoal {
 
-	/** Constant <code>logger</code> */
-	protected final static Logger logger = LoggerFactory.getLogger(TestCoverageGoal.class);
+    /**
+     * Constant <code>logger</code>
+     */
+    protected final static Logger logger = LoggerFactory.getLogger(TestCoverageGoal.class);
 
 
-	/**
-	 * Return true if this coverage goal is covered by the given test
-	 * 
-	 * @param test
-	 *            a {@link org.evosuite.testcase.TestChromosome} object.
-	 * @return a boolean.
-	 */
-	public abstract boolean isCovered(TestChromosome test);
+    /**
+     * Return true if this coverage goal is covered by the given test
+     *
+     * @param test a {@link org.evosuite.testcase.TestChromosome} object.
+     * @return a boolean.
+     */
+    public abstract boolean isCovered(TestChromosome test);
 
-	/**
-	 * Determine if there is an existing test case covering this goal
-	 * 
-	 * @param tests
-	 *            a {@link java.util.List} object.
-	 * @return a boolean.
-	 */
-	public boolean isCovered(List<TestChromosome> tests) {
-		for (TestChromosome test : tests) {
-			if (isCovered(test))
-				return true;
-		}
-		return false;
-	}
+    /**
+     * Determine if there is an existing test case covering this goal
+     *
+     * @param tests a {@link java.util.List} object.
+     * @return a boolean.
+     */
+    public boolean isCovered(List<TestChromosome> tests) {
+        for (TestChromosome test : tests) {
+            if (isCovered(test))
+                return true;
+        }
+        return false;
+    }
 
-	/**
-	 * <p>
-	 * hasTimeout
-	 * </p>
-	 * 
-	 * @param result
-	 *            a {@link org.evosuite.testcase.execution.ExecutionResult} object.
-	 * @return a boolean.
-	 */
-	public static boolean hasTimeout(ExecutionResult result) {
+    /**
+     * <p>
+     * hasTimeout
+     * </p>
+     *
+     * @param result a {@link org.evosuite.testcase.execution.ExecutionResult} object.
+     * @return a boolean.
+     */
+    public static boolean hasTimeout(ExecutionResult result) {
 
-		if (result == null) {
-			logger.warn("Result is null!");
-			return false;
-		} else if (result.test == null) {
-			logger.warn("Test is null!");
-			return false;
-		}
-		int size = result.test.size();
-		if (result.isThereAnExceptionAtPosition(size)) {
-			if (result.getExceptionThrownAtPosition(size) instanceof TestCaseExecutor.TimeoutExceeded) {
-				return true;
-			}
-		}
+        if (result == null) {
+            logger.warn("Result is null!");
+            return false;
+        } else if (result.test == null) {
+            logger.warn("Test is null!");
+            return false;
+        }
+        int size = result.test.size();
+        if (result.isThereAnExceptionAtPosition(size)) {
+            return result.getExceptionThrownAtPosition(size) instanceof TestCaseExecutor.TimeoutExceeded;
+        }
 
-		return false;
-	}
+        return false;
+    }
 
-	/**
-	 * Execute a test case
-	 * 
-	 * @param test
-	 *            The test case to execute
-	 * @return Result of the execution
-	 */
-	protected ExecutionResult runTest(TestChromosome test) {
+    /**
+     * Execute a test case
+     *
+     * @param test The test case to execute
+     * @return Result of the execution
+     */
+    protected ExecutionResult runTest(TestChromosome test) {
 
-		if (!test.isChanged() && test.getLastExecutionResult() != null)
-			return test.getLastExecutionResult();
+        if (!test.isChanged() && test.getLastExecutionResult() != null)
+            return test.getLastExecutionResult();
 
-		try {
-			ExecutionResult result = TestCaseExecutor.getInstance().execute(test.getTestCase());
-			return result;
-		} catch (Exception e) {
-			logger.error("TG: Exception caught: ", e);
-			throw new EvosuiteError(e);
-		}
-	}
+        try {
+            ExecutionResult result = TestCaseExecutor.getInstance().execute(test.getTestCase());
+            return result;
+        } catch (Exception e) {
+            logger.error("TG: Exception caught: ", e);
+            throw new EvosuiteError(e);
+        }
+    }
 }

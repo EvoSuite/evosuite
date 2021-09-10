@@ -24,32 +24,32 @@ package org.evosuite.symbolic.vm.heap;
  */
 public final class FieldKey {
 
-  private String owner;
-  private String name;
+    private final String owner;
+    private final String name;
 
-  public FieldKey(String owner, String name) {
-    this.owner = owner;
-    this.name = name;
-  }
-
-  @Override
-  public int hashCode() {
-    return this.owner.hashCode() + this.name.hashCode();
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (o != null && o.getClass().equals(FieldKey.class)) {
-      FieldKey that = (FieldKey) o;
-      return this.owner.equals(that.owner) && this.name.equals(that.name);
-    } else {
-      return false;
+    public FieldKey(String owner, String name) {
+        this.owner = owner;
+        this.name = name;
     }
-  }
 
-  @Override
-  public String toString() {
-    return this.owner + "/" + this.name;
-  }
+    @Override
+    public int hashCode() {
+        return this.owner.hashCode() + this.name.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o != null && o.getClass().equals(FieldKey.class)) {
+            FieldKey that = (FieldKey) o;
+            return this.owner.equals(that.owner) && this.name.equals(that.name);
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public String toString() {
+        return this.owner + "/" + this.name;
+    }
 
 }

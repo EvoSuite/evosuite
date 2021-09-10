@@ -20,60 +20,64 @@
 package org.evosuite.graphs.ccfg;
 
 import org.evosuite.graphs.cfg.ControlFlowEdge;
-public class CCFGCodeEdge extends CCFGEdge{
 
-	private static final long serialVersionUID = 4200786738903617164L;
-	
-	private ControlFlowEdge cfgEdge;
-	
-	/**
-	 * <p>Constructor for CCFGCodeEdge.</p>
-	 *
-	 * @param cfgEdge a {@link org.evosuite.graphs.cfg.ControlFlowEdge} object.
-	 */
-	public CCFGCodeEdge(ControlFlowEdge cfgEdge) {
-		this.cfgEdge = cfgEdge;
-	}
+public class CCFGCodeEdge extends CCFGEdge {
 
-	/**
-	 * <p>Getter for the field <code>cfgEdge</code>.</p>
-	 *
-	 * @return a {@link org.evosuite.graphs.cfg.ControlFlowEdge} object.
-	 */
-	public ControlFlowEdge getCfgEdge() {
-		return cfgEdge;
-	}
-	
-	/** {@inheritDoc} */
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((cfgEdge == null) ? 0 : cfgEdge.hashCode());
-		return result;
-	}
+    private static final long serialVersionUID = 4200786738903617164L;
 
-	/** {@inheritDoc} */
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		CCFGCodeEdge other = (CCFGCodeEdge) obj;
-		if (cfgEdge == null) {
-			if (other.cfgEdge != null)
-				return false;
-		} else if (!cfgEdge.equals(other.cfgEdge))
-			return false;
-		return true;
-	}
+    private final ControlFlowEdge cfgEdge;
 
-	/** {@inheritDoc} */
-	@Override
-	public String toString() {
-		return cfgEdge.toString();
-	}
+    /**
+     * <p>Constructor for CCFGCodeEdge.</p>
+     *
+     * @param cfgEdge a {@link org.evosuite.graphs.cfg.ControlFlowEdge} object.
+     */
+    public CCFGCodeEdge(ControlFlowEdge cfgEdge) {
+        this.cfgEdge = cfgEdge;
+    }
+
+    /**
+     * <p>Getter for the field <code>cfgEdge</code>.</p>
+     *
+     * @return a {@link org.evosuite.graphs.cfg.ControlFlowEdge} object.
+     */
+    public ControlFlowEdge getCfgEdge() {
+        return cfgEdge;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((cfgEdge == null) ? 0 : cfgEdge.hashCode());
+        return result;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        CCFGCodeEdge other = (CCFGCodeEdge) obj;
+        if (cfgEdge == null) {
+            return other.cfgEdge == null;
+        } else return cfgEdge.equals(other.cfgEdge);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        return cfgEdge.toString();
+    }
 }

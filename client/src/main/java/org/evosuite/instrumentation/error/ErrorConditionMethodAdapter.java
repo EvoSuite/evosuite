@@ -20,9 +20,6 @@
 
 package org.evosuite.instrumentation.error;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.evosuite.Properties;
 import org.evosuite.runtime.instrumentation.AnnotatedLabel;
 import org.evosuite.runtime.instrumentation.AnnotatedMethodNode;
@@ -35,197 +32,202 @@ import org.objectweb.asm.tree.MethodNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * <p>
  * ErrorConditionMethodAdapter class.
  * </p>
- * 
+ *
  * @author Gordon Fraser
  */
 public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 
-	protected final static Logger logger = LoggerFactory.getLogger(ErrorConditionMethodAdapter.class);
-	
-	private final String className;
+    protected final static Logger logger = LoggerFactory.getLogger(ErrorConditionMethodAdapter.class);
 
-	private final String methodName;
+    private final String className;
 
-	private final MethodVisitor next;
+    private final String methodName;
 
-	protected List<ErrorBranchInstrumenter> instrumentation;
-		
+    private final MethodVisitor next;
+
+    protected List<ErrorBranchInstrumenter> instrumentation;
 
 
-	/**
-	 * <p>
-	 * Constructor for ErrorConditionMethodAdapter.
-	 * </p>
-	 * 
-	 * @param mv
-	 *            a {@link org.objectweb.asm.MethodVisitor} object.
-	 * @param className
-	 *            a {@link java.lang.String} object.
-	 * @param methodName
-	 *            a {@link java.lang.String} object.
-	 * @param access
-	 *            a int.
-	 * @param desc
-	 *            a {@link java.lang.String} object.
-	 */
-	public ErrorConditionMethodAdapter(MethodVisitor mv, String className,
-	        String methodName, int access, String desc) {
-		//super(Opcodes.ASM9, mv, access, methodName, desc);
-		super(Opcodes.ASM9,
-		        new AnnotatedMethodNode(access, methodName, desc, null, null), access,
-		        methodName, desc);
-		this.className = className;
-		this.methodName = methodName;
-		next = mv;	
-		initErrorBranchInstrumenters();
-	}
-	
-	private void initErrorBranchInstrumenters() {
-		instrumentation = new ArrayList<>();
-		if(ArrayUtil.contains(Properties.ERROR_INSTRUMENTATION, Properties.ErrorInstrumentation.ARRAY))
-			instrumentation.add(new ArrayInstrumentation(this));
-		if(ArrayUtil.contains(Properties.ERROR_INSTRUMENTATION, Properties.ErrorInstrumentation.LIST))
-			instrumentation.add(new ListInstrumentation(this));
+    /**
+     * <p>
+     * Constructor for ErrorConditionMethodAdapter.
+     * </p>
+     *
+     * @param mv         a {@link org.objectweb.asm.MethodVisitor} object.
+     * @param className  a {@link java.lang.String} object.
+     * @param methodName a {@link java.lang.String} object.
+     * @param access     a int.
+     * @param desc       a {@link java.lang.String} object.
+     */
+    public ErrorConditionMethodAdapter(MethodVisitor mv, String className,
+                                       String methodName, int access, String desc) {
+        //super(Opcodes.ASM9, mv, access, methodName, desc);
+        super(Opcodes.ASM9,
+                new AnnotatedMethodNode(access, methodName, desc, null, null), access,
+                methodName, desc);
+        this.className = className;
+        this.methodName = methodName;
+        next = mv;
+        initErrorBranchInstrumenters();
+    }
+
+    private void initErrorBranchInstrumenters() {
+        instrumentation = new ArrayList<>();
+        if (ArrayUtil.contains(Properties.ERROR_INSTRUMENTATION, Properties.ErrorInstrumentation.ARRAY))
+            instrumentation.add(new ArrayInstrumentation(this));
+        if (ArrayUtil.contains(Properties.ERROR_INSTRUMENTATION, Properties.ErrorInstrumentation.LIST))
+            instrumentation.add(new ListInstrumentation(this));
 		/*if(ArrayUtil.contains(Properties.ERROR_INSTRUMENTATION, Properties.ErrorInstrumentation.ARRAYLIST))
 			instrumentation.add(new ArrayListInstrumentation(this));*/
-		if(ArrayUtil.contains(Properties.ERROR_INSTRUMENTATION, Properties.ErrorInstrumentation.CAST))
-			instrumentation.add(new CastErrorInstrumentation(this));
-		if(ArrayUtil.contains(Properties.ERROR_INSTRUMENTATION, Properties.ErrorInstrumentation.DEQUE))
-			instrumentation.add(new DequeInstrumentation(this));
-		if(ArrayUtil.contains(Properties.ERROR_INSTRUMENTATION, Properties.ErrorInstrumentation.DIVISIONBYZERO))
-			instrumentation.add(new DivisionByZeroInstrumentation(this));
-		if(ArrayUtil.contains(Properties.ERROR_INSTRUMENTATION, Properties.ErrorInstrumentation.LINKEDHASHSET))
-			instrumentation.add(new LinkedHashSetInstrumentation(this));
-		// instrumentation.add(new ListInstrumentation(this));
+        if (ArrayUtil.contains(Properties.ERROR_INSTRUMENTATION, Properties.ErrorInstrumentation.CAST))
+            instrumentation.add(new CastErrorInstrumentation(this));
+        if (ArrayUtil.contains(Properties.ERROR_INSTRUMENTATION, Properties.ErrorInstrumentation.DEQUE))
+            instrumentation.add(new DequeInstrumentation(this));
+        if (ArrayUtil.contains(Properties.ERROR_INSTRUMENTATION, Properties.ErrorInstrumentation.DIVISIONBYZERO))
+            instrumentation.add(new DivisionByZeroInstrumentation(this));
+        if (ArrayUtil.contains(Properties.ERROR_INSTRUMENTATION, Properties.ErrorInstrumentation.LINKEDHASHSET))
+            instrumentation.add(new LinkedHashSetInstrumentation(this));
+        // instrumentation.add(new ListInstrumentation(this));
 		/*if(ArrayUtil.contains(Properties.ERROR_INSTRUMENTATION, Properties.ErrorInstrumentation.LINKEDLIST))
 			instrumentation.add(new LinkedListInstrumentation(this));*/
-		if(ArrayUtil.contains(Properties.ERROR_INSTRUMENTATION, Properties.ErrorInstrumentation.NPE))
-			instrumentation.add(new NullPointerExceptionInstrumentation(this));
-		if(ArrayUtil.contains(Properties.ERROR_INSTRUMENTATION, Properties.ErrorInstrumentation.OVERFLOW))
-			instrumentation.add(new OverflowInstrumentation(this));
-		if(ArrayUtil.contains(Properties.ERROR_INSTRUMENTATION, Properties.ErrorInstrumentation.QUEUE))
-			instrumentation.add(new QueueInstrumentation(this));
-		if(ArrayUtil.contains(Properties.ERROR_INSTRUMENTATION, Properties.ErrorInstrumentation.STACK))
-			instrumentation.add(new StackInstrumentation(this));
-		if(ArrayUtil.contains(Properties.ERROR_INSTRUMENTATION, Properties.ErrorInstrumentation.VECTOR))
-			instrumentation.add(new VectorInstrumentation(this));
-	}
-	
-	
-	protected boolean inInstrumentation = false;
-	
-	@Override
-	public void visitLabel(Label label) {
-		if (label instanceof AnnotatedLabel) {
-			AnnotatedLabel aLabel = (AnnotatedLabel) label;
-			if (aLabel.isStartTag()) {
-				inInstrumentation = true;
-			} else {
-				inInstrumentation = false;
-			}
-		}
-		super.visitLabel(label);
-	}
+        if (ArrayUtil.contains(Properties.ERROR_INSTRUMENTATION, Properties.ErrorInstrumentation.NPE))
+            instrumentation.add(new NullPointerExceptionInstrumentation(this));
+        if (ArrayUtil.contains(Properties.ERROR_INSTRUMENTATION, Properties.ErrorInstrumentation.OVERFLOW))
+            instrumentation.add(new OverflowInstrumentation(this));
+        if (ArrayUtil.contains(Properties.ERROR_INSTRUMENTATION, Properties.ErrorInstrumentation.QUEUE))
+            instrumentation.add(new QueueInstrumentation(this));
+        if (ArrayUtil.contains(Properties.ERROR_INSTRUMENTATION, Properties.ErrorInstrumentation.STACK))
+            instrumentation.add(new StackInstrumentation(this));
+        if (ArrayUtil.contains(Properties.ERROR_INSTRUMENTATION, Properties.ErrorInstrumentation.VECTOR))
+            instrumentation.add(new VectorInstrumentation(this));
+    }
 
-	public void tagBranch() {
-		Label dummyTag = new AnnotatedLabel(false, true);
-		// dummyTag.info = Boolean.TRUE;
-		super.visitLabel(dummyTag);
-	}
 
-	public void tagBranchExit() {
-		Label dummyTag = new AnnotatedLabel(false, false);
-		// dummyTag.info = Boolean.FALSE;
-		super.visitLabel(dummyTag);
-	}
+    protected boolean inInstrumentation = false;
 
-	public String getClassName() {
-		return className;
-	}
+    @Override
+    public void visitLabel(Label label) {
+        if (label instanceof AnnotatedLabel) {
+            AnnotatedLabel aLabel = (AnnotatedLabel) label;
+            inInstrumentation = aLabel.isStartTag();
+        }
+        super.visitLabel(label);
+    }
 
-	public String getMethodName() {
-		return methodName;
-	}
+    public void tagBranch() {
+        Label dummyTag = new AnnotatedLabel(false, true);
+        // dummyTag.info = Boolean.TRUE;
+        super.visitLabel(dummyTag);
+    }
 
-	/* (non-Javadoc)
-	 * @see org.objectweb.asm.MethodVisitor#visitMethodInsn(int, java.lang.String, java.lang.String, java.lang.String)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public void visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf) {
-		if(!inInstrumentation) {
-			inInstrumentation = true;
-			for(ErrorBranchInstrumenter instrumenter : instrumentation) {
-				instrumenter.visitMethodInsn(opcode, owner, name, desc, itf);
-			}
-			inInstrumentation = false;
-		}
-		super.visitMethodInsn(opcode, owner, name, desc, itf);
-	}
-	
-	/* (non-Javadoc)
-	 * @see org.objectweb.asm.MethodVisitor#visitFieldInsn(int, java.lang.String, java.lang.String, java.lang.String)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public void visitFieldInsn(int opcode, String owner, String name, String desc) {
-		if(!inInstrumentation) {
-			inInstrumentation = true;
-			for(ErrorBranchInstrumenter instrumenter : instrumentation) {
-				instrumenter.visitFieldInsn(opcode, owner, name, desc);
-			}
-			inInstrumentation = false;
-		}
-		super.visitFieldInsn(opcode, owner, name, desc);
-	}
-	
-	@Override
-	public void visitIntInsn(int opcode, int operand) {
-		if(!inInstrumentation) {
-			inInstrumentation = true;
-			for(ErrorBranchInstrumenter instrumenter : instrumentation) {
-				instrumenter.visitIntInsn(opcode, operand);
-			}
-			inInstrumentation = false;
-		}
-		super.visitIntInsn(opcode, operand);
-	}
+    public void tagBranchExit() {
+        Label dummyTag = new AnnotatedLabel(false, false);
+        // dummyTag.info = Boolean.FALSE;
+        super.visitLabel(dummyTag);
+    }
 
-	/* (non-Javadoc)
-	 * @see org.objectweb.asm.MethodVisitor#visitTypeInsn(int, java.lang.String)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public void visitTypeInsn(int opcode, String type) {
-		if(!inInstrumentation) {
-			inInstrumentation = true;
-			for(ErrorBranchInstrumenter instrumenter : instrumentation) {
-				instrumenter.visitTypeInsn(opcode, type);
-			}
-			inInstrumentation = false;
-		}
-		super.visitTypeInsn(opcode, type);
-	}
+    public String getClassName() {
+        return className;
+    }
 
-	/* (non-Javadoc)
-	 * @see org.objectweb.asm.MethodVisitor#visitInsn(int)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public void visitInsn(int opcode) {
-		if(!inInstrumentation) {
-			inInstrumentation = true;
-			for(ErrorBranchInstrumenter instrumenter : instrumentation) {
-				instrumenter.visitInsn(opcode);
-			}
-			inInstrumentation = false;
-		}
-		super.visitInsn(opcode);
-	}
+    public String getMethodName() {
+        return methodName;
+    }
+
+    /* (non-Javadoc)
+     * @see org.objectweb.asm.MethodVisitor#visitMethodInsn(int, java.lang.String, java.lang.String, java.lang.String)
+     */
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf) {
+        if (!inInstrumentation) {
+            inInstrumentation = true;
+            for (ErrorBranchInstrumenter instrumenter : instrumentation) {
+                instrumenter.visitMethodInsn(opcode, owner, name, desc, itf);
+            }
+            inInstrumentation = false;
+        }
+        super.visitMethodInsn(opcode, owner, name, desc, itf);
+    }
+
+    /* (non-Javadoc)
+     * @see org.objectweb.asm.MethodVisitor#visitFieldInsn(int, java.lang.String, java.lang.String, java.lang.String)
+     */
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void visitFieldInsn(int opcode, String owner, String name, String desc) {
+        if (!inInstrumentation) {
+            inInstrumentation = true;
+            for (ErrorBranchInstrumenter instrumenter : instrumentation) {
+                instrumenter.visitFieldInsn(opcode, owner, name, desc);
+            }
+            inInstrumentation = false;
+        }
+        super.visitFieldInsn(opcode, owner, name, desc);
+    }
+
+    @Override
+    public void visitIntInsn(int opcode, int operand) {
+        if (!inInstrumentation) {
+            inInstrumentation = true;
+            for (ErrorBranchInstrumenter instrumenter : instrumentation) {
+                instrumenter.visitIntInsn(opcode, operand);
+            }
+            inInstrumentation = false;
+        }
+        super.visitIntInsn(opcode, operand);
+    }
+
+    /* (non-Javadoc)
+     * @see org.objectweb.asm.MethodVisitor#visitTypeInsn(int, java.lang.String)
+     */
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void visitTypeInsn(int opcode, String type) {
+        if (!inInstrumentation) {
+            inInstrumentation = true;
+            for (ErrorBranchInstrumenter instrumenter : instrumentation) {
+                instrumenter.visitTypeInsn(opcode, type);
+            }
+            inInstrumentation = false;
+        }
+        super.visitTypeInsn(opcode, type);
+    }
+
+    /* (non-Javadoc)
+     * @see org.objectweb.asm.MethodVisitor#visitInsn(int)
+     */
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void visitInsn(int opcode) {
+        if (!inInstrumentation) {
+            inInstrumentation = true;
+            for (ErrorBranchInstrumenter instrumenter : instrumentation) {
+                instrumenter.visitInsn(opcode);
+            }
+            inInstrumentation = false;
+        }
+        super.visitInsn(opcode);
+    }
 	
 	/*
 	public Frame currentFrame = null;
@@ -258,23 +260,29 @@ public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 	}
 	*/
 
-	/* (non-Javadoc)
-	 * @see org.objectweb.asm.MethodVisitor#visitEnd()
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public void visitEnd() {
-		MethodNode mn = (MethodNode) mv;
-		mn.accept(next);
-	}
+    /* (non-Javadoc)
+     * @see org.objectweb.asm.MethodVisitor#visitEnd()
+     */
 
-	/* (non-Javadoc)
-	 * @see org.objectweb.asm.commons.LocalVariablesSorter#visitMaxs(int, int)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public void visitMaxs(int maxStack, int maxLocals) {
-		super.visitMaxs(maxStack + 4, maxLocals);
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void visitEnd() {
+        MethodNode mn = (MethodNode) mv;
+        mn.accept(next);
+    }
+
+    /* (non-Javadoc)
+     * @see org.objectweb.asm.commons.LocalVariablesSorter#visitMaxs(int, int)
+     */
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void visitMaxs(int maxStack, int maxLocals) {
+        super.visitMaxs(maxStack + 4, maxLocals);
+    }
 
 }

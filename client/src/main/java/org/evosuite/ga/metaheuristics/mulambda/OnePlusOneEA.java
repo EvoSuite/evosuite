@@ -29,14 +29,14 @@ import org.evosuite.ga.ChromosomeFactory;
  */
 public class OnePlusOneEA<T extends Chromosome<T>> extends MuPlusLambdaEA<T> {
 
-	private static final long serialVersionUID = 5229089847512798127L;
+    private static final long serialVersionUID = 5229089847512798127L;
 
-	/**
-	 * Constructor
-	 *
-	 * @param factory a {@link org.evosuite.ga.ChromosomeFactory} object.
-	 */
-	public OnePlusOneEA(ChromosomeFactory<T> factory) {
-		super(factory, 1, 1);
-	}
+    /**
+     * Constructor
+     *
+     * @param factory a {@link org.evosuite.ga.ChromosomeFactory} object.
+     */
+    public OnePlusOneEA(ChromosomeFactory<T> factory) {
+        super(factory, 1, 1);
+    }
 }

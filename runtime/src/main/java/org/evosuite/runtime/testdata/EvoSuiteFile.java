@@ -25,51 +25,53 @@ import java.io.Serializable;
 
 /**
  * A object wrapper for file paths accessed by the SUTs.
- *   
+ *
  * @author fraser
  */
-public class EvoSuiteFile implements Serializable{
+public class EvoSuiteFile implements Serializable {
 
-	private static final long serialVersionUID = -4900126189189434483L;
+    private static final long serialVersionUID = -4900126189189434483L;
 
-	private final String path;
+    private final String path;
 
-	private final String userDir = System.getProperty("user.dir");
+    private final String userDir = System.getProperty("user.dir");
 
-	/**
-	 * <p>Constructor for EvoSuiteFile.</p>
-	 *
-	 * @param path a {@link java.lang.String} object.
-	 */
-	public EvoSuiteFile(String path) {
-		
-		if(path==null){
-			this.path = null;
-		} else {
-			this.path = (new File(path)).getAbsolutePath();
-		}
-	}
+    /**
+     * <p>Constructor for EvoSuiteFile.</p>
+     *
+     * @param path a {@link java.lang.String} object.
+     */
+    public EvoSuiteFile(String path) {
 
-	/**
-	 * <p>Getter for the field <code>path</code>.</p>
-	 *
-	 * @return a {@link java.lang.String} object.
-	 */
-	public String getPath() {
-		return path;
-	}
+        if (path == null) {
+            this.path = null;
+        } else {
+            this.path = (new File(path)).getAbsolutePath();
+        }
+    }
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public String toString() {
-		if(path.startsWith(userDir)) {
-			return path.length() > userDir.length() ? path.substring(userDir.length()+1) : path;
-		}
-		else {
-			return path;
-		}
-	}
+    /**
+     * <p>Getter for the field <code>path</code>.</p>
+     *
+     * @return a {@link java.lang.String} object.
+     */
+    public String getPath() {
+        return path;
+    }
+
+    /* (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        if (path.startsWith(userDir)) {
+            return path.length() > userDir.length() ? path.substring(userDir.length() + 1) : path;
+        } else {
+            return path;
+        }
+    }
 }

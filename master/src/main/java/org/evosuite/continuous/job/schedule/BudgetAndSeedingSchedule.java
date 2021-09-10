@@ -23,14 +23,13 @@ import org.evosuite.continuous.job.JobScheduler;
 
 /**
  * Combine Budget and Seeding schedules
- * 
- * @author arcuri
  *
+ * @author arcuri
  */
-public class BudgetAndSeedingSchedule extends SeedingSchedule{
+public class BudgetAndSeedingSchedule extends SeedingSchedule {
 
-	public BudgetAndSeedingSchedule(JobScheduler scheduler) {
-		super(scheduler, new BudgetSchedule(scheduler));		
-	}
-	
+    public BudgetAndSeedingSchedule(JobScheduler scheduler) {
+        super(scheduler, new BudgetSchedule(scheduler));
+    }
+
 }

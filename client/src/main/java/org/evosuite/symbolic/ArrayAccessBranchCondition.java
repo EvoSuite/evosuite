@@ -19,9 +19,9 @@
  */
 package org.evosuite.symbolic;
 
-import java.util.ArrayList;
-
 import org.evosuite.symbolic.expr.Constraint;
+
+import java.util.ArrayList;
 
 /**
  * Represents a branch condition originated from the execution of a XSTORE, XLOAD, XASTORE, XALOAD, NEWARRAY, ANEWARRAY
@@ -31,25 +31,25 @@ import org.evosuite.symbolic.expr.Constraint;
  */
 public final class ArrayAccessBranchCondition extends BranchCondition {
 
-	private final boolean isErrorBranch;
+    private final boolean isErrorBranch;
 
-	/**
-	 * An array access condition is identified by the className, methodName and instructionIndex and the target
-   * constraint.
-	 *
-	 * @param className
-	 * @param methodName
-	 * @param instructionIndex
-	 * @param constraint
-   * @param isErrorBranch
-   */
-	public ArrayAccessBranchCondition(String className, String methodName, int instructionIndex, Constraint<?> constraint,
-                                    boolean isErrorBranch) {
-		super(className, methodName, instructionIndex, constraint, new ArrayList<>());
-		this.isErrorBranch = isErrorBranch;
-	}
+    /**
+     * An array access condition is identified by the className, methodName and instructionIndex and the target
+     * constraint.
+     *
+     * @param className
+     * @param methodName
+     * @param instructionIndex
+     * @param constraint
+     * @param isErrorBranch
+     */
+    public ArrayAccessBranchCondition(String className, String methodName, int instructionIndex, Constraint<?> constraint,
+                                      boolean isErrorBranch) {
+        super(className, methodName, instructionIndex, constraint, new ArrayList<>());
+        this.isErrorBranch = isErrorBranch;
+    }
 
-	public boolean isErrorBranch() {
-		return isErrorBranch;
-	}
+    public boolean isErrorBranch() {
+        return isErrorBranch;
+    }
 }

@@ -19,39 +19,39 @@
  */
 package org.evosuite.junit.rules;
 
-import java.util.Arrays;
-
 import org.evosuite.TestGenerationContext;
+
+import java.util.Arrays;
 
 /**
  * Should be used as MethodRule
  */
 public class StaticStateResetter extends BaseRule {
 
-	private String[] classNames;
-	
-	public StaticStateResetter(String... classesToReset) {
-		classNames = Arrays.copyOf(classesToReset, classesToReset.length);
-		org.evosuite.Properties.RESET_STATIC_FIELDS = true;
-		
-		/*
-		 * FIXME: tmp hack done during refactoring
-		 */
-		org.evosuite.runtime.classhandling.ClassResetter.getInstance().setClassLoader(
-				TestGenerationContext.getInstance().getClassLoaderForSUT());
-	}
-	
-	@Override
-	protected void before() {
-	}
+    private final String[] classNames;
 
-	@Override
-	protected void after() {
-		for (String classNameToReset : classNames) {
-			try {
-				org.evosuite.runtime.classhandling.ClassResetter.getInstance().reset(classNameToReset);
-			} catch (Throwable t) {
-			}
-		}
-	}
+    public StaticStateResetter(String... classesToReset) {
+        classNames = Arrays.copyOf(classesToReset, classesToReset.length);
+        org.evosuite.Properties.RESET_STATIC_FIELDS = true;
+
+        /*
+         * FIXME: tmp hack done during refactoring
+         */
+        org.evosuite.runtime.classhandling.ClassResetter.getInstance().setClassLoader(
+                TestGenerationContext.getInstance().getClassLoaderForSUT());
+    }
+
+    @Override
+    protected void before() {
+    }
+
+    @Override
+    protected void after() {
+        for (String classNameToReset : classNames) {
+            try {
+                org.evosuite.runtime.classhandling.ClassResetter.getInstance().reset(classNameToReset);
+            } catch (Throwable t) {
+            }
+        }
+    }
 }

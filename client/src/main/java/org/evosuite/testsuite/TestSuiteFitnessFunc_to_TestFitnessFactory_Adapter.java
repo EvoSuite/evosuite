@@ -19,46 +19,49 @@
  */
 package org.evosuite.testsuite;
 
-import java.util.List;
-
 import org.evosuite.coverage.TestFitnessFactory;
 import org.evosuite.testcase.TestFitnessFunction;
+
+import java.util.List;
 
 /**
  * This adapters allows the use of a TestSuiteFitnessFunction as a
  * TestFitnessFactory for the purpose of TestSuite minimization.
- * 
+ *
  * @author Sebastian Steenbuck
  */
 public class TestSuiteFitnessFunc_to_TestFitnessFactory_Adapter implements
         TestFitnessFactory<TestFitnessFunction> {
 
-	private final TestSuiteFitnessFunction testSuiteFitness;
+    private final TestSuiteFitnessFunction testSuiteFitness;
 
-	/**
-	 * <p>
-	 * Constructor for TestSuiteFitnessFunc_to_TestFitnessFactory_Adapter.
-	 * </p>
-	 * 
-	 * @param testSuiteFitness
-	 *            a {@link org.evosuite.testsuite.TestSuiteFitnessFunction}
-	 *            object.
-	 */
-	public TestSuiteFitnessFunc_to_TestFitnessFactory_Adapter(
-	        TestSuiteFitnessFunction testSuiteFitness) {
-		this.testSuiteFitness = testSuiteFitness;
-	}
+    /**
+     * <p>
+     * Constructor for TestSuiteFitnessFunc_to_TestFitnessFactory_Adapter.
+     * </p>
+     *
+     * @param testSuiteFitness a {@link org.evosuite.testsuite.TestSuiteFitnessFunction}
+     *                         object.
+     */
+    public TestSuiteFitnessFunc_to_TestFitnessFactory_Adapter(
+            TestSuiteFitnessFunction testSuiteFitness) {
+        this.testSuiteFitness = testSuiteFitness;
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public List<TestFitnessFunction> getCoverageGoals() {
-		throw new UnsupportedOperationException();
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<TestFitnessFunction> getCoverageGoals() {
+        throw new UnsupportedOperationException();
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public double getFitness(TestSuiteChromosome suite) {
-		return testSuiteFitness.getFitness(suite);
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public double getFitness(TestSuiteChromosome suite) {
+        return testSuiteFitness.getFitness(suite);
+    }
 
 }

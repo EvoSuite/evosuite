@@ -21,7 +21,6 @@ package org.evosuite.symbolic.dse.algorithm.strategies;
 
 import org.evosuite.symbolic.dse.DSETestCase;
 
-import java.util.PriorityQueue;
 import java.util.Queue;
 
 /**

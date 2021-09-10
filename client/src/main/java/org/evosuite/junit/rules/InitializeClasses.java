@@ -23,29 +23,29 @@ import java.util.Arrays;
 
 public class InitializeClasses extends BaseRule {
 
-	private String[] classNames;
+    private final String[] classNames;
 
-	public InitializeClasses(String... classesToInitialize) {
-		classNames = Arrays.copyOf(classesToInitialize, classesToInitialize.length);
-	}
+    public InitializeClasses(String... classesToInitialize) {
+        classNames = Arrays.copyOf(classesToInitialize, classesToInitialize.length);
+    }
 
-	@Override
-	protected void before() {
-		org.evosuite.runtime.agent.InstrumentingAgent.activate();
-		for (final String className : classNames) {
-			org.evosuite.runtime.Runtime.getInstance().resetRuntime();
-			ClassLoader classLoader = getClass().getClassLoader();
-			try {
-				Class.forName(className, true, classLoader);
-			} catch (ExceptionInInitializerError ex) {
-				System.err.println("Could not initialize " + className);
-			} catch (Throwable t) {
-			}
-		}
-		org.evosuite.runtime.agent.InstrumentingAgent.deactivate(); 
-	}
+    @Override
+    protected void before() {
+        org.evosuite.runtime.agent.InstrumentingAgent.activate();
+        for (final String className : classNames) {
+            org.evosuite.runtime.Runtime.getInstance().resetRuntime();
+            ClassLoader classLoader = getClass().getClassLoader();
+            try {
+                Class.forName(className, true, classLoader);
+            } catch (ExceptionInInitializerError ex) {
+                System.err.println("Could not initialize " + className);
+            } catch (Throwable t) {
+            }
+        }
+        org.evosuite.runtime.agent.InstrumentingAgent.deactivate();
+    }
 
-	@Override
-	protected void after() {
-	}
+    @Override
+    protected void after() {
+    }
 }

@@ -28,19 +28,20 @@ import java.util.concurrent.Callable;
  *
  * @author Sebastian Steenbuck
  */
-public interface InterfaceTestRunnable extends Callable<ExecutionResult>{
-	//#TODO steenbuck add javadoc
-	/**
-	 * <p>getExceptionsThrown</p>
-	 *
-	 * @return a {@link java.util.Map} object.
-	 */
+public interface InterfaceTestRunnable extends Callable<ExecutionResult> {
+    //#TODO steenbuck add javadoc
+
+    /**
+     * <p>getExceptionsThrown</p>
+     *
+     * @return a {@link java.util.Map} object.
+     */
     Map<Integer, Throwable> getExceptionsThrown();
-	
-	/**
-	 * <p>isRunFinished</p>
-	 *
-	 * @return a boolean.
-	 */
+
+    /**
+     * <p>isRunFinished</p>
+     *
+     * @return a boolean.
+     */
     boolean isRunFinished();
 }

@@ -20,17 +20,17 @@
 
 package org.evosuite.contracts;
 
-import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.List;
-
-import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.TestCase;
-import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testcase.execution.Scope;
 import org.evosuite.testcase.execution.TestCaseExecutor.TimeoutExceeded;
 import org.evosuite.testcase.statements.MethodStatement;
+import org.evosuite.testcase.statements.Statement;
+import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.utils.generic.GenericMethod;
+
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.List;
 
 
 /**
@@ -40,71 +40,76 @@ import org.evosuite.utils.generic.GenericMethod;
  */
 public class HashCodeReturnsNormallyContract extends Contract {
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.contracts.Contract#check(org.evosuite.testcase.Statement, org.evosuite.testcase.Scope, java.lang.Throwable)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public ContractViolation check(Statement statement, Scope scope, Throwable exception) {
-		for(VariableReference var : getAllVariables(scope)) {
-			Object object = scope.getObject(var);
-			if (object == null)
-				continue;
+    /* (non-Javadoc)
+     * @see org.evosuite.contracts.Contract#check(org.evosuite.testcase.Statement, org.evosuite.testcase.Scope, java.lang.Throwable)
+     */
 
-			// We do not want to call hashCode if it is the default implementation
-			Class<?>[] parameters = {};
-			try {
-				Method equalsMethod = object.getClass().getMethod("hashCode", parameters);
-				if (equalsMethod.getDeclaringClass().equals(Object.class))
-					continue;
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ContractViolation check(Statement statement, Scope scope, Throwable exception) {
+        for (VariableReference var : getAllVariables(scope)) {
+            Object object = scope.getObject(var);
+            if (object == null)
+                continue;
 
-			} catch (SecurityException e1) {
-				continue;
-			} catch (NoSuchMethodException e1) {
-				continue;
-			}
+            // We do not want to call hashCode if it is the default implementation
+            Class<?>[] parameters = {};
+            try {
+                Method equalsMethod = object.getClass().getMethod("hashCode", parameters);
+                if (equalsMethod.getDeclaringClass().equals(Object.class))
+                    continue;
 
-			try {
-				// hashCode must not throw an exception
-				object.hashCode();
+            } catch (SecurityException e1) {
+                continue;
+            } catch (NoSuchMethodException e1) {
+                continue;
+            }
 
-			} catch (Throwable t) {
-				if (!(t instanceof TimeoutExceeded))
-					return new ContractViolation(this, statement, t, var);
-			}
-		}
+            try {
+                // hashCode must not throw an exception
+                object.hashCode();
 
-		return null;
-	}
+            } catch (Throwable t) {
+                if (!(t instanceof TimeoutExceeded))
+                    return new ContractViolation(this, statement, t, var);
+            }
+        }
 
-	@Override
-	public void addAssertionAndComments(Statement statement,
-			List<VariableReference> variables, Throwable exception) {
-		TestCase test = statement.getTestCase();
-		int position = statement.getPosition();
-		VariableReference a = variables.get(0);
+        return null;
+    }
 
-		try {
-			Method hashCodeMethod = a.getGenericClass().getRawClass().getMethod("hashCode", new Class<?>[] {});
+    @Override
+    public void addAssertionAndComments(Statement statement,
+                                        List<VariableReference> variables, Throwable exception) {
+        TestCase test = statement.getTestCase();
+        int position = statement.getPosition();
+        VariableReference a = variables.get(0);
 
-			GenericMethod method = new GenericMethod(hashCodeMethod, a.getGenericClass());
+        try {
+            Method hashCodeMethod = a.getGenericClass().getRawClass().getMethod("hashCode");
 
-			Statement st1 = new MethodStatement(test, method, a, Arrays.asList(new VariableReference[] {}));
-			test.addStatement(st1, position + 1);
-			st1.addComment("Throws exception: "+exception.getMessage());
-			
-		} catch (NoSuchMethodException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (SecurityException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} 
-	}
-	
-	/** {@inheritDoc} */
-	@Override
-	public String toString() {
-		return "hashCode returns normally check";
-	}
+            GenericMethod method = new GenericMethod(hashCodeMethod, a.getGenericClass());
+
+            Statement st1 = new MethodStatement(test, method, a, Arrays.asList(new VariableReference[]{}));
+            test.addStatement(st1, position + 1);
+            st1.addComment("Throws exception: " + exception.getMessage());
+
+        } catch (NoSuchMethodException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (SecurityException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        return "hashCode returns normally check";
+    }
 }

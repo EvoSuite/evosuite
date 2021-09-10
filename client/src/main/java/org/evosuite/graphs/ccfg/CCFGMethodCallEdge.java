@@ -23,51 +23,51 @@ import org.evosuite.graphs.cfg.BytecodeInstruction;
 
 public class CCFGMethodCallEdge extends CCFGEdge {
 
-	private static final long serialVersionUID = -1638791707105165885L;
+    private static final long serialVersionUID = -1638791707105165885L;
 
-	private final BytecodeInstruction callInstruction;
+    private final BytecodeInstruction callInstruction;
 
-	private final boolean isCallingEdge;
+    private final boolean isCallingEdge;
 
-	/**
-	 * <p>
-	 * Constructor for CCFGMethodCallEdge.
-	 * </p>
-	 * 
-	 * @param callInstruction
-	 *            a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
-	 * @param isCallingEdge
-	 *            a boolean.
-	 */
-	public CCFGMethodCallEdge(BytecodeInstruction callInstruction, boolean isCallingEdge) {
-		this.callInstruction = callInstruction;
-		this.isCallingEdge = isCallingEdge;
-	}
+    /**
+     * <p>
+     * Constructor for CCFGMethodCallEdge.
+     * </p>
+     *
+     * @param callInstruction a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
+     * @param isCallingEdge   a boolean.
+     */
+    public CCFGMethodCallEdge(BytecodeInstruction callInstruction, boolean isCallingEdge) {
+        this.callInstruction = callInstruction;
+        this.isCallingEdge = isCallingEdge;
+    }
 
-	/**
-	 * Marks whether this is a calling edge or a returning edge
-	 * 
-	 * @return a boolean.
-	 */
-	public boolean isCallingEdge() {
-		return isCallingEdge;
-	}
+    /**
+     * Marks whether this is a calling edge or a returning edge
+     *
+     * @return a boolean.
+     */
+    public boolean isCallingEdge() {
+        return isCallingEdge;
+    }
 
-	/**
-	 * <p>
-	 * Getter for the field <code>callInstruction</code>.
-	 * </p>
-	 * 
-	 * @return a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
-	 */
-	public BytecodeInstruction getCallInstruction() {
-		return callInstruction;
-	}
+    /**
+     * <p>
+     * Getter for the field <code>callInstruction</code>.
+     * </p>
+     *
+     * @return a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
+     */
+    public BytecodeInstruction getCallInstruction() {
+        return callInstruction;
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public String toString() {
-		return (isCallingEdge ? "calling " : "returning from ")
-		        + callInstruction.getCalledMethod();
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        return (isCallingEdge ? "calling " : "returning from ")
+                + callInstruction.getCalledMethod();
+    }
 }

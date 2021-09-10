@@ -30,7 +30,7 @@ import java.util.List;
  * <p>
  * Therefore, for each loop in the instrumented CUTs, we can have a limit, and throw an exception
  * if too many iterations have occurred
- *
+ * <p>
  * Created by Andrea Arcuri on 29/03/15.
  */
 public class LoopCounter {
@@ -38,27 +38,27 @@ public class LoopCounter {
     private static final LoopCounter singleton = new LoopCounter();
 
     private boolean activated = true;
-    
+
     /**
      * Number of iterations so far
      */
-    private List<Long> counters;
+    private final List<Long> counters;
 
 
-    private LoopCounter(){
+    private LoopCounter() {
         counters = new ArrayList<>();
     }
 
-    public static LoopCounter getInstance(){
+    public static LoopCounter getInstance() {
         return singleton;
     }
 
-    public void reset(){
+    public void reset() {
         counters.clear();
     }
-    
+
     public void setActive(boolean active) {
-    	this.activated = active;
+        this.activated = active;
     }
 
     public boolean isActivated() {
@@ -85,11 +85,11 @@ public class LoopCounter {
      * @throws TooManyResourcesException if this loop has executed too many iterations
      * @throws IllegalArgumentException
      */
-    public void checkLoop(int index) throws TooManyResourcesException, IllegalArgumentException{
+    public void checkLoop(int index) throws TooManyResourcesException, IllegalArgumentException {
         if (index < 0) {
             throw new IllegalArgumentException("Loop index cannot be negative");
         }
-        
+
         if (!activated) {
             return;
         }
@@ -97,7 +97,7 @@ public class LoopCounter {
         if (RuntimeSettings.maxNumberOfIterationsPerLoop < 0) {
             return; //do nothing, no check
         }
-        
+
         //first check initialization
         int size = counters.size();
         if (index >= size) {

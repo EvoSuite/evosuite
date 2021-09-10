@@ -200,7 +200,7 @@ public abstract class AbstractInstructionLogger implements IInstructionLogger {
         if (!doLog)    // src-util should not depend on src-vm
             return;
 
-        try (FileWriter fstream = new FileWriter(fileName);) {
+        try (FileWriter fstream = new FileWriter(fileName)) {
             final BufferedWriter writer = new BufferedWriter(fstream);
             writer.write(o.toString());
             writer.close();

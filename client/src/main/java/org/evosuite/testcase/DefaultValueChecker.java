@@ -32,34 +32,34 @@ public enum DefaultValueChecker {
     FLOAT((value) -> value.equals(0.0f)),
     DOUBLE((value) -> value.equals(0.0d));
 
-  public static final String UNEXPECTED_VALUE = "Unexpected value: ";
+    public static final String UNEXPECTED_VALUE = "Unexpected value: ";
 
-  private final Function<Object, Boolean> checker;
+    private final Function<Object, Boolean> checker;
 
     DefaultValueChecker(final Function<Object, Boolean> statementCheck) {
-      this.checker = statementCheck;
+        this.checker = statementCheck;
     }
 
     public static boolean isDefaultValue(Object value) {
-      if (Integer.class.equals(value.getClass())) {
-        return INTEGER.checker.apply(value);
-      } else if (Byte.class.equals(value.getClass())) {
-        return BYTE.checker.apply(value);
-      } else if (Short.class.equals(value.getClass())) {
-        return SHORT.checker.apply(value);
-      } else if (Long.class.equals(value.getClass())) {
-        return LONG.checker.apply(value);
-      } else if (Boolean.class.equals(value.getClass())) {
-        return BOOLEAN.checker.apply(value);
-      } else if (Character.class.equals(value.getClass())) {
-        return CHAR.checker.apply(value);
-      } else if (String.class.equals(value.getClass())) {
-        return STRING.checker.apply(value);
-      } else if (Float.class.equals(value.getClass())) {
-        return FLOAT.checker.apply(value);
-      } else if (Double.class.equals(value.getClass())) {
-        return DOUBLE.checker.apply(value);
-      }
-      throw new IllegalStateException(UNEXPECTED_VALUE + value.getClass());
+        if (Integer.class.equals(value.getClass())) {
+            return INTEGER.checker.apply(value);
+        } else if (Byte.class.equals(value.getClass())) {
+            return BYTE.checker.apply(value);
+        } else if (Short.class.equals(value.getClass())) {
+            return SHORT.checker.apply(value);
+        } else if (Long.class.equals(value.getClass())) {
+            return LONG.checker.apply(value);
+        } else if (Boolean.class.equals(value.getClass())) {
+            return BOOLEAN.checker.apply(value);
+        } else if (Character.class.equals(value.getClass())) {
+            return CHAR.checker.apply(value);
+        } else if (String.class.equals(value.getClass())) {
+            return STRING.checker.apply(value);
+        } else if (Float.class.equals(value.getClass())) {
+            return FLOAT.checker.apply(value);
+        } else if (Double.class.equals(value.getClass())) {
+            return DOUBLE.checker.apply(value);
+        }
+        throw new IllegalStateException(UNEXPECTED_VALUE + value.getClass());
     }
 }

@@ -19,14 +19,14 @@
  */
 package org.evosuite.junit;
 
+import org.evosuite.testcase.execution.ExecutionTrace;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import org.evosuite.testcase.execution.ExecutionTrace;
-
 /**
  * The information from executing a JUnit test case
- * 
+ *
  * @author galeotti
  * @author José Campos
  */
@@ -54,7 +54,7 @@ public class JUnitResult {
     private int runCount;
 
 
-    private ArrayList<JUnitFailure> junitFailures = new ArrayList<>();
+    private final ArrayList<JUnitFailure> junitFailures = new ArrayList<>();
 
 
     private Class<?> junitClass;
@@ -77,19 +77,17 @@ public class JUnitResult {
     }
 
     /**
-     * 
      * @param wasSuccessful
      * @param failureCount
      * @param runCount
      */
-	public JUnitResult(boolean wasSuccessful, int failureCount, int runCount) {
-	    this.successful = wasSuccessful;
-	    this.failureCount = failureCount;
-	    this.runCount = runCount;
-	}
+    public JUnitResult(boolean wasSuccessful, int failureCount, int runCount) {
+        this.successful = wasSuccessful;
+        this.failureCount = failureCount;
+        this.runCount = runCount;
+    }
 
-	/**
-     * 
+    /**
      * @return
      */
     public String getName() {
@@ -97,7 +95,6 @@ public class JUnitResult {
     }
 
     /**
-     * 
      * @param n
      */
     public void setName(String n) {
@@ -105,7 +102,6 @@ public class JUnitResult {
     }
 
     /**
-     * 
      * @return
      */
     public boolean wasSuccessful() {
@@ -113,7 +109,6 @@ public class JUnitResult {
     }
 
     /**
-     * 
      * @param s
      */
     public void setSuccessful(boolean s) {
@@ -121,7 +116,6 @@ public class JUnitResult {
     }
 
     /**
-     * 
      * @return
      */
     public long getRuntime() {
@@ -129,7 +123,6 @@ public class JUnitResult {
     }
 
     /**
-     * 
      * @param r
      */
     public void setRuntime(long r) {
@@ -137,7 +130,6 @@ public class JUnitResult {
     }
 
     /**
-     * 
      * @return
      */
     public String getTrace() {
@@ -145,7 +137,6 @@ public class JUnitResult {
     }
 
     /**
-     * 
      * @param t
      */
     public void setTrace(String t) {
@@ -153,7 +144,6 @@ public class JUnitResult {
     }
 
     /**
-     * 
      * @return
      */
     public ExecutionTrace getExecutionTrace() {
@@ -161,7 +151,6 @@ public class JUnitResult {
     }
 
     /**
-     * 
      * @param et
      */
     public void setExecutionTrace(ExecutionTrace et) {
@@ -169,7 +158,6 @@ public class JUnitResult {
     }
 
     /**
-     * 
      * @return
      */
     public int getFailureCount() {
@@ -181,7 +169,6 @@ public class JUnitResult {
     }
 
     /**
-     * 
      * @return
      */
     public int getRunCount() {
@@ -193,7 +180,6 @@ public class JUnitResult {
     }
 
     /**
-     * 
      * @return
      */
     public List<JUnitFailure> getFailures() {
@@ -201,7 +187,6 @@ public class JUnitResult {
     }
 
     /**
-     * 
      * @param junitFailure
      */
     public void addFailure(JUnitFailure junitFailure) {
@@ -209,43 +194,41 @@ public class JUnitResult {
     }
 
     public Class<?> getJUnitClass() {
-    	return this.junitClass;
+        return this.junitClass;
     }
 
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + this.failureCount;
-		result = prime * result
-				+ ((this.junitFailures == null) ? 0 : this.junitFailures.hashCode());
-		result = prime * result + this.runCount;
-		result = prime * result + (this.successful ? 1231 : 1237);
-		return result;
-	}
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + this.failureCount;
+        result = prime * result
+                + ((this.junitFailures == null) ? 0 : this.junitFailures.hashCode());
+        result = prime * result + this.runCount;
+        result = prime * result + (this.successful ? 1231 : 1237);
+        return result;
+    }
 
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		JUnitResult other = (JUnitResult) obj;
-		if (this.failureCount != other.failureCount)
-			return false;
-		if (this.junitFailures == null) {
-			if (other.junitFailures != null)
-				return false;
-		} else if (!this.junitFailures.equals(other.junitFailures))
-			return false;
-		if (this.runCount != other.runCount)
-			return false;
-		if (this.successful != other.successful)
-			return false;
-		return true;
-	}
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        JUnitResult other = (JUnitResult) obj;
+        if (this.failureCount != other.failureCount)
+            return false;
+        if (this.junitFailures == null) {
+            if (other.junitFailures != null)
+                return false;
+        } else if (!this.junitFailures.equals(other.junitFailures))
+            return false;
+        if (this.runCount != other.runCount)
+            return false;
+        return this.successful == other.successful;
+    }
 }

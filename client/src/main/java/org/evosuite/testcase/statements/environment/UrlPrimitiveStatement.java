@@ -31,9 +31,9 @@ import org.evosuite.utils.StringUtil;
  */
 public class UrlPrimitiveStatement extends EnvironmentDataStatement<EvoSuiteURL> {
 
-	private static final long serialVersionUID = 2062390100066807026L;
+    private static final long serialVersionUID = 2062390100066807026L;
 
-	public UrlPrimitiveStatement(TestCase tc) {
+    public UrlPrimitiveStatement(TestCase tc) {
         this(tc, null);
         randomize();
     }

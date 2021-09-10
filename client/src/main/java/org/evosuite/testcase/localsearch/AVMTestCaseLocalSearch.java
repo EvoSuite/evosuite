@@ -29,86 +29,85 @@ import org.evosuite.testcase.statements.Statement;
 /**
  * Applies the AVM local search algorithm described in
  * http://dx.doi.org/10.1016/j.jss.2014.05.032 at the test case level
- * 
- * @author galeotti
  *
+ * @author galeotti
  */
 public class AVMTestCaseLocalSearch extends TestCaseLocalSearch<TestChromosome> {
 
 
-	@Override
-	public boolean doSearch(TestChromosome individual, LocalSearchObjective<TestChromosome> objective) {
+    @Override
+    public boolean doSearch(TestChromosome individual, LocalSearchObjective<TestChromosome> objective) {
 
-		logger.info("Test before local search: " + individual.getTestCase().toCode());
+        logger.info("Test before local search: " + individual.getTestCase().toCode());
 
-		boolean improved = false;
+        boolean improved = false;
 
-		// Only apply local search up to the point where an exception was thrown
-		// TODO: Check whether this conflicts with test expansion
-		int lastPosition = individual.size() - 1;
-		if (individual.getLastExecutionResult() != null && !individual.isChanged()) {
-			Integer lastPos = individual.getLastExecutionResult().getFirstPositionOfThrownException();
-			if (lastPos != null)
-				lastPosition = lastPos;
-		}
-		TestCase test = individual.getTestCase();
+        // Only apply local search up to the point where an exception was thrown
+        // TODO: Check whether this conflicts with test expansion
+        int lastPosition = individual.size() - 1;
+        if (individual.getLastExecutionResult() != null && !individual.isChanged()) {
+            Integer lastPos = individual.getLastExecutionResult().getFirstPositionOfThrownException();
+            if (lastPos != null)
+                lastPosition = lastPos;
+        }
+        TestCase test = individual.getTestCase();
 
-		// We count down to make the code work when lines are
-		// added during the search (see NullReferenceSearch).
+        // We count down to make the code work when lines are
+        // added during the search (see NullReferenceSearch).
 
-		for (int i = lastPosition; i >= 0; i--) {
-			if (LocalSearchBudget.getInstance().isFinished())
-				break;
+        for (int i = lastPosition; i >= 0; i--) {
+            if (LocalSearchBudget.getInstance().isFinished())
+                break;
 
-			if (objective.isDone()) {
-				break;
-			}
+            if (objective.isDone()) {
+                break;
+            }
 
-			if (i >= individual.size()) {
-				logger.warn("Test size decreased unexpectedly during local search, aborting local search");
-				logger.warn(individual.getTestCase().toCode());
-				break;
-			}
-			final Class<?> targetClass = Properties.getTargetClassAndDontInitialise();
+            if (i >= individual.size()) {
+                logger.warn("Test size decreased unexpectedly during local search, aborting local search");
+                logger.warn(individual.getTestCase().toCode());
+                break;
+            }
+            final Class<?> targetClass = Properties.getTargetClassAndDontInitialise();
 
-			final Statement statement = test.getStatement(i);
+            final Statement statement = test.getStatement(i);
 
-			if (!test.hasReferences(statement.getReturnValue()) && !statement.getReturnClass().equals(targetClass)) {
-				logger.info(
-						"Return value of statement " + i + " is not referenced and not SUT, not doing local search");
-				continue;
-			}
+            if (!test.hasReferences(statement.getReturnValue()) && !statement.getReturnClass().equals(targetClass)) {
+                logger.info(
+                        "Return value of statement " + i + " is not referenced and not SUT, not doing local search");
+                continue;
+            }
 
-			StatementLocalSearch search = StatementLocalSearch.getLocalSearchFor(statement);
-			if (search != null) {
-				logger.info("Applying local search of type " + search.getClass() + " to statement " + statement + " / "
-						+ individual.getTestCase().getStatement(i));
-				if (search.doSearch(individual, i, objective)) {
-					improved = true;
-				}
-				// i = s.getPosition();
-				logger.debug("Old position was: " + i + ", adjusting to: " + (i + search.getPositionDelta()));
-				i += search.getPositionDelta();
-				test = individual.getTestCase();
-			} else {
-				/*
-				 * No statement local search has been produced for this
-				 * statement. Skipping.
-				 */
-				continue;
-			}
-		}
+            StatementLocalSearch search = StatementLocalSearch.getLocalSearchFor(statement);
+            if (search != null) {
+                logger.info("Applying local search of type " + search.getClass() + " to statement " + statement + " / "
+                        + individual.getTestCase().getStatement(i));
+                if (search.doSearch(individual, i, objective)) {
+                    improved = true;
+                }
+                // i = s.getPosition();
+                logger.debug("Old position was: " + i + ", adjusting to: " + (i + search.getPositionDelta()));
+                i += search.getPositionDelta();
+                test = individual.getTestCase();
+            } else {
+                /*
+                 * No statement local search has been produced for this
+                 * statement. Skipping.
+                 */
+                continue;
+            }
+        }
 
-		LocalSearchBudget.getInstance().countLocalSearchOnTest();
+        LocalSearchBudget.getInstance().countLocalSearchOnTest();
 
-		// logger.warn("Test after local search: " +
-		// individual.getTestCase().toCode());
+        // logger.warn("Test after local search: " +
+        // individual.getTestCase().toCode());
 
-		// Return true iif search was successful
-		return improved;
+        // Return true iif search was successful
+        return improved;
 
-		// TODO: Handle arrays in local search
-		// TODO: mutating an int might have an effect on array lengths
-	}
+        // TODO: Handle arrays in local search
+        // TODO: mutating an int might have an effect on array lengths
+    }
 
 }

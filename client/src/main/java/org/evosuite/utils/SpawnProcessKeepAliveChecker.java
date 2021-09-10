@@ -22,7 +22,6 @@ package org.evosuite.utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.InetAddress;
@@ -38,7 +37,7 @@ import java.util.concurrent.Executors;
  * not properly shut down the spawn processes (JVM hooks only apply if JVM terminates
  * normally). As such, each spawn process should query at regular intervals if it
  * still can keep running.
- *
+ * <p>
  * Created by Andrea Arcuri on 26/11/15.
  */
 public class SpawnProcessKeepAliveChecker {
@@ -55,15 +54,15 @@ public class SpawnProcessKeepAliveChecker {
     private volatile Thread serverThread;
     private volatile Thread clientThread;
 
-    public static SpawnProcessKeepAliveChecker getInstance(){
+    public static SpawnProcessKeepAliveChecker getInstance() {
         return instance;
     }
 
 
-    public int startServer() throws IllegalStateException{
+    public int startServer() throws IllegalStateException {
 
-        if(server != null || serverThread != null){
-            throw  new IllegalStateException("Recorder already running");
+        if (server != null || serverThread != null) {
+            throw new IllegalStateException("Recorder already running");
         }
 
         try {
@@ -72,14 +71,15 @@ public class SpawnProcessKeepAliveChecker {
             return -1;
         }
 
-        serverThread = new Thread(){
-            @Override public void run(){
-                while(! isInterrupted() && server!=null && !server.isClosed()){
+        serverThread = new Thread() {
+            @Override
+            public void run() {
+                while (!isInterrupted() && server != null && !server.isClosed()) {
                     try {
                         Socket socket = server.accept();
                         socket.setKeepAlive(true);
                         executor.submit(new KeepAliveTask(socket));
-                        logger.info("Registered remote process from "+socket.getRemoteSocketAddress());
+                        logger.info("Registered remote process from " + socket.getRemoteSocketAddress());
                     } catch (IOException e) {
                         //fine, expected
                         return;
@@ -96,10 +96,10 @@ public class SpawnProcessKeepAliveChecker {
         return port;
     }
 
-    public void stopServer(){
+    public void stopServer() {
         logger.info("Stopping spawn process manager");
         try {
-            if(server != null) {
+            if (server != null) {
                 server.close();
                 server = null;
             }
@@ -107,70 +107,74 @@ public class SpawnProcessKeepAliveChecker {
             logger.error(e.toString());
         }
 
-        if(serverThread != null) {
+        if (serverThread != null) {
             serverThread.interrupt();
             serverThread = null;
         }
     }
 
-    public void registerToRemoteServerAndDieIfFails(final int port) throws IllegalStateException{
-        if(clientThread != null){
+    public void registerToRemoteServerAndDieIfFails(final int port) throws IllegalStateException {
+        if (clientThread != null) {
             throw new IllegalStateException("Already registered");
         }
 
-        clientThread = new Thread(){
-          @Override public void run(){
+        clientThread = new Thread() {
+            @Override
+            public void run() {
 
-              boolean failed = false;
+                boolean failed = false;
 
-              try {
-                  Socket socket = new Socket(InetAddress.getLoopbackAddress(), port);
-                  Scanner in = new Scanner(socket.getInputStream());
+                try {
+                    Socket socket = new Socket(InetAddress.getLoopbackAddress(), port);
+                    Scanner in = new Scanner(socket.getInputStream());
 
-                  sleep(DELTA_MS);
+                    sleep(DELTA_MS);
 
-                  while(! isInterrupted()){
-                      if(! in.hasNext()){
-                          failed = true;
-                          break;
-                      } else {
-                          in.nextLine();
-                      }
+                    while (!isInterrupted()) {
+                        if (!in.hasNext()) {
+                            failed = true;
+                            break;
+                        } else {
+                            in.nextLine();
+                        }
 
-                      sleep(DELTA_MS);
-                  }
+                        sleep(DELTA_MS);
+                    }
 
-              } catch (IOException e) {
-                  failed = true;
-              } catch (InterruptedException e) {
-                  //this is fine, and expected when process ends
-                  failed = false;
-              }
+                } catch (IOException e) {
+                    failed = true;
+                } catch (InterruptedException e) {
+                    //this is fine, and expected when process ends
+                    failed = false;
+                }
 
-              if(failed){
-                  logger.error("Failed to receive keep alive message. Going to shutdown the process.");
-                  try { sleep(200); } catch (InterruptedException e) {}
+                if (failed) {
+                    logger.error("Failed to receive keep alive message. Going to shutdown the process.");
+                    try {
+                        sleep(200);
+                    } catch (InterruptedException e) {
+                    }
 
-                  System.exit(1);
-              }
-          }
+                    System.exit(1);
+                }
+            }
         };
         clientThread.start();
     }
 
-    public void unRegister(){
-        if(clientThread != null){
+    public void unRegister() {
+        if (clientThread != null) {
             clientThread.interrupt();
             clientThread = null;
         }
     }
 
 
-    private static class KeepAliveTask implements Runnable{
+    private static class KeepAliveTask implements Runnable {
 
         private final Socket socket;
 
-        public KeepAliveTask(Socket s){
+        public KeepAliveTask(Socket s) {
             socket = s;
         }
 
@@ -182,7 +186,7 @@ public class SpawnProcessKeepAliveChecker {
                     out.println(STILL_ALIVE);
                     Thread.sleep(DELTA_MS);
                 }
-            } catch (Exception e){
+            } catch (Exception e) {
                 //expected when remote host dies
             }
         }

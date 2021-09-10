@@ -33,7 +33,7 @@ import java.util.Map;
  */
 public class NumberedTestNameGenerationStrategy implements TestNameGenerationStrategy {
 
-    private Map<TestCase, String> testToName = new HashMap<>();
+    private final Map<TestCase, String> testToName = new HashMap<>();
 
     public NumberedTestNameGenerationStrategy(List<TestCase> testCases, List<ExecutionResult> results) {
         generateNames(testCases);
@@ -48,7 +48,7 @@ public class NumberedTestNameGenerationStrategy implements TestNameGenerationStr
         String totalNumberOfTestsString = String.valueOf(totalNumberOfTests - 1);
 
         int num = 0;
-        for(TestCase test : testCases) {
+        for (TestCase test : testCases) {
             String testNumber = StringUtils.leftPad(String.valueOf(num),
                     totalNumberOfTestsString.length(), "0");
             String testName = "test" + testNumber;

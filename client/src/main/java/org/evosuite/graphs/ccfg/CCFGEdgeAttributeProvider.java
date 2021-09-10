@@ -19,23 +19,26 @@
  */
 package org.evosuite.graphs.ccfg;
 
-import java.util.Map;
-import java.util.HashMap;
-
 import org.jgrapht.ext.ComponentAttributeProvider;
+
+import java.util.HashMap;
+import java.util.Map;
+
 public class CCFGEdgeAttributeProvider implements ComponentAttributeProvider<CCFGEdge> {
 
-	
-	/** {@inheritDoc} */
-	@Override
-	public Map<String, String> getComponentAttributes(CCFGEdge edge) {
-		Map<String, String> r = new HashMap<>();
-		if(edge instanceof CCFGFrameEdge) {
-			r.put("style", "dotted");
-		} else if(edge instanceof CCFGMethodCallEdge) {
-			r.put("style","bold");
-		}
-		return r;
-	}
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Map<String, String> getComponentAttributes(CCFGEdge edge) {
+        Map<String, String> r = new HashMap<>();
+        if (edge instanceof CCFGFrameEdge) {
+            r.put("style", "dotted");
+        } else if (edge instanceof CCFGMethodCallEdge) {
+            r.put("style", "bold");
+        }
+        return r;
+    }
 
 }

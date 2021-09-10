@@ -26,25 +26,25 @@ import org.evosuite.symbolic.solver.z3.Z3Solver;
 
 public class SolverFactory {
 
-	private static final SolverFactory instance = new SolverFactory();
+    private static final SolverFactory instance = new SolverFactory();
 
-	public static SolverFactory getInstance() {
-		return instance;
-	}
+    public static SolverFactory getInstance() {
+        return instance;
+    }
 
-	public Solver buildNewSolver() {
-		switch (Properties.DSE_SOLVER) {
-		case Z3_SOLVER:
-			return new Z3Solver(true);
-		case CVC4_SOLVER: {
-			CVC4Solver solver = new CVC4Solver(true);
-			solver.setRewriteNonLinearConstraints(true);
-			return solver;
-		}
-		case EVOSUITE_SOLVER:
-		default:
-			return new EvoSuiteSolver();
-		}
-	}
+    public Solver buildNewSolver() {
+        switch (Properties.DSE_SOLVER) {
+            case Z3_SOLVER:
+                return new Z3Solver(true);
+            case CVC4_SOLVER: {
+                CVC4Solver solver = new CVC4Solver(true);
+                solver.setRewriteNonLinearConstraints(true);
+                return solver;
+            }
+            case EVOSUITE_SOLVER:
+            default:
+                return new EvoSuiteSolver();
+        }
+    }
 
 }

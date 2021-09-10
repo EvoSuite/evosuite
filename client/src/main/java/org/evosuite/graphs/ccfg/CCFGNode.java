@@ -18,6 +18,7 @@
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 package org.evosuite.graphs.ccfg;
+
 public abstract class CCFGNode {
 
 }

@@ -38,207 +38,202 @@ import java.util.Map;
 /**
  * Represents the fitness functions (the objective) for a whole test suite such that
  * we will apply local search to a single test case within the whole test suite.
- * The <code>TestSuiteLocalSearchObjective</code> has an internal reference to the whole test suite 
+ * The <code>TestSuiteLocalSearchObjective</code> has an internal reference to the whole test suite
  * and an index to the position of the test case that is being modified by means of local search.
- * 
+ *
  * @author Gordon Fraser
  */
 public class TestSuiteLocalSearchObjective implements LocalSearchObjective<TestChromosome> {
 
-	private static final Logger logger = LoggerFactory.getLogger(TestSuiteLocalSearchObjective.class);
+    private static final Logger logger = LoggerFactory.getLogger(TestSuiteLocalSearchObjective.class);
 
-	private final List<TestSuiteFitnessFunction> fitnessFunctions = new ArrayList<>();
+    private final List<TestSuiteFitnessFunction> fitnessFunctions = new ArrayList<>();
 
-	private final TestSuiteChromosome suite;
+    private final TestSuiteChromosome suite;
 
-	private final int testIndex;
+    private final int testIndex;
 
-	// TODO: This assumes we are not doing NSGA-II
-	private boolean isMaximization = false;
+    // TODO: This assumes we are not doing NSGA-II
+    private boolean isMaximization = false;
 
-	private double lastFitnessSum = 0.0;
+    private double lastFitnessSum = 0.0;
 
-	private final Map<TestSuiteFitnessFunction, Double> lastFitness = new HashMap<>();
+    private final Map<TestSuiteFitnessFunction, Double> lastFitness = new HashMap<>();
 
-	private final Map<TestSuiteFitnessFunction, Double> lastCoverage = new HashMap<>();
+    private final Map<TestSuiteFitnessFunction, Double> lastCoverage = new HashMap<>();
 
-	/**
-	 * Creates a Local Search objective for a TestCase that will be optimized
-	 * using a containing TestSuite to measure the changes in fitness values.
-	 *
-	 * @param fitness
-	 *            the list of fitness functions to use to compute the fitness of
-	 *            the TestSuiteChromosome
-	 * @param suite
-	 *            a TestSuite chromosome that will be subjected to local search
-	 * @param index
-	 *            a test index (between 0 and the test suite length) that will
-	 *            be used to modify the testchromosome each time a changed has
-	 *            been applied.
-	 */
-	private TestSuiteLocalSearchObjective(List<TestSuiteFitnessFunction> fitness,
-										  TestSuiteChromosome suite,
-										  int index) {
-		this.fitnessFunctions.addAll(fitness);
-		this.suite = suite;
-		this.testIndex = index;
-		for (TestSuiteFitnessFunction ff : fitness) {
-			isMaximization = ff.isMaximizationFunction();
-			break;
-		}
-		updateLastFitness();
-		updateLastCoverage();
-	}
+    /**
+     * Creates a Local Search objective for a TestCase that will be optimized
+     * using a containing TestSuite to measure the changes in fitness values.
+     *
+     * @param fitness the list of fitness functions to use to compute the fitness of
+     *                the TestSuiteChromosome
+     * @param suite   a TestSuite chromosome that will be subjected to local search
+     * @param index   a test index (between 0 and the test suite length) that will
+     *                be used to modify the testchromosome each time a changed has
+     *                been applied.
+     */
+    private TestSuiteLocalSearchObjective(List<TestSuiteFitnessFunction> fitness,
+                                          TestSuiteChromosome suite,
+                                          int index) {
+        this.fitnessFunctions.addAll(fitness);
+        this.suite = suite;
+        this.testIndex = index;
+        for (TestSuiteFitnessFunction ff : fitness) {
+            isMaximization = ff.isMaximizationFunction();
+            break;
+        }
+        updateLastFitness();
+        updateLastCoverage();
+    }
 
-	/**
-	 * Creates a new <code>TestSuiteLocalSearchObjective</code> for a given list
-	 * of fitness functions, a test suite and a <code>testIndex</code> for
-	 * replacing an optimised test case (i.e. a test case over which was applied
-	 * local search)
-	 *
-	 * @param fitness
-	 *            the list of fitness functions to be used on the modified test
-	 *            suite
-	 * @param suite
-	 *            the original test suite
-	 * @param index
-	 *            the index (between 0 and the suite length) that will be
-	 *            replaced with a new test case
-	 * @return
-	 */
-	public static <T extends Chromosome<T>> TestSuiteLocalSearchObjective
-	buildNewTestSuiteLocalSearchObjective(
-			List<FitnessFunction<T>> fitness,
-			TestSuiteChromosome suite,
-			int index) {
-		List<TestSuiteFitnessFunction> ffs = new ArrayList<>();
-		for (FitnessFunction<T> ff : fitness) {
-			TestSuiteFitnessFunction tff = (TestSuiteFitnessFunction) ff;
-			ffs.add(tff);
-		}
-		return new TestSuiteLocalSearchObjective(ffs, suite, index);
-	}
+    /**
+     * Creates a new <code>TestSuiteLocalSearchObjective</code> for a given list
+     * of fitness functions, a test suite and a <code>testIndex</code> for
+     * replacing an optimised test case (i.e. a test case over which was applied
+     * local search)
+     *
+     * @param fitness the list of fitness functions to be used on the modified test
+     *                suite
+     * @param suite   the original test suite
+     * @param index   the index (between 0 and the suite length) that will be
+     *                replaced with a new test case
+     * @return
+     */
+    public static <T extends Chromosome<T>> TestSuiteLocalSearchObjective
+    buildNewTestSuiteLocalSearchObjective(
+            List<FitnessFunction<T>> fitness,
+            TestSuiteChromosome suite,
+            int index) {
+        List<TestSuiteFitnessFunction> ffs = new ArrayList<>();
+        for (FitnessFunction<T> ff : fitness) {
+            TestSuiteFitnessFunction tff = (TestSuiteFitnessFunction) ff;
+            ffs.add(tff);
+        }
+        return new TestSuiteLocalSearchObjective(ffs, suite, index);
+    }
 
-	private void updateLastFitness() {
-		lastFitnessSum = 0.0;
-		for (TestSuiteFitnessFunction fitness : fitnessFunctions) {
-			double newFitness = fitness.getFitness(suite);
-			lastFitnessSum += newFitness;
-			lastFitness.put(fitness, newFitness);
-		}
-	}
+    private void updateLastFitness() {
+        lastFitnessSum = 0.0;
+        for (TestSuiteFitnessFunction fitness : fitnessFunctions) {
+            double newFitness = fitness.getFitness(suite);
+            lastFitnessSum += newFitness;
+            lastFitness.put(fitness, newFitness);
+        }
+    }
 
-	private void updateLastCoverage() {
-		for (TestSuiteFitnessFunction fitness : fitnessFunctions) {
-			lastCoverage.put(fitness, suite.getCoverage(fitness));
-		}
-	}
+    private void updateLastCoverage() {
+        for (TestSuiteFitnessFunction fitness : fitnessFunctions) {
+            lastCoverage.put(fitness, suite.getCoverage(fitness));
+        }
+    }
 
-	/**
-	 * Returns true if all the fitness functions are minimising and the fitness
-	 * value for each of them is 0.0
-	 */
-	@Override
-	public boolean isDone() {
+    /**
+     * Returns true if all the fitness functions are minimising and the fitness
+     * value for each of them is 0.0
+     */
+    @Override
+    public boolean isDone() {
 
-		for (TestSuiteFitnessFunction fitness : fitnessFunctions) {
-			if (fitness.isMaximizationFunction() || fitness.getFitness(suite) != 0.0)
-				return false;
-		}
-		return true;
-	}
+        for (TestSuiteFitnessFunction fitness : fitnessFunctions) {
+            if (fitness.isMaximizationFunction() || fitness.getFitness(suite) != 0.0)
+                return false;
+        }
+        return true;
+    }
 
-	/**
-	 * Replaces the test case at position <code>testIndex</code> with the passed
-	 * TestChromosome.
-	 */
-	@Override
-	public boolean hasImproved(TestChromosome testCase) {
-		return hasChanged(testCase) < 0;
-	}
+    /**
+     * Replaces the test case at position <code>testIndex</code> with the passed
+     * TestChromosome.
+     */
+    @Override
+    public boolean hasImproved(TestChromosome testCase) {
+        return hasChanged(testCase) < 0;
+    }
 
-	/**
-	 * Returns true if by replacing the test case at position
-	 * <code>testIndex</code> with the argument <code>testCase</code>, the
-	 * resulting test suite has not worsened the fitness
-	 */
-	@Override
-	public boolean hasNotWorsened(TestChromosome testCase) {
-		return hasChanged(testCase) < 1;
-	}
+    /**
+     * Returns true if by replacing the test case at position
+     * <code>testIndex</code> with the argument <code>testCase</code>, the
+     * resulting test suite has not worsened the fitness
+     */
+    @Override
+    public boolean hasNotWorsened(TestChromosome testCase) {
+        return hasChanged(testCase) < 1;
+    }
 
-	private boolean isFitnessBetter(double newFitness, double oldFitness) {
-		if (isMaximization) {
-			return newFitness > oldFitness;
-		} else {
-			return newFitness < oldFitness;
-		}
-	}
+    private boolean isFitnessBetter(double newFitness, double oldFitness) {
+        if (isMaximization) {
+            return newFitness > oldFitness;
+        } else {
+            return newFitness < oldFitness;
+        }
+    }
 
-	private boolean isFitnessWorse(double newFitness, double oldFitness) {
-		if (isMaximization) {
-			return newFitness < oldFitness;
-		} else {
-			return newFitness > oldFitness;
-		}
-	}
+    private boolean isFitnessWorse(double newFitness, double oldFitness) {
+        if (isMaximization) {
+            return newFitness < oldFitness;
+        } else {
+            return newFitness > oldFitness;
+        }
+    }
 
-	/**
-	 * Overrides the test case at position <code>testIndex</code> with the
-	 * individual. It returns <code>-1</code> if the new fitness has improved,
-	 * <code>1</code> if the fitness has worsened or <code>0</code> if the
-	 * fitness has not changed.
-	 */
-	@Override
-	public int hasChanged(TestChromosome testCase) {
-		testCase.setChanged(true);
-		suite.setTestChromosome(testIndex, testCase);
-		LocalSearchBudget.getInstance().countFitnessEvaluation();
-		for (TestSuiteFitnessFunction fitnessFunction : fitnessFunctions)
-			fitnessFunction.getFitness(suite);
-		double newFitness = suite.getFitness();
+    /**
+     * Overrides the test case at position <code>testIndex</code> with the
+     * individual. It returns <code>-1</code> if the new fitness has improved,
+     * <code>1</code> if the fitness has worsened or <code>0</code> if the
+     * fitness has not changed.
+     */
+    @Override
+    public int hasChanged(TestChromosome testCase) {
+        testCase.setChanged(true);
+        suite.setTestChromosome(testIndex, testCase);
+        LocalSearchBudget.getInstance().countFitnessEvaluation();
+        for (TestSuiteFitnessFunction fitnessFunction : fitnessFunctions)
+            fitnessFunction.getFitness(suite);
+        double newFitness = suite.getFitness();
 
-		if (isFitnessBetter(newFitness, lastFitnessSum)) {
-			logger.info("Local search improved fitness from " + lastFitnessSum + " to " + newFitness);
-			updateLastFitness();
-			updateLastCoverage();
-			return -1;
-		} else if (isFitnessWorse(newFitness, lastFitnessSum)) {
-			logger.info("Local search worsened fitness from " + lastFitnessSum + " to " + newFitness);
-			suite.setFitnessValues(lastFitness);
-			suite.setCoverageValues(lastCoverage);
-			return 1;
-		} else {
-			logger.info("Local search did not change fitness of " + lastFitnessSum);
+        if (isFitnessBetter(newFitness, lastFitnessSum)) {
+            logger.info("Local search improved fitness from " + lastFitnessSum + " to " + newFitness);
+            updateLastFitness();
+            updateLastCoverage();
+            return -1;
+        } else if (isFitnessWorse(newFitness, lastFitnessSum)) {
+            logger.info("Local search worsened fitness from " + lastFitnessSum + " to " + newFitness);
+            suite.setFitnessValues(lastFitness);
+            suite.setCoverageValues(lastCoverage);
+            return 1;
+        } else {
+            logger.info("Local search did not change fitness of " + lastFitnessSum);
 
-			updateLastCoverage();
-			return 0;
-		}
-	}
+            updateLastCoverage();
+            return 0;
+        }
+    }
 
-	/**
-	 * Since the fitness is computed by the underlying test suite associated to
-	 * this local search objective, this function should not belong. TODO: Why
-	 * not simply returning the fitness functions of the suite?
-	 * @return
-	 */
-	@Override
-	public List<FitnessFunction<TestChromosome>> getFitnessFunctions() {
-		throw new NotImplementedException("This should not be called");
-	}
+    /**
+     * Since the fitness is computed by the underlying test suite associated to
+     * this local search objective, this function should not belong. TODO: Why
+     * not simply returning the fitness functions of the suite?
+     *
+     * @return
+     */
+    @Override
+    public List<FitnessFunction<TestChromosome>> getFitnessFunctions() {
+        throw new NotImplementedException("This should not be called");
+    }
 
-	/**
-	 * Since the fitness is governed by the underlying suite associated to this
-	 * goal, this function should never be invoked.
-	 */
-	@Override
-	public void addFitnessFunction(FitnessFunction<TestChromosome> fitness) {
-		throw new NotImplementedException("This should not be called");
-	}
+    /**
+     * Since the fitness is governed by the underlying suite associated to this
+     * goal, this function should never be invoked.
+     */
+    @Override
+    public void addFitnessFunction(FitnessFunction<TestChromosome> fitness) {
+        throw new NotImplementedException("This should not be called");
+    }
 
-	@Override
-	public boolean isMaximizationObjective() {
-		return isMaximization;
-	}
+    @Override
+    public boolean isMaximizationObjective() {
+        return isMaximization;
+    }
 
 }

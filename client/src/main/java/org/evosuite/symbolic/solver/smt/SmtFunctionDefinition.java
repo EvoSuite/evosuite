@@ -21,19 +21,19 @@ package org.evosuite.symbolic.solver.smt;
 
 public final class SmtFunctionDefinition {
 
-	private final String functionDefinition;
+    private final String functionDefinition;
 
-	public SmtFunctionDefinition(String functionDefinition) {
-		this.functionDefinition = functionDefinition;
-	}
+    public SmtFunctionDefinition(String functionDefinition) {
+        this.functionDefinition = functionDefinition;
+    }
 
-	public String getFunctionDefinition() {
-		return functionDefinition;
-	}
-	
-	public String toString() {
-		SmtQueryPrinter printer = new SmtQueryPrinter();
-		String str = printer.print(this);
-		return str;
-	}
+    public String getFunctionDefinition() {
+        return functionDefinition;
+    }
+
+    public String toString() {
+        SmtQueryPrinter printer = new SmtQueryPrinter();
+        String str = printer.print(this);
+        return str;
+    }
 }

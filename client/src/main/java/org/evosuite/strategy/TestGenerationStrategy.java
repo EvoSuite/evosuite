@@ -24,13 +24,7 @@ import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.FitnessFunctionsUtils;
 import org.evosuite.coverage.TestFitnessFactory;
-import org.evosuite.ga.stoppingconditions.GlobalTimeStoppingCondition;
-import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
-import org.evosuite.ga.stoppingconditions.MaxTestsStoppingCondition;
-import org.evosuite.ga.stoppingconditions.MaxTimeStoppingCondition;
-import org.evosuite.ga.stoppingconditions.StoppingCondition;
-import org.evosuite.ga.stoppingconditions.StoppingConditionFactory;
-import org.evosuite.ga.stoppingconditions.ZeroFitnessStoppingCondition;
+import org.evosuite.ga.stoppingconditions.*;
 import org.evosuite.graphs.cfg.CFGMethodAdapter;
 import org.evosuite.instrumentation.InstrumentingClassLoader;
 import org.evosuite.rmi.ClientServices;
@@ -45,30 +39,36 @@ import java.util.List;
 /**
  * This is the abstract superclass of all techniques to generate a set of tests
  * for a target class, which does not necessarily require the use of a GA.
- * 
+ * <p>
  * Postprocessing is not done as part of the test generation strategy.
- * 
- * @author gordon
  *
+ * @author gordon
  */
 public abstract class TestGenerationStrategy {
 
-	/**
-	 * Generate a set of tests; assume that all analyses are already completed
-	 * @return
-	 */
-	public abstract TestSuiteChromosome generateTests();
-	
-	/** There should only be one */
-	protected final ProgressMonitor<TestSuiteChromosome> progressMonitor = new ProgressMonitor<>();
+    /**
+     * Generate a set of tests; assume that all analyses are already completed
+     *
+     * @return
+     */
+    public abstract TestSuiteChromosome generateTests();
 
-	/** There should only be one */
-	protected ZeroFitnessStoppingCondition<TestSuiteChromosome> zeroFitness =
-			new ZeroFitnessStoppingCondition<>();
-	
-	/** There should only be one */
-	protected StoppingCondition<TestSuiteChromosome> globalTime =
-			new GlobalTimeStoppingCondition<>();
+    /**
+     * There should only be one
+     */
+    protected final ProgressMonitor<TestSuiteChromosome> progressMonitor = new ProgressMonitor<>();
+
+    /**
+     * There should only be one
+     */
+    protected ZeroFitnessStoppingCondition<TestSuiteChromosome> zeroFitness =
+            new ZeroFitnessStoppingCondition<>();
+
+    /**
+     * There should only be one
+     */
+    protected StoppingCondition<TestSuiteChromosome> globalTime =
+            new GlobalTimeStoppingCondition<>();
 
     protected void sendExecutionStatistics() {
         ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Statements_Executed, MaxStatementsStoppingCondition.getNumExecutedStatements());
@@ -77,59 +77,62 @@ public abstract class TestGenerationStrategy {
 
     /**
      * Convert criterion names to test suite fitness functions
+     *
      * @return
      */
-	protected List<TestSuiteFitnessFunction> getFitnessFunctions() {
-		return FitnessFunctionsUtils.getFitnessFunctions(Properties.CRITERION);
-	}
+    protected List<TestSuiteFitnessFunction> getFitnessFunctions() {
+        return FitnessFunctionsUtils.getFitnessFunctions(Properties.CRITERION);
+    }
 
-	/**
-	 * Convert criterion names to factories for test case fitness functions
-	 * @return
-	 */
-	public static List<TestFitnessFactory<? extends TestFitnessFunction>> getFitnessFactories() {
-	    return FitnessFunctionsUtils.getFitnessFactories(Properties.CRITERION);
-	}
+    /**
+     * Convert criterion names to factories for test case fitness functions
+     *
+     * @return
+     */
+    public static List<TestFitnessFactory<? extends TestFitnessFunction>> getFitnessFactories() {
+        return FitnessFunctionsUtils.getFitnessFactories(Properties.CRITERION);
+    }
 
-	/**
-	 * Check if the budget has been used up. The GA will do this check
-	 * on its own, but other strategies (e.g. random) may depend on this function.
-	 *
-	 * @param chromosome
-	 * @param stoppingCondition
-	 * @return
-	 */
-	protected boolean isFinished(TestSuiteChromosome chromosome,
-								 StoppingCondition<TestSuiteChromosome> stoppingCondition) {
-		if (stoppingCondition.isFinished())
-			return true;
+    /**
+     * Check if the budget has been used up. The GA will do this check
+     * on its own, but other strategies (e.g. random) may depend on this function.
+     *
+     * @param chromosome
+     * @param stoppingCondition
+     * @return
+     */
+    protected boolean isFinished(TestSuiteChromosome chromosome,
+                                 StoppingCondition<TestSuiteChromosome> stoppingCondition) {
+        if (stoppingCondition.isFinished())
+            return true;
 
-		if (Properties.STOP_ZERO) {
-			if (chromosome.getFitness() == 0.0)
-				return true;
-		}
+        if (Properties.STOP_ZERO) {
+            if (chromosome.getFitness() == 0.0)
+                return true;
+        }
 
-		if (!(stoppingCondition instanceof MaxTimeStoppingCondition)) {
-			return globalTime.isFinished();
-		}
+        if (!(stoppingCondition instanceof MaxTimeStoppingCondition)) {
+            return globalTime.isFinished();
+        }
 
-		return false;
-	}
-	
-	/**
-	 * Convert property to actual stopping condition
-	 * @return
-	 */
-	protected StoppingCondition<TestSuiteChromosome> getStoppingCondition() {
-		return StoppingConditionFactory.getStoppingCondition(Properties.STOPPING_CONDITION);
-	}
+        return false;
+    }
 
-	protected boolean canGenerateTestsForSUT() {
-		if (TestCluster.getInstance().getNumTestCalls() == 0) {
-			final InstrumentingClassLoader cl = TestGenerationContext.getInstance().getClassLoaderForSUT();
-			final int numMethods = CFGMethodAdapter.getNumMethods(cl);
-			return !(Properties.P_REFLECTION_ON_PRIVATE <= 0.0) && numMethods != 0;
-		}
-		return true;
-	}
+    /**
+     * Convert property to actual stopping condition
+     *
+     * @return
+     */
+    protected StoppingCondition<TestSuiteChromosome> getStoppingCondition() {
+        return StoppingConditionFactory.getStoppingCondition(Properties.STOPPING_CONDITION);
+    }
+
+    protected boolean canGenerateTestsForSUT() {
+        if (TestCluster.getInstance().getNumTestCalls() == 0) {
+            final InstrumentingClassLoader cl = TestGenerationContext.getInstance().getClassLoaderForSUT();
+            final int numMethods = CFGMethodAdapter.getNumMethods(cl);
+            return !(Properties.P_REFLECTION_ON_PRIVATE <= 0.0) && numMethods != 0;
+        }
+        return true;
+    }
 }

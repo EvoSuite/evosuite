@@ -29,7 +29,7 @@ import java.util.Map;
 
 /**
  * Class used to handle static state of JDK API classes we cannot instrument
- *
+ * <p>
  * Created by Andrea Arcuri on 08/11/15.
  */
 public class JDKClassResetter {
@@ -43,7 +43,7 @@ public class JDKClassResetter {
     /**
      * Save current state of all JDK static fields we are going te reset later on
      */
-    public static void init(){
+    public static void init() {
 
         try {
             Field field = RenderingHints.Key.class.getDeclaredField("identitymap");
@@ -54,14 +54,14 @@ public class JDKClassResetter {
 
         } catch (Exception e) {
             //shouldn't really happen
-            logger.error("Failed to handle 'identitymap': "+e.toString());
+            logger.error("Failed to handle 'identitymap': " + e);
         }
 
     }
 
-    public static void reset(){
+    public static void reset() {
 
-        if(renderingHintsKeyIdentityMap != null){
+        if (renderingHintsKeyIdentityMap != null) {
             renderingHintsKeyIdentityMap.clear();
             renderingHintsKeyIdentityMap.putAll(renderingHintsKeyIdentityMapCopy);
         }

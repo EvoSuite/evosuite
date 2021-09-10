@@ -22,13 +22,13 @@ package org.evosuite.symbolic.instrument;
 
 /**
  * @author fraser
- * 
  */
+
+import org.evosuite.dse.MainConfig;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
-
-import org.evosuite.dse.MainConfig;
 
 
 /**
@@ -38,20 +38,20 @@ import org.evosuite.dse.MainConfig;
  */
 public class ResourceList {
 
-	
-	public static Collection<String> findResourceInClassPath(String fileName) {
-		final ArrayList<String> retval = new ArrayList<>();
-		final String[] classPathElements = MainConfig.get().CLASS_PATH.split(":");
 
-		for (final String element : classPathElements) {
-			String fullFileName =element + File.separator + fileName; 
-			File file = new File(fullFileName);
-			if (file.exists()) {
-			  retval.add(fullFileName);
-			}
-		}
-		return retval;
-	}
-	
+    public static Collection<String> findResourceInClassPath(String fileName) {
+        final ArrayList<String> retval = new ArrayList<>();
+        final String[] classPathElements = MainConfig.get().CLASS_PATH.split(":");
+
+        for (final String element : classPathElements) {
+            String fullFileName = element + File.separator + fileName;
+            File file = new File(fullFileName);
+            if (file.exists()) {
+                retval.add(fullFileName);
+            }
+        }
+        return retval;
+    }
+
 
 }

@@ -28,70 +28,78 @@ import org.slf4j.LoggerFactory;
  * <p>
  * RandomSearch class.
  * </p>
- * 
+ *
  * @author Gordon Fraser
  */
 public class RandomSearch<T extends Chromosome<T>> extends GeneticAlgorithm<T> {
 
-	private static final Logger logger = LoggerFactory.getLogger(RandomSearch.class);
+    private static final Logger logger = LoggerFactory.getLogger(RandomSearch.class);
 
-	/**
-	 * <p>
-	 * Constructor for RandomSearch.
-	 * </p>
-	 * 
-	 * @param factory
-	 *            a {@link org.evosuite.ga.ChromosomeFactory} object.
-	 */
-	public RandomSearch(ChromosomeFactory<T> factory) {
-		super(factory);
-	}
+    /**
+     * <p>
+     * Constructor for RandomSearch.
+     * </p>
+     *
+     * @param factory a {@link org.evosuite.ga.ChromosomeFactory} object.
+     */
+    public RandomSearch(ChromosomeFactory<T> factory) {
+        super(factory);
+    }
 
-	private static final long serialVersionUID = -7685015421245920459L;
+    private static final long serialVersionUID = -7685015421245920459L;
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.ga.GeneticAlgorithm#evolve()
-	 */
-	/** {@inheritDoc} */
-	@Override
-	protected void evolve() {
-		T newChromosome = chromosomeFactory.getChromosome();
-		getFitnessFunction().getFitness(newChromosome);
-		notifyEvaluation(newChromosome);
-		if (newChromosome.compareTo(getBestIndividual()) <= 0) {
-			logger.info("New fitness: " + newChromosome.getFitness());
-			population.set(0, newChromosome);
-		}
-		currentIteration++;
-	}
+    /* (non-Javadoc)
+     * @see org.evosuite.ga.GeneticAlgorithm#evolve()
+     */
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.ga.GeneticAlgorithm#initializePopulation()
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public void initializePopulation() {
-		generateRandomPopulation(1);
-		calculateFitnessAndSortPopulation();
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void evolve() {
+        T newChromosome = chromosomeFactory.getChromosome();
+        getFitnessFunction().getFitness(newChromosome);
+        notifyEvaluation(newChromosome);
+        if (newChromosome.compareTo(getBestIndividual()) <= 0) {
+            logger.info("New fitness: " + newChromosome.getFitness());
+            population.set(0, newChromosome);
+        }
+        currentIteration++;
+    }
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.ga.GeneticAlgorithm#generateSolution()
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public void generateSolution() {
-		notifySearchStarted();
-		if (population.isEmpty())
-			initializePopulation();
+    /* (non-Javadoc)
+     * @see org.evosuite.ga.GeneticAlgorithm#initializePopulation()
+     */
 
-		currentIteration = 0;
-		while (!isFinished()) {
-			evolve();
-			this.notifyIteration();
-		}
-		updateBestIndividualFromArchive();
-		notifySearchFinished();
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void initializePopulation() {
+        generateRandomPopulation(1);
+        calculateFitnessAndSortPopulation();
+    }
+
+    /* (non-Javadoc)
+     * @see org.evosuite.ga.GeneticAlgorithm#generateSolution()
+     */
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void generateSolution() {
+        notifySearchStarted();
+        if (population.isEmpty())
+            initializePopulation();
+
+        currentIteration = 0;
+        while (!isFinished()) {
+            evolve();
+            this.notifyIteration();
+        }
+        updateBestIndividualFromArchive();
+        notifySearchFinished();
+    }
 
 }

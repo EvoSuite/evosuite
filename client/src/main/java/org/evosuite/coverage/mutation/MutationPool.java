@@ -20,15 +20,11 @@
 
 package org.evosuite.coverage.mutation;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.InsnList;
+
+import java.util.*;
 
 
 /**
@@ -37,113 +33,113 @@ import org.objectweb.asm.tree.InsnList;
  * @author fraser
  */
 public class MutationPool {
-	private static Map<ClassLoader, MutationPool> instanceMap = new HashMap<>();
+    private static final Map<ClassLoader, MutationPool> instanceMap = new HashMap<>();
 
-	public static MutationPool getInstance(ClassLoader classLoader) {
-		if (!instanceMap.containsKey(classLoader)) {
-			instanceMap.put(classLoader, new MutationPool());
-		}
+    public static MutationPool getInstance(ClassLoader classLoader) {
+        if (!instanceMap.containsKey(classLoader)) {
+            instanceMap.put(classLoader, new MutationPool());
+        }
 
-		return instanceMap.get(classLoader);
-	}
+        return instanceMap.get(classLoader);
+    }
 
-	private MutationPool() {
+    private MutationPool() {
 
-	}
+    }
 
-	// maps className -> method inside that class -> list of branches inside that method 
-	private Map<String, Map<String, List<Mutation>>> mutationMap = new LinkedHashMap<>();
+    // maps className -> method inside that class -> list of branches inside that method
+    private final Map<String, Map<String, List<Mutation>>> mutationMap = new LinkedHashMap<>();
 
-	// maps the mutationIDs assigned by this pool to their respective Mutations
-	private Map<Integer, Mutation> mutationIdMap = new LinkedHashMap<>();
+    // maps the mutationIDs assigned by this pool to their respective Mutations
+    private final Map<Integer, Mutation> mutationIdMap = new LinkedHashMap<>();
 
-	private int numMutations = 0;
+    private int numMutations = 0;
 
-	public Mutation addMutation(String className, String methodName,
-	        String mutationName, BytecodeInstruction instruction,
-	        AbstractInsnNode mutation, InsnList distance) {
+    public Mutation addMutation(String className, String methodName,
+                                String mutationName, BytecodeInstruction instruction,
+                                AbstractInsnNode mutation, InsnList distance) {
 
-		if (!mutationMap.containsKey(className))
-			mutationMap.put(className, new HashMap<>());
+        if (!mutationMap.containsKey(className))
+            mutationMap.put(className, new HashMap<>());
 
-		if (!mutationMap.get(className).containsKey(methodName))
-			mutationMap.get(className).put(methodName, new ArrayList<>());
+        if (!mutationMap.get(className).containsKey(methodName))
+            mutationMap.get(className).put(methodName, new ArrayList<>());
 
-		Mutation mutationObject = new Mutation(className, methodName, mutationName,
-		        numMutations++, instruction, mutation, distance);
-		mutationMap.get(className).get(methodName).add(mutationObject);
-		mutationIdMap.put(mutationObject.getId(), mutationObject);
+        Mutation mutationObject = new Mutation(className, methodName, mutationName,
+                numMutations++, instruction, mutation, distance);
+        mutationMap.get(className).get(methodName).add(mutationObject);
+        mutationIdMap.put(mutationObject.getId(), mutationObject);
 
-		return mutationObject;
-	}
+        return mutationObject;
+    }
 
-	public Mutation addMutation(String className, String methodName,
-	        String mutationName, BytecodeInstruction instruction, InsnList mutation,
-	        InsnList distance) {
+    public Mutation addMutation(String className, String methodName,
+                                String mutationName, BytecodeInstruction instruction, InsnList mutation,
+                                InsnList distance) {
 
-		if (!mutationMap.containsKey(className))
-			mutationMap.put(className, new HashMap<>());
+        if (!mutationMap.containsKey(className))
+            mutationMap.put(className, new HashMap<>());
 
-		if (!mutationMap.get(className).containsKey(methodName))
-			mutationMap.get(className).put(methodName, new ArrayList<>());
+        if (!mutationMap.get(className).containsKey(methodName))
+            mutationMap.get(className).put(methodName, new ArrayList<>());
 
-		Mutation mutationObject = new Mutation(className, methodName, mutationName,
-		        numMutations++, instruction, mutation, distance);
-		mutationMap.get(className).get(methodName).add(mutationObject);
+        Mutation mutationObject = new Mutation(className, methodName, mutationName,
+                numMutations++, instruction, mutation, distance);
+        mutationMap.get(className).get(methodName).add(mutationObject);
 
-		mutationIdMap.put(mutationObject.getId(), mutationObject);
+        mutationIdMap.put(mutationObject.getId(), mutationObject);
 
-		return mutationObject;
-	}
+        return mutationObject;
+    }
 
-	/**
-	 * Returns a List containing all mutants in the given class and method
-	 *
-	 * Should no such mutant exist an empty List is returned
-	 *
-	 * @param className a {@link java.lang.String} object.
-	 * @param methodName a {@link java.lang.String} object.
-	 * @return a {@link java.util.List} object.
-	 */
-	public List<Mutation> retrieveMutationsInMethod(String className,
-	        String methodName) {
-		List<Mutation> r = new ArrayList<>();
-		if (mutationMap.get(className) == null)
-			return r;
-		List<Mutation> mutants = mutationMap.get(className).get(methodName);
-		if (mutants != null)
-			r.addAll(mutants);
-		return r;
-	}
+    /**
+     * Returns a List containing all mutants in the given class and method
+     * <p>
+     * Should no such mutant exist an empty List is returned
+     *
+     * @param className  a {@link java.lang.String} object.
+     * @param methodName a {@link java.lang.String} object.
+     * @return a {@link java.util.List} object.
+     */
+    public List<Mutation> retrieveMutationsInMethod(String className,
+                                                    String methodName) {
+        List<Mutation> r = new ArrayList<>();
+        if (mutationMap.get(className) == null)
+            return r;
+        List<Mutation> mutants = mutationMap.get(className).get(methodName);
+        if (mutants != null)
+            r.addAll(mutants);
+        return r;
+    }
 
-	/**
-	 * <p>getMutants</p>
-	 *
-	 * @return a {@link java.util.List} object.
-	 */
-	public List<Mutation> getMutants() {
-		return new ArrayList<>(mutationIdMap.values());
-	}
-	
-	public Mutation getMutant(int id) {
-		return mutationIdMap.get(id);
-	}
+    /**
+     * <p>getMutants</p>
+     *
+     * @return a {@link java.util.List} object.
+     */
+    public List<Mutation> getMutants() {
+        return new ArrayList<>(mutationIdMap.values());
+    }
 
-	/**
-	 * Remove all known mutants
-	 */
-	public void clear() {
-		mutationMap.clear();
-		mutationIdMap.clear();
-		numMutations = 0;
-	}
+    public Mutation getMutant(int id) {
+        return mutationIdMap.get(id);
+    }
 
-	/**
-	 * Returns the number of currently known mutants
-	 *
-	 * @return The number of currently known mutants
-	 */
-	public int getMutantCounter() {
-		return numMutations;
-	}
+    /**
+     * Remove all known mutants
+     */
+    public void clear() {
+        mutationMap.clear();
+        mutationIdMap.clear();
+        numMutations = 0;
+    }
+
+    /**
+     * Returns the number of currently known mutants
+     *
+     * @return The number of currently known mutants
+     */
+    public int getMutantCounter() {
+        return numMutations;
+    }
 }

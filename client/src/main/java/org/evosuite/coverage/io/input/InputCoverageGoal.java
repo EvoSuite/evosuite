@@ -43,7 +43,7 @@ public class InputCoverageGoal implements Serializable, Comparable<InputCoverage
 
     private final String className;
     private final String methodName;
-    private final int    argIndex;
+    private final int argIndex;
     private final String type;
     private final String valueDescriptor;
     private final Number numericValue;
@@ -85,7 +85,6 @@ public class InputCoverageGoal implements Serializable, Comparable<InputCoverage
     }
 
 
-
     /**
      * @return the className
      */
@@ -121,7 +120,9 @@ public class InputCoverageGoal implements Serializable, Comparable<InputCoverage
         return valueDescriptor;
     }
 
-    public Number getNumericValue() { return numericValue; }
+    public Number getNumericValue() {
+        return numericValue;
+    }
 
     // inherited from Object
 
@@ -179,10 +180,7 @@ public class InputCoverageGoal implements Serializable, Comparable<InputCoverage
         if ((this.valueDescriptor == null && other.valueDescriptor != null) || (this.valueDescriptor != null && other.valueDescriptor == null))
             return false;
 
-        if (this.valueDescriptor != null && !this.valueDescriptor.equals(other.valueDescriptor))
-            return false;
-
-        return true;
+        return this.valueDescriptor == null || this.valueDescriptor.equals(other.valueDescriptor);
     }
 
     @Override
@@ -212,39 +210,39 @@ public class InputCoverageGoal implements Serializable, Comparable<InputCoverage
 
         Type[] argTypes = Type.getArgumentTypes(methodDesc);
 
-        for (int i=0;i<argTypes.length;i++) {
+        for (int i = 0; i < argTypes.length; i++) {
             Type argType = argTypes[i];
             Object argValue = argumentsValues.get(i);
             String argValueDesc = "";
             Number numberValue = null;
 
             if (argValue == null) {
-              argValueDesc = REF_NULL;
-              goals.add(new InputCoverageGoal(className, methodName+methodDesc, i, argType, argValueDesc, numberValue));
-              continue;
+                argValueDesc = REF_NULL;
+                goals.add(new InputCoverageGoal(className, methodName + methodDesc, i, argType, argValueDesc, numberValue));
+                continue;
             }
 
             int typeSort = argType.getSort();
-            if(typeSort == Type.OBJECT) { // argValue is known not to be null here
-                if(ClassUtils.isPrimitiveWrapper(argValue.getClass())) {
+            if (typeSort == Type.OBJECT) { // argValue is known not to be null here
+                if (ClassUtils.isPrimitiveWrapper(argValue.getClass())) {
                     typeSort = Type.getType(ClassUtils.wrapperToPrimitive(argValue.getClass())).getSort();
                 }
             }
             switch (typeSort) {
                 case Type.BOOLEAN:
                     argValueDesc = (((boolean) argValue)) ? BOOL_TRUE : BOOL_FALSE;
-                    goals.add(new InputCoverageGoal(className, methodName+methodDesc, i, argType, argValueDesc, numberValue));
+                    goals.add(new InputCoverageGoal(className, methodName + methodDesc, i, argType, argValueDesc, numberValue));
                     break;
                 case Type.CHAR:
                     char c = (char) argValue;
-                    numberValue = (int)c; // Suite fitness uses the numeric representation to estimate distances
+                    numberValue = (int) c; // Suite fitness uses the numeric representation to estimate distances
                     if (Character.isAlphabetic(c))
                         argValueDesc = CHAR_ALPHA;
                     else if (Character.isDigit(c))
                         argValueDesc = CHAR_DIGIT;
                     else
                         argValueDesc = CHAR_OTHER;
-                    goals.add(new InputCoverageGoal(className, methodName+methodDesc, i, argType, argValueDesc, numberValue));
+                    goals.add(new InputCoverageGoal(className, methodName + methodDesc, i, argType, argValueDesc, numberValue));
                     break;
                 case Type.BYTE:
                 case Type.SHORT:
@@ -262,30 +260,26 @@ public class InputCoverageGoal implements Serializable, Comparable<InputCoverage
                     }
                     numberValue = value;
                     argValueDesc = (value < 0) ? NUM_NEGATIVE : (value == 0) ? NUM_ZERO : NUM_POSITIVE;
-                    goals.add(new InputCoverageGoal(className, methodName+methodDesc, i, argType, argValueDesc, numberValue));
+                    goals.add(new InputCoverageGoal(className, methodName + methodDesc, i, argType, argValueDesc, numberValue));
                     break;
                 case Type.ARRAY:
                     argValueDesc = (Array.getLength(argValue) == 0) ? ARRAY_EMPTY : ARRAY_NONEMPTY;
-                    goals.add(new InputCoverageGoal(className, methodName+methodDesc, i, argType, argValueDesc, numberValue));
+                    goals.add(new InputCoverageGoal(className, methodName + methodDesc, i, argType, argValueDesc, numberValue));
                     break;
                 case Type.OBJECT:
                     if (argType.getClassName().equals("java.lang.String")) {
                         argValueDesc = ((String) argValue).isEmpty() ? STRING_EMPTY : STRING_NONEMPTY;
-                        goals.add(new InputCoverageGoal(className, methodName+methodDesc, i, argType, argValueDesc, numberValue));
-                    }
-                    else if(argValue instanceof List) {
+                        goals.add(new InputCoverageGoal(className, methodName + methodDesc, i, argType, argValueDesc, numberValue));
+                    } else if (argValue instanceof List) {
                         argValueDesc = ((List) argValue).isEmpty() ? LIST_EMPTY : LIST_NONEMPTY;
-                        goals.add(new InputCoverageGoal(className, methodName+methodDesc, i, argType, argValueDesc, numberValue));
-                    }
-                    else if(argValue instanceof Set) {
+                        goals.add(new InputCoverageGoal(className, methodName + methodDesc, i, argType, argValueDesc, numberValue));
+                    } else if (argValue instanceof Set) {
                         argValueDesc = ((Set) argValue).isEmpty() ? SET_EMPTY : SET_NONEMPTY;
-                        goals.add(new InputCoverageGoal(className, methodName+methodDesc, i, argType, argValueDesc, numberValue));
-                    }
-                    else if(argValue instanceof Map) {
+                        goals.add(new InputCoverageGoal(className, methodName + methodDesc, i, argType, argValueDesc, numberValue));
+                    } else if (argValue instanceof Map) {
                         argValueDesc = ((Map) argValue).isEmpty() ? MAP_EMPTY : MAP_NONEMPTY;
-                        goals.add(new InputCoverageGoal(className, methodName+methodDesc, i, argType, argValueDesc, numberValue));
-                    }
-                    else {
+                        goals.add(new InputCoverageGoal(className, methodName + methodDesc, i, argType, argValueDesc, numberValue));
+                    } else {
                         Collection<Inspector> inspectors = InspectorManager.getInstance().getInspectors(argValue.getClass());
                         for (Inspector inspector : inspectors) {
                             String insp = inspector.getMethodCall() + Type.getMethodDescriptor(inspector.getMethod());
@@ -293,11 +287,11 @@ public class InputCoverageGoal implements Serializable, Comparable<InputCoverage
                                 Object val = inspector.getValue(argValue);
                                 if (val instanceof Boolean) {
                                     String valDesc = ((boolean) val) ? BOOL_TRUE : BOOL_FALSE;
-                                    goals.add(new InputCoverageGoal(className, methodName+methodDesc, i, argType, REF_NONNULL + ":" + argType.getClassName() + ":" + insp + ":" + valDesc));
+                                    goals.add(new InputCoverageGoal(className, methodName + methodDesc, i, argType, REF_NONNULL + ":" + argType.getClassName() + ":" + insp + ":" + valDesc));
                                 } else if (isJavaNumber(val)) {
                                     double dv = ((Number) val).doubleValue();
                                     String valDesc = (dv < 0) ? NUM_NEGATIVE : (dv == 0) ? NUM_ZERO : NUM_POSITIVE;
-                                    goals.add(new InputCoverageGoal(className, methodName+methodDesc, i, argType, REF_NONNULL + ":" + argType.getClassName() + ":" + insp + ":" + valDesc));
+                                    goals.add(new InputCoverageGoal(className, methodName + methodDesc, i, argType, REF_NONNULL + ":" + argType.getClassName() + ":" + insp + ":" + valDesc));
                                 }
                             } catch (InvocationTargetException e) {
                                 // Exceptions in inspectors can happen
@@ -328,7 +322,7 @@ public class InputCoverageGoal implements Serializable, Comparable<InputCoverage
      * @param val
      * @return
      */
-    private static boolean isJavaNumber(Object val){
+    private static boolean isJavaNumber(Object val) {
         return val instanceof Number && val.getClass().getName().startsWith("java.");
     }
 }

@@ -20,17 +20,17 @@
 
 package org.evosuite.contracts;
 
-import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.List;
-
-import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.TestCase;
-import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testcase.execution.Scope;
 import org.evosuite.testcase.execution.TestCaseExecutor.TimeoutExceeded;
 import org.evosuite.testcase.statements.MethodStatement;
+import org.evosuite.testcase.statements.Statement;
+import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.utils.generic.GenericMethod;
+
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.List;
 
 
 /**
@@ -40,80 +40,85 @@ import org.evosuite.utils.generic.GenericMethod;
  */
 public class ToStringReturnsNormallyContract extends Contract {
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.contracts.Contract#check(org.evosuite.testcase.TestCase, org.evosuite.testcase.Statement, org.evosuite.testcase.Scope, java.lang.Throwable)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public ContractViolation check(Statement statement, Scope scope, Throwable exception) {
-		for(VariableReference var : getAllVariables(scope)) {
-			logger.debug("Current variable: "+var);
-			Object object = scope.getObject(var);
+    /* (non-Javadoc)
+     * @see org.evosuite.contracts.Contract#check(org.evosuite.testcase.TestCase, org.evosuite.testcase.Statement, org.evosuite.testcase.Scope, java.lang.Throwable)
+     */
 
-			if (object == null) {
-				logger.debug("Current object is null");
-				continue;
-			}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ContractViolation check(Statement statement, Scope scope, Throwable exception) {
+        for (VariableReference var : getAllVariables(scope)) {
+            logger.debug("Current variable: " + var);
+            Object object = scope.getObject(var);
 
-			// We do not want to call toString if it is the default implementation
-			Class<?>[] parameters = {};
-			try {
-				Method equalsMethod = object.getClass().getMethod("toString", parameters);
-				if (equalsMethod.getDeclaringClass().equals(Object.class))
-					continue;
+            if (object == null) {
+                logger.debug("Current object is null");
+                continue;
+            }
 
-			} catch (SecurityException e1) {
-				continue;
-			} catch (NoSuchMethodException e1) {
-				continue;
-			}
+            // We do not want to call toString if it is the default implementation
+            Class<?>[] parameters = {};
+            try {
+                Method equalsMethod = object.getClass().getMethod("toString", parameters);
+                if (equalsMethod.getDeclaringClass().equals(Object.class))
+                    continue;
 
-			try {
-				// toString must not throw an exception
-				object.toString();
+            } catch (SecurityException e1) {
+                continue;
+            } catch (NoSuchMethodException e1) {
+                continue;
+            }
 
-			} catch (Throwable t) {
-				if (!(t instanceof TimeoutExceeded)) {
-					logger.debug("Violation found");
-					return new ContractViolation(this, statement, t, var);					
-				} else {
-					logger.debug("Timeout");
-				}
-			}
-		}
+            try {
+                // toString must not throw an exception
+                object.toString();
 
-		return null;
-	}
+            } catch (Throwable t) {
+                if (!(t instanceof TimeoutExceeded)) {
+                    logger.debug("Violation found");
+                    return new ContractViolation(this, statement, t, var);
+                } else {
+                    logger.debug("Timeout");
+                }
+            }
+        }
 
-	@Override
-	public void addAssertionAndComments(Statement statement,
-			List<VariableReference> variables, Throwable exception) {
-		TestCase test = statement.getTestCase();
-		int position = statement.getPosition();
-		VariableReference a = variables.get(0);
+        return null;
+    }
 
-		try {
-			Method hashCodeMethod = a.getGenericClass().getRawClass().getMethod("toString", new Class<?>[] {});
+    @Override
+    public void addAssertionAndComments(Statement statement,
+                                        List<VariableReference> variables, Throwable exception) {
+        TestCase test = statement.getTestCase();
+        int position = statement.getPosition();
+        VariableReference a = variables.get(0);
 
-			GenericMethod method = new GenericMethod(hashCodeMethod, a.getGenericClass());
+        try {
+            Method hashCodeMethod = a.getGenericClass().getRawClass().getMethod("toString");
 
-			Statement st1 = new MethodStatement(test, method, a, Arrays.asList(new VariableReference[] {}));
-			test.addStatement(st1, position + 1);
-			st1.addComment("Throws exception: "+exception.getMessage());
-			
-		} catch (NoSuchMethodException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (SecurityException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} 
-	}
-	
-	/** {@inheritDoc} */
-	@Override
-	public String toString() {
-		return "toString returns normally check";
-	}
+            GenericMethod method = new GenericMethod(hashCodeMethod, a.getGenericClass());
+
+            Statement st1 = new MethodStatement(test, method, a, Arrays.asList(new VariableReference[]{}));
+            test.addStatement(st1, position + 1);
+            st1.addComment("Throws exception: " + exception.getMessage());
+
+        } catch (NoSuchMethodException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (SecurityException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        return "toString returns normally check";
+    }
 
 }

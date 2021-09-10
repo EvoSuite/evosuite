@@ -27,20 +27,20 @@ import org.evosuite.symbolic.vm.heap.SymbolicHeap;
 
 public final class Z_ValueOf extends SymbolicFunction {
 
-	private static final String VALUE_OF = "valueOf";
+    private static final String VALUE_OF = "valueOf";
 
-	public Z_ValueOf(SymbolicEnvironment env) {
-		super(env, Types.JAVA_LANG_BOOLEAN, VALUE_OF, Types.Z_TO_BOOLEAN);
-	}
+    public Z_ValueOf(SymbolicEnvironment env) {
+        super(env, Types.JAVA_LANG_BOOLEAN, VALUE_OF, Types.Z_TO_BOOLEAN);
+    }
 
-	@Override
-	public Object executeFunction() {
-		IntegerValue int_value = this.getSymbIntegerArgument(0);
-		ReferenceConstant symb_boolean = (ReferenceConstant) this.getSymbRetVal();
-		Boolean conc_boolean = (Boolean) this.getConcRetVal();
-		env.heap.putField(Types.JAVA_LANG_BOOLEAN, SymbolicHeap.$BOOLEAN_VALUE,
-				conc_boolean, symb_boolean, int_value);
-		return symb_boolean;
-	}
+    @Override
+    public Object executeFunction() {
+        IntegerValue int_value = this.getSymbIntegerArgument(0);
+        ReferenceConstant symb_boolean = (ReferenceConstant) this.getSymbRetVal();
+        Boolean conc_boolean = (Boolean) this.getConcRetVal();
+        env.heap.putField(Types.JAVA_LANG_BOOLEAN, SymbolicHeap.$BOOLEAN_VALUE,
+                conc_boolean, symb_boolean, int_value);
+        return symb_boolean;
+    }
 
 }

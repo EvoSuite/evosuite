@@ -24,99 +24,99 @@ import java.util.Set;
 
 public final class SmtVariableCollector implements SmtExprVisitor<Void, Void> {
 
-	@Override
-	public Void visit(SmtIntConstant n, Void arg) {
-		return null;
-	}
+    @Override
+    public Void visit(SmtIntConstant n, Void arg) {
+        return null;
+    }
 
-	@Override
-	public Void visit(SmtRealConstant n, Void arg) {
-		return null;
-	}
+    @Override
+    public Void visit(SmtRealConstant n, Void arg) {
+        return null;
+    }
 
-	@Override
-	public Void visit(SmtStringConstant n, Void arg) {
-		return null;
-	}
+    @Override
+    public Void visit(SmtStringConstant n, Void arg) {
+        return null;
+    }
 
-	private final Set<SmtVariable> smtVariables = new HashSet<>();
+    private final Set<SmtVariable> smtVariables = new HashSet<>();
 
-	@Override
-	public Void visit(SmtIntVariable n, Void arg) {
-		smtVariables.add(n);
-		return null;
-	}
+    @Override
+    public Void visit(SmtIntVariable n, Void arg) {
+        smtVariables.add(n);
+        return null;
+    }
 
-	@Override
-	public Void visit(SmtRealVariable n, Void arg) {
-		smtVariables.add(n);
-		return null;
-	}
+    @Override
+    public Void visit(SmtRealVariable n, Void arg) {
+        smtVariables.add(n);
+        return null;
+    }
 
-	@Override
-	public Void visit(SmtStringVariable n, Void arg) {
-		smtVariables.add(n);
-		return null;
-	}
+    @Override
+    public Void visit(SmtStringVariable n, Void arg) {
+        smtVariables.add(n);
+        return null;
+    }
 
-	@Override
-	public Void visit(SmtOperation n, Void arg) {
-		for (SmtExpr expr : n.getArguments()) {
-			expr.accept(this, null);
-		}
-		return null;
-	}
+    @Override
+    public Void visit(SmtOperation n, Void arg) {
+        for (SmtExpr expr : n.getArguments()) {
+            expr.accept(this, null);
+        }
+        return null;
+    }
 
-	@Override
-	public Void visit(SmtArrayVariable.SmtRealArrayVariable n, Void arg) {
-		smtVariables.add(n);
-		return null;
-	}
+    @Override
+    public Void visit(SmtArrayVariable.SmtRealArrayVariable n, Void arg) {
+        smtVariables.add(n);
+        return null;
+    }
 
-	@Override
-	public Void visit(SmtArrayVariable.SmtStringArrayVariable n, Void arg) {
-		smtVariables.add(n);
-		return null;
-	}
+    @Override
+    public Void visit(SmtArrayVariable.SmtStringArrayVariable n, Void arg) {
+        smtVariables.add(n);
+        return null;
+    }
 
-	@Override
-	public Void visit(SmtArrayVariable.SmtReferenceArrayVariable n, Void arg) {
-		smtVariables.add(n);
-		return null;
-	}
+    @Override
+    public Void visit(SmtArrayVariable.SmtReferenceArrayVariable n, Void arg) {
+        smtVariables.add(n);
+        return null;
+    }
 
-	@Override
-	public Void visit(SmtArrayVariable.SmtIntegerArrayVariable n, Void arg) {
-		smtVariables.add(n);
-		return null;
-	}
+    @Override
+    public Void visit(SmtArrayVariable.SmtIntegerArrayVariable n, Void arg) {
+        smtVariables.add(n);
+        return null;
+    }
 
-	@Override
-	public Void visit(SmtArrayConstant.SmtIntegerArrayConstant n, Void arg) {
-		return null;
-	}
+    @Override
+    public Void visit(SmtArrayConstant.SmtIntegerArrayConstant n, Void arg) {
+        return null;
+    }
 
-	@Override
-	public Void visit(SmtArrayConstant.SmtRealArrayConstant n, Void arg) {
-		return null;
-	}
+    @Override
+    public Void visit(SmtArrayConstant.SmtRealArrayConstant n, Void arg) {
+        return null;
+    }
 
-	@Override
-	public Void visit(SmtArrayConstant.SmtStringArrayConstant n, Void arg) {
-		return null;
-	}
+    @Override
+    public Void visit(SmtArrayConstant.SmtStringArrayConstant n, Void arg) {
+        return null;
+    }
 
-	@Override
-	public Void visit(SmtArrayConstant.SmtReferenceArrayConstant n, Void arg) {
-		return null;
-	}
+    @Override
+    public Void visit(SmtArrayConstant.SmtReferenceArrayConstant n, Void arg) {
+        return null;
+    }
 
-	public Set<SmtVariable> getSmtVariables() {
-		return smtVariables;
-	}
+    public Set<SmtVariable> getSmtVariables() {
+        return smtVariables;
+    }
 
-	@Override
-	public Void visit(SmtBooleanConstant n, Void arg) {
-		return null;
-	}
+    @Override
+    public Void visit(SmtBooleanConstant n, Void arg) {
+        return null;
+    }
 }

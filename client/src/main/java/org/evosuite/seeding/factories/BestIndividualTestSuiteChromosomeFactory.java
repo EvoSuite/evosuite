@@ -24,47 +24,48 @@ import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.testsuite.TestSuiteChromosome;
 
 /**
- * 
  * @author Thomas White
  */
 public class BestIndividualTestSuiteChromosomeFactory implements
-		ChromosomeFactory<TestSuiteChromosome> {
+        ChromosomeFactory<TestSuiteChromosome> {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	private final ChromosomeFactory<TestSuiteChromosome> defaultFactory;
-	private final TestSuiteChromosome bestIndividual;
-	private boolean seeded = false;
+    private final ChromosomeFactory<TestSuiteChromosome> defaultFactory;
+    private final TestSuiteChromosome bestIndividual;
+    private boolean seeded = false;
 
-	/**
-	 * <p>
-	 * Constructor for JUnitTestSuiteChromosomeFactory.
-	 * </p>
-	 * 
-	 * @param defaultFactory
-	 *            a {@link org.evosuite.ga.ChromosomeFactory} object.
-	 */
-	public BestIndividualTestSuiteChromosomeFactory(
-			ChromosomeFactory<TestSuiteChromosome> defaultFactory,
-			TestSuiteChromosome bestIndividual) {
-		this.defaultFactory = defaultFactory;
-		this.bestIndividual = bestIndividual;
-	}
+    /**
+     * <p>
+     * Constructor for JUnitTestSuiteChromosomeFactory.
+     * </p>
+     *
+     * @param defaultFactory a {@link org.evosuite.ga.ChromosomeFactory} object.
+     */
+    public BestIndividualTestSuiteChromosomeFactory(
+            ChromosomeFactory<TestSuiteChromosome> defaultFactory,
+            TestSuiteChromosome bestIndividual) {
+        this.defaultFactory = defaultFactory;
+        this.bestIndividual = bestIndividual;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.evosuite.ga.ChromosomeFactory#getChromosome()
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public TestSuiteChromosome getChromosome() {
-		if (!seeded){
-			seeded = true;
-			return bestIndividual.clone();
-		}
+    /*
+     * (non-Javadoc)
+     *
+     * @see org.evosuite.ga.ChromosomeFactory#getChromosome()
+     */
 
-		return defaultFactory.getChromosome();
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public TestSuiteChromosome getChromosome() {
+        if (!seeded) {
+            seeded = true;
+            return bestIndividual.clone();
+        }
+
+        return defaultFactory.getChromosome();
+    }
 
 }

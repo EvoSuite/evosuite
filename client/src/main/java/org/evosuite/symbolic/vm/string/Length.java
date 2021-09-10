@@ -29,27 +29,27 @@ import org.evosuite.symbolic.vm.heap.SymbolicHeap;
 
 public final class Length extends SymbolicFunction {
 
-	private static final String LENGTH = "length";
+    private static final String LENGTH = "length";
 
-	public Length(SymbolicEnvironment env) {
-		super(env, Types.JAVA_LANG_STRING, LENGTH, Types.TO_INT_DESCRIPTOR);
-	}
+    public Length(SymbolicEnvironment env) {
+        super(env, Types.JAVA_LANG_STRING, LENGTH, Types.TO_INT_DESCRIPTOR);
+    }
 
-	@Override
-	public Object executeFunction() {
-		ReferenceConstant symb_str = this.getSymbReceiver();
-		String conc_str = (String) this.getConcReceiver();
-		int res = this.getConcIntRetVal();
+    @Override
+    public Object executeFunction() {
+        ReferenceConstant symb_str = this.getSymbReceiver();
+        String conc_str = (String) this.getConcReceiver();
+        int res = this.getConcIntRetVal();
 
-		StringValue string_expr = env.heap.getField(Types.JAVA_LANG_STRING,
-				SymbolicHeap.$STRING_VALUE, conc_str, symb_str, conc_str);
+        StringValue string_expr = env.heap.getField(Types.JAVA_LANG_STRING,
+                SymbolicHeap.$STRING_VALUE, conc_str, symb_str, conc_str);
 
-		if (string_expr.containsSymbolicVariable()) {
-			StringUnaryToIntegerExpression strUnExpr = new StringUnaryToIntegerExpression(
-					string_expr, Operator.LENGTH, (long) res);
-			return strUnExpr;
-		}
+        if (string_expr.containsSymbolicVariable()) {
+            StringUnaryToIntegerExpression strUnExpr = new StringUnaryToIntegerExpression(
+                    string_expr, Operator.LENGTH, (long) res);
+            return strUnExpr;
+        }
 
-		return this.getSymbIntegerRetVal();
-	}
+        return this.getSymbIntegerRetVal();
+    }
 }

@@ -24,63 +24,61 @@ import org.evosuite.runtime.vnet.VirtualNetwork.ConnectionType;
 import java.io.Serializable;
 
 /**
- * Immutable class used to store connection info 
+ * Immutable class used to store connection info
  */
-public class EndPointInfo  implements Serializable {
+public class EndPointInfo implements Serializable {
 
     private static final long serialVersionUID = 3226166594839299797L;
     private final String host;
-	private final int port;
-	private final ConnectionType type;
-	
-	public EndPointInfo(String host, int port, ConnectionType type) {
-		super();
-		this.host = host;
-		this.port = port;
-		this.type = type;
-	}
+    private final int port;
+    private final ConnectionType type;
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((host == null) ? 0 : host.hashCode());
-		result = prime * result + port;
-		result = prime * result + ((type == null) ? 0 : type.hashCode());
-		return result;
-	}
+    public EndPointInfo(String host, int port, ConnectionType type) {
+        super();
+        this.host = host;
+        this.port = port;
+        this.type = type;
+    }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		EndPointInfo other = (EndPointInfo) obj;
-		if (host == null) {
-			if (other.host != null)
-				return false;
-		} else if (!host.equals(other.host))
-			return false;
-		if (port != other.port)
-			return false;
-		if (type != other.type)
-			return false;
-		return true;
-	}
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((host == null) ? 0 : host.hashCode());
+        result = prime * result + port;
+        result = prime * result + ((type == null) ? 0 : type.hashCode());
+        return result;
+    }
 
-	public String getHost() {
-		return host;
-	}
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        EndPointInfo other = (EndPointInfo) obj;
+        if (host == null) {
+            if (other.host != null)
+                return false;
+        } else if (!host.equals(other.host))
+            return false;
+        if (port != other.port)
+            return false;
+        return type == other.type;
+    }
 
-	public int getPort() {
-		return port;
-	}
+    public String getHost() {
+        return host;
+    }
 
-	public ConnectionType getType() {
-		return type;
-	}
+    public int getPort() {
+        return port;
+    }
+
+    public ConnectionType getType() {
+        return type;
+    }
 }
 

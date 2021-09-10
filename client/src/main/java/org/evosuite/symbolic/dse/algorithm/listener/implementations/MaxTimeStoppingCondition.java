@@ -31,7 +31,9 @@ public class MaxTimeStoppingCondition extends StoppingConditionImpl {
 
     private static final long serialVersionUID = 5262082660819074690L;
 
-	/** Maximum number of seconds */
+    /**
+     * Maximum number of seconds
+     */
     private long maxSeconds = Properties.SEARCH_BUDGET;
 
     private long startTime;
@@ -44,7 +46,7 @@ public class MaxTimeStoppingCondition extends StoppingConditionImpl {
     @Override
     public long getCurrentValue() {
         long currentTime = System.currentTimeMillis();
-		return (currentTime - startTime) / 1000;
+        return (currentTime - startTime) / 1000;
     }
 
     @Override
@@ -55,7 +57,7 @@ public class MaxTimeStoppingCondition extends StoppingConditionImpl {
     @Override
     public boolean isFinished() {
         long currentTime = System.currentTimeMillis();
-		return (currentTime - startTime) / 1000 > maxSeconds;
+        return (currentTime - startTime) / 1000 > maxSeconds;
     }
 
     @Override

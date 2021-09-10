@@ -17,50 +17,50 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
- package org.evosuite.symbolic.vm;
-
-import static org.evosuite.dse.util.Assertions.check;
+package org.evosuite.symbolic.vm;
 
 import java.lang.reflect.Member;
+
+import static org.evosuite.dse.util.Assertions.check;
 
 
 /**
  * Frame at the bottom of the invocation stack.
  * Keep this on the stack frame, in case we accidentally
- * transitively invoke some instrumented method.  
- * 
+ * transitively invoke some instrumented method.
+ *
  * @author csallner@uta.edu (Christoph Csallner)
  */
 public final class FakeBottomFrame extends Frame {
 
 
-	/**
-	 * Constructor
-	 */
-	public FakeBottomFrame() {
-		super(0);
-		super.invokeInstrumentedCode(false);
-	}
-	
-	@Override
-	public void invokeInstrumentedCode(boolean b) {
-	  check(false);
-	}
-	
-	@Override
-	public int getNrFormalParameters() {
-	  check(false);
-	  return 0;
-	}
-	
-  @Override
-  public int getNrFormalParametersTotal() {
-    check(false);
-    return 0;
-  }	
-	
-	@Override
-	public Member getMember() {
-		return null;
-	}
+    /**
+     * Constructor
+     */
+    public FakeBottomFrame() {
+        super(0);
+        super.invokeInstrumentedCode(false);
+    }
+
+    @Override
+    public void invokeInstrumentedCode(boolean b) {
+        check(false);
+    }
+
+    @Override
+    public int getNrFormalParameters() {
+        check(false);
+        return 0;
+    }
+
+    @Override
+    public int getNrFormalParametersTotal() {
+        check(false);
+        return 0;
+    }
+
+    @Override
+    public Member getMember() {
+        return null;
+    }
 }

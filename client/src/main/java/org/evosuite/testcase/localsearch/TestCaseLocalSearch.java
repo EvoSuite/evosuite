@@ -34,46 +34,45 @@ import org.slf4j.LoggerFactory;
 /**
  * Applies local search to a given Test Case (a TestChromosome) using a local
  * search objective for test cases.
- * 
+ *
  * @author Gordon Fraser
  */
 public abstract class TestCaseLocalSearch<T extends Chromosome<T>> implements LocalSearch<T> {
 
-	protected static final Logger logger = LoggerFactory.getLogger(TestCaseLocalSearch.class);
+    protected static final Logger logger = LoggerFactory.getLogger(TestCaseLocalSearch.class);
 
-	/**
-	 * The factory method that returns the type of Local Search that is supposed
-	 * to be applied on the Test Case
-	 * 
-	 * @return
-	 */
-	public static TestCaseLocalSearch<TestChromosome> selectTestCaseLocalSearch() {
-		final double nextDouble = Randomness.nextDouble();
-		boolean useDSE = nextDouble < Properties.DSE_PROBABILITY;
-		if (useDSE) {
-			return new DSETestCaseLocalSearch();
-		} else {
-			return new AVMTestCaseLocalSearch();
-		}
-	}
+    /**
+     * The factory method that returns the type of Local Search that is supposed
+     * to be applied on the Test Case
+     *
+     * @return
+     */
+    public static TestCaseLocalSearch<TestChromosome> selectTestCaseLocalSearch() {
+        final double nextDouble = Randomness.nextDouble();
+        boolean useDSE = nextDouble < Properties.DSE_PROBABILITY;
+        if (useDSE) {
+            return new DSETestCaseLocalSearch();
+        } else {
+            return new AVMTestCaseLocalSearch();
+        }
+    }
 
-	/**
-	 * This method allows to reset all primitive values before trying again a
-	 * local search on the same test case.
-	 * 
-	 * @param test
-	 *            the test case that will have their primitive values changed to
-	 *            random primitive values.
-	 */
-	public static void randomizePrimitives(TestCase test) {
-		for (Statement s : test) {
-			if (s instanceof PrimitiveStatement<?>) {
-				if (s instanceof NullStatement) {
-					continue; // ignore NullStatement
-				}
-				((PrimitiveStatement<?>) s).randomize();
-			}
-		}
-	}
+    /**
+     * This method allows to reset all primitive values before trying again a
+     * local search on the same test case.
+     *
+     * @param test the test case that will have their primitive values changed to
+     *             random primitive values.
+     */
+    public static void randomizePrimitives(TestCase test) {
+        for (Statement s : test) {
+            if (s instanceof PrimitiveStatement<?>) {
+                if (s instanceof NullStatement) {
+                    continue; // ignore NullStatement
+                }
+                ((PrimitiveStatement<?>) s).randomize();
+            }
+        }
+    }
 
 }

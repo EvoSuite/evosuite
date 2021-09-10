@@ -16,9 +16,6 @@
  */
 package org.evosuite.symbolic.vm.string;
 
-import java.util.ArrayList;
-import java.util.Collections;
-
 import org.evosuite.symbolic.expr.Operator;
 import org.evosuite.symbolic.expr.bv.IntegerValue;
 import org.evosuite.symbolic.expr.bv.StringBinaryComparison;
@@ -30,101 +27,104 @@ import org.evosuite.symbolic.vm.SymbolicEnvironment;
 import org.evosuite.symbolic.vm.SymbolicFunction;
 import org.evosuite.symbolic.vm.heap.SymbolicHeap;
 
+import java.util.ArrayList;
+import java.util.Collections;
+
 public abstract class StartsWith extends SymbolicFunction {
 
-  private static final String STARTS_WITH = "startsWith";
+    private static final String STARTS_WITH = "startsWith";
 
-  public StartsWith(SymbolicEnvironment env, String desc) {
-    super(env, Types.JAVA_LANG_STRING, STARTS_WITH, desc);
-  }
-
-  public static final class StartsWith_S extends StartsWith {
-
-    public StartsWith_S(SymbolicEnvironment env) {
-      super(env, Types.STR_TO_BOOL_DESCRIPTOR);
+    public StartsWith(SymbolicEnvironment env, String desc) {
+        super(env, Types.JAVA_LANG_STRING, STARTS_WITH, desc);
     }
 
-    @Override
-    public Object executeFunction() {
+    public static final class StartsWith_S extends StartsWith {
 
-      // receiver
-      ReferenceConstant symb_receiver = this.getSymbReceiver();
-      String conc_receiver = (String) this.getConcReceiver();
-      // prefix argument
-      ReferenceExpression symb_prefix = this.getSymbArgument(0);
-      String conc_prefix = (String) this.getConcArgument(0);
-
-      // return value
-      boolean res = this.getConcBooleanRetVal();
-
-      StringValue stringReceiverExpr = env.heap.getField(Types.JAVA_LANG_STRING,
-          SymbolicHeap.$STRING_VALUE, conc_receiver, symb_receiver, conc_receiver);
-
-      if (symb_prefix instanceof ReferenceConstant) {
-        ReferenceConstant non_null_symb_prefix = (ReferenceConstant) symb_prefix;
-
-        StringValue prefixExpr = env.heap.getField(Types.JAVA_LANG_STRING,
-            SymbolicHeap.$STRING_VALUE, conc_prefix, non_null_symb_prefix, conc_prefix);
-
-        if (stringReceiverExpr.containsSymbolicVariable()
-            || prefixExpr.containsSymbolicVariable()) {
-          int conV = res ? 1 : 0;
-
-          StringBinaryComparison strTExpr = new StringBinaryComparison(stringReceiverExpr,
-              Operator.STARTSWITH, prefixExpr, (long) conV);
-
-          return strTExpr;
+        public StartsWith_S(SymbolicEnvironment env) {
+            super(env, Types.STR_TO_BOOL_DESCRIPTOR);
         }
 
-      }
-      return this.getSymbIntegerRetVal();
-    }
+        @Override
+        public Object executeFunction() {
 
-  }
+            // receiver
+            ReferenceConstant symb_receiver = this.getSymbReceiver();
+            String conc_receiver = (String) this.getConcReceiver();
+            // prefix argument
+            ReferenceExpression symb_prefix = this.getSymbArgument(0);
+            String conc_prefix = (String) this.getConcArgument(0);
 
-  public static final class StartsWith_SI extends StartsWith {
+            // return value
+            boolean res = this.getConcBooleanRetVal();
 
-    public StartsWith_SI(SymbolicEnvironment env) {
-      super(env, Types.STR_INT_TO_BOOL_DESCRIPTOR);
-    }
+            StringValue stringReceiverExpr = env.heap.getField(Types.JAVA_LANG_STRING,
+                    SymbolicHeap.$STRING_VALUE, conc_receiver, symb_receiver, conc_receiver);
 
-    @Override
-    public Object executeFunction() {
+            if (symb_prefix instanceof ReferenceConstant) {
+                ReferenceConstant non_null_symb_prefix = (ReferenceConstant) symb_prefix;
 
-      // receiver
-      ReferenceConstant symb_receiver = this.getSymbReceiver();
-      String conc_receiver = (String) this.getConcReceiver();
-      // prefix argument
-      ReferenceExpression symb_prefix = this.getSymbArgument(0);
-      String conc_prefix = (String) this.getConcArgument(0);
-      // toffset argument
-      IntegerValue offsetExpr = this.getSymbIntegerArgument(1);
+                StringValue prefixExpr = env.heap.getField(Types.JAVA_LANG_STRING,
+                        SymbolicHeap.$STRING_VALUE, conc_prefix, non_null_symb_prefix, conc_prefix);
 
-      // return value
-      boolean res = this.getConcBooleanRetVal();
+                if (stringReceiverExpr.containsSymbolicVariable()
+                        || prefixExpr.containsSymbolicVariable()) {
+                    int conV = res ? 1 : 0;
 
-      StringValue stringReceiverExpr = env.heap.getField(Types.JAVA_LANG_STRING,
-          SymbolicHeap.$STRING_VALUE, conc_receiver, symb_receiver, conc_receiver);
+                    StringBinaryComparison strTExpr = new StringBinaryComparison(stringReceiverExpr,
+                            Operator.STARTSWITH, prefixExpr, (long) conV);
 
-      if (symb_prefix instanceof ReferenceConstant) {
-        ReferenceConstant non_null_symb_prefix = (ReferenceConstant) symb_prefix;
+                    return strTExpr;
+                }
 
-        StringValue prefixExpr = env.heap.getField(Types.JAVA_LANG_STRING,
-            SymbolicHeap.$STRING_VALUE, conc_prefix, non_null_symb_prefix, conc_prefix);
-
-        if (stringReceiverExpr.containsSymbolicVariable() || prefixExpr.containsSymbolicVariable()
-            || offsetExpr.containsSymbolicVariable()) {
-          int conV = res ? 1 : 0;
-
-          StringMultipleComparison strTExpr =
-              new StringMultipleComparison(stringReceiverExpr, Operator.STARTSWITH, prefixExpr,
-                      new ArrayList<>(Collections.singletonList(offsetExpr)), (long) conV);
-
-          return strTExpr;
+            }
+            return this.getSymbIntegerRetVal();
         }
 
-      }
-      return this.getSymbIntegerRetVal();
     }
-  }
+
+    public static final class StartsWith_SI extends StartsWith {
+
+        public StartsWith_SI(SymbolicEnvironment env) {
+            super(env, Types.STR_INT_TO_BOOL_DESCRIPTOR);
+        }
+
+        @Override
+        public Object executeFunction() {
+
+            // receiver
+            ReferenceConstant symb_receiver = this.getSymbReceiver();
+            String conc_receiver = (String) this.getConcReceiver();
+            // prefix argument
+            ReferenceExpression symb_prefix = this.getSymbArgument(0);
+            String conc_prefix = (String) this.getConcArgument(0);
+            // toffset argument
+            IntegerValue offsetExpr = this.getSymbIntegerArgument(1);
+
+            // return value
+            boolean res = this.getConcBooleanRetVal();
+
+            StringValue stringReceiverExpr = env.heap.getField(Types.JAVA_LANG_STRING,
+                    SymbolicHeap.$STRING_VALUE, conc_receiver, symb_receiver, conc_receiver);
+
+            if (symb_prefix instanceof ReferenceConstant) {
+                ReferenceConstant non_null_symb_prefix = (ReferenceConstant) symb_prefix;
+
+                StringValue prefixExpr = env.heap.getField(Types.JAVA_LANG_STRING,
+                        SymbolicHeap.$STRING_VALUE, conc_prefix, non_null_symb_prefix, conc_prefix);
+
+                if (stringReceiverExpr.containsSymbolicVariable() || prefixExpr.containsSymbolicVariable()
+                        || offsetExpr.containsSymbolicVariable()) {
+                    int conV = res ? 1 : 0;
+
+                    StringMultipleComparison strTExpr =
+                            new StringMultipleComparison(stringReceiverExpr, Operator.STARTSWITH, prefixExpr,
+                                    new ArrayList<>(Collections.singletonList(offsetExpr)), (long) conV);
+
+                    return strTExpr;
+                }
+
+            }
+            return this.getSymbIntegerRetVal();
+        }
+    }
 }

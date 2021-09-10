@@ -38,7 +38,7 @@ import java.util.List;
  * <p>
  * MethodTraceCoverageFactory class.
  * </p>
- *
+ * <p>
  * Measures coverage of methods by analysing execution traces,
  * that is, the method can be covered by indirect calls, not
  * necessarily be an statement in a test case.
@@ -46,32 +46,35 @@ import java.util.List;
  * @author Gordon Fraser, Andre Mis, Jose Miguel Rojas
  */
 public class MethodTraceCoverageFactory extends
-		AbstractFitnessFactory<MethodTraceCoverageTestFitness> {
+        AbstractFitnessFactory<MethodTraceCoverageTestFitness> {
 
-	private static final Logger logger = LoggerFactory.getLogger(MethodTraceCoverageFactory.class);
-	private final MethodNameMatcher matcher = new MethodNameMatcher();
+    private static final Logger logger = LoggerFactory.getLogger(MethodTraceCoverageFactory.class);
+    private final MethodNameMatcher matcher = new MethodNameMatcher();
 
-	protected static boolean isUsable(Method m) {
-		return !m.isSynthetic() &&
-		       !m.isBridge() &&
-		       !Modifier.isNative(m.getModifiers()) &&
-		       !m.getName().contains("<clinit>");
-	}
-	
-	protected static boolean isUsable(Constructor<?> c) {
-		return !c.isSynthetic() &&
-		       !Modifier.isNative(c.getModifiers()) &&
-		       !c.getName().contains("<clinit>");
-	}
-	
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.evosuite.coverage.TestCoverageFactory#getCoverageGoals()
-	 */
-	/** {@inheritDoc} */
-	@Override
+    protected static boolean isUsable(Method m) {
+        return !m.isSynthetic() &&
+                !m.isBridge() &&
+                !Modifier.isNative(m.getModifiers()) &&
+                !m.getName().contains("<clinit>");
+    }
+
+    protected static boolean isUsable(Constructor<?> c) {
+        return !c.isSynthetic() &&
+                !Modifier.isNative(c.getModifiers()) &&
+                !c.getName().contains("<clinit>");
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see
+     * org.evosuite.coverage.TestCoverageFactory#getCoverageGoals()
+     */
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public List<MethodTraceCoverageTestFitness> getCoverageGoals() {
         List<MethodTraceCoverageTestFitness> goals = new ArrayList<>();
 
@@ -84,84 +87,81 @@ public class MethodTraceCoverageFactory extends
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
-		if (clazz != null) {
-			goals.addAll(getCoverageGoals(clazz, className));
-			Class<?>[] innerClasses = clazz.getDeclaredClasses();
-			for (Class<?> innerClass : innerClasses) {
-				String innerClassName = innerClass.getCanonicalName();
-				goals.addAll(getCoverageGoals(innerClass, innerClassName));
-			}
-		}
+        if (clazz != null) {
+            goals.addAll(getCoverageGoals(clazz, className));
+            Class<?>[] innerClasses = clazz.getDeclaredClasses();
+            for (Class<?> innerClass : innerClasses) {
+                String innerClassName = innerClass.getCanonicalName();
+                goals.addAll(getCoverageGoals(innerClass, innerClassName));
+            }
+        }
         goalComputationTime = System.currentTimeMillis() - start;
         return goals;
     }
 
-	private List<MethodTraceCoverageTestFitness> getCoverageGoals(Class<?> clazz, String className) {
-		List<MethodTraceCoverageTestFitness> goals = new ArrayList<>();
-		Constructor<?>[] allConstructors = clazz.getDeclaredConstructors();
-		for (Constructor<?> c : allConstructors) {
-			if (TestUsageChecker.canUse(c)) {
-				String methodName = "<init>" + Type.getConstructorDescriptor(c);
-				logger.info("Adding goal for constructor " + className + "." + methodName);
-				goals.add(new MethodTraceCoverageTestFitness(className, methodName));
-			}
-		}
-		Method[] allMethods = clazz.getDeclaredMethods();
-		for (Method m : allMethods) {
-			if (TestUsageChecker.canUse(m)) {
-				if(clazz.isEnum()) {
-					if (m.getName().equals("valueOf") || m.getName().equals("values")
-							|| m.getName().equals("ordinal")) {
-						logger.debug("Excluding valueOf for Enum " + m.toString());
-						continue;
-					}
-				}
-				String methodName = m.getName() + Type.getMethodDescriptor(m);
-				if (!matcher.methodMatches(methodName)) {
-					logger.info("Method {} does not match criteria. ",methodName);
-					continue;
-				}
-				logger.info("Adding goal for method " + className + "." + methodName);
-				goals.add(new MethodTraceCoverageTestFitness(className, methodName));
-			}
-		}
-		return goals;
-	}
+    private List<MethodTraceCoverageTestFitness> getCoverageGoals(Class<?> clazz, String className) {
+        List<MethodTraceCoverageTestFitness> goals = new ArrayList<>();
+        Constructor<?>[] allConstructors = clazz.getDeclaredConstructors();
+        for (Constructor<?> c : allConstructors) {
+            if (TestUsageChecker.canUse(c)) {
+                String methodName = "<init>" + Type.getConstructorDescriptor(c);
+                logger.info("Adding goal for constructor " + className + "." + methodName);
+                goals.add(new MethodTraceCoverageTestFitness(className, methodName));
+            }
+        }
+        Method[] allMethods = clazz.getDeclaredMethods();
+        for (Method m : allMethods) {
+            if (TestUsageChecker.canUse(m)) {
+                if (clazz.isEnum()) {
+                    if (m.getName().equals("valueOf") || m.getName().equals("values")
+                            || m.getName().equals("ordinal")) {
+                        logger.debug("Excluding valueOf for Enum " + m);
+                        continue;
+                    }
+                }
+                String methodName = m.getName() + Type.getMethodDescriptor(m);
+                if (!matcher.methodMatches(methodName)) {
+                    logger.info("Method {} does not match criteria. ", methodName);
+                    continue;
+                }
+                logger.info("Adding goal for method " + className + "." + methodName);
+                goals.add(new MethodTraceCoverageTestFitness(className, methodName));
+            }
+        }
+        return goals;
+    }
 
-	/**
-	 * Create a fitness function for branch coverage aimed at covering the root
-	 * branch of the given method in the given class. Covering a root branch
-	 * means entering the method.
-	 * 
-	 * @param className
-	 *            a {@link java.lang.String} object.
-	 * @param method
-	 *            a {@link java.lang.String} object.
-	 * @return a {@link org.evosuite.coverage.branch.BranchCoverageTestFitness}
-	 *         object.
-	 */
-	public static MethodTraceCoverageTestFitness createMethodTestFitness(
-			String className, String method) {
+    /**
+     * Create a fitness function for branch coverage aimed at covering the root
+     * branch of the given method in the given class. Covering a root branch
+     * means entering the method.
+     *
+     * @param className a {@link java.lang.String} object.
+     * @param method    a {@link java.lang.String} object.
+     * @return a {@link org.evosuite.coverage.branch.BranchCoverageTestFitness}
+     * object.
+     */
+    public static MethodTraceCoverageTestFitness createMethodTestFitness(
+            String className, String method) {
 
-		return new MethodTraceCoverageTestFitness(className,
-				method.substring(method.lastIndexOf(".") + 1));
-	}
+        return new MethodTraceCoverageTestFitness(className,
+                method.substring(method.lastIndexOf(".") + 1));
+    }
 
-	/**
-	 * Convenience method calling createMethodTestFitness(class,method) with
-	 * the respective class and method of the given BytecodeInstruction.
-	 * 
-	 * @param instruction
-	 *            a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
-	 * @return a {@link org.evosuite.coverage.branch.BranchCoverageTestFitness}
-	 *         object.
-	 */
-	public static MethodTraceCoverageTestFitness createMethodTestFitness(
-			BytecodeInstruction instruction) {
-		if (instruction == null)
-			throw new IllegalArgumentException("null given");
+    /**
+     * Convenience method calling createMethodTestFitness(class,method) with
+     * the respective class and method of the given BytecodeInstruction.
+     *
+     * @param instruction a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
+     * @return a {@link org.evosuite.coverage.branch.BranchCoverageTestFitness}
+     * object.
+     */
+    public static MethodTraceCoverageTestFitness createMethodTestFitness(
+            BytecodeInstruction instruction) {
+        if (instruction == null)
+            throw new IllegalArgumentException("null given");
 
-		return createMethodTestFitness(instruction.getClassName(),
-				instruction.getMethodName());
-	}
+        return createMethodTestFitness(instruction.getClassName(),
+                instruction.getMethodName());
+    }
 }

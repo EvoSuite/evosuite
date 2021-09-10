@@ -31,52 +31,52 @@ import java.util.List;
  * Fitness function for a whole test suite for all methods.
  * Methods must be invoked directly from a test case and
  * their execution can end normally or with an exception.
- * 
+ *
  * @author Gordon Fraser, Jose Miguel Rojas
  */
 public class MethodTraceCoverageSuiteFitness extends MethodCoverageSuiteFitness {
 
-	private static final long serialVersionUID = 4958063899628649732L;
+    private static final long serialVersionUID = 4958063899628649732L;
 
-	private final static Logger logger = LoggerFactory.getLogger(MethodTraceCoverageSuiteFitness.class);
+    private final static Logger logger = LoggerFactory.getLogger(MethodTraceCoverageSuiteFitness.class);
 
-	/**
-	 * Initialize the set of known coverage goals
-	 */
-	@Override
-	protected void determineCoverageGoals() {
-		List<MethodTraceCoverageTestFitness> goals = new MethodTraceCoverageFactory().getCoverageGoals();
-		for (MethodTraceCoverageTestFitness goal : goals) {
-			methodCoverageMap.put(goal.getClassName() + "." + goal.getMethod(), goal);
-			if(Properties.TEST_ARCHIVE)
-				Archive.getArchiveInstance().addTarget(goal);
-		}
-	}
+    /**
+     * Initialize the set of known coverage goals
+     */
+    @Override
+    protected void determineCoverageGoals() {
+        List<MethodTraceCoverageTestFitness> goals = new MethodTraceCoverageFactory().getCoverageGoals();
+        for (MethodTraceCoverageTestFitness goal : goals) {
+            methodCoverageMap.put(goal.getClassName() + "." + goal.getMethod(), goal);
+            if (Properties.TEST_ARCHIVE)
+                Archive.getArchiveInstance().addTarget(goal);
+        }
+    }
 
-	/**
-	 * Some useful debug information
-	 *
-	 * @param coveredMethods
-	 * @param fitness
-	 */
-	@Override
-	protected void printStatusMessages(TestSuiteChromosome suite, int coveredMethods, double fitness) {
-		if (coveredMethods > maxCoveredMethods) {
-			logger.info("(Methods) Best individual covers " + coveredMethods + "/"
-			        + totalMethods + " methods");
-			maxCoveredMethods = coveredMethods;
-			logger.info("Fitness: " + fitness + ", size: " + suite.size() + ", length: "
-			        + suite.totalLengthOfTestCases());
+    /**
+     * Some useful debug information
+     *
+     * @param coveredMethods
+     * @param fitness
+     */
+    @Override
+    protected void printStatusMessages(TestSuiteChromosome suite, int coveredMethods, double fitness) {
+        if (coveredMethods > maxCoveredMethods) {
+            logger.info("(Methods) Best individual covers " + coveredMethods + "/"
+                    + totalMethods + " methods");
+            maxCoveredMethods = coveredMethods;
+            logger.info("Fitness: " + fitness + ", size: " + suite.size() + ", length: "
+                    + suite.totalLengthOfTestCases());
 
-		}
-		if (fitness < bestFitness) {
-			logger.info("(Fitness) Best individual covers " + coveredMethods + "/"
-			        + totalMethods + " methods");
-			bestFitness = fitness;
-			logger.info("Fitness: " + fitness + ", size: " + suite.size() + ", length: "
-			        + suite.totalLengthOfTestCases());
+        }
+        if (fitness < bestFitness) {
+            logger.info("(Fitness) Best individual covers " + coveredMethods + "/"
+                    + totalMethods + " methods");
+            bestFitness = fitness;
+            logger.info("Fitness: " + fitness + ", size: " + suite.size() + ", length: "
+                    + suite.totalLengthOfTestCases());
 
-		}
-	}
+        }
+    }
 
 }
