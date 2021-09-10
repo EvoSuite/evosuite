@@ -21,13 +21,13 @@ package com.examples.with.different.packagename.solver;
 
 public class TestCaseStringToInteger {
 
-	public static boolean test(String str) {
-		if (str != null && str.equals("1200")) {
-			Integer integer = Integer.parseInt(str);
-			if (integer == 1200) {
-				return true;
-			}
-		}
-		return true;
-	}
+    public static boolean test(String str) {
+        if (str != null && str.equals("1200")) {
+            Integer integer = Integer.parseInt(str);
+            if (integer == 1200) {
+                return true;
+            }
+        }
+        return true;
+    }
 }

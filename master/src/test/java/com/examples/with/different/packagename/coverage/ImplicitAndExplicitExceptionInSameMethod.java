@@ -24,15 +24,15 @@ package com.examples.with.different.packagename.coverage;
  */
 public class ImplicitAndExplicitExceptionInSameMethod {
 
-    public void undeclared(Integer x, Integer y){
-        if(x==null){
+    public void undeclared(Integer x, Integer y) {
+        if (x == null) {
             throw new NullPointerException();
         }
         y.toString();
     }
 
-    public void declared(Integer x, Integer y) throws NullPointerException{
-        if(x==null){
+    public void declared(Integer x, Integer y) throws NullPointerException {
+        if (x == null) {
             throw new NullPointerException();
         }
         y.toString();

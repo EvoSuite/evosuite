@@ -25,10 +25,10 @@ package com.examples.with.different.packagename.testcarver.joda;
  */
 public abstract class DurationField {
 
-	/**
-	 * Returns true if this field is supported.
-	 *
-	 * @return true if this field is supported
-	 */
-	public abstract boolean isSupported();
+    /**
+     * Returns true if this field is supported.
+     *
+     * @return true if this field is supported
+     */
+    public abstract boolean isSupported();
 }

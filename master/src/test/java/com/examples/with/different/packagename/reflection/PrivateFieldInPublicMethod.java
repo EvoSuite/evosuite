@@ -28,16 +28,16 @@ public class PrivateFieldInPublicMethod {
 
     private String s = "foo";
 
-    public void flag(){
-        if(flag){
+    public void flag() {
+        if (flag) {
             System.out.println("Flag is true");
         } else {
             System.out.println("Flag is false");
         }
     }
 
-    public void checkString(){
-        if(s.equals("42")){
+    public void checkString() {
+        if (s.equals("42")) {
             System.out.println("String is 42");
         } else {
             System.out.println("false");

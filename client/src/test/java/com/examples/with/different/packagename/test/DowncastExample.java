@@ -25,7 +25,7 @@ package com.examples.with.different.packagename.test;
 public class DowncastExample {
 
     public Number getANumber(int x) {
-        if(x == 42) {
+        if (x == 42) {
             return 42;
         } else {
             return 0.0;
@@ -33,7 +33,7 @@ public class DowncastExample {
     }
 
     public boolean testMe(Number x) {
-        if(x instanceof Double) {
+        if (x instanceof Double) {
             return true;
         } else {
             return false;
@@ -41,7 +41,7 @@ public class DowncastExample {
     }
 
     public boolean testWithInteger(Integer x) {
-        if(x.equals(42)) {
+        if (x.equals(42)) {
             return true;
         } else {
             return false;

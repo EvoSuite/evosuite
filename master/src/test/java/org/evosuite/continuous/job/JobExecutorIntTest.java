@@ -47,165 +47,164 @@ import static org.junit.Assert.assertTrue;
 
 public class JobExecutorIntTest {
 
-	private StorageManager storage;
+    private StorageManager storage;
 
-	@Before
-	public void init(){
-		Properties.CTG_DIR = ".tmp_for_testing_" + JobExecutorIntTest.class.getName();
-		if(storage!=null){
-			boolean deleted = storage.clean();
-			assertTrue(deleted);
-		} else {
-			storage = new StorageManager();
-			storage.clean();
-		}
-	}
+    @Before
+    public void init() {
+        Properties.CTG_DIR = ".tmp_for_testing_" + JobExecutorIntTest.class.getName();
+        if (storage != null) {
+            boolean deleted = storage.clean();
+            assertTrue(deleted);
+        } else {
+            storage = new StorageManager();
+            storage.clean();
+        }
+    }
 
-	@Test(timeout = 90_000)
-	public void testActualExecutionOfSchedule() throws IOException {
+    @Test(timeout = 90_000)
+    public void testActualExecutionOfSchedule() throws IOException {
 
-		Properties.TEST_SCAFFOLDING = true;
-		
-		boolean storageOK = storage.isStorageOk();
-		assertTrue(storageOK);
-		storageOK = storage.createNewTmpFolders();
-		assertTrue(storageOK);
-		
-		List<TestsOnDisk> data = storage.gatherGeneratedTestsOnDisk();
-		Assert.assertEquals(0, data.size());
+        Properties.TEST_SCAFFOLDING = true;
 
-		ClassPathHandler.getInstance().changeTargetCPtoTheSameAsEvoSuite();
-		String classpath =  ClassPathHandler.getInstance().getTargetProjectClasspath();
+        boolean storageOK = storage.isStorageOk();
+        assertTrue(storageOK);
+        storageOK = storage.createNewTmpFolders();
+        assertTrue(storageOK);
 
-		int cores = 1;
-		int memory = 1000; 
-		int minutes = 1;
+        List<TestsOnDisk> data = storage.gatherGeneratedTestsOnDisk();
+        Assert.assertEquals(0, data.size());
 
-		CtgConfiguration conf = new CtgConfiguration(memory, cores, minutes, 1, false, AvailableSchedule.SIMPLE);
-		JobExecutor exe = new JobExecutor(storage, classpath, conf);
+        ClassPathHandler.getInstance().changeTargetCPtoTheSameAsEvoSuite();
+        String classpath = ClassPathHandler.getInstance().getTargetProjectClasspath();
 
-		JobDefinition simple = new JobDefinition(30, memory, 
-				com.examples.with.different.packagename.continuous.Simple.class.getName(), 0, null, null);
+        int cores = 1;
+        int memory = 1000;
+        int minutes = 1;
 
-		JobDefinition trivial = new JobDefinition(30, memory, 
-				com.examples.with.different.packagename.continuous.Trivial.class.getName(), 0, null, null);
+        CtgConfiguration conf = new CtgConfiguration(memory, cores, minutes, 1, false, AvailableSchedule.SIMPLE);
+        JobExecutor exe = new JobExecutor(storage, classpath, conf);
 
-		assertTrue(simple.jobID < trivial.jobID);
+        JobDefinition simple = new JobDefinition(30, memory,
+                com.examples.with.different.packagename.continuous.Simple.class.getName(), 0, null, null);
 
-		List<JobDefinition> jobs = Arrays.asList(simple,trivial);
+        JobDefinition trivial = new JobDefinition(30, memory,
+                com.examples.with.different.packagename.continuous.Trivial.class.getName(), 0, null, null);
 
-		exe.executeJobs(jobs,cores);
+        assertTrue(simple.jobID < trivial.jobID);
 
-		exe.waitForJobs();
+        List<JobDefinition> jobs = Arrays.asList(simple, trivial);
 
-		data = storage.gatherGeneratedTestsOnDisk();
-		// if Properties.TEST_SCAFFOLDING is enabled, we should have
-		// 4 java files (2 test cases and 2 scaffolding files), however
-		// 'storage' just returns the 2 test cases
+        exe.executeJobs(jobs, cores);
 
-		boolean areThereFiles = (data.size() == 2);
-		boolean areThereTests = true;
+        exe.waitForJobs();
 
-		//check if indeed they have tests
-		for(TestsOnDisk tod : data){
-			String content = FileUtils.readFileToString(tod.testSuite);
-			areThereTests = areThereTests && content.contains("@Test") && !content.contains(TestSuiteWriter.NOT_GENERATED_TEST_NAME);
-		}
+        data = storage.gatherGeneratedTestsOnDisk();
+        // if Properties.TEST_SCAFFOLDING is enabled, we should have
+        // 4 java files (2 test cases and 2 scaffolding files), however
+        // 'storage' just returns the 2 test cases
 
-		String msg = "Tmp folder: "+Properties.CTG_DIR+"\n";
-		if(!areThereFiles || !areThereTests){
-			//build a better error message by looking at the log files
-			File logDir = storage.getTmpLogs();
-			msg += "Log folder: "+logDir.getAbsolutePath()+"\n";
-			List<File> files = FileIOUtils.getRecursivelyAllFilesInAllSubfolders(logDir, ".log");
-			msg += "# log files: " + files.size()+"\n";
+        boolean areThereFiles = (data.size() == 2);
+        boolean areThereTests = true;
 
-			for (File log : files) {
-				String content = null;
-				try {
-					content = FileUtils.readFileToString(log);
-				} catch (IOException e) {
-					msg += "Failed to read file " + log.getName() + " due to: " + e.toString() + "\n";
-				}
-				if (content != null) {
-					msg += "Content for file: " + log.getName() + "\n";
-					msg += "--------------------------------------------------" + "\n";
-					msg += content;
-					msg += "\n" + "--------------------------------------------------" + "\n";
-				}
-			}
-		}
+        //check if indeed they have tests
+        for (TestsOnDisk tod : data) {
+            String content = FileUtils.readFileToString(tod.testSuite);
+            areThereTests = areThereTests && content.contains("@Test") && !content.contains(TestSuiteWriter.NOT_GENERATED_TEST_NAME);
+        }
 
-		Assert.assertEquals(msg, 2, data.size());
-		Assert.assertTrue(msg, areThereTests);
+        String msg = "Tmp folder: " + Properties.CTG_DIR + "\n";
+        if (!areThereFiles || !areThereTests) {
+            //build a better error message by looking at the log files
+            File logDir = storage.getTmpLogs();
+            msg += "Log folder: " + logDir.getAbsolutePath() + "\n";
+            List<File> files = FileIOUtils.getRecursivelyAllFilesInAllSubfolders(logDir, ".log");
+            msg += "# log files: " + files.size() + "\n";
 
-		boolean deleted = storage.clean();
-		Assert.assertTrue(deleted);
-	}
+            for (File log : files) {
+                String content = null;
+                try {
+                    content = FileUtils.readFileToString(log);
+                } catch (IOException e) {
+                    msg += "Failed to read file " + log.getName() + " due to: " + e.toString() + "\n";
+                }
+                if (content != null) {
+                    msg += "Content for file: " + log.getName() + "\n";
+                    msg += "--------------------------------------------------" + "\n";
+                    msg += content;
+                    msg += "\n" + "--------------------------------------------------" + "\n";
+                }
+            }
+        }
 
-	@Test
-	public void testEventSequenceWhenWrongSchedule() throws InterruptedException{
+        Assert.assertEquals(msg, 2, data.size());
+        Assert.assertTrue(msg, areThereTests);
 
-		boolean storageOK = storage.isStorageOk();
-		assertTrue(storageOK);
-		storageOK = storage.createNewTmpFolders();
-		assertTrue(storageOK);
+        boolean deleted = storage.clean();
+        Assert.assertTrue(deleted);
+    }
 
-		List<TestsOnDisk> data = storage.gatherGeneratedTestsOnDisk();
-		Assert.assertEquals(0, data.size());
+    @Test
+    public void testEventSequenceWhenWrongSchedule() throws InterruptedException {
 
-		// no need to specify it, as com.examples are compiled with EvoSuite  
-		String classpath = System.getProperty("java.class.path"); 
+        boolean storageOK = storage.isStorageOk();
+        assertTrue(storageOK);
+        storageOK = storage.createNewTmpFolders();
+        assertTrue(storageOK);
 
-		int cores = 1;
-		int memory = 1000; 
-		int minutes = 10000;
+        List<TestsOnDisk> data = storage.gatherGeneratedTestsOnDisk();
+        Assert.assertEquals(0, data.size());
 
-		CtgConfiguration conf = new CtgConfiguration(memory, cores, minutes, 1, false, AvailableSchedule.SIMPLE);
-		final JobExecutor exe = new JobExecutor(storage, classpath, conf);
+        // no need to specify it, as com.examples are compiled with EvoSuite
+        String classpath = System.getProperty("java.class.path");
 
-		JobDefinition simple = new JobDefinition(30, memory, 
-				Simple.class.getName(), 0, null, null);
+        int cores = 1;
+        int memory = 1000;
+        int minutes = 10000;
 
-		JobDefinition trivial = new JobDefinition(30, memory, 
-				Trivial.class.getName(), 0, null, null);
+        CtgConfiguration conf = new CtgConfiguration(memory, cores, minutes, 1, false, AvailableSchedule.SIMPLE);
+        final JobExecutor exe = new JobExecutor(storage, classpath, conf);
 
-		JobDefinition ust = new JobDefinition(30, memory, 
-				UsingSimpleAndTrivial.class.getName(), 0, 
-				new HashSet<>(Arrays.asList(new String[]{Simple.class.getName(),Trivial.class.getName()})),
-				null);
+        JobDefinition simple = new JobDefinition(30, memory,
+                Simple.class.getName(), 0, null, null);
+
+        JobDefinition trivial = new JobDefinition(30, memory,
+                Trivial.class.getName(), 0, null, null);
+
+        JobDefinition ust = new JobDefinition(30, memory,
+                UsingSimpleAndTrivial.class.getName(), 0,
+                new HashSet<>(Arrays.asList(new String[]{Simple.class.getName(), Trivial.class.getName()})),
+                null);
 
 
-		/*
-		 * ust is in the middle, instead of last element.
-		 * still, even if the schedule is wrong, the executor should be able
-		 * to properly handle it 
-		 */		
-		final List<JobDefinition> jobs = Arrays.asList(simple,ust,trivial);
+        /*
+         * ust is in the middle, instead of last element.
+         * still, even if the schedule is wrong, the executor should be able
+         * to properly handle it
+         */
+        final List<JobDefinition> jobs = Arrays.asList(simple, ust, trivial);
 
-		exe.initExecution(jobs);
-		
-		Thread t = new Thread(){
-			@Override
-			public void run(){
-				exe.execute(jobs);
-			}
-		};
-		try{
-			t.start();
+        exe.initExecution(jobs);
 
-			exe.doneWithJob(exe.pollJob());
-			exe.doneWithJob(exe.pollJob());
+        Thread t = new Thread() {
+            @Override
+            public void run() {
+                exe.execute(jobs);
+            }
+        };
+        try {
+            t.start();
 
-			JobDefinition last = exe.pollJob();
-			exe.doneWithJob(last);
-			
-			Assert.assertEquals(ust.cut,last.cut);
-		}
-		finally{
-			t.interrupt();
-		}
+            exe.doneWithJob(exe.pollJob());
+            exe.doneWithJob(exe.pollJob());
 
-		storage.clean();
-	}
+            JobDefinition last = exe.pollJob();
+            exe.doneWithJob(last);
+
+            Assert.assertEquals(ust.cut, last.cut);
+        } finally {
+            t.interrupt();
+        }
+
+        storage.clean();
+    }
 }

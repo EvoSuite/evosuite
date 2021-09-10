@@ -24,7 +24,7 @@ import junit.framework.TestSuite;
 
 public class JUnit3Suite extends TestSuite {
 
-	public static junit.framework.Test suite() {
-		return new JUnit4TestAdapter(JUnit3Test.class);
-	}
+    public static junit.framework.Test suite() {
+        return new JUnit4TestAdapter(JUnit3Test.class);
+    }
 }

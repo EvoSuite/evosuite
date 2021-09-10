@@ -33,11 +33,12 @@ public class CoverageIssue {
     }
 
     public static int nextPos(int n) {
-        int nn = rnd.nextInt(n*(n+1)/2) + 1;
+        int nn = rnd.nextInt(n * (n + 1) / 2) + 1;
 
         int i;
-        for (i=1;(i<=n) && (i*(i-1)/2<nn); i++) { }
-        return i-1;
+        for (i = 1; (i <= n) && (i * (i - 1) / 2 < nn); i++) {
+        }
+        return i - 1;
     }
 
 }

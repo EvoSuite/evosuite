@@ -36,54 +36,55 @@ import com.examples.with.different.packagename.statistics.NoThreads;
 
 public class SearchStatisticsSystemTest extends SystemTestBase {
 
-	@Test
-	public void testHandlingOfNoThreads(){
-		EvoSuite evosuite = new EvoSuite();
+    @Test
+    public void testHandlingOfNoThreads() {
+        EvoSuite evosuite = new EvoSuite();
 
-		String targetClass = NoThreads.class.getCanonicalName();
+        String targetClass = NoThreads.class.getCanonicalName();
 
-		Properties.TARGET_CLASS = targetClass;
-		Properties.SANDBOX = true;
-		Properties.OUTPUT_VARIABLES=""+RuntimeVariable.Threads;
-		
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+        Properties.TARGET_CLASS = targetClass;
+        Properties.SANDBOX = true;
+        Properties.OUTPUT_VARIABLES = "" + RuntimeVariable.Threads;
 
-		evosuite.parseCommandLine(command);
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
 
-		Map<String, OutputVariable<?>> map = DebugStatisticsBackend.getLatestWritten();
-		Assert.assertNotNull(map);
-		OutputVariable<?> threads = map.get(RuntimeVariable.Threads.toString());
-		Assert.assertNotNull(threads);
-		Assert.assertEquals(1, threads.getValue());
-	}
+        evosuite.parseCommandLine(command);
 
-    @Ignore //ignored due to problems of JVM8 crashing on MacOS, and anyway we do not really need to check for threads any more
-	@Test
-	public void testHandlingOfMultiThreads(){
-		EvoSuite evosuite = new EvoSuite();
+        Map<String, OutputVariable<?>> map = DebugStatisticsBackend.getLatestWritten();
+        Assert.assertNotNull(map);
+        OutputVariable<?> threads = map.get(RuntimeVariable.Threads.toString());
+        Assert.assertNotNull(threads);
+        Assert.assertEquals(1, threads.getValue());
+    }
 
-		String targetClass = MultiThreads.class.getCanonicalName();
+    @Ignore
+    //ignored due to problems of JVM8 crashing on MacOS, and anyway we do not really need to check for threads any more
+    @Test
+    public void testHandlingOfMultiThreads() {
+        EvoSuite evosuite = new EvoSuite();
 
-		Properties.TARGET_CLASS = targetClass;
-		Properties.SANDBOX = true;
-		Properties.OUTPUT_VARIABLES=""+RuntimeVariable.Threads;
-		
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+        String targetClass = MultiThreads.class.getCanonicalName();
 
-		evosuite.parseCommandLine(command);
+        Properties.TARGET_CLASS = targetClass;
+        Properties.SANDBOX = true;
+        Properties.OUTPUT_VARIABLES = "" + RuntimeVariable.Threads;
 
-		Map<String, OutputVariable<?>> map = DebugStatisticsBackend.getLatestWritten();
-		Assert.assertNotNull(map);
-		OutputVariable<?> threads = map.get(RuntimeVariable.Threads.toString());
-		Assert.assertNotNull(threads);
-		Assert.assertEquals(3, threads.getValue());
-		// TODO: This test currently fails because MSecurityManager does not set the number
-		//       of threads correctly to avoid a JVM8 crash on MacOS: 
-		// PermissionStatistics.getInstance().countThreads(Thread.currentThread().getThreadGroup().activeCount());
-	}
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
+
+        evosuite.parseCommandLine(command);
+
+        Map<String, OutputVariable<?>> map = DebugStatisticsBackend.getLatestWritten();
+        Assert.assertNotNull(map);
+        OutputVariable<?> threads = map.get(RuntimeVariable.Threads.toString());
+        Assert.assertNotNull(threads);
+        Assert.assertEquals(3, threads.getValue());
+        // TODO: This test currently fails because MSecurityManager does not set the number
+        //       of threads correctly to avoid a JVM8 crash on MacOS:
+        // PermissionStatistics.getInstance().countThreads(Thread.currentThread().getThreadGroup().activeCount());
+    }
 
     @Test
-    public void testBranchlessMethodsOutputVariables(){
+    public void testBranchlessMethodsOutputVariables() {
         EvoSuite evosuite = new EvoSuite();
 
         String targetClass = Calculator.class.getCanonicalName();
@@ -91,9 +92,9 @@ public class SearchStatisticsSystemTest extends SystemTestBase {
         Properties.TARGET_CLASS = targetClass;
         Properties.DYNAMIC_SEEDING = true;
         Properties.SEARCH_BUDGET = 30;
-        Properties.OUTPUT_VARIABLES = ""+RuntimeVariable.Branchless_Methods + "," + RuntimeVariable.Covered_Branchless_Methods;
+        Properties.OUTPUT_VARIABLES = "" + RuntimeVariable.Branchless_Methods + "," + RuntimeVariable.Covered_Branchless_Methods;
 
-        String[] command = new String[] { "-generateSuite", "-class", targetClass };
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
         evosuite.parseCommandLine(command);
 
         Map<String, OutputVariable<?>> map = DebugStatisticsBackend.getLatestWritten();
@@ -107,7 +108,7 @@ public class SearchStatisticsSystemTest extends SystemTestBase {
     }
 
     @Test
-    public void testGradientBranchesOutputVariable(){
+    public void testGradientBranchesOutputVariable() {
         EvoSuite evosuite = new EvoSuite();
 
         String targetClass = ExampleGradientBranches.class.getCanonicalName();
@@ -116,9 +117,9 @@ public class SearchStatisticsSystemTest extends SystemTestBase {
         Properties.DYNAMIC_SEEDING = true;
         Properties.SEARCH_BUDGET = 2500;
         Properties.TRACK_BOOLEAN_BRANCHES = true;
-        Properties.OUTPUT_VARIABLES = ""+RuntimeVariable.Coverage+","+RuntimeVariable.Gradient_Branches;
+        Properties.OUTPUT_VARIABLES = "" + RuntimeVariable.Coverage + "," + RuntimeVariable.Gradient_Branches;
 
-        String[] command = new String[] { "-generateSuite", "-class", targetClass };
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
         evosuite.parseCommandLine(command);
 
         Map<String, OutputVariable<?>> map = DebugStatisticsBackend.getLatestWritten();
@@ -132,12 +133,12 @@ public class SearchStatisticsSystemTest extends SystemTestBase {
     }
 
     @SuppressWarnings("unused")
-	private OutputVariable<?> getLastTimelineVariable(Map<String, OutputVariable<?>> map, String name) {
+    private OutputVariable<?> getLastTimelineVariable(Map<String, OutputVariable<?>> map, String name) {
         OutputVariable<?> timelineVar = null;
         int max = -1;
         for (Map.Entry<String, OutputVariable<?>> e : map.entrySet()) {
             if (e.getKey().startsWith(name)) {
-                int index = Integer.parseInt( (e.getKey().split("_T"))[1] );
+                int index = Integer.parseInt((e.getKey().split("_T"))[1]);
                 if (index > max) {
                     max = index;
                     timelineVar = e.getValue();

@@ -24,9 +24,9 @@ import org.evosuite.symbolic.solver.TestSolverFloats;
 
 public class TestCVC4Floats extends TestSolverFloats {
 
-	@Override
-	public Solver getSolver() {
-		return new CVC4Solver();
-	}
+    @Override
+    public Solver getSolver() {
+        return new CVC4Solver();
+    }
 
 }

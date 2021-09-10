@@ -34,7 +34,7 @@ public class InstantExample {
 
     public boolean testMe2(Instant otherInstant) {
         Instant instant = Instant.now(Clock.systemDefaultZone());
-        if(instant.isBefore(otherInstant))
+        if (instant.isBefore(otherInstant))
             return true;
         else
             return false;

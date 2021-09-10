@@ -43,11 +43,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * 
  * @author José Campos
  */
-public class FONIntTest
-{
+public class FONIntTest {
     @Before
     public void setUp() {
         Properties.POPULATION = 100;
@@ -58,8 +56,7 @@ public class FONIntTest
     }
 
     @Test
-    public void testFONFitnesses()
-    {
+    public void testFONFitnesses() {
         Problem<NSGAChromosome> p = new FON();
         FitnessFunction<NSGAChromosome> f1 = p.getFitnessFunctions().get(0);
         FitnessFunction<NSGAChromosome> f2 = p.getFitnessFunctions().get(1);
@@ -76,13 +73,12 @@ public class FONIntTest
 
     /**
      * Testing NSGA-II with FON Problem
-     * 
-     * @throws IOException 
-     * @throws NumberFormatException 
+     *
+     * @throws IOException
+     * @throws NumberFormatException
      */
     @Test
-    public void testFON() throws NumberFormatException, IOException
-    {
+    public void testFON() throws NumberFormatException, IOException {
         Properties.MUTATION_RATE = 1d / 3d;
 
         ChromosomeFactory<NSGAChromosome> factory = new RandomFactory(false, 3, -4.0, 4.0);

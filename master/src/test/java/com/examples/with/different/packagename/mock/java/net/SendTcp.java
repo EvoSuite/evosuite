@@ -26,7 +26,7 @@ import java.net.Socket;
  */
 public class SendTcp {
 
-    public boolean send(int x) throws Exception{
+    public boolean send(int x) throws Exception {
         Socket s = new Socket("234.0.42.0", 12345);
         s.getOutputStream().write(x);
 

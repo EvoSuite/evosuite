@@ -21,15 +21,15 @@ package com.examples.with.different.packagename.solver;
 
 public class TestCaseCastIntToReal {
 
-	public static boolean test(int int_x) {
+    public static boolean test(int int_x) {
 
-		double double_x = int_x;
-		if (double_x == 0 && int_x != 0) {
-			return true;
-		} else {
-			return false;
-		}
+        double double_x = int_x;
+        if (double_x == 0 && int_x != 0) {
+            return true;
+        } else {
+            return false;
+        }
 
-	}
+    }
 
 }

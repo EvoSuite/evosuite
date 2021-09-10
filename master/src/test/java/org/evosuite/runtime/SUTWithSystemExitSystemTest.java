@@ -35,53 +35,53 @@ import static org.junit.Assert.assertFalse;
 
 public class SUTWithSystemExitSystemTest extends SystemTestBase {
 
-	@Before
-	public void setFlag(){
-		SafeExit.calledExit = false;
-	}
+    @Before
+    public void setFlag() {
+        SafeExit.calledExit = false;
+    }
 
-	@Test
-	public void testSystemExit_noAssertions() {
-		Properties.ASSERTIONS = false;
-		testSystemExit();
-	}
+    @Test
+    public void testSystemExit_noAssertions() {
+        Properties.ASSERTIONS = false;
+        testSystemExit();
+    }
 
-		@Test
-	public void testSystemExit() {
+    @Test
+    public void testSystemExit() {
 
-		java.lang.System.setSecurityManager(new SafeExit());
+        java.lang.System.setSecurityManager(new SafeExit());
 
-		EvoSuite evosuite = new EvoSuite();
+        EvoSuite evosuite = new EvoSuite();
 
-		String targetClass = CallExit.class.getCanonicalName();
+        String targetClass = CallExit.class.getCanonicalName();
 
-		Properties.TARGET_CLASS = targetClass;
-		Properties.REPLACE_CALLS = true;
+        Properties.TARGET_CLASS = targetClass;
+        Properties.REPLACE_CALLS = true;
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
 
-		evosuite.parseCommandLine(command);
+        evosuite.parseCommandLine(command);
 
-		assertFalse(SafeExit.calledExit);
-	}
+        assertFalse(SafeExit.calledExit);
+    }
 
-	@After
-	public void removeSecurity(){
-		java.lang.System.setSecurityManager(null);
-	}
+    @After
+    public void removeSecurity() {
+        java.lang.System.setSecurityManager(null);
+    }
 
-	private static class SafeExit extends SecurityManager{
+    private static class SafeExit extends SecurityManager {
 
-		public static boolean calledExit = false;
+        public static boolean calledExit = false;
 
-		public void checkPermission(Permission perm) throws SecurityException {
+        public void checkPermission(Permission perm) throws SecurityException {
 
-			final String name = perm.getName().trim();
-			if (name.startsWith("exitVM")){
-				calledExit = true;
-				throw new RuntimeException("CALLED EXIT");
-			}
-		}
-	}
+            final String name = perm.getName().trim();
+            if (name.startsWith("exitVM")) {
+                calledExit = true;
+                throw new RuntimeException("CALLED EXIT");
+            }
+        }
+    }
 
 }

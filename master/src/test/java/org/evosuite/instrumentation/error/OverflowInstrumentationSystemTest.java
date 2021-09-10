@@ -29,60 +29,60 @@ import com.examples.with.different.packagename.errorbranch.IntSubOverflow;
 
 public class OverflowInstrumentationSystemTest extends AbstractErrorBranchTest {
 
-	@Test
-	public void testIntAddOverflowWithoutErrorBranches() {
-		Properties.ERROR_BRANCHES = false;
-		Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.OVERFLOW};
-		checkErrorBranches(IntAddOverflow.class, 3, 0, 3, 0);
-	}
+    @Test
+    public void testIntAddOverflowWithoutErrorBranches() {
+        Properties.ERROR_BRANCHES = false;
+        Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.OVERFLOW};
+        checkErrorBranches(IntAddOverflow.class, 3, 0, 3, 0);
+    }
 
-	@Test
-	public void testIntAddOverflowWithErrorBranches() {
-		Properties.ERROR_BRANCHES = true;
-		Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.OVERFLOW};
-		checkErrorBranches(IntAddOverflow.class, 3, 4, 3, 4);
-	}
+    @Test
+    public void testIntAddOverflowWithErrorBranches() {
+        Properties.ERROR_BRANCHES = true;
+        Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.OVERFLOW};
+        checkErrorBranches(IntAddOverflow.class, 3, 4, 3, 4);
+    }
 
-	@Test
-	public void testIntSubOverflowWithoutErrorBranches() {
-		Properties.ERROR_BRANCHES = false;
-		Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.OVERFLOW};
-		checkErrorBranches(IntSubOverflow.class, 3, 0, 3, 0);
-	}
+    @Test
+    public void testIntSubOverflowWithoutErrorBranches() {
+        Properties.ERROR_BRANCHES = false;
+        Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.OVERFLOW};
+        checkErrorBranches(IntSubOverflow.class, 3, 0, 3, 0);
+    }
 
-	@Test
-	public void testIntSubOverflowWithErrorBranches() {
-		Properties.ERROR_BRANCHES = true;
-		Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.OVERFLOW};
-		checkErrorBranches(IntSubOverflow.class, 3, 4, 3, 4);
-	}
+    @Test
+    public void testIntSubOverflowWithErrorBranches() {
+        Properties.ERROR_BRANCHES = true;
+        Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.OVERFLOW};
+        checkErrorBranches(IntSubOverflow.class, 3, 4, 3, 4);
+    }
 
-	@Test
-	public void testIntDivOverflowWithoutErrorBranches() {
-		Properties.ERROR_BRANCHES = false;
-		Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.OVERFLOW};
-		checkErrorBranches(IntDivOverflow.class, 3, 0, 3, 0);
-	}
+    @Test
+    public void testIntDivOverflowWithoutErrorBranches() {
+        Properties.ERROR_BRANCHES = false;
+        Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.OVERFLOW};
+        checkErrorBranches(IntDivOverflow.class, 3, 0, 3, 0);
+    }
 
-	@Test
-	public void testIntDivOverflowWithErrorBranches() {
-		Properties.ERROR_BRANCHES = true;
-		Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.OVERFLOW};
-		checkErrorBranches(IntDivOverflow.class, 3, 2, 3, 2);
-	}
+    @Test
+    public void testIntDivOverflowWithErrorBranches() {
+        Properties.ERROR_BRANCHES = true;
+        Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.OVERFLOW};
+        checkErrorBranches(IntDivOverflow.class, 3, 2, 3, 2);
+    }
 
-	@Test
-	public void testMulDivOverflowWithoutErrorBranches() {
-		Properties.ERROR_BRANCHES = false;
-		Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.OVERFLOW};
-		checkErrorBranches(IntMulOverflow.class, 3, 0, 3, 0);
-	}
+    @Test
+    public void testMulDivOverflowWithoutErrorBranches() {
+        Properties.ERROR_BRANCHES = false;
+        Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.OVERFLOW};
+        checkErrorBranches(IntMulOverflow.class, 3, 0, 3, 0);
+    }
 
-	@Test
-	public void testIntMulOverflowWithErrorBranches() {
-		Properties.ERROR_BRANCHES = true;
-		Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.OVERFLOW};
-		checkErrorBranches(IntMulOverflow.class, 3, 4, 3, 4);
-	}
+    @Test
+    public void testIntMulOverflowWithErrorBranches() {
+        Properties.ERROR_BRANCHES = true;
+        Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.OVERFLOW};
+        checkErrorBranches(IntMulOverflow.class, 3, 4, 3, 4);
+    }
 
 }

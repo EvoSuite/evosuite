@@ -21,16 +21,15 @@ package com.examples.with.different.packagename;
 
 /**
  * @author jmrojas
- * 
  */
 public class ExampleNullAssertion {
 
-	public Short foo( short v ) {
-		if ( v < 0 ) {
-			return null;
-		} else {
-			return v;
-		}
-	}
-	
+    public Short foo(short v) {
+        if (v < 0) {
+            return null;
+        } else {
+            return v;
+        }
+    }
+
 }

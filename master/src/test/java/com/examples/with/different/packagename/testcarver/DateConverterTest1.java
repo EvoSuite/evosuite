@@ -29,14 +29,16 @@ public class DateConverterTest1 {
 
     /**
      * Create the Converter with no default value.
+     *
      * @return A new Converter
      */
     protected DateTimeConverter makeConverter() {
         return new DateConverter();
     }
-    
+
     /**
      * Create the Converter with a default value.
+     *
      * @param defaultValue The default value
      * @return A new Converter
      */
@@ -46,19 +48,20 @@ public class DateConverterTest1 {
 
     /**
      * Return the expected type
+     *
      * @return The expected type
      */
     protected Class<?> getExpectedType() {
         return Date.class;
     }
 
-    
-	@Test
+
+    @Test
     public void testConvertNull() {
         try {
             makeConverter().convert(getExpectedType(), null);
             fail("Expected ConversionException");
-        } catch(ConversionException e) {
+        } catch (ConversionException e) {
             // expected
         }
     }

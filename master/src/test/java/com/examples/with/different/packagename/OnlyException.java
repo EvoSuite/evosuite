@@ -21,8 +21,8 @@ package com.examples.with.different.packagename;
 
 public class OnlyException {
 
-	public void shouldBeIgnored() throws IllegalArgumentException {
-		throw new IllegalArgumentException();
-	}
-	
+    public void shouldBeIgnored() throws IllegalArgumentException {
+        throw new IllegalArgumentException();
+    }
+
 }

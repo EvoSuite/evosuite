@@ -19,113 +19,110 @@
  */
 package org.evosuite.symbolic.solver;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-import java.lang.reflect.Method;
-import java.util.Collection;
-import java.util.Map;
-
+import com.examples.with.different.packagename.solver.TestCaseAbs;
+import com.examples.with.different.packagename.solver.TestCaseMax;
+import com.examples.with.different.packagename.solver.TestCaseMin;
+import com.examples.with.different.packagename.solver.TestCaseNeg;
 import org.evosuite.symbolic.TestCaseBuilder;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.variable.VariableReference;
 import org.junit.Test;
 
-import com.examples.with.different.packagename.solver.TestCaseAbs;
-import com.examples.with.different.packagename.solver.TestCaseMax;
-import com.examples.with.different.packagename.solver.TestCaseMin;
-import com.examples.with.different.packagename.solver.TestCaseNeg;
+import java.lang.reflect.Method;
+import java.util.Collection;
+import java.util.Map;
+
+import static org.junit.Assert.*;
 
 public abstract class TestSolverMath extends TestSolver {
 
-	private static DefaultTestCase buildTestCaseAbs() throws SecurityException, NoSuchMethodException {
-		TestCaseBuilder tc = new TestCaseBuilder();
-		VariableReference int0 = tc.appendIntPrimitive(Integer.MIN_VALUE + 1);
+    private static DefaultTestCase buildTestCaseAbs() throws SecurityException, NoSuchMethodException {
+        TestCaseBuilder tc = new TestCaseBuilder();
+        VariableReference int0 = tc.appendIntPrimitive(Integer.MIN_VALUE + 1);
 
-		Method method = TestCaseAbs.class.getMethod("test", int.class);
-		tc.appendMethod(null, method, int0);
-		return tc.getDefaultTestCase();
-	}
+        Method method = TestCaseAbs.class.getMethod("test", int.class);
+        tc.appendMethod(null, method, int0);
+        return tc.getDefaultTestCase();
+    }
 
-	@Test
-	public void testAbs() throws SecurityException, NoSuchMethodException, SolverTimeoutException {
+    @Test
+    public void testAbs() throws SecurityException, NoSuchMethodException, SolverTimeoutException {
 
-		DefaultTestCase tc = buildTestCaseAbs();
-		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor.execute(tc);
-		Map<String, Object> solution = solve(getSolver(), constraints);
-		assertNotNull(solution);
-		Long var0 = (Long) solution.get("var0");
+        DefaultTestCase tc = buildTestCaseAbs();
+        Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor.execute(tc);
+        Map<String, Object> solution = solve(getSolver(), constraints);
+        assertNotNull(solution);
+        Long var0 = (Long) solution.get("var0");
 
-		assertTrue(Math.abs(var0.intValue()) > 0);
-	}
+        assertTrue(Math.abs(var0.intValue()) > 0);
+    }
 
-	private static DefaultTestCase buildTestCaseMax() throws SecurityException, NoSuchMethodException {
-		TestCaseBuilder tc = new TestCaseBuilder();
-		VariableReference int0 = tc.appendIntPrimitive(Integer.MIN_VALUE);
-		VariableReference int1 = tc.appendIntPrimitive(10);
+    private static DefaultTestCase buildTestCaseMax() throws SecurityException, NoSuchMethodException {
+        TestCaseBuilder tc = new TestCaseBuilder();
+        VariableReference int0 = tc.appendIntPrimitive(Integer.MIN_VALUE);
+        VariableReference int1 = tc.appendIntPrimitive(10);
 
-		Method method = TestCaseMax.class.getMethod("test", int.class, int.class);
-		tc.appendMethod(null, method, int0, int1);
-		return tc.getDefaultTestCase();
-	}
+        Method method = TestCaseMax.class.getMethod("test", int.class, int.class);
+        tc.appendMethod(null, method, int0, int1);
+        return tc.getDefaultTestCase();
+    }
 
-	private static DefaultTestCase buildTestCaseNeg() throws SecurityException, NoSuchMethodException {
-		TestCaseBuilder tc = new TestCaseBuilder();
-		VariableReference int0 = tc.appendIntPrimitive(-10);
+    private static DefaultTestCase buildTestCaseNeg() throws SecurityException, NoSuchMethodException {
+        TestCaseBuilder tc = new TestCaseBuilder();
+        VariableReference int0 = tc.appendIntPrimitive(-10);
 
-		Method method = TestCaseNeg.class.getMethod("test", int.class);
-		tc.appendMethod(null, method, int0);
-		return tc.getDefaultTestCase();
-	}
+        Method method = TestCaseNeg.class.getMethod("test", int.class);
+        tc.appendMethod(null, method, int0);
+        return tc.getDefaultTestCase();
+    }
 
-	private static DefaultTestCase buildTestCaseMin() throws SecurityException, NoSuchMethodException {
-		TestCaseBuilder tc = new TestCaseBuilder();
-		VariableReference int0 = tc.appendIntPrimitive(Integer.MAX_VALUE);
-		VariableReference int1 = tc.appendIntPrimitive(10);
+    private static DefaultTestCase buildTestCaseMin() throws SecurityException, NoSuchMethodException {
+        TestCaseBuilder tc = new TestCaseBuilder();
+        VariableReference int0 = tc.appendIntPrimitive(Integer.MAX_VALUE);
+        VariableReference int1 = tc.appendIntPrimitive(10);
 
-		Method method = TestCaseMin.class.getMethod("test", int.class, int.class);
-		tc.appendMethod(null, method, int0, int1);
-		return tc.getDefaultTestCase();
-	}
+        Method method = TestCaseMin.class.getMethod("test", int.class, int.class);
+        tc.appendMethod(null, method, int0, int1);
+        return tc.getDefaultTestCase();
+    }
 
-	@Test
-	public void testMax() throws SecurityException, NoSuchMethodException, SolverTimeoutException {
+    @Test
+    public void testMax() throws SecurityException, NoSuchMethodException, SolverTimeoutException {
 
-		DefaultTestCase tc = buildTestCaseMax();
-		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor.execute(tc);
-		Map<String, Object> solution = solve(getSolver(), constraints);
-		assertNotNull(solution);
-		Long var0 = (Long) solution.get("var0");
-		Long var1 = (Long) solution.get("var1");
+        DefaultTestCase tc = buildTestCaseMax();
+        Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor.execute(tc);
+        Map<String, Object> solution = solve(getSolver(), constraints);
+        assertNotNull(solution);
+        Long var0 = (Long) solution.get("var0");
+        Long var1 = (Long) solution.get("var1");
 
-		assertEquals(10, Math.max(var0.intValue(), var1.intValue()));
-	}
+        assertEquals(10, Math.max(var0.intValue(), var1.intValue()));
+    }
 
-	@Test
-	public void testMin() throws SecurityException, NoSuchMethodException, SolverTimeoutException {
+    @Test
+    public void testMin() throws SecurityException, NoSuchMethodException, SolverTimeoutException {
 
-		DefaultTestCase tc = buildTestCaseMin();
-		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor.execute(tc);
-		Map<String, Object> solution = solve(getSolver(), constraints);
-		assertNotNull(solution);
-		Long var0 = (Long) solution.get("var0");
-		Long var1 = (Long) solution.get("var1");
+        DefaultTestCase tc = buildTestCaseMin();
+        Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor.execute(tc);
+        Map<String, Object> solution = solve(getSolver(), constraints);
+        assertNotNull(solution);
+        Long var0 = (Long) solution.get("var0");
+        Long var1 = (Long) solution.get("var1");
 
-		assertEquals(10, Math.min(var0.intValue(), var1.intValue()));
-	}
+        assertEquals(10, Math.min(var0.intValue(), var1.intValue()));
+    }
 
-	@Test
-	public void testNeg() throws SecurityException, NoSuchMethodException, SolverTimeoutException {
+    @Test
+    public void testNeg() throws SecurityException, NoSuchMethodException, SolverTimeoutException {
 
-		DefaultTestCase tc = buildTestCaseNeg();
-		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor.execute(tc);
-		Map<String, Object> solution = solve(getSolver(), constraints);
-		assertNotNull(solution);
-		Long var0 = (Long) solution.get("var0");
+        DefaultTestCase tc = buildTestCaseNeg();
+        Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor.execute(tc);
+        Map<String, Object> solution = solve(getSolver(), constraints);
+        assertNotNull(solution);
+        Long var0 = (Long) solution.get("var0");
 
-		assertEquals(-10, var0.intValue());
+        assertEquals(-10, var0.intValue());
 
-	}
+    }
 }

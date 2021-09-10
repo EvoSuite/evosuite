@@ -27,8 +27,8 @@ import org.junit.runner.RunWith;
 @RunWith(Theories.class)
 public class FooTheories {
 
-	@Theory
-	public void theory(Foo foo) {
-		Assert.assertTrue(foo.getX() >= 0);
-	}
+    @Theory
+    public void theory(Foo foo) {
+        Assert.assertTrue(foo.getX() >= 0);
+    }
 }

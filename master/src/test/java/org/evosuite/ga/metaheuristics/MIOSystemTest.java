@@ -29,53 +29,53 @@ import com.examples.with.different.packagename.BMICalculator;
 
 /**
  * System tests for the implementation of the Many Independent Objective (MIO) algorithm
- * 
+ *
  * @author José Campos
  */
 public class MIOSystemTest extends SystemTestBase {
 
-  private void test(double exploitation_starts_at_percent) {
-    Properties.ALGORITHM = Properties.Algorithm.MIO;
-    Properties.ARCHIVE_TYPE = Properties.ArchiveType.MIO;
+    private void test(double exploitation_starts_at_percent) {
+        Properties.ALGORITHM = Properties.Algorithm.MIO;
+        Properties.ARCHIVE_TYPE = Properties.ArchiveType.MIO;
 
-    Properties.NUMBER_OF_TESTS_PER_TARGET = 3;
-    Properties.EXPLOITATION_STARTS_AT_PERCENT = exploitation_starts_at_percent;
+        Properties.NUMBER_OF_TESTS_PER_TARGET = 3;
+        Properties.EXPLOITATION_STARTS_AT_PERCENT = exploitation_starts_at_percent;
 
-    String targetClass = BMICalculator.class.getCanonicalName();
-    Properties.TARGET_CLASS = targetClass;
+        String targetClass = BMICalculator.class.getCanonicalName();
+        Properties.TARGET_CLASS = targetClass;
 
-    String[] command = new String[] {"-generateMOSuite", "-Dalgorithm=MIO", "-Dstrategy=MOSuite",
-            "-class", targetClass};
+        String[] command = new String[]{"-generateMOSuite", "-Dalgorithm=MIO", "-Dstrategy=MOSuite",
+                "-class", targetClass};
 
-    EvoSuite evoSuite = new EvoSuite();
+        EvoSuite evoSuite = new EvoSuite();
 
-    GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(evoSuite.parseCommandLine(command));
-    Assert.assertEquals(TestSuiteAdapter.class, ga.getClass());
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(evoSuite.parseCommandLine(command));
+        Assert.assertEquals(TestSuiteAdapter.class, ga.getClass());
 
-    @SuppressWarnings("unchecked")
-    TestSuiteAdapter<MIO> mio = (TestSuiteAdapter<MIO>) ga;
+        @SuppressWarnings("unchecked")
+        TestSuiteAdapter<MIO> mio = (TestSuiteAdapter<MIO>) ga;
 
-    Assert.assertEquals(MIO.class, mio.getAlgorithm().getClass());
+        Assert.assertEquals(MIO.class, mio.getAlgorithm().getClass());
 
-    TestSuiteChromosome best = mio.getBestIndividual();
-    System.out.println("EvolvedTestSuite:\n" + best);
-    Assert.assertEquals(0.0, best.getFitness(), 0.0);
-    Assert.assertEquals(1d, best.getCoverage(), 0.001);
-  }
+        TestSuiteChromosome best = mio.getBestIndividual();
+        System.out.println("EvolvedTestSuite:\n" + best);
+        Assert.assertEquals(0.0, best.getFitness(), 0.0);
+        Assert.assertEquals(1d, best.getCoverage(), 0.001);
+    }
 
-  @Test
-  public void testRandomSampling() {
-    test(1.0);
-  }
+    @Test
+    public void testRandomSampling() {
+        test(1.0);
+    }
 
-  @Test
-  public void testArchiveSampling() {
-    test(0.0);
-  }
+    @Test
+    public void testArchiveSampling() {
+        test(0.0);
+    }
 
-  @Test
-  public void testIntegration() {
-    test(0.5);
-  }
+    @Test
+    public void testIntegration() {
+        test(0.5);
+    }
 
 }

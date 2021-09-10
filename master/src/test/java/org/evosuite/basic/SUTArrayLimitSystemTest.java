@@ -31,62 +31,59 @@ import org.junit.Test;
 import com.examples.with.different.packagename.ArrayLimit;
 
 
-
-
-
 public class SUTArrayLimitSystemTest extends SystemTestBase {
 
-	public static final int defaultArrayLimit = Properties.ARRAY_LIMIT;
+    public static final int defaultArrayLimit = Properties.ARRAY_LIMIT;
 
-	@After
-	public void resetProperties(){
-		Properties.ARRAY_LIMIT = defaultArrayLimit;
-	}
+    @After
+    public void resetProperties() {
+        Properties.ARRAY_LIMIT = defaultArrayLimit;
+    }
 
 
-	@Test
-	public void testWithinLimits() {
-		EvoSuite evosuite = new EvoSuite();
-		String targetClass = ArrayLimit.class.getCanonicalName();
-		
-		Properties.TARGET_CLASS = targetClass;
-		
-		String[] command = new String[]{				
-				"-generateSuite",
-				"-class",
-				targetClass
-		};
-		
-		Object result = evosuite.parseCommandLine(command);
-		
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
-		System.out.println("EvolvedTestSuite:\n"+best);
+    @Test
+    public void testWithinLimits() {
+        EvoSuite evosuite = new EvoSuite();
+        String targetClass = ArrayLimit.class.getCanonicalName();
 
-		Assert.assertEquals("Non-optimal coverage: ",1d, best.getCoverage(), 0.001);
-	}
+        Properties.TARGET_CLASS = targetClass;
 
-	@Test
-	public void testAboveLimits() {
-		EvoSuite evosuite = new EvoSuite();
-		String targetClass = ArrayLimit.class.getCanonicalName();
-		
-		Properties.ARRAY_LIMIT = 10;
-		Properties.TARGET_CLASS = targetClass;
-		
-		String[] command = new String[]{				
-				"-generateSuite",
-				"-class",
-				targetClass
-		};
-		
-		Object result = evosuite.parseCommandLine(command);
-		
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
-		System.out.println("EvolvedTestSuite:\n"+best);
+        String[] command = new String[]{
+                "-generateSuite",
+                "-class",
+                targetClass
+        };
 
-		Assert.assertTrue("Optimal coverage: " + best.getCoverage(), best.getCoverage() < 0.99);
-	}
+        Object result = evosuite.parseCommandLine(command);
+
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
+        System.out.println("EvolvedTestSuite:\n" + best);
+
+        Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+    }
+
+    @Test
+    public void testAboveLimits() {
+        EvoSuite evosuite = new EvoSuite();
+        String targetClass = ArrayLimit.class.getCanonicalName();
+
+        Properties.ARRAY_LIMIT = 10;
+        Properties.TARGET_CLASS = targetClass;
+
+        String[] command = new String[]{
+                "-generateSuite",
+                "-class",
+                targetClass
+        };
+
+        Object result = evosuite.parseCommandLine(command);
+
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
+        System.out.println("EvolvedTestSuite:\n" + best);
+
+        Assert.assertTrue("Optimal coverage: " + best.getCoverage(), best.getCoverage() < 0.99);
+    }
 
 }

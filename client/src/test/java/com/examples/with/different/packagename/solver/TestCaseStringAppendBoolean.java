@@ -21,13 +21,13 @@ package com.examples.with.different.packagename.solver;
 
 public class TestCaseStringAppendBoolean {
 
-	public static boolean test(String str) {
-		if (str != null) {
-			String concat = str + true;
-			if (concat.equals("hatrue")) {
-				return true;
-			}
-		}
-		return true;
-	}
+    public static boolean test(String str) {
+        if (str != null) {
+            String concat = str + true;
+            if (concat.equals("hatrue")) {
+                return true;
+            }
+        }
+        return true;
+    }
 }

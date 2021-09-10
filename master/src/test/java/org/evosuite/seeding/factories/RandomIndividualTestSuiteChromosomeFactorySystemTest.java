@@ -34,47 +34,47 @@ import com.examples.with.different.packagename.staticusage.Class1;
 
 public class RandomIndividualTestSuiteChromosomeFactorySystemTest extends SystemTestBase {
 
-	ChromosomeSampleFactory defaultFactory = new ChromosomeSampleFactory();
-	TestSuiteChromosome bestIndividual;
-	GeneticAlgorithm<TestSuiteChromosome> ga;
+    ChromosomeSampleFactory defaultFactory = new ChromosomeSampleFactory();
+    TestSuiteChromosome bestIndividual;
+    GeneticAlgorithm<TestSuiteChromosome> ga;
 
-	@Before
-	public void setup() {
-		EvoSuite evosuite = new EvoSuite();
+    @Before
+    public void setup() {
+        EvoSuite evosuite = new EvoSuite();
 
-		String targetClass = Class1.class.getCanonicalName();
-		Properties.TARGET_CLASS = targetClass;
-		String[] command = new String[] { "-generateSuite", "-class",
-				targetClass };
+        String targetClass = Class1.class.getCanonicalName();
+        Properties.TARGET_CLASS = targetClass;
+        String[] command = new String[]{"-generateSuite", "-class",
+                targetClass};
 
-		Object result = evosuite.parseCommandLine(command);
+        Object result = evosuite.parseCommandLine(command);
 
-		ga = getGAFromResult(result);
-		bestIndividual = ga.getBestIndividual();
-	}
+        ga = getGAFromResult(result);
+        bestIndividual = ga.getBestIndividual();
+    }
 
-	@Test
-	public void testNotSeed() {
-		Properties.SEED_PROBABILITY = 0;
-		RandomIndividualTestSuiteChromosomeFactory bicf = new RandomIndividualTestSuiteChromosomeFactory(
-				defaultFactory, ga);
-		assertEquals(bicf.getChromosome(), ChromosomeSampleFactory.CHROMOSOME);
-	}
+    @Test
+    public void testNotSeed() {
+        Properties.SEED_PROBABILITY = 0;
+        RandomIndividualTestSuiteChromosomeFactory bicf = new RandomIndividualTestSuiteChromosomeFactory(
+                defaultFactory, ga);
+        assertEquals(bicf.getChromosome(), ChromosomeSampleFactory.CHROMOSOME);
+    }
 
-	@Test
-	public void testRandomSeed() {
-		Properties.SEED_PROBABILITY = 1;
-		RandomIndividualTestSuiteChromosomeFactory bicf = new RandomIndividualTestSuiteChromosomeFactory(
-				defaultFactory, ga);
-		bicf.getChromosome();
-		boolean isFromPopulation = false;
-		TestSuiteChromosome tsc = bicf.getChromosome();
-		for (TestSuiteChromosome t : ga.getPopulation()) {
-			if (tsc.equals(t)) {
-				isFromPopulation = true;
-			}
-		}
-		assertTrue(isFromPopulation);
-	}
+    @Test
+    public void testRandomSeed() {
+        Properties.SEED_PROBABILITY = 1;
+        RandomIndividualTestSuiteChromosomeFactory bicf = new RandomIndividualTestSuiteChromosomeFactory(
+                defaultFactory, ga);
+        bicf.getChromosome();
+        boolean isFromPopulation = false;
+        TestSuiteChromosome tsc = bicf.getChromosome();
+        for (TestSuiteChromosome t : ga.getPopulation()) {
+            if (tsc.equals(t)) {
+                isFromPopulation = true;
+            }
+        }
+        assertTrue(isFromPopulation);
+    }
 
 }

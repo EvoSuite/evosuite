@@ -34,14 +34,14 @@ import com.examples.with.different.packagename.ClassHierarchyIncludingInterfaces
  */
 public class ClassHierarchyIncludingInterfacesTest {
 
-	public interface GenericConsumer<T> {
+    public interface GenericConsumer<T> {
         void consume(T t);
     }
 
     public class GenericParent<T> implements GenericConsumer<T> {
         @Override
         public void consume(final T t) {
-        	// empty
+            // empty
         }
     }
 
@@ -52,7 +52,7 @@ public class ClassHierarchyIncludingInterfacesTest {
         }
     }
 
-	@Test
+    @Test
     public void testHierarchyIncludingInterfaces() {
         final Iterator<Class<?>> iter = ClassHierarchyIncludingInterfaces.hierarchy(StringParameterizedChild.class, Interfaces.INCLUDE).iterator();
         assertEquals(StringParameterizedChild.class, iter.next());

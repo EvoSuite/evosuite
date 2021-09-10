@@ -29,78 +29,78 @@ import com.examples.with.different.packagename.BMICalculator;
 
 /**
  * <p>StandardChemicalReactionSystemTest</p>
- * 
+ *
  * @author José Campos
  */
 public class StandardChemicalReactionSystemTest extends SystemTestBase {
 
-  private GeneticAlgorithm<?> test(double molecular_collision_rate, int decomposition_threshold,
-                                   int synthesis_threshold) {
-    Properties.ALGORITHM = Properties.Algorithm.STANDARD_CHEMICAL_REACTION;
-    Properties.TEST_ARCHIVE = false;
-    Properties.SEARCH_BUDGET = 15_000;
+    private GeneticAlgorithm<?> test(double molecular_collision_rate, int decomposition_threshold,
+                                     int synthesis_threshold) {
+        Properties.ALGORITHM = Properties.Algorithm.STANDARD_CHEMICAL_REACTION;
+        Properties.TEST_ARCHIVE = false;
+        Properties.SEARCH_BUDGET = 15_000;
 
-    Properties.POPULATION = 10;
-    Properties.MOLECULAR_COLLISION_RATE = molecular_collision_rate;
-    Properties.DECOMPOSITION_THRESHOLD = decomposition_threshold;
-    Properties.SYNTHESIS_THRESHOLD = synthesis_threshold;
+        Properties.POPULATION = 10;
+        Properties.MOLECULAR_COLLISION_RATE = molecular_collision_rate;
+        Properties.DECOMPOSITION_THRESHOLD = decomposition_threshold;
+        Properties.SYNTHESIS_THRESHOLD = synthesis_threshold;
 
-    String targetClass = BMICalculator.class.getCanonicalName();
-    Properties.TARGET_CLASS = targetClass;
+        String targetClass = BMICalculator.class.getCanonicalName();
+        Properties.TARGET_CLASS = targetClass;
 
-    String[] command = new String[] {"-generateSuite", "-class", targetClass};
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
 
-    EvoSuite evoSuite = new EvoSuite();
-    GeneticAlgorithm<?> ga = getGAFromResult(evoSuite.parseCommandLine(command));
-    Assert.assertEquals(StandardChemicalReaction.class, ga.getClass());
+        EvoSuite evoSuite = new EvoSuite();
+        GeneticAlgorithm<?> ga = getGAFromResult(evoSuite.parseCommandLine(command));
+        Assert.assertEquals(StandardChemicalReaction.class, ga.getClass());
 
-    return ga;
-  }
+        return ga;
+    }
 
-  @Test
-  public void testOnwallIneffectiveCollision() {
-    GeneticAlgorithm<?> ga = test(0.0, 1_000_000, -1);
+    @Test
+    public void testOnwallIneffectiveCollision() {
+        GeneticAlgorithm<?> ga = test(0.0, 1_000_000, -1);
 
-    TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
-    System.out.println("EvolvedTestSuite:\n" + best);
-    Assert.assertTrue(Double.compare(best.getCoverage(), 7.0 / 9.0) > 0);
-  }
+        TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+        System.out.println("EvolvedTestSuite:\n" + best);
+        Assert.assertTrue(Double.compare(best.getCoverage(), 7.0 / 9.0) > 0);
+    }
 
-  @Test
-  public void testDecomposition() {
-    GeneticAlgorithm<?> ga = test(0.0, 1, -1);
+    @Test
+    public void testDecomposition() {
+        GeneticAlgorithm<?> ga = test(0.0, 1, -1);
 
-    TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
-    System.out.println("EvolvedTestSuite:\n" + best);
-    Assert.assertTrue(Double.compare(best.getCoverage(), 6.0 / 9.0) > 0);
-  }
+        TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+        System.out.println("EvolvedTestSuite:\n" + best);
+        Assert.assertTrue(Double.compare(best.getCoverage(), 6.0 / 9.0) > 0);
+    }
 
-  @Test
-  public void testIntermolecularIneffectiveCollision() {
-    GeneticAlgorithm<?> ga = test(1.0, -1, -1);
+    @Test
+    public void testIntermolecularIneffectiveCollision() {
+        GeneticAlgorithm<?> ga = test(1.0, -1, -1);
 
-    TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
-    System.out.println("EvolvedTestSuite:\n" + best);
-    Assert.assertTrue(Double.compare(best.getCoverage(), 6.0 / 9.0) > 0);
-  }
+        TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+        System.out.println("EvolvedTestSuite:\n" + best);
+        Assert.assertTrue(Double.compare(best.getCoverage(), 6.0 / 9.0) > 0);
+    }
 
-  @Test
-  public void testSynthesis() {
-    GeneticAlgorithm<?> ga = test(1.0, -1, 1_000_000);
+    @Test
+    public void testSynthesis() {
+        GeneticAlgorithm<?> ga = test(1.0, -1, 1_000_000);
 
-    TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
-    System.out.println("EvolvedTestSuite:\n" + best);
-    Assert.assertTrue(Double.compare(best.getCoverage(), 7.0 / 9.0) > 0);
-  }
+        TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+        System.out.println("EvolvedTestSuite:\n" + best);
+        Assert.assertTrue(Double.compare(best.getCoverage(), 7.0 / 9.0) > 0);
+    }
 
-  @Test
-  public void testIntegration() {
-    GeneticAlgorithm<?> ga = test(0.2, 500, 10);
+    @Test
+    public void testIntegration() {
+        GeneticAlgorithm<?> ga = test(0.2, 500, 10);
 
-    TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
-    System.out.println("EvolvedTestSuite:\n" + best);
-    // the integration test must covers all goals as it uses all functionalities
-    Assert.assertEquals(0.0, best.getFitness(), 0.0);
-    Assert.assertEquals(1d, best.getCoverage(), 0.001);
-  }
+        TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+        System.out.println("EvolvedTestSuite:\n" + best);
+        // the integration test must covers all goals as it uses all functionalities
+        Assert.assertEquals(0.0, best.getFitness(), 0.0);
+        Assert.assertEquals(1d, best.getCoverage(), 0.001);
+    }
 }

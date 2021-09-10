@@ -28,43 +28,43 @@ import java.io.PrintStream;
 
 public class TestLogbackConfiguration {
 
-	public static final PrintStream defaultOut = System.out;
-	public static final PrintStream defaultErr = System.err;
+    public static final PrintStream defaultOut = System.out;
+    public static final PrintStream defaultErr = System.err;
 
-	@After
-	public void resetDefaultPrinters() {
-		System.setOut(defaultOut);
-		System.setErr(defaultErr);
-		LoggingUtils.changeLogbackFile("logback.xml");
-	}
+    @After
+    public void resetDefaultPrinters() {
+        System.setOut(defaultOut);
+        System.setErr(defaultErr);
+        LoggingUtils.changeLogbackFile("logback.xml");
+    }
 
     @Test
-	public void testStdOutErr() {
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		System.setOut(new PrintStream(out));
+    public void testStdOutErr() {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(out));
 
-		ByteArrayOutputStream err = new ByteArrayOutputStream();
-		System.setErr(new PrintStream(err));
+        ByteArrayOutputStream err = new ByteArrayOutputStream();
+        System.setErr(new PrintStream(err));
 
-		boolean loaded = LoggingUtils.changeLogbackFile(LoggingUtils.getLogbackFileName());
+        boolean loaded = LoggingUtils.changeLogbackFile(LoggingUtils.getLogbackFileName());
         Assert.assertTrue(loaded);
-		org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TestLogbackConfiguration.class);
+        org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TestLogbackConfiguration.class);
 
-		final String warnMsg = "this should go to std out";
-		final String errMsg = "this should go to std err";
+        final String warnMsg = "this should go to std out";
+        final String errMsg = "this should go to std err";
 
-		logger.warn(warnMsg);
-		logger.error(errMsg);
+        logger.warn(warnMsg);
+        logger.error(errMsg);
 
-		String printedOut = out.toString();
-		String printedErr = err.toString();
+        String printedOut = out.toString();
+        String printedErr = err.toString();
 
-		Assert.assertTrue("Content of std out is: " + printedOut,
-		                  printedOut.contains(warnMsg));
-		Assert.assertTrue("Content of std err is: " + printedErr,
-		                  printedErr.contains(errMsg));
+        Assert.assertTrue("Content of std out is: " + printedOut,
+                printedOut.contains(warnMsg));
+        Assert.assertTrue("Content of std err is: " + printedErr,
+                printedErr.contains(errMsg));
         Assert.assertFalse("Content of std out is: " + printedOut, printedOut.contains(errMsg));
         Assert.assertFalse("Content of std err is: " + printedErr, printedErr.contains(warnMsg));
-	}
+    }
 
 }

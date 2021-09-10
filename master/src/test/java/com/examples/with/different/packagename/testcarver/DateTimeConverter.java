@@ -26,6 +26,7 @@ import java.util.TimeZone;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.text.ParsePosition;
+
 import com.examples.with.different.packagename.testcarver.ConversionException;
 
 /**
@@ -103,8 +104,8 @@ public abstract class DateTimeConverter extends AbstractConverter {
      * value if an error occurs.
      *
      * @param defaultValue The default value to be returned
-     * if the value to be converted is missing or an error
-     * occurs converting the value.
+     *                     if the value to be converted is missing or an error
+     *                     occurs converting the value.
      */
     public DateTimeConverter(Object defaultValue) {
         super(defaultValue);
@@ -117,7 +118,7 @@ public abstract class DateTimeConverter extends AbstractConverter {
      * Indicate whether conversion should use a format/pattern or not.
      *
      * @param useLocaleFormat <code>true</code> if the format
-     * for the locale should be used, otherwise <code>false</code>
+     *                        for the locale should be used, otherwise <code>false</code>
      */
     public void setUseLocaleFormat(boolean useLocaleFormat) {
         this.useLocaleFormat = useLocaleFormat;
@@ -166,11 +167,11 @@ public abstract class DateTimeConverter extends AbstractConverter {
      * Set a date format pattern to use to convert
      * dates to/from a <code>java.lang.String</code>.
      *
-     * @see SimpleDateFormat
      * @param pattern The format pattern.
+     * @see SimpleDateFormat
      */
     public void setPattern(String pattern) {
-        setPatterns(new String[] {pattern});
+        setPatterns(new String[]{pattern});
     }
 
     /**
@@ -178,19 +179,19 @@ public abstract class DateTimeConverter extends AbstractConverter {
      * dates to/from a <code>java.lang.String</code>
      * (or <code>null</code> if none specified).
      *
-     * @see SimpleDateFormat
      * @return Array of format patterns.
+     * @see SimpleDateFormat
      */
     public String[] getPatterns() {
-        return patterns; 
+        return patterns;
     }
 
     /**
      * Set the date format patterns to use to convert
      * dates to/from a <code>java.lang.String</code>.
      *
-     * @see SimpleDateFormat
      * @param patterns Array of format patterns.
+     * @see SimpleDateFormat
      */
     public void setPatterns(String[] patterns) {
         this.patterns = patterns;
@@ -226,9 +227,9 @@ public abstract class DateTimeConverter extends AbstractConverter {
 
         Date date = null;
         if (value instanceof Date) {
-            date = (Date)value;
+            date = (Date) value;
         } else if (value instanceof Calendar) {
-            date = ((Calendar)value).getTime();
+            date = ((Calendar) value).getTime();
         } else if (value instanceof Long) {
             date = new Date((Long) value);
         }
@@ -262,11 +263,11 @@ public abstract class DateTimeConverter extends AbstractConverter {
      *     <li><code>java.sql.Time</code></li>
      *     <li><code>java.sql.Timestamp</code></li>
      * </ul>
-     *
+     * <p>
      * It also handles conversion from a <code>String</code> to
      * any of the above types.
      * <p>
-     *
+     * <p>
      * For <code>String</code> conversion, if the converter has been configured
      * with one or more patterns (using <code>setPatterns()</code>), then
      * the conversion is attempted with each of the specified patterns.
@@ -274,7 +275,7 @@ public abstract class DateTimeConverter extends AbstractConverter {
      * (and <i>style</i> if configured) will be used.
      *
      * @param targetType Data type to which this value should be converted.
-     * @param value The input value to be converted.
+     * @param value      The input value to be converted.
      * @return The converted value.
      * @throws Exception if conversion cannot be performed successfully
      */
@@ -289,7 +290,7 @@ public abstract class DateTimeConverter extends AbstractConverter {
             // N.B. Prior to JDK 1.4 the Timestamp's getTime() method
             //      didn't include the milliseconds. The following code
             //      ensures it works consistently accross JDK versions
-            java.sql.Timestamp timestamp = (java.sql.Timestamp)value;
+            java.sql.Timestamp timestamp = (java.sql.Timestamp) value;
             long timeInMillis = ((timestamp.getTime() / 1000) * 1000);
             timeInMillis += timestamp.getNanos() / 1000000;
             // ---------------------- JDK 1.3 Fix ----------------------
@@ -298,19 +299,19 @@ public abstract class DateTimeConverter extends AbstractConverter {
 
         // Handle Date (includes java.sql.Date & java.sql.Time)
         if (value instanceof Date) {
-            Date date = (Date)value;
+            Date date = (Date) value;
             return toDate(targetType, date.getTime());
         }
 
         // Handle Calendar
         if (value instanceof Calendar) {
-            Calendar calendar = (Calendar)value;
+            Calendar calendar = (Calendar) value;
             return toDate(targetType, calendar.getTime().getTime());
         }
 
         // Handle Long
         if (value instanceof Long) {
-            Long longObj = (Long)value;
+            Long longObj = (Long) value;
             return toDate(targetType, longObj);
         }
 
@@ -345,7 +346,7 @@ public abstract class DateTimeConverter extends AbstractConverter {
      * Convert a long value to the specified Date type for this
      * <i>Converter</i>.
      * <p>
-     *
+     * <p>
      * This method handles conversion to the following types:
      * <ul>
      *     <li><code>java.util.Date</code></li>
@@ -355,7 +356,7 @@ public abstract class DateTimeConverter extends AbstractConverter {
      *     <li><code>java.sql.Timestamp</code></li>
      * </ul>
      *
-     * @param type The Date type to convert to
+     * @param type  The Date type to convert to
      * @param value The long value to convert.
      * @return The converted date value.
      */
@@ -399,7 +400,7 @@ public abstract class DateTimeConverter extends AbstractConverter {
         }
 
         String msg = toString(getClass()) + " cannot handle conversion to '"
-                   + toString(type) + "'";
+                + toString(type) + "'";
         throw new ConversionException(msg);
     }
 
@@ -417,7 +418,7 @@ public abstract class DateTimeConverter extends AbstractConverter {
      * mechanism is provided for <code>java.util.Date</code>
      * and <code>java.util.Calendar</code> type.
      *
-     * @param type The Number type to convert to
+     * @param type  The Number type to convert to
      * @param value The String value to convert.
      * @return The converted Number value.
      */
@@ -449,20 +450,20 @@ public abstract class DateTimeConverter extends AbstractConverter {
             } catch (IllegalArgumentException e) {
                 throw new ConversionException(
                         "String must be in JDBC format [yyyy-MM-dd HH:mm:ss.fffffffff] " +
-                        "to create a java.sql.Timestamp");
+                                "to create a java.sql.Timestamp");
             }
         }
 
         String msg = toString(getClass()) + " does not support default String to '"
-                   + toString(type) + "' conversion.";
+                + toString(type) + "' conversion.";
         throw new ConversionException(msg);
     }
 
     /**
      * Return a <code>DateFormat<code> for the Locale.
-     * @param locale The Locale to create the Format with (may be null)
-     * @param timeZone The Time Zone create the Format with (may be null)
      *
+     * @param locale   The Locale to create the Format with (may be null)
+     * @param timeZone The Time Zone create the Format with (may be null)
      * @return A Date Format.
      */
     protected DateFormat getFormat(Locale locale, TimeZone timeZone) {
@@ -497,8 +498,7 @@ public abstract class DateTimeConverter extends AbstractConverter {
      *
      * @param sourceType The type of the value being converted
      * @param targetType The type to convert the value to.
-     * @param value The String date value.
-     *
+     * @param value      The String date value.
      * @return The converted Date object.
      * @throws Exception if an error occurs parsing the date.
      */
@@ -529,9 +529,8 @@ public abstract class DateTimeConverter extends AbstractConverter {
      *
      * @param sourceType The type of the value being converted
      * @param targetType The type to convert the value to
-     * @param value The String date value.
-     * @param format The DateFormat to parse the String value.
-     *
+     * @param value      The String date value.
+     * @param format     The DateFormat to parse the String value.
      * @return The converted Calendar object.
      * @throws ConversionException if the String cannot be converted.
      */
@@ -543,7 +542,7 @@ public abstract class DateTimeConverter extends AbstractConverter {
         if (pos.getErrorIndex() >= 0 || pos.getIndex() != value.length() || parsedDate == null) {
             String msg = "Error converting '" + toString(sourceType) + "' to '" + toString(targetType) + "'";
             if (format instanceof SimpleDateFormat) {
-                msg += " using pattern '" + ((SimpleDateFormat)format).toPattern() + "'";
+                msg += " using pattern '" + ((SimpleDateFormat) format).toPattern() + "'";
             }
             throw new ConversionException(msg);
         }
@@ -582,10 +581,11 @@ public abstract class DateTimeConverter extends AbstractConverter {
 
     /**
      * Log the <code>DateFormat<code> creation.
+     *
      * @param action The action the format is being used for
      * @param format The Date format
      */
     private void logFormat(String action, DateFormat format) {
-        
+
     }
 }

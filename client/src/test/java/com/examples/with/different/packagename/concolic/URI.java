@@ -38,11 +38,9 @@ public class URI {
 
     /**
      * Creates a generic URI from the given string.
-     * 
-     * @param nuri
-     *            the string to parse.
-     * @exception MalformedURIException
-     *                if the string did not parse.
+     *
+     * @param nuri the string to parse.
+     * @throws MalformedURIException if the string did not parse.
      */
     public URI(String nuri) throws MalformedURIException {
         uri = nuri;
@@ -62,14 +60,14 @@ public class URI {
     }
 
     protected String genericMakeRelative(URI otherURI, int otherPathLoc,
-            int pathloc, boolean allowDotDot) {
+                                         int pathloc, boolean allowDotDot) {
         if (otherPathLoc != pathloc
                 || !uri.regionMatches(0, otherURI.uri, 0, pathloc)) //Different
-                                                                    // before
-                                                                    // paths
-                                                                    // begin,
-                                                                    // cannot be
-                                                                    // relative...
+            // before
+            // paths
+            // begin,
+            // cannot be
+            // relative...
             return otherURI.toString();
 
         int commonPath = pathloc;
@@ -154,10 +152,9 @@ public class URI {
 
     /**
      * Returns the java.net.URL representation.
-     * 
+     *
      * @return the java.net.URL representation.
-     * @exception MalformedURLException
-     *                if the URI did not parse into a java.net.URL.
+     * @throws MalformedURLException if the URI did not parse into a java.net.URL.
      */
     public java.net.URL getJavaURL() throws java.net.MalformedURLException {
         return new java.net.URL(uri);
@@ -199,8 +196,8 @@ public class URI {
      */
     public String getParentDirectory() {
         if (uri.endsWith("/")) {
-            int lastSlash = uri.substring(0,uri.length()).lastIndexOf('/');
-            return uri.substring(0, lastSlash + 1);            
+            int lastSlash = uri.substring(0, uri.length()).lastIndexOf('/');
+            return uri.substring(0, lastSlash + 1);
         } else {
             int lastSlash = uri.lastIndexOf('/');
             return uri.substring(0, lastSlash + 1);

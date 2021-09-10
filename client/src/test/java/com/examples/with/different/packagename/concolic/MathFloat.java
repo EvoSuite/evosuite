@@ -21,51 +21,51 @@ package com.examples.with.different.packagename.concolic;
 
 public class MathFloat {
 
-	public float divide(float a, float b) {
-		return a/b;
-	}
-	
-	public float remainder(float a,float b) {
-		return a%b;
-	}
-	
-	public float multiply(float a, float b) {
-		return a*b;
-	}
-	
-	public float sum(float a, float b) {
-		return a+b;
-	}
-	
-	public float substract(float a, float b) {
-		return a-b;
-	}
-	
-	private Float f = 3.1416f;
-	
-	public void unreach() {
-		if (f==null) {
-			f = 1.5f;
-		}
-	}
-	
-	public int castToInt(float f) {
-		return (int)f;
-	}
-	
-	public long castToLong(float f) {
-		return (long)f;
-	}
-	
-	public char castToChar(float f) {
-	  return (char)f;
-	}
-	
-	public short castToShort(float f) {
-		  return (short)f;
-	}
-	
-	public short castToByte(float f) {
-		  return (byte)f;
-	}
+    public float divide(float a, float b) {
+        return a / b;
+    }
+
+    public float remainder(float a, float b) {
+        return a % b;
+    }
+
+    public float multiply(float a, float b) {
+        return a * b;
+    }
+
+    public float sum(float a, float b) {
+        return a + b;
+    }
+
+    public float substract(float a, float b) {
+        return a - b;
+    }
+
+    private Float f = 3.1416f;
+
+    public void unreach() {
+        if (f == null) {
+            f = 1.5f;
+        }
+    }
+
+    public int castToInt(float f) {
+        return (int) f;
+    }
+
+    public long castToLong(float f) {
+        return (long) f;
+    }
+
+    public char castToChar(float f) {
+        return (char) f;
+    }
+
+    public short castToShort(float f) {
+        return (short) f;
+    }
+
+    public short castToByte(float f) {
+        return (byte) f;
+    }
 }

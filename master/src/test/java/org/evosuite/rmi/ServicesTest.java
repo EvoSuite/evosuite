@@ -31,37 +31,37 @@ import org.junit.Test;
 
 public class ServicesTest {
 
-	private int currentPort;
-	
-	@Before
-	public void init(){
-		currentPort = Properties.PROCESS_COMMUNICATION_PORT;
-	}
-	
-	@After
-	public void tearDown(){
-		Properties.PROCESS_COMMUNICATION_PORT = currentPort;
-	}
-	
-	@Test
-	public void testMasterClientCommunication() throws Exception{
-		MasterServices master = new MasterServices();
-		master.startRegistry();
-		master.registerServices();
-		
-		Properties.PROCESS_COMMUNICATION_PORT = master.getRegistryPort();
-		
-		ClientServices<?> clients = new ClientServices<>();
-		clients.registerServices("ClientNode");
-		
-		ClientNodeLocal<?> clientNode = clients.getClientNode();
-		clientNode.changeState(ClientState.STARTED);
-		
-		MasterNodeLocal masterNode = master.getMasterNode();
-		String summary = masterNode.getSummaryOfClientStatuses();
-		
-		Assert.assertNotNull(summary);
-		Assert.assertTrue("summary="+summary,summary.contains(ClientState.STARTED.toString()));
-	}
-	
+    private int currentPort;
+
+    @Before
+    public void init() {
+        currentPort = Properties.PROCESS_COMMUNICATION_PORT;
+    }
+
+    @After
+    public void tearDown() {
+        Properties.PROCESS_COMMUNICATION_PORT = currentPort;
+    }
+
+    @Test
+    public void testMasterClientCommunication() throws Exception {
+        MasterServices master = new MasterServices();
+        master.startRegistry();
+        master.registerServices();
+
+        Properties.PROCESS_COMMUNICATION_PORT = master.getRegistryPort();
+
+        ClientServices<?> clients = new ClientServices<>();
+        clients.registerServices("ClientNode");
+
+        ClientNodeLocal<?> clientNode = clients.getClientNode();
+        clientNode.changeState(ClientState.STARTED);
+
+        MasterNodeLocal masterNode = master.getMasterNode();
+        String summary = masterNode.getSummaryOfClientStatuses();
+
+        Assert.assertNotNull(summary);
+        Assert.assertTrue("summary=" + summary, summary.contains(ClientState.STARTED.toString()));
+    }
+
 }

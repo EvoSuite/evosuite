@@ -32,58 +32,58 @@ import com.examples.with.different.packagename.DoubleExample;
 import com.examples.with.different.packagename.DoubleExample2;
 
 public class DoubleOptimisationSystemTest extends SystemTestBase {
-	
-	private double seedConstants = Properties.PRIMITIVE_POOL;
-	
-	@After
-	public void resetSeedConstants() {
-		Properties.PRIMITIVE_POOL = seedConstants;
-	}
-	
-	@Test
-	public void testDoubleSUT() {
-		EvoSuite evosuite = new EvoSuite();
 
-		String targetClass = DoubleExample.class.getCanonicalName();
+    private double seedConstants = Properties.PRIMITIVE_POOL;
 
-		Properties.TARGET_CLASS = targetClass;
-		Properties.PRIMITIVE_POOL = 0.0;
-		Properties.SEARCH_BUDGET = 50000;
+    @After
+    public void resetSeedConstants() {
+        Properties.PRIMITIVE_POOL = seedConstants;
+    }
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+    @Test
+    public void testDoubleSUT() {
+        EvoSuite evosuite = new EvoSuite();
 
-		Object result = evosuite.parseCommandLine(command);
+        String targetClass = DoubleExample.class.getCanonicalName();
 
-        Assert.assertNotNull(result);
+        Properties.TARGET_CLASS = targetClass;
+        Properties.PRIMITIVE_POOL = 0.0;
+        Properties.SEARCH_BUDGET = 50000;
 
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
-		System.out.println("EvolvedTestSuite:\n" + best);
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
 
-		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
-	}
-	
-	@Test
-	public void testDoubleSUTExact() {
-		EvoSuite evosuite = new EvoSuite();
-
-		String targetClass = DoubleExample2.class.getCanonicalName();
-
-		Properties.TARGET_CLASS = targetClass;
-		//Properties.PRIMITIVE_POOL = 0.0;
-		// TODO: Optimising exact doubles without seeding takes _long_
-		//Properties.SEARCH_BUDGET = 30000;
-
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
-
-		Object result = evosuite.parseCommandLine(command);
+        Object result = evosuite.parseCommandLine(command);
 
         Assert.assertNotNull(result);
 
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
-		System.out.println("EvolvedTestSuite:\n" + best);
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
+        System.out.println("EvolvedTestSuite:\n" + best);
 
-		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
-	}
+        Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+    }
+
+    @Test
+    public void testDoubleSUTExact() {
+        EvoSuite evosuite = new EvoSuite();
+
+        String targetClass = DoubleExample2.class.getCanonicalName();
+
+        Properties.TARGET_CLASS = targetClass;
+        //Properties.PRIMITIVE_POOL = 0.0;
+        // TODO: Optimising exact doubles without seeding takes _long_
+        //Properties.SEARCH_BUDGET = 30000;
+
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
+
+        Object result = evosuite.parseCommandLine(command);
+
+        Assert.assertNotNull(result);
+
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
+        System.out.println("EvolvedTestSuite:\n" + best);
+
+        Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+    }
 }

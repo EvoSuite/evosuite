@@ -53,7 +53,7 @@ public class FlakyGetStaticSystemTest extends SystemTestBase {
         String targetClass = ClassWithMutableStatic.class.getCanonicalName();
         Properties.TARGET_CLASS = targetClass;
         Properties.OUTPUT_VARIABLES = "" + RuntimeVariable.HadUnstableTests;
-        String[] command = new String[] { "-generateSuite", "-class", targetClass };
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
 
         Object result = evosuite.parseCommandLine(command);
 

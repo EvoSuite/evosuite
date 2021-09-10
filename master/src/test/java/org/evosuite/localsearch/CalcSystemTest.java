@@ -37,53 +37,53 @@ import com.examples.with.different.packagename.strings.Calc;
  */
 public class CalcSystemTest extends SystemTestBase {
 
-	@Before
-	public void init() {
-		Properties.LOCAL_SEARCH_PROBABILITY = 1.0;
-		Properties.LOCAL_SEARCH_RATE = 1;
-		Properties.LOCAL_SEARCH_BUDGET_TYPE = Properties.LocalSearchBudgetType.TESTS;
-		Properties.LOCAL_SEARCH_BUDGET = 100;
-		Properties.SEARCH_BUDGET = 50000;
-		Properties.RESET_STATIC_FIELD_GETS = true;
+    @Before
+    public void init() {
+        Properties.LOCAL_SEARCH_PROBABILITY = 1.0;
+        Properties.LOCAL_SEARCH_RATE = 1;
+        Properties.LOCAL_SEARCH_BUDGET_TYPE = Properties.LocalSearchBudgetType.TESTS;
+        Properties.LOCAL_SEARCH_BUDGET = 100;
+        Properties.SEARCH_BUDGET = 50000;
+        Properties.RESET_STATIC_FIELD_GETS = true;
 
-	}
+    }
 
-	@Test
-	public void testZ3DSE() {
+    @Test
+    public void testZ3DSE() {
 
-		if (System.getenv("z3_path")==null) {
-			System.out.println("z3_path should be configured for running this test case");
-			return;
-		}
-		
-		Properties.Z3_PATH = System.getenv("z3_path");
-		Properties.DSE_SOLVER = SolverType.Z3_SOLVER;
-		
-		Properties.STOPPING_CONDITION = StoppingCondition.MAXTIME;
-		Properties.SEARCH_BUDGET = 120;
-		
-		// should it be trivial for DSE ?
+        if (System.getenv("z3_path") == null) {
+            System.out.println("z3_path should be configured for running this test case");
+            return;
+        }
 
-		EvoSuite evosuite = new EvoSuite();
-		String targetClass = Calc.class.getCanonicalName();
-		Properties.TARGET_CLASS = targetClass;
+        Properties.Z3_PATH = System.getenv("z3_path");
+        Properties.DSE_SOLVER = SolverType.Z3_SOLVER;
 
-		Properties.CRITERION = new Criterion[] {Criterion.LINE, Criterion.BRANCH, Criterion.EXCEPTION, Criterion.WEAKMUTATION, 
-				Criterion.OUTPUT, Criterion.METHOD, Criterion.METHODNOEXCEPTION, Criterion.CBRANCH};
-		
-		Properties.MINIMIZE = false;
-		Properties.ASSERTIONS = false;
-		
-		Properties.DSE_PROBABILITY = 1.0; // force using only DSE, no LS
+        Properties.STOPPING_CONDITION = StoppingCondition.MAXTIME;
+        Properties.SEARCH_BUDGET = 120;
 
-		String[] command = new String[] { "-generateSuite", "-class",
-				targetClass };
+        // should it be trivial for DSE ?
 
-		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
-		System.out.println("EvolvedTestSuite:\n" + best);
+        EvoSuite evosuite = new EvoSuite();
+        String targetClass = Calc.class.getCanonicalName();
+        Properties.TARGET_CLASS = targetClass;
+
+        Properties.CRITERION = new Criterion[]{Criterion.LINE, Criterion.BRANCH, Criterion.EXCEPTION, Criterion.WEAKMUTATION,
+                Criterion.OUTPUT, Criterion.METHOD, Criterion.METHODNOEXCEPTION, Criterion.CBRANCH};
+
+        Properties.MINIMIZE = false;
+        Properties.ASSERTIONS = false;
+
+        Properties.DSE_PROBABILITY = 1.0; // force using only DSE, no LS
+
+        String[] command = new String[]{"-generateSuite", "-class",
+                targetClass};
+
+        Object result = evosuite.parseCommandLine(command);
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
+        System.out.println("EvolvedTestSuite:\n" + best);
 
 
-	}
+    }
 }

@@ -31,31 +31,31 @@ import org.junit.Test;
 import com.examples.with.different.packagename.RegexBranch;
 
 public class RegexBranchSystemTest extends SystemTestBase {
-	
-	public static final double defaultDynamicPool = Properties.DYNAMIC_POOL;
 
-	@After
-	public void resetProperties() {
-		Properties.DYNAMIC_POOL = defaultDynamicPool;
-	}
+    public static final double defaultDynamicPool = Properties.DYNAMIC_POOL;
 
-	
-	@Test
-	public void testRegexBranch() {
-		EvoSuite evosuite = new EvoSuite();
+    @After
+    public void resetProperties() {
+        Properties.DYNAMIC_POOL = defaultDynamicPool;
+    }
 
-		String targetClass = RegexBranch.class.getCanonicalName();
 
-		Properties.TARGET_CLASS = targetClass;
-		Properties.DYNAMIC_POOL = 1d / 3d;
+    @Test
+    public void testRegexBranch() {
+        EvoSuite evosuite = new EvoSuite();
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass }; // , "-Dprint_to_system=true"
+        String targetClass = RegexBranch.class.getCanonicalName();
 
-		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
-		System.out.println("EvolvedTestSuite:\n" + best);
+        Properties.TARGET_CLASS = targetClass;
+        Properties.DYNAMIC_POOL = 1d / 3d;
 
-		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
-	}
+        String[] command = new String[]{"-generateSuite", "-class", targetClass}; // , "-Dprint_to_system=true"
+
+        Object result = evosuite.parseCommandLine(command);
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
+        System.out.println("EvolvedTestSuite:\n" + best);
+
+        Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+    }
 }

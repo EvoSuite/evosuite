@@ -21,9 +21,9 @@ package com.examples.with.different.packagename;
 
 public class UnlikelyNoException {
 
-	public void testException(int x) throws IllegalArgumentException {
-		if (x != 5)
+    public void testException(int x) throws IllegalArgumentException {
+        if (x != 5)
             throw new IllegalArgumentException();
-	}
-	
+    }
+
 }

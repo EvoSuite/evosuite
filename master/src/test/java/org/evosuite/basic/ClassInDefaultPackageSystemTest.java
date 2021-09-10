@@ -30,26 +30,26 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class ClassInDefaultPackageSystemTest extends SystemTestBase {
-	@Test
-	public void testClassInDefaultPackage() {
-		EvoSuite evosuite = new EvoSuite();
+    @Test
+    public void testClassInDefaultPackage() {
+        EvoSuite evosuite = new EvoSuite();
 
-		String targetClass = "ClassInDefaultPackage";
+        String targetClass = "ClassInDefaultPackage";
 
-		Properties.TARGET_CLASS = targetClass;
+        Properties.TARGET_CLASS = targetClass;
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
 
-		Object result = evosuite.parseCommandLine(command);
+        Object result = evosuite.parseCommandLine(command);
 
         Assert.assertNotNull(result);
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
-		System.out.println("EvolvedTestSuite:\n" + best);
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
+        System.out.println("EvolvedTestSuite:\n" + best);
 
-		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
-		Assert.assertEquals("Wrong number of goals: ", 3, goals);
-		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
-	}
+        int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
+        Assert.assertEquals("Wrong number of goals: ", 3, goals);
+        Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+    }
 
 }

@@ -36,48 +36,48 @@ import java.nio.file.Paths;
 
 public class TestSuiteWriterSystemTest extends SystemTestBase {
 
-	
-	@Test
-	public void testSingleFile(){		
-		Properties.TEST_SCAFFOLDING = false;
-		test();
-	}
-	
-	@Test
-	public void testScaffoldingFile(){		
-		Properties.TEST_SCAFFOLDING = true;
-		test();
-	}
 
-	@Test
-	public void testWriteCoveredGoals() throws IOException {
-		Properties.WRITE_COVERED_GOALS_FILE = true;
-		test();
-		Path path = Paths.get(Properties.COVERED_GOALS_FILE);
-		Assert.assertTrue("Covered goals file does not exist", Files.exists(path));
-		Assert.assertEquals("Covered goals file with 2 lines was expected", 2, Files.readAllLines(path).size());
-	}
-	
-	
-	public void test(){
+    @Test
+    public void testSingleFile() {
+        Properties.TEST_SCAFFOLDING = false;
+        test();
+    }
 
-		Assert.assertNull(System.getSecurityManager());
-		
-		String targetClass = Foo.class.getCanonicalName();
-		Properties.TARGET_CLASS = targetClass;
-		Properties.JUNIT_TESTS = true;
-		Properties.JUNIT_CHECK = Properties.JUnitCheckValues.TRUE;
-		
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+    @Test
+    public void testScaffoldingFile() {
+        Properties.TEST_SCAFFOLDING = true;
+        test();
+    }
 
-		EvoSuite evosuite = new EvoSuite();
-		Object result = evosuite.parseCommandLine(command);
+    @Test
+    public void testWriteCoveredGoals() throws IOException {
+        Properties.WRITE_COVERED_GOALS_FILE = true;
+        test();
+        Path path = Paths.get(Properties.COVERED_GOALS_FILE);
+        Assert.assertTrue("Covered goals file does not exist", Files.exists(path));
+        Assert.assertEquals("Covered goals file with 2 lines was expected", 2, Files.readAllLines(path).size());
+    }
+
+
+    public void test() {
+
+        Assert.assertNull(System.getSecurityManager());
+
+        String targetClass = Foo.class.getCanonicalName();
+        Properties.TARGET_CLASS = targetClass;
+        Properties.JUNIT_TESTS = true;
+        Properties.JUNIT_CHECK = Properties.JUnitCheckValues.TRUE;
+
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
+
+        EvoSuite evosuite = new EvoSuite();
+        Object result = evosuite.parseCommandLine(command);
 
         Assert.assertNotNull(result);
 
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
-		System.out.println("EvolvedTestSuite:\n" + best);
-		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
-	}
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
+        System.out.println("EvolvedTestSuite:\n" + best);
+        Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+    }
 }

@@ -52,7 +52,7 @@ public class ConversionException extends RuntimeException {
      * Construct a new exception with the specified message and root cause.
      *
      * @param message The message describing this exception
-     * @param cause The root cause of this exception
+     * @param cause   The root cause of this exception
      */
     public ConversionException(String message, Throwable cause) {
 
@@ -86,6 +86,7 @@ public class ConversionException extends RuntimeException {
 
     /**
      * Return the root cause of this conversion exception.
+     *
      * @return the root cause of this conversion exception
      */
     public Throwable getCause() {

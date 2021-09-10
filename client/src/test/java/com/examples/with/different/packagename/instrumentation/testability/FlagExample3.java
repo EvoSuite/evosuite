@@ -21,14 +21,14 @@ package com.examples.with.different.packagename.instrumentation.testability;
 
 public class FlagExample3 {
 
-	private boolean isFive(int x) {
-		return x == 5;
-	}
+    private boolean isFive(int x) {
+        return x == 5;
+    }
 
-	public boolean testMe(int x) {
-		if(isFive(x))
-			return true;
-		else
-			return false;
-	}
+    public boolean testMe(int x) {
+        if (isFive(x))
+            return true;
+        else
+            return false;
+    }
 }

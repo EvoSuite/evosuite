@@ -40,8 +40,7 @@ import org.junit.Test;
 
 import static java.util.Comparator.comparingDouble;
 
-public class TestShere
-{
+public class TestShere {
     @BeforeClass
     public static void setUp() {
         Properties.POPULATION = 100;
@@ -51,8 +50,7 @@ public class TestShere
     }
 
     @Test
-    public void testSphereFitness()
-    {
+    public void testSphereFitness() {
         Problem<NSGAChromosome> p = new Sphere();
         FitnessFunction<NSGAChromosome> f1 = p.getFitnessFunctions().get(0);
 
@@ -65,13 +63,12 @@ public class TestShere
 
     /**
      * Testing NSGA-II with Sphere Problem
-     * 
-     * @throws IOException 
-     * @throws NumberFormatException 
+     *
+     * @throws IOException
+     * @throws NumberFormatException
      */
     @Test
-    public void testSphere() throws NumberFormatException, IOException
-    {
+    public void testSphere() throws NumberFormatException, IOException {
         Properties.MUTATION_RATE = 1d / 1d;
 
         ChromosomeFactory<NSGAChromosome> factory = new RandomFactory(false, 1, Math.pow(-10.0, 3.0),

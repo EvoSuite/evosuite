@@ -28,10 +28,10 @@ import java.sql.SQLException;
 public class MethodsWithExceptions {
 
     public static boolean oneException(int x) throws FileNotFoundException {
-        if(x == 5) {
+        if (x == 5) {
             throw new FileNotFoundException();
         }
-        if(x == 6){
+        if (x == 6) {
             throw new NullPointerException("somefile");
         }
 
@@ -39,18 +39,18 @@ public class MethodsWithExceptions {
     }
 
     public static boolean twoExceptions(int x) throws IllegalArgumentException, SQLException {
-        if(x == 10)
+        if (x == 10)
             throw new IllegalArgumentException();
-        else if(x == 42)
+        else if (x == 42)
             throw new SQLException();
         else
             return true;
     }
 
     public boolean nonStaticTwoExceptions(int x) throws IllegalArgumentException, SQLException {
-        if(x == 10)
+        if (x == 10)
             throw new IllegalArgumentException();
-        else if(x == 42)
+        else if (x == 42)
             throw new SQLException();
         else
             return true;

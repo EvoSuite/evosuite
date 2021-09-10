@@ -23,9 +23,9 @@ import org.junit.*;
 
 public class InnerConstructorTest {
 
-	@Test
-	public void test(){
-		InnerConstructor c = new InnerConstructor();
-		c.getFoo();
-	}
+    @Test
+    public void test() {
+        InnerConstructor c = new InnerConstructor();
+        c.getFoo();
+    }
 }

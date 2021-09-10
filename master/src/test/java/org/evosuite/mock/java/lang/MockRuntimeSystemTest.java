@@ -33,51 +33,51 @@ import com.examples.with.different.packagename.mock.java.lang.MemorySum;
 
 public class MockRuntimeSystemTest extends SystemTestBase {
 
-	@Test
-	public void testMockMemoryCheck(){
-		String targetClass = MemorySum.class.getCanonicalName();
+    @Test
+    public void testMockMemoryCheck() {
+        String targetClass = MemorySum.class.getCanonicalName();
 
-		Properties.TARGET_CLASS = targetClass;		
-		Properties.JUNIT_TESTS = true;
-		Properties.JUNIT_CHECK = Properties.JUnitCheckValues.TRUE;
-		Properties.REPLACE_CALLS = true;
-		Properties.OUTPUT_VARIABLES=""+RuntimeVariable.HadUnstableTests;
-		
-		EvoSuite evosuite = new EvoSuite();
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
-		Object result = evosuite.parseCommandLine(command);
+        Properties.TARGET_CLASS = targetClass;
+        Properties.JUNIT_TESTS = true;
+        Properties.JUNIT_CHECK = Properties.JUnitCheckValues.TRUE;
+        Properties.REPLACE_CALLS = true;
+        Properties.OUTPUT_VARIABLES = "" + RuntimeVariable.HadUnstableTests;
 
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
-		Assert.assertNotNull(best);
-		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+        EvoSuite evosuite = new EvoSuite();
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
+        Object result = evosuite.parseCommandLine(command);
 
-		checkUnstable();
-	}
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
+        Assert.assertNotNull(best);
+        Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 
-	@Test
-	public void testCheckShutdownHook(){
-		String targetClass = HookWithBranch.class.getCanonicalName();
+        checkUnstable();
+    }
 
-		Properties.TARGET_CLASS = targetClass;		
-		Properties.JUNIT_TESTS = true;
-		Properties.JUNIT_CHECK = Properties.JUnitCheckValues.TRUE;
-		Properties.REPLACE_CALLS = true;
-		Properties.OUTPUT_VARIABLES=""+RuntimeVariable.HadUnstableTests;
-		Properties.MINIMIZE=true;
-		Properties.CRITERION = new Properties.Criterion[] { Properties.Criterion.BRANCH };
+    @Test
+    public void testCheckShutdownHook() {
+        String targetClass = HookWithBranch.class.getCanonicalName();
 
-		EvoSuite evosuite = new EvoSuite();
-		String[] command = new String[] { "-generateSuite", "-class", targetClass};
-		Object result = evosuite.parseCommandLine(command);
+        Properties.TARGET_CLASS = targetClass;
+        Properties.JUNIT_TESTS = true;
+        Properties.JUNIT_CHECK = Properties.JUnitCheckValues.TRUE;
+        Properties.REPLACE_CALLS = true;
+        Properties.OUTPUT_VARIABLES = "" + RuntimeVariable.HadUnstableTests;
+        Properties.MINIMIZE = true;
+        Properties.CRITERION = new Properties.Criterion[]{Properties.Criterion.BRANCH};
 
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
-		Assert.assertNotNull(best);
+        EvoSuite evosuite = new EvoSuite();
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
+        Object result = evosuite.parseCommandLine(command);
 
-		Assert.assertTrue("Non-optimal coverage: ", best.getCoverage() >= 0.8);
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
+        Assert.assertNotNull(best);
 
-		checkUnstable();
-	}
+        Assert.assertTrue("Non-optimal coverage: ", best.getCoverage() >= 0.8);
+
+        checkUnstable();
+    }
 
 }

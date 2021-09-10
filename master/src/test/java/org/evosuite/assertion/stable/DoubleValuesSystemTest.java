@@ -48,7 +48,7 @@ public class DoubleValuesSystemTest extends SystemTestBase {
 
     @Before
     public void before() {
-        Properties.RESET_STATIC_FIELDS=true;
+        Properties.RESET_STATIC_FIELDS = true;
         Properties.SANDBOX = true;
         Properties.JUNIT_CHECK = Properties.JUnitCheckValues.TRUE;
         Properties.JUNIT_TESTS = true;
@@ -65,14 +65,15 @@ public class DoubleValuesSystemTest extends SystemTestBase {
         Properties.PURE_INSPECTORS = DEFAULT_PURE_INSPECTORS;
         Properties.JUNIT_CHECK_ON_SEPARATE_PROCESS = DEFAULT_JUNIT_CHECK_ON_SEPARATE_PROCESS;
     }
+
     @Test
     public void testDoubleWrappers() {
         EvoSuite evosuite = new EvoSuite();
 
         String targetClass = DoubleWrapperExample.class.getCanonicalName();
         Properties.TARGET_CLASS = targetClass;
-        String[] command = new String[] { "-generateSuite", "-class",
-                targetClass };
+        String[] command = new String[]{"-generateSuite", "-class",
+                targetClass};
 
         Object result = evosuite.parseCommandLine(command);
 

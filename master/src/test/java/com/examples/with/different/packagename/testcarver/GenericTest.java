@@ -26,13 +26,13 @@ import org.junit.Test;
 
 public class GenericTest {
 
-	@Test
-	public void test() {
-		ObjectWrapper wrapper = new ObjectWrapper();
+    @Test
+    public void test() {
+        ObjectWrapper wrapper = new ObjectWrapper();
 
-		Set<Long> someSet = new HashSet<>();
-		someSet.add(42L);
+        Set<Long> someSet = new HashSet<>();
+        someSet.add(42L);
 
-		wrapper.set(someSet);
-	}
+        wrapper.set(someSet);
+    }
 }

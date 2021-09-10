@@ -20,29 +20,41 @@
 package com.examples.with.different.packagename.test;
 
 public enum MyEnum {
-    /** Equality relationship. */
+    /**
+     * Equality relationship.
+     */
     EQ("="),
 
-    /** Lesser than or equal relationship. */
+    /**
+     * Lesser than or equal relationship.
+     */
     LEQ("<="),
 
-    /** Greater than or equal relationship. */
+    /**
+     * Greater than or equal relationship.
+     */
     GEQ(">=");
 
-    /** Display string for the relationship. */
+    /**
+     * Display string for the relationship.
+     */
     private String stringValue;
 
-    /** Simple constructor.
+    /**
+     * Simple constructor.
+     *
      * @param stringValue display string for the relationship
      */
     private MyEnum(String stringValue) {
         this.stringValue = stringValue;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String toString() {
         return stringValue;
     }
-  
+
 }

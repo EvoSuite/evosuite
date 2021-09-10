@@ -27,42 +27,42 @@ import com.examples.with.different.packagename.testreader.TestExample.MockingBir
 
 
 public class ParentTestExample {
-	protected static Integer value = 0;
+    protected static Integer value = 0;
 
-	static {
-		value = 5;
-	}
+    static {
+        value = 5;
+    }
 
-	@BeforeClass
-	public static void initializeOtherValue() {
-		value = Integer.MAX_VALUE;
-	}
-	
-	@BeforeClass
-	public static void someInitialization() {
-		value = 7;
-	}
-	
-	protected String needed = null;
-	
-	public ParentTestExample(){
-		needed = "break free!";
-	}
+    @BeforeClass
+    public static void initializeOtherValue() {
+        value = Integer.MAX_VALUE;
+    }
 
-	@Before
-	public void otherSetup() {
-		value = 3;
-	}
+    @BeforeClass
+    public static void someInitialization() {
+        value = 7;
+    }
 
-	@Before
-	public void setupNeeded() {
-		needed = "escape";
-	}
+    protected String needed = null;
 
-//	@Ignore
-	@Test
-	public void test01() {
-		MockingBird bird = MockingBird.create(needed);
-		bird.executeCmd(value);
-	}
+    public ParentTestExample() {
+        needed = "break free!";
+    }
+
+    @Before
+    public void otherSetup() {
+        value = 3;
+    }
+
+    @Before
+    public void setupNeeded() {
+        needed = "escape";
+    }
+
+    //	@Ignore
+    @Test
+    public void test01() {
+        MockingBird bird = MockingBird.create(needed);
+        bird.executeCmd(value);
+    }
 }

@@ -51,40 +51,40 @@ import com.opencsv.CSVReader;
 
 public class CoverageAnalysisOfClassSystemTest extends SystemTestBase {
 
-	@Before
-	public void prepare() {
-		try {
-			FileUtils.deleteDirectory(new File("evosuite-report"));
-		} catch (IOException e) {
-			Assert.fail(e.getMessage());
-		}
+    @Before
+    public void prepare() {
+        try {
+            FileUtils.deleteDirectory(new File("evosuite-report"));
+        } catch (IOException e) {
+            Assert.fail(e.getMessage());
+        }
 
-		Properties.TARGET_CLASS = "";
-		Properties.OUTPUT_VARIABLES = null;
+        Properties.TARGET_CLASS = "";
+        Properties.OUTPUT_VARIABLES = null;
         Properties.STATISTICS_BACKEND = StatisticsBackend.DEBUG;
         Properties.COVERAGE_MATRIX = false;
 
         SearchStatistics.clearInstance();
         CoverageAnalysis.reset();
-	}
+    }
 
-	@Test
-	public void testOneClassOneCriterion() {
+    @Test
+    public void testOneClassOneCriterion() {
 
-		EvoSuite evosuite = new EvoSuite();
+        EvoSuite evosuite = new EvoSuite();
 
         String targetClass = Calculator.class.getCanonicalName();
         String testClass = CalculatorTest.class.getCanonicalName();
         Properties.TARGET_CLASS = targetClass;
 
-        Properties.CRITERION = new Properties.Criterion[] {
-        	Properties.Criterion.BRANCH
+        Properties.CRITERION = new Properties.Criterion[]{
+                Properties.Criterion.BRANCH
         };
 
-        String[] command = new String[] {
-            "-class", targetClass,
-            "-Djunit=" + testClass,
-            "-measureCoverage"
+        String[] command = new String[]{
+                "-class", targetClass,
+                "-Djunit=" + testClass,
+                "-measureCoverage"
         };
 
         SearchStatistics statistics = (SearchStatistics) evosuite.parseCommandLine(command);
@@ -98,32 +98,32 @@ public class CoverageAnalysisOfClassSystemTest extends SystemTestBase {
         assertEquals(4, (Integer) outputVariables.get("Covered_Goals").getValue(), 0);
         assertEquals(5, (Integer) outputVariables.get("Total_Goals").getValue(), 0);
         assertEquals("10111", outputVariables.get("BranchCoverageBitString").getValue());
-	}
+    }
 
-	@Test
-	public void testOneClassMoreThanOneCriterion() throws IOException, CsvException {
+    @Test
+    public void testOneClassMoreThanOneCriterion() throws IOException, CsvException {
 
-		EvoSuite evosuite = new EvoSuite();
+        EvoSuite evosuite = new EvoSuite();
 
         String targetClass = Calculator.class.getCanonicalName();
         String testClass = CalculatorTest.class.getCanonicalName();
         Properties.TARGET_CLASS = targetClass;
 
-        Properties.CRITERION = new Properties.Criterion[] {
-        	Properties.Criterion.BRANCH,
-        	Properties.Criterion.LINE
+        Properties.CRITERION = new Properties.Criterion[]{
+                Properties.Criterion.BRANCH,
+                Properties.Criterion.LINE
         };
 
         Properties.OUTPUT_VARIABLES = "TARGET_CLASS,criterion," +
-        		RuntimeVariable.Coverage.name() + "," + RuntimeVariable.Covered_Goals + "," + RuntimeVariable.Total_Goals + "," +
-        		RuntimeVariable.BranchCoverage + "," + RuntimeVariable.BranchCoverageBitString + "," +
-        		RuntimeVariable.LineCoverage + "," + RuntimeVariable.LineCoverageBitString;
+                RuntimeVariable.Coverage.name() + "," + RuntimeVariable.Covered_Goals + "," + RuntimeVariable.Total_Goals + "," +
+                RuntimeVariable.BranchCoverage + "," + RuntimeVariable.BranchCoverageBitString + "," +
+                RuntimeVariable.LineCoverage + "," + RuntimeVariable.LineCoverageBitString;
         Properties.STATISTICS_BACKEND = StatisticsBackend.CSV;
 
-        String[] command = new String[] {
-            "-class", targetClass,
-            "-Djunit=" + testClass,
-            "-measureCoverage"
+        String[] command = new String[]{
+                "-class", targetClass,
+                "-Djunit=" + testClass,
+                "-measureCoverage"
         };
 
         SearchStatistics statistics = (SearchStatistics) evosuite.parseCommandLine(command);
@@ -141,46 +141,46 @@ public class CoverageAnalysisOfClassSystemTest extends SystemTestBase {
         assertEquals(CsvJUnitData.getValue(rows, "criterion"), Properties.Criterion.BRANCH.toString() + ";" + Properties.Criterion.LINE.toString());
 
         assertEquals(0.8, Double.valueOf(CsvJUnitData.getValue(rows, RuntimeVariable.Coverage.name())), 0.01);
-        assertEquals(8, (int)Integer.valueOf(CsvJUnitData.getValue(rows, RuntimeVariable.Covered_Goals.name())));
-        assertEquals(10, (int)Integer.valueOf(CsvJUnitData.getValue(rows, RuntimeVariable.Total_Goals.name())));
+        assertEquals(8, (int) Integer.valueOf(CsvJUnitData.getValue(rows, RuntimeVariable.Covered_Goals.name())));
+        assertEquals(10, (int) Integer.valueOf(CsvJUnitData.getValue(rows, RuntimeVariable.Total_Goals.name())));
 
         assertEquals(0.8, Double.valueOf(CsvJUnitData.getValue(rows, RuntimeVariable.BranchCoverage.name())), 0.0);
         assertEquals(0.8, Double.valueOf(CsvJUnitData.getValue(rows, RuntimeVariable.LineCoverage.name())), 0.0);
 
         assertEquals("10111", CsvJUnitData.getValue(rows, RuntimeVariable.BranchCoverageBitString.name()));
         assertEquals("01111", CsvJUnitData.getValue(rows, RuntimeVariable.LineCoverageBitString.name()));
-	}
+    }
 
-	@Test
-	public void testMeasureCoverageOfCarvedTests() {
+    @Test
+    public void testMeasureCoverageOfCarvedTests() {
 
-		EvoSuite evosuite = new EvoSuite();
+        EvoSuite evosuite = new EvoSuite();
 
-		String targetClass = MethodWithSeveralInputArguments.class.getCanonicalName();
-		String testClass = TestMethodWithSeveralInputArguments.class.getCanonicalName();
-		Properties.TARGET_CLASS = targetClass;
+        String targetClass = MethodWithSeveralInputArguments.class.getCanonicalName();
+        String testClass = TestMethodWithSeveralInputArguments.class.getCanonicalName();
+        Properties.TARGET_CLASS = targetClass;
 
-		Properties.CRITERION = new Properties.Criterion[] {
-				Properties.Criterion.INPUT,
-				Properties.Criterion.METHOD,
-				Properties.Criterion.OUTPUT
-		};
+        Properties.CRITERION = new Properties.Criterion[]{
+                Properties.Criterion.INPUT,
+                Properties.Criterion.METHOD,
+                Properties.Criterion.OUTPUT
+        };
 
-		String[] command = new String[] {
-				"-class", targetClass,
-				"-Djunit=" + testClass,
-				"-Dselected_junit=" + testClass,
-				"-measureCoverage"
-		};
+        String[] command = new String[]{
+                "-class", targetClass,
+                "-Djunit=" + testClass,
+                "-Dselected_junit=" + testClass,
+                "-measureCoverage"
+        };
 
-		SearchStatistics result = (SearchStatistics)evosuite.parseCommandLine(command);
-		Assert.assertNotNull(result);
-		OutputVariable<?> methodCoverage = result.getOutputVariables().get(RuntimeVariable.MethodCoverage.name());
-		OutputVariable<?> inputCoverage = result.getOutputVariables().get(RuntimeVariable.InputCoverage.name());
-		OutputVariable<?> outputCoverage = result.getOutputVariables().get(RuntimeVariable.OutputCoverage.name());
+        SearchStatistics result = (SearchStatistics) evosuite.parseCommandLine(command);
+        Assert.assertNotNull(result);
+        OutputVariable<?> methodCoverage = result.getOutputVariables().get(RuntimeVariable.MethodCoverage.name());
+        OutputVariable<?> inputCoverage = result.getOutputVariables().get(RuntimeVariable.InputCoverage.name());
+        OutputVariable<?> outputCoverage = result.getOutputVariables().get(RuntimeVariable.OutputCoverage.name());
 
-		Assert.assertEquals("Unexpected method coverage value", 1d, (Double) methodCoverage.getValue(), 0.01);
-		Assert.assertEquals("Unexpected input coverage value", 0.67d, (Double) inputCoverage.getValue(), 0.01);
-		Assert.assertEquals("Unexpected output coverage value", 0.33d, (Double) outputCoverage.getValue(), 0.01);
-	}
+        Assert.assertEquals("Unexpected method coverage value", 1d, (Double) methodCoverage.getValue(), 0.01);
+        Assert.assertEquals("Unexpected input coverage value", 0.67d, (Double) inputCoverage.getValue(), 0.01);
+        Assert.assertEquals("Unexpected output coverage value", 0.33d, (Double) outputCoverage.getValue(), 0.01);
+    }
 }

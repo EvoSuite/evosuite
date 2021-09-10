@@ -19,10 +19,16 @@
  */
 package org.evosuite.symbolic;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import com.examples.with.different.packagename.concolic.TestInput1;
+import com.examples.with.different.packagename.concolic.TestInput2;
+import org.evosuite.Properties;
+import org.evosuite.symbolic.dse.ConcolicExecutorImpl;
+import org.evosuite.symbolic.expr.Constraint;
+import org.evosuite.symbolic.solver.*;
+import org.evosuite.symbolic.solver.avm.EvoSuiteSolver;
+import org.evosuite.testcase.DefaultTestCase;
+import org.evosuite.testcase.variable.VariableReference;
+import org.junit.Test;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
@@ -32,162 +38,147 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.evosuite.Properties;
-import org.evosuite.symbolic.dse.ConcolicExecutorImpl;
-import org.evosuite.symbolic.expr.Constraint;
-import org.evosuite.symbolic.solver.SolverEmptyQueryException;
-import org.evosuite.symbolic.solver.SolverErrorException;
-import org.evosuite.symbolic.solver.SolverParseException;
-import org.evosuite.symbolic.solver.SolverResult;
-import org.evosuite.symbolic.solver.SolverTimeoutException;
-import org.evosuite.symbolic.solver.avm.EvoSuiteSolver;
-import org.evosuite.testcase.DefaultTestCase;
-import org.evosuite.testcase.variable.VariableReference;
-import org.junit.Test;
-
-import com.examples.with.different.packagename.concolic.TestInput1;
-import com.examples.with.different.packagename.concolic.TestInput2;
+import static org.junit.Assert.*;
 
 public class TestConstraintSolver {
 
-	private List<BranchCondition> executeTest(DefaultTestCase tc) {
-		Properties.CLIENT_ON_THREAD = true;
-		Properties.PRINT_TO_SYSTEM = true;
-		Properties.TIMEOUT = 5000000;
-		Properties.CONCOLIC_TIMEOUT = 5000000;
+    private List<BranchCondition> executeTest(DefaultTestCase tc) {
+        Properties.CLIENT_ON_THREAD = true;
+        Properties.PRINT_TO_SYSTEM = true;
+        Properties.TIMEOUT = 5000000;
+        Properties.CONCOLIC_TIMEOUT = 5000000;
 
-		System.out.println("TestCase=");
-		System.out.println(tc.toCode());
+        System.out.println("TestCase=");
+        System.out.println(tc.toCode());
 
-		PathCondition pc = new ConcolicExecutorImpl().execute(tc);
-		List<BranchCondition> branch_conditions = pc.getBranchConditions();
+        PathCondition pc = new ConcolicExecutorImpl().execute(tc);
+        List<BranchCondition> branch_conditions = pc.getBranchConditions();
 
-		return branch_conditions;
-	}
+        return branch_conditions;
+    }
 
-	private DefaultTestCase buildTestCase1() throws SecurityException, NoSuchMethodException {
-		TestCaseBuilder tc = new TestCaseBuilder();
-		VariableReference int0 = tc.appendIntPrimitive(-15);
-		VariableReference long0 = tc.appendLongPrimitive(Long.MAX_VALUE);
-		VariableReference string0 = tc.appendStringPrimitive("Togliere sta roba");
+    private DefaultTestCase buildTestCase1() throws SecurityException, NoSuchMethodException {
+        TestCaseBuilder tc = new TestCaseBuilder();
+        VariableReference int0 = tc.appendIntPrimitive(-15);
+        VariableReference long0 = tc.appendLongPrimitive(Long.MAX_VALUE);
+        VariableReference string0 = tc.appendStringPrimitive("Togliere sta roba");
 
-		Method method = TestInput1.class.getMethod("test", int.class, long.class, String.class);
-		tc.appendMethod(null, method, int0, long0, string0);
-		return tc.getDefaultTestCase();
-	}
+        Method method = TestInput1.class.getMethod("test", int.class, long.class, String.class);
+        tc.appendMethod(null, method, int0, long0, string0);
+        return tc.getDefaultTestCase();
+    }
 
-	@Test
-	public void testCase1() throws SecurityException, NoSuchMethodException, SolverEmptyQueryException {
-		DefaultTestCase tc = buildTestCase1();
-		// build patch condition
-		List<BranchCondition> branch_conditions = executeTest(tc);
-		assertEquals(2, branch_conditions.size());
+    @Test
+    public void testCase1() throws SecurityException, NoSuchMethodException, SolverEmptyQueryException {
+        DefaultTestCase tc = buildTestCase1();
+        // build patch condition
+        List<BranchCondition> branch_conditions = executeTest(tc);
+        assertEquals(2, branch_conditions.size());
 
-		// invoke seeker
-		try {
-			SolverResult solverResult = executeSolver(branch_conditions);
-			assertNotNull(solverResult);
-			assertTrue(solverResult.isSAT());
-		} catch (SolverTimeoutException e) {
-			fail();
-		}
+        // invoke seeker
+        try {
+            SolverResult solverResult = executeSolver(branch_conditions);
+            assertNotNull(solverResult);
+            assertTrue(solverResult.isSAT());
+        } catch (SolverTimeoutException e) {
+            fail();
+        }
 
-	}
+    }
 
-	private SolverResult executeSolver(List<BranchCondition> branch_conditions)
-			throws SolverTimeoutException, SolverEmptyQueryException {
+    private SolverResult executeSolver(List<BranchCondition> branch_conditions)
+            throws SolverTimeoutException, SolverEmptyQueryException {
 
-		final int lastBranchIndex = branch_conditions.size() - 1;
-		BranchCondition last_branch = branch_conditions.get(lastBranchIndex);
+        final int lastBranchIndex = branch_conditions.size() - 1;
+        BranchCondition last_branch = branch_conditions.get(lastBranchIndex);
 
-		List<Constraint<?>> constraints = new LinkedList<>();
-		
-		for(int i=0; i<lastBranchIndex; i++) {
-			BranchCondition c = branch_conditions.get(i);
-			constraints.addAll(c.getSupportingConstraints());
-			constraints.add(c.getConstraint());
-		}
-		
-		constraints.addAll(last_branch.getSupportingConstraints());
-		Constraint<?> lastConstraint = last_branch.getConstraint();
+        List<Constraint<?>> constraints = new LinkedList<>();
 
-		Constraint<?> targetConstraint = lastConstraint.negate();
+        for (int i = 0; i < lastBranchIndex; i++) {
+            BranchCondition c = branch_conditions.get(i);
+            constraints.addAll(c.getSupportingConstraints());
+            constraints.add(c.getConstraint());
+        }
 
-		constraints.add(targetConstraint);
+        constraints.addAll(last_branch.getSupportingConstraints());
+        Constraint<?> lastConstraint = last_branch.getConstraint();
 
-		System.out.println("Target constraints");
-		printConstraints(constraints);
+        Constraint<?> targetConstraint = lastConstraint.negate();
 
-		EvoSuiteSolver solver = new EvoSuiteSolver();
-		SolverResult solverResult;
-		try {
-			solverResult = solver.solve(constraints);
-		} catch (IOException | SolverParseException | SolverErrorException e) {
-			solverResult = null;
-		}
+        constraints.add(targetConstraint);
 
-		if (solverResult.isUNSAT())
-			System.out.println("No new model was found");
-		else {
-			Map<String, Object> model = solverResult.getModel();
-			System.out.println(model.toString());
-		}
+        System.out.println("Target constraints");
+        printConstraints(constraints);
 
-		return solverResult;
-	}
+        EvoSuiteSolver solver = new EvoSuiteSolver();
+        SolverResult solverResult;
+        try {
+            solverResult = solver.solve(constraints);
+        } catch (IOException | SolverParseException | SolverErrorException e) {
+            solverResult = null;
+        }
 
-	private static void printConstraints(List<Constraint<?>> constraints) {
-		for (Constraint<?> constraint : constraints) {
-			System.out.println(constraint);
-		}
+        if (solverResult.isUNSAT())
+            System.out.println("No new model was found");
+        else {
+            Map<String, Object> model = solverResult.getModel();
+            System.out.println(model.toString());
+        }
 
-	}
+        return solverResult;
+    }
 
-	/**
-	 *
-	 * @return
-	 * @throws SecurityException
-	 * @throws NoSuchMethodException
-	 */
-	private DefaultTestCase buildTestCase2() throws SecurityException, NoSuchMethodException {
-		TestCaseBuilder tc = new TestCaseBuilder();
-		VariableReference int0 = tc.appendIntPrimitive(5);
-		VariableReference int1 = tc.appendIntPrimitive(16);
-		VariableReference int2 = tc.appendIntPrimitive(16);
-		VariableReference int3 = tc.appendIntPrimitive(22);
-		VariableReference int4 = tc.appendIntPrimitive(22);
+    private static void printConstraints(List<Constraint<?>> constraints) {
+        for (Constraint<?> constraint : constraints) {
+            System.out.println(constraint);
+        }
 
-		Method method = TestInput2.class.getMethod("test", int.class, int.class, int.class, int.class, int.class);
-		tc.appendMethod(null, method, int0, int1, int2, int3, int4);
-		return tc.getDefaultTestCase();
-	}
+    }
 
-	@Test
-	public void testCase2() throws SecurityException, NoSuchMethodException, SolverEmptyQueryException {
-		DefaultTestCase tc = buildTestCase2();
-		// build patch condition
-		List<BranchCondition> branchConditions = executeTest(tc);
-		assertEquals(85, branchConditions.size());
-		assertEquals(58, getBranchConditions(branchConditions).size());
+    /**
+     * @return
+     * @throws SecurityException
+     * @throws NoSuchMethodException
+     */
+    private DefaultTestCase buildTestCase2() throws SecurityException, NoSuchMethodException {
+        TestCaseBuilder tc = new TestCaseBuilder();
+        VariableReference int0 = tc.appendIntPrimitive(5);
+        VariableReference int1 = tc.appendIntPrimitive(16);
+        VariableReference int2 = tc.appendIntPrimitive(16);
+        VariableReference int3 = tc.appendIntPrimitive(22);
+        VariableReference int4 = tc.appendIntPrimitive(22);
 
-		// keep only 2 top-most branch conditions
-		List<BranchCondition> sublist = new ArrayList<>();
-		sublist.add(branchConditions.get(0));
-		sublist.add(branchConditions.get(1));
+        Method method = TestInput2.class.getMethod("test", int.class, int.class, int.class, int.class, int.class);
+        tc.appendMethod(null, method, int0, int1, int2, int3, int4);
+        return tc.getDefaultTestCase();
+    }
 
-		// invoke seeker
-		try {
-			SolverResult solverResult = executeSolver(sublist);
-			assertNotNull(solverResult);
-			assertTrue(solverResult.isSAT());
-		} catch (SolverTimeoutException e) {
-			fail();
-		}
+    @Test
+    public void testCase2() throws SecurityException, NoSuchMethodException, SolverEmptyQueryException {
+        DefaultTestCase tc = buildTestCase2();
+        // build patch condition
+        List<BranchCondition> branchConditions = executeTest(tc);
+        assertEquals(85, branchConditions.size());
+        assertEquals(58, getBranchConditions(branchConditions).size());
 
-	}
+        // keep only 2 top-most branch conditions
+        List<BranchCondition> sublist = new ArrayList<>();
+        sublist.add(branchConditions.get(0));
+        sublist.add(branchConditions.get(1));
 
-	private List<BranchCondition> getBranchConditions(List<BranchCondition> branchConditions) {
-		return branchConditions.stream().filter(node -> node instanceof IfBranchCondition || node instanceof SwitchBranchCondition).collect(Collectors.toList());
-	}
+        // invoke seeker
+        try {
+            SolverResult solverResult = executeSolver(sublist);
+            assertNotNull(solverResult);
+            assertTrue(solverResult.isSAT());
+        } catch (SolverTimeoutException e) {
+            fail();
+        }
+
+    }
+
+    private List<BranchCondition> getBranchConditions(List<BranchCondition> branchConditions) {
+        return branchConditions.stream().filter(node -> node instanceof IfBranchCondition || node instanceof SwitchBranchCondition).collect(Collectors.toList());
+    }
 
 }

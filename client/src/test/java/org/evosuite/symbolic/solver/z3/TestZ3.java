@@ -27,25 +27,25 @@ import org.junit.BeforeClass;
 
 public abstract class TestZ3 {
 
-	private static final String DEFAULT_Z3_PATH = Properties.Z3_PATH;
+    private static final String DEFAULT_Z3_PATH = Properties.Z3_PATH;
 
-	@BeforeClass
-	public static void configureZ3Path() {
-		String z3StrPath = System.getenv("z3_path");
-		if (z3StrPath != null) {
-			Properties.Z3_PATH = z3StrPath;
-		}
-	}
+    @BeforeClass
+    public static void configureZ3Path() {
+        String z3StrPath = System.getenv("z3_path");
+        if (z3StrPath != null) {
+            Properties.Z3_PATH = z3StrPath;
+        }
+    }
 
-	@AfterClass
-	public static void restoreZ3Path() {
-		Properties.Z3_PATH = DEFAULT_Z3_PATH;
-	}
+    @AfterClass
+    public static void restoreZ3Path() {
+        Properties.Z3_PATH = DEFAULT_Z3_PATH;
+    }
 
-	@Before
-	public void checkZ3() {
-		Assume.assumeTrue(Properties.Z3_PATH!=null);
-	}
+    @Before
+    public void checkZ3() {
+        Assume.assumeTrue(Properties.Z3_PATH != null);
+    }
 
-	
+
 }

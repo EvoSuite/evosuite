@@ -27,46 +27,46 @@ import org.junit.Test;
 
 public class DivisionByZeroInstrumentationSystemTest extends AbstractErrorBranchTest {
 
-	@Test
-	public void testIntDivisionWithoutErrorBranches() {
-		Properties.ERROR_BRANCHES = false;
-		Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.DIVISIONBYZERO};
-		checkErrorBranches(IntDivisionByZero.class, 2, 0, 2, 0);
-	}
+    @Test
+    public void testIntDivisionWithoutErrorBranches() {
+        Properties.ERROR_BRANCHES = false;
+        Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.DIVISIONBYZERO};
+        checkErrorBranches(IntDivisionByZero.class, 2, 0, 2, 0);
+    }
 
-	@Test
-	public void testIntDivisionWithErrorBranches() {
-		Properties.ERROR_BRANCHES = true;
-		Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.DIVISIONBYZERO};
-		checkErrorBranches(IntDivisionByZero.class, 2, 2, 2, 2);
-	}
+    @Test
+    public void testIntDivisionWithErrorBranches() {
+        Properties.ERROR_BRANCHES = true;
+        Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.DIVISIONBYZERO};
+        checkErrorBranches(IntDivisionByZero.class, 2, 2, 2, 2);
+    }
 
-	@Test
-	public void testDoubleDivisionWithoutErrorBranches() {
-		Properties.ERROR_BRANCHES = false;
-		Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.DIVISIONBYZERO};
-		checkErrorBranches(DoubleDivisionByZero.class, 2, 0, 2, 0);
-	}
+    @Test
+    public void testDoubleDivisionWithoutErrorBranches() {
+        Properties.ERROR_BRANCHES = false;
+        Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.DIVISIONBYZERO};
+        checkErrorBranches(DoubleDivisionByZero.class, 2, 0, 2, 0);
+    }
 
-	@Test
-	public void testDoubleDivisionWithErrorBranches() {
-		Properties.ERROR_BRANCHES = true;
-		Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.DIVISIONBYZERO};
-		checkErrorBranches(DoubleDivisionByZero.class, 2, 0, 2, 0);
-	}
+    @Test
+    public void testDoubleDivisionWithErrorBranches() {
+        Properties.ERROR_BRANCHES = true;
+        Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.DIVISIONBYZERO};
+        checkErrorBranches(DoubleDivisionByZero.class, 2, 0, 2, 0);
+    }
 
-	@Test
-	public void testLongDivisionWithoutErrorBranches() {
-		Properties.ERROR_BRANCHES = false;
-		Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.DIVISIONBYZERO};
-		checkErrorBranches(LongDivisionByZero.class, 2, 0, 2, 0);
-	}
+    @Test
+    public void testLongDivisionWithoutErrorBranches() {
+        Properties.ERROR_BRANCHES = false;
+        Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.DIVISIONBYZERO};
+        checkErrorBranches(LongDivisionByZero.class, 2, 0, 2, 0);
+    }
 
-	// No division by zero for doubles
-	@Test
-	public void testLongDivisionWithErrorBranches() {
-		Properties.ERROR_BRANCHES = true;
-		Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.DIVISIONBYZERO};
-		checkErrorBranches(LongDivisionByZero.class, 2, 2, 2, 2);
-	}
+    // No division by zero for doubles
+    @Test
+    public void testLongDivisionWithErrorBranches() {
+        Properties.ERROR_BRANCHES = true;
+        Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.DIVISIONBYZERO};
+        checkErrorBranches(LongDivisionByZero.class, 2, 2, 2, 2);
+    }
 }

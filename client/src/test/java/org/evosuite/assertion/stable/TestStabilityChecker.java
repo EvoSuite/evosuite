@@ -19,60 +19,59 @@
  */
 package org.evosuite.assertion.stable;
 
-import java.util.List;
-
 import org.evosuite.Properties;
 import org.evosuite.junit.JUnitAnalyzer;
 import org.evosuite.runtime.sandbox.Sandbox;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.execution.TestCaseExecutor;
 
+import java.util.List;
+
 public abstract class TestStabilityChecker {
-	public static boolean checkStability(List<TestCase> list) {
-		int n = list.size();
-		boolean previousRunOnSeparateProcess = Properties.JUNIT_CHECK_ON_SEPARATE_PROCESS;
-		Properties.JUNIT_CHECK_ON_SEPARATE_PROCESS = false;
-		
-		TestCaseExecutor.initExecutor(); //needed because it gets pulled down after the search
+    public static boolean checkStability(List<TestCase> list) {
+        int n = list.size();
+        boolean previousRunOnSeparateProcess = Properties.JUNIT_CHECK_ON_SEPARATE_PROCESS;
+        Properties.JUNIT_CHECK_ON_SEPARATE_PROCESS = false;
 
-		//Before starting search, let's activate the sandbox
-		if (Properties.SANDBOX) {
-			Sandbox.initializeSecurityManagerForSUT();
-		}
+        TestCaseExecutor.initExecutor(); //needed because it gets pulled down after the search
 
-		
-		for (TestCase tc : list) {
-			if (tc.isUnstable()) {
-				return false;
-			}
-		}
+        //Before starting search, let's activate the sandbox
+        if (Properties.SANDBOX) {
+            Sandbox.initializeSecurityManagerForSUT();
+        }
 
 
+        for (TestCase tc : list) {
+            if (tc.isUnstable()) {
+                return false;
+            }
+        }
 
-		try {
-			JUnitAnalyzer.removeTestsThatDoNotCompile(list);
-			if (n != list.size()) {
-				return false;
-			}
 
-			JUnitAnalyzer.handleTestsThatAreUnstable(list);
-			if (n != list.size()) {
-				return false;
-			}
+        try {
+            JUnitAnalyzer.removeTestsThatDoNotCompile(list);
+            if (n != list.size()) {
+                return false;
+            }
 
-			for (TestCase tc : list) {
-				if (tc.isUnstable()) {
-					return false;
-				}
-			}
+            JUnitAnalyzer.handleTestsThatAreUnstable(list);
+            if (n != list.size()) {
+                return false;
+            }
 
-			return true;
-		} finally {
-			Properties.JUNIT_CHECK_ON_SEPARATE_PROCESS = previousRunOnSeparateProcess;
-			if (Properties.SANDBOX) {
-				Sandbox.resetDefaultSecurityManager();
-			}
-		}
-	}
+            for (TestCase tc : list) {
+                if (tc.isUnstable()) {
+                    return false;
+                }
+            }
+
+            return true;
+        } finally {
+            Properties.JUNIT_CHECK_ON_SEPARATE_PROCESS = previousRunOnSeparateProcess;
+            if (Properties.SANDBOX) {
+                Sandbox.resetDefaultSecurityManager();
+            }
+        }
+    }
 
 }

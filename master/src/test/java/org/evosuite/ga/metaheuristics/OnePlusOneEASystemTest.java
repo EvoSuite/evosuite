@@ -30,31 +30,30 @@ import org.junit.Test;
 import com.examples.with.different.packagename.BMICalculator;
 
 /**
- * 
  * @author Yan Ge
  */
 public class OnePlusOneEASystemTest extends SystemTestBase {
 
-  @Test
-  public void systemtTestLambdaEA() {
-    Properties.ALGORITHM = Algorithm.ONE_PLUS_ONE_EA;
+    @Test
+    public void systemtTestLambdaEA() {
+        Properties.ALGORITHM = Algorithm.ONE_PLUS_ONE_EA;
 
-    EvoSuite evoSuite = new EvoSuite();
+        EvoSuite evoSuite = new EvoSuite();
 
-    String targetClass = BMICalculator.class.getCanonicalName();
+        String targetClass = BMICalculator.class.getCanonicalName();
 
-    Properties.TARGET_CLASS = targetClass;
+        Properties.TARGET_CLASS = targetClass;
 
-    String[] command = new String[] {"-generateSuite", "-class", targetClass};
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
 
-    Object result = evoSuite.parseCommandLine(command);
+        Object result = evoSuite.parseCommandLine(command);
 
-    GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
 
-    TestSuiteChromosome best = ga.getBestIndividual();
-    System.out.println("EvolvedTestSuite:\n" + best);
-    Assert.assertEquals(0.0, best.getFitness(), 0.0);
-    Assert.assertEquals(1d, best.getCoverage(), 0.001);
-  }
+        TestSuiteChromosome best = ga.getBestIndividual();
+        System.out.println("EvolvedTestSuite:\n" + best);
+        Assert.assertEquals(0.0, best.getFitness(), 0.0);
+        Assert.assertEquals(1d, best.getCoverage(), 0.001);
+    }
 
 }

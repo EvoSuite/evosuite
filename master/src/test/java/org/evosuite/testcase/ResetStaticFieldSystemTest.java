@@ -33,36 +33,36 @@ import com.examples.with.different.packagename.staticfield.StaticFoo;
 
 public class ResetStaticFieldSystemTest extends SystemTestBase {
 
-	private boolean reset_statick_field__property;
-	
-	@Before
-	public void saveProperties() {
-		reset_statick_field__property = Properties.RESET_STATIC_FIELDS;
-		Properties.RESET_STATIC_FIELDS = true;
-		Properties.RESET_STATIC_FIELD_GETS = true;
-	}
+    private boolean reset_statick_field__property;
 
-	@After
-	public void restoreProperties() {
-		Properties.RESET_STATIC_FIELDS = reset_statick_field__property ;
-	}
+    @Before
+    public void saveProperties() {
+        reset_statick_field__property = Properties.RESET_STATIC_FIELDS;
+        Properties.RESET_STATIC_FIELDS = true;
+        Properties.RESET_STATIC_FIELD_GETS = true;
+    }
 
-	@Test
-	public void test() {
-		EvoSuite evosuite = new EvoSuite();
+    @After
+    public void restoreProperties() {
+        Properties.RESET_STATIC_FIELDS = reset_statick_field__property;
+    }
 
-		String targetClass = StaticFoo.class.getCanonicalName();
-		Properties.TARGET_CLASS = targetClass;
-		String[] command = new String[] {"-generateSuite", "-class", targetClass };
+    @Test
+    public void test() {
+        EvoSuite evosuite = new EvoSuite();
 
-		Object result = evosuite.parseCommandLine(command);
+        String targetClass = StaticFoo.class.getCanonicalName();
+        Properties.TARGET_CLASS = targetClass;
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
 
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
-		System.out.println("EvolvedTestSuite:\n" + best);
-		double best_fitness = best.getFitness();
+        Object result = evosuite.parseCommandLine(command);
+
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
+        System.out.println("EvolvedTestSuite:\n" + best);
+        double best_fitness = best.getFitness();
         Assert.assertEquals("Optimal coverage was not achieved ", 0.0, best_fitness, 0.0);
-		
-	}
+
+    }
 
 }

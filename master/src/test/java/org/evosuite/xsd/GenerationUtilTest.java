@@ -24,83 +24,82 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
 /**
- * 
  * @author José Campos
  */
 public class GenerationUtilTest {
 
-  @Test
-  public void testNullGeneration() {
-    assertEquals(0, GenerationUtil.getNumberStatements(null));
-    assertEquals(0, GenerationUtil.getTotalEffort(null));
-    assertEquals(0, GenerationUtil.getTimeBudget(null));
-    assertEquals(0, GenerationUtil.getNumberTests(null));
-    assertEquals(0, GenerationUtil.getCriteria(null).size());
-    assertEquals(0.0, GenerationUtil.getCriterionCoverage(null, ""), 0.0);
-    assertEquals(0.0, GenerationUtil.getOverallCoverage(null), 0.0);
-  }
+    @Test
+    public void testNullGeneration() {
+        assertEquals(0, GenerationUtil.getNumberStatements(null));
+        assertEquals(0, GenerationUtil.getTotalEffort(null));
+        assertEquals(0, GenerationUtil.getTimeBudget(null));
+        assertEquals(0, GenerationUtil.getNumberTests(null));
+        assertEquals(0, GenerationUtil.getCriteria(null).size());
+        assertEquals(0.0, GenerationUtil.getCriterionCoverage(null, ""), 0.0);
+        assertEquals(0.0, GenerationUtil.getOverallCoverage(null), 0.0);
+    }
 
-  @Test
-  public void testFailGeneration() {
-    Generation generation = new Generation();
-    generation.setFailed(true);
-    generation.setTimeBudgetInSeconds(XSDUtils.convert(66));
+    @Test
+    public void testFailGeneration() {
+        Generation generation = new Generation();
+        generation.setFailed(true);
+        generation.setTimeBudgetInSeconds(XSDUtils.convert(66));
 
-    assertEquals(0, GenerationUtil.getNumberStatements(generation));
-    assertEquals(0, GenerationUtil.getTotalEffort(generation));
-    assertEquals(2, GenerationUtil.getTimeBudget(generation));
-    assertEquals(0, GenerationUtil.getNumberTests(generation));
-    assertEquals(0, GenerationUtil.getCriteria(generation).size());
-    assertEquals(0.0, GenerationUtil.getCriterionCoverage(generation, ""), 0.0);
-    assertEquals(0.0, GenerationUtil.getOverallCoverage(generation), 0.0);
-  }
+        assertEquals(0, GenerationUtil.getNumberStatements(generation));
+        assertEquals(0, GenerationUtil.getTotalEffort(generation));
+        assertEquals(2, GenerationUtil.getTimeBudget(generation));
+        assertEquals(0, GenerationUtil.getNumberTests(generation));
+        assertEquals(0, GenerationUtil.getCriteria(generation).size());
+        assertEquals(0.0, GenerationUtil.getCriterionCoverage(generation, ""), 0.0);
+        assertEquals(0.0, GenerationUtil.getOverallCoverage(generation), 0.0);
+    }
 
-  @Test
-  public void testNoTestSuite() {
-    Generation generation = new Generation();
-    generation.setFailed(false);
-    generation.setSuite(null);
-    generation.setTimeBudgetInSeconds(XSDUtils.convert(66));
+    @Test
+    public void testNoTestSuite() {
+        Generation generation = new Generation();
+        generation.setFailed(false);
+        generation.setSuite(null);
+        generation.setTimeBudgetInSeconds(XSDUtils.convert(66));
 
-    assertEquals(0, GenerationUtil.getNumberStatements(generation));
-    assertEquals(0, GenerationUtil.getTotalEffort(generation));
-    assertEquals(2, GenerationUtil.getTimeBudget(generation));
-    assertEquals(0, GenerationUtil.getNumberTests(generation));
-    assertEquals(0, GenerationUtil.getCriteria(generation).size());
-    assertEquals(0.0, GenerationUtil.getCriterionCoverage(generation, ""), 0.0);
-    assertEquals(0.0, GenerationUtil.getOverallCoverage(generation), 0.0);
-  }
+        assertEquals(0, GenerationUtil.getNumberStatements(generation));
+        assertEquals(0, GenerationUtil.getTotalEffort(generation));
+        assertEquals(2, GenerationUtil.getTimeBudget(generation));
+        assertEquals(0, GenerationUtil.getNumberTests(generation));
+        assertEquals(0, GenerationUtil.getCriteria(generation).size());
+        assertEquals(0.0, GenerationUtil.getCriterionCoverage(generation, ""), 0.0);
+        assertEquals(0.0, GenerationUtil.getOverallCoverage(generation), 0.0);
+    }
 
-  @Test
-  public void testSuccessfulGeneration() {
-    TestSuite suite = new TestSuite();
-    suite.setTotalNumberOfStatements(XSDUtils.convert(15));
-    suite.setTotalEffortInSeconds(XSDUtils.convert(150));
-    suite.setNumberOfTests(XSDUtils.convert(7));
+    @Test
+    public void testSuccessfulGeneration() {
+        TestSuite suite = new TestSuite();
+        suite.setTotalNumberOfStatements(XSDUtils.convert(15));
+        suite.setTotalEffortInSeconds(XSDUtils.convert(150));
+        suite.setNumberOfTests(XSDUtils.convert(7));
 
-    Coverage branch = new Coverage();
-    branch.setCriterion("Branch");
-    branch.setCoverageValue(0.8);
+        Coverage branch = new Coverage();
+        branch.setCriterion("Branch");
+        branch.setCoverageValue(0.8);
 
-    Coverage exception = new Coverage();
-    exception.setCriterion("Exception");
-    exception.setCoverageValue(0.3);
+        Coverage exception = new Coverage();
+        exception.setCriterion("Exception");
+        exception.setCoverageValue(0.3);
 
-    suite.getCoverage().add(branch);
-    suite.getCoverage().add(exception);
+        suite.getCoverage().add(branch);
+        suite.getCoverage().add(exception);
 
-    Generation generation = new Generation();
-    generation.setFailed(false);
-    generation.setSuite(suite);
-    generation.setTimeBudgetInSeconds(XSDUtils.convert(66));
+        Generation generation = new Generation();
+        generation.setFailed(false);
+        generation.setSuite(suite);
+        generation.setTimeBudgetInSeconds(XSDUtils.convert(66));
 
-    assertEquals(15, GenerationUtil.getNumberStatements(generation));
-    assertEquals(3, GenerationUtil.getTotalEffort(generation));
-    assertEquals(7, GenerationUtil.getNumberTests(generation));
-    assertEquals(2, GenerationUtil.getCriteria(generation).size());
-    assertEquals(0.0, GenerationUtil.getCriterionCoverage(generation, ""), 0.0);
-    assertEquals(0.8, GenerationUtil.getCriterionCoverage(generation, "Branch"), 0.0);
-    assertEquals(0.3, GenerationUtil.getCriterionCoverage(generation, "Exception"), 0.0);
-    assertEquals(0.55, GenerationUtil.getOverallCoverage(generation), 0.0);
-  }
+        assertEquals(15, GenerationUtil.getNumberStatements(generation));
+        assertEquals(3, GenerationUtil.getTotalEffort(generation));
+        assertEquals(7, GenerationUtil.getNumberTests(generation));
+        assertEquals(2, GenerationUtil.getCriteria(generation).size());
+        assertEquals(0.0, GenerationUtil.getCriterionCoverage(generation, ""), 0.0);
+        assertEquals(0.8, GenerationUtil.getCriterionCoverage(generation, "Branch"), 0.0);
+        assertEquals(0.3, GenerationUtil.getCriterionCoverage(generation, "Exception"), 0.0);
+        assertEquals(0.55, GenerationUtil.getOverallCoverage(generation), 0.0);
+    }
 }

@@ -46,41 +46,41 @@ public class StaticInitThrowsNullPointerSystemTest extends SystemTestBase {
 	  * in its static initializer
 	 */
 
-	@Test
-	public void testWithNoReset() {
-		Properties.RESET_STATIC_FIELDS = false;
+    @Test
+    public void testWithNoReset() {
+        Properties.RESET_STATIC_FIELDS = false;
 
-		EvoSuite evosuite = new EvoSuite();
+        EvoSuite evosuite = new EvoSuite();
 
-		String targetClass = StaticInitThrowsNullPointer.class
-				.getCanonicalName();
+        String targetClass = StaticInitThrowsNullPointer.class
+                .getCanonicalName();
 
-		Properties.TARGET_CLASS = targetClass;
-		String[] command = new String[] { "-generateSuite", "-class",
-				targetClass };
+        Properties.TARGET_CLASS = targetClass;
+        String[] command = new String[]{"-generateSuite", "-class",
+                targetClass};
 
-		Object result = evosuite.parseCommandLine(command);
-		assertTrue(result instanceof List);
-		List<?> list = (List<?>)result;
-		assertEquals(0, list.size());
-	}
+        Object result = evosuite.parseCommandLine(command);
+        assertTrue(result instanceof List);
+        List<?> list = (List<?>) result;
+        assertEquals(0, list.size());
+    }
 
-	@Test
-	public void testWithReset() {
-		Properties.RESET_STATIC_FIELDS = true;
+    @Test
+    public void testWithReset() {
+        Properties.RESET_STATIC_FIELDS = true;
 
-		EvoSuite evosuite = new EvoSuite();
+        EvoSuite evosuite = new EvoSuite();
 
-		String targetClass = StaticInitThrowsNullPointer.class
-				.getCanonicalName();
+        String targetClass = StaticInitThrowsNullPointer.class
+                .getCanonicalName();
 
-		Properties.TARGET_CLASS = targetClass;
-		String[] command = new String[] { "-generateSuite", "-class",
-				targetClass };
+        Properties.TARGET_CLASS = targetClass;
+        String[] command = new String[]{"-generateSuite", "-class",
+                targetClass};
 
-		Object result = evosuite.parseCommandLine(command);
-		assertTrue(result instanceof List);
-		List<?> list = (List<?>)result;
-		assertEquals(0, list.size());
-	}
+        Object result = evosuite.parseCommandLine(command);
+        assertTrue(result instanceof List);
+        List<?> list = (List<?>) result;
+        assertEquals(0, list.size());
+    }
 }

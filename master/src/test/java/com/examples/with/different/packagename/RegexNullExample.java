@@ -30,12 +30,12 @@ public class RegexNullExample {
     public static boolean testMe(String[] args) {
         Pattern argPattern = Pattern.compile("(--[a-zA-Z_]+)=(.*)");
         try {
-            for(String arg : args) {
+            for (String arg : args) {
                 Matcher matcher = argPattern.matcher(arg);
                 matcher.matches();
             }
             return true;
-        } catch(NullPointerException e) {
+        } catch (NullPointerException e) {
             return false;
         }
     }

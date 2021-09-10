@@ -27,25 +27,25 @@ import org.junit.Test;
 
 public class ObjectWrapperSetTest {
 
-	@Test
-	public void test01() {
-		ObjectWrapper wrapper = new ObjectWrapper();
-		Assert.assertNull(wrapper.get());
+    @Test
+    public void test01() {
+        ObjectWrapper wrapper = new ObjectWrapper();
+        Assert.assertNull(wrapper.get());
 
-		Set<Long> someSet = new HashSet<>();
-		someSet.add(42L);
-		someSet.add(47L);
-		someSet.remove(42L);
-		someSet.add(48L);
+        Set<Long> someSet = new HashSet<>();
+        someSet.add(42L);
+        someSet.add(47L);
+        someSet.remove(42L);
+        someSet.add(48L);
 
-		wrapper.set(someSet);
-		Assert.assertNotNull(wrapper.get());
+        wrapper.set(someSet);
+        Assert.assertNotNull(wrapper.get());
 
-		ObjectWrapper fortySeven = new ObjectWrapper();
-		fortySeven.set(47L);
+        ObjectWrapper fortySeven = new ObjectWrapper();
+        fortySeven.set(47L);
 
-		Set<?> foo = (Set<?>) wrapper.get();
+        Set<?> foo = (Set<?>) wrapper.get();
 
-		Assert.assertTrue(foo.contains(fortySeven.get()));
-	}
+        Assert.assertTrue(foo.contains(fortySeven.get()));
+    }
 }

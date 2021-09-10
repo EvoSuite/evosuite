@@ -22,7 +22,10 @@ package org.evosuite.testcase;
 import com.examples.with.different.packagename.test.AbstractSuperclass;
 import com.examples.with.different.packagename.test.ConcreteSubclass;
 import com.examples.with.different.packagename.test.DowncastExample;
-import org.evosuite.assertion.*;
+import org.evosuite.assertion.Inspector;
+import org.evosuite.assertion.InspectorAssertion;
+import org.evosuite.assertion.PrimitiveAssertion;
+import org.evosuite.assertion.PrimitiveFieldAssertion;
 import org.evosuite.symbolic.TestCaseBuilder;
 import org.evosuite.testcase.statements.AssignmentStatement;
 import org.evosuite.testcase.variable.FieldReference;
@@ -35,16 +38,16 @@ import static org.junit.Assert.assertEquals;
 /**
  * Created by gordon on 27/12/2016.
  */
-public class DowncastTest  {
+public class DowncastTest {
 
     @Test
     public void testUnnecessaryDownCast() throws NoSuchMethodException {
         TestCaseBuilder builder = new TestCaseBuilder();
         VariableReference var = builder.appendConstructor(DowncastExample.class.getConstructor());
         VariableReference int0 = builder.appendIntPrimitive(42);
-        VariableReference num0 = builder.appendMethod(var, DowncastExample.class.getMethod("getANumber", new Class<?>[] {int.class}), int0);
+        VariableReference num0 = builder.appendMethod(var, DowncastExample.class.getMethod("getANumber", new Class<?>[]{int.class}), int0);
         num0.setType(Integer.class); // This would be set during execution
-        VariableReference boolean0 = builder.appendMethod(var, DowncastExample.class.getMethod("testMe", new Class<?>[] {Number.class}), num0);
+        VariableReference boolean0 = builder.appendMethod(var, DowncastExample.class.getMethod("testMe", new Class<?>[]{Number.class}), num0);
         PrimitiveAssertion assertion = new PrimitiveAssertion();
         assertion.setSource(boolean0);
         assertion.setValue(false);
@@ -59,9 +62,9 @@ public class DowncastTest  {
         TestCaseBuilder builder = new TestCaseBuilder();
         VariableReference var = builder.appendConstructor(DowncastExample.class.getConstructor());
         VariableReference int0 = builder.appendIntPrimitive(42);
-        VariableReference num0 = builder.appendMethod(var, DowncastExample.class.getMethod("getANumber", new Class<?>[] {int.class}), int0);
+        VariableReference num0 = builder.appendMethod(var, DowncastExample.class.getMethod("getANumber", new Class<?>[]{int.class}), int0);
         num0.setType(Integer.class); // This would be set during execution
-        VariableReference boolean0 = builder.appendMethod(var, DowncastExample.class.getMethod("testWithInteger", new Class<?>[] {Integer.class}), num0);
+        VariableReference boolean0 = builder.appendMethod(var, DowncastExample.class.getMethod("testWithInteger", new Class<?>[]{Integer.class}), num0);
         PrimitiveAssertion assertion = new PrimitiveAssertion();
         assertion.setSource(boolean0);
         assertion.setValue(false);
@@ -162,7 +165,7 @@ public class DowncastTest  {
 
         test.removeDownCasts();
         System.out.println(test);
-        FieldReference fr2 = (FieldReference)test.getStatement(3).getReturnValue();
+        FieldReference fr2 = (FieldReference) test.getStatement(3).getReturnValue();
         assertEquals(ConcreteSubclass.class, fr2.getSource().getVariableClass());
     }
 
@@ -181,7 +184,7 @@ public class DowncastTest  {
 
         test.removeDownCasts();
         System.out.println(test);
-        FieldReference fr2 = (FieldReference)test.getStatement(3).getReturnValue();
+        FieldReference fr2 = (FieldReference) test.getStatement(3).getReturnValue();
         assertEquals(AbstractSuperclass.class, fr2.getSource().getVariableClass());
     }
 

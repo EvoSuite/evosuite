@@ -29,6 +29,6 @@ public class ClassWithPublicPrimitiveField {
     public float y = 0.0F;
 
     public boolean foo() {
-        return x > 0 && (int)y == x;
+        return x > 0 && (int) y == x;
     }
 }

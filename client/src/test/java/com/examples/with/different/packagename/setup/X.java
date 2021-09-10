@@ -24,5 +24,6 @@ package com.examples.with.different.packagename.setup;
  */
 public class X {
 
-    private X(){}
+    private X() {
+    }
 }

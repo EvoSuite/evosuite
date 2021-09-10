@@ -36,60 +36,60 @@ import com.examples.with.different.packagename.sette.LO_Other;
  */
 public class LO_OtherSystemTest extends SystemTestBase {
 
-	@Test
-	public void testBase() {
+    @Test
+    public void testBase() {
 
-		Properties.LOCAL_SEARCH_RATE = -1; // disable LS/DSE
+        Properties.LOCAL_SEARCH_RATE = -1; // disable LS/DSE
 
-		String targetClass = LO_Other.class.getCanonicalName();
+        String targetClass = LO_Other.class.getCanonicalName();
 
-		Properties.TARGET_CLASS = targetClass;
-		Properties.CRITERION = new Criterion[] { Criterion.BRANCH };
+        Properties.TARGET_CLASS = targetClass;
+        Properties.CRITERION = new Criterion[]{Criterion.BRANCH};
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
 
-		EvoSuite evosuite = new EvoSuite();
-		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
-		System.out.println("EvolvedTestSuite:\n" + best);
+        EvoSuite evosuite = new EvoSuite();
+        Object result = evosuite.parseCommandLine(command);
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
+        System.out.println("EvolvedTestSuite:\n" + best);
 
-	}
+    }
 
-	@Before
-	public void init() {
-		Properties.MINIMIZE = false;
-		Properties.ASSERTIONS = false;
-		Properties.STOPPING_CONDITION = StoppingCondition.MAXTIME;
-		Properties.SEARCH_BUDGET = 30;
-		Properties.P_FUNCTIONAL_MOCKING = 0.0d;
-		Properties.P_REFLECTION_ON_PRIVATE = 0.0d;
-	}
+    @Before
+    public void init() {
+        Properties.MINIMIZE = false;
+        Properties.ASSERTIONS = false;
+        Properties.STOPPING_CONDITION = StoppingCondition.MAXTIME;
+        Properties.SEARCH_BUDGET = 30;
+        Properties.P_FUNCTIONAL_MOCKING = 0.0d;
+        Properties.P_REFLECTION_ON_PRIVATE = 0.0d;
+    }
 
-	@Test
-	public void testDSE() {
+    @Test
+    public void testDSE() {
 
-		Properties.LOCAL_SEARCH_PROBABILITY = 1.0;
-		Properties.LOCAL_SEARCH_RATE = 8;
-		Properties.LOCAL_SEARCH_BUDGET_TYPE = Properties.LocalSearchBudgetType.TESTS;
-		Properties.LOCAL_SEARCH_BUDGET = 100;
-		Properties.DSE_PROBABILITY = 1.0; // force DSE, not LS
-		Properties.DSE_SOLVER = Properties.SolverType.EVOSUITE_SOLVER;
-		Properties.CONCOLIC_TIMEOUT = Integer.MAX_VALUE; // no timeout
+        Properties.LOCAL_SEARCH_PROBABILITY = 1.0;
+        Properties.LOCAL_SEARCH_RATE = 8;
+        Properties.LOCAL_SEARCH_BUDGET_TYPE = Properties.LocalSearchBudgetType.TESTS;
+        Properties.LOCAL_SEARCH_BUDGET = 100;
+        Properties.DSE_PROBABILITY = 1.0; // force DSE, not LS
+        Properties.DSE_SOLVER = Properties.SolverType.EVOSUITE_SOLVER;
+        Properties.CONCOLIC_TIMEOUT = Integer.MAX_VALUE; // no timeout
 
-		String targetClass = LO_Other.class.getCanonicalName();
-		Properties.TARGET_CLASS = targetClass;
+        String targetClass = LO_Other.class.getCanonicalName();
+        Properties.TARGET_CLASS = targetClass;
 
-		Properties.CRITERION = new Criterion[] { Criterion.BRANCH };
+        Properties.CRITERION = new Criterion[]{Criterion.BRANCH};
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
 
-		EvoSuite evosuite = new EvoSuite();
-		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
-		System.out.println("EvolvedTestSuite:\n" + best);
+        EvoSuite evosuite = new EvoSuite();
+        Object result = evosuite.parseCommandLine(command);
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
+        System.out.println("EvolvedTestSuite:\n" + best);
 
-	}
+    }
 
 }

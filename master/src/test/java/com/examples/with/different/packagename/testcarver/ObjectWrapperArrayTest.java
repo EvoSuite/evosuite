@@ -24,22 +24,22 @@ import org.junit.Test;
 
 public class ObjectWrapperArrayTest {
 
-	@Test
-	public void test() {
-		ObjectWrapper wrapper = new ObjectWrapper();
-		Assert.assertNull(wrapper.get());
+    @Test
+    public void test() {
+        ObjectWrapper wrapper = new ObjectWrapper();
+        Assert.assertNull(wrapper.get());
 
-		Long[] someArray = new Long[] {1L, 47L};
+        Long[] someArray = new Long[]{1L, 47L};
 
-		wrapper.set(someArray);
-		Assert.assertNotNull(wrapper.get());
+        wrapper.set(someArray);
+        Assert.assertNotNull(wrapper.get());
 
-		ObjectWrapper fortySeven = new ObjectWrapper();
-		fortySeven.set(47L);
+        ObjectWrapper fortySeven = new ObjectWrapper();
+        fortySeven.set(47L);
 
-		Long[] foo = (Long[]) wrapper.get();
+        Long[] foo = (Long[]) wrapper.get();
 
         Assert.assertEquals(foo[1], fortySeven.get());
-	}
+    }
 
 }

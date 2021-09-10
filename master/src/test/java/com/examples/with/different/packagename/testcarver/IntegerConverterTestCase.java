@@ -40,7 +40,7 @@ public class IntegerConverterTestCase extends NumberConverterTestBase {
     public IntegerConverterTestCase(String name) {
         super(name);
     }
-    
+
     // ------------------------------------------------------------------------
 
     public void setUp() throws Exception {
@@ -52,7 +52,7 @@ public class IntegerConverterTestCase extends NumberConverterTestBase {
     }
 
     public static TestSuite suite() {
-        return new TestSuite(IntegerConverterTestCase.class);        
+        return new TestSuite(IntegerConverterTestCase.class);
     }
 
     public void tearDown() throws Exception {
@@ -60,15 +60,15 @@ public class IntegerConverterTestCase extends NumberConverterTestBase {
     }
 
     // ------------------------------------------------------------------------
-    
+
     protected NumberConverter makeConverter() {
         return new IntegerConverter();
     }
-    
+
     protected NumberConverter makeConverter(Object defaultValue) {
         return new IntegerConverter(defaultValue);
     }
-    
+
     protected Class getExpectedType() {
         return Integer.class;
     }
@@ -76,30 +76,30 @@ public class IntegerConverterTestCase extends NumberConverterTestBase {
     // ------------------------------------------------------------------------
 
     public void testSimpleConversion() throws Exception {
-        String[] message= { 
-            "from String",
-            "from String",
-            "from String",
-            "from String",
-            "from String",
-            "from String",
-            "from String",
-            "from Byte",
-            "from Short",
-            "from Integer",
-            "from Long",
-            "from Float",
-            "from Double"
+        String[] message = {
+                "from String",
+                "from String",
+                "from String",
+                "from String",
+                "from String",
+                "from String",
+                "from String",
+                "from Byte",
+                "from Short",
+                "from Integer",
+                "from Long",
+                "from Float",
+                "from Double"
         };
-        
-        Object[] input = { 
-            String.valueOf(Integer.MIN_VALUE),
-            "-17",
-            "-1",
-            "0",
-            "1",
-            "17",
-            String.valueOf(Integer.MAX_VALUE),
+
+        Object[] input = {
+                String.valueOf(Integer.MIN_VALUE),
+                "-17",
+                "-1",
+                "0",
+                "1",
+                "17",
+                String.valueOf(Integer.MAX_VALUE),
                 (byte) 7,
                 (short) 8,
                 9,
@@ -107,7 +107,7 @@ public class IntegerConverterTestCase extends NumberConverterTestBase {
                 11.1f,
                 12.2
         };
-        
+
         Integer[] expected = {
                 Integer.MIN_VALUE,
                 -17,
@@ -123,11 +123,11 @@ public class IntegerConverterTestCase extends NumberConverterTestBase {
                 11,
                 12
         };
-        
-        for(int i=0;i<expected.length;i++) {
-            assertEquals(message[i] + " to Integer",expected[i],converter.convert(Integer.class,input[i]));
-            assertEquals(message[i] + " to int",expected[i],converter.convert(Integer.TYPE,input[i]));
-            assertEquals(message[i] + " to null type",expected[i],converter.convert(null,input[i]));
+
+        for (int i = 0; i < expected.length; i++) {
+            assertEquals(message[i] + " to Integer", expected[i], converter.convert(Integer.class, input[i]));
+            assertEquals(message[i] + " to int", expected[i], converter.convert(Integer.TYPE, input[i]));
+            assertEquals(message[i] + " to null type", expected[i], converter.convert(null, input[i]));
         }
     }
 
@@ -138,10 +138,10 @@ public class IntegerConverterTestCase extends NumberConverterTestBase {
         Converter converter = makeConverter();
         Class clazz = Integer.class;
 
-        Long min         = (long) Integer.MIN_VALUE;
-        Long max         = (long) Integer.MAX_VALUE;
+        Long min = (long) Integer.MIN_VALUE;
+        Long max = (long) Integer.MAX_VALUE;
         Long minMinusOne = min - 1;
-        Long maxPlusOne  = max + 1;
+        Long maxPlusOne = max + 1;
 
         // Minimum
         assertEquals("Minimum", Integer.MIN_VALUE, converter.convert(clazz, min));

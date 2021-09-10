@@ -1,19 +1,19 @@
 /**
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * <p>
  * This file is part of EvoSuite.
- *
+ * <p>
  * EvoSuite is free software: you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
  * by the Free Software Foundation, either version 3.0 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * EvoSuite is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -40,9 +40,9 @@ import com.examples.with.different.packagename.XMLElement2;
  * @author Nasser Albunian
  *
  */
-public class CellularGASystemTest extends SystemTestBase{
+public class CellularGASystemTest extends SystemTestBase {
 
-    public List<Chromosome<?>> setup(StoppingCondition sc, int budget, String cut){
+    public List<Chromosome<?>> setup(StoppingCondition sc, int budget, String cut) {
         Properties.CRITERION = new Criterion[1];
         Properties.CRITERION[0] = Criterion.BRANCH;
         Properties.ALGORITHM = Algorithm.CELLULAR_GA;
@@ -55,7 +55,7 @@ public class CellularGASystemTest extends SystemTestBase{
 
         Properties.TARGET_CLASS = cut;
 
-        String[] command = new String[] {"-generateSuite", "-class", cut};
+        String[] command = new String[]{"-generateSuite", "-class", cut};
 
         Object result = evosuite.parseCommandLine(command);
         Assert.assertNotNull(result);
@@ -66,7 +66,7 @@ public class CellularGASystemTest extends SystemTestBase{
     }
 
     @Test
-    public void testCellularGAWithLimitedTime(){
+    public void testCellularGAWithLimitedTime() {
 
         List<Chromosome<?>> population = this.setup(StoppingCondition.MAXTIME, 15, XMLElement2.class.getCanonicalName());
 
@@ -76,7 +76,7 @@ public class CellularGASystemTest extends SystemTestBase{
     }
 
     @Test
-    public void testCellularGAWithLimitedGenerations(){
+    public void testCellularGAWithLimitedGenerations() {
 
         List<Chromosome<?>> population = this.setup(StoppingCondition.MAXGENERATIONS, 10, ClassHierarchyIncludingInterfaces.class.getCanonicalName());
 

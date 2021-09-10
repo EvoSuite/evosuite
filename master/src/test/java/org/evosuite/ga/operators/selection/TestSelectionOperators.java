@@ -32,74 +32,64 @@ import java.util.*;
 
 /**
  * @author Andrea Arcuri
- * 
  */
-public class TestSelectionOperators 
-{
-	@Test
-	public void testMaximizeVariable()
-	{
-		SelectionFunction<?>[] v = new SelectionFunction[]{
-				new TournamentSelection<>(),
-				new FitnessProportionateSelection<>(),
-				new RankSelection<>()
-		};
+public class TestSelectionOperators {
+    @Test
+    public void testMaximizeVariable() {
+        SelectionFunction<?>[] v = new SelectionFunction[]{
+                new TournamentSelection<>(),
+                new FitnessProportionateSelection<>(),
+                new RankSelection<>()
+        };
 
-		for(SelectionFunction<?> sf : v)
-		{
-			sf.setMaximize(true);
-			Assert.assertTrue(sf.isMaximize());
-			sf.setMaximize(false);
+        for (SelectionFunction<?> sf : v) {
+            sf.setMaximize(true);
+            Assert.assertTrue(sf.isMaximize());
+            sf.setMaximize(false);
             Assert.assertFalse(sf.isMaximize());
-		}
-	}
+        }
+    }
 
-	@Ignore
-	@Test
-	public void testProportions()
-	{
-		boolean[] maximize = new boolean[]{false,true};
+    @Ignore
+    @Test
+    public void testProportions() {
+        boolean[] maximize = new boolean[]{false, true};
 
-		SelectionFunction<TestChromosome>[] v = new SelectionFunction[]{
-				new TournamentSelection<>(),
-				new FitnessProportionateSelection<>(),
-				new RankSelection<>()
-		};
+        SelectionFunction<TestChromosome>[] v = new SelectionFunction[]{
+                new TournamentSelection<>(),
+                new FitnessProportionateSelection<>(),
+                new RankSelection<>()
+        };
 
-		final int N = 10;
-		
-		for(boolean b : maximize)
-		{
-			List<TestChromosome> population = new LinkedList<>();
-			for(int i=0; i<N; i++)
-			{
-				TestChromosome ind = new TestChromosome();
-				double fit = b ? N-i : i;
-				//ind.setFitness(fit);
-				ind.addFitness(null, fit);
-				//Rank selection assumes the population in order, but for the others does not matter
-				population.add(ind);
-			}
-			
-			for(SelectionFunction<TestChromosome> sf : v)
-			{
-				sf.setMaximize(b);
-				
-				int[] counter = new int[N];
-				
-				for(int j=0; j<10000; j++)
-				{
-					int index = sf.getIndex(population);
-					counter[index]++;
-				}
-				
-				for(int j=0; j<N-1; j++)
-				{
-					Assert.assertTrue(""+counter[j]+" "+counter[j+1], counter[j] > counter[j+1]);
-				}
-				
-				Assert.assertTrue(counter[N-1]>0);
-			}
-		}
-	}
+        final int N = 10;
+
+        for (boolean b : maximize) {
+            List<TestChromosome> population = new LinkedList<>();
+            for (int i = 0; i < N; i++) {
+                TestChromosome ind = new TestChromosome();
+                double fit = b ? N - i : i;
+                //ind.setFitness(fit);
+                ind.addFitness(null, fit);
+                //Rank selection assumes the population in order, but for the others does not matter
+                population.add(ind);
+            }
+
+            for (SelectionFunction<TestChromosome> sf : v) {
+                sf.setMaximize(b);
+
+                int[] counter = new int[N];
+
+                for (int j = 0; j < 10000; j++) {
+                    int index = sf.getIndex(population);
+                    counter[index]++;
+                }
+
+                for (int j = 0; j < N - 1; j++) {
+                    Assert.assertTrue("" + counter[j] + " " + counter[j + 1], counter[j] > counter[j + 1]);
+                }
+
+                Assert.assertTrue(counter[N - 1] > 0);
+            }
+        }
+    }
 }

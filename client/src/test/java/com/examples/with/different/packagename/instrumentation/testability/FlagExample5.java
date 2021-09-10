@@ -21,20 +21,20 @@ package com.examples.with.different.packagename.instrumentation.testability;
 
 public class FlagExample5 {
 
-	private boolean testMeHelper(int x, int y) {
-		boolean flag = false;
-		if(x == 34235) {
-			if(x == y || y == -20362)
-				flag = true;
-		}
-		return flag;
-	}
+    private boolean testMeHelper(int x, int y) {
+        boolean flag = false;
+        if (x == 34235) {
+            if (x == y || y == -20362)
+                flag = true;
+        }
+        return flag;
+    }
 
-	public boolean testMe(int x, int y) {
-		if(testMeHelper(x, y)) {
-			return true;
-		} else {
-			return false;
-		}
-	}
+    public boolean testMe(int x, int y) {
+        if (testMeHelper(x, y)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 }

@@ -34,18 +34,18 @@ public class StringUtilsEqualsIndexOfTest {
 
     @Test
     public void testContainsIgnoreCase_LocaleIndependence() {
-        final Locale[] locales = { Locale.ENGLISH, new Locale("tr"), Locale.getDefault() };
+        final Locale[] locales = {Locale.ENGLISH, new Locale("tr"), Locale.getDefault()};
 
         final String[][] tdata = {
-            { "i", "I" },
-            { "I", "i" },
-            { "\u03C2", "\u03C3" },
-            { "\u03A3", "\u03C2" },
-            { "\u03A3", "\u03C3" },
+                {"i", "I"},
+                {"I", "i"},
+                {"\u03C2", "\u03C3"},
+                {"\u03A3", "\u03C2"},
+                {"\u03A3", "\u03C3"},
         };
 
         final String[][] fdata = {
-            { "\u00DF", "SS" },
+                {"\u00DF", "SS"},
         };
 
         for (final Locale testLocale : locales) {

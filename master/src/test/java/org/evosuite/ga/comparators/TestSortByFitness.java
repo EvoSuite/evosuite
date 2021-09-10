@@ -30,14 +30,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 
  * @author José Campos
  */
-public class TestSortByFitness
-{
+public class TestSortByFitness {
     @Test
-    public void testSortByFitnessC1win()
-    {
+    public void testSortByFitnessC1win() {
         Problem<NSGAChromosome> p = new Booths();
         List<FitnessFunction<NSGAChromosome>> fitnessFunctions = p.getFitnessFunctions();
         FitnessFunction<NSGAChromosome> ff = fitnessFunctions.get(0);
@@ -63,8 +60,7 @@ public class TestSortByFitness
     }
 
     @Test
-    public void testSortByFitnessC2win()
-    {
+    public void testSortByFitnessC2win() {
         Problem<NSGAChromosome> p = new Booths();
         List<FitnessFunction<NSGAChromosome>> fitnessFunctions = p.getFitnessFunctions();
         FitnessFunction<NSGAChromosome> ff = fitnessFunctions.get(0);
@@ -90,8 +86,7 @@ public class TestSortByFitness
     }
 
     @Test
-    public void testSortByFitnessEqual()
-    {
+    public void testSortByFitnessEqual() {
         Problem<NSGAChromosome> p = new Booths();
         List<FitnessFunction<NSGAChromosome>> fitnessFunctions = p.getFitnessFunctions();
         FitnessFunction<NSGAChromosome> ff = fitnessFunctions.get(0);

@@ -25,7 +25,7 @@ import org.junit.runners.Suite.SuiteClasses;
 import org.junit.runners.Suite;
 
 @RunWith(Suite.class)
-@SuiteClasses({ SUTWithSimpleSingleMethod_v2SystemTest.class, ImplicitExplicitExceptionsSystemTest.class })
+@SuiteClasses({SUTWithSimpleSingleMethod_v2SystemTest.class, ImplicitExplicitExceptionsSystemTest.class})
 public class SimpleFollowedByExceptionIntTest {
 
 }

@@ -34,48 +34,48 @@ import org.junit.Test;
 import com.examples.with.different.packagename.stable.RandomUUIDFromStringUser;
 
 public class RandomUUIDFromStringSystemTest extends SystemTestBase {
-	private final boolean DEFAULT_REPLACE_CALLS = Properties.REPLACE_CALLS;
-	private final Properties.JUnitCheckValues DEFAULT_JUNIT_CHECK = Properties.JUNIT_CHECK;
-	private final boolean DEFAULT_JUNIT_TESTS = Properties.JUNIT_TESTS;
-	private final boolean DEFAULT_PURE_INSPECTORS = Properties.PURE_INSPECTORS;
-	private final boolean DEFAULT_SANDBOX = Properties.SANDBOX;
+    private final boolean DEFAULT_REPLACE_CALLS = Properties.REPLACE_CALLS;
+    private final Properties.JUnitCheckValues DEFAULT_JUNIT_CHECK = Properties.JUNIT_CHECK;
+    private final boolean DEFAULT_JUNIT_TESTS = Properties.JUNIT_TESTS;
+    private final boolean DEFAULT_PURE_INSPECTORS = Properties.PURE_INSPECTORS;
+    private final boolean DEFAULT_SANDBOX = Properties.SANDBOX;
 
-	@Before
-	public void configureProperties() {
-		Properties.SANDBOX = true;
-		Properties.REPLACE_CALLS = true;
-		Properties.JUNIT_CHECK = Properties.JUnitCheckValues.TRUE;
-		Properties.JUNIT_TESTS = true;
-		Properties.PURE_INSPECTORS = true;
+    @Before
+    public void configureProperties() {
+        Properties.SANDBOX = true;
+        Properties.REPLACE_CALLS = true;
+        Properties.JUNIT_CHECK = Properties.JUnitCheckValues.TRUE;
+        Properties.JUNIT_TESTS = true;
+        Properties.PURE_INSPECTORS = true;
 
-	}
+    }
 
-	@After
-	public void restoreProperties() {
-		Properties.SANDBOX = DEFAULT_SANDBOX;
-		Properties.REPLACE_CALLS = DEFAULT_REPLACE_CALLS;
-		Properties.JUNIT_CHECK = DEFAULT_JUNIT_CHECK;
-		Properties.JUNIT_TESTS = DEFAULT_JUNIT_TESTS;
-		Properties.PURE_INSPECTORS = DEFAULT_PURE_INSPECTORS;
-	}
+    @After
+    public void restoreProperties() {
+        Properties.SANDBOX = DEFAULT_SANDBOX;
+        Properties.REPLACE_CALLS = DEFAULT_REPLACE_CALLS;
+        Properties.JUNIT_CHECK = DEFAULT_JUNIT_CHECK;
+        Properties.JUNIT_TESTS = DEFAULT_JUNIT_TESTS;
+        Properties.PURE_INSPECTORS = DEFAULT_PURE_INSPECTORS;
+    }
 
-	@Test
-	public void testRandomUUIDFromString() {
-		EvoSuite evosuite = new EvoSuite();
+    @Test
+    public void testRandomUUIDFromString() {
+        EvoSuite evosuite = new EvoSuite();
 
-		String targetClass = RandomUUIDFromStringUser.class.getCanonicalName();
-		Properties.TARGET_CLASS = targetClass;
-		Properties.CRITERION = new Properties.Criterion[] { Criterion.BRANCH };
+        String targetClass = RandomUUIDFromStringUser.class.getCanonicalName();
+        Properties.TARGET_CLASS = targetClass;
+        Properties.CRITERION = new Properties.Criterion[]{Criterion.BRANCH};
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
 
-		Object result = evosuite.parseCommandLine(command);
+        Object result = evosuite.parseCommandLine(command);
 
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
-		System.out.println("EvolvedTestSuite:\n" + best);
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
+        System.out.println("EvolvedTestSuite:\n" + best);
 
-		assertEquals("Sub optiomal coverage", 1.0d, best.getCoverage(), 0.00001);
-	}
+        assertEquals("Sub optiomal coverage", 1.0d, best.getCoverage(), 0.00001);
+    }
 
 }

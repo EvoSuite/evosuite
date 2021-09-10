@@ -24,11 +24,11 @@ import java.util.List;
 
 public class GenericWithWildcardParameter<T> {
 
-	
-	public boolean foo(List<? extends T> x) {
-		if(x instanceof LinkedList)
-			return true;
-		else
-			return false;
-	}
+
+    public boolean foo(List<? extends T> x) {
+        if (x instanceof LinkedList)
+            return true;
+        else
+            return false;
+    }
 }

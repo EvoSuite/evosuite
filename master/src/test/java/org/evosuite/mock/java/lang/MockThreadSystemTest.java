@@ -35,7 +35,7 @@ import org.junit.Test;
 public class MockThreadSystemTest extends SystemTestBase {
 
     @Test
-    public void testCallingOfRun(){
+    public void testCallingOfRun() {
         String targetClass = ExtendingThread.class.getCanonicalName();
 
         Properties.TARGET_CLASS = targetClass;
@@ -43,7 +43,7 @@ public class MockThreadSystemTest extends SystemTestBase {
         Properties.CRITERION = new Properties.Criterion[]{Properties.Criterion.LINE};
 
         EvoSuite evosuite = new EvoSuite();
-        String[] command = new String[] { "-generateSuite", "-class", targetClass };
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
         Object result = evosuite.parseCommandLine(command);
 
         GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
@@ -54,14 +54,14 @@ public class MockThreadSystemTest extends SystemTestBase {
 
 
     @Test
-    public void testLongSleep(){
+    public void testLongSleep() {
         String targetClass = LongSleep.class.getCanonicalName();
 
         Properties.TARGET_CLASS = targetClass;
         Properties.REPLACE_CALLS = true;
 
         EvoSuite evosuite = new EvoSuite();
-        String[] command = new String[] { "-generateSuite", "-class", targetClass };
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
         Object result = evosuite.parseCommandLine(command);
 
         GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);

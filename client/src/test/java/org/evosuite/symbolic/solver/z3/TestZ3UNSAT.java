@@ -24,9 +24,9 @@ import org.evosuite.symbolic.solver.TestSolverUNSAT;
 
 public class TestZ3UNSAT extends TestSolverUNSAT {
 
-	@Override
-	public Solver getSolver() {
-		return new Z3Solver();
-	}
+    @Override
+    public Solver getSolver() {
+        return new Z3Solver();
+    }
 
 }

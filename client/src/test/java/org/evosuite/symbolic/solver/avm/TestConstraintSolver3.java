@@ -19,81 +19,76 @@
  */
 package org.evosuite.symbolic.solver.avm;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import org.evosuite.Properties;
+import org.evosuite.Properties.LocalSearchBudgetType;
+import org.evosuite.RandomizedTC;
+import org.evosuite.symbolic.expr.Comparator;
+import org.evosuite.symbolic.expr.Constraint;
+import org.evosuite.symbolic.expr.bv.IntegerConstant;
+import org.evosuite.symbolic.expr.bv.StringToIntegerCast;
+import org.evosuite.symbolic.expr.constraint.IntegerConstraint;
+import org.evosuite.symbolic.expr.str.StringVariable;
+import org.evosuite.symbolic.solver.*;
+import org.junit.Test;
 
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 
-import org.evosuite.Properties;
-import org.evosuite.Properties.LocalSearchBudgetType;
-import org.evosuite.RandomizedTC;
-import org.evosuite.symbolic.expr.Comparator;
-import org.evosuite.symbolic.expr.Constraint;
-import org.evosuite.symbolic.expr.constraint.IntegerConstraint;
-import org.evosuite.symbolic.expr.bv.IntegerConstant;
-import org.evosuite.symbolic.expr.bv.StringToIntegerCast;
-import org.evosuite.symbolic.expr.str.StringVariable;
-
-import org.evosuite.symbolic.solver.SolverEmptyQueryException;
-import org.evosuite.symbolic.solver.SolverErrorException;
-import org.evosuite.symbolic.solver.SolverParseException;
-import org.evosuite.symbolic.solver.SolverResult;
-import org.evosuite.symbolic.solver.SolverTimeoutException;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 public class TestConstraintSolver3 extends RandomizedTC {
 
-	private static final String INIT_STRING = "125";
-	private static final int EXPECTED_INTEGER = 126;
+    private static final String INIT_STRING = "125";
+    private static final int EXPECTED_INTEGER = 126;
 
-	private static Collection<Constraint<?>> buildConstraintSystem() {
+    private static Collection<Constraint<?>> buildConstraintSystem() {
 
-		StringVariable var0 = new StringVariable("var0", INIT_STRING);
+        StringVariable var0 = new StringVariable("var0", INIT_STRING);
 
-		StringToIntegerCast castStr = new StringToIntegerCast(var0, (long) Integer.parseInt(INIT_STRING));
+        StringToIntegerCast castStr = new StringToIntegerCast(var0, (long) Integer.parseInt(INIT_STRING));
 
-		IntegerConstant const126 = new IntegerConstant(EXPECTED_INTEGER);
+        IntegerConstant const126 = new IntegerConstant(EXPECTED_INTEGER);
 
-		IntegerConstraint constr1 = new IntegerConstraint(castStr, Comparator.EQ, const126);
+        IntegerConstraint constr1 = new IntegerConstraint(castStr, Comparator.EQ, const126);
 
-		return Arrays.<Constraint<?>> asList(constr1);
-	}
+        return Arrays.<Constraint<?>>asList(constr1);
+    }
 
-	@Test
-	public void test() throws SolverEmptyQueryException {
-		Properties.LOCAL_SEARCH_BUDGET = 100; // 5000000000000L; TODO - ??
-		Properties.LOCAL_SEARCH_BUDGET_TYPE = LocalSearchBudgetType.FITNESS_EVALUATIONS;
+    @Test
+    public void test() throws SolverEmptyQueryException {
+        Properties.LOCAL_SEARCH_BUDGET = 100; // 5000000000000L; TODO - ??
+        Properties.LOCAL_SEARCH_BUDGET_TYPE = LocalSearchBudgetType.FITNESS_EVALUATIONS;
 
-		Collection<Constraint<?>> constraints = buildConstraintSystem();
+        Collection<Constraint<?>> constraints = buildConstraintSystem();
 
-		System.out.println("Constraints:");
-		for (Constraint<?> c : constraints) {
-			System.out.println(c.toString());
-		}
+        System.out.println("Constraints:");
+        for (Constraint<?> c : constraints) {
+            System.out.println(c.toString());
+        }
 
-		System.out.println("");
-		System.out.println("Initial: " + INIT_STRING);
+        System.out.println("");
+        System.out.println("Initial: " + INIT_STRING);
 
-		EvoSuiteSolver solver = new EvoSuiteSolver();
-		try {
+        EvoSuiteSolver solver = new EvoSuiteSolver();
+        try {
 //			TODO: see f this
-			SolverResult result = solver.solve(constraints);
-			if (result.isUNSAT()) {
-				fail("search was unsuccessfull");
-			} else {
-				Map<String, Object> model = result.getModel();
-				Object var0 = model.get("var0");
-				System.out.println("Expected: " + EXPECTED_INTEGER);
-				System.out.println("Found: " + var0);
+            SolverResult result = solver.solve(constraints);
+            if (result.isUNSAT()) {
+                fail("search was unsuccessfull");
+            } else {
+                Map<String, Object> model = result.getModel();
+                Object var0 = model.get("var0");
+                System.out.println("Expected: " + EXPECTED_INTEGER);
+                System.out.println("Found: " + var0);
 
-				assertEquals(String.valueOf(EXPECTED_INTEGER), var0);
-			}
-		} catch (SolverTimeoutException | SolverParseException | SolverErrorException | IOException e) {
-			fail();
-		}
+                assertEquals(String.valueOf(EXPECTED_INTEGER), var0);
+            }
+        } catch (SolverTimeoutException | SolverParseException | SolverErrorException | IOException e) {
+            fail();
+        }
 
-	}
+    }
 }

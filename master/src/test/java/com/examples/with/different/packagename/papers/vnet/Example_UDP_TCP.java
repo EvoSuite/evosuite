@@ -30,38 +30,38 @@ import java.util.Scanner;
 
 public class Example_UDP_TCP {
 
-	public String getMessage(int port) throws IOException{
+    public String getMessage(int port) throws IOException {
 
-		//defines message to send in UDP broadcast
-		InetAddress addr = InetAddress.getByName("192.168.0.1");
-		String handShake = "HAND_SHAKE";
-		String outMsg = addr+":"+port+":"+handShake;
-		byte[] data = outMsg.getBytes();
+        //defines message to send in UDP broadcast
+        InetAddress addr = InetAddress.getByName("192.168.0.1");
+        String handShake = "HAND_SHAKE";
+        String outMsg = addr + ":" + port + ":" + handShake;
+        byte[] data = outMsg.getBytes();
 
-		//send the message
-		DatagramPacket packet = new DatagramPacket(data,data.length,
-				InetAddress.getByName("255.255.255.255"),12345);
-		DatagramSocket udpSocket = new DatagramSocket();
-		udpSocket.send(packet);
+        //send the message
+        DatagramPacket packet = new DatagramPacket(data, data.length,
+                InetAddress.getByName("255.255.255.255"), 12345);
+        DatagramSocket udpSocket = new DatagramSocket();
+        udpSocket.send(packet);
 
-		//open listening TCP server based on sent out message
-		ServerSocket tcpServer = new ServerSocket(port,1,addr);
-		Socket tcpSocket = tcpServer.accept();
+        //open listening TCP server based on sent out message
+        ServerSocket tcpServer = new ServerSocket(port, 1, addr);
+        Socket tcpSocket = tcpServer.accept();
 
-		//read string from incoming TCP connection
-		Scanner in = new Scanner(tcpSocket.getInputStream());
-		String msg = in.nextLine();
+        //read string from incoming TCP connection
+        Scanner in = new Scanner(tcpSocket.getInputStream());
+        String msg = in.nextLine();
 
-		//close all resources
-		in.close();
-		tcpSocket.close();
-		tcpServer.close();
+        //close all resources
+        in.close();
+        tcpSocket.close();
+        tcpServer.close();
 
-		//check if first line contains the handshake token
-		if( msg.startsWith(handShake)){
-			return msg;
-		} else{
-			throw new IOException("Invalid header in: "+msg);
-		}
-	}
+        //check if first line contains the handshake token
+        if (msg.startsWith(handShake)) {
+            return msg;
+        } else {
+            throw new IOException("Invalid header in: " + msg);
+        }
+    }
 }

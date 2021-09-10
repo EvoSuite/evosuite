@@ -23,11 +23,11 @@ import org.junit.*;
 
 public class InnerCallsTest {
 
-	@Test
-	public void test(){
-		InnerCalls foo = new InnerCalls();
-		foo.printA();
-		foo.printB();
-		foo.printAandB();
-	}
+    @Test
+    public void test() {
+        InnerCalls foo = new InnerCalls();
+        foo.printA();
+        foo.printB();
+        foo.printAandB();
+    }
 }

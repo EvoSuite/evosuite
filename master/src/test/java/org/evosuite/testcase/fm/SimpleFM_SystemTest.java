@@ -40,23 +40,23 @@ import static org.mockito.Mockito.when;
 public class SimpleFM_SystemTest extends SystemTestBase {
 
     @Before
-    public void init(){
+    public void init() {
         Properties.P_FUNCTIONAL_MOCKING = 0.5;
         Properties.FUNCTIONAL_MOCKING_PERCENT = 0.0;
     }
 
     @Test
-    public void testGenericsReturnWithExtend_Single(){
+    public void testGenericsReturnWithExtend_Single() {
         do100percentLineTest(SimpleFM_GenericsReturnWithExtend_Single.class);
     }
 
     @Test
-    public void testGenericsReturnWithExtend_Double(){
+    public void testGenericsReturnWithExtend_Double() {
         do100percentLineTest(SimpleFM_GenericsReturnWithExtend_Double.class);
     }
 
     @Test
-    public void testGenericsReturnWithExtend_Double_Feasability(){
+    public void testGenericsReturnWithExtend_Double_Feasability() {
 
         SimpleFM_GenericsReturnWithExtend_Double.W w = mock(SimpleFM_GenericsReturnWithExtend_Double.W.class);
         when(w.isW()).thenReturn(true);
@@ -73,7 +73,7 @@ public class SimpleFM_SystemTest extends SystemTestBase {
 
 
     @Test
-    public void testSimpleReturnString(){
+    public void testSimpleReturnString() {
         GeneticAlgorithm<?> ga = do100percentLineTest(SimpleFM_returnString.class);
         TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
         String code = best.toString();
@@ -84,22 +84,22 @@ public class SimpleFM_SystemTest extends SystemTestBase {
     }
 
     @Test
-    public void testSimpleGenerics(){
+    public void testSimpleGenerics() {
         do100percentLineTest(SimpleFM_Generics.class);
     }
 
     @Test
-    public void testSimpleGenericsAsInput(){
+    public void testSimpleGenericsAsInput() {
         do100percentLineTest(SimpleFM_GenericsAsInput.class);
     }
 
     @Test
-    public void testSimpleGenericReturn(){
+    public void testSimpleGenericReturn() {
         do100percentLineTest(SimpleFM_GenericReturn.class);
     }
 
     @Test
-    public void testSimpleGenericNullString(){
+    public void testSimpleGenericNullString() {
         GeneticAlgorithm<?> ga = do100percentLineTest(SimpleFM_GenericsNullString.class);
 
         TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
@@ -109,7 +109,7 @@ public class SimpleFM_SystemTest extends SystemTestBase {
     }
 
     @Test
-    public void testSimpleNullString(){
+    public void testSimpleNullString() {
         GeneticAlgorithm<?> ga = do100percentLineTest(SimpleFM_NullString.class);
 
         TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
@@ -120,58 +120,58 @@ public class SimpleFM_SystemTest extends SystemTestBase {
 
     @Ignore //FIXME once we handle package-level methods
     @Test
-    public void testSimplePLM(){
+    public void testSimplePLM() {
         do100percentLineTest(SimpleFM_PackageMethod.class);
     }
 
     @Ignore //FIXME once we handle package-level methods
     @Test
-    public void testSimplePLMwithReturn(){
+    public void testSimplePLMwithReturn() {
         do100percentLineTest(SimpleFM_PackageMethodWithReturn.class);
     }
 
     @Test
-    public void testSimpleNonFinal(){
+    public void testSimpleNonFinal() {
         do100percentLineTest(SimpleFM_nonFinal.class);
     }
 
     @Test
-    public void testSimpleFinalClass(){
+    public void testSimpleFinalClass() {
         do100percentLineTest(SimpleFM_finalClass.class);
     }
 
     @Test
-    public void testSimpleFinalMethod(){
+    public void testSimpleFinalMethod() {
         do100percentLineTest(SimpleFM_finalMethod.class);
     }
 
     @Test
-    public void testSimpleBoolean(){
+    public void testSimpleBoolean() {
         Properties.FUNCTIONAL_MOCKING_PERCENT = 1; //practically do not use FM, unless no generator
         do100percentLineTest(SimpleFM_Boolean.class);
     }
 
     @Test
-    public void testSimpleDoubleMock(){
+    public void testSimpleDoubleMock() {
         Properties.FUNCTIONAL_MOCKING_PERCENT = 1; //practically do not use FM, unless no generator
         do100percentLineTest(SimpleFM_DoubleMock.class);
     }
 
 
     @Test
-    public void testSimpleInt(){
+    public void testSimpleInt() {
         Properties.FUNCTIONAL_MOCKING_PERCENT = 1; //practically do not use FM, unless no generator
         do100percentLineTest(SimpleFM_Int.class);
     }
 
     @Test
-    public void testSimpleString(){
+    public void testSimpleString() {
         Properties.FUNCTIONAL_MOCKING_PERCENT = 1; //practically do not use FM, unless no generator
         do100percentLineTest(SimpleFM_String.class);
     }
 
     @Test
-    public void testSimpleDependency(){
+    public void testSimpleDependency() {
 
         Properties.FUNCTIONAL_MOCKING_PERCENT = 1; //practically do not use FM, unless no generator
         Properties.P_REFLECTION_ON_PRIVATE = 0;

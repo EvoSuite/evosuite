@@ -35,124 +35,124 @@ import com.examples.with.different.packagename.TargetMethodPrefix;
 
 public class TargetMethodPrefixSystemTest extends SystemTestBase {
 
-	private String targetMethod = "";
-	private String targetMethodList = "";
-	private String targetMethodPrefix = "";
+    private String targetMethod = "";
+    private String targetMethodList = "";
+    private String targetMethodPrefix = "";
 
-	@Before
-	public void backupValues() {
-		targetMethod = Properties.TARGET_METHOD;
-		targetMethodList = Properties.TARGET_METHOD_LIST;
-		targetMethodPrefix = Properties.TARGET_METHOD_PREFIX;
-		Properties.SEARCH_BUDGET = 50000;
-	}
+    @Before
+    public void backupValues() {
+        targetMethod = Properties.TARGET_METHOD;
+        targetMethodList = Properties.TARGET_METHOD_LIST;
+        targetMethodPrefix = Properties.TARGET_METHOD_PREFIX;
+        Properties.SEARCH_BUDGET = 50000;
+    }
 
-	@After
-	public void restoreValues() {
-		Properties.TARGET_METHOD = targetMethod;
-		Properties.TARGET_METHOD_LIST = targetMethodList;
-		Properties.TARGET_METHOD_PREFIX = targetMethodPrefix;
-	}
+    @After
+    public void restoreValues() {
+        Properties.TARGET_METHOD = targetMethod;
+        Properties.TARGET_METHOD_LIST = targetMethodList;
+        Properties.TARGET_METHOD_PREFIX = targetMethodPrefix;
+    }
 
-	@Test
-	public void testTotalBranchesInClass() {
-		EvoSuite evosuite = new EvoSuite();
+    @Test
+    public void testTotalBranchesInClass() {
+        EvoSuite evosuite = new EvoSuite();
 
-		String targetClass = TargetMethodPrefix.class.getCanonicalName();
+        String targetClass = TargetMethodPrefix.class.getCanonicalName();
 
-		Properties.TARGET_CLASS = targetClass;
-		Properties.TARGET_METHOD = "";
-		Properties.TARGET_METHOD_LIST = "";
-		Properties.TARGET_METHOD_PREFIX = "";
+        Properties.TARGET_CLASS = targetClass;
+        Properties.TARGET_METHOD = "";
+        Properties.TARGET_METHOD_LIST = "";
+        Properties.TARGET_METHOD_PREFIX = "";
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
 
-		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
+        Object result = evosuite.parseCommandLine(command);
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
 
-		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
+        int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
 
-		assertEquals("Wrong number of goals:", 13, goals);
-		assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
-	}
+        assertEquals("Wrong number of goals:", 13, goals);
+        assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+    }
 
-	@Test
-	public void testTargetMethod() {
-		EvoSuite evosuite = new EvoSuite();
+    @Test
+    public void testTargetMethod() {
+        EvoSuite evosuite = new EvoSuite();
 
-		String targetClass = TargetMethodPrefix.class.getCanonicalName();
-		String targetMethod = "foo(Ljava/lang/String;Ljava/lang/String;)Z";
+        String targetClass = TargetMethodPrefix.class.getCanonicalName();
+        String targetMethod = "foo(Ljava/lang/String;Ljava/lang/String;)Z";
 
-		Properties.TARGET_CLASS = targetClass;
-		Properties.TARGET_METHOD = targetMethod;
-		Properties.TARGET_METHOD_LIST = "";
-		Properties.TARGET_METHOD_PREFIX = "";
+        Properties.TARGET_CLASS = targetClass;
+        Properties.TARGET_METHOD = targetMethod;
+        Properties.TARGET_METHOD_LIST = "";
+        Properties.TARGET_METHOD_PREFIX = "";
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass,
-		        "-Dtarget_method=" + targetMethod, "-Dclient_on_thread=true" };
+        String[] command = new String[]{"-generateSuite", "-class", targetClass,
+                "-Dtarget_method=" + targetMethod, "-Dclient_on_thread=true"};
 
-		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
+        Object result = evosuite.parseCommandLine(command);
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
 
-		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
+        int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
 
-		assertEquals("Wrong number of goals: ", 4, goals);
-		assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+        assertEquals("Wrong number of goals: ", 4, goals);
+        assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 
-	}
+    }
 
-	@Test
-	public void testTargetMethodPrefix1() {
-		EvoSuite evosuite = new EvoSuite();
+    @Test
+    public void testTargetMethodPrefix1() {
+        EvoSuite evosuite = new EvoSuite();
 
-		String targetClass = TargetMethodPrefix.class.getCanonicalName();
-		String targetMethodPrefix = "foo_";
+        String targetClass = TargetMethodPrefix.class.getCanonicalName();
+        String targetMethodPrefix = "foo_";
 
-		Properties.TARGET_CLASS = targetClass;
-		Properties.TARGET_METHOD = "";
-		Properties.TARGET_METHOD_LIST = "";
-		Properties.TARGET_METHOD_PREFIX = targetMethodPrefix;
+        Properties.TARGET_CLASS = targetClass;
+        Properties.TARGET_METHOD = "";
+        Properties.TARGET_METHOD_LIST = "";
+        Properties.TARGET_METHOD_PREFIX = targetMethodPrefix;
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass,
-		        "-Dtarget_method_prefix=" + targetMethodPrefix, "-Dclient_on_thread=true" };
+        String[] command = new String[]{"-generateSuite", "-class", targetClass,
+                "-Dtarget_method_prefix=" + targetMethodPrefix, "-Dclient_on_thread=true"};
 
-		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
+        Object result = evosuite.parseCommandLine(command);
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
 
-		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
+        int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
 
-		assertEquals("Wrong number of goals: ", 4, goals);
-		assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+        assertEquals("Wrong number of goals: ", 4, goals);
+        assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 
-	}
+    }
 
-	@Test
-	public void testTargetMethodPrefix2() {
-		EvoSuite evosuite = new EvoSuite();
+    @Test
+    public void testTargetMethodPrefix2() {
+        EvoSuite evosuite = new EvoSuite();
 
-		String targetClass = TargetMethodPrefix.class.getCanonicalName();
-		String targetMethodPrefix = "foo"; // different from foo_
+        String targetClass = TargetMethodPrefix.class.getCanonicalName();
+        String targetMethodPrefix = "foo"; // different from foo_
 
-		Properties.TARGET_CLASS = targetClass;
-		Properties.TARGET_METHOD = "";
-		Properties.TARGET_METHOD_LIST = "";
-		Properties.TARGET_METHOD_PREFIX = targetMethodPrefix;
+        Properties.TARGET_CLASS = targetClass;
+        Properties.TARGET_METHOD = "";
+        Properties.TARGET_METHOD_LIST = "";
+        Properties.TARGET_METHOD_PREFIX = targetMethodPrefix;
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass,
-		        "-Dtarget_method_prefix=" + targetMethodPrefix, "-Dclient_on_thread=true" };
+        String[] command = new String[]{"-generateSuite", "-class", targetClass,
+                "-Dtarget_method_prefix=" + targetMethodPrefix, "-Dclient_on_thread=true"};
 
-		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
+        Object result = evosuite.parseCommandLine(command);
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
 
-		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
+        int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
 
-		assertEquals("Wrong number of goals: ", 8, goals);
-		assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+        assertEquals("Wrong number of goals: ", 8, goals);
+        assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 
-		Properties.TARGET_METHOD_PREFIX = "";
-	}
+        Properties.TARGET_METHOD_PREFIX = "";
+    }
 }

@@ -36,41 +36,41 @@ import com.examples.with.different.packagename.staticfield.FailingStaticInitiali
 public class FailingStaticInitializerSystemTest extends SystemTestBase {
 
 
-	@Test
-	public void test() throws IOException {
-		final String targetClass = FailingStaticInitializer.class.getCanonicalName();
-		Properties.TEST_DIR = System.getProperty("user.dir");
-		Properties.TARGET_CLASS = targetClass;
-		Properties.CLASS_PREFIX = targetClass.substring(0,
-				targetClass.lastIndexOf('.'));
-		
-		String name = Properties.TARGET_CLASS.substring(Properties.TARGET_CLASS.lastIndexOf(".") + 1)
-				+ Properties.JUNIT_SUFFIX;
-		
-		String junitFileName = Properties.TEST_DIR + File.separatorChar
-				+ Properties.CLASS_PREFIX.replace('.', File.separatorChar) + File.separatorChar + name + ".java";
-		
-		Properties.RESET_STATIC_FIELDS = true;
-		Properties.JUNIT_TESTS = true;
-		Properties.JUNIT_CHECK = Properties.JUnitCheckValues.TRUE;
+    @Test
+    public void test() throws IOException {
+        final String targetClass = FailingStaticInitializer.class.getCanonicalName();
+        Properties.TEST_DIR = System.getProperty("user.dir");
+        Properties.TARGET_CLASS = targetClass;
+        Properties.CLASS_PREFIX = targetClass.substring(0,
+                targetClass.lastIndexOf('.'));
 
-		final Path path = Paths.get(junitFileName);
-		Files.deleteIfExists(path);
-		
-		// check that the test suite does not exist
-		Assert.assertFalse("Test Suite needs to be deleted first", Files.exists(path));
+        String name = Properties.TARGET_CLASS.substring(Properties.TARGET_CLASS.lastIndexOf(".") + 1)
+                + Properties.JUNIT_SUFFIX;
 
-		EvoSuite evosuite = new EvoSuite();
+        String junitFileName = Properties.TEST_DIR + File.separatorChar
+                + Properties.CLASS_PREFIX.replace('.', File.separatorChar) + File.separatorChar + name + ".java";
 
-		String[] command = new String[] { "-generateSuite", "-class", Properties.TARGET_CLASS };
+        Properties.RESET_STATIC_FIELDS = true;
+        Properties.JUNIT_TESTS = true;
+        Properties.JUNIT_CHECK = Properties.JUnitCheckValues.TRUE;
 
-		Object result = evosuite.parseCommandLine(command);
+        final Path path = Paths.get(junitFileName);
+        Files.deleteIfExists(path);
 
-		// check that the test suite was created
-		Assert.assertTrue("Test Suite does not exist", Files.exists(path));
+        // check that the test suite does not exist
+        Assert.assertFalse("Test Suite needs to be deleted first", Files.exists(path));
 
-		// clean-up after test execution
-		Files.deleteIfExists(path);
-	}
+        EvoSuite evosuite = new EvoSuite();
+
+        String[] command = new String[]{"-generateSuite", "-class", Properties.TARGET_CLASS};
+
+        Object result = evosuite.parseCommandLine(command);
+
+        // check that the test suite was created
+        Assert.assertTrue("Test Suite does not exist", Files.exists(path));
+
+        // clean-up after test execution
+        Files.deleteIfExists(path);
+    }
 
 }

@@ -23,11 +23,11 @@ import static com.examples.with.different.packagename.concolic.Assertions.checkE
 
 public class TestCase43 {
 
-	public static void test(int int0) {
-		Integer integer0 = int0;
-		int int1 = integer0;
-		int int2 = Integer.MAX_VALUE;
-		checkEquals(int1, int2);
+    public static void test(int int0) {
+        Integer integer0 = int0;
+        int int1 = integer0;
+        int int2 = Integer.MAX_VALUE;
+        checkEquals(int1, int2);
 
-	}
+    }
 }

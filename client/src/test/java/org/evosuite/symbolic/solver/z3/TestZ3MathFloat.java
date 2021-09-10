@@ -22,11 +22,11 @@ package org.evosuite.symbolic.solver.z3;
 import org.evosuite.symbolic.solver.Solver;
 import org.evosuite.symbolic.solver.TestSolverMathFloat;
 
-public class TestZ3MathFloat extends TestSolverMathFloat{
+public class TestZ3MathFloat extends TestSolverMathFloat {
 
-	@Override
-	public Solver getSolver() {
-		return new Z3Solver();
-	}
+    @Override
+    public Solver getSolver() {
+        return new Z3Solver();
+    }
 
 }

@@ -33,53 +33,53 @@ import com.examples.with.different.packagename.ReadFromSystemIn;
 
 public class SystemInUtilSystemTest extends SystemTestBase {
 
-	private static final boolean defaultSystemIn = Properties.REPLACE_SYSTEM_IN;
-	
-	/*
-	 * We consider VFS has it might mess up System.in handling (eg, these test cases were
-	 * created to debug such issue that actually happened) 
-	 */
-	private static final boolean defaultVFS = Properties.VIRTUAL_FS;
-	
-	@After
-	public void tearDown(){
-		Properties.REPLACE_SYSTEM_IN = defaultSystemIn;
-		Properties.VIRTUAL_FS = defaultVFS;
-	}
-	
-	@Test
-	public void testWithNoVFS(){
-		Properties.VIRTUAL_FS = false;
-		_test();
-	}
-	
-	@Test
-	public void testWithVFS(){
-		Properties.VIRTUAL_FS = true;
-		_test();
-	}
-	
-	private void _test(){
+    private static final boolean defaultSystemIn = Properties.REPLACE_SYSTEM_IN;
 
-		EvoSuite evosuite = new EvoSuite();
+    /*
+     * We consider VFS has it might mess up System.in handling (eg, these test cases were
+     * created to debug such issue that actually happened)
+     */
+    private static final boolean defaultVFS = Properties.VIRTUAL_FS;
 
-		String targetClass = ReadFromSystemIn.class.getCanonicalName();
+    @After
+    public void tearDown() {
+        Properties.REPLACE_SYSTEM_IN = defaultSystemIn;
+        Properties.VIRTUAL_FS = defaultVFS;
+    }
 
-		Properties.TARGET_CLASS = targetClass;
-		Properties.REPLACE_SYSTEM_IN= true;
+    @Test
+    public void testWithNoVFS() {
+        Properties.VIRTUAL_FS = false;
+        _test();
+    }
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+    @Test
+    public void testWithVFS() {
+        Properties.VIRTUAL_FS = true;
+        _test();
+    }
 
-		Object result = evosuite.parseCommandLine(command);
+    private void _test() {
 
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
-		System.out.println("EvolvedTestSuite:\n" + best);
+        EvoSuite evosuite = new EvoSuite();
 
-		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
-		Assert.assertEquals(3, goals );
-		double coverage = best.getCoverage();
-		Assert.assertTrue("Not good enough coverage: "+coverage, coverage > 0.99d);
+        String targetClass = ReadFromSystemIn.class.getCanonicalName();
 
-	}
+        Properties.TARGET_CLASS = targetClass;
+        Properties.REPLACE_SYSTEM_IN = true;
+
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
+
+        Object result = evosuite.parseCommandLine(command);
+
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
+        System.out.println("EvolvedTestSuite:\n" + best);
+
+        int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
+        Assert.assertEquals(3, goals);
+        double coverage = best.getCoverage();
+        Assert.assertTrue("Not good enough coverage: " + coverage, coverage > 0.99d);
+
+    }
 }

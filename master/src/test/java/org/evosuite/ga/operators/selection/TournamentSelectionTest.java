@@ -27,15 +27,14 @@ import org.junit.Test;
 
 /**
  * @author Gordon Fraser
- * 
  */
 public class TournamentSelectionTest {
 
-	@Test
-	public void testTournament() {
-		TournamentSelection tournament = new TournamentSelection();
-		tournament.setMaximize(true);
-		assertTrue(tournament.isMaximize());
-	}
+    @Test
+    public void testTournament() {
+        TournamentSelection tournament = new TournamentSelection();
+        tournament.setMaximize(true);
+        assertTrue(tournament.isMaximize());
+    }
 
 }

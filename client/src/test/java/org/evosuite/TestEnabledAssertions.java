@@ -19,25 +19,25 @@
  */
 package org.evosuite;
 
-import org.junit.*;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * @author Andrea Arcuri
- * 
  */
 public class TestEnabledAssertions {
 
-	/*
-	 * when we run the test cases in series, we need to be reminded that we should activate 
-	 * the assertions inside EvoSuite with -ea:org.evosuite...
-	 */
-	@Test
-	public void testIfAssertionsAreEnabled(){
-		boolean enabled = false;
-		
-		assert (enabled=true)  ; 
-		
-		Assert.assertTrue(enabled);
-	}
-	
+    /*
+     * when we run the test cases in series, we need to be reminded that we should activate
+     * the assertions inside EvoSuite with -ea:org.evosuite...
+     */
+    @Test
+    public void testIfAssertionsAreEnabled() {
+        boolean enabled = false;
+
+        assert (enabled = true);
+
+        Assert.assertTrue(enabled);
+    }
+
 }

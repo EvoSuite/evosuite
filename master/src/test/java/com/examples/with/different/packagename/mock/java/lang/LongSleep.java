@@ -28,7 +28,7 @@ public class LongSleep {
 
         Thread.sleep(24 * 60 * 60 * 1000); //if not mocked, following will never be covered
 
-        if(x > 0){
+        if (x > 0) {
             return true;
         } else {
             return false;

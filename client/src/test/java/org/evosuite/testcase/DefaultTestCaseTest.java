@@ -24,11 +24,11 @@ import org.junit.Test;
 
 public class DefaultTestCaseTest {
 
-	@Test
-	public void testClone(){
-				
-		DefaultTestCase tc = new DefaultTestCase();
-		DefaultTestCase clone = tc.clone();
-		Assert.assertTrue(tc.statements != clone.statements);
-	}
+    @Test
+    public void testClone() {
+
+        DefaultTestCase tc = new DefaultTestCase();
+        DefaultTestCase clone = tc.clone();
+        Assert.assertTrue(tc.statements != clone.statements);
+    }
 }

@@ -28,8 +28,8 @@ public class GenericFM_StringType {
         String foo(T parameter);
     }
 
-    public static boolean bar(Foo<String> foo){
-        if(foo.foo("Test").equals("Bar")){
+    public static boolean bar(Foo<String> foo) {
+        if (foo.foo("Test").equals("Bar")) {
             return true;
         } else {
             return false;

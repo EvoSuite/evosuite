@@ -42,86 +42,86 @@ import org.objectweb.asm.Type;
 import com.examples.with.different.packagename.purity.ImpureInspector;
 
 public class ImpureInspectorSystemTest extends SystemTestBase {
-	private final boolean DEFAULT_RESET_STATIC_FIELDS = Properties.RESET_STATIC_FIELDS;
-	private final Properties.JUnitCheckValues DEFAULT_JUNIT_CHECK = Properties.JUNIT_CHECK;
-	private final boolean DEFAULT_JUNIT_TESTS = Properties.JUNIT_TESTS;
-	private final boolean DEFAULT_PURE_INSPECTORS = Properties.PURE_INSPECTORS;
-	private final boolean DEFAULT_SANDBOX = Properties.SANDBOX;
+    private final boolean DEFAULT_RESET_STATIC_FIELDS = Properties.RESET_STATIC_FIELDS;
+    private final Properties.JUnitCheckValues DEFAULT_JUNIT_CHECK = Properties.JUNIT_CHECK;
+    private final boolean DEFAULT_JUNIT_TESTS = Properties.JUNIT_TESTS;
+    private final boolean DEFAULT_PURE_INSPECTORS = Properties.PURE_INSPECTORS;
+    private final boolean DEFAULT_SANDBOX = Properties.SANDBOX;
 
-	@Before
-	public void saveProperties() {
-		Properties.SANDBOX = true;
-		Properties.RESET_STATIC_FIELDS = true;
-		Properties.JUNIT_CHECK = Properties.JUnitCheckValues.TRUE;
-		Properties.JUNIT_TESTS = true;
-		Properties.PURE_INSPECTORS = true;
-	}
+    @Before
+    public void saveProperties() {
+        Properties.SANDBOX = true;
+        Properties.RESET_STATIC_FIELDS = true;
+        Properties.JUNIT_CHECK = Properties.JUnitCheckValues.TRUE;
+        Properties.JUNIT_TESTS = true;
+        Properties.PURE_INSPECTORS = true;
+    }
 
-	@After
-	public void restoreProperties() {
-		Properties.RESET_STATIC_FIELDS = DEFAULT_RESET_STATIC_FIELDS;
-		Properties.JUNIT_CHECK = DEFAULT_JUNIT_CHECK;
-		Properties.JUNIT_TESTS = DEFAULT_JUNIT_TESTS;
-		Properties.PURE_INSPECTORS = DEFAULT_PURE_INSPECTORS;
-		Properties.SANDBOX = DEFAULT_SANDBOX;
-	}
+    @After
+    public void restoreProperties() {
+        Properties.RESET_STATIC_FIELDS = DEFAULT_RESET_STATIC_FIELDS;
+        Properties.JUNIT_CHECK = DEFAULT_JUNIT_CHECK;
+        Properties.JUNIT_TESTS = DEFAULT_JUNIT_TESTS;
+        Properties.PURE_INSPECTORS = DEFAULT_PURE_INSPECTORS;
+        Properties.SANDBOX = DEFAULT_SANDBOX;
+    }
 
-	@Test
-	public void test() {
-		EvoSuite evosuite = new EvoSuite();
+    @Test
+    public void test() {
+        EvoSuite evosuite = new EvoSuite();
 
-		String targetClass = ImpureInspector.class.getCanonicalName();
-		Properties.TARGET_CLASS = targetClass;
-		Properties.OUTPUT_VARIABLES=""+RuntimeVariable.HadUnstableTests;
-		String[] command = new String[] { "-generateSuite", "-class",
-				targetClass };
+        String targetClass = ImpureInspector.class.getCanonicalName();
+        Properties.TARGET_CLASS = targetClass;
+        Properties.OUTPUT_VARIABLES = "" + RuntimeVariable.HadUnstableTests;
+        String[] command = new String[]{"-generateSuite", "-class",
+                targetClass};
 
-		Object result = evosuite.parseCommandLine(command);
+        Object result = evosuite.parseCommandLine(command);
 
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
-		System.out.println("EvolvedTestSuite:\n" + best);
-		double best_fitness = best.getFitness();
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
+        System.out.println("EvolvedTestSuite:\n" + best);
+        double best_fitness = best.getFitness();
         Assert.assertEquals("Optimal coverage was not achieved ", 0.0, best_fitness, 0.0);
 
-		CheapPurityAnalyzer purityAnalyzer = CheapPurityAnalyzer.getInstance();
+        CheapPurityAnalyzer purityAnalyzer = CheapPurityAnalyzer.getInstance();
 
-		String descriptor = Type.getMethodDescriptor(Type.INT_TYPE);
+        String descriptor = Type.getMethodDescriptor(Type.INT_TYPE);
 
-		boolean recursivePureFunction = purityAnalyzer.isPure(targetClass,
-				"recursivePureFunction",
-				Type.getMethodDescriptor(Type.INT_TYPE, Type.INT_TYPE));
-		assertTrue(recursivePureFunction);
+        boolean recursivePureFunction = purityAnalyzer.isPure(targetClass,
+                "recursivePureFunction",
+                Type.getMethodDescriptor(Type.INT_TYPE, Type.INT_TYPE));
+        assertTrue(recursivePureFunction);
 
-		boolean getImpureValue = purityAnalyzer.isPure(targetClass,
-				"getImpureValue", descriptor);
-		assertFalse(getImpureValue);
+        boolean getImpureValue = purityAnalyzer.isPure(targetClass,
+                "getImpureValue", descriptor);
+        assertFalse(getImpureValue);
 
-		boolean getPureValue = purityAnalyzer.isPure(targetClass,
-				"getPureValue", descriptor);
-		assertTrue(getPureValue);
+        boolean getPureValue = purityAnalyzer.isPure(targetClass,
+                "getPureValue", descriptor);
+        assertTrue(getPureValue);
 
-		boolean getImpureValueFromCall = purityAnalyzer.isPure(targetClass,
-				"getImpureValueFromCall", descriptor);
-		assertFalse(getImpureValueFromCall);
+        boolean getImpureValueFromCall = purityAnalyzer.isPure(targetClass,
+                "getImpureValueFromCall", descriptor);
+        assertFalse(getImpureValueFromCall);
 
-		boolean getPureValueFromCall = purityAnalyzer.isPure(targetClass,
-				"getPureValueFromCall", descriptor);
-		assertTrue(getPureValueFromCall);
+        boolean getPureValueFromCall = purityAnalyzer.isPure(targetClass,
+                "getPureValueFromCall", descriptor);
+        assertTrue(getPureValueFromCall);
 
-		boolean recursivePureInspector = purityAnalyzer.isPure(targetClass,
-				"recursivePureInspector", descriptor);
-		assertTrue(recursivePureInspector);
+        boolean recursivePureInspector = purityAnalyzer.isPure(targetClass,
+                "recursivePureInspector", descriptor);
+        assertTrue(recursivePureInspector);
 
-		boolean recursiveImpureInspector = purityAnalyzer.isPure(targetClass,
-				"recursiveImpureInspector", descriptor);
-		assertFalse(recursiveImpureInspector);
+        boolean recursiveImpureInspector = purityAnalyzer.isPure(targetClass,
+                "recursiveImpureInspector", descriptor);
+        assertFalse(recursiveImpureInspector);
 
-		Map<String, OutputVariable<?>> map = DebugStatisticsBackend.getLatestWritten();
-		Assert.assertNotNull(map);
-		OutputVariable unstable = map.get(RuntimeVariable.HadUnstableTests.toString());
-		Assert.assertNotNull(unstable);
-		Assert.assertEquals(Boolean.FALSE, unstable.getValue());
-	}
+        Map<String, OutputVariable<?>> map = DebugStatisticsBackend.getLatestWritten();
+        Assert.assertNotNull(map);
+        OutputVariable unstable = map.get(RuntimeVariable.HadUnstableTests.toString());
+        Assert.assertNotNull(unstable);
+        Assert.assertEquals(Boolean.FALSE, unstable.getValue());
+    }
 
 }

@@ -24,10 +24,10 @@ package com.examples.with.different.packagename;
  */
 public class InfiniteWhile {
 
-    public static void infiniteLoop(){
+    public static void infiniteLoop() {
         int counter = 0;
-        while(true){
-            System.out.println("Iteration "+ counter);
+        while (true) {
+            System.out.println("Iteration " + counter);
             counter++;
         }
     }

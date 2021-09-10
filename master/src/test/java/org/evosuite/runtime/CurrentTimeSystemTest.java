@@ -44,240 +44,240 @@ import com.examples.with.different.packagename.TimeOperation;
 
 public class CurrentTimeSystemTest extends SystemTestBase {
 
-	private boolean replaceCalls = Properties.REPLACE_CALLS;
+    private boolean replaceCalls = Properties.REPLACE_CALLS;
 
-	@Before
-	public void storeValues() {
-		replaceCalls = Properties.REPLACE_CALLS;
-	}
+    @Before
+    public void storeValues() {
+        replaceCalls = Properties.REPLACE_CALLS;
+    }
 
-	@After
-	public void resetValues() {
-		Properties.REPLACE_CALLS = replaceCalls;
-	}
+    @After
+    public void resetValues() {
+        Properties.REPLACE_CALLS = replaceCalls;
+    }
 
-	@Test
-	public void testCurrentTime1() {
-		EvoSuite evosuite = new EvoSuite();
+    @Test
+    public void testCurrentTime1() {
+        EvoSuite evosuite = new EvoSuite();
 
-		String targetClass = CurrentTime.class.getCanonicalName();
+        String targetClass = CurrentTime.class.getCanonicalName();
 
-		Properties.TARGET_CLASS = targetClass;
-		Properties.REPLACE_CALLS = true;
+        Properties.TARGET_CLASS = targetClass;
+        Properties.REPLACE_CALLS = true;
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
 
-		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
+        Object result = evosuite.parseCommandLine(command);
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
 
-		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
-		Assert.assertEquals("Wrong number of goals: ", 3, goals);
-		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
-	}
+        int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
+        Assert.assertEquals("Wrong number of goals: ", 3, goals);
+        Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+    }
 
-	@Test
-	public void testTimeOperation() {
-		EvoSuite evosuite = new EvoSuite();
+    @Test
+    public void testTimeOperation() {
+        EvoSuite evosuite = new EvoSuite();
 
-		String targetClass = TimeOperation.class.getCanonicalName();
+        String targetClass = TimeOperation.class.getCanonicalName();
 
-		Properties.TARGET_CLASS = targetClass;
-		Properties.REPLACE_CALLS = true;
+        Properties.TARGET_CLASS = targetClass;
+        Properties.REPLACE_CALLS = true;
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass }; //, "-assertions"
+        String[] command = new String[]{"-generateSuite", "-class", targetClass}; //, "-assertions"
 
-		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
+        Object result = evosuite.parseCommandLine(command);
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
 
-		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
-		Assert.assertEquals("Wrong number of goals: ", 3, goals);
-		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
-	}
+        int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
+        Assert.assertEquals("Wrong number of goals: ", 3, goals);
+        Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+    }
 
-	@Test
-	public void testCurrentTimeViaCalendar() {
-		EvoSuite evosuite = new EvoSuite();
+    @Test
+    public void testCurrentTimeViaCalendar() {
+        EvoSuite evosuite = new EvoSuite();
 
-		String targetClass = CurrentTimeViaCalendar.class.getCanonicalName();
+        String targetClass = CurrentTimeViaCalendar.class.getCanonicalName();
 
-		Properties.TARGET_CLASS = targetClass;
-		Properties.REPLACE_CALLS = true;
+        Properties.TARGET_CLASS = targetClass;
+        Properties.REPLACE_CALLS = true;
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
 
-		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
+        Object result = evosuite.parseCommandLine(command);
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
 
-		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
-		Assert.assertEquals("Wrong number of goals: ", 3, goals);
-		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
-	}
+        int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
+        Assert.assertEquals("Wrong number of goals: ", 3, goals);
+        Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+    }
 
-	@Test
-	public void testCurrentTimeViaCalendar1() {
-		EvoSuite evosuite = new EvoSuite();
+    @Test
+    public void testCurrentTimeViaCalendar1() {
+        EvoSuite evosuite = new EvoSuite();
 
-		String targetClass = CurrentTimeViaCalendar1.class.getCanonicalName();
+        String targetClass = CurrentTimeViaCalendar1.class.getCanonicalName();
 
-		Properties.TARGET_CLASS = targetClass;
-		Properties.REPLACE_CALLS = true;
+        Properties.TARGET_CLASS = targetClass;
+        Properties.REPLACE_CALLS = true;
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
 
-		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
+        Object result = evosuite.parseCommandLine(command);
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
 
-		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
-		Assert.assertEquals("Wrong number of goals: ", 3, goals);
-		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
-	}
+        int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
+        Assert.assertEquals("Wrong number of goals: ", 3, goals);
+        Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+    }
 
-	@Test
-	public void testCurrentTimeViaCalendar2() {
-		EvoSuite evosuite = new EvoSuite();
+    @Test
+    public void testCurrentTimeViaCalendar2() {
+        EvoSuite evosuite = new EvoSuite();
 
-		String targetClass = CurrentTimeViaCalendar2.class.getCanonicalName();
+        String targetClass = CurrentTimeViaCalendar2.class.getCanonicalName();
 
-		Properties.TARGET_CLASS = targetClass;
-		Properties.REPLACE_CALLS = true;
+        Properties.TARGET_CLASS = targetClass;
+        Properties.REPLACE_CALLS = true;
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
 
-		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
+        Object result = evosuite.parseCommandLine(command);
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
 
-		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
-		Assert.assertEquals("Wrong number of goals: ", 3, goals);
-		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
-	}
+        int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
+        Assert.assertEquals("Wrong number of goals: ", 3, goals);
+        Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+    }
 
-	@Test
-	public void testCurrentTimeViaCalendar3() {
-		EvoSuite evosuite = new EvoSuite();
+    @Test
+    public void testCurrentTimeViaCalendar3() {
+        EvoSuite evosuite = new EvoSuite();
 
-		String targetClass = CurrentTimeViaCalendar3.class.getCanonicalName();
+        String targetClass = CurrentTimeViaCalendar3.class.getCanonicalName();
 
-		Properties.TARGET_CLASS = targetClass;
-		Properties.REPLACE_CALLS = true;
+        Properties.TARGET_CLASS = targetClass;
+        Properties.REPLACE_CALLS = true;
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
 
-		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
+        Object result = evosuite.parseCommandLine(command);
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
 
-		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
-		Assert.assertEquals("Wrong number of goals: ", 3, goals);
-		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
-	}
+        int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
+        Assert.assertEquals("Wrong number of goals: ", 3, goals);
+        Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+    }
 
-	@Test
-	public void testCurrentTimeViaCalendarParameter() {
-		EvoSuite evosuite = new EvoSuite();
+    @Test
+    public void testCurrentTimeViaCalendarParameter() {
+        EvoSuite evosuite = new EvoSuite();
 
-		String targetClass = CurrentTimeViaCalendarParameter.class.getCanonicalName();
+        String targetClass = CurrentTimeViaCalendarParameter.class.getCanonicalName();
 
-		Properties.TARGET_CLASS = targetClass;
-		Properties.REPLACE_CALLS = true;
+        Properties.TARGET_CLASS = targetClass;
+        Properties.REPLACE_CALLS = true;
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
 
-		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
-		java.lang.System.out.println("Test Suite: " + best.toString());
+        Object result = evosuite.parseCommandLine(command);
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
+        java.lang.System.out.println("Test Suite: " + best.toString());
 
-		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
-		Assert.assertEquals("Wrong number of goals: ", 3, goals);
-		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
-	}
+        int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
+        Assert.assertEquals("Wrong number of goals: ", 3, goals);
+        Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+    }
 
-	
-	@Test
-	public void testCurrentTimeViaGregorianCalendar() {
-		EvoSuite evosuite = new EvoSuite();
 
-		String targetClass = CurrentTimeViaGregorianCalendar.class.getCanonicalName();
+    @Test
+    public void testCurrentTimeViaGregorianCalendar() {
+        EvoSuite evosuite = new EvoSuite();
 
-		Properties.TARGET_CLASS = targetClass;
-		Properties.REPLACE_CALLS = true;
+        String targetClass = CurrentTimeViaGregorianCalendar.class.getCanonicalName();
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+        Properties.TARGET_CLASS = targetClass;
+        Properties.REPLACE_CALLS = true;
 
-		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
 
-		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
-		Assert.assertEquals("Wrong number of goals: ", 3, goals);
-		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
-	}
+        Object result = evosuite.parseCommandLine(command);
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
 
-	@Test
-	public void testCurrentTimeViaGregorianCalendarParameter() {
-		EvoSuite evosuite = new EvoSuite();
+        int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
+        Assert.assertEquals("Wrong number of goals: ", 3, goals);
+        Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+    }
 
-		String targetClass = CurrentTimeViaGregorianCalendarParameter.class.getCanonicalName();
+    @Test
+    public void testCurrentTimeViaGregorianCalendarParameter() {
+        EvoSuite evosuite = new EvoSuite();
 
-		Properties.TARGET_CLASS = targetClass;
-		Properties.REPLACE_CALLS = true;
+        String targetClass = CurrentTimeViaGregorianCalendarParameter.class.getCanonicalName();
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+        Properties.TARGET_CLASS = targetClass;
+        Properties.REPLACE_CALLS = true;
 
-		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
-		java.lang.System.out.println("Test Suite: " + best.toString());
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
 
-		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
-		Assert.assertEquals("Wrong number of goals: ", 3, goals);
-		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
-	}
-	
-	@Test
-	public void testCurrentTimeViaDate() {
-		EvoSuite evosuite = new EvoSuite();
+        Object result = evosuite.parseCommandLine(command);
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
+        java.lang.System.out.println("Test Suite: " + best.toString());
 
-		String targetClass = CurrentTimeViaDate.class.getCanonicalName();
+        int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
+        Assert.assertEquals("Wrong number of goals: ", 3, goals);
+        Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+    }
 
-		Properties.TARGET_CLASS = targetClass;
-		Properties.REPLACE_CALLS = true;
+    @Test
+    public void testCurrentTimeViaDate() {
+        EvoSuite evosuite = new EvoSuite();
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+        String targetClass = CurrentTimeViaDate.class.getCanonicalName();
 
-		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
+        Properties.TARGET_CLASS = targetClass;
+        Properties.REPLACE_CALLS = true;
 
-		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
-		Assert.assertEquals("Wrong number of goals: ", 3, goals);
-		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
-	}
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
 
-	@Test
-	public void testCurrentTimeViaDateParameter() {
-		EvoSuite evosuite = new EvoSuite();
+        Object result = evosuite.parseCommandLine(command);
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
 
-		String targetClass = CurrentTimeViaDateParameter.class.getCanonicalName();
+        int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
+        Assert.assertEquals("Wrong number of goals: ", 3, goals);
+        Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+    }
 
-		Properties.TARGET_CLASS = targetClass;
-		Properties.REPLACE_CALLS = true;
+    @Test
+    public void testCurrentTimeViaDateParameter() {
+        EvoSuite evosuite = new EvoSuite();
+
+        String targetClass = CurrentTimeViaDateParameter.class.getCanonicalName();
+
+        Properties.TARGET_CLASS = targetClass;
+        Properties.REPLACE_CALLS = true;
         //Properties.USE_DEPRECATED = false; // TODO why does the test pass only if USE_DEPRECATED is false???
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
 
-		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
-		java.lang.System.out.println("Test Suite: " + best.toString());
+        Object result = evosuite.parseCommandLine(command);
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
+        java.lang.System.out.println("Test Suite: " + best.toString());
 
-		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
-		Assert.assertEquals("Wrong number of goals: ", 3, goals);
-		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
-	}
+        int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
+        Assert.assertEquals("Wrong number of goals: ", 3, goals);
+        Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+    }
 }

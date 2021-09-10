@@ -39,269 +39,268 @@ import com.examples.with.different.packagename.localsearch.StringLocalSearchExam
 
 public class LocalSearchSystemTest extends SystemTestBase {
 
-	@Before
-    public void init(){
+    @Before
+    public void init() {
         Properties.DSE_PROBABILITY = 0.0;
         Properties.PRIMITIVE_POOL = 0.0;
-		Properties.RESET_STATIC_FIELD_GETS = true;
+        Properties.RESET_STATIC_FIELD_GETS = true;
 
     }
-	
-	@Ignore // This seems to be trivial now?
-	@Test
-	public void testIntegerGlobalSearch() {
-		EvoSuite evosuite = new EvoSuite();
 
-		String targetClass = IntegerLocalSearchExample.class.getCanonicalName();
+    @Ignore // This seems to be trivial now?
+    @Test
+    public void testIntegerGlobalSearch() {
+        EvoSuite evosuite = new EvoSuite();
 
-		Properties.TARGET_CLASS = targetClass;
-		Properties.SEARCH_BUDGET = 20000;
+        String targetClass = IntegerLocalSearchExample.class.getCanonicalName();
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+        Properties.TARGET_CLASS = targetClass;
+        Properties.SEARCH_BUDGET = 20000;
 
-		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
-		System.out.println("EvolvedTestSuite:\n" + best);
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
 
-		// int goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals().size();
-		// Assert.assertEquals("Wrong number of goals: ", 3, goals);
-		Assert.assertTrue("Did not expect optimal coverage", best.getCoverage() < 1.0);
-	}
-	
-	@Test
-	public void testIntegerLocalSearch() {
-		EvoSuite evosuite = new EvoSuite();
+        Object result = evosuite.parseCommandLine(command);
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
+        System.out.println("EvolvedTestSuite:\n" + best);
 
-		String targetClass = IntegerLocalSearchExample.class.getCanonicalName();
+        // int goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals().size();
+        // Assert.assertEquals("Wrong number of goals: ", 3, goals);
+        Assert.assertTrue("Did not expect optimal coverage", best.getCoverage() < 1.0);
+    }
 
-		Properties.TARGET_CLASS = targetClass;
-		Properties.LOCAL_SEARCH_RATE = 1;
-		Properties.LOCAL_SEARCH_PROBABILITY = 1.0;
-		Properties.LOCAL_SEARCH_BUDGET_TYPE = LocalSearchBudgetType.SUITES;
-		Properties.LOCAL_SEARCH_BUDGET = 10;
-		Properties.LOCAL_SEARCH_REFERENCES = false;
-		Properties.LOCAL_SEARCH_ARRAYS = false;
-		Properties.SEARCH_BUDGET = 50000;
-		
-		// Make sure that local search will have effect
-		Properties.CHROMOSOME_LENGTH = 4;
-		Properties.MAX_INITIAL_TESTS = 2;
+    @Test
+    public void testIntegerLocalSearch() {
+        EvoSuite evosuite = new EvoSuite();
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+        String targetClass = IntegerLocalSearchExample.class.getCanonicalName();
 
-		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
-		System.out.println("EvolvedTestSuite:\n" + best);
+        Properties.TARGET_CLASS = targetClass;
+        Properties.LOCAL_SEARCH_RATE = 1;
+        Properties.LOCAL_SEARCH_PROBABILITY = 1.0;
+        Properties.LOCAL_SEARCH_BUDGET_TYPE = LocalSearchBudgetType.SUITES;
+        Properties.LOCAL_SEARCH_BUDGET = 10;
+        Properties.LOCAL_SEARCH_REFERENCES = false;
+        Properties.LOCAL_SEARCH_ARRAYS = false;
+        Properties.SEARCH_BUDGET = 50000;
 
-		// int goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals().size();
-		// Assert.assertEquals("Wrong number of goals: ", 3, goals);
-		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
-	}
-	
-	
-	
-	@Test
-	public void testFloatGlobalSearch() {
-		EvoSuite evosuite = new EvoSuite();
+        // Make sure that local search will have effect
+        Properties.CHROMOSOME_LENGTH = 4;
+        Properties.MAX_INITIAL_TESTS = 2;
 
-		String targetClass = FloatLocalSearchExample.class.getCanonicalName();
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
 
-		Properties.TARGET_CLASS = targetClass;
-		// Properties.SEARCH_BUDGET = 20000;
+        Object result = evosuite.parseCommandLine(command);
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
+        System.out.println("EvolvedTestSuite:\n" + best);
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+        // int goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals().size();
+        // Assert.assertEquals("Wrong number of goals: ", 3, goals);
+        Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+    }
 
-		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
-		System.out.println("EvolvedTestSuite:\n" + best);
 
-		// int goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals().size();
-		// Assert.assertEquals("Wrong number of goals: ", 3, goals);
-		Assert.assertTrue("Did not expect optimal coverage", best.getCoverage() < 1.0);
-	}
-	
-	
-	@Test
-	public void testFloatLocalSearch() {
-		EvoSuite evosuite = new EvoSuite();
+    @Test
+    public void testFloatGlobalSearch() {
+        EvoSuite evosuite = new EvoSuite();
 
-		String targetClass = FloatLocalSearchExample.class.getCanonicalName();
+        String targetClass = FloatLocalSearchExample.class.getCanonicalName();
 
-		Properties.TARGET_CLASS = targetClass;
-		Properties.LOCAL_SEARCH_RATE = 2; // no adaptation
-		Properties.LOCAL_SEARCH_BUDGET_TYPE = LocalSearchBudgetType.TESTS;
-		Properties.LOCAL_SEARCH_BUDGET = 10;
-		Properties.LOCAL_SEARCH_REFERENCES = false;
-		Properties.LOCAL_SEARCH_ARRAYS = false;
-		
-		// Make sure that local search will have effect
-		Properties.CHROMOSOME_LENGTH = 5;
-		Properties.MAX_INITIAL_TESTS = 2;
-		//Properties.SEARCH_BUDGET = 20000;
+        Properties.TARGET_CLASS = targetClass;
+        // Properties.SEARCH_BUDGET = 20000;
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
 
-		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
-		System.out.println("EvolvedTestSuite:\n" + best);
+        Object result = evosuite.parseCommandLine(command);
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
+        System.out.println("EvolvedTestSuite:\n" + best);
 
-		// int goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals().size();
-		// Assert.assertEquals("Wrong number of goals: ", 3, goals);
-		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
-	}
-	
-	@Test
-	public void testDoubleGlobalSearch() {
-		EvoSuite evosuite = new EvoSuite();
+        // int goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals().size();
+        // Assert.assertEquals("Wrong number of goals: ", 3, goals);
+        Assert.assertTrue("Did not expect optimal coverage", best.getCoverage() < 1.0);
+    }
 
-		String targetClass = DoubleLocalSearchExample.class.getCanonicalName();
 
-		Properties.TARGET_CLASS = targetClass;
-		//Properties.SEARCH_BUDGET = 30000;
-		
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+    @Test
+    public void testFloatLocalSearch() {
+        EvoSuite evosuite = new EvoSuite();
 
-		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
-		System.out.println("EvolvedTestSuite:\n" + best);
+        String targetClass = FloatLocalSearchExample.class.getCanonicalName();
 
-		// int goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals().size();
-		// Assert.assertEquals("Wrong number of goals: ", 3, goals);
-		Assert.assertTrue("Did not expect optimal coverage", best.getCoverage() < 1.0);
-	}
-	
-	@Test
-	public void testDoubleLocalSearch() {
-		EvoSuite evosuite = new EvoSuite();
+        Properties.TARGET_CLASS = targetClass;
+        Properties.LOCAL_SEARCH_RATE = 2; // no adaptation
+        Properties.LOCAL_SEARCH_BUDGET_TYPE = LocalSearchBudgetType.TESTS;
+        Properties.LOCAL_SEARCH_BUDGET = 10;
+        Properties.LOCAL_SEARCH_REFERENCES = false;
+        Properties.LOCAL_SEARCH_ARRAYS = false;
 
-		String targetClass = DoubleLocalSearchExample.class.getCanonicalName();
+        // Make sure that local search will have effect
+        Properties.CHROMOSOME_LENGTH = 5;
+        Properties.MAX_INITIAL_TESTS = 2;
+        //Properties.SEARCH_BUDGET = 20000;
 
-		Properties.TARGET_CLASS = targetClass;
-		Properties.LOCAL_SEARCH_RATE = 2;
-		Properties.LOCAL_SEARCH_BUDGET_TYPE = LocalSearchBudgetType.TESTS;
-		Properties.LOCAL_SEARCH_REFERENCES = false;
-		Properties.LOCAL_SEARCH_ARRAYS = false;
-		//Properties.SEARCH_BUDGET = 30000;
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
 
-		// Make sure that local search will have effect
-		Properties.CHROMOSOME_LENGTH = 5;
-		Properties.MAX_INITIAL_TESTS = 2;
+        Object result = evosuite.parseCommandLine(command);
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
+        System.out.println("EvolvedTestSuite:\n" + best);
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+        // int goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals().size();
+        // Assert.assertEquals("Wrong number of goals: ", 3, goals);
+        Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+    }
 
-		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
-		System.out.println("EvolvedTestSuite:\n" + best);
+    @Test
+    public void testDoubleGlobalSearch() {
+        EvoSuite evosuite = new EvoSuite();
 
-		// int goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals().size();
-		// Assert.assertEquals("Wrong number of goals: ", 3, goals);
-		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
-	}
-	
-	@Test
-	public void testStringGlobalSearch() {
-		EvoSuite evosuite = new EvoSuite();
+        String targetClass = DoubleLocalSearchExample.class.getCanonicalName();
 
-		String targetClass = StringLocalSearchExample.class.getCanonicalName();
+        Properties.TARGET_CLASS = targetClass;
+        //Properties.SEARCH_BUDGET = 30000;
 
-		Properties.TARGET_CLASS = targetClass;
-		//Properties.SEARCH_BUDGET = 20000;
-		
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
 
-		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
-		System.out.println("EvolvedTestSuite:\n" + best);
+        Object result = evosuite.parseCommandLine(command);
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
+        System.out.println("EvolvedTestSuite:\n" + best);
 
-		// int goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals().size();
-		// Assert.assertEquals("Wrong number of goals: ", 3, goals);
-		Assert.assertTrue("Did not expect optimal coverage", best.getCoverage() < 1.0);
-	}
-	
-	@Test
-	public void testStringLocalSearch() {
-		EvoSuite evosuite = new EvoSuite();
+        // int goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals().size();
+        // Assert.assertEquals("Wrong number of goals: ", 3, goals);
+        Assert.assertTrue("Did not expect optimal coverage", best.getCoverage() < 1.0);
+    }
 
-		String targetClass = StringLocalSearchExample.class.getCanonicalName();
+    @Test
+    public void testDoubleLocalSearch() {
+        EvoSuite evosuite = new EvoSuite();
 
-		Properties.TARGET_CLASS = targetClass;
-		Properties.LOCAL_SEARCH_RATE = 2;
-		Properties.LOCAL_SEARCH_BUDGET_TYPE = LocalSearchBudgetType.TESTS;
-		Properties.LOCAL_SEARCH_REFERENCES = false;
-		Properties.LOCAL_SEARCH_ARRAYS = false;
-		//Properties.SEARCH_BUDGET = 30000;
-		
-		// Make sure that local search will have effect
-		Properties.CHROMOSOME_LENGTH = 5;
-		Properties.MAX_INITIAL_TESTS = 2;
+        String targetClass = DoubleLocalSearchExample.class.getCanonicalName();
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+        Properties.TARGET_CLASS = targetClass;
+        Properties.LOCAL_SEARCH_RATE = 2;
+        Properties.LOCAL_SEARCH_BUDGET_TYPE = LocalSearchBudgetType.TESTS;
+        Properties.LOCAL_SEARCH_REFERENCES = false;
+        Properties.LOCAL_SEARCH_ARRAYS = false;
+        //Properties.SEARCH_BUDGET = 30000;
 
-		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
-		System.out.println("EvolvedTestSuite:\n" + best);
+        // Make sure that local search will have effect
+        Properties.CHROMOSOME_LENGTH = 5;
+        Properties.MAX_INITIAL_TESTS = 2;
 
-		// int goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals().size();
-		// Assert.assertEquals("Wrong number of goals: ", 3, goals);
-		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
-	}
-	
-	@Test
-	public void testArrayGlobalSearch() {
-		EvoSuite evosuite = new EvoSuite();
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
 
-		String targetClass = ArrayLocalSearchExample.class.getCanonicalName();
+        Object result = evosuite.parseCommandLine(command);
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
+        System.out.println("EvolvedTestSuite:\n" + best);
 
-		Properties.TARGET_CLASS = targetClass;
-		Properties.SEARCH_BUDGET = 50000;
+        // int goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals().size();
+        // Assert.assertEquals("Wrong number of goals: ", 3, goals);
+        Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+    }
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+    @Test
+    public void testStringGlobalSearch() {
+        EvoSuite evosuite = new EvoSuite();
 
-		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
-		System.out.println("EvolvedTestSuite:\n" + best);
+        String targetClass = StringLocalSearchExample.class.getCanonicalName();
 
-		// int goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals().size();
-		// Assert.assertEquals("Wrong number of goals: ", 3, goals);
-		Assert.assertTrue("Did not expect optimal coverage", best.getCoverage() < 1.0);
-	}
-	
-	@Test
-	public void testArrayLocalSearch() {
-		EvoSuite evosuite = new EvoSuite();
+        Properties.TARGET_CLASS = targetClass;
+        //Properties.SEARCH_BUDGET = 20000;
 
-		String targetClass = ArrayLocalSearchExample.class.getCanonicalName();
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
 
-		Properties.TARGET_CLASS = targetClass;
-		Properties.LOCAL_SEARCH_RATE = 2;
-		Properties.LOCAL_SEARCH_BUDGET_TYPE = LocalSearchBudgetType.SUITES;
-		Properties.LOCAL_SEARCH_BUDGET = 1;
-		Properties.LOCAL_SEARCH_REFERENCES = false;
-		Properties.LOCAL_SEARCH_ARRAYS = true;
-		Properties.SEARCH_BUDGET = 50000;
-		
-		// Make sure that local search will have effect
-		Properties.CHROMOSOME_LENGTH = 5;
-		Properties.MAX_INITIAL_TESTS = 2;
+        Object result = evosuite.parseCommandLine(command);
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
+        System.out.println("EvolvedTestSuite:\n" + best);
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+        // int goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals().size();
+        // Assert.assertEquals("Wrong number of goals: ", 3, goals);
+        Assert.assertTrue("Did not expect optimal coverage", best.getCoverage() < 1.0);
+    }
 
-		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
-		System.out.println("EvolvedTestSuite:\n" + best);
+    @Test
+    public void testStringLocalSearch() {
+        EvoSuite evosuite = new EvoSuite();
 
-		// int goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals().size();
-		// Assert.assertEquals("Wrong number of goals: ", 3, goals);
-		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
-	}
+        String targetClass = StringLocalSearchExample.class.getCanonicalName();
+
+        Properties.TARGET_CLASS = targetClass;
+        Properties.LOCAL_SEARCH_RATE = 2;
+        Properties.LOCAL_SEARCH_BUDGET_TYPE = LocalSearchBudgetType.TESTS;
+        Properties.LOCAL_SEARCH_REFERENCES = false;
+        Properties.LOCAL_SEARCH_ARRAYS = false;
+        //Properties.SEARCH_BUDGET = 30000;
+
+        // Make sure that local search will have effect
+        Properties.CHROMOSOME_LENGTH = 5;
+        Properties.MAX_INITIAL_TESTS = 2;
+
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
+
+        Object result = evosuite.parseCommandLine(command);
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
+        System.out.println("EvolvedTestSuite:\n" + best);
+
+        // int goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals().size();
+        // Assert.assertEquals("Wrong number of goals: ", 3, goals);
+        Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+    }
+
+    @Test
+    public void testArrayGlobalSearch() {
+        EvoSuite evosuite = new EvoSuite();
+
+        String targetClass = ArrayLocalSearchExample.class.getCanonicalName();
+
+        Properties.TARGET_CLASS = targetClass;
+        Properties.SEARCH_BUDGET = 50000;
+
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
+
+        Object result = evosuite.parseCommandLine(command);
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
+        System.out.println("EvolvedTestSuite:\n" + best);
+
+        // int goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals().size();
+        // Assert.assertEquals("Wrong number of goals: ", 3, goals);
+        Assert.assertTrue("Did not expect optimal coverage", best.getCoverage() < 1.0);
+    }
+
+    @Test
+    public void testArrayLocalSearch() {
+        EvoSuite evosuite = new EvoSuite();
+
+        String targetClass = ArrayLocalSearchExample.class.getCanonicalName();
+
+        Properties.TARGET_CLASS = targetClass;
+        Properties.LOCAL_SEARCH_RATE = 2;
+        Properties.LOCAL_SEARCH_BUDGET_TYPE = LocalSearchBudgetType.SUITES;
+        Properties.LOCAL_SEARCH_BUDGET = 1;
+        Properties.LOCAL_SEARCH_REFERENCES = false;
+        Properties.LOCAL_SEARCH_ARRAYS = true;
+        Properties.SEARCH_BUDGET = 50000;
+
+        // Make sure that local search will have effect
+        Properties.CHROMOSOME_LENGTH = 5;
+        Properties.MAX_INITIAL_TESTS = 2;
+
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
+
+        Object result = evosuite.parseCommandLine(command);
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
+        System.out.println("EvolvedTestSuite:\n" + best);
+
+        // int goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals().size();
+        // Assert.assertEquals("Wrong number of goals: ", 3, goals);
+        Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+    }
 }

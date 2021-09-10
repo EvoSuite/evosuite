@@ -26,11 +26,10 @@ import java.util.List;
 
 /**
  * @author Gordon Fraser
- * 
  */
 public class GenericClassWithGenericMethod<K> {
-	public <K1 extends K> List<K1> build(Collection<? super K1> loader) {
-		List<K1> list = new ArrayList<>();
-		return list;
-	}
+    public <K1 extends K> List<K1> build(Collection<? super K1> loader) {
+        List<K1> list = new ArrayList<>();
+        return list;
+    }
 }

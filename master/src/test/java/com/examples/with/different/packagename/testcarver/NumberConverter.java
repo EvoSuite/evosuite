@@ -88,7 +88,7 @@ import com.examples.with.different.packagename.testcarver.ConversionException;
 public abstract class NumberConverter extends AbstractConverter {
 
     private static final Integer ZERO = 0;
-    private static final Integer ONE  = 1;
+    private static final Integer ONE = 1;
 
     private String pattern;
     private boolean allowDecimals;
@@ -113,7 +113,7 @@ public abstract class NumberConverter extends AbstractConverter {
      * a default value if an error occurs.
      *
      * @param allowDecimals Indicates whether decimals are allowed
-     * @param defaultValue The default value to be returned
+     * @param defaultValue  The default value to be returned
      */
     public NumberConverter(boolean allowDecimals, Object defaultValue) {
         super();
@@ -137,7 +137,7 @@ public abstract class NumberConverter extends AbstractConverter {
      * the Number.
      *
      * @param useLocaleFormat <code>true</code> if a number format
-     * should be used.
+     *                        should be used.
      */
     public void setUseLocaleFormat(boolean useLocaleFormat) {
         this.useLocaleFormat = useLocaleFormat;
@@ -219,7 +219,7 @@ public abstract class NumberConverter extends AbstractConverter {
      * specified type.
      *
      * @param targetType Data type to which this value should be converted.
-     * @param value The input value to be converted.
+     * @param value      The input value to be converted.
      * @return The converted value.
      * @throws Throwable if an error occurs converting to the specified type
      */
@@ -228,7 +228,7 @@ public abstract class NumberConverter extends AbstractConverter {
         Class sourceType = value.getClass();
         // Handle Number
         if (value instanceof Number) {
-            return toNumber(sourceType, targetType, (Number)value);
+            return toNumber(sourceType, targetType, (Number) value);
         }
 
         // Handle Boolean
@@ -242,7 +242,7 @@ public abstract class NumberConverter extends AbstractConverter {
         }
 
         // Handle Calendar --> Long
-        if (value instanceof Calendar  && Long.class.equals(targetType)) {
+        if (value instanceof Calendar && Long.class.equals(targetType)) {
             return ((Calendar) value).getTime().getTime();
         }
 
@@ -281,10 +281,10 @@ public abstract class NumberConverter extends AbstractConverter {
      *     <li><code>java.math.BigDecimal</code></li>
      *     <li><code>java.math.BigInteger</code></li>
      * </ul>
+     *
      * @param sourceType The type being converted from
      * @param targetType The Number type to convert to
-     * @param value The Number to convert.
-     *
+     * @param value      The Number to convert.
      * @return The converted value.
      */
     private Number toNumber(Class sourceType, Class targetType, Number value) {
@@ -360,7 +360,7 @@ public abstract class NumberConverter extends AbstractConverter {
             if (value instanceof Float || value instanceof Double) {
                 return new BigDecimal(value.toString());
             } else if (value instanceof BigInteger) {
-                return new BigDecimal((BigInteger)value);
+                return new BigDecimal((BigInteger) value);
             } else {
                 return BigDecimal.valueOf(value.longValue());
             }
@@ -369,14 +369,14 @@ public abstract class NumberConverter extends AbstractConverter {
         // BigInteger
         if (targetType.equals(BigInteger.class)) {
             if (value instanceof BigDecimal) {
-                return ((BigDecimal)value).toBigInteger();
+                return ((BigDecimal) value).toBigInteger();
             } else {
                 return BigInteger.valueOf(value.longValue());
             }
         }
 
         String msg = toString(getClass()) + " cannot handle conversion to '"
-                   + toString(targetType) + "'";
+                + toString(targetType) + "'";
         throw new ConversionException(msg);
 
     }
@@ -395,10 +395,10 @@ public abstract class NumberConverter extends AbstractConverter {
      *     <li><code>java.math.BigDecimal</code></li>
      *     <li><code>java.math.BigInteger</code></li>
      * </ul>
+     *
      * @param sourceType The type being converted from
      * @param targetType The Number type to convert to
-     * @param value The String value to convert.
-     *
+     * @param value      The String value to convert.
      * @return The converted Number value.
      */
     private Number toNumber(Class sourceType, Class targetType, String value) {
@@ -444,7 +444,7 @@ public abstract class NumberConverter extends AbstractConverter {
         }
 
         String msg = toString(getClass()) + " cannot handle conversion from '" +
-                     toString(sourceType) + "' to '" + toString(targetType) + "'";
+                toString(sourceType) + "' to '" + toString(targetType) + "'";
         throw new ConversionException(msg);
     }
 
@@ -501,11 +501,11 @@ public abstract class NumberConverter extends AbstractConverter {
 
     /**
      * Convert a String into a <code>Number</code> object.
+     *
      * @param sourceType TODO
      * @param targetType The type to convert the value to
-     * @param value The String date value.
-     * @param format The NumberFormat to parse the String value.
-     *
+     * @param value      The String date value.
+     * @param format     The NumberFormat to parse the String value.
      * @return The converted Number object.
      * @throws ConversionException if the String cannot be converted.
      */
@@ -515,7 +515,7 @@ public abstract class NumberConverter extends AbstractConverter {
         if (pos.getErrorIndex() >= 0 || pos.getIndex() != value.length() || parsedNumber == null) {
             String msg = "Error converting from '" + toString(sourceType) + "' to '" + toString(targetType) + "'";
             if (format instanceof DecimalFormat) {
-                msg += " using pattern '" + ((DecimalFormat)format).toPattern() + "'";
+                msg += " using pattern '" + ((DecimalFormat) format).toPattern() + "'";
             }
             if (locale != null) {
                 msg += " for locale=[" + locale + "]";

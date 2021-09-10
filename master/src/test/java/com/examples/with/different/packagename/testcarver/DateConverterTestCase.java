@@ -33,6 +33,7 @@ public class DateConverterTestCase extends DateConverterTestBase {
 
     /**
      * Construct a new Date test case.
+     *
      * @param name Test Name
      */
     public DateConverterTestCase(String name) {
@@ -43,32 +44,39 @@ public class DateConverterTestCase extends DateConverterTestBase {
 
     /**
      * Create Test Suite
+     *
      * @return test suite
      */
     public static TestSuite suite() {
-        return new TestSuite(DateConverterTestCase.class);        
+        return new TestSuite(DateConverterTestCase.class);
     }
 
-    /** Set Up */
+    /**
+     * Set Up
+     */
     public void setUp() throws Exception {
     }
 
-    /** Tear Down */
+    /**
+     * Tear Down
+     */
     public void tearDown() throws Exception {
     }
 
     // ------------------------------------------------------------------------
-    
+
     /**
      * Create the Converter with no default value.
+     *
      * @return A new Converter
      */
     protected DateTimeConverter makeConverter() {
         return new DateConverter();
     }
-    
+
     /**
      * Create the Converter with a default value.
+     *
      * @param defaultValue The default value
      * @return A new Converter
      */
@@ -78,6 +86,7 @@ public class DateConverterTestCase extends DateConverterTestBase {
 
     /**
      * Return the expected type
+     *
      * @return The expected type
      */
     protected Class getExpectedType() {
@@ -86,7 +95,7 @@ public class DateConverterTestCase extends DateConverterTestBase {
 
     /**
      * Convert from a Calendar to the appropriate Date type
-     * 
+     *
      * @param value The Calendar value to convert
      * @return The converted value
      */

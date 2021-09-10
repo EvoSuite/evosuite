@@ -53,7 +53,9 @@ package com.examples.with.different.packagename.sette;
  * exception can be modified, but it should be avoided.
  */
 public final class SnippetInput {
-    /** Array of input parameters. */
+    /**
+     * Array of input parameters.
+     */
     private final Object[] params;
     /**
      * Excepted exception which is thrown when executing the snippet with the
@@ -64,15 +66,13 @@ public final class SnippetInput {
     /**
      * Creates an instance with the specified excepted exception and parameters.
      *
-     * @param pExpected
-     *            Excepted exception which is thrown when executing the snippet
-     *            with the specified parameters. It should be null when no
-     *            exception is thrown.
-     * @param parameters
-     *            The parameters of the input.
+     * @param pExpected  Excepted exception which is thrown when executing the snippet
+     *                   with the specified parameters. It should be null when no
+     *                   exception is thrown.
+     * @param parameters The parameters of the input.
      */
     public SnippetInput(final Class<? extends Throwable> pExpected,
-            final Object... parameters) {
+                        final Object... parameters) {
         if (parameters == null) {
             params = new Object[0];
         } else {
@@ -98,10 +98,8 @@ public final class SnippetInput {
      * array. Throws an {@link IndexOutOfBoundsException} if the index is out of
      * range.
      *
-     * @param index
-     *            Index of the input parameter to return.
+     * @param index Index of the input parameter to return.
      * @return The input parameter at the specified position.
-     *
      */
     public Object getParameter(final int index) {
         if (0 <= index && index < params.length) {

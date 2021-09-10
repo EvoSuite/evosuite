@@ -30,32 +30,31 @@ import org.junit.Test;
 import com.examples.with.different.packagename.BMICalculator;
 
 /**
- * 
  * @author Yan Ge
  */
 public class OnePlusLambdaLambdaGASystemTest extends SystemTestBase {
 
-  @Test
-  public void testLambdaGAIntegration() {
-    Properties.ALGORITHM = Algorithm.ONE_PLUS_LAMBDA_LAMBDA_GA;
-    Properties.MUTATION_PROBABILITY_DISTRIBUTION = Properties.MutationProbabilityDistribution.BINOMIAL;
+    @Test
+    public void testLambdaGAIntegration() {
+        Properties.ALGORITHM = Algorithm.ONE_PLUS_LAMBDA_LAMBDA_GA;
+        Properties.MUTATION_PROBABILITY_DISTRIBUTION = Properties.MutationProbabilityDistribution.BINOMIAL;
 
-    EvoSuite evoSuite = new EvoSuite();
+        EvoSuite evoSuite = new EvoSuite();
 
-    String targetClass = BMICalculator.class.getCanonicalName();
+        String targetClass = BMICalculator.class.getCanonicalName();
 
-    Properties.TARGET_CLASS = targetClass;
+        Properties.TARGET_CLASS = targetClass;
 
-    String[] command = new String[] {"-generateSuite", "-class", targetClass};
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
 
-    Object result = evoSuite.parseCommandLine(command);
+        Object result = evoSuite.parseCommandLine(command);
 
-    GeneticAlgorithm<?> ga = getGAFromResult(result);
+        GeneticAlgorithm<?> ga = getGAFromResult(result);
 
-    TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
-    System.out.println("EvolvedTestSuite:\n" + best);
-    Assert.assertEquals(0.0, best.getFitness(), 0.0);
-    Assert.assertEquals(1d, best.getCoverage(), 0.001);
-  }
+        TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+        System.out.println("EvolvedTestSuite:\n" + best);
+        Assert.assertEquals(0.0, best.getFitness(), 0.0);
+        Assert.assertEquals(1d, best.getCoverage(), 0.001);
+    }
 
 }

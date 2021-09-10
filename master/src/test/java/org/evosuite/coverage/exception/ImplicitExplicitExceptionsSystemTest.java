@@ -41,89 +41,89 @@ import java.util.Map;
 public class ImplicitExplicitExceptionsSystemTest extends SystemTestBase {
 
     private static final Criterion[] defaultCriterion = Properties.CRITERION;
-    
+
     private static final boolean defaultArchive = Properties.TEST_ARCHIVE;
 
-	@After
-	public void resetProperties() {
-		Properties.CRITERION = defaultCriterion;
-		Properties.TEST_ARCHIVE = defaultArchive;
-	}
+    @After
+    public void resetProperties() {
+        Properties.CRITERION = defaultCriterion;
+        Properties.TEST_ARCHIVE = defaultArchive;
+    }
 
-	@Test
-	public void testExceptionFitness_NoArchive() {
-		//archive should have no impact
-		Properties.TEST_ARCHIVE = false;
-		testExceptionFitness();
-	}
+    @Test
+    public void testExceptionFitness_NoArchive() {
+        //archive should have no impact
+        Properties.TEST_ARCHIVE = false;
+        testExceptionFitness();
+    }
 
-	@Test
-	public void testExceptionFitness_WithArchive() {
-		Properties.TEST_ARCHIVE = true;
-		testExceptionFitness();
-	}
+    @Test
+    public void testExceptionFitness_WithArchive() {
+        Properties.TEST_ARCHIVE = true;
+        testExceptionFitness();
+    }
 
 
-	private void testExceptionFitness() {
-		EvoSuite evosuite = new EvoSuite();
+    private void testExceptionFitness() {
+        EvoSuite evosuite = new EvoSuite();
 
-		String targetClass = ImplicitExplicitException.class.getCanonicalName();
-		
-		Properties.TARGET_CLASS = targetClass;
-		Properties.CRITERION = new Criterion[]{Properties.Criterion.EXCEPTION};
-		Properties.OUTPUT_VARIABLES = ""+
-				RuntimeVariable.Explicit_MethodExceptions + "," +
-				RuntimeVariable.Explicit_TypeExceptions + "," +
-				RuntimeVariable.Implicit_MethodExceptions +"," +
-				RuntimeVariable.Implicit_TypeExceptions;
-		
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+        String targetClass = ImplicitExplicitException.class.getCanonicalName();
 
-		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
-		System.out.println("EvolvedTestSuite:\n" + best);
+        Properties.TARGET_CLASS = targetClass;
+        Properties.CRITERION = new Criterion[]{Properties.Criterion.EXCEPTION};
+        Properties.OUTPUT_VARIABLES = "" +
+                RuntimeVariable.Explicit_MethodExceptions + "," +
+                RuntimeVariable.Explicit_TypeExceptions + "," +
+                RuntimeVariable.Implicit_MethodExceptions + "," +
+                RuntimeVariable.Implicit_TypeExceptions;
 
-		double fitness = best.getFitness();
-		/*
-		 * there are 2 undeclared exceptions (both implicit and explicit),
-		 * and 3 declared: so fit = 1 / (1+5)
-		 */
-		Assert.assertEquals("Wrong fitness: ", 1d / 6d, fitness, 0.0000001);
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
+
+        Object result = evosuite.parseCommandLine(command);
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
+        System.out.println("EvolvedTestSuite:\n" + best);
+
+        double fitness = best.getFitness();
+        /*
+         * there are 2 undeclared exceptions (both implicit and explicit),
+         * and 3 declared: so fit = 1 / (1+5)
+         */
+        Assert.assertEquals("Wrong fitness: ", 1d / 6d, fitness, 0.0000001);
 
         Map<String, OutputVariable<?>> map = DebugStatisticsBackend.getLatestWritten();
         Assert.assertNotNull(map);
-        Assert.assertEquals(1 , map.get(RuntimeVariable.Explicit_MethodExceptions.toString()).getValue());
-        Assert.assertEquals(1 , map.get(RuntimeVariable.Explicit_TypeExceptions.toString()).getValue());
-        Assert.assertEquals(1 , map.get(RuntimeVariable.Implicit_MethodExceptions.toString()).getValue());
-        Assert.assertEquals(1 , map.get(RuntimeVariable.Implicit_TypeExceptions.toString()).getValue());
-	}
+        Assert.assertEquals(1, map.get(RuntimeVariable.Explicit_MethodExceptions.toString()).getValue());
+        Assert.assertEquals(1, map.get(RuntimeVariable.Explicit_TypeExceptions.toString()).getValue());
+        Assert.assertEquals(1, map.get(RuntimeVariable.Implicit_MethodExceptions.toString()).getValue());
+        Assert.assertEquals(1, map.get(RuntimeVariable.Implicit_TypeExceptions.toString()).getValue());
+    }
 
-	@Test
-	public void testImplicitAndExplicitExceptionInSameMethod() {
-		EvoSuite evosuite = new EvoSuite();
+    @Test
+    public void testImplicitAndExplicitExceptionInSameMethod() {
+        EvoSuite evosuite = new EvoSuite();
 
-		String targetClass = ImplicitAndExplicitExceptionInSameMethod.class.getCanonicalName();
+        String targetClass = ImplicitAndExplicitExceptionInSameMethod.class.getCanonicalName();
 
-		Properties.TARGET_CLASS = targetClass;
-		Properties.CRITERION = new Criterion[]{Properties.Criterion.EXCEPTION};
+        Properties.TARGET_CLASS = targetClass;
+        Properties.CRITERION = new Criterion[]{Properties.Criterion.EXCEPTION};
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
 
-		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
-		System.out.println("EvolvedTestSuite:\n" + best);
+        Object result = evosuite.parseCommandLine(command);
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
+        System.out.println("EvolvedTestSuite:\n" + best);
 
-		double fitness = best.getFitness();
-		/*
-		 * there are 2 undeclared exceptions (both implicit and explicit).
-		 * there are also 2 declared, but same type and same method, so count as 1
-		 *
-		 * fit = 1 / (1+3)
-		 *
-		 */
-		Assert.assertEquals("Wrong fitness: ", 1d / 4d, fitness, 0.001);
-	}
+        double fitness = best.getFitness();
+        /*
+         * there are 2 undeclared exceptions (both implicit and explicit).
+         * there are also 2 declared, but same type and same method, so count as 1
+         *
+         * fit = 1 / (1+3)
+         *
+         */
+        Assert.assertEquals("Wrong fitness: ", 1d / 4d, fitness, 0.001);
+    }
 
 }

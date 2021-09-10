@@ -35,51 +35,51 @@ import java.util.List;
 
 public class AbstractSUTSystemTest extends SystemTestBase {
 
-	@Test
-	public void testAbstractSUT() {
-		EvoSuite evosuite = new EvoSuite();
+    @Test
+    public void testAbstractSUT() {
+        EvoSuite evosuite = new EvoSuite();
 
-		String targetClass = AbstractSuperClass.class.getCanonicalName();
+        String targetClass = AbstractSuperClass.class.getCanonicalName();
 
-		Properties.TARGET_CLASS = targetClass;
+        Properties.TARGET_CLASS = targetClass;
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
 
-		Object result = evosuite.parseCommandLine(command);
+        Object result = evosuite.parseCommandLine(command);
 
-		Assert.assertNotNull(result);
+        Assert.assertNotNull(result);
 
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
-		System.out.println("EvolvedTestSuite:\n" + best);
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
+        System.out.println("EvolvedTestSuite:\n" + best);
 
-		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
-	}
-	
-	@Test
-	public void testAbstractSUTWithOnlyStaticFactory() {
-		EvoSuite evosuite = new EvoSuite();
+        Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+    }
 
-		String targetClass = AbstractClassWithStaticFactory.class.getCanonicalName();
+    @Test
+    public void testAbstractSUTWithOnlyStaticFactory() {
+        EvoSuite evosuite = new EvoSuite();
 
-		Properties.TARGET_CLASS = targetClass;
+        String targetClass = AbstractClassWithStaticFactory.class.getCanonicalName();
 
-		// Just using line coverage because it's not clear if covering default constructors of anonymous and abstract classes makes sense...
-		List<Properties.Criterion> criteria = new ArrayList<>();
-		criteria.add(Properties.Criterion.LINE);
-		Properties.CRITERION = criteria.toArray(Properties.CRITERION);
+        Properties.TARGET_CLASS = targetClass;
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+        // Just using line coverage because it's not clear if covering default constructors of anonymous and abstract classes makes sense...
+        List<Properties.Criterion> criteria = new ArrayList<>();
+        criteria.add(Properties.Criterion.LINE);
+        Properties.CRITERION = criteria.toArray(Properties.CRITERION);
 
-		Object result = evosuite.parseCommandLine(command);
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
 
-		Assert.assertNotNull(result);
+        Object result = evosuite.parseCommandLine(command);
 
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
-		System.out.println("EvolvedTestSuite:\n" + best);
+        Assert.assertNotNull(result);
 
-		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
-	}
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
+        System.out.println("EvolvedTestSuite:\n" + best);
+
+        Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+    }
 
 }

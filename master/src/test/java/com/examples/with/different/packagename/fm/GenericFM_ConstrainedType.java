@@ -27,8 +27,8 @@ public class GenericFM_ConstrainedType {
         String foo(T parameter);
     }
 
-    public static boolean bar(Foo<Integer> foo){
-        if(foo.foo(10).equals("Bar")){
+    public static boolean bar(Foo<Integer> foo) {
+        if (foo.foo(10).equals("Bar")) {
             return true;
         } else {
             return false;

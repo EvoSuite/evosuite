@@ -36,39 +36,39 @@ import com.examples.with.different.packagename.reset.SingletonObjectReset;
 
 public class StaticSingletonResetSystemTest extends SystemTestBase {
 
-	@Test
-	public void testResetWithAssertionGenerationAll() {
-		Properties.RESET_STATIC_FIELD_GETS = true;
-		Properties.RESET_STATIC_FIELDS = true;
-		Properties.JUNIT_CHECK = Properties.JUnitCheckValues.TRUE;
-		Properties.JUNIT_TESTS = true;
-		Properties.SANDBOX = true;
-		Properties.ASSERTION_STRATEGY = Properties.AssertionStrategy.ALL;
-		
-		EvoSuite evosuite = new EvoSuite();
+    @Test
+    public void testResetWithAssertionGenerationAll() {
+        Properties.RESET_STATIC_FIELD_GETS = true;
+        Properties.RESET_STATIC_FIELDS = true;
+        Properties.JUNIT_CHECK = Properties.JUnitCheckValues.TRUE;
+        Properties.JUNIT_TESTS = true;
+        Properties.SANDBOX = true;
+        Properties.ASSERTION_STRATEGY = Properties.AssertionStrategy.ALL;
 
-		String targetClass = SingletonObjectReset.class.getCanonicalName();
-		Properties.TARGET_CLASS = targetClass;
-		Properties.OUTPUT_VARIABLES = "" + RuntimeVariable.HadUnstableTests;
+        EvoSuite evosuite = new EvoSuite();
 
-		// Otherwise the private constructor is counted as coverage target
-		// but can only be covered by reflection
-		Properties.P_REFLECTION_ON_PRIVATE = 0.0;
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+        String targetClass = SingletonObjectReset.class.getCanonicalName();
+        Properties.TARGET_CLASS = targetClass;
+        Properties.OUTPUT_VARIABLES = "" + RuntimeVariable.HadUnstableTests;
 
-		Object result = evosuite.parseCommandLine(command);
+        // Otherwise the private constructor is counted as coverage target
+        // but can only be covered by reflection
+        Properties.P_REFLECTION_ON_PRIVATE = 0.0;
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
 
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
-		System.out.println("EvolvedTestSuite:\n" + best);
-		double best_fitness = best.getFitness();
+        Object result = evosuite.parseCommandLine(command);
+
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
+        System.out.println("EvolvedTestSuite:\n" + best);
+        double best_fitness = best.getFitness();
         Assert.assertEquals("Optimal coverage was not achieved ", 0.0, best_fitness, 0.0);
 
-		Map<String, OutputVariable<?>> map = DebugStatisticsBackend.getLatestWritten();
-		Assert.assertNotNull(map);
-		OutputVariable<?> unstable = map.get(RuntimeVariable.HadUnstableTests.toString());
-		Assert.assertNotNull(unstable);
-		Assert.assertEquals(Boolean.FALSE, unstable.getValue());
-	}
+        Map<String, OutputVariable<?>> map = DebugStatisticsBackend.getLatestWritten();
+        Assert.assertNotNull(map);
+        OutputVariable<?> unstable = map.get(RuntimeVariable.HadUnstableTests.toString());
+        Assert.assertNotNull(unstable);
+        Assert.assertEquals(Boolean.FALSE, unstable.getValue());
+    }
 
 }

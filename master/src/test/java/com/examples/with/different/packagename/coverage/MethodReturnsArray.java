@@ -21,21 +21,21 @@ package com.examples.with.different.packagename.coverage;
 
 public class MethodReturnsArray {
 
-	public String[] testArray(int x, int y) {
-		if (x == y)
-			return null;
-		else if (x > y)
-			return new String[]{};
-		else
-			return new String[]{"foo","bar"};
-	}
+    public String[] testArray(int x, int y) {
+        if (x == y)
+            return null;
+        else if (x > y)
+            return new String[]{};
+        else
+            return new String[]{"foo", "bar"};
+    }
 
-	public int[] testIntArray(int x, int y) {
-		if (x == y)
-			return null;
-		else if (x > y)
-			return new int[]{};
-		else
-			return new int[]{1,2,3};
-	}
+    public int[] testIntArray(int x, int y) {
+        if (x == y)
+            return null;
+        else if (x > y)
+            return new int[]{};
+        else
+            return new int[]{1, 2, 3};
+    }
 }

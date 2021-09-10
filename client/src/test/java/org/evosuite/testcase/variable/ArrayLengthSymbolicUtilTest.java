@@ -30,29 +30,29 @@ import static org.mockito.Mockito.when;
 
 public class ArrayLengthSymbolicUtilTest {
 
-  @Test
-  public void buildArraySymbolicLengthExpression() {
-    ArraySymbolicLengthName arraySymbolicLengthName = mock(ArraySymbolicLengthName.class);
-    when(arraySymbolicLengthName.getSymbolicName()).thenReturn("test_var");
-    IntegerValue integerValue;
+    @Test
+    public void buildArraySymbolicLengthExpression() {
+        ArraySymbolicLengthName arraySymbolicLengthName = mock(ArraySymbolicLengthName.class);
+        when(arraySymbolicLengthName.getSymbolicName()).thenReturn("test_var");
+        IntegerValue integerValue;
 
-    //When Arrays enabled, it should create an IntegerVariable
-    Properties.IS_DSE_ARRAYS_SUPPORT_ENABLED = true;
-    integerValue = ArrayLengthSymbolicUtil.buildArraySymbolicLengthExpression(0, arraySymbolicLengthName);
-    assertTrue(integerValue.containsSymbolicVariable());
+        //When Arrays enabled, it should create an IntegerVariable
+        Properties.IS_DSE_ARRAYS_SUPPORT_ENABLED = true;
+        integerValue = ArrayLengthSymbolicUtil.buildArraySymbolicLengthExpression(0, arraySymbolicLengthName);
+        assertTrue(integerValue.containsSymbolicVariable());
 
-    //When Arrays disabled, it should create an IntegerConstant so it won't propagate later on
-    Properties.IS_DSE_ARRAYS_SUPPORT_ENABLED = false;
-    integerValue = ArrayLengthSymbolicUtil.buildArraySymbolicLengthExpression(0, arraySymbolicLengthName);
-    assertFalse(integerValue.containsSymbolicVariable());
-  }
+        //When Arrays disabled, it should create an IntegerConstant so it won't propagate later on
+        Properties.IS_DSE_ARRAYS_SUPPORT_ENABLED = false;
+        integerValue = ArrayLengthSymbolicUtil.buildArraySymbolicLengthExpression(0, arraySymbolicLengthName);
+        assertFalse(integerValue.containsSymbolicVariable());
+    }
 
-  @Test
-  public void isSymbolicArraysSupportEnabled() {
-    Properties.IS_DSE_ARRAYS_SUPPORT_ENABLED = true;
-    assertTrue(ArrayLengthSymbolicUtil.isSymbolicArraysSupportEnabled());
+    @Test
+    public void isSymbolicArraysSupportEnabled() {
+        Properties.IS_DSE_ARRAYS_SUPPORT_ENABLED = true;
+        assertTrue(ArrayLengthSymbolicUtil.isSymbolicArraysSupportEnabled());
 
-    Properties.IS_DSE_ARRAYS_SUPPORT_ENABLED = false;
-    assertFalse(ArrayLengthSymbolicUtil.isSymbolicArraysSupportEnabled());
-  }
+        Properties.IS_DSE_ARRAYS_SUPPORT_ENABLED = false;
+        assertFalse(ArrayLengthSymbolicUtil.isSymbolicArraysSupportEnabled());
+    }
 }

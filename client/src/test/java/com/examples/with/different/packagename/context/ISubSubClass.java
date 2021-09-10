@@ -20,7 +20,7 @@
 package com.examples.with.different.packagename.context;
 
 public interface ISubSubClass {
-	
-	boolean innermethod(int i);
-	
+
+    boolean innermethod(int i);
+
 }

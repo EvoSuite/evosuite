@@ -38,23 +38,23 @@ import static org.junit.Assert.assertTrue;
 public class GenericFM_SystemTest extends SystemTestBase {
 
     @Before
-    public void init(){
+    public void init() {
         Properties.P_FUNCTIONAL_MOCKING = 0.5;
         Properties.FUNCTIONAL_MOCKING_PERCENT = 0.0;
     }
 
     @Test
-    public void testGenericsWithTypeParameter(){
+    public void testGenericsWithTypeParameter() {
         do100percentLineTest(GenericFM_StringType.class);
     }
 
     @Test
-    public void testGenericsMethod(){
+    public void testGenericsMethod() {
         do100percentLineTest(GenericFM_GenericMethod.class);
     }
 
     @Test
-    public void testGenericsWithConstrainedTypeParameter(){
+    public void testGenericsWithConstrainedTypeParameter() {
         GeneticAlgorithm<?> ga = do100percentLineTest(GenericFM_ConstrainedType.class);
         TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
         System.out.println("EvolvedTestSuite:\n" + best);

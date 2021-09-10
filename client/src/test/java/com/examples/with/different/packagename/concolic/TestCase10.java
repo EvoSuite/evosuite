@@ -22,23 +22,23 @@ package com.examples.with.different.packagename.concolic;
 
 public class TestCase10 {
 
-	/**
-	 * @param args
-	 */
-	public static void test(double double0, double double1, double double3,
-			double double4) {
+    /**
+     * @param args
+     */
+    public static void test(double double0, double double1, double double3,
+                            double double4) {
 
-		MathDouble mathDouble0 = new MathDouble();
-		double double2 = (double) mathDouble0.castToLong(double0);
-		mathDouble0.unreach();
-		int int0 = mathDouble0.castToInt(double3);
-		char char0 = mathDouble0.castToChar(double3);
-		long long0 = mathDouble0.castToLong(double4);
-		double double5 = mathDouble0.substract(int0, int0);
-		if (double5 == double4) {
-			mathDouble0.castToFloat(double5);
-		}
+        MathDouble mathDouble0 = new MathDouble();
+        double double2 = (double) mathDouble0.castToLong(double0);
+        mathDouble0.unreach();
+        int int0 = mathDouble0.castToInt(double3);
+        char char0 = mathDouble0.castToChar(double3);
+        long long0 = mathDouble0.castToLong(double4);
+        double double5 = mathDouble0.substract(int0, int0);
+        if (double5 == double4) {
+            mathDouble0.castToFloat(double5);
+        }
 
-	}
+    }
 
 }

@@ -29,70 +29,71 @@ import org.evosuite.ga.variables.DoubleVariable;
 
 /**
  * ZDT4 Problem
- * 
+ *
  * @author José Campos
  */
-@SuppressWarnings({ "serial" })
-public class KUR implements Problem<NSGAChromosome>
-{
-	private final List<FitnessFunction<NSGAChromosome>> fitnessFunctions = new ArrayList<>();
+@SuppressWarnings({"serial"})
+public class KUR implements Problem<NSGAChromosome> {
+    private final List<FitnessFunction<NSGAChromosome>> fitnessFunctions = new ArrayList<>();
 
-	public KUR() {
-		super();
+    public KUR() {
+        super();
 
-		/**
-		 * First fitness function
-		 */
-		class f1FitnessFunction extends FitnessFunction<NSGAChromosome> {
-			@Override
-			public double getFitness(NSGAChromosome c) {
+        /**
+         * First fitness function
+         */
+        class f1FitnessFunction extends FitnessFunction<NSGAChromosome> {
+            @Override
+            public double getFitness(NSGAChromosome c) {
 
-				double fitness = 0.0;
+                double fitness = 0.0;
                 for (int i = 0; i < c.getNumberOfVariables() - 1; i++) {
                     DoubleVariable dv = (DoubleVariable) c.getVariables().get(i);
-                    DoubleVariable nextdv = (DoubleVariable) c.getVariables().get(i+1);
+                    DoubleVariable nextdv = (DoubleVariable) c.getVariables().get(i + 1);
 
-                    fitness += -10 * Math.exp(-0.2 * Math.sqrt( Math.pow(dv.getValue(), 2) + Math.pow(nextdv.getValue(), 2) ));
+                    fitness += -10 * Math.exp(-0.2 * Math.sqrt(Math.pow(dv.getValue(), 2) + Math.pow(nextdv.getValue(), 2)));
                 }
 
-				updateIndividual(c, fitness);
-				return fitness;
-			}
-			@Override
-			public boolean isMaximizationFunction() {
-				return false;
-			}
-		}
+                updateIndividual(c, fitness);
+                return fitness;
+            }
 
-		/**
-		 * Second fitness function
-		 */
-		class f2FitnessFunction extends FitnessFunction<NSGAChromosome> {
-			@Override
-			public double getFitness(NSGAChromosome c) {
+            @Override
+            public boolean isMaximizationFunction() {
+                return false;
+            }
+        }
 
-				double fitness = 0.0;
+        /**
+         * Second fitness function
+         */
+        class f2FitnessFunction extends FitnessFunction<NSGAChromosome> {
+            @Override
+            public double getFitness(NSGAChromosome c) {
+
+                double fitness = 0.0;
                 for (int i = 0; i < c.getNumberOfVariables(); i++) {
                     DoubleVariable dv = (DoubleVariable) c.getVariables().get(i);
 
                     fitness += Math.pow(Math.abs(dv.getValue()), 0.8) + 5 * Math.sin(Math.pow(dv.getValue(), 3));
                 }
 
-				updateIndividual(c, fitness);
-				return fitness;
-			}
-			@Override
-			public boolean isMaximizationFunction() {
-				return false;
-			}
-		}
+                updateIndividual(c, fitness);
+                return fitness;
+            }
 
-		this.fitnessFunctions.add(new f1FitnessFunction());
-		this.fitnessFunctions.add(new f2FitnessFunction());
-	}
+            @Override
+            public boolean isMaximizationFunction() {
+                return false;
+            }
+        }
 
-	@Override
-	public List<FitnessFunction<NSGAChromosome>> getFitnessFunctions() {
-		return this.fitnessFunctions;
-	}
+        this.fitnessFunctions.add(new f1FitnessFunction());
+        this.fitnessFunctions.add(new f2FitnessFunction());
+    }
+
+    @Override
+    public List<FitnessFunction<NSGAChromosome>> getFitnessFunctions() {
+        return this.fitnessFunctions;
+    }
 }

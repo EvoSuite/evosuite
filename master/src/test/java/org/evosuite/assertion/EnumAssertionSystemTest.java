@@ -41,8 +41,8 @@ public class EnumAssertionSystemTest extends SystemTestBase {
 
         String targetClass = ExampleReturningEnum.class.getCanonicalName();
 
-        String[] command = new String[] {
-                "-generateSuite", "-class", targetClass, "-Dassertion_strategy=all" };
+        String[] command = new String[]{
+                "-generateSuite", "-class", targetClass, "-Dassertion_strategy=all"};
 
         Object result = evosuite.parseCommandLine(command);
 
@@ -53,14 +53,14 @@ public class EnumAssertionSystemTest extends SystemTestBase {
         Assert.assertTrue(suite.size() > 0);
         for (TestCase test : suite.getTests()) {
             boolean hasEnumAssertion = false;
-            for(Assertion ass : test.getAssertions()) {
-                if(ass instanceof PrimitiveAssertion) {
+            for (Assertion ass : test.getAssertions()) {
+                if (ass instanceof PrimitiveAssertion) {
                     Assert.assertTrue(ass.getValue().getClass().isEnum());
                     hasEnumAssertion = true;
                 }
             }
             Assert.assertTrue("Test has no enum assertions: " + test.toCode(),
-                        hasEnumAssertion);
+                    hasEnumAssertion);
         }
         int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size();
         Assert.assertEquals("Wrong number of goals: ", 3, goals);
@@ -75,8 +75,8 @@ public class EnumAssertionSystemTest extends SystemTestBase {
 
         String targetClass = ExampleReturningEnum.class.getCanonicalName();
 
-        String[] command = new String[] {
-                "-generateSuite", "-class", targetClass, "-Dassertion_strategy=mutation" };
+        String[] command = new String[]{
+                "-generateSuite", "-class", targetClass, "-Dassertion_strategy=mutation"};
 
         Object result = evosuite.parseCommandLine(command);
 
@@ -87,8 +87,8 @@ public class EnumAssertionSystemTest extends SystemTestBase {
         Assert.assertTrue(suite.size() > 0);
         for (TestCase test : suite.getTests()) {
             boolean hasEnumAssertion = false;
-            for(Assertion ass : test.getAssertions()) {
-                if(ass instanceof PrimitiveAssertion) {
+            for (Assertion ass : test.getAssertions()) {
+                if (ass instanceof PrimitiveAssertion) {
                     Assert.assertTrue(ass.getValue().getClass().isEnum());
                     hasEnumAssertion = true;
                 }

@@ -29,8 +29,8 @@ import java.net.Socket;
 public class ReceiveTcp_exception {
 
 
-    public void getMessage() throws Exception{
-        ServerSocket server = new ServerSocket(1234,10, InetAddress.getByName("127.0.0.4"));
+    public void getMessage() throws Exception {
+        ServerSocket server = new ServerSocket(1234, 10, InetAddress.getByName("127.0.0.4"));
 
         Socket s = server.accept();
 

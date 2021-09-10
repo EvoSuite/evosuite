@@ -31,172 +31,171 @@ import org.evosuite.ga.variables.Variable;
 import org.evosuite.utils.Randomness;
 
 /**
- * 
  * @author José Campos
  */
-public class NSGAChromosome extends Chromosome<NSGAChromosome>
-{
-	private static final long serialVersionUID = -2056801838518269049L;
+public class NSGAChromosome extends Chromosome<NSGAChromosome> {
+    private static final long serialVersionUID = -2056801838518269049L;
 
-	/**  */
-	private final List<Variable> variables = new ArrayList<>();
+    /**
+     *
+     */
+    private final List<Variable> variables = new ArrayList<>();
 
-	public NSGAChromosome() {
-		// empty
-	}
-
-	public NSGAChromosome(double lowerBound, double upperBound, double ... values) {
-		Arrays.stream(values)
-				.mapToObj(v -> new DoubleVariable(v, lowerBound, upperBound))
-				.forEachOrdered(this::addVariable);
+    public NSGAChromosome() {
+        // empty
     }
 
-	public NSGAChromosome(boolean ZDT4,
-			int number_of_variables,
-			double lowerBound, double upperBound) {
-		super();
+    public NSGAChromosome(double lowerBound, double upperBound, double... values) {
+        Arrays.stream(values)
+                .mapToObj(v -> new DoubleVariable(v, lowerBound, upperBound))
+                .forEachOrdered(this::addVariable);
+    }
 
-		int index = 0;
-		if (ZDT4) {
-			Variable v = new DoubleVariable(0.0 + Randomness.nextDouble() * (1.0 - 0.0),
-					0.0, 1.0);
-			this.addVariable(v);
-			index++;
-		}
+    public NSGAChromosome(boolean ZDT4,
+                          int number_of_variables,
+                          double lowerBound, double upperBound) {
+        super();
 
-		for (int i = index; i < number_of_variables; i++) {
-			Variable v = new DoubleVariable(lowerBound + Randomness.nextDouble() * (upperBound - lowerBound),
-					lowerBound, upperBound);
-			this.addVariable(v);
-		}
-	}
+        int index = 0;
+        if (ZDT4) {
+            Variable v = new DoubleVariable(0.0 + Randomness.nextDouble() * (1.0 - 0.0),
+                    0.0, 1.0);
+            this.addVariable(v);
+            index++;
+        }
 
-	public List<Variable> getVariables() {
-		return this.variables;
-	}
+        for (int i = index; i < number_of_variables; i++) {
+            Variable v = new DoubleVariable(lowerBound + Randomness.nextDouble() * (upperBound - lowerBound),
+                    lowerBound, upperBound);
+            this.addVariable(v);
+        }
+    }
 
-	public Variable getVariable(int i) {
-		return this.variables.get(i);
-	}
+    public List<Variable> getVariables() {
+        return this.variables;
+    }
 
-	public int getNumberOfVariables() {
-		return this.variables.size();
-	}
+    public Variable getVariable(int i) {
+        return this.variables.get(i);
+    }
 
-	public void addVariable(Variable var) {
-		this.variables.add(var);
-	}
+    public int getNumberOfVariables() {
+        return this.variables.size();
+    }
 
-	@Override
-	public NSGAChromosome clone() {
-		NSGAChromosome c = new NSGAChromosome();
-		c.setFitnessValues(this.getFitnessValues());
-		c.setPreviousFitnessValues(this.getPreviousFitnessValues());
-		for (Variable v : this.getVariables()) {
-			c.addVariable(v.clone());
-		}
-		c.setChanged(this.isChanged());
-		c.setCoverageValues(this.getCoverageValues());
-		c.setNumsOfCoveredGoals(this.getNumsOfCoveredGoals());
-		c.updateAge(this.getAge());
-		c.setRank(this.getRank());
-		c.setDistance(this.getDistance());
-		c.setNumberOfMutations(this.getNumberOfMutations());
-		c.setNumberOfEvaluations(this.getNumberOfEvaluations());
+    public void addVariable(Variable var) {
+        this.variables.add(var);
+    }
 
-		return c;
-	}
+    @Override
+    public NSGAChromosome clone() {
+        NSGAChromosome c = new NSGAChromosome();
+        c.setFitnessValues(this.getFitnessValues());
+        c.setPreviousFitnessValues(this.getPreviousFitnessValues());
+        for (Variable v : this.getVariables()) {
+            c.addVariable(v.clone());
+        }
+        c.setChanged(this.isChanged());
+        c.setCoverageValues(this.getCoverageValues());
+        c.setNumsOfCoveredGoals(this.getNumsOfCoveredGoals());
+        c.updateAge(this.getAge());
+        c.setRank(this.getRank());
+        c.setDistance(this.getDistance());
+        c.setNumberOfMutations(this.getNumberOfMutations());
+        c.setNumberOfEvaluations(this.getNumberOfEvaluations());
 
-	@Override
-	public boolean equals(Object obj) {
-		return this.hashCode() == obj.hashCode();
-	}
+        return c;
+    }
 
-	@Override
-	public int hashCode() {
-		int hashCode = 0;
+    @Override
+    public boolean equals(Object obj) {
+        return this.hashCode() == obj.hashCode();
+    }
 
-		hashCode = hashCode * 37 + this.getVariables().hashCode();
-	    hashCode = hashCode * 37 + this.getFitnessValues().hashCode();
-	    hashCode = hashCode * 37 + this.getPreviousFitnessValues().hashCode();
+    @Override
+    public int hashCode() {
+        int hashCode = 0;
 
-	    return hashCode;
-	}
+        hashCode = hashCode * 37 + this.getVariables().hashCode();
+        hashCode = hashCode * 37 + this.getFitnessValues().hashCode();
+        hashCode = hashCode * 37 + this.getPreviousFitnessValues().hashCode();
 
-	@Override
-	public int compareSecondaryObjective(NSGAChromosome o) {
-		// empty
-		return 0;
-	}
+        return hashCode;
+    }
 
-	/**
-	 *  Polynomial Mutation (for real values) - PM
-	 */
-	@Override
-	public void mutate() {
-		this.increaseNumberOfMutations();
-		for (int i = 0; i < this.getNumberOfVariables(); i++) {
-			Variable v = this.getVariable(i);
+    @Override
+    public int compareSecondaryObjective(NSGAChromosome o) {
+        // empty
+        return 0;
+    }
 
-			if (v instanceof DoubleVariable)
-				this.mutate((DoubleVariable)v);
-		}
-	}
+    /**
+     * Polynomial Mutation (for real values) - PM
+     */
+    @Override
+    public void mutate() {
+        this.increaseNumberOfMutations();
+        for (int i = 0; i < this.getNumberOfVariables(); i++) {
+            Variable v = this.getVariable(i);
 
-	private void mutate(DoubleVariable v) {
-		double ub = v.getUpperBound();
-		double lb = v.getLowerBound();
-		double db = ub - lb;
+            if (v instanceof DoubleVariable)
+                this.mutate((DoubleVariable) v);
+        }
+    }
 
-		double new_x = v.getValue();
+    private void mutate(DoubleVariable v) {
+        double ub = v.getUpperBound();
+        double lb = v.getLowerBound();
+        double db = ub - lb;
 
-		double delta1 = (new_x - lb) / db;
-		double delta2 = (ub - new_x) / db;
-		double deltaq;
+        double new_x = v.getValue();
 
-		double distributionIndex = 10.0;
-		double pow = 1.0 / (distributionIndex + 1.0);
+        double delta1 = (new_x - lb) / db;
+        double delta2 = (ub - new_x) / db;
+        double deltaq;
 
-		double r = Randomness.nextDouble();
-		if (r < 0.5) {
-			double aux = 2.0 * r + (1.0 - 2.0 * r) * (Math.pow(1.0 - delta1, (distributionIndex + 1.0)));
-			deltaq = Math.pow(aux, pow) - 1.0;
-		}
-		else {
-			double aux = 2.0 * (1.0 - r) + 2.0 * (r - 0.5) * (Math.pow(1.0 - delta2, (distributionIndex + 1.0)));
-			deltaq = 1.0 - Math.pow(aux, pow);
-		}
+        double distributionIndex = 10.0;
+        double pow = 1.0 / (distributionIndex + 1.0);
 
-		new_x = new_x + deltaq * db;
+        double r = Randomness.nextDouble();
+        if (r < 0.5) {
+            double aux = 2.0 * r + (1.0 - 2.0 * r) * (Math.pow(1.0 - delta1, (distributionIndex + 1.0)));
+            deltaq = Math.pow(aux, pow) - 1.0;
+        } else {
+            double aux = 2.0 * (1.0 - r) + 2.0 * (r - 0.5) * (Math.pow(1.0 - delta2, (distributionIndex + 1.0)));
+            deltaq = 1.0 - Math.pow(aux, pow);
+        }
 
-		if (new_x < lb)
-			new_x = lb;
-		else if (new_x > ub)
-			new_x = ub;
+        new_x = new_x + deltaq * db;
 
-		v.setValue(new_x);
-	}
+        if (new_x < lb)
+            new_x = lb;
+        else if (new_x > ub)
+            new_x = ub;
 
-	@Override
-	public void crossOver(NSGAChromosome other, int position1, int position2)
-	                throws ConstructionFailedException {
-		// empty
-	}
+        v.setValue(new_x);
+    }
 
-	@Override
-	public boolean localSearch(LocalSearchObjective<NSGAChromosome> objective) {
-		// empty
-		return false;
-	}
+    @Override
+    public void crossOver(NSGAChromosome other, int position1, int position2)
+            throws ConstructionFailedException {
+        // empty
+    }
 
-	@Override
-	public int size() {
-		// empty
-		return 0;
-	}
+    @Override
+    public boolean localSearch(LocalSearchObjective<NSGAChromosome> objective) {
+        // empty
+        return false;
+    }
 
-	@Override
-	public NSGAChromosome self() {
-		return this;
-	}
+    @Override
+    public int size() {
+        // empty
+        return 0;
+    }
+
+    @Override
+    public NSGAChromosome self() {
+        return this;
+    }
 }

@@ -44,11 +44,9 @@ import org.junit.Test;
 import static java.util.Comparator.comparingDouble;
 
 /**
- * 
  * @author José Campos
  */
-public class ZDT4IntTest
-{
+public class ZDT4IntTest {
     @Before
     public void setUp() {
         Properties.POPULATION = 100;
@@ -59,8 +57,7 @@ public class ZDT4IntTest
     }
 
     @Test
-    public void testZDT4Fitnesses()
-    {
+    public void testZDT4Fitnesses() {
         Problem<NSGAChromosome> p = new ZDT4();
         FitnessFunction<NSGAChromosome> f1 = p.getFitnessFunctions().get(0);
         FitnessFunction<NSGAChromosome> f2 = p.getFitnessFunctions().get(1);
@@ -84,13 +81,12 @@ public class ZDT4IntTest
 
     /**
      * Testing NSGA-II with ZDT4 Problem
-     * 
-     * @throws IOException 
-     * @throws NumberFormatException 
+     *
+     * @throws IOException
+     * @throws NumberFormatException
      */
     @Test
-    public void testZDT4() throws NumberFormatException, IOException
-    {
+    public void testZDT4() throws NumberFormatException, IOException {
         Properties.MUTATION_RATE = 1d / 10d;
 
         ChromosomeFactory<NSGAChromosome> factory = new RandomFactory(true, 10, -5.0, 5.0);

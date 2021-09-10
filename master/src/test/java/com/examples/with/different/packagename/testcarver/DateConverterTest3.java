@@ -34,14 +34,16 @@ public class DateConverterTest3 {
 
     /**
      * Create the Converter with no default value.
+     *
      * @return A new Converter
      */
     protected DateTimeConverter makeConverter() {
         return new DateConverter();
     }
-    
+
     /**
      * Create the Converter with a default value.
+     *
      * @param defaultValue The default value
      * @return A new Converter
      */
@@ -51,6 +53,7 @@ public class DateConverterTest3 {
 
     /**
      * Return the expected type
+     *
      * @return The expected type
      */
     protected Class<?> getExpectedType() {
@@ -59,6 +62,7 @@ public class DateConverterTest3 {
 
     /**
      * Convert a Date or Calendar objects to the time in millisconds
+     *
      * @param date The date or calendar object
      * @return The time in milliseconds
      */
@@ -69,32 +73,33 @@ public class DateConverterTest3 {
             // N.B. Prior to JDK 1.4 the Timestamp's getTime() method
             //      didn't include the milliseconds. The following code
             //      ensures it works consistently accross JDK versions
-            java.sql.Timestamp timestamp = (java.sql.Timestamp)date;
+            java.sql.Timestamp timestamp = (java.sql.Timestamp) date;
             long timeInMillis = ((timestamp.getTime() / 1000) * 1000);
             timeInMillis += timestamp.getNanos() / 1000000;
             return timeInMillis;
         }
 
         if (date instanceof Calendar) {
-            return ((Calendar)date).getTime().getTime();
+            return ((Calendar) date).getTime().getTime();
         } else {
-            return ((Date)date).getTime();
+            return ((Date) date).getTime();
         }
     }
-    
+
     /**
      * Parse a String value to a Calendar
-     * @param value The String value to parse
+     *
+     * @param value   The String value to parse
      * @param pattern The date pattern
-     * @param locale The locale to use (or null)
+     * @param locale  The locale to use (or null)
      * @return parsed Calendar value
      */
     Calendar toCalendar(String value, String pattern, Locale locale) {
         Calendar calendar = null;
         try {
-            DateFormat format = (locale == null) 
-                           ? new SimpleDateFormat(pattern)
-                           : new SimpleDateFormat(pattern, locale);
+            DateFormat format = (locale == null)
+                    ? new SimpleDateFormat(pattern)
+                    : new SimpleDateFormat(pattern, locale);
             format.setLenient(false);
             format.parse(value);
             calendar = format.getCalendar();
@@ -107,34 +112,37 @@ public class DateConverterTest3 {
 
     /**
      * Convert a Calendar to a java.util.Date
+     *
      * @param calendar The calendar object to convert
      * @return The converted java.util.Date
      */
     Date toDate(Calendar calendar) {
         return calendar.getTime();
     }
-    
+
     /**
      * Parse a String value to the required type
-     * @param value The String value to parse
+     *
+     * @param value   The String value to parse
      * @param pattern The date pattern
-     * @param locale The locale to use (or null)
+     * @param locale  The locale to use (or null)
      * @return parsed Calendar value
      */
     Object toType(String value, String pattern, Locale locale) {
         Calendar calendar = toCalendar(value, pattern, locale);
         return toType(calendar);
     }
-    
+
     /**
      * Convert from a Calendar to the appropriate Date type
-     * 
+     *
      * @param value The Calendar value to convert
      * @return The converted value
      */
     protected Object toType(Calendar value) {
         return value.getTime();
     }
+
     /**
      * Test Default Type conversion (i.e. don't specify target type)
      */
@@ -149,8 +157,8 @@ public class DateConverterTest3 {
         // Valid String --> Type Conversion
         String testString = "2006-10-29";
         Calendar calendar = toCalendar(testString, pattern, null);
-        Object expected   = toType(calendar);
-        
+        Object expected = toType(calendar);
+
         Object result = converter.convert(null, testString);
         if (getExpectedType().equals(Calendar.class)) {
             assertTrue("TYPE ", getExpectedType().isAssignableFrom(result.getClass()));

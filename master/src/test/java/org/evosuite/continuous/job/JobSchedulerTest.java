@@ -45,274 +45,274 @@ import com.examples.with.different.packagename.continuous.UsingSimpleAndTrivial;
 
 public class JobSchedulerTest {
 
-	@BeforeClass
-	public static void initClass(){
-		ClassPathHandler.getInstance().changeTargetCPtoTheSameAsEvoSuite();
-	}
-	
-	@Test
-	public void testBudget() {
+    @BeforeClass
+    public static void initClass() {
+        ClassPathHandler.getInstance().changeTargetCPtoTheSameAsEvoSuite();
+    }
 
-		String[] cuts = new String[] { SomeInterface.class.getName(),
-		        NoBranches.class.getName(), SomeBranches.class.getName(),
-		        MoreBranches.class.getName() };
+    @Test
+    public void testBudget() {
 
-		ProjectAnalyzer analyzer = new ProjectAnalyzer(cuts);
-		ProjectStaticData data = analyzer.analyze();
+        String[] cuts = new String[]{SomeInterface.class.getName(),
+                NoBranches.class.getName(), SomeBranches.class.getName(),
+                MoreBranches.class.getName()};
 
-		int cores = 2;
-		int memory = 1400;
-		int budget = 2;
+        ProjectAnalyzer analyzer = new ProjectAnalyzer(cuts);
+        ProjectStaticData data = analyzer.analyze();
 
-		CtgConfiguration conf = new CtgConfiguration(memory, cores, budget, 1, false, AvailableSchedule.BUDGET);
-		
-		JobScheduler scheduler = new JobScheduler(data, conf);
+        int cores = 2;
+        int memory = 1400;
+        int budget = 2;
 
-		List<JobDefinition> jobs = scheduler.createNewSchedule();
-		Assert.assertNotNull(jobs);
-		//we have 4 classes, but one is an interface
-		Assert.assertEquals(3, jobs.size());
+        CtgConfiguration conf = new CtgConfiguration(memory, cores, budget, 1, false, AvailableSchedule.BUDGET);
 
-		for (JobDefinition job : jobs) {
-			Assert.assertEquals(700, job.memoryInMB);
-		}
+        JobScheduler scheduler = new JobScheduler(data, conf);
 
-		Assert.assertEquals(MoreBranches.class.getName(), jobs.get(0).cut);
-		Assert.assertEquals(SomeBranches.class.getName(), jobs.get(1).cut);
-		Assert.assertEquals(NoBranches.class.getName(), jobs.get(2).cut);
+        List<JobDefinition> jobs = scheduler.createNewSchedule();
+        Assert.assertNotNull(jobs);
+        //we have 4 classes, but one is an interface
+        Assert.assertEquals(3, jobs.size());
 
-		long dif01 = jobs.get(0).seconds - jobs.get(1).seconds;
-		long dif12 = jobs.get(1).seconds - jobs.get(2).seconds;
+        for (JobDefinition job : jobs) {
+            Assert.assertEquals(700, job.memoryInMB);
+        }
 
-		Assert.assertTrue("" + dif01, dif01 > 0);
-		Assert.assertTrue("" + dif12, dif12 > 0);
+        Assert.assertEquals(MoreBranches.class.getName(), jobs.get(0).cut);
+        Assert.assertEquals(SomeBranches.class.getName(), jobs.get(1).cut);
+        Assert.assertEquals(NoBranches.class.getName(), jobs.get(2).cut);
 
-		int sum = jobs.get(0).seconds + jobs.get(1).seconds + jobs.get(2).seconds;
-		Assert.assertTrue("wrong value " + sum, sum <= (cores * budget * 60));
-	}
+        long dif01 = jobs.get(0).seconds - jobs.get(1).seconds;
+        long dif12 = jobs.get(1).seconds - jobs.get(2).seconds;
 
-	@Test
-	public void testNonExceedingBudget() {
+        Assert.assertTrue("" + dif01, dif01 > 0);
+        Assert.assertTrue("" + dif12, dif12 > 0);
 
-		String[] cuts = new String[] { 
-		        NoBranches.class.getName(), 
-		        Trivial.class.getName(), 
-		        MoreBranches.class.getName() };
+        int sum = jobs.get(0).seconds + jobs.get(1).seconds + jobs.get(2).seconds;
+        Assert.assertTrue("wrong value " + sum, sum <= (cores * budget * 60));
+    }
 
-		ProjectAnalyzer analyzer = new ProjectAnalyzer(cuts);
-		ProjectStaticData data = analyzer.analyze();
+    @Test
+    public void testNonExceedingBudget() {
 
-		int cores = 2;
-		int memory = 1400;
-		int budget = 10;
+        String[] cuts = new String[]{
+                NoBranches.class.getName(),
+                Trivial.class.getName(),
+                MoreBranches.class.getName()};
 
-		CtgConfiguration conf = new CtgConfiguration(memory, cores, budget, 1, false, AvailableSchedule.BUDGET);
-		
-		JobScheduler scheduler = new JobScheduler(data, conf);
+        ProjectAnalyzer analyzer = new ProjectAnalyzer(cuts);
+        ProjectStaticData data = analyzer.analyze();
 
-		List<JobDefinition> jobs = scheduler.createNewSchedule();
-		Assert.assertNotNull(jobs);
-		Assert.assertEquals(3, jobs.size());
+        int cores = 2;
+        int memory = 1400;
+        int budget = 10;
 
-		for (JobDefinition job : jobs) {
-			Assert.assertEquals(700, job.memoryInMB);
-		}
+        CtgConfiguration conf = new CtgConfiguration(memory, cores, budget, 1, false, AvailableSchedule.BUDGET);
 
-		Assert.assertEquals(MoreBranches.class.getName(), jobs.get(0).cut);
-		Assert.assertEquals(Trivial.class.getName(), jobs.get(1).cut);
-		Assert.assertEquals(NoBranches.class.getName(), jobs.get(2).cut);
+        JobScheduler scheduler = new JobScheduler(data, conf);
 
-		long dif01 = jobs.get(0).seconds - jobs.get(1).seconds;
-		long dif12 = jobs.get(1).seconds - jobs.get(2).seconds;
+        List<JobDefinition> jobs = scheduler.createNewSchedule();
+        Assert.assertNotNull(jobs);
+        Assert.assertEquals(3, jobs.size());
 
-		Assert.assertTrue("" + dif01, dif01 > 0);
-		Assert.assertTrue("" + dif12, dif12 > 0);
+        for (JobDefinition job : jobs) {
+            Assert.assertEquals(700, job.memoryInMB);
+        }
 
-		int sum = jobs.get(0).seconds + jobs.get(1).seconds + jobs.get(2).seconds;
-		Assert.assertTrue("wrong value " + sum, sum <= (cores * budget * 60));
-		
-		for(JobDefinition job : jobs){
-			Assert.assertTrue("wrong "+job.seconds, job.seconds <= budget * 60);
-		}
-	}
+        Assert.assertEquals(MoreBranches.class.getName(), jobs.get(0).cut);
+        Assert.assertEquals(Trivial.class.getName(), jobs.get(1).cut);
+        Assert.assertEquals(NoBranches.class.getName(), jobs.get(2).cut);
 
-	@Test
-	public void testSimple() {
+        long dif01 = jobs.get(0).seconds - jobs.get(1).seconds;
+        long dif12 = jobs.get(1).seconds - jobs.get(2).seconds;
 
-		String[] cuts = new String[] { SomeInterface.class.getName(),
-		        NoBranches.class.getName(), SomeBranches.class.getName(),
-		        MoreBranches.class.getName() };
+        Assert.assertTrue("" + dif01, dif01 > 0);
+        Assert.assertTrue("" + dif12, dif12 > 0);
 
-		ProjectAnalyzer analyzer = new ProjectAnalyzer(cuts);
-		ProjectStaticData data = analyzer.analyze();
+        int sum = jobs.get(0).seconds + jobs.get(1).seconds + jobs.get(2).seconds;
+        Assert.assertTrue("wrong value " + sum, sum <= (cores * budget * 60));
 
-		int cores = 2;
-		int memory = 1400;
-		int budget = 2;
+        for (JobDefinition job : jobs) {
+            Assert.assertTrue("wrong " + job.seconds, job.seconds <= budget * 60);
+        }
+    }
 
-		CtgConfiguration conf = new CtgConfiguration(memory, cores, budget, 1, false, AvailableSchedule.SIMPLE);
-		JobScheduler scheduler = new JobScheduler(data, conf);
-		
+    @Test
+    public void testSimple() {
 
-		List<JobDefinition> jobs = scheduler.createNewSchedule();
-		Assert.assertNotNull(jobs);
-		//we have 4 classes, but one is an interface
-		Assert.assertEquals(3, jobs.size());
+        String[] cuts = new String[]{SomeInterface.class.getName(),
+                NoBranches.class.getName(), SomeBranches.class.getName(),
+                MoreBranches.class.getName()};
 
-		for (JobDefinition job : jobs) {
-			Assert.assertEquals(700, job.memoryInMB);
-		}
+        ProjectAnalyzer analyzer = new ProjectAnalyzer(cuts);
+        ProjectStaticData data = analyzer.analyze();
 
-		Assert.assertEquals(jobs.get(0).seconds, jobs.get(1).seconds);
-		Assert.assertEquals(jobs.get(2).seconds, jobs.get(1).seconds);
+        int cores = 2;
+        int memory = 1400;
+        int budget = 2;
 
-		int sum = jobs.get(0).seconds + jobs.get(1).seconds + jobs.get(2).seconds;
-		Assert.assertTrue("wrong value " + sum, sum <= (cores * budget * 60));
-	}
-
-	@Test
-	public void testSeeding() {
-
-		String[] cuts = new String[] { BaseForSeeding.class.getName(),
-		        NoBranches.class.getName(), MoreBranches.class.getName(),
-		        SomeInterface.class.getName(), SomeInterfaceImpl.class.getName(),
-		        SomeBranches.class.getName(), OnlyAbstract.class.getName(),
-		        OnlyAbstractImpl.class.getName(), Trivial.class.getName() };
-
-		ProjectAnalyzer analyzer = new ProjectAnalyzer(cuts);
-		ProjectStaticData data = analyzer.analyze();
-
-		int cores = 3;
-		int memory = 1800;
-		int budget = 3;
-
-		CtgConfiguration conf = new CtgConfiguration(memory, cores, budget, 1, false, AvailableSchedule.SEEDING);
-		JobScheduler scheduler = new JobScheduler(data, conf);
-
-		List<JobDefinition> jobs = scheduler.createNewSchedule();
-		Assert.assertNotNull(jobs);
-
-		for (JobDefinition job : jobs) {
-			Assert.assertEquals(600, job.memoryInMB);
-		}
-
-		/*
-		 * FIXME: in the long run, abstract class with no code should be skipped.
-		 * at the moment, they are not, because there is default constructor that
-		 * is automatically added
-		 */
-		
-		//we have 9 classes, but 2 have no code
-		Assert.assertEquals("Wrong number of jobs: " + jobs.toString(), 8, jobs.size()); //FIXME should be 7
-
-		JobDefinition seeding = null;
-		for (JobDefinition job : jobs) {
-			if (job.cut.equals(BaseForSeeding.class.getName())) {
-				seeding = job;
-				break;
-			}
-		}
-		Assert.assertNotNull(seeding);
-
-		Set<String> in = seeding.inputClasses;
-		Assert.assertNotNull(in);
-		System.out.println(in.toString());
-		Assert.assertTrue(in.contains(NoBranches.class.getName()));
-		Assert.assertTrue(in.contains(SomeBranches.class.getName()));
-		Assert.assertTrue(in.contains(SomeInterfaceImpl.class.getName()));
-		Assert.assertTrue(in.contains(OnlyAbstractImpl.class.getName()));
-		Assert.assertEquals(5, in.size()); //FIXME should be 4
-	}
-	
-	@Test
-	public void testSeedingOrder() {
-
-		String[] cuts = new String[] { 
-				Simple.class.getName(),
-		        UsingSimpleAndTrivial.class.getName(), 
-		        Trivial.class.getName(),
-		        };
-
-		ProjectAnalyzer analyzer = new ProjectAnalyzer(cuts);
-		ProjectStaticData data = analyzer.analyze();
-
-		int cores = 3;
-		int memory = 1800;
-		int budget = 2;
-
-		CtgConfiguration conf = new CtgConfiguration(memory, cores, budget, 1, false, AvailableSchedule.SEEDING);
-		JobScheduler scheduler = new JobScheduler(data, conf);
-
-		List<JobDefinition> jobs = scheduler.createNewSchedule();
-		Assert.assertNotNull(jobs);
-
-		Assert.assertEquals("Wrong number of jobs: " + jobs.toString(), 3, jobs.size());
-
-		//UsingSimpleAndTrivial should be the last in the schedule, as it depends on the first 2
-		JobDefinition seeding = jobs.get(2);
-		Assert.assertNotNull(seeding);
-		Assert.assertEquals(UsingSimpleAndTrivial.class.getName(), seeding.cut);
-		
-		Set<String> in = seeding.inputClasses;
-		Assert.assertNotNull(in);
-		System.out.println(in.toString());
-		Assert.assertTrue(in.contains(Simple.class.getName()));
-		Assert.assertTrue(in.contains(Trivial.class.getName()));
-		Assert.assertEquals(2, in.size());
-	}
+        CtgConfiguration conf = new CtgConfiguration(memory, cores, budget, 1, false, AvailableSchedule.SIMPLE);
+        JobScheduler scheduler = new JobScheduler(data, conf);
 
 
-	@Test
-	public void testSeedingAndBudget() {
+        List<JobDefinition> jobs = scheduler.createNewSchedule();
+        Assert.assertNotNull(jobs);
+        //we have 4 classes, but one is an interface
+        Assert.assertEquals(3, jobs.size());
 
-		String[] cuts = new String[] { 
-		        Trivial.class.getName(),
-		        UsingSimpleAndTrivial.class.getName(), 
-				Simple.class.getName(),
-		        };
+        for (JobDefinition job : jobs) {
+            Assert.assertEquals(700, job.memoryInMB);
+        }
 
-		ProjectAnalyzer analyzer = new ProjectAnalyzer(cuts);
-		ProjectStaticData data = analyzer.analyze();
+        Assert.assertEquals(jobs.get(0).seconds, jobs.get(1).seconds);
+        Assert.assertEquals(jobs.get(2).seconds, jobs.get(1).seconds);
 
-		int cores = 2;
-		int memory = 1800;
-		int budget = 3;
+        int sum = jobs.get(0).seconds + jobs.get(1).seconds + jobs.get(2).seconds;
+        Assert.assertTrue("wrong value " + sum, sum <= (cores * budget * 60));
+    }
 
-		CtgConfiguration conf = new CtgConfiguration(memory, cores, budget, 1, false, AvailableSchedule.BUDGET_AND_SEEDING);
-		JobScheduler scheduler = new JobScheduler(data, conf);
+    @Test
+    public void testSeeding() {
 
-		List<JobDefinition> jobs = scheduler.createNewSchedule();
-		Assert.assertNotNull(jobs);
+        String[] cuts = new String[]{BaseForSeeding.class.getName(),
+                NoBranches.class.getName(), MoreBranches.class.getName(),
+                SomeInterface.class.getName(), SomeInterfaceImpl.class.getName(),
+                SomeBranches.class.getName(), OnlyAbstract.class.getName(),
+                OnlyAbstractImpl.class.getName(), Trivial.class.getName()};
 
-		Assert.assertEquals("Wrong number of jobs: " + jobs.toString(), 3, jobs.size());
+        ProjectAnalyzer analyzer = new ProjectAnalyzer(cuts);
+        ProjectStaticData data = analyzer.analyze();
 
-		//UsingSimpleAndTrivial should be the last in the schedule, as it depends on the other 2
-		JobDefinition seeding = jobs.get(2);
-		Assert.assertNotNull(seeding);
-		Assert.assertEquals(UsingSimpleAndTrivial.class.getName(), seeding.cut);
-		
-		Set<String> in = seeding.inputClasses;
-		Assert.assertNotNull(in);
-		System.out.println(in.toString());
-		Assert.assertTrue(in.contains(Simple.class.getName()));
-		Assert.assertTrue(in.contains(Trivial.class.getName()));
-		Assert.assertEquals(2, in.size());
-		
-		
-		JobDefinition simple = jobs.get(0); //should be the first, as it has the highest number of branches among the jobs with no depencencies
-		Assert.assertNotNull(simple);
-		Assert.assertEquals(Simple.class.getName(), simple.cut);
-		
-		int simpleTime = jobs.get(0).seconds;
-		int trivialTime = jobs.get(1).seconds;
-		int seedingTime = jobs.get(2).seconds;
-		
-		System.out.println("Ordered times: "+simpleTime+", "+trivialTime+", "+seedingTime);
-		
-		Assert.assertTrue(simpleTime > trivialTime);
-		Assert.assertTrue(simpleTime < seedingTime);  //seeding, even if last, it should have more time, as it has most branches
-		Assert.assertTrue(trivialTime < seedingTime);
-	}
+        int cores = 3;
+        int memory = 1800;
+        int budget = 3;
+
+        CtgConfiguration conf = new CtgConfiguration(memory, cores, budget, 1, false, AvailableSchedule.SEEDING);
+        JobScheduler scheduler = new JobScheduler(data, conf);
+
+        List<JobDefinition> jobs = scheduler.createNewSchedule();
+        Assert.assertNotNull(jobs);
+
+        for (JobDefinition job : jobs) {
+            Assert.assertEquals(600, job.memoryInMB);
+        }
+
+        /*
+         * FIXME: in the long run, abstract class with no code should be skipped.
+         * at the moment, they are not, because there is default constructor that
+         * is automatically added
+         */
+
+        //we have 9 classes, but 2 have no code
+        Assert.assertEquals("Wrong number of jobs: " + jobs.toString(), 8, jobs.size()); //FIXME should be 7
+
+        JobDefinition seeding = null;
+        for (JobDefinition job : jobs) {
+            if (job.cut.equals(BaseForSeeding.class.getName())) {
+                seeding = job;
+                break;
+            }
+        }
+        Assert.assertNotNull(seeding);
+
+        Set<String> in = seeding.inputClasses;
+        Assert.assertNotNull(in);
+        System.out.println(in.toString());
+        Assert.assertTrue(in.contains(NoBranches.class.getName()));
+        Assert.assertTrue(in.contains(SomeBranches.class.getName()));
+        Assert.assertTrue(in.contains(SomeInterfaceImpl.class.getName()));
+        Assert.assertTrue(in.contains(OnlyAbstractImpl.class.getName()));
+        Assert.assertEquals(5, in.size()); //FIXME should be 4
+    }
+
+    @Test
+    public void testSeedingOrder() {
+
+        String[] cuts = new String[]{
+                Simple.class.getName(),
+                UsingSimpleAndTrivial.class.getName(),
+                Trivial.class.getName(),
+        };
+
+        ProjectAnalyzer analyzer = new ProjectAnalyzer(cuts);
+        ProjectStaticData data = analyzer.analyze();
+
+        int cores = 3;
+        int memory = 1800;
+        int budget = 2;
+
+        CtgConfiguration conf = new CtgConfiguration(memory, cores, budget, 1, false, AvailableSchedule.SEEDING);
+        JobScheduler scheduler = new JobScheduler(data, conf);
+
+        List<JobDefinition> jobs = scheduler.createNewSchedule();
+        Assert.assertNotNull(jobs);
+
+        Assert.assertEquals("Wrong number of jobs: " + jobs.toString(), 3, jobs.size());
+
+        //UsingSimpleAndTrivial should be the last in the schedule, as it depends on the first 2
+        JobDefinition seeding = jobs.get(2);
+        Assert.assertNotNull(seeding);
+        Assert.assertEquals(UsingSimpleAndTrivial.class.getName(), seeding.cut);
+
+        Set<String> in = seeding.inputClasses;
+        Assert.assertNotNull(in);
+        System.out.println(in.toString());
+        Assert.assertTrue(in.contains(Simple.class.getName()));
+        Assert.assertTrue(in.contains(Trivial.class.getName()));
+        Assert.assertEquals(2, in.size());
+    }
+
+
+    @Test
+    public void testSeedingAndBudget() {
+
+        String[] cuts = new String[]{
+                Trivial.class.getName(),
+                UsingSimpleAndTrivial.class.getName(),
+                Simple.class.getName(),
+        };
+
+        ProjectAnalyzer analyzer = new ProjectAnalyzer(cuts);
+        ProjectStaticData data = analyzer.analyze();
+
+        int cores = 2;
+        int memory = 1800;
+        int budget = 3;
+
+        CtgConfiguration conf = new CtgConfiguration(memory, cores, budget, 1, false, AvailableSchedule.BUDGET_AND_SEEDING);
+        JobScheduler scheduler = new JobScheduler(data, conf);
+
+        List<JobDefinition> jobs = scheduler.createNewSchedule();
+        Assert.assertNotNull(jobs);
+
+        Assert.assertEquals("Wrong number of jobs: " + jobs.toString(), 3, jobs.size());
+
+        //UsingSimpleAndTrivial should be the last in the schedule, as it depends on the other 2
+        JobDefinition seeding = jobs.get(2);
+        Assert.assertNotNull(seeding);
+        Assert.assertEquals(UsingSimpleAndTrivial.class.getName(), seeding.cut);
+
+        Set<String> in = seeding.inputClasses;
+        Assert.assertNotNull(in);
+        System.out.println(in.toString());
+        Assert.assertTrue(in.contains(Simple.class.getName()));
+        Assert.assertTrue(in.contains(Trivial.class.getName()));
+        Assert.assertEquals(2, in.size());
+
+
+        JobDefinition simple = jobs.get(0); //should be the first, as it has the highest number of branches among the jobs with no depencencies
+        Assert.assertNotNull(simple);
+        Assert.assertEquals(Simple.class.getName(), simple.cut);
+
+        int simpleTime = jobs.get(0).seconds;
+        int trivialTime = jobs.get(1).seconds;
+        int seedingTime = jobs.get(2).seconds;
+
+        System.out.println("Ordered times: " + simpleTime + ", " + trivialTime + ", " + seedingTime);
+
+        Assert.assertTrue(simpleTime > trivialTime);
+        Assert.assertTrue(simpleTime < seedingTime);  //seeding, even if last, it should have more time, as it has most branches
+        Assert.assertTrue(trivialTime < seedingTime);
+    }
 
 
 }

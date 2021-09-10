@@ -24,9 +24,9 @@ import org.evosuite.symbolic.solver.TestSolverUNSAT;
 
 public class TestCVC4UNSAT extends TestSolverUNSAT {
 
-	@Override
-	public Solver getSolver() {
-		return new CVC4Solver();
-	}
+    @Override
+    public Solver getSolver() {
+        return new CVC4Solver();
+    }
 
 }

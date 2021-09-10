@@ -43,11 +43,9 @@ import org.junit.Test;
 import static java.util.Comparator.comparingDouble;
 
 /**
- * 
  * @author José Campos
  */
-public class POLIntTest
-{
+public class POLIntTest {
     @Before
     public void setUp() {
         Properties.POPULATION = 100;
@@ -58,8 +56,7 @@ public class POLIntTest
     }
 
     @Test
-    public void testPOLFitnesses()
-    {
+    public void testPOLFitnesses() {
         Problem<NSGAChromosome> p = new POL();
         FitnessFunction<NSGAChromosome> f1 = p.getFitnessFunctions().get(0);
         FitnessFunction<NSGAChromosome> f2 = p.getFitnessFunctions().get(1);
@@ -73,13 +70,12 @@ public class POLIntTest
 
     /**
      * Testing NSGA-II with POL Problem
-     * 
-     * @throws IOException 
-     * @throws NumberFormatException 
+     *
+     * @throws IOException
+     * @throws NumberFormatException
      */
     @Test
-    public void testPOL() throws NumberFormatException, IOException
-    {
+    public void testPOL() throws NumberFormatException, IOException {
         Properties.MUTATION_RATE = 1d / 2d;
 
         ChromosomeFactory<NSGAChromosome> factory = new RandomFactory(false, 2, -Math.PI, Math.PI);
