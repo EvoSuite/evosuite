@@ -28,24 +28,23 @@ import org.eclipse.jdt.core.dom.ImportDeclaration;
 
 /**
  * @author Jose Miguel Rojas
- * 
  */
 public class ImportDeclarationVisitor extends ASTVisitor {
 
-	public String result = "";
-	
-	private List<ImportDeclaration> imports = new ArrayList<ImportDeclaration>();
+    public String result = "";
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.core.dom.ASTVisitor#visit(org.eclipse.jdt.core.dom.MethodDeclaration)
-	 */
-	@Override
-	public boolean visit(ImportDeclaration node) {
-		imports.add(node);
-		return super.visit(node);
-	}
-	
-	public List<ImportDeclaration> getImports() {
-		return imports;
-	}
+    private List<ImportDeclaration> imports = new ArrayList<ImportDeclaration>();
+
+    /* (non-Javadoc)
+     * @see org.eclipse.jdt.core.dom.ASTVisitor#visit(org.eclipse.jdt.core.dom.MethodDeclaration)
+     */
+    @Override
+    public boolean visit(ImportDeclaration node) {
+        imports.add(node);
+        return super.visit(node);
+    }
+
+    public List<ImportDeclaration> getImports() {
+        return imports;
+    }
 }

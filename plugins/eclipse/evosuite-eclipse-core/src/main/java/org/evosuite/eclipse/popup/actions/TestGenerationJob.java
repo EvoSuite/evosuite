@@ -94,139 +94,138 @@ import org.evosuite.shaded.org.apache.commons.lang3.StringUtils;
 
 /**
  * @author Gordon Fraser, Thomas White, Jose Miguel Rojas
- * 
  */
 public class TestGenerationJob extends Job {
 
-	protected final String targetClass;
-	protected final String suiteClass;
+    protected final String targetClass;
+    protected final String suiteClass;
 
-	protected final IResource target;
+    protected final IResource target;
 
-	protected final Shell shell;
+    protected final Shell shell;
 
-	protected boolean running = false;
-	protected boolean stopped = false;
-	protected ClientStateInformation lastState = null;
+    protected boolean running = false;
+    protected boolean stopped = false;
+    protected ClientStateInformation lastState = null;
 
-	protected String lastTest = "";
-	protected static final double SEED_CHANCE = 0.2;
-	protected final String ENCODING = "UTF-8";
-	protected String classPath;	
-	protected final Map<String, Double> coverage = null;
+    protected String lastTest = "";
+    protected static final double SEED_CHANCE = 0.2;
+    protected final String ENCODING = "UTF-8";
+    protected String classPath;
+    protected final Map<String, Double> coverage = null;
 
-	public TestGenerationJob(Shell shell, final IResource target, String targetClass) {
-		this(shell, target, targetClass, null);
-	}
+    public TestGenerationJob(Shell shell, final IResource target, String targetClass) {
+        this(shell, target, targetClass, null);
+    }
 
-	public IResource getTarget() {
-		return target;
-	}
-	
-	public TestGenerationJob(Shell shell, final IResource target, String targetClassName, String suiteClassName) {
-		super("EvoSuite Test Generation: " + targetClassName);
-		this.targetClass = targetClassName;
-		if (suiteClassName == null || suiteClassName.isEmpty()) {
-			String tmp = targetClassName.replace('.', File.separatorChar);
-			suiteClassName = new String(tmp + Properties.JUNIT_SUFFIX + ".java");
-		}
-		this.suiteClass = suiteClassName;
-		this.target = target;
-		this.shell = shell;
-		IJavaProject jProject = JavaCore.create(target.getProject());
-		try {
-			classPath = target.getWorkspace().getRoot().findMember(jProject.getOutputLocation()).getLocation().toOSString();
-		} catch (JavaModelException e) {
-			e.printStackTrace();
-			classPath = "";
-		}
-	}
+    public IResource getTarget() {
+        return target;
+    }
 
-	@Override
-	protected IStatus run(final IProgressMonitor monitor) {
-		Boolean disabled = System.getProperty("evosuite.disable") != null; //  && System.getProperty("evosuite.disable").equals("1")
-		if ( disabled ) {
-			System.out.println("TestGenerationJob: The EvoSuite plugin is disabled :(");
-			return Status.OK_STATUS;
-		}
+    public TestGenerationJob(Shell shell, final IResource target, String targetClassName, String suiteClassName) {
+        super("EvoSuite Test Generation: " + targetClassName);
+        this.targetClass = targetClassName;
+        if (suiteClassName == null || suiteClassName.isEmpty()) {
+            String tmp = targetClassName.replace('.', File.separatorChar);
+            suiteClassName = new String(tmp + Properties.JUNIT_SUFFIX + ".java");
+        }
+        this.suiteClass = suiteClassName;
+        this.target = target;
+        this.shell = shell;
+        IJavaProject jProject = JavaCore.create(target.getProject());
+        try {
+            classPath = target.getWorkspace().getRoot().findMember(jProject.getOutputLocation()).getLocation().toOSString();
+        } catch (JavaModelException e) {
+            e.printStackTrace();
+            classPath = "";
+        }
+    }
 
-		final String suiteFileName = getSuiteFileName(suiteClass);
-		final IFile fileSuite = ResourcesPlugin.getWorkspace().getRoot().getFileForLocation(new Path(suiteFileName));
-		if ( fileSuite != null && fileSuite.exists()) {
-			// Open test suite in editor
-			Display.getDefault().syncExec(new Runnable() {
-				@Override
-				public void run() {
-					IWorkbenchWindow iw = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-					IWorkbenchPage page = iw.getActivePage();
-					try {
-						IDE.openEditor(page, fileSuite, true);
-					} catch (PartInitException e1) {
-						System.out.println("Could not open test suite");
-						e1.printStackTrace();
-					}
-				}
-			});
-		}
-		
-		setThread(new Thread());
-		running = true;
-		
+    @Override
+    protected IStatus run(final IProgressMonitor monitor) {
+        Boolean disabled = System.getProperty("evosuite.disable") != null; //  && System.getProperty("evosuite.disable").equals("1")
+        if (disabled) {
+            System.out.println("TestGenerationJob: The EvoSuite plugin is disabled :(");
+            return Status.OK_STATUS;
+        }
 
-		String oldTgr = getOldTestGenerationResult();
-		lastTest = oldTgr;
-		
-		ArrayList<TestGenerationResult> results = runEvoSuite(monitor);
-		// should check here if any tests are generated/saved
-		IFile fileSuiteSaved = ResourcesPlugin.getWorkspace().getRoot().getFileForLocation(new Path(suiteFileName));
-		if ( fileSuiteSaved == null || !fileSuiteSaved.exists()){
-			Display.getDefault().syncExec(new Runnable() {
-				@Override
-				public void run() {
-					MessageDialog dialog = new MessageDialog(
-							shell,
-							"Error during test generation",
-							null, // image
-							"EvoSuite failed to generate tests for class"
-									+ suiteClass,
-							MessageDialog.OK, new String[] { "Ok" }, 0);
-					dialog.open();
-				}
-			});
-			return Status.CANCEL_STATUS;
-		}
+        final String suiteFileName = getSuiteFileName(suiteClass);
+        final IFile fileSuite = ResourcesPlugin.getWorkspace().getRoot().getFileForLocation(new Path(suiteFileName));
+        if (fileSuite != null && fileSuite.exists()) {
+            // Open test suite in editor
+            Display.getDefault().syncExec(new Runnable() {
+                @Override
+                public void run() {
+                    IWorkbenchWindow iw = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+                    IWorkbenchPage page = iw.getActivePage();
+                    try {
+                        IDE.openEditor(page, fileSuite, true);
+                    } catch (PartInitException e1) {
+                        System.out.println("Could not open test suite");
+                        e1.printStackTrace();
+                    }
+                }
+            });
+        }
 
-		try {
-			target.getProject().refreshLocal(IProject.DEPTH_INFINITE, null);
+        setThread(new Thread());
+        running = true;
+
+
+        String oldTgr = getOldTestGenerationResult();
+        lastTest = oldTgr;
+
+        ArrayList<TestGenerationResult> results = runEvoSuite(monitor);
+        // should check here if any tests are generated/saved
+        IFile fileSuiteSaved = ResourcesPlugin.getWorkspace().getRoot().getFileForLocation(new Path(suiteFileName));
+        if (fileSuiteSaved == null || !fileSuiteSaved.exists()) {
+            Display.getDefault().syncExec(new Runnable() {
+                @Override
+                public void run() {
+                    MessageDialog dialog = new MessageDialog(
+                            shell,
+                            "Error during test generation",
+                            null, // image
+                            "EvoSuite failed to generate tests for class"
+                                    + suiteClass,
+                            MessageDialog.OK, new String[]{"Ok"}, 0);
+                    dialog.open();
+                }
+            });
+            return Status.CANCEL_STATUS;
+        }
+
+        try {
+            target.getProject().refreshLocal(IProject.DEPTH_INFINITE, null);
 //			if ("true".equals(target.getProject().getPersistentProperty(
 //					EvoSuitePropertyPage.REPORT_PROP_KEY))) {
 //				syncWithUi(target);
 //			};
-			
-			Display.getDefault().asyncExec(new Runnable() {
-				@Override
-				public void run() {
-					try {
-						final IFile generatedSuite = ResourcesPlugin.getWorkspace().getRoot().getFileForLocation(new Path(suiteFileName));
-						ICompilationUnit cu=JavaCore.createCompilationUnitFrom(generatedSuite);
-						IWorkbenchWindow iw = Activator.getDefault().getWorkbench().getActiveWorkbenchWindow();
-                        if(iw == null){
+
+            Display.getDefault().asyncExec(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        final IFile generatedSuite = ResourcesPlugin.getWorkspace().getRoot().getFileForLocation(new Path(suiteFileName));
+                        ICompilationUnit cu = JavaCore.createCompilationUnitFrom(generatedSuite);
+                        IWorkbenchWindow iw = Activator.getDefault().getWorkbench().getActiveWorkbenchWindow();
+                        if (iw == null) {
                             // Very rare case.
                             MessageDialog dialog = new MessageDialog(
                                     shell,
                                     "Error while generating tests",
                                     null, // image
                                     "This happens most likely when the current workbench is closed",
-                                    MessageDialog.OK, new String[] { "Ok" }, 0);
+                                    MessageDialog.OK, new String[]{"Ok"}, 0);
                             dialog.open();
                             return;
                         }
-						IWorkbenchPage page = iw.getActivePage();
-						IEditorPart part = IDE.openEditor(page, generatedSuite, true);
-						//TODO: to provide support for external programs if used as Default Editor.
-						if(part == null){
-							// External Program is set as the Default Editor.
-							System.out.println("Please use internal programs as the Default Editor for this Eclipse");
+                        IWorkbenchPage page = iw.getActivePage();
+                        IEditorPart part = IDE.openEditor(page, generatedSuite, true);
+                        //TODO: to provide support for external programs if used as Default Editor.
+                        if (part == null) {
+                            // External Program is set as the Default Editor.
+                            System.out.println("Please use internal programs as the Default Editor for this Eclipse");
 //							MessageDialog dialog = new MessageDialog(
 //									shell,
 //									"Error opening the generated tests",
@@ -234,112 +233,113 @@ public class TestGenerationJob extends Job {
 //									"Please use internal programs as the Default Editor for this Eclipse",
 //									MessageDialog.OK, new String[] { "Ok" }, 0);
 //							dialog.open();
-						}
-						else{
-							if ( Activator.organizeImports() ) {
-								OrganizeImportsAction a=new OrganizeImportsAction(part.getSite());
-								a.run(cu);
-								cu.commitWorkingCopy(true, null);
-								cu.save(null, true);
-							}
-						}
-					} catch (PartInitException e1) {
-						System.out.println("Could not open test suite to organize imports");
-						e1.printStackTrace();
-					} catch (JavaModelException e) {
-						System.out.println("Something went wrong while saving test suite after organizing imports");
-						e.printStackTrace();
-					};
-				}});
-		} catch (CoreException e) {
-			System.out.println("Dear me");
-			e.printStackTrace();
-		}
-		Activator.CURRENT_WRITING_FILE = null;
-		running = false;
-		monitor.done();
-		done(ASYNC_FINISH);
-		return Status.OK_STATUS;
-	}
+                        } else {
+                            if (Activator.organizeImports()) {
+                                OrganizeImportsAction a = new OrganizeImportsAction(part.getSite());
+                                a.run(cu);
+                                cu.commitWorkingCopy(true, null);
+                                cu.save(null, true);
+                            }
+                        }
+                    } catch (PartInitException e1) {
+                        System.out.println("Could not open test suite to organize imports");
+                        e1.printStackTrace();
+                    } catch (JavaModelException e) {
+                        System.out.println("Something went wrong while saving test suite after organizing imports");
+                        e.printStackTrace();
+                    }
+                    ;
+                }
+            });
+        } catch (CoreException e) {
+            System.out.println("Dear me");
+            e.printStackTrace();
+        }
+        Activator.CURRENT_WRITING_FILE = null;
+        running = false;
+        monitor.done();
+        done(ASYNC_FINISH);
+        return Status.OK_STATUS;
+    }
 
-	protected ArrayList<TestGenerationResult> runEvoSuite(final IProgressMonitor monitor) {
-		monitor.beginTask("EvoSuite test suite generation", 100);
-		ArrayList<TestGenerationResult> tgrs = new ArrayList<TestGenerationResult>();
-		try {
-			List<String> commands = createCommand();
-			commands.addAll(getAdditionalParameters());
-			String[] command = new String[commands.size()];
-			commands.toArray(command);
-			System.out.println("* EvoSuite command: " + Arrays.asList(command));
+    protected ArrayList<TestGenerationResult> runEvoSuite(final IProgressMonitor monitor) {
+        monitor.beginTask("EvoSuite test suite generation", 100);
+        ArrayList<TestGenerationResult> tgrs = new ArrayList<TestGenerationResult>();
+        try {
+            List<String> commands = createCommand();
+            commands.addAll(getAdditionalParameters());
+            String[] command = new String[commands.size()];
+            commands.toArray(command);
+            System.out.println("* EvoSuite command: " + Arrays.asList(command));
 
-			setupRMI();
-			Thread progressMonitor = new Thread() {
+            setupRMI();
+            Thread progressMonitor = new Thread() {
 
-				@Override
-				public void run() {
+                @Override
+                public void run() {
 
-					int percent = 0;
-					int last = 0;
-					String subTask = "";
-					//try {
-					while (percent != -1 && !isInterrupted()) {
-						MasterNodeLocal masterNode = MasterServices
-								.getInstance().getMasterNode();
-						if (masterNode != null) {
-							Collection<ClientStateInformation> currentStates = MasterServices
-									.getInstance().getMasterNode()
-									.getCurrentStateInformation();
-							if (currentStates.size() == 1) {
-								ClientStateInformation currentState = currentStates
-										.iterator().next();
-								lastState = currentState;
+                    int percent = 0;
+                    int last = 0;
+                    String subTask = "";
+                    //try {
+                    while (percent != -1 && !isInterrupted()) {
+                        MasterNodeLocal masterNode = MasterServices
+                                .getInstance().getMasterNode();
+                        if (masterNode != null) {
+                            Collection<ClientStateInformation> currentStates = MasterServices
+                                    .getInstance().getMasterNode()
+                                    .getCurrentStateInformation();
+                            if (currentStates.size() == 1) {
+                                ClientStateInformation currentState = currentStates
+                                        .iterator().next();
+                                lastState = currentState;
 
-								percent = currentState.getOverallProgress();
-								if (percent >= 100
-										&& currentState.getState() == ClientState.NOT_STARTED)
-									continue;
+                                percent = currentState.getOverallProgress();
+                                if (percent >= 100
+                                        && currentState.getState() == ClientState.NOT_STARTED)
+                                    continue;
 
-								String currentTask = currentState
-										.getState().getDescription();
+                                String currentTask = currentState
+                                        .getState().getDescription();
 //								+ " ["
 //								+ currentState.getState()
 //								.getOverallProgress()
 //								+ "%]";
-								if (percent > last || !subTask.equals(currentTask)) {
-									subTask = currentTask;
-									monitor.worked(percent - last);
-									monitor.subTask(subTask);
-									last = percent;
-								}
-							}
-						}
-						try {
-							sleep(250); // TODO - should use observer pattern
-						} catch (InterruptedException e) {
-							Thread.currentThread().interrupt();
-							System.out.println("* Shut down progress monitor");
-						}
-					//} catch (Exception e) {
-					//	System.err.println(this.getClass().getCanonicalName() + ": Exception while reading output of client process " + e);
-					//	System.err.println(e.getStackTrace().toString());
-					//}
-					}
-				}
-			};
+                                if (percent > last || !subTask.equals(currentTask)) {
+                                    subTask = currentTask;
+                                    monitor.worked(percent - last);
+                                    monitor.subTask(subTask);
+                                    last = percent;
+                                }
+                            }
+                        }
+                        try {
+                            sleep(250); // TODO - should use observer pattern
+                        } catch (InterruptedException e) {
+                            Thread.currentThread().interrupt();
+                            System.out.println("* Shut down progress monitor");
+                        }
+                        //} catch (Exception e) {
+                        //	System.err.println(this.getClass().getCanonicalName() + ": Exception while reading output of client process " + e);
+                        //	System.err.println(e.getStackTrace().toString());
+                        //}
+                    }
+                }
+            };
 
-			progressMonitor.start();
+            progressMonitor.start();
 
-			tgrs = launchProcess(command);
+            tgrs = launchProcess(command);
 
-			progressMonitor.interrupt();
+            progressMonitor.interrupt();
 
-			try {
-				target.getProject().refreshLocal(IProject.DEPTH_INFINITE, null);
-			} catch (CoreException e) {
-				e.printStackTrace();
-			}
-			System.out.println("Job returned normally");
-			monitor.done();
+            try {
+                target.getProject().refreshLocal(IProject.DEPTH_INFINITE, null);
+            } catch (CoreException e) {
+                e.printStackTrace();
+            }
+            System.out.println("Job returned normally");
+            monitor.done();
 
 			/*
 			GenerationResult result = new GenerationResult(shell, SWT.DIALOG_TRIM
@@ -347,126 +347,126 @@ public class TestGenerationJob extends Job {
 			result.open();
 			return Status.OK_STATUS;
 			*/
-		} catch (Exception e) {
-			System.out.println(e.toString());
-			e.printStackTrace();
-		}
-		
-		return tgrs;
-	}
-	
-	private void addToClassPath(List<String> pathEntries, IClasspathEntry classPathEntry) {
-		if (classPathEntry.getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
-			IPath path = classPathEntry.getPath();
-			if (path.toFile().getName().startsWith("evosuite")) {
-				System.out.println("Skipping evosuite.jar");
-				return;
-			}
-			if (path.toFile().exists()) {
-				pathEntries.add(path.toOSString());
-				System.out.println("Adding CPE_LIBRARY to classpath: "
-						+ path.toOSString());
-			} else {
-				pathEntries.add(target.getWorkspace().getRoot()
-						.getLocation().toOSString()
-						+ path.toOSString());
-				System.out.println("Adding CPE_LIBRARY to classpath: "
-						+ target.getWorkspace().getRoot().getLocation()
-								.toOSString() + path.toOSString());
-			}
-		} else if (classPathEntry.getEntryKind() == IClasspathEntry.CPE_CONTAINER) {
-				if (classPathEntry.toString().equals(
-						"org.eclipse.jdt.launching.JRE_CONTAINER")) {
-					System.out.println("Skipping JRE container");
-				} else if (classPathEntry.toString().startsWith(
-						"org.eclipse.jdt.junit.JUNIT_CONTAINER")) {
-					System.out.println("Skipping JUnit container");
-				} else {
-					System.out.println("Found unknown container: "
-							+ classPathEntry);
-					IJavaProject jProject = JavaCore.create(target.getProject());
-					//try {
-					try {
-						IClasspathContainer container = JavaCore.getClasspathContainer(classPathEntry.getPath(), jProject);
-						for(IClasspathEntry entry2 : container.getClasspathEntries()) {
-							addToClassPath(pathEntries, entry2);
-						}
-					} catch (JavaModelException e) {
-						System.out.println("Error while accessing container");
-						e.printStackTrace();
-					}
-					
-				}
+        } catch (Exception e) {
+            System.out.println(e.toString());
+            e.printStackTrace();
+        }
+
+        return tgrs;
+    }
+
+    private void addToClassPath(List<String> pathEntries, IClasspathEntry classPathEntry) {
+        if (classPathEntry.getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
+            IPath path = classPathEntry.getPath();
+            if (path.toFile().getName().startsWith("evosuite")) {
+                System.out.println("Skipping evosuite.jar");
+                return;
+            }
+            if (path.toFile().exists()) {
+                pathEntries.add(path.toOSString());
+                System.out.println("Adding CPE_LIBRARY to classpath: "
+                        + path.toOSString());
+            } else {
+                pathEntries.add(target.getWorkspace().getRoot()
+                        .getLocation().toOSString()
+                        + path.toOSString());
+                System.out.println("Adding CPE_LIBRARY to classpath: "
+                        + target.getWorkspace().getRoot().getLocation()
+                        .toOSString() + path.toOSString());
+            }
+        } else if (classPathEntry.getEntryKind() == IClasspathEntry.CPE_CONTAINER) {
+            if (classPathEntry.toString().equals(
+                    "org.eclipse.jdt.launching.JRE_CONTAINER")) {
+                System.out.println("Skipping JRE container");
+            } else if (classPathEntry.toString().startsWith(
+                    "org.eclipse.jdt.junit.JUNIT_CONTAINER")) {
+                System.out.println("Skipping JUnit container");
+            } else {
+                System.out.println("Found unknown container: "
+                        + classPathEntry);
+                IJavaProject jProject = JavaCore.create(target.getProject());
+                //try {
+                try {
+                    IClasspathContainer container = JavaCore.getClasspathContainer(classPathEntry.getPath(), jProject);
+                    for (IClasspathEntry entry2 : container.getClasspathEntries()) {
+                        addToClassPath(pathEntries, entry2);
+                    }
+                } catch (JavaModelException e) {
+                    System.out.println("Error while accessing container");
+                    e.printStackTrace();
+                }
+
+            }
 //			} else {
 //				System.out.println("Container not exported: " + curr);
 //				System.out.println(curr.getPath());
 //			}
-		} else if (classPathEntry.getEntryKind() == IClasspathEntry.CPE_PROJECT) {
-			// Add binary dirs of this project to classpath
-			System.out.println("Don't handle CPE_PROJECT yet");
-		} else if (classPathEntry.getEntryKind() == IClasspathEntry.CPE_VARIABLE) {
-			System.out.println("Path: " + classPathEntry.getPath());
-			System.out.println("Resolved Path: "
-					+ JavaCore.getResolvedVariablePath(classPathEntry.getPath()));
-			pathEntries.add(JavaCore.getResolvedVariablePath(classPathEntry.getPath()).toOSString());
-		} else if (classPathEntry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
-			System.out.println("Don't handle CPE_SOURCE yet");
-		} else {
-			System.out.println("CP type: " + classPathEntry.getEntryKind());
-		}
-	}
+        } else if (classPathEntry.getEntryKind() == IClasspathEntry.CPE_PROJECT) {
+            // Add binary dirs of this project to classpath
+            System.out.println("Don't handle CPE_PROJECT yet");
+        } else if (classPathEntry.getEntryKind() == IClasspathEntry.CPE_VARIABLE) {
+            System.out.println("Path: " + classPathEntry.getPath());
+            System.out.println("Resolved Path: "
+                    + JavaCore.getResolvedVariablePath(classPathEntry.getPath()));
+            pathEntries.add(JavaCore.getResolvedVariablePath(classPathEntry.getPath()).toOSString());
+        } else if (classPathEntry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
+            System.out.println("Don't handle CPE_SOURCE yet");
+        } else {
+            System.out.println("CP type: " + classPathEntry.getEntryKind());
+        }
+    }
 
-	private String buildProjectCP() throws JavaModelException {
-		IJavaProject jProject = JavaCore.create(target.getProject());
-		IClasspathEntry[] oldEntries = jProject.getRawClasspath();
+    private String buildProjectCP() throws JavaModelException {
+        IJavaProject jProject = JavaCore.create(target.getProject());
+        IClasspathEntry[] oldEntries = jProject.getRawClasspath();
 
-		List<String> classPathEntries = new ArrayList<>();
-		
-		for (int i = 0; i < oldEntries.length; i++) {
-			IClasspathEntry curr = oldEntries[i];
-			System.out.println("Current entry: " + curr.getPath());
-			addToClassPath(classPathEntries, curr);
-		}
-		ResourceList.resetAllCaches();
+        List<String> classPathEntries = new ArrayList<>();
 
-		classPathEntries.add(target.getWorkspace().getRoot()
-				.findMember(jProject.getOutputLocation()).getLocation()
-				.toOSString());
-		
-		return StringUtils.join(classPathEntries, File.pathSeparator);
-	}
+        for (int i = 0; i < oldEntries.length; i++) {
+            IClasspathEntry curr = oldEntries[i];
+            System.out.println("Current entry: " + curr.getPath());
+            addToClassPath(classPathEntries, curr);
+        }
+        ResourceList.resetAllCaches();
 
-	@SuppressWarnings("unused")
-	private boolean isFinished(Process process) {
-		try {
-			process.exitValue();
-			return true;
-		} catch (IllegalThreadStateException ex) {
-			return false;
-		}
-	}
+        classPathEntries.add(target.getWorkspace().getRoot()
+                .findMember(jProject.getOutputLocation()).getLocation()
+                .toOSString());
 
-	private ArrayList<TestGenerationResult> launchProcess(String[] evoSuiteOptions) throws IOException {
-		EvoSuite evosuite = new EvoSuite();
+        return StringUtils.join(classPathEntries, File.pathSeparator);
+    }
 
-		Vector<String> javaCmd = new Vector<String>();
-		// javaCmd.add("java");
-		// javaCmd.add("-jar");
-		// javaCmd.add(TestGenerationAction.getEvoSuiteJar());
-		Collections.addAll(javaCmd, evoSuiteOptions);
+    @SuppressWarnings("unused")
+    private boolean isFinished(Process process) {
+        try {
+            process.exitValue();
+            return true;
+        } catch (IllegalThreadStateException ex) {
+            return false;
+        }
+    }
 
-		String[] command = javaCmd.toArray(new String[] {});
-		@SuppressWarnings("unchecked")
-		List<List<TestGenerationResult>> results = (List<List<TestGenerationResult>>) evosuite.parseCommandLine(command);
-		ArrayList<TestGenerationResult> tgrs = new ArrayList<TestGenerationResult>();
-		System.out.println("Results: "+results.size());
-		for(List<TestGenerationResult> list : results) {
-			for(TestGenerationResult result : list) {
-				tgrs.add(result);
-				System.out.println("Covered lines: " + result.getCoveredLines());
-			}
-		}
-		return tgrs;
+    private ArrayList<TestGenerationResult> launchProcess(String[] evoSuiteOptions) throws IOException {
+        EvoSuite evosuite = new EvoSuite();
+
+        Vector<String> javaCmd = new Vector<String>();
+        // javaCmd.add("java");
+        // javaCmd.add("-jar");
+        // javaCmd.add(TestGenerationAction.getEvoSuiteJar());
+        Collections.addAll(javaCmd, evoSuiteOptions);
+
+        String[] command = javaCmd.toArray(new String[]{});
+        @SuppressWarnings("unchecked")
+        List<List<TestGenerationResult>> results = (List<List<TestGenerationResult>>) evosuite.parseCommandLine(command);
+        ArrayList<TestGenerationResult> tgrs = new ArrayList<TestGenerationResult>();
+        System.out.println("Results: " + results.size());
+        for (List<TestGenerationResult> list : results) {
+            for (TestGenerationResult result : list) {
+                tgrs.add(result);
+                System.out.println("Covered lines: " + result.getCoveredLines());
+            }
+        }
+        return tgrs;
 //		ProcessBuilder builder = new ProcessBuilder(command);
 //		builder.directory(new File(baseDir));
 //		builder.redirectErrorStream(true);
@@ -477,132 +477,132 @@ public class TestGenerationJob extends Job {
 //			readInputStream("EvoSuite process output - ", stdout);
 //		} while (!isFinished(process));
 
-	}
+    }
 
-	@SuppressWarnings("unused")
-	private void readInputStream(String prefix, InputStream in) throws IOException {
-		InputStreamReader is = new InputStreamReader(in);
-		BufferedReader br = new BufferedReader(is);
-		String read = br.readLine();
-		while (read != null) {
-			System.out.println(prefix + read);
-			read = br.readLine();
-		}
-	}
+    @SuppressWarnings("unused")
+    private void readInputStream(String prefix, InputStream in) throws IOException {
+        InputStreamReader is = new InputStreamReader(in);
+        BufferedReader br = new BufferedReader(is);
+        String read = br.readLine();
+        while (read != null) {
+            System.out.println(prefix + read);
+            read = br.readLine();
+        }
+    }
 
-	protected void syncWithUi(final IResource target) {
-		Display.getDefault().asyncExec(new Runnable() {
-			@Override
-			public void run() {
-				GenerationResult result = new GenerationResult(shell,
-						SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL, target
-								.getProject().getLocation(), target);
-				result.open();
-				// MessageDialog.openInformation(shell, "Your Popup ", "Your job has finished.");
-			}
-		});
+    protected void syncWithUi(final IResource target) {
+        Display.getDefault().asyncExec(new Runnable() {
+            @Override
+            public void run() {
+                GenerationResult result = new GenerationResult(shell,
+                        SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL, target
+                        .getProject().getLocation(), target);
+                result.open();
+                // MessageDialog.openInformation(shell, "Your Popup ", "Your job has finished.");
+            }
+        });
 
-	}
+    }
 
-	@SuppressWarnings("unused")
-	private void showFile(IPath targetFile) {
-		IWorkbench wb = PlatformUI.getWorkbench();
-		IWorkbenchWindow win = wb.getActiveWorkbenchWindow();
-		IWorkbenchPage page = win.getActivePage();
-		try {
-			IDE.openEditor(page, ResourcesPlugin.getWorkspace().getRoot()
-					.getFileForLocation(targetFile));
-		} catch (PartInitException e2) {
-			//Put your exception handler here if you wish to.
-			System.out.println("Error: " + e2);
-		}
-	}
+    @SuppressWarnings("unused")
+    private void showFile(IPath targetFile) {
+        IWorkbench wb = PlatformUI.getWorkbench();
+        IWorkbenchWindow win = wb.getActiveWorkbenchWindow();
+        IWorkbenchPage page = win.getActivePage();
+        try {
+            IDE.openEditor(page, ResourcesPlugin.getWorkspace().getRoot()
+                    .getFileForLocation(targetFile));
+        } catch (PartInitException e2) {
+            //Put your exception handler here if you wish to.
+            System.out.println("Error: " + e2);
+        }
+    }
 
 
-	protected List<String> createCommand() throws CoreException {
-		List<String> commands = new ArrayList<String>();
-		
-		String classPath = buildProjectCP();
+    protected List<String> createCommand() throws CoreException {
+        List<String> commands = new ArrayList<String>();
 
-		String baseDir = target.getProject().getLocation().toOSString();
-		Properties.TARGET_CLASS = targetClass;
+        String classPath = buildProjectCP();
 
-		int time = Activator.getDefault().getPreferenceStore().getInt("runtime");
-		commands.addAll(Arrays.asList(new String[] {
-				"-generateMOSuite",
-				"-class", targetClass,
-				"-evosuiteCP", TestGenerationAction.getEvoSuiteJar(), 
-				"-projectCP", classPath, 
-				"-base_dir", baseDir, 
-				"-Dshow_progress=false", 
-				"-Dstopping_condition=TimeDelta", 
-				"-Dtest_comments=false", // "true"
-				"-Dsearch_budget=" + time, 
-				"-Dassertion_timeout=" + time, 
-				"-Dpure_inspectors=true", 
-				"-Dnew_statistics=false"
-				// "-Dsandbox_mode=IO",
-				// "-Djava.rmi.server.codebase=file:///Remote/evosuite-0.1-SNAPSHOT-jar-minimal.jar"
-				}));
-		
-		if ( System.getProperty("evosuite.experiment") != null ) {
-			commands.add("-Declipse_plugin=true");
-		}
-		
-		String budget = target.getProject().getPersistentProperty(
-				EvoSuitePropertyPage.TIME_PROP_KEY);
-		if (budget == null) {
-			commands.add("-Dsearch_budget=20");
-		} else {
-			commands.add("-Dsearch_budget=" + budget);
-		}
-		
-		String globalBudget = target.getProject().getPersistentProperty(
-				EvoSuitePropertyPage.GLOBAL_TIME_PROP_KEY);
-		if (globalBudget == null) {
-			commands.add("-Dglobal_timeout=60");
-		} else {
-			commands.add("-Dglobal_timeout=" + globalBudget);
-		}
+        String baseDir = target.getProject().getLocation().toOSString();
+        Properties.TARGET_CLASS = targetClass;
 
-		;
-		if ("false".equals(target.getProject().getPersistentProperty(
-				EvoSuitePropertyPage.ASSERTION_PROP_KEY))) {
-			commands.add("-Dassertions=false");
-		} else {
-			commands.add("-Dassertions=true");				
-		}
-		
-		if ("false".equals(target.getProject().getPersistentProperty(
-				EvoSuitePropertyPage.MINIMIZE_TESTS_PROP_KEY))) {
-			commands.add("-Dminimize=false");
-		} else {
-			commands.add("-Dminimize=true");
-		}
-		if (!"false".equals(target.getProject().getPersistentProperty(
-				EvoSuitePropertyPage.MINIMIZE_VALUES_PROP_KEY))) {
-			commands.add("-Dminimize_values=true");
-		} else {
-			commands.add("-Dminimize_values=false");
-		}
-		// if (!"true".equals(target.getProject().getPersistentProperty(EvosuitePropertyPage.RUNNER_PROP_KEY))) {
-		//			//	commands.add("-Djunit_runner=false");
-		//	commands.add("-Dreplace_calls=false");
-		//} else {
-		//	commands.add("-Djunit_runner=true");
-		if ("true".equals(target.getProject().getPersistentProperty(
-				EvoSuitePropertyPage.DETERMINISTIC_PROP_KEY))) {
-			commands.add("-Dreplace_calls=true");
-			commands.add("-Dreplace_system_in=true");
-			commands.add("-Dreset_static_fields=true");
-			commands.add("-Dvirtual_fs=true");
-		} else {
-			commands.add("-Dreplace_calls=false");
-			commands.add("-Dreplace_system_in=false");
-			commands.add("-Dreset_static_fields=false");
-			commands.add("-Dvirtual_fs=false");
-		}
-		//	}
+        int time = Activator.getDefault().getPreferenceStore().getInt("runtime");
+        commands.addAll(Arrays.asList(new String[]{
+                "-generateMOSuite",
+                "-class", targetClass,
+                "-evosuiteCP", TestGenerationAction.getEvoSuiteJar(),
+                "-projectCP", classPath,
+                "-base_dir", baseDir,
+                "-Dshow_progress=false",
+                "-Dstopping_condition=TimeDelta",
+                "-Dtest_comments=false", // "true"
+                "-Dsearch_budget=" + time,
+                "-Dassertion_timeout=" + time,
+                "-Dpure_inspectors=true",
+                "-Dnew_statistics=false"
+                // "-Dsandbox_mode=IO",
+                // "-Djava.rmi.server.codebase=file:///Remote/evosuite-0.1-SNAPSHOT-jar-minimal.jar"
+        }));
+
+        if (System.getProperty("evosuite.experiment") != null) {
+            commands.add("-Declipse_plugin=true");
+        }
+
+        String budget = target.getProject().getPersistentProperty(
+                EvoSuitePropertyPage.TIME_PROP_KEY);
+        if (budget == null) {
+            commands.add("-Dsearch_budget=20");
+        } else {
+            commands.add("-Dsearch_budget=" + budget);
+        }
+
+        String globalBudget = target.getProject().getPersistentProperty(
+                EvoSuitePropertyPage.GLOBAL_TIME_PROP_KEY);
+        if (globalBudget == null) {
+            commands.add("-Dglobal_timeout=60");
+        } else {
+            commands.add("-Dglobal_timeout=" + globalBudget);
+        }
+
+        ;
+        if ("false".equals(target.getProject().getPersistentProperty(
+                EvoSuitePropertyPage.ASSERTION_PROP_KEY))) {
+            commands.add("-Dassertions=false");
+        } else {
+            commands.add("-Dassertions=true");
+        }
+
+        if ("false".equals(target.getProject().getPersistentProperty(
+                EvoSuitePropertyPage.MINIMIZE_TESTS_PROP_KEY))) {
+            commands.add("-Dminimize=false");
+        } else {
+            commands.add("-Dminimize=true");
+        }
+        if (!"false".equals(target.getProject().getPersistentProperty(
+                EvoSuitePropertyPage.MINIMIZE_VALUES_PROP_KEY))) {
+            commands.add("-Dminimize_values=true");
+        } else {
+            commands.add("-Dminimize_values=false");
+        }
+        // if (!"true".equals(target.getProject().getPersistentProperty(EvosuitePropertyPage.RUNNER_PROP_KEY))) {
+        //			//	commands.add("-Djunit_runner=false");
+        //	commands.add("-Dreplace_calls=false");
+        //} else {
+        //	commands.add("-Djunit_runner=true");
+        if ("true".equals(target.getProject().getPersistentProperty(
+                EvoSuitePropertyPage.DETERMINISTIC_PROP_KEY))) {
+            commands.add("-Dreplace_calls=true");
+            commands.add("-Dreplace_system_in=true");
+            commands.add("-Dreset_static_fields=true");
+            commands.add("-Dvirtual_fs=true");
+        } else {
+            commands.add("-Dreplace_calls=false");
+            commands.add("-Dreplace_system_in=false");
+            commands.add("-Dreset_static_fields=false");
+            commands.add("-Dvirtual_fs=false");
+        }
+        //	}
 
 //		if (!"true".equals(target.getProject().getPersistentProperty(
 //				EvoSuitePropertyPage.REPORT_PROP_KEY))) {
@@ -613,48 +613,48 @@ public class TestGenerationJob extends Job {
 //				commands.add("-Dplot=true");
 //			}
 //		}
-		if ("false".equals(target.getProject().getPersistentProperty(
-				EvoSuitePropertyPage.SANDBOX_PROP_KEY))) {
-			commands.add("-Dsandbox=false");
-		}
-		if ("false".equals(target.getProject().getPersistentProperty(
-				EvoSuitePropertyPage.SCAFFOLDING_PROP_KEY))) {
-			commands.add("-Dtest_scaffolding=false");
-			commands.add("-Dno_runtime_dependency=true");
-		}
-		if ("true".equals(target.getProject().getPersistentProperty(
-				EvoSuitePropertyPage.CONTRACTS_PROP_KEY))) {
-			commands.add("-Dcheck_contracts=true");
-		}
-		if ("true".equals(target.getProject().getPersistentProperty(
-				EvoSuitePropertyPage.ERROR_BRANCHES_PROP_KEY))) {
-			commands.add("-Derror_branches=true");
-		}
-		if ("true".equals(target.getProject().getPersistentProperty(
-				EvoSuitePropertyPage.DSE_PROP_KEY)) || 
-			"true".equals(target.getProject().getPersistentProperty(
-				EvoSuitePropertyPage.LS_PROP_KEY))) {
-			commands.add("-Dlocal_search_rate=10");
-			commands.add("-Dlocal_search_probability=1.0");
-			commands.add("-Dlocal_search_adaptation_rate=1.0");
-			commands.add("-Dlocal_search_selective=true");
-			// commands.add("-Dlocal_search_selective_primitives=false");
-			//commands.add("-Dlocal_search_dse=suite");
-			commands.add("-Dlocal_search_budget_type=time");
-			commands.add("-Dlocal_search_budget=15");
+        if ("false".equals(target.getProject().getPersistentProperty(
+                EvoSuitePropertyPage.SANDBOX_PROP_KEY))) {
+            commands.add("-Dsandbox=false");
+        }
+        if ("false".equals(target.getProject().getPersistentProperty(
+                EvoSuitePropertyPage.SCAFFOLDING_PROP_KEY))) {
+            commands.add("-Dtest_scaffolding=false");
+            commands.add("-Dno_runtime_dependency=true");
+        }
+        if ("true".equals(target.getProject().getPersistentProperty(
+                EvoSuitePropertyPage.CONTRACTS_PROP_KEY))) {
+            commands.add("-Dcheck_contracts=true");
+        }
+        if ("true".equals(target.getProject().getPersistentProperty(
+                EvoSuitePropertyPage.ERROR_BRANCHES_PROP_KEY))) {
+            commands.add("-Derror_branches=true");
+        }
+        if ("true".equals(target.getProject().getPersistentProperty(
+                EvoSuitePropertyPage.DSE_PROP_KEY)) ||
+                "true".equals(target.getProject().getPersistentProperty(
+                        EvoSuitePropertyPage.LS_PROP_KEY))) {
+            commands.add("-Dlocal_search_rate=10");
+            commands.add("-Dlocal_search_probability=1.0");
+            commands.add("-Dlocal_search_adaptation_rate=1.0");
+            commands.add("-Dlocal_search_selective=true");
+            // commands.add("-Dlocal_search_selective_primitives=false");
+            //commands.add("-Dlocal_search_dse=suite");
+            commands.add("-Dlocal_search_budget_type=time");
+            commands.add("-Dlocal_search_budget=15");
 
-		}
-		if ("true".equals(target.getProject().getPersistentProperty(
-				EvoSuitePropertyPage.DSE_PROP_KEY))) {
+        }
+        if ("true".equals(target.getProject().getPersistentProperty(
+                EvoSuitePropertyPage.DSE_PROP_KEY))) {
 //			commands.add("-Dlocal_search_rate=1");
 //			commands.add("-Dlocal_search_probability=1.0");
 //			commands.add("-Dlocal_search_adaptation_rate=1.0");
 //			commands.add("-Dlocal_search_selective=false");
 //			commands.add("-Dlocal_search_selective_primitives=false");
-			commands.add("-Dlocal_search_dse=suite");
-			// commands.add("-Dlocal_search_budget_type=time");
-			// commands.add("-Dlocal_search_budget=15");
-		}
+            commands.add("-Dlocal_search_dse=suite");
+            // commands.add("-Dlocal_search_budget_type=time");
+            // commands.add("-Dlocal_search_budget=15");
+        }
 //		if ("true".equals(target.getProject().getPersistentProperty(
 //				EvosuitePropertyPage.LS_PROP_KEY))) {
 //			commands.add("-Dlocal_search_rate=1");
@@ -666,11 +666,11 @@ public class TestGenerationJob extends Job {
 //			commands.add("-Dlocal_search_budget_type=time");
 //			commands.add("-Dlocal_search_budget=15");
 //		}
-		String suffix = target.getProject().getPersistentProperty(
-				EvoSuitePropertyPage.TEST_SUFFIX_PROP_KEY);
-		if(suffix != null) {
-			commands.add("-Djunit_suffix="+suffix);
-		}
+        String suffix = target.getProject().getPersistentProperty(
+                EvoSuitePropertyPage.TEST_SUFFIX_PROP_KEY);
+        if (suffix != null) {
+            commands.add("-Djunit_suffix=" + suffix);
+        }
 		/*
 		String seed = target.getProject().getPersistentProperty(
 				EvosuitePropertyPage.SEED_PROP_KEY);
@@ -679,173 +679,174 @@ public class TestGenerationJob extends Job {
 			commands.add(seed);
 		}
 		*/
-		String criterion = target.getProject().getPersistentProperty(
-				EvoSuitePropertyPage.CRITERIA_PROP_KEY);
-		if (criterion != null) {
-			commands.add("-criterion");
-			commands.add(criterion);
-		}
-		
-		if (Activator.getDefault().getPreferenceStore().getBoolean(EvoSuitePreferencePage.TEST_COMMENTS)) {
-			commands.add("-Dtest_comments=true");
-		}
-		return commands;
-	}
+        String criterion = target.getProject().getPersistentProperty(
+                EvoSuitePropertyPage.CRITERIA_PROP_KEY);
+        if (criterion != null) {
+            commands.add("-criterion");
+            commands.add(criterion);
+        }
+
+        if (Activator.getDefault().getPreferenceStore().getBoolean(EvoSuitePreferencePage.TEST_COMMENTS)) {
+            commands.add("-Dtest_comments=true");
+        }
+        return commands;
+    }
 
 
-	private void createIFolder(IFolder folder) throws CoreException {
-		if (!folder.exists()) {
-			createIFolder((IFolder) folder.getParent());
-			folder.create(IResource.NONE, true, null);
-		}
-	}
+    private void createIFolder(IFolder folder) throws CoreException {
+        if (!folder.exists()) {
+            createIFolder((IFolder) folder.getParent());
+            folder.create(IResource.NONE, true, null);
+        }
+    }
 
-	private void saveTestGenerationResult(TestGenerationResult result) {
-		if (target.getProject() != null) {
-			int lastDot = targetClass.lastIndexOf(".");
-			String filePackage = "";
-			if (lastDot >= 1) {
-				filePackage = targetClass.substring(0, lastDot);
-			}
-			IProject project = target.getProject();
-			IFolder folder;
-			if (filePackage.length() == 0) {
-				folder = project.getFolder("evosuite-tests/data");
-			} else {
-				folder = project.getFolder("evosuite-tests/data/"
-						+ filePackage.replace('.', '/'));
-			}
-			if (!folder.exists()) {
-				try {
-					createIFolder(folder);
-				} catch (CoreException e) {
-					e.printStackTrace();
-				}
-			}
-			IFile file = folder.getFile(target.getName() + ".gadata");
-			if (file.exists()) {
-				try {
-					file.delete(true, null);
-				} catch (CoreException e) {
-					e.printStackTrace();
-				}
-			}
-			try {
-				while (!file.getParent().exists()) {
-					IContainer icont = file.getParent();
-					while (!icont.getParent().exists()) {
-						if (icont.getParent() == null) {
-							icont = (IContainer) ResourcesPlugin.getWorkspace();
-						}
-					}
-					IFolder f = project.getFolder(icont
-							.getProjectRelativePath());
-					f.create(IResource.NONE, true, null);
-				}
-				file.create(new ByteArrayInputStream("".getBytes()), true, null);
-				FileOutputStream fos = new FileOutputStream(file.getLocation()
-						.toOSString());
-				ObjectOutputStream oo = new ObjectOutputStream(fos);
+    private void saveTestGenerationResult(TestGenerationResult result) {
+        if (target.getProject() != null) {
+            int lastDot = targetClass.lastIndexOf(".");
+            String filePackage = "";
+            if (lastDot >= 1) {
+                filePackage = targetClass.substring(0, lastDot);
+            }
+            IProject project = target.getProject();
+            IFolder folder;
+            if (filePackage.length() == 0) {
+                folder = project.getFolder("evosuite-tests/data");
+            } else {
+                folder = project.getFolder("evosuite-tests/data/"
+                        + filePackage.replace('.', '/'));
+            }
+            if (!folder.exists()) {
+                try {
+                    createIFolder(folder);
+                } catch (CoreException e) {
+                    e.printStackTrace();
+                }
+            }
+            IFile file = folder.getFile(target.getName() + ".gadata");
+            if (file.exists()) {
+                try {
+                    file.delete(true, null);
+                } catch (CoreException e) {
+                    e.printStackTrace();
+                }
+            }
+            try {
+                while (!file.getParent().exists()) {
+                    IContainer icont = file.getParent();
+                    while (!icont.getParent().exists()) {
+                        if (icont.getParent() == null) {
+                            icont = (IContainer) ResourcesPlugin.getWorkspace();
+                        }
+                    }
+                    IFolder f = project.getFolder(icont
+                            .getProjectRelativePath());
+                    f.create(IResource.NONE, true, null);
+                }
+                file.create(new ByteArrayInputStream("".getBytes()), true, null);
+                FileOutputStream fos = new FileOutputStream(file.getLocation()
+                        .toOSString());
+                ObjectOutputStream oo = new ObjectOutputStream(fos);
 
-				oo.writeObject(result);
-				
-				// close stream
-				oo.close();
-				// file.create(s, IResource.NONE, null);
-			} catch (IOException e) {
-				e.printStackTrace();
-			} catch (CoreException e) {
-				e.printStackTrace();
-			}
-		}
-	}
+                oo.writeObject(result);
 
-	protected String getOldTestGenerationResult() {
-		if (target.getProject() != null) {
-			IProject project = target.getProject();
-			int lastDot = targetClass.lastIndexOf(".");
-			String filePackage = "";
-			if (lastDot >= 1) {
-				filePackage = targetClass.substring(0, lastDot);
-			}
-			IFolder folder;
-			if (filePackage.length() == 0) {
-				folder = project.getFolder("evosuite-tests/data");
-			} else {
-				folder = project.getFolder("evosuite-tests/data/"
-						+ filePackage.replace('.', '/'));
-			}
-			IFile file = folder.getFile(target.getName() + ".gadata");
-			return file.getLocation().toOSString();
+                // close stream
+                oo.close();
+                // file.create(s, IResource.NONE, null);
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (CoreException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
-		}
-		return "";
-	}
+    protected String getOldTestGenerationResult() {
+        if (target.getProject() != null) {
+            IProject project = target.getProject();
+            int lastDot = targetClass.lastIndexOf(".");
+            String filePackage = "";
+            if (lastDot >= 1) {
+                filePackage = targetClass.substring(0, lastDot);
+            }
+            IFolder folder;
+            if (filePackage.length() == 0) {
+                folder = project.getFolder("evosuite-tests/data");
+            } else {
+                folder = project.getFolder("evosuite-tests/data/"
+                        + filePackage.replace('.', '/'));
+            }
+            IFile file = folder.getFile(target.getName() + ".gadata");
+            return file.getLocation().toOSString();
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.core.runtime.jobs.Job#canceling()
-	 */
-	@Override
-	protected void canceling() {
-		System.out.println("Trying to cancel job");
-		if (MasterServices.getInstance() != null
-				&& MasterServices.getInstance().getMasterNode() != null) {
-			MasterServices.getInstance().getMasterNode().cancelAllClients();
-		}
-		super.canceling();
-	}
+        }
+        return "";
+    }
 
-	/**
-	 * Getting RMI to work in Eclipse is tricky. These hacks are necessary,
-	 * otherwise it won't work
-	 */
-	protected void setupRMI() {
-		// RMI only runs if there is a security manager
-		if (System.getSecurityManager() == null) {
-			// As there is no security manager, we can just put a dumb security
-			// manager that allows everything here, just to make RMI happy
-			System.setSecurityManager(new DumbSecurityManager());
-		}
-		Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
-	}
+    /* (non-Javadoc)
+     * @see org.eclipse.core.runtime.jobs.Job#canceling()
+     */
+    @Override
+    protected void canceling() {
+        System.out.println("Trying to cancel job");
+        if (MasterServices.getInstance() != null
+                && MasterServices.getInstance().getMasterNode() != null) {
+            MasterServices.getInstance().getMasterNode().cancelAllClients();
+        }
+        super.canceling();
+    }
 
-	protected String getSuiteFileName(String suiteClass) {
-		String tmp = suiteClass.replace('.', File.separatorChar);
-		String testClassFileName = new String(target.getProject().getLocation() + "/evosuite-tests/" + tmp + ".java");
-		return testClassFileName;
-	}
+    /**
+     * Getting RMI to work in Eclipse is tricky. These hacks are necessary,
+     * otherwise it won't work
+     */
+    protected void setupRMI() {
+        // RMI only runs if there is a security manager
+        if (System.getSecurityManager() == null) {
+            // As there is no security manager, we can just put a dumb security
+            // manager that allows everything here, just to make RMI happy
+            System.setSecurityManager(new DumbSecurityManager());
+        }
+        Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
+    }
+
+    protected String getSuiteFileName(String suiteClass) {
+        String tmp = suiteClass.replace('.', File.separatorChar);
+        String testClassFileName = new String(target.getProject().getLocation() + "/evosuite-tests/" + tmp + ".java");
+        return testClassFileName;
+    }
 
 
-	public static String readFileToString(String fileName) {
-		StringBuilder content = new StringBuilder();
-		try {
-			Reader reader = new InputStreamReader(
-					new FileInputStream(fileName), "utf-8");
-			BufferedReader in = new BufferedReader(reader);
-			try {
-				String str;
-				while ((str = in.readLine()) != null) {
-					content.append(str); content.append("\n");
-				}
-			} finally {
-				in.close();
-			}
-		} catch (FileNotFoundException fnfe) {
-			System.out.println("File not found " + fileName);
-			return "";
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return content.toString();
-	}
+    public static String readFileToString(String fileName) {
+        StringBuilder content = new StringBuilder();
+        try {
+            Reader reader = new InputStreamReader(
+                    new FileInputStream(fileName), "utf-8");
+            BufferedReader in = new BufferedReader(reader);
+            try {
+                String str;
+                while ((str = in.readLine()) != null) {
+                    content.append(str);
+                    content.append("\n");
+                }
+            } finally {
+                in.close();
+            }
+        } catch (FileNotFoundException fnfe) {
+            System.out.println("File not found " + fileName);
+            return "";
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return content.toString();
+    }
 
-	public boolean isRunning() {
-		return running;
-	}
+    public boolean isRunning() {
+        return running;
+    }
 
-	public List<String> getAdditionalParameters() {
-		List<String> parameters = new ArrayList<String>();
-		parameters.add("-Dtest_dir=" + target.getProject().getLocation() + "/evosuite-tests");
-		return parameters;
-	}
+    public List<String> getAdditionalParameters() {
+        List<String> parameters = new ArrayList<String>();
+        parameters.add("-Dtest_dir=" + target.getProject().getLocation() + "/evosuite-tests");
+        return parameters;
+    }
 }

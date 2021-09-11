@@ -39,105 +39,105 @@ import org.osgi.framework.BundleContext;
  * The activator class controls the plug-in life cycle
  */
 public class Activator extends AbstractUIPlugin implements
-		IResourceChangeListener, IResourceDeltaVisitor, IStartup {
+        IResourceChangeListener, IResourceDeltaVisitor, IStartup {
 
-	// The plug-in ID
-	public static final String PLUGIN_ID = "evosuite-eclipse"; //$NON-NLS-1$
-	public static final String EVOSUITE_CORE_BUNDLE = "org.evosuite.plugins.eclipse.deps";
-	public static final String EVOSUITE_JAR = "lib/evosuite.jar";
-	public static final String JUNIT_IDENTIFIER = Properties.JUNIT_SUFFIX + ".java";
-	public static final String SCAFFOLDING_IDENTIFIER = Properties.SCAFFOLDING_SUFFIX + ".java";
-	public static final String DATA_FOLDER = "evosuite-qfdata";
-	
-	public static IResource CURRENT_WRITING_FILE = null;
+    // The plug-in ID
+    public static final String PLUGIN_ID = "evosuite-eclipse"; //$NON-NLS-1$
+    public static final String EVOSUITE_CORE_BUNDLE = "org.evosuite.plugins.eclipse.deps";
+    public static final String EVOSUITE_JAR = "lib/evosuite.jar";
+    public static final String JUNIT_IDENTIFIER = Properties.JUNIT_SUFFIX + ".java";
+    public static final String SCAFFOLDING_IDENTIFIER = Properties.SCAFFOLDING_SUFFIX + ".java";
+    public static final String DATA_FOLDER = "evosuite-qfdata";
 
-	// set max running time to 30 seconds
-	public static final int MAX_RUNNING_TIME = 30;
+    public static IResource CURRENT_WRITING_FILE = null;
 
-	// The shared instance
-	private static Activator plugin;
+    // set max running time to 30 seconds
+    public static final int MAX_RUNNING_TIME = 30;
 
-	protected Shell shell;
-	// private IResourceChangeEvent event;
+    // The shared instance
+    private static Activator plugin;
 
-	/**
-	 * The constructor
-	 */
-	public Activator() {
-		EvoSuitePreferencePage page = new EvoSuitePreferencePage();
-		page.init(getWorkbench());
-	}
+    protected Shell shell;
+    // private IResourceChangeEvent event;
 
-	@Override
-	public PreferenceStore getPreferenceStore() {
-		return EvoSuitePreferencePage.PREFERENCE_STORE;
-	}
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.ui.plugin.AbstractUIPlugin#start(org.osgi.framework.BundleContext)
-	 */
-	@Override
-	public void start(BundleContext context) throws Exception {
-		super.start(context);
-		// IPath containerPath = new IPath(JavaCore.J);
-		ResourcesPlugin.getWorkspace().addResourceChangeListener(this);
-		plugin = this;
-	}
+    /**
+     * The constructor
+     */
+    public Activator() {
+        EvoSuitePreferencePage page = new EvoSuitePreferencePage();
+        page.init(getWorkbench());
+    }
 
-	@Override
-	public boolean visit(IResourceDelta delta) throws CoreException {
-		return true;
-	}
+    @Override
+    public PreferenceStore getPreferenceStore() {
+        return EvoSuitePreferencePage.PREFERENCE_STORE;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.ui.plugin.AbstractUIPlugin#stop(org.osgi.framework.BundleContext)
-	 */
-	@Override
-	public void stop(BundleContext context) throws Exception {
-		plugin = null;
-		super.stop(context);
-	}
+    /*
+     * (non-Javadoc)
+     * @see org.eclipse.ui.plugin.AbstractUIPlugin#start(org.osgi.framework.BundleContext)
+     */
+    @Override
+    public void start(BundleContext context) throws Exception {
+        super.start(context);
+        // IPath containerPath = new IPath(JavaCore.J);
+        ResourcesPlugin.getWorkspace().addResourceChangeListener(this);
+        plugin = this;
+    }
 
-	/**
-	 * Returns the shared instance
-	 * 
-	 * @return the shared instance
-	 */
-	public static Activator getDefault() {
-		return plugin;
-	}
+    @Override
+    public boolean visit(IResourceDelta delta) throws CoreException {
+        return true;
+    }
 
-	/**
-	 * Returns an image descriptor for the image file at the given plug-in
-	 * relative path
-	 * 
-	 * @param path
-	 *            the path
-	 * @return the image descriptor
-	 */
-	public static ImageDescriptor getImageDescriptor(String path) {
-		return imageDescriptorFromPlugin(PLUGIN_ID, path);
-	}
+    /*
+     * (non-Javadoc)
+     * @see org.eclipse.ui.plugin.AbstractUIPlugin#stop(org.osgi.framework.BundleContext)
+     */
+    @Override
+    public void stop(BundleContext context) throws Exception {
+        plugin = null;
+        super.stop(context);
+    }
 
-	@Override
-	public void resourceChanged(IResourceChangeEvent evnt) {
-		// this.event = evnt;
-		if (evnt.getType() == IResourceChangeEvent.POST_CHANGE) {
-			try {
-				evnt.getDelta().accept(this);
-			} catch (CoreException e) {
-				e.printStackTrace();
-			}
-		}
-	}
+    /**
+     * Returns the shared instance
+     *
+     * @return the shared instance
+     */
+    public static Activator getDefault() {
+        return plugin;
+    }
 
-	public static boolean organizeImports(){
-		return Activator.getDefault().getPreferenceStore().getBoolean(EvoSuitePreferencePage.ORGANIZE_IMPORTS);
-	}
+    /**
+     * Returns an image descriptor for the image file at the given plug-in
+     * relative path
+     *
+     * @param path the path
+     * @return the image descriptor
+     */
+    public static ImageDescriptor getImageDescriptor(String path) {
+        return imageDescriptorFromPlugin(PLUGIN_ID, path);
+    }
 
-	@Override
-	public void earlyStartup() {
-		// TODO Auto-generated method stub
-	}
+    @Override
+    public void resourceChanged(IResourceChangeEvent evnt) {
+        // this.event = evnt;
+        if (evnt.getType() == IResourceChangeEvent.POST_CHANGE) {
+            try {
+                evnt.getDelta().accept(this);
+            } catch (CoreException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public static boolean organizeImports() {
+        return Activator.getDefault().getPreferenceStore().getBoolean(EvoSuitePreferencePage.ORGANIZE_IMPORTS);
+    }
+
+    @Override
+    public void earlyStartup() {
+        // TODO Auto-generated method stub
+    }
 }
