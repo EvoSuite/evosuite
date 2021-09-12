@@ -30,7 +30,7 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 
-public class OpenRegestryTest {
+public class OpenRegistryTest {
 
     @Test
     public void openTest() throws RemoteException, NotBoundException {
