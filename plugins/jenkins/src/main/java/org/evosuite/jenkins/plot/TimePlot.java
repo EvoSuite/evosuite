@@ -33,44 +33,44 @@ import hudson.util.DataSetBuilder;
 
 public class TimePlot extends Plot {
 
-	public TimePlot(ProjectAction project, String yLabel) {
-		super(project, yLabel);
-	}
+    public TimePlot(ProjectAction project, String yLabel) {
+        super(project, yLabel);
+    }
 
-	public void doTimeGraph(StaplerRequest req, StaplerResponse rsp) throws IOException {
-		CategoryDataset timeDataset = this.doStats();
-		this.setCategoryDataset(timeDataset);
+    public void doTimeGraph(StaplerRequest req, StaplerResponse rsp) throws IOException {
+        CategoryDataset timeDataset = this.doStats();
+        this.setCategoryDataset(timeDataset);
 
-		if (ChartUtil.awtProblemCause != null) {
-			rsp.sendRedirect2(req.getContextPath());
-		} else {
-			this.doPng(req, rsp);
-		}
-	}
+        if (ChartUtil.awtProblemCause != null) {
+            rsp.sendRedirect2(req.getContextPath());
+        } else {
+            this.doPng(req, rsp);
+        }
+    }
 
-	public void doTimeMap(StaplerRequest req, StaplerResponse rsp) throws IOException {
-		CategoryDataset timeDataset = this.doStats();
-		this.setCategoryDataset(timeDataset);
+    public void doTimeMap(StaplerRequest req, StaplerResponse rsp) throws IOException {
+        CategoryDataset timeDataset = this.doStats();
+        this.setCategoryDataset(timeDataset);
 
-		this.doMap(req, rsp);
-	}
+        this.doMap(req, rsp);
+    }
 
-	private CategoryDataset doStats() {
-		DataSetBuilder<String, ChartUtil.NumberOnlyBuildLabel> timeDataSetBuilder = new DataSetBuilder<String, ChartUtil.NumberOnlyBuildLabel>();
+    private CategoryDataset doStats() {
+        DataSetBuilder<String, ChartUtil.NumberOnlyBuildLabel> timeDataSetBuilder = new DataSetBuilder<String, ChartUtil.NumberOnlyBuildLabel>();
 
-		for (Run<?,?> build : this.project.getProject().getBuilds()) {
-			final BuildAction build_action = build.getAction(BuildAction.class);
-			if (build_action == null) {
-				// no build action is associated with this build, so skip it
-				continue;
-			}
+        for (Run<?, ?> build : this.project.getProject().getBuilds()) {
+            final BuildAction build_action = build.getAction(BuildAction.class);
+            if (build_action == null) {
+                // no build action is associated with this build, so skip it
+                continue;
+            }
 
-			int timeBudget = build_action.getProjectAction().getTimeBudget();
-			timeDataSetBuilder.add(timeBudget, "Total Time Budget", new ChartUtil.NumberOnlyBuildLabel(build));
-			int totalEffort = build_action.getProjectAction().getTotalEffort();
-			timeDataSetBuilder.add(totalEffort, "Time Budget Used", new ChartUtil.NumberOnlyBuildLabel(build));
-		}
+            int timeBudget = build_action.getProjectAction().getTimeBudget();
+            timeDataSetBuilder.add(timeBudget, "Total Time Budget", new ChartUtil.NumberOnlyBuildLabel(build));
+            int totalEffort = build_action.getProjectAction().getTotalEffort();
+            timeDataSetBuilder.add(totalEffort, "Time Budget Used", new ChartUtil.NumberOnlyBuildLabel(build));
+        }
 
-		return timeDataSetBuilder.build();
-	}
+        return timeDataSetBuilder.build();
+    }
 }

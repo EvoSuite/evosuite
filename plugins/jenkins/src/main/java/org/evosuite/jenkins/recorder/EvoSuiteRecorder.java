@@ -50,177 +50,177 @@ import net.sf.json.JSONObject;
 
 public class EvoSuiteRecorder extends Recorder {
 
-	public static final String LOG_PREFIX = "[EvoSuite] ";
+    public static final String LOG_PREFIX = "[EvoSuite] ";
 
-	public static final DecimalFormat decimalFormat = (DecimalFormat) NumberFormat.getNumberInstance(Locale.ENGLISH);
+    public static final DecimalFormat decimalFormat = (DecimalFormat) NumberFormat.getNumberInstance(Locale.ENGLISH);
 
-	@Extension
-	public static final DescriptorImpl DESCRIPTOR = new DescriptorImpl();
+    @Extension
+    public static final DescriptorImpl DESCRIPTOR = new DescriptorImpl();
 
-	private boolean disableAutoCommit;
-	private boolean disableAutoPush;
-	private String branchName;
-	private String ctgBestsDir;
+    private boolean disableAutoCommit;
+    private boolean disableAutoPush;
+    private String branchName;
+    private String ctgBestsDir;
 
-	@DataBoundConstructor
-	public EvoSuiteRecorder(boolean disableAutoCommit, boolean disableAutoPush,
-	    String branchName, String ctgBestsDir) {
-		this.disableAutoCommit = disableAutoCommit;
-		this.disableAutoPush = disableAutoPush;
-		this.branchName = branchName;
-		this.ctgBestsDir = ctgBestsDir;
-	}
-
-	public boolean getDisableAutoCommit() {
-		return this.disableAutoCommit;
-	}
-
-	public boolean getDisableAutoPush() {
-		return this.disableAutoPush;
-	}
-
-	public String getBranchName() {
-		return this.branchName;
-	}
-
-	public String getCtgBestsDir() {
-	    return this.ctgBestsDir;
-	}
-
-	public void setDisableAutoCommit(boolean disableAutoCommit) {
-		this.disableAutoCommit = disableAutoCommit;
-	}
-
-	public void setDisableAutoPush(boolean disableAutoPush) {
-		this.disableAutoPush = disableAutoPush;
-	}
-
-	public void setBranchName(String branchName) {
-		this.branchName = branchName;
-	}
-
-	public void setCtgBestsDir(String ctgBestsDir) {
+    @DataBoundConstructor
+    public EvoSuiteRecorder(boolean disableAutoCommit, boolean disableAutoPush,
+                            String branchName, String ctgBestsDir) {
+        this.disableAutoCommit = disableAutoCommit;
+        this.disableAutoPush = disableAutoPush;
+        this.branchName = branchName;
         this.ctgBestsDir = ctgBestsDir;
-	}
+    }
 
-	@Override
-	public Action getProjectAction(AbstractProject<?, ?> project) {
-		if (!project.getBuilds().isEmpty() /*|| !project.getActions().isEmpty()*/) {
-			BuildAction buildAction = project.getLastBuild().getAction(BuildAction.class);
-			if (buildAction != null) {
-				ProjectAction lastProject = buildAction.getProjectAction();
-				return new ProjectAction(project, lastProject.getModules());
-			}
-		}
+    public boolean getDisableAutoCommit() {
+        return this.disableAutoCommit;
+    }
 
-		return new ProjectAction(project);
-	}
+    public boolean getDisableAutoPush() {
+        return this.disableAutoPush;
+    }
 
-	@Override
-	public BuildStepMonitor getRequiredMonitorService() {
-		return BuildStepMonitor.NONE;
-	}
+    public String getBranchName() {
+        return this.branchName;
+    }
 
-	@Override
-	public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) throws InterruptedException, IOException {
+    public String getCtgBestsDir() {
+        return this.ctgBestsDir;
+    }
 
-		if (build.getResult().isWorseThan(Result.SUCCESS)) {
-			listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "Build did not succeed, so no test case generation by EvoSuite will occur.");
-			return true;
-		}
+    public void setDisableAutoCommit(boolean disableAutoCommit) {
+        this.disableAutoCommit = disableAutoCommit;
+    }
 
-		AbstractMavenProject<?, ?> project = ((AbstractMavenProject<?, ?>) build.getProject());
-		ProjectAction projectAction = new ProjectAction(project);
-		projectAction.perform(project, build, listener);
+    public void setDisableAutoPush(boolean disableAutoPush) {
+        this.disableAutoPush = disableAutoPush;
+    }
 
-		BuildAction build_action = new BuildAction(build, projectAction);
-		build.addAction(build_action);
+    public void setBranchName(String branchName) {
+        this.branchName = branchName;
+    }
 
-		// Deliver new test cases (i.e., commit and push the new test cases generated)
+    public void setCtgBestsDir(String ctgBestsDir) {
+        this.ctgBestsDir = ctgBestsDir;
+    }
 
-		if (this.disableAutoCommit) {
-			return true;
-		}
+    @Override
+    public Action getProjectAction(AbstractProject<?, ?> project) {
+        if (!project.getBuilds().isEmpty() /*|| !project.getActions().isEmpty()*/) {
+            BuildAction buildAction = project.getLastBuild().getAction(BuildAction.class);
+            if (buildAction != null) {
+                ProjectAction lastProject = buildAction.getProjectAction();
+                return new ProjectAction(project, lastProject.getModules());
+            }
+        }
 
-		SCM scm = project.getScm();
-		if (scm == null) {
-			listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "Project '" + project.getName() + "' has no Source-Control-Management (SCM) defined.");
-			return true;
-		}
+        return new ProjectAction(project);
+    }
 
-		org.evosuite.jenkins.scm.SCM scmWrapper = null;
+    @Override
+    public BuildStepMonitor getRequiredMonitorService() {
+        return BuildStepMonitor.NONE;
+    }
 
-		if (scm instanceof MercurialSCM) {
-			scmWrapper = new Mercurial((MercurialSCM) scm, project, build, launcher, listener);
-		} else if (scm instanceof GitSCM) {
-			scmWrapper = new Git((GitSCM) scm, build, listener);
-		} else {
-			listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "SCM of type " + scm.getType() + " not supported!");
-			return true;
-		}
-		assert scmWrapper != null;
+    @Override
+    public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) throws InterruptedException, IOException {
 
-		// perform commit action
-		int number_of_files_committed = scmWrapper.commit(project, build, listener, this.branchName, this.ctgBestsDir);
-		if (number_of_files_committed == -1) {
-			return false;
-		}
+        if (build.getResult().isWorseThan(Result.SUCCESS)) {
+            listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "Build did not succeed, so no test case generation by EvoSuite will occur.");
+            return true;
+        }
 
-		if (!this.disableAutoPush && number_of_files_committed > 0) {
-			if (!scmWrapper.push(build, listener, this.branchName)) {
-				return false;
-			}
-		}
+        AbstractMavenProject<?, ?> project = ((AbstractMavenProject<?, ?>) build.getProject());
+        ProjectAction projectAction = new ProjectAction(project);
+        projectAction.perform(project, build, listener);
 
-		return true;
-	}
+        BuildAction build_action = new BuildAction(build, projectAction);
+        build.addAction(build_action);
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see hudson.tasks.Recorder#getDescriptor()
-	 */
-	@Override
-	public BuildStepDescriptor<Publisher> getDescriptor() {
-		return DESCRIPTOR;
-	}
+        // Deliver new test cases (i.e., commit and push the new test cases generated)
 
-	public static class DescriptorImpl extends BuildStepDescriptor<Publisher> {
+        if (this.disableAutoCommit) {
+            return true;
+        }
 
-		public DescriptorImpl() {
-			super(EvoSuiteRecorder.class);
-		}
+        SCM scm = project.getScm();
+        if (scm == null) {
+            listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "Project '" + project.getName() + "' has no Source-Control-Management (SCM) defined.");
+            return true;
+        }
 
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see hudson.model.Descriptor#getDisplayName()
-		 */
-		@Override
-		public String getDisplayName() {
-			return "EvoSuite";
-		}
+        org.evosuite.jenkins.scm.SCM scmWrapper = null;
 
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see hudson.tasks.BuildStepDescriptor#isApplicable(java.lang.Class)
-		 */
-		@Override
-		@SuppressWarnings("rawtypes")
-		public boolean isApplicable(Class<? extends AbstractProject> jobType) {
-			return true;
-		}
+        if (scm instanceof MercurialSCM) {
+            scmWrapper = new Mercurial((MercurialSCM) scm, project, build, launcher, listener);
+        } else if (scm instanceof GitSCM) {
+            scmWrapper = new Git((GitSCM) scm, build, listener);
+        } else {
+            listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "SCM of type " + scm.getType() + " not supported!");
+            return true;
+        }
+        assert scmWrapper != null;
 
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see hudson.model.Descriptor#newInstance(org.kohsuke.stapler.StaplerRequest, net.sf.json.JSONObject)
-		 */
-		@Override
-		public Publisher newInstance(StaplerRequest req, JSONObject formData)
-				throws hudson.model.Descriptor.FormException {
-			return (EvoSuiteRecorder) super.newInstance(req, formData);
-		}
-	}
+        // perform commit action
+        int number_of_files_committed = scmWrapper.commit(project, build, listener, this.branchName, this.ctgBestsDir);
+        if (number_of_files_committed == -1) {
+            return false;
+        }
+
+        if (!this.disableAutoPush && number_of_files_committed > 0) {
+            if (!scmWrapper.push(build, listener, this.branchName)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see hudson.tasks.Recorder#getDescriptor()
+     */
+    @Override
+    public BuildStepDescriptor<Publisher> getDescriptor() {
+        return DESCRIPTOR;
+    }
+
+    public static class DescriptorImpl extends BuildStepDescriptor<Publisher> {
+
+        public DescriptorImpl() {
+            super(EvoSuiteRecorder.class);
+        }
+
+        /*
+         * (non-Javadoc)
+         *
+         * @see hudson.model.Descriptor#getDisplayName()
+         */
+        @Override
+        public String getDisplayName() {
+            return "EvoSuite";
+        }
+
+        /*
+         * (non-Javadoc)
+         *
+         * @see hudson.tasks.BuildStepDescriptor#isApplicable(java.lang.Class)
+         */
+        @Override
+        @SuppressWarnings("rawtypes")
+        public boolean isApplicable(Class<? extends AbstractProject> jobType) {
+            return true;
+        }
+
+        /*
+         * (non-Javadoc)
+         *
+         * @see hudson.model.Descriptor#newInstance(org.kohsuke.stapler.StaplerRequest, net.sf.json.JSONObject)
+         */
+        @Override
+        public Publisher newInstance(StaplerRequest req, JSONObject formData)
+                throws hudson.model.Descriptor.FormException {
+            return (EvoSuiteRecorder) super.newInstance(req, formData);
+        }
+    }
 }

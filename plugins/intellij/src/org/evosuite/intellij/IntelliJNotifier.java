@@ -50,20 +50,21 @@ public class IntelliJNotifier implements AsyncGUINotifier {
         this.console = console;
     }
 
-    public static IntelliJNotifier getNotifier(Project p){
+    public static IntelliJNotifier getNotifier(Project p) {
         return map.get(p);
     }
 
-    public static IntelliJNotifier registerNotifier(Project project, String title, ConsoleViewImpl console){
-        IntelliJNotifier n = new IntelliJNotifier(project,title,console);
-        map.put(project,n);
+    public static IntelliJNotifier registerNotifier(Project project, String title, ConsoleViewImpl console) {
+        IntelliJNotifier n = new IntelliJNotifier(project, title, console);
+        map.put(project, n);
         return n;
     }
 
     @Override
     public void success(final String message) {
         SwingUtilities.invokeLater(new Runnable() {
-            @Override public void run() {
+            @Override
+            public void run() {
                 Messages.showMessageDialog(project, message, title, Messages.getInformationIcon());
             }
         });
@@ -72,15 +73,16 @@ public class IntelliJNotifier implements AsyncGUINotifier {
     @Override
     public void failed(final String message) {
         SwingUtilities.invokeLater(new Runnable() {
-            @Override public void run() {
+            @Override
+            public void run() {
                 Messages.showMessageDialog(project, message, title, Messages.getWarningIcon());
             }
         });
     }
 
     @Override
-    public void detachLastProcess(){
-        if(processHandler != null){
+    public void detachLastProcess() {
+        if (processHandler != null) {
             processHandler.destroyProcess();
             processHandler = null;
         }
@@ -88,7 +90,7 @@ public class IntelliJNotifier implements AsyncGUINotifier {
 
     @Override
     public void attachProcess(Process process) {
-        if(processHandler != null){
+        if (processHandler != null) {
             detachLastProcess();
         }
         processHandler = new OSProcessHandler(process, null);
@@ -98,7 +100,7 @@ public class IntelliJNotifier implements AsyncGUINotifier {
 
     @Override
     public void printOnConsole(String message) {
-        console.print(message, ConsoleViewContentType.NORMAL_OUTPUT );
+        console.print(message, ConsoleViewContentType.NORMAL_OUTPUT);
         //console.flushDeferredText();
     }
 

@@ -39,7 +39,7 @@ import java.awt.*;
 
 /**
  * Entry point for the IntelliJ plugin for when projects are opened/closed
- *
+ * <p>
  * <p/>
  * Created by arcuri on 9/9/14.
  */
@@ -49,7 +49,7 @@ public class ProjectRegistration implements ProjectComponent { //implements Appl
 
     private ConsoleViewImpl console;
 
-    public ProjectRegistration(Project project){
+    public ProjectRegistration(Project project) {
         this.project = project;
     }
 
@@ -92,7 +92,7 @@ public class ProjectRegistration implements ProjectComponent { //implements Appl
         JComponent consolePanel = console.getComponent();
 
 
-        IntelliJNotifier notifier = IntelliJNotifier.registerNotifier(project,"EvoSuite Plugin", console);
+        IntelliJNotifier notifier = IntelliJNotifier.registerNotifier(project, "EvoSuite Plugin", console);
 
         //create left-toolbar with stop button
         DefaultActionGroup buttonGroup = new DefaultActionGroup();
@@ -104,7 +104,7 @@ public class ProjectRegistration implements ProjectComponent { //implements Appl
         JPanel panel = new JPanel();
         panel.setLayout(new BorderLayout());
         panel.add(toolBarPanel, BorderLayout.WEST);
-        panel.add(consolePanel,BorderLayout.CENTER);
+        panel.add(consolePanel, BorderLayout.CENTER);
 
 
         //Content content = contentFactory.createContent(consolePanel, "", false);
@@ -116,7 +116,7 @@ public class ProjectRegistration implements ProjectComponent { //implements Appl
     @Override
     public void projectClosed() {
         EvoParameters.getInstance().save(project);
-        if(console!=null){
+        if (console != null) {
             console.dispose();
         }
     }

@@ -37,23 +37,23 @@ import java.util.Set;
  */
 public class ModulesInfo {
 
-        /*
-            full paths of all source root folders.
-            this is needed to calculate the Java class names from the .java file paths
-        */
+    /*
+        full paths of all source root folders.
+        this is needed to calculate the Java class names from the .java file paths
+    */
     private final Set<String> roots = new LinkedHashSet<>();
     private final Set<String> modulePaths = new LinkedHashSet<>();
     private final String projectDir;
 
-    public ModulesInfo(Project project){
+    public ModulesInfo(Project project) {
         for (Module module : ModuleManager.getInstance(project).getModules()) {
-            for(VirtualFile sourceRoot : ModuleRootManager.getInstance(module).getSourceRoots()){
+            for (VirtualFile sourceRoot : ModuleRootManager.getInstance(module).getSourceRoots()) {
                 String path = new File(sourceRoot.getCanonicalPath()).getAbsolutePath();
                 roots.add(path);
             }
 
             String mp = Utils.getFolderLocation(module);
-            if(mp != null) {
+            if (mp != null) {
                 modulePaths.add(mp);
             }
         }
@@ -61,56 +61,55 @@ public class ModulesInfo {
         projectDir = new File(project.getBaseDir().getCanonicalPath()).getAbsolutePath(); //note: need "File" to avoid issues in Windows
     }
 
-    public boolean hasRoots(){
-        return ! roots.isEmpty();
+    public boolean hasRoots() {
+        return !roots.isEmpty();
     }
 
-    public String getSourceRootForFile(String path){
-        for(String root : roots){
-            if(path.startsWith(root)){
+    public String getSourceRootForFile(String path) {
+        for (String root : roots) {
+            if (path.startsWith(root)) {
                 return root;
             }
         }
         return null;
     }
 
-    public Set<String> getIncludedSourceRoots(String path){
+    public Set<String> getIncludedSourceRoots(String path) {
         Set<String> set = new HashSet<>();
-        for(String root : roots){
-            if(root.startsWith(path)){
+        for (String root : roots) {
+            if (root.startsWith(path)) {
                 set.add(root);
             }
         }
         return set;
     }
 
-    public Set<String> getModulePathsView(){
+    public Set<String> getModulePathsView() {
         return Collections.unmodifiableSet(modulePaths);
     }
 
     /**
-     *
      * @param source
      * @return
      */
-    public String getModuleFolder(String source){
+    public String getModuleFolder(String source) {
         File file = new File(source);
-        while(file != null){
+        while (file != null) {
 
             String path = file.getAbsolutePath();
 
-            if(! path.startsWith(projectDir)){
+            if (!path.startsWith(projectDir)) {
                 //return projectDir; //we went too up in the hierarchy
                 return null;
             }
 
-            if(file.isDirectory()){
-                File pom = new File(file,"pom.xml");
-                if(pom.exists()){
+            if (file.isDirectory()) {
+                File pom = new File(file, "pom.xml");
+                if (pom.exists()) {
                     return path;
                 }
                 //with new check, maybe pom.xml is not needed any more
-                if(modulePaths.contains(path)){
+                if (modulePaths.contains(path)) {
                     return path;
                 }
             }

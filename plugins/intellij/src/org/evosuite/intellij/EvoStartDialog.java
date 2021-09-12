@@ -310,8 +310,8 @@ public class EvoStartDialog extends JDialog {
         }
         String name = file.getName().toLowerCase();
 
-        if(Arrays.asList("runtime","standalone","client","plugin","test","generated").stream()
-                .anyMatch(k -> name.contains(k))){
+        if (Arrays.asList("runtime", "standalone", "client", "plugin", "test", "generated").stream()
+                .anyMatch(k -> name.contains(k))) {
             return false;
         }
 
@@ -406,7 +406,7 @@ public class EvoStartDialog extends JDialog {
 
         if (validate && !errors.isEmpty()) {
             String title = "ERROR: EvoSuite Plugin";
-            String msg = String.join("\n",errors);
+            String msg = String.join("\n", errors);
             Messages.showMessageDialog(project, msg, title, Messages.getErrorIcon());
             return false;
         }

@@ -44,19 +44,19 @@ public class ProcessRunner {
                                   Set<String> classes, int managerPort) {
 
         List<String> list;
-        if(params.usesMaven()){
-            list = getMavenCommand(params, classes,managerPort);
+        if (params.usesMaven()) {
+            list = getMavenCommand(params, classes, managerPort);
         } else {
-            list = getEvoJarCommand(project, dir,params, classes,managerPort);
+            list = getEvoJarCommand(project, dir, params, classes, managerPort);
         }
 
         String[] command = list.toArray(new String[list.size()]);
 
         String concat = "Going to execute command:\n";
-        for(String c : command){
+        for (String c : command) {
             concat += c + "  ";
         }
-        concat += "\nin folder: "+dir.getAbsolutePath();
+        concat += "\nin folder: " + dir.getAbsolutePath();
         concat += "\n";
 
         System.out.println(concat);
@@ -67,27 +67,27 @@ public class ProcessRunner {
             builder.directory(dir);
             builder.command(command);
 
-            Map<String,String> map = builder.environment();
+            Map<String, String> map = builder.environment();
             map.put("JAVA_HOME", params.getJavaHome());
 
-            Process p =  builder.start();
+            Process p = builder.start();
             notifier.attachProcess(p);
 
             notifier.printOnConsole(concat); //this doesn't work either...
 
             return p;
         } catch (IOException e) {
-            notifier.failed("Failed to execute EvoSuite: "+e.getMessage());
+            notifier.failed("Failed to execute EvoSuite: " + e.getMessage());
             return null;
         }
 
     }
 
-    private static List<String> getEvoJarCommand( Project project, File dir, EvoParameters params,
-                                                  Set<String> classes, int port) throws IllegalArgumentException{
+    private static List<String> getEvoJarCommand(Project project, File dir, EvoParameters params,
+                                                 Set<String> classes, int port) throws IllegalArgumentException {
         List<String> list = new ArrayList<>();
         String java = "java";
-        if(Utils.isWindows()){
+        if (Utils.isWindows()) {
             java += ".exe";
         }
         list.add(params.getJavaHome() + File.separator + "bin" + File.separator + java);
@@ -100,50 +100,50 @@ public class ProcessRunner {
         //No need to specify target, as we do specify the CUT list
         //list.add("-target");
         //list.add(target);
-        if(classes==null || classes.isEmpty()){
+        if (classes == null || classes.isEmpty()) {
             //if we want to change it, we need to handle 'target'
             throw new IllegalArgumentException("Need to specify class list");
         }
 
-        list.add("-Dspawn_process_manager_port="+port);
+        list.add("-Dspawn_process_manager_port=" + port);
 
         //the memory is per core
-        list.add("-Dctg_memory="+ (params.getMemory() * params.getCores()));
-        list.add("-Dctg_cores="+params.getCores());
+        list.add("-Dctg_memory=" + (params.getMemory() * params.getCores()));
+        list.add("-Dctg_cores=" + params.getCores());
         list.add("-Dctg_time_per_class=" + params.getTime());
         list.add("-Dctg_export_folder=" + params.getFolder());
 
-        if(classes != null && classes.size() >= 0) {
+        if (classes != null && classes.size() >= 0) {
             if (classes.size() <= 10) {
                 String cuts = getCommaList(classes);
                 list.add("-Dctg_selected_cuts=" + cuts);
             } else {
                 String filePath = writeClassesToFile(classes);
-                list.add("-Dctg_selected_cuts_file_location="+filePath);
+                list.add("-Dctg_selected_cuts_file_location=" + filePath);
             }
         }
 
-        if(dir==null || !dir.exists()){
+        if (dir == null || !dir.exists()) {
             throw new IllegalArgumentException("Invalid module dir");
         }
         String folderPath = dir.getAbsolutePath();
 
         Module module = null;
-        for(Module m : ModuleManager.getInstance(project).getModules()){
+        for (Module m : ModuleManager.getInstance(project).getModules()) {
             String modulePath = Utils.getFolderLocation(m);
-            if(folderPath.equals(modulePath)){
+            if (folderPath.equals(modulePath)) {
                 module = m;
                 break;
             }
         }
 
-        if(module == null){
-            throw new IllegalArgumentException("Cannot determine module for "+folderPath);
+        if (module == null) {
+            throw new IllegalArgumentException("Cannot determine module for " + folderPath);
         }
 
         String cp = Utils.getFullClassPath(module);
         String path = writeLineToFile("EvoSuite_ctg_classpath_file", cp);
-        list.add("-DCP_file_path="+path);
+        list.add("-DCP_file_path=" + path);
         //list.add("-DCP=" + cp);//this did not work properly on Windows
 
         return list;
@@ -156,7 +156,7 @@ public class ProcessRunner {
     private static String writeLineToFile(String fileName, String line) {
 
         try {
-            File file = File.createTempFile(fileName,".txt");
+            File file = File.createTempFile(fileName, ".txt");
             file.deleteOnExit();
 
             BufferedWriter out = new BufferedWriter(new FileWriter(file));
@@ -167,7 +167,7 @@ public class ProcessRunner {
             return file.getAbsolutePath();
 
         } catch (Exception e) {
-            throw new IllegalStateException("Failed to create tmp file: "+e.getMessage());
+            throw new IllegalStateException("Failed to create tmp file: " + e.getMessage());
         }
     }
 
@@ -181,15 +181,15 @@ public class ProcessRunner {
         //the memory is per core
         list.add("-DmemoryInMB=" + (params.getMemory() * params.getCores()));
         list.add("-DtimeInMinutesPerClass=" + params.getTime());
-        list.add("-DspawnManagerPort="+port);
+        list.add("-DspawnManagerPort=" + port);
 
-        if(classes != null && classes.size() >= 0) {
+        if (classes != null && classes.size() >= 0) {
             if (classes.size() <= 10) {
                 String cuts = getCommaList(classes);
                 list.add("-Dcuts=" + cuts);
             } else {
                 String filePath = writeClassesToFile(classes);
-                list.add("-DcutsFile="+filePath);
+                list.add("-DcutsFile=" + filePath);
             }
         }
 
@@ -198,7 +198,7 @@ public class ProcessRunner {
         return list;
     }
 
-    private static String getCommaList(Set<String> set){
+    private static String getCommaList(Set<String> set) {
         if (set != null && !set.isEmpty()) {
             return String.join(",", set);
         }

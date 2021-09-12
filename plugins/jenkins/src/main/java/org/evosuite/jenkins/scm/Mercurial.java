@@ -48,144 +48,144 @@ import jenkins.model.Jenkins;
 
 /**
  * Mercurial wrapper to handle hg commands, such commit and push.
- * 
+ *
  * @author José Campos
  */
 public class Mercurial implements SCM {
 
-	private final HgExe hgClient;
+    private final HgExe hgClient;
 
-	public Mercurial(MercurialSCM mercurialSCM, AbstractMavenProject<?, ?> project, AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener)
-			throws IOException, InterruptedException {
+    public Mercurial(MercurialSCM mercurialSCM, AbstractMavenProject<?, ?> project, AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener)
+            throws IOException, InterruptedException {
 
-		// TODO check whether there is an issue between "Default" and "(Default)"
-		MercurialInstallation mercurialInstallation = null;
-		for (MercurialInstallation inst : MercurialInstallation.allInstallations()) {
-			if (inst.getName().equals(mercurialSCM.getInstallation())) {
-				mercurialInstallation = inst;
-				break;
-			}
-		}
-		assert mercurialInstallation != null;
+        // TODO check whether there is an issue between "Default" and "(Default)"
+        MercurialInstallation mercurialInstallation = null;
+        for (MercurialInstallation inst : MercurialInstallation.allInstallations()) {
+            if (inst.getName().equals(mercurialSCM.getInstallation())) {
+                mercurialInstallation = inst;
+                break;
+            }
+        }
+        assert mercurialInstallation != null;
 
-		// get credentials (username-password, ssh key-passphrase
-		StandardUsernameCredentials credentials = this.getCredentials(mercurialSCM, project);
-		listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "Credentials " + credentials.getDescription());
+        // get credentials (username-password, ssh key-passphrase
+        StandardUsernameCredentials credentials = this.getCredentials(mercurialSCM, project);
+        listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "Credentials " + credentials.getDescription());
 
-		// get a MercurialClient to handle hg commands
-		this.hgClient = new HgExe(mercurialInstallation, credentials, launcher, Jenkins.getInstance(), listener, build.getEnvironment(listener));
-	}
+        // get a MercurialClient to handle hg commands
+        this.hgClient = new HgExe(mercurialInstallation, credentials, launcher, Jenkins.getInstance(), listener, build.getEnvironment(listener));
+    }
 
-	@Override
+    @Override
     public int commit(AbstractMavenProject<?, ?> project, AbstractBuild<?, ?> build,
-        BuildListener listener, String branchName, String ctgBestsDir) {
-		try {
-			listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "Commiting new test cases");
+                      BuildListener listener, String branchName, String ctgBestsDir) {
+        try {
+            listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "Commiting new test cases");
 
-			Set<String> branches = this.getBranches(build.getWorkspace(), listener);
-			if (!branches.contains(branchName)) {
-				// create a new branch called "evosuite-tests" to commit and
-				// push the new generated test suites
-				listener.getLogger()
-						.println(EvoSuiteRecorder.LOG_PREFIX + "There is no branch called " + branchName);
-				if (this.hgClient.run("branch", branchName).pwd(build.getWorkspace()).join() != 0) {
-					listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "Unable to create a new branch called " + branchName);
-					return -1;
-				}
-			}
+            Set<String> branches = this.getBranches(build.getWorkspace(), listener);
+            if (!branches.contains(branchName)) {
+                // create a new branch called "evosuite-tests" to commit and
+                // push the new generated test suites
+                listener.getLogger()
+                        .println(EvoSuiteRecorder.LOG_PREFIX + "There is no branch called " + branchName);
+                if (this.hgClient.run("branch", branchName).pwd(build.getWorkspace()).join() != 0) {
+                    listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "Unable to create a new branch called " + branchName);
+                    return -1;
+                }
+            }
 
-			// switch to EVOSUITE_BRANCH
-			if (this.hgClient.run("update", branchName).pwd(build.getWorkspace()).join() != 0) {
-				listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "Unable to switch to branch " + branchName);
-				return -1;
-			}
+            // switch to EVOSUITE_BRANCH
+            if (this.hgClient.run("update", branchName).pwd(build.getWorkspace()).join() != 0) {
+                listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "Unable to switch to branch " + branchName);
+                return -1;
+            }
 
-			// start adding all removed files to commit
-			if (this.hgClient.run("remove", "--after").pwd(build.getWorkspace()).join() != 0) {
-				this.rollback(build, listener);
-				return -1;
-			}
+            // start adding all removed files to commit
+            if (this.hgClient.run("remove", "--after").pwd(build.getWorkspace()).join() != 0) {
+                this.rollback(build, listener);
+                return -1;
+            }
 
-			MavenModuleSet prj = (MavenModuleSet) project;
+            MavenModuleSet prj = (MavenModuleSet) project;
 
-			// parse list of new and modified files
-			int number_of_files_committed = 0;
-			for (MavenModule module : prj.getModules()) {
-			    for (String file : this.parseStatus(this.hgClient.popen(build.getWorkspace(), listener,
-			        true, new ArgumentListBuilder("status")),
-			        (module.getRelativePath().isEmpty() ? "" : module.getRelativePath() + File.separator) + ctgBestsDir)) {
+            // parse list of new and modified files
+            int number_of_files_committed = 0;
+            for (MavenModule module : prj.getModules()) {
+                for (String file : this.parseStatus(this.hgClient.popen(build.getWorkspace(), listener,
+                                true, new ArgumentListBuilder("status")),
+                        (module.getRelativePath().isEmpty() ? "" : module.getRelativePath() + File.separator) + ctgBestsDir)) {
 
-			      if (this.hgClient.run("add", file).pwd(build.getWorkspace()).join() != 0) {
-                      this.rollback(build, listener);
-                      return -1;
-			      }
+                    if (this.hgClient.run("add", file).pwd(build.getWorkspace()).join() != 0) {
+                        this.rollback(build, listener);
+                        return -1;
+                    }
 
-                  number_of_files_committed++;
-			    }
-			}
+                    number_of_files_committed++;
+                }
+            }
 
-			if (number_of_files_committed == 0) {
-			    listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "Nothing to commit");
+            if (number_of_files_committed == 0) {
+                listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "Nothing to commit");
                 return 0;
-			}
+            }
 
-			// commit
-			String commit_msg = SCM.COMMIT_MSG_PREFIX + build.getProject().getName().replace(" ", "_") + "-" + build.getNumber();
-			listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + commit_msg);
+            // commit
+            String commit_msg = SCM.COMMIT_MSG_PREFIX + build.getProject().getName().replace(" ", "_") + "-" + build.getNumber();
+            listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + commit_msg);
 
-			if (this.hgClient.run("commit", "--message", commit_msg).pwd(build.getWorkspace()).join() != 0) {
-				this.rollback(build, listener);
-				return -1;
-			}
+            if (this.hgClient.run("commit", "--message", commit_msg).pwd(build.getWorkspace()).join() != 0) {
+                this.rollback(build, listener);
+                return -1;
+            }
 
-			return number_of_files_committed++;
+            return number_of_files_committed++;
 
-		} catch (IOException | InterruptedException e) {
-			e.printStackTrace();
-			return -1;
-		}
-	}
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+            return -1;
+        }
+    }
 
-	@Override
-	public boolean push(AbstractBuild<?, ?> build, BuildListener listener, String branchName) {
-		try {
-			listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "Pushing new test cases");
+    @Override
+    public boolean push(AbstractBuild<?, ?> build, BuildListener listener, String branchName) {
+        try {
+            listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "Pushing new test cases");
 
-			if (this.hgClient.run("push").pwd(build.getWorkspace()).join() != 0) {
-				return false;
-			}
-		} catch (IOException | InterruptedException e) {
-			e.printStackTrace();
-			return false;
-		}
+            if (this.hgClient.run("push").pwd(build.getWorkspace()).join() != 0) {
+                return false;
+            }
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+            return false;
+        }
 
-		return true;
-	}
+        return true;
+    }
 
-	@Override
+    @Override
     public void rollback(AbstractBuild<?, ?> build, BuildListener listener) {
-		listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "Rollback, cleaning up workspace");
-		// TODO
-	}
+        listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "Rollback, cleaning up workspace");
+        // TODO
+    }
 
-	private Set<String> parseStatus(String status, String ctgBestsDir) {
-		Set<String> result = new LinkedHashSet<String>();
-		Matcher m = Pattern.compile("[?AMR!]\\s(.*" + ctgBestsDir + ".*)").matcher(status);
-		while (m.find()) {
-			result.add(m.group(1));
-		}
-		return result;
-	}
+    private Set<String> parseStatus(String status, String ctgBestsDir) {
+        Set<String> result = new LinkedHashSet<String>();
+        Matcher m = Pattern.compile("[?AMR!]\\s(.*" + ctgBestsDir + ".*)").matcher(status);
+        while (m.find()) {
+            result.add(m.group(1));
+        }
+        return result;
+    }
 
-	private StandardUsernameCredentials getCredentials(MercurialSCM mercurialSCM, AbstractMavenProject<?, ?> project) {
-		return CredentialsProvider.lookupCredentials(StandardUsernameCredentials.class, project, ACL.SYSTEM,
-						URIRequirementBuilder.fromUri(mercurialSCM.getSource()).build()).get(0);
-	}
+    private StandardUsernameCredentials getCredentials(MercurialSCM mercurialSCM, AbstractMavenProject<?, ?> project) {
+        return CredentialsProvider.lookupCredentials(StandardUsernameCredentials.class, project, ACL.SYSTEM,
+                URIRequirementBuilder.fromUri(mercurialSCM.getSource()).build()).get(0);
+    }
 
-	private Set<String> getBranches(FilePath workspace, BuildListener listener) throws InterruptedException, IOException {
+    private Set<String> getBranches(FilePath workspace, BuildListener listener) throws InterruptedException, IOException {
         String rawBranches = this.hgClient.popen(workspace, listener, true, new ArgumentListBuilder("branches"));
         Set<String> branches = new LinkedHashSet<String>();
-        for (String line: rawBranches.split("\n")) {
+        for (String line : rawBranches.split("\n")) {
             // line should contain: <branchName>                 <revision>:<hash>
             String[] seperatedByWhitespace = line.split("\\s+");
             String branchName = seperatedByWhitespace[0];

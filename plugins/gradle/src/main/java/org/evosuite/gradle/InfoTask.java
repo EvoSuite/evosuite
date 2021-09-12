@@ -32,7 +32,7 @@ import java.io.File;
 /**
  * Created by Andrea Arcuri on 15/04/15.
  */
-public class InfoTask extends DefaultTask{
+public class InfoTask extends DefaultTask {
 
     @TaskAction
     public void evoInfo() {
@@ -40,37 +40,37 @@ public class InfoTask extends DefaultTask{
         System.out.println("System.out Executing 'evoInfo' task");
 
         Project p = getProject();
-        System.out.println("DH: "+p.getDependencies());
+        System.out.println("DH: " + p.getDependencies());
         System.out.println("CH: " + p.getDependencies().getComponents());
 
         //System.out.println("Conf: "+p.getConfigurations());
 
-        for(File f : p.files(".")){
-            System.out.println("File :"+f.getAbsolutePath());
+        for (File f : p.files(".")) {
+            System.out.println("File :" + f.getAbsolutePath());
         }
 
         //p.getConvention().getPlugin(EvoSuiteGradlePlugin.class).
 
-        for(org.gradle.api.artifacts.Configuration c : p.getConfigurations()){
-            System.out.println("Conf: "+c);
+        for (org.gradle.api.artifacts.Configuration c : p.getConfigurations()) {
+            System.out.println("Conf: " + c);
 
-            for(Dependency d: c.getAllDependencies()){
-                System.out.println("Dep: "+d);
+            for (Dependency d : c.getAllDependencies()) {
+                System.out.println("Dep: " + d);
             }
 
-            for(PublishArtifact pa : c.getAllArtifacts()){
-                System.out.println("PA: "+pa);
+            for (PublishArtifact pa : c.getAllArtifacts()) {
+                System.out.println("PA: " + pa);
             }
         }
 
         System.out.println("getBuildscript");
-        for(org.gradle.api.artifacts.Configuration c : p.getBuildscript().getConfigurations()){
-            System.out.println("Conf: "+c);
+        for (org.gradle.api.artifacts.Configuration c : p.getBuildscript().getConfigurations()) {
+            System.out.println("Conf: " + c);
 
-            for(Dependency d: c.getAllDependencies()){
-                System.out.println("Dep: "+d);
+            for (Dependency d : c.getAllDependencies()) {
+                System.out.println("Dep: " + d);
 
-                if(d.getName().equals("evosuite-gradle-plugin")){
+                if (d.getName().equals("evosuite-gradle-plugin")) {
                     //d.
                 }
             }

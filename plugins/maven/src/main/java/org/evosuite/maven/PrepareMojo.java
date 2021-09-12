@@ -19,11 +19,6 @@
  */
 package org.evosuite.maven;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
-import java.util.List;
-
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -33,57 +28,61 @@ import org.apache.maven.project.MavenProject;
 import org.evosuite.runtime.InitializingListener;
 import org.evosuite.runtime.InitializingListenerUtils;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.util.List;
+
 /**
  * Mojo needed to prepare the EvoSuite tests for execution.
  * This is needed to make sure that bytecode is properly instrumented.
- *
  */
-@Mojo( name = "prepare")
-public class PrepareMojo extends AbstractMojo{
+@Mojo(name = "prepare")
+public class PrepareMojo extends AbstractMojo {
 
-	@Parameter(defaultValue = "${project}", required = true, readonly = true)
-	private MavenProject project;
-	
-	@Override
-	public void execute() throws MojoExecutionException, MojoFailureException {
+    @Parameter(defaultValue = "${project}", required = true, readonly = true)
+    private MavenProject project;
 
-		getLog().info("Preparing EvoSuite tests for execution");
-		
-		
-		String dirName =	 project.getBuild().getTestOutputDirectory();
-		if(dirName == null || dirName.trim().isEmpty()){
-			getLog().error("Cannot determine folder for compiled tests");
-			return;
-		} 
-		
-		File dir = new File(dirName);
-		getLog().info("Analyzing test folder: "+dir.getAbsolutePath());
-		//NOTE: this check can fail, likely due to permissions...
-		//if(!dir.isDirectory()){
-		//	getLog().error("Target folder for compiled tests is not a folder: "+dir.getAbsolutePath());
-		//	return;
-		//}
-		
-		if(!dir.exists()){
-			getLog().warn("Target folder for compiled tests does not exist: "+dir.getAbsolutePath());
-			return;
-		}
-		
-		List<String> list = InitializingListenerUtils.scanClassesToInit(dir);
+    @Override
+    public void execute() throws MojoExecutionException, MojoFailureException {
 
-		getLog().info("Found "+list.size()+" EvoSuite scaffolding files");
-		
-		File scaffolding = new File(project.getBasedir() + File.separator + InitializingListener.SCAFFOLDING_LIST_FILE_STRING);
-		try {
-			PrintWriter out = new PrintWriter(scaffolding);
-			for(String s : list){
-				out.println(s);
-				getLog().debug("Class: "+s);
-			}
-			out.close();
-		} catch (FileNotFoundException e) {
-			getLog().error("Error while generating "+scaffolding.getAbsolutePath()+" : "+e.getMessage());
-		}
-		
-	}
+        getLog().info("Preparing EvoSuite tests for execution");
+
+
+        String dirName = project.getBuild().getTestOutputDirectory();
+        if (dirName == null || dirName.trim().isEmpty()) {
+            getLog().error("Cannot determine folder for compiled tests");
+            return;
+        }
+
+        File dir = new File(dirName);
+        getLog().info("Analyzing test folder: " + dir.getAbsolutePath());
+        //NOTE: this check can fail, likely due to permissions...
+        //if(!dir.isDirectory()){
+        //	getLog().error("Target folder for compiled tests is not a folder: "+dir.getAbsolutePath());
+        //	return;
+        //}
+
+        if (!dir.exists()) {
+            getLog().warn("Target folder for compiled tests does not exist: " + dir.getAbsolutePath());
+            return;
+        }
+
+        List<String> list = InitializingListenerUtils.scanClassesToInit(dir);
+
+        getLog().info("Found " + list.size() + " EvoSuite scaffolding files");
+
+        File scaffolding = new File(project.getBasedir() + File.separator + InitializingListener.SCAFFOLDING_LIST_FILE_STRING);
+        try {
+            PrintWriter out = new PrintWriter(scaffolding);
+            for (String s : list) {
+                out.println(s);
+                getLog().debug("Class: " + s);
+            }
+            out.close();
+        } catch (FileNotFoundException e) {
+            getLog().error("Error while generating " + scaffolding.getAbsolutePath() + " : " + e.getMessage());
+        }
+
+    }
 }

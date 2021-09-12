@@ -59,69 +59,69 @@ public class EvoParameters {
     private int guiHeight;
 
 
-    public static EvoParameters getInstance(){
+    public static EvoParameters getInstance() {
         return singleton;
     }
 
-    private EvoParameters(){
+    private EvoParameters() {
     }
 
-    public boolean usesMaven(){
+    public boolean usesMaven() {
         return executionMode.equals(EXECUTION_MODE_MVN);
     }
 
-    public void load(Project project){
+    public void load(Project project) {
         PropertiesComponent p = PropertiesComponent.getInstance(project);
-        cores = p.getInt(CORES_EVOSUITE_PARAM,1);
-        memory = p.getInt(MEMORY_EVOSUITE_PARAM,2000);
-        time = p.getInt(TIME_EVOSUITE_PARAM,3);
+        cores = p.getInt(CORES_EVOSUITE_PARAM, 1);
+        memory = p.getInt(MEMORY_EVOSUITE_PARAM, 2000);
+        time = p.getInt(TIME_EVOSUITE_PARAM, 3);
         folder = p.getValue(TARGET_FOLDER_EVOSUITE_PARAM, "src/evo");
 
         String envJavaHome = System.getenv("JAVA_HOME");
-        javaHome = p.getValue(JAVA_HOME, envJavaHome!=null ? envJavaHome : "");
-        mvnLocation = p.getValue(MVN_LOCATION,"");
-        evosuiteJarLocation = p.getValue(EVOSUITE_JAR_LOCATION,"");
-        executionMode = p.getValue(EXECUTION_MODE,EXECUTION_MODE_MVN);
+        javaHome = p.getValue(JAVA_HOME, envJavaHome != null ? envJavaHome : "");
+        mvnLocation = p.getValue(MVN_LOCATION, "");
+        evosuiteJarLocation = p.getValue(EVOSUITE_JAR_LOCATION, "");
+        executionMode = p.getValue(EXECUTION_MODE, EXECUTION_MODE_MVN);
 
         guiWidth = p.getInt(GUI_DIALOG_WIDTH, 570);
         guiHeight = p.getInt(GUI_DIALOG_HEIGHT, 300);
     }
 
-    public void save(Project project){
+    public void save(Project project) {
         PropertiesComponent p = PropertiesComponent.getInstance(project);
-        p.setValue(CORES_EVOSUITE_PARAM,""+cores);
-        p.setValue(TIME_EVOSUITE_PARAM,""+time);
-        p.setValue(MEMORY_EVOSUITE_PARAM,""+memory);
-        p.setValue(TARGET_FOLDER_EVOSUITE_PARAM,folder);
-        p.setValue(JAVA_HOME,javaHome);
-        p.setValue(MVN_LOCATION,getPossibleLocationForMvn());
-        p.setValue(EVOSUITE_JAR_LOCATION,evosuiteJarLocation);
-        p.setValue(EXECUTION_MODE,executionMode);
-        p.setValue(GUI_DIALOG_WIDTH,""+guiWidth);
-        p.setValue(GUI_DIALOG_HEIGHT,""+guiHeight);
+        p.setValue(CORES_EVOSUITE_PARAM, "" + cores);
+        p.setValue(TIME_EVOSUITE_PARAM, "" + time);
+        p.setValue(MEMORY_EVOSUITE_PARAM, "" + memory);
+        p.setValue(TARGET_FOLDER_EVOSUITE_PARAM, folder);
+        p.setValue(JAVA_HOME, javaHome);
+        p.setValue(MVN_LOCATION, getPossibleLocationForMvn());
+        p.setValue(EVOSUITE_JAR_LOCATION, evosuiteJarLocation);
+        p.setValue(EXECUTION_MODE, executionMode);
+        p.setValue(GUI_DIALOG_WIDTH, "" + guiWidth);
+        p.setValue(GUI_DIALOG_HEIGHT, "" + guiHeight);
     }
 
-    private String getPossibleLocationForMvn(){
+    private String getPossibleLocationForMvn() {
 
         List<String> mvnExeList = Utils.getMvnExecutableNames();
 
         String mvnHome = System.getenv("MAVEN_HOME");
-        if(mvnHome==null || mvnHome.isEmpty()){
+        if (mvnHome == null || mvnHome.isEmpty()) {
             mvnHome = System.getenv("M2_HOME");
         }
-        if(mvnHome==null || mvnHome.isEmpty()){
+        if (mvnHome == null || mvnHome.isEmpty()) {
             mvnHome = System.getenv("MVN_HOME");
         }
 
-        if(mvnHome==null || mvnHome.isEmpty()){
+        if (mvnHome == null || mvnHome.isEmpty()) {
             //check in PATH
             String path = System.getenv("PATH");
             String[] tokens = path.split(File.pathSeparator);
-            for(String location : tokens){
-                if(! (location.contains("maven") || location.contains("mvn"))){
+            for (String location : tokens) {
+                if (!(location.contains("maven") || location.contains("mvn"))) {
                     continue;
                 }
-                for(String mvnExe : mvnExeList) {
+                for (String mvnExe : mvnExeList) {
                     File exe = new File(location, mvnExe);
                     if (exe.exists()) {
                         return exe.getAbsolutePath();
@@ -131,7 +131,7 @@ public class EvoParameters {
             return "";
 
         } else {
-            for(String mvnExe : mvnExeList) {
+            for (String mvnExe : mvnExeList) {
                 File exe = new File(mvnHome, "bin");
                 exe = new File(exe, mvnExe);
                 if (exe.exists()) {
