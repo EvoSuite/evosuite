@@ -26,9 +26,7 @@ import java.io.Serializable;
 import java.util.Arrays;
 
 /**
- *
  * @author Felix Prasse
- *
  */
 public final class FeatureVector implements Serializable {
 

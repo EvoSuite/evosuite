@@ -36,7 +36,7 @@ import java.util.List;
  * H. Muëhlenbein and D. Schlierkamp-Voosen,
  * "Predictive models for the breeder genetic algorithm. contiunous parameter optimization,”
  * Evolutionary Computation, vol. 1, no. 1, pp. 25–49, 1993.
- *
+ * <p>
  * This uses standard mutation and crossover.
  *
  * @param <T>
@@ -49,8 +49,7 @@ public class BreederGA<T extends Chromosome<T>> extends StandardGA<T> {
     /**
      * Constructor
      *
-     * @param factory
-     *            a {@link org.evosuite.ga.ChromosomeFactory} object.
+     * @param factory a {@link org.evosuite.ga.ChromosomeFactory} object.
      */
     public BreederGA(ChromosomeFactory<T> factory) {
         super(factory);

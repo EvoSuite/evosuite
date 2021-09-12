@@ -43,13 +43,19 @@ public class CellularGA<T extends Chromosome<T>> extends GeneticAlgorithm<T> {
 
     private static final Logger logger = LoggerFactory.getLogger(CellularGA.class);
 
-    /** An object of ReplacementFunction **/
+    /**
+     * An object of ReplacementFunction
+     **/
     protected ReplacementFunction<T> replacementFunction;
 
-    /** Constructing the neighbourhood **/
+    /**
+     * Constructing the neighbourhood
+     **/
     private final Neighbourhood<T> neighb;
 
-    /** Constructing the temporary grid */
+    /**
+     * Constructing the temporary grid
+     */
     private List<T> temp_cells = new ArrayList<>();
 
     private static final double DELTA = 0.000000001;
@@ -140,6 +146,7 @@ public class CellularGA<T extends Chromosome<T>> extends GeneticAlgorithm<T> {
 
     /**
      * Replace the current individuals with better individuals in the temporary grid
+     *
      * @param main The main grid
      * @param temp The temporary grid
      */
@@ -168,6 +175,7 @@ public class CellularGA<T extends Chromosome<T>> extends GeneticAlgorithm<T> {
 
     /**
      * Get the best offspring
+     *
      * @param offspring1
      * @param offspring2
      * @return better offspring
@@ -302,6 +310,7 @@ public class CellularGA<T extends Chromosome<T>> extends GeneticAlgorithm<T> {
 
     /**
      * Retrieve the fitness
+     *
      * @return fitness of an individual
      */
     private double getBestFitness() {
@@ -317,8 +326,7 @@ public class CellularGA<T extends Chromosome<T>> extends GeneticAlgorithm<T> {
      * setReplacementFunction
      * </p>
      *
-     * @param replacement_function
-     *            a {@link org.evosuite.ga.ReplacementFunction} object.
+     * @param replacement_function a {@link org.evosuite.ga.ReplacementFunction} object.
      */
     public void setReplacementFunction(ReplacementFunction<T> replacement_function) {
         this.replacementFunction = replacement_function;

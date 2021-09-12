@@ -31,7 +31,9 @@ public class ArrayLengthAssertion extends Assertion {
 
     public int length = 0;
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Assertion copy(TestCase newTestCase, int offset) {
         ArrayLengthAssertion s = new ArrayLengthAssertion();
@@ -42,7 +44,9 @@ public class ArrayLengthAssertion extends Assertion {
         return s;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getCode() {
         return "assertEquals(" + value + ", " + source.getName() + ".length);";

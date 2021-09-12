@@ -97,6 +97,7 @@ public class MAPElites extends GeneticAlgorithm<TestChromosome> {
 
     /**
      * Mutate one branch on average
+     *
      * @return The chromosomes to be mutated
      */
     private Set<TestChromosome> getToMutateWithChance() {
@@ -124,6 +125,7 @@ public class MAPElites extends GeneticAlgorithm<TestChromosome> {
 
     /**
      * Mutate every branch
+     *
      * @return The chromosomes to be mutated
      */
     private Set<TestChromosome> getToMutateAll() {
@@ -147,6 +149,7 @@ public class MAPElites extends GeneticAlgorithm<TestChromosome> {
 
     /**
      * Mutate exactly one branch and one chromosome
+     *
      * @return The chromosomes to be mutated
      */
     private Set<TestChromosome> getToMutateRandom() {
@@ -235,7 +238,7 @@ public class MAPElites extends GeneticAlgorithm<TestChromosome> {
 
     /**
      * Method used to mutate an offspring.
-     *
+     * <p>
      * Copied from AbstractMOSA
      *
      * @param offspring
@@ -264,7 +267,7 @@ public class MAPElites extends GeneticAlgorithm<TestChromosome> {
      * This method checks whether the test has only primitive type statements. Indeed,
      * crossover and mutation can lead to tests with no method calls (methods or constructors
      * call), thus, when executed they will never cover something in the class under test.
-     *
+     * <p>
      * Copied from AbstractMOSA
      *
      * @param test to check
@@ -297,7 +300,7 @@ public class MAPElites extends GeneticAlgorithm<TestChromosome> {
      * When a test case is changed via crossover and/or mutation, it can contains some
      * primitive variables that are not used as input (or to store the output) of method calls.
      * Thus, this method removes all these "trash" statements.
-     *
+     * <p>
      * Taken from AbstractMOSA
      *
      * @param chromosome

@@ -41,7 +41,6 @@ import java.util.*;
  * and without signature are considered equal
  *
  * @author mattia
- *
  */
 public class CallContext implements Serializable {
 
@@ -61,8 +60,7 @@ public class CallContext implements Serializable {
      * Constructor for CallContext.
      * </p>
      *
-     * @param stackTrace
-     *            an array of {@link java.lang.StackTraceElement} objects.
+     * @param stackTrace an array of {@link java.lang.StackTraceElement} objects.
      */
     public CallContext(StackTraceElement[] stackTrace) {
         addJUnitExcludes();
@@ -237,7 +235,9 @@ public class CallContext implements Serializable {
      * @see java.lang.Object#toString()
      */
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String toString() {
         if (context == null)

@@ -27,7 +27,7 @@ import static java.util.stream.Collectors.toList;
 
 /**
  * {@inheritDoc}
- *
+ * <p>
  * Select individual by highest fitness
  */
 public class BestKSelection<T extends Chromosome<T>> extends SelectionFunction<T> {
@@ -43,7 +43,7 @@ public class BestKSelection<T extends Chromosome<T>> extends SelectionFunction<T
 
     /**
      * {@inheritDoc}
-     *
+     * <p>
      * Population has to be sorted!
      */
     @Override
@@ -55,7 +55,7 @@ public class BestKSelection<T extends Chromosome<T>> extends SelectionFunction<T
 
     /**
      * Selects index of best offspring.
-     *
+     * <p>
      * Population has to be sorted!
      */
     @Override

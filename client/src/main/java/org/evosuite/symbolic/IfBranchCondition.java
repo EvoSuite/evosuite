@@ -28,7 +28,6 @@ import java.util.List;
  * instruction at the bytecode level.
  *
  * @author jgaleotti
- *
  */
 public final class IfBranchCondition extends BranchCondition {
 
@@ -42,10 +41,8 @@ public final class IfBranchCondition extends BranchCondition {
      * @param className
      * @param methodName
      * @param instructionIndex
-     * @param constraint
-     *            TODO
-     * @param supportingConstraints
-     *            a {@link java.util.Set} object.
+     * @param constraint            TODO
+     * @param supportingConstraints a {@link java.util.Set} object.
      * @param isTrueBranch
      */
     public IfBranchCondition(String className, String methodName, int instructionIndex, Constraint<?> constraint,

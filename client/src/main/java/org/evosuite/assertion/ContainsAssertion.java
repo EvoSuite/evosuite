@@ -31,7 +31,9 @@ public class ContainsAssertion extends Assertion {
 
     private static final long serialVersionUID = -86374077651820640L;
 
-    /** Variable on which the assertion is made */
+    /**
+     * Variable on which the assertion is made
+     */
     protected VariableReference containedVariable;
 
     public VariableReference getContainedVariable() {
@@ -39,7 +41,9 @@ public class ContainsAssertion extends Assertion {
     }
 
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Assertion copy(TestCase newTestCase, int offset) {
         ContainsAssertion s = new ContainsAssertion();
@@ -50,7 +54,9 @@ public class ContainsAssertion extends Assertion {
         return s;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getCode() {
         return "assertTrue(" + source.getName() + ".contains(" + containedVariable.getName() + "));";
@@ -84,7 +90,9 @@ public class ContainsAssertion extends Assertion {
      * @see org.evosuite.assertion.Assertion#getReferencedVariables()
      */
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Set<VariableReference> getReferencedVariables() {
         Set<VariableReference> vars = super.getReferencedVariables();

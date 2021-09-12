@@ -31,9 +31,7 @@ import java.io.Serializable;
 import java.util.Arrays;
 
 /**
- *
  * @author Felix Prasse
- *
  */
 public class TestResultObserver extends ExecutionObserver implements Serializable {
 

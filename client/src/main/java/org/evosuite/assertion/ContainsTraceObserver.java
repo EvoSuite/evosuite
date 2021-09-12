@@ -41,7 +41,9 @@ public class ContainsTraceObserver extends AssertionTraceObserver<ContainsTraceE
      * @see org.evosuite.assertion.AssertionTraceObserver#visit(org.evosuite.testcase.StatementInterface, org.evosuite.testcase.Scope, org.evosuite.testcase.VariableReference)
      */
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected void visit(Statement statement, Scope scope, VariableReference var) {
         try {

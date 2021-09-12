@@ -28,7 +28,6 @@ import java.util.List;
  * <code>switch</code> instruction
  *
  * @author jgaleotti
- *
  */
 public final class SwitchBranchCondition extends BranchCondition {
 

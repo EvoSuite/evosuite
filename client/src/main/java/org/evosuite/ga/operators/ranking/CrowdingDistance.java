@@ -58,7 +58,7 @@ public class CrowdingDistance<T extends Chromosome<T>> implements Serializable {
      * Method used to assign the 'traditional' Crowding Distance.
      *
      * @param front front of non-dominated solutions/tests
-     * @param set list of goals/targets (e.g., branches) to consider
+     * @param set   list of goals/targets (e.g., branches) to consider
      */
     public void crowdingDistanceAssignment(List<T> front, List<? extends FitnessFunction<T>> set) {
         int size = front.size();
@@ -109,7 +109,7 @@ public class CrowdingDistance<T extends Chromosome<T>> implements Serializable {
      * in Computer Science pp 727-741.
      *
      * @param front front of non-dominated solutions/tests
-     * @param set set of goals/targets (e.g., branches) to consider
+     * @param set   set of goals/targets (e.g., branches) to consider
      */
     public void subvectorDominanceAssignment(List<T> front, Set<FitnessFunction<T>> set) {
         int size = front.size();
@@ -149,7 +149,7 @@ public class CrowdingDistance<T extends Chromosome<T>> implements Serializable {
      * in Computer Science pp 727-741.
      *
      * @param front front of non-dominated solutions/tests
-     * @param set set of goals/targets (e.g., branches) to consider
+     * @param set   set of goals/targets (e.g., branches) to consider
      */
     public void fastEpsilonDominanceAssignment(List<T> front, Set<? extends FitnessFunction<T>> set) {
         double value;

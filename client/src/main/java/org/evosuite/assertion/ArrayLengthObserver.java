@@ -28,7 +28,9 @@ import org.evosuite.testcase.variable.VariableReference;
 import java.lang.reflect.Array;
 
 public class ArrayLengthObserver extends AssertionTraceObserver<ArrayLengthTraceEntry> {
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public synchronized void afterStatement(Statement statement, Scope scope,
                                             Throwable exception) {
@@ -48,7 +50,9 @@ public class ArrayLengthObserver extends AssertionTraceObserver<ArrayLengthTrace
      * @see org.evosuite.assertion.AssertionTraceObserver#visit(org.evosuite.testcase.StatementInterface, org.evosuite.testcase.Scope, org.evosuite.testcase.VariableReference)
      */
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected void visit(Statement statement, Scope scope, VariableReference var) {
         logger.debug("Checking array " + var);

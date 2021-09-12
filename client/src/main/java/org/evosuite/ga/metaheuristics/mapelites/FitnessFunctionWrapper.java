@@ -25,6 +25,7 @@ import org.evosuite.testcase.TestFitnessFunction;
 public class FitnessFunctionWrapper {
     /**
      * Counter for Feedback-Directed Sampling
+     *
      * @see https://arxiv.org/pdf/1901.01541.pdf
      */
     private final Counter counter;

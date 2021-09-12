@@ -71,7 +71,7 @@ public class TournamentSelectionRankAndCrowdingDistanceComparator<T extends Chro
 
     /**
      * {@inheritDoc}
-     *
+     * <p>
      * Perform the tournament on the population, return one index
      */
     @Override

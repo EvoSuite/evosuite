@@ -50,8 +50,8 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * This class ranks the test cases according to the 
- *  the "PreferenceCriterion" defined for the MOSA algorithm 
+ * This class ranks the test cases according to the
+ * the "PreferenceCriterion" defined for the MOSA algorithm
  *
  * @author Annibale Panichella, Fitsum M. Kifetew
  */
@@ -115,7 +115,7 @@ public class RankBasedPreferenceSorting<T extends Chromosome<T>> implements Rank
     /**
      * Returns the first (i.e. non-dominated) sub-front.
      *
-     * @param solutionSet the solutions to rank
+     * @param solutionSet     the solutions to rank
      * @param uncovered_goals the goals used for ranking
      * @return the non-dominated solutions (first sub-front)
      */

@@ -42,8 +42,8 @@ import org.evosuite.ga.comparators.DominanceComparator;
 import java.util.*;
 
 /**
- * This class ranks the test cases according to the 
- *  the "PreferenceCriterion" defined for the MOSA algorithm 
+ * This class ranks the test cases according to the
+ * the "PreferenceCriterion" defined for the MOSA algorithm
  *
  * @author Annibale Panichella, Fitsum M. Kifetew
  */
@@ -74,7 +74,8 @@ public class FastNonDominatedSorting<T extends Chromosome<T>> implements Ranking
 
     /**
      * This method ranks the remaining test cases using the traditional "Non-Dominated Sorting Algorithm"
-     * @param solutionSet set of test cases to rank with "Non-Dominated Sorting Algorithm"
+     *
+     * @param solutionSet     set of test cases to rank with "Non-Dominated Sorting Algorithm"
      * @param uncovered_goals set of goals
      * @return the list of fronts according to the uncovered goals
      */

@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Construction of a grid and the neighbourhood models 
+ * Construction of a grid and the neighbourhood models
  *
  * @author Nasser Albunian
  */
@@ -34,16 +34,24 @@ public class Neighbourhood<T extends Chromosome<T>> implements NeighborModels<T>
 
     private static final long serialVersionUID = 1L;
 
-    /** The population size **/
+    /**
+     * The population size
+     **/
     private final int population_size;
 
-    /** Position values of different neighbourhood based on the direction **/
+    /**
+     * Position values of different neighbourhood based on the direction
+     **/
     private int _L, _R, _N, _S, _W, _E, _NE, _NW, _SE, _SW, _NN, _SS, _EE, _WW;
 
-    /** An array that represents the grid **/
+    /**
+     * An array that represents the grid
+     **/
     int[][] neighbour;
 
-    /** Number of chromosomes per one row of a grid **/
+    /**
+     * Number of chromosomes per one row of a grid
+     **/
     int columns;
 
     /**
@@ -145,6 +153,7 @@ public class Neighbourhood<T extends Chromosome<T>> implements NeighborModels<T>
 
     /**
      * Retrieve neighbours of a chromosome according to the ring topology (i.e. 1D)
+     *
      * @param collection The current collection of chromosomes
      * @param position   The position of a chromosome which its neighbours will be retrieved
      * @return collection of neighbours
@@ -172,6 +181,7 @@ public class Neighbourhood<T extends Chromosome<T>> implements NeighborModels<T>
 
     /**
      * Retrieve neighbours of a chromosome according to the linear five model (i.e. L5)
+     *
      * @param collection The current collection of chromosomes
      * @param position   The position of a chromosome which its neighbours will be retrieved
      * @return collection of neighbours
@@ -193,6 +203,7 @@ public class Neighbourhood<T extends Chromosome<T>> implements NeighborModels<T>
 
     /**
      * Retrieve neighbours of a chromosome according to the compact nine model (i.e. C9)
+     *
      * @param collection The current collection of chromosomes
      * @param position   The position of a chromosome which its neighbours will be retrieved
      * @return collection of neighbours
@@ -223,6 +234,7 @@ public class Neighbourhood<T extends Chromosome<T>> implements NeighborModels<T>
 
     /**
      * Retrieve neighbours of a chromosome according to the linear compact thirteen (i.e. C13)
+     *
      * @param collection The current collection of chromosomes
      * @param position   The position of a chromosome which its neighbours will be retrieved
      * @return collection of neighbours
@@ -260,6 +272,7 @@ public class Neighbourhood<T extends Chromosome<T>> implements NeighborModels<T>
 
     /**
      * Retrieve neighbours of a chromosome
+     *
      * @param current_pop The current population
      * @param chromosome  The chromosome which its neighbours will be retrieved
      * @return neighbours as a collection

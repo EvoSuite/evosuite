@@ -71,8 +71,8 @@ public class PreferenceSortingComparator<T extends Chromosome<T>> implements Com
      * @param solution1 a {@link org.evosuite.ga.Chromosome} object
      * @param solution2 a {@link org.evosuite.ga.Chromosome} object
      * @return -1 if fitness value of solution1 is lower than the fitness value of solution2, 0 if the fitness
-     *         value of both objects is equal, or 1 if fitness value of solution1 is higher than the fitness
-     *         value of solution2.
+     * value of both objects is equal, or 1 if fitness value of solution1 is higher than the fitness
+     * value of solution2.
      */
     public int compare(T solution1, T solution2) {
         if (solution1 == null) {

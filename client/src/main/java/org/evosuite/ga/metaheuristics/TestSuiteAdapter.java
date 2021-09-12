@@ -249,8 +249,8 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
      * Converts a selection function from either TestSuite or Test case level to the other
      *
      * @param function The function to be converted
-     * @param <T> ToType of the conversion
-     * @param <X> FromType of the conversion
+     * @param <T>      ToType of the conversion
+     * @param <X>      FromType of the conversion
      * @return The converted selection function.
      */
     private static <T extends Chromosome<T>, X extends Chromosome<X>> SelectionFunction<T> mapSelectionFunction(SelectionFunction<X> function) {
@@ -560,7 +560,7 @@ public abstract class TestSuiteAdapter<A extends GeneticAlgorithm<TestChromosome
      * Exchanges the generic parameters of a Stopping condition (if possible).
      *
      * @param stoppingCondition the stopping condition with "wrong" generic parameters.
-     * @param <T> the desired target chromosome type
+     * @param <T>               the desired target chromosome type
      * @return
      */
     private static <T extends Chromosome<T>> StoppingCondition<T>

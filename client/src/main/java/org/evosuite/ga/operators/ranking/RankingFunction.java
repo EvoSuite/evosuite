@@ -58,7 +58,7 @@ public interface RankingFunction<T extends Chromosome<T>> extends Serializable {
      * {@link RankingFunction#getSubfront(int)}. The concrete dominance comparator
      * used for computing the ranking is defined by subclasses implementing this interface.
      *
-     * @param solutions the population to rank
+     * @param solutions       the population to rank
      * @param uncovered_goals the set of coverage goals to consider for the ranking assignment
      */
     void computeRankingAssignment(List<T> solutions,
