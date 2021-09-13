@@ -56,7 +56,7 @@ public class DetermineSUT {
 
     }
 
-    private class TargetClassSorter implements Comparator<String> {
+    private static class TargetClassSorter implements Comparator<String> {
         private final String targetClass;
 
         public TargetClassSorter(String target) {

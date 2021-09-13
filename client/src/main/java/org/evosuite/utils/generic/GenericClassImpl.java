@@ -170,6 +170,9 @@ public class GenericClassImpl implements Serializable, GenericClass<GenericClass
     public GenericClassImpl(GenericClassImpl copy) {
         this.type = copy.type;
         this.rawClass = copy.rawClass;
+        if (copy.getTypeVariableMap() != null) {
+            this.typeVariableMap = new LinkedHashMap<>(copy.getTypeVariableMap());
+        }
     }
 
     /**

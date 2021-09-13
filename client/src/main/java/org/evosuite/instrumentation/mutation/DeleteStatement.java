@@ -130,8 +130,6 @@ public class DeleteStatement implements MutationOperator {
             return new LdcInsnNode(0.0);
         } else if (type.equals(Type.FLOAT_TYPE)) {
             return new LdcInsnNode(0.0F);
-        } else if (type.equals(Type.INT_TYPE)) {
-            return new LdcInsnNode(0);
         } else if (type.equals(Type.LONG_TYPE)) {
             return new LdcInsnNode(0L);
         } else if (type.equals(Type.SHORT_TYPE)) {

@@ -215,9 +215,7 @@ public class CFGGenerator {
         BytecodeInstructionPool.getInstance(classLoader).logInstructionsIn(className,
                 methodName);
 
-        ActualControlFlowGraph cfg = new ActualControlFlowGraph(rawGraph);
-
-        return cfg;
+        return new ActualControlFlowGraph(rawGraph);
     }
 
     // getter

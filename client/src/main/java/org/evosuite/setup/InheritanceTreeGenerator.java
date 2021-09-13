@@ -469,8 +469,9 @@ public class InheritanceTreeGenerator {
         XStream xstream = new XStream();
         XStream.setupDefaultSecurity(xstream);
         xstream.allowTypesByWildcard(new String[]{"org.evosuite.**", "org.jgrapht.**"});
-        InputStream inheritance = new FileInputStream(new File(fileName));
-        return (InheritanceTree) xstream.fromXML(inheritance);
+        try (InputStream inheritance = new FileInputStream(fileName)) {
+            return (InheritanceTree) xstream.fromXML(inheritance);
+        }
     }
 
     public static void writeInheritanceTree(InheritanceTree tree, File file) throws IOException {

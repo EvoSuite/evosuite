@@ -39,7 +39,7 @@ public class SmtQueryPrinter {
 
         for (String optionName : query.getOptions()) {
             String optionValue = query.getOptionValue(optionName);
-            buff.append(String.format("(set-option %s %s)\n", optionName, optionValue));
+            buff.append(String.format("(set-option %s %s)%n", optionName, optionValue));
             buff.append("\n");
         }
         buff.append("\n");

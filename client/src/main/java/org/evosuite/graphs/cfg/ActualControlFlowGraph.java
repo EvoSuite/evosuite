@@ -110,7 +110,6 @@ public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock> {
     protected ActualControlFlowGraph(ActualControlFlowGraph toRevert) {
         super(toRevert.className, toRevert.methodName, toRevert.access,
                 toRevert.computeReverseJGraph());
-
     }
 
     /**

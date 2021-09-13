@@ -362,9 +362,10 @@ public class LangModel {
 
         if (prob != null) {
             prob = Math.pow(10, prob);
+            return prob;
         } // if
 
-        return prob;
+        return 0.0;
 
     } // predict_char_prob
 

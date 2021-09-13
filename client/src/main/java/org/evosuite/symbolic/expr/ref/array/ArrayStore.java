@@ -74,7 +74,7 @@ public final class ArrayStore {
 
         @Override
         public Set<Object> getConstants() {
-            Set<Object> result = new HashSet();
+            Set<Object> result = new HashSet<>();
             result.addAll(this.symbolicArray.getConstants());
             result.addAll(this.symbolicIndex.getConstants());
             result.addAll(this.SymbolicValue.getConstants());
@@ -137,7 +137,7 @@ public final class ArrayStore {
 
         @Override
         public Set<Object> getConstants() {
-            Set<Object> result = new HashSet();
+            Set<Object> result = new HashSet<>();
             result.addAll(this.symbolicArray.getConstants());
             result.addAll(this.symbolicIndex.getConstants());
             result.addAll(this.symbolicValue.getConstants());
@@ -200,7 +200,7 @@ public final class ArrayStore {
 
         @Override
         public Set<Object> getConstants() {
-            Set<Object> result = new HashSet();
+            Set<Object> result = new HashSet<>();
             result.addAll(this.symbolicArray.getConstants());
             result.addAll(this.symbolicIndex.getConstants());
             result.addAll(this.symbolicValue.getConstants());

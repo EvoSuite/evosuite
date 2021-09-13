@@ -126,14 +126,13 @@ public class CoverageCrossOver extends CrossOverFunction<TestSuiteChromosome> {
     private Set<TestChromosome> removeUniqueCoveringTests(
             Map<TestFitnessFunction, Set<TestChromosome>> goalMap) {
         Set<TestChromosome> tests = new HashSet<>();
-        Set<TestFitnessFunction> uniqueGoals = new HashSet<>();
+
         for (Entry<TestFitnessFunction, Set<TestChromosome>> entry : goalMap.entrySet()) {
             if (entry.getValue().size() == 1) {
-                uniqueGoals.add(entry.getKey());
                 tests.add(entry.getValue().iterator().next());
             }
         }
-        uniqueGoals.removeAll(uniqueGoals);
+
         return tests;
     }
 

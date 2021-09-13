@@ -166,8 +166,8 @@ public class MainConfig {
     @Help("Artificial maximum number of local variables in a method/constructor")
     public int MAX_LOCALS_DEFAULT = 200;
 
-    public final String CLINIT = "<clinit>"; //$NON-NLS-1$
-    public final String INIT = "<init>"; //$NON-NLS-1$
+    public final static String CLINIT = "<clinit>"; //$NON-NLS-1$
+    public final static String INIT = "<init>"; //$NON-NLS-1$
 
     // TODO: Implement this, should be similar to running all Roops methods
     // @Help("Run on all public static methods declared by public classes")

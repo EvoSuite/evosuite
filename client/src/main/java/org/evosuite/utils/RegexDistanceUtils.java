@@ -471,9 +471,9 @@ public class RegexDistanceUtils {
      */
     private static class CostMatrix {
 
-        private final int DEL = 0;
-        private final int REP = 1;
-        private final int INS = 2;
+        private final static int DEL = 0;
+        private final static int REP = 1;
+        private final static int INS = 2;
 
         public CostMatrix() {
             super();

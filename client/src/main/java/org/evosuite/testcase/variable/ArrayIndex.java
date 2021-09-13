@@ -258,8 +258,7 @@ public class ArrayIndex extends VariableReferenceImpl {
             if (arrayObject == null) {
                 throw new CodeUnderTestException(new NullPointerException());
             }
-            Object result = Array.get(arrayObject, indices.get(indices.size() - 1));
-            return result;
+            return Array.get(arrayObject, indices.get(indices.size() - 1));
         } catch (ArrayIndexOutOfBoundsException e) {
             throw new CodeUnderTestException(e);
         }

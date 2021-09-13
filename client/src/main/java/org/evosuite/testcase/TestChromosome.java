@@ -682,24 +682,7 @@ public final class TestChromosome extends AbstractTestChromosome<TestChromosome>
     public static void addSecondaryObjective(SecondaryObjective<TestChromosome> objective) {
         secondaryObjectives.add(objective);
     }
-
-    public static void ShuffleSecondaryObjective() {
-        Collections.shuffle(secondaryObjectives);
-    }
-
-    public static void reverseSecondaryObjective() {
-        Collections.reverse(secondaryObjectives);
-    }
-
-    /**
-     * Remove secondary objective from list, if it is there
-     *
-     * @param objective a {@link org.evosuite.ga.SecondaryObjective} object.
-     */
-    public static void removeSecondaryObjective(SecondaryObjective<TestChromosome> objective) {
-        secondaryObjectives.remove(objective);
-    }
-
+    
     /**
      * <p>
      * Getter for the field <code>secondaryObjectives</code>.

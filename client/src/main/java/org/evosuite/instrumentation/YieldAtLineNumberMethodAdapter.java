@@ -43,8 +43,6 @@ public class YieldAtLineNumberMethodAdapter extends MethodVisitor {
 
     private boolean hadInvokeSpecial = false;
 
-    int currentLine = 0;
-
     /**
      * <p>Constructor for YieldAtLineNumberMethodAdapter.</p>
      *
@@ -67,7 +65,6 @@ public class YieldAtLineNumberMethodAdapter extends MethodVisitor {
     @Override
     public void visitLineNumber(int line, Label start) {
         super.visitLineNumber(line, start);
-        currentLine = line;
 
         if (methodName.equals("<clinit>"))
             return;

@@ -245,7 +245,7 @@ public class NeighbourhoodTest {
 
         Neighbourhood<TestSuiteChromosome> neighbourhood = new Neighbourhood<>(Properties.POPULATION);
 
-        List<TestSuiteChromosome> neighbors = neighbourhood.CompactThirteen(population, 10);
+        List<TestSuiteChromosome> neighbors = neighbourhood.compactThirteen(population, 10);
 
         TestSuiteChromosome exepcted_individual = population.get(2);
         TestSuiteChromosome returned_individual = neighbors.get(8);
@@ -260,7 +260,7 @@ public class NeighbourhoodTest {
 
         Neighbourhood<TestSuiteChromosome> neighbourhood = new Neighbourhood<>(Properties.POPULATION);
 
-        List<TestSuiteChromosome> neighbors = neighbourhood.CompactThirteen(population, 10);
+        List<TestSuiteChromosome> neighbors = neighbourhood.compactThirteen(population, 10);
 
         TestSuiteChromosome exepcted_individual = population.get(2);
         TestSuiteChromosome returned_individual = neighbors.get(9);
@@ -275,7 +275,7 @@ public class NeighbourhoodTest {
 
         Neighbourhood<TestSuiteChromosome> neighbourhood = new Neighbourhood<>(Properties.POPULATION);
 
-        List<TestSuiteChromosome> neighbors = neighbourhood.CompactThirteen(population, 10);
+        List<TestSuiteChromosome> neighbors = neighbourhood.compactThirteen(population, 10);
 
         TestSuiteChromosome exepcted_individual = population.get(8);
         TestSuiteChromosome returned_individual = neighbors.get(10);
@@ -290,7 +290,7 @@ public class NeighbourhoodTest {
 
         Neighbourhood<TestSuiteChromosome> neighbourhood = new Neighbourhood<>(Properties.POPULATION);
 
-        List<TestSuiteChromosome> neighbors = neighbourhood.CompactThirteen(population, 5);
+        List<TestSuiteChromosome> neighbors = neighbourhood.compactThirteen(population, 5);
 
         TestSuiteChromosome exepcted_individual = population.get(7);
         TestSuiteChromosome returned_individual = neighbors.get(11);
@@ -305,7 +305,7 @@ public class NeighbourhoodTest {
 
         Neighbourhood<TestSuiteChromosome> neighbourhood = new Neighbourhood<>(Properties.POPULATION);
 
-        List<TestSuiteChromosome> neighbors = neighbourhood.CompactThirteen(population, 0);
+        List<TestSuiteChromosome> neighbors = neighbourhood.compactThirteen(population, 0);
 
         TestSuiteChromosome exepcted_individual = population.get(15);
         TestSuiteChromosome returned_individual = neighbors.get(4);
@@ -320,7 +320,7 @@ public class NeighbourhoodTest {
 
         Neighbourhood<TestSuiteChromosome> neighbourhood = new Neighbourhood<>(Properties.POPULATION);
 
-        List<TestSuiteChromosome> neighbors = neighbourhood.CompactThirteen(population, 3);
+        List<TestSuiteChromosome> neighbors = neighbourhood.compactThirteen(population, 3);
 
         TestSuiteChromosome exepcted_individual = population.get(12);
         TestSuiteChromosome returned_individual = neighbors.get(6);
@@ -335,7 +335,7 @@ public class NeighbourhoodTest {
 
         Neighbourhood<TestSuiteChromosome> neighbourhood = new Neighbourhood<>(Properties.POPULATION);
 
-        List<TestSuiteChromosome> neighbors = neighbourhood.CompactThirteen(population, 12);
+        List<TestSuiteChromosome> neighbors = neighbourhood.compactThirteen(population, 12);
 
         TestSuiteChromosome exepcted_individual = population.get(3);
         TestSuiteChromosome returned_individual = neighbors.get(5);
@@ -350,7 +350,7 @@ public class NeighbourhoodTest {
 
         Neighbourhood<TestSuiteChromosome> neighbourhood = new Neighbourhood<>(Properties.POPULATION);
 
-        List<TestSuiteChromosome> neighbors = neighbourhood.CompactThirteen(population, 15);
+        List<TestSuiteChromosome> neighbors = neighbourhood.compactThirteen(population, 15);
 
         TestSuiteChromosome exepcted_individual = population.get(0);
         TestSuiteChromosome returned_individual = neighbors.get(7);

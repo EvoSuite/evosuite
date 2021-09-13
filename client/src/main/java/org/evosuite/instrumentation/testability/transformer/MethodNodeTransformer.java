@@ -70,31 +70,10 @@ public class MethodNodeTransformer {
 
         setupLocals(mn);
 
-        Set<AbstractInsnNode> originalNodes = new HashSet<>();
         AbstractInsnNode node = mn.instructions.getFirst();
-        while (node != mn.instructions.getLast()) {
-            originalNodes.add(node);
-            node = node.getNext();
-        }
 
-        //int currentIndex = 0;
-
-        node = mn.instructions.getFirst();
-        //while (currentIndex < mn.instructions.size()) {
         boolean finished = false;
         while (!finished) {
-            //while (node != mn.instructions.getLast()) {
-            //node = mn.instructions.get(currentIndex);
-            //int oldLength = mn.instructions.size();
-            //			BytecodeInstruction insn = BytecodeInstructionPool.getInstruction(className,
-            //			                                                                  mn.name
-            //			                                                                          + mn.desc,
-            //			                                                                  node);
-            //			if (insn == null) {
-            //				//			if (!originalNodes.contains(node)) {
-            //				System.out.println("Node not present in original stuff " + node);
-            //				// Only transform nodes present in original method
-            //			} else
             if (node instanceof MethodInsnNode) {
                 node = transformMethodInsnNode(mn, (MethodInsnNode) node);
             } else if (node instanceof VarInsnNode) {
@@ -114,8 +93,6 @@ public class MethodNodeTransformer {
             } else if (node instanceof MultiANewArrayInsnNode) {
                 node = transformMultiANewArrayInsnNode(mn, (MultiANewArrayInsnNode) node);
             }
-            //currentIndex += mn.instructions.size() - oldLength;
-            //currentIndex++;
 
             if (node == mn.instructions.getLast()) {
                 finished = true;

@@ -59,16 +59,15 @@ public enum JdkPureMethodsList {
     private Set<String> loadInfo() {
         Set<String> set = new HashSet<>(2020);
 
-        try {
+        try (
             InputStream fstream = this.getClass().getResourceAsStream(
                     "/jdkPureMethods.txt");
             DataInputStream in = new DataInputStream(fstream);
-            BufferedReader br = new BufferedReader(new InputStreamReader(in));
+            BufferedReader br = new BufferedReader(new InputStreamReader(in)); ) {
             String strLine;
             while ((strLine = br.readLine()) != null) {
                 set.add(strLine);
             }
-            in.close();
         } catch (IOException e) {
             System.err.println("Wrong filename/path/file is missing");
             e.printStackTrace();

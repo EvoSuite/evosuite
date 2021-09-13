@@ -74,8 +74,7 @@ public class CarvingClassLoader extends ClassLoader {
             return result;
         } else {
             logger.info("Seeing class for first time: " + name);
-            Class<?> instrumentedClass = instrumentClass(name);
-            return instrumentedClass;
+            return instrumentClass(name);
         }
     }
 

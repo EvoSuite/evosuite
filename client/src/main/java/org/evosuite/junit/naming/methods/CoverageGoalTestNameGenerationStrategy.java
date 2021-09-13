@@ -458,20 +458,6 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
         return testMap;
     }
 
-    private void resolveAmbiguity(Set<TestCase> tests) {
-
-        // Full list of goals for given tests
-        Map<TestCase, Set<TestFitnessFunction>> testToGoals = new LinkedHashMap<>();
-        for (TestCase test : tests) {
-            testToGoals.put(test, filterSupportedGoals(new LinkedHashSet<>(test.getCoveredGoals())));
-        }
-
-        // Find out what is unique about each one
-        findUniqueGoals(testToGoals);
-
-    }
-
-
     /**
      * There may be tests with the same calculated name, in which case we add a number suffix
      */
@@ -602,8 +588,6 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
      */
     private String getGoalName(TestFitnessFunction goal) {
         if (goal instanceof MethodCoverageTestFitness) {
-            return getGoalName((MethodCoverageTestFitness) goal);
-        } else if (goal instanceof MethodCoverageTestFitness) {
             return getGoalName((MethodCoverageTestFitness) goal);
         } else if (goal instanceof MethodNoExceptionCoverageTestFitness) {
             return getGoalName((MethodNoExceptionCoverageTestFitness) goal);

@@ -130,7 +130,7 @@ public class DeprecatedTestSuiteDSE {
 
     private final Collection<TestBranchPair> unsolvedBranchConditions = null;
 
-    private class TestBranchPair implements Comparable<TestBranchPair> {
+    private static class TestBranchPair implements Comparable<TestBranchPair> {
         TestChromosome test;
         BranchCondition branch;
         List<BranchCondition> pathCondition;
@@ -543,22 +543,6 @@ public class DeprecatedTestSuiteDSE {
             }
         }
         return uncoveredBranches;
-    }
-
-    /**
-     * Returns the set covered branches by this suite
-     *
-     * @param suite
-     * @return
-     */
-    private static Set<Branch> getCoveredBranches(TestSuiteChromosome suite) {
-        final Set<Branch> suiteCoveredBranches = new HashSet<>();
-        for (TestChromosome test : suite.getTestChromosomes()) {
-            final Set<Branch> testCoveredBranches = getCoveredBranches(test);
-            suiteCoveredBranches.addAll(testCoveredBranches);
-        }
-        return suiteCoveredBranches;
-
     }
 
     /**

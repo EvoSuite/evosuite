@@ -34,7 +34,7 @@ public interface NeighborModels<T extends Chromosome<T>> {
 
     List<T> compactNine(List<T> collection, int position);
 
-    List<T> CompactThirteen(List<T> collection, int position);
+    List<T> compactThirteen(List<T> collection, int position);
 
     /*
      * Neighbourhood positions

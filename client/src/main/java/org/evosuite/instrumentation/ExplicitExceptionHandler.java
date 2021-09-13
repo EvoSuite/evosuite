@@ -42,8 +42,6 @@ public class ExplicitExceptionHandler extends MethodVisitor {
 
     private boolean inErrorBranch = false;
 
-    int currentLine = 0;
-
     /**
      * <p>
      * Constructor for ExplicitExceptionHandler.

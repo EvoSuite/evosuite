@@ -239,7 +239,7 @@ public class Neighbourhood<T extends Chromosome<T>> implements NeighborModels<T>
      * @param position   The position of a chromosome which its neighbours will be retrieved
      * @return collection of neighbours
      */
-    public List<T> CompactThirteen(List<T> collection, int position) {
+    public List<T> compactThirteen(List<T> collection, int position) {
         _N = neighbour[position][Positions.N.ordinal()];
         _S = neighbour[position][Positions.S.ordinal()];
         _E = neighbour[position][Positions.E.ordinal()];
@@ -287,7 +287,7 @@ public class Neighbourhood<T extends Chromosome<T>> implements NeighborModels<T>
             case COMPACT_NINE:
                 return this.compactNine(current_pop, chromosome);
             case COMPACT_THIRTEEN:
-                return this.CompactThirteen(current_pop, chromosome);
+                return this.compactThirteen(current_pop, chromosome);
             default:
                 return this.linearFive(current_pop, chromosome);
         }

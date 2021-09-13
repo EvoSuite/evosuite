@@ -1044,45 +1044,6 @@ public class TestClusterGenerator {
         return loadedClasses;
     }
 
-    // private Set<Class<?>> getConcreteClassesEnum() {
-    // Set<Class<?>> enumClasses = new LinkedHashSet<Class<?>>();
-    // for (String className : inheritanceTree.getSubclasses("java.lang.Enum"))
-    // {
-    // logger.warn("Enum candidate: " + className);
-    // }
-    //
-    // return enumClasses;
-    // }
-
-    private List<List<GenericClass<?>>> getAssignableTypes(GenericClass<?> clazz) {
-        List<List<GenericClass<?>>> tuples = new ArrayList<>();
-        // logger.info("Parameters of " + clazz.getSimpleName() + ": "
-        // + clazz.getNumParameters());
-        boolean first = true;
-        for (java.lang.reflect.Type parameterType : clazz.getParameterTypes()) {
-            // logger.info("Current parameter: " + parameterType);
-            List<GenericClass<?>> assignableClasses = getAssignableTypes(parameterType);
-            List<List<GenericClass<?>>> newTuples = new ArrayList<>();
-
-            for (GenericClass<?> concreteClass : assignableClasses) {
-                if (first) {
-                    List<GenericClass<?>> tuple = new ArrayList<>();
-                    tuple.add(concreteClass);
-                    newTuples.add(tuple);
-                } else {
-                    for (List<GenericClass<?>> t : tuples) {
-                        List<GenericClass<?>> tuple = new ArrayList<>(t);
-                        tuple.add(concreteClass);
-                        newTuples.add(tuple);
-                    }
-                }
-            }
-            tuples = newTuples;
-            first = false;
-        }
-        return tuples;
-    }
-
     /**
      * Update
      *

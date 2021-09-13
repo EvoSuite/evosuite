@@ -37,7 +37,7 @@ import java.util.*;
  */
 public class AllUsesAnalysis {
 
-    private final int UPPER_PAIR_SEARCH_INVOCATION_BOUND = 2000000;
+    private final static int UPPER_PAIR_SEARCH_INVOCATION_BOUND = 2000000;
     private boolean warnedAboutAbortion = false;
     private final ClassControlFlowGraph ccfg;
 

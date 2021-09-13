@@ -62,10 +62,6 @@ public final class TestSuiteChromosome
         secondaryObjectives.add(objective);
     }
 
-    public static void ShuffleSecondaryObjective() {
-        Collections.shuffle(secondaryObjectives);
-    }
-
     public static int getSecondaryObjectivesSize() {
         return secondaryObjectives.size();
     }

@@ -148,6 +148,7 @@ public class CharPrimitiveStatement extends NumericalPrimitiveStatement<Characte
      */
     @Override
     public boolean isPositive() {
-        return value >= 0;
+        // chars are always positive
+        return true;
     }
 }

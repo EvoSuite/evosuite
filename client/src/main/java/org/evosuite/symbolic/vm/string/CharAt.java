@@ -52,10 +52,8 @@ public final class CharAt extends SymbolicFunction {
         if (string_expr.containsSymbolicVariable()
                 || index_expr.containsSymbolicVariable()) {
 
-            StringBinaryToIntegerExpression strBExpr = new StringBinaryToIntegerExpression(
+            return new StringBinaryToIntegerExpression(
                     string_expr, Operator.CHARAT, index_expr, (long) res);
-
-            return strBExpr;
 
         } else {
             return this.getSymbIntegerRetVal();

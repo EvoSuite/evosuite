@@ -42,9 +42,8 @@ public final class Character_isDigit extends SymbolicFunction {
 
             long conV = res ? 1 : 0;
 
-            IntegerUnaryExpression getNumericValueExpr = new IntegerUnaryExpression(
+            return new IntegerUnaryExpression(
                     charValueExpr, Operator.ISDIGIT, conV);
-            return getNumericValueExpr;
 
         } else {
             return this.getSymbIntegerRetVal();

@@ -621,17 +621,6 @@ public class BranchPool {
         return methods;
     }
 
-    public int getBranchlessMethodLineNumber(String className, String methodName) {
-        // check if the given method is branchless
-        if (branchlessMethods.get(className) != null
-                && branchlessMethods.get(className).get(className + "." + methodName) != null) {
-            return branchlessMethods.get(className).get(className + "." + methodName);
-        }
-        // otherwise consult the branchMap and return the lineNumber of the earliest Branch
-
-        return branchlessMethods.get(className).get(className + "." + methodName);
-    }
-
     /**
      * Returns a set with all unique methodNames of methods without Branches.
      *

@@ -42,9 +42,8 @@ public final class Character_isLetter extends SymbolicFunction {
 
             long conV = res ? 1 : 0;
 
-            IntegerUnaryExpression is_letter_expr = new IntegerUnaryExpression(
+            return new IntegerUnaryExpression(
                     charValueExpr, Operator.ISLETTER, conV);
-            return is_letter_expr;
         } else {
 
             return this.getSymbIntegerRetVal();

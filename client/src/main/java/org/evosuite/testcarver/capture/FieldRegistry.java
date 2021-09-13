@@ -154,11 +154,11 @@ public final class FieldRegistry {
 
     private static Map<String, Field> collectAccessibleFields(Map<String, Field> accessibleFields,
                                                               final Class<?> clazz, final Package childPackage) {
-        logger.debug("Collecting accessible fields for {}", clazz.getCanonicalName());
         if (clazz == null || Object.class.equals(clazz)) {
             logger.debug("Cannot get fields for null class");
             return new LinkedHashMap<>();
         }
+        logger.debug("Collecting accessible fields for {}", clazz.getCanonicalName());
         Map<String, Field> currentAccessibleFields = new LinkedHashMap<>();
         try {
             for (Field f : clazz.getDeclaredFields()) {

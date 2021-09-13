@@ -63,7 +63,7 @@ public final class ArraySelect {
 
         @Override
         public Set<Variable<?>> getVariables() {
-            Set<Variable<?>> variables = new HashSet();
+            Set<Variable<?>> variables = new HashSet<>();
             variables.addAll(this.symbolicArray.getVariables());
             variables.addAll(this.symbolicIndex.getVariables());
             variables.addAll(this.symbolicSelectedValue.getVariables());
@@ -72,7 +72,7 @@ public final class ArraySelect {
 
         @Override
         public Set<Object> getConstants() {
-            Set<Object> result = new HashSet();
+            Set<Object> result = new HashSet<>();
             result.addAll(this.symbolicArray.getConstants());
             result.addAll(this.symbolicIndex.getConstants());
             result.addAll(this.symbolicSelectedValue.getConstants());
@@ -129,7 +129,7 @@ public final class ArraySelect {
 
         @Override
         public Set<Variable<?>> getVariables() {
-            Set<Variable<?>> variables = new HashSet();
+            Set<Variable<?>> variables = new HashSet<>();
             variables.addAll(this.symbolicArray.getVariables());
             variables.addAll(this.symbolicIndex.getVariables());
             return variables;
@@ -137,7 +137,7 @@ public final class ArraySelect {
 
         @Override
         public Set<Object> getConstants() {
-            Set<Object> result = new HashSet();
+            Set<Object> result = new HashSet<>();
             result.addAll(this.symbolicArray.getConstants());
             result.addAll(this.symbolicIndex.getConstants());
             return result;
@@ -193,7 +193,7 @@ public final class ArraySelect {
 
         @Override
         public Set<Variable<?>> getVariables() {
-            Set<Variable<?>> variables = new HashSet();
+            Set<Variable<?>> variables = new HashSet<>();
             variables.addAll(this.symbolicArray.getVariables());
             variables.addAll(this.symbolicIndex.getVariables());
             variables.addAll(this.symbolicSelectedValue.getVariables());
@@ -202,7 +202,7 @@ public final class ArraySelect {
 
         @Override
         public Set<Object> getConstants() {
-            Set<Object> result = new HashSet();
+            Set<Object> result = new HashSet<>();
             result.addAll(this.symbolicArray.getConstants());
             result.addAll(this.symbolicIndex.getConstants());
             result.addAll(this.symbolicSelectedValue.getConstants());
