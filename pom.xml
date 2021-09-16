@@ -6,7 +6,7 @@
     <artifactId>evosuite</artifactId>
     <name>EvoSuite</name>
     <description>n/a</description>
-    <version>1.1.1-SNAPSHOT</version>
+    <version>1.2.0</version>
     <packaging>pom</packaging>
     <url>http://www.evosuite.org/</url>
     <inceptionYear>2010</inceptionYear>
