@@ -30,7 +30,9 @@ import org.evosuite.utils.generic.GenericClassFactory;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Array;
+import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
@@ -76,7 +78,7 @@ public class ClassPrimitiveStatement extends PrimitiveStatement<Class<?>> {
 
     @Override
     public void delta() {
-        randomize();
+        randomize(null, null);
     }
 
     @Override
@@ -115,7 +117,7 @@ public class ClassPrimitiveStatement extends PrimitiveStatement<Class<?>> {
     }
 
     @Override
-    public void randomize() {
+    public void randomize(AccessibleObject accessibleObject, Parameter parameter) {
         if (!assignableClasses.isEmpty()) {
             value = Randomness.choice(assignableClasses);
         } else {

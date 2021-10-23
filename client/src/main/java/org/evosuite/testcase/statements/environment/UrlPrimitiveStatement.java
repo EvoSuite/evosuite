@@ -26,6 +26,9 @@ import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.utils.Randomness;
 import org.evosuite.utils.StringUtil;
 
+import java.lang.reflect.AccessibleObject;
+import java.lang.reflect.Parameter;
+
 /**
  * Created by arcuri on 12/14/14.
  */
@@ -35,7 +38,7 @@ public class UrlPrimitiveStatement extends EnvironmentDataStatement<EvoSuiteURL>
 
     public UrlPrimitiveStatement(TestCase tc) {
         this(tc, null);
-        randomize();
+        randomize(null, null);
     }
 
 
@@ -64,7 +67,7 @@ public class UrlPrimitiveStatement extends EnvironmentDataStatement<EvoSuiteURL>
 
     @Override
     public void delta() {
-        randomize();
+        randomize(null, null);
     }
 
     @Override
@@ -73,7 +76,7 @@ public class UrlPrimitiveStatement extends EnvironmentDataStatement<EvoSuiteURL>
     }
 
     @Override
-    public void randomize() {
+    public void randomize(AccessibleObject accessibleObject, Parameter parameter) {
         String url = Randomness.choice(tc.getAccessedEnvironment().getViewOfRemoteURLs());
         if (url != null) {
             setValue(new EvoSuiteURL(url));

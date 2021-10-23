@@ -27,6 +27,9 @@ import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.utils.Randomness;
 import org.evosuite.utils.StringUtil;
 
+import java.lang.reflect.AccessibleObject;
+import java.lang.reflect.Parameter;
+
 /**
  * Created by arcuri on 12/15/14.
  */
@@ -36,7 +39,7 @@ public class LocalAddressPrimitiveStatement extends EnvironmentDataStatement<Evo
 
     public LocalAddressPrimitiveStatement(TestCase tc) {
         this(tc, null);
-        randomize();
+        randomize(null, null);
     }
 
     public LocalAddressPrimitiveStatement(TestCase tc, EvoSuiteLocalAddress value) {
@@ -67,7 +70,7 @@ public class LocalAddressPrimitiveStatement extends EnvironmentDataStatement<Evo
 
     @Override
     public void delta() {
-        randomize();
+        randomize(null, null);
     }
 
     @Override
@@ -76,8 +79,7 @@ public class LocalAddressPrimitiveStatement extends EnvironmentDataStatement<Evo
     }
 
     @Override
-    public void randomize() {
-
+    public void randomize(AccessibleObject accessibleObject, Parameter parameter) {
         EvoSuiteLocalAddress addr;
 
         if (!tc.getAccessedEnvironment().getViewOfLocalListeningPorts().isEmpty()) {

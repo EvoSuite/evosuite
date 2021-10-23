@@ -20,12 +20,16 @@
 
 package org.evosuite.testcase.statements.numeric;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.evosuite.Properties;
+import org.evosuite.config.EvosuiteParameter;
+import org.evosuite.config.EvosuiteParameterConfig;
 import org.evosuite.seeding.ConstantPool;
 import org.evosuite.seeding.ConstantPoolManager;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.utils.Randomness;
 
+import java.lang.reflect.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
@@ -135,7 +139,20 @@ public class FloatPrimitiveStatement extends NumericalPrimitiveStatement<Float> 
      * {@inheritDoc}
      */
     @Override
-    public void randomize() {
+    public void randomize(AccessibleObject accessibleObject, Parameter parameter) {
+        if (accessibleObject instanceof Method || accessibleObject instanceof Constructor) {
+            Executable executable = (Executable) accessibleObject;
+            String key = executable.getDeclaringClass().getName() + "#" + executable.getName();
+            EvosuiteParameterConfig config = Properties.getParameterConfig(key);
+            if (config != null && config.getParameters() != null) {
+                for (EvosuiteParameter p : config.getParameters()) {
+                    if (p.getParameterType().equals(parameter.getType().getName()) && p.getParameterName().equals(parameter.getName()) && CollectionUtils.isNotEmpty(p.getParameterValues())) {
+                        value = Float.parseFloat(Randomness.choice(p.getParameterValues()));
+                        return;
+                    }
+                }
+            }
+        }
         if (Randomness.nextDouble() >= Properties.PRIMITIVE_POOL) {
             value = (float) (Randomness.nextGaussian() * Properties.MAX_INT);
             int precision = Randomness.nextInt(7);

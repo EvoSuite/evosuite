@@ -29,6 +29,8 @@ import org.evosuite.utils.StringUtil;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.lang.reflect.AccessibleObject;
+import java.lang.reflect.Parameter;
 
 
 /**
@@ -78,7 +80,7 @@ public class FileNamePrimitiveStatement extends EnvironmentDataStatement<EvoSuit
      */
     @Override
     public void delta() {
-        randomize();
+        randomize(null, null);
     }
 
     /* (non-Javadoc)
@@ -101,7 +103,7 @@ public class FileNamePrimitiveStatement extends EnvironmentDataStatement<EvoSuit
      * {@inheritDoc}
      */
     @Override
-    public void randomize() {
+    public void randomize(AccessibleObject accessibleObject, Parameter parameter) {
         String path = Randomness.choice(tc.getAccessedEnvironment().getViewOfAccessedFiles());
         if (path != null) {
             setValue(new EvoSuiteFile(path));

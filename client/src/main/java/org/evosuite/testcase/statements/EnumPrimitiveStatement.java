@@ -29,6 +29,8 @@ import org.evosuite.utils.generic.GenericClassFactory;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.lang.reflect.AccessibleObject;
+import java.lang.reflect.Parameter;
 import java.util.Arrays;
 import java.util.List;
 
@@ -201,7 +203,7 @@ public class EnumPrimitiveStatement<T extends Enum<T>> extends PrimitiveStatemen
      * {@inheritDoc}
      */
     @Override
-    public void randomize() {
+    public void randomize(AccessibleObject accessibleObject, Parameter parameter) {
         if (constants.length > 1) {
             int pos = Randomness.nextInt(constants.length);
             value = constants[pos];

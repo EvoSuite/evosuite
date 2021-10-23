@@ -28,7 +28,9 @@ import org.evosuite.utils.generic.GenericAccessibleObject;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.PrintStream;
+import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -169,7 +171,7 @@ public class NullStatement extends PrimitiveStatement<Void> {
      * {@inheritDoc}
      */
     @Override
-    public void randomize() {
+    public void randomize(AccessibleObject accessibleObject, Parameter parameter) {
         logger.info("Method randomize not implemented: How to randomize null?");
     }
 

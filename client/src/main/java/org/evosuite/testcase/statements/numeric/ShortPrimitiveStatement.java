@@ -20,11 +20,16 @@
 
 package org.evosuite.testcase.statements.numeric;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.evosuite.Properties;
+import org.evosuite.config.EvosuiteParameter;
+import org.evosuite.config.EvosuiteParameterConfig;
 import org.evosuite.seeding.ConstantPool;
 import org.evosuite.seeding.ConstantPoolManager;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.utils.Randomness;
+
+import java.lang.reflect.*;
 
 /**
  * <p>
@@ -105,7 +110,20 @@ public class ShortPrimitiveStatement extends NumericalPrimitiveStatement<Short> 
      * {@inheritDoc}
      */
     @Override
-    public void randomize() {
+    public void randomize(AccessibleObject accessibleObject, Parameter parameter) {
+        if (accessibleObject instanceof Method || accessibleObject instanceof Constructor) {
+            Executable executable = (Executable) accessibleObject;
+            String key = executable.getDeclaringClass().getName() + "#" + executable.getName();
+            EvosuiteParameterConfig config = Properties.getParameterConfig(key);
+            if (config != null && config.getParameters() != null) {
+                for (EvosuiteParameter p : config.getParameters()) {
+                    if (p.getParameterType().equals(parameter.getType().getName()) && p.getParameterName().equals(parameter.getName()) && CollectionUtils.isNotEmpty(p.getParameterValues())) {
+                        value = Short.parseShort(Randomness.choice(p.getParameterValues()));
+                        return;
+                    }
+                }
+            }
+        }
         short max = (short) Math.min(Properties.MAX_INT, 32767);
         if (Randomness.nextDouble() >= Properties.PRIMITIVE_POOL) {
             value = (short) ((Randomness.nextGaussian() * max));

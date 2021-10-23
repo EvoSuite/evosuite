@@ -372,7 +372,7 @@ public final class TestChromosome extends AbstractTestChromosome<TestChromosome>
                 int pos = st.getPosition();
                 logger.debug("Generating parameters for mock call");
                 // Added 'null' as additional parameter - fix for @NotNull annotations issue on evo mailing list
-                List<VariableReference> refs = TestFactory.getInstance().satisfyParameters(test, null, missing, null, pos, 0, true, false, true);
+                List<VariableReference> refs = TestFactory.getInstance().satisfyParameters(test, null, null, missing, null, pos, 0, true, false, true);
                 fms.addMissingInputs(refs);
             } catch (Exception e) {
                 //shouldn't really happen because, in the worst case, we could create mocks for missing parameters

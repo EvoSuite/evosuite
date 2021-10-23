@@ -20,7 +20,10 @@
 
 package org.evosuite.testcase.statements;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.evosuite.Properties;
+import org.evosuite.config.EvosuiteParameter;
+import org.evosuite.config.EvosuiteParameterConfig;
 import org.evosuite.seeding.ConstantPool;
 import org.evosuite.seeding.ConstantPoolManager;
 import org.evosuite.testcase.TestCase;
@@ -32,7 +35,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PrintStream;
-import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.*;
 
 /**
  * <p>
@@ -114,7 +117,7 @@ public class StringPrimitiveStatement extends PrimitiveStatement<String> {
 
         String s = value;
         if (s == null) {
-            randomize();
+            randomize(null,null);
             return;
         }
 
@@ -169,7 +172,7 @@ public class StringPrimitiveStatement extends PrimitiveStatement<String> {
     public void increment() {
         String s = value;
         if (s == null) {
-            randomize();
+            randomize(null, null);
             return;
         } else if (s.isEmpty()) {
             s += Randomness.nextChar();
@@ -188,7 +191,20 @@ public class StringPrimitiveStatement extends PrimitiveStatement<String> {
      * {@inheritDoc}
      */
     @Override
-    public void randomize() {
+    public void randomize(AccessibleObject accessibleObject, Parameter parameter) {
+        if (accessibleObject instanceof Method || accessibleObject instanceof Constructor) {
+            Executable executable = (Executable) accessibleObject;
+            String key = executable.getDeclaringClass().getName() + "#" + executable.getName();
+            EvosuiteParameterConfig config = Properties.getParameterConfig(key);
+            if (config != null && config.getParameters() != null) {
+                for (EvosuiteParameter p : config.getParameters()) {
+                    if (p.getParameterType().equals(parameter.getType().getName()) && p.getParameterName().equals(parameter.getName()) && CollectionUtils.isNotEmpty(p.getParameterValues())) {
+                        value = Randomness.choice(p.getParameterValues());
+                        return;
+                    }
+                }
+            }
+        }
         if (Randomness.nextDouble() >= Properties.PRIMITIVE_POOL)
             value = Randomness.nextString(Randomness.nextInt(Properties.STRING_LENGTH));
         else {

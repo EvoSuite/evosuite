@@ -22,6 +22,9 @@ package org.evosuite.testcase.statements;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestFactory;
 
+import java.lang.reflect.AccessibleObject;
+import java.lang.reflect.Parameter;
+
 public class ImmutableStringPrimitiveStatement extends StringPrimitiveStatement {
 
     private static final long serialVersionUID = 4689686677200684012L;
@@ -49,7 +52,7 @@ public class ImmutableStringPrimitiveStatement extends StringPrimitiveStatement 
     }
 
     @Override
-    public void randomize() {
+    public void randomize(AccessibleObject accessibleObject, Parameter parameter) {
     }
 
     @Override

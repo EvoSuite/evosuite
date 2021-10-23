@@ -43,7 +43,6 @@ public abstract class NumericalPrimitiveStatement<T> extends PrimitiveStatement<
      * @param tc    a {@link org.evosuite.testcase.TestCase} object.
      * @param type  a {@link java.lang.reflect.Type} object.
      * @param value a T object.
-     * @param <T>   a T object.
      */
     public NumericalPrimitiveStatement(TestCase tc, Type type, T value) {
         super(tc, type, value);

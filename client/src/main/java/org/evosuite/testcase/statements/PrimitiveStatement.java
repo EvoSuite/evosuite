@@ -35,10 +35,7 @@ import org.evosuite.utils.generic.GenericClass;
 import org.evosuite.utils.generic.GenericClassFactory;
 
 import java.io.PrintStream;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Type;
-import java.lang.reflect.WildcardType;
+import java.lang.reflect.*;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -216,11 +213,10 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
      * @param position an integer.
      * @return a {@link org.evosuite.testcase.statements.PrimitiveStatement} object.
      */
-    public static PrimitiveStatement<?> getRandomStatement(TestCase tc,
+    public static PrimitiveStatement<?> getRandomStatement(TestCase tc, AccessibleObject accessibleObject, Parameter parameter,
                                                            GenericClass<?> clazz, int position) {
-
         PrimitiveStatement<?> statement = getPrimitiveStatement(tc, clazz);
-        statement.randomize();
+        statement.randomize(accessibleObject, parameter);
         return statement;
 
     }
@@ -377,9 +373,9 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
                 }
             }
             if (!done)
-                randomize();
+                randomize(null,null);
         } else {
-            randomize();
+            randomize(null, null);
         }
     }
 
@@ -403,9 +399,9 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
                         this.negate();
 
                     } else
-                        randomize();
+                        randomize(null,null);
                 } else {
-                    randomize();
+                    randomize(null, null);
                 }
             } else
                 delta();
@@ -416,7 +412,7 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
     /**
      * Set to a random value
      */
-    public abstract void randomize();
+    public abstract void randomize(AccessibleObject accessibleObject, Parameter parameter);
 
     /**
      * {@inheritDoc}

@@ -29,6 +29,9 @@ import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.utils.Randomness;
 import org.evosuite.utils.StringUtil;
 
+import java.lang.reflect.AccessibleObject;
+import java.lang.reflect.Parameter;
+
 /**
  * Created by arcuri on 12/17/14.
  */
@@ -38,7 +41,7 @@ public class RemoteAddressPrimitiveStatement extends EnvironmentDataStatement<Ev
 
     public RemoteAddressPrimitiveStatement(TestCase tc) {
         this(tc, null);
-        randomize();
+        randomize(null, null);
     }
 
     public RemoteAddressPrimitiveStatement(TestCase tc, EvoSuiteRemoteAddress value) {
@@ -68,7 +71,7 @@ public class RemoteAddressPrimitiveStatement extends EnvironmentDataStatement<Ev
 
     @Override
     public void delta() {
-        randomize();
+        randomize(null, null);
     }
 
     @Override
@@ -77,7 +80,7 @@ public class RemoteAddressPrimitiveStatement extends EnvironmentDataStatement<Ev
     }
 
     @Override
-    public void randomize() {
+    public void randomize(AccessibleObject accessibleObject, Parameter parameter) {
         EvoSuiteRemoteAddress addr;
 
         double threshold = 0.8; //TODO parameter

@@ -122,6 +122,9 @@ public class EvoSuite {
                             + separator
                             + Properties.PROPERTIES_FILE,
                     true);
+            Properties.getInstanceSilent().initializeParameterMap(base_dir_path
+                    + separator
+                    + Properties.PARAMETER_FILE);
         }
     }
 

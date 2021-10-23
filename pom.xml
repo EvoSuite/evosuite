@@ -446,6 +446,21 @@
                 <artifactId>system-rules</artifactId>
                 <version>1.19.0</version>
             </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-core</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-annotations</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -844,6 +859,7 @@
         <systemTests>**/*SystemTest.java</systemTests>
         <integrationTests>**/*IntTest.java</integrationTests>
         <rerunFailingTestsCount>0</rerunFailingTestsCount>
+        <jackson.version>2.10.2</jackson.version>
 
     </properties>
 

@@ -70,7 +70,7 @@ public abstract class TestCaseLocalSearch<T extends Chromosome<T>> implements Lo
                 if (s instanceof NullStatement) {
                     continue; // ignore NullStatement
                 }
-                ((PrimitiveStatement<?>) s).randomize();
+                ((PrimitiveStatement<?>) s).randomize(null, null);
             }
         }
     }

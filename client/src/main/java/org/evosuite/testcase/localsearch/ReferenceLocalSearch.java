@@ -177,7 +177,7 @@ public class ReferenceLocalSearch extends StatementLocalSearch {
                 replacement = test.getTestCase().addStatement(nullStatement, statement);
             } else if (!var.isPrimitive()) {
                 // Test cluster does not keep track of generators for primitives
-                replacement = factory.createObject(test.getTestCase(), var.getType(),
+                replacement = factory.createObject(test.getTestCase(), null, var.getType(),
                         statement, 0, null);
             }
             if (replacement != null) {

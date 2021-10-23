@@ -20,6 +20,7 @@
 package org.evosuite;
 
 import org.evosuite.classpath.ClassPathHandler;
+import org.evosuite.config.EvosuiteParameterConfig;
 import org.evosuite.lm.MutationType;
 import org.evosuite.runtime.LoopCounter;
 import org.evosuite.runtime.Runtime;
@@ -27,6 +28,7 @@ import org.evosuite.runtime.RuntimeSettings;
 import org.evosuite.runtime.sandbox.Sandbox;
 import org.evosuite.symbolic.dse.algorithm.DSEAlgorithms;
 import org.evosuite.utils.FileIOUtils;
+import org.evosuite.utils.JacksonUtils;
 import org.evosuite.utils.LoggingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,6 +41,7 @@ import java.lang.annotation.Target;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -679,6 +682,8 @@ public class Properties {
     public static String OUTPUT_DIR = "evosuite-files";
 
     public static String PROPERTIES_FILE = OUTPUT_DIR + File.separator + "evosuite.properties";
+
+    public static String PARAMETER_FILE = OUTPUT_DIR + File.separator + "parameters.config";
 
     public enum StoppingCondition {
         MAXSTATEMENTS, MAXTESTS,
@@ -1699,6 +1704,20 @@ public class Properties {
         }
     }
 
+    public void initializeParameterMap(String path) {
+        BufferedReader reader = null;
+        try {
+            reader = new BufferedReader(new InputStreamReader(new FileInputStream(path), Charset.forName("UTF-8")));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                EvosuiteParameterConfig parameterConfig = JacksonUtils.parse(line, EvosuiteParameterConfig.class);
+                parameterConfigMap.putIfAbsent(parameterConfig.getClassName() + "#" + parameterConfig.getMethodName(), parameterConfig);
+            }
+        } catch (Exception e) {
+            logger.warn("initialize parameter config failed. filePath: {}", path, e);
+        }
+    }
+
     /**
      * Load and initialize a properties file from the default path
      */
@@ -1706,6 +1725,8 @@ public class Properties {
         loadPropertiesFile(System.getProperty(PROPERTIES_FILE,
                 "evosuite-files/evosuite.properties"), silent);
         initializeProperties();
+        initializeParameterMap(System.getProperty(PARAMETER_FILE,
+                "evosuite-files/parameters.config"));
     }
 
     /**
@@ -1768,6 +1789,8 @@ public class Properties {
      */
     private static final Map<String, Field> parameterMap = new HashMap<>();
 
+    private static final Map<String, EvosuiteParameterConfig> parameterConfigMap = new HashMap<>();
+
     /**
      * All fields representing values, inserted via reflection
      */
@@ -1783,6 +1806,10 @@ public class Properties {
      * loading
      */
     private static final Set<String> changedFields = new HashSet<>();
+
+    public static EvosuiteParameterConfig getParameterConfig(String key) {
+        return parameterConfigMap.get(key);
+    }
 
     /**
      * Get class of parameter
