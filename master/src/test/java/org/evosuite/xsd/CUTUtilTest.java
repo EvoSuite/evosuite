@@ -19,12 +19,14 @@
  */
 package org.evosuite.xsd;
 
-import static org.junit.Assert.assertEquals;
-
+import junit.framework.TestSuite;
 import org.junit.Assert;
 import org.junit.Test;
+import sun.jvm.hotspot.memory.Generation;
 
 import java.util.Set;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author José Campos

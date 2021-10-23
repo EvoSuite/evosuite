@@ -82,7 +82,7 @@ public class StringLocalSearch extends StatementLocalSearch {
             if (Randomness.nextDouble() > 0.5)
                 p.increment();
             else
-                p.randomize();
+                p.randomize(null,null);
 
             logger.info("Probing string " + oldValue + " ->" + p.getCode());
             int result = objective.hasChanged(test);

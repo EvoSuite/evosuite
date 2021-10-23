@@ -130,8 +130,8 @@ public class TestDoubleFloatComparison {
             assertEquals(val == 0, d1 == d2);
         }
         for (int i = 0; i < 100; i++) {
-            statement1.randomize();
-            statement2.randomize();
+            statement1.randomize(null,null);
+            statement2.randomize(null,null);
             d1 = statement1.getValue();
             d2 = statement2.getValue();
             val = BooleanHelper.doubleSubG(d1, d2);
