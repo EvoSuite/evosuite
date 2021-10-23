@@ -19,10 +19,8 @@
  */
 package org.evosuite.xsd;
 
-import junit.framework.TestSuite;
 import org.junit.Assert;
 import org.junit.Test;
-import sun.jvm.hotspot.memory.Generation;
 
 import java.util.Set;
 
