@@ -127,12 +127,10 @@ public class AdaptiveDynaMOSA extends DynaMOSA {
         }
 
         this.currentIteration++;
-//        logger.debug("N. fronts = {}", this.rankingFunction.getNumberOfSubfronts());
-//        logger.debug("1* front size = {}", this.rankingFunction.getSubfront(0).size());
-//        logger.debug("Best Values Map size = {}", goalsManager.getBestValues().size());
-        logger.debug("Covered goals = {}", goalsManager.getCoveredGoals().size());
-        logger.debug("Current goals = {}", goalsManager.getCurrentGoals().size());
-        logger.debug("Uncovered goals = {}", goalsManager.getUncoveredGoals().size());
+        logger.debug("Covered goals = {}, Current goals = {} and Uncovered goals = {}",
+                goalsManager.getCoveredGoals().size(),
+                goalsManager.getCurrentGoals().size(),
+                goalsManager.getUncoveredGoals().size());
     }
 
     /**
@@ -143,7 +141,7 @@ public class AdaptiveDynaMOSA extends DynaMOSA {
         logger.debug("executing generateSolution function");
 
         this.goalsManager = new AdaptiveGoalManager(this.fitnessFunctions);
-        ((AdaptiveGoalManager)this.goalsManager).setIndicators(this.indicators);
+        ((AdaptiveGoalManager) this.goalsManager).setIndicators(this.indicators);
 
         LoggingUtils.getEvoLogger().info("* Initial Number of Goals in PerformanceDynaMOSA = " +
                 this.goalsManager.getCurrentGoals().size() + " / " + this.getUncoveredGoals().size());
@@ -168,7 +166,7 @@ public class AdaptiveDynaMOSA extends DynaMOSA {
         // update best values
         for (TestChromosome t : population)
             for (TestFitnessFunction f : goalsManager.getUncoveredGoals())
-                ((AdaptiveGoalManager)this.goalsManager).updateBestValue(f, t.getFitness(f));
+                ((AdaptiveGoalManager) this.goalsManager).updateBestValue(f, t.getFitness(f));
         last_heuristic = Heuristics.PERFORMANCE;
 
         // next generations
@@ -178,7 +176,7 @@ public class AdaptiveDynaMOSA extends DynaMOSA {
         }
 
         /* calculate the performance indicators of the archive*/
-        Set<TestChromosome> archive = ((AdaptiveGoalManager)this.goalsManager).getArchive();
+        Set<TestChromosome> archive = ((AdaptiveGoalManager) this.goalsManager).getArchive();
         computePerformanceMetrics(archive);
 
         this.notifySearchFinished();
@@ -190,8 +188,8 @@ public class AdaptiveDynaMOSA extends DynaMOSA {
     private Heuristics checkStagnation() {
         Heuristics choice;
 
-        if (!((AdaptiveGoalManager)this.goalsManager).hasBetterObjectives()) {
-            ((AdaptiveGoalManager)this.goalsManager).setHasBetterObjectives(false);
+        if (!((AdaptiveGoalManager) this.goalsManager).hasBetterObjectives()) {
+            ((AdaptiveGoalManager) this.goalsManager).setHasBetterObjectives(false);
             if (last_heuristic == Heuristics.CROWDING)
                 crowdingStagnation++;
             else
@@ -204,7 +202,7 @@ public class AdaptiveDynaMOSA extends DynaMOSA {
             else
                 choice = this.last_heuristic;
         } else {
-            ((AdaptiveGoalManager)this.goalsManager).setHasBetterObjectives(false);
+            ((AdaptiveGoalManager) this.goalsManager).setHasBetterObjectives(false);
 
             if (last_heuristic == Heuristics.CROWDING)
                 crowdingStagnation = 0;
@@ -242,7 +240,7 @@ public class AdaptiveDynaMOSA extends DynaMOSA {
             distance.fastEpsilonDominanceAssignment(front, goalsManager.getCurrentGoals());
         } else if (last_heuristic == Heuristics.PERFORMANCE) {
             for (TestChromosome t : front)
-                ((AdaptiveGoalManager)this.goalsManager).computePerformanceMetrics(t);
+                ((AdaptiveGoalManager) this.goalsManager).computePerformanceMetrics(t);
             strategy.setDistances(front);
         } else {
             for (TestChromosome t : front)
