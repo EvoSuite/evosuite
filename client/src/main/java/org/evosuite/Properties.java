@@ -725,7 +725,7 @@ public class Properties {
 	public static MutationProbabilityDistribution MUTATION_PROBABILITY_DISTRIBUTION = MutationProbabilityDistribution.UNIFORM;
 
 	public enum SecondaryObjective {
-		AVG_LENGTH, MAX_LENGTH, TOTAL_LENGTH, SIZE, EXCEPTIONS, IBRANCH, RHO
+		AVG_LENGTH, MAX_LENGTH, TOTAL_LENGTH, SIZE, EXCEPTIONS, IBRANCH, RHO, TEST_SMELL
 	}
 
 	@Parameter(key = "secondary_objectives", group = "Search Algorithm", description = "Secondary objective during search")
