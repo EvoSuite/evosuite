@@ -4,6 +4,7 @@ import org.evosuite.ga.SecondaryObjective;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testsmells.AbstractTestSmell;
 import org.evosuite.testsmells.smells.EagerTest;
+import org.evosuite.testsmells.smells.IndirectTesting;
 import org.evosuite.testsmells.smells.VerboseTest;
 
 import java.util.ArrayList;
@@ -32,6 +33,7 @@ public class MinimizeTestSmellsSecondaryObjective extends SecondaryObjective<Tes
         listOfTestSmells = new ArrayList<>();
         listOfTestSmells.add(new EagerTest("Eager Test"));
         listOfTestSmells.add(new VerboseTest("Verbose Test"));
+        listOfTestSmells.add(new IndirectTesting("Indirect Testing"));
     }
 
     private int getNumTestSmells(TestChromosome chromosome){
@@ -41,8 +43,6 @@ public class MinimizeTestSmellsSecondaryObjective extends SecondaryObjective<Tes
         }
         return smellCount;
     }
-
-    // Indirect Testing
 
     // Obscure In-line Setup
 
