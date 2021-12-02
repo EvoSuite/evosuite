@@ -11,7 +11,7 @@ import org.evosuite.testcase.statements.Statement;
  * It measures the number of statements in a test case.
  * Thus, it does not look at production code.
  */
-public class StatementsCounter extends AbstractIndicator {
+public class StatementsCounter extends AbstractIndicator<TestChromosome> {
     private static final String INDICATOR = StatementsCounter.class.getName();
 
     @Override

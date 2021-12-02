@@ -6,7 +6,7 @@ import org.evosuite.testcase.TestChromosome;
 import java.io.Serializable;
 import java.util.Comparator;
 
-public class IndicatorComparator  implements Comparator<Chromosome>, Serializable {
+public class IndicatorComparator implements Comparator<Chromosome>, Serializable {
 
     private String indicator_id;
 

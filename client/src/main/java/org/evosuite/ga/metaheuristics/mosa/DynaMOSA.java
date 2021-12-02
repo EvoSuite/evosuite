@@ -22,7 +22,6 @@ package org.evosuite.ga.metaheuristics.mosa;
 import org.evosuite.Properties;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.FitnessFunction;
-import org.evosuite.ga.archive.Archive;
 import org.evosuite.ga.comparators.OnlyCrowdingComparator;
 import org.evosuite.ga.metaheuristics.mosa.structural.MultiCriteriaManager;
 import org.evosuite.ga.operators.ranking.CrowdingDistance;
@@ -180,7 +179,7 @@ public class DynaMOSA extends AbstractMOSA {
 
     /**
      * Calculates the fitness for the given individual. Also updates the list of targets to cover,
-     * as well as the population of best solutions in the archive.
+     * as well as the population of the best solutions in the archive.
      *
      * @param c the chromosome whose fitness to compute
      */

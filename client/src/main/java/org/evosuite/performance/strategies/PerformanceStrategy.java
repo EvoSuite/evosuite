@@ -1,10 +1,8 @@
 package org.evosuite.performance.strategies;
 
 import org.evosuite.ga.Chromosome;
-import org.evosuite.ga.FitnessFunction;
 
 import java.util.List;
-import java.util.Set;
 
 /**
  * @author Giovanni Grano

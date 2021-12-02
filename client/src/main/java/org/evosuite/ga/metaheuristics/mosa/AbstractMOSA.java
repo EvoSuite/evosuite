@@ -259,19 +259,19 @@ public abstract class AbstractMOSA extends GeneticAlgorithm<TestChromosome> {
         return flag;
     }
 
-	/**
-	 * This method clears the cached results for a specific chromosome (e.g., fitness function
-	 * values computed in previous generations). Since a test case is changed via crossover
-	 * and/or mutation, previous data must be recomputed.
-	 * 
-	 * @param chromosome TestChromosome to clean
-	 */
-	protected void clearCachedResults(TestChromosome chromosome) {
-		chromosome.clearCachedMutationResults();
-		chromosome.clearCachedResults();
-		chromosome.clearMutationHistory();
-		chromosome.getFitnessValues().clear();
-	}
+    /**
+     * This method clears the cached results for a specific chromosome (e.g., fitness function
+     * values computed in previous generations). Since a test case is changed via crossover
+     * and/or mutation, previous data must be recomputed.
+     *
+     * @param chromosome TestChromosome to clean
+     */
+    protected void clearCachedResults(TestChromosome chromosome) {
+        chromosome.clearCachedMutationResults();
+        chromosome.clearCachedResults();
+        chromosome.clearMutationHistory();
+        chromosome.getFitnessValues().clear();
+    }
 
     /**
      * When a test case is changed via crossover and/or mutation, it can contains some

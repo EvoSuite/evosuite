@@ -21,13 +21,13 @@ import java.util.Map;
 /**
  * @author G. Grano, A. Panichella, S. Panichella
  *
- * Implements a dynamic performance indicator; it measure the number of statements covered by a test case.
+ * Implements a dynamic performance indicator; it measures the number of statements covered by a test case.
  * Take also in account the collateral coverage.
  */
-public class CoveredStatementsCounter extends AbstractIndicator {
+public class CoveredStatementsCounter extends AbstractIndicator<TestChromosome> {
 
     private static final Logger logger = LoggerFactory.getLogger(CoveredMethodCallCounter.class);
-    private static String INDICATOR = CoveredStatementsCounter.class.getName();
+    private static final String INDICATOR = CoveredStatementsCounter.class.getName();
 
     /** To keep track of the size of each basic block, which is identified by its characterizing branch */
     private static HashMap<Integer,Integer> branches;
@@ -46,7 +46,8 @@ public class CoveredStatementsCounter extends AbstractIndicator {
                 branches.put(b.getActualBranchId(), (block.getLastLine() - block.getFirstLine()) + 1);
             }
             methods = new HashMap<>();
-            List<BytecodeInstruction> list = BytecodeInstructionPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getAllInstructions();
+            List<BytecodeInstruction> list = BytecodeInstructionPool
+                    .getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getAllInstructions();
             for (BytecodeInstruction instr : list) {
                 String fullyQualifiedName = instr.getClassName() + "." + instr.getMethodName();
                 methods.merge(fullyQualifiedName, 1, Integer::sum);
@@ -55,16 +56,12 @@ public class CoveredStatementsCounter extends AbstractIndicator {
     }
 
     @Override
-    public double getIndicatorValue(Chromosome test) {
-        if (test instanceof TestSuiteChromosome)
-            throw new IllegalArgumentException("This indicator works at test case level");
-
-        if (test.getIndicatorValues().keySet().contains(INDICATOR))
+    public double getIndicatorValue(TestChromosome test) {
+        if (test.getIndicatorValues().containsKey(INDICATOR))
             return test.getIndicatorValue(INDICATOR);
 
         // retrieve the last execution
-        TestChromosome chromosome = (TestChromosome) test;
-        ExecutionResult result = chromosome.getLastExecutionResult();
+        ExecutionResult result = test.getLastExecutionResult();
 
         Map<Integer, Integer> noExecutionForConditionalNode =
                 result.getTrace().getNoExecutionForConditionalNode();
@@ -85,7 +82,7 @@ public class CoveredStatementsCounter extends AbstractIndicator {
         }
 
         for (String branchlessMethod : result.getTrace().getCoveredBranchlessMethods()){
-            if (methods.keySet().contains(branchlessMethod)) {
+            if (methods.containsKey(branchlessMethod)) {
                 int size = methods.get(branchlessMethod);
                 int nExecutions = result.getTrace().getMethodExecutionCount().get(branchlessMethod);
                 if (nExecutions > 2)

@@ -369,6 +369,18 @@ public class MultiCriteriaManager extends StructuralGoalManager implements Seria
         }
     }
 
+    /**
+     * Executes a given test and returns the correspondent execution result
+     * @param chromosome the chromosome of the test that needs to be executed
+     * @return the {@link ExecutionResult} resulting from the execution
+     */
+    protected ExecutionResult executeTest(TestChromosome chromosome) {
+        TestCase test = chromosome.getTestCase();
+        ExecutionResult result = TestCaseExecutor.runTest(test);
+        chromosome.setLastExecutionResult(result);
+        chromosome.setChanged(false);
+        return result;
+    }
 
     /**
      * Calculates the fitness of the given test chromosome w.r.t. the current set of goals. To this
@@ -382,10 +394,7 @@ public class MultiCriteriaManager extends StructuralGoalManager implements Seria
     @Override
     public void calculateFitness(TestChromosome c, GeneticAlgorithm<TestChromosome> ga) {
         // Run the test and record the execution result.
-        TestCase test = c.getTestCase();
-        ExecutionResult result = TestCaseExecutor.runTest(test);
-        c.setLastExecutionResult(result);
-        c.setChanged(false);
+        ExecutionResult result = executeTest(c);
 
         // If the test failed to execute properly, or if the test does not cover anything,
         // it means none of the current gaols could be reached.

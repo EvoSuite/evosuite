@@ -1,6 +1,5 @@
 package org.evosuite.performance;
 
-import org.evosuite.ga.Chromosome;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.execution.ExecutionResult;
 
@@ -10,7 +9,7 @@ import org.evosuite.testcase.execution.ExecutionResult;
  * This interface models the performance indicators.
  **/
 
-public abstract class AbstractIndicator<T extends Chromosome> {
+public abstract class AbstractIndicator<T extends TestChromosome> {
 
     public abstract double getIndicatorValue(T test);
 
@@ -35,8 +34,9 @@ public abstract class AbstractIndicator<T extends Chromosome> {
      * @param test          the individual
      * @return              true is the <code>ExecutionResult</code> is null; otherwise, false
      */
-    public boolean isInitialIndividual(ExecutionResult results, AbstractIndicator indicator,
-                                       TestChromosome test) {
+    public boolean isInitialIndividual(ExecutionResult results,
+                                       AbstractIndicator indicator,
+                                       T test) {
         if (results == null) {
             test.setIndicatorValues(indicator.getIndicatorId(), 1.0);
             return true;

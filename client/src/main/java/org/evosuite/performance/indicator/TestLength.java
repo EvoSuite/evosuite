@@ -1,15 +1,14 @@
 package org.evosuite.performance.indicator;
 
-import org.evosuite.ga.Chromosome;
 import org.evosuite.performance.AbstractIndicator;
+import org.evosuite.testcase.TestChromosome;
 
-public class TestLength extends AbstractIndicator {
+public class TestLength extends AbstractIndicator<TestChromosome> {
 
-    private static String INDICATOR = TestLength.class.getName();
-
+    private static final String INDICATOR = TestLength.class.getName();
 
     @Override
-    public double getIndicatorValue(Chromosome test) {
+    public double getIndicatorValue(TestChromosome test) {
         test.setIndicatorValues(this.getIndicatorId(), (double) test.size());
         return test.size();
     }

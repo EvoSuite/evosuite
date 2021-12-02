@@ -22,6 +22,8 @@ import java.util.stream.Collectors;
 /**
  * Implementation of aDynaMOSA (Adaptive DynaMOSA) described in the paper "Testing with Fewer Resources: An Adaptive
  * Approach to Performance-Aware Test Case Generation".
+ *
+ * @author G. Grano, A. Panichella, S. Panichella
  */
 public class AdaptiveDynaMOSA extends DynaMOSA {
 
@@ -34,7 +36,7 @@ public class AdaptiveDynaMOSA extends DynaMOSA {
      */
     private final PerformanceStrategy strategy;
 
-    private final List<AbstractIndicator> indicators;
+    private final List<AbstractIndicator<TestChromosome>> indicators;
 
     private enum Heuristics {CROWDING, PERFORMANCE}
 
@@ -212,8 +214,6 @@ public class AdaptiveDynaMOSA extends DynaMOSA {
             choice = last_heuristic;
         }
 
-//        logger.error("crowdingStagnation = {}", crowdingStagnation);
-//        logger.error("performanceStagnation = {}", performanceStagnation);
         return choice;
     }
 

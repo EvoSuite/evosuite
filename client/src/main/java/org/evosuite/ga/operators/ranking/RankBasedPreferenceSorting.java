@@ -51,7 +51,7 @@ import java.util.Set;
 
 /**
  * This class ranks the test cases according to the
- * the "PreferenceCriterion" defined for the MOSA algorithm
+ * "PreferenceCriterion" defined for the MOSA algorithm
  *
  * @author Annibale Panichella, Fitsum M. Kifetew
  */

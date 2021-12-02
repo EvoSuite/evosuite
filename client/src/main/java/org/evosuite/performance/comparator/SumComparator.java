@@ -1,19 +1,19 @@
 package org.evosuite.performance.comparator;
 
-import org.evosuite.ga.Chromosome;
+import org.evosuite.testcase.TestChromosome;
 
 import java.io.Serializable;
 import java.util.Comparator;
 
 /**
- * @author giograno
+ * @author Giovanni Grano
  *
  * Compares two chromosomes taking into account the sum of their performance indicators
  */
-public class SumComparator implements Comparator<Chromosome>, Serializable {
+public class SumComparator implements Comparator<TestChromosome>, Serializable {
 
     @Override
-    public int compare(Chromosome c1, Chromosome c2) {
+    public int compare(TestChromosome c1, TestChromosome c2) {
         double c1Sum = c1.getIndicatorValues().values().stream().mapToDouble(Number::doubleValue).sum();
         double c2Sum = c2.getIndicatorValues().values().stream().mapToDouble(Number::doubleValue).sum();
 

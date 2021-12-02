@@ -198,14 +198,14 @@ public class PropertiesSuiteGAFactory
 					return new MOSATestSuiteAdapter(new DynaMOSA(new RandomLengthTestFactory()));
 				}
 			case PDMOSA:
-				logger.info("Chosen search algorithm: Performance DynaMOSA");
+				logger.info("Chosen search algorithm: Adaptive DynaMOSA");
 				if (factory instanceof TestSuiteChromosomeFactory) {
 					final TestSuiteChromosomeFactory tscf = (TestSuiteChromosomeFactory) factory;
-					return new MOSATestSuiteAdapter(new PerformanceDynaMOSA(tscf.getTestChromosomeFactory()));
+					return new MOSATestSuiteAdapter(new AdaptiveDynaMOSA(tscf.getTestChromosomeFactory()));
 				} else {
 					logger.info("No specific factory for test cases given...");
 					logger.info("Using a default factory that creates tests with variable length");
-					return new MOSATestSuiteAdapter(new PerformanceDynaMOSA(new RandomLengthTestFactory()));
+					return new MOSATestSuiteAdapter(new AdaptiveDynaMOSA(new RandomLengthTestFactory()));
 				}
 			case ONE_PLUS_LAMBDA_LAMBDA_GA:
 				logger.info("Chosen search algorithm: 1 + (lambda, lambda)GA");

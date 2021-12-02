@@ -3,11 +3,13 @@ package org.evosuite.performance.indicator;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.branch.Branch;
 import org.evosuite.coverage.branch.BranchPool;
+import org.evosuite.ga.Chromosome;
 import org.evosuite.graphs.cfg.ActualControlFlowGraph;
 import org.evosuite.graphs.cfg.BasicBlock;
 import org.evosuite.performance.AbstractIndicator;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.execution.ExecutionResult;
+import org.evosuite.testsuite.TestSuiteChromosome;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,10 +18,10 @@ import java.util.*;
 /**
  * Counts the number of loops!
  */
-public class LoopCounter extends AbstractIndicator {
+public class LoopCounter extends AbstractIndicator<TestChromosome> {
 
     private static final Logger logger = LoggerFactory.getLogger(LoopCounter.class);
-    private static String INDICATOR = LoopCounter.class.getName();
+    private static final String INDICATOR = LoopCounter.class.getName();
 
     /**
      * To keep track of the branches, whose basic blocks are the beginning of loops
@@ -58,17 +60,13 @@ public class LoopCounter extends AbstractIndicator {
     }
 
     @Override
-    public double getIndicatorValue(Chromosome test) {
-        if (test instanceof TestSuiteChromosome)
-            throw new IllegalArgumentException("This indicator work at test case level");
-
+    public double getIndicatorValue(TestChromosome test) {
         // if the test has already its indicator values, we don't need to re-compute them
         if (test.getIndicatorValues().keySet().contains(INDICATOR))
             return test.getIndicatorValue(INDICATOR);
 
         // retrieve the last execution
-        TestChromosome chromosome = (TestChromosome) test;
-        ExecutionResult result = chromosome.getLastExecutionResult();
+        ExecutionResult result = test.getLastExecutionResult();
 
         // let's initialize the counter
         double counter = 0.0;
@@ -83,8 +81,6 @@ public class LoopCounter extends AbstractIndicator {
                 counter += freq;
         }
 
-        // we evaluate the loop node once more than then actual number of loops
-        counter = counter > 0 ? counter - 1 : 0;
         test.setIndicatorValues(this.getIndicatorId(), counter);
         logger.info("No. definitions = " + counter);
         return counter;

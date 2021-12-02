@@ -525,23 +525,6 @@ public abstract class Archive implements Serializable {
      * @return
      */
     public static Archive getArchiveInstance() {
-        if (Properties.ALGORITHM == Properties.Algorithm.PMOSA) {
-        /* in case we are using a performance MOSA version (either MOSA of DynaMOSA, let's get a different coverage
-           policy update */
-
-          String performance_strategy = System.getProperty("performance_combination_strategy");
-          Properties.P_COMBINATION_STRATEGY.valueOf(performance_strategy);
-
-          switch (Properties.P_COMBINATION_STRATEGY) {
-            case SUM:
-              return SumPerformanceIndicatorArchive.instance;
-            case DOMINANCE:
-              return DominancePerformanceArchive.instance;
-            case MIN_MAX:
-              return MinMaxPerformanceIndicatorAchive.instance;
-          }
-        }
-
         switch (Properties.ARCHIVE_TYPE) {
             case COVERAGE:
             default:

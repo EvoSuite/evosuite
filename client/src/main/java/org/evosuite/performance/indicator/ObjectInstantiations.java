@@ -23,9 +23,8 @@ import java.util.Map;
  * objects instatiated by a test case.
  * Need the Criterion.DEFUSE set in <code>Properties</code>
  * <p>
- * todo: actually it uses the getDefCounter statit method for the DefUsePool class
  */
-public class ObjectInstantiations extends AbstractIndicator {
+public class ObjectInstantiations extends AbstractIndicator<TestChromosome> {
 
     private static final Logger logger = LoggerFactory.getLogger(ObjectInstantiations.class);
     private static final String INDICATOR = ObjectInstantiations.class.getName();
@@ -55,7 +54,8 @@ public class ObjectInstantiations extends AbstractIndicator {
                     branches.put(b.getActualBranchId(), nObjects);
             }
             methods = new HashMap<>();
-            List<BytecodeInstruction> list = BytecodeInstructionPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getAllInstructions();
+            List<BytecodeInstruction> list = BytecodeInstructionPool
+                    .getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getAllInstructions();
             for (BytecodeInstruction instr : list) {
                 Integer set = methods.get(instr.getMethodName());
                 if (instr.isConstructorInvocation() ||
@@ -67,7 +67,6 @@ public class ObjectInstantiations extends AbstractIndicator {
                     } else {
                         methods.put(fullyQualifiedName, set + 1);
                     }
-
                 }
             }
         }

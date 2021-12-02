@@ -29,6 +29,7 @@ import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import static java.util.stream.Collectors.averagingDouble;
 
@@ -65,7 +66,7 @@ public abstract class Chromosome<T extends Chromosome<T>>
      */
     private final LinkedHashMap<FitnessFunction<T>, Double> fitnessValues = new LinkedHashMap<>();
 
-	/** List of perfomance indicator values **/
+	/** List of performance indicator values **/
 	private LinkedHashMap<String, Double> indicatorValues = new LinkedHashMap<>();
 
 	/** Has this chromosome changed since its fitness was last evaluated? */
@@ -74,11 +75,6 @@ public abstract class Chromosome<T extends Chromosome<T>>
      * Previous fitness, to see if there was an improvement
      */
     private final LinkedHashMap<FitnessFunction<T>, Double> previousFitnessValues = new LinkedHashMap<>();
-
-    /**
-     * Has this chromosome changed since its fitness was last evaluated?
-     */
-    private boolean changed = true;
 
     /**
      * Has local search been applied to this individual since it was last changed?
@@ -690,6 +686,14 @@ public abstract class Chromosome<T extends Chromosome<T>>
 		return indicatorValues;
 	}
 
+    /**
+     * Returns the set of the indicators values stored in this chromosome
+     * @return a {@link Set} of indicators
+     */
+	public Set<String> getIndicators() {
+	    return indicatorValues.keySet();
+    }
+
 	/**
 	 * Sets the value for an indicator
 	 * @param indicator_id
@@ -718,7 +722,7 @@ public abstract class Chromosome<T extends Chromosome<T>>
 	public void setIndicatorValues(LinkedHashMap<String, Double> map) { this.indicatorValues = map; }
 
 	/**
-	 * The score used by the preference criterion, combining all the the performance indicators,
+	 * The score used by the preference criterion, combining all the performance indicators,
 	 * according to a specific combination strategy, into a single scalar value
 	 */
 	private double performanceScore = 0;

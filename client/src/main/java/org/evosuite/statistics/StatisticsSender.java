@@ -94,12 +94,9 @@ public class StatisticsSender {
         sendExceptionInfo(testSuite);
         sendIndividualToMaster(testSuite);
 
-        if (Properties.ALGORITHM == Properties.Algorithm.PDMOSA)
-            sendPerformanceInfo(testSuite);
-
-		sendRepeatedExecutionTime(testSuite);
-//		if (Properties.ALGORITHM == Properties.Algorithm.PMOSA || Properties.ALGORITHM == Properties.Algorithm.PDMOSA)
-		sendPerformanceIndicator(testSuite);
+        sendRepeatedExecutionTime(testSuite);
+		if (Properties.ALGORITHM == Properties.Algorithm.PDMOSA)
+            sendPerformanceIndicator(testSuite);
 
 	}
 
@@ -174,10 +171,10 @@ public class StatisticsSender {
      */
     private static void sendPerformanceIndicator(TestSuiteChromosome testSuite) {
         // Compute the performance metric at test suite level
-        List<AbstractIndicator> indicators = IndicatorsFactory.getPerformanceIndicator();
+        List<AbstractIndicator<TestChromosome>> indicators = IndicatorsFactory.getPerformanceIndicator();
         List<TestChromosome> chromosomes = testSuite.getTestChromosomes();
         LoggingUtils.getEvoLogger().info("* Test suite size is {}", chromosomes.size());
-        for (AbstractIndicator indicator : indicators) {
+        for (AbstractIndicator<TestChromosome> indicator : indicators) {
             double value = 0;
             for (TestChromosome tch : chromosomes) {
                 if (tch.getIndicatorValues().containsKey(indicator.getIndicatorId()))
