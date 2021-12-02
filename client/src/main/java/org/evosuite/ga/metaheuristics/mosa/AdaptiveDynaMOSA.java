@@ -3,13 +3,13 @@ package org.evosuite.ga.metaheuristics.mosa;
 import org.evosuite.Properties;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.metaheuristics.mosa.structural.adaptive.AdaptiveGoalManager;
-import org.evosuite.ga.operators.ranking.CrowdingDistance;
 import org.evosuite.performance.AbstractIndicator;
 import org.evosuite.performance.indicator.IndicatorsFactory;
 import org.evosuite.performance.strategies.PerformanceStrategy;
 import org.evosuite.performance.strategies.PerformanceStrategyFactory;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
+import org.evosuite.testcase.secondaryobjectives.TestCaseSecondaryObjective;
 import org.evosuite.utils.LoggingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,19 +29,29 @@ public class AdaptiveDynaMOSA extends DynaMOSA {
 
     private static final Logger logger = LoggerFactory.getLogger(AdaptiveDynaMOSA.class);
 
-    protected CrowdingDistance<TestChromosome> distance = new CrowdingDistance<>();
-
     /*
      * Instance variables needed to handle the adaptive approach
      */
     private final PerformanceStrategy strategy;
 
+    /**
+     * List of the performance indicators
+     */
     private final List<AbstractIndicator<TestChromosome>> indicators;
 
+    /**
+     * Different heuristic that can be used by the algorithm
+     */
     private enum Heuristics {CROWDING, PERFORMANCE}
 
+    /**
+     * Keeps the value of the last used heuristic
+     */
     private Heuristics last_heuristic;
 
+    /**
+     * Utility vars to detect stagnation and change the heuristic dynamically
+     */
     private int crowdingStagnation = 0, performanceStagnation = 0;
 
     /**
@@ -50,10 +60,20 @@ public class AdaptiveDynaMOSA extends DynaMOSA {
     public AdaptiveDynaMOSA(ChromosomeFactory<TestChromosome> factory) {
         super(factory);
 
+        /*
+        Setting the strategy for th usage of the performance indicators and which indicators the algorithm should use
+         */
         strategy = PerformanceStrategyFactory.getPerformanceStrategy();
         indicators = IndicatorsFactory.getPerformanceIndicator();
 
-        LoggingUtils.getEvoLogger().info("* Running Performance DynaMOSA with indicator {}",
+        /*
+        Setting the performance as a secondary objective and update them
+         */
+        TestChromosome.cleanSecondaryObjectives();
+        Properties.SECONDARY_OBJECTIVE = new Properties.SecondaryObjective[]{Properties.SecondaryObjective.PERFORMANCE};
+        TestCaseSecondaryObjective.setSecondaryObjectives();
+
+        LoggingUtils.getEvoLogger().info("/n* Running Performance DynaMOSA with indicator {}",
                 indicators.stream().map(AbstractIndicator::toString).collect(Collectors.joining(",")));
     }
 
@@ -72,9 +92,7 @@ public class AdaptiveDynaMOSA extends DynaMOSA {
         }
 
         /* select the heuristic */
-        //logger.error("Last Heuristic = {}", last_heuristic);
         last_heuristic = checkStagnation();
-        //logger.error("Current Heuristic = {}", last_heuristic);
 
         // Create the union of parents and offSpring
         List<TestChromosome> union = new ArrayList<>(this.population.size() + offspringPopulation.size());
@@ -154,7 +172,6 @@ public class AdaptiveDynaMOSA extends DynaMOSA {
         if (this.population.isEmpty()) {
             this.initializePopulation();
         }
-
         // update current goals
         this.calculateFitness();
 

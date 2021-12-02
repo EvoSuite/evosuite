@@ -694,6 +694,14 @@ public final class TestChromosome extends AbstractTestChromosome<TestChromosome>
         return secondaryObjectives;
     }
 
+    /**
+     * <p>
+     *     Removes the <code>secondaryObjectives</code> added to the chromosome
+     * </p>
+     */
+    public static void cleanSecondaryObjectives() {
+        secondaryObjectives.clear();
+    }
 
     public TestSuiteChromosome toSuite() {
         return Stream.of(this).collect(toTestSuiteCollector);
