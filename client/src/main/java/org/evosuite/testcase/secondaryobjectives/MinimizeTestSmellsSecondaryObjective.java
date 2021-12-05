@@ -3,10 +3,7 @@ package org.evosuite.testcase.secondaryobjectives;
 import org.evosuite.ga.SecondaryObjective;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testsmells.AbstractTestSmell;
-import org.evosuite.testsmells.smells.EagerTest;
-import org.evosuite.testsmells.smells.IndirectTesting;
-import org.evosuite.testsmells.smells.ObscureInlineSetup;
-import org.evosuite.testsmells.smells.VerboseTest;
+import org.evosuite.testsmells.smells.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +33,7 @@ public class MinimizeTestSmellsSecondaryObjective extends SecondaryObjective<Tes
         listOfTestSmells.add(new VerboseTest("Verbose Test"));
         listOfTestSmells.add(new IndirectTesting("Indirect Testing"));
         listOfTestSmells.add(new ObscureInlineSetup("Obscure Inline Setup"));
+        listOfTestSmells.add(new EmptyTest("Empty Test"));
     }
 
     private int getNumTestSmells(TestChromosome chromosome){
