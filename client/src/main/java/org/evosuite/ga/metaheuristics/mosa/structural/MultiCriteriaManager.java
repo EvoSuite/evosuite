@@ -383,7 +383,10 @@ public class MultiCriteriaManager extends StructuralGoalManager implements Seria
 	public void calculateFitness(TestChromosome c, GeneticAlgorithm<TestChromosome> ga) {
 		// Run the test and record the execution result.
 		TestCase test = c.getTestCase();
+		long startTime = System.currentTimeMillis();
 		ExecutionResult result = TestCaseExecutor.runTest(test);
+		long endTime = System.currentTimeMillis();
+		c.setDuration((endTime-startTime)/1000);
 		c.setLastExecutionResult(result);
 		c.setChanged(false);
 
