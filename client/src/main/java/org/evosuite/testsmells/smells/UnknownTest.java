@@ -1,12 +1,12 @@
 package org.evosuite.testsmells.smells;
 
 import org.evosuite.testcase.TestChromosome;
-import org.evosuite.testsmells.AbstractTestSmell;
 import org.evosuite.testcase.statements.Statement;
+import org.evosuite.testsmells.AbstractTestSmell;
 
-public class AssertionRoulette extends AbstractTestSmell {
+public class UnknownTest extends AbstractTestSmell {
 
-    public AssertionRoulette(String smellName) {
+    public UnknownTest(String smellName) {
         super(smellName);
     }
 
@@ -21,6 +21,8 @@ public class AssertionRoulette extends AbstractTestSmell {
             currentStatement = chromosome.getTestCase().getStatement(i);
             count += currentStatement.getAssertions().size();
         }
-        return count;
+
+        // We will have to define a value greater than 1
+        return count == 0 ? 1 : 0;
     }
 }
