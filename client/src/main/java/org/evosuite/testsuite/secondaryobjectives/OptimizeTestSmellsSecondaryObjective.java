@@ -40,6 +40,9 @@ public class OptimizeTestSmellsSecondaryObjective extends SecondaryObjective<Tes
         listOfTestSmells.add(new ObscureInlineSetup("Obscure Inline Setup"));
         listOfTestSmells.add(new EmptyTest("Empty Test"));
 
+        //Test smells related to test suites
+        listOfAbstractTestSmells.add(new LackOfCohesionOfMethods("Lack of Cohesion of Methods"));
+
     }
 
     private int getNumTestSmells(TestSuiteChromosome chromosome){
