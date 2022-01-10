@@ -1,5 +1,6 @@
 package org.evosuite.testsmells.smells;
 
+import org.evosuite.Properties;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testcase.statements.Statement;
@@ -29,7 +30,9 @@ public class EagerTest extends AbstractTestSmell {
             currentStatement = chromosome.getTestCase().getStatement(i);
             if(currentStatement instanceof MethodStatement){
                 method = ((MethodStatement) currentStatement).getMethod();
-                listOfMethods.add(method);
+                if(method.getDeclaringClass().equals(Properties.getTargetClassAndDontInitialise())){
+                    listOfMethods.add(method);
+                }
             }
         }
         return listOfMethods.size();

@@ -1,14 +1,12 @@
 package org.evosuite.testsmells.smells;
 
+import org.evosuite.Properties;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.statements.ConstructorStatement;
 import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testsmells.AbstractTestSmell;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.generic.GenericConstructor;
-
-import java.util.Set;
-import java.util.LinkedHashSet;
 
 public class IndirectTesting extends AbstractTestSmell {
 
@@ -18,21 +16,23 @@ public class IndirectTesting extends AbstractTestSmell {
 
     @Override
     public int obtainSmellCount(TestChromosome chromosome) {
+        int smellCount = 0;
+
         int size = chromosome.size();
 
         Statement currentStatement;
         GenericConstructor constructor;
 
-        Set<GenericConstructor> setOfConstructors = new LinkedHashSet<>();
-
         for (int i = 0; i < size; i++){
             currentStatement = chromosome.getTestCase().getStatement(i);
             if(currentStatement instanceof ConstructorStatement){
                 constructor = ((ConstructorStatement) currentStatement).getConstructor();
-                setOfConstructors.add(constructor);
+                if(!constructor.getDeclaringClass().equals(Properties.getTargetClassAndDontInitialise())){
+                    smellCount++;
+                }
             }
         }
-        return setOfConstructors.size();
+        return smellCount;
     }
 
     @Override
