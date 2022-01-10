@@ -5,6 +5,7 @@ import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestCodeVisitor;
 import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testsmells.AbstractTestSmell;
+import org.evosuite.testsuite.TestSuiteChromosome;
 
 public class ObscureInlineSetup extends AbstractTestSmell {
 
@@ -72,5 +73,16 @@ public class ObscureInlineSetup extends AbstractTestSmell {
 
         return count;
         */
+    }
+
+    @Override
+    public int obtainSmellCount(TestSuiteChromosome chromosome) {
+        int smellCount = 0;
+
+        for(TestChromosome testcase : chromosome.getTestChromosomes()){
+            smellCount += obtainSmellCount(testcase);
+        }
+
+        return smellCount;
     }
 }

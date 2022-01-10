@@ -4,6 +4,7 @@ import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.statements.ConstructorStatement;
 import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testsmells.AbstractTestSmell;
+import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.generic.GenericConstructor;
 
 import java.util.Set;
@@ -32,5 +33,16 @@ public class IndirectTesting extends AbstractTestSmell {
             }
         }
         return setOfConstructors.size();
+    }
+
+    @Override
+    public int obtainSmellCount(TestSuiteChromosome chromosome) {
+        int smellCount = 0;
+
+        for(TestChromosome testcase : chromosome.getTestChromosomes()){
+            smellCount += obtainSmellCount(testcase);
+        }
+
+        return smellCount;
     }
 }

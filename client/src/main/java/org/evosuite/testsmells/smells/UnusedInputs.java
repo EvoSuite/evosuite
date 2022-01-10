@@ -4,6 +4,7 @@ import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testsmells.AbstractTestSmell;
 import org.evosuite.testcase.statements.Statement;
+import org.evosuite.testsuite.TestSuiteChromosome;
 
 public class UnusedInputs extends AbstractTestSmell {
 
@@ -26,5 +27,16 @@ public class UnusedInputs extends AbstractTestSmell {
             }
         }
         return count;
+    }
+
+    @Override
+    public int obtainSmellCount(TestSuiteChromosome chromosome) {
+        int smellCount = 0;
+
+        for(TestChromosome testcase : chromosome.getTestChromosomes()){
+            smellCount += obtainSmellCount(testcase);
+        }
+
+        return smellCount;
     }
 }

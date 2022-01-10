@@ -39,7 +39,7 @@ public class TestCaseSecondaryObjective {
             secondaryObjectiveInstance = new MinimizeExceptionsSecondaryObjective();
             break;
           case TEST_SMELL:
-            secondaryObjectiveInstance = new MinimizeTestSmellsSecondaryObjective();
+            secondaryObjectiveInstance = new OptimizeTestSmellsSecondaryObjective();
             break;
           default:
             throw new RuntimeException("ERROR: asked for unknown secondary objective \""

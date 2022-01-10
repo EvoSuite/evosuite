@@ -1,13 +1,12 @@
 package org.evosuite.testsmells;
 
-import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testsuite.TestSuiteChromosome;
 
-public abstract class AbstractTestSmell {
+public abstract class AbstractTestSuiteSmell {
 
     private String smellName;
 
-    public AbstractTestSmell (String smellName){
+    public AbstractTestSuiteSmell (String smellName){
         this.smellName = smellName;
     }
 
@@ -20,17 +19,9 @@ public abstract class AbstractTestSmell {
     }
 
     /**
-     * Calculate the smell count for a given test case
-     * @param chromosome The test case that will be analyzed
-     * @return int with the total smell count
-     */
-    public abstract int obtainSmellCount (TestChromosome chromosome);
-
-    /**
      * Calculate the smell count for a given test suite
      * @param chromosome The test suite that will be analyzed
      * @return int with the total smell count
      */
     public abstract int obtainSmellCount (TestSuiteChromosome chromosome);
-
 }
