@@ -3,7 +3,6 @@ package org.evosuite.testsmells.smells;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testsmells.AbstractTestSmell;
-import org.evosuite.testsuite.TestSuiteChromosome;
 
 public class UnknownTest extends AbstractTestSmell {
 
@@ -25,16 +24,5 @@ public class UnknownTest extends AbstractTestSmell {
 
         // We will have to define a value greater than 1
         return count == 0 ? 1 : 0;
-    }
-
-    @Override
-    public int obtainSmellCount(TestSuiteChromosome chromosome) {
-        int smellCount = 0;
-
-        for(TestChromosome testcase : chromosome.getTestChromosomes()){
-            smellCount += obtainSmellCount(testcase);
-        }
-
-        return smellCount;
     }
 }

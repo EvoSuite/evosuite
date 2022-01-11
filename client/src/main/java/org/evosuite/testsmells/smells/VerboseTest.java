@@ -2,7 +2,6 @@ package org.evosuite.testsmells.smells;
 
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testsmells.AbstractTestSmell;
-import org.evosuite.testsuite.TestSuiteChromosome;
 
 public class VerboseTest extends AbstractTestSmell {
 
@@ -13,16 +12,5 @@ public class VerboseTest extends AbstractTestSmell {
     @Override
     public int obtainSmellCount(TestChromosome chromosome) {
         return chromosome.size();
-    }
-
-    @Override
-    public int obtainSmellCount(TestSuiteChromosome chromosome) {
-        int smellCount = 0;
-
-        for(TestChromosome testcase : chromosome.getTestChromosomes()){
-            smellCount += obtainSmellCount(testcase);
-        }
-
-        return smellCount;
     }
 }

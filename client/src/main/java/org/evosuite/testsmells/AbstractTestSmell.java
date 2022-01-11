@@ -31,6 +31,14 @@ public abstract class AbstractTestSmell {
      * @param chromosome The test suite that will be analyzed
      * @return int with the total smell count
      */
-    public abstract int obtainSmellCount (TestSuiteChromosome chromosome);
+    public int obtainSmellCount (TestSuiteChromosome chromosome){
+        int smellCount = 0;
+
+        for(TestChromosome testcase : chromosome.getTestChromosomes()){
+            smellCount += obtainSmellCount(testcase);
+        }
+
+        return smellCount;
+    }
 
 }

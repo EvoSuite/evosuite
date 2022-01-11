@@ -4,7 +4,6 @@ import org.evosuite.assertion.Assertion;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testsmells.AbstractTestSmell;
 import org.evosuite.testcase.statements.Statement;
-import org.evosuite.testsuite.TestSuiteChromosome;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -34,16 +33,5 @@ public class DuplicateAssert extends AbstractTestSmell {
             count += assertions.size() - listOfValues.size();
         }
         return count;
-    }
-
-    @Override
-    public int obtainSmellCount(TestSuiteChromosome chromosome) {
-        int smellCount = 0;
-
-        for(TestChromosome testcase : chromosome.getTestChromosomes()){
-            smellCount += obtainSmellCount(testcase);
-        }
-
-        return smellCount;
     }
 }
