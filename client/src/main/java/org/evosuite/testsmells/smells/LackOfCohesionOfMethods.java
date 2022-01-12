@@ -16,8 +16,8 @@ public class LackOfCohesionOfMethods extends AbstractTestSuiteSmell {
         int count = 0;
         Class<?> targetClass = Properties.getTargetClassAndDontInitialise();
 
-        for(TestChromosome testcase : chromosome.getTestChromosomes()){
-            if(!testcase.getTestCase().getAccessedClasses().contains(targetClass)){
+        for(TestChromosome testCase : chromosome.getTestChromosomes()){
+            if(!testCase.getTestCase().getAccessedClasses().contains(targetClass)){
                 count++;
             }
         }

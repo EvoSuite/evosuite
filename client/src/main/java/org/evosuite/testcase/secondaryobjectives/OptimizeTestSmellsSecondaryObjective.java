@@ -35,6 +35,7 @@ public class OptimizeTestSmellsSecondaryObjective extends SecondaryObjective<Tes
         listOfTestSmells.add(new ObscureInlineSetup("Obscure Inline Setup"));
         listOfTestSmells.add(new EmptyTest("Empty Test"));
         listOfTestSmells.add(new SlowTests("Slow Tests"));
+        listOfTestSmells.add(new MysteryGuest("Mystery Guest"));
     }
 
     private int getNumTestSmells(TestChromosome chromosome){
