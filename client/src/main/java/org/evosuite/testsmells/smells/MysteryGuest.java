@@ -52,7 +52,7 @@ public class MysteryGuest extends AbstractTestSmell {
 
                 String className = ((EntityWithParametersStatement) currentStatement).getDeclaringClassName();
 
-                if(!className.equals(Properties.getTargetClassAndDontInitialise().getName())){
+                if(!className.equals(Properties.TARGET_CLASS)){
 
                     //Verify if there is a more efficient way to do get the name of the class
                     String curr = visitor.getClassName(currentStatement.getReturnClass());
