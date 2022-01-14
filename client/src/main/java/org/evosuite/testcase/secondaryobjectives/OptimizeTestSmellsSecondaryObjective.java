@@ -36,6 +36,7 @@ public class OptimizeTestSmellsSecondaryObjective extends SecondaryObjective<Tes
         listOfTestSmells.add(new EmptyTest("Empty Test"));
         listOfTestSmells.add(new SlowTests("Slow Tests"));
         listOfTestSmells.add(new MysteryGuest("Mystery Guest"));
+        listOfTestSmells.add(new LikelyIneffectiveObjectComparison("Likely Ineffective Object Comparison"));
     }
 
     private int getNumTestSmells(TestChromosome chromosome){
