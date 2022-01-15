@@ -529,6 +529,21 @@ public class TestSuiteGenerator {
             else
                 logger.warn("Cannot run Junit test. Cause {}",ClassPathHacker.getCause());
         }
+
+		if(Properties.TEST_SMELL_OPTIMIZATION){
+
+			double before = testSuite.getFitness();
+
+			OptimizeTestSmellsPostProcessing optmized = new OptimizeTestSmellsPostProcessing();
+
+			// This will change in the future
+			optmized.getNumTestSmells(testSuite);
+
+			double after = testSuite.getFitness();
+			if (after > before + 0.01d) { // assume minimization
+				throw new Error("EvoSuite bug: minimization lead fitness from " + before + " to " + after);
+			}
+		}
 	}
 
 	/**

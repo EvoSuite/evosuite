@@ -47,6 +47,33 @@ import java.util.Map;
  */
 public enum RuntimeVariable {
 
+
+	/**
+	 * The number of individual test smells
+	 */
+	AssertionRoulette,
+	BrittleAssertion,
+	DuplicateAssert,
+	EagerTest,
+	EmptyTest,
+	IndirectTesting,
+	LackOfCohesionOfMethods,
+	LazyTest,
+	LikelyIneffectiveObjectComparison,
+	MysteryGuest,
+	ObscureInlineSetup,
+	RedundantAssertion,
+	SensitiveEquality,
+	SlowTests,
+	UnknownTest,
+	UnusedInputs,
+	VerboseTest,
+
+	/**
+	 * The total number of test smells
+	 */
+	AllTestSmells,
+
 	/** Number of predicates in CUT */
 	Predicates,
 	/** Number of added jump conditions through instrumentation */
