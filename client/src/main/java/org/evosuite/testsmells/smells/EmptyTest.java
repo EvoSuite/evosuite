@@ -5,8 +5,8 @@ import org.evosuite.testsmells.AbstractTestSmell;
 
 public class EmptyTest extends AbstractTestSmell {
 
-    public EmptyTest(String smellName) {
-        super(smellName);
+    public EmptyTest() {
+        setSmellName("Empty Test");
     }
 
     @Override

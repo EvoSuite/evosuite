@@ -9,8 +9,8 @@ import org.evosuite.utils.generic.GenericConstructor;
 
 public class IndirectTesting extends AbstractTestSmell {
 
-    public IndirectTesting(String smellName) {
-        super(smellName);
+    public IndirectTesting() {
+        setSmellName("Indirect Testing");
     }
 
     @Override

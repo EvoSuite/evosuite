@@ -15,8 +15,8 @@ import java.util.List;
 
 public class MysteryGuest extends AbstractTestSmell {
 
-    public MysteryGuest(String smellName) {
-        super(smellName);
+    public MysteryGuest() {
+        setSmellName("Mystery Guest");
     }
 
     @Override

@@ -11,8 +11,8 @@ import java.util.LinkedHashMap;
 
 public class LazyTest extends AbstractTestSuiteSmell {
 
-    public LazyTest(String smellName) {
-        super(smellName);
+    public LazyTest() {
+        setSmellName("Lazy Test");
     }
 
     @Override

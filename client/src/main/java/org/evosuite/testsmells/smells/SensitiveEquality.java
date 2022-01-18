@@ -8,8 +8,8 @@ import org.evosuite.testsmells.AbstractTestSmell;
 
 public class SensitiveEquality extends AbstractTestSmell {
 
-    public SensitiveEquality(String smellName) {
-        super(smellName);
+    public SensitiveEquality() {
+        setSmellName("Sensitive Equality");
     }
 
     @Override

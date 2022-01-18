@@ -29,14 +29,14 @@ public class OptimizeTestSmellsSecondaryObjective extends SecondaryObjective<Tes
 
     private void initializeTestSmells(){
         listOfTestSmells = new ArrayList<>();
-        listOfTestSmells.add(new EagerTest("Eager Test"));
-        listOfTestSmells.add(new VerboseTest("Verbose Test"));
-        listOfTestSmells.add(new IndirectTesting("Indirect Testing"));
-        listOfTestSmells.add(new ObscureInlineSetup("Obscure Inline Setup"));
-        listOfTestSmells.add(new EmptyTest("Empty Test"));
-        listOfTestSmells.add(new SlowTests("Slow Tests"));
-        listOfTestSmells.add(new MysteryGuest("Mystery Guest"));
-        listOfTestSmells.add(new LikelyIneffectiveObjectComparison("Likely Ineffective Object Comparison"));
+        listOfTestSmells.add(new EagerTest());
+        listOfTestSmells.add(new VerboseTest());
+        listOfTestSmells.add(new IndirectTesting());
+        listOfTestSmells.add(new ObscureInlineSetup());
+        listOfTestSmells.add(new EmptyTest());
+        listOfTestSmells.add(new SlowTests());
+        listOfTestSmells.add(new MysteryGuest());
+        listOfTestSmells.add(new LikelyIneffectiveObjectComparison());
     }
 
     private int getNumTestSmells(TestChromosome chromosome){

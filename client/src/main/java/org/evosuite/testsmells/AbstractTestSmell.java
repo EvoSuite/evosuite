@@ -7,7 +7,11 @@ public abstract class AbstractTestSmell {
 
     private String smellName;
 
-    public AbstractTestSmell (String smellName){
+    /**
+     * Set the name of the smell
+     * @param smellName The name of the test smell
+     */
+    protected void setSmellName(String smellName){
         this.smellName = smellName;
     }
 

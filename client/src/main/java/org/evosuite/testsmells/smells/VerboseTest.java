@@ -5,8 +5,8 @@ import org.evosuite.testsmells.AbstractTestSmell;
 
 public class VerboseTest extends AbstractTestSmell {
 
-    public VerboseTest(String smellName) {
-        super(smellName);
+    public VerboseTest() {
+        setSmellName("Verbose Test");
     }
 
     @Override

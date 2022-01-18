@@ -7,8 +7,8 @@ import org.evosuite.testcase.statements.Statement;
 
 public class UnusedInputs extends AbstractTestSmell {
 
-    public UnusedInputs(String smellName) {
-        super(smellName);
+    public UnusedInputs() {
+        setSmellName("Unused Inputs");
     }
 
     @Override

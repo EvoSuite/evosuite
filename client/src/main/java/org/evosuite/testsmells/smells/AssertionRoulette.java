@@ -6,8 +6,8 @@ import org.evosuite.testcase.statements.Statement;
 
 public class AssertionRoulette extends AbstractTestSmell {
 
-    public AssertionRoulette(String smellName) {
-        super(smellName);
+    public AssertionRoulette() {
+        setSmellName("Assertion Roulette");
     }
 
     @Override

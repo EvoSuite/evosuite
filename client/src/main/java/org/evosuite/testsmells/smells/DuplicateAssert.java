@@ -10,8 +10,8 @@ import java.util.Set;
 
 public class DuplicateAssert extends AbstractTestSmell {
 
-    public DuplicateAssert(String smellName) {
-        super(smellName);
+    public DuplicateAssert() {
+        setSmellName("Duplicate Assert");
     }
 
     @Override

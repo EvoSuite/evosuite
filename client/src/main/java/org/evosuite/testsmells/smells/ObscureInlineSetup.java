@@ -8,8 +8,8 @@ import org.evosuite.testsmells.AbstractTestSmell;
 
 public class ObscureInlineSetup extends AbstractTestSmell {
 
-    public ObscureInlineSetup(String smellName) {
-        super(smellName);
+    public ObscureInlineSetup() {
+        setSmellName("Obscure Inline Setup");
     }
 
     @Override

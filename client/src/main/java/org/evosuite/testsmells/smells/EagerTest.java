@@ -12,8 +12,8 @@ import java.util.Set;
 
 public class EagerTest extends AbstractTestSmell {
 
-    public EagerTest(String smellName) {
-        super(smellName);
+    public EagerTest() {
+        setSmellName("Eager Test");
     }
 
     @Override

@@ -11,8 +11,8 @@ import java.util.List;
 
 public class LikelyIneffectiveObjectComparison extends AbstractTestSmell {
 
-    public LikelyIneffectiveObjectComparison(String smellName) {
-        super(smellName);
+    public LikelyIneffectiveObjectComparison() {
+        setSmellName("Likely Ineffective Object Comparison");
     }
 
     @Override

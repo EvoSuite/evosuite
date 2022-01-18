@@ -7,8 +7,8 @@ import org.evosuite.testcase.statements.Statement;
 
 public class RedundantAssertion extends AbstractTestSmell {
 
-    public RedundantAssertion(String smellName) {
-        super(smellName);
+    public RedundantAssertion() {
+        setSmellName("Redundant Assertion");
     }
 
     @Override

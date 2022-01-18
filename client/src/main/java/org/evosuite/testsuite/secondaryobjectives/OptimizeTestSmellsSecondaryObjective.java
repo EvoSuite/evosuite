@@ -34,14 +34,14 @@ public class OptimizeTestSmellsSecondaryObjective extends SecondaryObjective<Tes
         listOfAbstractTestSmells = new ArrayList<>();
 
         //Test smells related to test cases
-        listOfTestSmells.add(new EagerTest("Eager Test"));
-        listOfTestSmells.add(new VerboseTest("Verbose Test"));
-        listOfTestSmells.add(new IndirectTesting("Indirect Testing"));
-        listOfTestSmells.add(new ObscureInlineSetup("Obscure Inline Setup"));
-        listOfTestSmells.add(new EmptyTest("Empty Test"));
+        listOfTestSmells.add(new EagerTest());
+        listOfTestSmells.add(new VerboseTest());
+        listOfTestSmells.add(new IndirectTesting());
+        listOfTestSmells.add(new ObscureInlineSetup());
+        listOfTestSmells.add(new EmptyTest());
 
         //Test smells related to test suites
-        listOfAbstractTestSmells.add(new LackOfCohesionOfMethods("Lack of Cohesion of Methods"));
+        listOfAbstractTestSmells.add(new LackOfCohesionOfMethods());
 
     }
 

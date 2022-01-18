@@ -5,8 +5,8 @@ import org.evosuite.testsmells.AbstractTestSmell;
 
 public class SlowTests extends AbstractTestSmell {
 
-    public SlowTests(String smellName) {
-        super(smellName);
+    public SlowTests() {
+        setSmellName("Slow Tests");
     }
 
     @Override

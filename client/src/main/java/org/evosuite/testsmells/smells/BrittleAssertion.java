@@ -7,8 +7,8 @@ import org.evosuite.testcase.statements.Statement;
 
 public class BrittleAssertion extends AbstractTestSmell {
 
-    public BrittleAssertion(String smellName) {
-        super(smellName);
+    public BrittleAssertion() {
+        setSmellName("Brittle Assertion");
     }
 
     @Override
