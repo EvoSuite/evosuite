@@ -530,6 +530,10 @@ public class TestSuiteGenerator {
                 logger.warn("Cannot run Junit test. Cause {}",ClassPathHacker.getCause());
         }
 
+		if(Properties.OUTPUT_VARIABLES != null){
+			TestSmellAnalyzer.writeNumTestSmells(testSuite);
+		}
+
 		if(Properties.TEST_SMELL_OPTIMIZATION){
 
 			double before = testSuite.getFitness();

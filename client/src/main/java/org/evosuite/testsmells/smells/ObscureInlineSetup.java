@@ -4,16 +4,16 @@ import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestCodeVisitor;
 import org.evosuite.testcase.statements.Statement;
-import org.evosuite.testsmells.AbstractTestSmell;
+import org.evosuite.testsmells.AbstractTestCaseSmell;
 
-public class ObscureInlineSetup extends AbstractTestSmell {
+public class ObscureInlineSetup extends AbstractTestCaseSmell {
 
     public ObscureInlineSetup() {
-        setSmellName("Obscure Inline Setup");
+        super("ObscureInlineSetup");
     }
 
     @Override
-    public int obtainSmellCount(TestChromosome chromosome) {
+    public int computeNumberOfSmells(TestChromosome chromosome) {
 
         // Two alternatives (ask advisor for help!)
 

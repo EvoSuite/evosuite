@@ -2,7 +2,7 @@ package org.evosuite.testcase.secondaryobjectives;
 
 import org.evosuite.ga.SecondaryObjective;
 import org.evosuite.testcase.TestChromosome;
-import org.evosuite.testsmells.AbstractTestSmell;
+import org.evosuite.testsmells.AbstractTestCaseSmell;
 import org.evosuite.testsmells.smells.*;
 
 import java.util.ArrayList;
@@ -10,7 +10,7 @@ import java.util.List;
 
 public class OptimizeTestSmellsSecondaryObjective extends SecondaryObjective<TestChromosome> {
 
-    private List<AbstractTestSmell> listOfTestSmells;
+    private List<AbstractTestCaseSmell> listOfTestSmells;
 
     public OptimizeTestSmellsSecondaryObjective(){
         initializeTestSmells();
@@ -29,6 +29,7 @@ public class OptimizeTestSmellsSecondaryObjective extends SecondaryObjective<Tes
 
     private void initializeTestSmells(){
         listOfTestSmells = new ArrayList<>();
+
         listOfTestSmells.add(new EagerTest());
         listOfTestSmells.add(new VerboseTest());
         listOfTestSmells.add(new IndirectTesting());
@@ -41,13 +42,11 @@ public class OptimizeTestSmellsSecondaryObjective extends SecondaryObjective<Tes
 
     private int getNumTestSmells(TestChromosome chromosome){
         int smellCount = 0;
-        for (AbstractTestSmell testSmell : listOfTestSmells){
-            smellCount += testSmell.obtainSmellCount(chromosome);
+
+        for (AbstractTestCaseSmell testSmell : listOfTestSmells){
+            smellCount += testSmell.computeNumberOfSmells(chromosome);
         }
+
         return smellCount;
     }
-
-    // Slow tests
-
-    // Test Code Duplication
 }

@@ -4,20 +4,20 @@ import org.evosuite.Properties;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testcase.statements.Statement;
-import org.evosuite.testsmells.AbstractTestSmell;
+import org.evosuite.testsmells.AbstractTestCaseSmell;
 import org.evosuite.utils.generic.GenericMethod;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-public class EagerTest extends AbstractTestSmell {
+public class EagerTest extends AbstractTestCaseSmell {
 
     public EagerTest() {
-        setSmellName("Eager Test");
+        super("EagerTest");
     }
 
     @Override
-    public int obtainSmellCount(TestChromosome chromosome) {
+    public int computeNumberOfSmells(TestChromosome chromosome) {
         int size = chromosome.size();
 
         Statement currentStatement;

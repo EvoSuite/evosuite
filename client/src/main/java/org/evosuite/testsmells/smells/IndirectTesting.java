@@ -4,17 +4,17 @@ import org.evosuite.Properties;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.statements.ConstructorStatement;
 import org.evosuite.testcase.statements.Statement;
-import org.evosuite.testsmells.AbstractTestSmell;
+import org.evosuite.testsmells.AbstractTestCaseSmell;
 import org.evosuite.utils.generic.GenericConstructor;
 
-public class IndirectTesting extends AbstractTestSmell {
+public class IndirectTesting extends AbstractTestCaseSmell {
 
     public IndirectTesting() {
-        setSmellName("Indirect Testing");
+        super("IndirectTesting");
     }
 
     @Override
-    public int obtainSmellCount(TestChromosome chromosome) {
+    public int computeNumberOfSmells(TestChromosome chromosome) {
         int smellCount = 0;
 
         int size = chromosome.size();

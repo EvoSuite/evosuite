@@ -2,20 +2,20 @@ package org.evosuite.testsmells.smells;
 
 import org.evosuite.assertion.Assertion;
 import org.evosuite.testcase.TestChromosome;
-import org.evosuite.testsmells.AbstractTestSmell;
+import org.evosuite.testsmells.AbstractTestCaseSmell;
 import org.evosuite.testcase.statements.Statement;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-public class DuplicateAssert extends AbstractTestSmell {
+public class DuplicateAssert extends AbstractTestCaseSmell {
 
     public DuplicateAssert() {
-        setSmellName("Duplicate Assert");
+        super("DuplicateAssert");
     }
 
     @Override
-    public int obtainSmellCount(TestChromosome chromosome) {
+    public int computeNumberOfSmells(TestChromosome chromosome) {
         int size = chromosome.size();
         int count = 0;
 

@@ -17,7 +17,7 @@ import static org.junit.Assert.assertEquals;
 
 public class EagerTestSmellTest {
 
-    AbstractTestSmell eagerTest;
+    AbstractTestCaseSmell eagerTest;
 
     @Before
     public void setUp() {
@@ -30,7 +30,7 @@ public class EagerTestSmellTest {
         DefaultTestCase test0 = createTestCase0();
         testCase.setTestCase(test0);
 
-        int smellCount = this.eagerTest.obtainSmellCount(testCase);
+        int smellCount = this.eagerTest.computeNumberOfSmells(testCase);
 
         //This value should be 2, but it is necessary to define the target class in Properties
         int expected = 0;
@@ -46,7 +46,7 @@ public class EagerTestSmellTest {
         suite.addTest(test0);
         suite.addTest(test1);
 
-        int smellCount = this.eagerTest.obtainSmellCount(suite);
+        int smellCount = this.eagerTest.computeNumberOfSmells(suite);
 
         //This value should be 3, but it is necessary to define the target class in Properties
         int expected = 0;

@@ -5,18 +5,18 @@ import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.variable.VariableReference;
-import org.evosuite.testsmells.AbstractTestSmell;
+import org.evosuite.testsmells.AbstractTestCaseSmell;
 
 import java.util.List;
 
-public class LikelyIneffectiveObjectComparison extends AbstractTestSmell {
+public class LikelyIneffectiveObjectComparison extends AbstractTestCaseSmell {
 
     public LikelyIneffectiveObjectComparison() {
-        setSmellName("Likely Ineffective Object Comparison");
+        super("LikelyIneffectiveObjectComparison");
     }
 
     @Override
-    public int obtainSmellCount(TestChromosome chromosome) {
+    public int computeNumberOfSmells(TestChromosome chromosome) {
         int size = chromosome.size();
         int count = 0;
 

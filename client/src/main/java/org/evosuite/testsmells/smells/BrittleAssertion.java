@@ -2,17 +2,17 @@ package org.evosuite.testsmells.smells;
 
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.statements.MethodStatement;
-import org.evosuite.testsmells.AbstractTestSmell;
+import org.evosuite.testsmells.AbstractTestCaseSmell;
 import org.evosuite.testcase.statements.Statement;
 
-public class BrittleAssertion extends AbstractTestSmell {
+public class BrittleAssertion extends AbstractTestCaseSmell {
 
     public BrittleAssertion() {
-        setSmellName("Brittle Assertion");
+        super("BrittleAssertion");
     }
 
     @Override
-    public int obtainSmellCount(TestChromosome chromosome) {
+    public int computeNumberOfSmells(TestChromosome chromosome) {
         int size = chromosome.size();
         int count = 0;
 

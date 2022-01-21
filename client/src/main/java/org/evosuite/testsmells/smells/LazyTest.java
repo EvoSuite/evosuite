@@ -3,20 +3,20 @@ package org.evosuite.testsmells.smells;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testcase.statements.Statement;
-import org.evosuite.testsmells.AbstractTestSuiteSmell;
+import org.evosuite.testsmells.AbstractTestSmell;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.generic.GenericMethod;
 
 import java.util.LinkedHashMap;
 
-public class LazyTest extends AbstractTestSuiteSmell {
+public class LazyTest extends AbstractTestSmell {
 
     public LazyTest() {
-        setSmellName("Lazy Test");
+        super("LazyTest");
     }
 
     @Override
-    public int obtainSmellCount(TestSuiteChromosome chromosome) {
+    public int computeNumberOfSmells(TestSuiteChromosome chromosome) {
         Statement currentStatement;
         int count = 0;
 

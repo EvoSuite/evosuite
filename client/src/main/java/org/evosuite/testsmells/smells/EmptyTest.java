@@ -1,16 +1,16 @@
 package org.evosuite.testsmells.smells;
 
 import org.evosuite.testcase.TestChromosome;
-import org.evosuite.testsmells.AbstractTestSmell;
+import org.evosuite.testsmells.AbstractTestCaseSmell;
 
-public class EmptyTest extends AbstractTestSmell {
+public class EmptyTest extends AbstractTestCaseSmell {
 
     public EmptyTest() {
-        setSmellName("Empty Test");
+        super("EmptyTest");
     }
 
     @Override
-    public int obtainSmellCount(TestChromosome chromosome) {
+    public int computeNumberOfSmells(TestChromosome chromosome) {
         return chromosome.getTestCase().size() == 0 ? Integer.MAX_VALUE : 0;
     }
 }

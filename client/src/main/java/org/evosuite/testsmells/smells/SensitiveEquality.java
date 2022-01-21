@@ -4,16 +4,16 @@ import org.evosuite.Properties;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testcase.statements.Statement;
-import org.evosuite.testsmells.AbstractTestSmell;
+import org.evosuite.testsmells.AbstractTestCaseSmell;
 
-public class SensitiveEquality extends AbstractTestSmell {
+public class SensitiveEquality extends AbstractTestCaseSmell {
 
     public SensitiveEquality() {
-        setSmellName("Sensitive Equality");
+        super("SensitiveEquality");
     }
 
     @Override
-    public int obtainSmellCount(TestChromosome chromosome) {
+    public int computeNumberOfSmells(TestChromosome chromosome) {
         int size = chromosome.size();
         int count = 0;
 

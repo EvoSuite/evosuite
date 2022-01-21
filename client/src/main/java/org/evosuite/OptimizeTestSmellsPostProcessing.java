@@ -1,9 +1,7 @@
 package org.evosuite;
 
-import org.evosuite.rmi.ClientServices;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.testsmells.AbstractTestSmell;
-import org.evosuite.testsmells.AbstractTestSuiteSmell;
 import org.evosuite.testsmells.smells.*;
 import org.evosuite.testsuite.TestSuiteChromosome;
 
@@ -13,18 +11,22 @@ import java.util.List;
 public class OptimizeTestSmellsPostProcessing {
 
     private List<AbstractTestSmell> listOfTestSmells;
-    private List<AbstractTestSuiteSmell> listOfAbstractTestSmells;
 
-    public OptimizeTestSmellsPostProcessing(){ initializeTestSmells(); }
+    public OptimizeTestSmellsPostProcessing(){
+        initializeTestSmells();
+    }
 
     private void initializeTestSmells(){
         listOfTestSmells = new ArrayList<>();
+
         listOfTestSmells.add(new AssertionRoulette());
         listOfTestSmells.add(new BrittleAssertion());
         listOfTestSmells.add(new DuplicateAssert());
         listOfTestSmells.add(new EagerTest());
         listOfTestSmells.add(new EmptyTest());
         listOfTestSmells.add(new IndirectTesting());
+        listOfTestSmells.add(new LackOfCohesionOfMethods());
+        listOfTestSmells.add(new LazyTest());
         listOfTestSmells.add(new LikelyIneffectiveObjectComparison());
         listOfTestSmells.add(new MysteryGuest());
         listOfTestSmells.add(new ObscureInlineSetup());
@@ -34,29 +36,16 @@ public class OptimizeTestSmellsPostProcessing {
         listOfTestSmells.add(new UnknownTest());
         listOfTestSmells.add(new UnusedInputs());
         listOfTestSmells.add(new VerboseTest());
-
-        listOfAbstractTestSmells = new ArrayList<>();
-        listOfAbstractTestSmells.add(new LackOfCohesionOfMethods());
-        listOfAbstractTestSmells.add(new LazyTest());
     }
 
     public int getNumTestSmells(TestSuiteChromosome testSuite){
         int smellCount = 0;
         int specificSmell;
 
-        for (AbstractTestSuiteSmell testSmell : listOfAbstractTestSmells){
-            specificSmell = testSmell.obtainSmellCount(testSuite);
-            ClientServices.getInstance().getClientNode().trackOutputVariable(getTestSmellVariable(testSmell.getSmellName()), specificSmell);
-            smellCount += specificSmell;
-        }
-
         for (AbstractTestSmell testSmell : listOfTestSmells){
-            specificSmell = testSmell.obtainSmellCount(testSuite);
-            ClientServices.getInstance().getClientNode().trackOutputVariable(getTestSmellVariable(testSmell.getSmellName()), specificSmell);
+            specificSmell = testSmell.computeNumberOfSmells(testSuite);
             smellCount += specificSmell;
         }
-
-        ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.AllTestSmells, smellCount);
 
         return smellCount;
     }

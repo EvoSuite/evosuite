@@ -2,7 +2,6 @@ package org.evosuite.testsuite.secondaryobjectives;
 
 import org.evosuite.ga.SecondaryObjective;
 import org.evosuite.testsmells.AbstractTestSmell;
-import org.evosuite.testsmells.AbstractTestSuiteSmell;
 import org.evosuite.testsmells.smells.*;
 import org.evosuite.testsuite.TestSuiteChromosome;
 
@@ -12,7 +11,6 @@ import java.util.List;
 public class OptimizeTestSmellsSecondaryObjective extends SecondaryObjective<TestSuiteChromosome> {
 
     private List<AbstractTestSmell> listOfTestSmells;
-    private List<AbstractTestSuiteSmell> listOfAbstractTestSmells;
 
     OptimizeTestSmellsSecondaryObjective() {
         initializeTestSmells();
@@ -31,7 +29,6 @@ public class OptimizeTestSmellsSecondaryObjective extends SecondaryObjective<Tes
 
     private void initializeTestSmells() {
         listOfTestSmells = new ArrayList<>();
-        listOfAbstractTestSmells = new ArrayList<>();
 
         //Test smells related to test cases
         listOfTestSmells.add(new EagerTest());
@@ -41,19 +38,15 @@ public class OptimizeTestSmellsSecondaryObjective extends SecondaryObjective<Tes
         listOfTestSmells.add(new EmptyTest());
 
         //Test smells related to test suites
-        listOfAbstractTestSmells.add(new LackOfCohesionOfMethods());
+        listOfTestSmells.add(new LackOfCohesionOfMethods());
 
     }
 
     private int getNumTestSmells(TestSuiteChromosome chromosome){
         int smellCount = 0;
 
-        for (AbstractTestSuiteSmell testSmell : listOfAbstractTestSmells){
-            smellCount += testSmell.obtainSmellCount(chromosome);
-        }
-
         for (AbstractTestSmell testSmell : listOfTestSmells){
-            smellCount += testSmell.obtainSmellCount(chromosome);
+            smellCount += testSmell.computeNumberOfSmells(chromosome);
         }
 
         return smellCount;

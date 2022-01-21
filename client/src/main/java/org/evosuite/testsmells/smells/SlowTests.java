@@ -1,16 +1,16 @@
 package org.evosuite.testsmells.smells;
 
 import org.evosuite.testcase.TestChromosome;
-import org.evosuite.testsmells.AbstractTestSmell;
+import org.evosuite.testsmells.AbstractTestCaseSmell;
 
-public class SlowTests extends AbstractTestSmell {
+public class SlowTests extends AbstractTestCaseSmell {
 
     public SlowTests() {
-        setSmellName("Slow Tests");
+        super("SlowTests");
     }
 
     @Override
-    public int obtainSmellCount(TestChromosome chromosome) {
+    public int computeNumberOfSmells(TestChromosome chromosome) {
         return (int) chromosome.getDuration();
     }
 }

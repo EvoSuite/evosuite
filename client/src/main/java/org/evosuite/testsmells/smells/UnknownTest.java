@@ -2,16 +2,16 @@ package org.evosuite.testsmells.smells;
 
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.statements.Statement;
-import org.evosuite.testsmells.AbstractTestSmell;
+import org.evosuite.testsmells.AbstractTestCaseSmell;
 
-public class UnknownTest extends AbstractTestSmell {
+public class UnknownTest extends AbstractTestCaseSmell {
 
     public UnknownTest() {
-        setSmellName("Unknown Test");
+        super("UnknownTest");
     }
 
     @Override
-    public int obtainSmellCount(TestChromosome chromosome) {
+    public int computeNumberOfSmells(TestChromosome chromosome) {
         int size = chromosome.size();
         int count = 0;
 

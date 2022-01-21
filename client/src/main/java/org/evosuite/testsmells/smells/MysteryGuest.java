@@ -7,20 +7,20 @@ import org.evosuite.testcase.statements.ConstructorStatement;
 import org.evosuite.testcase.statements.EntityWithParametersStatement;
 import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testcase.statements.Statement;
-import org.evosuite.testsmells.AbstractTestSmell;
+import org.evosuite.testsmells.AbstractTestCaseSmell;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class MysteryGuest extends AbstractTestSmell {
+public class MysteryGuest extends AbstractTestCaseSmell {
 
     public MysteryGuest() {
-        setSmellName("Mystery Guest");
+        super("MysteryGuest");
     }
 
     @Override
-    public int obtainSmellCount(TestChromosome chromosome) {
+    public int computeNumberOfSmells(TestChromosome chromosome) {
         int size = chromosome.size();
         int count = 0;
 
