@@ -8,7 +8,7 @@ import org.evosuite.testsuite.TestSuiteChromosome;
 public class LackOfCohesionOfMethods extends AbstractTestSmell {
 
     public LackOfCohesionOfMethods() {
-        super("LackOfCohesionOfMethods");
+        super("TestSmellLackOfCohesionOfMethods");
     }
 
     @Override

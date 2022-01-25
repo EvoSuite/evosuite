@@ -11,7 +11,7 @@ import java.util.Set;
 public class DuplicateAssert extends AbstractTestCaseSmell {
 
     public DuplicateAssert() {
-        super("DuplicateAssert");
+        super("TestSmellDuplicateAssert");
     }
 
     @Override

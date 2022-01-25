@@ -7,7 +7,7 @@ import org.evosuite.testsmells.AbstractTestCaseSmell;
 public class UnknownTest extends AbstractTestCaseSmell {
 
     public UnknownTest() {
-        super("UnknownTest");
+        super("TestSmellUnknownTest");
     }
 
     @Override

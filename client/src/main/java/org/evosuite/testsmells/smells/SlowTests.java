@@ -6,7 +6,7 @@ import org.evosuite.testsmells.AbstractTestCaseSmell;
 public class SlowTests extends AbstractTestCaseSmell {
 
     public SlowTests() {
-        super("SlowTests");
+        super("TestSmellSlowTests");
     }
 
     @Override

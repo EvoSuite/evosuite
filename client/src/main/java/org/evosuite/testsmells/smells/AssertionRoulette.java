@@ -7,7 +7,7 @@ import org.evosuite.testcase.statements.Statement;
 public class AssertionRoulette extends AbstractTestCaseSmell {
 
     public AssertionRoulette() {
-        super("AssertionRoulette");
+        super("TestSmellAssertionRoulette");
     }
 
     @Override

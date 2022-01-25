@@ -16,7 +16,7 @@ import java.util.List;
 public class MysteryGuest extends AbstractTestCaseSmell {
 
     public MysteryGuest() {
-        super("MysteryGuest");
+        super("TestSmellMysteryGuest");
     }
 
     @Override

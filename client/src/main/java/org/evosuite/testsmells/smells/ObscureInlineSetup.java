@@ -9,7 +9,7 @@ import org.evosuite.testsmells.AbstractTestCaseSmell;
 public class ObscureInlineSetup extends AbstractTestCaseSmell {
 
     public ObscureInlineSetup() {
-        super("ObscureInlineSetup");
+        super("TestSmellObscureInlineSetup");
     }
 
     @Override

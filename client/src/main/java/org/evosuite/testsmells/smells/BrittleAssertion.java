@@ -8,7 +8,7 @@ import org.evosuite.testcase.statements.Statement;
 public class BrittleAssertion extends AbstractTestCaseSmell {
 
     public BrittleAssertion() {
-        super("BrittleAssertion");
+        super("TestSmellBrittleAssertion");
     }
 
     @Override

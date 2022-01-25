@@ -53,39 +53,39 @@ public class OptimizeTestSmellsPostProcessing {
     private RuntimeVariable getTestSmellVariable (String smellName){
         switch (smellName){
             case "Assertion Roulette":
-                return RuntimeVariable.AssertionRoulette;
+                return RuntimeVariable.TestSmellAssertionRoulette;
             case "Brittle Assertion":
-                return RuntimeVariable.BrittleAssertion;
+                return RuntimeVariable.TestSmellBrittleAssertion;
             case "Duplicate Assert":
-                return RuntimeVariable.DuplicateAssert;
+                return RuntimeVariable.TestSmellDuplicateAssert;
             case "Eager Test":
-                return RuntimeVariable.EagerTest;
+                return RuntimeVariable.TestSmellEagerTest;
             case "Empty Test":
-                return RuntimeVariable.EmptyTest;
+                return RuntimeVariable.TestSmellEmptyTest;
             case "Indirect Testing":
-                return RuntimeVariable.IndirectTesting;
+                return RuntimeVariable.TestSmellIndirectTesting;
             case "Lack of Cohesion of Methods":
-                return RuntimeVariable.LackOfCohesionOfMethods;
+                return RuntimeVariable.TestSmellLackOfCohesionOfMethods;
             case "Lazy Test":
-                return RuntimeVariable.LazyTest;
+                return RuntimeVariable.TestSmellLazyTest;
             case "Likely Ineffective Object Comparison":
-                return RuntimeVariable.LikelyIneffectiveObjectComparison;
+                return RuntimeVariable.TestSmellLikelyIneffectiveObjectComparison;
             case "Mystery Guest":
-                return RuntimeVariable.MysteryGuest;
+                return RuntimeVariable.TestSmellMysteryGuest;
             case "Obscure Inline Setup":
-                return RuntimeVariable.ObscureInlineSetup;
+                return RuntimeVariable.TestSmellObscureInlineSetup;
             case "Redundant Assertion":
-                return RuntimeVariable.RedundantAssertion;
+                return RuntimeVariable.TestSmellRedundantAssertion;
             case "Sensitive Equality":
-                return RuntimeVariable.SensitiveEquality;
+                return RuntimeVariable.TestSmellSensitiveEquality;
             case "Slow Tests":
-                return RuntimeVariable.SlowTests;
+                return RuntimeVariable.TestSmellSlowTests;
             case "Unknown Test":
-                return RuntimeVariable.UnknownTest;
+                return RuntimeVariable.TestSmellUnknownTest;
             case "Unused Inputs":
-                return RuntimeVariable.UnusedInputs;
+                return RuntimeVariable.TestSmellUnusedInputs;
             case "Verbose Test":
-                return RuntimeVariable.VerboseTest;
+                return RuntimeVariable.TestSmellVerboseTest;
             default:
                 throw new RuntimeException("Criterion not supported: " + smellName);
         }

@@ -10,7 +10,7 @@ import org.evosuite.utils.generic.GenericConstructor;
 public class IndirectTesting extends AbstractTestCaseSmell {
 
     public IndirectTesting() {
-        super("IndirectTesting");
+        super("TestSmellIndirectTesting");
     }
 
     @Override

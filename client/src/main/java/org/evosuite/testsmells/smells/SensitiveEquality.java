@@ -9,7 +9,7 @@ import org.evosuite.testsmells.AbstractTestCaseSmell;
 public class SensitiveEquality extends AbstractTestCaseSmell {
 
     public SensitiveEquality() {
-        super("SensitiveEquality");
+        super("TestSmellSensitiveEquality");
     }
 
     @Override

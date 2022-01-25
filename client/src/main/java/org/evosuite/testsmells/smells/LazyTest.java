@@ -12,7 +12,7 @@ import java.util.LinkedHashMap;
 public class LazyTest extends AbstractTestSmell {
 
     public LazyTest() {
-        super("LazyTest");
+        super("TestSmellLazyTest");
     }
 
     @Override

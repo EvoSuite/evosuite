@@ -13,7 +13,7 @@ import java.util.Set;
 public class EagerTest extends AbstractTestCaseSmell {
 
     public EagerTest() {
-        super("EagerTest");
+        super("TestSmellEagerTest");
     }
 
     @Override

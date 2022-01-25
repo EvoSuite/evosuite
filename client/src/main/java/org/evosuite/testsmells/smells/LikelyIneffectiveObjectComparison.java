@@ -12,7 +12,7 @@ import java.util.List;
 public class LikelyIneffectiveObjectComparison extends AbstractTestCaseSmell {
 
     public LikelyIneffectiveObjectComparison() {
-        super("LikelyIneffectiveObjectComparison");
+        super("TestSmellLikelyIneffectiveObjectComparison");
     }
 
     @Override

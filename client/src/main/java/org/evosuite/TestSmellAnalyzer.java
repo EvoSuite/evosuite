@@ -81,39 +81,39 @@ public class TestSmellAnalyzer {
     private static AbstractTestSmell getAbstractTestSmell (String smellName) {
 
         switch (smellName){
-            case "AssertionRoulette":
+            case "TestSmellAssertionRoulette":
                 return new AssertionRoulette();
-            case "BrittleAssertion":
+            case "TestSmellBrittleAssertion":
                 return new BrittleAssertion();
-            case "DuplicateAssert":
+            case "TestSmellDuplicateAssert":
                 return new DuplicateAssert();
-            case "EagerTest":
+            case "TestSmellEagerTest":
                 return new EagerTest();
-            case "EmptyTest":
+            case "TestSmellEmptyTest":
                 return new EmptyTest();
-            case "IndirectTesting":
+            case "TestSmellIndirectTesting":
                 return new IndirectTesting();
-            case "LackOfCohesionOfMethods":
+            case "TestSmellLackOfCohesionOfMethods":
                 return new LackOfCohesionOfMethods();
-            case "LazyTest":
+            case "TestSmellLazyTest":
                 return new LazyTest();
-            case "LikelyIneffectiveObjectComparison":
+            case "TestSmellLikelyIneffectiveObjectComparison":
                 return new LikelyIneffectiveObjectComparison();
-            case "MysteryGuest":
+            case "TestSmellMysteryGuest":
                 return new MysteryGuest();
-            case "ObscureInlineSetup":
+            case "TestSmellObscureInlineSetup":
                 return new ObscureInlineSetup();
-            case "RedundantAssertion":
+            case "TestSmellRedundantAssertion":
                 return new RedundantAssertion();
-            case "SensitiveEquality":
+            case "TestSmellSensitiveEquality":
                 return new SensitiveEquality();
-            case "SlowTests":
+            case "TestSmellSlowTests":
                 return new SlowTests();
-            case "UnknownTest":
+            case "TestSmellUnknownTest":
                 return new UnknownTest();
-            case "UnusedInputs":
+            case "TestSmellUnusedInputs":
                 return new UnusedInputs();
-            case "VerboseTest":
+            case "TestSmellVerboseTest":
                 return new VerboseTest();
             default:
                 return null;
