@@ -74,6 +74,27 @@ public enum RuntimeVariable {
 	 */
 	AllTestSmells,
 
+	/**
+	 * Obtained test smell numbers at different points in time
+	 */
+	TestSmellAssertionRouletteTimeline,
+	TestSmellBrittleAssertionTimeline,
+	TestSmellDuplicateAssertTimeline,
+	TestSmellEagerTestTimeline,
+	TestSmellEmptyTestTimeline,
+	TestSmellIndirectTestingTimeline,
+	TestSmellLackOfCohesionOfMethodsTimeline,
+	TestSmellLazyTestTimeline,
+	TestSmellLikelyIneffectiveObjectComparisonTimeline,
+	TestSmellMysteryGuestTimeline,
+	TestSmellObscureInlineSetupTimeline,
+	TestSmellRedundantAssertionTimeline,
+	TestSmellSensitiveEqualityTimeline,
+	TestSmellSlowTestsTimeline,
+	TestSmellUnknownTestTimeline,
+	TestSmellUnusedInputsTimeline,
+	TestSmellVerboseTestTimeline,
+
 	/** Number of predicates in CUT */
 	Predicates,
 	/** Number of added jump conditions through instrumentation */

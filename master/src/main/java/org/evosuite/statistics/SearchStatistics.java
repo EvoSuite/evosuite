@@ -43,6 +43,9 @@ import org.evosuite.rmi.service.ClientStateInformation;
 import org.evosuite.runtime.util.AtMostOnceLogger;
 import org.evosuite.statistics.backend.*;
 import org.evosuite.symbolic.dse.DSEStatistics;
+import org.evosuite.testsmells.AbstractTestCaseSmell;
+import org.evosuite.testsmells.AbstractTestSmell;
+import org.evosuite.testsmells.smells.*;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.Listener;
 import org.evosuite.utils.LoggingUtils;
@@ -143,6 +146,25 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
         // sequenceOutputVariableFactories.put("Generation_History", new GenerationSequenceOutputVariableFactory());
 		if(MasterServices.getInstance().getMasterNode() != null)
 			MasterServices.getInstance().getMasterNode().addListener(this);
+
+		sequenceOutputVariableFactories.put(RuntimeVariable.TestSmellAssertionRouletteTimeline.name(), new TestSmellAssertionRouletteSequenceOutputVariableFactory());
+		sequenceOutputVariableFactories.put(RuntimeVariable.TestSmellBrittleAssertionTimeline.name(), new TestSmellBrittleAssertionSequenceOutputVariableFactory());
+		sequenceOutputVariableFactories.put(RuntimeVariable.TestSmellDuplicateAssertTimeline.name(), new TestSmellDuplicateAssertSequenceOutputVariableFactory());
+		sequenceOutputVariableFactories.put(RuntimeVariable.TestSmellEagerTestTimeline.name(), new TestSmellEagerTestSequenceOutputVariableFactory());
+		sequenceOutputVariableFactories.put(RuntimeVariable.TestSmellEmptyTestTimeline.name(), new TestSmellEmptyTestSequenceOutputVariableFactory());
+		sequenceOutputVariableFactories.put(RuntimeVariable.TestSmellIndirectTestingTimeline.name(), new TestSmellIndirectTestingSequenceOutputVariableFactory());
+		sequenceOutputVariableFactories.put(RuntimeVariable.TestSmellLackOfCohesionOfMethodsTimeline.name(), new TestSmellLackOfCohesionOfMethodsSequenceOutputVariableFactory());
+		sequenceOutputVariableFactories.put(RuntimeVariable.TestSmellLazyTestTimeline.name(), new TestSmellLazyTestSequenceOutputVariableFactory());
+		sequenceOutputVariableFactories.put(RuntimeVariable.TestSmellLikelyIneffectiveObjectComparisonTimeline.name(), new TestSmellLikelyIneffectiveObjectComparisonSequenceOutputVariableFactory());
+		sequenceOutputVariableFactories.put(RuntimeVariable.TestSmellMysteryGuestTimeline.name(), new TestSmellMysteryGuestSequenceOutputVariableFactory());
+		sequenceOutputVariableFactories.put(RuntimeVariable.TestSmellObscureInlineSetupTimeline.name(), new TestSmellObscureInlineSetupSequenceOutputVariableFactory());
+		sequenceOutputVariableFactories.put(RuntimeVariable.TestSmellRedundantAssertionTimeline.name(), new TestSmellRedundantAssertionSequenceOutputVariableFactory());
+		sequenceOutputVariableFactories.put(RuntimeVariable.TestSmellSensitiveEqualityTimeline.name(), new TestSmellSensitiveEqualitySequenceOutputVariableFactory());
+		sequenceOutputVariableFactories.put(RuntimeVariable.TestSmellSlowTestsTimeline.name(), new TestSmellSlowTestsSequenceOutputVariableFactory());
+		sequenceOutputVariableFactories.put(RuntimeVariable.TestSmellUnknownTestTimeline.name(), new TestSmellUnknownTestSequenceOutputVariableFactory());
+		sequenceOutputVariableFactories.put(RuntimeVariable.TestSmellUnusedInputsTimeline.name(), new TestSmellUnusedInputsSequenceOutputVariableFactory());
+		sequenceOutputVariableFactories.put(RuntimeVariable.TestSmellVerboseTestTimeline.name(), new TestSmellVerboseTestSequenceOutputVariableFactory());
+
 	}
 
 	public static SearchStatistics getInstance() {
@@ -872,4 +894,242 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
             return individual.getCoverageInstanceOf(OnlyMutationSuiteFitness.class);
         }
     }
+
+	private static class TestSmellAssertionRouletteSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Double> {
+
+		public TestSmellAssertionRouletteSequenceOutputVariableFactory() {
+			super(RuntimeVariable.TestSmellAssertionRouletteTimeline);
+		}
+
+		@Override
+		public Double getValue(TestSuiteChromosome individual) {
+			AbstractTestCaseSmell smell = new AssertionRoulette();
+			double count = smell.computeNumberOfSmells(individual);
+			return count;
+		}
+	}
+
+	private static class TestSmellBrittleAssertionSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Double> {
+
+		public TestSmellBrittleAssertionSequenceOutputVariableFactory() {
+			super(RuntimeVariable.TestSmellBrittleAssertionTimeline);
+		}
+
+		@Override
+		public Double getValue(TestSuiteChromosome individual) {
+			AbstractTestCaseSmell smell = new BrittleAssertion();
+			double count = smell.computeNumberOfSmells(individual);
+			return count;
+		}
+	}
+
+	private static class TestSmellDuplicateAssertSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Double> {
+
+		public TestSmellDuplicateAssertSequenceOutputVariableFactory() {
+			super(RuntimeVariable.TestSmellDuplicateAssertTimeline);
+		}
+
+		@Override
+		public Double getValue(TestSuiteChromosome individual) {
+			AbstractTestCaseSmell smell = new DuplicateAssert();
+			double count = smell.computeNumberOfSmells(individual);
+			return count;
+		}
+	}
+
+	private static class TestSmellEagerTestSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Double> {
+
+		public TestSmellEagerTestSequenceOutputVariableFactory() {
+			super(RuntimeVariable.TestSmellEagerTestTimeline);
+		}
+
+		@Override
+		public Double getValue(TestSuiteChromosome individual) {
+			AbstractTestCaseSmell smell = new EagerTest();
+			double count = smell.computeNumberOfSmells(individual);
+			return count;
+		}
+	}
+
+	private static class TestSmellEmptyTestSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Double> {
+
+		public TestSmellEmptyTestSequenceOutputVariableFactory() {
+			super(RuntimeVariable.TestSmellEmptyTestTimeline);
+		}
+
+		@Override
+		public Double getValue(TestSuiteChromosome individual) {
+			AbstractTestCaseSmell smell = new EmptyTest();
+			double count = smell.computeNumberOfSmells(individual);
+			return count;
+		}
+	}
+
+	private static class TestSmellIndirectTestingSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Double> {
+
+		public TestSmellIndirectTestingSequenceOutputVariableFactory() {
+			super(RuntimeVariable.TestSmellIndirectTestingTimeline);
+		}
+
+		@Override
+		public Double getValue(TestSuiteChromosome individual) {
+			AbstractTestCaseSmell smell = new IndirectTesting();
+			double count = smell.computeNumberOfSmells(individual);
+			return count;
+		}
+	}
+
+	private static class TestSmellLackOfCohesionOfMethodsSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Double> {
+
+		public TestSmellLackOfCohesionOfMethodsSequenceOutputVariableFactory() {
+			super(RuntimeVariable.TestSmellLackOfCohesionOfMethodsTimeline);
+		}
+
+		@Override
+		public Double getValue(TestSuiteChromosome individual) {
+			AbstractTestSmell smell = new LackOfCohesionOfMethods();
+			double count = smell.computeNumberOfSmells(individual);
+			return count;
+		}
+	}
+
+	private static class TestSmellLazyTestSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Double> {
+
+		public TestSmellLazyTestSequenceOutputVariableFactory() {
+			super(RuntimeVariable.TestSmellLazyTestTimeline);
+		}
+
+		@Override
+		public Double getValue(TestSuiteChromosome individual) {
+			AbstractTestSmell smell = new LazyTest();
+			double count = smell.computeNumberOfSmells(individual);
+			return count;
+		}
+	}
+
+	private static class TestSmellLikelyIneffectiveObjectComparisonSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Double> {
+
+		public TestSmellLikelyIneffectiveObjectComparisonSequenceOutputVariableFactory() {
+			super(RuntimeVariable.TestSmellLikelyIneffectiveObjectComparisonTimeline);
+		}
+
+		@Override
+		public Double getValue(TestSuiteChromosome individual) {
+			AbstractTestCaseSmell smell = new LikelyIneffectiveObjectComparison();
+			double count = smell.computeNumberOfSmells(individual);
+			return count;
+		}
+	}
+
+	private static class TestSmellMysteryGuestSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Double> {
+
+		public TestSmellMysteryGuestSequenceOutputVariableFactory() {
+			super(RuntimeVariable.TestSmellMysteryGuestTimeline);
+		}
+
+		@Override
+		public Double getValue(TestSuiteChromosome individual) {
+			AbstractTestCaseSmell smell = new MysteryGuest();
+			double count = smell.computeNumberOfSmells(individual);
+			return count;
+		}
+	}
+
+	private static class TestSmellObscureInlineSetupSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Double> {
+
+		public TestSmellObscureInlineSetupSequenceOutputVariableFactory() {
+			super(RuntimeVariable.TestSmellObscureInlineSetupTimeline);
+		}
+
+		@Override
+		public Double getValue(TestSuiteChromosome individual) {
+			AbstractTestCaseSmell smell = new ObscureInlineSetup();
+			double count = smell.computeNumberOfSmells(individual);
+			return count;
+		}
+	}
+
+	private static class TestSmellRedundantAssertionSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Double> {
+
+		public TestSmellRedundantAssertionSequenceOutputVariableFactory() {
+			super(RuntimeVariable.TestSmellRedundantAssertionTimeline);
+		}
+
+		@Override
+		public Double getValue(TestSuiteChromosome individual) {
+			AbstractTestCaseSmell smell = new RedundantAssertion();
+			double count = smell.computeNumberOfSmells(individual);
+			return count;
+		}
+	}
+
+	private static class TestSmellSensitiveEqualitySequenceOutputVariableFactory extends SequenceOutputVariableFactory<Double> {
+
+		public TestSmellSensitiveEqualitySequenceOutputVariableFactory() {
+			super(RuntimeVariable.TestSmellSensitiveEqualityTimeline);
+		}
+
+		@Override
+		public Double getValue(TestSuiteChromosome individual) {
+			AbstractTestCaseSmell smell = new SensitiveEquality();
+			double count = smell.computeNumberOfSmells(individual);
+			return count;
+		}
+	}
+
+	private static class TestSmellSlowTestsSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Double> {
+
+		public TestSmellSlowTestsSequenceOutputVariableFactory() {
+			super(RuntimeVariable.TestSmellSlowTestsTimeline);
+		}
+
+		@Override
+		public Double getValue(TestSuiteChromosome individual) {
+			AbstractTestCaseSmell smell = new SlowTests();
+			double count = smell.computeNumberOfSmells(individual);
+			return count;
+		}
+	}
+
+	private static class TestSmellUnknownTestSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Double> {
+
+		public TestSmellUnknownTestSequenceOutputVariableFactory() {
+			super(RuntimeVariable.TestSmellUnknownTestTimeline);
+		}
+
+		@Override
+		public Double getValue(TestSuiteChromosome individual) {
+			AbstractTestCaseSmell smell = new UnknownTest();
+			double count = smell.computeNumberOfSmells(individual);
+			return count;
+		}
+	}
+
+	private static class TestSmellUnusedInputsSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Double> {
+
+		public TestSmellUnusedInputsSequenceOutputVariableFactory() {
+			super(RuntimeVariable.TestSmellUnusedInputsTimeline);
+		}
+
+		@Override
+		public Double getValue(TestSuiteChromosome individual) {
+			AbstractTestCaseSmell smell = new UnusedInputs();
+			double count = smell.computeNumberOfSmells(individual);
+			return count;
+		}
+	}
+
+	private static class TestSmellVerboseTestSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Double> {
+
+		public TestSmellVerboseTestSequenceOutputVariableFactory() {
+			super(RuntimeVariable.TestSmellVerboseTestTimeline);
+		}
+
+		@Override
+		public Double getValue(TestSuiteChromosome individual) {
+			AbstractTestCaseSmell smell = new VerboseTest();
+			double count = smell.computeNumberOfSmells(individual);
+			return count;
+		}
+	}
 }
