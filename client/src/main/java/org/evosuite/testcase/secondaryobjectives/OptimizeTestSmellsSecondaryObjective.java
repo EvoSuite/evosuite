@@ -38,6 +38,8 @@ public class OptimizeTestSmellsSecondaryObjective extends SecondaryObjective<Tes
         listOfTestSmells.add(new SlowTests());
         listOfTestSmells.add(new MysteryGuest());
         listOfTestSmells.add(new LikelyIneffectiveObjectComparison());
+        listOfTestSmells.add(new Overreferencing());
+        listOfTestSmells.add(new ResourceOptimism());
     }
 
     private int getNumTestSmells(TestChromosome chromosome){

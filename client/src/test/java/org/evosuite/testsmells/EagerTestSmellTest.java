@@ -169,7 +169,7 @@ public class EagerTestSmellTest {
         return testCase;
     }
 
-    private DefaultTestCase createEmptyTestCase () throws NoSuchMethodException {
+    private DefaultTestCase createEmptyTestCase () {
 
         // Create test case
 
