@@ -23,6 +23,8 @@ import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 
+import java.util.LinkedHashMap;
+
 public abstract class AbstractTestChromosome<E extends AbstractTestChromosome<E>> extends ExecutableChromosome<E> {
 
 
@@ -31,6 +33,12 @@ public abstract class AbstractTestChromosome<E extends AbstractTestChromosome<E>
      * The test case encoded in this chromosome
      */
     protected TestCase test = new DefaultTestCase();
+
+    /** The total test smell score */
+    protected int smellScoreTestCase = -1;
+
+    /** The score for each test smell metric */
+    protected LinkedHashMap<String, Integer> smellValuesTestCase;
 
     @Override
     public abstract void crossOver(E other, int position1, int position2) throws ConstructionFailedException;

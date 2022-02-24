@@ -19,11 +19,7 @@
  */
 package org.evosuite.testsuite;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import org.evosuite.Properties;
 import org.evosuite.ga.ChromosomeFactory;
@@ -32,6 +28,7 @@ import org.evosuite.ga.localsearch.LocalSearchObjective;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
+import org.evosuite.testsmells.AbstractTestSmell;
 import org.evosuite.testsuite.localsearch.TestSuiteLocalSearch;
 
 import static java.util.stream.Collectors.toCollection;
@@ -290,6 +287,40 @@ public final class TestSuiteChromosome
 			}
 		}
 		return result;
+	}
+
+	/**
+	 * Optimize test smell metrics
+	 * @param listOfTestSmells A list with the test smell metrics that will be optimized
+	 * @return int with the total test smell score
+	 */
+	public int calculateSmellValuesTestSuite (List<AbstractTestSmell> listOfTestSmells){
+
+		if(this.calculateSmellScoreTestSuite){
+
+			this.calculateSmellScoreTestSuite = false;
+
+			this.smellScoreTestSuite = 0;
+			this.smellValuesTestSuite = new LinkedHashMap<>();
+
+			int specificSmellScore;
+
+			for (AbstractTestSmell testSmell : listOfTestSmells){
+				specificSmellScore = testSmell.computeNumberOfSmells(this);
+				this.smellScoreTestSuite += specificSmellScore;
+				this.smellValuesTestSuite.put(testSmell.getName(), specificSmellScore);
+			}
+		}
+
+		return this.smellScoreTestSuite;
+	}
+
+	/**
+	 * Get the score for each test smell metric
+	 * @return LinkedHashMap containing the metrics and the respective scores
+	 */
+	public LinkedHashMap<String, Integer> getSmellValuesTestSuite (){
+		return this.smellValuesTestSuite;
 	}
 
 }

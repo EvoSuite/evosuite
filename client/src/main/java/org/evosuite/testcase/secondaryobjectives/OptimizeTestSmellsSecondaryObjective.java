@@ -18,13 +18,14 @@ public class OptimizeTestSmellsSecondaryObjective extends SecondaryObjective<Tes
 
     @Override
     public int compareChromosomes(TestChromosome chromosome1, TestChromosome chromosome2) {
-        return getNumTestSmells(chromosome1) - getNumTestSmells(chromosome2);
+        return chromosome1.calculateSmellValuesTestCase(listOfTestSmells)
+                - chromosome2.calculateSmellValuesTestCase(listOfTestSmells);
     }
 
     @Override
     public int compareGenerations(TestChromosome parent1, TestChromosome parent2, TestChromosome child1, TestChromosome child2) {
-        return Math.min(getNumTestSmells(parent1), getNumTestSmells(parent2))
-                - Math.min(getNumTestSmells(child1), getNumTestSmells(child2));
+        return Math.min(parent1.calculateSmellValuesTestCase(listOfTestSmells), parent2.calculateSmellValuesTestCase(listOfTestSmells))
+                - Math.min(child1.calculateSmellValuesTestCase(listOfTestSmells), child2.calculateSmellValuesTestCase(listOfTestSmells));
     }
 
     private void initializeTestSmells(){
@@ -40,15 +41,5 @@ public class OptimizeTestSmellsSecondaryObjective extends SecondaryObjective<Tes
         listOfTestSmells.add(new LikelyIneffectiveObjectComparison());
         listOfTestSmells.add(new Overreferencing());
         listOfTestSmells.add(new ResourceOptimism());
-    }
-
-    private int getNumTestSmells(TestChromosome chromosome){
-        int smellCount = 0;
-
-        for (AbstractTestCaseSmell testSmell : listOfTestSmells){
-            smellCount += testSmell.computeNumberOfSmells(chromosome);
-        }
-
-        return smellCount;
     }
 }

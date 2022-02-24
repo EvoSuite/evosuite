@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
@@ -53,6 +54,12 @@ public abstract class AbstractTestSuiteChromosome<T extends AbstractTestSuiteChr
 	//
 	protected List<E> tests = new ArrayList<>();
 	protected ChromosomeFactory<E> testChromosomeFactory;
+
+	/** The total test smell score */
+	protected int smellScoreTestSuite = -1;
+
+	/** The score for each test smell metric */
+	protected LinkedHashMap<String, Integer> smellValuesTestSuite;
 
 	/**
 	 * only used for testing/debugging
@@ -101,6 +108,8 @@ public abstract class AbstractTestSuiteChromosome<T extends AbstractTestSuiteChr
         this.setNumberOfEvaluations(source.getNumberOfEvaluations());
         this.setKineticEnergy(source.getKineticEnergy());
         this.setNumCollisions(source.getNumCollisions());
+        this.smellScoreTestSuite = source.smellScoreTestSuite;
+        this.smellValuesTestSuite = source.smellValuesTestSuite;
 	}
 
 	/**

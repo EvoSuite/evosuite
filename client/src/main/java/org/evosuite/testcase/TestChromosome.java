@@ -37,6 +37,7 @@ import org.evosuite.testcase.statements.FunctionalMockStatement;
 import org.evosuite.testcase.statements.PrimitiveStatement;
 import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.variable.VariableReference;
+import org.evosuite.testsmells.AbstractTestCaseSmell;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
@@ -130,6 +131,8 @@ public final class TestChromosome extends AbstractTestChromosome<TestChromosome>
 		c.setNumberOfEvaluations(this.getNumberOfEvaluations());
 		c.setKineticEnergy(getKineticEnergy());
 		c.setNumCollisions(getNumCollisions());
+		c.smellScoreTestCase = this.smellScoreTestCase;
+		c.smellValuesTestCase = this.smellValuesTestCase;
 
 		return c;
 	}
@@ -741,5 +744,38 @@ public final class TestChromosome extends AbstractTestChromosome<TestChromosome>
 		}
 	}
 
+	/**
+	 * Optimize test smell metrics
+	 * @param listOfTestSmells A list with the test smell metrics that will be optimized
+	 * @return int with the total test smell score
+	 */
+	public int calculateSmellValuesTestCase (List<AbstractTestCaseSmell> listOfTestSmells){
+
+		if(this.calculateSmellScoreTestCase){
+
+			this.calculateSmellScoreTestCase = false;
+
+			this.smellScoreTestCase = 0;
+			this.smellValuesTestCase = new LinkedHashMap<>();
+
+			int specificSmellScore;
+
+			for(AbstractTestCaseSmell testSmell : listOfTestSmells){
+				specificSmellScore = testSmell.computeNumberOfSmells(this);
+				this.smellScoreTestCase += specificSmellScore;
+				this.smellValuesTestCase.put(testSmell.getName(), specificSmellScore);
+			}
+		}
+
+		return this.smellScoreTestCase;
+	}
+
+	/**
+	 * Get the score for each test smell metric
+	 * @return LinkedHashMap containing the metrics and the respective scores
+	 */
+	public LinkedHashMap<String, Integer> getSmellValuesTestCase (){
+		return this.smellValuesTestCase;
+	}
 
 }
