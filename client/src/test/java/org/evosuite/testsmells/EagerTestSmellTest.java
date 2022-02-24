@@ -1,6 +1,7 @@
 package org.evosuite.testsmells;
 
 import com.examples.with.different.packagename.testsmells.TestSmellsTemporaryClass;
+import org.evosuite.Properties;
 import org.evosuite.assertion.PrimitiveAssertion;
 import org.evosuite.symbolic.TestCaseBuilder;
 import org.evosuite.testcase.DefaultTestCase;
@@ -23,6 +24,7 @@ public class EagerTestSmellTest {
 
     @Before
     public void setUp() {
+        Properties.TARGET_CLASS = TestSmellsTemporaryClass.class.getCanonicalName();
         this.eagerTest = new EagerTest();
     }
 
@@ -33,10 +35,7 @@ public class EagerTestSmellTest {
         testCase.setTestCase(test0);
 
         int smellCount = this.eagerTest.computeNumberOfSmells(testCase);
-
-        //This value should be 2, but it is necessary to define the target class in Properties
-        int expected = 0;
-
+        int expected = 2;
         assertEquals(expected, smellCount);
     }
 
@@ -47,15 +46,12 @@ public class EagerTestSmellTest {
         testCase.setTestCase(test0);
 
         int smellCount = this.eagerTest.computeNumberOfSmells(testCase);
-
-        //This value should be 1, but it is necessary to define the target class in Properties
-        int expected = 0;
-
+        int expected = 1;
         assertEquals(expected, smellCount);
     }
 
     @Test
-    public void testEmptyTestCase() throws NoSuchMethodException {
+    public void testEmptyTestCase() {
         TestChromosome testCase = new TestChromosome();
         DefaultTestCase test0 = createEmptyTestCase();
         testCase.setTestCase(test0);
@@ -76,10 +72,7 @@ public class EagerTestSmellTest {
         suite.addTest(test2);
 
         int smellCount = this.eagerTest.computeNumberOfSmells(suite);
-
-        //This value should be 3, but it is necessary to define the target class in Properties
-        int expected = 0;
-
+        int expected = 3;
         assertEquals(expected, smellCount);
     }
 
