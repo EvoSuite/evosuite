@@ -2,10 +2,10 @@ package org.evosuite.testsmells.smells;
 
 import org.evosuite.Properties;
 import org.evosuite.testcase.TestChromosome;
-import org.evosuite.testcase.statements.ConstructorStatement;
+import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testsmells.AbstractTestCaseSmell;
-import org.evosuite.utils.generic.GenericConstructor;
+import org.evosuite.utils.generic.GenericMethod;
 
 public class IndirectTesting extends AbstractTestCaseSmell {
 
@@ -20,13 +20,13 @@ public class IndirectTesting extends AbstractTestCaseSmell {
         int size = chromosome.size();
 
         Statement currentStatement;
-        GenericConstructor constructor;
+        GenericMethod method;
 
         for (int i = 0; i < size; i++){
             currentStatement = chromosome.getTestCase().getStatement(i);
-            if(currentStatement instanceof ConstructorStatement){
-                constructor = ((ConstructorStatement) currentStatement).getConstructor();
-                if(!constructor.getDeclaringClass().equals(Properties.getTargetClassAndDontInitialise())){
+            if(currentStatement instanceof MethodStatement){
+                method = ((MethodStatement) currentStatement).getMethod();
+                if(!method.getDeclaringClass().equals(Properties.getTargetClassAndDontInitialise())){
                     smellCount++;
                 }
             }
