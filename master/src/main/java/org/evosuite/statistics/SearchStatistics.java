@@ -158,9 +158,13 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 		sequenceOutputVariableFactories.put(RuntimeVariable.TestSmellLikelyIneffectiveObjectComparisonTimeline.name(), new TestSmellLikelyIneffectiveObjectComparisonSequenceOutputVariableFactory());
 		sequenceOutputVariableFactories.put(RuntimeVariable.TestSmellMysteryGuestTimeline.name(), new TestSmellMysteryGuestSequenceOutputVariableFactory());
 		sequenceOutputVariableFactories.put(RuntimeVariable.TestSmellObscureInlineSetupTimeline.name(), new TestSmellObscureInlineSetupSequenceOutputVariableFactory());
+		sequenceOutputVariableFactories.put(RuntimeVariable.TestSmellOverreferencingTimeline.name(), new TestSmellOverreferencingSequenceOutputVariableFactory());
 		sequenceOutputVariableFactories.put(RuntimeVariable.TestSmellRedundantAssertionTimeline.name(), new TestSmellRedundantAssertionSequenceOutputVariableFactory());
+		sequenceOutputVariableFactories.put(RuntimeVariable.TestSmellResourceOptimismTimeline.name(), new TestSmellResourceOptimismSequenceOutputVariableFactory());
+		sequenceOutputVariableFactories.put(RuntimeVariable.TestSmellRottenGreenTestsTimeline.name(), new TestSmellRottenGreenTestsSequenceOutputVariableFactory());
 		sequenceOutputVariableFactories.put(RuntimeVariable.TestSmellSensitiveEqualityTimeline.name(), new TestSmellSensitiveEqualitySequenceOutputVariableFactory());
 		sequenceOutputVariableFactories.put(RuntimeVariable.TestSmellSlowTestsTimeline.name(), new TestSmellSlowTestsSequenceOutputVariableFactory());
+		sequenceOutputVariableFactories.put(RuntimeVariable.TestSmellTestCodeDuplicationTimeline.name(), new TestSmellTestCodeDuplicationSequenceOutputVariableFactory());
 		sequenceOutputVariableFactories.put(RuntimeVariable.TestSmellUnknownTestTimeline.name(), new TestSmellUnknownTestSequenceOutputVariableFactory());
 		sequenceOutputVariableFactories.put(RuntimeVariable.TestSmellUnusedInputsTimeline.name(), new TestSmellUnusedInputsSequenceOutputVariableFactory());
 		sequenceOutputVariableFactories.put(RuntimeVariable.TestSmellVerboseTestTimeline.name(), new TestSmellVerboseTestSequenceOutputVariableFactory());
@@ -1128,6 +1132,62 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 		@Override
 		public Double getValue(TestSuiteChromosome individual) {
 			AbstractTestCaseSmell smell = new VerboseTest();
+			double count = smell.computeNumberOfSmells(individual);
+			return count;
+		}
+	}
+
+	private static class TestSmellOverreferencingSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Double> {
+
+		public TestSmellOverreferencingSequenceOutputVariableFactory() {
+			super(RuntimeVariable.TestSmellOverreferencingTimeline);
+		}
+
+		@Override
+		public Double getValue(TestSuiteChromosome individual) {
+			AbstractTestCaseSmell smell = new Overreferencing();
+			double count = smell.computeNumberOfSmells(individual);
+			return count;
+		}
+	}
+
+	private static class TestSmellResourceOptimismSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Double> {
+
+		public TestSmellResourceOptimismSequenceOutputVariableFactory() {
+			super(RuntimeVariable.TestSmellResourceOptimismTimeline);
+		}
+
+		@Override
+		public Double getValue(TestSuiteChromosome individual) {
+			AbstractTestCaseSmell smell = new ResourceOptimism();
+			double count = smell.computeNumberOfSmells(individual);
+			return count;
+		}
+	}
+
+	private static class TestSmellRottenGreenTestsSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Double> {
+
+		public TestSmellRottenGreenTestsSequenceOutputVariableFactory() {
+			super(RuntimeVariable.TestSmellRottenGreenTestsTimeline);
+		}
+
+		@Override
+		public Double getValue(TestSuiteChromosome individual) {
+			AbstractTestCaseSmell smell = new RottenGreenTests();
+			double count = smell.computeNumberOfSmells(individual);
+			return count;
+		}
+	}
+
+	private static class TestSmellTestCodeDuplicationSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Double> {
+
+		public TestSmellTestCodeDuplicationSequenceOutputVariableFactory() {
+			super(RuntimeVariable.TestSmellTestCodeDuplicationTimeline);
+		}
+
+		@Override
+		public Double getValue(TestSuiteChromosome individual) {
+			AbstractTestCaseSmell smell = new TestCodeDuplication();
 			double count = smell.computeNumberOfSmells(individual);
 			return count;
 		}

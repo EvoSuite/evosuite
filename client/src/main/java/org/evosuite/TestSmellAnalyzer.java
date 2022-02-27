@@ -68,9 +68,13 @@ public class TestSmellAnalyzer {
         listOfTestSmells.add(new LikelyIneffectiveObjectComparison());
         listOfTestSmells.add(new MysteryGuest());
         listOfTestSmells.add(new ObscureInlineSetup());
+        listOfTestSmells.add(new Overreferencing());
         listOfTestSmells.add(new RedundantAssertion());
+        listOfTestSmells.add(new ResourceOptimism());
+        listOfTestSmells.add(new RottenGreenTests());
         listOfTestSmells.add(new SensitiveEquality());
         listOfTestSmells.add(new SlowTests());
+        listOfTestSmells.add(new TestCodeDuplication());
         listOfTestSmells.add(new UnknownTest());
         listOfTestSmells.add(new UnusedInputs());
         listOfTestSmells.add(new VerboseTest());
@@ -103,12 +107,20 @@ public class TestSmellAnalyzer {
                 return new MysteryGuest();
             case "TestSmellObscureInlineSetup":
                 return new ObscureInlineSetup();
+            case "TestSmellOverreferencing":
+                return new Overreferencing();
             case "TestSmellRedundantAssertion":
                 return new RedundantAssertion();
+            case "TestSmellResourceOptimism":
+                return new ResourceOptimism();
+            case "TestSmellRottenGreenTests":
+                return new RottenGreenTests();
             case "TestSmellSensitiveEquality":
                 return new SensitiveEquality();
             case "TestSmellSlowTests":
                 return new SlowTests();
+            case "TestSmellTestCodeDuplication":
+                return new TestCodeDuplication();
             case "TestSmellUnknownTest":
                 return new UnknownTest();
             case "TestSmellUnusedInputs":
