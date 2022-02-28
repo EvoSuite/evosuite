@@ -530,10 +530,6 @@ public class TestSuiteGenerator {
                 logger.warn("Cannot run Junit test. Cause {}",ClassPathHacker.getCause());
         }
 
-		if(Properties.OUTPUT_VARIABLES != null){
-			TestSmellAnalyzer.writeNumTestSmells(testSuite);
-		}
-
 		if(Properties.TEST_SMELL_OPTIMIZATION){
 
 			double before = testSuite.getFitness();
@@ -541,12 +537,16 @@ public class TestSuiteGenerator {
 			OptimizeTestSmellsPostProcessing optmized = new OptimizeTestSmellsPostProcessing();
 
 			// This will change in the future
-			optmized.getNumTestSmells(testSuite);
+			optmized.computeTotalNumberOfSmells(testSuite);
 
 			double after = testSuite.getFitness();
 			if (after > before + 0.01d) { // assume minimization
 				throw new Error("EvoSuite bug: minimization lead fitness from " + before + " to " + after);
 			}
+		}
+
+		if(Properties.OUTPUT_VARIABLES != null){
+			TestSmellAnalyzer.writeNumTestSmells(testSuite);
 		}
 	}
 
