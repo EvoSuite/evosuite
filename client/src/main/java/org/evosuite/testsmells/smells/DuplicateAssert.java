@@ -1,12 +1,14 @@
 package org.evosuite.testsmells.smells;
 
 import org.evosuite.assertion.Assertion;
+import org.evosuite.assertion.InspectorAssertion;
 import org.evosuite.testcase.TestChromosome;
+import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testsmells.AbstractTestCaseSmell;
 import org.evosuite.testcase.statements.Statement;
 
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.lang.reflect.Method;
+import java.util.*;
 
 public class DuplicateAssert extends AbstractTestCaseSmell {
 
@@ -19,18 +21,80 @@ public class DuplicateAssert extends AbstractTestCaseSmell {
         int size = chromosome.size();
         int count = 0;
 
-        Statement currentStatement;
+        List<Method> methods = new ArrayList<>();
+        List< Class<? extends Assertion>> assertionTypes = new ArrayList<>();
+        List<Object> values = new ArrayList<>();
+
+        Method method;
+        Class<? extends Assertion> assertionType;
+        Object value;
 
         for (int i = 0; i < size; i++){
-            currentStatement = chromosome.getTestCase().getStatement(i);
-            Set<Object> listOfValues = new LinkedHashSet<>();
+
+            Statement currentStatement = chromosome.getTestCase().getStatement(i);
             Set<Assertion> assertions = currentStatement.getAssertions();
 
-            for(Assertion assertion : assertions){
-                listOfValues.add(assertion.getValue());
-            }
+            if(currentStatement instanceof MethodStatement){
 
-            count += assertions.size() - listOfValues.size();
+                for(Assertion assertion : assertions){
+
+                    if(assertion instanceof InspectorAssertion){
+                        method = ((InspectorAssertion) assertion).getInspector().getMethod();
+                    } else {
+                        method = ((MethodStatement) currentStatement).getMethod().getMethod();
+                    }
+
+                    assertionType = assertion.getClass();
+                    value = assertion.getValue();
+
+                    boolean found = false;
+
+                    for(int j = 0; j < methods.size(); j++){
+                        if(methods.get(j).equals(method)){
+                            if(assertionTypes.get(j).equals(assertionType) && values.get(j).equals(value)){
+                                count++;
+                                found = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    if(!found){
+                        methods.add(method);
+                        assertionTypes.add(assertionType);
+                        values.add(value);
+                    }
+                }
+            } else {
+
+                for(Assertion assertion : assertions){
+
+                    if(assertion instanceof InspectorAssertion){
+
+                        method = ((InspectorAssertion) assertion).getInspector().getMethod();
+                        assertionType = assertion.getClass();
+                        value = assertion.getValue();
+
+                        boolean found = false;
+
+                        for(int j = 0; j < methods.size(); j++){
+                            if(methods.get(j).equals(method)){
+                                if(assertionTypes.get(j).equals(assertionType) && values.get(j).equals(value)){
+                                    count++;
+                                    found = true;
+                                    break;
+                                }
+                            }
+                        }
+
+                        if(!found){
+                            methods.add(method);
+                            assertionTypes.add(assertionType);
+                            values.add(value);
+                        }
+                    }
+                }
+            }
         }
         return count;
     }
