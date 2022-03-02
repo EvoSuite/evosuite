@@ -1,9 +1,13 @@
 package org.evosuite.testsmells.smells;
 
+import org.evosuite.assertion.Assertion;
+import org.evosuite.assertion.InspectorAssertion;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.statements.PrimitiveStatement;
 import org.evosuite.testsmells.AbstractTestCaseSmell;
 import org.evosuite.testcase.statements.Statement;
+
+import java.util.Set;
 
 public class RedundantAssertion extends AbstractTestCaseSmell {
 
@@ -22,7 +26,12 @@ public class RedundantAssertion extends AbstractTestCaseSmell {
             currentStatement = chromosome.getTestCase().getStatement(i);
 
             if(currentStatement instanceof PrimitiveStatement){
-                count += currentStatement.hasAssertions() ? 1 : 0;
+
+                Set<Assertion> assertions = currentStatement.getAssertions();
+
+                for(Assertion assertion : assertions){
+                    count += !(assertion instanceof InspectorAssertion) ? 1 : 0;
+                }
             }
         }
         return count;

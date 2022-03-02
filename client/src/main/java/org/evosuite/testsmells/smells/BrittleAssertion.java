@@ -1,9 +1,13 @@
 package org.evosuite.testsmells.smells;
 
+import org.evosuite.assertion.Assertion;
+import org.evosuite.assertion.InspectorAssertion;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testsmells.AbstractTestCaseSmell;
 import org.evosuite.testcase.statements.Statement;
+
+import java.util.Set;
 
 public class BrittleAssertion extends AbstractTestCaseSmell {
 
@@ -21,10 +25,17 @@ public class BrittleAssertion extends AbstractTestCaseSmell {
         for (int i = 0; i < size; i++){
             currentStatement = chromosome.getTestCase().getStatement(i);
 
-            if(!(currentStatement instanceof MethodStatement)){
-                count += currentStatement.hasAssertions() ? 1 : 0;
+            Set<Assertion> assertions = currentStatement.getAssertions();
+
+            for(Assertion assertion : assertions){
+                if(assertion instanceof InspectorAssertion){
+                    count++;
+                } else {
+                    count += assertion.getSource().getStPosition() == i ? 0 : 1;
+                }
             }
         }
+
         return count;
     }
 }
