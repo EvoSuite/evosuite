@@ -11,6 +11,11 @@ public class SlowTests extends AbstractTestCaseSmell {
 
     @Override
     public int computeNumberOfSmells(TestChromosome chromosome) {
-        return (int) chromosome.getDuration();
+        if(chromosome.getLastExecutionResult() != null){
+            return (int) chromosome.getLastExecutionResult().getExecutionTime();
+        }
+
+        //Would it be better to run the test in this situation?
+        return 0;
     }
 }

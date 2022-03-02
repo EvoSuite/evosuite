@@ -87,10 +87,7 @@ public class BranchesManager extends StructuralGoalManager {
 	public void calculateFitness(TestChromosome c, GeneticAlgorithm<TestChromosome> ga){
 		// run the test
 		TestCase test = c.getTestCase();
-		long startTime = System.currentTimeMillis();
 		ExecutionResult result = TestCaseExecutor.runTest(test);
-		long endTime = System.currentTimeMillis();
-		c.setDuration((endTime-startTime)/1000);
 		c.setLastExecutionResult(result);
 		c.setChanged(false);
 		

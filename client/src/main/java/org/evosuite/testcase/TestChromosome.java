@@ -77,8 +77,6 @@ public final class TestChromosome extends AbstractTestChromosome<TestChromosome>
 	private static final List<SecondaryObjective<TestChromosome>> secondaryObjectives =
 			new ArrayList<>();
 
-	private long duration = -1;
-
 	/** {@inheritDoc} */
 	@Override
 	public void setLastExecutionResult(ExecutionResult lastExecutionResult) {
@@ -95,10 +93,6 @@ public final class TestChromosome extends AbstractTestChromosome<TestChromosome>
 		if (changed) {
 			clearCachedResults();
 		}
-	}
-
-	public void setDuration (long duration){
-		this.duration = duration;
 	}
 
 	@Override
@@ -405,10 +399,6 @@ public final class TestChromosome extends AbstractTestChromosome<TestChromosome>
 		} else {
 			return test.size() - 1;
 		}
-	}
-
-	public long getDuration(){
-		return this.duration;
 	}
 
 	/**
