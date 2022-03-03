@@ -4,6 +4,7 @@ import org.evosuite.ga.FitnessFunction;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testsmells.AbstractTestSmell;
 import org.evosuite.testsuite.TestSuiteChromosome;
+import org.evosuite.utils.LoggingUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -39,6 +40,10 @@ public class TestRedundancy extends AbstractTestSmell {
             }
 
             double newFitness = currentTestSuite.getFitness();
+
+            if(newFitness < initialFitness){
+                LoggingUtils.getEvoLogger().error("New fitness: " +  newFitness + " is better than the initial one: " + initialFitness + " this should never occur!");
+            }
 
             if(Math.abs(initialFitness - newFitness) < 0.000001){
                 count++;

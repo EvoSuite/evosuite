@@ -35,6 +35,7 @@ public class OptimizeTestSmellsPostProcessing {
         listOfTestSmells.add(new UnknownTest());
         listOfTestSmells.add(new UnusedInputs());
         listOfTestSmells.add(new VerboseTest());
+        listOfTestSmells.add(new TestRedundancy());
     }
 
     public int computeTotalNumberOfSmells(TestSuiteChromosome testSuite){
