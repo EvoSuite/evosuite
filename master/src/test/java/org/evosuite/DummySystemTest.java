@@ -1,6 +1,7 @@
 package org.evosuite;
 
 import com.examples.with.different.packagename.mutation.SimpleMutationExample2;
+import com.examples.with.different.packagename.testsmells.TestSmellsServer;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.strategy.TestGenerationStrategy;
 import org.evosuite.testsuite.TestSuiteChromosome;
@@ -13,7 +14,8 @@ public class DummySystemTest extends SystemTestBase{
     public void test1() {
         EvoSuite evosuite = new EvoSuite();
 
-        String targetClass = SimpleMutationExample2.class.getCanonicalName();
+        //String targetClass = SimpleMutationExample2.class.getCanonicalName();
+        String targetClass = TestSmellsServer.class.getCanonicalName();
 
         String[] command = new String[] { "-generateMOSuite", "-class", targetClass };
         Object result = evosuite.parseCommandLine(command);
