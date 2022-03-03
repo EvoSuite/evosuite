@@ -26,7 +26,7 @@ public class IndirectTesting extends AbstractTestCaseSmell {
             currentStatement = chromosome.getTestCase().getStatement(i);
             if(currentStatement instanceof MethodStatement){
                 method = ((MethodStatement) currentStatement).getMethod();
-                if(!method.getDeclaringClass().equals(Properties.getTargetClassAndDontInitialise())){
+                if(!method.getDeclaringClass().getCanonicalName().equals(Properties.TARGET_CLASS)){
                     smellCount++;
                 }
             }
