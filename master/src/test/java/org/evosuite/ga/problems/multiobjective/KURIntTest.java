@@ -44,11 +44,9 @@ import org.junit.Test;
 import static java.util.Comparator.*;
 
 /**
- * 
  * @author José Campos
  */
-public class KURIntTest
-{
+public class KURIntTest {
     @Before
     public void setUp() {
         Properties.POPULATION = 100;
@@ -59,8 +57,7 @@ public class KURIntTest
     }
 
     @Test
-    public void testKURFitnesses()
-    {
+    public void testKURFitnesses() {
         Problem<NSGAChromosome> p = new KUR();
         FitnessFunction<NSGAChromosome> f1 = p.getFitnessFunctions().get(0);
         FitnessFunction<NSGAChromosome> f2 = p.getFitnessFunctions().get(1);
@@ -77,13 +74,12 @@ public class KURIntTest
 
     /**
      * Testing NSGA-II with KUR Problem
-     * 
-     * @throws IOException 
-     * @throws NumberFormatException 
+     *
+     * @throws IOException
+     * @throws NumberFormatException
      */
     @Test
-    public void testKUR() throws NumberFormatException, IOException
-    {
+    public void testKUR() throws NumberFormatException, IOException {
         Properties.MUTATION_RATE = 1d / 3d;
 
         ChromosomeFactory<NSGAChromosome> factory = new RandomFactory(false, 3, -5.0, 5.0);

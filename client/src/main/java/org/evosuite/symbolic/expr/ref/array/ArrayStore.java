@@ -36,188 +36,192 @@ import java.util.Set;
  */
 public final class ArrayStore {
 
-  public static final class IntegerArrayStore extends AbstractExpression<Object> implements ArrayValue.IntegerArrayValue {
+    public static final class IntegerArrayStore extends AbstractExpression<Object> implements ArrayValue.IntegerArrayValue {
 
-    private final ArrayValue.IntegerArrayValue symbolicArray;
-    private final IntegerValue symbolicIndex;
-    private final IntegerValue SymbolicValue;
+        private final ArrayValue.IntegerArrayValue symbolicArray;
+        private final IntegerValue symbolicIndex;
+        private final IntegerValue SymbolicValue;
 
-    /**
-     * @param arrayExpr
-     * @param indexExpr
-     */
-    public IntegerArrayStore(ArrayValue.IntegerArrayValue arrayExpr, IntegerValue indexExpr, IntegerValue valueExpression, Object resultArray) {
-      super(
-        resultArray,
-        1 + arrayExpr.getSize() + indexExpr.getSize() + valueExpression.getSize(),
-        arrayExpr.containsSymbolicVariable() || valueExpression.containsSymbolicVariable()
-      );
+        /**
+         * @param arrayExpr
+         * @param indexExpr
+         */
+        public IntegerArrayStore(ArrayValue.IntegerArrayValue arrayExpr, IntegerValue indexExpr, IntegerValue valueExpression, Object resultArray) {
+            super(
+                    resultArray,
+                    1 + arrayExpr.getSize() + indexExpr.getSize() + valueExpression.getSize(),
+                    arrayExpr.containsSymbolicVariable() || valueExpression.containsSymbolicVariable()
+            );
 
-      this.symbolicArray = arrayExpr;
-      this.symbolicIndex = indexExpr;
-      this.SymbolicValue = valueExpression;
+            this.symbolicArray = arrayExpr;
+            this.symbolicIndex = indexExpr;
+            this.SymbolicValue = valueExpression;
+        }
+
+        @Override
+        public String toString() {
+            return symbolicArray + "[" + symbolicIndex + "] = " + SymbolicValue;
+        }
+
+        @Override
+        public Set<Variable<?>> getVariables() {
+            Set<Variable<?>> variables = new HashSet<Variable<?>>();
+            variables.addAll(this.symbolicArray.getVariables());
+            variables.addAll(this.symbolicIndex.getVariables());
+            variables.addAll(this.SymbolicValue.getVariables());
+            return variables;
+        }
+
+        @Override
+        public Set<Object> getConstants() {
+            Set<Object> result = new HashSet<>();
+            result.addAll(this.symbolicArray.getConstants());
+            result.addAll(this.symbolicIndex.getConstants());
+            result.addAll(this.SymbolicValue.getConstants());
+            return result;
+        }
+
+        @Override
+        public <K, V> K accept(ExpressionVisitor<K, V> v, V arg) {
+            return v.visit(this, arg);
+        }
+
+        public ArrayValue.IntegerArrayValue getSymbolicArray() {
+            return symbolicArray;
+        }
+
+        public IntegerValue getSymbolicIndex() {
+            return symbolicIndex;
+        }
+
+        public IntegerValue getSymbolicValue() {
+            return SymbolicValue;
+        }
     }
 
-    @Override
-    public String toString() {
-      return symbolicArray + "[" + symbolicIndex + "] = " + SymbolicValue;
+    public static final class RealArrayStore extends AbstractExpression<Object> implements ArrayValue.RealArrayValue {
+        private final RealValue symbolicValue;
+        private final IntegerValue symbolicIndex;
+        private final ArrayValue.RealArrayValue symbolicArray;
+
+        /**
+         * @param arrayExpr
+         * @param indexExpr
+         * @param valueExpression
+         */
+        public RealArrayStore(ArrayValue.RealArrayValue arrayExpr, IntegerValue indexExpr, RealValue valueExpression, Object concreteResultArray) {
+            super(
+                    concreteResultArray,
+                    1 + arrayExpr.getSize() + indexExpr.getSize() + valueExpression.getSize(),
+                    arrayExpr.containsSymbolicVariable() || valueExpression.containsSymbolicVariable()
+            );
+
+            this.symbolicArray = arrayExpr;
+            this.symbolicIndex = indexExpr;
+            this.symbolicValue = valueExpression;
+        }
+
+        @Override
+        public String toString() {
+            return symbolicArray + "[" + symbolicIndex + "] = " + symbolicValue;
+        }
+
+        @Override
+        public Set<Variable<?>> getVariables() {
+            Set<Variable<?>> variables = new HashSet<Variable<?>>();
+            variables.addAll(this.symbolicArray.getVariables());
+            variables.addAll(this.symbolicIndex.getVariables());
+            variables.addAll(this.symbolicValue.getVariables());
+            return variables;
+        }
+
+        @Override
+        public Set<Object> getConstants() {
+            Set<Object> result = new HashSet<>();
+            result.addAll(this.symbolicArray.getConstants());
+            result.addAll(this.symbolicIndex.getConstants());
+            result.addAll(this.symbolicValue.getConstants());
+            return result;
+        }
+
+        @Override
+        public <K, V> K accept(ExpressionVisitor<K, V> v, V arg) {
+            return v.visit(this, arg);
+        }
+
+        public ArrayValue.RealArrayValue getSymbolicArray() {
+            return symbolicArray;
+        }
+
+        public IntegerValue getSymbolicIndex() {
+            return symbolicIndex;
+        }
+
+        public RealValue getSymbolicValue() {
+            return symbolicValue;
+        }
     }
 
-    @Override
-    public Set<Variable<?>> getVariables() {
-      Set<Variable<?>> variables = new HashSet<Variable<?>>();
-      variables.addAll(this.symbolicArray.getVariables());
-      variables.addAll(this.symbolicIndex.getVariables());
-      variables.addAll(this.SymbolicValue.getVariables());
-      return variables;
-    }
+    public static final class StringArrayStore extends AbstractExpression<Object> implements ArrayValue.StringArrayValue {
+        private final StringValue symbolicValue;
+        private final IntegerValue symbolicIndex;
+        private final ArrayValue.StringArrayValue symbolicArray;
 
-    @Override
-    public Set<Object> getConstants() {
-      Set<Object> result = new HashSet();
-      result.addAll(this.symbolicArray.getConstants());
-      result.addAll(this.symbolicIndex.getConstants());
-      result.addAll(this.SymbolicValue.getConstants());
-      return result;
-    }
+        /**
+         * @param arrayExpr
+         * @param indexExpr
+         * @param valueExpression
+         */
+        public StringArrayStore(ArrayValue.StringArrayValue arrayExpr, IntegerValue indexExpr, StringValue valueExpression, Object concreteResultArray) {
+            super(
+                    concreteResultArray,
+                    1 + arrayExpr.getSize() + indexExpr.getSize() + valueExpression.getSize(),
+                    arrayExpr.containsSymbolicVariable() || valueExpression.containsSymbolicVariable()
+            );
 
-    @Override
-    public <K, V> K accept(ExpressionVisitor<K, V> v, V arg) {
-      return v.visit(this, arg);
-    }
+            this.symbolicArray = arrayExpr;
+            this.symbolicIndex = indexExpr;
+            this.symbolicValue = valueExpression;
+        }
 
-    public ArrayValue.IntegerArrayValue getSymbolicArray() {
-      return symbolicArray;
-    }
+        @Override
+        public String toString() {
+            return symbolicArray + "[" + symbolicIndex + "] = " + symbolicValue;
+        }
 
-    public IntegerValue getSymbolicIndex() {
-      return symbolicIndex;
-    }
+        @Override
+        public Set<Variable<?>> getVariables() {
+            Set<Variable<?>> variables = new HashSet<Variable<?>>();
+            variables.addAll(this.symbolicArray.getVariables());
+            variables.addAll(this.symbolicIndex.getVariables());
+            variables.addAll(this.symbolicValue.getVariables());
+            return variables;
+        }
 
-    public IntegerValue getSymbolicValue() {
-      return SymbolicValue;
-    }
-  }
+        @Override
+        public Set<Object> getConstants() {
+            Set<Object> result = new HashSet<>();
+            result.addAll(this.symbolicArray.getConstants());
+            result.addAll(this.symbolicIndex.getConstants());
+            result.addAll(this.symbolicValue.getConstants());
+            return result;
+        }
 
-  public static final class RealArrayStore extends AbstractExpression<Object> implements ArrayValue.RealArrayValue {
-    private final RealValue symbolicValue;
-    private final IntegerValue symbolicIndex;
-    private final ArrayValue.RealArrayValue symbolicArray;
+        @Override
+        public <K, V> K accept(ExpressionVisitor<K, V> v, V arg) {
+            return v.visit(this, arg);
+        }
 
-    /**
-     * @param arrayExpr
-     * @param indexExpr
-     * @param valueExpression
-     */
-    public RealArrayStore(ArrayValue.RealArrayValue arrayExpr, IntegerValue indexExpr, RealValue valueExpression, Object concreteResultArray) {
-      super(
-        concreteResultArray,
-        1 + arrayExpr.getSize() + indexExpr.getSize() + valueExpression.getSize(),
-        arrayExpr.containsSymbolicVariable() || valueExpression.containsSymbolicVariable()
-      );
+        public ArrayValue.StringArrayValue getSymbolicArray() {
+            return symbolicArray;
+        }
 
-      this.symbolicArray = arrayExpr;
-      this.symbolicIndex = indexExpr;
-      this.symbolicValue = valueExpression;
-    }
+        public IntegerValue getSymbolicIndex() {
+            return symbolicIndex;
+        }
 
-    @Override
-    public String toString() {
-      return  symbolicArray + "[" + symbolicIndex + "] = " + symbolicValue;
+        public StringValue getSymbolicValue() {
+            return symbolicValue;
+        }
     }
-
-    @Override
-    public Set<Variable<?>> getVariables() {
-      Set<Variable<?>> variables = new HashSet<Variable<?>>();
-      variables.addAll(this.symbolicArray.getVariables());
-      variables.addAll(this.symbolicIndex.getVariables());
-      variables.addAll(this.symbolicValue.getVariables());
-      return variables;
-    }
-
-    @Override
-    public Set<Object> getConstants() {
-      Set<Object> result = new HashSet();
-      result.addAll(this.symbolicArray.getConstants());
-      result.addAll(this.symbolicIndex.getConstants());
-      result.addAll(this.symbolicValue.getConstants());
-      return result;
-    }
-
-    @Override
-    public <K, V> K accept(ExpressionVisitor<K, V> v, V arg) {
-      return v.visit(this, arg);
-    }
-
-    public ArrayValue.RealArrayValue getSymbolicArray() {
-      return symbolicArray;
-    }
-    public IntegerValue getSymbolicIndex() {
-      return symbolicIndex;
-    }
-    public RealValue getSymbolicValue() {
-      return symbolicValue;
-    }
-  }
-
-  public static final class StringArrayStore extends AbstractExpression<Object> implements ArrayValue.StringArrayValue {
-    private final StringValue symbolicValue;
-    private final IntegerValue symbolicIndex;
-    private final ArrayValue.StringArrayValue symbolicArray;
-
-    /**
-     * @param arrayExpr
-     * @param indexExpr
-     * @param valueExpression
-     */
-    public StringArrayStore(ArrayValue.StringArrayValue arrayExpr, IntegerValue indexExpr, StringValue valueExpression, Object concreteResultArray) {
-      super(
-        concreteResultArray,
-        1 + arrayExpr.getSize() + indexExpr.getSize() + valueExpression.getSize(),
-        arrayExpr.containsSymbolicVariable() || valueExpression.containsSymbolicVariable()
-      );
-
-      this.symbolicArray = arrayExpr;
-      this.symbolicIndex = indexExpr;
-      this.symbolicValue = valueExpression;
-    }
-
-    @Override
-    public String toString() {
-      return  symbolicArray + "[" + symbolicIndex + "] = " + symbolicValue;
-    }
-
-    @Override
-    public Set<Variable<?>> getVariables() {
-      Set<Variable<?>> variables = new HashSet<Variable<?>>();
-      variables.addAll(this.symbolicArray.getVariables());
-      variables.addAll(this.symbolicIndex.getVariables());
-      variables.addAll(this.symbolicValue.getVariables());
-      return variables;
-    }
-
-    @Override
-    public Set<Object> getConstants() {
-      Set<Object> result = new HashSet();
-      result.addAll(this.symbolicArray.getConstants());
-      result.addAll(this.symbolicIndex.getConstants());
-      result.addAll(this.symbolicValue.getConstants());
-      return result;
-    }
-
-    @Override
-    public <K, V> K accept(ExpressionVisitor<K, V> v, V arg) {
-      return v.visit(this, arg);
-    }
-
-    public ArrayValue.StringArrayValue getSymbolicArray() {
-      return symbolicArray;
-    }
-    public IntegerValue getSymbolicIndex() {
-      return symbolicIndex;
-    }
-    public StringValue getSymbolicValue() {
-      return symbolicValue;
-    }
-  }
 }

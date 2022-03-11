@@ -35,19 +35,19 @@ import java.util.*;
 /**
  * A common superclass for statements that contain a call to an executable entity, i.e.,
  * methods, constructors and functional mocks.
- *
+ * <p>
  * Created by Andrea Arcuri on 04/07/15.
  */
-public abstract class EntityWithParametersStatement extends AbstractStatement{
+public abstract class EntityWithParametersStatement extends AbstractStatement {
 
-	private static final long serialVersionUID = 2971944785047056480L;
-	protected final List<VariableReference> parameters;
+    private static final long serialVersionUID = 2971944785047056480L;
+    protected final List<VariableReference> parameters;
     protected final Annotation[][] parameterAnnotations;
     protected final Annotation[] annotations;
 
     protected EntityWithParametersStatement(TestCase tc, Type type, List<VariableReference> parameters,
-                                            Annotation[] annotations, Annotation[][] parameterAnnotations) throws IllegalArgumentException{
-        super(tc,type);
+                                            Annotation[] annotations, Annotation[][] parameterAnnotations) throws IllegalArgumentException {
+        super(tc, type);
         this.parameters = parameters;
         this.annotations = annotations;
         this.parameterAnnotations = parameterAnnotations;
@@ -55,8 +55,8 @@ public abstract class EntityWithParametersStatement extends AbstractStatement{
     }
 
     protected EntityWithParametersStatement(TestCase tc, VariableReference retval, List<VariableReference> parameters,
-                                            Annotation[] annotations, Annotation[][] parameterAnnotations) throws IllegalArgumentException{
-        super(tc,retval);
+                                            Annotation[] annotations, Annotation[][] parameterAnnotations) throws IllegalArgumentException {
+        super(tc, retval);
         this.parameters = parameters;
         this.annotations = annotations;
         this.parameterAnnotations = parameterAnnotations;
@@ -66,36 +66,38 @@ public abstract class EntityWithParametersStatement extends AbstractStatement{
     /**
      * Constructor needed for Functional Mocks where the number of input parameters
      * might vary during the search, ie not constant, and starts with 0
+     *
      * @param tc
      * @param retval
      */
-    protected EntityWithParametersStatement(TestCase tc, VariableReference retval){
+    protected EntityWithParametersStatement(TestCase tc, VariableReference retval) {
         super(tc, retval);
         this.parameters = new ArrayList<>();
-        this.annotations=null;
-        this.parameterAnnotations=null;
+        this.annotations = null;
+        this.parameterAnnotations = null;
     }
 
     /**
      * Constructor needed for Functional Mocks where the number of input parameters
      * might vary during the search, ie not constant, and starts with 0
+     *
      * @param tc
      * @param type
      */
-    protected EntityWithParametersStatement(TestCase tc, Type type){
+    protected EntityWithParametersStatement(TestCase tc, Type type) {
         super(tc, type);
         this.parameters = new ArrayList<>();
-        this.annotations=null;
-        this.parameterAnnotations=null;
+        this.annotations = null;
+        this.parameterAnnotations = null;
     }
 
-    private void validateInputs() throws IllegalArgumentException{
+    private void validateInputs() throws IllegalArgumentException {
         Inputs.checkNull(parameters);
-        for(VariableReference ref : parameters){
+        for (VariableReference ref : parameters) {
             Inputs.checkNull(ref);
         }
-        if(parameterAnnotations!=null){
-            if(parameterAnnotations.length != parameters.size()){
+        if (parameterAnnotations != null) {
+            if (parameterAnnotations.length != parameters.size()) {
                 throw new IllegalArgumentException("Size mismatched");
             }
         }
@@ -106,9 +108,12 @@ public abstract class EntityWithParametersStatement extends AbstractStatement{
     }
 
     /* (non-Javadoc)
-	 * @see org.evosuite.testcase.StatementInterface#replace(org.evosuite.testcase.VariableReference, org.evosuite.testcase.VariableReference)
-	 */
-    /** {@inheritDoc} */
+     * @see org.evosuite.testcase.StatementInterface#replace(org.evosuite.testcase.VariableReference, org.evosuite.testcase.VariableReference)
+     */
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void replace(VariableReference var1, VariableReference var2) {
 
@@ -145,7 +150,7 @@ public abstract class EntityWithParametersStatement extends AbstractStatement{
         Set<VariableReference> references = new LinkedHashSet<>();
         references.add(retval);
         for (VariableReference param : parameters) {
-            if(param == null){
+            if (param == null) {
                 /*
                     This could happen while building a functional mock, and creation
                     of its input values lead to a forward check of properties
@@ -172,15 +177,13 @@ public abstract class EntityWithParametersStatement extends AbstractStatement{
      * replaceParameterReference
      * </p>
      *
-     * @param var
-     *            a {@link org.evosuite.testcase.variable.VariableReference} object.
-     * @param numParameter
-     *            a int.
+     * @param var          a {@link org.evosuite.testcase.variable.VariableReference} object.
+     * @param numParameter a int.
      */
-    public void replaceParameterReference(VariableReference var, int numParameter) throws IllegalArgumentException{
+    public void replaceParameterReference(VariableReference var, int numParameter) throws IllegalArgumentException {
         Inputs.checkNull(var);
-        if(numParameter<0 || numParameter>= parameters.size()){
-            throw new IllegalArgumentException("Out of range index "+numParameter+" from list of size "+parameters.size());
+        if (numParameter < 0 || numParameter >= parameters.size()) {
+            throw new IllegalArgumentException("Out of range index " + numParameter + " from list of size " + parameters.size());
         }
 
         parameters.set(numParameter, var);
@@ -188,13 +191,14 @@ public abstract class EntityWithParametersStatement extends AbstractStatement{
 
     /**
      * Check if the given var is bounded in this method/constructor as input parameter
+     *
      * @param var
      * @return
      */
-    public boolean isBounded(VariableReference var) throws IllegalArgumentException{
+    public boolean isBounded(VariableReference var) throws IllegalArgumentException {
         Inputs.checkNull(var);
 
-        if(parameterAnnotations==null){
+        if (parameterAnnotations == null) {
             assert this instanceof FunctionalMockStatement; //for now this should be the only valid case
             return false;
         }
@@ -204,8 +208,8 @@ public abstract class EntityWithParametersStatement extends AbstractStatement{
 
     protected int getNumParametersOfType(Class<?> clazz) {
         int num = 0;
-        for(VariableReference var : parameters) {
-            if(var.getVariableClass().equals(clazz))
+        for (VariableReference var : parameters) {
+            if (var.getVariableClass().equals(clazz))
                 num++;
         }
         return num;
@@ -216,7 +220,7 @@ public abstract class EntityWithParametersStatement extends AbstractStatement{
         // replace a parameter
         VariableReference parameter = parameters.get(numParameter);
 
-        List<VariableReference> objects = test.getObjects(parameter.getType(),getPosition());
+        List<VariableReference> objects = test.getObjects(parameter.getType(), getPosition());
         objects.remove(parameter);
         objects.remove(getReturnValue());
 
@@ -225,12 +229,12 @@ public abstract class EntityWithParametersStatement extends AbstractStatement{
 
         boolean avoidNull = false;
 
-        if(Properties.HONOUR_DATA_ANNOTATIONS && (numParameter < parameterAnnotations.length)) {
+        if (Properties.HONOUR_DATA_ANNOTATIONS && (numParameter < parameterAnnotations.length)) {
             if (GenericUtils.isAnnotationTypePresent(parameterAnnotations[numParameter], GenericUtils.NONNULL)) {
                 avoidNull = true;
             }
         }
-        if(avoidNull){
+        if (avoidNull) {
             //be sure to remove all references pointing to NULL
             objects.removeIf(ref -> ref instanceof NullReference);
 
@@ -244,11 +248,11 @@ public abstract class EntityWithParametersStatement extends AbstractStatement{
 
         // If there are fewer objects than parameters of that type,
         // we consider adding an instance
-        if(getNumParametersOfType(parameter.getVariableClass()) + 1 > objects.size()) {
+        if (getNumParametersOfType(parameter.getVariableClass()) + 1 > objects.size()) {
             Statement originalStatement = test.getStatement(parameter.getStPosition());
             copy = originalStatement.clone(test);
             if (originalStatement instanceof PrimitiveStatement<?>) {
-                ((PrimitiveStatement<?>)copy).delta();
+                ((PrimitiveStatement<?>) copy).delta();
             }
             objects.add(copy.getReturnValue());
         }

@@ -37,62 +37,61 @@ import java.util.Locale;
  * <p>
  * Runtime class.
  * </p>
- * 
+ *
  * @author Gordon Fraser
  * @author Daniel Muth
  */
 public class Runtime {
 
-	private static final Runtime singleton = new Runtime();
+    private static final Runtime singleton = new Runtime();
 
 
-	protected Runtime(){		
-	}
+    protected Runtime() {
+    }
 
-	public synchronized static Runtime getInstance(){
-		return singleton;
-	}
+    public synchronized static Runtime getInstance() {
+        return singleton;
+    }
 
-	public synchronized static void resetSingleton(){
-		singleton.resetRuntime();
-	}
+    public synchronized static void resetSingleton() {
+        singleton.resetRuntime();
+    }
 
-	/**
-	 * Resets all simulated classes to an initial default state (so that it
-	 * seems they have never been used by previous test case executions)
-	 * 
-	 */
-	public void resetRuntime() {
+    /**
+     * Resets all simulated classes to an initial default state (so that it
+     * seems they have never been used by previous test case executions)
+     */
+    public void resetRuntime() {
 
-		MockFramework.enable();
+        MockFramework.enable();
 
-		/*
-		 * TODO: If the setting of mockJVMNonDeterminism changes
-		 *       at runtime, then the MethodCallReplacementCache
-		 *       would need to be reset.
-		 */
-		if (RuntimeSettings.mockJVMNonDeterminism) {			
-			Random.reset();
-			System.resetRuntime();
+        /*
+         * TODO: If the setting of mockJVMNonDeterminism changes
+         *       at runtime, then the MethodCallReplacementCache
+         *       would need to be reset.
+         */
+        if (RuntimeSettings.mockJVMNonDeterminism) {
+            Random.reset();
+            System.resetRuntime();
             MockThread.reset();
             ThreadCounter.getInstance().resetSingleton();
             MockTimeZone.reset();
             MockLocale.reset();
-			MockPreferences.resetPreferences();
-			JComponent.setDefaultLocale(Locale.getDefault());
-		}
+            MockPreferences.resetPreferences();
+            JComponent.setDefaultLocale(Locale.getDefault());
+        }
 
-		if (RuntimeSettings.useVFS) {
-			VirtualFileSystem.getInstance().resetSingleton();
-			VirtualFileSystem.getInstance().init();
-		}
+        if (RuntimeSettings.useVFS) {
+            VirtualFileSystem.getInstance().resetSingleton();
+            VirtualFileSystem.getInstance().init();
+        }
 
-        if(RuntimeSettings.useVNET){
+        if (RuntimeSettings.useVNET) {
             VirtualNetwork.getInstance().reset();
             VirtualNetwork.getInstance().init();
         }
 
         LoopCounter.getInstance().reset();
-	}
+    }
 
 }

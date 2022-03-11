@@ -21,11 +21,11 @@ package com.examples.with.different.packagename.sandbox;
 
 public class ReadTimezone {
 
-	static{
-		System.getProperty("debug");
-	}
-	
-	public String read(){
-		return System.getProperty("user.timezone");
-	}
+    static {
+        System.getProperty("debug");
+    }
+
+    public String read() {
+        return System.getProperty("user.timezone");
+    }
 }

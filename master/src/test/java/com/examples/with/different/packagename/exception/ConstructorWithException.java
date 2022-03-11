@@ -21,7 +21,7 @@ package com.examples.with.different.packagename.exception;
 
 public class ConstructorWithException {
 
-  public ConstructorWithException() {
-    throw new IllegalArgumentException();
-  }
+    public ConstructorWithException() {
+        throw new IllegalArgumentException();
+    }
 }

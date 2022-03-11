@@ -19,10 +19,6 @@
  */
 package org.evosuite.testsuite.factories;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.evosuite.Properties;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.testcase.TestChromosome;
@@ -32,32 +28,36 @@ import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
 public class SerializationSuiteChromosomeFactory
-    implements ChromosomeFactory<TestSuiteChromosome> {
+        implements ChromosomeFactory<TestSuiteChromosome> {
 
     private static final long serialVersionUID = -569338946355072318L;
 
     private static final Logger logger = LoggerFactory.getLogger(SerializationSuiteChromosomeFactory.class);
 
-    private List<TestChromosome> previousSuite = new ArrayList<>();
+    private final List<TestChromosome> previousSuite = new ArrayList<>();
 
-    private ChromosomeFactory<TestChromosome> defaultFactory;
+    private final ChromosomeFactory<TestChromosome> defaultFactory;
 
     /**
      * The carved test cases are used only with a certain probability P. So, with probability 1-P the 'default' factory
      * is rather used.
-     * 
+     *
      * @param defaultFactory
      * @throws IllegalStateException if Properties are not properly set
      */
     public SerializationSuiteChromosomeFactory(ChromosomeFactory<TestChromosome> defaultFactory)
-        throws IllegalStateException {
+            throws IllegalStateException {
 
         this.defaultFactory = defaultFactory;
         if (Properties.CTG_SEEDS_FILE_IN != null) {
             this.previousSuite.addAll(TestSuiteSerialization.loadTests(Properties.CTG_SEEDS_FILE_IN));
         } else {
-        	this.previousSuite.addAll(TestSuiteSerialization.loadTests(Properties.SEED_DIR + File.separator + Properties.TARGET_CLASS));
+            this.previousSuite.addAll(TestSuiteSerialization.loadTests(Properties.SEED_DIR + File.separator + Properties.TARGET_CLASS));
         }
     }
 
@@ -86,7 +86,7 @@ public class SerializationSuiteChromosomeFactory
             }
         }
 
-        assert(!tsc.getTestChromosomes().isEmpty());
+        assert (!tsc.getTestChromosomes().isEmpty());
         return tsc;
     }
 }

@@ -20,114 +20,114 @@
 
 package org.evosuite.symbolic.expr.bv;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import org.evosuite.Properties;
 import org.evosuite.symbolic.ConstraintTooLongException;
 import org.evosuite.symbolic.dse.DSEStatistics;
-import org.evosuite.symbolic.expr.AbstractExpression;
-import org.evosuite.symbolic.expr.Expression;
-import org.evosuite.symbolic.expr.ExpressionVisitor;
-import org.evosuite.symbolic.expr.Operator;
-import org.evosuite.symbolic.expr.UnaryExpression;
-import org.evosuite.symbolic.expr.Variable;
+import org.evosuite.symbolic.expr.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * <p>
  * StringUnaryExpression class.
  * </p>
- * 
+ *
  * @author krusev
  */
 public final class StringUnaryToIntegerExpression extends AbstractExpression<Long>
         implements IntegerValue, UnaryExpression<String> {
 
-	private static final long serialVersionUID = -384874147850376188L;
+    private static final long serialVersionUID = -384874147850376188L;
 
-	protected static final Logger log = LoggerFactory.getLogger(StringUnaryToIntegerExpression.class);
+    protected static final Logger log = LoggerFactory.getLogger(StringUnaryToIntegerExpression.class);
 
-	// protected int conretIntValue;
+    // protected int conretIntValue;
 
-	private final Operator op;
+    private final Operator op;
 
-	private final Expression<String> expr;
+    private final Expression<String> expr;
 
-	/**
-	 * <p>
-	 * Constructor for StringUnaryExpression.
-	 * </p>
-	 * 
-	 * @param param
-	 *            a {@link org.evosuite.symbolic.expr.Expression} object.
-	 * @param op2
-	 *            a {@link org.evosuite.symbolic.expr.Operator} object.
-	 * @param con
-	 *            a {@link java.lang.String} object.
-	 */
-	public StringUnaryToIntegerExpression(Expression<String> param, Operator op2, Long con) {
-		super(con, 1 + param.getSize(), param.containsSymbolicVariable());
-		this.expr = param;
-		this.op = op2;
+    /**
+     * <p>
+     * Constructor for StringUnaryExpression.
+     * </p>
+     *
+     * @param param a {@link org.evosuite.symbolic.expr.Expression} object.
+     * @param op2   a {@link org.evosuite.symbolic.expr.Operator} object.
+     * @param con   a {@link java.lang.String} object.
+     */
+    public StringUnaryToIntegerExpression(Expression<String> param, Operator op2, Long con) {
+        super(con, 1 + param.getSize(), param.containsSymbolicVariable());
+        this.expr = param;
+        this.op = op2;
 
-		if (getSize() > Properties.DSE_CONSTRAINT_LENGTH) {
-			DSEStatistics.getInstance().reportConstraintTooLong(getSize());
-			throw new ConstraintTooLongException(getSize());
-		}
-	}
+        if (getSize() > Properties.DSE_CONSTRAINT_LENGTH) {
+            DSEStatistics.getInstance().reportConstraintTooLong(getSize());
+            throw new ConstraintTooLongException(getSize());
+        }
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public Operator getOperator() {
-		return op;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Operator getOperator() {
+        return op;
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public Expression<String> getOperand() {
-		return expr;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Expression<String> getOperand() {
+        return expr;
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public String toString() {
-		return expr + "." + op.toString().trim() + "(" + ")";
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        return expr + "." + op.toString().trim() + "(" + ")";
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public boolean equals(Object obj) {
-		if (obj == this) {
-			return true;
-		}
-		if (obj instanceof StringUnaryToIntegerExpression) {
-			StringUnaryToIntegerExpression other = (StringUnaryToIntegerExpression) obj;
-			return this.op.equals(other.op) && this.expr.equals(other.expr);
-		}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+        if (obj instanceof StringUnaryToIntegerExpression) {
+            StringUnaryToIntegerExpression other = (StringUnaryToIntegerExpression) obj;
+            return this.op.equals(other.op) && this.expr.equals(other.expr);
+        }
 
-		return false;
-	}
+        return false;
+    }
 
-	@Override
-	public int hashCode() {
-		return this.op.hashCode() + this.expr.hashCode();
-	}
+    @Override
+    public int hashCode() {
+        return this.op.hashCode() + this.expr.hashCode();
+    }
 
-	@Override
-	public Set<Variable<?>> getVariables() {
+    @Override
+    public Set<Variable<?>> getVariables() {
         Set<Variable<?>> variables = new HashSet<>(this.expr.getVariables());
-		return variables;
-	}
+        return variables;
+    }
 
-	@Override
-	public Set<Object> getConstants() {
-		return this.expr.getConstants();
-	}
-	
-	@Override
-	public <K, V> K accept(ExpressionVisitor<K, V> v, V arg) {
-		return v.visit(this, arg);
-	}
+    @Override
+    public Set<Object> getConstants() {
+        return this.expr.getConstants();
+    }
+
+    @Override
+    public <K, V> K accept(ExpressionVisitor<K, V> v, V arg) {
+        return v.visit(this, arg);
+    }
 }

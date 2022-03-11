@@ -38,41 +38,40 @@ import com.examples.with.different.packagename.stable.FinalSingletonArrayUser;
 public class FinalSingletonArrayUserSystemTest extends SystemTestBase {
 
 
+    @Before
+    public void before() {
+        Properties.RESET_STATIC_FINAL_FIELDS = true;
+        Properties.RESET_STATIC_FIELDS = true;
+        Properties.RESET_STATIC_FIELD_GETS = true;
+        Properties.SANDBOX = true;
+        Properties.JUNIT_CHECK = Properties.JUnitCheckValues.TRUE;
+        Properties.JUNIT_TESTS = true;
+        Properties.PURE_INSPECTORS = true;
+        Properties.JUNIT_CHECK_ON_SEPARATE_PROCESS = false;
+    }
 
-	@Before
-	public void before() {
-		Properties.RESET_STATIC_FINAL_FIELDS = true;
-		Properties.RESET_STATIC_FIELDS=true;
-		Properties.RESET_STATIC_FIELD_GETS = true;
-		Properties.SANDBOX = true;
-		Properties.JUNIT_CHECK = Properties.JUnitCheckValues.TRUE;
-		Properties.JUNIT_TESTS = true;
-		Properties.PURE_INSPECTORS = true;
-		Properties.JUNIT_CHECK_ON_SEPARATE_PROCESS = false;
-	}
+    @Test
+    public void testFinalSingleton() {
+        EvoSuite evosuite = new EvoSuite();
 
-	@Test
-	public void testFinalSingleton() {
-		EvoSuite evosuite = new EvoSuite();
+        String targetClass = FinalSingletonArrayUser.class.getCanonicalName();
+        Properties.TARGET_CLASS = targetClass;
+        Properties.OUTPUT_VARIABLES = "" + RuntimeVariable.HadUnstableTests;
+        String[] command = new String[]{"-generateSuite", "-class",
+                targetClass};
 
-		String targetClass = FinalSingletonArrayUser.class.getCanonicalName();
-		Properties.TARGET_CLASS = targetClass;
-		Properties.OUTPUT_VARIABLES=""+RuntimeVariable.HadUnstableTests;
-		String[] command = new String[] { "-generateSuite", "-class",
-				targetClass };
+        Object result = evosuite.parseCommandLine(command);
 
-		Object result = evosuite.parseCommandLine(command);
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
+        System.out.println("EvolvedTestSuite:\n" + best);
 
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
-		System.out.println("EvolvedTestSuite:\n" + best);
+        Map<String, OutputVariable<?>> map = DebugStatisticsBackend.getLatestWritten();
+        Assert.assertNotNull(map);
+        OutputVariable<?> unstable = map.get(RuntimeVariable.HadUnstableTests.toString());
+        Assert.assertNotNull(unstable);
+        Assert.assertEquals(Boolean.FALSE, unstable.getValue());
 
-		Map<String, OutputVariable<?>> map = DebugStatisticsBackend.getLatestWritten();
-		Assert.assertNotNull(map);
-		OutputVariable<?> unstable = map.get(RuntimeVariable.HadUnstableTests.toString());
-		Assert.assertNotNull(unstable);
-		Assert.assertEquals(Boolean.FALSE, unstable.getValue());
-
-	}
+    }
 
 }

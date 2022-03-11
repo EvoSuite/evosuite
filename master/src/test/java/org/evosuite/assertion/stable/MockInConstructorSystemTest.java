@@ -71,9 +71,9 @@ public class MockInConstructorSystemTest extends SystemTestBase {
 
         String targetClass = DateInConstructor.class.getCanonicalName();
         Properties.TARGET_CLASS = targetClass;
-        Properties.OUTPUT_VARIABLES=""+ RuntimeVariable.HadUnstableTests;
-        String[] command = new String[] { "-generateSuite", "-class",
-                targetClass };
+        Properties.OUTPUT_VARIABLES = "" + RuntimeVariable.HadUnstableTests;
+        String[] command = new String[]{"-generateSuite", "-class",
+                targetClass};
 
         Object result = evosuite.parseCommandLine(command);
 

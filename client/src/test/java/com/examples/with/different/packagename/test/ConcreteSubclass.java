@@ -33,5 +33,5 @@ public class ConcreteSubclass extends AbstractSuperclass {
         return true;
     }
 
-    public boolean fieldInConcreteClass  = true;
+    public boolean fieldInConcreteClass = true;
 }

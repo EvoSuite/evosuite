@@ -29,32 +29,32 @@ import org.evosuite.symbolic.vm.heap.SymbolicHeap;
 
 public final class ToLowerCase extends SymbolicFunction {
 
-	private static final String TO_LOWER_CASE = "toLowerCase";
+    private static final String TO_LOWER_CASE = "toLowerCase";
 
-	public ToLowerCase(SymbolicEnvironment env) {
-		super(env, Types.JAVA_LANG_STRING, TO_LOWER_CASE, Types.TO_STR_DESCRIPTOR);
-	}
+    public ToLowerCase(SymbolicEnvironment env) {
+        super(env, Types.JAVA_LANG_STRING, TO_LOWER_CASE, Types.TO_STR_DESCRIPTOR);
+    }
 
-	@Override
-	public Object executeFunction() {
+    @Override
+    public Object executeFunction() {
 
-		// object receiver
-		ReferenceConstant symb_str = this.getSymbReceiver();
-		String conc_str = (String) this.getConcReceiver();
+        // object receiver
+        ReferenceConstant symb_str = this.getSymbReceiver();
+        String conc_str = (String) this.getConcReceiver();
 
-		// return value
-		String conc_ret_val = (String) this.getConcRetVal();
-		ReferenceConstant symb_ret_val = (ReferenceConstant) this.getSymbRetVal();
+        // return value
+        String conc_ret_val = (String) this.getConcRetVal();
+        ReferenceConstant symb_ret_val = (ReferenceConstant) this.getSymbRetVal();
 
-		StringValue string_expr = env.heap.getField(Types.JAVA_LANG_STRING,
-				SymbolicHeap.$STRING_VALUE, conc_str, symb_str, conc_str);
-		StringUnaryExpression symb_value = new StringUnaryExpression(
-				string_expr, Operator.TOLOWERCASE, conc_ret_val);
+        StringValue string_expr = env.heap.getField(Types.JAVA_LANG_STRING,
+                SymbolicHeap.$STRING_VALUE, conc_str, symb_str, conc_str);
+        StringUnaryExpression symb_value = new StringUnaryExpression(
+                string_expr, Operator.TOLOWERCASE, conc_ret_val);
 
-		env.heap.putField(Types.JAVA_LANG_STRING, SymbolicHeap.$STRING_VALUE,
-				conc_ret_val, symb_ret_val, symb_value);
+        env.heap.putField(Types.JAVA_LANG_STRING, SymbolicHeap.$STRING_VALUE,
+                conc_ret_val, symb_ret_val, symb_value);
 
-		return this.getSymbRetVal();
-	}
+        return this.getSymbRetVal();
+    }
 
 }

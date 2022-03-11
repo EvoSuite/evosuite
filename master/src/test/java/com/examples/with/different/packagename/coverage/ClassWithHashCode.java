@@ -21,9 +21,9 @@ package com.examples.with.different.packagename.coverage;
 
 public class ClassWithHashCode {
 
-	@Override
-	public int hashCode() {
-		return -1;
-	}
+    @Override
+    public int hashCode() {
+        return -1;
+    }
 
 }

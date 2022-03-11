@@ -42,70 +42,70 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class Utils {
 
-    public static boolean isWindows(){
+    public static boolean isWindows() {
         String OS = System.getProperty("os.name");
         return OS.toLowerCase().contains("windows");
     }
 
-    public static List<String> getMvnExecutableNames(){
+    public static List<String> getMvnExecutableNames() {
         return isWindows() ? Arrays.asList("mvn.bat", "mvn.cmd") : Arrays.asList("mvn");
     }
 
-    public static boolean isMavenProject(Project project){
-        File pom = new File(project.getBasePath() , "pom.xml");
+    public static boolean isMavenProject(Project project) {
+        File pom = new File(project.getBasePath(), "pom.xml");
         return pom.exists();
     }
 
     @Nullable
-    public static String getFolderLocation(Module module){
+    public static String getFolderLocation(Module module) {
         ModuleRootManager rootManager = ModuleRootManager.getInstance(module);
         VirtualFile[] contentRoots = rootManager.getContentRoots(); //TODO check why IntelliJ does return an array here
 
-        if(contentRoots==null || contentRoots.length==0){
+        if (contentRoots == null || contentRoots.length == 0) {
             return null;
         }
 
         return new File(contentRoots[0].getCanonicalPath()).getAbsolutePath();
     }
 
-    public static Module getModule(Project project, String folderLocation){
-        for(Module m : ModuleManager.getInstance(project).getModules()){
-            if(folderLocation.equals(getFolderLocation(m))){
+    public static Module getModule(Project project, String folderLocation) {
+        for (Module m : ModuleManager.getInstance(project).getModules()) {
+            if (folderLocation.equals(getFolderLocation(m))) {
                 return m;
             }
         }
         return null;
     }
 
-    public static String getFullClassPath(Module m){
+    public static String getFullClassPath(Module m) {
 
 
         String cp = "";
 
-        String moduleOutputPath = CompilerPaths.getModuleOutputPath(m,false);
-        if(moduleOutputPath != null && new File(moduleOutputPath).exists()) {
+        String moduleOutputPath = CompilerPaths.getModuleOutputPath(m, false);
+        if (moduleOutputPath != null && new File(moduleOutputPath).exists()) {
             cp += moduleOutputPath;
         }
 
-        for(VirtualFile vf : OrderEnumerator.orderEntries(m).recursively().getClassesRoots()){
+        for (VirtualFile vf : OrderEnumerator.orderEntries(m).recursively().getClassesRoots()) {
             String entry = new File(vf.getPath()).getAbsolutePath();
-            if(entry.endsWith("!/")){ //not sure why it happens in the returned paths
-                entry = entry.substring(0,entry.length()-2);
+            if (entry.endsWith("!/")) { //not sure why it happens in the returned paths
+                entry = entry.substring(0, entry.length() - 2);
             }
-            if(entry.endsWith("!")){
-                entry = entry.substring(0,entry.length()-1);
+            if (entry.endsWith("!")) {
+                entry = entry.substring(0, entry.length() - 1);
             }
 
-            if(entry.endsWith("zip")){
+            if (entry.endsWith("zip")) {
                 //for some reasons, Java src.zip can end up on dependencies...
                 continue;
             }
 
-            if(! new File(entry).exists()){
+            if (!new File(entry).exists()) {
                 continue;
             }
 
-            if(cp==null || cp.isEmpty()){
+            if (cp == null || cp.isEmpty()) {
                 cp = entry;
             } else {
                 cp += File.pathSeparator + entry;
@@ -135,7 +135,7 @@ public class Utils {
         } catch (InterruptedException e) {
             return true;
         }
-        if(! ok.get()){
+        if (!ok.get()) {
             notifier.failed("Compilation failure. Fix the compilation issues before running EvoSuite.");
             return false;
         }

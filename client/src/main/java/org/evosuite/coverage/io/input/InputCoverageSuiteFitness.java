@@ -19,12 +19,6 @@
  */
 package org.evosuite.coverage.io.input;
 
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.evosuite.Properties;
 import org.evosuite.ga.archive.Archive;
 import org.evosuite.testcase.TestChromosome;
@@ -33,6 +27,8 @@ import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
+
+import java.util.*;
 
 /**
  * @author Jose Miguel Rojas
@@ -44,8 +40,8 @@ public class InputCoverageSuiteFitness extends TestSuiteFitnessFunction {
     private final int totalGoals;
     private final Set<InputCoverageTestFitness> inputCoverageMap = new LinkedHashSet<>();
 
-    private Set<InputCoverageTestFitness> toRemoveGoals = new LinkedHashSet<>();
-    private Set<InputCoverageTestFitness> removedGoals  = new LinkedHashSet<>();
+    private final Set<InputCoverageTestFitness> toRemoveGoals = new LinkedHashSet<>();
+    private final Set<InputCoverageTestFitness> removedGoals = new LinkedHashSet<>();
 
     // Some stuff for debug output
     private int maxCoveredGoals = 0;
@@ -70,8 +66,8 @@ public class InputCoverageSuiteFitness extends TestSuiteFitnessFunction {
         List<InputCoverageTestFitness> goals = new InputCoverageFactory().getCoverageGoals();
         for (InputCoverageTestFitness goal : goals) {
             inputCoverageMap.add(goal);
-			if(Properties.TEST_ARCHIVE)
-				Archive.getArchiveInstance().addTarget(goal);
+            if (Properties.TEST_ARCHIVE)
+                Archive.getArchiveInstance().addTarget(goal);
 
         }
     }

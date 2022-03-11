@@ -30,23 +30,23 @@ import org.evosuite.ga.bloatcontrol.BloatControlFunction;
  */
 public class MaxLengthBloatControl implements BloatControlFunction<TestSuiteChromosome> {
 
-	private static final long serialVersionUID = -5019773997815280164L;
+    private static final long serialVersionUID = -5019773997815280164L;
 
-	public MaxLengthBloatControl() {
-		// empty constructor
-	}
+    public MaxLengthBloatControl() {
+        // empty constructor
+    }
 
-	public MaxLengthBloatControl(final MaxLengthBloatControl that) {
-		// empty copy constructor
-	}
+    public MaxLengthBloatControl(final MaxLengthBloatControl that) {
+        // empty copy constructor
+    }
 
-	/**
-	 * {@inheritDoc}
-	 *
-	 * Check whether the chromosome is bigger than the max length constant
-	 */
-	@Override
-	public boolean isTooLong(TestSuiteChromosome chromosome) {
-		return chromosome.totalLengthOfTestCases() > Properties.MAX_LENGTH;
-	}
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Check whether the chromosome is bigger than the max length constant
+     */
+    @Override
+    public boolean isTooLong(TestSuiteChromosome chromosome) {
+        return chromosome.totalLengthOfTestCases() > Properties.MAX_LENGTH;
+    }
 }

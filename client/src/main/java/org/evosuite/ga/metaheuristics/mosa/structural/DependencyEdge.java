@@ -23,22 +23,20 @@ import org.evosuite.testcase.TestFitnessFunction;
 import org.jgrapht.graph.DefaultEdge;
 
 /**
- * 
- * 
  * @author Annibale Panichella
  */
 public class DependencyEdge extends DefaultEdge {
 
-	private static final long serialVersionUID = 1L;
-	
-	//private static final Logger logger = LoggerFactory.getLogger(BranchFitnessGraph.class);
+    private static final long serialVersionUID = 1L;
 
-	public TestFitnessFunction getSource() {
-		return (TestFitnessFunction) super.getSource();
-	}
+    //private static final Logger logger = LoggerFactory.getLogger(BranchFitnessGraph.class);
 
-	public TestFitnessFunction getTarget() {
-		return (TestFitnessFunction) super.getTarget();
-	}
+    public TestFitnessFunction getSource() {
+        return (TestFitnessFunction) super.getSource();
+    }
+
+    public TestFitnessFunction getTarget() {
+        return (TestFitnessFunction) super.getTarget();
+    }
 
 }

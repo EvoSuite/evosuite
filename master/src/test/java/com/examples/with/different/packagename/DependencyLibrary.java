@@ -26,10 +26,10 @@ import org.apache.commons.cli.AlreadySelectedException;
  */
 public class DependencyLibrary {
 
-    public void foo(){
+    public void foo() {
         //here, at compile time we use the one in EvoSuite dependency, but not at runtime
         AlreadySelectedException e = new AlreadySelectedException(null);
-        if(e.toString().equals("foo")){
+        if (e.toString().equals("foo")) {
             System.out.println("Only executed if SUT version is used, and not the one in EvoSuite's dependencies");
         }
     }

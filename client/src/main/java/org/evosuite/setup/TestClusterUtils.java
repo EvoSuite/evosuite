@@ -46,271 +46,267 @@ import static org.objectweb.asm.Type.getMethodDescriptor;
  */
 public class TestClusterUtils {
 
-	protected static final Logger logger = LoggerFactory.getLogger(TestClusterUtils.class);
+    protected static final Logger logger = LoggerFactory.getLogger(TestClusterUtils.class);
 
 	/*
 		Only final constants and caches should instantiated in this class
 	 */
 
-	private static final List<String> classExceptions = Collections.unmodifiableList(
-			Arrays.asList("com.apple.", "apple.", "sun.", "com.sun.", "com.oracle.", "sun.awt."));
-	private final static Map<Class<?>, Set<Field>> accessibleFieldCache = new LinkedHashMap<>();
-	private final static Map<Class<?>, Set<Method>> methodCache = new LinkedHashMap<>();
+    private static final List<String> classExceptions = Collections.unmodifiableList(
+            Arrays.asList("com.apple.", "apple.", "sun.", "com.sun.", "com.oracle.", "sun.awt."));
+    private final static Map<Class<?>, Set<Field>> accessibleFieldCache = new LinkedHashMap<>();
+    private final static Map<Class<?>, Set<Method>> methodCache = new LinkedHashMap<>();
 
 
-	/**
-	 * Determine if this class contains JUnit tests
-	 * @deprecated use {@code org.evosuite.junit.CoverageAnalysis.isTest(Class<?> cls)}
-	 *
-	 * @param className
-	 * @return
-	 */
-	@Deprecated
-	public static boolean isTest(String className) {
-		// TODO-JRO Identifying tests should be done differently:
-		// If the class either contains methods
-		// annotated with @Test (> JUnit 4.0)
-		// or contains Test or Suite in it's inheritance structure
-		try {
-			Class<?> clazz = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(className);
-			Class<?> superClazz = clazz.getSuperclass();
-			while (!superClazz.equals(Object.class)) {
-				if (superClazz.equals(Suite.class))
-					return true;
-				if (superClazz.equals(Test.class))
-					return true;
+    /**
+     * Determine if this class contains JUnit tests
+     *
+     * @param className
+     * @return
+     * @deprecated use {@code org.evosuite.junit.CoverageAnalysis.isTest(Class<?> cls)}
+     */
+    @Deprecated
+    public static boolean isTest(String className) {
+        // TODO-JRO Identifying tests should be done differently:
+        // If the class either contains methods
+        // annotated with @Test (> JUnit 4.0)
+        // or contains Test or Suite in it's inheritance structure
+        try {
+            Class<?> clazz = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(className);
+            Class<?> superClazz = clazz.getSuperclass();
+            while (!superClazz.equals(Object.class)) {
+                if (superClazz.equals(Suite.class))
+                    return true;
+                if (superClazz.equals(Test.class))
+                    return true;
 
-				superClazz = clazz.getSuperclass();
-			}
-			for (Method method : clazz.getMethods()) {
-				if (method.isAnnotationPresent(Test.class)) {
-					return true;
-				}
-			}
-		} catch (ClassNotFoundException e) {
-			logger.info("Could not load class: {}", className);
-		}
-		return false;
-	}
-
-	public static boolean isAnonymousClass(String className) {
-		int pos = className.lastIndexOf('$');
-		if(pos < 0)
-			return false;
-		if(pos == className.length() - 1)
-			return false; // Classnames can end in $ - see #179
-		char firstLetter = className.charAt(pos + 1);
-		if(firstLetter >= '0' && firstLetter <= '9')
-			return true;
-
-		return false;
-	}
-
-	public static void makeAccessible(Field field) {
-		if (!Modifier.isPublic(field.getModifiers())
-		        || !Modifier.isPublic(field.getDeclaringClass().getModifiers())) {
-			field.setAccessible(true);
-		}
-	}
-
-	public static void makeAccessible(Method method) {
-		if (!Modifier.isPublic(method.getModifiers())
-		        || !Modifier.isPublic(method.getDeclaringClass().getModifiers())) {
-			method.setAccessible(true);
-		}
-	}
-
-	public static void makeAccessible(Constructor<?> constructor) {
-		if (!Modifier.isPublic(constructor.getModifiers())
-		        || !Modifier.isPublic(constructor.getDeclaringClass().getModifiers())) {
-			constructor.setAccessible(true);
-		}
-	}
-
-	public static boolean isEvoSuiteClass(Class<?> c) {
-        return c.getName().startsWith(PackageInfo.getEvoSuitePackage());
-                //|| c.getName().equals("java.lang.String");    // This is now handled in addDependencyClass
+                superClazz = clazz.getSuperclass();
+            }
+            for (Method method : clazz.getMethods()) {
+                if (method.isAnnotationPresent(Test.class)) {
+                    return true;
+                }
+            }
+        } catch (ClassNotFoundException e) {
+            logger.info("Could not load class: {}", className);
+        }
+        return false;
     }
 
-	/**
-	 * Calculates the package distance between two classes, which must be given by their
-	 * fully-qualified names. For example, the package distance between {@code "java.util.List"} and
-	 * {@code "java.util.Set"} is 0, and the distance between {@code "java.util.List"} and
-	 * {@code "java.lang.reflect.Class"} is 3.
-	 *
-	 * @param className1 fully-qualified name of the first class
-	 * @param className2 fully-qualified name of the second class
-	 * @return the package distance between the two classes
-	 */
-	public static int getPackageDistance(final String className1, final String className2) {
-		final String[] packages1 = className1.split("\\.");
-		final String[] packages2 = className2.split("\\.");
+    public static boolean isAnonymousClass(String className) {
+        int pos = className.lastIndexOf('$');
+        if (pos < 0)
+            return false;
+        if (pos == className.length() - 1)
+            return false; // Classnames can end in $ - see #179
+        char firstLetter = className.charAt(pos + 1);
+        return firstLetter >= '0' && firstLetter <= '9';
+    }
 
-		// We ignore the last array entries because they're just class names and thus irrelevant.
-		final int numPackages1 = packages1.length - 1;
-		final int numPackages2 = packages2.length - 1;
+    public static void makeAccessible(Field field) {
+        if (!Modifier.isPublic(field.getModifiers())
+                || !Modifier.isPublic(field.getDeclaringClass().getModifiers())) {
+            field.setAccessible(true);
+        }
+    }
 
-		// Find the length of the longest common prefix.
-		int length = 0;
-		final int n = Math.min(numPackages1, numPackages2);
-		while (length < n && packages1[length].equals(packages2[length])) {
-			length++;
-		}
+    public static void makeAccessible(Method method) {
+        if (!Modifier.isPublic(method.getModifiers())
+                || !Modifier.isPublic(method.getDeclaringClass().getModifiers())) {
+            method.setAccessible(true);
+        }
+    }
 
-		final int distance = numPackages1 + numPackages2 - 2 * length;
-		return distance;
-	}
+    public static void makeAccessible(Constructor<?> constructor) {
+        if (!Modifier.isPublic(constructor.getModifiers())
+                || !Modifier.isPublic(constructor.getDeclaringClass().getModifiers())) {
+            constructor.setAccessible(true);
+        }
+    }
 
-	/**
-	 * Check if we can use the given class directly in a JUnit test
-	 *
-	 * @param className
-	 *            a {@link String} object.
-	 * @return a boolean.
-	 */
-	public static boolean checkIfCanUse(final String className) {
-		if (MockList.shouldBeMocked(className)) {
-			return false;
-		}
+    public static boolean isEvoSuiteClass(Class<?> c) {
+        return c.getName().startsWith(PackageInfo.getEvoSuitePackage());
+        //|| c.getName().equals("java.lang.String");    // This is now handled in addDependencyClass
+    }
 
-		return classExceptions.stream().noneMatch(className::startsWith);
-	}
+    /**
+     * Calculates the package distance between two classes, which must be given by their
+     * fully-qualified names. For example, the package distance between {@code "java.util.List"} and
+     * {@code "java.util.Set"} is 0, and the distance between {@code "java.util.List"} and
+     * {@code "java.lang.reflect.Class"} is 3.
+     *
+     * @param className1 fully-qualified name of the first class
+     * @param className2 fully-qualified name of the second class
+     * @return the package distance between the two classes
+     */
+    public static int getPackageDistance(final String className1, final String className2) {
+        final String[] packages1 = className1.split("\\.");
+        final String[] packages2 = className2.split("\\.");
 
-	/**
-	 * Get the set of constructors defined in this class and its superclasses
-	 *
-	 * @param clazz
-	 * @return
-	 */
-	public static Set<Constructor<?>> getConstructors(Class<?> clazz) {
-		final Map<String, Constructor<?>> helper = new TreeMap<>();
+        // We ignore the last array entries because they're just class names and thus irrelevant.
+        final int numPackages1 = packages1.length - 1;
+        final int numPackages2 = packages2.length - 1;
 
-		for (final Constructor<?> c : Reflection.getDeclaredConstructors(clazz)) {
-			helper.put(org.objectweb.asm.Type.getConstructorDescriptor(c), c);
-		}
+        // Find the length of the longest common prefix.
+        int length = 0;
+        final int n = Math.min(numPackages1, numPackages2);
+        while (length < n && packages1[length].equals(packages2[length])) {
+            length++;
+        }
 
-		final Set<Constructor<?>> constructors =
-				helper.values().stream()
-						.sorted(comparing(Constructor::getName))
-						.collect(toCollection(LinkedHashSet::new));
+        final int distance = numPackages1 + numPackages2 - 2 * length;
+        return distance;
+    }
 
-		return constructors;
-	}
+    /**
+     * Check if we can use the given class directly in a JUnit test
+     *
+     * @param className a {@link String} object.
+     * @return a boolean.
+     */
+    public static boolean checkIfCanUse(final String className) {
+        if (MockList.shouldBeMocked(className)) {
+            return false;
+        }
 
-	/**
-	 * Get the set of fields defined in this class and its superclasses
-	 *
-	 * @param clazz
-	 * @return
-	 */
-	public static Set<Field> getFields(Class<?> clazz) {
-		// TODO: Helper not necessary here!
-		Map<String, Field> helper = new TreeMap<>();
+        return classExceptions.stream().noneMatch(className::startsWith);
+    }
+
+    /**
+     * Get the set of constructors defined in this class and its superclasses
+     *
+     * @param clazz
+     * @return
+     */
+    public static Set<Constructor<?>> getConstructors(Class<?> clazz) {
+        final Map<String, Constructor<?>> helper = new TreeMap<>();
+
+        for (final Constructor<?> c : Reflection.getDeclaredConstructors(clazz)) {
+            helper.put(org.objectweb.asm.Type.getConstructorDescriptor(c), c);
+        }
+
+        final Set<Constructor<?>> constructors =
+                helper.values().stream()
+                        .sorted(comparing(Constructor::getName))
+                        .collect(toCollection(LinkedHashSet::new));
+
+        return constructors;
+    }
+
+    /**
+     * Get the set of fields defined in this class and its superclasses
+     *
+     * @param clazz
+     * @return
+     */
+    public static Set<Field> getFields(Class<?> clazz) {
+        // TODO: Helper not necessary here!
+        Map<String, Field> helper = new TreeMap<>();
 
         if (clazz.getSuperclass() != null) {
-			for (Field f : getFields(clazz.getSuperclass())) {
-				helper.put(f.toGenericString(), f);
-			}
+            for (Field f : getFields(clazz.getSuperclass())) {
+                helper.put(f.toGenericString(), f);
+            }
 
-		}
-		for (Class<?> in : Reflection.getInterfaces(clazz)) {
-			for (Field f : getFields(in)) {
-				helper.put(f.toGenericString(), f);
-			}
-		}
+        }
+        for (Class<?> in : Reflection.getInterfaces(clazz)) {
+            for (Field f : getFields(in)) {
+                helper.put(f.toGenericString(), f);
+            }
+        }
 
-		for (Field f : Reflection.getDeclaredFields(clazz)) {
-			helper.put(f.toGenericString(), f);
-		}
+        for (Field f : Reflection.getDeclaredFields(clazz)) {
+            helper.put(f.toGenericString(), f);
+        }
         Set<Field> fields = new LinkedHashSet<>(helper.values());
 
-		return fields;
-	}
+        return fields;
+    }
 
-	public static boolean hasStaticGenerator(Class<?> clazz) {
-		final Stream<Method> methods = Arrays.stream(ReflectionUtils.getMethods(clazz));
-		final Predicate<Method> isStaticGenerator = m ->
-				Modifier.isStatic(m.getModifiers()) && clazz.isAssignableFrom(m.getReturnType());
-		return methods.anyMatch(isStaticGenerator);
-	}
+    public static boolean hasStaticGenerator(Class<?> clazz) {
+        final Stream<Method> methods = Arrays.stream(ReflectionUtils.getMethods(clazz));
+        final Predicate<Method> isStaticGenerator = m ->
+                Modifier.isStatic(m.getModifiers()) && clazz.isAssignableFrom(m.getReturnType());
+        return methods.anyMatch(isStaticGenerator);
+    }
 
-	/**
-	 * Get the set of fields defined in this class and its superclasses
-	 *
-	 * @param clazz
-	 * @return
-	 */
-	public static Set<Field> getAccessibleFields(final Class<?> clazz) {
-		return accessibleFieldCache.computeIfAbsent(clazz, TestClusterUtils::computeAccessibleFields);
-	}
+    /**
+     * Get the set of fields defined in this class and its superclasses
+     *
+     * @param clazz
+     * @return
+     */
+    public static Set<Field> getAccessibleFields(final Class<?> clazz) {
+        return accessibleFieldCache.computeIfAbsent(clazz, TestClusterUtils::computeAccessibleFields);
+    }
 
-	private static Set<Field> computeAccessibleFields(final Class<?> clazz) {
-		final Set<Field> accessibleFields = Arrays.stream(Reflection.getFields(clazz))
-				.filter(f -> TestUsageChecker.canUse(f) && !Modifier.isFinal(f.getModifiers()))
-				.sorted(comparing(Field::getName))
-				.collect(toCollection(LinkedHashSet::new));
-		return accessibleFields;
-	}
+    private static Set<Field> computeAccessibleFields(final Class<?> clazz) {
+        final Set<Field> accessibleFields = Arrays.stream(Reflection.getFields(clazz))
+                .filter(f -> TestUsageChecker.canUse(f) && !Modifier.isFinal(f.getModifiers()))
+                .sorted(comparing(Field::getName))
+                .collect(toCollection(LinkedHashSet::new));
+        return accessibleFields;
+    }
 
-	/**
-	 * Get the set of methods defined in this class and its superclasses
-	 *
-	 * @param clazz
-	 * @return
-	 */
-	public static Set<Method> getMethods(Class<?> clazz) {
+    /**
+     * Get the set of methods defined in this class and its superclasses
+     *
+     * @param clazz
+     * @return
+     */
+    public static Set<Method> getMethods(Class<?> clazz) {
 
-		// As this is expensive, doing some caching here
-		// Note that with the change of a class loader the cached values could
-		// be thrown away
-		if(methodCache.containsKey(clazz)) {
-			return methodCache.get(clazz);
-		}
+        // As this is expensive, doing some caching here
+        // Note that with the change of a class loader the cached values could
+        // be thrown away
+        if (methodCache.containsKey(clazz)) {
+            return methodCache.get(clazz);
+        }
 
-		final Map<String, Method> helper = new TreeMap<>();
+        final Map<String, Method> helper = new TreeMap<>();
 
-		if (clazz.getSuperclass() != null) {
-			for (final Method m : getMethods(clazz.getSuperclass())) {
-				helper.put(m.getName() + getMethodDescriptor(m), m);
-			}
-		}
-		for (final Class<?> in : Reflection.getInterfaces(clazz)) {
-			for (final Method m : getMethods(in)) {
-				helper.put(m.getName() + getMethodDescriptor(m), m);
-			}
-		}
+        if (clazz.getSuperclass() != null) {
+            for (final Method m : getMethods(clazz.getSuperclass())) {
+                helper.put(m.getName() + getMethodDescriptor(m), m);
+            }
+        }
+        for (final Class<?> in : Reflection.getInterfaces(clazz)) {
+            for (final Method m : getMethods(in)) {
+                helper.put(m.getName() + getMethodDescriptor(m), m);
+            }
+        }
 
-		for (final Method m : Reflection.getDeclaredMethods(clazz)) {
-			helper.put(m.getName() + getMethodDescriptor(m), m);
-		}
+        for (final Method m : Reflection.getDeclaredMethods(clazz)) {
+            helper.put(m.getName() + getMethodDescriptor(m), m);
+        }
 
-		final LinkedHashSet<Method> methods = helper.values().stream()
-				.sorted(comparing(Method::getName))
-				.collect(toCollection(LinkedHashSet::new));
-		methodCache.put(clazz, methods);
-		return methods;
-	}
+        final LinkedHashSet<Method> methods = helper.values().stream()
+                .sorted(comparing(Method::getName))
+                .collect(toCollection(LinkedHashSet::new));
+        methodCache.put(clazz, methods);
+        return methods;
+    }
 
-	public static Method getMethod(Class<?> clazz, String methodName, String desc) {
-		for (Method method : Reflection.getMethods(clazz)) {
-			if (method.getName().equals(methodName)
-					&& getMethodDescriptor(method).equals(desc))
-				return method;
-		}
-		return null;
-	}
+    public static Method getMethod(Class<?> clazz, String methodName, String desc) {
+        for (Method method : Reflection.getMethods(clazz)) {
+            if (method.getName().equals(methodName)
+                    && getMethodDescriptor(method).equals(desc))
+                return method;
+        }
+        return null;
+    }
 
-	public static Class<?> getClass(String className) {
-		try {
-			Class<?> clazz = Class.forName(className,
-			                               true,
-			                               TestGenerationContext.getInstance().getClassLoaderForSUT());
-			return clazz;
-		} catch (ClassNotFoundException e) {
-			return null;
-		} catch (NoClassDefFoundError e) {
-			// an ExceptionInInitializationError might have happened during class initialization.
-			return null;
-		}
-	}
+    public static Class<?> getClass(String className) {
+        try {
+            Class<?> clazz = Class.forName(className,
+                    true,
+                    TestGenerationContext.getInstance().getClassLoaderForSUT());
+            return clazz;
+        } catch (ClassNotFoundException e) {
+            return null;
+        } catch (NoClassDefFoundError e) {
+            // an ExceptionInInitializationError might have happened during class initialization.
+            return null;
+        }
+    }
 }

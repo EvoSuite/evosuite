@@ -31,21 +31,21 @@ import com.examples.with.different.packagename.mock.java.lang.ExtendingRuntimeEx
 
 public class MockExceptionSystemTest extends SystemTestBase {
 
-	  @Test
-	  public void testRuntimeException(){
-		  String targetClass = ExtendingRuntimeException.class.getCanonicalName();
+    @Test
+    public void testRuntimeException() {
+        String targetClass = ExtendingRuntimeException.class.getCanonicalName();
 
-		  Properties.TARGET_CLASS = targetClass;
-		  Properties.REPLACE_CALLS = true;
-		  Properties.CRITERION = new Properties.Criterion[]{Properties.Criterion.LINE};
+        Properties.TARGET_CLASS = targetClass;
+        Properties.REPLACE_CALLS = true;
+        Properties.CRITERION = new Properties.Criterion[]{Properties.Criterion.LINE};
 
-		  EvoSuite evosuite = new EvoSuite();
-		  String[] command = new String[] { "-generateSuite", "-class", targetClass };
-		  Object result = evosuite.parseCommandLine(command);
+        EvoSuite evosuite = new EvoSuite();
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
+        Object result = evosuite.parseCommandLine(command);
 
-		  GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		  TestSuiteChromosome best = ga.getBestIndividual();
-		  Assert.assertNotNull(best);
-		  Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
-	  }
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
+        Assert.assertNotNull(best);
+        Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+    }
 }

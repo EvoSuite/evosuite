@@ -29,70 +29,71 @@ import org.evosuite.ga.variables.DoubleVariable;
 
 /**
  * SCH Problem
- * 
+ * <p>
  * f1(x) = x^2
  * f2(x) = (x-2)^2
- * 
+ * <p>
  * Optimal Solutions x E [0,2]
- * 
+ *
  * @author José Campos
  */
-@SuppressWarnings({ "serial" })
-public class SCH implements Problem<NSGAChromosome>
-{
-	private final List<FitnessFunction<NSGAChromosome>> fitnessFunctions = new ArrayList<>();
+@SuppressWarnings({"serial"})
+public class SCH implements Problem<NSGAChromosome> {
+    private final List<FitnessFunction<NSGAChromosome>> fitnessFunctions = new ArrayList<>();
 
-	public SCH() {
-		super();
+    public SCH() {
+        super();
 
-		/**
-		 * First fitness function
-		 * f1(x) = x^2
-		 */
-		class f1FitnessFunction extends FitnessFunction<NSGAChromosome> {
-			@Override
-			public double getFitness(NSGAChromosome c) {
+        /**
+         * First fitness function
+         * f1(x) = x^2
+         */
+        class f1FitnessFunction extends FitnessFunction<NSGAChromosome> {
+            @Override
+            public double getFitness(NSGAChromosome c) {
 
-				DoubleVariable dv = (DoubleVariable) c.getVariables().get(0);
-				double x = dv.getValue();
-				double fitness = x * x;
+                DoubleVariable dv = (DoubleVariable) c.getVariables().get(0);
+                double x = dv.getValue();
+                double fitness = x * x;
 
-				updateIndividual(c, fitness);
-				return fitness;
-			}
-			@Override
-			public boolean isMaximizationFunction() {
-				return false;
-			}
-		}
+                updateIndividual(c, fitness);
+                return fitness;
+            }
 
-		/**
-		 * Second fitness function
-		 * f2(x) = (x-2)^2
-		 */
-		class f2FitnessFunction extends FitnessFunction<NSGAChromosome> {
-			@Override
-			public double getFitness(NSGAChromosome c) {
+            @Override
+            public boolean isMaximizationFunction() {
+                return false;
+            }
+        }
 
-				DoubleVariable dv = (DoubleVariable) c.getVariables().get(0);
-				double x = dv.getValue();
-				double fitness = (x - 2) * (x - 2);
+        /**
+         * Second fitness function
+         * f2(x) = (x-2)^2
+         */
+        class f2FitnessFunction extends FitnessFunction<NSGAChromosome> {
+            @Override
+            public double getFitness(NSGAChromosome c) {
 
-				updateIndividual(c, fitness);
-				return fitness;
-			}
-			@Override
-			public boolean isMaximizationFunction() {
-				return false;
-			}
-		}
+                DoubleVariable dv = (DoubleVariable) c.getVariables().get(0);
+                double x = dv.getValue();
+                double fitness = (x - 2) * (x - 2);
 
-		this.fitnessFunctions.add(new f1FitnessFunction());
-		this.fitnessFunctions.add(new f2FitnessFunction());
-	}
+                updateIndividual(c, fitness);
+                return fitness;
+            }
 
-	@Override
-	public List<FitnessFunction<NSGAChromosome>> getFitnessFunctions() {
-		return this.fitnessFunctions;
-	}
+            @Override
+            public boolean isMaximizationFunction() {
+                return false;
+            }
+        }
+
+        this.fitnessFunctions.add(new f1FitnessFunction());
+        this.fitnessFunctions.add(new f2FitnessFunction());
+    }
+
+    @Override
+    public List<FitnessFunction<NSGAChromosome>> getFitnessFunctions() {
+        return this.fitnessFunctions;
+    }
 }

@@ -71,7 +71,7 @@ public class TestOverloading {
 
         TestCase test = new DefaultTestCase();
         ConstantValue longValue = new ConstantValue(test, long.class);
-        ConstantValue intValue  = new ConstantValue(test, int.class);
+        ConstantValue intValue = new ConstantValue(test, int.class);
         List<VariableReference> parameters = Arrays.asList(longValue, intValue);
 
         assertTrue(genericConstructor1.isOverloaded(parameters));
@@ -98,6 +98,7 @@ public class TestOverloading {
         assertFalse(genericConstructor1.isOverloaded(parameters2));
         assertFalse(genericConstructor2.isOverloaded(parameters1));
     }
+
     @Test
     public void testOverloadedMethod() {
         Class<?> clazz = ClassWithOverloadedMethods.class;

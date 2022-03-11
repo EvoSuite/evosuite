@@ -43,100 +43,97 @@ import org.eclipse.ui.handlers.HandlerUtil;
 
 /**
  * @author Gordon Fraser
- * 
  */
 @SuppressWarnings("restriction")
 public class GenerateTestsEditorAction extends TestGenerationAction {
 
-	@Override
-	public Object execute(ExecutionEvent event) throws ExecutionException {
-		
-		IEditorPart activeEditor = HandlerUtil.getActiveEditor(event);
-		// ISelection selection = HandlerUtil.getCurrentSelection(event);
-		ISelection selection = HandlerUtil.getActiveMenuSelection(event);
+    @Override
+    public Object execute(ExecutionEvent event) throws ExecutionException {
 
-		String SUT = "";
-		IResource target = null;
-		System.out.println("Current selection of type "+selection.getClass().getName()+": "+selection);
-		if(selection instanceof TreeSelection) {
-			TreeSelection treeSelection = (TreeSelection) selection;
-			IAdaptable firstElement = (IAdaptable) treeSelection.getFirstElement();
+        IEditorPart activeEditor = HandlerUtil.getActiveEditor(event);
+        // ISelection selection = HandlerUtil.getCurrentSelection(event);
+        ISelection selection = HandlerUtil.getActiveMenuSelection(event);
 
-			// Relies on an internal API, bad juju
-			if (firstElement instanceof org.eclipse.jdt.internal.core.CompilationUnit) {
-				try {
-					org.eclipse.jdt.internal.core.CompilationUnit compilationUnit = (org.eclipse.jdt.internal.core.CompilationUnit) firstElement;									
-					String packageName = "";
-					if (compilationUnit.getPackageDeclarations().length > 0) {
-						System.out.println("Package: "
-								+ compilationUnit.getPackageDeclarations()[0].getElementName());
-						packageName = compilationUnit.getPackageDeclarations()[0].getElementName();
-					}
-					String targetSuite = compilationUnit.getElementName().replace(".java", "");
-					if (!packageName.isEmpty())
-						targetSuite = packageName + "." + targetSuite;
-					System.out.println("Selected class: " + targetSuite);
-					SUT = targetSuite;
-					target = compilationUnit.getResource();
-				} catch (JavaModelException e) {
-					
-				}
-			}
-		}
-		else if (activeEditor instanceof JavaEditor) {
-			ITypeRoot root = EditorUtility.getEditorInputJavaElement(activeEditor, false);
-			ITextSelection sel = (ITextSelection) ((JavaEditor) activeEditor).getSelectionProvider().getSelection();
-			int offset = sel.getOffset();
-			IJavaElement element;
+        String SUT = "";
+        IResource target = null;
+        System.out.println("Current selection of type " + selection.getClass().getName() + ": " + selection);
+        if (selection instanceof TreeSelection) {
+            TreeSelection treeSelection = (TreeSelection) selection;
+            IAdaptable firstElement = (IAdaptable) treeSelection.getFirstElement();
 
-			try {
-				element = root.getElementAt(offset);
-				if(element == null) {
-					ISelection sel2 = HandlerUtil.getCurrentSelection(event);
-					System.out.println("Selected element of type "+sel2.getClass().getName()+": "+sel2.toString());
-				}
-				else if (element.getElementType() == IJavaElement.METHOD) {
-					IJavaElement pDeclaration = element.getAncestor(IJavaElement.PACKAGE_FRAGMENT);
-					IPackageFragment pFragment = (IPackageFragment) pDeclaration;
-					String packageName = "";
-					if (pFragment.getCompilationUnits()[0].getPackageDeclarations().length > 0) {
-						System.out.println("Package: "
-						        + pFragment.getCompilationUnits()[0].getPackageDeclarations()[0].getElementName());
-						packageName = pFragment.getCompilationUnits()[0].getPackageDeclarations()[0].getElementName();
-					}
-					String targetSuite = element.getParent().getElementName();
-					if (!packageName.isEmpty())
-						targetSuite = packageName + "." + targetSuite;
-					System.out.println("Selected class: " + targetSuite);
-					SUT = targetSuite;
-				} else if (element.getElementType() == IJavaElement.TYPE) {
-					IType type = ((IType) element);
-					System.out.println("Selected class: " + type.getFullyQualifiedName());
-					SUT = type.getFullyQualifiedName();
-				}
-				
-				IWorkspaceRoot wroot = ResourcesPlugin.getWorkspace().getRoot();
-				target = wroot.findMember(EditorUtility.getEditorInputJavaElement(activeEditor, false).getPath());
+            // Relies on an internal API, bad juju
+            if (firstElement instanceof org.eclipse.jdt.internal.core.CompilationUnit) {
+                try {
+                    org.eclipse.jdt.internal.core.CompilationUnit compilationUnit = (org.eclipse.jdt.internal.core.CompilationUnit) firstElement;
+                    String packageName = "";
+                    if (compilationUnit.getPackageDeclarations().length > 0) {
+                        System.out.println("Package: "
+                                + compilationUnit.getPackageDeclarations()[0].getElementName());
+                        packageName = compilationUnit.getPackageDeclarations()[0].getElementName();
+                    }
+                    String targetSuite = compilationUnit.getElementName().replace(".java", "");
+                    if (!packageName.isEmpty())
+                        targetSuite = packageName + "." + targetSuite;
+                    System.out.println("Selected class: " + targetSuite);
+                    SUT = targetSuite;
+                    target = compilationUnit.getResource();
+                } catch (JavaModelException e) {
 
-			} catch (JavaModelException e) {
+                }
+            }
+        } else if (activeEditor instanceof JavaEditor) {
+            ITypeRoot root = EditorUtility.getEditorInputJavaElement(activeEditor, false);
+            ITextSelection sel = (ITextSelection) ((JavaEditor) activeEditor).getSelectionProvider().getSelection();
+            int offset = sel.getOffset();
+            IJavaElement element;
 
-			}
+            try {
+                element = root.getElementAt(offset);
+                if (element == null) {
+                    ISelection sel2 = HandlerUtil.getCurrentSelection(event);
+                    System.out.println("Selected element of type " + sel2.getClass().getName() + ": " + sel2.toString());
+                } else if (element.getElementType() == IJavaElement.METHOD) {
+                    IJavaElement pDeclaration = element.getAncestor(IJavaElement.PACKAGE_FRAGMENT);
+                    IPackageFragment pFragment = (IPackageFragment) pDeclaration;
+                    String packageName = "";
+                    if (pFragment.getCompilationUnits()[0].getPackageDeclarations().length > 0) {
+                        System.out.println("Package: "
+                                + pFragment.getCompilationUnits()[0].getPackageDeclarations()[0].getElementName());
+                        packageName = pFragment.getCompilationUnits()[0].getPackageDeclarations()[0].getElementName();
+                    }
+                    String targetSuite = element.getParent().getElementName();
+                    if (!packageName.isEmpty())
+                        targetSuite = packageName + "." + targetSuite;
+                    System.out.println("Selected class: " + targetSuite);
+                    SUT = targetSuite;
+                } else if (element.getElementType() == IJavaElement.TYPE) {
+                    IType type = ((IType) element);
+                    System.out.println("Selected class: " + type.getFullyQualifiedName());
+                    SUT = type.getFullyQualifiedName();
+                }
+
+                IWorkspaceRoot wroot = ResourcesPlugin.getWorkspace().getRoot();
+                target = wroot.findMember(EditorUtility.getEditorInputJavaElement(activeEditor, false).getPath());
+
+            } catch (JavaModelException e) {
+
+            }
 
 
-		}
-		
-		if (!SUT.isEmpty() && target != null) {
-			IProject proj = target.getProject();
-			fixJUnitClassPath(JavaCore.create(proj));
-			generateTests(target);
-		}
-		
-		return null;
-	}
+        }
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.ui.IActionDelegate#selectionChanged(org.eclipse.jface.action.IAction, org.eclipse.jface.viewers.ISelection)
-	 */
+        if (!SUT.isEmpty() && target != null) {
+            IProject proj = target.getProject();
+            fixJUnitClassPath(JavaCore.create(proj));
+            generateTests(target);
+        }
+
+        return null;
+    }
+
+    /* (non-Javadoc)
+     * @see org.eclipse.ui.IActionDelegate#selectionChanged(org.eclipse.jface.action.IAction, org.eclipse.jface.viewers.ISelection)
+     */
 //	@Override
 //	public void selectionChanged(IAction action, ISelection selection) {
 //		// TODO Auto-generated method stub

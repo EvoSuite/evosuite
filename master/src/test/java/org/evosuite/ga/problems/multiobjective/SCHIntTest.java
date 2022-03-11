@@ -43,11 +43,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * 
  * @author José Campos
  */
-public class SCHIntTest
-{
+public class SCHIntTest {
     @Before
     public void setUp() {
         Properties.POPULATION = 100;
@@ -58,8 +56,7 @@ public class SCHIntTest
     }
 
     @Test
-    public void testSCHFitnesses()
-    {
+    public void testSCHFitnesses() {
         Problem<NSGAChromosome> p = new SCH();
         FitnessFunction<NSGAChromosome> f1 = p.getFitnessFunctions().get(0);
         FitnessFunction<NSGAChromosome> f2 = p.getFitnessFunctions().get(1);
@@ -85,13 +82,12 @@ public class SCHIntTest
 
     /**
      * Testing NSGA-II with SCH Problem
-     * 
-     * @throws IOException 
-     * @throws NumberFormatException 
+     *
+     * @throws IOException
+     * @throws NumberFormatException
      */
     @Test
-    public void testSCH() throws NumberFormatException, IOException
-    {
+    public void testSCH() throws NumberFormatException, IOException {
         Properties.MUTATION_RATE = 1d / 1d;
 
         ChromosomeFactory<NSGAChromosome> factory = new RandomFactory(false, 1, Math.pow(-10.0, 3.0), Math.pow(10.0, 3.0));

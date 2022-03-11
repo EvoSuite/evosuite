@@ -23,22 +23,25 @@ import org.evosuite.runtime.util.Inputs;
 import org.evosuite.runtime.vnet.EndPointInfo;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 /**
  * Class used to keep track of what environment components (local files, remote URLs, etc)
  * a test case has accessed to
- *
+ * <p>
  * Created by arcuri on 12/12/14.
  */
 public class AccessedEnvironment implements Serializable {
 
-	private static final long serialVersionUID = 2653568611955383431L;
+    private static final long serialVersionUID = 2653568611955383431L;
 
     /**
      * Paths of accessed local files
      */
-	private final Set<String> localFiles;
+    private final Set<String> localFiles;
 
 
     /**
@@ -47,7 +50,7 @@ public class AccessedEnvironment implements Serializable {
     private final Set<String> remoteURLs;
 
     /**
-     *  TCP/UDP sockets opened by the SUT
+     * TCP/UDP sockets opened by the SUT
      */
     private final Set<EndPointInfo> localListeningPorts;
 
@@ -59,14 +62,14 @@ public class AccessedEnvironment implements Serializable {
     private final Set<EndPointInfo> remoteContactedPorts;
 
 
-    public AccessedEnvironment(){
+    public AccessedEnvironment() {
         localFiles = new LinkedHashSet<>();
         remoteURLs = new LinkedHashSet<>();
         localListeningPorts = new LinkedHashSet<>();
         remoteContactedPorts = new LinkedHashSet<>();
     }
 
-    public void copyFrom(AccessedEnvironment other){
+    public void copyFrom(AccessedEnvironment other) {
         clear();
         this.localFiles.addAll(other.localFiles);
         this.remoteURLs.addAll(other.remoteURLs);
@@ -74,56 +77,56 @@ public class AccessedEnvironment implements Serializable {
         this.remoteContactedPorts.addAll(other.remoteContactedPorts);
     }
 
-    public void clear(){
+    public void clear() {
         localFiles.clear();
         remoteURLs.clear();
         localListeningPorts.clear();
         remoteContactedPorts.clear();
     }
 
-    public boolean hasProperty(String property) throws IllegalArgumentException{
+    public boolean hasProperty(String property) throws IllegalArgumentException {
         Inputs.checkNull(property);
 
         return false; //TODO
     }
 
-    public void addRemoteContactedPorts(Collection<EndPointInfo> ports){
+    public void addRemoteContactedPorts(Collection<EndPointInfo> ports) {
         remoteContactedPorts.addAll(ports);
     }
 
-    public Set<EndPointInfo> getViewOfRemoteContactedPorts(){
+    public Set<EndPointInfo> getViewOfRemoteContactedPorts() {
         return Collections.unmodifiableSet(remoteContactedPorts);
     }
 
-    public void addLocalListeningPorts(Collection<EndPointInfo> ports){
+    public void addLocalListeningPorts(Collection<EndPointInfo> ports) {
         localListeningPorts.addAll(ports);
     }
 
-    public Set<EndPointInfo> getViewOfLocalListeningPorts(){
+    public Set<EndPointInfo> getViewOfLocalListeningPorts() {
         return Collections.unmodifiableSet(localListeningPorts);
     }
 
-    public void addLocalFiles(Collection<String> files){
+    public void addLocalFiles(Collection<String> files) {
         localFiles.addAll(files);
     }
 
-    public Set<String> getViewOfAccessedFiles(){
+    public Set<String> getViewOfAccessedFiles() {
         return Collections.unmodifiableSet(localFiles);
     }
 
-    public void addRemoteURLs(Collection<String> urls){
+    public void addRemoteURLs(Collection<String> urls) {
         remoteURLs.addAll(urls);
     }
 
-    public Set<String> getViewOfRemoteURLs(){
+    public Set<String> getViewOfRemoteURLs() {
         return Collections.unmodifiableSet(remoteURLs);
     }
-    
+
     public boolean isNetworkAccessed() {
-    	return !remoteURLs.isEmpty() || !localListeningPorts.isEmpty() || !remoteContactedPorts.isEmpty();
+        return !remoteURLs.isEmpty() || !localListeningPorts.isEmpty() || !remoteContactedPorts.isEmpty();
     }
-    
+
     public boolean isFileSystemAccessed() {
-    	return !localFiles.isEmpty();
+        return !localFiles.isEmpty();
     }
 }

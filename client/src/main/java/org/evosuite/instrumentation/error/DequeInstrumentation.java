@@ -19,45 +19,41 @@
  */
 package org.evosuite.instrumentation.error;
 
-import java.util.ArrayDeque;
-import java.util.Arrays;
-import java.util.Deque;
-import java.util.List;
-import java.util.Map;
+import org.objectweb.asm.Opcodes;
+
+import java.util.*;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.LinkedBlockingDeque;
 
-import org.objectweb.asm.Opcodes;
-
 public class DequeInstrumentation extends ErrorBranchInstrumenter {
 
-	private final List<String> listNames = Arrays.asList(new String[]{Deque.class.getCanonicalName().replace('.', '/'),
-			LinkedBlockingDeque.class.getCanonicalName().replace('.', '/'),
-			BlockingDeque.class.getCanonicalName().replace('.', '/'),
-			ArrayDeque.class.getCanonicalName().replace('.', '/')});
+    private final List<String> listNames = Arrays.asList(Deque.class.getCanonicalName().replace('.', '/'),
+            LinkedBlockingDeque.class.getCanonicalName().replace('.', '/'),
+            BlockingDeque.class.getCanonicalName().replace('.', '/'),
+            ArrayDeque.class.getCanonicalName().replace('.', '/'));
 
-	private final List<String> emptyListMethods = Arrays.asList(new String[] {"getFirst", "getLast", "removeFirst", "removeLast", "pop"});
+    private final List<String> emptyListMethods = Arrays.asList("getFirst", "getLast", "removeFirst", "removeLast", "pop");
 
-	public DequeInstrumentation(ErrorConditionMethodAdapter mv) {
-		super(mv);
-	}
+    public DequeInstrumentation(ErrorConditionMethodAdapter mv) {
+        super(mv);
+    }
 
-	@Override
-	public void visitMethodInsn(int opcode, String owner, String name,
-			String desc, boolean itf) {
-		if(listNames.contains(owner)) {
-			if(emptyListMethods.contains(name)) {
-				// empty
-				Map<Integer, Integer> tempVariables = getMethodCallee(desc);
+    @Override
+    public void visitMethodInsn(int opcode, String owner, String name,
+                                String desc, boolean itf) {
+        if (listNames.contains(owner)) {
+            if (emptyListMethods.contains(name)) {
+                // empty
+                Map<Integer, Integer> tempVariables = getMethodCallee(desc);
 
-				tagBranchStart();
-				mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, owner,
-	                      "isEmpty", "()Z", false);
-				insertBranch(Opcodes.IFLE, "java/util/NoSuchElementException");
-				tagBranchEnd();
-				restoreMethodParameters(tempVariables, desc);
-				
-			} 
-		}
-	}
+                tagBranchStart();
+                mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, owner,
+                        "isEmpty", "()Z", false);
+                insertBranch(Opcodes.IFLE, "java/util/NoSuchElementException");
+                tagBranchEnd();
+                restoreMethodParameters(tempVariables, desc);
+
+            }
+        }
+    }
 }

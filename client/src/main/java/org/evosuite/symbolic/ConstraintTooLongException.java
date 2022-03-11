@@ -24,14 +24,15 @@ import org.evosuite.dse.StopVMException;
 public class ConstraintTooLongException extends StopVMException {
 
 
-	private static final long serialVersionUID = 4788691891779076515L;
+    private static final long serialVersionUID = 4788691891779076515L;
 
-	private final int constraint_size;
-	public ConstraintTooLongException(int constraint_size) {
-		this.constraint_size = constraint_size;
-	}
+    private final int constraint_size;
 
-	public int getConstraintSize() {
-		return this.constraint_size;
-	}
+    public ConstraintTooLongException(int constraint_size) {
+        this.constraint_size = constraint_size;
+    }
+
+    public int getConstraintSize() {
+        return this.constraint_size;
+    }
 }

@@ -44,7 +44,7 @@ public class DSEAlgorithmDFSSystemTest extends DSESystemTestBase {
     }
 
     @Test
-	public void testMazeClientInputWithDFSAlgorithm() {
-		testDSEExecution(26, 0, MazeClientArrays.class);
-	}
+    public void testMazeClientInputWithDFSAlgorithm() {
+        testDSEExecution(26, 0, MazeClientArrays.class);
+    }
 }

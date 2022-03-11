@@ -28,91 +28,109 @@ import org.slf4j.LoggerFactory;
 /**
  * Stop search when a maximum (average) length has been reached. Used for
  * experiments on length bloat.
- * 
+ *
  * @author Gordon Fraser
  */
 public class MaxLengthStoppingCondition<T extends Chromosome<T>> extends StoppingConditionImpl<T> {
 
-	private static final Logger logger = LoggerFactory.getLogger(MaxLengthStoppingCondition.class);
+    private static final Logger logger = LoggerFactory.getLogger(MaxLengthStoppingCondition.class);
 
-	private static final long serialVersionUID = 8537667219135128366L;
+    private static final long serialVersionUID = 8537667219135128366L;
 
-	private double averageLength;
-	private int maxLength;
+    private double averageLength;
+    private int maxLength;
 
-	public MaxLengthStoppingCondition() {
-		averageLength = 0.0;
-		maxLength = Properties.MAX_LENGTH;
-	}
+    public MaxLengthStoppingCondition() {
+        averageLength = 0.0;
+        maxLength = Properties.MAX_LENGTH;
+    }
 
-	public MaxLengthStoppingCondition(MaxLengthStoppingCondition<?> that) {
-		this.averageLength = that.averageLength;
-		this.maxLength = that.maxLength;
-	}
+    public MaxLengthStoppingCondition(MaxLengthStoppingCondition<?> that) {
+        this.averageLength = that.averageLength;
+        this.maxLength = that.maxLength;
+    }
 
-	@Override
-	public MaxLengthStoppingCondition<T> clone() {
-		return new MaxLengthStoppingCondition<>(this);
-	}
+    @Override
+    public MaxLengthStoppingCondition<T> clone() {
+        return new MaxLengthStoppingCondition<>(this);
+    }
 
-	/* (non-Javadoc)
-	 * @see org.ga.StoppingCondition#isFinished()
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public boolean isFinished() {
-		if (averageLength >= maxLength)
-			logger.info("Maximum average length reached, stopping");
-		return averageLength >= maxLength;
-	}
+    /* (non-Javadoc)
+     * @see org.ga.StoppingCondition#isFinished()
+     */
 
-	/* (non-Javadoc)
-	 * @see org.ga.StoppingCondition#reset()
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public void reset() {
-		averageLength = 0.0;
-		maxLength = Properties.MAX_LENGTH;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isFinished() {
+        if (averageLength >= maxLength)
+            logger.info("Maximum average length reached, stopping");
+        return averageLength >= maxLength;
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public void iteration(GeneticAlgorithm<T> algorithm) {
-		averageLength = algorithm.getPopulation().stream()
-				.mapToInt(Chromosome::size)
-				.average()
-		 		.orElse(Double.NaN);
-	}
+    /* (non-Javadoc)
+     * @see org.ga.StoppingCondition#reset()
+     */
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.ga.StoppingCondition#getCurrentValue()
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public long getCurrentValue() {
-		return (long) averageLength;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void reset() {
+        averageLength = 0.0;
+        maxLength = Properties.MAX_LENGTH;
+    }
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.ga.StoppingCondition#setLimit(int)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public void setLimit(long limit) {
-		maxLength = (int) limit;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void iteration(GeneticAlgorithm<T> algorithm) {
+        averageLength = algorithm.getPopulation().stream()
+                .mapToInt(Chromosome::size)
+                .average()
+                .orElse(Double.NaN);
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public long getLimit() {
-		return (long) (maxLength + 0.5);
-	}
+    /* (non-Javadoc)
+     * @see org.evosuite.ga.StoppingCondition#getCurrentValue()
+     */
 
-	/** {@inheritDoc} */
-	@Override
-	public void forceCurrentValue(long value) {
-		// TODO Auto-generated method stub
-		// TODO ?
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getCurrentValue() {
+        return (long) averageLength;
+    }
+
+    /* (non-Javadoc)
+     * @see org.evosuite.ga.StoppingCondition#setLimit(int)
+     */
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setLimit(long limit) {
+        maxLength = (int) limit;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getLimit() {
+        return (long) (maxLength + 0.5);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void forceCurrentValue(long value) {
+        // TODO Auto-generated method stub
+        // TODO ?
+    }
 }

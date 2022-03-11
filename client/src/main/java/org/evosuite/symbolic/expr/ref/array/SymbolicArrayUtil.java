@@ -26,35 +26,35 @@ package org.evosuite.symbolic.expr.ref.array;
  */
 public class SymbolicArrayUtil {
 
-  public static final String ARRAY_NAME_CANNOT_BE_NULL                   = "Array name cannot be null.";
-  public static final String ARRAY_NAME_CANNOT_BE_EMPTY                  = "Array name cannot be empty.";;
-  public static final String ARRAY_INDEX_CANNOT_BE_LOWER_THAN_0          = "Array index cannot be lower than 0.";
-  public static final String ARRAY_VARIABLE_NAME_CONTENT_LITERAL         = "content";
-  public static final String ARRAY_CONTENT_VARIABLE_NAME_SEPARATOR       = "_";
-  public static final String ARRAY_CONTENT_VARIABLE_NAME_SEPARATOR_REGEX = "\\_";
+    public static final String ARRAY_NAME_CANNOT_BE_NULL = "Array name cannot be null.";
+    public static final String ARRAY_NAME_CANNOT_BE_EMPTY = "Array name cannot be empty.";
+    public static final String ARRAY_INDEX_CANNOT_BE_LOWER_THAN_0 = "Array index cannot be lower than 0.";
+    public static final String ARRAY_VARIABLE_NAME_CONTENT_LITERAL = "content";
+    public static final String ARRAY_CONTENT_VARIABLE_NAME_SEPARATOR = "_";
+    public static final String ARRAY_CONTENT_VARIABLE_NAME_SEPARATOR_REGEX = "\\_";
 
-  public static String buildArrayContentVariableName(String arrayVariableName, int index) {
-    if (arrayVariableName == null) throw new IllegalArgumentException(ARRAY_NAME_CANNOT_BE_NULL);
-    if (arrayVariableName.length() == 0) throw new IllegalArgumentException(ARRAY_NAME_CANNOT_BE_EMPTY);
-    if (index < 0) throw new IllegalArgumentException(ARRAY_INDEX_CANNOT_BE_LOWER_THAN_0);
+    public static String buildArrayContentVariableName(String arrayVariableName, int index) {
+        if (arrayVariableName == null) throw new IllegalArgumentException(ARRAY_NAME_CANNOT_BE_NULL);
+        if (arrayVariableName.length() == 0) throw new IllegalArgumentException(ARRAY_NAME_CANNOT_BE_EMPTY);
+        if (index < 0) throw new IllegalArgumentException(ARRAY_INDEX_CANNOT_BE_LOWER_THAN_0);
 
-    return new StringBuilder()
-      .append(arrayVariableName)
-      .append(ARRAY_CONTENT_VARIABLE_NAME_SEPARATOR)
-      .append(ARRAY_VARIABLE_NAME_CONTENT_LITERAL)
-      .append(ARRAY_CONTENT_VARIABLE_NAME_SEPARATOR)
-      .append(index)
-      .toString();
-  }
+        return new StringBuilder()
+                .append(arrayVariableName)
+                .append(ARRAY_CONTENT_VARIABLE_NAME_SEPARATOR)
+                .append(ARRAY_VARIABLE_NAME_CONTENT_LITERAL)
+                .append(ARRAY_CONTENT_VARIABLE_NAME_SEPARATOR)
+                .append(index)
+                .toString();
+    }
 
-  public static boolean isArrayContentVariableName(String name) {
-    if (name == null) throw new IllegalArgumentException(ARRAY_NAME_CANNOT_BE_NULL);
+    public static boolean isArrayContentVariableName(String name) {
+        if (name == null) throw new IllegalArgumentException(ARRAY_NAME_CANNOT_BE_NULL);
 
-    String[] nameElements = name.split(ARRAY_CONTENT_VARIABLE_NAME_SEPARATOR_REGEX);
+        String[] nameElements = name.split(ARRAY_CONTENT_VARIABLE_NAME_SEPARATOR_REGEX);
 
-    return nameElements.length == 3
-      && nameElements[0].length() > 0
-      && ARRAY_VARIABLE_NAME_CONTENT_LITERAL.equals(nameElements[1]);
-  }
+        return nameElements.length == 3
+                && nameElements[0].length() > 0
+                && ARRAY_VARIABLE_NAME_CONTENT_LITERAL.equals(nameElements[1]);
+    }
 
 }

@@ -24,9 +24,9 @@ import org.evosuite.symbolic.solver.TestSolverStringFunctions;
 
 public class TestCVC4StringFunctions extends TestSolverStringFunctions {
 
-	@Override
-	public Solver getSolver() {
-		return new CVC4Solver();
-	}
+    @Override
+    public Solver getSolver() {
+        return new CVC4Solver();
+    }
 
 }

@@ -19,11 +19,11 @@
  */
 package org.evosuite.ga.operators.selection;
 
-import java.util.List;
-
 import org.evosuite.Properties;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.utils.Randomness;
+
+import java.util.List;
 
 
 /**
@@ -33,44 +33,44 @@ import org.evosuite.utils.Randomness;
  */
 public class TournamentSelection<T extends Chromosome<T>> extends SelectionFunction<T> {
 
-	private static final long serialVersionUID = -7465418404056357932L;
+    private static final long serialVersionUID = -7465418404056357932L;
 
-	public TournamentSelection() {
-	}
+    public TournamentSelection() {
+    }
 
-	public TournamentSelection(TournamentSelection<?> other) {
-		// empty copy constructor
-	}
+    public TournamentSelection(TournamentSelection<?> other) {
+        // empty copy constructor
+    }
 
-	/**
-	 * {@inheritDoc}
-	 *
-	 * Perform the tournament on the population, return one index
-	 */
-	@Override
-	public int getIndex(List<T> population) {
-		int new_num = Randomness.nextInt(population.size());
-		int winner = new_num;
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Perform the tournament on the population, return one index
+     */
+    @Override
+    public int getIndex(List<T> population) {
+        int new_num = Randomness.nextInt(population.size());
+        int winner = new_num;
 
-		int round = 0;
+        int round = 0;
 
-		while (round < Properties.TOURNAMENT_SIZE - 1) {
-			new_num = Randomness.nextInt(population.size());
-			T selected = population.get(new_num);
+        while (round < Properties.TOURNAMENT_SIZE - 1) {
+            new_num = Randomness.nextInt(population.size());
+            T selected = population.get(new_num);
 
-			if (maximize) {
-				if (selected.getFitness() > population.get(winner).getFitness()) {
-					winner = new_num;
-				}
-			} else {
-				if (selected.getFitness() < population.get(winner).getFitness()) {
-					winner = new_num;
-				}
-			}
-			round++;
-		}
+            if (maximize) {
+                if (selected.getFitness() > population.get(winner).getFitness()) {
+                    winner = new_num;
+                }
+            } else {
+                if (selected.getFitness() < population.get(winner).getFitness()) {
+                    winner = new_num;
+                }
+            }
+            round++;
+        }
 
-		return winner;
-	}
+        return winner;
+    }
 
 }

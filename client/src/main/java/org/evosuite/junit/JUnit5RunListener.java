@@ -1,19 +1,19 @@
 /**
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * <p>
  * This file is part of EvoSuite.
- *
+ * <p>
  * EvoSuite is free software: you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
  * by the Free Software Foundation, either version 3.0 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * EvoSuite is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -30,11 +30,9 @@ import org.junit.platform.launcher.TestPlan;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
-
 public class JUnit5RunListener implements TestExecutionListener {
     private static final Logger logger = LoggerFactory.getLogger(JUnit5RunListener.class);
-    private JUnitRunner jUnitRunner;
+    private final JUnitRunner jUnitRunner;
 
 
     private JUnitResult testResult = null;
@@ -78,7 +76,7 @@ public class JUnit5RunListener implements TestExecutionListener {
     @Override
     public void executionFinished(TestIdentifier testIdentifier, TestExecutionResult testExecutionResult) {
         LoggingUtils.getEvoLogger().info("* Finished: " + "ClassName: " + testIdentifier.getDisplayName());
-        if(testExecutionResult.getStatus() == TestExecutionResult.Status.SUCCESSFUL) {
+        if (testExecutionResult.getStatus() == TestExecutionResult.Status.SUCCESSFUL) {
 
             this.testResult.setRuntime(System.nanoTime() - this.start);
             this.testResult.setExecutionTrace(ExecutionTracer.getExecutionTracer().getTrace());
@@ -86,7 +84,7 @@ public class JUnit5RunListener implements TestExecutionListener {
             ExecutionTracer.getExecutionTracer().clear();
 
             this.jUnitRunner.addResult(this.testResult);
-        } else if(testExecutionResult.getStatus() == TestExecutionResult.Status.FAILED) {
+        } else if (testExecutionResult.getStatus() == TestExecutionResult.Status.FAILED) {
 
             Throwable throwable = testExecutionResult.getThrowable().get();
             for (StackTraceElement s : throwable.getStackTrace()) {

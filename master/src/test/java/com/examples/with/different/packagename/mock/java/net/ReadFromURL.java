@@ -35,7 +35,7 @@ public class ReadFromURL {
         } catch (Exception e) {
             check = false;
         }
-        if(check) {
+        if (check) {
             return true;
         } else {
             return false;

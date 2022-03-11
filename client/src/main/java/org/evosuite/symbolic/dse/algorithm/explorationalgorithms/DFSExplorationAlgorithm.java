@@ -22,8 +22,8 @@ package org.evosuite.symbolic.dse.algorithm.explorationalgorithms;
 import org.evosuite.symbolic.dse.DSEStatistics;
 import org.evosuite.symbolic.dse.DSETestCase;
 import org.evosuite.symbolic.dse.algorithm.ExplorationAlgorithm;
-import org.evosuite.symbolic.dse.algorithm.strategies.implementations.KeepSearchingCriteriaStrategies.TestCasesPendingStrategy;
 import org.evosuite.symbolic.dse.algorithm.strategies.implementations.CachingStrategies.CounterExampleCache;
+import org.evosuite.symbolic.dse.algorithm.strategies.implementations.KeepSearchingCriteriaStrategies.TestCasesPendingStrategy;
 import org.evosuite.symbolic.dse.algorithm.strategies.implementations.PathExtensionStrategies.RevertedExpandExecutionStrategy;
 import org.evosuite.symbolic.dse.algorithm.strategies.implementations.TestCaseBuildingStrategies.DefaultTestCaseBuildingStrategy;
 import org.evosuite.symbolic.dse.algorithm.strategies.implementations.TestCaseSelectionStrategies.TopTestCaseSelectionStrategy;
@@ -35,11 +35,11 @@ import java.util.Queue;
 /**
  * Classic DFS exploration algorithm.
  * See Baldoni et.al., A Survey of Symbolic Execution Techniques for more info.
- *
+ * <p>
  * We model it as a decremental score on each tests that is created so we maintain it's order in the
  * {@link java.util.PriorityQueue} in {@link org.evosuite.symbolic.dse.algorithm.ExplorationAlgorithm}. This strongly
  * depends on the order that {@link org.evosuite.symbolic.dse.algorithm.strategies.implementations.PathExtensionStrategies.DFSStrategy} creates them.
- *
+ * <p>
  * In case a path condition diverges, it's score is automatically 0 so it's explored at the end of the process.
  *
  * @author Ignacio Lebrero

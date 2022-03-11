@@ -24,12 +24,12 @@ package com.examples.with.different.packagename.fm;
  */
 public class SimpleFM_Generics {
 
-    public interface Foo<T>{
+    public interface Foo<T> {
         T getValue();
     }
 
-    public void bar(Foo<String> bar){
-        if(bar.getValue().contains("Bar")){
+    public void bar(Foo<String> bar) {
+        if (bar.getValue().contains("Bar")) {
             System.out.println(bar.getValue());
         }
     }

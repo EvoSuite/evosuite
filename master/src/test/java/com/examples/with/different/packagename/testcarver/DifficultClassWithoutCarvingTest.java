@@ -25,21 +25,21 @@ import org.junit.Test;
 
 public class DifficultClassWithoutCarvingTest {
 
-	@Test
-	public void test() {
-		DifficultDependencyClass dependency = new DifficultDependencyClass();
-		dependency.inc();
-		dependency.inc();
-		dependency.inc();
-		dependency.inc();
-		dependency.inc();
-		dependency.inc();
-		dependency.inc();
-		dependency.inc();
-		dependency.inc();
-		dependency.inc();
-		DifficultClassWithoutCarving foo = new DifficultClassWithoutCarving();
-		boolean result = foo.testMe(dependency);
-		assertTrue(result);
-	}
+    @Test
+    public void test() {
+        DifficultDependencyClass dependency = new DifficultDependencyClass();
+        dependency.inc();
+        dependency.inc();
+        dependency.inc();
+        dependency.inc();
+        dependency.inc();
+        dependency.inc();
+        dependency.inc();
+        dependency.inc();
+        dependency.inc();
+        dependency.inc();
+        DifficultClassWithoutCarving foo = new DifficultClassWithoutCarving();
+        boolean result = foo.testMe(dependency);
+        assertTrue(result);
+    }
 }

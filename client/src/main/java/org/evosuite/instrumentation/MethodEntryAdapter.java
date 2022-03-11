@@ -34,77 +34,84 @@ import org.slf4j.LoggerFactory;
  */
 public class MethodEntryAdapter extends AdviceAdapter {
 
-	@SuppressWarnings("unused")
-	private static final Logger logger = LoggerFactory.getLogger(MethodEntryAdapter.class);
+    @SuppressWarnings("unused")
+    private static final Logger logger = LoggerFactory.getLogger(MethodEntryAdapter.class);
 
-	String className;
-	String methodName;
-	String fullMethodName;
-	int access;
+    String className;
+    String methodName;
+    String fullMethodName;
+    int access;
 
-	/**
-	 * <p>Constructor for MethodEntryAdapter.</p>
-	 *
-	 * @param mv a {@link org.objectweb.asm.MethodVisitor} object.
-	 * @param access a int.
-	 * @param className a {@link java.lang.String} object.
-	 * @param methodName a {@link java.lang.String} object.
-	 * @param desc a {@link java.lang.String} object.
-	 */
-	public MethodEntryAdapter(MethodVisitor mv, int access, String className,
-	        String methodName, String desc) {
-		super(Opcodes.ASM9, mv, access, methodName, desc);
-		this.className = className;
-		this.methodName = methodName;
-		this.fullMethodName = methodName + desc;
-		this.access = access;
-	}
+    /**
+     * <p>Constructor for MethodEntryAdapter.</p>
+     *
+     * @param mv         a {@link org.objectweb.asm.MethodVisitor} object.
+     * @param access     a int.
+     * @param className  a {@link java.lang.String} object.
+     * @param methodName a {@link java.lang.String} object.
+     * @param desc       a {@link java.lang.String} object.
+     */
+    public MethodEntryAdapter(MethodVisitor mv, int access, String className,
+                              String methodName, String desc) {
+        super(Opcodes.ASM9, mv, access, methodName, desc);
+        this.className = className;
+        this.methodName = methodName;
+        this.fullMethodName = methodName + desc;
+        this.access = access;
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public void onMethodEnter() {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void onMethodEnter() {
 
-		if (methodName.equals("<clinit>"))
-			return; // FIXXME: Should we call super.onMethodEnter() here?
+        if (methodName.equals("<clinit>"))
+            return; // FIXXME: Should we call super.onMethodEnter() here?
 
-		mv.visitLdcInsn(className);
-		mv.visitLdcInsn(fullMethodName);
-		if ((access & Opcodes.ACC_STATIC) > 0) {
-			mv.visitInsn(Opcodes.ACONST_NULL);
-		} else {
-			mv.visitVarInsn(Opcodes.ALOAD, 0);
-		}
-		mv.visitMethodInsn(Opcodes.INVOKESTATIC,
-				PackageInfo.getNameWithSlash(ExecutionTracer.class),
-		                   "enteredMethod",
-		                   "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Object;)V", false);
+        mv.visitLdcInsn(className);
+        mv.visitLdcInsn(fullMethodName);
+        if ((access & Opcodes.ACC_STATIC) > 0) {
+            mv.visitInsn(Opcodes.ACONST_NULL);
+        } else {
+            mv.visitVarInsn(Opcodes.ALOAD, 0);
+        }
+        mv.visitMethodInsn(Opcodes.INVOKESTATIC,
+                PackageInfo.getNameWithSlash(ExecutionTracer.class),
+                "enteredMethod",
+                "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Object;)V", false);
 
-		super.onMethodEnter();
-	}
+        super.onMethodEnter();
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public void onMethodExit(int opcode) {
-		// TODO: Check for <clinit>
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void onMethodExit(int opcode) {
+        // TODO: Check for <clinit>
 
-		if (opcode != Opcodes.ATHROW) {
+        if (opcode != Opcodes.ATHROW) {
 
-			mv.visitLdcInsn(className);
-			mv.visitLdcInsn(fullMethodName);
-			mv.visitMethodInsn(Opcodes.INVOKESTATIC,
-					PackageInfo.getNameWithSlash(org.evosuite.testcase.execution.ExecutionTracer.class),
-			                   "leftMethod", "(Ljava/lang/String;Ljava/lang/String;)V", false);
-		}
-		super.onMethodExit(opcode);
-	}
+            mv.visitLdcInsn(className);
+            mv.visitLdcInsn(fullMethodName);
+            mv.visitMethodInsn(Opcodes.INVOKESTATIC,
+                    PackageInfo.getNameWithSlash(org.evosuite.testcase.execution.ExecutionTracer.class),
+                    "leftMethod", "(Ljava/lang/String;Ljava/lang/String;)V", false);
+        }
+        super.onMethodExit(opcode);
+    }
 
-	/* (non-Javadoc)
-	 * @see org.objectweb.asm.commons.LocalVariablesSorter#visitMaxs(int, int)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public void visitMaxs(int maxStack, int maxLocals) {
-		int maxNum = 3;
-		super.visitMaxs(Math.max(maxNum, maxStack), maxLocals);
-	}
+    /* (non-Javadoc)
+     * @see org.objectweb.asm.commons.LocalVariablesSorter#visitMaxs(int, int)
+     */
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void visitMaxs(int maxStack, int maxLocals) {
+        int maxNum = 3;
+        super.visitMaxs(Math.max(maxNum, maxStack), maxLocals);
+    }
 }

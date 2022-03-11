@@ -19,10 +19,6 @@
  */
 package org.evosuite.junit;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
-
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.internal.Throwables;
 import org.junit.platform.engine.TestExecutionResult;
@@ -32,83 +28,85 @@ import org.junit.runner.notification.Failure;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 /**
- * Creates a JUnitResult instance from 
+ * Creates a JUnitResult instance from
  * a org.junit.runner.Result object.
- * 
- * @author galeotti
  *
+ * @author galeotti
  */
 public class JUnitResultBuilder {
 
-	private static final Logger logger = LoggerFactory.getLogger(JUnitResultBuilder.class);
+    private static final Logger logger = LoggerFactory.getLogger(JUnitResultBuilder.class);
 
-	/**
-	 * Translates <i>part</i> of the org.junit.runner.Result object
-	 * into an evosuite independent object.
-	 * 
-	 * @param result
-	 * @return
-	 */
-	public JUnitResult build(Result result) {
-		boolean wasSuccessful = result.wasSuccessful();
-		int failureCount = result.getFailureCount();
-		int runCount = result.getRunCount();
+    /**
+     * Translates <i>part</i> of the org.junit.runner.Result object
+     * into an evosuite independent object.
+     *
+     * @param result
+     * @return
+     */
+    public JUnitResult build(Result result) {
+        boolean wasSuccessful = result.wasSuccessful();
+        int failureCount = result.getFailureCount();
+        int runCount = result.getRunCount();
 
-		JUnitResult junitResult = new JUnitResult(wasSuccessful, failureCount,
-				runCount);
-		
-		List<Failure> failures = result.getFailures();
+        JUnitResult junitResult = new JUnitResult(wasSuccessful, failureCount,
+                runCount);
 
-		for (Failure failure : failures) {
-			String descriptionMethodName = failure.getDescription()
-					.getMethodName();
-			String exceptionClassName = failure.getException().getClass()
-					.toString();
-			String message = failure.getMessage();
-			String trace = failure.getTrace();
-			boolean isAssertionError = (failure.getException() instanceof java.lang.AssertionError);
+        List<Failure> failures = result.getFailures();
 
-			JUnitFailure junitFailure = new JUnitFailure(message,
-					exceptionClassName, descriptionMethodName,
-					isAssertionError, trace);
+        for (Failure failure : failures) {
+            String descriptionMethodName = failure.getDescription()
+                    .getMethodName();
+            String exceptionClassName = failure.getException().getClass()
+                    .toString();
+            String message = failure.getMessage();
+            String trace = failure.getTrace();
+            boolean isAssertionError = (failure.getException() instanceof java.lang.AssertionError);
 
-			for (StackTraceElement elem : failure.getException()
-					.getStackTrace()) {
-				String elemToString = elem.toString();
-				junitFailure.addToExceptionStackTrace(elemToString);
-			}
-			junitResult.addFailure(junitFailure);
-		}
-		return junitResult;
-	}
+            JUnitFailure junitFailure = new JUnitFailure(message,
+                    exceptionClassName, descriptionMethodName,
+                    isAssertionError, trace);
 
-	public JUnitResult build(List<Pair<TestIdentifier, TestExecutionResult>> results){
-		boolean wasSuccessful = results.stream().map(Pair::getRight).noneMatch(r -> r.getStatus() != TestExecutionResult.Status.SUCCESSFUL);
-		int failureCount = (int) results.stream().map(Pair::getRight).filter(r -> r.getStatus() != TestExecutionResult.Status.SUCCESSFUL).count();
-		int runCount = results.size();
+            for (StackTraceElement elem : failure.getException()
+                    .getStackTrace()) {
+                String elemToString = elem.toString();
+                junitFailure.addToExceptionStackTrace(elemToString);
+            }
+            junitResult.addFailure(junitFailure);
+        }
+        return junitResult;
+    }
 
-		JUnitResult jUnitResult = new JUnitResult(wasSuccessful, failureCount, runCount);
+    public JUnitResult build(List<Pair<TestIdentifier, TestExecutionResult>> results) {
+        boolean wasSuccessful = results.stream().map(Pair::getRight).noneMatch(r -> r.getStatus() != TestExecutionResult.Status.SUCCESSFUL);
+        int failureCount = (int) results.stream().map(Pair::getRight).filter(r -> r.getStatus() != TestExecutionResult.Status.SUCCESSFUL).count();
+        int runCount = results.size();
 
-		List<Pair<TestIdentifier, TestExecutionResult>> failures =
-				results.stream().filter(r -> r.getRight().getStatus() == TestExecutionResult.Status.FAILED).collect(Collectors.toList());
-		failures.stream().map(f -> toFailure(f.getLeft(), f.getRight())).forEach(jUnitResult::addFailure);
-		return jUnitResult;
-	}
+        JUnitResult jUnitResult = new JUnitResult(wasSuccessful, failureCount, runCount);
 
-	private static JUnitFailure toFailure(TestIdentifier identifier, TestExecutionResult failure){
-		String descriptionMethodName = identifier.getDisplayName();
-		Throwable throwable = failure.getThrowable().get();
-		String exceptionClassName = throwable.getClass().getName();
-		String message = throwable.getMessage();
-		String trace = Throwables.getStacktrace(throwable);
-		boolean isAssertionError = (throwable instanceof java.lang.AssertionError);
+        List<Pair<TestIdentifier, TestExecutionResult>> failures =
+                results.stream().filter(r -> r.getRight().getStatus() == TestExecutionResult.Status.FAILED).collect(Collectors.toList());
+        failures.stream().map(f -> toFailure(f.getLeft(), f.getRight())).forEach(jUnitResult::addFailure);
+        return jUnitResult;
+    }
 
-		JUnitFailure jUnitFailure = new JUnitFailure(message, exceptionClassName, descriptionMethodName, isAssertionError, trace);
-		for (StackTraceElement elem : throwable.getStackTrace()){
-			String elemToString = elem.toString();
-			jUnitFailure.addToExceptionStackTrace(elemToString);
-		}
-		return jUnitFailure;
-	}
+    private static JUnitFailure toFailure(TestIdentifier identifier, TestExecutionResult failure) {
+        String descriptionMethodName = identifier.getDisplayName();
+        Throwable throwable = failure.getThrowable().get();
+        String exceptionClassName = throwable.getClass().getName();
+        String message = throwable.getMessage();
+        String trace = Throwables.getStacktrace(throwable);
+        boolean isAssertionError = (throwable instanceof java.lang.AssertionError);
+
+        JUnitFailure jUnitFailure = new JUnitFailure(message, exceptionClassName, descriptionMethodName, isAssertionError, trace);
+        for (StackTraceElement elem : throwable.getStackTrace()) {
+            String elemToString = elem.toString();
+            jUnitFailure.addToExceptionStackTrace(elemToString);
+        }
+        return jUnitFailure;
+    }
 }

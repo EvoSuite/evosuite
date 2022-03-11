@@ -102,9 +102,11 @@ package com.examples.with.different.packagename;
  * The symbol {@code *} is used to indicate any input including {@code null}.</p>
  *
  * <p>#ThreadSafe#</p>
+ *
  * @see java.lang.String
  * @since 1.0
  */
+
 /**
  * Snippet from Lang project
  * (org.apache.commons.lang3.StringUtils)
@@ -161,7 +163,7 @@ public class StringUtils {
      * @return whether the region matched
      */
     private static boolean regionMatches(final CharSequence cs, final boolean ignoreCase, final int thisStart,
-            final CharSequence substring, final int start, final int length)    {
+                                         final CharSequence substring, final int start, final int length) {
         return ((String) cs).regionMatches(ignoreCase, thisStart, (String) substring, start, length);
     }
 }

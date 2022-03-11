@@ -36,9 +36,9 @@ public class LiteralClassType extends ReferenceTypeExpression {
     }
 
     @Override
-	public Set<Variable<?>> getVariables() {
-		return Collections.emptySet();
-	}
+    public Set<Variable<?>> getVariables() {
+        return Collections.emptySet();
+    }
 
     @Override
     public <K, V> K accept(ExpressionVisitor<K, V> v, V arg) {

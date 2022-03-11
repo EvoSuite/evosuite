@@ -26,35 +26,35 @@ import org.evosuite.utils.Randomness;
 
 /**
  * @see org.evosuite.runtime.testdata.EnvironmentDataList
- *
+ * <p>
  * Created by arcuri on 12/11/14.
  */
 public class EnvironmentStatements {
 
-    public static boolean isEnvironmentData(Class<?> clazz){
-        for(Class<?> env : EnvironmentDataList.getListOfClasses()){
-            if(clazz.equals(env)){
+    public static boolean isEnvironmentData(Class<?> clazz) {
+        for (Class<?> env : EnvironmentDataList.getListOfClasses()) {
+            if (clazz.equals(env)) {
                 return true;
             }
         }
         return false;
     }
 
-    public static PrimitiveStatement<?> getStatement(Class<?> clazz, TestCase tc) throws IllegalArgumentException{
-        if(!isEnvironmentData(clazz)){
-            throw new IllegalArgumentException("Class "+clazz.getName()+" is not an environment data type");
+    public static PrimitiveStatement<?> getStatement(Class<?> clazz, TestCase tc) throws IllegalArgumentException {
+        if (!isEnvironmentData(clazz)) {
+            throw new IllegalArgumentException("Class " + clazz.getName() + " is not an environment data type");
         }
 
-        if(clazz.equals(EvoSuiteFile.class)){
+        if (clazz.equals(EvoSuiteFile.class)) {
             return new FileNamePrimitiveStatement(tc, new EvoSuiteFile(Randomness.choice(tc.getAccessedEnvironment().getViewOfAccessedFiles())));
-        } else if(clazz.equals(EvoSuiteLocalAddress.class)){
+        } else if (clazz.equals(EvoSuiteLocalAddress.class)) {
             return new LocalAddressPrimitiveStatement(tc);
-        } else if(clazz.equals(EvoSuiteRemoteAddress.class)){
+        } else if (clazz.equals(EvoSuiteRemoteAddress.class)) {
             return new RemoteAddressPrimitiveStatement(tc);
-        } else if(clazz.equals(EvoSuiteURL.class)){
+        } else if (clazz.equals(EvoSuiteURL.class)) {
             return new UrlPrimitiveStatement(tc);
         }
 
-        throw new RuntimeException("EvoSuite bug: unhandled class "+clazz.getName());
+        throw new RuntimeException("EvoSuite bug: unhandled class " + clazz.getName());
     }
 }

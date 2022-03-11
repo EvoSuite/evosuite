@@ -19,91 +19,91 @@
  */
 package org.evosuite.rmi.service;
 
-import java.rmi.RemoteException;
-import java.rmi.registry.Registry;
-
 import org.evosuite.ga.Chromosome;
 import org.evosuite.statistics.RuntimeVariable;
+
+import java.rmi.RemoteException;
+import java.rmi.registry.Registry;
 
 public class DummyClientNodeImpl<T extends Chromosome<T>> extends ClientNodeImpl<T> {
 
     private static final long serialVersionUID = -354329589467033654L;
 
-    public DummyClientNodeImpl(){
-		
-	}
-	
-	public DummyClientNodeImpl(Registry registry, String identifier) {
-		super(registry, identifier);
-		// TODO Auto-generated constructor stub
-	}
+    public DummyClientNodeImpl() {
 
-	@Override
-	public boolean init() {
-		// TODO Auto-generated method stub
-		return false;
-	}
+    }
 
-	@Override
-	public void changeState(ClientState state) {
-		// TODO Auto-generated method stub
-		
-	}
+    public DummyClientNodeImpl(Registry registry, String identifier) {
+        super(registry, identifier);
+        // TODO Auto-generated constructor stub
+    }
 
-	@Override
-	public void changeState(ClientState state,
-			ClientStateInformation information) {
-		// TODO Auto-generated method stub
-		
-	}
+    @Override
+    public boolean init() {
+        // TODO Auto-generated method stub
+        return false;
+    }
 
-	@Override
-	public void updateStatistics(T individual) {
-		// TODO Auto-generated method stub
-		
-	}
+    @Override
+    public void changeState(ClientState state) {
+        // TODO Auto-generated method stub
 
-	@Override
-	public void trackOutputVariable(RuntimeVariable name, Object value) {
-		// TODO Auto-generated method stub
-		
-	}
+    }
 
-	@Override
-	public void waitUntilDone() {
-		// TODO Auto-generated method stub
-		
-	}
+    @Override
+    public void changeState(ClientState state,
+                            ClientStateInformation information) {
+        // TODO Auto-generated method stub
 
-	@Override
-	public void startNewSearch() throws RemoteException {
-		// TODO Auto-generated method stub
-		
-	}
+    }
 
-	@Override
-	public void cancelCurrentSearch() throws RemoteException {
-		// TODO Auto-generated method stub
-		
-	}
+    @Override
+    public void updateStatistics(T individual) {
+        // TODO Auto-generated method stub
 
-	@Override
-	public boolean waitUntilFinished(long timeoutInMs) throws RemoteException,
-			InterruptedException {
-		// TODO Auto-generated method stub
-		return false;
-	}
+    }
 
-	@Override
-	public void doCoverageAnalysis() throws RemoteException {
-		// TODO Auto-generated method stub
-		
-	}
+    @Override
+    public void trackOutputVariable(RuntimeVariable name, Object value) {
+        // TODO Auto-generated method stub
 
-	@Override
-	public String getClientRmiIdentifier() {
-		return "dummy";
-	}
+    }
+
+    @Override
+    public void waitUntilDone() {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void startNewSearch() throws RemoteException {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void cancelCurrentSearch() throws RemoteException {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public boolean waitUntilFinished(long timeoutInMs) throws RemoteException,
+            InterruptedException {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    public void doCoverageAnalysis() throws RemoteException {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public String getClientRmiIdentifier() {
+        return "dummy";
+    }
 
 
 }

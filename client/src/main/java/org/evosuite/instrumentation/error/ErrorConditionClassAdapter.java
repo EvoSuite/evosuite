@@ -32,46 +32,47 @@ import org.slf4j.LoggerFactory;
  * <p>
  * ErrorConditionClassAdapter class.
  * </p>
- * 
+ *
  * @author fraser
  */
 public class ErrorConditionClassAdapter extends ClassVisitor {
 
-	private final String className;
+    private final String className;
 
-	private static final Logger logger = LoggerFactory.getLogger(ErrorConditionClassAdapter.class);
+    private static final Logger logger = LoggerFactory.getLogger(ErrorConditionClassAdapter.class);
 
-	/**
-	 * <p>
-	 * Constructor for ErrorConditionClassAdapter.
-	 * </p>
-	 * 
-	 * @param cv
-	 *            a {@link org.objectweb.asm.ClassVisitor} object.
-	 * @param className
-	 *            a {@link java.lang.String} object.
-	 */
-	public ErrorConditionClassAdapter(ClassVisitor cv, String className) {
-		super(Opcodes.ASM9, cv);
-		this.className = className;
-	}
+    /**
+     * <p>
+     * Constructor for ErrorConditionClassAdapter.
+     * </p>
+     *
+     * @param cv        a {@link org.objectweb.asm.ClassVisitor} object.
+     * @param className a {@link java.lang.String} object.
+     */
+    public ErrorConditionClassAdapter(ClassVisitor cv, String className) {
+        super(Opcodes.ASM9, cv);
+        this.className = className;
+    }
 
-	/* (non-Javadoc)
-	 * @see org.objectweb.asm.ClassVisitor#visitMethod(int, java.lang.String, java.lang.String, java.lang.String, java.lang.String[])
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public MethodVisitor visitMethod(int access, String name, String desc,
-	        String signature, String[] exceptions) {
-		MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
-		if (name.equals("<clinit>"))
-			return mv;
+    /* (non-Javadoc)
+     * @see org.objectweb.asm.ClassVisitor#visitMethod(int, java.lang.String, java.lang.String, java.lang.String, java.lang.String[])
+     */
 
-		if (!DependencyAnalysis.shouldInstrument(ResourceList.getClassNameFromResourcePath(className), name + desc))
-			return mv;
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public MethodVisitor visitMethod(int access, String name, String desc,
+                                     String signature, String[] exceptions) {
+        MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
+        if (name.equals("<clinit>"))
+            return mv;
 
-		logger.info("Applying error transformation to " + className + ", method " + name
-		        + desc);
-		return new ErrorConditionMethodAdapter(mv, className, name, access, desc);
-	}
+        if (!DependencyAnalysis.shouldInstrument(ResourceList.getClassNameFromResourcePath(className), name + desc))
+            return mv;
+
+        logger.info("Applying error transformation to " + className + ", method " + name
+                + desc);
+        return new ErrorConditionMethodAdapter(mv, className, name, access, desc);
+    }
 }

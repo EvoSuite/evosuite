@@ -30,39 +30,38 @@ import com.examples.with.different.packagename.SingleMethod;
 
 /**
  * @author Andrea Arcuri
- * 
  */
 public class SUTWithSimpleSingleMethodSystemTest extends SystemTestBase {
 
-	/*
-	 * for now ignore it, as long as we don't fix the issue with serialization
-	 */
-	@Ignore
-	@Test
-	public void testSingleMethod(){
-		EvoSuite evosuite = new EvoSuite();
-		int generations = 1;
-		
-		String targetClass = SingleMethod.class.getCanonicalName();
-		
-		String[] command = new String[]{				
-				//EvoSuite.JAVA_CMD,
-				"-generateTests",
-				"-class",
-				targetClass,
-				"-Dplot=false",
-				"-Djunit_tests=false",
-				"-Dshow_progress=false",
-				"-Dgenerations="+generations,
-				"-Dserialize_result=true"
-		};
-		
-		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		Assert.assertEquals("Wrong number of generations: ", 0, ga.getAge());
-		TestSuiteChromosome best = ga.getBestIndividual();
-		Assert.assertEquals("Wrong number of test cases: ",1 , best.size());
-		Assert.assertEquals("Non-optimal coverage: ",1d, best.getCoverage(), 0.001);
-		Assert.assertEquals("Wrong number of statements: ",2,best.getTestChromosome(0).getTestCase().size());
-	}
+    /*
+     * for now ignore it, as long as we don't fix the issue with serialization
+     */
+    @Ignore
+    @Test
+    public void testSingleMethod() {
+        EvoSuite evosuite = new EvoSuite();
+        int generations = 1;
+
+        String targetClass = SingleMethod.class.getCanonicalName();
+
+        String[] command = new String[]{
+                //EvoSuite.JAVA_CMD,
+                "-generateTests",
+                "-class",
+                targetClass,
+                "-Dplot=false",
+                "-Djunit_tests=false",
+                "-Dshow_progress=false",
+                "-Dgenerations=" + generations,
+                "-Dserialize_result=true"
+        };
+
+        Object result = evosuite.parseCommandLine(command);
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        Assert.assertEquals("Wrong number of generations: ", 0, ga.getAge());
+        TestSuiteChromosome best = ga.getBestIndividual();
+        Assert.assertEquals("Wrong number of test cases: ", 1, best.size());
+        Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+        Assert.assertEquals("Wrong number of statements: ", 2, best.getTestChromosome(0).getTestCase().size());
+    }
 }

@@ -26,71 +26,79 @@ package org.evosuite.testcase.variable;
  */
 public class ArraySymbolicLengthName {
 
-  public static final String ARRAY_LENGTH_NAME_SEPARATOR       = "_";
-  public static final String ARRAY_LENGTH_NAME_SEPARATOR_REGEX = "\\_";
-  public static final String ARRAY_LENGTH_SYMBOLIC_NAME_SUFFIX = "length";
-  public static final String ARRAY_LENGTH_SYMBOLIC_NAME_INVALID_FOR_NAME_EXCEPTION = "Array length symbolic name invalid for name: ";
+    public static final String ARRAY_LENGTH_NAME_SEPARATOR = "_";
+    public static final String ARRAY_LENGTH_NAME_SEPARATOR_REGEX = "\\_";
+    public static final String ARRAY_LENGTH_SYMBOLIC_NAME_SUFFIX = "length";
+    public static final String ARRAY_LENGTH_SYMBOLIC_NAME_INVALID_FOR_NAME_EXCEPTION = "Array length symbolic name invalid for name: ";
 
-  public static final int ARRAY_LENGTH_SYMBOLIC_NAME_SECTIONS_AMOUNT         = 3;
-  public static final int ARRAY_LENGTH_SYMBOLIC_NAME_DIMENSION_POSITION      = 2;
-  public static final int ARRAY_LENGTH_SYMBOLIC_NAME_ARRAY_NAME_POSITION     = 0;
-  public static final int ARRAY_LENGTH_SYMBOLIC_NAME_DIMENSION_TAG_POSITION  = 1;
+    public static final int ARRAY_LENGTH_SYMBOLIC_NAME_SECTIONS_AMOUNT = 3;
+    public static final int ARRAY_LENGTH_SYMBOLIC_NAME_DIMENSION_POSITION = 2;
+    public static final int ARRAY_LENGTH_SYMBOLIC_NAME_ARRAY_NAME_POSITION = 0;
+    public static final int ARRAY_LENGTH_SYMBOLIC_NAME_DIMENSION_TAG_POSITION = 1;
 
-  private final int dimension;
+    private final int dimension;
 
-  private final String arrayReferenceName;
-  private final String symbolicName;
+    private final String arrayReferenceName;
+    private final String symbolicName;
 
-  public ArraySymbolicLengthName(String symbolicName) {
-    if (!isArraySymbolicLengthVariableName(symbolicName)) {
-      throw new IllegalArgumentException(ARRAY_LENGTH_SYMBOLIC_NAME_INVALID_FOR_NAME_EXCEPTION + symbolicName);
+    public ArraySymbolicLengthName(String symbolicName) {
+        if (!isArraySymbolicLengthVariableName(symbolicName)) {
+            throw new IllegalArgumentException(ARRAY_LENGTH_SYMBOLIC_NAME_INVALID_FOR_NAME_EXCEPTION + symbolicName);
+        }
+
+        String[] symbolicNameSections = symbolicName.split(ARRAY_LENGTH_NAME_SEPARATOR_REGEX);
+        this.arrayReferenceName = symbolicNameSections[ARRAY_LENGTH_SYMBOLIC_NAME_ARRAY_NAME_POSITION];
+        this.dimension = Integer.parseInt(
+                symbolicNameSections[ARRAY_LENGTH_SYMBOLIC_NAME_DIMENSION_POSITION]
+        );
+        this.symbolicName = symbolicName;
     }
 
-    String[] symbolicNameSections = symbolicName.split(ARRAY_LENGTH_NAME_SEPARATOR_REGEX);
-    this.arrayReferenceName = symbolicNameSections[ARRAY_LENGTH_SYMBOLIC_NAME_ARRAY_NAME_POSITION];
-    this.dimension = Integer.parseInt(
-      symbolicNameSections[ARRAY_LENGTH_SYMBOLIC_NAME_DIMENSION_POSITION]
-    );
-    this.symbolicName = symbolicName;
-  }
+    public ArraySymbolicLengthName(String arrayReferenceName, int dimension) {
+        this.arrayReferenceName = arrayReferenceName;
+        this.dimension = dimension;
+        this.symbolicName = buildSymbolicLengthDimensionName(arrayReferenceName, dimension);
+    }
 
-  public ArraySymbolicLengthName(String arrayReferenceName, int dimension) {
-    this.arrayReferenceName = arrayReferenceName;
-    this.dimension = dimension;
-    this.symbolicName = buildSymbolicLengthDimensionName(arrayReferenceName, dimension);
-  }
+    public int getDimension() {
+        return dimension;
+    }
 
-  public int getDimension()             { return dimension; }
-  public String getSymbolicName()       { return symbolicName; }
-  public String getArrayReferenceName() { return arrayReferenceName; }
+    public String getSymbolicName() {
+        return symbolicName;
+    }
 
-  /**
-   * Builds the name of an array length symbolic variable.
-   *
-   * @param arrayReferenceName
-   * @param dimension
-   * @return
-   */
-  public static String buildSymbolicLengthDimensionName(String arrayReferenceName, int dimension) {
-    return new StringBuilder()
-      .append(arrayReferenceName)
-      .append(ARRAY_LENGTH_NAME_SEPARATOR)
-      .append(ARRAY_LENGTH_SYMBOLIC_NAME_SUFFIX)
-      .append(ARRAY_LENGTH_NAME_SEPARATOR)
-      .append(dimension)
-      .toString();
-  }
+    public String getArrayReferenceName() {
+        return arrayReferenceName;
+    }
 
-  /**
-   * Checks whether a symbolic variable name corresponds to an array's length.
-   *
-   * @param symbolicVariableName
-   * @return
-   */
-  public static boolean isArraySymbolicLengthVariableName(String symbolicVariableName) {
-    String[] nameSections = symbolicVariableName.split(ArraySymbolicLengthName.ARRAY_LENGTH_NAME_SEPARATOR_REGEX);
+    /**
+     * Builds the name of an array length symbolic variable.
+     *
+     * @param arrayReferenceName
+     * @param dimension
+     * @return
+     */
+    public static String buildSymbolicLengthDimensionName(String arrayReferenceName, int dimension) {
+        return new StringBuilder()
+                .append(arrayReferenceName)
+                .append(ARRAY_LENGTH_NAME_SEPARATOR)
+                .append(ARRAY_LENGTH_SYMBOLIC_NAME_SUFFIX)
+                .append(ARRAY_LENGTH_NAME_SEPARATOR)
+                .append(dimension)
+                .toString();
+    }
 
-    return nameSections.length == ARRAY_LENGTH_SYMBOLIC_NAME_SECTIONS_AMOUNT
-      && nameSections[ARRAY_LENGTH_SYMBOLIC_NAME_DIMENSION_TAG_POSITION].equals(ARRAY_LENGTH_SYMBOLIC_NAME_SUFFIX);
-  }
+    /**
+     * Checks whether a symbolic variable name corresponds to an array's length.
+     *
+     * @param symbolicVariableName
+     * @return
+     */
+    public static boolean isArraySymbolicLengthVariableName(String symbolicVariableName) {
+        String[] nameSections = symbolicVariableName.split(ArraySymbolicLengthName.ARRAY_LENGTH_NAME_SEPARATOR_REGEX);
+
+        return nameSections.length == ARRAY_LENGTH_SYMBOLIC_NAME_SECTIONS_AMOUNT
+                && nameSections[ARRAY_LENGTH_SYMBOLIC_NAME_DIMENSION_TAG_POSITION].equals(ARRAY_LENGTH_SYMBOLIC_NAME_SUFFIX);
+    }
 }

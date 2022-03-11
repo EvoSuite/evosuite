@@ -29,57 +29,57 @@ import java.util.Map;
 
 public class LinkedListInstrumentation extends ErrorBranchInstrumenter {
 
-	private static final String LISTNAME = LinkedList.class.getCanonicalName().replace('.', '/');
-	
-	private final List<String> emptyListMethods = Arrays.asList(new String[] {"getFirst", "getLast", "removeFirst", "removeLast", "element", "pop"});
+    private static final String LISTNAME = LinkedList.class.getCanonicalName().replace('.', '/');
 
-	private final List<String> indexListMethods = Arrays.asList(new String[] {"get", "set", "add", "remove", "listIterator", "addAll"});
+    private final List<String> emptyListMethods = Arrays.asList("getFirst", "getLast", "removeFirst", "removeLast", "element", "pop");
 
-	public LinkedListInstrumentation(ErrorConditionMethodAdapter mv) {
-		super(mv);
-	}
+    private final List<String> indexListMethods = Arrays.asList("get", "set", "add", "remove", "listIterator", "addAll");
 
-	@Override
-	public void visitMethodInsn(int opcode, String owner, String name,
-			String desc, boolean itf) {
-		
-		if(owner.equals(LISTNAME)) {
-			if(emptyListMethods.contains(name)) {
-				// empty
-				Map<Integer, Integer> tempVariables = getMethodCallee(desc);
+    public LinkedListInstrumentation(ErrorConditionMethodAdapter mv) {
+        super(mv);
+    }
 
-				//tagBranchStart();
-				mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, LISTNAME,
-	                      "isEmpty", "()Z", false);
-				insertBranch(Opcodes.IFLE, "java/util/NoSuchElementException");
-				//tagBranchEnd();
-				restoreMethodParameters(tempVariables, desc);
-				
-			} else if(indexListMethods.contains(name)) {
-				Type[] args = Type.getArgumentTypes(desc);
-				if(args.length == 0)
-					return;
-				if(!args[0].equals(Type.INT_TYPE))
-					return;
-				
-				Map<Integer, Integer> tempVariables = getMethodCallee(desc);
-				tagBranchStart();
-				mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, LISTNAME,
-	                      "size", "()I", false);
-				
-				// index >= size
-				mv.loadLocal(tempVariables.get(0));
-				insertBranch(Opcodes.IF_ICMPGT, "java/lang/IndexOutOfBoundsException");
-					
-				// index < 0
-				mv.loadLocal(tempVariables.get(0));
-				insertBranch(Opcodes.IFGE, "java/lang/IndexOutOfBoundsException");
-				tagBranchEnd();
+    @Override
+    public void visitMethodInsn(int opcode, String owner, String name,
+                                String desc, boolean itf) {
 
-				restoreMethodParameters(tempVariables, desc);
-			}
-		}
-	}
-	
-	
+        if (owner.equals(LISTNAME)) {
+            if (emptyListMethods.contains(name)) {
+                // empty
+                Map<Integer, Integer> tempVariables = getMethodCallee(desc);
+
+                //tagBranchStart();
+                mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, LISTNAME,
+                        "isEmpty", "()Z", false);
+                insertBranch(Opcodes.IFLE, "java/util/NoSuchElementException");
+                //tagBranchEnd();
+                restoreMethodParameters(tempVariables, desc);
+
+            } else if (indexListMethods.contains(name)) {
+                Type[] args = Type.getArgumentTypes(desc);
+                if (args.length == 0)
+                    return;
+                if (!args[0].equals(Type.INT_TYPE))
+                    return;
+
+                Map<Integer, Integer> tempVariables = getMethodCallee(desc);
+                tagBranchStart();
+                mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, LISTNAME,
+                        "size", "()I", false);
+
+                // index >= size
+                mv.loadLocal(tempVariables.get(0));
+                insertBranch(Opcodes.IF_ICMPGT, "java/lang/IndexOutOfBoundsException");
+
+                // index < 0
+                mv.loadLocal(tempVariables.get(0));
+                insertBranch(Opcodes.IFGE, "java/lang/IndexOutOfBoundsException");
+                tagBranchEnd();
+
+                restoreMethodParameters(tempVariables, desc);
+            }
+        }
+    }
+
+
 }

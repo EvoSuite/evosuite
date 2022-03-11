@@ -31,7 +31,7 @@ public class PrefsNode {
     }
 
     public boolean coverMe(String key) {
-        if(Preferences.userNodeForPackage(PrefsNode.class).get(key, null).equals("Foo")) {
+        if (Preferences.userNodeForPackage(PrefsNode.class).get(key, null).equals("Foo")) {
             return true;
         } else {
             return false;

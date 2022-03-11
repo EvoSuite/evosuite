@@ -34,448 +34,458 @@ import java.util.stream.IntStream;
 
 public class ExecutionResult implements Cloneable {
 
-	private static final Logger logger = LoggerFactory.getLogger(ExecutionResult.class);
-	
-	/** Test case that produced this execution result */
-	public TestCase test;
+    private static final Logger logger = LoggerFactory.getLogger(ExecutionResult.class);
 
-	/** Mutation that was active during execution */
-	public Mutation mutation;
+    /**
+     * Test case that produced this execution result
+     */
+    public TestCase test;
 
-	/** Map statement number to raised exception */
-	protected Map<Integer, Throwable> exceptions = new HashMap<>();
+    /**
+     * Mutation that was active during execution
+     */
+    public Mutation mutation;
 
-	/** Record for each exception if it was explicitly thrown */
-	// FIXME: internal data structures should never be null...
-	public Map<Integer, Boolean> explicitExceptions = new HashMap<>();
+    /**
+     * Map statement number to raised exception
+     */
+    protected Map<Integer, Throwable> exceptions = new HashMap<>();
 
-	/** Trace recorded during execution */
-	protected ExecutionTrace trace;
+    /**
+     * Record for each exception if it was explicitly thrown
+     */
+    // FIXME: internal data structures should never be null...
+    public Map<Integer, Boolean> explicitExceptions = new HashMap<>();
 
-	/** Duration of execution */
-	protected long executionTime = 0L;
+    /**
+     * Trace recorded during execution
+     */
+    protected ExecutionTrace trace;
 
-	/** Number of statements executed */
-	protected int executedStatements = 0;
+    /**
+     * Duration of execution
+     */
+    protected long executionTime = 0L;
 
-	/** Was there a permission denied during execution? */
-	protected boolean hasSecurityException = false;
+    /**
+     * Number of statements executed
+     */
+    protected int executedStatements = 0;
 
-	/** Set of System properties that were read during test execution */
-	protected Set<String> readProperties;
-	
-	/**
-	 * Keep track of whether any System property was written
-	 */
-	protected boolean wasAnyPropertyWritten;
+    /**
+     * Was there a permission denied during execution?
+     */
+    protected boolean hasSecurityException = false;
 
-	private List<FeatureVector> featureVectors = new ArrayList<>(1);
+    /**
+     * Set of System properties that were read during test execution
+     */
+    protected Set<String> readProperties;
 
-	/**
-	 * @return the executedStatements
-	 */
-	public int getExecutedStatements() {
-		return executedStatements;
-	}
+    /**
+     * Keep track of whether any System property was written
+     */
+    protected boolean wasAnyPropertyWritten;
 
-	/**
-	 * @param executedStatements
-	 *            the executedStatements to set
-	 */
-	public void setExecutedStatements(int executedStatements) {
-		this.executedStatements = executedStatements;
-	}
+    private List<FeatureVector> featureVectors = new ArrayList<>(1);
 
-	/** Output traces produced by observers */
-	protected final Map<Class<?>, OutputTrace<?>> traces = new HashMap<>();
+    /**
+     * @return the executedStatements
+     */
+    public int getExecutedStatements() {
+        return executedStatements;
+    }
+
+    /**
+     * @param executedStatements the executedStatements to set
+     */
+    public void setExecutedStatements(int executedStatements) {
+        this.executedStatements = executedStatements;
+    }
+
+    /**
+     * Output traces produced by observers
+     */
+    protected final Map<Class<?>, OutputTrace<?>> traces = new HashMap<>();
 
     private Map<Integer, Set<InputCoverageGoal>> inputGoals = new LinkedHashMap<>();
 
     private Map<Integer, Set<OutputCoverageGoal>> outputGoals = new LinkedHashMap<>();
 
-	// experiment .. tried to remember intermediately calculated ControlFlowDistances .. no real speed up
-	//	public Map<Branch, ControlFlowDistance> intermediateDistances;
+    // experiment .. tried to remember intermediately calculated ControlFlowDistances .. no real speed up
+    //	public Map<Branch, ControlFlowDistance> intermediateDistances;
 
-	/**
-	 * Default constructor when executing without mutation
-	 * 
-	 * @param t
-	 *            a {@link org.evosuite.testcase.TestCase} object.
-	 */
-	public ExecutionResult(TestCase t) {
-		trace = null;
-		mutation = null;
-		test = t;
-	}
-
-	/**
-	 * <p>
-	 * Copy the input map data into internal structures
-	 * </p>
-	 * 
-	 * @param data
-	 *            a {@link java.util.Map} object. It has a mapping from test
-	 *            sequence position toward thrown exception
-	 */
-	public void setThrownExceptions(Map<Integer, Throwable> data) {
-		exceptions.clear();
-		data.forEach(this::reportNewThrownException);
-	}
-
-	
-	/**
-	 * <p>
-	 * getFirstPositionOfThrownException
-	 * </p>
-	 * 
-	 * @return a {@link java.lang.Integer} object.
-	 */
-	public Integer getFirstPositionOfThrownException() {
-		return exceptions.keySet().stream()
-				.min(Comparator.naturalOrder())
-				.orElse(null);
-	}
-
-	/**
-	 * <p>
-	 * reportNewThrownException
-	 * </p>
-	 * 
-	 * @param position
-	 *            a {@link java.lang.Integer} object.
-	 * @param t
-	 *            a {@link java.lang.Throwable} object.
-	 */
-	public void reportNewThrownException(Integer position, Throwable t) {
-		exceptions.put(position, t);
-	}
-
-	/**
-	 * <p>
-	 * getPositionsWhereExceptionsWereThrown
-	 * </p>
-	 * 
-	 * @return a {@link java.util.Set} object.
-	 */
-	public Set<Integer> getPositionsWhereExceptionsWereThrown() {
-		return exceptions.keySet();
-	}
-
-	/**
-	 * <p>
-	 * getAllThrownExceptions
-	 * </p>
-	 * 
-	 * @return a {@link java.util.Collection} object.
-	 */
-	public Collection<Throwable> getAllThrownExceptions() {
-		return exceptions.values();
-	}
-
-	/**
-	 * <p>
-	 * isThereAnExceptionAtPosition
-	 * </p>
-	 * 
-	 * @param position
-	 *            a {@link java.lang.Integer} object.
-	 * @return a boolean.
-	 */
-	public boolean isThereAnExceptionAtPosition(Integer position) {
-		return exceptions.containsKey(position);
-	}
-
-	/**
-	 * <p>
-	 * noThrownExceptions
-	 * </p>
-	 * 
-	 * @return a boolean.
-	 */
-	public boolean noThrownExceptions() {
-		return exceptions.isEmpty();
-	}
-
-	/**
-	 * <p>
-	 * getExceptionThrownAtPosition
-	 * </p>
-	 * 
-	 * @param position
-	 *            a {@link java.lang.Integer} object.
-	 * @return a {@link java.lang.Throwable} object.
-	 */
-	public Throwable getExceptionThrownAtPosition(Integer position) {
-		return exceptions.get(position);
-	}
-
-	/**
-	 * <p>
-	 * getNumberOfThrownExceptions
-	 * </p>
-	 * 
-	 * @return a int.
-	 */
-	public int getNumberOfThrownExceptions() {
-		return exceptions.size();
-	}
-
-	/**
-	 * shouldn't be used
-	 * 
-	 * @return a {@link java.util.Map} object.
-	 */
-	@Deprecated
-	public Map<Integer, Throwable> exposeExceptionMapping() {
-		return exceptions;
-	}
-
-	/**
-	 * 
-	 * @return Mapping of statement indexes and thrown exceptions.
-	 */
-	public Map<Integer, Throwable> getCopyOfExceptionMapping() {
-		return new HashMap<>(exceptions);
-	}
-
-	/**
-	 * Constructor when executing with mutation
-	 * 
-	 * @param t
-	 *            a {@link org.evosuite.testcase.TestCase} object.
-	 * @param m
-	 *            a {@link org.evosuite.coverage.mutation.Mutation} object.
-	 */
-	public ExecutionResult(TestCase t, Mutation m) {
-		trace = null;
-		mutation = m;
-		test = t;
-	}
-
-	/**
-	 * Accessor to the execution trace
-	 * 
-	 * @return a {@link org.evosuite.testcase.execution.ExecutionTrace} object.
-	 */
-	public ExecutionTrace getTrace() {
-		return trace;
-	}
-
-	/**
-	 * Set execution trace to different value
-	 * 
-	 * @param trace
-	 *            a {@link org.evosuite.testcase.execution.ExecutionTrace} object.
-	 */
-	public void setTrace(ExecutionTrace trace) throws IllegalArgumentException{
-		if(trace==null){
-			throw new IllegalArgumentException("Trace cannot be null");
-		}
-		this.trace = trace;
-	}
-
-	/**
-	 * Store a new output trace
-	 * 
-	 * @param trace
-	 *            a {@link org.evosuite.assertion.OutputTrace} object.
-	 * @param clazz
-	 *            a {@link java.lang.Class} object.
-	 */
-	public void setTrace(OutputTrace<?> trace, Class<?> clazz) {
-		traces.put(clazz, trace);
-	}
-
-	/**
-	 * Accessor for output trace produced by an observer of a particular class
-	 * 
-	 * @param clazz
-	 *            a {@link java.lang.Class} object.
-	 * @return a {@link org.evosuite.assertion.OutputTrace} object.
-	 */
-	public OutputTrace<?> getTrace(Class<?> clazz) {
-		return traces.get(clazz);
-	}
-
-	/**
-	 * Accessor for the output traces produced by observers
-	 * 
-	 * @return a {@link java.util.Collection} object.
-	 */
-	public Collection<OutputTrace<?>> getTraces() {
-		return traces.values();
-	}
-
-	/**
-	 * Was the reason for termination a timeout?
-	 * 
-	 * @return a boolean.
-	 */
-	public boolean hasTimeout() {
-		if (test == null)
-			return false;
-
-		final int size = test.size();
-		return exceptions.containsKey(size)
-				&& exceptions.get(size) instanceof TestCaseExecutor.TimeoutExceeded;
-	}
-
-	/**
-	 * Does the test contain an exception caused in the test itself?
-	 * 
-	 * @return a boolean.
-	 */
-	public boolean hasTestException() {
-		if (test == null)
-			return false;
-
-		return exceptions.values().stream()
-				.anyMatch(t -> t instanceof CodeUnderTestException);
-	}
-
-	/**
-	 * Is there an undeclared exception in the trace?
-	 * 
-	 * @return a boolean.
-	 */
-	public boolean hasUndeclaredException() {
-		if (test == null)
-			return false;
-
-		for (int i : exceptions.keySet()) {
-			Throwable t = exceptions.get(i);
-			// Exceptions can be placed at test.size(), e.g. for timeouts
-			assert i>=0 && i<=test.size() : "Exception "+t+" at position "+i+" in test of length "+test.size()+": "+test.toCode(exceptions);
-			if(i >= test.size())
-				continue;
-			
-			if (!test.getStatement(i).getDeclaredExceptions().contains(t.getClass()))
-				return true;
-		}
-
-		return false;
-	}
-
-	/**
-	 * Returns true if any of the executed statements was a reflection statement
-	 *
-	 * @return
+    /**
+     * Default constructor when executing without mutation
+     *
+     * @param t a {@link org.evosuite.testcase.TestCase} object.
      */
-	public boolean calledReflection() {
-		return IntStream.range(0, getExecutedStatements())
-				.mapToObj(numStatement -> test.getStatement(numStatement))
-				.anyMatch(Statement::isReflectionStatement);
-	}
+    public ExecutionResult(TestCase t) {
+        trace = null;
+        mutation = null;
+        test = t;
+    }
+
+    /**
+     * <p>
+     * Copy the input map data into internal structures
+     * </p>
+     *
+     * @param data a {@link java.util.Map} object. It has a mapping from test
+     *             sequence position toward thrown exception
+     */
+    public void setThrownExceptions(Map<Integer, Throwable> data) {
+        exceptions.clear();
+        data.forEach(this::reportNewThrownException);
+    }
 
 
+    /**
+     * <p>
+     * getFirstPositionOfThrownException
+     * </p>
+     *
+     * @return a {@link java.lang.Integer} object.
+     */
+    public Integer getFirstPositionOfThrownException() {
+        return exceptions.keySet().stream()
+                .min(Comparator.naturalOrder())
+                .orElse(null);
+    }
 
-	/**
-	 * check if the test case threw any security exception
-	 * 
-	 * @return
-	 */
-	public boolean hasSecurityException() {
-		return hasSecurityException;
-	}
+    /**
+     * <p>
+     * reportNewThrownException
+     * </p>
+     *
+     * @param position a {@link java.lang.Integer} object.
+     * @param t        a {@link java.lang.Throwable} object.
+     */
+    public void reportNewThrownException(Integer position, Throwable t) {
+        exceptions.put(position, t);
+    }
 
-	public void setSecurityException(boolean value) {
-		logger.debug("Changing hasSecurityException from "+hasSecurityException +" to "+value);
-		hasSecurityException = value;
-	}
+    /**
+     * <p>
+     * getPositionsWhereExceptionsWereThrown
+     * </p>
+     *
+     * @return a {@link java.util.Set} object.
+     */
+    public Set<Integer> getPositionsWhereExceptionsWereThrown() {
+        return exceptions.keySet();
+    }
 
-	/**
-	 * @return the executionTime
-	 */
-	public long getExecutionTime() {
-		return executionTime;
-	}
+    /**
+     * <p>
+     * getAllThrownExceptions
+     * </p>
+     *
+     * @return a {@link java.util.Collection} object.
+     */
+    public Collection<Throwable> getAllThrownExceptions() {
+        return exceptions.values();
+    }
 
-	/**
-	 * @param executionTime
-	 *            the executionTime to set
-	 */
-	public void setExecutionTime(long executionTime) {
-		this.executionTime = executionTime;
-	}
+    /**
+     * <p>
+     * isThereAnExceptionAtPosition
+     * </p>
+     *
+     * @param position a {@link java.lang.Integer} object.
+     * @return a boolean.
+     */
+    public boolean isThereAnExceptionAtPosition(Integer position) {
+        return exceptions.containsKey(position);
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public ExecutionResult clone() {
-		ExecutionResult copy = new ExecutionResult(test, mutation);
-		copy.exceptions.putAll(exceptions);
-		copy.trace = trace.lazyClone();
-		copy.explicitExceptions.putAll(explicitExceptions);
-		copy.executionTime = executionTime;
-		copy.inputGoals = new LinkedHashMap<>(inputGoals);
-		copy.outputGoals = new LinkedHashMap<>(outputGoals);
-		for (Class<?> clazz : traces.keySet()) {
-			copy.traces.put(clazz, traces.get(clazz).clone());
-		}
-		if(readProperties!=null){
-			copy.readProperties = new LinkedHashSet<>();
-			copy.readProperties.addAll(readProperties);
-		}
-		copy.wasAnyPropertyWritten = wasAnyPropertyWritten;
-		copy.featureVectors = new ArrayList<>(this.featureVectors);
+    /**
+     * <p>
+     * noThrownExceptions
+     * </p>
+     *
+     * @return a boolean.
+     */
+    public boolean noThrownExceptions() {
+        return exceptions.isEmpty();
+    }
 
-		return copy;
-	}
+    /**
+     * <p>
+     * getExceptionThrownAtPosition
+     * </p>
+     *
+     * @param position a {@link java.lang.Integer} object.
+     * @return a {@link java.lang.Throwable} object.
+     */
+    public Throwable getExceptionThrownAtPosition(Integer position) {
+        return exceptions.get(position);
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public String toString() {
-		return "Trace:" + trace;
-	}
+    /**
+     * <p>
+     * getNumberOfThrownExceptions
+     * </p>
+     *
+     * @return a int.
+     */
+    public int getNumberOfThrownExceptions() {
+        return exceptions.size();
+    }
 
-	public Set<String> getReadProperties() {
-		return readProperties;
-	}
+    /**
+     * shouldn't be used
+     *
+     * @return a {@link java.util.Map} object.
+     */
+    @Deprecated
+    public Map<Integer, Throwable> exposeExceptionMapping() {
+        return exceptions;
+    }
 
-	public void setReadProperties(Set<String> readProperties) {
-		this.readProperties = readProperties;
-	}
+    /**
+     * @return Mapping of statement indexes and thrown exceptions.
+     */
+    public Map<Integer, Throwable> getCopyOfExceptionMapping() {
+        return new HashMap<>(exceptions);
+    }
 
-	public boolean wasAnyPropertyWritten() {
-		return wasAnyPropertyWritten;
-	}
+    /**
+     * Constructor when executing with mutation
+     *
+     * @param t a {@link org.evosuite.testcase.TestCase} object.
+     * @param m a {@link org.evosuite.coverage.mutation.Mutation} object.
+     */
+    public ExecutionResult(TestCase t, Mutation m) {
+        trace = null;
+        mutation = m;
+        test = t;
+    }
 
-	public void setWasAnyPropertyWritten(boolean wasAnyPropertyWritten) {
-		this.wasAnyPropertyWritten = wasAnyPropertyWritten;
-	}
+    /**
+     * Accessor to the execution trace
+     *
+     * @return a {@link org.evosuite.testcase.execution.ExecutionTrace} object.
+     */
+    public ExecutionTrace getTrace() {
+        return trace;
+    }
 
-	public void setTest(TestCase tc) {
-		this.test = tc;
-	}
+    /**
+     * Set execution trace to different value
+     *
+     * @param trace a {@link org.evosuite.testcase.execution.ExecutionTrace} object.
+     */
+    public void setTrace(ExecutionTrace trace) throws IllegalArgumentException {
+        if (trace == null) {
+            throw new IllegalArgumentException("Trace cannot be null");
+        }
+        this.trace = trace;
+    }
 
-	public void setInputGoals(Map<Integer, Set<InputCoverageGoal>> coveredGoals) {
-		inputGoals.putAll(coveredGoals);
-	}
+    /**
+     * Store a new output trace
+     *
+     * @param trace a {@link org.evosuite.assertion.OutputTrace} object.
+     * @param clazz a {@link java.lang.Class} object.
+     */
+    public void setTrace(OutputTrace<?> trace, Class<?> clazz) {
+        traces.put(clazz, trace);
+    }
 
-	public void setOutputGoals(Map<Integer, Set<OutputCoverageGoal>> coveredGoals) {
+    /**
+     * Accessor for output trace produced by an observer of a particular class
+     *
+     * @param clazz a {@link java.lang.Class} object.
+     * @return a {@link org.evosuite.assertion.OutputTrace} object.
+     */
+    public OutputTrace<?> getTrace(Class<?> clazz) {
+        return traces.get(clazz);
+    }
+
+    /**
+     * Accessor for the output traces produced by observers
+     *
+     * @return a {@link java.util.Collection} object.
+     */
+    public Collection<OutputTrace<?>> getTraces() {
+        return traces.values();
+    }
+
+    /**
+     * Was the reason for termination a timeout?
+     *
+     * @return a boolean.
+     */
+    public boolean hasTimeout() {
+        if (test == null)
+            return false;
+
+        final int size = test.size();
+        return exceptions.containsKey(size)
+                && exceptions.get(size) instanceof TestCaseExecutor.TimeoutExceeded;
+    }
+
+    /**
+     * Does the test contain an exception caused in the test itself?
+     *
+     * @return a boolean.
+     */
+    public boolean hasTestException() {
+        if (test == null)
+            return false;
+
+        return exceptions.values().stream()
+                .anyMatch(t -> t instanceof CodeUnderTestException);
+    }
+
+    /**
+     * Is there an undeclared exception in the trace?
+     *
+     * @return a boolean.
+     */
+    public boolean hasUndeclaredException() {
+        if (test == null)
+            return false;
+
+        for (int i : exceptions.keySet()) {
+            Throwable t = exceptions.get(i);
+            // Exceptions can be placed at test.size(), e.g. for timeouts
+            assert i >= 0 && i <= test.size() : "Exception " + t + " at position " + i + " in test of length " + test.size() + ": " + test.toCode(exceptions);
+            if (i >= test.size())
+                continue;
+
+            if (!test.getStatement(i).getDeclaredExceptions().contains(t.getClass()))
+                return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Returns true if any of the executed statements was a reflection statement
+     *
+     * @return
+     */
+    public boolean calledReflection() {
+        return IntStream.range(0, getExecutedStatements())
+                .mapToObj(numStatement -> test.getStatement(numStatement))
+                .anyMatch(Statement::isReflectionStatement);
+    }
+
+
+    /**
+     * check if the test case threw any security exception
+     *
+     * @return
+     */
+    public boolean hasSecurityException() {
+        return hasSecurityException;
+    }
+
+    public void setSecurityException(boolean value) {
+        logger.debug("Changing hasSecurityException from " + hasSecurityException + " to " + value);
+        hasSecurityException = value;
+    }
+
+    /**
+     * @return the executionTime
+     */
+    public long getExecutionTime() {
+        return executionTime;
+    }
+
+    /**
+     * @param executionTime the executionTime to set
+     */
+    public void setExecutionTime(long executionTime) {
+        this.executionTime = executionTime;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ExecutionResult clone() {
+        ExecutionResult copy = new ExecutionResult(test, mutation);
+        copy.exceptions.putAll(exceptions);
+        copy.trace = trace.lazyClone();
+        copy.explicitExceptions.putAll(explicitExceptions);
+        copy.executionTime = executionTime;
+        copy.inputGoals = new LinkedHashMap<>(inputGoals);
+        copy.outputGoals = new LinkedHashMap<>(outputGoals);
+        for (Class<?> clazz : traces.keySet()) {
+            copy.traces.put(clazz, traces.get(clazz).clone());
+        }
+        if (readProperties != null) {
+            copy.readProperties = new LinkedHashSet<>();
+            copy.readProperties.addAll(readProperties);
+        }
+        copy.wasAnyPropertyWritten = wasAnyPropertyWritten;
+        copy.featureVectors = new ArrayList<>(this.featureVectors);
+
+        return copy;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        return "Trace:" + trace;
+    }
+
+    public Set<String> getReadProperties() {
+        return readProperties;
+    }
+
+    public void setReadProperties(Set<String> readProperties) {
+        this.readProperties = readProperties;
+    }
+
+    public boolean wasAnyPropertyWritten() {
+        return wasAnyPropertyWritten;
+    }
+
+    public void setWasAnyPropertyWritten(boolean wasAnyPropertyWritten) {
+        this.wasAnyPropertyWritten = wasAnyPropertyWritten;
+    }
+
+    public void setTest(TestCase tc) {
+        this.test = tc;
+    }
+
+    public void setInputGoals(Map<Integer, Set<InputCoverageGoal>> coveredGoals) {
+        inputGoals.putAll(coveredGoals);
+    }
+
+    public void setOutputGoals(Map<Integer, Set<OutputCoverageGoal>> coveredGoals) {
         outputGoals.putAll(coveredGoals);
-	}
+    }
 
-	public Map<Integer, Set<InputCoverageGoal>> getInputGoals() {
+    public Map<Integer, Set<InputCoverageGoal>> getInputGoals() {
         return inputGoals;
-	}
+    }
 
-	public Map<Integer, Set<OutputCoverageGoal>> getOutputGoals() {
-		return outputGoals;
-	}
+    public Map<Integer, Set<OutputCoverageGoal>> getOutputGoals() {
+        return outputGoals;
+    }
 
-	/**
+    /**
      * Add a feature vector for MAPElites
+     *
      * @param vector The feature vector.
      */
     public void addFeatureVector(FeatureVector vector) {
-      this.featureVectors.add(vector);
+        this.featureVectors.add(vector);
     }
-    
+
     /**
      * Get the feature vectors for MAPElites
+     *
      * @return The feature vector if set or {@code null}
      */
     public List<FeatureVector> getFeatureVectors() {
-      return Collections.unmodifiableList(this.featureVectors);
+        return Collections.unmodifiableList(this.featureVectors);
     }
 }

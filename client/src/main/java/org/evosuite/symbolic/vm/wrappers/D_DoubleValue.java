@@ -27,24 +27,24 @@ import org.evosuite.symbolic.vm.heap.SymbolicHeap;
 
 public final class D_DoubleValue extends SymbolicFunction {
 
-	private static final String DOUBLE_VALUE = "doubleValue";
+    private static final String DOUBLE_VALUE = "doubleValue";
 
-	public D_DoubleValue(SymbolicEnvironment env) {
-		super(env, Types.JAVA_LANG_DOUBLE, DOUBLE_VALUE, Types.TO_DOUBLE);
-	}
+    public D_DoubleValue(SymbolicEnvironment env) {
+        super(env, Types.JAVA_LANG_DOUBLE, DOUBLE_VALUE, Types.TO_DOUBLE);
+    }
 
-	@Override
-	public Object executeFunction() {
+    @Override
+    public Object executeFunction() {
 
-		ReferenceConstant symb_double = this.getSymbReceiver();
-		Double conc_double = (Double) this.getConcReceiver();
-		double conc_double_value = this.getConcDoubleRetVal();
+        ReferenceConstant symb_double = this.getSymbReceiver();
+        Double conc_double = (Double) this.getConcReceiver();
+        double conc_double_value = this.getConcDoubleRetVal();
 
-		RealValue symb_int_value = env.heap.getField(Types.JAVA_LANG_DOUBLE,
-				SymbolicHeap.$DOUBLE_VALUE, conc_double, symb_double,
-				conc_double_value);
+        RealValue symb_int_value = env.heap.getField(Types.JAVA_LANG_DOUBLE,
+                SymbolicHeap.$DOUBLE_VALUE, conc_double, symb_double,
+                conc_double_value);
 
-		return symb_int_value;
-	}
+        return symb_int_value;
+    }
 
 }

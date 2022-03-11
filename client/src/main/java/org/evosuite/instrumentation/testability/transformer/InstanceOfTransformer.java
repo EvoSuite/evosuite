@@ -19,33 +19,29 @@
  */
 package org.evosuite.instrumentation.testability.transformer;
 
-import org.evosuite.instrumentation.testability.BooleanHelper;
 import org.evosuite.instrumentation.TransformationStatistics;
+import org.evosuite.instrumentation.testability.BooleanHelper;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
-import org.objectweb.asm.tree.AbstractInsnNode;
-import org.objectweb.asm.tree.LdcInsnNode;
-import org.objectweb.asm.tree.MethodInsnNode;
-import org.objectweb.asm.tree.MethodNode;
-import org.objectweb.asm.tree.TypeInsnNode;
+import org.objectweb.asm.tree.*;
 
 /**
  * Replace instanceof operation with helper that puts int on the stack
  */
 public class InstanceOfTransformer extends MethodNodeTransformer {
-	/* (non-Javadoc)
-	 * @see org.evosuite.instrumentation.MethodNodeTransformer#transformTypeInsnNode(org.objectweb.asm.tree.MethodNode, org.objectweb.asm.tree.TypeInsnNode)
-	 */
-	@Override
-	protected AbstractInsnNode transformTypeInsnNode(MethodNode mn,
-	        TypeInsnNode typeNode) {
-		if (typeNode.getOpcode() == Opcodes.INSTANCEOF) {
-			TransformationStatistics.transformInstanceOf();
+    /* (non-Javadoc)
+     * @see org.evosuite.instrumentation.MethodNodeTransformer#transformTypeInsnNode(org.objectweb.asm.tree.MethodNode, org.objectweb.asm.tree.TypeInsnNode)
+     */
+    @Override
+    protected AbstractInsnNode transformTypeInsnNode(MethodNode mn,
+                                                     TypeInsnNode typeNode) {
+        if (typeNode.getOpcode() == Opcodes.INSTANCEOF) {
+            TransformationStatistics.transformInstanceOf();
 
-			// Depending on the class version we need a String or a Class
-			// TODO: This needs to be class version of the class that's loaded, not cn!
-			//ClassReader reader;
-			int version = 48;
+            // Depending on the class version we need a String or a Class
+            // TODO: This needs to be class version of the class that's loaded, not cn!
+            //ClassReader reader;
+            int version = 48;
 			/*
 			String name = typeNode.desc.replace('/', '.');
 			try {
@@ -57,36 +53,36 @@ public class InstanceOfTransformer extends MethodNodeTransformer {
 				TestabilityTransformation.logger.info("Error reading class " + name);
 			}
 			*/
-			if (version >= 49) {
-				if (!typeNode.desc.startsWith("[")) {
-					LdcInsnNode lin = new LdcInsnNode(Type.getType("L"
-					        + typeNode.desc + ";"));
-					mn.instructions.insertBefore(typeNode, lin);
-				} else {
-					LdcInsnNode lin = new LdcInsnNode(Type.getType(typeNode.desc
-					        + ";"));
-					mn.instructions.insertBefore(typeNode, lin);
-				}
-			} else {
-				LdcInsnNode lin = new LdcInsnNode(typeNode.desc.replace('/', '.'));
-				mn.instructions.insertBefore(typeNode, lin);
-				MethodInsnNode n = new MethodInsnNode(
-				        Opcodes.INVOKESTATIC,
-				        Type.getInternalName(Class.class),
-				        "forName",
-				        Type.getMethodDescriptor(Type.getType(Class.class),
-				                                 new Type[] { Type.getType(String.class) }));
-				mn.instructions.insertBefore(typeNode, n);
-			}
-			MethodInsnNode n = new MethodInsnNode(Opcodes.INVOKESTATIC,
-			        Type.getInternalName(BooleanHelper.class), "instanceOf",
-			        Type.getMethodDescriptor(Type.INT_TYPE,
-			                                 new Type[] { Type.getType(Object.class),
-			                                         Type.getType(Class.class) }));
-			mn.instructions.insertBefore(typeNode, n);
-			mn.instructions.remove(typeNode);
-			return n;
-		}
-		return typeNode;
-	}
+            if (version >= 49) {
+                if (!typeNode.desc.startsWith("[")) {
+                    LdcInsnNode lin = new LdcInsnNode(Type.getType("L"
+                            + typeNode.desc + ";"));
+                    mn.instructions.insertBefore(typeNode, lin);
+                } else {
+                    LdcInsnNode lin = new LdcInsnNode(Type.getType(typeNode.desc
+                            + ";"));
+                    mn.instructions.insertBefore(typeNode, lin);
+                }
+            } else {
+                LdcInsnNode lin = new LdcInsnNode(typeNode.desc.replace('/', '.'));
+                mn.instructions.insertBefore(typeNode, lin);
+                MethodInsnNode n = new MethodInsnNode(
+                        Opcodes.INVOKESTATIC,
+                        Type.getInternalName(Class.class),
+                        "forName",
+                        Type.getMethodDescriptor(Type.getType(Class.class),
+                                Type.getType(String.class)));
+                mn.instructions.insertBefore(typeNode, n);
+            }
+            MethodInsnNode n = new MethodInsnNode(Opcodes.INVOKESTATIC,
+                    Type.getInternalName(BooleanHelper.class), "instanceOf",
+                    Type.getMethodDescriptor(Type.INT_TYPE,
+                            Type.getType(Object.class),
+                            Type.getType(Class.class)));
+            mn.instructions.insertBefore(typeNode, n);
+            mn.instructions.remove(typeNode);
+            return n;
+        }
+        return typeNode;
+    }
 }

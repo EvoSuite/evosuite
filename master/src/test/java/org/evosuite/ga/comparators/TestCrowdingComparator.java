@@ -28,14 +28,11 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * 
  * @author José Campos
  */
-public class TestCrowdingComparator
-{
+public class TestCrowdingComparator {
     @Test
-    public void testCrowdingComparisonOperatorMinimize()
-    {
+    public void testCrowdingComparisonOperatorMinimize() {
         NSGAChromosome c1 = new NSGAChromosome();
         NSGAChromosome c2 = new NSGAChromosome();
         NSGAChromosome c3 = new NSGAChromosome();
@@ -71,8 +68,7 @@ public class TestCrowdingComparator
     }
 
     @Test
-    public void testCrowdingComparisonOperatorMaximize()
-    {
+    public void testCrowdingComparisonOperatorMaximize() {
         NSGAChromosome c1 = new NSGAChromosome();
         NSGAChromosome c2 = new NSGAChromosome();
         NSGAChromosome c3 = new NSGAChromosome();

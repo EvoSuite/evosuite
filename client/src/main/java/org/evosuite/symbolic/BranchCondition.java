@@ -19,144 +19,141 @@
  */
 package org.evosuite.symbolic;
 
-import java.util.List;
-import java.util.Objects;
-
 import org.evosuite.classpath.ResourceList;
 import org.evosuite.symbolic.expr.Constraint;
+
+import java.util.List;
+import java.util.Objects;
 
 /**
  * <p>
  * BranchCondition class.
  * </p>
- * 
+ *
  * @author Gordon Fraser
  */
 public class BranchCondition {
-	/**
-	 * Class where the branch instruction is
-	 */
-	private final String className;
+    /**
+     * Class where the branch instruction is
+     */
+    private final String className;
 
-	/**
-	 * Method where the branch instruction is
-	 */
-	private final String methodName;
+    /**
+     * Method where the branch instruction is
+     */
+    private final String methodName;
 
-	/**
-	 * Position of the instruction in the method bytecode
-	 */
-	private final int instructionIndex;
+    /**
+     * Position of the instruction in the method bytecode
+     */
+    private final int instructionIndex;
 
-	private final Constraint<?> constraint;
+    private final Constraint<?> constraint;
 
-	private final List<Constraint<?>> supportingConstraints;
+    private final List<Constraint<?>> supportingConstraints;
 
-	/**
-	 * A branch condition is identified by the className, methodName and branchIndex
-	 * belonging to the class in the SUT, the target constraint and all the
-	 * supporting constraint for that particular branch (zero checks, etc)
-	 * 
-	 * @param className
-	 *            a {@link java.lang.String} object
-	 * @param methodName
-	 *            a {@link java.lang.String} object
-	 * @param instructionIndex
-	 *            an {@link int} value
-	 * @param constraint
-	 *            a {@link Constraint} object
-	 * @param supportingConstraints
-	 *            a {@link java.util.Set} object.
-	 */
-	public BranchCondition(String className, String methodName, int instructionIndex, Constraint<?> constraint,
-												 List<Constraint<?>> supportingConstraints) {
+    /**
+     * A branch condition is identified by the className, methodName and branchIndex
+     * belonging to the class in the SUT, the target constraint and all the
+     * supporting constraint for that particular branch (zero checks, etc)
+     *
+     * @param className             a {@link java.lang.String} object
+     * @param methodName            a {@link java.lang.String} object
+     * @param instructionIndex      an {@link int} value
+     * @param constraint            a {@link Constraint} object
+     * @param supportingConstraints a {@link java.util.Set} object.
+     */
+    public BranchCondition(String className, String methodName, int instructionIndex, Constraint<?> constraint,
+                           List<Constraint<?>> supportingConstraints) {
 
-		this.className = ResourceList.getClassNameFromResourcePath(className);
-		this.methodName = methodName;
-		this.instructionIndex = instructionIndex;
+        this.className = ResourceList.getClassNameFromResourcePath(className);
+        this.methodName = methodName;
+        this.instructionIndex = instructionIndex;
 
-		this.constraint = constraint;
-		this.supportingConstraints = supportingConstraints;
-	}
+        this.constraint = constraint;
+        this.supportingConstraints = supportingConstraints;
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public String toString() {
-		String ret = "";
-		for (Constraint<?> c : this.supportingConstraints) {
-			ret += " " + c + "\n";
-		}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        String ret = "";
+        for (Constraint<?> c : this.supportingConstraints) {
+            ret += " " + c + "\n";
+        }
 
-		ret += this.constraint;
-		return ret;
-	}
+        ret += this.constraint;
+        return ret;
+    }
 
-	public String getClassName() {
-		return className;
-	}
+    public String getClassName() {
+        return className;
+    }
 
-	public int getInstructionIndex() {
-		return instructionIndex;
-	}
+    public int getInstructionIndex() {
+        return instructionIndex;
+    }
 
-	public String getFullName() {
-		return className + "." + methodName;
-	}
+    public String getFullName() {
+        return className + "." + methodName;
+    }
 
-	/**
-	 * Returns the constraint for actual branch. This constraint has to be negated
-	 * to take another path.
-	 * 
-	 * @return
-	 */
-	public Constraint<?> getConstraint() {
-		return constraint;
-	}
+    /**
+     * Returns the constraint for actual branch. This constraint has to be negated
+     * to take another path.
+     *
+     * @return
+     */
+    public Constraint<?> getConstraint() {
+        return constraint;
+    }
 
-	/**
-	 * Returns a list of implicit constraints (nullity checks, zero division, index
-	 * within bounds, negative size array length, etc.) collected before the current
-	 * branch condition and after the last symbolic branch condition
-	 * 
-	 * @return
-	 */
-	public List<Constraint<?>> getSupportingConstraints() {
-		return supportingConstraints;
-	}
+    /**
+     * Returns a list of implicit constraints (nullity checks, zero division, index
+     * within bounds, negative size array length, etc.) collected before the current
+     * branch condition and after the last symbolic branch condition
+     *
+     * @return
+     */
+    public List<Constraint<?>> getSupportingConstraints() {
+        return supportingConstraints;
+    }
 
-	public String getMethodName() {
-		return methodName;
-	}
+    public String getMethodName() {
+        return methodName;
+    }
 
-	/**
-	 * For simplicity we create this construction of the object to handle path conditions easily.
-	 *
-	 * @return
-	 */
-	public BranchCondition getNegatedVersion() {
-		return new BranchCondition(className, methodName, instructionIndex, constraint.negate(), supportingConstraints);
-	}
+    /**
+     * For simplicity we create this construction of the object to handle path conditions easily.
+     *
+     * @return
+     */
+    public BranchCondition getNegatedVersion() {
+        return new BranchCondition(className, methodName, instructionIndex, constraint.negate(), supportingConstraints);
+    }
 
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-		BranchCondition that = (BranchCondition) o;
-		return instructionIndex == that.instructionIndex &&
-				className.equals(that.className) &&
-				methodName.equals(that.methodName) &&
-				constraint.equals(that.constraint) &&
-				supportingConstraints.equals(that.supportingConstraints);
-	}
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        BranchCondition that = (BranchCondition) o;
+        return instructionIndex == that.instructionIndex &&
+                className.equals(that.className) &&
+                methodName.equals(that.methodName) &&
+                constraint.equals(that.constraint) &&
+                supportingConstraints.equals(that.supportingConstraints);
+    }
 
-	@Override
-	public int hashCode() {
-		return Objects.hash(
-				className,
-				methodName,
-				instructionIndex,
-				constraint,
-				supportingConstraints
-		);
-	}
+    @Override
+    public int hashCode() {
+        return Objects.hash(
+                className,
+                methodName,
+                instructionIndex,
+                constraint,
+                supportingConstraints
+        );
+    }
 }

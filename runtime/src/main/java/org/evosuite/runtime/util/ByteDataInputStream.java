@@ -27,17 +27,17 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Class used to create an input stream for a byte array
- *
+ * <p>
  * Created by Andrea Arcuri on 22/05/15.
  */
-public class ByteDataInputStream  extends InputStream{
+public class ByteDataInputStream extends InputStream {
 
     private final byte[] data;
     private final AtomicInteger pos;
     private volatile boolean closed;
 
-    public ByteDataInputStream(byte[] data) throws IllegalArgumentException{
-        if(data==null){
+    public ByteDataInputStream(byte[] data) throws IllegalArgumentException {
+        if (data == null) {
             throw new IllegalArgumentException("Null input");
         }
         this.data = data;
@@ -45,7 +45,7 @@ public class ByteDataInputStream  extends InputStream{
         closed = false;
     }
 
-    public ByteDataInputStream(String text) throws NullPointerException{
+    public ByteDataInputStream(String text) throws NullPointerException {
         this(text.getBytes());
     }
 
@@ -54,7 +54,7 @@ public class ByteDataInputStream  extends InputStream{
         throwExceptionIfClosed();
 
         int available = available();
-        if(available <= 0){
+        if (available <= 0) {
             return -1; // never block
         } else {
             int index = pos.getAndIncrement();
@@ -76,7 +76,8 @@ public class ByteDataInputStream  extends InputStream{
     }
 
     @Override
-    public synchronized void mark(int readlimit) {}
+    public synchronized void mark(int readlimit) {
+    }
 
     @Override
     public synchronized void reset() throws IOException {
@@ -88,8 +89,8 @@ public class ByteDataInputStream  extends InputStream{
         return false;
     }
 
-    private void throwExceptionIfClosed() throws IOException{
-        if(closed){
+    private void throwExceptionIfClosed() throws IOException {
+        if (closed) {
             throw new MockIOException();
         }
     }

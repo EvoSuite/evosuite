@@ -30,20 +30,20 @@ import static org.mockito.Mockito.when;
  */
 public class SpecifiedValuesAnswerTest {
 
-    public interface BaseString{
+    public interface BaseString {
         String getString();
     }
 
-    private static boolean checkString_3different(BaseString s){
-        if(s.getString().equals("foo") && s.getString().equals("bar") && s.getString().equals("42")){
+    private static boolean checkString_3different(BaseString s) {
+        if (s.getString().equals("foo") && s.getString().equals("bar") && s.getString().equals("42")) {
             return true;
         } else {
             return false;
         }
     }
 
-    private static boolean checkString_allSame(BaseString s){
-        if(s.getString().equals("foo") && s.getString().equals("foo") && s.getString().equals("foo")){
+    private static boolean checkString_allSame(BaseString s) {
+        if (s.getString().equals("foo") && s.getString().equals("foo") && s.getString().equals("foo")) {
             return true;
         } else {
             return false;
@@ -51,7 +51,7 @@ public class SpecifiedValuesAnswerTest {
     }
 
     @Test
-    public void testBasicWithString_3different(){
+    public void testBasicWithString_3different() {
 
         BaseString s = mock(BaseString.class);
         when(s.getString()).thenAnswer(new SpecifiedValuesAnswer<>("foo"));
@@ -66,7 +66,7 @@ public class SpecifiedValuesAnswerTest {
 
 
     @Test
-    public void testBasicWithString_allSame(){
+    public void testBasicWithString_allSame() {
 
         BaseString s = mock(BaseString.class);
         when(s.getString()).thenAnswer(new SpecifiedValuesAnswer<>("bar"));
@@ -80,17 +80,17 @@ public class SpecifiedValuesAnswerTest {
     }
 
 
-    public interface BaseInteger{
+    public interface BaseInteger {
         Integer getInteger();
     }
 
-    private static boolean checkInteger(BaseInteger i){
+    private static boolean checkInteger(BaseInteger i) {
         Integer v = i.getInteger();
-        return v==42;
+        return v == 42;
     }
 
     @Test
-    public void testBasicInteger(){
+    public void testBasicInteger() {
 
         BaseInteger i = mock(BaseInteger.class);
         when(i.getInteger()).thenAnswer(new SpecifiedValuesAnswer<>(7));
@@ -106,17 +106,17 @@ public class SpecifiedValuesAnswerTest {
         Assert.assertTrue(res);
     }
 
-    public interface BaseInt{
+    public interface BaseInt {
         int getInt();
     }
 
-    private static boolean checkInt(BaseInt i){
+    private static boolean checkInt(BaseInt i) {
         int v = i.getInt();
-        return v==42;
+        return v == 42;
     }
 
     @Test
-    public void testBasicInt(){
+    public void testBasicInt() {
 
         BaseInt i = mock(BaseInt.class);
         when(i.getInt()).thenAnswer(new SpecifiedValuesAnswer<>(7));

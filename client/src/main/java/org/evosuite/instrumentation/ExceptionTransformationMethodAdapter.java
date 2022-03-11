@@ -59,30 +59,30 @@ public class ExceptionTransformationMethodAdapter extends GeneratorAdapter {
     @Override
     public void visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf) {
 
-        if(!ExceptionTransformationClassAdapter.methodExceptionMap.containsKey(owner) ||
-           !ExceptionTransformationClassAdapter.methodExceptionMap.get(owner).containsKey(name+desc)) {
+        if (!ExceptionTransformationClassAdapter.methodExceptionMap.containsKey(owner) ||
+                !ExceptionTransformationClassAdapter.methodExceptionMap.get(owner).containsKey(name + desc)) {
             logger.debug("Method {} does not throw exceptions", name);
             super.visitMethodInsn(opcode, owner, name, desc, itf);
             return;
         }
 
-        Set<Type> declaredExceptions = ExceptionTransformationClassAdapter.methodExceptionMap.get(owner).get(name+desc);
+        Set<Type> declaredExceptions = ExceptionTransformationClassAdapter.methodExceptionMap.get(owner).get(name + desc);
 
         // No instrumentation if the method doesn't throw anything
-        if(declaredExceptions.isEmpty()) {
+        if (declaredExceptions.isEmpty()) {
             super.visitMethodInsn(opcode, owner, name, desc, itf);
             return;
         }
 
         // Create a variable that stores the thrown exception, or null if no exception was thrown
         int exceptionInstanceVar = newLocal(Type.getType(Throwable.class));
-        push((String)null);
+        push((String) null);
         storeLocal(exceptionInstanceVar);
 
         // Insert start of try block label
         Label start = newLabel();
-        Label end   = newLabel();
-        Label catchLabel  = newLabel();
+        Label end = newLabel();
+        Label catchLabel = newLabel();
         super.visitTryCatchBlock(start, end, catchLabel, null);
         TryCatchBlock block = new TryCatchBlock(start, end, catchLabel, null);
         instrumentedTryCatchBlocks.add(block);
@@ -115,7 +115,7 @@ public class ExceptionTransformationMethodAdapter extends GeneratorAdapter {
         Label noExceptionLabel = newLabel();
 
         // If there was an exception, rethrow it, with one if per declared exception type
-        for(Type exceptionType : declaredExceptions) {
+        for (Type exceptionType : declaredExceptions) {
             loadLocal(exceptionInstanceVar);
             instanceOf(exceptionType);
             Label noJump = newLabel();
@@ -202,9 +202,9 @@ public class ExceptionTransformationMethodAdapter extends GeneratorAdapter {
         // super.visitTryCatchBlock(start, end, handler, type);
     }
 
-    	/* (non-Javadoc)
-	 * @see org.objectweb.asm.MethodVisitor#visitEnd()
-	 */
+    /* (non-Javadoc)
+     * @see org.objectweb.asm.MethodVisitor#visitEnd()
+     */
     /** {@inheritDoc} */
 //    @Override
 //    public void visitEnd() {
@@ -212,10 +212,13 @@ public class ExceptionTransformationMethodAdapter extends GeneratorAdapter {
 //        mn.accept(next);
 //    }
 
-	/* (non-Javadoc)
-	 * @see org.objectweb.asm.commons.LocalVariablesSorter#visitMaxs(int, int)
-	 */
-    /** {@inheritDoc} */
+    /* (non-Javadoc)
+     * @see org.objectweb.asm.commons.LocalVariablesSorter#visitMaxs(int, int)
+     */
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void visitMaxs(int maxStack, int maxLocals) {
         super.visitMaxs(maxStack + 1, maxLocals);

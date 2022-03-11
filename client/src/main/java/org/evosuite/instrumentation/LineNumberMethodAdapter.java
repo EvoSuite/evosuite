@@ -38,91 +38,99 @@ import java.util.List;
  */
 public class LineNumberMethodAdapter extends MethodVisitor {
 
-	@SuppressWarnings("unused")
-	private static final Logger logger = LoggerFactory.getLogger(LineNumberMethodAdapter.class);
+    @SuppressWarnings("unused")
+    private static final Logger logger = LoggerFactory.getLogger(LineNumberMethodAdapter.class);
 
-	private final String fullMethodName;
+    private final String fullMethodName;
 
-	private final String methodName;
+    private final String methodName;
 
-	private final String className;
+    private final String className;
 
-	private boolean hadInvokeSpecial = false;
+    private boolean hadInvokeSpecial = false;
 
-	private List<Integer> skippedLines = new ArrayList<>();
+    private final List<Integer> skippedLines = new ArrayList<>();
 
-	int currentLine = 0;
+    int currentLine = 0;
 
-	/**
-	 * <p>Constructor for LineNumberMethodAdapter.</p>
-	 *
-	 * @param mv a {@link org.objectweb.asm.MethodVisitor} object.
-	 * @param className a {@link java.lang.String} object.
-	 * @param methodName a {@link java.lang.String} object.
-	 * @param desc a {@link java.lang.String} object.
-	 */
-	public LineNumberMethodAdapter(MethodVisitor mv, String className, String methodName,
-	        String desc) {
-		super(Opcodes.ASM9, mv);
-		fullMethodName = methodName + desc;
-		this.className = className;
-		this.methodName = methodName;
-		if (!methodName.equals("<init>"))
-			hadInvokeSpecial = true;
-	}
+    /**
+     * <p>Constructor for LineNumberMethodAdapter.</p>
+     *
+     * @param mv         a {@link org.objectweb.asm.MethodVisitor} object.
+     * @param className  a {@link java.lang.String} object.
+     * @param methodName a {@link java.lang.String} object.
+     * @param desc       a {@link java.lang.String} object.
+     */
+    public LineNumberMethodAdapter(MethodVisitor mv, String className, String methodName,
+                                   String desc) {
+        super(Opcodes.ASM9, mv);
+        fullMethodName = methodName + desc;
+        this.className = className;
+        this.methodName = methodName;
+        if (!methodName.equals("<init>"))
+            hadInvokeSpecial = true;
+    }
 
-	private void addLineNumberInstrumentation(int line) {
-		LinePool.addLine(className, fullMethodName, line);
-		this.visitLdcInsn(className);
-		this.visitLdcInsn(fullMethodName);
-		this.visitLdcInsn(line);
-		mv.visitMethodInsn(Opcodes.INVOKESTATIC,
-				PackageInfo.getNameWithSlash(ExecutionTracer.class),
-				"passedLine", "(Ljava/lang/String;Ljava/lang/String;I)V", false);
-	}
+    private void addLineNumberInstrumentation(int line) {
+        LinePool.addLine(className, fullMethodName, line);
+        this.visitLdcInsn(className);
+        this.visitLdcInsn(fullMethodName);
+        this.visitLdcInsn(line);
+        mv.visitMethodInsn(Opcodes.INVOKESTATIC,
+                PackageInfo.getNameWithSlash(ExecutionTracer.class),
+                "passedLine", "(Ljava/lang/String;Ljava/lang/String;I)V", false);
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public void visitLineNumber(int line, Label start) {
-		super.visitLineNumber(line, start);
-		currentLine = line;
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void visitLineNumber(int line, Label start) {
+        super.visitLineNumber(line, start);
+        currentLine = line;
 
-		if (methodName.equals("<clinit>"))
-			return;
+        if (methodName.equals("<clinit>"))
+            return;
 
-		if (!hadInvokeSpecial) {
-			skippedLines.add(line);
-			return;
-		}
+        if (!hadInvokeSpecial) {
+            skippedLines.add(line);
+            return;
+        }
 
-		addLineNumberInstrumentation(line);
-	}
+        addLineNumberInstrumentation(line);
+    }
 
-	/* (non-Javadoc)
-	 * @see org.objectweb.asm.MethodAdapter#visitMethodInsn(int, java.lang.String, java.lang.String, java.lang.String)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public void visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf) {
-		super.visitMethodInsn(opcode, owner, name, desc, itf);
-		if (opcode == Opcodes.INVOKESPECIAL) {
-			if (methodName.equals("<init>")) {
-				hadInvokeSpecial = true;
-				for(int line : skippedLines) {
-					addLineNumberInstrumentation(line);
-				}
-				skippedLines.clear();
-			}
-		}
-	}
+    /* (non-Javadoc)
+     * @see org.objectweb.asm.MethodAdapter#visitMethodInsn(int, java.lang.String, java.lang.String, java.lang.String)
+     */
 
-	/* (non-Javadoc)
-	 * @see org.objectweb.asm.commons.LocalVariablesSorter#visitMaxs(int, int)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public void visitMaxs(int maxStack, int maxLocals) {
-		int maxNum = 3;
-		super.visitMaxs(Math.max(maxNum, maxStack), maxLocals);
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf) {
+        super.visitMethodInsn(opcode, owner, name, desc, itf);
+        if (opcode == Opcodes.INVOKESPECIAL) {
+            if (methodName.equals("<init>")) {
+                hadInvokeSpecial = true;
+                for (int line : skippedLines) {
+                    addLineNumberInstrumentation(line);
+                }
+                skippedLines.clear();
+            }
+        }
+    }
+
+    /* (non-Javadoc)
+     * @see org.objectweb.asm.commons.LocalVariablesSorter#visitMaxs(int, int)
+     */
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void visitMaxs(int maxStack, int maxLocals) {
+        int maxNum = 3;
+        super.visitMaxs(Math.max(maxNum, maxStack), maxLocals);
+    }
 }

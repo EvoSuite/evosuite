@@ -23,45 +23,45 @@ import org.objectweb.asm.Type;
 
 public interface Types {
 
-	String JAVA_LANG_STRING_BUFFER = StringBuffer.class
-			.getName().replace('.', '/');
+    String JAVA_LANG_STRING_BUFFER = StringBuffer.class
+            .getName().replace('.', '/');
 
-	Type STRING_TYPE = Type.getType(String.class);
+    Type STRING_TYPE = Type.getType(String.class);
 
-	String STR_TO_VOID_DESCRIPTOR = Type
-			.getMethodDescriptor(Type.VOID_TYPE, STRING_TYPE);
+    String STR_TO_VOID_DESCRIPTOR = Type
+            .getMethodDescriptor(Type.VOID_TYPE, STRING_TYPE);
 
-	String JAVA_LANG_STRING = String.class.getName()
-			.replace('.', '/');
+    String JAVA_LANG_STRING = String.class.getName()
+            .replace('.', '/');
 
-	String TO_STR_DESCRIPTOR = Type
-			.getMethodDescriptor(STRING_TYPE);
+    String TO_STR_DESCRIPTOR = Type
+            .getMethodDescriptor(STRING_TYPE);
 
-	Type STRING_BUFFER_TYPE = Type
-			.getType(StringBuffer.class);
+    Type STRING_BUFFER_TYPE = Type
+            .getType(StringBuffer.class);
 
-	String Z_TO_STRING_BUFFER = Type.getMethodDescriptor(
-			STRING_BUFFER_TYPE, Type.BOOLEAN_TYPE);
+    String Z_TO_STRING_BUFFER = Type.getMethodDescriptor(
+            STRING_BUFFER_TYPE, Type.BOOLEAN_TYPE);
 
-	String C_TO_STRING_BUFFER = Type.getMethodDescriptor(
-			STRING_BUFFER_TYPE, Type.CHAR_TYPE);
+    String C_TO_STRING_BUFFER = Type.getMethodDescriptor(
+            STRING_BUFFER_TYPE, Type.CHAR_TYPE);
 
-	String I_TO_STRING_BUFFER = Type.getMethodDescriptor(
-			STRING_BUFFER_TYPE, Type.INT_TYPE);
+    String I_TO_STRING_BUFFER = Type.getMethodDescriptor(
+            STRING_BUFFER_TYPE, Type.INT_TYPE);
 
-	String L_TO_STRING_BUFFER = Type.getMethodDescriptor(
-			STRING_BUFFER_TYPE, Type.LONG_TYPE);
+    String L_TO_STRING_BUFFER = Type.getMethodDescriptor(
+            STRING_BUFFER_TYPE, Type.LONG_TYPE);
 
-	String F_TO_STRING_BUFFER = Type.getMethodDescriptor(
-			STRING_BUFFER_TYPE, Type.FLOAT_TYPE);
+    String F_TO_STRING_BUFFER = Type.getMethodDescriptor(
+            STRING_BUFFER_TYPE, Type.FLOAT_TYPE);
 
-	String D_TO_STRING_BUFFER = Type.getMethodDescriptor(
-			STRING_BUFFER_TYPE, Type.DOUBLE_TYPE);
+    String D_TO_STRING_BUFFER = Type.getMethodDescriptor(
+            STRING_BUFFER_TYPE, Type.DOUBLE_TYPE);
 
-	String STR_TO_STRING_BUFFER = Type.getMethodDescriptor(
-			STRING_BUFFER_TYPE, STRING_TYPE);
+    String STR_TO_STRING_BUFFER = Type.getMethodDescriptor(
+            STRING_BUFFER_TYPE, STRING_TYPE);
 
-	String INT_TO_VOID_DESCRIPTOR = Type.getMethodDescriptor(
-			Type.VOID_TYPE, Type.INT_TYPE);
+    String INT_TO_VOID_DESCRIPTOR = Type.getMethodDescriptor(
+            Type.VOID_TYPE, Type.INT_TYPE);
 
 }

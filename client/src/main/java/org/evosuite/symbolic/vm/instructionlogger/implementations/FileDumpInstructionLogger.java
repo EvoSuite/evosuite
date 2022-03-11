@@ -23,11 +23,7 @@ import org.evosuite.utils.SystemPathUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
 
 /**
  * Instruction Logger that outputs through a text file.
@@ -45,7 +41,7 @@ public final class FileDumpInstructionLogger extends AbstractInstructionLogger {
      */
     private static long internalCount = 0;
 
-    private String filePath;
+    private final String filePath;
 
     private FileWriter fstream;
     private BufferedWriter writer;

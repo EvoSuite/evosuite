@@ -20,11 +20,7 @@
 
 package org.evosuite.instrumentation;
 
-import org.objectweb.asm.AnnotationVisitor;
-import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.FieldVisitor;
-import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.*;
 
 /**
  * <p>EmptyVisitor class.</p>
@@ -33,66 +29,72 @@ import org.objectweb.asm.Opcodes;
  */
 public class EmptyVisitor extends ClassVisitor {
 
-	AnnotationVisitor av = new AnnotationVisitor(Opcodes.ASM9) {
+    AnnotationVisitor av = new AnnotationVisitor(Opcodes.ASM9) {
 
-		@Override
-		public AnnotationVisitor visitAnnotation(String name, String desc) {
-			return this;
-		}
+        @Override
+        public AnnotationVisitor visitAnnotation(String name, String desc) {
+            return this;
+        }
 
-		@Override
-		public AnnotationVisitor visitArray(String name) {
-			return this;
-		}
-	};
+        @Override
+        public AnnotationVisitor visitArray(String name) {
+            return this;
+        }
+    };
 
-	/**
-	 * <p>Constructor for EmptyVisitor.</p>
-	 */
-	public EmptyVisitor() {
-		super(Opcodes.ASM9);
-	}
+    /**
+     * <p>Constructor for EmptyVisitor.</p>
+     */
+    public EmptyVisitor() {
+        super(Opcodes.ASM9);
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
-		return av;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
+        return av;
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public FieldVisitor visitField(int access, String name, String desc,
-	        String signature, Object value) {
-		return new FieldVisitor(Opcodes.ASM9) {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public FieldVisitor visitField(int access, String name, String desc,
+                                   String signature, Object value) {
+        return new FieldVisitor(Opcodes.ASM9) {
 
-			@Override
-			public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
-				return av;
-			}
-		};
-	}
+            @Override
+            public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
+                return av;
+            }
+        };
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public MethodVisitor visitMethod(int access, String name, String desc,
-	        String signature, String[] exceptions) {
-		return new MethodVisitor(Opcodes.ASM9) {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public MethodVisitor visitMethod(int access, String name, String desc,
+                                     String signature, String[] exceptions) {
+        return new MethodVisitor(Opcodes.ASM9) {
 
-			@Override
-			public AnnotationVisitor visitAnnotationDefault() {
-				return av;
-			}
+            @Override
+            public AnnotationVisitor visitAnnotationDefault() {
+                return av;
+            }
 
-			@Override
-			public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
-				return av;
-			}
+            @Override
+            public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
+                return av;
+            }
 
-			@Override
-			public AnnotationVisitor visitParameterAnnotation(int parameter, String desc,
-			        boolean visible) {
-				return av;
-			}
-		};
-	}
+            @Override
+            public AnnotationVisitor visitParameterAnnotation(int parameter, String desc,
+                                                              boolean visible) {
+                return av;
+            }
+        };
+    }
 }

@@ -29,7 +29,6 @@ import java.lang.annotation.*;
  * <p>
  * This is also useful internally inside EvoSuite for example on mock objects (eg no point in calling
  * a sleep() on thread in a test case).
- *
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)

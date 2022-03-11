@@ -32,9 +32,8 @@ import java.net.UnknownHostException;
 /**
  * This class is used to create socket connections as test data
  * in the test cases.
- * 
- * @author arcuri
  *
+ * @author arcuri
  */
 public class NetworkHandling {
 
@@ -43,81 +42,84 @@ public class NetworkHandling {
         Do not change signatures unless you update that class as well.
      */
 
-	/**
-	 * Unless otherwise specified, we simulate incoming connections all
-	 * from same remote host
-	 */
-	private static final String DEFAULT_REMOTE_ADDRESS = "192.168.0.99";
+    /**
+     * Unless otherwise specified, we simulate incoming connections all
+     * from same remote host
+     */
+    private static final String DEFAULT_REMOTE_ADDRESS = "192.168.0.99";
 
 
     /**
      * Create a one-time listener on remote address/port
+     *
      * @param remoteServer
      * @return
      */
-    public static boolean openRemoteTcpServer(EvoSuiteRemoteAddress remoteServer){
-        if(remoteServer==null){
+    public static boolean openRemoteTcpServer(EvoSuiteRemoteAddress remoteServer) {
+        if (remoteServer == null) {
             return false;
         }
 
-        RemoteTcpServer server = new RemoteTcpServer(new EndPointInfo(remoteServer.getHost(),remoteServer.getPort(), VirtualNetwork.ConnectionType.TCP));
+        RemoteTcpServer server = new RemoteTcpServer(new EndPointInfo(remoteServer.getHost(), remoteServer.getPort(), VirtualNetwork.ConnectionType.TCP));
         VirtualNetwork.getInstance().addRemoteTcpServer(server);
 
         return true;
     }
 
-	/**
-	 * Open new connection toward {@code sutServer} and buffer the content of {@code data}
-	 * to be later sent once {@code sutServer} is opened
-	 * 
-	 * @param sutServer  the host/port of the SUT 
-	 * @param data  if {@code null}, just simulate opening of connection
-	 * @return {@code false} if {@code sutServer} is {@code null}
-	 */
-	public static boolean sendDataOnTcp(EvoSuiteLocalAddress sutServer, byte[] data){
-		if(sutServer==null){
-			return false;
-		}
-		
-		NativeTcp connection = VirtualNetwork.getInstance().registerIncomingTcpConnection(
-				DEFAULT_REMOTE_ADDRESS, VirtualNetwork.getInstance().getNewRemoteEphemeralPort(),  
-				sutServer.getHost(), sutServer.getPort());
-		
-		/*
-		 * At this point in time the SUT has not opened a connection yet (if it did,
-		 * it would had thrown an IOException).
-		 * But we can already put the message on the buffer
-		 */
-		
-		if(data != null){
-			for(byte b : data){
-				connection.writeToSUT(b);
-			}
-		}
-		//TODO close connection? or should rather be in another helper function? 
-		
-		return true;
-	}
+    /**
+     * Open new connection toward {@code sutServer} and buffer the content of {@code data}
+     * to be later sent once {@code sutServer} is opened
+     *
+     * @param sutServer the host/port of the SUT
+     * @param data      if {@code null}, just simulate opening of connection
+     * @return {@code false} if {@code sutServer} is {@code null}
+     */
+    public static boolean sendDataOnTcp(EvoSuiteLocalAddress sutServer, byte[] data) {
+        if (sutServer == null) {
+            return false;
+        }
+
+        NativeTcp connection = VirtualNetwork.getInstance().registerIncomingTcpConnection(
+                DEFAULT_REMOTE_ADDRESS, VirtualNetwork.getInstance().getNewRemoteEphemeralPort(),
+                sutServer.getHost(), sutServer.getPort());
+
+        /*
+         * At this point in time the SUT has not opened a connection yet (if it did,
+         * it would had thrown an IOException).
+         * But we can already put the message on the buffer
+         */
+
+        if (data != null) {
+            for (byte b : data) {
+                connection.writeToSUT(b);
+            }
+        }
+        //TODO close connection? or should rather be in another helper function?
+
+        return true;
+    }
 
     /**
      * Convert {@code message} to a byte array and send it with
      * {@link NetworkHandling#sendDataOnTcp}
+     *
      * @param sutServer
      * @param message
      * @return
      */
-    public static boolean sendMessageOnTcp(EvoSuiteLocalAddress sutServer, String message){
-        return sendDataOnTcp(sutServer,message.getBytes());
+    public static boolean sendMessageOnTcp(EvoSuiteLocalAddress sutServer, String message) {
+        return sendDataOnTcp(sutServer, message.getBytes());
     }
 
     /**
      * Send UDP to SUT from an ephemeral port on a default remote host
+     *
      * @param sutAddress
      * @param data
      * @return
      */
-    public static boolean sendUdpPacket(EvoSuiteLocalAddress sutAddress, byte[] data){
-        return sendUdpPacket(sutAddress, new EvoSuiteRemoteAddress(DEFAULT_REMOTE_ADDRESS, VirtualNetwork.getInstance().getNewRemoteEphemeralPort()),data);
+    public static boolean sendUdpPacket(EvoSuiteLocalAddress sutAddress, byte[] data) {
+        return sendUdpPacket(sutAddress, new EvoSuiteRemoteAddress(DEFAULT_REMOTE_ADDRESS, VirtualNetwork.getInstance().getNewRemoteEphemeralPort()), data);
     }
 
     /**
@@ -128,13 +130,13 @@ public class NetworkHandling {
      * @param data
      * @return
      */
-    public static boolean sendUdpPacket(EvoSuiteLocalAddress sutAddress, EvoSuiteRemoteAddress remoteAddress, byte[] data){
-        if(sutAddress == null){
+    public static boolean sendUdpPacket(EvoSuiteLocalAddress sutAddress, EvoSuiteRemoteAddress remoteAddress, byte[] data) {
+        if (sutAddress == null) {
             return false;
         }
 
         //data can be null
-        if(data == null){
+        if (data == null) {
             data = new byte[0];
         }
 
@@ -147,25 +149,24 @@ public class NetworkHandling {
         }
 
         VirtualNetwork.getInstance().sendPacketToSUT(data,
-                address,remoteAddress.getPort(),
+                address, remoteAddress.getPort(),
                 sutAddress.getHost(), sutAddress.getPort());
 
         return true;
     }
 
 
-
-
     /**
-     *  Create a text file on mocked remote host that can be accessed with the given URL
+     * Create a text file on mocked remote host that can be accessed with the given URL
+     *
      * @param url
      * @param text
      * @return
      */
-    public static boolean createRemoteTextFile(EvoSuiteURL url, String text){
-        if(url == null){
+    public static boolean createRemoteTextFile(EvoSuiteURL url, String text) {
+        if (url == null) {
             return false;
         }
-        return VirtualNetwork.getInstance().addRemoteTextFile(url.getUrl(),text);
+        return VirtualNetwork.getInstance().addRemoteTextFile(url.getUrl(), text);
     }
 }

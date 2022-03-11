@@ -19,11 +19,18 @@
  */
 package org.evosuite.symbolic.solver.avm;
 
-import static org.evosuite.symbolic.SymbolicObserverTest.printConstraints;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
-import static org.evosuite.symbolic.solver.TestSolver.solve;
+import com.examples.with.different.packagename.concolic.StringSearch2;
+import org.evosuite.Properties;
+import org.evosuite.RandomizedTC;
+import org.evosuite.symbolic.BranchCondition;
+import org.evosuite.symbolic.PathCondition;
+import org.evosuite.symbolic.TestCaseBuilder;
+import org.evosuite.symbolic.dse.ConcolicExecutorImpl;
+import org.evosuite.symbolic.expr.Constraint;
+import org.evosuite.symbolic.solver.SolverTimeoutException;
+import org.evosuite.testcase.DefaultTestCase;
+import org.evosuite.testcase.variable.VariableReference;
+import org.junit.Test;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -31,130 +38,120 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import org.evosuite.Properties;
-import org.evosuite.RandomizedTC;
-import org.evosuite.symbolic.BranchCondition;
-import org.evosuite.symbolic.dse.ConcolicExecutorImpl;
-import org.evosuite.symbolic.PathCondition;
-import org.evosuite.symbolic.TestCaseBuilder;
-import org.evosuite.symbolic.expr.Constraint;
-import org.evosuite.symbolic.solver.SolverTimeoutException;
-import org.evosuite.testcase.DefaultTestCase;
-import org.evosuite.testcase.variable.VariableReference;
-import org.junit.Test;
-
-import com.examples.with.different.packagename.concolic.StringSearch2;
+import static org.evosuite.symbolic.SymbolicObserverTest.printConstraints;
+import static org.evosuite.symbolic.solver.TestSolver.solve;
+import static org.junit.Assert.*;
 
 public class TestStringSearch2 extends RandomizedTC {
 
-	@Test
-	public void testValidPathURN() {
-		String pathURN = "urn:path:/A/B/C/doc.html#gilada";
-		StringSearch2.checkPathURN(pathURN);
-	}
+    @Test
+    public void testValidPathURN() {
+        String pathURN = "urn:path:/A/B/C/doc.html#gilada";
+        StringSearch2.checkPathURN(pathURN);
+    }
 
-	@Test
-	public void testValidPathURN2() {
-		String pathURN = "u:path:/";
-		StringSearch2.checkPathURN(pathURN);
-	}
+    @Test
+    public void testValidPathURN2() {
+        String pathURN = "u:path:/";
+        StringSearch2.checkPathURN(pathURN);
+    }
 
-	@Test
-	public void testInvalidPathURN() {
-		try {
-			String pathURN = "urn:paxth:/A/B/C/doc.html#gilada";
-			StringSearch2.checkPathURN(pathURN);
-			fail();
-		} catch (RuntimeException ex) {
-		}
-	}
+    @Test
+    public void testInvalidPathURN() {
+        try {
+            String pathURN = "urn:paxth:/A/B/C/doc.html#gilada";
+            StringSearch2.checkPathURN(pathURN);
+            fail();
+        } catch (RuntimeException ex) {
+        }
+    }
 
-	@Test
-	public void testCreatePathConstraint() throws SecurityException, NoSuchMethodException {
-		DefaultTestCase tc = buildTestCase("urn:pBth:/A/B/C/doc.html#gilada");
-		List<BranchCondition> branch_conditions = executeTest(tc);
-		assertEquals(11, branch_conditions.size());
-	}
+    @Test
+    public void testCreatePathConstraint() throws SecurityException, NoSuchMethodException {
+        DefaultTestCase tc = buildTestCase("urn:pBth:/A/B/C/doc.html#gilada");
+        List<BranchCondition> branch_conditions = executeTest(tc);
+        assertEquals(11, branch_conditions.size());
+    }
 
-	@Test
-	public void testSolvePathConstraint() throws SecurityException, NoSuchMethodException {
-		DefaultTestCase tc = buildTestCase("urn:pBth:/A/B/C/doc.html#gilada");
-		List<BranchCondition> branch_conditions = executeTest(tc);
+    @Test
+    public void testSolvePathConstraint() throws SecurityException, NoSuchMethodException {
+        DefaultTestCase tc = buildTestCase("urn:pBth:/A/B/C/doc.html#gilada");
+        List<BranchCondition> branch_conditions = executeTest(tc);
 
-		Collection<Constraint<?>> constraints = new ArrayList<>();
+        Collection<Constraint<?>> constraints = new ArrayList<>();
 
-		for (int i = 0; i < branch_conditions.size() - 1; i++) {
-			BranchCondition b = branch_conditions.get(i);
-			constraints.addAll(b.getSupportingConstraints());
-			constraints.add(b.getConstraint());
-		}
+        for (int i = 0; i < branch_conditions.size() - 1; i++) {
+            BranchCondition b = branch_conditions.get(i);
+            constraints.addAll(b.getSupportingConstraints());
+            constraints.add(b.getConstraint());
+        }
 
-		BranchCondition last_branch = branch_conditions.get(branch_conditions.size() - 1);
-		constraints.addAll(last_branch.getSupportingConstraints());
-		constraints.add(last_branch.getConstraint().negate());
+        BranchCondition last_branch = branch_conditions.get(branch_conditions.size() - 1);
+        constraints.addAll(last_branch.getSupportingConstraints());
+        constraints.add(last_branch.getConstraint().negate());
 
-		EvoSuiteSolver solver = new EvoSuiteSolver();
-		Map<String, Object> solution;
-		try {
-			solution = solve(solver, constraints);
-			assertNotNull(solution);
-			System.out.println(solution);
-		} catch (SolverTimeoutException e) {
-			fail();
-		}
+        EvoSuiteSolver solver = new EvoSuiteSolver();
+        Map<String, Object> solution;
+        try {
+            solution = solve(solver, constraints);
+            assertNotNull(solution);
+            System.out.println(solution);
+        } catch (SolverTimeoutException e) {
+            fail();
+        }
 
-	}
+    }
 
-	@Test
-	public void testSolveIndexOfConstant() throws SecurityException, NoSuchMethodException {
-		DefaultTestCase tc = buildTestCase("V*X-:o%tp");
-		List<BranchCondition> branch_conditions = executeTest(tc);
+    @Test
+    public void testSolveIndexOfConstant() throws SecurityException, NoSuchMethodException {
+        DefaultTestCase tc = buildTestCase("V*X-:o%tp");
+        List<BranchCondition> branch_conditions = executeTest(tc);
 
-		Collection<Constraint<?>> constraints = new ArrayList<>();
-		for (int i = 0; i < branch_conditions.size() - 2; i++) {
-			BranchCondition b = branch_conditions.get(i);
-			constraints.addAll(b.getSupportingConstraints());
-			constraints.add(b.getConstraint());
-		}
-		BranchCondition last_branch = branch_conditions.get(branch_conditions.size() - 2);
+        Collection<Constraint<?>> constraints = new ArrayList<>();
+        for (int i = 0; i < branch_conditions.size() - 2; i++) {
+            BranchCondition b = branch_conditions.get(i);
+            constraints.addAll(b.getSupportingConstraints());
+            constraints.add(b.getConstraint());
+        }
+        BranchCondition last_branch = branch_conditions.get(branch_conditions.size() - 2);
 
-		constraints.addAll(last_branch.getSupportingConstraints());
-		constraints.add(last_branch.getConstraint().negate());
+        constraints.addAll(last_branch.getSupportingConstraints());
+        constraints.add(last_branch.getConstraint().negate());
 
-		EvoSuiteSolver solver = new EvoSuiteSolver();
-		Map<String, Object> solution;
-		try {
-			solution = solve(solver, constraints);
-			assertNotNull(solution);
-			System.out.println(solution);
-		} catch (SolverTimeoutException e) {
-			fail();
-		}
+        EvoSuiteSolver solver = new EvoSuiteSolver();
+        Map<String, Object> solution;
+        try {
+            solution = solve(solver, constraints);
+            assertNotNull(solution);
+            System.out.println(solution);
+        } catch (SolverTimeoutException e) {
+            fail();
+        }
 
-	}
+    }
 
-	private DefaultTestCase buildTestCase(String stringVal) throws SecurityException, NoSuchMethodException {
-		TestCaseBuilder tc = new TestCaseBuilder();
-		VariableReference string0 = tc.appendStringPrimitive(stringVal);
-		Method method = StringSearch2.class.getMethod("checkPathURN", String.class);
-		tc.appendMethod(null, method, string0);
-		return tc.getDefaultTestCase();
-	}
+    private DefaultTestCase buildTestCase(String stringVal) throws SecurityException, NoSuchMethodException {
+        TestCaseBuilder tc = new TestCaseBuilder();
+        VariableReference string0 = tc.appendStringPrimitive(stringVal);
+        Method method = StringSearch2.class.getMethod("checkPathURN", String.class);
+        tc.appendMethod(null, method, string0);
+        return tc.getDefaultTestCase();
+    }
 
-	private List<BranchCondition> executeTest(DefaultTestCase tc) {
-		Properties.CLIENT_ON_THREAD = true;
-		Properties.PRINT_TO_SYSTEM = true;
-		Properties.TIMEOUT = 5000;
-		Properties.CONCOLIC_TIMEOUT = 5000000;
+    private List<BranchCondition> executeTest(DefaultTestCase tc) {
+        Properties.CLIENT_ON_THREAD = true;
+        Properties.PRINT_TO_SYSTEM = true;
+        Properties.TIMEOUT = 5000;
+        Properties.CONCOLIC_TIMEOUT = 5000000;
 
-		System.out.println("TestCase=");
-		System.out.println(tc.toCode());
+        System.out.println("TestCase=");
+        System.out.println(tc.toCode());
 
-		PathCondition pc = new ConcolicExecutorImpl().execute(tc);
-		List<BranchCondition> branch_conditions = pc.getBranchConditions();
+        PathCondition pc = new ConcolicExecutorImpl().execute(tc);
+        List<BranchCondition> branch_conditions = pc.getBranchConditions();
 
-		printConstraints(branch_conditions);
-		return branch_conditions;
-	}
+        printConstraints(branch_conditions);
+        return branch_conditions;
+    }
 
 }

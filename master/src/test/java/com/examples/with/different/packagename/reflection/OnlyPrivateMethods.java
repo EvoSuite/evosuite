@@ -24,12 +24,12 @@ package com.examples.with.different.packagename.reflection;
  */
 public class OnlyPrivateMethods {
 
-    private void param0(){
+    private void param0() {
         System.out.println("param0");
     }
 
-    private void param1(String s){
-        System.out.println("param1: "+s);
+    private void param1(String s) {
+        System.out.println("param1: " + s);
     }
 
     /*

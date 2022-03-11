@@ -31,43 +31,47 @@ import org.evosuite.symbolic.expr.bv.IntegerVariable;
  */
 public class ArrayLengthSymbolicUtil {
 
-  /** Represents the minimum value that an array dimension could have */
-	public static final int ARRAY_DIMENSION_LENGTH_MIN_VALUE = 0;
+    /**
+     * Represents the minimum value that an array dimension could have
+     */
+    public static final int ARRAY_DIMENSION_LENGTH_MIN_VALUE = 0;
 
-	/** Position of the dimension of an uni-dimensional array */
-  public static final int UNIDIMENTIONAL_ARRAY_VALUE = 0;
+    /**
+     * Position of the dimension of an uni-dimensional array
+     */
+    public static final int UNIDIMENTIONAL_ARRAY_VALUE = 0;
 
-/**
-	 * Creates the expression for an array length.
-	 *
-	 * @param length
-	 * @param arraySymbolicLengthName
- * @return
-	 */
-	public static IntegerValue buildArraySymbolicLengthExpression(int length, ArraySymbolicLengthName arraySymbolicLengthName) {
-		IntegerValue lengthExpression;
+    /**
+     * Creates the expression for an array length.
+     *
+     * @param length
+     * @param arraySymbolicLengthName
+     * @return
+     */
+    public static IntegerValue buildArraySymbolicLengthExpression(int length, ArraySymbolicLengthName arraySymbolicLengthName) {
+        IntegerValue lengthExpression;
 
-		// If arrays support is enabled, we create the symbolic value
-		if (isSymbolicArraysSupportEnabled()) {
-			lengthExpression = new IntegerVariable(
-				arraySymbolicLengthName.getSymbolicName(),
-				length,
-				ARRAY_DIMENSION_LENGTH_MIN_VALUE,
-				Integer.MAX_VALUE);
+        // If arrays support is enabled, we create the symbolic value
+        if (isSymbolicArraysSupportEnabled()) {
+            lengthExpression = new IntegerVariable(
+                    arraySymbolicLengthName.getSymbolicName(),
+                    length,
+                    ARRAY_DIMENSION_LENGTH_MIN_VALUE,
+                    Integer.MAX_VALUE);
 
-		// Otherwise a constant value is created
-		} else {
-			lengthExpression = new IntegerConstant(length);
-		}
-		return lengthExpression;
-	}
+            // Otherwise a constant value is created
+        } else {
+            lengthExpression = new IntegerConstant(length);
+        }
+        return lengthExpression;
+    }
 
-  /**
-   * Checks if support for symbolic arrays is enabled.
-   *
-   * @return
-   */
-  public static boolean isSymbolicArraysSupportEnabled() {
-    return Properties.IS_DSE_ARRAYS_SUPPORT_ENABLED;
-  }
+    /**
+     * Checks if support for symbolic arrays is enabled.
+     *
+     * @return
+     */
+    public static boolean isSymbolicArraysSupportEnabled() {
+        return Properties.IS_DSE_ARRAYS_SUPPORT_ENABLED;
+    }
 }

@@ -31,10 +31,10 @@ public abstract class ReferenceTypeExpression extends AbstractExpression<Object>
     private static final long serialVersionUID = 4684495307141703121L;
 
     /**
-	 * This is the result of applying System.identityHashCode to the concrete
-	 * class.
-	 */
-	private int concIdentityHashCode;
+     * This is the result of applying System.identityHashCode to the concrete
+     * class.
+     */
+    private final int concIdentityHashCode;
 
     public ReferenceTypeExpression(Class concreteClass, int size, boolean containsSymbolicVariable) {
         super(concreteClass, size, containsSymbolicVariable);

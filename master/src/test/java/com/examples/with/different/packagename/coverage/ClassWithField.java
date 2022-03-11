@@ -21,8 +21,9 @@ package com.examples.with.different.packagename.coverage;
 
 public class ClassWithField {
 
-	public boolean BOOLEAN_FIELD = true;
+    public boolean BOOLEAN_FIELD = true;
 
-	public void testFoo(boolean arg) { }
+    public void testFoo(boolean arg) {
+    }
 
 }

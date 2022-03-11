@@ -37,38 +37,38 @@ import com.examples.with.different.packagename.stable.HashCodeClassInit;
 
 public class HashCodeClassInitSystemTest extends SystemTestBase {
 
-	@Before
-	public void configureProperties() {
-		Properties.SANDBOX = true;
-		Properties.JUNIT_CHECK_ON_SEPARATE_PROCESS = false;
-		Properties.RESET_STATIC_FIELDS = true;
-		Properties.REPLACE_CALLS = true;
-		Properties.JUNIT_CHECK = Properties.JUnitCheckValues.TRUE;
-		Properties.JUNIT_TESTS = true;
-		Properties.PURE_INSPECTORS = true;
-	}
+    @Before
+    public void configureProperties() {
+        Properties.SANDBOX = true;
+        Properties.JUNIT_CHECK_ON_SEPARATE_PROCESS = false;
+        Properties.RESET_STATIC_FIELDS = true;
+        Properties.REPLACE_CALLS = true;
+        Properties.JUNIT_CHECK = Properties.JUnitCheckValues.TRUE;
+        Properties.JUNIT_TESTS = true;
+        Properties.PURE_INSPECTORS = true;
+    }
 
-	@Test
-	public void testHashCodeClassInit() {
-		EvoSuite evosuite = new EvoSuite();
+    @Test
+    public void testHashCodeClassInit() {
+        EvoSuite evosuite = new EvoSuite();
 
-		String targetClass = HashCodeClassInit.class.getCanonicalName();
-		Properties.TARGET_CLASS = targetClass;
-		Properties.OUTPUT_VARIABLES=""+RuntimeVariable.HadUnstableTests;
-		String[] command = new String[] { "-generateSuite", "-class",
-				targetClass };
+        String targetClass = HashCodeClassInit.class.getCanonicalName();
+        Properties.TARGET_CLASS = targetClass;
+        Properties.OUTPUT_VARIABLES = "" + RuntimeVariable.HadUnstableTests;
+        String[] command = new String[]{"-generateSuite", "-class",
+                targetClass};
 
-		Object result = evosuite.parseCommandLine(command);
+        Object result = evosuite.parseCommandLine(command);
 
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
-		System.out.println("EvolvedTestSuite:\n" + best);
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
+        System.out.println("EvolvedTestSuite:\n" + best);
 
-		Map<String, OutputVariable<?>> map = DebugStatisticsBackend.getLatestWritten();
-		Assert.assertNotNull(map);
-		OutputVariable<?> unstable = map.get(RuntimeVariable.HadUnstableTests.toString());
-		Assert.assertNotNull(unstable);
-		Assert.assertEquals(Boolean.FALSE, unstable.getValue());
-	}
+        Map<String, OutputVariable<?>> map = DebugStatisticsBackend.getLatestWritten();
+        Assert.assertNotNull(map);
+        OutputVariable<?> unstable = map.get(RuntimeVariable.HadUnstableTests.toString());
+        Assert.assertNotNull(unstable);
+        Assert.assertEquals(Boolean.FALSE, unstable.getValue());
+    }
 
 }

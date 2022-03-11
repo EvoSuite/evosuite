@@ -24,11 +24,11 @@ import org.junit.Test;
 public class TestMethodWithSeveralInputArguments {
     @Test
     public void testWithNull() {
-        (new MethodWithSeveralInputArguments()).testFoo(42, '@', null, null );
+        (new MethodWithSeveralInputArguments()).testFoo(42, '@', null, null);
     }
 
     @Test
     public void testWithArray() {
-        (new MethodWithSeveralInputArguments()).testFoo(-42, '2', "asdf", new String[] {"foo", "bar"} );
+        (new MethodWithSeveralInputArguments()).testFoo(-42, '2', "asdf", new String[]{"foo", "bar"});
     }
 }

@@ -20,15 +20,15 @@
 
 package org.evosuite.testcase.variable;
 
-import java.lang.reflect.Type;
-
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.execution.Scope;
 import org.evosuite.testcase.statements.Statement;
+import org.evosuite.utils.NumberFormatter;
 import org.evosuite.utils.generic.GenericClass;
 import org.evosuite.utils.generic.GenericClassFactory;
 import org.evosuite.utils.generic.GenericClassImpl;
-import org.evosuite.utils.NumberFormatter;
+
+import java.lang.reflect.Type;
 
 
 /**
@@ -38,14 +38,14 @@ import org.evosuite.utils.NumberFormatter;
  */
 public class ConstantValue extends VariableReferenceImpl {
 
-	private static final long serialVersionUID = -3760942087575495415L;
+    private static final long serialVersionUID = -3760942087575495415L;
 
-	/**
-	 * <p>Constructor for ConstantValue.</p>
-	 *
-	 * @param testCase a {@link org.evosuite.testcase.TestCase} object.
-	 * @param type a {@link GenericClassImpl} object.
-	 */
+    /**
+     * <p>Constructor for ConstantValue.</p>
+     *
+     * @param testCase a {@link org.evosuite.testcase.TestCase} object.
+     * @param type     a {@link GenericClassImpl} object.
+     */
     public ConstantValue(TestCase testCase, GenericClass<?> type) {
         super(testCase, type);
     }
@@ -56,135 +56,135 @@ public class ConstantValue extends VariableReferenceImpl {
     }
 
     /**
-	 * <p>Constructor for ConstantValue.</p>
-	 *
-	 * @param testCase a {@link org.evosuite.testcase.TestCase} object.
-	 * @param type a {@link java.lang.reflect.Type} object.
-	 */
-	public ConstantValue(TestCase testCase, Type type) {
-		this(testCase, GenericClassFactory.get(type));
-	}
+     * <p>Constructor for ConstantValue.</p>
+     *
+     * @param testCase a {@link org.evosuite.testcase.TestCase} object.
+     * @param type     a {@link java.lang.reflect.Type} object.
+     */
+    public ConstantValue(TestCase testCase, Type type) {
+        this(testCase, GenericClassFactory.get(type));
+    }
 
-	/**
-	 * {@inheritDoc}
-	 *
-	 * Create a copy of the current variable
-	 */
-	@Override
-	public VariableReference copy(TestCase newTestCase, int offset) {
-		ConstantValue ret = new ConstantValue(newTestCase, type);
-		ret.setValue(value);
-		return ret;
-	}
-	
-	@Override
-	public VariableReference clone(TestCase newTestCase) {		
-		Statement st = newTestCase.getStatement(getStPosition());
-		for(VariableReference var : st.getVariableReferences()) {
-			if(same(var)) {
-				return var;
-			}
-		}
-		throw new IllegalArgumentException("Constant value not defined in new test");
-	}
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Create a copy of the current variable
+     */
+    @Override
+    public VariableReference copy(TestCase newTestCase, int offset) {
+        ConstantValue ret = new ConstantValue(newTestCase, type);
+        ret.setValue(value);
+        return ret;
+    }
 
-	private Object value;
+    @Override
+    public VariableReference clone(TestCase newTestCase) {
+        Statement st = newTestCase.getStatement(getStPosition());
+        for (VariableReference var : st.getVariableReferences()) {
+            if (same(var)) {
+                return var;
+            }
+        }
+        throw new IllegalArgumentException("Constant value not defined in new test");
+    }
 
-	/**
-	 * <p>Getter for the field <code>value</code>.</p>
-	 *
-	 * @return a {@link java.lang.Object} object.
-	 */
-	public Object getValue() {
-		return value;
-	}
+    private Object value;
 
-	/**
-	 * <p>Setter for the field <code>value</code>.</p>
-	 *
-	 * @param value a {@link java.lang.Object} object.
-	 */
-	public void setValue(Object value) {
-		this.value = value;
-	}
+    /**
+     * <p>Getter for the field <code>value</code>.</p>
+     *
+     * @return a {@link java.lang.Object} object.
+     */
+    public Object getValue() {
+        return value;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 *
-	 * The position of the statement, defining this VariableReference, in the
-	 * testcase.
-	 */
-	@Override
-	public int getStPosition() {
-		for (int i = 0; i < testCase.size(); i++) {
-			if (testCase.getStatement(i).references(this)) {
-				return i;
-			}
-		}
+    /**
+     * <p>Setter for the field <code>value</code>.</p>
+     *
+     * @param value a {@link java.lang.Object} object.
+     */
+    public void setValue(Object value) {
+        this.value = value;
+    }
 
-		throw new AssertionError(
-		        "A ConstantValue position is only defined if the VariableReference is defined by a statement");
-	}
+    /**
+     * {@inheritDoc}
+     * <p>
+     * The position of the statement, defining this VariableReference, in the
+     * testcase.
+     */
+    @Override
+    public int getStPosition() {
+        for (int i = 0; i < testCase.size(); i++) {
+            if (testCase.getStatement(i).references(this)) {
+                return i;
+            }
+        }
 
-	/**
-	 * {@inheritDoc}
-	 *
-	 * Return name for source code representation
-	 */
-	@Override
-	public String getName() {
-		if(value == null) {
-			return "null";
-		} else if(value instanceof Class<?>){
-			Class<?> cl = (Class<?>)value;
-			String name = cl.getSimpleName();
+        throw new AssertionError(
+                "A ConstantValue position is only defined if the VariableReference is defined by a statement");
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Return name for source code representation
+     */
+    @Override
+    public String getName() {
+        if (value == null) {
+            return "null";
+        } else if (value instanceof Class<?>) {
+            Class<?> cl = (Class<?>) value;
+            String name = cl.getSimpleName();
             return name + ".class";
-        } 
-		return NumberFormatter.getNumberString(value);
-	}
+        }
+        return NumberFormatter.getNumberString(value);
+    }
 
-	/**
-	 * {@inheritDoc}
-	 *
-	 * Return the actual object represented by this variable for a given scope
-	 */
-	@Override
-	public Object getObject(Scope scope) {
-		return value;
-	}
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Return the actual object represented by this variable for a given scope
+     */
+    @Override
+    public Object getObject(Scope scope) {
+        return value;
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public boolean same(VariableReference r) {
-		if (r == null)
-			return false;
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean same(VariableReference r) {
+        if (r == null)
+            return false;
 
-		if (!this.type.equals(r.getGenericClass()))
-			return false;
+        if (!this.type.equals(r.getGenericClass()))
+            return false;
 
-		if (r instanceof ConstantValue) {
-			ConstantValue v = (ConstantValue) r;
-			if (this.value == null) {
-				if (v.getValue() == null)
-					return true;
-			} else {
-				if (this.value.equals(v.getValue()))
-					return true;
-			}
-		}
+        if (r instanceof ConstantValue) {
+            ConstantValue v = (ConstantValue) r;
+            if (this.value == null) {
+                return v.getValue() == null;
+            } else {
+                return this.value.equals(v.getValue());
+            }
+        }
 
-		return false;
-	}
-	
-	@Override
-	public void changeClassLoader(ClassLoader loader) {
-		super.changeClassLoader(loader);
-		if(value instanceof Class<?>) {
-			GenericClass<?> genericClass = GenericClassFactory.get((Class<?>)value);
-			genericClass.changeClassLoader(loader);
-			value = genericClass.getRawClass();
+        return false;
+    }
 
-		}
-	}
+    @Override
+    public void changeClassLoader(ClassLoader loader) {
+        super.changeClassLoader(loader);
+        if (value instanceof Class<?>) {
+            GenericClass<?> genericClass = GenericClassFactory.get((Class<?>) value);
+            genericClass.changeClassLoader(loader);
+            value = genericClass.getRawClass();
+
+        }
+    }
 
 }

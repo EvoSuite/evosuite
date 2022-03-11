@@ -24,10 +24,10 @@ import org.evosuite.symbolic.solver.TestSolverFloats;
 
 public class TestZ3Floats extends TestSolverFloats {
 
-	@Override
-	public Solver getSolver() {
-		return new Z3Solver();
-	}
+    @Override
+    public Solver getSolver() {
+        return new Z3Solver();
+    }
 
 
 }

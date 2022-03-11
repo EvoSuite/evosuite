@@ -21,36 +21,36 @@ package org.evosuite.symbolic.solver.smt;
 
 public interface SmtExprVisitor<K, V> {
 
-	K visit(SmtBooleanConstant n, V arg);
+    K visit(SmtBooleanConstant n, V arg);
 
-	K visit(SmtIntConstant n, V arg);
+    K visit(SmtIntConstant n, V arg);
 
-	K visit(SmtRealConstant n, V arg);
+    K visit(SmtRealConstant n, V arg);
 
-	K visit(SmtStringConstant n, V arg);
+    K visit(SmtStringConstant n, V arg);
 
-	K visit(SmtIntVariable n, V arg);
+    K visit(SmtIntVariable n, V arg);
 
-	K visit(SmtRealVariable n, V arg);
+    K visit(SmtRealVariable n, V arg);
 
-	K visit(SmtStringVariable n, V arg);
+    K visit(SmtStringVariable n, V arg);
 
-	K visit(SmtOperation n, V arg);
+    K visit(SmtOperation n, V arg);
 
-  K visit(SmtArrayVariable.SmtIntegerArrayVariable n, V arg);
+    K visit(SmtArrayVariable.SmtIntegerArrayVariable n, V arg);
 
-  K visit(SmtArrayVariable.SmtRealArrayVariable n, V arg);
+    K visit(SmtArrayVariable.SmtRealArrayVariable n, V arg);
 
-  K visit(SmtArrayVariable.SmtStringArrayVariable n, V arg);
+    K visit(SmtArrayVariable.SmtStringArrayVariable n, V arg);
 
-  K visit(SmtArrayVariable.SmtReferenceArrayVariable n, V arg);
+    K visit(SmtArrayVariable.SmtReferenceArrayVariable n, V arg);
 
-  K visit(SmtArrayConstant.SmtIntegerArrayConstant n, V arg);
+    K visit(SmtArrayConstant.SmtIntegerArrayConstant n, V arg);
 
-  K visit(SmtArrayConstant.SmtRealArrayConstant n, V arg);
+    K visit(SmtArrayConstant.SmtRealArrayConstant n, V arg);
 
-  K visit(SmtArrayConstant.SmtStringArrayConstant n, V arg);
+    K visit(SmtArrayConstant.SmtStringArrayConstant n, V arg);
 
-  K visit(SmtArrayConstant.SmtReferenceArrayConstant n, V arg);
+    K visit(SmtArrayConstant.SmtReferenceArrayConstant n, V arg);
 
 }

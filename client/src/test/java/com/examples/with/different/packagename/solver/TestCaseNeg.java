@@ -21,13 +21,13 @@ package com.examples.with.different.packagename.solver;
 
 public class TestCaseNeg {
 
-	public static boolean test(int x) {
-		int neg = -x;
-		if (neg == 10) {
-			return true;
-		} else {
-			return false;
-		}
-	}
+    public static boolean test(int x) {
+        int neg = -x;
+        if (neg == 10) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 
 }

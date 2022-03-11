@@ -28,23 +28,23 @@ import com.examples.with.different.packagename.Calculator;
 
 public class CalculatorTest {
 
-	@Test
-	public void testMul() {
+    @Test
+    public void testMul() {
         assertEquals(2, Calculator.mul(1, 2));
-	}
+    }
 
-	@Test
-	public void testDiv() {
+    @Test
+    public void testDiv() {
         assertEquals(2, Calculator.div(4, 2));
-	}
+    }
 
-	@Test
-	public void testAdd() {
+    @Test
+    public void testAdd() {
         assertEquals(3, Calculator.add(1, 2));
-	}
+    }
 
-	@Test
-	public void testSub() {
+    @Test
+    public void testSub() {
         assertEquals(1, Calculator.sub(2, 1));
-	}
+    }
 }

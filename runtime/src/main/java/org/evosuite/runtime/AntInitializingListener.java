@@ -36,7 +36,7 @@ public class AntInitializingListener implements JUnitResultFormatter {
         try {
             listener.testRunStarted(null);
         } catch (Exception e) {
-            throw new BuildException("Failed to run EvoSuite initializing listener: "+e.getMessage(), e);
+            throw new BuildException("Failed to run EvoSuite initializing listener: " + e.getMessage(), e);
         }
 
     }

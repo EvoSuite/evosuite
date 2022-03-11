@@ -21,7 +21,7 @@ package com.examples.with.different.packagename.generic.concurrent;
 
 public interface BlockingQueue<E> {
 
-	boolean add(E e);
-	
-	E take();
+    boolean add(E e);
+
+    E take();
 }

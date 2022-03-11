@@ -20,11 +20,6 @@
 
 package org.evosuite.coverage.ibranch;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import org.evosuite.coverage.branch.BranchCoverageFactory;
 import org.evosuite.coverage.branch.BranchCoverageTestFitness;
 import org.evosuite.setup.CallContext;
@@ -34,48 +29,51 @@ import org.evosuite.testsuite.AbstractFitnessFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 /**
- * 
  * Create the IBranchTestFitness goals for the class under test.
+ *
  * @author mattia, Gordon Fraser
- * 
  */
 public class IBranchFitnessFactory extends AbstractFitnessFactory<IBranchTestFitness> {
 
-	private static final Logger logger = LoggerFactory.getLogger(IBranchFitnessFactory.class);
+    private static final Logger logger = LoggerFactory.getLogger(IBranchFitnessFactory.class);
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.coverage.TestFitnessFactory#getCoverageGoals()
-	 */
-	@Override
-	public List<IBranchTestFitness> getCoverageGoals() {
-		//TODO this creates duplicate goals. Momentary fixed using a Set.
-		Set<IBranchTestFitness> goals = new HashSet<>();
+    /* (non-Javadoc)
+     * @see org.evosuite.coverage.TestFitnessFactory#getCoverageGoals()
+     */
+    @Override
+    public List<IBranchTestFitness> getCoverageGoals() {
+        //TODO this creates duplicate goals. Momentary fixed using a Set.
+        Set<IBranchTestFitness> goals = new HashSet<>();
 
-		// retrieve set of branches
-		BranchCoverageFactory branchFactory = new BranchCoverageFactory();
-		List<BranchCoverageTestFitness> branchGoals = branchFactory.getCoverageGoalsForAllKnownClasses();
+        // retrieve set of branches
+        BranchCoverageFactory branchFactory = new BranchCoverageFactory();
+        List<BranchCoverageTestFitness> branchGoals = branchFactory.getCoverageGoalsForAllKnownClasses();
 
-		CallGraph callGraph = DependencyAnalysis.getCallGraph();
+        CallGraph callGraph = DependencyAnalysis.getCallGraph();
 
 
-		// try to find all occurrences of this branch in the call tree
-		for (BranchCoverageTestFitness branchGoal : branchGoals) {
-			logger.info("Adding context branches for " + branchGoal.toString());
-			for (CallContext context : callGraph.getAllContextsFromTargetClass(branchGoal.getClassName(),
-				                          branchGoal.getMethod())) {
-				//if is not possible to reach this branch from the target class, continue.
-				if(context.isEmpty()) continue; 				
-				goals.add(new IBranchTestFitness(branchGoal.getBranchGoal(), context));				
-			}
-		}
-		assert(goals.size()>=branchFactory.getCoverageGoals().size());
-		logger.info("Created " + goals.size() + " goals");
-		
-		return new ArrayList<>(goals);
-	}
+        // try to find all occurrences of this branch in the call tree
+        for (BranchCoverageTestFitness branchGoal : branchGoals) {
+            logger.info("Adding context branches for " + branchGoal.toString());
+            for (CallContext context : callGraph.getAllContextsFromTargetClass(branchGoal.getClassName(),
+                    branchGoal.getMethod())) {
+                //if is not possible to reach this branch from the target class, continue.
+                if (context.isEmpty()) continue;
+                goals.add(new IBranchTestFitness(branchGoal.getBranchGoal(), context));
+            }
+        }
+        assert (goals.size() >= branchFactory.getCoverageGoals().size());
+        logger.info("Created " + goals.size() + " goals");
+
+        return new ArrayList<>(goals);
+    }
 }
-
 
 
 //	private boolean isGradient(BranchCoverageTestFitness branchGoal){
@@ -112,8 +110,8 @@ public class IBranchFitnessFactory extends AbstractFitnessFactory<IBranchTestFit
 //			return false; 
 //		}
 //	}
-	
-	
+
+
 //	//---------- 
 //	List<String> l = new ArrayList<>();
 //	for (IBranchTestFitness callGraphEntry : goals) {

@@ -35,7 +35,7 @@ import org.junit.Test;
  */
 public class InheritanceIssue_SystemTest extends SystemTestBase {
 
-    private void doTest(Class<?> target){
+    private void doTest(Class<?> target) {
         EvoSuite evosuite = new EvoSuite();
 
         String targetClass = target.getCanonicalName();
@@ -43,7 +43,7 @@ public class InheritanceIssue_SystemTest extends SystemTestBase {
         Properties.TARGET_CLASS = targetClass;
         Properties.CRITERION = new Properties.Criterion[]{Properties.Criterion.LINE};
 
-        String[] command = new String[] { "-generateSuite", "-class", targetClass };
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
 
         Object result = evosuite.parseCommandLine(command);
         GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
@@ -54,22 +54,22 @@ public class InheritanceIssue_SystemTest extends SystemTestBase {
     }
 
     @Test
-    public void testSuper(){
+    public void testSuper() {
         doTest(TheSuperClass.class);
     }
 
     @Test
-    public void testA(){
+    public void testA() {
         doTest(A.class);
     }
 
     @Test
-    public void testB(){
+    public void testB() {
         doTest(B.class);
     }
 
     @Test
-    public void testCombination(){
+    public void testCombination() {
         doTest(A.class);
         super.resetStaticVariables();
         super.setDefaultPropertiesForTestCases();

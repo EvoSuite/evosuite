@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: EvoSuite Eclipse plugin - Dependencies
 Bundle-SymbolicName: org.evosuite.plugins.eclipse.deps
-Bundle-Version: 1.1.1.qualifier
+Bundle-Version: 1.2.1.qualifier
 Bundle-Vendor: Gordon Fraser, José Miguel Rojas and Thomas White - University of Sheffield
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ClassPath: lib/evosuite.jar

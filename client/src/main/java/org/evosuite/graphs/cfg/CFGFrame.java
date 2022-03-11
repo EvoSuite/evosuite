@@ -19,30 +19,31 @@
  */
 package org.evosuite.graphs.cfg;
 
+import org.objectweb.asm.tree.analysis.Frame;
+
 import java.util.HashMap;
 import java.util.Map;
 
-import org.objectweb.asm.tree.analysis.Frame;
-public class CFGFrame extends Frame { 
-	Map<Integer, CFGFrame> successors = new HashMap<>();
-	
-	/**
-	 * <p>Constructor for CFGFrame.</p>
-	 *
-	 * @param nLocals a int.
-	 * @param nStack a int.
-	 */
-	public CFGFrame(int nLocals, int nStack) {
-		super(nLocals, nStack);
-	}
-	
-	/**
-	 * <p>Constructor for CFGFrame.</p>
-	 *
-	 * @param src a {@link org.objectweb.asm.tree.analysis.Frame} object.
-	 */
-	public CFGFrame(Frame src) {
-		super(src);
-	}
-	
+public class CFGFrame extends Frame {
+    Map<Integer, CFGFrame> successors = new HashMap<>();
+
+    /**
+     * <p>Constructor for CFGFrame.</p>
+     *
+     * @param nLocals a int.
+     * @param nStack  a int.
+     */
+    public CFGFrame(int nLocals, int nStack) {
+        super(nLocals, nStack);
+    }
+
+    /**
+     * <p>Constructor for CFGFrame.</p>
+     *
+     * @param src a {@link org.objectweb.asm.tree.analysis.Frame} object.
+     */
+    public CFGFrame(Frame src) {
+        super(src);
+    }
+
 }

@@ -20,9 +20,6 @@
 
 package org.evosuite.symbolic.expr.token;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import org.evosuite.Properties;
 import org.evosuite.symbolic.ConstraintTooLongException;
 import org.evosuite.symbolic.dse.DSEStatistics;
@@ -33,74 +30,81 @@ import org.evosuite.symbolic.expr.bv.StringComparison;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * <p>
  * StringComparison class.
  * </p>
- * 
+ *
  * @author krusev
  */
 public final class HasMoreTokensExpr extends AbstractExpression<Long> implements
         StringComparison {
 
-	
-	private static final long serialVersionUID = 2154812241163764621L;
-	protected static Logger log = LoggerFactory.getLogger(HasMoreTokensExpr.class);
 
-	public HasMoreTokensExpr(TokenizerExpr tokenizerExpr, Long con) {
-		super(con, 1 + tokenizerExpr.getSize(), tokenizerExpr.containsSymbolicVariable());
-		this.tokenizerExpr = tokenizerExpr;
+    private static final long serialVersionUID = 2154812241163764621L;
+    protected static Logger log = LoggerFactory.getLogger(HasMoreTokensExpr.class);
 
-		if (getSize() > Properties.DSE_CONSTRAINT_LENGTH) {
-			DSEStatistics.getInstance().reportConstraintTooLong(getSize());
-			throw new ConstraintTooLongException(getSize());
-		}
-	}
+    public HasMoreTokensExpr(TokenizerExpr tokenizerExpr, Long con) {
+        super(con, 1 + tokenizerExpr.getSize(), tokenizerExpr.containsSymbolicVariable());
+        this.tokenizerExpr = tokenizerExpr;
 
-	private final TokenizerExpr tokenizerExpr;
+        if (getSize() > Properties.DSE_CONSTRAINT_LENGTH) {
+            DSEStatistics.getInstance().reportConstraintTooLong(getSize());
+            throw new ConstraintTooLongException(getSize());
+        }
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public boolean equals(Object obj) {
-		if (obj == this) {
-			return true;
-		}
-		if (obj instanceof HasMoreTokensExpr) {
-			HasMoreTokensExpr other = (HasMoreTokensExpr) obj;
-			return this.tokenizerExpr.equals(other.tokenizerExpr);
-		}
+    private final TokenizerExpr tokenizerExpr;
 
-		return false;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+        if (obj instanceof HasMoreTokensExpr) {
+            HasMoreTokensExpr other = (HasMoreTokensExpr) obj;
+            return this.tokenizerExpr.equals(other.tokenizerExpr);
+        }
 
-	@Override
-	public int hashCode() {
-		return this.tokenizerExpr.hashCode();
-	}
+        return false;
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public String toString() {
-		return "hasMoreTokens(" + tokenizerExpr.toString() + ")";
-	}
+    @Override
+    public int hashCode() {
+        return this.tokenizerExpr.hashCode();
+    }
 
-	@Override
-	public Set<Variable<?>> getVariables() {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        return "hasMoreTokens(" + tokenizerExpr.toString() + ")";
+    }
+
+    @Override
+    public Set<Variable<?>> getVariables() {
         Set<Variable<?>> variables = new HashSet<>(this.tokenizerExpr.getVariables());
-		return variables;
-	}
+        return variables;
+    }
 
-	@Override
-	public Set<Object> getConstants() {
-		return this.tokenizerExpr.getConstants();
-	}
+    @Override
+    public Set<Object> getConstants() {
+        return this.tokenizerExpr.getConstants();
+    }
 
-	public TokenizerExpr getTokenizerExpr() {
-		return tokenizerExpr;
-	}
+    public TokenizerExpr getTokenizerExpr() {
+        return tokenizerExpr;
+    }
 
-	@Override
-	public <K, V> K accept(ExpressionVisitor<K, V> v, V arg) {
-		return v.visit(this, arg);
-	}
+    @Override
+    public <K, V> K accept(ExpressionVisitor<K, V> v, V arg) {
+        return v.visit(this, arg);
+    }
 }

@@ -27,10 +27,10 @@ import com.examples.with.different.packagename.testreader.TestExample.MockingBir
 
 public class SimpleTestExample01 {
 
-	@Ignore
-	@Test
-	public void test() {
-		MockingBird bird = new MockingBird("killSelf");
-		bird.executeCmd(10);
-	}
+    @Ignore
+    @Test
+    public void test() {
+        MockingBird bird = new MockingBird("killSelf");
+        bird.executeCmd(10);
+    }
 }

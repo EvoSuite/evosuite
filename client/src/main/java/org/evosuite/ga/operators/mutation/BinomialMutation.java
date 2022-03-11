@@ -27,38 +27,38 @@ import java.util.stream.DoubleStream;
 
 public class BinomialMutation extends MutationDistribution {
 
-  private static final long serialVersionUID = 9013772318848850918L;
+    private static final long serialVersionUID = 9013772318848850918L;
 
-  private Set<Integer> bitsToBeModified;
+    private final Set<Integer> bitsToBeModified;
 
-  public BinomialMutation(int sizeOfDistribution) {
-    int numBits = howManyBits(sizeOfDistribution, 1.0 / (double) sizeOfDistribution);
-    this.bitsToBeModified = new LinkedHashSet<>();
-    while (this.bitsToBeModified.size() < numBits) {
-      this.bitsToBeModified.add(Randomness.nextInt(0, sizeOfDistribution));
+    public BinomialMutation(int sizeOfDistribution) {
+        int numBits = howManyBits(sizeOfDistribution, 1.0 / (double) sizeOfDistribution);
+        this.bitsToBeModified = new LinkedHashSet<>();
+        while (this.bitsToBeModified.size() < numBits) {
+            this.bitsToBeModified.add(Randomness.nextInt(0, sizeOfDistribution));
+        }
     }
-  }
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public boolean toMutate(int index) {
-    return this.bitsToBeModified.contains(index);
-  }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean toMutate(int index) {
+        return this.bitsToBeModified.contains(index);
+    }
 
-  /**
-   * Number of bits to be mutated (in our context, number of test cases to be mutated) according to
-   * a binomial distribution.
-   * 
-   * @param numTrials
-   * @param probability
-   * @return number of test cases to be mutated
-   */
-  private int howManyBits(int numTrials, double probability) {
-    return (int) DoubleStream.generate(Randomness::nextDouble)
-            .limit(numTrials)
-            .filter(d -> d <= probability)
-            .count();
-  }
+    /**
+     * Number of bits to be mutated (in our context, number of test cases to be mutated) according to
+     * a binomial distribution.
+     *
+     * @param numTrials
+     * @param probability
+     * @return number of test cases to be mutated
+     */
+    private int howManyBits(int numTrials, double probability) {
+        return (int) DoubleStream.generate(Randomness::nextDouble)
+                .limit(numTrials)
+                .filter(d -> d <= probability)
+                .count();
+    }
 }

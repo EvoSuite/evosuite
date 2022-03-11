@@ -28,102 +28,102 @@ import java.util.stream.Collectors;
 
 public class SmtQueryPrinter {
 
-	public String print(SmtQuery query) {
-		StringBuffer buff = new StringBuffer();
-		buff.append("\n");
+    public String print(SmtQuery query) {
+        StringBuffer buff = new StringBuffer();
+        buff.append("\n");
 
-		if (query.hasLogic()) {
-			buff.append("(set-logic " + query.getLogic() + ")");
-			buff.append("\n");
-		}
+        if (query.hasLogic()) {
+            buff.append("(set-logic " + query.getLogic() + ")");
+            buff.append("\n");
+        }
 
-		for (String optionName : query.getOptions()) {
-			String optionValue = query.getOptionValue(optionName);
-			buff.append(String.format("(set-option %s %s)\n", optionName, optionValue));
-			buff.append("\n");
-		}
-		buff.append("\n");
+        for (String optionName : query.getOptions()) {
+            String optionValue = query.getOptionValue(optionName);
+            buff.append(String.format("(set-option %s %s)%n", optionName, optionValue));
+            buff.append("\n");
+        }
+        buff.append("\n");
 
-		for (SmtConstantDeclaration constantDeclaration : query.getConstantDeclarations()) {
-			String str = print(constantDeclaration);
-			buff.append(str);
-			buff.append("\n");
-		}
+        for (SmtConstantDeclaration constantDeclaration : query.getConstantDeclarations()) {
+            String str = print(constantDeclaration);
+            buff.append(str);
+            buff.append("\n");
+        }
 
-		for (SmtFunctionDeclaration functionDeclaration : query.getFunctionDeclarations()) {
-			String str = print(functionDeclaration);
-			buff.append(str);
-			buff.append("\n");
-		}
+        for (SmtFunctionDeclaration functionDeclaration : query.getFunctionDeclarations()) {
+            String str = print(functionDeclaration);
+            buff.append(str);
+            buff.append("\n");
+        }
 
-		for (SmtFunctionDefinition functionDeclaration : query.getFunctionDefinitions()) {
-			String str = print(functionDeclaration);
-			buff.append(str);
-			buff.append("\n");
-		}
+        for (SmtFunctionDefinition functionDeclaration : query.getFunctionDefinitions()) {
+            String str = print(functionDeclaration);
+            buff.append(str);
+            buff.append("\n");
+        }
 
-		for (SmtAssertion smtAssertion : query.getAssertions()) {
-			String str = print(smtAssertion);
-			buff.append(str);
-			buff.append("\n");
-		}
+        for (SmtAssertion smtAssertion : query.getAssertions()) {
+            String str = print(smtAssertion);
+            buff.append(str);
+            buff.append("\n");
+        }
 
-		buff.append("(check-sat)");
-		buff.append("\n");
+        buff.append("(check-sat)");
+        buff.append("\n");
 
-		buff.append("(get-model)");
-		buff.append("\n");
+        buff.append("(get-model)");
+        buff.append("\n");
 
-		buff.append("(exit)");
-		buff.append("\n");
+        buff.append("(exit)");
+        buff.append("\n");
 
-		return buff.toString();
+        return buff.toString();
 
-	}
+    }
 
-	public String print(SmtAssertion smtAssertion) {
-		SmtExprPrinter printer = new SmtExprPrinter();
-		SmtExpr expr = smtAssertion.getFormula();
-		String exprStr = expr.accept(printer, null);
-		String str = String.format("(assert %s)", exprStr);
-		return str;
-	}
+    public String print(SmtAssertion smtAssertion) {
+        SmtExprPrinter printer = new SmtExprPrinter();
+        SmtExpr expr = smtAssertion.getFormula();
+        String exprStr = expr.accept(printer, null);
+        String str = String.format("(assert %s)", exprStr);
+        return str;
+    }
 
-	public String print(SmtFunctionDefinition functionDeclaration) {
-		String str = String.format("(define-fun %s)", functionDeclaration.getFunctionDefinition());
-		return str;
-	}
+    public String print(SmtFunctionDefinition functionDeclaration) {
+        String str = String.format("(define-fun %s)", functionDeclaration.getFunctionDefinition());
+        return str;
+    }
 
-	public String print(SmtFunctionDeclaration functionDeclaration) {
-		String str = String.format(
-			"(declare-fun %s () %s)",
-			functionDeclaration.getFunctionName(),
-			buildSortsString(functionDeclaration.getFunctionSorts()));
-		return str;
-	}
+    public String print(SmtFunctionDeclaration functionDeclaration) {
+        String str = String.format(
+                "(declare-fun %s () %s)",
+                functionDeclaration.getFunctionName(),
+                buildSortsString(functionDeclaration.getFunctionSorts()));
+        return str;
+    }
 
-	public String print(SmtConstantDeclaration constantDeclaration) {
-		String str = String.format(
-			"(declare-const %s %s)",
-			constantDeclaration.getConstantName(),
-			buildSortsString(constantDeclaration.getConstantSorts()));
-		return str;
-	}
+    public String print(SmtConstantDeclaration constantDeclaration) {
+        String str = String.format(
+                "(declare-const %s %s)",
+                constantDeclaration.getConstantName(),
+                buildSortsString(constantDeclaration.getConstantSorts()));
+        return str;
+    }
 
-	/**
-	 * Transforms sorts into strings.
-	 *
-	 * @param sorts
-	 * @return
-	 */
-	private String buildSortsString(SmtSort[] sorts) {
-		List<String> stringSorts = Arrays.stream(sorts).map(sort -> sort.getName()).collect(Collectors.toList());
-		String str = StringUtil.joinStrings(StringUtil.SPACE_DELIMITER, stringSorts);
+    /**
+     * Transforms sorts into strings.
+     *
+     * @param sorts
+     * @return
+     */
+    private String buildSortsString(SmtSort[] sorts) {
+        List<String> stringSorts = Arrays.stream(sorts).map(sort -> sort.getName()).collect(Collectors.toList());
+        String str = StringUtil.joinStrings(StringUtil.SPACE_DELIMITER, stringSorts);
 
-		if (stringSorts.size() > 1) {
-			return "(" + str + ")";
-		} else {
-			return str;
-		}
-	}
+        if (stringSorts.size() > 1) {
+            return "(" + str + ")";
+        } else {
+            return str;
+        }
+    }
 }

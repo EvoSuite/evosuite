@@ -19,6 +19,13 @@
  */
 package org.evosuite.testcarver.capture;
 
+import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.io.xml.StaxDriver;
+import org.evosuite.TimeController;
+import org.evosuite.testcarver.exception.CapturerException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -26,44 +33,36 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.evosuite.TimeController;
-import org.evosuite.testcarver.exception.CapturerException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.io.xml.StaxDriver;
-
 public final class Capturer {
-	private static CaptureLog currentLog;
-	private static boolean isCaptureStarted = false;
-	private static boolean isShutdownHookAdded = false;
-	private static final ArrayList<CaptureLog> logs = new ArrayList<>();
+    private static CaptureLog currentLog;
+    private static boolean isCaptureStarted = false;
+    private static final boolean isShutdownHookAdded = false;
+    private static final ArrayList<CaptureLog> logs = new ArrayList<>();
 
-	public static final String DEFAULT_SAVE_LOC = "captured.log";
+    public static final String DEFAULT_SAVE_LOC = "captured.log";
 
-	private static final ArrayList<String[]> classesToBeObserved = new ArrayList<>();
+    private static final ArrayList<String[]> classesToBeObserved = new ArrayList<>();
 
-	private static final transient Logger logger = LoggerFactory.getLogger(Capturer.class);
+    private static final transient Logger logger = LoggerFactory.getLogger(Capturer.class);
 
-	/*
-	 * TODO this needs refactoring. 
-	 */
-	@Deprecated
-	private static void initShutdownHook() {
-		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
-			@Override
-			public void run() {
-				logger.info("shutting down...");
-				Capturer.stopCapture();
-				Capturer.postProcess();
-				logger.info("shut down");
-			}
-		}));
-	}
+    /*
+     * TODO this needs refactoring.
+     */
+    @Deprecated
+    private static void initShutdownHook() {
+        Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+            @Override
+            public void run() {
+                logger.info("shutting down...");
+                Capturer.stopCapture();
+                Capturer.postProcess();
+                logger.info("shut down");
+            }
+        }));
+    }
 
-	@Deprecated
-	public static void postProcess() {
+    @Deprecated
+    public static void postProcess() {
 		/*
 		if(! Capturer.isCapturing())
 		{
@@ -113,80 +112,80 @@ public final class Capturer {
 			}
 		}
 		 */
-	}
+    }
 
-	public static void save(final OutputStream out) throws IOException {
-		if (out == null) {
-			throw new NullPointerException("given OutputStream must not be null");
-		}
+    public static void save(final OutputStream out) throws IOException {
+        if (out == null) {
+            throw new NullPointerException("given OutputStream must not be null");
+        }
 
-		final XStream xstream = new XStream();
-		xstream.toXML(logs, out);
-		out.close();
-	}
+        final XStream xstream = new XStream();
+        xstream.toXML(logs, out);
+        out.close();
+    }
 
-	@SuppressWarnings("unchecked")
-	public static void load(final InputStream in) {
-		if (in == null) {
-			throw new NullPointerException("given InputStream must not be null");
-		}
+    @SuppressWarnings("unchecked")
+    public static void load(final InputStream in) {
+        if (in == null) {
+            throw new NullPointerException("given InputStream must not be null");
+        }
 
-		final XStream xstream = new XStream(new StaxDriver());
-		logs.addAll((ArrayList<CaptureLog>) xstream.fromXML(in));
-	}
+        final XStream xstream = new XStream(new StaxDriver());
+        logs.addAll((ArrayList<CaptureLog>) xstream.fromXML(in));
+    }
 
-	 public static void clear() {
-		currentLog = null;
-		logs.clear();
-		classesToBeObserved.clear();
-		isCaptureStarted = false;
+    public static void clear() {
+        currentLog = null;
+        logs.clear();
+        classesToBeObserved.clear();
+        isCaptureStarted = false;
 
-		FieldRegistry.clear();
-	}
+        FieldRegistry.clear();
+    }
 
-	 public static void startCapture() {
-		logger.info("Starting Capturer...");
+    public static void startCapture() {
+        logger.info("Starting Capturer...");
 
-		if (isCaptureStarted) {
-			throw new IllegalStateException("Capture has already been started");
-		}
+        if (isCaptureStarted) {
+            throw new IllegalStateException("Capture has already been started");
+        }
 
-		currentLog = new CaptureLog();
-		isCaptureStarted = true;
+        currentLog = new CaptureLog();
+        isCaptureStarted = true;
 
-		FieldRegistry.restoreForegoingGETSTATIC();
+        FieldRegistry.restoreForegoingGETSTATIC();
 
-		logger.info("Capturer has been started successfully");
+        logger.info("Capturer has been started successfully");
 
-	}
+    }
 
-	 public static void startCapture(final String classesToBeObservedString) {
-		if (classesToBeObservedString == null) {
-			final String msg = "no arguments specified";
-			logger.error(msg);
-			throw new CapturerException(msg);
-		}
+    public static void startCapture(final String classesToBeObservedString) {
+        if (classesToBeObservedString == null) {
+            final String msg = "no arguments specified";
+            logger.error(msg);
+            throw new CapturerException(msg);
+        }
 
-		final ArrayList<String> args = new ArrayList<>(
-				Arrays.asList(classesToBeObservedString.split("\\s+")));
-		if (args.isEmpty()) {
-			final String msg = "no class to be observed specified";
-			logger.error(msg);
-			throw new CapturerException(msg);
-		}
+        final ArrayList<String> args = new ArrayList<>(
+                Arrays.asList(classesToBeObservedString.split("\\s+")));
+        if (args.isEmpty()) {
+            final String msg = "no class to be observed specified";
+            logger.error(msg);
+            throw new CapturerException(msg);
+        }
 
-		// start Capturer if not active yet
-		// NOTE: Stopping the capture and saving the corresponding logs is handled in the ShutdownHook
-		//       which is automatically initialized in the Capturer
-		Capturer.startCapture(args);
-	}
+        // start Capturer if not active yet
+        // NOTE: Stopping the capture and saving the corresponding logs is handled in the ShutdownHook
+        //       which is automatically initialized in the Capturer
+        Capturer.startCapture(args);
+    }
 
-	 public static void startCapture(final List<String> classesToBeObserved) {
-		logger.info("Starting Capturer...");
+    public static void startCapture(final List<String> classesToBeObserved) {
+        logger.info("Starting Capturer...");
 
-		if (isCaptureStarted) {
-			throw new IllegalStateException("Capture has already been started");
-		}
+        if (isCaptureStarted) {
+            throw new IllegalStateException("Capture has already been started");
+        }
 
 		/*
 		 * TODO need refactoring
@@ -197,104 +196,104 @@ public final class Capturer {
 			isShutdownHookAdded = true;
 		}
 		 */
-		currentLog = new CaptureLog();
-		isCaptureStarted = true;
+        currentLog = new CaptureLog();
+        isCaptureStarted = true;
 
-		final int size = classesToBeObserved.size();
-		final String[] clazzes = new String[size];
-		for (int i = 0; i < size; i++) {
-			clazzes[i] = classesToBeObserved.get(i);
-		}
-		Capturer.classesToBeObserved.add(clazzes);
+        final int size = classesToBeObserved.size();
+        final String[] clazzes = new String[size];
+        for (int i = 0; i < size; i++) {
+            clazzes[i] = classesToBeObserved.get(i);
+        }
+        Capturer.classesToBeObserved.add(clazzes);
 
-		FieldRegistry.restoreForegoingGETSTATIC();
+        FieldRegistry.restoreForegoingGETSTATIC();
 
-		logger.info("Capturer has been started successfully");
-	}
+        logger.info("Capturer has been started successfully");
+    }
 
-	 public static CaptureLog stopCapture() {
-		logger.info("Stopping Capturer...");
+    public static CaptureLog stopCapture() {
+        logger.info("Stopping Capturer...");
 
-		if (isCaptureStarted) {
-			isCaptureStarted = false;
+        if (isCaptureStarted) {
+            isCaptureStarted = false;
 
-			logs.add(currentLog);
+            logs.add(currentLog);
 
-			final CaptureLog log = currentLog;
-			currentLog = null;
+            final CaptureLog log = currentLog;
+            currentLog = null;
 
-			logger.info("Capturer has been stopped successfully");
+            logger.info("Capturer has been stopped successfully");
 
-			FieldRegistry.clear();
-			logger.debug("Done");
-			return log;
-		}
+            FieldRegistry.clear();
+            logger.debug("Done");
+            return log;
+        }
 
-		logger.debug("Done");
-		return null;
-	}
+        logger.debug("Done");
+        return null;
+    }
 
-	 public static boolean isCapturing() {
-		return isCaptureStarted;
-	}
+    public static boolean isCapturing() {
+        return isCaptureStarted;
+    }
 
-	 public static void setCapturing(final boolean isCapturing) {
-		Capturer.isCaptureStarted = isCapturing;
-	}
+    public static void setCapturing(final boolean isCapturing) {
+        Capturer.isCaptureStarted = isCapturing;
+    }
 
-	public static void capture(final int captureId, final Object receiver,
-	        final String methodName, final String methodDesc, final Object[] methodParams) {
-		try {
-			if (isCapturing()) {
-				//(currentLog) {
-				setCapturing(false);
+    public static void capture(final int captureId, final Object receiver,
+                               final String methodName, final String methodDesc, final Object[] methodParams) {
+        try {
+            if (isCapturing()) {
+                //(currentLog) {
+                setCapturing(false);
 
-				if (logger.isDebugEnabled()) {
-					logger.debug("Method call captured:  captureId={} receiver={} type={} method={} methodDesc={} params={}",
-							captureId, System.identityHashCode(receiver),
-							receiver.getClass().getName(), methodName,
-							methodDesc, Arrays.toString(methodParams));
-				}
-				
-				currentLog.log(captureId, receiver, methodName, methodDesc, methodParams);
-				if(TimeController.getInstance().isThereStillTimeInThisPhase())
-					setCapturing(true);
-				//}
-			}
-		} catch(Throwable t) {
-			// TODO: Handle properly?
-			logger.debug(t.toString());
-		}
-	}
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Method call captured:  captureId={} receiver={} type={} method={} methodDesc={} params={}",
+                            captureId, System.identityHashCode(receiver),
+                            receiver.getClass().getName(), methodName,
+                            methodDesc, Arrays.toString(methodParams));
+                }
 
-	@SuppressWarnings("unchecked")
-	public static List<CaptureLog> getCaptureLogs() {
-		return (List<CaptureLog>) logs.clone();
-	}
+                currentLog.log(captureId, receiver, methodName, methodDesc, methodParams);
+                if (TimeController.getInstance().isThereStillTimeInThisPhase())
+                    setCapturing(true);
+                //}
+            }
+        } catch (Throwable t) {
+            // TODO: Handle properly?
+            logger.debug(t.toString());
+        }
+    }
 
-	public static void enable(final int captureId, final Object receiver,
-	        final Object returnValue) {
-		try {
-			if (isCapturing()) {
-				//(currentLog) {
-				setCapturing(false);
+    @SuppressWarnings("unchecked")
+    public static List<CaptureLog> getCaptureLogs() {
+        return (List<CaptureLog>) logs.clone();
+    }
 
-				if (logger.isDebugEnabled()) {
-					logger.debug("enabled: capturedId={}", captureId);
-					//logger.debug("enabled: capturedId={} receiver={} returnValue={} returnValueOID={}",
-					//            new Object[] { captureId,
-					//                   System.identityHashCode(receiver), System.identityHashCode(returnValue),
-					//                  System.identityHashCode(returnValue) });
-				}
+    public static void enable(final int captureId, final Object receiver,
+                              final Object returnValue) {
+        try {
+            if (isCapturing()) {
+                //(currentLog) {
+                setCapturing(false);
 
-				currentLog.logEnd(captureId, receiver, returnValue);
-				setCapturing(true);
-				//}
-			}
-		} catch(Throwable t) {
-			// TODO: Handle properly
-			logger.debug(t.toString());
+                if (logger.isDebugEnabled()) {
+                    logger.debug("enabled: capturedId={}", captureId);
+                    //logger.debug("enabled: capturedId={} receiver={} returnValue={} returnValueOID={}",
+                    //            new Object[] { captureId,
+                    //                   System.identityHashCode(receiver), System.identityHashCode(returnValue),
+                    //                  System.identityHashCode(returnValue) });
+                }
 
-		}
-	}
+                currentLog.logEnd(captureId, receiver, returnValue);
+                setCapturing(true);
+                //}
+            }
+        } catch (Throwable t) {
+            // TODO: Handle properly
+            logger.debug(t.toString());
+
+        }
+    }
 }

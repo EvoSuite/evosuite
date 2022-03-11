@@ -49,202 +49,202 @@ import hudson.remoting.VirtualChannel;
 
 public class ProjectAction implements Action {
 
-	private final AbstractProject<?, ?> project;
+    private final AbstractProject<?, ?> project;
 
-	private final List<ModuleAction> modules;
+    private final List<ModuleAction> modules;
 
-	public ProjectAction(AbstractProject<?, ?> project) {
-		this.project = (AbstractProject<?, ?>) project;
-		this.modules = new ArrayList<ModuleAction>();
-	}
+    public ProjectAction(AbstractProject<?, ?> project) {
+        this.project = (AbstractProject<?, ?>) project;
+        this.modules = new ArrayList<ModuleAction>();
+    }
 
-	public ProjectAction(AbstractProject<?, ?> project, List<ModuleAction> modules) {
-		this.project = (AbstractProject<?, ?>) project;
-		this.modules = new ArrayList<ModuleAction>(modules);
-	}
+    public ProjectAction(AbstractProject<?, ?> project, List<ModuleAction> modules) {
+        this.project = (AbstractProject<?, ?>) project;
+        this.modules = new ArrayList<ModuleAction>(modules);
+    }
 
-	@Override
-	public String getIconFileName() {
-		return "/plugin/evosuite-jenkins-plugin/icons/evosuite.png";
-	}
+    @Override
+    public String getIconFileName() {
+        return "/plugin/evosuite-jenkins-plugin/icons/evosuite.png";
+    }
 
-	@Override
-	public String getDisplayName() {
-		return "EvoSuite Project Statistics";
-	}
+    @Override
+    public String getDisplayName() {
+        return "EvoSuite Project Statistics";
+    }
 
-	@Override
-	public String getUrlName() {
-		return "evosuite-project";
-	}
+    @Override
+    public String getUrlName() {
+        return "evosuite-project";
+    }
 
-	public AbstractProject<?, ?> getProject() {
-		return this.project;
-	}
+    public AbstractProject<?, ?> getProject() {
+        return this.project;
+    }
 
-	public String getName() {
-		return this.project.getName();
-	}
+    public String getName() {
+        return this.project.getName();
+    }
 
-	public List<ModuleAction> getModules() {
-		return this.modules;
-	}
+    public List<ModuleAction> getModules() {
+        return this.modules;
+    }
 
-	public void perform(AbstractMavenProject<?, ?> project, AbstractBuild<?, ?> build,
-			BuildListener listener) throws InterruptedException, IOException {
+    public void perform(AbstractMavenProject<?, ?> project, AbstractBuild<?, ?> build,
+                        BuildListener listener) throws InterruptedException, IOException {
 
-		EnvVars env = build.getEnvironment(listener);
-		env.overrideAll(build.getBuildVariables());
+        EnvVars env = build.getEnvironment(listener);
+        env.overrideAll(build.getBuildVariables());
 
-		VirtualChannel channel = build.getWorkspace().getChannel();
+        VirtualChannel channel = build.getWorkspace().getChannel();
 
-		MavenModuleSet prj = (MavenModuleSet) this.project;
-		for (MavenModule module : prj.getModules()) {
+        MavenModuleSet prj = (MavenModuleSet) this.project;
+        for (MavenModule module : prj.getModules()) {
 
-		  FilePath fp = new FilePath(channel, build.getWorkspace().getRemote() + File.separator
-              + (module.getRelativePath().isEmpty() ? "" : module.getRelativePath() + File.separator)
-              + Properties.CTG_DIR + File.separator + Properties.CTG_PROJECT_INFO);
+            FilePath fp = new FilePath(channel, build.getWorkspace().getRemote() + File.separator
+                    + (module.getRelativePath().isEmpty() ? "" : module.getRelativePath() + File.separator)
+                    + Properties.CTG_DIR + File.separator + Properties.CTG_PROJECT_INFO);
 
-		  if (!fp.exists()) {
-		    listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "There is not any " +
-		        fp.getRemote() + " file for module " + module.getName());
-		    continue ;
-		  }
+            if (!fp.exists()) {
+                listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "There is not any " +
+                        fp.getRemote() + " file for module " + module.getName());
+                continue;
+            }
 
-		  ByteArrayOutputStream out = new ByteArrayOutputStream();
-		  fp.copyTo(out);
-		  ByteArrayInputStream projectXML = new ByteArrayInputStream(out.toByteArray());
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            fp.copyTo(out);
+            ByteArrayInputStream projectXML = new ByteArrayInputStream(out.toByteArray());
 
-		  listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "Analysing " +
-		      Properties.CTG_PROJECT_INFO + " file from " + fp.getRemote());
+            listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "Analysing " +
+                    Properties.CTG_PROJECT_INFO + " file from " + fp.getRemote());
 
-		  ModuleAction m = new ModuleAction(build, module.getName());
-		  if (!m.build(channel, projectXML, listener)) {
-		    continue ;
-		  }
+            ModuleAction m = new ModuleAction(build, module.getName());
+            if (!m.build(channel, projectXML, listener)) {
+                continue;
+            }
 
-		  this.modules.add(m);
-		}
-	}
+            this.modules.add(m);
+        }
+    }
 
-	public void doCoverageGraph(StaplerRequest req, StaplerResponse rsp) throws IOException {
-		CoveragePlot c = new CoveragePlot(this, "Coverage %");
-		c.doCoverageGraph(req, rsp);
-	}
+    public void doCoverageGraph(StaplerRequest req, StaplerResponse rsp) throws IOException {
+        CoveragePlot c = new CoveragePlot(this, "Coverage %");
+        c.doCoverageGraph(req, rsp);
+    }
 
-	public void doCoverageMap(StaplerRequest req, StaplerResponse rsp) throws IOException {
-		CoveragePlot c = new CoveragePlot(this, "Coverage");
-		c.doCoverageMap(req, rsp);
-	}
+    public void doCoverageMap(StaplerRequest req, StaplerResponse rsp) throws IOException {
+        CoveragePlot c = new CoveragePlot(this, "Coverage");
+        c.doCoverageMap(req, rsp);
+    }
 
-	public void doTimeGraph(StaplerRequest req, StaplerResponse rsp) throws IOException {
-		TimePlot c = new TimePlot(this, "Time (minutes)");
-		c.doTimeGraph(req, rsp);
-	}
+    public void doTimeGraph(StaplerRequest req, StaplerResponse rsp) throws IOException {
+        TimePlot c = new TimePlot(this, "Time (minutes)");
+        c.doTimeGraph(req, rsp);
+    }
 
-	public void doTimeMap(StaplerRequest req, StaplerResponse rsp) throws IOException {
-		TimePlot c = new TimePlot(this, "Time");
-		c.doTimeMap(req, rsp);
-	}
-	
-	// data for jelly template
+    public void doTimeMap(StaplerRequest req, StaplerResponse rsp) throws IOException {
+        TimePlot c = new TimePlot(this, "Time");
+        c.doTimeMap(req, rsp);
+    }
 
-	public int getNumberOfModules() {
-		return this.modules.size();
-	}
+    // data for jelly template
 
-	public int getNumberOfTestableClasses() {
-		if (this.modules.isEmpty()) {
-			return 0;
-		}
+    public int getNumberOfModules() {
+        return this.modules.size();
+    }
 
-		int classes = 0;
-		for (ModuleAction m : this.modules) {
-			classes += m.getNumberOfTestableClasses();
-		}
+    public int getNumberOfTestableClasses() {
+        if (this.modules.isEmpty()) {
+            return 0;
+        }
 
-		return classes;
-	}
+        int classes = 0;
+        for (ModuleAction m : this.modules) {
+            classes += m.getNumberOfTestableClasses();
+        }
 
-	public int getNumberOfTestedClasses() {
-		if (this.modules.isEmpty()) {
-			return 0;
-		}
+        return classes;
+    }
 
-		int classes = 0;
-		for (ModuleAction m : this.modules) {
-			classes += m.getNumberOfTestedClasses();
-		}
+    public int getNumberOfTestedClasses() {
+        if (this.modules.isEmpty()) {
+            return 0;
+        }
 
-		return classes;
-	}
+        int classes = 0;
+        for (ModuleAction m : this.modules) {
+            classes += m.getNumberOfTestedClasses();
+        }
 
-	public Set<String> getCriteria() {
-		Set<String> criteria = new LinkedHashSet<String>();
-		if (this.modules.isEmpty()) {
-			return criteria;
-		}
+        return classes;
+    }
 
-		for (ModuleAction m : this.modules) {
-			criteria.addAll(m.getCriteria());
-		}
+    public Set<String> getCriteria() {
+        Set<String> criteria = new LinkedHashSet<String>();
+        if (this.modules.isEmpty()) {
+            return criteria;
+        }
 
-		return criteria;
-	}
+        for (ModuleAction m : this.modules) {
+            criteria.addAll(m.getCriteria());
+        }
 
-	public double getOverallCoverage() {
-		if (this.modules.isEmpty()) {
-			return 0.0;
-		}
+        return criteria;
+    }
 
-		double coverage = 0.0;
-		for (ModuleAction m : this.modules) {
-			coverage += m.getOverallCoverage();
-		}
+    public double getOverallCoverage() {
+        if (this.modules.isEmpty()) {
+            return 0.0;
+        }
 
-		DecimalFormat formatter = EvoSuiteRecorder.decimalFormat;
-		formatter.applyPattern("#0.00");
-		return Double.parseDouble(formatter.format(coverage / this.modules.size()));
-	}
+        double coverage = 0.0;
+        for (ModuleAction m : this.modules) {
+            coverage += m.getOverallCoverage();
+        }
 
-	public double getCriterionCoverage(String criterionName) {
-		if (this.modules.isEmpty()) {
-			return 0.0;
-		}
+        DecimalFormat formatter = EvoSuiteRecorder.decimalFormat;
+        formatter.applyPattern("#0.00");
+        return Double.parseDouble(formatter.format(coverage / this.modules.size()));
+    }
 
-		double coverage = 0.0;
-		for (ModuleAction m : this.modules) {
-			coverage += m.getAverageCriterionCoverage(criterionName);
-		}
+    public double getCriterionCoverage(String criterionName) {
+        if (this.modules.isEmpty()) {
+            return 0.0;
+        }
 
-		DecimalFormat formatter = EvoSuiteRecorder.decimalFormat;
-		formatter.applyPattern("#0.00");
-		return Double.parseDouble(formatter.format(coverage / this.modules.size()));
-	}
+        double coverage = 0.0;
+        for (ModuleAction m : this.modules) {
+            coverage += m.getAverageCriterionCoverage(criterionName);
+        }
 
-	public int getTotalEffort() {
-		if (this.modules.isEmpty()) {
-			return 0;
-		}
+        DecimalFormat formatter = EvoSuiteRecorder.decimalFormat;
+        formatter.applyPattern("#0.00");
+        return Double.parseDouble(formatter.format(coverage / this.modules.size()));
+    }
 
-		int effort = 0;
-		for (ModuleAction m : this.modules) {
-			effort += m.getTotalEffort();
-		}
+    public int getTotalEffort() {
+        if (this.modules.isEmpty()) {
+            return 0;
+        }
 
-		return effort;
-	}
+        int effort = 0;
+        for (ModuleAction m : this.modules) {
+            effort += m.getTotalEffort();
+        }
 
-	public int getTimeBudget() {
-      if (this.modules.isEmpty()) {
-          return 0;
-      }
+        return effort;
+    }
 
-      int effort = 0;
-      for (ModuleAction m : this.modules) {
-          effort += m.getTimeBudget();
-      }
+    public int getTimeBudget() {
+        if (this.modules.isEmpty()) {
+            return 0;
+        }
 
-      return effort;
-  }
+        int effort = 0;
+        for (ModuleAction m : this.modules) {
+            effort += m.getTimeBudget();
+        }
+
+        return effort;
+    }
 }

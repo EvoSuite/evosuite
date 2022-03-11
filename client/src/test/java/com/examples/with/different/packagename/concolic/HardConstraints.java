@@ -21,93 +21,93 @@ package com.examples.with.different.packagename.concolic;
 
 public class HardConstraints {
 
-	public static boolean test2(float float0) {
-		// float0 == 3.1415998935699463f
-		// 1415926536
+    public static boolean test2(float float0) {
+        // float0 == 3.1415998935699463f
+        // 1415926536
 
-		if (float0>=4) {
-			return false;
-		}
-		
-		if (float0 <= 3) {
-			return false;
-		}
+        if (float0 >= 4) {
+            return false;
+        }
 
-		if (float0 * 100 < 314) {
-			return false;
-		}
+        if (float0 <= 3) {
+            return false;
+        }
 
-		int int0 = (int) (float0 * 10000f) +1;
-		
-		if (int0 % 8 != 0) {
-			return false;
-		}
+        if (float0 * 100 < 314) {
+            return false;
+        }
 
-		if (int0 % 3 != 0) {
-			return false;
-		}
+        int int0 = (int) (float0 * 10000f) + 1;
 
-		if (int0 % 7 != 0) {
-			return false;
-		}
+        if (int0 % 8 != 0) {
+            return false;
+        }
 
-		if (int0 % 187 != 0) {
-			return false;
-		}
-		
-		int int1 = (int) (float0 * 100000f) +1;
+        if (int0 % 3 != 0) {
+            return false;
+        }
 
-		if (int1==314151) {
-			return false;
-		}
+        if (int0 % 7 != 0) {
+            return false;
+        }
 
-		return true;
+        if (int0 % 187 != 0) {
+            return false;
+        }
 
-	}
+        int int1 = (int) (float0 * 100000f) + 1;
 
-	public static boolean test1(int int1) {
-		if ((int1 % 251) != 0) {
-			return false;
-		}
+        if (int1 == 314151) {
+            return false;
+        }
 
-		if (int1 >= 26104) {
-			return false;
-		}
+        return true;
 
-		if (int1 <= 13554) {
-			return false;
-		}
+    }
 
-		if ((int1 % 4) != 0) {
-			return false;
-		}
+    public static boolean test1(int int1) {
+        if ((int1 % 251) != 0) {
+            return false;
+        }
 
-		if ((int1 % 25) != 0) {
-			return false;
-		}
+        if (int1 >= 26104) {
+            return false;
+        }
 
-		return true;
-	}
+        if (int1 <= 13554) {
+            return false;
+        }
 
-	public static boolean test0(int int0) {
+        if ((int1 % 4) != 0) {
+            return false;
+        }
 
-		if (int0 <= 0) {
-			return false;
-		}
+        if ((int1 % 25) != 0) {
+            return false;
+        }
 
-		if ((int0 % 523) != 0) {
-			return false;
-		}
+        return true;
+    }
 
-		if ((int0 % 25) != 0) {
-			return false;
-		}
+    public static boolean test0(int int0) {
 
-		if (int0 >= 26150) {
-			return false;
-		}
+        if (int0 <= 0) {
+            return false;
+        }
 
-		return true;
-	}
+        if ((int0 % 523) != 0) {
+            return false;
+        }
+
+        if ((int0 % 25) != 0) {
+            return false;
+        }
+
+        if (int0 >= 26150) {
+            return false;
+        }
+
+        return true;
+    }
 
 }

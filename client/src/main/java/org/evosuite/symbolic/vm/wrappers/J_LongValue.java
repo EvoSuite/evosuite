@@ -27,22 +27,22 @@ import org.evosuite.symbolic.vm.heap.SymbolicHeap;
 
 public final class J_LongValue extends SymbolicFunction {
 
-	private static final String LONG_VALUE = "longValue";
+    private static final String LONG_VALUE = "longValue";
 
-	public J_LongValue(SymbolicEnvironment env) {
-		super(env, Types.JAVA_LANG_LONG, LONG_VALUE, Types.TO_LONG);
-	}
+    public J_LongValue(SymbolicEnvironment env) {
+        super(env, Types.JAVA_LANG_LONG, LONG_VALUE, Types.TO_LONG);
+    }
 
-	@Override
-	public Object executeFunction() {
-		ReferenceConstant symb_long = this.getSymbReceiver();
-		Long conc_long = (Long) this.getConcReceiver();
+    @Override
+    public Object executeFunction() {
+        ReferenceConstant symb_long = this.getSymbReceiver();
+        Long conc_long = (Long) this.getConcReceiver();
 
-		long conc_long_value = this.getConcLongRetVal();
-		IntegerValue symb_long_value = env.heap
-				.getField(Types.JAVA_LANG_LONG, SymbolicHeap.$LONG_VALUE,
-						conc_long, symb_long, conc_long_value);
-		return symb_long_value;
-	}
+        long conc_long_value = this.getConcLongRetVal();
+        IntegerValue symb_long_value = env.heap
+                .getField(Types.JAVA_LANG_LONG, SymbolicHeap.$LONG_VALUE,
+                        conc_long, symb_long, conc_long_value);
+        return symb_long_value;
+    }
 
 }

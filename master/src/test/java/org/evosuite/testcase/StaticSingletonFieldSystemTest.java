@@ -37,39 +37,39 @@ import com.examples.with.different.packagename.staticfield.SaticSingletonField;
 
 public class StaticSingletonFieldSystemTest extends SystemTestBase {
 
-	@Before
-	public void setUpProperties() {
-		Properties.RESET_STATIC_FIELDS = true;
-		Properties.RESET_STATIC_FIELD_GETS = true;
-		Properties.SANDBOX = true;
-		Properties.JUNIT_CHECK = Properties.JUnitCheckValues.TRUE;
-		Properties.JUNIT_TESTS = true;
-		Properties.PURE_INSPECTORS = true;
-		Properties.OUTPUT_VARIABLES = "" + RuntimeVariable.HadUnstableTests;
-	}
+    @Before
+    public void setUpProperties() {
+        Properties.RESET_STATIC_FIELDS = true;
+        Properties.RESET_STATIC_FIELD_GETS = true;
+        Properties.SANDBOX = true;
+        Properties.JUNIT_CHECK = Properties.JUnitCheckValues.TRUE;
+        Properties.JUNIT_TESTS = true;
+        Properties.PURE_INSPECTORS = true;
+        Properties.OUTPUT_VARIABLES = "" + RuntimeVariable.HadUnstableTests;
+    }
 
-	@Test
-	public void test() {
-		EvoSuite evosuite = new EvoSuite();
+    @Test
+    public void test() {
+        EvoSuite evosuite = new EvoSuite();
 
-		String targetClass = SaticSingletonField.class.getCanonicalName();
-		Properties.TARGET_CLASS = targetClass;
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
-		Properties.OUTPUT_VARIABLES = "" + RuntimeVariable.HadUnstableTests;
+        String targetClass = SaticSingletonField.class.getCanonicalName();
+        Properties.TARGET_CLASS = targetClass;
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
+        Properties.OUTPUT_VARIABLES = "" + RuntimeVariable.HadUnstableTests;
 
-		Object result = evosuite.parseCommandLine(command);
+        Object result = evosuite.parseCommandLine(command);
 
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
 
-		Map<String, OutputVariable<?>> map = DebugStatisticsBackend.getLatestWritten();
-		Assert.assertNotNull(map);
-		OutputVariable unstable = map.get(RuntimeVariable.HadUnstableTests.toString());
-		Assert.assertNotNull(unstable);
-		Assert.assertEquals("Unexpected unstabled test cases were generated",Boolean.FALSE, unstable.getValue());
+        Map<String, OutputVariable<?>> map = DebugStatisticsBackend.getLatestWritten();
+        Assert.assertNotNull(map);
+        OutputVariable unstable = map.get(RuntimeVariable.HadUnstableTests.toString());
+        Assert.assertNotNull(unstable);
+        Assert.assertEquals("Unexpected unstabled test cases were generated", Boolean.FALSE, unstable.getValue());
 
-		double best_fitness = best.getFitness();
+        double best_fitness = best.getFitness();
         Assert.assertEquals("Optimal coverage was not achieved ", 0.0, best_fitness, 0.0);
-	}
+    }
 
 }

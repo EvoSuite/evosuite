@@ -32,21 +32,24 @@ import org.evosuite.testcase.execution.ExecutionResult;
  */
 public class CompleteAssertionGenerator extends AssertionGenerator {
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.evosuite.assertion.AssertionGenerator#addAssertions(org.evosuite.
-	 * testcase.TestCase)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public void addAssertions(TestCase test) {
-		ExecutionResult result = runTest(test);
-		for (OutputTrace<?> trace : result.getTraces()) {
-			trace.getAllAssertions(test);
-			trace.clear();
-		}
-		logger.debug("Test after adding assertions: " + test.toCode());
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see
+     * org.evosuite.assertion.AssertionGenerator#addAssertions(org.evosuite.
+     * testcase.TestCase)
+     */
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void addAssertions(TestCase test) {
+        ExecutionResult result = runTest(test);
+        for (OutputTrace<?> trace : result.getTraces()) {
+            trace.getAllAssertions(test);
+            trace.clear();
+        }
+        logger.debug("Test after adding assertions: " + test.toCode());
+    }
 }

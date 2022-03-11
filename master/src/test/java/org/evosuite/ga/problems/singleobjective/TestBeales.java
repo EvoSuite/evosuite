@@ -40,8 +40,7 @@ import org.junit.Test;
 
 import static java.util.Comparator.comparingDouble;
 
-public class TestBeales
-{
+public class TestBeales {
     @BeforeClass
     public static void setUp() {
         Properties.POPULATION = 100;
@@ -51,8 +50,7 @@ public class TestBeales
     }
 
     @Test
-    public void testBealesFitness()
-    {
+    public void testBealesFitness() {
         Problem<NSGAChromosome> p = new Beales();
         FitnessFunction<NSGAChromosome> f1 = p.getFitnessFunctions().get(0);
 
@@ -66,13 +64,12 @@ public class TestBeales
 
     /**
      * Testing NSGA-II with Beales Problem
-     * 
-     * @throws IOException 
-     * @throws NumberFormatException 
+     *
+     * @throws IOException
+     * @throws NumberFormatException
      */
     @Test
-    public void testBeales() throws NumberFormatException, IOException
-    {
+    public void testBeales() throws NumberFormatException, IOException {
         Properties.MUTATION_RATE = 1d / 2d;
 
         ChromosomeFactory<NSGAChromosome> factory = new RandomFactory(false, 2, -4.5, 4.5);

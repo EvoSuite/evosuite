@@ -33,35 +33,35 @@ import com.examples.with.different.packagename.staticfield.StaticFooProxy;
 
 public class ResetStaticFieldProxySystemTest extends SystemTestBase {
 
-	private boolean reset_statick_field_property;
+    private boolean reset_statick_field_property;
 
-	@Before
-	public void saveProperties() {
-		reset_statick_field_property = Properties.RESET_STATIC_FIELDS;
-		Properties.RESET_STATIC_FIELDS = true;
-	}
+    @Before
+    public void saveProperties() {
+        reset_statick_field_property = Properties.RESET_STATIC_FIELDS;
+        Properties.RESET_STATIC_FIELDS = true;
+    }
 
-	@After
-	public void restoreProperties() {
-		Properties.RESET_STATIC_FIELDS = reset_statick_field_property;
-	}
+    @After
+    public void restoreProperties() {
+        Properties.RESET_STATIC_FIELDS = reset_statick_field_property;
+    }
 
-	@Test
-	public void test() {
-		EvoSuite evosuite = new EvoSuite();
+    @Test
+    public void test() {
+        EvoSuite evosuite = new EvoSuite();
 
-		String targetClass = StaticFooProxy.class.getCanonicalName();
-		Properties.TARGET_CLASS = targetClass;
-		String[] command = new String[] { "-generateSuite", "-class",
-				targetClass };
+        String targetClass = StaticFooProxy.class.getCanonicalName();
+        Properties.TARGET_CLASS = targetClass;
+        String[] command = new String[]{"-generateSuite", "-class",
+                targetClass};
 
-		Object result = evosuite.parseCommandLine(command);
+        Object result = evosuite.parseCommandLine(command);
 
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
-		System.out.println("EvolvedTestSuite:\n" + best);
-		double best_fitness = best.getFitness();
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
+        System.out.println("EvolvedTestSuite:\n" + best);
+        double best_fitness = best.getFitness();
         Assert.assertEquals("Optimal coverage not reached ", 0.0, best_fitness, 0.0);
-	}
+    }
 
 }

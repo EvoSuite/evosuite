@@ -32,7 +32,7 @@ public class ClockExample {
 
     public boolean testMe2(long millis) {
         Clock clock = Clock.systemDefaultZone();
-        if(clock.millis() == millis)
+        if (clock.millis() == millis)
             return true;
         else
             return false;
@@ -40,7 +40,7 @@ public class ClockExample {
 
     public boolean testMe3(long millis) {
         Clock clock = Clock.systemUTC();
-        if(clock.millis() == millis)
+        if (clock.millis() == millis)
             return true;
         else
             return false;

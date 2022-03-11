@@ -39,16 +39,16 @@ public class TimelineForCombinedFitness1SystemTest extends SystemTestBase {
     private final Criterion[] oldCriterion = Arrays.copyOf(Properties.CRITERION, Properties.CRITERION.length);
 
     private final String ANALYSIS_CRITERIA = Properties.ANALYSIS_CRITERIA;
-    
+
     private final boolean ASSERTIONS = Properties.ASSERTIONS;
-    
-	@After
-	public void afterTest() {
-		Properties.CRITERION = oldCriterion;
-		Properties.ANALYSIS_CRITERIA = ANALYSIS_CRITERIA;
-		Properties.ASSERTIONS = ASSERTIONS;
-	}
-	
+
+    @After
+    public void afterTest() {
+        Properties.CRITERION = oldCriterion;
+        Properties.ANALYSIS_CRITERIA = ANALYSIS_CRITERIA;
+        Properties.ASSERTIONS = ASSERTIONS;
+    }
+
     @Test
     public void testTimelineForCombinedFitness() {
         EvoSuite evosuite = new EvoSuite();
@@ -65,14 +65,18 @@ public class TimelineForCombinedFitness1SystemTest extends SystemTestBase {
 
 
         StringBuilder s = new StringBuilder();
-        s.append(RuntimeVariable.CoverageTimeline); s.append(",");
-        s.append(RuntimeVariable.OnlyBranchCoverageTimeline); s.append(",");
-        s.append(RuntimeVariable.MethodCoverageTimeline); s.append(",");
-        s.append(RuntimeVariable.MethodNoExceptionCoverageTimeline); s.append(",");
+        s.append(RuntimeVariable.CoverageTimeline);
+        s.append(",");
+        s.append(RuntimeVariable.OnlyBranchCoverageTimeline);
+        s.append(",");
+        s.append(RuntimeVariable.MethodCoverageTimeline);
+        s.append(",");
+        s.append(RuntimeVariable.MethodNoExceptionCoverageTimeline);
+        s.append(",");
         s.append(RuntimeVariable.OutputCoverageTimeline);
         Properties.OUTPUT_VARIABLES = s.toString();
 
-        String[] command = new String[] { "-generateSuite", "-class", targetClass };
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
 
         evosuite.parseCommandLine(command);
 
@@ -100,7 +104,7 @@ public class TimelineForCombinedFitness1SystemTest extends SystemTestBase {
         int max = -1;
         for (Map.Entry<String, OutputVariable<?>> e : map.entrySet()) {
             if (e.getKey().startsWith(name)) {
-                int index = Integer.parseInt( (e.getKey().split("_T"))[1] );
+                int index = Integer.parseInt((e.getKey().split("_T"))[1]);
                 if (index > max) {
                     max = index;
                     timelineVar = e.getValue();

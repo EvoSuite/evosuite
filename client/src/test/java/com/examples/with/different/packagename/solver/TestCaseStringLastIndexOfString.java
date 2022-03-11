@@ -21,12 +21,12 @@ package com.examples.with.different.packagename.solver;
 
 public class TestCaseStringLastIndexOfString {
 
-	public static boolean test(String str) {
-		if (str != null && str.equals(".....Xello")) {
-			if (str.lastIndexOf("H") == -1) {
-				return true;
-			}
-		}
-		return true;
-	}
+    public static boolean test(String str) {
+        if (str != null && str.equals(".....Xello")) {
+            if (str.lastIndexOf("H") == -1) {
+                return true;
+            }
+        }
+        return true;
+    }
 }

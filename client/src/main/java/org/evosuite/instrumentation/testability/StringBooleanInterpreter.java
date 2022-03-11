@@ -20,8 +20,6 @@
 
 package org.evosuite.instrumentation.testability;
 
-import java.util.List;
-
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
@@ -30,6 +28,8 @@ import org.objectweb.asm.tree.analysis.AnalyzerException;
 import org.objectweb.asm.tree.analysis.BasicInterpreter;
 import org.objectweb.asm.tree.analysis.BasicValue;
 
+import java.util.List;
+
 /**
  * <p>StringBooleanInterpreter class.</p>
  *
@@ -37,29 +37,34 @@ import org.objectweb.asm.tree.analysis.BasicValue;
  */
 public class StringBooleanInterpreter extends BasicInterpreter {
 
-	/** Constant <code>STRING_BOOLEAN</code> */
-	public final static BasicValue STRING_BOOLEAN = new BasicValue(null);
+    /**
+     * Constant <code>STRING_BOOLEAN</code>
+     */
+    public final static BasicValue STRING_BOOLEAN = new BasicValue(null);
 
-        public StringBooleanInterpreter() {
-                super(Opcodes.ASM9);
+    public StringBooleanInterpreter() {
+        super(Opcodes.ASM9);
+    }
+
+
+    /* (non-Javadoc)
+     * @see org.objectweb.asm.tree.analysis.BasicInterpreter#naryOperation(org.objectweb.asm.tree.AbstractInsnNode, java.util.List)
+     */
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public BasicValue naryOperation(AbstractInsnNode insn,
+                                    @SuppressWarnings("rawtypes") List values) throws AnalyzerException {
+        if (insn.getOpcode() == Opcodes.INVOKESTATIC) {
+            MethodInsnNode mn = (MethodInsnNode) insn;
+            if (mn.owner.equals(Type.getInternalName(StringHelper.class))
+                    && mn.name.startsWith("String")) {
+                return STRING_BOOLEAN;
+            }
         }
-
-
-	/* (non-Javadoc)
-	 * @see org.objectweb.asm.tree.analysis.BasicInterpreter#naryOperation(org.objectweb.asm.tree.AbstractInsnNode, java.util.List)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public BasicValue naryOperation(AbstractInsnNode insn,
-	        @SuppressWarnings("rawtypes") List values) throws AnalyzerException {
-		if (insn.getOpcode() == Opcodes.INVOKESTATIC) {
-			MethodInsnNode mn = (MethodInsnNode) insn;
-			if (mn.owner.equals(Type.getInternalName(StringHelper.class))
-			        && mn.name.startsWith("String")) {
-				return STRING_BOOLEAN;
-			}
-		}
-		return super.naryOperation(insn, values);
-	}
+        return super.naryOperation(insn, values);
+    }
 
 }

@@ -27,21 +27,21 @@ import org.evosuite.symbolic.vm.heap.SymbolicHeap;
 
 public final class J_ValueOf extends SymbolicFunction {
 
-	private static final String VALUE_OF = "valueOf";
+    private static final String VALUE_OF = "valueOf";
 
-	public J_ValueOf(SymbolicEnvironment env) {
-		super(env, Types.JAVA_LANG_LONG, VALUE_OF, Types.J_TO_LONG);
-	}
+    public J_ValueOf(SymbolicEnvironment env) {
+        super(env, Types.JAVA_LANG_LONG, VALUE_OF, Types.J_TO_LONG);
+    }
 
-	@Override
-	public Object executeFunction() {
-		IntegerValue int_value = this.getSymbIntegerArgument(0);
-		ReferenceConstant symb_long = (ReferenceConstant) this.getSymbRetVal();
-		Long conc_long = (Long) this.getConcRetVal();
-		env.heap.putField(Types.JAVA_LANG_LONG, SymbolicHeap.$LONG_VALUE,
-				conc_long, symb_long, int_value);
+    @Override
+    public Object executeFunction() {
+        IntegerValue int_value = this.getSymbIntegerArgument(0);
+        ReferenceConstant symb_long = (ReferenceConstant) this.getSymbRetVal();
+        Long conc_long = (Long) this.getConcRetVal();
+        env.heap.putField(Types.JAVA_LANG_LONG, SymbolicHeap.$LONG_VALUE,
+                conc_long, symb_long, int_value);
 
-		return symb_long;
-	}
+        return symb_long;
+    }
 
 }

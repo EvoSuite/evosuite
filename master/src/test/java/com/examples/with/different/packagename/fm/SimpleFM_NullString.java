@@ -24,16 +24,16 @@ package com.examples.with.different.packagename.fm;
  */
 public class SimpleFM_NullString {
 
-    public interface Foo{
+    public interface Foo {
         String get(Object obj);
     }
 
-    public void bar(Foo foo){
+    public void bar(Foo foo) {
         String a = foo.get(new Object());
-        if(a!=null){
+        if (a != null) {
 
             String b = foo.get(new Object());
-            if(b==null){
+            if (b == null) {
                 System.out.println("target");
             }
         }

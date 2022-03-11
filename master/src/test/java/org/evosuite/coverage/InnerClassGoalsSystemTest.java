@@ -35,178 +35,178 @@ import com.examples.with.different.packagename.ClassWithPrivateNonStaticInnerCla
 
 public class InnerClassGoalsSystemTest extends SystemTestBase {
 
-	private final double oldPPool = Properties.PRIMITIVE_POOL;
+    private final double oldPPool = Properties.PRIMITIVE_POOL;
 
-	@Before
-	public void resetStuff() {
-		Properties.PRIMITIVE_POOL = oldPPool;
-	}
-	
-	@Test
-	public void testPublicStaticInnerClassWithBranch(){
-		EvoSuite evosuite = new EvoSuite();
+    @Before
+    public void resetStuff() {
+        Properties.PRIMITIVE_POOL = oldPPool;
+    }
 
-		String targetClass = ClassWithInnerClass.class.getCanonicalName();
-		Properties.TARGET_CLASS = targetClass;
+    @Test
+    public void testPublicStaticInnerClassWithBranch() {
+        EvoSuite evosuite = new EvoSuite();
 
-		Properties.CRITERION = new Properties.Criterion[]{
-				Properties.Criterion.BRANCH,
-		};
+        String targetClass = ClassWithInnerClass.class.getCanonicalName();
+        Properties.TARGET_CLASS = targetClass;
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
-		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
+        Properties.CRITERION = new Properties.Criterion[]{
+                Properties.Criterion.BRANCH,
+        };
 
-		System.out.println(best);
-		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
-		Assert.assertEquals(6, goals );
-		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
-	}
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
+        Object result = evosuite.parseCommandLine(command);
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
 
-	@Test
-	public void testPublicStaticInnerClassWithLine(){
-		EvoSuite evosuite = new EvoSuite();
+        System.out.println(best);
+        int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
+        Assert.assertEquals(6, goals);
+        Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+    }
 
-		String targetClass = ClassWithInnerClass.class.getCanonicalName();
-		Properties.TARGET_CLASS = targetClass;
+    @Test
+    public void testPublicStaticInnerClassWithLine() {
+        EvoSuite evosuite = new EvoSuite();
 
-		Properties.CRITERION = new Properties.Criterion[]{
-				Properties.Criterion.LINE,
-		};
+        String targetClass = ClassWithInnerClass.class.getCanonicalName();
+        Properties.TARGET_CLASS = targetClass;
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
-		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
+        Properties.CRITERION = new Properties.Criterion[]{
+                Properties.Criterion.LINE,
+        };
 
-		System.out.println(best);
-		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
+        Object result = evosuite.parseCommandLine(command);
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
 
-		// lines of 'ClassWithInnerClass': 22, 25, 26, 27, 29
-		// lines of 'ClassWithInnerClass$AnInnerClass': 31, 33, 34, 36
-		//
-		// The number of lines actually differs dependent on the JVM platform...
-		Assert.assertTrue ( 9 <= goals && goals <= 10);
-		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
-	}
+        System.out.println(best);
+        int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
 
-	@Test
-	public void testPrivateStaticInnerClassWithBranch(){
-		EvoSuite evosuite = new EvoSuite();
+        // lines of 'ClassWithInnerClass': 22, 25, 26, 27, 29
+        // lines of 'ClassWithInnerClass$AnInnerClass': 31, 33, 34, 36
+        //
+        // The number of lines actually differs dependent on the JVM platform...
+        Assert.assertTrue(9 <= goals && goals <= 10);
+        Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+    }
 
-		String targetClass = ClassWithPrivateInnerClass.class.getCanonicalName();
-		Properties.TARGET_CLASS = targetClass;
+    @Test
+    public void testPrivateStaticInnerClassWithBranch() {
+        EvoSuite evosuite = new EvoSuite();
 
-		Properties.CRITERION = new Properties.Criterion[]{
-				Properties.Criterion.BRANCH,
-		};
-		// Increase chances of using seeded values to make sure the test finishes in budget
-		Properties.PRIMITIVE_POOL = 1.0;
+        String targetClass = ClassWithPrivateInnerClass.class.getCanonicalName();
+        Properties.TARGET_CLASS = targetClass;
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
-		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
+        Properties.CRITERION = new Properties.Criterion[]{
+                Properties.Criterion.BRANCH,
+        };
+        // Increase chances of using seeded values to make sure the test finishes in budget
+        Properties.PRIMITIVE_POOL = 1.0;
 
-		System.out.println(best);
-		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
-		// If reflection is active, then the private constructor will be tested
-		if(Properties.P_REFLECTION_ON_PRIVATE > 0.0)
-			Assert.assertEquals(6, goals);
-		else
-			Assert.assertEquals(5, goals);
-		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
-	}
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
+        Object result = evosuite.parseCommandLine(command);
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
 
-	@Test
-	public void testPrivateStaticInnerClassWithLine(){
-		EvoSuite evosuite = new EvoSuite();
+        System.out.println(best);
+        int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
+        // If reflection is active, then the private constructor will be tested
+        if (Properties.P_REFLECTION_ON_PRIVATE > 0.0)
+            Assert.assertEquals(6, goals);
+        else
+            Assert.assertEquals(5, goals);
+        Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+    }
 
-		String targetClass = ClassWithPrivateInnerClass.class.getCanonicalName();
-		Properties.TARGET_CLASS = targetClass;
+    @Test
+    public void testPrivateStaticInnerClassWithLine() {
+        EvoSuite evosuite = new EvoSuite();
 
-		Properties.CRITERION = new Properties.Criterion[]{
-				Properties.Criterion.LINE,
-		};
+        String targetClass = ClassWithPrivateInnerClass.class.getCanonicalName();
+        Properties.TARGET_CLASS = targetClass;
 
-		// Increase chances of using seeded values to make sure the test finishes in budget
-		Properties.PRIMITIVE_POOL = 1.0;
+        Properties.CRITERION = new Properties.Criterion[]{
+                Properties.Criterion.LINE,
+        };
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
-		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
+        // Increase chances of using seeded values to make sure the test finishes in budget
+        Properties.PRIMITIVE_POOL = 1.0;
 
-		System.out.println(best);
-		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
+        Object result = evosuite.parseCommandLine(command);
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
 
-		// lines of 'ClassWithPrivateInnerClass': 22, 24, 25, 26, 28
-		// lines of 'ClassWithPrivateInnerClass$AnInnerClass': 30, 32, 33, 35
-		//
-		// The number of lines actually differs dependent on the JVM platform...
-		Assert.assertTrue ( 9 <= goals && goals <= 10);
-		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
-	}
+        System.out.println(best);
+        int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
 
-	@Test
-	public void testPrivateInnerClassWithBranch(){
-		EvoSuite evosuite = new EvoSuite();
+        // lines of 'ClassWithPrivateInnerClass': 22, 24, 25, 26, 28
+        // lines of 'ClassWithPrivateInnerClass$AnInnerClass': 30, 32, 33, 35
+        //
+        // The number of lines actually differs dependent on the JVM platform...
+        Assert.assertTrue(9 <= goals && goals <= 10);
+        Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+    }
 
-		String targetClass = ClassWithPrivateNonStaticInnerClass.class.getCanonicalName();
-		Properties.TARGET_CLASS = targetClass;
+    @Test
+    public void testPrivateInnerClassWithBranch() {
+        EvoSuite evosuite = new EvoSuite();
 
-		Properties.CRITERION = new Properties.Criterion[]{
-				Properties.Criterion.BRANCH,
-		};
-		
-		// Increase chances of using seeded values to make sure the test finishes in budget
-		Properties.PRIMITIVE_POOL = 1.0;
+        String targetClass = ClassWithPrivateNonStaticInnerClass.class.getCanonicalName();
+        Properties.TARGET_CLASS = targetClass;
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
-		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
+        Properties.CRITERION = new Properties.Criterion[]{
+                Properties.Criterion.BRANCH,
+        };
 
-		System.out.println(best);
-		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
+        // Increase chances of using seeded values to make sure the test finishes in budget
+        Properties.PRIMITIVE_POOL = 1.0;
 
-		// If reflection is active, then the private constructor will be tested
-		if(Properties.P_REFLECTION_ON_PRIVATE > 0.0)
-			Assert.assertEquals(6, goals);
-		else
-			Assert.assertEquals(5, goals);
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
+        Object result = evosuite.parseCommandLine(command);
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
 
-		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
-	}
+        System.out.println(best);
+        int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
 
-	@Test
-	public void testPrivateInnerClassWithLine(){
-		EvoSuite evosuite = new EvoSuite();
+        // If reflection is active, then the private constructor will be tested
+        if (Properties.P_REFLECTION_ON_PRIVATE > 0.0)
+            Assert.assertEquals(6, goals);
+        else
+            Assert.assertEquals(5, goals);
 
-		String targetClass = ClassWithPrivateNonStaticInnerClass.class.getCanonicalName();
-		Properties.TARGET_CLASS = targetClass;
+        Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+    }
 
-		// Increase chances of using seeded values to make sure the test finishes in budget
-		Properties.PRIMITIVE_POOL = 1.0;
+    @Test
+    public void testPrivateInnerClassWithLine() {
+        EvoSuite evosuite = new EvoSuite();
 
-		Properties.CRITERION = new Properties.Criterion[]{
-				Properties.Criterion.LINE,
-		};
+        String targetClass = ClassWithPrivateNonStaticInnerClass.class.getCanonicalName();
+        Properties.TARGET_CLASS = targetClass;
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
-		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
+        // Increase chances of using seeded values to make sure the test finishes in budget
+        Properties.PRIMITIVE_POOL = 1.0;
 
-		System.out.println(best);
-		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
+        Properties.CRITERION = new Properties.Criterion[]{
+                Properties.Criterion.LINE,
+        };
 
-		// lines of 'ClassWithPrivateNonStaticInnerClass': 22, 25, 26, 27, 29
-		// lines of 'ClassWithPrivateNonStaticInnerClass$AnInnerClass': 31, 33, 34, 36
-		//
-		// The number of lines actually differs dependent on the JVM platform...
-		Assert.assertTrue ( 9 <= goals && goals <= 10);
-		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
-	}
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
+        Object result = evosuite.parseCommandLine(command);
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
+
+        System.out.println(best);
+        int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
+
+        // lines of 'ClassWithPrivateNonStaticInnerClass': 22, 25, 26, 27, 29
+        // lines of 'ClassWithPrivateNonStaticInnerClass$AnInnerClass': 31, 33, 34, 36
+        //
+        // The number of lines actually differs dependent on the JVM platform...
+        Assert.assertTrue(9 <= goals && goals <= 10);
+        Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+    }
 }

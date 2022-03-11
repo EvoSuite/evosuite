@@ -41,7 +41,7 @@ public class DateInConstructor {
     }
 
     public boolean testMe(Date other) {
-        if(date.after(other))
+        if (date.after(other))
             return true;
         else
             return false;

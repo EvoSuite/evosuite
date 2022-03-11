@@ -39,7 +39,6 @@ package com.examples.with.different.packagename.testcarver;
  * object being converted (or possibly has a map of converters, and looks
  * them up based on the class of the input object). However this is not part
  * of the existing ConvertUtils framework.
- *  
  *
  * @author Craig R. McClanahan
  * @version $Revision: 690380 $ $Date: 2008-08-29 21:04:38 +0100 (Fri, 29 Aug 2008) $
@@ -61,8 +60,8 @@ public final class StringConverter extends AbstractConverter {
      * a default value if an error occurs.
      *
      * @param defaultValue The default value to be returned
-     * if the value to be converted is missing or an error
-     * occurs converting the value.
+     *                     if the value to be converted is missing or an error
+     *                     occurs converting the value.
      */
     public StringConverter(Object defaultValue) {
         super(defaultValue);
@@ -82,7 +81,7 @@ public final class StringConverter extends AbstractConverter {
      * Convert the specified input object into an output object of the
      * specified type.
      *
-     * @param type Data type to which this value should be converted.
+     * @param type  Data type to which this value should be converted.
      * @param value The input value to be converted.
      * @return The converted value.
      * @throws Throwable if an error occurs converting to the specified type

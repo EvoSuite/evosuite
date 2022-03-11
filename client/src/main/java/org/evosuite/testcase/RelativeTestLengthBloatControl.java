@@ -31,76 +31,88 @@ import org.evosuite.ga.metaheuristics.SearchListener;
  * @author Gordon Fraser
  */
 public class RelativeTestLengthBloatControl<T extends ExecutableChromosome<T>>
-		implements BloatControlFunction<T>, SearchListener<T> {
+        implements BloatControlFunction<T>, SearchListener<T> {
 
-	private static final long serialVersionUID = -459141492060919204L;
+    private static final long serialVersionUID = -459141492060919204L;
 
-	protected int current_max;
-	protected double best_fitness;
+    protected int current_max;
+    protected double best_fitness;
 
-	public RelativeTestLengthBloatControl() {
-		current_max = 0;
-		best_fitness = Double.MAX_VALUE; // FIXXME: Assuming
-										 // minimizing fitness!
-	}
+    public RelativeTestLengthBloatControl() {
+        current_max = 0;
+        best_fitness = Double.MAX_VALUE; // FIXXME: Assuming
+        // minimizing fitness!
+    }
 
-	public RelativeTestLengthBloatControl(final RelativeTestLengthBloatControl<?> that) {
-		this.current_max = that.current_max;
-		this.best_fitness = that.best_fitness;
-	}
+    public RelativeTestLengthBloatControl(final RelativeTestLengthBloatControl<?> that) {
+        this.current_max = that.current_max;
+        this.best_fitness = that.best_fitness;
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public boolean isTooLong(T chromosome) {
-		// Always accept if fitness is better
-		if (chromosome.getFitness() < best_fitness)
-			return false;
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isTooLong(T chromosome) {
+        // Always accept if fitness is better
+        if (chromosome.getFitness() < best_fitness)
+            return false;
 
-		// logger.debug("Current - max: "+((TestSuiteChromosome)chromosome).length()+" - "+current_max);
-		if (current_max > 0) {
-			// if(((TestSuiteChromosome)chromosome).length() > bloat_factor *
-			// current_max)
-			// logger.debug("Bloat control: "+((TestSuiteChromosome)chromosome).length()
-			// +" > "+ bloat_factor * current_max);
+        // logger.debug("Current - max: "+((TestSuiteChromosome)chromosome).length()+" - "+current_max);
+        if (current_max > 0) {
+            // if(((TestSuiteChromosome)chromosome).length() > bloat_factor *
+            // current_max)
+            // logger.debug("Bloat control: "+((TestSuiteChromosome)chromosome).length()
+            // +" > "+ bloat_factor * current_max);
 
-			return chromosome.size() > Properties.BLOAT_FACTOR
-			        * current_max;
-		} else
-			return false; // Don't know max length so can't reject!
-	}
+            return chromosome.size() > Properties.BLOAT_FACTOR
+                    * current_max;
+        } else
+            return false; // Don't know max length so can't reject!
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public void fitnessEvaluation(T result) {
-		// TODO Auto-generated method stub
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void fitnessEvaluation(T result) {
+        // TODO Auto-generated method stub
 
-	}
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public void iteration(GeneticAlgorithm<T> algorithm) {
-		current_max = algorithm.getBestIndividual().size();
-		best_fitness = algorithm.getBestIndividual().getFitness();
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void iteration(GeneticAlgorithm<T> algorithm) {
+        current_max = algorithm.getBestIndividual().size();
+        best_fitness = algorithm.getBestIndividual().getFitness();
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public void searchFinished(GeneticAlgorithm<T> algorithm) {
-		// TODO Auto-generated method stub
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void searchFinished(GeneticAlgorithm<T> algorithm) {
+        // TODO Auto-generated method stub
 
-	}
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public void searchStarted(GeneticAlgorithm<T> algorithm) {
-		// TODO Auto-generated method stub
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void searchStarted(GeneticAlgorithm<T> algorithm) {
+        // TODO Auto-generated method stub
 
-	}
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public void modification(T individual) {
-		// TODO Auto-generated method stub
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void modification(T individual) {
+        // TODO Auto-generated method stub
 
-	}
+    }
 }

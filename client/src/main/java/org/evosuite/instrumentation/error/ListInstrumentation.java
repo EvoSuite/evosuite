@@ -19,54 +19,54 @@
  */
 package org.evosuite.instrumentation.error;
 
-import java.util.*;
-
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
+import java.util.*;
+
 public class ListInstrumentation extends ErrorBranchInstrumenter {
 
-	private static final List<String> LISTNAMES = Arrays.asList(List.class.getCanonicalName().replace('.', '/'),
-			ArrayList.class.getCanonicalName().replace('.', '/'),
-			LinkedList.class.getCanonicalName().replace('.', '/'),
-			Vector.class.getCanonicalName().replace('.', '/'));
-	
-	private final List<String> indexListMethods = Arrays.asList(new String[] {"get", "set", "add", "remove", "listIterator", "addAll"});
-	// overloaded version of add(Element, Index), add(Index, Collection) and listIterator(Index) is considered here.
-	// Missing: subList, removeRange
+    private static final List<String> LISTNAMES = Arrays.asList(List.class.getCanonicalName().replace('.', '/'),
+            ArrayList.class.getCanonicalName().replace('.', '/'),
+            LinkedList.class.getCanonicalName().replace('.', '/'),
+            Vector.class.getCanonicalName().replace('.', '/'));
 
-	public ListInstrumentation(ErrorConditionMethodAdapter mv) {
-		super(mv);
-	}
+    private final List<String> indexListMethods = Arrays.asList("get", "set", "add", "remove", "listIterator", "addAll");
+    // overloaded version of add(Element, Index), add(Index, Collection) and listIterator(Index) is considered here.
+    // Missing: subList, removeRange
 
-	@Override
-	public void visitMethodInsn(int opcode, String owner, String name,
-			String desc, boolean itf) {
+    public ListInstrumentation(ErrorConditionMethodAdapter mv) {
+        super(mv);
+    }
 
-		if (LISTNAMES.contains(owner)) {
-			if (indexListMethods.contains(name)) {
-				Type[] args = Type.getArgumentTypes(desc);
-				if (args.length == 0)
-					return;
-				if (!args[0].equals(Type.INT_TYPE))
-					return;
+    @Override
+    public void visitMethodInsn(int opcode, String owner, String name,
+                                String desc, boolean itf) {
 
-				Map<Integer, Integer> tempVariables = getMethodCallee(desc);
-				tagBranchStart();
-				mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, owner,
-						"size", "()I", false);
+        if (LISTNAMES.contains(owner)) {
+            if (indexListMethods.contains(name)) {
+                Type[] args = Type.getArgumentTypes(desc);
+                if (args.length == 0)
+                    return;
+                if (!args[0].equals(Type.INT_TYPE))
+                    return;
 
-				// index >= size
-				mv.loadLocal(tempVariables.get(0));
-				insertBranch(Opcodes.IF_ICMPGT, "java/lang/IndexOutOfBoundsException");
+                Map<Integer, Integer> tempVariables = getMethodCallee(desc);
+                tagBranchStart();
+                mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, owner,
+                        "size", "()I", false);
 
-				// index < 0
-				mv.loadLocal(tempVariables.get(0));
-				insertBranch(Opcodes.IFGE, "java/lang/IndexOutOfBoundsException");
-				tagBranchEnd();
+                // index >= size
+                mv.loadLocal(tempVariables.get(0));
+                insertBranch(Opcodes.IF_ICMPGT, "java/lang/IndexOutOfBoundsException");
 
-				restoreMethodParameters(tempVariables, desc);
-			}
-		}
-	}
+                // index < 0
+                mv.loadLocal(tempVariables.get(0));
+                insertBranch(Opcodes.IFGE, "java/lang/IndexOutOfBoundsException");
+                tagBranchEnd();
+
+                restoreMethodParameters(tempVariables, desc);
+            }
+        }
+    }
 }

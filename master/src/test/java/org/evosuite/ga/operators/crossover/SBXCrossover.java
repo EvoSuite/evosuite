@@ -27,7 +27,7 @@ import org.evosuite.utils.Randomness;
 
 /**
  * Simulated Binary Crossover (SBX)
- * 
+ *
  * @author José Campos
  */
 public class SBXCrossover extends CrossOverFunction<NSGAChromosome> {
@@ -40,11 +40,9 @@ public class SBXCrossover extends CrossOverFunction<NSGAChromosome> {
 
     @Override
     public void crossOver(NSGAChromosome p1, NSGAChromosome p2)
-        throws ConstructionFailedException
-    {
+            throws ConstructionFailedException {
 
-        for (int i = 0; i < p1.getNumberOfVariables(); i++)
-        {
+        for (int i = 0; i < p1.getNumberOfVariables(); i++) {
             Variable v1 = p1.getVariable(i);
             Variable v2 = p2.getVariable(i);
 
@@ -53,8 +51,7 @@ public class SBXCrossover extends CrossOverFunction<NSGAChromosome> {
         }
     }
 
-    private void doCrossover(DoubleVariable v1, DoubleVariable v2)
-    {
+    private void doCrossover(DoubleVariable v1, DoubleVariable v2) {
         double distributionIndex = 20.0;
 
         double rand;
@@ -69,13 +66,11 @@ public class SBXCrossover extends CrossOverFunction<NSGAChromosome> {
         valueX1 = v1.getValue();
         valueX2 = v2.getValue();
 
-        if (Math.abs(valueX1 - valueX2) > EPS)
-        {
+        if (Math.abs(valueX1 - valueX2) > EPS) {
             if (valueX1 < valueX2) {
                 y1 = valueX1;
                 y2 = valueX2;
-            }
-            else {
+            } else {
                 y1 = valueX2;
                 y2 = valueX1;
             }
@@ -113,8 +108,7 @@ public class SBXCrossover extends CrossOverFunction<NSGAChromosome> {
             if (Randomness.nextDouble() <= 0.5) {
                 valueX1 = c2;
                 valueX2 = c1;
-            }
-            else {
+            } else {
                 valueX1 = c1;
                 valueX2 = c2;
             }

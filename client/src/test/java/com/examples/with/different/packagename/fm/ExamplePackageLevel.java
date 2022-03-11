@@ -24,5 +24,6 @@ package com.examples.with.different.packagename.fm;
  */
 class ExamplePackageLevel {
 
-    ExamplePackageLevel(){}
+    ExamplePackageLevel() {
+    }
 }

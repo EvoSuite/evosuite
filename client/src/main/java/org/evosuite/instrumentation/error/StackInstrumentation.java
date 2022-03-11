@@ -19,39 +19,39 @@
  */
 package org.evosuite.instrumentation.error;
 
+import org.objectweb.asm.Opcodes;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
-import org.objectweb.asm.Opcodes;
-
 public class StackInstrumentation extends ErrorBranchInstrumenter {
 
-private static final String LISTNAME = Stack.class.getCanonicalName().replace('.', '/');
-	
-	private final List<String> emptyStackMethods = Arrays.asList(new String[] {"pop", "peek"});
+    private static final String LISTNAME = Stack.class.getCanonicalName().replace('.', '/');
 
-	public StackInstrumentation(ErrorConditionMethodAdapter mv) {
-		super(mv);
-	}
+    private final List<String> emptyStackMethods = Arrays.asList("pop", "peek");
 
-	@Override
-	public void visitMethodInsn(int opcode, String owner, String name,
-			String desc, boolean itf) {
-		if(owner.equals(LISTNAME)) {
-			if(emptyStackMethods.contains(name)) {
-				// empty
-				Map<Integer, Integer> tempVariables = getMethodCallee(desc);
+    public StackInstrumentation(ErrorConditionMethodAdapter mv) {
+        super(mv);
+    }
 
-				tagBranchStart();
-				mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, LISTNAME,
-	                      "empty", "()Z", false);
-				insertBranch(Opcodes.IFLE, "java/util/EmptyStackException");
-				tagBranchEnd();
-				restoreMethodParameters(tempVariables, desc);
-				
-			} 
-		}
-	}
+    @Override
+    public void visitMethodInsn(int opcode, String owner, String name,
+                                String desc, boolean itf) {
+        if (owner.equals(LISTNAME)) {
+            if (emptyStackMethods.contains(name)) {
+                // empty
+                Map<Integer, Integer> tempVariables = getMethodCallee(desc);
+
+                tagBranchStart();
+                mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, LISTNAME,
+                        "empty", "()Z", false);
+                insertBranch(Opcodes.IFLE, "java/util/EmptyStackException");
+                tagBranchEnd();
+                restoreMethodParameters(tempVariables, desc);
+
+            }
+        }
+    }
 }

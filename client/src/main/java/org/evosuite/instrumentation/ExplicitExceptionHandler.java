@@ -31,72 +31,68 @@ import org.objectweb.asm.Opcodes;
  * <p>
  * ExplicitExceptionHandler class.
  * </p>
- * 
+ *
  * @author gordon
  */
 public class ExplicitExceptionHandler extends MethodVisitor {
 
-	private final String fullMethodName;
+    private final String fullMethodName;
 
-	private final String className;
+    private final String className;
 
-	private boolean inErrorBranch = false;
+    private boolean inErrorBranch = false;
 
-	int currentLine = 0;
+    /**
+     * <p>
+     * Constructor for ExplicitExceptionHandler.
+     * </p>
+     *
+     * @param mv         a {@link org.objectweb.asm.MethodVisitor} object.
+     * @param className  a {@link java.lang.String} object.
+     * @param methodName a {@link java.lang.String} object.
+     * @param desc       a {@link java.lang.String} object.
+     */
+    public ExplicitExceptionHandler(MethodVisitor mv, String className,
+                                    String methodName, String desc) {
+        super(Opcodes.ASM9, mv);
+        fullMethodName = methodName + desc;
+        this.className = className;
+    }
 
-	/**
-	 * <p>
-	 * Constructor for ExplicitExceptionHandler.
-	 * </p>
-	 * 
-	 * @param mv
-	 *            a {@link org.objectweb.asm.MethodVisitor} object.
-	 * @param className
-	 *            a {@link java.lang.String} object.
-	 * @param methodName
-	 *            a {@link java.lang.String} object.
-	 * @param desc
-	 *            a {@link java.lang.String} object.
-	 */
-	public ExplicitExceptionHandler(MethodVisitor mv, String className,
-	        String methodName, String desc) {
-		super(Opcodes.ASM9, mv);
-		fullMethodName = methodName + desc;
-		this.className = className;
-	}
+    /* (non-Javadoc)
+     * @see org.objectweb.asm.MethodVisitor#visitLabel(org.objectweb.asm.Label)
+     */
 
-	/* (non-Javadoc)
-	 * @see org.objectweb.asm.MethodVisitor#visitLabel(org.objectweb.asm.Label)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public void visitLabel(Label label) {
-		if (label instanceof AnnotatedLabel) {
-			AnnotatedLabel l = (AnnotatedLabel) label;
-			if (Boolean.TRUE.equals(l.info)) {
-				inErrorBranch = true;
-			} else {
-				inErrorBranch = false;
-			}
-		}
-		super.visitLabel(label);
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void visitLabel(Label label) {
+        if (label instanceof AnnotatedLabel) {
+            AnnotatedLabel l = (AnnotatedLabel) label;
+            inErrorBranch = Boolean.TRUE.equals(l.info);
+        }
+        super.visitLabel(label);
+    }
 
-	/* (non-Javadoc)
-	 * @see org.objectweb.asm.MethodVisitor#visitInsn(int)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public void visitInsn(int opcode) {
-		if (opcode == Opcodes.ATHROW && !inErrorBranch) {
-			super.visitInsn(Opcodes.DUP);
-			this.visitLdcInsn(className);
-			this.visitLdcInsn(fullMethodName);
-			mv.visitMethodInsn(Opcodes.INVOKESTATIC,
-					PackageInfo.getNameWithSlash(ExecutionTracer.class),
-			                   "exceptionThrown",
-			                   "(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;)V", false);
-		}
-		super.visitInsn(opcode);
-	}
+    /* (non-Javadoc)
+     * @see org.objectweb.asm.MethodVisitor#visitInsn(int)
+     */
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void visitInsn(int opcode) {
+        if (opcode == Opcodes.ATHROW && !inErrorBranch) {
+            super.visitInsn(Opcodes.DUP);
+            this.visitLdcInsn(className);
+            this.visitLdcInsn(fullMethodName);
+            mv.visitMethodInsn(Opcodes.INVOKESTATIC,
+                    PackageInfo.getNameWithSlash(ExecutionTracer.class),
+                    "exceptionThrown",
+                    "(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;)V", false);
+        }
+        super.visitInsn(opcode);
+    }
 }

@@ -20,86 +20,91 @@
 
 package org.evosuite.contracts;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.evosuite.PackageInfo;
-import org.evosuite.testcase.statements.Statement;
-import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.execution.Scope;
 import org.evosuite.testcase.statements.ConstructorStatement;
 import org.evosuite.testcase.statements.MethodStatement;
+import org.evosuite.testcase.statements.Statement;
+import org.evosuite.testcase.variable.VariableReference;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * <p>
  * NullPointerExceptionContract class.
  * </p>
- * 
+ *
  * @author Gordon Fraser
  */
 public class NullPointerExceptionContract extends Contract {
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.contracts.Contract#check(org.evosuite.testcase.TestCase, org.evosuite.testcase.Statement, org.evosuite.testcase.Scope, java.lang.Throwable)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public ContractViolation check(Statement statement, Scope scope, Throwable exception) {
-		if (!isTargetStatement(statement))
-			return null;
+    /* (non-Javadoc)
+     * @see org.evosuite.contracts.Contract#check(org.evosuite.testcase.TestCase, org.evosuite.testcase.Statement, org.evosuite.testcase.Scope, java.lang.Throwable)
+     */
 
-		try {
-			if (exception != null) {
-				// method throws no NullPointerException if no input parameter was null
-				if (exception instanceof NullPointerException) {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ContractViolation check(Statement statement, Scope scope, Throwable exception) {
+        if (!isTargetStatement(statement))
+            return null;
 
-					StackTraceElement element = exception.getStackTrace()[0];
+        try {
+            if (exception != null) {
+                // method throws no NullPointerException if no input parameter was null
+                if (exception instanceof NullPointerException) {
 
-					// If the exception was thrown in the test directly, it is also not interesting
-					if (element.getClassName().startsWith(PackageInfo.getEvoSuitePackage()+".testcase")) {
-						return null;
-					}
+                    StackTraceElement element = exception.getStackTrace()[0];
 
-					List<VariableReference> parameters = new ArrayList<>();
-					if (statement instanceof MethodStatement) {
-						MethodStatement ms = (MethodStatement) statement;
-						parameters.addAll(ms.getParameterReferences());
-					} else if (statement instanceof ConstructorStatement) {
-						ConstructorStatement cs = (ConstructorStatement) statement;
-						parameters.addAll(cs.getParameterReferences());
-					} else {
-						return null;
-					}
-					boolean hasNull = false;
-					for (VariableReference var : parameters) {
-						if (var.getObject(scope) == null) {
-							hasNull = true;
-							break;
-						}
-					}
-					if (!hasNull) {
-						return new ContractViolation(this, statement, exception);
-					}
-				}
-			}
+                    // If the exception was thrown in the test directly, it is also not interesting
+                    if (element.getClassName().startsWith(PackageInfo.getEvoSuitePackage() + ".testcase")) {
+                        return null;
+                    }
 
-			return null;
-		} catch (CodeUnderTestException e) {
-			throw new UnsupportedOperationException();
-		}
-	}
-	
-	@Override
-	public void addAssertionAndComments(Statement statement,
-			List<VariableReference> variables, Throwable exception) {
-		statement.addComment("Throws NullPointerException: " +exception.getMessage());
-	}
+                    List<VariableReference> parameters = new ArrayList<>();
+                    if (statement instanceof MethodStatement) {
+                        MethodStatement ms = (MethodStatement) statement;
+                        parameters.addAll(ms.getParameterReferences());
+                    } else if (statement instanceof ConstructorStatement) {
+                        ConstructorStatement cs = (ConstructorStatement) statement;
+                        parameters.addAll(cs.getParameterReferences());
+                    } else {
+                        return null;
+                    }
+                    boolean hasNull = false;
+                    for (VariableReference var : parameters) {
+                        if (var.getObject(scope) == null) {
+                            hasNull = true;
+                            break;
+                        }
+                    }
+                    if (!hasNull) {
+                        return new ContractViolation(this, statement, exception);
+                    }
+                }
+            }
 
-	/** {@inheritDoc} */
-	@Override
-	public String toString() {
-		return "NullPointerException";
-	}
+            return null;
+        } catch (CodeUnderTestException e) {
+            throw new UnsupportedOperationException();
+        }
+    }
+
+    @Override
+    public void addAssertionAndComments(Statement statement,
+                                        List<VariableReference> variables, Throwable exception) {
+        statement.addComment("Throws NullPointerException: " + exception.getMessage());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        return "NullPointerException";
+    }
 
 }

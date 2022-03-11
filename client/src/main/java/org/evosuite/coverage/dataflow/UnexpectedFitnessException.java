@@ -18,9 +18,10 @@
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 package org.evosuite.coverage.dataflow;
+
 public class UnexpectedFitnessException extends Exception {
 
 
-	private static final long serialVersionUID = -2211094409507844711L;
+    private static final long serialVersionUID = -2211094409507844711L;
 
 }

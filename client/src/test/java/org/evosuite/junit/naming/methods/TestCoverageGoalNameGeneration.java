@@ -19,11 +19,6 @@
  */
 package org.evosuite.junit.naming.methods;
 
-import static org.evosuite.coverage.io.IOCoverageConstants.*;
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import com.examples.with.different.packagename.ClassWithOverloadedConstructor;
 import org.evosuite.coverage.branch.Branch;
 import org.evosuite.coverage.branch.BranchCoverageGoal;
@@ -37,7 +32,6 @@ import org.evosuite.coverage.line.LineCoverageTestFitness;
 import org.evosuite.coverage.method.MethodCoverageTestFitness;
 import org.evosuite.coverage.method.MethodNoExceptionCoverageTestFitness;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
-import org.evosuite.junit.naming.methods.CoverageGoalTestNameGenerationStrategy;
 import org.evosuite.runtime.mock.java.lang.MockArithmeticException;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.TestCase;
@@ -54,6 +48,11 @@ import org.objectweb.asm.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+
+import static org.evosuite.coverage.io.IOCoverageConstants.*;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Created by gordon on 22/12/2015.
@@ -100,7 +99,7 @@ public class TestCoverageGoalNameGeneration {
         tests.add(test1);
         tests.add(test2);
         CoverageGoalTestNameGenerationStrategy naming = new CoverageGoalTestNameGenerationStrategy(tests);
-        assertEquals("testToString",     naming.getName(test1));
+        assertEquals("testToString", naming.getName(test1));
         assertEquals("testGetSomeStuff", naming.getName(test2));
     }
 
@@ -123,7 +122,7 @@ public class TestCoverageGoalNameGeneration {
         tests.add(test1);
         tests.add(test2);
         CoverageGoalTestNameGenerationStrategy naming = new CoverageGoalTestNameGenerationStrategy(tests);
-        assertEquals("testToString",     naming.getName(test1));
+        assertEquals("testToString", naming.getName(test1));
         assertEquals("testGetSomeStuff", naming.getName(test2));
     }
 
@@ -242,7 +241,7 @@ public class TestCoverageGoalNameGeneration {
         tests.add(test1);
         tests.add(test2);
         CoverageGoalTestNameGenerationStrategy naming = new CoverageGoalTestNameGenerationStrategy(tests);
-        assertEquals("testToStringReturningNull",    naming.getName(test1));
+        assertEquals("testToStringReturningNull", naming.getName(test1));
         assertEquals("testToStringReturningNonNull", naming.getName(test2));
     }
 
@@ -267,7 +266,7 @@ public class TestCoverageGoalNameGeneration {
         tests.add(test1);
         tests.add(test2);
         CoverageGoalTestNameGenerationStrategy naming = new CoverageGoalTestNameGenerationStrategy(tests);
-        assertEquals("testToStringWithNull",    naming.getName(test1));
+        assertEquals("testToStringWithNull", naming.getName(test1));
         assertEquals("testToStringWithNonNull", naming.getName(test2));
     }
 
@@ -292,7 +291,7 @@ public class TestCoverageGoalNameGeneration {
         tests.add(test1);
         tests.add(test2);
         CoverageGoalTestNameGenerationStrategy naming = new CoverageGoalTestNameGenerationStrategy(tests);
-        assertEquals("testToStringWithNull",    naming.getName(test1));
+        assertEquals("testToStringWithNull", naming.getName(test1));
         assertEquals("testToStringReturningNonNull", naming.getName(test2));
     }
 
@@ -318,7 +317,7 @@ public class TestCoverageGoalNameGeneration {
         tests.add(test2);
         tests.add(test3);
         CoverageGoalTestNameGenerationStrategy naming = new CoverageGoalTestNameGenerationStrategy(tests);
-        assertEquals("testFooTakingNoArguments",     naming.getName(test1));
+        assertEquals("testFooTakingNoArguments", naming.getName(test1));
         assertEquals("testFooTakingInt", naming.getName(test2));
         assertEquals("testFooTaking2Arguments", naming.getName(test3));
     }
@@ -341,7 +340,7 @@ public class TestCoverageGoalNameGeneration {
         tests.add(test1);
         tests.add(test2);
         CoverageGoalTestNameGenerationStrategy naming = new CoverageGoalTestNameGenerationStrategy(tests);
-        assertEquals("testFooTakingByteArray",     naming.getName(test1));
+        assertEquals("testFooTakingByteArray", naming.getName(test1));
         assertEquals("testFooTakingIntArray", naming.getName(test2));
     }
 
@@ -366,7 +365,7 @@ public class TestCoverageGoalNameGeneration {
         tests.add(test1);
         tests.add(test2);
         CoverageGoalTestNameGenerationStrategy naming = new CoverageGoalTestNameGenerationStrategy(tests);
-        assertEquals("testFooTaking2Shorts",     naming.getName(test1));
+        assertEquals("testFooTaking2Shorts", naming.getName(test1));
         assertEquals("testFooTaking2Objects", naming.getName(test2));
     }
 
@@ -386,7 +385,7 @@ public class TestCoverageGoalNameGeneration {
         tests.add(test1);
         tests.add(test2);
         CoverageGoalTestNameGenerationStrategy naming = new CoverageGoalTestNameGenerationStrategy(tests);
-        assertEquals("testFooTakingNoArguments",     naming.getName(test1));
+        assertEquals("testFooTakingNoArguments", naming.getName(test1));
         assertEquals("testFooTakingList", naming.getName(test2));
     }
 
@@ -412,7 +411,7 @@ public class TestCoverageGoalNameGeneration {
         tests.add(test2);
         tests.add(test3);
         CoverageGoalTestNameGenerationStrategy naming = new CoverageGoalTestNameGenerationStrategy(tests);
-        assertEquals("testFooTakingInt",     naming.getName(test1));
+        assertEquals("testFooTakingInt", naming.getName(test1));
         assertEquals("testFooTakingIntArray", naming.getName(test2));
         assertEquals("testFooTakingIntArrayArray", naming.getName(test3));
     }
@@ -710,7 +709,7 @@ public class TestCoverageGoalNameGeneration {
         List<TestCase> tests = new ArrayList<>();
         tests.add(test);
         CoverageGoalTestNameGenerationStrategy naming = new CoverageGoalTestNameGenerationStrategy(tests);
-        assertEquals("testFooReturningTrue",    naming.getName(test));
+        assertEquals("testFooReturningTrue", naming.getName(test));
     }
 
     @Test
@@ -1132,7 +1131,6 @@ public class TestCoverageGoalNameGeneration {
 
         InputCoverageGoal inputGoalHelper3 = new InputCoverageGoal("org.apache.commons.scxml.Builtin", "isMember(Ljava/util/Set;Ljava/lang/String;)Z", 1, Type.getType(String.class), STRING_NONEMPTY);
         InputCoverageTestFitness inputGoalStringNonEmpty = new InputCoverageTestFitness(inputGoalHelper3);
-
 
 
         TestCase test1 = new DefaultTestCase();

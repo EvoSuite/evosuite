@@ -35,39 +35,39 @@ import com.examples.with.different.packagename.concolic.Regex;
  */
 public class RegexSystemTest extends SystemTestBase {
 
-	@Before
-	public void init() {
-		Properties.LOCAL_SEARCH_PROBABILITY = 1.0;
-		Properties.LOCAL_SEARCH_RATE = 1;
-		Properties.LOCAL_SEARCH_BUDGET_TYPE = Properties.LocalSearchBudgetType.TESTS;
-		Properties.LOCAL_SEARCH_BUDGET = 10;
-		Properties.SEARCH_BUDGET = 20;
-		Properties.STOPPING_CONDITION = Properties.StoppingCondition.MAXTIME;
-		Properties.RESET_STATIC_FIELD_GETS = true;
-	}
+    @Before
+    public void init() {
+        Properties.LOCAL_SEARCH_PROBABILITY = 1.0;
+        Properties.LOCAL_SEARCH_RATE = 1;
+        Properties.LOCAL_SEARCH_BUDGET_TYPE = Properties.LocalSearchBudgetType.TESTS;
+        Properties.LOCAL_SEARCH_BUDGET = 10;
+        Properties.SEARCH_BUDGET = 20;
+        Properties.STOPPING_CONDITION = Properties.StoppingCondition.MAXTIME;
+        Properties.RESET_STATIC_FIELD_GETS = true;
+    }
 
-	@Test
-	public void testDSE() {
+    @Test
+    public void testDSE() {
 
-		EvoSuite evosuite = new EvoSuite();
-		String targetClass = Regex.class.getCanonicalName();
-		Properties.TARGET_CLASS = targetClass;
-		Properties.PRINT_TO_SYSTEM = true;
+        EvoSuite evosuite = new EvoSuite();
+        String targetClass = Regex.class.getCanonicalName();
+        Properties.TARGET_CLASS = targetClass;
+        Properties.PRINT_TO_SYSTEM = true;
 
-		Properties.DSE_PROBABILITY = 1.0; // force using only DSE, no LS
-		Properties.CRITERION = new Criterion[] {
-	            //these are basic criteria that should be always on by default
-	            Criterion.LINE, Criterion.BRANCH, Criterion.EXCEPTION, Criterion.WEAKMUTATION, Criterion.OUTPUT, Criterion.METHOD, Criterion.METHODNOEXCEPTION, Criterion.CBRANCH  };
-		
-		String[] command = new String[] { "-generateSuite", "-class",
-				targetClass };
+        Properties.DSE_PROBABILITY = 1.0; // force using only DSE, no LS
+        Properties.CRITERION = new Criterion[]{
+                //these are basic criteria that should be always on by default
+                Criterion.LINE, Criterion.BRANCH, Criterion.EXCEPTION, Criterion.WEAKMUTATION, Criterion.OUTPUT, Criterion.METHOD, Criterion.METHODNOEXCEPTION, Criterion.CBRANCH};
 
-		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
-		System.out.println("EvolvedTestSuite:\n" + best);
+        String[] command = new String[]{"-generateSuite", "-class",
+                targetClass};
+
+        Object result = evosuite.parseCommandLine(command);
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
+        System.out.println("EvolvedTestSuite:\n" + best);
 
 
-	}
+    }
 
 }

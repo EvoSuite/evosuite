@@ -33,34 +33,34 @@ import com.examples.with.different.packagename.symbolic.Max;
 public class MaxSystemTest extends SystemTestBase {
 
 
-	@Before
-	public void setUpProperties() {
-		Properties.RESET_STATIC_FIELDS = true;
-		Properties.RESET_STATIC_FIELD_GETS = true;
-		Properties.SANDBOX = true;
-		Properties.JUNIT_CHECK = Properties.JUnitCheckValues.TRUE;
-		Properties.JUNIT_TESTS = true;
-		Properties.PURE_INSPECTORS = true;
-		Properties.CLIENT_ON_THREAD = true;
-	}
+    @Before
+    public void setUpProperties() {
+        Properties.RESET_STATIC_FIELDS = true;
+        Properties.RESET_STATIC_FIELD_GETS = true;
+        Properties.SANDBOX = true;
+        Properties.JUNIT_CHECK = Properties.JUnitCheckValues.TRUE;
+        Properties.JUNIT_TESTS = true;
+        Properties.PURE_INSPECTORS = true;
+        Properties.CLIENT_ON_THREAD = true;
+    }
 
-	@Test
-	public void testGenerateUsingDSE() {
-		
-		Properties.STRATEGY = Strategy.DSE;
-		
-		Assume.assumeTrue(System.getenv("z3_path")!=null);
-		Properties.Z3_PATH = System.getenv("z3_path");
-		
-		EvoSuite evosuite = new EvoSuite();
+    @Test
+    public void testGenerateUsingDSE() {
 
-		String targetClass = Max.class.getCanonicalName();
-		Properties.TARGET_CLASS = targetClass;
-		String[] command = new String[] { "-generateSuiteUsingDSE", "-class", targetClass };
+        Properties.STRATEGY = Strategy.DSE;
 
-		Object result = evosuite.parseCommandLine(command);
+        Assume.assumeTrue(System.getenv("z3_path") != null);
+        Properties.Z3_PATH = System.getenv("z3_path");
 
-		Assert.assertNotNull(result);
-	}
+        EvoSuite evosuite = new EvoSuite();
+
+        String targetClass = Max.class.getCanonicalName();
+        Properties.TARGET_CLASS = targetClass;
+        String[] command = new String[]{"-generateSuiteUsingDSE", "-class", targetClass};
+
+        Object result = evosuite.parseCommandLine(command);
+
+        Assert.assertNotNull(result);
+    }
 
 }

@@ -38,77 +38,77 @@ import com.examples.with.different.packagename.sette.AnonymousClass;
  */
 public class AnonymousClassSystemTest extends SystemTestBase {
 
-	@Before
-	public void init() {
-		Properties.LOCAL_SEARCH_PROBABILITY = 1.0;
-		Properties.LOCAL_SEARCH_RATE = 1;
-		Properties.LOCAL_SEARCH_BUDGET_TYPE = Properties.LocalSearchBudgetType.TESTS;
-		Properties.LOCAL_SEARCH_BUDGET = 100;
-	}
+    @Before
+    public void init() {
+        Properties.LOCAL_SEARCH_PROBABILITY = 1.0;
+        Properties.LOCAL_SEARCH_RATE = 1;
+        Properties.LOCAL_SEARCH_BUDGET_TYPE = Properties.LocalSearchBudgetType.TESTS;
+        Properties.LOCAL_SEARCH_BUDGET = 100;
+    }
 
-	@Test
-	public void testZ3() {
+    @Test
+    public void testZ3() {
 
-		Assume.assumeTrue(System.getenv("z3_path")!=null);
+        Assume.assumeTrue(System.getenv("z3_path") != null);
 
-		String targetClass = AnonymousClass.class.getCanonicalName();
+        String targetClass = AnonymousClass.class.getCanonicalName();
 
-	
-		Properties.Z3_PATH = System.getenv("z3_path");
-		Properties.DSE_SOLVER = SolverType.Z3_SOLVER;
-		Properties.STOPPING_CONDITION = StoppingCondition.MAXTIME;
-		Properties.SEARCH_BUDGET = 30;
-		
-		Properties.TARGET_CLASS = targetClass;
-		Properties.CRITERION = new Criterion[] {Criterion.LINE, Criterion.BRANCH, Criterion.EXCEPTION, Criterion.WEAKMUTATION, 
-				Criterion.OUTPUT, Criterion.METHOD, Criterion.METHODNOEXCEPTION, Criterion.CBRANCH};
-		Properties.MINIMIZE = false;
-		Properties.ASSERTIONS = false;
-		Properties.DSE_PROBABILITY = 1.0; // force using only DSE, no LS
 
-		String[] command = new String[] { "-generateSuite", "-class",
-				targetClass };
+        Properties.Z3_PATH = System.getenv("z3_path");
+        Properties.DSE_SOLVER = SolverType.Z3_SOLVER;
+        Properties.STOPPING_CONDITION = StoppingCondition.MAXTIME;
+        Properties.SEARCH_BUDGET = 30;
 
-		EvoSuite evosuite = new EvoSuite();
-		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
-		System.out.println("EvolvedTestSuite:\n" + best);
+        Properties.TARGET_CLASS = targetClass;
+        Properties.CRITERION = new Criterion[]{Criterion.LINE, Criterion.BRANCH, Criterion.EXCEPTION, Criterion.WEAKMUTATION,
+                Criterion.OUTPUT, Criterion.METHOD, Criterion.METHODNOEXCEPTION, Criterion.CBRANCH};
+        Properties.MINIMIZE = false;
+        Properties.ASSERTIONS = false;
+        Properties.DSE_PROBABILITY = 1.0; // force using only DSE, no LS
 
-	}
-	
-	@Before 
-	public void before() {
-	}
-	
-	@Test
-	public void testCVC4() {
+        String[] command = new String[]{"-generateSuite", "-class",
+                targetClass};
 
-		Assume.assumeTrue(System.getenv("cvc4_path")!=null);
+        EvoSuite evosuite = new EvoSuite();
+        Object result = evosuite.parseCommandLine(command);
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
+        System.out.println("EvolvedTestSuite:\n" + best);
 
-		String targetClass = AnonymousClass.class.getCanonicalName();
+    }
 
-		Properties.CVC4_PATH = System.getenv("cvc4_path");
-		Properties.DSE_SOLVER = SolverType.CVC4_SOLVER;
-		Properties.STOPPING_CONDITION = StoppingCondition.MAXTIME;
-		Properties.SEARCH_BUDGET = 30;
-		
-		Properties.TARGET_CLASS = targetClass;
-		Properties.CRITERION = new Criterion[] {Criterion.LINE, Criterion.BRANCH, Criterion.EXCEPTION, Criterion.WEAKMUTATION, 
-				Criterion.OUTPUT, Criterion.METHOD, Criterion.METHODNOEXCEPTION, Criterion.CBRANCH};
-		Properties.MINIMIZE = false;
-		Properties.ASSERTIONS = false;
-		Properties.DSE_PROBABILITY = 1.0; // force using only DSE, no LS
+    @Before
+    public void before() {
+    }
 
-		String[] command = new String[] { "-generateSuite", "-class",
-				targetClass };
+    @Test
+    public void testCVC4() {
 
-		EvoSuite evosuite = new EvoSuite();
-		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
-		System.out.println("EvolvedTestSuite:\n" + best);
+        Assume.assumeTrue(System.getenv("cvc4_path") != null);
 
-	}
+        String targetClass = AnonymousClass.class.getCanonicalName();
+
+        Properties.CVC4_PATH = System.getenv("cvc4_path");
+        Properties.DSE_SOLVER = SolverType.CVC4_SOLVER;
+        Properties.STOPPING_CONDITION = StoppingCondition.MAXTIME;
+        Properties.SEARCH_BUDGET = 30;
+
+        Properties.TARGET_CLASS = targetClass;
+        Properties.CRITERION = new Criterion[]{Criterion.LINE, Criterion.BRANCH, Criterion.EXCEPTION, Criterion.WEAKMUTATION,
+                Criterion.OUTPUT, Criterion.METHOD, Criterion.METHODNOEXCEPTION, Criterion.CBRANCH};
+        Properties.MINIMIZE = false;
+        Properties.ASSERTIONS = false;
+        Properties.DSE_PROBABILITY = 1.0; // force using only DSE, no LS
+
+        String[] command = new String[]{"-generateSuite", "-class",
+                targetClass};
+
+        EvoSuite evosuite = new EvoSuite();
+        Object result = evosuite.parseCommandLine(command);
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
+        System.out.println("EvolvedTestSuite:\n" + best);
+
+    }
 
 }

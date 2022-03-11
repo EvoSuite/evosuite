@@ -42,6 +42,7 @@ public abstract class DateConverterTestBase extends TestCase {
 
     /**
      * Construtc a new test case.
+     *
      * @param name Name of the test
      */
     public DateConverterTestBase(String name) {
@@ -52,12 +53,14 @@ public abstract class DateConverterTestBase extends TestCase {
 
     /**
      * Create the Converter with no default value.
+     *
      * @return A new Converter
      */
     protected abstract DateTimeConverter makeConverter();
-    
+
     /**
      * Create the Converter with a default value.
+     *
      * @param defaultValue The default value
      * @return A new Converter
      */
@@ -65,13 +68,14 @@ public abstract class DateConverterTestBase extends TestCase {
 
     /**
      * Return the expected type
+     *
      * @return The expected type
      */
     protected abstract Class getExpectedType();
 
     /**
      * Convert from a Calendar to the appropriate Date type
-     * 
+     *
      * @param value The Calendar value to convert
      * @return The converted value
      */
@@ -86,7 +90,7 @@ public abstract class DateConverterTestBase extends TestCase {
         try {
             makeConverter().convert(getExpectedType(), null);
             fail("Expected ConversionException");
-        } catch(ConversionException e) {
+        } catch (ConversionException e) {
             // expected
         }
     }
@@ -96,34 +100,34 @@ public abstract class DateConverterTestBase extends TestCase {
      * instance of getExpectedType().
      */
     public void testConvertDate() {
-        String[] message= {
-            "from Date",
-            "from Calendar",
-            "from SQL Date",
-            "from SQL Time",
-            "from SQL Timestamp"
+        String[] message = {
+                "from Date",
+                "from Calendar",
+                "from SQL Date",
+                "from SQL Time",
+                "from SQL Timestamp"
         };
 
         long now = System.currentTimeMillis();
 
         Object[] date = {
-            new Date(now),
-            new java.util.GregorianCalendar(),
-            new java.sql.Date(now),
-            new java.sql.Time(now),
-            new java.sql.Timestamp(now)
+                new Date(now),
+                new java.util.GregorianCalendar(),
+                new java.sql.Date(now),
+                new java.sql.Time(now),
+                new java.sql.Timestamp(now)
         };
-        
+
         // Initialize calendar also with same ms to avoid a failing test in a new time slice
-        ((GregorianCalendar)date[1]).setTime(new Date(now));
+        ((GregorianCalendar) date[1]).setTime(new Date(now));
 
         for (int i = 0; i < date.length; i++) {
             Object val = makeConverter().convert(getExpectedType(), date[i]);
             assertNotNull("Convert " + message[i] + " should not be null", val);
             assertTrue("Convert " + message[i] + " should return a " + getExpectedType().getName(),
-                       getExpectedType().isInstance(val));
+                    getExpectedType().isInstance(val));
             assertEquals("Convert " + message[i] + " should return a " + date[0],
-                         now, getTimeInMillis(val));
+                    now, getTimeInMillis(val));
         }
     }
 
@@ -140,8 +144,8 @@ public abstract class DateConverterTestBase extends TestCase {
         // Valid String --> Type Conversion
         String testString = "2006-10-29";
         Calendar calendar = toCalendar(testString, pattern, null);
-        Object expected   = toType(calendar);
-        
+        Object expected = toType(calendar);
+
         Object result = converter.convert(null, testString);
         if (getExpectedType().equals(Calendar.class)) {
             assertTrue("TYPE ", getExpectedType().isAssignableFrom(result.getClass()));
@@ -153,7 +157,7 @@ public abstract class DateConverterTestBase extends TestCase {
 
     /**
      * Test default String to type conversion
-     *
+     * <p>
      * N.B. This method is overriden by test case
      * implementations for java.sql.Date/Time/Timestamp
      */
@@ -223,7 +227,7 @@ public abstract class DateConverterTestBase extends TestCase {
         // Valid String --> Type Conversion
         String testString = "2006-10-29";
         Calendar calendar = toCalendar(testString, pattern, null);
-        Object expected   = toType(calendar);
+        Object expected = toType(calendar);
         validConversion(converter, expected, testString);
 
         // Valid java.util.Date --> Type Conversion
@@ -315,7 +319,7 @@ public abstract class DateConverterTestBase extends TestCase {
         Object expected = null;
 
         // Create & Configure the Converter
-        String[] patterns = new String[] {"yyyy-MM-dd", "yyyy/MM/dd"};
+        String[] patterns = new String[]{"yyyy-MM-dd", "yyyy/MM/dd"};
         DateTimeConverter converter = makeConverter();
         converter.setPatterns(patterns);
 
@@ -387,18 +391,19 @@ public abstract class DateConverterTestBase extends TestCase {
 
     /**
      * Test Conversion to the required type
+     *
      * @param converter The converter to use
-     * @param expected The expected result
-     * @param value The value to convert
+     * @param expected  The expected result
+     * @param value     The value to convert
      */
     void validConversion(Converter converter, Object expected, Object value) {
         String valueType = (value == null ? "null" : value.getClass().getName());
         String msg = "Converting '" + valueType + "' value '" + value + "'";
         try {
             Object result = converter.convert(getExpectedType(), value);
-            Class resultType = (result   == null ? null : result.getClass());
+            Class resultType = (result == null ? null : result.getClass());
             Class expectType = (expected == null ? null : expected.getClass());
-            assertEquals("TYPE "  + msg, expectType, resultType);
+            assertEquals("TYPE " + msg, expectType, resultType);
             assertEquals("VALUE " + msg, expected, result);
         } catch (Exception ex) {
             fail(msg + " threw " + ex.toString());
@@ -407,18 +412,19 @@ public abstract class DateConverterTestBase extends TestCase {
 
     /**
      * Test Conversion to String
+     *
      * @param converter The converter to use
-     * @param expected The expected result
-     * @param value The value to convert
+     * @param expected  The expected result
+     * @param value     The value to convert
      */
     void stringConversion(Converter converter, String expected, Object value) {
         String valueType = (value == null ? "null" : value.getClass().getName());
         String msg = "Converting '" + valueType + "' value '" + value + "' to String";
         try {
             Object result = converter.convert(String.class, value);
-            Class resultType = (result   == null ? null : result.getClass());
+            Class resultType = (result == null ? null : result.getClass());
             Class expectType = (expected == null ? null : expected.getClass());
-            assertEquals("TYPE "  + msg, expectType, resultType);
+            assertEquals("TYPE " + msg, expectType, resultType);
             assertEquals("VALUE " + msg, expected, result);
         } catch (Exception ex) {
             fail(msg + " threw " + ex.toString());
@@ -427,15 +433,16 @@ public abstract class DateConverterTestBase extends TestCase {
 
     /**
      * Test Conversion Error
+     *
      * @param converter The converter to use
-     * @param value The value to convert
+     * @param value     The value to convert
      */
     void invalidConversion(Converter converter, Object value) {
         String valueType = (value == null ? "null" : value.getClass().getName());
         String msg = "Converting '" + valueType + "' value '" + value + "'";
         try {
             Object result = converter.convert(getExpectedType(), value);
-            fail(msg + ", expected ConversionException, but result = '" + result + "'"); 
+            fail(msg + ", expected ConversionException, but result = '" + result + "'");
         } catch (ConversionException ex) {
             // Expected Result
         }
@@ -443,9 +450,10 @@ public abstract class DateConverterTestBase extends TestCase {
 
     /**
      * Parse a String value to the required type
-     * @param value The String value to parse
+     *
+     * @param value   The String value to parse
      * @param pattern The date pattern
-     * @param locale The locale to use (or null)
+     * @param locale  The locale to use (or null)
      * @return parsed Calendar value
      */
     Object toType(String value, String pattern, Locale locale) {
@@ -455,17 +463,18 @@ public abstract class DateConverterTestBase extends TestCase {
 
     /**
      * Parse a String value to a Calendar
-     * @param value The String value to parse
+     *
+     * @param value   The String value to parse
      * @param pattern The date pattern
-     * @param locale The locale to use (or null)
+     * @param locale  The locale to use (or null)
      * @return parsed Calendar value
      */
     Calendar toCalendar(String value, String pattern, Locale locale) {
         Calendar calendar = null;
         try {
-            DateFormat format = (locale == null) 
-                           ? new SimpleDateFormat(pattern)
-                           : new SimpleDateFormat(pattern, locale);
+            DateFormat format = (locale == null)
+                    ? new SimpleDateFormat(pattern)
+                    : new SimpleDateFormat(pattern, locale);
             format.setLenient(false);
             format.parse(value);
             calendar = format.getCalendar();
@@ -478,6 +487,7 @@ public abstract class DateConverterTestBase extends TestCase {
 
     /**
      * Convert a Calendar to a java.util.Date
+     *
      * @param calendar The calendar object to convert
      * @return The converted java.util.Date
      */
@@ -487,6 +497,7 @@ public abstract class DateConverterTestBase extends TestCase {
 
     /**
      * Convert a Calendar to a java.sql.Date
+     *
      * @param calendar The calendar object to convert
      * @return The converted java.sql.Date
      */
@@ -496,6 +507,7 @@ public abstract class DateConverterTestBase extends TestCase {
 
     /**
      * Convert a Calendar to a java.sql.Time
+     *
      * @param calendar The calendar object to convert
      * @return The converted java.sql.Time
      */
@@ -505,6 +517,7 @@ public abstract class DateConverterTestBase extends TestCase {
 
     /**
      * Convert a Calendar to a java.sql.Timestamp
+     *
      * @param calendar The calendar object to convert
      * @return The converted java.sql.Timestamp
      */
@@ -514,6 +527,7 @@ public abstract class DateConverterTestBase extends TestCase {
 
     /**
      * Convert a Date or Calendar objects to the time in millisconds
+     *
      * @param date The date or calendar object
      * @return The time in milliseconds
      */
@@ -524,16 +538,16 @@ public abstract class DateConverterTestBase extends TestCase {
             // N.B. Prior to JDK 1.4 the Timestamp's getTime() method
             //      didn't include the milliseconds. The following code
             //      ensures it works consistently accross JDK versions
-            java.sql.Timestamp timestamp = (java.sql.Timestamp)date;
+            java.sql.Timestamp timestamp = (java.sql.Timestamp) date;
             long timeInMillis = ((timestamp.getTime() / 1000) * 1000);
             timeInMillis += timestamp.getNanos() / 1000000;
             return timeInMillis;
         }
 
         if (date instanceof Calendar) {
-            return ((Calendar)date).getTime().getTime();
+            return ((Calendar) date).getTime().getTime();
         } else {
-            return ((Date)date).getTime();
+            return ((Date) date).getTime();
         }
     }
 }

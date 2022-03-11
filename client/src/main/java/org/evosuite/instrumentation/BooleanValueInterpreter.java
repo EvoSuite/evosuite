@@ -20,8 +20,6 @@
 
 package org.evosuite.instrumentation;
 
-import java.util.List;
-
 import org.evosuite.instrumentation.testability.BooleanTestabilityTransformation;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -33,6 +31,8 @@ import org.objectweb.asm.tree.analysis.AnalyzerException;
 import org.objectweb.asm.tree.analysis.BasicInterpreter;
 import org.objectweb.asm.tree.analysis.BasicValue;
 
+import java.util.List;
+
 /**
  * An interpreter that determines which values are real Booleans
  *
@@ -40,161 +40,182 @@ import org.objectweb.asm.tree.analysis.BasicValue;
  */
 public class BooleanValueInterpreter extends BasicInterpreter {
 
-	/** Constant <code>BOOLEAN_VALUE</code> */
-	public final static BasicValue BOOLEAN_VALUE = new BasicValue(Type.BOOLEAN_TYPE);
+    /**
+     * Constant <code>BOOLEAN_VALUE</code>
+     */
+    public final static BasicValue BOOLEAN_VALUE = new BasicValue(Type.BOOLEAN_TYPE);
 
-	/** Constant <code>BOOLEAN_ARRAY</code> */
-	public final static BasicValue BOOLEAN_ARRAY = new BasicValue(Type.getType("[Z"));
+    /**
+     * Constant <code>BOOLEAN_ARRAY</code>
+     */
+    public final static BasicValue BOOLEAN_ARRAY = new BasicValue(Type.getType("[Z"));
 
-	private final boolean isStatic;
+    private final boolean isStatic;
 
-	private final Type[] types;
+    private final Type[] types;
 
-	/**
-	 * <p>Constructor for BooleanValueInterpreter.</p>
-	 *
-	 * @param desc a {@link java.lang.String} object.
-	 * @param isStatic a boolean.
-	 */
-	public BooleanValueInterpreter(String desc, boolean isStatic) {
-		super(ASM7);
-		this.types = Type.getArgumentTypes(desc);
-		this.isStatic = isStatic;
-	}
+    /**
+     * <p>Constructor for BooleanValueInterpreter.</p>
+     *
+     * @param desc     a {@link java.lang.String} object.
+     * @param isStatic a boolean.
+     */
+    public BooleanValueInterpreter(String desc, boolean isStatic) {
+        super(ASM7);
+        this.types = Type.getArgumentTypes(desc);
+        this.isStatic = isStatic;
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public BasicValue newValue(final Type type) {
-		if (type == null) {
-			return BasicValue.UNINITIALIZED_VALUE;
-		}
-		switch (type.getSort()) {
-		case Type.BOOLEAN:
-			return BOOLEAN_VALUE;
-		case Type.ARRAY:
-			if (type.getElementType() == Type.BOOLEAN_TYPE)
-				return BOOLEAN_ARRAY;
-		default:
-			return super.newValue(type);
-		}
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public BasicValue newValue(final Type type) {
+        if (type == null) {
+            return BasicValue.UNINITIALIZED_VALUE;
+        }
+        switch (type.getSort()) {
+            case Type.BOOLEAN:
+                return BOOLEAN_VALUE;
+            case Type.ARRAY:
+                if (type.getElementType() == Type.BOOLEAN_TYPE)
+                    return BOOLEAN_ARRAY;
+            default:
+                return super.newValue(type);
+        }
+    }
 
-	/* (non-Javadoc)
-	 * @see org.objectweb.asm.tree.analysis.BasicInterpreter#unaryOperation(org.objectweb.asm.tree.AbstractInsnNode, org.objectweb.asm.tree.analysis.BasicValue)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public BasicValue unaryOperation(AbstractInsnNode insn, BasicValue value)
-	        throws AnalyzerException {
-		if (insn.getOpcode() == Opcodes.INSTANCEOF) {
-			return BOOLEAN_VALUE;
-		} else if (insn.getOpcode() == Opcodes.GETFIELD) {
-			FieldInsnNode fieldNode = (FieldInsnNode) insn;
-			if (BooleanTestabilityTransformation.isTransformedField(fieldNode.owner,
+    /* (non-Javadoc)
+     * @see org.objectweb.asm.tree.analysis.BasicInterpreter#unaryOperation(org.objectweb.asm.tree.AbstractInsnNode, org.objectweb.asm.tree.analysis.BasicValue)
+     */
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public BasicValue unaryOperation(AbstractInsnNode insn, BasicValue value)
+            throws AnalyzerException {
+        if (insn.getOpcode() == Opcodes.INSTANCEOF) {
+            return BOOLEAN_VALUE;
+        } else if (insn.getOpcode() == Opcodes.GETFIELD) {
+            FieldInsnNode fieldNode = (FieldInsnNode) insn;
+            if (BooleanTestabilityTransformation.isTransformedField(fieldNode.owner,
                     fieldNode.name,
                     fieldNode.desc))
-				return BOOLEAN_VALUE;
-		}
-		return super.unaryOperation(insn, value);
-	}
+                return BOOLEAN_VALUE;
+        }
+        return super.unaryOperation(insn, value);
+    }
 
-	/* (non-Javadoc)
-	 * @see org.objectweb.asm.tree.analysis.BasicInterpreter#newOperation(org.objectweb.asm.tree.AbstractInsnNode)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public BasicValue newOperation(AbstractInsnNode insn) throws AnalyzerException {
-		if (insn.getOpcode() == ICONST_0) {
-			return BOOLEAN_VALUE;
-		} else if (insn.getOpcode() == ICONST_1) {
-			return BOOLEAN_VALUE;
-		} else if (insn.getOpcode() == Opcodes.GETSTATIC) {
-			FieldInsnNode fieldNode = (FieldInsnNode) insn;
-			if (BooleanTestabilityTransformation.isTransformedField(fieldNode.owner,
-			                                                        fieldNode.name,
-			                                                        fieldNode.desc))
-				return BOOLEAN_VALUE;
+    /* (non-Javadoc)
+     * @see org.objectweb.asm.tree.analysis.BasicInterpreter#newOperation(org.objectweb.asm.tree.AbstractInsnNode)
+     */
 
-		}
-		return super.newOperation(insn);
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public BasicValue newOperation(AbstractInsnNode insn) throws AnalyzerException {
+        if (insn.getOpcode() == ICONST_0) {
+            return BOOLEAN_VALUE;
+        } else if (insn.getOpcode() == ICONST_1) {
+            return BOOLEAN_VALUE;
+        } else if (insn.getOpcode() == Opcodes.GETSTATIC) {
+            FieldInsnNode fieldNode = (FieldInsnNode) insn;
+            if (BooleanTestabilityTransformation.isTransformedField(fieldNode.owner,
+                    fieldNode.name,
+                    fieldNode.desc))
+                return BOOLEAN_VALUE;
 
-	/* (non-Javadoc)
-	 * @see org.objectweb.asm.tree.analysis.BasicInterpreter#binaryOperation(org.objectweb.asm.tree.AbstractInsnNode, org.objectweb.asm.tree.analysis.BasicValue, org.objectweb.asm.tree.analysis.BasicValue)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public BasicValue binaryOperation(AbstractInsnNode insn, BasicValue value1,
-	        BasicValue value2) throws AnalyzerException {
-		switch (insn.getOpcode()) {
-		case IALOAD:
-		case BALOAD:
-		case CALOAD:
-		case SALOAD:
-			if (value1 == BOOLEAN_ARRAY)
-				return BOOLEAN_VALUE;
-		}
-		return super.binaryOperation(insn, value1, value2);
-	}
+        }
+        return super.newOperation(insn);
+    }
 
-	/* (non-Javadoc)
-	 * @see org.objectweb.asm.tree.analysis.BasicInterpreter#copyOperation(org.objectweb.asm.tree.AbstractInsnNode, org.objectweb.asm.tree.analysis.BasicValue)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public BasicValue copyOperation(AbstractInsnNode insn, BasicValue value)
-	        throws AnalyzerException {
-		if (insn.getOpcode() == Opcodes.ILOAD) {
-			VarInsnNode varNode = (VarInsnNode) insn;
-			if (isStatic) {
-				if (varNode.var < types.length) {
-					if (types[varNode.var] == Type.BOOLEAN_TYPE) {
-						return BOOLEAN_VALUE;
-					}
-				}
-			} else {
-				if (varNode.var > 0 && varNode.var - 1 < types.length) {
-					if (types[varNode.var - 1] == Type.BOOLEAN_TYPE) {
-						return BOOLEAN_VALUE;
-					}
-				}
-			}
-		}
-		return super.copyOperation(insn, value);
-	}
+    /* (non-Javadoc)
+     * @see org.objectweb.asm.tree.analysis.BasicInterpreter#binaryOperation(org.objectweb.asm.tree.AbstractInsnNode, org.objectweb.asm.tree.analysis.BasicValue, org.objectweb.asm.tree.analysis.BasicValue)
+     */
 
-	/* (non-Javadoc)
-	 * @see org.objectweb.asm.tree.analysis.BasicInterpreter#naryOperation(org.objectweb.asm.tree.AbstractInsnNode, java.util.List)
-	 */
-	@SuppressWarnings("rawtypes")
-	/** {@inheritDoc} */
-	@Override
-	public BasicValue naryOperation(AbstractInsnNode insn, List values)
-	        throws AnalyzerException {
-		if (insn instanceof MethodInsnNode) {
-			MethodInsnNode mi = (MethodInsnNode) insn;
-			if (Type.getReturnType(BooleanTestabilityTransformation.getOriginalDesc(mi.owner,
-			                                                                        mi.name,
-			                                                                        mi.desc)) == Type.BOOLEAN_TYPE) {
-				return BOOLEAN_VALUE;
-			}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public BasicValue binaryOperation(AbstractInsnNode insn, BasicValue value1,
+                                      BasicValue value2) throws AnalyzerException {
+        switch (insn.getOpcode()) {
+            case IALOAD:
+            case BALOAD:
+            case CALOAD:
+            case SALOAD:
+                if (value1 == BOOLEAN_ARRAY)
+                    return BOOLEAN_VALUE;
+        }
+        return super.binaryOperation(insn, value1, value2);
+    }
 
-		}
-		return super.naryOperation(insn, values);
-	}
+    /* (non-Javadoc)
+     * @see org.objectweb.asm.tree.analysis.BasicInterpreter#copyOperation(org.objectweb.asm.tree.AbstractInsnNode, org.objectweb.asm.tree.analysis.BasicValue)
+     */
 
-	/* (non-Javadoc)
-	 * @see org.objectweb.asm.tree.analysis.BasicInterpreter#merge(org.objectweb.asm.tree.analysis.BasicValue, org.objectweb.asm.tree.analysis.BasicValue)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public BasicValue merge(BasicValue v, BasicValue w) {
-		if (v == BOOLEAN_VALUE && w == BasicValue.INT_VALUE)
-			return BasicValue.INT_VALUE;
-		else if (w == BOOLEAN_VALUE && v == BasicValue.INT_VALUE)
-			return BasicValue.INT_VALUE;
-		else
-			return super.merge(v, w);
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public BasicValue copyOperation(AbstractInsnNode insn, BasicValue value)
+            throws AnalyzerException {
+        if (insn.getOpcode() == Opcodes.ILOAD) {
+            VarInsnNode varNode = (VarInsnNode) insn;
+            if (isStatic) {
+                if (varNode.var < types.length) {
+                    if (types[varNode.var] == Type.BOOLEAN_TYPE) {
+                        return BOOLEAN_VALUE;
+                    }
+                }
+            } else {
+                if (varNode.var > 0 && varNode.var - 1 < types.length) {
+                    if (types[varNode.var - 1] == Type.BOOLEAN_TYPE) {
+                        return BOOLEAN_VALUE;
+                    }
+                }
+            }
+        }
+        return super.copyOperation(insn, value);
+    }
+
+    /* (non-Javadoc)
+     * @see org.objectweb.asm.tree.analysis.BasicInterpreter#naryOperation(org.objectweb.asm.tree.AbstractInsnNode, java.util.List)
+     */
+    @SuppressWarnings("rawtypes")
+    /** {@inheritDoc} */
+    @Override
+    public BasicValue naryOperation(AbstractInsnNode insn, List values)
+            throws AnalyzerException {
+        if (insn instanceof MethodInsnNode) {
+            MethodInsnNode mi = (MethodInsnNode) insn;
+            if (Type.getReturnType(BooleanTestabilityTransformation.getOriginalDesc(mi.owner,
+                    mi.name,
+                    mi.desc)) == Type.BOOLEAN_TYPE) {
+                return BOOLEAN_VALUE;
+            }
+
+        }
+        return super.naryOperation(insn, values);
+    }
+
+    /* (non-Javadoc)
+     * @see org.objectweb.asm.tree.analysis.BasicInterpreter#merge(org.objectweb.asm.tree.analysis.BasicValue, org.objectweb.asm.tree.analysis.BasicValue)
+     */
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public BasicValue merge(BasicValue v, BasicValue w) {
+        if (v == BOOLEAN_VALUE && w == BasicValue.INT_VALUE)
+            return BasicValue.INT_VALUE;
+        else if (w == BOOLEAN_VALUE && v == BasicValue.INT_VALUE)
+            return BasicValue.INT_VALUE;
+        else
+            return super.merge(v, w);
+    }
 
 }

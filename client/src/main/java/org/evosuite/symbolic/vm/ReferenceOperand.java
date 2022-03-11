@@ -22,25 +22,23 @@ package org.evosuite.symbolic.vm;
 import org.evosuite.symbolic.expr.ref.ReferenceExpression;
 
 /**
- * 
  * @author galeotti
- *
  */
 public class ReferenceOperand implements SingleWordOperand {
 
-	private final ReferenceExpression ref;
+    private final ReferenceExpression ref;
 
-	public ReferenceOperand(ReferenceExpression o) {
-		this.ref = o;
-	}
+    public ReferenceOperand(ReferenceExpression o) {
+        this.ref = o;
+    }
 
-	public ReferenceExpression getReference() {
-		return this.ref;
-	}
+    public ReferenceExpression getReference() {
+        return this.ref;
+    }
 
-	@Override
-	public String toString() {
-		return this.ref.toString();
-	}
+    @Override
+    public String toString() {
+        return this.ref.toString();
+    }
 
 }

@@ -31,7 +31,7 @@ import java.util.Queue;
  */
 public class TestCasesPendingStrategy implements KeepSearchingCriteriaStrategy {
     @Override
-public boolean shouldKeepSearching(Queue<DSETestCase> generatedTests) {
+    public boolean shouldKeepSearching(Queue<DSETestCase> generatedTests) {
         return generatedTests.size() > 0;
     }
 }

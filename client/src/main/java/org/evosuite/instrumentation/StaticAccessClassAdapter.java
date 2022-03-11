@@ -26,34 +26,34 @@ import org.objectweb.asm.Opcodes;
 /**
  * Invokes a <code>StaticAccessMethodAdapter</code> on each method. This class
  * should instrument before the mutation instrumentation.
- * 
+ *
  * @author Juan Galeotti
  */
 public class StaticAccessClassAdapter extends ClassVisitor {
 
-	private final String className;
+    private final String className;
 
-	/**
-	 * <p>
-	 * Constructor for StaticInitializationClassAdapter.
-	 * </p>
-	 * 
-	 * @param visitor
-	 *            a {@link org.objectweb.asm.ClassVisitor} object.
-	 * @param className
-	 *            a {@link java.lang.String} object.
-	 */
-	public StaticAccessClassAdapter(ClassVisitor visitor, String className) {
-		super(Opcodes.ASM9, visitor);
-		this.className = className;
-	}
+    /**
+     * <p>
+     * Constructor for StaticInitializationClassAdapter.
+     * </p>
+     *
+     * @param visitor   a {@link org.objectweb.asm.ClassVisitor} object.
+     * @param className a {@link java.lang.String} object.
+     */
+    public StaticAccessClassAdapter(ClassVisitor visitor, String className) {
+        super(Opcodes.ASM9, visitor);
+        this.className = className;
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public MethodVisitor visitMethod(int methodAccess, String name, String descriptor, String signature,
-			String[] exceptions) {
-		MethodVisitor mv = super.visitMethod(methodAccess, name, descriptor, signature, exceptions);
-		StaticAccessMethodAdapter methodAdapter = new StaticAccessMethodAdapter(className, name, mv);
-		return methodAdapter;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public MethodVisitor visitMethod(int methodAccess, String name, String descriptor, String signature,
+                                     String[] exceptions) {
+        MethodVisitor mv = super.visitMethod(methodAccess, name, descriptor, signature, exceptions);
+        StaticAccessMethodAdapter methodAdapter = new StaticAccessMethodAdapter(className, name, mv);
+        return methodAdapter;
+    }
 }

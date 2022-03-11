@@ -28,18 +28,17 @@ public interface SCM {
     public static String COMMIT_MSG_PREFIX = "EvoSuite Jenkins Plugin #";
 
     /**
-     * 
      * @param project
      * @param build
      * @param listener
      * @param branchName
      * @param ctgBestsDir
      * @return the number of committed files. -1 if the commit command failed, otherwise it returns
-     *         the total number of files added and committed.
+     * the total number of files added and committed.
      */
-	public int commit(AbstractMavenProject<?, ?> project, AbstractBuild<?, ?> build, BuildListener listener, String branchName, String ctgBestsDir);
+    public int commit(AbstractMavenProject<?, ?> project, AbstractBuild<?, ?> build, BuildListener listener, String branchName, String ctgBestsDir);
 
-	public boolean push(AbstractBuild<?, ?> build, BuildListener listener, String branchName);
+    public boolean push(AbstractBuild<?, ?> build, BuildListener listener, String branchName);
 
-	public void rollback(AbstractBuild<?, ?> build, BuildListener listener);
+    public void rollback(AbstractBuild<?, ?> build, BuildListener listener);
 }

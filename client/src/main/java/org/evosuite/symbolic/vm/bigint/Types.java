@@ -19,34 +19,34 @@
  */
 package org.evosuite.symbolic.vm.bigint;
 
-import java.math.BigInteger;
-
 import org.objectweb.asm.Type;
+
+import java.math.BigInteger;
 
 public interface Types {
 
-	String JAVA_MATH_BIG_INTEGER = BigInteger.class
-			.getName().replace('.', '/');
+    String JAVA_MATH_BIG_INTEGER = BigInteger.class
+            .getName().replace('.', '/');
 
-	String INIT = "<init>";
+    String INIT = "<init>";
 
-	String JAVA_LANG_STRING = String.class.getName()
-			.replace('.', '/');
+    String JAVA_LANG_STRING = String.class.getName()
+            .replace('.', '/');
 
-	Type BIG_INTEGER = Type.getType(BigInteger.class);
+    Type BIG_INTEGER = Type.getType(BigInteger.class);
 
-	Type BIG_INTEGER_ARRAY = Type
-			.getType(BigInteger[].class);
+    Type BIG_INTEGER_ARRAY = Type
+            .getType(BigInteger[].class);
 
-	String BIG_INTEGER_TO_BIG_INTEGER_ARRAY = Type
-			.getMethodDescriptor(BIG_INTEGER_ARRAY, BIG_INTEGER);
+    String BIG_INTEGER_TO_BIG_INTEGER_ARRAY = Type
+            .getMethodDescriptor(BIG_INTEGER_ARRAY, BIG_INTEGER);
 
-	String TO_INT = Type.getMethodDescriptor(Type.INT_TYPE);
+    String TO_INT = Type.getMethodDescriptor(Type.INT_TYPE);
 
-	String STRING_TO_VOID = Type.getMethodDescriptor(Type.VOID_TYPE,
-			Type.getType(String.class));
+    String STRING_TO_VOID = Type.getMethodDescriptor(Type.VOID_TYPE,
+            Type.getType(String.class));
 
-	String BIG_INTEGER_TO_BIG_INTEGER = Type.getMethodDescriptor(
-			BIG_INTEGER, BIG_INTEGER);
+    String BIG_INTEGER_TO_BIG_INTEGER = Type.getMethodDescriptor(
+            BIG_INTEGER, BIG_INTEGER);
 
 }

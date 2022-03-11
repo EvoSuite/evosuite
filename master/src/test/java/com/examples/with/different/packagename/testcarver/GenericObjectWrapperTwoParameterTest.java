@@ -24,15 +24,15 @@ import org.junit.Test;
 
 public class GenericObjectWrapperTwoParameterTest {
 
-	@Test
-	public void test01() {
-		GenericObjectWrapperTwoParameter<String, String> wrapper = new GenericObjectWrapperTwoParameter<>();
-		Assert.assertNull(wrapper.getValue());
+    @Test
+    public void test01() {
+        GenericObjectWrapperTwoParameter<String, String> wrapper = new GenericObjectWrapperTwoParameter<>();
+        Assert.assertNull(wrapper.getValue());
 
-		wrapper.setValue("Test");
-		Assert.assertEquals("Test", wrapper.getValue());
-		Assert.assertTrue(wrapper.isEqual("Test"));
-		Assert.assertFalse(wrapper.isEqual("Not"));		
-	}
-	
+        wrapper.setValue("Test");
+        Assert.assertEquals("Test", wrapper.getValue());
+        Assert.assertTrue(wrapper.isEqual("Test"));
+        Assert.assertFalse(wrapper.isEqual("Not"));
+    }
+
 }

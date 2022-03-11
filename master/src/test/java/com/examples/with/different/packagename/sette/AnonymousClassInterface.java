@@ -49,5 +49,5 @@ package com.examples.with.different.packagename.sette;
  * Interface for anonymous class.
  */
 public interface AnonymousClassInterface {
-	int method(int x);
+    int method(int x);
 }

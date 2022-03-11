@@ -33,7 +33,7 @@ public class SimpleTryCatch {
 
         try {
             MethodsWithExceptions.oneException(x);
-        } catch(FileNotFoundException e) {
+        } catch (FileNotFoundException e) {
             return false;
         }
 

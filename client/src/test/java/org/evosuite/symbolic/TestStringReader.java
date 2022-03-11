@@ -19,11 +19,7 @@
  */
 package org.evosuite.symbolic;
 
-import static org.junit.Assert.assertTrue;
-
-import java.lang.reflect.Method;
-import java.util.Collection;
-
+import com.examples.with.different.packagename.solver.TestCaseReader;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.solver.DefaultTestCaseConcolicExecutor;
 import org.evosuite.symbolic.solver.SolverTimeoutException;
@@ -31,25 +27,28 @@ import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.variable.VariableReference;
 import org.junit.Test;
 
-import com.examples.with.different.packagename.solver.TestCaseReader;
+import java.lang.reflect.Method;
+import java.util.Collection;
+
+import static org.junit.Assert.assertTrue;
 
 public abstract class TestStringReader {
 
-	private static DefaultTestCase buildTestStringReader() throws SecurityException, NoSuchMethodException {
-		TestCaseBuilder tc = new TestCaseBuilder();
-		VariableReference string0 = tc.appendStringPrimitive("Here is Ramon");
+    private static DefaultTestCase buildTestStringReader() throws SecurityException, NoSuchMethodException {
+        TestCaseBuilder tc = new TestCaseBuilder();
+        VariableReference string0 = tc.appendStringPrimitive("Here is Ramon");
 
-		Method method = TestCaseReader.class.getMethod("test", String.class);
-		tc.appendMethod(null, method, string0);
-		return tc.getDefaultTestCase();
-	}
+        Method method = TestCaseReader.class.getMethod("test", String.class);
+        tc.appendMethod(null, method, string0);
+        return tc.getDefaultTestCase();
+    }
 
-	@Test
-	public void testStringReader() throws SecurityException, NoSuchMethodException, SolverTimeoutException {
+    @Test
+    public void testStringReader() throws SecurityException, NoSuchMethodException, SolverTimeoutException {
 
-		DefaultTestCase tc = buildTestStringReader();
-		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor.execute(tc);
-		assertTrue(!constraints.isEmpty());
-	}
+        DefaultTestCase tc = buildTestStringReader();
+        Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor.execute(tc);
+        assertTrue(!constraints.isEmpty());
+    }
 
 }

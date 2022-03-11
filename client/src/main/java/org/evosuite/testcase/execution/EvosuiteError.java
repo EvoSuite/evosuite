@@ -26,33 +26,31 @@ package org.evosuite.testcase.execution;
  * type EvosuiteError the exception is thrown. If it is of any other type, the
  * exception is catched and it is assumed, that the exception was thrown by the
  * class under test
- * 
+ *
  * @author Sebastian Steenbuck
  */
 public class EvosuiteError extends Error {
-	private static final long serialVersionUID = 454018150971425158L;
+    private static final long serialVersionUID = 454018150971425158L;
 
-	/**
-	 * <p>
-	 * Constructor for EvosuiteError.
-	 * </p>
-	 * 
-	 * @param cause
-	 *            a {@link java.lang.Throwable} object.
-	 */
-	public EvosuiteError(Throwable cause) {
-		super(cause);
-	}
+    /**
+     * <p>
+     * Constructor for EvosuiteError.
+     * </p>
+     *
+     * @param cause a {@link java.lang.Throwable} object.
+     */
+    public EvosuiteError(Throwable cause) {
+        super(cause);
+    }
 
-	/**
-	 * <p>
-	 * Constructor for EvosuiteError.
-	 * </p>
-	 * 
-	 * @param msg
-	 *            a {@link java.lang.String} object.
-	 */
-	public EvosuiteError(String msg) {
-		super(msg);
-	}
+    /**
+     * <p>
+     * Constructor for EvosuiteError.
+     * </p>
+     *
+     * @param msg a {@link java.lang.String} object.
+     */
+    public EvosuiteError(String msg) {
+        super(msg);
+    }
 }

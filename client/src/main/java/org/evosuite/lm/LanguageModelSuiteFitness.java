@@ -33,10 +33,10 @@ public class LanguageModelSuiteFitness extends TestSuiteFitnessFunction {
 
     private static final long serialVersionUID = 8985543347957256453L;
     private final BranchCoverageSuiteFitness backingFitness;
-    private LangModel languageModel;
+    private final LangModel languageModel;
 
 
-    public LanguageModelSuiteFitness(){
+    public LanguageModelSuiteFitness() {
         backingFitness = new BranchCoverageSuiteFitness();
         try {
             languageModel = new LangModel(Properties.LM_SRC);
@@ -53,7 +53,7 @@ public class LanguageModelSuiteFitness extends TestSuiteFitnessFunction {
 
         //TODO: replace this ugly code with a visitor; will TestVisitor work?
 //        for(TestChromosome test : individual.getTestChromosomes()){
-            //
+        //
 //            TestCase testCase = test.getTestCase();
 //            for(StatementInterface statement : testCase){
 //                if(statement instanceof StringPrimitiveStatement){

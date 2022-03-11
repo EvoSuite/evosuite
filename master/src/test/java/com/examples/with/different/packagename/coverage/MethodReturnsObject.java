@@ -21,16 +21,16 @@ package com.examples.with.different.packagename.coverage;
 
 public class MethodReturnsObject {
 
-	public ClassWithObserver testObject(Integer integer, int s){
-		if(integer==null){
-			return null;
-		} else {
-			ClassWithObserver c = new ClassWithObserver(s);
-			if (integer > 0)
-				c.setF(true);
-			else
-				c.setF(false);
-			return c;
-		}
-	}
+    public ClassWithObserver testObject(Integer integer, int s) {
+        if (integer == null) {
+            return null;
+        } else {
+            ClassWithObserver c = new ClassWithObserver(s);
+            if (integer > 0)
+                c.setF(true);
+            else
+                c.setF(false);
+            return c;
+        }
+    }
 }

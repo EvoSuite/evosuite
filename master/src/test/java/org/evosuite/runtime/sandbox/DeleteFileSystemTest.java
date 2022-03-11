@@ -43,177 +43,176 @@ import com.examples.with.different.packagename.sandbox.DeleteInStaticInitializer
 
 /**
  * @author Gordon Fraser
- * 
  */
 public class DeleteFileSystemTest extends SystemTestBase {
-	
-	private static final boolean DEFAULT_RESET_STATIC = Properties.RESET_STATIC_FIELDS; 
-	
-	@After
-	public void tearDown(){
-		Properties.RESET_STATIC_FIELDS = DEFAULT_RESET_STATIC;
-	}
-	
-	@Test
-	public void testDeleteStaticNoReset() throws IOException {
 
-		Properties.RESET_STATIC_FIELDS = false;
-		
-		String tmpdir = System.getProperty("java.io.tmpdir");
-		File toDelete = new File(tmpdir + File.separator
-		        + "this_file_should_not_be_deleted_by_evosuite");
-		FileUtils.write(toDelete, "BlahBlah");
+    private static final boolean DEFAULT_RESET_STATIC = Properties.RESET_STATIC_FIELDS;
 
-		assertTrue(toDelete.exists());
-		EvoSuite evosuite = new EvoSuite();
+    @After
+    public void tearDown() {
+        Properties.RESET_STATIC_FIELDS = DEFAULT_RESET_STATIC;
+    }
 
-		String targetClass = DeleteInStaticInitializer.class.getCanonicalName();
+    @Test
+    public void testDeleteStaticNoReset() throws IOException {
 
-		Properties.TARGET_CLASS = targetClass;
-		Properties.SANDBOX = true;
+        Properties.RESET_STATIC_FIELDS = false;
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+        String tmpdir = System.getProperty("java.io.tmpdir");
+        File toDelete = new File(tmpdir + File.separator
+                + "this_file_should_not_be_deleted_by_evosuite");
+        FileUtils.write(toDelete, "BlahBlah");
 
-		evosuite.parseCommandLine(command);
+        assertTrue(toDelete.exists());
+        EvoSuite evosuite = new EvoSuite();
 
-		assertTrue("File has been deleted: " + toDelete.getAbsolutePath(),
-		           toDelete.exists());
-		toDelete.delete();
-	}
-	
-	@Test
-	public void testDeleteStaticWithReset() throws IOException {
+        String targetClass = DeleteInStaticInitializer.class.getCanonicalName();
 
-		Properties.RESET_STATIC_FIELDS = true;
-		
-		String tmpdir = System.getProperty("java.io.tmpdir");
-		File toDelete = new File(tmpdir + File.separator
-		        + "this_file_should_not_be_deleted_by_evosuite");
-		FileUtils.write(toDelete, "BlahBlah");
+        Properties.TARGET_CLASS = targetClass;
+        Properties.SANDBOX = true;
 
-		assertTrue(toDelete.exists());
-		EvoSuite evosuite = new EvoSuite();
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
 
-		String targetClass = DeleteInStaticInitializer.class.getCanonicalName();
+        evosuite.parseCommandLine(command);
 
-		Properties.TARGET_CLASS = targetClass;
-		Properties.SANDBOX = true;
+        assertTrue("File has been deleted: " + toDelete.getAbsolutePath(),
+                toDelete.exists());
+        toDelete.delete();
+    }
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+    @Test
+    public void testDeleteStaticWithReset() throws IOException {
 
-		evosuite.parseCommandLine(command);
+        Properties.RESET_STATIC_FIELDS = true;
 
-		assertTrue("File has been deleted: " + toDelete.getAbsolutePath(),
-		           toDelete.exists());
-		toDelete.delete();
-	}
-	
-	
-	@Test
-	public void testDeleteOnExit() throws IOException {
+        String tmpdir = System.getProperty("java.io.tmpdir");
+        File toDelete = new File(tmpdir + File.separator
+                + "this_file_should_not_be_deleted_by_evosuite");
+        FileUtils.write(toDelete, "BlahBlah");
 
-		String tmpdir = System.getProperty("java.io.tmpdir");
-		File toDelete = new File(tmpdir + File.separator
-		        + "this_file_should_not_be_deleted_by_evosuite");
-		FileUtils.write(toDelete, "BlahBlah");
+        assertTrue(toDelete.exists());
+        EvoSuite evosuite = new EvoSuite();
 
-		assertTrue(toDelete.exists());
-		EvoSuite evosuite = new EvoSuite();
+        String targetClass = DeleteInStaticInitializer.class.getCanonicalName();
 
-		String targetClass = DeleteFileExample.class.getCanonicalName();
+        Properties.TARGET_CLASS = targetClass;
+        Properties.SANDBOX = true;
 
-		Properties.TARGET_CLASS = targetClass;
-		Properties.SANDBOX = true;
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+        evosuite.parseCommandLine(command);
 
-		evosuite.parseCommandLine(command);
+        assertTrue("File has been deleted: " + toDelete.getAbsolutePath(),
+                toDelete.exists());
+        toDelete.delete();
+    }
 
-		assertTrue("File has been deleted: " + toDelete.getAbsolutePath(),
-		           toDelete.exists());
-		toDelete.delete();
-	}
 
-	@Test
-	public void testDeleteOnThread() throws IOException {
+    @Test
+    public void testDeleteOnExit() throws IOException {
 
-		String tmpdir = System.getProperty("java.io.tmpdir");
-		File toDelete = new File(tmpdir + File.separator
-		        + "this_file_should_not_be_deleted_by_evosuite");
-		FileUtils.write(toDelete, "BlahBlah");
+        String tmpdir = System.getProperty("java.io.tmpdir");
+        File toDelete = new File(tmpdir + File.separator
+                + "this_file_should_not_be_deleted_by_evosuite");
+        FileUtils.write(toDelete, "BlahBlah");
 
-		assertTrue(toDelete.exists());
-		EvoSuite evosuite = new EvoSuite();
+        assertTrue(toDelete.exists());
+        EvoSuite evosuite = new EvoSuite();
 
-		String targetClass = DeleteFileThread.class.getCanonicalName();
+        String targetClass = DeleteFileExample.class.getCanonicalName();
 
-		Properties.TARGET_CLASS = targetClass;
-		Properties.SANDBOX = true;
+        Properties.TARGET_CLASS = targetClass;
+        Properties.SANDBOX = true;
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
 
-		evosuite.parseCommandLine(command);
+        evosuite.parseCommandLine(command);
 
-		assertTrue("File has been deleted: " + toDelete.getAbsolutePath(),
-		           toDelete.exists());
-		toDelete.delete();
-	}
+        assertTrue("File has been deleted: " + toDelete.getAbsolutePath(),
+                toDelete.exists());
+        toDelete.delete();
+    }
 
-	@Test
-	public void testDeleteOnProcess() throws IOException {
-		Assume.assumeTrue(new File("/bin/rm").exists());
+    @Test
+    public void testDeleteOnThread() throws IOException {
 
-		String tmpdir = System.getProperty("java.io.tmpdir");
-		File toDelete = new File(tmpdir + File.separator
-		        + "this_file_should_not_be_deleted_by_evosuite");
-		FileUtils.write(toDelete, "BlahBlah");
+        String tmpdir = System.getProperty("java.io.tmpdir");
+        File toDelete = new File(tmpdir + File.separator
+                + "this_file_should_not_be_deleted_by_evosuite");
+        FileUtils.write(toDelete, "BlahBlah");
 
-		assertTrue(toDelete.exists());
-		EvoSuite evosuite = new EvoSuite();
+        assertTrue(toDelete.exists());
+        EvoSuite evosuite = new EvoSuite();
 
-		String targetClass = DeleteFileProcess.class.getCanonicalName();
+        String targetClass = DeleteFileThread.class.getCanonicalName();
 
-		Properties.TARGET_CLASS = targetClass;
-		Properties.SANDBOX = true;
+        Properties.TARGET_CLASS = targetClass;
+        Properties.SANDBOX = true;
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
 
-		evosuite.parseCommandLine(command);
+        evosuite.parseCommandLine(command);
 
-		assertTrue("File has been deleted: " + toDelete.getAbsolutePath(),
-		           toDelete.exists());
-		toDelete.delete();
-	}
+        assertTrue("File has been deleted: " + toDelete.getAbsolutePath(),
+                toDelete.exists());
+        toDelete.delete();
+    }
 
-	@Test
-	public void testDeleteCommonsIO() throws IOException {
-		Assume.assumeTrue(new File("/bin/rm").exists());
+    @Test
+    public void testDeleteOnProcess() throws IOException {
+        Assume.assumeTrue(new File("/bin/rm").exists());
 
-		String tmpdir = System.getProperty("java.io.tmpdir");
-		File toDelete = new File(tmpdir + File.separator
-		        + "this_file_should_not_be_deleted_by_evosuite");
-		FileUtils.write(toDelete, "BlahBlah");
+        String tmpdir = System.getProperty("java.io.tmpdir");
+        File toDelete = new File(tmpdir + File.separator
+                + "this_file_should_not_be_deleted_by_evosuite");
+        FileUtils.write(toDelete, "BlahBlah");
 
-		assertTrue(toDelete.exists());
-		EvoSuite evosuite = new EvoSuite();
+        assertTrue(toDelete.exists());
+        EvoSuite evosuite = new EvoSuite();
 
-		String targetClass = DeleteFileCommonsIO.class.getCanonicalName();
+        String targetClass = DeleteFileProcess.class.getCanonicalName();
 
-		Properties.TARGET_CLASS = targetClass;
-		Properties.SANDBOX = true;
+        Properties.TARGET_CLASS = targetClass;
+        Properties.SANDBOX = true;
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
 
-		Object result = evosuite.parseCommandLine(command);
+        evosuite.parseCommandLine(command);
 
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
-		System.out.println("EvolvedTestSuite:\n" + best);
+        assertTrue("File has been deleted: " + toDelete.getAbsolutePath(),
+                toDelete.exists());
+        toDelete.delete();
+    }
 
-		assertTrue("File has been deleted: " + toDelete.getAbsolutePath(),
-		           toDelete.exists());
-		toDelete.delete();
-	}
+    @Test
+    public void testDeleteCommonsIO() throws IOException {
+        Assume.assumeTrue(new File("/bin/rm").exists());
+
+        String tmpdir = System.getProperty("java.io.tmpdir");
+        File toDelete = new File(tmpdir + File.separator
+                + "this_file_should_not_be_deleted_by_evosuite");
+        FileUtils.write(toDelete, "BlahBlah");
+
+        assertTrue(toDelete.exists());
+        EvoSuite evosuite = new EvoSuite();
+
+        String targetClass = DeleteFileCommonsIO.class.getCanonicalName();
+
+        Properties.TARGET_CLASS = targetClass;
+        Properties.SANDBOX = true;
+
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
+
+        Object result = evosuite.parseCommandLine(command);
+
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
+        System.out.println("EvolvedTestSuite:\n" + best);
+
+        assertTrue("File has been deleted: " + toDelete.getAbsolutePath(),
+                toDelete.exists());
+        toDelete.delete();
+    }
 
 	/*
 	 * The class DeleteFileNIO requires Java 7

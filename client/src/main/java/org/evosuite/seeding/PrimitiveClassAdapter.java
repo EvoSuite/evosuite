@@ -20,103 +20,107 @@
 package org.evosuite.seeding;
 
 import org.evosuite.setup.DependencyAnalysis;
-import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.FieldVisitor;
-import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
+import org.objectweb.asm.*;
 
 /**
  * <p>
  * PrimitiveClassAdapter class.
  * </p>
- * 
+ *
  * @author Gordon Fraser
  */
 public class PrimitiveClassAdapter extends ClassVisitor {
 
-	private final String className;
+    private final String className;
 
-	//private static String target_class = Properties.TARGET_CLASS;
+    //private static String target_class = Properties.TARGET_CLASS;
 
-	//private static final boolean REPLACE_STRING = Properties.STRING_REPLACEMENT
-	//        && !Properties.TT;
+    //private static final boolean REPLACE_STRING = Properties.STRING_REPLACEMENT
+    //        && !Properties.TT;
 
-	// private final PrimitivePool primitive_pool = PrimitivePool.getInstance();
+    // private final PrimitivePool primitive_pool = PrimitivePool.getInstance();
 
-	private final ConstantPoolManager poolManager = ConstantPoolManager.getInstance();
+    private final ConstantPoolManager poolManager = ConstantPoolManager.getInstance();
 
-	/** Skip methods on enums - at least some */
-	private boolean isEnum = false;
+    /**
+     * Skip methods on enums - at least some
+     */
+    private boolean isEnum = false;
 
-	/**
-	 * <p>
-	 * Constructor for PrimitiveClassAdapter.
-	 * </p>
-	 * 
-	 * @param visitor
-	 *            a {@link org.objectweb.asm.ClassVisitor} object.
-	 * @param className
-	 *            a {@link java.lang.String} object.
-	 */
-	public PrimitiveClassAdapter(ClassVisitor visitor, String className) {
-		super(Opcodes.ASM9, visitor);
-		this.className = className.replaceAll("/", ".");
-	}
-	
-	/* (non-Javadoc)
-	 * @see org.objectweb.asm.ClassAdapter#visit(int, int, java.lang.String, java.lang.String, java.lang.String, java.lang.String[])
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public void visit(int version, int access, String name, String signature,
-	        String superName, String[] interfaces) {
-		super.visit(version, access, name, signature, superName, interfaces);
-		if (superName.equals("java/lang/Enum"))
-			isEnum = true;
-	}
+    /**
+     * <p>
+     * Constructor for PrimitiveClassAdapter.
+     * </p>
+     *
+     * @param visitor   a {@link org.objectweb.asm.ClassVisitor} object.
+     * @param className a {@link java.lang.String} object.
+     */
+    public PrimitiveClassAdapter(ClassVisitor visitor, String className) {
+        super(Opcodes.ASM9, visitor);
+        this.className = className.replaceAll("/", ".");
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public FieldVisitor visitField(int access, String name, String desc,
-	        String signature, Object value) {
+    /* (non-Javadoc)
+     * @see org.objectweb.asm.ClassAdapter#visit(int, int, java.lang.String, java.lang.String, java.lang.String, java.lang.String[])
+     */
 
-		// We don't use serial numbers because they can be very long and are not used in any branches
-		if (!"serialVersionUID".equals(name)) {
-			if (DependencyAnalysis.isTargetClassName(className)) {
-				poolManager.addSUTConstant(value);
-				poolManager.addSUTConstant(Type.getType(desc));
-			} else {
-				poolManager.addNonSUTConstant(value);
-			}
-			if(isEnum) {
-				// static final values in enums are likely enum values
-				if((access & Opcodes.ACC_FINAL) == Opcodes.ACC_FINAL &&
-				   (access & Opcodes.ACC_STATIC) == Opcodes.ACC_STATIC) {
-						if (DependencyAnalysis.isTargetClassName(className)) {
-							poolManager.addSUTConstant(name);
-						} else {
-							poolManager.addNonSUTConstant(name);
-						}
-				   }
-			}
-			// primitive_pool.add(value);
-		}
-		return super.visitField(access, name, desc, signature, value);
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void visit(int version, int access, String name, String signature,
+                      String superName, String[] interfaces) {
+        super.visit(version, access, name, signature, superName, interfaces);
+        if (superName.equals("java/lang/Enum"))
+            isEnum = true;
+    }
 
-	/*
-	 * Set default access rights to public access rights
-	 * 
-	 * @see org.objectweb.asm.ClassAdapter#visitMethod(int, java.lang.String,
-	 * java.lang.String, java.lang.String, java.lang.String[])
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public MethodVisitor visitMethod(int methodAccess, String name, String descriptor,
-	        String signature, String[] exceptions) {
-		MethodVisitor mv = super.visitMethod(methodAccess, name, descriptor, signature,
-		                                     exceptions);
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public FieldVisitor visitField(int access, String name, String desc,
+                                   String signature, Object value) {
+
+        // We don't use serial numbers because they can be very long and are not used in any branches
+        if (!"serialVersionUID".equals(name)) {
+            if (DependencyAnalysis.isTargetClassName(className)) {
+                poolManager.addSUTConstant(value);
+                poolManager.addSUTConstant(Type.getType(desc));
+            } else {
+                poolManager.addNonSUTConstant(value);
+            }
+            if (isEnum) {
+                // static final values in enums are likely enum values
+                if ((access & Opcodes.ACC_FINAL) == Opcodes.ACC_FINAL &&
+                        (access & Opcodes.ACC_STATIC) == Opcodes.ACC_STATIC) {
+                    if (DependencyAnalysis.isTargetClassName(className)) {
+                        poolManager.addSUTConstant(name);
+                    } else {
+                        poolManager.addNonSUTConstant(name);
+                    }
+                }
+            }
+            // primitive_pool.add(value);
+        }
+        return super.visitField(access, name, desc, signature, value);
+    }
+
+    /*
+     * Set default access rights to public access rights
+     *
+     * @see org.objectweb.asm.ClassAdapter#visitMethod(int, java.lang.String,
+     * java.lang.String, java.lang.String, java.lang.String[])
+     */
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public MethodVisitor visitMethod(int methodAccess, String name, String descriptor,
+                                     String signature, String[] exceptions) {
+        MethodVisitor mv = super.visitMethod(methodAccess, name, descriptor, signature,
+                exceptions);
 
 		/*
 		String classNameWithDots = Utils.getClassNameFromResourcePath(className);
@@ -126,29 +130,29 @@ public class PrimitiveClassAdapter extends ClassVisitor {
 			mv = new StringReplacementMethodAdapter(methodAccess, descriptor, mv);
 		}
 		*/
-		if (DependencyAnalysis.isTargetClassName(className)) {
-			for (Type argumentType : Type.getArgumentTypes(descriptor)) {
-				poolManager.addSUTConstant(argumentType);
-			}
-		}
-		mv = new PrimitivePoolMethodAdapter(mv, className);
+        if (DependencyAnalysis.isTargetClassName(className)) {
+            for (Type argumentType : Type.getArgumentTypes(descriptor)) {
+                poolManager.addSUTConstant(argumentType);
+            }
+        }
+        mv = new PrimitivePoolMethodAdapter(mv, className);
 
-		return mv;
-	}
+        return mv;
+    }
 
-	/* (non-Javadoc)
-	 * @see org.objectweb.asm.ClassVisitor#visitInnerClass(java.lang.String, java.lang.String, java.lang.String, int)
-	 */
-	@Override
-	public void visitInnerClass(String name, String outerName, String innerName,
-	        int access) {
-		if ((access & Opcodes.ACC_PUBLIC) == Opcodes.ACC_PUBLIC) {
-			if (DependencyAnalysis.isTargetClassName(className)) {
-				Type type = Type.getObjectType(name);
-				poolManager.addSUTConstant(type);
-			}
-		}
+    /* (non-Javadoc)
+     * @see org.objectweb.asm.ClassVisitor#visitInnerClass(java.lang.String, java.lang.String, java.lang.String, int)
+     */
+    @Override
+    public void visitInnerClass(String name, String outerName, String innerName,
+                                int access) {
+        if ((access & Opcodes.ACC_PUBLIC) == Opcodes.ACC_PUBLIC) {
+            if (DependencyAnalysis.isTargetClassName(className)) {
+                Type type = Type.getObjectType(name);
+                poolManager.addSUTConstant(type);
+            }
+        }
 
-		super.visitInnerClass(name, outerName, innerName, access);
-	}
+        super.visitInnerClass(name, outerName, innerName, access);
+    }
 }

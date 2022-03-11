@@ -26,17 +26,19 @@ import org.objectweb.asm.commons.JSRInlinerAdapter;
 
 public class JSRInlinerClassVisitor extends ClassVisitor {
 
-	public JSRInlinerClassVisitor(ClassVisitor parent) {
-		super(Opcodes.ASM9, parent);
-	}
-	
-	/** {@inheritDoc} */
-	@Override
-	public MethodVisitor visitMethod(int access, String name, String desc,
-	        String signature, final String[] exceptions) {
+    public JSRInlinerClassVisitor(ClassVisitor parent) {
+        super(Opcodes.ASM9, parent);
+    }
 
-		MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
-		mv = new JSRInlinerAdapter(mv, access, name, desc, signature, exceptions);
-		return mv;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public MethodVisitor visitMethod(int access, String name, String desc,
+                                     String signature, final String[] exceptions) {
+
+        MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
+        mv = new JSRInlinerAdapter(mv, access, name, desc, signature, exceptions);
+        return mv;
+    }
 }

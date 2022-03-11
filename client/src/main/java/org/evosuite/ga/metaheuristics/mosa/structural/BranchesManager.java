@@ -19,13 +19,6 @@
  */
 package org.evosuite.ga.metaheuristics.mosa.structural;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.evosuite.coverage.branch.BranchCoverageTestFitness;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.testcase.TestCase;
@@ -36,122 +29,125 @@ import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.*;
+
 /**
- * This Class manages the goals to consider during the search according to their structural 
+ * This Class manages the goals to consider during the search according to their structural
  * dependencies
- * 
+ *
  * @author Annibale Panichella, Fitsum Meshesha Kifetew
  */
 public class BranchesManager extends StructuralGoalManager {
 
-	private static final Logger logger = LoggerFactory.getLogger(BranchesManager.class);
+    private static final Logger logger = LoggerFactory.getLogger(BranchesManager.class);
     private static final long serialVersionUID = 6453893627503159175L;
 
     protected BranchFitnessGraph graph;
 
-	protected final Map<Integer, TestFitnessFunction> branchCoverageTrueMap = new HashMap<>();
-	protected final Map<Integer, TestFitnessFunction> branchCoverageFalseMap = new HashMap<>();
-	private final Map<String, TestFitnessFunction> branchlessMethodCoverageMap = new HashMap<>();
+    protected final Map<Integer, TestFitnessFunction> branchCoverageTrueMap = new HashMap<>();
+    protected final Map<Integer, TestFitnessFunction> branchCoverageFalseMap = new HashMap<>();
+    private final Map<String, TestFitnessFunction> branchlessMethodCoverageMap = new HashMap<>();
 
-	/**
-	 * Constructor used to initialize the set of uncovered goals, and the initial set
-	 * of goals to consider as initial contrasting objectives
-	 * @param fitnessFunctions List of all FitnessFunction<T>
-	 */
-	public BranchesManager(List<TestFitnessFunction> fitnessFunctions) {
-		super(fitnessFunctions);
+    /**
+     * Constructor used to initialize the set of uncovered goals, and the initial set
+     * of goals to consider as initial contrasting objectives
+     *
+     * @param fitnessFunctions List of all FitnessFunction<T>
+     */
+    public BranchesManager(List<TestFitnessFunction> fitnessFunctions) {
+        super(fitnessFunctions);
 
-		graph = new BranchFitnessGraph(new HashSet<>(fitnessFunctions));
+        graph = new BranchFitnessGraph(new HashSet<>(fitnessFunctions));
 
-		// initialize current goals
-		this.currentGoals.addAll(graph.getRootBranches());
+        // initialize current goals
+        this.currentGoals.addAll(graph.getRootBranches());
 
-		// initialize the maps
-		for (TestFitnessFunction ff : fitnessFunctions) {
-			BranchCoverageTestFitness goal = (BranchCoverageTestFitness) ff;
-			// Skip instrumented branches - we only want real branches
-			if (goal.getBranch() != null && goal.getBranch().isInstrumented()) {
-				continue;
-			}
+        // initialize the maps
+        for (TestFitnessFunction ff : fitnessFunctions) {
+            BranchCoverageTestFitness goal = (BranchCoverageTestFitness) ff;
+            // Skip instrumented branches - we only want real branches
+            if (goal.getBranch() != null && goal.getBranch().isInstrumented()) {
+                continue;
+            }
 
-			if (goal.getBranch() == null) {
-				branchlessMethodCoverageMap.put(goal.getClassName() + "." + goal.getMethod(), ff);
-			} else if (goal.getBranchExpressionValue()) {
-				branchCoverageTrueMap.put(goal.getBranch().getActualBranchId(), ff);
-			} else {
-				branchCoverageFalseMap.put(goal.getBranch().getActualBranchId(), ff);
-			}
-		}
-	}
+            if (goal.getBranch() == null) {
+                branchlessMethodCoverageMap.put(goal.getClassName() + "." + goal.getMethod(), ff);
+            } else if (goal.getBranchExpressionValue()) {
+                branchCoverageTrueMap.put(goal.getBranch().getActualBranchId(), ff);
+            } else {
+                branchCoverageFalseMap.put(goal.getBranch().getActualBranchId(), ff);
+            }
+        }
+    }
 
-	public void calculateFitness(TestChromosome c, GeneticAlgorithm<TestChromosome> ga){
-		// run the test
-		TestCase test = c.getTestCase();
-		ExecutionResult result = TestCaseExecutor.runTest(test);
-		c.setLastExecutionResult(result);
-		c.setChanged(false);
-		
-		if (result.hasTimeout() || result.hasTestException()){
-			currentGoals.forEach(f -> c.setFitness(f, Double.MAX_VALUE));
-			return;
-		}
+    public void calculateFitness(TestChromosome c, GeneticAlgorithm<TestChromosome> ga) {
+        // run the test
+        TestCase test = c.getTestCase();
+        ExecutionResult result = TestCaseExecutor.runTest(test);
+        c.setLastExecutionResult(result);
+        c.setChanged(false);
 
-		// 1) we update the set of currents goals
-		Set<TestFitnessFunction> visitedStatements = new HashSet<>(this.getUncoveredGoals().size() * 2);
-		LinkedList<TestFitnessFunction> targets = new LinkedList<>(this.currentGoals);
+        if (result.hasTimeout() || result.hasTestException()) {
+            currentGoals.forEach(f -> c.setFitness(f, Double.MAX_VALUE));
+            return;
+        }
 
-		while (targets.size()>0 && !ga.isFinished()){
-			TestFitnessFunction fitnessFunction = targets.poll();
+        // 1) we update the set of currents goals
+        Set<TestFitnessFunction> visitedStatements = new HashSet<>(this.getUncoveredGoals().size() * 2);
+        LinkedList<TestFitnessFunction> targets = new LinkedList<>(this.currentGoals);
 
-			int pastSize = visitedStatements.size();
-			visitedStatements.add(fitnessFunction);
-			if (pastSize == visitedStatements.size())
-				continue;
+        while (targets.size() > 0 && !ga.isFinished()) {
+            TestFitnessFunction fitnessFunction = targets.poll();
 
-			double value = fitnessFunction.getFitness(c);
-			if (value == 0.0) {
-				updateCoveredGoals(fitnessFunction, c);
-				for (TestFitnessFunction child : graph.getStructuralChildren(fitnessFunction)){
-					targets.addLast(child);
-				}
-			} else {
-				currentGoals.add(fitnessFunction);
-			}
-		}
-		currentGoals.removeAll(this.getCoveredGoals());
-		// 2) we update the archive
-		for (Integer branchID : result.getTrace().getCoveredFalseBranches()){
-			TestFitnessFunction branch = this.branchCoverageFalseMap.get(branchID);
-			if (branch == null)
-				continue;
-			updateCoveredGoals(branch, c);
-		}
-		for (Integer branchID : result.getTrace().getCoveredTrueBranches()){
-			TestFitnessFunction branch = this.branchCoverageTrueMap.get(branchID);
-			if (branch == null)
-				continue;
-			updateCoveredGoals(branch, c);
-		}
-		for (String method : result.getTrace().getCoveredBranchlessMethods()){
-			TestFitnessFunction branch = this.branchlessMethodCoverageMap.get(method);
-			if (branch == null)
-				continue;
-			updateCoveredGoals(branch, c);
-		}
-		//debugStructuralDependencies(c);
-	}
+            int pastSize = visitedStatements.size();
+            visitedStatements.add(fitnessFunction);
+            if (pastSize == visitedStatements.size())
+                continue;
 
-	protected void debugStructuralDependencies(TestChromosome c){
-		for (TestFitnessFunction fitnessFunction : this.getUncoveredGoals()) {
-			double value = fitnessFunction.getFitness(c);
-			if (value < 1 && !currentGoals.contains(fitnessFunction) && !this.getCoveredGoals().contains(fitnessFunction)) {
-				logger.error("Branch {} has fitness {} but is not in the current goals", fitnessFunction.toString(), value);
-			}
-		}
-	}
+            double value = fitnessFunction.getFitness(c);
+            if (value == 0.0) {
+                updateCoveredGoals(fitnessFunction, c);
+                for (TestFitnessFunction child : graph.getStructuralChildren(fitnessFunction)) {
+                    targets.addLast(child);
+                }
+            } else {
+                currentGoals.add(fitnessFunction);
+            }
+        }
+        currentGoals.removeAll(this.getCoveredGoals());
+        // 2) we update the archive
+        for (Integer branchID : result.getTrace().getCoveredFalseBranches()) {
+            TestFitnessFunction branch = this.branchCoverageFalseMap.get(branchID);
+            if (branch == null)
+                continue;
+            updateCoveredGoals(branch, c);
+        }
+        for (Integer branchID : result.getTrace().getCoveredTrueBranches()) {
+            TestFitnessFunction branch = this.branchCoverageTrueMap.get(branchID);
+            if (branch == null)
+                continue;
+            updateCoveredGoals(branch, c);
+        }
+        for (String method : result.getTrace().getCoveredBranchlessMethods()) {
+            TestFitnessFunction branch = this.branchlessMethodCoverageMap.get(method);
+            if (branch == null)
+                continue;
+            updateCoveredGoals(branch, c);
+        }
+        //debugStructuralDependencies(c);
+    }
 
-	public BranchFitnessGraph getGraph() {
-		return graph;
-	}
+    protected void debugStructuralDependencies(TestChromosome c) {
+        for (TestFitnessFunction fitnessFunction : this.getUncoveredGoals()) {
+            double value = fitnessFunction.getFitness(c);
+            if (value < 1 && !currentGoals.contains(fitnessFunction) && !this.getCoveredGoals().contains(fitnessFunction)) {
+                logger.error("Branch {} has fitness {} but is not in the current goals", fitnessFunction, value);
+            }
+        }
+    }
+
+    public BranchFitnessGraph getGraph() {
+        return graph;
+    }
 
 }

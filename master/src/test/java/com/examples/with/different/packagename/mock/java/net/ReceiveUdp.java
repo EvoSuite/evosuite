@@ -31,7 +31,7 @@ public class ReceiveUdp {
     public boolean listenForUdpPacket() throws Exception {
 
         byte[] buffer = new byte[512];
-        DatagramPacket packet = new DatagramPacket(buffer,buffer.length);
+        DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
 
         DatagramSocket socket = new DatagramSocket(1234, InetAddress.getByName("127.0.0.2"));
         socket.receive(packet);

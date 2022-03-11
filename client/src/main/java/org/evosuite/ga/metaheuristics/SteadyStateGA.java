@@ -34,88 +34,88 @@ import org.evosuite.utils.Randomness;
  */
 public class SteadyStateGA<T extends Chromosome<T>> extends MonotonicGA<T> {
 
-	private static final long serialVersionUID = 7301010503732698233L;
-	
-	private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SteadyStateGA.class);
+    private static final long serialVersionUID = 7301010503732698233L;
 
-	/**
-	 * Generate a new search object
-	 *
-	 * @param factory a {@link org.evosuite.ga.ChromosomeFactory} object.
-	 */
-	public SteadyStateGA(ChromosomeFactory<T> factory) {
-		super(factory);
-	}
+    private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SteadyStateGA.class);
 
-	/**
-	 * {@inheritDoc}
-	 *
-	 * Perform one iteration of the search
-	 */
-	@Override
-	protected void evolve() {
-		logger.debug("Generating offspring");
-		currentIteration++;
+    /**
+     * Generate a new search object
+     *
+     * @param factory a {@link org.evosuite.ga.ChromosomeFactory} object.
+     */
+    public SteadyStateGA(ChromosomeFactory<T> factory) {
+        super(factory);
+    }
 
-		T parent1 = selectionFunction.select(population);
-		T parent2 = selectionFunction.select(population);
-		
-		T offspring1 = parent1.clone();
-		T offspring2 = parent2.clone();
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Perform one iteration of the search
+     */
+    @Override
+    protected void evolve() {
+        logger.debug("Generating offspring");
+        currentIteration++;
 
-		try {
-			// Crossover
-			if (Randomness.nextDouble() <= Properties.CROSSOVER_RATE) {
-							crossoverFunction.crossOver(offspring1, offspring2);
-}
+        T parent1 = selectionFunction.select(population);
+        T parent2 = selectionFunction.select(population);
 
-			// Mutation
-			notifyMutation(offspring1);
-			offspring1.mutate();
-			notifyMutation(offspring2);
-			offspring2.mutate();
-			
-			if(offspring1.isChanged()) {
-				offspring1.updateAge(currentIteration);
-			}
-			if(offspring2.isChanged()) {
-				offspring2.updateAge(currentIteration);
-			}
+        T offspring1 = parent1.clone();
+        T offspring2 = parent2.clone();
+
+        try {
+            // Crossover
+            if (Randomness.nextDouble() <= Properties.CROSSOVER_RATE) {
+                crossoverFunction.crossOver(offspring1, offspring2);
+            }
+
+            // Mutation
+            notifyMutation(offspring1);
+            offspring1.mutate();
+            notifyMutation(offspring2);
+            offspring2.mutate();
+
+            if (offspring1.isChanged()) {
+                offspring1.updateAge(currentIteration);
+            }
+            if (offspring2.isChanged()) {
+                offspring2.updateAge(currentIteration);
+            }
 
 
-		} catch (ConstructionFailedException e) {
-			logger.info("CrossOver/Mutation failed");
-			return;
-		} 
-		
-		// The two offspring replace the parents if and only if one of
-		// the offspring is not worse than the best parent.
-	    for (FitnessFunction<T> fitnessFunction : fitnessFunctions) {
-	        fitnessFunction.getFitness(offspring1);
-	        notifyEvaluation(offspring1);
-	        fitnessFunction.getFitness(offspring2);
-	        notifyEvaluation(offspring2);
-	    } 
-	    
-	    
-		// if (replacement_function.keepOffspring(parent1, parent2, offspring1,
-		if (!Properties.PARENT_CHECK
-		        || keepOffspring(parent1, parent2, offspring1, offspring2)) {
-			logger.debug("Keeping offspring");
+        } catch (ConstructionFailedException e) {
+            logger.info("CrossOver/Mutation failed");
+            return;
+        }
 
-			if (!isTooLong(offspring1)) {
-				population.remove(parent1);
-				population.add(offspring1);
-			}
-			if (!isTooLong(offspring2)) {
-				population.remove(parent2);
-				population.add(offspring2);
-			}
-		} else {
-			logger.debug("Keeping parents");
-		}
-		
-		updateFitnessFunctionsAndValues();
-	}
+        // The two offspring replace the parents if and only if one of
+        // the offspring is not worse than the best parent.
+        for (FitnessFunction<T> fitnessFunction : fitnessFunctions) {
+            fitnessFunction.getFitness(offspring1);
+            notifyEvaluation(offspring1);
+            fitnessFunction.getFitness(offspring2);
+            notifyEvaluation(offspring2);
+        }
+
+
+        // if (replacement_function.keepOffspring(parent1, parent2, offspring1,
+        if (!Properties.PARENT_CHECK
+                || keepOffspring(parent1, parent2, offspring1, offspring2)) {
+            logger.debug("Keeping offspring");
+
+            if (!isTooLong(offspring1)) {
+                population.remove(parent1);
+                population.add(offspring1);
+            }
+            if (!isTooLong(offspring2)) {
+                population.remove(parent2);
+                population.add(offspring2);
+            }
+        } else {
+            logger.debug("Keeping parents");
+        }
+
+        updateFitnessFunctionsAndValues();
+    }
 
 }

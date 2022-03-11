@@ -24,8 +24,8 @@ import org.evosuite.symbolic.solver.TestSolverSimpleMath;
 
 public class TestZ3SimpleMath extends TestSolverSimpleMath {
 
-	@Override
-	public Solver getSolver() {
-		return new Z3Solver();
-	}
+    @Override
+    public Solver getSolver() {
+        return new Z3Solver();
+    }
 }

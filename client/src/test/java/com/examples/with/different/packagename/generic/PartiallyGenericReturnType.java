@@ -25,12 +25,12 @@ import java.util.HashSet;
 public class PartiallyGenericReturnType {
 
 
-	public Collection<Class> foo(int x) {
-		Collection<Class> bar = new HashSet<>();
-		if(x == 42) {
-			bar.add(getClass());
-		}
-		
-		return bar;
-	}
+    public Collection<Class> foo(int x) {
+        Collection<Class> bar = new HashSet<>();
+        if (x == 42) {
+            bar.add(getClass());
+        }
+
+        return bar;
+    }
 }

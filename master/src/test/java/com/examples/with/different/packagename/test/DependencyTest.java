@@ -23,8 +23,8 @@ import com.examples.with.different.packagename.Dummy;
 
 public class DependencyTest {
 
-	public void testMe(Dummy dummy) {
-		if (dummy.isDummy())
-			System.out.println("Juhu!");
-	}
+    public void testMe(Dummy dummy) {
+        if (dummy.isDummy())
+            System.out.println("Juhu!");
+    }
 }

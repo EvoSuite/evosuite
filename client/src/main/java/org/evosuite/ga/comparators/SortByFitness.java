@@ -19,15 +19,15 @@
  */
 package org.evosuite.ga.comparators;
 
-import java.io.Serializable;
-import java.util.Comparator;
-
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.FitnessFunction;
 
+import java.io.Serializable;
+import java.util.Comparator;
+
 /**
  * Sort a Collection of Chromosomes by their fitness value
- * 
+ *
  * @author José Campos
  */
 public class SortByFitness<T extends Chromosome<T>> implements Comparator<T>, Serializable {
@@ -39,7 +39,6 @@ public class SortByFitness<T extends Chromosome<T>> implements Comparator<T>, Se
     private final boolean order;
 
     /**
-     * 
      * @param ff
      * @param desc descending order
      */
@@ -49,8 +48,7 @@ public class SortByFitness<T extends Chromosome<T>> implements Comparator<T>, Se
     }
 
     @Override
-    public int compare(T c1, T c2)
-    {
+    public int compare(T c1, T c2) {
         if (c1 == null)
             return 1;
         else if (c2 == null)

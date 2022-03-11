@@ -37,137 +37,108 @@ import org.objectweb.asm.Type;
 public interface ArraysSection {
 
 
-	/**
-	 * Creates a symbolic array representing a symbolic variable.
-	 *
-	 * @param concreteArray
-	 * @param instanceId
-	 * @param name
-	 * @return
-	 */
-	ReferenceVariable createVariableArray(Object concreteArray, int instanceId, String name);
+    /**
+     * Creates a symbolic array representing a symbolic variable.
+     *
+     * @param concreteArray
+     * @param instanceId
+     * @param name
+     * @return
+     */
+    ReferenceVariable createVariableArray(Object concreteArray, int instanceId, String name);
 
-	/**
-	 * Creates a symbolic array representing a symbolic literal.
-	 *
-	 * @param arrayType
-	 * @param instanceId
-	 * @return
-	 */
-  ReferenceConstant createConstantArray(Type arrayType, int instanceId);
+    /**
+     * Creates a symbolic array representing a symbolic literal.
+     *
+     * @param arrayType
+     * @param instanceId
+     * @return
+     */
+    ReferenceConstant createConstantArray(Type arrayType, int instanceId);
 
-	/**
-	 * Initialized an already created symbolic array
-	 *
-	 * @param symbolicArray
-	 * 								Symbolic element of the array reference
-	 */
-  void initializeArrayReference(ReferenceExpression symbolicArray);
+    /**
+     * Initialized an already created symbolic array
+     *
+     * @param symbolicArray Symbolic element of the array reference
+     */
+    void initializeArrayReference(ReferenceExpression symbolicArray);
 
-  /**
-	 * Load operation for Real arrays
-	 *
-	 * @param symbolicArray
-	 * 								Symbolic element of the array reference
-	 * @param symbolicIndex
-	 * 								Symbolic element of the accessed index
-	 * @param symbolicValue
-	 * 								Symbolic element of the accessed value
-	 */
-	RealValue arrayLoad(ReferenceExpression symbolicArray, IntegerValue symbolicIndex, RealValue symbolicValue);
+    /**
+     * Load operation for Real arrays
+     *
+     * @param symbolicArray Symbolic element of the array reference
+     * @param symbolicIndex Symbolic element of the accessed index
+     * @param symbolicValue Symbolic element of the accessed value
+     */
+    RealValue arrayLoad(ReferenceExpression symbolicArray, IntegerValue symbolicIndex, RealValue symbolicValue);
 
-	/**
-	 * Load operation for String arrays
-	 *
-	 * @param symbolicArray
-	 * 								Symbolic element of the array reference
-	 * @param symbolicIndex
-	 * 								Symbolic element of the accessed index
-	 * @param symbolicValue
-	 * 								Symbolic element of the accessed value
-	 */
-	StringValue arrayLoad(ReferenceExpression symbolicArray, IntegerValue symbolicIndex, StringValue symbolicValue);
+    /**
+     * Load operation for String arrays
+     *
+     * @param symbolicArray Symbolic element of the array reference
+     * @param symbolicIndex Symbolic element of the accessed index
+     * @param symbolicValue Symbolic element of the accessed value
+     */
+    StringValue arrayLoad(ReferenceExpression symbolicArray, IntegerValue symbolicIndex, StringValue symbolicValue);
 
-	/**
-	 * Load operation for Integer arrays
-	 *
-	 * @param symbolicArray
-	 * 								Symbolic element of the array reference
-	 * @param symbolicIndex
-	 * 								Symbolic element of the accessed index
-	 * @param symbolicValue
-	 * 								Symbolic element of the accessed value
-	 */
-	IntegerValue arrayLoad(ReferenceExpression symbolicArray, IntegerValue symbolicIndex, IntegerValue symbolicValue);
+    /**
+     * Load operation for Integer arrays
+     *
+     * @param symbolicArray Symbolic element of the array reference
+     * @param symbolicIndex Symbolic element of the accessed index
+     * @param symbolicValue Symbolic element of the accessed value
+     */
+    IntegerValue arrayLoad(ReferenceExpression symbolicArray, IntegerValue symbolicIndex, IntegerValue symbolicValue);
 
-	/**
-	 * Load operation for Reference arrays
-	 *
-	 * @param symbolicArray
-	 * 								Symbolic element of the array reference
-	 * @param symbolicIndex
-	 * 								Symbolic element of the accessed index
-	 * @param symbolicValue
-	 * 								Symbolic element of the accessed value
-	 */
-  ReferenceExpression arrayLoad(ReferenceExpression symbolicArray, IntegerValue symbolicIndex, ReferenceExpression symbolicValue);
+    /**
+     * Load operation for Reference arrays
+     *
+     * @param symbolicArray Symbolic element of the array reference
+     * @param symbolicIndex Symbolic element of the accessed index
+     * @param symbolicValue Symbolic element of the accessed value
+     */
+    ReferenceExpression arrayLoad(ReferenceExpression symbolicArray, IntegerValue symbolicIndex, ReferenceExpression symbolicValue);
 
 
-	/**
-	 * Store operation for Real arrays
-	 *
-	 * @param concreteArray
-	 * 								Concrete instance of the array
-	 * @param symbolicArray
-	 * 								Symbolic element of the array reference
-	 * @param symbolicIndex
-	 * 								Symbolic element of the accessed index
-	 * @param symbolicValue
-	 * 								Symbolic element of the accessed value
-	 */
-  void arrayStore(Object concreteArray, ReferenceExpression symbolicArray, IntegerValue symbolicIndex, RealValue symbolicValue);
+    /**
+     * Store operation for Real arrays
+     *
+     * @param concreteArray Concrete instance of the array
+     * @param symbolicArray Symbolic element of the array reference
+     * @param symbolicIndex Symbolic element of the accessed index
+     * @param symbolicValue Symbolic element of the accessed value
+     */
+    void arrayStore(Object concreteArray, ReferenceExpression symbolicArray, IntegerValue symbolicIndex, RealValue symbolicValue);
 
-	/**
-	 * Store operation for String arrays
-	 *
-	 * @param concreteArray
-	 * 								Concrete instance of the array
-	 * @param symbolicArray
-	 * 								Symbolic element of the array reference
-	 * @param symbolicIndex
-	 * 								Symbolic element of the accessed index
-	 * @param symbolicValue
-	 * 								Symbolic element of the accessed value
-	 */
-	void arrayStore(Object concreteArray, ReferenceExpression symbolicArray, IntegerValue symbolicIndex, StringValue symbolicValue);
+    /**
+     * Store operation for String arrays
+     *
+     * @param concreteArray Concrete instance of the array
+     * @param symbolicArray Symbolic element of the array reference
+     * @param symbolicIndex Symbolic element of the accessed index
+     * @param symbolicValue Symbolic element of the accessed value
+     */
+    void arrayStore(Object concreteArray, ReferenceExpression symbolicArray, IntegerValue symbolicIndex, StringValue symbolicValue);
 
-	/**
-	 * Store operation for Integer arrays
-	 *
-	 * @param concreteArray
-	 * 								Concrete instance of the array
-	 * @param symbolicArray
-	 * 								Symbolic element of the array reference
-	 * @param symbolicIndex
-	 * 								Symbolic element of the accessed index
-	 * @param symbolicValue
-	 * 								Symbolic element of the accessed value
-	 */
-	void arrayStore(Object concreteArray, ReferenceExpression symbolicArray, IntegerValue symbolicIndex, IntegerValue symbolicValue);
+    /**
+     * Store operation for Integer arrays
+     *
+     * @param concreteArray Concrete instance of the array
+     * @param symbolicArray Symbolic element of the array reference
+     * @param symbolicIndex Symbolic element of the accessed index
+     * @param symbolicValue Symbolic element of the accessed value
+     */
+    void arrayStore(Object concreteArray, ReferenceExpression symbolicArray, IntegerValue symbolicIndex, IntegerValue symbolicValue);
 
-	/**
-	 * Store operation for Reference arrays
-	 *
-	 * @param concreteArray
-	 * 								Concrete instance of the array
-	 * @param symbolicArray
-	 * 								Symbolic element of the array reference
-	 * @param symbolicIndex
-	 * 								Symbolic element of the accessed index
-	 * @param symbolicValue
-	 * 								Symbolic element of the accessed value
-	 */
-	void arrayStore(Object concreteArray, ReferenceExpression symbolicArray, IntegerValue symbolicIndex, ReferenceExpression symbolicValue);
+    /**
+     * Store operation for Reference arrays
+     *
+     * @param concreteArray Concrete instance of the array
+     * @param symbolicArray Symbolic element of the array reference
+     * @param symbolicIndex Symbolic element of the accessed index
+     * @param symbolicValue Symbolic element of the accessed value
+     */
+    void arrayStore(Object concreteArray, ReferenceExpression symbolicArray, IntegerValue symbolicIndex, ReferenceExpression symbolicValue);
 
 
 }

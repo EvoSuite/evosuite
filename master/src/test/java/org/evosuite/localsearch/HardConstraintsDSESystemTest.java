@@ -38,69 +38,69 @@ import com.examples.with.different.packagename.concolic.HardConstraints;
  */
 public class HardConstraintsDSESystemTest extends SystemTestBase {
 
-	@Before 
-	public void prepareTest() {
-		Properties.LOCAL_SEARCH_PROBABILITY = 1.0;
-		Properties.LOCAL_SEARCH_RATE = 1;
-		Properties.LOCAL_SEARCH_BUDGET_TYPE = Properties.LocalSearchBudgetType.TESTS;
-		Properties.LOCAL_SEARCH_BUDGET = 100;
-		Properties.SEARCH_BUDGET = 50000;
-		Properties.STOPPING_CONDITION = StoppingCondition.MAXTIME;
-		Properties.SEARCH_BUDGET = 60;
-		Properties.MINIMIZE = true;
-		Properties.ASSERTIONS = true;
-		Properties.RESET_STATIC_FIELD_GETS = true;
+    @Before
+    public void prepareTest() {
+        Properties.LOCAL_SEARCH_PROBABILITY = 1.0;
+        Properties.LOCAL_SEARCH_RATE = 1;
+        Properties.LOCAL_SEARCH_BUDGET_TYPE = Properties.LocalSearchBudgetType.TESTS;
+        Properties.LOCAL_SEARCH_BUDGET = 100;
+        Properties.SEARCH_BUDGET = 50000;
+        Properties.STOPPING_CONDITION = StoppingCondition.MAXTIME;
+        Properties.SEARCH_BUDGET = 60;
+        Properties.MINIMIZE = true;
+        Properties.ASSERTIONS = true;
+        Properties.RESET_STATIC_FIELD_GETS = true;
 
-	}
-	
-	@Test
-	public void testCVC4() {
-		String cvc4Path = System.getenv("cvc4_path");
-		Assume.assumeTrue(cvc4Path != null);
-		Properties.CVC4_PATH = cvc4Path;
-		Properties.DSE_SOLVER = Properties.SolverType.CVC4_SOLVER;
+    }
 
-		EvoSuite evosuite = new EvoSuite();
-		String targetClass = HardConstraints.class.getCanonicalName();
-		Properties.TARGET_CLASS = targetClass;
+    @Test
+    public void testCVC4() {
+        String cvc4Path = System.getenv("cvc4_path");
+        Assume.assumeTrue(cvc4Path != null);
+        Properties.CVC4_PATH = cvc4Path;
+        Properties.DSE_SOLVER = Properties.SolverType.CVC4_SOLVER;
 
-		Properties.CRITERION = new Criterion[] { Criterion.BRANCH, Criterion.EXCEPTION };
+        EvoSuite evosuite = new EvoSuite();
+        String targetClass = HardConstraints.class.getCanonicalName();
+        Properties.TARGET_CLASS = targetClass;
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+        Properties.CRITERION = new Criterion[]{Criterion.BRANCH, Criterion.EXCEPTION};
 
-		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
-		System.out.println("EvolvedTestSuite:\n" + best);
-		
-		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(),
-				0.001);
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
 
-	}
+        Object result = evosuite.parseCommandLine(command);
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
+        System.out.println("EvolvedTestSuite:\n" + best);
 
-	@Test
-	public void testZ3() {
-		String z3Path = System.getenv("z3_path");
-		Assume.assumeTrue(z3Path != null);
-		Properties.Z3_PATH = z3Path;
-		Properties.DSE_SOLVER = Properties.SolverType.Z3_SOLVER;
+        Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(),
+                0.001);
 
-		EvoSuite evosuite = new EvoSuite();
-		String targetClass = HardConstraints.class.getCanonicalName();
-		Properties.TARGET_CLASS = targetClass;
+    }
 
-		Properties.CRITERION = new Criterion[] { Criterion.BRANCH, Criterion.EXCEPTION };
+    @Test
+    public void testZ3() {
+        String z3Path = System.getenv("z3_path");
+        Assume.assumeTrue(z3Path != null);
+        Properties.Z3_PATH = z3Path;
+        Properties.DSE_SOLVER = Properties.SolverType.Z3_SOLVER;
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+        EvoSuite evosuite = new EvoSuite();
+        String targetClass = HardConstraints.class.getCanonicalName();
+        Properties.TARGET_CLASS = targetClass;
 
-		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
-		System.out.println("EvolvedTestSuite:\n" + best);
-		
-		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(),
-				0.001);
+        Properties.CRITERION = new Criterion[]{Criterion.BRANCH, Criterion.EXCEPTION};
 
-	}
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
+
+        Object result = evosuite.parseCommandLine(command);
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
+        System.out.println("EvolvedTestSuite:\n" + best);
+
+        Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(),
+                0.001);
+
+    }
 
 }

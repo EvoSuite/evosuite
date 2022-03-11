@@ -30,27 +30,27 @@ import org.evosuite.strategy.TestGenerationStrategy;
  */
 public class DSEStrategyFactory {
 
-  public static final String DSE_MODULE_NOT_PROVIDED        = "A DSE Module must be provided: ";
-  public static final String DSE_MODULE_NOT_YET_IMPLEMENTED = "DSE Module not yet implemented: ";
+    public static final String DSE_MODULE_NOT_PROVIDED = "A DSE Module must be provided: ";
+    public static final String DSE_MODULE_NOT_YET_IMPLEMENTED = "DSE Module not yet implemented: ";
 
-  /**
-   * Builds a new DSE strategy
-   *
-   * @param selectedModule
-   * @return
-   */
-  public static TestGenerationStrategy getDSEStrategy(DSE_MODULE_VERSION selectedModule) {
-      if (selectedModule == null) {
-        throw new IllegalArgumentException(DSE_MODULE_NOT_PROVIDED);
-      }
+    /**
+     * Builds a new DSE strategy
+     *
+     * @param selectedModule
+     * @return
+     */
+    public static TestGenerationStrategy getDSEStrategy(DSE_MODULE_VERSION selectedModule) {
+        if (selectedModule == null) {
+            throw new IllegalArgumentException(DSE_MODULE_NOT_PROVIDED);
+        }
 
-      switch (selectedModule) {
-        case LEGACY:
-          return new DSEStrategyLegacy();
-        case NEW:
-          return new DSEStrategy();
-        default:
-            throw new IllegalStateException(DSE_MODULE_NOT_YET_IMPLEMENTED + selectedModule.name());
-      }
+        switch (selectedModule) {
+            case LEGACY:
+                return new DSEStrategyLegacy();
+            case NEW:
+                return new DSEStrategy();
+            default:
+                throw new IllegalStateException(DSE_MODULE_NOT_YET_IMPLEMENTED + selectedModule.name());
+        }
     }
 }

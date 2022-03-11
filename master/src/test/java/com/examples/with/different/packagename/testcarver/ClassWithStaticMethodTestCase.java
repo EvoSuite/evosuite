@@ -25,9 +25,9 @@ import org.junit.Test;
 
 public class ClassWithStaticMethodTestCase {
 
-	@Test
-	public void testStaticMethod() {
-		ClassWithStaticMethod c = ClassWithStaticMethod.getInstance();
-		assertTrue(c.testMe(42));
-	}
+    @Test
+    public void testStaticMethod() {
+        ClassWithStaticMethod c = ClassWithStaticMethod.getInstance();
+        assertTrue(c.testMe(42));
+    }
 }

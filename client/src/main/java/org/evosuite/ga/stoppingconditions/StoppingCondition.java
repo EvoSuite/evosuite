@@ -24,48 +24,47 @@ import org.evosuite.ga.metaheuristics.SearchListener;
 import org.evosuite.utils.PublicCloneable;
 
 public interface StoppingCondition<T extends Chromosome<T>> extends SearchListener<T>,
-		PublicCloneable<StoppingCondition<T>> {
+        PublicCloneable<StoppingCondition<T>> {
 
-	/**
-	 * Force a specific amount of used up budget. Handle with care!
-	 *
-	 * @param value
-	 *            The new amount of used up budget for this StoppingCondition
-	 */
+    /**
+     * Force a specific amount of used up budget. Handle with care!
+     *
+     * @param value The new amount of used up budget for this StoppingCondition
+     */
     void forceCurrentValue(long value);
 
-	/**
-	 * How much of the budget have we used up
-	 *
-	 * @return a long.
-	 */
+    /**
+     * How much of the budget have we used up
+     *
+     * @return a long.
+     */
     long getCurrentValue();
 
-	/**
-	 * Get upper limit of resources
-	 *
-	 * Mainly used for toString()
-	 *
-	 * @return limit
-	 */
+    /**
+     * Get upper limit of resources
+     * <p>
+     * Mainly used for toString()
+     *
+     * @return limit
+     */
     long getLimit();
 
-	/**
-	 * <p>isFinished</p>
-	 *
-	 * @return a boolean.
-	 */
-	boolean isFinished();
+    /**
+     * <p>isFinished</p>
+     *
+     * @return a boolean.
+     */
+    boolean isFinished();
 
-	/**
-	 * Reset everything
-	 */
-	void reset();
+    /**
+     * Reset everything
+     */
+    void reset();
 
-	/**
-	 * Set new upper limit of resources
-	 *
-	 * @param limit a long.
-	 */
-	void setLimit(long limit);
+    /**
+     * Set new upper limit of resources
+     *
+     * @param limit a long.
+     */
+    void setLimit(long limit);
 }

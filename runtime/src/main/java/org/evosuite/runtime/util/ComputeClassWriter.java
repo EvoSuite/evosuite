@@ -38,29 +38,29 @@ public class ComputeClassWriter extends ClassWriter {
 
     private final Logger logger = LoggerFactory.getLogger(ComputeClassWriter.class);
 
-	private ClassLoader l = getClass().getClassLoader();
-	
+    private final ClassLoader l = getClass().getClassLoader();
+
     public ComputeClassWriter(final int flags) {
         super(flags);
     }
-    
+
     @Override
     protected String getCommonSuperClass(final String type1, final String type2) {
         try {
-        	ClassReader info1;
-        	ClassReader info2;
-        	try {
-        		info1 = typeInfo(type1);
+            ClassReader info1;
+            ClassReader info2;
+            try {
+                info1 = typeInfo(type1);
             } catch (NullPointerException e) {
-            	// May happen if class is not found
-                throw new RuntimeException("Class not found: "+type1+": "+e.toString(), e);
-        	}
-        	try {
-        		info2 = typeInfo(type2);
+                // May happen if class is not found
+                throw new RuntimeException("Class not found: " + type1 + ": " + e, e);
+            }
+            try {
+                info2 = typeInfo(type2);
             } catch (NullPointerException e) {
-            	// May happen if class is not found
-                throw new RuntimeException("Class not found: "+type2+": "+e.toString(), e);
-        	}
+                // May happen if class is not found
+                throw new RuntimeException("Class not found: " + type2 + ": " + e, e);
+            }
 
             if ((info1.getAccess() & Opcodes.ACC_INTERFACE) != 0) {
                 if (typeImplements(type2, info2, type1)) {
@@ -106,26 +106,23 @@ public class ComputeClassWriter extends ClassWriter {
         } catch (IOException e) {
             throw new RuntimeException(e.toString());
         } catch (NullPointerException e) {
-        	// May happen if class is not found
+            // May happen if class is not found
             throw new RuntimeException(e.toString());
         }
     }
-    
+
     /**
      * Returns the internal names of the ancestor classes of the given type.
      *
-     * @param type
-     *            the internal name of a class or interface.
-     * @param info
-     *            the ClassReader corresponding to 'type'.
+     * @param type the internal name of a class or interface.
+     * @param info the ClassReader corresponding to 'type'.
      * @return a StringBuilder containing the ancestor classes of 'type',
-     *         separated by ';'. The returned string has the following format:
-     *         ";type1;type2 ... ;typeN", where type1 is 'type', and typeN is a
-     *         direct subclass of Object. If 'type' is Object, the returned
-     *         string is empty.
-     * @throws IOException
-     *             if the bytecode of 'type' or of some of its ancestor class
-     *             cannot be loaded.
+     * separated by ';'. The returned string has the following format:
+     * ";type1;type2 ... ;typeN", where type1 is 'type', and typeN is a
+     * direct subclass of Object. If 'type' is Object, the returned
+     * string is empty.
+     * @throws IOException if the bytecode of 'type' or of some of its ancestor class
+     *                     cannot be loaded.
      */
     private StringBuilder typeAncestors(String type, ClassReader info)
             throws IOException {
@@ -141,16 +138,12 @@ public class ComputeClassWriter extends ClassWriter {
     /**
      * Returns true if the given type implements the given interface.
      *
-     * @param type
-     *            the internal name of a class or interface.
-     * @param info
-     *            the ClassReader corresponding to 'type'.
-     * @param itf
-     *            the internal name of a interface.
+     * @param type the internal name of a class or interface.
+     * @param info the ClassReader corresponding to 'type'.
+     * @param itf  the internal name of a interface.
      * @return true if 'type' implements directly or indirectly 'itf'
-     * @throws IOException
-     *             if the bytecode of 'type' or of some of its ancestor class
-     *             cannot be loaded.
+     * @throws IOException if the bytecode of 'type' or of some of its ancestor class
+     *                     cannot be loaded.
      */
     private boolean typeImplements(String type, ClassReader info, String itf)
             throws IOException {
@@ -171,17 +164,14 @@ public class ComputeClassWriter extends ClassWriter {
         }
         return false;
     }
-    
+
     /**
      * Returns a ClassReader corresponding to the given class or interface.
      *
-     * @param type
-     *            the internal name of a class or interface.
+     * @param type the internal name of a class or interface.
      * @return the ClassReader corresponding to 'type'.
-     * @throws IOException
-     *             if the bytecode of 'type' cannot be loaded.
-     * @throws NullPointerException
-     *             if the bytecode of 'type' cannot be found.
+     * @throws IOException          if the bytecode of 'type' cannot be loaded.
+     * @throws NullPointerException if the bytecode of 'type' cannot be found.
      */
     private ClassReader typeInfo(final String type) throws IOException, NullPointerException {
         try (InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(type + ".class")) {

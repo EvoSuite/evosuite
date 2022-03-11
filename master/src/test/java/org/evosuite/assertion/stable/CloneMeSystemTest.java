@@ -36,54 +36,54 @@ import org.junit.Test;
 import com.examples.with.different.packagename.stable.CloneMe;
 
 public class CloneMeSystemTest extends SystemTestBase {
-	private final boolean DEFAULT_JUNIT_CHECK_ON_SEPARATE_PROCESS = Properties.JUNIT_CHECK_ON_SEPARATE_PROCESS;
-	private final boolean DEFAULT_REPLACE_CALLS = Properties.REPLACE_CALLS;
-	private final Properties.JUnitCheckValues DEFAULT_JUNIT_CHECK = Properties.JUNIT_CHECK;
-	private final boolean DEFAULT_JUNIT_TESTS = Properties.JUNIT_TESTS;
-	private final boolean DEFAULT_PURE_INSPECTORS = Properties.PURE_INSPECTORS;
-	private final boolean DEFAULT_SANDBOX = Properties.SANDBOX;
-	
+    private final boolean DEFAULT_JUNIT_CHECK_ON_SEPARATE_PROCESS = Properties.JUNIT_CHECK_ON_SEPARATE_PROCESS;
+    private final boolean DEFAULT_REPLACE_CALLS = Properties.REPLACE_CALLS;
+    private final Properties.JUnitCheckValues DEFAULT_JUNIT_CHECK = Properties.JUNIT_CHECK;
+    private final boolean DEFAULT_JUNIT_TESTS = Properties.JUNIT_TESTS;
+    private final boolean DEFAULT_PURE_INSPECTORS = Properties.PURE_INSPECTORS;
+    private final boolean DEFAULT_SANDBOX = Properties.SANDBOX;
 
-	@Before
-	public void configureProperties() {
-		Properties.SANDBOX = true;
-		Properties.RESET_STATIC_FIELDS = true;
-		Properties.REPLACE_CALLS = true;
-		Properties.JUNIT_CHECK = Properties.JUnitCheckValues.TRUE;
-		Properties.JUNIT_TESTS = true;
-		Properties.PURE_INSPECTORS = true;
-		Properties.JUNIT_CHECK_ON_SEPARATE_PROCESS = false;
 
-	}
+    @Before
+    public void configureProperties() {
+        Properties.SANDBOX = true;
+        Properties.RESET_STATIC_FIELDS = true;
+        Properties.REPLACE_CALLS = true;
+        Properties.JUNIT_CHECK = Properties.JUnitCheckValues.TRUE;
+        Properties.JUNIT_TESTS = true;
+        Properties.PURE_INSPECTORS = true;
+        Properties.JUNIT_CHECK_ON_SEPARATE_PROCESS = false;
 
-	@After
-	public void restoreProperties() {
-		Properties.JUNIT_CHECK_ON_SEPARATE_PROCESS = DEFAULT_JUNIT_CHECK_ON_SEPARATE_PROCESS;
-		Properties.SANDBOX = DEFAULT_SANDBOX;
-		Properties.REPLACE_CALLS = DEFAULT_REPLACE_CALLS;
-		Properties.JUNIT_CHECK = DEFAULT_JUNIT_CHECK;
-		Properties.JUNIT_TESTS = DEFAULT_JUNIT_TESTS;
-		Properties.PURE_INSPECTORS = DEFAULT_PURE_INSPECTORS;
-	}
+    }
 
-	@Test 
-	public void testCloneMe() {
-		EvoSuite evosuite = new EvoSuite();
+    @After
+    public void restoreProperties() {
+        Properties.JUNIT_CHECK_ON_SEPARATE_PROCESS = DEFAULT_JUNIT_CHECK_ON_SEPARATE_PROCESS;
+        Properties.SANDBOX = DEFAULT_SANDBOX;
+        Properties.REPLACE_CALLS = DEFAULT_REPLACE_CALLS;
+        Properties.JUNIT_CHECK = DEFAULT_JUNIT_CHECK;
+        Properties.JUNIT_TESTS = DEFAULT_JUNIT_TESTS;
+        Properties.PURE_INSPECTORS = DEFAULT_PURE_INSPECTORS;
+    }
 
-		String targetClass = CloneMe.class.getCanonicalName();
-		Properties.TARGET_CLASS = targetClass;
-		String[] command = new String[] { "-generateSuite", "-class",
-				targetClass };
+    @Test
+    public void testCloneMe() {
+        EvoSuite evosuite = new EvoSuite();
 
-		Object result = evosuite.parseCommandLine(command);
+        String targetClass = CloneMe.class.getCanonicalName();
+        Properties.TARGET_CLASS = targetClass;
+        String[] command = new String[]{"-generateSuite", "-class",
+                targetClass};
 
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
-		System.out.println("EvolvedTestSuite:\n" + best);
+        Object result = evosuite.parseCommandLine(command);
 
-		List<TestCase> tests = best.getTests();
-		boolean allStable = TestStabilityChecker.checkStability(tests);
-		assertTrue(allStable);
-	}
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
+        System.out.println("EvolvedTestSuite:\n" + best);
+
+        List<TestCase> tests = best.getTests();
+        boolean allStable = TestStabilityChecker.checkStability(tests);
+        assertTrue(allStable);
+    }
 
 }

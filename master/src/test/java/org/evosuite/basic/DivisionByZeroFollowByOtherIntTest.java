@@ -25,7 +25,7 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
-@SuiteClasses({ SUTDivisionByZeroSystemTest.class, SUTPrintingThatShouldBeMutedSystemTest.class })
+@SuiteClasses({SUTDivisionByZeroSystemTest.class, SUTPrintingThatShouldBeMutedSystemTest.class})
 public class DivisionByZeroFollowByOtherIntTest {
 
 }

@@ -24,15 +24,15 @@ import java.awt.Font;
 
 public class FontCUT {
 
-	public boolean foo(int x){
+    public boolean foo(int x) {
 
-		Font font = new Font("SansSerif", Font.PLAIN, 12);
-		font.toString();
-		
-		if(x>0){
-			return true;
-		}else {
-			return false;
-		}
-	}
+        Font font = new Font("SansSerif", Font.PLAIN, 12);
+        font.toString();
+
+        if (x > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 }

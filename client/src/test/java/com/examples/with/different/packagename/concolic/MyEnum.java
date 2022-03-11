@@ -20,5 +20,5 @@
 package com.examples.with.different.packagename.concolic;
 
 public enum MyEnum {
-	VALUE1, VALUE2
+    VALUE1, VALUE2
 }

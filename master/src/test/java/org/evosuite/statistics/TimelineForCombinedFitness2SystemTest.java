@@ -37,19 +37,20 @@ import java.util.Map;
 public class TimelineForCombinedFitness2SystemTest extends SystemTestBase {
 
     private final Criterion[] oldCriterion = Arrays.copyOf(Properties.CRITERION, Properties.CRITERION.length);
-    
+
     private final String ANALYSIS_CRITERIA = Properties.ANALYSIS_CRITERIA;
-    
+
     private final boolean ASSERTIONS = Properties.ASSERTIONS;
-    
-	@After
-	public void afterTest() {
-		Properties.CRITERION = oldCriterion;
-		Properties.ANALYSIS_CRITERIA = ANALYSIS_CRITERIA;
-		Properties.ASSERTIONS = ASSERTIONS;
-	}	
+
+    @After
+    public void afterTest() {
+        Properties.CRITERION = oldCriterion;
+        Properties.ANALYSIS_CRITERIA = ANALYSIS_CRITERIA;
+        Properties.ASSERTIONS = ASSERTIONS;
+    }
+
     @Test
-    public void testTimelineForCombinedFitnessAll(){
+    public void testTimelineForCombinedFitnessAll() {
         EvoSuite evosuite = new EvoSuite();
         String targetClass = Compositional.class.getCanonicalName();
         Properties.ASSERTIONS = false;
@@ -63,27 +64,40 @@ public class TimelineForCombinedFitness2SystemTest extends SystemTestBase {
         Properties.CRITERION[4] = Properties.Criterion.CBRANCH;
 
         StringBuilder analysisCriteria = new StringBuilder();
-        analysisCriteria.append(Properties.Criterion.LINE); analysisCriteria.append(",");
-        analysisCriteria.append(Properties.Criterion.ONLYBRANCH); analysisCriteria.append(",");
-        analysisCriteria.append(Properties.Criterion.METHODTRACE); analysisCriteria.append(",");
-        analysisCriteria.append(Properties.Criterion.METHOD); analysisCriteria.append(",");
-        analysisCriteria.append(Properties.Criterion.METHODNOEXCEPTION); analysisCriteria.append(",");
-        analysisCriteria.append(Properties.Criterion.OUTPUT); analysisCriteria.append(",");
-        analysisCriteria.append(Properties.Criterion.ONLYMUTATION); analysisCriteria.append(",");
-        analysisCriteria.append(Properties.Criterion.CBRANCH); analysisCriteria.append(",");
+        analysisCriteria.append(Properties.Criterion.LINE);
+        analysisCriteria.append(",");
+        analysisCriteria.append(Properties.Criterion.ONLYBRANCH);
+        analysisCriteria.append(",");
+        analysisCriteria.append(Properties.Criterion.METHODTRACE);
+        analysisCriteria.append(",");
+        analysisCriteria.append(Properties.Criterion.METHOD);
+        analysisCriteria.append(",");
+        analysisCriteria.append(Properties.Criterion.METHODNOEXCEPTION);
+        analysisCriteria.append(",");
+        analysisCriteria.append(Properties.Criterion.OUTPUT);
+        analysisCriteria.append(",");
+        analysisCriteria.append(Properties.Criterion.ONLYMUTATION);
+        analysisCriteria.append(",");
+        analysisCriteria.append(Properties.Criterion.CBRANCH);
+        analysisCriteria.append(",");
         analysisCriteria.append(Properties.Criterion.EXCEPTION);
         Properties.ANALYSIS_CRITERIA = analysisCriteria.toString();
 
         StringBuilder outputVariables = new StringBuilder();
-        outputVariables.append(RuntimeVariable.CoverageTimeline); outputVariables.append(",");
-        outputVariables.append(RuntimeVariable.OnlyBranchCoverageTimeline); outputVariables.append(",");
-        outputVariables.append(RuntimeVariable.MethodNoExceptionCoverageTimeline); outputVariables.append(",");
-        outputVariables.append(RuntimeVariable.CBranchFitnessTimeline); outputVariables.append(",");
-        outputVariables.append(RuntimeVariable.CBranchCoverageTimeline); outputVariables.append(",");
+        outputVariables.append(RuntimeVariable.CoverageTimeline);
+        outputVariables.append(",");
+        outputVariables.append(RuntimeVariable.OnlyBranchCoverageTimeline);
+        outputVariables.append(",");
+        outputVariables.append(RuntimeVariable.MethodNoExceptionCoverageTimeline);
+        outputVariables.append(",");
+        outputVariables.append(RuntimeVariable.CBranchFitnessTimeline);
+        outputVariables.append(",");
+        outputVariables.append(RuntimeVariable.CBranchCoverageTimeline);
+        outputVariables.append(",");
         outputVariables.append(RuntimeVariable.OutputCoverageTimeline);
         Properties.OUTPUT_VARIABLES = outputVariables.toString();
 
-        String[] command = new String[] { "-generateSuite", "-class", targetClass };
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
 
         evosuite.parseCommandLine(command);
         Map<String, OutputVariable<?>> map = DebugStatisticsBackend.getLatestWritten();
@@ -126,7 +140,7 @@ public class TimelineForCombinedFitness2SystemTest extends SystemTestBase {
         int max = -1;
         for (Map.Entry<String, OutputVariable<?>> e : map.entrySet()) {
             if (e.getKey().startsWith(name)) {
-                int index = Integer.parseInt( (e.getKey().split("_T"))[1] );
+                int index = Integer.parseInt((e.getKey().split("_T"))[1]);
                 if (index > max) {
                     max = index;
                     timelineVar = e.getValue();

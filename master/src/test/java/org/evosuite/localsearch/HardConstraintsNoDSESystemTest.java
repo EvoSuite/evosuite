@@ -35,29 +35,29 @@ import com.examples.with.different.packagename.concolic.HardConstraints;
  */
 public class HardConstraintsNoDSESystemTest extends SystemTestBase {
 
-	@Test
-	public void test() {
-		Properties.RESET_STATIC_FIELD_GETS = true;
+    @Test
+    public void test() {
+        Properties.RESET_STATIC_FIELD_GETS = true;
 
-		Properties.STOPPING_CONDITION = StoppingCondition.MAXTIME;
-		Properties.SEARCH_BUDGET = 60;
+        Properties.STOPPING_CONDITION = StoppingCondition.MAXTIME;
+        Properties.SEARCH_BUDGET = 60;
 
-		EvoSuite evosuite = new EvoSuite();
-		String targetClass = HardConstraints.class.getCanonicalName();
-		Properties.TARGET_CLASS = targetClass;
+        EvoSuite evosuite = new EvoSuite();
+        String targetClass = HardConstraints.class.getCanonicalName();
+        Properties.TARGET_CLASS = targetClass;
 
-		Properties.CRITERION = new Criterion[] { Criterion.BRANCH, Criterion.EXCEPTION };
+        Properties.CRITERION = new Criterion[]{Criterion.BRANCH, Criterion.EXCEPTION};
 
-		Properties.MINIMIZE = true;
-		Properties.ASSERTIONS = true;
+        Properties.MINIMIZE = true;
+        Properties.ASSERTIONS = true;
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
 
-		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
-		System.out.println("EvolvedTestSuite:\n" + best);
+        Object result = evosuite.parseCommandLine(command);
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
+        System.out.println("EvolvedTestSuite:\n" + best);
 
-	}
+    }
 
 }

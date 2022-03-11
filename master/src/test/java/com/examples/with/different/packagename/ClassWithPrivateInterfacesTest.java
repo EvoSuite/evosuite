@@ -32,28 +32,35 @@ import org.junit.Test;
  */
 public class ClassWithPrivateInterfacesTest {
 
-	private interface IA {
+    private interface IA {
     }
+
     private interface IB {
     }
+
     private interface IC extends ID, IE {
     }
+
     private interface ID {
     }
+
     private interface IE extends IF {
     }
+
     private interface IF {
     }
+
     private static class CX implements IB, IA, IE {
     }
+
     private static class CY extends CX implements IB, IC {
     }
 
     @Test
-	public void testGetAllInterfaces() {
-		final List<Class<?>> list = ClassWithPrivateInterfaces.getAllInterfaces(CY.class);
+    public void testGetAllInterfaces() {
+        final List<Class<?>> list = ClassWithPrivateInterfaces.getAllInterfaces(CY.class);
 
-		assertEquals(6, list.size());
+        assertEquals(6, list.size());
         assertEquals(IB.class, list.get(0));
         assertEquals(IC.class, list.get(1));
         assertEquals(ID.class, list.get(2));
@@ -62,5 +69,5 @@ public class ClassWithPrivateInterfacesTest {
         assertEquals(IA.class, list.get(5));
 
         assertNull(ClassWithPrivateInterfaces.getAllInterfaces(null));
-	}
+    }
 }

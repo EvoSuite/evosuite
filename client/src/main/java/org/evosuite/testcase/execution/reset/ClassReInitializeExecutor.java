@@ -19,9 +19,6 @@
  */
 package org.evosuite.testcase.execution.reset;
 
-import java.lang.reflect.Method;
-import java.util.List;
-
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.TimeController;
@@ -33,94 +30,97 @@ import org.evosuite.runtime.sandbox.Sandbox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.Method;
+import java.util.List;
+
 /**
  * This class implements the actual invocation to the __STATIC_RESET() method
  * when a class is decided to be re-initialized
- * 
+ *
  * @author galeotti
  */
 class ClassReInitializeExecutor {
 
-	private final static Logger logger = LoggerFactory.getLogger(ClassReInitializeExecutor.class);
+    private final static Logger logger = LoggerFactory.getLogger(ClassReInitializeExecutor.class);
 
-	private static final ClassReInitializeExecutor instance = new ClassReInitializeExecutor();
+    private static final ClassReInitializeExecutor instance = new ClassReInitializeExecutor();
 
-	private ClassReInitializeExecutor() {
-	}
+    private ClassReInitializeExecutor() {
+    }
 
-	public synchronized static ClassReInitializeExecutor getInstance() {
-		return instance;
-	}
+    public synchronized static ClassReInitializeExecutor getInstance() {
+        return instance;
+    }
 
-	/**
-	 * Resets the classes in the list using the Class Loader from the current
-	 * Test Generation context
-	 * 
-	 * @param classesToReset
-	 */
-	public void resetClasses(List<String> classesToReset) {
-		ClassLoader loader = TestGenerationContext.getInstance().getClassLoaderForSUT();
-		resetClasses(classesToReset, loader);
-	}
+    /**
+     * Resets the classes in the list using the Class Loader from the current
+     * Test Generation context
+     *
+     * @param classesToReset
+     */
+    public void resetClasses(List<String> classesToReset) {
+        ClassLoader loader = TestGenerationContext.getInstance().getClassLoaderForSUT();
+        resetClasses(classesToReset, loader);
+    }
 
-	/**
-	 * Resets the classes passes in the list using the given class loader
-	 * 
-	 * @param classesToReset
-	 * @param loader
-	 */
-	public void resetClasses(List<String> classesToReset, ClassLoader loader) {
-		// try to reset each collected class
+    /**
+     * Resets the classes passes in the list using the given class loader
+     *
+     * @param classesToReset
+     * @param loader
+     */
+    public void resetClasses(List<String> classesToReset, ClassLoader loader) {
+        // try to reset each collected class
 
-		ClassResetter.getInstance().setClassLoader(loader);
+        ClassResetter.getInstance().setClassLoader(loader);
 
-		long start = System.currentTimeMillis();
+        long start = System.currentTimeMillis();
 
-		for (String className : classesToReset) {
-			// re-initialization can be expensive
-			long elapsed = System.currentTimeMillis() - start;
+        for (String className : classesToReset) {
+            // re-initialization can be expensive
+            long elapsed = System.currentTimeMillis() - start;
 
-			if (!className.equals(Properties.TARGET_CLASS)
-					&& (!TimeController.getInstance().isThereStillTimeInThisPhase()
-							|| elapsed > Properties.TIMEOUT_RESET)) {
-				// Note: we no longer cancel the class re-initialization since
-				// it might leave the static data in an inconsistent state
-			}
-			resetClass(className);
-		}
-	}
+            if (!className.equals(Properties.TARGET_CLASS)
+                    && (!TimeController.getInstance().isThereStillTimeInThisPhase()
+                    || elapsed > Properties.TIMEOUT_RESET)) {
+                // Note: we no longer cancel the class re-initialization since
+                // it might leave the static data in an inconsistent state
+            }
+            resetClass(className);
+        }
+    }
 
-	private void resetClass(String className) {
+    private void resetClass(String className) {
 
-		// className.__STATIC_RESET() exists
-		logger.debug("Resetting class " + className);
+        // className.__STATIC_RESET() exists
+        logger.debug("Resetting class " + className);
 
-		int mutationActive = MutationObserver.activeMutation;
-		MutationObserver.deactivateMutation();
+        int mutationActive = MutationObserver.activeMutation;
+        MutationObserver.deactivateMutation();
 
-		// execute __STATIC_RESET()
-		Sandbox.goingToExecuteSUTCode();
-		TestGenerationContext.getInstance().goingToExecuteSUTCode();
+        // execute __STATIC_RESET()
+        Sandbox.goingToExecuteSUTCode();
+        TestGenerationContext.getInstance().goingToExecuteSUTCode();
 
-		Runtime.getInstance().resetRuntime(); // it is important to initialize
-												// the VFS
-		boolean wasLoopCheckOn = LoopCounter.getInstance().isActivated();
+        Runtime.getInstance().resetRuntime(); // it is important to initialize
+        // the VFS
+        boolean wasLoopCheckOn = LoopCounter.getInstance().isActivated();
 
-		try {
-			Method resetMethod = ClassResetter.getInstance().getResetMethod(className);
-			if (resetMethod != null) {
-				LoopCounter.getInstance().setActive(false);
-				resetMethod.invoke(null, (Object[]) null);
-			}
-		} catch (Throwable e) {
-			ClassResetter.getInstance().logWarn(className,
-					e.getClass() + " thrown during execution of method  __STATIC_RESET() for class " + className + ", "
-							+ e.getCause());
-		} finally {
-			Sandbox.doneWithExecutingSUTCode();
-			TestGenerationContext.getInstance().doneWithExecutingSUTCode();
-			MutationObserver.activateMutation(mutationActive);
-			LoopCounter.getInstance().setActive(wasLoopCheckOn);
-		}
-	}
+        try {
+            Method resetMethod = ClassResetter.getInstance().getResetMethod(className);
+            if (resetMethod != null) {
+                LoopCounter.getInstance().setActive(false);
+                resetMethod.invoke(null, (Object[]) null);
+            }
+        } catch (Throwable e) {
+            ClassResetter.getInstance().logWarn(className,
+                    e.getClass() + " thrown during execution of method  __STATIC_RESET() for class " + className + ", "
+                            + e.getCause());
+        } finally {
+            Sandbox.doneWithExecutingSUTCode();
+            TestGenerationContext.getInstance().doneWithExecutingSUTCode();
+            MutationObserver.activateMutation(mutationActive);
+            LoopCounter.getInstance().setActive(wasLoopCheckOn);
+        }
+    }
 }

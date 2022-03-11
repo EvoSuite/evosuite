@@ -32,30 +32,29 @@ import org.junit.Test;
 import com.examples.with.different.packagename.coverage.MethodReturnsPrimitive;
 
 public class TestSuiteMinimizerSystemTest extends SystemTestBase {
-	
-	private final boolean oldMinimizeValues = Properties.MINIMIZE_VALUES;
-	
-	@After
-	public void restoreProperties() {
-		Properties.MINIMIZE_VALUES = oldMinimizeValues;
-	}
-	
-	@Test
-    public void testWithOneFitnessFunctionNoValueMinimization()
-	{
-		Properties.CRITERION = new Criterion[1];
+
+    private final boolean oldMinimizeValues = Properties.MINIMIZE_VALUES;
+
+    @After
+    public void restoreProperties() {
+        Properties.MINIMIZE_VALUES = oldMinimizeValues;
+    }
+
+    @Test
+    public void testWithOneFitnessFunctionNoValueMinimization() {
+        Properties.CRITERION = new Criterion[1];
         Properties.CRITERION[0] = Criterion.ONLYBRANCH;
 
         Properties.MINIMIZE_VALUES = false;
 
-	    EvoSuite evosuite = new EvoSuite();
+        EvoSuite evosuite = new EvoSuite();
 
         String targetClass = MethodReturnsPrimitive.class.getCanonicalName();
         Properties.TARGET_CLASS = targetClass;
 
-        String[] command = new String[] {
-            "-generateSuite",
-            "-class", targetClass
+        String[] command = new String[]{
+                "-generateSuite",
+                "-class", targetClass
         };
 
         Object result = evosuite.parseCommandLine(command);
@@ -64,16 +63,15 @@ public class TestSuiteMinimizerSystemTest extends SystemTestBase {
         GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
         TestSuiteChromosome c = ga.getBestIndividual();
         System.out.println(c.toString());
-        
+
         Assert.assertEquals(0.0, c.getFitness(), 0.0);
         Assert.assertEquals(1.0, c.getCoverage(), 0.0);
         Assert.assertEquals(6.0, c.getNumOfCoveredGoals(ga.getFitnessFunction()), 0.0);
         Assert.assertEquals(5, c.size());
-	}
+    }
 
     @Test
-    public void testWithOneFitnessFunctionWithValueMinimization()
-    {
+    public void testWithOneFitnessFunctionWithValueMinimization() {
         Properties.CRITERION = new Criterion[1];
         Properties.CRITERION[0] = Criterion.ONLYBRANCH;
 
@@ -85,7 +83,7 @@ public class TestSuiteMinimizerSystemTest extends SystemTestBase {
         String targetClass = MethodReturnsPrimitive.class.getCanonicalName();
         Properties.TARGET_CLASS = targetClass;
 
-        String[] command = new String[] {
+        String[] command = new String[]{
                 "-generateSuite",
                 "-class", targetClass
         };
@@ -104,8 +102,7 @@ public class TestSuiteMinimizerSystemTest extends SystemTestBase {
     }
 
     @Test
-    public void testWithOneFitnessFunctionWithValueMinimizationAndSkippingCoveredGoals()
-    {
+    public void testWithOneFitnessFunctionWithValueMinimizationAndSkippingCoveredGoals() {
         Properties.CRITERION = new Criterion[1];
         Properties.CRITERION[0] = Criterion.ONLYBRANCH;
 
@@ -117,7 +114,7 @@ public class TestSuiteMinimizerSystemTest extends SystemTestBase {
         String targetClass = MethodReturnsPrimitive.class.getCanonicalName();
         Properties.TARGET_CLASS = targetClass;
 
-        String[] command = new String[] {
+        String[] command = new String[]{
                 "-generateSuite",
                 "-class", targetClass
         };
@@ -136,23 +133,22 @@ public class TestSuiteMinimizerSystemTest extends SystemTestBase {
     }
 
 
-	@Test
-    public void testWithTwo()
-	{
-		Properties.CRITERION = new Criterion[2];
+    @Test
+    public void testWithTwo() {
+        Properties.CRITERION = new Criterion[2];
         Properties.CRITERION[0] = Criterion.ONLYBRANCH;
         Properties.CRITERION[1] = Criterion.LINE;
 
         Properties.MINIMIZE_VALUES = true;
 
-	    EvoSuite evosuite = new EvoSuite();
+        EvoSuite evosuite = new EvoSuite();
 
         String targetClass = MethodReturnsPrimitive.class.getCanonicalName();
         Properties.TARGET_CLASS = targetClass;
 
-        String[] command = new String[] {
-            "-generateSuite",
-            "-class", targetClass
+        String[] command = new String[]{
+                "-generateSuite",
+                "-class", targetClass
         };
 
         Object result = evosuite.parseCommandLine(command);
@@ -173,5 +169,5 @@ public class TestSuiteMinimizerSystemTest extends SystemTestBase {
 
         Assert.assertEquals(6.0, c.getNumOfCoveredGoals(onlybranch), 0.0);
         Assert.assertEquals(10.0, c.getNumOfCoveredGoals(line), 0.0);
-	}
+    }
 }

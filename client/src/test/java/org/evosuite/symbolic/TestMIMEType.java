@@ -19,11 +19,7 @@
  */
 package org.evosuite.symbolic;
 
-import static org.junit.Assert.assertNotNull;
-
-import java.lang.reflect.Method;
-import java.util.Collection;
-
+import com.examples.with.different.packagename.concolic.MIMETypeTest;
 import org.apache.commons.lang3.SystemUtils;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.solver.DefaultTestCaseConcolicExecutor;
@@ -33,29 +29,32 @@ import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.examples.with.different.packagename.concolic.MIMETypeTest;
+import java.lang.reflect.Method;
+import java.util.Collection;
+
+import static org.junit.Assert.assertNotNull;
 
 public class TestMIMEType {
 
-	private static DefaultTestCase buildMIMETypeTest() throws SecurityException, NoSuchMethodException {
-		TestCaseBuilder tc = new TestCaseBuilder();
-		Method method = MIMETypeTest.class.getMethod("test");
-		tc.appendMethod(null, method);
-		return tc.getDefaultTestCase();
-	}
+    private static DefaultTestCase buildMIMETypeTest() throws SecurityException, NoSuchMethodException {
+        TestCaseBuilder tc = new TestCaseBuilder();
+        Method method = MIMETypeTest.class.getMethod("test");
+        tc.appendMethod(null, method);
+        return tc.getDefaultTestCase();
+    }
 
-	@Before
-	public void before(){
-		final Integer javaVersion = Integer.valueOf(SystemUtils.JAVA_VERSION.split("\\.")[0]);
-		Assume.assumeTrue(javaVersion < 9);
-	}
+    @Before
+    public void before() {
+        final Integer javaVersion = Integer.valueOf(SystemUtils.JAVA_VERSION.split("\\.")[0]);
+        Assume.assumeTrue(javaVersion < 9);
+    }
 
-	@Test
-	public void testMIMEType() throws SecurityException, NoSuchMethodException, SolverTimeoutException {
+    @Test
+    public void testMIMEType() throws SecurityException, NoSuchMethodException, SolverTimeoutException {
 
-		DefaultTestCase tc = buildMIMETypeTest();
-		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor.execute(tc);
-		assertNotNull(constraints);
-	}
+        DefaultTestCase tc = buildMIMETypeTest();
+        Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor.execute(tc);
+        assertNotNull(constraints);
+    }
 
 }

@@ -29,61 +29,60 @@ import org.evosuite.utils.Listener;
  * <p>
  * ConsoleProgressBar class.
  * </p>
- * 
+ *
  * @author Gordon Fraser
  */
-public class ConsoleProgressBar implements Listener<ClientStateInformation>{
+public class ConsoleProgressBar implements Listener<ClientStateInformation> {
 
-	private static final long serialVersionUID = 8930332599188240933L;
+    private static final long serialVersionUID = 8930332599188240933L;
 
-	/**
-	 * <p>
-	 * startProgressBar
-	 * </p>
-	 * 
-	 */
-	public static void startProgressBar() {
-		MasterServices.getInstance().getMasterNode().addListener(new ConsoleProgressBar());
-	}
-	
-	@Override
-	public void receiveEvent(ClientStateInformation event) {
-		if(event.getState() != ClientState.SEARCH) {
-			return;
-		}
-		
-		int percent = event.getProgress();
-		int coverage = event.getCoverage();
-		
-		
-		StringBuilder bar = new StringBuilder("[Progress:");
+    /**
+     * <p>
+     * startProgressBar
+     * </p>
+     */
+    public static void startProgressBar() {
+        MasterServices.getInstance().getMasterNode().addListener(new ConsoleProgressBar());
+    }
 
-		for (int i = 0; i < 30; i++) {
-			if (i < (int) (percent * 0.30)) {
-				bar.append("=");
-			} else if (i == (int) (percent * 0.30)) {
-				bar.append(">");
-			} else {
-				bar.append(" ");
-			}
-		}
+    @Override
+    public void receiveEvent(ClientStateInformation event) {
+        if (event.getState() != ClientState.SEARCH) {
+            return;
+        }
 
-		bar.append(Math.min(100, percent) + "%] [Cov:");
+        int percent = event.getProgress();
+        int coverage = event.getCoverage();
 
-		for (int i = 0; i < 35; i++) {
-			if (i < (int) (coverage * 0.35)) {
-				bar.append("=");
-			} else if (i == (int) (coverage * 0.35)) {
-				bar.append(">");
-			} else {
-				bar.append(" ");
-			}
-		}
 
-		bar.append(coverage + "%]");
+        StringBuilder bar = new StringBuilder("[Progress:");
 
-		System.out.print("\r" + bar.toString());
-		
-	}
+        for (int i = 0; i < 30; i++) {
+            if (i < (int) (percent * 0.30)) {
+                bar.append("=");
+            } else if (i == (int) (percent * 0.30)) {
+                bar.append(">");
+            } else {
+                bar.append(" ");
+            }
+        }
+
+        bar.append(Math.min(100, percent) + "%] [Cov:");
+
+        for (int i = 0; i < 35; i++) {
+            if (i < (int) (coverage * 0.35)) {
+                bar.append("=");
+            } else if (i == (int) (coverage * 0.35)) {
+                bar.append(">");
+            } else {
+                bar.append(" ");
+            }
+        }
+
+        bar.append(coverage + "%]");
+
+        System.out.print("\r" + bar);
+
+    }
 
 }

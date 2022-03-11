@@ -26,32 +26,32 @@ import org.junit.Test;
 
 public class LinkedListInstrumentationSystemTest extends AbstractErrorBranchTest {
 
-	@Test
-	public void testLinkedListWithoutErrorBranches() {
-		Properties.ERROR_BRANCHES = false;
-		Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.LIST};
-		checkErrorBranches(LinkedListAccess.class, 3, 0, 3, 0);
-	}
+    @Test
+    public void testLinkedListWithoutErrorBranches() {
+        Properties.ERROR_BRANCHES = false;
+        Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.LIST};
+        checkErrorBranches(LinkedListAccess.class, 3, 0, 3, 0);
+    }
 
-	@Test
-	public void testLinkedListWithErrorBranches() {
-		Properties.ERROR_BRANCHES = true;
-		Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.LIST};
-		checkErrorBranches(LinkedListAccess.class, 3, 2, 3, 2);
-	}
+    @Test
+    public void testLinkedListWithErrorBranches() {
+        Properties.ERROR_BRANCHES = true;
+        Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.LIST};
+        checkErrorBranches(LinkedListAccess.class, 3, 2, 3, 2);
+    }
 
-	@Test
-	public void testLinkedListIndexWithoutErrorBranches() {
-		Properties.ERROR_BRANCHES = false;
-		Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.LIST};
-		checkErrorBranches(LinkedListAccessIndex.class, 3, 0, 3, 0);
-	}
+    @Test
+    public void testLinkedListIndexWithoutErrorBranches() {
+        Properties.ERROR_BRANCHES = false;
+        Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.LIST};
+        checkErrorBranches(LinkedListAccessIndex.class, 3, 0, 3, 0);
+    }
 
-	@Test
-	public void testLinkedListIndexWithErrorBranches() {
-		Properties.ERROR_BRANCHES = true;
-		Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.LIST};
-		checkErrorBranches(LinkedListAccessIndex.class, 3, 4, 3, 4);
-	}
+    @Test
+    public void testLinkedListIndexWithErrorBranches() {
+        Properties.ERROR_BRANCHES = true;
+        Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.LIST};
+        checkErrorBranches(LinkedListAccessIndex.class, 3, 4, 3, 4);
+    }
 
 }

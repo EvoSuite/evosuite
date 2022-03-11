@@ -22,44 +22,51 @@ package org.evosuite.assertion;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.execution.Scope;
+
 public class NullAssertion extends Assertion {
 
-	private static final long serialVersionUID = 8486987896764253928L;
+    private static final long serialVersionUID = 8486987896764253928L;
 
-	/** {@inheritDoc} */
-	@Override
-	public Assertion copy(TestCase newTestCase, int offset) {
-		NullAssertion s = new NullAssertion();
-		s.source = newTestCase.getStatement(source.getStPosition() + offset).getReturnValue();
-		s.value = value;
-		s.comment = comment;
-		s.killedMutants.addAll(killedMutants);
-		assert (s.isValid());
-		return s;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Assertion copy(TestCase newTestCase, int offset) {
+        NullAssertion s = new NullAssertion();
+        s.source = newTestCase.getStatement(source.getStPosition() + offset).getReturnValue();
+        s.value = value;
+        s.comment = comment;
+        s.killedMutants.addAll(killedMutants);
+        assert (s.isValid());
+        return s;
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public boolean evaluate(Scope scope) {
-		try {
-			if ((Boolean) value) {
-				return source.getObject(scope) == null;
-			} else {
-				return source.getObject(scope) != null;
-			}
-		} catch (CodeUnderTestException e) {
-			throw new UnsupportedOperationException();
-		}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean evaluate(Scope scope) {
+        try {
+            if ((Boolean) value) {
+                return source.getObject(scope) == null;
+            } else {
+                return source.getObject(scope) != null;
+            }
+        } catch (CodeUnderTestException e) {
+            throw new UnsupportedOperationException();
+        }
 
-	}
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public String getCode() {
-		if ((Boolean) value) {
-			return "assertNull(" + source.getName() + ");";
-		} else
-			return "assertNotNull(" + source.getName() + ");";
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getCode() {
+        if ((Boolean) value) {
+            return "assertNull(" + source.getName() + ");";
+        } else
+            return "assertNotNull(" + source.getName() + ");";
+    }
 
 }

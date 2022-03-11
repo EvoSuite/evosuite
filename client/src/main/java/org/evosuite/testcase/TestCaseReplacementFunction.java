@@ -26,80 +26,79 @@ import org.evosuite.ga.ReplacementFunction;
  * <p>
  * TestCaseReplacementFunction class.
  * </p>
- * 
+ *
  * @author Gordon Fraser
  */
 public class TestCaseReplacementFunction extends ReplacementFunction<TestChromosome> {
 
-	private static final long serialVersionUID = 2894768695219052674L;
+    private static final long serialVersionUID = 2894768695219052674L;
 
-	/**
-	 * <p>
-	 * Constructor for TestCaseReplacementFunction.
-	 * </p>
-	 * 
-	 * @param maximize
-	 *            a boolean.
-	 */
-	public TestCaseReplacementFunction(boolean maximize) {
-		super(maximize);
-	}
+    /**
+     * <p>
+     * Constructor for TestCaseReplacementFunction.
+     * </p>
+     *
+     * @param maximize a boolean.
+     */
+    public TestCaseReplacementFunction(boolean maximize) {
+        super(maximize);
+    }
 
-	/**
-	 * <p>
-	 * Constructor for TestCaseReplacementFunction.
-	 * </p>
-	 */
-	public TestCaseReplacementFunction() {
-		super(false);
-	}
+    /**
+     * <p>
+     * Constructor for TestCaseReplacementFunction.
+     * </p>
+     */
+    public TestCaseReplacementFunction() {
+        super(false);
+    }
 
-	/**
-	 * <p>
-	 * getLengthSum
-	 * </p>
-	 * 
-	 * @param chromosome1
-	 *            a {@link org.evosuite.testcase.ExecutableChromosome} object.
-	 * @param chromosome2
-	 *            a {@link org.evosuite.testcase.ExecutableChromosome} object.
-	 * @return a int.
-	 */
-	public int getLengthSum(TestChromosome chromosome1,
-	        TestChromosome chromosome2) {
-		return chromosome1.size() + chromosome2.size();
-	}
+    /**
+     * <p>
+     * getLengthSum
+     * </p>
+     *
+     * @param chromosome1 a {@link org.evosuite.testcase.ExecutableChromosome} object.
+     * @param chromosome2 a {@link org.evosuite.testcase.ExecutableChromosome} object.
+     * @return a int.
+     */
+    public int getLengthSum(TestChromosome chromosome1,
+                            TestChromosome chromosome2) {
+        return chromosome1.size() + chromosome2.size();
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public boolean keepOffspring(TestChromosome parent1, TestChromosome parent2,
-	        TestChromosome offspring1, TestChromosome offspring2) {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean keepOffspring(TestChromosome parent1, TestChromosome parent2,
+                                 TestChromosome offspring1, TestChromosome offspring2) {
 
-		int cmp = compareBestOffspringToBestParent(parent1, parent2, offspring1,
-		                                           offspring2);
+        int cmp = compareBestOffspringToBestParent(parent1, parent2, offspring1,
+                offspring2);
 
-		if (Properties.CHECK_PARENTS_LENGTH) {
+        if (Properties.CHECK_PARENTS_LENGTH) {
 
-			int offspringLength = getLengthSum(offspring1, offspring2);
-			int parentLength = getLengthSum(parent1, parent2);
+            int offspringLength = getLengthSum(offspring1, offspring2);
+            int parentLength = getLengthSum(parent1, parent2);
 
-			//if equivalent, only accept if it does not increase the length
-			if (cmp == 0 && offspringLength <= parentLength) {
-				return true;
-			} else {
-				if (maximize) {
-					return cmp > 0;
-				} else {
-					return cmp < 0;
-				}
-			}
-		} else {
-			//default check
-			if (maximize) {
-				return cmp >= 0;
-			} else {
-				return cmp <= 0;
-			}
-		}
-	}
+            //if equivalent, only accept if it does not increase the length
+            if (cmp == 0 && offspringLength <= parentLength) {
+                return true;
+            } else {
+                if (maximize) {
+                    return cmp > 0;
+                } else {
+                    return cmp < 0;
+                }
+            }
+        } else {
+            //default check
+            if (maximize) {
+                return cmp >= 0;
+            } else {
+                return cmp <= 0;
+            }
+        }
+    }
 }

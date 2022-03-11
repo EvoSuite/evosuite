@@ -32,50 +32,48 @@ import java.security.NoSuchAlgorithmException;
  * <p>
  * MD5 class.
  * </p>
- * 
+ *
  * @author José Campos
  */
 public class MD5 {
 
-	/**
-	 * Return the md5-hash of a string
-	 * based on Heshan Perera @ http://stackoverflow.com/a/10530959/998816
-	 * 
-	 * @param s
-	 * @return
-	 */
-	public static String hash(String s) {
-		try {
-			MessageDigest m = MessageDigest.getInstance("MD5");
-			m.update(s.getBytes(), 0, s.length());
+    /**
+     * Return the md5-hash of a string
+     * based on Heshan Perera @ http://stackoverflow.com/a/10530959/998816
+     *
+     * @param s
+     * @return
+     */
+    public static String hash(String s) {
+        try {
+            MessageDigest m = MessageDigest.getInstance("MD5");
+            m.update(s.getBytes(), 0, s.length());
 
-			BigInteger i = new BigInteger(1,m.digest());
-			return String.format("%1$032x", i);
-		}
-		catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
-		}
+            BigInteger i = new BigInteger(1, m.digest());
+            return String.format("%1$032x", i);
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
 
-		return null;
-	}
+        return null;
+    }
 
-	/**
-	 * Return the md5-hash of a file
-	 * 
-	 * @param s
-	 * @return
-	 */
-	public static String hash(File f) {
-		try {
-			byte[] encoded = Files.readAllBytes(Paths.get(f.getAbsolutePath()));
-			String content = new String(encoded, Charset.defaultCharset());
+    /**
+     * Return the md5-hash of a file
+     *
+     * @param s
+     * @return
+     */
+    public static String hash(File f) {
+        try {
+            byte[] encoded = Files.readAllBytes(Paths.get(f.getAbsolutePath()));
+            String content = new String(encoded, Charset.defaultCharset());
 
-			return MD5.hash(content);
-		}
-		catch (IOException e) {
-			e.printStackTrace();
-		}
+            return MD5.hash(content);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
-		return null;
-	}
+        return null;
+    }
 }

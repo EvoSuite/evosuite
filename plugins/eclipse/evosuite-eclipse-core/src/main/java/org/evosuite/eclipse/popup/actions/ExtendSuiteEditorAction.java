@@ -48,81 +48,80 @@ public class ExtendSuiteEditorAction extends ExtendSuiteAction {
 //		
 //	}
 
-	@Override
-	public Object execute(ExecutionEvent event) throws ExecutionException {
-		IEditorPart activeEditor = HandlerUtil.getActiveEditor(event);
-		ISelection selection = HandlerUtil.getActiveMenuSelection(event);
+    @Override
+    public Object execute(ExecutionEvent event) throws ExecutionException {
+        IEditorPart activeEditor = HandlerUtil.getActiveEditor(event);
+        ISelection selection = HandlerUtil.getActiveMenuSelection(event);
 
-		String SUT = "";		
-		IResource target = null;
-		
-		System.out.println("Current selection of type "+selection.getClass().getName()+": "+selection);
-		if(selection instanceof TreeSelection) {
-			TreeSelection treeSelection = (TreeSelection) selection;
-			IAdaptable firstElement = (IAdaptable) treeSelection.getFirstElement();
+        String SUT = "";
+        IResource target = null;
 
-			// Relies on an internal API, bad juju
-			if (firstElement instanceof org.eclipse.jdt.internal.core.CompilationUnit) {
-				try {
-					org.eclipse.jdt.internal.core.CompilationUnit compilationUnit = (org.eclipse.jdt.internal.core.CompilationUnit) firstElement;									
-					String packageName = "";
-					if (compilationUnit.getPackageDeclarations().length > 0) {
-						System.out.println("Package: "
-								+ compilationUnit.getPackageDeclarations()[0].getElementName());
-						packageName = compilationUnit.getPackageDeclarations()[0].getElementName();
-					}
-					String targetSuite = compilationUnit.getElementName().replace(".java", "");
-					if (!packageName.isEmpty())
-						targetSuite = packageName + "." + targetSuite;
-					System.out.println("Selected class: " + targetSuite);
-					SUT = targetSuite;
-					target = compilationUnit.getResource();
-				} catch (JavaModelException e) {
-					
-				}
-			}
-		}
-		else if (activeEditor instanceof JavaEditor) {
-			ITypeRoot root = EditorUtility.getEditorInputJavaElement(activeEditor, false);
-			ITextSelection sel = (ITextSelection) ((JavaEditor) activeEditor).getSelectionProvider().getSelection();
-			int offset = sel.getOffset();
-			IJavaElement element;
+        System.out.println("Current selection of type " + selection.getClass().getName() + ": " + selection);
+        if (selection instanceof TreeSelection) {
+            TreeSelection treeSelection = (TreeSelection) selection;
+            IAdaptable firstElement = (IAdaptable) treeSelection.getFirstElement();
 
-			try {
-				element = root.getElementAt(offset);
-				if (element.getElementType() == IJavaElement.METHOD) {
-					IJavaElement pDeclaration = element.getAncestor(IJavaElement.PACKAGE_FRAGMENT);
-					IPackageFragment pFragment = (IPackageFragment) pDeclaration;
-					String packageName = "";
-					if (pFragment.getCompilationUnits()[0].getPackageDeclarations().length > 0) {
-						System.out.println("Package: "
-						        + pFragment.getCompilationUnits()[0].getPackageDeclarations()[0].getElementName());
-						packageName = pFragment.getCompilationUnits()[0].getPackageDeclarations()[0].getElementName();
-					}
-					String targetSuite = element.getParent().getElementName();
-					if (!packageName.isEmpty())
-						targetSuite = packageName + "." + targetSuite;
-					System.out.println("Selected class: " + targetSuite);
-					SUT = targetSuite;
-				} else if (element.getElementType() == IJavaElement.TYPE) {
-					IType type = ((IType) element);
-					System.out.println("Selected class: " + type.getFullyQualifiedName());
-					SUT = type.getFullyQualifiedName();
-				}
+            // Relies on an internal API, bad juju
+            if (firstElement instanceof org.eclipse.jdt.internal.core.CompilationUnit) {
+                try {
+                    org.eclipse.jdt.internal.core.CompilationUnit compilationUnit = (org.eclipse.jdt.internal.core.CompilationUnit) firstElement;
+                    String packageName = "";
+                    if (compilationUnit.getPackageDeclarations().length > 0) {
+                        System.out.println("Package: "
+                                + compilationUnit.getPackageDeclarations()[0].getElementName());
+                        packageName = compilationUnit.getPackageDeclarations()[0].getElementName();
+                    }
+                    String targetSuite = compilationUnit.getElementName().replace(".java", "");
+                    if (!packageName.isEmpty())
+                        targetSuite = packageName + "." + targetSuite;
+                    System.out.println("Selected class: " + targetSuite);
+                    SUT = targetSuite;
+                    target = compilationUnit.getResource();
+                } catch (JavaModelException e) {
 
-				IWorkspaceRoot wroot = ResourcesPlugin.getWorkspace().getRoot();
-				target = wroot.findMember(root.getPath());
-			} catch (JavaModelException e) {
+                }
+            }
+        } else if (activeEditor instanceof JavaEditor) {
+            ITypeRoot root = EditorUtility.getEditorInputJavaElement(activeEditor, false);
+            ITextSelection sel = (ITextSelection) ((JavaEditor) activeEditor).getSelectionProvider().getSelection();
+            int offset = sel.getOffset();
+            IJavaElement element;
 
-			}
-		}
-		if (!SUT.isEmpty() && target != null) {
-			IProject proj = target.getProject();
-			fixJUnitClassPath(JavaCore.create(proj));
-			generateTests(target);
-		}
+            try {
+                element = root.getElementAt(offset);
+                if (element.getElementType() == IJavaElement.METHOD) {
+                    IJavaElement pDeclaration = element.getAncestor(IJavaElement.PACKAGE_FRAGMENT);
+                    IPackageFragment pFragment = (IPackageFragment) pDeclaration;
+                    String packageName = "";
+                    if (pFragment.getCompilationUnits()[0].getPackageDeclarations().length > 0) {
+                        System.out.println("Package: "
+                                + pFragment.getCompilationUnits()[0].getPackageDeclarations()[0].getElementName());
+                        packageName = pFragment.getCompilationUnits()[0].getPackageDeclarations()[0].getElementName();
+                    }
+                    String targetSuite = element.getParent().getElementName();
+                    if (!packageName.isEmpty())
+                        targetSuite = packageName + "." + targetSuite;
+                    System.out.println("Selected class: " + targetSuite);
+                    SUT = targetSuite;
+                } else if (element.getElementType() == IJavaElement.TYPE) {
+                    IType type = ((IType) element);
+                    System.out.println("Selected class: " + type.getFullyQualifiedName());
+                    SUT = type.getFullyQualifiedName();
+                }
 
-		return null;
-	}
+                IWorkspaceRoot wroot = ResourcesPlugin.getWorkspace().getRoot();
+                target = wroot.findMember(root.getPath());
+            } catch (JavaModelException e) {
+
+            }
+        }
+        if (!SUT.isEmpty() && target != null) {
+            IProject proj = target.getProject();
+            fixJUnitClassPath(JavaCore.create(proj));
+            generateTests(target);
+        }
+
+        return null;
+    }
 
 }

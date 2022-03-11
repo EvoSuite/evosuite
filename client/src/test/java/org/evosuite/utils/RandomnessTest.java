@@ -19,25 +19,25 @@
  */
 package org.evosuite.utils;
 
-import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
+import static org.junit.Assert.assertTrue;
+
 /**
- * 
  * @author José Campos
  */
 public class RandomnessTest {
 
-	@Test
-	public void testNextDoubleWithMinMax() {
-		double min = 0.8;
-		double max = 0.9;
+    @Test
+    public void testNextDoubleWithMinMax() {
+        double min = 0.8;
+        double max = 0.9;
 
-		for (int i = 0; i < 1_000_000; i++) {
-			double r = Randomness.nextDouble(min, max);
-			assertTrue(
-					"random double (" + r + ") value has to be in the range [" + min + ", " + max + "]",
-					(Double.compare(r, min) >= 0) && (Double.compare(r, max) <= 0));
-		}
-	}
+        for (int i = 0; i < 1_000_000; i++) {
+            double r = Randomness.nextDouble(min, max);
+            assertTrue(
+                    "random double (" + r + ") value has to be in the range [" + min + ", " + max + "]",
+                    (Double.compare(r, min) >= 0) && (Double.compare(r, max) <= 0));
+        }
+    }
 }

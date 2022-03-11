@@ -29,13 +29,13 @@ import org.objectweb.asm.ClassVisitor;
  */
 public interface ClassAdapterFactory {
 
-	/**
-	 * <p>getVisitor</p>
-	 *
-	 * @param cv a {@link org.objectweb.asm.ClassVisitor} object.
-	 * @param className a {@link java.lang.String} object.
-	 * @return a {@link org.objectweb.asm.ClassVisitor} object.
-	 */
+    /**
+     * <p>getVisitor</p>
+     *
+     * @param cv        a {@link org.objectweb.asm.ClassVisitor} object.
+     * @param className a {@link java.lang.String} object.
+     * @return a {@link org.objectweb.asm.ClassVisitor} object.
+     */
     ClassVisitor getVisitor(ClassVisitor cv, String className);
 
 }

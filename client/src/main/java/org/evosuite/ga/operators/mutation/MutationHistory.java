@@ -25,51 +25,51 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import static java.util.stream.Collectors.*;
+import static java.util.stream.Collectors.joining;
 
 public class MutationHistory<T extends MutationHistoryEntry> implements Iterable<T>,
         Serializable {
 
-	private static final long serialVersionUID = -8543180637106924913L;
+    private static final long serialVersionUID = -8543180637106924913L;
 
-	private final List<T> mutations = new ArrayList<>();
+    private final List<T> mutations = new ArrayList<>();
 
-	public void clear() {
-		mutations.clear();
-	}
+    public void clear() {
+        mutations.clear();
+    }
 
-	public void addMutationEntry(T entry) {
-		mutations.add(entry);
-	}
+    public void addMutationEntry(T entry) {
+        mutations.add(entry);
+    }
 
-	public List<T> getMutations() {
-		return Collections.unmodifiableList(mutations);
-	}
+    public List<T> getMutations() {
+        return Collections.unmodifiableList(mutations);
+    }
 
-	@Override
-	public Iterator<T> iterator() {
-		return mutations.iterator();
-	}
+    @Override
+    public Iterator<T> iterator() {
+        return mutations.iterator();
+    }
 
-	public int size() {
-		return mutations.size();
-	}
+    public int size() {
+        return mutations.size();
+    }
 
-	public boolean isEmpty() {
-		return mutations.isEmpty();
-	}
+    public boolean isEmpty() {
+        return mutations.isEmpty();
+    }
 
-	public void set(MutationHistory<T> other) {
-		mutations.addAll(other.getMutations());
-	}
+    public void set(MutationHistory<T> other) {
+        mutations.addAll(other.getMutations());
+    }
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString() {
-		return mutations.stream()
-				.map(T::toString)
-				.collect(joining("\n"));
-	}
+    /* (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        return mutations.stream()
+                .map(T::toString)
+                .collect(joining("\n"));
+    }
 }

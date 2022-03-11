@@ -19,94 +19,94 @@
  */
 package org.evosuite.ga.metaheuristics.mulambda;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.ConstructionFailedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * 1+(lambda,lambda) GA
- * 
+ *
  * @author Yan Ge
  */
 public class OnePlusLambdaLambdaGA<T extends Chromosome<T>> extends AbstractMuLambda<T> {
 
-  private static final long serialVersionUID = 529089847512798127L;
+    private static final long serialVersionUID = 529089847512798127L;
 
-  private static final Logger logger = LoggerFactory.getLogger(OnePlusLambdaLambdaGA.class);
+    private static final Logger logger = LoggerFactory.getLogger(OnePlusLambdaLambdaGA.class);
 
-  public OnePlusLambdaLambdaGA(ChromosomeFactory<T> factory, int lambda) {
-    super(factory, 1, lambda);
-  }
-
-  @Override
-  protected void evolve() {
-
-    List<T> mutants = new ArrayList<>();
-
-    T parent = population.get(0).clone();
-
-    while (mutants.size() < this.lambda) {
-      // clone firstly offspring from parent
-      T MutationOffspring = parent.clone();
-      notifyMutation(MutationOffspring);
-
-      // perform mutation operation with high probability
-      MutationOffspring.mutate();
-      mutants.add(MutationOffspring);
+    public OnePlusLambdaLambdaGA(ChromosomeFactory<T> factory, int lambda) {
+        super(factory, 1, lambda);
     }
 
-    // mutants are evaluated as current population so that the best mutant
-    // can be selected
-    population = mutants;
+    @Override
+    protected void evolve() {
 
-    updateFitnessFunctionsAndValues();
-    calculateFitnessAndSortPopulation();
+        List<T> mutants = new ArrayList<>();
 
-    // obtain the best mutant
-    T bestMutantOffspring = getBestIndividual();
+        T parent = population.get(0).clone();
 
-    // start to execute uniform crossover operator
-    List<T> crossoverOffspring = new ArrayList<>();
+        while (mutants.size() < this.lambda) {
+            // clone firstly offspring from parent
+            T MutationOffspring = parent.clone();
+            notifyMutation(MutationOffspring);
 
-    while (crossoverOffspring.size() < this.lambda) {
-      try {
-        T p1 = parent.clone();
-        T p2 = bestMutantOffspring.clone();
+            // perform mutation operation with high probability
+            MutationOffspring.mutate();
+            mutants.add(MutationOffspring);
+        }
 
-        crossoverFunction.crossOver(p1, p2);
+        // mutants are evaluated as current population so that the best mutant
+        // can be selected
+        population = mutants;
 
-        crossoverOffspring.add(p1);
-        crossoverOffspring.add(p2);
-      } catch (ConstructionFailedException e) {
-        logger.info("CrossOver failed.");
-      }
+        updateFitnessFunctionsAndValues();
+        calculateFitnessAndSortPopulation();
+
+        // obtain the best mutant
+        T bestMutantOffspring = getBestIndividual();
+
+        // start to execute uniform crossover operator
+        List<T> crossoverOffspring = new ArrayList<>();
+
+        while (crossoverOffspring.size() < this.lambda) {
+            try {
+                T p1 = parent.clone();
+                T p2 = bestMutantOffspring.clone();
+
+                crossoverFunction.crossOver(p1, p2);
+
+                crossoverOffspring.add(p1);
+                crossoverOffspring.add(p2);
+            } catch (ConstructionFailedException e) {
+                logger.info("CrossOver failed.");
+            }
+        }
+
+        population = crossoverOffspring;
+        updateFitnessFunctionsAndValues();
+        T bestCrossoverOffspring = getBestIndividual();
+
+        T so_far_best_individual;
+        // compare bestCrossover offspring with parent and select the better one
+        if (isBetterOrEqual(bestCrossoverOffspring, parent)) {
+            so_far_best_individual = bestCrossoverOffspring;
+        } else {
+            so_far_best_individual = parent;
+        }
+
+        // compare the so_far_best_individual with best mutant, and select the better one to be the
+        // parent for next iteration.
+        if (isBetterOrEqual(so_far_best_individual, bestMutantOffspring)) {
+            population.set(0, so_far_best_individual);
+        } else {
+            population.set(0, bestMutantOffspring);
+        }
+
+        currentIteration++;
     }
-
-    population = crossoverOffspring;
-    updateFitnessFunctionsAndValues();
-    T bestCrossoverOffspring = getBestIndividual();
-
-    T so_far_best_individual;
-    // compare bestCrossover offspring with parent and select the better one
-    if (isBetterOrEqual(bestCrossoverOffspring, parent)) {
-      so_far_best_individual = bestCrossoverOffspring;
-    } else {
-      so_far_best_individual = parent;
-    }
-
-    // compare the so_far_best_individual with best mutant, and select the better one to be the
-    // parent for next iteration.
-    if (isBetterOrEqual(so_far_best_individual, bestMutantOffspring)) {
-      population.set(0, so_far_best_individual);
-    } else {
-      population.set(0, bestMutantOffspring);
-    }
-
-    currentIteration++;
-  }
 }

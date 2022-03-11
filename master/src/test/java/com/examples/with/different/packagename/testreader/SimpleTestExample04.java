@@ -26,9 +26,9 @@ import com.examples.with.different.packagename.testreader.TestExample.MockingBir
 
 public class SimpleTestExample04 {
 
-	@Test
-	public void test() {
-		MockingBird bird = new MockingBird(new String("killSelf"));
-		bird.doIt(new String("You")).doIt("Me").doIt("Them").doIt("Everybody!");
-	}
+    @Test
+    public void test() {
+        MockingBird bird = new MockingBird(new String("killSelf"));
+        bird.doIt(new String("You")).doIt("Me").doIt("Them").doIt("Everybody!");
+    }
 }

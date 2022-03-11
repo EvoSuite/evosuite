@@ -21,12 +21,12 @@ package com.examples.with.different.packagename.instrumentation.testability;
 
 public class FlagExample2 {
 
-	public boolean testMe(int x) {
-		boolean flag = x == 23482 || x == 1235;
-		if(flag) {
-			return true;
-		} else {
-			return false;
-		}
-	}
+    public boolean testMe(int x) {
+        boolean flag = x == 23482 || x == 1235;
+        if (flag) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 }

@@ -41,142 +41,145 @@ import java.util.Map;
  */
 public class LazyArraysImpl implements ArraysSection {
 
-  /**
-   * Symbolic Arrays Memory model
-   *
-   * TODO: Implement Strings and References
-   */
-	private final Map<ReferenceExpression, SymbolicArray> symbolicArrays = new HashMap<>();
+    /**
+     * Symbolic Arrays Memory model
+     * <p>
+     * TODO: Implement Strings and References
+     */
+    private final Map<ReferenceExpression, SymbolicArray> symbolicArrays = new HashMap<>();
 
-  @Override
-  public ReferenceExpression arrayLoad(ReferenceExpression symbolicArray, IntegerValue symbolicIndex, ReferenceExpression symbolicValue) {
-		int concreteIndex = Math.toIntExact(symbolicIndex.getConcreteValue());
-		SymbolicArray symbolicArrayContents;
+    @Override
+    public ReferenceExpression arrayLoad(ReferenceExpression symbolicArray, IntegerValue symbolicIndex, ReferenceExpression symbolicValue) {
+        int concreteIndex = Math.toIntExact(symbolicIndex.getConcreteValue());
+        SymbolicArray symbolicArrayContents;
 
-		symbolicArrayContents = getOrCreateSymbolicArray(symbolicArray);
-		return (ReferenceExpression) getContent(symbolicArrayContents, concreteIndex, symbolicValue);
-	}
+        symbolicArrayContents = getOrCreateSymbolicArray(symbolicArray);
+        return (ReferenceExpression) getContent(symbolicArrayContents, concreteIndex, symbolicValue);
+    }
 
-	@Override
-	public IntegerValue arrayLoad(ReferenceExpression symbolicArray, IntegerValue symbolicIndex, IntegerValue symbolicValue) {
-		int concreteIndex = Math.toIntExact(symbolicIndex.getConcreteValue());
+    @Override
+    public IntegerValue arrayLoad(ReferenceExpression symbolicArray, IntegerValue symbolicIndex, IntegerValue symbolicValue) {
+        int concreteIndex = Math.toIntExact(symbolicIndex.getConcreteValue());
 
-		SymbolicArray symbolicArrayContents = getOrCreateSymbolicArray(symbolicArray);
-		return (IntegerValue) getContent(symbolicArrayContents, concreteIndex, symbolicValue);
-	}
+        SymbolicArray symbolicArrayContents = getOrCreateSymbolicArray(symbolicArray);
+        return (IntegerValue) getContent(symbolicArrayContents, concreteIndex, symbolicValue);
+    }
 
-	@Override
-	public RealValue arrayLoad(ReferenceExpression symbolicArray, IntegerValue symbolicIndex, RealValue symbolicValue) {
-		int concreteIndex = Math.toIntExact(symbolicIndex.getConcreteValue());
+    @Override
+    public RealValue arrayLoad(ReferenceExpression symbolicArray, IntegerValue symbolicIndex, RealValue symbolicValue) {
+        int concreteIndex = Math.toIntExact(symbolicIndex.getConcreteValue());
 
-		SymbolicArray symbolicArrayContents = getOrCreateSymbolicArray(symbolicArray);
-		return (RealValue) getContent(symbolicArrayContents, concreteIndex, symbolicValue);
-	}
+        SymbolicArray symbolicArrayContents = getOrCreateSymbolicArray(symbolicArray);
+        return (RealValue) getContent(symbolicArrayContents, concreteIndex, symbolicValue);
+    }
 
-  @Override
-  public StringValue arrayLoad(ReferenceExpression symbolicArray, IntegerValue symbolicIndex, StringValue symbolicValue) {
-		int concreteIndex = Math.toIntExact(symbolicIndex.getConcreteValue());
-		SymbolicArray symbolicArrayContents;
+    @Override
+    public StringValue arrayLoad(ReferenceExpression symbolicArray, IntegerValue symbolicIndex, StringValue symbolicValue) {
+        int concreteIndex = Math.toIntExact(symbolicIndex.getConcreteValue());
+        SymbolicArray symbolicArrayContents;
 
-		symbolicArrayContents = getOrCreateSymbolicArray(symbolicArray);
-		return (StringValue) getContent(symbolicArrayContents, concreteIndex, symbolicValue);
-	}
-  @Override
-	public void arrayStore(Object concreteArray, ReferenceExpression symbolicArray, IntegerValue symbolicIndex,
-												 IntegerValue symbolicValue) {
-    int concreteIndex = Math.toIntExact(symbolicIndex.getConcreteValue());
+        symbolicArrayContents = getOrCreateSymbolicArray(symbolicArray);
+        return (StringValue) getContent(symbolicArrayContents, concreteIndex, symbolicValue);
+    }
 
-    SymbolicArray symbolicArrayContents = getOrCreateSymbolicArray(symbolicArray);
-		symbolicArrayContents.set(concreteIndex, symbolicValue);
-	}
+    @Override
+    public void arrayStore(Object concreteArray, ReferenceExpression symbolicArray, IntegerValue symbolicIndex,
+                           IntegerValue symbolicValue) {
+        int concreteIndex = Math.toIntExact(symbolicIndex.getConcreteValue());
 
-	@Override
-	public void arrayStore(Object concreteArray, ReferenceExpression symbolicArray, IntegerValue symbolicIndex,
-												 RealValue symbolicValue) {
-    int concreteIndex = Math.toIntExact(symbolicIndex.getConcreteValue());
+        SymbolicArray symbolicArrayContents = getOrCreateSymbolicArray(symbolicArray);
+        symbolicArrayContents.set(concreteIndex, symbolicValue);
+    }
 
-    SymbolicArray symbolicArrayContents = getOrCreateSymbolicArray(symbolicArray);
-		symbolicArrayContents.set(concreteIndex, symbolicValue);
-	}
+    @Override
+    public void arrayStore(Object concreteArray, ReferenceExpression symbolicArray, IntegerValue symbolicIndex,
+                           RealValue symbolicValue) {
+        int concreteIndex = Math.toIntExact(symbolicIndex.getConcreteValue());
 
-	@Override
-	public void arrayStore(Object concreteArray, ReferenceExpression symbolicArray, IntegerValue symbolicIndex,
-												 StringValue symbolicValue) {
-    int concreteIndex = Math.toIntExact(symbolicIndex.getConcreteValue());
+        SymbolicArray symbolicArrayContents = getOrCreateSymbolicArray(symbolicArray);
+        symbolicArrayContents.set(concreteIndex, symbolicValue);
+    }
 
-		SymbolicArray symbolicArrayContents = getOrCreateSymbolicArray(symbolicArray);
-		symbolicArrayContents.set(concreteIndex, symbolicValue);
-	}
+    @Override
+    public void arrayStore(Object concreteArray, ReferenceExpression symbolicArray, IntegerValue symbolicIndex,
+                           StringValue symbolicValue) {
+        int concreteIndex = Math.toIntExact(symbolicIndex.getConcreteValue());
 
-	@Override
-	public void arrayStore(Object concreteArray, ReferenceExpression symbolicArray, IntegerValue symbolicIndex,
-												 ReferenceExpression symbolicValue) {
-    int concreteIndex = Math.toIntExact(symbolicIndex.getConcreteValue());
-		SymbolicArray symbolicArrayContents;
+        SymbolicArray symbolicArrayContents = getOrCreateSymbolicArray(symbolicArray);
+        symbolicArrayContents.set(concreteIndex, symbolicValue);
+    }
 
-		symbolicArrayContents = getOrCreateSymbolicArray(symbolicArray);
-		symbolicArrayContents.set(concreteIndex, symbolicValue);
-	}
+    @Override
+    public void arrayStore(Object concreteArray, ReferenceExpression symbolicArray, IntegerValue symbolicIndex,
+                           ReferenceExpression symbolicValue) {
+        int concreteIndex = Math.toIntExact(symbolicIndex.getConcreteValue());
+        SymbolicArray symbolicArrayContents;
 
-  @Override
-  public ReferenceVariable createVariableArray(Object concreteArray, int instanceId, String arrayName) {
-    ReferenceVariable symbolicArrayVariableReference = new ReferenceVariable(
-      Type.getType(concreteArray.getClass()),
-      instanceId,
-      arrayName,
-      concreteArray
-    );
+        symbolicArrayContents = getOrCreateSymbolicArray(symbolicArray);
+        symbolicArrayContents.set(concreteIndex, symbolicValue);
+    }
 
-    SymbolicArray symbolicArray = getOrCreateSymbolicArray(symbolicArrayVariableReference);
-    symbolicArrays.put(symbolicArrayVariableReference, new SymbolicInputArray(symbolicArray, arrayName));
+    @Override
+    public ReferenceVariable createVariableArray(Object concreteArray, int instanceId, String arrayName) {
+        ReferenceVariable symbolicArrayVariableReference = new ReferenceVariable(
+                Type.getType(concreteArray.getClass()),
+                instanceId,
+                arrayName,
+                concreteArray
+        );
 
-    return symbolicArrayVariableReference;
-  }
+        SymbolicArray symbolicArray = getOrCreateSymbolicArray(symbolicArrayVariableReference);
+        symbolicArrays.put(symbolicArrayVariableReference, new SymbolicInputArray(symbolicArray, arrayName));
 
-  @Override
-  public ReferenceConstant createConstantArray(Type arrayType, int instanceId) {
-    ReferenceConstant symbolicArrayVariableReference = new ReferenceConstant(
-      arrayType,
-      instanceId
-    );
+        return symbolicArrayVariableReference;
+    }
 
-    SymbolicArray symbolicArray = getOrCreateSymbolicArray(symbolicArrayVariableReference);
-    assert(symbolicArray != null);
+    @Override
+    public ReferenceConstant createConstantArray(Type arrayType, int instanceId) {
+        ReferenceConstant symbolicArrayVariableReference = new ReferenceConstant(
+                arrayType,
+                instanceId
+        );
 
-    return symbolicArrayVariableReference;
-  }
+        SymbolicArray symbolicArray = getOrCreateSymbolicArray(symbolicArrayVariableReference);
+        assert (symbolicArray != null);
 
-  @Override
-  public void initializeArrayReference(ReferenceExpression symbolicArrayReference) {
-    symbolicArrays.put(
-      symbolicArrayReference,
-      getOrCreateSymbolicArray(symbolicArrayReference)
-    );
-  }
+        return symbolicArrayVariableReference;
+    }
 
-  /** Creation section */
+    @Override
+    public void initializeArrayReference(ReferenceExpression symbolicArrayReference) {
+        symbolicArrays.put(
+                symbolicArrayReference,
+                getOrCreateSymbolicArray(symbolicArrayReference)
+        );
+    }
 
-	private SymbolicArray getOrCreateSymbolicArray(ReferenceExpression symbolicArrayReference) {
-		Type contentType = symbolicArrayReference.getObjectType().getElementType();
-		SymbolicArray symbolicArrayContents = symbolicArrays.get(symbolicArrayReference);
+    /**
+     * Creation section
+     */
 
-		if (symbolicArrayContents == null) {
-			symbolicArrayContents = new SymbolicArrayImpl(contentType);
-			symbolicArrays.put(symbolicArrayReference, symbolicArrayContents);
-		}
+    private SymbolicArray getOrCreateSymbolicArray(ReferenceExpression symbolicArrayReference) {
+        Type contentType = symbolicArrayReference.getObjectType().getElementType();
+        SymbolicArray symbolicArrayContents = symbolicArrays.get(symbolicArrayReference);
 
-		return symbolicArrayContents;
-	}
+        if (symbolicArrayContents == null) {
+            symbolicArrayContents = new SymbolicArrayImpl(contentType);
+            symbolicArrays.put(symbolicArrayReference, symbolicArrayContents);
+        }
 
-	private Expression getContent(SymbolicArray symbolicArrayContents, int concreteIndex, Expression symbolicValue) {
-		Expression content = symbolicArrayContents.get(concreteIndex);
+        return symbolicArrayContents;
+    }
 
-		if (content == null) {
-			symbolicArrayContents.set(concreteIndex, symbolicValue);
-			content = symbolicValue;
-		}
+    private Expression getContent(SymbolicArray symbolicArrayContents, int concreteIndex, Expression symbolicValue) {
+        Expression content = symbolicArrayContents.get(concreteIndex);
 
-		return content;
-	}
+        if (content == null) {
+            symbolicArrayContents.set(concreteIndex, symbolicValue);
+            content = symbolicValue;
+        }
+
+        return content;
+    }
 
 }

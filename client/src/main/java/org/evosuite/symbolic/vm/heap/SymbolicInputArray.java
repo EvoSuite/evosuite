@@ -39,74 +39,78 @@ import java.util.BitSet;
  */
 public final class SymbolicInputArray extends SymbolicArrayImpl {
 
-  /** Represents the indexes of the array that were stepped with a set call. */
-  private BitSet steppedOn;
+    /**
+     * Represents the indexes of the array that were stepped with a set call.
+     */
+    private final BitSet steppedOn;
 
-  /** Symbolic array variable name that this array belongs to */
-  private String arrayVariableName;
+    /**
+     * Symbolic array variable name that this array belongs to
+     */
+    private final String arrayVariableName;
 
-  public SymbolicInputArray(Type contentType, String arrayVariableName) {
-    super(contentType);
+    public SymbolicInputArray(Type contentType, String arrayVariableName) {
+        super(contentType);
 
-    this.steppedOn = new BitSet();
-    this.arrayVariableName = arrayVariableName;
-  }
-
-  public SymbolicInputArray(SymbolicArray array, String arrayVariableName) {
-    this(array.getContentType(), arrayVariableName);
-  }
-
-  /**
-   * We infer that an input variable should be initialized if the index was never set and
-   * a get is used. (Thus a value already set before calling the SUT should be there)
-   *
-   * @param index
-   * @return
-   */
-  @Override
-  public Expression get(Integer index) {
-    Expression arrayValue = super.get(index);
-
-    if (arrayValue == null && !steppedOn.get(index)) {
-      arrayValue = initDefaultArrayVariable(index, contentType);
-      contents.put(index, arrayValue);
+        this.steppedOn = new BitSet();
+        this.arrayVariableName = arrayVariableName;
     }
 
-    return arrayValue;
-  }
-
-  /**
-   * We checked the index value as used.
-   *
-   * @param index
-   * @param expression
-   */
-  @Override
-  public void set(Integer index, Expression expression) {
-    super.set(index, expression);
-
-    steppedOn.set(index);
-  }
-
-  private Expression initDefaultArrayVariable(Integer index, Type componentType) {
-    String symbolicArrayVariableName = SymbolicArrayUtil.buildArrayContentVariableName(arrayVariableName, index);
-
-    if (TypeUtil.isIntegerValue(componentType)) {
-      return new IntegerVariable(symbolicArrayVariableName, 0, Long.MIN_VALUE, Long.MAX_VALUE);
+    public SymbolicInputArray(SymbolicArray array, String arrayVariableName) {
+        this(array.getContentType(), arrayVariableName);
     }
 
-    if (TypeUtil.isRealValue(componentType)) {
-      return new RealVariable(symbolicArrayVariableName, 0, Long.MIN_VALUE, Long.MAX_VALUE);
+    /**
+     * We infer that an input variable should be initialized if the index was never set and
+     * a get is used. (Thus a value already set before calling the SUT should be there)
+     *
+     * @param index
+     * @return
+     */
+    @Override
+    public Expression get(Integer index) {
+        Expression arrayValue = super.get(index);
+
+        if (arrayValue == null && !steppedOn.get(index)) {
+            arrayValue = initDefaultArrayVariable(index, contentType);
+            contents.put(index, arrayValue);
+        }
+
+        return arrayValue;
     }
 
-    if (TypeUtil.isStringValue(componentType)) {
-      return new StringVariable(symbolicArrayVariableName, "");
+    /**
+     * We checked the index value as used.
+     *
+     * @param index
+     * @param expression
+     */
+    @Override
+    public void set(Integer index, Expression expression) {
+        super.set(index, expression);
+
+        steppedOn.set(index);
     }
 
-    if (componentType.equals(ReferenceExpression.class)) {
-      return new ReferenceVariable(componentType, 0, symbolicArrayVariableName, null);
-    }
+    private Expression initDefaultArrayVariable(Integer index, Type componentType) {
+        String symbolicArrayVariableName = SymbolicArrayUtil.buildArrayContentVariableName(arrayVariableName, index);
 
-    throw new UnsupportedOperationException("Symbolic Array content type: " + componentType.toString() + " not yet supported");
-  }
+        if (TypeUtil.isIntegerValue(componentType)) {
+            return new IntegerVariable(symbolicArrayVariableName, 0, Long.MIN_VALUE, Long.MAX_VALUE);
+        }
+
+        if (TypeUtil.isRealValue(componentType)) {
+            return new RealVariable(symbolicArrayVariableName, 0, Long.MIN_VALUE, Long.MAX_VALUE);
+        }
+
+        if (TypeUtil.isStringValue(componentType)) {
+            return new StringVariable(symbolicArrayVariableName, "");
+        }
+
+        if (componentType.equals(ReferenceExpression.class)) {
+            return new ReferenceVariable(componentType, 0, symbolicArrayVariableName, null);
+        }
+
+        throw new UnsupportedOperationException("Symbolic Array content type: " + componentType + " not yet supported");
+    }
 }

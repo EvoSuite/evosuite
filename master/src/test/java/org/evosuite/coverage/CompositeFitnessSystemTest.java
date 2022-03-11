@@ -34,19 +34,19 @@ import org.junit.Test;
 public class CompositeFitnessSystemTest extends SystemTestBase {
 
     @Test
-    public void testBooleanOneLine_3(){
+    public void testBooleanOneLine_3() {
         EvoSuite evosuite = new EvoSuite();
 
         String targetClass = BooleanOneLine.class.getCanonicalName();
         Properties.TARGET_CLASS = targetClass;
-        
+
         Properties.CRITERION = new Properties.Criterion[]{
                 Properties.Criterion.LINE,
                 Properties.Criterion.OUTPUT,
                 Properties.Criterion.EXCEPTION
         };
 
-        String[] command = new String[] { "-generateSuite", "-class", targetClass };
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
         Object result = evosuite.parseCommandLine(command);
         GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
         TestSuiteChromosome best = ga.getBestIndividual();

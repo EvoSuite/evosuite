@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: EvoSuite Eclipse plugin - Core
 Bundle-SymbolicName: org.evosuite.plugins.eclipse.core;singleton:=true
-Bundle-Version: 1.1.1.qualifier
+Bundle-Version: 1.2.1.qualifier
 Bundle-Activator: org.evosuite.eclipse.Activator
 Bundle-Vendor: Gordon Fraser, José Miguel Rojas and Thomas White - University of Sheffield
 Require-Bundle: org.eclipse.ui,
@@ -21,7 +21,5 @@ Require-Bundle: org.eclipse.ui,
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Export-Package: org.evosuite.eclipse,
- org.evosuite.eclipse.markers,
  org.evosuite.eclipse.popup.actions,
- org.evosuite.eclipse.properties,
- org.evosuite.eclipse.quickfixes
+ org.evosuite.eclipse.properties

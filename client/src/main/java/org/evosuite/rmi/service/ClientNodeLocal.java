@@ -27,32 +27,32 @@ import java.util.Set;
 
 /**
  * Client Node view in the client process.
- * @author arcuri
  *
+ * @author arcuri
  */
 public interface ClientNodeLocal<T extends Chromosome<T>> extends Listenable<Set<T>> {
 
-	boolean init();
+    boolean init();
 
-	void trackOutputVariable(RuntimeVariable variable, Object value);
-	
+    void trackOutputVariable(RuntimeVariable variable, Object value);
+
     void publishPermissionStatistics();
 
-	void changeState(ClientState state);
+    void changeState(ClientState state);
 
-	void changeState(ClientState state, ClientStateInformation information);
+    void changeState(ClientState state, ClientStateInformation information);
 
-	void updateStatistics(T individual);
+    void updateStatistics(T individual);
 
-	void flushStatisticsForClassChange();
+    void flushStatisticsForClassChange();
 
-	void updateProperty(String propertyName, Object value);
+    void updateProperty(String propertyName, Object value);
 
-	void waitUntilDone();
-	
-	void emigrate(Set<T> immigrants);
-	
-	void sendBestSolution(Set<T> solutions);
+    void waitUntilDone();
+
+    void emigrate(Set<T> immigrants);
+
+    void sendBestSolution(Set<T> solutions);
 
     Set<Set<T>> getBestSolutions();
 }

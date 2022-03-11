@@ -30,25 +30,25 @@ import org.junit.Test;
 import com.examples.with.different.packagename.VoidExample;
 
 public class VoidReturnTypeSystemTest extends SystemTestBase {
-	@Test
-	public void testVoidExample() {
-		EvoSuite evosuite = new EvoSuite();
+    @Test
+    public void testVoidExample() {
+        EvoSuite evosuite = new EvoSuite();
 
-		String targetClass = VoidExample.class.getCanonicalName();
+        String targetClass = VoidExample.class.getCanonicalName();
 
-		Properties.TARGET_CLASS = targetClass;
+        Properties.TARGET_CLASS = targetClass;
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
 
-		Object result = evosuite.parseCommandLine(command);
+        Object result = evosuite.parseCommandLine(command);
 
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
 
-		TestSuiteChromosome best = ga.getBestIndividual();
-		String code = best.toString();
-		System.out.println("EvolvedTestSuite:\n" + best);
+        TestSuiteChromosome best = ga.getBestIndividual();
+        String code = best.toString();
+        System.out.println("EvolvedTestSuite:\n" + best);
 
-		Assert.assertFalse(code.contains("Void "));
-		Assert.assertFalse(code.contains("void0"));
-	}
+        Assert.assertFalse(code.contains("Void "));
+        Assert.assertFalse(code.contains("void0"));
+    }
 }

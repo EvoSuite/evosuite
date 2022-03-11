@@ -24,10 +24,10 @@ package com.examples.with.different.packagename.setup;
  */
 public class GetterOfInput {
 
-    public GetterOfInput(AnInterface ai){
+    public GetterOfInput(AnInterface ai) {
     }
 
-    public AnInterface get(){
+    public AnInterface get() {
         return null;
     }
 }

@@ -52,11 +52,11 @@ public class EvoAction extends AnAction {
                 loadIcon());
     }
 
-    private static Icon loadIcon(){
+    private static Icon loadIcon() {
         try {
-            Image image = ImageIO.read( EvoAction.class.getClassLoader().getResourceAsStream( "evosuite.png" ));
+            Image image = ImageIO.read(EvoAction.class.getClassLoader().getResourceAsStream("evosuite.png"));
             image = image.getScaledInstance(16, 16, java.awt.Image.SCALE_SMOOTH);
-            ImageIcon icon =  new ImageIcon(image);
+            ImageIcon icon = new ImageIcon(image);
 
             return icon;
         } catch (IOException e) {
@@ -81,8 +81,8 @@ public class EvoAction extends AnAction {
             return;
         }
 
-        Map<String,Set<String>> map = getCUTsToTest(event);
-        if(map==null || map.isEmpty() || map.values().stream().mapToInt(Set::size).sum() == 0){
+        Map<String, Set<String>> map = getCUTsToTest(event);
+        if (map == null || map.isEmpty() || map.values().stream().mapToInt(Set::size).sum() == 0) {
             Messages.showMessageDialog(project, "No '.java' file or non-empty source folder was selected in a valid module",
                     title, Messages.getErrorIcon());
             return;
@@ -99,30 +99,28 @@ public class EvoAction extends AnAction {
         if (dialog.isWasOK()) {
             toolWindow.show(() -> notifier.clearConsole());
             EvoParameters.getInstance().save(project);
-            EvoSuiteExecutor.getInstance().run(project,EvoParameters.getInstance(),map,notifier);
+            EvoSuiteExecutor.getInstance().run(project, EvoParameters.getInstance(), map, notifier);
         }
     }
 
     /**
-     *
-     *
      * @return a map where key is a maven module root path, and value a list of full class names of CUTs
      */
-    private Map<String, Set<String>> getCUTsToTest(AnActionEvent event){
+    private Map<String, Set<String>> getCUTsToTest(AnActionEvent event) {
 
-        Map<String,Set<String>> map = new LinkedHashMap<>();
+        Map<String, Set<String>> map = new LinkedHashMap<>();
 
         Project project = event.getData(PlatformDataKeys.PROJECT);
 
         ModulesInfo modulesInfo = new ModulesInfo(project);
 
-        if (! modulesInfo.hasRoots()){
+        if (!modulesInfo.hasRoots()) {
             return null;
         }
 
         Set<String> alreadyHandled = new LinkedHashSet<>();
 
-        for(VirtualFile virtualFile : event.getData(PlatformDataKeys.VIRTUAL_FILE_ARRAY)){
+        for (VirtualFile virtualFile : event.getData(PlatformDataKeys.VIRTUAL_FILE_ARRAY)) {
             String selectedFilePath = new File(virtualFile.getCanonicalPath()).getAbsolutePath();
             recursiveHandle(map, modulesInfo, alreadyHandled, selectedFilePath);
         }
@@ -131,16 +129,16 @@ public class EvoAction extends AnAction {
     }
 
 
-    private void recursiveHandle(Map<String,Set<String>> map, ModulesInfo modulesInfo, Set<String> alreadyHandled, String path){
+    private void recursiveHandle(Map<String, Set<String>> map, ModulesInfo modulesInfo, Set<String> alreadyHandled, String path) {
 
-        if(alreadyHandled.contains(path)){
+        if (alreadyHandled.contains(path)) {
             return;
         }
 
         Set<String> skip = handleSelectedPath(map, modulesInfo, path);
         alreadyHandled.add(path);
 
-        for(String s : skip){
+        for (String s : skip) {
             recursiveHandle(map, modulesInfo, alreadyHandled, s);
         }
     }
@@ -157,7 +155,7 @@ public class EvoAction extends AnAction {
         String module = modulesInfo.getModuleFolder(selectedFilePath);
         File selectedFile = new File(selectedFilePath);
 
-        if(module == null){
+        if (module == null) {
             return skip;
         }
 
@@ -165,34 +163,34 @@ public class EvoAction extends AnAction {
 
         String root = modulesInfo.getSourceRootForFile(selectedFilePath);
 
-        if(root == null){
+        if (root == null) {
             /*
                 the chosen file is not in a source folder.
                 Need to check if its parent of any of them
              */
             Set<String> included = modulesInfo.getIncludedSourceRoots(selectedFilePath);
-            if(included==null || included.isEmpty()){
+            if (included == null || included.isEmpty()) {
                 return skip;
             }
 
-            for(String otherModule : modulesInfo.getModulePathsView()) {
+            for (String otherModule : modulesInfo.getModulePathsView()) {
 
-                if(otherModule.length() > module.length() && otherModule.startsWith(module)) {
+                if (otherModule.length() > module.length() && otherModule.startsWith(module)) {
                     //the considered module has a sub-module
                     included.stream().filter(inc -> inc.startsWith(otherModule)).forEach(skip::add);
                 }
             }
 
-            for(String sourceFolder : included){
-                if(skip.contains(sourceFolder)){
+            for (String sourceFolder : included) {
+                if (skip.contains(sourceFolder)) {
                     continue;
                 }
-                scanFolder(new File(sourceFolder),classes,sourceFolder);
+                scanFolder(new File(sourceFolder), classes, sourceFolder);
             }
 
         } else {
-            if(!selectedFile.isDirectory()){
-                if(!selectedFilePath.endsWith(".java")){
+            if (!selectedFile.isDirectory()) {
+                if (!selectedFilePath.endsWith(".java")) {
                     // likely a resource file
                     return skip;
                 }
@@ -200,12 +198,12 @@ public class EvoAction extends AnAction {
                 String name = getCUTName(selectedFilePath, root);
                 classes.add(name);
             } else {
-                scanFolder(selectedFile,classes,root);
+                scanFolder(selectedFile, classes, root);
             }
 
         }
 
-        if(! classes.isEmpty()) {
+        if (!classes.isEmpty()) {
             map.put(module, classes);
         }
 
@@ -213,13 +211,13 @@ public class EvoAction extends AnAction {
     }
 
     private void scanFolder(File file, Set<String> classes, String root) {
-        for(File child : file.listFiles()){
-            if(child.isDirectory()){
+        for (File child : file.listFiles()) {
+            if (child.isDirectory()) {
                 scanFolder(child, classes, root);
             } else {
                 String path = child.getAbsolutePath();
-                if(path.endsWith(".java")){
-                    String name = getCUTName(path,root);
+                if (path.endsWith(".java")) {
+                    String name = getCUTName(path, root);
                     classes.add(name);
                 }
             }
@@ -227,8 +225,8 @@ public class EvoAction extends AnAction {
     }
 
     private String getCUTName(String path, String root) {
-        String name = path.substring(root.length()+1, path.length() - ".java".length());
-        name = name.replace('/','.'); //posix
+        String name = path.substring(root.length() + 1, path.length() - ".java".length());
+        name = name.replace('/', '.'); //posix
         name = name.replace("\\", ".");  // windows
         return name;
     }

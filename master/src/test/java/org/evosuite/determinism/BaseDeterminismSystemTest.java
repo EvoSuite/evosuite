@@ -39,54 +39,56 @@ import static org.junit.Assert.assertEquals;
 /**
  * Created by Andrea Arcuri on 19/10/15.
  */
-public class BaseDeterminismSystemTest{
+public class BaseDeterminismSystemTest {
 
     @BeforeClass
-    public static void initClass(){
+    public static void initClass() {
         LoggingUtils.changeLogbackFile("logback_for_determinism_check.xml");
         Properties.IS_RUNNING_A_SYSTEM_TEST = true;
     }
 
     @AfterClass
-    public static void tearDownClass(){
+    public static void tearDownClass() {
         LoggingUtils.changeLogbackFile("logback.xml");
         Properties.IS_RUNNING_A_SYSTEM_TEST = false;
     }
 
 
     @Test
-    public void testBase(){
+    public void testBase() {
         checkDeterminism(com.examples.with.different.packagename.TrivialInt.class);
     }
 
     @Test
-    public void testLS(){
+    public void testLS() {
         checkDeterminism(IsstaFoo.class, () -> {
             Properties.DSE_PROBABILITY = 0.0;
             Properties.LOCAL_SEARCH_PROBABILITY = 1.0;
             Properties.LOCAL_SEARCH_RATE = 1;
             Properties.LOCAL_SEARCH_BUDGET_TYPE = Properties.LocalSearchBudgetType.TESTS;
             Properties.LOCAL_SEARCH_BUDGET = 100;
-            Properties.SEARCH_BUDGET = 5000;});
+            Properties.SEARCH_BUDGET = 5000;
+        });
     }
 
 
     @Test
-    public void testDSE(){
+    public void testDSE() {
         checkDeterminism(IsstaFoo.class, () -> {
             Properties.DSE_PROBABILITY = 1.0;
             Properties.LOCAL_SEARCH_PROBABILITY = 1.0;
             Properties.LOCAL_SEARCH_RATE = 1;
             Properties.LOCAL_SEARCH_BUDGET_TYPE = Properties.LocalSearchBudgetType.TESTS;
             Properties.LOCAL_SEARCH_BUDGET = 100;
-            Properties.SEARCH_BUDGET = 5000;});
+            Properties.SEARCH_BUDGET = 5000;
+        });
     }
 
-    public static void checkDeterminism(Class<?> target){
+    public static void checkDeterminism(Class<?> target) {
         checkDeterminism(target, null);
     }
 
-    public static void checkDeterminism(Class<?> target, Runnable initializer){
+    public static void checkDeterminism(Class<?> target, Runnable initializer) {
 
         //dry run, needed to avoid logs of static initializers that are called only once
         run(target, initializer);
@@ -94,14 +96,14 @@ public class BaseDeterminismSystemTest{
         String first = run(target, initializer);
         String second = run(target, initializer);
 
-        assertEquals(first,second);
+        assertEquals(first, second);
     }
 
     private static String run(Class<?> target) {
         return run(target, null);
     }
 
-    private static String run(Class<?> target, Runnable initializer){
+    private static String run(Class<?> target, Runnable initializer) {
 
         SystemTestBase scaffolding = new SystemTestBase();
 
@@ -112,13 +114,13 @@ public class BaseDeterminismSystemTest{
 
 
         scaffolding.setDefaultPropertiesForTestCases(); //@Before
-        Properties.CRITERION = new Properties.Criterion[] {
+        Properties.CRITERION = new Properties.Criterion[]{
                 Properties.Criterion.LINE, Properties.Criterion.BRANCH,
                 Properties.Criterion.EXCEPTION, Properties.Criterion.WEAKMUTATION,
                 Properties.Criterion.OUTPUT, Properties.Criterion.METHOD,
-                Properties.Criterion.METHODNOEXCEPTION, Properties.Criterion.CBRANCH  };
+                Properties.Criterion.METHODNOEXCEPTION, Properties.Criterion.CBRANCH};
 
-        if(initializer != null){
+        if (initializer != null) {
             initializer.run();
         }
 
@@ -143,15 +145,15 @@ public class BaseDeterminismSystemTest{
         return filter(byteStream.toString());
     }
 
-    private static String filter(String s){
+    private static String filter(String s) {
 
         List<String> skip = Arrays.asList("sun.reflect.GeneratedMethodAccessor");
 
         StringBuffer buffer = new StringBuffer(s.length());
         Scanner scanner = new Scanner(s);
-        while(scanner.hasNextLine()){
+        while (scanner.hasNextLine()) {
             String line = scanner.nextLine();
-            if(skip.stream().anyMatch(k -> line.contains(k))){
+            if (skip.stream().anyMatch(k -> line.contains(k))) {
                 continue;
             }
             buffer.append(line);

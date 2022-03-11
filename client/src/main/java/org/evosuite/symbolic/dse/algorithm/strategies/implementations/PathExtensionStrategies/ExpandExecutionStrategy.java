@@ -20,9 +20,9 @@
 package org.evosuite.symbolic.dse.algorithm.strategies.implementations.PathExtensionStrategies;
 
 import org.evosuite.symbolic.BranchCondition;
+import org.evosuite.symbolic.PathCondition;
 import org.evosuite.symbolic.dse.algorithm.GenerationalSearchPathCondition;
 import org.evosuite.symbolic.dse.algorithm.strategies.PathExtensionStrategy;
-import org.evosuite.symbolic.PathCondition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,7 +36,7 @@ import java.util.List;
  */
 public class ExpandExecutionStrategy implements PathExtensionStrategy {
 
-    public static final String DEBUG_MSG_NEGATING_INDEX_OF_PATH_CONDITION   = "negating index {} of path condition";
+    public static final String DEBUG_MSG_NEGATING_INDEX_OF_PATH_CONDITION = "negating index {} of path condition";
     public static final String DEBUG_MSG_GENERATING_CHILDREN_FOR_GENERATION = "Generating children for generation {}";
 
     Logger logger = LoggerFactory.getLogger(ExpandExecutionStrategy.class);
@@ -64,10 +64,10 @@ public class ExpandExecutionStrategy implements PathExtensionStrategy {
             accumulatedBranchConditions.add(currentBranchCondition.getNegatedVersion());
 
             GenerationalSearchPathCondition newChild = new GenerationalSearchPathCondition(
-                new PathCondition(
-                        new ArrayList(accumulatedBranchConditions)
-                ),
-                indexBound + 1
+                    new PathCondition(
+                            new ArrayList(accumulatedBranchConditions)
+                    ),
+                    indexBound + 1
             );
 
             // adds the negated last condition
@@ -75,8 +75,8 @@ public class ExpandExecutionStrategy implements PathExtensionStrategy {
 
             // replaces the negated branch condition with the original one for continuing generating
             accumulatedBranchConditions.set(
-                accumulatedBranchConditions.size() - 1,
-              currentBranchCondition
+                    accumulatedBranchConditions.size() - 1,
+                    currentBranchCondition
             );
         }
 

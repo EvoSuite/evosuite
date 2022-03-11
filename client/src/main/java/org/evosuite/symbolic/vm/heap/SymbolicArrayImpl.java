@@ -37,47 +37,47 @@ import java.util.Map;
  */
 public class SymbolicArrayImpl implements SymbolicArray {
 
-  protected Type contentType;
-  protected Map<Integer, Expression<?>> contents;
+    protected Type contentType;
+    protected Map<Integer, Expression<?>> contents;
 
-  public SymbolicArrayImpl(Type contentType) {
-    this.contents = new HashMap();
-    this.contentType = contentType;
-  }
-
-  @Override
-  public Type getContentType() {
-    return contentType;
-  }
-
-  @Override
-  public Expression get(Integer index) {
-    return contents.get(index);
-  }
-
-  @Override
-  public void set(Integer index, Expression expression) {
-    matchType(expression);
-    contents.put(index, expression);
-  }
-
-  private void matchType(Expression expression) {
-    if (ExpressionUtils.isIntegerValue(expression) && !TypeUtil.isIntegerValue(contentType)) {
-      throw new IllegalArgumentException("Symbolic array contains type "
-        + IntegerValue.class.getName()
-        + "but provided type doesn't match");
+    public SymbolicArrayImpl(Type contentType) {
+        this.contents = new HashMap();
+        this.contentType = contentType;
     }
 
-    if (ExpressionUtils.isRealValue(expression) && !TypeUtil.isRealValue(contentType)) {
-      throw new IllegalArgumentException("Symbolic array contains type "
-        + RealValue.class.getName()
-        + "but provided type doesn't match");
+    @Override
+    public Type getContentType() {
+        return contentType;
     }
 
-    if (ExpressionUtils.isStringValue(expression) && !TypeUtil.isStringValue(contentType)) {
-      throw new IllegalArgumentException("Symbolic array contains type "
-        + StringValue.class.getName()
-        + "but provided type doesn't match");
+    @Override
+    public Expression get(Integer index) {
+        return contents.get(index);
     }
-  }
+
+    @Override
+    public void set(Integer index, Expression expression) {
+        matchType(expression);
+        contents.put(index, expression);
+    }
+
+    private void matchType(Expression expression) {
+        if (ExpressionUtils.isIntegerValue(expression) && !TypeUtil.isIntegerValue(contentType)) {
+            throw new IllegalArgumentException("Symbolic array contains type "
+                    + IntegerValue.class.getName()
+                    + "but provided type doesn't match");
+        }
+
+        if (ExpressionUtils.isRealValue(expression) && !TypeUtil.isRealValue(contentType)) {
+            throw new IllegalArgumentException("Symbolic array contains type "
+                    + RealValue.class.getName()
+                    + "but provided type doesn't match");
+        }
+
+        if (ExpressionUtils.isStringValue(expression) && !TypeUtil.isStringValue(contentType)) {
+            throw new IllegalArgumentException("Symbolic array contains type "
+                    + StringValue.class.getName()
+                    + "but provided type doesn't match");
+        }
+    }
 }

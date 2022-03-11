@@ -19,9 +19,9 @@
  */
 package org.evosuite.symbolic.dse.algorithm.strategies;
 
-import java.lang.reflect.Method;
-
 import org.evosuite.symbolic.dse.DSETestCase;
+
+import java.lang.reflect.Method;
 
 /**
  * Interface for test case building strategies

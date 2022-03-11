@@ -31,7 +31,7 @@ import static org.junit.Assert.assertTrue;
 public class CtgPropertiesTest {
 
     @Test
-    public void testNeverEverDefinePropertiesBasedOnOthersOtherwiseChangingInFormerWillNotAffectTheLatter(){
+    public void testNeverEverDefinePropertiesBasedOnOthersOtherwiseChangingInFormerWillNotAffectTheLatter() {
 
         Properties.getInstance().resetToDefaults();
         assertFalse(Properties.CTG_BESTS_DIR_NAME.startsWith(Properties.CTG_DIR));

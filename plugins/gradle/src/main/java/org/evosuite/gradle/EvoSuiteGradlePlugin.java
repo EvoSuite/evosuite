@@ -29,6 +29,6 @@ public class EvoSuiteGradlePlugin implements Plugin<Project> {
 
     @Override
     public void apply(Project project) {
-        project.getTasks().create("evoInfo",InfoTask.class);
+        project.getTasks().create("evoInfo", InfoTask.class);
     }
 }

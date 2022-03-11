@@ -22,18 +22,17 @@ package org.evosuite.xsd;
 import java.math.BigInteger;
 
 /**
- * 
  * @author José Campos
  */
 public class XSDUtils {
 
-  /**
-   * Convert a long number into a BigInteger
-   * 
-   * @param i
-   * @return
-   */
-  public static BigInteger convert(final long i) {
-    return BigInteger.valueOf(i);
-  }
+    /**
+     * Convert a long number into a BigInteger
+     *
+     * @param i
+     * @return
+     */
+    public static BigInteger convert(final long i) {
+        return BigInteger.valueOf(i);
+    }
 }

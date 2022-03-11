@@ -19,92 +19,92 @@
  */
 package org.evosuite.strategy;
 
-import java.util.ArrayList;
-import java.util.List;
 import org.evosuite.Properties;
 import org.evosuite.coverage.TestFitnessFactory;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.rmi.service.ClientState;
 import org.evosuite.statistics.RuntimeVariable;
-import org.evosuite.testcase.execution.CodeUnderTestException;
-import org.evosuite.testcase.execution.ExecutionResult;
-import org.evosuite.testcase.factories.RandomLengthTestFactory;
-import org.evosuite.testcase.execution.TestCaseExecutor;
-import org.evosuite.testcase.execution.UncompilableCodeException;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
+import org.evosuite.testcase.execution.CodeUnderTestException;
+import org.evosuite.testcase.execution.ExecutionResult;
+import org.evosuite.testcase.execution.TestCaseExecutor;
+import org.evosuite.testcase.execution.UncompilableCodeException;
+import org.evosuite.testcase.factories.RandomLengthTestFactory;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.evosuite.utils.LoggingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * This strategy consists of generating random tests.
  * The property NUM_RANDOM_TESTS is set on the command line
- * 
- * @author gordon
  *
+ * @author gordon
  */
 public class FixedNumRandomTestStrategy extends TestGenerationStrategy {
 
-	private final static Logger logger = LoggerFactory.getLogger(FixedNumRandomTestStrategy.class);
-	
-	@Override
-	public TestSuiteChromosome generateTests() {
-		LoggingUtils.getEvoLogger().info("* Generating fixed number of random tests");
-		ClientServices.getInstance().getClientNode().changeState(ClientState.SEARCH);
+    private final static Logger logger = LoggerFactory.getLogger(FixedNumRandomTestStrategy.class);
 
-		RandomLengthTestFactory factory = new org.evosuite.testcase.factories.RandomLengthTestFactory();
-		TestSuiteChromosome suite = new TestSuiteChromosome();
-		if(!canGenerateTestsForSUT()) {
-			LoggingUtils.getEvoLogger().info("* Found no testable methods in the target class "
-					+ Properties.TARGET_CLASS);
-			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Goals, 0);
-			return suite;
-		}
+    @Override
+    public TestSuiteChromosome generateTests() {
+        LoggingUtils.getEvoLogger().info("* Generating fixed number of random tests");
+        ClientServices.getInstance().getClientNode().changeState(ClientState.SEARCH);
 
-		List<TestFitnessFactory<? extends TestFitnessFunction>> goalFactories = getFitnessFactories();
-		List<TestFitnessFunction> goals = new ArrayList<>();
-		LoggingUtils.getEvoLogger().info("* Total number of test goals: ");
-		for (TestFitnessFactory<? extends TestFitnessFunction> goalFactory : goalFactories) {
-			goals.addAll(goalFactory.getCoverageGoals());
-			LoggingUtils.getEvoLogger().info("  - " + goalFactory.getClass().getSimpleName().replace("CoverageFactory", "")
-					+ " " + goalFactory.getCoverageGoals().size());
-		}
-		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Goals, goals.size());
+        RandomLengthTestFactory factory = new org.evosuite.testcase.factories.RandomLengthTestFactory();
+        TestSuiteChromosome suite = new TestSuiteChromosome();
+        if (!canGenerateTestsForSUT()) {
+            LoggingUtils.getEvoLogger().info("* Found no testable methods in the target class "
+                    + Properties.TARGET_CLASS);
+            ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Goals, 0);
+            return suite;
+        }
 
-		for (int i = 0; i < Properties.NUM_RANDOM_TESTS; i++) {
-			logger.info("Current test: " + i + "/" + Properties.NUM_RANDOM_TESTS);
-			TestChromosome test = factory.getChromosome();
-			ExecutionResult result = TestCaseExecutor.runTest(test.getTestCase());
-			Integer pos = result.getFirstPositionOfThrownException();
-			if (pos != null) {
-				if (result.getExceptionThrownAtPosition(pos) instanceof CodeUnderTestException
-				        || result.getExceptionThrownAtPosition(pos) instanceof UncompilableCodeException
-				        || result.getExceptionThrownAtPosition(pos) instanceof TestCaseExecutor.TimeoutExceeded) {
-					// Filter invalid tests 
-					continue;
-				} else {
-					// Remove anything that follows an exception
-					test.getTestCase().chop(pos + 1);
-				}
-				test.setChanged(true);
-			} else {
-				test.setLastExecutionResult(result);
-			}
-			suite.addTest(test);
-		}
+        List<TestFitnessFactory<? extends TestFitnessFunction>> goalFactories = getFitnessFactories();
+        List<TestFitnessFunction> goals = new ArrayList<>();
+        LoggingUtils.getEvoLogger().info("* Total number of test goals: ");
+        for (TestFitnessFactory<? extends TestFitnessFunction> goalFactory : goalFactories) {
+            goals.addAll(goalFactory.getCoverageGoals());
+            LoggingUtils.getEvoLogger().info("  - " + goalFactory.getClass().getSimpleName().replace("CoverageFactory", "")
+                    + " " + goalFactory.getCoverageGoals().size());
+        }
+        ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Goals, goals.size());
 
-		// Evaluate generated suite
-		for (TestSuiteFitnessFunction fitnessFunction : getFitnessFunctions()) {
-			fitnessFunction.getFitness(suite);
-		}
+        for (int i = 0; i < Properties.NUM_RANDOM_TESTS; i++) {
+            logger.info("Current test: " + i + "/" + Properties.NUM_RANDOM_TESTS);
+            TestChromosome test = factory.getChromosome();
+            ExecutionResult result = TestCaseExecutor.runTest(test.getTestCase());
+            Integer pos = result.getFirstPositionOfThrownException();
+            if (pos != null) {
+                if (result.getExceptionThrownAtPosition(pos) instanceof CodeUnderTestException
+                        || result.getExceptionThrownAtPosition(pos) instanceof UncompilableCodeException
+                        || result.getExceptionThrownAtPosition(pos) instanceof TestCaseExecutor.TimeoutExceeded) {
+                    // Filter invalid tests
+                    continue;
+                } else {
+                    // Remove anything that follows an exception
+                    test.getTestCase().chop(pos + 1);
+                }
+                test.setChanged(true);
+            } else {
+                test.setLastExecutionResult(result);
+            }
+            suite.addTest(test);
+        }
+
+        // Evaluate generated suite
+        for (TestSuiteFitnessFunction fitnessFunction : getFitnessFunctions()) {
+            fitnessFunction.getFitness(suite);
+        }
 
         // Search is finished, send statistics
         sendExecutionStatistics();
 
-		return suite;
-	}
+        return suite;
+    }
 
 }

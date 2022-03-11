@@ -19,77 +19,77 @@
  */
 package org.evosuite.runtime.sandbox;
 
+import org.junit.*;
+
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
-import org.junit.*;
-
 public class SandboxFromJUnitTest {
 
-	private static ExecutorService executor;
-	
-	@BeforeClass
-	public static void initEvoSuiteFramework(){
-		Assert.assertNull(System.getSecurityManager());
-		
-		Sandbox.initializeSecurityManagerForSUT();
-		executor = Executors.newCachedThreadPool();
+    private static ExecutorService executor;
 
-	}
-	
-	@AfterClass
-	public static void clearEvoSuiteFramework(){
-		Assert.assertNotNull(System.getSecurityManager());	
-		
-		executor.shutdownNow();
-		Sandbox.resetDefaultSecurityManager();
+    @BeforeClass
+    public static void initEvoSuiteFramework() {
+        Assert.assertNull(System.getSecurityManager());
 
-		Assert.assertNull(System.getSecurityManager());		
-	}
-	
-	@Before
-	public void initTest(){		
-		Sandbox.goingToExecuteSUTCode();
+        Sandbox.initializeSecurityManagerForSUT();
+        executor = Executors.newCachedThreadPool();
+
+    }
+
+    @AfterClass
+    public static void clearEvoSuiteFramework() {
+        Assert.assertNotNull(System.getSecurityManager());
+
+        executor.shutdownNow();
+        Sandbox.resetDefaultSecurityManager();
+
+        Assert.assertNull(System.getSecurityManager());
+    }
+
+    @Before
+    public void initTest() {
+        Sandbox.goingToExecuteSUTCode();
         //TestGenerationContext.getInstance().goingToExecuteSUTCode();
-	}
-	
-	@After
-	public void doneWithTestCase(){
-		Sandbox.doneWithExecutingSUTCode();	
-	}
-	
-	
-	@Test
-	public void testExit() throws Exception{
-		
-		Future<?> future = executor.submit(new Runnable(){
-			@Override
-			public void run() {
-		//-------
-		Foo foo = new Foo();
-		try{
-			foo.tryToExit();
-			Assert.fail();
-		} catch(SecurityException e){
-			//expected
-		}
-		//-------		
-			}
-		});
-		future.get(5000, TimeUnit.MILLISECONDS);
-		
-	}
-	
+    }
+
+    @After
+    public void doneWithTestCase() {
+        Sandbox.doneWithExecutingSUTCode();
+    }
+
+
+    @Test
+    public void testExit() throws Exception {
+
+        Future<?> future = executor.submit(new Runnable() {
+            @Override
+            public void run() {
+                //-------
+                Foo foo = new Foo();
+                try {
+                    foo.tryToExit();
+                    Assert.fail();
+                } catch (SecurityException e) {
+                    //expected
+                }
+                //-------
+            }
+        });
+        future.get(5000, TimeUnit.MILLISECONDS);
+
+    }
+
 }
 
 
-class Foo{
-	
-	public void tryToExit(){
-		System.exit(0);
-	}
+class Foo {
+
+    public void tryToExit() {
+        System.exit(0);
+    }
 }
 
 

@@ -20,9 +20,6 @@
 
 package org.evosuite.instrumentation;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.evosuite.PackageInfo;
 import org.evosuite.Properties;
 import org.evosuite.testcase.execution.TestCaseExecutor;
@@ -32,6 +29,9 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.GeneratorAdapter;
 
+import java.util.HashMap;
+import java.util.Map;
+
 
 /**
  * <p>ArrayAllocationLimitMethodAdapter class.</p>
@@ -40,119 +40,128 @@ import org.objectweb.asm.commons.GeneratorAdapter;
  */
 public class ArrayAllocationLimitMethodAdapter extends GeneratorAdapter {
 
-	/**
-	 * <p>Constructor for ArrayAllocationLimitMethodAdapter.</p>
-	 *
-	 * @param mv a {@link org.objectweb.asm.MethodVisitor} object.
-	 * @param className a {@link java.lang.String} object.
-	 * @param methodName a {@link java.lang.String} object.
-	 * @param access a int.
-	 * @param desc a {@link java.lang.String} object.
-	 */
-	public ArrayAllocationLimitMethodAdapter(MethodVisitor mv, String className,
-	        String methodName, int access, String desc) {
-		super(Opcodes.ASM9, mv, access, methodName, desc);
-	}
+    /**
+     * <p>Constructor for ArrayAllocationLimitMethodAdapter.</p>
+     *
+     * @param mv         a {@link org.objectweb.asm.MethodVisitor} object.
+     * @param className  a {@link java.lang.String} object.
+     * @param methodName a {@link java.lang.String} object.
+     * @param access     a int.
+     * @param desc       a {@link java.lang.String} object.
+     */
+    public ArrayAllocationLimitMethodAdapter(MethodVisitor mv, String className,
+                                             String methodName, int access, String desc) {
+        super(Opcodes.ASM9, mv, access, methodName, desc);
+    }
 
-	/* (non-Javadoc)
-	 * @see org.objectweb.asm.MethodVisitor#visitIntInsn(int, int)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public void visitIntInsn(int opcode, int operand) {
-		if (opcode == Opcodes.NEWARRAY) {
-			Label origTarget = new Label();
-			visitInsn(Opcodes.DUP);
-			visitFieldInsn(Opcodes.GETSTATIC, PackageInfo.getNameWithSlash(org.evosuite.Properties.class),
-			               "ARRAY_LIMIT", "I");
-			super.visitJumpInsn(Opcodes.IF_ICMPLT, origTarget);
-			super.visitTypeInsn(Opcodes.NEW,
-					PackageInfo.getNameWithSlash(TestCaseExecutor.TimeoutExceeded.class));
-			super.visitInsn(Opcodes.DUP);
-			super.visitMethodInsn(Opcodes.INVOKESPECIAL,
-					PackageInfo.getNameWithSlash(TestCaseExecutor.TimeoutExceeded.class),
-			                      "<init>", "()V", false);
-			super.visitInsn(Opcodes.ATHROW);
-			super.visitLabel(origTarget);
+    /* (non-Javadoc)
+     * @see org.objectweb.asm.MethodVisitor#visitIntInsn(int, int)
+     */
 
-		}
-		super.visitIntInsn(opcode, operand);
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void visitIntInsn(int opcode, int operand) {
+        if (opcode == Opcodes.NEWARRAY) {
+            Label origTarget = new Label();
+            visitInsn(Opcodes.DUP);
+            visitFieldInsn(Opcodes.GETSTATIC, PackageInfo.getNameWithSlash(org.evosuite.Properties.class),
+                    "ARRAY_LIMIT", "I");
+            super.visitJumpInsn(Opcodes.IF_ICMPLT, origTarget);
+            super.visitTypeInsn(Opcodes.NEW,
+                    PackageInfo.getNameWithSlash(TestCaseExecutor.TimeoutExceeded.class));
+            super.visitInsn(Opcodes.DUP);
+            super.visitMethodInsn(Opcodes.INVOKESPECIAL,
+                    PackageInfo.getNameWithSlash(TestCaseExecutor.TimeoutExceeded.class),
+                    "<init>", "()V", false);
+            super.visitInsn(Opcodes.ATHROW);
+            super.visitLabel(origTarget);
 
-	/* (non-Javadoc)
-	 * @see org.objectweb.asm.MethodVisitor#visitTypeInsn(int, java.lang.String)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public void visitTypeInsn(int opcode, String type) {
+        }
+        super.visitIntInsn(opcode, operand);
+    }
 
-		if (opcode == Opcodes.ANEWARRAY) {
-			Label origTarget = new Label();
-			visitInsn(Opcodes.DUP);
-			visitFieldInsn(Opcodes.GETSTATIC, PackageInfo.getNameWithSlash(org.evosuite.Properties.class),
-			               "ARRAY_LIMIT", "I");
-			super.visitJumpInsn(Opcodes.IF_ICMPLT, origTarget);
-			super.visitTypeInsn(Opcodes.NEW,
-					PackageInfo.getNameWithSlash(TestCaseExecutor.TimeoutExceeded.class));
-			super.visitInsn(Opcodes.DUP);
-			super.visitMethodInsn(Opcodes.INVOKESPECIAL,
-					PackageInfo.getNameWithSlash(TestCaseExecutor.TimeoutExceeded.class),
-			                      "<init>", "()V", false);
-			super.visitInsn(Opcodes.ATHROW);
-			super.visitLabel(origTarget);
+    /* (non-Javadoc)
+     * @see org.objectweb.asm.MethodVisitor#visitTypeInsn(int, java.lang.String)
+     */
 
-		}
-		super.visitTypeInsn(opcode, type);
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void visitTypeInsn(int opcode, String type) {
 
-	/* (non-Javadoc)
-	 * @see org.objectweb.asm.MethodVisitor#visitMultiANewArrayInsn(java.lang.String, int)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public void visitMultiANewArrayInsn(String desc, int dims) {
+        if (opcode == Opcodes.ANEWARRAY) {
+            Label origTarget = new Label();
+            visitInsn(Opcodes.DUP);
+            visitFieldInsn(Opcodes.GETSTATIC, PackageInfo.getNameWithSlash(org.evosuite.Properties.class),
+                    "ARRAY_LIMIT", "I");
+            super.visitJumpInsn(Opcodes.IF_ICMPLT, origTarget);
+            super.visitTypeInsn(Opcodes.NEW,
+                    PackageInfo.getNameWithSlash(TestCaseExecutor.TimeoutExceeded.class));
+            super.visitInsn(Opcodes.DUP);
+            super.visitMethodInsn(Opcodes.INVOKESPECIAL,
+                    PackageInfo.getNameWithSlash(TestCaseExecutor.TimeoutExceeded.class),
+                    "<init>", "()V", false);
+            super.visitInsn(Opcodes.ATHROW);
+            super.visitLabel(origTarget);
 
-		Label origTarget = new Label();
-		Label errorTarget = new Label();
+        }
+        super.visitTypeInsn(opcode, type);
+    }
 
-		// Multidimensional arrays can only have max 256 dimensions
-		if (Properties.ARRAY_LIMIT < 256) {
-			push(dims);
-			visitFieldInsn(Opcodes.GETSTATIC, PackageInfo.getNameWithSlash(org.evosuite.Properties.class),
-			               "ARRAY_LIMIT", "I");
-			super.visitJumpInsn(Opcodes.IF_ICMPGE, errorTarget);
-		}
+    /* (non-Javadoc)
+     * @see org.objectweb.asm.MethodVisitor#visitMultiANewArrayInsn(java.lang.String, int)
+     */
 
-		// Check each of the dimensions
-		Map<Integer, Integer> to = new HashMap<>();
-		for (int i = dims - 1; i >= 0; i--) {
-			int loc = newLocal(Type.INT_TYPE);
-			storeLocal(loc);
-			to.put(i, loc);
-		}
-		for (int i = 0; i < dims; i++) {
-			loadLocal(to.get(i));
-			visitFieldInsn(Opcodes.GETSTATIC, "org/evosuite/Properties",
-			               "ARRAY_LIMIT", "I");
-			super.visitJumpInsn(Opcodes.IF_ICMPGE, errorTarget);
-		}
-		goTo(origTarget);
-		super.visitLabel(errorTarget);
-		super.visitTypeInsn(Opcodes.NEW,
-				PackageInfo.getNameWithSlash(TestCaseExecutor.TimeoutExceeded.class));
-		super.visitInsn(Opcodes.DUP);
-		super.visitMethodInsn(Opcodes.INVOKESPECIAL,
-				PackageInfo.getNameWithSlash(TestCaseExecutor.TimeoutExceeded.class),
-		                      "<init>", "()V", false);
-		super.visitInsn(Opcodes.ATHROW);
-		super.visitLabel(origTarget);
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void visitMultiANewArrayInsn(String desc, int dims) {
 
-		// Restore original dimensions
-		for (int i = 0; i < dims; i++) {
-			loadLocal(to.get(i));
-		}
+        Label origTarget = new Label();
+        Label errorTarget = new Label();
 
-		super.visitMultiANewArrayInsn(desc, dims);
-	}
+        // Multidimensional arrays can only have max 256 dimensions
+        if (Properties.ARRAY_LIMIT < 256) {
+            push(dims);
+            visitFieldInsn(Opcodes.GETSTATIC, PackageInfo.getNameWithSlash(org.evosuite.Properties.class),
+                    "ARRAY_LIMIT", "I");
+            super.visitJumpInsn(Opcodes.IF_ICMPGE, errorTarget);
+        }
+
+        // Check each of the dimensions
+        Map<Integer, Integer> to = new HashMap<>();
+        for (int i = dims - 1; i >= 0; i--) {
+            int loc = newLocal(Type.INT_TYPE);
+            storeLocal(loc);
+            to.put(i, loc);
+        }
+        for (int i = 0; i < dims; i++) {
+            loadLocal(to.get(i));
+            visitFieldInsn(Opcodes.GETSTATIC, "org/evosuite/Properties",
+                    "ARRAY_LIMIT", "I");
+            super.visitJumpInsn(Opcodes.IF_ICMPGE, errorTarget);
+        }
+        goTo(origTarget);
+        super.visitLabel(errorTarget);
+        super.visitTypeInsn(Opcodes.NEW,
+                PackageInfo.getNameWithSlash(TestCaseExecutor.TimeoutExceeded.class));
+        super.visitInsn(Opcodes.DUP);
+        super.visitMethodInsn(Opcodes.INVOKESPECIAL,
+                PackageInfo.getNameWithSlash(TestCaseExecutor.TimeoutExceeded.class),
+                "<init>", "()V", false);
+        super.visitInsn(Opcodes.ATHROW);
+        super.visitLabel(origTarget);
+
+        // Restore original dimensions
+        for (int i = 0; i < dims; i++) {
+            loadLocal(to.get(i));
+        }
+
+        super.visitMultiANewArrayInsn(desc, dims);
+    }
 
 }

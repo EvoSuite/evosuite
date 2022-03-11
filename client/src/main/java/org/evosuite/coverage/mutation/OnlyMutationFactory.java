@@ -19,31 +19,31 @@
  */
 package org.evosuite.coverage.mutation;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.evosuite.TestGenerationContext;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.statistics.RuntimeVariable;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class OnlyMutationFactory extends MutationFactory {
 
-	@Override
-	public List<MutationTestFitness> getCoverageGoals() {
-		if (this.goals != null) {
-			return this.goals;
-		}
+    @Override
+    public List<MutationTestFitness> getCoverageGoals() {
+        if (this.goals != null) {
+            return this.goals;
+        }
 
-		this.goals = new ArrayList<>();
+        this.goals = new ArrayList<>();
 
-		for (Mutation m : MutationPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getMutants()) {
-			//if (MutationTimeoutStoppingCondition.isDisabled(m))
-			//	continue;
-			this.goals.add(new OnlyMutationTestFitness(m));
-		}
-		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Mutants, this.goals.size());
+        for (Mutation m : MutationPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getMutants()) {
+            //if (MutationTimeoutStoppingCondition.isDisabled(m))
+            //	continue;
+            this.goals.add(new OnlyMutationTestFitness(m));
+        }
+        ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Mutants, this.goals.size());
 
-		return this.goals;
-	}
+        return this.goals;
+    }
 
 }

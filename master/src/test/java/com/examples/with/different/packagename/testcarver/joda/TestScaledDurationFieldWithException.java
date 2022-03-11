@@ -32,6 +32,7 @@ public class TestScaledDurationFieldWithException {
         try {
             new ScaledDurationField(null, 10);
             fail();
-        } catch (IllegalArgumentException ex) {}
+        } catch (IllegalArgumentException ex) {
+        }
     }
 }

@@ -32,17 +32,16 @@ public class EvoAssertions {
     /**
      * Check if the given exception was thrown in the given class.
      * In some special cases, the exception is rather rethrown
-     *
      */
-    public static void verifyException(String sourceClass, Throwable t)throws AssertionError{
+    public static void verifyException(String sourceClass, Throwable t) throws AssertionError {
 
         // this can happen in false positives for PAFM
-        if(t instanceof AssumptionViolatedException){
+        if (t instanceof AssumptionViolatedException) {
             throw (AssumptionViolatedException) t;
         }
 
         //non functional requirement exceptions are handled specially in the generated tests
-        if(t instanceof TooManyResourcesException){
+        if (t instanceof TooManyResourcesException) {
             throw (TooManyResourcesException) t;
         }
 
@@ -56,22 +55,22 @@ public class EvoAssertions {
      * @param t
      * @throws AssertionError
      */
-    public static void assertThrownBy(String sourceClass, Throwable t) throws AssertionError{
+    public static void assertThrownBy(String sourceClass, Throwable t) throws AssertionError {
         StackTraceElement[] stackTrace = t.getStackTrace();
 
         // TODO: Force mocked exceptions to always have stack trace
-        if(stackTrace.length == 0)
+        if (stackTrace.length == 0)
             return;
 
         StackTraceElement el = stackTrace[0];
 
-        if(sourceClass==null){
+        if (sourceClass == null) {
             return; //can this even happen?
         }
 
 
         String name = el.getClassName();
-        if(sourceClass.equals(name)){
+        if (sourceClass.equals(name)) {
             return; //OK, same class, as expected
         }
 
@@ -83,20 +82,20 @@ public class EvoAssertions {
         Class<?> klass;
 
         try {
-           klass = EvoAssertions.class.getClassLoader().loadClass(sourceClass);
+            klass = EvoAssertions.class.getClassLoader().loadClass(sourceClass);
         } catch (ClassNotFoundException e) {
-            throw new AssertionError("Cannot load/analyze class "+sourceClass);
+            throw new AssertionError("Cannot load/analyze class " + sourceClass);
         }
 
-        for(Annotation annotation : ReflectionUtils.getAnnotations(klass)){
-            if(annotation.getClass().getName().equals(name)){
+        for (Annotation annotation : ReflectionUtils.getAnnotations(klass)) {
+            if (annotation.getClass().getName().equals(name)) {
                 return;
             }
         }
 
-        while(klass != null){
+        while (klass != null) {
             klass = klass.getSuperclass();
-            if(klass != null && klass.getName().equals(name)){
+            if (klass != null && klass.getName().equals(name)) {
                 return;
             }
         }
@@ -104,11 +103,11 @@ public class EvoAssertions {
         // Exceptions in arraycopy / StrBuilder seem to be non-deterministically changing:
         // Exception was not thrown in java.lang.AbstractStringBuilder but in java.lang.System.arraycopy(Native Method): java.lang.ArrayIndexOutOfBoundsException
         // Until we know what exactly is happening here, let's ignore this case
-        if(name.equals("java.lang.System")) {
+        if (name.equals("java.lang.System")) {
             return;
         }
 
 
-        throw new AssertionError("Exception was not thrown in "+sourceClass +" but in "+el+": "+t);
+        throw new AssertionError("Exception was not thrown in " + sourceClass + " but in " + el + ": " + t);
     }
 }

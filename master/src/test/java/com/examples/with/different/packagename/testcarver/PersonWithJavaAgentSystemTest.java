@@ -29,38 +29,37 @@ import static org.junit.Assert.assertEquals;
 
 public class PersonWithJavaAgentSystemTest {
 
-	
-	@BeforeClass 
-	public static void initEvoSuiteFramework(){ 
-		org.evosuite.Properties.REPLACE_CALLS = true;
-		InstrumentingAgent.initialize();
-	} 
 
-	@Before
-	public void init() {
-		InstrumentingAgent.activate();
-	}
+    @BeforeClass
+    public static void initEvoSuiteFramework() {
+        org.evosuite.Properties.REPLACE_CALLS = true;
+        InstrumentingAgent.initialize();
+    }
 
-	@After
-	public void tearDown() {
-		InstrumentingAgent.deactivate();
-	}
+    @Before
+    public void init() {
+        InstrumentingAgent.activate();
+    }
 
-	
-	@Test
-	public void test0_1() throws Throwable {
-		Person person0 = new Person("", "");
-		String string0 = person0.getFirstName();
-		assertEquals("", string0);
-	}
+    @After
+    public void tearDown() {
+        InstrumentingAgent.deactivate();
+    }
 
 
+    @Test
+    public void test0_1() throws Throwable {
+        Person person0 = new Person("", "");
+        String string0 = person0.getFirstName();
+        assertEquals("", string0);
+    }
 
-	@Test
-	public void test0() throws Throwable {
-		Person person0 = new Person("", "");
-		String string0 = person0.getLastName();
-		assertEquals("", string0);
-	}
+
+    @Test
+    public void test0() throws Throwable {
+        Person person0 = new Person("", "");
+        String string0 = person0.getLastName();
+        assertEquals("", string0);
+    }
 
 }

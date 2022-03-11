@@ -25,7 +25,7 @@ import java.lang.reflect.Modifier;
 
 import org.junit.Test;
 
-public class FinalClassTest  {
+public class FinalClassTest {
 
     @Test
     public void testClass() {

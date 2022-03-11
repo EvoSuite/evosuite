@@ -25,101 +25,100 @@ import org.evosuite.utils.Randomness;
 
 /**
  * @author Gordon Fraser
- * 
  */
 public class ConstantPoolManager {
 
-	private static ConstantPoolManager instance = new ConstantPoolManager();
+    private static final ConstantPoolManager instance = new ConstantPoolManager();
 
-	private ConstantPool[] pools;
-	private double[] probabilities;
+    private ConstantPool[] pools;
+    private double[] probabilities;
 
-	/*
-	 * We treat it in a special way, for now, just for making experiments
-	 * easier to run
-	 */
-	private static final int DYNAMIC_POOL_INDEX = 2;
+    /*
+     * We treat it in a special way, for now, just for making experiments
+     * easier to run
+     */
+    private static final int DYNAMIC_POOL_INDEX = 2;
 
-	private ConstantPoolManager() {
-		init();
-	}
+    private ConstantPoolManager() {
+        init();
+    }
 
-	private void init() {
-		if(!Properties.VARIABLE_POOL) {
-			pools = new ConstantPool[]{new StaticConstantPool(), new StaticConstantPool(),
-					new DynamicConstantPool()};
-		} else {
-			pools = new ConstantPool[]{new StaticConstantVariableProbabilityPool(), new StaticConstantVariableProbabilityPool(),
-					new DynamicConstantVariableProbabilityPool()};
-		}
+    private void init() {
+        if (!Properties.VARIABLE_POOL) {
+            pools = new ConstantPool[]{new StaticConstantPool(), new StaticConstantPool(),
+                    new DynamicConstantPool()};
+        } else {
+            pools = new ConstantPool[]{new StaticConstantVariableProbabilityPool(), new StaticConstantVariableProbabilityPool(),
+                    new DynamicConstantVariableProbabilityPool()};
+        }
 
-		initDefaultProbabilities();
-	}
+        initDefaultProbabilities();
+    }
 
-	private void initDefaultProbabilities() {
-		probabilities = new double[pools.length];
+    private void initDefaultProbabilities() {
+        probabilities = new double[pools.length];
 //		double p = 1d / probabilities.length;
-		double p = (1d - Properties.DYNAMIC_POOL) / (probabilities.length - 1);
-		for (int i = 0; i < probabilities.length; i++) {
-			probabilities[i] = p;
-		}
-		probabilities[DYNAMIC_POOL_INDEX] = Properties.DYNAMIC_POOL;
-		normalizeProbabilities();
-	}
+        double p = (1d - Properties.DYNAMIC_POOL) / (probabilities.length - 1);
+        for (int i = 0; i < probabilities.length; i++) {
+            probabilities[i] = p;
+        }
+        probabilities[DYNAMIC_POOL_INDEX] = Properties.DYNAMIC_POOL;
+        normalizeProbabilities();
+    }
 
-	private void normalizeProbabilities() {
-		double sum = 0d;
-		for (double p : probabilities) {
-			sum += p;
-		}
-		double delta = 1d / sum;
-		for (int i = 0; i < probabilities.length; i++) {
-			probabilities[i] = probabilities[i] * delta;
-		}
-	}
+    private void normalizeProbabilities() {
+        double sum = 0d;
+        for (double p : probabilities) {
+            sum += p;
+        }
+        double delta = 1d / sum;
+        for (int i = 0; i < probabilities.length; i++) {
+            probabilities[i] = probabilities[i] * delta;
+        }
+    }
 
-	public static ConstantPoolManager getInstance() {
-		return instance;
-	}
+    public static ConstantPoolManager getInstance() {
+        return instance;
+    }
 
-	/*
-	 * Note: the indexes are hard coded for now. We do it because maybe
-	 * in the future we might want to extend this class, so still we need to
-	 * use arrays 
-	 */
+    /*
+     * Note: the indexes are hard coded for now. We do it because maybe
+     * in the future we might want to extend this class, so still we need to
+     * use arrays
+     */
 
-	public void addSUTConstant(Object value) {
-		pools[0].add(value);
-	}
+    public void addSUTConstant(Object value) {
+        pools[0].add(value);
+    }
 
-	public void addNonSUTConstant(Object value) {
-		pools[1].add(value);
-	}
+    public void addNonSUTConstant(Object value) {
+        pools[1].add(value);
+    }
 
-	public void addDynamicConstant(Object value) {
-		pools[DYNAMIC_POOL_INDEX].add(value);
-	}
+    public void addDynamicConstant(Object value) {
+        pools[DYNAMIC_POOL_INDEX].add(value);
+    }
 
-	public ConstantPool getConstantPool() {
-		double p = Randomness.nextDouble();
-		double k = 0d;
-		for (int i = 0; i < probabilities.length; i++) {
-			k += probabilities[i];
-			if (p < k) {
-				return pools[i];
-			}
-		}
-		/*
-		 * This should not happen, but you never know with double computations...
-		 */
-		return pools[0];
-	}
-	
-	public ConstantPool getDynamicConstantPool() {
-		return pools[DYNAMIC_POOL_INDEX];
-	}
+    public ConstantPool getConstantPool() {
+        double p = Randomness.nextDouble();
+        double k = 0d;
+        for (int i = 0; i < probabilities.length; i++) {
+            k += probabilities[i];
+            if (p < k) {
+                return pools[i];
+            }
+        }
+        /*
+         * This should not happen, but you never know with double computations...
+         */
+        return pools[0];
+    }
 
-	public void reset() {
-		init();
-	}
+    public ConstantPool getDynamicConstantPool() {
+        return pools[DYNAMIC_POOL_INDEX];
+    }
+
+    public void reset() {
+        init();
+    }
 }

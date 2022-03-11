@@ -32,10 +32,10 @@ import org.evosuite.utils.StringUtil;
  */
 public class LocalAddressPrimitiveStatement extends EnvironmentDataStatement<EvoSuiteLocalAddress> {
 
-	private static final long serialVersionUID = -6687351650507282638L;
+    private static final long serialVersionUID = -6687351650507282638L;
 
-	public LocalAddressPrimitiveStatement(TestCase tc) {
-        this(tc,null);
+    public LocalAddressPrimitiveStatement(TestCase tc) {
+        this(tc, null);
         randomize();
     }
 
@@ -56,7 +56,7 @@ public class LocalAddressPrimitiveStatement extends EnvironmentDataStatement<Evo
             testCode += ((Class<?>) retval.getType()).getSimpleName() + " "
                     + varName + " = new "
                     + ((Class<?>) retval.getType()).getSimpleName() + "(\""
-                    + escapedAddress +"\", "+port + ");\n";
+                    + escapedAddress + "\", " + port + ");\n";
         } else {
             testCode += ((Class<?>) retval.getType()).getSimpleName() + " "
                     + varName + " = null;\n";
@@ -80,11 +80,11 @@ public class LocalAddressPrimitiveStatement extends EnvironmentDataStatement<Evo
 
         EvoSuiteLocalAddress addr;
 
-        if(!tc.getAccessedEnvironment().getViewOfLocalListeningPorts().isEmpty()){
+        if (!tc.getAccessedEnvironment().getViewOfLocalListeningPorts().isEmpty()) {
             EndPointInfo info = Randomness.choice(tc.getAccessedEnvironment().getViewOfLocalListeningPorts());
             String host = info.getHost();
             int port = info.getPort();
-            addr = new EvoSuiteLocalAddress(host,port);
+            addr = new EvoSuiteLocalAddress(host, port);
         } else {
             /*
                 no point in creating local addresses that the SUT has

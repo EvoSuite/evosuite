@@ -32,16 +32,17 @@ public class SimpleFM_GenericsReturnWithExtend_Single {
         boolean isW();
     }
 
-    public interface A{
+    public interface A {
         void setB(B b);
+
         <C extends B> C getB();
     }
 
 
-    public static boolean foo(A a){
+    public static boolean foo(A a) {
         W w = a.getB();
 
-        if(w.isW()){
+        if (w.isW()) {
             System.out.println("W");
             return true;
         } else {

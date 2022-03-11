@@ -18,14 +18,17 @@
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 package org.evosuite.graphs.ccfg;
+
 public class CCFGFrameEdge extends CCFGEdge {
 
-	private static final long serialVersionUID = 8223049010545407697L;
+    private static final long serialVersionUID = 8223049010545407697L;
 
-	
-	/** {@inheritDoc} */
-	@Override
-	public String toString() {
-		return "";
-	}
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        return "";
+    }
 }

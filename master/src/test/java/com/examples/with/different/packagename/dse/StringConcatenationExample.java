@@ -27,10 +27,10 @@ package com.examples.with.different.packagename.dse;
 public class StringConcatenationExample {
 
     private static final int H_SIZE = 7;
-    private static final int W_SIZE = 11;                                                                                                                                                                                                   
+    private static final int W_SIZE = 11;
 
     public static int test(int a) throws IllegalArgumentException {
-        String string1 = "test string 1... "+ a + "," + H_SIZE + "\n";
+        String string1 = "test string 1... " + a + "," + H_SIZE + "\n";
         String string2 = "test string 2: " + a + "\n" + string1;
         System.out.print(string2);
 

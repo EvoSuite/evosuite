@@ -19,11 +19,6 @@
  */
 package org.evosuite.coverage.io.output;
 
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import org.evosuite.Properties;
 import org.evosuite.ga.archive.Archive;
 import org.evosuite.testcase.TestChromosome;
@@ -32,6 +27,8 @@ import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
+
+import java.util.*;
 
 /**
  * @author Jose Miguel Rojas
@@ -45,7 +42,7 @@ public class OutputCoverageSuiteFitness extends TestSuiteFitnessFunction {
     private final Set<OutputCoverageTestFitness> outputCoverageGoals = new LinkedHashSet<>();
 
     private final Set<OutputCoverageTestFitness> toRemoveGoals = new LinkedHashSet<>();
-    private final Set<OutputCoverageTestFitness> removedGoals  = new LinkedHashSet<>();
+    private final Set<OutputCoverageTestFitness> removedGoals = new LinkedHashSet<>();
 
     // Some stuff for debug output
     public int maxCoveredGoals = 0;
@@ -70,8 +67,8 @@ public class OutputCoverageSuiteFitness extends TestSuiteFitnessFunction {
         List<OutputCoverageTestFitness> goals = new OutputCoverageFactory().getCoverageGoals();
         for (OutputCoverageTestFitness goal : goals) {
             outputCoverageGoals.add(goal);
-			if(Properties.TEST_ARCHIVE)
-				Archive.getArchiveInstance().addTarget(goal);
+            if (Properties.TEST_ARCHIVE)
+                Archive.getArchiveInstance().addTarget(goal);
         }
     }
 
@@ -148,7 +145,7 @@ public class OutputCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
         Map<OutputCoverageTestFitness, Double> mapDistances = new LinkedHashMap<>();
         for (OutputCoverageTestFitness testFitness : this.outputCoverageGoals) {
-          mapDistances.put(testFitness, 1.0);
+            mapDistances.put(testFitness, 1.0);
         }
 
         for (ExecutionResult result : results) {
@@ -190,7 +187,7 @@ public class OutputCoverageSuiteFitness extends TestSuiteFitnessFunction {
      * @param fitness
      */
     private void printStatusMessages(TestSuiteChromosome suite,
-            int coveredGoals, double fitness) {
+                                     int coveredGoals, double fitness) {
         if (coveredGoals > maxCoveredGoals) {
             logger.info("(Output Goals) Best individual covers " + coveredGoals + "/"
                     + totalGoals + " output goals");

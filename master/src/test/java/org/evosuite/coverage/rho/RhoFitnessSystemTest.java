@@ -49,121 +49,121 @@ import com.opencsv.CSVReader;
 
 public class RhoFitnessSystemTest extends SystemTestBase {
 
-	private void writeMatrix(String MATRIX_CONTENT) {
-		String path = Properties.REPORT_DIR + File.separator;
-		final File tmp = new File(path);
-		tmp.mkdirs();
+    private void writeMatrix(String MATRIX_CONTENT) {
+        String path = Properties.REPORT_DIR + File.separator;
+        final File tmp = new File(path);
+        tmp.mkdirs();
 
-		Properties.COVERAGE_MATRIX_FILENAME = path + File.separator + Properties.TARGET_CLASS + ".matrix";
+        Properties.COVERAGE_MATRIX_FILENAME = path + File.separator + Properties.TARGET_CLASS + ".matrix";
 
-		try {
-			final File matrix = new File(Properties.COVERAGE_MATRIX_FILENAME);
-			matrix.createNewFile();
+        try {
+            final File matrix = new File(Properties.COVERAGE_MATRIX_FILENAME);
+            matrix.createNewFile();
 
-			FileWriter fw = new FileWriter(matrix.getAbsoluteFile());
-			BufferedWriter bw = new BufferedWriter(fw);
-			bw.write(MATRIX_CONTENT);
-			bw.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
+            FileWriter fw = new FileWriter(matrix.getAbsoluteFile());
+            BufferedWriter bw = new BufferedWriter(fw);
+            bw.write(MATRIX_CONTENT);
+            bw.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
-	@Before
-	public void prepare() {
-		RhoCoverageFactory.reset();
-		try {
-			FileUtils.deleteDirectory(new File("evosuite-report"));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+    @Before
+    public void prepare() {
+        RhoCoverageFactory.reset();
+        try {
+            FileUtils.deleteDirectory(new File("evosuite-report"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
-		Properties.CRITERION = new Properties.Criterion[] {
-			Properties.Criterion.RHO
-		};
-		Properties.STRATEGY = Strategy.ENTBUG;
-		Properties.STOPPING_CONDITION = StoppingCondition.MAXTIME;
-		Properties.SEARCH_BUDGET = 60;
+        Properties.CRITERION = new Properties.Criterion[]{
+                Properties.Criterion.RHO
+        };
+        Properties.STRATEGY = Strategy.ENTBUG;
+        Properties.STOPPING_CONDITION = StoppingCondition.MAXTIME;
+        Properties.SEARCH_BUDGET = 60;
 
-		Properties.TEST_ARCHIVE = false;
-		Properties.TEST_FACTORY = TestFactory.RANDOM;
-		Properties.MINIMIZE = false;
-		Properties.MINIMIZE_VALUES = false;
-		Properties.INLINE = false;
-		Properties.ASSERTIONS = false;
-		Properties.USE_EXISTING_COVERAGE = false;
-	}
+        Properties.TEST_ARCHIVE = false;
+        Properties.TEST_FACTORY = TestFactory.RANDOM;
+        Properties.MINIMIZE = false;
+        Properties.MINIMIZE_VALUES = false;
+        Properties.INLINE = false;
+        Properties.ASSERTIONS = false;
+        Properties.USE_EXISTING_COVERAGE = false;
+    }
 
-	@Test
-	public void testZeroRhoScoreWithoutPreviousCoverage() throws IOException, CsvException {
+    @Test
+    public void testZeroRhoScoreWithoutPreviousCoverage() throws IOException, CsvException {
 
-		EvoSuite evosuite = new EvoSuite();
+        EvoSuite evosuite = new EvoSuite();
 
-		String targetClass = Compositional.class.getCanonicalName();
-		Properties.TARGET_CLASS = targetClass;
+        String targetClass = Compositional.class.getCanonicalName();
+        Properties.TARGET_CLASS = targetClass;
 
-		Properties.OUTPUT_VARIABLES = RuntimeVariable.RhoScore.name();
+        Properties.OUTPUT_VARIABLES = RuntimeVariable.RhoScore.name();
         Properties.STATISTICS_BACKEND = StatisticsBackend.CSV;
 
-		String[] command = new String[] {
-			"-class", targetClass,
-			"-generateTests"
-		};
+        String[] command = new String[]{
+                "-class", targetClass,
+                "-generateTests"
+        };
 
-		Object result = evosuite.parseCommandLine(command);
-		Assert.assertNotNull(result);
+        Object result = evosuite.parseCommandLine(command);
+        Assert.assertNotNull(result);
 
-		List<?> goals = RhoCoverageFactory.getGoals();
-		assertEquals(12, goals.size());
+        List<?> goals = RhoCoverageFactory.getGoals();
+        assertEquals(12, goals.size());
 
-		String statistics_file = System.getProperty("user.dir") + File.separator + Properties.REPORT_DIR + File.separator + "statistics.csv";
+        String statistics_file = System.getProperty("user.dir") + File.separator + Properties.REPORT_DIR + File.separator + "statistics.csv";
 
-		CSVReader reader = new CSVReader(new FileReader(statistics_file));
+        CSVReader reader = new CSVReader(new FileReader(statistics_file));
         List<String[]> rows = reader.readAll();
         assertEquals(2, rows.size());
         reader.close();
 
         assertEquals("0.5", rows.get(1)[0]);
-	}
+    }
 
-	@Test
-	public void testZeroRhoScoreWithPreviousCoverage() throws IOException, CsvException {
+    @Test
+    public void testZeroRhoScoreWithPreviousCoverage() throws IOException, CsvException {
 
-		EvoSuite evosuite = new EvoSuite();
+        EvoSuite evosuite = new EvoSuite();
 
-		String targetClass = Compositional.class.getCanonicalName();
-		Properties.TARGET_CLASS = targetClass;
+        String targetClass = Compositional.class.getCanonicalName();
+        Properties.TARGET_CLASS = targetClass;
 
-		String previous_tmp_coverage =
-			"1 1 1 1 1 1 1 1 1 1 1 +\n" +
-			"1 1 1 1 0 0 0 0 0 0 0 +\n";
-		this.writeMatrix(previous_tmp_coverage);
-		Properties.USE_EXISTING_COVERAGE = true;
+        String previous_tmp_coverage =
+                "1 1 1 1 1 1 1 1 1 1 1 +\n" +
+                        "1 1 1 1 0 0 0 0 0 0 0 +\n";
+        this.writeMatrix(previous_tmp_coverage);
+        Properties.USE_EXISTING_COVERAGE = true;
 
-		Properties.OUTPUT_VARIABLES = RuntimeVariable.RhoScore.name();
+        Properties.OUTPUT_VARIABLES = RuntimeVariable.RhoScore.name();
         Properties.STATISTICS_BACKEND = StatisticsBackend.CSV;
 
-		String[] command = new String[] {
-			"-class", targetClass,
-			"-generateTests"
-		};
+        String[] command = new String[]{
+                "-class", targetClass,
+                "-generateTests"
+        };
 
-		Object result = evosuite.parseCommandLine(command);
-		Assert.assertNotNull(result);
+        Object result = evosuite.parseCommandLine(command);
+        Assert.assertNotNull(result);
 
-		List<?> goals = RhoCoverageFactory.getGoals();
-		assertEquals(12, goals.size());
-		assertEquals(15, RhoCoverageFactory.getNumber_of_Ones());
-		assertEquals(2, RhoCoverageFactory.getNumber_of_Test_Cases());
-		assertEquals((15.0 / 12.0 / 2.0) - 0.5, RhoCoverageFactory.getRho(), 0.0001);
+        List<?> goals = RhoCoverageFactory.getGoals();
+        assertEquals(12, goals.size());
+        assertEquals(15, RhoCoverageFactory.getNumber_of_Ones());
+        assertEquals(2, RhoCoverageFactory.getNumber_of_Test_Cases());
+        assertEquals((15.0 / 12.0 / 2.0) - 0.5, RhoCoverageFactory.getRho(), 0.0001);
 
-		String statistics_file = System.getProperty("user.dir") + File.separator + Properties.REPORT_DIR + File.separator + "statistics.csv";
+        String statistics_file = System.getProperty("user.dir") + File.separator + Properties.REPORT_DIR + File.separator + "statistics.csv";
 
-		CSVReader reader = new CSVReader(new FileReader(statistics_file));
+        CSVReader reader = new CSVReader(new FileReader(statistics_file));
         List<String[]> rows = reader.readAll();
         assertEquals(2, rows.size());
         reader.close();
 
         assertEquals("0.5", rows.get(1)[0]);
-	}
+    }
 }

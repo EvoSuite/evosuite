@@ -44,9 +44,9 @@ import java.util.Set;
  */
 public class MethodDescriptor implements Comparable<MethodDescriptor>, Serializable {
 
-	private static final long serialVersionUID = -6747363265640233704L;
+    private static final long serialVersionUID = -6747363265640233704L;
 
-	protected static final Logger logger = LoggerFactory.getLogger(MethodDescriptor.class);
+    protected static final Logger logger = LoggerFactory.getLogger(MethodDescriptor.class);
 
     private final String methodName;
     private final String inputParameterMatchers;
@@ -62,11 +62,10 @@ public class MethodDescriptor implements Comparable<MethodDescriptor>, Serializa
 
 
     /**
-     *
-     * @param method the one that is going to be mocked
+     * @param method     the one that is going to be mocked
      * @param retvalType type of the class the mocked method belongs to. The type might be parameterized (ie generics)
      */
-    public MethodDescriptor(Method method, GenericClass<?> retvalType){
+    public MethodDescriptor(Method method, GenericClass<?> retvalType) {
         Inputs.checkNull(method, retvalType);
         this.method = new GenericMethod(method, retvalType);
         methodName = method.getName();
@@ -74,7 +73,7 @@ public class MethodDescriptor implements Comparable<MethodDescriptor>, Serializa
         inputParameterMatchers = initMatchers(this.method, retvalType);
     }
 
-    private MethodDescriptor(GenericMethod m, String methodName, String className, String inputParameterMatchers){
+    private MethodDescriptor(GenericMethod m, String methodName, String className, String inputParameterMatchers) {
         this.method = m;
         this.methodName = methodName;
         this.className = className;
@@ -86,28 +85,28 @@ public class MethodDescriptor implements Comparable<MethodDescriptor>, Serializa
         String matchers = "";
         Type[] types = method.getParameterTypes();
         List<GenericClass<?>> parameterClasses = method.getParameterClasses();
-        for(int i=0; i<types.length; i++){
-            if(i > 0){
+        for (int i = 0; i < types.length; i++) {
+            if (i > 0) {
                 matchers += " , ";
             }
 
             GenericClass<?> genericParameter = parameterClasses.get(i);
             Type type = genericParameter.getRawClass();
-            if(type.equals(Integer.TYPE) || type.equals(Integer.class)){
+            if (type.equals(Integer.TYPE) || type.equals(Integer.class)) {
                 matchers += "anyInt()";
-            }else if(type.equals(Long.TYPE) || type.equals(Long.class)){
+            } else if (type.equals(Long.TYPE) || type.equals(Long.class)) {
                 matchers += "anyLong()";
-            }else if(type.equals(Boolean.TYPE) || type.equals(Boolean.class)){
+            } else if (type.equals(Boolean.TYPE) || type.equals(Boolean.class)) {
                 matchers += "anyBoolean()";
-            }else if(type.equals(Double.TYPE) || type.equals(Double.class)){
+            } else if (type.equals(Double.TYPE) || type.equals(Double.class)) {
                 matchers += "anyDouble()";
-            }else if(type.equals(Float.TYPE) || type.equals(Float.class)){
+            } else if (type.equals(Float.TYPE) || type.equals(Float.class)) {
                 matchers += "anyFloat()";
-            }else if(type.equals(Short.TYPE) || type.equals(Short.class)){
+            } else if (type.equals(Short.TYPE) || type.equals(Short.class)) {
                 matchers += "anyShort()";
-            }else if(type.equals(Character.TYPE) || type.equals(Character.class)){
+            } else if (type.equals(Character.TYPE) || type.equals(Character.class)) {
                 matchers += "anyChar()";
-            }else if(type.equals(String.class)){
+            } else if (type.equals(String.class)) {
                 matchers += "anyString()";
             } else if (type.equals(List.class)) {
                 matchers += "anyList()";
@@ -119,8 +118,8 @@ public class MethodDescriptor implements Comparable<MethodDescriptor>, Serializa
                 matchers += "anyCollection()";
             } else if (type.equals(Iterable.class)) {
                 matchers += "anyIterable()";
-            }else{
-                if(type.getTypeName().equals(Object.class.getName())){
+            } else {
+                if (type.getTypeName().equals(Object.class.getName())) {
                     /*
                         Ideally here we should use retvalType to understand if the target class
                         is using generics and if this method parameters would need to be handled
@@ -130,8 +129,8 @@ public class MethodDescriptor implements Comparable<MethodDescriptor>, Serializa
                      */
                     matchers += "any()";
                 } else {
-                    if(type instanceof Class){
-                        matchers += "any(" + ((Class)type).getCanonicalName() + ".class)";
+                    if (type instanceof Class) {
+                        matchers += "any(" + ((Class) type).getCanonicalName() + ".class)";
                     } else {
                         //what to do here? is it even possible?
                         matchers += "nullable(" + genericParameter.getRawClass().getCanonicalName() + ".class)";
@@ -154,22 +153,22 @@ public class MethodDescriptor implements Comparable<MethodDescriptor>, Serializa
      *
      * @return
      */
-    public boolean shouldBeMocked(){
+    public boolean shouldBeMocked() {
 
         int modifiers = method.getMethod().getModifiers();
 
-        if(method.getReturnType().equals(Void.TYPE) ||
+        if (method.getReturnType().equals(Void.TYPE) ||
                 method.getName().equals("equals") ||
                 method.getName().equals("hashCode") ||
-                Modifier.isPrivate(modifiers) ) {
+                Modifier.isPrivate(modifiers)) {
 
             return false;
         }
 
-        if(Properties.hasTargetClassBeenLoaded() ) {
+        if (Properties.hasTargetClassBeenLoaded()) {
             //null can happen in some unit tests
 
-            if(!Modifier.isPublic(modifiers)) {
+            if (!Modifier.isPublic(modifiers)) {
                 assert !Modifier.isPrivate(modifiers); //previous checks
 
                 String sutName = Properties.TARGET_CLASS;
@@ -186,9 +185,7 @@ public class MethodDescriptor implements Comparable<MethodDescriptor>, Serializa
                     samePackage = className.substring(0, lastIndexMethod).equals(sutName.substring(0, lastIndexSUT));
                 }
 
-                if (!samePackage) {
-                    return false;
-                }
+                return samePackage;
             }
         } else {
             logger.warn("The target class should be loaded before invoking this method");
@@ -197,19 +194,19 @@ public class MethodDescriptor implements Comparable<MethodDescriptor>, Serializa
         return true;
     }
 
-    public MethodDescriptor getCopy(){
+    public MethodDescriptor getCopy() {
         MethodDescriptor copy = new MethodDescriptor(method, methodName, className, inputParameterMatchers);
         copy.counter = this.counter;
         return copy;
     }
 
-    public int getNumberOfInputParameters(){
+    public int getNumberOfInputParameters() {
         return method.getNumParameters();
     }
 
-    public Object executeMatcher(int i) throws IllegalArgumentException{
-        if(i<0 || i>= getNumberOfInputParameters()){
-            throw new IllegalArgumentException("Invalid index: "+i);
+    public Object executeMatcher(int i) throws IllegalArgumentException {
+        if (i < 0 || i >= getNumberOfInputParameters()) {
+            throw new IllegalArgumentException("Invalid index: " + i);
         }
 
         Type[] types = method.getParameterTypes();
@@ -247,21 +244,21 @@ public class MethodDescriptor implements Comparable<MethodDescriptor>, Serializa
             } else {
                 return Mockito.nullable(type);
             }
-        } catch (Exception e){
-            logger.error("Failed to executed Mockito matcher n{} of type {} in {}.{}: {}",i,type,className,methodName,e.getMessage());
+        } catch (Exception e) {
+            logger.error("Failed to executed Mockito matcher n{} of type {} in {}.{}: {}", i, type, className, methodName, e.getMessage());
             throw new EvosuiteError(e);
         }
     }
 
     @Deprecated // better (more precise results) to use the other constructor
-    public MethodDescriptor(String className, String methodName, String inputParameterMatchers) throws IllegalArgumentException{
-        Inputs.checkNull(methodName,inputParameterMatchers);
+    public MethodDescriptor(String className, String methodName, String inputParameterMatchers) throws IllegalArgumentException {
+        Inputs.checkNull(methodName, inputParameterMatchers);
         this.className = className;
         this.methodName = methodName;
         this.inputParameterMatchers = inputParameterMatchers;
         counter = 0;
     }
-    
+
     public GenericMethod getGenericMethodFor(GenericClass<?> clazz) throws ConstructionFailedException {
         return method.getGenericInstantiation(clazz);
     }
@@ -270,12 +267,12 @@ public class MethodDescriptor implements Comparable<MethodDescriptor>, Serializa
         return method.getGeneratedClass();
     }
 
-    public Method getMethod(){
+    public Method getMethod() {
         assert method != null;
         return method.getMethod();
     }
 
-    public GenericMethod getGenericMethod(){
+    public GenericMethod getGenericMethod() {
         return method;
     }
 
@@ -287,9 +284,9 @@ public class MethodDescriptor implements Comparable<MethodDescriptor>, Serializa
         return inputParameterMatchers;
     }
 
-    public String getID(){
-        if(id == null){
-            id = className +"."+ getMethodName() + "#" + getInputParameterMatchers();
+    public String getID() {
+        if (id == null) {
+            id = className + "." + getMethodName() + "#" + getInputParameterMatchers();
         }
         return id;
     }
@@ -298,7 +295,7 @@ public class MethodDescriptor implements Comparable<MethodDescriptor>, Serializa
         return counter;
     }
 
-    public void increaseCounter(){
+    public void increaseCounter() {
         counter++;
     }
 
@@ -306,15 +303,15 @@ public class MethodDescriptor implements Comparable<MethodDescriptor>, Serializa
     @Override
     public int compareTo(MethodDescriptor o) {
         int com = this.className.compareTo(o.className);
-        if(com!=0){
+        if (com != 0) {
             return com;
         }
         com = this.methodName.compareTo(o.methodName);
-        if(com!=0){
+        if (com != 0) {
             return com;
         }
         com = this.inputParameterMatchers.compareTo(o.inputParameterMatchers);
-        if(com!=0){
+        if (com != 0) {
             return com;
         }
         return this.counter - o.counter;

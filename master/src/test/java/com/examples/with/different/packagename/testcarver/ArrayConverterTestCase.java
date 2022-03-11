@@ -35,27 +35,33 @@ public class ArrayConverterTestCase extends TestCase {
 
     /**
      * Construct a new Array Converter test case.
+     *
      * @param name Test Name
      */
     public ArrayConverterTestCase(String name) {
         super(name);
     }
-    
+
     // ------------------------------------------------------------------------
 
     /**
      * Create Test Suite
+     *
      * @return test suite
      */
     public static TestSuite suite() {
-        return new TestSuite(ArrayConverterTestCase.class);        
+        return new TestSuite(ArrayConverterTestCase.class);
     }
 
-    /** Set Up */
+    /**
+     * Set Up
+     */
     public void setUp() throws Exception {
     }
 
-    /** Tear Down */
+    /**
+     * Tear Down
+     */
     public void tearDown() throws Exception {
     }
 
@@ -71,17 +77,17 @@ public class ArrayConverterTestCase extends TestCase {
         intConverter.setPattern("#,###");
         intConverter.setLocale(Locale.US);
         ArrayConverter arrayConverter = new ArrayConverter(int[].class, intConverter, 0);
-        arrayConverter.setAllowedChars(new char[] {',', '-'});
+        arrayConverter.setAllowedChars(new char[]{',', '-'});
         arrayConverter.setDelimiter(';');
 
         // Expected results
-        int[]     intArray     = new int[] {1111, 2222, 3333, 4444};
-        String    stringA      = "1,111; 2,222; 3,333; 4,444";
-        String    stringB      = intArray[0]+ ";" + intArray[1] + ";" + intArray[2] + ";" +intArray[3];
-        String[]  strArray     = new String[] {""+intArray[0], ""+intArray[1], ""+intArray[2], ""+intArray[3]};
-        long[]    longArray    = new long[] {intArray[0], intArray[1], intArray[2], intArray[3]};
-        Long[]    LONGArray    = new Long[]    {(long) intArray[0], (long) intArray[1], (long) intArray[2], (long) intArray[3]};
-        Integer[] IntegerArray = new Integer[] {intArray[0], intArray[1], intArray[2], intArray[3]};
+        int[] intArray = new int[]{1111, 2222, 3333, 4444};
+        String stringA = "1,111; 2,222; 3,333; 4,444";
+        String stringB = intArray[0] + ";" + intArray[1] + ";" + intArray[2] + ";" + intArray[3];
+        String[] strArray = new String[]{"" + intArray[0], "" + intArray[1], "" + intArray[2], "" + intArray[3]};
+        long[] longArray = new long[]{intArray[0], intArray[1], intArray[2], intArray[3]};
+        Long[] LONGArray = new Long[]{(long) intArray[0], (long) intArray[1], (long) intArray[2], (long) intArray[3]};
+        Integer[] IntegerArray = new Integer[]{intArray[0], intArray[1], intArray[2], intArray[3]};
         ArrayList strList = new ArrayList();
         ArrayList longList = new ArrayList();
         for (int i = 0; i < strArray.length; i++) {
@@ -89,7 +95,7 @@ public class ArrayConverterTestCase extends TestCase {
             longList.add(LONGArray[i]);
         }
 
-        
+
         String msg = null;
 
         // String --> int[]
@@ -135,7 +141,7 @@ public class ArrayConverterTestCase extends TestCase {
         // Long --> int[]
         try {
             msg = "Long --> int[]";
-            checkArray(msg, new int[] {LONGArray[0].intValue()}, arrayConverter.convert(int[].class, LONGArray[0]));
+            checkArray(msg, new int[]{LONGArray[0].intValue()}, arrayConverter.convert(int[].class, LONGArray[0]));
         } catch (Exception e) {
             fail(msg + " failed " + e);
         }
@@ -216,16 +222,16 @@ public class ArrayConverterTestCase extends TestCase {
         ArrayConverter arrayConverter = new ArrayConverter(int[].class, intConverter);
 
         // Test Data
-        String[] array = new String[] {"10", "  11", "12  ", "  13  "};
+        String[] array = new String[]{"10", "  11", "12  ", "  13  "};
         ArrayList list = new ArrayList();
         for (int i = 0; i < array.length; i++) {
             list.add(array[i]);
         }
-        
+
         // Expected results
         String msg = null;
-        int[]     expectedInt     = new int[] {10, 11, 12, 13};
-        Integer[] expectedInteger = new Integer[] {expectedInt[0], expectedInt[1], expectedInt[2], expectedInt[3]};
+        int[] expectedInt = new int[]{10, 11, 12, 13};
+        Integer[] expectedInteger = new Integer[]{expectedInt[0], expectedInt[1], expectedInt[2], expectedInt[3]};
 
         // Test String[] --> int[]
         try {
@@ -258,7 +264,7 @@ public class ArrayConverterTestCase extends TestCase {
         } catch (Exception e) {
             fail(msg + " failed " + e);
         }
-   }
+    }
 
     /**
      * Test the Matrix!!!! (parses a String into a 2 dimensional integer array or matrix)
@@ -270,10 +276,10 @@ public class ArrayConverterTestCase extends TestCase {
         //     - comma (",") to separate individual numbers
         //     - semi-colon (";") to separate lists of numbers
         String matrixString = "11,12,13 ; 21,22,23 ; 31,32,33 ; 41,42,43";
-        int[][] expected = new int[][] {new int[] {11, 12, 13},
-                                        new int[] {21, 22, 23},
-                                        new int[] {31, 32, 33},
-                                        new int[] {41, 42, 43}};
+        int[][] expected = new int[][]{new int[]{11, 12, 13},
+                new int[]{21, 22, 23},
+                new int[]{31, 32, 33},
+                new int[]{41, 42, 43}};
 
         // Construct an Integer Converter
         IntegerConverter integerConverter = new IntegerConverter();
@@ -290,7 +296,7 @@ public class ArrayConverterTestCase extends TestCase {
         //      array Converter's "allowed characters"
         ArrayConverter matrixConverter = new ArrayConverter(int[][].class, arrayConverter);
         matrixConverter.setDelimiter(';');
-        matrixConverter.setAllowedChars(new char[] {','});
+        matrixConverter.setAllowedChars(new char[]{','});
 
         try {
             // Do the Conversion
@@ -298,7 +304,7 @@ public class ArrayConverterTestCase extends TestCase {
 
             // Check it actually worked OK
             assertEquals("Check int[][].class", int[][].class, result.getClass());
-            int[][] matrix = (int[][])result;
+            int[][] matrix = (int[][]) result;
             assertEquals("Check int[][] length", expected.length, matrix.length);
             for (int i = 0; i < expected.length; i++) {
                 assertEquals("Check int[" + i + "] length", expected[i].length, matrix[i].length);
@@ -317,23 +323,23 @@ public class ArrayConverterTestCase extends TestCase {
      * Test Converting using the IntegerConverter as the component Converter
      */
     public void testInvalidWithDefault() {
-        int[]  zeroArray  = new int[0];
-        int[]  oneArray   = new int[1];
+        int[] zeroArray = new int[0];
+        int[] oneArray = new int[1];
         IntegerConverter intConverter = new IntegerConverter();
 
         assertNull("Null Default", new ArrayConverter(int[].class, intConverter, -1).convert(int[].class, null));
-        checkArray("Zero Length",  zeroArray, new ArrayConverter(int[].class, intConverter, 0).convert(int[].class, null));
-        checkArray("One Length",   oneArray,  new ArrayConverter(Integer[].class, intConverter, 1).convert(int[].class, null));
+        checkArray("Zero Length", zeroArray, new ArrayConverter(int[].class, intConverter, 0).convert(int[].class, null));
+        checkArray("One Length", oneArray, new ArrayConverter(Integer[].class, intConverter, 1).convert(int[].class, null));
     }
 
     /**
      * Test Empty String
      */
     public void testEmptyString() {
-        int[]  zeroArray  = new int[0];
+        int[] zeroArray = new int[0];
         IntegerConverter intConverter = new IntegerConverter();
-        
-        checkArray("Empty String",  zeroArray, new ArrayConverter(int[].class, intConverter, -1).convert(int[].class, ""));
+
+        checkArray("Empty String", zeroArray, new ArrayConverter(int[].class, intConverter, -1).convert(int[].class, ""));
         assertNull("Default String", new ArrayConverter(int[].class, intConverter).convert(String.class, null));
     }
 
@@ -369,7 +375,7 @@ public class ArrayConverterTestCase extends TestCase {
         ArrayConverter converter = new ArrayConverter(String[].class, new StringConverter());
 
         // test underscore not allowed (the default)
-        String[] result = (String[])converter.convert(String[].class, value);
+        String[] result = (String[]) converter.convert(String[].class, value);
         assertNotNull("result.null", result);
         assertEquals("result.length", 4, result.length);
         assertEquals("result[0]", "first", result[0]);
@@ -378,10 +384,10 @@ public class ArrayConverterTestCase extends TestCase {
         assertEquals("result[3]", "value", result[3]);
 
         // configure the converter to allow underscore
-        converter.setAllowedChars(new char[] {'.', '-', '_'});
+        converter.setAllowedChars(new char[]{'.', '-', '_'});
 
         // test underscore allowed
-        result = (String[])converter.convert(String[].class, value);
+        result = (String[]) converter.convert(String[].class, value);
         assertNotNull("result.null", result);
         assertEquals("result.length", 2, result.length);
         assertEquals("result[0]", "first_value", result[0]);
@@ -390,9 +396,10 @@ public class ArrayConverterTestCase extends TestCase {
 
     /**
      * Check that two arrays are the same.
-     * @param msg Test prefix msg
+     *
+     * @param msg      Test prefix msg
      * @param expected Expected Array value
-     * @param result Result array value
+     * @param result   Result array value
      */
     private void checkArray(String msg, Object expected, Object result) {
         assertNotNull(msg + " Expected Null", expected);

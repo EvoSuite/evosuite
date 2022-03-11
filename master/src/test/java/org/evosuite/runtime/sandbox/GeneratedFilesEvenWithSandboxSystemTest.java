@@ -38,112 +38,112 @@ import com.examples.with.different.packagename.sandbox.OpenStreamInSpecificTryCa
 
 public class GeneratedFilesEvenWithSandboxSystemTest extends SystemTestBase {
 
-	public static final boolean DEFAULT_VFS = Properties.VIRTUAL_FS; 
-	public static final boolean DEFAULT_SANDBOX = Properties.SANDBOX; 
+    public static final boolean DEFAULT_VFS = Properties.VIRTUAL_FS;
+    public static final boolean DEFAULT_SANDBOX = Properties.SANDBOX;
 
-	
-	private final File file = new File(OpenStream.FILE_NAME);
-	
-	@Before
-	public void init(){
-		if(file.exists()){
-			file.delete();
-		}
-		file.deleteOnExit();
-	}
-		
-	@After
-	public void tearDown(){
-		Properties.VIRTUAL_FS = DEFAULT_VFS;
-		Properties.SANDBOX = DEFAULT_SANDBOX;
-	}
 
-	@Test
-	public void testCreateWithNoCatch(){
-				
-		Assert.assertFalse(file.exists());
-		
-		EvoSuite evosuite = new EvoSuite();
+    private final File file = new File(OpenStream.FILE_NAME);
 
-		String targetClass = OpenStream.class.getCanonicalName();
+    @Before
+    public void init() {
+        if (file.exists()) {
+            file.delete();
+        }
+        file.deleteOnExit();
+    }
 
-		Properties.TARGET_CLASS = targetClass;
-		Properties.SANDBOX = true;
-		Properties.JUNIT_TESTS = true;
-		Properties.VIRTUAL_FS = false;
-		Properties.JUNIT_CHECK_ON_SEPARATE_PROCESS = false;
-		
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+    @After
+    public void tearDown() {
+        Properties.VIRTUAL_FS = DEFAULT_VFS;
+        Properties.SANDBOX = DEFAULT_SANDBOX;
+    }
 
-		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
+    @Test
+    public void testCreateWithNoCatch() {
 
-		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
-		Assert.assertEquals("Wrong number of goals: ", 3, goals);
-		Assert.assertTrue("Should not achieve optimal coverage ", best.getCoverage() < 1);
+        Assert.assertFalse(file.exists());
 
-		//SUT should not generate the file
-		Assert.assertFalse(file.exists());	
-	}
-	
-	@Test
-	public void testCreateInATryCatch(){
+        EvoSuite evosuite = new EvoSuite();
 
-		Assert.assertFalse(file.exists());
-		
-		EvoSuite evosuite = new EvoSuite();
+        String targetClass = OpenStream.class.getCanonicalName();
 
-		String targetClass = OpenStreamInATryCatch.class.getCanonicalName();
+        Properties.TARGET_CLASS = targetClass;
+        Properties.SANDBOX = true;
+        Properties.JUNIT_TESTS = true;
+        Properties.VIRTUAL_FS = false;
+        Properties.JUNIT_CHECK_ON_SEPARATE_PROCESS = false;
 
-		Properties.TARGET_CLASS = targetClass;
-		Properties.SANDBOX = true;
-		Properties.JUNIT_TESTS = true;
-		Properties.VIRTUAL_FS = false;
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+        Object result = evosuite.parseCommandLine(command);
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
 
-		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
+        int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
+        Assert.assertEquals("Wrong number of goals: ", 3, goals);
+        Assert.assertTrue("Should not achieve optimal coverage ", best.getCoverage() < 1);
 
-		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
-		Assert.assertEquals("Wrong number of goals: ", 5, goals);
-		Assert.assertEquals("", 0.8d, best.getCoverage(), 0.001); //one branch is infeasible 
+        //SUT should not generate the file
+        Assert.assertFalse(file.exists());
+    }
 
-		System.out.println(best);
-		
-		//SUT should not generate the file, even if full coverage and SecurityException is catch in the SUT
-		Assert.assertFalse(file.exists());	
-	}
-	
-	@Test
-	public void testCreateInATryCatchThatDoesNotCatchSecurityException(){
+    @Test
+    public void testCreateInATryCatch() {
 
-		Assert.assertFalse(file.exists());
-		
-		EvoSuite evosuite = new EvoSuite();
+        Assert.assertFalse(file.exists());
 
-		String targetClass = OpenStreamInSpecificTryCatch.class.getCanonicalName();
+        EvoSuite evosuite = new EvoSuite();
 
-		Properties.TARGET_CLASS = targetClass;
-		Properties.SANDBOX = true;
-		Properties.JUNIT_TESTS = true;
-		Properties.VIRTUAL_FS = false;
+        String targetClass = OpenStreamInATryCatch.class.getCanonicalName();
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+        Properties.TARGET_CLASS = targetClass;
+        Properties.SANDBOX = true;
+        Properties.JUNIT_TESTS = true;
+        Properties.VIRTUAL_FS = false;
 
-		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
 
-		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
-		Assert.assertEquals("Wrong number of goals: ", 3, goals);
-		Assert.assertTrue("Should not achive optimala coverage ", best.getCoverage() < 1);
+        Object result = evosuite.parseCommandLine(command);
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
 
-		System.out.println(best);
-		
-		//SUT should not generate the file, even if full coverage and SecurityException is catch in the SUT
-		Assert.assertFalse(file.exists());	
-	}
+        int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
+        Assert.assertEquals("Wrong number of goals: ", 5, goals);
+        Assert.assertEquals("", 0.8d, best.getCoverage(), 0.001); //one branch is infeasible
+
+        System.out.println(best);
+
+        //SUT should not generate the file, even if full coverage and SecurityException is catch in the SUT
+        Assert.assertFalse(file.exists());
+    }
+
+    @Test
+    public void testCreateInATryCatchThatDoesNotCatchSecurityException() {
+
+        Assert.assertFalse(file.exists());
+
+        EvoSuite evosuite = new EvoSuite();
+
+        String targetClass = OpenStreamInSpecificTryCatch.class.getCanonicalName();
+
+        Properties.TARGET_CLASS = targetClass;
+        Properties.SANDBOX = true;
+        Properties.JUNIT_TESTS = true;
+        Properties.VIRTUAL_FS = false;
+
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
+
+        Object result = evosuite.parseCommandLine(command);
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
+
+        int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
+        Assert.assertEquals("Wrong number of goals: ", 3, goals);
+        Assert.assertTrue("Should not achive optimala coverage ", best.getCoverage() < 1);
+
+        System.out.println(best);
+
+        //SUT should not generate the file, even if full coverage and SecurityException is catch in the SUT
+        Assert.assertFalse(file.exists());
+    }
 }

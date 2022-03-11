@@ -36,68 +36,67 @@ import com.examples.with.different.packagename.concolic.TP1;
  */
 public class TP1SystemTest extends SystemTestBase {
 
-	@Before
-	public void init() {
-		Properties.LOCAL_SEARCH_PROBABILITY = 1.0;
-		Properties.LOCAL_SEARCH_RATE = 1;
-		Properties.SEARCH_BUDGET = 10;
-		Properties.STOPPING_CONDITION = Properties.StoppingCondition.MAXTIME;
-	}
+    @Before
+    public void init() {
+        Properties.LOCAL_SEARCH_PROBABILITY = 1.0;
+        Properties.LOCAL_SEARCH_RATE = 1;
+        Properties.SEARCH_BUDGET = 10;
+        Properties.STOPPING_CONDITION = Properties.StoppingCondition.MAXTIME;
+    }
 
-	@Test
-	public void testLocalSearch() {
+    @Test
+    public void testLocalSearch() {
 
-		Properties.MINIMIZATION_TIMEOUT = 10;
-		Properties.LOCAL_SEARCH_BUDGET = 100;
-		Properties.LOCAL_SEARCH_BUDGET_TYPE = Properties.LocalSearchBudgetType.TESTS;
+        Properties.MINIMIZATION_TIMEOUT = 10;
+        Properties.LOCAL_SEARCH_BUDGET = 100;
+        Properties.LOCAL_SEARCH_BUDGET_TYPE = Properties.LocalSearchBudgetType.TESTS;
 
-		EvoSuite evosuite = new EvoSuite();
-		String targetClass = TP1.class.getCanonicalName();
-		Properties.TARGET_CLASS = targetClass;
-		Properties.DSE_PROBABILITY = 0.0; // force using only LS, no DSE
-		Properties.CRITERION = new Criterion[] {
-	            //these are basic criteria that should be always on by default
-	            Criterion.LINE, Criterion.BRANCH, Criterion.EXCEPTION, Criterion.WEAKMUTATION, Criterion.OUTPUT, Criterion.METHOD, Criterion.METHODNOEXCEPTION, Criterion.CBRANCH  };
+        EvoSuite evosuite = new EvoSuite();
+        String targetClass = TP1.class.getCanonicalName();
+        Properties.TARGET_CLASS = targetClass;
+        Properties.DSE_PROBABILITY = 0.0; // force using only LS, no DSE
+        Properties.CRITERION = new Criterion[]{
+                //these are basic criteria that should be always on by default
+                Criterion.LINE, Criterion.BRANCH, Criterion.EXCEPTION, Criterion.WEAKMUTATION, Criterion.OUTPUT, Criterion.METHOD, Criterion.METHODNOEXCEPTION, Criterion.CBRANCH};
 
-		String[] command = new String[] { "-generateSuite", "-class",
-				targetClass };
+        String[] command = new String[]{"-generateSuite", "-class",
+                targetClass};
 
-		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
-		System.out.println("EvolvedTestSuite:\n" + best);
-	}
-	
-	@Test
-	public void testZ3() {
+        Object result = evosuite.parseCommandLine(command);
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
+        System.out.println("EvolvedTestSuite:\n" + best);
+    }
 
-		Assume.assumeTrue(System.getenv("z3_path")!=null);
-		Properties.Z3_PATH = System.getenv("z3_path");
-		
-		Properties.LOCAL_SEARCH_BUDGET_TYPE = Properties.LocalSearchBudgetType.TIME;
-		Properties.LOCAL_SEARCH_BUDGET = 5;
+    @Test
+    public void testZ3() {
 
-		
-		EvoSuite evosuite = new EvoSuite();
-		String targetClass = TP1.class.getCanonicalName();
-		Properties.TARGET_CLASS = targetClass;
-		
-		Properties.DSE_SOLVER = Properties.SolverType.Z3_SOLVER;
-		
-		Properties.DSE_PROBABILITY = 1.0; // force using only LS, no DSE
-		Properties.CRITERION = new Criterion[] {
-	            //these are basic criteria that should be always on by default
-	            Criterion.LINE, Criterion.BRANCH, Criterion.EXCEPTION, Criterion.WEAKMUTATION, Criterion.OUTPUT, Criterion.METHOD, Criterion.METHODNOEXCEPTION, Criterion.CBRANCH  };
+        Assume.assumeTrue(System.getenv("z3_path") != null);
+        Properties.Z3_PATH = System.getenv("z3_path");
 
-		String[] command = new String[] { "-generateSuite", "-class",
-				targetClass };
+        Properties.LOCAL_SEARCH_BUDGET_TYPE = Properties.LocalSearchBudgetType.TIME;
+        Properties.LOCAL_SEARCH_BUDGET = 5;
 
-		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
-		System.out.println("EvolvedTestSuite:\n" + best);
-	}
 
+        EvoSuite evosuite = new EvoSuite();
+        String targetClass = TP1.class.getCanonicalName();
+        Properties.TARGET_CLASS = targetClass;
+
+        Properties.DSE_SOLVER = Properties.SolverType.Z3_SOLVER;
+
+        Properties.DSE_PROBABILITY = 1.0; // force using only LS, no DSE
+        Properties.CRITERION = new Criterion[]{
+                //these are basic criteria that should be always on by default
+                Criterion.LINE, Criterion.BRANCH, Criterion.EXCEPTION, Criterion.WEAKMUTATION, Criterion.OUTPUT, Criterion.METHOD, Criterion.METHODNOEXCEPTION, Criterion.CBRANCH};
+
+        String[] command = new String[]{"-generateSuite", "-class",
+                targetClass};
+
+        Object result = evosuite.parseCommandLine(command);
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
+        System.out.println("EvolvedTestSuite:\n" + best);
+    }
 
 
 }

@@ -23,19 +23,19 @@ import org.evosuite.graphs.cfg.BytecodeInstruction;
 
 /**
  * An object of this class corresponds to a Use inside the class under test.
- * 
+ * <p>
  * Uses are created by the DefUseFactory via the DefUsePool.
- * 
+ *
  * @author Andre Mis
  */
 public class Use extends DefUse {
 
-	private static final long serialVersionUID = -4951547090794898658L;
+    private static final long serialVersionUID = -4951547090794898658L;
 
-	Use(BytecodeInstruction wrap) {
-		super(wrap);
-		if (!DefUsePool.isKnownAsUse(wrap))
-			throw new IllegalArgumentException("Instruction must be known as a Use by the DefUsePool");
-	}
+    Use(BytecodeInstruction wrap) {
+        super(wrap);
+        if (!DefUsePool.isKnownAsUse(wrap))
+            throw new IllegalArgumentException("Instruction must be known as a Use by the DefUsePool");
+    }
 
 }

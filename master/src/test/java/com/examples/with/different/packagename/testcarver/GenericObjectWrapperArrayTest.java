@@ -25,24 +25,23 @@ import org.junit.Test;
 
 /**
  * @author Gordon Fraser
- * 
  */
 public class GenericObjectWrapperArrayTest {
-	@Test
-	public void test() {
-		GenericObjectWrapper<Long[]> wrapper = new GenericObjectWrapper<>();
-		Assert.assertNull(wrapper.get());
+    @Test
+    public void test() {
+        GenericObjectWrapper<Long[]> wrapper = new GenericObjectWrapper<>();
+        Assert.assertNull(wrapper.get());
 
-		Long[] someArray = new Long[] {1L, 47L};
+        Long[] someArray = new Long[]{1L, 47L};
 
-		wrapper.set(someArray);
-		Assert.assertNotNull(wrapper.get());
+        wrapper.set(someArray);
+        Assert.assertNotNull(wrapper.get());
 
-		GenericObjectWrapper<Long> fortySeven = new GenericObjectWrapper<>();
-		fortySeven.set(47L);
+        GenericObjectWrapper<Long> fortySeven = new GenericObjectWrapper<>();
+        fortySeven.set(47L);
 
-		Long[] foo = wrapper.get();
+        Long[] foo = wrapper.get();
 
         Assert.assertEquals(foo[1], fortySeven.get());
-	}
+    }
 }

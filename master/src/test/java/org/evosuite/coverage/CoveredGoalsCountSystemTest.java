@@ -44,36 +44,35 @@ import static org.junit.Assert.assertTrue;
 /**
  * Created by jrojas
  * Edited by José Campos
- * 
  */
 public class CoveredGoalsCountSystemTest extends SystemTestBase {
 
-	@Before
-	public void prepare() {
-		try {
-			FileUtils.deleteDirectory(new File("evosuite-report"));
-		} catch (IOException e) {
-			Assert.fail(e.getMessage());
-		}
-	}
+    @Before
+    public void prepare() {
+        try {
+            FileUtils.deleteDirectory(new File("evosuite-report"));
+        } catch (IOException e) {
+            Assert.fail(e.getMessage());
+        }
+    }
 
     @Test
     public void testCoveredGoalsCountCSV_SingleCriterion() throws IOException, CsvException {
 
-    	EvoSuite evosuite = new EvoSuite();
+        EvoSuite evosuite = new EvoSuite();
 
-    	String targetClass = Calculator.class.getCanonicalName();
+        String targetClass = Calculator.class.getCanonicalName();
         Properties.TARGET_CLASS = targetClass;
 
-        Properties.CRITERION = new Properties.Criterion[] {
-        	Properties.Criterion.WEAKMUTATION
+        Properties.CRITERION = new Properties.Criterion[]{
+                Properties.Criterion.WEAKMUTATION
         };
-        Properties.OUTPUT_VARIABLES="TARGET_CLASS,criterion,Coverage,Covered_Goals,Total_Goals";
+        Properties.OUTPUT_VARIABLES = "TARGET_CLASS,criterion,Coverage,Covered_Goals,Total_Goals";
         Properties.STATISTICS_BACKEND = StatisticsBackend.CSV;
 
-        String[] command = new String[] {
-    		"-class", targetClass,
-    		"-generateSuite"
+        String[] command = new String[]{
+                "-class", targetClass,
+                "-generateSuite"
         };
 
         Object result = evosuite.parseCommandLine(command);
@@ -97,22 +96,22 @@ public class CoveredGoalsCountSystemTest extends SystemTestBase {
     @Test
     public void testCoveredGoalsCountCSV_MultipleCriterion() throws IOException, CsvException {
 
-    	EvoSuite evosuite = new EvoSuite();
+        EvoSuite evosuite = new EvoSuite();
 
-    	String targetClass = Calculator.class.getCanonicalName();
+        String targetClass = Calculator.class.getCanonicalName();
         Properties.TARGET_CLASS = targetClass;
 
-        Properties.CRITERION = new Properties.Criterion[] {
-        	Properties.Criterion.BRANCH,
-        	Properties.Criterion.LINE,
-        	Properties.Criterion.ONLYMUTATION
+        Properties.CRITERION = new Properties.Criterion[]{
+                Properties.Criterion.BRANCH,
+                Properties.Criterion.LINE,
+                Properties.Criterion.ONLYMUTATION
         };
-        Properties.OUTPUT_VARIABLES="TARGET_CLASS,criterion,Coverage,Covered_Goals,Total_Goals";
+        Properties.OUTPUT_VARIABLES = "TARGET_CLASS,criterion,Coverage,Covered_Goals,Total_Goals";
         Properties.STATISTICS_BACKEND = StatisticsBackend.CSV;
 
-        String[] command = new String[] {
-    		"-class", targetClass,
-    		"-generateSuite"
+        String[] command = new String[]{
+                "-class", targetClass,
+                "-generateSuite"
         };
 
         Object result = evosuite.parseCommandLine(command);
@@ -136,22 +135,22 @@ public class CoveredGoalsCountSystemTest extends SystemTestBase {
     @Test
     public void testCoveredGoalsCountCSV_WithMinimizationTimeout() throws IOException, CsvException {
 
-    	EvoSuite evosuite = new EvoSuite();
+        EvoSuite evosuite = new EvoSuite();
 
-    	String targetClass = MutationPropagation.class.getCanonicalName();
+        String targetClass = MutationPropagation.class.getCanonicalName();
         Properties.TARGET_CLASS = targetClass;
 
-        Properties.CRITERION = new Properties.Criterion[] {
-        	Properties.Criterion.STRONGMUTATION
+        Properties.CRITERION = new Properties.Criterion[]{
+                Properties.Criterion.STRONGMUTATION
         };
-        Properties.OUTPUT_VARIABLES="TARGET_CLASS,criterion,Coverage,Covered_Goals,Total_Goals";
+        Properties.OUTPUT_VARIABLES = "TARGET_CLASS,criterion,Coverage,Covered_Goals,Total_Goals";
         Properties.STATISTICS_BACKEND = StatisticsBackend.CSV;
 
-        String[] command = new String[] {
-    		"-class", targetClass,
-    		"-Dsearch_budget=40000",
-    		"-Dminimization_timeout=0",
-    		"-generateSuite"
+        String[] command = new String[]{
+                "-class", targetClass,
+                "-Dsearch_budget=40000",
+                "-Dminimization_timeout=0",
+                "-generateSuite"
         };
 
         Object result = evosuite.parseCommandLine(command);
@@ -171,24 +170,24 @@ public class CoveredGoalsCountSystemTest extends SystemTestBase {
         assertEquals("24", rows.get(1)[3]); // Covered_Goals
         assertEquals("24", rows.get(1)[4]); // Total_Goals
     }
-    
+
     @Test
     public void testCoveredGoalsCountCSV_SingleCriterionBranch_Enums() throws IOException, CsvException {
 
-    	EvoSuite evosuite = new EvoSuite();
+        EvoSuite evosuite = new EvoSuite();
 
-    	String targetClass = PureEnum.class.getCanonicalName();
+        String targetClass = PureEnum.class.getCanonicalName();
         Properties.TARGET_CLASS = targetClass;
 
-        Properties.CRITERION = new Properties.Criterion[] {
-        	Properties.Criterion.BRANCH
+        Properties.CRITERION = new Properties.Criterion[]{
+                Properties.Criterion.BRANCH
         };
-        Properties.OUTPUT_VARIABLES="TARGET_CLASS,criterion,Coverage,Covered_Goals,Total_Goals,BranchCoverage";
+        Properties.OUTPUT_VARIABLES = "TARGET_CLASS,criterion,Coverage,Covered_Goals,Total_Goals,BranchCoverage";
         Properties.STATISTICS_BACKEND = StatisticsBackend.CSV;
 
-        String[] command = new String[] {
-    		"-class", targetClass,
-    		"-generateSuite"
+        String[] command = new String[]{
+                "-class", targetClass,
+                "-generateSuite"
         };
 
         Object result = evosuite.parseCommandLine(command);
@@ -209,24 +208,24 @@ public class CoveredGoalsCountSystemTest extends SystemTestBase {
         assertEquals("0", rows.get(1)[4]); // Total_Goals
         assertEquals("1.0", rows.get(1)[5]); // BranchCoverage
     }
-    
+
     @Test
     public void testCoveredGoalsCountCSV_SingleCriterionBranch_Random_Enums() throws IOException, CsvException {
 
-    	EvoSuite evosuite = new EvoSuite();
+        EvoSuite evosuite = new EvoSuite();
 
-    	String targetClass = PureEnum.class.getCanonicalName();
+        String targetClass = PureEnum.class.getCanonicalName();
         Properties.TARGET_CLASS = targetClass;
 
-        Properties.CRITERION = new Properties.Criterion[] {
-        	Properties.Criterion.BRANCH
+        Properties.CRITERION = new Properties.Criterion[]{
+                Properties.Criterion.BRANCH
         };
-        Properties.OUTPUT_VARIABLES="TARGET_CLASS,criterion,Coverage,Covered_Goals,Total_Goals";
+        Properties.OUTPUT_VARIABLES = "TARGET_CLASS,criterion,Coverage,Covered_Goals,Total_Goals";
         Properties.STATISTICS_BACKEND = StatisticsBackend.CSV;
 
-        String[] command = new String[] {
-    		"-class", targetClass,
-    		"-generateRandom"
+        String[] command = new String[]{
+                "-class", targetClass,
+                "-generateRandom"
         };
 
         Object result = evosuite.parseCommandLine(command);

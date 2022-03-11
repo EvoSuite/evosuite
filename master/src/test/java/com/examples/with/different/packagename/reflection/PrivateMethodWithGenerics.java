@@ -30,7 +30,7 @@ public class PrivateMethodWithGenerics {
 
     private static String toPathString(final List<String> pathElements) {
         // Just to have some branches...
-        if(pathElements.isEmpty())
+        if (pathElements.isEmpty())
             return "";
 
         return pathElements.stream().collect(Collectors.joining("/"));

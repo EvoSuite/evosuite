@@ -45,8 +45,8 @@ public class JarPathing {
     private static final String PATHING_JAR_PREFIX = "EvoSuite_pathingJar";
 
     public static boolean containsAPathingJar(String sequence) {
-        for(String token : sequence.split(File.pathSeparator)) {
-            if(isPathingJar(token)) {
+        for (String token : sequence.split(File.pathSeparator)) {
+            if (isPathingJar(token)) {
                 return true;
             }
         }
@@ -55,8 +55,8 @@ public class JarPathing {
 
     public static boolean isPathingJar(String path) throws IllegalArgumentException {
 
-        if(path.contains(File.pathSeparator)) {
-            throw new IllegalArgumentException("Multiple elements in path: "+path);
+        if (path.contains(File.pathSeparator)) {
+            throw new IllegalArgumentException("Multiple elements in path: " + path);
         }
 
         return path != null && path.contains(PATHING_JAR_PREFIX) && path.endsWith(".jar");
@@ -64,8 +64,8 @@ public class JarPathing {
 
     public static String expandPathingJars(String sequence) {
         List<String> list = new ArrayList<>();
-        for(String token : sequence.split(File.pathSeparator)) {
-            if(isPathingJar(token)) {
+        for (String token : sequence.split(File.pathSeparator)) {
+            if (isPathingJar(token)) {
                 list.add(extractCPFromPathingJar(token));
             } else {
                 list.add(token);
@@ -74,15 +74,15 @@ public class JarPathing {
         return String.join(File.pathSeparator, list);
     }
 
-    public static String extractCPFromPathingJar(String pathingJar) throws IllegalArgumentException{
+    public static String extractCPFromPathingJar(String pathingJar) throws IllegalArgumentException {
         Inputs.checkNull(pathingJar);
-        if(!isPathingJar(pathingJar)) {
-            throw new IllegalArgumentException("Invalid pathing jar name: "+pathingJar);
+        if (!isPathingJar(pathingJar)) {
+            throw new IllegalArgumentException("Invalid pathing jar name: " + pathingJar);
         }
 
         File jar = new File(pathingJar);
-        if(!jar.exists()) {
-            throw new IllegalArgumentException("Pathing jar does not exist: "+pathingJar);
+        if (!jar.exists()) {
+            throw new IllegalArgumentException("Pathing jar does not exist: " + pathingJar);
         }
         try (JarInputStream in = new JarInputStream(new FileInputStream(jar))) {
 
@@ -90,14 +90,14 @@ public class JarPathing {
             String escapedCP = m.getMainAttributes().getValue(Attributes.Name.CLASS_PATH);
 
             List<String> list = new ArrayList<>();
-            for(String token : escapedCP.split(" ")) {
-                File file = new File(token.replace("%20"," "));
-                if(!file.exists()) {
+            for (String token : escapedCP.split(" ")) {
+                File file = new File(token.replace("%20", " "));
+                if (!file.exists()) {
                     //this should never happen, unless bug in EvoSuite
-                    throw new IllegalStateException("Pathing jar "+pathingJar+" refers to non-existing entry " + token);
+                    throw new IllegalStateException("Pathing jar " + pathingJar + " refers to non-existing entry " + token);
                 }
-                if(isPathingJar(file.getAbsolutePath())) {
-                    throw new IllegalArgumentException("Pathing jar "+pathingJar+" contains the pathing jar "+file.getAbsolutePath());
+                if (isPathingJar(file.getAbsolutePath())) {
+                    throw new IllegalArgumentException("Pathing jar " + pathingJar + " contains the pathing jar " + file.getAbsolutePath());
                 }
                 list.add(file.getAbsolutePath());
             }
@@ -105,7 +105,7 @@ public class JarPathing {
             return String.join(File.pathSeparator, list);
 
         } catch (IOException e) {
-            logger.error(e.toString(),e);
+            logger.error(e.toString(), e);
             return pathingJar;
         }
     }
@@ -120,12 +120,12 @@ public class JarPathing {
      */
     public static String createJarPathing(String classpath) {
 
-		logger.debug("Going to create jar pathing for: {}", classpath);
+        logger.debug("Going to create jar pathing for: {}", classpath);
 
         List<String> elements = new ArrayList<>(Arrays.asList(classpath.split(File.pathSeparator)));
 
         StringBuffer escaped = new StringBuffer();
-        while(!elements.isEmpty()) {
+        while (!elements.isEmpty()) {
             String element = elements.remove(0);
             try {
 
@@ -133,12 +133,12 @@ public class JarPathing {
                 File file = new File(element);
                 element = file.getAbsolutePath();
 
-                if(!file.exists()) {
+                if (!file.exists()) {
                     logger.warn("Classpath entry does not exist: {}", element);
                     continue;
                 }
 
-                if(isPathingJar(element)) {
+                if (isPathingJar(element)) {
                     elements.addAll(Arrays.asList(extractCPFromPathingJar(element).split(File.pathSeparator)));
                     continue;
                 }
@@ -149,32 +149,32 @@ public class JarPathing {
 					have spaces...
 				 */
 
-                element = element.replace("\\","/");
-                element = element.replace(" ","%20");
-                if(!element.startsWith("/")) {
+                element = element.replace("\\", "/");
+                element = element.replace(" ", "%20");
+                if (!element.startsWith("/")) {
                     element = "/" + element;
                 }
 
 
-                if(!element.endsWith(".jar")) {
+                if (!element.endsWith(".jar")) {
                     //that means it is a folder. we need to make sure it does end with a "/"
-                    if(!element.endsWith("/")) {
+                    if (!element.endsWith("/")) {
                         element += "/";
                     }
                 }
 
 
-                escaped.append(element+ " ");
+                escaped.append(element + " ");
                 //escaped.append(URLEncoder.encode(element,"UTF-8")+ " ");
             } catch (Exception e) {
-                logger.error("Problem when encoding '"+element+"': "+e.toString());
+                logger.error("Problem when encoding '" + element + "': " + e);
                 return classpath;
             }
         }
 
         String jarLocation = null;
         try {
-            File tmp = File.createTempFile(PATHING_JAR_PREFIX,".jar");
+            File tmp = File.createTempFile(PATHING_JAR_PREFIX, ".jar");
             tmp.deleteOnExit();
             jarLocation = tmp.getAbsolutePath();
 
@@ -185,13 +185,13 @@ public class JarPathing {
             out.flush();
             out.close();
 
-            if(!RuntimeSettings.isRunningASystemTest) {
+            if (!RuntimeSettings.isRunningASystemTest) {
                 //the location is likely non-deterministic
-                logger.info("Created jar path at {} with CP: {}", jarLocation, escaped.toString());
+                logger.info("Created jar path at {} with CP: {}", jarLocation, escaped);
             }
 
         } catch (Exception e) {
-            logger.error("Cannot create pathing jar: "+e.toString());
+            logger.error("Cannot create pathing jar: " + e);
             return classpath;
         }
 

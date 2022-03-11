@@ -26,26 +26,26 @@ import java.util.Comparator;
 
 /**
  * StrengthFitnessComparator class.
- * 
+ *
  * @author José Campos
  */
 public class StrengthFitnessComparator implements Comparator<Chromosome<?>>, Serializable {
 
-  private static final long serialVersionUID = 1365198556267160032L;
+    private static final long serialVersionUID = 1365198556267160032L;
 
-  @Override
-  public int compare(Chromosome<?> c1, Chromosome<?> c2) {
-    if (c1 == null && c2 == null) {
-      return 0;
-    } else if (c1 == null) {
-      return 1;
-    } else if (c2 == null) {
-      return -1;
+    @Override
+    public int compare(Chromosome<?> c1, Chromosome<?> c2) {
+        if (c1 == null && c2 == null) {
+            return 0;
+        } else if (c1 == null) {
+            return 1;
+        } else if (c2 == null) {
+            return -1;
+        }
+
+        double strengthC1 = c1.getDistance(); // TODO: should we change name of the function?
+        double strengthC2 = c2.getDistance();
+
+        return Double.compare(strengthC1, strengthC2);
     }
-
-    double strengthC1 = c1.getDistance(); // TODO: should we change name of the function?
-    double strengthC2 = c2.getDistance();
-
-    return Double.compare(strengthC1, strengthC2);
-  }
 }

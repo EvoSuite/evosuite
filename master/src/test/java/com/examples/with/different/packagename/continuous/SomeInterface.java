@@ -21,6 +21,7 @@ package com.examples.with.different.packagename.continuous;
 
 public interface SomeInterface {
 
-	void foo1();
-	void foo2();
+    void foo1();
+
+    void foo2();
 }

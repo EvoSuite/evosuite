@@ -19,74 +19,73 @@
  */
 package org.evosuite.runtime.classhandling;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.Collection;
 
 /**
  * This class represents the singleton containing those static fields whose
  * <code>final</code> modifier was removed during our instrumentation
- * 
- * @author galeotti
  *
+ * @author galeotti
  */
 public class ModifiedTargetStaticFields {
 
-	private static final Logger logger = LoggerFactory.getLogger(ModifiedTargetStaticFields.class);
+    private static final Logger logger = LoggerFactory.getLogger(ModifiedTargetStaticFields.class);
 
-	/**
-	 * gets the current set of modified target static fields
-	 * 
-	 * @return
-	 */
-	public static ModifiedTargetStaticFields getInstance() {
-		if (instance == null) {
-			instance = new ModifiedTargetStaticFields();
-		}
-		return instance;
-	}
+    /**
+     * gets the current set of modified target static fields
+     *
+     * @return
+     */
+    public static ModifiedTargetStaticFields getInstance() {
+        if (instance == null) {
+            instance = new ModifiedTargetStaticFields();
+        }
+        return instance;
+    }
 
-	/**
-	 * Resets the singleton.
-	 */
-	public static void resetSingleton() {
-		instance = null;
-	}
+    /**
+     * Resets the singleton.
+     */
+    public static void resetSingleton() {
+        instance = null;
+    }
 
-	private static ModifiedTargetStaticFields instance;
+    private static ModifiedTargetStaticFields instance;
 
-	private ModifiedTargetStaticFields() {
+    private ModifiedTargetStaticFields() {
 
-	}
+    }
 
-	private final ArrayList<String> finalFields = new ArrayList<>();
+    private final ArrayList<String> finalFields = new ArrayList<>();
 
-	/**
-	 * Adds a collection of final fields whose final modifier was removed by our
-	 * instrumentation
-	 * 
-	 * @param newFinalFields
-	 */
-	public void addFinalFields(Collection<String> newFinalFields) {
-		for (String finalField : newFinalFields) {
-			if (!finalFields.contains(finalField)) {
-				// logger.debug("Adding new field to ModifiedTargetStaticFields:" + newFinalFields);
-				finalFields.add(finalField);
-			}
-		}
-	}
+    /**
+     * Adds a collection of final fields whose final modifier was removed by our
+     * instrumentation
+     *
+     * @param newFinalFields
+     */
+    public void addFinalFields(Collection<String> newFinalFields) {
+        for (String finalField : newFinalFields) {
+            if (!finalFields.contains(finalField)) {
+                // logger.debug("Adding new field to ModifiedTargetStaticFields:" + newFinalFields);
+                finalFields.add(finalField);
+            }
+        }
+    }
 
-	/**
-	 * Checks if a given field is contained or not in this collection
-	 * 
-	 * @param name
-	 * @return
-	 */
-	public boolean containsField(String name) {
-		// logger.debug("Checking if a static field was modified or not:" + name);
-		return finalFields.contains(name);
-	}
+    /**
+     * Checks if a given field is contained or not in this collection
+     *
+     * @param name
+     * @return
+     */
+    public boolean containsField(String name) {
+        // logger.debug("Checking if a static field was modified or not:" + name);
+        return finalFields.contains(name);
+    }
 
 }

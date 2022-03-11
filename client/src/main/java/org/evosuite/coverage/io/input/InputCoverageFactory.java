@@ -19,8 +19,6 @@
  */
 package org.evosuite.coverage.io.input;
 
-import static org.evosuite.coverage.io.IOCoverageConstants.*;
-
 import org.apache.commons.lang3.ClassUtils;
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
@@ -37,6 +35,8 @@ import org.slf4j.LoggerFactory;
 import java.lang.reflect.Method;
 import java.util.*;
 
+import static org.evosuite.coverage.io.IOCoverageConstants.*;
+
 /**
  * @author Jose Miguel Rojas
  */
@@ -45,11 +45,11 @@ public class InputCoverageFactory extends AbstractFitnessFactory<InputCoverageTe
     private static final Logger logger = LoggerFactory.getLogger(InputCoverageFactory.class);
 
     /*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.evosuite.coverage.TestCoverageFactory#getCoverageGoals()
-	 */
+     * (non-Javadoc)
+     *
+     * @see
+     * org.evosuite.coverage.TestCoverageFactory#getCoverageGoals()
+     */
 
     /**
      * {@inheritDoc}
@@ -73,13 +73,13 @@ public class InputCoverageFactory extends AbstractFitnessFactory<InputCoverageTe
 
                 Type[] argumentTypes = Type.getArgumentTypes(method);
                 Class<?>[] argumentClasses = method.getParameterTypes();
-                for (int i=0; i<argumentTypes.length;i++){
+                for (int i = 0; i < argumentTypes.length; i++) {
                     Type argType = argumentTypes[i];
 
                     int typeSort = argType.getSort();
-                    if(typeSort == Type.OBJECT) {
+                    if (typeSort == Type.OBJECT) {
                         Class<?> typeClass = argumentClasses[i];
-                        if(ClassUtils.isPrimitiveWrapper(typeClass)) {
+                        if (ClassUtils.isPrimitiveWrapper(typeClass)) {
                             typeSort = Type.getType(ClassUtils.wrapperToPrimitive(typeClass)).getSort();
                             goals.add(createGoal(className, methodName, i, argType, REF_NULL));
                         }
@@ -115,22 +115,22 @@ public class InputCoverageFactory extends AbstractFitnessFactory<InputCoverageTe
                             if (argType.getClassName().equals("java.lang.String")) {
                                 goals.add(createGoal(className, methodName, i, argType, STRING_EMPTY));
                                 goals.add(createGoal(className, methodName, i, argType, STRING_NONEMPTY));
-                            } else if(List.class.isAssignableFrom(argumentClasses[i])) {
+                            } else if (List.class.isAssignableFrom(argumentClasses[i])) {
                                 goals.add(createGoal(className, methodName, i, argType, LIST_EMPTY));
                                 goals.add(createGoal(className, methodName, i, argType, LIST_NONEMPTY));
 
-                            } else if(Set.class.isAssignableFrom(argumentClasses[i])) {
+                            } else if (Set.class.isAssignableFrom(argumentClasses[i])) {
                                 goals.add(createGoal(className, methodName, i, argType, SET_EMPTY));
                                 goals.add(createGoal(className, methodName, i, argType, SET_NONEMPTY));
 
-                            } else if(Map.class.isAssignableFrom(argumentClasses[i])) {
+                            } else if (Map.class.isAssignableFrom(argumentClasses[i])) {
                                 goals.add(createGoal(className, methodName, i, argType, MAP_EMPTY));
                                 goals.add(createGoal(className, methodName, i, argType, MAP_NONEMPTY));
-                            // TODO: Collection.class?
+                                // TODO: Collection.class?
                             } else {
                                 boolean observerGoalsAdded = false;
                                 Class<?> paramClazz = argumentClasses[i];
-                                for(Inspector inspector : InspectorManager.getInstance().getInspectors(paramClazz)) {
+                                for (Inspector inspector : InspectorManager.getInstance().getInspectors(paramClazz)) {
                                     String insp = inspector.getMethodCall() + Type.getMethodDescriptor(inspector.getMethod());
                                     Type t = Type.getReturnType(inspector.getMethod());
                                     if (t.getSort() == Type.BOOLEAN) {
@@ -145,7 +145,8 @@ public class InputCoverageFactory extends AbstractFitnessFactory<InputCoverageTe
                                     }
                                 }
                                 if (!observerGoalsAdded)
-                                    goals.add(createGoal(className, methodName, i, argType, REF_NONNULL));                                goals.add(createGoal(className, methodName, i, argType, REF_NONNULL));
+                                    goals.add(createGoal(className, methodName, i, argType, REF_NONNULL));
+                                goals.add(createGoal(className, methodName, i, argType, REF_NONNULL));
                             }
                             break;
                         default:

@@ -20,8 +20,6 @@
 
 package org.evosuite.instrumentation;
 
-import java.util.List;
-
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.MethodInsnNode;
@@ -31,6 +29,8 @@ import org.objectweb.asm.tree.analysis.BasicValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
+
 /**
  * <p>BooleanArrayInterpreter class.</p>
  *
@@ -38,45 +38,59 @@ import org.slf4j.LoggerFactory;
  */
 public class BooleanArrayInterpreter extends BasicInterpreter {
 
-	/** Constant <code>logger</code> */
-	protected static Logger logger = LoggerFactory.getLogger(BooleanArrayInterpreter.class);
+    /**
+     * Constant <code>logger</code>
+     */
+    protected static Logger logger = LoggerFactory.getLogger(BooleanArrayInterpreter.class);
 
-	/** Constant <code>BYTE</code> */
-	public final static BasicValue BYTE = new BasicValue(null);
+    /**
+     * Constant <code>BYTE</code>
+     */
+    public final static BasicValue BYTE = new BasicValue(null);
 
-	/** Constant <code>BOOLEAN</code> */
-	public final static BasicValue BOOLEAN = new BasicValue(null);
+    /**
+     * Constant <code>BOOLEAN</code>
+     */
+    public final static BasicValue BOOLEAN = new BasicValue(null);
 
-	/** Constant <code>BOOLEAN_ARRAY</code> */
-	public final static BasicValue BOOLEAN_ARRAY = new BasicValue(null);
+    /**
+     * Constant <code>BOOLEAN_ARRAY</code>
+     */
+    public final static BasicValue BOOLEAN_ARRAY = new BasicValue(null);
 
-	/** Constant <code>BYTE_ARRAY</code> */
-	public final static BasicValue BYTE_ARRAY = new BasicValue(null);
+    /**
+     * Constant <code>BYTE_ARRAY</code>
+     */
+    public final static BasicValue BYTE_ARRAY = new BasicValue(null);
 
-	/** Constant <code>INT_ARRAY</code> */
-	public final static BasicValue INT_ARRAY = new BasicValue(null);
+    /**
+     * Constant <code>INT_ARRAY</code>
+     */
+    public final static BasicValue INT_ARRAY = new BasicValue(null);
 
-	/** {@inheritDoc} */
-	@Override
-	public BasicValue newValue(Type type) {
-		if (type == null) {
-			return BasicValue.UNINITIALIZED_VALUE;
-		}
-		switch (type.getSort()) {
-		case Type.ARRAY:
-			String desc = type.getDescriptor();
-			if (desc.equals("[Z"))
-				return BOOLEAN_ARRAY;
-			else if (desc.equals("[I"))
-				return INT_ARRAY;
-			else if (desc.equals("[B"))
-				return BYTE_ARRAY;
-			else
-				return super.newValue(type);
-		default:
-			return super.newValue(type);
-		}
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public BasicValue newValue(Type type) {
+        if (type == null) {
+            return BasicValue.UNINITIALIZED_VALUE;
+        }
+        switch (type.getSort()) {
+            case Type.ARRAY:
+                String desc = type.getDescriptor();
+                if (desc.equals("[Z"))
+                    return BOOLEAN_ARRAY;
+                else if (desc.equals("[I"))
+                    return INT_ARRAY;
+                else if (desc.equals("[B"))
+                    return BYTE_ARRAY;
+                else
+                    return super.newValue(type);
+            default:
+                return super.newValue(type);
+        }
+    }
 
 	/*
 		@Override
@@ -161,40 +175,42 @@ public class BooleanArrayInterpreter extends BasicInterpreter {
 		}
 		*/
 
-	/** {@inheritDoc} */
-	@SuppressWarnings("unchecked")
-	@Override
-	public BasicValue naryOperation(AbstractInsnNode insn, List values)
-	        throws AnalyzerException {
-		if (insn.getOpcode() == INVOKESTATIC || insn.getOpcode() == INVOKEVIRTUAL
-		        || insn.getOpcode() == INVOKEINTERFACE) {
-			MethodInsnNode mn = (MethodInsnNode) insn;
+    /**
+     * {@inheritDoc}
+     */
+    @SuppressWarnings("unchecked")
+    @Override
+    public BasicValue naryOperation(AbstractInsnNode insn, List values)
+            throws AnalyzerException {
+        if (insn.getOpcode() == INVOKESTATIC || insn.getOpcode() == INVOKEVIRTUAL
+                || insn.getOpcode() == INVOKEINTERFACE) {
+            MethodInsnNode mn = (MethodInsnNode) insn;
 
-			if (Type.getReturnType(mn.desc).equals(Type.BOOLEAN_TYPE)) {
-				return BOOLEAN;
-			} else if (mn.desc.equals("[Z")) {
-				return BOOLEAN_ARRAY;
-			} else if (mn.desc.equals("[B")) {
-				return BYTE_ARRAY;
-			} else if (mn.desc.equals("[I")) {
-				return INT_ARRAY;
-			} else if (Type.getReturnType(mn.desc).equals(Type.BYTE_TYPE)) {
-				return BYTE;
-			} else {
-				if (mn.name.equals("clone") && mn.owner.equals("[I"))
-					return INT_ARRAY;
-				else if (mn.name.equals("clone") && mn.owner.equals("[Z"))
-					return BOOLEAN_ARRAY;
-				else if (mn.name.equals("clone") && mn.owner.equals("[B"))
-					return BYTE_ARRAY;
-				else {
-					return super.naryOperation(insn, values);
-				}
-			}
-		} else {
-			return super.naryOperation(insn, values);
-		}
-	}
+            if (Type.getReturnType(mn.desc).equals(Type.BOOLEAN_TYPE)) {
+                return BOOLEAN;
+            } else if (mn.desc.equals("[Z")) {
+                return BOOLEAN_ARRAY;
+            } else if (mn.desc.equals("[B")) {
+                return BYTE_ARRAY;
+            } else if (mn.desc.equals("[I")) {
+                return INT_ARRAY;
+            } else if (Type.getReturnType(mn.desc).equals(Type.BYTE_TYPE)) {
+                return BYTE;
+            } else {
+                if (mn.name.equals("clone") && mn.owner.equals("[I"))
+                    return INT_ARRAY;
+                else if (mn.name.equals("clone") && mn.owner.equals("[Z"))
+                    return BOOLEAN_ARRAY;
+                else if (mn.name.equals("clone") && mn.owner.equals("[B"))
+                    return BYTE_ARRAY;
+                else {
+                    return super.naryOperation(insn, values);
+                }
+            }
+        } else {
+            return super.naryOperation(insn, values);
+        }
+    }
 	/*
 		@Override
 		public Value copyOperation(AbstractInsnNode insn, Value value)

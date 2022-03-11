@@ -31,53 +31,52 @@ import org.evosuite.result.TestGenerationResult;
 import org.junit.Test;
 
 
-
 public class TestShouldNotWorkSystemTest extends SystemTestBase {
 
-	@Test(expected=IllegalArgumentException.class)
-	public void testShouldNotWorkOnEvoSuitePackage(){
-		EvoSuite evosuite = new EvoSuite();
-		
-		String targetClass = SystemTestBase.class.getCanonicalName();
-		
-		Properties.TARGET_CLASS = targetClass;
-		
-		String[] command = new String[]{				
-				"-generateSuite",
-				"-class",
-				targetClass
-		};
+    @Test(expected = IllegalArgumentException.class)
+    public void testShouldNotWorkOnEvoSuitePackage() {
+        EvoSuite evosuite = new EvoSuite();
 
-		
-		evosuite.parseCommandLine(command);
-	}
-	
+        String targetClass = SystemTestBase.class.getCanonicalName();
 
-	@Test
-	public void testJavaPackageNotOnProjectCP(){
-		EvoSuite evosuite = new EvoSuite();
-		
-		String targetClass = java.util.TreeMap.class.getCanonicalName();
-		
-		Properties.TARGET_CLASS = targetClass;
-		
-		String[] command = new String[]{				
-				"-generateSuite",
-				"-class",
-				targetClass
-		};
+        Properties.TARGET_CLASS = targetClass;
 
-		
-		Object result = evosuite.parseCommandLine(command);
-		//List<TestGenerationResult> results = (List<TestGenerationResult>)result;
-		List<List<TestGenerationResult>> results = (List<List<TestGenerationResult>>)result;
-		assertEquals(1, results.size());
-		//TestGenerationResult testResult = results.iterator().next();
-		TestGenerationResult testResult = results.get(0).get(0);
-		System.out.println(testResult.getErrorMessage());
-		assertFalse(testResult.getErrorMessage().isEmpty());
-		assertEquals(TestGenerationResult.Status.ERROR, testResult.getTestGenerationStatus());
-		
-	}
-	
+        String[] command = new String[]{
+                "-generateSuite",
+                "-class",
+                targetClass
+        };
+
+
+        evosuite.parseCommandLine(command);
+    }
+
+
+    @Test
+    public void testJavaPackageNotOnProjectCP() {
+        EvoSuite evosuite = new EvoSuite();
+
+        String targetClass = java.util.TreeMap.class.getCanonicalName();
+
+        Properties.TARGET_CLASS = targetClass;
+
+        String[] command = new String[]{
+                "-generateSuite",
+                "-class",
+                targetClass
+        };
+
+
+        Object result = evosuite.parseCommandLine(command);
+        //List<TestGenerationResult> results = (List<TestGenerationResult>)result;
+        List<List<TestGenerationResult>> results = (List<List<TestGenerationResult>>) result;
+        assertEquals(1, results.size());
+        //TestGenerationResult testResult = results.iterator().next();
+        TestGenerationResult testResult = results.get(0).get(0);
+        System.out.println(testResult.getErrorMessage());
+        assertFalse(testResult.getErrorMessage().isEmpty());
+        assertEquals(TestGenerationResult.Status.ERROR, testResult.getTestGenerationStatus());
+
+    }
+
 }

@@ -22,7 +22,7 @@ package org.evosuite.intellij.util;
 /**
  * EvoSuite is run on background, in a non-blocking way.
  * Once finished, we might want some sort of notification
- *
+ * <p>
  * Created by arcuri on 10/2/14.
  */
 public interface AsyncGUINotifier {

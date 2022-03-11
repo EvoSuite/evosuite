@@ -23,7 +23,7 @@ import junit.framework.TestCase;
 
 public abstract class AbstractJUnit3Test extends TestCase {
 
-	public void testFoo() {
+    public void testFoo() {
 
-	}
+    }
 }

@@ -19,45 +19,45 @@
  */
 package org.evosuite.continuous.job.schedule;
 
-import java.util.LinkedList;
-import java.util.List;
-
 import org.evosuite.continuous.job.JobDefinition;
 import org.evosuite.continuous.job.JobScheduler;
 import org.evosuite.continuous.project.ProjectStaticData;
 import org.evosuite.continuous.project.ProjectStaticData.ClassInfo;
 
-public class SimpleSchedule extends OneTimeSchedule{
+import java.util.LinkedList;
+import java.util.List;
 
-	public SimpleSchedule(JobScheduler scheduler){
-		super(scheduler);
-	}
+public class SimpleSchedule extends OneTimeSchedule {
 
-	@Override
-	protected List<JobDefinition> createScheduleOnce() {
+    public SimpleSchedule(JobScheduler scheduler) {
+        super(scheduler);
+    }
 
-		assert enoughBudgetForAll(); 
+    @Override
+    protected List<JobDefinition> createScheduleOnce() {
 
-		ProjectStaticData data = scheduler.getProjectData();
-		int totalBudgetInSeconds = 60 * scheduler.getConfiguration().timeInMinutes * scheduler.getConfiguration().getNumberOfUsableCores(); 
+        assert enoughBudgetForAll();
 
-		List<JobDefinition> jobs = new LinkedList<>();
+        ProjectStaticData data = scheduler.getProjectData();
+        int totalBudgetInSeconds = 60 * scheduler.getConfiguration().timeInMinutes * scheduler.getConfiguration().getNumberOfUsableCores();
 
-		//simple case, distribute budget equally
-		int cores = scheduler.getConfiguration().getNumberOfUsableCores();
-		int cuts = data.getTotalNumberOfTestableCUTs();		
-		int slots = (int)Math.round(cores * Math.ceil((double) cuts / (double) cores));
-		int budgetInSecondsPerCUT = totalBudgetInSeconds / slots; 
+        List<JobDefinition> jobs = new LinkedList<>();
 
-		for(ClassInfo info : data.getClassInfos()){
-			if(!info.isTestable()){
-				continue;
-			}
-			JobDefinition job = new JobDefinition(
-					budgetInSecondsPerCUT, scheduler.getConfiguration().getConstantMemoryPerJob(), info.getClassName(), 0, null, null);
-			jobs.add(job);
-		}
-		return jobs;
-	}
+        //simple case, distribute budget equally
+        int cores = scheduler.getConfiguration().getNumberOfUsableCores();
+        int cuts = data.getTotalNumberOfTestableCUTs();
+        int slots = (int) Math.round(cores * Math.ceil((double) cuts / (double) cores));
+        int budgetInSecondsPerCUT = totalBudgetInSeconds / slots;
+
+        for (ClassInfo info : data.getClassInfos()) {
+            if (!info.isTestable()) {
+                continue;
+            }
+            JobDefinition job = new JobDefinition(
+                    budgetInSecondsPerCUT, scheduler.getConfiguration().getConstantMemoryPerJob(), info.getClassName(), 0, null, null);
+            jobs.add(job);
+        }
+        return jobs;
+    }
 
 }

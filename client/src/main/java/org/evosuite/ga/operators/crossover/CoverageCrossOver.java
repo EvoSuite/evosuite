@@ -19,17 +19,17 @@
  */
 package org.evosuite.ga.operators.crossover;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.Randomness;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 
 /**
@@ -39,98 +39,101 @@ import org.evosuite.utils.Randomness;
  */
 public class CoverageCrossOver extends CrossOverFunction<TestSuiteChromosome> {
 
-	private static final long serialVersionUID = -2203276450790663024L;
+    private static final long serialVersionUID = -2203276450790663024L;
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.ga.CrossOverFunction#crossOver(org.evosuite.ga.Chromosome, org.evosuite.ga.Chromosome)
-	 */
-	/** {@inheritDoc}
-	 * @param parent1
-	 * @param parent2*/
-	@Override
-	public void crossOver(TestSuiteChromosome parent1, TestSuiteChromosome parent2)
-	        throws ConstructionFailedException {
+    /* (non-Javadoc)
+     * @see org.evosuite.ga.CrossOverFunction#crossOver(org.evosuite.ga.Chromosome, org.evosuite.ga.Chromosome)
+     */
 
-		// Determine coverage information
-		Map<TestFitnessFunction, Set<TestChromosome>> goalMap = new HashMap<>();
-		populateCoverageMap(goalMap, parent1);
-		populateCoverageMap(goalMap, parent2);
+    /**
+     * {@inheritDoc}
+     *
+     * @param parent1
+     * @param parent2
+     */
+    @Override
+    public void crossOver(TestSuiteChromosome parent1, TestSuiteChromosome parent2)
+            throws ConstructionFailedException {
 
-		// Extract set of tests that have unique coverage
-		// We need all of these tests in both offspring
-		Set<TestChromosome> unique = removeUniqueCoveringTests(goalMap);
-		logger.debug("Uniquely covering tests: " + unique.size());
+        // Determine coverage information
+        Map<TestFitnessFunction, Set<TestChromosome>> goalMap = new HashMap<>();
+        populateCoverageMap(goalMap, parent1);
+        populateCoverageMap(goalMap, parent2);
 
-		Set<TestChromosome> offspring1 = new HashSet<>();
-		Set<TestChromosome> offspring2 = new HashSet<>();
-		Set<TestChromosome> workingSet = new HashSet<>();
-		for (TestFitnessFunction goal : goalMap.keySet()) {
-			workingSet.addAll(goalMap.get(goal));
-		}
+        // Extract set of tests that have unique coverage
+        // We need all of these tests in both offspring
+        Set<TestChromosome> unique = removeUniqueCoveringTests(goalMap);
+        logger.debug("Uniquely covering tests: " + unique.size());
 
-		int targetSize = workingSet.size() / 2;
-		while (offspring2.size() < targetSize) {
-			logger.debug("Sizes: " + workingSet.size() + ", " + offspring1.size() + ", "
-			        + offspring2.size());
+        Set<TestChromosome> offspring1 = new HashSet<>();
+        Set<TestChromosome> offspring2 = new HashSet<>();
+        Set<TestChromosome> workingSet = new HashSet<>();
+        for (TestFitnessFunction goal : goalMap.keySet()) {
+            workingSet.addAll(goalMap.get(goal));
+        }
 
-			// Move a randomly selected redundant test case t from workingset to offspring2
-			TestChromosome choice = Randomness.choice(workingSet);
-			workingSet.remove(choice);
-			offspring2.add(choice);
+        int targetSize = workingSet.size() / 2;
+        while (offspring2.size() < targetSize) {
+            logger.debug("Sizes: " + workingSet.size() + ", " + offspring1.size() + ", "
+                    + offspring2.size());
 
-			// Move all tests with unique coverage to offspring 1?
-			offspring1.addAll(removeUniqueCoveringTests(goalMap));
-		}
+            // Move a randomly selected redundant test case t from workingset to offspring2
+            TestChromosome choice = Randomness.choice(workingSet);
+            workingSet.remove(choice);
+            offspring2.add(choice);
 
-		offspring1.addAll(workingSet);
+            // Move all tests with unique coverage to offspring 1?
+            offspring1.addAll(removeUniqueCoveringTests(goalMap));
+        }
 
-		parent1.clearTests();
-		parent2.clearTests();
+        offspring1.addAll(workingSet);
 
-		// Add unique tests
-		for (TestChromosome test : unique) {
-			parent1.addTest(test.clone());
-			parent2.addTest(test.clone());
-		}
+        parent1.clearTests();
+        parent2.clearTests();
 
-		// Add redundancy tests
-		parent1.addTests(offspring1);
-		parent2.addTests(offspring2);
-		logger.debug("Final sizes: " + parent1.size() + ", " + parent2.size());
+        // Add unique tests
+        for (TestChromosome test : unique) {
+            parent1.addTest(test.clone());
+            parent2.addTest(test.clone());
+        }
 
-	}
+        // Add redundancy tests
+        parent1.addTests(offspring1);
+        parent2.addTests(offspring2);
+        logger.debug("Final sizes: " + parent1.size() + ", " + parent2.size());
 
-	/**
-	 * Create a map from coverage goal to tests that cover this goal
-	 * 
-	 * @param goalMap
-	 * @param suite
-	 */
-	private void populateCoverageMap(
-	        Map<TestFitnessFunction, Set<TestChromosome>> goalMap,
-	        TestSuiteChromosome suite) {
-		for (TestChromosome test : suite.getTestChromosomes()) {
-			for (TestFitnessFunction goal : test.getTestCase().getCoveredGoals()) {
-				if (!goalMap.containsKey(goal))
-					goalMap.put(goal, new HashSet<>());
-				goalMap.get(goal).add(test);
-			}
+    }
 
-		}
-	}
+    /**
+     * Create a map from coverage goal to tests that cover this goal
+     *
+     * @param goalMap
+     * @param suite
+     */
+    private void populateCoverageMap(
+            Map<TestFitnessFunction, Set<TestChromosome>> goalMap,
+            TestSuiteChromosome suite) {
+        for (TestChromosome test : suite.getTestChromosomes()) {
+            for (TestFitnessFunction goal : test.getTestCase().getCoveredGoals()) {
+                if (!goalMap.containsKey(goal))
+                    goalMap.put(goal, new HashSet<>());
+                goalMap.get(goal).add(test);
+            }
 
-	private Set<TestChromosome> removeUniqueCoveringTests(
-	        Map<TestFitnessFunction, Set<TestChromosome>> goalMap) {
-		Set<TestChromosome> tests = new HashSet<>();
-		Set<TestFitnessFunction> uniqueGoals = new HashSet<>();
-		for (Entry<TestFitnessFunction, Set<TestChromosome>> entry : goalMap.entrySet()) {
-			if (entry.getValue().size() == 1) {
-				uniqueGoals.add(entry.getKey());
-				tests.add(entry.getValue().iterator().next());
-			}
-		}
-		uniqueGoals.removeAll(uniqueGoals);
-		return tests;
-	}
+        }
+    }
+
+    private Set<TestChromosome> removeUniqueCoveringTests(
+            Map<TestFitnessFunction, Set<TestChromosome>> goalMap) {
+        Set<TestChromosome> tests = new HashSet<>();
+
+        for (Entry<TestFitnessFunction, Set<TestChromosome>> entry : goalMap.entrySet()) {
+            if (entry.getValue().size() == 1) {
+                tests.add(entry.getValue().iterator().next());
+            }
+        }
+
+        return tests;
+    }
 
 }

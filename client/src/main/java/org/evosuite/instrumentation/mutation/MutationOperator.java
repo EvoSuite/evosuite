@@ -20,12 +20,12 @@
 
 package org.evosuite.instrumentation.mutation;
 
-import java.util.List;
-
 import org.evosuite.coverage.mutation.Mutation;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.analysis.Frame;
+
+import java.util.List;
 
 
 /**
@@ -35,25 +35,25 @@ import org.objectweb.asm.tree.analysis.Frame;
  */
 public interface MutationOperator {
 
-	/**
-	 * Insert the mutation into the bytecode
-	 *
-	 * @param mn a {@link org.objectweb.asm.tree.MethodNode} object.
-	 * @param className a {@link java.lang.String} object.
-	 * @param methodName a {@link java.lang.String} object.
-	 * @param instruction a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
-	 * @param frame a {@link org.objectweb.asm.tree.analysis.Frame} object.
-	 * @return a {@link java.util.List} object.
-	 */
+    /**
+     * Insert the mutation into the bytecode
+     *
+     * @param mn          a {@link org.objectweb.asm.tree.MethodNode} object.
+     * @param className   a {@link java.lang.String} object.
+     * @param methodName  a {@link java.lang.String} object.
+     * @param instruction a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
+     * @param frame       a {@link org.objectweb.asm.tree.analysis.Frame} object.
+     * @return a {@link java.util.List} object.
+     */
     List<Mutation> apply(MethodNode mn, String className, String methodName,
                          BytecodeInstruction instruction, Frame frame);
 
-	/**
-	 * Check if the mutation operator is applicable to the instruction
-	 *
-	 * @param instruction a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
-	 * @return a boolean.
-	 */
+    /**
+     * Check if the mutation operator is applicable to the instruction
+     *
+     * @param instruction a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
+     * @return a boolean.
+     */
     boolean isApplicable(BytecodeInstruction instruction);
 
 }

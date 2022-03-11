@@ -24,8 +24,8 @@ import org.evosuite.symbolic.solver.TestSolverStringFunctions;
 
 public class TestZ3StringFunctions extends TestSolverStringFunctions {
 
-	@Override
-	public Solver getSolver() {
-		return new Z3Solver();
-	}
+    @Override
+    public Solver getSolver() {
+        return new Z3Solver();
+    }
 }

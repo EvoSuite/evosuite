@@ -35,56 +35,55 @@ import org.osgi.framework.Bundle;
 
 /**
  * @author Gordon Fraser
- * 
  */
 public class EvoSuiteClasspathContainer implements IClasspathContainer {
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.core.IClasspathContainer#getClasspathEntries()
-	 */
-	@Override
-	public IClasspathEntry[] getClasspathEntries() {
-		List<IClasspathEntry> entryList = new ArrayList<IClasspathEntry>();
+    /* (non-Javadoc)
+     * @see org.eclipse.jdt.core.IClasspathContainer#getClasspathEntries()
+     */
+    @Override
+    public IClasspathEntry[] getClasspathEntries() {
+        List<IClasspathEntry> entryList = new ArrayList<IClasspathEntry>();
 
-		entryList.add(JavaCore.newLibraryEntry(getPath(), null, null));
+        entryList.add(JavaCore.newLibraryEntry(getPath(), null, null));
 
-		// convert the list to an array and return it
-		IClasspathEntry[] entryArray = new IClasspathEntry[entryList.size()];
-		return entryList.toArray(entryArray);
-	}
+        // convert the list to an array and return it
+        IClasspathEntry[] entryArray = new IClasspathEntry[entryList.size()];
+        return entryList.toArray(entryArray);
+    }
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.core.IClasspathContainer#getDescription()
-	 */
-	@Override
-	public String getDescription() {
-		return "EvoSuite test generation library";
-	}
+    /* (non-Javadoc)
+     * @see org.eclipse.jdt.core.IClasspathContainer#getDescription()
+     */
+    @Override
+    public String getDescription() {
+        return "EvoSuite test generation library";
+    }
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.core.IClasspathContainer#getKind()
-	 */
-	@Override
-	public int getKind() {
-		return IClasspathContainer.K_APPLICATION;
-	}
+    /* (non-Javadoc)
+     * @see org.eclipse.jdt.core.IClasspathContainer#getKind()
+     */
+    @Override
+    public int getKind() {
+        return IClasspathContainer.K_APPLICATION;
+    }
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.core.IClasspathContainer#getPath()
-	 */
-	@Override
-	public IPath getPath() {		
-		Bundle bundle = Platform.getBundle(Activator.EVOSUITE_CORE_BUNDLE);
-		URL url =  bundle.getEntry(Activator.EVOSUITE_JAR);		
-		try {
-			URL evosuiteLib = FileLocator.resolve(url);
-			System.out.println("Evosuite jar is at " + evosuiteLib.getPath());
-			return new Path(evosuiteLib.getPath());
-		} catch (Exception e) {
-			System.err.println("Error accessing Evosuite jar at " + url);
-		}
-		System.err.println("Did not find Evosuite jar!");
-		return null;
-	}
+    /* (non-Javadoc)
+     * @see org.eclipse.jdt.core.IClasspathContainer#getPath()
+     */
+    @Override
+    public IPath getPath() {
+        Bundle bundle = Platform.getBundle(Activator.EVOSUITE_CORE_BUNDLE);
+        URL url = bundle.getEntry(Activator.EVOSUITE_JAR);
+        try {
+            URL evosuiteLib = FileLocator.resolve(url);
+            System.out.println("Evosuite jar is at " + evosuiteLib.getPath());
+            return new Path(evosuiteLib.getPath());
+        } catch (Exception e) {
+            System.err.println("Error accessing Evosuite jar at " + url);
+        }
+        System.err.println("Did not find Evosuite jar!");
+        return null;
+    }
 
 }

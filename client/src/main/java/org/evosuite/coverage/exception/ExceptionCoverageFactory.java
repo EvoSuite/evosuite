@@ -19,10 +19,13 @@
  */
 package org.evosuite.coverage.exception;
 
-import java.util.*;
-
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testsuite.AbstractFitnessFactory;
+
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Coverage factory for observed exceptions
@@ -31,15 +34,17 @@ import org.evosuite.testsuite.AbstractFitnessFactory;
  */
 public class ExceptionCoverageFactory extends AbstractFitnessFactory<TestFitnessFunction> {
 
-    private static Map<String, ExceptionCoverageTestFitness> goals = new LinkedHashMap<>();
+    private static final Map<String, ExceptionCoverageTestFitness> goals = new LinkedHashMap<>();
 
     public static Map<String, ExceptionCoverageTestFitness> getGoals() {
         return goals;
     }
 
-    /** {@inheritDoc} */
-	@Override
-	public List<TestFitnessFunction> getCoverageGoals() {
-		return new ArrayList<>(goals.values());
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<TestFitnessFunction> getCoverageGoals() {
+        return new ArrayList<>(goals.values());
+    }
 }

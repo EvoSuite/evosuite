@@ -31,7 +31,7 @@ public class PrefsUser {
     }
 
     public boolean coverMe(String key) {
-        if(Preferences.userRoot().get(key, null).equals("Foo")) {
+        if (Preferences.userRoot().get(key, null).equals("Foo")) {
             return true;
         } else {
             return false;

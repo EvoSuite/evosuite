@@ -19,8 +19,6 @@
  */
 package org.evosuite.symbolic.vm.regex;
 
-import java.util.regex.Matcher;
-
 import org.evosuite.symbolic.expr.ref.ReferenceConstant;
 import org.evosuite.symbolic.expr.ref.ReferenceExpression;
 import org.evosuite.symbolic.expr.str.StringValue;
@@ -28,43 +26,45 @@ import org.evosuite.symbolic.vm.SymbolicEnvironment;
 import org.evosuite.symbolic.vm.SymbolicFunction;
 import org.evosuite.symbolic.vm.heap.SymbolicHeap;
 
+import java.util.regex.Matcher;
+
 public final class Pattern_Matcher extends SymbolicFunction {
 
-	private static final String MATCHER = "matcher";
+    private static final String MATCHER = "matcher";
 
-	public Pattern_Matcher(SymbolicEnvironment env) {
-		super(env, Types.JAVA_UTIL_REGEX_PATTERN, MATCHER,
-				Types.CHARSEQ_TO_MATCHER);
-	}
+    public Pattern_Matcher(SymbolicEnvironment env) {
+        super(env, Types.JAVA_UTIL_REGEX_PATTERN, MATCHER,
+                Types.CHARSEQ_TO_MATCHER);
+    }
 
-	@Override
-	public Object executeFunction() {
+    @Override
+    public Object executeFunction() {
 
-		// receiver
-		@SuppressWarnings("unused")
-		ReferenceConstant symb_receiver = this.getSymbReceiver();
+        // receiver
+        @SuppressWarnings("unused")
+        ReferenceConstant symb_receiver = this.getSymbReceiver();
 
-		// argument
-		CharSequence conc_char_seq = (CharSequence) this.getConcArgument(0);
-		ReferenceExpression symb_char_seq= this.getSymbArgument(0);
+        // argument
+        CharSequence conc_char_seq = (CharSequence) this.getConcArgument(0);
+        ReferenceExpression symb_char_seq = this.getSymbArgument(0);
 
-		// return value
-		Matcher conc_matcher = (Matcher) this.getConcRetVal();
-		ReferenceConstant symb_matcher = (ReferenceConstant) this.getSymbRetVal();
+        // return value
+        Matcher conc_matcher = (Matcher) this.getConcRetVal();
+        ReferenceConstant symb_matcher = (ReferenceConstant) this.getSymbRetVal();
 
-		if (conc_char_seq != null && conc_char_seq instanceof String) {
-			assert symb_char_seq instanceof ReferenceConstant;
-			ReferenceConstant symb_string = (ReferenceConstant)symb_char_seq;
-			
-			String string = (String) conc_char_seq;
-			StringValue symb_input = env.heap.getField(Types.JAVA_LANG_STRING,
-					SymbolicHeap.$STRING_VALUE, string, symb_string, string);
+        if (conc_char_seq != null && conc_char_seq instanceof String) {
+            assert symb_char_seq instanceof ReferenceConstant;
+            ReferenceConstant symb_string = (ReferenceConstant) symb_char_seq;
 
-			env.heap.putField(Types.JAVA_UTIL_REGEX_MATCHER,
-					SymbolicHeap.$MATCHER_INPUT, conc_matcher, symb_matcher,
-					symb_input);
-		}
-		return symb_matcher;
-	}
+            String string = (String) conc_char_seq;
+            StringValue symb_input = env.heap.getField(Types.JAVA_LANG_STRING,
+                    SymbolicHeap.$STRING_VALUE, string, symb_string, string);
+
+            env.heap.putField(Types.JAVA_UTIL_REGEX_MATCHER,
+                    SymbolicHeap.$MATCHER_INPUT, conc_matcher, symb_matcher,
+                    symb_input);
+        }
+        return symb_matcher;
+    }
 
 }

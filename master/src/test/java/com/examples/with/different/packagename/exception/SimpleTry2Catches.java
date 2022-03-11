@@ -33,9 +33,9 @@ public class SimpleTry2Catches {
 
         try {
             MethodsWithExceptions.twoExceptions(x);
-        } catch(IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
             return false;
-        } catch(SQLException e) {
+        } catch (SQLException e) {
             return false;
         }
 

@@ -23,25 +23,24 @@ import org.evosuite.Properties;
 
 /**
  * Output variable that represents a value stored in the properties
- * 
- * @author gordon
  *
+ * @author gordon
  */
 public class PropertyOutputVariableFactory {
 
-	private String propertyName;
-	
-	public PropertyOutputVariableFactory(String propertyName) {
-		this.propertyName = propertyName;
-	}
-	
-	public OutputVariable<String> getVariable() {
-		try {
-			return new OutputVariable<>(propertyName, Properties.getStringValue(propertyName));
-		} catch (Exception e) {
-			// TODO: What would be better?
-			return new OutputVariable<>(propertyName, "error");
-		}
-	}
+    private final String propertyName;
+
+    public PropertyOutputVariableFactory(String propertyName) {
+        this.propertyName = propertyName;
+    }
+
+    public OutputVariable<String> getVariable() {
+        try {
+            return new OutputVariable<>(propertyName, Properties.getStringValue(propertyName));
+        } catch (Exception e) {
+            // TODO: What would be better?
+            return new OutputVariable<>(propertyName, "error");
+        }
+    }
 
 }

@@ -21,7 +21,6 @@ package org.evosuite.testcase.fm;
 
 import org.evosuite.utils.generic.GenericClass;
 import org.evosuite.utils.generic.GenericClassFactory;
-import org.evosuite.utils.generic.GenericClassImpl;
 import org.mockito.invocation.DescribedInvocation;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.listeners.InvocationListener;
@@ -39,14 +38,14 @@ import java.util.stream.Collectors;
  * During the test generation, we need to know which methods have been called,
  * and how often they were called.
  * This is however not needed in the final generated JUnit tests
- *
+ * <p>
  * Created by Andrea Arcuri on 27/07/15.
  */
 public class EvoInvocationListener implements InvocationListener, Serializable {
 
-	private static final long serialVersionUID = 8351121388007697168L;
+    private static final long serialVersionUID = 8351121388007697168L;
 
-	private final Map<String, MethodDescriptor> map = new LinkedHashMap<>();
+    private final Map<String, MethodDescriptor> map = new LinkedHashMap<>();
 
     /**
      * By default, we should not log events, otherwise we would end up
@@ -56,33 +55,32 @@ public class EvoInvocationListener implements InvocationListener, Serializable {
 
     private final GenericClass<?> retvalType;
 
-    public EvoInvocationListener(Type retvalType){
+    public EvoInvocationListener(Type retvalType) {
         this.retvalType = GenericClassFactory.get(retvalType);
     }
 
 
-    public EvoInvocationListener(GenericClass<?> retvalType){
+    public EvoInvocationListener(GenericClass<?> retvalType) {
         this.retvalType = retvalType;
     }
 
-    public void activate(){
+    public void activate() {
         active = true;
     }
 
 
     public void changeClassLoader(ClassLoader loader) {
-        for(MethodDescriptor descriptor : map.values()){
-            if(descriptor != null){
+        for (MethodDescriptor descriptor : map.values()) {
+            if (descriptor != null) {
                 descriptor.changeClassLoader(loader);
             }
         }
     }
 
     /**
-     *
      * @return a sorted list
      */
-    public List<MethodDescriptor> getCopyOfMethodDescriptors(){
+    public List<MethodDescriptor> getCopyOfMethodDescriptors() {
         return map.values().stream().sorted().collect(Collectors.toList());
     }
 
@@ -93,14 +91,14 @@ public class EvoInvocationListener implements InvocationListener, Serializable {
     @Override
     public void reportInvocation(MethodInvocationReport methodInvocationReport) {
 
-        if(! active){
+        if (!active) {
             return;
         }
 
         DescribedInvocation di = methodInvocationReport.getInvocation();
         MethodDescriptor md = null;
 
-        if(di instanceof InvocationOnMock){
+        if (di instanceof InvocationOnMock) {
             InvocationOnMock impl = (InvocationOnMock) di;
             Method method = impl.getMethod();
             md = new MethodDescriptor(method, retvalType);
@@ -109,22 +107,22 @@ public class EvoInvocationListener implements InvocationListener, Serializable {
             md = getMethodDescriptor_old(di);
         }
 
-        if(md.getMethodName().equals("finalize")){
+        if (md.getMethodName().equals("finalize")) {
             //ignore it, otherwise if we mock it, we ll end up in a lot of side effects... :(
             return;
         }
 
-        if(onlyMockAbstractMethods() && !md.getGenericMethod().isAbstract()) {
+        if (onlyMockAbstractMethods() && !md.getGenericMethod().isAbstract()) {
             return;
         }
 
-        synchronized (map){
+        synchronized (map) {
             MethodDescriptor current = map.get(md.getID());
-            if(current == null){
+            if (current == null) {
                 current = md;
             }
             current.increaseCounter();
-            map.put(md.getID(),current);
+            map.put(md.getID(), current);
         }
     }
 
@@ -143,26 +141,26 @@ public class EvoInvocationListener implements InvocationListener, Serializable {
         int openingP = description.indexOf('(');
         assert openingP >= 0;
 
-        String[] leftTokens = description.substring(0,openingP).split("\\.");
+        String[] leftTokens = description.substring(0, openingP).split("\\.");
         String className = ""; //TODO
-        String methodName = leftTokens[leftTokens.length-1];
+        String methodName = leftTokens[leftTokens.length - 1];
 
         int closingP = description.lastIndexOf(')');
-        String[] inputTokens = description.substring(openingP+1, closingP).split(",");
+        String[] inputTokens = description.substring(openingP + 1, closingP).split(",");
 
         String mockitoMatchers = "";
-        if(inputTokens.length > 0) {
+        if (inputTokens.length > 0) {
             /*
                 TODO: For now it does not seem really feasible to infer the correct types.
                 Left a feature request on Mockito mailing list, let's see if it ll be done
              */
             mockitoMatchers += "any()";
-            for (int i=1; i<inputTokens.length; i++) {
+            for (int i = 1; i < inputTokens.length; i++) {
                 mockitoMatchers += " , any()";
             }
         }
 
 
-        return new MethodDescriptor(className,methodName,mockitoMatchers);
+        return new MethodDescriptor(className, methodName, mockitoMatchers);
     }
 }

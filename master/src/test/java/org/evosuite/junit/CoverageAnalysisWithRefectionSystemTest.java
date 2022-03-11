@@ -55,43 +55,43 @@ import com.opencsv.CSVReader;
 
 public class CoverageAnalysisWithRefectionSystemTest extends SystemTestBase {
 
-	@Before
-	public void prepare() {
-		try {
-			FileUtils.deleteDirectory(new File("evosuite-report"));
-		} catch (IOException e) {
-			Assert.fail(e.getMessage());
-		}
+    @Before
+    public void prepare() {
+        try {
+            FileUtils.deleteDirectory(new File("evosuite-report"));
+        } catch (IOException e) {
+            Assert.fail(e.getMessage());
+        }
 
-		Properties.TARGET_CLASS = "";
-		Properties.OUTPUT_VARIABLES = null;
+        Properties.TARGET_CLASS = "";
+        Properties.OUTPUT_VARIABLES = null;
         Properties.STATISTICS_BACKEND = StatisticsBackend.DEBUG;
         Properties.COVERAGE_MATRIX = false;
 
         CoverageAnalysis.reset();
-	}
+    }
 
-	@Test
-	public void testGetAllInterfaces() throws IOException, CsvException {
+    @Test
+    public void testGetAllInterfaces() throws IOException, CsvException {
 
-		EvoSuite evosuite = new EvoSuite();
+        EvoSuite evosuite = new EvoSuite();
 
         String targetClass = ClassWithPrivateInterfaces.class.getCanonicalName();
         String testClass = ClassWithPrivateInterfacesTest.class.getCanonicalName();
         Properties.TARGET_CLASS = targetClass;
 
-        Properties.CRITERION = new Properties.Criterion[] {
-        	Properties.Criterion.LINE
+        Properties.CRITERION = new Properties.Criterion[]{
+                Properties.Criterion.LINE
         };
 
         Properties.OUTPUT_VARIABLES = RuntimeVariable.Total_Goals + "," + RuntimeVariable.LineCoverage;
         Properties.STATISTICS_BACKEND = StatisticsBackend.CSV;
         Properties.COVERAGE_MATRIX = true;
 
-        String[] command = new String[] {
-            "-class", targetClass,
-            "-Djunit=" + testClass,
-            "-measureCoverage"
+        String[] command = new String[]{
+                "-class", targetClass,
+                "-Djunit=" + testClass,
+                "-measureCoverage"
         };
 
         Object statistics = evosuite.parseCommandLine(command);
@@ -99,9 +99,9 @@ public class CoverageAnalysisWithRefectionSystemTest extends SystemTestBase {
 
         // Assert coverage
 
-        String statistics_file = System.getProperty("user.dir") + File.separator + 
-        		Properties.REPORT_DIR + File.separator + 
-        		"statistics.csv";
+        String statistics_file = System.getProperty("user.dir") + File.separator +
+                Properties.REPORT_DIR + File.separator +
+                "statistics.csv";
         System.out.println("statistics_file: " + statistics_file);
 
         CSVReader reader = new CSVReader(new FileReader(statistics_file));
@@ -114,10 +114,10 @@ public class CoverageAnalysisWithRefectionSystemTest extends SystemTestBase {
 
         // Assert that all test cases have passed
 
-        String matrix_file = System.getProperty("user.dir") + File.separator + 
-        		Properties.REPORT_DIR + File.separator + 
-        		"data" + File.separator + targetClass + File.separator +
-        		Properties.Criterion.LINE.name() + File.separator + Properties.COVERAGE_MATRIX_FILENAME;
+        String matrix_file = System.getProperty("user.dir") + File.separator +
+                Properties.REPORT_DIR + File.separator +
+                "data" + File.separator + targetClass + File.separator +
+                Properties.Criterion.LINE.name() + File.separator + Properties.COVERAGE_MATRIX_FILENAME;
         System.out.println("matrix_file: " + matrix_file);
 
         List<String> lines = Files.readAllLines(FileSystems.getDefault().getPath(matrix_file));
@@ -125,29 +125,29 @@ public class CoverageAnalysisWithRefectionSystemTest extends SystemTestBase {
 
         assertEquals(13 + 1 + 1, lines.get(0).replace(" ", "").length()); // number of goals + test result ('+' pass, '-' fail)
         assertTrue(lines.get(0).replace(" ", "").endsWith("+"));
-	}
+    }
 
-	@Test
-	public void testHierarchyIncludingInterfaces() throws IOException, CsvException {
+    @Test
+    public void testHierarchyIncludingInterfaces() throws IOException, CsvException {
 
-		EvoSuite evosuite = new EvoSuite();
+        EvoSuite evosuite = new EvoSuite();
 
         String targetClass = ClassHierarchyIncludingInterfaces.class.getCanonicalName();
         String testClass = ClassHierarchyIncludingInterfacesTest.class.getCanonicalName();
         Properties.TARGET_CLASS = targetClass;
 
-        Properties.CRITERION = new Properties.Criterion[] {
-        	Properties.Criterion.LINE
+        Properties.CRITERION = new Properties.Criterion[]{
+                Properties.Criterion.LINE
         };
 
         Properties.OUTPUT_VARIABLES = RuntimeVariable.Total_Goals + "," + RuntimeVariable.LineCoverage;
         Properties.STATISTICS_BACKEND = StatisticsBackend.CSV;
         Properties.COVERAGE_MATRIX = true;
 
-        String[] command = new String[] {
-            "-class", targetClass,
-            "-Djunit=" + testClass,
-            "-measureCoverage"
+        String[] command = new String[]{
+                "-class", targetClass,
+                "-Djunit=" + testClass,
+                "-measureCoverage"
         };
 
         Object statistics = evosuite.parseCommandLine(command);
@@ -155,9 +155,9 @@ public class CoverageAnalysisWithRefectionSystemTest extends SystemTestBase {
 
         // Assert coverage
 
-        String statistics_file = System.getProperty("user.dir") + File.separator + 
-        		Properties.REPORT_DIR + File.separator + 
-        		"statistics.csv";
+        String statistics_file = System.getProperty("user.dir") + File.separator +
+                Properties.REPORT_DIR + File.separator +
+                "statistics.csv";
         System.out.println("statistics_file: " + statistics_file);
 
         CSVReader reader = new CSVReader(new FileReader(statistics_file));
@@ -166,48 +166,48 @@ public class CoverageAnalysisWithRefectionSystemTest extends SystemTestBase {
         reader.close();
 
         // The number of lines seems to be different depending on the compiler
-        assertTrue("Expected 32-34lines, but found: "+CsvJUnitData.getValue(rows, RuntimeVariable.Total_Goals.name()),
+        assertTrue("Expected 32-34lines, but found: " + CsvJUnitData.getValue(rows, RuntimeVariable.Total_Goals.name()),
                 CsvJUnitData.getValue(rows, RuntimeVariable.Total_Goals.name()).equals("32") ||
                         CsvJUnitData.getValue(rows, RuntimeVariable.Total_Goals.name()).equals("33") ||
-            		CsvJUnitData.getValue(rows, RuntimeVariable.Total_Goals.name()).equals("34"));
+                        CsvJUnitData.getValue(rows, RuntimeVariable.Total_Goals.name()).equals("34"));
 
         // Assert that all test cases have passed
 
-        String matrix_file = System.getProperty("user.dir") + File.separator + 
-        		Properties.REPORT_DIR + File.separator + 
-        		"data" + File.separator + targetClass + File.separator +
-        		Properties.Criterion.LINE.name() + File.separator + Properties.COVERAGE_MATRIX_FILENAME;
+        String matrix_file = System.getProperty("user.dir") + File.separator +
+                Properties.REPORT_DIR + File.separator +
+                "data" + File.separator + targetClass + File.separator +
+                Properties.Criterion.LINE.name() + File.separator + Properties.COVERAGE_MATRIX_FILENAME;
         System.out.println("matrix_file: " + matrix_file);
 
         List<String> lines = Files.readAllLines(FileSystems.getDefault().getPath(matrix_file));
         assertEquals(1, lines.size());
 
         // The number of lines seems to be different depending on the compiler
-        assertTrue("Expected lines to be 32-34, but got: "+(lines.get(0).replace(" ", "").length()), 34 - lines.get(0).replace(" ", "").length() <= 2); // number of goals + test result ('+' pass, '-' fail)
-        assertTrue("Expected line to end with +, but line is: "+lines.get(0).replace(" ", ""), lines.get(0).replace(" ", "").endsWith("+"));
-	}
+        assertTrue("Expected lines to be 32-34, but got: " + (lines.get(0).replace(" ", "").length()), 34 - lines.get(0).replace(" ", "").length() <= 2); // number of goals + test result ('+' pass, '-' fail)
+        assertTrue("Expected line to end with +, but line is: " + lines.get(0).replace(" ", ""), lines.get(0).replace(" ", "").endsWith("+"));
+    }
 
-	@Test
-	public void testBindFilteredEventsToMethod() throws IOException {
+    @Test
+    public void testBindFilteredEventsToMethod() throws IOException {
 
-		EvoSuite evosuite = new EvoSuite();
+        EvoSuite evosuite = new EvoSuite();
 
         String targetClass = ClassPublicInterface.class.getCanonicalName();
         String testClass = ClassPublicInterfaceTest.class.getCanonicalName();
         Properties.TARGET_CLASS = targetClass;
 
-        Properties.CRITERION = new Properties.Criterion[] {
-        	Properties.Criterion.LINE
+        Properties.CRITERION = new Properties.Criterion[]{
+                Properties.Criterion.LINE
         };
 
         Properties.OUTPUT_VARIABLES = RuntimeVariable.Total_Goals + "," + RuntimeVariable.LineCoverage;
         Properties.STATISTICS_BACKEND = StatisticsBackend.CSV;
         Properties.COVERAGE_MATRIX = true;
 
-        String[] command = new String[] {
-            "-class", targetClass,
-            "-Djunit=" + testClass,
-            "-measureCoverage"
+        String[] command = new String[]{
+                "-class", targetClass,
+                "-Djunit=" + testClass,
+                "-measureCoverage"
         };
 
         SearchStatistics statistics = (SearchStatistics) evosuite.parseCommandLine(command);
@@ -222,14 +222,14 @@ public class CoverageAnalysisWithRefectionSystemTest extends SystemTestBase {
 
         // Assert that all test cases have passed
 
-        String matrix_file = System.getProperty("user.dir") + File.separator + 
-        		Properties.REPORT_DIR + File.separator + 
-        		"data" + File.separator + targetClass + File.separator +
-        		Properties.Criterion.LINE.name() + File.separator + Properties.COVERAGE_MATRIX_FILENAME;
+        String matrix_file = System.getProperty("user.dir") + File.separator +
+                Properties.REPORT_DIR + File.separator +
+                "data" + File.separator + targetClass + File.separator +
+                Properties.Criterion.LINE.name() + File.separator + Properties.COVERAGE_MATRIX_FILENAME;
         System.out.println("matrix_file: " + matrix_file);
 
         List<String> lines = Files.readAllLines(FileSystems.getDefault().getPath(matrix_file));
         assertEquals(1, lines.size());
         assertTrue(lines.get(0).replace(" ", "").endsWith("+"));
-	}
+    }
 }

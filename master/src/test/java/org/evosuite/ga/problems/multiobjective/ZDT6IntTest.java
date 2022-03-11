@@ -43,11 +43,9 @@ import org.junit.Test;
 import static java.util.Comparator.*;
 
 /**
- * 
  * @author José Campos
  */
-public class ZDT6IntTest
-{
+public class ZDT6IntTest {
     @Before
     public void setUp() {
         Properties.POPULATION = 100;
@@ -58,8 +56,7 @@ public class ZDT6IntTest
     }
 
     @Test
-    public void testZDT6Fitnesses()
-    {
+    public void testZDT6Fitnesses() {
         Problem<NSGAChromosome> p = new ZDT6();
         FitnessFunction<NSGAChromosome> f1 = p.getFitnessFunctions().get(0);
         FitnessFunction<NSGAChromosome> f2 = p.getFitnessFunctions().get(1);
@@ -73,13 +70,12 @@ public class ZDT6IntTest
 
     /**
      * Testing NSGA-II with ZDT6 Problem
-     * 
-     * @throws IOException 
-     * @throws NumberFormatException 
+     *
+     * @throws IOException
+     * @throws NumberFormatException
      */
     @Test
-    public void testZDT6() throws NumberFormatException, IOException
-    {
+    public void testZDT6() throws NumberFormatException, IOException {
         Properties.MUTATION_RATE = 1d / 10d;
 
         ChromosomeFactory<NSGAChromosome> factory = new RandomFactory(false, 10, 0.0, 1.0);

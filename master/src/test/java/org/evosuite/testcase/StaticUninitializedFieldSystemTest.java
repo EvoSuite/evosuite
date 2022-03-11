@@ -57,7 +57,7 @@ public class StaticUninitializedFieldSystemTest extends SystemTestBase {
 
         String targetClass = StaticFieldUninitialized.class.getCanonicalName();
         Properties.TARGET_CLASS = targetClass;
-        String[] command = new String[] { "-generateSuite", "-class", targetClass };
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
 
         Object result = evosuite.parseCommandLine(command);
 
@@ -68,7 +68,7 @@ public class StaticUninitializedFieldSystemTest extends SystemTestBase {
         Assert.assertNotNull(map);
         OutputVariable<?> unstable = map.get(RuntimeVariable.HadUnstableTests.toString());
         Assert.assertNotNull(unstable);
-        Assert.assertEquals("Unexpected unstabled test cases were generated",Boolean.FALSE, unstable.getValue());
+        Assert.assertEquals("Unexpected unstabled test cases were generated", Boolean.FALSE, unstable.getValue());
 
         double best_fitness = best.getFitness();
         Assert.assertEquals("Optimal coverage was not achieved ", 0.0, best_fitness, 0.0);

@@ -37,101 +37,101 @@ import com.examples.with.different.packagename.TestBMICalculator;
 
 public class CoverageAnalysisSystemTest extends SystemTestBase {
 
-	private SearchStatistics aux(Criterion[] criterion) {
+    private SearchStatistics aux(Criterion[] criterion) {
 
-		EvoSuite evosuite = new EvoSuite();
+        EvoSuite evosuite = new EvoSuite();
 
-		String targetClass = BMICalculator.class.getCanonicalName();
-		String testClass = TestBMICalculator.class.getCanonicalName();
+        String targetClass = BMICalculator.class.getCanonicalName();
+        String testClass = TestBMICalculator.class.getCanonicalName();
 
-		Properties.TARGET_CLASS = targetClass;
-		Properties.CRITERION = criterion;
+        Properties.TARGET_CLASS = targetClass;
+        Properties.CRITERION = criterion;
 
-		String[] command = new String[] {
-			"-class", targetClass,
-			"-Djunit=" + testClass,
-			"-measureCoverage"
-		};
+        String[] command = new String[]{
+                "-class", targetClass,
+                "-Djunit=" + testClass,
+                "-measureCoverage"
+        };
 
-		SearchStatistics statistics = (SearchStatistics) evosuite.parseCommandLine(command);
-		Assert.assertNotNull(statistics);
-		return statistics;
-	}
+        SearchStatistics statistics = (SearchStatistics) evosuite.parseCommandLine(command);
+        Assert.assertNotNull(statistics);
+        return statistics;
+    }
 
-	@Test
-	public void testLineCoverage() {
-		SearchStatistics statistics = this.aux(new Properties.Criterion[] {
-			Properties.Criterion.LINE
-		});
+    @Test
+    public void testLineCoverage() {
+        SearchStatistics statistics = this.aux(new Properties.Criterion[]{
+                Properties.Criterion.LINE
+        });
 
-		Map<String, OutputVariable<?>> variables = statistics.getOutputVariables();
-		assertEquals(11, (Integer) variables.get("Total_Goals").getValue(), 0.0);
-		assertEquals(11, (Integer) variables.get("Covered_Goals").getValue(), 0.0);
-	}
+        Map<String, OutputVariable<?>> variables = statistics.getOutputVariables();
+        assertEquals(11, (Integer) variables.get("Total_Goals").getValue(), 0.0);
+        assertEquals(11, (Integer) variables.get("Covered_Goals").getValue(), 0.0);
+    }
 
-	@Test
-	public void testOnlyLineCoverage() {
-		SearchStatistics statistics = this.aux(new Properties.Criterion[] {
-			Properties.Criterion.ONLYLINE
-		});
+    @Test
+    public void testOnlyLineCoverage() {
+        SearchStatistics statistics = this.aux(new Properties.Criterion[]{
+                Properties.Criterion.ONLYLINE
+        });
 
-		Map<String, OutputVariable<?>> variables = statistics.getOutputVariables();
-		assertEquals(11, (Integer) variables.get("Total_Goals").getValue(), 0.0);
-		assertEquals(11, (Integer) variables.get("Covered_Goals").getValue(), 0.0);
-	}
+        Map<String, OutputVariable<?>> variables = statistics.getOutputVariables();
+        assertEquals(11, (Integer) variables.get("Total_Goals").getValue(), 0.0);
+        assertEquals(11, (Integer) variables.get("Covered_Goals").getValue(), 0.0);
+    }
 
-	@Test
-	public void testBranchCoverage() {
-		SearchStatistics statistics = this.aux(new Properties.Criterion[] {
-			Properties.Criterion.BRANCH
-		});
+    @Test
+    public void testBranchCoverage() {
+        SearchStatistics statistics = this.aux(new Properties.Criterion[]{
+                Properties.Criterion.BRANCH
+        });
 
-		Map<String, OutputVariable<?>> variables = statistics.getOutputVariables();
-		assertEquals(9, (Integer) variables.get("Total_Goals").getValue(), 0.0);
-		assertEquals(9, (Integer) variables.get("Covered_Goals").getValue(), 0.0);
-	}
+        Map<String, OutputVariable<?>> variables = statistics.getOutputVariables();
+        assertEquals(9, (Integer) variables.get("Total_Goals").getValue(), 0.0);
+        assertEquals(9, (Integer) variables.get("Covered_Goals").getValue(), 0.0);
+    }
 
-	@Test
-	public void testCBranchCoverage() {
-		SearchStatistics statistics = this.aux(new Properties.Criterion[] {
-			Properties.Criterion.CBRANCH
-		});
+    @Test
+    public void testCBranchCoverage() {
+        SearchStatistics statistics = this.aux(new Properties.Criterion[]{
+                Properties.Criterion.CBRANCH
+        });
 
-		Map<String, OutputVariable<?>> variables = statistics.getOutputVariables();
-		assertEquals(9, (Integer) variables.get("Total_Goals").getValue(), 0.0);
-		assertEquals(9, (Integer) variables.get("Covered_Goals").getValue(), 0.0);
-	}
+        Map<String, OutputVariable<?>> variables = statistics.getOutputVariables();
+        assertEquals(9, (Integer) variables.get("Total_Goals").getValue(), 0.0);
+        assertEquals(9, (Integer) variables.get("Covered_Goals").getValue(), 0.0);
+    }
 
-	@Test
-	public void testOnlyBranchCoverage() {
-		SearchStatistics statistics = this.aux(new Properties.Criterion[] {
-			Properties.Criterion.ONLYBRANCH
-		});
+    @Test
+    public void testOnlyBranchCoverage() {
+        SearchStatistics statistics = this.aux(new Properties.Criterion[]{
+                Properties.Criterion.ONLYBRANCH
+        });
 
-		Map<String, OutputVariable<?>> variables = statistics.getOutputVariables();
-		assertEquals(8, (Integer) variables.get("Total_Goals").getValue(), 0.0);
-		assertEquals(8, (Integer) variables.get("Covered_Goals").getValue(), 0.0);
-	}
+        Map<String, OutputVariable<?>> variables = statistics.getOutputVariables();
+        assertEquals(8, (Integer) variables.get("Total_Goals").getValue(), 0.0);
+        assertEquals(8, (Integer) variables.get("Covered_Goals").getValue(), 0.0);
+    }
 
-	@Test
-	public void testRhoCoverage() {
-		SearchStatistics statistics = this.aux(new Properties.Criterion[] {
-			Properties.Criterion.RHO
-		});
+    @Test
+    public void testRhoCoverage() {
+        SearchStatistics statistics = this.aux(new Properties.Criterion[]{
+                Properties.Criterion.RHO
+        });
 
-		Map<String, OutputVariable<?>> variables = statistics.getOutputVariables();
-		assertEquals(11, (Integer) variables.get("Total_Goals").getValue(), 0.0);
-		assertEquals(11, (Integer) variables.get("Covered_Goals").getValue(), 0.0);
-	}
+        Map<String, OutputVariable<?>> variables = statistics.getOutputVariables();
+        assertEquals(11, (Integer) variables.get("Total_Goals").getValue(), 0.0);
+        assertEquals(11, (Integer) variables.get("Covered_Goals").getValue(), 0.0);
+    }
 
-	@Test
-	public void testAmbiguityCoverage() {
-		SearchStatistics statistics = this.aux(new Properties.Criterion[] {
-			Properties.Criterion.AMBIGUITY
-		});
+    @Test
+    public void testAmbiguityCoverage() {
+        SearchStatistics statistics = this.aux(new Properties.Criterion[]{
+                Properties.Criterion.AMBIGUITY
+        });
 
-		Map<String, OutputVariable<?>> variables = statistics.getOutputVariables();
-		assertEquals(11, (Integer) variables.get("Total_Goals").getValue(), 0.0);
-		assertEquals(11, (Integer) variables.get("Covered_Goals").getValue(), 0.0);
-	}
+        Map<String, OutputVariable<?>> variables = statistics.getOutputVariables();
+        assertEquals(11, (Integer) variables.get("Total_Goals").getValue(), 0.0);
+        assertEquals(11, (Integer) variables.get("Covered_Goals").getValue(), 0.0);
+    }
 }

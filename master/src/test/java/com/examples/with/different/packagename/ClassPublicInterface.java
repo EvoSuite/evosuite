@@ -35,7 +35,7 @@ import org.apache.commons.lang3.reflect.MethodUtils;
  */
 public class ClassPublicInterface {
 
-	public static <L> void addEventListener(final Object eventSource, final Class<L> listenerType, final L listener) {
+    public static <L> void addEventListener(final Object eventSource, final Class<L> listenerType, final L listener) {
         try {
             MethodUtils.invokeMethod(eventSource, "add" + listenerType.getSimpleName(), listener);
         } catch (final NoSuchMethodException e) {
@@ -44,21 +44,21 @@ public class ClassPublicInterface {
                     + " method which takes a parameter of type " + listenerType.getName() + ".");
         } catch (final IllegalAccessException e) {
             throw new IllegalArgumentException("Class " + eventSource.getClass().getName()
-                    + " does not have an accessible add" + listenerType.getSimpleName ()
+                    + " does not have an accessible add" + listenerType.getSimpleName()
                     + " method which takes a parameter of type " + listenerType.getName() + ".");
         } catch (final InvocationTargetException e) {
             throw new RuntimeException("Unable to add listener.", e.getCause());
         }
     }
 
-	public static <L> void bindEventsToMethod(final Object target, final String methodName, final Object eventSource,
-            final Class<L> listenerType, final String... eventTypes) {
-		final L listener = listenerType.cast(Proxy.newProxyInstance(target.getClass().getClassLoader(),
-                new Class[] { listenerType }, new EventBindingInvocationHandler(target, methodName, eventTypes)));
+    public static <L> void bindEventsToMethod(final Object target, final String methodName, final Object eventSource,
+                                              final Class<L> listenerType, final String... eventTypes) {
+        final L listener = listenerType.cast(Proxy.newProxyInstance(target.getClass().getClassLoader(),
+                new Class[]{listenerType}, new EventBindingInvocationHandler(target, methodName, eventTypes)));
         addEventListener(eventSource, listenerType, listener);
-	}
+    }
 
-	private static class EventBindingInvocationHandler implements InvocationHandler {
+    private static class EventBindingInvocationHandler implements InvocationHandler {
         private final Object target;
         private final String methodName;
         private final Set<String> eventTypes;
@@ -66,7 +66,7 @@ public class ClassPublicInterface {
         /**
          * Creates a new instance of {@code EventBindingInvocationHandler}.
          *
-         * @param target the target object for method invocations
+         * @param target     the target object for method invocations
          * @param methodName the name of the method to be invoked
          * @param eventTypes the names of the supported event types
          */
@@ -79,8 +79,8 @@ public class ClassPublicInterface {
         /**
          * Handles a method invocation on the proxy object.
          *
-         * @param proxy the proxy instance
-         * @param method the method to be invoked
+         * @param proxy      the proxy instance
+         * @param method     the method to be invoked
          * @param parameters the parameters for the method invocation
          * @return the result of the method call
          * @throws Throwable if an error occurs

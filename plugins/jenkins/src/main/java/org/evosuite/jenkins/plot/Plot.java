@@ -43,90 +43,90 @@ import org.jfree.data.category.CategoryDataset;
 
 public abstract class Plot extends Graph {
 
-	protected ProjectAction project;
-	private CategoryDataset dataset;
-	private String yLabel;
+    protected ProjectAction project;
+    private CategoryDataset dataset;
+    private String yLabel;
 
-	private static final String JENKINS_URL = JenkinsLocationConfiguration.get().getUrl();
+    private static final String JENKINS_URL = JenkinsLocationConfiguration.get().getUrl();
 
-	public Plot(ProjectAction project, String yLabel) {
-		super(Calendar.getInstance(), 350, 150);
+    public Plot(ProjectAction project, String yLabel) {
+        super(Calendar.getInstance(), 350, 150);
 
-		this.project = project;
-		this.yLabel = yLabel;
-	}
+        this.project = project;
+        this.yLabel = yLabel;
+    }
 
-	public void setCategoryDataset(CategoryDataset dataset) {
-		this.dataset = dataset;
-	}
+    public void setCategoryDataset(CategoryDataset dataset) {
+        this.dataset = dataset;
+    }
 
-	@Override
-	protected JFreeChart createGraph() {
-		final JFreeChart chart = ChartFactory.createLineChart(null, "Build Number #", this.yLabel, this.dataset, PlotOrientation.VERTICAL, true, true, true);
-		chart.setBackgroundPaint(Color.WHITE);
+    @Override
+    protected JFreeChart createGraph() {
+        final JFreeChart chart = ChartFactory.createLineChart(null, "Build Number #", this.yLabel, this.dataset, PlotOrientation.VERTICAL, true, true, true);
+        chart.setBackgroundPaint(Color.WHITE);
 
-		CategoryPlot plot = (CategoryPlot) chart.getPlot();
+        CategoryPlot plot = (CategoryPlot) chart.getPlot();
 
-		CategoryAxis domainAxis = new CategoryAxis();
-		domainAxis.setCategoryLabelPositions(CategoryLabelPositions.UP_90);
-		domainAxis.setLowerMargin(0.0);
-		domainAxis.setUpperMargin(0.0);
-		domainAxis.setCategoryMargin(0.0);
+        CategoryAxis domainAxis = new CategoryAxis();
+        domainAxis.setCategoryLabelPositions(CategoryLabelPositions.UP_90);
+        domainAxis.setLowerMargin(0.0);
+        domainAxis.setUpperMargin(0.0);
+        domainAxis.setCategoryMargin(0.0);
 
-		plot.setDomainAxis(domainAxis);
-		plot.setBackgroundPaint(Color.WHITE);
+        plot.setDomainAxis(domainAxis);
+        plot.setBackgroundPaint(Color.WHITE);
 
-		ValueAxis yAxis = plot.getRangeAxis();
-		yAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
-		//yAxis.setRange(0.0, 100.0);
+        ValueAxis yAxis = plot.getRangeAxis();
+        yAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
+        //yAxis.setRange(0.0, 100.0);
 
-		URLAndTooltipRenderer urlRenderer = new URLAndTooltipRenderer(this.project.getProject());
-		ColorPalette.apply(urlRenderer);
-		plot.setRenderer(urlRenderer);
+        URLAndTooltipRenderer urlRenderer = new URLAndTooltipRenderer(this.project.getProject());
+        ColorPalette.apply(urlRenderer);
+        plot.setRenderer(urlRenderer);
 
-		return chart;
-	}
+        return chart;
+    }
 
-	private static class URLAndTooltipRenderer extends LineAndShapeRenderer {
+    private static class URLAndTooltipRenderer extends LineAndShapeRenderer {
 
-		private static final long serialVersionUID = 1347738148294019295L;
+        private static final long serialVersionUID = 1347738148294019295L;
 
-		private AbstractProject<?, ?> project;
+        private AbstractProject<?, ?> project;
 
-		public URLAndTooltipRenderer(AbstractProject<?, ?> prj) {
-			this.project = prj;
-		}
+        public URLAndTooltipRenderer(AbstractProject<?, ?> prj) {
+            this.project = prj;
+        }
 
-		@Override
-		public CategoryToolTipGenerator getToolTipGenerator(int row, final int columnOuter) {
-			return new URLAndTooltipBuilder(project);
-		}
+        @Override
+        public CategoryToolTipGenerator getToolTipGenerator(int row, final int columnOuter) {
+            return new URLAndTooltipBuilder(project);
+        }
 
-		@Override
-		public CategoryURLGenerator getItemURLGenerator(int row, final int column) {
-			return new URLAndTooltipBuilder(project);
-		}
+        @Override
+        public CategoryURLGenerator getItemURLGenerator(int row, final int column) {
+            return new URLAndTooltipBuilder(project);
+        }
 
-	}
+    }
 
-	private static class URLAndTooltipBuilder implements CategoryURLGenerator, CategoryToolTipGenerator {
+    private static class URLAndTooltipBuilder implements CategoryURLGenerator, CategoryToolTipGenerator {
 
-		private AbstractProject<?, ?> project;
+        private AbstractProject<?, ?> project;
 
-		public URLAndTooltipBuilder(AbstractProject<?, ?> prj) {
-			this.project = prj;
-		}
+        public URLAndTooltipBuilder(AbstractProject<?, ?> prj) {
+            this.project = prj;
+        }
 
-		@Override
-		public String generateURL(CategoryDataset dataset, int series, int category) {
-			int da = Integer.parseInt((String) dataset.getColumnKey(category).toString().replace("#", ""));
-			return JENKINS_URL + (JENKINS_URL.endsWith("/") ? "" : "/") +
-			    (project.getBuildByNumber(da).getUrl() + "evosuite-build/");
-		}
+        @Override
+        public String generateURL(CategoryDataset dataset, int series, int category) {
+            int da = Integer.parseInt((String) dataset.getColumnKey(category).toString().replace("#", ""));
+            return JENKINS_URL + (JENKINS_URL.endsWith("/") ? "" : "/") +
+                    (project.getBuildByNumber(da).getUrl() + "evosuite-build/");
+        }
 
-		@Override
-		public String generateToolTip(CategoryDataset dataset, int row, int column) {
-			return "Build " + dataset.getColumnKey(column) + " - " + dataset.getValue(row, column);
-		}
-	}
+        @Override
+        public String generateToolTip(CategoryDataset dataset, int row, int column) {
+            return "Build " + dataset.getColumnKey(column) + " - " + dataset.getValue(row, column);
+        }
+    }
 }

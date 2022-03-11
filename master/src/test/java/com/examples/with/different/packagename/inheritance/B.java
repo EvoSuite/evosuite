@@ -24,7 +24,7 @@ package com.examples.with.different.packagename.inheritance;
  */
 public class B extends TheSuperClass {
 
-    public void b(){
+    public void b() {
         System.out.println("b 0");
         System.out.println("b 1");
     }

@@ -19,6 +19,12 @@
  */
 package org.evosuite.testcase.statements;
 
+import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.execution.Scope;
+import org.evosuite.testcase.variable.NullReference;
+import org.evosuite.testcase.variable.VariableReference;
+import org.evosuite.utils.generic.GenericAccessibleObject;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.PrintStream;
@@ -27,12 +33,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-
-import org.evosuite.testcase.variable.NullReference;
-import org.evosuite.testcase.TestCase;
-import org.evosuite.testcase.variable.VariableReference;
-import org.evosuite.testcase.execution.Scope;
-import org.evosuite.utils.generic.GenericAccessibleObject;
 
 /**
  * The concept of variableReferences is: that they are created by some
@@ -44,114 +44,138 @@ import org.evosuite.utils.generic.GenericAccessibleObject;
  */
 public class NullStatement extends PrimitiveStatement<Void> {
 
-	private static final long serialVersionUID = -7141670041216163032L;
+    private static final long serialVersionUID = -7141670041216163032L;
 
-	/**
-	 * <p>
-	 * Constructor for NullStatement.
-	 * </p>
-	 *
-	 * @param tc
-	 *            a {@link org.evosuite.testcase.TestCase} object.
-	 * @param type
-	 *            a {@link java.lang.reflect.Type} object.
-	 */
-	public NullStatement(TestCase tc, java.lang.reflect.Type type) {
-		super(tc, new NullReference(tc, type), null);
-	}
+    /**
+     * <p>
+     * Constructor for NullStatement.
+     * </p>
+     *
+     * @param tc   a {@link org.evosuite.testcase.TestCase} object.
+     * @param type a {@link java.lang.reflect.Type} object.
+     */
+    public NullStatement(TestCase tc, java.lang.reflect.Type type) {
+        super(tc, new NullReference(tc, type), null);
+    }
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.StatementInterface#clone(org.evosuite.testcase.TestCase)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public Statement copy(TestCase newTestCase, int offset) {
-		return new NullStatement(newTestCase, retval.getType());
-	}
+    /* (non-Javadoc)
+     * @see org.evosuite.testcase.StatementInterface#clone(org.evosuite.testcase.TestCase)
+     */
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.StatementInterface#execute(org.evosuite.testcase.Scope, java.io.PrintStream)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public Throwable execute(Scope scope, PrintStream out)
-	        throws InvocationTargetException, IllegalArgumentException,
-	        IllegalAccessException, InstantiationException {
-		return null;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Statement copy(TestCase newTestCase, int offset) {
+        return new NullStatement(newTestCase, retval.getType());
+    }
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.StatementInterface#getUniqueVariableReferences()
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public List<VariableReference> getUniqueVariableReferences() {
-		return new ArrayList<>(getVariableReferences());
-	}
+    /* (non-Javadoc)
+     * @see org.evosuite.testcase.StatementInterface#execute(org.evosuite.testcase.Scope, java.io.PrintStream)
+     */
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.StatementInterface#getVariableReferences()
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public Set<VariableReference> getVariableReferences() {
-		Set<VariableReference> references = new LinkedHashSet<>();
-		references.add(retval);
-		return references;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Throwable execute(Scope scope, PrintStream out)
+            throws InvocationTargetException, IllegalArgumentException,
+            IllegalAccessException, InstantiationException {
+        return null;
+    }
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.StatementInterface#replace(org.evosuite.testcase.VariableReference, org.evosuite.testcase.VariableReference)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public void replace(VariableReference var1, VariableReference var2) {
-	}
+    /* (non-Javadoc)
+     * @see org.evosuite.testcase.StatementInterface#getUniqueVariableReferences()
+     */
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.StatementInterface#same(org.evosuite.testcase.StatementInterface)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public boolean same(Statement s) {
-		if (this == s)
-			return true;
-		if (s == null)
-			return false;
-		if (getClass() != s.getClass())
-			return false;
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<VariableReference> getUniqueVariableReferences() {
+        return new ArrayList<>(getVariableReferences());
+    }
 
-		NullStatement ns = (NullStatement) s;
-		return retval.same(ns.retval);
-	}
+    /* (non-Javadoc)
+     * @see org.evosuite.testcase.StatementInterface#getVariableReferences()
+     */
 
-	/** {@inheritDoc} */
-	@Override
-	public GenericAccessibleObject<?> getAccessibleObject() {
-		return null;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Set<VariableReference> getVariableReferences() {
+        Set<VariableReference> references = new LinkedHashSet<>();
+        references.add(retval);
+        return references;
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public void delta() {
-		logger.info("Method delta not implemented: What is the delta for null?");
-	}
+    /* (non-Javadoc)
+     * @see org.evosuite.testcase.StatementInterface#replace(org.evosuite.testcase.VariableReference, org.evosuite.testcase.VariableReference)
+     */
 
-	/** {@inheritDoc} */
-	@Override
-	public void zero() {
-		logger.info("Method zero not implemented: How to zero null?");
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void replace(VariableReference var1, VariableReference var2) {
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public void randomize() {
-		logger.info("Method randomize not implemented: How to randomize null?");
-	}
+    /* (non-Javadoc)
+     * @see org.evosuite.testcase.StatementInterface#same(org.evosuite.testcase.StatementInterface)
+     */
 
-	private void readObject(ObjectInputStream ois) throws ClassNotFoundException,
-	        IOException {
-		ois.defaultReadObject();
-		value = null;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean same(Statement s) {
+        if (this == s)
+            return true;
+        if (s == null)
+            return false;
+        if (getClass() != s.getClass())
+            return false;
+
+        NullStatement ns = (NullStatement) s;
+        return retval.same(ns.retval);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public GenericAccessibleObject<?> getAccessibleObject() {
+        return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void delta() {
+        logger.info("Method delta not implemented: What is the delta for null?");
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void zero() {
+        logger.info("Method zero not implemented: How to zero null?");
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void randomize() {
+        logger.info("Method randomize not implemented: How to randomize null?");
+    }
+
+    private void readObject(ObjectInputStream ois) throws ClassNotFoundException,
+            IOException {
+        ois.defaultReadObject();
+        value = null;
+    }
 }

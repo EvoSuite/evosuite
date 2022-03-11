@@ -30,105 +30,105 @@ import org.objectweb.asm.Type;
  */
 public abstract class ArrayConstant extends ReferenceConstant implements ArrayValue {
 
-	public ArrayConstant(Type arrayType, int instanceId) {
-			super(arrayType, instanceId);
-		}
+    public ArrayConstant(Type arrayType, int instanceId) {
+        super(arrayType, instanceId);
+    }
 
-	public static final class IntegerArrayConstant extends ArrayConstant implements ArrayValue.IntegerArrayValue {
+    public static final class IntegerArrayConstant extends ArrayConstant implements ArrayValue.IntegerArrayValue {
 
-		public IntegerArrayConstant(Type arrayType, int instanceId) {
-			super(arrayType, instanceId);
-		}
+        public IntegerArrayConstant(Type arrayType, int instanceId) {
+            super(arrayType, instanceId);
+        }
 
-		/**
-		 * {@inheritDoc}
-		 */
-		@Override
-		public boolean equals(Object obj) {
-			if (obj instanceof ArrayConstant.IntegerArrayConstant) {
-				ArrayConstant.IntegerArrayConstant v = (ArrayConstant.IntegerArrayConstant) obj;
-				return this.concreteValue.equals(v.concreteValue);
-			}
-			return false;
-		}
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public boolean equals(Object obj) {
+            if (obj instanceof ArrayConstant.IntegerArrayConstant) {
+                ArrayConstant.IntegerArrayConstant v = (ArrayConstant.IntegerArrayConstant) obj;
+                return this.concreteValue.equals(v.concreteValue);
+            }
+            return false;
+        }
 
 
-		@Override
-		public <K, V> K accept(ExpressionVisitor<K, V> v, V arg) {
-			return v.visit(this, arg);
-		}
-	}
+        @Override
+        public <K, V> K accept(ExpressionVisitor<K, V> v, V arg) {
+            return v.visit(this, arg);
+        }
+    }
 
-	public static final class RealArrayConstant extends ArrayConstant implements ArrayValue.RealArrayValue {
+    public static final class RealArrayConstant extends ArrayConstant implements ArrayValue.RealArrayValue {
 
-		public RealArrayConstant(Type arrayType, int instanceId) {
-			super(arrayType, instanceId);
-		}
+        public RealArrayConstant(Type arrayType, int instanceId) {
+            super(arrayType, instanceId);
+        }
 
-		/**
-		 * {@inheritDoc}
-		 */
-		@Override
-		public boolean equals(Object obj) {
-			if (obj instanceof ArrayConstant.RealArrayConstant) {
-				ArrayConstant.RealArrayConstant v = (ArrayConstant.RealArrayConstant) obj;
-				return this.concreteValue.equals(v.concreteValue);
-			}
-			return false;
-		}
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public boolean equals(Object obj) {
+            if (obj instanceof ArrayConstant.RealArrayConstant) {
+                ArrayConstant.RealArrayConstant v = (ArrayConstant.RealArrayConstant) obj;
+                return this.concreteValue.equals(v.concreteValue);
+            }
+            return false;
+        }
 
-		@Override
-		public <K, V> K accept(ExpressionVisitor<K, V> v, V arg) {
-			return v.visit(this, arg);
-		}
-	}
+        @Override
+        public <K, V> K accept(ExpressionVisitor<K, V> v, V arg) {
+            return v.visit(this, arg);
+        }
+    }
 
-	public static final class StringArrayConstant extends ArrayConstant implements ArrayValue.StringArrayValue {
+    public static final class StringArrayConstant extends ArrayConstant implements ArrayValue.StringArrayValue {
 
-		public StringArrayConstant(Type arrayType, int instanceId) {
-			super(arrayType, instanceId);
-		}
+        public StringArrayConstant(Type arrayType, int instanceId) {
+            super(arrayType, instanceId);
+        }
 
-		/**
-		 * {@inheritDoc}
-		 */
-		@Override
-		public boolean equals(Object obj) {
-			if (obj instanceof ArrayConstant.StringArrayConstant) {
-				ArrayConstant.StringArrayConstant v = (ArrayConstant.StringArrayConstant) obj;
-				return this.concreteValue.equals(v.concreteValue);
-			}
-			return false;
-		}
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public boolean equals(Object obj) {
+            if (obj instanceof ArrayConstant.StringArrayConstant) {
+                ArrayConstant.StringArrayConstant v = (ArrayConstant.StringArrayConstant) obj;
+                return this.concreteValue.equals(v.concreteValue);
+            }
+            return false;
+        }
 
-		@Override
-		public <K, V> K accept(ExpressionVisitor<K, V> v, V arg) {
-			return v.visit(this, arg);
-		}
-	}
+        @Override
+        public <K, V> K accept(ExpressionVisitor<K, V> v, V arg) {
+            return v.visit(this, arg);
+        }
+    }
 
-	public static final class ReferenceArrayConstant extends ArrayConstant implements ArrayValue.ReferenceArrayValue {
+    public static final class ReferenceArrayConstant extends ArrayConstant implements ArrayValue.ReferenceArrayValue {
 
-		public ReferenceArrayConstant(Type arrayType, int instanceId) {
-			super(arrayType, instanceId);
-		}
+        public ReferenceArrayConstant(Type arrayType, int instanceId) {
+            super(arrayType, instanceId);
+        }
 
-		/**
-		 * {@inheritDoc}
-		 */
-		@Override
-		public boolean equals(Object obj) {
-			if (obj instanceof ArrayConstant.ReferenceArrayConstant) {
-				ArrayConstant.ReferenceArrayConstant v = (ArrayConstant.ReferenceArrayConstant) obj;
-				return this.concreteValue.equals(v.concreteValue);
-			}
-			return false;
-		}
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public boolean equals(Object obj) {
+            if (obj instanceof ArrayConstant.ReferenceArrayConstant) {
+                ArrayConstant.ReferenceArrayConstant v = (ArrayConstant.ReferenceArrayConstant) obj;
+                return this.concreteValue.equals(v.concreteValue);
+            }
+            return false;
+        }
 
-		@Override
-		public <K, V> K accept(ExpressionVisitor<K, V> v, V arg) {
-			return v.visit(this, arg);
-		}
-	}
+        @Override
+        public <K, V> K accept(ExpressionVisitor<K, V> v, V arg) {
+            return v.visit(this, arg);
+        }
+    }
 }
 

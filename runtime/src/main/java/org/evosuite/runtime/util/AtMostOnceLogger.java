@@ -33,24 +33,24 @@ public class AtMostOnceLogger {
 
     /**
      * Keep tracks of messages that should be log only once.
-     *	Note: yes, this is a static field, but has no impact on test generation, so not a big deal
+     * Note: yes, this is a static field, but has no impact on test generation, so not a big deal
      */
     private static final Map<Logger, Set<String>> atMostOnceLogs = new ConcurrentHashMap<>();
 
 
-    private static synchronized void logAtMostOnce(Logger logger, String message, boolean error){
-        Inputs.checkNull(logger,message);
+    private static synchronized void logAtMostOnce(Logger logger, String message, boolean error) {
+        Inputs.checkNull(logger, message);
 
         Set<String> previous = atMostOnceLogs.get(logger);
-        if(previous == null){
+        if (previous == null) {
             previous = new LinkedHashSet<>();
             atMostOnceLogs.put(logger, previous);
         }
 
-        if(!previous.contains(message)){
+        if (!previous.contains(message)) {
             previous.add(message);
 
-            if(error){
+            if (error) {
                 logger.error(message);
             } else {
                 logger.warn(message);
@@ -58,11 +58,11 @@ public class AtMostOnceLogger {
         }
     }
 
-    public static void warn(Logger logger, String message){
-        logAtMostOnce(logger,message,false);
+    public static void warn(Logger logger, String message) {
+        logAtMostOnce(logger, message, false);
     }
 
-    public static void error(Logger logger, String message){
+    public static void error(Logger logger, String message) {
         logAtMostOnce(logger, message, true);
     }
 }

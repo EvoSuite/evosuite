@@ -43,13 +43,12 @@ public class MathUtils {
      * <li>The invocation <code>gcd(0, 0)</code> is the only one which returns
      * <code>0</code>.</li>
      * </ul>
-     * 
+     *
      * @param p any number
      * @param q any number
      * @return the greatest common divisor, never negative
-     * @throws ArithmeticException
-     *             if the result cannot be represented as a nonnegative int
-     *             value
+     * @throws ArithmeticException if the result cannot be represented as a nonnegative int
+     *                             value
      * @since 1.1
      */
     public static int gcd(final int p, final int q) {
@@ -77,7 +76,7 @@ public class MathUtils {
         // B1. [Find power of 2]
         int k = 0;
         while ((u & 1) == 0 && (v & 1) == 0 && k < 31) { // while u and v are
-                                                            // both even...
+            // both even...
             u /= 2;
             v /= 2;
             k++; // cast out twos.

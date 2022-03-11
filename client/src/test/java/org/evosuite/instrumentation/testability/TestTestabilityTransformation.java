@@ -19,52 +19,51 @@
  */
 package org.evosuite.instrumentation.testability;
 
-import static org.junit.Assert.assertEquals;
-
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-
+import com.examples.with.different.packagename.FlagExample1;
 import org.evosuite.Properties;
 import org.evosuite.classpath.ClassPathHandler;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.examples.with.different.packagename.FlagExample1;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
+import static org.junit.Assert.assertEquals;
 
 public class TestTestabilityTransformation {
 
-	private static final ClassLoader defaultClassloader = TestTestabilityTransformation.class.getClassLoader();
-	private static final ClassLoader instrumentingClassloader = new TestabilityTransformationClassLoader();
+    private static final ClassLoader defaultClassloader = TestTestabilityTransformation.class.getClassLoader();
+    private static final ClassLoader instrumentingClassloader = new TestabilityTransformationClassLoader();
 
-	// TODO: Not yet working
+    // TODO: Not yet working
 
-	@BeforeClass
-	public static void init(){
-		String cp = System.getProperty("user.dir") + "/target/test-classes";
-		ClassPathHandler.getInstance().addElementToTargetProjectClassPath(cp);
-	}
+    @BeforeClass
+    public static void init() {
+        String cp = System.getProperty("user.dir") + "/target/test-classes";
+        ClassPathHandler.getInstance().addElementToTargetProjectClassPath(cp);
+    }
 
-	@Test
-	public void testSimpleFlag() throws ClassNotFoundException, InstantiationException,
-	        IllegalAccessException, SecurityException, NoSuchMethodException,
-	        IllegalArgumentException, InvocationTargetException {
+    @Test
+    public void testSimpleFlag() throws ClassNotFoundException, InstantiationException,
+            IllegalAccessException, SecurityException, NoSuchMethodException,
+            IllegalArgumentException, InvocationTargetException {
 
-		Properties.TARGET_CLASS = FlagExample1.class.getCanonicalName();
+        Properties.TARGET_CLASS = FlagExample1.class.getCanonicalName();
 
-		Class<?> originalClass = defaultClassloader.loadClass(FlagExample1.class.getCanonicalName());
-		Class<?> instrumentedClass = instrumentingClassloader.loadClass(FlagExample1.class.getCanonicalName());
+        Class<?> originalClass = defaultClassloader.loadClass(FlagExample1.class.getCanonicalName());
+        Class<?> instrumentedClass = instrumentingClassloader.loadClass(FlagExample1.class.getCanonicalName());
 
-		Object originalInstance = originalClass.newInstance();
-		Object instrumentedInstance = instrumentedClass.newInstance();
+        Object originalInstance = originalClass.newInstance();
+        Object instrumentedInstance = instrumentedClass.newInstance();
 
-		Method originalMethod = originalClass.getMethod("testMe",
-		                                                new Class<?>[] { int.class });
-		Method instrumentedMethod = instrumentedClass.getMethod("testMe",
-		                                                        new Class<?>[] { int.class });
+        Method originalMethod = originalClass.getMethod("testMe",
+                new Class<?>[]{int.class});
+        Method instrumentedMethod = instrumentedClass.getMethod("testMe",
+                new Class<?>[]{int.class});
 
-		boolean originalResult = (Boolean) originalMethod.invoke(originalInstance, 0);
-		boolean instrumentedResult = ((Integer) instrumentedMethod.invoke(instrumentedInstance,
-		                                                                  0)) > 0;
-		assertEquals(originalResult, instrumentedResult);
-	}
+        boolean originalResult = (Boolean) originalMethod.invoke(originalInstance, 0);
+        boolean instrumentedResult = ((Integer) instrumentedMethod.invoke(instrumentedInstance,
+                0)) > 0;
+        assertEquals(originalResult, instrumentedResult);
+    }
 }

@@ -30,7 +30,7 @@ import java.util.Map;
  */
 public class FrequencyBasedPool<T> {
 
-    private Map<T, Integer> constants = Collections.synchronizedMap(new LinkedHashMap<>());
+    private final Map<T, Integer> constants = Collections.synchronizedMap(new LinkedHashMap<>());
 
     private int numConstants = 0;
 
@@ -65,9 +65,9 @@ public class FrequencyBasedPool<T> {
 
         double rnd = Randomness.nextDouble() * numConstants;
 
-        for(Map.Entry<T, Integer> entry : constants.entrySet()) {
+        for (Map.Entry<T, Integer> entry : constants.entrySet()) {
             int num = entry.getValue();
-            if(num > rnd) {
+            if (num > rnd) {
                 return entry.getKey();
             } else {
                 rnd = rnd - num;

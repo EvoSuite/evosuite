@@ -24,7 +24,10 @@ package com.examples.with.different.packagename.setup;
  */
 public class GeneratorForX {
 
-    private GeneratorForX(){}
+    private GeneratorForX() {
+    }
 
-    public X getX(){return null;}
+    public X getX() {
+        return null;
+    }
 }

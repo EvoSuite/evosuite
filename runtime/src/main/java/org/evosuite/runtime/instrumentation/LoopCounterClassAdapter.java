@@ -44,7 +44,7 @@ public class LoopCounterClassAdapter extends ClassVisitor {
             return mv;
         }
 
-        if (name.equals("<clinit>")){
+        if (name.equals("<clinit>")) {
             //should not stop a static initializer
             return mv;
         }

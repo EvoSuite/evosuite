@@ -24,10 +24,10 @@ import org.evosuite.symbolic.solver.TestSolverBitwise;
 
 public class TestCVC4Bitwise extends TestSolverBitwise {
 
-	@Override
-	public Solver getSolver() {
-		return new CVC4Solver();
-	}
+    @Override
+    public Solver getSolver() {
+        return new CVC4Solver();
+    }
 
 
 }

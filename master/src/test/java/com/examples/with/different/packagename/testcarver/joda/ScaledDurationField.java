@@ -25,14 +25,14 @@ package com.examples.with.different.packagename.testcarver.joda;
  */
 public class ScaledDurationField extends DecoratedDurationField {
 
-	private final int iScalar;
+    private final int iScalar;
 
-	public ScaledDurationField(DurationField field, int scalar) {
-		super(field);
+    public ScaledDurationField(DurationField field, int scalar) {
+        super(field);
 
-		if (scalar == 0 || scalar == 1) {
-			throw new IllegalArgumentException("The scalar must not be 0 or 1");
-		}
-		iScalar = scalar;
-	}
+        if (scalar == 0 || scalar == 1) {
+            throw new IllegalArgumentException("The scalar must not be 0 or 1");
+        }
+        iScalar = scalar;
+    }
 }

@@ -30,7 +30,7 @@ import java.util.List;
  * <p>
  * Therefore, for each loop in the instrumented CUTs, we can have a limit, and throw an exception
  * if too many iterations have occurred
- *
+ * <p>
  * Created by Andrea Arcuri on 29/03/15.
  */
 public class LoopCounter {
@@ -38,27 +38,27 @@ public class LoopCounter {
     private static final LoopCounter singleton = new LoopCounter();
 
     private boolean activated = true;
-    
+
     /**
      * Number of iterations so far
      */
-    private List<Long> counters;
+    private final List<Long> counters;
 
 
-    private LoopCounter(){
+    private LoopCounter() {
         counters = new ArrayList<>();
     }
 
-    public static LoopCounter getInstance(){
+    public static LoopCounter getInstance() {
         return singleton;
     }
 
-    public void reset(){
+    public void reset() {
         counters.clear();
     }
-    
+
     public void setActive(boolean active) {
-    	this.activated = active;
+        this.activated = active;
     }
 
     public boolean isActivated() {
@@ -71,7 +71,7 @@ public class LoopCounter {
      *
      * @return the next valid index for a new loop
      */
-    public int getNewIndex(){
+    public int getNewIndex() {
         int index = counters.size();
         counters.add(0L);
         return index;
@@ -85,22 +85,23 @@ public class LoopCounter {
      * @throws TooManyResourcesException if this loop has executed too many iterations
      * @throws IllegalArgumentException
      */
-    public void checkLoop(int index) throws TooManyResourcesException, IllegalArgumentException{
-        if(index < 0){
+    public void checkLoop(int index) throws TooManyResourcesException, IllegalArgumentException {
+        if (index < 0) {
             throw new IllegalArgumentException("Loop index cannot be negative");
         }
-        
-        if(!activated)
-        	return;
 
-        if(RuntimeSettings.maxNumberOfIterationsPerLoop < 0){
+        if (!activated) {
+            return;
+        }
+
+        if (RuntimeSettings.maxNumberOfIterationsPerLoop < 0) {
             return; //do nothing, no check
         }
-        
+
         //first check initialization
         int size = counters.size();
-        if(index >= size){
-            for(int i=0; i < 1 + (index - size); i++){
+        if (index >= size) {
+            for (int i = 0; i < 1 + (index - size); i++) {
                 counters.add(0L);
             }
         }
@@ -111,12 +112,12 @@ public class LoopCounter {
             long value = counters.get(index) + 1L;
             counters.set(index, value);
 
-            if(value >= RuntimeSettings.maxNumberOfIterationsPerLoop && !isInStaticInit()) {
+            if (value >= RuntimeSettings.maxNumberOfIterationsPerLoop && !isInStaticInit()) {
                 this.reset();
                 throw new TooManyResourcesException("Loop has been executed more times than the allowed " +
                         RuntimeSettings.maxNumberOfIterationsPerLoop);
             }
-        } catch(NullPointerException e) {
+        } catch (NullPointerException e) {
             // Some weird Java internal NPE can happen:
             // https://github.com/EvoSuite/evosuite/issues/143
             // Seems safe to swallow this instead of crashing EvoSuite

@@ -24,10 +24,10 @@ import org.junit.Test;
 
 public class TestCallGraph {
 
-	@Test
-	public void test() {
-		CallGraph c = new CallGraph("test");
-		Assert.assertNotNull(c);
-	}
+    @Test
+    public void test() {
+        CallGraph c = new CallGraph("test");
+        Assert.assertNotNull(c);
+    }
 
 }

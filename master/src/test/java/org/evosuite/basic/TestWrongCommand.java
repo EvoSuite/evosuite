@@ -25,16 +25,15 @@ import org.junit.Test;
 
 /**
  * @author Andrea Arcuri
- * 
  */
 public class TestWrongCommand {
 
-	@Test(expected = IllegalArgumentException.class)
-	public void testWrongCommand() {
-		EvoSuite evosuite = new EvoSuite();
+    @Test(expected = IllegalArgumentException.class)
+    public void testWrongCommand() {
+        EvoSuite evosuite = new EvoSuite();
 
-		Object result = evosuite.parseCommandLine(new String[] { "foo" });
+        Object result = evosuite.parseCommandLine(new String[]{"foo"});
 
-		Assert.assertNull(result);
-	}
+        Assert.assertNull(result);
+    }
 }

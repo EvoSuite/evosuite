@@ -24,7 +24,7 @@ package com.examples.with.different.packagename.setup;
  */
 public class WithGenerator {
 
-    public WithGenerator(){
+    public WithGenerator() {
         //default constructor is a valid generator
     }
 }

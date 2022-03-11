@@ -43,7 +43,7 @@ import org.evosuite.junit.DetermineSUT.NoJUnitClassException;
 @SuppressWarnings("restriction")
 public abstract class ExtendSuiteAction extends TestGenerationAction {
 
-	HashSet<IResource> currentSelection = new HashSet<IResource>();
+    HashSet<IResource> currentSelection = new HashSet<IResource>();
 
 //	@Override
 //	public void selectionChanged(IAction action, ISelection selection) {
@@ -96,65 +96,65 @@ public abstract class ExtendSuiteAction extends TestGenerationAction {
 //		}
 //	}
 
-	/**
-	 * Add a new test generation job to the job queue
-	 * 
-	 * @param target
-	 */
-	@Override
-	protected void addTestJob(final IResource target) {
-		IJavaElement element = JavaCore.create(target);
-		IJavaElement packageElement = element.getParent();
+    /**
+     * Add a new test generation job to the job queue
+     *
+     * @param target
+     */
+    @Override
+    protected void addTestJob(final IResource target) {
+        IJavaElement element = JavaCore.create(target);
+        IJavaElement packageElement = element.getParent();
 
-		String packageName = packageElement.getElementName();
+        String packageName = packageElement.getElementName();
 
-		final String suiteClass = (!packageName.equals("") ? packageName + "." : "")
-		        + target.getName().replace(".java", "").replace(File.separator, ".");
-		System.out.println("Building new job for " + suiteClass);
-		DetermineSUT det = new DetermineSUT();
-		IJavaProject jProject = JavaCore.create(target.getProject());
-		try {
-			String classPath = target.getWorkspace().getRoot().findMember(jProject.getOutputLocation()).getLocation().toOSString();
-			String SUT = det.getSUTName(suiteClass, classPath);
+        final String suiteClass = (!packageName.equals("") ? packageName + "." : "")
+                + target.getName().replace(".java", "").replace(File.separator, ".");
+        System.out.println("Building new job for " + suiteClass);
+        DetermineSUT det = new DetermineSUT();
+        IJavaProject jProject = JavaCore.create(target.getProject());
+        try {
+            String classPath = target.getWorkspace().getRoot().findMember(jProject.getOutputLocation()).getLocation().toOSString();
+            String SUT = det.getSUTName(suiteClass, classPath);
 
-			// choose
-			SelectionDialog typeDialog = JavaUI.createTypeDialog(shell,
-			                                                     new ProgressMonitorDialog(
-			                                                             shell),
-			                                                     target.getProject(),
-			                                                     IJavaElementSearchConstants.CONSIDER_CLASSES,
-			                                                     false);
-			Object[] sutDefault = new Object[1];
-			sutDefault[0] = SUT;
-			typeDialog.setInitialSelections(sutDefault);
-			typeDialog.setTitle("Please select the class under test");
-			typeDialog.open();
+            // choose
+            SelectionDialog typeDialog = JavaUI.createTypeDialog(shell,
+                    new ProgressMonitorDialog(
+                            shell),
+                    target.getProject(),
+                    IJavaElementSearchConstants.CONSIDER_CLASSES,
+                    false);
+            Object[] sutDefault = new Object[1];
+            sutDefault[0] = SUT;
+            typeDialog.setInitialSelections(sutDefault);
+            typeDialog.setTitle("Please select the class under test");
+            typeDialog.open();
 
-			// Type selected by the user
-			Object[] result = typeDialog.getResult();
-			if (result.length > 0) {
-				SourceType sourceType = (SourceType) result[0];
-				SUT = sourceType.getFullyQualifiedName();
-			} else {
-				return;
-			}
-			
-			Job job = new TestExtensionJob(shell, target, SUT, suiteClass);
-			job.setPriority(Job.SHORT);
-			IResourceRuleFactory ruleFactory = ResourcesPlugin.getWorkspace().getRuleFactory();
-			ISchedulingRule rule = ruleFactory.createRule(target.getProject());
+            // Type selected by the user
+            Object[] result = typeDialog.getResult();
+            if (result.length > 0) {
+                SourceType sourceType = (SourceType) result[0];
+                SUT = sourceType.getFullyQualifiedName();
+            } else {
+                return;
+            }
 
-			//IFolder folder = proj.getFolder(ResourceUtil.EVOSUITE_FILES);
-			job.setRule(rule);
-			job.setUser(true);
-			job.schedule(); // start as soon as possible
+            Job job = new TestExtensionJob(shell, target, SUT, suiteClass);
+            job.setPriority(Job.SHORT);
+            IResourceRuleFactory ruleFactory = ResourcesPlugin.getWorkspace().getRuleFactory();
+            ISchedulingRule rule = ruleFactory.createRule(target.getProject());
 
-		} catch (JavaModelException e) {
-			e.printStackTrace();
-		} catch(NoJUnitClassException e) {
-			MessageDialog.openError(shell, "Evosuite", "Cannot find JUnit tests in " + suiteClass);
-		}
+            //IFolder folder = proj.getFolder(ResourceUtil.EVOSUITE_FILES);
+            job.setRule(rule);
+            job.setUser(true);
+            job.schedule(); // start as soon as possible
 
-	}
+        } catch (JavaModelException e) {
+            e.printStackTrace();
+        } catch (NoJUnitClassException e) {
+            MessageDialog.openError(shell, "Evosuite", "Cannot find JUnit tests in " + suiteClass);
+        }
+
+    }
 
 }

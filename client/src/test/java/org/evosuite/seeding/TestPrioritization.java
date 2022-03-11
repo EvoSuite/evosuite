@@ -1,19 +1,19 @@
 /**
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * <p>
  * This file is part of EvoSuite.
- *
+ * <p>
  * EvoSuite is free software: you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
  * by the Free Software Foundation, either version 3.0 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * EvoSuite is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -29,23 +29,22 @@ import java.util.List;
 
 import static java.util.Comparator.comparingInt;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.IsEqual.*;
+import static org.hamcrest.core.IsEqual.equalTo;
 
 
 public class TestPrioritization {
 
     @Test
-    public void test(){
+    public void test() {
         Comparator<Integer> integerComparator = Comparator.comparingInt(x -> x % 10);
         Prioritization<Integer> pc = new Prioritization<>(integerComparator);
         pc.add(1, 1);
-        pc.add(11,3);
-        pc.add(21,2);
-        pc.add(10,10);
+        pc.add(11, 3);
+        pc.add(21, 2);
+        pc.add(10, 10);
         List<Integer> integers = pc.toSortedList();
-        assertThat(integers,equalTo(Arrays.asList(10,1,21,11)));
+        assertThat(integers, equalTo(Arrays.asList(10, 1, 21, 11)));
     }
-
 
 
     @Test
@@ -69,15 +68,21 @@ public class TestPrioritization {
         }
     }
 
-    private static class NoParams2 {}
+    private static class NoParams2 {
+    }
 
-    private static class NoParams1 {}
+    private static class NoParams1 {
+    }
 
-    private static class OneParam1<T> {}
+    private static class OneParam1<T> {
+    }
 
-    private static class OneParam2<T> {}
+    private static class OneParam2<T> {
+    }
 
-    private static class TwoParams1<A, B> {}
+    private static class TwoParams1<A, B> {
+    }
 
-    private static class TwoParams2<A, B> {}
+    private static class TwoParams2<A, B> {
+    }
 }

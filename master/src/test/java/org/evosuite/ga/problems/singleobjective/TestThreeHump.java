@@ -40,8 +40,7 @@ import org.junit.Test;
 
 import static java.util.Comparator.comparingDouble;
 
-public class TestThreeHump
-{
+public class TestThreeHump {
     @BeforeClass
     public static void setUp() {
         Properties.POPULATION = 100;
@@ -51,8 +50,7 @@ public class TestThreeHump
     }
 
     @Test
-    public void testThreeHumpFitness()
-    {
+    public void testThreeHumpFitness() {
         Problem<NSGAChromosome> p = new ThreeHump();
         FitnessFunction<NSGAChromosome> f1 = p.getFitnessFunctions().get(0);
 
@@ -66,13 +64,12 @@ public class TestThreeHump
 
     /**
      * Testing NSGA-II with ThreeHump Problem
-     * 
-     * @throws IOException 
-     * @throws NumberFormatException 
+     *
+     * @throws IOException
+     * @throws NumberFormatException
      */
     @Test
-    public void testThreeHump() throws NumberFormatException, IOException
-    {
+    public void testThreeHump() throws NumberFormatException, IOException {
         Properties.MUTATION_RATE = 1d / 2d;
 
         ChromosomeFactory<NSGAChromosome> factory = new RandomFactory(false, 2, -5.0, 5.0);

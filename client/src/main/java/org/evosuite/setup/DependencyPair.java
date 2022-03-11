@@ -61,11 +61,8 @@ public class DependencyPair {
             return false;
         DependencyPair other = (DependencyPair) obj;
         if (dependencyClass == null) {
-            if (other.dependencyClass != null)
-                return false;
-        } else if (!dependencyClass.equals(other.dependencyClass))
-            return false;
-        return true;
+            return other.dependencyClass == null;
+        } else return dependencyClass.equals(other.dependencyClass);
     }
 
 }

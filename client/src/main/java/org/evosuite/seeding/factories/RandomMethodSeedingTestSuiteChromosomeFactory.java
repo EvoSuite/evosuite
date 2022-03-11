@@ -19,8 +19,6 @@
  */
 package org.evosuite.seeding.factories;
 
-import java.util.List;
-
 import org.evosuite.Properties;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
@@ -29,70 +27,74 @@ import org.evosuite.testcase.TestCase;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.Randomness;
 
+import java.util.List;
+
 /**
  * @author Thomas White
  */
 public class RandomMethodSeedingTestSuiteChromosomeFactory implements
-		ChromosomeFactory<TestSuiteChromosome> {
+        ChromosomeFactory<TestSuiteChromosome> {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	private final ChromosomeFactory<TestSuiteChromosome> defaultFactory;
-	private final GeneticAlgorithm<TestSuiteChromosome> geneticAlgorithm;
+    private final ChromosomeFactory<TestSuiteChromosome> defaultFactory;
+    private final GeneticAlgorithm<TestSuiteChromosome> geneticAlgorithm;
 
-	/**
-	 * <p>
-	 * Constructor for JUnitTestSuiteChromosomeFactory.
-	 * </p>
-	 * 
-	 * @param defaultFactory
-	 *            a {@link org.evosuite.ga.ChromosomeFactory} object.
-	 */
-	public RandomMethodSeedingTestSuiteChromosomeFactory(
-			ChromosomeFactory<TestSuiteChromosome> defaultFactory,
-			GeneticAlgorithm<TestSuiteChromosome> geneticAlgorithm) {
-		this.defaultFactory = defaultFactory;
-		this.geneticAlgorithm = geneticAlgorithm;
-	}
+    /**
+     * <p>
+     * Constructor for JUnitTestSuiteChromosomeFactory.
+     * </p>
+     *
+     * @param defaultFactory a {@link org.evosuite.ga.ChromosomeFactory} object.
+     */
+    public RandomMethodSeedingTestSuiteChromosomeFactory(
+            ChromosomeFactory<TestSuiteChromosome> defaultFactory,
+            GeneticAlgorithm<TestSuiteChromosome> geneticAlgorithm) {
+        this.defaultFactory = defaultFactory;
+        this.geneticAlgorithm = geneticAlgorithm;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.evosuite.ga.ChromosomeFactory#getChromosome()
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public TestSuiteChromosome getChromosome() {
-		/*
-		 * double P_delta = 0.1d; double P_clone = 0.1d; int MAX_CHANGES = 10;
-		 */
+    /*
+     * (non-Javadoc)
+     *
+     * @see org.evosuite.ga.ChromosomeFactory#getChromosome()
+     */
 
-		TestSuiteChromosome chromosome = defaultFactory.getChromosome();
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public TestSuiteChromosome getChromosome() {
+        /*
+         * double P_delta = 0.1d; double P_clone = 0.1d; int MAX_CHANGES = 10;
+         */
 
-		int numTests = chromosome.getTests().size();
+        TestSuiteChromosome chromosome = defaultFactory.getChromosome();
 
-		//reduce seed probablility by number of tests to be generated
-		final double SEED_CHANCE = Properties.SEED_PROBABILITY / numTests;
-		
-		for (int i = 0; i < numTests; i++) {
-			if (geneticAlgorithm != null && Randomness.nextDouble() < SEED_CHANCE) {
-				int populationSize = geneticAlgorithm.getPopulation().size();
-				TestSuiteChromosome tsc = geneticAlgorithm.getPopulation().get(Randomness.nextInt(populationSize));
-				int testSize = tsc.getTests().size();
-				TestCase test = tsc.getTests().get(Random.nextInt(testSize));
-				if (test != null) {
-					List<TestCase> tests = chromosome.getTests();
-					tests.remove(i);
-					tests.add(i, test);
-					chromosome.clearTests();
-					for (TestCase t : tests){
-						chromosome.addTest(t);
-					}
-				}
-			}
-		}
+        int numTests = chromosome.getTests().size();
 
-		return chromosome;
-	}
+        //reduce seed probablility by number of tests to be generated
+        final double SEED_CHANCE = Properties.SEED_PROBABILITY / numTests;
+
+        for (int i = 0; i < numTests; i++) {
+            if (geneticAlgorithm != null && Randomness.nextDouble() < SEED_CHANCE) {
+                int populationSize = geneticAlgorithm.getPopulation().size();
+                TestSuiteChromosome tsc = geneticAlgorithm.getPopulation().get(Randomness.nextInt(populationSize));
+                int testSize = tsc.getTests().size();
+                TestCase test = tsc.getTests().get(Random.nextInt(testSize));
+                if (test != null) {
+                    List<TestCase> tests = chromosome.getTests();
+                    tests.remove(i);
+                    tests.add(i, test);
+                    chromosome.clearTests();
+                    for (TestCase t : tests) {
+                        chromosome.addTest(t);
+                    }
+                }
+            }
+        }
+
+        return chromosome;
+    }
 
 }

@@ -20,59 +20,57 @@
 
 package org.evosuite.utils;
 
+import org.evosuite.Properties;
+
 import java.util.ArrayDeque;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Queue;
 import java.util.Set;
 
-import org.evosuite.Properties;
-
 /**
  * @author Gordon Fraser
- * 
  */
 public class DefaultRandomAccessQueue<T> implements RandomAccessQueue<T> {
 
-	private final Set<T> valueSet = new HashSet<>();
+    private final Set<T> valueSet = new HashSet<>();
 
-	private final Queue<T> queue = new ArrayDeque<>();
+    private final Queue<T> queue = new ArrayDeque<>();
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.primitives.RandomAccessQueue#restrictedAdd(java.lang.Object)
-	 */
-	@Override
-	public void restrictedAdd(T value) {
-		if (!valueSet.contains(value)) {
-			queue.add(value);
-			valueSet.add(value);
-			reduceSize();
-		}
-	}
+    /* (non-Javadoc)
+     * @see org.evosuite.primitives.RandomAccessQueue#restrictedAdd(java.lang.Object)
+     */
+    @Override
+    public void restrictedAdd(T value) {
+        if (!valueSet.contains(value)) {
+            queue.add(value);
+            valueSet.add(value);
+            reduceSize();
+        }
+    }
 
-	private void reduceSize() {
-		if (queue.size() > Properties.DYNAMIC_POOL_SIZE) {
-			T value = queue.poll();
-			valueSet.remove(value);
-		}
-	}
+    private void reduceSize() {
+        if (queue.size() > Properties.DYNAMIC_POOL_SIZE) {
+            T value = queue.poll();
+            valueSet.remove(value);
+        }
+    }
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.primitives.RandomAccessQueue#getRandomValue()
-	 */
-	@Override
-	public T getRandomValue() {
-		return Randomness.choice(valueSet);
-	}
+    /* (non-Javadoc)
+     * @see org.evosuite.primitives.RandomAccessQueue#getRandomValue()
+     */
+    @Override
+    public T getRandomValue() {
+        return Randomness.choice(valueSet);
+    }
 
-	@Override
-	public String toString() {
-		String res = "[ ";
-		for (final Object element : queue) {
-			res += element + " ";
-		}
-		res += "]";
-		return res;
-	}
+    @Override
+    public String toString() {
+        String res = "[ ";
+        for (final Object element : queue) {
+            res += element + " ";
+        }
+        res += "]";
+        return res;
+    }
 
 }

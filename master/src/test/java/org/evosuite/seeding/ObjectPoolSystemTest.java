@@ -38,104 +38,104 @@ import com.examples.with.different.packagename.testcarver.DifficultClassWithoutC
 
 public class ObjectPoolSystemTest extends SystemTestBase {
 
-	private final double P_POOL = Properties.P_OBJECT_POOL;
-	private final boolean CARVE_POOL = Properties.CARVE_OBJECT_POOL;
-	private final String SELECTED_JUNIT = Properties.SELECTED_JUNIT;
-	private final TestFactory FACTORY = Properties.TEST_FACTORY;
-	
-	@Before
-	public void initProperties() {
-		Properties.SEARCH_BUDGET = 20000;
-	}
-	
-	@After
-	public void restoreProperties() {
-		Properties.P_OBJECT_POOL = P_POOL;
-		Properties.CARVE_OBJECT_POOL = CARVE_POOL;
-		Properties.SELECTED_JUNIT = SELECTED_JUNIT;
-		Properties.TEST_FACTORY = FACTORY;
-	}
-	
-	@Ignore
-	@Test
-	public void testDifficultClassWithoutPoolFails() {
-		EvoSuite evosuite = new EvoSuite();
+    private final double P_POOL = Properties.P_OBJECT_POOL;
+    private final boolean CARVE_POOL = Properties.CARVE_OBJECT_POOL;
+    private final String SELECTED_JUNIT = Properties.SELECTED_JUNIT;
+    private final TestFactory FACTORY = Properties.TEST_FACTORY;
 
-		String targetClass = DifficultClassWithoutCarving.class.getCanonicalName();
-		Properties.TARGET_CLASS = targetClass;
-		Properties.P_OBJECT_POOL = 0.0;
-				
-		String[] command = new String[] { "-generateSuite", "-class", targetClass};
+    @Before
+    public void initProperties() {
+        Properties.SEARCH_BUDGET = 20000;
+    }
 
-		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
-		System.out.println("EvolvedTestSuite:\n" + best);
+    @After
+    public void restoreProperties() {
+        Properties.P_OBJECT_POOL = P_POOL;
+        Properties.CARVE_OBJECT_POOL = CARVE_POOL;
+        Properties.SELECTED_JUNIT = SELECTED_JUNIT;
+        Properties.TEST_FACTORY = FACTORY;
+    }
 
-		// Passes now....
-		Assert.assertTrue("Did not expect optimal coverage: ", best.getCoverage() < 1d);		
-	}
-	
-	@Ignore
-	@Test
-	public void testDifficultClassWithWrongPoolFails() {
-		EvoSuite evosuite = new EvoSuite();
+    @Ignore
+    @Test
+    public void testDifficultClassWithoutPoolFails() {
+        EvoSuite evosuite = new EvoSuite();
 
-		String targetClass = DifficultClassWithoutCarving.class.getCanonicalName();
-		Properties.TARGET_CLASS = targetClass;
-		Properties.P_OBJECT_POOL = 0.8;
-		Properties.CARVE_OBJECT_POOL = true;
-		Properties.SELECTED_JUNIT = ArrayConverterTestCase.class.getCanonicalName();
-				
-		String[] command = new String[] { "-generateSuite", "-class", targetClass};
+        String targetClass = DifficultClassWithoutCarving.class.getCanonicalName();
+        Properties.TARGET_CLASS = targetClass;
+        Properties.P_OBJECT_POOL = 0.0;
 
-		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
-		System.out.println("EvolvedTestSuite:\n" + best);
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
 
-		Assert.assertTrue("Did not expect optimal coverage: ", best.getCoverage() < 1d);		
-	}
-	
-	@Test
-	public void testDifficultClassWithPoolPasses() {
-		EvoSuite evosuite = new EvoSuite();
+        Object result = evosuite.parseCommandLine(command);
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
+        System.out.println("EvolvedTestSuite:\n" + best);
 
-		String targetClass = DifficultClassWithoutCarving.class.getCanonicalName();
-		Properties.TARGET_CLASS = targetClass;
-		Properties.P_OBJECT_POOL = 0.8;
-		Properties.CARVE_OBJECT_POOL = true;
-		Properties.SELECTED_JUNIT = DifficultClassTest.class.getCanonicalName();
-		
-		String[] command = new String[] { "-generateSuite", "-class", targetClass};
+        // Passes now....
+        Assert.assertTrue("Did not expect optimal coverage: ", best.getCoverage() < 1d);
+    }
 
-		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
-		System.out.println("EvolvedTestSuite:\n" + best);
+    @Ignore
+    @Test
+    public void testDifficultClassWithWrongPoolFails() {
+        EvoSuite evosuite = new EvoSuite();
 
-		Assert.assertEquals("Expected optimal coverage: ", 1d, best.getCoverage(), 0.001);		
-	}
-	
-	@Test
-	public void testDifficultClassWithMultipleClassPoolPasses() {
-		EvoSuite evosuite = new EvoSuite();
+        String targetClass = DifficultClassWithoutCarving.class.getCanonicalName();
+        Properties.TARGET_CLASS = targetClass;
+        Properties.P_OBJECT_POOL = 0.8;
+        Properties.CARVE_OBJECT_POOL = true;
+        Properties.SELECTED_JUNIT = ArrayConverterTestCase.class.getCanonicalName();
 
-		String targetClass = DifficultClassWithoutCarving.class.getCanonicalName();
-		Properties.TARGET_CLASS = targetClass;
-		Properties.P_OBJECT_POOL = 0.8;
-		Properties.CARVE_OBJECT_POOL = true;
-		Properties.SELECTED_JUNIT = DifficultClassWithoutCarvingTest.class.getCanonicalName();
-		
-		String[] command = new String[] { "-generateSuite", "-class", targetClass};
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
 
-		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
-		System.out.println("EvolvedTestSuite:\n" + best);
+        Object result = evosuite.parseCommandLine(command);
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
+        System.out.println("EvolvedTestSuite:\n" + best);
 
-		Assert.assertEquals("Expected optimal coverage: ", 1d, best.getCoverage(), 0.001);		
-	}
+        Assert.assertTrue("Did not expect optimal coverage: ", best.getCoverage() < 1d);
+    }
+
+    @Test
+    public void testDifficultClassWithPoolPasses() {
+        EvoSuite evosuite = new EvoSuite();
+
+        String targetClass = DifficultClassWithoutCarving.class.getCanonicalName();
+        Properties.TARGET_CLASS = targetClass;
+        Properties.P_OBJECT_POOL = 0.8;
+        Properties.CARVE_OBJECT_POOL = true;
+        Properties.SELECTED_JUNIT = DifficultClassTest.class.getCanonicalName();
+
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
+
+        Object result = evosuite.parseCommandLine(command);
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
+        System.out.println("EvolvedTestSuite:\n" + best);
+
+        Assert.assertEquals("Expected optimal coverage: ", 1d, best.getCoverage(), 0.001);
+    }
+
+    @Test
+    public void testDifficultClassWithMultipleClassPoolPasses() {
+        EvoSuite evosuite = new EvoSuite();
+
+        String targetClass = DifficultClassWithoutCarving.class.getCanonicalName();
+        Properties.TARGET_CLASS = targetClass;
+        Properties.P_OBJECT_POOL = 0.8;
+        Properties.CARVE_OBJECT_POOL = true;
+        Properties.SELECTED_JUNIT = DifficultClassWithoutCarvingTest.class.getCanonicalName();
+
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
+
+        Object result = evosuite.parseCommandLine(command);
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
+        System.out.println("EvolvedTestSuite:\n" + best);
+
+        Assert.assertEquals("Expected optimal coverage: ", 1d, best.getCoverage(), 0.001);
+    }
 
 
 }

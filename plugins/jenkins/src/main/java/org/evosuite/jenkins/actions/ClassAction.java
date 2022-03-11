@@ -48,146 +48,146 @@ import de.java2html.options.JavaSourceConversionOptions;
 
 public class ClassAction implements Action {
 
-	private final AbstractBuild<?, ?> build;
+    private final AbstractBuild<?, ?> build;
 
-	private final CUT cut;
+    private final CUT cut;
 
-	private String testSourceCode;
+    private String testSourceCode;
 
-	public ClassAction(AbstractBuild<?, ?> build, CUT cut) {
-		this.build = build;
-		this.cut = cut;
-		this.testSourceCode = "";
-	}
-
-	@Override
-	public String getIconFileName() {
-		return null;
-	}
-
-	@Override
-	public String getDisplayName() {
-		return this.cut.getFullNameOfTargetClass();
-	}
-
-	@Override
-	public String getUrlName() {
-		return null;
-	}
-
-	public AbstractBuild<?, ?> getBuild() {
-		return this.build;
-	}
-
-	public String getName() {
-		return this.cut.getFullNameOfTargetClass();
-	}
-
-	public String getTestSuiteName() {
-		return this.cut.getFullNameOfTestSuite();
-	}
-
-	public void highlightSource(VirtualChannel channel, BuildListener listener) throws InterruptedException {
-	    Generation latestGeneration = CUTUtil.getLatestGeneration(this.cut);
-	    if (latestGeneration.isFailed()) {
-	      StringBuilder str = new StringBuilder();
-	      str.append("<h3>std_err_CLIENT</h3>");
-	      str.append("<p>" + this.getLog(channel, latestGeneration.getStdErrCLIENT()) + "</p>");
-	      str.append("<h3>std_out_CLIENT</h3>");
-	      str.append("<p>" + this.getLog(channel, latestGeneration.getStdOutCLIENT()) + "</p>");
-	      str.append("<h3>std_err_MASTER</h3>");
-	      str.append("<p>" + this.getLog(channel, latestGeneration.getStdErrMASTER()) + "</p>");
-	      str.append("<h3>std_out_MASTER</h3>");
-	      str.append("<p>" + this.getLog(channel, latestGeneration.getStdOutMASTER()) + "</p>");
-	      this.testSourceCode = str.toString();
-          return ;
-	    }
-
-	    Generation latestSuccessfulGeneration = CUTUtil.getLatestSuccessfulGeneration(this.cut);
-	    if (latestSuccessfulGeneration == null) { 
-	      this.testSourceCode = "<p>There was not a single successful generation "
-              + "for this class. Likely this is an EvoSuite bug.</p>";
-          return ;
-        }
-
-	    TestSuite suite = latestSuccessfulGeneration.getSuite();
-	    if (suite == null) { 
-	      this.testSourceCode = "<p>Test suite of the latest successful generation "
-              + "is null. Likely this is an EvoSuite bug.</p>";
-	      return ;
-	    }
-
-		try {
-		    String javaFile = suite.getFullPathOfTestSuite();
-			listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "JavaFile: " + javaFile);
-
-			ByteArrayOutputStream out = new ByteArrayOutputStream();
-			new FilePath(channel, javaFile).copyTo(out);
-
-			InputStream file = new ByteArrayInputStream(out.toByteArray());
-			JavaSource source = new JavaSourceParser().parse(new InputStreamReader(file, Charset.forName("UTF-8")));
-
-			JavaSourceConversionOptions options = JavaSourceConversionOptions.getDefault();
-			options.setShowLineNumbers(true);
-			options.setAddLineAnchors(true);
-
-			JavaSource2HTMLConverter converter = new JavaSource2HTMLConverter();
-			StringWriter writer = new StringWriter();
-			converter.convert(source, options, writer);
-
-			this.testSourceCode = writer.toString();
-		} catch (IOException e) {
-			listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + e.getMessage());
-			listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "Returning a empty source-code");
-			this.testSourceCode = e.getMessage();
-		}
-	}
-
-    private String getLog(VirtualChannel channel, String filePath) throws InterruptedException {
-      try {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        new FilePath(channel, filePath).copyTo(out);
-        return new String(out.toByteArray(), Charset.forName("UTF-8"));
-      } catch (IOException e) {
-        return "It was not possible to open/read '" + filePath + "' due to " + e.getMessage();
-      }
+    public ClassAction(AbstractBuild<?, ?> build, CUT cut) {
+        this.build = build;
+        this.cut = cut;
+        this.testSourceCode = "";
     }
 
-	// data for jelly template
+    @Override
+    public String getIconFileName() {
+        return null;
+    }
 
-	public int getNumberOfStatements() {
-	    return CUTUtil.getNumberStatements(this.cut);
-	}
+    @Override
+    public String getDisplayName() {
+        return this.cut.getFullNameOfTargetClass();
+    }
 
-	public int getTotalEffort() {
+    @Override
+    public String getUrlName() {
+        return null;
+    }
+
+    public AbstractBuild<?, ?> getBuild() {
+        return this.build;
+    }
+
+    public String getName() {
+        return this.cut.getFullNameOfTargetClass();
+    }
+
+    public String getTestSuiteName() {
+        return this.cut.getFullNameOfTestSuite();
+    }
+
+    public void highlightSource(VirtualChannel channel, BuildListener listener) throws InterruptedException {
+        Generation latestGeneration = CUTUtil.getLatestGeneration(this.cut);
+        if (latestGeneration.isFailed()) {
+            StringBuilder str = new StringBuilder();
+            str.append("<h3>std_err_CLIENT</h3>");
+            str.append("<p>" + this.getLog(channel, latestGeneration.getStdErrCLIENT()) + "</p>");
+            str.append("<h3>std_out_CLIENT</h3>");
+            str.append("<p>" + this.getLog(channel, latestGeneration.getStdOutCLIENT()) + "</p>");
+            str.append("<h3>std_err_MASTER</h3>");
+            str.append("<p>" + this.getLog(channel, latestGeneration.getStdErrMASTER()) + "</p>");
+            str.append("<h3>std_out_MASTER</h3>");
+            str.append("<p>" + this.getLog(channel, latestGeneration.getStdOutMASTER()) + "</p>");
+            this.testSourceCode = str.toString();
+            return;
+        }
+
+        Generation latestSuccessfulGeneration = CUTUtil.getLatestSuccessfulGeneration(this.cut);
+        if (latestSuccessfulGeneration == null) {
+            this.testSourceCode = "<p>There was not a single successful generation "
+                    + "for this class. Likely this is an EvoSuite bug.</p>";
+            return;
+        }
+
+        TestSuite suite = latestSuccessfulGeneration.getSuite();
+        if (suite == null) {
+            this.testSourceCode = "<p>Test suite of the latest successful generation "
+                    + "is null. Likely this is an EvoSuite bug.</p>";
+            return;
+        }
+
+        try {
+            String javaFile = suite.getFullPathOfTestSuite();
+            listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "JavaFile: " + javaFile);
+
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            new FilePath(channel, javaFile).copyTo(out);
+
+            InputStream file = new ByteArrayInputStream(out.toByteArray());
+            JavaSource source = new JavaSourceParser().parse(new InputStreamReader(file, Charset.forName("UTF-8")));
+
+            JavaSourceConversionOptions options = JavaSourceConversionOptions.getDefault();
+            options.setShowLineNumbers(true);
+            options.setAddLineAnchors(true);
+
+            JavaSource2HTMLConverter converter = new JavaSource2HTMLConverter();
+            StringWriter writer = new StringWriter();
+            converter.convert(source, options, writer);
+
+            this.testSourceCode = writer.toString();
+        } catch (IOException e) {
+            listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + e.getMessage());
+            listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "Returning a empty source-code");
+            this.testSourceCode = e.getMessage();
+        }
+    }
+
+    private String getLog(VirtualChannel channel, String filePath) throws InterruptedException {
+        try {
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            new FilePath(channel, filePath).copyTo(out);
+            return new String(out.toByteArray(), Charset.forName("UTF-8"));
+        } catch (IOException e) {
+            return "It was not possible to open/read '" + filePath + "' due to " + e.getMessage();
+        }
+    }
+
+    // data for jelly template
+
+    public int getNumberOfStatements() {
+        return CUTUtil.getNumberStatements(this.cut);
+    }
+
+    public int getTotalEffort() {
         return CUTUtil.getTotalEffort(this.cut);
-	}
+    }
 
-	public int getTimeBudget() {
+    public int getTimeBudget() {
         return CUTUtil.getTimeBudget(this.cut);
     }
 
-	public int getNumberOfTests() {
+    public int getNumberOfTests() {
         return CUTUtil.getNumberTests(this.cut);
-	}
+    }
 
-	public String getTestSourceCode() {
-		return this.testSourceCode;
-	}
+    public String getTestSourceCode() {
+        return this.testSourceCode;
+    }
 
-	public Set<String> getCriteria() {
+    public Set<String> getCriteria() {
         return CUTUtil.getCriteria(this.cut);
-	}
+    }
 
-	public double getOverallCoverage() {
-	    DecimalFormat formatter = EvoSuiteRecorder.decimalFormat;
+    public double getOverallCoverage() {
+        DecimalFormat formatter = EvoSuiteRecorder.decimalFormat;
         formatter.applyPattern("#0.00");
         return Double.parseDouble(formatter.format(CUTUtil.getOverallCoverage(this.cut) * 100.0));
-	}
+    }
 
-	public double getCriterionCoverage(String criterionName) {
-	    DecimalFormat formatter = EvoSuiteRecorder.decimalFormat;
+    public double getCriterionCoverage(String criterionName) {
+        DecimalFormat formatter = EvoSuiteRecorder.decimalFormat;
         formatter.applyPattern("#0.00");
-	    return Double.parseDouble(formatter.format(CUTUtil.getCriterionCoverage(this.cut, criterionName) * 100.0));
-	}
+        return Double.parseDouble(formatter.format(CUTUtil.getCriterionCoverage(this.cut, criterionName) * 100.0));
+    }
 }

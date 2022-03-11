@@ -25,14 +25,14 @@ import java.util.List;
 
 public class GenericStaticMethod2 {
 
-	public static <E> List<E> select(final Collection<? extends E> inputCollection,
-            final Collection<? super E> predicate) {
-		if(inputCollection.iterator().next() instanceof Integer) {
-			System.out.println("OK 1");
-		} else if(inputCollection.iterator().next() instanceof List) {
-			System.out.println("OK 2");
-		} 
+    public static <E> List<E> select(final Collection<? extends E> inputCollection,
+                                     final Collection<? super E> predicate) {
+        if (inputCollection.iterator().next() instanceof Integer) {
+            System.out.println("OK 1");
+        } else if (inputCollection.iterator().next() instanceof List) {
+            System.out.println("OK 2");
+        }
         return new ArrayList<>(inputCollection);
     }
-	
+
 }

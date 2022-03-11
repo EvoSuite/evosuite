@@ -23,71 +23,71 @@ import org.evosuite.symbolic.expr.ExpressionVisitor;
 import org.evosuite.symbolic.expr.ref.ReferenceVariable;
 import org.objectweb.asm.Type;
 
- /**
-   * Represents an instance of a symbolic array.
-   *
-   * @author Ignacio Lebrero
-   */
+/**
+ * Represents an instance of a symbolic array.
+ *
+ * @author Ignacio Lebrero
+ */
 public abstract class ArrayVariable extends ReferenceVariable implements ArrayValue {
 
-   public ArrayVariable(Type arrayType, int instanceId, String arrayName, Object concreteArray) {
-     super(arrayType, instanceId, arrayName, concreteArray);
-   }
+    public ArrayVariable(Type arrayType, int instanceId, String arrayName, Object concreteArray) {
+        super(arrayType, instanceId, arrayName, concreteArray);
+    }
 
-   public void setConcreteValue(Object concreteValue) {
-     this.concreteValue = concreteValue;
-   }
+    public void setConcreteValue(Object concreteValue) {
+        this.concreteValue = concreteValue;
+    }
 
-   public static final class IntegerArrayVariable extends ArrayVariable implements ArrayValue.IntegerArrayValue {
+    public static final class IntegerArrayVariable extends ArrayVariable implements ArrayValue.IntegerArrayValue {
 
-     public IntegerArrayVariable(Type arrayType, int instanceId, String arrayName, Object concreteArray) {
-       super(arrayType, instanceId, arrayName, concreteArray);
-     }
+        public IntegerArrayVariable(Type arrayType, int instanceId, String arrayName, Object concreteArray) {
+            super(arrayType, instanceId, arrayName, concreteArray);
+        }
 
-     @Override
-     public <K, V> K accept(ExpressionVisitor<K, V> v, V arg) {
-       return v.visit(this, arg);
-     }
-   }
+        @Override
+        public <K, V> K accept(ExpressionVisitor<K, V> v, V arg) {
+            return v.visit(this, arg);
+        }
+    }
 
-   public static final class RealArrayVariable extends ArrayVariable implements ArrayValue.RealArrayValue {
+    public static final class RealArrayVariable extends ArrayVariable implements ArrayValue.RealArrayValue {
 
-     public RealArrayVariable(Type arrayType, int instanceId, String arrayName, Object concreteArray) {
-       super(arrayType, instanceId, arrayName, concreteArray);
-     }
+        public RealArrayVariable(Type arrayType, int instanceId, String arrayName, Object concreteArray) {
+            super(arrayType, instanceId, arrayName, concreteArray);
+        }
 
-     @Override
-     public <K, V> K accept(ExpressionVisitor<K, V> v, V arg) {
-       return v.visit(this, arg);
-     }
+        @Override
+        public <K, V> K accept(ExpressionVisitor<K, V> v, V arg) {
+            return v.visit(this, arg);
+        }
 
-   }
+    }
 
-   public static final class StringArrayVariable extends ArrayVariable implements ArrayValue.StringArrayValue {
+    public static final class StringArrayVariable extends ArrayVariable implements ArrayValue.StringArrayValue {
 
-     public StringArrayVariable(Type arrayType, int instanceId, String arrayName, Object concreteArray) {
-       super(arrayType, instanceId, arrayName, concreteArray);
-     }
+        public StringArrayVariable(Type arrayType, int instanceId, String arrayName, Object concreteArray) {
+            super(arrayType, instanceId, arrayName, concreteArray);
+        }
 
-     @Override
-     public <K, V> K accept(ExpressionVisitor<K, V> v, V arg) {
-       return v.visit(this, arg);
-     }
-   }
+        @Override
+        public <K, V> K accept(ExpressionVisitor<K, V> v, V arg) {
+            return v.visit(this, arg);
+        }
+    }
 
-   public static final class ReferenceArrayVariable extends ArrayVariable implements ArrayValue.ReferenceArrayValue {
+    public static final class ReferenceArrayVariable extends ArrayVariable implements ArrayValue.ReferenceArrayValue {
 
-     public ReferenceArrayVariable(Type arrayType, int instanceId, String arrayName, Object concreteArray) {
-       super(arrayType, instanceId, arrayName, concreteArray);
-     }
+        public ReferenceArrayVariable(Type arrayType, int instanceId, String arrayName, Object concreteArray) {
+            super(arrayType, instanceId, arrayName, concreteArray);
+        }
 
-     @Override
-     public <K, V> K accept(ExpressionVisitor<K, V> v, V arg) {
-       return v.visit(this, arg);
-     }
+        @Override
+        public <K, V> K accept(ExpressionVisitor<K, V> v, V arg) {
+            return v.visit(this, arg);
+        }
 
-   }
+    }
 
- }
+}
 
 

@@ -19,16 +19,16 @@
  */
 package org.evosuite.ga.localsearch;
 
-import java.util.List;
-
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.FitnessFunction;
 
+import java.util.List;
+
 /**
  * Represents a local search objective that will be used during local search to
- * assess the success (or failure) of a local search to a given chromosome 
+ * assess the success (or failure) of a local search to a given chromosome
  * (it could be TestSuiteChromosome or TestChromosome).
- * 
+ * <p>
  * The local search objective contains a list of fitness functions that are used
  * to compute the fitness of an individual.
  *
@@ -36,59 +36,56 @@ import org.evosuite.ga.FitnessFunction;
  */
 public interface LocalSearchObjective<T extends Chromosome<T>> {
 
-	/**
-	 * true if the objective was achieved
-	 * 
-	 * @return
-	 */
+    /**
+     * true if the objective was achieved
+     *
+     * @return
+     */
     boolean isDone();
 
-	/**
-	 * Returns true if all the fitness functions are maximising functions
-	 * (Observe that it is not possible to store simoustaneously maximising and
-	 * minimising fitness functions)
-	 * 
-	 * @return
-	 */
+    /**
+     * Returns true if all the fitness functions are maximising functions
+     * (Observe that it is not possible to store simoustaneously maximising and
+     * minimising fitness functions)
+     *
+     * @return
+     */
     boolean isMaximizationObjective();
 
-	/**
-	 * Returns true if the individual has improved due to the applied local
-	 * search
-	 *
-	 * @param chromosome
-	 *            a {@link org.evosuite.ga.Chromosome} object.
-	 * @return a boolean.
-	 */
+    /**
+     * Returns true if the individual has improved due to the applied local
+     * search
+     *
+     * @param chromosome a {@link org.evosuite.ga.Chromosome} object.
+     * @return a boolean.
+     */
     boolean hasImproved(T chromosome);
 
-	/**
-	 * Returns true if the individual has not worsened due to the applied local
-	 * search
-	 *
-	 * @param chromosome
-	 *            a {@link org.evosuite.ga.Chromosome} object.
-	 * @return a boolean.
-	 */
+    /**
+     * Returns true if the individual has not worsened due to the applied local
+     * search
+     *
+     * @param chromosome a {@link org.evosuite.ga.Chromosome} object.
+     * @return a boolean.
+     */
     boolean hasNotWorsened(T chromosome);
 
-	/**
-	 * Returns true if the individual has changed since local search started
-	 *
-	 * @param chromosome
-	 *            a {@link org.evosuite.ga.Chromosome} object.
-	 * @return a int.
-	 */
+    /**
+     * Returns true if the individual has changed since local search started
+     *
+     * @param chromosome a {@link org.evosuite.ga.Chromosome} object.
+     * @return a int.
+     */
     int hasChanged(T chromosome);
 
-	void addFitnessFunction(FitnessFunction<T> fitness);
+    void addFitnessFunction(FitnessFunction<T> fitness);
 
-	/**
-	 * Returns a list with all the fitness functions stored in this local search
-	 * objective
-	 *
-	 * @return a {@link org.evosuite.ga.FitnessFunction} object.
-	 */
+    /**
+     * Returns a list with all the fitness functions stored in this local search
+     * objective
+     *
+     * @return a {@link org.evosuite.ga.FitnessFunction} object.
+     */
     List<FitnessFunction<T>> getFitnessFunctions();
 
 }

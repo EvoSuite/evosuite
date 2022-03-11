@@ -45,165 +45,164 @@ import org.evosuite.Properties;
 
 /**
  * @author Gordon Fraser
- * 
  */
 public class GenerationResult extends Dialog {
 
-	protected Object result;
-	protected Shell shlEvosuiteResult;
-	protected IPath location;
-	protected IResource targetResource;
+    protected Object result;
+    protected Shell shlEvosuiteResult;
+    protected IPath location;
+    protected IResource targetResource;
 
-	/**
-	 * Create the dialog.
-	 * 
-	 * @param parent
-	 * @param style
-	 */
-	public GenerationResult(Shell parent, int style, IPath location,
-	        final IResource target) {
-		super(parent, style);
-		this.location = location;
-		this.targetResource = target;
-		setText("EvoSuite Result");
-	}
+    /**
+     * Create the dialog.
+     *
+     * @param parent
+     * @param style
+     */
+    public GenerationResult(Shell parent, int style, IPath location,
+                            final IResource target) {
+        super(parent, style);
+        this.location = location;
+        this.targetResource = target;
+        setText("EvoSuite Result");
+    }
 
-	/**
-	 * Open the dialog.
-	 * 
-	 * @return the result
-	 */
-	public Object open() {
-		createContents();
-		shlEvosuiteResult.open();
-		shlEvosuiteResult.layout();
-		Display display = getParent().getDisplay();
-		while (!shlEvosuiteResult.isDisposed()) {
-			if (!display.readAndDispatch()) {
-				display.sleep();
-			}
-		}
-		return result;
-	}
+    /**
+     * Open the dialog.
+     *
+     * @return the result
+     */
+    public Object open() {
+        createContents();
+        shlEvosuiteResult.open();
+        shlEvosuiteResult.layout();
+        Display display = getParent().getDisplay();
+        while (!shlEvosuiteResult.isDisposed()) {
+            if (!display.readAndDispatch()) {
+                display.sleep();
+            }
+        }
+        return result;
+    }
 
-	/**
-	 * Create contents of the dialog.
-	 */
-	private void createContents() {
-		shlEvosuiteResult = new Shell(getParent(), SWT.SHELL_TRIM);
-		shlEvosuiteResult.setMinimumSize(new Point(320, 160));
-		shlEvosuiteResult.setSize(600, 611);
-		shlEvosuiteResult.setText("EvoSuite Result");
+    /**
+     * Create contents of the dialog.
+     */
+    private void createContents() {
+        shlEvosuiteResult = new Shell(getParent(), SWT.SHELL_TRIM);
+        shlEvosuiteResult.setMinimumSize(new Point(320, 160));
+        shlEvosuiteResult.setSize(600, 611);
+        shlEvosuiteResult.setText("EvoSuite Result");
 
-		Browser browser = new Browser(shlEvosuiteResult, SWT.NONE);
-		browser.setBounds(0, 0, 600, 559);
+        Browser browser = new Browser(shlEvosuiteResult, SWT.NONE);
+        browser.setBounds(0, 0, 600, 559);
 
-		System.out.println("Directory: " + location.toOSString() + File.separator
-		        + "evosuite-report/html");
-		File dir = new File(location.toOSString() + File.separator + "evosuite-report"
-		        + File.separator + "html");
-		String target = null;
-		int max = -1;
-		for (File report : dir.listFiles(new FilenameFilter() {
-			@Override
-			public boolean accept(File dir, String filename) {
-				return filename.endsWith(".html")
-				        && filename.startsWith("report-" + Properties.TARGET_CLASS);
-			}
-		})) {
-			String filename = report.getName();
-			String[] parts = filename.split("-");
-			if (parts.length == 3) {
+        System.out.println("Directory: " + location.toOSString() + File.separator
+                + "evosuite-report/html");
+        File dir = new File(location.toOSString() + File.separator + "evosuite-report"
+                + File.separator + "html");
+        String target = null;
+        int max = -1;
+        for (File report : dir.listFiles(new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String filename) {
+                return filename.endsWith(".html")
+                        && filename.startsWith("report-" + Properties.TARGET_CLASS);
+            }
+        })) {
+            String filename = report.getName();
+            String[] parts = filename.split("-");
+            if (parts.length == 3) {
 
-				int x = Integer.parseInt(parts[2].replace(".html", ""));
-				if (x > max)
-					max = x;
-			}
-		}
-		if (max >= 0) {
-			target = location + "/evosuite-report/html/report-" + Properties.TARGET_CLASS
-			        + "-" + max + ".html";
-		} else {
-			target = location + "/evosuite-report/report-generation.html";
-		}
-		System.out.println("Opening " + target);
-		browser.setUrl(target);
-		browser.update();
+                int x = Integer.parseInt(parts[2].replace(".html", ""));
+                if (x > max)
+                    max = x;
+            }
+        }
+        if (max >= 0) {
+            target = location + "/evosuite-report/html/report-" + Properties.TARGET_CLASS
+                    + "-" + max + ".html";
+        } else {
+            target = location + "/evosuite-report/report-generation.html";
+        }
+        System.out.println("Opening " + target);
+        browser.setUrl(target);
+        browser.update();
 
-		Button btnNewButton = new Button(shlEvosuiteResult, SWT.NONE);
-		btnNewButton.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				showFile(targetResource.getLocation());
-				shlEvosuiteResult.close();
-			}
-		});
-		btnNewButton.setBounds(10, 561, 110, 28);
-		btnNewButton.setText("Edit " + targetResource.getName());
+        Button btnNewButton = new Button(shlEvosuiteResult, SWT.NONE);
+        btnNewButton.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                showFile(targetResource.getLocation());
+                shlEvosuiteResult.close();
+            }
+        });
+        btnNewButton.setBounds(10, 561, 110, 28);
+        btnNewButton.setText("Edit " + targetResource.getName());
 
-		Button btnNewButton_1 = new Button(shlEvosuiteResult, SWT.NONE);
-		btnNewButton_1.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				// Open evosuite-tests/.../Test<Target>
-				shlEvosuiteResult.close();
-				IWorkbench wb = PlatformUI.getWorkbench();
-				IWorkbenchWindow win = wb.getActiveWorkbenchWindow();
-				IWorkbenchPage page = win.getActivePage();
-				try {
-					String subPath = Properties.TARGET_CLASS.replace(".", File.separator);
-					int pos = subPath.lastIndexOf(File.separator);
-					if (pos >= 0) {
-						IPath targetFile = location.append(File.separator + "evosuite-tests" + File.separator
-								+ subPath + Properties.JUNIT_SUFFIX
-								// + subPath.substring(0, pos) + "/Test"
-						        // + subPath.substring(pos + 1) 
-								+ ".java");
-						System.out.println("target: " + targetFile);
+        Button btnNewButton_1 = new Button(shlEvosuiteResult, SWT.NONE);
+        btnNewButton_1.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                // Open evosuite-tests/.../Test<Target>
+                shlEvosuiteResult.close();
+                IWorkbench wb = PlatformUI.getWorkbench();
+                IWorkbenchWindow win = wb.getActiveWorkbenchWindow();
+                IWorkbenchPage page = win.getActivePage();
+                try {
+                    String subPath = Properties.TARGET_CLASS.replace(".", File.separator);
+                    int pos = subPath.lastIndexOf(File.separator);
+                    if (pos >= 0) {
+                        IPath targetFile = location.append(File.separator + "evosuite-tests" + File.separator
+                                + subPath + Properties.JUNIT_SUFFIX
+                                // + subPath.substring(0, pos) + "/Test"
+                                // + subPath.substring(pos + 1)
+                                + ".java");
+                        System.out.println("target: " + targetFile);
 
-						IDE.openEditor(page,
-						               ResourcesPlugin.getWorkspace().getRoot().getFileForLocation(targetFile));
-					} else {
-						IPath targetFile = location.append(File.separator + "evosuite-tests" + File.separator
-								+ subPath + Properties.JUNIT_SUFFIX
-						//IPath targetFile = location.append("/evosuite-tests/" + "/Test"
-						//        + subPath
-								+ ".java");
-						System.out.println("target: " + targetFile);
-						IDE.openEditor(page,
-						               ResourcesPlugin.getWorkspace().getRoot().getFileForLocation(targetFile));
-					}
-				} catch (PartInitException e2) {
-					//Put your exception handler here if you wish to.
-					System.out.println("Error: " + e2);
-				}
-			}
-		});
-		btnNewButton_1.setBounds(118, 561, 94, 28);
-		btnNewButton_1.setText("Edit Tests");
+                        IDE.openEditor(page,
+                                ResourcesPlugin.getWorkspace().getRoot().getFileForLocation(targetFile));
+                    } else {
+                        IPath targetFile = location.append(File.separator + "evosuite-tests" + File.separator
+                                + subPath + Properties.JUNIT_SUFFIX
+                                //IPath targetFile = location.append("/evosuite-tests/" + "/Test"
+                                //        + subPath
+                                + ".java");
+                        System.out.println("target: " + targetFile);
+                        IDE.openEditor(page,
+                                ResourcesPlugin.getWorkspace().getRoot().getFileForLocation(targetFile));
+                    }
+                } catch (PartInitException e2) {
+                    //Put your exception handler here if you wish to.
+                    System.out.println("Error: " + e2);
+                }
+            }
+        });
+        btnNewButton_1.setBounds(118, 561, 94, 28);
+        btnNewButton_1.setText("Edit Tests");
 
-		Button btnNewButton2 = new Button(shlEvosuiteResult, SWT.NONE);
-		btnNewButton2.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				shlEvosuiteResult.close();
-			}
-		});
-		btnNewButton2.setBounds(228, 561, 110, 28);
-		btnNewButton2.setText("Close");
+        Button btnNewButton2 = new Button(shlEvosuiteResult, SWT.NONE);
+        btnNewButton2.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                shlEvosuiteResult.close();
+            }
+        });
+        btnNewButton2.setBounds(228, 561, 110, 28);
+        btnNewButton2.setText("Close");
 
-	}
+    }
 
-	private void showFile(IPath targetFile) {
-		IWorkbench wb = PlatformUI.getWorkbench();
-		IWorkbenchWindow win = wb.getActiveWorkbenchWindow();
-		IWorkbenchPage page = win.getActivePage();
-		try {
-			IDE.openEditor(page,
-			               ResourcesPlugin.getWorkspace().getRoot().getFileForLocation(targetFile));
-		} catch (PartInitException e2) {
-			//Put your exception handler here if you wish to.
-			System.out.println("Error: " + e2);
-		}
-	}
+    private void showFile(IPath targetFile) {
+        IWorkbench wb = PlatformUI.getWorkbench();
+        IWorkbenchWindow win = wb.getActiveWorkbenchWindow();
+        IWorkbenchPage page = win.getActivePage();
+        try {
+            IDE.openEditor(page,
+                    ResourcesPlugin.getWorkspace().getRoot().getFileForLocation(targetFile));
+        } catch (PartInitException e2) {
+            //Put your exception handler here if you wish to.
+            System.out.println("Error: " + e2);
+        }
+    }
 }

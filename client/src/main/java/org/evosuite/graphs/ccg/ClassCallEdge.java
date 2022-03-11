@@ -21,62 +21,66 @@ package org.evosuite.graphs.ccg;
 
 import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.jgrapht.graph.DefaultEdge;
+
 public class ClassCallEdge extends DefaultEdge {
 
-	private static final long serialVersionUID = 7136724698608115327L;
+    private static final long serialVersionUID = 7136724698608115327L;
 
-	private BytecodeInstruction callInstruction;
-	
-	/**
-	 * <p>Constructor for ClassCallEdge.</p>
-	 *
-	 * @param callInstruction a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
-	 */
-	public ClassCallEdge(BytecodeInstruction callInstruction) {
-		this.callInstruction = callInstruction;
-	}
-	
-	/**
-	 * <p>Getter for the field <code>callInstruction</code>.</p>
-	 *
-	 * @return a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
-	 */
-	public BytecodeInstruction getCallInstruction() {
-		return callInstruction;
-	}
-	
-	/** {@inheritDoc} */
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result
-				+ ((callInstruction == null) ? 0 : callInstruction.hashCode());
-		return result;
-	}
+    private final BytecodeInstruction callInstruction;
 
-	/** {@inheritDoc} */
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		ClassCallEdge other = (ClassCallEdge) obj;
-		if (callInstruction == null) {
-			if (other.callInstruction != null)
-				return false;
-		} else if (!callInstruction.equals(other.callInstruction))
-			return false;
-		return true;
-	}
+    /**
+     * <p>Constructor for ClassCallEdge.</p>
+     *
+     * @param callInstruction a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
+     */
+    public ClassCallEdge(BytecodeInstruction callInstruction) {
+        this.callInstruction = callInstruction;
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public String toString() {
-		return callInstruction.toString();
-	}
-	
+    /**
+     * <p>Getter for the field <code>callInstruction</code>.</p>
+     *
+     * @return a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
+     */
+    public BytecodeInstruction getCallInstruction() {
+        return callInstruction;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result
+                + ((callInstruction == null) ? 0 : callInstruction.hashCode());
+        return result;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        ClassCallEdge other = (ClassCallEdge) obj;
+        if (callInstruction == null) {
+            return other.callInstruction == null;
+        } else return callInstruction.equals(other.callInstruction);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        return callInstruction.toString();
+    }
+
 }

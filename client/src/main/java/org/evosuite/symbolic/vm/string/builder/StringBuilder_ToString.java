@@ -28,39 +28,39 @@ import org.evosuite.symbolic.vm.string.Types;
 
 public final class StringBuilder_ToString extends SymbolicFunction {
 
-	private static final String TO_STRING = "toString";
+    private static final String TO_STRING = "toString";
 
-	public StringBuilder_ToString(SymbolicEnvironment env) {
-		super(env, Types.JAVA_LANG_STRING_BUILDER, TO_STRING,
-				Types.TO_STR_DESCRIPTOR);
-	}
+    public StringBuilder_ToString(SymbolicEnvironment env) {
+        super(env, Types.JAVA_LANG_STRING_BUILDER, TO_STRING,
+                Types.TO_STR_DESCRIPTOR);
+    }
 
-	@Override
-	public Object executeFunction() {
-		ReferenceConstant symb_str_builder = this
-				.getSymbReceiver();
+    @Override
+    public Object executeFunction() {
+        ReferenceConstant symb_str_builder = this
+                .getSymbReceiver();
 
-		// receiver
-		StringBuilder conc_str_builder = (StringBuilder) this.getConcReceiver();
+        // receiver
+        StringBuilder conc_str_builder = (StringBuilder) this.getConcReceiver();
 
-		// return value
-		String res = (String) this.getConcRetVal();
+        // return value
+        String res = (String) this.getConcRetVal();
 
-		if (res != null) {
-			ReferenceConstant symb_ret_val = (ReferenceConstant) this
-					.getSymbRetVal();
+        if (res != null) {
+            ReferenceConstant symb_ret_val = (ReferenceConstant) this
+                    .getSymbRetVal();
 
-			StringValue symb_value = env.heap.getField(
-					Types.JAVA_LANG_STRING_BUILDER,
-					SymbolicHeap.$STRING_BUILDER_CONTENTS, conc_str_builder,
-					symb_str_builder, conc_str_builder.toString());
+            StringValue symb_value = env.heap.getField(
+                    Types.JAVA_LANG_STRING_BUILDER,
+                    SymbolicHeap.$STRING_BUILDER_CONTENTS, conc_str_builder,
+                    symb_str_builder, conc_str_builder.toString());
 
-			String conc_receiver = res;
-			env.heap.putField(Types.JAVA_LANG_STRING,
-					SymbolicHeap.$STRING_VALUE, conc_receiver, symb_ret_val,
-					symb_value);
-		}
+            String conc_receiver = res;
+            env.heap.putField(Types.JAVA_LANG_STRING,
+                    SymbolicHeap.$STRING_VALUE, conc_receiver, symb_ret_val,
+                    symb_value);
+        }
 
-		return this.getSymbRetVal();
-	}
+        return this.getSymbRetVal();
+    }
 }

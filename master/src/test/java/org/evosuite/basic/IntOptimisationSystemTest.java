@@ -32,33 +32,33 @@ import com.examples.with.different.packagename.IntExample;
 
 public class IntOptimisationSystemTest extends SystemTestBase {
 
-	private double seedConstants = Properties.PRIMITIVE_POOL;
-	
-	@After
-	public void resetSeedConstants() {
-		Properties.PRIMITIVE_POOL = seedConstants;
-	}
-	
-	@Test
-	public void testIntSUT() {
-		EvoSuite evosuite = new EvoSuite();
+    private double seedConstants = Properties.PRIMITIVE_POOL;
 
-		String targetClass = IntExample.class.getCanonicalName();
+    @After
+    public void resetSeedConstants() {
+        Properties.PRIMITIVE_POOL = seedConstants;
+    }
 
-		Properties.TARGET_CLASS = targetClass;
-		Properties.PRIMITIVE_POOL = 0.0;
-		Properties.SEARCH_BUDGET = 100000; // TODO: Can we reduce the variation in results somehow?
-		
-		String[] command = new String[] { "-generateSuite", "-class", targetClass};
+    @Test
+    public void testIntSUT() {
+        EvoSuite evosuite = new EvoSuite();
 
-		Object result = evosuite.parseCommandLine(command);
+        String targetClass = IntExample.class.getCanonicalName();
+
+        Properties.TARGET_CLASS = targetClass;
+        Properties.PRIMITIVE_POOL = 0.0;
+        Properties.SEARCH_BUDGET = 100000; // TODO: Can we reduce the variation in results somehow?
+
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
+
+        Object result = evosuite.parseCommandLine(command);
 
         Assert.assertNotNull(result);
 
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
-		System.out.println("EvolvedTestSuite:\n" + best);
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
+        System.out.println("EvolvedTestSuite:\n" + best);
 
-		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
-	}
+        Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+    }
 }

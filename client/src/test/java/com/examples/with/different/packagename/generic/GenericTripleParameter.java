@@ -23,12 +23,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class GenericTripleParameter<X, Y, Z> {
-	
-	public Map<X, Y> foo(Z param) {
-		if(param == null)
-			return new HashMap<>();
-		else
-			return new HashMap<>();
-	}
+
+    public Map<X, Y> foo(Z param) {
+        if (param == null)
+            return new HashMap<>();
+        else
+            return new HashMap<>();
+    }
 
 }

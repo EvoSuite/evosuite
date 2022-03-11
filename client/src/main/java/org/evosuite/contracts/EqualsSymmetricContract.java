@@ -20,123 +20,128 @@
 
 package org.evosuite.contracts;
 
-import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.List;
-
 import org.evosuite.assertion.EqualsAssertion;
-import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.TestCase;
-import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testcase.execution.ExecutionTracer;
 import org.evosuite.testcase.execution.Scope;
 import org.evosuite.testcase.statements.MethodStatement;
+import org.evosuite.testcase.statements.Statement;
+import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.utils.generic.GenericMethod;
+
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * <p>
  * EqualsSymmetricContract class.
  * </p>
- * 
+ *
  * @author Gordon Fraser
  */
 public class EqualsSymmetricContract extends Contract {
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.contracts.Contract#check(org.evosuite.testcase.Statement, org.evosuite.testcase.Scope, java.lang.Throwable)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public ContractViolation check(Statement statement, Scope scope,
-	        Throwable exception) {
-		for (Pair<VariableReference> pair : getAllVariablePairs(scope)) {
-			// Equals self is covered by EqualsContract
-			if(pair.object1 == pair.object2)
-				continue;
-			
-			Object object1 = scope.getObject(pair.object1);
-			Object object2 = scope.getObject(pair.object2);
-			if (object1 == null || object2 == null)
-				continue;
+    /* (non-Javadoc)
+     * @see org.evosuite.contracts.Contract#check(org.evosuite.testcase.Statement, org.evosuite.testcase.Scope, java.lang.Throwable)
+     */
 
-			// We do not want to call equals if it is the default implementation
-			Class<?>[] parameters = { Object.class };
-			try {
-				Method equalsMethod = object1.getClass().getMethod("equals", parameters);
-				if (equalsMethod.getDeclaringClass().equals(Object.class))
-					continue;
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ContractViolation check(Statement statement, Scope scope,
+                                   Throwable exception) {
+        for (Pair<VariableReference> pair : getAllVariablePairs(scope)) {
+            // Equals self is covered by EqualsContract
+            if (pair.object1 == pair.object2)
+                continue;
 
-			} catch (SecurityException e1) {
-				continue;
-			} catch (NoSuchMethodException e1) {
-				continue;
-			}
-			ExecutionTracer.disable();
-			if (object1.equals(object2)) {
-				if (!object2.equals(object1)) {
-					ExecutionTracer.enable();
-					return new ContractViolation(this, statement, exception,
-					        pair.object1, pair.object2);
-				}
-			} else {
-				if (object2.equals(object1)) {
-					ExecutionTracer.enable();
-					return new ContractViolation(this, statement, exception,
-					        pair.object1, pair.object2);
-				}
-			}
-			ExecutionTracer.enable();
-		}
-		return null;
-	}
+            Object object1 = scope.getObject(pair.object1);
+            Object object2 = scope.getObject(pair.object2);
+            if (object1 == null || object2 == null)
+                continue;
 
-	@Override
-	public void addAssertionAndComments(Statement statement,
-	        List<VariableReference> variables, Throwable exception) {
-		TestCase test = statement.getTestCase();
+            // We do not want to call equals if it is the default implementation
+            Class<?>[] parameters = {Object.class};
+            try {
+                Method equalsMethod = object1.getClass().getMethod("equals", parameters);
+                if (equalsMethod.getDeclaringClass().equals(Object.class))
+                    continue;
 
-		VariableReference a = variables.get(0);
-		VariableReference b = variables.get(1);
+            } catch (SecurityException e1) {
+                continue;
+            } catch (NoSuchMethodException e1) {
+                continue;
+            }
+            ExecutionTracer.disable();
+            if (object1.equals(object2)) {
+                if (!object2.equals(object1)) {
+                    ExecutionTracer.enable();
+                    return new ContractViolation(this, statement, exception,
+                            pair.object1, pair.object2);
+                }
+            } else {
+                if (object2.equals(object1)) {
+                    ExecutionTracer.enable();
+                    return new ContractViolation(this, statement, exception,
+                            pair.object1, pair.object2);
+                }
+            }
+            ExecutionTracer.enable();
+        }
+        return null;
+    }
 
-		try {
-			Method equalsMethod = a.getGenericClass().getRawClass().getMethod("equals",
-			                                                                  new Class<?>[] { Object.class });
+    @Override
+    public void addAssertionAndComments(Statement statement,
+                                        List<VariableReference> variables, Throwable exception) {
+        TestCase test = statement.getTestCase();
 
-			GenericMethod method = new GenericMethod(equalsMethod, a.getGenericClass());
+        VariableReference a = variables.get(0);
+        VariableReference b = variables.get(1);
 
-			// Create x = a.equals(b)
-			Statement st1 = new MethodStatement(test, method, a,
-			        Arrays.asList(new VariableReference[] { b }));
-			VariableReference x = test.addStatement(st1, statement.getPosition() + 1);
+        try {
+            Method equalsMethod = a.getGenericClass().getRawClass().getMethod("equals",
+                    Object.class);
 
-			// Create y = b.equals(a);
-			Statement st2 = new MethodStatement(test, method, b,
-			        Arrays.asList(new VariableReference[] { a }));
-			VariableReference y = test.addStatement(st2, statement.getPosition() + 2);
+            GenericMethod method = new GenericMethod(equalsMethod, a.getGenericClass());
 
-			Statement newStatement = test.getStatement(y.getStPosition());
+            // Create x = a.equals(b)
+            Statement st1 = new MethodStatement(test, method, a,
+                    Arrays.asList(b));
+            VariableReference x = test.addStatement(st1, statement.getPosition() + 1);
 
-			// Create assertEquals(x, y)
-			EqualsAssertion assertion = new EqualsAssertion();
-			assertion.setStatement(newStatement);
-			assertion.setSource(x);
-			assertion.setDest(y);
-			assertion.setValue(true);
-			newStatement.addAssertion(assertion);
-			newStatement.addComment("Violates contract a.equals(b) <-> b.equals(a)");
+            // Create y = b.equals(a);
+            Statement st2 = new MethodStatement(test, method, b,
+                    Arrays.asList(a));
+            VariableReference y = test.addStatement(st2, statement.getPosition() + 2);
 
-		} catch (NoSuchMethodException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (SecurityException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
+            Statement newStatement = test.getStatement(y.getStPosition());
 
-	/** {@inheritDoc} */
-	@Override
-	public String toString() {
-		return "Equals symmetric check";
-	}
+            // Create assertEquals(x, y)
+            EqualsAssertion assertion = new EqualsAssertion();
+            assertion.setStatement(newStatement);
+            assertion.setSource(x);
+            assertion.setDest(y);
+            assertion.setValue(true);
+            newStatement.addAssertion(assertion);
+            newStatement.addComment("Violates contract a.equals(b) <-> b.equals(a)");
+
+        } catch (NoSuchMethodException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (SecurityException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        return "Equals symmetric check";
+    }
 }
