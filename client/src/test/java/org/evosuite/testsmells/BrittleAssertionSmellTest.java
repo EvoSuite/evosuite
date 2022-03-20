@@ -11,6 +11,7 @@ import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testsmells.smells.BrittleAssertion;
+import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -30,7 +31,7 @@ public class BrittleAssertionSmellTest {
     }
 
     @Test
-    public void testAssertionRelatedToVariableDeclaredInRespectiveStatementTestCase() throws NoSuchMethodException {
+    public void testAssertionRelatedToVariableDeclaredInRespectiveStatement() throws NoSuchMethodException {
         TestChromosome testCase = new TestChromosome();
         DefaultTestCase test0 = createTestCase0();
         testCase.setTestCase(test0);
@@ -41,7 +42,7 @@ public class BrittleAssertionSmellTest {
     }
 
     @Test
-    public void testAssertionUnrelatedToVariableDeclaredInRespectiveStatementTestCase() throws NoSuchMethodException {
+    public void testAssertionUnrelatedToVariableDeclaredInRespectiveStatement() throws NoSuchMethodException {
         TestChromosome testCase = new TestChromosome();
         DefaultTestCase test0 = createTestCase1();
         testCase.setTestCase(test0);
@@ -52,7 +53,7 @@ public class BrittleAssertionSmellTest {
     }
 
     @Test
-    public void testStatementWithInspectorAssertionTestCase() throws NoSuchMethodException {
+    public void testInspectorAssertion() throws NoSuchMethodException {
         TestChromosome testCase = new TestChromosome();
         DefaultTestCase test0 = createTestCase2();
         testCase.setTestCase(test0);
@@ -62,7 +63,22 @@ public class BrittleAssertionSmellTest {
         assertEquals(expected, smellCount);
     }
 
-    private DefaultTestCase createTestCase0 () throws NoSuchMethodException {
+    @Test
+    public void testFullTestSuite() throws NoSuchMethodException {
+        TestSuiteChromosome suite = new TestSuiteChromosome();
+        DefaultTestCase test0 = createTestCase0();
+        DefaultTestCase test1 = createTestCase1();
+        DefaultTestCase test2 = createTestCase2();
+        suite.addTest(test0);
+        suite.addTest(test1);
+        suite.addTest(test2);
+
+        int smellCount = this.brittleAssertion.computeNumberOfSmells(suite);
+        int expected = 2;
+        assertEquals(expected, smellCount);
+    }
+
+    private DefaultTestCase createTestCase0() throws NoSuchMethodException {
 
         // Create test case
 
@@ -80,18 +96,16 @@ public class BrittleAssertionSmellTest {
 
         // Add assertions
 
-        Statement currentStatement;
-
         PrimitiveAssertion primitiveAssertion0 = new PrimitiveAssertion();
         primitiveAssertion0.setSource(methodStatement0);
         primitiveAssertion0.setValue("Bob");
-        currentStatement = testCase.getStatement(2);
+        Statement currentStatement = testCase.getStatement(2);
         currentStatement.addAssertion(primitiveAssertion0);
 
         return testCase;
     }
 
-    private DefaultTestCase createTestCase1 () throws NoSuchMethodException {
+    private DefaultTestCase createTestCase1() throws NoSuchMethodException {
 
         // Create test case
 
@@ -114,18 +128,16 @@ public class BrittleAssertionSmellTest {
 
         // Add assertions
 
-        Statement currentStatement;
-
         PrimitiveAssertion primitiveAssertion0 = new PrimitiveAssertion();
         primitiveAssertion0.setSource(methodStatement0);
         primitiveAssertion0.setValue("Bob");
-        currentStatement = testCase.getStatement(4);
+        Statement currentStatement = testCase.getStatement(4);
         currentStatement.addAssertion(primitiveAssertion0);
 
         return testCase;
     }
 
-    private DefaultTestCase createTestCase2 () throws NoSuchMethodException {
+    private DefaultTestCase createTestCase2() throws NoSuchMethodException {
 
         // Create test case
 
@@ -139,16 +151,15 @@ public class BrittleAssertionSmellTest {
         VariableReference intStatement0 = builder.appendIntPrimitive(5);
 
         Method setNumberMethod0 = TestSmellsTestingClass1.class.getMethod("setNumber", int.class);
-        VariableReference methodStatement0 = builder.appendMethod(constructorStatement0, setNumberMethod0, intStatement0);
+        builder.appendMethod(constructorStatement0, setNumberMethod0, intStatement0);
 
         DefaultTestCase testCase = builder.getDefaultTestCase();
 
         // Add assertions
 
         Statement currentStatement = testCase.getStatement(3);
-
         Inspector inspector = new Inspector(TestSmellsTestingClass1.class, TestSmellsTestingClass1.class.getMethod("getNumber"));
-        InspectorAssertion inspectorAssertion0 = new InspectorAssertion(inspector, currentStatement, methodStatement0, 5);
+        InspectorAssertion inspectorAssertion0 = new InspectorAssertion(inspector, currentStatement, constructorStatement0, 5);
         currentStatement.addAssertion(inspectorAssertion0);
 
         return testCase;

@@ -10,6 +10,7 @@ import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testsmells.smells.AssertionRoulette;
+import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -40,7 +41,7 @@ public class AssertionRouletteSmellTest {
     }
 
     @Test
-    public void testOneAssertionTestCase() throws NoSuchMethodException {
+    public void testOneAssertion() throws NoSuchMethodException {
         TestChromosome testCase = new TestChromosome();
         DefaultTestCase test0 = createTestCase1();
         testCase.setTestCase(test0);
@@ -51,7 +52,7 @@ public class AssertionRouletteSmellTest {
     }
 
     @Test
-    public void testOneStatementWithMultipleAssertionsTestCase() throws NoSuchMethodException {
+    public void testOneStatementWithMultipleAssertions() throws NoSuchMethodException {
         TestChromosome testCase = new TestChromosome();
         DefaultTestCase test0 = createTestCase2();
         testCase.setTestCase(test0);
@@ -62,7 +63,7 @@ public class AssertionRouletteSmellTest {
     }
 
     @Test
-    public void testSeveralStatementsWithAssertionsTestCase() throws NoSuchMethodException {
+    public void testSeveralStatementsWithAssertions() throws NoSuchMethodException {
         TestChromosome testCase = new TestChromosome();
         DefaultTestCase test0 = createTestCase3();
         testCase.setTestCase(test0);
@@ -72,7 +73,24 @@ public class AssertionRouletteSmellTest {
         assertEquals(expected, smellCount);
     }
 
-    private DefaultTestCase createTestCase0 () throws NoSuchMethodException {
+    @Test
+    public void testFullTestSuite() throws NoSuchMethodException {
+        TestSuiteChromosome suite = new TestSuiteChromosome();
+        DefaultTestCase test0 = createTestCase0();
+        DefaultTestCase test1 = createTestCase1();
+        DefaultTestCase test2 = createTestCase2();
+        DefaultTestCase test3 = createTestCase3();
+        suite.addTest(test0);
+        suite.addTest(test1);
+        suite.addTest(test2);
+        suite.addTest(test3);
+
+        int smellCount = this.assertionRoulette.computeNumberOfSmells(suite);
+        int expected = 6;
+        assertEquals(expected, smellCount);
+    }
+
+    private DefaultTestCase createTestCase0() throws NoSuchMethodException {
 
         // Create test case
 
@@ -89,7 +107,7 @@ public class AssertionRouletteSmellTest {
         return builder.getDefaultTestCase();
     }
 
-    private DefaultTestCase createTestCase1 () throws NoSuchMethodException {
+    private DefaultTestCase createTestCase1() throws NoSuchMethodException {
 
         // Create test case
 
@@ -107,18 +125,16 @@ public class AssertionRouletteSmellTest {
 
         // Add assertions
 
-        Statement currentStatement;
-
         PrimitiveAssertion primitiveAssertion0 = new PrimitiveAssertion();
         primitiveAssertion0.setSource(methodStatement0);
         primitiveAssertion0.setValue("Bob");
-        currentStatement = testCase.getStatement(2);
+        Statement currentStatement = testCase.getStatement(2);
         currentStatement.addAssertion(primitiveAssertion0);
 
         return testCase;
     }
 
-    private DefaultTestCase createTestCase2 () throws NoSuchMethodException {
+    private DefaultTestCase createTestCase2() throws NoSuchMethodException {
 
         // Create test case
 
@@ -153,7 +169,7 @@ public class AssertionRouletteSmellTest {
         return testCase;
     }
 
-    private DefaultTestCase createTestCase3 () throws NoSuchMethodException {
+    private DefaultTestCase createTestCase3() throws NoSuchMethodException {
 
         // Create test case
 
