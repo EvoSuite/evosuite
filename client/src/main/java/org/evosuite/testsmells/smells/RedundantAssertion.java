@@ -30,7 +30,7 @@ public class RedundantAssertion extends AbstractTestCaseSmell {
                 Set<Assertion> assertions = currentStatement.getAssertions();
 
                 for(Assertion assertion : assertions){
-                    count += !(assertion instanceof InspectorAssertion) ? 1 : 0;
+                    count += assertion instanceof InspectorAssertion ? 0 : 1;
                 }
             }
         }
