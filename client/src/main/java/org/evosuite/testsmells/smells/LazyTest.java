@@ -1,13 +1,16 @@
 package org.evosuite.testsmells.smells;
 
+import org.evosuite.assertion.Assertion;
+import org.evosuite.assertion.InspectorAssertion;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testsmells.AbstractTestSmell;
 import org.evosuite.testsuite.TestSuiteChromosome;
-import org.evosuite.utils.generic.GenericMethod;
 
+import java.lang.reflect.Method;
 import java.util.LinkedHashMap;
+import java.util.Set;
 
 public class LazyTest extends AbstractTestSmell {
 
@@ -20,7 +23,7 @@ public class LazyTest extends AbstractTestSmell {
         Statement currentStatement;
         int count = 0;
 
-        LinkedHashMap<GenericMethod, TestChromosome> methodsCalledByTestCases = new LinkedHashMap<>();
+        LinkedHashMap<Method, TestChromosome> methodsCalledByTestCases = new LinkedHashMap<>();
 
         for(TestChromosome testCase : chromosome.getTestChromosomes()){
 
@@ -31,13 +34,29 @@ public class LazyTest extends AbstractTestSmell {
 
                 if(currentStatement instanceof MethodStatement){
 
-                    GenericMethod method = ((MethodStatement) currentStatement).getMethod();
+                    Method method = ((MethodStatement) currentStatement).getMethod().getMethod();
 
                     //Verify if a different test case tests the same method
                     if(methodsCalledByTestCases.containsKey(method) && !methodsCalledByTestCases.get(method).equals(testCase)){
                         count++;
                     }else{
                         methodsCalledByTestCases.put(method, testCase);
+                    }
+                }
+
+                if(currentStatement.hasAssertions()){
+
+                    Set<Assertion> assertions = currentStatement.getAssertions();
+
+                    for(Assertion assertion : assertions) {
+                        if (assertion instanceof InspectorAssertion) {
+                            Method method = ((InspectorAssertion) assertion).getInspector().getMethod();
+                            if (methodsCalledByTestCases.containsKey(method) && !methodsCalledByTestCases.get(method).equals(testCase)) {
+                                count++;
+                            } else {
+                                methodsCalledByTestCases.put(method, testCase);
+                            }
+                        }
                     }
                 }
             }
