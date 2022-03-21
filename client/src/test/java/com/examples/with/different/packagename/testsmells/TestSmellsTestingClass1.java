@@ -1,5 +1,6 @@
 package com.examples.with.different.packagename.testsmells;
 
+import java.util.Objects;
 import java.util.UUID;
 
 public class TestSmellsTestingClass1 {
@@ -83,5 +84,18 @@ public class TestSmellsTestingClass1 {
      */
     public String returnNull (){
         return null;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        TestSmellsTestingClass1 that = (TestSmellsTestingClass1) o;
+        return Objects.equals(randomID, that.randomID);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(randomID);
     }
 }

@@ -60,6 +60,7 @@ public class MysteryGuest extends AbstractTestCaseSmell {
                     for (String variableType : mysteryTypes){
                         if(curr.equals(variableType)){
                             count++;
+                            break;
                         }
                     }
                 }
