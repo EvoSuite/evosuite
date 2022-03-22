@@ -41,6 +41,7 @@ public class Overreferencing extends AbstractTestCaseSmell {
                     position = parameter.getStPosition();
                     if (constructors.containsKey(position)) {
                         constructors.put(position, true);
+                        break;
                     }
                 }
 
