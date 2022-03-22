@@ -13,16 +13,19 @@ public class UnknownTest extends AbstractTestCaseSmell {
     @Override
     public int computeNumberOfSmells(TestChromosome chromosome) {
         int size = chromosome.size();
-        int count = 0;
+        int count = 1;
 
         Statement currentStatement;
 
         for (int i = 0; i < size; i++){
             currentStatement = chromosome.getTestCase().getStatement(i);
-            count += currentStatement.getAssertions().size();
+            if(currentStatement.hasAssertions()){
+                count = 0;
+                break;
+            }
         }
 
         // We will have to define a value greater than 1
-        return count == 0 ? 1 : 0;
+        return count;
     }
 }

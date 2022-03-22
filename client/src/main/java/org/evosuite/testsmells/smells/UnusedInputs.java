@@ -1,9 +1,12 @@
 package org.evosuite.testsmells.smells;
 
+import org.evosuite.Properties;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testsmells.AbstractTestCaseSmell;
 import org.evosuite.testcase.statements.Statement;
+
+import java.lang.reflect.Method;
 
 public class UnusedInputs extends AbstractTestCaseSmell {
 
@@ -22,7 +25,13 @@ public class UnusedInputs extends AbstractTestCaseSmell {
             currentStatement = chromosome.getTestCase().getStatement(i);
 
             if(currentStatement instanceof MethodStatement){
-                count += currentStatement.hasAssertions() ? 0 : 1;
+
+                Method method = ((MethodStatement) currentStatement).getMethod().getMethod();
+                String typeName = method.getGenericReturnType().getTypeName();
+
+                if(method.getDeclaringClass().getCanonicalName().equals(Properties.TARGET_CLASS) && !typeName.equals("void")){
+                    count += currentStatement.hasAssertions() ? 0 : 1;
+                }
             }
         }
         return count;
