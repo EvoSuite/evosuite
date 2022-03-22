@@ -1,10 +1,15 @@
 package org.evosuite.testsmells.smells;
 
 import org.evosuite.Properties;
+import org.evosuite.assertion.Assertion;
+import org.evosuite.assertion.InspectorAssertion;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testsmells.AbstractTestCaseSmell;
+
+import java.lang.reflect.Method;
+import java.util.Set;
 
 public class SensitiveEquality extends AbstractTestCaseSmell {
 
@@ -28,6 +33,22 @@ public class SensitiveEquality extends AbstractTestCaseSmell {
 
                 if(curr.equals("toString") && !className.equals(Properties.TARGET_CLASS)){
                     count += currentStatement.hasAssertions() ? 1 : 0;
+                }
+            }
+
+            if(currentStatement.hasAssertions()){
+
+                Set<Assertion> assertions = currentStatement.getAssertions();
+
+                for(Assertion assertion : assertions){
+                    if(assertion instanceof InspectorAssertion){
+                        Method method = ((InspectorAssertion) assertion).getInspector().getMethod();
+                        String curr = method.getName();
+
+                        if(curr.equals("toString") && !method.getDeclaringClass().getCanonicalName().equals(Properties.TARGET_CLASS)){
+                            count ++;
+                        }
+                    }
                 }
             }
         }

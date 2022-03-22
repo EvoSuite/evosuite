@@ -107,4 +107,13 @@ public class TestSmellsTestingClass1 {
     public int hashCode() {
         return Objects.hash(randomID);
     }
+
+    @Override
+    public String toString() {
+        return "TestSmellsTestingClass1{" +
+                "name='" + name + '\'' +
+                ", number=" + number +
+                ", something='" + something + '\'' +
+                '}';
+    }
 }

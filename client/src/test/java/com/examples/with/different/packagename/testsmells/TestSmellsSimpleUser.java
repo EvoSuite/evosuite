@@ -23,4 +23,11 @@ public class TestSmellsSimpleUser {
     public String getName (){
         return name;
     }
+
+    @Override
+    public String toString() {
+        return "TestSmellsSimpleUser{" +
+                "name='" + name + '\'' +
+                '}';
+    }
 }
