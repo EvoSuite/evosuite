@@ -72,6 +72,15 @@ public class TestSmellsTestingClass1 {
     }
 
     /**
+     * Division operation
+     * @param x Divisor
+     * @return int with the result of the operation
+     */
+    public int divideNumber (int x){
+        return number / x;
+    }
+
+    /**
      * It is just an empty method
      */
     public void pointlessMethod (){
