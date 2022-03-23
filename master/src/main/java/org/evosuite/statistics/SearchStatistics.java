@@ -179,6 +179,7 @@ public class SearchStatistics implements Listener<ClientStateInformation> {
         sequenceOutputVariableFactories.put(RuntimeVariable.TestSmellSensitiveEqualityTimeline.name(), new TestSmellSensitiveEqualitySequenceOutputVariableFactory());
         sequenceOutputVariableFactories.put(RuntimeVariable.TestSmellSlowTestsTimeline.name(), new TestSmellSlowTestsSequenceOutputVariableFactory());
         sequenceOutputVariableFactories.put(RuntimeVariable.TestSmellTestCodeDuplicationTimeline.name(), new TestSmellTestCodeDuplicationSequenceOutputVariableFactory());
+        sequenceOutputVariableFactories.put(RuntimeVariable.TestSmellTestRedundancyTimeline.name(), new TestSmellTestRedundancySequenceOutputVariableFactory());
         sequenceOutputVariableFactories.put(RuntimeVariable.TestSmellUnknownTestTimeline.name(), new TestSmellUnknownTestSequenceOutputVariableFactory());
         sequenceOutputVariableFactories.put(RuntimeVariable.TestSmellUnusedInputsTimeline.name(), new TestSmellUnusedInputsSequenceOutputVariableFactory());
         sequenceOutputVariableFactories.put(RuntimeVariable.TestSmellVerboseTestTimeline.name(), new TestSmellVerboseTestSequenceOutputVariableFactory());
@@ -1145,6 +1146,19 @@ public class SearchStatistics implements Listener<ClientStateInformation> {
 			return smell.computeNumberOfSmells(individual);
 		}
 	}
+
+    private static class TestSmellTestRedundancySequenceOutputVariableFactory extends SequenceOutputVariableFactory<Integer> {
+
+        public TestSmellTestRedundancySequenceOutputVariableFactory() {
+            super(RuntimeVariable.TestSmellTestRedundancyTimeline);
+        }
+
+        @Override
+        public Integer getValue(TestSuiteChromosome individual) {
+            AbstractTestSmell smell = new TestRedundancy();
+            return smell.computeNumberOfSmells(individual);
+        }
+    }
 
 	private static class TestSmellUnknownTestSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Integer> {
 

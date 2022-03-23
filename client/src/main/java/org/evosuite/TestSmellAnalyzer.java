@@ -75,6 +75,7 @@ public class TestSmellAnalyzer {
         listOfTestSmells.add(new SensitiveEquality());
         listOfTestSmells.add(new SlowTests());
         listOfTestSmells.add(new TestCodeDuplication());
+        listOfTestSmells.add(new TestRedundancy());
         listOfTestSmells.add(new UnknownTest());
         listOfTestSmells.add(new UnusedInputs());
         listOfTestSmells.add(new VerboseTest());
@@ -121,6 +122,8 @@ public class TestSmellAnalyzer {
                 return new SlowTests();
             case "TestSmellTestCodeDuplication":
                 return new TestCodeDuplication();
+            case "TestSmellTestRedundancy":
+                return new TestRedundancy();
             case "TestSmellUnknownTest":
                 return new UnknownTest();
             case "TestSmellUnusedInputs":
