@@ -8,6 +8,19 @@ import org.evosuite.testcase.statements.Statement;
 
 import java.lang.reflect.Method;
 
+/**
+ * Detection:
+ * 1 - Iterate over the statements of a test case
+ * 2 - Verify if the current statement is an instance of MethodStatement
+ * 3 (True):
+ *    3.1 - Get the method called in the respective statement
+ *    3.2 - Get the return type of the method
+ *    3.3 - Verify whether: (1) the class that declares the method is the same as the class under test; (2) the type of
+ *          the method is not equal to "void" - if this is true, then it indicates that the statement should have assertions
+ *    3.4 (True):
+ *       3.4.1 - If the current statement does not have assertions, increment the smell counter
+ * 4 - Return the smell counter
+ */
 public class UnusedInputs extends AbstractTestCaseSmell {
 
     public UnusedInputs() {

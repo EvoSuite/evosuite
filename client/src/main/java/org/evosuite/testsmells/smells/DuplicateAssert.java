@@ -21,7 +21,7 @@ import java.util.*;
  *    3.3 (True):
  *       3.3.1 - Get the inspector method
  *    3.4 (False):
- *       3.4.1 - Get the method that is being called in the respective statement
+ *       3.4.1 - Get the method called in the respective statement
  *    3.5 - Get the assertion type and the expected value
  *    3.6 - Store the method, assertion type, and expected value in a Triple (which identifies the assertion)
  *    3.7 - Verify if a LinkedHashSet contains the Triple
@@ -33,6 +33,7 @@ import java.util.*;
  * 4 (False):
  * 4.1 - Repeat the same process described in Step 3, but only get the method if the current assertion
  *       is an instance of InspectorAssertion
+ * 5 - Return the smell counter
  */
 public class DuplicateAssert extends AbstractTestCaseSmell {
 
