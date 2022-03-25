@@ -116,4 +116,24 @@ public class TestSmellsTestingClass1 {
                 ", something='" + something + '\'' +
                 '}';
     }
+
+    public static int[] changeAndReturnArray (int[] listOfIntegers){
+
+        int size = listOfIntegers.length;
+        int[] res = new int[size];
+
+        if(size > 3){
+            for (int i = 0; i < size; i++){
+                listOfIntegers[i] = listOfIntegers[i] + 2;
+                res[i] = listOfIntegers[i];
+            }
+        } else {
+            for (int i = 0; i < size; i++){
+                listOfIntegers[i] = i;
+                res[i] = i;
+            }
+        }
+
+        return res;
+    }
 }
