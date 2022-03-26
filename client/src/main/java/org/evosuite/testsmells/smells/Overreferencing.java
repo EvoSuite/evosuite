@@ -21,14 +21,14 @@ public class Overreferencing extends AbstractTestCaseSmell {
         int size = chromosome.size();
         int count = 0;
 
-        LinkedHashMap<Integer, Boolean> constructors = new LinkedHashMap<>();
+        LinkedHashMap<Integer, Boolean> instances = new LinkedHashMap<>();
         Statement currentStatement;
 
         for (int i = 0; i < size; i++){
             currentStatement = chromosome.getTestCase().getStatement(i);
 
             if(currentStatement instanceof ConstructorStatement){
-                constructors.put(i, false);
+                instances.put(i, false);
             }
 
             if (currentStatement instanceof MethodStatement) {
@@ -39,8 +39,8 @@ public class Overreferencing extends AbstractTestCaseSmell {
 
                 for(VariableReference parameter : parameters){
                     position = parameter.getStPosition();
-                    if (constructors.containsKey(position)) {
-                        constructors.put(position, true);
+                    if (instances.containsKey(position)) {
+                        instances.put(position, true);
                         break;
                     }
                 }
@@ -48,15 +48,15 @@ public class Overreferencing extends AbstractTestCaseSmell {
                 if(callee != null){
                     position = callee.getStPosition();
 
-                    if (constructors.containsKey(position)) {
-                        constructors.put(position, true);
+                    if (instances.containsKey(position)) {
+                        instances.put(position, true);
                     }
                 }
             }
         }
 
-        for(Integer constructor : constructors.keySet()){
-            if(!constructors.get(constructor)){
+        for(Integer constructor : instances.keySet()){
+            if(!instances.get(constructor)){
                 count++;
             }
         }
