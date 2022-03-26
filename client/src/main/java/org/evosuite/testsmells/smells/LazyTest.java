@@ -2,6 +2,7 @@ package org.evosuite.testsmells.smells;
 
 import org.evosuite.assertion.Assertion;
 import org.evosuite.assertion.InspectorAssertion;
+import org.evosuite.ga.FitnessFunction;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testcase.statements.Statement;
@@ -19,7 +20,7 @@ public class LazyTest extends AbstractTestSmell {
     }
 
     @Override
-    public int computeNumberOfSmells(TestSuiteChromosome chromosome) {
+    public double computeNumberOfSmells(TestSuiteChromosome chromosome) {
         Statement currentStatement;
         int count = 0;
 
@@ -62,6 +63,6 @@ public class LazyTest extends AbstractTestSmell {
             }
         }
 
-        return count;
+        return FitnessFunction.normalize(count);
     }
 }

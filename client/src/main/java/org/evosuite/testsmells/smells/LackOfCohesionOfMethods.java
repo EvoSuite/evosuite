@@ -1,6 +1,7 @@
 package org.evosuite.testsmells.smells;
 
 import org.evosuite.Properties;
+import org.evosuite.ga.FitnessFunction;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testsmells.AbstractTestSmell;
 import org.evosuite.testsuite.TestSuiteChromosome;
@@ -14,7 +15,7 @@ public class LackOfCohesionOfMethods extends AbstractTestSmell {
     }
 
     @Override
-    public int computeNumberOfSmells(TestSuiteChromosome chromosome) {
+    public double computeNumberOfSmells(TestSuiteChromosome chromosome) {
         int count = 0;
         String targetClass = Properties.TARGET_CLASS;
 
@@ -33,6 +34,6 @@ public class LackOfCohesionOfMethods extends AbstractTestSmell {
             count += contains ? 0 : 1;
         }
 
-        return count;
+        return FitnessFunction.normalize(count);
     }
 }

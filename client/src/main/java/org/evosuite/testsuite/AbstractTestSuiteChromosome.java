@@ -54,10 +54,10 @@ public abstract class AbstractTestSuiteChromosome<T extends AbstractTestSuiteChr
     protected ChromosomeFactory<E> testChromosomeFactory;
 
     /** The total test smell score */
-    protected int smellScoreTestSuite = -1;
+    protected double smellScoreTestSuite = -1;
 
     /** The score for each test smell metric */
-    protected LinkedHashMap<String, Integer> smellValuesTestSuite;
+    protected LinkedHashMap<String, Double> smellValuesTestSuite;
 
     /**
      * only used for testing/debugging

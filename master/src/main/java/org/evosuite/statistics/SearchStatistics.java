@@ -913,287 +913,287 @@ public class SearchStatistics implements Listener<ClientStateInformation> {
         }
     }
 
-	private static class TestSmellAssertionRouletteSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Integer> {
+	private static class TestSmellAssertionRouletteSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Double> {
 
 		public TestSmellAssertionRouletteSequenceOutputVariableFactory() {
 			super(RuntimeVariable.TestSmellAssertionRouletteTimeline);
 		}
 
 		@Override
-		public Integer getValue(TestSuiteChromosome individual) {
+		public Double getValue(TestSuiteChromosome individual) {
 			AbstractTestCaseSmell smell = new AssertionRoulette();
 			return smell.computeNumberOfSmells(individual);
 		}
 	}
 
-	private static class TestSmellBrittleAssertionSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Integer> {
+	private static class TestSmellBrittleAssertionSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Double> {
 
 		public TestSmellBrittleAssertionSequenceOutputVariableFactory() {
 			super(RuntimeVariable.TestSmellBrittleAssertionTimeline);
 		}
 
 		@Override
-		public Integer getValue(TestSuiteChromosome individual) {
+		public Double getValue(TestSuiteChromosome individual) {
 			AbstractTestCaseSmell smell = new BrittleAssertion();
 			return smell.computeNumberOfSmells(individual);
 		}
 	}
 
-	private static class TestSmellDuplicateAssertSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Integer> {
+	private static class TestSmellDuplicateAssertSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Double> {
 
 		public TestSmellDuplicateAssertSequenceOutputVariableFactory() {
 			super(RuntimeVariable.TestSmellDuplicateAssertTimeline);
 		}
 
 		@Override
-		public Integer getValue(TestSuiteChromosome individual) {
+		public Double getValue(TestSuiteChromosome individual) {
 			AbstractTestCaseSmell smell = new DuplicateAssert();
 			return smell.computeNumberOfSmells(individual);
 		}
 	}
 
-	private static class TestSmellEagerTestSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Integer> {
+	private static class TestSmellEagerTestSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Double> {
 
 		public TestSmellEagerTestSequenceOutputVariableFactory() {
 			super(RuntimeVariable.TestSmellEagerTestTimeline);
 		}
 
 		@Override
-		public Integer getValue(TestSuiteChromosome individual) {
+		public Double getValue(TestSuiteChromosome individual) {
 			AbstractTestCaseSmell smell = new EagerTest();
 			return smell.computeNumberOfSmells(individual);
 		}
 	}
 
-	private static class TestSmellEmptyTestSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Integer> {
+	private static class TestSmellEmptyTestSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Double> {
 
 		public TestSmellEmptyTestSequenceOutputVariableFactory() {
 			super(RuntimeVariable.TestSmellEmptyTestTimeline);
 		}
 
 		@Override
-		public Integer getValue(TestSuiteChromosome individual) {
+		public Double getValue(TestSuiteChromosome individual) {
 			AbstractTestCaseSmell smell = new EmptyTest();
 			return smell.computeNumberOfSmells(individual);
 		}
 	}
 
-	private static class TestSmellIndirectTestingSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Integer> {
+	private static class TestSmellIndirectTestingSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Double> {
 
 		public TestSmellIndirectTestingSequenceOutputVariableFactory() {
 			super(RuntimeVariable.TestSmellIndirectTestingTimeline);
 		}
 
 		@Override
-		public Integer getValue(TestSuiteChromosome individual) {
+		public Double getValue(TestSuiteChromosome individual) {
 			AbstractTestCaseSmell smell = new IndirectTesting();
 			return smell.computeNumberOfSmells(individual);
 		}
 	}
 
-	private static class TestSmellLackOfCohesionOfMethodsSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Integer> {
+	private static class TestSmellLackOfCohesionOfMethodsSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Double> {
 
 		public TestSmellLackOfCohesionOfMethodsSequenceOutputVariableFactory() {
 			super(RuntimeVariable.TestSmellLackOfCohesionOfMethodsTimeline);
 		}
 
 		@Override
-		public Integer getValue(TestSuiteChromosome individual) {
+		public Double getValue(TestSuiteChromosome individual) {
 			AbstractTestSmell smell = new LackOfCohesionOfMethods();
 			return smell.computeNumberOfSmells(individual);
 		}
 	}
 
-	private static class TestSmellLazyTestSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Integer> {
+	private static class TestSmellLazyTestSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Double> {
 
 		public TestSmellLazyTestSequenceOutputVariableFactory() {
 			super(RuntimeVariable.TestSmellLazyTestTimeline);
 		}
 
 		@Override
-		public Integer getValue(TestSuiteChromosome individual) {
+		public Double getValue(TestSuiteChromosome individual) {
 			AbstractTestSmell smell = new LazyTest();
 			return smell.computeNumberOfSmells(individual);
 		}
 	}
 
-	private static class TestSmellLikelyIneffectiveObjectComparisonSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Integer> {
+	private static class TestSmellLikelyIneffectiveObjectComparisonSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Double> {
 
 		public TestSmellLikelyIneffectiveObjectComparisonSequenceOutputVariableFactory() {
 			super(RuntimeVariable.TestSmellLikelyIneffectiveObjectComparisonTimeline);
 		}
 
 		@Override
-		public Integer getValue(TestSuiteChromosome individual) {
+		public Double getValue(TestSuiteChromosome individual) {
 			AbstractTestCaseSmell smell = new LikelyIneffectiveObjectComparison();
 			return smell.computeNumberOfSmells(individual);
 		}
 	}
 
-	private static class TestSmellMysteryGuestSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Integer> {
+	private static class TestSmellMysteryGuestSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Double> {
 
 		public TestSmellMysteryGuestSequenceOutputVariableFactory() {
 			super(RuntimeVariable.TestSmellMysteryGuestTimeline);
 		}
 
 		@Override
-		public Integer getValue(TestSuiteChromosome individual) {
+		public Double getValue(TestSuiteChromosome individual) {
 			AbstractTestCaseSmell smell = new MysteryGuest();
 			return smell.computeNumberOfSmells(individual);
 		}
 	}
 
-	private static class TestSmellObscureInlineSetupSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Integer> {
+	private static class TestSmellObscureInlineSetupSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Double> {
 
 		public TestSmellObscureInlineSetupSequenceOutputVariableFactory() {
 			super(RuntimeVariable.TestSmellObscureInlineSetupTimeline);
 		}
 
 		@Override
-		public Integer getValue(TestSuiteChromosome individual) {
+		public Double getValue(TestSuiteChromosome individual) {
 			AbstractTestCaseSmell smell = new ObscureInlineSetup();
 			return smell.computeNumberOfSmells(individual);
 		}
 	}
 
-	private static class TestSmellOverreferencingSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Integer> {
+	private static class TestSmellOverreferencingSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Double> {
 
 		public TestSmellOverreferencingSequenceOutputVariableFactory() {
 			super(RuntimeVariable.TestSmellOverreferencingTimeline);
 		}
 
 		@Override
-		public Integer getValue(TestSuiteChromosome individual) {
+		public Double getValue(TestSuiteChromosome individual) {
 			AbstractTestCaseSmell smell = new Overreferencing();
 			return smell.computeNumberOfSmells(individual);
 		}
 	}
 
-	private static class TestSmellRedundantAssertionSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Integer> {
+	private static class TestSmellRedundantAssertionSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Double> {
 
 		public TestSmellRedundantAssertionSequenceOutputVariableFactory() {
 			super(RuntimeVariable.TestSmellRedundantAssertionTimeline);
 		}
 
 		@Override
-		public Integer getValue(TestSuiteChromosome individual) {
+		public Double getValue(TestSuiteChromosome individual) {
 			AbstractTestCaseSmell smell = new RedundantAssertion();
 			return smell.computeNumberOfSmells(individual);
 		}
 	}
 
-	private static class TestSmellResourceOptimismSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Integer> {
+	private static class TestSmellResourceOptimismSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Double> {
 
 		public TestSmellResourceOptimismSequenceOutputVariableFactory() {
 			super(RuntimeVariable.TestSmellResourceOptimismTimeline);
 		}
 
 		@Override
-		public Integer getValue(TestSuiteChromosome individual) {
+		public Double getValue(TestSuiteChromosome individual) {
 			AbstractTestCaseSmell smell = new ResourceOptimism();
 			return smell.computeNumberOfSmells(individual);
 		}
 	}
 
-	private static class TestSmellRottenGreenTestsSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Integer> {
+	private static class TestSmellRottenGreenTestsSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Double> {
 
 		public TestSmellRottenGreenTestsSequenceOutputVariableFactory() {
 			super(RuntimeVariable.TestSmellRottenGreenTestsTimeline);
 		}
 
 		@Override
-		public Integer getValue(TestSuiteChromosome individual) {
+		public Double getValue(TestSuiteChromosome individual) {
 			AbstractTestCaseSmell smell = new RottenGreenTests();
 			return smell.computeNumberOfSmells(individual);
 		}
 	}
 
-	private static class TestSmellSensitiveEqualitySequenceOutputVariableFactory extends SequenceOutputVariableFactory<Integer> {
+	private static class TestSmellSensitiveEqualitySequenceOutputVariableFactory extends SequenceOutputVariableFactory<Double> {
 
 		public TestSmellSensitiveEqualitySequenceOutputVariableFactory() {
 			super(RuntimeVariable.TestSmellSensitiveEqualityTimeline);
 		}
 
 		@Override
-		public Integer getValue(TestSuiteChromosome individual) {
+		public Double getValue(TestSuiteChromosome individual) {
 			AbstractTestCaseSmell smell = new SensitiveEquality();
 			return smell.computeNumberOfSmells(individual);
 		}
 	}
 
-	private static class TestSmellSlowTestsSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Integer> {
+	private static class TestSmellSlowTestsSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Double> {
 
 		public TestSmellSlowTestsSequenceOutputVariableFactory() {
 			super(RuntimeVariable.TestSmellSlowTestsTimeline);
 		}
 
 		@Override
-		public Integer getValue(TestSuiteChromosome individual) {
+		public Double getValue(TestSuiteChromosome individual) {
 			AbstractTestCaseSmell smell = new SlowTests();
 			return smell.computeNumberOfSmells(individual);
 		}
 	}
 
-	private static class TestSmellTestCodeDuplicationSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Integer> {
+	private static class TestSmellTestCodeDuplicationSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Double> {
 
 		public TestSmellTestCodeDuplicationSequenceOutputVariableFactory() {
 			super(RuntimeVariable.TestSmellTestCodeDuplicationTimeline);
 		}
 
 		@Override
-		public Integer getValue(TestSuiteChromosome individual) {
+		public Double getValue(TestSuiteChromosome individual) {
 			AbstractTestCaseSmell smell = new TestCodeDuplication();
 			return smell.computeNumberOfSmells(individual);
 		}
 	}
 
-    private static class TestSmellTestRedundancySequenceOutputVariableFactory extends SequenceOutputVariableFactory<Integer> {
+    private static class TestSmellTestRedundancySequenceOutputVariableFactory extends SequenceOutputVariableFactory<Double> {
 
         public TestSmellTestRedundancySequenceOutputVariableFactory() {
             super(RuntimeVariable.TestSmellTestRedundancyTimeline);
         }
 
         @Override
-        public Integer getValue(TestSuiteChromosome individual) {
+        public Double getValue(TestSuiteChromosome individual) {
             AbstractTestSmell smell = new TestRedundancy();
             return smell.computeNumberOfSmells(individual);
         }
     }
 
-	private static class TestSmellUnknownTestSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Integer> {
+	private static class TestSmellUnknownTestSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Double> {
 
 		public TestSmellUnknownTestSequenceOutputVariableFactory() {
 			super(RuntimeVariable.TestSmellUnknownTestTimeline);
 		}
 
 		@Override
-		public Integer getValue(TestSuiteChromosome individual) {
+		public Double getValue(TestSuiteChromosome individual) {
 			AbstractTestCaseSmell smell = new UnknownTest();
 			return smell.computeNumberOfSmells(individual);
 		}
 	}
 
-	private static class TestSmellUnusedInputsSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Integer> {
+	private static class TestSmellUnusedInputsSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Double> {
 
 		public TestSmellUnusedInputsSequenceOutputVariableFactory() {
 			super(RuntimeVariable.TestSmellUnusedInputsTimeline);
 		}
 
 		@Override
-		public Integer getValue(TestSuiteChromosome individual) {
+		public Double getValue(TestSuiteChromosome individual) {
 			AbstractTestCaseSmell smell = new UnusedInputs();
 			return smell.computeNumberOfSmells(individual);
 		}
 	}
 
-	private static class TestSmellVerboseTestSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Integer> {
+	private static class TestSmellVerboseTestSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Double> {
 
 		public TestSmellVerboseTestSequenceOutputVariableFactory() {
 			super(RuntimeVariable.TestSmellVerboseTestTimeline);
 		}
 
 		@Override
-		public Integer getValue(TestSuiteChromosome individual) {
+		public Double getValue(TestSuiteChromosome individual) {
 			AbstractTestCaseSmell smell = new VerboseTest();
 			return smell.computeNumberOfSmells(individual);
 		}

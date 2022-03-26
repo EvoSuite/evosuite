@@ -35,10 +35,10 @@ public abstract class AbstractTestChromosome<E extends AbstractTestChromosome<E>
     protected TestCase test = new DefaultTestCase();
 
     /** The total test smell score */
-    protected int smellScoreTestCase = -1;
+    protected double smellScoreTestCase = -1;
 
     /** The score for each test smell metric */
-    protected LinkedHashMap<String, Integer> smellValuesTestCase;
+    protected LinkedHashMap<String, Double> smellValuesTestCase;
 
     @Override
     public abstract void crossOver(E other, int position1, int position2) throws ConstructionFailedException;

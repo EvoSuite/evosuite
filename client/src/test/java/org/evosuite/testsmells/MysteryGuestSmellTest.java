@@ -36,9 +36,9 @@ public class MysteryGuestSmellTest {
         DefaultTestCase test0 = createTestCase0();
         testCase.setTestCase(test0);
 
-        int smellCount = this.mysteryGuest.computeNumberOfSmells(testCase);
-        int expected = 0;
-        assertEquals(expected, smellCount);
+        double smellCount = this.mysteryGuest.computeNumberOfSmells(testCase);
+        double expected = 0;
+        assertEquals(expected, smellCount, 0.01);
     }
 
     @Test
@@ -47,9 +47,9 @@ public class MysteryGuestSmellTest {
         DefaultTestCase test0 = createTestCase1();
         testCase.setTestCase(test0);
 
-        int smellCount = this.mysteryGuest.computeNumberOfSmells(testCase);
-        int expected = 1;
-        assertEquals(expected, smellCount);
+        double smellCount = this.mysteryGuest.computeNumberOfSmells(testCase);
+        double expected = 1;
+        assertEquals(expected, smellCount, 0.01);
     }
 
     @Test
@@ -58,9 +58,9 @@ public class MysteryGuestSmellTest {
         DefaultTestCase test0 = createTestCase2();
         testCase.setTestCase(test0);
 
-        int smellCount = this.mysteryGuest.computeNumberOfSmells(testCase);
-        int expected = 2;
-        assertEquals(expected, smellCount);
+        double smellCount = this.mysteryGuest.computeNumberOfSmells(testCase);
+        double expected = 2;
+        assertEquals(expected, smellCount, 0.01);
     }
 
     @Test
@@ -73,9 +73,9 @@ public class MysteryGuestSmellTest {
         suite.addTest(test1);
         suite.addTest(test2);
 
-        int smellCount = this.mysteryGuest.computeNumberOfSmells(suite);
-        int expected = 3;
-        assertEquals(expected, smellCount);
+        double smellCount = this.mysteryGuest.computeNumberOfSmells(suite);
+        double expected = 3;
+        assertEquals(expected, smellCount, 0.01);
     }
 
     private DefaultTestCase createTestCase0() throws NoSuchMethodException {

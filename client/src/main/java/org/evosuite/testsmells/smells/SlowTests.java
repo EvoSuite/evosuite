@@ -1,5 +1,6 @@
 package org.evosuite.testsmells.smells;
 
+import org.evosuite.ga.FitnessFunction;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testsmells.AbstractTestCaseSmell;
 
@@ -18,9 +19,9 @@ public class SlowTests extends AbstractTestCaseSmell {
     }
 
     @Override
-    public int computeNumberOfSmells(TestChromosome chromosome) {
+    public double computeNumberOfSmells(TestChromosome chromosome) {
         if(chromosome.getLastExecutionResult() != null){
-            return (int) chromosome.getLastExecutionResult().getExecutionTime();
+            return FitnessFunction.normalize(chromosome.getLastExecutionResult().getExecutionTime());
         }
 
         //Would it be better to run the test in this situation?

@@ -13,7 +13,7 @@ public class TestSmellAnalyzer {
 
     public static void writeNumTestSmells(TestSuiteChromosome testSuite){
 
-        int specificSmell;
+        double specificSmell;
 
         List<String> listOfVariables = new ArrayList<>();
 
@@ -23,7 +23,7 @@ public class TestSmellAnalyzer {
 
         if(listOfVariables.contains("AllTestSmells")){
 
-            int smellCount = 0;
+            double smellCount = 0;
 
             List<AbstractTestSmell> listOfTestSmells = initializeTestSmells();
 

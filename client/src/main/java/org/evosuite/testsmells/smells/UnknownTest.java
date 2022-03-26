@@ -22,9 +22,9 @@ public class UnknownTest extends AbstractTestCaseSmell {
     }
 
     @Override
-    public int computeNumberOfSmells(TestChromosome chromosome) {
+    public double computeNumberOfSmells(TestChromosome chromosome) {
         int size = chromosome.size();
-        int count = 1;
+        double count = 1;
 
         Statement currentStatement;
 
@@ -36,7 +36,6 @@ public class UnknownTest extends AbstractTestCaseSmell {
             }
         }
 
-        // We will have to define a value greater than 1
         return count;
     }
 }

@@ -29,17 +29,21 @@ public class OptimizeTestSmellsPostProcessing {
         listOfTestSmells.add(new LikelyIneffectiveObjectComparison());
         listOfTestSmells.add(new MysteryGuest());
         listOfTestSmells.add(new ObscureInlineSetup());
+        listOfTestSmells.add(new Overreferencing());
         listOfTestSmells.add(new RedundantAssertion());
+        listOfTestSmells.add(new ResourceOptimism());
+        listOfTestSmells.add(new RottenGreenTests());
         listOfTestSmells.add(new SensitiveEquality());
         listOfTestSmells.add(new SlowTests());
+        listOfTestSmells.add(new TestCodeDuplication());
+        listOfTestSmells.add(new TestRedundancy());
         listOfTestSmells.add(new UnknownTest());
         listOfTestSmells.add(new UnusedInputs());
         listOfTestSmells.add(new VerboseTest());
-        listOfTestSmells.add(new TestRedundancy());
     }
 
-    public int computeTotalNumberOfSmells(TestSuiteChromosome testSuite){
-        int smellCount = testSuite.calculateSmellValuesTestSuite(listOfTestSmells);
+    public double computeTotalNumberOfSmells(TestSuiteChromosome testSuite){
+        double smellCount = testSuite.calculateSmellValuesTestSuite(listOfTestSmells);
 
         //Implement optimization
 

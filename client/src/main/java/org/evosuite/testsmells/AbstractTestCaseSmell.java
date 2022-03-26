@@ -12,13 +12,13 @@ public abstract class AbstractTestCaseSmell extends AbstractTestSmell {
     /**
      * Calculate the smell count for a given test case
      * @param chromosome The test case that will be analyzed
-     * @return int with the total smell count
+     * @return double with the total smell count
      */
-    public abstract int computeNumberOfSmells(TestChromosome chromosome);
+    public abstract double computeNumberOfSmells(TestChromosome chromosome);
 
     @Override
-    public int computeNumberOfSmells(TestSuiteChromosome chromosome){
-        int smellCount = 0;
+    public double computeNumberOfSmells(TestSuiteChromosome chromosome){
+        double smellCount = 0;
 
         for(TestChromosome testcase : chromosome.getTestChromosomes()){
             smellCount += computeNumberOfSmells(testcase);

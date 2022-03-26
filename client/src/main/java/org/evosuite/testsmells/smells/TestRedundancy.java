@@ -1,5 +1,6 @@
 package org.evosuite.testsmells.smells;
 
+import org.evosuite.ga.FitnessFunction;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testsmells.AbstractTestSmell;
@@ -28,7 +29,7 @@ public class TestRedundancy extends AbstractTestSmell {
     }
 
     @Override
-    public int computeNumberOfSmells(TestSuiteChromosome chromosome) {
+    public double computeNumberOfSmells(TestSuiteChromosome chromosome) {
         int count = 0;
 
         int size = chromosome.size();
@@ -48,6 +49,6 @@ public class TestRedundancy extends AbstractTestSmell {
                 count++;
             }
         }
-        return count;
+        return FitnessFunction.normalize(count);
     }
 }

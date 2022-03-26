@@ -37,9 +37,9 @@ public class LazyTestSmellTest {
         suite.addTest(test0);
         suite.addTest(test1);
 
-        int smellCount = this.lazyTest.computeNumberOfSmells(suite);
-        int expected = 0;
-        assertEquals(expected, smellCount);
+        double smellCount = this.lazyTest.computeNumberOfSmells(suite);
+        double expected = 0;
+        assertEquals(expected, smellCount, 0.01);
     }
 
     @Test
@@ -52,9 +52,9 @@ public class LazyTestSmellTest {
         suite.addTest(test1);
         suite.addTest(test2);
 
-        int smellCount = this.lazyTest.computeNumberOfSmells(suite);
-        int expected = 2;
-        assertEquals(expected, smellCount);
+        double smellCount = this.lazyTest.computeNumberOfSmells(suite);
+        double expected = 2;
+        assertEquals(expected, smellCount, 0.01);
     }
 
     @Test
@@ -65,9 +65,9 @@ public class LazyTestSmellTest {
         suite.addTest(test0);
         suite.addTest(test1);
 
-        int smellCount = this.lazyTest.computeNumberOfSmells(suite);
-        int expected = 1;
-        assertEquals(expected, smellCount);
+        double smellCount = this.lazyTest.computeNumberOfSmells(suite);
+        double expected = 1;
+        assertEquals(expected, smellCount, 0.01);
     }
 
     @Test
@@ -78,9 +78,9 @@ public class LazyTestSmellTest {
         suite.addTest(test0);
         suite.addTest(test1);
 
-        int smellCount = this.lazyTest.computeNumberOfSmells(suite);
-        int expected = 2;
-        assertEquals(expected, smellCount);
+        double smellCount = this.lazyTest.computeNumberOfSmells(suite);
+        double expected = 2;
+        assertEquals(expected, smellCount, 0.01);
     }
 
     private DefaultTestCase createTestCase0() throws NoSuchMethodException {

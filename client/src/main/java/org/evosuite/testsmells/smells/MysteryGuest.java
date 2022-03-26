@@ -1,6 +1,7 @@
 package org.evosuite.testsmells.smells;
 
 import org.evosuite.Properties;
+import org.evosuite.ga.FitnessFunction;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestCodeVisitor;
 import org.evosuite.testcase.statements.ConstructorStatement;
@@ -20,7 +21,7 @@ public class MysteryGuest extends AbstractTestCaseSmell {
     }
 
     @Override
-    public int computeNumberOfSmells(TestChromosome chromosome) {
+    public double computeNumberOfSmells(TestChromosome chromosome) {
         int size = chromosome.size();
         int count = 0;
 
@@ -67,6 +68,6 @@ public class MysteryGuest extends AbstractTestCaseSmell {
             }
         }
 
-        return count;
+        return FitnessFunction.normalize(count);
     }
 }

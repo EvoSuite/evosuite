@@ -3,6 +3,7 @@ package org.evosuite.testsmells.smells;
 import org.apache.commons.lang3.tuple.Triple;
 import org.evosuite.assertion.Assertion;
 import org.evosuite.assertion.InspectorAssertion;
+import org.evosuite.ga.FitnessFunction;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testsmells.AbstractTestCaseSmell;
@@ -42,7 +43,7 @@ public class DuplicateAssert extends AbstractTestCaseSmell {
     }
 
     @Override
-    public int computeNumberOfSmells(TestChromosome chromosome) {
+    public double computeNumberOfSmells(TestChromosome chromosome) {
         int size = chromosome.size();
         int count = 0;
 
@@ -105,6 +106,7 @@ public class DuplicateAssert extends AbstractTestCaseSmell {
                 }
             }
         }
-        return count;
+
+        return FitnessFunction.normalize(count);
     }
 }

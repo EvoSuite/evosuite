@@ -35,9 +35,9 @@ public class AssertionRouletteSmellTest {
         DefaultTestCase test0 = createTestCase0();
         testCase.setTestCase(test0);
 
-        int smellCount = this.assertionRoulette.computeNumberOfSmells(testCase);
-        int expected = 0;
-        assertEquals(expected, smellCount);
+        double smellCount = this.assertionRoulette.computeNumberOfSmells(testCase);
+        double expected = 0;
+        assertEquals(expected, smellCount, 0.01);
     }
 
     @Test
@@ -46,9 +46,9 @@ public class AssertionRouletteSmellTest {
         DefaultTestCase test0 = createTestCase1();
         testCase.setTestCase(test0);
 
-        int smellCount = this.assertionRoulette.computeNumberOfSmells(testCase);
-        int expected = 1;
-        assertEquals(expected, smellCount);
+        double smellCount = this.assertionRoulette.computeNumberOfSmells(testCase);
+        double expected = 1;
+        assertEquals(expected, smellCount, 0.01);
     }
 
     @Test
@@ -57,9 +57,9 @@ public class AssertionRouletteSmellTest {
         DefaultTestCase test0 = createTestCase2();
         testCase.setTestCase(test0);
 
-        int smellCount = this.assertionRoulette.computeNumberOfSmells(testCase);
-        int expected = 2;
-        assertEquals(expected, smellCount);
+        double smellCount = this.assertionRoulette.computeNumberOfSmells(testCase);
+        double expected = 2;
+        assertEquals(expected, smellCount, 0.01);
     }
 
     @Test
@@ -68,9 +68,9 @@ public class AssertionRouletteSmellTest {
         DefaultTestCase test0 = createTestCase3();
         testCase.setTestCase(test0);
 
-        int smellCount = this.assertionRoulette.computeNumberOfSmells(testCase);
-        int expected = 3;
-        assertEquals(expected, smellCount);
+        double smellCount = this.assertionRoulette.computeNumberOfSmells(testCase);
+        double expected = 3;
+        assertEquals(expected, smellCount, 0.01);
     }
 
     @Test
@@ -85,9 +85,9 @@ public class AssertionRouletteSmellTest {
         suite.addTest(test2);
         suite.addTest(test3);
 
-        int smellCount = this.assertionRoulette.computeNumberOfSmells(suite);
-        int expected = 6;
-        assertEquals(expected, smellCount);
+        double smellCount = this.assertionRoulette.computeNumberOfSmells(suite);
+        double expected = 6;
+        assertEquals(expected, smellCount, 0.01);
     }
 
     private DefaultTestCase createTestCase0() throws NoSuchMethodException {

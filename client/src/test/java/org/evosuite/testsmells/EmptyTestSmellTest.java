@@ -34,9 +34,9 @@ public class EmptyTestSmellTest {
         DefaultTestCase test0 = createTestCase0();
         testCase.setTestCase(test0);
 
-        int smellCount = this.emptyTest.computeNumberOfSmells(testCase);
-        int expected = 0;
-        assertEquals(expected, smellCount);
+        double smellCount = this.emptyTest.computeNumberOfSmells(testCase);
+        double expected = 0;
+        assertEquals(expected, smellCount, 0.01);
     }
 
     @Test
@@ -45,9 +45,9 @@ public class EmptyTestSmellTest {
         DefaultTestCase test0 = createTestCase1();
         testCase.setTestCase(test0);
 
-        int smellCount = this.emptyTest.computeNumberOfSmells(testCase);
-        int expected = Integer.MAX_VALUE;
-        assertEquals(expected, smellCount);
+        double smellCount = this.emptyTest.computeNumberOfSmells(testCase);
+        double expected = Integer.MAX_VALUE;
+        assertEquals(expected, smellCount, 0.01);
     }
 
     @Test
@@ -58,9 +58,9 @@ public class EmptyTestSmellTest {
         suite.addTest(test0);
         suite.addTest(test1);
 
-        int smellCount = this.emptyTest.computeNumberOfSmells(suite);
-        int expected = Integer.MAX_VALUE;
-        assertEquals(expected, smellCount);
+        double smellCount = this.emptyTest.computeNumberOfSmells(suite);
+        double expected = Integer.MAX_VALUE;
+        assertEquals(expected, smellCount, 0.01);
     }
 
     private DefaultTestCase createTestCase0() throws NoSuchMethodException {

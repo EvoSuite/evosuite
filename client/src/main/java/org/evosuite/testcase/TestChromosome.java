@@ -743,7 +743,7 @@ public final class TestChromosome extends AbstractTestChromosome<TestChromosome>
 	 * @param listOfTestSmells A list with the test smell metrics that will be optimized
 	 * @return int with the total test smell score
 	 */
-	public int calculateSmellValuesTestCase (List<AbstractTestCaseSmell> listOfTestSmells){
+	public double calculateSmellValuesTestCase (List<AbstractTestCaseSmell> listOfTestSmells){
 
 		if(this.calculateSmellScoreTestCase){
 
@@ -752,7 +752,7 @@ public final class TestChromosome extends AbstractTestChromosome<TestChromosome>
 			this.smellScoreTestCase = 0;
 			this.smellValuesTestCase = new LinkedHashMap<>();
 
-			int specificSmellScore;
+			double specificSmellScore;
 
 			for(AbstractTestCaseSmell testSmell : listOfTestSmells){
 				specificSmellScore = testSmell.computeNumberOfSmells(this);
@@ -768,7 +768,7 @@ public final class TestChromosome extends AbstractTestChromosome<TestChromosome>
 	 * Get the score for each test smell metric
 	 * @return LinkedHashMap containing the metrics and the respective scores
 	 */
-	public LinkedHashMap<String, Integer> getSmellValuesTestCase (){
+	public LinkedHashMap<String, Double> getSmellValuesTestCase (){
 		return this.smellValuesTestCase;
 	}
 

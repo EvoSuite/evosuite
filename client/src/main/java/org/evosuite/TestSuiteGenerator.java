@@ -519,12 +519,13 @@ public class TestSuiteGenerator {
         }
 
         if (Properties.TEST_SMELL_OPTIMIZATION) {
+            //runTest();
             double before = testSuite.getFitness();
 
-            OptimizeTestSmellsPostProcessing optmized = new OptimizeTestSmellsPostProcessing();
+            OptimizeTestSmellsPostProcessing optimized = new OptimizeTestSmellsPostProcessing();
 
             // TODO: This will change in the future
-            optmized.computeTotalNumberOfSmells(testSuite);
+            optimized.computeTotalNumberOfSmells(testSuite);
 
             double after = testSuite.getFitness();
             if (after > before + 0.01d) { // assume minimization

@@ -21,7 +21,7 @@ public abstract class AbstractTestSmell {
     /**
      * Calculate the smell count for a given test suite
      * @param chromosome The test suite that will be analyzed
-     * @return int with the total smell count
+     * @return double with the total smell count
      */
-    public abstract int computeNumberOfSmells(TestSuiteChromosome chromosome);
+    public abstract double computeNumberOfSmells(TestSuiteChromosome chromosome);
 }

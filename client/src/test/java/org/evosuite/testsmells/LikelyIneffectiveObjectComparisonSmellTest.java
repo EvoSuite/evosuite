@@ -34,9 +34,9 @@ public class LikelyIneffectiveObjectComparisonSmellTest {
         DefaultTestCase test0 = createTestCase0();
         testCase.setTestCase(test0);
 
-        int smellCount = this.likelyIneffectiveObjectComparison.computeNumberOfSmells(testCase);
-        int expected = 0;
-        assertEquals(expected, smellCount);
+        double smellCount = this.likelyIneffectiveObjectComparison.computeNumberOfSmells(testCase);
+        double expected = 0;
+        assertEquals(expected, smellCount, 0.01);
     }
 
     @Test
@@ -45,9 +45,9 @@ public class LikelyIneffectiveObjectComparisonSmellTest {
         DefaultTestCase test0 = createTestCase1();
         testCase.setTestCase(test0);
 
-        int smellCount = this.likelyIneffectiveObjectComparison.computeNumberOfSmells(testCase);
-        int expected = 0;
-        assertEquals(expected, smellCount);
+        double smellCount = this.likelyIneffectiveObjectComparison.computeNumberOfSmells(testCase);
+        double expected = 0;
+        assertEquals(expected, smellCount, 0.01);
     }
 
     @Test
@@ -56,9 +56,9 @@ public class LikelyIneffectiveObjectComparisonSmellTest {
         DefaultTestCase test0 = createTestCase2();
         testCase.setTestCase(test0);
 
-        int smellCount = this.likelyIneffectiveObjectComparison.computeNumberOfSmells(testCase);
-        int expected = 0;
-        assertEquals(expected, smellCount);
+        double smellCount = this.likelyIneffectiveObjectComparison.computeNumberOfSmells(testCase);
+        double expected = 0;
+        assertEquals(expected, smellCount, 0.01);
     }
 
     @Test
@@ -67,9 +67,9 @@ public class LikelyIneffectiveObjectComparisonSmellTest {
         DefaultTestCase test0 = createTestCase3();
         testCase.setTestCase(test0);
 
-        int smellCount = this.likelyIneffectiveObjectComparison.computeNumberOfSmells(testCase);
-        int expected = 1;
-        assertEquals(expected, smellCount);
+        double smellCount = this.likelyIneffectiveObjectComparison.computeNumberOfSmells(testCase);
+        double expected = 1;
+        assertEquals(expected, smellCount, 0.01);
     }
 
     @Test
@@ -84,9 +84,9 @@ public class LikelyIneffectiveObjectComparisonSmellTest {
         suite.addTest(test2);
         suite.addTest(test3);
 
-        int smellCount = this.likelyIneffectiveObjectComparison.computeNumberOfSmells(suite);
-        int expected = 1;
-        assertEquals(expected, smellCount);
+        double smellCount = this.likelyIneffectiveObjectComparison.computeNumberOfSmells(suite);
+        double expected = 1;
+        assertEquals(expected, smellCount, 0.01);
     }
 
     private DefaultTestCase createTestCase0() throws NoSuchMethodException {

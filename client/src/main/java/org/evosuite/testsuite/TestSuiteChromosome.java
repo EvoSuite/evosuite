@@ -288,7 +288,7 @@ public final class TestSuiteChromosome
 	 * @param listOfTestSmells A list with the test smell metrics that will be optimized
 	 * @return int with the total test smell score
 	 */
-	public int calculateSmellValuesTestSuite (List<AbstractTestSmell> listOfTestSmells){
+	public double calculateSmellValuesTestSuite (List<AbstractTestSmell> listOfTestSmells){
 
 		if(this.calculateSmellScoreTestSuite){
 
@@ -297,7 +297,7 @@ public final class TestSuiteChromosome
 			this.smellScoreTestSuite = 0;
 			this.smellValuesTestSuite = new LinkedHashMap<>();
 
-			int specificSmellScore;
+            double specificSmellScore;
 
 			for (AbstractTestSmell testSmell : listOfTestSmells){
 				specificSmellScore = testSmell.computeNumberOfSmells(this);
@@ -313,7 +313,7 @@ public final class TestSuiteChromosome
 	 * Get the score for each test smell metric
 	 * @return LinkedHashMap containing the metrics and the respective scores
 	 */
-	public LinkedHashMap<String, Integer> getSmellValuesTestSuite (){
+	public LinkedHashMap<String, Double> getSmellValuesTestSuite (){
 		return this.smellValuesTestSuite;
 	}
 
