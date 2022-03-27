@@ -24,7 +24,7 @@ import org.evosuite.symbolic.expr.ExpressionVisitor;
 
 /**
  * General expression for anonymous jvm-created lambda classes (usually after invokedynamic is used).
- * TODO: Lambdas may be closures so a lot of fields may be attached to them.
+ * TODO: Lambdas may be closures as fields may be attached to them.
  *
  * @author Ignacio Lebrero
  */

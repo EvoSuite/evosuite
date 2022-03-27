@@ -31,8 +31,8 @@ import org.slf4j.LoggerFactory;
 /**
  * Represents a constraint of references.
  *
- * It could be either "equals" or "not equals" and are created through
- * {@link org.evosuite.symbolic.vm.ConstraintFactory}.
+ * It could be either "equals" or "not equals", which should be created
+ * through {@link org.evosuite.symbolic.vm.ConstraintFactory}.
  *
  * @author Ignacio Lebrero
  */

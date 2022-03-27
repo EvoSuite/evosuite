@@ -682,11 +682,6 @@ public class ExpressionEvaluator implements ExpressionVisitor<Object, Void> {
   }
 
   @Override
-  public Object visit(ClassReferenceVariable r, Void arg) {
-    return r.getConcreteValue();
-  }
-
-  @Override
   public Object visit(GetFieldExpression r, Void arg) {
     final Object conc_receiver = r.getReceiverExpr().accept(this, arg);
     final String field_name = r.getFieldName();
@@ -707,15 +702,7 @@ public class ExpressionEvaluator implements ExpressionVisitor<Object, Void> {
     }
   }
 
-  @Override
-  public Object visit(NullReferenceConstant r, Void arg) {
-    return r.getConcreteValue();
-  }
-
-  @Override
-  public Object visit(ClassReferenceConstant r, Void args) {
-    return r.getConcreteValue();
-  }
+  // Array Store and Select
 
   @Override
   public Object visit(ArrayStore.IntegerArrayStore r, Void arg) {
@@ -781,6 +768,8 @@ public class ExpressionEvaluator implements ExpressionVisitor<Object, Void> {
     throw new UnsupportedOperationException(IMPLEMENT_ME);
   }
 
+  // Array Constant and Variables
+
   @Override
   public Object visit(ArrayConstant.IntegerArrayConstant r, Void arg) {
     return r.getConcreteValue();
@@ -792,14 +781,10 @@ public class ExpressionEvaluator implements ExpressionVisitor<Object, Void> {
   }
 
   @Override
-  public Object visit(ArrayConstant.StringArrayConstant r, Void arg) {
-    throw new UnsupportedOperationException(IMPLEMENT_ME);
-  }
+  public Object visit(ArrayConstant.StringArrayConstant r, Void arg) { return r.getConcreteValue(); }
 
   @Override
-  public Object visit(ArrayConstant.ReferenceArrayConstant r, Void arg) {
-    throw new UnsupportedOperationException(IMPLEMENT_ME);
-  }
+  public Object visit(ArrayConstant.ReferenceArrayConstant r, Void arg) { return r.getConcreteValue(); }
 
   @Override
   public Object visit(ArrayVariable.IntegerArrayVariable r, Void arg) {
@@ -812,14 +797,29 @@ public class ExpressionEvaluator implements ExpressionVisitor<Object, Void> {
   }
 
   @Override
-  public Object visit(ArrayVariable.StringArrayVariable r, Void arg) {
-    throw new UnsupportedOperationException(IMPLEMENT_ME);
+  public Object visit(ArrayVariable.StringArrayVariable r, Void arg) { return r.getConcreteValue(); }
+
+  @Override
+  public Object visit(ArrayVariable.ReferenceArrayVariable r, Void arg) { return r.getConcreteValue(); }
+
+  // References
+
+  @Override
+  public Object visit(NullReferenceConstant r, Void arg) {
+    return r.getConcreteValue();
   }
 
   @Override
-  public Object visit(ArrayVariable.ReferenceArrayVariable r, Void arg) {
-    throw new UnsupportedOperationException(IMPLEMENT_ME);
+  public Object visit(ClassReferenceConstant r, Void args) {
+    return r.getConcreteValue();
   }
+
+  @Override
+  public Object visit(ClassReferenceVariable r, Void arg) {
+    return r.getConcreteValue();
+  }
+
+  // NOTE (ilebrero): Types comparisons are not supported at the time. Might be at some point but there's no ETA.
 
   @Override
   public Object visit(LambdaSyntheticTypeConstant r, Void arg) {

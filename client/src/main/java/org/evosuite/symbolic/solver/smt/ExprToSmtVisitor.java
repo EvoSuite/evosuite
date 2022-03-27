@@ -217,16 +217,6 @@ public class ExprToSmtVisitor implements ExpressionVisitor<SmtExpr, Void> {
 	}
 
 	@Override
-	public SmtExpr visit(NullReferenceConstant r, Void arg) {
-		return SmtExprBuilder.mkIntConstant(SymbolicHeap.NULL_INSTANCE_ID);
-	}
-
-	@Override
-	public SmtExpr visit(ClassReferenceConstant r, Void args) {
-		return SmtExprBuilder.mkIntConstant(r.getInstanceId());
-	}
-
-	@Override
 	public final SmtExpr visit(IntegerUnaryExpression e, Void v) {
 		SmtExpr operand = e.getOperand().accept(this, null);
 
@@ -465,12 +455,6 @@ public class ExprToSmtVisitor implements ExpressionVisitor<SmtExpr, Void> {
 	}
 
 	@Override
-	public final SmtExpr visit(ClassReferenceVariable r, Void arg) {
-		String varName = r.getName();
-		return SmtExprBuilder.mkIntVariable(varName);
-	}
-
-	@Override
 	public final SmtExpr visit(RealComparison e, Void v) {
 		throw new IllegalStateException("RealComparison should be removed during normalization");
 	}
@@ -690,26 +674,6 @@ public class ExprToSmtVisitor implements ExpressionVisitor<SmtExpr, Void> {
 
 	@Override
 	public SmtExpr visit(ArrayVariable.ReferenceArrayVariable r, Void arg) {
-		return null;
-	}
-
-	@Override
-	public SmtExpr visit(LambdaSyntheticTypeConstant r, Void arg) {
-		return null;
-	}
-
-	@Override
-	public SmtExpr visit(NullTypeConstant r, Void arg) {
-		return null;
-	}
-
-	@Override
-	public SmtExpr visit(ClassTypeConstant r, Void arg) {
-		return null;
-	}
-
-	@Override
-	public SmtExpr visit(ArrayTypeConstant r, Void arg) {
 		return null;
 	}
 
@@ -1126,6 +1090,42 @@ public class ExprToSmtVisitor implements ExpressionVisitor<SmtExpr, Void> {
 		}
 
 		return postVisit(e, operand);
+	}
+
+	@Override
+	public SmtExpr visit(NullReferenceConstant r, Void arg) {
+		return SmtExprBuilder.mkIntConstant(SymbolicHeap.NULL_INSTANCE_ID);
+	}
+
+	@Override
+	public SmtExpr visit(ClassReferenceConstant r, Void args) {
+		return SmtExprBuilder.mkIntConstant(r.getInstanceId());
+	}
+
+	@Override
+	public final SmtExpr visit(ClassReferenceVariable r, Void arg) {
+		String varName = r.getName();
+		return SmtExprBuilder.mkIntVariable(varName);
+	}
+
+	@Override
+	public SmtExpr visit(NullTypeConstant r, Void arg) {
+		return SmtExprBuilder.mkIntConstant(r.getReferenceTypeId());
+	}
+
+	@Override
+	public SmtExpr visit(LambdaSyntheticTypeConstant r, Void arg) {
+		return null;
+	}
+
+	@Override
+	public SmtExpr visit(ClassTypeConstant r, Void arg) {
+		return null;
+	}
+
+	@Override
+	public SmtExpr visit(ArrayTypeConstant r, Void arg) {
+		return null;
 	}
 
 	protected SmtExpr postVisit(StringToIntegerCast source, SmtExpr operand) {

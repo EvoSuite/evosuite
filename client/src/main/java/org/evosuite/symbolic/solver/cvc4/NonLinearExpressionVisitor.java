@@ -355,29 +355,7 @@ final class NonLinearExpressionVisitor implements ExpressionVisitor<Boolean, Voi
 		return ret_val;
 	}
 
-	@Override
-	public Boolean visit(ClassReferenceVariable r, Void arg) {
-		throw new UnsupportedOperationException(
-				"Removal of Non-Linear expressions for ReferenceVariable is not yet implemented!");
-	}
-
-	@Override
-	public Boolean visit(GetFieldExpression r, Void arg) {
-		throw new UnsupportedOperationException(
-				"Removal of Non-Linear expressions for GetFieldExpression is not yet implemented!");
-	}
-
-	@Override
-	public Boolean visit(NullReferenceConstant r, Void arg) {
-		throw new UnsupportedOperationException(
-				"Removal of Non-Linear expressions for NullReferenceExpression is not yet implemented!");
-	}
-
-	@Override
-	public Boolean visit(ClassReferenceConstant r, Void args) {
-		throw new UnsupportedOperationException(
-				"Removal of Non-Linear expressions for ClassReferenceExpression is not yet implemented!");
-	}
+	// Arrays
 
 	@Override
 	public Boolean visit(ArraySelect.IntegerArraySelect r, Void arg) {
@@ -506,6 +484,8 @@ final class NonLinearExpressionVisitor implements ExpressionVisitor<Boolean, Voi
 	@Override
 	public Boolean visit(LambdaSyntheticTypeConstant r, Void arg) { return false; }
 
+	// References
+
 	@Override
     public Boolean visit(NullTypeConstant r, Void arg) { return false; }
 
@@ -513,5 +493,20 @@ final class NonLinearExpressionVisitor implements ExpressionVisitor<Boolean, Voi
     public Boolean visit(ClassTypeConstant r, Void arg) { return false; }
 
 	@Override
-	public Boolean visit(ArrayTypeConstant r, Void arg) { return null; }
+	public Boolean visit(ArrayTypeConstant r, Void arg) { return false; }
+
+	@Override
+	public Boolean visit(ClassReferenceVariable r, Void arg) { return false; }
+
+	@Override
+	public Boolean visit(NullReferenceConstant r, Void arg) { return false; }
+
+	@Override
+	public Boolean visit(ClassReferenceConstant r, Void args) { return false; }
+
+	@Override
+	public Boolean visit(GetFieldExpression r, Void arg) {
+		Boolean ret_val = r.getReceiverExpr().accept(this, null);
+		return  ret_val;
+	}
 }

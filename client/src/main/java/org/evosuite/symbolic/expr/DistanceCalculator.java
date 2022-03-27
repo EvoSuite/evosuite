@@ -226,7 +226,7 @@ public class DistanceCalculator implements ConstraintVisitor<Object, Void> {
 
 	@Override
 	public Object visit(ReferenceConstraint n, Void arg) {
-		//TODO: how should we calculate this?
+		//TODO: this is only == or != would the distance be only 0 or 1?
 		return null;
 	}
 

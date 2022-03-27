@@ -141,6 +141,7 @@ public class SymbolicObserver extends ExecutionObserver {
 			// TODO (ilebrero): avoid recreating the object on the symbolic heap to use less instance ids
 			String referenceVariableName = ReferenceVariableUtil.getReferenceVariableName(varName);
 			nonNullRef = env.heap.buildNewClassReferenceVariable(nonNullRef.getConcreteValue(), referenceVariableName);
+
 		}
 
 		symb_references.put(varName, nonNullRef);
@@ -1468,6 +1469,7 @@ public class SymbolicObserver extends ExecutionObserver {
 
 		if (Properties.IS_DSE_OBJECTS_SUPPORT_ENABLED) {
 			String referenceVariableName = ReferenceVariableUtil.getReferenceVariableName(lhs.getName());
+			// Shouldn't a null reference be constant? or is this a reference to a variable which its current value is null?
 			nullReference = env.heap.buildNewClassReferenceVariable(nullReference.getConcreteValue(), referenceVariableName);
 		}
 
