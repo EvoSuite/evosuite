@@ -46,7 +46,7 @@ public class OptimizeTestSmellsSecondaryObjective extends SecondaryObjective<Tes
         int smellCount = 0;
 
         for (AbstractTestSmell testSmell : listOfTestSmells){
-            smellCount += testSmell.computeNumberOfSmells(chromosome);
+            smellCount += testSmell.computeTestSmellMetric(chromosome);
         }
 
         return smellCount;

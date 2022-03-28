@@ -1,6 +1,5 @@
 package org.evosuite.testsmells.smells;
 
-import org.evosuite.ga.FitnessFunction;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestCodeVisitor;
@@ -14,7 +13,7 @@ public class ObscureInlineSetup extends AbstractTestCaseSmell {
     }
 
     @Override
-    public double computeNumberOfSmells(TestChromosome chromosome) {
+    public double computeNumberOfTestSmells(TestChromosome chromosome) {
 
         // Two alternatives (ask advisor for help!)
 
@@ -44,7 +43,7 @@ public class ObscureInlineSetup extends AbstractTestCaseSmell {
         }
 
         //Get the size of Collection of variable names
-        return FitnessFunction.normalize(visitor.getVariableNames().size());
+        return visitor.getVariableNames().size();
 
 
         //---------------------------------------------

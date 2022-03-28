@@ -37,7 +37,7 @@ public class EagerTestSmellTest {
         DefaultTestCase test0 = createTestCase0();
         testCase.setTestCase(test0);
 
-        double smellCount = this.eagerTest.computeNumberOfSmells(testCase);
+        double smellCount = this.eagerTest.computeTestSmellMetric(testCase);
         double expected = 1;
         assertEquals(expected, smellCount, 0.01);
     }
@@ -48,7 +48,7 @@ public class EagerTestSmellTest {
         DefaultTestCase test0 = createTestCase1();
         testCase.setTestCase(test0);
 
-        double smellCount = this.eagerTest.computeNumberOfSmells(testCase);
+        double smellCount = this.eagerTest.computeTestSmellMetric(testCase);
         double expected = 2;
         assertEquals(expected, smellCount, 0.01);
     }
@@ -59,7 +59,7 @@ public class EagerTestSmellTest {
         DefaultTestCase test0 = createTestCase2();
         testCase.setTestCase(test0);
 
-        double smellCount = this.eagerTest.computeNumberOfSmells(testCase);
+        double smellCount = this.eagerTest.computeTestSmellMetric(testCase);
         double expected = 1;
         assertEquals(expected, smellCount, 0.01);
     }
@@ -70,7 +70,7 @@ public class EagerTestSmellTest {
         DefaultTestCase test0 = createTestCase3();
         testCase.setTestCase(test0);
 
-        double smellCount = this.eagerTest.computeNumberOfSmells(testCase);
+        double smellCount = this.eagerTest.computeTestSmellMetric(testCase);
         double expected = 3;
         assertEquals(expected, smellCount, 0.01);
     }
@@ -81,7 +81,7 @@ public class EagerTestSmellTest {
         DefaultTestCase test0 = createTestCase4();
         testCase.setTestCase(test0);
 
-        double smellCount = this.eagerTest.computeNumberOfSmells(testCase);
+        double smellCount = this.eagerTest.computeTestSmellMetric(testCase);
         double expected = 3;
         assertEquals(expected, smellCount, 0.01);
     }
@@ -92,7 +92,7 @@ public class EagerTestSmellTest {
         DefaultTestCase test0 = createTestCase5();
         testCase.setTestCase(test0);
 
-        double smellCount = this.eagerTest.computeNumberOfSmells(testCase);
+        double smellCount = this.eagerTest.computeTestSmellMetric(testCase);
         double expected = 3;
         assertEquals(expected, smellCount, 0.01);
     }
@@ -103,7 +103,7 @@ public class EagerTestSmellTest {
         DefaultTestCase test0 = createTestCase6();
         testCase.setTestCase(test0);
 
-        double smellCount = this.eagerTest.computeNumberOfSmells(testCase);
+        double smellCount = this.eagerTest.computeTestSmellMetric(testCase);
         double expected = 2;
         assertEquals(expected, smellCount, 0.01);
     }
@@ -114,7 +114,7 @@ public class EagerTestSmellTest {
         DefaultTestCase test0 = createTestCase7();
         testCase.setTestCase(test0);
 
-        double smellCount = this.eagerTest.computeNumberOfSmells(testCase);
+        double smellCount = this.eagerTest.computeTestSmellMetric(testCase);
         double expected = 2;
         assertEquals(expected, smellCount, 0.01);
     }
@@ -125,7 +125,7 @@ public class EagerTestSmellTest {
         DefaultTestCase test0 = createTestCase8();
         testCase.setTestCase(test0);
 
-        double smellCount = this.eagerTest.computeNumberOfSmells(testCase);
+        double smellCount = this.eagerTest.computeTestSmellMetric(testCase);
         double expected = 2;
         assertEquals(expected, smellCount, 0.01);
     }
@@ -136,7 +136,7 @@ public class EagerTestSmellTest {
         DefaultTestCase test0 = createEmptyTestCase();
         testCase.setTestCase(test0);
 
-        double smellCount = this.eagerTest.computeNumberOfSmells(testCase);
+        double smellCount = this.eagerTest.computeTestSmellMetric(testCase);
         double expected = 0;
         assertEquals(expected, smellCount, 0.01);
     }
@@ -165,7 +165,7 @@ public class EagerTestSmellTest {
         suite.addTest(test8);
         suite.addTest(test9);
 
-        double smellCount = this.eagerTest.computeNumberOfSmells(suite);
+        double smellCount = this.eagerTest.computeTestSmellMetric(suite);
         double expected = 19;
         assertEquals(expected, smellCount, 0.01);
     }

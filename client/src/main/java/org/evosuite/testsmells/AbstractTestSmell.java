@@ -6,22 +6,22 @@ public abstract class AbstractTestSmell {
 
     private final String name;
 
-    public AbstractTestSmell(String name){
+    public AbstractTestSmell(String name) {
         this.name = name;
     }
 
     /**
-     * Obtain the name of the smell
+     * Obtain the name of the test smell
      * @return String that corresponds to the name of the test smell
      */
-    public String getName(){
+    public String getName() {
         return name;
     }
 
     /**
-     * Calculate the smell count for a given test suite
-     * @param chromosome The test suite that will be analyzed
-     * @return double with the total smell count
+     * Compute the test smell metric for a given test suite
+     * @param chromosome The analyzed test suite
+     * @return double that corresponds to the computed test smell metric
      */
-    public abstract double computeNumberOfSmells(TestSuiteChromosome chromosome);
+    public abstract double computeTestSmellMetric(TestSuiteChromosome chromosome);
 }

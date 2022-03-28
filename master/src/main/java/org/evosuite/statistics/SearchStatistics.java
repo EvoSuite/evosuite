@@ -922,7 +922,7 @@ public class SearchStatistics implements Listener<ClientStateInformation> {
 		@Override
 		public Double getValue(TestSuiteChromosome individual) {
 			AbstractTestCaseSmell smell = new AssertionRoulette();
-			return smell.computeNumberOfSmells(individual);
+			return smell.computeTestSmellMetric(individual);
 		}
 	}
 
@@ -935,7 +935,7 @@ public class SearchStatistics implements Listener<ClientStateInformation> {
 		@Override
 		public Double getValue(TestSuiteChromosome individual) {
 			AbstractTestCaseSmell smell = new BrittleAssertion();
-			return smell.computeNumberOfSmells(individual);
+			return smell.computeTestSmellMetric(individual);
 		}
 	}
 
@@ -948,7 +948,7 @@ public class SearchStatistics implements Listener<ClientStateInformation> {
 		@Override
 		public Double getValue(TestSuiteChromosome individual) {
 			AbstractTestCaseSmell smell = new DuplicateAssert();
-			return smell.computeNumberOfSmells(individual);
+			return smell.computeTestSmellMetric(individual);
 		}
 	}
 
@@ -961,7 +961,7 @@ public class SearchStatistics implements Listener<ClientStateInformation> {
 		@Override
 		public Double getValue(TestSuiteChromosome individual) {
 			AbstractTestCaseSmell smell = new EagerTest();
-			return smell.computeNumberOfSmells(individual);
+			return smell.computeTestSmellMetric(individual);
 		}
 	}
 
@@ -974,7 +974,7 @@ public class SearchStatistics implements Listener<ClientStateInformation> {
 		@Override
 		public Double getValue(TestSuiteChromosome individual) {
 			AbstractTestCaseSmell smell = new EmptyTest();
-			return smell.computeNumberOfSmells(individual);
+			return smell.computeTestSmellMetric(individual);
 		}
 	}
 
@@ -987,7 +987,7 @@ public class SearchStatistics implements Listener<ClientStateInformation> {
 		@Override
 		public Double getValue(TestSuiteChromosome individual) {
 			AbstractTestCaseSmell smell = new IndirectTesting();
-			return smell.computeNumberOfSmells(individual);
+			return smell.computeTestSmellMetric(individual);
 		}
 	}
 
@@ -1000,7 +1000,7 @@ public class SearchStatistics implements Listener<ClientStateInformation> {
 		@Override
 		public Double getValue(TestSuiteChromosome individual) {
 			AbstractTestSmell smell = new LackOfCohesionOfMethods();
-			return smell.computeNumberOfSmells(individual);
+			return smell.computeTestSmellMetric(individual);
 		}
 	}
 
@@ -1013,7 +1013,7 @@ public class SearchStatistics implements Listener<ClientStateInformation> {
 		@Override
 		public Double getValue(TestSuiteChromosome individual) {
 			AbstractTestSmell smell = new LazyTest();
-			return smell.computeNumberOfSmells(individual);
+			return smell.computeTestSmellMetric(individual);
 		}
 	}
 
@@ -1026,7 +1026,7 @@ public class SearchStatistics implements Listener<ClientStateInformation> {
 		@Override
 		public Double getValue(TestSuiteChromosome individual) {
 			AbstractTestCaseSmell smell = new LikelyIneffectiveObjectComparison();
-			return smell.computeNumberOfSmells(individual);
+			return smell.computeTestSmellMetric(individual);
 		}
 	}
 
@@ -1039,7 +1039,7 @@ public class SearchStatistics implements Listener<ClientStateInformation> {
 		@Override
 		public Double getValue(TestSuiteChromosome individual) {
 			AbstractTestCaseSmell smell = new MysteryGuest();
-			return smell.computeNumberOfSmells(individual);
+			return smell.computeTestSmellMetric(individual);
 		}
 	}
 
@@ -1052,7 +1052,7 @@ public class SearchStatistics implements Listener<ClientStateInformation> {
 		@Override
 		public Double getValue(TestSuiteChromosome individual) {
 			AbstractTestCaseSmell smell = new ObscureInlineSetup();
-			return smell.computeNumberOfSmells(individual);
+			return smell.computeTestSmellMetric(individual);
 		}
 	}
 
@@ -1065,7 +1065,7 @@ public class SearchStatistics implements Listener<ClientStateInformation> {
 		@Override
 		public Double getValue(TestSuiteChromosome individual) {
 			AbstractTestCaseSmell smell = new Overreferencing();
-			return smell.computeNumberOfSmells(individual);
+			return smell.computeTestSmellMetric(individual);
 		}
 	}
 
@@ -1078,7 +1078,7 @@ public class SearchStatistics implements Listener<ClientStateInformation> {
 		@Override
 		public Double getValue(TestSuiteChromosome individual) {
 			AbstractTestCaseSmell smell = new RedundantAssertion();
-			return smell.computeNumberOfSmells(individual);
+			return smell.computeTestSmellMetric(individual);
 		}
 	}
 
@@ -1091,7 +1091,7 @@ public class SearchStatistics implements Listener<ClientStateInformation> {
 		@Override
 		public Double getValue(TestSuiteChromosome individual) {
 			AbstractTestCaseSmell smell = new ResourceOptimism();
-			return smell.computeNumberOfSmells(individual);
+			return smell.computeTestSmellMetric(individual);
 		}
 	}
 
@@ -1104,7 +1104,7 @@ public class SearchStatistics implements Listener<ClientStateInformation> {
 		@Override
 		public Double getValue(TestSuiteChromosome individual) {
 			AbstractTestCaseSmell smell = new RottenGreenTests();
-			return smell.computeNumberOfSmells(individual);
+			return smell.computeTestSmellMetric(individual);
 		}
 	}
 
@@ -1117,7 +1117,7 @@ public class SearchStatistics implements Listener<ClientStateInformation> {
 		@Override
 		public Double getValue(TestSuiteChromosome individual) {
 			AbstractTestCaseSmell smell = new SensitiveEquality();
-			return smell.computeNumberOfSmells(individual);
+			return smell.computeTestSmellMetric(individual);
 		}
 	}
 
@@ -1130,7 +1130,7 @@ public class SearchStatistics implements Listener<ClientStateInformation> {
 		@Override
 		public Double getValue(TestSuiteChromosome individual) {
 			AbstractTestCaseSmell smell = new SlowTests();
-			return smell.computeNumberOfSmells(individual);
+			return smell.computeTestSmellMetric(individual);
 		}
 	}
 
@@ -1143,7 +1143,7 @@ public class SearchStatistics implements Listener<ClientStateInformation> {
 		@Override
 		public Double getValue(TestSuiteChromosome individual) {
 			AbstractTestCaseSmell smell = new TestCodeDuplication();
-			return smell.computeNumberOfSmells(individual);
+			return smell.computeTestSmellMetric(individual);
 		}
 	}
 
@@ -1156,7 +1156,7 @@ public class SearchStatistics implements Listener<ClientStateInformation> {
         @Override
         public Double getValue(TestSuiteChromosome individual) {
             AbstractTestSmell smell = new TestRedundancy();
-            return smell.computeNumberOfSmells(individual);
+            return smell.computeTestSmellMetric(individual);
         }
     }
 
@@ -1169,7 +1169,7 @@ public class SearchStatistics implements Listener<ClientStateInformation> {
 		@Override
 		public Double getValue(TestSuiteChromosome individual) {
 			AbstractTestCaseSmell smell = new UnknownTest();
-			return smell.computeNumberOfSmells(individual);
+			return smell.computeTestSmellMetric(individual);
 		}
 	}
 
@@ -1182,7 +1182,7 @@ public class SearchStatistics implements Listener<ClientStateInformation> {
 		@Override
 		public Double getValue(TestSuiteChromosome individual) {
 			AbstractTestCaseSmell smell = new UnusedInputs();
-			return smell.computeNumberOfSmells(individual);
+			return smell.computeTestSmellMetric(individual);
 		}
 	}
 
@@ -1195,7 +1195,7 @@ public class SearchStatistics implements Listener<ClientStateInformation> {
 		@Override
 		public Double getValue(TestSuiteChromosome individual) {
 			AbstractTestCaseSmell smell = new VerboseTest();
-			return smell.computeNumberOfSmells(individual);
+			return smell.computeTestSmellMetric(individual);
 		}
 	}
 }

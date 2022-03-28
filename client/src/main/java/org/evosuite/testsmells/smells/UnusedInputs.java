@@ -1,7 +1,6 @@
 package org.evosuite.testsmells.smells;
 
 import org.evosuite.Properties;
-import org.evosuite.ga.FitnessFunction;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testsmells.AbstractTestCaseSmell;
@@ -37,7 +36,7 @@ public class UnusedInputs extends AbstractTestCaseSmell {
     }
 
     @Override
-    public double computeNumberOfSmells(TestChromosome chromosome) {
+    public double computeNumberOfTestSmells(TestChromosome chromosome) {
         int size = chromosome.size();
         int count = 0;
 
@@ -56,6 +55,7 @@ public class UnusedInputs extends AbstractTestCaseSmell {
                 }
             }
         }
-        return FitnessFunction.normalize(count);
+
+        return count;
     }
 }

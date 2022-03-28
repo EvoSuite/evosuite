@@ -29,7 +29,7 @@ public class TestRedundancy extends AbstractTestSmell {
     }
 
     @Override
-    public double computeNumberOfSmells(TestSuiteChromosome chromosome) {
+    public double computeTestSmellMetric(TestSuiteChromosome chromosome) {
         int count = 0;
 
         int size = chromosome.size();
@@ -49,6 +49,7 @@ public class TestRedundancy extends AbstractTestSmell {
                 count++;
             }
         }
+
         return FitnessFunction.normalize(count);
     }
 }

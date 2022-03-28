@@ -34,7 +34,7 @@ public class EmptyTestSmellTest {
         DefaultTestCase test0 = createTestCase0();
         testCase.setTestCase(test0);
 
-        double smellCount = this.emptyTest.computeNumberOfSmells(testCase);
+        double smellCount = this.emptyTest.computeTestSmellMetric(testCase);
         double expected = 0;
         assertEquals(expected, smellCount, 0.01);
     }
@@ -45,7 +45,7 @@ public class EmptyTestSmellTest {
         DefaultTestCase test0 = createTestCase1();
         testCase.setTestCase(test0);
 
-        double smellCount = this.emptyTest.computeNumberOfSmells(testCase);
+        double smellCount = this.emptyTest.computeTestSmellMetric(testCase);
         double expected = Integer.MAX_VALUE;
         assertEquals(expected, smellCount, 0.01);
     }
@@ -58,7 +58,7 @@ public class EmptyTestSmellTest {
         suite.addTest(test0);
         suite.addTest(test1);
 
-        double smellCount = this.emptyTest.computeNumberOfSmells(suite);
+        double smellCount = this.emptyTest.computeTestSmellMetric(suite);
         double expected = Integer.MAX_VALUE;
         assertEquals(expected, smellCount, 0.01);
     }

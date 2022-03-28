@@ -1,5 +1,6 @@
 package org.evosuite.testsmells;
 
+import org.evosuite.ga.FitnessFunction;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testsuite.TestSuiteChromosome;
 
@@ -11,20 +12,29 @@ public abstract class AbstractTestCaseSmell extends AbstractTestSmell {
 
     /**
      * Calculate the smell count for a given test case
-     * @param chromosome The test case that will be analyzed
+     * @param chromosome The analyzed test case
      * @return double with the total smell count
      */
-    public abstract double computeNumberOfSmells(TestChromosome chromosome);
+    public abstract double computeNumberOfTestSmells(TestChromosome chromosome);
+
+    /**
+     * Compute the test smell metric for a given test case
+     * @param chromosome The analyzed test case
+     * @return double that corresponds to the computed test smell metric
+     */
+    public double computeTestSmellMetric(TestChromosome chromosome) {
+        return FitnessFunction.normalize(computeNumberOfTestSmells(chromosome));
+    }
 
     @Override
-    public double computeNumberOfSmells(TestSuiteChromosome chromosome){
+    public double computeTestSmellMetric(TestSuiteChromosome chromosome) {
         double smellCount = 0;
 
         for(TestChromosome testcase : chromosome.getTestChromosomes()){
-            smellCount += computeNumberOfSmells(testcase);
+            smellCount += computeNumberOfTestSmells(testcase);
         }
 
-        return smellCount;
+        return FitnessFunction.normalize(smellCount);
     }
 
 }

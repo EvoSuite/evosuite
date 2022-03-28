@@ -29,7 +29,7 @@ public class TestSmellAnalyzer {
 
             for(AbstractTestSmell currentSmell : listOfTestSmells){
 
-                specificSmell = currentSmell.computeNumberOfSmells(testSuite);
+                specificSmell = currentSmell.computeTestSmellMetric(testSuite);
                 smellCount += specificSmell;
 
                 if(listOfVariables.contains(currentSmell.getName())){
@@ -46,7 +46,7 @@ public class TestSmellAnalyzer {
                 AbstractTestSmell testSmell = getAbstractTestSmell(entry);
 
                 if(testSmell != null){
-                    specificSmell = testSmell.computeNumberOfSmells(testSuite);
+                    specificSmell = testSmell.computeTestSmellMetric(testSuite);
                     ClientServices.track(RuntimeVariable.valueOf(testSmell.getName()), specificSmell);
                 }
             }

@@ -36,7 +36,7 @@ public class IndirectTestingSmellTest {
         DefaultTestCase test0 = createTestCase0();
         testCase.setTestCase(test0);
 
-        double smellCount = this.indirectTesting.computeNumberOfSmells(testCase);
+        double smellCount = this.indirectTesting.computeTestSmellMetric(testCase);
         double expected = 0;
         assertEquals(expected, smellCount, 0.01);
     }
@@ -47,7 +47,7 @@ public class IndirectTestingSmellTest {
         DefaultTestCase test0 = createTestCase1();
         testCase.setTestCase(test0);
 
-        double smellCount = this.indirectTesting.computeNumberOfSmells(testCase);
+        double smellCount = this.indirectTesting.computeTestSmellMetric(testCase);
         double expected = 2;
         assertEquals(expected, smellCount, 0.01);
     }
@@ -58,7 +58,7 @@ public class IndirectTestingSmellTest {
         DefaultTestCase test0 = createTestCase2();
         testCase.setTestCase(test0);
 
-        double smellCount = this.indirectTesting.computeNumberOfSmells(testCase);
+        double smellCount = this.indirectTesting.computeTestSmellMetric(testCase);
         double expected = 1;
         assertEquals(expected, smellCount, 0.01);
     }

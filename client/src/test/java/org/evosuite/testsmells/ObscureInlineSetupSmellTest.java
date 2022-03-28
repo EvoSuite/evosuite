@@ -34,7 +34,7 @@ public class ObscureInlineSetupSmellTest {
         DefaultTestCase test0 = createTestCase0();
         testCase.setTestCase(test0);
 
-        double smellCount = this.obscureInlineSetup.computeNumberOfSmells(testCase);
+        double smellCount = this.obscureInlineSetup.computeTestSmellMetric(testCase);
         double expected = 0;
         assertEquals(expected, smellCount, 0.01);
     }
@@ -45,7 +45,7 @@ public class ObscureInlineSetupSmellTest {
         DefaultTestCase test0 = createTestCase1();
         testCase.setTestCase(test0);
 
-        double smellCount = this.obscureInlineSetup.computeNumberOfSmells(testCase);
+        double smellCount = this.obscureInlineSetup.computeTestSmellMetric(testCase);
         double expected = 1;
         assertEquals(expected, smellCount, 0.01);
     }
@@ -56,7 +56,7 @@ public class ObscureInlineSetupSmellTest {
         DefaultTestCase test0 = createTestCase2();
         testCase.setTestCase(test0);
 
-        double smellCount = this.obscureInlineSetup.computeNumberOfSmells(testCase);
+        double smellCount = this.obscureInlineSetup.computeTestSmellMetric(testCase);
         double expected = 2;
         assertEquals(expected, smellCount, 0.01);
     }
@@ -67,7 +67,7 @@ public class ObscureInlineSetupSmellTest {
         DefaultTestCase test0 = createTestCase3();
         testCase.setTestCase(test0);
 
-        double smellCount = this.obscureInlineSetup.computeNumberOfSmells(testCase);
+        double smellCount = this.obscureInlineSetup.computeTestSmellMetric(testCase);
         double expected = 6;
         assertEquals(expected, smellCount, 0.01);
     }
@@ -84,7 +84,7 @@ public class ObscureInlineSetupSmellTest {
         suite.addTest(test2);
         suite.addTest(test3);
 
-        double smellCount = this.obscureInlineSetup.computeNumberOfSmells(suite);
+        double smellCount = this.obscureInlineSetup.computeTestSmellMetric(suite);
         double expected = 9;
         assertEquals(expected, smellCount, 0.01);
     }

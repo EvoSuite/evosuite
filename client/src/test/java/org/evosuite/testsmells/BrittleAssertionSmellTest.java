@@ -36,7 +36,7 @@ public class BrittleAssertionSmellTest {
         DefaultTestCase test0 = createTestCase0();
         testCase.setTestCase(test0);
 
-        double smellCount = this.brittleAssertion.computeNumberOfSmells(testCase);
+        double smellCount = this.brittleAssertion.computeTestSmellMetric(testCase);
         double expected = 0;
         assertEquals(expected, smellCount, 0.01);
     }
@@ -47,7 +47,7 @@ public class BrittleAssertionSmellTest {
         DefaultTestCase test0 = createTestCase1();
         testCase.setTestCase(test0);
 
-        double smellCount = this.brittleAssertion.computeNumberOfSmells(testCase);
+        double smellCount = this.brittleAssertion.computeTestSmellMetric(testCase);
         double expected = 1;
         assertEquals(expected, smellCount, 0.01);
     }
@@ -58,7 +58,7 @@ public class BrittleAssertionSmellTest {
         DefaultTestCase test0 = createTestCase2();
         testCase.setTestCase(test0);
 
-        double smellCount = this.brittleAssertion.computeNumberOfSmells(testCase);
+        double smellCount = this.brittleAssertion.computeTestSmellMetric(testCase);
         double expected = 1;
         assertEquals(expected, smellCount, 0.01);
     }
@@ -73,7 +73,7 @@ public class BrittleAssertionSmellTest {
         suite.addTest(test1);
         suite.addTest(test2);
 
-        double smellCount = this.brittleAssertion.computeNumberOfSmells(suite);
+        double smellCount = this.brittleAssertion.computeTestSmellMetric(suite);
         double expected = 2;
         assertEquals(expected, smellCount, 0.01);
     }

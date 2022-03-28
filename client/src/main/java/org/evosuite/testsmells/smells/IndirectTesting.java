@@ -3,7 +3,6 @@ package org.evosuite.testsmells.smells;
 import org.evosuite.Properties;
 import org.evosuite.assertion.Assertion;
 import org.evosuite.assertion.InspectorAssertion;
-import org.evosuite.ga.FitnessFunction;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testcase.statements.Statement;
@@ -19,7 +18,7 @@ public class IndirectTesting extends AbstractTestCaseSmell {
     }
 
     @Override
-    public double computeNumberOfSmells(TestChromosome chromosome) {
+    public double computeNumberOfTestSmells(TestChromosome chromosome) {
         int size = chromosome.size();
         int count = 0;
 
@@ -50,6 +49,6 @@ public class IndirectTesting extends AbstractTestCaseSmell {
             }
         }
 
-        return FitnessFunction.normalize(count);
+        return count;
     }
 }

@@ -286,7 +286,7 @@ public final class TestSuiteChromosome
 	/**
 	 * Optimize test smell metrics
 	 * @param listOfTestSmells A list with the test smell metrics that will be optimized
-	 * @return int with the total test smell score
+	 * @return double with the total test smell score
 	 */
 	public double calculateSmellValuesTestSuite (List<AbstractTestSmell> listOfTestSmells){
 
@@ -300,7 +300,7 @@ public final class TestSuiteChromosome
             double specificSmellScore;
 
 			for (AbstractTestSmell testSmell : listOfTestSmells){
-				specificSmellScore = testSmell.computeNumberOfSmells(this);
+				specificSmellScore = testSmell.computeTestSmellMetric(this);
 				this.smellScoreTestSuite += specificSmellScore;
 				this.smellValuesTestSuite.put(testSmell.getName(), specificSmellScore);
 			}

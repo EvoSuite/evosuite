@@ -3,6 +3,9 @@ package org.evosuite.testsmells.smells;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testsmells.AbstractTestCaseSmell;
+import org.evosuite.testsuite.TestSuiteChromosome;
+
+import java.util.List;
 
 /**
  * Detection:
@@ -22,9 +25,14 @@ public class UnknownTest extends AbstractTestCaseSmell {
     }
 
     @Override
-    public double computeNumberOfSmells(TestChromosome chromosome) {
+    public double computeNumberOfTestSmells(TestChromosome chromosome) {
+        return computeTestSmellMetric(chromosome);
+    }
+
+    @Override
+    public double computeTestSmellMetric(TestChromosome chromosome) {
         int size = chromosome.size();
-        double count = 1;
+        int count = 1;
 
         Statement currentStatement;
 
@@ -37,5 +45,18 @@ public class UnknownTest extends AbstractTestCaseSmell {
         }
 
         return count;
+    }
+
+    @Override
+    public double computeTestSmellMetric(TestSuiteChromosome chromosome) {
+        double smellCount = 0;
+
+        List<TestChromosome> testChromosomes = chromosome.getTestChromosomes();
+
+        for(TestChromosome testChromosome : testChromosomes){
+            smellCount += computeNumberOfTestSmells(testChromosome);
+        }
+
+        return smellCount / testChromosomes.size();
     }
 }

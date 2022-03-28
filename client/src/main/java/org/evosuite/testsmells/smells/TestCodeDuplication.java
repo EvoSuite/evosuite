@@ -1,6 +1,5 @@
 package org.evosuite.testsmells.smells;
 
-import org.evosuite.ga.FitnessFunction;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testsmells.AbstractTestCaseSmell;
 
@@ -11,7 +10,7 @@ public class TestCodeDuplication extends AbstractTestCaseSmell {
     }
 
     @Override
-    public double computeNumberOfSmells(TestChromosome chromosome) {
+    public double computeNumberOfTestSmells(TestChromosome chromosome) {
         int size = chromosome.size();
         int count = 0;
 
@@ -32,7 +31,8 @@ public class TestCodeDuplication extends AbstractTestCaseSmell {
                 }
             }
         }
-        return FitnessFunction.normalize(count);
+
+        return count;
     }
 
     private int getLevenshteinDistance(String originalString, String newString){

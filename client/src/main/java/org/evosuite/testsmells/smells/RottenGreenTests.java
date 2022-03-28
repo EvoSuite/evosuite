@@ -1,6 +1,5 @@
 package org.evosuite.testsmells.smells;
 
-import org.evosuite.ga.FitnessFunction;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testsmells.AbstractTestCaseSmell;
@@ -15,7 +14,7 @@ public class RottenGreenTests extends AbstractTestCaseSmell {
     }
 
     @Override
-    public double computeNumberOfSmells(TestChromosome chromosome) {
+    public double computeNumberOfTestSmells(TestChromosome chromosome) {
        int size = chromosome.size();
 
         ExecutionResult lastExecutionResult = chromosome.getLastExecutionResult();
@@ -26,7 +25,7 @@ public class RottenGreenTests extends AbstractTestCaseSmell {
 
             if(exceptionPositions.size() > 0){
                 int firstException = Collections.min(exceptionPositions);
-                return FitnessFunction.normalize(size - firstException - 1);
+                return size - firstException - 1;
             }
         }
 

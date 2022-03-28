@@ -1,6 +1,5 @@
 package org.evosuite.testsmells.smells;
 
-import org.evosuite.ga.FitnessFunction;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testsmells.AbstractTestCaseSmell;
 
@@ -15,7 +14,7 @@ public class VerboseTest extends AbstractTestCaseSmell {
     }
 
     @Override
-    public double computeNumberOfSmells(TestChromosome chromosome) {
-        return FitnessFunction.normalize(chromosome.size());
+    public double computeNumberOfTestSmells(TestChromosome chromosome) {
+        return chromosome.size();
     }
 }

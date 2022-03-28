@@ -1,6 +1,5 @@
 package org.evosuite.testsmells.smells;
 
-import org.evosuite.ga.FitnessFunction;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestCodeVisitor;
 import org.evosuite.testcase.statements.ConstructorStatement;
@@ -21,7 +20,7 @@ public class ResourceOptimism extends AbstractTestCaseSmell {
     }
 
     @Override
-    public double computeNumberOfSmells(TestChromosome chromosome) {
+    public double computeNumberOfTestSmells(TestChromosome chromosome) {
         int size = chromosome.size();
         int count = 0;
 
@@ -84,6 +83,6 @@ public class ResourceOptimism extends AbstractTestCaseSmell {
             }
         }
 
-        return FitnessFunction.normalize(count);
+        return count;
     }
 }

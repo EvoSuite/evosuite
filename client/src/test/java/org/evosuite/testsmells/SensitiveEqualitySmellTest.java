@@ -37,7 +37,7 @@ public class SensitiveEqualitySmellTest {
         DefaultTestCase test0 = createTestCase0();
         testCase.setTestCase(test0);
 
-        double smellCount = this.sensitiveEquality.computeNumberOfSmells(testCase);
+        double smellCount = this.sensitiveEquality.computeTestSmellMetric(testCase);
         double expected = 0;
         assertEquals(expected, smellCount, 0.01);
     }
@@ -48,7 +48,7 @@ public class SensitiveEqualitySmellTest {
         DefaultTestCase test0 = createTestCase1();
         testCase.setTestCase(test0);
 
-        double smellCount = this.sensitiveEquality.computeNumberOfSmells(testCase);
+        double smellCount = this.sensitiveEquality.computeTestSmellMetric(testCase);
         double expected = 0;
         assertEquals(expected, smellCount, 0.01);
     }
@@ -59,7 +59,7 @@ public class SensitiveEqualitySmellTest {
         DefaultTestCase test0 = createTestCase2();
         testCase.setTestCase(test0);
 
-        double smellCount = this.sensitiveEquality.computeNumberOfSmells(testCase);
+        double smellCount = this.sensitiveEquality.computeTestSmellMetric(testCase);
         double expected = 0;
         assertEquals(expected, smellCount, 0.01);
     }
@@ -70,7 +70,7 @@ public class SensitiveEqualitySmellTest {
         DefaultTestCase test0 = createTestCase3();
         testCase.setTestCase(test0);
 
-        double smellCount = this.sensitiveEquality.computeNumberOfSmells(testCase);
+        double smellCount = this.sensitiveEquality.computeTestSmellMetric(testCase);
         double expected = 1;
         assertEquals(expected, smellCount, 0.01);
     }
@@ -81,7 +81,7 @@ public class SensitiveEqualitySmellTest {
         DefaultTestCase test0 = createTestCase4();
         testCase.setTestCase(test0);
 
-        double smellCount = this.sensitiveEquality.computeNumberOfSmells(testCase);
+        double smellCount = this.sensitiveEquality.computeTestSmellMetric(testCase);
         double expected = 0;
         assertEquals(expected, smellCount, 0.01);
     }
@@ -92,7 +92,7 @@ public class SensitiveEqualitySmellTest {
         DefaultTestCase test0 = createTestCase5();
         testCase.setTestCase(test0);
 
-        double smellCount = this.sensitiveEquality.computeNumberOfSmells(testCase);
+        double smellCount = this.sensitiveEquality.computeTestSmellMetric(testCase);
         double expected = 1;
         assertEquals(expected, smellCount, 0.01);
     }
@@ -113,7 +113,7 @@ public class SensitiveEqualitySmellTest {
         suite.addTest(test4);
         suite.addTest(test5);
 
-        double smellCount = this.sensitiveEquality.computeNumberOfSmells(suite);
+        double smellCount = this.sensitiveEquality.computeTestSmellMetric(suite);
         double expected = 2;
         assertEquals(expected, smellCount, 0.01);
     }

@@ -3,7 +3,6 @@ package org.evosuite.testsmells.smells;
 import org.evosuite.Properties;
 import org.evosuite.assertion.Assertion;
 import org.evosuite.assertion.InspectorAssertion;
-import org.evosuite.ga.FitnessFunction;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testcase.statements.Statement;
@@ -20,7 +19,7 @@ public class EagerTest extends AbstractTestCaseSmell {
     }
 
     @Override
-    public double computeNumberOfSmells(TestChromosome chromosome) {
+    public double computeNumberOfTestSmells(TestChromosome chromosome) {
         int size = chromosome.size();
 
         Statement currentStatement;
@@ -52,6 +51,6 @@ public class EagerTest extends AbstractTestCaseSmell {
             }
         }
 
-        return FitnessFunction.normalize(setOfMethods.size());
+        return setOfMethods.size();
     }
 }

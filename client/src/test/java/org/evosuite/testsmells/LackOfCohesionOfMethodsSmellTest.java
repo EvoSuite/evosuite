@@ -36,7 +36,7 @@ public class LackOfCohesionOfMethodsSmellTest {
         suite.addTest(test0);
         suite.addTest(test1);
 
-        double smellCount = this.lackOfCohesionOfMethods.computeNumberOfSmells(suite);
+        double smellCount = this.lackOfCohesionOfMethods.computeTestSmellMetric(suite);
         double expected = 0;
         assertEquals(expected, smellCount, 0.01);
     }
@@ -49,7 +49,7 @@ public class LackOfCohesionOfMethodsSmellTest {
         suite.addTest(test0);
         suite.addTest(test1);
 
-        double smellCount = this.lackOfCohesionOfMethods.computeNumberOfSmells(suite);
+        double smellCount = this.lackOfCohesionOfMethods.computeTestSmellMetric(suite);
         double expected = 1;
         assertEquals(expected, smellCount, 0.01);
     }
@@ -66,7 +66,7 @@ public class LackOfCohesionOfMethodsSmellTest {
         suite.addTest(test2);
         suite.addTest(test3);
 
-        double smellCount = this.lackOfCohesionOfMethods.computeNumberOfSmells(suite);
+        double smellCount = this.lackOfCohesionOfMethods.computeTestSmellMetric(suite);
         double expected = 3;
         assertEquals(expected, smellCount, 0.01);
     }
@@ -79,7 +79,7 @@ public class LackOfCohesionOfMethodsSmellTest {
         suite.addTest(test0);
         suite.addTest(test1);
 
-        double smellCount = this.lackOfCohesionOfMethods.computeNumberOfSmells(suite);
+        double smellCount = this.lackOfCohesionOfMethods.computeTestSmellMetric(suite);
         double expected = 0;
         assertEquals(expected, smellCount, 0.01);
     }

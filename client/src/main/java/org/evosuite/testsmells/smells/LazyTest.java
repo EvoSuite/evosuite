@@ -20,7 +20,7 @@ public class LazyTest extends AbstractTestSmell {
     }
 
     @Override
-    public double computeNumberOfSmells(TestSuiteChromosome chromosome) {
+    public double computeTestSmellMetric(TestSuiteChromosome chromosome) {
         Statement currentStatement;
         int count = 0;
 

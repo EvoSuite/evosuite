@@ -34,7 +34,7 @@ public class LikelyIneffectiveObjectComparisonSmellTest {
         DefaultTestCase test0 = createTestCase0();
         testCase.setTestCase(test0);
 
-        double smellCount = this.likelyIneffectiveObjectComparison.computeNumberOfSmells(testCase);
+        double smellCount = this.likelyIneffectiveObjectComparison.computeTestSmellMetric(testCase);
         double expected = 0;
         assertEquals(expected, smellCount, 0.01);
     }
@@ -45,7 +45,7 @@ public class LikelyIneffectiveObjectComparisonSmellTest {
         DefaultTestCase test0 = createTestCase1();
         testCase.setTestCase(test0);
 
-        double smellCount = this.likelyIneffectiveObjectComparison.computeNumberOfSmells(testCase);
+        double smellCount = this.likelyIneffectiveObjectComparison.computeTestSmellMetric(testCase);
         double expected = 0;
         assertEquals(expected, smellCount, 0.01);
     }
@@ -56,7 +56,7 @@ public class LikelyIneffectiveObjectComparisonSmellTest {
         DefaultTestCase test0 = createTestCase2();
         testCase.setTestCase(test0);
 
-        double smellCount = this.likelyIneffectiveObjectComparison.computeNumberOfSmells(testCase);
+        double smellCount = this.likelyIneffectiveObjectComparison.computeTestSmellMetric(testCase);
         double expected = 0;
         assertEquals(expected, smellCount, 0.01);
     }
@@ -67,7 +67,7 @@ public class LikelyIneffectiveObjectComparisonSmellTest {
         DefaultTestCase test0 = createTestCase3();
         testCase.setTestCase(test0);
 
-        double smellCount = this.likelyIneffectiveObjectComparison.computeNumberOfSmells(testCase);
+        double smellCount = this.likelyIneffectiveObjectComparison.computeTestSmellMetric(testCase);
         double expected = 1;
         assertEquals(expected, smellCount, 0.01);
     }
@@ -84,7 +84,7 @@ public class LikelyIneffectiveObjectComparisonSmellTest {
         suite.addTest(test2);
         suite.addTest(test3);
 
-        double smellCount = this.likelyIneffectiveObjectComparison.computeNumberOfSmells(suite);
+        double smellCount = this.likelyIneffectiveObjectComparison.computeTestSmellMetric(suite);
         double expected = 1;
         assertEquals(expected, smellCount, 0.01);
     }

@@ -37,7 +37,7 @@ public class LazyTestSmellTest {
         suite.addTest(test0);
         suite.addTest(test1);
 
-        double smellCount = this.lazyTest.computeNumberOfSmells(suite);
+        double smellCount = this.lazyTest.computeTestSmellMetric(suite);
         double expected = 0;
         assertEquals(expected, smellCount, 0.01);
     }
@@ -52,7 +52,7 @@ public class LazyTestSmellTest {
         suite.addTest(test1);
         suite.addTest(test2);
 
-        double smellCount = this.lazyTest.computeNumberOfSmells(suite);
+        double smellCount = this.lazyTest.computeTestSmellMetric(suite);
         double expected = 2;
         assertEquals(expected, smellCount, 0.01);
     }
@@ -65,7 +65,7 @@ public class LazyTestSmellTest {
         suite.addTest(test0);
         suite.addTest(test1);
 
-        double smellCount = this.lazyTest.computeNumberOfSmells(suite);
+        double smellCount = this.lazyTest.computeTestSmellMetric(suite);
         double expected = 1;
         assertEquals(expected, smellCount, 0.01);
     }
@@ -78,7 +78,7 @@ public class LazyTestSmellTest {
         suite.addTest(test0);
         suite.addTest(test1);
 
-        double smellCount = this.lazyTest.computeNumberOfSmells(suite);
+        double smellCount = this.lazyTest.computeTestSmellMetric(suite);
         double expected = 2;
         assertEquals(expected, smellCount, 0.01);
     }

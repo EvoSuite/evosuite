@@ -15,7 +15,7 @@ public class LackOfCohesionOfMethods extends AbstractTestSmell {
     }
 
     @Override
-    public double computeNumberOfSmells(TestSuiteChromosome chromosome) {
+    public double computeTestSmellMetric(TestSuiteChromosome chromosome) {
         int count = 0;
         String targetClass = Properties.TARGET_CLASS;
 
