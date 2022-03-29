@@ -50,7 +50,7 @@ public class LackOfCohesionOfMethodsSmellTest {
         suite.addTest(test1);
 
         double smellCount = this.lackOfCohesionOfMethods.computeTestSmellMetric(suite);
-        double expected = 1;
+        double expected = 0.5;
         assertEquals(expected, smellCount, 0.01);
     }
 
@@ -67,7 +67,24 @@ public class LackOfCohesionOfMethodsSmellTest {
         suite.addTest(test3);
 
         double smellCount = this.lackOfCohesionOfMethods.computeTestSmellMetric(suite);
-        double expected = 3;
+        double expected = 0.75;
+        assertEquals(expected, smellCount, 0.01);
+    }
+
+    @Test
+    public void testNoTestCasePerformsTestsOnTheClassUnderTest() throws NoSuchMethodException {
+        TestSuiteChromosome suite = new TestSuiteChromosome();
+        DefaultTestCase test0 = createTestCase1();
+        DefaultTestCase test1 = createTestCase1();
+        DefaultTestCase test2 = createTestCase1();
+        DefaultTestCase test3 = createTestCase1();
+        suite.addTest(test0);
+        suite.addTest(test1);
+        suite.addTest(test2);
+        suite.addTest(test3);
+
+        double smellCount = this.lackOfCohesionOfMethods.computeTestSmellMetric(suite);
+        double expected = 0.8;
         assertEquals(expected, smellCount, 0.01);
     }
 
@@ -81,6 +98,32 @@ public class LackOfCohesionOfMethodsSmellTest {
 
         double smellCount = this.lackOfCohesionOfMethods.computeTestSmellMetric(suite);
         double expected = 0;
+        assertEquals(expected, smellCount, 0.01);
+    }
+
+    @Test
+    public void testOneTestCaseCreatesInstanceOfTheClassUnderTestButDoesNotPerformTests() throws NoSuchMethodException {
+        TestSuiteChromosome suite = new TestSuiteChromosome();
+        DefaultTestCase test0 = createTestCase0();
+        DefaultTestCase test1 = createTestCase3();
+        suite.addTest(test0);
+        suite.addTest(test1);
+
+        double smellCount = this.lackOfCohesionOfMethods.computeTestSmellMetric(suite);
+        double expected = 0;
+        assertEquals(expected, smellCount, 0.01);
+    }
+
+    @Test
+    public void testOneTestCaseIsEmpty() throws NoSuchMethodException {
+        TestSuiteChromosome suite = new TestSuiteChromosome();
+        DefaultTestCase test0 = createTestCase0();
+        DefaultTestCase test1 = createEmptyTestCase();
+        suite.addTest(test0);
+        suite.addTest(test1);
+
+        double smellCount = this.lackOfCohesionOfMethods.computeTestSmellMetric(suite);
+        double expected = 0.5;
         assertEquals(expected, smellCount, 0.01);
     }
 
@@ -107,12 +150,10 @@ public class LackOfCohesionOfMethodsSmellTest {
 
         // Add assertions
 
-        Statement currentStatement;
-
         PrimitiveAssertion primitiveAssertion0 = new PrimitiveAssertion();
         primitiveAssertion0.setSource(methodStatement0);
         primitiveAssertion0.setValue(5);
-        currentStatement = testCase.getStatement(4);
+        Statement currentStatement = testCase.getStatement(4);
         currentStatement.addAssertion(primitiveAssertion0);
 
         return testCase;
@@ -136,12 +177,10 @@ public class LackOfCohesionOfMethodsSmellTest {
 
         // Add assertions
 
-        Statement currentStatement;
-
         PrimitiveAssertion primitiveAssertion0 = new PrimitiveAssertion();
         primitiveAssertion0.setSource(methodStatement0);
         primitiveAssertion0.setValue("Bob");
-        currentStatement = testCase.getStatement(2);
+        Statement currentStatement = testCase.getStatement(2);
         currentStatement.addAssertion(primitiveAssertion0);
 
         return testCase;
@@ -193,4 +232,25 @@ public class LackOfCohesionOfMethodsSmellTest {
         return testCase;
     }
 
+    private DefaultTestCase createTestCase3() throws NoSuchMethodException {
+
+        // Create test case
+
+        TestCaseBuilder builder = new TestCaseBuilder();
+
+        VariableReference stringStatement0 = builder.appendStringPrimitive("Bob");
+
+        Constructor<TestSmellsTestingClass1> const0 = TestSmellsTestingClass1.class.getConstructor(String.class);
+        builder.appendConstructor(const0, stringStatement0);
+
+        return builder.getDefaultTestCase();
+    }
+
+    private DefaultTestCase createEmptyTestCase() {
+
+        // Create test case
+
+        TestCaseBuilder builder = new TestCaseBuilder();
+        return builder.getDefaultTestCase();
+    }
 }
