@@ -17,7 +17,7 @@ import java.util.Set;
  * A test case checks multiple methods of the class under test (i.e., the test case verifies too much functionality).
  *
  * Metric:
- * Count the total number of different methods checked by a test case.
+ * Count the total number of different methods of the class under test that are checked by a test case.
  *
  * Computation:
  * 1 - Iterate over the statements of a test case
@@ -25,7 +25,7 @@ import java.util.Set;
  * 3 (2 is True):
  *    3.1 - Get the method called in the respective statement
  *    3.2 - If the class that declares this method is the same as the class under test: add method to a LinkedHashSet
- *          of methods (a LinkedHashSet does not store duplicate elements).
+ *          of methods (a LinkedHashSet does not store duplicate elements)
  *    3.3 - Verify if the current statement has assertions
  *    3.4 (3.3 is True):
  *       3.4.1 - Iterate over the assertions of the current statement
