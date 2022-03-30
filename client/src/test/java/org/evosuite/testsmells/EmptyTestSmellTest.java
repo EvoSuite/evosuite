@@ -63,6 +63,23 @@ public class EmptyTestSmellTest {
         assertEquals(expected, smellCount, 0.01);
     }
 
+    @Test
+    public void testFullTestSuiteMultipleEmptyTests() throws NoSuchMethodException {
+        TestSuiteChromosome suite = new TestSuiteChromosome();
+        DefaultTestCase test0 = createTestCase0();
+        DefaultTestCase test1 = createTestCase1();
+        DefaultTestCase test2 = createTestCase1();
+        DefaultTestCase test3 = createTestCase1();
+        suite.addTest(test0);
+        suite.addTest(test1);
+        suite.addTest(test2);
+        suite.addTest(test3);
+
+        double smellCount = this.emptyTest.computeTestSmellMetric(suite);
+        double expected = Integer.MAX_VALUE;
+        assertEquals(expected, smellCount, 0.01);
+    }
+
     private DefaultTestCase createTestCase0() throws NoSuchMethodException {
 
         // Create test case
