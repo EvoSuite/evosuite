@@ -1,6 +1,7 @@
 package org.evosuite.testsmells;
 
 import com.examples.with.different.packagename.testsmells.TestSmellsTestingClass1;
+import com.examples.with.different.packagename.testsmells.TestSmellsTestingClass2;
 import org.evosuite.Properties;
 import org.evosuite.assertion.PrimitiveAssertion;
 import org.evosuite.symbolic.TestCaseBuilder;
@@ -34,42 +35,102 @@ public class ObscureInlineSetupSmellTest {
         DefaultTestCase test0 = createTestCase0();
         testCase.setTestCase(test0);
 
-        double smellCount = this.obscureInlineSetup.computeTestSmellMetric(testCase);
+        double smellCount = this.obscureInlineSetup.computeNumberOfTestSmells(testCase);
         double expected = 0;
         assertEquals(expected, smellCount, 0.01);
+
+        double computedMetric = this.obscureInlineSetup.computeTestSmellMetric(testCase);
+        assertEquals(expected, computedMetric, 0.01);
     }
 
     @Test
-    public void testOneDeclaredVariable() {
+    public void testOneDeclaredVariablePrimitiveStatement() {
         TestChromosome testCase = new TestChromosome();
         DefaultTestCase test0 = createTestCase1();
         testCase.setTestCase(test0);
 
-        double smellCount = this.obscureInlineSetup.computeTestSmellMetric(testCase);
-        double expected = 1;
+        double smellCount = this.obscureInlineSetup.computeNumberOfTestSmells(testCase);
+        double expected = 1.0;
         assertEquals(expected, smellCount, 0.01);
+
+        double computedMetric = this.obscureInlineSetup.computeTestSmellMetric(testCase);
+        expected = 0.5;
+        assertEquals(expected, computedMetric, 0.01);
+    }
+
+    @Test
+    public void testOneDeclaredVariableConstructorStatement() throws NoSuchMethodException {
+        TestChromosome testCase = new TestChromosome();
+        DefaultTestCase test0 = createTestCase2();
+        testCase.setTestCase(test0);
+
+        double smellCount = this.obscureInlineSetup.computeNumberOfTestSmells(testCase);
+        double expected = 1.0;
+        assertEquals(expected, smellCount, 0.01);
+
+        double computedMetric = this.obscureInlineSetup.computeTestSmellMetric(testCase);
+        expected = 0.5;
+        assertEquals(expected, computedMetric, 0.01);
     }
 
     @Test
     public void testTwoDeclaredVariables() throws NoSuchMethodException {
         TestChromosome testCase = new TestChromosome();
-        DefaultTestCase test0 = createTestCase2();
+        DefaultTestCase test0 = createTestCase3();
         testCase.setTestCase(test0);
 
-        double smellCount = this.obscureInlineSetup.computeTestSmellMetric(testCase);
-        double expected = 2;
+        double smellCount = this.obscureInlineSetup.computeNumberOfTestSmells(testCase);
+        double expected = 2.0;
         assertEquals(expected, smellCount, 0.01);
+
+        double computedMetric = this.obscureInlineSetup.computeTestSmellMetric(testCase);
+        expected = 2.0 / (1.0 + 2.0);
+        assertEquals(expected, computedMetric, 0.01);
+    }
+
+    @Test
+    public void testThreeDeclaredVariablesMethodStatement() throws NoSuchMethodException {
+        TestChromosome testCase = new TestChromosome();
+        DefaultTestCase test0 = createTestCase4();
+        testCase.setTestCase(test0);
+
+        double smellCount = this.obscureInlineSetup.computeNumberOfTestSmells(testCase);
+        double expected = 3.0;
+        assertEquals(expected, smellCount, 0.01);
+
+        double computedMetric = this.obscureInlineSetup.computeTestSmellMetric(testCase);
+        expected = 0.75;
+        assertEquals(expected, computedMetric, 0.01);
+    }
+
+    @Test
+    public void testThreeDeclaredVariablesMethodStatementVoid() throws NoSuchMethodException {
+        TestChromosome testCase = new TestChromosome();
+        DefaultTestCase test0 = createTestCase5();
+        testCase.setTestCase(test0);
+
+        double smellCount = this.obscureInlineSetup.computeNumberOfTestSmells(testCase);
+        double expected = 3.0;
+        assertEquals(expected, smellCount, 0.01);
+
+        double computedMetric = this.obscureInlineSetup.computeTestSmellMetric(testCase);
+        expected = 0.75;
+        assertEquals(expected, computedMetric, 0.01);
     }
 
     @Test
     public void testMultipleDeclaredVariables() throws NoSuchMethodException {
         TestChromosome testCase = new TestChromosome();
-        DefaultTestCase test0 = createTestCase3();
+        DefaultTestCase test0 = createTestCase6();
         testCase.setTestCase(test0);
 
-        double smellCount = this.obscureInlineSetup.computeTestSmellMetric(testCase);
-        double expected = 6;
+        double smellCount = this.obscureInlineSetup.computeNumberOfTestSmells(testCase);
+        double expected = 6.0;
         assertEquals(expected, smellCount, 0.01);
+
+        double computedMetric = this.obscureInlineSetup.computeTestSmellMetric(testCase);
+        expected = 6.0 / (1.0 + 6.0);
+        assertEquals(expected, computedMetric, 0.01);
     }
 
     @Test
@@ -79,13 +140,19 @@ public class ObscureInlineSetupSmellTest {
         DefaultTestCase test1 = createTestCase1();
         DefaultTestCase test2 = createTestCase2();
         DefaultTestCase test3 = createTestCase3();
+        DefaultTestCase test4 = createTestCase4();
+        DefaultTestCase test5 = createTestCase5();
+        DefaultTestCase test6 = createTestCase6();
         suite.addTest(test0);
         suite.addTest(test1);
         suite.addTest(test2);
         suite.addTest(test3);
+        suite.addTest(test4);
+        suite.addTest(test5);
+        suite.addTest(test6);
 
         double smellCount = this.obscureInlineSetup.computeTestSmellMetric(suite);
-        double expected = 9;
+        double expected = 16.0 / (1.0 + 16.0);
         assertEquals(expected, smellCount, 0.01);
     }
 
@@ -114,6 +181,18 @@ public class ObscureInlineSetupSmellTest {
 
         TestCaseBuilder builder = new TestCaseBuilder();
 
+        Constructor<TestSmellsTestingClass2> const0 = TestSmellsTestingClass2.class.getConstructor();
+        builder.appendConstructor(const0);
+
+        return builder.getDefaultTestCase();
+    }
+
+    private DefaultTestCase createTestCase3() throws NoSuchMethodException {
+
+        // Create test case
+
+        TestCaseBuilder builder = new TestCaseBuilder();
+
         VariableReference stringStatement0 = builder.appendStringPrimitive("Bob");
 
         Constructor<TestSmellsTestingClass1> const0 = TestSmellsTestingClass1.class.getConstructor(String.class);
@@ -122,7 +201,43 @@ public class ObscureInlineSetupSmellTest {
         return builder.getDefaultTestCase();
     }
 
-    private DefaultTestCase createTestCase3() throws NoSuchMethodException {
+    private DefaultTestCase createTestCase4() throws NoSuchMethodException {
+
+        // Create test case
+
+        TestCaseBuilder builder = new TestCaseBuilder();
+
+        VariableReference stringStatement0 = builder.appendStringPrimitive("Bob");
+
+        Constructor<TestSmellsTestingClass1> const0 = TestSmellsTestingClass1.class.getConstructor(String.class);
+        VariableReference constructorStatement0 = builder.appendConstructor(const0, stringStatement0);
+
+        Method getNameMethod0 = TestSmellsTestingClass1.class.getMethod("getName");
+        builder.appendMethod(constructorStatement0, getNameMethod0);
+
+        return builder.getDefaultTestCase();
+    }
+
+    private DefaultTestCase createTestCase5() throws NoSuchMethodException {
+
+        // Create test case
+
+        TestCaseBuilder builder = new TestCaseBuilder();
+
+        VariableReference stringStatement0 = builder.appendStringPrimitive("Bob");
+
+        Constructor<TestSmellsTestingClass1> const0 = TestSmellsTestingClass1.class.getConstructor(String.class);
+        VariableReference constructorStatement0 = builder.appendConstructor(const0, stringStatement0);
+
+        VariableReference intStatement0 = builder.appendIntPrimitive(5);
+
+        Method setNumberMethod0 = TestSmellsTestingClass1.class.getMethod("setNumber", int.class);
+        builder.appendMethod(constructorStatement0, setNumberMethod0, intStatement0);
+
+        return builder.getDefaultTestCase();
+    }
+
+    private DefaultTestCase createTestCase6() throws NoSuchMethodException {
 
         // Create test case
 
