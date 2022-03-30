@@ -1,5 +1,6 @@
 package org.evosuite.testsmells;
 
+import com.examples.with.different.packagename.testsmells.TestSmellsSimpleUser;
 import com.examples.with.different.packagename.testsmells.TestSmellsTestingClass1;
 import org.evosuite.Properties;
 import org.evosuite.assertion.Inspector;
@@ -30,10 +31,66 @@ public class LazyTestSmellTest {
     }
 
     @Test
-    public void testEachTestCaseTestsADifferentMethod() throws NoSuchMethodException {
+    public void testEachTestCaseCallsADifferentMethod() throws NoSuchMethodException {
         TestSuiteChromosome suite = new TestSuiteChromosome();
         DefaultTestCase test0 = createTestCase0();
         DefaultTestCase test1 = createTestCase1();
+        suite.addTest(test0);
+        suite.addTest(test1);
+
+        double computedMetric = this.lazyTest.computeTestSmellMetric(suite);
+        double expected = 0;
+        assertEquals(expected, computedMetric, 0.01);
+    }
+
+    @Test
+    public void testAllTestCasesCallTheSameMethod() throws NoSuchMethodException {
+        TestSuiteChromosome suite = new TestSuiteChromosome();
+        DefaultTestCase test0 = createTestCase0();
+        DefaultTestCase test1 = createTestCase0();
+        DefaultTestCase test2 = createTestCase0();
+        suite.addTest(test0);
+        suite.addTest(test1);
+        suite.addTest(test2);
+
+        double computedMetric = this.lazyTest.computeTestSmellMetric(suite);
+        double expected = 2.0 / (1.0 + 2.0);
+        assertEquals(expected, computedMetric, 0.01);
+    }
+
+    @Test
+    public void testOneTestCaseCallsTheSameMethodsAsTwoOtherTestCases() throws NoSuchMethodException {
+        TestSuiteChromosome suite = new TestSuiteChromosome();
+        DefaultTestCase test0 = createTestCase0();
+        DefaultTestCase test1 = createTestCase1();
+        DefaultTestCase test2 = createTestCase2();
+        suite.addTest(test0);
+        suite.addTest(test1);
+        suite.addTest(test2);
+
+        double computedMetric = this.lazyTest.computeTestSmellMetric(suite);
+        double expected = 0.75;
+        assertEquals(expected, computedMetric, 0.01);
+    }
+
+    @Test
+    public void testTwoTestCasesCallTheSameMethodInInspectorAssertion() throws NoSuchMethodException {
+        TestSuiteChromosome suite = new TestSuiteChromosome();
+        DefaultTestCase test0 = createTestCase1();
+        DefaultTestCase test1 = createTestCase3();
+        suite.addTest(test0);
+        suite.addTest(test1);
+
+        double smellCount = this.lazyTest.computeTestSmellMetric(suite);
+        double expected = 2.0 / (1.0 + 2.0);
+        assertEquals(expected, smellCount, 0.01);
+    }
+
+    @Test
+    public void testAllTestCasesCallDifferentMethodsInInspectorAssertion() throws NoSuchMethodException {
+        TestSuiteChromosome suite = new TestSuiteChromosome();
+        DefaultTestCase test0 = createTestCase3();
+        DefaultTestCase test1 = createTestCase4();
         suite.addTest(test0);
         suite.addTest(test1);
 
@@ -43,43 +100,15 @@ public class LazyTestSmellTest {
     }
 
     @Test
-    public void testAllTestCasesTestTheSameMethod() throws NoSuchMethodException {
-        TestSuiteChromosome suite = new TestSuiteChromosome();
-        DefaultTestCase test0 = createTestCase0();
-        DefaultTestCase test1 = createTestCase0();
-        DefaultTestCase test2 = createTestCase0();
-        suite.addTest(test0);
-        suite.addTest(test1);
-        suite.addTest(test2);
-
-        double smellCount = this.lazyTest.computeTestSmellMetric(suite);
-        double expected = 2;
-        assertEquals(expected, smellCount, 0.01);
-    }
-
-    @Test
-    public void testTwoTestCasesTestTheSameMethod() throws NoSuchMethodException {
-        TestSuiteChromosome suite = new TestSuiteChromosome();
-        DefaultTestCase test0 = createTestCase0();
-        DefaultTestCase test1 = createTestCase2();
-        suite.addTest(test0);
-        suite.addTest(test1);
-
-        double smellCount = this.lazyTest.computeTestSmellMetric(suite);
-        double expected = 1;
-        assertEquals(expected, smellCount, 0.01);
-    }
-
-    @Test
-    public void testRepeatedMethodInInspectorAssertion() throws NoSuchMethodException {
+    public void testOneTestCaseIsEmpty() throws NoSuchMethodException {
         TestSuiteChromosome suite = new TestSuiteChromosome();
         DefaultTestCase test0 = createTestCase1();
-        DefaultTestCase test1 = createTestCase3();
+        DefaultTestCase test1 = createEmptyTestCase();
         suite.addTest(test0);
         suite.addTest(test1);
 
         double smellCount = this.lazyTest.computeTestSmellMetric(suite);
-        double expected = 2;
+        double expected = 0;
         assertEquals(expected, smellCount, 0.01);
     }
 
@@ -211,5 +240,36 @@ public class LazyTestSmellTest {
         currentStatement.addAssertion(inspectorAssertion0);
 
         return testCase;
+    }
+
+    private DefaultTestCase createTestCase4() throws NoSuchMethodException {
+
+        // Create test case
+
+        TestCaseBuilder builder = new TestCaseBuilder();
+
+        VariableReference stringStatement0 = builder.appendStringPrimitive("Bob");
+
+        Constructor<TestSmellsTestingClass1> const0 = TestSmellsTestingClass1.class.getConstructor(String.class);
+        VariableReference constructorStatement0 = builder.appendConstructor(const0, stringStatement0);
+
+        DefaultTestCase testCase = builder.getDefaultTestCase();
+
+        // Add assertions
+
+        Statement currentStatement = testCase.getStatement(1);
+        Inspector inspector = new Inspector(TestSmellsSimpleUser.class, TestSmellsSimpleUser.class.getMethod("getName"));
+        InspectorAssertion inspectorAssertion0 = new InspectorAssertion(inspector, currentStatement, constructorStatement0, "Bob");
+        currentStatement.addAssertion(inspectorAssertion0);
+
+        return testCase;
+    }
+
+    private DefaultTestCase createEmptyTestCase() {
+
+        // Create test case
+
+        TestCaseBuilder builder = new TestCaseBuilder();
+        return builder.getDefaultTestCase();
     }
 }
