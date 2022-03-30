@@ -519,7 +519,13 @@ public class TestSuiteGenerator {
         }
 
         if (Properties.TEST_SMELL_OPTIMIZATION) {
-            //runTest();
+
+            for (TestChromosome test : testSuite.getTestChromosomes()) {
+                ExecutionResult result;
+                result = TestCaseExecutor.runTest(test.getTestCase());
+                test.setLastExecutionResult(result);
+            }
+
             double before = testSuite.getFitness();
 
             OptimizeTestSmellsPostProcessing optimized = new OptimizeTestSmellsPostProcessing();
