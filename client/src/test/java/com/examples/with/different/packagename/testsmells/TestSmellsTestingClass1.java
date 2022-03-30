@@ -2,6 +2,7 @@ package com.examples.with.different.packagename.testsmells;
 
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 public class TestSmellsTestingClass1 {
 
@@ -135,5 +136,9 @@ public class TestSmellsTestingClass1 {
         }
 
         return res;
+    }
+
+    public static void wasteTime () throws InterruptedException {
+        TimeUnit.SECONDS.sleep(1);
     }
 }
