@@ -10,13 +10,21 @@ import java.util.Set;
 
 /**
  * Definition:
- * Input that is not controlled by a test case is checked by an assertion.
+ * Input that is not controlled by a test case is checked by an assertion (the test is checking too much).
  *
  * Adaptation:
- * Without accessing the class under test, we cannot know for sure which values change under specific circumstances.
- * Hence, we decided to focus on avoiding assertions that may not be related to the statement to which assertion is added:
- * 1 - A method in an inspector assertion is not guaranteed to be related to the specific statement to which the assertion is added;
- * 2 - The variable on which the assertion is made might be unrelated to the statement to which the assertion is added.
+ * Without having full access to the class under test, it is difficult to know for sure which values change under
+ * specific circumstances. Hence, the proposed metric focuses on avoiding assertions that may be unrelated to the
+ * statement to which the assertion is added:
+ * 1 - A method on which an inspector assertion is made is not guaranteed to be related to the specific statement
+ *     to which the assertion is added;
+ * 2 - A variable on which an assertion is made might be unrelated to the statement to which the assertion is added.
+ *
+ * Note: The computed metric considers assertions that cannot be proven to be related to the respective statement
+ *       (i.e., the may still be related).
+ *
+ * Metric:
+ * Count the number of assertions that may be unrelated to the statement to which the assertion is added.
  *
  * Computation:
  * 1 - Iterate over the statements of a test case
