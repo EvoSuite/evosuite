@@ -14,7 +14,7 @@ public class RottenGreenTests extends AbstractTestCaseSmell {
     }
 
     @Override
-    public double computeNumberOfTestSmells(TestChromosome chromosome) {
+    public long computeNumberOfTestSmells(TestChromosome chromosome) {
        int size = chromosome.size();
 
         ExecutionResult lastExecutionResult = chromosome.getLastExecutionResult();

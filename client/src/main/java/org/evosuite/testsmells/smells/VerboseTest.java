@@ -20,7 +20,7 @@ public class VerboseTest extends AbstractTestCaseSmell {
     }
 
     @Override
-    public double computeNumberOfTestSmells(TestChromosome chromosome) {
+    public long computeNumberOfTestSmells(TestChromosome chromosome) {
         return chromosome.size();
     }
 }

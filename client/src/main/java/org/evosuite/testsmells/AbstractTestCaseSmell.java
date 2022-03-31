@@ -13,9 +13,9 @@ public abstract class AbstractTestCaseSmell extends AbstractTestSmell {
     /**
      * Calculate the smell count for a given test case
      * @param chromosome The analyzed test case
-     * @return double with the total smell count
+     * @return long with the total smell count
      */
-    public abstract double computeNumberOfTestSmells(TestChromosome chromosome);
+    public abstract long computeNumberOfTestSmells(TestChromosome chromosome);
 
     /**
      * Compute the test smell metric for a given test case

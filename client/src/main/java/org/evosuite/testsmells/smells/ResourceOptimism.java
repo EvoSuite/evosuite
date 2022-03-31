@@ -20,9 +20,9 @@ public class ResourceOptimism extends AbstractTestCaseSmell {
     }
 
     @Override
-    public double computeNumberOfTestSmells(TestChromosome chromosome) {
+    public long computeNumberOfTestSmells(TestChromosome chromosome) {
         int size = chromosome.size();
-        int count = 0;
+        long count = 0;
 
         LinkedHashMap<Integer, Boolean> filesUsedByTestCase = new LinkedHashMap<>();
         Statement currentStatement;

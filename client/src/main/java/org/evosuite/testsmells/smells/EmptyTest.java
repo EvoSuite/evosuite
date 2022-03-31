@@ -26,8 +26,8 @@ public class EmptyTest extends AbstractTestCaseSmell {
     }
 
     @Override
-    public double computeNumberOfTestSmells(TestChromosome chromosome) {
-        return computeTestSmellMetric(chromosome);
+    public long computeNumberOfTestSmells(TestChromosome chromosome) {
+        return chromosome.getTestCase().size() == 0 ? Integer.MAX_VALUE : 0;
     }
 
     @Override

@@ -43,9 +43,9 @@ public class SensitiveEquality extends AbstractTestCaseSmell {
     }
 
     @Override
-    public double computeNumberOfTestSmells(TestChromosome chromosome) {
+    public long computeNumberOfTestSmells(TestChromosome chromosome) {
         int size = chromosome.size();
-        int count = 0;
+        long count = 0;
 
         Statement currentStatement;
 
