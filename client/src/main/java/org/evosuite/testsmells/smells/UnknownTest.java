@@ -32,19 +32,17 @@ public class UnknownTest extends AbstractTestCaseSmell {
     @Override
     public double computeTestSmellMetric(TestChromosome chromosome) {
         int size = chromosome.size();
-        int count = 1;
 
         Statement currentStatement;
 
         for (int i = 0; i < size; i++){
             currentStatement = chromosome.getTestCase().getStatement(i);
             if(currentStatement.hasAssertions()){
-                count = 0;
-                break;
+                return 0;
             }
         }
 
-        return count;
+        return 1;
     }
 
     @Override

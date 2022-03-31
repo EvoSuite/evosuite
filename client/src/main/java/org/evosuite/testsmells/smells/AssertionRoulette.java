@@ -13,8 +13,12 @@ import java.lang.reflect.Method;
  * A test case has several unexplained assertions.
  *
  * Adaptation:
- * This smell typically applies to test cases that have assertions without assertion messages. However, given that
- * EvoSuite does not add assertions with such messages, this metric focuses on avoiding
+ * This smell typically applies to test cases that have multiple assertions without assertion messages. However,
+ * EvoSuite does not generate assertions with such messages. Therefore, this metric focuses on avoiding an excessive
+ * number of assertions. A test case
+ *
+ * A test case may have too many assertions if the number of assertions in a test case exceeds the total number of
+ * method calls.
  *
  * Metric:
  * Number of assertions in a test case that exceed the number of statements that call methods of the class under test.
@@ -29,7 +33,7 @@ import java.lang.reflect.Method;
  * 5 - To determine the number of assertions that exceed the number of statements that call methods of the class
  *     under test, it is necessary to calculate the difference between the smell counter and the numStatements
  *     counter: Math.max() is used to ensure that the result is always greater than or equal to zero
- * 6 - Return the normalized result
+ * 6 - Return the the final result
  */
 public class AssertionRoulette extends AbstractTestCaseSmell {
 

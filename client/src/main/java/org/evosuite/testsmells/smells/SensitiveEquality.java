@@ -12,6 +12,8 @@ import java.lang.reflect.Method;
 import java.util.Set;
 
 /**
+ * Unrelated assertions
+ *
  * Detection:
  * 1 - Iterate over the statements of a test case
  * 2 - Verify if the current statement is an instance of MethodStatement

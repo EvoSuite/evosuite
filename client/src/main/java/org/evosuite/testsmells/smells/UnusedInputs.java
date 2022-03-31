@@ -10,11 +10,14 @@ import java.lang.reflect.Method;
 
 /**
  * Definition:
- * Input that is controlled by a test case is not checked by an assertion.
+ * Input that is controlled by a test case is not checked by an assertion (the test is checking too little).
  *
  * Adaptation:
  * Every statement which calls a method of the class under test that returns a value should necessarily have at
  * least one assertion. Otherwise, the test is considered smelly.
+ *
+ * Metric:
+ * Count the number of statements that call methods of the class under test but that do not have assertions.
  *
  * Computation:
  * 1 - Iterate over the statements of a test case
