@@ -539,7 +539,7 @@ public class TestSuiteGenerator {
             }
         }
 
-        if (Properties.OUTPUT_VARIABLES != null) {
+        if (Properties.OUTPUT_VARIABLES != null && Properties.OUTPUT_VARIABLES.toLowerCase().contains("smell")) {
             TestSmellAnalyzer.writeNumTestSmells(testSuite);
         }
     }
