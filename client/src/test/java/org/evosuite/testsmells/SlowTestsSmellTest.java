@@ -36,12 +36,13 @@ public class SlowTestsSmellTest {
         DefaultTestCase test0 = createTestCase0();
         testCase.setTestCase(test0);
 
-        double smellCount = this.slowTests.computeNumberOfTestSmells(testCase);
-        double expected = 0.0;
-        assertEquals(expected, smellCount, 0.01);
+        long smellCount = this.slowTests.computeNumberOfTestSmells(testCase);
+        long expectedSmellCount = 0;
+        assertEquals(expectedSmellCount, smellCount);
 
         double computedMetric = this.slowTests.computeTestSmellMetric(testCase);
-        assertEquals(expected, computedMetric, 0.01);
+        double expectedComputedMetric = 0;
+        assertEquals(expectedComputedMetric, computedMetric, 0.01);
     }
 
     @Test
@@ -50,11 +51,10 @@ public class SlowTestsSmellTest {
         DefaultTestCase test0 = createTestCase0();
         testCase.setTestCase(test0);
 
-        ExecutionResult result;
-        result = TestCaseExecutor.runTest(testCase.getTestCase());
+        ExecutionResult result = TestCaseExecutor.runTest(testCase.getTestCase());
         testCase.setLastExecutionResult(result);
 
-        double smellCount = this.slowTests.computeNumberOfTestSmells(testCase);
+        long smellCount = this.slowTests.computeNumberOfTestSmells(testCase);
         assertTrue(smellCount > 0);
 
         double computedMetric = this.slowTests.computeTestSmellMetric(testCase);

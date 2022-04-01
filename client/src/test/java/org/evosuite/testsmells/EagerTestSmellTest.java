@@ -37,13 +37,13 @@ public class EagerTestSmellTest {
         DefaultTestCase test0 = createTestCase0();
         testCase.setTestCase(test0);
 
-        double smellCount = this.eagerTest.computeNumberOfTestSmells(testCase);
-        double expected = 1.0;
-        assertEquals(expected, smellCount, 0.01);
+        long smellCount = this.eagerTest.computeNumberOfTestSmells(testCase);
+        long expectedSmellCount = 1;
+        assertEquals(expectedSmellCount, smellCount);
 
         double computedMetric = this.eagerTest.computeTestSmellMetric(testCase);
-        expected = 0.5;
-        assertEquals(expected, computedMetric, 0.01);
+        double expectedComputedMetric = 0.5;
+        assertEquals(expectedComputedMetric, computedMetric, 0.01);
     }
 
     @Test
@@ -52,13 +52,13 @@ public class EagerTestSmellTest {
         DefaultTestCase test0 = createTestCase1();
         testCase.setTestCase(test0);
 
-        double smellCount = this.eagerTest.computeNumberOfTestSmells(testCase);
-        double expected = 2.0;
-        assertEquals(expected, smellCount, 0.01);
+        long smellCount = this.eagerTest.computeNumberOfTestSmells(testCase);
+        long expectedSmellCount = 2;
+        assertEquals(expectedSmellCount, smellCount);
 
         double computedMetric = this.eagerTest.computeTestSmellMetric(testCase);
-        expected = 2.0 / (1.0 + 2.0);
-        assertEquals(expected, computedMetric, 0.01);
+        double expectedComputedMetric = 2.0 / (1.0 + 2.0);
+        assertEquals(expectedComputedMetric, computedMetric, 0.01);
     }
 
     @Test
@@ -67,13 +67,13 @@ public class EagerTestSmellTest {
         DefaultTestCase test0 = createTestCase2();
         testCase.setTestCase(test0);
 
-        double smellCount = this.eagerTest.computeNumberOfTestSmells(testCase);
-        double expected = 1.0;
-        assertEquals(expected, smellCount, 0.01);
+        long smellCount = this.eagerTest.computeNumberOfTestSmells(testCase);
+        long expectedSmellCount = 1;
+        assertEquals(expectedSmellCount, smellCount);
 
         double computedMetric = this.eagerTest.computeTestSmellMetric(testCase);
-        expected = 0.5;
-        assertEquals(expected, computedMetric, 0.01);
+        double expectedComputedMetric = 0.5;
+        assertEquals(expectedComputedMetric, computedMetric, 0.01);
     }
 
     @Test
@@ -82,13 +82,13 @@ public class EagerTestSmellTest {
         DefaultTestCase test0 = createTestCase3();
         testCase.setTestCase(test0);
 
-        double smellCount = this.eagerTest.computeNumberOfTestSmells(testCase);
-        double expected = 3.0;
-        assertEquals(expected, smellCount, 0.01);
+        long smellCount = this.eagerTest.computeNumberOfTestSmells(testCase);
+        long expectedSmellCount = 3;
+        assertEquals(expectedSmellCount, smellCount);
 
         double computedMetric = this.eagerTest.computeTestSmellMetric(testCase);
-        expected = 0.75;
-        assertEquals(expected, computedMetric, 0.01);
+        double expectedComputedMetric = 0.75;
+        assertEquals(expectedComputedMetric, computedMetric, 0.01);
     }
 
     @Test
@@ -97,13 +97,13 @@ public class EagerTestSmellTest {
         DefaultTestCase test0 = createTestCase4();
         testCase.setTestCase(test0);
 
-        double smellCount = this.eagerTest.computeNumberOfTestSmells(testCase);
-        double expected = 3.0;
-        assertEquals(expected, smellCount, 0.01);
+        long smellCount = this.eagerTest.computeNumberOfTestSmells(testCase);
+        long expectedSmellCount = 3;
+        assertEquals(expectedSmellCount, smellCount);
 
         double computedMetric = this.eagerTest.computeTestSmellMetric(testCase);
-        expected = 0.75;
-        assertEquals(expected, computedMetric, 0.01);
+        double expectedComputedMetric = 0.75;
+        assertEquals(expectedComputedMetric, computedMetric, 0.01);
     }
 
     @Test
@@ -112,13 +112,13 @@ public class EagerTestSmellTest {
         DefaultTestCase test0 = createTestCase5();
         testCase.setTestCase(test0);
 
-        double smellCount = this.eagerTest.computeNumberOfTestSmells(testCase);
-        double expected = 3.0;
-        assertEquals(expected, smellCount, 0.01);
+        long smellCount = this.eagerTest.computeNumberOfTestSmells(testCase);
+        long expectedSmellCount = 3;
+        assertEquals(expectedSmellCount, smellCount);
 
         double computedMetric = this.eagerTest.computeTestSmellMetric(testCase);
-        expected = 0.75;
-        assertEquals(expected, computedMetric, 0.01);
+        double expectedComputedMetric = 0.75;
+        assertEquals(expectedComputedMetric, computedMetric, 0.01);
     }
 
     @Test
@@ -127,13 +127,13 @@ public class EagerTestSmellTest {
         DefaultTestCase test0 = createTestCase6();
         testCase.setTestCase(test0);
 
-        double smellCount = this.eagerTest.computeNumberOfTestSmells(testCase);
-        double expected = 2.0;
-        assertEquals(expected, smellCount, 0.01);
+        long smellCount = this.eagerTest.computeNumberOfTestSmells(testCase);
+        long expectedSmellCount = 2;
+        assertEquals(expectedSmellCount, smellCount);
 
         double computedMetric = this.eagerTest.computeTestSmellMetric(testCase);
-        expected = 2.0 / (1.0 + 2.0);
-        assertEquals(expected, computedMetric, 0.01);
+        double expectedComputedMetric = 2.0 / (1.0 + 2.0);
+        assertEquals(expectedComputedMetric, computedMetric, 0.01);
     }
 
     @Test
@@ -142,13 +142,13 @@ public class EagerTestSmellTest {
         DefaultTestCase test0 = createTestCase7();
         testCase.setTestCase(test0);
 
-        double smellCount = this.eagerTest.computeNumberOfTestSmells(testCase);
-        double expected = 2.0;
-        assertEquals(expected, smellCount, 0.01);
+        long smellCount = this.eagerTest.computeNumberOfTestSmells(testCase);
+        long expectedSmellCount = 2;
+        assertEquals(expectedSmellCount, smellCount);
 
         double computedMetric = this.eagerTest.computeTestSmellMetric(testCase);
-        expected = 2.0 / (1.0 + 2.0);
-        assertEquals(expected, computedMetric, 0.01);
+        double expectedComputedMetric = 2.0 / (1.0 + 2.0);
+        assertEquals(expectedComputedMetric, computedMetric, 0.01);
     }
 
     @Test
@@ -157,13 +157,13 @@ public class EagerTestSmellTest {
         DefaultTestCase test0 = createTestCase8();
         testCase.setTestCase(test0);
 
-        double smellCount = this.eagerTest.computeNumberOfTestSmells(testCase);
-        double expected = 2.0;
-        assertEquals(expected, smellCount, 0.01);
+        long smellCount = this.eagerTest.computeNumberOfTestSmells(testCase);
+        long expectedSmellCount = 2;
+        assertEquals(expectedSmellCount, smellCount);
 
         double computedMetric = this.eagerTest.computeTestSmellMetric(testCase);
-        expected = 2.0 / (1.0 + 2.0);
-        assertEquals(expected, computedMetric, 0.01);
+        double expectedComputedMetric = 2.0 / (1.0 + 2.0);
+        assertEquals(expectedComputedMetric, computedMetric, 0.01);
     }
 
     @Test
@@ -172,13 +172,13 @@ public class EagerTestSmellTest {
         DefaultTestCase test0 = createEmptyTestCase();
         testCase.setTestCase(test0);
 
-        double smellCount = this.eagerTest.computeNumberOfTestSmells(testCase);
-        double expected = 0;
-        assertEquals(expected, smellCount, 0.01);
+        long smellCount = this.eagerTest.computeNumberOfTestSmells(testCase);
+        long expectedSmellCount = 0;
+        assertEquals(expectedSmellCount, smellCount);
 
         double computedMetric = this.eagerTest.computeTestSmellMetric(testCase);
-        expected = 0;
-        assertEquals(expected, computedMetric, 0.01);
+        double expectedComputedMetric = 0;
+        assertEquals(expectedComputedMetric, computedMetric, 0.01);
     }
 
     @Test
@@ -206,8 +206,8 @@ public class EagerTestSmellTest {
         suite.addTest(test9);
 
         double computedMetric = this.eagerTest.computeTestSmellMetric(suite);
-        double expected = 0.95;
-        assertEquals(expected, computedMetric, 0.01);
+        double expectedComputedMetric = 0.95;
+        assertEquals(expectedComputedMetric, computedMetric, 0.01);
     }
 
     private DefaultTestCase createTestCase0() throws NoSuchMethodException {

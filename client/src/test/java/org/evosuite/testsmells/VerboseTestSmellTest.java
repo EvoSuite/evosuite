@@ -34,12 +34,13 @@ public class VerboseTestSmellTest {
         DefaultTestCase test0 = createTestCase0();
         testCase.setTestCase(test0);
 
-        double smellCount = this.verboseTest.computeNumberOfTestSmells(testCase);
-        double expected = 0;
-        assertEquals(expected, smellCount, 0.01);
+        long smellCount = this.verboseTest.computeNumberOfTestSmells(testCase);
+        long expectedSmellCount = 0;
+        assertEquals(expectedSmellCount, smellCount);
 
         double computedMetric = this.verboseTest.computeTestSmellMetric(testCase);
-        assertEquals(expected, computedMetric, 0.01);
+        double expectedComputedMetric = 0;
+        assertEquals(expectedComputedMetric, computedMetric, 0.01);
     }
 
     @Test
@@ -48,13 +49,13 @@ public class VerboseTestSmellTest {
         DefaultTestCase test0 = createTestCase1();
         testCase.setTestCase(test0);
 
-        double smellCount = this.verboseTest.computeNumberOfTestSmells(testCase);
-        double expected = 6.0;
-        assertEquals(expected, smellCount, 0.01);
+        long smellCount = this.verboseTest.computeNumberOfTestSmells(testCase);
+        long expectedSmellCount = 6;
+        assertEquals(expectedSmellCount, smellCount);
 
         double computedMetric = this.verboseTest.computeTestSmellMetric(testCase);
-        expected = 6.0 / (1.0 + 6.0);
-        assertEquals(expected, computedMetric, 0.01);
+        double expectedComputedMetric = 6.0 / (1.0 + 6.0);
+        assertEquals(expectedComputedMetric, computedMetric, 0.01);
     }
 
     @Test
@@ -66,8 +67,8 @@ public class VerboseTestSmellTest {
         suite.addTest(test1);
 
         double computedMetric = this.verboseTest.computeTestSmellMetric(suite);
-        double expected = 6.0 / (1.0 + 6.0);
-        assertEquals(expected, computedMetric, 0.01);
+        double expectedComputedMetric = 6.0 / (1.0 + 6.0);
+        assertEquals(expectedComputedMetric, computedMetric, 0.01);
     }
 
     private DefaultTestCase createTestCase0() {

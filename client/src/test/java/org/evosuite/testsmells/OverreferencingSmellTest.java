@@ -39,12 +39,13 @@ public class OverreferencingSmellTest {
         DefaultTestCase test0 = createTestCase0();
         testCase.setTestCase(test0);
 
-        double smellCount = this.overreferencing.computeNumberOfTestSmells(testCase);
-        double expected = 0;
-        assertEquals(expected, smellCount, 0.01);
+        long smellCount = this.overreferencing.computeNumberOfTestSmells(testCase);
+        long expectedSmellCount = 0;
+        assertEquals(expectedSmellCount, smellCount);
 
         double computedMetric = this.overreferencing.computeTestSmellMetric(testCase);
-        assertEquals(expected, computedMetric, 0.01);
+        double expectedComputedMetric = 0;
+        assertEquals(expectedComputedMetric, computedMetric, 0.01);
     }
 
     @Test
@@ -53,13 +54,13 @@ public class OverreferencingSmellTest {
         DefaultTestCase test0 = createTestCase1();
         testCase.setTestCase(test0);
 
-        double smellCount = this.overreferencing.computeNumberOfTestSmells(testCase);
-        double expected = 1.0;
-        assertEquals(expected, smellCount, 0.01);
+        long smellCount =  this.overreferencing.computeNumberOfTestSmells(testCase);
+        long expectedSmellCount = 1;
+        assertEquals(expectedSmellCount, smellCount);
 
         double computedMetric = this.overreferencing.computeTestSmellMetric(testCase);
-        expected = 0.5;
-        assertEquals(expected, computedMetric, 0.01);
+        double expectedComputedMetric = 0.5;
+        assertEquals(expectedComputedMetric, computedMetric, 0.01);
     }
 
     @Test
@@ -68,13 +69,13 @@ public class OverreferencingSmellTest {
         DefaultTestCase test0 = createTestCase2();
         testCase.setTestCase(test0);
 
-        double smellCount = this.overreferencing.computeNumberOfTestSmells(testCase);
-        double expected = 2.0;
-        assertEquals(expected, smellCount, 0.01);
+        long smellCount = this.overreferencing.computeNumberOfTestSmells(testCase);
+        long expectedSmellCount = 2;
+        assertEquals(expectedSmellCount, smellCount);
 
         double computedMetric = this.overreferencing.computeTestSmellMetric(testCase);
-        expected = 2.0 / (1.0 + 2.0);
-        assertEquals(expected, computedMetric, 0.01);
+        double expectedComputedMetric = 2.0 / (1.0 + 2.0);
+        assertEquals(expectedComputedMetric, computedMetric, 0.01);
     }
 
     @Test
@@ -83,13 +84,13 @@ public class OverreferencingSmellTest {
         DefaultTestCase test0 = createTestCase3();
         testCase.setTestCase(test0);
 
-        double smellCount = this.overreferencing.computeNumberOfTestSmells(testCase);
-        double expected = 2.0;
-        assertEquals(expected, smellCount, 0.01);
+        long smellCount = this.overreferencing.computeNumberOfTestSmells(testCase);
+        long expectedSmellCount = 2;
+        assertEquals(expectedSmellCount, smellCount);
 
         double computedMetric = this.overreferencing.computeTestSmellMetric(testCase);
-        expected = 2.0 / (1.0 + 2.0);
-        assertEquals(expected, computedMetric, 0.01);
+        double expectedComputedMetric = 2.0 / (1.0 + 2.0);
+        assertEquals(expectedComputedMetric, computedMetric, 0.01);
     }
 
     @Test
@@ -98,12 +99,13 @@ public class OverreferencingSmellTest {
         DefaultTestCase test0 = createTestCase4();
         testCase.setTestCase(test0);
 
-        double smellCount = this.overreferencing.computeNumberOfTestSmells(testCase);
-        double expected = 0;
-        assertEquals(expected, smellCount, 0.01);
+        long smellCount = this.overreferencing.computeNumberOfTestSmells(testCase);
+        long expectedSmellCount = 0;
+        assertEquals(expectedSmellCount, smellCount);
 
         double computedMetric = this.overreferencing.computeTestSmellMetric(testCase);
-        assertEquals(expected, computedMetric, 0.01);
+        double expectedComputedMetric = 0;
+        assertEquals(expectedComputedMetric, computedMetric, 0.01);
     }
 
     @Test
@@ -112,12 +114,13 @@ public class OverreferencingSmellTest {
         DefaultTestCase test0 = createTestCase5();
         testCase.setTestCase(test0);
 
-        double smellCount = this.overreferencing.computeNumberOfTestSmells(testCase);
-        double expected = 0;
-        assertEquals(expected, smellCount, 0.01);
+        long smellCount = this.overreferencing.computeNumberOfTestSmells(testCase);
+        long expectedSmellCount = 0;
+        assertEquals(expectedSmellCount, smellCount);
 
         double computedMetric = this.overreferencing.computeTestSmellMetric(testCase);
-        assertEquals(expected, computedMetric, 0.01);
+        double expectedComputedMetric = 0;
+        assertEquals(expectedComputedMetric, computedMetric, 0.01);
     }
 
     @Test
@@ -126,12 +129,13 @@ public class OverreferencingSmellTest {
         DefaultTestCase test0 = createTestCase6();
         testCase.setTestCase(test0);
 
-        double smellCount = this.overreferencing.computeNumberOfTestSmells(testCase);
-        double expected = 0;
-        assertEquals(expected, smellCount, 0.01);
+        long smellCount = this.overreferencing.computeNumberOfTestSmells(testCase);
+        long expectedSmellCount = 0;
+        assertEquals(expectedSmellCount, smellCount);
 
         double computedMetric = this.overreferencing.computeTestSmellMetric(testCase);
-        assertEquals(expected, computedMetric, 0.01);
+        double expectedComputedMetric = 0;
+        assertEquals(expectedComputedMetric, computedMetric, 0.01);
     }
 
     @Test
@@ -140,13 +144,13 @@ public class OverreferencingSmellTest {
         DefaultTestCase test0 = createEmptyTestCase();
         testCase.setTestCase(test0);
 
-        double smellCount = this.overreferencing.computeNumberOfTestSmells(testCase);
-        double expected = 0;
-        assertEquals(expected, smellCount, 0.01);
+        long smellCount = this.overreferencing.computeNumberOfTestSmells(testCase);
+        long expectedSmellCount = 0;
+        assertEquals(expectedSmellCount, smellCount);
 
         double computedMetric = this.overreferencing.computeTestSmellMetric(testCase);
-        expected = 0;
-        assertEquals(expected, computedMetric, 0.01);
+        double expectedComputedMetric = 0;
+        assertEquals(expectedComputedMetric, computedMetric, 0.01);
     }
 
     @Test
@@ -169,9 +173,9 @@ public class OverreferencingSmellTest {
         suite.addTest(test6);
         suite.addTest(test7);
 
-        double smellCount = this.overreferencing.computeTestSmellMetric(suite);
-        double expected = 5.0 / (1.0 + 5.0);
-        assertEquals(expected, smellCount, 0.01);
+        double computedMetric = this.overreferencing.computeTestSmellMetric(suite);
+        double expectedComputedMetric = 5.0 / (1.0 + 5.0);
+        assertEquals(expectedComputedMetric, computedMetric, 0.01);
     }
 
     private DefaultTestCase createTestCase0() throws NoSuchMethodException {

@@ -36,12 +36,13 @@ public class BrittleAssertionSmellTest {
         DefaultTestCase test0 = createTestCase0();
         testCase.setTestCase(test0);
 
-        double smellCount = this.brittleAssertion.computeNumberOfTestSmells(testCase);
-        double expected = 0;
-        assertEquals(expected, smellCount, 0.01);
+        long smellCount = this.brittleAssertion.computeNumberOfTestSmells(testCase);
+        long expectedSmellCount = 0;
+        assertEquals(expectedSmellCount, smellCount);
 
         double computedMetric = this.brittleAssertion.computeTestSmellMetric(testCase);
-        assertEquals(expected, computedMetric, 0.01);
+        double expectedComputedMetric = 0;
+        assertEquals(expectedComputedMetric, computedMetric, 0.01);
     }
 
     @Test
@@ -50,13 +51,13 @@ public class BrittleAssertionSmellTest {
         DefaultTestCase test0 = createTestCase1();
         testCase.setTestCase(test0);
 
-        double smellCount = this.brittleAssertion.computeNumberOfTestSmells(testCase);
-        double expected = 1.0;
-        assertEquals(expected, smellCount, 0.01);
+        long smellCount = this.brittleAssertion.computeNumberOfTestSmells(testCase);
+        long expectedSmellCount = 1;
+        assertEquals(expectedSmellCount, smellCount);
 
         double computedMetric = this.brittleAssertion.computeTestSmellMetric(testCase);
-        expected = 0.5;
-        assertEquals(expected, computedMetric, 0.01);
+        double expectedComputedMetric = 0.5;
+        assertEquals(expectedComputedMetric, computedMetric, 0.01);
     }
 
     @Test
@@ -65,13 +66,13 @@ public class BrittleAssertionSmellTest {
         DefaultTestCase test0 = createTestCase2();
         testCase.setTestCase(test0);
 
-        double smellCount = this.brittleAssertion.computeNumberOfTestSmells(testCase);
-        double expected = 1.0;
-        assertEquals(expected, smellCount, 0.01);
+        long smellCount = this.brittleAssertion.computeNumberOfTestSmells(testCase);
+        long expectedSmellCount = 1;
+        assertEquals(expectedSmellCount, smellCount);
 
         double computedMetric = this.brittleAssertion.computeTestSmellMetric(testCase);
-        expected = 0.5;
-        assertEquals(expected, computedMetric, 0.01);
+        double expectedComputedMetric = 0.5;
+        assertEquals(expectedComputedMetric, computedMetric, 0.01);
     }
 
     @Test
@@ -84,9 +85,9 @@ public class BrittleAssertionSmellTest {
         suite.addTest(test1);
         suite.addTest(test2);
 
-        double smellCount = this.brittleAssertion.computeTestSmellMetric(suite);
-        double expected = 2.0 / (1.0 + 2.0);
-        assertEquals(expected, smellCount, 0.01);
+        double computedMetric = this.brittleAssertion.computeTestSmellMetric(suite);
+        double expectedComputedMetric = 2.0 / (1.0 + 2.0);
+        assertEquals(expectedComputedMetric, computedMetric, 0.01);
     }
 
     private DefaultTestCase createTestCase0() throws NoSuchMethodException {

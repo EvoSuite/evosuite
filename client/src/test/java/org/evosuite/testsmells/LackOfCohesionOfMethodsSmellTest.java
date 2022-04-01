@@ -36,9 +36,9 @@ public class LackOfCohesionOfMethodsSmellTest {
         suite.addTest(test0);
         suite.addTest(test1);
 
-        double smellCount = this.lackOfCohesionOfMethods.computeTestSmellMetric(suite);
-        double expected = 0;
-        assertEquals(expected, smellCount, 0.01);
+        double computedMetric = this.lackOfCohesionOfMethods.computeTestSmellMetric(suite);
+        double expectedComputedMetric = 0;
+        assertEquals(expectedComputedMetric, computedMetric, 0.01);
     }
 
     @Test
@@ -49,9 +49,9 @@ public class LackOfCohesionOfMethodsSmellTest {
         suite.addTest(test0);
         suite.addTest(test1);
 
-        double smellCount = this.lackOfCohesionOfMethods.computeTestSmellMetric(suite);
-        double expected = 0.5;
-        assertEquals(expected, smellCount, 0.01);
+        double computedMetric = this.lackOfCohesionOfMethods.computeTestSmellMetric(suite);
+        double expectedComputedMetric = 0.5;
+        assertEquals(expectedComputedMetric, computedMetric, 0.01);
     }
 
     @Test
@@ -66,9 +66,9 @@ public class LackOfCohesionOfMethodsSmellTest {
         suite.addTest(test2);
         suite.addTest(test3);
 
-        double smellCount = this.lackOfCohesionOfMethods.computeTestSmellMetric(suite);
-        double expected = 0.75;
-        assertEquals(expected, smellCount, 0.01);
+        double computedMetric = this.lackOfCohesionOfMethods.computeTestSmellMetric(suite);
+        double expectedComputedMetric = 0.75;
+        assertEquals(expectedComputedMetric, computedMetric, 0.01);
     }
 
     @Test
@@ -83,9 +83,9 @@ public class LackOfCohesionOfMethodsSmellTest {
         suite.addTest(test2);
         suite.addTest(test3);
 
-        double smellCount = this.lackOfCohesionOfMethods.computeTestSmellMetric(suite);
-        double expected = 0.8;
-        assertEquals(expected, smellCount, 0.01);
+        double computedMetric = this.lackOfCohesionOfMethods.computeTestSmellMetric(suite);
+        double expectedComputedMetric = 0.8;
+        assertEquals(expectedComputedMetric, computedMetric, 0.01);
     }
 
     @Test
@@ -96,9 +96,9 @@ public class LackOfCohesionOfMethodsSmellTest {
         suite.addTest(test0);
         suite.addTest(test1);
 
-        double smellCount = this.lackOfCohesionOfMethods.computeTestSmellMetric(suite);
-        double expected = 0;
-        assertEquals(expected, smellCount, 0.01);
+        double computedMetric = this.lackOfCohesionOfMethods.computeTestSmellMetric(suite);
+        double expectedComputedMetric = 0;
+        assertEquals(expectedComputedMetric, computedMetric, 0.01);
     }
 
     @Test
@@ -109,9 +109,9 @@ public class LackOfCohesionOfMethodsSmellTest {
         suite.addTest(test0);
         suite.addTest(test1);
 
-        double smellCount = this.lackOfCohesionOfMethods.computeTestSmellMetric(suite);
-        double expected = 0;
-        assertEquals(expected, smellCount, 0.01);
+        double computedMetric = this.lackOfCohesionOfMethods.computeTestSmellMetric(suite);
+        double expectedComputedMetric = 0;
+        assertEquals(expectedComputedMetric, computedMetric, 0.01);
     }
 
     @Test
@@ -122,9 +122,9 @@ public class LackOfCohesionOfMethodsSmellTest {
         suite.addTest(test0);
         suite.addTest(test1);
 
-        double smellCount = this.lackOfCohesionOfMethods.computeTestSmellMetric(suite);
-        double expected = 0.5;
-        assertEquals(expected, smellCount, 0.01);
+        double computedMetric = this.lackOfCohesionOfMethods.computeTestSmellMetric(suite);
+        double expectedComputedMetric = 0.5;
+        assertEquals(expectedComputedMetric, computedMetric, 0.01);
     }
 
     private DefaultTestCase createTestCase0() throws NoSuchMethodException {

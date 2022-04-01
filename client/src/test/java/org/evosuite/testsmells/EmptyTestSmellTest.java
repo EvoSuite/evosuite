@@ -34,9 +34,13 @@ public class EmptyTestSmellTest {
         DefaultTestCase test0 = createTestCase0();
         testCase.setTestCase(test0);
 
-        double smellCount = this.emptyTest.computeTestSmellMetric(testCase);
-        double expected = 0;
-        assertEquals(expected, smellCount, 0.01);
+        long smellCount = this.emptyTest.computeNumberOfTestSmells(testCase);
+        long expectedSmellCount = 0;
+        assertEquals(expectedSmellCount, smellCount);
+
+        double computedMetric = this.emptyTest.computeTestSmellMetric(testCase);
+        double expectedComputedMetric = 0;
+        assertEquals(expectedComputedMetric, computedMetric, 0.01);
     }
 
     @Test
@@ -45,9 +49,13 @@ public class EmptyTestSmellTest {
         DefaultTestCase test0 = createTestCase1();
         testCase.setTestCase(test0);
 
-        double smellCount = this.emptyTest.computeTestSmellMetric(testCase);
-        double expected = Integer.MAX_VALUE;
-        assertEquals(expected, smellCount, 0.01);
+        long smellCount = this.emptyTest.computeNumberOfTestSmells(testCase);
+        long expectedSmellCount = Integer.MAX_VALUE;
+        assertEquals(expectedSmellCount, smellCount);
+
+        double computedMetric = this.emptyTest.computeTestSmellMetric(testCase);
+        double expectedComputedMetric = Integer.MAX_VALUE;
+        assertEquals(expectedComputedMetric, computedMetric, 0.01);
     }
 
     @Test
@@ -58,9 +66,9 @@ public class EmptyTestSmellTest {
         suite.addTest(test0);
         suite.addTest(test1);
 
-        double smellCount = this.emptyTest.computeTestSmellMetric(suite);
-        double expected = Integer.MAX_VALUE;
-        assertEquals(expected, smellCount, 0.01);
+        double computedMetric = this.emptyTest.computeTestSmellMetric(suite);
+        double expectedComputedMetric = Integer.MAX_VALUE;
+        assertEquals(expectedComputedMetric, computedMetric, 0.01);
     }
 
     @Test
@@ -75,9 +83,9 @@ public class EmptyTestSmellTest {
         suite.addTest(test2);
         suite.addTest(test3);
 
-        double smellCount = this.emptyTest.computeTestSmellMetric(suite);
-        double expected = Integer.MAX_VALUE;
-        assertEquals(expected, smellCount, 0.01);
+        double computedMetric = this.emptyTest.computeTestSmellMetric(suite);
+        double expectedComputedMetric = Integer.MAX_VALUE;
+        assertEquals(expectedComputedMetric, computedMetric, 0.01);
     }
 
     private DefaultTestCase createTestCase0() throws NoSuchMethodException {
