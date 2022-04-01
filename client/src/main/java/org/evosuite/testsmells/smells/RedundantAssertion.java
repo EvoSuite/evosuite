@@ -4,12 +4,12 @@ import org.evosuite.assertion.Assertion;
 import org.evosuite.assertion.InspectorAssertion;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.statements.PrimitiveStatement;
-import org.evosuite.testsmells.AbstractTestCaseSmell;
+import org.evosuite.testsmells.AbstractNormalizedTestCaseSmell;
 import org.evosuite.testcase.statements.Statement;
 
 import java.util.Set;
 
-public class RedundantAssertion extends AbstractTestCaseSmell {
+public class RedundantAssertion extends AbstractNormalizedTestCaseSmell {
 
     public RedundantAssertion() {
         super("TestSmellRedundantAssertion");

@@ -20,7 +20,7 @@ import static org.junit.Assert.assertEquals;
 
 public class VerboseTestSmellTest {
 
-    AbstractTestCaseSmell verboseTest;
+    AbstractNormalizedTestCaseSmell verboseTest;
 
     @Before
     public void setUp() {

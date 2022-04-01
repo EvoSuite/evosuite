@@ -1,9 +1,9 @@
 package org.evosuite.testsmells.smells;
 
 import org.evosuite.testcase.TestChromosome;
-import org.evosuite.testsmells.AbstractTestCaseSmell;
+import org.evosuite.testsmells.AbstractNormalizedTestCaseSmell;
 
-public class TestCodeDuplication extends AbstractTestCaseSmell {
+public class TestCodeDuplication extends AbstractNormalizedTestCaseSmell {
 
     public TestCodeDuplication() {
         super("TestSmellTestCodeDuplication");

@@ -24,7 +24,7 @@ import static org.junit.Assert.assertEquals;
 
 public class DuplicateAssertSmellTest {
 
-    AbstractTestCaseSmell duplicateAssert;
+    AbstractNormalizedTestCaseSmell duplicateAssert;
 
     @Before
     public void setUp() {

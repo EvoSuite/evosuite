@@ -22,7 +22,7 @@ import static org.junit.Assert.assertEquals;
 
 public class MysteryGuestSmellTest {
 
-    AbstractTestCaseSmell mysteryGuest;
+    AbstractNormalizedTestCaseSmell mysteryGuest;
 
     @Before
     public void setUp() {

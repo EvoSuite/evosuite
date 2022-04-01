@@ -6,7 +6,7 @@ import org.evosuite.assertion.InspectorAssertion;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testcase.statements.Statement;
-import org.evosuite.testsmells.AbstractTestCaseSmell;
+import org.evosuite.testsmells.AbstractNormalizedTestCaseSmell;
 
 import java.lang.reflect.Method;
 import java.util.LinkedHashSet;
@@ -36,7 +36,7 @@ import java.util.Set;
  *                    of methods
  * 4 - Return the number of elements in the LinkedHashSet of methods
  */
-public class EagerTest extends AbstractTestCaseSmell {
+public class EagerTest extends AbstractNormalizedTestCaseSmell {
 
     public EagerTest() {
         super("TestSmellEagerTest");

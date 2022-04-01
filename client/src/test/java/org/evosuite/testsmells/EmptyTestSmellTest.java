@@ -34,10 +34,6 @@ public class EmptyTestSmellTest {
         DefaultTestCase test0 = createTestCase0();
         testCase.setTestCase(test0);
 
-        long smellCount = this.emptyTest.computeNumberOfTestSmells(testCase);
-        long expectedSmellCount = 0;
-        assertEquals(expectedSmellCount, smellCount);
-
         double computedMetric = this.emptyTest.computeTestSmellMetric(testCase);
         double expectedComputedMetric = 0;
         assertEquals(expectedComputedMetric, computedMetric, 0.01);
@@ -48,10 +44,6 @@ public class EmptyTestSmellTest {
         TestChromosome testCase = new TestChromosome();
         DefaultTestCase test0 = createTestCase1();
         testCase.setTestCase(test0);
-
-        long smellCount = this.emptyTest.computeNumberOfTestSmells(testCase);
-        long expectedSmellCount = Integer.MAX_VALUE;
-        assertEquals(expectedSmellCount, smellCount);
 
         double computedMetric = this.emptyTest.computeTestSmellMetric(testCase);
         double expectedComputedMetric = Integer.MAX_VALUE;

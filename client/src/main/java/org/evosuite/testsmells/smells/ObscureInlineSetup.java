@@ -5,7 +5,7 @@ import org.evosuite.testcase.statements.ConstructorStatement;
 import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testcase.statements.PrimitiveStatement;
 import org.evosuite.testcase.statements.Statement;
-import org.evosuite.testsmells.AbstractTestCaseSmell;
+import org.evosuite.testsmells.AbstractNormalizedTestCaseSmell;
 
 import java.lang.reflect.Method;
 
@@ -27,7 +27,7 @@ import java.lang.reflect.Method;
  *       4.2.1 - If the type of the method is not "void": increment the smell counter
  * 5 - Return the smell counter
  */
-public class ObscureInlineSetup extends AbstractTestCaseSmell {
+public class ObscureInlineSetup extends AbstractNormalizedTestCaseSmell {
 
     public ObscureInlineSetup() {
         super("TestSmellObscureInlineSetup");

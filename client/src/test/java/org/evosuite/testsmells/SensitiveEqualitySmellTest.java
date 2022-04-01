@@ -23,7 +23,7 @@ import static org.junit.Assert.assertEquals;
 
 public class SensitiveEqualitySmellTest {
 
-    AbstractTestCaseSmell sensitiveEquality;
+    AbstractNormalizedTestCaseSmell sensitiveEquality;
 
     @Before
     public void setUp() {

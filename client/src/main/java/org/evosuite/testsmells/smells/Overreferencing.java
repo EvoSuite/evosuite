@@ -7,7 +7,7 @@ import org.evosuite.testcase.statements.ConstructorStatement;
 import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.variable.VariableReference;
-import org.evosuite.testsmells.AbstractTestCaseSmell;
+import org.evosuite.testsmells.AbstractNormalizedTestCaseSmell;
 
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -42,7 +42,7 @@ import java.util.Set;
  *          assertion is made and remove the respective element from the LinkedHashSet
  * 9 - Return the number of elements in the LinkedHashSet
  */
-public class Overreferencing extends AbstractTestCaseSmell {
+public class Overreferencing extends AbstractNormalizedTestCaseSmell {
 
     public Overreferencing() {
         super("TestSmellOverreferencing");

@@ -1,7 +1,7 @@
 package org.evosuite.testsmells.smells;
 
 import org.evosuite.testcase.TestChromosome;
-import org.evosuite.testsmells.AbstractTestCaseSmell;
+import org.evosuite.testsmells.AbstractNormalizedTestCaseSmell;
 
 /**
  * Definition:
@@ -17,7 +17,7 @@ import org.evosuite.testsmells.AbstractTestCaseSmell;
  * 3 (1 is False):
  *    3.1 - Return 0
  */
-public class SlowTests extends AbstractTestCaseSmell {
+public class SlowTests extends AbstractNormalizedTestCaseSmell {
 
     public SlowTests() {
         super("TestSmellSlowTests");

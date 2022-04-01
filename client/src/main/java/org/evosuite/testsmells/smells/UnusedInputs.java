@@ -3,7 +3,7 @@ package org.evosuite.testsmells.smells;
 import org.evosuite.Properties;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.statements.MethodStatement;
-import org.evosuite.testsmells.AbstractTestCaseSmell;
+import org.evosuite.testsmells.AbstractNormalizedTestCaseSmell;
 import org.evosuite.testcase.statements.Statement;
 
 import java.lang.reflect.Method;
@@ -32,7 +32,7 @@ import java.lang.reflect.Method;
  *       3.4.1 - If the current statement does not have assertions, increment the smell counter
  * 4 - Return the smell counter
  */
-public class UnusedInputs extends AbstractTestCaseSmell {
+public class UnusedInputs extends AbstractNormalizedTestCaseSmell {
 
     public UnusedInputs() {
         super("TestSmellUnusedInputs");

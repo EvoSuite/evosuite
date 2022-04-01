@@ -26,7 +26,7 @@ import static org.junit.Assert.assertEquals;
 
 public class OverreferencingSmellTest {
 
-    AbstractTestCaseSmell overreferencing;
+    AbstractNormalizedTestCaseSmell overreferencing;
 
     @Before
     public void setUp() {

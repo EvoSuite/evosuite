@@ -6,7 +6,7 @@ import org.evosuite.assertion.InspectorAssertion;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testcase.statements.Statement;
-import org.evosuite.testsmells.AbstractTestCaseSmell;
+import org.evosuite.testsmells.AbstractNormalizedTestCaseSmell;
 
 import java.lang.reflect.Method;
 import java.util.Set;
@@ -36,7 +36,7 @@ import java.util.Set;
  *               from the class under test: increment the smell counter
  * 6 - Return the smell counter
  */
-public class SensitiveEquality extends AbstractTestCaseSmell {
+public class SensitiveEquality extends AbstractNormalizedTestCaseSmell {
 
     public SensitiveEquality() {
         super("TestSmellSensitiveEquality");

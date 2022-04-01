@@ -5,7 +5,7 @@ import org.evosuite.assertion.Assertion;
 import org.evosuite.assertion.InspectorAssertion;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.statements.MethodStatement;
-import org.evosuite.testsmells.AbstractTestCaseSmell;
+import org.evosuite.testsmells.AbstractNormalizedTestCaseSmell;
 import org.evosuite.testcase.statements.Statement;
 
 import java.lang.reflect.Method;
@@ -35,7 +35,7 @@ import java.util.*;
  *       is an instance of InspectorAssertion
  * 5 - Return the smell counter
  */
-public class DuplicateAssert extends AbstractTestCaseSmell {
+public class DuplicateAssert extends AbstractNormalizedTestCaseSmell {
 
     public DuplicateAssert() {
         super("TestSmellDuplicateAssert");

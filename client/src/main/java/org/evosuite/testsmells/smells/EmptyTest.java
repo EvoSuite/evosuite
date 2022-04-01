@@ -26,11 +26,6 @@ public class EmptyTest extends AbstractTestCaseSmell {
     }
 
     @Override
-    public long computeNumberOfTestSmells(TestChromosome chromosome) {
-        return chromosome.getTestCase().size() == 0 ? Integer.MAX_VALUE : 0;
-    }
-
-    @Override
     public double computeTestSmellMetric(TestChromosome chromosome) {
         return chromosome.getTestCase().size() == 0 ? Integer.MAX_VALUE : 0;
     }
@@ -39,7 +34,7 @@ public class EmptyTest extends AbstractTestCaseSmell {
     public double computeTestSmellMetric(TestSuiteChromosome chromosome) {
 
         for(TestChromosome testcase : chromosome.getTestChromosomes()){
-            if(computeNumberOfTestSmells(testcase) > 0){
+            if(computeTestSmellMetric(testcase) > 0){
                 return Integer.MAX_VALUE;
             }
         }

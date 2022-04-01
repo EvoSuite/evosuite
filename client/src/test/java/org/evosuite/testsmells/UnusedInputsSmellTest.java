@@ -21,7 +21,7 @@ import static org.junit.Assert.assertEquals;
 
 public class UnusedInputsSmellTest {
 
-    AbstractTestCaseSmell unusedInputs;
+    AbstractNormalizedTestCaseSmell unusedInputs;
 
     @Before
     public void setUp() {

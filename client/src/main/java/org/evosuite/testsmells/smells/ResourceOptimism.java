@@ -6,14 +6,14 @@ import org.evosuite.testcase.statements.ConstructorStatement;
 import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.variable.VariableReference;
-import org.evosuite.testsmells.AbstractTestCaseSmell;
+import org.evosuite.testsmells.AbstractNormalizedTestCaseSmell;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 
-public class ResourceOptimism extends AbstractTestCaseSmell {
+public class ResourceOptimism extends AbstractNormalizedTestCaseSmell {
 
     public ResourceOptimism() {
         super("TestSmellResourceOptimism");

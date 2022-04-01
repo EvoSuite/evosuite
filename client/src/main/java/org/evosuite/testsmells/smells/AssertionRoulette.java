@@ -3,8 +3,8 @@ package org.evosuite.testsmells.smells;
 import org.evosuite.Properties;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.statements.MethodStatement;
-import org.evosuite.testsmells.AbstractTestCaseSmell;
 import org.evosuite.testcase.statements.Statement;
+import org.evosuite.testsmells.AbstractNormalizedTestCaseSmell;
 
 import java.lang.reflect.Method;
 
@@ -35,7 +35,7 @@ import java.lang.reflect.Method;
  *     counter: Math.max() is used to ensure that the result is always greater than or equal to zero
  * 6 - Return the the final result
  */
-public class AssertionRoulette extends AbstractTestCaseSmell {
+public class AssertionRoulette extends AbstractNormalizedTestCaseSmell {
 
     public AssertionRoulette() {
         super("TestSmellAssertionRoulette");

@@ -22,7 +22,7 @@ import static org.junit.Assert.assertTrue;
 
 public class SlowTestsSmellTest {
 
-    AbstractTestCaseSmell slowTests;
+    AbstractNormalizedTestCaseSmell slowTests;
 
     @Before
     public void setUp() {

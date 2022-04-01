@@ -5,11 +5,11 @@ import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.variable.VariableReference;
-import org.evosuite.testsmells.AbstractTestCaseSmell;
+import org.evosuite.testsmells.AbstractNormalizedTestCaseSmell;
 
 import java.util.List;
 
-public class LikelyIneffectiveObjectComparison extends AbstractTestCaseSmell {
+public class LikelyIneffectiveObjectComparison extends AbstractNormalizedTestCaseSmell {
 
     public LikelyIneffectiveObjectComparison() {
         super("TestSmellLikelyIneffectiveObjectComparison");

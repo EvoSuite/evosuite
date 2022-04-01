@@ -1,7 +1,7 @@
 package org.evosuite.testsmells.smells;
 
 import org.evosuite.testcase.TestChromosome;
-import org.evosuite.testsmells.AbstractTestCaseSmell;
+import org.evosuite.testsmells.AbstractNormalizedTestCaseSmell;
 
 /**
  * Definition:
@@ -13,7 +13,7 @@ import org.evosuite.testsmells.AbstractTestCaseSmell;
  * Detection:
  * 1 - Return the number of statements in the chromosome (i.e., the size)
  */
-public class VerboseTest extends AbstractTestCaseSmell {
+public class VerboseTest extends AbstractNormalizedTestCaseSmell {
 
     public VerboseTest() {
         super("TestSmellVerboseTest");

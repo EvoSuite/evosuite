@@ -20,7 +20,7 @@ import static org.junit.Assert.assertEquals;
 
 public class LikelyIneffectiveObjectComparisonSmellTest {
 
-    AbstractTestCaseSmell likelyIneffectiveObjectComparison;
+    AbstractNormalizedTestCaseSmell likelyIneffectiveObjectComparison;
 
     @Before
     public void setUp() {

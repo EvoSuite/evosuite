@@ -22,7 +22,7 @@ import static org.junit.Assert.assertEquals;
 
 public class ResourceOptimismSmellTest {
 
-    AbstractTestCaseSmell resourceOptimism;
+    AbstractNormalizedTestCaseSmell resourceOptimism;
 
     @Before
     public void setUp() {

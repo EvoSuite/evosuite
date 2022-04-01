@@ -3,7 +3,7 @@ package org.evosuite.testsmells.smells;
 import org.evosuite.assertion.Assertion;
 import org.evosuite.assertion.InspectorAssertion;
 import org.evosuite.testcase.TestChromosome;
-import org.evosuite.testsmells.AbstractTestCaseSmell;
+import org.evosuite.testsmells.AbstractNormalizedTestCaseSmell;
 import org.evosuite.testcase.statements.Statement;
 
 import java.util.Set;
@@ -39,7 +39,7 @@ import java.util.Set;
  *          statement to which the assertion is added: increment the smell counter
  * 6 - Return the smell counter
  */
-public class BrittleAssertion extends AbstractTestCaseSmell {
+public class BrittleAssertion extends AbstractNormalizedTestCaseSmell {
 
     public BrittleAssertion() {
         super("TestSmellBrittleAssertion");

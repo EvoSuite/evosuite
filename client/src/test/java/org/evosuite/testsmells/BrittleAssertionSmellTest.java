@@ -22,7 +22,7 @@ import static org.junit.Assert.assertEquals;
 
 public class BrittleAssertionSmellTest {
 
-    AbstractTestCaseSmell brittleAssertion;
+    AbstractNormalizedTestCaseSmell brittleAssertion;
 
     @Before
     public void setUp() {

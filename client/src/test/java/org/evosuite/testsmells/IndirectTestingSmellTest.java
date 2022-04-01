@@ -23,7 +23,7 @@ import static org.junit.Assert.assertEquals;
 
 public class IndirectTestingSmellTest {
 
-    AbstractTestCaseSmell indirectTesting;
+    AbstractNormalizedTestCaseSmell indirectTesting;
 
     @Before
     public void setUp() {

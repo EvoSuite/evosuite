@@ -21,7 +21,7 @@ import static org.junit.Assert.assertEquals;
 
 public class ObscureInlineSetupSmellTest {
 
-    AbstractTestCaseSmell obscureInlineSetup;
+    AbstractNormalizedTestCaseSmell obscureInlineSetup;
 
     @Before
     public void setUp() {

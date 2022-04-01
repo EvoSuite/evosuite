@@ -22,7 +22,7 @@ import static org.junit.Assert.assertEquals;
 
 public class RedundantAssertionSmellTest {
 
-    AbstractTestCaseSmell redundantAssertion;
+    AbstractNormalizedTestCaseSmell redundantAssertion;
 
     @Before
     public void setUp() {

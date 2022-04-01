@@ -22,7 +22,7 @@ import static org.junit.Assert.assertEquals;
 
 public class AssertionRouletteSmellTest {
 
-    AbstractTestCaseSmell assertionRoulette;
+    AbstractNormalizedTestCaseSmell assertionRoulette;
 
     @Before
     public void setUp() {
@@ -36,9 +36,12 @@ public class AssertionRouletteSmellTest {
         DefaultTestCase test0 = createTestCase0();
         testCase.setTestCase(test0);
 
-        double smellCount = this.assertionRoulette.computeTestSmellMetric(testCase);
+        double smellCount = this.assertionRoulette.computeNumberOfTestSmells(testCase);
         double expected = 0.0;
         assertEquals(expected, smellCount, 0.01);
+
+        double computedMetric = this.assertionRoulette.computeTestSmellMetric(testCase);
+        assertEquals(expected, computedMetric, 0.01);
     }
 
     @Test
@@ -47,9 +50,12 @@ public class AssertionRouletteSmellTest {
         DefaultTestCase test0 = createTestCase1();
         testCase.setTestCase(test0);
 
-        double smellCount = this.assertionRoulette.computeTestSmellMetric(testCase);
+        double smellCount = this.assertionRoulette.computeNumberOfTestSmells(testCase);
         double expected = 0.0;
         assertEquals(expected, smellCount, 0.01);
+
+        double computedMetric = this.assertionRoulette.computeTestSmellMetric(testCase);
+        assertEquals(expected, computedMetric, 0.01);
     }
 
     @Test
@@ -58,9 +64,13 @@ public class AssertionRouletteSmellTest {
         DefaultTestCase test0 = createTestCase2();
         testCase.setTestCase(test0);
 
-        double smellCount = this.assertionRoulette.computeTestSmellMetric(testCase);
-        double expected = 0.5;
+        double smellCount = this.assertionRoulette.computeNumberOfTestSmells(testCase);
+        double expected = 1.0;
         assertEquals(expected, smellCount, 0.01);
+
+        double computedMetric = this.assertionRoulette.computeTestSmellMetric(testCase);
+         expected = 0.5;
+        assertEquals(expected, computedMetric, 0.01);
     }
 
     @Test
@@ -69,9 +79,13 @@ public class AssertionRouletteSmellTest {
         DefaultTestCase test0 = createTestCase3();
         testCase.setTestCase(test0);
 
-        double smellCount = this.assertionRoulette.computeTestSmellMetric(testCase);
+        double smellCount = this.assertionRoulette.computeNumberOfTestSmells(testCase);
         double expected = 0.0;
         assertEquals(expected, smellCount, 0.01);
+
+        double computedMetric = this.assertionRoulette.computeTestSmellMetric(testCase);
+        expected = 0.0;
+        assertEquals(expected, computedMetric, 0.01);
     }
 
     @Test
@@ -80,9 +94,13 @@ public class AssertionRouletteSmellTest {
         DefaultTestCase test0 = createTestCase4();
         testCase.setTestCase(test0);
 
-        double smellCount = this.assertionRoulette.computeTestSmellMetric(testCase);
-        double expected = 0.5;
+        double smellCount = this.assertionRoulette.computeNumberOfTestSmells(testCase);
+        double expected = 1.0;
         assertEquals(expected, smellCount, 0.01);
+
+        double computedMetric = this.assertionRoulette.computeTestSmellMetric(testCase);
+        expected = 0.5;
+        assertEquals(expected, computedMetric, 0.01);
     }
 
     @Test
@@ -91,9 +109,13 @@ public class AssertionRouletteSmellTest {
         DefaultTestCase test0 = createTestCase5();
         testCase.setTestCase(test0);
 
-        double smellCount = this.assertionRoulette.computeTestSmellMetric(testCase);
-        double expected = 2.0 / (1.0 + 2.0);
+        double smellCount = this.assertionRoulette.computeNumberOfTestSmells(testCase);
+        double expected = 2.0;
         assertEquals(expected, smellCount, 0.01);
+
+        double computedMetric = this.assertionRoulette.computeTestSmellMetric(testCase);
+        expected = 2.0 / (1.0 + 2.0);
+        assertEquals(expected, computedMetric, 0.01);
     }
 
     @Test
@@ -102,9 +124,13 @@ public class AssertionRouletteSmellTest {
         DefaultTestCase test0 = createTestCase6();
         testCase.setTestCase(test0);
 
-        double smellCount = this.assertionRoulette.computeTestSmellMetric(testCase);
-        double expected = 0.5;
+        double smellCount = this.assertionRoulette.computeNumberOfTestSmells(testCase);
+        double expected = 1.0;
         assertEquals(expected, smellCount, 0.01);
+
+        double computedMetric = this.assertionRoulette.computeTestSmellMetric(testCase);
+        expected = 0.5;
+        assertEquals(expected, computedMetric, 0.01);
     }
 
     @Test
@@ -113,9 +139,27 @@ public class AssertionRouletteSmellTest {
         DefaultTestCase test0 = createTestCase7();
         testCase.setTestCase(test0);
 
-        double smellCount = this.assertionRoulette.computeTestSmellMetric(testCase);
-        double expected = 0.75;
+        double smellCount = this.assertionRoulette.computeNumberOfTestSmells(testCase);
+        double expected = 3.0;
         assertEquals(expected, smellCount, 0.01);
+
+        double computedMetric = this.assertionRoulette.computeTestSmellMetric(testCase);
+        expected = 0.75;
+        assertEquals(expected, computedMetric, 0.01);
+    }
+
+    @Test
+    public void testEmptyTestCase() {
+        TestChromosome testCase = new TestChromosome();
+        DefaultTestCase test0 = createEmptyTestCase();
+        testCase.setTestCase(test0);
+
+        double smellCount = this.assertionRoulette.computeNumberOfTestSmells(testCase);
+        double expected = 0.0;
+        assertEquals(expected, smellCount, 0.01);
+
+        double computedMetric = this.assertionRoulette.computeTestSmellMetric(testCase);
+        assertEquals(expected, computedMetric, 0.01);
     }
 
     @Test
@@ -129,6 +173,7 @@ public class AssertionRouletteSmellTest {
         DefaultTestCase test5 = createTestCase5();
         DefaultTestCase test6 = createTestCase6();
         DefaultTestCase test7 = createTestCase7();
+        DefaultTestCase test8 = createEmptyTestCase();
         suite.addTest(test0);
         suite.addTest(test1);
         suite.addTest(test2);
@@ -137,6 +182,7 @@ public class AssertionRouletteSmellTest {
         suite.addTest(test5);
         suite.addTest(test6);
         suite.addTest(test7);
+        suite.addTest(test8);
 
         double smellCount = this.assertionRoulette.computeTestSmellMetric(suite);
         double expected = 8.0 / (1.0 + 8.0);
@@ -429,5 +475,13 @@ public class AssertionRouletteSmellTest {
         currentStatement.addAssertion(nullAssertion3);
 
         return testCase;
+    }
+
+    private DefaultTestCase createEmptyTestCase() {
+
+        // Create test case
+
+        TestCaseBuilder builder = new TestCaseBuilder();
+        return builder.getDefaultTestCase();
     }
 }

@@ -7,13 +7,13 @@ import org.evosuite.testcase.statements.ConstructorStatement;
 import org.evosuite.testcase.statements.EntityWithParametersStatement;
 import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testcase.statements.Statement;
-import org.evosuite.testsmells.AbstractTestCaseSmell;
+import org.evosuite.testsmells.AbstractNormalizedTestCaseSmell;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class MysteryGuest extends AbstractTestCaseSmell {
+public class MysteryGuest extends AbstractNormalizedTestCaseSmell {
 
     public MysteryGuest() {
         super("TestSmellMysteryGuest");

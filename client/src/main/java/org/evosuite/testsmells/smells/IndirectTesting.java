@@ -6,7 +6,7 @@ import org.evosuite.assertion.InspectorAssertion;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testcase.statements.Statement;
-import org.evosuite.testsmells.AbstractTestCaseSmell;
+import org.evosuite.testsmells.AbstractNormalizedTestCaseSmell;
 
 import java.lang.reflect.Method;
 import java.util.Set;
@@ -33,7 +33,7 @@ import java.util.Set;
  *          3.4.3.2 - If the class that declares this method is equal to the class under test: increment smell counter
  * 4 - Return the smell counter
  */
-public class IndirectTesting extends AbstractTestCaseSmell {
+public class IndirectTesting extends AbstractNormalizedTestCaseSmell {
 
     public IndirectTesting() {
         super("TestSmellIndirectTesting");
