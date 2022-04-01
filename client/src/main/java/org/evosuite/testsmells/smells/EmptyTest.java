@@ -14,8 +14,8 @@ import org.evosuite.testsuite.TestSuiteChromosome;
  * Computation:
  * 1 - Verify if the test case has 0 statements (i.e., if it is empty)
  * 2 (1 is True):
- *    2.1 - Return Integer.MAX_VALUE: an empty test is the worst type of test because it lacks any evolutionary
- *          potential - as such, it has the highest possible smell score
+ *    2.1 - Return a value equivalent to the total number of analyzed test smells: an empty test is the worst type of
+ *          test because it lacks any evolutionary potential - as such, it has the highest smell score
  * 3 (1 is False):
  *    3.1 - Return 0
  */
@@ -27,7 +27,7 @@ public class EmptyTest extends AbstractTestCaseSmell {
 
     @Override
     public double computeTestSmellMetric(TestChromosome chromosome) {
-        return chromosome.getTestCase().size() == 0 ? Integer.MAX_VALUE : 0;
+        return chromosome.getTestCase().size() == 0 ? 12 : 0;
     }
 
     @Override
@@ -35,7 +35,9 @@ public class EmptyTest extends AbstractTestCaseSmell {
 
         for(TestChromosome testcase : chromosome.getTestChromosomes()){
             if(computeTestSmellMetric(testcase) > 0){
-                return Integer.MAX_VALUE;
+                // Should the optimization of test smell metrics as a secondary criterion also work for test suites?
+                // If so, we need to find a way to get this value dynamically!
+                return 22;
             }
         }
 

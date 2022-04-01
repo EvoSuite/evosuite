@@ -46,7 +46,7 @@ public class EmptyTestSmellTest {
         testCase.setTestCase(test0);
 
         double computedMetric = this.emptyTest.computeTestSmellMetric(testCase);
-        double expectedComputedMetric = Integer.MAX_VALUE;
+        double expectedComputedMetric = 12;
         assertEquals(expectedComputedMetric, computedMetric, 0.01);
     }
 
@@ -59,7 +59,7 @@ public class EmptyTestSmellTest {
         suite.addTest(test1);
 
         double computedMetric = this.emptyTest.computeTestSmellMetric(suite);
-        double expectedComputedMetric = Integer.MAX_VALUE;
+        double expectedComputedMetric = 22;
         assertEquals(expectedComputedMetric, computedMetric, 0.01);
     }
 
@@ -76,7 +76,7 @@ public class EmptyTestSmellTest {
         suite.addTest(test3);
 
         double computedMetric = this.emptyTest.computeTestSmellMetric(suite);
-        double expectedComputedMetric = Integer.MAX_VALUE;
+        double expectedComputedMetric = 22;
         assertEquals(expectedComputedMetric, computedMetric, 0.01);
     }
 
