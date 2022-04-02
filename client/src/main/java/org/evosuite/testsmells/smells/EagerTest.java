@@ -21,20 +21,24 @@ import java.util.Set;
  *
  * Computation:
  * 1 - Iterate over the statements of a test case
+ * [1: Start loop]
  * 2 - Verify if the current statement is an instance of MethodStatement
  * 3 (2 is True):
  *    3.1 - Get the method called in the respective statement
  *    3.2 - If the class that declares this method is the same as the class under test: add method to a LinkedHashSet
  *          of methods (a LinkedHashSet does not store duplicate elements)
- *    3.3 - Verify if the current statement has assertions
- *    3.4 (3.3 is True):
- *       3.4.1 - Iterate over the assertions of the current statement
- *       3.4.2 - Verify if the current assertion is an instance of InspectorAssertion
- *       3.4.3 (3.4.2 is True):
- *          3.4.3.1 - Get the method on which the assertion is made
- *          3.4.3.2 - If the class that declares this method is the same as the class under test: add method to LinkedHashSet
- *                    of methods
- * 4 - Return the number of elements in the LinkedHashSet of methods
+ * 4 - Verify if the current statement has assertions
+ * 5 (4 is True):
+ *    5.1 - Iterate over the assertions of the current statement
+ *    [5.1: Start loop]
+ *    5.2 - Verify if the current assertion is an instance of InspectorAssertion
+ *    5.3 (5.2 is True):
+ *       5.3.1 - Get the method on which the assertion is made
+ *       5.3.2 - If the class that declares this method is the same as the class under test: add method to LinkedHashSet
+ *               of methods
+ *    [5.1: End loop]
+ * [1: End loop]
+ * 6 - Return the number of elements in the LinkedHashSet of methods
  */
 public class EagerTest extends AbstractNormalizedTestCaseSmell {
 
@@ -56,6 +60,7 @@ public class EagerTest extends AbstractNormalizedTestCaseSmell {
 
             if(currentStatement instanceof MethodStatement){
                 method = ((MethodStatement) currentStatement).getMethod().getMethod();
+
                 if(method.getDeclaringClass().getCanonicalName().equals(Properties.TARGET_CLASS)){
                     setOfMethods.add(method);
                 }
