@@ -33,11 +33,11 @@ public class OptimizeTestSmellsPostProcessing {
         listOfTestSmells.add(new RedundantAssertion());
         listOfTestSmells.add(new ResourceOptimism());
         listOfTestSmells.add(new RottenGreenTests());
-        listOfTestSmells.add(new SensitiveEquality());
         listOfTestSmells.add(new SlowTests());
         listOfTestSmells.add(new TestCodeDuplication());
         listOfTestSmells.add(new TestRedundancy());
         listOfTestSmells.add(new UnknownTest());
+        listOfTestSmells.add(new UnrelatedAssertions());
         listOfTestSmells.add(new UnusedInputs());
         listOfTestSmells.add(new VerboseTest());
     }

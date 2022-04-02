@@ -176,7 +176,7 @@ public class SearchStatistics implements Listener<ClientStateInformation> {
         sequenceOutputVariableFactories.put(RuntimeVariable.TestSmellRedundantAssertionTimeline.name(), new TestSmellRedundantAssertionSequenceOutputVariableFactory());
         sequenceOutputVariableFactories.put(RuntimeVariable.TestSmellResourceOptimismTimeline.name(), new TestSmellResourceOptimismSequenceOutputVariableFactory());
         sequenceOutputVariableFactories.put(RuntimeVariable.TestSmellRottenGreenTestsTimeline.name(), new TestSmellRottenGreenTestsSequenceOutputVariableFactory());
-        sequenceOutputVariableFactories.put(RuntimeVariable.TestSmellSensitiveEqualityTimeline.name(), new TestSmellSensitiveEqualitySequenceOutputVariableFactory());
+        sequenceOutputVariableFactories.put(RuntimeVariable.TestSmellUnrelatedAssertionsTimeline.name(), new TestSmellUnrelatedAssertionsSequenceOutputVariableFactory());
         sequenceOutputVariableFactories.put(RuntimeVariable.TestSmellSlowTestsTimeline.name(), new TestSmellSlowTestsSequenceOutputVariableFactory());
         sequenceOutputVariableFactories.put(RuntimeVariable.TestSmellTestCodeDuplicationTimeline.name(), new TestSmellTestCodeDuplicationSequenceOutputVariableFactory());
         sequenceOutputVariableFactories.put(RuntimeVariable.TestSmellTestRedundancyTimeline.name(), new TestSmellTestRedundancySequenceOutputVariableFactory());
@@ -1108,15 +1108,15 @@ public class SearchStatistics implements Listener<ClientStateInformation> {
 		}
 	}
 
-	private static class TestSmellSensitiveEqualitySequenceOutputVariableFactory extends SequenceOutputVariableFactory<Double> {
+	private static class TestSmellUnrelatedAssertionsSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Double> {
 
-		public TestSmellSensitiveEqualitySequenceOutputVariableFactory() {
-			super(RuntimeVariable.TestSmellSensitiveEqualityTimeline);
+		public TestSmellUnrelatedAssertionsSequenceOutputVariableFactory() {
+			super(RuntimeVariable.TestSmellUnrelatedAssertionsTimeline);
 		}
 
 		@Override
 		public Double getValue(TestSuiteChromosome individual) {
-			AbstractTestCaseSmell smell = new SensitiveEquality();
+			AbstractTestCaseSmell smell = new UnrelatedAssertions();
 			return smell.computeTestSmellMetric(individual);
 		}
 	}

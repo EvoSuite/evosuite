@@ -72,11 +72,11 @@ public class TestSmellAnalyzer {
         listOfTestSmells.add(new RedundantAssertion());
         listOfTestSmells.add(new ResourceOptimism());
         listOfTestSmells.add(new RottenGreenTests());
-        listOfTestSmells.add(new SensitiveEquality());
         listOfTestSmells.add(new SlowTests());
         listOfTestSmells.add(new TestCodeDuplication());
         listOfTestSmells.add(new TestRedundancy());
         listOfTestSmells.add(new UnknownTest());
+        listOfTestSmells.add(new UnrelatedAssertions());
         listOfTestSmells.add(new UnusedInputs());
         listOfTestSmells.add(new VerboseTest());
 
@@ -116,8 +116,6 @@ public class TestSmellAnalyzer {
                 return new ResourceOptimism();
             case "TestSmellRottenGreenTests":
                 return new RottenGreenTests();
-            case "TestSmellSensitiveEquality":
-                return new SensitiveEquality();
             case "TestSmellSlowTests":
                 return new SlowTests();
             case "TestSmellTestCodeDuplication":
@@ -126,6 +124,8 @@ public class TestSmellAnalyzer {
                 return new TestRedundancy();
             case "TestSmellUnknownTest":
                 return new UnknownTest();
+            case "TestSmellUnrelatedAssertions":
+                return new UnrelatedAssertions();
             case "TestSmellUnusedInputs":
                 return new UnusedInputs();
             case "TestSmellVerboseTest":
