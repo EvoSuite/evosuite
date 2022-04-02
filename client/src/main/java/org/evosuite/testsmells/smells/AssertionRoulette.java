@@ -13,26 +13,30 @@ import java.lang.reflect.Method;
  * A test case has several unexplained assertions.
  *
  * Adaptation:
- * This smell typically applies to test cases that have multiple assertions without assertion messages. However,
- * EvoSuite does not generate assertions with such messages. Therefore, this metric focuses on avoiding an excessive
- * number of assertions. A test case
- *
- * A test case may have too many assertions if the number of assertions in a test case exceeds the total number of
- * method calls.
+ * This smell can occur for one of two reasons:
+ * 1 - A test case has assertions without assertion messages
+ * 2 - A test case has an excessive number of assertions
+ * EvoSuite does not generate assertions with such messages, so this metric only focuses on avoiding an excessive
+ * number of assertions. Before establishing this metric, it is necessary to stipulate what corresponds to an
+ * "excessive" number of assertions. Specifically, a test case is only affected by this smell if the number of
+ * assertions is greater than the total number of method calls.
  *
  * Metric:
- * Number of assertions in a test case that exceed the number of statements that call methods of the class under test.
+ * Number of assertions in a test case that exceed the total amount of statements that call methods of
+ * the class under test.
  *
  * Computation:
  * 1 - Iterate over the statements of a test case
+ * [1: Start loop]
  * 2 - Increment the smell counter by the number of assertions in the current statement
  * 3 - Verify if the current statement is an instance of MethodStatement
  * 4 (3 is True):
  *    4.1 - Get the method called in the respective statement
- *    4.2 - If the class that declares this method is the same as the class under test: increment numStatements counter
- * 5 - To determine the number of assertions that exceed the number of statements that call methods of the class
- *     under test, it is necessary to calculate the difference between the smell counter and the numStatements
- *     counter: Math.max() is used to ensure that the result is always greater than or equal to zero
+ *    4.2 - If the class that declares this method is the same as the class under test: increment methodCalls counter
+ * [1: End loop]
+ * 5 - Calculate the difference between the smell counter and the methodCalls counter to determine the number of
+ *     assertions in the test case that exceed the total amount of statements that call methods of the class under
+ *     test: Math.max() is used to ensure that the result is always greater than or equal to zero
  * 6 - Return the the final result
  */
 public class AssertionRoulette extends AbstractNormalizedTestCaseSmell {
@@ -45,7 +49,7 @@ public class AssertionRoulette extends AbstractNormalizedTestCaseSmell {
     public long computeNumberOfTestSmells(TestChromosome chromosome) {
         int size = chromosome.size();
         long count = 0;
-        long numStatements = 0;
+        long methodCalls = 0;
 
         Statement currentStatement;
 
@@ -56,11 +60,11 @@ public class AssertionRoulette extends AbstractNormalizedTestCaseSmell {
             if(currentStatement instanceof MethodStatement){
                 Method method = ((MethodStatement) currentStatement).getMethod().getMethod();
                 if(method.getDeclaringClass().getCanonicalName().equals(Properties.TARGET_CLASS)){
-                    numStatements++;
+                    methodCalls++;
                 }
             }
         }
 
-        return Math.max(0, count - numStatements);
+        return Math.max(0, count - methodCalls);
     }
 }
