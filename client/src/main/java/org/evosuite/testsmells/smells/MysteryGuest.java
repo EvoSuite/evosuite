@@ -2,7 +2,6 @@ package org.evosuite.testsmells.smells;
 
 import org.evosuite.Properties;
 import org.evosuite.testcase.TestChromosome;
-import org.evosuite.testcase.TestCodeVisitor;
 import org.evosuite.testcase.statements.ConstructorStatement;
 import org.evosuite.testcase.statements.EntityWithParametersStatement;
 import org.evosuite.testcase.statements.MethodStatement;
@@ -26,8 +25,6 @@ public class MysteryGuest extends AbstractNormalizedTestCaseSmell {
 
         Statement currentStatement;
 
-        TestCodeVisitor visitor = new TestCodeVisitor();
-
         List<String> mysteryTypes = new ArrayList<>(
                 Arrays.asList(
                         "File",
@@ -50,19 +47,11 @@ public class MysteryGuest extends AbstractNormalizedTestCaseSmell {
             if (currentStatement instanceof ConstructorStatement ||
                     currentStatement instanceof MethodStatement) {
 
+                // Class that declares the method
                 String className = ((EntityWithParametersStatement) currentStatement).getDeclaringClassName();
 
                 if(!className.equals(Properties.TARGET_CLASS)){
-
-                    //Verify if there is a more efficient way to do get the name of the class
-                    String curr = visitor.getClassName(currentStatement.getReturnClass());
-
-                    for (String variableType : mysteryTypes){
-                        if(curr.equals(variableType)){
-                            count++;
-                            break;
-                        }
-                    }
+                    count += mysteryTypes.contains(currentStatement.getReturnClass().getSimpleName()) ? 1 : 0;
                 }
             }
         }
