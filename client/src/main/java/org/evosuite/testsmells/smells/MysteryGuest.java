@@ -12,6 +12,23 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Definition:
+ * Tests use external resources (such as files or databases that contain test data); hence, they are not self-contained.
+ *
+ * Metric:
+ * The number of instances of file/database classes that a test case contains.
+ *
+ * Computation:
+ * 1 - Iterate over the statements of a test case
+ * [1: Start loop]
+ * 2 - Verify if the current statement is an instance of either MethodStatement or ConstructorStatement
+ * 3 (2 is True):
+ *    3.1 - If the return value of the current statement corresponds to an instance of a file/database
+ *          class: increment the smell counter
+ * [1: End loop]
+ * 4 - Return the smell counter
+ */
 public class MysteryGuest extends AbstractNormalizedTestCaseSmell {
 
     public MysteryGuest() {

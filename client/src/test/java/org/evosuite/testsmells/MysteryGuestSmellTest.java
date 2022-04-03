@@ -2,6 +2,7 @@ package org.evosuite.testsmells;
 
 import com.examples.with.different.packagename.testsmells.TestSmellsTestingClass2;
 import org.evosuite.Properties;
+import org.evosuite.assertion.NullAssertion;
 import org.evosuite.assertion.PrimitiveAssertion;
 import org.evosuite.runtime.mock.java.io.MockFile;
 import org.evosuite.symbolic.TestCaseBuilder;
@@ -36,9 +37,13 @@ public class MysteryGuestSmellTest {
         DefaultTestCase test0 = createTestCase0();
         testCase.setTestCase(test0);
 
-        double smellCount = this.mysteryGuest.computeTestSmellMetric(testCase);
-        double expected = 0;
-        assertEquals(expected, smellCount, 0.01);
+        long smellCount = this.mysteryGuest.computeNumberOfTestSmells(testCase);
+        long expectedSmellCount = 0;
+        assertEquals(expectedSmellCount, smellCount);
+
+        double computedMetric = this.mysteryGuest.computeTestSmellMetric(testCase);
+        double expectedComputedMetric = 0;
+        assertEquals(expectedComputedMetric, computedMetric, 0.01);
     }
 
     @Test
@@ -47,9 +52,13 @@ public class MysteryGuestSmellTest {
         DefaultTestCase test0 = createTestCase1();
         testCase.setTestCase(test0);
 
-        double smellCount = this.mysteryGuest.computeTestSmellMetric(testCase);
-        double expected = 1;
-        assertEquals(expected, smellCount, 0.01);
+        long smellCount = this.mysteryGuest.computeNumberOfTestSmells(testCase);
+        long expectedSmellCount = 1;
+        assertEquals(expectedSmellCount, smellCount);
+
+        double computedMetric = this.mysteryGuest.computeTestSmellMetric(testCase);
+        double expectedComputedMetric = 0.5;
+        assertEquals(expectedComputedMetric, computedMetric, 0.01);
     }
 
     @Test
@@ -58,9 +67,13 @@ public class MysteryGuestSmellTest {
         DefaultTestCase test0 = createTestCase2();
         testCase.setTestCase(test0);
 
-        double smellCount = this.mysteryGuest.computeTestSmellMetric(testCase);
-        double expected = 2;
-        assertEquals(expected, smellCount, 0.01);
+        long smellCount = this.mysteryGuest.computeNumberOfTestSmells(testCase);
+        long expectedSmellCount = 2;
+        assertEquals(expectedSmellCount, smellCount);
+
+        double computedMetric = this.mysteryGuest.computeTestSmellMetric(testCase);
+        double expectedComputedMetric = 2.0 / (1.0 + 2.0);
+        assertEquals(expectedComputedMetric, computedMetric, 0.01);
     }
 
     @Test
@@ -73,9 +86,9 @@ public class MysteryGuestSmellTest {
         suite.addTest(test1);
         suite.addTest(test2);
 
-        double smellCount = this.mysteryGuest.computeTestSmellMetric(suite);
-        double expected = 3;
-        assertEquals(expected, smellCount, 0.01);
+        double computedMetric = this.mysteryGuest.computeTestSmellMetric(suite);
+        double expectedComputedMetric = 0.75;
+        assertEquals(expectedComputedMetric, computedMetric, 0.01);
     }
 
     private DefaultTestCase createTestCase0() throws NoSuchMethodException {
@@ -156,22 +169,36 @@ public class MysteryGuestSmellTest {
         VariableReference stringStatement2 = builder.appendStringPrimitive("moreRandomNames");
 
         Method createTempFileMethod0 = MockFile.class.getMethod("createTempFile", String.class, String.class);
-        builder.appendMethod(constructorStatement1, createTempFileMethod0, stringStatement1, stringStatement2);
+        VariableReference methodStatement0 = builder.appendMethod(constructorStatement1, createTempFileMethod0, stringStatement1, stringStatement2);
 
         Method createTempFileMethod1 = MockFile.class.getMethod("createTempFile", String.class, String.class);
-        builder.appendMethod(constructorStatement1, createTempFileMethod1, stringStatement1, stringStatement2);
+        VariableReference methodStatement1 = builder.appendMethod(constructorStatement1, createTempFileMethod1, stringStatement1, stringStatement2);
 
         Method addFileMethod0 = TestSmellsTestingClass2.class.getMethod("addFile", File.class);
-        VariableReference methodStatement0 = builder.appendMethod(constructorStatement0, addFileMethod0, constructorStatement1);
+        VariableReference methodStatement2 = builder.appendMethod(constructorStatement0, addFileMethod0, constructorStatement1);
 
         DefaultTestCase testCase = builder.getDefaultTestCase();
 
         // Add assertions
 
+        Statement currentStatement;
+
+        NullAssertion nullAssertion0 = new NullAssertion();
+        nullAssertion0.setSource(methodStatement0);
+        nullAssertion0.setValue(false);
+        currentStatement = testCase.getStatement(5);
+        currentStatement.addAssertion(nullAssertion0);
+
+        NullAssertion nullAssertion1 = new NullAssertion();
+        nullAssertion1.setSource(methodStatement1);
+        nullAssertion1.setValue(false);
+        currentStatement = testCase.getStatement(6);
+        currentStatement.addAssertion(nullAssertion1);
+
         PrimitiveAssertion primitiveAssertion0 = new PrimitiveAssertion();
-        primitiveAssertion0.setSource(methodStatement0);
+        primitiveAssertion0.setSource(methodStatement2);
         primitiveAssertion0.setValue(true);
-        Statement currentStatement = testCase.getStatement(7);
+        currentStatement = testCase.getStatement(7);
         currentStatement.addAssertion(primitiveAssertion0);
 
         return testCase;
