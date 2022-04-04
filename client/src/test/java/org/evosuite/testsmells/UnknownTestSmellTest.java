@@ -35,9 +35,9 @@ public class UnknownTestSmellTest {
         DefaultTestCase test0 = createTestCase0();
         testCase.setTestCase(test0);
 
-        double smellCount = this.unknownTest.computeTestSmellMetric(testCase);
-        double expected = 1;
-        assertEquals(expected, smellCount, 0.01);
+        double computedMetric = this.unknownTest.computeTestSmellMetric(testCase);
+        double expectedComputedMetric = 1.0;
+        assertEquals(expectedComputedMetric, computedMetric, 0.01);
     }
 
     @Test
@@ -46,9 +46,9 @@ public class UnknownTestSmellTest {
         DefaultTestCase test0 = createTestCase1();
         testCase.setTestCase(test0);
 
-        double smellCount = this.unknownTest.computeTestSmellMetric(testCase);
-        double expected = 0;
-        assertEquals(expected, smellCount, 0.01);
+        double computedMetric = this.unknownTest.computeTestSmellMetric(testCase);
+        double expectedComputedMetric = 0;
+        assertEquals(expectedComputedMetric, computedMetric, 0.01);
     }
 
     @Test
@@ -57,9 +57,20 @@ public class UnknownTestSmellTest {
         DefaultTestCase test0 = createTestCase2();
         testCase.setTestCase(test0);
 
-        double smellCount = this.unknownTest.computeTestSmellMetric(testCase);
-        double expected = 0;
-        assertEquals(expected, smellCount, 0.01);
+        double computedMetric = this.unknownTest.computeTestSmellMetric(testCase);
+        double expectedComputedMetric = 0;
+        assertEquals(expectedComputedMetric, computedMetric, 0.01);
+    }
+
+    @Test
+    public void testEmptyTestCase() {
+        TestChromosome testCase = new TestChromosome();
+        DefaultTestCase test0 = createEmptyTestCase();
+        testCase.setTestCase(test0);
+
+        double computedMetric = this.unknownTest.computeTestSmellMetric(testCase);
+        double expectedComputedMetric = 1;
+        assertEquals(expectedComputedMetric, computedMetric, 0.01);
     }
 
     @Test
@@ -68,13 +79,15 @@ public class UnknownTestSmellTest {
         DefaultTestCase test0 = createTestCase0();
         DefaultTestCase test1 = createTestCase1();
         DefaultTestCase test2 = createTestCase2();
+        DefaultTestCase test3 = createEmptyTestCase();
         suite.addTest(test0);
         suite.addTest(test1);
         suite.addTest(test2);
+        suite.addTest(test3);
 
-        double smellCount = this.unknownTest.computeTestSmellMetric(suite);
-        double expected = 1;
-        assertEquals(expected, smellCount, 0.01);
+        double computedMetric = this.unknownTest.computeTestSmellMetric(suite);
+        double expectedComputedMetric = 0.5;
+        assertEquals(expectedComputedMetric, computedMetric, 0.01);
     }
 
     private DefaultTestCase createTestCase0() throws NoSuchMethodException {
@@ -168,5 +181,13 @@ public class UnknownTestSmellTest {
         currentStatement.addAssertion(primitiveAssertion1);
 
         return testCase;
+    }
+
+    private DefaultTestCase createEmptyTestCase() {
+
+        // Create test case
+
+        TestCaseBuilder builder = new TestCaseBuilder();
+        return builder.getDefaultTestCase();
     }
 }
