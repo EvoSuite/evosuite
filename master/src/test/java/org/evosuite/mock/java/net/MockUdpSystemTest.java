@@ -39,12 +39,12 @@ public class MockUdpSystemTest extends SystemTestBase {
     private static final boolean VNET = Properties.VIRTUAL_NET;
 
     @After
-    public void restoreProperties(){
+    public void restoreProperties() {
         Properties.VIRTUAL_NET = VNET;
     }
 
     @Test
-    public void testReceiveUdp(){
+    public void testReceiveUdp() {
         EvoSuite evosuite = new EvoSuite();
 
         String targetClass = ReceiveUdp.class.getCanonicalName();
@@ -53,7 +53,7 @@ public class MockUdpSystemTest extends SystemTestBase {
         Properties.SEARCH_BUDGET = 20000;
         Properties.VIRTUAL_NET = true;
 
-        String[] command = new String[] { "-generateSuite", "-class", targetClass };
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
 
         Object result = evosuite.parseCommandLine(command);
         Assert.assertNotNull(result);

@@ -23,15 +23,15 @@ import java.util.List;
 
 public class SimpleFM_GenericReturn {
 
-	public interface Foo<T> {
-	
-		List<T> foo();
-	}
-	
-    public boolean bar(Foo<String> bar, String x){
-        if(bar.foo().isEmpty())
-        	return true;
+    public interface Foo<T> {
+
+        List<T> foo();
+    }
+
+    public boolean bar(Foo<String> bar, String x) {
+        if (bar.foo().isEmpty())
+            return true;
         else
-        	return false;
+            return false;
     }
 }

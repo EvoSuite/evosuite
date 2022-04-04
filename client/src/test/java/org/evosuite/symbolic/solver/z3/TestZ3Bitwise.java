@@ -24,9 +24,9 @@ import org.evosuite.symbolic.solver.TestSolverBitwise;
 
 public class TestZ3Bitwise extends TestSolverBitwise {
 
-	@Override
-	public Solver getSolver() {
-		return new Z3Solver();
-	}
+    @Override
+    public Solver getSolver() {
+        return new Z3Solver();
+    }
 
 }

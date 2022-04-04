@@ -34,63 +34,67 @@ import org.evosuite.utils.Randomness;
  */
 public class TestSuiteChromosomeFactory implements ChromosomeFactory<TestSuiteChromosome> {
 
-	private static final long serialVersionUID = -3769862881038106087L;
+    private static final long serialVersionUID = -3769862881038106087L;
 
-	public ChromosomeFactory<TestChromosome> getTestChromosomeFactory() {
-		return testChromosomeFactory;
-	}
+    public ChromosomeFactory<TestChromosome> getTestChromosomeFactory() {
+        return testChromosomeFactory;
+    }
 
-	/** Factory to manipulate and generate method sequences */
-	protected ChromosomeFactory<TestChromosome> testChromosomeFactory;
+    /**
+     * Factory to manipulate and generate method sequences
+     */
+    protected ChromosomeFactory<TestChromosome> testChromosomeFactory;
 
-	/**
-	 * <p>Constructor for TestSuiteChromosomeFactory.</p>
-	 */
-	public TestSuiteChromosomeFactory() {
-		testChromosomeFactory = new RandomLengthTestFactory();
-	}
+    /**
+     * <p>Constructor for TestSuiteChromosomeFactory.</p>
+     */
+    public TestSuiteChromosomeFactory() {
+        testChromosomeFactory = new RandomLengthTestFactory();
+    }
 
-	/**
-	 * <p>Constructor for TestSuiteChromosomeFactory.</p>
-	 *
-	 * @param testFactory a {@link org.evosuite.ga.ChromosomeFactory} object.
-	 */
-	public TestSuiteChromosomeFactory(ChromosomeFactory<TestChromosome> testFactory) {
-		testChromosomeFactory = testFactory;
+    /**
+     * <p>Constructor for TestSuiteChromosomeFactory.</p>
+     *
+     * @param testFactory a {@link org.evosuite.ga.ChromosomeFactory} object.
+     */
+    public TestSuiteChromosomeFactory(ChromosomeFactory<TestChromosome> testFactory) {
+        testChromosomeFactory = testFactory;
 
-		// test_factory = new RandomLengthTestFactory();
-		// test_factory = new AllMethodsChromosomeFactory();
-		// test_factory = new OUMTestChromosomeFactory();
-	}
+        // test_factory = new RandomLengthTestFactory();
+        // test_factory = new AllMethodsChromosomeFactory();
+        // test_factory = new OUMTestChromosomeFactory();
+    }
 
-	/**
-	 * <p>setTestFactory</p>
-	 *
-	 * @param factory a {@link org.evosuite.ga.ChromosomeFactory} object.
-	 */
-	public void setTestFactory(ChromosomeFactory<TestChromosome> factory) {
-		testChromosomeFactory = factory;
-	}
+    /**
+     * <p>setTestFactory</p>
+     *
+     * @param factory a {@link org.evosuite.ga.ChromosomeFactory} object.
+     */
+    public void setTestFactory(ChromosomeFactory<TestChromosome> factory) {
+        testChromosomeFactory = factory;
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public TestSuiteChromosome getChromosome() {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public TestSuiteChromosome getChromosome() {
 
-		TestSuiteChromosome chromosome = new TestSuiteChromosome(
-				testChromosomeFactory);
-		chromosome.clearTests();
-		// ((AllMethodsChromosomeFactory)test_factory).clear();
+        TestSuiteChromosome chromosome = new TestSuiteChromosome(
+                testChromosomeFactory);
+        chromosome.clearTests();
+        // ((AllMethodsChromosomeFactory)test_factory).clear();
 
-		int numTests = Randomness.nextInt(Properties.MIN_INITIAL_TESTS,
-		                                  Properties.MAX_INITIAL_TESTS + 1);
+        int numTests = Randomness.nextInt(Properties.MIN_INITIAL_TESTS,
+                Properties.MAX_INITIAL_TESTS + 1);
 
-		for (int i = 0; i < numTests; i++) {
-			TestChromosome test = testChromosomeFactory.getChromosome();
-			chromosome.addTest(test);
-			//chromosome.tests.add(test);
-		}
-		// logger.info("Covered methods: "+((AllMethodsChromosomeFactory)test_factory).covered.size());
-		// logger.trace("Generated new test suite:"+chromosome);
-		return chromosome;
-	}
+        for (int i = 0; i < numTests; i++) {
+            TestChromosome test = testChromosomeFactory.getChromosome();
+            chromosome.addTest(test);
+            //chromosome.tests.add(test);
+        }
+        // logger.info("Covered methods: "+((AllMethodsChromosomeFactory)test_factory).covered.size());
+        // logger.trace("Generated new test suite:"+chromosome);
+        return chromosome;
+    }
 }

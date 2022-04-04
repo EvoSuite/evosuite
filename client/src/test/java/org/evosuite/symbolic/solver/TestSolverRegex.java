@@ -19,293 +19,292 @@
  */
 package org.evosuite.symbolic.solver;
 
-import static org.evosuite.symbolic.solver.TestSolver.solve;
-
-import java.lang.reflect.Method;
-import java.util.Collection;
-import java.util.Map;
-
+import com.examples.with.different.packagename.solver.TestCaseRegex;
 import org.evosuite.symbolic.TestCaseBuilder;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.variable.VariableReference;
 
-import com.examples.with.different.packagename.solver.TestCaseRegex;
+import java.lang.reflect.Method;
+import java.util.Collection;
+import java.util.Map;
+
+import static org.evosuite.symbolic.solver.TestSolver.solve;
 
 public abstract class TestSolverRegex {
 
-	private static DefaultTestCase buildTestConcat() throws SecurityException,
-			NoSuchMethodException {
-		TestCaseBuilder tc = new TestCaseBuilder();
-		VariableReference string0 = tc.appendStringPrimitive("aaaaaaaab");
+    private static DefaultTestCase buildTestConcat() throws SecurityException,
+            NoSuchMethodException {
+        TestCaseBuilder tc = new TestCaseBuilder();
+        VariableReference string0 = tc.appendStringPrimitive("aaaaaaaab");
 
-		Method method = TestCaseRegex.class.getMethod("testConcat",
-				String.class);
-		tc.appendMethod(null, method, string0);
-		return tc.getDefaultTestCase();
-	}
+        Method method = TestCaseRegex.class.getMethod("testConcat",
+                String.class);
+        tc.appendMethod(null, method, string0);
+        return tc.getDefaultTestCase();
+    }
 
-	public static Map<String, Object> testConcat(Solver solver)
-			throws SecurityException, NoSuchMethodException,
-			SolverTimeoutException {
+    public static Map<String, Object> testConcat(Solver solver)
+            throws SecurityException, NoSuchMethodException,
+            SolverTimeoutException {
 
-		DefaultTestCase tc = buildTestConcat();
-		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
-				.execute(tc);
-		Map<String, Object> solution = solve(solver,constraints);
-		return solution;
-	}
+        DefaultTestCase tc = buildTestConcat();
+        Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
+                .execute(tc);
+        Map<String, Object> solution = solve(solver, constraints);
+        return solution;
+    }
 
-	private static DefaultTestCase buildTestUnion() throws SecurityException,
-			NoSuchMethodException {
-		TestCaseBuilder tc = new TestCaseBuilder();
-		VariableReference string0 = tc.appendStringPrimitive("a");
+    private static DefaultTestCase buildTestUnion() throws SecurityException,
+            NoSuchMethodException {
+        TestCaseBuilder tc = new TestCaseBuilder();
+        VariableReference string0 = tc.appendStringPrimitive("a");
 
-		Method method = TestCaseRegex.class
-				.getMethod("testUnion", String.class);
-		tc.appendMethod(null, method, string0);
-		return tc.getDefaultTestCase();
-	}
+        Method method = TestCaseRegex.class
+                .getMethod("testUnion", String.class);
+        tc.appendMethod(null, method, string0);
+        return tc.getDefaultTestCase();
+    }
 
-	private static DefaultTestCase buildTestOptional()
-			throws SecurityException, NoSuchMethodException {
-		TestCaseBuilder tc = new TestCaseBuilder();
-		VariableReference string0 = tc.appendStringPrimitive("a");
+    private static DefaultTestCase buildTestOptional()
+            throws SecurityException, NoSuchMethodException {
+        TestCaseBuilder tc = new TestCaseBuilder();
+        VariableReference string0 = tc.appendStringPrimitive("a");
 
-		Method method = TestCaseRegex.class.getMethod("testOptional",
-				String.class);
-		tc.appendMethod(null, method, string0);
-		return tc.getDefaultTestCase();
-	}
+        Method method = TestCaseRegex.class.getMethod("testOptional",
+                String.class);
+        tc.appendMethod(null, method, string0);
+        return tc.getDefaultTestCase();
+    }
 
-	public static Map<String, Object> testUnion(Solver solver)
-			throws SecurityException, NoSuchMethodException,
-			SolverTimeoutException {
+    public static Map<String, Object> testUnion(Solver solver)
+            throws SecurityException, NoSuchMethodException,
+            SolverTimeoutException {
 
-		DefaultTestCase tc = buildTestUnion();
-		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
-				.execute(tc);
-		Map<String, Object> solution = solve(solver,constraints);
-		return solution;
-	}
+        DefaultTestCase tc = buildTestUnion();
+        Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
+                .execute(tc);
+        Map<String, Object> solution = solve(solver, constraints);
+        return solution;
+    }
 
-	public static Map<String, Object> testOptional(Solver solver)
-			throws SecurityException, NoSuchMethodException,
-			SolverTimeoutException {
-		DefaultTestCase tc = buildTestOptional();
-		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
-				.execute(tc);
-		Map<String, Object> solution = solve(solver,constraints);
-		return solution;
-	}
+    public static Map<String, Object> testOptional(Solver solver)
+            throws SecurityException, NoSuchMethodException,
+            SolverTimeoutException {
+        DefaultTestCase tc = buildTestOptional();
+        Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
+                .execute(tc);
+        Map<String, Object> solution = solve(solver, constraints);
+        return solution;
+    }
 
-	public static Map<String, Object> testString(Solver solver)
-			throws SecurityException, NoSuchMethodException,
-			SolverTimeoutException {
-		DefaultTestCase tc = buildTestString();
-		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
-				.execute(tc);
-		Map<String, Object> solution = solve(solver,constraints);
-		return solution;
-	}
+    public static Map<String, Object> testString(Solver solver)
+            throws SecurityException, NoSuchMethodException,
+            SolverTimeoutException {
+        DefaultTestCase tc = buildTestString();
+        Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
+                .execute(tc);
+        Map<String, Object> solution = solve(solver, constraints);
+        return solution;
+    }
 
-	private static DefaultTestCase buildTestString() throws SecurityException,
-			NoSuchMethodException {
-		TestCaseBuilder tc = new TestCaseBuilder();
-		VariableReference string0 = tc.appendStringPrimitive("hello");
+    private static DefaultTestCase buildTestString() throws SecurityException,
+            NoSuchMethodException {
+        TestCaseBuilder tc = new TestCaseBuilder();
+        VariableReference string0 = tc.appendStringPrimitive("hello");
 
-		Method method = TestCaseRegex.class.getMethod("testString",
-				String.class);
-		tc.appendMethod(null, method, string0);
-		return tc.getDefaultTestCase();
-	}
+        Method method = TestCaseRegex.class.getMethod("testString",
+                String.class);
+        tc.appendMethod(null, method, string0);
+        return tc.getDefaultTestCase();
+    }
 
-	public static Map<String, Object> testAnyChar(Solver solver)
-			throws SecurityException, NoSuchMethodException,
-			SolverTimeoutException {
-		DefaultTestCase tc = buildTestAnyChar();
-		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
-				.execute(tc);
-		Map<String, Object> solution = solve(solver,constraints);
-		return solution;
-	}
+    public static Map<String, Object> testAnyChar(Solver solver)
+            throws SecurityException, NoSuchMethodException,
+            SolverTimeoutException {
+        DefaultTestCase tc = buildTestAnyChar();
+        Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
+                .execute(tc);
+        Map<String, Object> solution = solve(solver, constraints);
+        return solution;
+    }
 
-	private static DefaultTestCase buildTestAnyChar() throws SecurityException,
-			NoSuchMethodException {
-		TestCaseBuilder tc = new TestCaseBuilder();
-		VariableReference string0 = tc.appendStringPrimitive("X");
+    private static DefaultTestCase buildTestAnyChar() throws SecurityException,
+            NoSuchMethodException {
+        TestCaseBuilder tc = new TestCaseBuilder();
+        VariableReference string0 = tc.appendStringPrimitive("X");
 
-		Method method = TestCaseRegex.class.getMethod("testAnyChar",
-				String.class);
-		tc.appendMethod(null, method, string0);
-		return tc.getDefaultTestCase();
-	}
+        Method method = TestCaseRegex.class.getMethod("testAnyChar",
+                String.class);
+        tc.appendMethod(null, method, string0);
+        return tc.getDefaultTestCase();
+    }
 
-	public static Map<String, Object> testEmpty(Solver solver)
-			throws SecurityException, NoSuchMethodException,
-			SolverTimeoutException {
-		DefaultTestCase tc = buildTestEmpty();
-		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
-				.execute(tc);
-		Map<String, Object> solution = solve(solver,constraints);
-		return solution;
-	}
+    public static Map<String, Object> testEmpty(Solver solver)
+            throws SecurityException, NoSuchMethodException,
+            SolverTimeoutException {
+        DefaultTestCase tc = buildTestEmpty();
+        Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
+                .execute(tc);
+        Map<String, Object> solution = solve(solver, constraints);
+        return solution;
+    }
 
-	private static DefaultTestCase buildTestEmpty() throws SecurityException,
-			NoSuchMethodException {
-		TestCaseBuilder tc = new TestCaseBuilder();
-		VariableReference string0 = tc.appendStringPrimitive("");
+    private static DefaultTestCase buildTestEmpty() throws SecurityException,
+            NoSuchMethodException {
+        TestCaseBuilder tc = new TestCaseBuilder();
+        VariableReference string0 = tc.appendStringPrimitive("");
 
-		Method method = TestCaseRegex.class
-				.getMethod("testEmpty", String.class);
-		tc.appendMethod(null, method, string0);
-		return tc.getDefaultTestCase();
-	}
+        Method method = TestCaseRegex.class
+                .getMethod("testEmpty", String.class);
+        tc.appendMethod(null, method, string0);
+        return tc.getDefaultTestCase();
+    }
 
-	public static Map<String, Object> testCross(Solver solver)
-			throws SecurityException, NoSuchMethodException,
-			SolverTimeoutException {
-		DefaultTestCase tc = buildTestCross();
-		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
-				.execute(tc);
-		Map<String, Object> solution = solve(solver,constraints);
-		return solution;
-	}
+    public static Map<String, Object> testCross(Solver solver)
+            throws SecurityException, NoSuchMethodException,
+            SolverTimeoutException {
+        DefaultTestCase tc = buildTestCross();
+        Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
+                .execute(tc);
+        Map<String, Object> solution = solve(solver, constraints);
+        return solution;
+    }
 
-	private static DefaultTestCase buildTestCross() throws SecurityException,
-			NoSuchMethodException {
-		TestCaseBuilder tc = new TestCaseBuilder();
-		VariableReference string0 = tc.appendStringPrimitive("a");
+    private static DefaultTestCase buildTestCross() throws SecurityException,
+            NoSuchMethodException {
+        TestCaseBuilder tc = new TestCaseBuilder();
+        VariableReference string0 = tc.appendStringPrimitive("a");
 
-		Method method = TestCaseRegex.class
-				.getMethod("testCross", String.class);
-		tc.appendMethod(null, method, string0);
-		return tc.getDefaultTestCase();
-	}
+        Method method = TestCaseRegex.class
+                .getMethod("testCross", String.class);
+        tc.appendMethod(null, method, string0);
+        return tc.getDefaultTestCase();
+    }
 
-	public static Map<String, Object> testRepeatMin(Solver solver)
-			throws SecurityException, NoSuchMethodException,
-			SolverTimeoutException {
-		DefaultTestCase tc = buildRepeatMin();
-		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
-				.execute(tc);
-		Map<String, Object> solution = solve(solver,constraints);
-		return solution;
-	}
+    public static Map<String, Object> testRepeatMin(Solver solver)
+            throws SecurityException, NoSuchMethodException,
+            SolverTimeoutException {
+        DefaultTestCase tc = buildRepeatMin();
+        Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
+                .execute(tc);
+        Map<String, Object> solution = solve(solver, constraints);
+        return solution;
+    }
 
-	private static DefaultTestCase buildRepeatMin() throws SecurityException,
-			NoSuchMethodException {
-		TestCaseBuilder tc = new TestCaseBuilder();
-		VariableReference string0 = tc.appendStringPrimitive("aaa");
+    private static DefaultTestCase buildRepeatMin() throws SecurityException,
+            NoSuchMethodException {
+        TestCaseBuilder tc = new TestCaseBuilder();
+        VariableReference string0 = tc.appendStringPrimitive("aaa");
 
-		Method method = TestCaseRegex.class.getMethod("testRepeatMin",
-				String.class);
-		tc.appendMethod(null, method, string0);
-		return tc.getDefaultTestCase();
-	}
+        Method method = TestCaseRegex.class.getMethod("testRepeatMin",
+                String.class);
+        tc.appendMethod(null, method, string0);
+        return tc.getDefaultTestCase();
+    }
 
-	public static Map<String, Object> testRepeatMinMax(Solver solver)
-			throws SecurityException, NoSuchMethodException,
-			SolverTimeoutException {
-		DefaultTestCase tc = buildRepeatMinMax();
-		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
-				.execute(tc);
-		Map<String, Object> solution = solve(solver,constraints);
-		return solution;
-	}
+    public static Map<String, Object> testRepeatMinMax(Solver solver)
+            throws SecurityException, NoSuchMethodException,
+            SolverTimeoutException {
+        DefaultTestCase tc = buildRepeatMinMax();
+        Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
+                .execute(tc);
+        Map<String, Object> solution = solve(solver, constraints);
+        return solution;
+    }
 
-	private static DefaultTestCase buildRepeatMinMax()
-			throws SecurityException, NoSuchMethodException {
-		TestCaseBuilder tc = new TestCaseBuilder();
-		VariableReference string0 = tc.appendStringPrimitive("aaaa");
+    private static DefaultTestCase buildRepeatMinMax()
+            throws SecurityException, NoSuchMethodException {
+        TestCaseBuilder tc = new TestCaseBuilder();
+        VariableReference string0 = tc.appendStringPrimitive("aaaa");
 
-		Method method = TestCaseRegex.class.getMethod("testRepeatMinMax",
-				String.class);
-		tc.appendMethod(null, method, string0);
-		return tc.getDefaultTestCase();
-	}
+        Method method = TestCaseRegex.class.getMethod("testRepeatMinMax",
+                String.class);
+        tc.appendMethod(null, method, string0);
+        return tc.getDefaultTestCase();
+    }
 
-	public static Map<String, Object> testRepeatN(Solver solver)
-			throws SecurityException, NoSuchMethodException,
-			SolverTimeoutException {
-		DefaultTestCase tc = buildRepeatN();
-		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
-				.execute(tc);
-		Map<String, Object> solution = solve(solver,constraints);
-		return solution;
-	}
+    public static Map<String, Object> testRepeatN(Solver solver)
+            throws SecurityException, NoSuchMethodException,
+            SolverTimeoutException {
+        DefaultTestCase tc = buildRepeatN();
+        Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
+                .execute(tc);
+        Map<String, Object> solution = solve(solver, constraints);
+        return solution;
+    }
 
-	private static DefaultTestCase buildRepeatN() throws SecurityException,
-			NoSuchMethodException {
-		TestCaseBuilder tc = new TestCaseBuilder();
-		VariableReference string0 = tc.appendStringPrimitive("aaaaa");
+    private static DefaultTestCase buildRepeatN() throws SecurityException,
+            NoSuchMethodException {
+        TestCaseBuilder tc = new TestCaseBuilder();
+        VariableReference string0 = tc.appendStringPrimitive("aaaaa");
 
-		Method method = TestCaseRegex.class.getMethod("testRepeatN",
-				String.class);
-		tc.appendMethod(null, method, string0);
-		return tc.getDefaultTestCase();
-	}
+        Method method = TestCaseRegex.class.getMethod("testRepeatN",
+                String.class);
+        tc.appendMethod(null, method, string0);
+        return tc.getDefaultTestCase();
+    }
 
-	public static Map<String, Object> testIntersection(Solver solver)
-			throws SecurityException, NoSuchMethodException,
-			SolverTimeoutException {
-		DefaultTestCase tc = buildIntersection();
-		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
-				.execute(tc);
-		Map<String, Object> solution = solve(solver,constraints);
-		return solution;
-	}
+    public static Map<String, Object> testIntersection(Solver solver)
+            throws SecurityException, NoSuchMethodException,
+            SolverTimeoutException {
+        DefaultTestCase tc = buildIntersection();
+        Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
+                .execute(tc);
+        Map<String, Object> solution = solve(solver, constraints);
+        return solution;
+    }
 
-	private static DefaultTestCase buildIntersection()
-			throws SecurityException, NoSuchMethodException {
-		TestCaseBuilder tc = new TestCaseBuilder();
-		VariableReference string0 = tc.appendStringPrimitive("4");
+    private static DefaultTestCase buildIntersection()
+            throws SecurityException, NoSuchMethodException {
+        TestCaseBuilder tc = new TestCaseBuilder();
+        VariableReference string0 = tc.appendStringPrimitive("4");
 
-		Method method = TestCaseRegex.class.getMethod("testIntersection",
-				String.class);
-		tc.appendMethod(null, method, string0);
-		return tc.getDefaultTestCase();
-	}
+        Method method = TestCaseRegex.class.getMethod("testIntersection",
+                String.class);
+        tc.appendMethod(null, method, string0);
+        return tc.getDefaultTestCase();
+    }
 
-	public static Map<String, Object> testChoice(Solver solver)
-			throws SecurityException, NoSuchMethodException,
-			SolverTimeoutException {
-		DefaultTestCase tc = buildChoice();
-		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
-				.execute(tc);
-		Map<String, Object> solution = solve(solver,constraints);
-		return solution;
-	}
+    public static Map<String, Object> testChoice(Solver solver)
+            throws SecurityException, NoSuchMethodException,
+            SolverTimeoutException {
+        DefaultTestCase tc = buildChoice();
+        Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
+                .execute(tc);
+        Map<String, Object> solution = solve(solver, constraints);
+        return solution;
+    }
 
-	private static DefaultTestCase buildChoice() throws SecurityException,
-			NoSuchMethodException {
-		TestCaseBuilder tc = new TestCaseBuilder();
-		VariableReference string0 = tc.appendStringPrimitive("b");
+    private static DefaultTestCase buildChoice() throws SecurityException,
+            NoSuchMethodException {
+        TestCaseBuilder tc = new TestCaseBuilder();
+        VariableReference string0 = tc.appendStringPrimitive("b");
 
-		Method method = TestCaseRegex.class.getMethod("testChoice",
-				String.class);
-		tc.appendMethod(null, method, string0);
-		return tc.getDefaultTestCase();
-	}
-	
-	public static Map<String, Object> testRange(Solver solver)
-			throws SecurityException, NoSuchMethodException,
-			SolverTimeoutException {
-		DefaultTestCase tc = buildRange();
-		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
-				.execute(tc);
-		Map<String, Object> solution = solve(solver,constraints);
-		return solution;
-	}
+        Method method = TestCaseRegex.class.getMethod("testChoice",
+                String.class);
+        tc.appendMethod(null, method, string0);
+        return tc.getDefaultTestCase();
+    }
 
-	private static DefaultTestCase buildRange() throws SecurityException,
-			NoSuchMethodException {
-		TestCaseBuilder tc = new TestCaseBuilder();
-		VariableReference string0 = tc.appendStringPrimitive("a");
+    public static Map<String, Object> testRange(Solver solver)
+            throws SecurityException, NoSuchMethodException,
+            SolverTimeoutException {
+        DefaultTestCase tc = buildRange();
+        Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
+                .execute(tc);
+        Map<String, Object> solution = solve(solver, constraints);
+        return solution;
+    }
 
-		Method method = TestCaseRegex.class.getMethod("testRange",
-				String.class);
-		tc.appendMethod(null, method, string0);
-		return tc.getDefaultTestCase();
-	}
+    private static DefaultTestCase buildRange() throws SecurityException,
+            NoSuchMethodException {
+        TestCaseBuilder tc = new TestCaseBuilder();
+        VariableReference string0 = tc.appendStringPrimitive("a");
+
+        Method method = TestCaseRegex.class.getMethod("testRange",
+                String.class);
+        tc.appendMethod(null, method, string0);
+        return tc.getDefaultTestCase();
+    }
 }

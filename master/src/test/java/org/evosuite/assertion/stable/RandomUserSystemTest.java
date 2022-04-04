@@ -41,73 +41,73 @@ import org.objectweb.asm.Type;
 import com.examples.with.different.packagename.stable.RandomUser;
 
 public class RandomUserSystemTest extends SystemTestBase {
-	private final boolean DEFAULT_JUNIT_CHECK_ON_SEPARATE_PROCESS = Properties.JUNIT_CHECK_ON_SEPARATE_PROCESS;
-	private final boolean DEFAULT_REPLACE_CALLS = Properties.REPLACE_CALLS;
-	private final Properties.JUnitCheckValues DEFAULT_JUNIT_CHECK = Properties.JUNIT_CHECK;
-	private final boolean DEFAULT_JUNIT_TESTS = Properties.JUNIT_TESTS;
-	private final boolean DEFAULT_PURE_INSPECTORS = Properties.PURE_INSPECTORS;
-	private final boolean DEFAULT_SANDBOX = Properties.SANDBOX;
-	
+    private final boolean DEFAULT_JUNIT_CHECK_ON_SEPARATE_PROCESS = Properties.JUNIT_CHECK_ON_SEPARATE_PROCESS;
+    private final boolean DEFAULT_REPLACE_CALLS = Properties.REPLACE_CALLS;
+    private final Properties.JUnitCheckValues DEFAULT_JUNIT_CHECK = Properties.JUNIT_CHECK;
+    private final boolean DEFAULT_JUNIT_TESTS = Properties.JUNIT_TESTS;
+    private final boolean DEFAULT_PURE_INSPECTORS = Properties.PURE_INSPECTORS;
+    private final boolean DEFAULT_SANDBOX = Properties.SANDBOX;
 
-	@Before
-	public void configureProperties() {
-		Properties.SANDBOX = true;
-		Properties.RESET_STATIC_FIELDS = true;
-		Properties.REPLACE_CALLS = true;
-		Properties.JUNIT_CHECK = Properties.JUnitCheckValues.TRUE;
-		Properties.JUNIT_TESTS = true;
-		Properties.PURE_INSPECTORS = true;
-		Properties.JUNIT_CHECK_ON_SEPARATE_PROCESS = false;
 
-	}
+    @Before
+    public void configureProperties() {
+        Properties.SANDBOX = true;
+        Properties.RESET_STATIC_FIELDS = true;
+        Properties.REPLACE_CALLS = true;
+        Properties.JUNIT_CHECK = Properties.JUnitCheckValues.TRUE;
+        Properties.JUNIT_TESTS = true;
+        Properties.PURE_INSPECTORS = true;
+        Properties.JUNIT_CHECK_ON_SEPARATE_PROCESS = false;
 
-	@After
-	public void restoreProperties() {
-		Properties.JUNIT_CHECK_ON_SEPARATE_PROCESS = DEFAULT_JUNIT_CHECK_ON_SEPARATE_PROCESS;
-		Properties.SANDBOX = DEFAULT_SANDBOX;
-		Properties.REPLACE_CALLS = DEFAULT_REPLACE_CALLS;
-		Properties.JUNIT_CHECK = DEFAULT_JUNIT_CHECK;
-		Properties.JUNIT_TESTS = DEFAULT_JUNIT_TESTS;
-		Properties.PURE_INSPECTORS = DEFAULT_PURE_INSPECTORS;
-	}
+    }
 
-	@Test 
-	public void testRandom() {
-		EvoSuite evosuite = new EvoSuite();
+    @After
+    public void restoreProperties() {
+        Properties.JUNIT_CHECK_ON_SEPARATE_PROCESS = DEFAULT_JUNIT_CHECK_ON_SEPARATE_PROCESS;
+        Properties.SANDBOX = DEFAULT_SANDBOX;
+        Properties.REPLACE_CALLS = DEFAULT_REPLACE_CALLS;
+        Properties.JUNIT_CHECK = DEFAULT_JUNIT_CHECK;
+        Properties.JUNIT_TESTS = DEFAULT_JUNIT_TESTS;
+        Properties.PURE_INSPECTORS = DEFAULT_PURE_INSPECTORS;
+    }
 
-		String targetClass = RandomUser.class.getCanonicalName();
-		Properties.TARGET_CLASS = targetClass;
-		Properties.OUTPUT_VARIABLES=""+RuntimeVariable.HadUnstableTests;
-		String[] command = new String[] { "-generateSuite", "-class",
-				targetClass };
+    @Test
+    public void testRandom() {
+        EvoSuite evosuite = new EvoSuite();
 
-		Object result = evosuite.parseCommandLine(command);
+        String targetClass = RandomUser.class.getCanonicalName();
+        Properties.TARGET_CLASS = targetClass;
+        Properties.OUTPUT_VARIABLES = "" + RuntimeVariable.HadUnstableTests;
+        String[] command = new String[]{"-generateSuite", "-class",
+                targetClass};
 
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
-		System.out.println("EvolvedTestSuite:\n" + best);
+        Object result = evosuite.parseCommandLine(command);
 
-		CheapPurityAnalyzer purityAnalyzer = CheapPurityAnalyzer.getInstance();
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
+        System.out.println("EvolvedTestSuite:\n" + best);
 
-		String descriptor = Type.getMethodDescriptor(Type.INT_TYPE);
-		boolean nextInt = purityAnalyzer.isPure(targetClass,
-				"nextInt", descriptor);
-		assertFalse(nextInt);
+        CheapPurityAnalyzer purityAnalyzer = CheapPurityAnalyzer.getInstance();
 
-		boolean randomNextInt = purityAnalyzer.isPure(java.util.Random.class.getCanonicalName(),
-				"nextInt", descriptor);
-		assertFalse(randomNextInt);
+        String descriptor = Type.getMethodDescriptor(Type.INT_TYPE);
+        boolean nextInt = purityAnalyzer.isPure(targetClass,
+                "nextInt", descriptor);
+        assertFalse(nextInt);
 
-		boolean secureRandomNextInt = purityAnalyzer.isPure(java.security.SecureRandom.class.getCanonicalName(),
-				"nextInt", descriptor);
-		assertFalse(secureRandomNextInt );
+        boolean randomNextInt = purityAnalyzer.isPure(java.util.Random.class.getCanonicalName(),
+                "nextInt", descriptor);
+        assertFalse(randomNextInt);
 
-		
-		Map<String, OutputVariable<?>> map = DebugStatisticsBackend.getLatestWritten();
-		Assert.assertNotNull(map);
-		OutputVariable<?> unstable = map.get(RuntimeVariable.HadUnstableTests.toString());
-		Assert.assertNotNull(unstable);
-		Assert.assertEquals(Boolean.FALSE, unstable.getValue());
-	}
+        boolean secureRandomNextInt = purityAnalyzer.isPure(java.security.SecureRandom.class.getCanonicalName(),
+                "nextInt", descriptor);
+        assertFalse(secureRandomNextInt);
+
+
+        Map<String, OutputVariable<?>> map = DebugStatisticsBackend.getLatestWritten();
+        Assert.assertNotNull(map);
+        OutputVariable<?> unstable = map.get(RuntimeVariable.HadUnstableTests.toString());
+        Assert.assertNotNull(unstable);
+        Assert.assertEquals(Boolean.FALSE, unstable.getValue());
+    }
 
 }

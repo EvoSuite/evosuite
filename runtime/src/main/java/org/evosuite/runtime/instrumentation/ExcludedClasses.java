@@ -32,8 +32,8 @@ import java.util.List;
 /**
  * The Maven shade plugin replaces strings (https://issues.apache.org/jira/browse/MSHADE-156)
  * To avoid this problem, we have to store the strings in a file and read them here.
- *
- *
+ * <p>
+ * <p>
  * Created by gordon on 19/03/2016.
  */
 public class ExcludedClasses {
@@ -43,7 +43,7 @@ public class ExcludedClasses {
     public static List<String> excludedClasses = new ArrayList<>();
 
     private static void loadExcludedClassNames() {
-        if(classesLoaded)
+        if (classesLoaded)
             return;
 
         InputStream excludedClassesStream = ExcludedClasses.class.getClassLoader().getResourceAsStream("excluded.classes");
@@ -58,10 +58,11 @@ public class ExcludedClasses {
             }
 
             br.close();
-        } catch(IOException e) {
+        } catch (IOException e) {
 
         }
     }
+
     /**
      * <p>
      * getPackagesShouldNotBeInstrumented
@@ -110,23 +111,21 @@ public class ExcludedClasses {
 //                "org.apache.struts.util.MessageResources", "org.dom4j.DefaultDocumentFactory" // These classes all cause problems with re-instrumentation
 //        }));
 
-        if(RuntimeInstrumentation.getAvoidInstrumentingShadedClasses()){
-            list.addAll(Arrays.asList(new String[]{
-                    /*
-                     * TODO:
-                     * These classes are shaded. So, should be no problem in instrumenting them during search, even though
-                     * they are used by EvoSuite. However, problems arise when running system tests before shading :(
-                     * For now, we just skip them, but need to check if it leads to side effects
-                     *
-                     * Main problem due to libraries used in the generated JUnit files to test JavaEE applications relying on database
-                     *
-                     */
-                    "org.hibernate.","org.hsqldb.","org.jboss.",
-                    "org.springframework.", "org.apache.commons.logging.", "javassist.","antlr.","org.dom4j.",
+        if (RuntimeInstrumentation.getAvoidInstrumentingShadedClasses()) {
+            list.addAll(Arrays.asList(/*
+             * TODO:
+             * These classes are shaded. So, should be no problem in instrumenting them during search, even though
+             * they are used by EvoSuite. However, problems arise when running system tests before shading :(
+             * For now, we just skip them, but need to check if it leads to side effects
+             *
+             * Main problem due to libraries used in the generated JUnit files to test JavaEE applications relying on database
+             *
+             */
+                    "org.hibernate.", "org.hsqldb.", "org.jboss.",
+                    "org.springframework.", "org.apache.commons.logging.", "javassist.", "antlr.", "org.dom4j.",
                     "org.aopalliance.",
                     "javax.servlet.",//note, Servlet is special. see comments in pom file
-                    "org.mockito.", "org.apache", "org.hamcrest", "org.objenesis"
-                    }));
+                    "org.mockito.", "org.apache", "org.hamcrest", "org.objenesis"));
         }
 
         return list;

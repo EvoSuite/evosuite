@@ -32,19 +32,18 @@ import java.util.Collection;
  * order.  A <code>Buffer</code> implementation may have equivalent removal
  * and iteration orders, but this is not required.
  * <p>
- * This interface does not specify any behavior for 
+ * This interface does not specify any behavior for
  * {@link Object#equals(Object)} and {@link Object#hashCode} methods.  It
  * is therefore possible for a <code>Buffer</code> implementation to also
- * also implement {@link java.util.List}, {@link java.util.Set} or 
+ * also implement {@link java.util.List}, {@link java.util.Set} or
  * {@link Bag}.
  *
- * @since Commons Collections 2.1
- * @version $Revision: 646777 $ $Date: 2008-04-10 13:33:15 +0100 (Thu, 10 Apr 2008) $
- * 
  * @author Avalon
  * @author Berin Loritsch
  * @author Paul Jack
  * @author Stephen Colebourne
+ * @version $Revision: 646777 $ $Date: 2008-04-10 13:33:15 +0100 (Thu, 10 Apr 2008) $
+ * @since Commons Collections 2.1
  */
 public interface Buffer extends Collection {
 

@@ -19,81 +19,75 @@
  */
 package org.evosuite.coverage.ambiguity;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.evosuite.coverage.line.LineCoverageTestFitness;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 
+import java.util.*;
+
 /**
- * 
  * @author José Campos
  */
 public class AmbiguityCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
-	private static final long serialVersionUID = -2721073655092419390L;
+    private static final long serialVersionUID = -2721073655092419390L;
 
-	
-	private final Set<Integer> goals;
 
-	
-	public AmbiguityCoverageSuiteFitness() {
+    private final Set<Integer> goals;
 
-		this.goals = new LinkedHashSet<>();
-		for (LineCoverageTestFitness goal : AmbiguityCoverageFactory.getGoals()) {
-			this.goals.add(goal.getLine());
-		}
-	}
 
-	@Override
-	public double getFitness(TestSuiteChromosome suite) {
+    public AmbiguityCoverageSuiteFitness() {
 
-		List<StringBuilder> transposedMatrix = new ArrayList<>(AmbiguityCoverageFactory.getTransposedMatrix());
-		List<Set<Integer>> coveredLines = new ArrayList<>();
+        this.goals = new LinkedHashSet<>();
+        for (LineCoverageTestFitness goal : AmbiguityCoverageFactory.getGoals()) {
+            this.goals.add(goal.getLine());
+        }
+    }
 
-		// Execute test cases and collect the covered lines
-		List<ExecutionResult> results = runTestSuite(suite);
-		for (ExecutionResult result : results) {
-			coveredLines.add(result.getTrace().getCoveredLines());
-		}
+    @Override
+    public double getFitness(TestSuiteChromosome suite) {
 
-		Map<String, Integer> groups = new HashMap<>();
-		int g_i = 0;
+        List<StringBuilder> transposedMatrix = new ArrayList<>(AmbiguityCoverageFactory.getTransposedMatrix());
+        List<Set<Integer>> coveredLines = new ArrayList<>();
 
-		for (Integer goal : this.goals) {
-			StringBuffer str = null;
+        // Execute test cases and collect the covered lines
+        List<ExecutionResult> results = runTestSuite(suite);
+        for (ExecutionResult result : results) {
+            coveredLines.add(result.getTrace().getCoveredLines());
+        }
 
-			if (transposedMatrix.size() > g_i) {
-				str = new StringBuffer(transposedMatrix.get(g_i).length() + coveredLines.size());
-				str.append(transposedMatrix.get(g_i));
-			} else {
-				str = new StringBuffer(coveredLines.size());
-			}
+        Map<String, Integer> groups = new HashMap<>();
+        int g_i = 0;
 
-			for (Set<Integer> covered : coveredLines) {
-				str.append( covered.contains(goal) ? "1" : "0" );
-			}
+        for (Integer goal : this.goals) {
+            StringBuffer str = null;
 
-			if (!groups.containsKey(str.toString())) {
-				groups.put(str.toString(), 1); // in the beginning they are ambiguity, so they belong to the same group '1'
-			} else {
-				groups.put(str.toString(), groups.get(str.toString()) + 1);
-			}
+            if (transposedMatrix.size() > g_i) {
+                str = new StringBuffer(transposedMatrix.get(g_i).length() + coveredLines.size());
+                str.append(transposedMatrix.get(g_i));
+            } else {
+                str = new StringBuffer(coveredLines.size());
+            }
 
-			g_i++;
-		}
+            for (Set<Integer> covered : coveredLines) {
+                str.append(covered.contains(goal) ? "1" : "0");
+            }
 
-		//double fitness = AmbiguityCoverageFactory.getAmbiguity(this.goals.size(), groups) * 1.0 / AmbiguityCoverageFactory.getMaxAmbiguityScore();
-		double fitness = TestFitnessFunction.normalize(AmbiguityCoverageFactory.getAmbiguity(this.goals.size(), groups));
-		updateIndividual(suite, fitness);
+            if (!groups.containsKey(str.toString())) {
+                groups.put(str.toString(), 1); // in the beginning they are ambiguity, so they belong to the same group '1'
+            } else {
+                groups.put(str.toString(), groups.get(str.toString()) + 1);
+            }
 
-		return fitness;
-	}
+            g_i++;
+        }
+
+        //double fitness = AmbiguityCoverageFactory.getAmbiguity(this.goals.size(), groups) * 1.0 / AmbiguityCoverageFactory.getMaxAmbiguityScore();
+        double fitness = TestFitnessFunction.normalize(AmbiguityCoverageFactory.getAmbiguity(this.goals.size(), groups));
+        updateIndividual(suite, fitness);
+
+        return fitness;
+    }
 }

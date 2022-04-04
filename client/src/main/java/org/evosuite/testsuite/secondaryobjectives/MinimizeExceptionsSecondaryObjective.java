@@ -32,43 +32,49 @@ import org.evosuite.testsuite.TestSuiteChromosome;
  */
 public class MinimizeExceptionsSecondaryObjective extends SecondaryObjective<TestSuiteChromosome> {
 
-	private static final long serialVersionUID = -4405276303273532040L;
+    private static final long serialVersionUID = -4405276303273532040L;
 
-	private int getNumExceptions(TestSuiteChromosome chromosome) {
-		int sum = 0;
-		for (TestChromosome test : chromosome.getTestChromosomes()) {
-			if (test.getLastExecutionResult() != null)
-				sum += test.getLastExecutionResult().getNumberOfThrownExceptions();
-		}
-		return sum;
-	}
+    private int getNumExceptions(TestSuiteChromosome chromosome) {
+        int sum = 0;
+        for (TestChromosome test : chromosome.getTestChromosomes()) {
+            if (test.getLastExecutionResult() != null)
+                sum += test.getLastExecutionResult().getNumberOfThrownExceptions();
+        }
+        return sum;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see
-	 * org.evosuite.testcase.secondaryobjectives.SecondaryObjective#compareChromosomes(org.evosuite.ga.Chromosome,
-	 * org.evosuite.ga.Chromosome)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public int compareChromosomes(TestSuiteChromosome chromosome1, TestSuiteChromosome chromosome2) {
-		return getNumExceptions(chromosome1) - getNumExceptions(chromosome2);
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see
+     * org.evosuite.testcase.secondaryobjectives.SecondaryObjective#compareChromosomes(org.evosuite.ga.Chromosome,
+     * org.evosuite.ga.Chromosome)
+     */
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see
-	 * org.evosuite.testcase.secondaryobjectives.SecondaryObjective#compareGenerations(org.evosuite.ga.Chromosome,
-	 * org.evosuite.ga.Chromosome, org.evosuite.ga.Chromosome, org.evosuite.ga.Chromosome)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public int compareGenerations(TestSuiteChromosome parent1, TestSuiteChromosome parent2,
-			TestSuiteChromosome child1, TestSuiteChromosome child2) {
-		return Math.min(getNumExceptions(parent1), getNumExceptions(parent2))
-		        - Math.min(getNumExceptions(child1), getNumExceptions(child2));
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int compareChromosomes(TestSuiteChromosome chromosome1, TestSuiteChromosome chromosome2) {
+        return getNumExceptions(chromosome1) - getNumExceptions(chromosome2);
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see
+     * org.evosuite.testcase.secondaryobjectives.SecondaryObjective#compareGenerations(org.evosuite.ga.Chromosome,
+     * org.evosuite.ga.Chromosome, org.evosuite.ga.Chromosome, org.evosuite.ga.Chromosome)
+     */
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int compareGenerations(TestSuiteChromosome parent1, TestSuiteChromosome parent2,
+                                  TestSuiteChromosome child1, TestSuiteChromosome child2) {
+        return Math.min(getNumExceptions(parent1), getNumExceptions(parent2))
+                - Math.min(getNumExceptions(child1), getNumExceptions(child2));
+    }
 
 }

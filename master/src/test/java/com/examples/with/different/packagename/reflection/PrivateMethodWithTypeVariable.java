@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 public class PrivateMethodWithTypeVariable<T extends Number> {
     private String toPathString(final List<T> pathElements) {
         // Just to have some branches...
-        if(pathElements.isEmpty())
+        if (pathElements.isEmpty())
             return "";
 
         return pathElements.stream().map(i -> i.toString()).collect(Collectors.joining("/"));

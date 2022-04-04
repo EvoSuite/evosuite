@@ -40,7 +40,9 @@ public class InstructionLoggerVM extends AbstractVM {
 
     private final IInstructionLogger instructionLogger;
 
-    /** Constructor */
+    /**
+     * Constructor
+     */
     public InstructionLoggerVM() {
         this.instructionLogger = InstructionLoggerFactory.getInstance().getInstructionLogger(Properties.BYTECODE_LOGGING_MODE);
     }

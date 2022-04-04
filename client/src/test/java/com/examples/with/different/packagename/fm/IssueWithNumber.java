@@ -26,7 +26,7 @@ public class IssueWithNumber {
 
     public static final String RESULT = "foo";
 
-    public static String getResult(){
+    public static String getResult() {
         Number number = mock(Number.class);
         when(number.toString()).thenReturn(RESULT);
         return number.toString();

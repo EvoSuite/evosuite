@@ -19,11 +19,6 @@
  */
 package org.evosuite.coverage.line;
 
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import org.evosuite.Properties;
 import org.evosuite.ga.archive.Archive;
 import org.evosuite.testcase.TestChromosome;
@@ -34,174 +29,176 @@ import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.*;
+
 public class OnlyLineCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
-	private static final long serialVersionUID = -6369027784777941998L;
+    private static final long serialVersionUID = -6369027784777941998L;
 
-	private final static Logger logger = LoggerFactory.getLogger(OnlyLineCoverageSuiteFitness.class);
+    private final static Logger logger = LoggerFactory.getLogger(OnlyLineCoverageSuiteFitness.class);
 
-	// Coverage targets
-	private final Map<Integer, TestFitnessFunction> lineGoals = new LinkedHashMap<>();
-	private final int numLines;
+    // Coverage targets
+    private final Map<Integer, TestFitnessFunction> lineGoals = new LinkedHashMap<>();
+    private final int numLines;
 
-	private final Set<Integer> removedLines = new LinkedHashSet<>();
-	private final Set<Integer> toRemoveLines = new LinkedHashSet<>();
+    private final Set<Integer> removedLines = new LinkedHashSet<>();
+    private final Set<Integer> toRemoveLines = new LinkedHashSet<>();
 
-	// Some stuff for debug output
-	private int maxCoveredLines = 0;
-	private double bestFitness = Double.MAX_VALUE;
+    // Some stuff for debug output
+    private int maxCoveredLines = 0;
+    private double bestFitness = Double.MAX_VALUE;
 
-	public OnlyLineCoverageSuiteFitness() {
-		@SuppressWarnings("unused")
-		String prefix = Properties.TARGET_CLASS_PREFIX;
+    public OnlyLineCoverageSuiteFitness() {
+        @SuppressWarnings("unused")
+        String prefix = Properties.TARGET_CLASS_PREFIX;
 
-		/* TODO: Would be nice to use a prefix here */
+        /* TODO: Would be nice to use a prefix here */
 //		for(String className : LinePool.getKnownClasses()) {		
 //			lines.addAll(LinePool.getLines(className));
 //		}
 //		logger.info("Total line coverage goals: " + lines);
 
-		List<LineCoverageTestFitness> goals = new LineCoverageFactory().getCoverageGoals();
-		for (LineCoverageTestFitness goal : goals) {
-			lineGoals.put(goal.getLine(), goal);
-			if(Properties.TEST_ARCHIVE)
-				Archive.getArchiveInstance().addTarget(goal);
-		}
+        List<LineCoverageTestFitness> goals = new LineCoverageFactory().getCoverageGoals();
+        for (LineCoverageTestFitness goal : goals) {
+            lineGoals.put(goal.getLine(), goal);
+            if (Properties.TEST_ARCHIVE)
+                Archive.getArchiveInstance().addTarget(goal);
+        }
 
-		this.numLines = lineGoals.size();
-		logger.info("Total line coverage goals: " + this.numLines);
-	}
+        this.numLines = lineGoals.size();
+        logger.info("Total line coverage goals: " + this.numLines);
+    }
 
-	@Override
-	public boolean updateCoveredGoals() {
-		if(!Properties.TEST_ARCHIVE)
-			return false;
+    @Override
+    public boolean updateCoveredGoals() {
+        if (!Properties.TEST_ARCHIVE)
+            return false;
 
-		for (Integer goalID : this.toRemoveLines) {
-			TestFitnessFunction ff = this.lineGoals.remove(goalID);
-			if (ff != null) {
-				this.removedLines.add(goalID);
-			} else {
-				throw new IllegalStateException("goal to remove not found");
-			}
-		}
+        for (Integer goalID : this.toRemoveLines) {
+            TestFitnessFunction ff = this.lineGoals.remove(goalID);
+            if (ff != null) {
+                this.removedLines.add(goalID);
+            } else {
+                throw new IllegalStateException("goal to remove not found");
+            }
+        }
 
-		this.toRemoveLines.clear();
-		logger.info("Current state of archive: " + Archive.getArchiveInstance().toString());
+        this.toRemoveLines.clear();
+        logger.info("Current state of archive: " + Archive.getArchiveInstance().toString());
 
-		assert this.numLines == this.lineGoals.size() + this.removedLines.size();
+        assert this.numLines == this.lineGoals.size() + this.removedLines.size();
 
-		return true;
-	}
-	
-	/**
-	 * Iterate over all execution results and summarize statistics
-	 * 
-	 * @param results
-	 * @param coveredLines
-	 * @return
-	 */
-	private boolean analyzeTraces(List<ExecutionResult> results, Set<Integer> coveredLines) {
-		boolean hasTimeoutOrTestException = false;
+        return true;
+    }
 
-		for (ExecutionResult result : results) {
-			if (result.hasTimeout() || result.hasTestException()) {
-				hasTimeoutOrTestException = true;
-				continue;
-			}
+    /**
+     * Iterate over all execution results and summarize statistics
+     *
+     * @param results
+     * @param coveredLines
+     * @return
+     */
+    private boolean analyzeTraces(List<ExecutionResult> results, Set<Integer> coveredLines) {
+        boolean hasTimeoutOrTestException = false;
 
-			TestChromosome test = new TestChromosome();
-			test.setTestCase(result.test);
-			test.setLastExecutionResult(result);
-			test.setChanged(false);
+        for (ExecutionResult result : results) {
+            if (result.hasTimeout() || result.hasTestException()) {
+                hasTimeoutOrTestException = true;
+                continue;
+            }
 
-			for (Integer goalID : this.lineGoals.keySet()) {
-				TestFitnessFunction goal = this.lineGoals.get(goalID);
+            TestChromosome test = new TestChromosome();
+            test.setTestCase(result.test);
+            test.setLastExecutionResult(result);
+            test.setChanged(false);
 
-				double fit = goal.getFitness(test, result); // archive is updated by the TestFitnessFunction class
+            for (Integer goalID : this.lineGoals.keySet()) {
+                TestFitnessFunction goal = this.lineGoals.get(goalID);
 
-				if (fit == 0.0) {
-					coveredLines.add(goalID); // helper to count the number of covered goals
-					this.toRemoveLines.add(goalID); // goal to not be considered by the next iteration of the evolutionary algorithm
-				}
-			}
-		}
+                double fit = goal.getFitness(test, result); // archive is updated by the TestFitnessFunction class
 
-		return hasTimeoutOrTestException;
-	}
+                if (fit == 0.0) {
+                    coveredLines.add(goalID); // helper to count the number of covered goals
+                    this.toRemoveLines.add(goalID); // goal to not be considered by the next iteration of the evolutionary algorithm
+                }
+            }
+        }
 
-	/**
-	 * {@inheritDoc}
-	 * 
-	 * Execute all tests and count covered branches
-	 */
-	@Override
-	public double getFitness(TestSuiteChromosome suite) {
-		logger.trace("Calculating branch fitness");
-		double fitness = 0.0;
+        return hasTimeoutOrTestException;
+    }
 
-		List<ExecutionResult> results = runTestSuite(suite);
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Execute all tests and count covered branches
+     */
+    @Override
+    public double getFitness(TestSuiteChromosome suite) {
+        logger.trace("Calculating branch fitness");
+        double fitness = 0.0;
 
-		// Collect stats in the traces 
-		Set<Integer> coveredLines = new LinkedHashSet<>();
-		boolean hasTimeoutOrTestException = analyzeTraces(results, coveredLines);
+        List<ExecutionResult> results = runTestSuite(suite);
 
-		int totalLines = this.numLines;
-		int numCoveredLines = coveredLines.size() + this.removedLines.size();
-		
-		logger.debug("Covered " + numCoveredLines + " out of " + totalLines + " lines, "+removedLines.size() +" in archive");
-		fitness += normalize(totalLines - numCoveredLines);
-		
-		printStatusMessages(suite, numCoveredLines, fitness);
+        // Collect stats in the traces
+        Set<Integer> coveredLines = new LinkedHashSet<>();
+        boolean hasTimeoutOrTestException = analyzeTraces(results, coveredLines);
 
-		if (totalLines > 0)
-			suite.setCoverage(this, (double) numCoveredLines / (double) totalLines);
+        int totalLines = this.numLines;
+        int numCoveredLines = coveredLines.size() + this.removedLines.size();
+
+        logger.debug("Covered " + numCoveredLines + " out of " + totalLines + " lines, " + removedLines.size() + " in archive");
+        fitness += normalize(totalLines - numCoveredLines);
+
+        printStatusMessages(suite, numCoveredLines, fitness);
+
+        if (totalLines > 0)
+            suite.setCoverage(this, (double) numCoveredLines / (double) totalLines);
         else
             suite.setCoverage(this, 1.0);
 
-		suite.setNumOfCoveredGoals(this, numCoveredLines);
-		
-		if (hasTimeoutOrTestException) {
-			logger.info("Test suite has timed out, setting fitness to max value " + totalLines);
-			fitness = totalLines;
-			//suite.setCoverage(0.0);
-		}
+        suite.setNumOfCoveredGoals(this, numCoveredLines);
 
-		updateIndividual(suite, fitness);
+        if (hasTimeoutOrTestException) {
+            logger.info("Test suite has timed out, setting fitness to max value " + totalLines);
+            fitness = totalLines;
+            //suite.setCoverage(0.0);
+        }
 
-		assert (numCoveredLines <= totalLines) : "Covered " + numCoveredLines + " vs total goals " + totalLines;
-		assert (fitness >= 0.0);
-		assert (fitness != 0.0 || numCoveredLines == totalLines) : "Fitness: " + fitness + ", "
-		        + "coverage: " + numCoveredLines + "/" + totalLines;
-		assert (suite.getCoverage(this) <= 1.0) && (suite.getCoverage(this) >= 0.0) : "Wrong coverage value "
-		        + suite.getCoverage(this);
+        updateIndividual(suite, fitness);
 
-		return fitness;
-	}
+        assert (numCoveredLines <= totalLines) : "Covered " + numCoveredLines + " vs total goals " + totalLines;
+        assert (fitness >= 0.0);
+        assert (fitness != 0.0 || numCoveredLines == totalLines) : "Fitness: " + fitness + ", "
+                + "coverage: " + numCoveredLines + "/" + totalLines;
+        assert (suite.getCoverage(this) <= 1.0) && (suite.getCoverage(this) >= 0.0) : "Wrong coverage value "
+                + suite.getCoverage(this);
 
-	/**
-	 * Some useful debug information
-	 * 
-	 * @param coveredLines
-	 * @param fitness
-	 */
-	private void printStatusMessages(TestSuiteChromosome suite,
-	        int coveredLines, double fitness) {
-		if (coveredLines > maxCoveredLines) {
-			maxCoveredLines = coveredLines;
-			logger.info("(Lines) Best individual covers " + coveredLines + "/"
-			        + this.numLines + " lines");
-			logger.info("Fitness: " + fitness + ", size: " + suite.size() + ", length: "
-			        + suite.totalLengthOfTestCases());
-		}
+        return fitness;
+    }
 
-		if (fitness < bestFitness) {
-			logger.info("(Fitness) Best individual covers " + coveredLines + "/"
-			        + this.numLines + " lines");
-			bestFitness = fitness;
-			logger.info("Fitness: " + fitness + ", size: " + suite.size() + ", length: "
-			        + suite.totalLengthOfTestCases());
+    /**
+     * Some useful debug information
+     *
+     * @param coveredLines
+     * @param fitness
+     */
+    private void printStatusMessages(TestSuiteChromosome suite,
+                                     int coveredLines, double fitness) {
+        if (coveredLines > maxCoveredLines) {
+            maxCoveredLines = coveredLines;
+            logger.info("(Lines) Best individual covers " + coveredLines + "/"
+                    + this.numLines + " lines");
+            logger.info("Fitness: " + fitness + ", size: " + suite.size() + ", length: "
+                    + suite.totalLengthOfTestCases());
+        }
 
-		}
-	}
+        if (fitness < bestFitness) {
+            logger.info("(Fitness) Best individual covers " + coveredLines + "/"
+                    + this.numLines + " lines");
+            bestFitness = fitness;
+            logger.info("Fitness: " + fitness + ", size: " + suite.size() + ", length: "
+                    + suite.totalLengthOfTestCases());
+
+        }
+    }
 }

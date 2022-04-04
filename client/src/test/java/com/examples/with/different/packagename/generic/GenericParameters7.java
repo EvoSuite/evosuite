@@ -24,20 +24,20 @@ import java.util.List;
 
 public class GenericParameters7 {
 
-	private Object test = new Object();
-	
-	public boolean testMe(List<Object> targetList) {
-		if(targetList.get(0) == test)
-			return true;				
-		else
-			return false;
-	}
-	
+    private Object test = new Object();
 
-	public List getTargetList() {
-		List<Object> targetList = new ArrayList<>();
-		targetList.add(test);
-		return targetList;
-	}
-	
+    public boolean testMe(List<Object> targetList) {
+        if (targetList.get(0) == test)
+            return true;
+        else
+            return false;
+    }
+
+
+    public List getTargetList() {
+        List<Object> targetList = new ArrayList<>();
+        targetList.add(test);
+        return targetList;
+    }
+
 }

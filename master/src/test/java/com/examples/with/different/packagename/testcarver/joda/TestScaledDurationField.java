@@ -29,17 +29,17 @@ import static org.junit.Assert.assertNotNull;
  */
 public class TestScaledDurationField {
 
-	public static class DummyDurationField extends DurationField {
-		@Override
-		public boolean isSupported() {
-			return true;
-		}
-	}
+    public static class DummyDurationField extends DurationField {
+        @Override
+        public boolean isSupported() {
+            return true;
+        }
+    }
 
-	@Test
-	public void test_constructor() {
-	    ScaledDurationField sdf = new ScaledDurationField(new DummyDurationField(), 10);
-		assertNotNull(sdf);
-	}
+    @Test
+    public void test_constructor() {
+        ScaledDurationField sdf = new ScaledDurationField(new DummyDurationField(), 10);
+        assertNotNull(sdf);
+    }
 
 }

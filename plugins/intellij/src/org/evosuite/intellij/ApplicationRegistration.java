@@ -25,8 +25,8 @@ import com.intellij.openapi.components.ApplicationComponent;
 import org.jetbrains.annotations.NotNull;
 
 /**
- *  Entry point for the IntelliJ plugin for when IntelliJ starts
- *
+ * Entry point for the IntelliJ plugin for when IntelliJ starts
+ * <p>
  * Created by arcuri on 11/1/14.
  */
 public class ApplicationRegistration implements ApplicationComponent {

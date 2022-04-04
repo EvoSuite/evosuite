@@ -19,14 +19,11 @@
  */
 package org.evosuite.junit.naming.methods;
 
-import static org.junit.Assert.assertEquals;
-
 import org.evosuite.coverage.exception.ExceptionCoverageTestFitness;
 import org.evosuite.coverage.io.IOCoverageConstants;
 import org.evosuite.coverage.io.output.OutputCoverageGoal;
 import org.evosuite.coverage.io.output.OutputCoverageTestFitness;
 import org.evosuite.coverage.method.MethodCoverageTestFitness;
-import org.evosuite.junit.naming.methods.GoalComparator;
 import org.evosuite.runtime.mock.java.lang.MockArithmeticException;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.junit.Test;
@@ -35,6 +32,8 @@ import org.objectweb.asm.Type;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * Created by gordon on 28/12/2015.

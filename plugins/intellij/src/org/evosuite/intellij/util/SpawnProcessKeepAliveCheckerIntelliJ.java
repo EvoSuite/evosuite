@@ -31,7 +31,7 @@ import java.util.concurrent.Executors;
 /**
  * Note: this is copy&amp;paste adaptation of the class SpawnProcessKeepAliveChecker.
  * Issue here we cannot reuse the original due to how the IntelliJ plugin is built
- *
+ * <p>
  * Created by Andrea Arcuri on 26/11/15.
  */
 public class SpawnProcessKeepAliveCheckerIntelliJ {
@@ -44,15 +44,15 @@ public class SpawnProcessKeepAliveCheckerIntelliJ {
     private volatile Thread serverThread;
     private final AsyncGUINotifier notifier;
 
-    public  SpawnProcessKeepAliveCheckerIntelliJ(AsyncGUINotifier notifier){
+    public SpawnProcessKeepAliveCheckerIntelliJ(AsyncGUINotifier notifier) {
         this.notifier = notifier;
     }
 
 
-    public int startServer() throws IllegalStateException{
+    public int startServer() throws IllegalStateException {
 
-        if(server != null || serverThread != null){
-            throw  new IllegalStateException("Recorder already running");
+        if (server != null || serverThread != null) {
+            throw new IllegalStateException("Recorder already running");
         }
 
         try {
@@ -61,9 +61,10 @@ public class SpawnProcessKeepAliveCheckerIntelliJ {
             return -1;
         }
 
-        serverThread = new Thread(){
-            @Override public void run(){
-                while(! isInterrupted() && server!=null && !server.isClosed()){
+        serverThread = new Thread() {
+            @Override
+            public void run() {
+                while (!isInterrupted() && server != null && !server.isClosed()) {
                     try {
                         Socket socket = server.accept();
                         socket.setKeepAlive(true);
@@ -85,10 +86,10 @@ public class SpawnProcessKeepAliveCheckerIntelliJ {
         return port;
     }
 
-    public void stopServer(){
+    public void stopServer() {
         //notifier.printOnConsole("Stopping spawn process manager\n");
         try {
-            if(server != null) {
+            if (server != null) {
                 server.close();
                 server = null;
             }
@@ -96,18 +97,18 @@ public class SpawnProcessKeepAliveCheckerIntelliJ {
             notifier.printOnConsole(e.toString());
         }
 
-        if(serverThread != null) {
+        if (serverThread != null) {
             serverThread.interrupt();
             serverThread = null;
         }
     }
 
 
-    private static class KeepAliveTask implements Runnable{
+    private static class KeepAliveTask implements Runnable {
 
         private final Socket socket;
 
-        public KeepAliveTask(Socket s){
+        public KeepAliveTask(Socket s) {
             socket = s;
         }
 
@@ -119,7 +120,7 @@ public class SpawnProcessKeepAliveCheckerIntelliJ {
                     out.println(STILL_ALIVE);
                     Thread.sleep(DELTA_MS);
                 }
-            } catch (Exception e){
+            } catch (Exception e) {
                 //expected when remote host dies
             }
         }

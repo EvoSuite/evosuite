@@ -19,95 +19,91 @@
  */
 package org.evosuite.symbolic.solver.smt;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.*;
+
 public final class SmtQuery {
 
-	static Logger logger = LoggerFactory.getLogger(SmtQuery.class);
+    static Logger logger = LoggerFactory.getLogger(SmtQuery.class);
 
-	private final List<SmtConstantDeclaration> constantDeclarations = new ArrayList<>();
+    private final List<SmtConstantDeclaration> constantDeclarations = new ArrayList<>();
 
-	private final List<SmtFunctionDeclaration> functionDeclarations = new ArrayList<>();
+    private final List<SmtFunctionDeclaration> functionDeclarations = new ArrayList<>();
 
-	private final List<SmtFunctionDefinition> functionDefinitions = new ArrayList<>();
+    private final List<SmtFunctionDefinition> functionDefinitions = new ArrayList<>();
 
-	private final List<SmtAssertion> assertions = new ArrayList<>();
+    private final List<SmtAssertion> assertions = new ArrayList<>();
 
-	private final Map<String, String> options = new HashMap<>();
+    private final Map<String, String> options = new HashMap<>();
 
-	private String smtLogic;
+    private String smtLogic;
 
-	public SmtQuery() {
+    public SmtQuery() {
 
-	}
+    }
 
-	public void addConstantDeclaration(SmtConstantDeclaration constDecl) {
-		this.constantDeclarations.add(constDecl);
-	}
+    public void addConstantDeclaration(SmtConstantDeclaration constDecl) {
+        this.constantDeclarations.add(constDecl);
+    }
 
-	public void addFunctionDefinition(SmtFunctionDefinition funcDef) {
-		this.functionDefinitions.add(funcDef);
-	}
+    public void addFunctionDefinition(SmtFunctionDefinition funcDef) {
+        this.functionDefinitions.add(funcDef);
+    }
 
-	public void addFunctionDeclaration(SmtFunctionDeclaration funcDecl) {
-		this.functionDeclarations.add(funcDecl);
-	}
+    public void addFunctionDeclaration(SmtFunctionDeclaration funcDecl) {
+        this.functionDeclarations.add(funcDecl);
+    }
 
-	public void addAssertion(SmtAssertion smtAssert) {
-		this.assertions.add(smtAssert);
-	}
+    public void addAssertion(SmtAssertion smtAssert) {
+        this.assertions.add(smtAssert);
+    }
 
-	public List<SmtAssertion> getAssertions() {
-		return assertions;
-	}
+    public List<SmtAssertion> getAssertions() {
+        return assertions;
+    }
 
-	public List<SmtConstantDeclaration> getConstantDeclarations() {
-		return constantDeclarations;
-	}
+    public List<SmtConstantDeclaration> getConstantDeclarations() {
+        return constantDeclarations;
+    }
 
-	public List<SmtFunctionDefinition> getFunctionDefinitions() {
-		return this.functionDefinitions;
-	}
+    public List<SmtFunctionDefinition> getFunctionDefinitions() {
+        return this.functionDefinitions;
+    }
 
-	public List<SmtFunctionDeclaration> getFunctionDeclarations() {
-		return this.functionDeclarations;
-	}
+    public List<SmtFunctionDeclaration> getFunctionDeclarations() {
+        return this.functionDeclarations;
+    }
 
-	public void setLogic(String smtLogic) {
-		this.smtLogic = smtLogic;
-	}
+    public void setLogic(String smtLogic) {
+        this.smtLogic = smtLogic;
+    }
 
-	public void addOption(String optionName, String optionValue) {
-		this.options.put(optionName, optionValue);
-	}
+    public void addOption(String optionName, String optionValue) {
+        this.options.put(optionName, optionValue);
+    }
 
-	public boolean hasLogic() {
-		return smtLogic!=null;
-	}
+    public boolean hasLogic() {
+        return smtLogic != null;
+    }
 
-	public String getLogic() {
-		return smtLogic;
-	}
+    public String getLogic() {
+        return smtLogic;
+    }
 
-	public Set<String> getOptions() {
-		return this.options.keySet();
-	}
+    public Set<String> getOptions() {
+        return this.options.keySet();
+    }
 
-	public String getOptionValue(String optionName) {
-		return this.options.get(optionName);
-	}
-	
-	public String toString() {
-		SmtQueryPrinter printer = new SmtQueryPrinter();
-		String str = printer.print(this);
-		return str;
-	}
+    public String getOptionValue(String optionName) {
+        return this.options.get(optionName);
+    }
+
+    public String toString() {
+        SmtQueryPrinter printer = new SmtQueryPrinter();
+        String str = printer.print(this);
+        return str;
+    }
 
 }

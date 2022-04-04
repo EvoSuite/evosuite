@@ -23,15 +23,14 @@ import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 
-public class ReadabilitySuiteFitness extends TestSuiteFitnessFunction{
+public class ReadabilitySuiteFitness extends TestSuiteFitnessFunction {
 
 
     private static final long serialVersionUID = 6243235746473531638L;
 
 
     @Override
-    public double getFitness(TestSuiteChromosome suite)
-    {
+    public double getFitness(TestSuiteChromosome suite) {
         double average = 0.0;
 
         for (TestChromosome ec : suite.getTestChromosomes()) {
@@ -45,8 +44,7 @@ public class ReadabilitySuiteFitness extends TestSuiteFitnessFunction{
     }
 
 
-    public double getScore(String test)
-    {
+    public double getScore(String test) {
         // TODO
         return 0.0;
     }

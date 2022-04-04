@@ -20,219 +20,222 @@
 
 package org.evosuite.testcase.localsearch;
 
-import java.util.List;
-
 import org.evosuite.ga.localsearch.LocalSearchObjective;
 import org.evosuite.testcase.ExecutableChromosome;
-import org.evosuite.testcase.variable.NullReference;
-import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.TestChromosome;
-import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.statements.ConstructorStatement;
 import org.evosuite.testcase.statements.FieldStatement;
 import org.evosuite.testcase.statements.MethodStatement;
+import org.evosuite.testcase.statements.Statement;
+import org.evosuite.testcase.variable.NullReference;
+import org.evosuite.testcase.variable.VariableReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
+
 /**
  * Local search on the parameters of a function call
- * 
+ * <p>
  * 1. null/non-null 2. Other assignable values in test case 3. Type hierarchy
- * 
+ *
  * @author Gordon Fraser
  */
 public class ParameterLocalSearch extends StatementLocalSearch {
 
-	private static final Logger logger = LoggerFactory.getLogger(ParameterLocalSearch.class);
+    private static final Logger logger = LoggerFactory.getLogger(ParameterLocalSearch.class);
 
-	private ExecutionResult oldResult;
+    private ExecutionResult oldResult;
 
-	private boolean oldChanged;
+    private boolean oldChanged;
 
-	private void backup(ExecutableChromosome test, Statement p) {
-		oldResult = test.getLastExecutionResult();
-		oldChanged = test.isChanged();
-	}
+    private void backup(ExecutableChromosome test, Statement p) {
+        oldResult = test.getLastExecutionResult();
+        oldChanged = test.isChanged();
+    }
 
-	private void restore(ExecutableChromosome test, Statement p) {
-		test.setLastExecutionResult(oldResult);
-		test.setChanged(oldChanged);
-	}
+    private void restore(ExecutableChromosome test, Statement p) {
+        test.setLastExecutionResult(oldResult);
+        test.setChanged(oldChanged);
+    }
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.LocalSearch#doSearch(org.evosuite.testcase.TestChromosome, int, org.evosuite.ga.LocalSearchObjective)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public boolean doSearch(TestChromosome test, int statement,
-	        LocalSearchObjective<TestChromosome> objective) {
-		Statement stmt = test.getTestCase().getStatement(statement);
-		backup(test, stmt);
-		if (stmt instanceof MethodStatement) {
-			return doSearch(test, (MethodStatement) stmt, objective);
-		} else if (stmt instanceof ConstructorStatement) {
-			return doSearch(test, (ConstructorStatement) stmt, objective);
-		} else if (stmt instanceof FieldStatement) {
-			return doSearch(test, (FieldStatement) stmt, objective);
-		} else {
-			return false;
-		}
-	}
+    /* (non-Javadoc)
+     * @see org.evosuite.testcase.LocalSearch#doSearch(org.evosuite.testcase.TestChromosome, int, org.evosuite.ga.LocalSearchObjective)
+     */
 
-	/**
-	 * Go through parameters of method call and apply local search
-	 * 
-	 * @param test
-	 * @param statement
-	 * @param objective
-	 */
-	private boolean doSearch(TestChromosome test, MethodStatement statement,
-	        LocalSearchObjective<TestChromosome> objective) {
-		logger.info("Original test: " + test.getTestCase().toCode());
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean doSearch(TestChromosome test, int statement,
+                            LocalSearchObjective<TestChromosome> objective) {
+        Statement stmt = test.getTestCase().getStatement(statement);
+        backup(test, stmt);
+        if (stmt instanceof MethodStatement) {
+            return doSearch(test, (MethodStatement) stmt, objective);
+        } else if (stmt instanceof ConstructorStatement) {
+            return doSearch(test, (ConstructorStatement) stmt, objective);
+        } else if (stmt instanceof FieldStatement) {
+            return doSearch(test, (FieldStatement) stmt, objective);
+        } else {
+            return false;
+        }
+    }
 
-		boolean hasImproved = false;
+    /**
+     * Go through parameters of method call and apply local search
+     *
+     * @param test
+     * @param statement
+     * @param objective
+     */
+    private boolean doSearch(TestChromosome test, MethodStatement statement,
+                             LocalSearchObjective<TestChromosome> objective) {
+        logger.info("Original test: " + test.getTestCase().toCode());
 
-		if (!statement.isStatic()) {
-			logger.info("Replacing callee");
-			VariableReference callee = statement.getCallee();
-			List<VariableReference> objects = test.getTestCase().getObjects(callee.getType(),
-			                                                                statement.getPosition());
-			objects.remove(callee);
-			boolean done = false;
+        boolean hasImproved = false;
 
-			for (VariableReference replacement : objects) {
-				statement.setCallee(replacement);
-				if (objective.hasImproved(test)) {
-					done = true;
-					hasImproved = true;
-					backup(test, statement);
-					break;
-				} else {
-					logger.info("Undoing change");
-					restore(test, statement);
-				}
-			}
-			if (!done)
-				statement.setCallee(callee);
-		}
+        if (!statement.isStatic()) {
+            logger.info("Replacing callee");
+            VariableReference callee = statement.getCallee();
+            List<VariableReference> objects = test.getTestCase().getObjects(callee.getType(),
+                    statement.getPosition());
+            objects.remove(callee);
+            boolean done = false;
 
-		int numParameter = 0;
-		for (VariableReference parameter : statement.getParameterReferences()) {
-			logger.info("Replacing parameter " + numParameter);
+            for (VariableReference replacement : objects) {
+                statement.setCallee(replacement);
+                if (objective.hasImproved(test)) {
+                    done = true;
+                    hasImproved = true;
+                    backup(test, statement);
+                    break;
+                } else {
+                    logger.info("Undoing change");
+                    restore(test, statement);
+                }
+            }
+            if (!done)
+                statement.setCallee(callee);
+        }
 
-			// First try null
-			statement.replaceParameterReference(new NullReference(test.getTestCase(),
-			        parameter.getType()), numParameter);
-			logger.info("Resulting test: " + test.getTestCase().toCode());
+        int numParameter = 0;
+        for (VariableReference parameter : statement.getParameterReferences()) {
+            logger.info("Replacing parameter " + numParameter);
 
-			// Else try all other values available in the test
-			if (!objective.hasImproved(test)) {
-				logger.info("Undoing change");
-				restore(test, statement);
+            // First try null
+            statement.replaceParameterReference(new NullReference(test.getTestCase(),
+                    parameter.getType()), numParameter);
+            logger.info("Resulting test: " + test.getTestCase().toCode());
 
-				statement.replaceParameterReference(parameter, numParameter);
-				boolean done = false;
+            // Else try all other values available in the test
+            if (!objective.hasImproved(test)) {
+                logger.info("Undoing change");
+                restore(test, statement);
 
-				List<VariableReference> objects = test.getTestCase().getObjects(parameter.getType(),
-				                                                                statement.getPosition());
-				objects.remove(parameter);
-				for (VariableReference replacement : objects) {
-					statement.replaceParameterReference(replacement, numParameter);
-					logger.info("Resulting test: " + test.getTestCase().toCode());
-					if (objective.hasImproved(test)) {
-						backup(test, statement);
-						hasImproved = true;
-						done = true;
-						break;
-					} else {
-						logger.info("Undoing change");
-						restore(test, statement);
-					}
-				}
-				if (!done)
-					statement.replaceParameterReference(parameter, numParameter);
+                statement.replaceParameterReference(parameter, numParameter);
+                boolean done = false;
 
-			} else {
-				hasImproved = true;
-			}
-			numParameter++;
-		}
+                List<VariableReference> objects = test.getTestCase().getObjects(parameter.getType(),
+                        statement.getPosition());
+                objects.remove(parameter);
+                for (VariableReference replacement : objects) {
+                    statement.replaceParameterReference(replacement, numParameter);
+                    logger.info("Resulting test: " + test.getTestCase().toCode());
+                    if (objective.hasImproved(test)) {
+                        backup(test, statement);
+                        hasImproved = true;
+                        done = true;
+                        break;
+                    } else {
+                        logger.info("Undoing change");
+                        restore(test, statement);
+                    }
+                }
+                if (!done)
+                    statement.replaceParameterReference(parameter, numParameter);
 
-		return hasImproved;
+            } else {
+                hasImproved = true;
+            }
+            numParameter++;
+        }
 
-	}
+        return hasImproved;
 
-	/**
-	 * Go through parameters of constructor call and apply local search
-	 * 
-	 * @param test
-	 * @param statement
-	 * @param objective
-	 */
-	private boolean doSearch(TestChromosome test, ConstructorStatement statement,
-	        LocalSearchObjective<TestChromosome> objective) {
-		int numParameter = 0;
-		boolean hasImproved = false;
+    }
 
-		for (VariableReference parameter : statement.getParameterReferences()) {
+    /**
+     * Go through parameters of constructor call and apply local search
+     *
+     * @param test
+     * @param statement
+     * @param objective
+     */
+    private boolean doSearch(TestChromosome test, ConstructorStatement statement,
+                             LocalSearchObjective<TestChromosome> objective) {
+        int numParameter = 0;
+        boolean hasImproved = false;
 
-			// First try null
-			statement.replaceParameterReference(new NullReference(test.getTestCase(),
-			        parameter.getType()), numParameter);
+        for (VariableReference parameter : statement.getParameterReferences()) {
 
-			// Else try all other values available in the test
-			if (!objective.hasImproved(test)) {
-				statement.replaceParameterReference(parameter, numParameter);
-				boolean done = false;
+            // First try null
+            statement.replaceParameterReference(new NullReference(test.getTestCase(),
+                    parameter.getType()), numParameter);
 
-				List<VariableReference> objects = test.getTestCase().getObjects(parameter.getType(),
-				                                                                statement.getPosition());
-				objects.remove(parameter);
-				for (VariableReference replacement : objects) {
-					statement.replaceParameterReference(replacement, numParameter);
-					if (objective.hasImproved(test)) {
-						done = true;
-						hasImproved = true;
-						break;
-					}
-				}
-				if (!done)
-					statement.replaceParameterReference(parameter, numParameter);
+            // Else try all other values available in the test
+            if (!objective.hasImproved(test)) {
+                statement.replaceParameterReference(parameter, numParameter);
+                boolean done = false;
 
-			} else {
-				hasImproved = true;
-			}
-			numParameter++;
-		}
+                List<VariableReference> objects = test.getTestCase().getObjects(parameter.getType(),
+                        statement.getPosition());
+                objects.remove(parameter);
+                for (VariableReference replacement : objects) {
+                    statement.replaceParameterReference(replacement, numParameter);
+                    if (objective.hasImproved(test)) {
+                        done = true;
+                        hasImproved = true;
+                        break;
+                    }
+                }
+                if (!done)
+                    statement.replaceParameterReference(parameter, numParameter);
 
-		return hasImproved;
-	}
+            } else {
+                hasImproved = true;
+            }
+            numParameter++;
+        }
 
-	/**
-	 * Try to replace source of field with all possible choices
-	 * 
-	 * @param test
-	 * @param statement
-	 * @param objective
-	 */
-	private boolean doSearch(TestChromosome test, FieldStatement statement,
-	        LocalSearchObjective<TestChromosome> objective) {
-		if (!statement.isStatic()) {
-			VariableReference source = statement.getSource();
-			List<VariableReference> objects = test.getTestCase().getObjects(source.getType(),
-			                                                                statement.getPosition());
-			objects.remove(source);
+        return hasImproved;
+    }
 
-			for (VariableReference replacement : objects) {
-				statement.setSource(replacement);
-				if (objective.hasImproved(test)) {
-					return true;
-				}
-			}
-			statement.setSource(source);
-		}
+    /**
+     * Try to replace source of field with all possible choices
+     *
+     * @param test
+     * @param statement
+     * @param objective
+     */
+    private boolean doSearch(TestChromosome test, FieldStatement statement,
+                             LocalSearchObjective<TestChromosome> objective) {
+        if (!statement.isStatic()) {
+            VariableReference source = statement.getSource();
+            List<VariableReference> objects = test.getTestCase().getObjects(source.getType(),
+                    statement.getPosition());
+            objects.remove(source);
 
-		return false;
-	}
+            for (VariableReference replacement : objects) {
+                statement.setSource(replacement);
+                if (objective.hasImproved(test)) {
+                    return true;
+                }
+            }
+            statement.setSource(source);
+        }
+
+        return false;
+    }
 }

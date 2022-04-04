@@ -31,7 +31,7 @@ package com.examples.with.different.packagename.testcarver;
  *
  * <p>Custom converter subclasses created by users of the library can be
  * non-thread-safe if the application using them is single-threaded. However
- * it is recommended that they be written in a thread-safe manner anyway.</p> 
+ * it is recommended that they be written in a thread-safe manner anyway.</p>
  *
  * @author Craig McClanahan
  * @author Paulo Gaspar
@@ -46,12 +46,11 @@ public interface Converter {
      * Convert the specified input object into an output object of the
      * specified type.
      *
-     * @param type Data type to which this value should be converted
+     * @param type  Data type to which this value should be converted
      * @param value The input value to be converted
      * @return The converted value
-     *
-     * @exception ConversionException if conversion cannot be performed
-     *  successfully
+     * @throws ConversionException if conversion cannot be performed
+     *                             successfully
      */
     Object convert(Class type, Object value);
 

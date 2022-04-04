@@ -31,26 +31,26 @@ import com.examples.with.different.packagename.gui.FontCUT;
 
 public class FontSystemTest extends SystemTestBase {
 
-	@Test
-	public void testAbstractSUT() {
-		EvoSuite evosuite = new EvoSuite();
+    @Test
+    public void testAbstractSUT() {
+        EvoSuite evosuite = new EvoSuite();
 
-		String targetClass = FontCUT.class.getCanonicalName();
+        String targetClass = FontCUT.class.getCanonicalName();
 
-		Properties.TARGET_CLASS = targetClass;
-		Properties.JUNIT_TESTS = true;
-		Properties.JUNIT_CHECK = Properties.JUnitCheckValues.TRUE;
-		
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+        Properties.TARGET_CLASS = targetClass;
+        Properties.JUNIT_TESTS = true;
+        Properties.JUNIT_CHECK = Properties.JUnitCheckValues.TRUE;
 
-		Object result = evosuite.parseCommandLine(command);
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
+
+        Object result = evosuite.parseCommandLine(command);
 
         Assert.assertNotNull(result);
 
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
-		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
-		System.out.println("EvolvedTestSuite:\n" + best);
+        GeneticAlgorithm<?> ga = getGAFromResult(result);
+        TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+        System.out.println("EvolvedTestSuite:\n" + best);
 
-		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
-	}
+        Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+    }
 }

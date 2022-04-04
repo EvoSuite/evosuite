@@ -27,6 +27,7 @@ import org.junit.Test;
 //import org.junit.runner.RunWith;
 //import org.evosuite.junit.EvoSuiteRunner;
 import static org.junit.Assert.*;
+
 import com.examples.with.different.packagename.testcarver.Person;
 
 //@RunWith(EvoSuiteRunner.class)
@@ -38,22 +39,20 @@ public class TestPerson {
 //	} 
 
 
-
-	@Test
-	public void test0_1() throws Throwable {
-		Person person0 = new Person("", "");
-		String string0 = person0.getFirstName();
-		assertEquals("", string0);
-	}
-
+    @Test
+    public void test0_1() throws Throwable {
+        Person person0 = new Person("", "");
+        String string0 = person0.getFirstName();
+        assertEquals("", string0);
+    }
 
 
-	@Test
-	public void test0() throws Throwable {
-		Person person0 = new Person("", "");
-		String string0 = person0.getLastName();
-		assertEquals("", string0);
-	}
+    @Test
+    public void test0() throws Throwable {
+        Person person0 = new Person("", "");
+        String string0 = person0.getLastName();
+        assertEquals("", string0);
+    }
 
 
 }

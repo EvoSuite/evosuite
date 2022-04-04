@@ -39,99 +39,107 @@ import org.slf4j.LoggerFactory;
  */
 public class ExecutionPathClassAdapter extends ClassVisitor {
 
-	private final String className;
+    private final String className;
 
-	private static boolean isMutation() {
-	    return ArrayUtil.contains(Properties.CRITERION, Criterion.MUTATION)
-	            || ArrayUtil.contains(Properties.CRITERION, Criterion.STRONGMUTATION)
-	            || ArrayUtil.contains(Properties.CRITERION, Criterion.WEAKMUTATION);
-	}
+    private static boolean isMutation() {
+        return ArrayUtil.contains(Properties.CRITERION, Criterion.MUTATION)
+                || ArrayUtil.contains(Properties.CRITERION, Criterion.STRONGMUTATION)
+                || ArrayUtil.contains(Properties.CRITERION, Criterion.WEAKMUTATION);
+    }
 
-	private static final Logger logger = LoggerFactory.getLogger(ExecutionPathClassAdapter.class);
+    private static final Logger logger = LoggerFactory.getLogger(ExecutionPathClassAdapter.class);
 
-	/** Skip methods on enums - at least some */
-	private boolean isEnum = false;
+    /**
+     * Skip methods on enums - at least some
+     */
+    private boolean isEnum = false;
 
-	/** Skip default constructors on anonymous classes */
-	private boolean isAnonymous = false;
+    /**
+     * Skip default constructors on anonymous classes
+     */
+    private boolean isAnonymous = false;
 
-	/**
-	 * <p>
-	 * Constructor for ExecutionPathClassAdapter.
-	 * </p>
-	 *
-	 * @param visitor
-	 *            a {@link org.objectweb.asm.ClassVisitor} object.
-	 * @param className
-	 *            a {@link java.lang.String} object.
-	 */
-	public ExecutionPathClassAdapter(ClassVisitor visitor, String className) {
-		super(Opcodes.ASM9, visitor);
-		this.className = ResourceList.getClassNameFromResourcePath(className);
-	}
+    /**
+     * <p>
+     * Constructor for ExecutionPathClassAdapter.
+     * </p>
+     *
+     * @param visitor   a {@link org.objectweb.asm.ClassVisitor} object.
+     * @param className a {@link java.lang.String} object.
+     */
+    public ExecutionPathClassAdapter(ClassVisitor visitor, String className) {
+        super(Opcodes.ASM9, visitor);
+        this.className = ResourceList.getClassNameFromResourcePath(className);
+    }
 
-	/* (non-Javadoc)
-	 * @see org.objectweb.asm.ClassAdapter#visit(int, int, java.lang.String, java.lang.String, java.lang.String, java.lang.String[])
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public void visit(int version, int access, String name, String signature,
-	        String superName, String[] interfaces) {
-		super.visit(version, access, name, signature, superName, interfaces);
-		if (superName.equals("java/lang/Enum"))
-			isEnum = true;
-		if(TestClusterUtils.isAnonymousClass(name))
-			isAnonymous = true;
-	}
+    /* (non-Javadoc)
+     * @see org.objectweb.asm.ClassAdapter#visit(int, int, java.lang.String, java.lang.String, java.lang.String, java.lang.String[])
+     */
 
-	/*
-	 * Set default access rights to public access rights
-	 *
-	 * @see org.objectweb.asm.ClassAdapter#visitMethod(int, java.lang.String,
-	 * java.lang.String, java.lang.String, java.lang.String[])
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public MethodVisitor visitMethod(int methodAccess, String name, String descriptor,
-	        String signature, String[] exceptions) {
-		MethodVisitor mv = super.visitMethod(methodAccess, name, descriptor, signature,
-		                                     exceptions);
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void visit(int version, int access, String name, String signature,
+                      String superName, String[] interfaces) {
+        super.visit(version, access, name, signature, superName, interfaces);
+        if (superName.equals("java/lang/Enum"))
+            isEnum = true;
+        if (TestClusterUtils.isAnonymousClass(name))
+            isAnonymous = true;
+    }
 
-		// Don't touch bridge and synthetic methods
-		if ((methodAccess & Opcodes.ACC_SYNTHETIC) > 0
-		        || (methodAccess & Opcodes.ACC_BRIDGE) > 0) {
-			return mv;
-		}
-		if (name.equals("<clinit>"))
-			return mv;
+    /*
+     * Set default access rights to public access rights
+     *
+     * @see org.objectweb.asm.ClassAdapter#visitMethod(int, java.lang.String,
+     * java.lang.String, java.lang.String, java.lang.String[])
+     */
 
-		if (name.equals(ClassResetter.STATIC_RESET))
-			return mv;
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public MethodVisitor visitMethod(int methodAccess, String name, String descriptor,
+                                     String signature, String[] exceptions) {
+        MethodVisitor mv = super.visitMethod(methodAccess, name, descriptor, signature,
+                exceptions);
 
-		if (!DependencyAnalysis.shouldInstrument(className, name + descriptor))
-			return mv;
+        // Don't touch bridge and synthetic methods
+        if ((methodAccess & Opcodes.ACC_SYNTHETIC) > 0
+                || (methodAccess & Opcodes.ACC_BRIDGE) > 0) {
+            return mv;
+        }
+        if (name.equals("<clinit>"))
+            return mv;
 
-		if (isEnum && (name.equals("valueOf") || name.equals("values"))) {
-			return mv;
-		}
+        if (name.equals(ClassResetter.STATIC_RESET))
+            return mv;
 
-		// Default constructors of anonymous classes are synthetic
-		// but the Java Compiler is inconsistent in whether it has
-		// line numbers, so we skip it for most aspects.
-		// https://bugs.openjdk.java.net/browse/JDK-8061778
-		if (isAnonymous && name.equals("<init>")) {
-			return new MethodEntryAdapter(mv, methodAccess, className, name, descriptor);
-		}
-		
-		if (isMutation()) {
-			mv = new ReturnValueAdapter(mv, className, name, descriptor);
-		}
-		mv = new MethodEntryAdapter(mv, methodAccess, className, name, descriptor);
-		mv = new LineNumberMethodAdapter(mv, className, name, descriptor);
-		mv = new ArrayAllocationLimitMethodAdapter(mv, className, name, methodAccess,
-		        descriptor);
-		mv = new ExplicitExceptionHandler(mv, className, name, descriptor);
-		return mv;
-	}
+        if (!DependencyAnalysis.shouldInstrument(className, name + descriptor))
+            return mv;
+
+        if (isEnum && (name.equals("valueOf") || name.equals("values"))) {
+            return mv;
+        }
+
+        // Default constructors of anonymous classes are synthetic
+        // but the Java Compiler is inconsistent in whether it has
+        // line numbers, so we skip it for most aspects.
+        // https://bugs.openjdk.java.net/browse/JDK-8061778
+        if (isAnonymous && name.equals("<init>")) {
+            return new MethodEntryAdapter(mv, methodAccess, className, name, descriptor);
+        }
+
+        if (isMutation()) {
+            mv = new ReturnValueAdapter(mv, className, name, descriptor);
+        }
+        mv = new MethodEntryAdapter(mv, methodAccess, className, name, descriptor);
+        mv = new LineNumberMethodAdapter(mv, className, name, descriptor);
+        mv = new ArrayAllocationLimitMethodAdapter(mv, className, name, methodAccess,
+                descriptor);
+        mv = new ExplicitExceptionHandler(mv, className, name, descriptor);
+        return mv;
+    }
 
 }

@@ -27,20 +27,20 @@ import org.evosuite.symbolic.vm.heap.SymbolicHeap;
 
 public final class S_ValueOf extends SymbolicFunction {
 
-	private static final String VALUE_OF = "valueOf";
+    private static final String VALUE_OF = "valueOf";
 
-	public S_ValueOf(SymbolicEnvironment env) {
-		super(env, Types.JAVA_LANG_SHORT, VALUE_OF, Types.S_TO_SHORT);
-	}
+    public S_ValueOf(SymbolicEnvironment env) {
+        super(env, Types.JAVA_LANG_SHORT, VALUE_OF, Types.S_TO_SHORT);
+    }
 
-	@Override
-	public Object executeFunction() {
-		IntegerValue int_value = this.getSymbIntegerArgument(0);
-		ReferenceConstant symb_short = (ReferenceConstant) this.getSymbRetVal();
-		Short conc_short = (Short) this.getConcRetVal();
-		env.heap.putField(Types.JAVA_LANG_SHORT, SymbolicHeap.$SHORT_VALUE,
-				conc_short, symb_short, int_value);
-		return symb_short;
-	}
+    @Override
+    public Object executeFunction() {
+        IntegerValue int_value = this.getSymbIntegerArgument(0);
+        ReferenceConstant symb_short = (ReferenceConstant) this.getSymbRetVal();
+        Short conc_short = (Short) this.getConcRetVal();
+        env.heap.putField(Types.JAVA_LANG_SHORT, SymbolicHeap.$SHORT_VALUE,
+                conc_short, symb_short, int_value);
+        return symb_short;
+    }
 
 }

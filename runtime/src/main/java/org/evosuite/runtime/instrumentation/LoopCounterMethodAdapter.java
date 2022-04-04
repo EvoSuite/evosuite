@@ -32,7 +32,7 @@ import org.objectweb.asm.Type;
  * Note: not all jumps represent a loop (eg, for/while).
  * Non-loops are for examples if/switch.
  * However, such extra instrumentation should not really be a problem
- *
+ * <p>
  * Created by Andrea Arcuri on 29/03/15.
  */
 public class LoopCounterMethodAdapter extends MethodVisitor {
@@ -45,7 +45,7 @@ public class LoopCounterMethodAdapter extends MethodVisitor {
 
     @Override
     public void visitMaxs(int maxStack, int maxLocals) {
-        super.visitMaxs(maxStack+2, maxLocals);
+        super.visitMaxs(maxStack + 2, maxLocals);
     }
 
     @Override
@@ -54,12 +54,12 @@ public class LoopCounterMethodAdapter extends MethodVisitor {
         super.visitJumpInsn(opcode, label);
     }
 
-    private void addInstrumentation(){
+    private void addInstrumentation() {
 
         int index = LoopCounter.getInstance().getNewIndex();
 
-        mv.visitMethodInsn(Opcodes.INVOKESTATIC,LOOP_COUNTER,
-                "getInstance", "()L"+LOOP_COUNTER+";" , false);
+        mv.visitMethodInsn(Opcodes.INVOKESTATIC, LOOP_COUNTER,
+                "getInstance", "()L" + LOOP_COUNTER + ";", false);
 
         mv.visitLdcInsn(index);
 

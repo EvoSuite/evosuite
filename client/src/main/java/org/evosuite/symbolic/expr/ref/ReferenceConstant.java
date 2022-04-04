@@ -19,12 +19,12 @@
  */
 package org.evosuite.symbolic.expr.ref;
 
-import java.util.Collections;
-import java.util.Set;
-
 import org.evosuite.symbolic.expr.ExpressionVisitor;
 import org.evosuite.symbolic.expr.Variable;
 import org.objectweb.asm.Type;
+
+import java.util.Collections;
+import java.util.Set;
 
 /**
  * This class represents a reference that is not symbolic (e.g. a new Object()
@@ -34,19 +34,23 @@ import org.objectweb.asm.Type;
  * <init> method ends.
  *
  * @author galeotti
- * 
  */
-public abstract class ReferenceConstant extends ReferenceExpression {
+public class ReferenceConstant extends ReferenceExpression {
 
 
-	private static final long serialVersionUID = 4288259851884045452L;
+    private static final long serialVersionUID = 4288259851884045452L;
 
-	public ReferenceConstant(Type objectType, int instanceId) {
-		super(objectType, instanceId, 1,false);
-	}
+    public ReferenceConstant(Type objectType, int instanceId) {
+        super(objectType, instanceId, 1, false);
+    }
 
-	@Override
-	public Set<Variable<?>> getVariables() {
-		return Collections.emptySet();
-	}
+    @Override
+    public Set<Variable<?>> getVariables() {
+        return Collections.emptySet();
+    }
+
+    @Override
+    public <K, V> K accept(ExpressionVisitor<K, V> v, V arg) {
+        return v.visit(this, arg);
+    }
 }

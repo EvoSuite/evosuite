@@ -19,17 +19,17 @@
  */
 package com.examples.with.different.packagename;
 
-public class PrintingThatShouldBeMuted{
+public class PrintingThatShouldBeMuted {
 
-	public void foo(int x){
-		
-		if(x > 0){
-			System.out.println("Greater");
-		} else {
-			System.out.println("Lower");
-		}
-		
-	}
+    public void foo(int x) {
+
+        if (x > 0) {
+            System.out.println("Greater");
+        } else {
+            System.out.println("Lower");
+        }
+
+    }
 	
 	/*
 	public void doPrint() { //throws RuntimeException{

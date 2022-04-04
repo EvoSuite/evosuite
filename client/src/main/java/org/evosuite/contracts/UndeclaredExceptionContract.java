@@ -20,15 +20,15 @@
 
 package org.evosuite.contracts;
 
-import java.util.List;
-import java.util.Set;
-
 import org.evosuite.PackageInfo;
-import org.evosuite.testcase.statements.Statement;
-import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.execution.Scope;
 import org.evosuite.testcase.statements.MethodStatement;
+import org.evosuite.testcase.statements.Statement;
+import org.evosuite.testcase.variable.VariableReference;
+
+import java.util.List;
+import java.util.Set;
 
 
 /**
@@ -38,69 +38,74 @@ import org.evosuite.testcase.statements.MethodStatement;
  */
 public class UndeclaredExceptionContract extends Contract {
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.contracts.Contract#check(org.evosuite.testcase.StatementInterface, org.evosuite.testcase.Scope, java.lang.Throwable)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public ContractViolation check(Statement statement, Scope scope, Throwable exception) {
-		if (!isTargetStatement(statement))
-			return null;
+    /* (non-Javadoc)
+     * @see org.evosuite.contracts.Contract#check(org.evosuite.testcase.StatementInterface, org.evosuite.testcase.Scope, java.lang.Throwable)
+     */
 
-		if (exception != null) {
-			Set<Class<?>> exceptions = statement.getDeclaredExceptions();
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ContractViolation check(Statement statement, Scope scope, Throwable exception) {
+        if (!isTargetStatement(statement))
+            return null;
 
-			if (!exceptions.contains(exception.getClass())) {
-				if (exception instanceof CodeUnderTestException)
-					return null;
+        if (exception != null) {
+            Set<Class<?>> exceptions = statement.getDeclaredExceptions();
 
-				StackTraceElement element = exception.getStackTrace()[0];
+            if (!exceptions.contains(exception.getClass())) {
+                if (exception instanceof CodeUnderTestException)
+                    return null;
 
-				// If the exception was thrown in the test directly, it is also not interesting
-				if (element.getClassName().startsWith(PackageInfo.getEvoSuitePackage()+".testcase")) {
-					return null;
-				}
+                StackTraceElement element = exception.getStackTrace()[0];
 
-				/*
-				 * even if possible handled by other contracts, that does not mean
-				 * they check the signature. 
-				 * TODO: Not sure I can follow, what does that have to do with the signature
-				 */
-				// Assertion errors are checked by a different contract
-				if (exception instanceof AssertionError)
-					return null;
+                // If the exception was thrown in the test directly, it is also not interesting
+                if (element.getClassName().startsWith(PackageInfo.getEvoSuitePackage() + ".testcase")) {
+                    return null;
+                }
+
+                /*
+                 * even if possible handled by other contracts, that does not mean
+                 * they check the signature.
+                 * TODO: Not sure I can follow, what does that have to do with the signature
+                 */
+                // Assertion errors are checked by a different contract
+                if (exception instanceof AssertionError)
+                    return null;
 				/*
 				// NullPointerExceptions are checked by a different contract
 				if (exception instanceof NullPointerException) {
 					return true;
 				}
 				*/
-				if(statement instanceof MethodStatement) {
-					// hashCode and toString are covered already
-					String methodName = ((MethodStatement)statement).getMethod().getName();
-					if(methodName.equals("toString") || methodName.equals("hashCode")) {
-						return null;
-					}
-					
-				}
-				
+                if (statement instanceof MethodStatement) {
+                    // hashCode and toString are covered already
+                    String methodName = ((MethodStatement) statement).getMethod().getName();
+                    if (methodName.equals("toString") || methodName.equals("hashCode")) {
+                        return null;
+                    }
 
-				return new ContractViolation(this, statement, exception);
-			}
-		}
+                }
 
-		return null;
-	}
-	
-	@Override
-	public void addAssertionAndComments(Statement statement,
-			List<VariableReference> variables, Throwable exception) {
-		statement.addComment("Throws undeclared exception: " +exception.getMessage());
-	}
 
-	/** {@inheritDoc} */
-	@Override
-	public String toString() {
-		return "Undeclared exception check";
-	}
+                return new ContractViolation(this, statement, exception);
+            }
+        }
+
+        return null;
+    }
+
+    @Override
+    public void addAssertionAndComments(Statement statement,
+                                        List<VariableReference> variables, Throwable exception) {
+        statement.addComment("Throws undeclared exception: " + exception.getMessage());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        return "Undeclared exception check";
+    }
 }

@@ -21,10 +21,10 @@ package com.examples.with.different.packagename.errorbranch;
 
 public class Fieldaccess {
 
-	public String foo;
-	
-	public void testMe() {
-		foo.toString();
-	}
-	
+    public String foo;
+
+    public void testMe() {
+        foo.toString();
+    }
+
 }

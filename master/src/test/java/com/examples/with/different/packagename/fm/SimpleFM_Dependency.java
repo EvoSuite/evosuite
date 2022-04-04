@@ -24,25 +24,25 @@ package com.examples.with.different.packagename.fm;
  */
 public class SimpleFM_Dependency {
 
-    public interface Bar{
+    public interface Bar {
         String getBar();
     }
 
-    public static class Foo{
+    public static class Foo {
 
         private Bar bar;
 
-        public Foo(Bar bar){
+        public Foo(Bar bar) {
             this.bar = bar;
         }
 
-        public boolean foo(){
+        public boolean foo() {
             return bar.getBar().equals("bar");
         }
     }
 
-    public static boolean bar(Foo foo){
-        if(foo.foo()){
+    public static boolean bar(Foo foo) {
+        if (foo.foo()) {
             return true;
         } else {
             return false;

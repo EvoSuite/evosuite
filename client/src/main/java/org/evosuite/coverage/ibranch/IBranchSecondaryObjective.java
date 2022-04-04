@@ -31,50 +31,50 @@ import org.evosuite.testsuite.TestSuiteChromosome;
  */
 public class IBranchSecondaryObjective extends SecondaryObjective<TestSuiteChromosome> {
 
-	//Ibranch fitness
-	private IBranchSuiteFitness ff;
-	private static final long serialVersionUID = 7211557650429998223L;
+    //Ibranch fitness
+    private final IBranchSuiteFitness ff;
+    private static final long serialVersionUID = 7211557650429998223L;
 
-	public IBranchSecondaryObjective() {
-		ff = new IBranchSuiteFitness();
-	}
-	 
-	@Override
-	public int compareChromosomes(
-			TestSuiteChromosome chromosome1,
-			TestSuiteChromosome chromosome2) {
-				
-		double fitness1 = ff.getFitness(chromosome1, false);
-		double fitness2 = ff.getFitness(chromosome2, false);
-		int i = (int) Math.signum(fitness1 - fitness2);
+    public IBranchSecondaryObjective() {
+        ff = new IBranchSuiteFitness();
+    }
+
+    @Override
+    public int compareChromosomes(
+            TestSuiteChromosome chromosome1,
+            TestSuiteChromosome chromosome2) {
+
+        double fitness1 = ff.getFitness(chromosome1, false);
+        double fitness2 = ff.getFitness(chromosome2, false);
+        int i = (int) Math.signum(fitness1 - fitness2);
 //		if (!chromosome1.hasExecutedFitness(ff) || chromosome1.isChanged())
 //			ff.getFitness(chromosome1);
 //		if (!chromosome2.hasExecutedFitness(ff) || chromosome2.isChanged())
 //			ff.getFitness(chromosome2);
-		ff.updateCoveredGoals();
-		return i; 
-	}
+        ff.updateCoveredGoals();
+        return i;
+    }
 
-	@Override
-	public int compareGenerations(
-			TestSuiteChromosome parent1,
-			TestSuiteChromosome parent2,
-			TestSuiteChromosome child1,
-			TestSuiteChromosome child2) {
-		logger.debug("Comparing sizes: " + parent1.size() + ", " + parent1.size() + " vs "
-				+ child1.size() + ", " + child2.size());
-		if (!parent1.hasExecutedFitness(ff) ||parent1.isChanged())
-			ff.getFitness(parent1);
-		if (!parent2.hasExecutedFitness(ff) ||parent2.isChanged())
-			ff.getFitness(parent2);
-		if (!child1.hasExecutedFitness(ff) ||child1.isChanged())
-			ff.getFitness(child1);
-		if (!child2.hasExecutedFitness(ff) ||child2.isChanged())
-			ff.getFitness(child2);
+    @Override
+    public int compareGenerations(
+            TestSuiteChromosome parent1,
+            TestSuiteChromosome parent2,
+            TestSuiteChromosome child1,
+            TestSuiteChromosome child2) {
+        logger.debug("Comparing sizes: " + parent1.size() + ", " + parent1.size() + " vs "
+                + child1.size() + ", " + child2.size());
+        if (!parent1.hasExecutedFitness(ff) || parent1.isChanged())
+            ff.getFitness(parent1);
+        if (!parent2.hasExecutedFitness(ff) || parent2.isChanged())
+            ff.getFitness(parent2);
+        if (!child1.hasExecutedFitness(ff) || child1.isChanged())
+            ff.getFitness(child1);
+        if (!child2.hasExecutedFitness(ff) || child2.isChanged())
+            ff.getFitness(child2);
 
-		double minParents = Math.min(parent1.getFitness(ff), parent2.getFitness(ff));
-		double minChildren = Math.min(child1.getFitness(ff), child2.getFitness(ff));
-		return Double.compare(minParents, minChildren);
-	}
+        double minParents = Math.min(parent1.getFitness(ff), parent2.getFitness(ff));
+        double minChildren = Math.min(child1.getFitness(ff), child2.getFitness(ff));
+        return Double.compare(minParents, minChildren);
+    }
 
 }

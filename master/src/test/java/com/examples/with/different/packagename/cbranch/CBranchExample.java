@@ -33,47 +33,45 @@ package com.examples.with.different.packagename.cbranch;
 //! trialfirst = 1        //EACH TRIAL USES A DIFFERENT RANDOM SEED
 //! triallast = 1         //NUMBER OF TRIALS = triallast - trialfirst + 1
 
-public class CBranchExample
-{
-	public int  Subject(String directory , String file ) 
-	{
-		//EG pathname = "...WORD/FILE.DOC";
-		// files : Object[];
-		String[] fileparts = null;
-		//var lastfile : int = 0;
-		int lastpart  = 0;
-		String suffix = null;  
-		fileparts = file.split(".");
-		lastpart = fileparts.length - 1;
-		if (lastpart > 0) {
-			suffix = fileparts[lastpart];
-			//Console.WriteLine("{0}, {1}", directory, suffix);
-			if ("text".equals(directory)) {
-				if ("txt".equals(suffix)) {
-					//print("text");
-				}
-			}
-			if ("acrobat".equals(directory)) {
-				if ("pdf".equals(suffix)) {					 
-					//print("acrobat");
-				}
-			}
-			if ("word".equals(directory)) {
-				if ("doc".equals(suffix)) {
-					//print("word");
-				}
-			}
-			if ("bin".equals(directory)) {
-				if ("exe".equals(suffix)) {
-					//print("bin");
-				}
-			}
-			if ("lib".equals(directory)) {
-				if ("dll".equals(suffix)) {
-					//print("lib");
-				}
-			}
-		}
-		return 1;
-	}
+public class CBranchExample {
+    public int Subject(String directory, String file) {
+        //EG pathname = "...WORD/FILE.DOC";
+        // files : Object[];
+        String[] fileparts = null;
+        //var lastfile : int = 0;
+        int lastpart = 0;
+        String suffix = null;
+        fileparts = file.split(".");
+        lastpart = fileparts.length - 1;
+        if (lastpart > 0) {
+            suffix = fileparts[lastpart];
+            //Console.WriteLine("{0}, {1}", directory, suffix);
+            if ("text".equals(directory)) {
+                if ("txt".equals(suffix)) {
+                    //print("text");
+                }
+            }
+            if ("acrobat".equals(directory)) {
+                if ("pdf".equals(suffix)) {
+                    //print("acrobat");
+                }
+            }
+            if ("word".equals(directory)) {
+                if ("doc".equals(suffix)) {
+                    //print("word");
+                }
+            }
+            if ("bin".equals(directory)) {
+                if ("exe".equals(suffix)) {
+                    //print("bin");
+                }
+            }
+            if ("lib".equals(directory)) {
+                if ("dll".equals(suffix)) {
+                    //print("lib");
+                }
+            }
+        }
+        return 1;
+    }
 }

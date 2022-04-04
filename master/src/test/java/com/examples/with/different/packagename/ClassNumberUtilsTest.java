@@ -31,11 +31,11 @@ import org.junit.Test;
  */
 public class ClassNumberUtilsTest {
 
-	@Test
+    @Test
     public void testCreateBigInteger() {
-		assertEquals("createBigInteger(String) failed", new BigInteger("12345"), ClassNumberUtils.createBigInteger("12345"));
+        assertEquals("createBigInteger(String) failed", new BigInteger("12345"), ClassNumberUtils.createBigInteger("12345"));
         assertNull("createBigInteger(null) failed", ClassNumberUtils.createBigInteger(null));
-        
+
         assertEquals("createBigInteger(String) failed", new BigInteger("255"), ClassNumberUtils.createBigInteger("0xff"));
         assertEquals("createBigInteger(String) failed", new BigInteger("255"), ClassNumberUtils.createBigInteger("0Xff"));
         assertEquals("createBigInteger(String) failed", new BigInteger("255"), ClassNumberUtils.createBigInteger("#ff"));

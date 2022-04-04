@@ -20,14 +20,12 @@
 package org.evosuite.lm;
 
 import java.io.*;
-
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.Comparator;
-
-import java.util.regex.Pattern;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Represents a language model, a set of bigrams, unigrams and associated
@@ -40,20 +38,20 @@ public class LangModel {
     /**
      * Probability of a unigram occurring.
      */
-    private Map<String, Double> unigram_probs = new HashMap<>();
+    private final Map<String, Double> unigram_probs = new HashMap<>();
     /**
      * Unigram backoff probabilities (used in bigram probability estimation).
      */
-    private Map<String, Double> unigram_backoff_probs = new HashMap<>();
+    private final Map<String, Double> unigram_backoff_probs = new HashMap<>();
     /**
      * Probability that Unigram2 follows Unigram1, where each key is of the form "Unigram1 Unigram2".
      */
-    private Map<String, Double> bigram_probs = new HashMap<>();
+    private final Map<String, Double> bigram_probs = new HashMap<>();
 
     //Sentinel unigram values:
     public static final String START_OF_STRING = "<s>";
-    public static final String END_OF_STRING="</s>";
-    public static final String START_NEW_WORD="<w>";
+    public static final String END_OF_STRING = "</s>";
+    public static final String START_NEW_WORD = "<w>";
 
     private double unknown_char_prob = 0;
 
@@ -63,12 +61,12 @@ public class LangModel {
      * Mapping of the nth most likely unigrams to follow each unigram.
      * Encoded as: <code>(unigram)(n)> -> (unigram)</code>
      */
-    private HashMap<String, String> context_char = new HashMap<>();
+    private final HashMap<String, String> context_char = new HashMap<>();
     /**
      * Mapping of the probability of the nth most likely unigram to follow each unigram.
      * Encoded as: <code>(unigram)(n)> -> (log_probability)</code>
      */
-    private HashMap<String, Double> context_prob = new HashMap<>();
+    private final HashMap<String, Double> context_prob = new HashMap<>();
 
     // Maximum number of characters to predict for each bigram
     int predicted_chars = 10;
@@ -79,11 +77,11 @@ public class LangModel {
 
     /**
      * Load the language model.
+     *
      * @param lmFileName path to a language model file.
      * @throws IOException if the model file can't be found or read.
      */
     public LangModel(String lmFileName) throws IOException {
-
 
 
         // Flag to indicate length of n-grams currently being read (0 == read
@@ -127,10 +125,10 @@ public class LangModel {
                     unigram_probs.put(unigram, unigram_prob);
                     unigram_backoff_probs.put(unigram, unigram_backoff_prob);
 
-                    if(unigram_prob < unknown_char_prob) {
+                    if (unigram_prob < unknown_char_prob) {
                         unknown_char_prob = unigram_prob;
                     } // if
-                    if(unigram_prob > highest_unigram_prob) {
+                    if (unigram_prob > highest_unigram_prob) {
                         highest_unigram_prob = unigram_prob;
                     } //if
 
@@ -212,11 +210,11 @@ public class LangModel {
      * Splits a string into bigrams and calculates the language model score.
      * For each bigram, it looks up the probability. The score is the geometric mean
      * of the probability of each bigram in the string according to the model.
-     *
+     * <p>
      * If a given bigram isn't in the model, unigrams are used to estimate the probability
      * of the bigram instead
      *
-     * @param str String for which to compute the score
+     * @param str     String for which to compute the score
      * @param verbose whether to print information
      * @return
      */
@@ -265,15 +263,13 @@ public class LangModel {
                     System.out.println("Direct bigram prob: "
                             + Math.pow(10, bigram_prob) + "\n");
                 } // if
-            } else if(unigram_probs.containsKey(second_char) && unigram_backoff_probs.containsKey(first_char)){
+            } else if (unigram_probs.containsKey(second_char) && unigram_backoff_probs.containsKey(first_char)) {
 
                 // Otherwise split into unigrams and do backoff
                 double unigram_backoff_prob = unigram_backoff_probs
                         .get(first_char);
                 log_prob = log_prob + unigram_backoff_prob;
                 // System.out.println("Unigram ("+first_char+") backoff prob: "+unigram_backoff_prob);
-
-
 
 
                 double unigram_prob = unigram_probs.get(second_char);
@@ -348,6 +344,7 @@ public class LangModel {
     /**
      * Method which returns the probability of the nth most likely character, given a
      * preceeding character (pre). Use in combination with the predict_char methods.
+     *
      * @return the probability of the nth character that is most likely to appear
      */
     public double predict_char_prob(String pre, int n) {
@@ -365,9 +362,10 @@ public class LangModel {
 
         if (prob != null) {
             prob = Math.pow(10, prob);
+            return prob;
         } // if
 
-        return prob;
+        return 0.0;
 
     } // predict_char_prob
 
@@ -375,6 +373,7 @@ public class LangModel {
      * Method which returns the probability of the nth most likley character at
      * the start of a sentence.
      * N.B. Simply calls predict_char_prob/2 with preceeding char set to "<s>".
+     *
      * @return the probability associated with the nth most likely character to start a sentence
      */
     public double predict_char_prob(int n) {
@@ -383,12 +382,12 @@ public class LangModel {
 
     } // predict_char_prob
 
-    public boolean isMagicChar(String character){
+    public boolean isMagicChar(String character) {
 
         return character.equals(START_NEW_WORD) || character.equals(END_OF_STRING) || character.equals(START_OF_STRING);
     }
 
-    public boolean isEndOfSentence(String character){
+    public boolean isEndOfSentence(String character) {
         return character.equals(END_OF_STRING);
     }
 
@@ -406,6 +405,7 @@ class ValueComparator implements Comparator<String> {
      * Create a new comparator using a mapping of probabilities.
      * The comparator will use the attached probabilities to return the
      * ordering for two Strings.
+     *
      * @param base a mapping of probabilities for strings.
      */
     public ValueComparator(Map<String, Double> base) {

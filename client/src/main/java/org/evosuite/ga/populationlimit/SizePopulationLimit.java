@@ -19,10 +19,10 @@
  */
 package org.evosuite.ga.populationlimit;
 
-import java.util.List;
-
 import org.evosuite.Properties;
 import org.evosuite.ga.Chromosome;
+
+import java.util.List;
 
 
 /**
@@ -32,32 +32,35 @@ import org.evosuite.ga.Chromosome;
  */
 public class SizePopulationLimit<T extends Chromosome<T>> implements PopulationLimit<T> {
 
-	private static final long serialVersionUID = 7978512501601348014L;
+    private static final long serialVersionUID = 7978512501601348014L;
 
-	public SizePopulationLimit() {
-	}
+    public SizePopulationLimit() {
+    }
 
-	/**
-	 * Copy constructor.
-	 *
-	 * This constructor is used by {@link org.evosuite.ga.metaheuristics.TestSuiteAdapter} to adapt the generic type
-	 * parameter.
-	 *
-	 * This constructor shall preserve the current state of the SizePopulationLimit (if existing).
-	 *
-	 * @param other
-	 */
-	public SizePopulationLimit(SizePopulationLimit<?> other) {
-	}
+    /**
+     * Copy constructor.
+     * <p>
+     * This constructor is used by {@link org.evosuite.ga.metaheuristics.TestSuiteAdapter} to adapt the generic type
+     * parameter.
+     * <p>
+     * This constructor shall preserve the current state of the SizePopulationLimit (if existing).
+     *
+     * @param other
+     */
+    public SizePopulationLimit(SizePopulationLimit<?> other) {
+    }
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.ga.PopulationLimit#isPopulationFull(java.util.List)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public boolean isPopulationFull(List<T> population) {
-		final int size = population.stream().mapToInt(Chromosome::size).sum();
-		return size >= Properties.POPULATION;
-	}
+    /* (non-Javadoc)
+     * @see org.evosuite.ga.PopulationLimit#isPopulationFull(java.util.List)
+     */
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isPopulationFull(List<T> population) {
+        final int size = population.stream().mapToInt(Chromosome::size).sum();
+        return size >= Properties.POPULATION;
+    }
 
 }

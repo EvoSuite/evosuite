@@ -19,74 +19,70 @@
  */
 package org.evosuite.utils;
 
+import org.apache.commons.exec.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import org.apache.commons.exec.CommandLine;
-import org.apache.commons.exec.DefaultExecutor;
-import org.apache.commons.exec.ExecuteException;
-import org.apache.commons.exec.ExecuteWatchdog;
-import org.apache.commons.exec.PumpStreamHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public class ProcessLauncher {
 
-	private final OutputStream outAndErr;
+    private final OutputStream outAndErr;
 
-	private final InputStream input;
+    private final InputStream input;
 
-	public ProcessLauncher(OutputStream outAndErr, InputStream input) {
-		this.outAndErr = outAndErr;
-		this.input = input;
-	}
+    public ProcessLauncher(OutputStream outAndErr, InputStream input) {
+        this.outAndErr = outAndErr;
+        this.input = input;
+    }
 
-	private static final Logger logger = LoggerFactory.getLogger(ProcessLauncher.class);
+    private static final Logger logger = LoggerFactory.getLogger(ProcessLauncher.class);
 
-	public int launchNewProcess(String parsedCommand, int timeout) throws IOException, ProcessTimeoutException {
-		int ret_code = launchNewProcess(null, parsedCommand, timeout);
-		return ret_code;
-	}
+    public int launchNewProcess(String parsedCommand, int timeout) throws IOException, ProcessTimeoutException {
+        int ret_code = launchNewProcess(null, parsedCommand, timeout);
+        return ret_code;
+    }
 
-	private int launchNewProcess(File baseDir, String cmdString, int timeout)
-			throws IOException, ProcessTimeoutException {
+    private int launchNewProcess(File baseDir, String cmdString, int timeout)
+            throws IOException, ProcessTimeoutException {
 
-		DefaultExecutor executor = new DefaultExecutor();
-		ExecuteWatchdog timeoutWatchdog = new ExecuteWatchdog(timeout);
-		executor.setWatchdog(timeoutWatchdog);
+        DefaultExecutor executor = new DefaultExecutor();
+        ExecuteWatchdog timeoutWatchdog = new ExecuteWatchdog(timeout);
+        executor.setWatchdog(timeoutWatchdog);
 
-		PumpStreamHandler streamHandler = new PumpStreamHandler(this.outAndErr, this.outAndErr, this.input);
-		executor.setStreamHandler(streamHandler);
-		if (baseDir != null) {
-			executor.setWorkingDirectory(baseDir);
-		}
+        PumpStreamHandler streamHandler = new PumpStreamHandler(this.outAndErr, this.outAndErr, this.input);
+        executor.setStreamHandler(streamHandler);
+        if (baseDir != null) {
+            executor.setWorkingDirectory(baseDir);
+        }
 
-		try {
-			logger.debug("About to execute command " + cmdString);
-			CommandLine cmdLine = CommandLine.parse(cmdString);
-			int exitValue = executor.execute(cmdLine);
+        try {
+            logger.debug("About to execute command " + cmdString);
+            CommandLine cmdLine = CommandLine.parse(cmdString);
+            int exitValue = executor.execute(cmdLine);
 
-			if (executor.isFailure(exitValue) && timeoutWatchdog.killedProcess()) {
-				// it was killed on purpose by the watchdog
-				logger.debug("A timeout occured while executing a process");
-				logger.debug("The command is " + cmdString);
-				throw new ProcessTimeoutException("A timeout occurred while executing command " + cmdString);
-			}
+            if (executor.isFailure(exitValue) && timeoutWatchdog.killedProcess()) {
+                // it was killed on purpose by the watchdog
+                logger.debug("A timeout occured while executing a process");
+                logger.debug("The command is " + cmdString);
+                throw new ProcessTimeoutException("A timeout occurred while executing command " + cmdString);
+            }
 
-			return exitValue;
-		} catch (ExecuteException ex) {
-			if (timeoutWatchdog.killedProcess()) {
-				logger.debug("A timeout occured while executing a process");
-				logger.debug("The command is " + cmdString);
-				throw new ProcessTimeoutException("A timeout occurred while executing command " + cmdString);
-			} else {
-				throw ex;
-			}
+            return exitValue;
+        } catch (ExecuteException ex) {
+            if (timeoutWatchdog.killedProcess()) {
+                logger.debug("A timeout occured while executing a process");
+                logger.debug("The command is " + cmdString);
+                throw new ProcessTimeoutException("A timeout occurred while executing command " + cmdString);
+            } else {
+                throw ex;
+            }
 
-		}
+        }
 
-	}
+    }
 
 }

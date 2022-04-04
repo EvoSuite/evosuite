@@ -44,7 +44,7 @@ import java.lang.reflect.Method;
 public class MockUrlSystemTest extends SystemTestBase {
 
     @Test(timeout = 5000)
-    public void testLoading_ReadFromURL() throws Exception{
+    public void testLoading_ReadFromURL() throws Exception {
         //for some reason, this class failed when using loop limit in the search
 
         RuntimeSettings.useVNET = true;
@@ -68,7 +68,7 @@ public class MockUrlSystemTest extends SystemTestBase {
 
 
     @Test
-    public void testCheckResource(){
+    public void testCheckResource() {
         EvoSuite evosuite = new EvoSuite();
 
         String targetClass = ReadFromURL.class.getCanonicalName();
@@ -78,7 +78,7 @@ public class MockUrlSystemTest extends SystemTestBase {
         Properties.VIRTUAL_NET = true;
         Properties.MAX_LOOP_ITERATIONS = 100000;
 
-        String[] command = new String[] { "-generateSuite", "-class", targetClass };
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
 
         Object result = evosuite.parseCommandLine(command);
         Assert.assertNotNull(result);
@@ -93,7 +93,7 @@ public class MockUrlSystemTest extends SystemTestBase {
     }
 
     @Test
-    public void testUrlAsInput(){
+    public void testUrlAsInput() {
         EvoSuite evosuite = new EvoSuite();
 
         String targetClass = ReadFromInputURL.class.getCanonicalName();
@@ -102,7 +102,7 @@ public class MockUrlSystemTest extends SystemTestBase {
         Properties.SEARCH_BUDGET = 20000;
         Properties.VIRTUAL_NET = true;
 
-        String[] command = new String[] { "-generateSuite", "-class", targetClass };
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
 
         Object result = evosuite.parseCommandLine(command);
         Assert.assertNotNull(result);

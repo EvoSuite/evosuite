@@ -33,8 +33,8 @@ public class ClassThrowingIOException {
     }
 
     public char readChar() throws IOException {
-        if(shouldThrow)
+        if (shouldThrow)
             throw new IOException();
-        return (char)0;
+        return (char) 0;
     }
 }

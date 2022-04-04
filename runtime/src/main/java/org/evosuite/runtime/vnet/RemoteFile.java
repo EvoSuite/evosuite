@@ -26,7 +26,7 @@ import java.io.InputStream;
 /**
  * Class representing a file on a remote host.
  * A remote file can only be created once, and cannot be modified, just read.
- *
+ * <p>
  * Created by arcuri on 12/6/14.
  */
 public class RemoteFile {
@@ -35,8 +35,8 @@ public class RemoteFile {
     private final byte[] data;
 
 
-    public RemoteFile(String url, byte[] data) throws IllegalArgumentException{
-        if(url == null || data == null){
+    public RemoteFile(String url, byte[] data) throws IllegalArgumentException {
+        if (url == null || data == null) {
             throw new IllegalArgumentException("Null inputs");
         }
         this.url = url;
@@ -44,15 +44,14 @@ public class RemoteFile {
     }
 
     public RemoteFile(String url, String data) throws IllegalArgumentException {
-        this(url,data==null ? null : data.getBytes());
+        this(url, data == null ? null : data.getBytes());
     }
 
 
     /**
-     *
      * @return a new {@code InputStream} instance that can be used to read the content of this remote file
      */
-    public InputStream getInputStream(){
+    public InputStream getInputStream() {
         return new ByteDataInputStream(data);
     }
 

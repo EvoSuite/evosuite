@@ -6,15 +6,39 @@
   <parent>
     <groupId>org.evosuite.plugins</groupId>
     <artifactId>evosuite-plugins</artifactId>
-    <version>1.1.1-SNAPSHOT</version>
+    <version>1.2.1-SNAPSHOT</version>
   </parent>
 
   <artifactId>evosuite-eclipse-plugin</artifactId>
   <packaging>pom</packaging>
 
+  <profiles>
+    <profile>
+      <id>Java 8</id>
+      <activation>
+        <jdk>(,9)</jdk>
+      </activation>
+      <properties>
+        <!-- Last version of Tycho that works with Java 8 -->
+        <tycho-version>1.7.0</tycho-version>
+        <eclipse-repo.url>http://download.eclipse.org/releases/photon</eclipse-repo.url>
+      </properties>
+    </profile>
+    <profile>
+      <id>Java 9+</id>
+      <activation>
+        <jdk>[9,)</jdk>
+      </activation>
+      <properties>
+        <tycho-version>2.4.0</tycho-version>
+        <eclipse-repo.url>http://download.eclipse.org/releases/2021-09</eclipse-repo.url>
+      </properties>
+    </profile>
+  </profiles>
+
   <properties>
-    <tycho-version>1.7.0</tycho-version>
-    <eclipse-repo.url>http://download.eclipse.org/releases/photon</eclipse-repo.url>
+    <tycho-version>2.4.0</tycho-version>
+    <eclipse-repo.url>http://download.eclipse.org/releases/2021-09</eclipse-repo.url>
   </properties>
 
   <repositories>
@@ -45,17 +69,7 @@
             <environment>
               <os>linux</os>
               <ws>gtk</ws>
-              <arch>x86</arch>
-            </environment>
-            <environment>
-              <os>linux</os>
-              <ws>gtk</ws>
               <arch>x86_64</arch>
-            </environment>
-              <environment>
-              <os>win32</os>
-              <ws>win32</ws>
-              <arch>x86</arch>
             </environment>
             <environment>
               <os>win32</os>

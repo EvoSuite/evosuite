@@ -37,51 +37,51 @@ import com.examples.with.different.packagename.dse.DseWithURL;
  */
 public class DseWithUrlSystemTest extends SystemTestBase {
 
-	@Before
-	public void init() {
-		Properties.VIRTUAL_FS = true;
-		Properties.VIRTUAL_NET= true;
-		Properties.LOCAL_SEARCH_PROBABILITY = 1.0;
-		Properties.LOCAL_SEARCH_RATE = 1;
-		Properties.LOCAL_SEARCH_BUDGET_TYPE = Properties.LocalSearchBudgetType.TESTS;
-		Properties.LOCAL_SEARCH_BUDGET = 100;
-		Properties.SEARCH_BUDGET = 50000;
+    @Before
+    public void init() {
+        Properties.VIRTUAL_FS = true;
+        Properties.VIRTUAL_NET = true;
+        Properties.LOCAL_SEARCH_PROBABILITY = 1.0;
+        Properties.LOCAL_SEARCH_RATE = 1;
+        Properties.LOCAL_SEARCH_BUDGET_TYPE = Properties.LocalSearchBudgetType.TESTS;
+        Properties.LOCAL_SEARCH_BUDGET = 100;
+        Properties.SEARCH_BUDGET = 50000;
 //		Properties.CONCOLIC_TIMEOUT = Integer.MAX_VALUE;
-		Properties.RESET_STATIC_FIELD_GETS = true;
-		Properties.P_FUNCTIONAL_MOCKING = 0.0;
-		Properties.P_REFLECTION_ON_PRIVATE = 0.0;
+        Properties.RESET_STATIC_FIELD_GETS = true;
+        Properties.P_FUNCTIONAL_MOCKING = 0.0;
+        Properties.P_REFLECTION_ON_PRIVATE = 0.0;
 
-	}
+    }
 
-	@Test
-	public void testDSE() {
+    @Test
+    public void testDSE() {
 
-		Properties.DSE_SOLVER = SolverType.EVOSUITE_SOLVER;
-		
-		Properties.STOPPING_CONDITION = StoppingCondition.MAXTIME;
-		Properties.SEARCH_BUDGET = 120;
-		
-		// should it be trivial for DSE ?
+        Properties.DSE_SOLVER = SolverType.EVOSUITE_SOLVER;
 
-		EvoSuite evosuite = new EvoSuite();
-		String targetClass = DseWithURL.class.getCanonicalName();
-		Properties.TARGET_CLASS = targetClass;
+        Properties.STOPPING_CONDITION = StoppingCondition.MAXTIME;
+        Properties.SEARCH_BUDGET = 120;
 
-		Properties.CRITERION = new Criterion[] {Criterion.BRANCH, Criterion.EXCEPTION};
-		
-		Properties.MINIMIZE = true;
-		Properties.ASSERTIONS = true;
-		
-		Properties.DSE_PROBABILITY = 1.0; // force using only DSE, no LS
+        // should it be trivial for DSE ?
 
-		String[] command = new String[] { "-generateSuite", "-class",
-				targetClass };
+        EvoSuite evosuite = new EvoSuite();
+        String targetClass = DseWithURL.class.getCanonicalName();
+        Properties.TARGET_CLASS = targetClass;
 
-		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
-		System.out.println("EvolvedTestSuite:\n" + best);
+        Properties.CRITERION = new Criterion[]{Criterion.BRANCH, Criterion.EXCEPTION};
+
+        Properties.MINIMIZE = true;
+        Properties.ASSERTIONS = true;
+
+        Properties.DSE_PROBABILITY = 1.0; // force using only DSE, no LS
+
+        String[] command = new String[]{"-generateSuite", "-class",
+                targetClass};
+
+        Object result = evosuite.parseCommandLine(command);
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
+        System.out.println("EvolvedTestSuite:\n" + best);
 
 
-	}
+    }
 }

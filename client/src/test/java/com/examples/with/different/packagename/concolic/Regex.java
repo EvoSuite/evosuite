@@ -33,61 +33,58 @@ package com.examples.with.different.packagename.concolic;
 //! trialfirst = 1        //EACH TRIAL USES A DIFFERENT RANDOM SEED
 //! triallast = 1         //NUMBER OF TRIALS = triallast - trialfirst + 1
 
-import java.util.regex.*;
+import java.util.regex.Pattern;
 
-public class Regex
-{
-	public static void main(String[] args)
-	{
-		Subject(args[0]);
-	}
-	
-	public static void Subject(String txt) 
-	{
-		//MATCH txt AGAINST VARIOUS REGULAR EXPRESSIONS
-		//ALL OF txt MUST MATCH
-		String digit  = "((0)|(1)|(2)|(3)|(4)|(5)|(6)|(7)|(8)|(9))";
-		String fp  = digit + digit + "*\\." + digit + digit + "*";
-		String fpe  = fp + "e((\\+)|(-))" + digit + digit;
+public class Regex {
+    public static void main(String[] args) {
+        Subject(args[0]);
+    }
 
-		String alpha  = "((a)|(b)|(c)|(d)|(e)|(f)|(g)|(h)|(i)|(j)|(k)|(l)|(m)|(n)|(o)|(p)|(q)|(r)|(s)|(t)|(u)|(v)|(w)|(x)|(y)|(z)|(_)|(-))";
-		String iden  = alpha + "(" + alpha + "|" + digit + ")*";
-		String url  = "((http)|(ftp)|(afs)|(gopher))//:" + iden + "/"  + iden;
-		String day  = "((mon)|(tue)|(wed)|(thur)|(fri)|(sat)|(sun))";
-		String month  = "((jan)|(feb)|(mar)|(apr)|(may)|(jun)|(jul)|(aug)|(sep)|(oct)|(nov)|(dec))";
-		String date  = day + digit + digit + month; 
-		//var re : RegExp;
+    public static void Subject(String txt) {
+        //MATCH txt AGAINST VARIOUS REGULAR EXPRESSIONS
+        //ALL OF txt MUST MATCH
+        String digit = "((0)|(1)|(2)|(3)|(4)|(5)|(6)|(7)|(8)|(9))";
+        String fp = digit + digit + "*\\." + digit + digit + "*";
+        String fpe = fp + "e((\\+)|(-))" + digit + digit;
 
-		//Pattern p = Pattern.compile(url);
+        String alpha = "((a)|(b)|(c)|(d)|(e)|(f)|(g)|(h)|(i)|(j)|(k)|(l)|(m)|(n)|(o)|(p)|(q)|(r)|(s)|(t)|(u)|(v)|(w)|(x)|(y)|(z)|(_)|(-))";
+        String iden = alpha + "(" + alpha + "|" + digit + ")*";
+        String url = "((http)|(ftp)|(afs)|(gopher))//:" + iden + "/" + iden;
+        String day = "((mon)|(tue)|(wed)|(thur)|(fri)|(sat)|(sun))";
+        String month = "((jan)|(feb)|(mar)|(apr)|(may)|(jun)|(jul)|(aug)|(sep)|(oct)|(nov)|(dec))";
+        String date = day + digit + digit + month;
+        //var re : RegExp;
 
-		//Console.WriteLine("{0}  {1}", txt, iden); 
-		//re = new RegExp(url);
-		//re.regex.matchinexact.ParseFromRegExp();
-		//print(StringUtils.PrettyPrint(re.regex.matchinexact.fsaexact));  
-		//if (0 == re.regex.matchinexact.Match(txt)) {
-		if (Pattern.matches(url, txt)) {
-			; 
-		}
-		//print(StringUtils.PrettyPrint(re.regex.matchinexact));  
+        //Pattern p = Pattern.compile(url);
 
-		//Console.WriteLine("{0}  {1}", txt, iden); 
-		//re = new RegExp(date);
-		//re.regex.matchinexact.ParseFromRegExp();
-		//print(StringUtils.PrettyPrint(re.regex.matchinexact.fsaexact));  
-		//  if (0 == re.regex.matchinexact.Match(txt)) {
-		if (Pattern.matches(date, txt)) {
-			; 
-		}
-		//print(StringUtils.PrettyPrint(re.regex.matchinexact));  
+        //Console.WriteLine("{0}  {1}", txt, iden);
+        //re = new RegExp(url);
+        //re.regex.matchinexact.ParseFromRegExp();
+        //print(StringUtils.PrettyPrint(re.regex.matchinexact.fsaexact));
+        //if (0 == re.regex.matchinexact.Match(txt)) {
+        if (Pattern.matches(url, txt)) {
+            ;
+        }
+        //print(StringUtils.PrettyPrint(re.regex.matchinexact));
 
-		//Console.WriteLine("{0}  {1}", txt, fpe); 
-		//re = new RegExp(fpe);
-		//re.regex.matchinexact.ParseFromRegExp();
-		//print(StringUtils.PrettyPrint(re.regex.matchinexact.fsaexact));  
-		// if (0 == re.regex.matchinexact.Match(txt)) {
-		if (Pattern.matches(fpe, txt)) {
-			; 
-		}
-		//print(StringUtils.PrettyPrint(re.regex.matchinexact));  
-	}   
+        //Console.WriteLine("{0}  {1}", txt, iden);
+        //re = new RegExp(date);
+        //re.regex.matchinexact.ParseFromRegExp();
+        //print(StringUtils.PrettyPrint(re.regex.matchinexact.fsaexact));
+        //  if (0 == re.regex.matchinexact.Match(txt)) {
+        if (Pattern.matches(date, txt)) {
+            ;
+        }
+        //print(StringUtils.PrettyPrint(re.regex.matchinexact));
+
+        //Console.WriteLine("{0}  {1}", txt, fpe);
+        //re = new RegExp(fpe);
+        //re.regex.matchinexact.ParseFromRegExp();
+        //print(StringUtils.PrettyPrint(re.regex.matchinexact.fsaexact));
+        // if (0 == re.regex.matchinexact.Match(txt)) {
+        if (Pattern.matches(fpe, txt)) {
+            ;
+        }
+        //print(StringUtils.PrettyPrint(re.regex.matchinexact));
+    }
 }

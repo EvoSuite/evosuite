@@ -29,11 +29,11 @@ import java.io.Serializable;
  */
 public interface ChromosomeFactory<T extends Chromosome<T>> extends Serializable {
 
-	/**
-	 * Generates a new chromosome.
-	 *
-	 * @return the newly generated chromosome
-	 */
+    /**
+     * Generates a new chromosome.
+     *
+     * @return the newly generated chromosome
+     */
     T getChromosome();
 
 }

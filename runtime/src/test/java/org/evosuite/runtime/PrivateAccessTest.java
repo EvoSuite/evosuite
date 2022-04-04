@@ -19,8 +19,10 @@
  */
 package org.evosuite.runtime;
 
-import org.junit.*;
-
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.io.Serializable;
 
@@ -32,18 +34,18 @@ import static org.junit.Assert.assertTrue;
 public class PrivateAccessTest {
 
     @Before
-    public void init(){
+    public void init() {
         PrivateAccess.setShouldNotFailTest(false);
     }
 
     @After
-    public void tearDown(){
+    public void tearDown() {
         PrivateAccess.setShouldNotFailTest(true);
     }
 
 
     @Test
-    public void testPrivateConstructor() throws Throwable{
+    public void testPrivateConstructor() throws Throwable {
 
         FooConstructor.counter = 0;
 
@@ -54,46 +56,46 @@ public class PrivateAccessTest {
 
 
     @Test
-    public void testSetField_serialVersionUID(){
+    public void testSetField_serialVersionUID() {
         try {
             //it should fail
             PrivateAccess.setVariable(FooFields.class, null, "serialVersionUID", 42L);
             Assert.fail();
-        } catch (IllegalArgumentException e){
+        } catch (IllegalArgumentException e) {
             //expected
         }
     }
 
 
     @Test
-    public void testSetField_static(){
-        PrivateAccess.setVariable(FooFields.class,null,"n",42);
+    public void testSetField_static() {
+        PrivateAccess.setVariable(FooFields.class, null, "n", 42);
         Assert.assertEquals(42, FooFields.getN());
     }
 
     @Test
-    public void testSetField_instance(){
+    public void testSetField_instance() {
         FooFields foo = new FooFields();
-        PrivateAccess.setVariable(FooFields.class,foo,"s","bar");
-        Assert.assertEquals("bar",foo.getS());
+        PrivateAccess.setVariable(FooFields.class, foo, "s", "bar");
+        Assert.assertEquals("bar", foo.getS());
     }
 
     @Test
-    public void testSetField_error(){
+    public void testSetField_error() {
         PrivateAccess.setShouldNotFailTest(true);
         PrivateAccess.setVariable(FooFields.class, null, "a non-existing field", 42);
         Assert.fail(); // this should never be reached, as failed "Assumption" inside setVariable
     }
 
     @Test
-    public void testSetField_fail_on_error(){
+    public void testSetField_fail_on_error() {
         PrivateAccess.setShouldNotFailTest(false);
         try {
             PrivateAccess.setVariable(FooFields.class, null, "a non-existing field", 42);
             Assert.fail();
-        } catch (FalsePositiveException e){
+        } catch (FalsePositiveException e) {
             Assert.fail();
-        } catch (RuntimeException e){
+        } catch (RuntimeException e) {
             //Ok, expected
         } finally {
             PrivateAccess.setShouldNotFailTest(true);
@@ -101,28 +103,28 @@ public class PrivateAccessTest {
     }
 
     @Test
-    public void testMethod_static() throws Throwable{
+    public void testMethod_static() throws Throwable {
         FooMethods.n = 42;
-        Integer res = (Integer) PrivateAccess.callMethod(FooMethods.class, null,"getN", new Object[0], new Class<?>[0]);
+        Integer res = (Integer) PrivateAccess.callMethod(FooMethods.class, null, "getN", new Object[0], new Class<?>[0]);
         Assert.assertEquals(42, res.intValue());
     }
 
     @Test
-    public void testMethod_error()  throws Throwable {
+    public void testMethod_error() throws Throwable {
         PrivateAccess.setShouldNotFailTest(true);
-        PrivateAccess.callMethod(FooMethods.class, null,"a non-existing method", new Object[0], new Class<?>[0]);
+        PrivateAccess.callMethod(FooMethods.class, null, "a non-existing method", new Object[0], new Class<?>[0]);
         Assert.fail();
     }
 
     @Test
-    public void testMethod_fail_on_error(){
+    public void testMethod_fail_on_error() {
         PrivateAccess.setShouldNotFailTest(false);
         try {
             PrivateAccess.callMethod(FooMethods.class, null, "a non-existing method", new Object[0], new Class<?>[0]);
             Assert.fail();
-        } catch (FalsePositiveException e){
+        } catch (FalsePositiveException e) {
             Assert.fail();
-        } catch (Throwable e){
+        } catch (Throwable e) {
             //Ok, expected
         } finally {
             PrivateAccess.setShouldNotFailTest(true);
@@ -134,7 +136,7 @@ public class PrivateAccessTest {
         FooMethods foo = new FooMethods();
         foo.s = "bar";
         String s = (String) PrivateAccess.callMethod(FooMethods.class, foo, "getS", new Object[0], new Class<?>[0]);
-        Assert.assertEquals("bar",s);
+        Assert.assertEquals("bar", s);
     }
 
     @Test
@@ -142,7 +144,7 @@ public class PrivateAccessTest {
         FooMethods foo = new FooMethods();
         PrivateAccess.callMethod(FooMethods.class, foo, "set",
                 new Object[]{"bar"}, new Class<?>[]{String.class});
-        Assert.assertEquals("bar",foo.s);
+        Assert.assertEquals("bar", foo.s);
     }
 
     @Test
@@ -152,7 +154,7 @@ public class PrivateAccessTest {
         PrivateAccess.callMethod(FooMethods.class, foo, "set",
                 new Object[]{"bar", 666}, new Class<?>[]{String.class, int.class});
         Assert.assertEquals("bar", foo.s);
-        Assert.assertEquals(666,FooMethods.n);
+        Assert.assertEquals(666, FooMethods.n);
     }
 
     @Test
@@ -164,11 +166,11 @@ public class PrivateAccessTest {
     }
 
     @Test
-    public void testMethod_throwNPE() throws Throwable{
+    public void testMethod_throwNPE() throws Throwable {
         try {
             PrivateAccess.callMethod(FooMethods.class, null, "throwNPE", new Object[0], new Class<?>[0]);
             Assert.fail();
-        } catch (NullPointerException e){
+        } catch (NullPointerException e) {
             //OK
         }
     }
@@ -176,34 +178,57 @@ public class PrivateAccessTest {
 }
 
 
-class FooConstructor{
+class FooConstructor {
 
     public static int counter = 0;
 
-    private FooConstructor(){
+    private FooConstructor() {
         counter++;
     }
 
 }
 
-class FooFields implements Serializable{
+class FooFields implements Serializable {
     private String s;
     private static int n;
 
     public static final long serialVersionUID = 1L;
 
-    public String getS(){return s;}
-    public static int getN(){return n;}
+    public String getS() {
+        return s;
+    }
+
+    public static int getN() {
+        return n;
+    }
 }
 
-class FooMethods{
+class FooMethods {
     public String s;
     public static int n;
 
-    private static int getN(){return n;}
-    private String getS(){return s;}
-    private void set(String s){this.s = s;}
-    private void set(String s, int n){set(s); FooMethods.n = n;}
-    private String compute(String s, int x){return s+x;}
-    private static void throwNPE(){throw new NullPointerException("NPE");}
+    private static int getN() {
+        return n;
+    }
+
+    private String getS() {
+        return s;
+    }
+
+    private void set(String s) {
+        this.s = s;
+    }
+
+    private void set(String s, int n) {
+        set(s);
+        FooMethods.n = n;
+    }
+
+    private String compute(String s, int x) {
+        return s + x;
+    }
+
+    private static void throwNPE() {
+        throw new NullPointerException("NPE");
+    }
 }

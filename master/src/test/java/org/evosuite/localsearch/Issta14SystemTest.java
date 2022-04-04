@@ -35,61 +35,61 @@ import com.examples.with.different.packagename.localsearch.IsstaFoo;
  */
 public class Issta14SystemTest extends SystemTestBase {
 
-	@Before
-	public void init() {
-		Properties.LOCAL_SEARCH_PROBABILITY = 1.0;
-		Properties.LOCAL_SEARCH_RATE = 1;
-		Properties.LOCAL_SEARCH_BUDGET_TYPE = Properties.LocalSearchBudgetType.TESTS;
-		Properties.LOCAL_SEARCH_BUDGET = 100;
-		Properties.SEARCH_BUDGET = 60_000;
-		Properties.RESET_STATIC_FIELD_GETS = true;
+    @Before
+    public void init() {
+        Properties.LOCAL_SEARCH_PROBABILITY = 1.0;
+        Properties.LOCAL_SEARCH_RATE = 1;
+        Properties.LOCAL_SEARCH_BUDGET_TYPE = Properties.LocalSearchBudgetType.TESTS;
+        Properties.LOCAL_SEARCH_BUDGET = 100;
+        Properties.SEARCH_BUDGET = 60_000;
+        Properties.RESET_STATIC_FIELD_GETS = true;
 
-	}
+    }
 
-	@Test
-	public void testLocalSearch() {
+    @Test
+    public void testLocalSearch() {
 
-		// it should be trivial for LS
+        // it should be trivial for LS
 
-		EvoSuite evosuite = new EvoSuite();
-		String targetClass = IsstaFoo.class.getCanonicalName();
-		Properties.TARGET_CLASS = targetClass;
+        EvoSuite evosuite = new EvoSuite();
+        String targetClass = IsstaFoo.class.getCanonicalName();
+        Properties.TARGET_CLASS = targetClass;
 
-		Properties.DSE_PROBABILITY = 0.0; // force using only LS, no DSE
+        Properties.DSE_PROBABILITY = 0.0; // force using only LS, no DSE
 
-		String[] command = new String[] { "-generateSuite", "-class",
-				targetClass };
+        String[] command = new String[]{"-generateSuite", "-class",
+                targetClass};
 
-		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
-		System.out.println("EvolvedTestSuite:\n" + best);
+        Object result = evosuite.parseCommandLine(command);
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
+        System.out.println("EvolvedTestSuite:\n" + best);
 
-		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(),
-				0.001);
-	}
+        Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(),
+                0.001);
+    }
 
-	@Test
-	public void testDSE() {
+    @Test
+    public void testDSE() {
 
-		// should it be trivial for DSE ?
+        // should it be trivial for DSE ?
 
-		EvoSuite evosuite = new EvoSuite();
-		String targetClass = IsstaFoo.class.getCanonicalName();
-		Properties.TARGET_CLASS = targetClass;
+        EvoSuite evosuite = new EvoSuite();
+        String targetClass = IsstaFoo.class.getCanonicalName();
+        Properties.TARGET_CLASS = targetClass;
 
-		Properties.DSE_PROBABILITY = 1.0; // force using only DSE, no LS
+        Properties.DSE_PROBABILITY = 1.0; // force using only DSE, no LS
 
-		String[] command = new String[] { "-generateSuite", "-class",
-				targetClass };
+        String[] command = new String[]{"-generateSuite", "-class",
+                targetClass};
 
-		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
-		System.out.println("EvolvedTestSuite:\n" + best);
+        Object result = evosuite.parseCommandLine(command);
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
+        System.out.println("EvolvedTestSuite:\n" + best);
 
-		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(),
-				0.001);
-	}
+        Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(),
+                0.001);
+    }
 
 }

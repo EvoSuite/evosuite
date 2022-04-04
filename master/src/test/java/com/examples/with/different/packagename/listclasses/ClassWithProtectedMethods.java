@@ -21,11 +21,11 @@ package com.examples.with.different.packagename.listclasses;
 
 public class ClassWithProtectedMethods {
 
-	protected ClassWithProtectedMethods() {
-		
-	}
-	
-	protected void foo() {
-		
-	}
+    protected ClassWithProtectedMethods() {
+
+    }
+
+    protected void foo() {
+
+    }
 }

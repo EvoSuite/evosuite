@@ -29,40 +29,46 @@ import org.evosuite.testsuite.TestSuiteChromosome;
  */
 public class MinimizeTotalLengthSecondaryObjective extends SecondaryObjective<TestSuiteChromosome> {
 
-	private static final long serialVersionUID = 1974099736891048617L;
+    private static final long serialVersionUID = 1974099736891048617L;
 
-	private int getLengthSum(TestSuiteChromosome chromosome1,
-	        TestSuiteChromosome chromosome2) {
-		return chromosome1.totalLengthOfTestCases() + chromosome2.totalLengthOfTestCases();
-	}
+    private int getLengthSum(TestSuiteChromosome chromosome1,
+                             TestSuiteChromosome chromosome2) {
+        return chromosome1.totalLengthOfTestCases() + chromosome2.totalLengthOfTestCases();
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see
-	 * org.evosuite.testcase.secondaryobjectives.SecondaryObjective#compareChromosomes(org.evosuite.ga.Chromosome,
-	 * org.evosuite.ga.Chromosome)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public int compareChromosomes(TestSuiteChromosome chromosome1, TestSuiteChromosome chromosome2) {
-		return chromosome1.totalLengthOfTestCases()
-		        - chromosome2.totalLengthOfTestCases();
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see
+     * org.evosuite.testcase.secondaryobjectives.SecondaryObjective#compareChromosomes(org.evosuite.ga.Chromosome,
+     * org.evosuite.ga.Chromosome)
+     */
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see
-	 * org.evosuite.testcase.secondaryobjectives.SecondaryObjective#compareGenerations(org.evosuite.ga.Chromosome,
-	 * org.evosuite.ga.Chromosome, org.evosuite.ga.Chromosome, org.evosuite.ga.Chromosome)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public int compareGenerations(TestSuiteChromosome parent1, TestSuiteChromosome parent2,
-			TestSuiteChromosome child1, TestSuiteChromosome child2) {
-		return getLengthSum(parent1, parent2)
-		        - getLengthSum(child1, child2);
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int compareChromosomes(TestSuiteChromosome chromosome1, TestSuiteChromosome chromosome2) {
+        return chromosome1.totalLengthOfTestCases()
+                - chromosome2.totalLengthOfTestCases();
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see
+     * org.evosuite.testcase.secondaryobjectives.SecondaryObjective#compareGenerations(org.evosuite.ga.Chromosome,
+     * org.evosuite.ga.Chromosome, org.evosuite.ga.Chromosome, org.evosuite.ga.Chromosome)
+     */
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int compareGenerations(TestSuiteChromosome parent1, TestSuiteChromosome parent2,
+                                  TestSuiteChromosome child1, TestSuiteChromosome child2) {
+        return getLengthSum(parent1, parent2)
+                - getLengthSum(child1, child2);
+    }
 
 }

@@ -40,21 +40,24 @@ public class ExceptionTransformationClassAdapter extends ClassVisitor {
 
     private final static Logger logger = LoggerFactory.getLogger(ExceptionTransformationClassAdapter.class);
 
-    private String className;
+    private final String className;
 
     public static Map<String, Map<String, Set<Type>>> methodExceptionMap = new LinkedHashMap<>();
 
     public ExceptionTransformationClassAdapter(ClassVisitor cv, String className) {
         super(Opcodes.ASM9, cv);
         this.className = className;
-        if(!methodExceptionMap.containsKey(className))
+        if (!methodExceptionMap.containsKey(className))
             methodExceptionMap.put(className, new LinkedHashMap<>());
     }
 
     /* (non-Javadoc)
-	 * @see org.objectweb.asm.ClassVisitor#visitMethod(int, java.lang.String, java.lang.String, java.lang.String, java.lang.String[])
-	 */
-    /** {@inheritDoc} */
+     * @see org.objectweb.asm.ClassVisitor#visitMethod(int, java.lang.String, java.lang.String, java.lang.String, java.lang.String[])
+     */
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public MethodVisitor visitMethod(int access, String name, String desc,
                                      String signature, String[] exceptions) {

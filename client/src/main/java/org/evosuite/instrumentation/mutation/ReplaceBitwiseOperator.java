@@ -20,26 +20,16 @@
 
 package org.evosuite.instrumentation.mutation;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
-
 import org.evosuite.PackageInfo;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.mutation.Mutation;
 import org.evosuite.coverage.mutation.MutationPool;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.tree.AbstractInsnNode;
-import org.objectweb.asm.tree.InsnList;
-import org.objectweb.asm.tree.InsnNode;
-import org.objectweb.asm.tree.LdcInsnNode;
-import org.objectweb.asm.tree.MethodInsnNode;
-import org.objectweb.asm.tree.MethodNode;
-import org.objectweb.asm.tree.VarInsnNode;
+import org.objectweb.asm.tree.*;
 import org.objectweb.asm.tree.analysis.Frame;
+
+import java.util.*;
 
 
 /**
@@ -49,301 +39,304 @@ import org.objectweb.asm.tree.analysis.Frame;
  */
 public class ReplaceBitwiseOperator implements MutationOperator {
 
-	public static final String NAME = "ReplaceBitwiseOperator";
-	
-	private static Set<Integer> opcodesInt = new HashSet<>();
+    public static final String NAME = "ReplaceBitwiseOperator";
 
-	private static Set<Integer> opcodesIntShift = new HashSet<>();
+    private static final Set<Integer> opcodesInt = new HashSet<>();
 
-	private static Set<Integer> opcodesLong = new HashSet<>();
+    private static final Set<Integer> opcodesIntShift = new HashSet<>();
 
-	private static Set<Integer> opcodesLongShift = new HashSet<>();
+    private static final Set<Integer> opcodesLong = new HashSet<>();
 
-	private int numVariable = 0;
+    private static final Set<Integer> opcodesLongShift = new HashSet<>();
 
-	static {
-		opcodesInt.addAll(Arrays.asList(new Integer[] { Opcodes.IAND, Opcodes.IOR,
-		        Opcodes.IXOR }));
+    private int numVariable = 0;
 
-		opcodesIntShift.addAll(Arrays.asList(new Integer[] { Opcodes.ISHL, Opcodes.ISHR,
-		        Opcodes.IUSHR }));
+    static {
+        opcodesInt.addAll(Arrays.asList(Opcodes.IAND, Opcodes.IOR,
+                Opcodes.IXOR));
 
-		opcodesLong.addAll(Arrays.asList(new Integer[] { Opcodes.LAND, Opcodes.LOR,
-		        Opcodes.LXOR }));
+        opcodesIntShift.addAll(Arrays.asList(Opcodes.ISHL, Opcodes.ISHR,
+                Opcodes.IUSHR));
 
-		opcodesLongShift.addAll(Arrays.asList(new Integer[] { Opcodes.LSHL, Opcodes.LSHR,
-		        Opcodes.LUSHR }));
-	}
+        opcodesLong.addAll(Arrays.asList(Opcodes.LAND, Opcodes.LOR,
+                Opcodes.LXOR));
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.cfg.instrumentation.MutationOperator#apply(org.objectweb.asm.tree.MethodNode, java.lang.String, java.lang.String, org.evosuite.cfg.BytecodeInstruction)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public List<Mutation> apply(MethodNode mn, String className, String methodName,
-	        BytecodeInstruction instruction, Frame frame) {
+        opcodesLongShift.addAll(Arrays.asList(Opcodes.LSHL, Opcodes.LSHR,
+                Opcodes.LUSHR));
+    }
 
-		numVariable = ReplaceArithmeticOperator.getNextIndex(mn);
+    /* (non-Javadoc)
+     * @see org.evosuite.cfg.instrumentation.MutationOperator#apply(org.objectweb.asm.tree.MethodNode, java.lang.String, java.lang.String, org.evosuite.cfg.BytecodeInstruction)
+     */
 
-		// TODO: Check if this operator is applicable at all first
-		// Should we do this via a method defined in the interface?
-		InsnNode node = (InsnNode) instruction.getASMNode();
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<Mutation> apply(MethodNode mn, String className, String methodName,
+                                BytecodeInstruction instruction, Frame frame) {
 
-		List<Mutation> mutations = new LinkedList<>();
-		Set<Integer> replacement = new HashSet<>();
-		if (opcodesInt.contains(node.getOpcode()))
-			replacement.addAll(opcodesInt);
-		else if (opcodesIntShift.contains(node.getOpcode()))
-			replacement.addAll(opcodesIntShift);
-		else if (opcodesLong.contains(node.getOpcode()))
-			replacement.addAll(opcodesLong);
-		else if (opcodesLongShift.contains(node.getOpcode()))
-			replacement.addAll(opcodesLongShift);
-		replacement.remove(node.getOpcode());
+        numVariable = ReplaceArithmeticOperator.getNextIndex(mn);
 
-		for (int opcode : replacement) {
+        // TODO: Check if this operator is applicable at all first
+        // Should we do this via a method defined in the interface?
+        InsnNode node = (InsnNode) instruction.getASMNode();
 
-			InsnNode mutation = new InsnNode(opcode);
-			// insert mutation into pool
-			Mutation mutationObject = MutationPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).addMutation(className,
-			                                                   methodName,
-			                                                   NAME + " "
-			                                                           + getOp(node.getOpcode())
-			                                                           + " -> "
-			                                                           + getOp(opcode),
-			                                                   instruction,
-			                                                   mutation,
-			                                                   getInfectionDistance(node.getOpcode(),
-			                                                                        opcode));
-			mutations.add(mutationObject);
-		}
+        List<Mutation> mutations = new LinkedList<>();
+        Set<Integer> replacement = new HashSet<>();
+        if (opcodesInt.contains(node.getOpcode()))
+            replacement.addAll(opcodesInt);
+        else if (opcodesIntShift.contains(node.getOpcode()))
+            replacement.addAll(opcodesIntShift);
+        else if (opcodesLong.contains(node.getOpcode()))
+            replacement.addAll(opcodesLong);
+        else if (opcodesLongShift.contains(node.getOpcode()))
+            replacement.addAll(opcodesLongShift);
+        replacement.remove(node.getOpcode());
 
-		return mutations;
-	}
+        for (int opcode : replacement) {
 
-	private String getOp(int opcode) {
-		switch (opcode) {
-		case Opcodes.IAND:
-		case Opcodes.LAND:
-			return "&";
-		case Opcodes.IOR:
-		case Opcodes.LOR:
-			return "|";
-		case Opcodes.IXOR:
-		case Opcodes.LXOR:
-			return "^";
-		case Opcodes.ISHR:
-			return ">> I";
-		case Opcodes.LSHR:
-			return ">> L";
-		case Opcodes.ISHL:
-			return "<< I";
-		case Opcodes.LSHL:
-			return "<< L";
-		case Opcodes.IUSHR:
-			return ">>> I";
-		case Opcodes.LUSHR:
-			return ">>> L";
-		}
-		throw new RuntimeException("Unknown opcode: " + opcode);
-	}
+            InsnNode mutation = new InsnNode(opcode);
+            // insert mutation into pool
+            Mutation mutationObject = MutationPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).addMutation(className,
+                    methodName,
+                    NAME + " "
+                            + getOp(node.getOpcode())
+                            + " -> "
+                            + getOp(opcode),
+                    instruction,
+                    mutation,
+                    getInfectionDistance(node.getOpcode(),
+                            opcode));
+            mutations.add(mutationObject);
+        }
 
-	/**
-	 * <p>getInfectionDistance</p>
-	 *
-	 * @param opcodeOrig a int.
-	 * @param opcodeNew a int.
-	 * @return a {@link org.objectweb.asm.tree.InsnList} object.
-	 */
-	public InsnList getInfectionDistance(int opcodeOrig, int opcodeNew) {
-		InsnList distance = new InsnList();
+        return mutations;
+    }
 
-		if (opcodesInt.contains(opcodeOrig)) {
-			distance.add(new InsnNode(Opcodes.DUP2));
-			distance.add(new LdcInsnNode(opcodeOrig));
-			distance.add(new LdcInsnNode(opcodeNew));
-			distance.add(new MethodInsnNode(
-			        Opcodes.INVOKESTATIC,
-					PackageInfo.getNameWithSlash(ReplaceBitwiseOperator.class),
-			        "getInfectionDistanceInt", "(IIII)D", false));
-		} else if (opcodesIntShift.contains(opcodeOrig)) {
-			distance.add(new InsnNode(Opcodes.DUP2));
-			distance.add(new LdcInsnNode(opcodeOrig));
-			distance.add(new LdcInsnNode(opcodeNew));
-			distance.add(new MethodInsnNode(
-			        Opcodes.INVOKESTATIC,
-					PackageInfo.getNameWithSlash(ReplaceBitwiseOperator.class),
-			        "getInfectionDistanceInt", "(IIII)D", false));
-		} else if (opcodesLong.contains(opcodeOrig)) {
+    private String getOp(int opcode) {
+        switch (opcode) {
+            case Opcodes.IAND:
+            case Opcodes.LAND:
+                return "&";
+            case Opcodes.IOR:
+            case Opcodes.LOR:
+                return "|";
+            case Opcodes.IXOR:
+            case Opcodes.LXOR:
+                return "^";
+            case Opcodes.ISHR:
+                return ">> I";
+            case Opcodes.LSHR:
+                return ">> L";
+            case Opcodes.ISHL:
+                return "<< I";
+            case Opcodes.LSHL:
+                return "<< L";
+            case Opcodes.IUSHR:
+                return ">>> I";
+            case Opcodes.LUSHR:
+                return ">>> L";
+        }
+        throw new RuntimeException("Unknown opcode: " + opcode);
+    }
 
-			distance.add(new VarInsnNode(Opcodes.LSTORE, numVariable));
-			distance.add(new InsnNode(Opcodes.DUP2));
-			distance.add(new VarInsnNode(Opcodes.LLOAD, numVariable));
-			distance.add(new InsnNode(Opcodes.DUP2_X2));
-			distance.add(new LdcInsnNode(opcodeOrig));
-			distance.add(new LdcInsnNode(opcodeNew));
-			distance.add(new MethodInsnNode(
-			        Opcodes.INVOKESTATIC,
-					PackageInfo.getNameWithSlash(ReplaceBitwiseOperator.class),
-			        "getInfectionDistanceLong", "(JJII)D", false));
-			numVariable += 2;
+    /**
+     * <p>getInfectionDistance</p>
+     *
+     * @param opcodeOrig a int.
+     * @param opcodeNew  a int.
+     * @return a {@link org.objectweb.asm.tree.InsnList} object.
+     */
+    public InsnList getInfectionDistance(int opcodeOrig, int opcodeNew) {
+        InsnList distance = new InsnList();
 
-		} else if (opcodesLongShift.contains(opcodeOrig)) {
-			distance.add(new VarInsnNode(Opcodes.ISTORE, numVariable));
-			distance.add(new InsnNode(Opcodes.DUP2));
-			distance.add(new VarInsnNode(Opcodes.ILOAD, numVariable));
-			distance.add(new InsnNode(Opcodes.DUP_X2));
-			distance.add(new LdcInsnNode(opcodeOrig));
-			distance.add(new LdcInsnNode(opcodeNew));
-			distance.add(new MethodInsnNode(
-			        Opcodes.INVOKESTATIC,
-					PackageInfo.getNameWithSlash(ReplaceBitwiseOperator.class),
-			        "getInfectionDistanceLong", "(JIII)D", false));
-			numVariable += 1;
-		}
+        if (opcodesInt.contains(opcodeOrig)) {
+            distance.add(new InsnNode(Opcodes.DUP2));
+            distance.add(new LdcInsnNode(opcodeOrig));
+            distance.add(new LdcInsnNode(opcodeNew));
+            distance.add(new MethodInsnNode(
+                    Opcodes.INVOKESTATIC,
+                    PackageInfo.getNameWithSlash(ReplaceBitwiseOperator.class),
+                    "getInfectionDistanceInt", "(IIII)D", false));
+        } else if (opcodesIntShift.contains(opcodeOrig)) {
+            distance.add(new InsnNode(Opcodes.DUP2));
+            distance.add(new LdcInsnNode(opcodeOrig));
+            distance.add(new LdcInsnNode(opcodeNew));
+            distance.add(new MethodInsnNode(
+                    Opcodes.INVOKESTATIC,
+                    PackageInfo.getNameWithSlash(ReplaceBitwiseOperator.class),
+                    "getInfectionDistanceInt", "(IIII)D", false));
+        } else if (opcodesLong.contains(opcodeOrig)) {
 
-		return distance;
-	}
+            distance.add(new VarInsnNode(Opcodes.LSTORE, numVariable));
+            distance.add(new InsnNode(Opcodes.DUP2));
+            distance.add(new VarInsnNode(Opcodes.LLOAD, numVariable));
+            distance.add(new InsnNode(Opcodes.DUP2_X2));
+            distance.add(new LdcInsnNode(opcodeOrig));
+            distance.add(new LdcInsnNode(opcodeNew));
+            distance.add(new MethodInsnNode(
+                    Opcodes.INVOKESTATIC,
+                    PackageInfo.getNameWithSlash(ReplaceBitwiseOperator.class),
+                    "getInfectionDistanceLong", "(JJII)D", false));
+            numVariable += 2;
 
-	/**
-	 * <p>getInfectionDistanceInt</p>
-	 *
-	 * @param x a int.
-	 * @param y a int.
-	 * @param opcodeOrig a int.
-	 * @param opcodeNew a int.
-	 * @return a double.
-	 */
-	public static double getInfectionDistanceInt(int x, int y, int opcodeOrig,
-	        int opcodeNew) {
-		if (opcodeOrig == Opcodes.ISHR && opcodeNew == Opcodes.IUSHR) {
-			if (x < 0 && y != 0) {
-				int origValue = calculate(x, y, opcodeOrig);
-				int newValue = calculate(x, y, opcodeNew);
-				assert (origValue != newValue);
+        } else if (opcodesLongShift.contains(opcodeOrig)) {
+            distance.add(new VarInsnNode(Opcodes.ISTORE, numVariable));
+            distance.add(new InsnNode(Opcodes.DUP2));
+            distance.add(new VarInsnNode(Opcodes.ILOAD, numVariable));
+            distance.add(new InsnNode(Opcodes.DUP_X2));
+            distance.add(new LdcInsnNode(opcodeOrig));
+            distance.add(new LdcInsnNode(opcodeNew));
+            distance.add(new MethodInsnNode(
+                    Opcodes.INVOKESTATIC,
+                    PackageInfo.getNameWithSlash(ReplaceBitwiseOperator.class),
+                    "getInfectionDistanceLong", "(JIII)D", false));
+            numVariable += 1;
+        }
 
-				return 0.0;
-			} else
-				// TODO x >= 0?
-				return y != 0 && x > 0 ? x + 1.0 : 1.0;
-		}
-		int origValue = calculate(x, y, opcodeOrig);
-		int newValue = calculate(x, y, opcodeNew);
-		return origValue == newValue ? 1.0 : 0.0;
-	}
+        return distance;
+    }
 
-	/**
-	 * <p>getInfectionDistanceLong</p>
-	 *
-	 * @param x a long.
-	 * @param y a int.
-	 * @param opcodeOrig a int.
-	 * @param opcodeNew a int.
-	 * @return a double.
-	 */
-	public static double getInfectionDistanceLong(long x, int y, int opcodeOrig,
-	        int opcodeNew) {
-		if (opcodeOrig == Opcodes.LSHR && opcodeNew == Opcodes.LUSHR) {
-			if (x < 0 && y != 0) {
-				long origValue = calculate(x, y, opcodeOrig);
-				long newValue = calculate(x, y, opcodeNew);
-				assert (origValue != newValue);
+    /**
+     * <p>getInfectionDistanceInt</p>
+     *
+     * @param x          a int.
+     * @param y          a int.
+     * @param opcodeOrig a int.
+     * @param opcodeNew  a int.
+     * @return a double.
+     */
+    public static double getInfectionDistanceInt(int x, int y, int opcodeOrig,
+                                                 int opcodeNew) {
+        if (opcodeOrig == Opcodes.ISHR && opcodeNew == Opcodes.IUSHR) {
+            if (x < 0 && y != 0) {
+                int origValue = calculate(x, y, opcodeOrig);
+                int newValue = calculate(x, y, opcodeNew);
+                assert (origValue != newValue);
 
-				return 0.0;
-			} else
-				return y != 0 && x > 0 ? x + 1.0 : 1.0;
-		}
-		long origValue = calculate(x, y, opcodeOrig);
-		long newValue = calculate(x, y, opcodeNew);
-		return origValue == newValue ? 1.0 : 0.0;
-	}
+                return 0.0;
+            } else
+                // TODO x >= 0?
+                return y != 0 && x > 0 ? x + 1.0 : 1.0;
+        }
+        int origValue = calculate(x, y, opcodeOrig);
+        int newValue = calculate(x, y, opcodeNew);
+        return origValue == newValue ? 1.0 : 0.0;
+    }
 
-	/**
-	 * <p>getInfectionDistanceLong</p>
-	 *
-	 * @param x a long.
-	 * @param y a long.
-	 * @param opcodeOrig a int.
-	 * @param opcodeNew a int.
-	 * @return a double.
-	 */
-	public static double getInfectionDistanceLong(long x, long y, int opcodeOrig,
-	        int opcodeNew) {
+    /**
+     * <p>getInfectionDistanceLong</p>
+     *
+     * @param x          a long.
+     * @param y          a int.
+     * @param opcodeOrig a int.
+     * @param opcodeNew  a int.
+     * @return a double.
+     */
+    public static double getInfectionDistanceLong(long x, int y, int opcodeOrig,
+                                                  int opcodeNew) {
+        if (opcodeOrig == Opcodes.LSHR && opcodeNew == Opcodes.LUSHR) {
+            if (x < 0 && y != 0) {
+                long origValue = calculate(x, y, opcodeOrig);
+                long newValue = calculate(x, y, opcodeNew);
+                assert (origValue != newValue);
 
-		long origValue = calculate(x, y, opcodeOrig);
-		long newValue = calculate(x, y, opcodeNew);
-		return origValue == newValue ? 1.0 : 0.0;
-	}
+                return 0.0;
+            } else
+                return y != 0 && x > 0 ? x + 1.0 : 1.0;
+        }
+        long origValue = calculate(x, y, opcodeOrig);
+        long newValue = calculate(x, y, opcodeNew);
+        return origValue == newValue ? 1.0 : 0.0;
+    }
 
-	/**
-	 * <p>calculate</p>
-	 *
-	 * @param x a int.
-	 * @param y a int.
-	 * @param opcode a int.
-	 * @return a int.
-	 */
-	public static int calculate(int x, int y, int opcode) {
-		switch (opcode) {
-		case Opcodes.IAND:
-			return x & y;
-		case Opcodes.IOR:
-			return x | y;
-		case Opcodes.IXOR:
-			return x ^ y;
-		case Opcodes.ISHL:
-			return x << y;
-		case Opcodes.ISHR:
-			return x >> y;
-		case Opcodes.IUSHR:
-			return x >>> y;
-		}
-		throw new RuntimeException("Unknown integer opcode: " + opcode);
-	}
+    /**
+     * <p>getInfectionDistanceLong</p>
+     *
+     * @param x          a long.
+     * @param y          a long.
+     * @param opcodeOrig a int.
+     * @param opcodeNew  a int.
+     * @return a double.
+     */
+    public static double getInfectionDistanceLong(long x, long y, int opcodeOrig,
+                                                  int opcodeNew) {
 
-	/**
-	 * <p>calculate</p>
-	 *
-	 * @param x a long.
-	 * @param y a long.
-	 * @param opcode a int.
-	 * @return a long.
-	 */
-	public static long calculate(long x, long y, int opcode) {
-		switch (opcode) {
-		case Opcodes.LAND:
-			return x & y;
-		case Opcodes.LOR:
-			return x | y;
-		case Opcodes.LXOR:
-			return x ^ y;
-		case Opcodes.LSHL:
-			return x << y;
-		case Opcodes.LSHR:
-			return x >> y;
-		case Opcodes.LUSHR:
-			return x >>> y;
-		}
-		throw new RuntimeException("Unknown long opcode: " + opcode);
-	}
+        long origValue = calculate(x, y, opcodeOrig);
+        long newValue = calculate(x, y, opcodeNew);
+        return origValue == newValue ? 1.0 : 0.0;
+    }
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.cfg.instrumentation.mutation.MutationOperator#isApplicable(org.evosuite.cfg.BytecodeInstruction)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public boolean isApplicable(BytecodeInstruction instruction) {
-		AbstractInsnNode node = instruction.getASMNode();
-		int opcode = node.getOpcode();
-		if (opcodesInt.contains(opcode))
-			return true;
-		else if (opcodesIntShift.contains(opcode))
-			return true;
-		else if (opcodesLong.contains(opcode))
-			return true;
-		else if (opcodesLongShift.contains(opcode))
-			return true;
+    /**
+     * <p>calculate</p>
+     *
+     * @param x      a int.
+     * @param y      a int.
+     * @param opcode a int.
+     * @return a int.
+     */
+    public static int calculate(int x, int y, int opcode) {
+        switch (opcode) {
+            case Opcodes.IAND:
+                return x & y;
+            case Opcodes.IOR:
+                return x | y;
+            case Opcodes.IXOR:
+                return x ^ y;
+            case Opcodes.ISHL:
+                return x << y;
+            case Opcodes.ISHR:
+                return x >> y;
+            case Opcodes.IUSHR:
+                return x >>> y;
+        }
+        throw new RuntimeException("Unknown integer opcode: " + opcode);
+    }
 
-		return false;
-	}
+    /**
+     * <p>calculate</p>
+     *
+     * @param x      a long.
+     * @param y      a long.
+     * @param opcode a int.
+     * @return a long.
+     */
+    public static long calculate(long x, long y, int opcode) {
+        switch (opcode) {
+            case Opcodes.LAND:
+                return x & y;
+            case Opcodes.LOR:
+                return x | y;
+            case Opcodes.LXOR:
+                return x ^ y;
+            case Opcodes.LSHL:
+                return x << y;
+            case Opcodes.LSHR:
+                return x >> y;
+            case Opcodes.LUSHR:
+                return x >>> y;
+        }
+        throw new RuntimeException("Unknown long opcode: " + opcode);
+    }
+
+    /* (non-Javadoc)
+     * @see org.evosuite.cfg.instrumentation.mutation.MutationOperator#isApplicable(org.evosuite.cfg.BytecodeInstruction)
+     */
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isApplicable(BytecodeInstruction instruction) {
+        AbstractInsnNode node = instruction.getASMNode();
+        int opcode = node.getOpcode();
+        if (opcodesInt.contains(opcode))
+            return true;
+        else if (opcodesIntShift.contains(opcode))
+            return true;
+        else if (opcodesLong.contains(opcode))
+            return true;
+        else return opcodesLongShift.contains(opcode);
+    }
 }

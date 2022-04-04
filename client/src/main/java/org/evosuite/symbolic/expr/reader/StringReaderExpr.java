@@ -19,9 +19,6 @@
  */
 package org.evosuite.symbolic.expr.reader;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import org.evosuite.Properties;
 import org.evosuite.symbolic.ConstraintTooLongException;
 import org.evosuite.symbolic.expr.AbstractExpression;
@@ -30,80 +27,83 @@ import org.evosuite.symbolic.expr.Variable;
 import org.evosuite.symbolic.expr.bv.IntegerValue;
 import org.evosuite.symbolic.expr.str.StringValue;
 
+import java.util.HashSet;
+import java.util.Set;
+
 public final class StringReaderExpr extends AbstractExpression<Long> implements
-		IntegerValue {
+        IntegerValue {
 
 
-	private static final long serialVersionUID = -744964586007203884L;
+    private static final long serialVersionUID = -744964586007203884L;
 
-	private final StringValue string;
-	private final int readerPosition;
+    private final StringValue string;
+    private final int readerPosition;
 
-	public StringReaderExpr(Long conc_value, StringValue string) {
-		this(conc_value, string, 0);
-	}
+    public StringReaderExpr(Long conc_value, StringValue string) {
+        this(conc_value, string, 0);
+    }
 
-	public StringReaderExpr(Long conc_value, StringValue string, int readerPosition) {
-		super(conc_value, 1 + string.getSize(), string.containsSymbolicVariable());
+    public StringReaderExpr(Long conc_value, StringValue string, int readerPosition) {
+        super(conc_value, 1 + string.getSize(), string.containsSymbolicVariable());
 
-		this.string = string;
-		this.readerPosition = readerPosition;
+        this.string = string;
+        this.readerPosition = readerPosition;
 
-		if (getSize() > Properties.DSE_CONSTRAINT_LENGTH)
-			throw new ConstraintTooLongException(getSize());
-	}
+        if (getSize() > Properties.DSE_CONSTRAINT_LENGTH)
+            throw new ConstraintTooLongException(getSize());
+    }
 
-	@Override
-	public Set<Variable<?>> getVariables() {
+    @Override
+    public Set<Variable<?>> getVariables() {
         Set<Variable<?>> variables = new HashSet<>(this.string.getVariables());
-		return variables;
-	}
+        return variables;
+    }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (obj == null)
-			return false;
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null)
+            return false;
 
-		if (this == obj)
-			return true;
+        if (this == obj)
+            return true;
 
-		if (obj instanceof StringReaderExpr) {
-			StringReaderExpr that = (StringReaderExpr) obj;
-			return this.string.equals(that.string)
-					&& this.readerPosition == that.readerPosition;
-		}
-		return false;
-	}
+        if (obj instanceof StringReaderExpr) {
+            StringReaderExpr that = (StringReaderExpr) obj;
+            return this.string.equals(that.string)
+                    && this.readerPosition == that.readerPosition;
+        }
+        return false;
+    }
 
-	@Override
-	public int hashCode() {
-		return string.hashCode() + readerPosition;
-	}
+    @Override
+    public int hashCode() {
+        return string.hashCode() + readerPosition;
+    }
 
-	@Override
-	public String toString() {
-		String toString = String.format("STRING_READER(%s, %s)",
-				string.toString(), readerPosition);
-		return toString;
-	}
+    @Override
+    public String toString() {
+        String toString = String.format("STRING_READER(%s, %s)",
+                string.toString(), readerPosition);
+        return toString;
+    }
 
-	public int getReaderPosition() {
-		return readerPosition;
-	}
+    public int getReaderPosition() {
+        return readerPosition;
+    }
 
-	public StringValue getString() {
-		return string;
-	}
+    public StringValue getString() {
+        return string;
+    }
 
-	@Override
-	public Set<Object> getConstants() {
-		Set<Object> result = new HashSet<>();
-		result.add(string.getConcreteValue());
-		return result;
-	}
-	
-	@Override
-	public <K, V> K accept(ExpressionVisitor<K, V> v, V arg) {
-		return v.visit(this, arg);
-	}
+    @Override
+    public Set<Object> getConstants() {
+        Set<Object> result = new HashSet<>();
+        result.add(string.getConcreteValue());
+        return result;
+    }
+
+    @Override
+    public <K, V> K accept(ExpressionVisitor<K, V> v, V arg) {
+        return v.visit(this, arg);
+    }
 }

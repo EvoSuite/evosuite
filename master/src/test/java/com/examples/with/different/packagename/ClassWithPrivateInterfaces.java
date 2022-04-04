@@ -52,6 +52,6 @@ public class ClassWithPrivateInterfaces {
             }
 
             cls = cls.getSuperclass();
-         }
-     }
+        }
+    }
 }

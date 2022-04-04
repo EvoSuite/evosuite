@@ -30,31 +30,32 @@ import org.evosuite.utils.Randomness;
  */
 public class SinglePointFixedCrossOver<T extends Chromosome<T>> extends CrossOverFunction<T> {
 
-	private static final long serialVersionUID = 1215946828935020651L;
+    private static final long serialVersionUID = 1215946828935020651L;
 
-	/**
-	 * {@inheritDoc}
-	 *
-	 * The splitting point for to individuals p1, p2 is selected within
-	 * min(length(p1),length(p2))
-	 * @param parent1
-	 * @param parent2
-	 */
-	@Override
-	public void crossOver(T parent1, T parent2)
-	        throws ConstructionFailedException {
+    /**
+     * {@inheritDoc}
+     * <p>
+     * The splitting point for to individuals p1, p2 is selected within
+     * min(length(p1),length(p2))
+     *
+     * @param parent1
+     * @param parent2
+     */
+    @Override
+    public void crossOver(T parent1, T parent2)
+            throws ConstructionFailedException {
 
-		if (parent1.size() < 2 || parent2.size() < 2) {
-			return;
-		}
+        if (parent1.size() < 2 || parent2.size() < 2) {
+            return;
+        }
 
-		int point = Randomness.nextInt(Math.min(parent1.size(), parent2.size()) - 1) + 1;
+        int point = Randomness.nextInt(Math.min(parent1.size(), parent2.size()) - 1) + 1;
 
-		T t1 = parent1.clone();
-		T t2 = parent2.clone();
+        T t1 = parent1.clone();
+        T t2 = parent2.clone();
 
-		parent1.crossOver(t2, point, point);
-		parent2.crossOver(t1, point, point);
-	}
+        parent1.crossOver(t2, point, point);
+        parent2.crossOver(t1, point, point);
+    }
 
 }

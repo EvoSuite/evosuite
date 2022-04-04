@@ -19,17 +19,13 @@
  */
 package org.evosuite.utils;
 
-import java.io.BufferedReader;
-import java.io.DataInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import org.evosuite.graphs.cfg.BytecodeInstruction;
+import org.objectweb.asm.Type;
+
+import java.io.*;
 import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.Set;
-
-import org.evosuite.graphs.cfg.BytecodeInstruction;
-import org.objectweb.asm.Type;
 
 /**
  * This class maintains a set of methods from the Java API known to be cheap-pure.
@@ -45,107 +41,106 @@ import org.objectweb.asm.Type;
  */
 public enum JdkPureMethodsList {
 
-	instance;
+    instance;
 
-	private Set<String> pureMethods;
+    private final Set<String> pureMethods;
 
-	private JdkPureMethodsList() {
-		pureMethods = loadInfo();
-	}
+    JdkPureMethodsList() {
+        pureMethods = loadInfo();
+    }
 
-	/**
-	 * Tries to read the file {@code JDK_PURE_METHODS_TXT} that contains the precomputed list
-	 * of cheap-pure JDK methods. Returns a set of Strings, where every String corresponds to the
-	 * fully qualified signature of a method.
-	 *
-	 * @return signatures of cheap-pure JDK methods
-	 */
-	private Set<String> loadInfo() {
-		Set<String> set = new HashSet<>(2020);
+    /**
+     * Tries to read the file {@code JDK_PURE_METHODS_TXT} that contains the precomputed list
+     * of cheap-pure JDK methods. Returns a set of Strings, where every String corresponds to the
+     * fully qualified signature of a method.
+     *
+     * @return signatures of cheap-pure JDK methods
+     */
+    private Set<String> loadInfo() {
+        Set<String> set = new HashSet<>(2020);
 
-		try {
-			InputStream fstream = this.getClass().getResourceAsStream(
+        try (
+            InputStream fstream = this.getClass().getResourceAsStream(
                     "/jdkPureMethods.txt");
-			DataInputStream in = new DataInputStream(fstream);
-			BufferedReader br = new BufferedReader(new InputStreamReader(in));
-			String strLine;
-			while ((strLine = br.readLine()) != null) {
-				set.add(strLine);
-			}
-			in.close();
-		} catch (IOException e) {
-			System.err.println("Wrong filename/path/file is missing");
-			e.printStackTrace();
-		}
-		if (set.isEmpty())
-			throw new IllegalStateException(
-					"Error in the initialization of the set containing the pure java.* methods");
+            DataInputStream in = new DataInputStream(fstream);
+            BufferedReader br = new BufferedReader(new InputStreamReader(in)); ) {
+            String strLine;
+            while ((strLine = br.readLine()) != null) {
+                set.add(strLine);
+            }
+        } catch (IOException e) {
+            System.err.println("Wrong filename/path/file is missing");
+            e.printStackTrace();
+        }
+        if (set.isEmpty())
+            throw new IllegalStateException(
+                    "Error in the initialization of the set containing the pure java.* methods");
 
-		return set;
-	}
+        return set;
+    }
 
-	/**
-	 * Tells whether the given byte code instruction invokes a JDK method that is cheap-pure.
-	 * If the given instruction is not a method call, an {@code IllegalArgumentException} is
-	 * thrown.
-	 *
-	 * @param fieldCall the byte code instruction to test
-	 * @return {@code true} if the invoked method is cheap-pure, {@code false} otherwise
-	 */
-	public boolean checkPurity(BytecodeInstruction fieldCall) {
-		if(!fieldCall.isMethodCall())
-			throw new IllegalArgumentException("method only accepts method calls");
-		
-		String paraz = fieldCall.getMethodCallDescriptor();
-		Type[] parameters = org.objectweb.asm.Type.getArgumentTypes(paraz);
-		String newParams = "";
-		if (parameters.length != 0) {
-			for (Type i : parameters) {
-				newParams = newParams + "," + i.getClassName();
-			}
-			newParams = newParams.substring(1);
-		}
-		String qualifiedName = fieldCall.getCalledMethodsClass() + "."
-				+ fieldCall.getCalledMethodName() + "(" + newParams + ")";
-		return checkPurity(qualifiedName);
-	}
+    /**
+     * Tells whether the given byte code instruction invokes a JDK method that is cheap-pure.
+     * If the given instruction is not a method call, an {@code IllegalArgumentException} is
+     * thrown.
+     *
+     * @param fieldCall the byte code instruction to test
+     * @return {@code true} if the invoked method is cheap-pure, {@code false} otherwise
+     */
+    public boolean checkPurity(BytecodeInstruction fieldCall) {
+        if (!fieldCall.isMethodCall())
+            throw new IllegalArgumentException("method only accepts method calls");
 
-	/**
-	 * Tells whether the method with the given fully-qualified signature (e.g.,
-	 * {@code java.beans.Beans.getInstanceOf(java.lang.Object,java.lang.Class<?>)}) is cheap-pure
-	 *
-	 * @param qualifiedName the fully-qualified method signature
-	 * @return {@code true} if the method is cheap-pure, {@code false} otherwise
-	 */
-	public boolean checkPurity(String qualifiedName) {
-		return pureMethods.contains(qualifiedName);
-	}
+        String paraz = fieldCall.getMethodCallDescriptor();
+        Type[] parameters = org.objectweb.asm.Type.getArgumentTypes(paraz);
+        String newParams = "";
+        if (parameters.length != 0) {
+            for (Type i : parameters) {
+                newParams = newParams + "," + i.getClassName();
+            }
+            newParams = newParams.substring(1);
+        }
+        String qualifiedName = fieldCall.getCalledMethodsClass() + "."
+                + fieldCall.getCalledMethodName() + "(" + newParams + ")";
+        return checkPurity(qualifiedName);
+    }
 
-	/**
-	 * Tells whether the given {@code method} is cheap-pure.
-	 *
-	 * @param method the method to analyze
-	 * @return {@code true} if the method is cheap-pure, {@code false} otherwise
-	 */
-	public boolean isPureJDKMethod(Method method) {
-		String className = method.getDeclaringClass().getCanonicalName();
-		if(!className.startsWith("java."))
-			return false;
-		
-		String toAnalyze = className + "." + method.getName();
+    /**
+     * Tells whether the method with the given fully-qualified signature (e.g.,
+     * {@code java.beans.Beans.getInstanceOf(java.lang.Object,java.lang.Class<?>)}) is cheap-pure
+     *
+     * @param qualifiedName the fully-qualified method signature
+     * @return {@code true} if the method is cheap-pure, {@code false} otherwise
+     */
+    public boolean checkPurity(String qualifiedName) {
+        return pureMethods.contains(qualifiedName);
+    }
 
-		Type[] parameters = org.objectweb.asm.Type.getArgumentTypes(method);
-		String newParams = "";
-		if (parameters.length != 0) {
-			for (Type i : parameters) {
-				newParams = newParams + "," + i.getClassName();
-			}
-			newParams = newParams.substring(1);
-		}
-		toAnalyze += "(" + newParams + ")";
-			//System.out.println(toAnalyze);
+    /**
+     * Tells whether the given {@code method} is cheap-pure.
+     *
+     * @param method the method to analyze
+     * @return {@code true} if the method is cheap-pure, {@code false} otherwise
+     */
+    public boolean isPureJDKMethod(Method method) {
+        String className = method.getDeclaringClass().getCanonicalName();
+        if (!className.startsWith("java."))
+            return false;
 
-		return checkPurity(toAnalyze);
-	}
+        String toAnalyze = className + "." + method.getName();
+
+        Type[] parameters = org.objectweb.asm.Type.getArgumentTypes(method);
+        String newParams = "";
+        if (parameters.length != 0) {
+            for (Type i : parameters) {
+                newParams = newParams + "," + i.getClassName();
+            }
+            newParams = newParams.substring(1);
+        }
+        toAnalyze += "(" + newParams + ")";
+        //System.out.println(toAnalyze);
+
+        return checkPurity(toAnalyze);
+    }
 
 }

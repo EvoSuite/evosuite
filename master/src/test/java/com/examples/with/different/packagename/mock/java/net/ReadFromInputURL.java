@@ -27,7 +27,7 @@ import java.net.URL;
 public class ReadFromInputURL {
 
     public boolean checkResource(URL url) {
-        if(url == null){
+        if (url == null) {
             return false;
         }
         boolean check;
@@ -37,7 +37,7 @@ public class ReadFromInputURL {
         } catch (Exception e) {
             check = false;
         }
-        if(check) {
+        if (check) {
             return true;
         } else {
             return false;

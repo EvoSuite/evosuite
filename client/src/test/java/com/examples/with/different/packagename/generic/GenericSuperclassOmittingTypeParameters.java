@@ -24,13 +24,13 @@ import java.util.ArrayList;
 
 public class GenericSuperclassOmittingTypeParameters extends ArrayList {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	public boolean testMe(Object o) {
-		if(super.contains(o))
-			return true;
-		else
-			return false;
-	}
-	
+    public boolean testMe(Object o) {
+        if (super.contains(o))
+            return true;
+        else
+            return false;
+    }
+
 }

@@ -19,73 +19,76 @@
  */
 package org.evosuite.assertion;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-
-import org.evosuite.testcase.statements.Statement;
-import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.Scope;
+import org.evosuite.testcase.statements.Statement;
+import org.evosuite.testcase.variable.VariableReference;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 
 public class PrimitiveFieldTraceObserver extends
         AssertionTraceObserver<PrimitiveFieldTraceEntry> {
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.assertion.AssertionTraceObserver#visit(org.evosuite.testcase.StatementInterface, org.evosuite.testcase.Scope, org.evosuite.testcase.VariableReference)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	protected void visit(Statement statement, Scope scope, VariableReference var) {
-		logger.debug("Checking fields of " + var);
-		try {
-			if (var == null)
-				return;
+    /* (non-Javadoc)
+     * @see org.evosuite.assertion.AssertionTraceObserver#visit(org.evosuite.testcase.StatementInterface, org.evosuite.testcase.Scope, org.evosuite.testcase.VariableReference)
+     */
 
-			if(statement.isAssignmentStatement()) {
-				if(statement.getReturnValue().isArrayIndex()) {
-					return;
-				}
-				if(statement.getReturnValue().isFieldReference()) {
-					return;
-				}
-			}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void visit(Statement statement, Scope scope, VariableReference var) {
+        logger.debug("Checking fields of " + var);
+        try {
+            if (var == null)
+                return;
+
+            if (statement.isAssignmentStatement()) {
+                if (statement.getReturnValue().isArrayIndex()) {
+                    return;
+                }
+                if (statement.getReturnValue().isFieldReference()) {
+                    return;
+                }
+            }
 
 
-			Object object = var.getObject(scope);
-			int position = statement.getPosition();
+            Object object = var.getObject(scope);
+            int position = statement.getPosition();
 
-			if (object != null && !object.getClass().isPrimitive()
-			        && !object.getClass().isEnum() && !isWrapperType(object.getClass())) {
+            if (object != null && !object.getClass().isPrimitive()
+                    && !object.getClass().isEnum() && !isWrapperType(object.getClass())) {
 
-				PrimitiveFieldTraceEntry entry = new PrimitiveFieldTraceEntry(var);
+                PrimitiveFieldTraceEntry entry = new PrimitiveFieldTraceEntry(var);
 
-				for (Field field : var.getVariableClass().getFields()) {
-					// TODO Check for wrapper types
-					if (Modifier.isPublic(field.getModifiers())
-					        && !field.getType().equals(void.class)
-					        && field.getType().isPrimitive()
-					        && !Modifier.isFinal(field.getModifiers())
-					        && !field.isSynthetic()) {
-						try {
-							logger.debug("Keeping field " + field + " with value "
-							        + field.get(object));
-							entry.addValue(field, field.get(object));
-						} catch (IllegalArgumentException e) {
-						} catch (IllegalAccessException e) {
-						}
-					}
-				}
-				trace.addEntry(position, var, entry);
-			}
-		} catch (CodeUnderTestException e) {
-			logger.debug("", e);
-			//throw new UnsupportedOperationException();
-		}
-	}
+                for (Field field : var.getVariableClass().getFields()) {
+                    // TODO Check for wrapper types
+                    if (Modifier.isPublic(field.getModifiers())
+                            && !field.getType().equals(void.class)
+                            && field.getType().isPrimitive()
+                            && !Modifier.isFinal(field.getModifiers())
+                            && !field.isSynthetic()) {
+                        try {
+                            logger.debug("Keeping field " + field + " with value "
+                                    + field.get(object));
+                            entry.addValue(field, field.get(object));
+                        } catch (IllegalArgumentException e) {
+                        } catch (IllegalAccessException e) {
+                        }
+                    }
+                }
+                trace.addEntry(position, var, entry);
+            }
+        } catch (CodeUnderTestException e) {
+            logger.debug("", e);
+            //throw new UnsupportedOperationException();
+        }
+    }
 
-	@Override
-	public void testExecutionFinished(ExecutionResult r, Scope s) {
-		// do nothing
-	}
+    @Override
+    public void testExecutionFinished(ExecutionResult r, Scope s) {
+        // do nothing
+    }
 }

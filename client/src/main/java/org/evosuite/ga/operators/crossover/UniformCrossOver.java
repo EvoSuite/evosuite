@@ -33,32 +33,33 @@ import org.evosuite.utils.Randomness;
  */
 public class UniformCrossOver<T extends Chromosome<T>> extends CrossOverFunction<T> {
 
-	private static final long serialVersionUID = 2981387570766261795L;
+    private static final long serialVersionUID = 2981387570766261795L;
 
-	/**
-	 * {@inheritDoc}
-	 * @param parent1
-	 * @param parent2
-	 */
-	@Override
-	public void crossOver(T parent1, T parent2)
-			throws ConstructionFailedException {
+    /**
+     * {@inheritDoc}
+     *
+     * @param parent1
+     * @param parent2
+     */
+    @Override
+    public void crossOver(T parent1, T parent2)
+            throws ConstructionFailedException {
 
-		if (parent1.size() < 2 || parent2.size() < 2) {
-			return;
-		}
+        if (parent1.size() < 2 || parent2.size() < 2) {
+            return;
+        }
 
-		int maxNumGenes = Math.min(parent1.size(), parent2.size());
+        int maxNumGenes = Math.min(parent1.size(), parent2.size());
 
-		T t1 = parent1.clone();
-		T t2 = parent2.clone();
+        T t1 = parent1.clone();
+        T t2 = parent2.clone();
 
-		for (int i = 0; i < maxNumGenes; i++) {
-			if (Randomness.nextDouble() <= Properties.CROSSOVER_RATE) {
-				parent1.crossOver(t2, i);
-				parent2.crossOver(t1, i);
-			}
-		}
-	}
+        for (int i = 0; i < maxNumGenes; i++) {
+            if (Randomness.nextDouble() <= Properties.CROSSOVER_RATE) {
+                parent1.crossOver(t2, i);
+                parent2.crossOver(t1, i);
+            }
+        }
+    }
 }
 

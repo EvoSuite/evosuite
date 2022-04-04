@@ -19,11 +19,10 @@
  */
 package org.evosuite.symbolic.dse;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-
 import org.evosuite.Properties;
+import org.evosuite.dse.IVM;
+import org.evosuite.dse.MainConfig;
+import org.evosuite.dse.VM;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import org.evosuite.symbolic.BranchCondition;
 import org.evosuite.symbolic.PathCondition;
@@ -32,16 +31,7 @@ import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.ExpressionEvaluator;
 import org.evosuite.symbolic.instrument.ConcolicBytecodeInstrumentation;
 import org.evosuite.symbolic.instrument.ConcolicInstrumentingClassLoader;
-import org.evosuite.symbolic.vm.ArithmeticVM;
-import org.evosuite.symbolic.vm.CallVM;
-import org.evosuite.symbolic.vm.HeapVM;
-import org.evosuite.symbolic.vm.InstructionLoggerVM;
-import org.evosuite.symbolic.vm.JumpVM;
-import org.evosuite.symbolic.vm.LocalsVM;
-import org.evosuite.symbolic.vm.OtherVM;
-import org.evosuite.symbolic.vm.PathConditionCollector;
-import org.evosuite.symbolic.vm.SymbolicFunctionVM;
-import org.evosuite.symbolic.vm.SymbolicEnvironment;
+import org.evosuite.symbolic.vm.*;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.execution.ExecutionObserver;
@@ -49,9 +39,10 @@ import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.evosuite.dse.IVM;
-import org.evosuite.dse.MainConfig;
-import org.evosuite.dse.VM;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 /**
  * <p>
@@ -60,143 +51,145 @@ import org.evosuite.dse.VM;
  *
  * @author Gordon Fraser
  */
-public class ConcolicExecutorImpl implements ConcolicExecutor{
+public class ConcolicExecutorImpl implements ConcolicExecutor {
 
-	private static final Logger logger = LoggerFactory.getLogger(ConcolicExecutorImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(ConcolicExecutorImpl.class);
 
-	/** Instrumenting class loader */
-	private final ConcolicInstrumentingClassLoader instrumentingClassLoader;
+    /**
+     * Instrumenting class loader
+     */
+    private final ConcolicInstrumentingClassLoader instrumentingClassLoader;
 
-	public ConcolicExecutorImpl() {
-		this.instrumentingClassLoader = new ConcolicInstrumentingClassLoader(new ConcolicBytecodeInstrumentation());
+    public ConcolicExecutorImpl() {
+        this.instrumentingClassLoader = new ConcolicInstrumentingClassLoader(new ConcolicBytecodeInstrumentation());
 
-		/**
-		 * Prepare DSC configuration
-		 */
-		MainConfig.setInstance();
-	}
+        /**
+         * Prepare DSC configuration
+         */
+        MainConfig.setInstance();
+    }
 
-	public List<BranchCondition> getSymbolicPath(TestChromosome test) {
-		TestChromosome dscCopy = test.clone();
-		DefaultTestCase defaultTestCase = (DefaultTestCase) dscCopy.getTestCase();
+    public List<BranchCondition> getSymbolicPath(TestChromosome test) {
+        TestChromosome dscCopy = test.clone();
+        DefaultTestCase defaultTestCase = (DefaultTestCase) dscCopy.getTestCase();
 
-		PathCondition pathCondition = execute(defaultTestCase);
-		return pathCondition.getBranchConditions();
-	}
+        PathCondition pathCondition = execute(defaultTestCase);
+        return pathCondition.getBranchConditions();
+    }
 
-	public PathCondition execute(DefaultTestCase defaultTestCase) {
-		logger.debug("Preparing concolic execution");
+    public PathCondition execute(DefaultTestCase defaultTestCase) {
+        logger.debug("Preparing concolic execution");
 
-		/**
-		 * Memory model
-		 * Path constraint and symbolic environment
-		 */
-		SymbolicEnvironment symbolicEnvironment = new SymbolicEnvironment(instrumentingClassLoader);
-		PathConditionCollector pathConditionCollector = new PathConditionCollector();
+        /**
+         * Memory model
+         * Path constraint and symbolic environment
+         */
+        SymbolicEnvironment symbolicEnvironment = new SymbolicEnvironment(instrumentingClassLoader);
+        PathConditionCollector pathConditionCollector = new PathConditionCollector();
 
-		/**
-		 * Observers for TestCaseExecutor
-		 */
-		SymbolicObserver symbolicExecObserver = new SymbolicObserver(symbolicEnvironment);
+        /**
+         * Observers for TestCaseExecutor
+         */
+        SymbolicObserver symbolicExecObserver = new SymbolicObserver(symbolicEnvironment);
 
-		/**
-		 * VM listeners
-		 */
-		setUpVMListeners(symbolicEnvironment, pathConditionCollector);
+        /**
+         * VM listeners
+         */
+        setUpVMListeners(symbolicEnvironment, pathConditionCollector);
 
-		/**
-		 * Override test case classloader for instrumentation
-		 */
-		defaultTestCase.getChangedClassLoader();
-		defaultTestCase.changeClassLoader(instrumentingClassLoader);
+        /**
+         * Override test case classloader for instrumentation
+         */
+        defaultTestCase.getChangedClassLoader();
+        defaultTestCase.changeClassLoader(instrumentingClassLoader);
 
-		Set<ExecutionObserver> originalExecutionObservers = TestCaseExecutor.getInstance().getExecutionObservers();
-		TestCaseExecutor.getInstance().newObservers();
-		TestCaseExecutor.getInstance().addObserver(symbolicExecObserver);
+        Set<ExecutionObserver> originalExecutionObservers = TestCaseExecutor.getInstance().getExecutionObservers();
+        TestCaseExecutor.getInstance().newObservers();
+        TestCaseExecutor.getInstance().addObserver(symbolicExecObserver);
 
-		logger.info("Starting concolic execution");
-		ExecutionResult result = new ExecutionResult(defaultTestCase, null);
+        logger.info("Starting concolic execution");
+        ExecutionResult result = new ExecutionResult(defaultTestCase, null);
 
-		/**
-		 * Execute the test case
-		 */
-		try {
-			result = executeTestCase(defaultTestCase);
-		} catch (Exception e) {
-			logger.error("Exception during concolic execution {}", e);
-			return new PathCondition(new ArrayList<>());
-		} finally {
-			logger.debug("Cleaning concolic execution");
-			TestCaseExecutor.getInstance().setExecutionObservers(originalExecutionObservers);
-		}
-		VM.disableCallBacks(); // ignore all callbacks from now on
-		VM.getInstance().cleanUpListeners();
+        /**
+         * Execute the test case
+         */
+        try {
+            result = executeTestCase(defaultTestCase);
+        } catch (Exception e) {
+            logger.error("Exception during concolic execution {}", e);
+            return new PathCondition(new ArrayList<>());
+        } finally {
+            logger.debug("Cleaning concolic execution");
+            TestCaseExecutor.getInstance().setExecutionObservers(originalExecutionObservers);
+        }
+        VM.disableCallBacks(); // ignore all callbacks from now on
+        VM.getInstance().cleanUpListeners();
 
-		List<BranchCondition> branches = pathConditionCollector.getPathCondition();
-		logger.info("Concolic execution ended with " + branches.size() + " branches collected");
-		if (!result.noThrownExceptions()) {
-			int idx = result.getFirstPositionOfThrownException();
-			logger.info("Exception thrown: " + result.getExceptionThrownAtPosition(idx));
-		}
+        List<BranchCondition> branches = pathConditionCollector.getPathCondition();
+        logger.info("Concolic execution ended with " + branches.size() + " branches collected");
+        if (!result.noThrownExceptions()) {
+            int idx = result.getFirstPositionOfThrownException();
+            logger.info("Exception thrown: " + result.getExceptionThrownAtPosition(idx));
+        }
 
-		logNrOfConstraints(branches);
+        logNrOfConstraints(branches);
 
-		logger.debug("Cleaning concolic execution");
-		TestCaseExecutor.getInstance().setExecutionObservers(originalExecutionObservers);
+        logger.debug("Cleaning concolic execution");
+        TestCaseExecutor.getInstance().setExecutionObservers(originalExecutionObservers);
 
-		return new PathCondition(branches);
-	}
+        return new PathCondition(branches);
+    }
 
-	private ExecutionResult executeTestCase(DefaultTestCase defaultTestCase) throws Exception {
-		logger.debug("Executing test");
-		ExecutionResult result;
+    private ExecutionResult executeTestCase(DefaultTestCase defaultTestCase) throws Exception {
+        logger.debug("Executing test");
+        ExecutionResult result;
 
-		long startConcolicExecutionTime = System.currentTimeMillis();
-		result = TestCaseExecutor.getInstance().execute(defaultTestCase, Properties.CONCOLIC_TIMEOUT);
+        long startConcolicExecutionTime = System.currentTimeMillis();
+        result = TestCaseExecutor.getInstance().execute(defaultTestCase, Properties.CONCOLIC_TIMEOUT);
 
-		long estimatedConcolicExecutionTime = System.currentTimeMillis() - startConcolicExecutionTime;
-		DSEStatistics.getInstance().reportNewConcolicExecutionTime(estimatedConcolicExecutionTime);
+        long estimatedConcolicExecutionTime = System.currentTimeMillis() - startConcolicExecutionTime;
+        DSEStatistics.getInstance().reportNewConcolicExecutionTime(estimatedConcolicExecutionTime);
 
-		MaxStatementsStoppingCondition.statementsExecuted(result.getExecutedStatements());
-		return result;
-	}
+        MaxStatementsStoppingCondition.statementsExecuted(result.getExecutedStatements());
+        return result;
+    }
 
-	private void setUpVMListeners(SymbolicEnvironment symbolicEnvironment, PathConditionCollector pathConditionCollector) {
-		List<IVM> listeners = new ArrayList<>();
-		listeners.add(new CallVM(symbolicEnvironment, instrumentingClassLoader));
-		listeners.add(new JumpVM(symbolicEnvironment, pathConditionCollector));
-		listeners.add(new HeapVM(symbolicEnvironment, pathConditionCollector, instrumentingClassLoader));
-		listeners.add(new LocalsVM(symbolicEnvironment));
-		listeners.add(new ArithmeticVM(symbolicEnvironment, pathConditionCollector));
-		listeners.add(new OtherVM(symbolicEnvironment));
-		listeners.add(new SymbolicFunctionVM(symbolicEnvironment, pathConditionCollector));
+    private void setUpVMListeners(SymbolicEnvironment symbolicEnvironment, PathConditionCollector pathConditionCollector) {
+        List<IVM> listeners = new ArrayList<>();
+        listeners.add(new CallVM(symbolicEnvironment, instrumentingClassLoader));
+        listeners.add(new JumpVM(symbolicEnvironment, pathConditionCollector));
+        listeners.add(new HeapVM(symbolicEnvironment, pathConditionCollector, instrumentingClassLoader));
+        listeners.add(new LocalsVM(symbolicEnvironment));
+        listeners.add(new ArithmeticVM(symbolicEnvironment, pathConditionCollector));
+        listeners.add(new OtherVM(symbolicEnvironment));
+        listeners.add(new SymbolicFunctionVM(symbolicEnvironment, pathConditionCollector));
 
-		if (Properties.BYTECODE_LOGGING_ENABLED) {
-			listeners.add(new InstructionLoggerVM());
-		}
+        if (Properties.BYTECODE_LOGGING_ENABLED) {
+            listeners.add(new InstructionLoggerVM());
+        }
 
-		VM.getInstance().setListeners(listeners);
-		VM.getInstance().prepareConcolicExecution();
-	}
+        VM.getInstance().setListeners(listeners);
+        VM.getInstance().prepareConcolicExecution();
+    }
 
-	private void logNrOfConstraints(List< BranchCondition > branches) {
-		int nrOfConstraints = 0;
+    private void logNrOfConstraints(List<BranchCondition> branches) {
+        int nrOfConstraints = 0;
 
-		ExpressionEvaluator exprExecutor = new ExpressionEvaluator();
-		for (BranchCondition branchCondition : branches) {
+        ExpressionEvaluator exprExecutor = new ExpressionEvaluator();
+        for (BranchCondition branchCondition : branches) {
 
-			for (Constraint<?> supporting_constraint : branchCondition.getSupportingConstraints()) {
-				supporting_constraint.getLeftOperand().accept(exprExecutor, null);
-				supporting_constraint.getRightOperand().accept(exprExecutor, null);
-				nrOfConstraints++;
-			}
+            for (Constraint<?> supporting_constraint : branchCondition.getSupportingConstraints()) {
+                supporting_constraint.getLeftOperand().accept(exprExecutor, null);
+                supporting_constraint.getRightOperand().accept(exprExecutor, null);
+                nrOfConstraints++;
+            }
 
-			Constraint<?> constraint = branchCondition.getConstraint();
-			constraint.getLeftOperand().accept(exprExecutor, null);
-			constraint.getRightOperand().accept(exprExecutor, null);
-			nrOfConstraints++;
+            Constraint<?> constraint = branchCondition.getConstraint();
+            constraint.getLeftOperand().accept(exprExecutor, null);
+            constraint.getRightOperand().accept(exprExecutor, null);
+            nrOfConstraints++;
 
-		}
-		logger.debug("nrOfConstraints=" + nrOfConstraints);
-	}
+        }
+        logger.debug("nrOfConstraints=" + nrOfConstraints);
+    }
 }

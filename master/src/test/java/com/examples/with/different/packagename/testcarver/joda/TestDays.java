@@ -29,11 +29,11 @@ import static junit.framework.Assert.assertEquals;
  */
 public class TestDays {
 
-	private static final DateTimeZone PARIS = new DateTimeZone();
+    private static final DateTimeZone PARIS = new DateTimeZone();
 
-	@Test
-	public void testFactory_daysIn_RInterval() {
-		Days d = new Days(PARIS);
-		assertEquals(0, d.getDays());
-	}
+    @Test
+    public void testFactory_daysIn_RInterval() {
+        Days d = new Days(PARIS);
+        assertEquals(0, d.getDays());
+    }
 }

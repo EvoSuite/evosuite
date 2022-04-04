@@ -20,11 +20,10 @@
 
 package org.evosuite.assertion;
 
+import org.evosuite.testcase.variable.VariableReference;
+
 import java.util.HashSet;
 import java.util.Set;
-
-import org.evosuite.Properties;
-import org.evosuite.testcase.variable.VariableReference;
 
 
 /**
@@ -34,95 +33,109 @@ import org.evosuite.testcase.variable.VariableReference;
  */
 public class NullTraceEntry implements OutputTraceEntry {
 
-	private final boolean isNull;
+    private final boolean isNull;
 
-	private final VariableReference var;
+    private final VariableReference var;
 
-	/**
-	 * <p>Constructor for NullTraceEntry.</p>
-	 *
-	 * @param var a {@link org.evosuite.testcase.variable.VariableReference} object.
-	 * @param result a boolean.
-	 */
-	public NullTraceEntry(VariableReference var, boolean result) {
-		this.var = var;
-		this.isNull = result;
-	}
+    /**
+     * <p>Constructor for NullTraceEntry.</p>
+     *
+     * @param var    a {@link org.evosuite.testcase.variable.VariableReference} object.
+     * @param result a boolean.
+     */
+    public NullTraceEntry(VariableReference var, boolean result) {
+        this.var = var;
+        this.isNull = result;
+    }
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.assertion.OutputTraceEntry#differs(org.evosuite.assertion.OutputTraceEntry)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public boolean differs(OutputTraceEntry other) {
-		if (other instanceof NullTraceEntry) {
-			NullTraceEntry otherEntry = (NullTraceEntry) other;
-			if (var.equals(otherEntry.var) && otherEntry.isNull != isNull)
-				return true;
+    /* (non-Javadoc)
+     * @see org.evosuite.assertion.OutputTraceEntry#differs(org.evosuite.assertion.OutputTraceEntry)
+     */
 
-		}
-		return false;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean differs(OutputTraceEntry other) {
+        if (other instanceof NullTraceEntry) {
+            NullTraceEntry otherEntry = (NullTraceEntry) other;
+            return var.equals(otherEntry.var) && otherEntry.isNull != isNull;
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.assertion.OutputTraceEntry#getAssertions(org.evosuite.assertion.OutputTraceEntry)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public Set<Assertion> getAssertions(OutputTraceEntry other) {
-		Set<Assertion> assertions = new HashSet<>();
+        }
+        return false;
+    }
 
-		if (other instanceof NullTraceEntry) {
-			NullTraceEntry otherEntry = (NullTraceEntry) other;
-			if (var.equals(otherEntry.var) && otherEntry.isNull != isNull) {
-				NullAssertion assertion = new NullAssertion();
-				assertion.value = isNull;
-				assertion.source = var;
-				assertions.add(assertion);
-				assert (assertion.isValid());
-			}
+    /* (non-Javadoc)
+     * @see org.evosuite.assertion.OutputTraceEntry#getAssertions(org.evosuite.assertion.OutputTraceEntry)
+     */
 
-		}
-		return assertions;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Set<Assertion> getAssertions(OutputTraceEntry other) {
+        Set<Assertion> assertions = new HashSet<>();
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.assertion.OutputTraceEntry#getAssertions()
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public Set<Assertion> getAssertions() {
-		Set<Assertion> assertions = new HashSet<>();
-		NullAssertion assertion = new NullAssertion();
-		assertion.value = isNull;
-		assertion.source = var;
-		assertions.add(assertion);
-		assert (assertion.value != null);
-		assert (assertion.isValid());
-		return assertions;
-	}
+        if (other instanceof NullTraceEntry) {
+            NullTraceEntry otherEntry = (NullTraceEntry) other;
+            if (var.equals(otherEntry.var) && otherEntry.isNull != isNull) {
+                NullAssertion assertion = new NullAssertion();
+                assertion.value = isNull;
+                assertion.source = var;
+                assertions.add(assertion);
+                assert (assertion.isValid());
+            }
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.assertion.OutputTraceEntry#isDetectedBy(org.evosuite.assertion.Assertion)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public boolean isDetectedBy(Assertion assertion) {
-		if (assertion instanceof NullAssertion) {
-			NullAssertion ass = (NullAssertion) assertion;
-			if (var.equals(ass.source))
-				return (Boolean) ass.value != isNull;
-		}
-		return false;
-	}
+        }
+        return assertions;
+    }
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.assertion.OutputTraceEntry#cloneEntry()
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public OutputTraceEntry cloneEntry() {
-		return new NullTraceEntry(var, isNull);
-	}
+    /* (non-Javadoc)
+     * @see org.evosuite.assertion.OutputTraceEntry#getAssertions()
+     */
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Set<Assertion> getAssertions() {
+        Set<Assertion> assertions = new HashSet<>();
+        NullAssertion assertion = new NullAssertion();
+        assertion.value = isNull;
+        assertion.source = var;
+        assertions.add(assertion);
+        assert (assertion.value != null);
+        assert (assertion.isValid());
+        return assertions;
+    }
+
+    /* (non-Javadoc)
+     * @see org.evosuite.assertion.OutputTraceEntry#isDetectedBy(org.evosuite.assertion.Assertion)
+     */
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isDetectedBy(Assertion assertion) {
+        if (assertion instanceof NullAssertion) {
+            NullAssertion ass = (NullAssertion) assertion;
+            if (var.equals(ass.source))
+                return (Boolean) ass.value != isNull;
+        }
+        return false;
+    }
+
+    /* (non-Javadoc)
+     * @see org.evosuite.assertion.OutputTraceEntry#cloneEntry()
+     */
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public OutputTraceEntry cloneEntry() {
+        return new NullTraceEntry(var, isNull);
+    }
 
 }

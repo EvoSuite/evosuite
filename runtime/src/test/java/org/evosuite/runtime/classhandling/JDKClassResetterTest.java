@@ -29,9 +29,9 @@ import static org.junit.Assert.fail;
 /**
  * Created by Andrea Arcuri on 08/11/15.
  */
-public class JDKClassResetterTest  {
+public class JDKClassResetterTest {
 
-    private static class FooKey extends RenderingHints.Key{
+    private static class FooKey extends RenderingHints.Key {
 
         public FooKey(int privatekey) {
             super(privatekey);
@@ -52,10 +52,10 @@ public class JDKClassResetterTest  {
         //this should be fine
         FooKey first = new FooKey(keyValue);
 
-        try{
+        try {
             FooKey copy = new FooKey(keyValue);
             fail();
-        } catch(Exception e){
+        } catch (Exception e) {
             //expected, as cannot make a copy
         }
 

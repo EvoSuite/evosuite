@@ -27,7 +27,6 @@ import java.lang.annotation.Target;
 
 /**
  * @author Jose Miguel Rojas
- *
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD})
@@ -53,10 +52,10 @@ public @interface EvoSuiteTest {
      * takes longer than that number of milliseconds.
      */
     long timeout() default 0L;
-    
+
     /**
      * Specify whether a test has been checked.
      */
     boolean checked() default false;
-    
+
 }

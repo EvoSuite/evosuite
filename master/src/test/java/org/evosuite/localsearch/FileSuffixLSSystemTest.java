@@ -35,40 +35,40 @@ import com.examples.with.different.packagename.concolic.FileSuffix;
  */
 public class FileSuffixLSSystemTest extends SystemTestBase {
 
-	@Before
-	public void init() {
-		Properties.LOCAL_SEARCH_PROBABILITY = 1.0;
-		Properties.LOCAL_SEARCH_RATE = 1;
-		Properties.LOCAL_SEARCH_BUDGET_TYPE = Properties.LocalSearchBudgetType.TESTS;
-		Properties.LOCAL_SEARCH_BUDGET = 100;
-		Properties.SEARCH_BUDGET = 10;
-		Properties.STOPPING_CONDITION = Properties.StoppingCondition.MAXTIME;
-		Properties.RESET_STATIC_FIELD_GETS = true;
+    @Before
+    public void init() {
+        Properties.LOCAL_SEARCH_PROBABILITY = 1.0;
+        Properties.LOCAL_SEARCH_RATE = 1;
+        Properties.LOCAL_SEARCH_BUDGET_TYPE = Properties.LocalSearchBudgetType.TESTS;
+        Properties.LOCAL_SEARCH_BUDGET = 100;
+        Properties.SEARCH_BUDGET = 10;
+        Properties.STOPPING_CONDITION = Properties.StoppingCondition.MAXTIME;
+        Properties.RESET_STATIC_FIELD_GETS = true;
 
-	}
+    }
 
-	@Test
-	public void testLocalSearch() {
+    @Test
+    public void testLocalSearch() {
 
-		EvoSuite evosuite = new EvoSuite();
-		String targetClass = FileSuffix.class.getCanonicalName();
-		Properties.TARGET_CLASS = targetClass;
+        EvoSuite evosuite = new EvoSuite();
+        String targetClass = FileSuffix.class.getCanonicalName();
+        Properties.TARGET_CLASS = targetClass;
 
-		Properties.PRINT_TO_SYSTEM = true;
-		Properties.DSE_PROBABILITY = 0.0; // force using only LS, no DSE
-		Properties.CRITERION = new Criterion[] {
-	            //these are basic criteria that should be always on by default
-	            Criterion.LINE, Criterion.BRANCH, Criterion.EXCEPTION, Criterion.WEAKMUTATION, Criterion.OUTPUT, Criterion.METHOD, Criterion.METHODNOEXCEPTION, Criterion.CBRANCH  };
+        Properties.PRINT_TO_SYSTEM = true;
+        Properties.DSE_PROBABILITY = 0.0; // force using only LS, no DSE
+        Properties.CRITERION = new Criterion[]{
+                //these are basic criteria that should be always on by default
+                Criterion.LINE, Criterion.BRANCH, Criterion.EXCEPTION, Criterion.WEAKMUTATION, Criterion.OUTPUT, Criterion.METHOD, Criterion.METHODNOEXCEPTION, Criterion.CBRANCH};
 
-		String[] command = new String[] { "-generateSuite", "-class",
-				targetClass };
+        String[] command = new String[]{"-generateSuite", "-class",
+                targetClass};
 
-		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
-		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
-		System.out.println("EvolvedTestSuite:\n" + best);
+        Object result = evosuite.parseCommandLine(command);
+        GeneticAlgorithm<?> ga = getGAFromResult(result);
+        TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+        System.out.println("EvolvedTestSuite:\n" + best);
 
 
-	}
+    }
 
 }

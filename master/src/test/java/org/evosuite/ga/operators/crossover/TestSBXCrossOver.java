@@ -28,21 +28,19 @@ import org.junit.Test;
 
 /**
  * Test Simulated Binary CrossOver (SBX)
- * 
+ *
  * @author José Campos
  */
 
-public class TestSBXCrossOver
-{
-	@BeforeClass
-	public static void setUp() {
-		Properties.RANDOM_SEED = 1L;
-	}
+public class TestSBXCrossOver {
+    @BeforeClass
+    public static void setUp() {
+        Properties.RANDOM_SEED = 1L;
+    }
 
-	@Test
-	public void crossoverEqualChromosomes() throws Exception
-	{
-	    NSGAChromosome c1 = new NSGAChromosome();
+    @Test
+    public void crossoverEqualChromosomes() throws Exception {
+        NSGAChromosome c1 = new NSGAChromosome();
         c1.addVariable(new DoubleVariable(0.5, 0.0, 1.0));
         NSGAChromosome c2 = new NSGAChromosome();
         c2.addVariable(new DoubleVariable(0.5, 0.0, 1.0));
@@ -50,15 +48,14 @@ public class TestSBXCrossOver
         SBXCrossover sbx = new SBXCrossover();
         sbx.crossOver(c1, c2);
 
-        double v_c1 = ((DoubleVariable)c1.getVariable(0)).getValue();
+        double v_c1 = ((DoubleVariable) c1.getVariable(0)).getValue();
         Assert.assertEquals(v_c1, 0.5, 0.0);
-        double v_c2 = ((DoubleVariable)c2.getVariable(0)).getValue();
+        double v_c2 = ((DoubleVariable) c2.getVariable(0)).getValue();
         Assert.assertEquals(v_c2, 0.5, 0.0);
-	}
+    }
 
-	@Test
-    public void crossoverDifferentChromosomes() throws Exception
-    {
+    @Test
+    public void crossoverDifferentChromosomes() throws Exception {
         NSGAChromosome c1 = new NSGAChromosome();
         c1.addVariable(new DoubleVariable(0.9, 0.0, 1.0));
         NSGAChromosome c2 = new NSGAChromosome();
@@ -67,9 +64,9 @@ public class TestSBXCrossOver
         SBXCrossover sbx = new SBXCrossover();
         sbx.crossOver(c1, c2);
 
-        double v_c1 = ((DoubleVariable)c1.getVariable(0)).getValue();
+        double v_c1 = ((DoubleVariable) c1.getVariable(0)).getValue();
         Assert.assertEquals(v_c1, 0.1, 0.01);
-        double v_c2 = ((DoubleVariable)c2.getVariable(0)).getValue();
+        double v_c2 = ((DoubleVariable) c2.getVariable(0)).getValue();
         Assert.assertEquals(v_c2, 0.9, 0.01);
     }
 }

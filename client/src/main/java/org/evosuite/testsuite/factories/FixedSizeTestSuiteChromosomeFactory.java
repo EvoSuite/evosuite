@@ -34,38 +34,43 @@ import org.evosuite.testsuite.TestSuiteChromosome;
 public class FixedSizeTestSuiteChromosomeFactory implements
         ChromosomeFactory<TestSuiteChromosome> {
 
-	private static final long serialVersionUID = 6269582177138945987L;
+    private static final long serialVersionUID = 6269582177138945987L;
 
-	/** Factory to manipulate and generate method sequences */
-	private final ChromosomeFactory<TestChromosome> testChromosomeFactory;
+    /**
+     * Factory to manipulate and generate method sequences
+     */
+    private final ChromosomeFactory<TestChromosome> testChromosomeFactory;
 
-	private final int size;
+    private final int size;
 
-	/**
-	 * <p>Constructor for FixedSizeTestSuiteChromosomeFactory.</p>
-	 *
-	 * @param size a int.
-	 */
-	public FixedSizeTestSuiteChromosomeFactory(int size) {
-		testChromosomeFactory = new RandomLengthTestFactory();
-		this.size = size;
-	}
+    /**
+     * <p>Constructor for FixedSizeTestSuiteChromosomeFactory.</p>
+     *
+     * @param size a int.
+     */
+    public FixedSizeTestSuiteChromosomeFactory(int size) {
+        testChromosomeFactory = new RandomLengthTestFactory();
+        this.size = size;
+    }
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.ga.ChromosomeFactory#getChromosome()
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public TestSuiteChromosome getChromosome() {
-		TestSuiteChromosome chromosome = new TestSuiteChromosome(
-		        new RandomLengthTestFactory());
-		chromosome.clearTests();
+    /* (non-Javadoc)
+     * @see org.evosuite.ga.ChromosomeFactory#getChromosome()
+     */
 
-		for (int i = 0; i < size; i++) {
-			TestChromosome test = testChromosomeFactory.getChromosome();
-			chromosome.addTest(test);
-		}
-		return chromosome;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public TestSuiteChromosome getChromosome() {
+        TestSuiteChromosome chromosome = new TestSuiteChromosome(
+                new RandomLengthTestFactory());
+        chromosome.clearTests();
+
+        for (int i = 0; i < size; i++) {
+            TestChromosome test = testChromosomeFactory.getChromosome();
+            chromosome.addTest(test);
+        }
+        return chromosome;
+    }
 
 }

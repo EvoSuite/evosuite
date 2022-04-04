@@ -1,19 +1,19 @@
 /**
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * <p>
  * This file is part of EvoSuite.
- *
+ * <p>
  * EvoSuite is free software: you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
  * by the Free Software Foundation, either version 3.0 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * EvoSuite is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -36,7 +36,7 @@ import java.util.List;
  * H. Muëhlenbein and D. Schlierkamp-Voosen,
  * "Predictive models for the breeder genetic algorithm. contiunous parameter optimization,”
  * Evolutionary Computation, vol. 1, no. 1, pp. 25–49, 1993.
- *
+ * <p>
  * This uses standard mutation and crossover.
  *
  * @param <T>
@@ -49,8 +49,7 @@ public class BreederGA<T extends Chromosome<T>> extends StandardGA<T> {
     /**
      * Constructor
      *
-     * @param factory
-     *            a {@link org.evosuite.ga.ChromosomeFactory} object.
+     * @param factory a {@link org.evosuite.ga.ChromosomeFactory} object.
      */
     public BreederGA(ChromosomeFactory<T> factory) {
         super(factory);
@@ -63,10 +62,10 @@ public class BreederGA<T extends Chromosome<T>> extends StandardGA<T> {
         List<T> newGeneration = new ArrayList<>(elitism());
 
         // Truncation selection
-        List<T> candidates = population.subList(0, (int)(population.size() * Properties.TRUNCATION_RATE));
+        List<T> candidates = population.subList(0, (int) (population.size() * Properties.TRUNCATION_RATE));
 
         // If there are no candidates, the parameters are not set optimally,
-        if(candidates.size() <= 1) {
+        if (candidates.size() <= 1) {
             candidates.addAll(population);
             AtMostOnceLogger.warn(logger, "Not sufficient candidates for reproduction, consider increasing the population size, or the truncation rate");
         }
@@ -78,7 +77,7 @@ public class BreederGA<T extends Chromosome<T>> extends StandardGA<T> {
             T parent2 = Randomness.choice(candidates);
 
             // Self-breeding is nor allowed
-            if(parent1 == parent2) {
+            if (parent1 == parent2) {
                 continue;
             }
 
@@ -98,7 +97,7 @@ public class BreederGA<T extends Chromosome<T>> extends StandardGA<T> {
             notifyMutation(offspring);
             offspring.mutate();
 
-            if(offspring.isChanged()) {
+            if (offspring.isChanged()) {
                 offspring.updateAge(currentIteration);
             }
             if (!isTooLong(offspring)) {

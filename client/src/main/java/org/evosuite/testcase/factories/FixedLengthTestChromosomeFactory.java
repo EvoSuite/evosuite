@@ -31,50 +31,52 @@ import org.slf4j.LoggerFactory;
 public class FixedLengthTestChromosomeFactory implements
         ChromosomeFactory<TestChromosome> {
 
-	private static final long serialVersionUID = -3860201346772188495L;
+    private static final long serialVersionUID = -3860201346772188495L;
 
-	/** Constant <code>logger</code> */
-	protected static final Logger logger = LoggerFactory.getLogger(FixedLengthTestChromosomeFactory.class);
+    /**
+     * Constant <code>logger</code>
+     */
+    protected static final Logger logger = LoggerFactory.getLogger(FixedLengthTestChromosomeFactory.class);
 
-	/**
-	 * Constructor
-	 */
-	public FixedLengthTestChromosomeFactory() {
-	}
+    /**
+     * Constructor
+     */
+    public FixedLengthTestChromosomeFactory() {
+    }
 
-	/**
-	 * Creates and returns a random test case. Note that the {@code size} argument only serves as a
-	 * hint for this method; it will try to generate a test case of <em>at least</em> the given
-	 * {@code size}, but it may fail to do so, in which case a test case with fewer statements
-	 * is returned.
-	 *
-	 * @param size the minimum intended size of the test case
-	 * @return a random test case
-	 */
-	private TestCase getRandomTestCase(int size) {
-		TestCase test = new DefaultTestCase();
-		TestFactory testFactory = TestFactory.getInstance();
+    /**
+     * Creates and returns a random test case. Note that the {@code size} argument only serves as a
+     * hint for this method; it will try to generate a test case of <em>at least</em> the given
+     * {@code size}, but it may fail to do so, in which case a test case with fewer statements
+     * is returned.
+     *
+     * @param size the minimum intended size of the test case
+     * @return a random test case
+     */
+    private TestCase getRandomTestCase(int size) {
+        TestCase test = new DefaultTestCase();
+        TestFactory testFactory = TestFactory.getInstance();
 
-		// Then add random stuff
-		for (int num = 0; test.size() < size && num < Properties.MAX_ATTEMPTS; num++) {
-			testFactory.insertRandomStatement(test, test.size() - 1);
-		}
+        // Then add random stuff
+        for (int num = 0; test.size() < size && num < Properties.MAX_ATTEMPTS; num++) {
+            testFactory.insertRandomStatement(test, test.size() - 1);
+        }
 
-		//logger.debug("Randomized test case:" + test.toCode());
+        //logger.debug("Randomized test case:" + test.toCode());
 
-		return test;
-	}
+        return test;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 * 
-	 * Generate a random chromosome
-	 */
-	@Override
-	public TestChromosome getChromosome() {
-		TestChromosome c = new TestChromosome();
-		c.setTestCase(getRandomTestCase(Properties.CHROMOSOME_LENGTH));
-		return c;
-	}
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Generate a random chromosome
+     */
+    @Override
+    public TestChromosome getChromosome() {
+        TestChromosome c = new TestChromosome();
+        c.setTestCase(getRandomTestCase(Properties.CHROMOSOME_LENGTH));
+        return c;
+    }
 
 }

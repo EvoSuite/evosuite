@@ -24,18 +24,19 @@ package org.evosuite.runtime;
     issues with previous versions.
     It should replace it once a new version of JUnit does not support it anymore
  */
+
 import org.junit.internal.AssumptionViolatedException;
 
 /**
- *  If a test was overfitting (eg, accessing private fields or methods), and
- *  a semantic-preserving refactoring
- *  broke the test, then it should not fail, as otherwise it would be a time consuming
- *  false positive.
- *
- *
+ * If a test was overfitting (eg, accessing private fields or methods), and
+ * a semantic-preserving refactoring
+ * broke the test, then it should not fail, as otherwise it would be a time consuming
+ * false positive.
+ * <p>
+ * <p>
  * Created by Andrea Arcuri on 05/10/15.
  */
-public class FalsePositiveException extends AssumptionViolatedException{
+public class FalsePositiveException extends AssumptionViolatedException {
 
     private static final long serialVersionUID = -7779068356023351829L;
 

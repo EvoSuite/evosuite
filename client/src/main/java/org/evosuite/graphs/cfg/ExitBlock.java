@@ -18,35 +18,42 @@
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 package org.evosuite.graphs.cfg;
+
 public class ExitBlock extends BasicBlock {
 
-	private static final long serialVersionUID = 970110985248711972L;
+    private static final long serialVersionUID = 970110985248711972L;
 
-	/**
-	 * <p>Constructor for ExitBlock.</p>
-	 *
-	 * @param className a {@link java.lang.String} object.
-	 * @param methodName a {@link java.lang.String} object.
-	 */
-	public ExitBlock(String className, String methodName) {
-		super(className, methodName);
-	}
+    /**
+     * <p>Constructor for ExitBlock.</p>
+     *
+     * @param className  a {@link java.lang.String} object.
+     * @param methodName a {@link java.lang.String} object.
+     */
+    public ExitBlock(String className, String methodName) {
+        super(className, methodName);
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public boolean isExitBlock() {
-		return true;
-	}
-	
-	/** {@inheritDoc} */
-	@Override
-	public String getName() {
-		return "ExitBlock for method "+methodName;
-	}
-	
-	/** {@inheritDoc} */
-	@Override
-	public String toString() {
-		return getName();
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isExitBlock() {
+        return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getName() {
+        return "ExitBlock for method " + methodName;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        return getName();
+    }
 }

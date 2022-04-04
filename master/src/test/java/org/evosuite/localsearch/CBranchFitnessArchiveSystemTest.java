@@ -44,42 +44,42 @@ import com.examples.with.different.packagename.cbranch.CBranchExample;
 
 public class CBranchFitnessArchiveSystemTest extends SystemTestBase {
 
-	@Test
-	public void test() throws NoSuchMethodException, SecurityException, ClassNotFoundException {
-		Properties.TARGET_CLASS = CBranchExample.class.getCanonicalName();
-		Properties.CRITERION = new Criterion[] { Criterion.CBRANCH };
-		Properties.TEST_ARCHIVE = true;
-		
-		InstrumentingClassLoader classLoader = TestGenerationContext.getInstance().getClassLoaderForSUT();
-		Class<CBranchExample> sut = (Class<CBranchExample>) classLoader.loadClass(Properties.TARGET_CLASS);
-		List<String> classpath = new ArrayList<>();
-		String cp = System.getProperty("user.dir") + "/target/test-classes";
-		classpath.add(cp);
-		ClassPathHandler.getInstance().addElementToTargetProjectClassPath(cp);
-		DependencyAnalysis.analyzeClass(Properties.TARGET_CLASS, classpath);
+    @Test
+    public void test() throws NoSuchMethodException, SecurityException, ClassNotFoundException {
+        Properties.TARGET_CLASS = CBranchExample.class.getCanonicalName();
+        Properties.CRITERION = new Criterion[]{Criterion.CBRANCH};
+        Properties.TEST_ARCHIVE = true;
 
-		Constructor<CBranchExample> ctor = sut.getConstructor();
-		Method method = sut.getMethod("Subject", String.class, String.class);
+        InstrumentingClassLoader classLoader = TestGenerationContext.getInstance().getClassLoaderForSUT();
+        Class<CBranchExample> sut = (Class<CBranchExample>) classLoader.loadClass(Properties.TARGET_CLASS);
+        List<String> classpath = new ArrayList<>();
+        String cp = System.getProperty("user.dir") + "/target/test-classes";
+        classpath.add(cp);
+        ClassPathHandler.getInstance().addElementToTargetProjectClassPath(cp);
+        DependencyAnalysis.analyzeClass(Properties.TARGET_CLASS, classpath);
 
-		TestSuiteChromosome suiteChromosome = new TestSuiteChromosome();
-		TestCaseBuilder builder = new TestCaseBuilder();
-		VariableReference fileSuffix1 = builder.appendConstructor(ctor);
-		VariableReference string0 = builder.appendStringPrimitive("MY}6.);:<<TtF");
-		VariableReference string1 = builder.appendStringPrimitive("bin");
-		builder.appendMethod(fileSuffix1, method, string0, string1);
+        Constructor<CBranchExample> ctor = sut.getConstructor();
+        Method method = sut.getMethod("Subject", String.class, String.class);
 
-		DefaultTestCase defaultTestCase = builder.getDefaultTestCase();
-		suiteChromosome.addTest(defaultTestCase);
+        TestSuiteChromosome suiteChromosome = new TestSuiteChromosome();
+        TestCaseBuilder builder = new TestCaseBuilder();
+        VariableReference fileSuffix1 = builder.appendConstructor(ctor);
+        VariableReference string0 = builder.appendStringPrimitive("MY}6.);:<<TtF");
+        VariableReference string1 = builder.appendStringPrimitive("bin");
+        builder.appendMethod(fileSuffix1, method, string0, string1);
 
-		CBranchSuiteFitness fitness = new CBranchSuiteFitness();
-		double fitnessValue = fitness.getFitness(suiteChromosome);
+        DefaultTestCase defaultTestCase = builder.getDefaultTestCase();
+        suiteChromosome.addTest(defaultTestCase);
 
-		// removes covered goals due to ARCHIVE
-		fitness.updateCoveredGoals();
-		
-		double fitnessValue2 = fitness.getFitness(suiteChromosome);
+        CBranchSuiteFitness fitness = new CBranchSuiteFitness();
+        double fitnessValue = fitness.getFitness(suiteChromosome);
 
-		assertTrue(fitnessValue2<=fitnessValue);
+        // removes covered goals due to ARCHIVE
+        fitness.updateCoveredGoals();
 
-	}
+        double fitnessValue2 = fitness.getFitness(suiteChromosome);
+
+        assertTrue(fitnessValue2 <= fitnessValue);
+
+    }
 }

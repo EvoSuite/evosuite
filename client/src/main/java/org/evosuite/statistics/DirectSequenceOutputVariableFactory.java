@@ -45,27 +45,28 @@ public class DirectSequenceOutputVariableFactory<T extends Number> extends Seque
 
     /**
      * Sets value directly
+     *
      * @param value
      */
     public void setValue(T value) {
         this.value = value;
-    };
-    
+    }
+
     @SuppressWarnings("unchecked")
     public void setValue(Object value) {
-      if(this.type.isInstance(value)) {
-        this.setValue((T)value);
-      } else {
-        throw new IllegalArgumentException("value of type " + value.getClass().getName() 
-            + " is incompatible with expected type " +  this.type.getName());
-      }
+        if (this.type.isInstance(value)) {
+            this.setValue((T) value);
+        } else {
+            throw new IllegalArgumentException("value of type " + value.getClass().getName()
+                    + " is incompatible with expected type " + this.type.getName());
+        }
     }
-    
+
     public static DirectSequenceOutputVariableFactory<Double> getDouble(RuntimeVariable variable) {
-      return new DirectSequenceOutputVariableFactory<>(variable, Double.class, 0.0);
+        return new DirectSequenceOutputVariableFactory<>(variable, Double.class, 0.0);
     }
-    
+
     public static DirectSequenceOutputVariableFactory<Integer> getInteger(RuntimeVariable variable) {
-      return new DirectSequenceOutputVariableFactory<>(variable, Integer.class, 0);
+        return new DirectSequenceOutputVariableFactory<>(variable, Integer.class, 0);
     }
 }

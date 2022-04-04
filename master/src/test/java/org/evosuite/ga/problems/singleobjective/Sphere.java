@@ -29,16 +29,14 @@ import org.evosuite.ga.variables.DoubleVariable;
 
 /**
  * Sphere Problem
- * 
+ *
  * @author José Campos
  */
-@SuppressWarnings({ "serial" })
-public class Sphere implements Problem<NSGAChromosome>
-{
+@SuppressWarnings({"serial"})
+public class Sphere implements Problem<NSGAChromosome> {
     private final List<FitnessFunction<NSGAChromosome>> fitnessFunctions = new ArrayList<>();
 
-    public Sphere()
-    {
+    public Sphere() {
         super();
 
         /**
@@ -54,6 +52,7 @@ public class Sphere implements Problem<NSGAChromosome>
                 updateIndividual(c, fitness);
                 return fitness;
             }
+
             @Override
             public boolean isMaximizationFunction() {
                 return false;

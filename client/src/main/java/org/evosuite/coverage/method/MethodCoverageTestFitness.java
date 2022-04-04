@@ -19,11 +19,6 @@
  */
 package org.evosuite.coverage.method;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
-
 import org.evosuite.Properties;
 import org.evosuite.ga.archive.Archive;
 import org.evosuite.testcase.TestChromosome;
@@ -34,6 +29,11 @@ import org.evosuite.testcase.statements.EntityWithParametersStatement;
 import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testcase.statements.Statement;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
+
 /**
  * Fitness function for a single test on a single method (including calls that throw exceptions)
  *
@@ -43,13 +43,16 @@ public class MethodCoverageTestFitness extends TestFitnessFunction {
 
     private static final long serialVersionUID = 3624503060256855484L;
 
-    /** Target method */
+    /**
+     * Target method
+     */
     protected final String className;
     protected final String methodName;
 
     /**
      * Constructor - fitness is specific to a method
-     * @param className the class name
+     *
+     * @param className  the class name
      * @param methodName the method name
      */
     public MethodCoverageTestFitness(String className, String methodName) {
@@ -81,13 +84,11 @@ public class MethodCoverageTestFitness extends TestFitnessFunction {
 
     /**
      * {@inheritDoc}
-     *
+     * <p>
      * Calculate fitness
      *
-     * @param individual
-     *            a {@link org.evosuite.testcase.ExecutableChromosome} object.
-     * @param result
-     *            a {@link org.evosuite.testcase.execution.ExecutionResult} object.
+     * @param individual a {@link org.evosuite.testcase.ExecutableChromosome} object.
+     * @param result     a {@link org.evosuite.testcase.execution.ExecutionResult} object.
      * @return a double.
      */
     @Override
@@ -97,12 +98,12 @@ public class MethodCoverageTestFitness extends TestFitnessFunction {
         List<Integer> exceptionPositions = asSortedList(result.getPositionsWhereExceptionsWereThrown());
         for (Statement stmt : result.test) {
             if (!isValidPosition(exceptionPositions, stmt.getPosition())) {
-              break;
+                break;
             }
 
             if ((stmt instanceof MethodStatement || stmt instanceof ConstructorStatement)) {
-                EntityWithParametersStatement ps = (EntityWithParametersStatement)stmt;
-                String className  = ps.getDeclaringClassName();
+                EntityWithParametersStatement ps = (EntityWithParametersStatement) stmt;
+                String className = ps.getDeclaringClassName();
                 String methodDesc = ps.getDescriptor();
                 String methodName = ps.getMethodName() + methodDesc;
 
@@ -140,20 +141,26 @@ public class MethodCoverageTestFitness extends TestFitnessFunction {
         return list;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String toString() {
         return "[METHOD] " + className + "." + methodName;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int hashCode() {
         int iConst = 13;
         return 51 * iConst + className.hashCode() * iConst + methodName.hashCode();
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean equals(Object obj) {
         if (this == obj)

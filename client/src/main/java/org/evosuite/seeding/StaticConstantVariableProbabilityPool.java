@@ -42,9 +42,9 @@ public class StaticConstantVariableProbabilityPool implements ConstantPool {
     private final FrequencyBasedPool<Float> floatPool = new FrequencyBasedPool<>();
 
     public StaticConstantVariableProbabilityPool() {
-		/*
-		 * all pools HAVE to be non-empty
-		 */
+        /*
+         * all pools HAVE to be non-empty
+         */
 
         stringPool.addConstant("");
 
@@ -141,8 +141,7 @@ public class StaticConstantVariableProbabilityPool implements ConstantPool {
      * add
      * </p>
      *
-     * @param object
-     *            a {@link java.lang.Object} object.
+     * @param object a {@link java.lang.Object} object.
      */
     @Override
     public void add(Object object) {
@@ -152,7 +151,7 @@ public class StaticConstantVariableProbabilityPool implements ConstantPool {
 
         if (object instanceof String) {
             String string = (String) object;
-            if(string.length() > Properties.MAX_STRING)
+            if (string.length() > Properties.MAX_STRING)
                 return;
             // String literals are constrained to 65535 bytes
             // as they are stored in the constant pool
@@ -164,9 +163,7 @@ public class StaticConstantVariableProbabilityPool implements ConstantPool {
                 object = ((Type) object).getElementType();
             }
             typePool.addConstant((Type) object);
-        }
-
-        else if (object instanceof Integer) {
+        } else if (object instanceof Integer) {
             if (Properties.RESTRICT_POOL) {
                 int val = (Integer) object;
                 if (Math.abs(val) < Properties.MAX_INT) {

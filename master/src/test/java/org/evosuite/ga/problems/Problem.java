@@ -25,10 +25,8 @@ import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.FitnessFunction;
 
 /**
- * 
  * @author José Campos
  */
-public interface Problem<T extends Chromosome<T>>
-{
-	List<FitnessFunction<T>> getFitnessFunctions();
+public interface Problem<T extends Chromosome<T>> {
+    List<FitnessFunction<T>> getFitnessFunctions();
 }

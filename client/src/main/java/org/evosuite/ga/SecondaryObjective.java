@@ -19,51 +19,48 @@
  */
 package org.evosuite.ga;
 
-import java.io.Serializable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.Serializable;
 
 /**
  * <p>
  * Abstract SecondaryObjective class.
  * </p>
- * 
+ *
  * @author Gordon Fraser
  */
 public abstract class SecondaryObjective<T extends Chromosome<T>> implements Serializable {
 
-	private static final long serialVersionUID = -4117187516650844086L;
+    private static final long serialVersionUID = -4117187516650844086L;
 
-	/** Constant <code>logger</code> */
-	protected static final Logger logger = LoggerFactory.getLogger(SecondaryObjective.class);
+    /**
+     * Constant <code>logger</code>
+     */
+    protected static final Logger logger = LoggerFactory.getLogger(SecondaryObjective.class);
 
-	/**
-	 * Compare two chromosomes with each other with respect to this objective.
-	 * This comparison is mainly used during ranking.
-	 * 
-	 * @param chromosome1
-	 *            a {@link org.evosuite.ga.Chromosome} object.
-	 * @param chromosome2
-	 *            a {@link org.evosuite.ga.Chromosome} object.
-	 * @return a int.
-	 */
-	public abstract int compareChromosomes(T chromosome1, T chromosome2);
+    /**
+     * Compare two chromosomes with each other with respect to this objective.
+     * This comparison is mainly used during ranking.
+     *
+     * @param chromosome1 a {@link org.evosuite.ga.Chromosome} object.
+     * @param chromosome2 a {@link org.evosuite.ga.Chromosome} object.
+     * @return a int.
+     */
+    public abstract int compareChromosomes(T chromosome1, T chromosome2);
 
-	/**
-	 * Compare two parents to decide whether the children can replace the
-	 * parents.
-	 * 
-	 * @param parent1
-	 *            a {@link org.evosuite.ga.Chromosome} object.
-	 * @param parent2
-	 *            a {@link org.evosuite.ga.Chromosome} object.
-	 * @param child1
-	 *            a {@link org.evosuite.ga.Chromosome} object.
-	 * @param child2
-	 *            a {@link org.evosuite.ga.Chromosome} object.
-	 * @return a int.
-	 */
-	public abstract int compareGenerations(T parent1, T parent2,
-	        T child1, T child2);
+    /**
+     * Compare two parents to decide whether the children can replace the
+     * parents.
+     *
+     * @param parent1 a {@link org.evosuite.ga.Chromosome} object.
+     * @param parent2 a {@link org.evosuite.ga.Chromosome} object.
+     * @param child1  a {@link org.evosuite.ga.Chromosome} object.
+     * @param child2  a {@link org.evosuite.ga.Chromosome} object.
+     * @return a int.
+     */
+    public abstract int compareGenerations(T parent1, T parent2,
+                                           T child1, T child2);
 
 }

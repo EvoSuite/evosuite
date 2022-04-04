@@ -43,85 +43,85 @@ import com.examples.with.different.packagename.purity.AbstractInspector;
 import com.examples.with.different.packagename.purity.SpecialInspector;
 
 public class SpecialInspectorSystemTest extends SystemTestBase {
-	private final boolean DEFAULT_RESET_STATIC_FIELDS = Properties.RESET_STATIC_FIELDS;
-	private final Properties.JUnitCheckValues DEFAULT_JUNIT_CHECK = Properties.JUNIT_CHECK;
-	private final boolean DEFAULT_JUNIT_TESTS = Properties.JUNIT_TESTS;
-	private final boolean DEFAULT_PURE_INSPECTORS = Properties.PURE_INSPECTORS;
-	private final boolean DEFAULT_SANDBOX = Properties.SANDBOX;
+    private final boolean DEFAULT_RESET_STATIC_FIELDS = Properties.RESET_STATIC_FIELDS;
+    private final Properties.JUnitCheckValues DEFAULT_JUNIT_CHECK = Properties.JUNIT_CHECK;
+    private final boolean DEFAULT_JUNIT_TESTS = Properties.JUNIT_TESTS;
+    private final boolean DEFAULT_PURE_INSPECTORS = Properties.PURE_INSPECTORS;
+    private final boolean DEFAULT_SANDBOX = Properties.SANDBOX;
 
-	@Before
-	public void saveProperties() {
-		Properties.SANDBOX = true;
-		Properties.RESET_STATIC_FIELDS = true;
-		Properties.JUNIT_CHECK = Properties.JUnitCheckValues.TRUE;
-		Properties.JUNIT_TESTS = true;
-		Properties.PURE_INSPECTORS = true;
-	}
+    @Before
+    public void saveProperties() {
+        Properties.SANDBOX = true;
+        Properties.RESET_STATIC_FIELDS = true;
+        Properties.JUNIT_CHECK = Properties.JUnitCheckValues.TRUE;
+        Properties.JUNIT_TESTS = true;
+        Properties.PURE_INSPECTORS = true;
+    }
 
-	@After
-	public void restoreProperties() {
-		Properties.RESET_STATIC_FIELDS = DEFAULT_RESET_STATIC_FIELDS;
-		Properties.JUNIT_CHECK = DEFAULT_JUNIT_CHECK;
-		Properties.JUNIT_TESTS = DEFAULT_JUNIT_TESTS;
-		Properties.PURE_INSPECTORS = DEFAULT_PURE_INSPECTORS;
-		Properties.SANDBOX = DEFAULT_SANDBOX;
-	}
+    @After
+    public void restoreProperties() {
+        Properties.RESET_STATIC_FIELDS = DEFAULT_RESET_STATIC_FIELDS;
+        Properties.JUNIT_CHECK = DEFAULT_JUNIT_CHECK;
+        Properties.JUNIT_TESTS = DEFAULT_JUNIT_TESTS;
+        Properties.PURE_INSPECTORS = DEFAULT_PURE_INSPECTORS;
+        Properties.SANDBOX = DEFAULT_SANDBOX;
+    }
 
-	@Test
-	public void test() {
-		EvoSuite evosuite = new EvoSuite();
+    @Test
+    public void test() {
+        EvoSuite evosuite = new EvoSuite();
 
-		String targetClass = SpecialInspector.class.getCanonicalName();
-		Properties.TARGET_CLASS = targetClass;
-		Properties.OUTPUT_VARIABLES=""+RuntimeVariable.HadUnstableTests;
-		String[] command = new String[] { "-generateSuite", "-class",
-				targetClass };
+        String targetClass = SpecialInspector.class.getCanonicalName();
+        Properties.TARGET_CLASS = targetClass;
+        Properties.OUTPUT_VARIABLES = "" + RuntimeVariable.HadUnstableTests;
+        String[] command = new String[]{"-generateSuite", "-class",
+                targetClass};
 
-		Object result = evosuite.parseCommandLine(command);
+        Object result = evosuite.parseCommandLine(command);
 
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
-		System.out.println("EvolvedTestSuite:\n" + best);
-		double best_fitness = best.getFitness();
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
+        System.out.println("EvolvedTestSuite:\n" + best);
+        double best_fitness = best.getFitness();
         Assert.assertEquals("Optimal coverage was not achieved ", 0.0, best_fitness, 0.0);
 
-		CheapPurityAnalyzer purityAnalyzer = CheapPurityAnalyzer.getInstance();
+        CheapPurityAnalyzer purityAnalyzer = CheapPurityAnalyzer.getInstance();
 
-		String descriptor = Type.getMethodDescriptor(Type.BOOLEAN_TYPE);
-		boolean greaterthanZeroIsPure = purityAnalyzer.isPure(targetClass,
-				"greaterThanZero", descriptor);
-		assertTrue(greaterthanZeroIsPure);
+        String descriptor = Type.getMethodDescriptor(Type.BOOLEAN_TYPE);
+        boolean greaterthanZeroIsPure = purityAnalyzer.isPure(targetClass,
+                "greaterThanZero", descriptor);
+        assertTrue(greaterthanZeroIsPure);
 
-		boolean notPureGreaterthanZeroIsPure = purityAnalyzer.isPure(
-				targetClass, "notPureGreaterThanZero", descriptor);
-		assertFalse(notPureGreaterthanZeroIsPure);
+        boolean notPureGreaterthanZeroIsPure = purityAnalyzer.isPure(
+                targetClass, "notPureGreaterThanZero", descriptor);
+        assertFalse(notPureGreaterthanZeroIsPure);
 
-		boolean notPureCreationOfObjectIsPure = purityAnalyzer.isPure(
-				targetClass, "notPureCreationOfObject", descriptor);
-		assertFalse(notPureCreationOfObjectIsPure);
+        boolean notPureCreationOfObjectIsPure = purityAnalyzer.isPure(
+                targetClass, "notPureCreationOfObject", descriptor);
+        assertFalse(notPureCreationOfObjectIsPure);
 
-		boolean pureCreationOfObjectIsPure = purityAnalyzer.isPure(targetClass,
-				"pureCreationOfObject", descriptor);
-		assertFalse(pureCreationOfObjectIsPure);
+        boolean pureCreationOfObjectIsPure = purityAnalyzer.isPure(targetClass,
+                "pureCreationOfObject", descriptor);
+        assertFalse(pureCreationOfObjectIsPure);
 
-		boolean superPureCall = purityAnalyzer.isPure(targetClass,
-				"superPureCall", descriptor);
-		assertTrue(superPureCall);
+        boolean superPureCall = purityAnalyzer.isPure(targetClass,
+                "superPureCall", descriptor);
+        assertTrue(superPureCall);
 
-		boolean notPureGreaterThanZero = purityAnalyzer.isPure(
-				AbstractInspector.class.getCanonicalName(),
-				"notPureGreaterThanZero", descriptor);
-		assertFalse(notPureGreaterThanZero);
+        boolean notPureGreaterThanZero = purityAnalyzer.isPure(
+                AbstractInspector.class.getCanonicalName(),
+                "notPureGreaterThanZero", descriptor);
+        assertFalse(notPureGreaterThanZero);
 
-		boolean superNotPureCall = purityAnalyzer.isPure(targetClass,
-				"superNotPureCall", descriptor);
-		assertFalse(superNotPureCall);
+        boolean superNotPureCall = purityAnalyzer.isPure(targetClass,
+                "superNotPureCall", descriptor);
+        assertFalse(superNotPureCall);
 
-		Map<String, OutputVariable<?>> map = DebugStatisticsBackend.getLatestWritten();
-		Assert.assertNotNull(map);
-		OutputVariable unstable = map.get(RuntimeVariable.HadUnstableTests.toString());
-		Assert.assertNotNull(unstable);
-		Assert.assertEquals(Boolean.FALSE, unstable.getValue());
-	}
+        Map<String, OutputVariable<?>> map = DebugStatisticsBackend.getLatestWritten();
+        Assert.assertNotNull(map);
+        OutputVariable unstable = map.get(RuntimeVariable.HadUnstableTests.toString());
+        Assert.assertNotNull(unstable);
+        Assert.assertEquals(Boolean.FALSE, unstable.getValue());
+    }
 
 }

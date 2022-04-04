@@ -37,49 +37,49 @@ import com.examples.with.different.packagename.dse.DseWithSocket;
  */
 public class DseWithSocketSystemTest extends SystemTestBase {
 
-	@Before
-	public void init() {
-		Properties.VIRTUAL_FS = true;
-		Properties.VIRTUAL_NET = true;
-		Properties.LOCAL_SEARCH_PROBABILITY = 1.0;
-		Properties.LOCAL_SEARCH_RATE = 1;
-		Properties.LOCAL_SEARCH_BUDGET_TYPE = Properties.LocalSearchBudgetType.TESTS;
-		Properties.LOCAL_SEARCH_BUDGET = 100;
-		Properties.SEARCH_BUDGET = 50000;
+    @Before
+    public void init() {
+        Properties.VIRTUAL_FS = true;
+        Properties.VIRTUAL_NET = true;
+        Properties.LOCAL_SEARCH_PROBABILITY = 1.0;
+        Properties.LOCAL_SEARCH_RATE = 1;
+        Properties.LOCAL_SEARCH_BUDGET_TYPE = Properties.LocalSearchBudgetType.TESTS;
+        Properties.LOCAL_SEARCH_BUDGET = 100;
+        Properties.SEARCH_BUDGET = 50000;
 //		 Properties.CONCOLIC_TIMEOUT = Integer.MAX_VALUE;
-		Properties.RESET_STATIC_FIELD_GETS = true;
+        Properties.RESET_STATIC_FIELD_GETS = true;
 
-	}
+    }
 
-	@Test
-	public void testDSE() {
+    @Test
+    public void testDSE() {
 
-		Properties.DSE_SOLVER = SolverType.EVOSUITE_SOLVER;
+        Properties.DSE_SOLVER = SolverType.EVOSUITE_SOLVER;
 
-		Properties.STOPPING_CONDITION = StoppingCondition.MAXTIME;
-		Properties.SEARCH_BUDGET = 120;
+        Properties.STOPPING_CONDITION = StoppingCondition.MAXTIME;
+        Properties.SEARCH_BUDGET = 120;
 
-		// should it be trivial for DSE ?
+        // should it be trivial for DSE ?
 
-		EvoSuite evosuite = new EvoSuite();
-		String targetClass = DseWithSocket.class.getCanonicalName();
-		Properties.TARGET_CLASS = targetClass;
+        EvoSuite evosuite = new EvoSuite();
+        String targetClass = DseWithSocket.class.getCanonicalName();
+        Properties.TARGET_CLASS = targetClass;
 
-		Properties.CRITERION = new Criterion[] { Criterion.BRANCH,
-				Criterion.EXCEPTION };
+        Properties.CRITERION = new Criterion[]{Criterion.BRANCH,
+                Criterion.EXCEPTION};
 
-		Properties.MINIMIZE = true;
-		Properties.ASSERTIONS = true;
+        Properties.MINIMIZE = true;
+        Properties.ASSERTIONS = true;
 
-		Properties.DSE_PROBABILITY = 1.0; // force using only DSE, no LS
+        Properties.DSE_PROBABILITY = 1.0; // force using only DSE, no LS
 
-		String[] command = new String[] { "-generateSuite", "-class",
-				targetClass };
+        String[] command = new String[]{"-generateSuite", "-class",
+                targetClass};
 
-		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
-		System.out.println("EvolvedTestSuite:\n" + best);
+        Object result = evosuite.parseCommandLine(command);
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
+        System.out.println("EvolvedTestSuite:\n" + best);
 
-	}
+    }
 }

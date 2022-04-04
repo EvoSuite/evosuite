@@ -41,199 +41,199 @@ import com.examples.with.different.packagename.contracts.ToStringException;
 
 public class ContractGenerationSystemTest extends SystemTestBase {
 
-	private boolean checkContracts = false;
+    private boolean checkContracts = false;
 
-	private String junitTheories = "";
+    private String junitTheories = "";
 
-	@Before
-	public void storeCheckContracts() {
-		checkContracts = Properties.CHECK_CONTRACTS;
-		junitTheories = Properties.JUNIT_THEORIES;
-		FailingTestSet.clear();
-	}
+    @Before
+    public void storeCheckContracts() {
+        checkContracts = Properties.CHECK_CONTRACTS;
+        junitTheories = Properties.JUNIT_THEORIES;
+        FailingTestSet.clear();
+    }
 
-	@After
-	public void restoreCheckContracts() {
-		Properties.CHECK_CONTRACTS = checkContracts;
-		Properties.JUNIT_THEORIES = junitTheories;
-	}
+    @After
+    public void restoreCheckContracts() {
+        Properties.CHECK_CONTRACTS = checkContracts;
+        Properties.JUNIT_THEORIES = junitTheories;
+    }
 
-	@Test
-	public void testEqualsNull() {
-		EvoSuite evosuite = new EvoSuite();
+    @Test
+    public void testEqualsNull() {
+        EvoSuite evosuite = new EvoSuite();
 
-		String targetClass = EqualsNull.class.getCanonicalName();
+        String targetClass = EqualsNull.class.getCanonicalName();
 
-		Properties.TARGET_CLASS = targetClass;
-		Properties.CHECK_CONTRACTS = true;
+        Properties.TARGET_CLASS = targetClass;
+        Properties.CHECK_CONTRACTS = true;
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
 
-		evosuite.parseCommandLine(command);
+        evosuite.parseCommandLine(command);
 
-		Assert.assertEquals(1, FailingTestSet.getNumberOfUniqueViolations());
-		Assert.assertEquals(1,
-		                    FailingTestSet.getNumberOfViolations(EqualsNullContract.class));
-	}
+        Assert.assertEquals(1, FailingTestSet.getNumberOfUniqueViolations());
+        Assert.assertEquals(1,
+                FailingTestSet.getNumberOfViolations(EqualsNullContract.class));
+    }
 
-	@Test
-	public void testToStringException() {
-		EvoSuite evosuite = new EvoSuite();
+    @Test
+    public void testToStringException() {
+        EvoSuite evosuite = new EvoSuite();
 
-		String targetClass = ToStringException.class.getCanonicalName();
+        String targetClass = ToStringException.class.getCanonicalName();
 
-		Properties.TARGET_CLASS = targetClass;
-		Properties.CHECK_CONTRACTS = true;
+        Properties.TARGET_CLASS = targetClass;
+        Properties.CHECK_CONTRACTS = true;
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
 
-		evosuite.parseCommandLine(command);
+        evosuite.parseCommandLine(command);
 
-		// TODO: No executor in master, so this will fail
+        // TODO: No executor in master, so this will fail
 //		for(TestCase test : FailingTestSet.getFailingTests()) {
 //			System.out.println(test.toCode());
 //		}
-		
-		// 1 Undeclared contract
-		// 1 JCrasher
-		//Assert.assertEquals(2, FailingTestSet.getNumberOfUniqueViolations());
-		Assert.assertEquals(1,
-		                    FailingTestSet.getNumberOfViolations(ToStringReturnsNormallyContract.class));
-	}
 
-	@Test
-	public void testHashCodeReturnsNormally() {
-		EvoSuite evosuite = new EvoSuite();
+        // 1 Undeclared contract
+        // 1 JCrasher
+        //Assert.assertEquals(2, FailingTestSet.getNumberOfUniqueViolations());
+        Assert.assertEquals(1,
+                FailingTestSet.getNumberOfViolations(ToStringReturnsNormallyContract.class));
+    }
 
-		String targetClass = HashcodeException.class.getCanonicalName();
+    @Test
+    public void testHashCodeReturnsNormally() {
+        EvoSuite evosuite = new EvoSuite();
 
-		Properties.TARGET_CLASS = targetClass;
-		Properties.CHECK_CONTRACTS = true;
+        String targetClass = HashcodeException.class.getCanonicalName();
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+        Properties.TARGET_CLASS = targetClass;
+        Properties.CHECK_CONTRACTS = true;
 
-		evosuite.parseCommandLine(command);
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
 
-		
-		// Also reported by JCrasher
-		// Assert.assertEquals(2, FailingTestSet.getNumberOfUniqueViolations());
-		Assert.assertEquals(1,
-		                    FailingTestSet.getNumberOfViolations(HashCodeReturnsNormallyContract.class));
-	}
+        evosuite.parseCommandLine(command);
 
-	@Test
-	public void testEqualsSelfContract() {
-		EvoSuite evosuite = new EvoSuite();
 
-		String targetClass = EqualsSelf.class.getCanonicalName();
+        // Also reported by JCrasher
+        // Assert.assertEquals(2, FailingTestSet.getNumberOfUniqueViolations());
+        Assert.assertEquals(1,
+                FailingTestSet.getNumberOfViolations(HashCodeReturnsNormallyContract.class));
+    }
 
-		Properties.TARGET_CLASS = targetClass;
-		Properties.CHECK_CONTRACTS = true;
+    @Test
+    public void testEqualsSelfContract() {
+        EvoSuite evosuite = new EvoSuite();
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+        String targetClass = EqualsSelf.class.getCanonicalName();
 
-		evosuite.parseCommandLine(command);
+        Properties.TARGET_CLASS = targetClass;
+        Properties.CHECK_CONTRACTS = true;
 
-		// Assert.assertEquals(2, FailingTestSet.getNumberOfUniqueViolations());
-		Assert.assertEquals(1, FailingTestSet.getNumberOfViolations(EqualsContract.class));
-	}
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
 
-	// TODO: How to activate assertions when running with client on thread?
-	@Ignore
-	@Test
-	public void testAssertionContract() {
-		EvoSuite evosuite = new EvoSuite();
+        evosuite.parseCommandLine(command);
 
-		String targetClass = AssertionException.class.getCanonicalName();
+        // Assert.assertEquals(2, FailingTestSet.getNumberOfUniqueViolations());
+        Assert.assertEquals(1, FailingTestSet.getNumberOfViolations(EqualsContract.class));
+    }
 
-		Properties.TARGET_CLASS = targetClass;
-		Properties.CHECK_CONTRACTS = true;
+    // TODO: How to activate assertions when running with client on thread?
+    @Ignore
+    @Test
+    public void testAssertionContract() {
+        EvoSuite evosuite = new EvoSuite();
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+        String targetClass = AssertionException.class.getCanonicalName();
 
-		evosuite.parseCommandLine(command);
+        Properties.TARGET_CLASS = targetClass;
+        Properties.CHECK_CONTRACTS = true;
 
-		Assert.assertEquals(1, FailingTestSet.getNumberOfUniqueViolations());
-		Assert.assertEquals(1,
-		                    FailingTestSet.getNumberOfViolations(AssertionErrorContract.class));
-	}
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
 
-	@Test
-	public void testEqualsHashcodeContract() {
-		EvoSuite evosuite = new EvoSuite();
+        evosuite.parseCommandLine(command);
 
-		String targetClass = EqualsHashCode.class.getCanonicalName();
+        Assert.assertEquals(1, FailingTestSet.getNumberOfUniqueViolations());
+        Assert.assertEquals(1,
+                FailingTestSet.getNumberOfViolations(AssertionErrorContract.class));
+    }
 
-		Properties.TARGET_CLASS = targetClass;
-		Properties.CHECK_CONTRACTS = true;
+    @Test
+    public void testEqualsHashcodeContract() {
+        EvoSuite evosuite = new EvoSuite();
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
-		evosuite.parseCommandLine(command);
+        String targetClass = EqualsHashCode.class.getCanonicalName();
 
-		Assert.assertTrue(FailingTestSet.getNumberOfViolations(EqualsHashcodeContract.class) > 0);
-		Assert.assertTrue(FailingTestSet.getNumberOfViolations(EqualsSymmetricContract.class) > 0);
-	}
+        Properties.TARGET_CLASS = targetClass;
+        Properties.CHECK_CONTRACTS = true;
 
-	@Test
-	public void testEqualsSymmetricContract() {
-		EvoSuite evosuite = new EvoSuite();
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
+        evosuite.parseCommandLine(command);
 
-		String targetClass = EqualsSymmetric.class.getCanonicalName();
+        Assert.assertTrue(FailingTestSet.getNumberOfViolations(EqualsHashcodeContract.class) > 0);
+        Assert.assertTrue(FailingTestSet.getNumberOfViolations(EqualsSymmetricContract.class) > 0);
+    }
 
-		Properties.TARGET_CLASS = targetClass;
-		Properties.CHECK_CONTRACTS = true;
+    @Test
+    public void testEqualsSymmetricContract() {
+        EvoSuite evosuite = new EvoSuite();
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+        String targetClass = EqualsSymmetric.class.getCanonicalName();
 
-		evosuite.parseCommandLine(command);
-		// TODO: No executor in master, so this will fail
-		//for(TestCase test : FailingTestSet.getFailingTests()) {
-		//	System.out.println(test.toString());
-		//}
+        Properties.TARGET_CLASS = targetClass;
+        Properties.CHECK_CONTRACTS = true;
 
-		// Assert.assertEquals(1, FailingTestSet.getNumberOfUniqueViolations());
-		Assert.assertEquals(1,
-		                    FailingTestSet.getNumberOfViolations(EqualsSymmetricContract.class));
-	}
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
 
-	@Test
-	public void testNullPointerExceptionContract() {
-		EvoSuite evosuite = new EvoSuite();
+        evosuite.parseCommandLine(command);
+        // TODO: No executor in master, so this will fail
+        //for(TestCase test : FailingTestSet.getFailingTests()) {
+        //	System.out.println(test.toString());
+        //}
 
-		String targetClass = RaiseNullPointerException.class.getCanonicalName();
+        // Assert.assertEquals(1, FailingTestSet.getNumberOfUniqueViolations());
+        Assert.assertEquals(1,
+                FailingTestSet.getNumberOfViolations(EqualsSymmetricContract.class));
+    }
 
-		Properties.TARGET_CLASS = targetClass;
-		Properties.CHECK_CONTRACTS = true;
+    @Test
+    public void testNullPointerExceptionContract() {
+        EvoSuite evosuite = new EvoSuite();
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+        String targetClass = RaiseNullPointerException.class.getCanonicalName();
 
-		evosuite.parseCommandLine(command);
+        Properties.TARGET_CLASS = targetClass;
+        Properties.CHECK_CONTRACTS = true;
 
-		// This is reported by the NullPointer contract but also by the undeclared exception contract
-		// and the JCrasher contract
-		//Assert.assertEquals(3, FailingTestSet.getNumberOfUniqueViolations());
-		Assert.assertEquals(1,
-		                    FailingTestSet.getNumberOfViolations(UndeclaredExceptionContract.class));
-	}
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
 
-	@Test
-	public void testJUnitTheoryContract() {
-		EvoSuite evosuite = new EvoSuite();
+        evosuite.parseCommandLine(command);
 
-		String targetClass = Foo.class.getCanonicalName();
+        // This is reported by the NullPointer contract but also by the undeclared exception contract
+        // and the JCrasher contract
+        //Assert.assertEquals(3, FailingTestSet.getNumberOfUniqueViolations());
+        Assert.assertEquals(1,
+                FailingTestSet.getNumberOfViolations(UndeclaredExceptionContract.class));
+    }
 
-		Properties.TARGET_CLASS = targetClass;
-		Properties.CHECK_CONTRACTS = true;
-		Properties.JUNIT_THEORIES = FooTheories.class.getCanonicalName();
+    @Test
+    public void testJUnitTheoryContract() {
+        EvoSuite evosuite = new EvoSuite();
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+        String targetClass = Foo.class.getCanonicalName();
 
-		evosuite.parseCommandLine(command);
+        Properties.TARGET_CLASS = targetClass;
+        Properties.CHECK_CONTRACTS = true;
+        Properties.JUNIT_THEORIES = FooTheories.class.getCanonicalName();
 
-		// This is reported by the NullPointer contract but also by the undeclared exception contract
-		Assert.assertEquals(1, FailingTestSet.getNumberOfUniqueViolations());
-		Assert.assertEquals(1,
-		                    FailingTestSet.getNumberOfViolations(JUnitTheoryContract.class));
-	}
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
+
+        evosuite.parseCommandLine(command);
+
+        // This is reported by the NullPointer contract but also by the undeclared exception contract
+        Assert.assertEquals(1, FailingTestSet.getNumberOfUniqueViolations());
+        Assert.assertEquals(1,
+                FailingTestSet.getNumberOfViolations(JUnitTheoryContract.class));
+    }
 
 }

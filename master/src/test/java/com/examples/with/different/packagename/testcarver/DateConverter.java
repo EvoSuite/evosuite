@@ -51,8 +51,8 @@ public final class DateConverter extends DateTimeConverter {
      * a default value if an error occurs.
      *
      * @param defaultValue The default value to be returned
-     * if the value to be converted is missing or an error
-     * occurs converting the value.
+     *                     if the value to be converted is missing or an error
+     *                     occurs converting the value.
      */
     public DateConverter(Object defaultValue) {
         super(defaultValue);

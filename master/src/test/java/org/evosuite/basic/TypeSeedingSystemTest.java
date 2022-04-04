@@ -33,145 +33,145 @@ import com.examples.with.different.packagename.TypeSeedingExampleLocale;
 import com.examples.with.different.packagename.TypeSeedingExampleString;
 
 public class TypeSeedingSystemTest extends SystemTestBase {
-	
-	@Test
-	public void testStringToObject() {
-		EvoSuite evosuite = new EvoSuite();
 
-		String targetClass = TypeSeedingExampleString.class.getCanonicalName();
+    @Test
+    public void testStringToObject() {
+        EvoSuite evosuite = new EvoSuite();
 
-		Properties.TARGET_CLASS = targetClass;
-		Properties.SEED_TYPES = true;
+        String targetClass = TypeSeedingExampleString.class.getCanonicalName();
 
-
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
-
-		Object result = evosuite.parseCommandLine(command);
-
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-
-		TestSuiteChromosome best = ga.getBestIndividual();
-		System.out.println("EvolvedTestSuite:\n" + best);
-
-		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
-		Assert.assertEquals("Wrong number of goals: ", 5, goals);
-		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
-	}
-	
-	@Test
-	public void testStringToObjectNoSeeding() {
-		EvoSuite evosuite = new EvoSuite();
-
-		String targetClass = TypeSeedingExampleString.class.getCanonicalName();
-
-		Properties.TARGET_CLASS = targetClass;
-		Properties.SEED_TYPES = false;
-
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
-
-		Object result = evosuite.parseCommandLine(command);
-
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-
-		TestSuiteChromosome best = ga.getBestIndividual();
-		System.out.println("EvolvedTestSuite:\n" + best);
-
-		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
-		Assert.assertEquals("Wrong number of goals: ", 5, goals);
-		Assert.assertEquals("Non-optimal coverage: ", 2d/5d, best.getCoverage(), 0.001);
-	}
-	
-	@Test
-	public void testLocaleToObject() {
-		EvoSuite evosuite = new EvoSuite();
-
-		String targetClass = TypeSeedingExampleLocale.class.getCanonicalName();
-
-		Properties.TARGET_CLASS = targetClass;
-		Properties.SEED_TYPES = true;
+        Properties.TARGET_CLASS = targetClass;
+        Properties.SEED_TYPES = true;
 
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
 
-		Object result = evosuite.parseCommandLine(command);
+        Object result = evosuite.parseCommandLine(command);
 
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
 
-		TestSuiteChromosome best = ga.getBestIndividual();
-		System.out.println("EvolvedTestSuite:\n" + best);
+        TestSuiteChromosome best = ga.getBestIndividual();
+        System.out.println("EvolvedTestSuite:\n" + best);
 
-		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
-		Assert.assertEquals("Wrong number of goals: ", 3, goals);
-		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
-	}
-	
-	@Test
-	public void testLocaleToObjectNoSeeding() {
-		EvoSuite evosuite = new EvoSuite();
+        int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
+        Assert.assertEquals("Wrong number of goals: ", 5, goals);
+        Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+    }
 
-		String targetClass = TypeSeedingExampleLocale.class.getCanonicalName();
+    @Test
+    public void testStringToObjectNoSeeding() {
+        EvoSuite evosuite = new EvoSuite();
 
-		Properties.TARGET_CLASS = targetClass;
-		Properties.SEED_TYPES = false;
+        String targetClass = TypeSeedingExampleString.class.getCanonicalName();
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+        Properties.TARGET_CLASS = targetClass;
+        Properties.SEED_TYPES = false;
 
-		Object result = evosuite.parseCommandLine(command);
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
 
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        Object result = evosuite.parseCommandLine(command);
 
-		TestSuiteChromosome best = ga.getBestIndividual();
-		System.out.println("EvolvedTestSuite:\n" + best);
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
 
-		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
-		Assert.assertEquals("Wrong number of goals: ", 3, goals);
-		Assert.assertEquals("Non-optimal coverage: ", 2d/3d, best.getCoverage(), 0.001);
-	}
-	
-	@Test
-	public void testGenericObject() {
-		EvoSuite evosuite = new EvoSuite();
+        TestSuiteChromosome best = ga.getBestIndividual();
+        System.out.println("EvolvedTestSuite:\n" + best);
 
-		String targetClass = TypeSeedingExampleGeneric.class.getCanonicalName();
+        int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
+        Assert.assertEquals("Wrong number of goals: ", 5, goals);
+        Assert.assertEquals("Non-optimal coverage: ", 2d / 5d, best.getCoverage(), 0.001);
+    }
 
-		Properties.TARGET_CLASS = targetClass;
-		Properties.SEED_TYPES = true;
+    @Test
+    public void testLocaleToObject() {
+        EvoSuite evosuite = new EvoSuite();
+
+        String targetClass = TypeSeedingExampleLocale.class.getCanonicalName();
+
+        Properties.TARGET_CLASS = targetClass;
+        Properties.SEED_TYPES = true;
 
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
 
-		Object result = evosuite.parseCommandLine(command);
+        Object result = evosuite.parseCommandLine(command);
 
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
 
-		TestSuiteChromosome best = ga.getBestIndividual();
-		System.out.println("EvolvedTestSuite:\n" + best);
+        TestSuiteChromosome best = ga.getBestIndividual();
+        System.out.println("EvolvedTestSuite:\n" + best);
 
-		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
-		Assert.assertEquals("Wrong number of goals: ", 3, goals);
-		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
-	}
-	
-	@Test
-	public void testGenericObjectNoSeeding() {
-		EvoSuite evosuite = new EvoSuite();
+        int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
+        Assert.assertEquals("Wrong number of goals: ", 3, goals);
+        Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+    }
 
-		String targetClass = TypeSeedingExampleGeneric.class.getCanonicalName();
+    @Test
+    public void testLocaleToObjectNoSeeding() {
+        EvoSuite evosuite = new EvoSuite();
 
-		Properties.TARGET_CLASS = targetClass;
-		Properties.SEED_TYPES = false;
+        String targetClass = TypeSeedingExampleLocale.class.getCanonicalName();
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+        Properties.TARGET_CLASS = targetClass;
+        Properties.SEED_TYPES = false;
 
-		Object result = evosuite.parseCommandLine(command);
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
 
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        Object result = evosuite.parseCommandLine(command);
 
-		TestSuiteChromosome best = ga.getBestIndividual();
-		System.out.println("EvolvedTestSuite:\n" + best);
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
 
-		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
-		Assert.assertEquals("Wrong number of goals: ", 3, goals);
-		Assert.assertEquals("Non-optimal coverage: ", 2d/3d, best.getCoverage(), 0.001);
-	}
+        TestSuiteChromosome best = ga.getBestIndividual();
+        System.out.println("EvolvedTestSuite:\n" + best);
+
+        int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
+        Assert.assertEquals("Wrong number of goals: ", 3, goals);
+        Assert.assertEquals("Non-optimal coverage: ", 2d / 3d, best.getCoverage(), 0.001);
+    }
+
+    @Test
+    public void testGenericObject() {
+        EvoSuite evosuite = new EvoSuite();
+
+        String targetClass = TypeSeedingExampleGeneric.class.getCanonicalName();
+
+        Properties.TARGET_CLASS = targetClass;
+        Properties.SEED_TYPES = true;
+
+
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
+
+        Object result = evosuite.parseCommandLine(command);
+
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+
+        TestSuiteChromosome best = ga.getBestIndividual();
+        System.out.println("EvolvedTestSuite:\n" + best);
+
+        int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
+        Assert.assertEquals("Wrong number of goals: ", 3, goals);
+        Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+    }
+
+    @Test
+    public void testGenericObjectNoSeeding() {
+        EvoSuite evosuite = new EvoSuite();
+
+        String targetClass = TypeSeedingExampleGeneric.class.getCanonicalName();
+
+        Properties.TARGET_CLASS = targetClass;
+        Properties.SEED_TYPES = false;
+
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
+
+        Object result = evosuite.parseCommandLine(command);
+
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+
+        TestSuiteChromosome best = ga.getBestIndividual();
+        System.out.println("EvolvedTestSuite:\n" + best);
+
+        int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
+        Assert.assertEquals("Wrong number of goals: ", 3, goals);
+        Assert.assertEquals("Non-optimal coverage: ", 2d / 3d, best.getCoverage(), 0.001);
+    }
 }

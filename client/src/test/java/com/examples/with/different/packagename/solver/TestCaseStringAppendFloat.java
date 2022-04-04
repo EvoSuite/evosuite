@@ -21,13 +21,13 @@ package com.examples.with.different.packagename.solver;
 
 public class TestCaseStringAppendFloat {
 
-	public static boolean test(String str) {
-		if (str != null) {
-			String concat = str + 1.0f;
-			if (concat.equals("ha1.0")) {
-				return true;
-			}
-		}
-		return true;
-	}
+    public static boolean test(String str) {
+        if (str != null) {
+            String concat = str + 1.0f;
+            if (concat.equals("ha1.0")) {
+                return true;
+            }
+        }
+        return true;
+    }
 }

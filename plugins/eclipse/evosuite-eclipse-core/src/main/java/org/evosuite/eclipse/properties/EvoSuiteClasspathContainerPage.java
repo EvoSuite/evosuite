@@ -37,81 +37,80 @@ import org.osgi.framework.Bundle;
 
 /**
  * @author Gordon Fraser
- * 
  */
 public class EvoSuiteClasspathContainerPage extends org.eclipse.jface.wizard.WizardPage
         implements IClasspathContainerPage {
 
-	private Composite container;
+    private Composite container;
 
-	/**
-	 * @param pageName
-	 */
-	public EvoSuiteClasspathContainerPage() {
-		super("EvoSuite classpath entry");
-		setTitle("EvoSuite runtime library");
-		setDescription("Add EvoSuite runtime library to project classpath");
-	}
+    /**
+     * @param pageName
+     */
+    public EvoSuiteClasspathContainerPage() {
+        super("EvoSuite classpath entry");
+        setTitle("EvoSuite runtime library");
+        setDescription("Add EvoSuite runtime library to project classpath");
+    }
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jface.dialogs.IDialogPage#createControl(org.eclipse.swt.widgets.Composite)
-	 */
-	@Override
-	public void createControl(Composite parent) {
-		container = new Composite(parent, SWT.NULL);
-		GridLayout layout = new GridLayout();
-		container.setLayout(layout);
-		layout.numColumns = 1;
-		Label label1 = new Label(container, SWT.NULL);
-		label1.setText("EvoSuite jar found at: ");
+    /* (non-Javadoc)
+     * @see org.eclipse.jface.dialogs.IDialogPage#createControl(org.eclipse.swt.widgets.Composite)
+     */
+    @Override
+    public void createControl(Composite parent) {
+        container = new Composite(parent, SWT.NULL);
+        GridLayout layout = new GridLayout();
+        container.setLayout(layout);
+        layout.numColumns = 1;
+        Label label1 = new Label(container, SWT.NULL);
+        label1.setText("EvoSuite jar found at: ");
 
-		Label label2 = new Label(container, SWT.NULL);
-		label2.setText("" + getPath());
+        Label label2 = new Label(container, SWT.NULL);
+        label2.setText("" + getPath());
 
-		// Required to avoid an error in the system
-		setControl(container);
-		setPageComplete(true);
-	}
+        // Required to avoid an error in the system
+        setControl(container);
+        setPageComplete(true);
+    }
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.ui.wizards.IClasspathContainerPage#finish()
-	 */
-	@Override
-	public boolean finish() {
-		// TODO Auto-generated method stub
-		return true;
-	}
+    /* (non-Javadoc)
+     * @see org.eclipse.jdt.ui.wizards.IClasspathContainerPage#finish()
+     */
+    @Override
+    public boolean finish() {
+        // TODO Auto-generated method stub
+        return true;
+    }
 
-	public IPath getPath() {
-		Bundle bundle = Platform.getBundle(Activator.EVOSUITE_CORE_BUNDLE);
-		URL url = bundle.getEntry(Activator.EVOSUITE_JAR);
-		try {
-			URL evosuiteLib = FileLocator.resolve(url);
-			System.out.println("Evosuite jar is at " + evosuiteLib.getPath());
-			return new Path(evosuiteLib.getPath());
-		} catch (Exception e) {
-			System.err.println("Error accessing Evosuite jar at " + url);
-		}
-		System.err.println("Did not find Evosuite jar!");
+    public IPath getPath() {
+        Bundle bundle = Platform.getBundle(Activator.EVOSUITE_CORE_BUNDLE);
+        URL url = bundle.getEntry(Activator.EVOSUITE_JAR);
+        try {
+            URL evosuiteLib = FileLocator.resolve(url);
+            System.out.println("Evosuite jar is at " + evosuiteLib.getPath());
+            return new Path(evosuiteLib.getPath());
+        } catch (Exception e) {
+            System.err.println("Error accessing Evosuite jar at " + url);
+        }
+        System.err.println("Did not find Evosuite jar!");
 
-		return null;
-	}
+        return null;
+    }
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.ui.wizards.IClasspathContainerPage#getSelection()
-	 */
-	@Override
-	public IClasspathEntry getSelection() {
-		return JavaCore.newLibraryEntry(getPath(), null, null);
-	}
+    /* (non-Javadoc)
+     * @see org.eclipse.jdt.ui.wizards.IClasspathContainerPage#getSelection()
+     */
+    @Override
+    public IClasspathEntry getSelection() {
+        return JavaCore.newLibraryEntry(getPath(), null, null);
+    }
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.ui.wizards.IClasspathContainerPage#setSelection(org.eclipse.jdt.core.IClasspathEntry)
-	 */
-	@Override
-	public void setSelection(IClasspathEntry containerEntry) {
-		// TODO Auto-generated method stub
+    /* (non-Javadoc)
+     * @see org.eclipse.jdt.ui.wizards.IClasspathContainerPage#setSelection(org.eclipse.jdt.core.IClasspathEntry)
+     */
+    @Override
+    public void setSelection(IClasspathEntry containerEntry) {
+        // TODO Auto-generated method stub
 
-	}
+    }
 
 }

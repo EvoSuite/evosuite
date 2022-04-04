@@ -20,17 +20,17 @@
 
 package org.evosuite.contracts;
 
-import java.util.List;
-
 import org.evosuite.Properties;
+import org.evosuite.testcase.execution.Scope;
 import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.variable.VariableReference;
-import org.evosuite.testcase.execution.Scope;
+
+import java.util.List;
 
 
 /**
  * No method should throw an AssertionError
- *
+ * <p>
  * Note: this case is bit tricky, because assertions are disabled by default.
  * They need to be enabled when the JVM is started
  *
@@ -38,39 +38,44 @@ import org.evosuite.testcase.execution.Scope;
  */
 public class AssertionErrorContract extends Contract {
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.contracts.Contract#check(org.evosuite.testcase.Statement, org.evosuite.testcase.Scope, java.lang.Throwable)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public ContractViolation check(Statement statement, Scope scope, Throwable exception) {
-		if (!Properties.ENABLE_ASSERTS_FOR_SUT) {
-			throw new IllegalArgumentException(
-			        "Cannot check for assert errors if they are not enabled");
-		}
+    /* (non-Javadoc)
+     * @see org.evosuite.contracts.Contract#check(org.evosuite.testcase.Statement, org.evosuite.testcase.Scope, java.lang.Throwable)
+     */
 
-		if (!isTargetStatement(statement))
-			return null;
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ContractViolation check(Statement statement, Scope scope, Throwable exception) {
+        if (!Properties.ENABLE_ASSERTS_FOR_SUT) {
+            throw new IllegalArgumentException(
+                    "Cannot check for assert errors if they are not enabled");
+        }
 
-		if (exception != null) {
-			// method throws no AssertionError
-			if (exception instanceof AssertionError) {
-				return new ContractViolation(this, statement, exception);
-			}
-		}
-		return null;
-	}
+        if (!isTargetStatement(statement))
+            return null;
 
-	@Override
-	public void addAssertionAndComments(Statement statement,
-			List<VariableReference> variables, Throwable exception) {
-		statement.addComment("Assertion violation: "+exception.getMessage());
-	}
-	
-	/** {@inheritDoc} */
-	@Override
-	public String toString() {
-		return "Assertion failed";
-	}
+        if (exception != null) {
+            // method throws no AssertionError
+            if (exception instanceof AssertionError) {
+                return new ContractViolation(this, statement, exception);
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public void addAssertionAndComments(Statement statement,
+                                        List<VariableReference> variables, Throwable exception) {
+        statement.addComment("Assertion violation: " + exception.getMessage());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        return "Assertion failed";
+    }
 
 }

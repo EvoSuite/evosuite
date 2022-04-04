@@ -31,7 +31,7 @@ public class PrefsSystem {
     }
 
     public boolean coverMe(String key) {
-        if(Preferences.systemRoot().get(key, null).equals("Foo")) {
+        if (Preferences.systemRoot().get(key, null).equals("Foo")) {
             return true;
         } else {
             return false;

@@ -24,7 +24,7 @@ package com.examples.with.different.packagename.setup;
  */
 public class ClassToCheckGetterOfInput {
 
-    public void foo(GetterOfInput bar){
+    public void foo(GetterOfInput bar) {
         System.out.println("GetterOfInput");
     }
 

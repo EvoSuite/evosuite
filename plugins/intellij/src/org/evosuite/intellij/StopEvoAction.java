@@ -32,7 +32,7 @@ public class StopEvoAction extends AnAction {
 
     private final AsyncGUINotifier notifier;
 
-    public StopEvoAction(AsyncGUINotifier notifier){
+    public StopEvoAction(AsyncGUINotifier notifier) {
         super("Stop EvoSuite");
         getTemplatePresentation().setIcon(AllIcons.Actions.CloseNew);
         getTemplatePresentation().setHoveredIcon(AllIcons.Actions.CloseNewHovered);

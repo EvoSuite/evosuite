@@ -29,8 +29,8 @@ import java.util.Scanner;
  */
 public class ReceiveTcp_noBranch {
 
-    public boolean getMessage() throws Exception{
-        ServerSocket server = new ServerSocket(1234,10, InetAddress.getByName("127.0.0.4"));
+    public boolean getMessage() throws Exception {
+        ServerSocket server = new ServerSocket(1234, 10, InetAddress.getByName("127.0.0.4"));
         Socket s = server.accept();
         Scanner in = new Scanner(s.getInputStream());
         String msg = in.nextLine();

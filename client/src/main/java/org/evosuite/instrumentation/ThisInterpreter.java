@@ -35,37 +35,45 @@ import org.objectweb.asm.tree.analysis.BasicValue;
  */
 public class ThisInterpreter extends BasicInterpreter {
 
-	/** Constant <code>THIS_VALUE</code> */
-	public final static BasicValue THIS_VALUE = new BasicValue(Type.INT_TYPE);
+    /**
+     * Constant <code>THIS_VALUE</code>
+     */
+    public final static BasicValue THIS_VALUE = new BasicValue(Type.INT_TYPE);
 
-	/* (non-Javadoc)
-	 * @see org.objectweb.asm.tree.analysis.BasicInterpreter#copyOperation(org.objectweb.asm.tree.AbstractInsnNode, org.objectweb.asm.tree.analysis.BasicValue)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public BasicValue copyOperation(AbstractInsnNode insn, BasicValue value)
-	        throws AnalyzerException {
-		if (insn.getOpcode() == Opcodes.ALOAD) {
-			VarInsnNode varNode = (VarInsnNode) insn;
-			if (varNode.var == 0) {
-				return THIS_VALUE;
-			}
-		}
-		return super.copyOperation(insn, value);
-	}
+    /* (non-Javadoc)
+     * @see org.objectweb.asm.tree.analysis.BasicInterpreter#copyOperation(org.objectweb.asm.tree.AbstractInsnNode, org.objectweb.asm.tree.analysis.BasicValue)
+     */
 
-	/* (non-Javadoc)
-	 * @see org.objectweb.asm.tree.analysis.BasicInterpreter#merge(org.objectweb.asm.tree.analysis.BasicValue, org.objectweb.asm.tree.analysis.BasicValue)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public BasicValue merge(BasicValue v, BasicValue w) {
-		if (v == THIS_VALUE && w == BasicValue.REFERENCE_VALUE)
-			return BasicValue.REFERENCE_VALUE;
-		else if (w == THIS_VALUE && v == BasicValue.REFERENCE_VALUE)
-			return BasicValue.REFERENCE_VALUE;
-		else
-			return super.merge(v, w);
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public BasicValue copyOperation(AbstractInsnNode insn, BasicValue value)
+            throws AnalyzerException {
+        if (insn.getOpcode() == Opcodes.ALOAD) {
+            VarInsnNode varNode = (VarInsnNode) insn;
+            if (varNode.var == 0) {
+                return THIS_VALUE;
+            }
+        }
+        return super.copyOperation(insn, value);
+    }
+
+    /* (non-Javadoc)
+     * @see org.objectweb.asm.tree.analysis.BasicInterpreter#merge(org.objectweb.asm.tree.analysis.BasicValue, org.objectweb.asm.tree.analysis.BasicValue)
+     */
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public BasicValue merge(BasicValue v, BasicValue w) {
+        if (v == THIS_VALUE && w == BasicValue.REFERENCE_VALUE)
+            return BasicValue.REFERENCE_VALUE;
+        else if (w == THIS_VALUE && v == BasicValue.REFERENCE_VALUE)
+            return BasicValue.REFERENCE_VALUE;
+        else
+            return super.merge(v, w);
+    }
 
 }

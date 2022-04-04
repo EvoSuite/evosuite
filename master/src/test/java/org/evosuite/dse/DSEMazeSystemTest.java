@@ -40,100 +40,100 @@ import com.examples.with.different.packagename.solver.MazeClient;
 
 public class DSEMazeSystemTest extends SystemTestBase {
 
-	@Before
-	public void init() {
-		Properties.VIRTUAL_FS = true;
-		Properties.VIRTUAL_NET = true;
-		Properties.SEARCH_BUDGET = 50000;
-		// Properties.CONCOLIC_TIMEOUT = Integer.MAX_VALUE;
-		Properties.RESET_STATIC_FIELD_GETS = true;
+    @Before
+    public void init() {
+        Properties.VIRTUAL_FS = true;
+        Properties.VIRTUAL_NET = true;
+        Properties.SEARCH_BUDGET = 50000;
+        // Properties.CONCOLIC_TIMEOUT = Integer.MAX_VALUE;
+        Properties.RESET_STATIC_FIELD_GETS = true;
 
-		String cvc4_path = System.getenv("CVC4_PATH");
-		if (cvc4_path != null) {
-			Properties.CVC4_PATH = cvc4_path;
-		}
+        String cvc4_path = System.getenv("CVC4_PATH");
+        if (cvc4_path != null) {
+            Properties.CVC4_PATH = cvc4_path;
+        }
 
-		Properties.DSE_SOLVER = SolverType.CVC4_SOLVER;
+        Properties.DSE_SOLVER = SolverType.CVC4_SOLVER;
 
-		Properties.STOPPING_CONDITION = StoppingCondition.MAXTESTS;
-		Properties.SEARCH_BUDGET = 300; // tests
-		Properties.MINIMIZATION_TIMEOUT = 60 * 60;
-		Properties.ASSERTION_TIMEOUT = 60 * 60;
+        Properties.STOPPING_CONDITION = StoppingCondition.MAXTESTS;
+        Properties.SEARCH_BUDGET = 300; // tests
+        Properties.MINIMIZATION_TIMEOUT = 60 * 60;
+        Properties.ASSERTION_TIMEOUT = 60 * 60;
 
-		Properties.STRATEGY = Strategy.DSE;
+        Properties.STRATEGY = Strategy.DSE;
 
-		Properties.CRITERION = new Criterion[] { Criterion.BRANCH };
+        Properties.CRITERION = new Criterion[]{Criterion.BRANCH};
 
-		Properties.MINIMIZE = true;
-		Properties.ASSERTIONS = true;
+        Properties.MINIMIZE = true;
+        Properties.ASSERTIONS = true;
 
-		assumeTrue(Properties.CVC4_PATH != null);
-	}
+        assumeTrue(Properties.CVC4_PATH != null);
+    }
 
-	@Test
-	public void testMazeClientInput() {
+    @Test
+    public void testMazeClientInput() {
 
-		EvoSuite evosuite = new EvoSuite();
-		String targetClass = MazeClient.class.getCanonicalName();
-		Properties.TARGET_CLASS = targetClass;
+        EvoSuite evosuite = new EvoSuite();
+        String targetClass = MazeClient.class.getCanonicalName();
+        Properties.TARGET_CLASS = targetClass;
 
-		String[] command = new String[] { "-generateSuiteUsingDSE", "-class", targetClass };
+        String[] command = new String[]{"-generateSuiteUsingDSE", "-class", targetClass};
 
-		Object result = evosuite.parseCommandLine(command);
-		ExplorationAlgorithmBase dse = getDSEAFromResult(result);
-		TestSuiteChromosome best = dse.getGeneratedTestSuite();
+        Object result = evosuite.parseCommandLine(command);
+        ExplorationAlgorithmBase dse = getDSEAFromResult(result);
+        TestSuiteChromosome best = dse.getGeneratedTestSuite();
 
-		System.out.println("EvolvedTestSuite:\n" + best);
+        System.out.println("EvolvedTestSuite:\n" + best);
 
-		assertFalse(best.getTests().isEmpty());
+        assertFalse(best.getTests().isEmpty());
 
-		assertEquals(27, best.getNumOfCoveredGoals());
-		assertEquals(0, best.getNumOfNotCoveredGoals());
-	}
+        assertEquals(27, best.getNumOfCoveredGoals());
+        assertEquals(0, best.getNumOfNotCoveredGoals());
+    }
 
-	@Test
-	public void testMazeClientInputForArraysSupportUsingLazyVariables() {
+    @Test
+    public void testMazeClientInputForArraysSupportUsingLazyVariables() {
 
-		EvoSuite evosuite = new EvoSuite();
-		String targetClass = MazeClientArrays.class.getCanonicalName();
-		Properties.TARGET_CLASS = targetClass;
-		Properties.SELECTED_DSE_ARRAYS_MEMORY_MODEL_VERSION = Properties.DSE_ARRAYS_MEMORY_MODEL_VERSION.LAZY_VARIABLES;
+        EvoSuite evosuite = new EvoSuite();
+        String targetClass = MazeClientArrays.class.getCanonicalName();
+        Properties.TARGET_CLASS = targetClass;
+        Properties.SELECTED_DSE_ARRAYS_MEMORY_MODEL_VERSION = Properties.DSE_ARRAYS_MEMORY_MODEL_VERSION.LAZY_VARIABLES;
 
-		String[] command = new String[] { "-generateSuiteUsingDSE", "-class", targetClass };
+        String[] command = new String[]{"-generateSuiteUsingDSE", "-class", targetClass};
 
-		Object result = evosuite.parseCommandLine(command);
-		ExplorationAlgorithmBase dse = getDSEAFromResult(result);
-		TestSuiteChromosome best = dse.getGeneratedTestSuite();
+        Object result = evosuite.parseCommandLine(command);
+        ExplorationAlgorithmBase dse = getDSEAFromResult(result);
+        TestSuiteChromosome best = dse.getGeneratedTestSuite();
 
-		System.out.println("EvolvedTestSuite:\n" + best);
+        System.out.println("EvolvedTestSuite:\n" + best);
 
-		assertFalse(best.getTests().isEmpty());
+        assertFalse(best.getTests().isEmpty());
 
-		assertEquals(26, best.getNumOfCoveredGoals());
-		assertEquals(0, best.getNumOfNotCoveredGoals());
-	}
+        assertEquals(26, best.getNumOfCoveredGoals());
+        assertEquals(0, best.getNumOfNotCoveredGoals());
+    }
 
-	@Test
-	public void testMazeClientInputForArraysSupportUsingArrayExpressions() {
+    @Test
+    public void testMazeClientInputForArraysSupportUsingArrayExpressions() {
 
-		EvoSuite evosuite = new EvoSuite();
-		String targetClass = MazeClientArrays.class.getCanonicalName();
-		Properties.TARGET_CLASS = targetClass;
-		Properties.SELECTED_DSE_ARRAYS_MEMORY_MODEL_VERSION = Properties.DSE_ARRAYS_MEMORY_MODEL_VERSION.SELECT_STORE_EXPRESSIONS;
+        EvoSuite evosuite = new EvoSuite();
+        String targetClass = MazeClientArrays.class.getCanonicalName();
+        Properties.TARGET_CLASS = targetClass;
+        Properties.SELECTED_DSE_ARRAYS_MEMORY_MODEL_VERSION = Properties.DSE_ARRAYS_MEMORY_MODEL_VERSION.SELECT_STORE_EXPRESSIONS;
 
-		String[] command = new String[] { "-generateSuiteUsingDSE", "-class", targetClass };
+        String[] command = new String[]{"-generateSuiteUsingDSE", "-class", targetClass};
 
-		Object result = evosuite.parseCommandLine(command);
-		ExplorationAlgorithmBase dse = getDSEAFromResult(result);
-		TestSuiteChromosome best = dse.getGeneratedTestSuite();
+        Object result = evosuite.parseCommandLine(command);
+        ExplorationAlgorithmBase dse = getDSEAFromResult(result);
+        TestSuiteChromosome best = dse.getGeneratedTestSuite();
 
-		System.out.println("EvolvedTestSuite:\n" + best);
+        System.out.println("EvolvedTestSuite:\n" + best);
 
-		assertFalse(best.getTests().isEmpty());
+        assertFalse(best.getTests().isEmpty());
 
-		assertEquals(26, best.getNumOfCoveredGoals());
-		assertEquals(0, best.getNumOfNotCoveredGoals());
-	}
+        assertEquals(26, best.getNumOfCoveredGoals());
+        assertEquals(0, best.getNumOfNotCoveredGoals());
+    }
 
 
 }

@@ -24,9 +24,9 @@ import org.junit.Test;
 
 public class ClassWithPublicStaticFieldReadingTestCase {
 
-	@Test
-	public void test2() {
-		ClassWithPublicStaticField x = new ClassWithPublicStaticField();
-		Assert.assertTrue(x.testMe(ClassWithPublicStaticField.x));
-	}
+    @Test
+    public void test2() {
+        ClassWithPublicStaticField x = new ClassWithPublicStaticField();
+        Assert.assertTrue(x.testMe(ClassWithPublicStaticField.x));
+    }
 }

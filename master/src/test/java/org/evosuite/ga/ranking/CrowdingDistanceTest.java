@@ -1,19 +1,19 @@
 /**
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * <p>
  * This file is part of EvoSuite.
- *
+ * <p>
  * EvoSuite is free software: you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
  * by the Free Software Foundation, either version 3.0 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * EvoSuite is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -38,7 +38,7 @@ public class CrowdingDistanceTest {
     public static List<FitnessFunction<TestChromosome>> ff;
 
     @BeforeClass
-    public static void init(){
+    public static void init() {
         // create the set of fitness functions
         TestFitnessFunction f1 = Mockito.mock(TestFitnessFunction.class);
         TestFitnessFunction f2 = Mockito.mock(TestFitnessFunction.class);
@@ -123,9 +123,9 @@ public class CrowdingDistanceTest {
         CrowdingDistance<TestChromosome> distance = new CrowdingDistance<>();
         distance.fastEpsilonDominanceAssignment(front, new HashSet<>(ff));
 
-        assertEquals(2d/3d, tch1.getDistance(), 0.000001);
+        assertEquals(2d / 3d, tch1.getDistance(), 0.000001);
         assertEquals(0.0, tch2.getDistance(), 0.000001);
-        assertEquals(2d/3d, tch3.getDistance(), 0.000001);
+        assertEquals(2d / 3d, tch3.getDistance(), 0.000001);
     }
 
     @Test
@@ -133,7 +133,7 @@ public class CrowdingDistanceTest {
         // create front
         List<TestChromosome> front = new LinkedList<>();
         CrowdingDistance<TestChromosome> distance = new CrowdingDistance<>();
-        distance.crowdingDistanceAssignment(front,ff);
+        distance.crowdingDistanceAssignment(front, ff);
         distance.fastEpsilonDominanceAssignment(front, new HashSet<>(ff));
         distance.subvectorDominanceAssignment(front, new HashSet<>(ff));
     }
@@ -148,7 +148,7 @@ public class CrowdingDistanceTest {
         front.add(tch1);
 
         CrowdingDistance<TestChromosome> distance = new CrowdingDistance<>();
-        distance.crowdingDistanceAssignment(front,ff);
+        distance.crowdingDistanceAssignment(front, ff);
         assertEquals(Double.POSITIVE_INFINITY, tch1.getDistance(), 0.00001);
 
         distance.fastEpsilonDominanceAssignment(front, new HashSet<>(ff));
@@ -168,10 +168,11 @@ public class CrowdingDistanceTest {
         tch2.setFitness(ff.get(0), 0);
         tch2.setFitness(ff.get(1), 1);
         List<TestChromosome> front = new LinkedList<>();
-        front.add(tch1); front.add(tch2);
+        front.add(tch1);
+        front.add(tch2);
 
         CrowdingDistance<TestChromosome> distance = new CrowdingDistance<>();
-        distance.crowdingDistanceAssignment(front,ff);
+        distance.crowdingDistanceAssignment(front, ff);
         assertEquals(Double.POSITIVE_INFINITY, tch1.getDistance(), 0.00001);
         assertEquals(Double.POSITIVE_INFINITY, tch2.getDistance(), 0.00001);
 

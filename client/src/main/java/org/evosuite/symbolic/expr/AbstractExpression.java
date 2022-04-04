@@ -24,61 +24,65 @@ import java.util.Set;
 
 public abstract class AbstractExpression<T> implements Expression<T> {
 
-	private static final long serialVersionUID = 2896502683190522448L;
+    private static final long serialVersionUID = 2896502683190522448L;
 
-	private Expression<?> parent = null;
+    private Expression<?> parent = null;
 
-	protected T concreteValue;
+    protected T concreteValue;
 
-	private final int size;
+    private final int size;
 
-	public AbstractExpression(T concreteValue, int size, boolean containsSymbolicVariable) {
-		this.concreteValue = concreteValue;
-		this.size = size;
-		this.containsSymbolicVariable = containsSymbolicVariable;
-	}
+    public AbstractExpression(T concreteValue, int size, boolean containsSymbolicVariable) {
+        this.concreteValue = concreteValue;
+        this.size = size;
+        this.containsSymbolicVariable = containsSymbolicVariable;
+    }
 
-	@Override
-	public final int getSize() {
-		return size;
-	}
+    @Override
+    public final int getSize() {
+        return size;
+    }
 
-	/**
-	 * <p>
-	 * Getter for the field <code>parent</code>.
-	 * </p>
-	 * 
-	 * @return a {@link org.evosuite.symbolic.expr.Expression} object.
-	 */
-	@Override
-	public final Expression<?> getParent() {
-		return this.parent;
-	}
+    /**
+     * <p>
+     * Getter for the field <code>parent</code>.
+     * </p>
+     *
+     * @return a {@link org.evosuite.symbolic.expr.Expression} object.
+     */
+    @Override
+    public final Expression<?> getParent() {
+        return this.parent;
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public final void setParent(Expression<?> expr) {
-		this.parent = expr;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public final void setParent(Expression<?> expr) {
+        this.parent = expr;
+    }
 
-	private final boolean containsSymbolicVariable;
+    private final boolean containsSymbolicVariable;
 
-	@Override
-	public final boolean containsSymbolicVariable() {
-		return containsSymbolicVariable;
-	}
+    @Override
+    public final boolean containsSymbolicVariable() {
+        return containsSymbolicVariable;
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public final T getConcreteValue() {
-		return concreteValue;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public final T getConcreteValue() {
+        return concreteValue;
+    }
 
-	@Override
-	public Set<Object> getConstants() {
-		Set<Object> result = new HashSet<>();
-		result.add(this.concreteValue);
-		return result;
-	}
+    @Override
+    public Set<Object> getConstants() {
+        Set<Object> result = new HashSet<>();
+        result.add(this.concreteValue);
+        return result;
+    }
 
 }

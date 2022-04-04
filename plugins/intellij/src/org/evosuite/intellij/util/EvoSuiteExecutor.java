@@ -80,8 +80,8 @@ public class EvoSuiteExecutor {
         return running.get();
     }
 
-    public synchronized void stopRun(){
-        if(isAlreadyRunning()){
+    public synchronized void stopRun() {
+        if (isAlreadyRunning()) {
             thread.interrupt();
             try {
                 thread.join(2000);
@@ -92,6 +92,7 @@ public class EvoSuiteExecutor {
 
 
     //TODO should refactor 'final EvoParameters params' to be independent from IntelliJ
+
     /**
      * @param params
      * @param suts   map from Maven module folder to list of classes to tests.
@@ -120,7 +121,7 @@ public class EvoSuiteExecutor {
                 throw new IllegalArgumentException("Target module folder is not a folder: " + modulePath);
             }
 
-            if(params.usesMaven()) {
+            if (params.usesMaven()) {
                 File pom = new File(dir, "pom.xml");
                 if (!pom.exists()) {
                     throw new IllegalArgumentException("Target module folder does not contain a pom.xml file: " + modulePath);
@@ -133,11 +134,10 @@ public class EvoSuiteExecutor {
         }
 
 
-        Task.Backgroundable task = new EvoTask(project,"EvoSuite",true,null,suts,notifier,params);
+        Task.Backgroundable task = new EvoTask(project, "EvoSuite", true, null, suts, notifier, params);
         BackgroundableProcessIndicator progressIndicator = new EvoIndicator(task);
         ProgressManager.getInstance().runProcessWithProgressAsynchronously(task, progressIndicator);
     }
-
 
 
     private void executeOnAllModules(Map<String, Set<String>> suts, Project project, AsyncGUINotifier notifier,
@@ -147,14 +147,14 @@ public class EvoSuiteExecutor {
 
         int modules = suts.keySet().size();
         int total = suts.values().stream().mapToInt(Set::size).sum();
-        String msg = "Going to generate tests in "+modules+" module(s) for a total of "+total+ " classes";
+        String msg = "Going to generate tests in " + modules + " module(s) for a total of " + total + " classes";
         System.out.println(msg);
-        notifier.printOnConsole(msg+"\n");
+        notifier.printOnConsole(msg + "\n");
 
-        if(modules > 1) {
+        if (modules > 1) {
 
-            for(Map.Entry<String,Set<String>> entry : suts.entrySet()){
-                notifier.printOnConsole("Module "+entry.getKey()+" -> to test "+entry.getValue().size()+" class(es) \n");
+            for (Map.Entry<String, Set<String>> entry : suts.entrySet()) {
+                notifier.printOnConsole("Module " + entry.getKey() + " -> to test " + entry.getValue().size() + " class(es) \n");
             }
 
             notifier.success(msg);
@@ -162,17 +162,17 @@ public class EvoSuiteExecutor {
 
         for (String modulePath : suts.keySet()) {
 
-            if(Thread.currentThread().isInterrupted()){
+            if (Thread.currentThread().isInterrupted()) {
                 return;
             }
             progressIndicator.checkCanceled();
 
-            final Module module = Utils.getModule(project,modulePath);
-            if(module == null){
-                notifier.failed("Failed to determine IntelliJ module for "+modulePath);
+            final Module module = Utils.getModule(project, modulePath);
+            if (module == null) {
+                notifier.failed("Failed to determine IntelliJ module for " + modulePath);
                 return;
             } else {
-                if (! Utils.compileModule(project, notifier, module)){
+                if (!Utils.compileModule(project, notifier, module)) {
                     return;
                 }
             }
@@ -221,7 +221,7 @@ public class EvoSuiteExecutor {
         notifier.success("EvoSuite run is completed");
     }
 
-    private class EvoIndicator extends BackgroundableProcessIndicator{
+    private class EvoIndicator extends BackgroundableProcessIndicator {
 
         public EvoIndicator(@NotNull Task.Backgroundable task) {
             super(task);
@@ -237,7 +237,7 @@ public class EvoSuiteExecutor {
                 Field f = com.intellij.openapi.progress.util.AbstractProgressIndicatorExBase.class.getDeclaredField("CANCEL_ACTION");
                 f.setAccessible(true);
                 Object obj = f.get(null);
-                if(action.equals(obj)){
+                if (action.equals(obj)) {
                     thread.interrupt();
                 }
             } catch (Exception e) {
@@ -248,10 +248,9 @@ public class EvoSuiteExecutor {
     }
 
 
+    private class EvoTask extends Task.Backgroundable {
 
-    private class EvoTask extends Task.Backgroundable{
-
-        private final Map<String, Set<String>>  suts;
+        private final Map<String, Set<String>> suts;
         private final AsyncGUINotifier notifier;
         private final EvoParameters params;
 
@@ -259,7 +258,7 @@ public class EvoSuiteExecutor {
                        @Nls(capitalization = Nls.Capitalization.Title) @NotNull String title,
                        boolean canBeCancelled,
                        @Nullable PerformInBackgroundOption backgroundOption,
-                       Map<String, Set<String>> suts,  AsyncGUINotifier notifier, EvoParameters params) {
+                       Map<String, Set<String>> suts, AsyncGUINotifier notifier, EvoParameters params) {
             super(project, title, canBeCancelled, backgroundOption);
             this.suts = suts;
             this.notifier = notifier;
@@ -278,13 +277,13 @@ public class EvoSuiteExecutor {
 
 
         @Override
-        public void onCancel(){
+        public void onCancel() {
             notifier.printOnConsole("\n\n\nEvoSuite run has been cancelled\n");
             running.set(false);
         }
 
         @Override
-        public void onSuccess(){
+        public void onSuccess() {
             running.set(false);
         }
     }

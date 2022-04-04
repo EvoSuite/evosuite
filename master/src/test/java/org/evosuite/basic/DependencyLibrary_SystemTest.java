@@ -37,7 +37,7 @@ import org.junit.Test;
 public class DependencyLibrary_SystemTest extends SystemTestBase {
 
     @After
-    public void reset(){
+    public void reset() {
         RuntimeInstrumentation.setAvoidInstrumentingShadedClasses(true);
     }
 
@@ -54,7 +54,7 @@ public class DependencyLibrary_SystemTest extends SystemTestBase {
         Properties.TARGET_CLASS = targetClass;
         Properties.CRITERION = new Properties.Criterion[]{Properties.Criterion.LINE};
 
-        String[] command = new String[] { "-generateSuite", "-class", targetClass };
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
 
         Object result = evosuite.parseCommandLine(command);
         GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);

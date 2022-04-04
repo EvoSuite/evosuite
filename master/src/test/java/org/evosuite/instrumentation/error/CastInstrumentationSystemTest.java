@@ -26,18 +26,18 @@ import com.examples.with.different.packagename.errorbranch.ClassCast;
 
 public class CastInstrumentationSystemTest extends AbstractErrorBranchTest {
 
-	@Test
-	public void testCastWithoutErrorBranches() {
-		Properties.ERROR_BRANCHES = false;
-		Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.CAST};
-		checkErrorBranches(ClassCast.class, 2, 0, 2, 0);
-	}
+    @Test
+    public void testCastWithoutErrorBranches() {
+        Properties.ERROR_BRANCHES = false;
+        Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.CAST};
+        checkErrorBranches(ClassCast.class, 2, 0, 2, 0);
+    }
 
-	@Test
-	public void testCastWithErrorBranches() {
-		Properties.ERROR_BRANCHES = true;
-		Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.CAST};
-		checkErrorBranches(ClassCast.class, 2, 4, 2, 4);
-	}
+    @Test
+    public void testCastWithErrorBranches() {
+        Properties.ERROR_BRANCHES = true;
+        Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.CAST};
+        checkErrorBranches(ClassCast.class, 2, 4, 2, 4);
+    }
 
 }

@@ -38,46 +38,46 @@ import com.examples.with.different.packagename.concolic.PostCodeValidator;
  */
 public class PostCodeValidatorSystemTest extends SystemTestBase {
 
-	
-	@Before
-	public void checkZ3() {
-		Assume.assumeTrue(System.getenv("z3_str2_path")!=null);
-	}
 
-	@Test
-	public void testZ3DSE() {
-		Properties.LOCAL_SEARCH_PROBABILITY = 1.0;
-		Properties.LOCAL_SEARCH_RATE = 1;
-		Properties.LOCAL_SEARCH_BUDGET_TYPE = Properties.LocalSearchBudgetType.TESTS;
-		Properties.LOCAL_SEARCH_BUDGET = 100;
-		Properties.SEARCH_BUDGET = 50000;
-		Properties.Z3_PATH = System.getenv("z3_str2_path");
-		Properties.DSE_SOLVER = SolverType.Z3_SOLVER;
-		Properties.RESET_STATIC_FIELD_GETS = true;
+    @Before
+    public void checkZ3() {
+        Assume.assumeTrue(System.getenv("z3_str2_path") != null);
+    }
 
-		Properties.STOPPING_CONDITION = StoppingCondition.MAXTIME;
-		Properties.SEARCH_BUDGET = 10;
-		
-		EvoSuite evosuite = new EvoSuite();
-		String targetClass = PostCodeValidator.class.getCanonicalName();
-		Properties.TARGET_CLASS = targetClass;
+    @Test
+    public void testZ3DSE() {
+        Properties.LOCAL_SEARCH_PROBABILITY = 1.0;
+        Properties.LOCAL_SEARCH_RATE = 1;
+        Properties.LOCAL_SEARCH_BUDGET_TYPE = Properties.LocalSearchBudgetType.TESTS;
+        Properties.LOCAL_SEARCH_BUDGET = 100;
+        Properties.SEARCH_BUDGET = 50000;
+        Properties.Z3_PATH = System.getenv("z3_str2_path");
+        Properties.DSE_SOLVER = SolverType.Z3_SOLVER;
+        Properties.RESET_STATIC_FIELD_GETS = true;
 
-		Properties.CRITERION = new Criterion[] {Criterion.LINE, Criterion.BRANCH, Criterion.EXCEPTION, Criterion.WEAKMUTATION, 
-				Criterion.OUTPUT, Criterion.METHOD, Criterion.METHODNOEXCEPTION, Criterion.CBRANCH};
-		
-		Properties.MINIMIZE = false;
-		Properties.ASSERTIONS = false;
-		
-		Properties.DSE_PROBABILITY = 1.0; // force using only DSE, no LS
+        Properties.STOPPING_CONDITION = StoppingCondition.MAXTIME;
+        Properties.SEARCH_BUDGET = 10;
 
-		String[] command = new String[] { "-generateSuite", "-class",
-				targetClass };
+        EvoSuite evosuite = new EvoSuite();
+        String targetClass = PostCodeValidator.class.getCanonicalName();
+        Properties.TARGET_CLASS = targetClass;
 
-		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
-		System.out.println("EvolvedTestSuite:\n" + best);
+        Properties.CRITERION = new Criterion[]{Criterion.LINE, Criterion.BRANCH, Criterion.EXCEPTION, Criterion.WEAKMUTATION,
+                Criterion.OUTPUT, Criterion.METHOD, Criterion.METHODNOEXCEPTION, Criterion.CBRANCH};
+
+        Properties.MINIMIZE = false;
+        Properties.ASSERTIONS = false;
+
+        Properties.DSE_PROBABILITY = 1.0; // force using only DSE, no LS
+
+        String[] command = new String[]{"-generateSuite", "-class",
+                targetClass};
+
+        Object result = evosuite.parseCommandLine(command);
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
+        System.out.println("EvolvedTestSuite:\n" + best);
 
 
-	}
+    }
 }

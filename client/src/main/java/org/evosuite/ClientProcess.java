@@ -43,173 +43,172 @@ import org.slf4j.LoggerFactory;
  * <p>
  * ClientProcess class.
  * </p>
- * 
+ *
  * @author Gordon Fraser
  * @author Andrea Arcuri
  */
 public class ClientProcess {
 
-	private static final Logger logger = LoggerFactory.getLogger(ClientProcess.class);
+    private static final Logger logger = LoggerFactory.getLogger(ClientProcess.class);
 
-	public final static String CLIENT_PREFIX = "Client-";
+    public final static String CLIENT_PREFIX = "Client-";
 
-	public final static String DEFAULT_CLIENT_NAME = CLIENT_PREFIX + "0";
+    public final static String DEFAULT_CLIENT_NAME = CLIENT_PREFIX + "0";
 
-	private static String identifier;
+    private static String identifier;
 
-	public static TestGenerationResult result;
+    public static TestGenerationResult result;
 
-	/**
-	 * <p>
-	 * run
-	 * </p>
-	 */
-	public void run() {
-		Properties.getInstance();
-		setupRuntimeProperties();
-		JDKClassResetter.init();
-		Sandbox.setCheckForInitialization(Properties.SANDBOX);
-		MockFramework.enable();
+    /**
+     * <p>
+     * run
+     * </p>
+     */
+    public void run() {
+        Properties.getInstance();
+        setupRuntimeProperties();
+        JDKClassResetter.init();
+        Sandbox.setCheckForInitialization(Properties.SANDBOX);
+        MockFramework.enable();
 
-		if (TestSuiteWriterUtils.needToUseAgent() && (Properties.JUNIT_CHECK == Properties.JUnitCheckValues.TRUE || Properties.JUNIT_CHECK == Properties.JUnitCheckValues.OPTIONAL)) {
-			initializeToolJar();
-		}
+        if (TestSuiteWriterUtils.needToUseAgent() && (Properties.JUNIT_CHECK == Properties.JUnitCheckValues.TRUE || Properties.JUNIT_CHECK == Properties.JUnitCheckValues.OPTIONAL)) {
+            initializeToolJar();
+        }
 
-		MSecurityManager.setupMasterNodeRemoteHandling(MasterNodeRemote.class);
+        MSecurityManager.setupMasterNodeRemoteHandling(MasterNodeRemote.class);
 
-		LoggingUtils.getEvoLogger().info("* " + getPrettyPrintIdentifier() + "Connecting to master process on port "
-				+ Properties.PROCESS_COMMUNICATION_PORT);
+        LoggingUtils.getEvoLogger().info("* " + getPrettyPrintIdentifier() + "Connecting to master process on port "
+                + Properties.PROCESS_COMMUNICATION_PORT);
 
-		boolean registered = ClientServices.getInstance().registerServices(getIdentifier());
+        boolean registered = ClientServices.getInstance().registerServices(getIdentifier());
 
-		if (!registered) {
-			result = TestGenerationResultBuilder.buildErrorResult("Could not connect to master process on port "
-					+ Properties.PROCESS_COMMUNICATION_PORT);
-			throw new RuntimeException(getPrettyPrintIdentifier() + "Could not connect to master process on port "
-					+ Properties.PROCESS_COMMUNICATION_PORT);
-		}
+        if (!registered) {
+            result = TestGenerationResultBuilder.buildErrorResult("Could not connect to master process on port "
+                    + Properties.PROCESS_COMMUNICATION_PORT);
+            throw new RuntimeException(getPrettyPrintIdentifier() + "Could not connect to master process on port "
+                    + Properties.PROCESS_COMMUNICATION_PORT);
+        }
 
-		if(Properties.SPAWN_PROCESS_MANAGER_PORT != null){
-			SpawnProcessKeepAliveChecker.getInstance().registerToRemoteServerAndDieIfFails(
-					Properties.SPAWN_PROCESS_MANAGER_PORT
-			);
-		}
+        if (Properties.SPAWN_PROCESS_MANAGER_PORT != null) {
+            SpawnProcessKeepAliveChecker.getInstance().registerToRemoteServerAndDieIfFails(
+                    Properties.SPAWN_PROCESS_MANAGER_PORT
+            );
+        }
 
-		/*
-		 * Now the client node is registered with RMI.
-		 * The master will control this node directly.
-		 */
+        /*
+         * Now the client node is registered with RMI.
+         * The master will control this node directly.
+         */
 
-		ClientServices.getInstance().getClientNode().waitUntilDone();
-		ClientServices.getInstance().stopServices();
-		SpawnProcessKeepAliveChecker.getInstance().unRegister();
-	}
+        ClientServices.getInstance().getClientNode().waitUntilDone();
+        ClientServices.getInstance().stopServices();
+        SpawnProcessKeepAliveChecker.getInstance().unRegister();
+    }
 
-	private void initializeToolJar() {
+    private void initializeToolJar() {
 
-		ClassPathHacker.initializeToolJar();
+        ClassPathHacker.initializeToolJar();
 
-		/*
-		 * We load the agent although we "might" not use it.
-		 * Reason is that when we compile the generated test cases to debug
-		 * EvoSuite, those will/should use the agent.
-		 * But for some arcane reason, the loading there fails.
-		 * For example, there were/are issues with double-loading
-		 * of libraries in different classloaders, eg the static
-		 * initializer of BsdVirtualMachine does a  System.loadLibrary("attach"),
-		 * and for some reason that is executed twice if the agent is loaded
-		 * later in the search. Note: this does not affect the generated test
-		 * cases when run from Eclipse (for example). 
-		 */
+        /*
+         * We load the agent although we "might" not use it.
+         * Reason is that when we compile the generated test cases to debug
+         * EvoSuite, those will/should use the agent.
+         * But for some arcane reason, the loading there fails.
+         * For example, there were/are issues with double-loading
+         * of libraries in different classloaders, eg the static
+         * initializer of BsdVirtualMachine does a  System.loadLibrary("attach"),
+         * and for some reason that is executed twice if the agent is loaded
+         * later in the search. Note: this does not affect the generated test
+         * cases when run from Eclipse (for example).
+         */
 
         /*
         	TODO: tmp disabled to understand what the hack is happening on Jenkins.
         	however, it does not seem necessary any more, after quite a few refactoring/changes
         	in how agents are used (but don't know why...)
          */
-		//AgentLoader.loadAgent();
-	}
+        //AgentLoader.loadAgent();
+    }
 
-	private static void setupRuntimeProperties(){
-		RuntimeSettings.useVFS = Properties.VIRTUAL_FS;
-		RuntimeSettings.mockJVMNonDeterminism = Properties.REPLACE_CALLS;
-		RuntimeSettings.mockSystemIn = Properties.REPLACE_SYSTEM_IN;
-		RuntimeSettings.mockGUI = Properties.REPLACE_GUI;
-		RuntimeSettings.sandboxMode = Properties.SANDBOX_MODE;
+    private static void setupRuntimeProperties() {
+        RuntimeSettings.useVFS = Properties.VIRTUAL_FS;
+        RuntimeSettings.mockJVMNonDeterminism = Properties.REPLACE_CALLS;
+        RuntimeSettings.mockSystemIn = Properties.REPLACE_SYSTEM_IN;
+        RuntimeSettings.mockGUI = Properties.REPLACE_GUI;
+        RuntimeSettings.sandboxMode = Properties.SANDBOX_MODE;
         RuntimeSettings.maxNumberOfThreads = Properties.MAX_STARTED_THREADS;
         RuntimeSettings.maxNumberOfIterationsPerLoop = Properties.MAX_LOOP_ITERATIONS;
         RuntimeSettings.useVNET = Properties.VIRTUAL_NET;
         RuntimeSettings.useSeparateClassLoader = Properties.USE_SEPARATE_CLASSLOADER;
-		RuntimeSettings.className = Properties.TARGET_CLASS;
-		RuntimeSettings.applyUIDTransformation = true;
-		RuntimeSettings.isRunningASystemTest = Properties.IS_RUNNING_A_SYSTEM_TEST;
+        RuntimeSettings.className = Properties.TARGET_CLASS;
+        RuntimeSettings.applyUIDTransformation = true;
+        RuntimeSettings.isRunningASystemTest = Properties.IS_RUNNING_A_SYSTEM_TEST;
         MethodCallReplacementCache.resetSingleton();
     }
 
 
-	/**
-	 * Returns the client's identifier.
-	 */
-	public static String getIdentifier() {
-		return identifier;
-	}
+    /**
+     * Returns the client's identifier.
+     */
+    public static String getIdentifier() {
+        return identifier;
+    }
 
-	public static String getPrettyPrintIdentifier() {
-		if (Properties.NUM_PARALLEL_CLIENTS == 1) {
-			return "";
-		}
-		return identifier + ": ";
-	}
+    public static String getPrettyPrintIdentifier() {
+        if (Properties.NUM_PARALLEL_CLIENTS == 1) {
+            return "";
+        }
+        return identifier + ": ";
+    }
 
-	/**
-	 * <p>
-	 * main
-	 * </p>
-	 * 
-	 * @param args
-	 *            an array of {@link java.lang.String} objects.
-	 */
-	public static void main(String[] args) {
+    /**
+     * <p>
+     * main
+     * </p>
+     *
+     * @param args an array of {@link java.lang.String} objects.
+     */
+    public static void main(String[] args) {
 
-		/*
-		 * important to have it in a variable, otherwise 
-		 * might be issues with following System.exit if successive
-		 * threads change it if this thread is still running
-		 */
-		boolean onThread = Properties.CLIENT_ON_THREAD;
-		
+        /*
+         * important to have it in a variable, otherwise
+         * might be issues with following System.exit if successive
+         * threads change it if this thread is still running
+         */
+        boolean onThread = Properties.CLIENT_ON_THREAD;
+
         if (args.length > 0) {
             identifier = args[0];
         } else {
             identifier = DEFAULT_CLIENT_NAME;
         }
 
-		try {
-			LoggingUtils.getEvoLogger().info("* Starting " + getIdentifier());
-			ClientProcess process = new ClientProcess();
-			TimeController.resetSingleton();
-			process.run();
-			if (!onThread) {
-				/*
-				 * If we we are in debug mode in which we run client on separated thread,
-				 * then do not kill the JVM
-				 */
-				System.exit(0);
-			}
-		} catch (Throwable t) {
-			logger.error(getPrettyPrintIdentifier() + "Error when generating tests for: " + Properties.TARGET_CLASS
-					+ " with seed " + Randomness.getSeed()+". Configuration id : "+Properties.CONFIGURATION_ID, t);
-			t.printStackTrace();
+        try {
+            LoggingUtils.getEvoLogger().info("* Starting " + getIdentifier());
+            ClientProcess process = new ClientProcess();
+            TimeController.resetSingleton();
+            process.run();
+            if (!onThread) {
+                /*
+                 * If we we are in debug mode in which we run client on separated thread,
+                 * then do not kill the JVM
+                 */
+                System.exit(0);
+            }
+        } catch (Throwable t) {
+            logger.error(getPrettyPrintIdentifier() + "Error when generating tests for: " + Properties.TARGET_CLASS
+                    + " with seed " + Randomness.getSeed() + ". Configuration id : " + Properties.CONFIGURATION_ID, t);
+            t.printStackTrace();
 
-			//sleep 1 sec to be more sure that the above log is recorded
-			try {
-				Thread.sleep(100);
-			} catch (InterruptedException e) {
-			}
+            //sleep 1 sec to be more sure that the above log is recorded
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+            }
 
-			if (!onThread) {
-				System.exit(1);
-			}
-		}
-	}
+            if (!onThread) {
+                System.exit(1);
+            }
+        }
+    }
 }

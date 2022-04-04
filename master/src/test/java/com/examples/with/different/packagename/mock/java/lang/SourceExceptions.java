@@ -24,15 +24,15 @@ package com.examples.with.different.packagename.mock.java.lang;
  */
 public class SourceExceptions {
 
-    public static class Foo{
+    public static class Foo {
 
-        public static void foo(){
+        public static void foo() {
             throw new IllegalArgumentException();
         }
     }
 
 
-    public void bar(Integer x){
+    public void bar(Integer x) {
         x.byteValue();
         Foo.foo();
     }

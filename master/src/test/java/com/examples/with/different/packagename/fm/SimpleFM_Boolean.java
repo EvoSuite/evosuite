@@ -24,12 +24,12 @@ package com.examples.with.different.packagename.fm;
  */
 public class SimpleFM_Boolean {
 
-    public interface Foo{
+    public interface Foo {
         boolean foo();
     }
 
-    public static boolean bar(Foo foo){
-        if(foo.foo()){
+    public static boolean bar(Foo foo) {
+        if (foo.foo()) {
             return true;
         } else {
             return false;

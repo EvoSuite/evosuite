@@ -43,27 +43,27 @@ import com.examples.with.different.packagename.ClassNumberUtilsTest;
 
 public class CoverageAnalysisStringInstrumentationSystemTest extends SystemTestBase {
 
-	@Test
-	public void testCreateBigInteger() throws IOException {
+    @Test
+    public void testCreateBigInteger() throws IOException {
 
-		EvoSuite evosuite = new EvoSuite();
+        EvoSuite evosuite = new EvoSuite();
 
         String targetClass = ClassNumberUtils.class.getCanonicalName();
         String testClass = ClassNumberUtilsTest.class.getCanonicalName();
         Properties.TARGET_CLASS = targetClass;
 
-        Properties.CRITERION = new Properties.Criterion[] {
-        	Properties.Criterion.LINE
+        Properties.CRITERION = new Properties.Criterion[]{
+                Properties.Criterion.LINE
         };
 
         Properties.OUTPUT_VARIABLES = RuntimeVariable.Total_Goals + "," + RuntimeVariable.LineCoverage;
         Properties.STATISTICS_BACKEND = StatisticsBackend.CSV;
         Properties.COVERAGE_MATRIX = true;
 
-        String[] command = new String[] {
-            "-class", targetClass,
-            "-Djunit=" + testClass,
-            "-measureCoverage"
+        String[] command = new String[]{
+                "-class", targetClass,
+                "-Djunit=" + testClass,
+                "-measureCoverage"
         };
 
         SearchStatistics statistics = (SearchStatistics) evosuite.parseCommandLine(command);
@@ -79,9 +79,9 @@ public class CoverageAnalysisStringInstrumentationSystemTest extends SystemTestB
 
         // check coverage matrix
         String coveragematrix_file = System.getProperty("user.dir") + File.separator +
-        		Properties.REPORT_DIR + File.separator +
-        		"data" + File.separator + Properties.TARGET_CLASS + File.separator +
-        		Properties.Criterion.LINE.name() + File.separator + Properties.COVERAGE_MATRIX_FILENAME;
+                Properties.REPORT_DIR + File.separator +
+                "data" + File.separator + Properties.TARGET_CLASS + File.separator +
+                Properties.Criterion.LINE.name() + File.separator + Properties.COVERAGE_MATRIX_FILENAME;
         System.out.println("CoverageMatrix file " + coveragematrix_file);
 
         List<String> lines = Files.readAllLines(Paths.get(coveragematrix_file));
@@ -89,5 +89,5 @@ public class CoverageAnalysisStringInstrumentationSystemTest extends SystemTestB
         assertEquals(1, lines.size());
         // all components have been covered ("1"), and the test case pass ("+")
         assertEquals("0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 +", lines.get(0));
-	}
+    }
 }

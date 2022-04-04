@@ -29,16 +29,14 @@ import org.evosuite.ga.variables.DoubleVariable;
 
 /**
  * Booth's Problem
- * 
+ *
  * @author José Campos
  */
-@SuppressWarnings({ "serial" })
-public class Booths implements Problem<NSGAChromosome>
-{
+@SuppressWarnings({"serial"})
+public class Booths implements Problem<NSGAChromosome> {
     private final List<FitnessFunction<NSGAChromosome>> fitnessFunctions = new ArrayList<>();
 
-    public Booths()
-    {
+    public Booths() {
         super();
 
         /**
@@ -54,6 +52,7 @@ public class Booths implements Problem<NSGAChromosome>
                 updateIndividual(c, fitness);
                 return fitness;
             }
+
             @Override
             public boolean isMaximizationFunction() {
                 return false;

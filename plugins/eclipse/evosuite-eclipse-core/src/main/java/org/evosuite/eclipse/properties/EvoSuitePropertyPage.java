@@ -43,113 +43,113 @@ import org.evosuite.Properties;
 
 public class EvoSuitePropertyPage extends PropertyPage {
 
-	// private Combo criterionCombo;
-	
-	private Table criteriaList; 
+    // private Combo criterionCombo;
 
-	private Button assertionButton;
+    private Table criteriaList;
 
-	private Button minimizeTestsButton;
+    private Button assertionButton;
 
-	private Button minimizeValuesButton;
+    private Button minimizeTestsButton;
+
+    private Button minimizeValuesButton;
 
 //	private Button reportButton;
 
 //	private Button plotButton;
 
-	private Button sandboxButton;
+    private Button sandboxButton;
 
-	private Button scaffoldingButton;
+    private Button scaffoldingButton;
 
-	private Button deterministicButton;
+    private Button deterministicButton;
 
-	private Button errorButton;
+    private Button errorButton;
 
-	private Button contractsButton;
+    private Button contractsButton;
 
-	private Button dseButton;
+    private Button dseButton;
 
-	private Button lsButton;
+    private Button lsButton;
 
-	private Text testSuffix;
-	
-	// private Button evosuiteRunnerButton;
+    private Text testSuffix;
 
-	private Spinner time;
+    // private Button evosuiteRunnerButton;
 
-	// private Spinner seed;
+    private Spinner time;
 
-	private Spinner time2;
+    // private Spinner seed;
 
-	public static QualifiedName CRITERIA_PROP_KEY = new QualifiedName("EvoSuite",
-	        "Coverage criteria");
+    private Spinner time2;
 
-	public static QualifiedName ASSERTION_PROP_KEY = new QualifiedName("EvoSuite",
-	        "Assertions");
+    public static QualifiedName CRITERIA_PROP_KEY = new QualifiedName("EvoSuite",
+            "Coverage criteria");
 
-	public static QualifiedName MINIMIZE_TESTS_PROP_KEY = new QualifiedName("EvoSuite",
-	        "Minimize tests");
+    public static QualifiedName ASSERTION_PROP_KEY = new QualifiedName("EvoSuite",
+            "Assertions");
 
-	public static QualifiedName MINIMIZE_VALUES_PROP_KEY = new QualifiedName("EvoSuite",
-	        "Minimize values");
+    public static QualifiedName MINIMIZE_TESTS_PROP_KEY = new QualifiedName("EvoSuite",
+            "Minimize tests");
 
-	public static QualifiedName TIME_PROP_KEY = new QualifiedName("EvoSuite",
-	        "TestGenTime");
+    public static QualifiedName MINIMIZE_VALUES_PROP_KEY = new QualifiedName("EvoSuite",
+            "Minimize values");
 
-	public static QualifiedName GLOBAL_TIME_PROP_KEY = new QualifiedName("EvoSuite",
-	        "GlobalGenTime");
+    public static QualifiedName TIME_PROP_KEY = new QualifiedName("EvoSuite",
+            "TestGenTime");
 
-	public static QualifiedName PLOT_PROP_KEY = new QualifiedName("EvoSuite", "PlotData");
+    public static QualifiedName GLOBAL_TIME_PROP_KEY = new QualifiedName("EvoSuite",
+            "GlobalGenTime");
+
+    public static QualifiedName PLOT_PROP_KEY = new QualifiedName("EvoSuite", "PlotData");
 
 //	public static QualifiedName REPORT_PROP_KEY = new QualifiedName("EvoSuite",
 //	        "ShowReport");
 
-	public static QualifiedName SANDBOX_PROP_KEY = new QualifiedName("EvoSuite",
-	        "Sandbox");
+    public static QualifiedName SANDBOX_PROP_KEY = new QualifiedName("EvoSuite",
+            "Sandbox");
 
-	public static QualifiedName SCAFFOLDING_PROP_KEY = new QualifiedName("EvoSuite",
-	        "Use scaffolding to hide runtime instrumentation");
+    public static QualifiedName SCAFFOLDING_PROP_KEY = new QualifiedName("EvoSuite",
+            "Use scaffolding to hide runtime instrumentation");
 
-	public static QualifiedName DETERMINISTIC_PROP_KEY = new QualifiedName("EvoSuite",
-	        "Transform nondeterministic calls");
+    public static QualifiedName DETERMINISTIC_PROP_KEY = new QualifiedName("EvoSuite",
+            "Transform nondeterministic calls");
 
-	public static QualifiedName ERROR_BRANCHES_PROP_KEY = new QualifiedName("EvoSuite",
-	        "Instrument potential error branches");
+    public static QualifiedName ERROR_BRANCHES_PROP_KEY = new QualifiedName("EvoSuite",
+            "Instrument potential error branches");
 
-	public static QualifiedName CONTRACTS_PROP_KEY = new QualifiedName("EvoSuite",
-	        "Check generic object contracts");
+    public static QualifiedName CONTRACTS_PROP_KEY = new QualifiedName("EvoSuite",
+            "Check generic object contracts");
 
-	public static QualifiedName DSE_PROP_KEY = new QualifiedName("EvoSuite",
-	        "Use GA+DSE hybrid search");
+    public static QualifiedName DSE_PROP_KEY = new QualifiedName("EvoSuite",
+            "Use GA+DSE hybrid search");
 
-	public static QualifiedName LS_PROP_KEY = new QualifiedName("EvoSuite",
-	        "Use memetic algorithm");
+    public static QualifiedName LS_PROP_KEY = new QualifiedName("EvoSuite",
+            "Use memetic algorithm");
 
-	public static QualifiedName SEED_PROP_KEY = new QualifiedName("EvoSuite",
-	        "Use user-provided seed");	
+    public static QualifiedName SEED_PROP_KEY = new QualifiedName("EvoSuite",
+            "Use user-provided seed");
 
-	public static QualifiedName TEST_SUFFIX_PROP_KEY = new QualifiedName("EvoSuite",
-	        "Suffix to use for generated tests");	
+    public static QualifiedName TEST_SUFFIX_PROP_KEY = new QualifiedName("EvoSuite",
+            "Suffix to use for generated tests");
 
-	// public static QualifiedName RUNNER_PROP_KEY = new QualifiedName("EvoSuite",
-	//        "Use EvoSuite JUnit runner in generated test suites");
+    // public static QualifiedName RUNNER_PROP_KEY = new QualifiedName("EvoSuite",
+    //        "Use EvoSuite JUnit runner in generated test suites");
 
 
-	public EvoSuitePropertyPage() {
-		super();
-	}
+    public EvoSuitePropertyPage() {
+        super();
+    }
 
-	@Override
-	protected Control createContents(Composite parent) {
-		Composite myComposite = new Composite(parent, SWT.NONE);
-		GridLayout mylayout = new GridLayout(2, false);
-		mylayout.marginHeight = 10;
-		mylayout.marginWidth = 10;
-		myComposite.setLayout(mylayout);
+    @Override
+    protected Control createContents(Composite parent) {
+        Composite myComposite = new Composite(parent, SWT.NONE);
+        GridLayout mylayout = new GridLayout(2, false);
+        mylayout.marginHeight = 10;
+        mylayout.marginWidth = 10;
+        myComposite.setLayout(mylayout);
 
-		Label criterionlabel = new Label(myComposite, SWT.NONE);
-		criterionlabel.setLayoutData(new GridData(GridData.VERTICAL_ALIGN_BEGINNING));
-		criterionlabel.setText("Coverage criteria");
+        Label criterionlabel = new Label(myComposite, SWT.NONE);
+        criterionlabel.setLayoutData(new GridData(GridData.VERTICAL_ALIGN_BEGINNING));
+        criterionlabel.setText("Coverage criteria");
 //		criterionCombo = new Combo(myComposite, SWT.DROP_DOWN | SWT.READ_ONLY);
 //		criterionCombo.add("Branch coverage");
 //		criterionCombo.add("DefUse coverage");
@@ -165,25 +165,25 @@ public class EvoSuitePropertyPage extends PropertyPage {
 //		else
 //			criterionCombo.select(0);
 //		criterionCombo.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		criteriaList = new Table(myComposite, SWT.MULTI | SWT.CHECK | SWT.FULL_SELECTION | SWT.HIDE_SELECTION | SWT.NO_SCROLL | SWT.BORDER);
-		List<String> criteriaSelected = Arrays.asList(getCriteria());
+        criteriaList = new Table(myComposite, SWT.MULTI | SWT.CHECK | SWT.FULL_SELECTION | SWT.HIDE_SELECTION | SWT.NO_SCROLL | SWT.BORDER);
+        List<String> criteriaSelected = Arrays.asList(getCriteria());
 
-		for(String criterion : new String[]{ "Line",
-											 "Branch",
-											 "Exception",
-											 "WeakMutation",
-											 "Output",
-											 "Input",
-											 "Method",
-											 "MethodNoException",
-											 "CBranch"}) {
-			TableItem item = new TableItem (criteriaList, 0);
-			item.setText (criterion);
-			if(criteriaSelected.contains(criterion))
-				item.setChecked(true);
-			else
-				item.setChecked(false);
-		}
+        for (String criterion : new String[]{"Line",
+                "Branch",
+                "Exception",
+                "WeakMutation",
+                "Output",
+                "Input",
+                "Method",
+                "MethodNoException",
+                "CBranch"}) {
+            TableItem item = new TableItem(criteriaList, 0);
+            item.setText(criterion);
+            if (criteriaSelected.contains(criterion))
+                item.setChecked(true);
+            else
+                item.setChecked(false);
+        }
 //		criterionList.add("Methods");
 //		criterionList.add("Methods invoked directly");
 //		criterionList.add("Methods without exception");
@@ -192,60 +192,60 @@ public class EvoSuitePropertyPage extends PropertyPage {
 //		criterionList.add("Exceptions");
 //		criterionList.add("Output partitions");
 //		criterionList.add("Mutation");
-		criteriaList.setLayoutData(new GridData());
-		criteriaList.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		criteriaList.setBackground(myComposite.getBackground());
-		
-		Label mylabel = new Label(myComposite, SWT.NONE);
-		mylabel.setLayoutData(new GridData());
-		mylabel.setText("Create assertions");
-		assertionButton = new Button(myComposite, SWT.CHECK);
-		assertionButton.setSelection(getAssertionsEnabled());
-		assertionButton.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+        criteriaList.setLayoutData(new GridData());
+        criteriaList.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+        criteriaList.setBackground(myComposite.getBackground());
 
-		Label mylabelMinTests = new Label(myComposite, SWT.NONE);
-		mylabelMinTests.setLayoutData(new GridData());
-		mylabelMinTests.setText("Minimize tests");
-		minimizeTestsButton = new Button(myComposite, SWT.CHECK);
-		minimizeTestsButton.setSelection(getMinimizeTestsEnabled());
-		minimizeTestsButton.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+        Label mylabel = new Label(myComposite, SWT.NONE);
+        mylabel.setLayoutData(new GridData());
+        mylabel.setText("Create assertions");
+        assertionButton = new Button(myComposite, SWT.CHECK);
+        assertionButton.setSelection(getAssertionsEnabled());
+        assertionButton.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
-		Label mylabelMinValues = new Label(myComposite, SWT.NONE);
-		mylabelMinValues.setLayoutData(new GridData());
-		mylabelMinValues.setText("Minimize values");
-		minimizeValuesButton = new Button(myComposite, SWT.CHECK);
-		minimizeValuesButton.setSelection(getMinimizeValuesEnabled());
-		minimizeValuesButton.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+        Label mylabelMinTests = new Label(myComposite, SWT.NONE);
+        mylabelMinTests.setLayoutData(new GridData());
+        mylabelMinTests.setText("Minimize tests");
+        minimizeTestsButton = new Button(myComposite, SWT.CHECK);
+        minimizeTestsButton.setSelection(getMinimizeTestsEnabled());
+        minimizeTestsButton.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
-		Label timelabel = new Label(myComposite, SWT.NONE);
-		timelabel.setLayoutData(new GridData());
-		timelabel.setText("Search convergence time (s)");
-		time = new Spinner(myComposite, SWT.BORDER);
-		time.setMinimum(0);
-		time.setMaximum(600);
-		//time.setDigits(3);
-		time.setSelection(getTime());
-		//time.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+        Label mylabelMinValues = new Label(myComposite, SWT.NONE);
+        mylabelMinValues.setLayoutData(new GridData());
+        mylabelMinValues.setText("Minimize values");
+        minimizeValuesButton = new Button(myComposite, SWT.CHECK);
+        minimizeValuesButton.setSelection(getMinimizeValuesEnabled());
+        minimizeValuesButton.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
-		
-		Label timelabel2 = new Label(myComposite, SWT.NONE);
-		timelabel2.setLayoutData(new GridData());
-		timelabel2.setText("Maximum test generation time (s)");
-		time2 = new Spinner(myComposite, SWT.BORDER);
-		time2.setMinimum(0);
-		time2.setMaximum(600);
-		//time.setDigits(3);
-		time2.setSelection(getGlobalTime());
-		
+        Label timelabel = new Label(myComposite, SWT.NONE);
+        timelabel.setLayoutData(new GridData());
+        timelabel.setText("Search convergence time (s)");
+        time = new Spinner(myComposite, SWT.BORDER);
+        time.setMinimum(0);
+        time.setMaximum(600);
+        //time.setDigits(3);
+        time.setSelection(getTime());
+        //time.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
-		//Label seedLabel= new Label(myComposite, SWT.NONE);
-		//seedLabel.setLayoutData(new GridData());
-		//seedLabel.setText("Random seed");
-		//seed = new Spinner(myComposite, SWT.BORDER);
-		//seed.setMinimum(0);
-		//seed.setMaximum(60000);
-		//seed.setSelection(getSeed());
-		
+
+        Label timelabel2 = new Label(myComposite, SWT.NONE);
+        timelabel2.setLayoutData(new GridData());
+        timelabel2.setText("Maximum test generation time (s)");
+        time2 = new Spinner(myComposite, SWT.BORDER);
+        time2.setMinimum(0);
+        time2.setMaximum(600);
+        //time.setDigits(3);
+        time2.setSelection(getGlobalTime());
+
+
+        //Label seedLabel= new Label(myComposite, SWT.NONE);
+        //seedLabel.setLayoutData(new GridData());
+        //seedLabel.setText("Random seed");
+        //seed = new Spinner(myComposite, SWT.BORDER);
+        //seed.setMinimum(0);
+        //seed.setMaximum(60000);
+        //seed.setSelection(getSeed());
+
 //		Label mylabel2 = new Label(myComposite, SWT.NONE);
 //		mylabel2.setLayoutData(new GridData());
 //		mylabel2.setText("Show report after test generation");
@@ -275,88 +275,88 @@ public class EvoSuitePropertyPage extends PropertyPage {
 //		plotButton.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 //		plotButton.setEnabled(getReportEnabled());
 
-		Label mylabel3 = new Label(myComposite, SWT.NONE);
-		mylabel3.setLayoutData(new GridData());
-		mylabel3.setText("Use sandbox");
-		sandboxButton = new Button(myComposite, SWT.CHECK);
-		sandboxButton.setSelection(getSandboxEnabled());
-		sandboxButton.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+        Label mylabel3 = new Label(myComposite, SWT.NONE);
+        mylabel3.setLayoutData(new GridData());
+        mylabel3.setText("Use sandbox");
+        sandboxButton = new Button(myComposite, SWT.CHECK);
+        sandboxButton.setSelection(getSandboxEnabled());
+        sandboxButton.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
-		Label mylabel3a = new Label(myComposite, SWT.NONE);
-		mylabel3a.setLayoutData(new GridData());
-		mylabel3a.setText("Use scaffolding");
-		scaffoldingButton = new Button(myComposite, SWT.CHECK);
-		scaffoldingButton.setSelection(getScaffoldingEnabled());
-		scaffoldingButton.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+        Label mylabel3a = new Label(myComposite, SWT.NONE);
+        mylabel3a.setLayoutData(new GridData());
+        mylabel3a.setText("Use scaffolding");
+        scaffoldingButton = new Button(myComposite, SWT.CHECK);
+        scaffoldingButton.setSelection(getScaffoldingEnabled());
+        scaffoldingButton.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
-		
-		//		Label mylabel7 = new Label(myComposite, SWT.NONE);
-		//		mylabel7.setLayoutData(new GridData());
-		//		mylabel7.setText("Use EvoSuite JUnit runner in generated test suites");
-		//		evosuiteRunnerButton = new Button(myComposite, SWT.CHECK);
-		//		evosuiteRunnerButton.setSelection(getEvoSuiteRunnerEnabled());
-		//		evosuiteRunnerButton.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		//		evosuiteRunnerButton.addSelectionListener(new SelectionListener() {
-		//			/* (non-Javadoc)
-		//			 * @see org.eclipse.swt.events.SelectionListener#widgetSelected(org.eclipse.swt.events.SelectionEvent)
-		//			 */
-		//			@Override
-		//			public void widgetSelected(SelectionEvent arg0) {
-		//				deterministicButton.setEnabled(((Button) arg0.getSource()).getSelection());
-		//			}
-		//
-		//			@Override
-		//			public void widgetDefaultSelected(SelectionEvent arg0) {
-		//				deterministicButton.setEnabled(((Button) arg0.getSource()).getSelection());
-		//			}
-		//		});
-		//		
-		Label mylabel4 = new Label(myComposite, SWT.NONE);
-		mylabel4.setLayoutData(new GridData());
-		mylabel4.setText("Transform nondeterministic calls\n (e.g. System.currentTimeMillis)");
-		deterministicButton = new Button(myComposite, SWT.CHECK);
-		deterministicButton.setSelection(getDeterministicEnabled());
-		deterministicButton.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		// deterministicButton.setEnabled(getDeterministicEnabled());
 
-		Label mylabel6 = new Label(myComposite, SWT.NONE);
-		mylabel6.setLayoutData(new GridData());
-		mylabel6.setText("Instrument potential error conditions");
-		errorButton = new Button(myComposite, SWT.CHECK);
-		errorButton.setSelection(getErrorBranchesEnabled());
-		errorButton.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+        //		Label mylabel7 = new Label(myComposite, SWT.NONE);
+        //		mylabel7.setLayoutData(new GridData());
+        //		mylabel7.setText("Use EvoSuite JUnit runner in generated test suites");
+        //		evosuiteRunnerButton = new Button(myComposite, SWT.CHECK);
+        //		evosuiteRunnerButton.setSelection(getEvoSuiteRunnerEnabled());
+        //		evosuiteRunnerButton.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+        //		evosuiteRunnerButton.addSelectionListener(new SelectionListener() {
+        //			/* (non-Javadoc)
+        //			 * @see org.eclipse.swt.events.SelectionListener#widgetSelected(org.eclipse.swt.events.SelectionEvent)
+        //			 */
+        //			@Override
+        //			public void widgetSelected(SelectionEvent arg0) {
+        //				deterministicButton.setEnabled(((Button) arg0.getSource()).getSelection());
+        //			}
+        //
+        //			@Override
+        //			public void widgetDefaultSelected(SelectionEvent arg0) {
+        //				deterministicButton.setEnabled(((Button) arg0.getSource()).getSelection());
+        //			}
+        //		});
+        //
+        Label mylabel4 = new Label(myComposite, SWT.NONE);
+        mylabel4.setLayoutData(new GridData());
+        mylabel4.setText("Transform nondeterministic calls\n (e.g. System.currentTimeMillis)");
+        deterministicButton = new Button(myComposite, SWT.CHECK);
+        deterministicButton.setSelection(getDeterministicEnabled());
+        deterministicButton.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+        // deterministicButton.setEnabled(getDeterministicEnabled());
 
-		Label mylabel5 = new Label(myComposite, SWT.NONE);
-		mylabel5.setLayoutData(new GridData());
-		mylabel5.setText("Check generic object contracts");
-		contractsButton = new Button(myComposite, SWT.CHECK);
-		contractsButton.setSelection(getContractsEnabled());
-		contractsButton.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+        Label mylabel6 = new Label(myComposite, SWT.NONE);
+        mylabel6.setLayoutData(new GridData());
+        mylabel6.setText("Instrument potential error conditions");
+        errorButton = new Button(myComposite, SWT.CHECK);
+        errorButton.setSelection(getErrorBranchesEnabled());
+        errorButton.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
-		Label mylabel7 = new Label(myComposite, SWT.NONE);
-		mylabel7.setLayoutData(new GridData());
-		mylabel7.setText("Enable DSE during search");
-		dseButton = new Button(myComposite, SWT.CHECK);
-		dseButton.setSelection(getDSEEnabled());
-		dseButton.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+        Label mylabel5 = new Label(myComposite, SWT.NONE);
+        mylabel5.setLayoutData(new GridData());
+        mylabel5.setText("Check generic object contracts");
+        contractsButton = new Button(myComposite, SWT.CHECK);
+        contractsButton.setSelection(getContractsEnabled());
+        contractsButton.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
-		Label mylabel7a = new Label(myComposite, SWT.NONE);
-		mylabel7a.setLayoutData(new GridData());
-		mylabel7a.setText("Enable local search (memetic algorithm)");
-		lsButton = new Button(myComposite, SWT.CHECK);
-		lsButton.setSelection(getLSEnabled());
-		lsButton.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+        Label mylabel7 = new Label(myComposite, SWT.NONE);
+        mylabel7.setLayoutData(new GridData());
+        mylabel7.setText("Enable DSE during search");
+        dseButton = new Button(myComposite, SWT.CHECK);
+        dseButton.setSelection(getDSEEnabled());
+        dseButton.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
-		Label mylabel8 = new Label(myComposite, SWT.NONE);
-		mylabel8.setLayoutData(new GridData());
-		mylabel8.setText("Suffix of EvoSuite generated tests");
-		testSuffix = new Text(myComposite, SWT.SINGLE | SWT.BORDER);
-		testSuffix.setText(getTestSuffix());
-		testSuffix.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		// dseButton.setSelection(getDSEEnabled());
-		// dseButton.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+        Label mylabel7a = new Label(myComposite, SWT.NONE);
+        mylabel7a.setLayoutData(new GridData());
+        mylabel7a.setText("Enable local search (memetic algorithm)");
+        lsButton = new Button(myComposite, SWT.CHECK);
+        lsButton.setSelection(getLSEnabled());
+        lsButton.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
-		return myComposite;
+        Label mylabel8 = new Label(myComposite, SWT.NONE);
+        mylabel8.setLayoutData(new GridData());
+        mylabel8.setText("Suffix of EvoSuite generated tests");
+        testSuffix = new Text(myComposite, SWT.SINGLE | SWT.BORDER);
+        testSuffix.setText(getTestSuffix());
+        testSuffix.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+        // dseButton.setSelection(getDSEEnabled());
+        // dseButton.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
+        return myComposite;
 
 		/*
 		Composite composite = new Composite(parent, SWT.NONE);
@@ -437,252 +437,252 @@ public class EvoSuitePropertyPage extends PropertyPage {
 
 		return composite;
 		*/
-	}
+    }
 
-	protected boolean getAssertionsEnabled() {
-		IResource resource = ((IJavaProject) getElement()).getResource();
-		try {
-			String value = resource.getPersistentProperty(ASSERTION_PROP_KEY);
-			if (value == null)
-				return true;
-			return Boolean.parseBoolean(value);
-		} catch (CoreException e) {
-			return true;
-		}
-	}
+    protected boolean getAssertionsEnabled() {
+        IResource resource = ((IJavaProject) getElement()).getResource();
+        try {
+            String value = resource.getPersistentProperty(ASSERTION_PROP_KEY);
+            if (value == null)
+                return true;
+            return Boolean.parseBoolean(value);
+        } catch (CoreException e) {
+            return true;
+        }
+    }
 
-	protected void setAssertionsEnabled(boolean enabled) {
+    protected void setAssertionsEnabled(boolean enabled) {
 
-		IResource resource = ((IJavaProject) getElement()).getResource();
-		String value = Boolean.toString(enabled);
-		if (value.equals(""))
-			value = "true";
-		try {
-			resource.setPersistentProperty(ASSERTION_PROP_KEY, value);
-		} catch (CoreException e) {
-		}
-	}
+        IResource resource = ((IJavaProject) getElement()).getResource();
+        String value = Boolean.toString(enabled);
+        if (value.equals(""))
+            value = "true";
+        try {
+            resource.setPersistentProperty(ASSERTION_PROP_KEY, value);
+        } catch (CoreException e) {
+        }
+    }
 
-	protected boolean getMinimizeTestsEnabled() {
-		IResource resource = ((IJavaProject) getElement()).getResource();
-		try {
-			String value = resource.getPersistentProperty(MINIMIZE_TESTS_PROP_KEY);
-			if (value == null)
-				return true;
-			return Boolean.parseBoolean(value);
-		} catch (CoreException e) {
-			return true;
-		}
-	}
+    protected boolean getMinimizeTestsEnabled() {
+        IResource resource = ((IJavaProject) getElement()).getResource();
+        try {
+            String value = resource.getPersistentProperty(MINIMIZE_TESTS_PROP_KEY);
+            if (value == null)
+                return true;
+            return Boolean.parseBoolean(value);
+        } catch (CoreException e) {
+            return true;
+        }
+    }
 
-	protected void setMinimizeTestsEnabled(boolean enabled) {
+    protected void setMinimizeTestsEnabled(boolean enabled) {
 
-		IResource resource = ((IJavaProject) getElement()).getResource();
-		String value = Boolean.toString(enabled);
-		if (value.equals(""))
-			value = "true";
-		try {
-			resource.setPersistentProperty(MINIMIZE_TESTS_PROP_KEY, value);
-		} catch (CoreException e) {
-		}
-	}
+        IResource resource = ((IJavaProject) getElement()).getResource();
+        String value = Boolean.toString(enabled);
+        if (value.equals(""))
+            value = "true";
+        try {
+            resource.setPersistentProperty(MINIMIZE_TESTS_PROP_KEY, value);
+        } catch (CoreException e) {
+        }
+    }
 
-	protected boolean getMinimizeValuesEnabled() {
-		IResource resource = ((IJavaProject) getElement()).getResource();
-		try {
-			String value = resource.getPersistentProperty(MINIMIZE_VALUES_PROP_KEY);
-			if (value == null)
-				return true;
-			return Boolean.parseBoolean(value);
-		} catch (CoreException e) {
-			return true;
-		}
-	}
+    protected boolean getMinimizeValuesEnabled() {
+        IResource resource = ((IJavaProject) getElement()).getResource();
+        try {
+            String value = resource.getPersistentProperty(MINIMIZE_VALUES_PROP_KEY);
+            if (value == null)
+                return true;
+            return Boolean.parseBoolean(value);
+        } catch (CoreException e) {
+            return true;
+        }
+    }
 
-	protected void setMinimizeValuesEnabled(boolean enabled) {
+    protected void setMinimizeValuesEnabled(boolean enabled) {
 
-		IResource resource = ((IJavaProject) getElement()).getResource();
-		String value = Boolean.toString(enabled);
-		if (value.equals(""))
-			value = "false";
-		try {
-			resource.setPersistentProperty(MINIMIZE_VALUES_PROP_KEY, value);
-		} catch (CoreException e) {
-		}
-	}
+        IResource resource = ((IJavaProject) getElement()).getResource();
+        String value = Boolean.toString(enabled);
+        if (value.equals(""))
+            value = "false";
+        try {
+            resource.setPersistentProperty(MINIMIZE_VALUES_PROP_KEY, value);
+        } catch (CoreException e) {
+        }
+    }
 
-	protected boolean getSandboxEnabled() {
-		IResource resource = ((IJavaProject) getElement()).getResource();
-		try {
-			String value = resource.getPersistentProperty(SANDBOX_PROP_KEY);
-			if (value == null)
-				return true;
-			return Boolean.parseBoolean(value);
-		} catch (CoreException e) {
-			return false;
-		}
-	}
+    protected boolean getSandboxEnabled() {
+        IResource resource = ((IJavaProject) getElement()).getResource();
+        try {
+            String value = resource.getPersistentProperty(SANDBOX_PROP_KEY);
+            if (value == null)
+                return true;
+            return Boolean.parseBoolean(value);
+        } catch (CoreException e) {
+            return false;
+        }
+    }
 
-	protected void setSandboxEnabled(boolean enabled) {
+    protected void setSandboxEnabled(boolean enabled) {
 
-		IResource resource = ((IJavaProject) getElement()).getResource();
-		String value = Boolean.toString(enabled);
-		if (value.equals(""))
-			value = "true";
-		try {
-			resource.setPersistentProperty(SANDBOX_PROP_KEY, value);
-		} catch (CoreException e) {
-		}
-	}
+        IResource resource = ((IJavaProject) getElement()).getResource();
+        String value = Boolean.toString(enabled);
+        if (value.equals(""))
+            value = "true";
+        try {
+            resource.setPersistentProperty(SANDBOX_PROP_KEY, value);
+        } catch (CoreException e) {
+        }
+    }
 
-	protected boolean getScaffoldingEnabled() {
-		IResource resource = ((IJavaProject) getElement()).getResource();
-		try {
-			String value = resource.getPersistentProperty(SCAFFOLDING_PROP_KEY);
-			if (value == null)
-				return true;
-			return Boolean.parseBoolean(value);
-		} catch (CoreException e) {
-			return false;
-		}
-	}
+    protected boolean getScaffoldingEnabled() {
+        IResource resource = ((IJavaProject) getElement()).getResource();
+        try {
+            String value = resource.getPersistentProperty(SCAFFOLDING_PROP_KEY);
+            if (value == null)
+                return true;
+            return Boolean.parseBoolean(value);
+        } catch (CoreException e) {
+            return false;
+        }
+    }
 
-	protected void setScaffoldingEnabled(boolean enabled) {
+    protected void setScaffoldingEnabled(boolean enabled) {
 
-		IResource resource = ((IJavaProject) getElement()).getResource();
-		String value = Boolean.toString(enabled);
-		if (value.equals(""))
-			value = "true";
-		try {
-			resource.setPersistentProperty(SCAFFOLDING_PROP_KEY, value);
-		} catch (CoreException e) {
-		}
-	}
+        IResource resource = ((IJavaProject) getElement()).getResource();
+        String value = Boolean.toString(enabled);
+        if (value.equals(""))
+            value = "true";
+        try {
+            resource.setPersistentProperty(SCAFFOLDING_PROP_KEY, value);
+        } catch (CoreException e) {
+        }
+    }
 
-	protected boolean getDeterministicEnabled() {
-		// if(!getEvoSuiteRunnerEnabled())
-		//	return false;
+    protected boolean getDeterministicEnabled() {
+        // if(!getEvoSuiteRunnerEnabled())
+        //	return false;
 
-		IResource resource = ((IJavaProject) getElement()).getResource();
-		try {
-			String value = resource.getPersistentProperty(DETERMINISTIC_PROP_KEY);
-			if (value == null)
-				return false;
-			return Boolean.parseBoolean(value);
-		} catch (CoreException e) {
-			return false;
-		}
-	}
+        IResource resource = ((IJavaProject) getElement()).getResource();
+        try {
+            String value = resource.getPersistentProperty(DETERMINISTIC_PROP_KEY);
+            if (value == null)
+                return false;
+            return Boolean.parseBoolean(value);
+        } catch (CoreException e) {
+            return false;
+        }
+    }
 
-	protected void setDeterministicEnabled(boolean enabled) {
-		//if(!getEvoSuiteRunnerEnabled())
-		//	return;
+    protected void setDeterministicEnabled(boolean enabled) {
+        //if(!getEvoSuiteRunnerEnabled())
+        //	return;
 
-		IResource resource = ((IJavaProject) getElement()).getResource();
-		String value = Boolean.toString(enabled);
-		if (value.equals(""))
-			value = "false";
-		try {
-			resource.setPersistentProperty(DETERMINISTIC_PROP_KEY, value);
-		} catch (CoreException e) {
-		}
-	}
+        IResource resource = ((IJavaProject) getElement()).getResource();
+        String value = Boolean.toString(enabled);
+        if (value.equals(""))
+            value = "false";
+        try {
+            resource.setPersistentProperty(DETERMINISTIC_PROP_KEY, value);
+        } catch (CoreException e) {
+        }
+    }
 
-	protected boolean getContractsEnabled() {
-		IResource resource = ((IJavaProject) getElement()).getResource();
-		try {
-			String value = resource.getPersistentProperty(CONTRACTS_PROP_KEY);
-			if (value == null)
-				return false;
-			return Boolean.parseBoolean(value);
-		} catch (CoreException e) {
-			return false;
-		}
-	}
+    protected boolean getContractsEnabled() {
+        IResource resource = ((IJavaProject) getElement()).getResource();
+        try {
+            String value = resource.getPersistentProperty(CONTRACTS_PROP_KEY);
+            if (value == null)
+                return false;
+            return Boolean.parseBoolean(value);
+        } catch (CoreException e) {
+            return false;
+        }
+    }
 
-	protected void setContractsEnabled(boolean enabled) {
+    protected void setContractsEnabled(boolean enabled) {
 
-		IResource resource = ((IJavaProject) getElement()).getResource();
-		String value = Boolean.toString(enabled);
-		if (value.equals(""))
-			value = "false";
-		try {
-			resource.setPersistentProperty(CONTRACTS_PROP_KEY, value);
-		} catch (CoreException e) {
-		}
-	}
+        IResource resource = ((IJavaProject) getElement()).getResource();
+        String value = Boolean.toString(enabled);
+        if (value.equals(""))
+            value = "false";
+        try {
+            resource.setPersistentProperty(CONTRACTS_PROP_KEY, value);
+        } catch (CoreException e) {
+        }
+    }
 
-	protected boolean getErrorBranchesEnabled() {
-		IResource resource = ((IJavaProject) getElement()).getResource();
-		try {
-			String value = resource.getPersistentProperty(ERROR_BRANCHES_PROP_KEY);
-			if (value == null)
-				return false;
-			return Boolean.parseBoolean(value);
-		} catch (CoreException e) {
-			return false;
-		}
-	}
+    protected boolean getErrorBranchesEnabled() {
+        IResource resource = ((IJavaProject) getElement()).getResource();
+        try {
+            String value = resource.getPersistentProperty(ERROR_BRANCHES_PROP_KEY);
+            if (value == null)
+                return false;
+            return Boolean.parseBoolean(value);
+        } catch (CoreException e) {
+            return false;
+        }
+    }
 
-	protected void setErrorBranchesEnabled(boolean enabled) {
+    protected void setErrorBranchesEnabled(boolean enabled) {
 
-		IResource resource = ((IJavaProject) getElement()).getResource();
-		String value = Boolean.toString(enabled);
-		if (value.equals(""))
-			value = "false";
-		try {
-			resource.setPersistentProperty(ERROR_BRANCHES_PROP_KEY, value);
-		} catch (CoreException e) {
-		}
-	}
-	
-	protected boolean getDSEEnabled() {
-		IResource resource = ((IJavaProject) getElement()).getResource();
-		try {
-			String value = resource.getPersistentProperty(DSE_PROP_KEY);
-			if (value == null)
-				return false;
-			return Boolean.parseBoolean(value);
-		} catch (CoreException e) {
-			return false;
-		}
-	}
+        IResource resource = ((IJavaProject) getElement()).getResource();
+        String value = Boolean.toString(enabled);
+        if (value.equals(""))
+            value = "false";
+        try {
+            resource.setPersistentProperty(ERROR_BRANCHES_PROP_KEY, value);
+        } catch (CoreException e) {
+        }
+    }
 
-	protected void setDSEEnabled(boolean enabled) {
+    protected boolean getDSEEnabled() {
+        IResource resource = ((IJavaProject) getElement()).getResource();
+        try {
+            String value = resource.getPersistentProperty(DSE_PROP_KEY);
+            if (value == null)
+                return false;
+            return Boolean.parseBoolean(value);
+        } catch (CoreException e) {
+            return false;
+        }
+    }
 
-		IResource resource = ((IJavaProject) getElement()).getResource();
-		String value = Boolean.toString(enabled);
-		if (value.equals(""))
-			value = "false";
-		try {
-			resource.setPersistentProperty(DSE_PROP_KEY, value);
-		} catch (CoreException e) {
-		}
-	}
-	
-	protected boolean getLSEnabled() {
-		IResource resource = ((IJavaProject) getElement()).getResource();
-		try {
-			String value = resource.getPersistentProperty(LS_PROP_KEY);
-			if (value == null)
-				return false;
-			return Boolean.parseBoolean(value);
-		} catch (CoreException e) {
-			return false;
-		}
-	}
+    protected void setDSEEnabled(boolean enabled) {
 
-	protected void setLSEnabled(boolean enabled) {
+        IResource resource = ((IJavaProject) getElement()).getResource();
+        String value = Boolean.toString(enabled);
+        if (value.equals(""))
+            value = "false";
+        try {
+            resource.setPersistentProperty(DSE_PROP_KEY, value);
+        } catch (CoreException e) {
+        }
+    }
 
-		IResource resource = ((IJavaProject) getElement()).getResource();
-		String value = Boolean.toString(enabled);
-		if (value.equals(""))
-			value = "false";
-		try {
-			resource.setPersistentProperty(LS_PROP_KEY, value);
-		} catch (CoreException e) {
-		}
-	}
+    protected boolean getLSEnabled() {
+        IResource resource = ((IJavaProject) getElement()).getResource();
+        try {
+            String value = resource.getPersistentProperty(LS_PROP_KEY);
+            if (value == null)
+                return false;
+            return Boolean.parseBoolean(value);
+        } catch (CoreException e) {
+            return false;
+        }
+    }
+
+    protected void setLSEnabled(boolean enabled) {
+
+        IResource resource = ((IJavaProject) getElement()).getResource();
+        String value = Boolean.toString(enabled);
+        if (value.equals(""))
+            value = "false";
+        try {
+            resource.setPersistentProperty(LS_PROP_KEY, value);
+        } catch (CoreException e) {
+        }
+    }
 
 
 //	protected boolean getReportEnabled() {
@@ -746,106 +746,106 @@ public class EvoSuitePropertyPage extends PropertyPage {
 //		}
 //	}
 
-	//	protected boolean getEvoSuiteRunnerEnabled() {
-	//		IResource resource = ((IJavaProject) getElement()).getResource();
-	//		try {
-	//			String value = resource.getPersistentProperty(RUNNER_PROP_KEY);
-	//			if (value == null)
-	//				return false;
-	//			return Boolean.parseBoolean(value);
-	//		} catch (CoreException e) {
-	//			return false;
-	//		}
-	//	}
-	//
-	//	protected void setEvoSuiteRunnerEnabled(boolean enabled) {
-	//
-	//		IResource resource = ((IJavaProject) getElement()).getResource();
-	//		String value = Boolean.toString(enabled);
-	//		if (value.equals(""))
-	//			value = "false";
-	//		try {
-	//			resource.setPersistentProperty(RUNNER_PROP_KEY, value);
-	//		} catch (CoreException e) {
-	//		}
-	//	}
+    //	protected boolean getEvoSuiteRunnerEnabled() {
+    //		IResource resource = ((IJavaProject) getElement()).getResource();
+    //		try {
+    //			String value = resource.getPersistentProperty(RUNNER_PROP_KEY);
+    //			if (value == null)
+    //				return false;
+    //			return Boolean.parseBoolean(value);
+    //		} catch (CoreException e) {
+    //			return false;
+    //		}
+    //	}
+    //
+    //	protected void setEvoSuiteRunnerEnabled(boolean enabled) {
+    //
+    //		IResource resource = ((IJavaProject) getElement()).getResource();
+    //		String value = Boolean.toString(enabled);
+    //		if (value.equals(""))
+    //			value = "false";
+    //		try {
+    //			resource.setPersistentProperty(RUNNER_PROP_KEY, value);
+    //		} catch (CoreException e) {
+    //		}
+    //	}
 
-	protected int getTime() {
-		IResource resource = ((IJavaProject) getElement()).getResource();
-		try {
-			String value = resource.getPersistentProperty(TIME_PROP_KEY);
-			if (value == null)
-				return 20;
-			return Integer.parseInt(value);
-		} catch (CoreException e) {
-			return 20;
-		}
-	}
+    protected int getTime() {
+        IResource resource = ((IJavaProject) getElement()).getResource();
+        try {
+            String value = resource.getPersistentProperty(TIME_PROP_KEY);
+            if (value == null)
+                return 20;
+            return Integer.parseInt(value);
+        } catch (CoreException e) {
+            return 20;
+        }
+    }
 
-	protected void setTime(int time) {
-		IResource resource = ((IJavaProject) getElement()).getResource();
-		String value = Integer.toString(time);
-		if (value.equals(""))
-			value = "20";
-		try {
-			resource.setPersistentProperty(TIME_PROP_KEY, value);
-		} catch (CoreException e) {
-		}
-	}
+    protected void setTime(int time) {
+        IResource resource = ((IJavaProject) getElement()).getResource();
+        String value = Integer.toString(time);
+        if (value.equals(""))
+            value = "20";
+        try {
+            resource.setPersistentProperty(TIME_PROP_KEY, value);
+        } catch (CoreException e) {
+        }
+    }
 
-	protected int getSeed() {
-		IResource resource = ((IJavaProject) getElement()).getResource();
-		try {
-			String value = resource.getPersistentProperty(SEED_PROP_KEY);
-			if (value == null)
-				return 42;
-			return Integer.parseInt(value);
-		} catch (CoreException e) {
-			return 42;
-		}
-	}
+    protected int getSeed() {
+        IResource resource = ((IJavaProject) getElement()).getResource();
+        try {
+            String value = resource.getPersistentProperty(SEED_PROP_KEY);
+            if (value == null)
+                return 42;
+            return Integer.parseInt(value);
+        } catch (CoreException e) {
+            return 42;
+        }
+    }
 
 
-	protected void setSeed(int seed) {
-		IResource resource = ((IJavaProject) getElement()).getResource();
-		String value = Integer.toString(seed);
-		if (value.equals(""))
-			value = "42";
-		try {
-			resource.setPersistentProperty(SEED_PROP_KEY, value);
-		} catch (CoreException e) {
-		}
-	}
-	
-	protected String[] getCriteria() {
-		IResource resource = ((IJavaProject) getElement()).getResource();
-		String[] defaultCriteria = new String[] {"Line", "Branch", "Exception", "WeakMutation"};
-		// The following criteria are not activated by default because "extend" doesn't work properly with them
-		// until the carver is fixed properly
-		//"Output", "Method", "MethodNoException", "CBranch"
-		try {
-			String value = resource.getPersistentProperty(CRITERIA_PROP_KEY);
-			if (value == null)
-				return defaultCriteria;
-			else {
-				StringTokenizer tokenizer = new StringTokenizer(value, ":");
-				int num = tokenizer.countTokens();
-				String[] values = new String[num];
-				for(int i = 0; i < num; i++) {
-					values[i] = tokenizer.nextToken();
-				}
-				return values;
-			}
-		} catch (CoreException e) {
-			return defaultCriteria;
-		}
-	}
+    protected void setSeed(int seed) {
+        IResource resource = ((IJavaProject) getElement()).getResource();
+        String value = Integer.toString(seed);
+        if (value.equals(""))
+            value = "42";
+        try {
+            resource.setPersistentProperty(SEED_PROP_KEY, value);
+        } catch (CoreException e) {
+        }
+    }
 
-	protected void setCriteria(String value) {
-		IResource resource = ((IJavaProject) getElement()).getResource();
-		//String criterion = value.toLowerCase();
-		try {
-			resource.setPersistentProperty(CRITERIA_PROP_KEY, value);
+    protected String[] getCriteria() {
+        IResource resource = ((IJavaProject) getElement()).getResource();
+        String[] defaultCriteria = new String[]{"Line", "Branch", "Exception", "WeakMutation"};
+        // The following criteria are not activated by default because "extend" doesn't work properly with them
+        // until the carver is fixed properly
+        //"Output", "Method", "MethodNoException", "CBranch"
+        try {
+            String value = resource.getPersistentProperty(CRITERIA_PROP_KEY);
+            if (value == null)
+                return defaultCriteria;
+            else {
+                StringTokenizer tokenizer = new StringTokenizer(value, ":");
+                int num = tokenizer.countTokens();
+                String[] values = new String[num];
+                for (int i = 0; i < num; i++) {
+                    values[i] = tokenizer.nextToken();
+                }
+                return values;
+            }
+        } catch (CoreException e) {
+            return defaultCriteria;
+        }
+    }
+
+    protected void setCriteria(String value) {
+        IResource resource = ((IJavaProject) getElement()).getResource();
+        //String criterion = value.toLowerCase();
+        try {
+            resource.setPersistentProperty(CRITERIA_PROP_KEY, value);
 //			if (criterion.startsWith("defuse"))
 //				resource.setPersistentProperty(CRITERION_PROP_KEY, "defuse");
 //			else if (criterion.startsWith("weak"))
@@ -854,35 +854,35 @@ public class EvoSuitePropertyPage extends PropertyPage {
 //				resource.setPersistentProperty(CRITERION_PROP_KEY, "strongmutation");
 //			else
 //				resource.setPersistentProperty(CRITERION_PROP_KEY, "branch");
-		} catch (CoreException e) {
-		}
-	}
+        } catch (CoreException e) {
+        }
+    }
 
-	protected int getGlobalTime() {
-		IResource resource = ((IJavaProject) getElement()).getResource();
-		try {
-			String value = resource.getPersistentProperty(GLOBAL_TIME_PROP_KEY);
-			if (value == null)
-				return 60;
-			return Integer.parseInt(value);
-		} catch (CoreException e) {
-			return 60;
-		}
-	}
+    protected int getGlobalTime() {
+        IResource resource = ((IJavaProject) getElement()).getResource();
+        try {
+            String value = resource.getPersistentProperty(GLOBAL_TIME_PROP_KEY);
+            if (value == null)
+                return 60;
+            return Integer.parseInt(value);
+        } catch (CoreException e) {
+            return 60;
+        }
+    }
 
-	protected void setGlobalTime(int time) {
-		IResource resource = ((IJavaProject) getElement()).getResource();
-		String value = Integer.toString(time);
-		if (value.equals(""))
-			value = "^0";
-		try {
-			resource.setPersistentProperty(GLOBAL_TIME_PROP_KEY, value);
-		} catch (CoreException e) {
-		}
-	}
-	
-	protected String getTestSuffix() {
-		return Properties.JUNIT_SUFFIX;
+    protected void setGlobalTime(int time) {
+        IResource resource = ((IJavaProject) getElement()).getResource();
+        String value = Integer.toString(time);
+        if (value.equals(""))
+            value = "^0";
+        try {
+            resource.setPersistentProperty(GLOBAL_TIME_PROP_KEY, value);
+        } catch (CoreException e) {
+        }
+    }
+
+    protected String getTestSuffix() {
+        return Properties.JUNIT_SUFFIX;
 		/*
 		IResource resource = ((IJavaProject) getElement()).getResource();
 		try {
@@ -893,76 +893,76 @@ public class EvoSuitePropertyPage extends PropertyPage {
 		} catch (CoreException e) {
 			return "EvoSuiteTest";
 		}*/
-	}
+    }
 
-	protected void setTestSuffix(String suffix) {
-		try {
-			IResource resource = ((IJavaProject) getElement()).getResource();
-			if (! suffix.equals("")) {
-				Properties.JUNIT_SUFFIX = suffix;
-				resource.setPersistentProperty(TEST_SUFFIX_PROP_KEY, suffix);
-			}
-		} catch (CoreException e) {
-			e.printStackTrace();
-		}
-	}
+    protected void setTestSuffix(String suffix) {
+        try {
+            IResource resource = ((IJavaProject) getElement()).getResource();
+            if (!suffix.equals("")) {
+                Properties.JUNIT_SUFFIX = suffix;
+                resource.setPersistentProperty(TEST_SUFFIX_PROP_KEY, suffix);
+            }
+        } catch (CoreException e) {
+            e.printStackTrace();
+        }
+    }
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jface.preference.PreferencePage#performOk()
-	 */
-	@Override
-	public boolean performOk() {
+    /* (non-Javadoc)
+     * @see org.eclipse.jface.preference.PreferencePage#performOk()
+     */
+    @Override
+    public boolean performOk() {
 //		setReportEnabled(reportButton.getSelection());
 //		setPlotEnabled(plotButton.getSelection());
-		setAssertionsEnabled(assertionButton.getSelection());
-		setMinimizeTestsEnabled(minimizeTestsButton.getSelection());
-		setMinimizeValuesEnabled(minimizeValuesButton.getSelection());
-		setSandboxEnabled(sandboxButton.getSelection());
-		setScaffoldingEnabled(scaffoldingButton.getSelection());
-		setDeterministicEnabled(deterministicButton.getSelection());
-		setTime(time.getSelection());
-		boolean first = true;
-		String criteria = "";
-		for(TableItem item : criteriaList.getItems()) {
-			if(item.getChecked()) {
-				if(first)
-					first = false;
-				else
-					criteria += ":";
-				criteria += item.getText();
-			}
-		}
-		setCriteria(criteria);
-		setContractsEnabled(contractsButton.getSelection());
-		setErrorBranchesEnabled(errorButton.getSelection());
-		setDSEEnabled(dseButton.getSelection());
-		setLSEnabled(lsButton.getSelection());
-		setTestSuffix(testSuffix.getText());
-		// setEvoSuiteRunnerEnabled(evosuiteRunnerButton.getSelection());
-		setGlobalTime(time2.getSelection());
-		return super.performOk();
-	}
+        setAssertionsEnabled(assertionButton.getSelection());
+        setMinimizeTestsEnabled(minimizeTestsButton.getSelection());
+        setMinimizeValuesEnabled(minimizeValuesButton.getSelection());
+        setSandboxEnabled(sandboxButton.getSelection());
+        setScaffoldingEnabled(scaffoldingButton.getSelection());
+        setDeterministicEnabled(deterministicButton.getSelection());
+        setTime(time.getSelection());
+        boolean first = true;
+        String criteria = "";
+        for (TableItem item : criteriaList.getItems()) {
+            if (item.getChecked()) {
+                if (first)
+                    first = false;
+                else
+                    criteria += ":";
+                criteria += item.getText();
+            }
+        }
+        setCriteria(criteria);
+        setContractsEnabled(contractsButton.getSelection());
+        setErrorBranchesEnabled(errorButton.getSelection());
+        setDSEEnabled(dseButton.getSelection());
+        setLSEnabled(lsButton.getSelection());
+        setTestSuffix(testSuffix.getText());
+        // setEvoSuiteRunnerEnabled(evosuiteRunnerButton.getSelection());
+        setGlobalTime(time2.getSelection());
+        return super.performOk();
+    }
 
-	@Override
-	protected void performDefaults() {
-		super.performDefaults();
-		setTime(10);
-		setGlobalTime(60);
-		setAssertionsEnabled(true);
-		setMinimizeTestsEnabled(true);
-		setMinimizeValuesEnabled(false);
+    @Override
+    protected void performDefaults() {
+        super.performDefaults();
+        setTime(10);
+        setGlobalTime(60);
+        setAssertionsEnabled(true);
+        setMinimizeTestsEnabled(true);
+        setMinimizeValuesEnabled(false);
 //		setReportEnabled(false);
 //		setPlotEnabled(false);
-		setSandboxEnabled(true);
-		setScaffoldingEnabled(true);
-		setDeterministicEnabled(false);
-		setContractsEnabled(false);
-		setErrorBranchesEnabled(false);
-		setDSEEnabled(false);
-		setLSEnabled(false);
-		// setEvoSuiteRunnerEnabled(false);
-		// setCriteria("Line:Branch:Exception:WeakMutation:Output:Method:MethodNoException:CBranch");
-		setCriteria("Line:Branch:Exception:WeakMutation"); // Output:Method:MethodNoException:CBranch
-		setTestSuffix(Properties.JUNIT_SUFFIX);
-	}
+        setSandboxEnabled(true);
+        setScaffoldingEnabled(true);
+        setDeterministicEnabled(false);
+        setContractsEnabled(false);
+        setErrorBranchesEnabled(false);
+        setDSEEnabled(false);
+        setLSEnabled(false);
+        // setEvoSuiteRunnerEnabled(false);
+        // setCriteria("Line:Branch:Exception:WeakMutation:Output:Method:MethodNoException:CBranch");
+        setCriteria("Line:Branch:Exception:WeakMutation"); // Output:Method:MethodNoException:CBranch
+        setTestSuffix(Properties.JUNIT_SUFFIX);
+    }
 }

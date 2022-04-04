@@ -19,8 +19,8 @@
  */
 package org.evosuite.symbolic.dse;
 
-import org.evosuite.symbolic.PathCondition;
 import org.evosuite.symbolic.BranchCondition;
+import org.evosuite.symbolic.PathCondition;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.TestChromosome;
 
@@ -33,21 +33,19 @@ import java.util.List;
  */
 public interface ConcolicExecutor {
 
-	/**
-	 * Retrieve the path condition for a given test case
-	 *
-	 * @param test
-	 *            a {@link org.evosuite.testcase.TestChromosome} object.
-	 * @return a {@link java.util.List} object.
-	 */
-  List<BranchCondition> getSymbolicPath(TestChromosome test);
+    /**
+     * Retrieve the path condition for a given test case
+     *
+     * @param test a {@link org.evosuite.testcase.TestChromosome} object.
+     * @return a {@link java.util.List} object.
+     */
+    List<BranchCondition> getSymbolicPath(TestChromosome test);
 
-  /**
-	 * Retrieve the path condition for a given test case
-	 *
-	 * @param defaultTestCase
-	 *            a {@link org.evosuite.testcase.DefaultTestCase} object.
-	 * @return a {@link PathCondition} object.
-	 */
-  PathCondition execute(DefaultTestCase defaultTestCase);
+    /**
+     * Retrieve the path condition for a given test case
+     *
+     * @param defaultTestCase a {@link org.evosuite.testcase.DefaultTestCase} object.
+     * @return a {@link PathCondition} object.
+     */
+    PathCondition execute(DefaultTestCase defaultTestCase);
 }

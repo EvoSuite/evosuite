@@ -20,17 +20,24 @@
 package org.evosuite.symbolic.expr.reftype;
 
 import org.evosuite.symbolic.expr.ExpressionVisitor;
-import org.objectweb.asm.Type;
+import org.evosuite.symbolic.expr.Variable;
+
+import java.util.Collections;
+import java.util.Set;
 
 /**
- * Represents all array types
+ * This is the superclass of all literal classes
  *
  * @author Ignacio Lebrero
  */
-public final class ArrayTypeConstant extends NonNullReferenceTypeConstant {
+public class LiteralClassType extends ReferenceTypeExpression {
+    public LiteralClassType(Class concreteValue) {
+        super(concreteValue, 1, false);
+    }
 
-    public ArrayTypeConstant(Type concreteClass, int referenceTypeId) {
-        super(concreteClass, referenceTypeId);
+    @Override
+    public Set<Variable<?>> getVariables() {
+        return Collections.emptySet();
     }
 
     @Override

@@ -19,9 +19,9 @@
  */
 package org.evosuite.runtime.classhandling;
 
-import org.junit.Assert;
 import org.evosuite.runtime.RuntimeSettings;
 import org.evosuite.runtime.instrumentation.EvoClassLoader;
+import org.junit.Assert;
 import org.junit.Test;
 
 /**
@@ -30,7 +30,7 @@ import org.junit.Test;
 public class ClassStateSupportTest {
 
     @Test
-    public void testInitializeClasses(){
+    public void testInitializeClasses() {
 
 
         EvoClassLoader loader = new EvoClassLoader();
@@ -43,7 +43,7 @@ public class ClassStateSupportTest {
         //with mocking
         RuntimeSettings.mockJVMNonDeterminism = true;
         className = "com.examples.with.different.packagename.classhandling.TimeB";
-        problem = ClassStateSupport.initializeClasses(loader,className);
+        problem = ClassStateSupport.initializeClasses(loader, className);
         Assert.assertFalse(problem);
     }
 }

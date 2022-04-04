@@ -59,9 +59,9 @@ package org.evosuite.graphs;
  *
  */
 
-import java.util.*;
+import org.jgrapht.Graph;
 
-import org.jgrapht.*;
+import java.util.HashMap;
 
 
 /**
@@ -71,14 +71,13 @@ import org.jgrapht.*;
  *
  * @author Tom Larkworthy
  */
-public class FloydWarshall<V, E>
-{
+public class FloydWarshall<V, E> {
     //~ Instance fields --------------------------------------------------------
 
     int nextIndex = 0;
     HashMap<V, Integer> indices;
 
-    double [][] d;
+    double[][] d;
 
     double diameter;
 
@@ -87,12 +86,11 @@ public class FloydWarshall<V, E>
     /**
      * Constructs the shortest path array for the given graph.
      *
-     * @param g input graph
+     * @param g   input graph
      * @param <V> a V object.
      * @param <E> a E object.
      */
-    public FloydWarshall(Graph<V, E> g)
-    {
+    public FloydWarshall(Graph<V, E> g) {
         int sz = g.vertexSet().size();
         d = new double[sz][sz];
         indices = new HashMap<>();
@@ -120,11 +118,11 @@ public class FloydWarshall<V, E>
             for (V v1 : g.vertexSet()) {
                 for (V v2 : g.vertexSet()) {
                     d[index(v1)][index(v2)] =
-                        Math.min(
-                            d[index(v1)][index(v2)],
-                            d[index(v1)][k] + d[k][index(v2)]);
-                    if(Double.POSITIVE_INFINITY != d[index(v1)][index(v2)])
-                    	diameter = Math.max(diameter, d[index(v1)][index(v2)]);
+                            Math.min(
+                                    d[index(v1)][index(v2)],
+                                    d[index(v1)][k] + d[k][index(v2)]);
+                    if (Double.POSITIVE_INFINITY != d[index(v1)][index(v2)])
+                        diameter = Math.max(diameter, d[index(v1)][index(v2)]);
                 }
             }
         }
@@ -139,8 +137,7 @@ public class FloydWarshall<V, E>
      * @param v2 second vertex
      * @return distance, or positive infinity if no path
      */
-    public double shortestDistance(V v1, V v2)
-    {
+    public double shortestDistance(V v1, V v2) {
         return d[index(v1)][index(v2)];
     }
 
@@ -149,13 +146,11 @@ public class FloydWarshall<V, E>
      *
      * @return diameter computed for the graph
      */
-    public double getDiameter()
-    {
+    public double getDiameter() {
         return diameter;
     }
 
-    private int index(V vertex)
-    {
+    private int index(V vertex) {
         Integer index = indices.get(vertex);
         if (index == null) {
             indices.put(vertex, nextIndex);

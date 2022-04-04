@@ -25,20 +25,21 @@ import java.util.NoSuchElementException;
  * The BufferUnderflowException is used when the buffer is already empty.
  * <p>
  * NOTE: From version 3.0, this exception extends NoSuchElementException.
- * 
- * @since Commons Collections 2.1
- * @version $Revision: 646777 $ $Date: 2008-04-10 13:33:15 +0100 (Thu, 10 Apr 2008) $
  *
  * @author Avalon
  * @author Berin Loritsch
  * @author Jeff Turner
  * @author Paul Jack
  * @author Stephen Colebourne
+ * @version $Revision: 646777 $ $Date: 2008-04-10 13:33:15 +0100 (Thu, 10 Apr 2008) $
+ * @since Commons Collections 2.1
  */
 public class BufferUnderflowException extends NoSuchElementException {
 
     private static final long serialVersionUID = 6142514256825351121L;
-    /** The root cause throwable */
+    /**
+     * The root cause throwable
+     */
     private final Throwable throwable;
 
     /**
@@ -49,20 +50,20 @@ public class BufferUnderflowException extends NoSuchElementException {
         throwable = null;
     }
 
-    /** 
+    /**
      * Construct a new <code>BufferUnderflowException</code>.
-     * 
-     * @param message  the detail message for this exception
+     *
+     * @param message the detail message for this exception
      */
     public BufferUnderflowException(String message) {
         this(message, null);
     }
 
-    /** 
+    /**
      * Construct a new <code>BufferUnderflowException</code>.
-     * 
-     * @param message  the detail message for this exception
-     * @param exception  the root cause of the exception
+     *
+     * @param message   the detail message for this exception
+     * @param exception the root cause of the exception
      */
     public BufferUnderflowException(String message, Throwable exception) {
         super(message);
@@ -77,5 +78,5 @@ public class BufferUnderflowException extends NoSuchElementException {
     public final Throwable getCause() {
         return throwable;
     }
-    
+
 }

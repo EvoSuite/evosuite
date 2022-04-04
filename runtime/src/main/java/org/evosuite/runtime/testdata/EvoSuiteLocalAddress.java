@@ -24,10 +24,10 @@ package org.evosuite.runtime.testdata;
  */
 public class EvoSuiteLocalAddress extends EvoSuiteAddress {
 
-	private static final long serialVersionUID = -6083183350694322155L;
+    private static final long serialVersionUID = -6083183350694322155L;
 
-	public EvoSuiteLocalAddress(String host, int port) throws IllegalArgumentException {
-        super(host,port);
+    public EvoSuiteLocalAddress(String host, int port) throws IllegalArgumentException {
+        super(host, port);
     }
 
 }

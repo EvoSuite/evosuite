@@ -29,16 +29,14 @@ import org.evosuite.ga.variables.DoubleVariable;
 
 /**
  * Beale's Problem
- * 
+ *
  * @author José Campos
  */
-@SuppressWarnings({ "serial" })
-public class Beales implements Problem<NSGAChromosome>
-{
+@SuppressWarnings({"serial"})
+public class Beales implements Problem<NSGAChromosome> {
     private final List<FitnessFunction<NSGAChromosome>> fitnessFunctions = new ArrayList<>();
 
-    public Beales()
-    {
+    public Beales() {
         super();
 
         /**
@@ -52,11 +50,12 @@ public class Beales implements Problem<NSGAChromosome>
                 double y = ((DoubleVariable) c.getVariables().get(1)).getValue();
 
                 double fitness = Math.pow(1.5 - x + x * y, 2.0) +
-                                 Math.pow(2.25 - x + Math.pow(x * y, 2.0), 2.0) +
-                                 Math.pow(2.625 - x + Math.pow(x * y, 3.0), 2.0);
+                        Math.pow(2.25 - x + Math.pow(x * y, 2.0), 2.0) +
+                        Math.pow(2.625 - x + Math.pow(x * y, 3.0), 2.0);
                 updateIndividual(c, fitness);
                 return fitness;
             }
+
             @Override
             public boolean isMaximizationFunction() {
                 return false;

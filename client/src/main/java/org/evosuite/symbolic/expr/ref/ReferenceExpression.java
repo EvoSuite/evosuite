@@ -29,125 +29,122 @@ import org.objectweb.asm.Type;
  * can be initialized using a concrete reference (can be null). Once it is
  * initialized, we can get the concrete identity hash code and the concrete
  * object
- * 
- * @author galeotti
  *
+ * @author galeotti
  */
 public abstract class ReferenceExpression extends AbstractExpression<Object> implements SymbolicValue {
 
-	
-	private static final long serialVersionUID = 7925438069540850557L;
 
-	/**
-	 * InstanceId does not change during the lifetime of the reference
-	 */
-	private final int instanceId;
+    private static final long serialVersionUID = 7925438069540850557L;
 
-	/**
-	 * The type of this reference does not change during the lifetime
-	 */
-	private final Type objectType;
+    /**
+     * InstanceId does not change during the lifetime of the reference
+     */
+    private final int instanceId;
 
-	/**
-	 * This is the result of applying System.identityHashCode to the concrete
-	 * value stored in this reference
-	 */
-	private int concIdentityHashCode;
+    /**
+     * The type of this reference does not change during the lifetime
+     */
+    private final Type objectType;
 
-	/**
-	 * This flag shows if the current Reference was initialized (i.e. a concrete
-	 * value was assigned to this symbolic reference)
-	 */
-	private boolean isInitialized = false;
+    /**
+     * This is the result of applying System.identityHashCode to the concrete
+     * value stored in this reference
+     */
+    private int concIdentityHashCode;
 
-	/**
-	 * Creates a new Reference expression of type <code>objectType</code> and
-	 * with instance identifier <code>instanceId</code>
-	 * 
-	 * @param objectType
-	 *            the type of the new reference
-	 * @param instanceId
-	 *            the instance identifier for this new reference
-	 */
-	public ReferenceExpression(Type objectType, int instanceId, int expressionSize, boolean containsSymbolicVariable) {
-		super(null, expressionSize, containsSymbolicVariable);
+    /**
+     * This flag shows if the current Reference was initialized (i.e. a concrete
+     * value was assigned to this symbolic reference)
+     */
+    private boolean isInitialized = false;
 
-		this.objectType = objectType;
-		this.instanceId = instanceId;
+    /**
+     * Creates a new Reference expression of type <code>objectType</code> and
+     * with instance identifier <code>instanceId</code>
+     *
+     * @param objectType the type of the new reference
+     * @param instanceId the instance identifier for this new reference
+     */
+    public ReferenceExpression(Type objectType, int instanceId, int expressionSize, boolean containsSymbolicVariable) {
+        super(null, expressionSize, containsSymbolicVariable);
 
-		// the reference is not initialized
-		this.isInitialized = false; // it is not initialized
-		this.concIdentityHashCode = -1; // no hash code
-	}
+        this.objectType = objectType;
+        this.instanceId = instanceId;
 
-	/**
-	 * Initializes the current reference using the concrete object
-	 * 
-	 * @param conc_object
-	 */
-	public void initializeReference(Object conc_object) {
-		if (this.isInitialized) {
-			throw new IllegalStateException("Reference already initialized!");
-		}
+        // the reference is not initialized
+        this.isInitialized = false; // it is not initialized
+        this.concIdentityHashCode = -1; // no hash code
+    }
 
-		this.concreteValue = conc_object;
-		this.concIdentityHashCode = System.identityHashCode(conc_object);
-		this.isInitialized = true;
-	}
+    /**
+     * Initializes the current reference using the concrete object
+     *
+     * @param conc_object
+     */
+    public void initializeReference(Object conc_object) {
+        if (this.isInitialized) {
+            throw new IllegalStateException("Reference already initialized!");
+        }
 
-	/**
-	 * Prints the reference Id
-	 */
-	@Override
-	public String toString() {
-		return this.getObjectType().getClassName() + "$" + this.getInstanceId();
-	}
+        this.concreteValue = conc_object;
+        this.concIdentityHashCode = System.identityHashCode(conc_object);
+        this.isInitialized = true;
+    }
 
-	/**
-	 * Returns true iff the the reference is initialised
-	 * 
-	 * @return
-	 */
-	public boolean isInitialized() {
-		return this.isInitialized;
-	}
+    /**
+     * Prints the reference Id
+     */
+    @Override
+    public String toString() {
+        return this.getObjectType().getClassName() + "$" + this.getInstanceId();
+    }
 
-	/**
-	 * Returns the identity hash
-	 * 
-	 * @return
-	 */
-	public int getConcIdentityHashCode() {
-		if (!isInitialized())
-			throw new IllegalStateException("Object has to be initialized==true for this method to be invoked");
-		return this.concIdentityHashCode;
-	}
+    /**
+     * Returns true iff the the reference is initialised
+     *
+     * @return
+     */
+    public boolean isInitialized() {
+        return this.isInitialized;
+    }
 
-	/**
-	 * Returns the type of the class
-	 * 
-	 * @return
-	 */
-	public Type getObjectType() {
-		return this.objectType;
-	}
+    /**
+     * Returns the identity hash
+     *
+     * @return
+     */
+    public int getConcIdentityHashCode() {
+        if (!isInitialized())
+            throw new IllegalStateException("Object has to be initialized==true for this method to be invoked");
+        return this.concIdentityHashCode;
+    }
 
-	/**
-	 * Returns the instance id of this reference
-	 *
-	 * @return
-	 */
-	public int getInstanceId() {
-		return instanceId;
-	}
+    /**
+     * Returns the type of the class
+     *
+     * @return
+     */
+    public Type getObjectType() {
+        return this.objectType;
+    }
 
-	/**
-	 * Returns true iff the reference is of type <code>String</code>
-	 * 
-	 * @return
-	 */
-	public boolean isString() {
-		return TypeUtil.isStringValue(this.objectType);
-	}
+    /**
+     * Returns the instance id of this reference
+     *
+     * @return
+     */
+    public int getInstanceId() {
+        return instanceId;
+    }
+
+    /**
+     * Returns true iff the reference is of type <code>String</code>
+     *
+     * @return
+     */
+    public boolean isString() {
+        return TypeUtil.isStringValue(this.objectType);
+    }
 
 }

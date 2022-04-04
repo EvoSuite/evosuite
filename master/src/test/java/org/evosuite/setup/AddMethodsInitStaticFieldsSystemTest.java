@@ -34,54 +34,54 @@ import com.examples.with.different.packagename.staticusage.DirectAccessStaticFie
 
 public class AddMethodsInitStaticFieldsSystemTest extends SystemTestBase {
 
-	private boolean ADD_METHODS_INITIALIZING_STATIC_FIELDS;
+    private boolean ADD_METHODS_INITIALIZING_STATIC_FIELDS;
 
-	@Before
-	public void prepareTest() {
-		ADD_METHODS_INITIALIZING_STATIC_FIELDS = Properties.HANDLE_STATIC_FIELDS;
-		Properties.HANDLE_STATIC_FIELDS = true;
-	}
+    @Before
+    public void prepareTest() {
+        ADD_METHODS_INITIALIZING_STATIC_FIELDS = Properties.HANDLE_STATIC_FIELDS;
+        Properties.HANDLE_STATIC_FIELDS = true;
+    }
 
-	@Test
-	public void testStaticMethods() {
-		EvoSuite evosuite = new EvoSuite();
+    @Test
+    public void testStaticMethods() {
+        EvoSuite evosuite = new EvoSuite();
 
-		String targetClass = Class1.class.getCanonicalName();
-		Properties.TARGET_CLASS = targetClass;
-		String[] command = new String[] { "-generateSuite", "-class",
-				targetClass };
+        String targetClass = Class1.class.getCanonicalName();
+        Properties.TARGET_CLASS = targetClass;
+        String[] command = new String[]{"-generateSuite", "-class",
+                targetClass};
 
-		Object result = evosuite.parseCommandLine(command);
+        Object result = evosuite.parseCommandLine(command);
 
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
-		System.out.println("EvolvedTestSuite:\n" + best);
-		double best_fitness = best.getFitness();
-		Assert.assertEquals("Optimal coverage not reached: " + best_fitness, 0.0, best_fitness, 0.0);
-	}
-	
-	@Test
-	public void testStaticFields() {
-		EvoSuite evosuite = new EvoSuite();
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
+        System.out.println("EvolvedTestSuite:\n" + best);
+        double best_fitness = best.getFitness();
+        Assert.assertEquals("Optimal coverage not reached: " + best_fitness, 0.0, best_fitness, 0.0);
+    }
 
-		String targetClass = DirectAccessStaticField.class.getCanonicalName();
-		Properties.TARGET_CLASS = targetClass;
-		String[] command = new String[] { "-generateSuite", "-class",
-				targetClass };
+    @Test
+    public void testStaticFields() {
+        EvoSuite evosuite = new EvoSuite();
 
-		Object result = evosuite.parseCommandLine(command);
+        String targetClass = DirectAccessStaticField.class.getCanonicalName();
+        Properties.TARGET_CLASS = targetClass;
+        String[] command = new String[]{"-generateSuite", "-class",
+                targetClass};
 
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
-		System.out.println("EvolvedTestSuite:\n" + best);
-		double best_fitness = best.getFitness();
-		Assert.assertEquals("Optimal coverage not reached: " + best_fitness, 0.0, best_fitness, 0.0);
-	}
-	
-	@After
-	public void restore() {
-		Properties.HANDLE_STATIC_FIELDS = ADD_METHODS_INITIALIZING_STATIC_FIELDS;
-	}
+        Object result = evosuite.parseCommandLine(command);
+
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
+        System.out.println("EvolvedTestSuite:\n" + best);
+        double best_fitness = best.getFitness();
+        Assert.assertEquals("Optimal coverage not reached: " + best_fitness, 0.0, best_fitness, 0.0);
+    }
+
+    @After
+    public void restore() {
+        Properties.HANDLE_STATIC_FIELDS = ADD_METHODS_INITIALIZING_STATIC_FIELDS;
+    }
 
 
 }

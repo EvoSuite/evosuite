@@ -41,9 +41,9 @@ public class DynamicConstantVariableProbabilityPool implements ConstantPool {
     private final RandomAccessQueue<Float> floatPool = new FrequencyBasedRandomAccessQueue<>();
 
     public DynamicConstantVariableProbabilityPool() {
-		/*
-		 * all pools HAVE to be non-empty
-		 */
+        /*
+         * all pools HAVE to be non-empty
+         */
         stringPool.restrictedAdd("");
         if (Properties.TARGET_CLASS != null && !Properties.TARGET_CLASS.isEmpty()) {
             typePool.restrictedAdd(Type.getObjectType(Properties.TARGET_CLASS));
@@ -112,7 +112,7 @@ public class DynamicConstantVariableProbabilityPool implements ConstantPool {
 
         if (object instanceof String) {
             String string = (String) object;
-            if(string.length() > Properties.MAX_STRING)
+            if (string.length() > Properties.MAX_STRING)
                 return;
             // String literals are constrained to 65535 bytes
             // as they are stored in the constant pool
@@ -121,9 +121,7 @@ public class DynamicConstantVariableProbabilityPool implements ConstantPool {
             stringPool.restrictedAdd(string);
         } else if (object instanceof Type) {
             typePool.restrictedAdd((Type) object);
-        }
-
-        else if (object instanceof Integer) {
+        } else if (object instanceof Integer) {
             if (Properties.RESTRICT_POOL) {
                 int val = (Integer) object;
                 if (Math.abs(val) < Properties.MAX_INT) {
@@ -165,12 +163,12 @@ public class DynamicConstantVariableProbabilityPool implements ConstantPool {
     @Override
     public String toString() {
         String res = "DynamicConstantPool:{";
-        res += "stringPool=" + stringPool.toString() + " ; ";
-        res += "typePool=" + typePool.toString() + " ; ";
-        res += "intPool=" + intPool.toString() + " ; ";
-        res += "longPool=" + longPool.toString() + " ; ";
-        res += "floatPool=" + floatPool.toString() + " ; ";
-        res += "doublePool=" + doublePool.toString() + "}";
+        res += "stringPool=" + stringPool + " ; ";
+        res += "typePool=" + typePool + " ; ";
+        res += "intPool=" + intPool + " ; ";
+        res += "longPool=" + longPool + " ; ";
+        res += "floatPool=" + floatPool + " ; ";
+        res += "doublePool=" + doublePool + "}";
         return res;
     }
 }

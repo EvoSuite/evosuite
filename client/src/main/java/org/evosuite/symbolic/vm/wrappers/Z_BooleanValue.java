@@ -27,21 +27,21 @@ import org.evosuite.symbolic.vm.heap.SymbolicHeap;
 
 public final class Z_BooleanValue extends SymbolicFunction {
 
-	private static final String BOOLEAN_VALUE = "booleanValue";
+    private static final String BOOLEAN_VALUE = "booleanValue";
 
-	public Z_BooleanValue(SymbolicEnvironment env) {
-		super(env, Types.JAVA_LANG_BOOLEAN, BOOLEAN_VALUE, Types.TO_BOOLEAN);
-	}
+    public Z_BooleanValue(SymbolicEnvironment env) {
+        super(env, Types.JAVA_LANG_BOOLEAN, BOOLEAN_VALUE, Types.TO_BOOLEAN);
+    }
 
-	@Override
-	public Object executeFunction() {
-		ReferenceConstant symb_boolean = this.getSymbReceiver();
-		Boolean conc_boolean = (Boolean) this.getConcReceiver();
-		boolean conc_boolean_value = this.getConcBooleanRetVal();
-		IntegerValue symb_boolean_value = env.heap.getField(
-				Types.JAVA_LANG_BOOLEAN, SymbolicHeap.$BOOLEAN_VALUE,
-				conc_boolean, symb_boolean, conc_boolean_value ? 1 : 0);
-		return symb_boolean_value;
-	}
+    @Override
+    public Object executeFunction() {
+        ReferenceConstant symb_boolean = this.getSymbReceiver();
+        Boolean conc_boolean = (Boolean) this.getConcReceiver();
+        boolean conc_boolean_value = this.getConcBooleanRetVal();
+        IntegerValue symb_boolean_value = env.heap.getField(
+                Types.JAVA_LANG_BOOLEAN, SymbolicHeap.$BOOLEAN_VALUE,
+                conc_boolean, symb_boolean, conc_boolean_value ? 1 : 0);
+        return symb_boolean_value;
+    }
 
 }

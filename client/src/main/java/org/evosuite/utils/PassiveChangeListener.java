@@ -20,30 +20,33 @@
 package org.evosuite.utils;
 
 import java.io.Serializable;
+
 public class PassiveChangeListener<T> implements Listener<T>, Serializable {
 
-	private static final long serialVersionUID = -8661407199741916844L;
+    private static final long serialVersionUID = -8661407199741916844L;
 
-	protected boolean changed = false;
+    protected boolean changed = false;
 
-	/**
-	 * Returns whether the listener received any event since the last call of
-	 * this method. Resets this listener such that another call of this method
-	 * without receiving an event in between will return false.
-	 *
-	 * @param <T> a T object.
-	 * @return a boolean.
-	 */
-	public boolean hasChanged() {
-		boolean result = changed;
-		changed = false;
-		return result;
-	}
+    /**
+     * Returns whether the listener received any event since the last call of
+     * this method. Resets this listener such that another call of this method
+     * without receiving an event in between will return false.
+     *
+     * @param <T> a T object.
+     * @return a boolean.
+     */
+    public boolean hasChanged() {
+        boolean result = changed;
+        changed = false;
+        return result;
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public void receiveEvent(T event) {
-		changed = true;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void receiveEvent(T event) {
+        changed = true;
+    }
 
 }

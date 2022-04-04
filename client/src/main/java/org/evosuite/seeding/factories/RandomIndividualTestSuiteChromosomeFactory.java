@@ -29,48 +29,50 @@ import org.evosuite.utils.Randomness;
  * @author Thomas White
  */
 public class RandomIndividualTestSuiteChromosomeFactory implements
-		ChromosomeFactory<TestSuiteChromosome> {
+        ChromosomeFactory<TestSuiteChromosome> {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	private final ChromosomeFactory<TestSuiteChromosome> defaultFactory;
-	private final GeneticAlgorithm<TestSuiteChromosome> geneticAlgorithm;
+    private final ChromosomeFactory<TestSuiteChromosome> defaultFactory;
+    private final GeneticAlgorithm<TestSuiteChromosome> geneticAlgorithm;
 
-	/**
-	 * <p>
-	 * Constructor for JUnitTestSuiteChromosomeFactory.
-	 * </p>
-	 * 
-	 * @param defaultFactory
-	 *            a {@link org.evosuite.ga.ChromosomeFactory} object.
-	 */
-	public RandomIndividualTestSuiteChromosomeFactory(
-			ChromosomeFactory<TestSuiteChromosome> defaultFactory,
-			GeneticAlgorithm<TestSuiteChromosome> geneticAlgorithm) {
-		this.defaultFactory = defaultFactory;
-		this.geneticAlgorithm = geneticAlgorithm;
-	}
+    /**
+     * <p>
+     * Constructor for JUnitTestSuiteChromosomeFactory.
+     * </p>
+     *
+     * @param defaultFactory a {@link org.evosuite.ga.ChromosomeFactory} object.
+     */
+    public RandomIndividualTestSuiteChromosomeFactory(
+            ChromosomeFactory<TestSuiteChromosome> defaultFactory,
+            GeneticAlgorithm<TestSuiteChromosome> geneticAlgorithm) {
+        this.defaultFactory = defaultFactory;
+        this.geneticAlgorithm = geneticAlgorithm;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.evosuite.ga.ChromosomeFactory#getChromosome()
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public TestSuiteChromosome getChromosome() {
-		/*
-		 * double P_delta = 0.1d; double P_clone = 0.1d; int MAX_CHANGES = 10;
-		 */
-		if (geneticAlgorithm != null && Randomness.nextDouble() < Properties.SEED_PROBABILITY) {
-			int populationSize = geneticAlgorithm.getPopulation().size();
-			TestSuiteChromosome ri = geneticAlgorithm.getPopulation().get(Randomness.nextInt(populationSize));
-			if (ri != null){
-				return ri;
-			}
-		}
+    /*
+     * (non-Javadoc)
+     *
+     * @see org.evosuite.ga.ChromosomeFactory#getChromosome()
+     */
 
-		return defaultFactory.getChromosome();
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public TestSuiteChromosome getChromosome() {
+        /*
+         * double P_delta = 0.1d; double P_clone = 0.1d; int MAX_CHANGES = 10;
+         */
+        if (geneticAlgorithm != null && Randomness.nextDouble() < Properties.SEED_PROBABILITY) {
+            int populationSize = geneticAlgorithm.getPopulation().size();
+            TestSuiteChromosome ri = geneticAlgorithm.getPopulation().get(Randomness.nextInt(populationSize));
+            if (ri != null) {
+                return ri;
+            }
+        }
+
+        return defaultFactory.getChromosome();
+    }
 
 }

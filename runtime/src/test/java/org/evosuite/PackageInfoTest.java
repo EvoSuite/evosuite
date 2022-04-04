@@ -19,7 +19,7 @@
  */
 package org.evosuite;
 
-import org.junit.*;
+import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
@@ -32,29 +32,30 @@ public class PackageInfoTest {
 
     @Test
     public void testGetEvoSuitePackage() throws Exception {
-        assertEquals("org.evosuite",PackageInfo.getEvoSuitePackage());
+        assertEquals("org.evosuite", PackageInfo.getEvoSuitePackage());
     }
 
     @Test
     public void testGetEvoSuitePackageWithSlash() throws Exception {
-        assertEquals("org/evosuite",PackageInfo.getEvoSuitePackageWithSlash());
+        assertEquals("org/evosuite", PackageInfo.getEvoSuitePackageWithSlash());
     }
 
     @Test
     public void testGetShadedPackage() throws Exception {
-        assertEquals("org.evosuite.shaded",PackageInfo.getShadedPackageForThirdPartyLibraries());
+        assertEquals("org.evosuite.shaded", PackageInfo.getShadedPackageForThirdPartyLibraries());
     }
 
     @Test
     public void testGetNameWithSlash() throws Exception {
-        assertEquals("org/evosuite/PackageInfo",PackageInfo.getNameWithSlash(PackageInfo.class));
+        assertEquals("org/evosuite/PackageInfo", PackageInfo.getNameWithSlash(PackageInfo.class));
     }
 
     @Test
     public void testGetNameWithSlashForInnerClass() throws Exception {
-        assertEquals("org/evosuite/PackageInfoTest$Foo",PackageInfo.getNameWithSlash(PackageInfoTest.Foo.class));
+        assertEquals("org/evosuite/PackageInfoTest$Foo", PackageInfo.getNameWithSlash(PackageInfoTest.Foo.class));
     }
 
-    public static class Foo{}
+    public static class Foo {
+    }
 
 }

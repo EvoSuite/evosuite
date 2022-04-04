@@ -34,10 +34,10 @@ public class MockitoExtension {
      * @param values
      * @return
      */
-    public static Stubber doReturn(Object value, Object... values){
+    public static Stubber doReturn(Object value, Object... values) {
 
         Stubber stubber = Mockito.doReturn(value);
-        for(Object v : values){
+        for (Object v : values) {
             stubber = stubber.doReturn(v);
         }
 

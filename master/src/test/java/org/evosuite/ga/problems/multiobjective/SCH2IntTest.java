@@ -44,11 +44,9 @@ import org.junit.Test;
 import static java.util.Comparator.comparingDouble;
 
 /**
- * 
  * @author José Campos
  */
-public class SCH2IntTest
-{
+public class SCH2IntTest {
     @Before
     public void setUp() {
         Properties.POPULATION = 100;
@@ -59,8 +57,7 @@ public class SCH2IntTest
     }
 
     @Test
-    public void testSCH2Fitnesses()
-    {
+    public void testSCH2Fitnesses() {
         Problem<NSGAChromosome> p = new SCH2();
         FitnessFunction<NSGAChromosome> f1 = p.getFitnessFunctions().get(0);
         FitnessFunction<NSGAChromosome> f2 = p.getFitnessFunctions().get(1);
@@ -86,13 +83,12 @@ public class SCH2IntTest
 
     /**
      * Testing NSGA-II with SCH2 Problem
-     * 
-     * @throws IOException 
-     * @throws NumberFormatException 
+     *
+     * @throws IOException
+     * @throws NumberFormatException
      */
     @Test
-    public void testSCH2() throws NumberFormatException, IOException
-    {
+    public void testSCH2() throws NumberFormatException, IOException {
         Properties.MUTATION_RATE = 1d / 1d;
 
         ChromosomeFactory<NSGAChromosome> factory = new RandomFactory(false, 1, -5.0, 10.0);

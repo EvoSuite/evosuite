@@ -27,8 +27,8 @@ public class GenericFM_GenericMethod {
         <T> T foo(T obj);
     }
 
-    public static boolean bar(Foo foo){
-        if(foo.foo("Test").equals("Bar")){
+    public static boolean bar(Foo foo) {
+        if (foo.foo("Test").equals("Bar")) {
             return true;
         } else {
             return false;

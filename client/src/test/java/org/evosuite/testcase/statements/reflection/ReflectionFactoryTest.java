@@ -29,7 +29,7 @@ import java.lang.reflect.Field;
  */
 public class ReflectionFactoryTest {
 
-    public static class Foo{
+    public static class Foo {
 
         private int x;
         public double p;
@@ -43,6 +43,6 @@ public class ReflectionFactoryTest {
         Assert.assertEquals(1, rf.getNumberOfUsableFields());
 
         Field f = rf.nextField();
-        Assert.assertEquals(Foo.class.getDeclaredField("x") , f);
+        Assert.assertEquals(Foo.class.getDeclaredField("x"), f);
     }
 }

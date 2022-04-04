@@ -24,7 +24,7 @@ package com.examples.with.different.packagename.coverage;
  */
 public class BooleanOneLine {
 
-    public boolean check(String s){
+    public boolean check(String s) {
         return s.equals("42");
     }
 }

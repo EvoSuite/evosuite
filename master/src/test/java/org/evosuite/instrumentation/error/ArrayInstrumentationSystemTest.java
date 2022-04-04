@@ -26,31 +26,31 @@ import org.junit.Test;
 
 public class ArrayInstrumentationSystemTest extends AbstractErrorBranchTest {
 
-	@Test
-	public void testArrayAccessWithoutErrorBranches() {
-		Properties.ERROR_BRANCHES = false;
-		Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.ARRAY};
-		checkErrorBranches(ArrayAccess.class, 2, 0, 2, 0);
-	}
+    @Test
+    public void testArrayAccessWithoutErrorBranches() {
+        Properties.ERROR_BRANCHES = false;
+        Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.ARRAY};
+        checkErrorBranches(ArrayAccess.class, 2, 0, 2, 0);
+    }
 
-	@Test
-	public void testArrayAccessWithErrorBranches() {
-		Properties.ERROR_BRANCHES = true;
-		Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.ARRAY};
-		checkErrorBranches(ArrayAccess.class, 2, 6, 2, 5);
-	}
+    @Test
+    public void testArrayAccessWithErrorBranches() {
+        Properties.ERROR_BRANCHES = true;
+        Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.ARRAY};
+        checkErrorBranches(ArrayAccess.class, 2, 6, 2, 5);
+    }
 
-	@Test
-	public void testArrayCreationWithoutErrorBranches() {
-		Properties.ERROR_BRANCHES = false;
-		Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.ARRAY};
-		checkErrorBranches(ArrayCreation.class, 2, 0, 2, 0);
-	}
+    @Test
+    public void testArrayCreationWithoutErrorBranches() {
+        Properties.ERROR_BRANCHES = false;
+        Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.ARRAY};
+        checkErrorBranches(ArrayCreation.class, 2, 0, 2, 0);
+    }
 
-	@Test
-	public void testArrayCreationWithErrorBranches() {
-		Properties.ERROR_BRANCHES = true;
-		Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.ARRAY};
-		checkErrorBranches(ArrayCreation.class, 2, 2, 2, 2);
-	}
+    @Test
+    public void testArrayCreationWithErrorBranches() {
+        Properties.ERROR_BRANCHES = true;
+        Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.ARRAY};
+        checkErrorBranches(ArrayCreation.class, 2, 2, 2, 2);
+    }
 }

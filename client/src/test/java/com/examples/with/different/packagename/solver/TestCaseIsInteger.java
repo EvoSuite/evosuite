@@ -21,12 +21,12 @@ package com.examples.with.different.packagename.solver;
 
 public class TestCaseIsInteger {
 
-	public static boolean test(String str) {
-		int value = Integer.parseInt(str);
-		if (value == 123) {
-			return true;
-		} else {
-			return false;
-		}
-	}
+    public static boolean test(String str) {
+        int value = Integer.parseInt(str);
+        if (value == 123) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 }

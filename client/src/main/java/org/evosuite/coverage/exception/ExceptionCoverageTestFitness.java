@@ -21,11 +21,11 @@ package org.evosuite.coverage.exception;
 
 import org.evosuite.Properties;
 import org.evosuite.ga.archive.Archive;
-import org.evosuite.testcase.*;
+import org.evosuite.testcase.TestChromosome;
+import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.utils.generic.GenericClass;
 import org.evosuite.utils.generic.GenericClassFactory;
-import org.evosuite.utils.generic.GenericClassImpl;
 
 import java.util.Objects;
 
@@ -41,12 +41,19 @@ public class ExceptionCoverageTestFitness extends TestFitnessFunction {
     private static final long serialVersionUID = 1221020001417476348L;
 
     public enum ExceptionType {
-        /** unexpected exception directly thrown with a "throw new..." */
+        /**
+         * unexpected exception directly thrown with a "throw new..."
+         */
         EXPLICIT,
-        /** unexpected exception not thrown directly in the SUT, eg NPE on variable access*/
+        /**
+         * unexpected exception not thrown directly in the SUT, eg NPE on variable access
+         */
         IMPLICIT,
-        /** Thrown exception which is expected, because declared in signature with "throws"*/
-        DECLARED};
+        /**
+         * Thrown exception which is expected, because declared in signature with "throws"
+         */
+        DECLARED
+    }
 
     protected final String className;
 
@@ -64,8 +71,9 @@ public class ExceptionCoverageTestFitness extends TestFitnessFunction {
 
     /**
      * Constructor - fitness is specific to a method
+     *
      * @param methodIdentifier the method name
-     * @param exceptionClass the exception class
+     * @param exceptionClass   the exception class
      */
     public ExceptionCoverageTestFitness(String className, String methodIdentifier, Class<?> exceptionClass, ExceptionType type) {
         this.className = className;
@@ -77,7 +85,7 @@ public class ExceptionCoverageTestFitness extends TestFitnessFunction {
         this.type = Objects.requireNonNull(type, "exception type cannot be null");
     }
 
-    public String getKey(){
+    public String getKey() {
         return methodIdentifier + "_" + exceptionClass.getClassName() + "_" + type;
     }
 
@@ -98,13 +106,11 @@ public class ExceptionCoverageTestFitness extends TestFitnessFunction {
 
     /**
      * {@inheritDoc}
-     *
+     * <p>
      * Calculate fitness
      *
-     * @param individual
-     *            a {@link org.evosuite.testcase.ExecutableChromosome} object.
-     * @param result
-     *            a {@link org.evosuite.testcase.execution.ExecutionResult} object.
+     * @param individual a {@link org.evosuite.testcase.ExecutableChromosome} object.
+     * @param result     a {@link org.evosuite.testcase.execution.ExecutionResult} object.
      * @return a double.
      */
     @Override
@@ -114,24 +120,24 @@ public class ExceptionCoverageTestFitness extends TestFitnessFunction {
         // Using private reflection can lead to false positives
         // that represent unrealistic behaviour. Thus, we only
         // use reflection for basic criteria, not for exception
-        if(result.calledReflection())
+        if (result.calledReflection())
             return fitness;
 
         //iterate on the indexes of the statements that resulted in an exception
         for (Integer i : result.getPositionsWhereExceptionsWereThrown()) {
-            if(ExceptionCoverageHelper.shouldSkip(result,i)){
+            if (ExceptionCoverageHelper.shouldSkip(result, i)) {
                 continue;
             }
-            Class<?> exceptionClass = ExceptionCoverageHelper.getExceptionClass(result,i);
+            Class<?> exceptionClass = ExceptionCoverageHelper.getExceptionClass(result, i);
             String methodIdentifier = ExceptionCoverageHelper.getMethodIdentifier(result, i); //eg name+descriptor
-            boolean sutException = ExceptionCoverageHelper.isSutException(result,i); // was the exception originated by a direct call on the SUT?
+            boolean sutException = ExceptionCoverageHelper.isSutException(result, i); // was the exception originated by a direct call on the SUT?
 
             /*
-			 * We only consider exceptions that were thrown directly in the SUT (not called libraries)
-			 */
+             * We only consider exceptions that were thrown directly in the SUT (not called libraries)
+             */
             if (sutException) {
 
-                ExceptionType type = ExceptionCoverageHelper.getType(result,i);
+                ExceptionType type = ExceptionCoverageHelper.getType(result, i);
 
                 if (this.methodIdentifier.equals(methodIdentifier) && this.exceptionClass.getRawClass().equals(exceptionClass) &&
                         this.type.equals(type)) {
@@ -153,20 +159,26 @@ public class ExceptionCoverageTestFitness extends TestFitnessFunction {
         return fitness;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String toString() {
         return getKey();
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int hashCode() {
         int iConst = 17;
         return 53 * iConst + methodIdentifier.hashCode() * iConst + exceptionClass.hashCode();
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean equals(Object obj) {
         if (this == obj)
@@ -176,10 +188,10 @@ public class ExceptionCoverageTestFitness extends TestFitnessFunction {
         if (getClass() != obj.getClass())
             return false;
         ExceptionCoverageTestFitness other = (ExceptionCoverageTestFitness) obj;
-        if (! methodIdentifier.equals(other.methodIdentifier)) {
+        if (!methodIdentifier.equals(other.methodIdentifier)) {
             return false;
         } else {
-            if(! exceptionClass.equals(other.exceptionClass)){
+            if (!exceptionClass.equals(other.exceptionClass)) {
                 return false;
             } else {
                 return this.type.equals(other.type);

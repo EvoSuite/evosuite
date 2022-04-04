@@ -31,7 +31,7 @@ import java.util.TimeZone;
 public class MockTimeZoneTest {
 
     @Test
-    public void testGettingGMT(){
+    public void testGettingGMT() {
         TimeZone defaultTZ = TimeZone.getDefault();
 
         TimeZone gb = TimeZone.getTimeZone("GB"); //just need any non-GMT ones
@@ -41,7 +41,7 @@ public class MockTimeZoneTest {
             TimeZone.setDefault(gb);
             MockTimeZone.reset();
             TimeZone res = TimeZone.getDefault();
-            Assert.assertEquals("GMT",res.getID());
+            Assert.assertEquals("GMT", res.getID());
         } finally {
             TimeZone.setDefault(defaultTZ);
         }

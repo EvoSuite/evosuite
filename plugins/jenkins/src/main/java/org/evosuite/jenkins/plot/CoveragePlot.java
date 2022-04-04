@@ -34,45 +34,45 @@ import org.kohsuke.stapler.StaplerResponse;
 
 public class CoveragePlot extends Plot {
 
-	public CoveragePlot(ProjectAction project, String yLabel) {
-		super(project, yLabel);
-	}
+    public CoveragePlot(ProjectAction project, String yLabel) {
+        super(project, yLabel);
+    }
 
-	public void doCoverageGraph(StaplerRequest req, StaplerResponse rsp) throws IOException {
-		CategoryDataset coverageDataset = this.doStats();
-		this.setCategoryDataset(coverageDataset);
+    public void doCoverageGraph(StaplerRequest req, StaplerResponse rsp) throws IOException {
+        CategoryDataset coverageDataset = this.doStats();
+        this.setCategoryDataset(coverageDataset);
 
-		if (ChartUtil.awtProblemCause != null) {
-			rsp.sendRedirect2(req.getContextPath());
-		} else {
-			this.doPng(req, rsp);
-		}
-	}
+        if (ChartUtil.awtProblemCause != null) {
+            rsp.sendRedirect2(req.getContextPath());
+        } else {
+            this.doPng(req, rsp);
+        }
+    }
 
-	public void doCoverageMap(StaplerRequest req, StaplerResponse rsp) throws IOException {
-		CategoryDataset coverageDataset = this.doStats();
-		this.setCategoryDataset(coverageDataset);
+    public void doCoverageMap(StaplerRequest req, StaplerResponse rsp) throws IOException {
+        CategoryDataset coverageDataset = this.doStats();
+        this.setCategoryDataset(coverageDataset);
 
-		this.doMap(req, rsp);
-	}
+        this.doMap(req, rsp);
+    }
 
-	private CategoryDataset doStats() {
-		DataSetBuilder<String, ChartUtil.NumberOnlyBuildLabel> coverageDataSetBuilder = new DataSetBuilder<String, ChartUtil.NumberOnlyBuildLabel>();
+    private CategoryDataset doStats() {
+        DataSetBuilder<String, ChartUtil.NumberOnlyBuildLabel> coverageDataSetBuilder = new DataSetBuilder<String, ChartUtil.NumberOnlyBuildLabel>();
 
-		for (Run<?,?> build : this.project.getProject().getBuilds()) {
-			final BuildAction build_action = build.getAction(BuildAction.class);
-			if (build_action == null) {
-				// no build action is associated with this build, so skip it
-				continue;
-			}
+        for (Run<?, ?> build : this.project.getProject().getBuilds()) {
+            final BuildAction build_action = build.getAction(BuildAction.class);
+            if (build_action == null) {
+                // no build action is associated with this build, so skip it
+                continue;
+            }
 
-			Set<String> criteria = build_action.getProjectAction().getCriteria();
-			for (String criterion : criteria) {
-				double coverage = build_action.getProjectAction().getCriterionCoverage(criterion);
-				coverageDataSetBuilder.add(coverage, criterion, new ChartUtil.NumberOnlyBuildLabel(build));
-			}
-		}
+            Set<String> criteria = build_action.getProjectAction().getCriteria();
+            for (String criterion : criteria) {
+                double coverage = build_action.getProjectAction().getCriterionCoverage(criterion);
+                coverageDataSetBuilder.add(coverage, criterion, new ChartUtil.NumberOnlyBuildLabel(build));
+            }
+        }
 
-		return coverageDataSetBuilder.build();
-	}
+        return coverageDataSetBuilder.build();
+    }
 }

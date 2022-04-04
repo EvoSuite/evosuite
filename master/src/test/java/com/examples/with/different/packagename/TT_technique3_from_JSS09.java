@@ -20,29 +20,29 @@
 package com.examples.with.different.packagename;
 
 public class TT_technique3_from_JSS09 {
-	
-	public boolean simple(int x){
-		if(x==123456){
-			return true;
-		} else {
-			return false;
-		}
-	}
-	
-	public boolean complex(int x, int y, int z){
-		
-		if(x > 0){
-			return false;
-		} else {
-			if(y > -100){
-				return false;
-			} else if (z > -10000) {
-				return false;
-			} else {
-				return true; 
-			}
-		}
-	}
+
+    public boolean simple(int x) {
+        if (x == 123456) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public boolean complex(int x, int y, int z) {
+
+        if (x > 0) {
+            return false;
+        } else {
+            if (y > -100) {
+                return false;
+            } else if (z > -10000) {
+                return false;
+            } else {
+                return true;
+            }
+        }
+    }
 
 }
 

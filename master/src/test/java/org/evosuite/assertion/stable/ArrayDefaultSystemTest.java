@@ -42,185 +42,185 @@ import com.examples.with.different.packagename.stable.IntegerArrayDefault;
 import com.examples.with.different.packagename.stable.ObjectArrayDefault;
 
 public class ArrayDefaultSystemTest extends SystemTestBase {
-	private final boolean DEFAULT_JUNIT_CHECK_ON_SEPARATE_PROCESS = Properties.JUNIT_CHECK_ON_SEPARATE_PROCESS;
-	private final boolean DEFAULT_RESET_STATIC_FIELDS = Properties.RESET_STATIC_FIELDS;
-	private final Properties.JUnitCheckValues DEFAULT_JUNIT_CHECK = Properties.JUNIT_CHECK;
-	private final boolean DEFAULT_JUNIT_TESTS = Properties.JUNIT_TESTS;
-	private final boolean DEFAULT_PURE_INSPECTORS = Properties.PURE_INSPECTORS;
-	private final boolean DEFAULT_SANDBOX = Properties.SANDBOX;
-	
-
-	@Before
-	public void saveProperties() {
-		Properties.SANDBOX = true;
-		Properties.RESET_STATIC_FIELDS = true;
-		Properties.JUNIT_CHECK = Properties.JUnitCheckValues.TRUE;
-		Properties.JUNIT_TESTS = true;
-		Properties.PURE_INSPECTORS = true;
-		Properties.JUNIT_CHECK_ON_SEPARATE_PROCESS = false;
-	}
-
-	@After
-	public void restoreProperties() {
-		Properties.JUNIT_CHECK_ON_SEPARATE_PROCESS = DEFAULT_JUNIT_CHECK_ON_SEPARATE_PROCESS;
-		Properties.SANDBOX = DEFAULT_SANDBOX;
-		Properties.RESET_STATIC_FIELDS = DEFAULT_RESET_STATIC_FIELDS;
-		Properties.JUNIT_CHECK = DEFAULT_JUNIT_CHECK;
-		Properties.JUNIT_TESTS = DEFAULT_JUNIT_TESTS;
-		Properties.PURE_INSPECTORS = DEFAULT_PURE_INSPECTORS;
-	}
-
-	@Test
-	public void testFloatDefault() {
-		EvoSuite evosuite = new EvoSuite();
-
-		String targetClass = FloatArrayDefault.class.getCanonicalName();
-		Properties.TARGET_CLASS = targetClass;
-		Properties.OUTPUT_VARIABLES=""+RuntimeVariable.HadUnstableTests;
-		String[] command = new String[] { "-generateSuite", "-class",
-				targetClass };
-
-		Object result = evosuite.parseCommandLine(command);
-
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
-		System.out.println("EvolvedTestSuite:\n" + best);
-
-		Map<String, OutputVariable<?>> map = DebugStatisticsBackend.getLatestWritten();
-		Assert.assertNotNull(map);
-		OutputVariable<?> unstable = map.get(RuntimeVariable.HadUnstableTests.toString());
-		Assert.assertNotNull(unstable);
-		Assert.assertEquals(Boolean.FALSE, unstable.getValue());
+    private final boolean DEFAULT_JUNIT_CHECK_ON_SEPARATE_PROCESS = Properties.JUNIT_CHECK_ON_SEPARATE_PROCESS;
+    private final boolean DEFAULT_RESET_STATIC_FIELDS = Properties.RESET_STATIC_FIELDS;
+    private final Properties.JUnitCheckValues DEFAULT_JUNIT_CHECK = Properties.JUNIT_CHECK;
+    private final boolean DEFAULT_JUNIT_TESTS = Properties.JUNIT_TESTS;
+    private final boolean DEFAULT_PURE_INSPECTORS = Properties.PURE_INSPECTORS;
+    private final boolean DEFAULT_SANDBOX = Properties.SANDBOX;
 
 
-	}
+    @Before
+    public void saveProperties() {
+        Properties.SANDBOX = true;
+        Properties.RESET_STATIC_FIELDS = true;
+        Properties.JUNIT_CHECK = Properties.JUnitCheckValues.TRUE;
+        Properties.JUNIT_TESTS = true;
+        Properties.PURE_INSPECTORS = true;
+        Properties.JUNIT_CHECK_ON_SEPARATE_PROCESS = false;
+    }
 
-	@Test
-	public void testIntegerDefault() {
-		EvoSuite evosuite = new EvoSuite();
+    @After
+    public void restoreProperties() {
+        Properties.JUNIT_CHECK_ON_SEPARATE_PROCESS = DEFAULT_JUNIT_CHECK_ON_SEPARATE_PROCESS;
+        Properties.SANDBOX = DEFAULT_SANDBOX;
+        Properties.RESET_STATIC_FIELDS = DEFAULT_RESET_STATIC_FIELDS;
+        Properties.JUNIT_CHECK = DEFAULT_JUNIT_CHECK;
+        Properties.JUNIT_TESTS = DEFAULT_JUNIT_TESTS;
+        Properties.PURE_INSPECTORS = DEFAULT_PURE_INSPECTORS;
+    }
 
-		String targetClass = IntegerArrayDefault.class.getCanonicalName();
-		Properties.TARGET_CLASS = targetClass;
-		Properties.OUTPUT_VARIABLES=""+RuntimeVariable.HadUnstableTests;
-		String[] command = new String[] { "-generateSuite", "-class",
-				targetClass };
+    @Test
+    public void testFloatDefault() {
+        EvoSuite evosuite = new EvoSuite();
 
-		Object result = evosuite.parseCommandLine(command);
+        String targetClass = FloatArrayDefault.class.getCanonicalName();
+        Properties.TARGET_CLASS = targetClass;
+        Properties.OUTPUT_VARIABLES = "" + RuntimeVariable.HadUnstableTests;
+        String[] command = new String[]{"-generateSuite", "-class",
+                targetClass};
 
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
-		System.out.println("EvolvedTestSuite:\n" + best);
+        Object result = evosuite.parseCommandLine(command);
 
-		Map<String, OutputVariable<?>> map = DebugStatisticsBackend.getLatestWritten();
-		Assert.assertNotNull(map);
-		OutputVariable<?> unstable = map.get(RuntimeVariable.HadUnstableTests.toString());
-		Assert.assertNotNull(unstable);
-		Assert.assertEquals(Boolean.FALSE, unstable.getValue());
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
+        System.out.println("EvolvedTestSuite:\n" + best);
 
-	}
-
-	@Test
-	public void testObjectDefault() {
-		EvoSuite evosuite = new EvoSuite();
-
-		String targetClass = ObjectArrayDefault.class.getCanonicalName();
-		Properties.TARGET_CLASS = targetClass;
-		Properties.OUTPUT_VARIABLES=""+RuntimeVariable.HadUnstableTests;
-		String[] command = new String[] { "-generateSuite", "-class",
-				targetClass };
-
-		Object result = evosuite.parseCommandLine(command);
-
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
-		System.out.println("EvolvedTestSuite:\n" + best);
-
-		Map<String, OutputVariable<?>> map = DebugStatisticsBackend.getLatestWritten();
-		Assert.assertNotNull(map);
-		OutputVariable<?> unstable = map.get(RuntimeVariable.HadUnstableTests.toString());
-		Assert.assertNotNull(unstable);
-		Assert.assertEquals(Boolean.FALSE, unstable.getValue());
+        Map<String, OutputVariable<?>> map = DebugStatisticsBackend.getLatestWritten();
+        Assert.assertNotNull(map);
+        OutputVariable<?> unstable = map.get(RuntimeVariable.HadUnstableTests.toString());
+        Assert.assertNotNull(unstable);
+        Assert.assertEquals(Boolean.FALSE, unstable.getValue());
 
 
-	}
+    }
 
-	@Test
-	public void testBooleanDefault() {
-		EvoSuite evosuite = new EvoSuite();
+    @Test
+    public void testIntegerDefault() {
+        EvoSuite evosuite = new EvoSuite();
 
-		String targetClass = BooleanArrayDefault.class.getCanonicalName();
-		Properties.TARGET_CLASS = targetClass;
-		Properties.OUTPUT_VARIABLES=""+RuntimeVariable.HadUnstableTests;
-		String[] command = new String[] { "-generateSuite", "-class",
-				targetClass };
+        String targetClass = IntegerArrayDefault.class.getCanonicalName();
+        Properties.TARGET_CLASS = targetClass;
+        Properties.OUTPUT_VARIABLES = "" + RuntimeVariable.HadUnstableTests;
+        String[] command = new String[]{"-generateSuite", "-class",
+                targetClass};
 
-		Object result = evosuite.parseCommandLine(command);
+        Object result = evosuite.parseCommandLine(command);
 
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
-		System.out.println("EvolvedTestSuite:\n" + best);
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
+        System.out.println("EvolvedTestSuite:\n" + best);
 
-		Map<String, OutputVariable<?>> map = DebugStatisticsBackend.getLatestWritten();
-		Assert.assertNotNull(map);
-		OutputVariable<?> unstable = map.get(RuntimeVariable.HadUnstableTests.toString());
-		Assert.assertNotNull(unstable);
-		Assert.assertEquals(Boolean.FALSE, unstable.getValue());
+        Map<String, OutputVariable<?>> map = DebugStatisticsBackend.getLatestWritten();
+        Assert.assertNotNull(map);
+        OutputVariable<?> unstable = map.get(RuntimeVariable.HadUnstableTests.toString());
+        Assert.assertNotNull(unstable);
+        Assert.assertEquals(Boolean.FALSE, unstable.getValue());
 
-//		Assert.assertTrue("Optimal coverage was not achieved ",
-//				best_fitness == 0.0);
+    }
 
-	}
+    @Test
+    public void testObjectDefault() {
+        EvoSuite evosuite = new EvoSuite();
 
-	@Test
-	public void testDoubleDefault() {
-		EvoSuite evosuite = new EvoSuite();
+        String targetClass = ObjectArrayDefault.class.getCanonicalName();
+        Properties.TARGET_CLASS = targetClass;
+        Properties.OUTPUT_VARIABLES = "" + RuntimeVariable.HadUnstableTests;
+        String[] command = new String[]{"-generateSuite", "-class",
+                targetClass};
 
-		String targetClass = DoubleArrayDefault.class.getCanonicalName();
-		Properties.TARGET_CLASS = targetClass;
-		Properties.OUTPUT_VARIABLES=""+RuntimeVariable.HadUnstableTests;
-		String[] command = new String[] { "-generateSuite", "-class",
-				targetClass };
+        Object result = evosuite.parseCommandLine(command);
 
-		Object result = evosuite.parseCommandLine(command);
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
+        System.out.println("EvolvedTestSuite:\n" + best);
 
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
-		System.out.println("EvolvedTestSuite:\n" + best);
+        Map<String, OutputVariable<?>> map = DebugStatisticsBackend.getLatestWritten();
+        Assert.assertNotNull(map);
+        OutputVariable<?> unstable = map.get(RuntimeVariable.HadUnstableTests.toString());
+        Assert.assertNotNull(unstable);
+        Assert.assertEquals(Boolean.FALSE, unstable.getValue());
 
-		Map<String, OutputVariable<?>> map = DebugStatisticsBackend.getLatestWritten();
-		Assert.assertNotNull(map);
-		OutputVariable<?> unstable = map.get(RuntimeVariable.HadUnstableTests.toString());
-		Assert.assertNotNull(unstable);
-		Assert.assertEquals(Boolean.FALSE, unstable.getValue());
+
+    }
+
+    @Test
+    public void testBooleanDefault() {
+        EvoSuite evosuite = new EvoSuite();
+
+        String targetClass = BooleanArrayDefault.class.getCanonicalName();
+        Properties.TARGET_CLASS = targetClass;
+        Properties.OUTPUT_VARIABLES = "" + RuntimeVariable.HadUnstableTests;
+        String[] command = new String[]{"-generateSuite", "-class",
+                targetClass};
+
+        Object result = evosuite.parseCommandLine(command);
+
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
+        System.out.println("EvolvedTestSuite:\n" + best);
+
+        Map<String, OutputVariable<?>> map = DebugStatisticsBackend.getLatestWritten();
+        Assert.assertNotNull(map);
+        OutputVariable<?> unstable = map.get(RuntimeVariable.HadUnstableTests.toString());
+        Assert.assertNotNull(unstable);
+        Assert.assertEquals(Boolean.FALSE, unstable.getValue());
 
 //		Assert.assertTrue("Optimal coverage was not achieved ",
 //				best_fitness == 0.0);
 
-	}
+    }
 
-	@Test
-	public void testFloatPrimitiveDefault() {
-		EvoSuite evosuite = new EvoSuite();
+    @Test
+    public void testDoubleDefault() {
+        EvoSuite evosuite = new EvoSuite();
 
-		String targetClass = FloatPrimitiveArrayDefault.class.getCanonicalName();
-		Properties.TARGET_CLASS = targetClass;
-		Properties.OUTPUT_VARIABLES=""+RuntimeVariable.HadUnstableTests;
-		String[] command = new String[] { "-generateSuite", "-class",
-				targetClass };
+        String targetClass = DoubleArrayDefault.class.getCanonicalName();
+        Properties.TARGET_CLASS = targetClass;
+        Properties.OUTPUT_VARIABLES = "" + RuntimeVariable.HadUnstableTests;
+        String[] command = new String[]{"-generateSuite", "-class",
+                targetClass};
 
-		Object result = evosuite.parseCommandLine(command);
+        Object result = evosuite.parseCommandLine(command);
 
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
-		System.out.println("EvolvedTestSuite:\n" + best);
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
+        System.out.println("EvolvedTestSuite:\n" + best);
 
-		Map<String, OutputVariable<?>> map = DebugStatisticsBackend.getLatestWritten();
-		Assert.assertNotNull(map);
-		OutputVariable<?> unstable = map.get(RuntimeVariable.HadUnstableTests.toString());
-		Assert.assertNotNull(unstable);
-		Assert.assertEquals(Boolean.FALSE, unstable.getValue());
+        Map<String, OutputVariable<?>> map = DebugStatisticsBackend.getLatestWritten();
+        Assert.assertNotNull(map);
+        OutputVariable<?> unstable = map.get(RuntimeVariable.HadUnstableTests.toString());
+        Assert.assertNotNull(unstable);
+        Assert.assertEquals(Boolean.FALSE, unstable.getValue());
+
+//		Assert.assertTrue("Optimal coverage was not achieved ",
+//				best_fitness == 0.0);
+
+    }
+
+    @Test
+    public void testFloatPrimitiveDefault() {
+        EvoSuite evosuite = new EvoSuite();
+
+        String targetClass = FloatPrimitiveArrayDefault.class.getCanonicalName();
+        Properties.TARGET_CLASS = targetClass;
+        Properties.OUTPUT_VARIABLES = "" + RuntimeVariable.HadUnstableTests;
+        String[] command = new String[]{"-generateSuite", "-class",
+                targetClass};
+
+        Object result = evosuite.parseCommandLine(command);
+
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
+        System.out.println("EvolvedTestSuite:\n" + best);
+
+        Map<String, OutputVariable<?>> map = DebugStatisticsBackend.getLatestWritten();
+        Assert.assertNotNull(map);
+        OutputVariable<?> unstable = map.get(RuntimeVariable.HadUnstableTests.toString());
+        Assert.assertNotNull(unstable);
+        Assert.assertEquals(Boolean.FALSE, unstable.getValue());
 
 
-	}
+    }
 
 }

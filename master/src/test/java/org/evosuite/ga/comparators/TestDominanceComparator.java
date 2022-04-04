@@ -31,14 +31,11 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * 
  * @author José Campos
  */
-public class TestDominanceComparator
-{
+public class TestDominanceComparator {
     @Test
-    public void testDominanceComparatorOneFitness()
-    {
+    public void testDominanceComparatorOneFitness() {
         Problem<NSGAChromosome> p = new Booths();
         List<FitnessFunction<NSGAChromosome>> fitnessFunctions = p.getFitnessFunctions();
         FitnessFunction<NSGAChromosome> ff = fitnessFunctions.get(0);
@@ -61,8 +58,7 @@ public class TestDominanceComparator
     }
 
     @Test
-    public void testDominanceComparatorSeveralFitnessesNoDomination()
-    {
+    public void testDominanceComparatorSeveralFitnessesNoDomination() {
         Problem<NSGAChromosome> p = new FON();
         List<FitnessFunction<NSGAChromosome>> fitnessFunctions = p.getFitnessFunctions();
         FitnessFunction<NSGAChromosome> ff_1 = fitnessFunctions.get(0);
@@ -90,8 +86,7 @@ public class TestDominanceComparator
     }
 
     @Test
-    public void testDominanceComparatorSeveralFitnessesDomination()
-    {
+    public void testDominanceComparatorSeveralFitnessesDomination() {
         Problem<NSGAChromosome> p = new FON();
         List<FitnessFunction<NSGAChromosome>> fitnessFunctions = p.getFitnessFunctions();
         FitnessFunction<NSGAChromosome> ff_1 = fitnessFunctions.get(0);

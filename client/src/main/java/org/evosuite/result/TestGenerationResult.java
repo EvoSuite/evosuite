@@ -19,81 +19,118 @@
  */
 package org.evosuite.result;
 
-import java.io.Serializable;
-import java.util.Set;
-
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.symbolic.dse.algorithm.ExplorationAlgorithmBase;
 import org.evosuite.testcase.TestCase;
-import org.evosuite.testsuite.TestSuiteChromosome;
+
+import java.io.Serializable;
+import java.util.Set;
 
 public interface TestGenerationResult<T extends Chromosome<T>> extends Serializable {
 
-	enum Status { SUCCESS, TIMEOUT, ERROR };
-	
-	/** Did test generation succeed? */
+    enum Status {SUCCESS, TIMEOUT, ERROR}
+
+    /**
+     * Did test generation succeed?
+     */
     Status getTestGenerationStatus();
-	
-	/** If there was an error, this contains the error message */
-	String getErrorMessage();
 
-	/** The entire DSEA in its final state */
-	ExplorationAlgorithmBase getDSEAlgorithm();
+    /**
+     * If there was an error, this contains the error message
+     */
+    String getErrorMessage();
 
-	/** The entire GA in its final state */
+    /**
+     * The entire DSEA in its final state
+     */
+    ExplorationAlgorithmBase getDSEAlgorithm();
+
+    /**
+     * The entire GA in its final state
+     */
     GeneticAlgorithm<T> getGeneticAlgorithm();
-	
-	/** Map from test method to ContractViolation */
+
+    /**
+     * Map from test method to ContractViolation
+     */
     Set<Failure> getContractViolations(String name);
-	
-	/** Class that was tested */
+
+    /**
+     * Class that was tested
+     */
     String getClassUnderTest();
-	
-	/** Target coverage criterion used to create this test suite */
+
+    /**
+     * Target coverage criterion used to create this test suite
+     */
     String[] getTargetCriterion();
-	
-	/** Coverage level of the target criterion */
+
+    /**
+     * Coverage level of the target criterion
+     */
     double getTargetCoverage(FitnessFunction<?> function);
-	
-	/** Map from test method to EvoSuite test case */
+
+    /**
+     * Map from test method to EvoSuite test case
+     */
     TestCase getTestCase(String name);
 
-	/** Map from test method to EvoSuite test case */
+    /**
+     * Map from test method to EvoSuite test case
+     */
     String getTestCode(String name);
-	
-	/** JUnit test suite source code */
+
+    /**
+     * JUnit test suite source code
+     */
     String getTestSuiteCode();
-	
-	/** Lines covered by test */
+
+    /**
+     * Lines covered by test
+     */
     Set<Integer> getCoveredLines(String name);
-	
-	Set<BranchInfo> getCoveredBranches(String name);
 
-	Set<MutationInfo> getCoveredMutants(String name);
+    Set<BranchInfo> getCoveredBranches(String name);
 
-	Set<MutationInfo> getExceptionMutants();
+    Set<MutationInfo> getCoveredMutants(String name);
 
-	/** Lines covered by final test suite */
+    Set<MutationInfo> getExceptionMutants();
+
+    /**
+     * Lines covered by final test suite
+     */
     Set<Integer> getCoveredLines();
 
-	/** Branches covered by final test suite */
+    /**
+     * Branches covered by final test suite
+     */
     Set<BranchInfo> getCoveredBranches();
 
-	/** Mutants detected by final test suite */
+    /**
+     * Mutants detected by final test suite
+     */
     Set<MutationInfo> getCoveredMutants();
 
-	/** Lines not covered by final test suite */
+    /**
+     * Lines not covered by final test suite
+     */
     Set<Integer> getUncoveredLines();
 
-	/** Branches not covered by final test suite */
+    /**
+     * Branches not covered by final test suite
+     */
     Set<BranchInfo> getUncoveredBranches();
 
-	/** Mutants not detected by final test suite */
+    /**
+     * Mutants not detected by final test suite
+     */
     Set<MutationInfo> getUncoveredMutants();
 
-	/** Comment for that test */
+    /**
+     * Comment for that test
+     */
     String getComment(String name);
 
 }

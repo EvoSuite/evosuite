@@ -31,99 +31,124 @@ import org.evosuite.utils.Randomness;
  */
 public class CharPrimitiveStatement extends NumericalPrimitiveStatement<Character> {
 
-	private static final long serialVersionUID = -1960567565801078784L;
+    private static final long serialVersionUID = -1960567565801078784L;
 
-	/**
-	 * <p>Constructor for CharPrimitiveStatement.</p>
-	 *
-	 * @param tc a {@link org.evosuite.testcase.TestCase} object.
-	 * @param value a {@link java.lang.Character} object.
-	 */
-	public CharPrimitiveStatement(TestCase tc, Character value) {
-		super(tc, char.class, value);
-		// TODO Auto-generated constructor stub
-	}
+    /**
+     * <p>Constructor for CharPrimitiveStatement.</p>
+     *
+     * @param tc    a {@link org.evosuite.testcase.TestCase} object.
+     * @param value a {@link java.lang.Character} object.
+     */
+    public CharPrimitiveStatement(TestCase tc, Character value) {
+        super(tc, char.class, value);
+        // TODO Auto-generated constructor stub
+    }
 
-	/**
-	 * <p>Constructor for CharPrimitiveStatement.</p>
-	 *
-	 * @param tc a {@link org.evosuite.testcase.TestCase} object.
-	 */
-	public CharPrimitiveStatement(TestCase tc) {
-		super(tc, char.class, (char) 0);
-		// TODO Auto-generated constructor stub
-	}
+    /**
+     * <p>Constructor for CharPrimitiveStatement.</p>
+     *
+     * @param tc a {@link org.evosuite.testcase.TestCase} object.
+     */
+    public CharPrimitiveStatement(TestCase tc) {
+        super(tc, char.class, (char) 0);
+        // TODO Auto-generated constructor stub
+    }
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.PrimitiveStatement#zero()
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public void zero() {
-		value = (char) 0;
-	}
+    /* (non-Javadoc)
+     * @see org.evosuite.testcase.PrimitiveStatement#zero()
+     */
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.PrimitiveStatement#delta()
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public void delta() {
-		int delta = Randomness.nextInt(2 * Properties.MAX_DELTA) - Properties.MAX_DELTA;
-		value = (char) (value + delta);
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void zero() {
+        value = (char) 0;
+    }
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.PrimitiveStatement#increment(java.lang.Object)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public void increment(long delta) {
-		value = (char) (value + delta);
-	}
+    /* (non-Javadoc)
+     * @see org.evosuite.testcase.PrimitiveStatement#delta()
+     */
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.PrimitiveStatement#randomize()
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public void randomize() {
-		value = Randomness.nextChar();
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void delta() {
+        int delta = Randomness.nextInt(2 * Properties.MAX_DELTA) - Properties.MAX_DELTA;
+        value = (char) (value + delta);
+    }
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.PrimitiveStatement#increment()
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public void increment() {
-		increment((char) 1);
-	}
+    /* (non-Javadoc)
+     * @see org.evosuite.testcase.PrimitiveStatement#increment(java.lang.Object)
+     */
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.NumericalPrimitiveStatement#setMid(java.lang.Object, java.lang.Object)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public void setMid(Character min, Character max) {
-		value = (char) (min + ((max - min) / 2));
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void increment(long delta) {
+        value = (char) (value + delta);
+    }
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.NumericalPrimitiveStatement#decrement()
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public void decrement() {
-		increment(-1);
-	}
+    /* (non-Javadoc)
+     * @see org.evosuite.testcase.PrimitiveStatement#randomize()
+     */
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.NumericalPrimitiveStatement#isPositive()
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public boolean isPositive() {
-		return value >= 0;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void randomize() {
+        value = Randomness.nextChar();
+    }
+
+    /* (non-Javadoc)
+     * @see org.evosuite.testcase.PrimitiveStatement#increment()
+     */
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void increment() {
+        increment((char) 1);
+    }
+
+    /* (non-Javadoc)
+     * @see org.evosuite.testcase.NumericalPrimitiveStatement#setMid(java.lang.Object, java.lang.Object)
+     */
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setMid(Character min, Character max) {
+        value = (char) (min + ((max - min) / 2));
+    }
+
+    /* (non-Javadoc)
+     * @see org.evosuite.testcase.NumericalPrimitiveStatement#decrement()
+     */
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void decrement() {
+        increment(-1);
+    }
+
+    /* (non-Javadoc)
+     * @see org.evosuite.testcase.NumericalPrimitiveStatement#isPositive()
+     */
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isPositive() {
+        // chars are always positive
+        return true;
+    }
 }

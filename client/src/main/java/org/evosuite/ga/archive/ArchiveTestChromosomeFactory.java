@@ -33,29 +33,29 @@ import java.util.List;
 
 public class ArchiveTestChromosomeFactory implements ChromosomeFactory<TestChromosome> {
 
-  private static final long serialVersionUID = -8499807341782893732L;
+    private static final long serialVersionUID = -8499807341782893732L;
 
-  private final static Logger logger = LoggerFactory.getLogger(ArchiveTestChromosomeFactory.class);
+    private final static Logger logger = LoggerFactory.getLogger(ArchiveTestChromosomeFactory.class);
 
-  private ChromosomeFactory<TestChromosome> defaultFactory = new RandomLengthTestFactory();
+    private final ChromosomeFactory<TestChromosome> defaultFactory = new RandomLengthTestFactory();
 
-  /**
-   * Serialized tests read from disk, eg from previous runs in CTG
-   */
-  private List<TestChromosome> seededTests;
+    /**
+     * Serialized tests read from disk, eg from previous runs in CTG
+     */
+    private List<TestChromosome> seededTests;
 
-  public ArchiveTestChromosomeFactory() {
-    if (Properties.CTG_SEEDS_FILE_IN != null) {
-      //This does happen in CTG
-      seededTests = TestSuiteSerialization.loadTests(Properties.CTG_SEEDS_FILE_IN);
-      LoggingUtils.getEvoLogger().info("* Loaded {} tests from {}", seededTests.size(), Properties.CTG_SEEDS_FILE_IN);
+    public ArchiveTestChromosomeFactory() {
+        if (Properties.CTG_SEEDS_FILE_IN != null) {
+            //This does happen in CTG
+            seededTests = TestSuiteSerialization.loadTests(Properties.CTG_SEEDS_FILE_IN);
+            LoggingUtils.getEvoLogger().info("* Loaded {} tests from {}", seededTests.size(), Properties.CTG_SEEDS_FILE_IN);
+        }
     }
-  }
 
-  @Override
-  public TestChromosome getChromosome() {
+    @Override
+    public TestChromosome getChromosome() {
 
-    if (seededTests != null && !seededTests.isEmpty()) {
+        if (seededTests != null && !seededTests.isEmpty()) {
       /*
               Ideally, we should populate the archive directly when EvoSuite starts.
               But might be bit tricky based on current archive implementation (which needs executed tests).
@@ -63,31 +63,31 @@ public class ArchiveTestChromosomeFactory implements ChromosomeFactory<TestChrom
               However, this is done just once per test, as anyway those will end up
               in archive.
        */
-      TestChromosome
-          test =
-          seededTests
-              .remove(seededTests.size() - 1); //pull out one element, 'last' just for efficiency
-      test.getTestCase().removeAssertions(); // no assertions are used during search
-      return test;
-    }
+            TestChromosome
+                    test =
+                    seededTests
+                            .remove(seededTests.size() - 1); //pull out one element, 'last' just for efficiency
+            test.getTestCase().removeAssertions(); // no assertions are used during search
+            return test;
+        }
 
-    TestChromosome test = null;
-    // double P = (double)Archive.getArchiveInstance().getNumberOfCoveredTargets() / (double)Archive.getArchiveInstance().getNumberOfTargets();
-    if (!Archive.getArchiveInstance().isArchiveEmpty()
-        && Randomness.nextDouble() < Properties.SEED_CLONE) {
-      logger.info("Creating test based on archive");
-      test = new TestChromosome();
-      test.setTestCase(Archive.getArchiveInstance().getRandomSolution().getTestCase());
-      int mutations = Randomness.nextInt(Properties.SEED_MUTATIONS);
-      for (int i = 0; i < mutations; i++) {
-        test.mutate();
-      }
-    } else {
-      logger.info("Creating random test");
-      test = defaultFactory.getChromosome();
-    }
+        TestChromosome test = null;
+        // double P = (double)Archive.getArchiveInstance().getNumberOfCoveredTargets() / (double)Archive.getArchiveInstance().getNumberOfTargets();
+        if (!Archive.getArchiveInstance().isArchiveEmpty()
+                && Randomness.nextDouble() < Properties.SEED_CLONE) {
+            logger.info("Creating test based on archive");
+            test = new TestChromosome();
+            test.setTestCase(Archive.getArchiveInstance().getRandomSolution().getTestCase());
+            int mutations = Randomness.nextInt(Properties.SEED_MUTATIONS);
+            for (int i = 0; i < mutations; i++) {
+                test.mutate();
+            }
+        } else {
+            logger.info("Creating random test");
+            test = defaultFactory.getChromosome();
+        }
 
-    return test;
-  }
+        return test;
+    }
 
 }

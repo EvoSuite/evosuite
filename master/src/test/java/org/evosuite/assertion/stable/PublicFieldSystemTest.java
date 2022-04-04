@@ -69,11 +69,11 @@ public class PublicFieldSystemTest extends SystemTestBase {
 
         String targetClass = ClassWithPublicPrimitiveField.class.getCanonicalName();
         Properties.TARGET_CLASS = targetClass;
-        Properties.OUTPUT_VARIABLES=""+ RuntimeVariable.HadUnstableTests;
+        Properties.OUTPUT_VARIABLES = "" + RuntimeVariable.HadUnstableTests;
         Properties.MINIMIZE = false;
         Properties.ASSERTION_STRATEGY = Properties.AssertionStrategy.ALL;
-        String[] command = new String[] { "-generateSuite", "-class",
-                targetClass };
+        String[] command = new String[]{"-generateSuite", "-class",
+                targetClass};
 
         Object result = evosuite.parseCommandLine(command);
 

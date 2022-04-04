@@ -25,127 +25,127 @@ import org.objectweb.asm.Type;
 
 public class OverflowInstrumentation extends ErrorBranchInstrumenter {
 
-    private static final String CHECKER = ErrorConditionChecker.class.getCanonicalName().replace('.','/');
+    private static final String CHECKER = ErrorConditionChecker.class.getCanonicalName().replace('.', '/');
 
     public OverflowInstrumentation(ErrorConditionMethodAdapter mv) {
-		super(mv);
-	}
+        super(mv);
+    }
 
-	protected void insertBranchWithoutException(int opcode) {
-		Label origTarget = new Label();
-		mv.tagBranch();
-		mv.visitJumpInsn(opcode, origTarget);
-		mv.visitLabel(origTarget);
-		mv.tagBranchExit();
-	}
+    protected void insertBranchWithoutException(int opcode) {
+        Label origTarget = new Label();
+        mv.tagBranch();
+        mv.visitJumpInsn(opcode, origTarget);
+        mv.visitLabel(origTarget);
+        mv.tagBranchExit();
+    }
 
-	@Override
-	public void visitInsn(int opcode) {
-		// Overflow checks
-		switch (opcode) {
-		case Opcodes.IADD:
-		case Opcodes.ISUB:
-		case Opcodes.IMUL:
-			mv.visitInsn(Opcodes.DUP2);
-			mv.visitLdcInsn(opcode);
-			mv.visitMethodInsn(Opcodes.INVOKESTATIC,
-                    CHECKER,
-					"underflowDistance", "(III)I", false);
+    @Override
+    public void visitInsn(int opcode) {
+        // Overflow checks
+        switch (opcode) {
+            case Opcodes.IADD:
+            case Opcodes.ISUB:
+            case Opcodes.IMUL:
+                mv.visitInsn(Opcodes.DUP2);
+                mv.visitLdcInsn(opcode);
+                mv.visitMethodInsn(Opcodes.INVOKESTATIC,
+                        CHECKER,
+                        "underflowDistance", "(III)I", false);
 
-			insertBranchWithoutException(Opcodes.IFGT);
-			// TODO: No break is intentional?
+                insertBranchWithoutException(Opcodes.IFGT);
+                // TODO: No break is intentional?
 
-		case Opcodes.IDIV:
-			mv.visitInsn(Opcodes.DUP2);
-			mv.visitLdcInsn(opcode);
-			mv.visitMethodInsn(Opcodes.INVOKESTATIC,
-                    CHECKER,
-					"overflowDistance", "(III)I", false);
-			insertBranchWithoutException(Opcodes.IFGT);
+            case Opcodes.IDIV:
+                mv.visitInsn(Opcodes.DUP2);
+                mv.visitLdcInsn(opcode);
+                mv.visitMethodInsn(Opcodes.INVOKESTATIC,
+                        CHECKER,
+                        "overflowDistance", "(III)I", false);
+                insertBranchWithoutException(Opcodes.IFGT);
 
-			break;
+                break;
 
-		case Opcodes.FADD:
-		case Opcodes.FSUB:
-		case Opcodes.FMUL:
+            case Opcodes.FADD:
+            case Opcodes.FSUB:
+            case Opcodes.FMUL:
 
-			mv.visitInsn(Opcodes.DUP2);
-			mv.visitLdcInsn(opcode);
-			mv.visitMethodInsn(Opcodes.INVOKESTATIC,
-                    CHECKER,
-					"underflowDistance", "(FFI)I", false);
-			insertBranchWithoutException(Opcodes.IFGE);
+                mv.visitInsn(Opcodes.DUP2);
+                mv.visitLdcInsn(opcode);
+                mv.visitMethodInsn(Opcodes.INVOKESTATIC,
+                        CHECKER,
+                        "underflowDistance", "(FFI)I", false);
+                insertBranchWithoutException(Opcodes.IFGE);
 
-		case Opcodes.FDIV:
-			mv.visitInsn(Opcodes.DUP2);
-			mv.visitLdcInsn(opcode);
-			mv.visitMethodInsn(Opcodes.INVOKESTATIC,
-                    CHECKER,
-					"overflowDistance", "(FFI)I", false);
-			insertBranchWithoutException(Opcodes.IFGE);
-			break;
-			
-		case Opcodes.DADD:
-		case Opcodes.DSUB:
-		case Opcodes.DMUL:
+            case Opcodes.FDIV:
+                mv.visitInsn(Opcodes.DUP2);
+                mv.visitLdcInsn(opcode);
+                mv.visitMethodInsn(Opcodes.INVOKESTATIC,
+                        CHECKER,
+                        "overflowDistance", "(FFI)I", false);
+                insertBranchWithoutException(Opcodes.IFGE);
+                break;
 
-			int loc = mv.newLocal(Type.DOUBLE_TYPE);
-			mv.storeLocal(loc);
-			mv.visitInsn(Opcodes.DUP2);
-			mv.loadLocal(loc);
-			mv.visitInsn(Opcodes.DUP2_X2);
-			mv.visitLdcInsn(opcode);
-			mv.visitMethodInsn(Opcodes.INVOKESTATIC,
-                    CHECKER,
-					"underflowDistance", "(DDI)I", false);
+            case Opcodes.DADD:
+            case Opcodes.DSUB:
+            case Opcodes.DMUL:
 
-			insertBranchWithoutException(Opcodes.IFGE);
+                int loc = mv.newLocal(Type.DOUBLE_TYPE);
+                mv.storeLocal(loc);
+                mv.visitInsn(Opcodes.DUP2);
+                mv.loadLocal(loc);
+                mv.visitInsn(Opcodes.DUP2_X2);
+                mv.visitLdcInsn(opcode);
+                mv.visitMethodInsn(Opcodes.INVOKESTATIC,
+                        CHECKER,
+                        "underflowDistance", "(DDI)I", false);
 
-		case Opcodes.DDIV:
-			loc = mv.newLocal(Type.DOUBLE_TYPE);
+                insertBranchWithoutException(Opcodes.IFGE);
 
-			mv.storeLocal(loc);
-			mv.visitInsn(Opcodes.DUP2);
-			mv.loadLocal(loc);
-			mv.visitInsn(Opcodes.DUP2_X2);
-			mv.visitLdcInsn(opcode);
-			mv.visitMethodInsn(Opcodes.INVOKESTATIC,
-                    CHECKER,
-					"overflowDistance", "(DDI)I", false);
+            case Opcodes.DDIV:
+                loc = mv.newLocal(Type.DOUBLE_TYPE);
 
-			insertBranchWithoutException(Opcodes.IFGE);
-			break;
+                mv.storeLocal(loc);
+                mv.visitInsn(Opcodes.DUP2);
+                mv.loadLocal(loc);
+                mv.visitInsn(Opcodes.DUP2_X2);
+                mv.visitLdcInsn(opcode);
+                mv.visitMethodInsn(Opcodes.INVOKESTATIC,
+                        CHECKER,
+                        "overflowDistance", "(DDI)I", false);
 
-		case Opcodes.LADD:
-		case Opcodes.LSUB:
-		case Opcodes.LMUL:
-			int loc2 = mv.newLocal(Type.LONG_TYPE);
-			mv.storeLocal(loc2);
-			mv.visitInsn(Opcodes.DUP2);
-			mv.loadLocal(loc2);
-			mv.visitInsn(Opcodes.DUP2_X2);
-			mv.visitLdcInsn(opcode);
-			mv.visitMethodInsn(Opcodes.INVOKESTATIC,
-                    CHECKER,
-					"underflowDistance", "(JJI)I", false);
+                insertBranchWithoutException(Opcodes.IFGE);
+                break;
 
-			insertBranchWithoutException(Opcodes.IFGE);
+            case Opcodes.LADD:
+            case Opcodes.LSUB:
+            case Opcodes.LMUL:
+                int loc2 = mv.newLocal(Type.LONG_TYPE);
+                mv.storeLocal(loc2);
+                mv.visitInsn(Opcodes.DUP2);
+                mv.loadLocal(loc2);
+                mv.visitInsn(Opcodes.DUP2_X2);
+                mv.visitLdcInsn(opcode);
+                mv.visitMethodInsn(Opcodes.INVOKESTATIC,
+                        CHECKER,
+                        "underflowDistance", "(JJI)I", false);
 
-		case Opcodes.LDIV:
+                insertBranchWithoutException(Opcodes.IFGE);
 
-			loc2 = mv.newLocal(Type.LONG_TYPE);
-			mv.storeLocal(loc2);
-			mv.visitInsn(Opcodes.DUP2);
-			mv.loadLocal(loc2);
-			mv.visitInsn(Opcodes.DUP2_X2);
-			mv.visitLdcInsn(opcode);
-			mv.visitMethodInsn(Opcodes.INVOKESTATIC,
-                    CHECKER,
-					"overflowDistance", "(JJI)I", false);
+            case Opcodes.LDIV:
 
-			insertBranchWithoutException(Opcodes.IFGE);
-			break;
-		}
+                loc2 = mv.newLocal(Type.LONG_TYPE);
+                mv.storeLocal(loc2);
+                mv.visitInsn(Opcodes.DUP2);
+                mv.loadLocal(loc2);
+                mv.visitInsn(Opcodes.DUP2_X2);
+                mv.visitLdcInsn(opcode);
+                mv.visitMethodInsn(Opcodes.INVOKESTATIC,
+                        CHECKER,
+                        "overflowDistance", "(JJI)I", false);
 
-	}
+                insertBranchWithoutException(Opcodes.IFGE);
+                break;
+        }
+
+    }
 }

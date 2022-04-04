@@ -22,45 +22,43 @@ package org.evosuite.symbolic.vm;
 import org.evosuite.dse.AbstractVM;
 
 /**
- * 
  * @author galeotti
- *
  */
-public final class  OtherVM extends AbstractVM {
+public final class OtherVM extends AbstractVM {
 
-	private final SymbolicEnvironment env;
+    private final SymbolicEnvironment env;
 
-	public OtherVM(SymbolicEnvironment env) {
-		this.env = env;
-	}
+    public OtherVM(SymbolicEnvironment env) {
+        this.env = env;
+    }
 
-	@Override
-	public void UNUSED() {
-		throw new UnsupportedOperationException();
-	}
+    @Override
+    public void UNUSED() {
+        throw new UnsupportedOperationException();
+    }
 
-	/**
-	 * Enter synchronized region of code
-	 */
-	@Override
-	public void MONITORENTER() {
-		// discard symbolic argument
-		this.env.topFrame().operandStack.popRef();
-		// ignore this instruction
-		return;
-	}
+    /**
+     * Enter synchronized region of code
+     */
+    @Override
+    public void MONITORENTER() {
+        // discard symbolic argument
+        this.env.topFrame().operandStack.popRef();
+        // ignore this instruction
+        return;
+    }
 
-	@Override
-	public void MONITOREXIT() {
-		// discard symbolic argument
-		this.env.topFrame().operandStack.popRef();
-		// ignore this instruction
-		return;
-	}
+    @Override
+    public void MONITOREXIT() {
+        // discard symbolic argument
+        this.env.topFrame().operandStack.popRef();
+        // ignore this instruction
+        return;
+    }
 
-	@Override
-	public void WIDE() {
-		throw new UnsupportedOperationException();
-	}
+    @Override
+    public void WIDE() {
+        throw new UnsupportedOperationException();
+    }
 
 }

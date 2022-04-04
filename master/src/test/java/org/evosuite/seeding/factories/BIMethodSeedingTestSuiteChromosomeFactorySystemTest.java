@@ -35,57 +35,57 @@ import com.examples.with.different.packagename.staticusage.Class1;
 
 public class BIMethodSeedingTestSuiteChromosomeFactorySystemTest extends SystemTestBase {
 
-	ChromosomeSampleFactory defaultFactory = new ChromosomeSampleFactory();
-	TestSuiteChromosome bestIndividual;
-	GeneticAlgorithm<TestSuiteChromosome> ga;
+    ChromosomeSampleFactory defaultFactory = new ChromosomeSampleFactory();
+    TestSuiteChromosome bestIndividual;
+    GeneticAlgorithm<TestSuiteChromosome> ga;
 
-	@Before
-	public void setup() {
-		EvoSuite evosuite = new EvoSuite();
+    @Before
+    public void setup() {
+        EvoSuite evosuite = new EvoSuite();
 
-		String targetClass = Class1.class.getCanonicalName();
-		Properties.TARGET_CLASS = targetClass;
-		String[] command = new String[] { "-generateSuite", "-class",
-				targetClass };
+        String targetClass = Class1.class.getCanonicalName();
+        Properties.TARGET_CLASS = targetClass;
+        String[] command = new String[]{"-generateSuite", "-class",
+                targetClass};
 
-		Object result = evosuite.parseCommandLine(command);
+        Object result = evosuite.parseCommandLine(command);
 
-		ga = getGAFromResult(result);
-		bestIndividual = ga.getBestIndividual();
-	}
+        ga = getGAFromResult(result);
+        bestIndividual = ga.getBestIndividual();
+    }
 
-	@Test
-	public void testNotSeed() {
-		Properties.SEED_PROBABILITY = 0;
-		BIMethodSeedingTestSuiteChromosomeFactory bicf = new BIMethodSeedingTestSuiteChromosomeFactory(
-				defaultFactory, bestIndividual);
-		TestSuiteChromosome chromosome = bicf.getChromosome();
-		
-		boolean containsSeededMethod = false;
-		for (int i = 0; i < chromosome.getTests().size(); i++){
-			if (!chromosome.getTests().get(i).equals(ChromosomeSampleFactory.CHROMOSOME.getTests().get(i))){
-				containsSeededMethod = true;
-			}
-		}
-		assertFalse(containsSeededMethod);
-	}
+    @Test
+    public void testNotSeed() {
+        Properties.SEED_PROBABILITY = 0;
+        BIMethodSeedingTestSuiteChromosomeFactory bicf = new BIMethodSeedingTestSuiteChromosomeFactory(
+                defaultFactory, bestIndividual);
+        TestSuiteChromosome chromosome = bicf.getChromosome();
 
-	@Test
-	public void testBIMethod() {
-		//probability is SEED_PROBABILITY/test cases, so 10 guarentees a seed
-		Properties.SEED_PROBABILITY = 10;
-		BIMethodSeedingTestSuiteChromosomeFactory factory = new BIMethodSeedingTestSuiteChromosomeFactory(
-				defaultFactory, bestIndividual);
-		TestSuiteChromosome chromosome = factory.getChromosome();
-		boolean containsSeededMethod = false;
-		for (TestCase t : chromosome.getTests()) {
-			for (TestCase t2 : bestIndividual.getTests()) {
-				if (t.equals(t2)) {
-					containsSeededMethod = true;
-				}
-			}
-		}
-		assertTrue(containsSeededMethod);
-	}
+        boolean containsSeededMethod = false;
+        for (int i = 0; i < chromosome.getTests().size(); i++) {
+            if (!chromosome.getTests().get(i).equals(ChromosomeSampleFactory.CHROMOSOME.getTests().get(i))) {
+                containsSeededMethod = true;
+            }
+        }
+        assertFalse(containsSeededMethod);
+    }
+
+    @Test
+    public void testBIMethod() {
+        //probability is SEED_PROBABILITY/test cases, so 10 guarentees a seed
+        Properties.SEED_PROBABILITY = 10;
+        BIMethodSeedingTestSuiteChromosomeFactory factory = new BIMethodSeedingTestSuiteChromosomeFactory(
+                defaultFactory, bestIndividual);
+        TestSuiteChromosome chromosome = factory.getChromosome();
+        boolean containsSeededMethod = false;
+        for (TestCase t : chromosome.getTests()) {
+            for (TestCase t2 : bestIndividual.getTests()) {
+                if (t.equals(t2)) {
+                    containsSeededMethod = true;
+                }
+            }
+        }
+        assertTrue(containsSeededMethod);
+    }
 
 }

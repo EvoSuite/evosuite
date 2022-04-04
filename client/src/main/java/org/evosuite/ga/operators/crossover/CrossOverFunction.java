@@ -19,36 +19,35 @@
  */
 package org.evosuite.ga.operators.crossover;
 
-import java.io.Serializable;
-
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ConstructionFailedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Serializable;
+
 /**
  * Cross over two individuals
- * 
+ *
  * @author Gordon Fraser
  */
 public abstract class CrossOverFunction<T extends Chromosome<T>> implements Serializable {
 
-	private static final long serialVersionUID = -4765602400132319324L;
+    private static final long serialVersionUID = -4765602400132319324L;
 
-	/** Constant <code>logger</code> */
-	protected static final Logger logger = LoggerFactory.getLogger(CrossOverFunction.class);
+    /**
+     * Constant <code>logger</code>
+     */
+    protected static final Logger logger = LoggerFactory.getLogger(CrossOverFunction.class);
 
-	/**
-	 * Replace parents with crossed over individuals
-	 * 
-	 * @param parent1
-	 *            a {@link Chromosome} object.
-	 * @param parent2
-	 *            a {@link Chromosome} object.
-	 * @throws org.evosuite.ga.ConstructionFailedException
-	 *             if any.
-	 */
-	public abstract void crossOver(T parent1, T parent2)
-	        throws ConstructionFailedException;
+    /**
+     * Replace parents with crossed over individuals
+     *
+     * @param parent1 a {@link Chromosome} object.
+     * @param parent2 a {@link Chromosome} object.
+     * @throws org.evosuite.ga.ConstructionFailedException if any.
+     */
+    public abstract void crossOver(T parent1, T parent2)
+            throws ConstructionFailedException;
 
 }

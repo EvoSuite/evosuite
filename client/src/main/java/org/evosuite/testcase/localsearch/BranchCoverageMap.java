@@ -19,10 +19,6 @@
  */
 package org.evosuite.testcase.localsearch;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Set;
-
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.ga.metaheuristics.SearchListener;
 import org.evosuite.testcase.TestCase;
@@ -30,98 +26,101 @@ import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testsuite.TestSuiteChromosome;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
+
 public class BranchCoverageMap implements SearchListener<TestSuiteChromosome> {
 
-	private static final long serialVersionUID = -3498997999289782541L;
+    private static final long serialVersionUID = -3498997999289782541L;
 
-	public static BranchCoverageMap instance = null;
-	
-	private Map<Integer, TestCase> coveredTrueBranches;
+    public static BranchCoverageMap instance = null;
 
-	private Map<Integer, TestCase> coveredFalseBranches;
+    private Map<Integer, TestCase> coveredTrueBranches;
 
-	private BranchCoverageMap() {
-		
-	}
-	
-	public static BranchCoverageMap getInstance() {
-		if(instance == null)
-			instance = new BranchCoverageMap();
-		
-		return instance;
-	}
-	
-	public boolean isCoveredTrue(int branchId) {
-		return coveredTrueBranches.containsKey(branchId);
-	}
+    private Map<Integer, TestCase> coveredFalseBranches;
 
-	public boolean isCoveredFalse(int branchId) {
-		return coveredFalseBranches.containsKey(branchId);
-	}
-	
-	public TestCase getTestCoveringTrue(int branchId) {
-		return coveredTrueBranches.get(branchId);
-	}
+    private BranchCoverageMap() {
 
-	public TestCase getTestCoveringFalse(int branchId) {
-		return coveredFalseBranches.get(branchId);
-	}
-	
-	public Set<Integer> getCoveredTrueBranches() {
-		return coveredTrueBranches.keySet();
-	}
+    }
 
-	public Set<Integer> getCoveredFalseBranches() {
-		return coveredFalseBranches.keySet();
-	}
+    public static BranchCoverageMap getInstance() {
+        if (instance == null)
+            instance = new BranchCoverageMap();
 
-	@Override
-	public void searchStarted(GeneticAlgorithm<TestSuiteChromosome> algorithm) {
-		coveredTrueBranches  = new LinkedHashMap<>();
-		coveredFalseBranches = new LinkedHashMap<>();
-	}
+        return instance;
+    }
 
-	@Override
-	public void iteration(GeneticAlgorithm<TestSuiteChromosome> algorithm) {
-		
-	}
+    public boolean isCoveredTrue(int branchId) {
+        return coveredTrueBranches.containsKey(branchId);
+    }
 
-	@Override
-	public void searchFinished(GeneticAlgorithm<TestSuiteChromosome> algorithm) {
-		coveredTrueBranches  = null;
-		coveredFalseBranches = null;
-	}
+    public boolean isCoveredFalse(int branchId) {
+        return coveredFalseBranches.containsKey(branchId);
+    }
 
-	@Override
-	public void fitnessEvaluation(TestSuiteChromosome suite) {
-		if (suite == null) {
-			return;
-		}
+    public TestCase getTestCoveringTrue(int branchId) {
+        return coveredTrueBranches.get(branchId);
+    }
 
-		for(TestChromosome testChromosome : suite.getTestChromosomes()) {
-			ExecutionResult lastResult = testChromosome.getLastExecutionResult();
-			if(lastResult != null) {
-				for(int branchId : lastResult.getTrace().getCoveredTrueBranches()) {
-					if(!coveredTrueBranches.containsKey(branchId)) {
-						coveredTrueBranches.put(branchId, testChromosome.getTestCase());
-					}
-				}
-				for(int branchId : lastResult.getTrace().getCoveredFalseBranches()) {
-					if(!coveredFalseBranches.containsKey(branchId)) {
-						coveredFalseBranches.put(branchId, testChromosome.getTestCase());
-					}
-				}
-			}
-		}
+    public TestCase getTestCoveringFalse(int branchId) {
+        return coveredFalseBranches.get(branchId);
+    }
 
-	}
+    public Set<Integer> getCoveredTrueBranches() {
+        return coveredTrueBranches.keySet();
+    }
 
-	@Override
-	public void modification(TestSuiteChromosome individual) {
-		// TODO Auto-generated method stub
-		
-	}
+    public Set<Integer> getCoveredFalseBranches() {
+        return coveredFalseBranches.keySet();
+    }
 
-	
-	
+    @Override
+    public void searchStarted(GeneticAlgorithm<TestSuiteChromosome> algorithm) {
+        coveredTrueBranches = new LinkedHashMap<>();
+        coveredFalseBranches = new LinkedHashMap<>();
+    }
+
+    @Override
+    public void iteration(GeneticAlgorithm<TestSuiteChromosome> algorithm) {
+
+    }
+
+    @Override
+    public void searchFinished(GeneticAlgorithm<TestSuiteChromosome> algorithm) {
+        coveredTrueBranches = null;
+        coveredFalseBranches = null;
+    }
+
+    @Override
+    public void fitnessEvaluation(TestSuiteChromosome suite) {
+        if (suite == null) {
+            return;
+        }
+
+        for (TestChromosome testChromosome : suite.getTestChromosomes()) {
+            ExecutionResult lastResult = testChromosome.getLastExecutionResult();
+            if (lastResult != null) {
+                for (int branchId : lastResult.getTrace().getCoveredTrueBranches()) {
+                    if (!coveredTrueBranches.containsKey(branchId)) {
+                        coveredTrueBranches.put(branchId, testChromosome.getTestCase());
+                    }
+                }
+                for (int branchId : lastResult.getTrace().getCoveredFalseBranches()) {
+                    if (!coveredFalseBranches.containsKey(branchId)) {
+                        coveredFalseBranches.put(branchId, testChromosome.getTestCase());
+                    }
+                }
+            }
+        }
+
+    }
+
+    @Override
+    public void modification(TestSuiteChromosome individual) {
+        // TODO Auto-generated method stub
+
+    }
+
+
 }

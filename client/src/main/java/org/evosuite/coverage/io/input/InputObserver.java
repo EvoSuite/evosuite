@@ -66,7 +66,7 @@ public class InputObserver extends ExecutionObserver {
     public void afterStatement(Statement statement, Scope scope,
                                Throwable exception) {
         if (statement instanceof EntityWithParametersStatement) {
-            EntityWithParametersStatement parameterisedStatement = (EntityWithParametersStatement)statement;
+            EntityWithParametersStatement parameterisedStatement = (EntityWithParametersStatement) statement;
             List<VariableReference> parRefs = parameterisedStatement.getParameterReferences();
 
             List<Object> argObjects = new ArrayList<>(parRefs.size());
@@ -86,7 +86,7 @@ public class InputObserver extends ExecutionObserver {
                 argObjects.add(parObject);
             }
             assert parRefs.size() == argObjects.size();
-            String className  = parameterisedStatement.getDeclaringClassName();
+            String className = parameterisedStatement.getDeclaringClassName();
             String methodDesc = parameterisedStatement.getDescriptor();
             String methodName = parameterisedStatement.getMethodName();
 

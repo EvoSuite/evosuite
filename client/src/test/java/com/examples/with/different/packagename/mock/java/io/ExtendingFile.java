@@ -21,12 +21,12 @@ package com.examples.with.different.packagename.mock.java.io;
 
 import java.io.File;
 
-public class ExtendingFile extends File{
+public class ExtendingFile extends File {
 
     private static final long serialVersionUID = -3575700212493895858L;
 
     public ExtendingFile(String pathname) {
-		super(pathname);
-	}
+        super(pathname);
+    }
 
 }

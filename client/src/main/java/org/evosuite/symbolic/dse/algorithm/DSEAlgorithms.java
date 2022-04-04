@@ -29,18 +29,18 @@ import org.evosuite.Properties;
  */
 public enum DSEAlgorithms {
     GENERATIONAL_SEARCH("GENERATIONAL_SEARCH",
-      "Based on generational search in Automated Whitebox Fuzz Testing, Godefroid, Levin, Molnar",
-      new Properties.Criterion[]{Properties.Criterion.BRANCH},
-      new Properties.DSEStoppingConditionCriterion[]{}),
+            "Based on generational search in Automated Whitebox Fuzz Testing, Godefroid, Levin, Molnar",
+            new Properties.Criterion[]{Properties.Criterion.BRANCH},
+            new Properties.DSEStoppingConditionCriterion[]{}),
     DFS("DFS",
-      "Based on the classic DFS exploration (See Baldoni et. al., A Survey of Symbolic Execution Techniques.)",
-      new Properties.Criterion[]{Properties.Criterion.BRANCH},
-      new Properties.DSEStoppingConditionCriterion[]{});
+            "Based on the classic DFS exploration (See Baldoni et. al., A Survey of Symbolic Execution Techniques.)",
+            new Properties.Criterion[]{Properties.Criterion.BRANCH},
+            new Properties.DSEStoppingConditionCriterion[]{});
 
-    private String name;
-    private String description;
-    private Properties.Criterion[] criteria;
-    private Properties.DSEStoppingConditionCriterion[] stoppingConditionCriterions;
+    private final String name;
+    private final String description;
+    private final Properties.Criterion[] criteria;
+    private final Properties.DSEStoppingConditionCriterion[] stoppingConditionCriterions;
 
     DSEAlgorithms(String name,
                   String description,
@@ -52,8 +52,19 @@ public enum DSEAlgorithms {
         this.stoppingConditionCriterions = stoppingConditionCriterions;
     }
 
-    public String getName() { return this.name; }
-    public String getDescription() { return description; }
-    public Properties.Criterion[] getCriteria() { return criteria; }
-    public Properties.DSEStoppingConditionCriterion[] getStoppingConditionCriterions() { return stoppingConditionCriterions; }
+    public String getName() {
+        return this.name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public Properties.Criterion[] getCriteria() {
+        return criteria;
+    }
+
+    public Properties.DSEStoppingConditionCriterion[] getStoppingConditionCriterions() {
+        return stoppingConditionCriterions;
+    }
 }

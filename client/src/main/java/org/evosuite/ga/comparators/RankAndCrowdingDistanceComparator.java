@@ -19,15 +19,15 @@
  */
 package org.evosuite.ga.comparators;
 
+import org.evosuite.ga.Chromosome;
+
 import java.io.Serializable;
 import java.util.Comparator;
-
-import org.evosuite.ga.Chromosome;
 
 /**
  * This class implements a <code>Comparator</code> (a method for comparing <code>Chromosomes</code>
  * objects) based on the dominance test, as in NSGA-II.
- * 
+ *
  * @author José Campos
  */
 public class RankAndCrowdingDistanceComparator<T extends Chromosome<T>> implements Comparator<T>,
@@ -51,7 +51,7 @@ public class RankAndCrowdingDistanceComparator<T extends Chromosome<T>> implemen
 
     /**
      * Compares two solutions.
-     * 
+     *
      * @param c1 Object representing the first <code>Solution</code>.
      * @param c2 Object representing the second <code>Solution</code>.
      * @return -1, or 0, or 1 according to the non-dominated ranks
@@ -67,7 +67,7 @@ public class RankAndCrowdingDistanceComparator<T extends Chromosome<T>> implemen
         }
 
         if (c1.getRank() == c2.getRank() && c1.getDistance() == c2.getDistance()) {
-          return 0;
+            return 0;
         }
 
         if (this.isToMaximize) {
@@ -93,7 +93,7 @@ public class RankAndCrowdingDistanceComparator<T extends Chromosome<T>> implemen
 
     /**
      * Are we maximizing or minimizing fitness?
-     * 
+     *
      * @param max a boolean.
      */
     public void setMaximize(boolean max) {

@@ -29,84 +29,102 @@ import org.evosuite.ga.Chromosome;
  */
 public class MaxTestsStoppingCondition<T extends Chromosome<T>> extends StoppingConditionImpl<T> {
 
-	private static final long serialVersionUID = -3375236459377313641L;
+    private static final long serialVersionUID = -3375236459377313641L;
 
-	/** Current number of tests */
-	protected static long numTests = 0;
+    /**
+     * Current number of tests
+     */
+    protected static long numTests = 0;
 
-	/** Maximum number of evaluations */
-	protected long maxTests;
+    /**
+     * Maximum number of evaluations
+     */
+    protected long maxTests;
 
-	public MaxTestsStoppingCondition() {
-		maxTests = Properties.SEARCH_BUDGET;
-	}
+    public MaxTestsStoppingCondition() {
+        maxTests = Properties.SEARCH_BUDGET;
+    }
 
-	public MaxTestsStoppingCondition(MaxTestsStoppingCondition<?> that) {
-		this.maxTests = that.maxTests;
-	}
+    public MaxTestsStoppingCondition(MaxTestsStoppingCondition<?> that) {
+        this.maxTests = that.maxTests;
+    }
 
-	@Override
-	public MaxTestsStoppingCondition<T> clone() {
-		return new MaxTestsStoppingCondition<>(this);
-	}
+    @Override
+    public MaxTestsStoppingCondition<T> clone() {
+        return new MaxTestsStoppingCondition<>(this);
+    }
 
-	/**
-	 * <p>getNumExecutedTests</p>
-	 *
-	 * @return a long.
-	 */
-	public static long getNumExecutedTests() {
-		return numTests;
-	}
+    /**
+     * <p>getNumExecutedTests</p>
+     *
+     * @return a long.
+     */
+    public static long getNumExecutedTests() {
+        return numTests;
+    }
 
-	/**
-	 * <p>testExecuted</p>
-	 */
-	public static void testExecuted() {
-		numTests++;
-	}
+    /**
+     * <p>testExecuted</p>
+     */
+    public static void testExecuted() {
+        numTests++;
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public void reset() {
-		numTests = 0;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void reset() {
+        numTests = 0;
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public boolean isFinished() {
-		return numTests >= maxTests;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isFinished() {
+        return numTests >= maxTests;
+    }
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.ga.StoppingCondition#getCurrentValue()
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public long getCurrentValue() {
-		return numTests;
-	}
+    /* (non-Javadoc)
+     * @see org.evosuite.ga.StoppingCondition#getCurrentValue()
+     */
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.ga.StoppingCondition#setLimit(int)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public void setLimit(long limit) {
-		maxTests = limit;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getCurrentValue() {
+        return numTests;
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public long getLimit() {
-		return maxTests;
-	}
+    /* (non-Javadoc)
+     * @see org.evosuite.ga.StoppingCondition#setLimit(int)
+     */
 
-	/** {@inheritDoc} */
-	@Override
-	public void forceCurrentValue(long value) {
-		// TODO Auto-generated method stub
-		numTests = value;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setLimit(long limit) {
+        maxTests = limit;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getLimit() {
+        return maxTests;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void forceCurrentValue(long value) {
+        // TODO Auto-generated method stub
+        numTests = value;
+    }
 
 }

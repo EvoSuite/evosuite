@@ -32,40 +32,40 @@ import com.examples.with.different.packagename.staticusage.Class1;
 import static org.junit.Assert.*;
 
 public class BestIndividualTestSuiteChromosomeFactorySystemTest extends SystemTestBase {
-	ChromosomeSampleFactory defaultFactory = new ChromosomeSampleFactory();
-	TestSuiteChromosome bestIndividual;
-	GeneticAlgorithm<TestSuiteChromosome> ga;
+    ChromosomeSampleFactory defaultFactory = new ChromosomeSampleFactory();
+    TestSuiteChromosome bestIndividual;
+    GeneticAlgorithm<TestSuiteChromosome> ga;
 
-	@Before
-	public void setup(){
-		setDefaultPropertiesForTestCases();
+    @Before
+    public void setup() {
+        setDefaultPropertiesForTestCases();
 
-		EvoSuite evosuite = new EvoSuite();
+        EvoSuite evosuite = new EvoSuite();
 
-		String targetClass = Class1.class.getCanonicalName();
-		Properties.TARGET_CLASS = targetClass;
-		String[] command = new String[] { "-generateSuite", "-class",
-				targetClass };
+        String targetClass = Class1.class.getCanonicalName();
+        Properties.TARGET_CLASS = targetClass;
+        String[] command = new String[]{"-generateSuite", "-class",
+                targetClass};
 
-		Object result = evosuite.parseCommandLine(command);
+        Object result = evosuite.parseCommandLine(command);
 
-		ga = getGAFromResult(result);
-		bestIndividual = ga.getBestIndividual();
-	}
-	
-	@Test
-	public void testSeed(){
-		BestIndividualTestSuiteChromosomeFactory bicf = new BestIndividualTestSuiteChromosomeFactory(
-				defaultFactory, bestIndividual);
-		
-		assertEquals(bestIndividual.toString(), bicf.getChromosome().toString());
-	}
-	
-	@Test
-	public void testNotSeed(){
-		BestIndividualTestSuiteChromosomeFactory bicf = new BestIndividualTestSuiteChromosomeFactory(
-				defaultFactory, bestIndividual);
-		bicf.getChromosome();
+        ga = getGAFromResult(result);
+        bestIndividual = ga.getBestIndividual();
+    }
+
+    @Test
+    public void testSeed() {
+        BestIndividualTestSuiteChromosomeFactory bicf = new BestIndividualTestSuiteChromosomeFactory(
+                defaultFactory, bestIndividual);
+
+        assertEquals(bestIndividual.toString(), bicf.getChromosome().toString());
+    }
+
+    @Test
+    public void testNotSeed() {
+        BestIndividualTestSuiteChromosomeFactory bicf = new BestIndividualTestSuiteChromosomeFactory(
+                defaultFactory, bestIndividual);
+        bicf.getChromosome();
         assertNotEquals(bicf.getChromosome(), bestIndividual);
-	}
+    }
 }

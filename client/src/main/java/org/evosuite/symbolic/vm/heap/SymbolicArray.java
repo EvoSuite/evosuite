@@ -29,27 +29,27 @@ import org.objectweb.asm.Type;
  */
 public interface SymbolicArray {
 
-  /**
-   * Returns the array content type
-   *
-   * @return a {@link org.objectweb.asm.Type} object
-   */
-  Type getContentType();
+    /**
+     * Returns the array content type
+     *
+     * @return a {@link org.objectweb.asm.Type} object
+     */
+    Type getContentType();
 
-  /**
-   * Returns an expression representing the symbolic value stored at the ith position
-   *
-   * @param index
-   * @return a {@link org.evosuite.symbolic.expr.Expression} object
-   */
-  Expression get(Integer index);
+    /**
+     * Returns an expression representing the symbolic value stored at the ith position
+     *
+     * @param index
+     * @return a {@link org.evosuite.symbolic.expr.Expression} object
+     */
+    Expression get(Integer index);
 
-  /**
-   * Symbolically updates the ith element of the array
-   *
-   * @param index
-   * @param expression
-   */
-  void set(Integer index, Expression expression);
+    /**
+     * Symbolically updates the ith element of the array
+     *
+     * @param index
+     * @param expression
+     */
+    void set(Integer index, Expression expression);
 
 }

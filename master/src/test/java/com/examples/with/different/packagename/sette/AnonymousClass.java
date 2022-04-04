@@ -20,7 +20,6 @@
 package com.examples.with.different.packagename.sette;
 
 
-
 public final class AnonymousClass {
     private AnonymousClass() {
         throw new UnsupportedOperationException("Static class");

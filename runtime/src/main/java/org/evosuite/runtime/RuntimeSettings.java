@@ -34,7 +34,7 @@ public class RuntimeSettings {
      */
 
     /**
-     *  The full name of the class we are unit testing, ie the system under test (SUT)
+     * The full name of the class we are unit testing, ie the system under test (SUT)
      */
     public static String className = "unknown";
 
@@ -49,7 +49,7 @@ public class RuntimeSettings {
      */
     public static boolean mockSystemIn = false;
 
-    
+
     /**
      * Should the use the GUI (javax.swing, etc.) be mocked?
      */

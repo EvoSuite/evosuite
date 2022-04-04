@@ -26,97 +26,95 @@ import org.junit.runner.Description;
 import org.junit.runner.Result;
 import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunListener;
-import org.junit.runner.notification.RunNotifier;
 
 /**
  * <p>
  * JUnitRunListener class
  * </p>
- * 
+ *
  * @author José Campos
  */
 public class JUnit4RunListener extends RunListener {
 
-	
-	private JUnitRunner junitRunner = null;
 
-	
-	private JUnitResult testResult = null;
+    private JUnitRunner junitRunner = null;
 
-	
-	private long start;
 
-	/**
-	 * 
-	 * @param jr
-	 */
-	public JUnit4RunListener(JUnitRunner jR) {
-		this.junitRunner = jR;
-	}
+    private JUnitResult testResult = null;
 
-	/**
-	 * Called before any tests have been run
-	 */
-	@Override
-	public void testRunStarted(Description description) {
-		LoggingUtils.getEvoLogger().info("* Number of test cases to execute: " + description.testCount());
-	}
 
-	/**
-	 * Called when all tests have finished
-	 */
-	@Override
-	public void testRunFinished(Result result) {
-		LoggingUtils.getEvoLogger().info("* Number of test cases executed: " + result.getRunCount());
-	}
+    private long start;
 
-	/**
-	 * Called when an atomic test is about to be started
-	 */
-	@Override
-	public void testStarted(Description description) {
-		LoggingUtils.getEvoLogger().info("* Started: " + "ClassName: " + description.getClassName() + ", MethodName: " + description.getMethodName());
+    /**
+     * @param jr
+     */
+    public JUnit4RunListener(JUnitRunner jR) {
+        this.junitRunner = jR;
+    }
 
-		this.start = System.nanoTime();
+    /**
+     * Called before any tests have been run
+     */
+    @Override
+    public void testRunStarted(Description description) {
+        LoggingUtils.getEvoLogger().info("* Number of test cases to execute: " + description.testCount());
+    }
 
-		this.testResult = new JUnitResult(description.getClassName() + "#" + description.getMethodName(), this.junitRunner.getJUnitClass());
-	}
+    /**
+     * Called when all tests have finished
+     */
+    @Override
+    public void testRunFinished(Result result) {
+        LoggingUtils.getEvoLogger().info("* Number of test cases executed: " + result.getRunCount());
+    }
 
-	/**
-	 * Called when an atomic test has finished. whether the test successes or fails
-	 */
-	@Override
-	public void testFinished(Description description) {
-		LoggingUtils.getEvoLogger().info("* Finished: " + "ClassName: " + description.getClassName() + ", MethodName: " + description.getMethodName());
+    /**
+     * Called when an atomic test is about to be started
+     */
+    @Override
+    public void testStarted(Description description) {
+        LoggingUtils.getEvoLogger().info("* Started: " + "ClassName: " + description.getClassName() + ", MethodName: " + description.getMethodName());
 
-		this.testResult.setRuntime(System.nanoTime() - this.start);
-		this.testResult.setExecutionTrace(ExecutionTracer.getExecutionTracer().getTrace());
-		this.testResult.incrementRunCount();
-		ExecutionTracer.getExecutionTracer().clear();
+        this.start = System.nanoTime();
 
-		this.junitRunner.addResult(this.testResult);
-	}
+        this.testResult = new JUnitResult(description.getClassName() + "#" + description.getMethodName(), this.junitRunner.getJUnitClass());
+    }
 
-	/**
-	 * Called when an atomic test fails
-	 */
-	@Override
-	public void testFailure(Failure failure) {
-		LoggingUtils.getEvoLogger().info("* Failure: " + failure.getMessage());
-		for (StackTraceElement s : failure.getException().getStackTrace()) {
-			LoggingUtils.getEvoLogger().info("   " + s.toString());
-		}
+    /**
+     * Called when an atomic test has finished. whether the test successes or fails
+     */
+    @Override
+    public void testFinished(Description description) {
+        LoggingUtils.getEvoLogger().info("* Finished: " + "ClassName: " + description.getClassName() + ", MethodName: " + description.getMethodName());
 
-		this.testResult.setSuccessful(false);
-		this.testResult.setTrace(failure.getTrace());
-		this.testResult.incrementFailureCount();
-	}
+        this.testResult.setRuntime(System.nanoTime() - this.start);
+        this.testResult.setExecutionTrace(ExecutionTracer.getExecutionTracer().getTrace());
+        this.testResult.incrementRunCount();
+        ExecutionTracer.getExecutionTracer().clear();
 
-	/**
-	 * Called when a test will not be run, generally because a test method is annotated with Ignore
-	 */
-	@Override
-	public void testIgnored(Description description) throws java.lang.Exception {
-		LoggingUtils.getEvoLogger().info("* Ignored: " + "ClassName: " + description.getClassName() + ", MethodName: " + description.getMethodName());
-	}
+        this.junitRunner.addResult(this.testResult);
+    }
+
+    /**
+     * Called when an atomic test fails
+     */
+    @Override
+    public void testFailure(Failure failure) {
+        LoggingUtils.getEvoLogger().info("* Failure: " + failure.getMessage());
+        for (StackTraceElement s : failure.getException().getStackTrace()) {
+            LoggingUtils.getEvoLogger().info("   " + s.toString());
+        }
+
+        this.testResult.setSuccessful(false);
+        this.testResult.setTrace(failure.getTrace());
+        this.testResult.incrementFailureCount();
+    }
+
+    /**
+     * Called when a test will not be run, generally because a test method is annotated with Ignore
+     */
+    @Override
+    public void testIgnored(Description description) throws java.lang.Exception {
+        LoggingUtils.getEvoLogger().info("* Ignored: " + "ClassName: " + description.getClassName() + ", MethodName: " + description.getMethodName());
+    }
 }

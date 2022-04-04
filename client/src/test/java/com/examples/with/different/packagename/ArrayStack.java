@@ -30,7 +30,7 @@ import java.util.EmptyStackException;
  * is therefore operates faster in environments where you do not need to
  * worry about multiple thread contention.
  * <p>
- * The removal order of an <code>ArrayStack</code> is based on insertion 
+ * The removal order of an <code>ArrayStack</code> is based on insertion
  * order: The most recently added element is removed first.  The iteration
  * order is <i>not</i> the same as the removal order.  The iterator returns
  * elements from the bottom up, whereas the {@link #remove()} method removes
@@ -38,17 +38,18 @@ import java.util.EmptyStackException;
  * <p>
  * Unlike <code>Stack</code>, <code>ArrayStack</code> accepts null entries.
  *
- * @see java.util.Stack
- * @since Commons Collections 1.0
- * @version $Revision: 646777 $ $Date: 2008-04-10 13:33:15 +0100 (Thu, 10 Apr 2008) $
- * 
  * @author Craig R. McClanahan
  * @author Paul Jack
  * @author Stephen Colebourne
+ * @version $Revision: 646777 $ $Date: 2008-04-10 13:33:15 +0100 (Thu, 10 Apr 2008) $
+ * @see java.util.Stack
+ * @since Commons Collections 1.0
  */
 public class ArrayStack extends ArrayList implements Buffer {
 
-    /** Ensure serialization compatibility */    
+    /**
+     * Ensure serialization compatibility
+     */
     private static final long serialVersionUID = 2130079159931574599L;
 
     /**
@@ -61,10 +62,10 @@ public class ArrayStack extends ArrayList implements Buffer {
 
     /**
      * Constructs a new empty <code>ArrayStack</code> with an initial size.
-     * 
-     * @param initialSize  the initial size to use
-     * @throws IllegalArgumentException  if the specified initial size
-     *  is negative
+     *
+     * @param initialSize the initial size to use
+     * @throws IllegalArgumentException if the specified initial size
+     *                                  is negative
      */
     public ArrayStack(int initialSize) {
         super(initialSize);
@@ -75,7 +76,7 @@ public class ArrayStack extends ArrayList implements Buffer {
      * <p>
      * This method exists for compatibility with <code>java.util.Stack</code>.
      * New users of this class should use <code>isEmpty</code> instead.
-     * 
+     *
      * @return true if the stack is currently empty
      */
     public boolean empty() {
@@ -86,7 +87,7 @@ public class ArrayStack extends ArrayList implements Buffer {
      * Returns the top item off of this stack without removing it.
      *
      * @return the top item on the stack
-     * @throws EmptyStackException  if the stack is empty
+     * @throws EmptyStackException if the stack is empty
      */
     public Object peek() throws EmptyStackException {
         int n = size();
@@ -101,10 +102,10 @@ public class ArrayStack extends ArrayList implements Buffer {
      * Returns the n'th item down (zero-relative) from the top of this
      * stack without removing it.
      *
-     * @param n  the number of items down to go
+     * @param n the number of items down to go
      * @return the n'th item on the stack, zero relative
-     * @throws EmptyStackException  if there are not enough items on the
-     *  stack to satisfy this request
+     * @throws EmptyStackException if there are not enough items on the
+     *                             stack to satisfy this request
      */
     public Object peek(int n) throws EmptyStackException {
         int m = (size() - n) - 1;
@@ -119,7 +120,7 @@ public class ArrayStack extends ArrayList implements Buffer {
      * Pops the top item off of this stack and return it.
      *
      * @return the top item on the stack
-     * @throws EmptyStackException  if the stack is empty
+     * @throws EmptyStackException if the stack is empty
      */
     public Object pop() throws EmptyStackException {
         int n = size();
@@ -134,7 +135,7 @@ public class ArrayStack extends ArrayList implements Buffer {
      * Pushes a new item onto the top of this stack. The pushed item is also
      * returned. This is equivalent to calling <code>add</code>.
      *
-     * @param item  the item to be added
+     * @param item the item to be added
      * @return the item just pushed
      */
     public Object push(Object item) {
@@ -150,7 +151,7 @@ public class ArrayStack extends ArrayList implements Buffer {
      * <code>equals()</code> method is used to compare to the items
      * in this stack.
      *
-     * @param object  the object to be searched for
+     * @param object the object to be searched for
      * @return the 1-based depth into the stack of the object, or -1 if not found
      */
     public int search(Object object) {
@@ -159,7 +160,7 @@ public class ArrayStack extends ArrayList implements Buffer {
         while (i >= 0) {
             Object current = get(i);
             if ((object == null && current == null) ||
-                (object != null && object.equals(current))) {
+                    (object != null && object.equals(current))) {
                 return n;
             }
             i--;
@@ -172,7 +173,7 @@ public class ArrayStack extends ArrayList implements Buffer {
      * Returns the element on the top of the stack.
      *
      * @return the element on the top of the stack
-     * @throws BufferUnderflowException  if the stack is empty
+     * @throws BufferUnderflowException if the stack is empty
      */
     public Object get() {
         int size = size();
@@ -185,8 +186,8 @@ public class ArrayStack extends ArrayList implements Buffer {
     /**
      * Removes the element on the top of the stack.
      *
-     * @return the removed element 
-     * @throws BufferUnderflowException  if the stack is empty
+     * @return the removed element
+     * @throws BufferUnderflowException if the stack is empty
      */
     public Object remove() {
         int size = size();

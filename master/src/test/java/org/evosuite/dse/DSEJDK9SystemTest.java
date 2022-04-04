@@ -37,45 +37,66 @@ import org.junit.Test;
  */
 public final class DSEJDK9SystemTest extends DSESystemTestBase {
 
-	/**************** InvokeDynamic ****************/
+    /**************** InvokeDynamic ****************/
 
-    /** Lambdas (JDK 8) */
-	@Test public void testLambda() {
-		testDSEExecution(6, 1, LambdaExample.class);
-	}
-	@Test public void testClosure() {
-		testDSEExecution(8, 1, TestClosureClass.class);
-	}
-	@Test public void testClosureAsAField() {
-		testDSEExecution(2, 1, ClosureFieldTest.class);
-	}
-	@Test public void SAMConversion() {
-		testDSEExecution(3, 1, TestSAMConversions.class);
-	}
+    /**
+     * Lambdas (JDK 8)
+     */
+    @Test
+    public void testLambda() {
+        testDSEExecution(6, 1, LambdaExample.class);
+    }
 
-	/** Method references (JDK 8) */
-	@Test public void testMethodReference() {
-		testDSEExecution(7, 1, SingleMethodReference.class);
-	}
+    @Test
+    public void testClosure() {
+        testDSEExecution(8, 1, TestClosureClass.class);
+    }
 
-	/** We are not currently supporting the Stream API as it calls lambdas from a non-instrumented context. */
-	@Test public void testStreamAPI() {
-		testDSEExecution(4, 8, StreamAPIExample.class);
-	}
+    @Test
+    public void testClosureAsAField() {
+        testDSEExecution(2, 1, ClosureFieldTest.class);
+    }
 
-	/** String concatenation (JDK 9) */
-	@Test public void testStringConcatenation() {
-		testDSEExecution(2, 1, StringConcatenationExample.class);
-	}
+    @Test
+    public void SAMConversion() {
+        testDSEExecution(3, 1, TestSAMConversions.class);
+    }
 
-	/** Method Handles (JDK 8) */
-	// TODO: complete eventually, for now we won't support it as we don't support the reflection API either
-	@Test public void testInvokeExact() {
-		// As we don't support the Method handles API, there should be an exception throughout execution and the result should be empty.
-		testDSEExecutionEmptyResult(InvokeExactExample.class);
-	}
+    /**
+     * Method references (JDK 8)
+     */
+    @Test
+    public void testMethodReference() {
+        testDSEExecution(7, 1, SingleMethodReference.class);
+    }
 
-	/**************** Milling Project Coin ****************/
+    /**
+     * We are not currently supporting the Stream API as it calls lambdas from a non-instrumented context.
+     */
+    @Test
+    public void testStreamAPI() {
+        testDSEExecution(4, 8, StreamAPIExample.class);
+    }
+
+    /**
+     * String concatenation (JDK 9)
+     */
+    @Test
+    public void testStringConcatenation() {
+        testDSEExecution(2, 1, StringConcatenationExample.class);
+    }
+
+    /**
+     * Method Handles (JDK 8)
+     */
+    // TODO: complete eventually, for now we won't support it as we don't support the reflection API either
+    @Test
+    public void testInvokeExact() {
+        // As we don't support the Method handles API, there should be an exception throughout execution and the result should be empty.
+        testDSEExecutionEmptyResult(InvokeExactExample.class);
+    }
+
+    /**************** Milling Project Coin ****************/
 // TODO: Uncomment test and class when we build evosuite with JDK 9, it should work fine
 // 	@Test public void testPrivateMethodsInInterfaces() {
 //		testDSEExecution(4, 1, InterfacePrivateMethodExample.class);

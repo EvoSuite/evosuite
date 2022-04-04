@@ -19,117 +19,111 @@
  */
 package org.evosuite.continuous.job;
 
-import java.util.List;
-
 import org.evosuite.Properties.AvailableSchedule;
 import org.evosuite.continuous.CtgConfiguration;
-import org.evosuite.continuous.job.schedule.BudgetAndSeedingSchedule;
-import org.evosuite.continuous.job.schedule.BudgetSchedule;
-import org.evosuite.continuous.job.schedule.HistorySchedule;
-import org.evosuite.continuous.job.schedule.ScheduleType;
-import org.evosuite.continuous.job.schedule.SeedingSchedule;
-import org.evosuite.continuous.job.schedule.SimpleSchedule;
+import org.evosuite.continuous.job.schedule.*;
 import org.evosuite.continuous.project.ProjectStaticData;
 import org.evosuite.continuous.project.ProjectStaticData.ClassInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
+
 /**
  * Class used to define which classes should be used as CUT for this CTG execution,
  * and how to allocate the search budget
- * 
- * @author arcuri
  *
+ * @author arcuri
  */
 public class JobScheduler {
-	
-	
-	private static final Logger logger = LoggerFactory.getLogger(JobScheduler.class);
 
 
-	private final ProjectStaticData projectData;
-	
-	protected  final CtgConfiguration configuration;
+    private static final Logger logger = LoggerFactory.getLogger(JobScheduler.class);
 
-	private ScheduleType currentSchedule;
-	
-	/**
-	 * Main constructor
-	 * 
-	 * @param projectData
-	 */
-	public JobScheduler(ProjectStaticData projectData,
-			CtgConfiguration conf) {
-		super();
-		this.projectData = projectData;	
-		this.configuration = conf;
-		chooseScheduleType(configuration.schedule);
-	}
-	
-	
-	public void chooseScheduleType(AvailableSchedule schedule) throws IllegalArgumentException{
 
-		switch(schedule){
-			case SIMPLE:
-				currentSchedule = new SimpleSchedule(this);
-				break;
-			case BUDGET:
-				currentSchedule = new BudgetSchedule(this);
-				break;
-			case SEEDING:
-				currentSchedule = new SeedingSchedule(this);
-				break;
-			case BUDGET_AND_SEEDING:
-				currentSchedule = new BudgetAndSeedingSchedule(this);
-				break;
-			case HISTORY:
+    private final ProjectStaticData projectData;
+
+    protected final CtgConfiguration configuration;
+
+    private ScheduleType currentSchedule;
+
+    /**
+     * Main constructor
+     *
+     * @param projectData
+     */
+    public JobScheduler(ProjectStaticData projectData,
+                        CtgConfiguration conf) {
+        super();
+        this.projectData = projectData;
+        this.configuration = conf;
+        chooseScheduleType(configuration.schedule);
+    }
+
+
+    public void chooseScheduleType(AvailableSchedule schedule) throws IllegalArgumentException {
+
+        switch (schedule) {
+            case SIMPLE:
+                currentSchedule = new SimpleSchedule(this);
+                break;
+            case BUDGET:
+                currentSchedule = new BudgetSchedule(this);
+                break;
+            case SEEDING:
+                currentSchedule = new SeedingSchedule(this);
+                break;
+            case BUDGET_AND_SEEDING:
+                currentSchedule = new BudgetAndSeedingSchedule(this);
+                break;
+            case HISTORY:
                 currentSchedule = new HistorySchedule(this);
                 break;
-			default:
-				throw new IllegalArgumentException("Schedule '"+schedule+"' is not supported");				
-		}
-	}
+            default:
+                throw new IllegalArgumentException("Schedule '" + schedule + "' is not supported");
+        }
+    }
 
-	/**
-	 * Return new schedule, or <code>null</code> if scheduling is finished
-	 * @return
-	 */
-	public List<JobDefinition> createNewSchedule(){
-		if(!canExecuteMore()){
-			logger.info("Cannot schedule more jobs");
-			return null;
-		}
-		logger.info("Creating new schedule with "+currentSchedule.getClass().getSimpleName());
+    /**
+     * Return new schedule, or <code>null</code> if scheduling is finished
+     *
+     * @return
+     */
+    public List<JobDefinition> createNewSchedule() {
+        if (!canExecuteMore()) {
+            logger.info("Cannot schedule more jobs");
+            return null;
+        }
+        logger.info("Creating new schedule with " + currentSchedule.getClass().getSimpleName());
 
-		// update some extra information of each Class-Under-Test
-		List<JobDefinition> jobs = currentSchedule.createNewSchedule();
-		for (JobDefinition job : jobs) {
-		  ClassInfo classInfo = this.projectData.getClassInfo(job.cut);
-		  classInfo.setTimeBudgetInSeconds(job.seconds);
-		  classInfo.setMemoryInMB(job.memoryInMB);
-		}
+        // update some extra information of each Class-Under-Test
+        List<JobDefinition> jobs = currentSchedule.createNewSchedule();
+        for (JobDefinition job : jobs) {
+            ClassInfo classInfo = this.projectData.getClassInfo(job.cut);
+            classInfo.setTimeBudgetInSeconds(job.seconds);
+            classInfo.setMemoryInMB(job.memoryInMB);
+        }
 
-		return jobs;
-	}
-	
+        return jobs;
+    }
 
-	
-	/**
-	 * When we get a schedule, the scheduler might decide to do not use the entire
-	 * budget. Reason? It might decide to generate some test cases first, and then 
-	 * use those as seeding for a new round of execution
-	 * 
-	 * @return
-	 */
-	public boolean canExecuteMore(){
-		return currentSchedule.canExecuteMore();
-	}
 
-	public ProjectStaticData getProjectData() {
-		return projectData;
-	}
-	
-	public CtgConfiguration getConfiguration() {
-		return configuration;
-	}
+    /**
+     * When we get a schedule, the scheduler might decide to do not use the entire
+     * budget. Reason? It might decide to generate some test cases first, and then
+     * use those as seeding for a new round of execution
+     *
+     * @return
+     */
+    public boolean canExecuteMore() {
+        return currentSchedule.canExecuteMore();
+    }
+
+    public ProjectStaticData getProjectData() {
+        return projectData;
+    }
+
+    public CtgConfiguration getConfiguration() {
+        return configuration;
+    }
 }

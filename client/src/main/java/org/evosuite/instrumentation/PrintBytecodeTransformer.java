@@ -20,17 +20,17 @@
 
 package org.evosuite.instrumentation;
 
-import java.io.PrintWriter;
-import java.lang.instrument.ClassFileTransformer;
-import java.lang.instrument.IllegalClassFormatException;
-import java.security.ProtectionDomain;
-
 import org.evosuite.Properties;
 import org.evosuite.classpath.ResourceList;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.util.TraceClassVisitor;
+
+import java.io.PrintWriter;
+import java.lang.instrument.ClassFileTransformer;
+import java.lang.instrument.IllegalClassFormatException;
+import java.security.ProtectionDomain;
 
 
 /**
@@ -40,43 +40,45 @@ import org.objectweb.asm.util.TraceClassVisitor;
  */
 public class PrintBytecodeTransformer implements ClassFileTransformer {
 
-	private static String target_class = Properties.TARGET_CLASS;
+    private static final String target_class = Properties.TARGET_CLASS;
 
-	/* (non-Javadoc)
+    /* (non-Javadoc)
      * @see java.lang.instrument.ClassFileTransformer#transform(java.lang.ClassLoader, java.lang.String, java.lang.Class, java.security.ProtectionDomain, byte[])
      */
-    /** {@inheritDoc} */
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public byte[] transform(ClassLoader loader, String className,
-            Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
-            byte[] classfileBuffer) throws IllegalClassFormatException {
+                            Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
+                            byte[] classfileBuffer) throws IllegalClassFormatException {
 
-		if (className != null) {
-			try {
-				String classNameWithDots = ResourceList.getClassNameFromResourcePath(className);
-				
-				ClassReader reader = new ClassReader(classfileBuffer);
-				ClassWriter writer = new ClassWriter(org.objectweb.asm.ClassWriter.COMPUTE_MAXS);
+        if (className != null) {
+            try {
+                String classNameWithDots = ResourceList.getClassNameFromResourcePath(className);
 
-				ClassVisitor cv = writer;
-				if(classNameWithDots.equals(target_class) || (classNameWithDots.startsWith(target_class+"$"))) {
+                ClassReader reader = new ClassReader(classfileBuffer);
+                ClassWriter writer = new ClassWriter(org.objectweb.asm.ClassWriter.COMPUTE_MAXS);
+
+                ClassVisitor cv = writer;
+                if (classNameWithDots.equals(target_class) || (classNameWithDots.startsWith(target_class + "$"))) {
 //				if (classNameWithDots.startsWith(Properties.PROJECT_PREFIX)) {
-					cv = new TraceClassVisitor(cv, new PrintWriter(System.out));
-				}
-				reader.accept(cv, ClassReader.SKIP_FRAMES);
-				classfileBuffer = writer.toByteArray();
-				
-				return classfileBuffer;
-				
-			} catch (Throwable t) {
-				throw new Error(t);
+                    cv = new TraceClassVisitor(cv, new PrintWriter(System.out));
+                }
+                reader.accept(cv, ClassReader.SKIP_FRAMES);
+                classfileBuffer = writer.toByteArray();
 
-			}
-		}
-		
-    	return classfileBuffer;
+                return classfileBuffer;
+
+            } catch (Throwable t) {
+                throw new Error(t);
+
+            }
+        }
+
+        return classfileBuffer;
     }
-
 
 
 }

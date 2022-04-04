@@ -19,7 +19,18 @@
  */
 package org.evosuite.symbolic.solver.avm;
 
-import static org.junit.Assert.*;
+import org.evosuite.RandomizedTC;
+import org.evosuite.symbolic.expr.Comparator;
+import org.evosuite.symbolic.expr.Constraint;
+import org.evosuite.symbolic.expr.Operator;
+import org.evosuite.symbolic.expr.bv.IntegerConstant;
+import org.evosuite.symbolic.expr.bv.StringBinaryComparison;
+import org.evosuite.symbolic.expr.constraint.StringConstraint;
+import org.evosuite.symbolic.expr.str.StringConstant;
+import org.evosuite.symbolic.expr.str.StringVariable;
+import org.evosuite.symbolic.solver.*;
+import org.evosuite.symbolic.vm.ExpressionFactory;
+import org.junit.Test;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -28,62 +39,47 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.evosuite.RandomizedTC;
-import org.evosuite.symbolic.expr.Comparator;
-import org.evosuite.symbolic.expr.Constraint;
-import org.evosuite.symbolic.expr.Operator;
-import org.evosuite.symbolic.expr.constraint.StringConstraint;
-import org.evosuite.symbolic.expr.bv.IntegerConstant;
-import org.evosuite.symbolic.expr.bv.StringBinaryComparison;
-import org.evosuite.symbolic.expr.str.StringConstant;
-import org.evosuite.symbolic.expr.str.StringVariable;
-
-import org.evosuite.symbolic.solver.SolverEmptyQueryException;
-import org.evosuite.symbolic.solver.SolverErrorException;
-import org.evosuite.symbolic.solver.SolverParseException;
-import org.evosuite.symbolic.solver.SolverResult;
-import org.evosuite.symbolic.solver.SolverTimeoutException;
-import org.evosuite.symbolic.vm.ExpressionFactory;
-import org.junit.Test;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class TestPatternSearch extends RandomizedTC {
 
-	@Test
-	public void testMatcherMatches() throws SolverEmptyQueryException {
+    @Test
+    public void testMatcherMatches() throws SolverEmptyQueryException {
 
-		String input = "random_value";
-		String format = "(\\d+)-(\\d\\d)-(\\d)";
-		// String format = "^(\\d+)-(\\d\\d)-(\\d)$";
+        String input = "random_value";
+        String format = "(\\d+)-(\\d\\d)-(\\d)";
+        // String format = "^(\\d+)-(\\d\\d)-(\\d)$";
 
-		StringVariable var0 = new StringVariable("var0", input);
+        StringVariable var0 = new StringVariable("var0", input);
 
-		StringConstant symb_regex = ExpressionFactory
-				.buildNewStringConstant(format);
-		StringBinaryComparison strComp = new StringBinaryComparison(symb_regex,
-				Operator.PATTERNMATCHES, var0, 0L);
+        StringConstant symb_regex = ExpressionFactory
+                .buildNewStringConstant(format);
+        StringBinaryComparison strComp = new StringBinaryComparison(symb_regex,
+                Operator.PATTERNMATCHES, var0, 0L);
 
-		StringConstraint constraint = new StringConstraint(strComp,
-				Comparator.NE, new IntegerConstant(0));
+        StringConstraint constraint = new StringConstraint(strComp,
+                Comparator.NE, new IntegerConstant(0));
 
-		List<Constraint<?>> constraints = Collections
-				.<Constraint<?>> singletonList(constraint);
+        List<Constraint<?>> constraints = Collections
+                .<Constraint<?>>singletonList(constraint);
 
-		try {
-			EvoSuiteSolver solver = new EvoSuiteSolver();
-			SolverResult result = solver.solve(constraints);
-			assertTrue(result.isSAT());
-			
-			Map<String,Object>model = result.getModel();
-			
-			String var0_value = (String) model.get("var0");
+        try {
+            EvoSuiteSolver solver = new EvoSuiteSolver();
+            SolverResult result = solver.solve(constraints);
+            assertTrue(result.isSAT());
 
-			Pattern pattern = Pattern.compile(format);
-			Matcher matcher = pattern.matcher(var0_value);
-			assertTrue(matcher.matches());
-		} catch (SolverTimeoutException | SolverParseException | SolverErrorException | IOException | SolverEmptyQueryException e) {
-			fail();
-		}
+            Map<String, Object> model = result.getModel();
 
-	}
+            String var0_value = (String) model.get("var0");
+
+            Pattern pattern = Pattern.compile(format);
+            Matcher matcher = pattern.matcher(var0_value);
+            assertTrue(matcher.matches());
+        } catch (SolverTimeoutException | SolverParseException | SolverErrorException | IOException | SolverEmptyQueryException e) {
+            fail();
+        }
+
+    }
 
 }

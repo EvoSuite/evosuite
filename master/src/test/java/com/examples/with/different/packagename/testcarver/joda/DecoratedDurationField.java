@@ -25,20 +25,20 @@ package com.examples.with.different.packagename.testcarver.joda;
  */
 public class DecoratedDurationField {
 
-	private final DurationField iField;
+    private final DurationField iField;
 
-	/**
-	 * Constructor.
-	 *
-	 * @param field  the base field
-	 */
-	public DecoratedDurationField(DurationField field) {
-		if (field == null) {
-			throw new IllegalArgumentException("The field must not be null");
-		}
-		if (!field.isSupported()) {
-			throw new IllegalArgumentException("The field must be supported");
-		}
-		iField = field;
-	}
+    /**
+     * Constructor.
+     *
+     * @param field the base field
+     */
+    public DecoratedDurationField(DurationField field) {
+        if (field == null) {
+            throw new IllegalArgumentException("The field must not be null");
+        }
+        if (!field.isSupported()) {
+            throw new IllegalArgumentException("The field must be supported");
+        }
+        iField = field;
+    }
 }

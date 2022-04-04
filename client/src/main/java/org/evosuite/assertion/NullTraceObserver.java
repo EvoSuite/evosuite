@@ -19,71 +19,76 @@
  */
 package org.evosuite.assertion;
 
-import org.evosuite.testcase.statements.Statement;
-import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.Scope;
 import org.evosuite.testcase.statements.ArrayStatement;
 import org.evosuite.testcase.statements.FunctionalMockStatement;
 import org.evosuite.testcase.statements.PrimitiveStatement;
+import org.evosuite.testcase.statements.Statement;
+import org.evosuite.testcase.variable.VariableReference;
 
 public class NullTraceObserver extends AssertionTraceObserver<NullTraceEntry> {
 
-	/** {@inheritDoc} */
-	@Override
-	public synchronized void afterStatement(Statement statement, Scope scope,
-	        Throwable exception) {
-		// By default, no assertions are created for statements that threw exceptions
-		if(exception != null)
-			return;
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public synchronized void afterStatement(Statement statement, Scope scope,
+                                            Throwable exception) {
+        // By default, no assertions are created for statements that threw exceptions
+        if (exception != null)
+            return;
 
-		// No assertions are created for mock statements
-		if(statement instanceof FunctionalMockStatement)
-			return;
+        // No assertions are created for mock statements
+        if (statement instanceof FunctionalMockStatement)
+            return;
 
-		visitReturnValue(statement, scope);
-	}
+        visitReturnValue(statement, scope);
+    }
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.assertion.AssertionTraceObserver#visit(org.evosuite.testcase.StatementInterface, org.evosuite.testcase.Scope, org.evosuite.testcase.VariableReference)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	protected void visit(Statement statement, Scope scope, VariableReference var) {
-		logger.debug("Checking for null of " + var);
-		try {
-			if (var == null
-			        || var.isPrimitive()
-			        //|| var.isWrapperType() // TODO: Wrapper types might make sense but there were failing assertions...
-			        || var.isEnum()
-			        || currentTest.getStatement(var.getStPosition()) instanceof PrimitiveStatement
-			        || currentTest.getStatement(var.getStPosition()).isAssignmentStatement())
-				return;
+    /* (non-Javadoc)
+     * @see org.evosuite.assertion.AssertionTraceObserver#visit(org.evosuite.testcase.StatementInterface, org.evosuite.testcase.Scope, org.evosuite.testcase.VariableReference)
+     */
 
-			if(var.getType() != null && var.getType().equals(Void.class)){
-				return; // do not generate assertion for Void type
-			}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void visit(Statement statement, Scope scope, VariableReference var) {
+        logger.debug("Checking for null of " + var);
+        try {
+            if (var == null
+                    || var.isPrimitive()
+                    //|| var.isWrapperType() // TODO: Wrapper types might make sense but there were failing assertions...
+                    || var.isEnum()
+                    || currentTest.getStatement(var.getStPosition()) instanceof PrimitiveStatement
+                    || currentTest.getStatement(var.getStPosition()).isAssignmentStatement())
+                return;
 
-			// We don't need assertions on constant values
-			if (statement instanceof PrimitiveStatement<?>)
-				return;
+            if (var.getType() != null && var.getType().equals(Void.class)) {
+                return; // do not generate assertion for Void type
+            }
 
-			// We don't need assertions on array values
-			if (statement instanceof ArrayStatement)
-				return;
+            // We don't need assertions on constant values
+            if (statement instanceof PrimitiveStatement<?>)
+                return;
 
-			Object object = var.getObject(scope);
-			trace.addEntry(statement.getPosition(), var, new NullTraceEntry(var,
-			        object == null));
-		} catch (CodeUnderTestException e) {
-			logger.debug("", e);
-			//throw new UnsupportedOperationException();
-		}
-	}
+            // We don't need assertions on array values
+            if (statement instanceof ArrayStatement)
+                return;
 
-	@Override
-	public void testExecutionFinished(ExecutionResult r, Scope s) {
-		// do nothing
-	}
+            Object object = var.getObject(scope);
+            trace.addEntry(statement.getPosition(), var, new NullTraceEntry(var,
+                    object == null));
+        } catch (CodeUnderTestException e) {
+            logger.debug("", e);
+            //throw new UnsupportedOperationException();
+        }
+    }
+
+    @Override
+    public void testExecutionFinished(ExecutionResult r, Scope s) {
+        // do nothing
+    }
 }

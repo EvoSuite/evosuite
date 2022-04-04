@@ -34,32 +34,32 @@ import com.examples.with.different.packagename.staticfield.StaticBlockCoverage;
 
 public class StaticBlockCoverageSystemTest extends SystemTestBase {
 
-	@Before
-	public void setUpProperties() {
-		Properties.RESET_STATIC_FIELDS = true;
-	}
+    @Before
+    public void setUpProperties() {
+        Properties.RESET_STATIC_FIELDS = true;
+    }
 
-	@Ignore // We are not instrumenting static blocks for a reason. TODO: What was the reason?
-	@Test
-	public void test() {
-		EvoSuite evosuite = new EvoSuite();
+    @Ignore // We are not instrumenting static blocks for a reason. TODO: What was the reason?
+    @Test
+    public void test() {
+        EvoSuite evosuite = new EvoSuite();
 
-		String targetClass = StaticBlockCoverage.class.getCanonicalName();
-		Properties.TARGET_CLASS = targetClass;
-		Properties.CRITERION = new Criterion[]{Criterion.LINE};
-		
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+        String targetClass = StaticBlockCoverage.class.getCanonicalName();
+        Properties.TARGET_CLASS = targetClass;
+        Properties.CRITERION = new Criterion[]{Criterion.LINE};
 
-		Object result = evosuite.parseCommandLine(command);
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
 
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
+        Object result = evosuite.parseCommandLine(command);
 
-		System.out.println(best.toString());
-		
-		double best_fitness = best.getFitness();
-		Assert.assertEquals("Optimal coverage was not achieved ", 0.0, best_fitness , 0.0001);
-		
-	}
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
+
+        System.out.println(best.toString());
+
+        double best_fitness = best.getFitness();
+        Assert.assertEquals("Optimal coverage was not achieved ", 0.0, best_fitness, 0.0001);
+
+    }
 
 }

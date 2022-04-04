@@ -27,47 +27,47 @@ import org.junit.BeforeClass;
 @EvoSuiteClassExclude
 public class Euclidean_ESTest_scaffolding {
 
-  private org.evosuite.runtime.thread.ThreadStopper threadStopper =  new org.evosuite.runtime.thread.ThreadStopper (org.evosuite.runtime.thread.KillSwitchHandler.getInstance(), 3000);
+    private org.evosuite.runtime.thread.ThreadStopper threadStopper = new org.evosuite.runtime.thread.ThreadStopper(org.evosuite.runtime.thread.KillSwitchHandler.getInstance(), 3000);
 
-  @BeforeClass 
-  public static void initEvoSuiteFramework() { 
-    org.evosuite.runtime.RuntimeSettings.className = "com.examples.with.different.packagename.Euclidean"; 
-    org.evosuite.runtime.GuiSupport.initialize(); 
-    org.evosuite.runtime.RuntimeSettings.maxNumberOfThreads = 100; 
-    org.evosuite.runtime.RuntimeSettings.maxNumberOfIterationsPerLoop = 10000; 
-    org.evosuite.runtime.RuntimeSettings.mockSystemIn = true; 
-    org.evosuite.runtime.RuntimeSettings.sandboxMode = org.evosuite.runtime.sandbox.Sandbox.SandboxMode.RECOMMENDED; 
-    org.evosuite.runtime.sandbox.Sandbox.initializeSecurityManagerForSUT(); 
-    org.evosuite.runtime.classhandling.JDKClassResetter.init(); 
-    initializeClasses();
-    org.evosuite.runtime.Runtime.getInstance().resetRuntime(); 
-  } 
+    @BeforeClass
+    public static void initEvoSuiteFramework() {
+        org.evosuite.runtime.RuntimeSettings.className = "com.examples.with.different.packagename.Euclidean";
+        org.evosuite.runtime.GuiSupport.initialize();
+        org.evosuite.runtime.RuntimeSettings.maxNumberOfThreads = 100;
+        org.evosuite.runtime.RuntimeSettings.maxNumberOfIterationsPerLoop = 10000;
+        org.evosuite.runtime.RuntimeSettings.mockSystemIn = true;
+        org.evosuite.runtime.RuntimeSettings.sandboxMode = org.evosuite.runtime.sandbox.Sandbox.SandboxMode.RECOMMENDED;
+        org.evosuite.runtime.sandbox.Sandbox.initializeSecurityManagerForSUT();
+        org.evosuite.runtime.classhandling.JDKClassResetter.init();
+        initializeClasses();
+        org.evosuite.runtime.Runtime.getInstance().resetRuntime();
+    }
 
-  @Before 
-  public void initTestCase(){ 
-    threadStopper.storeCurrentThreads();
-	threadStopper.startRecordingTime();
-	org.evosuite.runtime.jvm.ShutdownHookHandler.getInstance().initHandler(); 
-	org.evosuite.runtime.sandbox.Sandbox.goingToExecuteSUTCode();  
-	org.evosuite.runtime.GuiSupport.setHeadless(); 
-	org.evosuite.runtime.Runtime.getInstance().resetRuntime(); 
-	org.evosuite.runtime.agent.InstrumentingAgent.activate(); 
-  } 
+    @Before
+    public void initTestCase() {
+        threadStopper.storeCurrentThreads();
+        threadStopper.startRecordingTime();
+        org.evosuite.runtime.jvm.ShutdownHookHandler.getInstance().initHandler();
+        org.evosuite.runtime.sandbox.Sandbox.goingToExecuteSUTCode();
+        org.evosuite.runtime.GuiSupport.setHeadless();
+        org.evosuite.runtime.Runtime.getInstance().resetRuntime();
+        org.evosuite.runtime.agent.InstrumentingAgent.activate();
+    }
 
-  @After 
-  public void doneWithTestCase(){ 
-    threadStopper.killAndJoinClientThreads();
-	org.evosuite.runtime.jvm.ShutdownHookHandler.getInstance().safeExecuteAddedHooks(); 
-	org.evosuite.runtime.classhandling.JDKClassResetter.reset();  
-	org.evosuite.runtime.sandbox.Sandbox.doneWithExecutingSUTCode(); 
-	org.evosuite.runtime.agent.InstrumentingAgent.deactivate(); 
-	org.evosuite.runtime.GuiSupport.restoreHeadlessMode(); 
-  } 
+    @After
+    public void doneWithTestCase() {
+        threadStopper.killAndJoinClientThreads();
+        org.evosuite.runtime.jvm.ShutdownHookHandler.getInstance().safeExecuteAddedHooks();
+        org.evosuite.runtime.classhandling.JDKClassResetter.reset();
+        org.evosuite.runtime.sandbox.Sandbox.doneWithExecutingSUTCode();
+        org.evosuite.runtime.agent.InstrumentingAgent.deactivate();
+        org.evosuite.runtime.GuiSupport.restoreHeadlessMode();
+    }
 
 
-  private static void initializeClasses() {
-    org.evosuite.runtime.classhandling.ClassStateSupport.initializeClasses(Euclidean_ESTest_scaffolding.class.getClassLoader() ,
-      "com.examples.with.different.packagename.Euclidean"
-    );
-  } 
+    private static void initializeClasses() {
+        org.evosuite.runtime.classhandling.ClassStateSupport.initializeClasses(Euclidean_ESTest_scaffolding.class.getClassLoader(),
+                "com.examples.with.different.packagename.Euclidean"
+        );
+    }
 }

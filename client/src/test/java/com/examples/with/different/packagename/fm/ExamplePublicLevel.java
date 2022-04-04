@@ -24,7 +24,7 @@ package com.examples.with.different.packagename.fm;
  */
 public class ExamplePublicLevel {
 
-    public ExamplePublicLevel(){
+    public ExamplePublicLevel() {
 
     }
 }

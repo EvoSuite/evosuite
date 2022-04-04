@@ -35,55 +35,55 @@ import com.examples.with.different.packagename.RandomBranch;
 
 public class RandomCallSystemTest extends SystemTestBase {
 
-	private boolean replaceCalls = Properties.REPLACE_CALLS;
+    private boolean replaceCalls = Properties.REPLACE_CALLS;
 
-	@Before
-	public void storeValues() {
-		replaceCalls = Properties.REPLACE_CALLS;
-	}
+    @Before
+    public void storeValues() {
+        replaceCalls = Properties.REPLACE_CALLS;
+    }
 
-	@After
-	public void resetValues() {
-		Properties.REPLACE_CALLS = replaceCalls;
-	}
+    @After
+    public void resetValues() {
+        Properties.REPLACE_CALLS = replaceCalls;
+    }
 
-	@Test
-	public void testRandomCall() {
-		EvoSuite evosuite = new EvoSuite();
+    @Test
+    public void testRandomCall() {
+        EvoSuite evosuite = new EvoSuite();
 
-		String targetClass = RandomBranch.class.getCanonicalName();
+        String targetClass = RandomBranch.class.getCanonicalName();
 
-		Properties.TARGET_CLASS = targetClass;
-		Properties.REPLACE_CALLS = true;
+        Properties.TARGET_CLASS = targetClass;
+        Properties.REPLACE_CALLS = true;
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass }; //, "-Dassertions=true"
+        String[] command = new String[]{"-generateSuite", "-class", targetClass}; //, "-Dassertions=true"
 
-		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
+        Object result = evosuite.parseCommandLine(command);
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
 
-		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
-		Assert.assertEquals("Wrong number of goals: ", 5, goals);
-		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
-	}
+        int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
+        Assert.assertEquals("Wrong number of goals: ", 5, goals);
+        Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+    }
 
-	@Test
-	public void testRandomParameter() {
-		EvoSuite evosuite = new EvoSuite();
+    @Test
+    public void testRandomParameter() {
+        EvoSuite evosuite = new EvoSuite();
 
-		String targetClass = ClassUsingRandomParameter.class.getCanonicalName();
+        String targetClass = ClassUsingRandomParameter.class.getCanonicalName();
 
-		Properties.TARGET_CLASS = targetClass;
-		Properties.REPLACE_CALLS = true;
+        Properties.TARGET_CLASS = targetClass;
+        Properties.REPLACE_CALLS = true;
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass }; //, "-Dassertions=true"
+        String[] command = new String[]{"-generateSuite", "-class", targetClass}; //, "-Dassertions=true"
 
-		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
+        Object result = evosuite.parseCommandLine(command);
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
 
-		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
-		Assert.assertEquals("Wrong number of goals: ", 3, goals);
-		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
-	}
+        int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
+        Assert.assertEquals("Wrong number of goals: ", 3, goals);
+        Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+    }
 }

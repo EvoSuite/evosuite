@@ -26,11 +26,9 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
- * 
  * @author José Campos
  */
-public class TestNSGAChromosome
-{
+public class TestNSGAChromosome {
     @BeforeClass
     public static void setUp() {
         Properties.POPULATION = 100;
@@ -40,17 +38,16 @@ public class TestNSGAChromosome
     }
 
     @Test
-    public void testMutation()
-    {
+    public void testMutation() {
         double[] values = {-3.0};
         NSGAChromosome nsga = new NSGAChromosome(-5.0, 10.0, values);
         Assert.assertEquals(1, nsga.getNumberOfVariables());
 
-        double v = ((DoubleVariable)nsga.getVariable(0)).getValue();
+        double v = ((DoubleVariable) nsga.getVariable(0)).getValue();
         Assert.assertEquals(v, -3.0, 0.0);
 
         nsga.mutate();
-        v = ((DoubleVariable)nsga.getVariable(0)).getValue();
+        v = ((DoubleVariable) nsga.getVariable(0)).getValue();
         Assert.assertEquals(v, -3.1, 0.1);
     }
 }

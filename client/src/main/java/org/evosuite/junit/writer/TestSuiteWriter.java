@@ -25,20 +25,22 @@ import org.evosuite.Properties.Criterion;
 import org.evosuite.Properties.OutputGranularity;
 import org.evosuite.TimeController;
 import org.evosuite.coverage.dataflow.DefUseCoverageTestFitness;
+import org.evosuite.junit.UnitTestAdapter;
 import org.evosuite.junit.naming.methods.CoverageGoalTestNameGenerationStrategy;
 import org.evosuite.junit.naming.methods.NumberedTestNameGenerationStrategy;
 import org.evosuite.junit.naming.methods.TestNameGenerationStrategy;
-import org.evosuite.junit.UnitTestAdapter;
 import org.evosuite.result.TestGenerationResultBuilder;
 import org.evosuite.runtime.*;
 import org.evosuite.runtime.testdata.EnvironmentDataList;
-import org.evosuite.testcase.*;
+import org.evosuite.testcase.DefaultTestCase;
+import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.TestCodeVisitor;
+import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.evosuite.utils.ArrayUtil;
 import org.evosuite.utils.FileIOUtils;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -47,7 +49,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
-
 import java.io.File;
 import java.io.PrintStream;
 import java.util.*;
@@ -83,7 +84,7 @@ public class TestSuiteWriter implements Opcodes {
 
     private final UnitTestAdapter adapter = TestSuiteWriterUtils.getAdapter();
 
-    private TestCodeVisitor visitor = new TestCodeVisitor();
+    private final TestCodeVisitor visitor = new TestCodeVisitor();
 
     private final static String NEWLINE = java.lang.System.getProperty("line.separator");
 
@@ -222,12 +223,12 @@ public class TestSuiteWriter implements Opcodes {
             }
         }
 
-        if(Properties.TEST_NAMING_STRATEGY == Properties.TestNamingStrategy.NUMBERED) {
+        if (Properties.TEST_NAMING_STRATEGY == Properties.TestNamingStrategy.NUMBERED) {
             nameGenerator = new NumberedTestNameGenerationStrategy(testCases, results);
-        } else if(Properties.TEST_NAMING_STRATEGY == Properties.TestNamingStrategy.COVERAGE) {
+        } else if (Properties.TEST_NAMING_STRATEGY == Properties.TestNamingStrategy.COVERAGE) {
             nameGenerator = new CoverageGoalTestNameGenerationStrategy(testCases, results);
         } else {
-            throw new RuntimeException("Unsupported naming strategy: "+Properties.TEST_NAMING_STRATEGY);
+            throw new RuntimeException("Unsupported naming strategy: " + Properties.TEST_NAMING_STRATEGY);
         }
 
         // Avoid downcasts that could break
@@ -274,37 +275,37 @@ public class TestSuiteWriter implements Opcodes {
 
     /**
      * To avoid having completely empty test classes, a no-op test is created
-     * 
+     *
      * @return
      */
     private String getEmptyTest() {
-    	StringBuilder bd = new StringBuilder();
+        StringBuilder bd = new StringBuilder();
         bd.append(METHOD_SPACE);
-    	bd.append("@Test\n");
+        bd.append("@Test\n");
         bd.append(METHOD_SPACE);
-        bd.append("public void "+NOT_GENERATED_TEST_NAME+"() {\n");
+        bd.append("public void " + NOT_GENERATED_TEST_NAME + "() {\n");
         bd.append(BLOCK_SPACE);
-    	bd.append("// EvoSuite did not generate any tests\n");
+        bd.append("// EvoSuite did not generate any tests\n");
         bd.append(METHOD_SPACE);
         bd.append("}\n");
-    	return bd.toString();
+        return bd.toString();
     }
 
     private void removeUnnecessaryDownCasts(List<ExecutionResult> results) {
-        for(ExecutionResult result : results) {
-            if(result.test instanceof DefaultTestCase) {
-                ((DefaultTestCase)result.test).removeDownCasts();
+        for (ExecutionResult result : results) {
+            if (result.test instanceof DefaultTestCase) {
+                ((DefaultTestCase) result.test).removeDownCasts();
             }
         }
     }
 
     private void removeAssertionsAfterException(List<ExecutionResult> results) {
-        for(ExecutionResult result : results) {
-            if(result.noThrownExceptions())
+        for (ExecutionResult result : results) {
+            if (result.noThrownExceptions())
                 continue;
             int exceptionPosition = result.getFirstPositionOfThrownException();
             // TODO: Not clear how that can happen...
-            if(result.test.size() > exceptionPosition)
+            if (result.test.size() > exceptionPosition)
                 result.test.getStatement(exceptionPosition).removeAssertions();
         }
     }
@@ -318,10 +319,10 @@ public class TestSuiteWriter implements Opcodes {
      */
     private String getUnitTestsAllInSameFile(String name, List<ExecutionResult> results) {
 
-		/*
+        /*
          * if there was any security exception, then we need to scaffold the
-		 * test cases with a sandbox
-		 */
+         * test cases with a sandbox
+         */
         boolean wasSecurityException = TestSuiteWriterUtils.hasAnySecurityException(results);
 
         StringBuilder builder = new StringBuilder();
@@ -331,13 +332,13 @@ public class TestSuiteWriter implements Opcodes {
         if (!Properties.TEST_SCAFFOLDING && !Properties.NO_RUNTIME_DEPENDENCY) {
             builder.append(new Scaffolding().getBeforeAndAfterMethods(name, wasSecurityException, results));
         }
-        
-        if(testCases.isEmpty()) {
-        	builder.append(getEmptyTest());
+
+        if (testCases.isEmpty()) {
+            builder.append(getEmptyTest());
         } else {
-        	for (int i = 0; i < testCases.size(); i++) {
-        		builder.append(testToString(i, i, results.get(i)));
-        	}
+            for (int i = 0; i < testCases.size(); i++) {
+                builder.append(testToString(i, i, results.get(i)));
+            }
         }
         builder.append(getFooter());
 
@@ -411,27 +412,27 @@ public class TestSuiteWriter implements Opcodes {
         boolean hasException = false;
 
         for (ExecutionResult result : results) {
-        	visitor.clearExceptions();
-        	visitor.setExceptions(result.exposeExceptionMapping());
+            visitor.clearExceptions();
+            visitor.setExceptions(result.exposeExceptionMapping());
             result.test.accept(visitor);
             imports.addAll(visitor.getImports());
             accessedClasses.addAll(result.test.getAccessedClasses());
-            if(!hasException)
-            	hasException = !result.noThrownExceptions();
+            if (!hasException)
+                hasException = !result.noThrownExceptions();
         }
         visitor.clearExceptions();
 
-        if(doesUseMocks(results)){
+        if (doesUseMocks(results)) {
             String mockito = Mockito.class.getCanonicalName();
-            builder.append("import static "+mockito+".*;"+NEWLINE);
+            builder.append("import static " + mockito + ".*;" + NEWLINE);
             // MockitoExtension is now deprecated
             //String extension = MockitoExtension.class.getCanonicalName();
             //builder.append("import static "+extension+".*;"+NEWLINE);
             imports.add(ViolatedAssumptionAnswer.class);
         }
 
-        if(hasException && !Properties.NO_RUNTIME_DEPENDENCY) {
-        	builder.append("import static "+ EvoAssertions.class.getCanonicalName()+".*;"+NEWLINE);
+        if (hasException && !Properties.NO_RUNTIME_DEPENDENCY) {
+            builder.append("import static " + EvoAssertions.class.getCanonicalName() + ".*;" + NEWLINE);
         }
 
         if (Properties.RESET_STANDARD_STREAMS) {
@@ -441,7 +442,7 @@ public class TestSuiteWriter implements Opcodes {
 
         if (TestSuiteWriterUtils.needToUseAgent() && !Properties.NO_RUNTIME_DEPENDENCY) {
             imports.add(EvoRunnerParameters.class);
-            if(Properties.TEST_FORMAT == Properties.OutputFormat.JUNIT5) {
+            if (Properties.TEST_FORMAT == Properties.OutputFormat.JUNIT5) {
                 imports.add(EvoRunnerJUnit5.class);
                 imports.add(RegisterExtension.class);
             } else {
@@ -472,8 +473,8 @@ public class TestSuiteWriter implements Opcodes {
 
         for (Class<?> klass : EnvironmentDataList.getListOfClasses()) {
             //TODO: not paramount, but best if could check if actually used in the test suite
-        	if(accessedClasses.contains(klass))
-        		importNames.add(klass.getCanonicalName());
+            if (accessedClasses.contains(klass))
+                importNames.add(klass.getCanonicalName());
         }
 
         if (wasSecurityException) {
@@ -511,9 +512,9 @@ public class TestSuiteWriter implements Opcodes {
     /**
      * JUnit file header
      *
-     * @param test_name           a {@link java.lang.String} object.
-     * @param scaffolding_name    a {@link java.lang.String} object.
-     * @param results             a {@link java.util.List} object.
+     * @param test_name        a {@link java.lang.String} object.
+     * @param scaffolding_name a {@link java.lang.String} object.
+     * @param results          a {@link java.util.List} object.
      * @return a {@link java.lang.String} object.
      */
     protected String getHeader(String test_name, String scaffolding_name, List<ExecutionResult> results) {
@@ -551,7 +552,7 @@ public class TestSuiteWriter implements Opcodes {
 
         builder.append(" {");
         builder.append(NEWLINE);
-        if(Properties.TEST_FORMAT == Properties.OutputFormat.JUNIT5){
+        if (Properties.TEST_FORMAT == Properties.OutputFormat.JUNIT5) {
             builder.append("@RegisterExtension").append(NEWLINE);
             builder.append(METHOD_SPACE).append("static EvoRunnerJUnit5 runner = new EvoRunnerJUnit5(").append(test_name).append(".class);").append(NEWLINE);
         }
@@ -562,7 +563,7 @@ public class TestSuiteWriter implements Opcodes {
 
 
         String s = Properties.TEST_FORMAT == Properties.OutputFormat.JUNIT5 ? "@EvoRunnerParameters("
-                                    :"@RunWith(EvoRunner.class) @EvoRunnerParameters(";
+                : "@RunWith(EvoRunner.class) @EvoRunnerParameters(";
         List<String> list = new ArrayList<>();
 
         if (Properties.REPLACE_CALLS) {
@@ -642,14 +643,14 @@ public class TestSuiteWriter implements Opcodes {
         }
         builder.append(adapter.getMethodDefinition(methodName));
 
-		/*
-		 * A test case might throw a lot of different kinds of exceptions. 
-		 * These might come from SUT, and might also come from the framework itself (eg, see ExecutorService.submit).
-		 * Regardless of whether they are declared or not, an exception that propagates to the JUnit framework will
-		 * result in a failure for the test case. However, there might be some checked exceptions, and for those 
-		 * we need to declare them in the signature with "throws". So, the easiest (but still correct) option
-		 * is to just declare once to throw any generic Exception, and be done with it once and for all
-		 */
+        /*
+         * A test case might throw a lot of different kinds of exceptions.
+         * These might come from SUT, and might also come from the framework itself (eg, see ExecutorService.submit).
+         * Regardless of whether they are declared or not, an exception that propagates to the JUnit framework will
+         * result in a failure for the test case. However, there might be some checked exceptions, and for those
+         * we need to declare them in the signature with "throws". So, the easiest (but still correct) option
+         * is to just declare once to throw any generic Exception, and be done with it once and for all
+         */
         builder.append(" throws Throwable ");
         builder.append(" {");
         builder.append(NEWLINE);

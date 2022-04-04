@@ -24,7 +24,10 @@ import com.examples.with.different.packagename.AbstractEnumUser;
 import com.examples.with.different.packagename.EnumInInnerClass;
 import com.examples.with.different.packagename.EnumUser;
 import org.evosuite.ga.ConstructionFailedException;
-import org.evosuite.testcase.statements.*;
+import org.evosuite.testcase.statements.ArrayStatement;
+import org.evosuite.testcase.statements.AssignmentStatement;
+import org.evosuite.testcase.statements.EnumPrimitiveStatement;
+import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testcase.variable.ArrayIndex;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.utils.generic.GenericConstructor;
@@ -39,9 +42,7 @@ import java.lang.reflect.TypeVariable;
 import java.util.Arrays;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * Created by Andrea Arcuri on 02/07/15.
@@ -75,6 +76,7 @@ public class TestCodeVisitorTest {
 
     public static class Country {
         public String bar = "bar";
+
         public static class CountryNameCode {
             public String foo = "foo";
         }
@@ -238,7 +240,7 @@ public class TestCodeVisitorTest {
         ArrayStatement longArrayStatement = new ArrayStatement(tc, Long[].class, 5);
         tc.addStatement(longArrayStatement);
 
-        ArrayIndex longIndex  = new ArrayIndex(tc, longArrayStatement.getArrayReference(), 0);
+        ArrayIndex longIndex = new ArrayIndex(tc, longArrayStatement.getArrayReference(), 0);
         ArrayIndex shortIndex = new ArrayIndex(tc, shortArrayStatement.getArrayReference(), 1);
         AssignmentStatement assignmentStatement = new AssignmentStatement(tc, longIndex, shortIndex);
         tc.addStatement(assignmentStatement);
@@ -258,7 +260,7 @@ public class TestCodeVisitorTest {
         ArrayStatement intArrayStatement = new ArrayStatement(tc, Integer[].class, 9);
         tc.addStatement(intArrayStatement);
 
-        ArrayIndex intIndex   = new ArrayIndex(tc, intArrayStatement.getArrayReference(), 0);
+        ArrayIndex intIndex = new ArrayIndex(tc, intArrayStatement.getArrayReference(), 0);
         ArrayIndex shortIndex = new ArrayIndex(tc, shortArrayStatement.getArrayReference(), 3);
         AssignmentStatement assignmentStatement = new AssignmentStatement(tc, intIndex, shortIndex);
         tc.addStatement(assignmentStatement);

@@ -29,41 +29,47 @@ import org.evosuite.testsuite.TestSuiteChromosome;
  */
 public class MinimizeAverageLengthSecondaryObjective extends SecondaryObjective<TestSuiteChromosome> {
 
-	private static final long serialVersionUID = -6272641645062817112L;
+    private static final long serialVersionUID = -6272641645062817112L;
 
-	private double getAverageLength(TestSuiteChromosome chromosome) {
-		return (double) chromosome.totalLengthOfTestCases()
-		        / (double) chromosome.size();
-	}
+    private double getAverageLength(TestSuiteChromosome chromosome) {
+        return (double) chromosome.totalLengthOfTestCases()
+                / (double) chromosome.size();
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see
-	 * org.evosuite.testcase.secondaryobjectives.SecondaryObjective#compareChromosomes(org.evosuite.ga.Chromosome,
-	 * org.evosuite.ga.Chromosome)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public int compareChromosomes(TestSuiteChromosome chromosome1, TestSuiteChromosome chromosome2) {
-		return (int) Math.signum(getAverageLength(chromosome1)
-		        - getAverageLength(chromosome2));
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see
+     * org.evosuite.testcase.secondaryobjectives.SecondaryObjective#compareChromosomes(org.evosuite.ga.Chromosome,
+     * org.evosuite.ga.Chromosome)
+     */
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see
-	 * org.evosuite.testcase.secondaryobjectives.SecondaryObjective#compareGenerations(org.evosuite.ga.Chromosome,
-	 * org.evosuite.ga.Chromosome, org.evosuite.ga.Chromosome, org.evosuite.ga.Chromosome)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public int compareGenerations(TestSuiteChromosome parent1, TestSuiteChromosome parent2,
-			TestSuiteChromosome child1, TestSuiteChromosome child2) {
-		return (int) Math.signum(Math.min(getAverageLength(parent1),
-		                                  getAverageLength(parent2))
-		        - Math.min(getAverageLength(child1), getAverageLength(child2)));
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int compareChromosomes(TestSuiteChromosome chromosome1, TestSuiteChromosome chromosome2) {
+        return (int) Math.signum(getAverageLength(chromosome1)
+                - getAverageLength(chromosome2));
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see
+     * org.evosuite.testcase.secondaryobjectives.SecondaryObjective#compareGenerations(org.evosuite.ga.Chromosome,
+     * org.evosuite.ga.Chromosome, org.evosuite.ga.Chromosome, org.evosuite.ga.Chromosome)
+     */
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int compareGenerations(TestSuiteChromosome parent1, TestSuiteChromosome parent2,
+                                  TestSuiteChromosome child1, TestSuiteChromosome child2) {
+        return (int) Math.signum(Math.min(getAverageLength(parent1),
+                getAverageLength(parent2))
+                - Math.min(getAverageLength(child1), getAverageLength(child2)));
+    }
 
 }

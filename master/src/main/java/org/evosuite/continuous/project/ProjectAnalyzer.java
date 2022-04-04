@@ -19,17 +19,9 @@
  */
 package org.evosuite.continuous.project;
 
-import java.io.File;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
-
 import org.evosuite.Properties;
-import org.evosuite.TestGenerationContext;
 import org.evosuite.Properties.AvailableSchedule;
+import org.evosuite.TestGenerationContext;
 import org.evosuite.classpath.ClassPathHacker;
 import org.evosuite.classpath.ClassPathHandler;
 import org.evosuite.classpath.ResourceList;
@@ -42,215 +34,217 @@ import org.evosuite.runtime.sandbox.Sandbox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.util.*;
+
 /**
  * <p>
  * This class is used to analyze and gather all the
  * static information of the target project.
  * </p>
- * 
+ *
  * <p>
  * To be useful, this analysis does not need to be 100% precise,
  * as we use the generated statistics <i>only</i> for heuristics
  * </p>
- * 
+ *
  * <p>
  * Note: this class assumes the classpath is properly set
- * 
- * @author arcuri
  *
+ * @author arcuri
  */
 public class ProjectAnalyzer {
 
-	private static final Logger logger = LoggerFactory.getLogger(ProjectAnalyzer.class);
+    private static final Logger logger = LoggerFactory.getLogger(ProjectAnalyzer.class);
 
-	/**
-	 * the folder/jar where to find the .class files used as CUTs
-	 */
-	private final String target;
+    /**
+     * the folder/jar where to find the .class files used as CUTs
+     */
+    private final String target;
 
-	/**
-	 * package prefix to select a subset of classes on classpath/target to define
-	 * what to run CTG on
-	 */
-	private final String prefix;
+    /**
+     * package prefix to select a subset of classes on classpath/target to define
+     * what to run CTG on
+     */
+    private final String prefix;
 
-	private transient Set<String> cutsToAnalyze;
-	
-	/**
-	 * When specifying a set of CUTs, still check if they do exist (eg scan folder to search for
-	 * them), instead of justing using them directly (and get errors later)
-	 * 
-	 */
-	private boolean validateCutsToAnalyze;
+    private final transient Set<String> cutsToAnalyze;
 
-	/**
-	 * Main constructor
-	 * 
-	 * @param target
-	 * @param prefix
-	 * @param cuts
-	 */
-	public ProjectAnalyzer(String target, String prefix, String[] cuts) {
-		super();
-		this.target = target;
-		this.prefix = prefix==null ? "" : prefix;
-		this.validateCutsToAnalyze = true;
+    /**
+     * When specifying a set of CUTs, still check if they do exist (eg scan folder to search for
+     * them), instead of justing using them directly (and get errors later)
+     */
+    private final boolean validateCutsToAnalyze;
 
-		if(cuts == null){
-			this.cutsToAnalyze = null;			
-		} else {
-			this.cutsToAnalyze = new LinkedHashSet<>();
-			for(String s : cuts){
-				if(s!=null && !s.isEmpty()){
-					cutsToAnalyze.add(s.trim());
-				}
-			}
-		}
-	}
+    /**
+     * Main constructor
+     *
+     * @param target
+     * @param prefix
+     * @param cuts
+     */
+    public ProjectAnalyzer(String target, String prefix, String[] cuts) {
+        super();
+        this.target = target;
+        this.prefix = prefix == null ? "" : prefix;
+        this.validateCutsToAnalyze = true;
 
-	/**
-	 * Instead of scanning for classes in the given target, directly specify
-	 * the class names the project is composed by
-	 * 
-	 * <p>
-	 * Note: this constructor is mainly meant for unit tests
-	 * @param cuts
-	 */
-	public ProjectAnalyzer(String[] cuts) throws NullPointerException {
-		super();
-		if(cuts==null){
-			throw new NullPointerException("Input array cannot be null");
-		}
-		this.target = null;
-		this.prefix = null;
-		this.validateCutsToAnalyze = false;
-		this.cutsToAnalyze = new LinkedHashSet<>();		
-		cutsToAnalyze.addAll(Arrays.asList(cuts));
-	}
+        if (cuts == null) {
+            this.cutsToAnalyze = null;
+        } else {
+            this.cutsToAnalyze = new LinkedHashSet<>();
+            for (String s : cuts) {
+                if (s != null && !s.isEmpty()) {
+                    cutsToAnalyze.add(s.trim());
+                }
+            }
+        }
+    }
 
-	private Collection<String> getCutsToAnalyze(){
+    /**
+     * Instead of scanning for classes in the given target, directly specify
+     * the class names the project is composed by
+     *
+     * <p>
+     * Note: this constructor is mainly meant for unit tests
+     *
+     * @param cuts
+     */
+    public ProjectAnalyzer(String[] cuts) throws NullPointerException {
+        super();
+        if (cuts == null) {
+            throw new NullPointerException("Input array cannot be null");
+        }
+        this.target = null;
+        this.prefix = null;
+        this.validateCutsToAnalyze = false;
+        this.cutsToAnalyze = new LinkedHashSet<>();
+        cutsToAnalyze.addAll(Arrays.asList(cuts));
+    }
 
-		if(cutsToAnalyze!=null && !validateCutsToAnalyze){
-			// this is mainly in test cases
-			return cutsToAnalyze;
-		}
+    private Collection<String> getCutsToAnalyze() {
 
-		Set<String> suts = null;
+        if (cutsToAnalyze != null && !validateCutsToAnalyze) {
+            // this is mainly in test cases
+            return cutsToAnalyze;
+        }
 
-		if(target!=null){
-			if(!target.contains(File.pathSeparator)){
-				suts = ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getAllClasses(target, prefix, false);
-			} else {
-				suts = new LinkedHashSet<>();
-				for(String element : target.split(File.pathSeparator)){
-					suts.addAll(ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getAllClasses(element, prefix, false));
-				}
-			}
-		} else {
-			/*
-			 * if no target specified, just grab everything on SUT classpath
-			 */
-			suts = ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getAllClasses(ClassPathHandler.getInstance().getTargetProjectClasspath(), prefix, false);
-		}
+        Set<String> suts = null;
 
-		List<String> cuts = new LinkedList<>();
+        if (target != null) {
+            if (!target.contains(File.pathSeparator)) {
+                suts = ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getAllClasses(target, prefix, false);
+            } else {
+                suts = new LinkedHashSet<>();
+                for (String element : target.split(File.pathSeparator)) {
+                    suts.addAll(ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getAllClasses(element, prefix, false));
+                }
+            }
+        } else {
+            /*
+             * if no target specified, just grab everything on SUT classpath
+             */
+            suts = ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getAllClasses(ClassPathHandler.getInstance().getTargetProjectClasspath(), prefix, false);
+        }
 
-		for (String className : suts) {
-			
-			if(cutsToAnalyze!=null && !cutsToAnalyze.contains(className)){
-				/*
-				 * Note: if this is happens, it is not necessarily an error.
-				 * For example, this will happen when CTG is run on a multi-module
-				 * maven project 
-				 */
-				continue;
-			}
-			
-			try {
-				Class<?> clazz = ClassPathHacker.getContinuousClassLoader().loadClass(className);
-				if (!CoverageAnalysis.isTest(clazz)){
-					cuts.add(className);
-				}
-			} catch (ClassNotFoundException e) {
-				logger.error(""+e,e);
-			} catch(ExceptionInInitializerError | NoClassDefFoundError | UnsatisfiedLinkError e){
+        List<String> cuts = new LinkedList<>();
+
+        for (String className : suts) {
+
+            if (cutsToAnalyze != null && !cutsToAnalyze.contains(className)) {
+                /*
+                 * Note: if this is happens, it is not necessarily an error.
+                 * For example, this will happen when CTG is run on a multi-module
+                 * maven project
+                 */
+                continue;
+            }
+
+            try {
+                Class<?> clazz = ClassPathHacker.getContinuousClassLoader().loadClass(className);
+                if (!CoverageAnalysis.isTest(clazz)) {
+                    cuts.add(className);
+                }
+            } catch (ClassNotFoundException e) {
+                logger.error("" + e, e);
+            } catch (ExceptionInInitializerError | NoClassDefFoundError | UnsatisfiedLinkError e) {
                 /**
                  * TODO: for now we skip it, but at a certain point
                  * we should able to handle it, especially if it
                  * is due to static state initialization
                  */
-                logger.warn("Cannot initialize class: "+className);
+                logger.warn("Cannot initialize class: " + className);
             }
 
-		}
-		return cuts;
+        }
+        return cuts;
 
-	}
+    }
 
-	/**
-	 * Analyze the classes in the given target
-	 * @return
-	 */
-	public ProjectStaticData analyze(){		
+    /**
+     * Analyze the classes in the given target
+     *
+     * @return
+     */
+    public ProjectStaticData analyze() {
 
-		ProjectStaticData data = new ProjectStaticData();
-		if(Properties.CTG_SCHEDULE.equals(AvailableSchedule.HISTORY)){
-			data.initializeLocalHistory();
-		}
-		
-		for (String className : getCutsToAnalyze()) {
-			Class<?> theClass = null; 
-			int numberOfBranches = -1;			
-			boolean hasCode = false;
+        ProjectStaticData data = new ProjectStaticData();
+        if (Properties.CTG_SCHEDULE.equals(AvailableSchedule.HISTORY)) {
+            data.initializeLocalHistory();
+        }
 
-			Properties.TARGET_CLASS = className;
-			InstrumentingClassLoader instrumenting = new InstrumentingClassLoader();
+        for (String className : getCutsToAnalyze()) {
+            Class<?> theClass = null;
+            int numberOfBranches = -1;
+            boolean hasCode = false;
 
-			BranchPool.getInstance(instrumenting).reset();
+            Properties.TARGET_CLASS = className;
+            InstrumentingClassLoader instrumenting = new InstrumentingClassLoader();
 
-			try{
-				/*
-				 * to access number of branches, we need to use
-				 * instrumenting class loader. But loading a class would
-				 * execute its static code, and so we need to 
-				 * use a security manager. 
-				 */
-				Sandbox.goingToExecuteUnsafeCodeOnSameThread();
-				instrumenting.loadClass(className);
+            BranchPool.getInstance(instrumenting).reset();
 
-				numberOfBranches = BranchPool.getInstance(instrumenting).getBranchCounter();
-				hasCode = (numberOfBranches > 0) || (BranchPool.getInstance(instrumenting).getBranchlessMethods().size() > 0);
+            try {
+                /*
+                 * to access number of branches, we need to use
+                 * instrumenting class loader. But loading a class would
+                 * execute its static code, and so we need to
+                 * use a security manager.
+                 */
+                Sandbox.goingToExecuteUnsafeCodeOnSameThread();
+                instrumenting.loadClass(className);
 
-				/*
-				 * just to avoid possible issues with instrumenting classloader
-				 */
-				theClass = ClassPathHacker.getContinuousClassLoader().loadClass(className);
+                numberOfBranches = BranchPool.getInstance(instrumenting).getBranchCounter();
+                hasCode = (numberOfBranches > 0) || (BranchPool.getInstance(instrumenting).getBranchlessMethods().size() > 0);
 
-				//TODO kind
-				//if(theClass.isInterface()){
-				//	kind = ClassKind.INTERFACE;
-				//} else if(theClass.is  Modifier.isAbstract( someClass.getModifiers() );
+                /*
+                 * just to avoid possible issues with instrumenting classloader
+                 */
+                theClass = ClassPathHacker.getContinuousClassLoader().loadClass(className);
 
-			} catch  (Exception e) {
-				logger.warn("Cannot handle "+className+" due to: "+e.getClass()+" "+e.getMessage());
-				continue;
-			}
-			finally {
-				Sandbox.doneWithExecutingUnsafeCodeOnSameThread();
-				BranchPool.getInstance(instrumenting).reset();
-				Properties.TARGET_CLASS = "";
-			}
+                //TODO kind
+                //if(theClass.isInterface()){
+                //	kind = ClassKind.INTERFACE;
+                //} else if(theClass.is  Modifier.isAbstract( someClass.getModifiers() );
 
-			ClassInfo ci = new ClassInfo(theClass, numberOfBranches, hasCode);
-			data.addNewClass(ci);
+            } catch (Exception e) {
+                logger.warn("Cannot handle " + className + " due to: " + e.getClass() + " " + e.getMessage());
+                continue;
+            } finally {
+                Sandbox.doneWithExecutingUnsafeCodeOnSameThread();
+                BranchPool.getInstance(instrumenting).reset();
+                Properties.TARGET_CLASS = "";
+            }
 
-			if (Properties.CTG_SCHEDULE == AvailableSchedule.HISTORY) {
-				ci.setChanged(data.hasChanged(theClass.getCanonicalName() + ".java"));
-				ci.isToTest(data.isToTest(theClass.getCanonicalName(), HistorySchedule.COMMIT_IMPROVEMENT));
-			}
-		}
+            ClassInfo ci = new ClassInfo(theClass, numberOfBranches, hasCode);
+            data.addNewClass(ci);
 
-		return data;
-	}
+            if (Properties.CTG_SCHEDULE == AvailableSchedule.HISTORY) {
+                ci.setChanged(data.hasChanged(theClass.getCanonicalName() + ".java"));
+                ci.isToTest(data.isToTest(theClass.getCanonicalName(), HistorySchedule.COMMIT_IMPROVEMENT));
+            }
+        }
+
+        return data;
+    }
 }
 

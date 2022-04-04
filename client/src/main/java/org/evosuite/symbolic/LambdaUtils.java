@@ -29,12 +29,12 @@ import static org.evosuite.dse.MainConfig.LAMBDA_CLASS_NAME_FRAGMENT;
 public class LambdaUtils {
 
     /**
-	 * Checks if the current class is a magic lambda instance.
-	 *
-	 * @param claz
-	 * @return
-	 */
-	public static boolean isLambda(Class<?> claz) {
-		return claz.isSynthetic() && claz.getSimpleName().contains(LAMBDA_CLASS_NAME_FRAGMENT);
-	}
+     * Checks if the current class is a magic lambda instance.
+     *
+     * @param claz
+     * @return
+     */
+    public static boolean isLambda(Class<?> claz) {
+        return claz.isSynthetic() && claz.getSimpleName().contains(LAMBDA_CLASS_NAME_FRAGMENT);
+    }
 }

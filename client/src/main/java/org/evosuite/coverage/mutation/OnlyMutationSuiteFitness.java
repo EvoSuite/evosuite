@@ -39,103 +39,106 @@ import java.util.Map.Entry;
  */
 public class OnlyMutationSuiteFitness extends MutationSuiteFitness {
 
-	private static final long serialVersionUID = -8194940669364526758L;
+    private static final long serialVersionUID = -8194940669364526758L;
 
-	public OnlyMutationSuiteFitness() {
-		super(Properties.Criterion.ONLYMUTATION);
-	}
+    public OnlyMutationSuiteFitness() {
+        super(Properties.Criterion.ONLYMUTATION);
+    }
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.ga.FitnessFunction#getFitness(org.evosuite.ga.Chromosome)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public double getFitness(TestSuiteChromosome individual) {
-		/*
-		 * e.g. classes with only static constructors
-		 */
-		if (this.numMutants == 0) {
-			updateIndividual(individual, 0.0);
-			individual.setCoverage(this, 1.0);
-			individual.setNumOfCoveredGoals(this, 0);
-			return 0.0;
-		}
+    /* (non-Javadoc)
+     * @see org.evosuite.ga.FitnessFunction#getFitness(org.evosuite.ga.Chromosome)
+     */
 
-		List<ExecutionResult> results = runTestSuite(individual);
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public double getFitness(TestSuiteChromosome individual) {
+        /*
+         * e.g. classes with only static constructors
+         */
+        if (this.numMutants == 0) {
+            updateIndividual(individual, 0.0);
+            individual.setCoverage(this, 1.0);
+            individual.setNumOfCoveredGoals(this, 0);
+            return 0.0;
+        }
 
-		double fitness = 0.0;
-		Map<Integer, Double> mutant_distance = new LinkedHashMap<>();
-		Set<Integer> touchedMutants = new LinkedHashSet<>();
+        List<ExecutionResult> results = runTestSuite(individual);
 
-		for (ExecutionResult result : results) {
-			// Using private reflection can lead to false positives
-			// that represent unrealistic behaviour. Thus, we only
-			// use reflection for basic criteria, not for mutation
-			if (result.hasTimeout() || result.hasTestException() || result.calledReflection()) {
-				continue;
-			}
+        double fitness = 0.0;
+        Map<Integer, Double> mutant_distance = new LinkedHashMap<>();
+        Set<Integer> touchedMutants = new LinkedHashSet<>();
 
-			touchedMutants.addAll(result.getTrace().getTouchedMutants());
+        for (ExecutionResult result : results) {
+            // Using private reflection can lead to false positives
+            // that represent unrealistic behaviour. Thus, we only
+            // use reflection for basic criteria, not for mutation
+            if (result.hasTimeout() || result.hasTestException() || result.calledReflection()) {
+                continue;
+            }
 
-			Map<Integer, Double> touchedMutantsDistances = result.getTrace().getMutationDistances();
-			if (touchedMutantsDistances.isEmpty()) {
-			  // if 'result' does not touch any mutant, no need to continue
-			  continue;
-			}
+            touchedMutants.addAll(result.getTrace().getTouchedMutants());
 
-			TestChromosome test = new TestChromosome();
-			test.setTestCase(result.test);
-			test.setLastExecutionResult(result);
-			test.setChanged(false);
+            Map<Integer, Double> touchedMutantsDistances = result.getTrace().getMutationDistances();
+            if (touchedMutantsDistances.isEmpty()) {
+                // if 'result' does not touch any mutant, no need to continue
+                continue;
+            }
 
-			for (final Entry<Integer, MutationTestFitness> entry : this.mutantMap.entrySet()) {
-				int mutantID = entry.getKey();
-				TestFitnessFunction goal = entry.getValue();
+            TestChromosome test = new TestChromosome();
+            test.setTestCase(result.test);
+            test.setLastExecutionResult(result);
+            test.setChanged(false);
 
-				double fit = 0.0;
-				if (touchedMutantsDistances.containsKey(mutantID)) {
-					fit = touchedMutantsDistances.get(mutantID);
+            for (final Entry<Integer, MutationTestFitness> entry : this.mutantMap.entrySet()) {
+                int mutantID = entry.getKey();
+                TestFitnessFunction goal = entry.getValue();
 
-					if (!mutant_distance.containsKey(mutantID)) {
-						mutant_distance.put(mutantID, fit);
-					} else {
-						mutant_distance.put(mutantID, Math.min(mutant_distance.get(mutantID), fit));
-					}
-				} else {
-					fit = goal.getFitness(test, result); // archive is updated by the TestFitnessFunction class
-				}
+                double fit = 0.0;
+                if (touchedMutantsDistances.containsKey(mutantID)) {
+                    fit = touchedMutantsDistances.get(mutantID);
 
-				if (fit == 0.0) {
-					test.getTestCase().addCoveredGoal(goal); // update list of covered goals
-					this.toRemoveMutants.add(mutantID); // goal to not be considered by the next iteration of the evolutionary algorithm
-				}
+                    if (!mutant_distance.containsKey(mutantID)) {
+                        mutant_distance.put(mutantID, fit);
+                    } else {
+                        mutant_distance.put(mutantID, Math.min(mutant_distance.get(mutantID), fit));
+                    }
+                } else {
+                    fit = goal.getFitness(test, result); // archive is updated by the TestFitnessFunction class
+                }
 
-				if (Properties.TEST_ARCHIVE) {
-					Archive.getArchiveInstance().updateArchive(goal, test, fit);
-				}
-			}
-		}
+                if (fit == 0.0) {
+                    test.getTestCase().addCoveredGoal(goal); // update list of covered goals
+                    this.toRemoveMutants.add(mutantID); // goal to not be considered by the next iteration of the evolutionary algorithm
+                }
 
-		// Second objective: touch all mutants?
-		fitness += MutationPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getMutantCounter() - touchedMutants.size();
-		int covered = this.removedMutants.size();
+                if (Properties.TEST_ARCHIVE) {
+                    Archive.getArchiveInstance().updateArchive(goal, test, fit);
+                }
+            }
+        }
 
-		for (Double distance : mutant_distance.values()) {
-			if (distance < 0) {
-				logger.warn("Distance is " + distance + " / " + Integer.MAX_VALUE + " / "
-				        + Integer.MIN_VALUE);
-				distance = 0.0; // FIXXME
-			}
+        // Second objective: touch all mutants?
+        fitness += MutationPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getMutantCounter() - touchedMutants.size();
+        int covered = this.removedMutants.size();
 
-			fitness += normalize(distance);
-			if (distance == 0.0)
-				covered++;
-		}
+        for (Double distance : mutant_distance.values()) {
+            if (distance < 0) {
+                logger.warn("Distance is " + distance + " / " + Integer.MAX_VALUE + " / "
+                        + Integer.MIN_VALUE);
+                distance = 0.0; // FIXXME
+            }
 
-		updateIndividual(individual, fitness);
-		individual.setCoverage(this, (double) covered / (double) this.numMutants);
-		individual.setNumOfCoveredGoals(this, covered);
+            fitness += normalize(distance);
+            if (distance == 0.0)
+                covered++;
+        }
 
-		return fitness;
-	}
+        updateIndividual(individual, fitness);
+        individual.setCoverage(this, (double) covered / (double) this.numMutants);
+        individual.setNumOfCoveredGoals(this, covered);
+
+        return fitness;
+    }
 }

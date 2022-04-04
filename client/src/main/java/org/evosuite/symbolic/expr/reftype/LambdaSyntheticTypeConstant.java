@@ -19,24 +19,21 @@
  */
 package org.evosuite.symbolic.expr.reftype;
 
-import org.objectweb.asm.Type;
 import org.evosuite.symbolic.expr.ExpressionVisitor;
 
 /**
  * General expression for anonymous jvm-created lambda classes (usually after invokedynamic is used).
- * TODO: Lambdas may be closures as fields may be attached to them.
+ * <p>
+ * TODO: Lambdas may be closures so a lot of fields may be attached to them.
  *
  * @author Ignacio Lebrero
  */
-public final class LambdaSyntheticTypeConstant extends NonNullReferenceTypeConstant {
+public class LambdaSyntheticType extends LiteralClassType {
 
-    /**
-     * Whether this lambda is called from non instrumented sources
-     */
-    private boolean callsNonInstrumentedCode;
+    private final boolean callsNonInstrumentedCode;
 
-    public LambdaSyntheticTypeConstant(Type concreteValue, boolean callsNonInstrumentedCode, int referenceTypeId) {
-        super(concreteValue, referenceTypeId);
+    public LambdaSyntheticType(Class concreteValue, boolean callsNonInstrumentedCode) {
+        super(concreteValue);
 
         this.callsNonInstrumentedCode = callsNonInstrumentedCode;
     }

@@ -19,9 +19,6 @@
  */
 package org.evosuite.coverage.statement;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.MethodNameMatcher;
@@ -29,43 +26,48 @@ import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.evosuite.graphs.cfg.BytecodeInstructionPool;
 import org.evosuite.testsuite.AbstractFitnessFactory;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class StatementCoverageFactory extends
         AbstractFitnessFactory<StatementCoverageTestFitness> {
 
-	/** {@inheritDoc} */
-	@Override
-	public List<StatementCoverageTestFitness> getCoverageGoals() {
-		long start = System.currentTimeMillis();
-		String targetClass = Properties.TARGET_CLASS;
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<StatementCoverageTestFitness> getCoverageGoals() {
+        long start = System.currentTimeMillis();
+        String targetClass = Properties.TARGET_CLASS;
 
-		List<StatementCoverageTestFitness> goals = new ArrayList<>();
+        List<StatementCoverageTestFitness> goals = new ArrayList<>();
 
-		final MethodNameMatcher matcher = new MethodNameMatcher();
-		
-		for (String className : BytecodeInstructionPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).knownClasses()) {
+        final MethodNameMatcher matcher = new MethodNameMatcher();
 
-			if (!(targetClass.equals("") || className.endsWith(targetClass)))
-				continue;
+        for (String className : BytecodeInstructionPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).knownClasses()) {
 
-			for (String methodName : BytecodeInstructionPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).knownMethods(className)) {
+            if (!(targetClass.equals("") || className.endsWith(targetClass)))
+                continue;
 
-				if (!matcher.methodMatches(methodName))
-					continue;
+            for (String methodName : BytecodeInstructionPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).knownMethods(className)) {
 
-				for (BytecodeInstruction ins : BytecodeInstructionPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getInstructionsIn(className,
-				                                                                                                                             methodName))
-					if (isUsable(ins))
-						goals.add(new StatementCoverageTestFitness(ins.getClassName(), ins.getMethodName(), ins.getInstructionId()));
-			}
-		}
-		long end = System.currentTimeMillis();
-		goalComputationTime = end - start;
+                if (!matcher.methodMatches(methodName))
+                    continue;
 
-		return goals;
-	}
+                for (BytecodeInstruction ins : BytecodeInstructionPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getInstructionsIn(className,
+                        methodName))
+                    if (isUsable(ins))
+                        goals.add(new StatementCoverageTestFitness(ins.getClassName(), ins.getMethodName(), ins.getInstructionId()));
+            }
+        }
+        long end = System.currentTimeMillis();
+        goalComputationTime = end - start;
 
-	private static boolean isUsable(BytecodeInstruction ins) {
+        return goals;
+    }
 
-		return !ins.isLabel() && !ins.isLineNumber();
-	}
+    private static boolean isUsable(BytecodeInstruction ins) {
+
+        return !ins.isLabel() && !ins.isLineNumber();
+    }
 }

@@ -19,59 +19,62 @@
  */
 package org.evosuite.symbolic.expr.bv;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import org.evosuite.symbolic.expr.AbstractExpression;
 import org.evosuite.symbolic.expr.ExpressionVisitor;
 import org.evosuite.symbolic.expr.Variable;
 
+import java.util.HashSet;
+import java.util.Set;
+
 public final class IntegerConstant extends AbstractExpression<Long> implements
         IntegerValue {
 
-	private static final long serialVersionUID = 3770747666367222441L;
+    private static final long serialVersionUID = 3770747666367222441L;
 
-	/**
-	 * <p>
-	 * Constructor for IntegerConstant.
-	 * </p>
-	 * 
-	 * @param longValue
-	 *            a long.
-	 */
-	public IntegerConstant(long longValue) {
-		super(longValue, 1, false);
-	}
+    /**
+     * <p>
+     * Constructor for IntegerConstant.
+     * </p>
+     *
+     * @param longValue a long.
+     */
+    public IntegerConstant(long longValue) {
+        super(longValue, 1, false);
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public String toString() {
-		return Long.toString(this.concreteValue);
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        return Long.toString(this.concreteValue);
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public boolean equals(Object obj) {
-		if (obj instanceof IntegerConstant) {
-			IntegerConstant v = (IntegerConstant) obj;
-			return this.concreteValue.equals(v.concreteValue);
-		}
-		return false;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof IntegerConstant) {
+            IntegerConstant v = (IntegerConstant) obj;
+            return this.concreteValue.equals(v.concreteValue);
+        }
+        return false;
+    }
 
-	@Override
-	public int hashCode() {
-		return getConcreteValue().hashCode();
-	}
+    @Override
+    public int hashCode() {
+        return getConcreteValue().hashCode();
+    }
 
-	@Override
-	public Set<Variable<?>> getVariables() {
-		Set<Variable<?>> variables = new HashSet<>();
-		return variables;
-	}
+    @Override
+    public Set<Variable<?>> getVariables() {
+        Set<Variable<?>> variables = new HashSet<>();
+        return variables;
+    }
 
-	@Override
-	public <K, V> K accept(ExpressionVisitor<K, V> v, V arg) {
-		return v.visit(this, arg);
-	}
+    @Override
+    public <K, V> K accept(ExpressionVisitor<K, V> v, V arg) {
+        return v.visit(this, arg);
+    }
 }

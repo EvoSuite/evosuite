@@ -20,30 +20,35 @@
 package org.evosuite.testcarver.codegen;
 
 
-
 import org.evosuite.testcarver.capture.CaptureLog;
 
 
 public interface ICodeGenerator<T> {
-	
-	void before(final CaptureLog log);
-	
-	void createFieldReadAccessStmt(final CaptureLog log, final int currentLogRecNo);
-	void createFieldWriteAccessStmt(final CaptureLog log, final int currentLogRecNo);
-	void createMethodCallStmt(final CaptureLog log, final int currentLogRecNo);
-	void createPlainInitStmt(final CaptureLog log, final int currentLogRecNo);
-	void createUnobservedInitStmt(final CaptureLog log, final int currentLogRecNo);
 
-	void createArrayInitStmt(final CaptureLog log, final int currentLogRecNo);
-	void createCollectionInitStmt(final CaptureLog log, final int currentLogRecNo);
-	void createMapInitStmt(final CaptureLog log, final int currentLogRecNo);
+    void before(final CaptureLog log);
 
-	boolean isMaximumLengthReached();
-	
-	void after(final CaptureLog log);
-	
-	T getCode();
-	
-	void clear();
+    void createFieldReadAccessStmt(final CaptureLog log, final int currentLogRecNo);
+
+    void createFieldWriteAccessStmt(final CaptureLog log, final int currentLogRecNo);
+
+    void createMethodCallStmt(final CaptureLog log, final int currentLogRecNo);
+
+    void createPlainInitStmt(final CaptureLog log, final int currentLogRecNo);
+
+    void createUnobservedInitStmt(final CaptureLog log, final int currentLogRecNo);
+
+    void createArrayInitStmt(final CaptureLog log, final int currentLogRecNo);
+
+    void createCollectionInitStmt(final CaptureLog log, final int currentLogRecNo);
+
+    void createMapInitStmt(final CaptureLog log, final int currentLogRecNo);
+
+    boolean isMaximumLengthReached();
+
+    void after(final CaptureLog log);
+
+    T getCode();
+
+    void clear();
 
 }

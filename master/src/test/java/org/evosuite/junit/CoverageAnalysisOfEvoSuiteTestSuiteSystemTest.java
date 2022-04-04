@@ -39,25 +39,25 @@ import com.examples.with.different.packagename.Euclidean;
  */
 public class CoverageAnalysisOfEvoSuiteTestSuiteSystemTest extends SystemTestBase {
 
-	@Test
-	public void testOneFitnessFunction() {
-		EvoSuite evosuite = new EvoSuite();
+    @Test
+    public void testOneFitnessFunction() {
+        EvoSuite evosuite = new EvoSuite();
 
-		String targetClass = Euclidean.class.getCanonicalName();
-		Properties.TARGET_CLASS = targetClass;
-		Properties.CRITERION = new Criterion[] { Criterion.BRANCH };
+        String targetClass = Euclidean.class.getCanonicalName();
+        Properties.TARGET_CLASS = targetClass;
+        Properties.CRITERION = new Criterion[]{Criterion.BRANCH};
 
-		String[] command = new String[] {
-			"-class", targetClass,
-			"-Djunit=" + targetClass + Properties.JUNIT_SUFFIX,
-			"-measureCoverage"
-		};
+        String[] command = new String[]{
+                "-class", targetClass,
+                "-Djunit=" + targetClass + Properties.JUNIT_SUFFIX,
+                "-measureCoverage"
+        };
 
-		SearchStatistics statistics = (SearchStatistics) evosuite.parseCommandLine(command);
-		Assert.assertNotNull(statistics);
+        SearchStatistics statistics = (SearchStatistics) evosuite.parseCommandLine(command);
+        Assert.assertNotNull(statistics);
 
-		Map<String, OutputVariable<?>> data = statistics.getOutputVariables();
-		assertEquals(5, (Integer) data.get("Total_Goals").getValue(), 0.0);
-		assertEquals(5, (Integer) data.get("Covered_Goals").getValue(), 0.0);
-	}
+        Map<String, OutputVariable<?>> data = statistics.getOutputVariables();
+        assertEquals(5, (Integer) data.get("Total_Goals").getValue(), 0.0);
+        assertEquals(5, (Integer) data.get("Covered_Goals").getValue(), 0.0);
+    }
 }

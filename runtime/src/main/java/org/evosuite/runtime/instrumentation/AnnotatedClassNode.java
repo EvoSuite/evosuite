@@ -31,18 +31,20 @@ import org.objectweb.asm.tree.MethodNode;
  * @author fraser
  */
 public class AnnotatedClassNode extends ClassNode {
-	
-	public AnnotatedClassNode() {
-		super(Opcodes.ASM9);
-	}
-	
-	/** {@inheritDoc} */
-	@SuppressWarnings("unchecked")
-	@Override
-	public MethodVisitor visitMethod(final int access, final String name,
-	        final String desc, final String signature, final String[] exceptions) {
-		MethodNode mn = new AnnotatedMethodNode(access, name, desc, signature, exceptions);
-		methods.add(mn);
-		return mn;
-	}
+
+    public AnnotatedClassNode() {
+        super(Opcodes.ASM9);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @SuppressWarnings("unchecked")
+    @Override
+    public MethodVisitor visitMethod(final int access, final String name,
+                                     final String desc, final String signature, final String[] exceptions) {
+        MethodNode mn = new AnnotatedMethodNode(access, name, desc, signature, exceptions);
+        methods.add(mn);
+        return mn;
+    }
 }

@@ -20,93 +20,93 @@
 
 package org.evosuite.ga.localsearch;
 
+import org.evosuite.ga.Chromosome;
+import org.evosuite.ga.FitnessFunction;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.evosuite.ga.Chromosome;
-import org.evosuite.ga.FitnessFunction;
-
 /**
- * The Default local search objective only stores a list of fitness functions. 
+ * The Default local search objective only stores a list of fitness functions.
  * It cannot be used to check if an individual has changed, improved or if the objective
- * has been reached. 
- * 
+ * has been reached.
  *
  * @author Gordon Fraser
  */
 public class DefaultLocalSearchObjective<T extends Chromosome<T>> implements LocalSearchObjective<T>,
-		Serializable {
+        Serializable {
 
-	private static final long serialVersionUID = -8640106627078837108L;
+    private static final long serialVersionUID = -8640106627078837108L;
 
-	private final List<FitnessFunction<T>> fitnessFunctions = new ArrayList<>();
+    private final List<FitnessFunction<T>> fitnessFunctions = new ArrayList<>();
 
-	// TODO: This assumes we are not doing NSGA-II
-	private boolean isMaximization = false;
-	
-	/**
-	 * This operation should not be invoked for this class
-	 */
-	@Override
-	public boolean isDone() {
-		throw new UnsupportedOperationException("Not implemented for default objective");
-	}
+    // TODO: This assumes we are not doing NSGA-II
+    private boolean isMaximization = false;
 
-	/**
-	 * This operation should not be invoked for this class
-	 */
-	@Override
-	public boolean hasImproved(T chromosome) {
-		throw new UnsupportedOperationException("Not implemented for default objective");
-	}
+    /**
+     * This operation should not be invoked for this class
+     */
+    @Override
+    public boolean isDone() {
+        throw new UnsupportedOperationException("Not implemented for default objective");
+    }
 
-	@Override
-	public void addFitnessFunction(FitnessFunction<T> fitness) {
-		for(FitnessFunction<T> ff : fitnessFunctions) {
-			if(ff.isMaximizationFunction() != fitness.isMaximizationFunction()) {
-				throw new RuntimeException("Local search only supports composition of multiple criteria");
-			}
-		}
-		if(fitness.isMaximizationFunction())
-			isMaximization = true;
-		else
-			isMaximization = false;
+    /**
+     * This operation should not be invoked for this class
+     */
+    @Override
+    public boolean hasImproved(T chromosome) {
+        throw new UnsupportedOperationException("Not implemented for default objective");
+    }
 
-		fitnessFunctions.add(fitness);
-	}
-	
-	@Override
-	public boolean isMaximizationObjective() {
-		return isMaximization;
-	}
+    @Override
+    public void addFitnessFunction(FitnessFunction<T> fitness) {
+        for (FitnessFunction<T> ff : fitnessFunctions) {
+            if (ff.isMaximizationFunction() != fitness.isMaximizationFunction()) {
+                throw new RuntimeException("Local search only supports composition of multiple criteria");
+            }
+        }
+        isMaximization = fitness.isMaximizationFunction();
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.ga.LocalSearchObjective#getFitnessFunction()
-	 */
-	/** {@inheritDoc}
-	 * @return*/
-	@Override
-	public List<FitnessFunction<T>> getFitnessFunctions() {
-		return fitnessFunctions;
-	}
+        fitnessFunctions.add(fitness);
+    }
+
+    @Override
+    public boolean isMaximizationObjective() {
+        return isMaximization;
+    }
+
+    /* (non-Javadoc)
+     * @see org.evosuite.ga.LocalSearchObjective#getFitnessFunction()
+     */
+
+    /**
+     * {@inheritDoc}
+     *
+     * @return
+     */
+    @Override
+    public List<FitnessFunction<T>> getFitnessFunctions() {
+        return fitnessFunctions;
+    }
 
 
-	/**
-	 * This operation should not be invoked for this class
-	 */
-	@Override
-	public int hasChanged(T chromosome) {
-		throw new UnsupportedOperationException("Not implemented for default objective");
-	}
+    /**
+     * This operation should not be invoked for this class
+     */
+    @Override
+    public int hasChanged(T chromosome) {
+        throw new UnsupportedOperationException("Not implemented for default objective");
+    }
 
-	/**
-	 * This operation should not be invoked for this class
-	 */
-	@Override
-	public boolean hasNotWorsened(T chromosome) {
-		throw new UnsupportedOperationException("Not implemented for default objective");
-	}
+    /**
+     * This operation should not be invoked for this class
+     */
+    @Override
+    public boolean hasNotWorsened(T chromosome) {
+        throw new UnsupportedOperationException("Not implemented for default objective");
+    }
 
 
 }

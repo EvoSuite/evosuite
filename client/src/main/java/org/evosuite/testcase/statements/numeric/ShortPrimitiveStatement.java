@@ -30,122 +30,144 @@ import org.evosuite.utils.Randomness;
  * <p>
  * ShortPrimitiveStatement class.
  * </p>
- * 
+ *
  * @author fraser
  */
 public class ShortPrimitiveStatement extends NumericalPrimitiveStatement<Short> {
 
-	private static final long serialVersionUID = -1041008456902695964L;
+    private static final long serialVersionUID = -1041008456902695964L;
 
-	/**
-	 * <p>
-	 * Constructor for ShortPrimitiveStatement.
-	 * </p>
-	 * 
-	 * @param tc
-	 *            a {@link org.evosuite.testcase.TestCase} object.
-	 * @param value
-	 *            a {@link java.lang.Short} object.
-	 */
-	public ShortPrimitiveStatement(TestCase tc, Short value) {
-		super(tc, short.class, value);
-	}
+    /**
+     * <p>
+     * Constructor for ShortPrimitiveStatement.
+     * </p>
+     *
+     * @param tc    a {@link org.evosuite.testcase.TestCase} object.
+     * @param value a {@link java.lang.Short} object.
+     */
+    public ShortPrimitiveStatement(TestCase tc, Short value) {
+        super(tc, short.class, value);
+    }
 
-	/**
-	 * <p>
-	 * Constructor for ShortPrimitiveStatement.
-	 * </p>
-	 * 
-	 * @param tc
-	 *            a {@link org.evosuite.testcase.TestCase} object.
-	 */
-	public ShortPrimitiveStatement(TestCase tc) {
-		super(tc, short.class, (short) 0);
-	}
+    /**
+     * <p>
+     * Constructor for ShortPrimitiveStatement.
+     * </p>
+     *
+     * @param tc a {@link org.evosuite.testcase.TestCase} object.
+     */
+    public ShortPrimitiveStatement(TestCase tc) {
+        super(tc, short.class, (short) 0);
+    }
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.PrimitiveStatement#zero()
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public void zero() {
-		value = (short) 0;
-	}
+    /* (non-Javadoc)
+     * @see org.evosuite.testcase.PrimitiveStatement#zero()
+     */
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.PrimitiveStatement#delta()
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public void delta() {
-		short delta = (short)Math.floor(Randomness.nextGaussian() * Properties.MAX_DELTA);
-		value = (short) (value + delta);
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void zero() {
+        value = (short) 0;
+    }
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.PrimitiveStatement#increment(java.lang.Object)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public void increment(long delta) {
-		value = (short) (value + (short) delta);
-	}
+    /* (non-Javadoc)
+     * @see org.evosuite.testcase.PrimitiveStatement#delta()
+     */
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.PrimitiveStatement#randomize()
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public void randomize() {
-		short max = (short) Math.min(Properties.MAX_INT, 32767);
-		if (Randomness.nextDouble() >= Properties.PRIMITIVE_POOL) {
-			value = (short) ((Randomness.nextGaussian() * max));
-		}
-		else {
-			ConstantPool constantPool = ConstantPoolManager.getInstance().getConstantPool();
-			value = (short) constantPool.getRandomInt();
-		}
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void delta() {
+        short delta = (short) Math.floor(Randomness.nextGaussian() * Properties.MAX_DELTA);
+        value = (short) (value + delta);
+    }
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.PrimitiveStatement#increment()
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public void increment() {
-		increment((short) 1);
-	}
+    /* (non-Javadoc)
+     * @see org.evosuite.testcase.PrimitiveStatement#increment(java.lang.Object)
+     */
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.NumericalPrimitiveStatement#setMid(java.lang.Object, java.lang.Object)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public void setMid(Short min, Short max) {
-		value = (short) (min + ((max - min) / 2));
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void increment(long delta) {
+        value = (short) (value + (short) delta);
+    }
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.NumericalPrimitiveStatement#decrement()
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public void decrement() {
-		increment(-1);
-	}
+    /* (non-Javadoc)
+     * @see org.evosuite.testcase.PrimitiveStatement#randomize()
+     */
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.NumericalPrimitiveStatement#isPositive()
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public boolean isPositive() {
-		return value >= 0;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void randomize() {
+        short max = (short) Math.min(Properties.MAX_INT, 32767);
+        if (Randomness.nextDouble() >= Properties.PRIMITIVE_POOL) {
+            value = (short) ((Randomness.nextGaussian() * max));
+        } else {
+            ConstantPool constantPool = ConstantPoolManager.getInstance().getConstantPool();
+            value = (short) constantPool.getRandomInt();
+        }
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public void negate() {
-		value = (short) -value;
-	}
+    /* (non-Javadoc)
+     * @see org.evosuite.testcase.PrimitiveStatement#increment()
+     */
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void increment() {
+        increment((short) 1);
+    }
+
+    /* (non-Javadoc)
+     * @see org.evosuite.testcase.NumericalPrimitiveStatement#setMid(java.lang.Object, java.lang.Object)
+     */
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setMid(Short min, Short max) {
+        value = (short) (min + ((max - min) / 2));
+    }
+
+    /* (non-Javadoc)
+     * @see org.evosuite.testcase.NumericalPrimitiveStatement#decrement()
+     */
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void decrement() {
+        increment(-1);
+    }
+
+    /* (non-Javadoc)
+     * @see org.evosuite.testcase.NumericalPrimitiveStatement#isPositive()
+     */
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isPositive() {
+        return value >= 0;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void negate() {
+        value = (short) -value;
+    }
 }

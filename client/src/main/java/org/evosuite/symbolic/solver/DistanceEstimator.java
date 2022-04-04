@@ -19,8 +19,6 @@
  */
 package org.evosuite.symbolic.solver;
 
-import java.util.Collection;
-
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.DistanceCalculator;
 import org.evosuite.symbolic.expr.constraint.IntegerConstraint;
@@ -29,82 +27,83 @@ import org.evosuite.symbolic.expr.constraint.StringConstraint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collection;
+
 /**
  * <p>
  * Abstract DistanceEstimator class.
  * </p>
- * 
+ *
  * @author krusev
  */
 public abstract class DistanceEstimator {
 
-	static Logger log = LoggerFactory.getLogger(DistanceEstimator.class);
+    static Logger log = LoggerFactory.getLogger(DistanceEstimator.class);
 
-	// static Logger log =
-	// JPF.getLogger("org.evosuite.symbolic.search.DistanceEstimator");
+    // static Logger log =
+    // JPF.getLogger("org.evosuite.symbolic.search.DistanceEstimator");
 
-	private static double normalize(double x) {
-		return x / (x + 1.0);
-	}
+    private static double normalize(double x) {
+        return x / (x + 1.0);
+    }
 
-	/**
-	 * <p>
-	 * getDistance
-	 * </p>
-	 * 
-	 * @param constraints
-	 *            a {@link java.util.Collection} object.
-	 * @return normalized distance in [0,1]
-	 */
-	public static double getDistance(Collection<Constraint<?>> constraints) {
-		double result = 0;
+    /**
+     * <p>
+     * getDistance
+     * </p>
+     *
+     * @param constraints a {@link java.util.Collection} object.
+     * @return normalized distance in [0,1]
+     */
+    public static double getDistance(Collection<Constraint<?>> constraints) {
+        double result = 0;
 
-		DistanceCalculator distanceCalculator = new DistanceCalculator();
-		try {
-			for (Constraint<?> c : constraints) {
+        DistanceCalculator distanceCalculator = new DistanceCalculator();
+        try {
+            for (Constraint<?> c : constraints) {
 
-				if (c instanceof StringConstraint) {
-					StringConstraint string_constraint = (StringConstraint) c;
+                if (c instanceof StringConstraint) {
+                    StringConstraint string_constraint = (StringConstraint) c;
 
-					try {
-						double strD = (double) string_constraint.accept(
-								distanceCalculator, null);
-						result += normalize(strD);
-						log.debug("S: " + string_constraint + " strDist "
-								+ strD);
-					} catch (Throwable t) {
-						log.debug("S: " + string_constraint + " strDist " + t);
-						result += 1.0;
-					}
+                    try {
+                        double strD = (double) string_constraint.accept(
+                                distanceCalculator, null);
+                        result += normalize(strD);
+                        log.debug("S: " + string_constraint + " strDist "
+                                + strD);
+                    } catch (Throwable t) {
+                        log.debug("S: " + string_constraint + " strDist " + t);
+                        result += 1.0;
+                    }
 
-				} else if (c instanceof IntegerConstraint) {
+                } else if (c instanceof IntegerConstraint) {
 
-					IntegerConstraint integer_constraint = (IntegerConstraint) c;
-					long intD = (long) integer_constraint.accept(
-							distanceCalculator, null);
-					result += normalize(intD);
-					log.debug("C: " + integer_constraint + " intDist " + intD);
+                    IntegerConstraint integer_constraint = (IntegerConstraint) c;
+                    long intD = (long) integer_constraint.accept(
+                            distanceCalculator, null);
+                    result += normalize(intD);
+                    log.debug("C: " + integer_constraint + " intDist " + intD);
 
-				} else if (c instanceof RealConstraint) {
-					RealConstraint real_constraint = (RealConstraint) c;
-					double realD = (double) real_constraint.accept(
-							distanceCalculator, null);
-					
-					result += normalize(realD);
-					log.debug("C: " + real_constraint + " realDist " + realD);
+                } else if (c instanceof RealConstraint) {
+                    RealConstraint real_constraint = (RealConstraint) c;
+                    double realD = (double) real_constraint.accept(
+                            distanceCalculator, null);
 
-				} else {
-					throw new IllegalArgumentException(
-							"DistanceCalculator: got an unknown constraint: "
-									+ c);
-				}
-			}
-			log.debug("Resulting distance: " + result);
-			return Math.abs(result);
+                    result += normalize(realD);
+                    log.debug("C: " + real_constraint + " realDist " + realD);
 
-		} catch (Exception e) {
-			return Double.MAX_VALUE;
-		}
-	}
+                } else {
+                    throw new IllegalArgumentException(
+                            "DistanceCalculator: got an unknown constraint: "
+                                    + c);
+                }
+            }
+            log.debug("Resulting distance: " + result);
+            return Math.abs(result);
+
+        } catch (Exception e) {
+            return Double.MAX_VALUE;
+        }
+    }
 
 }

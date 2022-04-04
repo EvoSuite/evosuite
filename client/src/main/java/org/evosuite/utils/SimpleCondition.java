@@ -19,49 +19,52 @@
  */
 package org.evosuite.utils;
 
-import java.util.concurrent.locks.*;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
 public class SimpleCondition {
-	private Lock lock;
-	private Condition condition;
-	private boolean wasSignaled = false;
-	
-	/**
-	 * <p>Constructor for SimpleCondition.</p>
-	 */
-	public SimpleCondition() {
-		this.lock = new ReentrantLock();
-		this.condition = this.lock.newCondition();
-		this.lock.lock();
-	}
-	
-	/**
-	 * <p>awaitUninterruptibly</p>
-	 */
-	public void awaitUninterruptibly() {
-		this.condition.awaitUninterruptibly();
-		this.lock.unlock();
-	}
-	
-	/**
-	 * <p>signal</p>
-	 */
-	public synchronized void signal() {
-		this.lock.lock();
+    private final Lock lock;
+    private final Condition condition;
+    private boolean wasSignaled = false;
 
-		try {
-			this.condition.signal();
-			this.wasSignaled = true;
-		} finally {
-			this.lock.unlock();
-		}
-	}
+    /**
+     * <p>Constructor for SimpleCondition.</p>
+     */
+    public SimpleCondition() {
+        this.lock = new ReentrantLock();
+        this.condition = this.lock.newCondition();
+        this.lock.lock();
+    }
 
-	/**
-	 * <p>wasSignaled</p>
-	 *
-	 * @return a boolean.
-	 */
-	public synchronized boolean wasSignaled() {
-		return this.wasSignaled;
-	}
+    /**
+     * <p>awaitUninterruptibly</p>
+     */
+    public void awaitUninterruptibly() {
+        this.condition.awaitUninterruptibly();
+        this.lock.unlock();
+    }
+
+    /**
+     * <p>signal</p>
+     */
+    public synchronized void signal() {
+        this.lock.lock();
+
+        try {
+            this.condition.signal();
+            this.wasSignaled = true;
+        } finally {
+            this.lock.unlock();
+        }
+    }
+
+    /**
+     * <p>wasSignaled</p>
+     *
+     * @return a boolean.
+     */
+    public synchronized boolean wasSignaled() {
+        return this.wasSignaled;
+    }
 }

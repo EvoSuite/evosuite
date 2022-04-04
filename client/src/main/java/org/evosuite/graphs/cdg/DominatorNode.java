@@ -24,91 +24,92 @@ import java.util.Set;
 
 /**
  * This class serves as a convenience data structure within cfg.DominatorTree
- * 
+ * <p>
  * For every node within a CFG for which the immediateDominators are to be
  * computed this class holds auxiliary information needed during the computation
  * inside the DominatorTree
- * 
+ * <p>
  * After that computation instances of this class hold the connection between
  * CFG nodes and their immediateDominators
- * 
+ * <p>
  * Look at cfg.DominatorTree for more detailed information
- * 
- * 
+ *
  * @author Andre Mis
  */
 class DominatorNode<V> {
 
-	final V node;
-	int n = 0;
+    final V node;
+    int n = 0;
 
-	// parent of node within spanning tree of DFS inside cfg.DominatorTree
-	DominatorNode<V> parent;
+    // parent of node within spanning tree of DFS inside cfg.DominatorTree
+    DominatorNode<V> parent;
 
-	// computed dominators 
-	DominatorNode<V> semiDominator;
-	DominatorNode<V> immediateDominator;
+    // computed dominators
+    DominatorNode<V> semiDominator;
+    DominatorNode<V> immediateDominator;
 
-	// auxiliary field needed for dominator computation
-	Set<DominatorNode<V>> bucket = new HashSet<>();
+    // auxiliary field needed for dominator computation
+    Set<DominatorNode<V>> bucket = new HashSet<>();
 
-	// data structure needed to represented forest produced during cfg.DominatorTree computation
-	DominatorNode<V> ancestor;
-	DominatorNode<V> label;
+    // data structure needed to represented forest produced during cfg.DominatorTree computation
+    DominatorNode<V> ancestor;
+    DominatorNode<V> label;
 
-	DominatorNode(V node) {
-		this.node = node;
+    DominatorNode(V node) {
+        this.node = node;
 
-		this.label = this;
-	}
+        this.label = this;
+    }
 
-	void link(DominatorNode<V> v) {
-		ancestor = v;
-	}
+    void link(DominatorNode<V> v) {
+        ancestor = v;
+    }
 
-	DominatorNode<V> eval() {
-		if (ancestor == null)
-			return this;
+    DominatorNode<V> eval() {
+        if (ancestor == null)
+            return this;
 
-		compress();
+        compress();
 
-		return label;
-	}
+        return label;
+    }
 
-	void compress() {
-		if (ancestor == null)
-			throw new IllegalStateException("may only be called when ancestor is set");
+    void compress() {
+        if (ancestor == null)
+            throw new IllegalStateException("may only be called when ancestor is set");
 
-		if (ancestor.ancestor != null) {
-			ancestor.compress();
-			if (ancestor.label.semiDominator.n < label.semiDominator.n)
-				label = ancestor.label;
+        if (ancestor.ancestor != null) {
+            ancestor.compress();
+            if (ancestor.label.semiDominator.n < label.semiDominator.n)
+                label = ancestor.label;
 
-			ancestor = ancestor.ancestor;
-		}
-	}
+            ancestor = ancestor.ancestor;
+        }
+    }
 
-	DominatorNode<V> getFromBucket() {
+    DominatorNode<V> getFromBucket() {
 
-		for (DominatorNode<V> r : bucket)
-			return r;
+        for (DominatorNode<V> r : bucket)
+            return r;
 
-		return null;
-	}
+        return null;
+    }
 
-	/**
-	 * <p>isRootNode</p>
-	 *
-	 * @return a boolean.
-	 */
-	public boolean isRootNode() {
-		// TODO not that nice :/
-		return n == 1;
-	}
+    /**
+     * <p>isRootNode</p>
+     *
+     * @return a boolean.
+     */
+    public boolean isRootNode() {
+        // TODO not that nice :/
+        return n == 1;
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public String toString() {
-		return "DTNode " + n + " - " + node;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        return "DTNode " + n + " - " + node;
+    }
 }

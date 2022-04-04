@@ -22,7 +22,10 @@ package org.evosuite.ga;
 import org.evosuite.ga.localsearch.LocalSearchObjective;
 import org.evosuite.utils.Randomness;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * Created by gordon on 14/05/2016.
@@ -33,7 +36,7 @@ public class DummyChromosome extends Chromosome<DummyChromosome> {
     private final List<Integer> values = new ArrayList<>();
 
     public DummyChromosome(int... values) {
-        for(int x : values) {
+        for (int x : values) {
             this.values.add(x);
         }
     }
@@ -74,12 +77,12 @@ public class DummyChromosome extends Chromosome<DummyChromosome> {
 
     @Override
     public void mutate() {
-        if(values.isEmpty())
+        if (values.isEmpty())
             return;
 
-        double P = 1.0/values.size();
-        for(int i = 0; i < values.size(); i++) {
-            if(Randomness.nextDouble() < P) {
+        double P = 1.0 / values.size();
+        for (int i = 0; i < values.size(); i++) {
+            if (Randomness.nextDouble() < P) {
                 values.set(i, Randomness.nextInt());
             }
         }

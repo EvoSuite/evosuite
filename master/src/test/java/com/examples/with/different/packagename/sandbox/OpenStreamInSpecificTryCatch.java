@@ -24,18 +24,18 @@ import java.io.FileOutputStream;
 
 public class OpenStreamInSpecificTryCatch {
 
-	public boolean open(int x) {
+    public boolean open(int x) {
 
-		try {
-			new FileOutputStream(OpenStream.FILE_NAME);
-		} catch (FileNotFoundException e) {
-		}
+        try {
+            new FileOutputStream(OpenStream.FILE_NAME);
+        } catch (FileNotFoundException e) {
+        }
 
-		if(x>0){
-			return true;
-		} else {
-			return false;
-		}
-	}
+        if (x > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 
 }

@@ -34,22 +34,28 @@ public class TargetCoverageReachedStoppingCondition extends StoppingConditionImp
 
     private static final long serialVersionUID = 7235280321530441520L;
 
-    public static final String AND                                     = " and ";
+    public static final String AND = " and ";
     public static final String ERROR_LIMIT_PARAMETER_MUST_BE_IN_BOUNDS = "ERROR | limit parameter must be in bounds ";
 
-    /** Bound values for setLimit input */
+    /**
+     * Bound values for setLimit input
+     */
     private static final long MINIMUM_LIMIT_INPUT_VALUE = 0;
     private static final long MAXIMUM_LIMIT_INPUT_VALUE = 100;
 
-    /** Keep track of highest coverage seen so far */
+    /**
+     * Keep track of highest coverage seen so far
+     */
     private int lastCoverage = Chromosome.MIN_REACHABLE_COVERAGE;
 
-    /** Keep track of the target coverage */
+    /**
+     * Keep track of the target coverage
+     */
     private int targetCoverage = Properties.DSE_TARGET_COVERAGE;
 
     @Override
     public long getCurrentValue() {
-        return lastCoverage ;
+        return lastCoverage;
     }
 
     @Override
@@ -70,15 +76,15 @@ public class TargetCoverageReachedStoppingCondition extends StoppingConditionImp
 
     /**
      * Sets the limit of the coverage.
-     *
+     * <p>
      * IMPORTANT: As the values are normalized (between 0 and 1) and the limit
-     *            will arrive as a long value. we have to normalize it.
+     * will arrive as a long value. we have to normalize it.
      *
      * @param limit a long.
      */
     @Override
     public void setLimit(long limit) throws InvalidParameterException {
-        if (! isInputValid(limit)) {
+        if (!isInputValid(limit)) {
             throw new InvalidParameterException(
                     new StringBuilder()
                             .append(ERROR_LIMIT_PARAMETER_MUST_BE_IN_BOUNDS)
@@ -97,7 +103,7 @@ public class TargetCoverageReachedStoppingCondition extends StoppingConditionImp
 
     /**
      * Workaround: as coverage on the testSuite is represented as a double between [0.0, 1.0] and stopping conditions use
-     *             longs, we normalize the value for internal use.
+     * longs, we normalize the value for internal use.
      *
      * @param coverage
      * @return
@@ -114,6 +120,6 @@ public class TargetCoverageReachedStoppingCondition extends StoppingConditionImp
      */
     private boolean isInputValid(long limit) {
         return limit < MINIMUM_LIMIT_INPUT_VALUE
-            || limit > MAXIMUM_LIMIT_INPUT_VALUE;
+                || limit > MAXIMUM_LIMIT_INPUT_VALUE;
     }
 }

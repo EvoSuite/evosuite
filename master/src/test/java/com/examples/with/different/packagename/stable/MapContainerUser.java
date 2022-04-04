@@ -24,56 +24,56 @@ import java.util.Map;
 
 public class MapContainerUser {
 
-	private final Map<Object, Object> myMap = new HashMap<>();
+    private final Map<Object, Object> myMap = new HashMap<>();
 
-	private final Map<Object, Object> emptyMap = new HashMap<>();
+    private final Map<Object, Object> emptyMap = new HashMap<>();
 
-	private final Object myKey;
+    private final Object myKey;
 
-	private final Object myValue;
+    private final Object myValue;
 
-	private final Object myOtherKey;
+    private final Object myOtherKey;
 
-	private final Object myOtherValue;
+    private final Object myOtherValue;
 
-	public MapContainerUser() {
-		myKey = new Object();
-		myValue = new Object();
-		myMap.put(myKey, myValue);
-		myOtherKey = new Object();
-		myOtherValue = new Object();
-	}
+    public MapContainerUser() {
+        myKey = new Object();
+        myValue = new Object();
+        myMap.put(myKey, myValue);
+        myOtherKey = new Object();
+        myOtherValue = new Object();
+    }
 
-	public boolean containsKeyShouldReturnTrue() {
-		return myMap.containsKey(myKey);
-	}
+    public boolean containsKeyShouldReturnTrue() {
+        return myMap.containsKey(myKey);
+    }
 
-	public boolean containsValueShouldReturnTrue() {
-		return myMap.containsValue(myValue);
-	}
-	
-	public boolean containsKeyOnEmptyShouldReturnFalse() {
-		return emptyMap.containsKey(myKey);
-	}
+    public boolean containsValueShouldReturnTrue() {
+        return myMap.containsValue(myValue);
+    }
 
-	public boolean containsValueOnEmptyShouldReturnFalse() {
-		return emptyMap.containsValue(myValue);
-	}
+    public boolean containsKeyOnEmptyShouldReturnFalse() {
+        return emptyMap.containsKey(myKey);
+    }
 
-	public boolean containsValueOnNonEmptyShouldReturnFalse() {
-		return myMap.containsValue(myOtherValue);
-	}
+    public boolean containsValueOnEmptyShouldReturnFalse() {
+        return emptyMap.containsValue(myValue);
+    }
 
-	public boolean containsKeyOnNonEmptyShouldReturnFalse() {
-		return myMap.containsKey(myOtherKey);
-	}
+    public boolean containsValueOnNonEmptyShouldReturnFalse() {
+        return myMap.containsValue(myOtherValue);
+    }
 
-	public boolean isEmptyShouldReturnFalse() {
-		return myMap.isEmpty();
-	}
+    public boolean containsKeyOnNonEmptyShouldReturnFalse() {
+        return myMap.containsKey(myOtherKey);
+    }
 
-	public boolean isEmptyShouldReturnTrue() {
-		return emptyMap.isEmpty();
-	}
+    public boolean isEmptyShouldReturnFalse() {
+        return myMap.isEmpty();
+    }
+
+    public boolean isEmptyShouldReturnTrue() {
+        return emptyMap.isEmpty();
+    }
 
 }

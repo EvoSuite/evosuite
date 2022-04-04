@@ -22,11 +22,11 @@ package org.evosuite.symbolic.solver.cvc4;
 import org.evosuite.symbolic.solver.Solver;
 import org.evosuite.symbolic.solver.TestSolverMath;
 
-public class TestCVC4Math  extends TestSolverMath {
+public class TestCVC4Math extends TestSolverMath {
 
-	@Override
-	public Solver getSolver() {
-		return new CVC4Solver();
-	}
+    @Override
+    public Solver getSolver() {
+        return new CVC4Solver();
+    }
 
 }

@@ -24,7 +24,6 @@ import org.evosuite.instrumentation.RegexDistance;
 import org.evosuite.seeding.ConstantPoolManager;
 
 import java.lang.reflect.Field;
-import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -38,10 +37,8 @@ public class StringHelper {
      * editDistance
      * </p>
      *
-     * @param s
-     *            a {@link java.lang.String} object.
-     * @param t
-     *            a {@link java.lang.String} object.
+     * @param s a {@link java.lang.String} object.
+     * @param t a {@link java.lang.String} object.
      * @return a int.
      */
     public static int editDistance(String s, String t) {
@@ -112,19 +109,18 @@ public class StringHelper {
         return p[n];
     }
 
-	/*
-	 * Return a positive number if the 2 strings are equal, or a <=0 value representing
-	 * how different they are
-	 */
+    /*
+     * Return a positive number if the 2 strings are equal, or a <=0 value representing
+     * how different they are
+     */
+
     /**
      * <p>
      * StringEquals
      * </p>
      *
-     * @param first
-     *            a {@link java.lang.String} object.
-     * @param second
-     *            a {@link java.lang.Object} object.
+     * @param first  a {@link java.lang.String} object.
+     * @param second a {@link java.lang.Object} object.
      * @return a int.
      */
     public static int StringEquals(String first, Object second) {
@@ -134,7 +130,7 @@ public class StringHelper {
         }
         // Comparison with null is always false
         if (second == null) {
-            return - BooleanHelper.K;
+            return -BooleanHelper.K;
         }
 
         if (first.equals(second)) {
@@ -145,8 +141,8 @@ public class StringHelper {
             // return -getDistanceBasedOnLeftAlignment(first, second.toString());
             double distance = -getDistanceBasedOnLeftAlignmentCharacterDistance(first, second.toString());
             double d2 = distance / (1.0 + Math.abs(distance));
-			
-			return (int) Math.round(BooleanHelper.K * d2);            
+
+            return (int) Math.round(BooleanHelper.K * d2);
         }
     }
 
@@ -246,10 +242,8 @@ public class StringHelper {
      * getDistanceBasedOnLeftAlignment
      * </p>
      *
-     * @param a
-     *            a {@link java.lang.String} object.
-     * @param b
-     *            a {@link java.lang.String} object.
+     * @param a a {@link java.lang.String} object.
+     * @param b a {@link java.lang.String} object.
      * @return a int.
      */
     protected static int getDistanceBasedOnLeftAlignment(String a, String b) {
@@ -258,11 +252,11 @@ public class StringHelper {
         int max = Math.max(a.length(), b.length());
         differences += (max - min);
         for (int i = 0; i < min; i++) {
-			/*
-			 * Note: instead of just checking for mismatches, we could use something more sophisticated.
-			 * Eg, "a" is closer to "e" than "!". But maybe, considering the type of local search
-			 * we do, we don't need to do it
-			 */
+            /*
+             * Note: instead of just checking for mismatches, we could use something more sophisticated.
+             * Eg, "a" is closer to "e" than "!". But maybe, considering the type of local search
+             * we do, we don't need to do it
+             */
             if (a.charAt(i) != b.charAt(i)) {
                 differences++;
             }
@@ -285,11 +279,11 @@ public class StringHelper {
             int max = Math.max(a.length(), b.length());
             differences += (max - min);
             for (int i = 0; i < min; i++) {
-				/*
-				 * Note: instead of just checking for mismatches, we could use something more sophisticated.
-				 * Eg, "a" is closer to "e" than "!". But maybe, considering the type of local search
-				 * we do, we don't need to do it
-				 */
+                /*
+                 * Note: instead of just checking for mismatches, we could use something more sophisticated.
+                 * Eg, "a" is closer to "e" than "!". But maybe, considering the type of local search
+                 * we do, we don't need to do it
+                 */
                 if (a.charAt(i) != b.charAt(i)) {
                     differences += BooleanHelper.normalize(Math.abs(a.charAt(i) - b.charAt(i)));
                 }
@@ -304,10 +298,8 @@ public class StringHelper {
      * StringEqualsIgnoreCase
      * </p>
      *
-     * @param first
-     *            a {@link java.lang.String} object.
-     * @param second
-     *            a {@link java.lang.String} object.
+     * @param first  a {@link java.lang.String} object.
+     * @param second a {@link java.lang.String} object.
      * @return a int.
      */
     public static int StringEqualsIgnoreCase(String first, String second) {
@@ -321,8 +313,8 @@ public class StringHelper {
         }
         // We may miss locale specific cases of equivalence, so
         // first we check for equivalence using java.lang.String
-        if(first.equalsIgnoreCase(second)) {
-        	return BooleanHelper.K;
+        if (first.equalsIgnoreCase(second)) {
+            return BooleanHelper.K;
         }
         return StringEquals(first.toLowerCase(), second.toLowerCase());
     }
@@ -332,12 +324,9 @@ public class StringHelper {
      * StringStartsWith
      * </p>
      *
-     * @param value
-     *            a {@link java.lang.String} object.
-     * @param prefix
-     *            a {@link java.lang.String} object.
-     * @param start
-     *            a int.
+     * @param value  a {@link java.lang.String} object.
+     * @param prefix a {@link java.lang.String} object.
+     * @param start  a int.
      * @return a int.
      */
     public static int StringStartsWith(String value, String prefix, int start) {
@@ -351,10 +340,8 @@ public class StringHelper {
      * StringEndsWith
      * </p>
      *
-     * @param value
-     *            a {@link java.lang.String} object.
-     * @param suffix
-     *            a {@link java.lang.String} object.
+     * @param value  a {@link java.lang.String} object.
+     * @param suffix a {@link java.lang.String} object.
      * @return a int.
      */
     public static int StringEndsWith(String value, String suffix) {
@@ -369,8 +356,7 @@ public class StringHelper {
      * StringIsEmpty
      * </p>
      *
-     * @param value
-     *            a {@link java.lang.String} object.
+     * @param value a {@link java.lang.String} object.
      * @return a int.
      */
     public static int StringIsEmpty(String value) {
@@ -387,23 +373,17 @@ public class StringHelper {
      * StringRegionMatches
      * </p>
      *
-     * @param value
-     *            a {@link java.lang.String} object.
-     * @param thisStart
-     *            a int.
-     * @param string
-     *            a {@link java.lang.String} object.
-     * @param start
-     *            a int.
-     * @param length
-     *            a int.
-     * @param ignoreCase
-     *            a boolean.
+     * @param value      a {@link java.lang.String} object.
+     * @param thisStart  a int.
+     * @param string     a {@link java.lang.String} object.
+     * @param start      a int.
+     * @param length     a int.
+     * @param ignoreCase a boolean.
      * @return a int.
      */
     public static int StringRegionMatches(String value, boolean ignoreCase,
                                           int thisStart, String string, int start, int length) {
-    	
+
         if (value == null || string == null)
             throw new NullPointerException();
 
@@ -419,8 +399,8 @@ public class StringHelper {
         }
         // We may miss locale specific cases of equivalence, so
         // first we check for equivalence using java.lang.String
-        if(ignoreCase && value.regionMatches(ignoreCase, thisStart, string, start, length)) {
-        	return BooleanHelper.K;
+        if (ignoreCase && value.regionMatches(ignoreCase, thisStart, string, start, length)) {
+            return BooleanHelper.K;
         }
 
         String s1 = value;

@@ -37,70 +37,72 @@ import org.slf4j.LoggerFactory;
  */
 public class RandomLengthTestFactory implements ChromosomeFactory<TestChromosome> {
 
-	private static final long serialVersionUID = -5202578461625984100L;
+    private static final long serialVersionUID = -5202578461625984100L;
 
-	/** Constant <code>logger</code> */
-	protected static final Logger logger = LoggerFactory.getLogger(FixedLengthTestChromosomeFactory.class);
+    /**
+     * Constant <code>logger</code>
+     */
+    protected static final Logger logger = LoggerFactory.getLogger(FixedLengthTestChromosomeFactory.class);
 
-	/**
-	 * Creates a random test case (i.e., a test case consisting of random statements) with the given
-	 * {@code size} as an exclusive upper bound for the number of contained statements. In
-	 * particular, {@code size} is chosen at random from the interval [1, size). This means that
-	 * returned test cases contain at most {@code size - 1} statements. Usually, one can also expect
-	 * the test case to contain at least one statement, but it is still possible that an empty
-	 * test case is returned, although very unlikely.
-	 *
-	 * @param size the upper bound for the test case length
-	 * @return a random test case
-	 */
-	private TestCase getRandomTestCase(int size) {
-		boolean tracerEnabled = ExecutionTracer.isEnabled();
-		if (tracerEnabled)
-			ExecutionTracer.disable();
+    /**
+     * Creates a random test case (i.e., a test case consisting of random statements) with the given
+     * {@code size} as an exclusive upper bound for the number of contained statements. In
+     * particular, {@code size} is chosen at random from the interval [1, size). This means that
+     * returned test cases contain at most {@code size - 1} statements. Usually, one can also expect
+     * the test case to contain at least one statement, but it is still possible that an empty
+     * test case is returned, although very unlikely.
+     *
+     * @param size the upper bound for the test case length
+     * @return a random test case
+     */
+    private TestCase getRandomTestCase(int size) {
+        boolean tracerEnabled = ExecutionTracer.isEnabled();
+        if (tracerEnabled)
+            ExecutionTracer.disable();
 
-		final TestCase test = getNewTestCase();
-		final TestFactory testFactory = TestFactory.getInstance();
+        final TestCase test = getNewTestCase();
+        final TestFactory testFactory = TestFactory.getInstance();
 
-		// Choose a random length between 1 (inclusive) and size (exclusive).
-		final int length = Randomness.nextInt(1, size);
+        // Choose a random length between 1 (inclusive) and size (exclusive).
+        final int length = Randomness.nextInt(1, size);
 
-		// Then add random statements until the test case reaches the chosen length or we run out of
-		// generation attempts.
-		for (int num = 0; test.size() < length && num < Properties.MAX_ATTEMPTS; num++)
-			// NOTE: Even though extremely unlikely, insertRandomStatement could fail every time
-			// with return code -1, thus eventually exceeding MAX_ATTEMPTS. In this case, the
-			// returned test case would indeed be empty!
-			testFactory.insertRandomStatement(test, test.size() - 1);
+        // Then add random statements until the test case reaches the chosen length or we run out of
+        // generation attempts.
+        for (int num = 0; test.size() < length && num < Properties.MAX_ATTEMPTS; num++)
+            // NOTE: Even though extremely unlikely, insertRandomStatement could fail every time
+            // with return code -1, thus eventually exceeding MAX_ATTEMPTS. In this case, the
+            // returned test case would indeed be empty!
+            testFactory.insertRandomStatement(test, test.size() - 1);
 
-		if (logger.isDebugEnabled())
-			logger.debug("Randomized test case:" + test.toCode());
+        if (logger.isDebugEnabled())
+            logger.debug("Randomized test case:" + test.toCode());
 
-		if (tracerEnabled)
-			ExecutionTracer.enable();
+        if (tracerEnabled)
+            ExecutionTracer.enable();
 
-		return test;
-	}
+        return test;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 * 
-	 * Generate a random chromosome
-	 */
-	@Override
-	public TestChromosome getChromosome() {
-		TestChromosome c = new TestChromosome();
-		c.setTestCase(getRandomTestCase(Properties.CHROMOSOME_LENGTH));
-		return c;
-	}
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Generate a random chromosome
+     */
+    @Override
+    public TestChromosome getChromosome() {
+        TestChromosome c = new TestChromosome();
+        c.setTestCase(getRandomTestCase(Properties.CHROMOSOME_LENGTH));
+        return c;
+    }
 
-	/**
-	 * Provided so that subtypes of this factory type can modify the returned
-	 * TestCase
-	 * 
-	 * @return a {@link org.evosuite.testcase.TestCase} object.
-	 */
-	protected TestCase getNewTestCase() {
-		return new DefaultTestCase(); // empty test case
-	}
+    /**
+     * Provided so that subtypes of this factory type can modify the returned
+     * TestCase
+     *
+     * @return a {@link org.evosuite.testcase.TestCase} object.
+     */
+    protected TestCase getNewTestCase() {
+        return new DefaultTestCase(); // empty test case
+    }
 
 }

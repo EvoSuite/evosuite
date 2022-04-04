@@ -31,7 +31,8 @@ import org.slf4j.LoggerFactory;
 import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
-import java.util.*;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import static org.evosuite.coverage.io.IOCoverageConstants.*;
 
@@ -115,7 +116,9 @@ public class OutputCoverageGoal implements Serializable, Comparable<OutputCovera
         return valueDescriptor;
     }
 
-    public Number getNumericValue() { return numericValue; }
+    public Number getNumericValue() {
+        return numericValue;
+    }
 
     // inherited from Object
 
@@ -169,10 +172,7 @@ public class OutputCoverageGoal implements Serializable, Comparable<OutputCovera
         if ((this.valueDescriptor == null && other.valueDescriptor != null) || (this.valueDescriptor != null && other.valueDescriptor == null))
             return false;
 
-        if (valueDescriptor != null && !this.valueDescriptor.equals(other.valueDescriptor))
-            return false;
-
-        return true;
+        return valueDescriptor == null || this.valueDescriptor.equals(other.valueDescriptor);
     }
 
     @Override
@@ -197,7 +197,7 @@ public class OutputCoverageGoal implements Serializable, Comparable<OutputCovera
 
         Set<OutputCoverageGoal> goals = new LinkedHashSet<>();
 
-        if (! DependencyAnalysis.isTargetClassName(className))
+        if (!DependencyAnalysis.isTargetClassName(className))
             return goals;
         if (methodName.equals("hashCode"))
             return goals;
@@ -206,8 +206,8 @@ public class OutputCoverageGoal implements Serializable, Comparable<OutputCovera
         Type returnType = Type.getReturnType(methodDesc);
 
         int typeSort = returnType.getSort();
-        if(typeSort == Type.OBJECT && returnValue != null) {
-            if(ClassUtils.isPrimitiveWrapper(returnValue.getClass())) {
+        if (typeSort == Type.OBJECT && returnValue != null) {
+            if (ClassUtils.isPrimitiveWrapper(returnValue.getClass())) {
                 typeSort = Type.getType(ClassUtils.wrapperToPrimitive(returnValue.getClass())).getSort();
             }
         }
@@ -232,10 +232,10 @@ public class OutputCoverageGoal implements Serializable, Comparable<OutputCovera
             case Type.LONG:
             case Type.DOUBLE:
                 assert (returnValue instanceof Number);
-                if(isJavaNumber(returnValue)) {
+                if (isJavaNumber(returnValue)) {
                     double value = ((Number) returnValue).doubleValue();
                     String numDesc = (value < 0) ? NUM_NEGATIVE : (value == 0) ? NUM_ZERO : NUM_POSITIVE;
-                    goals.add(new OutputCoverageGoal(className, methodNameWithDesc, returnType, numDesc, (Number)returnValue));
+                    goals.add(new OutputCoverageGoal(className, methodNameWithDesc, returnType, numDesc, (Number) returnValue));
                 }
                 break;
             case Type.ARRAY:
@@ -252,16 +252,16 @@ public class OutputCoverageGoal implements Serializable, Comparable<OutputCovera
                 else {
                     goals.add(new OutputCoverageGoal(className, methodNameWithDesc, returnType, REF_NONNULL));
                     if (returnType.getClassName().equals("java.lang.String")) {
-                        String valDesc = ((String)returnValue).isEmpty() ? STRING_EMPTY : STRING_NONEMPTY;
+                        String valDesc = ((String) returnValue).isEmpty() ? STRING_EMPTY : STRING_NONEMPTY;
                         goals.add(new OutputCoverageGoal(className, methodNameWithDesc, returnType, valDesc));
                         break;
                     }
-                    for(Inspector inspector : InspectorManager.getInstance().getInspectors(returnValue.getClass())) {
+                    for (Inspector inspector : InspectorManager.getInstance().getInspectors(returnValue.getClass())) {
                         String insp = inspector.getMethodCall() + Type.getMethodDescriptor(inspector.getMethod());
                         try {
                             Object val = inspector.getValue(returnValue);
                             if (val instanceof Boolean) {
-                                String valDesc = ((boolean)val) ? BOOL_TRUE : BOOL_FALSE;
+                                String valDesc = ((boolean) val) ? BOOL_TRUE : BOOL_FALSE;
                                 goals.add(new OutputCoverageGoal(className, methodNameWithDesc, returnType, REF_NONNULL + ":" + returnType.getClassName() + ":" + insp + ":" + valDesc));
                             } else if (isJavaNumber(val)) {
                                 double dv = ((Number) val).doubleValue();
@@ -271,7 +271,7 @@ public class OutputCoverageGoal implements Serializable, Comparable<OutputCovera
                         } catch (InvocationTargetException e) {
                             // Exceptions in inspectors can happen
                             logger.debug(e.getMessage(), e);
-                        } catch(IllegalAccessException e) {
+                        } catch (IllegalAccessException e) {
                             logger.warn(e.getMessage(), e);
                         }
                     }
@@ -294,7 +294,7 @@ public class OutputCoverageGoal implements Serializable, Comparable<OutputCovera
      * @param val
      * @return
      */
-    private static boolean isJavaNumber(Object val){
+    private static boolean isJavaNumber(Object val) {
         return val instanceof Number && val.getClass().getName().startsWith("java.");
     }
 

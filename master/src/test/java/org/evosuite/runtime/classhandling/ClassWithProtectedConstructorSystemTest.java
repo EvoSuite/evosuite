@@ -41,57 +41,57 @@ import static org.junit.Assert.assertFalse;
  */
 public class ClassWithProtectedConstructorSystemTest extends SystemTestBase {
 
-	private Path testPath;
+    private Path testPath;
 
-	@Before
-	public void setupTempDir() throws IOException {
-		Properties.JUNIT_TESTS = true;
-		testPath = Files.createTempDirectory("foobar");
-		Properties.TEST_DIR = testPath.toString();
-	}
+    @Before
+    public void setupTempDir() throws IOException {
+        Properties.JUNIT_TESTS = true;
+        testPath = Files.createTempDirectory("foobar");
+        Properties.TEST_DIR = testPath.toString();
+    }
 
-	@Test
-	public void shouldNotGenerateTryCatchForIllegalAccessException() throws IOException {
+    @Test
+    public void shouldNotGenerateTryCatchForIllegalAccessException() throws IOException {
 
-		// run EvoSuite
-		EvoSuite evosuite = new EvoSuite();
-		String targetClass = com.examples.with.different.packagename.listclasses.ClassWithProtectedMethods.class.getCanonicalName();
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+        // run EvoSuite
+        EvoSuite evosuite = new EvoSuite();
+        String targetClass = com.examples.with.different.packagename.listclasses.ClassWithProtectedMethods.class.getCanonicalName();
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
 
-		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
+        Object result = evosuite.parseCommandLine(command);
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
 
-		String name = targetClass.substring(targetClass.lastIndexOf(".") + 1) + Properties.JUNIT_SUFFIX;
+        String name = targetClass.substring(targetClass.lastIndexOf(".") + 1) + Properties.JUNIT_SUFFIX;
 
-		// check that the test suite was created
-		String junitFile = Properties.TEST_DIR + File.separatorChar +
-				Properties.CLASS_PREFIX.replace('.', File.separatorChar) + File.separatorChar +
-				name + ".java";
-		Path path = Paths.get(junitFile);
-		Assert.assertTrue("Test Suite does not exist: "+path, Files.exists(path));
-		System.out.println(path);
+        // check that the test suite was created
+        String junitFile = Properties.TEST_DIR + File.separatorChar +
+                Properties.CLASS_PREFIX.replace('.', File.separatorChar) + File.separatorChar +
+                name + ".java";
+        Path path = Paths.get(junitFile);
+        Assert.assertTrue("Test Suite does not exist: " + path, Files.exists(path));
+        System.out.println(path);
 
-		String testCode = new String(Files.readAllBytes(path));
-		Files.delete(path);
-		System.out.println(testCode);
-		assertFalse("IllegalAccessException should not occur", testCode.contains("catch(IllegalAccessException e)"));
-	}
+        String testCode = new String(Files.readAllBytes(path));
+        Files.delete(path);
+        System.out.println(testCode);
+        assertFalse("IllegalAccessException should not occur", testCode.contains("catch(IllegalAccessException e)"));
+    }
 
-	@After
-	public void removeTempDir() throws IOException {
-		Files.walkFileTree(testPath, new SimpleFileVisitor<Path>() {
-			@Override
-			public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-				Files.delete(file);
-				return FileVisitResult.CONTINUE;
-			}
+    @After
+    public void removeTempDir() throws IOException {
+        Files.walkFileTree(testPath, new SimpleFileVisitor<Path>() {
+            @Override
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                Files.delete(file);
+                return FileVisitResult.CONTINUE;
+            }
 
-			@Override
-			public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-				Files.delete(dir);
-				return FileVisitResult.CONTINUE;
-			}
-		});
-	}
+            @Override
+            public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+                Files.delete(dir);
+                return FileVisitResult.CONTINUE;
+            }
+        });
+    }
 }

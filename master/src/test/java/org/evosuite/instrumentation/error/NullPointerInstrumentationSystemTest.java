@@ -27,32 +27,32 @@ import com.examples.with.different.packagename.errorbranch.Methodcall;
 
 public class NullPointerInstrumentationSystemTest extends AbstractErrorBranchTest {
 
-	@Test
-	public void testMethodCallWithoutErrorBranches() {
-		Properties.ERROR_BRANCHES = false;
-		Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.NPE};
-		checkErrorBranches(Methodcall.class, 2, 0, 2, 0);
-	}
+    @Test
+    public void testMethodCallWithoutErrorBranches() {
+        Properties.ERROR_BRANCHES = false;
+        Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.NPE};
+        checkErrorBranches(Methodcall.class, 2, 0, 2, 0);
+    }
 
-	@Test
-	public void testMethodCallWithErrorBranches() {
-		Properties.ERROR_BRANCHES = true;
-		Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.NPE};
-		checkErrorBranches(Methodcall.class, 2, 2, 2, 2);
-	}
+    @Test
+    public void testMethodCallWithErrorBranches() {
+        Properties.ERROR_BRANCHES = true;
+        Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.NPE};
+        checkErrorBranches(Methodcall.class, 2, 2, 2, 2);
+    }
 
-	@Test
-	public void testFieldWithoutErrorBranches() {
-		Properties.ERROR_BRANCHES = false;
-		Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.NPE};
-		checkErrorBranches(Fieldaccess.class, 2, 0, 2, 0);
-	}
+    @Test
+    public void testFieldWithoutErrorBranches() {
+        Properties.ERROR_BRANCHES = false;
+        Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.NPE};
+        checkErrorBranches(Fieldaccess.class, 2, 0, 2, 0);
+    }
 
-	@Test
-	public void testFieldWithErrorBranches() {
-		Properties.ERROR_BRANCHES = true;
-		Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.NPE};
-		checkErrorBranches(Fieldaccess.class, 2, 4, 2, 3);
-	}
+    @Test
+    public void testFieldWithErrorBranches() {
+        Properties.ERROR_BRANCHES = true;
+        Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.NPE};
+        checkErrorBranches(Fieldaccess.class, 2, 4, 2, 3);
+    }
 
 }

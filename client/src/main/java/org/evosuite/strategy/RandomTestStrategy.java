@@ -19,124 +19,122 @@
  */
 package org.evosuite.strategy;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.evosuite.Properties;
 import org.evosuite.coverage.TestFitnessFactory;
-import org.evosuite.rmi.ClientServices;
-import org.evosuite.rmi.service.ClientState;
+import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.archive.ArchiveTestChromosomeFactory;
-import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.stoppingconditions.MaxTestsStoppingCondition;
 import org.evosuite.ga.stoppingconditions.StoppingCondition;
+import org.evosuite.rmi.ClientServices;
+import org.evosuite.rmi.service.ClientState;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.statistics.StatisticsSender;
+import org.evosuite.testcase.TestChromosome;
+import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.factories.AllMethodsTestChromosomeFactory;
 import org.evosuite.testcase.factories.JUnitTestCarvedChromosomeFactory;
 import org.evosuite.testcase.factories.RandomLengthTestFactory;
-import org.evosuite.testcase.TestChromosome;
-import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.evosuite.utils.LoggingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Iteratively generate random tests. If adding the random test
  * leads to improved fitness, keep it, otherwise drop it again.
- * 
- * @author gordon
  *
+ * @author gordon
  */
 public class RandomTestStrategy extends TestGenerationStrategy {
 
-	private static final Logger logger = LoggerFactory.getLogger(RandomTestStrategy.class);
-	
-	@Override
-	public TestSuiteChromosome generateTests() {
-		LoggingUtils.getEvoLogger().info("* Using random test generation");
+    private static final Logger logger = LoggerFactory.getLogger(RandomTestStrategy.class);
 
-		List<TestSuiteFitnessFunction> fitnessFunctions = getFitnessFunctions();
+    @Override
+    public TestSuiteChromosome generateTests() {
+        LoggingUtils.getEvoLogger().info("* Using random test generation");
 
-		TestSuiteChromosome suite = new TestSuiteChromosome();
-		for (TestSuiteFitnessFunction fitnessFunction : fitnessFunctions)
-			suite.addFitness( fitnessFunction);
+        List<TestSuiteFitnessFunction> fitnessFunctions = getFitnessFunctions();
 
-		List<TestFitnessFactory<? extends TestFitnessFunction>> goalFactories = getFitnessFactories();
-		List<TestFitnessFunction> goals = new ArrayList<>();
-		LoggingUtils.getEvoLogger().info("* Total number of test goals: ");
-		for (TestFitnessFactory<? extends TestFitnessFunction> goalFactory : goalFactories) {
-			goals.addAll(goalFactory.getCoverageGoals());
-			LoggingUtils.getEvoLogger().info("  - " + goalFactory.getClass().getSimpleName().replace("CoverageFactory", "")
-					+ " " + goalFactory.getCoverageGoals().size());
-		}
-		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Goals,
-				goals.size());
+        TestSuiteChromosome suite = new TestSuiteChromosome();
+        for (TestSuiteFitnessFunction fitnessFunction : fitnessFunctions)
+            suite.addFitness(fitnessFunction);
 
-		if(!canGenerateTestsForSUT()) {
-			LoggingUtils.getEvoLogger().info("* Found no testable methods in the target class "
-					+ Properties.TARGET_CLASS);
-			return new TestSuiteChromosome();
-		}
-		ChromosomeFactory<TestChromosome> factory = getChromosomeFactory();
+        List<TestFitnessFactory<? extends TestFitnessFunction>> goalFactories = getFitnessFactories();
+        List<TestFitnessFunction> goals = new ArrayList<>();
+        LoggingUtils.getEvoLogger().info("* Total number of test goals: ");
+        for (TestFitnessFactory<? extends TestFitnessFunction> goalFactory : goalFactories) {
+            goals.addAll(goalFactory.getCoverageGoals());
+            LoggingUtils.getEvoLogger().info("  - " + goalFactory.getClass().getSimpleName().replace("CoverageFactory", "")
+                    + " " + goalFactory.getCoverageGoals().size());
+        }
+        ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Goals,
+                goals.size());
 
-		StoppingCondition<TestSuiteChromosome> stoppingCondition = getStoppingCondition();
-		for (FitnessFunction<TestSuiteChromosome> fitness_function : fitnessFunctions)
-			fitness_function.getFitness(suite);
-		ClientServices.getInstance().getClientNode().changeState(ClientState.SEARCH);
+        if (!canGenerateTestsForSUT()) {
+            LoggingUtils.getEvoLogger().info("* Found no testable methods in the target class "
+                    + Properties.TARGET_CLASS);
+            return new TestSuiteChromosome();
+        }
+        ChromosomeFactory<TestChromosome> factory = getChromosomeFactory();
 
-		int number_generations = 0;
-		while (!isFinished(suite, stoppingCondition)) {
-			number_generations++;
-			TestChromosome test = factory.getChromosome();
-			TestSuiteChromosome clone = suite.clone();
-			clone.addTest(test);
-			for (FitnessFunction<TestSuiteChromosome> fitness_function : fitnessFunctions) {
-				fitness_function.getFitness(clone);
-				logger.debug("Old fitness: {}, new fitness: {}", suite.getFitness(),
-						clone.getFitness());
-			}
-			if (clone.compareTo(suite) < 0) {
-				suite = clone;
-				StatisticsSender.executedAndThenSendIndividualToMaster(clone);				
-			}
-		}
-		//statistics.searchFinished(suiteGA);
-		LoggingUtils.getEvoLogger().info("* Search Budget:");
-		LoggingUtils.getEvoLogger().info("\t- " + stoppingCondition.toString());
-		
-		// In the GA, these statistics are sent via the SearchListener when notified about the GA completing
-		// Search is finished, send statistics
-		sendExecutionStatistics();
+        StoppingCondition<TestSuiteChromosome> stoppingCondition = getStoppingCondition();
+        for (FitnessFunction<TestSuiteChromosome> fitness_function : fitnessFunctions)
+            fitness_function.getFitness(suite);
+        ClientServices.getInstance().getClientNode().changeState(ClientState.SEARCH);
 
-		// TODO: Check this: Fitness_Evaluations = getNumExecutedTests?
-		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Fitness_Evaluations, MaxTestsStoppingCondition.getNumExecutedTests());
-		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Generations, number_generations);
+        int number_generations = 0;
+        while (!isFinished(suite, stoppingCondition)) {
+            number_generations++;
+            TestChromosome test = factory.getChromosome();
+            TestSuiteChromosome clone = suite.clone();
+            clone.addTest(test);
+            for (FitnessFunction<TestSuiteChromosome> fitness_function : fitnessFunctions) {
+                fitness_function.getFitness(clone);
+                logger.debug("Old fitness: {}, new fitness: {}", suite.getFitness(),
+                        clone.getFitness());
+            }
+            if (clone.compareTo(suite) < 0) {
+                suite = clone;
+                StatisticsSender.executedAndThenSendIndividualToMaster(clone);
+            }
+        }
+        //statistics.searchFinished(suiteGA);
+        LoggingUtils.getEvoLogger().info("* Search Budget:");
+        LoggingUtils.getEvoLogger().info("\t- " + stoppingCondition);
 
-		return suite;	
-	}
+        // In the GA, these statistics are sent via the SearchListener when notified about the GA completing
+        // Search is finished, send statistics
+        sendExecutionStatistics();
 
-	protected ChromosomeFactory<TestChromosome> getChromosomeFactory() {
-		switch (Properties.TEST_FACTORY) {
-		case ALLMETHODS:
-			return new AllMethodsTestChromosomeFactory();
-		case RANDOM:
-			return new RandomLengthTestFactory();
-		case ARCHIVE:
-			return new ArchiveTestChromosomeFactory();
-		case JUNIT:
-			return new JUnitTestCarvedChromosomeFactory(
-					new RandomLengthTestFactory());
-		default:
-			throw new RuntimeException("Unsupported test factory: "
-					+ Properties.TEST_FACTORY);
-		}
-		
-	}
-	
+        // TODO: Check this: Fitness_Evaluations = getNumExecutedTests?
+        ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Fitness_Evaluations, MaxTestsStoppingCondition.getNumExecutedTests());
+        ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Generations, number_generations);
 
-	
+        return suite;
+    }
+
+    protected ChromosomeFactory<TestChromosome> getChromosomeFactory() {
+        switch (Properties.TEST_FACTORY) {
+            case ALLMETHODS:
+                return new AllMethodsTestChromosomeFactory();
+            case RANDOM:
+                return new RandomLengthTestFactory();
+            case ARCHIVE:
+                return new ArchiveTestChromosomeFactory();
+            case JUNIT:
+                return new JUnitTestCarvedChromosomeFactory(
+                        new RandomLengthTestFactory());
+            default:
+                throw new RuntimeException("Unsupported test factory: "
+                        + Properties.TEST_FACTORY);
+        }
+
+    }
+
+
 }

@@ -21,13 +21,13 @@ package com.examples.with.different.packagename.solver;
 
 public class TestCaseStringReplaceFirst {
 
-	public static boolean test(String str) {
-		if (str != null) {
-			String replace = str.replaceFirst("x", "y");
-			if (replace.equals("happy")) {
-				return true;
-			}
-		}
-		return true;
-	}
+    public static boolean test(String str) {
+        if (str != null) {
+            String replace = str.replaceFirst("x", "y");
+            if (replace.equals("happy")) {
+                return true;
+            }
+        }
+        return true;
+    }
 }

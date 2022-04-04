@@ -41,7 +41,6 @@ import org.evosuite.testcase.variable.VariableReferenceImpl;
 import org.evosuite.utils.generic.GenericClassFactory;
 import org.evosuite.utils.generic.GenericMethod;
 import org.junit.After;
-import static org.junit.Assert.*;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -53,6 +52,7 @@ import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -64,25 +64,31 @@ public class FunctionalMockStatementTest {
     private static final int DEFAULT_LIMIT = Properties.FUNCTIONAL_MOCKING_INPUT_LIMIT;
 
     @After
-    public void tearDown(){
+    public void tearDown() {
         Properties.FUNCTIONAL_MOCKING_INPUT_LIMIT = DEFAULT_LIMIT;
     }
 
-    public interface Foo{
+    public interface Foo {
         boolean getBoolean();
+
         int getInt();
+
         double getDouble();
+
         String getString();
+
         long getLong();
+
         Object getObject();
+
         String[] getStringArray(int[] input);
     }
 
-    public static int base(Foo foo){
+    public static int base(Foo foo) {
         return foo.getInt();
     }
 
-    public static void all_once(Foo foo){
+    public static void all_once(Foo foo) {
         foo.getBoolean();
         foo.getInt();
         foo.getDouble();
@@ -92,68 +98,69 @@ public class FunctionalMockStatementTest {
         foo.getStringArray(null);
     }
 
-    public static void all_twice(Foo foo){
+    public static void all_twice(Foo foo) {
         all_once(foo);
         all_once(foo);
     }
 
-    public static String getFirstInArray(Foo foo){
+    public static String getFirstInArray(Foo foo) {
         int[] anArray = new int[]{123};
         String[] res = foo.getStringArray(anArray);
-        if(res==null){
+        if (res == null) {
             return null;
         }
         return res[0];
     }
 
-    public static void limit(Foo foo, int x){
-        for(int i=0; i<x ; i++){
+    public static void limit(Foo foo, int x) {
+        for (int i = 0; i < x; i++) {
             foo.getBoolean();
         }
     }
 
-    private Scope execute(TestCase tc) throws Exception{
+    private Scope execute(TestCase tc) throws Exception {
         Scope scope = new Scope();
-        for(Statement st : tc){
-            st.execute(scope,System.out);
+        for (Statement st : tc) {
+            st.execute(scope, System.out);
         }
         return scope;
     }
 
-    static class PackageLevel{
-        PackageLevel(){}
+    static class PackageLevel {
+        PackageLevel() {
+        }
     }
 
-    public static class AClassWithPLMethod{
+    public static class AClassWithPLMethod {
 
-        String foo(){
+        String foo() {
             return "Value returned by package-level access method";
         }
     }
 
-    public static class OverrideToString{
+    public static class OverrideToString {
         @Override
-        public String toString(){
+        public String toString() {
             return "foo";
         }
     }
 
-    public static abstract class OverrideToStringAbstract  implements java.io.Serializable {
+    public static abstract class OverrideToStringAbstract implements java.io.Serializable {
         @Override
-        public String toString(){
+        public String toString() {
             return "foo";
         }
 
         public abstract double foo();
 
-        public int bar(){return 1;}
+        public int bar() {
+            return 1;
+        }
 
         private static final long serialVersionUID = -8742448824652078965L;
     }
 
     //----------------------------------------------------------------------------------
-
-
 
 
     @Ignore
@@ -165,7 +172,7 @@ public class FunctionalMockStatementTest {
     }
 
     @Test
-    public void testConfirmToString(){
+    public void testConfirmToString() {
         String res = new OverrideToString().toString();
         String diff = res + " a different string";
 
@@ -176,7 +183,7 @@ public class FunctionalMockStatementTest {
     }
 
     @Test
-    public void testConfirmToStringAbstract(){
+    public void testConfirmToStringAbstract() {
 
         String diff = " a different string";
 
@@ -187,7 +194,7 @@ public class FunctionalMockStatementTest {
     }
 
     @Test
-    public void testConfirmNumber(){
+    public void testConfirmNumber() {
         String foo = "foo";
         Number number = mock(Number.class);
         when(number.toString()).thenReturn(foo);
@@ -197,19 +204,19 @@ public class FunctionalMockStatementTest {
 
 
     @Test
-    public void testConfirmNumberExternalNoMockJVMNonDeterminism() throws Exception{
+    public void testConfirmNumberExternalNoMockJVMNonDeterminism() throws Exception {
         RuntimeSettings.mockJVMNonDeterminism = false;
         testConfirmNumberExternal();
     }
 
     @Test
-    public void testConfirmNumberExternalWithMockJVMNonDeterminism() throws Exception{
+    public void testConfirmNumberExternalWithMockJVMNonDeterminism() throws Exception {
         RuntimeSettings.mockJVMNonDeterminism = true;
         testConfirmNumberExternal();
     }
 
 
-    private void testConfirmNumberExternal() throws Exception{
+    private void testConfirmNumberExternal() throws Exception {
         assertEquals(IssueWithNumber.RESULT, IssueWithNumber.getResult());
 
         RuntimeInstrumentation.setAvoidInstrumentingShadedClasses(true);
@@ -227,9 +234,8 @@ public class FunctionalMockStatementTest {
     }
 
 
-
     @Test
-    public void testConfirmPackageLevel() throws Exception{
+    public void testConfirmPackageLevel() throws Exception {
 
         Method m = AClassWithPLMethod.class.getDeclaredMethod("foo");
         assertFalse(Modifier.isPrivate(m.getModifiers()));
@@ -259,7 +265,7 @@ public class FunctionalMockStatementTest {
 
 
     @Test
-    public void testConfirmCast(){
+    public void testConfirmCast() {
 
         //note: TypeUtils can give different results because it takes autoboxing into account
 
@@ -307,14 +313,14 @@ public class FunctionalMockStatementTest {
         try {
             casted = Integer.TYPE.cast(aChar);
             fail();
-        } catch (Exception e){
+        } catch (Exception e) {
             //expected: cannot do direct cast from "Character" to "int"
         }
 
         try {
             casted = Integer.TYPE.cast(aChar);
             fail();
-        } catch (Exception e){
+        } catch (Exception e) {
             //expected: "cast" takes an Object as input, so it does autoboxing :(
         }
 
@@ -324,20 +330,20 @@ public class FunctionalMockStatementTest {
     }
 
     @Test
-    public void testAvoidMockingEnvironment(){
+    public void testAvoidMockingEnvironment() {
         final boolean defaultValue = RuntimeSettings.useVFS;
         RuntimeSettings.useVFS = true;
 
         try {
             Assert.assertFalse(FunctionalMockStatement.canBeFunctionalMocked(File.class));
-        } catch(Throwable t){
+        } catch (Throwable t) {
             RuntimeSettings.useVFS = defaultValue;
         }
     }
 
 
     @Test
-    public void testPackageLevel_local()  throws Exception{
+    public void testPackageLevel_local() throws Exception {
         TestCase tc = new DefaultTestCase();
 
         VariableReference ref = new VariableReferenceImpl(tc, PackageLevel.class);
@@ -345,7 +351,7 @@ public class FunctionalMockStatementTest {
         try {
             FunctionalMockStatement mockStmt = new FunctionalMockStatement(tc, ref, GenericClassFactory.get(PackageLevel.class));
             fail();
-        } catch (java.lang.IllegalArgumentException e){
+        } catch (java.lang.IllegalArgumentException e) {
             //expected
         }
 
@@ -355,7 +361,7 @@ public class FunctionalMockStatementTest {
 
 
     @Test
-    public void testPackageLevel_differentPackage()  throws Exception{
+    public void testPackageLevel_differentPackage() throws Exception {
         TestCase tc = new DefaultTestCase();
 
         Class<?> example = Class.forName("com.examples.with.different.packagename.fm.ExamplePackageLevel");
@@ -365,7 +371,7 @@ public class FunctionalMockStatementTest {
         try {
             FunctionalMockStatement mockStmt = new FunctionalMockStatement(tc, ref, GenericClassFactory.get(example));
             fail();
-        } catch (java.lang.IllegalArgumentException e){
+        } catch (java.lang.IllegalArgumentException e) {
             //expected
         }
 
@@ -374,7 +380,7 @@ public class FunctionalMockStatementTest {
     }
 
     @Test
-    public void testPackageLevel_differentPackage_instrumentation_package()  throws Exception{
+    public void testPackageLevel_differentPackage_instrumentation_package() throws Exception {
         TestCase tc = new DefaultTestCase();
 
         ClassPathHandler.getInstance().changeTargetCPtoTheSameAsEvoSuite();
@@ -386,7 +392,7 @@ public class FunctionalMockStatementTest {
         try {
             FunctionalMockStatement mockStmt = new FunctionalMockStatement(tc, ref, GenericClassFactory.get(example));
             fail();
-        } catch (java.lang.IllegalArgumentException e){
+        } catch (java.lang.IllegalArgumentException e) {
             //expected
         }
 
@@ -395,7 +401,7 @@ public class FunctionalMockStatementTest {
     }
 
     @Test
-    public void testPackageLevel_differentPackage_nonInstrumentation_package()  throws Exception{
+    public void testPackageLevel_differentPackage_nonInstrumentation_package() throws Exception {
         TestCase tc = new DefaultTestCase();
 
         ClassPathHandler.getInstance().changeTargetCPtoTheSameAsEvoSuite();
@@ -407,7 +413,7 @@ public class FunctionalMockStatementTest {
         try {
             FunctionalMockStatement mockStmt = new FunctionalMockStatement(tc, ref, GenericClassFactory.get(example));
             fail();
-        } catch (java.lang.IllegalArgumentException e){
+        } catch (java.lang.IllegalArgumentException e) {
             //expected
         }
 
@@ -421,7 +427,7 @@ public class FunctionalMockStatementTest {
      * solution to fix this test, hence I've marked it as ignored. (Gordon, 9.2.2018)
      */
     @Test
-    public void testPackageLevel_differentPackage_instrumentation_public()  throws Exception{
+    public void testPackageLevel_differentPackage_instrumentation_public() throws Exception {
         TestCase tc = new DefaultTestCase();
 
         RuntimeInstrumentation.setAvoidInstrumentingShadedClasses(true);
@@ -439,24 +445,24 @@ public class FunctionalMockStatementTest {
 
 
     @Test
-    public void testLimit() throws Exception{
+    public void testLimit() throws Exception {
 
         TestCase tc = new DefaultTestCase();
 
         final int LIMIT_5 = 5;
         Properties.FUNCTIONAL_MOCKING_INPUT_LIMIT = LIMIT_5;
-        final int LOOP_0 = 0, LOOP_3 = 3 , LOOP_5 = 5, LOOP_7 = 7;
+        final int LOOP_0 = 0, LOOP_3 = 3, LOOP_5 = 5, LOOP_7 = 7;
 
 
         IntPrimitiveStatement x = new IntPrimitiveStatement(tc, LOOP_3);
-        VariableReference loop  = tc.addStatement(x);
-        VariableReference boolRef = tc.addStatement(new BooleanPrimitiveStatement(tc,true));
+        VariableReference loop = tc.addStatement(x);
+        VariableReference boolRef = tc.addStatement(new BooleanPrimitiveStatement(tc, true));
         VariableReference ref = new VariableReferenceImpl(tc, Foo.class);
         FunctionalMockStatement mockStmt = new FunctionalMockStatement(tc, ref, GenericClassFactory.get(Foo.class));
         VariableReference mock = tc.addStatement(mockStmt);
         tc.addStatement(new MethodStatement(tc,
                 new GenericMethod(this.getClass().getDeclaredMethod("limit", Foo.class, int.class), FunctionalMockStatementTest.class),
-                null, Arrays.asList(mock,loop)));
+                null, Arrays.asList(mock, loop)));
 
         //execute first time with default mock
         execute(tc);
@@ -464,8 +470,8 @@ public class FunctionalMockStatementTest {
         Assert.assertTrue(mockStmt.doesNeedToUpdateInputs());
         List<Type> types = mockStmt.updateMockedMethods();
         Assert.assertEquals(LOOP_3, types.size());
-        for(Type t : types){
-            Assert.assertEquals(boolean.class , t);
+        for (Type t : types) {
+            Assert.assertEquals(boolean.class, t);
         }
         //add the 3 missing values
         mockStmt.addMissingInputs(Arrays.asList(boolRef, boolRef, boolRef));
@@ -478,8 +484,8 @@ public class FunctionalMockStatementTest {
         Assert.assertTrue(mockStmt.doesNeedToUpdateInputs());
         types = mockStmt.updateMockedMethods();
         Assert.assertEquals(LOOP_5 - LOOP_3, types.size());
-        for(Type t : types){
-            Assert.assertEquals(boolean.class , t);
+        for (Type t : types) {
+            Assert.assertEquals(boolean.class, t);
         }
         //add the 2 missing values
         mockStmt.addMissingInputs(Arrays.asList(boolRef, boolRef));
@@ -526,7 +532,7 @@ public class FunctionalMockStatementTest {
 
 
     @Test
-    public void testAll_once()  throws Exception {
+    public void testAll_once() throws Exception {
         TestCase tc = new DefaultTestCase();
 
         VariableReference ref = new VariableReferenceImpl(tc, Foo.class);
@@ -544,11 +550,11 @@ public class FunctionalMockStatementTest {
 
         Assert.assertTrue(mockStmt.doesNeedToUpdateInputs());
         List<Type> types = mockStmt.updateMockedMethods();
-        Assert.assertEquals(7,types.size());
+        Assert.assertEquals(7, types.size());
     }
 
     @Test
-    public void testAll_twice()  throws Exception {
+    public void testAll_twice() throws Exception {
         TestCase tc = new DefaultTestCase();
 
         VariableReference ref = new VariableReferenceImpl(tc, Foo.class);
@@ -566,12 +572,12 @@ public class FunctionalMockStatementTest {
 
         Assert.assertTrue(mockStmt.doesNeedToUpdateInputs());
         List<Type> types = mockStmt.updateMockedMethods();
-        Assert.assertEquals(14,types.size());
+        Assert.assertEquals(14, types.size());
     }
 
 
     @Test
-    public void testArray() throws Exception{
+    public void testArray() throws Exception {
         TestCase tc = new DefaultTestCase();
 
         /*
@@ -583,8 +589,8 @@ public class FunctionalMockStatementTest {
          */
 
         final String MOCKED_VALUE = "Hello 42!!!";
-        VariableReference aString  = tc.addStatement(new StringPrimitiveStatement(tc, MOCKED_VALUE));
-        ArrayReference mockedArray = (ArrayReference) tc.addStatement(new ArrayStatement(tc,String[].class,1));
+        VariableReference aString = tc.addStatement(new StringPrimitiveStatement(tc, MOCKED_VALUE));
+        ArrayReference mockedArray = (ArrayReference) tc.addStatement(new ArrayStatement(tc, String[].class, 1));
         ArrayIndex arrayIndex = new ArrayIndex(tc, mockedArray, 0);
         AssignmentStatement stmt = new AssignmentStatement(tc, arrayIndex, aString);
         tc.addStatement(stmt);
@@ -603,14 +609,14 @@ public class FunctionalMockStatementTest {
         //execute first time with default mock
         Scope scope = execute(tc);
 
-        Object obj =  scope.getObject(result);
+        Object obj = scope.getObject(result);
         Assert.assertNull(obj); // default mock value should be null for objects/arrays
 
 
         //after execution, there should be one variable to provide
         Assert.assertTrue(mockStmt.doesNeedToUpdateInputs());
         List<Type> types = mockStmt.updateMockedMethods();
-        Assert.assertEquals(1,types.size());
+        Assert.assertEquals(1, types.size());
         Assert.assertEquals(String[].class, types.get(0));
 
         //add int variable to list of mock expected returns
@@ -630,7 +636,7 @@ public class FunctionalMockStatementTest {
         TestCase tc = new DefaultTestCase();
 
         final int MOCKED_VALUE = 42;
-        VariableReference mockedInput  = tc.addStatement(new IntPrimitiveStatement(tc, MOCKED_VALUE));
+        VariableReference mockedInput = tc.addStatement(new IntPrimitiveStatement(tc, MOCKED_VALUE));
         VariableReference ref = new VariableReferenceImpl(tc, Foo.class);
         FunctionalMockStatement mockStmt = new FunctionalMockStatement(tc, ref, GenericClassFactory.get(Foo.class));
         VariableReference mock = tc.addStatement(mockStmt);
@@ -647,14 +653,13 @@ public class FunctionalMockStatementTest {
         Scope scope = execute(tc);
 
         Integer val = (Integer) scope.getObject(result);
-        Assert.assertEquals(0 , val.intValue()); // default mock value should be 0
-
+        Assert.assertEquals(0, val.intValue()); // default mock value should be 0
 
 
         //after execution, there should be one variable to provide
         Assert.assertTrue(mockStmt.doesNeedToUpdateInputs());
         List<Type> types = mockStmt.updateMockedMethods();
-        Assert.assertEquals(1,types.size());
+        Assert.assertEquals(1, types.size());
         Assert.assertEquals(int.class, types.get(0));
 
         //add int variable to list of mock expected returns
@@ -664,8 +669,8 @@ public class FunctionalMockStatementTest {
 
         //re-execute with initialized mock
         scope = new Scope();
-        for(Statement st : tc){
-            st.execute(scope,System.out);
+        for (Statement st : tc) {
+            st.execute(scope, System.out);
         }
 
         val = (Integer) scope.getObject(result);

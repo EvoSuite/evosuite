@@ -19,12 +19,6 @@
  */
 package org.evosuite.testsuite;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-
 import org.evosuite.Properties;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.SecondaryObjective;
@@ -34,262 +28,258 @@ import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testsuite.localsearch.TestSuiteLocalSearch;
 
+import java.util.*;
+
 import static java.util.stream.Collectors.toCollection;
 
 /**
  * <p>
  * TestSuiteChromosome class.
  * </p>
- * 
- * @author Gordon Fraser
  *
+ * @author Gordon Fraser
+ * <p>
  * Final in order to prevent breaking of self type.
  */
 public final class TestSuiteChromosome
-		extends AbstractTestSuiteChromosome<TestSuiteChromosome, TestChromosome> {
+        extends AbstractTestSuiteChromosome<TestSuiteChromosome, TestChromosome> {
 
-	/** Secondary objectives used during ranking */
-	private static final List<SecondaryObjective<TestSuiteChromosome>>
-			secondaryObjectives = new ArrayList<>();
-	private static int secondaryObjIndex = 0;
-	private static final long serialVersionUID = 88380759969800800L;
+    /**
+     * Secondary objectives used during ranking
+     */
+    private static final List<SecondaryObjective<TestSuiteChromosome>>
+            secondaryObjectives = new ArrayList<>();
+    private static int secondaryObjIndex = 0;
+    private static final long serialVersionUID = 88380759969800800L;
 
-	/**
-	 * Add an additional secondary objective to the end of the list of
-	 * objectives
-	 * 
-	 * @param objective
-	 *            a {@link org.evosuite.ga.SecondaryObjective} object.
-	 */
-	public static void addSecondaryObjective(SecondaryObjective<TestSuiteChromosome> objective) {
-		secondaryObjectives.add(objective);
-	}
+    /**
+     * Add an additional secondary objective to the end of the list of
+     * objectives
+     *
+     * @param objective a {@link org.evosuite.ga.SecondaryObjective} object.
+     */
+    public static void addSecondaryObjective(SecondaryObjective<TestSuiteChromosome> objective) {
+        secondaryObjectives.add(objective);
+    }
 
-	public static void ShuffleSecondaryObjective() {
-		Collections.shuffle(secondaryObjectives);
-	}
-	
-	public static int getSecondaryObjectivesSize(){
-		return secondaryObjectives.size();
-	}
-	
-	public static boolean isFirstSecondaryObjectiveEnabled(){
-		return secondaryObjIndex == 0;
-	}
-	
-	public static void disableFirstSecondaryObjective() {
-		if (secondaryObjIndex != 1)
-			secondaryObjIndex = 1;
-	}
-	
-	public static void enableFirstSecondaryObjective() {
-		if (secondaryObjIndex != 0)
-			secondaryObjIndex = 0;
-	}
+    public static int getSecondaryObjectivesSize() {
+        return secondaryObjectives.size();
+    }
 
-	public static void reverseSecondaryObjective() {
-		Collections.reverse(secondaryObjectives);
-	}
-	/**
-	 * Remove secondary objective from list, if it is there
-	 * 
-	 * @param objective
-	 *            a {@link org.evosuite.ga.SecondaryObjective} object.
-	 */
-	public static void removeSecondaryObjective(SecondaryObjective<TestSuiteChromosome> objective) {
-		secondaryObjectives.remove(objective);
-	}
+    public static boolean isFirstSecondaryObjectiveEnabled() {
+        return secondaryObjIndex == 0;
+    }
 
-	public static void removeAllSecondaryObjectives() {
-		secondaryObjectives.clear();
-	}
+    public static void disableFirstSecondaryObjective() {
+        if (secondaryObjIndex != 1)
+            secondaryObjIndex = 1;
+    }
 
-	@Override
-	public TestSuiteChromosome self() {
-		return this;
-	}
+    public static void enableFirstSecondaryObjective() {
+        if (secondaryObjIndex != 0)
+            secondaryObjIndex = 0;
+    }
 
-	/**
-	 * <p>
-	 * Constructor for TestSuiteChromosome.
-	 * </p>
-	 */
-	public TestSuiteChromosome() {
-		super();
-	}
+    public static void reverseSecondaryObjective() {
+        Collections.reverse(secondaryObjectives);
+    }
+
+    /**
+     * Remove secondary objective from list, if it is there
+     *
+     * @param objective a {@link org.evosuite.ga.SecondaryObjective} object.
+     */
+    public static void removeSecondaryObjective(SecondaryObjective<TestSuiteChromosome> objective) {
+        secondaryObjectives.remove(objective);
+    }
+
+    public static void removeAllSecondaryObjectives() {
+        secondaryObjectives.clear();
+    }
+
+    @Override
+    public TestSuiteChromosome self() {
+        return this;
+    }
+
+    /**
+     * <p>
+     * Constructor for TestSuiteChromosome.
+     * </p>
+     */
+    public TestSuiteChromosome() {
+        super();
+    }
 
 
-	/**
-	 * <p>
-	 * Constructor for TestSuiteChromosome.
-	 * </p>
-	 * 
-	 * @param testChromosomeFactory
-	 *            a {@link org.evosuite.ga.ChromosomeFactory} object.
-	 */
-	public TestSuiteChromosome(ChromosomeFactory<TestChromosome> testChromosomeFactory) {
-		super(testChromosomeFactory);
-	}
+    /**
+     * <p>
+     * Constructor for TestSuiteChromosome.
+     * </p>
+     *
+     * @param testChromosomeFactory a {@link org.evosuite.ga.ChromosomeFactory} object.
+     */
+    public TestSuiteChromosome(ChromosomeFactory<TestChromosome> testChromosomeFactory) {
+        super(testChromosomeFactory);
+    }
 
-	/**
-	 * <p>
-	 * Constructor for TestSuiteChromosome.
-	 * </p>
-	 * 
-	 * @param source
-	 *            a {@link org.evosuite.testsuite.TestSuiteChromosome} object.
-	 */
-	protected TestSuiteChromosome(TestSuiteChromosome source) {
-		super(source);
-	}
+    /**
+     * <p>
+     * Constructor for TestSuiteChromosome.
+     * </p>
+     *
+     * @param source a {@link org.evosuite.testsuite.TestSuiteChromosome} object.
+     */
+    protected TestSuiteChromosome(TestSuiteChromosome source) {
+        super(source);
+    }
 
-	/**
-	 * Add a test to a test suite
-	 * 
-	 * @param test
-	 *            a {@link org.evosuite.testcase.TestCase} object.
-	 */
-	public TestChromosome addTest(TestCase test) {
-	    TestChromosome c = new TestChromosome();
-		c.setTestCase(test);
-		addTest(c);
+    /**
+     * Add a test to a test suite
+     *
+     * @param test a {@link org.evosuite.testcase.TestCase} object.
+     */
+    public TestChromosome addTest(TestCase test) {
+        TestChromosome c = new TestChromosome();
+        c.setTestCase(test);
+        addTest(c);
 
-		return c;
-	}
+        return c;
+    }
 
-	@Override
-	public void addTestChromosome(TestChromosome testChromosome) {
-		this.addTest(testChromosome);
-	}
+    @Override
+    public void addTestChromosome(TestChromosome testChromosome) {
+        this.addTest(testChromosome);
+    }
 
 
-	public void clearMutationHistory() {
-		tests.forEach(t -> t.getMutationHistory().clear());
-	}
+    public void clearMutationHistory() {
+        tests.forEach(t -> t.getMutationHistory().clear());
+    }
 
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Create a deep copy of this test suite
+     *
+     * @return
+     */
+    @Override
+    public TestSuiteChromosome clone() {
+        return new TestSuiteChromosome(this);
+    }
 
-	/**
-	 * {@inheritDoc}
-	 * 
-	 * Create a deep copy of this test suite
-	 * @return
-	 */
-	@Override
-	public TestSuiteChromosome clone() {
-		return new TestSuiteChromosome(this);
-	}
+    /* (non-Javadoc)
+     * @see org.evosuite.ga.Chromosome#compareSecondaryObjective(org.evosuite.ga.Chromosome)
+     */
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.ga.Chromosome#compareSecondaryObjective(org.evosuite.ga.Chromosome)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public int compareSecondaryObjective(TestSuiteChromosome o) {
-		int objective = secondaryObjIndex;
-		int c = 0;
-		while (c == 0 && objective < secondaryObjectives.size()) {
-			SecondaryObjective<TestSuiteChromosome> so = secondaryObjectives.get(objective++);
-			if (so == null)
-				break;
-			c = so.compareChromosomes(this.self(), o);
-		} 
-		return c;
-	}
-
-
-	/**
-	 * For manual algorithm
-	 * 
-	 * @param testCase
-	 *            to remove
-	 */
-	public void deleteTest(TestCase testCase) {
-		if (testCase != null) {
-			tests.removeIf(t -> t.getTestCase().equals(testCase));
-		}
-	}
-
-	/**
-	 * <p>
-	 * getCoveredGoals
-	 * </p>
-	 * 
-	 * @return a {@link java.util.Set} object.
-	 */
-	public Set<TestFitnessFunction> getCoveredGoals() {
-		Set<TestFitnessFunction> goals = new LinkedHashSet<>();
-		for (TestChromosome t : tests) {
-			Set<TestFitnessFunction> coveredGoals = t.getTestCase().getCoveredGoals();
-			goals.addAll(coveredGoals);
-		}
-		return goals;
-	}
-	
-	public void removeCoveredGoal(TestFitnessFunction f) {
-		tests.forEach(t -> t.getTestCase().removeCoveredGoal(f));
-	}
-
-	/**
-	 * <p>
-	 * getTests
-	 * </p>
-	 * 
-	 * @return a {@link java.util.List} object.
-	 */
-	public List<TestCase> getTests() {
-		return tests.stream()
-				.map(TestChromosome::getTestCase)
-				.collect(toCollection(ArrayList::new));
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int compareSecondaryObjective(TestSuiteChromosome o) {
+        int objective = secondaryObjIndex;
+        int c = 0;
+        while (c == 0 && objective < secondaryObjectives.size()) {
+            SecondaryObjective<TestSuiteChromosome> so = secondaryObjectives.get(objective++);
+            if (so == null)
+                break;
+            c = so.compareChromosomes(this.self(), o);
+        }
+        return c;
+    }
 
 
+    /**
+     * For manual algorithm
+     *
+     * @param testCase to remove
+     */
+    public void deleteTest(TestCase testCase) {
+        if (testCase != null) {
+            tests.removeIf(t -> t.getTestCase().equals(testCase));
+        }
+    }
+
+    /**
+     * <p>
+     * getCoveredGoals
+     * </p>
+     *
+     * @return a {@link java.util.Set} object.
+     */
+    public Set<TestFitnessFunction> getCoveredGoals() {
+        Set<TestFitnessFunction> goals = new LinkedHashSet<>();
+        for (TestChromosome t : tests) {
+            Set<TestFitnessFunction> coveredGoals = t.getTestCase().getCoveredGoals();
+            goals.addAll(coveredGoals);
+        }
+        return goals;
+    }
+
+    public void removeCoveredGoal(TestFitnessFunction f) {
+        tests.forEach(t -> t.getTestCase().removeCoveredGoal(f));
+    }
+
+    /**
+     * <p>
+     * getTests
+     * </p>
+     *
+     * @return a {@link java.util.List} object.
+     */
+    public List<TestCase> getTests() {
+        return tests.stream()
+                .map(TestChromosome::getTestCase)
+                .collect(toCollection(ArrayList::new));
+    }
 
 
-	@Override
-	public boolean localSearch(LocalSearchObjective<TestSuiteChromosome> objective) {
-		TestSuiteLocalSearch localSearch = TestSuiteLocalSearch.selectTestSuiteLocalSearch();
-		return localSearch.doSearch(this, objective);
-	}
+    @Override
+    public boolean localSearch(LocalSearchObjective<TestSuiteChromosome> objective) {
+        TestSuiteLocalSearch localSearch = TestSuiteLocalSearch.selectTestSuiteLocalSearch();
+        return localSearch.doSearch(this, objective);
+    }
 
-	/**
-	 * {@inheritDoc}
-	 * 
-	 * Apply mutation on test suite level
-	 */
-	@Override
-	public void mutate() {
-		for (int i = 0; i < Properties.NUMBER_OF_MUTATIONS; i++) {
-			super.mutate();
-		}
-	}
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Apply mutation on test suite level
+     */
+    @Override
+    public void mutate() {
+        for (int i = 0; i < Properties.NUMBER_OF_MUTATIONS; i++) {
+            super.mutate();
+        }
+    }
 
-	/**
-	 * {@inheritDoc}
-	 * 
-	 * Determine relative ordering of this chromosome to another chromosome If
-	 * fitness is equal, the shorter chromosome comes first
-	 */
-	/*
-	 * public int compareTo(Chromosome o) { if(RANK_LENGTH && getFitness() ==
-	 * o.getFitness()) { return (int) Math.signum((length() -
-	 * ((TestSuiteChromosome)o).length())); } else return (int)
-	 * Math.signum(getFitness() - o.getFitness()); }
-	 */
-	@Override
-	public String toString() {
-		String result = "TestSuite: " + tests.size() + "\n";
-		int i = 0;
-		for (TestChromosome test : tests) {
-			result += "Test "+i+": \n";
-			i++;
-			if(test.getLastExecutionResult() != null) {
-				result += test.getTestCase().toCode(test.getLastExecutionResult().exposeExceptionMapping());
-			} else {
-				result += test.getTestCase().toCode() + "\n";
-			}
-		}
-		return result;
-	}
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Determine relative ordering of this chromosome to another chromosome If
+     * fitness is equal, the shorter chromosome comes first
+     */
+    /*
+     * public int compareTo(Chromosome o) { if(RANK_LENGTH && getFitness() ==
+     * o.getFitness()) { return (int) Math.signum((length() -
+     * ((TestSuiteChromosome)o).length())); } else return (int)
+     * Math.signum(getFitness() - o.getFitness()); }
+     */
+    @Override
+    public String toString() {
+        String result = "TestSuite: " + tests.size() + "\n";
+        int i = 0;
+        for (TestChromosome test : tests) {
+            result += "Test " + i + ": \n";
+            i++;
+            if (test.getLastExecutionResult() != null) {
+                result += test.getTestCase().toCode(test.getLastExecutionResult().exposeExceptionMapping());
+            } else {
+                result += test.getTestCase().toCode() + "\n";
+            }
+        }
+        return result;
+    }
 
 }

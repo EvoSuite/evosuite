@@ -19,50 +19,53 @@
  */
 package org.evosuite.coverage.dataflow;
 
+import org.evosuite.testsuite.AbstractFitnessFactory;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.evosuite.testsuite.AbstractFitnessFactory;
-
 /**
  * <p>
  * AllDefsCoverageFactory class.
  * </p>
- * 
+ *
  * @author Andre Mis
  */
 public class AllDefsCoverageFactory extends
         AbstractFitnessFactory<AllDefsCoverageTestFitness> {
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.evosuite.coverage.TestFitnessFactory#getCoverageGoals()
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public List<AllDefsCoverageTestFitness> getCoverageGoals() {
+    /*
+     * (non-Javadoc)
+     *
+     * @see
+     * org.evosuite.coverage.TestFitnessFactory#getCoverageGoals()
+     */
 
-		List<AllDefsCoverageTestFitness> goals = new ArrayList<>();
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<AllDefsCoverageTestFitness> getCoverageGoals() {
 
-		Set<Definition> defs = DefUseCoverageFactory.getRegisteredDefinitions();
+        List<AllDefsCoverageTestFitness> goals = new ArrayList<>();
 
-		for (Definition def : defs) {
-			Map<Use, DefUseCoverageTestFitness> uses = DefUseCoverageFactory.getRegisteredGoalsForDefinition(def);
+        Set<Definition> defs = DefUseCoverageFactory.getRegisteredDefinitions();
 
-			goals.add(createGoal(def, uses));
-		}
+        for (Definition def : defs) {
+            Map<Use, DefUseCoverageTestFitness> uses = DefUseCoverageFactory.getRegisteredGoalsForDefinition(def);
 
-		return goals;
-	}
+            goals.add(createGoal(def, uses));
+        }
 
-	private static AllDefsCoverageTestFitness createGoal(Definition def,
-	        Map<Use, DefUseCoverageTestFitness> uses) {
+        return goals;
+    }
 
-		return new AllDefsCoverageTestFitness(def, uses);
-	}
+    private static AllDefsCoverageTestFitness createGoal(Definition def,
+                                                         Map<Use, DefUseCoverageTestFitness> uses) {
+
+        return new AllDefsCoverageTestFitness(def, uses);
+    }
 
 }

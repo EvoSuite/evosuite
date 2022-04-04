@@ -29,16 +29,14 @@ import org.evosuite.ga.variables.DoubleVariable;
 
 /**
  * Three-Hump Problem
- * 
+ *
  * @author José Campos
  */
-@SuppressWarnings({ "serial" })
-public class ThreeHump implements Problem<NSGAChromosome>
-{
+@SuppressWarnings({"serial"})
+public class ThreeHump implements Problem<NSGAChromosome> {
     private final List<FitnessFunction<NSGAChromosome>> fitnessFunctions = new ArrayList<>();
 
-    public ThreeHump()
-    {
+    public ThreeHump() {
         super();
 
         /**
@@ -52,13 +50,14 @@ public class ThreeHump implements Problem<NSGAChromosome>
                 double y = ((DoubleVariable) c.getVariables().get(1)).getValue();
 
                 double fitness = (2.0 * Math.pow(x, 2.0))
-                                - (1.05 * Math.pow(x, 4.0))
-                                + (Math.pow(x, 6.0) / 6.0)
-                                + (x * y)
-                                + (Math.pow(y, 2.0));
+                        - (1.05 * Math.pow(x, 4.0))
+                        + (Math.pow(x, 6.0) / 6.0)
+                        + (x * y)
+                        + (Math.pow(y, 2.0));
                 updateIndividual(c, fitness);
                 return fitness;
             }
+
             @Override
             public boolean isMaximizationFunction() {
                 return false;

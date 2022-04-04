@@ -21,24 +21,26 @@ package com.examples.with.different.packagename;
 
 public class ClassWithAnonymousClass {
 
-  public ClassWithAnonymousClass() {}
-
-  public class MyCompareClass {
-
-    public MyCompareClass() {}
-
-    public void sort(java.util.List<String> l) {
-      java.util.Collections.sort(l, new java.util.Comparator<String>() {
-        @Override
-        public int compare(String arg0, String arg1) {
-          if (arg0.length() > arg1.length()) {
-            return 1;
-          } else if (arg0.length() < arg1.length()) {
-            return -1;
-          }
-          return 0;
-        }
-      });
+    public ClassWithAnonymousClass() {
     }
-  }
+
+    public class MyCompareClass {
+
+        public MyCompareClass() {
+        }
+
+        public void sort(java.util.List<String> l) {
+            java.util.Collections.sort(l, new java.util.Comparator<String>() {
+                @Override
+                public int compare(String arg0, String arg1) {
+                    if (arg0.length() > arg1.length()) {
+                        return 1;
+                    } else if (arg0.length() < arg1.length()) {
+                        return -1;
+                    }
+                    return 0;
+                }
+            });
+        }
+    }
 }

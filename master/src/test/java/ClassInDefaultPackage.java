@@ -18,10 +18,10 @@
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 public class ClassInDefaultPackage {
-	public boolean foo(int bar){
-		if(bar == 42)
-			return true;
-		else
-			return false;
-	}
+    public boolean foo(int bar) {
+        if (bar == 42)
+            return true;
+        else
+            return false;
+    }
 }

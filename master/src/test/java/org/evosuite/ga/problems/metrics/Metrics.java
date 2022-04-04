@@ -27,14 +27,11 @@ import java.io.InputStreamReader;
 import org.evosuite.Properties;
 
 /**
- * 
  * @author José Campos
  */
-public abstract class Metrics
-{
+public abstract class Metrics {
     public static double[][] readFront(String problemName)
-        throws IOException
-    {
+            throws IOException {
         double[][] front = new double[Properties.POPULATION][2];
         int index = 0;
 
@@ -54,8 +51,7 @@ public abstract class Metrics
         return front;
     }
 
-    protected double euclideanDistance(double[] a, double[] b)
-    {
+    protected double euclideanDistance(double[] a, double[] b) {
         double distance = 0.0;
         for (int i = 0; i < a.length; i++)
             distance += Math.pow(a[i] - b[i], 2.0);
@@ -63,8 +59,7 @@ public abstract class Metrics
         return Math.sqrt(distance);
     }
 
-    public double[] getMaximumValues(double[][] front)
-    {
+    public double[] getMaximumValues(double[][] front) {
         double[] maximumValue = new double[front[0].length];
         for (int i = 0; i < front[0].length; i++)
             maximumValue[i] = Double.NEGATIVE_INFINITY;
@@ -77,8 +72,7 @@ public abstract class Metrics
         return maximumValue;
     }
 
-    public double[] getMinimumValues(double[][] front)
-    {
+    public double[] getMinimumValues(double[][] front) {
         double[] minimumValue = new double[front[0].length];
         for (int i = 0; i < front[0].length; i++)
             minimumValue[i] = Double.MAX_VALUE;
@@ -91,12 +85,10 @@ public abstract class Metrics
         return minimumValue;
     }
 
-    public double[][] getNormalizedFront(double[][] front, double[] maximumValue, double[] minimumValue)
-    {
+    public double[][] getNormalizedFront(double[][] front, double[] maximumValue, double[] minimumValue) {
         double[][] normalizedFront = new double[front.length][];
 
-        for (int i = 0; i < front.length; i++)
-        {
+        for (int i = 0; i < front.length; i++) {
             normalizedFront[i] = new double[front[i].length];
             for (int j = 0; j < front[i].length; j++) {
                 if (maximumValue[j] == minimumValue[j]) {

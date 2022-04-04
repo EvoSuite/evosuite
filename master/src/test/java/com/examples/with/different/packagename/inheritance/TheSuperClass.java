@@ -24,7 +24,7 @@ package com.examples.with.different.packagename.inheritance;
  */
 public class TheSuperClass {
 
-    public void foo(){
+    public void foo() {
         System.out.println("ASuperClass");
     }
 }

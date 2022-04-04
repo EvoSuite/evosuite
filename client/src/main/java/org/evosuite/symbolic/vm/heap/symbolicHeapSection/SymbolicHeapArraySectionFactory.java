@@ -28,31 +28,31 @@ import org.evosuite.Properties;
  */
 public class SymbolicHeapArraySectionFactory {
 
-  public final static String DSE_ARRAYS_MEMORY_MODEL_NOT_PROVIDED    = "An array memory model type must be provided.";
-  public static final String ARRAYS_MEMORY_MODEL_NOT_YET_IMPLEMENTED = "Arrays memory model not yet implemented: ";
+    public final static String DSE_ARRAYS_MEMORY_MODEL_NOT_PROVIDED = "An array memory model type must be provided.";
+    public static final String ARRAYS_MEMORY_MODEL_NOT_YET_IMPLEMENTED = "Arrays memory model not yet implemented: ";
 
-  private static SymbolicHeapArraySectionFactory instance;
+    private static SymbolicHeapArraySectionFactory instance;
 
-  public static SymbolicHeapArraySectionFactory getInstance() {
-    if (instance == null) {
-      instance = new SymbolicHeapArraySectionFactory();
+    public static SymbolicHeapArraySectionFactory getInstance() {
+        if (instance == null) {
+            instance = new SymbolicHeapArraySectionFactory();
+        }
+
+        return instance;
     }
 
-    return instance;
-  }
+    public ArraysSection getSymbolicHeapArraySection(Properties.DSE_ARRAYS_MEMORY_MODEL_VERSION arraysMemoryModelVersion) {
+        if (arraysMemoryModelVersion == null) {
+            throw new IllegalArgumentException(DSE_ARRAYS_MEMORY_MODEL_NOT_PROVIDED);
+        }
 
-  public ArraysSection getSymbolicHeapArraySection(Properties.DSE_ARRAYS_MEMORY_MODEL_VERSION arraysMemoryModelVersion) {
-    if (arraysMemoryModelVersion == null) {
-      throw new IllegalArgumentException(DSE_ARRAYS_MEMORY_MODEL_NOT_PROVIDED);
+        switch (arraysMemoryModelVersion) {
+            case LAZY_VARIABLES:
+                return new LazyArraysImpl();
+            case SELECT_STORE_EXPRESSIONS:
+                return new SelectStoreImpl();
+            default:
+                throw new IllegalStateException(ARRAYS_MEMORY_MODEL_NOT_YET_IMPLEMENTED + arraysMemoryModelVersion.name());
+        }
     }
-
-    switch (arraysMemoryModelVersion) {
-      case LAZY_VARIABLES:
-        return new LazyArraysImpl();
-      case SELECT_STORE_EXPRESSIONS:
-        return new SelectStoreImpl();
-      default:
-        throw new IllegalStateException(ARRAYS_MEMORY_MODEL_NOT_YET_IMPLEMENTED + arraysMemoryModelVersion.name());
-    }
-  }
 }

@@ -32,7 +32,7 @@ import org.junit.Test;
 
 /**
  * By default, we should be able to test @Deprecated methods
- *
+ * <p>
  * Created by Andrea Arcuri on 13/03/15.
  */
 public class DeprecatedSystemTest extends SystemTestBase {
@@ -45,7 +45,7 @@ public class DeprecatedSystemTest extends SystemTestBase {
 
         Properties.TARGET_CLASS = targetClass;
 
-        String[] command = new String[] { "-generateSuite", "-class", targetClass };
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
 
         Object result = evosuite.parseCommandLine(command);
         GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);

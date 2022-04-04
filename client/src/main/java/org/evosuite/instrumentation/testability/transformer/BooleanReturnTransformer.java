@@ -34,38 +34,38 @@ import org.objectweb.asm.tree.MethodNode;
  */
 public class BooleanReturnTransformer extends MethodNodeTransformer {
 
-	private final BooleanTestabilityTransformation booleanTestabilityTransformation;
+    private final BooleanTestabilityTransformation booleanTestabilityTransformation;
 
-	/**
-	 * @param booleanTestabilityTransformation
-	 */
-	public BooleanReturnTransformer(
-			BooleanTestabilityTransformation booleanTestabilityTransformation) {
-		this.booleanTestabilityTransformation = booleanTestabilityTransformation;
-	}
+    /**
+     * @param booleanTestabilityTransformation
+     */
+    public BooleanReturnTransformer(
+            BooleanTestabilityTransformation booleanTestabilityTransformation) {
+        this.booleanTestabilityTransformation = booleanTestabilityTransformation;
+    }
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.instrumentation.MethodNodeTransformer#transformInsnNode(org.objectweb.asm.tree.MethodNode, org.objectweb.asm.tree.InsnNode)
-	 */
-	@Override
-	protected AbstractInsnNode transformInsnNode(MethodNode mn, InsnNode insnNode) {
-		//String desc = DescriptorMapping.getInstance().getMethodDesc(className, mn.name, mn.desc);
-		Type returnType = Type.getReturnType(mn.desc);
-		if (!returnType.equals(Type.BOOLEAN_TYPE)) {
-			return insnNode;
-		}
+    /* (non-Javadoc)
+     * @see org.evosuite.instrumentation.MethodNodeTransformer#transformInsnNode(org.objectweb.asm.tree.MethodNode, org.objectweb.asm.tree.InsnNode)
+     */
+    @Override
+    protected AbstractInsnNode transformInsnNode(MethodNode mn, InsnNode insnNode) {
+        //String desc = DescriptorMapping.getInstance().getMethodDesc(className, mn.name, mn.desc);
+        Type returnType = Type.getReturnType(mn.desc);
+        if (!returnType.equals(Type.BOOLEAN_TYPE)) {
+            return insnNode;
+        }
 
-		if (insnNode.getOpcode() == Opcodes.IRETURN) {
-			BooleanTestabilityTransformation.logger.debug("Inserting conversion before IRETURN of " + this.booleanTestabilityTransformation.className + "."
-			        + mn.name);
-			// If this function cannot be transformed, add a call to convert the value to a proper Boolean
-			MethodInsnNode n = new MethodInsnNode(Opcodes.INVOKESTATIC,
-			        Type.getInternalName(BooleanHelper.class), "intToBoolean",
-			        Type.getMethodDescriptor(Type.BOOLEAN_TYPE,
-			                                 new Type[] { Type.INT_TYPE }));
-			mn.instructions.insertBefore(insnNode, n);
-		}
+        if (insnNode.getOpcode() == Opcodes.IRETURN) {
+            BooleanTestabilityTransformation.logger.debug("Inserting conversion before IRETURN of " + this.booleanTestabilityTransformation.className + "."
+                    + mn.name);
+            // If this function cannot be transformed, add a call to convert the value to a proper Boolean
+            MethodInsnNode n = new MethodInsnNode(Opcodes.INVOKESTATIC,
+                    Type.getInternalName(BooleanHelper.class), "intToBoolean",
+                    Type.getMethodDescriptor(Type.BOOLEAN_TYPE,
+                            Type.INT_TYPE));
+            mn.instructions.insertBefore(insnNode, n);
+        }
 
-		return insnNode;
-	}
+        return insnNode;
+    }
 }

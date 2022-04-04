@@ -30,13 +30,17 @@ import org.evosuite.symbolic.dse.algorithm.explorationalgorithms.SAGEExploration
  * @author Ignacio Lebrero
  */
 public class DSEAlgorithmFactory {
-    public static final String DSE_ALGORITHM_TYPE_NOT_PROVIDED   = "A DSE algorithm type must be provided";
+    public static final String DSE_ALGORITHM_TYPE_NOT_PROVIDED = "A DSE algorithm type must be provided";
     public static final String DSE_EXPLORATION_ALGORITHM_NOT_YET_IMPLEMENTED = "DSE exploration algorithm not yet implemented: ";
 
-    /** Statistics object for when creating a customized algorithm */
+    /**
+     * Statistics object for when creating a customized algorithm
+     */
     private final DSEStatistics dseStatistics = DSEStatistics.getInstance();
 
-    /** Should log the algorithm progress throughout it's execution */
+    /**
+     * Should log the algorithm progress throughout it's execution
+     */
     private final boolean showProgress = Properties.SHOW_PROGRESS;
 
     public ExplorationAlgorithm getDSEAlgorithm(DSEAlgorithms dseAlgorithmType) {

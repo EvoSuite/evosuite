@@ -29,96 +29,97 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.HashMap;
 import java.util.Map;
+
 public abstract class ExecutableChromosome<E extends ExecutableChromosome<E>> extends Chromosome<E> {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	protected transient ExecutionResult lastExecutionResult = null;
+    protected transient ExecutionResult lastExecutionResult = null;
 
-	protected transient Map<Mutation, MutationExecutionResult> lastMutationResult = new HashMap<>();
+    protected transient Map<Mutation, MutationExecutionResult> lastMutationResult = new HashMap<>();
 
-	/**
-	 * <p>Constructor for ExecutableChromosome.</p>
-	 */
-	public ExecutableChromosome() {
-		super();
-	}
+    /**
+     * <p>Constructor for ExecutableChromosome.</p>
+     */
+    public ExecutableChromosome() {
+        super();
+    }
 
-	/**
-	 * <p>Setter for the field <code>lastExecutionResult</code>.</p>
-	 *
-	 * @param lastExecutionResult a {@link org.evosuite.testcase.execution.ExecutionResult} object.
-	 */
-	public void setLastExecutionResult(ExecutionResult lastExecutionResult) {
-		this.lastExecutionResult = lastExecutionResult;
-	}
+    /**
+     * <p>Setter for the field <code>lastExecutionResult</code>.</p>
+     *
+     * @param lastExecutionResult a {@link org.evosuite.testcase.execution.ExecutionResult} object.
+     */
+    public void setLastExecutionResult(ExecutionResult lastExecutionResult) {
+        this.lastExecutionResult = lastExecutionResult;
+    }
 
-	/**
-	 * <p>Getter for the field <code>lastExecutionResult</code>.</p>
-	 *
-	 * @return a {@link org.evosuite.testcase.execution.ExecutionResult} object.
-	 */
-	public ExecutionResult getLastExecutionResult() {
-		return lastExecutionResult;
-	}
-	
-	/**
-	 * <p>Setter for the field <code>lastExecutionResult</code>.</p>
-	 *
-	 * @param lastExecutionResult a {@link org.evosuite.coverage.mutation.MutationExecutionResult} object.
-	 * @param mutation a {@link org.evosuite.coverage.mutation.Mutation} object.
-	 */
-	public void setLastExecutionResult(MutationExecutionResult lastExecutionResult,
-	        Mutation mutation) {
-		this.lastMutationResult.put(mutation, lastExecutionResult);
-	}
+    /**
+     * <p>Getter for the field <code>lastExecutionResult</code>.</p>
+     *
+     * @return a {@link org.evosuite.testcase.execution.ExecutionResult} object.
+     */
+    public ExecutionResult getLastExecutionResult() {
+        return lastExecutionResult;
+    }
 
-	/**
-	 * <p>Getter for the field <code>lastExecutionResult</code>.</p>
-	 *
-	 * @param mutation a {@link org.evosuite.coverage.mutation.Mutation} object.
-	 * @return a {@link org.evosuite.coverage.mutation.MutationExecutionResult} object.
-	 */
-	public MutationExecutionResult getLastExecutionResult(Mutation mutation) {
-		return lastMutationResult.get(mutation);
-	}
-	
+    /**
+     * <p>Setter for the field <code>lastExecutionResult</code>.</p>
+     *
+     * @param lastExecutionResult a {@link org.evosuite.coverage.mutation.MutationExecutionResult} object.
+     * @param mutation            a {@link org.evosuite.coverage.mutation.Mutation} object.
+     */
+    public void setLastExecutionResult(MutationExecutionResult lastExecutionResult,
+                                       Mutation mutation) {
+        this.lastMutationResult.put(mutation, lastExecutionResult);
+    }
 
-	/**
-	 * <p>clearCachedResults</p>
-	 */
-	public void clearCachedResults() {
-		this.lastExecutionResult = null;
-		lastMutationResult.clear();
-	}
+    /**
+     * <p>Getter for the field <code>lastExecutionResult</code>.</p>
+     *
+     * @param mutation a {@link org.evosuite.coverage.mutation.Mutation} object.
+     * @return a {@link org.evosuite.coverage.mutation.MutationExecutionResult} object.
+     */
+    public MutationExecutionResult getLastExecutionResult(Mutation mutation) {
+        return lastMutationResult.get(mutation);
+    }
 
-	/**
-	 * <p>clearCachedMutationResults</p>
-	 */
-	public void clearCachedMutationResults() {
-		lastMutationResult.clear();
-	}
 
-	/**
-	 * <p>copyCachedResults</p>
-	 *
-	 * @param other a {@link org.evosuite.testcase.ExecutableChromosome} object.
-	 */
-	protected abstract void copyCachedResults(E other);
+    /**
+     * <p>clearCachedResults</p>
+     */
+    public void clearCachedResults() {
+        this.lastExecutionResult = null;
+        lastMutationResult.clear();
+    }
 
-	/**
-	 * <p>executeForFitnessFunction</p>
-	 *
-	 * @param testSuiteFitnessFunction a {@link org.evosuite.testsuite.TestSuiteFitnessFunction} object.
-	 * @return a {@link org.evosuite.testcase.execution.ExecutionResult} object.
-	 */
-	abstract public ExecutionResult executeForFitnessFunction(
-			TestSuiteFitnessFunction testSuiteFitnessFunction);
+    /**
+     * <p>clearCachedMutationResults</p>
+     */
+    public void clearCachedMutationResults() {
+        lastMutationResult.clear();
+    }
 
-	private void readObject(ObjectInputStream ois) throws ClassNotFoundException,
-    IOException {
-		ois.defaultReadObject();
-		lastExecutionResult = null;
-		lastMutationResult = new HashMap<>();
-	}
+    /**
+     * <p>copyCachedResults</p>
+     *
+     * @param other a {@link org.evosuite.testcase.ExecutableChromosome} object.
+     */
+    protected abstract void copyCachedResults(E other);
+
+    /**
+     * <p>executeForFitnessFunction</p>
+     *
+     * @param testSuiteFitnessFunction a {@link org.evosuite.testsuite.TestSuiteFitnessFunction} object.
+     * @return a {@link org.evosuite.testcase.execution.ExecutionResult} object.
+     */
+    abstract public ExecutionResult executeForFitnessFunction(
+            TestSuiteFitnessFunction testSuiteFitnessFunction);
+
+    private void readObject(ObjectInputStream ois) throws ClassNotFoundException,
+            IOException {
+        ois.defaultReadObject();
+        lastExecutionResult = null;
+        lastMutationResult = new HashMap<>();
+    }
 }

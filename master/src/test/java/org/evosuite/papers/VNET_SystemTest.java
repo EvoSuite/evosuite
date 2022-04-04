@@ -28,13 +28,13 @@ import org.junit.Test;
 public class VNET_SystemTest extends SystemTestBase {
 
     @Test
-    public void testTCP(){
+    public void testTCP() {
         Properties.SEARCH_BUDGET = 1_000_000;
         do100percentLineTest(Example_UDP_TCP.class);
     }
 
     @Test
-    public void testURL(){
+    public void testURL() {
         do100percentLineTest(Example_URL.class);
     }
 }

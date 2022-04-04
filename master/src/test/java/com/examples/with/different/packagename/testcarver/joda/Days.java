@@ -25,7 +25,10 @@ package com.examples.with.different.packagename.testcarver.joda;
  */
 public class Days {
 
-	public Days(DateTimeZone zone) {}
+    public Days(DateTimeZone zone) {
+    }
 
-	public int getDays() { return 0; }
+    public int getDays() {
+        return 0;
+    }
 }

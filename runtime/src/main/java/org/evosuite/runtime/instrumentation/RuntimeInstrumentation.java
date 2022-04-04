@@ -28,8 +28,6 @@ import org.objectweb.asm.tree.ClassNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
-
 /**
  * This class is responsible for the bytecode instrumentation
  * needed for the generated JUnit test cases.
@@ -37,129 +35,125 @@ import java.util.List;
  * <p>
  * Note: the instrumentation will be part of the final JUnit tests and, as such, we should
  * only keep the instrumentation that affect the functional behavior (so, no branch distances, etc).
- *
+ * <p>
  * Created by arcuri on 6/11/14.
  */
 public class RuntimeInstrumentation {
 
-	private static final Logger logger = LoggerFactory.getLogger(RuntimeInstrumentation.class);
+    private static final Logger logger = LoggerFactory.getLogger(RuntimeInstrumentation.class);
 
-	/**
-	 * If we are re-instrumenting a class, then we cannot change its
-	 * signature: eg add new methods
-	 *
-	 * TODO: remove once we fix instrumentation
-	 */
-	private volatile boolean retransformingMode;
+    /**
+     * If we are re-instrumenting a class, then we cannot change its
+     * signature: eg add new methods
+     * <p>
+     * TODO: remove once we fix instrumentation
+     */
+    private volatile boolean retransformingMode;
 
-	/**
-	 * This should ONLY be set by SystemTest
-	 */
-	private static boolean avoidInstrumentingShadedClasses = false;
+    /**
+     * This should ONLY be set by SystemTest
+     */
+    private static boolean avoidInstrumentingShadedClasses = false;
 
-	public RuntimeInstrumentation(){
-		retransformingMode = false;
-	}
+    public RuntimeInstrumentation() {
+        retransformingMode = false;
+    }
 
-	public void setRetransformingMode(boolean on){
-		retransformingMode = on;
-	}
+    public void setRetransformingMode(boolean on) {
+        retransformingMode = on;
+    }
 
-	/**
-	 * WARN: This should ONLY be called by SystemTest
-	 */
-	public static void setAvoidInstrumentingShadedClasses(boolean avoidInstrumentingShadedClasses) {
-		RuntimeInstrumentation.avoidInstrumentingShadedClasses = avoidInstrumentingShadedClasses;
-	}
+    /**
+     * WARN: This should ONLY be called by SystemTest
+     */
+    public static void setAvoidInstrumentingShadedClasses(boolean avoidInstrumentingShadedClasses) {
+        RuntimeInstrumentation.avoidInstrumentingShadedClasses = avoidInstrumentingShadedClasses;
+    }
 
-	public static boolean getAvoidInstrumentingShadedClasses() {
-		return RuntimeInstrumentation.avoidInstrumentingShadedClasses;
-	}
+    public static boolean getAvoidInstrumentingShadedClasses() {
+        return RuntimeInstrumentation.avoidInstrumentingShadedClasses;
+    }
 
-	public static boolean checkIfCanInstrument(String className) {
-		for (String s : ExcludedClasses.getPackagesShouldNotBeInstrumented()) {
-			if (className.startsWith(s)) {
-				return false;
-			}
-		}
+    public static boolean checkIfCanInstrument(String className) {
+        for (String s : ExcludedClasses.getPackagesShouldNotBeInstrumented()) {
+            if (className.startsWith(s)) {
+                return false;
+            }
+        }
 
-		if(className.contains("EnhancerByMockito")){
-			//very special case, as Mockito will create classes on the fly
-			return false;
-		}
+        if (className.contains("EnhancerByMockito")) {
+            //very special case, as Mockito will create classes on the fly
+            return false;
+        }
 
-		if(className.contains("__CLR")) {
-			// Instrumenting clover coverage instrumentation helper classes breaks clover
-			return false;
-		}
+        // Instrumenting clover coverage instrumentation helper classes breaks clover
+        return !className.contains("__CLR");
+    }
 
-		return true;
-	}
+    public boolean isAlreadyInstrumented(ClassReader reader) {
+        ClassNode classNode = new ClassNode();
 
-	public boolean isAlreadyInstrumented(ClassReader reader) {
-		ClassNode classNode = new ClassNode();
+        int readFlags = ClassReader.SKIP_FRAMES | ClassReader.SKIP_CODE;
+        reader.accept(classNode, readFlags);
+        for (String interfaceName : classNode.interfaces) {
+            if (InstrumentedClass.class.getName().equals(interfaceName.replace('/', '.')))
+                return true;
+        }
+        return false;
+    }
 
-		int readFlags = ClassReader.SKIP_FRAMES | ClassReader.SKIP_CODE;
-		reader.accept(classNode, readFlags);
-		for(String interfaceName : classNode.interfaces) {
-			if(InstrumentedClass.class.getName().equals(interfaceName.replace('/', '.')))
-				return true;
-		}
-		return false;
-	}
+    public byte[] transformBytes(ClassLoader classLoader, String className,
+                                 ClassReader reader, boolean skipInstrumentation) {
 
-	public byte[] transformBytes(ClassLoader classLoader, String className,
-			ClassReader reader, boolean skipInstrumentation) {
+        String classNameWithDots = className.replace('/', '.');
 
-		String classNameWithDots = className.replace('/', '.');
+        if (!checkIfCanInstrument(classNameWithDots)) {
+            throw new IllegalArgumentException("Should not transform a shared class ("
+                    + classNameWithDots + ")! Load by parent (JVM) classloader.");
+        }
 
-		if (!checkIfCanInstrument(classNameWithDots)) {
-			throw new IllegalArgumentException("Should not transform a shared class ("
-					+ classNameWithDots + ")! Load by parent (JVM) classloader.");
-		}
+        int asmFlags = ClassWriter.COMPUTE_FRAMES;
+        ClassWriter writer = new ComputeClassWriter(asmFlags);
 
-		int asmFlags = ClassWriter.COMPUTE_FRAMES;
-		ClassWriter writer = new ComputeClassWriter(asmFlags);
+        ClassVisitor cv = writer;
 
-		ClassVisitor cv = writer;
+        if (!skipInstrumentation) {
+            if (RuntimeSettings.resetStaticState && !retransformingMode) {
+                /*
+                 * FIXME: currently reset does add a new method, but that does no work
+                 * when retransformingMode :(
+                 */
+                CreateClassResetClassAdapter resetClassAdapter = new CreateClassResetClassAdapter(cv, className, true);
+                cv = resetClassAdapter;
+            }
 
-		if(!skipInstrumentation) {
-			if (RuntimeSettings.resetStaticState && !retransformingMode) {
-			/*
-			 * FIXME: currently reset does add a new method, but that does no work
-			 * when retransformingMode :(
-			 */
-				CreateClassResetClassAdapter resetClassAdapter = new CreateClassResetClassAdapter(cv, className, true);
-				cv = resetClassAdapter;
-			}
+            if (RuntimeSettings.isUsingAnyMocking()) {
+                cv = new MethodCallReplacementClassAdapter(cv, className, !retransformingMode);
+            }
 
-			if (RuntimeSettings.isUsingAnyMocking()) {
-				cv = new MethodCallReplacementClassAdapter(cv, className, !retransformingMode);
-			}
+            cv = new KillSwitchClassAdapter(cv);
 
-			cv = new KillSwitchClassAdapter(cv);
+            cv = new RemoveFinalClassAdapter(cv);
 
-			cv = new RemoveFinalClassAdapter(cv);
+            if (RuntimeSettings.maxNumberOfIterationsPerLoop >= 0) {
+                cv = new LoopCounterClassAdapter(cv);
+            }
+        }
+        ClassNode cn = new AnnotatedClassNode();
 
-			if (RuntimeSettings.maxNumberOfIterationsPerLoop >= 0) {
-				cv = new LoopCounterClassAdapter(cv);
-			}
-		}
-		ClassNode cn = new AnnotatedClassNode();
-
-		int readFlags = ClassReader.SKIP_FRAMES;
-		reader.accept(cn, readFlags);
+        int readFlags = ClassReader.SKIP_FRAMES;
+        reader.accept(cn, readFlags);
 
 
-		cv = new JSRInlinerClassVisitor(cv);
+        cv = new JSRInlinerClassVisitor(cv);
 
-		try {
-			cn.accept(cv);
-		} catch (Throwable ex) {
-			logger.error("Error while instrumenting class "+className+": "+ex.getMessage(),ex);
-		}
+        try {
+            cn.accept(cv);
+        } catch (Throwable ex) {
+            logger.error("Error while instrumenting class " + className + ": " + ex.getMessage(), ex);
+        }
 
-		return writer.toByteArray();
-	}
+        return writer.toByteArray();
+    }
 
 }

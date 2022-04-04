@@ -30,7 +30,7 @@ public class SimpleFM_PackageMethod {
         }
     }
 
-    public void bar(PLM plm){
+    public void bar(PLM plm) {
         plm.foo(); //throw exception if not mocked
         System.out.println("To reach this, PLM should had been mocked");
     }

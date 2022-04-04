@@ -20,8 +20,6 @@
 
 package org.evosuite.testcase.localsearch;
 
-import java.util.Arrays;
-
 import org.evosuite.Properties;
 import org.evosuite.ga.localsearch.LocalSearchObjective;
 import org.evosuite.testcase.TestChromosome;
@@ -31,285 +29,289 @@ import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
+
 /**
  * @author Gordon Fraser
- * 
  */
 public class StringAVMLocalSearch extends StatementLocalSearch {
 
-	private static final Logger logger = LoggerFactory.getLogger(StringLocalSearch.class);
+    private static final Logger logger = LoggerFactory.getLogger(StringLocalSearch.class);
 
-	private String oldValue;
+    private String oldValue;
 
-	private ExecutionResult oldResult;
+    private ExecutionResult oldResult;
 
-	private boolean oldChanged;
+    private boolean oldChanged;
 
-	private void backup(TestChromosome test, StringPrimitiveStatement p) {
-		oldValue = p.getValue();
-		oldResult = test.getLastExecutionResult();
-		oldChanged = test.isChanged();
-	}
+    private void backup(TestChromosome test, StringPrimitiveStatement p) {
+        oldValue = p.getValue();
+        oldResult = test.getLastExecutionResult();
+        oldChanged = test.isChanged();
+    }
 
-	private void restore(TestChromosome test, StringPrimitiveStatement p) {
-		p.setValue(oldValue);
-		test.setLastExecutionResult(oldResult);
-		test.setChanged(oldChanged);
-	}
+    private void restore(TestChromosome test, StringPrimitiveStatement p) {
+        p.setValue(oldValue);
+        test.setLastExecutionResult(oldResult);
+        test.setChanged(oldChanged);
+    }
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.LocalSearch#doSearch(org.evosuite.testcase.TestChromosome, int, org.evosuite.ga.LocalSearchObjective)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public boolean doSearch(TestChromosome test, int statement,
-	        LocalSearchObjective<TestChromosome> objective) {
-		StringPrimitiveStatement p = (StringPrimitiveStatement) test.getTestCase().getStatement(statement);
-		backup(test, p);
-		
-		// TODO: First apply 10 random mutations to determine if string influences _uncovered_ branch
+    /* (non-Javadoc)
+     * @see org.evosuite.testcase.LocalSearch#doSearch(org.evosuite.testcase.TestChromosome, int, org.evosuite.ga.LocalSearchObjective)
+     */
 
-		boolean affected = false;
-		String oldValue = p.getValue();
-		
-		
-		for (int i = 0; i < Properties.LOCAL_SEARCH_PROBES; i++) {
-			if (Randomness.nextDouble() > 0.5)
-				p.increment();
-			else
-				p.randomize();
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean doSearch(TestChromosome test, int statement,
+                            LocalSearchObjective<TestChromosome> objective) {
+        StringPrimitiveStatement p = (StringPrimitiveStatement) test.getTestCase().getStatement(statement);
+        backup(test, p);
 
-			logger.info("Probing string " + oldValue + " ->" + p.getCode());
-			int result = objective.hasChanged(test);
-			if (result < 0) {
-				backup(test, p);
-			} else {
-				restore(test, p);
-			}
-			if (result != 0) {
-				affected = true;
-				logger.info("String affects fitness");
-				break;
-			}
-		}
+        // TODO: First apply 10 random mutations to determine if string influences _uncovered_ branch
 
-		if (affected) {
+        boolean affected = false;
+        String oldValue = p.getValue();
 
-			boolean hasImproved = false;
 
-			logger.info("Applying local search to string " + p.getCode());
-			// First try to remove each of the characters
-			logger.info("Removing characters");
-			if (removeCharacters(objective, test, p, statement))
-				hasImproved = true;
-			logger.info("Statement: " + p.getCode());
+        for (int i = 0; i < Properties.LOCAL_SEARCH_PROBES; i++) {
+            if (Randomness.nextDouble() > 0.5)
+                p.increment();
+            else
+                p.randomize();
 
-			// Second, try to replace each of the characters with each of the 64 possible characters
-			logger.info("Replacing characters");
-			if (replaceCharacters(objective, test, p, statement))
-				hasImproved = true;
-			logger.info("Statement: " + p.getCode());
+            logger.info("Probing string " + oldValue + " ->" + p.getCode());
+            int result = objective.hasChanged(test);
+            if (result < 0) {
+                backup(test, p);
+            } else {
+                restore(test, p);
+            }
+            if (result != 0) {
+                affected = true;
+                logger.info("String affects fitness");
+                break;
+            }
+        }
 
-			// Third, try to add characters
-			logger.info("Adding characters");
-			if (addCharacters(objective, test, p, statement))
-				hasImproved = true;
-			logger.info("Statement: " + p.getCode());
+        if (affected) {
 
-			logger.info("Resulting string: " + p.getValue());
-			return hasImproved;
-			//} else {
-			//	logger.info("Not applying local search to string as it does not improve fitness");
-		}
+            boolean hasImproved = false;
 
-		return false;
-	}
+            logger.info("Applying local search to string " + p.getCode());
+            // First try to remove each of the characters
+            logger.info("Removing characters");
+            if (removeCharacters(objective, test, p, statement))
+                hasImproved = true;
+            logger.info("Statement: " + p.getCode());
 
-	private boolean removeCharacters(LocalSearchObjective<TestChromosome> objective,
-	        TestChromosome test, StringPrimitiveStatement p, int statement) {
+            // Second, try to replace each of the characters with each of the 64 possible characters
+            logger.info("Replacing characters");
+            if (replaceCharacters(objective, test, p, statement))
+                hasImproved = true;
+            logger.info("Statement: " + p.getCode());
 
-		boolean improvement = false;
-		backup(test, p);
+            // Third, try to add characters
+            logger.info("Adding characters");
+            if (addCharacters(objective, test, p, statement))
+                hasImproved = true;
+            logger.info("Statement: " + p.getCode());
 
-		for (int i = oldValue.length() - 1; i >= 0; i--) {
-			String newString = oldValue.substring(0, i) + oldValue.substring(i + 1);
-			p.setValue(newString);
-			logger.info(" " + i + " " + oldValue + "/" + oldValue.length() + " -> "
-			        + newString + "/" + newString.length());
-			if (objective.hasImproved(test)) {
-				logger.info("Has improved");
-				backup(test, p);
-				improvement = true;
-			} else {
-				logger.info("Has not improved");
-				restore(test, p);
-			}
-		}
+            logger.info("Resulting string: " + p.getValue());
+            return hasImproved;
+            //} else {
+            //	logger.info("Not applying local search to string as it does not improve fitness");
+        }
 
-		return improvement;
-	}
+        return false;
+    }
 
-	private boolean replaceCharacters(LocalSearchObjective<TestChromosome> objective,
-	        TestChromosome test, StringPrimitiveStatement p, int statement) {
+    private boolean removeCharacters(LocalSearchObjective<TestChromosome> objective,
+                                     TestChromosome test, StringPrimitiveStatement p, int statement) {
 
-		logger.info(" -> In replacement");
-		boolean improvement = false;
-		backup(test, p);
-		for (int i = 0; i < oldValue.length(); i++) {
+        boolean improvement = false;
+        backup(test, p);
 
-			boolean done = false;
-			while (!done) {
-				done = true;
-				// Try +1
-				logger.debug("Trying increment of " + p.getCode());
+        for (int i = oldValue.length() - 1; i >= 0; i--) {
+            String newString = oldValue.substring(0, i) + oldValue.substring(i + 1);
+            p.setValue(newString);
+            logger.info(" " + i + " " + oldValue + "/" + oldValue.length() + " -> "
+                    + newString + "/" + newString.length());
+            if (objective.hasImproved(test)) {
+                logger.info("Has improved");
+                backup(test, p);
+                improvement = true;
+            } else {
+                logger.info("Has not improved");
+                restore(test, p);
+            }
+        }
 
-				char oldChar = oldValue.charAt(i);
-				logger.info(" -> Character " + i + ": " + oldChar);
-				char[] characters = oldValue.toCharArray();
-				char replacement = oldChar;
+        return improvement;
+    }
 
-				replacement += 1;
-				characters[i] = replacement;
-				String newString = new String(characters);
-				p.setValue(newString);
-				logger.info(" " + i + " " + oldValue + "/" + oldValue.length() + " -> "
-				        + newString + "/" + newString.length());
+    private boolean replaceCharacters(LocalSearchObjective<TestChromosome> objective,
+                                      TestChromosome test, StringPrimitiveStatement p, int statement) {
 
-				if (objective.hasImproved(test)) {
-					done = false;
+        logger.info(" -> In replacement");
+        boolean improvement = false;
+        backup(test, p);
+        for (int i = 0; i < oldValue.length(); i++) {
 
-					iterate(2, objective, test, p, i, statement);
-					oldValue = p.getValue();
-					oldResult = test.getLastExecutionResult();
+            boolean done = false;
+            while (!done) {
+                done = true;
+                // Try +1
+                logger.debug("Trying increment of " + p.getCode());
 
-				} else {
-					// Restore original, try -1
-					p.setValue(oldValue);
-					test.setLastExecutionResult(oldResult);
-					test.setChanged(false);
+                char oldChar = oldValue.charAt(i);
+                logger.info(" -> Character " + i + ": " + oldChar);
+                char[] characters = oldValue.toCharArray();
+                char replacement = oldChar;
 
-					logger.debug("Trying decrement of " + p.getCode());
-					replacement -= 2;
-					characters[i] = replacement;
-					newString = new String(characters);
-					p.setValue(newString);
-					logger.info(" " + i + " " + oldValue + "/" + oldValue.length()
-					        + " -> " + newString + "/" + newString.length());
+                replacement += 1;
+                characters[i] = replacement;
+                String newString = new String(characters);
+                p.setValue(newString);
+                logger.info(" " + i + " " + oldValue + "/" + oldValue.length() + " -> "
+                        + newString + "/" + newString.length());
 
-					if (objective.hasImproved(test)) {
-						done = false;
-						iterate(-2, objective, test, p, i, statement);
-						oldValue = p.getValue();
-						oldResult = test.getLastExecutionResult();
+                if (objective.hasImproved(test)) {
+                    done = false;
 
-					} else {
-						p.setValue(oldValue);
-						test.setLastExecutionResult(oldResult);
-						test.setChanged(false);
-					}
-				}
-			}
-		}
+                    iterate(2, objective, test, p, i, statement);
+                    oldValue = p.getValue();
+                    oldResult = test.getLastExecutionResult();
 
-		return improvement;
-	}
+                } else {
+                    // Restore original, try -1
+                    p.setValue(oldValue);
+                    test.setLastExecutionResult(oldResult);
+                    test.setChanged(false);
 
-	private boolean iterate(long delta, LocalSearchObjective<TestChromosome> objective,
-	        TestChromosome test, StringPrimitiveStatement p, int character,
-	        int statement) {
+                    logger.debug("Trying decrement of " + p.getCode());
+                    replacement -= 2;
+                    characters[i] = replacement;
+                    newString = new String(characters);
+                    p.setValue(newString);
+                    logger.info(" " + i + " " + oldValue + "/" + oldValue.length()
+                            + " -> " + newString + "/" + newString.length());
 
-		boolean improvement = false;
-		oldValue = p.getValue();
-		ExecutionResult oldResult = test.getLastExecutionResult();
+                    if (objective.hasImproved(test)) {
+                        done = false;
+                        iterate(-2, objective, test, p, i, statement);
+                        oldValue = p.getValue();
+                        oldResult = test.getLastExecutionResult();
 
-		logger.debug("Trying increment " + delta + " of " + p.getCode());
-		char oldChar = oldValue.charAt(character);
-		logger.info(" -> Character " + character + ": " + oldChar);
-		char[] characters = oldValue.toCharArray();
-		char replacement = oldChar;
+                    } else {
+                        p.setValue(oldValue);
+                        test.setLastExecutionResult(oldResult);
+                        test.setChanged(false);
+                    }
+                }
+            }
+        }
 
-		replacement += delta;
-		characters[character] = replacement;
-		String newString = new String(characters);
-		p.setValue(newString);
+        return improvement;
+    }
 
-		while (objective.hasImproved(test)) {
-			oldValue = p.getValue();
-			oldResult = test.getLastExecutionResult();
-			improvement = true;
-			delta = 2 * delta;
-			logger.info(" " + character + " " + oldValue + "/" + oldValue.length()
-			        + " -> " + newString + "/" + newString.length());
-			replacement += delta;
-			characters[character] = replacement;
-			newString = new String(characters);
-			p.setValue(newString);
-		}
-		logger.debug("No improvement on " + p.getCode());
+    private boolean iterate(long delta, LocalSearchObjective<TestChromosome> objective,
+                            TestChromosome test, StringPrimitiveStatement p, int character,
+                            int statement) {
 
-		p.setValue(oldValue);
-		test.setLastExecutionResult(oldResult);
-		test.setChanged(false);
-		logger.debug("Final value of this iteration: " + p.getValue());
+        boolean improvement = false;
+        oldValue = p.getValue();
+        ExecutionResult oldResult = test.getLastExecutionResult();
 
-		return improvement;
+        logger.debug("Trying increment " + delta + " of " + p.getCode());
+        char oldChar = oldValue.charAt(character);
+        logger.info(" -> Character " + character + ": " + oldChar);
+        char[] characters = oldValue.toCharArray();
+        char replacement = oldChar;
 
-	}
+        replacement += delta;
+        characters[character] = replacement;
+        String newString = new String(characters);
+        p.setValue(newString);
 
-	private boolean addCharacters(LocalSearchObjective<TestChromosome> objective,
-	        TestChromosome test, StringPrimitiveStatement p, int statement) {
+        while (objective.hasImproved(test)) {
+            oldValue = p.getValue();
+            oldResult = test.getLastExecutionResult();
+            improvement = true;
+            delta = 2 * delta;
+            logger.info(" " + character + " " + oldValue + "/" + oldValue.length()
+                    + " -> " + newString + "/" + newString.length());
+            replacement += delta;
+            characters[character] = replacement;
+            newString = new String(characters);
+            p.setValue(newString);
+        }
+        logger.debug("No improvement on " + p.getCode());
 
-		boolean improvement = false;
-		backup(test, p);
+        p.setValue(oldValue);
+        test.setLastExecutionResult(oldResult);
+        test.setChanged(false);
+        logger.debug("Final value of this iteration: " + p.getValue());
 
-		boolean add = true;
+        return improvement;
 
-		while (add) {
-			add = false;
-			int position = oldValue.length();
-			char[] characters = Arrays.copyOf(oldValue.toCharArray(), position + 1);
-			for (char replacement = 9; replacement < 128; replacement++) {
-				characters[position] = replacement;
-				String newString = new String(characters);
-				p.setValue(newString);
-				//logger.debug(" " + oldValue + "/" + oldValue.length() + " -> " + newString
-				//        + "/" + newString.length());
+    }
 
-				if (objective.hasImproved(test)) {
-					backup(test, p);
-					improvement = true;
-					add = true;
-					break;
-				} else {
-					restore(test, p);
-				}
-			}
-		}
+    private boolean addCharacters(LocalSearchObjective<TestChromosome> objective,
+                                  TestChromosome test, StringPrimitiveStatement p, int statement) {
 
-		add = true;
-		while (add) {
-			add = false;
-			int position = 0;
-			char[] characters = (" " + oldValue).toCharArray();
-			for (char replacement = 9; replacement < 128; replacement++) {
-				characters[position] = replacement;
-				String newString = new String(characters);
-				p.setValue(newString);
-				//logger.debug(" " + oldValue + "/" + oldValue.length() + " -> " + newString
-				//        + "/" + newString.length());
+        boolean improvement = false;
+        backup(test, p);
 
-				if (objective.hasImproved(test)) {
-					backup(test, p);
-					improvement = true;
-					add = true;
-					break;
-				} else {
-					restore(test, p);
-				}
-			}
-		}
+        boolean add = true;
 
-		return improvement;
-	}
+        while (add) {
+            add = false;
+            int position = oldValue.length();
+            char[] characters = Arrays.copyOf(oldValue.toCharArray(), position + 1);
+            for (char replacement = 9; replacement < 128; replacement++) {
+                characters[position] = replacement;
+                String newString = new String(characters);
+                p.setValue(newString);
+                //logger.debug(" " + oldValue + "/" + oldValue.length() + " -> " + newString
+                //        + "/" + newString.length());
+
+                if (objective.hasImproved(test)) {
+                    backup(test, p);
+                    improvement = true;
+                    add = true;
+                    break;
+                } else {
+                    restore(test, p);
+                }
+            }
+        }
+
+        add = true;
+        while (add) {
+            add = false;
+            int position = 0;
+            char[] characters = (" " + oldValue).toCharArray();
+            for (char replacement = 9; replacement < 128; replacement++) {
+                characters[position] = replacement;
+                String newString = new String(characters);
+                p.setValue(newString);
+                //logger.debug(" " + oldValue + "/" + oldValue.length() + " -> " + newString
+                //        + "/" + newString.length());
+
+                if (objective.hasImproved(test)) {
+                    backup(test, p);
+                    improvement = true;
+                    add = true;
+                    break;
+                } else {
+                    restore(test, p);
+                }
+            }
+        }
+
+        return improvement;
+    }
 
 }

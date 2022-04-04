@@ -39,9 +39,9 @@ public class HttpTest {
     public void testUrlParsingHttp() throws MalformedURLException {
 
         String location = "http://www.evosuite.org/index.html";
-        URL url =  MockURL.URL(location);
-        Assert.assertEquals("/index.html",url.getFile());
-        Assert.assertEquals("http",url.getProtocol());
+        URL url = MockURL.URL(location);
+        Assert.assertEquals("/index.html", url.getFile());
+        Assert.assertEquals("http", url.getProtocol());
     }
 
     @Test
@@ -57,10 +57,10 @@ public class HttpTest {
 
         Assert.assertEquals(HttpURLConnection.HTTP_NOT_FOUND, evo.getResponseCode());
 
-        try{
+        try {
             evo.getInputStream();
             Assert.fail();
-        } catch(IOException e){
+        } catch (IOException e) {
             //expected
         }
     }
@@ -68,13 +68,13 @@ public class HttpTest {
     @Test
     public void testHttpOK() throws Exception {
         VirtualNetwork.getInstance().reset();
-        Assert.assertEquals(0 , VirtualNetwork.getInstance().getViewOfRemoteAccessedFiles().size());
+        Assert.assertEquals(0, VirtualNetwork.getInstance().getViewOfRemoteAccessedFiles().size());
 
         String text = "<html>Hello World!</html>";
         String location = "http://www.evosuite.org/index.html";
         URL url = MockURL.URL(location);
 
-        VirtualNetwork.getInstance().addRemoteTextFile(url.toString() , text);
+        VirtualNetwork.getInstance().addRemoteTextFile(url.toString(), text);
 
         URLConnection connection = url.openConnection();
         Assert.assertTrue(connection instanceof HttpURLConnection);
@@ -87,6 +87,6 @@ public class HttpTest {
         String result = in.nextLine();
         Assert.assertEquals(text, result);
 
-        Assert.assertEquals(1 , VirtualNetwork.getInstance().getViewOfRemoteAccessedFiles().size());
+        Assert.assertEquals(1, VirtualNetwork.getInstance().getViewOfRemoteAccessedFiles().size());
     }
 }

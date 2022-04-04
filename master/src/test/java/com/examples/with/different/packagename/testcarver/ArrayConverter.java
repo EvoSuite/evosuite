@@ -28,6 +28,7 @@ import java.io.StreamTokenizer;
 import java.io.StringReader;
 import java.io.IOException;
 import java.lang.reflect.Array;
+
 import com.examples.with.different.packagename.testcarver.ConversionException;
 import com.examples.with.different.packagename.testcarver.Converter;
 
@@ -51,7 +52,7 @@ import com.examples.with.different.packagename.testcarver.Converter;
  *         of the delegate {@link Converter}.</li>
  *     <li><b>Delimited Lists</b> - can Convert <b>to</b> and <b>from</b> a
  *         delimited list in String format.</li>
- *     <li><b>Conversion to String</b> - converts an array to a 
+ *     <li><b>Conversion to String</b> - converts an array to a
  *         <code>String</code> in one of two ways: as a <i>delimited list</i>
  *         or by converting the first element in the array to a String - this
  *         is controlled by the {@link ArrayConverter#setOnlyFirstToString(boolean)}
@@ -61,15 +62,15 @@ import com.examples.with.different.packagename.testcarver.Converter;
  *         within each other - see example below.</li>
  *     <li><b>Default Value</b></li>
  *         <ul>
- *             <li><b><i>No Default</b></i> - use the 
+ *             <li><b><i>No Default</b></i> - use the
  *                 {@link ArrayConverter#ArrayConverter(Class, Converter)}
  *                 constructor to create a converter which throws a
  *                 {@link ConversionException} if the value is missing or
  *                 invalid.</li>
- *             <li><b><i>Default values</b></i> - use the 
+ *             <li><b><i>Default values</b></i> - use the
  *                 {@link ArrayConverter#ArrayConverter(Class, Converter, int)}
  *                 constructor to create a converter which returns a <i>default
- *                 value</i>. The <i>defaultSize</i> parameter controls the 
+ *                 value</i>. The <i>defaultSize</i> parameter controls the
  *                 <i>default value</i> in the following way:</li>
  *                 <ul>
  *                    <li><i>defaultSize &lt; 0</i> - default is <code>null</code></li>
@@ -132,8 +133,8 @@ public class ArrayConverter extends AbstractConverter {
     private Object defaultTypeInstance;
     private Converter elementConverter;
     private int defaultSize;
-    private char delimiter    = ',';
-    private char[] allowedChars = new char[] {'.', '-'};
+    private char delimiter = ',';
+    private char[] allowedChars = new char[]{'.', '-'};
     private boolean onlyFirstToString = true;
 
     // ----------------------------------------------------------- Constructors
@@ -143,10 +144,10 @@ public class ArrayConverter extends AbstractConverter {
      * <b>component</b> <code>Converter</code> that throws a
      * <code>ConversionException</code> if an error occurs.
      *
-     * @param defaultType The default array type this
-     *  <code>Converter</code> handles
+     * @param defaultType      The default array type this
+     *                         <code>Converter</code> handles
      * @param elementConverter Converter used to convert
-     *  individual array elements.
+     *                         individual array elements.
      */
     public ArrayConverter(Class defaultType, Converter elementConverter) {
         super();
@@ -168,12 +169,12 @@ public class ArrayConverter extends AbstractConverter {
      * <b>component</b> <code>Converter</code> that returns a default
      * array of the specified size (or <code>null</code>) if an error occurs.
      *
-     * @param defaultType The default array type this
-     *  <code>Converter</code> handles
+     * @param defaultType      The default array type this
+     *                         <code>Converter</code> handles
      * @param elementConverter Converter used to convert
-     *  individual array elements.
-     * @param defaultSize Specifies the size of the default array value or if less
-     *  than zero indicates that a <code>null</code> default value should be used.
+     *                         individual array elements.
+     * @param defaultSize      Specifies the size of the default array value or if less
+     *                         than zero indicates that a <code>null</code> default value should be used.
      */
     public ArrayConverter(Class defaultType, Converter elementConverter, int defaultSize) {
         this(defaultType, elementConverter);
@@ -198,7 +199,7 @@ public class ArrayConverter extends AbstractConverter {
      * Set the allowed characters to be used for parsing a delimited String.
      *
      * @param allowedChars Characters which are to be considered as part of
-     * the tokens when parsing a delimited String [default is '.' and '-']
+     *                     the tokens when parsing a delimited String [default is '.' and '-']
      */
     public void setAllowedChars(char[] allowedChars) {
         this.allowedChars = allowedChars;
@@ -209,9 +210,9 @@ public class ArrayConverter extends AbstractConverter {
      * a delimited list or just convert the first value.
      *
      * @param onlyFirstToString <code>true</code> converts only
-     * the first value in the array to a String, <code>false</code>
-     * converts all values in the array into a delimited list (default
-     * is <code>true</code> 
+     *                          the first value in the array to a String, <code>false</code>
+     *                          converts all values in the array into a delimited list (default
+     *                          is <code>true</code>
      */
     public void setOnlyFirstToString(boolean onlyFirstToString) {
         this.onlyFirstToString = onlyFirstToString;
@@ -247,7 +248,7 @@ public class ArrayConverter extends AbstractConverter {
         }
 
         if (size == 0) {
-            return (String)getDefault(String.class);
+            return (String) getDefault(String.class);
         }
 
         if (onlyFirstToString) {
@@ -274,7 +275,7 @@ public class ArrayConverter extends AbstractConverter {
     /**
      * Handles conversion to an array of the specified type.
      *
-     * @param type The type to which this value should be converted.
+     * @param type  The type to which this value should be converted.
      * @param value The input value to be converted.
      * @return The converted value.
      * @throws Throwable if an error occurs converting to the specified type
@@ -330,7 +331,7 @@ public class ArrayConverter extends AbstractConverter {
      * </p>
      * <ul>
      *   <li>{@link Collection} values are returned unchanged</li>
-     *   <li>{@link Number}, {@link Boolean}  and {@link java.util.Date} 
+     *   <li>{@link Number}, {@link Boolean}  and {@link java.util.Date}
      *       values returned as a the only element in a List.</li>
      *   <li>All other types are converted to a String and parsed
      *       as a delimited list.</li>
@@ -341,28 +342,29 @@ public class ArrayConverter extends AbstractConverter {
      * {@link ArrayConverter#convertToString(Object)} methods for
      * <i>non-array</i> types.
      *
-     * @param type The type to convert the value to
+     * @param type  The type to convert the value to
      * @param value value to be converted
      * @return Collection elements.
      */
     protected Collection convertToCollection(Class type, Object value) {
         if (value instanceof Collection) {
-            return (Collection)value;
+            return (Collection) value;
         }
         if (value instanceof Number ||
-            value instanceof Boolean ||
-            value instanceof java.util.Date) {
+                value instanceof Boolean ||
+                value instanceof java.util.Date) {
             List list = new ArrayList(1);
             list.add(value);
             return list;
         }
-        
+
         return parseElements(type, value.toString());
     }
 
     /**
      * Return the default value for conversions to the specified
      * type.
+     *
      * @param type Data type to which this value should be converted.
      * @return The default value for the specified type.
      */
@@ -413,14 +415,13 @@ public class ArrayConverter extends AbstractConverter {
      *  Within a quoted elements, the normal Java escape sequences are valid.</li>
      * </ul>
      *
-     * @param type The type to convert the value to
+     * @param type  The type to convert the value to
      * @param value String value to be parsed
      * @return List of parsed elements.
-     *
-     * @throws ConversionException if the syntax of <code>svalue</code>
-     *  is not syntactically valid
+     * @throws ConversionException  if the syntax of <code>svalue</code>
+     *                              is not syntactically valid
      * @throws NullPointerException if <code>svalue</code>
-     *  is <code>null</code>
+     *                              is <code>null</code>
      */
     private List parseElements(Class type, String value) {
 
@@ -434,7 +435,7 @@ public class ArrayConverter extends AbstractConverter {
 
             // Set up a StreamTokenizer on the characters in this String
             StreamTokenizer st = new StreamTokenizer(new StringReader(value));
-            st.whitespaceChars(delimiter , delimiter); // Set the delimiters
+            st.whitespaceChars(delimiter, delimiter); // Set the delimiters
             st.ordinaryChars('0', '9');  // Needed to turn off numeric flag
             st.wordChars('0', '9');      // Needed to make part of tokens
             for (int i = 0; i < allowedChars.length; i++) {
@@ -457,7 +458,7 @@ public class ArrayConverter extends AbstractConverter {
                     break;
                 } else {
                     throw new ConversionException("Encountered token of type "
-                        + ttype + " parsing elements to '" + toString(type) + ".");
+                            + ttype + " parsing elements to '" + toString(type) + ".");
                 }
             }
 

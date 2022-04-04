@@ -27,19 +27,19 @@ import org.evosuite.symbolic.vm.heap.SymbolicHeap;
 
 public final class I_Init extends SymbolicFunction {
 
-	public I_Init(SymbolicEnvironment env) {
-		super(env, Types.JAVA_LANG_INTEGER, Types.INIT, Types.I_TO_VOID);
-	}
+    public I_Init(SymbolicEnvironment env) {
+        super(env, Types.JAVA_LANG_INTEGER, Types.INIT, Types.I_TO_VOID);
+    }
 
-	@Override
-	public Object executeFunction() {
-		IntegerValue bv32 = this.getSymbIntegerArgument(0);
-		ReferenceConstant symb_integer = this.getSymbReceiver();
-		env.heap.putField(Types.JAVA_LANG_INTEGER, SymbolicHeap.$INT_VALUE,
-				null/* conc_integer */, symb_integer, bv32);
+    @Override
+    public Object executeFunction() {
+        IntegerValue bv32 = this.getSymbIntegerArgument(0);
+        ReferenceConstant symb_integer = this.getSymbReceiver();
+        env.heap.putField(Types.JAVA_LANG_INTEGER, SymbolicHeap.$INT_VALUE,
+                null/* conc_integer */, symb_integer, bv32);
 
-		// return void
-		return null;
-	}
+        // return void
+        return null;
+    }
 
 }

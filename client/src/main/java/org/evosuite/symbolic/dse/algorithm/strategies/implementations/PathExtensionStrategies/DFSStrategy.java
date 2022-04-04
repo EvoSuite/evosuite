@@ -29,11 +29,10 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Stack;
 
 /**
  * Classic DFS exploration. New path conditions are created incrementally from the smallest to the largest.
- *
+ * <p>
  * TODO: This is very similar to {@link org.evosuite.symbolic.dse.algorithm.strategies.implementations.PathExtensionStrategies.ExpandExecutionStrategy}
  * It can be an extensions later on.
  *
@@ -41,7 +40,7 @@ import java.util.Stack;
  */
 public class DFSStrategy implements PathExtensionStrategy {
 
-    public static final String DEBUG_MSG_NEGATING_INDEX_OF_PATH_CONDITION   = "negating index {} of path condition";
+    public static final String DEBUG_MSG_NEGATING_INDEX_OF_PATH_CONDITION = "negating index {} of path condition";
 
     Logger logger = LoggerFactory.getLogger(DFSStrategy.class);
 

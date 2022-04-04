@@ -38,167 +38,174 @@ import java.util.Map.Entry;
  */
 public class StrongMutationSuiteFitness extends MutationSuiteFitness {
 
-	private static final long serialVersionUID = -9124328839917834720L;
+    private static final long serialVersionUID = -9124328839917834720L;
 
-	public StrongMutationSuiteFitness() {
-		super(Properties.Criterion.STRONGMUTATION);
-	}
+    public StrongMutationSuiteFitness() {
+        super(Properties.Criterion.STRONGMUTATION);
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public ExecutionResult runTest(TestCase test) {
-		return runTest(test, null);
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ExecutionResult runTest(TestCase test) {
+        return runTest(test, null);
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public ExecutionResult runTest(TestCase test, Mutation mutant) {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ExecutionResult runTest(TestCase test, Mutation mutant) {
 
-		return StrongMutationTestFitness.runTest(test, mutant);
-	}
+        return StrongMutationTestFitness.runTest(test, mutant);
+    }
 
-	/**
-	 * Create a list of test cases ordered by their execution time. The
-	 * precondition is that all TestChromomes have been executed such that they
-	 * have an ExecutionResult.
-	 * 
-	 * @param individual
-	 * @return
-	 */
-	private List<TestChromosome> prioritizeTests(TestSuiteChromosome individual) {
-		List<TestChromosome> executionOrder = new ArrayList<>(individual.getTestChromosomes());
-		executionOrder.sort(Comparator.comparingLong(tch ->
-				tch.getLastExecutionResult().getExecutionTime()));
-		return executionOrder;
-	}
+    /**
+     * Create a list of test cases ordered by their execution time. The
+     * precondition is that all TestChromomes have been executed such that they
+     * have an ExecutionResult.
+     *
+     * @param individual
+     * @return
+     */
+    private List<TestChromosome> prioritizeTests(TestSuiteChromosome individual) {
+        List<TestChromosome> executionOrder = new ArrayList<>(individual.getTestChromosomes());
+        executionOrder.sort(Comparator.comparingLong(tch ->
+                tch.getLastExecutionResult().getExecutionTime()));
+        return executionOrder;
+    }
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.ga.FitnessFunction#getFitness(org.evosuite.ga.Chromosome)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public double getFitness(TestSuiteChromosome suite) {
-		runTestSuite(suite);
+    /* (non-Javadoc)
+     * @see org.evosuite.ga.FitnessFunction#getFitness(org.evosuite.ga.Chromosome)
+     */
 
-		// Set<MutationTestFitness> uncoveredMutants = MutationTestPool.getUncoveredFitnessFunctions();
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public double getFitness(TestSuiteChromosome suite) {
+        runTestSuite(suite);
 
-		for (TestChromosome test : suite.getTestChromosomes()) {
-			ExecutionResult result = test.getLastExecutionResult();
+        // Set<MutationTestFitness> uncoveredMutants = MutationTestPool.getUncoveredFitnessFunctions();
 
-			if (result.hasTimeout() || result.hasTestException()) {
-				logger.debug("Skipping test with timeout");
-				double fitness = branchFitness.totalGoals * 2
-				        + branchFitness.totalMethods + 3 * this.numMutants;
-				updateIndividual(suite, fitness);
-				suite.setCoverage(this, 0.0);
-				logger.info("Test case has timed out, setting fitness to max value "
-				        + fitness);
-				return fitness;
-			}
-		}
+        for (TestChromosome test : suite.getTestChromosomes()) {
+            ExecutionResult result = test.getLastExecutionResult();
 
-		// First objective: achieve branch coverage
-		logger.debug("Calculating branch fitness: ");
-		boolean archive = Properties.TEST_ARCHIVE;
-		Properties.TEST_ARCHIVE = false;
-		double fitness = branchFitness.getFitness(suite);
-		Properties.TEST_ARCHIVE = archive;
+            if (result.hasTimeout() || result.hasTestException()) {
+                logger.debug("Skipping test with timeout");
+                double fitness = branchFitness.totalGoals * 2
+                        + branchFitness.totalMethods + 3 * this.numMutants;
+                updateIndividual(suite, fitness);
+                suite.setCoverage(this, 0.0);
+                logger.info("Test case has timed out, setting fitness to max value "
+                        + fitness);
+                return fitness;
+            }
+        }
 
-		Set<Integer> touchedMutants = new LinkedHashSet<>();
-		Map<Mutation, Double> minMutantFitness = new LinkedHashMap<>();
+        // First objective: achieve branch coverage
+        logger.debug("Calculating branch fitness: ");
+        boolean archive = Properties.TEST_ARCHIVE;
+        Properties.TEST_ARCHIVE = false;
+        double fitness = branchFitness.getFitness(suite);
+        Properties.TEST_ARCHIVE = archive;
 
-		// For each mutant that is not in the archive:
-		//   3    -> not covered
-		//   1..2 -> infection distance
-		//   0..1 -> propagation distance
-		for (Integer mutantId : this.mutantMap.keySet()) {
-			MutationTestFitness mutantFitness = mutantMap.get(mutantId);
-			minMutantFitness.put(mutantFitness.getMutation(), 3.0);
-		}
-		
-		int mutantsChecked = 0;
-		int numKilled = removedMutants.size();
-		Set<Integer> newKilled = new LinkedHashSet<>();
+        Set<Integer> touchedMutants = new LinkedHashSet<>();
+        Map<Mutation, Double> minMutantFitness = new LinkedHashMap<>();
 
-		List<TestChromosome> executionOrder = prioritizeTests(suite); // Quicker tests first
-		for (TestChromosome test : executionOrder) {
-			ExecutionResult result = test.getLastExecutionResult();
-			// Using private reflection can lead to false positives
-			// that represent unrealistic behaviour. Thus, we only
-			// use reflection for basic criteria, not for mutation
-			if(result.calledReflection())
-				continue;
+        // For each mutant that is not in the archive:
+        //   3    -> not covered
+        //   1..2 -> infection distance
+        //   0..1 -> propagation distance
+        for (Integer mutantId : this.mutantMap.keySet()) {
+            MutationTestFitness mutantFitness = mutantMap.get(mutantId);
+            minMutantFitness.put(mutantFitness.getMutation(), 3.0);
+        }
 
-			ExecutionTrace trace = result.getTrace();
-			touchedMutants.addAll(trace.getTouchedMutants());
-			logger.debug("Tests touched " + touchedMutants.size() + " mutants");
+        int mutantsChecked = 0;
+        int numKilled = removedMutants.size();
+        Set<Integer> newKilled = new LinkedHashSet<>();
 
-			Map<Integer, Double> touchedMutantsDistances = trace.getMutationDistances();
-			if (touchedMutantsDistances.isEmpty()) {
-			  // if 'result' does not touch any mutant, no need to continue
-			  continue;
-			}
+        List<TestChromosome> executionOrder = prioritizeTests(suite); // Quicker tests first
+        for (TestChromosome test : executionOrder) {
+            ExecutionResult result = test.getLastExecutionResult();
+            // Using private reflection can lead to false positives
+            // that represent unrealistic behaviour. Thus, we only
+            // use reflection for basic criteria, not for mutation
+            if (result.calledReflection())
+                continue;
 
-			for (final Entry<Integer, MutationTestFitness> entry : this.mutantMap.entrySet()) {
-				int mutantID = entry.getKey();
-				if (newKilled.contains(mutantID)) {
-					continue;
-				}
-				MutationTestFitness goal = entry.getValue();
+            ExecutionTrace trace = result.getTrace();
+            touchedMutants.addAll(trace.getTouchedMutants());
+            logger.debug("Tests touched " + touchedMutants.size() + " mutants");
 
-				if (MutationTimeoutStoppingCondition.isDisabled(goal.getMutation())) {
-					logger.debug("Skipping timed out mutation " + goal.getMutation().getId());
-					continue;
-				}
+            Map<Integer, Double> touchedMutantsDistances = trace.getMutationDistances();
+            if (touchedMutantsDistances.isEmpty()) {
+                // if 'result' does not touch any mutant, no need to continue
+                continue;
+            }
 
-				mutantsChecked++;
+            for (final Entry<Integer, MutationTestFitness> entry : this.mutantMap.entrySet()) {
+                int mutantID = entry.getKey();
+                if (newKilled.contains(mutantID)) {
+                    continue;
+                }
+                MutationTestFitness goal = entry.getValue();
 
-				double mutantInfectionDistance = 3.0;
-				boolean hasBeenTouched = touchedMutantsDistances.containsKey(mutantID);
+                if (MutationTimeoutStoppingCondition.isDisabled(goal.getMutation())) {
+                    logger.debug("Skipping timed out mutation " + goal.getMutation().getId());
+                    continue;
+                }
 
-				if (hasBeenTouched) {
-					// Infection happened, so we need to check propagation
-					if (touchedMutantsDistances.get(mutantID) == 0.0) {
-						logger.debug("Executing test against mutant " + goal.getMutation());
+                mutantsChecked++;
 
-						mutantInfectionDistance = goal.getFitness(test, result); // archive is updated by the TestFitnessFunction class
-					} else {
-						// We can skip calling the test fitness function since we already know
-						// fitness is 1.0 (for propagation) + infection distance
-						mutantInfectionDistance = 1.0 + normalize(touchedMutantsDistances.get(mutantID));
-					}
-				} else {
-					mutantInfectionDistance = goal.getFitness(test, result); // archive is updated by the TestFitnessFunction class
-				}
+                double mutantInfectionDistance = 3.0;
+                boolean hasBeenTouched = touchedMutantsDistances.containsKey(mutantID);
 
-				if (mutantInfectionDistance == 0.0) {
-					numKilled++;
-					newKilled.add(mutantID);
-					result.test.addCoveredGoal(goal); // update list of covered goals
-					this.toRemoveMutants.add(mutantID); // goal to not be considered by the next iteration of the evolutionary algorithm
-				} else {
-					minMutantFitness.put(goal.getMutation(), Math.min(mutantInfectionDistance, minMutantFitness.get(goal.getMutation())));
-				}
-			}
-		}
+                if (hasBeenTouched) {
+                    // Infection happened, so we need to check propagation
+                    if (touchedMutantsDistances.get(mutantID) == 0.0) {
+                        logger.debug("Executing test against mutant " + goal.getMutation());
 
-		//logger.info("Fitness values for " + minMutantFitness.size() + " mutants");
-		for (Double fit : minMutantFitness.values()) {
-			fitness += fit;
-		}
+                        mutantInfectionDistance = goal.getFitness(test, result); // archive is updated by the TestFitnessFunction class
+                    } else {
+                        // We can skip calling the test fitness function since we already know
+                        // fitness is 1.0 (for propagation) + infection distance
+                        mutantInfectionDistance = 1.0 + normalize(touchedMutantsDistances.get(mutantID));
+                    }
+                } else {
+                    mutantInfectionDistance = goal.getFitness(test, result); // archive is updated by the TestFitnessFunction class
+                }
 
-		logger.debug("Mutants killed: {}, Checked: {}, Goals: {})", numKilled, mutantsChecked, this.numMutants);
+                if (mutantInfectionDistance == 0.0) {
+                    numKilled++;
+                    newKilled.add(mutantID);
+                    result.test.addCoveredGoal(goal); // update list of covered goals
+                    this.toRemoveMutants.add(mutantID); // goal to not be considered by the next iteration of the evolutionary algorithm
+                } else {
+                    minMutantFitness.put(goal.getMutation(), Math.min(mutantInfectionDistance, minMutantFitness.get(goal.getMutation())));
+                }
+            }
+        }
 
-		updateIndividual(suite, fitness);
+        //logger.info("Fitness values for " + minMutantFitness.size() + " mutants");
+        for (Double fit : minMutantFitness.values()) {
+            fitness += fit;
+        }
 
-		assert numKilled ==newKilled.size() + removedMutants.size();
-		assert numKilled <= this.numMutants;
-		double coverage = (double) numKilled / (double) this.numMutants;
-		assert coverage >= 0.0 && coverage <= 1.0;
-		suite.setCoverage(this, coverage);
-		suite.setNumOfCoveredGoals(this, numKilled);
-		
-		return fitness;
-	}
+        logger.debug("Mutants killed: {}, Checked: {}, Goals: {})", numKilled, mutantsChecked, this.numMutants);
+
+        updateIndividual(suite, fitness);
+
+        assert numKilled == newKilled.size() + removedMutants.size();
+        assert numKilled <= this.numMutants;
+        double coverage = (double) numKilled / (double) this.numMutants;
+        assert coverage >= 0.0 && coverage <= 1.0;
+        suite.setCoverage(this, coverage);
+        suite.setNumOfCoveredGoals(this, numKilled);
+
+        return fitness;
+    }
 
 }

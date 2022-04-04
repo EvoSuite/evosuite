@@ -24,51 +24,50 @@ import java.util.Set;
 
 public interface Expression<T extends Object> extends Serializable {
 
-	/**
-	 * <p>
-	 * getParent
-	 * </p>
-	 * 
-	 * @return a {@link org.evosuite.symbolic.expr.Expression} object.
-	 */
+    /**
+     * <p>
+     * getParent
+     * </p>
+     *
+     * @return a {@link org.evosuite.symbolic.expr.Expression} object.
+     */
     Expression<?> getParent();
 
-	/**
-	 * <p>
-	 * setParent
-	 * </p>
-	 * 
-	 * @param expr
-	 *            a {@link org.evosuite.symbolic.expr.Expression} object.
-	 */
+    /**
+     * <p>
+     * setParent
+     * </p>
+     *
+     * @param expr a {@link org.evosuite.symbolic.expr.Expression} object.
+     */
     void setParent(Expression<?> expr);
 
-	/**
-	 * <p>
-	 * getConcreteValue
-	 * </p>
-	 * 
-	 * @return a {@link java.lang.Object} object.
-	 */
+    /**
+     * <p>
+     * getConcreteValue
+     * </p>
+     *
+     * @return a {@link java.lang.Object} object.
+     */
     T getConcreteValue();
 
-	/**
-	 * <p>
-	 * getSize
-	 * </p>
-	 * 
-	 * @return a int.
-	 */
+    /**
+     * <p>
+     * getSize
+     * </p>
+     *
+     * @return a int.
+     */
     int getSize();
 
-	/**
-	 * Returns true iif
-	 */
+    /**
+     * Returns true iif
+     */
     boolean containsSymbolicVariable();
 
-	Set<Variable<?>> getVariables();
+    Set<Variable<?>> getVariables();
 
-	Set<Object> getConstants();
+    Set<Object> getConstants();
 
-	<K,V> K accept(ExpressionVisitor<K, V> v, V arg) ;
+    <K, V> K accept(ExpressionVisitor<K, V> v, V arg);
 }

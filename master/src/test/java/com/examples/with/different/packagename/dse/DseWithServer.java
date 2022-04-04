@@ -28,22 +28,22 @@ import java.util.Scanner;
 
 public class DseWithServer {
 
-	public boolean readLocalAddress() throws IOException {
-		ServerSocket server = new ServerSocket();
-		String localAddress = "127.0.0.1";
-		int localPort = 42;
-		server.bind(new InetSocketAddress(localAddress, localPort));
+    public boolean readLocalAddress() throws IOException {
+        ServerSocket server = new ServerSocket();
+        String localAddress = "127.0.0.1";
+        int localPort = 42;
+        server.bind(new InetSocketAddress(localAddress, localPort));
 
-		Socket socket = server.accept();
-		InputStream in = socket.getInputStream();
-		Scanner inScan = new Scanner(in);
-		String received = inScan.nextLine();
-		inScan.close();
-		server.close();
-		if (received.startsWith("Hello") && received.endsWith("World")) {
-			return true;
-		} else {
-			return false;
-		}
-	}
+        Socket socket = server.accept();
+        InputStream in = socket.getInputStream();
+        Scanner inScan = new Scanner(in);
+        String received = inScan.nextLine();
+        inScan.close();
+        server.close();
+        if (received.startsWith("Hello") && received.endsWith("World")) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 }

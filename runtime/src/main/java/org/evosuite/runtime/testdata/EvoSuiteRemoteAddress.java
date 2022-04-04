@@ -27,6 +27,6 @@ public class EvoSuiteRemoteAddress extends EvoSuiteAddress {
     private static final long serialVersionUID = -4450692237383407590L;
 
     public EvoSuiteRemoteAddress(String host, int port) throws IllegalArgumentException {
-        super(host,port);
+        super(host, port);
     }
 }

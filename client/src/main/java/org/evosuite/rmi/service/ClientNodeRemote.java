@@ -27,34 +27,32 @@ import java.util.Set;
 
 /**
  * Client Node view in the master process.
- * 
+ *
  * @author arcuri
- * 
  */
 
 public interface ClientNodeRemote<T extends Chromosome<T>> extends Remote {
 
-	void startNewSearch() throws RemoteException;
+    void startNewSearch() throws RemoteException;
 
-	void cancelCurrentSearch() throws RemoteException;
+    void cancelCurrentSearch() throws RemoteException;
 
-	/**
-	 * 
-	 * @param timeoutInMs  maximum amount of time we can wait for the client to finish
-	 * @return <code>true</code> if client is finished
-	 * @throws RemoteException
-	 * @throws InterruptedException
-	 */
+    /**
+     * @param timeoutInMs maximum amount of time we can wait for the client to finish
+     * @return <code>true</code> if client is finished
+     * @throws RemoteException
+     * @throws InterruptedException
+     */
     boolean waitUntilFinished(long timeoutInMs) throws RemoteException,
-	        InterruptedException;
+            InterruptedException;
 
-	void doCoverageAnalysis() throws RemoteException;
+    void doCoverageAnalysis() throws RemoteException;
 
-	void doDependencyAnalysis(String fileName) throws RemoteException;
+    void doDependencyAnalysis(String fileName) throws RemoteException;
 
-	void printClassStatistics() throws RemoteException;
-	
-	void immigrate(Set<T> migrants) throws RemoteException;
+    void printClassStatistics() throws RemoteException;
+
+    void immigrate(Set<T> migrants) throws RemoteException;
 
     void collectBestSolutions(Set<T> solutions) throws RemoteException;
 }

@@ -19,84 +19,87 @@
  */
 package org.evosuite.utils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Random;
 
 public abstract class ListUtil {
-	/**
-	 * <p>tail</p>
-	 *
-	 * @param list a {@link java.util.List} object.
-	 * @param <T> a T object.
-	 * @return a {@link java.util.List} object.
-	 */
-	public static <T> List<T> tail(List<T> list) {
-		return list.subList(1, list.size());
-	}
+    /**
+     * <p>tail</p>
+     *
+     * @param list a {@link java.util.List} object.
+     * @param <T>  a T object.
+     * @return a {@link java.util.List} object.
+     */
+    public static <T> List<T> tail(List<T> list) {
+        return list.subList(1, list.size());
+    }
 
-	/**
-	 * <p>anyEquals</p>
-	 *
-	 * @param list a {@link java.util.List} object.
-	 * @param obj a T object.
-	 * @param <T> a T object.
-	 * @return a boolean.
-	 */
-	public static <T> boolean anyEquals(List<T> list, T obj) {
-		for (T item : list) {
-			if (item.equals(obj)) {
-				return true;
-			}
-		}
-		
-		return false;
-	}
-	
-	/**
-	 * <p>shuffledList</p>
-	 *
-	 * @param list a {@link java.util.List} object.
-	 * @param <T> a T object.
-	 * @return a {@link java.util.List} object.
-	 */
-	public static <T> List<T> shuffledList(List<T> list) {
-		ArrayList<T> result = new ArrayList<>(list);
-		Collections.shuffle(result);
-		return result;
-	}
+    /**
+     * <p>anyEquals</p>
+     *
+     * @param list a {@link java.util.List} object.
+     * @param obj  a T object.
+     * @param <T>  a T object.
+     * @return a boolean.
+     */
+    public static <T> boolean anyEquals(List<T> list, T obj) {
+        for (T item : list) {
+            if (item.equals(obj)) {
+                return true;
+            }
+        }
 
-	/**
-	 * <p>shuffledList</p>
-	 *
-	 * @param list a {@link java.util.List} object.
-	 * @param rnd a {@link java.util.Random} object.
-	 * @param <T> a T object.
-	 * @return a {@link java.util.List} object.
-	 */
-	public static <T> List<T> shuffledList(List<T> list, Random rnd) {
-		ArrayList<T> result = new ArrayList<>(list);
-		Collections.shuffle(result, rnd);
-		return result;
-	}
+        return false;
+    }
 
-	private static int getIndex(List<?> population) {
-		double r = Randomness.nextDouble();
-		double d = org.evosuite.Properties.RANK_BIAS
-				- Math.sqrt((org.evosuite.Properties.RANK_BIAS * org.evosuite.Properties.RANK_BIAS)
-				- (4.0 * (org.evosuite.Properties.RANK_BIAS - 1.0) * r));
-		int length = population.size();
+    /**
+     * <p>shuffledList</p>
+     *
+     * @param list a {@link java.util.List} object.
+     * @param <T>  a T object.
+     * @return a {@link java.util.List} object.
+     */
+    public static <T> List<T> shuffledList(List<T> list) {
+        ArrayList<T> result = new ArrayList<>(list);
+        Collections.shuffle(result);
+        return result;
+    }
 
-		d = d / 2.0 / (org.evosuite.Properties.RANK_BIAS - 1.0);
+    /**
+     * <p>shuffledList</p>
+     *
+     * @param list a {@link java.util.List} object.
+     * @param rnd  a {@link java.util.Random} object.
+     * @param <T>  a T object.
+     * @return a {@link java.util.List} object.
+     */
+    public static <T> List<T> shuffledList(List<T> list, Random rnd) {
+        ArrayList<T> result = new ArrayList<>(list);
+        Collections.shuffle(result, rnd);
+        return result;
+    }
 
-		//this is not needed because population is sorted based on Maximization
-		//if(maximize)
-		//	d = 1.0 - d; // to do that if we want to have Maximisation
+    private static int getIndex(List<?> population) {
+        double r = Randomness.nextDouble();
+        double d = org.evosuite.Properties.RANK_BIAS
+                - Math.sqrt((org.evosuite.Properties.RANK_BIAS * org.evosuite.Properties.RANK_BIAS)
+                - (4.0 * (org.evosuite.Properties.RANK_BIAS - 1.0) * r));
+        int length = population.size();
 
-		int index = (int) (length * d);
-		return index;
-	}
+        d = d / 2.0 / (org.evosuite.Properties.RANK_BIAS - 1.0);
 
-	public static <T> T selectRankBiased(List<T> list) {
-		int index = getIndex(list);
-		return list.get(index);
-	}
+        //this is not needed because population is sorted based on Maximization
+        //if(maximize)
+        //	d = 1.0 - d; // to do that if we want to have Maximisation
+
+        int index = (int) (length * d);
+        return index;
+    }
+
+    public static <T> T selectRankBiased(List<T> list) {
+        int index = getIndex(list);
+        return list.get(index);
+    }
 }

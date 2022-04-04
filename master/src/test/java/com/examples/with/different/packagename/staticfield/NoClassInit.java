@@ -21,29 +21,29 @@ package com.examples.with.different.packagename.staticfield;
 
 public class NoClassInit {
 
-	private static NoClassInit instance;
+    private static NoClassInit instance;
 
-	private static boolean flag;
+    private static boolean flag;
 
-	private static float myFloat;
-	
-	private static int myInt;
+    private static float myFloat;
 
-	private static NoClassInit[] myArray;
+    private static int myInt;
 
-	private static short myShort;
+    private static NoClassInit[] myArray;
 
-	private static char myChar;
+    private static short myShort;
 
-	public static boolean bar(int value) throws IllegalStateException {
-		if (instance != null)
-			throw new IllegalStateException("Only one call to bar is allowed");
+    private static char myChar;
 
-		instance= new NoClassInit();
-		if (value < 0)
-			return true;
-		else
-			return false;
-	}
-	
+    public static boolean bar(int value) throws IllegalStateException {
+        if (instance != null)
+            throw new IllegalStateException("Only one call to bar is allowed");
+
+        instance = new NoClassInit();
+        if (value < 0)
+            return true;
+        else
+            return false;
+    }
+
 }

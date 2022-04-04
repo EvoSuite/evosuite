@@ -20,13 +20,13 @@
 
 package org.evosuite.testcase.statements.numeric;
 
+import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.statements.PrimitiveStatement;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.Type;
-
-import org.evosuite.testcase.TestCase;
-import org.evosuite.testcase.statements.PrimitiveStatement;
 
 /**
  * <p>Abstract NumericalPrimitiveStatement class.</p>
@@ -35,70 +35,70 @@ import org.evosuite.testcase.statements.PrimitiveStatement;
  */
 public abstract class NumericalPrimitiveStatement<T> extends PrimitiveStatement<T> {
 
-	private static final long serialVersionUID = 476613542969677702L;
+    private static final long serialVersionUID = 476613542969677702L;
 
-	/**
-	 * <p>Constructor for NumericalPrimitiveStatement.</p>
-	 *
-	 * @param tc a {@link org.evosuite.testcase.TestCase} object.
-	 * @param type a {@link java.lang.reflect.Type} object.
-	 * @param value a T object.
-	 * @param <T> a T object.
-	 */
-	public NumericalPrimitiveStatement(TestCase tc, Type type, T value) {
-		super(tc, type, value);
-	}
+    /**
+     * <p>Constructor for NumericalPrimitiveStatement.</p>
+     *
+     * @param tc    a {@link org.evosuite.testcase.TestCase} object.
+     * @param type  a {@link java.lang.reflect.Type} object.
+     * @param value a T object.
+     * @param <T>   a T object.
+     */
+    public NumericalPrimitiveStatement(TestCase tc, Type type, T value) {
+        super(tc, type, value);
+    }
 
-	/**
-	 * Increase value by smallest possible increment
-	 */
-	public abstract void increment();
+    /**
+     * Increase value by smallest possible increment
+     */
+    public abstract void increment();
 
-	/**
-	 * Decrease value by smallest possible increment
-	 */
-	public abstract void decrement();
+    /**
+     * Decrease value by smallest possible increment
+     */
+    public abstract void decrement();
 
-	/**
-	 * Change value by delta
-	 *
-	 * @param delta a long.
-	 */
-	public abstract void increment(long delta);
+    /**
+     * Change value by delta
+     *
+     * @param delta a long.
+     */
+    public abstract void increment(long delta);
 
-	/**
-	 * Change value by delta
-	 *
-	 * @param delta a double.
-	 */
-	public void increment(double delta) {
-		increment((long) delta);
-	}
+    /**
+     * Change value by delta
+     *
+     * @param delta a double.
+     */
+    public void increment(double delta) {
+        increment((long) delta);
+    }
 
-	/**
-	 * Needed for binary search
-	 *
-	 * @param min a T object.
-	 * @param max a T object.
-	 */
-	public abstract void setMid(T min, T max);
+    /**
+     * Needed for binary search
+     *
+     * @param min a T object.
+     * @param max a T object.
+     */
+    public abstract void setMid(T min, T max);
 
-	/**
-	 * Is the value >= 0?
-	 *
-	 * @return a boolean.
-	 */
-	public abstract boolean isPositive();
+    /**
+     * Is the value >= 0?
+     *
+     * @return a boolean.
+     */
+    public abstract boolean isPositive();
 
-	private void writeObject(ObjectOutputStream oos) throws IOException {
-		oos.defaultWriteObject();		
-		oos.writeObject(value);
-	}
+    private void writeObject(ObjectOutputStream oos) throws IOException {
+        oos.defaultWriteObject();
+        oos.writeObject(value);
+    }
 
-	@SuppressWarnings("unchecked")
-	private void readObject(ObjectInputStream ois) throws ClassNotFoundException,
-	        IOException {
-		ois.defaultReadObject();
-		value = (T) ois.readObject();
-	}
+    @SuppressWarnings("unchecked")
+    private void readObject(ObjectInputStream ois) throws ClassNotFoundException,
+            IOException {
+        ois.defaultReadObject();
+        value = (T) ois.readObject();
+    }
 }

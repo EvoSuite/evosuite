@@ -30,7 +30,9 @@ public class ZeroFitnessStoppingCondition extends StoppingConditionImpl {
 
     private static final long serialVersionUID = 6593889710447350828L;
 
-    /** Keep track of lowest fitness seen so far */
+    /**
+     * Keep track of lowest fitness seen so far
+     */
     private double lastFitness = Double.MAX_VALUE;
 
     @Override

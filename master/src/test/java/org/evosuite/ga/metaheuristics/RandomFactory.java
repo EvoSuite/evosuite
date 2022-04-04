@@ -23,38 +23,35 @@ import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.NSGAChromosome;
 
 /**
- * 
  * @author José Campos
  */
-public class RandomFactory implements ChromosomeFactory<NSGAChromosome>
-{
-	private static final long serialVersionUID = -6984639266849566298L;
+public class RandomFactory implements ChromosomeFactory<NSGAChromosome> {
+    private static final long serialVersionUID = -6984639266849566298L;
 
-	private final double upperBound;
-	private final double lowerBound;
+    private final double upperBound;
+    private final double lowerBound;
 
-	private final int number_of_variables;
+    private final int number_of_variables;
 
-	private boolean ZDT4 = false;
+    private boolean ZDT4 = false;
 
-	/**
-	 * 
-	 * @param z are you executing ZDT4 problem?
-	 * @param nv number of variables
-	 * @param lb lowerBound
-	 * @param ub upperBound
-	 */
-	public RandomFactory(boolean z, int nv, double lb, double ub) {
-		this.ZDT4 = z;
-		this.number_of_variables = nv;
-		this.lowerBound = lb;
-		this.upperBound = ub;
-	}
+    /**
+     * @param z  are you executing ZDT4 problem?
+     * @param nv number of variables
+     * @param lb lowerBound
+     * @param ub upperBound
+     */
+    public RandomFactory(boolean z, int nv, double lb, double ub) {
+        this.ZDT4 = z;
+        this.number_of_variables = nv;
+        this.lowerBound = lb;
+        this.upperBound = ub;
+    }
 
-	@Override
-	public NSGAChromosome getChromosome() {
-		return new NSGAChromosome(this.ZDT4,
-				this.number_of_variables,
-				this.lowerBound, this.upperBound);
-	}
+    @Override
+    public NSGAChromosome getChromosome() {
+        return new NSGAChromosome(this.ZDT4,
+                this.number_of_variables,
+                this.lowerBound, this.upperBound);
+    }
 }

@@ -24,26 +24,26 @@ import java.io.StringReader;
 
 public class TestCase97 {
 
-	public static void test(String string0) {
-		StringReader reader = new StringReader(string0);
-		try {
-			int int0 = reader.read();
-			int int2 = "Togliere sta roba".charAt(0);
-			Assertions.checkEquals(int0, int2);
-			
-			int int1 = reader.read();
-			int int3 = "Togliere sta roba".charAt(1);
-			Assertions.checkEquals(int1, int3);
+    public static void test(String string0) {
+        StringReader reader = new StringReader(string0);
+        try {
+            int int0 = reader.read();
+            int int2 = "Togliere sta roba".charAt(0);
+            Assertions.checkEquals(int0, int2);
 
-			// consume remaining reader
-			int int4 = reader.read();
-			while (int4!=-1) {
-				int4 =reader.read();
-			}
-			
-		} catch (IOException e) {
-			
-		}
-		
-	}
+            int int1 = reader.read();
+            int int3 = "Togliere sta roba".charAt(1);
+            Assertions.checkEquals(int1, int3);
+
+            // consume remaining reader
+            int int4 = reader.read();
+            while (int4 != -1) {
+                int4 = reader.read();
+            }
+
+        } catch (IOException e) {
+
+        }
+
+    }
 }

@@ -53,18 +53,18 @@ public class CoverageAnalysisLocaleSystemTest extends SystemTestBase {
         String testClass = StringUtilsEqualsIndexOfTest.class.getCanonicalName();
         Properties.TARGET_CLASS = targetClass;
 
-        Properties.CRITERION = new Properties.Criterion[] {
-            Properties.Criterion.LINE
+        Properties.CRITERION = new Properties.Criterion[]{
+                Properties.Criterion.LINE
         };
 
         Properties.OUTPUT_VARIABLES = RuntimeVariable.Total_Goals + "," + RuntimeVariable.LineCoverage;
         Properties.STATISTICS_BACKEND = StatisticsBackend.CSV;
         Properties.COVERAGE_MATRIX = true;
 
-        String[] command = new String[] {
-            "-class", targetClass,
-            "-Djunit=" + testClass,
-            "-measureCoverage"
+        String[] command = new String[]{
+                "-class", targetClass,
+                "-Djunit=" + testClass,
+                "-measureCoverage"
         };
 
         SearchStatistics statistics = (SearchStatistics) evosuite.parseCommandLine(command);

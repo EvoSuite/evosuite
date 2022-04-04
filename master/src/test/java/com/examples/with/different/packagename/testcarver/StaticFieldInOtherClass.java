@@ -23,6 +23,6 @@ import java.util.Locale;
 
 public class StaticFieldInOtherClass {
 
-	public static final Locale x = Locale.CHINESE;
+    public static final Locale x = Locale.CHINESE;
 
 }

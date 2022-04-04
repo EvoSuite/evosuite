@@ -23,15 +23,14 @@ import org.evosuite.ga.Chromosome;
 
 /**
  * This class applies local search on an specific Chromosome.
- * The local search is applied with respect to a given 
+ * The local search is applied with respect to a given
  * local search objective for the chromosome type
- * 
- * @author galeotti
  *
  * @param <T> the chromosome type
+ * @author galeotti
  */
 public interface LocalSearch<T extends Chromosome<T>> {
 
-	boolean doSearch(T individual, LocalSearchObjective<T> objective);
-	
+    boolean doSearch(T individual, LocalSearchObjective<T> objective);
+
 }

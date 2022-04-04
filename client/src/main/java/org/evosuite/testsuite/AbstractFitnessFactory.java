@@ -29,44 +29,46 @@ import org.evosuite.testcase.execution.ExecutionTracer;
  * Historical concrete TestFitnessFactories only implement the getGoals() method
  * of TestFitnessFactory. Those old Factories can just extend these
  * AstractFitnessFactory to support the new method getFitness()
- * 
+ *
  * @author Sebastian Steenbuck
  */
 public abstract class AbstractFitnessFactory<T extends TestFitnessFunction> implements
         TestFitnessFactory<T> {
 
-	/**
-	 * A concrete factory can store the time consumed to initially compute all
-	 * coverage goals in this field in order to track this information in
-	 * SearchStatistics.
-	 */
-	public static long goalComputationTime = 0L;
+    /**
+     * A concrete factory can store the time consumed to initially compute all
+     * coverage goals in this field in order to track this information in
+     * SearchStatistics.
+     */
+    public static long goalComputationTime = 0L;
 
-	
-	protected boolean isCUT(String className) {
-		return Properties.TARGET_CLASS.equals("")
-				|| (className.equals(Properties.TARGET_CLASS)
-				|| className.startsWith(Properties.TARGET_CLASS + "$"));
-	}
-	
-	/** {@inheritDoc} */
-	@Override
-	public double getFitness(TestSuiteChromosome suite) {
 
-		ExecutionTracer.enableTraceCalls();
+    protected boolean isCUT(String className) {
+        return Properties.TARGET_CLASS.equals("")
+                || (className.equals(Properties.TARGET_CLASS)
+                || className.startsWith(Properties.TARGET_CLASS + "$"));
+    }
 
-		int coveredGoals = 0;
-		for (T goal : getCoverageGoals()) {
-			for (TestChromosome test : suite.getTestChromosomes()) {
-				if (goal.isCovered(test)) {
-					coveredGoals++;
-					break;
-				}
-			}
-		}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public double getFitness(TestSuiteChromosome suite) {
 
-		ExecutionTracer.disableTraceCalls();
+        ExecutionTracer.enableTraceCalls();
 
-		return getCoverageGoals().size() - coveredGoals;
-	}
+        int coveredGoals = 0;
+        for (T goal : getCoverageGoals()) {
+            for (TestChromosome test : suite.getTestChromosomes()) {
+                if (goal.isCovered(test)) {
+                    coveredGoals++;
+                    break;
+                }
+            }
+        }
+
+        ExecutionTracer.disableTraceCalls();
+
+        return getCoverageGoals().size() - coveredGoals;
+    }
 }

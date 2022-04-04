@@ -34,78 +34,83 @@ import org.slf4j.LoggerFactory;
  * @author fraser
  */
 public class YieldAtLineNumberMethodAdapter extends MethodVisitor {
-	@SuppressWarnings("unused")
-	private static final Logger logger = LoggerFactory.getLogger(LineNumberMethodAdapter.class);
+    @SuppressWarnings("unused")
+    private static final Logger logger = LoggerFactory.getLogger(LineNumberMethodAdapter.class);
 
-	private final String className;
+    private final String className;
 
-	private final String methodName;
+    private final String methodName;
 
-	private boolean hadInvokeSpecial = false;
+    private boolean hadInvokeSpecial = false;
 
-	int currentLine = 0;
+    /**
+     * <p>Constructor for YieldAtLineNumberMethodAdapter.</p>
+     *
+     * @param mv         a {@link org.objectweb.asm.MethodVisitor} object.
+     * @param className  a {@link java.lang.String} object.
+     * @param methodName a {@link java.lang.String} object.
+     */
+    public YieldAtLineNumberMethodAdapter(MethodVisitor mv, String className,
+                                          String methodName) {
+        super(Opcodes.ASM9, mv);
+        this.className = className;
+        this.methodName = methodName;
+        if (!methodName.equals("<init>"))
+            hadInvokeSpecial = true;
+    }
 
-	/**
-	 * <p>Constructor for YieldAtLineNumberMethodAdapter.</p>
-	 *
-	 * @param mv a {@link org.objectweb.asm.MethodVisitor} object.
-	 * @param className a {@link java.lang.String} object.
-	 * @param methodName a {@link java.lang.String} object.
-	 */
-	public YieldAtLineNumberMethodAdapter(MethodVisitor mv, String className,
-	        String methodName) {
-		super(Opcodes.ASM9, mv);
-		this.className = className;
-		this.methodName = methodName;
-		if (!methodName.equals("<init>"))
-			hadInvokeSpecial = true;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void visitLineNumber(int line, Label start) {
+        super.visitLineNumber(line, start);
 
-	/** {@inheritDoc} */
-	@Override
-	public void visitLineNumber(int line, Label start) {
-		super.visitLineNumber(line, start);
-		currentLine = line;
+        if (methodName.equals("<clinit>"))
+            return;
 
-		if (methodName.equals("<clinit>"))
-			return;
+        if (!hadInvokeSpecial)
+            return;
 
-		if (!hadInvokeSpecial)
-			return;
+        mv.visitMethodInsn(Opcodes.INVOKESTATIC,
+                PackageInfo.getNameWithSlash(ExecutionTracer.class),
+                "checkTimeout", "()V", false);
+    }
 
-		mv.visitMethodInsn(Opcodes.INVOKESTATIC,
-				PackageInfo.getNameWithSlash(ExecutionTracer.class),
-		                   "checkTimeout", "()V", false);
-	}
+    /* (non-Javadoc)
+     * @see org.objectweb.asm.MethodAdapter#visitMethodInsn(int, java.lang.String, java.lang.String, java.lang.String)
+     */
 
-	/* (non-Javadoc)
-	 * @see org.objectweb.asm.MethodAdapter#visitMethodInsn(int, java.lang.String, java.lang.String, java.lang.String)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public void visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf) {
-		if (opcode == Opcodes.INVOKESPECIAL) {
-			if (methodName.equals("<init>"))
-				hadInvokeSpecial = true;
-		}
-		super.visitMethodInsn(opcode, owner, name, desc, itf);
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf) {
+        if (opcode == Opcodes.INVOKESPECIAL) {
+            if (methodName.equals("<init>"))
+                hadInvokeSpecial = true;
+        }
+        super.visitMethodInsn(opcode, owner, name, desc, itf);
+    }
 
-	/* (non-Javadoc)
-	 * @see org.objectweb.asm.MethodVisitor#visitInsn(int)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public void visitInsn(int opcode) {
-		if (opcode == Opcodes.ATHROW) {
-			super.visitInsn(Opcodes.DUP);
-			this.visitLdcInsn(className);
-			this.visitLdcInsn(methodName);
-			mv.visitMethodInsn(Opcodes.INVOKESTATIC,
-					PackageInfo.getNameWithSlash(ExecutionTracer.class),
-			                   "exceptionThrown",
-			                   "(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;)V", false);
-		}
-		super.visitInsn(opcode);
-	}
+    /* (non-Javadoc)
+     * @see org.objectweb.asm.MethodVisitor#visitInsn(int)
+     */
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void visitInsn(int opcode) {
+        if (opcode == Opcodes.ATHROW) {
+            super.visitInsn(Opcodes.DUP);
+            this.visitLdcInsn(className);
+            this.visitLdcInsn(methodName);
+            mv.visitMethodInsn(Opcodes.INVOKESTATIC,
+                    PackageInfo.getNameWithSlash(ExecutionTracer.class),
+                    "exceptionThrown",
+                    "(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;)V", false);
+        }
+        super.visitInsn(opcode);
+    }
 }

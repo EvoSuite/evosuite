@@ -30,44 +30,47 @@ import org.slf4j.LoggerFactory;
 /**
  * Local search on enum values means we simply iterate over all possible values
  * the enum can take
- * 
+ *
  * @author Gordon Fraser
  */
 public class EnumLocalSearch extends StatementLocalSearch {
 
-	private static final Logger logger = LoggerFactory.getLogger(TestCaseLocalSearch.class);
+    private static final Logger logger = LoggerFactory.getLogger(TestCaseLocalSearch.class);
 
-	private Object oldValue;
+    private Object oldValue;
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.LocalSearch#doSearch(org.evosuite.testcase.TestChromosome, int, org.evosuite.ga.LocalSearchObjective)
-	 */
-	/** {@inheritDoc} */
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	@Override
-	public boolean doSearch(TestChromosome test, int statement,
-	        LocalSearchObjective<TestChromosome> objective) {
-		EnumPrimitiveStatement p = (EnumPrimitiveStatement) test.getTestCase().getStatement(statement);
-		ExecutionResult oldResult = test.getLastExecutionResult();
-		oldValue = p.getValue();
+    /* (non-Javadoc)
+     * @see org.evosuite.testcase.LocalSearch#doSearch(org.evosuite.testcase.TestChromosome, int, org.evosuite.ga.LocalSearchObjective)
+     */
 
-		for (Object value : p.getEnumValues()) {
-			p.setValue(value);
+    /**
+     * {@inheritDoc}
+     */
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    @Override
+    public boolean doSearch(TestChromosome test, int statement,
+                            LocalSearchObjective<TestChromosome> objective) {
+        EnumPrimitiveStatement p = (EnumPrimitiveStatement) test.getTestCase().getStatement(statement);
+        ExecutionResult oldResult = test.getLastExecutionResult();
+        oldValue = p.getValue();
 
-			if (!objective.hasImproved(test)) {
-				// Restore original
-				p.setValue(oldValue);
-				test.setLastExecutionResult(oldResult);
-				test.setChanged(false);
-			} else {
-				logger.debug("Finished local search with result " + p.getCode());
-				return true;
-			}
+        for (Object value : p.getEnumValues()) {
+            p.setValue(value);
 
-		}
+            if (!objective.hasImproved(test)) {
+                // Restore original
+                p.setValue(oldValue);
+                test.setLastExecutionResult(oldResult);
+                test.setChanged(false);
+            } else {
+                logger.debug("Finished local search with result " + p.getCode());
+                return true;
+            }
 
-		return false;
+        }
 
-	}
+        return false;
+
+    }
 
 }

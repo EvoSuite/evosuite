@@ -19,8 +19,6 @@
  */
 package org.evosuite.coverage.method;
 
-import java.util.List;
-import java.util.Set;
 import org.evosuite.Properties;
 import org.evosuite.ga.archive.Archive;
 import org.evosuite.testcase.TestChromosome;
@@ -29,59 +27,62 @@ import org.evosuite.testsuite.TestSuiteChromosome;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
+import java.util.Set;
+
 /**
  * Fitness function for a whole test suite for all methods considering only normal behaviour (no exceptions)
- * 
+ *
  * @author Gordon Fraser, Jose Miguel Rojas
  */
 public class MethodNoExceptionCoverageSuiteFitness extends MethodCoverageSuiteFitness {
 
-	private static final long serialVersionUID = -704561530935529634L;
+    private static final long serialVersionUID = -704561530935529634L;
 
-	private final static Logger logger = LoggerFactory.getLogger(MethodNoExceptionCoverageSuiteFitness.class);
+    private final static Logger logger = LoggerFactory.getLogger(MethodNoExceptionCoverageSuiteFitness.class);
 
-	/**
-	 * Initialize the set of known coverage goals
-	 */
-	@Override
-	protected void determineCoverageGoals() {
-		List<MethodNoExceptionCoverageTestFitness> goals = new MethodNoExceptionCoverageFactory().getCoverageGoals();
-		for (MethodNoExceptionCoverageTestFitness goal : goals) {
+    /**
+     * Initialize the set of known coverage goals
+     */
+    @Override
+    protected void determineCoverageGoals() {
+        List<MethodNoExceptionCoverageTestFitness> goals = new MethodNoExceptionCoverageFactory().getCoverageGoals();
+        for (MethodNoExceptionCoverageTestFitness goal : goals) {
             methodCoverageMap.put(goal.getClassName() + "." + goal.getMethod(), goal);
-			if(Properties.TEST_ARCHIVE)
-				Archive.getArchiveInstance().addTarget(goal);
-		}
-	}
+            if (Properties.TEST_ARCHIVE)
+                Archive.getArchiveInstance().addTarget(goal);
+        }
+    }
 
     @Override
     protected void handleConstructorExceptions(TestChromosome test, ExecutionResult result, Set<String> calledMethods) {
-    	return; // No-op
+        return; // No-op
     }
 
-	/**
-	 * Some useful debug information
-	 *
-	 * @param coveredMethods
-	 * @param fitness
-	 */
-	@Override
-	protected void printStatusMessages(TestSuiteChromosome suite,
-									   int coveredMethods, double fitness) {
-		if (coveredMethods > maxCoveredMethods) {
-			logger.info("(Methods No-Exc) Best individual covers " + coveredMethods + "/"
-			        + totalMethods + " methods");
-			maxCoveredMethods = coveredMethods;
-			logger.info("Fitness: " + fitness + ", size: " + suite.size() + ", length: "
-			        + suite.totalLengthOfTestCases());
+    /**
+     * Some useful debug information
+     *
+     * @param coveredMethods
+     * @param fitness
+     */
+    @Override
+    protected void printStatusMessages(TestSuiteChromosome suite,
+                                       int coveredMethods, double fitness) {
+        if (coveredMethods > maxCoveredMethods) {
+            logger.info("(Methods No-Exc) Best individual covers " + coveredMethods + "/"
+                    + totalMethods + " methods");
+            maxCoveredMethods = coveredMethods;
+            logger.info("Fitness: " + fitness + ", size: " + suite.size() + ", length: "
+                    + suite.totalLengthOfTestCases());
 
-		}
-		if (fitness < bestFitness) {
-			logger.info("(Fitness) Best individual covers " + coveredMethods + "/"
-			        + totalMethods + " methods");
-			bestFitness = fitness;
-			logger.info("Fitness: " + fitness + ", size: " + suite.size() + ", length: "
-			        + suite.totalLengthOfTestCases());
-		}
-	}
+        }
+        if (fitness < bestFitness) {
+            logger.info("(Fitness) Best individual covers " + coveredMethods + "/"
+                    + totalMethods + " methods");
+            bestFitness = fitness;
+            logger.info("Fitness: " + fitness + ", size: " + suite.size() + ", length: "
+                    + suite.totalLengthOfTestCases());
+        }
+    }
 
 }

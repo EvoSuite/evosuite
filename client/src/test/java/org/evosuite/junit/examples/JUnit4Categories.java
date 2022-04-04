@@ -27,9 +27,9 @@ import org.junit.runners.Suite;
 @RunWith(Categories.class)
 @IncludeCategory(SlowTests.class)
 @Suite.SuiteClasses({
-  JUnit3Test.class,
-  JUnit4Test.class
+        JUnit3Test.class,
+        JUnit4Test.class
 })
 public class JUnit4Categories {
-	// Categories is a kind of Suite
+    // Categories is a kind of Suite
 }

@@ -27,7 +27,7 @@ import java.math.BigInteger;
  */
 public class ClassNumberUtils {
 
-	public static BigInteger createBigInteger(final String str) {
+    public static BigInteger createBigInteger(final String str) {
         if (str == null) {
             return null;
         }
@@ -43,10 +43,10 @@ public class ClassNumberUtils {
             pos += 2;
         } else if (str.startsWith("#", pos)) { // alternative hex (allowed by Long/Integer)
             radix = 16;
-            pos ++;
+            pos++;
         } else if (str.startsWith("0", pos) && str.length() > pos + 1) { // octal; so long as there are additional digits
             radix = 8;
-            pos ++;
+            pos++;
         } // default is to treat as decimal
 
         final BigInteger value = new BigInteger(str.substring(pos), radix);

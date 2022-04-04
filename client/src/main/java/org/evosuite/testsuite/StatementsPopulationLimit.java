@@ -19,12 +19,12 @@
  */
 package org.evosuite.testsuite;
 
-import java.util.List;
-
 import org.evosuite.Properties;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.populationlimit.PopulationLimit;
 import org.evosuite.testcase.TestChromosome;
+
+import java.util.List;
 
 
 /**
@@ -33,42 +33,45 @@ import org.evosuite.testcase.TestChromosome;
  * @author fraser
  */
 public class StatementsPopulationLimit<T extends Chromosome<T>>
-		implements PopulationLimit<T> {
+        implements PopulationLimit<T> {
 
-	private static final long serialVersionUID = 4794704248615412859L;
+    private static final long serialVersionUID = 4794704248615412859L;
 
-	public StatementsPopulationLimit() {
-	}
+    public StatementsPopulationLimit() {
+    }
 
-	/**
-	 * Copy Constructor
-	 *
-	 * This constructor is used by {@link org.evosuite.ga.metaheuristics.TestSuiteAdapter} to adapt the generic type
-	 * parameter.
-	 *
-	 * This constructor shall preserve the current state of the StatementsPopulationLimit (if existing).
-	 *
-	 * @param other
-	 */
-	public StatementsPopulationLimit(StatementsPopulationLimit<?> other) {
-	}
+    /**
+     * Copy Constructor
+     * <p>
+     * This constructor is used by {@link org.evosuite.ga.metaheuristics.TestSuiteAdapter} to adapt the generic type
+     * parameter.
+     * <p>
+     * This constructor shall preserve the current state of the StatementsPopulationLimit (if existing).
+     *
+     * @param other
+     */
+    public StatementsPopulationLimit(StatementsPopulationLimit<?> other) {
+    }
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.ga.PopulationLimit#isPopulationFull(java.util.List)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public boolean isPopulationFull(List<T> population) {
-		int numStatements = population.stream().map(x -> {
-			if(x instanceof TestSuiteChromosome)
-				return x;
-			if(x instanceof TestChromosome)
-				return ((TestChromosome) x).toSuite();
-			throw new IllegalArgumentException("Could not transform population to TestSuites");
-		})
-				.mapToInt(x-> ((TestSuiteChromosome) x).totalLengthOfTestCases())
-				.sum();
-		return numStatements >= Properties.POPULATION;
-	}
+    /* (non-Javadoc)
+     * @see org.evosuite.ga.PopulationLimit#isPopulationFull(java.util.List)
+     */
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isPopulationFull(List<T> population) {
+        int numStatements = population.stream().map(x -> {
+                    if (x instanceof TestSuiteChromosome)
+                        return x;
+                    if (x instanceof TestChromosome)
+                        return ((TestChromosome) x).toSuite();
+                    throw new IllegalArgumentException("Could not transform population to TestSuites");
+                })
+                .mapToInt(x -> ((TestSuiteChromosome) x).totalLengthOfTestCases())
+                .sum();
+        return numStatements >= Properties.POPULATION;
+    }
 
 }

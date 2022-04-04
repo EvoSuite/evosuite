@@ -23,22 +23,23 @@ import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.testsuite.TestSuiteChromosome;
 
 public class ChromosomeSampleFactory implements ChromosomeFactory<TestSuiteChromosome> {
-	public static final TestSuiteChromosome CHROMOSOME;
-	private static final TestSampleFactory FACTORY;
+    public static final TestSuiteChromosome CHROMOSOME;
+    private static final TestSampleFactory FACTORY;
     private static final long serialVersionUID = -5227032406625911394L;
 
     static {
-		FACTORY = new TestSampleFactory();
-		CHROMOSOME = new TestSuiteChromosome();
-		for (int i = 0; i < 10; i++){
-			CHROMOSOME.addTest(FACTORY.getChromosome());
-		}
-	}
-	@Override
-	public TestSuiteChromosome getChromosome() {
-		// TODO Auto-generated method stub
-		return CHROMOSOME.clone();
-	}
-	
-	
+        FACTORY = new TestSampleFactory();
+        CHROMOSOME = new TestSuiteChromosome();
+        for (int i = 0; i < 10; i++) {
+            CHROMOSOME.addTest(FACTORY.getChromosome());
+        }
+    }
+
+    @Override
+    public TestSuiteChromosome getChromosome() {
+        // TODO Auto-generated method stub
+        return CHROMOSOME.clone();
+    }
+
+
 }

@@ -19,52 +19,54 @@
  */
 package org.evosuite.instrumentation;
 
-import java.util.Map;
-
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Map;
+
 /**
  * <p>
  * ObjectCallAdapter class.
  * </p>
- * 
+ *
  * @author Gordon Fraser
  */
 public class ObjectCallAdapter extends MethodVisitor {
 
-	/** Constant <code>logger</code> */
-	protected static final Logger logger = LoggerFactory.getLogger(ObjectCallAdapter.class);
+    /**
+     * Constant <code>logger</code>
+     */
+    protected static final Logger logger = LoggerFactory.getLogger(ObjectCallAdapter.class);
 
-	Map<String, String> descriptors = null;
+    Map<String, String> descriptors = null;
 
-	/**
-	 * <p>
-	 * Constructor for ObjectCallAdapter.
-	 * </p>
-	 * 
-	 * @param mv
-	 *            a {@link org.objectweb.asm.MethodVisitor} object.
-	 * @param descriptors
-	 *            a {@link java.util.Map} object.
-	 */
-	public ObjectCallAdapter(MethodVisitor mv, Map<String, String> descriptors) {
-		super(Opcodes.ASM9, mv);
-		this.descriptors = descriptors;
-	}
+    /**
+     * <p>
+     * Constructor for ObjectCallAdapter.
+     * </p>
+     *
+     * @param mv          a {@link org.objectweb.asm.MethodVisitor} object.
+     * @param descriptors a {@link java.util.Map} object.
+     */
+    public ObjectCallAdapter(MethodVisitor mv, Map<String, String> descriptors) {
+        super(Opcodes.ASM9, mv);
+        this.descriptors = descriptors;
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public void visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf) {
-		if (descriptors.containsKey(name + desc)) {
-			logger.info("Replacing call to " + name + desc + " with "
-			        + descriptors.get(name + desc));
-			super.visitMethodInsn(opcode, owner, name, descriptors.get(name + desc), itf);
-		} else {
-			super.visitMethodInsn(opcode, owner, name, desc, itf);
-		}
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf) {
+        if (descriptors.containsKey(name + desc)) {
+            logger.info("Replacing call to " + name + desc + " with "
+                    + descriptors.get(name + desc));
+            super.visitMethodInsn(opcode, owner, name, descriptors.get(name + desc), itf);
+        } else {
+            super.visitMethodInsn(opcode, owner, name, desc, itf);
+        }
+    }
 
 }

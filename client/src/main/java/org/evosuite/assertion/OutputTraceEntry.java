@@ -28,42 +28,42 @@ import java.util.Set;
  */
 public interface OutputTraceEntry {
 
-	/**
-	 * <p>differs</p>
-	 *
-	 * @param other a {@link org.evosuite.assertion.OutputTraceEntry} object.
-	 * @return a boolean.
-	 */
+    /**
+     * <p>differs</p>
+     *
+     * @param other a {@link org.evosuite.assertion.OutputTraceEntry} object.
+     * @return a boolean.
+     */
     boolean differs(OutputTraceEntry other);
 
-	/**
-	 * <p>getAssertions</p>
-	 *
-	 * @param other a {@link org.evosuite.assertion.OutputTraceEntry} object.
-	 * @return a {@link java.util.Set} object.
-	 */
+    /**
+     * <p>getAssertions</p>
+     *
+     * @param other a {@link org.evosuite.assertion.OutputTraceEntry} object.
+     * @return a {@link java.util.Set} object.
+     */
     Set<Assertion> getAssertions(OutputTraceEntry other);
 
-	/**
-	 * <p>getAssertions</p>
-	 *
-	 * @return a {@link java.util.Set} object.
-	 */
+    /**
+     * <p>getAssertions</p>
+     *
+     * @return a {@link java.util.Set} object.
+     */
     Set<Assertion> getAssertions();
 
-	/**
-	 * <p>isDetectedBy</p>
-	 *
-	 * @param assertion a {@link org.evosuite.assertion.Assertion} object.
-	 * @return a boolean.
-	 */
+    /**
+     * <p>isDetectedBy</p>
+     *
+     * @param assertion a {@link org.evosuite.assertion.Assertion} object.
+     * @return a boolean.
+     */
     boolean isDetectedBy(Assertion assertion);
 
-	/**
-	 * <p>cloneEntry</p>
-	 *
-	 * @return a {@link org.evosuite.assertion.OutputTraceEntry} object.
-	 */
+    /**
+     * <p>cloneEntry</p>
+     *
+     * @return a {@link org.evosuite.assertion.OutputTraceEntry} object.
+     */
     OutputTraceEntry cloneEntry();
 
 }

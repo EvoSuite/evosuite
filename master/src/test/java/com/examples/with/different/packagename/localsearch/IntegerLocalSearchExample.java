@@ -28,10 +28,10 @@ public class IntegerLocalSearchExample {
 //			return false;
 //	}
 
-	public boolean testMe(int x, int y) {
-		if((x * 2) /** Math.abs(y)*/ == 2000000)
-			return true;
-		else
-			return false;
-	}
+    public boolean testMe(int x, int y) {
+        if ((x * 2) /** Math.abs(y)*/ == 2000000)
+            return true;
+        else
+            return false;
+    }
 }

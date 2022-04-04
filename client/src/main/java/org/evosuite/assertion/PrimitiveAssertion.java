@@ -23,67 +23,74 @@ import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.execution.Scope;
 import org.evosuite.utils.NumberFormatter;
+
 public class PrimitiveAssertion extends Assertion {
 
-	private static final long serialVersionUID = -3394333075511344913L;
+    private static final long serialVersionUID = -3394333075511344913L;
 
-	/** {@inheritDoc} */
-	@Override
-	public String getCode() {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getCode() {
 
-		if (value == null) {
-			return "assertNull(" + source.getName() + ");";
-		} else if (source.getVariableClass().equals(float.class)) {
-			return "assertEquals(" + NumberFormatter.getNumberString(value) + ", "
-			        + source.getName() + ", 0.01F);";
-		} else if (source.getVariableClass().equals(double.class)) {
-			return "assertEquals(" + NumberFormatter.getNumberString(value) + ", "
-			        + source.getName() + ", 0.01D);";
-		} else if (value.getClass().isEnum()) {
-			return "assertEquals(" + NumberFormatter.getNumberString(value) + ", "
-			        + source.getName() + ");";
-		} else if (source.isWrapperType()) {
-			if (source.getVariableClass().equals(Float.class)) {
-				return "assertEquals(" + NumberFormatter.getNumberString(value)
-				        + "(float)" + source.getName() + ", 0.01F);";
-			} else if (source.getVariableClass().equals(Double.class)) {
-				return "assertEquals(" + NumberFormatter.getNumberString(value)
-				        + "(double)" + source.getName() + ", 0.01D);";
-			} else if (value.getClass().isEnum()) {
-				return "assertEquals(" + NumberFormatter.getNumberString(value) + ", "
-				        + source.getName() + ");";
-			} else
-				return "assertEquals(" + NumberFormatter.getNumberString(value) + ", ("
-				        + NumberFormatter.getBoxedClassName(value) + ")"
-				        + source.getName() + ");";
-		} else
-			return "assertEquals(" + NumberFormatter.getNumberString(value) + ", "
-			        + source.getName() + ");";
+        if (value == null) {
+            return "assertNull(" + source.getName() + ");";
+        } else if (source.getVariableClass().equals(float.class)) {
+            return "assertEquals(" + NumberFormatter.getNumberString(value) + ", "
+                    + source.getName() + ", 0.01F);";
+        } else if (source.getVariableClass().equals(double.class)) {
+            return "assertEquals(" + NumberFormatter.getNumberString(value) + ", "
+                    + source.getName() + ", 0.01D);";
+        } else if (value.getClass().isEnum()) {
+            return "assertEquals(" + NumberFormatter.getNumberString(value) + ", "
+                    + source.getName() + ");";
+        } else if (source.isWrapperType()) {
+            if (source.getVariableClass().equals(Float.class)) {
+                return "assertEquals(" + NumberFormatter.getNumberString(value)
+                        + "(float)" + source.getName() + ", 0.01F);";
+            } else if (source.getVariableClass().equals(Double.class)) {
+                return "assertEquals(" + NumberFormatter.getNumberString(value)
+                        + "(double)" + source.getName() + ", 0.01D);";
+            } else if (value.getClass().isEnum()) {
+                return "assertEquals(" + NumberFormatter.getNumberString(value) + ", "
+                        + source.getName() + ");";
+            } else
+                return "assertEquals(" + NumberFormatter.getNumberString(value) + ", ("
+                        + NumberFormatter.getBoxedClassName(value) + ")"
+                        + source.getName() + ");";
+        } else
+            return "assertEquals(" + NumberFormatter.getNumberString(value) + ", "
+                    + source.getName() + ");";
 
-	}
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public Assertion copy(TestCase newTestCase, int offset) {
-		PrimitiveAssertion s = new PrimitiveAssertion();
-		s.source = source.copy(newTestCase, offset);
-		s.value = value;
-		s.comment = comment;
-		s.killedMutants.addAll(killedMutants);
-		return s;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Assertion copy(TestCase newTestCase, int offset) {
+        PrimitiveAssertion s = new PrimitiveAssertion();
+        s.source = source.copy(newTestCase, offset);
+        s.value = value;
+        s.comment = comment;
+        s.killedMutants.addAll(killedMutants);
+        return s;
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public boolean evaluate(Scope scope) {
-		try {
-			if (value != null)
-				return value.equals(source.getObject(scope));
-			else
-				return source.getObject(scope) == null;
-		} catch (CodeUnderTestException e) {
-			throw new UnsupportedOperationException();
-		}
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean evaluate(Scope scope) {
+        try {
+            if (value != null)
+                return value.equals(source.getObject(scope));
+            else
+                return source.getObject(scope) == null;
+        } catch (CodeUnderTestException e) {
+            throw new UnsupportedOperationException();
+        }
+    }
 
 }

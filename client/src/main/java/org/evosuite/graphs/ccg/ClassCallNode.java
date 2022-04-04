@@ -20,59 +20,63 @@
 package org.evosuite.graphs.ccg;
 
 import org.evosuite.graphs.ccfg.CCFGNode;
+
 public class ClassCallNode extends CCFGNode {
 
-	private String method;
-	
-	/**
-	 * <p>Getter for the field <code>method</code>.</p>
-	 *
-	 * @return a {@link java.lang.String} object.
-	 */
-	public String getMethod() {
-		return method;
-	}
+    private final String method;
 
-	/**
-	 * <p>Constructor for ClassCallNode.</p>
-	 *
-	 * @param method a {@link java.lang.String} object.
-	 */
-	public ClassCallNode(String method) {
-		this.method = method;
-	}
-	
-	/** {@inheritDoc} */
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((method == null) ? 0 : method.hashCode());
-		return result;
-	}
+    /**
+     * <p>Getter for the field <code>method</code>.</p>
+     *
+     * @return a {@link java.lang.String} object.
+     */
+    public String getMethod() {
+        return method;
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		ClassCallNode other = (ClassCallNode) obj;
-		if (method == null) {
-			if (other.method != null)
-				return false;
-		} else if (!method.equals(other.method))
-			return false;
-		return true;
-	}
+    /**
+     * <p>Constructor for ClassCallNode.</p>
+     *
+     * @param method a {@link java.lang.String} object.
+     */
+    public ClassCallNode(String method) {
+        this.method = method;
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public String toString() {
-		return method;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((method == null) ? 0 : method.hashCode());
+        return result;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        ClassCallNode other = (ClassCallNode) obj;
+        if (method == null) {
+            return other.method == null;
+        } else return method.equals(other.method);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        return method;
+    }
 
 }

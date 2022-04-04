@@ -34,85 +34,85 @@ import java.util.List;
  * <p>
  * BranchCoverageFactory class.
  * </p>
- * 
+ *
  * @author Gordon Fraser, Andre Mis, Jose Miguel Rojas
  */
 public class OnlyBranchCoverageFactory extends
-		AbstractFitnessFactory<OnlyBranchCoverageTestFitness> {
+        AbstractFitnessFactory<OnlyBranchCoverageTestFitness> {
 
-	private static final Logger logger = LoggerFactory.getLogger(OnlyBranchCoverageFactory.class);
+    private static final Logger logger = LoggerFactory.getLogger(OnlyBranchCoverageFactory.class);
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.evosuite.coverage.TestCoverageFactory#getCoverageGoals()
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public List<OnlyBranchCoverageTestFitness> getCoverageGoals() {
-		long start = System.currentTimeMillis();
-		List<OnlyBranchCoverageTestFitness> goals = new ArrayList<>();
+    /*
+     * (non-Javadoc)
+     *
+     * @see
+     * org.evosuite.coverage.TestCoverageFactory#getCoverageGoals()
+     */
 
-		// logger.info("Getting branches");
-		for (String className : BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).knownClasses()) {
-			if(!Properties.TARGET_CLASS.equals("")&&!className.equals(Properties.TARGET_CLASS)) continue;
-			final MethodNameMatcher matcher = new MethodNameMatcher();
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<OnlyBranchCoverageTestFitness> getCoverageGoals() {
+        long start = System.currentTimeMillis();
+        List<OnlyBranchCoverageTestFitness> goals = new ArrayList<>();
 
-			// Branches
-			for (String methodName : BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).knownMethods(className)) {
-				if (!matcher.methodMatches(methodName)) {
-					logger.info("Method " + methodName
-							+ " does not match criteria. ");
-					continue;
-				}
+        // logger.info("Getting branches");
+        for (String className : BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).knownClasses()) {
+            if (!Properties.TARGET_CLASS.equals("") && !className.equals(Properties.TARGET_CLASS)) continue;
+            final MethodNameMatcher matcher = new MethodNameMatcher();
 
-				for (Branch b : BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).retrieveBranchesInMethod(className,
-						methodName)) {
-					if(!b.isInstrumented()) {
-						goals.add(createOnlyBranchCoverageTestFitness(b, true));
-						//if (!b.isSwitchCaseBranch())
-						goals.add(createOnlyBranchCoverageTestFitness(b, false));
-					}
-				}
-			}
-		}
-		goalComputationTime = System.currentTimeMillis() - start;
-		
-		return goals;
-	}
+            // Branches
+            for (String methodName : BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).knownMethods(className)) {
+                if (!matcher.methodMatches(methodName)) {
+                    logger.info("Method " + methodName
+                            + " does not match criteria. ");
+                    continue;
+                }
 
-	/**
-	 * Create a fitness function for branch coverage aimed at executing the
-	 * given ControlDependency.
-	 * 
-	 * @param cd
-	 *            a {@link org.evosuite.graphs.cfg.ControlDependency} object.
-	 * @return a {@link org.evosuite.coverage.branch.BranchCoverageTestFitness}
-	 *         object.
-	 */
-	public static OnlyBranchCoverageTestFitness createOnlyBranchCoverageTestFitness(
-			ControlDependency cd) {
-		return createOnlyBranchCoverageTestFitness(cd.getBranch(),
-				cd.getBranchExpressionValue());
-	}
+                for (Branch b : BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).retrieveBranchesInMethod(className,
+                        methodName)) {
+                    if (!b.isInstrumented()) {
+                        goals.add(createOnlyBranchCoverageTestFitness(b, true));
+                        //if (!b.isSwitchCaseBranch())
+                        goals.add(createOnlyBranchCoverageTestFitness(b, false));
+                    }
+                }
+            }
+        }
+        goalComputationTime = System.currentTimeMillis() - start;
 
-	/**
-	 * Create a fitness function for branch coverage aimed at executing the
-	 * Branch identified by b as defined by branchExpressionValue.
-	 * 
-	 * @param b
-	 *            a {@link org.evosuite.coverage.branch.Branch} object.
-	 * @param branchExpressionValue
-	 *            a boolean.
-	 * @return a {@link org.evosuite.coverage.branch.BranchCoverageTestFitness}
-	 *         object.
-	 */
-	public static OnlyBranchCoverageTestFitness createOnlyBranchCoverageTestFitness(
-			Branch b, boolean branchExpressionValue) {
+        return goals;
+    }
 
-		return new OnlyBranchCoverageTestFitness(new BranchCoverageGoal(b,
-				branchExpressionValue, b.getClassName(), b.getMethodName()));
-	}
+    /**
+     * Create a fitness function for branch coverage aimed at executing the
+     * given ControlDependency.
+     *
+     * @param cd a {@link org.evosuite.graphs.cfg.ControlDependency} object.
+     * @return a {@link org.evosuite.coverage.branch.BranchCoverageTestFitness}
+     * object.
+     */
+    public static OnlyBranchCoverageTestFitness createOnlyBranchCoverageTestFitness(
+            ControlDependency cd) {
+        return createOnlyBranchCoverageTestFitness(cd.getBranch(),
+                cd.getBranchExpressionValue());
+    }
+
+    /**
+     * Create a fitness function for branch coverage aimed at executing the
+     * Branch identified by b as defined by branchExpressionValue.
+     *
+     * @param b                     a {@link org.evosuite.coverage.branch.Branch} object.
+     * @param branchExpressionValue a boolean.
+     * @return a {@link org.evosuite.coverage.branch.BranchCoverageTestFitness}
+     * object.
+     */
+    public static OnlyBranchCoverageTestFitness createOnlyBranchCoverageTestFitness(
+            Branch b, boolean branchExpressionValue) {
+
+        return new OnlyBranchCoverageTestFitness(new BranchCoverageGoal(b,
+                branchExpressionValue, b.getClassName(), b.getMethodName()));
+    }
 
 }

@@ -27,12 +27,12 @@ import org.junit.Test;
 public class NoFinalModificationSystemTest extends SystemTestBase {
 
     @Test
-    public void testInt(){
+    public void testInt() {
         doNonOptimalLineTest(InfeasibleFinalInt.class);
     }
 
     @Test
-    public void testString(){
+    public void testString() {
         doNonOptimalLineTest(InfeasibleFinalString.class);
     }
 

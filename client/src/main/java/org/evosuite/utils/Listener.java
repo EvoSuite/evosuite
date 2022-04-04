@@ -22,19 +22,17 @@ package org.evosuite.utils;
 import java.io.Serializable;
 
 /**
- *
  * Since the {@link java.util.Listenable} is a class rather than an Interface,
  * one cannot use it in any case. Therefore we need our own implementation.
  *
+ * @param <T> The type of the event.
  * @author roessler
- * @param <T>
- *            The type of the event.
  */
 public interface Listener<T> extends Serializable {
-	/**
-	 * <p>receiveEvent</p>
-	 *
-	 * @param event a T object.
-	 */
-	void receiveEvent(T event);
+    /**
+     * <p>receiveEvent</p>
+     *
+     * @param event a T object.
+     */
+    void receiveEvent(T event);
 }

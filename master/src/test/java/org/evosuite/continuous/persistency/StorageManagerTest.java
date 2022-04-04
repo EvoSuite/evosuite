@@ -28,32 +28,32 @@ import org.junit.Test;
 
 public class StorageManagerTest {
 
-	@Test
-	public void testDefaultProjectInfo(){
-		
-		StorageManager sm = new StorageManager();
-		sm.clean();
-		
-		try{
-			Project project = StorageManager.getDatabaseProject();
-			Assert.assertNotNull(project);
-		} finally {
-			sm.clean();
-		}
-	}
-	
-	
-	@Test
-	public void extractClassNameTest(){
-		String z = File.separator;
-		String base = z+"some"+z+"thing"+z;
-		String packageName = "foo";
-		String className = "boiade";
-		String full = base+packageName+z+className+".java";
-		
-		StorageManager storage = new StorageManager();
-		String result = storage.extractClassName(new File(base), new File(full));
-				
-		Assert.assertEquals(packageName+"."+className, result);
-	}
+    @Test
+    public void testDefaultProjectInfo() {
+
+        StorageManager sm = new StorageManager();
+        sm.clean();
+
+        try {
+            Project project = StorageManager.getDatabaseProject();
+            Assert.assertNotNull(project);
+        } finally {
+            sm.clean();
+        }
+    }
+
+
+    @Test
+    public void extractClassNameTest() {
+        String z = File.separator;
+        String base = z + "some" + z + "thing" + z;
+        String packageName = "foo";
+        String className = "boiade";
+        String full = base + packageName + z + className + ".java";
+
+        StorageManager storage = new StorageManager();
+        String result = storage.extractClassName(new File(base), new File(full));
+
+        Assert.assertEquals(packageName + "." + className, result);
+    }
 }

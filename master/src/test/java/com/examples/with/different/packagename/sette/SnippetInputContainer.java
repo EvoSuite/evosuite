@@ -52,17 +52,20 @@ import java.util.List;
  * Holds input parameter tuples for a code snippet.
  */
 public final class SnippetInputContainer {
-    /** The number of required parameters for the code snippet. */
+    /**
+     * The number of required parameters for the code snippet.
+     */
     private final int parameterCount;
-    /** The list of inputs for the code snippet. */
+    /**
+     * The list of inputs for the code snippet.
+     */
     private final List<SnippetInput> inputs = new ArrayList<>();
 
     /**
      * Creates an instance with the specified parameter count. Throws an
      * {@link IllegalArgumentException} if the parameter count is negative.
      *
-     * @param pParameterCount
-     *            The number of required parameters for the code snippet.
+     * @param pParameterCount The number of required parameters for the code snippet.
      */
     public SnippetInputContainer(final int pParameterCount) {
         if (pParameterCount < 0) {
@@ -94,10 +97,8 @@ public final class SnippetInputContainer {
      * Returns the input tuple at the specified position in the underlying list.
      * Throws an {@link IndexOutOfBoundsException} if the index is out of range.
      *
-     * @param index
-     *            Index of the input tuple to return.
+     * @param index Index of the input tuple to return.
      * @return The input tuple at the specified position.
-     *
      */
     public SnippetInput get(final int index) {
         if (0 <= index && index < size()) {
@@ -121,8 +122,7 @@ public final class SnippetInputContainer {
      * {@link IllegalArgumentException} if the input is null or the parameter
      * count does not match.
      *
-     * @param input
-     *            The input tuple.
+     * @param input The input tuple.
      * @return This object.
      */
     public SnippetInputContainer add(final SnippetInput input) {
@@ -144,10 +144,8 @@ public final class SnippetInputContainer {
      * {@link IllegalArgumentException} if the the parameter count does not
      * match.
      *
-     * @param parameters
-     *            The parameters of the input.
+     * @param parameters The parameters of the input.
      * @return This object.
-     *
      */
     public SnippetInputContainer addByParameters(
             final Object... parameters) {
@@ -159,14 +157,11 @@ public final class SnippetInputContainer {
      * {@link IllegalArgumentException} if the the parameter count does not
      * match.
      *
-     * @param expected
-     *            Excepted exception which is thrown when executing the snippet
-     *            with the specified parameters. It should be null when no
-     *            exception is thrown.
-     * @param parameters
-     *            The parameters of the input.
+     * @param expected   Excepted exception which is thrown when executing the snippet
+     *                   with the specified parameters. It should be null when no
+     *                   exception is thrown.
+     * @param parameters The parameters of the input.
      * @return This object.
-     *
      */
     public SnippetInputContainer addByParametersAndExpected(
             final Class<? extends Throwable> expected,

@@ -19,8 +19,12 @@
  */
 package org.evosuite.junit;
 
-import static org.junit.Assert.assertNotNull;
+import com.examples.with.different.packagename.junit.Foo;
+import org.apache.commons.io.FileUtils;
+import org.junit.Test;
 
+import javax.tools.*;
+import javax.tools.JavaCompiler.CompilationTask;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -30,208 +34,194 @@ import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 
-import javax.tools.DiagnosticCollector;
-import javax.tools.JavaCompiler;
-import javax.tools.JavaCompiler.CompilationTask;
-import javax.tools.JavaFileObject;
-import javax.tools.StandardJavaFileManager;
-import javax.tools.ToolProvider;
-
-import org.apache.commons.io.FileUtils;
-import org.junit.Test;
-
-import com.examples.with.different.packagename.junit.Foo;
+import static org.junit.Assert.assertNotNull;
 
 public class FooTestClassLoader {
 
-	private static final String FOO_TEST_CLASS_NAME = "com.examples.with.different.packagename.junit.FooTest";
+    private static final String FOO_TEST_CLASS_NAME = "com.examples.with.different.packagename.junit.FooTest";
 
-	@Test
-	public void testFooTestClassCreation() throws IOException {
-		Class<?> clazz = loadFooTestClass();
-		assertNotNull(clazz);
-	}
+    @Test
+    public void testFooTestClassCreation() throws IOException {
+        Class<?> clazz = loadFooTestClass();
+        assertNotNull(clazz);
+    }
 
-	private static String createFooTestJavaText() {
-		StringBuffer buff = new StringBuffer();
-		buff.append("package com.examples.with.different.packagename.junit;\n");
-		buff.append("import static org.junit.Assert.assertEquals;\n");
-		buff.append("import org.junit.Test;\n");
-		buff.append("public class FooTest {\n");
+    private static String createFooTestJavaText() {
+        StringBuffer buff = new StringBuffer();
+        buff.append("package com.examples.with.different.packagename.junit;\n");
+        buff.append("import static org.junit.Assert.assertEquals;\n");
+        buff.append("import org.junit.Test;\n");
+        buff.append("public class FooTest {\n");
 
-		buff.append("	@Test\n");
-		buff.append("	public void test1() {\n");
-		buff.append("		Foo foo = new Foo();\n");
-		buff.append("		int result = foo.add(10, 15);\n");
-		buff.append("		assertEquals(25, result);\n");
-		buff.append("	}\n");
+        buff.append("	@Test\n");
+        buff.append("	public void test1() {\n");
+        buff.append("		Foo foo = new Foo();\n");
+        buff.append("		int result = foo.add(10, 15);\n");
+        buff.append("		assertEquals(25, result);\n");
+        buff.append("	}\n");
 
-		buff.append("	@Test\n");
-		buff.append("	public void test2() {\n");
-		buff.append("		Foo foo = new Foo();\n");
-		buff.append("		int result = foo.add(20, 35);\n");
-		buff.append("		assertEquals(55, result);\n");
-		buff.append("	}\n");
+        buff.append("	@Test\n");
+        buff.append("	public void test2() {\n");
+        buff.append("		Foo foo = new Foo();\n");
+        buff.append("		int result = foo.add(20, 35);\n");
+        buff.append("		assertEquals(55, result);\n");
+        buff.append("	}\n");
 
-		buff.append("	@Test \n");
-		buff.append("	public void test3() {\n");
-		buff.append("		Foo foo = new Foo();\n");
-		buff.append("		int result = foo.add(10, 35);\n");
-		buff.append("		assertEquals(46, result);\n");
-		buff.append("	}\n");
+        buff.append("	@Test \n");
+        buff.append("	public void test3() {\n");
+        buff.append("		Foo foo = new Foo();\n");
+        buff.append("		int result = foo.add(10, 35);\n");
+        buff.append("		assertEquals(46, result);\n");
+        buff.append("	}\n");
 
-		buff.append("}\n");
+        buff.append("}\n");
 
-		return buff.toString();
-	}
+        return buff.toString();
+    }
 
-	private static File createNewTmpDir() {
-		File dir = null;
-		String dirName = FileUtils.getTempDirectoryPath() + File.separator
-				+ "EvoSuite_" + JUnitResultBuilderTest.class.getCanonicalName()
-				+ "_" + +System.currentTimeMillis();
+    private static File createNewTmpDir() {
+        File dir = null;
+        String dirName = FileUtils.getTempDirectoryPath() + File.separator
+                + "EvoSuite_" + JUnitResultBuilderTest.class.getCanonicalName()
+                + "_" + +System.currentTimeMillis();
 
-		//first create a tmp folder
-		dir = new File(dirName);
-		if (!dir.mkdirs()) {
-			return null;
-		}
+        //first create a tmp folder
+        dir = new File(dirName);
+        if (!dir.mkdirs()) {
+            return null;
+        }
 
-		if (!dir.exists()) {
-			return null;
-		}
+        if (!dir.exists()) {
+            return null;
+        }
 
-		return dir;
-	}
+        return dir;
+    }
 
-	public Class<?> loadFooTestClass() {
+    public Class<?> loadFooTestClass() {
 
-		File tempDir = createNewTmpDir();
-		if (tempDir == null) {
-			return null; //fail
-		}
+        File tempDir = createNewTmpDir();
+        if (tempDir == null) {
+            return null; //fail
+        }
 
-		String javaSrcDirName = tempDir.getAbsolutePath() + File.separator
-				+ "src";
+        String javaSrcDirName = tempDir.getAbsolutePath() + File.separator
+                + "src";
 
-		String javaBinDirName = tempDir.getAbsolutePath() + File.separator
-				+ "bin";
+        String javaBinDirName = tempDir.getAbsolutePath() + File.separator
+                + "bin";
 
-		String javaSrcPackageDirName = javaSrcDirName
-				+ File.separator
-				+ "com.examples.with.different.packagename.junit".replace(".",
-						File.separator);
+        String javaSrcPackageDirName = javaSrcDirName
+                + File.separator
+                + "com.examples.with.different.packagename.junit".replace(".",
+                File.separator);
 
-		String javaBinPackageDirName = javaBinDirName
-				+ File.separator
-				+ "com.examples.with.different.packagename.junit".replace(".",
-						File.separator);
+        String javaBinPackageDirName = javaBinDirName
+                + File.separator
+                + "com.examples.with.different.packagename.junit".replace(".",
+                File.separator);
 
-		File javaBinDir = new File(javaBinDirName);
-		if (!javaBinDir.mkdirs()) {
-			return null; //fail
-		}
+        File javaBinDir = new File(javaBinDirName);
+        if (!javaBinDir.mkdirs()) {
+            return null; //fail
+        }
 
-		File packageDir = new File(javaSrcPackageDirName);
-		if (!packageDir.mkdirs()) {
-			return null; //fail
-		}
+        File packageDir = new File(javaSrcPackageDirName);
+        if (!packageDir.mkdirs()) {
+            return null; //fail
+        }
 
-		String javaFilename = javaSrcPackageDirName + File.separator
-				+ "FooTest.java";
-		String classFilename = javaBinPackageDirName + File.separator
-				+ "FooTest.class";
+        String javaFilename = javaSrcPackageDirName + File.separator
+                + "FooTest.java";
+        String classFilename = javaBinPackageDirName + File.separator
+                + "FooTest.class";
 
-		String javaSourceText = createFooTestJavaText();
-		File javaFile = writeJavaSourceText(javaSourceText, javaFilename);
-		if (javaFile == null) {
-			return null; //fail
-		}
+        String javaSourceText = createFooTestJavaText();
+        File javaFile = writeJavaSourceText(javaSourceText, javaFilename);
+        if (javaFile == null) {
+            return null; //fail
+        }
 
-		boolean compiled = compileJavaFile(javaBinDirName, javaFile);
-		if (!compiled) {
-			return null; //fail
-		}
+        boolean compiled = compileJavaFile(javaBinDirName, javaFile);
+        if (!compiled) {
+            return null; //fail
+        }
 
-		File classFile = new File(classFilename);
-		if (!classFile.exists()) {
-			return null; //fail
-		}
+        File classFile = new File(classFilename);
+        if (!classFile.exists()) {
+            return null; //fail
+        }
 
-		Class<?> clazz = loadClass(javaBinDir);
-		if (clazz == null) {
-			return null; //fail
-		}
+        Class<?> clazz = loadClass(javaBinDir);
+        if (clazz == null) {
+            return null; //fail
+        }
 
-		//delete class file on exit
-		classFile.delete();
-		return clazz;
-	}
+        //delete class file on exit
+        classFile.delete();
+        return clazz;
+    }
 
-	private static Class<?> loadClass(File javaBinDir) {
+    private static Class<?> loadClass(File javaBinDir) {
 
-		URLClassLoader urlClassLoader = null;
-		try {
-			URI javaBinURI = javaBinDir.toURI();
-			URL javaBinURL = javaBinURI.toURL();
-			urlClassLoader = new URLClassLoader(new URL[] { javaBinURL },
-					Foo.class.getClassLoader());
-			Class<?> clazz = urlClassLoader.loadClass(FOO_TEST_CLASS_NAME);
-			return clazz;
-		} catch (ClassNotFoundException e) {
-			return null;
-		} catch (MalformedURLException e) {
-			return null;
-		}
-	}
+        URLClassLoader urlClassLoader = null;
+        try {
+            URI javaBinURI = javaBinDir.toURI();
+            URL javaBinURL = javaBinURI.toURL();
+            urlClassLoader = new URLClassLoader(new URL[]{javaBinURL},
+                    Foo.class.getClassLoader());
+            Class<?> clazz = urlClassLoader.loadClass(FOO_TEST_CLASS_NAME);
+            return clazz;
+        } catch (ClassNotFoundException e) {
+            return null;
+        } catch (MalformedURLException e) {
+            return null;
+        }
+    }
 
-	private static boolean compileJavaFile(String javaBinDirName, File javaFile) {
-		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-		if (compiler == null) {
-			return false; //fail
-		}
+    private static boolean compileJavaFile(String javaBinDirName, File javaFile) {
+        JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+        if (compiler == null) {
+            return false; //fail
+        }
 
-		DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
-		StandardJavaFileManager fileManager = compiler.getStandardFileManager(
-				diagnostics, Locale.getDefault(), Charset.forName("UTF-8"));
-		Iterable<? extends JavaFileObject> compilationUnits = fileManager
-				.getJavaFileObjectsFromFiles(Collections
-						.singletonList(javaFile));
+        DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
+        StandardJavaFileManager fileManager = compiler.getStandardFileManager(
+                diagnostics, Locale.getDefault(), Charset.forName("UTF-8"));
+        Iterable<? extends JavaFileObject> compilationUnits = fileManager
+                .getJavaFileObjectsFromFiles(Collections
+                        .singletonList(javaFile));
 
-		List<String> optionList;
-		optionList = new ArrayList<>();
-		optionList.addAll(Arrays.asList("-d", javaBinDirName));
-		CompilationTask task = compiler.getTask(null, fileManager, diagnostics,
-				optionList, null, compilationUnits);
-		boolean compiled = task.call();
-		try {
-			fileManager.close();
-		} catch (IOException e) {
-			return false;
-		}
-		return compiled;
-	}
+        List<String> optionList;
+        optionList = new ArrayList<>();
+        optionList.addAll(Arrays.asList("-d", javaBinDirName));
+        CompilationTask task = compiler.getTask(null, fileManager, diagnostics,
+                optionList, null, compilationUnits);
+        boolean compiled = task.call();
+        try {
+            fileManager.close();
+        } catch (IOException e) {
+            return false;
+        }
+        return compiled;
+    }
 
-	private File writeJavaSourceText(String javaSourceText, String javaFilename) {
-		File javaFile = new File(javaFilename);
-		if (javaFile.exists()) {
-			return null; //fail
-		}
+    private File writeJavaSourceText(String javaSourceText, String javaFilename) {
+        File javaFile = new File(javaFilename);
+        if (javaFile.exists()) {
+            return null; //fail
+        }
 
-		BufferedWriter writer = null;
-		try {
-			writer = new BufferedWriter(new FileWriter(javaFilename));
-			writer.write(javaSourceText);
-			writer.close();
-		} catch (IOException e) {
-			return null;
-		}
-		return javaFile;
-	}
+        BufferedWriter writer = null;
+        try {
+            writer = new BufferedWriter(new FileWriter(javaFilename));
+            writer.write(javaSourceText);
+            writer.close();
+        } catch (IOException e) {
+            return null;
+        }
+        return javaFile;
+    }
 }

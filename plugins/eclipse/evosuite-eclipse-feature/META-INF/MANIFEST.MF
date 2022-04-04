@@ -3,5 +3,5 @@ Bundle-ManifestVersion: 2
 Bundle-Name: EvoSuite Eclipse plugin - Feature
 Bundle-SymbolicName: org.evosuite.plugins.eclipse.feature
 Bundle-Vendor: Gordon Fraser, José Miguel Rojas and Thomas White - University of Sheffield
-Bundle-Version: 1.1.1.qualifier
+Bundle-Version: 1.2.1.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8

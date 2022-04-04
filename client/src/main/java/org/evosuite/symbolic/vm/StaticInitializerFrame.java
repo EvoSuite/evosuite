@@ -19,43 +19,43 @@
  */
 package org.evosuite.symbolic.vm;
 
-import java.lang.reflect.Member;
-
 import org.evosuite.dse.MainConfig;
+
+import java.lang.reflect.Member;
 
 /**
  * Frame for a <clinit>() invocation
- * 
+ *
  * @author csallner@uta.edu (Christoph Csallner)
  */
 final class StaticInitializerFrame extends Frame {
 
-	private String className;
+    private final String className;
 
-	/**
-	 * Constructor
-	 */
-	StaticInitializerFrame(String className) {
-		super(MainConfig.get().MAX_LOCALS_DEFAULT);
-		this.className = className;
-	}
+    /**
+     * Constructor
+     */
+    StaticInitializerFrame(String className) {
+        super(MainConfig.get().MAX_LOCALS_DEFAULT);
+        this.className = className;
+    }
 
-	@Override
-	public int getNrFormalParameters() {
-		return 0;
-	}
+    @Override
+    public int getNrFormalParameters() {
+        return 0;
+    }
 
-	@Override
-	public int getNrFormalParametersTotal() {
-		return 0;
-	}
+    @Override
+    public int getNrFormalParametersTotal() {
+        return 0;
+    }
 
-	@Override
-	public Member getMember() {
-		return null;
-	}
+    @Override
+    public Member getMember() {
+        return null;
+    }
 
-	public Object getClassName() {
-		return className;
-	}
+    public Object getClassName() {
+        return className;
+    }
 }

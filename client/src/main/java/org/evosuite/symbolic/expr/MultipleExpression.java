@@ -24,37 +24,35 @@ import java.util.ArrayList;
 
 public interface MultipleExpression<T extends Object> {
 
-	/**
-	 * <p>
-	 * getOperator
-	 * </p>
-	 * 
-	 * @param <T>
-	 *            a T object.
-	 * @return a {@link org.evosuite.symbolic.expr.Operator} object.
-	 */
+    /**
+     * <p>
+     * getOperator
+     * </p>
+     *
+     * @param <T> a T object.
+     * @return a {@link org.evosuite.symbolic.expr.Operator} object.
+     */
     Operator getOperator();
 
-	/**
-	 * <p>
-	 * getLeftOperand
-	 * </p>
-	 * 
-	 * @return a {@link org.evosuite.symbolic.expr.Expression} object.
-	 */
+    /**
+     * <p>
+     * getLeftOperand
+     * </p>
+     *
+     * @return a {@link org.evosuite.symbolic.expr.Expression} object.
+     */
     Expression<T> getLeftOperand();
 
-	/**
-	 * <p>
-	 * getRightOperand
-	 * </p>
-	 * 
-	 * @return a {@link org.evosuite.symbolic.expr.Expression} object.
-	 */
+    /**
+     * <p>
+     * getRightOperand
+     * </p>
+     *
+     * @return a {@link org.evosuite.symbolic.expr.Expression} object.
+     */
     Expression<?> getRightOperand();
 
-	ArrayList<Expression<?>> getOther();
-	
-	
+    ArrayList<Expression<?>> getOther();
+
 
 }

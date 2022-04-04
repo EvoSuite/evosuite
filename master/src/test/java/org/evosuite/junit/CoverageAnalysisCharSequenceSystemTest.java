@@ -53,8 +53,8 @@ public class CoverageAnalysisCharSequenceSystemTest extends SystemTestBase {
         String testClass = WordUtilsTest.class.getCanonicalName();
         Properties.TARGET_CLASS = targetClass;
 
-        Properties.CRITERION = new Properties.Criterion[] {
-            Properties.Criterion.LINE
+        Properties.CRITERION = new Properties.Criterion[]{
+                Properties.Criterion.LINE
         };
 
         Properties.OUTPUT_VARIABLES = RuntimeVariable.Total_Goals + "," + RuntimeVariable.LineCoverage;
@@ -67,10 +67,10 @@ public class CoverageAnalysisCharSequenceSystemTest extends SystemTestBase {
         Properties.REPLACE_SYSTEM_IN = false;
         Properties.MAX_LOOP_ITERATIONS = -1;
 
-        String[] command = new String[] {
-            "-class", targetClass,
-            "-Djunit=" + testClass,
-            "-measureCoverage"
+        String[] command = new String[]{
+                "-class", targetClass,
+                "-Djunit=" + testClass,
+                "-measureCoverage"
         };
 
         SearchStatistics statistics = (SearchStatistics) evosuite.parseCommandLine(command);

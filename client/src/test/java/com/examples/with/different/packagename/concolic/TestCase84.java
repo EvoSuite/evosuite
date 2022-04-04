@@ -26,19 +26,19 @@ import static com.examples.with.different.packagename.concolic.Assertions.checkE
 
 public class TestCase84 {
 
-	/**
-	 * @param args
-	 */
-	// String string0 = ConcolicMarker.mark("aaaaaaaaaaab", "string0");
-	public static void test(String string0) {
+    /**
+     * @param args
+     */
+    // String string0 = ConcolicMarker.mark("aaaaaaaaaaab", "string0");
+    public static void test(String string0) {
 
-		String regex = "a*b";
+        String regex = "a*b";
 
-		Pattern pattern0 = Pattern.compile(regex);
-		Matcher matcher0 = pattern0.matcher(string0);
-		boolean boolean0 = matcher0.matches();
+        Pattern pattern0 = Pattern.compile(regex);
+        Matcher matcher0 = pattern0.matcher(string0);
+        boolean boolean0 = matcher0.matches();
 
-		checkEquals(boolean0, true);
-	}
+        checkEquals(boolean0, true);
+    }
 
 }

@@ -30,176 +30,183 @@ import java.util.Objects;
 
 /**
  * Fitness function for a single test on a single branch
- * 
+ *
  * @author Gordon Fraser, Jose Miguel Rojas
  */
 public class OnlyBranchCoverageTestFitness extends TestFitnessFunction {
 
 
-	private static final long serialVersionUID = -7540212369784578236L;
+    private static final long serialVersionUID = -7540212369784578236L;
 
-	/** Target branch */
-	private final BranchCoverageGoal goal;
+    /**
+     * Target branch
+     */
+    private final BranchCoverageGoal goal;
 
-	/**
-	 * Constructor - fitness is specific to a branch
-	 * 
-	 * @param goal
-	 *            a {@link org.evosuite.coverage.branch.BranchCoverageGoal}
-	 *            object.
-	 */
-	public OnlyBranchCoverageTestFitness(BranchCoverageGoal goal) {
-		this.goal = Objects.requireNonNull(goal, "goal cannot be null");
-	}
+    /**
+     * Constructor - fitness is specific to a branch
+     *
+     * @param goal a {@link org.evosuite.coverage.branch.BranchCoverageGoal}
+     *             object.
+     */
+    public OnlyBranchCoverageTestFitness(BranchCoverageGoal goal) {
+        this.goal = Objects.requireNonNull(goal, "goal cannot be null");
+    }
 
-	/**
-	 * <p>
-	 * getBranch
-	 * </p>
-	 * 
-	 * @return a {@link org.evosuite.coverage.branch.Branch} object.
-	 */
-	public Branch getBranch() {
-		return goal.getBranch();
-	}
+    /**
+     * <p>
+     * getBranch
+     * </p>
+     *
+     * @return a {@link org.evosuite.coverage.branch.Branch} object.
+     */
+    public Branch getBranch() {
+        return goal.getBranch();
+    }
 
-	public boolean getValue() {
-		return goal.getValue();
-	}
+    public boolean getValue() {
+        return goal.getValue();
+    }
 
-	public BranchCoverageGoal getBranchGoal() {
-		return goal;
-	}
+    public BranchCoverageGoal getBranchGoal() {
+        return goal;
+    }
 
-	/**
-	 * <p>
-	 * getClassName
-	 * </p>
-	 * 
-	 * @return a {@link java.lang.String} object.
-	 */
-	public String getClassName() {
-		return goal.getClassName();
-	}
+    /**
+     * <p>
+     * getClassName
+     * </p>
+     *
+     * @return a {@link java.lang.String} object.
+     */
+    public String getClassName() {
+        return goal.getClassName();
+    }
 
-	/**
-	 * <p>
-	 * getMethod
-	 * </p>
-	 * 
-	 * @return a {@link java.lang.String} object.
-	 */
-	public String getMethod() {
-		return goal.getMethodName();
-	}
+    /**
+     * <p>
+     * getMethod
+     * </p>
+     *
+     * @return a {@link java.lang.String} object.
+     */
+    public String getMethod() {
+        return goal.getMethodName();
+    }
 
-	/**
-	 * <p>
-	 * getBranchExpressionValue
-	 * </p>
-	 * 
-	 * @return a boolean.
-	 */
-	public boolean getBranchExpressionValue() {
-		return goal.getValue();
-	}
+    /**
+     * <p>
+     * getBranchExpressionValue
+     * </p>
+     *
+     * @return a boolean.
+     */
+    public boolean getBranchExpressionValue() {
+        return goal.getValue();
+    }
 
-	/**
-	 * {@inheritDoc}
-	 * 
-	 * Calculate approach level + branch distance
-	 */
-	@Override
-	public double getFitness(TestChromosome individual, ExecutionResult result) {
-		ControlFlowDistance distance = goal.getDistance(result);
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Calculate approach level + branch distance
+     */
+    @Override
+    public double getFitness(TestChromosome individual, ExecutionResult result) {
+        ControlFlowDistance distance = goal.getDistance(result);
 
-		double fitness = distance.getResultingBranchFitness();
+        double fitness = distance.getResultingBranchFitness();
 
-		// If there is an undeclared exception it is a failing test
-		//if (result.hasUndeclaredException())
-		//	fitness += 1;
+        // If there is an undeclared exception it is a failing test
+        //if (result.hasUndeclaredException())
+        //	fitness += 1;
 
-		logger.debug("Approach level: " + distance.getApproachLevel()
-		        + " / branch distance: " + distance.getBranchDistance() + ", fitness = "
-		        + fitness);
+        logger.debug("Approach level: " + distance.getApproachLevel()
+                + " / branch distance: " + distance.getBranchDistance() + ", fitness = "
+                + fitness);
 
-		updateIndividual(individual, fitness);
+        updateIndividual(individual, fitness);
 
-		if (fitness == 0.0) {
-			individual.getTestCase().addCoveredGoal(this);
-		}
+        if (fitness == 0.0) {
+            individual.getTestCase().addCoveredGoal(this);
+        }
 
-		if (Properties.TEST_ARCHIVE) {
-			Archive.getArchiveInstance().updateArchive(this, individual, fitness);
-		}
+        if (Properties.TEST_ARCHIVE) {
+            Archive.getArchiveInstance().updateArchive(this, individual, fitness);
+        }
 
-		return fitness;
-	}
+        return fitness;
+    }
 
-	//	@Override
-	//	public int getDifficulty() {
-	//		if (goal == null)
-	//			return 1;
-	//		else
-	//			return goal.getDifficulty();
-	//	}
+    //	@Override
+    //	public int getDifficulty() {
+    //		if (goal == null)
+    //			return 1;
+    //		else
+    //			return goal.getDifficulty();
+    //	}
 
-	/** {@inheritDoc} */
-	@Override
-	public String toString() {
-		return goal.toString();
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        return goal.toString();
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((goal == null) ? 0 : goal.hashCode());
-		return result;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((goal == null) ? 0 : goal.hashCode());
+        return result;
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		OnlyBranchCoverageTestFitness other = (OnlyBranchCoverageTestFitness) obj;
-		if (goal == null) {
-			return other.goal == null;
-		} else return goal.equals(other.goal);
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        OnlyBranchCoverageTestFitness other = (OnlyBranchCoverageTestFitness) obj;
+        if (goal == null) {
+            return other.goal == null;
+        } else return goal.equals(other.goal);
+    }
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.TestFitnessFunction#compareTo(org.evosuite.testcase.TestFitnessFunction)
-	 */
-	@Override
-	public int compareTo(TestFitnessFunction other) {
-		if (other instanceof OnlyBranchCoverageTestFitness) {
-			OnlyBranchCoverageTestFitness otherOnlyBranchFitness = (OnlyBranchCoverageTestFitness) other;
-			return goal.compareTo(otherOnlyBranchFitness.goal);
-		}
-		return compareClassName(other);
-	}
+    /* (non-Javadoc)
+     * @see org.evosuite.testcase.TestFitnessFunction#compareTo(org.evosuite.testcase.TestFitnessFunction)
+     */
+    @Override
+    public int compareTo(TestFitnessFunction other) {
+        if (other instanceof OnlyBranchCoverageTestFitness) {
+            OnlyBranchCoverageTestFitness otherOnlyBranchFitness = (OnlyBranchCoverageTestFitness) other;
+            return goal.compareTo(otherOnlyBranchFitness.goal);
+        }
+        return compareClassName(other);
+    }
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.TestFitnessFunction#getTargetClass()
-	 */
-	@Override
-	public String getTargetClass() {
-		return getClassName();
-	}
+    /* (non-Javadoc)
+     * @see org.evosuite.testcase.TestFitnessFunction#getTargetClass()
+     */
+    @Override
+    public String getTargetClass() {
+        return getClassName();
+    }
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.TestFitnessFunction#getTargetMethod()
-	 */
-	@Override
-	public String getTargetMethod() {
-		return getMethod();
-	}
+    /* (non-Javadoc)
+     * @see org.evosuite.testcase.TestFitnessFunction#getTargetMethod()
+     */
+    @Override
+    public String getTargetMethod() {
+        return getMethod();
+    }
 
 }

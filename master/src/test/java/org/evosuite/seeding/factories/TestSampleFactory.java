@@ -24,17 +24,17 @@ import org.evosuite.testcase.TestChromosome;
 
 public class TestSampleFactory implements ChromosomeFactory<TestChromosome> {
 
-	public static final TestChromosome CHROMOSOME;
+    public static final TestChromosome CHROMOSOME;
     private static final long serialVersionUID = -3729823431724553477L;
 
     static {
-		CHROMOSOME = new TestChromosome();
-	}
-	
-	@Override
-	public TestChromosome getChromosome() {
-		// TODO Auto-generated method stub
-		return CHROMOSOME;
-	}
+        CHROMOSOME = new TestChromosome();
+    }
+
+    @Override
+    public TestChromosome getChromosome() {
+        // TODO Auto-generated method stub
+        return CHROMOSOME;
+    }
 
 }

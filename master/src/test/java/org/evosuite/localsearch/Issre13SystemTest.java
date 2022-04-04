@@ -58,159 +58,159 @@ import com.examples.with.different.packagename.localsearch.DseFoo;
  */
 public class Issre13SystemTest extends SystemTestBase {
 
-	@Before
-	public void init() {
-		Properties.LOCAL_SEARCH_PROBABILITY = 1.0;
-		Properties.LOCAL_SEARCH_RATE = 1;
-		Properties.LOCAL_SEARCH_BUDGET_TYPE = Properties.LocalSearchBudgetType.TESTS;
-		Properties.LOCAL_SEARCH_BUDGET = 500;
-		Properties.SEARCH_BUDGET = 100000;
-		Properties.RESET_STATIC_FIELD_GETS = true;
-		Properties.P_FUNCTIONAL_MOCKING = 0.0;
-		Properties.P_REFLECTION_ON_PRIVATE = 0.0;
-	}
+    @Before
+    public void init() {
+        Properties.LOCAL_SEARCH_PROBABILITY = 1.0;
+        Properties.LOCAL_SEARCH_RATE = 1;
+        Properties.LOCAL_SEARCH_BUDGET_TYPE = Properties.LocalSearchBudgetType.TESTS;
+        Properties.LOCAL_SEARCH_BUDGET = 500;
+        Properties.SEARCH_BUDGET = 100000;
+        Properties.RESET_STATIC_FIELD_GETS = true;
+        Properties.P_FUNCTIONAL_MOCKING = 0.0;
+        Properties.P_REFLECTION_ON_PRIVATE = 0.0;
+    }
 
-	@Test
-	public void testLocalSearch() {
+    @Test
+    public void testLocalSearch() {
 
-		// it should be trivial for LS
+        // it should be trivial for LS
 
-		EvoSuite evosuite = new EvoSuite();
-		String targetClass = DseBar.class.getCanonicalName();
-		Properties.TARGET_CLASS = targetClass;
+        EvoSuite evosuite = new EvoSuite();
+        String targetClass = DseBar.class.getCanonicalName();
+        Properties.TARGET_CLASS = targetClass;
 
-		Properties.DSE_PROBABILITY = 0.0; // force using only LS, no DSE
+        Properties.DSE_PROBABILITY = 0.0; // force using only LS, no DSE
 
-		String[] command = new String[] { "-generateSuite", "-class",
-				targetClass };
+        String[] command = new String[]{"-generateSuite", "-class",
+                targetClass};
 
-		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
-		System.out.println("EvolvedTestSuite:\n" + best);
+        Object result = evosuite.parseCommandLine(command);
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
+        System.out.println("EvolvedTestSuite:\n" + best);
 
-		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(),
-				0.001);
-	}
-	
-	@Test
-	public void testOnSpecificTest() throws ClassNotFoundException, ConstructionFailedException, NoSuchMethodException, SecurityException {
-		Properties.TARGET_CLASS = DseBar.class.getCanonicalName();
-		Properties.DSE_PROBABILITY = 1.0; // force using DSE
-		
-		Class<?> sut = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(Properties.TARGET_CLASS);
-		Class<?> fooClass = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(DseFoo.class.getCanonicalName());
-		GenericClass<?> clazz = GenericClassFactory.get(sut);
+        Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(),
+                0.001);
+    }
 
-		DefaultTestCase test = new DefaultTestCase();
+    @Test
+    public void testOnSpecificTest() throws ClassNotFoundException, ConstructionFailedException, NoSuchMethodException, SecurityException {
+        Properties.TARGET_CLASS = DseBar.class.getCanonicalName();
+        Properties.DSE_PROBABILITY = 1.0; // force using DSE
 
-		// String string0 = "baz5";
-		VariableReference stringVar = test.addStatement(new StringPrimitiveStatement(test, "baz5"));
+        Class<?> sut = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(Properties.TARGET_CLASS);
+        Class<?> fooClass = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(DseFoo.class.getCanonicalName());
+        GenericClass<?> clazz = GenericClassFactory.get(sut);
 
-		// DseFoo dseFoo0 = new DseFoo();
-		GenericConstructor fooConstructor = new GenericConstructor(fooClass.getConstructors()[0], fooClass);
-		ConstructorStatement fooConstructorStatement = new ConstructorStatement(test, fooConstructor, Arrays.asList(new VariableReference[] {}));
-		VariableReference fooVar = test.addStatement(fooConstructorStatement);
+        DefaultTestCase test = new DefaultTestCase();
 
-		Method fooIncMethod = fooClass.getMethod("inc");
-		GenericMethod incMethod = new GenericMethod(fooIncMethod, fooClass);
-		test.addStatement(new MethodStatement(test, incMethod, fooVar, Arrays.asList(new VariableReference[] {})));
-		test.addStatement(new MethodStatement(test, incMethod, fooVar, Arrays.asList(new VariableReference[] {})));
-		test.addStatement(new MethodStatement(test, incMethod, fooVar, Arrays.asList(new VariableReference[] {})));
-		test.addStatement(new MethodStatement(test, incMethod, fooVar, Arrays.asList(new VariableReference[] {})));
-		test.addStatement(new MethodStatement(test, incMethod, fooVar, Arrays.asList(new VariableReference[] {})));
+        // String string0 = "baz5";
+        VariableReference stringVar = test.addStatement(new StringPrimitiveStatement(test, "baz5"));
 
-		// DseBar dseBar0 = new DseBar(string0);
-		GenericConstructor gc = new GenericConstructor(clazz.getRawClass().getConstructors()[0], clazz);
-		ConstructorStatement constructorStatement = new ConstructorStatement(test, gc, Arrays.asList(stringVar));
-		VariableReference callee = test.addStatement(constructorStatement);
+        // DseFoo dseFoo0 = new DseFoo();
+        GenericConstructor fooConstructor = new GenericConstructor(fooClass.getConstructors()[0], fooClass);
+        ConstructorStatement fooConstructorStatement = new ConstructorStatement(test, fooConstructor, Arrays.asList(new VariableReference[]{}));
+        VariableReference fooVar = test.addStatement(fooConstructorStatement);
 
-		// dseBar0.coverMe(dseFoo0);
-		Method m = clazz.getRawClass().getMethod("coverMe", fooClass);
-		GenericMethod method = new GenericMethod(m, sut);
-		MethodStatement ms = new MethodStatement(test, method, callee, Arrays.asList(fooVar));
-		test.addStatement(ms);
-		System.out.println(test);
-		
-		TestSuiteChromosome suite = new TestSuiteChromosome();
-		BranchCoverageSuiteFitness fitness = new BranchCoverageSuiteFitness();
+        Method fooIncMethod = fooClass.getMethod("inc");
+        GenericMethod incMethod = new GenericMethod(fooIncMethod, fooClass);
+        test.addStatement(new MethodStatement(test, incMethod, fooVar, Arrays.asList(new VariableReference[]{})));
+        test.addStatement(new MethodStatement(test, incMethod, fooVar, Arrays.asList(new VariableReference[]{})));
+        test.addStatement(new MethodStatement(test, incMethod, fooVar, Arrays.asList(new VariableReference[]{})));
+        test.addStatement(new MethodStatement(test, incMethod, fooVar, Arrays.asList(new VariableReference[]{})));
+        test.addStatement(new MethodStatement(test, incMethod, fooVar, Arrays.asList(new VariableReference[]{})));
 
-		BranchCoverageMap.getInstance().searchStarted(null);
-		assertEquals(4.0, fitness.getFitness(suite), 0.1F);
-		suite.addTest(test);
-		assertEquals(1.0, fitness.getFitness(suite), 0.1F);
+        // DseBar dseBar0 = new DseBar(string0);
+        GenericConstructor gc = new GenericConstructor(clazz.getRawClass().getConstructors()[0], clazz);
+        ConstructorStatement constructorStatement = new ConstructorStatement(test, gc, Arrays.asList(stringVar));
+        VariableReference callee = test.addStatement(constructorStatement);
 
-		System.out.println("Test suite: "+suite);
-		
-		TestSuiteLocalSearch localSearch = TestSuiteLocalSearch.selectTestSuiteLocalSearch();
-		LocalSearchObjective<TestSuiteChromosome> localObjective = new DefaultLocalSearchObjective();
-		localObjective.addFitnessFunction(fitness);
-		localSearch.doSearch(suite, localObjective);
-		System.out.println("Fitness: "+fitness.getFitness(suite));
-		System.out.println("Test suite: "+suite);
-		assertEquals(0.0, fitness.getFitness(suite), 0.1F);
-		BranchCoverageMap.getInstance().searchFinished(null);
-	}
+        // dseBar0.coverMe(dseFoo0);
+        Method m = clazz.getRawClass().getMethod("coverMe", fooClass);
+        GenericMethod method = new GenericMethod(m, sut);
+        MethodStatement ms = new MethodStatement(test, method, callee, Arrays.asList(fooVar));
+        test.addStatement(ms);
+        System.out.println(test);
 
-	@Test
-	public void testDSE() {
+        TestSuiteChromosome suite = new TestSuiteChromosome();
+        BranchCoverageSuiteFitness fitness = new BranchCoverageSuiteFitness();
 
-		// should it be trivial for DSE ?
+        BranchCoverageMap.getInstance().searchStarted(null);
+        assertEquals(4.0, fitness.getFitness(suite), 0.1F);
+        suite.addTest(test);
+        assertEquals(1.0, fitness.getFitness(suite), 0.1F);
 
-		EvoSuite evosuite = new EvoSuite();
-		String targetClass = DseBar.class.getCanonicalName();
-		Properties.TARGET_CLASS = targetClass;
+        System.out.println("Test suite: " + suite);
 
-		Properties.MINIMIZE = false;
-		Properties.CONCOLIC_TIMEOUT = Integer.MAX_VALUE;
-		Properties.DSE_PROBABILITY = 1.0; // force using only DSE, no LS
-		Properties.TEST_ARCHIVE = true;
+        TestSuiteLocalSearch localSearch = TestSuiteLocalSearch.selectTestSuiteLocalSearch();
+        LocalSearchObjective<TestSuiteChromosome> localObjective = new DefaultLocalSearchObjective();
+        localObjective.addFitnessFunction(fitness);
+        localSearch.doSearch(suite, localObjective);
+        System.out.println("Fitness: " + fitness.getFitness(suite));
+        System.out.println("Test suite: " + suite);
+        assertEquals(0.0, fitness.getFitness(suite), 0.1F);
+        BranchCoverageMap.getInstance().searchFinished(null);
+    }
 
-		String[] command = new String[] { "-generateSuite", "-class",
-				targetClass };
+    @Test
+    public void testDSE() {
 
-		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
-		System.out.println("EvolvedTestSuite:\n" + best);
+        // should it be trivial for DSE ?
 
-		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(),
-				0.001);
-	}
+        EvoSuite evosuite = new EvoSuite();
+        String targetClass = DseBar.class.getCanonicalName();
+        Properties.TARGET_CLASS = targetClass;
 
-	@Test
-	public void testDSEMultiObjective() {
+        Properties.MINIMIZE = false;
+        Properties.CONCOLIC_TIMEOUT = Integer.MAX_VALUE;
+        Properties.DSE_PROBABILITY = 1.0; // force using only DSE, no LS
+        Properties.TEST_ARCHIVE = true;
 
-		Randomness.setSeed(1545420);
+        String[] command = new String[]{"-generateSuite", "-class",
+                targetClass};
 
-		// should it be trivial for DSE ?
-		Properties.SEARCH_BUDGET = 20;
-		Properties.TIMEOUT = Integer.MAX_VALUE;
-		Properties.CONCOLIC_TIMEOUT = Integer.MAX_VALUE;
-		Properties.LOCAL_SEARCH_RATE = 1;
-		Properties.DSE_PROBABILITY = 1.0;
+        Object result = evosuite.parseCommandLine(command);
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
+        System.out.println("EvolvedTestSuite:\n" + best);
+
+        Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(),
+                0.001);
+    }
+
+    @Test
+    public void testDSEMultiObjective() {
+
+        Randomness.setSeed(1545420);
+
+        // should it be trivial for DSE ?
+        Properties.SEARCH_BUDGET = 20;
+        Properties.TIMEOUT = Integer.MAX_VALUE;
+        Properties.CONCOLIC_TIMEOUT = Integer.MAX_VALUE;
+        Properties.LOCAL_SEARCH_RATE = 1;
+        Properties.DSE_PROBABILITY = 1.0;
 //		Properties.LOCAL_SEARCH_BUDGET_TYPE = LocalSearchBudgetType.TIME;
-		Properties.LOCAL_SEARCH_BUDGET_TYPE = LocalSearchBudgetType.TESTS;
-		Properties.LOCAL_SEARCH_BUDGET = 5;
-		Properties.CRITERION = new Criterion[] { Criterion.LINE,
-				Criterion.BRANCH, Criterion.EXCEPTION, Criterion.WEAKMUTATION,
-				Criterion.OUTPUT, Criterion.METHOD };
-		Properties.STOPPING_CONDITION = StoppingCondition.MAXTIME;
+        Properties.LOCAL_SEARCH_BUDGET_TYPE = LocalSearchBudgetType.TESTS;
+        Properties.LOCAL_SEARCH_BUDGET = 5;
+        Properties.CRITERION = new Criterion[]{Criterion.LINE,
+                Criterion.BRANCH, Criterion.EXCEPTION, Criterion.WEAKMUTATION,
+                Criterion.OUTPUT, Criterion.METHOD};
+        Properties.STOPPING_CONDITION = StoppingCondition.MAXTIME;
 
-		EvoSuite evosuite = new EvoSuite();
-		String targetClass = DseBar.class.getCanonicalName();
-		Properties.TARGET_CLASS = targetClass;
+        EvoSuite evosuite = new EvoSuite();
+        String targetClass = DseBar.class.getCanonicalName();
+        Properties.TARGET_CLASS = targetClass;
 
-		Properties.DSE_PROBABILITY = 1.0; // force using only DSE, no LS
+        Properties.DSE_PROBABILITY = 1.0; // force using only DSE, no LS
 
-		String[] command = new String[] { "-generateSuite", "-class",
-				targetClass };
+        String[] command = new String[]{"-generateSuite", "-class",
+                targetClass};
 
-		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
-		System.out.println("EvolvedTestSuite:\n" + best);
+        Object result = evosuite.parseCommandLine(command);
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
+        System.out.println("EvolvedTestSuite:\n" + best);
 
-	}
+    }
 
 }

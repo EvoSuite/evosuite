@@ -25,14 +25,16 @@ package com.examples.with.different.packagename.fm;
 public class SimpleFM_PackageMethodWithReturn {
 
     public static class PLM {
-        private PLM(){}
+        private PLM() {
+        }
+
         String foo() {
             throw new IllegalStateException("");
         }
     }
 
-    public void bar(PLM plm){
+    public void bar(PLM plm) {
         String foo = plm.foo(); //throw exception if not mocked
-        System.out.println("To reach this, PLM should had been mocked: "+foo);
+        System.out.println("To reach this, PLM should had been mocked: " + foo);
     }
 }

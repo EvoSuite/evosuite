@@ -19,9 +19,9 @@
  */
 package org.evosuite.ga.bloatcontrol;
 
-import java.io.Serializable;
-
 import org.evosuite.ga.Chromosome;
+
+import java.io.Serializable;
 
 /**
  * The bloat control function is queried before adding an offspring to the next
@@ -31,12 +31,12 @@ import org.evosuite.ga.Chromosome;
  */
 public interface BloatControlFunction<T extends Chromosome<T>> extends Serializable {
 
-	/**
-	 * <p>isTooLong</p>
-	 *
-	 * @param chromosome a {@link org.evosuite.ga.Chromosome} object.
-	 * @return a boolean.
-	 */
+    /**
+     * <p>isTooLong</p>
+     *
+     * @param chromosome a {@link org.evosuite.ga.Chromosome} object.
+     * @return a boolean.
+     */
     boolean isTooLong(T chromosome);
 
 }

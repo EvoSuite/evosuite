@@ -43,11 +43,9 @@ import org.junit.Test;
 import static java.util.Comparator.*;
 
 /**
- * 
  * @author José Campos
  */
-public class ZDT1IntTest
-{
+public class ZDT1IntTest {
     @Before
     public void setUp() {
         Properties.POPULATION = 100;
@@ -59,13 +57,12 @@ public class ZDT1IntTest
 
     /**
      * Testing NSGA-II with ZDT1 Problem
-     * 
-     * @throws IOException 
-     * @throws NumberFormatException 
+     *
+     * @throws IOException
+     * @throws NumberFormatException
      */
     @Test
-    public void testZDT1() throws NumberFormatException, IOException
-    {
+    public void testZDT1() throws NumberFormatException, IOException {
         Properties.MUTATION_RATE = 1d / 30d;
 
         ChromosomeFactory<NSGAChromosome> factory = new RandomFactory(false, 30, 0.0, 1.0);

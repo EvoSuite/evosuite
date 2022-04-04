@@ -21,8 +21,8 @@ package org.evosuite.runtime.mock.java.net;
 
 import org.evosuite.runtime.mock.MockFramework;
 import org.evosuite.runtime.testdata.EvoSuiteLocalAddress;
-import org.evosuite.runtime.vnet.EndPointInfo;
 import org.evosuite.runtime.testdata.NetworkHandling;
+import org.evosuite.runtime.vnet.EndPointInfo;
 import org.evosuite.runtime.vnet.VirtualNetwork;
 import org.junit.After;
 import org.junit.Assert;
@@ -40,28 +40,28 @@ import java.util.Map;
  */
 public class UdpTest {
 
-	@Before
-	public void setupMock() {
-		MockFramework.enable();
-	}
-	
-	@After
-	public void tearDownMock() {
-		MockFramework.disable();
-	}
+    @Before
+    public void setupMock() {
+        MockFramework.enable();
+    }
+
+    @After
+    public void tearDownMock() {
+        MockFramework.disable();
+    }
 
 
     @Test
-    public void multiOpenings() throws Exception{
+    public void multiOpenings() throws Exception {
         //be sure that no real UDP socket is opened. if it happens, then exception is thrown due to too many opened
 
         int n = 10_000;
         List<MockDatagramSocket> list = new ArrayList<>(n); //to avoid GC
-        for(int i=0; i<n; i++){
+        for (int i = 0; i < n; i++) {
             byte[] data = "Hello".getBytes();
             //send the message
-            DatagramPacket packet = new DatagramPacket(data,data.length,
-                    MockInetAddress.getByName("255.255.255.255"),12345);
+            DatagramPacket packet = new DatagramPacket(data, data.length,
+                    MockInetAddress.getByName("255.255.255.255"), 12345);
             MockDatagramSocket socket = new MockDatagramSocket();
             socket.send(packet);
 
@@ -76,9 +76,9 @@ public class UdpTest {
         MockDatagramSocket socket = new MockDatagramSocket(port, InetAddress.getByName(host));
 
         byte[] data = new byte[]{42};
-        NetworkHandling.sendUdpPacket(new EvoSuiteLocalAddress(host,port),data);
+        NetworkHandling.sendUdpPacket(new EvoSuiteLocalAddress(host, port), data);
 
-        DatagramPacket p = new DatagramPacket(new byte[1],1);
+        DatagramPacket p = new DatagramPacket(new byte[1], 1);
         socket.receive(p);
 
         byte[] received = p.getData();
@@ -87,30 +87,30 @@ public class UdpTest {
     }
 
     @Test
-    public void testNonBlockingRead() throws Exception{
+    public void testNonBlockingRead() throws Exception {
         int port = 12345;
         String host = "127.0.0.1";
         MockDatagramSocket socket = new MockDatagramSocket(port, InetAddress.getByName(host));
 
-        DatagramPacket p = new DatagramPacket(new byte[1],1);
+        DatagramPacket p = new DatagramPacket(new byte[1], 1);
 
         try {
             socket.receive(p); //no incoming package, but still should not block
             Assert.fail();
-        } catch(Exception e){
+        } catch (Exception e) {
             //expected
         }
     }
 
     @Test
-    public void testSendPacket() throws Exception{
+    public void testSendPacket() throws Exception {
         String first = "127.0.42.1";
         String second = "127.0.42.2";
         MockDatagramSocket socket = new MockDatagramSocket(500);
 
         byte[] data = new byte[0];
         DatagramPacket packet = new DatagramPacket(
-                data, 0 , InetAddress.getByName(first), 1234
+                data, 0, InetAddress.getByName(first), 1234
         );
 
         //1 to first address
@@ -124,14 +124,14 @@ public class UdpTest {
         socket.send(packet);
         socket.send(packet);
 
-        Map<EndPointInfo,Integer> map = VirtualNetwork.getInstance().getCopyOfSentUDP();
-        Assert.assertEquals(2 , map.size());
+        Map<EndPointInfo, Integer> map = VirtualNetwork.getInstance().getCopyOfSentUDP();
+        Assert.assertEquals(2, map.size());
 
-        for(Map.Entry<EndPointInfo,Integer> entry : map.entrySet()){
-            if(entry.getKey().getHost().equals(first)){
-                Assert.assertEquals(1 , entry.getValue().intValue());
-            } else if(entry.getKey().getHost().equals(second)){
-                Assert.assertEquals(3 , entry.getValue().intValue());
+        for (Map.Entry<EndPointInfo, Integer> entry : map.entrySet()) {
+            if (entry.getKey().getHost().equals(first)) {
+                Assert.assertEquals(1, entry.getValue().intValue());
+            } else if (entry.getKey().getHost().equals(second)) {
+                Assert.assertEquals(3, entry.getValue().intValue());
             } else {
                 Assert.fail();
             }

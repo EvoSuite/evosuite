@@ -67,7 +67,7 @@ public class SystemPathUtilTest {
         assertTrue(exceptionThrown);
     }
 
-        @Test
+    @Test
     public void testJoinWithDelimiterNullElements() {
         boolean exceptionThrown = false;
 

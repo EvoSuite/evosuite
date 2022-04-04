@@ -29,67 +29,68 @@ import org.evosuite.ga.variables.DoubleVariable;
 
 /**
  * ZDT1 Problem
- * 
+ *
  * @author José Campos
  */
-@SuppressWarnings({ "serial" })
-public class ZDT1 implements Problem<NSGAChromosome>
-{
-	private final List<FitnessFunction<NSGAChromosome>> fitnessFunctions = new ArrayList<>();
+@SuppressWarnings({"serial"})
+public class ZDT1 implements Problem<NSGAChromosome> {
+    private final List<FitnessFunction<NSGAChromosome>> fitnessFunctions = new ArrayList<>();
 
-	public ZDT1() {
-		super();
+    public ZDT1() {
+        super();
 
-		/**
-		 * First fitness function
-		 */
-		class f1FitnessFunction extends FitnessFunction<NSGAChromosome> {
-			@Override
-			public double getFitness(NSGAChromosome c) {
+        /**
+         * First fitness function
+         */
+        class f1FitnessFunction extends FitnessFunction<NSGAChromosome> {
+            @Override
+            public double getFitness(NSGAChromosome c) {
 
-				double fitness = ((DoubleVariable) c.getVariable(0)).getValue();
-				updateIndividual(c, fitness);
-				return fitness;
-			}
-			@Override
-			public boolean isMaximizationFunction() {
-				return false;
-			}
-		}
+                double fitness = ((DoubleVariable) c.getVariable(0)).getValue();
+                updateIndividual(c, fitness);
+                return fitness;
+            }
 
-		/**
-		 * Second fitness function
-		 */
-		class f2FitnessFunction extends FitnessFunction<NSGAChromosome> {
-			@Override
-			public double getFitness(NSGAChromosome c) {
+            @Override
+            public boolean isMaximizationFunction() {
+                return false;
+            }
+        }
 
-				double x0 = ((DoubleVariable) c.getVariable(0)).getValue();
+        /**
+         * Second fitness function
+         */
+        class f2FitnessFunction extends FitnessFunction<NSGAChromosome> {
+            @Override
+            public double getFitness(NSGAChromosome c) {
 
-				double sum = 0.0;
-				for (int i = 1; i < c.getNumberOfVariables(); i++) {
-					double x = ((DoubleVariable) c.getVariable(i)).getValue();
-					sum += x;
-				}
+                double x0 = ((DoubleVariable) c.getVariable(0)).getValue();
 
-				double g = 1.0 + 9.0 * sum / (c.getNumberOfVariables() - 1);
+                double sum = 0.0;
+                for (int i = 1; i < c.getNumberOfVariables(); i++) {
+                    double x = ((DoubleVariable) c.getVariable(i)).getValue();
+                    sum += x;
+                }
 
-				double fitness = g * (1 - Math.sqrt(x0 / g));
-				updateIndividual(c, fitness);
-				return fitness;
-			}
-			@Override
-			public boolean isMaximizationFunction() {
-				return false;
-			}
-		}
+                double g = 1.0 + 9.0 * sum / (c.getNumberOfVariables() - 1);
 
-		this.fitnessFunctions.add(new f1FitnessFunction());
-		this.fitnessFunctions.add(new f2FitnessFunction());
-	}
+                double fitness = g * (1 - Math.sqrt(x0 / g));
+                updateIndividual(c, fitness);
+                return fitness;
+            }
 
-	@Override
-	public List<FitnessFunction<NSGAChromosome>> getFitnessFunctions() {
-		return this.fitnessFunctions;
-	}
+            @Override
+            public boolean isMaximizationFunction() {
+                return false;
+            }
+        }
+
+        this.fitnessFunctions.add(new f1FitnessFunction());
+        this.fitnessFunctions.add(new f2FitnessFunction());
+    }
+
+    @Override
+    public List<FitnessFunction<NSGAChromosome>> getFitnessFunctions() {
+        return this.fitnessFunctions;
+    }
 }

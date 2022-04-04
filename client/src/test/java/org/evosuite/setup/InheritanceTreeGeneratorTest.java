@@ -28,7 +28,7 @@ import org.junit.Test;
 public class InheritanceTreeGeneratorTest {
 
     @Test
-    public void canFindJDKData(){
+    public void canFindJDKData() {
         InheritanceTree it = InheritanceTreeGenerator.readJDKData();
         Assert.assertNotNull(it);
     }

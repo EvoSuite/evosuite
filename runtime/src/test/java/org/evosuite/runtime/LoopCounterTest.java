@@ -29,14 +29,19 @@ import org.junit.Test;
  */
 public class LoopCounterTest {
 
+    private boolean loopCounterState = false;
+
     @Before
     public void init() {
         LoopCounter.getInstance().reset();
+        loopCounterState = LoopCounter.getInstance().isActivated();
+        LoopCounter.getInstance().setActive(true);
     }
 
     @After
     public void tearDown() {
         LoopCounter.getInstance().reset();
+        LoopCounter.getInstance().setActive(loopCounterState);
     }
 
     @Test(timeout = 10000)
@@ -62,11 +67,11 @@ public class LoopCounterTest {
     }
 
     @Test
-    public void testNoNewIndex(){
-		LoopCounter.getInstance().checkLoop(0);
-		LoopCounter.getInstance().checkLoop(1);
-		LoopCounter.getInstance().checkLoop(2);
-		LoopCounter.getInstance().checkLoop(5);
-		LoopCounter.getInstance().checkLoop(6);
+    public void testNoNewIndex() {
+        LoopCounter.getInstance().checkLoop(0);
+        LoopCounter.getInstance().checkLoop(1);
+        LoopCounter.getInstance().checkLoop(2);
+        LoopCounter.getInstance().checkLoop(5);
+        LoopCounter.getInstance().checkLoop(6);
     }
 }

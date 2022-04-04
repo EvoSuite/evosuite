@@ -43,31 +43,31 @@ public class IssueStaticInitializerWithTryCatchSystemTest extends SystemTestBase
       *
       * in its static initializer
 	 */
-	
-	@Test
-	public void testWithNoReset(){
-		runTheTest(false);
-	}
 
-	@Test
-	public void testWithReset(){
-		runTheTest(true);
-	}
+    @Test
+    public void testWithNoReset() {
+        runTheTest(false);
+    }
 
-	private void runTheTest(boolean reset){
-		Properties.RESET_STATIC_FIELDS = reset;
+    @Test
+    public void testWithReset() {
+        runTheTest(true);
+    }
 
-		EvoSuite evosuite = new EvoSuite();
+    private void runTheTest(boolean reset) {
+        Properties.RESET_STATIC_FIELDS = reset;
 
-		String targetClass = ClassWithStaticInitializerTryCatch.class.getCanonicalName();
+        EvoSuite evosuite = new EvoSuite();
 
-		Properties.TARGET_CLASS = targetClass;		
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+        String targetClass = ClassWithStaticInitializerTryCatch.class.getCanonicalName();
 
-		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		TestSuiteChromosome best = ga.getBestIndividual();
+        Properties.TARGET_CLASS = targetClass;
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
 
-		Assert.assertNotNull(best);
-	}
+        Object result = evosuite.parseCommandLine(command);
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
+
+        Assert.assertNotNull(best);
+    }
 }

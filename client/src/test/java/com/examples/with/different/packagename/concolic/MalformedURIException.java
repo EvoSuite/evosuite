@@ -19,30 +19,30 @@
  */
 package com.examples.with.different.packagename.concolic;
 
-public class MalformedURIException extends Exception
-{
+public class MalformedURIException extends Exception {
     private static final long serialVersionUID = 3846266456459657222L;
-    /** The URI that could not be parsed.
-   */
-  String uri;
+    /**
+     * The URI that could not be parsed.
+     */
+    String uri;
 
-  /** Constructs an exception with the given detail message.
-   *
-   * @param message the detail message.
-   * @param nuri the malformed URI.
-   */
-  public MalformedURIException(String message, String nuri)
-    {
-      super(message);
-      uri = nuri;
+    /**
+     * Constructs an exception with the given detail message.
+     *
+     * @param message the detail message.
+     * @param nuri    the malformed URI.
+     */
+    public MalformedURIException(String message, String nuri) {
+        super(message);
+        uri = nuri;
     }
 
-  /** Returns the URI that could not be parsed.
-   *
-   * @return the URI that could not be parsed.
-   */
-  public String getURI()
-  {
-    return uri;
-  }
+    /**
+     * Returns the URI that could not be parsed.
+     *
+     * @return the URI that could not be parsed.
+     */
+    public String getURI() {
+        return uri;
+    }
 }

@@ -26,102 +26,116 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Stop search after a predefined maximum search depth
- * 
+ *
  * @author Gordon Fraser
  */
 public class MaxFitnessEvaluationsStoppingCondition<T extends Chromosome<T>> extends StoppingConditionImpl<T> {
 
-	private static final Logger logger = LoggerFactory.getLogger(MaxFitnessEvaluationsStoppingCondition.class);
+    private static final Logger logger = LoggerFactory.getLogger(MaxFitnessEvaluationsStoppingCondition.class);
 
-	private static final long serialVersionUID = 208241490252275613L;
+    private static final long serialVersionUID = 208241490252275613L;
 
-	/** Maximum number of evaluations */
-	protected long maxEvaluations;
+    /**
+     * Maximum number of evaluations
+     */
+    protected long maxEvaluations;
 
-	/** Maximum number of iterations */
-	protected static long currentEvaluation = 0;
+    /**
+     * Maximum number of iterations
+     */
+    protected static long currentEvaluation = 0;
 
-	public MaxFitnessEvaluationsStoppingCondition() {
-		maxEvaluations = Properties.SEARCH_BUDGET;
-	}
+    public MaxFitnessEvaluationsStoppingCondition() {
+        maxEvaluations = Properties.SEARCH_BUDGET;
+    }
 
-	public MaxFitnessEvaluationsStoppingCondition(MaxFitnessEvaluationsStoppingCondition<?> that) {
-		this.maxEvaluations = that.maxEvaluations;
-	}
+    public MaxFitnessEvaluationsStoppingCondition(MaxFitnessEvaluationsStoppingCondition<?> that) {
+        this.maxEvaluations = that.maxEvaluations;
+    }
 
-	@Override
-	public MaxFitnessEvaluationsStoppingCondition<T> clone() {
-		return new MaxFitnessEvaluationsStoppingCondition<>(this);
-	}
+    @Override
+    public MaxFitnessEvaluationsStoppingCondition<T> clone() {
+        return new MaxFitnessEvaluationsStoppingCondition<>(this);
+    }
 
-	/**
-	 * {@inheritDoc}
-	 * 
-	 * Stop when maximum number of fitness evaluations has been reached
-	 */
-	@Override
-	public boolean isFinished() {
-		logger.info("Current number of fitness_evaluations: " + currentEvaluation);
-		return currentEvaluation >= maxEvaluations;
-	}
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Stop when maximum number of fitness evaluations has been reached
+     */
+    @Override
+    public boolean isFinished() {
+        logger.info("Current number of fitness_evaluations: " + currentEvaluation);
+        return currentEvaluation >= maxEvaluations;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 * 
-	 * Keep track of the number of fitness evaluations
-	 */
-	@Override
-	public void fitnessEvaluation(T individual) {
-		currentEvaluation++;
-	}
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Keep track of the number of fitness evaluations
+     */
+    @Override
+    public void fitnessEvaluation(T individual) {
+        currentEvaluation++;
+    }
 
-	/**
-	 * Static getter method
-	 * 
-	 * @return a long.
-	 */
-	public static long getNumFitnessEvaluations() {
-		return currentEvaluation;
-	}
+    /**
+     * Static getter method
+     *
+     * @return a long.
+     */
+    public static long getNumFitnessEvaluations() {
+        return currentEvaluation;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 * 
-	 * At the end, reset
-	 */
-	@Override
-	public void reset() {
-		currentEvaluation = 0;
-	}
+    /**
+     * {@inheritDoc}
+     * <p>
+     * At the end, reset
+     */
+    @Override
+    public void reset() {
+        currentEvaluation = 0;
+    }
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.ga.StoppingCondition#setLimit(int)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public void setLimit(long limit) {
-		maxEvaluations = limit;
-	}
+    /* (non-Javadoc)
+     * @see org.evosuite.ga.StoppingCondition#setLimit(int)
+     */
 
-	/** {@inheritDoc} */
-	@Override
-	public long getLimit() {
-		return maxEvaluations;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setLimit(long limit) {
+        maxEvaluations = limit;
+    }
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.ga.StoppingCondition#getCurrentValue()
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public long getCurrentValue() {
-		return currentEvaluation;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getLimit() {
+        return maxEvaluations;
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public void forceCurrentValue(long value) {
-		currentEvaluation = value;
-	}
+    /* (non-Javadoc)
+     * @see org.evosuite.ga.StoppingCondition#getCurrentValue()
+     */
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getCurrentValue() {
+        return currentEvaluation;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void forceCurrentValue(long value) {
+        currentEvaluation = value;
+    }
 
 }

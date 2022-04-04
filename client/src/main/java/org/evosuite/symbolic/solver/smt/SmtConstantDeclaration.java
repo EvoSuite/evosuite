@@ -23,25 +23,25 @@ import org.evosuite.symbolic.solver.SmtSort;
 
 public final class SmtConstantDeclaration {
 
-	private final String name;
-	private final SmtSort[] sorts;
+    private final String name;
+    private final SmtSort[] sorts;
 
-	public SmtConstantDeclaration(String constantName, SmtSort... constantSorts) {
-		this.name = constantName;
-		this.sorts = constantSorts;
-	}
+    public SmtConstantDeclaration(String constantName, SmtSort... constantSorts) {
+        this.name = constantName;
+        this.sorts = constantSorts;
+    }
 
-	public String getConstantName() {
-		return name;
-	}
+    public String getConstantName() {
+        return name;
+    }
 
-	public SmtSort[] getConstantSorts() {
-		return sorts;
-	}
+    public SmtSort[] getConstantSorts() {
+        return sorts;
+    }
 
-	public String toString() {
-		SmtQueryPrinter printer = new SmtQueryPrinter();
-		String str = printer.print(this);
-		return str;
-	}
+    public String toString() {
+        SmtQueryPrinter printer = new SmtQueryPrinter();
+        String str = printer.print(this);
+        return str;
+    }
 }

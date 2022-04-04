@@ -23,26 +23,26 @@ import java.util.UUID;
 
 public class RandomUUIDUser {
 
-	private final UUID uuid;
+    private final UUID uuid;
 
-	public RandomUUIDUser() {
-		uuid = UUID.randomUUID();
-	}
-	
-	public String toString() {
-		return uuid.toString();
-	}
-	
-	public long getLSB() {
-		return uuid.getLeastSignificantBits();
-	}
+    public RandomUUIDUser() {
+        uuid = UUID.randomUUID();
+    }
 
-	public long getMSB() {
-		return uuid.getLeastSignificantBits();
-	}
-	
-	public int clockSequence() {
-		return uuid.clockSequence();
-	}
-	
+    public String toString() {
+        return uuid.toString();
+    }
+
+    public long getLSB() {
+        return uuid.getLeastSignificantBits();
+    }
+
+    public long getMSB() {
+        return uuid.getLeastSignificantBits();
+    }
+
+    public int clockSequence() {
+        return uuid.clockSequence();
+    }
+
 }

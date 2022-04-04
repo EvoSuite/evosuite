@@ -30,31 +30,31 @@ import org.junit.runner.RunWith;
 @EvoRunnerParameters(mockJVMNonDeterminism = true, useVFS = true, useVNET = true, resetStaticState = true, separateClassLoader = true)
 public class Euclidean_ESTest extends Euclidean_ESTest_scaffolding {
 
-	@Test
-	public void test0() throws Throwable {
-		Euclidean euclidean0 = new Euclidean();
-		int int0 = euclidean0.gcd(1, 0);
-		assertEquals(1, int0);
-	}
+    @Test
+    public void test0() throws Throwable {
+        Euclidean euclidean0 = new Euclidean();
+        int int0 = euclidean0.gcd(1, 0);
+        assertEquals(1, int0);
+    }
 
-	@Test
-	public void test1() throws Throwable {
-		Euclidean euclidean0 = new Euclidean();
-		int int0 = euclidean0.gcd((-2762), (-2762));
-		assertEquals((-2762), int0);
-	}
+    @Test
+    public void test1() throws Throwable {
+        Euclidean euclidean0 = new Euclidean();
+        int int0 = euclidean0.gcd((-2762), (-2762));
+        assertEquals((-2762), int0);
+    }
 
-	@Test
-	public void test3() throws Throwable {
-		Euclidean euclidean0 = new Euclidean();
-		int int0 = euclidean0.gcd((-2762), 0);
-		assertEquals((-2762), int0);
-	}
+    @Test
+    public void test3() throws Throwable {
+        Euclidean euclidean0 = new Euclidean();
+        int int0 = euclidean0.gcd((-2762), 0);
+        assertEquals((-2762), int0);
+    }
 
-	@Test
-	public void test4() throws Throwable {
-		Euclidean euclidean0 = new Euclidean();
-		int int0 = euclidean0.gcd(0, 0);
-		assertEquals(0, int0);
-	}
+    @Test
+    public void test4() throws Throwable {
+        Euclidean euclidean0 = new Euclidean();
+        int int0 = euclidean0.gcd(0, 0);
+        assertEquals(0, int0);
+    }
 }

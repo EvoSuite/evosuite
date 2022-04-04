@@ -30,35 +30,35 @@ import java.util.Map;
  */
 public class CacheCheckResult {
 
-  public static final String ONLY_SOLUTIONS_FROM_SATISFIABLE_QUERIES_CAN_BE_RETRIEVED = "Only solutions from satisfiable queries can be retrieved.";
+    public static final String ONLY_SOLUTIONS_FROM_SATISFIABLE_QUERIES_CAN_BE_RETRIEVED = "Only solutions from satisfiable queries can be retrieved.";
 
-  private Map<String, Object> smtSolution;
-  private CacheQueryStatus cacheQueryStatus;
+    private Map<String, Object> smtSolution;
+    private final CacheQueryStatus cacheQueryStatus;
 
-  public CacheCheckResult(CacheQueryStatus cacheQueryState) {
-    this.cacheQueryStatus = cacheQueryState;
-  }
+    public CacheCheckResult(CacheQueryStatus cacheQueryState) {
+        this.cacheQueryStatus = cacheQueryState;
+    }
 
-  public CacheCheckResult(Map<String, Object> smtSolution, CacheQueryStatus cacheQueryState) {
-    this.smtSolution = smtSolution;
-    this.cacheQueryStatus = cacheQueryState;
-  }
+    public CacheCheckResult(Map<String, Object> smtSolution, CacheQueryStatus cacheQueryState) {
+        this.smtSolution = smtSolution;
+        this.cacheQueryStatus = cacheQueryState;
+    }
 
-  public Map<String, Object> getSmtSolution() {
-    if (!cacheQueryStatus.equals(CacheQueryStatus.HIT_SAT)) throw new DSEExplorationException(
-      ONLY_SOLUTIONS_FROM_SATISFIABLE_QUERIES_CAN_BE_RETRIEVED);
-    return smtSolution;
-  }
+    public Map<String, Object> getSmtSolution() {
+        if (!cacheQueryStatus.equals(CacheQueryStatus.HIT_SAT)) throw new DSEExplorationException(
+                ONLY_SOLUTIONS_FROM_SATISFIABLE_QUERIES_CAN_BE_RETRIEVED);
+        return smtSolution;
+    }
 
-  public boolean isSat() {
-    return this.cacheQueryStatus.equals(CacheQueryStatus.HIT_SAT);
-  }
+    public boolean isSat() {
+        return this.cacheQueryStatus.equals(CacheQueryStatus.HIT_SAT);
+    }
 
-  public boolean isUnSat() {
-    return this.cacheQueryStatus.equals(CacheQueryStatus.HIT_UNSAT);
-  }
+    public boolean isUnSat() {
+        return this.cacheQueryStatus.equals(CacheQueryStatus.HIT_UNSAT);
+    }
 
-  public boolean isMissed() {
-    return this.cacheQueryStatus.equals(CacheQueryStatus.MISS);
-  }
+    public boolean isMissed() {
+        return this.cacheQueryStatus.equals(CacheQueryStatus.MISS);
+    }
 }

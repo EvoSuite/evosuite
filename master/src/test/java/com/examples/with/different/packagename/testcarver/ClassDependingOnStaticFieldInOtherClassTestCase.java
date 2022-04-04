@@ -25,9 +25,9 @@ import org.junit.Test;
 public class ClassDependingOnStaticFieldInOtherClassTestCase {
 
 
-	@Test
-	public void test2() {
-		ClassDependingOnStaticFieldInOtherClass x = new ClassDependingOnStaticFieldInOtherClass();
-		Assert.assertTrue(x.testMe(StaticFieldInOtherClass.x));
-	}
+    @Test
+    public void test2() {
+        ClassDependingOnStaticFieldInOtherClass x = new ClassDependingOnStaticFieldInOtherClass();
+        Assert.assertTrue(x.testMe(StaticFieldInOtherClass.x));
+    }
 }

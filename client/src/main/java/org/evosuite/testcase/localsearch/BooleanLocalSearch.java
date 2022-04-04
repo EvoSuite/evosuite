@@ -29,37 +29,40 @@ import org.evosuite.testcase.statements.PrimitiveStatement;
  * <p>
  * BooleanLocalSearch class.
  * </p>
- * 
+ *
  * @author Gordon Fraser
  */
 public class BooleanLocalSearch extends StatementLocalSearch {
 
-	private boolean oldValue;
+    private boolean oldValue;
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.LocalSearch#doSearch(org.evosuite.testcase.TestChromosome, int, org.evosuite.ga.LocalSearchObjective)
-	 */
-	/** {@inheritDoc} */
-	@SuppressWarnings("unchecked")
-	@Override
-	public boolean doSearch(TestChromosome test, int statement,
-	        LocalSearchObjective<TestChromosome> objective) {
+    /* (non-Javadoc)
+     * @see org.evosuite.testcase.LocalSearch#doSearch(org.evosuite.testcase.TestChromosome, int, org.evosuite.ga.LocalSearchObjective)
+     */
 
-		PrimitiveStatement<Boolean> p = (PrimitiveStatement<Boolean>) test.getTestCase().getStatement(statement);
-		ExecutionResult oldResult = test.getLastExecutionResult();
-		oldValue = p.getValue();
+    /**
+     * {@inheritDoc}
+     */
+    @SuppressWarnings("unchecked")
+    @Override
+    public boolean doSearch(TestChromosome test, int statement,
+                            LocalSearchObjective<TestChromosome> objective) {
 
-		p.setValue(!oldValue);
+        PrimitiveStatement<Boolean> p = (PrimitiveStatement<Boolean>) test.getTestCase().getStatement(statement);
+        ExecutionResult oldResult = test.getLastExecutionResult();
+        oldValue = p.getValue();
 
-		if (!objective.hasImproved(test)) {
-			// Restore original
-			p.setValue(oldValue);
-			test.setLastExecutionResult(oldResult);
-			test.setChanged(false);
-			return false;
-		} else {
-			return true;
-		}
-	}
+        p.setValue(!oldValue);
+
+        if (!objective.hasImproved(test)) {
+            // Restore original
+            p.setValue(oldValue);
+            test.setLastExecutionResult(oldResult);
+            test.setChanged(false);
+            return false;
+        } else {
+            return true;
+        }
+    }
 
 }

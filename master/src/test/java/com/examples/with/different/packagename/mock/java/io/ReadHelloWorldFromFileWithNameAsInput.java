@@ -25,21 +25,21 @@ import java.util.Scanner;
 
 public class ReadHelloWorldFromFileWithNameAsInput {
 
-	public boolean check(String s) throws Exception{
-		File file = new File(s);
+    public boolean check(String s) throws Exception {
+        File file = new File(s);
 
-		if(file.exists()){
+        if (file.exists()) {
 
-			Scanner fromFile = new Scanner(new FileInputStream(file));
-			String fileContent = fromFile.nextLine();
-			if(fileContent.equals("Hello World!")){
-				System.out.println("Target reached");
-			}			
-			fromFile.close();
-			
-			return true;
-		} else {
-			return false;
-		}
-	}
+            Scanner fromFile = new Scanner(new FileInputStream(file));
+            String fileContent = fromFile.nextLine();
+            if (fileContent.equals("Hello World!")) {
+                System.out.println("Target reached");
+            }
+            fromFile.close();
+
+            return true;
+        } else {
+            return false;
+        }
+    }
 }

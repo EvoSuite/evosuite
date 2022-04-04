@@ -45,9 +45,9 @@ public class StoppingConditionFactory {
                 return new TargetCoverageReachedStoppingCondition();
             case ZEROFITNESS:
                 return new ZeroFitnessStoppingCondition();
-			case MAXTESTS:
-				return new MaxTestsStoppingCondition();
-			default:
+            case MAXTESTS:
+                return new MaxTestsStoppingCondition();
+            default:
                 return new MaxTimeStoppingCondition();
         }
     }

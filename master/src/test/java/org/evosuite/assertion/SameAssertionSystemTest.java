@@ -35,168 +35,168 @@ import com.examples.with.different.packagename.assertion.WrapperExample;
 
 public class SameAssertionSystemTest extends SystemTestBase {
 
-	private Properties.AssertionStrategy strategy = null;
-	
-	private double nullProbability = Properties.NULL_PROBABILITY;
-	
-	private double primitiveReuseProbability = Properties.PRIMITIVE_REUSE_PROBABILITY;
-	
-	@Before
-	public void storeAssertionStrategy() {
-		strategy = Properties.ASSERTION_STRATEGY;
-		nullProbability = Properties.NULL_PROBABILITY;
-		primitiveReuseProbability = Properties.PRIMITIVE_REUSE_PROBABILITY;
-	}
-	
-	@After
-	public void restoreAssertionStrategy() {
-		Properties.ASSERTION_STRATEGY = strategy;
-		Properties.NULL_PROBABILITY = nullProbability;
-		Properties.PRIMITIVE_REUSE_PROBABILITY = primitiveReuseProbability;
-	}
-	
-	/*
-	 * SameAssertions on primitive/wrapper arrays are problematic,
-	 * so we do not want to have them at all.
-	 */
-	@Test
-	public void testPrimitiveArray() {
-		EvoSuite evosuite = new EvoSuite();
+    private Properties.AssertionStrategy strategy = null;
 
-		String targetClass = ArrayPrimitiveWrapper.class.getCanonicalName();
+    private double nullProbability = Properties.NULL_PROBABILITY;
 
-		Properties.TARGET_CLASS = targetClass;
-		Properties.ASSERTION_STRATEGY = AssertionStrategy.ALL;
+    private double primitiveReuseProbability = Properties.PRIMITIVE_REUSE_PROBABILITY;
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+    @Before
+    public void storeAssertionStrategy() {
+        strategy = Properties.ASSERTION_STRATEGY;
+        nullProbability = Properties.NULL_PROBABILITY;
+        primitiveReuseProbability = Properties.PRIMITIVE_REUSE_PROBABILITY;
+    }
 
-		Object result = evosuite.parseCommandLine(command);
+    @After
+    public void restoreAssertionStrategy() {
+        Properties.ASSERTION_STRATEGY = strategy;
+        Properties.NULL_PROBABILITY = nullProbability;
+        Properties.PRIMITIVE_REUSE_PROBABILITY = primitiveReuseProbability;
+    }
 
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+    /*
+     * SameAssertions on primitive/wrapper arrays are problematic,
+     * so we do not want to have them at all.
+     */
+    @Test
+    public void testPrimitiveArray() {
+        EvoSuite evosuite = new EvoSuite();
 
-		boolean hasSameAssertion = false;
-		TestSuiteChromosome best = ga.getBestIndividual();
-		for(TestChromosome testChromosome : best.getTestChromosomes()) {
-			for(Assertion assertion : testChromosome.getTestCase().getAssertions()) {
-				if(assertion instanceof SameAssertion) {
-					hasSameAssertion = true;
-					//Assert.assertEquals(true, ((SameAssertion)assertion).value);
-				}
-			}
-		}
-		System.out.println("EvolvedTestSuite:\n" + best);
-		Assert.assertFalse(hasSameAssertion);
-	}
-	
-	@Test
-	public void testObjectArray() {
-		EvoSuite evosuite = new EvoSuite();
+        String targetClass = ArrayPrimitiveWrapper.class.getCanonicalName();
 
-		String targetClass = ArrayObjects.class.getCanonicalName();
+        Properties.TARGET_CLASS = targetClass;
+        Properties.ASSERTION_STRATEGY = AssertionStrategy.ALL;
 
-		Properties.TARGET_CLASS = targetClass;
-		Properties.SEARCH_BUDGET = 100000;
-		Properties.ASSERTION_STRATEGY = AssertionStrategy.ALL;
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+        Object result = evosuite.parseCommandLine(command);
 
-		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
 
-		boolean hasSameAssertion = false;
-		TestSuiteChromosome best = ga.getBestIndividual();
-		for(TestChromosome testChromosome : best.getTestChromosomes()) {
-			for(Assertion assertion : testChromosome.getTestCase().getAssertions()) {
-				if(assertion instanceof SameAssertion) {
-					hasSameAssertion = true;
-					Assert.assertEquals(false, ((SameAssertion)assertion).value);
-				}
-			}
-		}
-		System.out.println("EvolvedTestSuite:\n" + best);
-		Assert.assertTrue(hasSameAssertion);
+        boolean hasSameAssertion = false;
+        TestSuiteChromosome best = ga.getBestIndividual();
+        for (TestChromosome testChromosome : best.getTestChromosomes()) {
+            for (Assertion assertion : testChromosome.getTestCase().getAssertions()) {
+                if (assertion instanceof SameAssertion) {
+                    hasSameAssertion = true;
+                    //Assert.assertEquals(true, ((SameAssertion)assertion).value);
+                }
+            }
+        }
+        System.out.println("EvolvedTestSuite:\n" + best);
+        Assert.assertFalse(hasSameAssertion);
+    }
 
-	}
+    @Test
+    public void testObjectArray() {
+        EvoSuite evosuite = new EvoSuite();
 
-	// TODO: Same assertions are excluding wrapper classes for now, as there are issues
-	//       when the values are inlined
-	@Ignore
-	@Test
-	public void testWrapper() {
-		EvoSuite evosuite = new EvoSuite();
+        String targetClass = ArrayObjects.class.getCanonicalName();
 
-		String targetClass = WrapperExample.class.getCanonicalName();
+        Properties.TARGET_CLASS = targetClass;
+        Properties.SEARCH_BUDGET = 100000;
+        Properties.ASSERTION_STRATEGY = AssertionStrategy.ALL;
 
-		Properties.TARGET_CLASS = targetClass;
-		Properties.ASSERTION_STRATEGY = AssertionStrategy.ALL;
-		// If we allow null in this test, then there is a way
-		// to cover the branch without assertions but with
-		// exception
-		Properties.NULL_PROBABILITY = 0.0;
-		
-		// Ensure that a new Integer object is created rather than 
-		// just using an int, because there's no assertSame between
-		// an int and an Integer
-		Properties.PRIMITIVE_REUSE_PROBABILITY = 0.0;
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+        Object result = evosuite.parseCommandLine(command);
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
 
-		Object result = evosuite.parseCommandLine(command);
+        boolean hasSameAssertion = false;
+        TestSuiteChromosome best = ga.getBestIndividual();
+        for (TestChromosome testChromosome : best.getTestChromosomes()) {
+            for (Assertion assertion : testChromosome.getTestCase().getAssertions()) {
+                if (assertion instanceof SameAssertion) {
+                    hasSameAssertion = true;
+                    Assert.assertEquals(false, ((SameAssertion) assertion).value);
+                }
+            }
+        }
+        System.out.println("EvolvedTestSuite:\n" + best);
+        Assert.assertTrue(hasSameAssertion);
 
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
-		boolean hasSameAssertion = false;
-		TestSuiteChromosome best = ga.getBestIndividual();
-		System.out.println("EvolvedTestSuite:\n" + best);
-		for(TestChromosome testChromosome : best.getTestChromosomes()) {
-			for(Assertion assertion : testChromosome.getTestCase().getAssertions()) {
-				if(assertion instanceof SameAssertion) {
-					hasSameAssertion = true;
-					Assert.assertEquals(true, ((SameAssertion)assertion).value);
-				}
-			}
-		}
-		Assert.assertTrue(hasSameAssertion);
+    }
 
-	}
+    // TODO: Same assertions are excluding wrapper classes for now, as there are issues
+    //       when the values are inlined
+    @Ignore
+    @Test
+    public void testWrapper() {
+        EvoSuite evosuite = new EvoSuite();
 
-	// TODO: Same assertions are excluding wrapper classes for now, as there are issues
-	//       when the values are inlined
-	@Ignore
-	@Test
-	public void testWrapperCopy() {
-		EvoSuite evosuite = new EvoSuite();
+        String targetClass = WrapperExample.class.getCanonicalName();
 
-		String targetClass = WrapperCreatingCopy.class.getCanonicalName();
+        Properties.TARGET_CLASS = targetClass;
+        Properties.ASSERTION_STRATEGY = AssertionStrategy.ALL;
+        // If we allow null in this test, then there is a way
+        // to cover the branch without assertions but with
+        // exception
+        Properties.NULL_PROBABILITY = 0.0;
 
-		Properties.TARGET_CLASS = targetClass;
-		Properties.ASSERTION_STRATEGY = AssertionStrategy.ALL;
-		// If we allow null in this test, then there is a way
-		// to cover the branch without assertions but with
-		// exception
-		Properties.NULL_PROBABILITY = 0.0;
-		
-		// Ensure that a new Integer object is created rather than 
-		// just using an int, because there's no assertSame between
-		// an int and an Integer
-		Properties.PRIMITIVE_REUSE_PROBABILITY = 0.0;
+        // Ensure that a new Integer object is created rather than
+        // just using an int, because there's no assertSame between
+        // an int and an Integer
+        Properties.PRIMITIVE_REUSE_PROBABILITY = 0.0;
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
 
-		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        Object result = evosuite.parseCommandLine(command);
 
-		boolean hasSameAssertion = false;
-		TestSuiteChromosome best = ga.getBestIndividual();
-		for(TestChromosome testChromosome : best.getTestChromosomes()) {
-			for(Assertion assertion : testChromosome.getTestCase().getAssertions()) {
-				if(assertion instanceof SameAssertion) {
-					hasSameAssertion = true;
-					Assert.assertEquals(false, ((SameAssertion)assertion).value);
-				}
-			}
-		}
-		System.out.println("EvolvedTestSuite:\n" + best);
-		Assert.assertTrue(hasSameAssertion);
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        boolean hasSameAssertion = false;
+        TestSuiteChromosome best = ga.getBestIndividual();
+        System.out.println("EvolvedTestSuite:\n" + best);
+        for (TestChromosome testChromosome : best.getTestChromosomes()) {
+            for (Assertion assertion : testChromosome.getTestCase().getAssertions()) {
+                if (assertion instanceof SameAssertion) {
+                    hasSameAssertion = true;
+                    Assert.assertEquals(true, ((SameAssertion) assertion).value);
+                }
+            }
+        }
+        Assert.assertTrue(hasSameAssertion);
 
-	}
+    }
+
+    // TODO: Same assertions are excluding wrapper classes for now, as there are issues
+    //       when the values are inlined
+    @Ignore
+    @Test
+    public void testWrapperCopy() {
+        EvoSuite evosuite = new EvoSuite();
+
+        String targetClass = WrapperCreatingCopy.class.getCanonicalName();
+
+        Properties.TARGET_CLASS = targetClass;
+        Properties.ASSERTION_STRATEGY = AssertionStrategy.ALL;
+        // If we allow null in this test, then there is a way
+        // to cover the branch without assertions but with
+        // exception
+        Properties.NULL_PROBABILITY = 0.0;
+
+        // Ensure that a new Integer object is created rather than
+        // just using an int, because there's no assertSame between
+        // an int and an Integer
+        Properties.PRIMITIVE_REUSE_PROBABILITY = 0.0;
+
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
+
+        Object result = evosuite.parseCommandLine(command);
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+
+        boolean hasSameAssertion = false;
+        TestSuiteChromosome best = ga.getBestIndividual();
+        for (TestChromosome testChromosome : best.getTestChromosomes()) {
+            for (Assertion assertion : testChromosome.getTestCase().getAssertions()) {
+                if (assertion instanceof SameAssertion) {
+                    hasSameAssertion = true;
+                    Assert.assertEquals(false, ((SameAssertion) assertion).value);
+                }
+            }
+        }
+        System.out.println("EvolvedTestSuite:\n" + best);
+        Assert.assertTrue(hasSameAssertion);
+
+    }
 }

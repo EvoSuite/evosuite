@@ -28,28 +28,27 @@ import org.junit.Test;
 
 /**
  * @author Gordon Fraser
- * 
  */
 public class GenericObjectWrapperSetTest {
-	@Test
-	public void test01() {
-		GenericObjectWrapper<Set<Long>> wrapper = new GenericObjectWrapper<>();
-		Assert.assertNull(wrapper.get());
+    @Test
+    public void test01() {
+        GenericObjectWrapper<Set<Long>> wrapper = new GenericObjectWrapper<>();
+        Assert.assertNull(wrapper.get());
 
-		Set<Long> someSet = new HashSet<>();
-		someSet.add(42L);
-		someSet.add(47L);
-		someSet.remove(42L);
-		someSet.add(48L);
+        Set<Long> someSet = new HashSet<>();
+        someSet.add(42L);
+        someSet.add(47L);
+        someSet.remove(42L);
+        someSet.add(48L);
 
-		wrapper.set(someSet);
-		Assert.assertNotNull(wrapper.get());
+        wrapper.set(someSet);
+        Assert.assertNotNull(wrapper.get());
 
-		GenericObjectWrapper<Long> fortySeven = new GenericObjectWrapper<>();
-		fortySeven.set(47L);
+        GenericObjectWrapper<Long> fortySeven = new GenericObjectWrapper<>();
+        fortySeven.set(47L);
 
-		Set<Long> foo = wrapper.get();
+        Set<Long> foo = wrapper.get();
 
-		Assert.assertTrue(foo.contains(fortySeven.get()));
-	}
+        Assert.assertTrue(foo.contains(fortySeven.get()));
+    }
 }

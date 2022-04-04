@@ -25,7 +25,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
 /**
- * It collects bytecode instructions for further purity analysis in the 
+ * It collects bytecode instructions for further purity analysis in the
  * <code>CheapPurityAnalyzer</code> class:
  * <ul>
  * 	<li>PUTSTATIC</li>
@@ -36,77 +36,80 @@ import org.objectweb.asm.Opcodes;
  * 	<li>INVOKEVIRTUAL</li>
  * </ul>
  * This class only reads the existing bytecode.
- * 
+ *
  * @author Juan Galeotti
  */
 public class PurityAnalysisMethodVisitor extends MethodVisitor {
 
-	private boolean updatesField;
-	private final CheapPurityAnalyzer purityAnalyzer;
-	private final String classNameWithDots;
-	private final String methodName;
-	private final String descriptor;
+    private boolean updatesField;
+    private final CheapPurityAnalyzer purityAnalyzer;
+    private final String classNameWithDots;
+    private final String methodName;
+    private final String descriptor;
 
-	/**
-	 * <p>Constructor for PutStaticMethodAdapter.</p>
-	 *
-	 * @param className a {@link java.lang.String} object.
-	 * @param methodName a {@link java.lang.String} object.
-	 * @param descriptor a {@link java.lang.String} object.
-	 * @param mv a {@link org.objectweb.asm.MethodVisitor} object.
-	 * @param purityAnalyzer a {@link CheapPurityAnalyzer} object.
-	 */
-	public PurityAnalysisMethodVisitor(String className, String methodName,
-			String descriptor, MethodVisitor mv,
-			CheapPurityAnalyzer purityAnalyzer) {
-		super(Opcodes.ASM9, mv);
-		this.updatesField = false;
-		this.purityAnalyzer = purityAnalyzer;
-		this.classNameWithDots = className.replace('/', '.');
-		this.methodName = methodName;
-		this.descriptor = descriptor;
-	}
+    /**
+     * <p>Constructor for PutStaticMethodAdapter.</p>
+     *
+     * @param className      a {@link java.lang.String} object.
+     * @param methodName     a {@link java.lang.String} object.
+     * @param descriptor     a {@link java.lang.String} object.
+     * @param mv             a {@link org.objectweb.asm.MethodVisitor} object.
+     * @param purityAnalyzer a {@link CheapPurityAnalyzer} object.
+     */
+    public PurityAnalysisMethodVisitor(String className, String methodName,
+                                       String descriptor, MethodVisitor mv,
+                                       CheapPurityAnalyzer purityAnalyzer) {
+        super(Opcodes.ASM9, mv);
+        this.updatesField = false;
+        this.purityAnalyzer = purityAnalyzer;
+        this.classNameWithDots = className.replace('/', '.');
+        this.methodName = methodName;
+        this.descriptor = descriptor;
+    }
 
-	/* (non-Javadoc)
-	 * @see org.objectweb.asm.MethodAdapter#visitFieldInsn(int, java.lang.String, java.lang.String, java.lang.String)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public void visitFieldInsn(int opcode, String owner, String name,
-			String desc) {
-		if (opcode == Opcodes.PUTSTATIC || opcode == Opcodes.PUTFIELD) {
-			updatesField = true;
-		}
-		super.visitFieldInsn(opcode, owner, name, desc);
-	}
+    /* (non-Javadoc)
+     * @see org.objectweb.asm.MethodAdapter#visitFieldInsn(int, java.lang.String, java.lang.String, java.lang.String)
+     */
 
-	public boolean updatesField() {
-		return updatesField;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void visitFieldInsn(int opcode, String owner, String name,
+                               String desc) {
+        if (opcode == Opcodes.PUTSTATIC || opcode == Opcodes.PUTFIELD) {
+            updatesField = true;
+        }
+        super.visitFieldInsn(opcode, owner, name, desc);
+    }
 
-	@Override
-	public void visitMethodInsn(int opcode, String owner, String name,
-			String desc, boolean itf) {
+    public boolean updatesField() {
+        return updatesField;
+    }
 
-		String targetClassName = owner.replace('/', '.');
-		if (targetClassName.equals(org.evosuite.runtime.Random.class.getCanonicalName()) || !BytecodeInstrumentation.checkIfEvoSuitePackage(targetClassName)) {
-			//Only ignore EvoSuite callbacks
-			if (opcode == Opcodes.INVOKESTATIC) {
-				this.purityAnalyzer.addStaticCall(classNameWithDots,
-						methodName, descriptor, targetClassName, name, desc);
-			} else if (opcode == Opcodes.INVOKEVIRTUAL) {
-				this.purityAnalyzer.addVirtualCall(classNameWithDots,
-						methodName, descriptor, targetClassName, name, desc);
+    @Override
+    public void visitMethodInsn(int opcode, String owner, String name,
+                                String desc, boolean itf) {
 
-			} else if (opcode == Opcodes.INVOKEINTERFACE) {
-				this.purityAnalyzer.addInterfaceCall(classNameWithDots,
-						methodName, descriptor, targetClassName, name, desc);
+        String targetClassName = owner.replace('/', '.');
+        if (targetClassName.equals(org.evosuite.runtime.Random.class.getCanonicalName()) || !BytecodeInstrumentation.checkIfEvoSuitePackage(targetClassName)) {
+            //Only ignore EvoSuite callbacks
+            if (opcode == Opcodes.INVOKESTATIC) {
+                this.purityAnalyzer.addStaticCall(classNameWithDots,
+                        methodName, descriptor, targetClassName, name, desc);
+            } else if (opcode == Opcodes.INVOKEVIRTUAL) {
+                this.purityAnalyzer.addVirtualCall(classNameWithDots,
+                        methodName, descriptor, targetClassName, name, desc);
 
-			} else if (opcode == Opcodes.INVOKESPECIAL) {
-				this.purityAnalyzer.addSpecialCall(classNameWithDots,
-						methodName, descriptor, targetClassName, name, desc);
-			}
-		}
-		super.visitMethodInsn(opcode, owner, name, desc, itf);
-	}
+            } else if (opcode == Opcodes.INVOKEINTERFACE) {
+                this.purityAnalyzer.addInterfaceCall(classNameWithDots,
+                        methodName, descriptor, targetClassName, name, desc);
+
+            } else if (opcode == Opcodes.INVOKESPECIAL) {
+                this.purityAnalyzer.addSpecialCall(classNameWithDots,
+                        methodName, descriptor, targetClassName, name, desc);
+            }
+        }
+        super.visitMethodInsn(opcode, owner, name, desc, itf);
+    }
 }

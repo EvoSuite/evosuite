@@ -47,7 +47,7 @@ import java.util.List;
 public abstract class AbstractInstructionLogger implements IInstructionLogger {
 
     private static final transient Logger logger = LoggerFactory.getLogger(AbstractInstructionLogger.class);
-    static List<String> instructionsExecuted = new ArrayList();
+    static List<String> instructionsExecuted = new ArrayList<>();
     static StringBuilder buffer = new StringBuilder();
 
     public final static String NL = System.getProperty("line.separator");
@@ -200,7 +200,7 @@ public abstract class AbstractInstructionLogger implements IInstructionLogger {
         if (!doLog)    // src-util should not depend on src-vm
             return;
 
-        try (FileWriter fstream = new FileWriter(fileName);) {
+        try (FileWriter fstream = new FileWriter(fileName)) {
             final BufferedWriter writer = new BufferedWriter(fstream);
             writer.write(o.toString());
             writer.close();
