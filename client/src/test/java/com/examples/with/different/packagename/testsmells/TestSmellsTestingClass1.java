@@ -10,6 +10,7 @@ public class TestSmellsTestingClass1 {
     private int number;
     private final String randomID;
     private String something;
+    public int randomNumber = 0;
 
     public TestSmellsTestingClass1 (String name){
         this.name = name;
