@@ -40,16 +40,16 @@ public class ObscureInlineSetup extends AbstractNormalizedTestCaseSmell {
 
         for (int i = 0; i < size; i++){
             currentStatement = chromosome.getTestCase().getStatement(i);
-            if(currentStatement instanceof PrimitiveStatement || currentStatement instanceof ConstructorStatement
-                    || currentStatement instanceof ArrayStatement){
-                count++;
-            } else if (currentStatement instanceof MethodStatement) {
+            if (currentStatement instanceof MethodStatement) {
                 Method method = ((MethodStatement) currentStatement).getMethod().getMethod();
 
                 if(!method.getDeclaringClass().getCanonicalName().equals(Properties.TARGET_CLASS)){
                     String typeName = method.getGenericReturnType().getTypeName();
                     count += typeName.equals("void") ? 0 : 1;
                 }
+            } else if(currentStatement instanceof PrimitiveStatement || currentStatement instanceof ConstructorStatement ||
+                    currentStatement instanceof ArrayStatement || currentStatement instanceof FieldStatement){
+                count++;
             }
         }
 
