@@ -20,7 +20,7 @@
 
 -->
 <idea-plugin version="2">
-  <id>org.evosuite.plugin.intellij</id>
+  <id>org.evosuite.plugin.intellij.xenoamess</id>
   <name>EvoSuite(XenoAmess TPM)</name>
   <version>1.0.5.0x</version>
   <vendor email="xenoamess@gmail.com" url="https://github.com/XenoAmess/evosuite">EvoSuite(XenoAmess TPM)</vendor>
@@ -67,6 +67,8 @@
   <!-- uncomment to enable plugin in all products
   <depends>com.intellij.modules.lang</depends>
   -->
+  <depends>com.intellij.modules.lang</depends>
+  <depends>com.intellij.modules.platform</depends>
 
   <extensions defaultExtensionNs="com.intellij">
     <!-- Add your extensions here -->
