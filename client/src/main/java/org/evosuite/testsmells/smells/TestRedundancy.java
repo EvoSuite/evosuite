@@ -23,7 +23,7 @@ import java.util.Set;
  * 3 - Clone the initial test suite
  * 4 - Get the test chromosomes of the clone
  * 5 - Delete the current test case of the clone test suite
- * 6 - Verify if the clone test suite covers the same number of goals as the initial test suite:
+ * 6 - Verify if the clone test suite covers the same number of goals as the initial test suite
  * 7 (6 is True):
  *    7.1 - This indicates that it is possible to remove the current test case from the test suite without decreasing
  *          the code coverage: increment the smell counter

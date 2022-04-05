@@ -15,7 +15,7 @@ import java.lang.reflect.Method;
  * This metric does not consider the variables that store values returned from methods of the class under test.
  *
  * Metric:
- * Count the number of declared variables in a test case.
+ * Number of declared variables in a test case.
  *
  * Computation:
  * 1 - Iterate over the statements of a test case

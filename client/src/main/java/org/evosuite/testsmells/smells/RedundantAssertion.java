@@ -15,7 +15,7 @@ import java.util.Set;
  * Test cases that have assertions that are either permanently true or permanently false.
  *
  * Metric:
- * Count the total number of assertions that check primitive statements.
+ * Total number of assertions that check primitive statements.
  *
  * Computation:
  * 1 - Iterate over the statements of a test case

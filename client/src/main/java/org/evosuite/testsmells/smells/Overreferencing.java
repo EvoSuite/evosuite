@@ -18,12 +18,13 @@ import java.util.Set;
  * Test cases that create unnecessary instances of classes from the application code.
  *
  * Metric:
- * Count the total number of unnecessary class instances (i.e., class instances that are created but never used).
+ * Total number of unnecessary class instances (i.e., class instances that are created but never used).
  *
  * Computation:
  * 1 - Create an empty LinkedHashSet: elements - position of the statement on which a constructor is invoked to create
  *     a new object
  * 2 - Iterate over the statements of a test case
+ * [2: Start loop]
  * 3 - Verify if the current statement is an instance of ConstructorStatement
  * 4 (3 is True):
  *    4.1 - Add the element to the LinkedHashSet
@@ -40,6 +41,7 @@ import java.util.Set;
  *    8.1 - Iterate over the assertions of the current statement
  *    8.2 - If the current assertion is an instance of InspectorAssertion: get the object of the class on which the
  *          assertion is made and remove the respective element from the LinkedHashSet
+ * [2: End loop]
  * 9 - Return the number of elements in the LinkedHashSet
  */
 public class Overreferencing extends AbstractNormalizedTestCaseSmell {

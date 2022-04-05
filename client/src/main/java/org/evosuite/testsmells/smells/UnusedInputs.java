@@ -17,10 +17,11 @@ import java.lang.reflect.Method;
  * least one assertion. Otherwise, the test is considered smelly.
  *
  * Metric:
- * Count the number of statements that call methods of the class under test but that do not have assertions.
+ * Number of statements that call methods of the class under test but that do not have assertions.
  *
  * Computation:
  * 1 - Iterate over the statements of a test case
+ * [1: Start loop]
  * 2 - Verify if the current statement is an instance of MethodStatement
  * 3 (2 is True):
  *    3.1 - Get the method called in the respective statement
@@ -30,6 +31,7 @@ import java.lang.reflect.Method;
  *          necessarily have assertions
  *    3.4 (3.3 is True):
  *       3.4.1 - If the current statement does not have assertions, increment the smell counter
+ * [1: End loop]
  * 4 - Return the smell counter
  */
 public class UnusedInputs extends AbstractNormalizedTestCaseSmell {

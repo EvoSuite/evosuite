@@ -24,11 +24,13 @@ import java.util.Set;
  *       (i.e., the may still be related).
  *
  * Metric:
- * Count the number of assertions that may be unrelated to the statement to which the assertion is added.
+ * Number of assertions that may be unrelated to the statement to which the assertion is added.
  *
  * Computation:
  * 1 - Iterate over the statements of a test case
+ * [1: Start loop]
  * 2 - Iterate over the assertions of the current statement
+ * [2: Start loop]
  * 3 - Verify if the current assertion is an instance of InspectorAssertion
  * 4 (3 is True):
  *    4.1 - As we do not know if a method in an inspector assertion is related to the specific statement to which
@@ -37,6 +39,8 @@ import java.util.Set;
  * 5 (3 is False):
  *    5.1 - If the position of the variable on which the assertion is made is different from the position of the
  *          statement to which the assertion is added: increment the smell counter
+ * [2: End loop]
+ * [1: End loop]
  * 6 - Return the smell counter
  */
 public class BrittleAssertion extends AbstractNormalizedTestCaseSmell {

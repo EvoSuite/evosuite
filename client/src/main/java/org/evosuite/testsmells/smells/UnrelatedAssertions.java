@@ -17,7 +17,7 @@ import java.util.Set;
  * A test case has assertions that check methods that are not declared in the class under test.
  *
  * Metric:
- * Count the total number of assertions that check methods that are not declared in the class under test.
+ * Total number of assertions that check methods that are not declared in the class under test.
  *
  * Detection:
  * 1 - Iterate over the statements of a test case

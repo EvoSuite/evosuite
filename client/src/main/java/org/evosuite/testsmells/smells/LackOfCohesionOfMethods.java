@@ -20,16 +20,20 @@ import java.util.Set;
  * perform tests on the class under test.
  *
  * Metric:
- * Count the test cases in a test suite that do not perform tests on the class under test.
+ * Number of test cases in a test suite that do not perform tests on the class under test.
  *
  * Computation:
  * 1 - Initialize the smell counter with the number of test cases in the test suite (start by assuming that none of
  *     the test cases perform tests on the class under test)
  * 2 - Iterate over the test cases of a test suite
- * 3 - Get the set of classes that are accessed by the current test case
+ * [2: Start loop]
+ * 3 - Get the set of classes accessed by the current test case
  * 4 - Iterate over the accessed classes
+ * [4: Start loop]
  * 5 - If the current accessed class has the same name as the target class: decrement the smell counter and stop the
- *     loop iterations
+ *     loop iterations (loop: 4)
+ * [4: End loop]
+ * [2: End loop]
  * 6 - Return the normalized value for the smell counter
  */
 public class LackOfCohesionOfMethods extends AbstractTestSmell {

@@ -12,11 +12,10 @@ import java.util.Set;
  * Tests have assertions that are not executed, thus giving a false sense of security.
  *
  * Adaptation:
- * In the proposed metric, this smell occurs if a test case continues to exercise code after the statement in which
- * the first exception was raised.
+ * This smell occurs if a test case continues to exercise code after the statement in which the first exception was raised.
  *
  * Metric:
- * Number of statements that there are in a test case after the statement that raised the first exception.
+ * Number of statements that exist in a test case after the statement that raised the first exception.
  *
  * Computation:
  * 1 - Verify if the last execution result is not null

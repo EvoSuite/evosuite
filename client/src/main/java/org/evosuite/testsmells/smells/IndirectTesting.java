@@ -16,7 +16,7 @@ import java.util.Set;
  * A test case performs tests on classes other than the one under test.
  *
  * Metric:
- * Count the total number of methods of other classes that are checked by a test case.
+ * Total number of methods of other classes that are checked by a test case.
  *
  * Computation:
  * 1 - Iterate over the statements of a test case
@@ -24,7 +24,7 @@ import java.util.Set;
  * 2 - Verify if the current statement is an instance of MethodStatement
  * 3 (2 is True):
  *    3.1 - Get the method called in the respective statement
- *    3.2 - If the class that declares this method is different from the class under test: increment smell counter
+ *    3.2 - If the class that declares this method is different from the class under test: increment the smell counter
  * 4 - Verify if the current statement has assertions
  * 5 (4 is True):
  *    5.1 - Iterate over the assertions of the current statement
