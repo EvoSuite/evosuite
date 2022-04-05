@@ -41,7 +41,6 @@ public class OptimizeTestSmellsSecondaryObjective extends SecondaryObjective<Tes
         listOfTestSmells.add(new ResourceOptimism());
         listOfTestSmells.add(new RottenGreenTests());
         listOfTestSmells.add(new SlowTests());
-        listOfTestSmells.add(new TestCodeDuplication());
         listOfTestSmells.add(new VerboseTest());
     }
 }
