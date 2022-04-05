@@ -43,7 +43,7 @@ public class RottenGreenTests extends AbstractNormalizedTestCaseSmell {
 
             if(exceptionPositions.size() > 0){
                 int firstException = Collections.min(exceptionPositions);
-                return size - firstException - 1;
+                return firstException < size ? size - firstException - 1 : 0;
             }
         }
 
