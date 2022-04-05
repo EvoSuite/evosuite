@@ -83,8 +83,8 @@ public class EvoParameters {
         evosuiteJarLocation = p.getValue(EVOSUITE_JAR_LOCATION, "");
         executionMode = p.getValue(EXECUTION_MODE, EXECUTION_MODE_MVN);
 
-        guiWidth = p.getInt(GUI_DIALOG_WIDTH, 570);
-        guiHeight = p.getInt(GUI_DIALOG_HEIGHT, 300);
+        guiWidth = p.getInt(GUI_DIALOG_WIDTH, 600);
+        guiHeight = p.getInt(GUI_DIALOG_HEIGHT, 600);
     }
 
     public void save(Project project) {

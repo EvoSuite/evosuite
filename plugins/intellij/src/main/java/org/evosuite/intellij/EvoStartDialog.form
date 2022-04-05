@@ -6,7 +6,7 @@
     <rowspec value="center:40px:noGrow"/>
     <colspec value="fill:391px:grow"/>
     <constraints>
-      <xy x="48" y="54" width="651" height="333"/>
+      <xy x="48" y="54" width="651" height="512"/>
     </constraints>
     <properties>
       <minimumSize width="540" height="300"/>
