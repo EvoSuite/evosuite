@@ -11,18 +11,26 @@ import java.lang.reflect.Method;
  * Definition:
  * A test case contains too much setup functionality.
  *
+ * Adaptation:
+ * This metric does not consider the variables that store values returned from methods of the class under test.
+ *
  * Metric:
  * Count the number of declared variables in a test case.
  *
  * Computation:
  * 1 - Iterate over the statements of a test case
- * 2 - Verify if the current statement is an instance PrimitiveStatement or ConstructorStatement
+ * [1: Start loop]
+ * 2 - Verify if the current statement is an instance of MethodStatement
  * 3 (2 is True):
- *    3.1 - Increment the smell counter
+ *    3.1 - Verify if the class that declares this method is different from the class under test
+ *    3.2 (3.1 is True):
+ *       3.2.1 - If the type of the method is not "void": increment the smell counter
  * 4 (2 is False):
- *    4.1 - Verify if the current statement is an instance of MethodStatement
+ *    4.1 - Verify if the current statement is an instance of one of the following types of statements: (1) PrimitiveStatement;
+ *          (2) ConstructorStatement; (3) ArrayStatement; (4) FieldStatement
  *    4.2 (4.1 is True):
- *       4.2.1 - If the type of the method is not "void": increment the smell counter
+ *       4.2.1 - Increment the smell counter
+ * [1: End loop]
  * 5 - Return the smell counter
  */
 public class ObscureInlineSetup extends AbstractNormalizedTestCaseSmell {
