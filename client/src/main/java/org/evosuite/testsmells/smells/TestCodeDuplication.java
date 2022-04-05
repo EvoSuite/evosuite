@@ -1,8 +1,20 @@
 package org.evosuite.testsmells.smells;
 
+import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testsmells.AbstractNormalizedTestCaseSmell;
 
+/**
+ * Definition:
+ * Unwanted duplication in the test code.
+ *
+ * Adaptation:
+ * This metric uses the Levenshtein Distance to check whether there are repeated groups of similar statements
+ * in a test case.
+ *
+ * Metric:
+ * Verify whether a test case contains repeated groups of similar statements.
+ */
 public class TestCodeDuplication extends AbstractNormalizedTestCaseSmell {
 
     public TestCodeDuplication() {
@@ -20,13 +32,15 @@ public class TestCodeDuplication extends AbstractNormalizedTestCaseSmell {
         String currentStatementString;
         String compareString;
 
+        TestCase testCase = chromosome.getTestCase();
+
         for(int i = 0; i < size; i++){
-            currentStatementString =  chromosome.getTestCase().getStatement(i).toString();
+            currentStatementString =  testCase.getStatement(i).toString();
             for(int j = i + 1; j < size; j++){
-                compareString = chromosome.getTestCase().getStatement(j).toString();
+                compareString = testCase.getStatement(j).toString();
                 dist = getLevenshteinDistance(currentStatementString, compareString);
                 similar = 1 - (dist / (double) Math.max(currentStatementString.length(), compareString.length()));
-                if(similar > 0.75){
+                if(similar > 0.8){
                     count ++;
                 }
             }
