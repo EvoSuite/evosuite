@@ -1,10 +1,8 @@
 package org.evosuite.testsmells.smells;
 
+import org.evosuite.Properties;
 import org.evosuite.testcase.TestChromosome;
-import org.evosuite.testcase.statements.ConstructorStatement;
-import org.evosuite.testcase.statements.MethodStatement;
-import org.evosuite.testcase.statements.PrimitiveStatement;
-import org.evosuite.testcase.statements.Statement;
+import org.evosuite.testcase.statements.*;
 import org.evosuite.testsmells.AbstractNormalizedTestCaseSmell;
 
 import java.lang.reflect.Method;
@@ -42,12 +40,16 @@ public class ObscureInlineSetup extends AbstractNormalizedTestCaseSmell {
 
         for (int i = 0; i < size; i++){
             currentStatement = chromosome.getTestCase().getStatement(i);
-            if(currentStatement instanceof PrimitiveStatement || currentStatement instanceof ConstructorStatement){
+            if(currentStatement instanceof PrimitiveStatement || currentStatement instanceof ConstructorStatement
+                    || currentStatement instanceof ArrayStatement){
                 count++;
             } else if (currentStatement instanceof MethodStatement) {
                 Method method = ((MethodStatement) currentStatement).getMethod().getMethod();
-                String typeName = method.getGenericReturnType().getTypeName();
-                count += typeName.equals("void") ? 0 : 1;
+
+                if(!method.getDeclaringClass().getCanonicalName().equals(Properties.TARGET_CLASS)){
+                    String typeName = method.getGenericReturnType().getTypeName();
+                    count += typeName.equals("void") ? 0 : 1;
+                }
             }
         }
 
