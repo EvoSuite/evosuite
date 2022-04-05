@@ -23,6 +23,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.projectRoots.ProjectJdkTable;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.ui.Messages;
+import org.apache.commons.lang3.StringUtils;
 import org.evosuite.intellij.util.EvoVersion;
 import org.evosuite.intellij.util.Utils;
 
@@ -381,7 +382,7 @@ public class EvoStartDialog extends JDialog {
             params.setTime(time);
         }
 
-        if (params.usesMaven() && !checkIfValidMaven(new File(mvn))) {
+        if (params.usesMaven() && !checkIfValidMaven(new File(mvn)) && !StringUtils.equals("mvn", mvn)) {
             errors.add("Invalid Maven executable: choose a correct one");
         } else {
             params.setMvnLocation(mvn);

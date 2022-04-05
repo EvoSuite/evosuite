@@ -79,7 +79,7 @@ public class EvoParameters {
 
         String envJavaHome = System.getenv("JAVA_HOME");
         javaHome = p.getValue(JAVA_HOME, envJavaHome != null ? envJavaHome : "");
-        mvnLocation = p.getValue(MVN_LOCATION, "");
+        mvnLocation = p.getValue(MVN_LOCATION, "mvn");
         evosuiteJarLocation = p.getValue(EVOSUITE_JAR_LOCATION, "");
         executionMode = p.getValue(EXECUTION_MODE, EXECUTION_MODE_MVN);
 
