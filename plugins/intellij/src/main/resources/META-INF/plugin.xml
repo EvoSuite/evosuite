@@ -22,7 +22,7 @@
 <idea-plugin version="2">
   <id>org.evosuite.plugin.intellij.xenoamess</id>
   <name>EvoSuite(XenoAmess TPM)</name>
-  <version>1.0.5.0x</version>
+  <version>1.0.5.1x-SNAPSHOT</version>
   <vendor email="xenoamess@gmail.com" url="https://github.com/XenoAmess/evosuite">EvoSuite(XenoAmess TPM)</vendor>
 
   <description><![CDATA[
