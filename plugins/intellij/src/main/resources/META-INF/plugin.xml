@@ -23,7 +23,7 @@
   <id>org.evosuite.plugin.intellij</id>
   <name>EvoSuite(XenoAmess TPM)</name>
   <version>1.0.5.0x</version>
-  <vendor email="xenoamess@gmail.com" url="http://www.evosuite.org">EvoSuite(XenoAmess TPM)</vendor>
+  <vendor email="xenoamess@gmail.com" url="https://github.com/XenoAmess/evosuite">EvoSuite(XenoAmess TPM)</vendor>
 
   <description><![CDATA[
       <p>
