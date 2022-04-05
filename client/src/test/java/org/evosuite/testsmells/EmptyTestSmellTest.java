@@ -46,7 +46,7 @@ public class EmptyTestSmellTest {
         testCase.setTestCase(test0);
 
         double computedMetric = this.emptyTest.computeTestSmellMetric(testCase);
-        double expectedComputedMetric = 12;
+        double expectedComputedMetric = 11;
         assertEquals(expectedComputedMetric, computedMetric, 0.01);
     }
 
