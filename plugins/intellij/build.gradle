@@ -21,8 +21,8 @@ allprojects {
     }
 }
 
-group 'com.xenoamess'
-version '1.0.5.1x'
+group 'org.evosuite.plugin.intellij'
+version '1.0.5'
 
 intellij {
     plugins.set(Arrays.asList("com.intellij.java"))

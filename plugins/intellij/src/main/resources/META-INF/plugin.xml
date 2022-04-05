@@ -20,14 +20,14 @@
 
 -->
 <idea-plugin version="2">
-  <id>org.evosuite.plugin.intellij.xenoamess</id>
-  <name>EvoSuite(XenoAmess TPM)</name>
-  <version>1.0.5.1x</version>
-  <vendor email="xenoamess@gmail.com" url="https://github.com/XenoAmess/evosuite">EvoSuite(XenoAmess TPM)</vendor>
+  <id>org.evosuite.plugin.intellij</id>
+  <name>EvoSuite</name>
+  <version>1.0.5</version>
+  <vendor email="arcuri82@gmail.com" url="http://www.evosuite.org">EvoSuite</vendor>
 
   <description><![CDATA[
       <p>
-        IntelliJ plugin (XenoAmess TPM) for the EvoSuite tool, which is used to automatically generate high coverage JUnit tests.
+        IntelliJ plugin for the EvoSuite tool, which is used to automatically generate high coverage JUnit tests.
         To generate test cases, EvoSuite uses advanced evolutionary algorithms enhanced by static analysis of
         the bytecode of the tested classes.
       </p>
