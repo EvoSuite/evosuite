@@ -27,6 +27,7 @@ import org.evosuite.symbolic.expr.bv.StringBinaryToIntegerExpression;
 import org.evosuite.symbolic.expr.constraint.ConstraintVisitor;
 import org.evosuite.symbolic.expr.constraint.IntegerConstraint;
 import org.evosuite.symbolic.expr.constraint.RealConstraint;
+import org.evosuite.symbolic.expr.constraint.ReferenceConstraint;
 import org.evosuite.symbolic.expr.constraint.StringConstraint;
 import org.evosuite.symbolic.solver.SmtExprBuilder;
 import org.evosuite.symbolic.solver.smt.SmtExpr;
@@ -37,6 +38,99 @@ final class ConstraintToCVC4Visitor implements ConstraintVisitor<SmtExpr, Void> 
 
     public ConstraintToCVC4Visitor() {
         this(false);
+    }
+
+    public ConstraintToCVC4Visitor(boolean rewriteNonLinearConstraints) {
+        this.exprVisitor = new ExprToCVC4Visitor(rewriteNonLinearConstraints);
+    }
+
+    @Override
+    public SmtExpr visit(IntegerConstraint c, Void arg) {
+        Expression<?> leftOperand = c.getLeftOperand();
+        Expression<?> rightOperand = c.getRightOperand();
+        Comparator cmp = c.getComparator();
+
+        SmtExpr expr = translateCompareTo(leftOperand, cmp, rightOperand);
+        if (expr != null) {
+            return expr;
+        } else {
+            return visit(leftOperand, cmp, rightOperand);
+        }
+    }
+
+    @Override
+    public SmtExpr visit(RealConstraint c, Void arg) {
+        Expression<?> leftOperand = c.getLeftOperand();
+        Expression<?> rightOperand = c.getRightOperand();
+        Comparator cmp = c.getComparator();
+        return visit(leftOperand, cmp, rightOperand);
+    }
+
+    @Override
+    public SmtExpr visit(StringConstraint c, Void arg) {
+        Expression<?> leftOperand = c.getLeftOperand();
+        Expression<?> rightOperand = c.getRightOperand();
+        Comparator cmp = c.getComparator();
+
+        SmtExpr equalsExpr = translateCompareTo(leftOperand, cmp, rightOperand);
+        if (equalsExpr != null) {
+            return equalsExpr;
+        } else {
+            return visit(leftOperand, cmp, rightOperand);
+        }
+    }
+
+    @Override
+	public SmtExpr visit(ReferenceConstraint c, Void arg) {
+		Expression<?> leftOperand = c.getLeftOperand();
+		Expression<?> rightOperand = c.getRightOperand();
+		Comparator cmp = c.getComparator();
+
+		return visit(leftOperand, cmp, rightOperand);
+	}
+
+	private SmtExpr visit(Expression<?> leftOperand, Comparator cmp, Expression<?> rightOperand) {
+        SmtExpr left = leftOperand.accept(exprVisitor, null);
+        SmtExpr right = rightOperand.accept(exprVisitor, null);
+
+        if (left == null || right == null) {
+            return null;
+        }
+
+        return mkComparison(left, cmp, right);
+    }
+
+    private static SmtExpr mkComparison(SmtExpr left, Comparator cmp, SmtExpr right) {
+        switch (cmp) {
+            case LT: {
+                SmtExpr lt = SmtExprBuilder.mkLt(left, right);
+                return lt;
+            }
+            case LE: {
+                SmtExpr le = SmtExprBuilder.mkLe(left, right);
+                return le;
+            }
+            case GT: {
+                SmtExpr gt = SmtExprBuilder.mkGt(left, right);
+                return gt;
+            }
+            case GE: {
+                SmtExpr ge = SmtExprBuilder.mkGe(left, right);
+                return ge;
+            }
+            case EQ: {
+                SmtExpr ge = SmtExprBuilder.mkEq(left, right);
+                return ge;
+            }
+            case NE: {
+                SmtExpr ge = SmtExprBuilder.mkEq(left, right);
+                SmtExpr ne = SmtExprBuilder.mkNot(ge);
+                return ne;
+            }
+            default: {
+                throw new RuntimeException("Unknown comparator for constraint " + cmp);
+            }
+        }
     }
 
     private static SmtExpr translateCompareTo(Expression<?> left, Comparator cmp, Expression<?> right) {
@@ -74,91 +168,6 @@ final class ConstraintToCVC4Visitor implements ConstraintVisitor<SmtExpr, Void> 
             return eqExpr;
         } else {
             return SmtExprBuilder.mkNot(eqExpr);
-        }
-    }
-
-
-    public ConstraintToCVC4Visitor(boolean rewriteNonLinearConstraints) {
-        this.exprVisitor = new ExprToCVC4Visitor(rewriteNonLinearConstraints);
-    }
-
-    @Override
-    public SmtExpr visit(IntegerConstraint c, Void arg) {
-        Expression<?> leftOperand = c.getLeftOperand();
-        Expression<?> rightOperand = c.getRightOperand();
-        Comparator cmp = c.getComparator();
-
-        SmtExpr expr = translateCompareTo(leftOperand, cmp, rightOperand);
-        if (expr != null) {
-            return expr;
-        } else {
-            return visit(leftOperand, cmp, rightOperand);
-        }
-    }
-
-    private SmtExpr visit(Expression<?> leftOperand, Comparator cmp, Expression<?> rightOperand) {
-        SmtExpr left = leftOperand.accept(exprVisitor, null);
-        SmtExpr right = rightOperand.accept(exprVisitor, null);
-
-        if (left == null || right == null) {
-            return null;
-        }
-
-        return mkComparison(left, cmp, right);
-    }
-
-    @Override
-    public SmtExpr visit(RealConstraint c, Void arg) {
-        Expression<?> leftOperand = c.getLeftOperand();
-        Expression<?> rightOperand = c.getRightOperand();
-        Comparator cmp = c.getComparator();
-        return visit(leftOperand, cmp, rightOperand);
-    }
-
-    @Override
-    public SmtExpr visit(StringConstraint c, Void arg) {
-        Expression<?> leftOperand = c.getLeftOperand();
-        Expression<?> rightOperand = c.getRightOperand();
-        Comparator cmp = c.getComparator();
-
-        SmtExpr equalsExpr = translateCompareTo(leftOperand, cmp, rightOperand);
-        if (equalsExpr != null) {
-            return equalsExpr;
-        } else {
-            return visit(leftOperand, cmp, rightOperand);
-        }
-    }
-
-    private static SmtExpr mkComparison(SmtExpr left, Comparator cmp, SmtExpr right) {
-        switch (cmp) {
-            case LT: {
-                SmtExpr lt = SmtExprBuilder.mkLt(left, right);
-                return lt;
-            }
-            case LE: {
-                SmtExpr le = SmtExprBuilder.mkLe(left, right);
-                return le;
-            }
-            case GT: {
-                SmtExpr gt = SmtExprBuilder.mkGt(left, right);
-                return gt;
-            }
-            case GE: {
-                SmtExpr ge = SmtExprBuilder.mkGe(left, right);
-                return ge;
-            }
-            case EQ: {
-                SmtExpr ge = SmtExprBuilder.mkEq(left, right);
-                return ge;
-            }
-            case NE: {
-                SmtExpr ge = SmtExprBuilder.mkEq(left, right);
-                SmtExpr ne = SmtExprBuilder.mkNot(ge);
-                return ne;
-            }
-            default: {
-                throw new RuntimeException("Unknown comparator for constraint " + cmp);
-            }
         }
     }
 }

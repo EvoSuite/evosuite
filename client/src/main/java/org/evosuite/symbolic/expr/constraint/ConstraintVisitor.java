@@ -26,4 +26,6 @@ public interface ConstraintVisitor<K, V> {
     K visit(RealConstraint n, V arg);
 
     K visit(StringConstraint n, V arg);
+
+    K visit(ReferenceConstraint n, V arg);
 }

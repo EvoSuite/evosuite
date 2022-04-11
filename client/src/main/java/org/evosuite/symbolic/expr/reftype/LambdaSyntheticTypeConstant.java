@@ -19,6 +19,7 @@
  */
 package org.evosuite.symbolic.expr.reftype;
 
+import org.objectweb.asm.Type;
 import org.evosuite.symbolic.expr.ExpressionVisitor;
 
 /**
@@ -28,12 +29,15 @@ import org.evosuite.symbolic.expr.ExpressionVisitor;
  *
  * @author Ignacio Lebrero
  */
-public class LambdaSyntheticType extends LiteralClassType {
+public final class LambdaSyntheticTypeConstant extends NonNullReferenceTypeConstant {
 
-    private final boolean callsNonInstrumentedCode;
+     /**
+     * Whether this lambda is called from non instrumented sources
+     */
+    private boolean callsNonInstrumentedCode;
 
-    public LambdaSyntheticType(Class concreteValue, boolean callsNonInstrumentedCode) {
-        super(concreteValue);
+    public LambdaSyntheticTypeConstant(Type concreteValue, boolean callsNonInstrumentedCode, int referenceTypeId) {
+        super(concreteValue, referenceTypeId);
 
         this.callsNonInstrumentedCode = callsNonInstrumentedCode;
     }

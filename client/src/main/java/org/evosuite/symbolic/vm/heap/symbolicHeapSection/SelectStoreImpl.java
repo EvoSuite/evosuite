@@ -24,7 +24,9 @@ import org.evosuite.symbolic.expr.fp.RealValue;
 import org.evosuite.symbolic.expr.ref.ReferenceConstant;
 import org.evosuite.symbolic.expr.ref.ReferenceExpression;
 import org.evosuite.symbolic.expr.ref.ReferenceVariable;
+import org.evosuite.symbolic.expr.ref.array.ArrayConstant;
 import org.evosuite.symbolic.expr.ref.array.ArrayValue;
+import org.evosuite.symbolic.expr.ref.array.ArrayVariable;
 import org.evosuite.symbolic.expr.str.StringValue;
 import org.evosuite.symbolic.vm.ExpressionFactory;
 import org.evosuite.utils.TypeUtil;
@@ -140,37 +142,17 @@ public class SelectStoreImpl implements ArraysSection {
     }
 
     @Override
-    public ReferenceVariable createVariableArray(Object concreteArray, int instanceId, String name) {
-        Type arrayType = Type.getType(concreteArray.getClass());
-        Type elementType = arrayType.getElementType();
-        ReferenceVariable arrayVariable;
+    public ArrayVariable createVariableArray(Object concreteArray, int instanceId, String arrayName) {
+        ArrayVariable arrayVariable = (ArrayVariable) ExpressionFactory.buildArrayVariableExpression(instanceId, arrayName, concreteArray);
 
-        if (TypeUtil.isIntegerValue(elementType)) {
-            arrayVariable = (ReferenceVariable) createIntegerVariableArray(arrayType, instanceId, name, concreteArray);
-        } else if (TypeUtil.isRealValue(elementType)) {
-            arrayVariable = (ReferenceVariable) createRealVariableArray(arrayType, instanceId, name, concreteArray);
-        } else if (TypeUtil.isStringValue(elementType)) {
-            arrayVariable = (ReferenceVariable) createStringVariableArray(arrayType, instanceId, name, concreteArray);
-        } else {
-            arrayVariable = (ReferenceVariable) createReferenceVariableArray(arrayType, instanceId, name, concreteArray);
-        }
+        if (concreteArray != null) initializeArrayReference(arrayVariable);
 
         return arrayVariable;
     }
 
     @Override
-    public ReferenceConstant createConstantArray(Type arrayType, int instanceId) {
-        ReferenceConstant arrayConstant;
-
-        if (TypeUtil.isIntegerValue(arrayType.getElementType())) {
-            arrayConstant = (ReferenceConstant) createIntegerConstantArray(arrayType, instanceId);
-        } else if (TypeUtil.isRealValue(arrayType.getElementType())) {
-            arrayConstant = (ReferenceConstant) createRealConstantArray(arrayType, instanceId);
-        } else if (TypeUtil.isStringValue(arrayType.getElementType())) {
-            arrayConstant = (ReferenceConstant) createStringConstantArray(arrayType, instanceId);
-        } else {
-            arrayConstant = (ReferenceConstant) createReferenceConstantArray(arrayType, instanceId);
-        }
+   public ArrayConstant createConstantArray(Type arrayType, int instanceId) {
+        ArrayConstant arrayConstant = (ArrayConstant) ExpressionFactory.buildArrayConstantExpression(arrayType, instanceId);
 
         return arrayConstant;
     }
@@ -188,102 +170,6 @@ public class SelectStoreImpl implements ArraysSection {
         } else {
             initReferenceArray(symbolicArray);
         }
-    }
-
-    private ArrayValue.RealArrayValue createRealVariableArray(Type arrayType, int instanceId, String arrayName, Object concreteArray) {
-        ArrayValue.RealArrayValue symbolicArray = ExpressionFactory.buildRealArrayVariableExpression(
-                arrayType,
-                instanceId,
-                arrayName,
-                concreteArray
-        );
-
-        if (concreteArray != null) {
-            initializeArrayReference((ReferenceExpression) symbolicArray);
-        }
-
-        return symbolicArray;
-    }
-
-    private ArrayValue.IntegerArrayValue createIntegerVariableArray(Type arrayType, int instanceId, String arrayName, Object concreteArray) {
-        ArrayValue.IntegerArrayValue symbolicArray = ExpressionFactory.buildIntegerArrayVariableExpression(
-                arrayType,
-                instanceId,
-                arrayName,
-                concreteArray
-        );
-
-        if (concreteArray != null) {
-            initializeArrayReference((ReferenceExpression) symbolicArray);
-        }
-
-        return symbolicArray;
-    }
-
-    private ArrayValue.StringArrayValue createStringVariableArray(Type arrayType, int instanceId, String arrayName, Object concreteArray) {
-        ArrayValue.StringArrayValue symbolicArray = ExpressionFactory.buildStringArrayVariableExpression(
-                arrayType,
-                instanceId,
-                arrayName,
-                concreteArray
-        );
-
-        if (concreteArray != null) {
-            initializeArrayReference((ReferenceExpression) symbolicArray);
-        }
-
-        return symbolicArray;
-    }
-
-    private ArrayValue.ReferenceArrayValue createReferenceVariableArray(Type arrayType, int instanceId, String arrayName, Object concreteArray) {
-        ArrayValue.ReferenceArrayValue symbolicArray = ExpressionFactory.buildReferenceArrayVariableExpression(
-                arrayType,
-                instanceId,
-                arrayName,
-                concreteArray
-        );
-
-        if (concreteArray != null) {
-            initializeArrayReference((ReferenceExpression) symbolicArray);
-        }
-
-        return symbolicArray;
-    }
-
-    private ArrayValue.IntegerArrayValue createIntegerConstantArray(Type arrayType, int instanceId) {
-        ArrayValue.IntegerArrayValue symbolicArray = ExpressionFactory.buildIntegerArrayConstantExpression(
-                arrayType,
-                instanceId
-        );
-
-        return symbolicArray;
-    }
-
-    private ArrayValue.RealArrayValue createRealConstantArray(Type arrayType, int instanceId) {
-        ArrayValue.RealArrayValue symbolicArray = ExpressionFactory.buildRealArrayConstantExpression(
-                arrayType,
-                instanceId
-        );
-
-        return symbolicArray;
-    }
-
-    private ArrayValue.StringArrayValue createStringConstantArray(Type arrayType, int instanceId) {
-        ArrayValue.StringArrayValue symbolicArray = ExpressionFactory.buildStringArrayConstantExpression(
-                arrayType,
-                instanceId
-        );
-
-        return symbolicArray;
-    }
-
-    private ArrayValue.ReferenceArrayValue createReferenceConstantArray(Type arrayType, int instanceId) {
-        ArrayValue.ReferenceArrayValue symbolicArray = ExpressionFactory.buildReferenceArrayConstantExpression(
-                arrayType,
-                instanceId
-        );
-
-        return symbolicArray;
     }
 
     private void initReferenceArray(ReferenceExpression symbolicArray) {

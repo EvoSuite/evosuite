@@ -21,6 +21,7 @@ package org.evosuite.symbolic.vm;
 
 import org.evosuite.symbolic.expr.bv.IntegerValue;
 import org.evosuite.symbolic.expr.fp.RealValue;
+import org.evosuite.symbolic.expr.ref.NullReferenceConstant;
 import org.evosuite.symbolic.expr.ref.ReferenceExpression;
 
 import java.util.Deque;
@@ -58,7 +59,7 @@ public final class OperandStack implements Iterable<Operand> {
     }
 
     public void pushNullRef() {
-        ReferenceExpression nullExpression = ExpressionFactory.buildNewNullExpression();
+        NullReferenceConstant nullExpression = ExpressionFactory.NULL_REFERENCE;
         this.stack.push(new ReferenceOperand(nullExpression));
     }
 

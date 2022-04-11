@@ -512,6 +512,10 @@ public enum RuntimeVariable {
      */
     StringOnlyConstraints,
     /**
+     * The number of constraint made of reference constraints and no other type
+     */
+	ReferenceOnlyConstraints,
+    /**
      * The number of constraint made of integer and real constraints
      */
     IntegerAndRealConstraints,
@@ -524,9 +528,37 @@ public enum RuntimeVariable {
      */
     RealAndStringConstraints,
     /**
-     * Number of constraints containing all three types altogether
+     * The number of constraint made of integer constraints and reference constraints
+     */
+	IntegerAndReferenceConstraints,
+	/**
+     * The number of constraint made of real constraints and reference constraints
+     */
+	RealAndReferenceConstraints,
+	/**
+     * The number of constraint made of real constraints and reference constraints
+     */
+	StringAndReferenceConstraints,
+	/**
+     * The number of constraint made of integer, real and reference constraints
+     */
+	IntegerRealAndReferenceConstraints,
+	/**
+     * The number of constraint made of integer, string and reference constraints
+     */
+	IntegerStringAndReferenceConstraints,
+	/**
+     * The number of constraint made of real, string and reference constraints
+     */
+	RealStringAndReferenceConstraints,
+	/**
+     * Number of constraints containing integer, real and string constraints
      */
     IntegerRealAndStringConstraints,
+    /**
+     * Number of constraints containing all four types altogether
+     */
+	IntegerRealStringAndReferenceConstraints,
     /** The total number of constraints during the execution of the Genetic Algorithm*/
     /**
      * This total should be the sum of all the other types of constraints

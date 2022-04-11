@@ -23,6 +23,7 @@ import org.evosuite.symbolic.expr.bv.*;
 import org.evosuite.symbolic.expr.constraint.ConstraintVisitor;
 import org.evosuite.symbolic.expr.constraint.IntegerConstraint;
 import org.evosuite.symbolic.expr.constraint.RealConstraint;
+import org.evosuite.symbolic.expr.constraint.ReferenceConstraint;
 import org.evosuite.symbolic.expr.constraint.StringConstraint;
 import org.evosuite.symbolic.expr.reader.StringReaderExpr;
 import org.evosuite.symbolic.expr.str.StringValue;
@@ -216,6 +217,12 @@ public class DistanceCalculator implements ConstraintVisitor<Object, Void> {
         }
 
     }
+
+    @Override
+	public Object visit(ReferenceConstraint n, Void arg) {
+		//TODO: this is only == or != would the distance be only 0 or 1?
+		return null;
+	}
 
     private static long getDistanceIndexOfCEqualsK(IntegerConstraint n, long leftVal, long rightVal) {
         if (n.getLeftOperand() instanceof StringBinaryToIntegerExpression && n.getComparator() == Comparator.EQ

@@ -24,6 +24,7 @@ import org.evosuite.symbolic.expr.Variable;
 import org.evosuite.symbolic.expr.bv.IntegerVariable;
 import org.evosuite.symbolic.expr.constraint.ConstraintEvaluator;
 import org.evosuite.symbolic.expr.fp.RealVariable;
+import org.evosuite.symbolic.expr.ref.ClassReferenceVariable;
 import org.evosuite.symbolic.expr.ref.array.ArrayVariable;
 import org.evosuite.symbolic.expr.str.StringVariable;
 import org.slf4j.Logger;
@@ -171,7 +172,12 @@ public abstract class Solver {
                         getResizedArray(
                                 arr.getConcreteValue(),
                                 concreteValue));
-            } else {
+            } else if (v instanceof ClassReferenceVariable) {
+				ClassReferenceVariable rv = (ClassReferenceVariable) v;
+				rv.initializeReference(concreteValue);
+			}
+
+			else {
                 logger.warn("unknow variable type " + v.getClass().getName());
             }
         }
