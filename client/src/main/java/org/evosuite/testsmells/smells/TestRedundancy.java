@@ -38,23 +38,25 @@ public class TestRedundancy extends AbstractTestSmell {
 
     @Override
     public double computeTestSmellMetric(TestSuiteChromosome chromosome) {
-        int count = 0;
+        List<TestChromosome> testChromosomes = chromosome.getTestChromosomes();
+        int count = testChromosomes.size();
 
-        int size = chromosome.size();
+        Set<TestFitnessFunction> suiteGoals = chromosome.getCoveredGoals();
+        Set<TestFitnessFunction> goals;
+        int size = suiteGoals.size();
 
-        TestSuiteChromosome currentTestSuite;
-        List<TestChromosome> currentTestSuiteList;
+        // Eventually, it would be necessary to check if size > 0 before starting the for loop
+        // This would indicate that the fitness has not been calculated
+        // Possible solution: create a clone and calculate fitness?
 
-        Set<TestFitnessFunction> goals = chromosome.getCoveredGoals();
-
-        for (int i = 0; i < size; i++){
-
-            currentTestSuite = chromosome.clone();
-            currentTestSuiteList = currentTestSuite.getTestChromosomes();
-            currentTestSuite.deleteTest(currentTestSuiteList.get(i));
-
-            if(currentTestSuite.getCoveredGoals().size() == goals.size()){
-                count++;
+        for(TestChromosome testChromosome : testChromosomes){
+            if(size > 0){
+                goals = testChromosome.getTestCase().getCoveredGoals();
+                suiteGoals.removeAll(goals);
+                count -= size > suiteGoals.size() ? 1 : 0;
+                size = suiteGoals.size();
+            } else {
+                break;
             }
         }
 
