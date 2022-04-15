@@ -290,23 +290,23 @@ public final class TestSuiteChromosome
 	 */
 	public double calculateSmellValuesTestSuite (List<AbstractTestSmell> listOfTestSmells){
 
-		if(this.calculateSmellScoreTestSuite){
+		if(this.calculateSmellScore){
 
-			this.calculateSmellScoreTestSuite = false;
+			this.calculateSmellScore = false;
 
-			this.smellScoreTestSuite = 0;
-			this.smellValuesTestSuite = new LinkedHashMap<>();
+			this.smellScore = 0;
+			this.smellValues = new LinkedHashMap<>();
 
             double specificSmellScore;
 
 			for (AbstractTestSmell testSmell : listOfTestSmells){
 				specificSmellScore = testSmell.computeTestSmellMetric(this);
-				this.smellScoreTestSuite += specificSmellScore;
-				this.smellValuesTestSuite.put(testSmell.getName(), specificSmellScore);
+				this.smellScore += specificSmellScore;
+				this.smellValues.put(testSmell.getName(), specificSmellScore);
 			}
 		}
 
-		return this.smellScoreTestSuite;
+		return this.smellScore;
 	}
 
 	/**
@@ -314,7 +314,7 @@ public final class TestSuiteChromosome
 	 * @return LinkedHashMap containing the metrics and the respective scores
 	 */
 	public LinkedHashMap<String, Double> getSmellValuesTestSuite (){
-		return this.smellValuesTestSuite;
+		return this.smellValues;
 	}
 
 }

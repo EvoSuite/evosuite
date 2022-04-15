@@ -133,8 +133,9 @@ public final class TestChromosome extends AbstractTestChromosome<TestChromosome>
         c.setNumberOfEvaluations(this.getNumberOfEvaluations());
         c.setKineticEnergy(getKineticEnergy());
         c.setNumCollisions(getNumCollisions());
-        c.smellScoreTestCase = this.smellScoreTestCase;
-        c.smellValuesTestCase = this.smellValuesTestCase;
+
+        c.smellScore = this.smellScore;
+        c.smellValues = this.smellValues;
 
         return c;
     }
@@ -745,23 +746,23 @@ public final class TestChromosome extends AbstractTestChromosome<TestChromosome>
 	 */
 	public double calculateSmellValuesTestCase (List<AbstractTestCaseSmell> listOfTestSmells){
 
-		if(this.calculateSmellScoreTestCase){
+		if(this.calculateSmellScore){
 
-			this.calculateSmellScoreTestCase = false;
+			this.calculateSmellScore = false;
 
-			this.smellScoreTestCase = 0;
-			this.smellValuesTestCase = new LinkedHashMap<>();
+			this.smellScore= 0;
+			this.smellValues = new LinkedHashMap<>();
 
 			double specificSmellScore;
 
 			for(AbstractTestCaseSmell testSmell : listOfTestSmells){
 				specificSmellScore = testSmell.computeTestSmellMetric(this);
-				this.smellScoreTestCase += specificSmellScore;
-				this.smellValuesTestCase.put(testSmell.getName(), specificSmellScore);
+				this.smellScore += specificSmellScore;
+				this.smellValues.put(testSmell.getName(), specificSmellScore);
 			}
 		}
 
-		return this.smellScoreTestCase;
+		return this.smellScore;
 	}
 
 	/**
@@ -769,7 +770,7 @@ public final class TestChromosome extends AbstractTestChromosome<TestChromosome>
 	 * @return LinkedHashMap containing the metrics and the respective scores
 	 */
 	public LinkedHashMap<String, Double> getSmellValuesTestCase (){
-		return this.smellValuesTestCase;
+		return this.smellValues;
 	}
 
 }

@@ -53,12 +53,6 @@ public abstract class AbstractTestSuiteChromosome<T extends AbstractTestSuiteChr
     protected List<E> tests = new ArrayList<>();
     protected ChromosomeFactory<E> testChromosomeFactory;
 
-    /** The total test smell score */
-    protected double smellScoreTestSuite = -1;
-
-    /** The score for each test smell metric */
-    protected LinkedHashMap<String, Double> smellValuesTestSuite;
-
     /**
      * only used for testing/debugging
      */
@@ -106,8 +100,9 @@ public abstract class AbstractTestSuiteChromosome<T extends AbstractTestSuiteChr
         this.setNumberOfEvaluations(source.getNumberOfEvaluations());
         this.setKineticEnergy(source.getKineticEnergy());
         this.setNumCollisions(source.getNumCollisions());
-        this.smellScoreTestSuite = source.smellScoreTestSuite;
-        this.smellValuesTestSuite = source.smellValuesTestSuite;
+
+        this.smellScore = source.smellScore;
+        this.smellValues = source.smellValues;
     }
 
     /**
