@@ -16,7 +16,7 @@ import java.util.Set;
  * Metric:
  * The number of test cases that can be removed from the test suite without decreasing the code coverage.
  *
- * Detection:
+ * Detection: TODO update
  * 1 - Retrieve all coverage goals covered by the test suite chromosome
  * 2 - Iterate over the test cases of the test suite
  * [2: Start loop]
