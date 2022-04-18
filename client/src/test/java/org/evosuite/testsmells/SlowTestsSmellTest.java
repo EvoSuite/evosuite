@@ -11,6 +11,7 @@ import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testsmells.smells.SlowTests;
+import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -22,7 +23,7 @@ import static org.junit.Assert.assertTrue;
 
 public class SlowTestsSmellTest {
 
-    AbstractNormalizedTestCaseSmell slowTests;
+    AbstractTestCaseSmell slowTests;
 
     @Before
     public void setUp() {
@@ -36,12 +37,8 @@ public class SlowTestsSmellTest {
         DefaultTestCase test0 = createTestCase0();
         testCase.setTestCase(test0);
 
-        long smellCount = this.slowTests.computeNumberOfTestSmells(testCase);
-        long expectedSmellCount = 0;
-        assertEquals(expectedSmellCount, smellCount);
-
         double computedMetric = this.slowTests.computeTestSmellMetric(testCase);
-        double expectedComputedMetric = 0;
+        double expectedComputedMetric = Double.NaN;
         assertEquals(expectedComputedMetric, computedMetric, 0.01);
     }
 
@@ -54,10 +51,62 @@ public class SlowTestsSmellTest {
         ExecutionResult result = TestCaseExecutor.runTest(testCase.getTestCase());
         testCase.setLastExecutionResult(result);
 
-        long smellCount = this.slowTests.computeNumberOfTestSmells(testCase);
-        assertTrue(smellCount > 0);
+        double computedMetric = this.slowTests.computeTestSmellMetric(testCase);
+        assertTrue(computedMetric > 0);
+    }
+
+    @Test
+    public void testEmptyTestCaseLastExecutionResultNull() {
+        TestChromosome testCase = new TestChromosome();
+        DefaultTestCase test0 = createEmptyTestCase();
+        testCase.setTestCase(test0);
 
         double computedMetric = this.slowTests.computeTestSmellMetric(testCase);
+        double expectedComputedMetric = Double.NaN;
+        assertEquals(expectedComputedMetric, computedMetric, 0.01);
+    }
+
+    @Test
+    public void testEmptyTestCaseLastExecutionResultNotNull() {
+        TestChromosome testCase = new TestChromosome();
+        DefaultTestCase test0 = createEmptyTestCase();
+        testCase.setTestCase(test0);
+
+        ExecutionResult result = TestCaseExecutor.runTest(testCase.getTestCase());
+        testCase.setLastExecutionResult(result);
+
+        double computedMetric = this.slowTests.computeTestSmellMetric(testCase);
+        assertTrue(computedMetric >= 0);
+    }
+
+    @Test
+    public void testFullTestSuiteNotExecuted() throws NoSuchMethodException {
+        TestSuiteChromosome suite = new TestSuiteChromosome();
+        DefaultTestCase test0 = createTestCase0();
+        DefaultTestCase test1 = createEmptyTestCase();
+        suite.addTest(test0);
+        suite.addTest(test1);
+
+        double computedMetric = this.slowTests.computeTestSmellMetric(suite);
+        double expectedComputedMetric = Double.NaN;
+        assertEquals(expectedComputedMetric, computedMetric, 0.01);
+    }
+
+    @Test
+    public void testFullTestSuiteExecuted() throws NoSuchMethodException {
+        TestSuiteChromosome suite = new TestSuiteChromosome();
+        DefaultTestCase test0 = createTestCase0();
+        DefaultTestCase test1 = createEmptyTestCase();
+        suite.addTest(test0);
+        suite.addTest(test1);
+
+        for (TestChromosome test : suite.getTestChromosomes()) {
+            ExecutionResult result;
+            result = TestCaseExecutor.runTest(test.getTestCase());
+            test.setLastExecutionResult(result);
+        }
+
+        double computedMetric = this.slowTests.computeTestSmellMetric(suite);
         assertTrue(computedMetric > 0);
     }
 
@@ -103,5 +152,13 @@ public class SlowTestsSmellTest {
         currentStatement.addAssertion(primitiveAssertion1);
 
         return testCase;
+    }
+
+    private DefaultTestCase createEmptyTestCase() {
+
+        // Create test case
+
+        TestCaseBuilder builder = new TestCaseBuilder();
+        return builder.getDefaultTestCase();
     }
 }

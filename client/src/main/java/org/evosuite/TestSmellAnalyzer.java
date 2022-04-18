@@ -30,7 +30,9 @@ public class TestSmellAnalyzer {
             for(AbstractTestSmell currentSmell : listOfTestSmells){
 
                 specificSmell = currentSmell.computeTestSmellMetric(testSuite);
-                smellCount += specificSmell;
+                if (!Double.isNaN(specificSmell)){
+                    smellCount += specificSmell;
+                }
 
                 if(listOfVariables.contains(currentSmell.getName())){
                     ClientServices.track(RuntimeVariable.valueOf(currentSmell.getName()), specificSmell);

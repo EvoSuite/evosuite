@@ -301,8 +301,10 @@ public final class TestSuiteChromosome
 
 			for (AbstractTestSmell testSmell : listOfTestSmells){
 				specificSmellScore = testSmell.computeTestSmellMetric(this);
-				this.smellScore += specificSmellScore;
-				this.smellValues.put(testSmell.getName(), specificSmellScore);
+                if (!Double.isNaN(specificSmellScore)){
+                    this.smellScore += specificSmellScore;
+                    this.smellValues.put(testSmell.getName(), specificSmellScore);
+                }
 			}
 		}
 

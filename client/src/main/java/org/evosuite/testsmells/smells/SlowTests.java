@@ -1,7 +1,9 @@
 package org.evosuite.testsmells.smells;
 
+import org.evosuite.ga.FitnessFunction;
 import org.evosuite.testcase.TestChromosome;
-import org.evosuite.testsmells.AbstractNormalizedTestCaseSmell;
+import org.evosuite.testsmells.AbstractTestCaseSmell;
+import org.evosuite.testsuite.TestSuiteChromosome;
 
 /**
  * Definition:
@@ -17,19 +19,39 @@ import org.evosuite.testsmells.AbstractNormalizedTestCaseSmell;
  * 3 (1 is False):
  *    3.1 - Return 0
  */
-public class SlowTests extends AbstractNormalizedTestCaseSmell {
+public class SlowTests extends AbstractTestCaseSmell {
 
     public SlowTests() {
         super("TestSmellSlowTests");
     }
 
     @Override
-    public long computeNumberOfTestSmells(TestChromosome chromosome) {
+    public double computeTestSmellMetric(TestChromosome chromosome) {
         if(chromosome.getLastExecutionResult() != null){
-            return chromosome.getLastExecutionResult().getExecutionTime();
+            return FitnessFunction.normalize(chromosome.getLastExecutionResult().getExecutionTime());
         }
 
-        //Would it be better to run the test in this situation?
-        return 0;
+        return Double.NaN;
+    }
+
+    @Override
+    public double computeTestSmellMetric(TestSuiteChromosome chromosome) {
+        double smellCount = -1;
+
+        for(TestChromosome testcase : chromosome.getTestChromosomes()){
+            if(testcase.getLastExecutionResult() != null){
+                if(smellCount >= 0){
+                    smellCount += testcase.getLastExecutionResult().getExecutionTime();
+                } else {
+                    smellCount = testcase.getLastExecutionResult().getExecutionTime();
+                }
+            }
+        }
+
+        if(smellCount == -1){
+            return Double.NaN;
+        }
+
+        return FitnessFunction.normalize(smellCount);
     }
 }

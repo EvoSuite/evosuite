@@ -6,7 +6,6 @@ import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testsmells.AbstractTestSmell;
 import org.evosuite.testsuite.TestSuiteChromosome;
 
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -40,6 +39,10 @@ public class TestRedundancy extends AbstractTestSmell {
     public double computeTestSmellMetric(TestSuiteChromosome chromosome) {
         int number_of_redundant_tests = chromosome.size();
         Set<TestFitnessFunction> suiteGoals = chromosome.getCoveredGoals();
+
+        if(suiteGoals.size() == 0){
+            return Double.NaN;
+        }
 
         for (TestChromosome testChromosome : chromosome.getTestChromosomes()) {
             Set<TestFitnessFunction> testGoals = testChromosome.getTestCase().getCoveredGoals();

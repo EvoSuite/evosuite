@@ -1130,7 +1130,7 @@ public class SearchStatistics implements Listener<ClientStateInformation> {
 
 		@Override
 		public Double getValue(TestSuiteChromosome individual) {
-            AbstractNormalizedTestCaseSmell smell = new SlowTests();
+            AbstractTestCaseSmell smell = new SlowTests();
 			return smell.computeTestSmellMetric(individual);
 		}
 	}
