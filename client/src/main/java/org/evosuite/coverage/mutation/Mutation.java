@@ -27,6 +27,7 @@ import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.LdcInsnNode;
 
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -37,7 +38,7 @@ import java.util.Set;
  *
  * @author Gordon Fraser
  */
-public class Mutation implements Comparable<Mutation> {
+public class Mutation implements Comparable<Mutation>, Serializable {
 
     private final int id;
 
@@ -47,11 +48,11 @@ public class Mutation implements Comparable<Mutation> {
 
     private final String mutationName;
 
-    private final BytecodeInstruction original;
+    private final transient BytecodeInstruction original;
 
-    private final InsnList mutation;
+    private final transient InsnList mutation;
 
-    private final InsnList infection;
+    private final transient InsnList infection;
 
     private final int lineNo;
 
