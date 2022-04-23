@@ -3,6 +3,7 @@ package org.evosuite.testsmells.smells;
 import org.evosuite.assertion.Assertion;
 import org.evosuite.assertion.InspectorAssertion;
 import org.evosuite.testcase.TestChromosome;
+import org.evosuite.testcase.statements.AssignmentStatement;
 import org.evosuite.testcase.statements.ConstructorStatement;
 import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testcase.statements.Statement;
@@ -86,6 +87,10 @@ public class Overreferencing extends AbstractNormalizedTestCaseSmell {
                 }
             }
 
+            if(currentStatement instanceof AssignmentStatement) {
+                setOfInstances.remove(((AssignmentStatement) currentStatement).getValue().getStPosition());
+            }
+
             if(currentStatement.hasAssertions()){
 
                 Set<Assertion> assertions = currentStatement.getAssertions();
@@ -101,4 +106,98 @@ public class Overreferencing extends AbstractNormalizedTestCaseSmell {
 
         return setOfInstances.size();
     }
+
+    /*
+    @Override
+    public long computeNumberOfTestSmells(TestChromosome chromosome) {
+        int size = chromosome.size();
+        Statement currentStatement;
+
+        Set<Integer> setOfInstances = new LinkedHashSet<>();
+
+        LoggingUtils.getEvoLogger().info("--------------- Start ---------------");
+
+        for (int i = 0; i < size; i++){
+            currentStatement = chromosome.getTestCase().getStatement(i);
+
+            if(currentStatement instanceof ConstructorStatement){
+                setOfInstances.add(i);
+
+                LoggingUtils.getEvoLogger().info("Constructor Statement - " + i + ": " + currentStatement.toString());
+
+                List<VariableReference> parameters = ((ConstructorStatement) currentStatement).getParameterReferences();
+
+                // Verify if an object is passed as an argument
+                for(VariableReference parameter : parameters){
+                    setOfInstances.remove(parameter.getStPosition());
+                }
+            }
+
+            if (currentStatement instanceof MethodStatement) {
+                List<VariableReference> parameters = ((MethodStatement) currentStatement).getParameterReferences();
+                VariableReference callee = ((MethodStatement) currentStatement).getCallee();
+
+                //LoggingUtils.getEvoLogger().info("Method Statement: " + currentStatement.toString());
+
+                // Verify if a method of an object is called
+                if(callee != null){
+                    setOfInstances.remove(callee.getStPosition());
+                }
+
+                // Verify if an object is passed as an argument
+                for(VariableReference parameter : parameters){
+                    setOfInstances.remove(parameter.getStPosition());
+                }
+            }
+
+            if(currentStatement instanceof AssignmentStatement) {
+                setOfInstances.remove(((AssignmentStatement) currentStatement).getValue().getStPosition());
+            }
+
+            if(currentStatement.hasAssertions()){
+
+                Set<Assertion> assertions = currentStatement.getAssertions();
+
+                //LoggingUtils.getEvoLogger().info("Has Assertion: " + currentStatement.toString());
+
+                // Verify if a method of an object is called
+                for(Assertion assertion : assertions){
+                    if(assertion instanceof InspectorAssertion){
+                        setOfInstances.remove(assertion.getSource().getStPosition());
+                    }
+                }
+            }
+        }
+
+        LoggingUtils.getEvoLogger().info("\n |---| |++++++++++++++++++++++++++++++| |---| \n");
+
+        if(setOfInstances.size() > 0){
+
+            TestCodeVisitor visitor = new TestCodeVisitor();
+
+            TestCase testCase = chromosome.getTestCase();
+            visitor.visitTestCase(testCase);
+
+            for (int i = 0; i < size; i++){
+                visitor.visitStatement(testCase.getStatement(i));
+            }
+
+            LoggingUtils.getEvoLogger().info(visitor.getCode());
+
+            LoggingUtils.getEvoLogger().info("\n");
+
+            LoggingUtils.getEvoLogger().info("Size = " + size);
+
+            LoggingUtils.getEvoLogger().info("\n");
+
+            for(Integer current : setOfInstances){
+                LoggingUtils.getEvoLogger().info("Smelly Constructor Statement -> " + current + ": " + chromosome.getTestCase().getStatement(current));
+            }
+        }
+
+        LoggingUtils.getEvoLogger().info("--------------- End ---------------");
+
+        return setOfInstances.size();
+    }
+     */
 }

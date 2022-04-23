@@ -12,6 +12,7 @@ import org.evosuite.symbolic.TestCaseBuilder;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.statements.Statement;
+import org.evosuite.testcase.variable.ArrayReference;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testsmells.smells.Overreferencing;
 import org.evosuite.testsuite.TestSuiteChromosome;
@@ -139,6 +140,21 @@ public class OverreferencingSmellTest {
     }
 
     @Test
+    public void testClassInstancesUsedInAssignmentStatement() throws NoSuchMethodException {
+        TestChromosome testCase = new TestChromosome();
+        DefaultTestCase test0 = createTestCase7();
+        testCase.setTestCase(test0);
+
+        long smellCount = this.overreferencing.computeNumberOfTestSmells(testCase);
+        long expectedSmellCount = 0;
+        assertEquals(expectedSmellCount, smellCount);
+
+        double computedMetric = this.overreferencing.computeTestSmellMetric(testCase);
+        double expectedComputedMetric = 0;
+        assertEquals(expectedComputedMetric, computedMetric, 0.01);
+    }
+
+    @Test
     public void testEmptyTestCase() {
         TestChromosome testCase = new TestChromosome();
         DefaultTestCase test0 = createEmptyTestCase();
@@ -163,7 +179,8 @@ public class OverreferencingSmellTest {
         DefaultTestCase test4 = createTestCase4();
         DefaultTestCase test5 = createTestCase5();
         DefaultTestCase test6 = createTestCase6();
-        DefaultTestCase test7 = createEmptyTestCase();
+        DefaultTestCase test7 = createTestCase7();
+        DefaultTestCase test8 = createEmptyTestCase();
         suite.addTest(test0);
         suite.addTest(test1);
         suite.addTest(test2);
@@ -172,6 +189,7 @@ public class OverreferencingSmellTest {
         suite.addTest(test5);
         suite.addTest(test6);
         suite.addTest(test7);
+        suite.addTest(test8);
 
         double computedMetric = this.overreferencing.computeTestSmellMetric(suite);
         double expectedComputedMetric = 5.0 / (1.0 + 5.0);
@@ -342,6 +360,34 @@ public class OverreferencingSmellTest {
         currentStatement.addAssertion(inspectorAssertion0);
 
         return testCase;
+    }
+
+    private DefaultTestCase createTestCase7() throws NoSuchMethodException {
+
+        // Create test case
+
+        TestCaseBuilder builder = new TestCaseBuilder();
+
+        VariableReference stringStatement0 = builder.appendStringPrimitive("Bob");
+
+        Constructor<TestSmellsSimpleUser> const0 = TestSmellsSimpleUser.class.getConstructor(String.class);
+        VariableReference constructorStatement0 = builder.appendConstructor(const0, stringStatement0);
+
+        Constructor<TestSmellsSimpleServer> const1 = TestSmellsSimpleServer.class.getConstructor(TestSmellsSimpleUser.class);
+        VariableReference constructorStatement1 = builder.appendConstructor(const1, constructorStatement0);
+
+        VariableReference stringStatement1 = builder.appendStringPrimitive("Alice");
+
+        Constructor<TestSmellsSimpleUser> const2 = TestSmellsSimpleUser.class.getConstructor(String.class);
+        VariableReference constructorStatement2 = builder.appendConstructor(const2, stringStatement1);
+
+        ArrayReference arrayStatement0 = builder.appendArrayStmt(TestSmellsSimpleUser[].class, 1);
+        builder.appendAssignment(arrayStatement0, 0, constructorStatement2);
+
+        Method getAdminMethod0 = TestSmellsSimpleServer.class.getMethod("addMultipleUsers", TestSmellsSimpleUser[].class);
+        builder.appendMethod(constructorStatement1, getAdminMethod0, arrayStatement0);
+
+        return builder.getDefaultTestCase();
     }
 
     private DefaultTestCase createEmptyTestCase() {

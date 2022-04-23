@@ -13,15 +13,21 @@ public class TestSmellsSimpleServer {
         users.add(admin);
     }
 
-    public TestSmellsSimpleUser getAdmin (){
+    public TestSmellsSimpleUser getAdmin () {
         return this.admin;
     }
 
-    public List<TestSmellsSimpleUser> getUsers (){
+    public List<TestSmellsSimpleUser> getUsers () {
         return this.users;
     }
 
-    public boolean addUser(TestSmellsSimpleUser user){
+    public boolean addUser (TestSmellsSimpleUser user) {
         return this.users.add(user);
+    }
+
+    public void addMultipleUsers (TestSmellsSimpleUser[] arrayOfUsers) {
+        for(TestSmellsSimpleUser user : arrayOfUsers){
+            this.users.add(user);
+        }
     }
 }
