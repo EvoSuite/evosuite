@@ -4,9 +4,6 @@ import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testsmells.AbstractNormalizedTestCaseSmell;
 
-import java.util.Collections;
-import java.util.Set;
-
 /**
  * Definition:
  * Tests have assertions that are not executed, thus giving a false sense of security.
@@ -33,6 +30,25 @@ public class RottenGreenTests extends AbstractNormalizedTestCaseSmell {
 
     @Override
     public long computeNumberOfTestSmells(TestChromosome chromosome) {
+        int size = chromosome.size();
+
+        ExecutionResult lastExecutionResult = chromosome.getLastExecutionResult();
+
+        if(lastExecutionResult != null){
+
+            Integer firstException = lastExecutionResult.getFirstPositionOfThrownException();
+
+            if(firstException != null){
+                return firstException < size ? size - firstException - 1 : 0;
+            }
+        }
+
+        return 0;
+    }
+
+    /*
+    @Override
+    public long computeNumberOfTestSmells(TestChromosome chromosome) {
        int size = chromosome.size();
 
         ExecutionResult lastExecutionResult = chromosome.getLastExecutionResult();
@@ -49,4 +65,59 @@ public class RottenGreenTests extends AbstractNormalizedTestCaseSmell {
 
         return 0;
     }
+     */
+
+    /*
+    @Override
+    public long computeNumberOfTestSmells(TestChromosome chromosome) {
+        int size = chromosome.size();
+
+        ExecutionResult lastExecutionResult = chromosome.getLastExecutionResult();
+
+        if(lastExecutionResult != null){
+
+            Set<Integer> exceptionPositions = lastExecutionResult.getPositionsWhereExceptionsWereThrown();
+
+            if(exceptionPositions.size() > 0){
+
+                LoggingUtils.getEvoLogger().info("--------------- Start ---------------");
+
+                LoggingUtils.getEvoLogger().info("\n");
+
+                TestCodeVisitor visitor = new TestCodeVisitor();
+
+                TestCase testCase = chromosome.getTestCase();
+                visitor.visitTestCase(testCase);
+
+                for (int i = 0; i < size; i++){
+                    visitor.visitStatement(testCase.getStatement(i));
+                }
+
+                LoggingUtils.getEvoLogger().info(visitor.getCode());
+
+                LoggingUtils.getEvoLogger().info("\n");
+
+                LoggingUtils.getEvoLogger().info("Size = " + size);
+
+                LoggingUtils.getEvoLogger().info("\n");
+
+                for(Integer position : exceptionPositions){
+                    LoggingUtils.getEvoLogger().info("Exception -> Line: " + position);
+                }
+
+                LoggingUtils.getEvoLogger().info("\n");
+
+                int firstException = Collections.min(exceptionPositions);
+                LoggingUtils.getEvoLogger().info("The First Exception -> Line: " + firstException);
+                LoggingUtils.getEvoLogger().info("Result: " + (firstException < size ? size - firstException - 1 : 0));
+                LoggingUtils.getEvoLogger().info("--------------- End ---------------");
+                return firstException < size ? size - firstException - 1 : 0;
+            }
+
+        }
+
+        return 0;
+    }
+
+     */
 }

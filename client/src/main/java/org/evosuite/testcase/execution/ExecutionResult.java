@@ -29,10 +29,11 @@ import org.evosuite.testcase.statements.Statement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Serializable;
 import java.util.*;
 import java.util.stream.IntStream;
 
-public class ExecutionResult implements Cloneable {
+public class ExecutionResult implements Cloneable, Serializable {
 
     private static final Logger logger = LoggerFactory.getLogger(ExecutionResult.class);
 
@@ -60,7 +61,7 @@ public class ExecutionResult implements Cloneable {
     /**
      * Trace recorded during execution
      */
-    protected ExecutionTrace trace;
+    protected transient ExecutionTrace trace;
 
     /**
      * Duration of execution
