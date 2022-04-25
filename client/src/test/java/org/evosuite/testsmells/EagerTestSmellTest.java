@@ -43,7 +43,7 @@ public class EagerTestSmellTest {
 
         double computedMetric = this.eagerTest.computeTestSmellMetric(testCase);
         double expectedComputedMetric = 0.5;
-        assertEquals(expectedComputedMetric, computedMetric, 0.01);
+        assertEquals(expectedComputedMetric, computedMetric, 0.0001);
     }
 
     @Test
@@ -58,7 +58,7 @@ public class EagerTestSmellTest {
 
         double computedMetric = this.eagerTest.computeTestSmellMetric(testCase);
         double expectedComputedMetric = 2.0 / (1.0 + 2.0);
-        assertEquals(expectedComputedMetric, computedMetric, 0.01);
+        assertEquals(expectedComputedMetric, computedMetric, 0.0001);
     }
 
     @Test
@@ -73,7 +73,7 @@ public class EagerTestSmellTest {
 
         double computedMetric = this.eagerTest.computeTestSmellMetric(testCase);
         double expectedComputedMetric = 0.5;
-        assertEquals(expectedComputedMetric, computedMetric, 0.01);
+        assertEquals(expectedComputedMetric, computedMetric, 0.0001);
     }
 
     @Test
@@ -88,7 +88,7 @@ public class EagerTestSmellTest {
 
         double computedMetric = this.eagerTest.computeTestSmellMetric(testCase);
         double expectedComputedMetric = 0.75;
-        assertEquals(expectedComputedMetric, computedMetric, 0.01);
+        assertEquals(expectedComputedMetric, computedMetric, 0.0001);
     }
 
     @Test
@@ -103,7 +103,7 @@ public class EagerTestSmellTest {
 
         double computedMetric = this.eagerTest.computeTestSmellMetric(testCase);
         double expectedComputedMetric = 0.75;
-        assertEquals(expectedComputedMetric, computedMetric, 0.01);
+        assertEquals(expectedComputedMetric, computedMetric, 0.0001);
     }
 
     @Test
@@ -118,7 +118,7 @@ public class EagerTestSmellTest {
 
         double computedMetric = this.eagerTest.computeTestSmellMetric(testCase);
         double expectedComputedMetric = 0.75;
-        assertEquals(expectedComputedMetric, computedMetric, 0.01);
+        assertEquals(expectedComputedMetric, computedMetric, 0.0001);
     }
 
     @Test
@@ -133,7 +133,7 @@ public class EagerTestSmellTest {
 
         double computedMetric = this.eagerTest.computeTestSmellMetric(testCase);
         double expectedComputedMetric = 2.0 / (1.0 + 2.0);
-        assertEquals(expectedComputedMetric, computedMetric, 0.01);
+        assertEquals(expectedComputedMetric, computedMetric, 0.0001);
     }
 
     @Test
@@ -148,7 +148,7 @@ public class EagerTestSmellTest {
 
         double computedMetric = this.eagerTest.computeTestSmellMetric(testCase);
         double expectedComputedMetric = 2.0 / (1.0 + 2.0);
-        assertEquals(expectedComputedMetric, computedMetric, 0.01);
+        assertEquals(expectedComputedMetric, computedMetric, 0.0001);
     }
 
     @Test
@@ -163,7 +163,22 @@ public class EagerTestSmellTest {
 
         double computedMetric = this.eagerTest.computeTestSmellMetric(testCase);
         double expectedComputedMetric = 2.0 / (1.0 + 2.0);
-        assertEquals(expectedComputedMetric, computedMetric, 0.01);
+        assertEquals(expectedComputedMetric, computedMetric, 0.0001);
+    }
+
+    @Test
+    public void testMethodsSameNameAndDifferentParameters  () throws NoSuchMethodException {
+        TestChromosome testCase = new TestChromosome();
+        DefaultTestCase test0 = createTestCase9();
+        testCase.setTestCase(test0);
+
+        long smellCount = this.eagerTest.computeNumberOfTestSmells(testCase);
+        long expectedSmellCount = 2;
+        assertEquals(expectedSmellCount, smellCount);
+
+        double computedMetric = this.eagerTest.computeTestSmellMetric(testCase);
+        double expectedComputedMetric = 2.0 / (1.0 + 2.0);
+        assertEquals(expectedComputedMetric, computedMetric, 0.0001);
     }
 
     @Test
@@ -178,7 +193,7 @@ public class EagerTestSmellTest {
 
         double computedMetric = this.eagerTest.computeTestSmellMetric(testCase);
         double expectedComputedMetric = 0;
-        assertEquals(expectedComputedMetric, computedMetric, 0.01);
+        assertEquals(expectedComputedMetric, computedMetric, 0.0001);
     }
 
     @Test
@@ -193,7 +208,8 @@ public class EagerTestSmellTest {
         DefaultTestCase test6 = createTestCase6();
         DefaultTestCase test7 = createTestCase7();
         DefaultTestCase test8 = createTestCase8();
-        DefaultTestCase test9 = createEmptyTestCase();
+        DefaultTestCase test9 = createTestCase9();
+        DefaultTestCase test10 = createEmptyTestCase();
         suite.addTest(test0);
         suite.addTest(test1);
         suite.addTest(test2);
@@ -204,10 +220,11 @@ public class EagerTestSmellTest {
         suite.addTest(test7);
         suite.addTest(test8);
         suite.addTest(test9);
+        suite.addTest(test10);
 
         double computedMetric = this.eagerTest.computeTestSmellMetric(suite);
-        double expectedComputedMetric = 0.95;
-        assertEquals(expectedComputedMetric, computedMetric, 0.01);
+        double expectedComputedMetric = 21.0 / (1.0 + 21.0);
+        assertEquals(expectedComputedMetric, computedMetric, 0.0001);
     }
 
     private DefaultTestCase createTestCase0() throws NoSuchMethodException {
@@ -546,6 +563,30 @@ public class EagerTestSmellTest {
         currentStatement.addAssertion(primitiveAssertion0);
 
         return testCase;
+    }
+
+    private DefaultTestCase createTestCase9() throws NoSuchMethodException {
+
+        // Create test case
+
+        TestCaseBuilder builder = new TestCaseBuilder();
+
+        VariableReference stringStatement0 = builder.appendStringPrimitive("Bob");
+
+        Constructor<TestSmellsTestingClass1> const0 = TestSmellsTestingClass1.class.getConstructor(String.class);
+        VariableReference constructorStatement0 = builder.appendConstructor(const0, stringStatement0);
+
+        VariableReference intStatement0 = builder.appendIntPrimitive(5);
+
+        Method setSomethingMethod0 = TestSmellsTestingClass1.class.getMethod("setSomething", int.class);
+        builder.appendMethod(constructorStatement0, setSomethingMethod0, intStatement0);
+
+        VariableReference stringStatement1 = builder.appendStringPrimitive("ABC");
+
+        Method setSomethingMethod1 = TestSmellsTestingClass1.class.getMethod("setSomething", String.class);
+        builder.appendMethod(constructorStatement0, setSomethingMethod1, stringStatement1);
+
+       return builder.getDefaultTestCase();
     }
 
     private DefaultTestCase createEmptyTestCase() {

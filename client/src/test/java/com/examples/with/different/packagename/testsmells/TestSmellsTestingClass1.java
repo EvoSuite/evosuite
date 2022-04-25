@@ -74,6 +74,14 @@ public class TestSmellsTestingClass1 {
     }
 
     /**
+     * A setter without a getter
+     * @param something A random String that is never used
+     */
+    public void setSomething (int something){
+        this.something = String.valueOf(something);
+    }
+
+    /**
      * Division operation
      * @param x Divisor
      * @return int with the result of the operation
