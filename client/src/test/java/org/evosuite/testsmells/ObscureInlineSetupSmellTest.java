@@ -45,7 +45,7 @@ public class ObscureInlineSetupSmellTest {
 
         double computedMetric = this.obscureInlineSetup.computeTestSmellMetric(testCase);
         double expectedComputedMetric = 0;
-        assertEquals(expectedComputedMetric, computedMetric, 0.01);
+        assertEquals(expectedComputedMetric, computedMetric, 0.00001);
     }
 
     @Test
@@ -60,7 +60,7 @@ public class ObscureInlineSetupSmellTest {
 
         double computedMetric = this.obscureInlineSetup.computeTestSmellMetric(testCase);
         double expectedComputedMetric = 0.5;
-        assertEquals(expectedComputedMetric, computedMetric, 0.01);
+        assertEquals(expectedComputedMetric, computedMetric, 0.00001);
     }
 
     @Test
@@ -75,7 +75,7 @@ public class ObscureInlineSetupSmellTest {
 
         double computedMetric = this.obscureInlineSetup.computeTestSmellMetric(testCase);
         double expectedComputedMetric = 0.5;
-        assertEquals(expectedComputedMetric, computedMetric, 0.01);
+        assertEquals(expectedComputedMetric, computedMetric, 0.00001);
     }
 
     @Test
@@ -90,7 +90,7 @@ public class ObscureInlineSetupSmellTest {
 
         double computedMetric = this.obscureInlineSetup.computeTestSmellMetric(testCase);
         double expectedComputedMetric = 2.0 / (1.0 + 2.0);
-        assertEquals(expectedComputedMetric, computedMetric, 0.01);
+        assertEquals(expectedComputedMetric, computedMetric, 0.00001);
     }
 
     @Test
@@ -105,7 +105,7 @@ public class ObscureInlineSetupSmellTest {
 
         double computedMetric = this.obscureInlineSetup.computeTestSmellMetric(testCase);
         double expectedComputedMetric = 2.0 / (1.0 + 2.0);
-        assertEquals(expectedComputedMetric, computedMetric, 0.01);
+        assertEquals(expectedComputedMetric, computedMetric, 0.00001);
     }
 
     @Test
@@ -120,7 +120,7 @@ public class ObscureInlineSetupSmellTest {
 
         double computedMetric = this.obscureInlineSetup.computeTestSmellMetric(testCase);
         double expectedComputedMetric = 0.75;
-        assertEquals(expectedComputedMetric, computedMetric, 0.01);
+        assertEquals(expectedComputedMetric, computedMetric, 0.00001);
     }
 
     @Test
@@ -135,7 +135,7 @@ public class ObscureInlineSetupSmellTest {
 
         double computedMetric = this.obscureInlineSetup.computeTestSmellMetric(testCase);
         double expectedComputedMetric = 0.75;
-        assertEquals(expectedComputedMetric, computedMetric, 0.01);
+        assertEquals(expectedComputedMetric, computedMetric, 0.00001);
     }
 
     @Test
@@ -150,7 +150,7 @@ public class ObscureInlineSetupSmellTest {
 
         double computedMetric = this.obscureInlineSetup.computeTestSmellMetric(testCase);
         double expectedComputedMetric = 0.75;
-        assertEquals(expectedComputedMetric, computedMetric, 0.01);
+        assertEquals(expectedComputedMetric, computedMetric, 0.00001);
     }
 
     @Test
@@ -160,12 +160,12 @@ public class ObscureInlineSetupSmellTest {
         testCase.setTestCase(test0);
 
         long smellCount = this.obscureInlineSetup.computeNumberOfTestSmells(testCase);
-        long expectedSmellCount = 4;
+        long expectedSmellCount = 7;
         assertEquals(expectedSmellCount, smellCount);
 
         double computedMetric = this.obscureInlineSetup.computeTestSmellMetric(testCase);
-        double expectedComputedMetric = 0.8;
-        assertEquals(expectedComputedMetric, computedMetric, 0.01);
+        double expectedComputedMetric = 0.875;
+        assertEquals(expectedComputedMetric, computedMetric, 0.00001);
     }
 
     @Test
@@ -180,7 +180,7 @@ public class ObscureInlineSetupSmellTest {
 
         double computedMetric = this.obscureInlineSetup.computeTestSmellMetric(testCase);
         double expectedComputedMetric = 0.8;
-        assertEquals(expectedComputedMetric, computedMetric, 0.01);
+        assertEquals(expectedComputedMetric, computedMetric, 0.00001);
     }
 
     @Test
@@ -195,7 +195,7 @@ public class ObscureInlineSetupSmellTest {
 
         double computedMetric = this.obscureInlineSetup.computeTestSmellMetric(testCase);
         double expectedComputedMetric = 0.75;
-        assertEquals(expectedComputedMetric, computedMetric, 0.01);
+        assertEquals(expectedComputedMetric, computedMetric, 0.00001);
     }
 
     @Test
@@ -210,7 +210,7 @@ public class ObscureInlineSetupSmellTest {
 
         double computedMetric = this.obscureInlineSetup.computeTestSmellMetric(testCase);
         double expectedComputedMetric = 0.75;
-        assertEquals(expectedComputedMetric, computedMetric, 0.01);
+        assertEquals(expectedComputedMetric, computedMetric, 0.00001);
     }
 
     @Test
@@ -242,8 +242,8 @@ public class ObscureInlineSetupSmellTest {
         suite.addTest(test11);
 
         double computedMetric = this.obscureInlineSetup.computeTestSmellMetric(suite);
-        double expectedComputedMetric = 29.0 / (1.0 + 29.0);
-        assertEquals(expectedComputedMetric, computedMetric, 0.01);
+        double expectedComputedMetric = 32.0 / (1.0 + 32.0);
+        assertEquals(expectedComputedMetric, computedMetric, 0.00001);
     }
 
     private DefaultTestCase createTestCase0() {
