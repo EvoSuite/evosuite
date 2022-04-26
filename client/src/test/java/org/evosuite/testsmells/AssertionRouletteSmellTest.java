@@ -42,7 +42,7 @@ public class AssertionRouletteSmellTest {
 
         double computedMetric = this.assertionRoulette.computeTestSmellMetric(testCase);
         double expectedComputedMetric = 0;
-        assertEquals(expectedComputedMetric, computedMetric, 0.01);
+        assertEquals(expectedComputedMetric, computedMetric, 0.00001);
     }
 
     @Test
@@ -57,7 +57,7 @@ public class AssertionRouletteSmellTest {
 
         double computedMetric = this.assertionRoulette.computeTestSmellMetric(testCase);
         double expectedComputedMetric = 0;
-        assertEquals(expectedComputedMetric, computedMetric, 0.01);
+        assertEquals(expectedComputedMetric, computedMetric, 0.00001);
     }
 
     @Test
@@ -72,7 +72,7 @@ public class AssertionRouletteSmellTest {
 
         double computedMetric = this.assertionRoulette.computeTestSmellMetric(testCase);
         double expectedComputedMetric = 0.5;
-        assertEquals(expectedComputedMetric, computedMetric, 0.01);
+        assertEquals(expectedComputedMetric, computedMetric, 0.00001);
     }
 
     @Test
@@ -87,7 +87,7 @@ public class AssertionRouletteSmellTest {
 
         double computedMetric = this.assertionRoulette.computeTestSmellMetric(testCase);
         double expectedComputedMetric = 0;
-        assertEquals(expectedComputedMetric, computedMetric, 0.01);
+        assertEquals(expectedComputedMetric, computedMetric, 0.00001);
     }
 
     @Test
@@ -102,7 +102,7 @@ public class AssertionRouletteSmellTest {
 
         double computedMetric = this.assertionRoulette.computeTestSmellMetric(testCase);
         double expectedComputedMetric = 0.5;
-        assertEquals(expectedComputedMetric, computedMetric, 0.01);
+        assertEquals(expectedComputedMetric, computedMetric, 0.00001);
     }
 
     @Test
@@ -117,7 +117,7 @@ public class AssertionRouletteSmellTest {
 
         double computedMetric = this.assertionRoulette.computeTestSmellMetric(testCase);
         double expectedComputedMetric = 2.0 / (1.0 + 2.0);
-        assertEquals(expectedComputedMetric, computedMetric, 0.01);
+        assertEquals(expectedComputedMetric, computedMetric, 0.00001);
     }
 
     @Test
@@ -132,7 +132,7 @@ public class AssertionRouletteSmellTest {
 
         double computedMetric = this.assertionRoulette.computeTestSmellMetric(testCase);
         double expectedComputedMetric = 0.5;
-        assertEquals(expectedComputedMetric, computedMetric, 0.01);
+        assertEquals(expectedComputedMetric, computedMetric, 0.00001);
     }
 
     @Test
@@ -147,7 +147,7 @@ public class AssertionRouletteSmellTest {
 
         double computedMetric = this.assertionRoulette.computeTestSmellMetric(testCase);
         double expectedComputedMetric = 0.75;
-        assertEquals(expectedComputedMetric, computedMetric, 0.01);
+        assertEquals(expectedComputedMetric, computedMetric, 0.00001);
     }
 
     @Test
@@ -162,7 +162,7 @@ public class AssertionRouletteSmellTest {
 
         double computedMetric = this.assertionRoulette.computeTestSmellMetric(testCase);
         double expectedComputedMetric = 0;
-        assertEquals(expectedComputedMetric, computedMetric, 0.01);
+        assertEquals(expectedComputedMetric, computedMetric, 0.00001);
     }
 
     @Test
@@ -189,7 +189,7 @@ public class AssertionRouletteSmellTest {
 
         double computedMetric = this.assertionRoulette.computeTestSmellMetric(suite);
         double expectedComputedMetric = 8.0 / (1.0 + 8.0);
-        assertEquals(expectedComputedMetric, computedMetric, 0.01);
+        assertEquals(expectedComputedMetric, computedMetric, 0.00001);
     }
 
     private DefaultTestCase createTestCase0() throws NoSuchMethodException {

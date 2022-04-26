@@ -6,8 +6,6 @@ import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testsmells.AbstractNormalizedTestCaseSmell;
 
-import java.lang.reflect.Method;
-
 /**
  * Definition:
  * A test case has several unexplained assertions.
@@ -58,8 +56,7 @@ public class AssertionRoulette extends AbstractNormalizedTestCaseSmell {
             count += currentStatement.getAssertions().size();
 
             if(currentStatement instanceof MethodStatement){
-                Method method = ((MethodStatement) currentStatement).getMethod().getMethod();
-                if(method.getDeclaringClass().getCanonicalName().equals(Properties.TARGET_CLASS)){
+                if(((MethodStatement) currentStatement).getDeclaringClassName().equals(Properties.TARGET_CLASS)){
                     methodCalls++;
                 }
             }
