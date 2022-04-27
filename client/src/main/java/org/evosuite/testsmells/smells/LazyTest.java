@@ -99,4 +99,85 @@ public class LazyTest extends AbstractTestSmell {
 
         return FitnessFunction.normalize(count);
     }
+
+    /*
+    @Override
+    public double computeTestSmellMetric(TestSuiteChromosome chromosome) {
+        int count = 0;
+        Statement currentStatement;
+
+        LinkedHashMap<Method, TestChromosome> methodsCalledByTestCases = new LinkedHashMap<>();
+        LinkedHashMap<Method, Integer> methodsCalledByTestCasesPos = new LinkedHashMap<>();
+
+        int number = 0;
+
+        for(TestChromosome testCase : chromosome.getTestChromosomes()){
+            int size = testCase.size();
+
+            LoggingUtils.getEvoLogger().info("--------------- Start Suite - " + number + " ---------------");
+
+            LoggingUtils.getEvoLogger().info("\n");
+
+            TestCodeVisitor visitor = new TestCodeVisitor();
+
+            TestCase tc = testCase.getTestCase();
+            visitor.visitTestCase(tc);
+
+            for (int j = 0; j < size; j++){
+                visitor.visitStatement(tc.getStatement(j));
+            }
+
+            LoggingUtils.getEvoLogger().info(visitor.getCode());
+
+            LoggingUtils.getEvoLogger().info("\n");
+
+            LoggingUtils.getEvoLogger().info("Size = " + size);
+
+            LoggingUtils.getEvoLogger().info("\n");
+
+            for (int i = 0; i < size; i++){
+                currentStatement = testCase.getTestCase().getStatement(i);
+
+                if(currentStatement instanceof MethodStatement){
+                    Method method = ((MethodStatement) currentStatement).getMethod().getMethod();
+
+                    //Verify if a different test case tests the same method
+                    if(methodsCalledByTestCases.containsKey(method) && !methodsCalledByTestCases.get(method).equals(testCase)){
+                        LoggingUtils.getEvoLogger().info("Smelly Statement! Method: " + method + " | Tested By Suite: " + methodsCalledByTestCasesPos.get(method));
+                        count++;
+                    }else{
+                        methodsCalledByTestCases.put(method, testCase);
+                        methodsCalledByTestCasesPos.put(method, number);
+                        LoggingUtils.getEvoLogger().info("New! Method: " + method + " | Tested By Suite: " + methodsCalledByTestCasesPos.get(method));
+                    }
+                }
+
+                if(currentStatement.hasAssertions()){
+
+                    Set<Assertion> assertions = currentStatement.getAssertions();
+
+                    for(Assertion assertion : assertions) {
+                        if (assertion instanceof InspectorAssertion) {
+                            Method method = ((InspectorAssertion) assertion).getInspector().getMethod();
+
+                            if (methodsCalledByTestCases.containsKey(method) && !methodsCalledByTestCases.get(method).equals(testCase)) {
+                                LoggingUtils.getEvoLogger().info("Smelly Statement! Method: " + method + " | Tested By Suite: " + methodsCalledByTestCasesPos.get(method));
+                                count++;
+                            } else {
+                                methodsCalledByTestCases.put(method, testCase);
+                                methodsCalledByTestCasesPos.put(method, number);
+                                LoggingUtils.getEvoLogger().info("New! Method: " + method + " | Tested By Suite: " + methodsCalledByTestCasesPos.get(method));
+                            }
+                        }
+                    }
+                }
+            }
+            LoggingUtils.getEvoLogger().info("--------------- End Suite - " + number + " ---------------");
+            number++;
+        }
+
+        return FitnessFunction.normalize(count);
+    }
+
+     */
 }

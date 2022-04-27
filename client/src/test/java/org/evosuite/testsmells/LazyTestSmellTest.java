@@ -40,7 +40,7 @@ public class LazyTestSmellTest {
 
         double computedMetric = this.lazyTest.computeTestSmellMetric(suite);
         double expectedComputedMetric = 0;
-        assertEquals(expectedComputedMetric, computedMetric, 0.01);
+        assertEquals(expectedComputedMetric, computedMetric, 0.00001);
     }
 
     @Test
@@ -55,7 +55,7 @@ public class LazyTestSmellTest {
 
         double computedMetric = this.lazyTest.computeTestSmellMetric(suite);
         double expectedComputedMetric = 2.0 / (1.0 + 2.0);
-        assertEquals(expectedComputedMetric, computedMetric, 0.01);
+        assertEquals(expectedComputedMetric, computedMetric, 0.00001);
     }
 
     @Test
@@ -70,7 +70,7 @@ public class LazyTestSmellTest {
 
         double computedMetric = this.lazyTest.computeTestSmellMetric(suite);
         double expectedComputedMetric = 0.75;
-        assertEquals(expectedComputedMetric, computedMetric, 0.01);
+        assertEquals(expectedComputedMetric, computedMetric, 0.00001);
     }
 
     @Test
@@ -83,7 +83,7 @@ public class LazyTestSmellTest {
 
         double computedMetric = this.lazyTest.computeTestSmellMetric(suite);
         double expectedComputedMetric = 2.0 / (1.0 + 2.0);
-        assertEquals(expectedComputedMetric, computedMetric, 0.01);
+        assertEquals(expectedComputedMetric, computedMetric, 0.00001);
     }
 
     @Test
@@ -96,7 +96,33 @@ public class LazyTestSmellTest {
 
         double computedMetric = this.lazyTest.computeTestSmellMetric(suite);
         double expectedComputedMetric = 0;
-        assertEquals(expectedComputedMetric, computedMetric, 0.01);
+        assertEquals(expectedComputedMetric, computedMetric, 0.00001);
+    }
+
+    @Test
+    public void testOneTestCaseTestsTheSameMethodsMultipleTimesDifferent() throws NoSuchMethodException {
+        TestSuiteChromosome suite = new TestSuiteChromosome();
+        DefaultTestCase test0 = createTestCase5();
+        DefaultTestCase test1 = createTestCase0();
+        suite.addTest(test0);
+        suite.addTest(test1);
+
+        double computedMetric = this.lazyTest.computeTestSmellMetric(suite);
+        double expectedComputedMetric = 0;
+        assertEquals(expectedComputedMetric, computedMetric, 0.00001);
+    }
+
+    @Test
+    public void testOneTestCaseTestsTheSameMethodsMultipleTimesRepeated() throws NoSuchMethodException {
+        TestSuiteChromosome suite = new TestSuiteChromosome();
+        DefaultTestCase test0 = createTestCase5();
+        DefaultTestCase test1 = createTestCase5();
+        suite.addTest(test0);
+        suite.addTest(test1);
+
+        double computedMetric = this.lazyTest.computeTestSmellMetric(suite);
+        double expectedComputedMetric = 0.8;
+        assertEquals(expectedComputedMetric, computedMetric, 0.00001);
     }
 
     @Test
@@ -109,7 +135,7 @@ public class LazyTestSmellTest {
 
         double computedMetric = this.lazyTest.computeTestSmellMetric(suite);
         double expectedComputedMetric = 0;
-        assertEquals(expectedComputedMetric, computedMetric, 0.01);
+        assertEquals(expectedComputedMetric, computedMetric, 0.00001);
     }
 
     private DefaultTestCase createTestCase0() throws NoSuchMethodException {
@@ -261,6 +287,54 @@ public class LazyTestSmellTest {
         Inspector inspector = new Inspector(TestSmellsSimpleUser.class, TestSmellsSimpleUser.class.getMethod("getName"));
         InspectorAssertion inspectorAssertion0 = new InspectorAssertion(inspector, currentStatement, constructorStatement0, "Bob");
         currentStatement.addAssertion(inspectorAssertion0);
+
+        return testCase;
+    }
+
+    private DefaultTestCase createTestCase5() throws NoSuchMethodException {
+
+        // Create test case
+
+        TestCaseBuilder builder = new TestCaseBuilder();
+
+        VariableReference stringStatement0 = builder.appendStringPrimitive("Bob");
+
+        Constructor<TestSmellsTestingClass1> const0 = TestSmellsTestingClass1.class.getConstructor(String.class);
+        VariableReference constructorStatement0 = builder.appendConstructor(const0, stringStatement0);
+
+        VariableReference intStatement0 = builder.appendIntPrimitive(5);
+
+        Method setNumberMethod0 = TestSmellsTestingClass1.class.getMethod("setNumber", int.class);
+        builder.appendMethod(constructorStatement0, setNumberMethod0, intStatement0);
+
+        Method getNumberMethod0 = TestSmellsTestingClass1.class.getMethod("getNumber");
+        VariableReference methodStatement0 = builder.appendMethod(constructorStatement0, getNumberMethod0);
+
+        VariableReference intStatement1 = builder.appendIntPrimitive(10);
+
+        Method setNumberMethod1 = TestSmellsTestingClass1.class.getMethod("setNumber", int.class);
+        builder.appendMethod(constructorStatement0, setNumberMethod1, intStatement1);
+
+        Method getNumberMethod1 = TestSmellsTestingClass1.class.getMethod("getNumber");
+        VariableReference methodStatement1 = builder.appendMethod(constructorStatement0, getNumberMethod1);
+
+        DefaultTestCase testCase = builder.getDefaultTestCase();
+
+        // Add assertions
+
+        Statement currentStatement;
+
+        PrimitiveAssertion primitiveAssertion0 = new PrimitiveAssertion();
+        primitiveAssertion0.setSource(methodStatement0);
+        primitiveAssertion0.setValue(5);
+        currentStatement = testCase.getStatement(4);
+        currentStatement.addAssertion(primitiveAssertion0);
+
+        PrimitiveAssertion primitiveAssertion1 = new PrimitiveAssertion();
+        primitiveAssertion1.setSource(methodStatement1);
+        primitiveAssertion1.setValue(10);
+        currentStatement = testCase.getStatement(7);
+        currentStatement.addAssertion(primitiveAssertion1);
 
         return testCase;
     }
