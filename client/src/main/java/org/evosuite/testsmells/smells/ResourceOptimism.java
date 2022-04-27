@@ -1,6 +1,7 @@
 package org.evosuite.testsmells.smells;
 
 import org.evosuite.testcase.TestChromosome;
+import org.evosuite.testcase.statements.AssignmentStatement;
 import org.evosuite.testcase.statements.ConstructorStatement;
 import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testcase.statements.Statement;
@@ -80,6 +81,7 @@ public class ResourceOptimism extends AbstractNormalizedTestCaseSmell {
 
                 List<VariableReference> parameters = ((ConstructorStatement) currentStatement).getParameterReferences();
 
+                // Verify if a file is passed as an argument
                 for (VariableReference parameter : parameters) {
                     position = parameter.getStPosition();
                     if (filesUsedByTestCase.containsKey(position) && !filesUsedByTestCase.get(position) && position != i) {
@@ -93,14 +95,13 @@ public class ResourceOptimism extends AbstractNormalizedTestCaseSmell {
                     filesUsedByTestCase.put(i, false);
                 }
 
-                String methodName = ((MethodStatement) currentStatement).getMethodName();
                 VariableReference callee = ((MethodStatement) currentStatement).getCallee();
 
                 if (callee != null) {
                     position = callee.getStPosition();
 
                     if (filesUsedByTestCase.containsKey(position)) {
-                        if (optimismMethods.contains(methodName)) {
+                        if (optimismMethods.contains(((MethodStatement) currentStatement).getMethodName())) {
                             filesUsedByTestCase.put(position, true);
                         } else if (!filesUsedByTestCase.get(position)) {
                             count++;
@@ -115,6 +116,12 @@ public class ResourceOptimism extends AbstractNormalizedTestCaseSmell {
                     if (filesUsedByTestCase.containsKey(position) && !filesUsedByTestCase.get(position) && position != i) {
                         count++;
                     }
+                }
+
+            } else if (currentStatement instanceof AssignmentStatement) {
+                position = ((AssignmentStatement) currentStatement).getValue().getStPosition();
+                if (filesUsedByTestCase.containsKey(position) && !filesUsedByTestCase.get(position) && position != i) {
+                    count++;
                 }
             }
         }
