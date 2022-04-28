@@ -37,6 +37,8 @@ public class ExecutionResult implements Cloneable, Serializable {
 
     private static final Logger logger = LoggerFactory.getLogger(ExecutionResult.class);
 
+    private static final long serialVersionUID = 9162227361042557067L;
+
     /**
      * Test case that produced this execution result
      */

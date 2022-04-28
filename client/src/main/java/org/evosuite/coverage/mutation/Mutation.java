@@ -40,6 +40,8 @@ import java.util.Set;
  */
 public class Mutation implements Comparable<Mutation>, Serializable {
 
+    private static final long serialVersionUID = 1439919778833725913L;
+
     private final int id;
 
     private final String className;
