@@ -29,6 +29,8 @@ import org.evosuite.testcase.statements.Statement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.*;
 import java.util.stream.IntStream;
@@ -52,7 +54,7 @@ public class ExecutionResult implements Cloneable, Serializable {
     /**
      * Map statement number to raised exception
      */
-    protected Map<Integer, Throwable> exceptions = new HashMap<>();
+    protected transient Map<Integer, Throwable> exceptions = new HashMap<>();
 
     /**
      * Record for each exception if it was explicitly thrown
@@ -490,5 +492,11 @@ public class ExecutionResult implements Cloneable, Serializable {
      */
     public List<FeatureVector> getFeatureVectors() {
         return Collections.unmodifiableList(this.featureVectors);
+    }
+
+    private void readObject(ObjectInputStream ois) throws ClassNotFoundException,
+            IOException {
+        ois.defaultReadObject();
+        this.exceptions = new HashMap<>();
     }
 }
