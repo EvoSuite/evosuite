@@ -32,6 +32,8 @@ import java.util.Set;
  */
 public class RedundantAssertion extends AbstractNormalizedTestCaseSmell {
 
+    private static final long serialVersionUID = -7526406592569488867L;
+
     public RedundantAssertion() {
         super("TestSmellRedundantAssertion");
     }

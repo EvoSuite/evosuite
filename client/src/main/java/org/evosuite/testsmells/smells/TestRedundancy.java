@@ -31,6 +31,8 @@ import java.util.Set;
  */
 public class TestRedundancy extends AbstractTestSmell {
 
+    private static final long serialVersionUID = 8506203484124866711L;
+
     public TestRedundancy() {
         super("TestSmellTestRedundancy");
     }

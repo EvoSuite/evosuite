@@ -38,6 +38,8 @@ import java.util.Set;
  */
 public class IndirectTesting extends AbstractNormalizedTestCaseSmell {
 
+    private static final long serialVersionUID = 803733954341223273L;
+
     public IndirectTesting() {
         super("TestSmellIndirectTesting");
     }

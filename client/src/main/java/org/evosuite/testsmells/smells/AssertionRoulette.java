@@ -39,6 +39,8 @@ import org.evosuite.testsmells.AbstractNormalizedTestCaseSmell;
  */
 public class AssertionRoulette extends AbstractNormalizedTestCaseSmell {
 
+    private static final long serialVersionUID = 2415248538433560358L;
+
     public AssertionRoulette() {
         super("TestSmellAssertionRoulette");
     }

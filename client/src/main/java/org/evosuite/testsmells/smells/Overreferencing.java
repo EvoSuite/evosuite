@@ -47,6 +47,8 @@ import java.util.Set;
  */
 public class Overreferencing extends AbstractNormalizedTestCaseSmell {
 
+    private static final long serialVersionUID = -2704479762072190181L;
+
     public Overreferencing() {
         super("TestSmellOverreferencing");
     }

@@ -45,6 +45,8 @@ import java.util.Set;
  */
 public class BrittleAssertion extends AbstractNormalizedTestCaseSmell {
 
+    private static final long serialVersionUID = -14599848509702936L;
+
     public BrittleAssertion() {
         super("TestSmellBrittleAssertion");
     }

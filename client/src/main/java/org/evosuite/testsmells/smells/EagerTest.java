@@ -42,6 +42,8 @@ import java.util.Set;
  */
 public class EagerTest extends AbstractNormalizedTestCaseSmell {
 
+    private static final long serialVersionUID = 8891588782895208412L;
+
     public EagerTest() {
         super("TestSmellEagerTest");
     }

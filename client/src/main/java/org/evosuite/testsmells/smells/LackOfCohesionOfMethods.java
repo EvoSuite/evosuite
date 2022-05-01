@@ -38,6 +38,8 @@ import java.util.Set;
  */
 public class LackOfCohesionOfMethods extends AbstractTestSmell {
 
+    private static final long serialVersionUID = -9172012714593111239L;
+
     public LackOfCohesionOfMethods() {
         super("TestSmellLackOfCohesionOfMethods");
     }

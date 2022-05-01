@@ -15,6 +15,8 @@ import org.evosuite.testsmells.AbstractNormalizedTestCaseSmell;
  */
 public class VerboseTest extends AbstractNormalizedTestCaseSmell {
 
+    private static final long serialVersionUID = -1030200312174060155L;
+
     public VerboseTest() {
         super("TestSmellVerboseTest");
     }

@@ -36,6 +36,8 @@ import java.lang.reflect.Method;
  */
 public class UnusedInputs extends AbstractNormalizedTestCaseSmell {
 
+    private static final long serialVersionUID = -6258624735851248001L;
+
     public UnusedInputs() {
         super("TestSmellUnusedInputs");
     }

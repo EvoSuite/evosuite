@@ -179,7 +179,7 @@ public class SearchStatistics implements Listener<ClientStateInformation> {
         sequenceOutputVariableFactories.put(RuntimeVariable.TestSmellRottenGreenTestsTimeline.name(), new TestSmellRottenGreenTestsSequenceOutputVariableFactory());
         sequenceOutputVariableFactories.put(RuntimeVariable.TestSmellUnrelatedAssertionsTimeline.name(), new TestSmellUnrelatedAssertionsSequenceOutputVariableFactory());
         sequenceOutputVariableFactories.put(RuntimeVariable.TestSmellSlowTestsTimeline.name(), new TestSmellSlowTestsSequenceOutputVariableFactory());
-        sequenceOutputVariableFactories.put(RuntimeVariable.TestSmellTestCodeDuplicationTimeline.name(), new TestSmellTestCodeDuplicationSequenceOutputVariableFactory());
+        //sequenceOutputVariableFactories.put(RuntimeVariable.TestSmellTestCodeDuplicationTimeline.name(), new TestSmellTestCodeDuplicationSequenceOutputVariableFactory());
         sequenceOutputVariableFactories.put(RuntimeVariable.TestSmellTestRedundancyTimeline.name(), new TestSmellTestRedundancySequenceOutputVariableFactory());
         sequenceOutputVariableFactories.put(RuntimeVariable.TestSmellUnknownTestTimeline.name(), new TestSmellUnknownTestSequenceOutputVariableFactory());
         sequenceOutputVariableFactories.put(RuntimeVariable.TestSmellUnusedInputsTimeline.name(), new TestSmellUnusedInputsSequenceOutputVariableFactory());
@@ -1135,6 +1135,7 @@ public class SearchStatistics implements Listener<ClientStateInformation> {
 		}
 	}
 
+	/*
 	private static class TestSmellTestCodeDuplicationSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Double> {
 
 		public TestSmellTestCodeDuplicationSequenceOutputVariableFactory() {
@@ -1147,6 +1148,7 @@ public class SearchStatistics implements Listener<ClientStateInformation> {
 			return smell.computeTestSmellMetric(individual);
 		}
 	}
+	 */
 
     private static class TestSmellTestRedundancySequenceOutputVariableFactory extends SequenceOutputVariableFactory<Double> {
 

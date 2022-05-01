@@ -20,6 +20,8 @@ import org.evosuite.testsuite.TestSuiteChromosome;
  */
 public class EmptyTest extends AbstractTestCaseSmell {
 
+    private static final long serialVersionUID = -1575307787986268961L;
+
     public EmptyTest() {
         super("TestSmellEmptyTest");
     }

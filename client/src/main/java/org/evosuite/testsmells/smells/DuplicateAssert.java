@@ -54,6 +54,8 @@ import java.util.*;
  */
 public class DuplicateAssert extends AbstractNormalizedTestCaseSmell {
 
+    private static final long serialVersionUID = -8140948222271634238L;
+
     public DuplicateAssert() {
         super("TestSmellDuplicateAssert");
     }

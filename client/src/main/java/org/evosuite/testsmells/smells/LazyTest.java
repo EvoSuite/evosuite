@@ -50,6 +50,8 @@ import java.util.Set;
  */
 public class LazyTest extends AbstractTestSmell {
 
+    private static final long serialVersionUID = -7422791772724543972L;
+
     public LazyTest() {
         super("TestSmellLazyTest");
     }

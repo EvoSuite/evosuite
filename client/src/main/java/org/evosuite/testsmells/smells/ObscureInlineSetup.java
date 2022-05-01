@@ -35,6 +35,8 @@ import java.lang.reflect.Method;
  */
 public class ObscureInlineSetup extends AbstractNormalizedTestCaseSmell {
 
+    private static final long serialVersionUID = -7409051587578491230L;
+
     public ObscureInlineSetup() {
         super("TestSmellObscureInlineSetup");
     }

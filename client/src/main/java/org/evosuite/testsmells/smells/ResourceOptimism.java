@@ -49,6 +49,8 @@ import java.util.*;
  */
 public class ResourceOptimism extends AbstractNormalizedTestCaseSmell {
 
+    private static final long serialVersionUID = -6278974287695553451L;
+
     public ResourceOptimism() {
         super("TestSmellResourceOptimism");
     }

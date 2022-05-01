@@ -21,6 +21,8 @@ import org.evosuite.testsuite.TestSuiteChromosome;
  */
 public class SlowTests extends AbstractTestCaseSmell {
 
+    private static final long serialVersionUID = -628338602818547221L;
+
     public SlowTests() {
         super("TestSmellSlowTests");
     }

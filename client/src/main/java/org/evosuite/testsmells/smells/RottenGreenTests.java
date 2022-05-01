@@ -24,6 +24,8 @@ import org.evosuite.testsmells.AbstractNormalizedTestCaseSmell;
  */
 public class RottenGreenTests extends AbstractNormalizedTestCaseSmell {
 
+    private static final long serialVersionUID = 8172174304616644801L;
+
     public RottenGreenTests() {
         super("TestSmellRottenGreenTests");
     }

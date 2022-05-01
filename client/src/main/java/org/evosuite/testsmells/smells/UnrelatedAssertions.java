@@ -40,6 +40,8 @@ import java.util.Set;
  */
 public class UnrelatedAssertions extends AbstractNormalizedTestCaseSmell {
 
+    private static final long serialVersionUID = -6572853267089998309L;
+
     public UnrelatedAssertions() {
         super("TestSmellUnrelatedAssertions");
     }

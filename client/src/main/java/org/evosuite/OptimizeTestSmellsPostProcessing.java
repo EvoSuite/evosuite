@@ -34,7 +34,7 @@ public class OptimizeTestSmellsPostProcessing {
         listOfTestSmells.add(new ResourceOptimism());
         listOfTestSmells.add(new RottenGreenTests());
         listOfTestSmells.add(new SlowTests());
-        listOfTestSmells.add(new TestCodeDuplication());
+        //listOfTestSmells.add(new TestCodeDuplication());
         listOfTestSmells.add(new TestRedundancy());
         listOfTestSmells.add(new UnknownTest());
         listOfTestSmells.add(new UnrelatedAssertions());

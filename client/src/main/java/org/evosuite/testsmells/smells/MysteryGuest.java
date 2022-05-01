@@ -31,6 +31,8 @@ import java.util.List;
  */
 public class MysteryGuest extends AbstractNormalizedTestCaseSmell {
 
+    private static final long serialVersionUID = -8598688416127627442L;
+
     public MysteryGuest() {
         super("TestSmellMysteryGuest");
     }

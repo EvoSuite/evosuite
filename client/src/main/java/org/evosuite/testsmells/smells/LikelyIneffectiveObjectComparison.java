@@ -31,6 +31,8 @@ import java.util.List;
  */
 public class LikelyIneffectiveObjectComparison extends AbstractNormalizedTestCaseSmell {
 
+    private static final long serialVersionUID = 6458566710107014031L;
+
     public LikelyIneffectiveObjectComparison() {
         super("TestSmellLikelyIneffectiveObjectComparison");
     }

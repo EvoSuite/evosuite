@@ -17,6 +17,8 @@ import org.evosuite.testsmells.AbstractNormalizedTestCaseSmell;
  */
 public class TestCodeDuplication extends AbstractNormalizedTestCaseSmell {
 
+    private static final long serialVersionUID = -4589622102567812843L;
+
     public TestCodeDuplication() {
         super("TestSmellTestCodeDuplication");
     }

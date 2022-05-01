@@ -75,7 +75,7 @@ public class TestSmellAnalyzer {
         listOfTestSmells.add(new ResourceOptimism());
         listOfTestSmells.add(new RottenGreenTests());
         listOfTestSmells.add(new SlowTests());
-        listOfTestSmells.add(new TestCodeDuplication());
+        //listOfTestSmells.add(new TestCodeDuplication());
         listOfTestSmells.add(new TestRedundancy());
         listOfTestSmells.add(new UnknownTest());
         listOfTestSmells.add(new UnrelatedAssertions());
@@ -120,8 +120,8 @@ public class TestSmellAnalyzer {
                 return new RottenGreenTests();
             case "TestSmellSlowTests":
                 return new SlowTests();
-            case "TestSmellTestCodeDuplication":
-                return new TestCodeDuplication();
+            //case "TestSmellTestCodeDuplication":
+            //    return new TestCodeDuplication();
             case "TestSmellTestRedundancy":
                 return new TestRedundancy();
             case "TestSmellUnknownTest":

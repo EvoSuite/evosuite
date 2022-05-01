@@ -24,6 +24,8 @@ import java.util.List;
  */
 public class UnknownTest extends AbstractTestCaseSmell {
 
+    private static final long serialVersionUID = 8494696184138645912L;
+
     public UnknownTest() {
         super("TestSmellUnknownTest");
     }
