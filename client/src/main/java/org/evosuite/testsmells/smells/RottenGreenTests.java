@@ -36,7 +36,7 @@ public class RottenGreenTests extends AbstractNormalizedTestCaseSmell {
 
         if(lastExecutionResult != null){
 
-            Integer firstException = lastExecutionResult.getFirstPositionOfThrownException();
+            Integer firstException = lastExecutionResult.getFirstPositionOfThrownExceptionSetOfExceptionPositions();
 
             if(firstException != null){
                 return firstException < size ? size - firstException - 1 : 0;

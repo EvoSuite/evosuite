@@ -94,6 +94,8 @@ public class ExecutionResult implements Cloneable, Serializable {
 
     private List<FeatureVector> featureVectors = new ArrayList<>(1);
 
+    private final Set<Integer> setOfExceptionPositions = new LinkedHashSet<>();
+
     /**
      * @return the executedStatements
      */
@@ -141,6 +143,7 @@ public class ExecutionResult implements Cloneable, Serializable {
      */
     public void setThrownExceptions(Map<Integer, Throwable> data) {
         exceptions.clear();
+        setOfExceptionPositions.clear();
         data.forEach(this::reportNewThrownException);
     }
 
@@ -168,6 +171,7 @@ public class ExecutionResult implements Cloneable, Serializable {
      */
     public void reportNewThrownException(Integer position, Throwable t) {
         exceptions.put(position, t);
+        setOfExceptionPositions.add(position);
     }
 
     /**
@@ -414,6 +418,7 @@ public class ExecutionResult implements Cloneable, Serializable {
     public ExecutionResult clone() {
         ExecutionResult copy = new ExecutionResult(test, mutation);
         copy.exceptions.putAll(exceptions);
+        copy.setOfExceptionPositions.addAll(setOfExceptionPositions);
         copy.trace = trace.lazyClone();
         copy.explicitExceptions.putAll(explicitExceptions);
         copy.executionTime = executionTime;
@@ -492,6 +497,12 @@ public class ExecutionResult implements Cloneable, Serializable {
      */
     public List<FeatureVector> getFeatureVectors() {
         return Collections.unmodifiableList(this.featureVectors);
+    }
+
+    public Integer getFirstPositionOfThrownExceptionSetOfExceptionPositions() {
+        return setOfExceptionPositions.stream()
+                .min(Comparator.naturalOrder())
+                .orElse(null);
     }
 
     private void readObject(ObjectInputStream ois) throws ClassNotFoundException,
