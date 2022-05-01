@@ -10,9 +10,14 @@ import java.util.List;
 
 public class OptimizeTestSmellsSecondaryObjective extends SecondaryObjective<TestSuiteChromosome> {
 
+    private static final long serialVersionUID = -7001972100989940342L;
     private List<AbstractTestSmell> listOfTestSmells;
 
-    OptimizeTestSmellsSecondaryObjective() {
+    public OptimizeTestSmellsSecondaryObjective() {
+        initializeTestSmells();
+    }
+
+    public OptimizeTestSmellsSecondaryObjective(String smellName) {
         initializeTestSmells();
     }
 

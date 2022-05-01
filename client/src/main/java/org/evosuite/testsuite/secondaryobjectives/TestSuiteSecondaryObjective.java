@@ -57,6 +57,19 @@ public class TestSuiteSecondaryObjective {
                 case TEST_SMELL:
                     secondaryObjectiveInstance = new OptimizeTestSmellsSecondaryObjective();
                     break;
+                case TEST_SMELL_EAGER_TEST:
+                case TEST_SMELL_EMPTY_TEST:
+                case TEST_SMELL_INDIRECT_TESTING:
+                case TEST_SMELL_LIKELY_INEFFECTIVE_OBJECT_COMPARISON:
+                case TEST_SMELL_MYSTERY_GUEST:
+                case TEST_SMELL_OBSCURE_INLINE_SETUP:
+                case TEST_SMELL_OVERREFERENCING:
+                case TEST_SMELL_RESOURCE_OPTIMISM:
+                case TEST_SMELL_ROTTEN_GREEN_TESTS:
+                case TEST_SMELL_SLOW_TESTS:
+                case TEST_SMELL_VERBOSE_TEST:
+                    secondaryObjectiveInstance = new OptimizeTestSmellsSecondaryObjective(secondaryObjective.toString());
+                    break;
                 default:
                     throw new RuntimeException(
                             "ERROR: asked for unknown secondary objective \"" + secondaryObjective.name() + "\"");

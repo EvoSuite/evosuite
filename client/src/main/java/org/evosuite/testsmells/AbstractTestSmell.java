@@ -2,8 +2,11 @@ package org.evosuite.testsmells;
 
 import org.evosuite.testsuite.TestSuiteChromosome;
 
-public abstract class AbstractTestSmell {
+import java.io.Serializable;
 
+public abstract class AbstractTestSmell implements Serializable {
+
+    private static final long serialVersionUID = 1605585391821192703L;
     private final String name;
 
     public AbstractTestSmell(String name) {
