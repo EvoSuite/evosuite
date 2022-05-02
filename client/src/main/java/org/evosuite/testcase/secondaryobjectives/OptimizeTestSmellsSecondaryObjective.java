@@ -55,6 +55,8 @@ public class OptimizeTestSmellsSecondaryObjective extends SecondaryObjective<Tes
                 listOfTestSmells.add(new VerboseTest());
                 return;
             default:
+                throw new RuntimeException("ERROR: asked for unknown secondary objective \""
+                        + smellName + "\"");
         }
     }
 
