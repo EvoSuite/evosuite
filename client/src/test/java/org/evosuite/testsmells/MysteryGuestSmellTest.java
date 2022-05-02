@@ -43,7 +43,7 @@ public class MysteryGuestSmellTest {
 
         double computedMetric = this.mysteryGuest.computeTestSmellMetric(testCase);
         double expectedComputedMetric = 0;
-        assertEquals(expectedComputedMetric, computedMetric, 0.01);
+        assertEquals(expectedComputedMetric, computedMetric, 0.000001);
     }
 
     @Test
@@ -58,7 +58,7 @@ public class MysteryGuestSmellTest {
 
         double computedMetric = this.mysteryGuest.computeTestSmellMetric(testCase);
         double expectedComputedMetric = 0.5;
-        assertEquals(expectedComputedMetric, computedMetric, 0.01);
+        assertEquals(expectedComputedMetric, computedMetric, 0.000001);
     }
 
     @Test
@@ -73,7 +73,7 @@ public class MysteryGuestSmellTest {
 
         double computedMetric = this.mysteryGuest.computeTestSmellMetric(testCase);
         double expectedComputedMetric = 2.0 / (1.0 + 2.0);
-        assertEquals(expectedComputedMetric, computedMetric, 0.01);
+        assertEquals(expectedComputedMetric, computedMetric, 0.000001);
     }
 
     @Test
@@ -88,7 +88,7 @@ public class MysteryGuestSmellTest {
 
         double computedMetric = this.mysteryGuest.computeTestSmellMetric(suite);
         double expectedComputedMetric = 0.75;
-        assertEquals(expectedComputedMetric, computedMetric, 0.01);
+        assertEquals(expectedComputedMetric, computedMetric, 0.000001);
     }
 
     private DefaultTestCase createTestCase0() throws NoSuchMethodException {

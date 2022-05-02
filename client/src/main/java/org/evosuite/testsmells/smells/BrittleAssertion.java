@@ -21,7 +21,7 @@ import java.util.Set;
  * 2 - A variable on which an assertion is made might be unrelated to the statement to which the assertion is added.
  *
  * Note: The computed metric considers assertions that cannot be proven to be related to the respective statement
- *       (i.e., the may still be related).
+ *       (i.e., they may still be related).
  *
  * Metric:
  * Number of assertions that may be unrelated to the statement to which the assertion is added.

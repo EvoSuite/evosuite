@@ -42,7 +42,7 @@ public class AssertionRouletteSmellTest {
 
         double computedMetric = this.assertionRoulette.computeTestSmellMetric(testCase);
         double expectedComputedMetric = 0;
-        assertEquals(expectedComputedMetric, computedMetric, 0.00001);
+        assertEquals(expectedComputedMetric, computedMetric, 0.000001);
     }
 
     @Test
@@ -57,7 +57,7 @@ public class AssertionRouletteSmellTest {
 
         double computedMetric = this.assertionRoulette.computeTestSmellMetric(testCase);
         double expectedComputedMetric = 0;
-        assertEquals(expectedComputedMetric, computedMetric, 0.00001);
+        assertEquals(expectedComputedMetric, computedMetric, 0.000001);
     }
 
     @Test
@@ -72,7 +72,7 @@ public class AssertionRouletteSmellTest {
 
         double computedMetric = this.assertionRoulette.computeTestSmellMetric(testCase);
         double expectedComputedMetric = 0.5;
-        assertEquals(expectedComputedMetric, computedMetric, 0.00001);
+        assertEquals(expectedComputedMetric, computedMetric, 0.000001);
     }
 
     @Test
@@ -87,7 +87,7 @@ public class AssertionRouletteSmellTest {
 
         double computedMetric = this.assertionRoulette.computeTestSmellMetric(testCase);
         double expectedComputedMetric = 0;
-        assertEquals(expectedComputedMetric, computedMetric, 0.00001);
+        assertEquals(expectedComputedMetric, computedMetric, 0.000001);
     }
 
     @Test
@@ -102,7 +102,7 @@ public class AssertionRouletteSmellTest {
 
         double computedMetric = this.assertionRoulette.computeTestSmellMetric(testCase);
         double expectedComputedMetric = 0.5;
-        assertEquals(expectedComputedMetric, computedMetric, 0.00001);
+        assertEquals(expectedComputedMetric, computedMetric, 0.000001);
     }
 
     @Test
@@ -117,7 +117,7 @@ public class AssertionRouletteSmellTest {
 
         double computedMetric = this.assertionRoulette.computeTestSmellMetric(testCase);
         double expectedComputedMetric = 2.0 / (1.0 + 2.0);
-        assertEquals(expectedComputedMetric, computedMetric, 0.00001);
+        assertEquals(expectedComputedMetric, computedMetric, 0.000001);
     }
 
     @Test
@@ -132,7 +132,7 @@ public class AssertionRouletteSmellTest {
 
         double computedMetric = this.assertionRoulette.computeTestSmellMetric(testCase);
         double expectedComputedMetric = 0.5;
-        assertEquals(expectedComputedMetric, computedMetric, 0.00001);
+        assertEquals(expectedComputedMetric, computedMetric, 0.000001);
     }
 
     @Test
@@ -142,12 +142,12 @@ public class AssertionRouletteSmellTest {
         testCase.setTestCase(test0);
 
         long smellCount = this.assertionRoulette.computeNumberOfTestSmells(testCase);
-        long expectedSmellCount = 3;
+        long expectedSmellCount = 2;
         assertEquals(expectedSmellCount, smellCount);
 
         double computedMetric = this.assertionRoulette.computeTestSmellMetric(testCase);
-        double expectedComputedMetric = 0.75;
-        assertEquals(expectedComputedMetric, computedMetric, 0.00001);
+        double expectedComputedMetric = 2.0 / (1.0 + 2.0);
+        assertEquals(expectedComputedMetric, computedMetric, 0.000001);
     }
 
     @Test
@@ -162,7 +162,7 @@ public class AssertionRouletteSmellTest {
 
         double computedMetric = this.assertionRoulette.computeTestSmellMetric(testCase);
         double expectedComputedMetric = 0;
-        assertEquals(expectedComputedMetric, computedMetric, 0.00001);
+        assertEquals(expectedComputedMetric, computedMetric, 0.000001);
     }
 
     @Test
@@ -188,8 +188,8 @@ public class AssertionRouletteSmellTest {
         suite.addTest(test8);
 
         double computedMetric = this.assertionRoulette.computeTestSmellMetric(suite);
-        double expectedComputedMetric = 8.0 / (1.0 + 8.0);
-        assertEquals(expectedComputedMetric, computedMetric, 0.00001);
+        double expectedComputedMetric = 0.875;
+        assertEquals(expectedComputedMetric, computedMetric, 0.000001);
     }
 
     private DefaultTestCase createTestCase0() throws NoSuchMethodException {
@@ -447,23 +447,17 @@ public class AssertionRouletteSmellTest {
         currentStatement = testCase.getStatement(5);
         currentStatement.addAssertion(primitiveAssertion1);
 
-        NullAssertion nullAssertion1 = new NullAssertion();
-        nullAssertion1.setSource(methodStatement1);
-        nullAssertion1.setValue(false);
-        currentStatement = testCase.getStatement(5);
-        currentStatement.addAssertion(nullAssertion1);
-
         PrimitiveAssertion primitiveAssertion2 = new PrimitiveAssertion();
         primitiveAssertion2.setSource(methodStatement2);
         primitiveAssertion2.setValue("Bob");
         currentStatement = testCase.getStatement(6);
         currentStatement.addAssertion(primitiveAssertion2);
 
-        NullAssertion nullAssertion2 = new NullAssertion();
-        nullAssertion2.setSource(methodStatement2);
-        nullAssertion2.setValue(false);
+        NullAssertion nullAssertion1 = new NullAssertion();
+        nullAssertion1.setSource(methodStatement2);
+        nullAssertion1.setValue(false);
         currentStatement = testCase.getStatement(6);
-        currentStatement.addAssertion(nullAssertion2);
+        currentStatement.addAssertion(nullAssertion1);
 
         PrimitiveAssertion primitiveAssertion3 = new PrimitiveAssertion();
         primitiveAssertion3.setSource(methodStatement3);
@@ -471,11 +465,11 @@ public class AssertionRouletteSmellTest {
         currentStatement = testCase.getStatement(7);
         currentStatement.addAssertion(primitiveAssertion3);
 
-        NullAssertion nullAssertion3 = new NullAssertion();
-        nullAssertion3.setSource(methodStatement3);
-        nullAssertion3.setValue(false);
+        NullAssertion nullAssertion2 = new NullAssertion();
+        nullAssertion2.setSource(methodStatement3);
+        nullAssertion2.setValue(false);
         currentStatement = testCase.getStatement(7);
-        currentStatement.addAssertion(nullAssertion3);
+        currentStatement.addAssertion(nullAssertion2);
 
         return testCase;
     }

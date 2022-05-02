@@ -43,7 +43,7 @@ public class EagerTestSmellTest {
 
         double computedMetric = this.eagerTest.computeTestSmellMetric(testCase);
         double expectedComputedMetric = 0.5;
-        assertEquals(expectedComputedMetric, computedMetric, 0.0001);
+        assertEquals(expectedComputedMetric, computedMetric, 0.000001);
     }
 
     @Test
@@ -58,7 +58,7 @@ public class EagerTestSmellTest {
 
         double computedMetric = this.eagerTest.computeTestSmellMetric(testCase);
         double expectedComputedMetric = 2.0 / (1.0 + 2.0);
-        assertEquals(expectedComputedMetric, computedMetric, 0.0001);
+        assertEquals(expectedComputedMetric, computedMetric, 0.000001);
     }
 
     @Test
@@ -73,7 +73,7 @@ public class EagerTestSmellTest {
 
         double computedMetric = this.eagerTest.computeTestSmellMetric(testCase);
         double expectedComputedMetric = 0.5;
-        assertEquals(expectedComputedMetric, computedMetric, 0.0001);
+        assertEquals(expectedComputedMetric, computedMetric, 0.000001);
     }
 
     @Test
@@ -88,7 +88,7 @@ public class EagerTestSmellTest {
 
         double computedMetric = this.eagerTest.computeTestSmellMetric(testCase);
         double expectedComputedMetric = 0.75;
-        assertEquals(expectedComputedMetric, computedMetric, 0.0001);
+        assertEquals(expectedComputedMetric, computedMetric, 0.000001);
     }
 
     @Test
@@ -103,7 +103,7 @@ public class EagerTestSmellTest {
 
         double computedMetric = this.eagerTest.computeTestSmellMetric(testCase);
         double expectedComputedMetric = 0.75;
-        assertEquals(expectedComputedMetric, computedMetric, 0.0001);
+        assertEquals(expectedComputedMetric, computedMetric, 0.000001);
     }
 
     @Test
@@ -118,7 +118,7 @@ public class EagerTestSmellTest {
 
         double computedMetric = this.eagerTest.computeTestSmellMetric(testCase);
         double expectedComputedMetric = 0.75;
-        assertEquals(expectedComputedMetric, computedMetric, 0.0001);
+        assertEquals(expectedComputedMetric, computedMetric, 0.000001);
     }
 
     @Test
@@ -133,7 +133,7 @@ public class EagerTestSmellTest {
 
         double computedMetric = this.eagerTest.computeTestSmellMetric(testCase);
         double expectedComputedMetric = 2.0 / (1.0 + 2.0);
-        assertEquals(expectedComputedMetric, computedMetric, 0.0001);
+        assertEquals(expectedComputedMetric, computedMetric, 0.000001);
     }
 
     @Test
@@ -148,7 +148,7 @@ public class EagerTestSmellTest {
 
         double computedMetric = this.eagerTest.computeTestSmellMetric(testCase);
         double expectedComputedMetric = 2.0 / (1.0 + 2.0);
-        assertEquals(expectedComputedMetric, computedMetric, 0.0001);
+        assertEquals(expectedComputedMetric, computedMetric, 0.000001);
     }
 
     @Test
@@ -163,7 +163,7 @@ public class EagerTestSmellTest {
 
         double computedMetric = this.eagerTest.computeTestSmellMetric(testCase);
         double expectedComputedMetric = 2.0 / (1.0 + 2.0);
-        assertEquals(expectedComputedMetric, computedMetric, 0.0001);
+        assertEquals(expectedComputedMetric, computedMetric, 0.000001);
     }
 
     @Test
@@ -178,7 +178,7 @@ public class EagerTestSmellTest {
 
         double computedMetric = this.eagerTest.computeTestSmellMetric(testCase);
         double expectedComputedMetric = 2.0 / (1.0 + 2.0);
-        assertEquals(expectedComputedMetric, computedMetric, 0.0001);
+        assertEquals(expectedComputedMetric, computedMetric, 0.000001);
     }
 
     @Test
@@ -193,7 +193,7 @@ public class EagerTestSmellTest {
 
         double computedMetric = this.eagerTest.computeTestSmellMetric(testCase);
         double expectedComputedMetric = 0;
-        assertEquals(expectedComputedMetric, computedMetric, 0.0001);
+        assertEquals(expectedComputedMetric, computedMetric, 0.000001);
     }
 
     @Test
@@ -224,7 +224,7 @@ public class EagerTestSmellTest {
 
         double computedMetric = this.eagerTest.computeTestSmellMetric(suite);
         double expectedComputedMetric = 21.0 / (1.0 + 21.0);
-        assertEquals(expectedComputedMetric, computedMetric, 0.0001);
+        assertEquals(expectedComputedMetric, computedMetric, 0.000001);
     }
 
     private DefaultTestCase createTestCase0() throws NoSuchMethodException {

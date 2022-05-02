@@ -15,18 +15,17 @@ import java.util.Set;
  * Metric:
  * The number of test cases that can be removed from the test suite without decreasing the code coverage.
  *
- * Detection: TODO update
- * 1 - Retrieve all coverage goals covered by the test suite chromosome
- * 2 - Iterate over the test cases of the test suite
- * [2: Start loop]
- * 3 - Clone the initial test suite
- * 4 - Get the test chromosomes of the clone
- * 5 - Delete the current test case of the clone test suite
- * 6 - Verify if the clone test suite covers the same number of goals as the initial test suite
- * 7 (6 is True):
- *    7.1 - This indicates that it is possible to remove the current test case from the test suite without decreasing
- *          the code coverage: increment the smell counter
- * [2: End loop]
+ * Detection:
+ * 1 - Initialize the smell counter with the number of test cases in the test suite
+ * 2 - Retrieve all coverage goals covered by the test suite chromosome
+ * 3 - Verify if the number of covered goals is equal to zero
+ * 4 (3 is True):
+ *    4.1 - Return NaN
+ * 5 - Iterate over the test cases of a test suite
+ * [5: Start loop]
+ * 6 - Remove the coverage goals covered by the current test case from the total set of goals
+ * 7 - If at least one coverage goal is removed: decrement the smell counter.
+ * [5: Start loop]
  * 8 - Return the normalized value for the smell counter
  */
 public class TestRedundancy extends AbstractTestSmell {

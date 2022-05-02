@@ -41,7 +41,7 @@ public class UnusedInputsSmellTest {
 
         double computedMetric = this.unusedInputs.computeTestSmellMetric(testCase);
         double expectedComputedMetric = 0;
-        assertEquals(expectedComputedMetric, computedMetric, 0.01);
+        assertEquals(expectedComputedMetric, computedMetric, 0.000001);
     }
 
     @Test
@@ -56,7 +56,7 @@ public class UnusedInputsSmellTest {
 
         double computedMetric = this.unusedInputs.computeTestSmellMetric(testCase);
         double expectedComputedMetric = 2.0 / (1.0 + 2.0);
-        assertEquals(expectedComputedMetric, computedMetric, 0.01);
+        assertEquals(expectedComputedMetric, computedMetric, 0.000001);
     }
 
     @Test
@@ -71,7 +71,7 @@ public class UnusedInputsSmellTest {
 
         double computedMetric = this.unusedInputs.computeTestSmellMetric(testCase);
         double expectedComputedMetric = 0.5;
-        assertEquals(expectedComputedMetric, computedMetric, 0.01);
+        assertEquals(expectedComputedMetric, computedMetric, 0.000001);
     }
 
     @Test
@@ -86,7 +86,7 @@ public class UnusedInputsSmellTest {
 
         double computedMetric = this.unusedInputs.computeTestSmellMetric(testCase);
         double expectedComputedMetric = 0;
-        assertEquals(expectedComputedMetric, computedMetric, 0.01);
+        assertEquals(expectedComputedMetric, computedMetric, 0.000001);
     }
 
     @Test
@@ -101,7 +101,7 @@ public class UnusedInputsSmellTest {
 
         double computedMetric = this.unusedInputs.computeTestSmellMetric(testCase);
         double expectedComputedMetric = 0;
-        assertEquals(expectedComputedMetric, computedMetric, 0.01);
+        assertEquals(expectedComputedMetric, computedMetric, 0.000001);
     }
 
     @Test
@@ -120,7 +120,7 @@ public class UnusedInputsSmellTest {
 
         double computedMetric = this.unusedInputs.computeTestSmellMetric(suite);
         double expectedComputedMetric = 0.75;
-        assertEquals(expectedComputedMetric, computedMetric, 0.01);
+        assertEquals(expectedComputedMetric, computedMetric, 0.000001);
     }
 
     private DefaultTestCase createTestCase0() throws NoSuchMethodException {

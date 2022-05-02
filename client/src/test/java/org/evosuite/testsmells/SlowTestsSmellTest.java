@@ -39,7 +39,7 @@ public class SlowTestsSmellTest {
 
         double computedMetric = this.slowTests.computeTestSmellMetric(testCase);
         double expectedComputedMetric = Double.NaN;
-        assertEquals(expectedComputedMetric, computedMetric, 0.01);
+        assertEquals(expectedComputedMetric, computedMetric, 0.000001);
     }
 
     @Test
@@ -63,7 +63,7 @@ public class SlowTestsSmellTest {
 
         double computedMetric = this.slowTests.computeTestSmellMetric(testCase);
         double expectedComputedMetric = Double.NaN;
-        assertEquals(expectedComputedMetric, computedMetric, 0.01);
+        assertEquals(expectedComputedMetric, computedMetric, 0.000001);
     }
 
     @Test
@@ -89,7 +89,7 @@ public class SlowTestsSmellTest {
 
         double computedMetric = this.slowTests.computeTestSmellMetric(suite);
         double expectedComputedMetric = Double.NaN;
-        assertEquals(expectedComputedMetric, computedMetric, 0.01);
+        assertEquals(expectedComputedMetric, computedMetric, 0.000001);
     }
 
     @Test

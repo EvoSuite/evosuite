@@ -44,7 +44,7 @@ public class DuplicateAssertSmellTest {
 
         double computedMetric = this.duplicateAssert.computeTestSmellMetric(testCase);
         double expectedComputedMetric = 0;
-        assertEquals(expectedComputedMetric, computedMetric, 0.01);
+        assertEquals(expectedComputedMetric, computedMetric, 0.000001);
     }
 
     @Test
@@ -59,7 +59,7 @@ public class DuplicateAssertSmellTest {
 
         double computedMetric = this.duplicateAssert.computeTestSmellMetric(testCase);
         double expectedComputedMetric = 0.5;
-        assertEquals(expectedComputedMetric, computedMetric, 0.01);
+        assertEquals(expectedComputedMetric, computedMetric, 0.000001);
     }
 
     @Test
@@ -74,7 +74,7 @@ public class DuplicateAssertSmellTest {
 
         double computedMetric = this.duplicateAssert.computeTestSmellMetric(testCase);
         double expectedComputedMetric = 2.0 / (1.0 + 2.0);
-        assertEquals(expectedComputedMetric, computedMetric, 0.01);
+        assertEquals(expectedComputedMetric, computedMetric, 0.000001);
     }
 
     @Test
@@ -89,7 +89,7 @@ public class DuplicateAssertSmellTest {
 
         double computedMetric = this.duplicateAssert.computeTestSmellMetric(testCase);
         double expectedComputedMetric = 0.5;
-        assertEquals(expectedComputedMetric, computedMetric, 0.01);
+        assertEquals(expectedComputedMetric, computedMetric, 0.000001);
     }
 
     @Test
@@ -104,7 +104,7 @@ public class DuplicateAssertSmellTest {
 
         double computedMetric = this.duplicateAssert.computeTestSmellMetric(testCase);
         double expectedComputedMetric = 0;
-        assertEquals(expectedComputedMetric, computedMetric, 0.01);
+        assertEquals(expectedComputedMetric, computedMetric, 0.000001);
     }
 
     @Test
@@ -119,7 +119,7 @@ public class DuplicateAssertSmellTest {
 
         double computedMetric = this.duplicateAssert.computeTestSmellMetric(testCase);
         double expectedComputedMetric = 0;
-        assertEquals(expectedComputedMetric, computedMetric, 0.01);
+        assertEquals(expectedComputedMetric, computedMetric, 0.000001);
     }
 
     @Test
@@ -134,7 +134,7 @@ public class DuplicateAssertSmellTest {
 
         double computedMetric = this.duplicateAssert.computeTestSmellMetric(testCase);
         double expectedComputedMetric = 0.5;
-        assertEquals(expectedComputedMetric, computedMetric, 0.01);
+        assertEquals(expectedComputedMetric, computedMetric, 0.000001);
     }
 
     @Test
@@ -149,7 +149,7 @@ public class DuplicateAssertSmellTest {
 
         double computedMetric = this.duplicateAssert.computeTestSmellMetric(testCase);
         double expectedComputedMetric = 0;
-        assertEquals(expectedComputedMetric, computedMetric, 0.01);
+        assertEquals(expectedComputedMetric, computedMetric, 0.000001);
     }
 
     @Test
@@ -164,7 +164,7 @@ public class DuplicateAssertSmellTest {
 
         double computedMetric = this.duplicateAssert.computeTestSmellMetric(testCase);
         double expectedComputedMetric = 0.5;
-        assertEquals(expectedComputedMetric, computedMetric, 0.01);
+        assertEquals(expectedComputedMetric, computedMetric, 0.000001);
     }
 
     @Test
@@ -179,7 +179,7 @@ public class DuplicateAssertSmellTest {
 
         double computedMetric = this.duplicateAssert.computeTestSmellMetric(testCase);
         double expectedComputedMetric = 0;
-        assertEquals(expectedComputedMetric, computedMetric, 0.01);
+        assertEquals(expectedComputedMetric, computedMetric, 0.000001);
     }
 
     @Test
@@ -208,7 +208,7 @@ public class DuplicateAssertSmellTest {
 
         double computedMetric = this.duplicateAssert.computeTestSmellMetric(suite);
         double expectedComputedMetric = 6.0 / (1.0 + 6.0);
-        assertEquals(expectedComputedMetric, computedMetric, 0.01);
+        assertEquals(expectedComputedMetric, computedMetric, 0.000001);
     }
 
     private DefaultTestCase createTestCase0() throws NoSuchMethodException {

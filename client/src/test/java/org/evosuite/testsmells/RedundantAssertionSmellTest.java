@@ -42,7 +42,7 @@ public class RedundantAssertionSmellTest {
 
         double computedMetric = this.redundantAssertion.computeTestSmellMetric(testCase);
         double expectedComputedMetric = 0;
-        assertEquals(expectedComputedMetric, computedMetric, 0.01);
+        assertEquals(expectedComputedMetric, computedMetric, 0.000001);
     }
 
     @Test
@@ -57,7 +57,7 @@ public class RedundantAssertionSmellTest {
 
         double computedMetric = this.redundantAssertion.computeTestSmellMetric(testCase);
         double expectedComputedMetric = 0.5;
-        assertEquals(expectedComputedMetric, computedMetric, 0.01);
+        assertEquals(expectedComputedMetric, computedMetric, 0.000001);
     }
 
     @Test
@@ -72,7 +72,7 @@ public class RedundantAssertionSmellTest {
 
         double computedMetric = this.redundantAssertion.computeTestSmellMetric(testCase);
         double expectedComputedMetric =  0;
-        assertEquals(expectedComputedMetric, computedMetric, 0.01);
+        assertEquals(expectedComputedMetric, computedMetric, 0.000001);
     }
 
     @Test
@@ -87,7 +87,7 @@ public class RedundantAssertionSmellTest {
 
         double computedMetric = this.redundantAssertion.computeTestSmellMetric(testCase);
         double expectedComputedMetric = 0;
-        assertEquals(expectedComputedMetric, computedMetric, 0.01);
+        assertEquals(expectedComputedMetric, computedMetric, 0.000001);
     }
 
     @Test
@@ -104,7 +104,7 @@ public class RedundantAssertionSmellTest {
 
         double computedMetric = this.redundantAssertion.computeTestSmellMetric(suite);
         double expectedComputedMetric = 0.5;
-        assertEquals(expectedComputedMetric, computedMetric, 0.01);
+        assertEquals(expectedComputedMetric, computedMetric, 0.000001);
     }
 
     private DefaultTestCase createTestCase0 () throws NoSuchMethodException {
