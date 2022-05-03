@@ -23,41 +23,43 @@ public class OptimizeTestSmellsSecondaryObjective extends SecondaryObjective<Tes
         switch (smellName) {
             case "TEST_SMELL_EAGER_TEST":
                 listOfTestSmells.add(new EagerTest());
-                return;
+                break;
             case "TEST_SMELL_EMPTY_TEST":
                 listOfTestSmells.add(new EmptyTest());
-                return;
+                break;
             case "TEST_SMELL_INDIRECT_TESTING":
                 listOfTestSmells.add(new IndirectTesting());
-                return;
+                break;
             case "TEST_SMELL_LIKELY_INEFFECTIVE_OBJECT_COMPARISON":
                 listOfTestSmells.add(new LikelyIneffectiveObjectComparison());
-                return;
+                break;
             case "TEST_SMELL_MYSTERY_GUEST":
                 listOfTestSmells.add(new MysteryGuest());
-                return;
+                break;
             case "TEST_SMELL_OBSCURE_INLINE_SETUP":
                 listOfTestSmells.add(new ObscureInlineSetup());
-                return;
+                break;
             case "TEST_SMELL_OVERREFERENCING":
                 listOfTestSmells.add(new Overreferencing());
-                return;
+                break;
             case "TEST_SMELL_RESOURCE_OPTIMISM":
                 listOfTestSmells.add(new ResourceOptimism());
-                return;
+                break;
             case "TEST_SMELL_ROTTEN_GREEN_TESTS":
                 listOfTestSmells.add(new RottenGreenTests());
-                return;
+                break;
             case "TEST_SMELL_SLOW_TESTS":
                 listOfTestSmells.add(new SlowTests());
-                return;
+                break;
             case "TEST_SMELL_VERBOSE_TEST":
-                listOfTestSmells.add(new VerboseTest());
-                return;
+                //listOfTestSmells.add(new VerboseTest());
+                break;
             default:
                 throw new RuntimeException("ERROR: asked for unknown secondary objective \""
                         + smellName + "\"");
         }
+
+        listOfTestSmells.add(new VerboseTest());
     }
 
     @Override
