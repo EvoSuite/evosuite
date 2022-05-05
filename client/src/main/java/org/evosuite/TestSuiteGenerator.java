@@ -540,6 +540,13 @@ public class TestSuiteGenerator {
         }
 
         if (Properties.OUTPUT_VARIABLES != null && Properties.OUTPUT_VARIABLES.toLowerCase().contains("smell")) {
+
+            for (TestChromosome test : testSuite.getTestChromosomes()) {
+                ExecutionResult result;
+                result = TestCaseExecutor.runTest(test.getTestCase());
+                test.setLastExecutionResult(result);
+            }
+
             TestSmellAnalyzer.writeNumTestSmells(testSuite);
         }
     }

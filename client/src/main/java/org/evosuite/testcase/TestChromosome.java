@@ -134,7 +134,6 @@ public final class TestChromosome extends AbstractTestChromosome<TestChromosome>
         c.setKineticEnergy(getKineticEnergy());
         c.setNumCollisions(getNumCollisions());
 
-        c.smellScore = this.smellScore;
         c.smellValues = this.smellValues;
 
         return c;
@@ -739,11 +738,14 @@ public final class TestChromosome extends AbstractTestChromosome<TestChromosome>
         }
     }
 
-    public double calculateSmellValuesTestCase (String testSmellSecondaryObjective, AbstractTestCaseSmell testSmell){
+    /**
+     * Optimize a test smell metric
+     * @param testSmell Test smell metric to be optimized
+     * @return double with the test smell score
+     */
+    public double calculateSmellValuesTestCase (AbstractTestCaseSmell testSmell){
 
-        if(!this.calculatedSmellScores.contains(testSmellSecondaryObjective) && this.calculateSmellScore){
-
-            this.calculatedSmellScores.add(testSmellSecondaryObjective);
+        if(!this.smellValues.containsKey(testSmell.getName())){
 
             double specificSmellScore = testSmell.computeTestSmellMetric(this);
             if (!Double.isNaN(specificSmellScore)){
@@ -756,34 +758,6 @@ public final class TestChromosome extends AbstractTestChromosome<TestChromosome>
 
         return this.smellValues.get(testSmell.getName());
     }
-
-	/**
-	 * Optimize test smell metrics
-	 * @param listOfTestSmells A list with the test smell metrics that will be optimized
-	 * @return double with the total test smell score
-	 */
-	public double calculateSmellValuesTestCase (List<AbstractTestCaseSmell> listOfTestSmells){
-
-		if(this.calculateSmellScore){
-
-			this.calculateSmellScore = false;
-
-			this.smellScore= 0;
-			this.smellValues = new LinkedHashMap<>();
-
-			double specificSmellScore;
-
-			for(AbstractTestCaseSmell testSmell : listOfTestSmells){
-				specificSmellScore = testSmell.computeTestSmellMetric(this);
-                if (!Double.isNaN(specificSmellScore)){
-                    this.smellScore += specificSmellScore;
-                    this.smellValues.put(testSmell.getName(), specificSmellScore);
-                }
-			}
-		}
-
-		return this.smellScore;
-	}
 
 	/**
 	 * Get the score for each test smell metric

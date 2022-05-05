@@ -129,15 +129,6 @@ public abstract class Chromosome<T extends Chromosome<T>>
     // a molecule has taken. (field used by Chemical Reaction Optimization algorithms)
     protected int numCollisions = 0;
 
-    /** Is it necessary to calculate the test smell metrics? */
-    protected boolean calculateSmellScore = true;
-
-    /** Calculated test smell metrics */
-    protected List<String> calculatedSmellScores =  new ArrayList<>();
-
-    /** The total test smell score */
-    protected double smellScore = -1;
-
     /** The score for each test smell metric */
     protected LinkedHashMap<String, Double> smellValues = new LinkedHashMap<>();
 
@@ -399,8 +390,7 @@ public abstract class Chromosome<T extends Chromosome<T>>
     public void setChanged(boolean changed) {
         this.changed = changed;
         if (this.changed) {
-            this.calculateSmellScore = true;
-            this.calculatedSmellScores =  new ArrayList<>();
+            this.smellValues.clear();
         }
         // If it's changed, then that also implies LS is possible again
         localSearchApplied = false;

@@ -283,11 +283,14 @@ public final class TestSuiteChromosome
         return result;
     }
 
-    public double calculateSmellValuesTestSuite (String testSmellSecondaryObjective, AbstractTestSmell testSmell){
+    /**
+     * Optimize a test smell metric
+     * @param testSmell Test smell metric to be optimized
+     * @return double with the test smell score
+     */
+    public double calculateSmellValuesTestSuite (AbstractTestSmell testSmell){
 
-        if(!this.calculatedSmellScores.contains(testSmellSecondaryObjective) && this.calculateSmellScore){
-
-            this.calculatedSmellScores.add(testSmellSecondaryObjective);
+        if(!this.smellValues.containsKey(testSmell.getName())){
 
             double specificSmellScore = testSmell.computeTestSmellMetric(this);
             if (!Double.isNaN(specificSmellScore)){
@@ -301,37 +304,23 @@ public final class TestSuiteChromosome
         return this.smellValues.get(testSmell.getName());
     }
 
-	/**
-	 * Optimize test smell metrics
-	 * @param listOfTestSmells A list with the test smell metrics that will be optimized
-	 * @return double with the total test smell score
-	 */
-	public double calculateSmellValuesTestSuite (List<AbstractTestSmell> listOfTestSmells){
-
-		if(this.calculateSmellScore){
-			this.calculateSmellScore = false;
-            calculateSmellValuesTestSuiteUnrestricted(listOfTestSmells);
-		}
-
-		return this.smellScore;
-	}
-
+    /**
+     * Optimize test smell metrics
+     * @param listOfTestSmells A list with the test smell metrics that will be optimized
+     * @return double with the total test smell score
+     */
 	public double calculateSmellValuesTestSuiteUnrestricted (List<AbstractTestSmell> listOfTestSmells){
 
-        this.smellScore = 0;
-        this.smellValues = new LinkedHashMap<>();
-
-        double specificSmellScore;
+	    double smellScore = 0;
 
         for (AbstractTestSmell testSmell : listOfTestSmells){
-            specificSmellScore = testSmell.computeTestSmellMetric(this);
+            double specificSmellScore = testSmell.computeTestSmellMetric(this);
             if (!Double.isNaN(specificSmellScore)){
-                this.smellScore += specificSmellScore;
-                this.smellValues.put(testSmell.getName(), specificSmellScore);
+                smellScore += specificSmellScore;
             }
         }
 
-        return this.smellScore;
+        return smellScore;
     }
 
 	/**
