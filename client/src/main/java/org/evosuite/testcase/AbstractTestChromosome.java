@@ -23,8 +23,6 @@ import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 
-import java.util.LinkedHashMap;
-
 public abstract class AbstractTestChromosome<E extends AbstractTestChromosome<E>> extends ExecutableChromosome<E> {
 
 

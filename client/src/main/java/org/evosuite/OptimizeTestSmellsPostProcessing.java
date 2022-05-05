@@ -43,7 +43,7 @@ public class OptimizeTestSmellsPostProcessing {
     }
 
     public double computeTotalNumberOfSmells(TestSuiteChromosome testSuite){
-        double smellCount = testSuite.calculateSmellValuesTestSuite(listOfTestSmells);
+        double smellCount = testSuite.calculateSmellValuesTestSuiteUnrestricted(listOfTestSmells);
 
         //Implement optimization
 

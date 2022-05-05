@@ -739,6 +739,24 @@ public final class TestChromosome extends AbstractTestChromosome<TestChromosome>
         }
     }
 
+    public double calculateSmellValuesTestCase (String testSmellSecondaryObjective, AbstractTestCaseSmell testSmell){
+
+        if(!this.calculatedSmellScores.contains(testSmellSecondaryObjective) && this.calculateSmellScore){
+
+            this.calculatedSmellScores.add(testSmellSecondaryObjective);
+
+            double specificSmellScore = testSmell.computeTestSmellMetric(this);
+            if (!Double.isNaN(specificSmellScore)){
+                this.smellValues.put(testSmell.getName(), specificSmellScore);
+                return specificSmellScore;
+            } else {
+                return 0;
+            }
+        }
+
+        return this.smellValues.get(testSmell.getName());
+    }
+
 	/**
 	 * Optimize test smell metrics
 	 * @param listOfTestSmells A list with the test smell metrics that will be optimized

@@ -52,7 +52,7 @@ public class TestCaseSecondaryObjective {
                     case TEST_SMELL_ROTTEN_GREEN_TESTS:
                     case TEST_SMELL_SLOW_TESTS:
                     case TEST_SMELL_VERBOSE_TEST:
-                        secondaryObjectiveInstance = new OptimizeTestSmellsSecondaryObjective(secondaryObjective.toString());
+                        secondaryObjectiveInstance = new OptimizeIndividualTestSmellSecondaryObjective(secondaryObjective.toString());
                         break;
                     default:
                         throw new RuntimeException("ERROR: asked for unknown secondary objective \""

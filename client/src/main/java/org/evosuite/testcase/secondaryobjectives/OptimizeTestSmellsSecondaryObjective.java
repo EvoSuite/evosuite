@@ -11,55 +11,11 @@ import java.util.List;
 public class OptimizeTestSmellsSecondaryObjective extends SecondaryObjective<TestChromosome> {
 
     private static final long serialVersionUID = 2879934033646173805L;
+
     private List<AbstractTestCaseSmell> listOfTestSmells;
 
     public OptimizeTestSmellsSecondaryObjective(){
         initializeTestSmells();
-    }
-
-    public OptimizeTestSmellsSecondaryObjective(String smellName){
-        listOfTestSmells = new ArrayList<>();
-
-        switch (smellName) {
-            case "TEST_SMELL_EAGER_TEST":
-                listOfTestSmells.add(new EagerTest());
-                break;
-            case "TEST_SMELL_EMPTY_TEST":
-                listOfTestSmells.add(new EmptyTest());
-                break;
-            case "TEST_SMELL_INDIRECT_TESTING":
-                listOfTestSmells.add(new IndirectTesting());
-                break;
-            case "TEST_SMELL_LIKELY_INEFFECTIVE_OBJECT_COMPARISON":
-                listOfTestSmells.add(new LikelyIneffectiveObjectComparison());
-                break;
-            case "TEST_SMELL_MYSTERY_GUEST":
-                listOfTestSmells.add(new MysteryGuest());
-                break;
-            case "TEST_SMELL_OBSCURE_INLINE_SETUP":
-                listOfTestSmells.add(new ObscureInlineSetup());
-                break;
-            case "TEST_SMELL_OVERREFERENCING":
-                listOfTestSmells.add(new Overreferencing());
-                break;
-            case "TEST_SMELL_RESOURCE_OPTIMISM":
-                listOfTestSmells.add(new ResourceOptimism());
-                break;
-            case "TEST_SMELL_ROTTEN_GREEN_TESTS":
-                listOfTestSmells.add(new RottenGreenTests());
-                break;
-            case "TEST_SMELL_SLOW_TESTS":
-                listOfTestSmells.add(new SlowTests());
-                break;
-            case "TEST_SMELL_VERBOSE_TEST":
-                //listOfTestSmells.add(new VerboseTest());
-                break;
-            default:
-                throw new RuntimeException("ERROR: asked for unknown secondary objective \""
-                        + smellName + "\"");
-        }
-
-        listOfTestSmells.add(new VerboseTest());
     }
 
     @Override

@@ -26,9 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import static java.util.stream.Collectors.averagingDouble;
 
@@ -134,11 +132,14 @@ public abstract class Chromosome<T extends Chromosome<T>>
     /** Is it necessary to calculate the test smell metrics? */
     protected boolean calculateSmellScore = true;
 
+    /** Calculated test smell metrics */
+    protected List<String> calculatedSmellScores =  new ArrayList<>();
+
     /** The total test smell score */
     protected double smellScore = -1;
 
     /** The score for each test smell metric */
-    protected LinkedHashMap<String, Double> smellValues;
+    protected LinkedHashMap<String, Double> smellValues = new LinkedHashMap<>();
 
     /**
      * Return current fitness value
@@ -399,6 +400,7 @@ public abstract class Chromosome<T extends Chromosome<T>>
         this.changed = changed;
         if (this.changed) {
             this.calculateSmellScore = true;
+            this.calculatedSmellScores =  new ArrayList<>();
         }
         // If it's changed, then that also implies LS is possible again
         localSearchApplied = false;
