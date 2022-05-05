@@ -133,8 +133,7 @@ public final class TestChromosome extends AbstractTestChromosome<TestChromosome>
         c.setNumberOfEvaluations(this.getNumberOfEvaluations());
         c.setKineticEnergy(getKineticEnergy());
         c.setNumCollisions(getNumCollisions());
-
-        c.smellValues = this.smellValues;
+        c.setSmellValues(getSmellValues());
 
         return c;
     }
@@ -753,13 +752,4 @@ public final class TestChromosome extends AbstractTestChromosome<TestChromosome>
 
         return this.smellValues.get(testSmell.getName());
     }
-
-	/**
-	 * Get the score for each test smell metric
-	 * @return LinkedHashMap containing the metrics and the respective scores
-	 */
-	public LinkedHashMap<String, Double> getSmellValuesTestCase (){
-		return this.smellValues;
-	}
-
 }

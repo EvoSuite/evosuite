@@ -319,13 +319,4 @@ public final class TestSuiteChromosome
 
         return smellScore;
     }
-
-	/**
-	 * Get the score for each test smell metric
-	 * @return LinkedHashMap containing the metrics and the respective scores
-	 */
-	public LinkedHashMap<String, Double> getSmellValuesTestSuite (){
-		return this.smellValues;
-	}
-
 }

@@ -680,4 +680,21 @@ public abstract class Chromosome<T extends Chromosome<T>>
     public void increaseNumCollisionsByOne() {
         this.numCollisions++;
     }
+
+    /**
+     * Get the score for each test smell metric
+     * @return LinkedHashMap containing the metrics and the respective scores
+     */
+    public LinkedHashMap<String, Double> getSmellValues() {
+        return this.smellValues;
+    }
+
+    /**
+     * Set the score for each test smell metric
+     * @param smellValues Smell values to be set
+     */
+    public void setSmellValues(LinkedHashMap<String, Double> smellValues) {
+        this.smellValues.clear();
+        this.smellValues.putAll(smellValues);
+    }
 }

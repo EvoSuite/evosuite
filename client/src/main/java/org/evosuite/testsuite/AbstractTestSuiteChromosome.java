@@ -99,8 +99,7 @@ public abstract class AbstractTestSuiteChromosome<T extends AbstractTestSuiteChr
         this.setNumberOfEvaluations(source.getNumberOfEvaluations());
         this.setKineticEnergy(source.getKineticEnergy());
         this.setNumCollisions(source.getNumCollisions());
-
-        this.smellValues = source.smellValues;
+        this.setSmellValues(source.getSmellValues());
     }
 
     /**
