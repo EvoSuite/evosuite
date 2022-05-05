@@ -663,17 +663,12 @@ public final class TestChromosome extends AbstractTestChromosome<TestChromosome>
 
     @Override
     public int compareSecondaryObjective(TestChromosome o) {
-        int objective = 0;
-        int c = 0;
-
-        while (c == 0 && objective < secondaryObjectives.size()) {
-
-            SecondaryObjective<TestChromosome> so = secondaryObjectives.get(objective++);
-            if (so == null)
-                break;
-            c = so.compareChromosomes(this.self(), o);
+        double compare = 0;
+        for (SecondaryObjective<TestChromosome> so : secondaryObjectives) {
+            compare += so.compareChromosomes(this.self(), o);
         }
-        return c;
+
+        return (int) Math.signum(compare);
     }
 
     /**

@@ -190,15 +190,12 @@ public abstract class Archive implements Serializable {
 
         // If we try to add a test for a target we've already covered
         // and the new test is shorter, keep the shorter one
-        int timesBetter = 0;
+        double compare = 0;
         for (SecondaryObjective<TestChromosome> obj : getSecondaryObjectives()) {
-            if (obj.compareChromosomes(candidateSolution, currentSolution) < 0)
-                timesBetter++;
-            else
-                timesBetter--;
+            compare += obj.compareChromosomes(candidateSolution, currentSolution);
         }
 
-        return timesBetter > 0;
+        return compare < 0;
     }
 
     /**

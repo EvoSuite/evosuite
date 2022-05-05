@@ -20,6 +20,7 @@
 
 package org.evosuite.testsuite.secondaryobjectives;
 
+import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.SecondaryObjective;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testsuite.TestSuiteChromosome;
@@ -34,13 +35,13 @@ public class MinimizeExceptionsSecondaryObjective extends SecondaryObjective<Tes
 
     private static final long serialVersionUID = -4405276303273532040L;
 
-    private int getNumExceptions(TestSuiteChromosome chromosome) {
+    private double getNumExceptions(TestSuiteChromosome chromosome) {
         int sum = 0;
         for (TestChromosome test : chromosome.getTestChromosomes()) {
             if (test.getLastExecutionResult() != null)
                 sum += test.getLastExecutionResult().getNumberOfThrownExceptions();
         }
-        return sum;
+        return FitnessFunction.normalize(sum);
     }
 
     /*
@@ -55,7 +56,7 @@ public class MinimizeExceptionsSecondaryObjective extends SecondaryObjective<Tes
      * {@inheritDoc}
      */
     @Override
-    public int compareChromosomes(TestSuiteChromosome chromosome1, TestSuiteChromosome chromosome2) {
+    public double compareChromosomes(TestSuiteChromosome chromosome1, TestSuiteChromosome chromosome2) {
         return getNumExceptions(chromosome1) - getNumExceptions(chromosome2);
     }
 
@@ -71,7 +72,7 @@ public class MinimizeExceptionsSecondaryObjective extends SecondaryObjective<Tes
      * {@inheritDoc}
      */
     @Override
-    public int compareGenerations(TestSuiteChromosome parent1, TestSuiteChromosome parent2,
+    public double compareGenerations(TestSuiteChromosome parent1, TestSuiteChromosome parent2,
                                   TestSuiteChromosome child1, TestSuiteChromosome child2) {
         return Math.min(getNumExceptions(parent1), getNumExceptions(parent2))
                 - Math.min(getNumExceptions(child1), getNumExceptions(child2));

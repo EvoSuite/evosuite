@@ -19,6 +19,7 @@
  */
 package org.evosuite.testcase.secondaryobjectives;
 
+import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.SecondaryObjective;
 import org.evosuite.testcase.TestChromosome;
 
@@ -43,10 +44,10 @@ public class MinimizeLengthSecondaryObjective extends SecondaryObjective<TestChr
      * {@inheritDoc}
      */
     @Override
-    public int compareChromosomes(TestChromosome chromosome1, TestChromosome chromosome2) {
+    public double compareChromosomes(TestChromosome chromosome1, TestChromosome chromosome2) {
         logger.debug("Comparing sizes: " + chromosome1.size() + " vs "
                 + chromosome2.size());
-        return chromosome1.size() - chromosome2.size();
+        return FitnessFunction.normalize(chromosome1.size()) - FitnessFunction.normalize(chromosome2.size());
     }
 
     /*
@@ -61,12 +62,12 @@ public class MinimizeLengthSecondaryObjective extends SecondaryObjective<TestChr
      * {@inheritDoc}
      */
     @Override
-    public int compareGenerations(TestChromosome parent1, TestChromosome parent2,
+    public double compareGenerations(TestChromosome parent1, TestChromosome parent2,
                                   TestChromosome child1, TestChromosome child2) {
         logger.debug("Comparing sizes: " + parent1.size() + ", " + parent1.size()
                 + " vs " + child1.size() + ", " + child2.size());
-        return Math.min(parent1.size(), parent2.size())
-                - Math.min(child1.size(), child2.size());
+        return Math.min(FitnessFunction.normalize(parent1.size()), FitnessFunction.normalize(parent2.size()))
+                - Math.min(FitnessFunction.normalize(child1.size()), FitnessFunction.normalize(child2.size()));
     }
 
 }

@@ -180,15 +180,12 @@ public final class TestSuiteChromosome
      */
     @Override
     public int compareSecondaryObjective(TestSuiteChromosome o) {
-        int objective = secondaryObjIndex;
-        int c = 0;
-        while (c == 0 && objective < secondaryObjectives.size()) {
-            SecondaryObjective<TestSuiteChromosome> so = secondaryObjectives.get(objective++);
-            if (so == null)
-                break;
-            c = so.compareChromosomes(this.self(), o);
+        double compare = 0;
+        for(SecondaryObjective<TestSuiteChromosome> so : secondaryObjectives) {
+            compare += so.compareChromosomes(this.self(), o);
         }
-        return c;
+
+        return (int) Math.signum(compare);
     }
 
 

@@ -15,14 +15,14 @@ public class OptimizeTestSmellsSecondaryObjective extends SecondaryObjective<Tes
     }
 
     @Override
-    public int compareChromosomes(TestChromosome chromosome1, TestChromosome chromosome2) {
-        return (int) Math.signum(chromosome1.calculateSmellValuesTestCase(testSmell)
-                - chromosome2.calculateSmellValuesTestCase(testSmell));
+    public double compareChromosomes(TestChromosome chromosome1, TestChromosome chromosome2) {
+        return chromosome1.calculateSmellValuesTestCase(testSmell)
+                - chromosome2.calculateSmellValuesTestCase(testSmell);
     }
 
     @Override
-    public int compareGenerations(TestChromosome parent1, TestChromosome parent2, TestChromosome child1, TestChromosome child2) {
-        return (int) Math.signum(Math.min(parent1.calculateSmellValuesTestCase(testSmell), parent2.calculateSmellValuesTestCase(testSmell))
-                - Math.min(child1.calculateSmellValuesTestCase(testSmell), child2.calculateSmellValuesTestCase(testSmell)));
+    public double compareGenerations(TestChromosome parent1, TestChromosome parent2, TestChromosome child1, TestChromosome child2) {
+        return Math.min(parent1.calculateSmellValuesTestCase(testSmell), parent2.calculateSmellValuesTestCase(testSmell))
+                - Math.min(child1.calculateSmellValuesTestCase(testSmell), child2.calculateSmellValuesTestCase(testSmell));
     }
 }
