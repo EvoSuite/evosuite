@@ -4,6 +4,8 @@ import org.evosuite.testcase.TestChromosome;
 
 public abstract class AbstractTestCaseSmell extends AbstractTestSmell {
 
+    private static final long serialVersionUID = -323403603309674812L;
+
     public AbstractTestCaseSmell(String name) {
         super(name);
     }

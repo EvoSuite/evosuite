@@ -25,4 +25,12 @@ public class OptimizeTestSmellsSecondaryObjective extends SecondaryObjective<Tes
         return Math.min(parent1.calculateSmellValuesTestSuite(testSmell), parent2.calculateSmellValuesTestSuite(testSmell))
                 - Math.min(child1.calculateSmellValuesTestSuite(testSmell), child2.calculateSmellValuesTestSuite(testSmell));
     }
+
+    /**
+     * Get the respective smell type
+     * @return AbstractTestSmell that corresponds to the respective smell type
+     */
+    public AbstractTestSmell getSmellType() {
+        return this.testSmell;
+    }
 }

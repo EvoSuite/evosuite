@@ -6,6 +6,8 @@ import org.evosuite.testsuite.TestSuiteChromosome;
 
 public abstract class AbstractNormalizedTestCaseSmell extends AbstractTestCaseSmell {
 
+    private static final long serialVersionUID = 7365306489099478724L;
+
     public AbstractNormalizedTestCaseSmell(String name) {
         super(name);
     }
