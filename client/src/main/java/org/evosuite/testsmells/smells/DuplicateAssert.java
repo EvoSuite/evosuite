@@ -23,9 +23,10 @@ import java.util.*;
  * 3 - Have the same expected value.
  *
  * Metric:
- * Number of assertion statements of the same type that have the same parameters.
+ * Number of assertion statements of the same type that check the same method of the same class and have the
+ * same expected value.
  *
- * Detection:
+ * Computation:
  * 1 - Create an empty LinkedHashSet: elements - triples which corresponds to the assertions
  * 2 - Iterate over the statements of a test case
  * [2: Start loop]

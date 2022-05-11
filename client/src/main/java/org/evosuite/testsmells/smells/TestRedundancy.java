@@ -15,7 +15,7 @@ import java.util.Set;
  * Metric:
  * The number of test cases that can be removed from the test suite without decreasing the code coverage.
  *
- * Detection:
+ * Computation:
  * 1 - Initialize the smell counter with the number of test cases in the test suite
  * 2 - Retrieve all coverage goals covered by the test suite chromosome
  * 3 - Verify if the number of covered goals is equal to zero

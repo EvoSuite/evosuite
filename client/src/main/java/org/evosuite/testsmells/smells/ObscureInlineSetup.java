@@ -27,7 +27,7 @@ import java.lang.reflect.Method;
  *       3.2.1 - If the type of the method is not "void": increment the smell counter
  * 4 (2 is False):
  *    4.1 - Verify if the current statement is an instance of one of the following types of statements: (1) PrimitiveStatement;
- *          (2) ConstructorStatement; (3) ArrayStatement; (4) FieldStatement
+ *          (2) ConstructorStatement; (3) ArrayStatement; (4) FieldStatement; (5) FunctionalMockStatement; (6) AssignmentStatement
  *    4.2 (4.1 is True):
  *       4.2.1 - Increment the smell counter
  * [1: End loop]

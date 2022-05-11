@@ -37,13 +37,16 @@ import java.util.Set;
  *          the LinkedHashSet
  *    6.2 - All the elements of the LinkedHashSet that are passed as arguments to the current method are removed from
  *          the LinkedHashSet
- * 7 - Verify if the current statement has assertions
+ * 7 - Verify if the current statement is an instance of AssignmentStatement
  * 8 (7 is True):
- *    8.1 - Iterate over the assertions of the current statement
- *    8.2 - If the current assertion is an instance of InspectorAssertion: get the object of the class on which the
- *          assertion is made and remove the respective element from the LinkedHashSet
+ *    8.1 - If the LinkedHashSet contains the object assigned to the array: remove the element from the LinkedHashSet
+ * 9 - Verify if the current statement has assertions
+ * 10 (9 is True):
+ *    10.1 - Iterate over the assertions of the current statement
+ *    10.2 - If the current assertion is an instance of InspectorAssertion: get the object of the class on which the
+ *           assertion is made and remove the respective element from the LinkedHashSet
  * [2: End loop]
- * 9 - Return the number of elements in the LinkedHashSet
+ * 11 - Return the number of elements in the LinkedHashSet
  */
 public class Overreferencing extends AbstractNormalizedTestCaseSmell {
 

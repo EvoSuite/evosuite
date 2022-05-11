@@ -19,7 +19,7 @@ import java.util.Set;
  * Metric:
  * Total number of assertions that check methods that are not declared in the class under test.
  *
- * Detection:
+ * Computation:
  * 1 - Iterate over the statements of a test case
  * [1: Start loop]
  * 2 - Iterate over the assertions of the current statement

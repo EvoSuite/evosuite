@@ -14,7 +14,7 @@ import java.util.List;
  * Metric:
  * Verify whether a test case does not contain any valid assertions.
  *
- * Detection:
+ * Computation:
  * 1 - Iterate over the statements of a test case
  * [1: Start loop]
  * 2 - If the current statement has assertions: return 0 (at least one assertion was found, so the test case is

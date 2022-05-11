@@ -37,15 +37,18 @@ import java.util.*;
  *    6.3 (6.2 is True):
  *       6.3.1 - Verify if the current method checks whether this file exists
  *       6.3.2 (6.3.1 is True):
- *          6.3.2.1 - Set value of the respective element to "true"
+ *          6.3.2.1 - Set the value of the respective key to "true"
  *       6.3.3 (6.3.1 is False):
- *          6.3.3.1 - If the LinkedHashSet contains the respective element and the value is "false": increment the smell counter
+ *          6.3.3.1 - If the LinkedHashSet contains the respective key and the value is "false": increment the smell counter
  *    6.4 - Iterate over the respective parameters
  *    [6.4: Start loop]
  *    6.5 - If an element of the LinkedHashSet with value "false" is passed as an argument to the current method: increment the smell counter
  *    [6.4: End loop]
+ * 7 - Verify if the current statement is an instance of AssignmentStatement
+ * 8 (7 is True):
+ *    8.1 - If an element of the LinkedHashSet with value "false" is assigned to the array: increment the smell counter
  * [2: End loop]
- * 6 - Return the smell counter
+ * 9 - Return the smell counter
  */
 public class ResourceOptimism extends AbstractNormalizedTestCaseSmell {
 

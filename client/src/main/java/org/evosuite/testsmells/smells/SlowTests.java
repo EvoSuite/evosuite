@@ -12,12 +12,13 @@ import org.evosuite.testsuite.TestSuiteChromosome;
  * Metric:
  * Duration of the last execution of the test case.
  *
+ * Computation:
  * 1 - Verify if the last execution result is different from null
  * 2 (1 is True):
  *    2.1 - Get the duration of the last execution of the test case
- *    2.2 - Return the duration
+ *    2.2 - Return the normalized duration
  * 3 (1 is False):
- *    3.1 - Return 0
+ *    3.1 - Return NaN
  */
 public class SlowTests extends AbstractTestCaseSmell {
 

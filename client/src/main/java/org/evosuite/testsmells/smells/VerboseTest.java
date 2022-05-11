@@ -10,7 +10,7 @@ import org.evosuite.testsmells.AbstractNormalizedTestCaseSmell;
  * Metric:
  * Total number of statements in a test case.
  *
- * Detection:
+ * Computation:
  * 1 - Return the number of statements in the chromosome (i.e., the size)
  */
 public class VerboseTest extends AbstractNormalizedTestCaseSmell {
