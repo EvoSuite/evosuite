@@ -27,30 +27,26 @@ import java.util.*;
  * same expected value.
  *
  * Computation:
- * 1 - Create an empty LinkedHashSet: elements - triples which corresponds to the assertions
- * 2 - Iterate over the statements of a test case
- * [2: Start loop]
- * 3 - Iterate over the assertions of the current statement
- * [3: Start loop]
- * 4 - Verify if the current assertion is an instance of InspectorAssertion
- * 5 (4 is True):
- *    5.1 - Get the method on which the assertion is made
- * 6 (4 is False):
- *    6.1 - Get the statement that contains the variable on which the assertion is made
- *    6.2 - Verify if this statement is an instance of MethodStatement
- *    6.3 (6.2 is True):
- *       6.3.1 - Get the method called in the respective statement
- *    6.4 (6.2 is False):
- *       6.4.1 - Consider that the method is null
- * 7 - Get the assertion type and the expected value
- * 8 - Store the method, assertion type, and expected value in a Triple (which identifies the assertion)
- * 9 - Verify if the LinkedHashSet contains this Triple
- * 10 (9 is True):
- *    10.1 - This indicates that an equal assertion has already been added to the LinkedHashSet: increment the smell counter
- * 11 (9 is False):
- *    11.1 - Add the Triple to the LinkedHashSet
- * [3: End loop]
- * [2: End loop]
+ * 1 - Create a smell counter and initialize the variable with the value 0
+ * 2 - Create an empty LinkedHashSet: elements - triples which corresponds to the assertions
+ * 3 - Let S = {S1,...,Sn} be the set of n statements in a test case and let A = {A1,...,Ak} be the set of k assertions
+ *     in a statement Si
+ * 4 - Iterate over S and, for each statement Si:
+ * [4: Start loop]
+ * 5 - Iterate over A of Si - for each assertion Aj:
+ * [5: Start loop]
+ * 6 - Verify if Aj corresponds to an inspector assertion (instance of InspectorAssertion)
+ * 7 (6 is True):
+ *    7.1 - Get the method on which the assertion is made
+ * 8 (6 is False):
+ *    8.1 - Get the statement that contains the variable on which the assertion is made
+ *    8.2 - If this statement corresponds to a method statement, get the respective method; otherwise, consider that
+ *          the method is null
+ * 9 - Get the assertion type and the expected value of Aj
+ * 10 - Store the method, assertion type, and expected value in a Triple (which identifies the assertion)
+ * 11 - If the LinkedHashSet contains this Triple, increment the smell counter; otherwise, add the Triple to the LinkedHashSet
+ * [5: End loop]
+ * [4: End loop]
  * 12 - Return the smell counter
  */
 public class DuplicateAssert extends AbstractNormalizedTestCaseSmell {

@@ -24,18 +24,20 @@ import org.evosuite.testsmells.AbstractNormalizedTestCaseSmell;
  * the class under test.
  *
  * Computation:
- * 1 - Iterate over the statements of a test case
- * [1: Start loop]
- * 2 - Increment the smell counter by the number of assertions in the current statement
- * 3 - Verify if the current statement is an instance of MethodStatement
- * 4 (3 is True):
- *    4.1 - Get the method called in the respective statement
- *    4.2 - If the class that declares this method is the same as the class under test: increment methodCalls counter
- * [1: End loop]
- * 5 - Calculate the difference between the smell counter and the methodCalls counter to determine the number of
- *     assertions in the test case that exceed the total amount of statements that call methods of the class under
- *     test: Math.max() is used to ensure that the result is always greater than or equal to zero
- * 6 - Return the the final result
+ * 1 - Create an assertion and a method counter - initialize both variables with the value 0
+ * 2 - Let S = {S1,...,Sn} be the set of n statements in a test case
+ * 3 - Iterate over S and, for each statement Si:
+ * [3: Start loop]
+ * 4 - Increment the assertion counter by the number of assertions in Si
+ * 5 - Verify if Si corresponds to a method statement (instance of MethodStatement)
+ * 6 (5 is True):
+ *    6.1 - Get the method called in Si
+ *    6.2 - If the class that declares this method is the same as the class under test: increment the method counter
+ * [3: End loop]
+ * 7 - Calculate the difference between the smell counter and the method counter to determine the number of assertions
+ *     in the test case that exceed the total amount of statements that call methods of the class under test: use
+ *     Math.max() to ensure that the result is always greater than or equal to zero
+ * 8 - If the result is greater than or equal to zero, return the result; otherwise, return 0
  */
 public class AssertionRoulette extends AbstractNormalizedTestCaseSmell {
 

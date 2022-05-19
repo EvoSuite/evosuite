@@ -27,21 +27,24 @@ import java.util.Set;
  * Number of assertions that may be unrelated to the statement to which the assertion is added.
  *
  * Computation:
- * 1 - Iterate over the statements of a test case
- * [1: Start loop]
- * 2 - Iterate over the assertions of the current statement
- * [2: Start loop]
- * 3 - Verify if the current assertion is an instance of InspectorAssertion
- * 4 (3 is True):
- *    4.1 - As we do not know if a method in an inspector assertion is related to the specific statement to which
- *          the assertion is added, we consider that, if possible, it is better to avoid using inspector
- *          assertions: increment the smell counter
- * 5 (3 is False):
- *    5.1 - If the position of the variable on which the assertion is made is different from the position of the
+ * 1 - Create a smell counter and initialize the variable with the value 0
+ * 2 - Let S = {S1,...,Sn} be the set of n statements in a test case and let A = {A1,...,Ak} be the set of k assertions
+ *     in a statement Si
+ * 3 - Iterate over S and, for each statement Si:
+ * [3: Start loop]
+ * 4 - Iterate over A of Si - for each assertion Aj:
+ * [4: Start loop]
+ * 5 - Verify if Aj corresponds to an inspector assertion (instance of InspectorAssertion)
+ * 6 (5 is True):
+ *    6.1 - Increment the smell counter (as we do not know if a method in an inspector assertion is related to the
+ *          specific statement to which the assertion is added, we consider that, if possible, it is better to avoid
+ *          using inspector assertions)
+ * 7 (5 is False):
+ *    7.1 - If the position of the variable on which the assertion is made is different from the position of the
  *          statement to which the assertion is added: increment the smell counter
- * [2: End loop]
- * [1: End loop]
- * 6 - Return the smell counter
+ * [4: End loop]
+ * [3: End loop]
+ * 8 - Return the smell counter
  */
 public class BrittleAssertion extends AbstractNormalizedTestCaseSmell {
 
