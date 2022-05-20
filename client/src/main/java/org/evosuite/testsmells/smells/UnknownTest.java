@@ -12,15 +12,15 @@ import java.util.List;
  * A test case does not have any valid assertions.
  *
  * Metric:
- * Verify whether a test case does not contain any valid assertions.
+ * Number of valid assertions in a test case.
  *
  * Computation:
- * 1 - Iterate over the statements of a test case
- * [1: Start loop]
- * 2 - If the current statement has assertions: return 0 (at least one assertion was found, so the test case is
- *     not affected by this smell)
- * [1: End loop]
- * 4 - Return 1 (no assertions were found)
+ * 1 - Let S = {S1,...,Sn} be the set of n statements in a test case
+ * 2 - Iterate over S and, for each statement Si:
+ * [2: Start loop]
+ * 3 - If Si has assertions: return 0 (at least one assertion was found, so the test case is not affected by this smell)
+ * [2: End loop]
+ * 4 - Return 1 (none of the statements had assertions)
  */
 public class UnknownTest extends AbstractTestCaseSmell {
 

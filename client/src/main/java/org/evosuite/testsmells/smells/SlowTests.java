@@ -12,13 +12,25 @@ import org.evosuite.testsuite.TestSuiteChromosome;
  * Metric:
  * Duration of the last execution of the test case.
  *
- * Computation:
+ * Computation - Test Case:
  * 1 - Verify if the last execution result is different from null
  * 2 (1 is True):
- *    2.1 - Get the duration of the last execution of the test case
- *    2.2 - Return the normalized duration
+ *    2.1 - Return the normalized duration of the last execution of the test case
  * 3 (1 is False):
  *    3.1 - Return NaN
+ *
+ * Computation - Test Suite:
+ * 1 - Create a smell counter and initialize the variable with the value -1
+ * 2 - Let T = {T1,...,Tn} be the set of n test cases in a test suite
+ * 3 - Iterate over T and, for each test case Ti:
+ * [3: Start loop]
+ * 4 - Verify if the last execution result of Ti is different from null
+ * 5 (4 is True):
+ *    5.1 - If the smell counter is greater than or equal to zero, increment the smell counter by the duration of the last
+ *          execution of Ti; otherwise, change the value of the smell counter to the duration of the last execution of Ti
+ * [3: End loop]
+ * 6 - If the smell counter is equal to -1, return NaN
+ * 7 - Return the normalized value for the smell counter
  */
 public class SlowTests extends AbstractTestCaseSmell {
 

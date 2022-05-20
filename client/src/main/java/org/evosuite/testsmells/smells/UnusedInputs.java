@@ -10,7 +10,7 @@ import java.lang.reflect.Method;
 
 /**
  * Definition:
- * Input that is controlled by a test case is not checked by an assertion (the test is checking too little).
+ * Assertions do not check input controlled by a test case (the test is checking too little).
  *
  * Adaptation:
  * Every statement which calls a method of the class under test that returns a value should necessarily have at
@@ -20,19 +20,16 @@ import java.lang.reflect.Method;
  * Number of statements that call methods of the class under test but that do not have assertions.
  *
  * Computation:
- * 1 - Iterate over the statements of a test case
- * [1: Start loop]
- * 2 - Verify if the current statement is an instance of MethodStatement
- * 3 (2 is True):
- *    3.1 - Get the method called in the respective statement
- *    3.2 - Get the return type of the method
- *    3.3 - Verify whether: (1) the class that declares the method is the same as the class under test; (2) the type of
- *          the method is not equal to "void" - if this is true, then it indicates that the statement should
- *          necessarily have assertions
- *    3.4 (3.3 is True):
- *       3.4.1 - If the current statement does not have assertions, increment the smell counter
- * [1: End loop]
- * 4 - Return the smell counter
+ * 1 - Create a smell counter and initialize the variable with the value 0
+ * 2 - Let S = {S1,...,Sn} be the set of n statements in a test case
+ * 3 - Iterate over S and, for each statement Si:
+ * [3: Start loop]
+ * 4 - Verify if: (1) Si corresponds to a statement that calls a method of the class under test and (2) the type of
+ *     the method is not equal to "void" - if true, this indicates that the statement should necessarily have assertions
+ * 5 (4 is True):
+ *    5.1 - If the current statement does not have assertions: increment the smell counter
+ * [3: End loop]
+ * 6 - Return the smell counter
  */
 public class UnusedInputs extends AbstractNormalizedTestCaseSmell {
 

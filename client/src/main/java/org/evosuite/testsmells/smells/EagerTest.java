@@ -31,7 +31,7 @@ import java.util.Set;
  * 6 - Verify if Si has assertions
  * 7 (6 is True):
  *    7.1 - Let A = {A1,...,Ak} be the set of k assertions in Si
- *    7.2 - Iterate over A of Si - for each assertion Aj:
+ *    7.2 - Iterate over A of Si and, for each assertion Aj:
  *    [7.2: Start loop]
  *    7.3 - Verify if Aj corresponds to an inspector assertion (instance of InspectorAssertion)
  *    7.4 (7.3 is True)

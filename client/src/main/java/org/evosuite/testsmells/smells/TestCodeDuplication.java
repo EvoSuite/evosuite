@@ -13,20 +13,19 @@ import org.evosuite.testsmells.AbstractNormalizedTestCaseSmell;
  * in a test case.
  *
  * Metric:
- * Verify whether a test case contains repeated groups of similar statements.
+ * Number of similar statements in a test case.
  *
  * Computation:
- * 1 - Iterate over the statements of a test case
- * [1: Start loop]
- * 2 - Get the String that represents the current statement
- * 3 - Iterate over the statements of the same test case, but initialize the loop with the value that follows the
- * current position of the outer loop.
+ * 1 - Create a smell counter and initialize the variable with the value 0
+ * 2 - Let S = {S1,...,Sn} be the set of n statements in a test case
+ * 3 - Iterate over S and, for each statement Si:
  * [3: Start loop]
- * 4 - Get the String that represents the current statement of the inner loop
- * 5 - Use the Levenshtein Distance to calculate the similarities between the two statements
+ * 4 - Let S' = {S'i,...,S'n} - iterate over S' and, for each statement S'j:
+ * [4: Start loop]
+ * 5 - Use the Levenshtein Distance to calculate the similarities between the String that represents Si and the String that represents S'j
  * 6 - If the two statements are at least 80% similar: increment the smell counter
+ * [4: End loop]
  * [3: End loop]
- * [1: End loop]
  * 7 - Return the smell counter
  */
 public class TestCodeDuplication extends AbstractNormalizedTestCaseSmell {

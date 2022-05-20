@@ -33,7 +33,7 @@ import java.util.*;
  *     in a statement Si
  * 4 - Iterate over S and, for each statement Si:
  * [4: Start loop]
- * 5 - Iterate over A of Si - for each assertion Aj:
+ * 5 - Iterate over A of Si and, for each assertion Aj:
  * [5: Start loop]
  * 6 - Verify if Aj corresponds to an inspector assertion (instance of InspectorAssertion)
  * 7 (6 is True):

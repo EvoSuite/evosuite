@@ -6,17 +6,25 @@ import org.evosuite.testsuite.TestSuiteChromosome;
 
 /**
  * Definition:
- * Test cases that do not have executable statements.
+ * A test case that does not have executable statements.
  *
  * Metric:
- * Verify whether a test case does not contain any executable statements.
+ * Number of executable statements.
  *
- * Computation:
+ * Computation - Test Case:
  * 1 - Verify if the test case has 0 statements (i.e., if it is empty)
  * 2 (1 is True):
  *    2.1 - Return 1
  * 3 (1 is False):
  *    3.1 - Return 0
+ *
+ * Computation - Test Suite:
+ * 1 - Let T = {T1,...,Tn} be the set of n test cases in a test suite
+ * 2 - Iterate over T and, for each test case Ti:
+ * [2: Start loop]
+ * 3 - If Ti has no executable statements: return 1
+ * [2: End loop]
+ * 4 - Return 0
  */
 public class EmptyTest extends AbstractTestCaseSmell {
 

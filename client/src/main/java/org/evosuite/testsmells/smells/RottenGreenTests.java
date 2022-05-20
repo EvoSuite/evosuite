@@ -17,9 +17,9 @@ import org.evosuite.testsmells.AbstractNormalizedTestCaseSmell;
  * Computation:
  * 1 - Verify if the last execution result is not null
  * 2 (1 is True):
- *    2.1 - Get the positions of the statements that raised exceptions in the last execution of the test case
- *    2.2 - If any exceptions were raised: return the number of statements that exist after the position of the
- *          statement that raised the first exception
+ *    2.1 - Get the position of the statement that raised the first exception
+ *    2.2 - If the position of the first exception is not null, return the number of statements that exist after the position of the
+ *          statement that raised the first exception; otherwise, return 0
  * 3 - Return 0
  */
 public class RottenGreenTests extends AbstractNormalizedTestCaseSmell {

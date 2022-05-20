@@ -22,31 +22,32 @@ import java.util.Set;
  * Total number of unnecessary class instances (i.e., class instances that are created but never used).
  *
  * Computation:
- * 1 - Create an empty LinkedHashSet: elements - position of the statement on which a constructor is invoked to create
- *     a new object
- * 2 - Iterate over the statements of a test case
- * [2: Start loop]
- * 3 - Verify if the current statement is an instance of ConstructorStatement
- * 4 (3 is True):
- *    4.1 - Add the element to the LinkedHashSet
- *    4.2 - All the elements of the LinkedHashSet that are passed as arguments to the current constructor are removed
- *          from the LinkedHashSet
- * 5 - Verify if the current statement is an instance of MethodStatement
- * 6 (5 is True):
- *    6.1 - If the LinkedHashSet contains the object on which the current method is invoked: remove the element from
- *          the LinkedHashSet
- *    6.2 - All the elements of the LinkedHashSet that are passed as arguments to the current method are removed from
- *          the LinkedHashSet
- * 7 - Verify if the current statement is an instance of AssignmentStatement
- * 8 (7 is True):
- *    8.1 - If the LinkedHashSet contains the object assigned to the array: remove the element from the LinkedHashSet
- * 9 - Verify if the current statement has assertions
- * 10 (9 is True):
- *    10.1 - Iterate over the assertions of the current statement
- *    10.2 - If the current assertion is an instance of InspectorAssertion: get the object of the class on which the
- *           assertion is made and remove the respective element from the LinkedHashSet
- * [2: End loop]
- * 11 - Return the number of elements in the LinkedHashSet
+ * 1 - Create an empty LinkedHashSet: elements - position of the statement on which a constructor is invoked to create a new object
+ * 2 - Let S = {S1,...,Sn} be the set of n statements in a test case
+ * 3 - Iterate over S and, for each statement Si:
+ * [3: Start loop]
+ * 4 - Verify if Si corresponds to a constructor statement (instance of ConstructorStatement)
+ * 5 (4 is True):
+ *    5.1 - Add i to the LinkedHashSet
+ *    5.2 - All the elements of the LinkedHashSet passed as arguments to the current constructor are removed from the LinkedHashSet
+ * 6 - Verify if Si corresponds to a method statement (instance of MethodStatement)
+ * 7 (6 is True):
+ *    7.1 - If the LinkedHashSet contains the position of the object on which the current method is invoked: remove the
+ *          respective position from the LinkedHashSet
+ *    7.2 - All the elements of the LinkedHashSet passed as arguments to the current method are removed from the LinkedHashSet
+ * 8 - Verify if Si corresponds to an assignment statement (instance of AssignmentStatement)
+ * 9 (8 is True):
+ *    9.1 - If the LinkedHashSet contains the object assigned to the array: remove the respective position from the LinkedHashSet
+ * 10 - Verify if Si has assertions
+ * 11 (10 is True):
+ *    11.1 - Let A = {A1,...,Ak} be the set of k assertions in Si
+ *    11.2 - Iterate over A of Si and, for each assertion Aj:
+ *    [11.2: Start loop]
+ *    11.3 - If Aj corresponds to an inspector assertion: get the object of the class on which the assertion is made
+ *           and remove the respective position from the LinkedHashSet
+ *    [11.2: End loop]
+ * [3: End loop]
+ * 12 - Return the number of elements in the LinkedHashSet
  */
 public class Overreferencing extends AbstractNormalizedTestCaseSmell {
 

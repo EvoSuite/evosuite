@@ -18,17 +18,20 @@ import java.util.Set;
  * Total number of assertions that check primitive statements.
  *
  * Computation:
- * 1 - Iterate over the statements of a test case
- * [1: Start loop]
- * 2 - Iterate over the assertions of the current statement
- * [2: Start loop]
- * 3 - Verify if the current assertion is not an instance of InspectorAssertion
- * 4 (3 is True):
- *    4.1 - Get the statement that contains the variable on which the assertion is made
- *    4.2 - If this statement is an instance of PrimitiveStatement: increment the smell counter
- * [2: End loop]
- * [1: End loop]
- * 5 - Return the smell counter
+ * 1 - Create a smell counter and initialize the variable with the value 0
+ * 2 - Let S = {S1,...,Sn} be the set of n statements in a test case and let A = {A1,...,Ak} be the set of k assertions
+ *     in a statement Si
+ * 3 - Iterate over S and, for each statement Si:
+ * [3: Start loop]
+ * 4 - Iterate over A of Si and, for each assertion Aj:
+ * [4: Start loop]
+ * 5 - Verify if Aj does not correspond to an inspector assertion (instance of InspectorAssertion)
+ * 6 (5 is True):
+ *    6.1 - If the statement that contains the variable on which the assertion is made corresponds to a primitive
+ *          statement: increment the smell counter
+ * [4: End loop]
+ * [3: End loop]
+ * 7 - Return the smell counter
  */
 public class RedundantAssertion extends AbstractNormalizedTestCaseSmell {
 

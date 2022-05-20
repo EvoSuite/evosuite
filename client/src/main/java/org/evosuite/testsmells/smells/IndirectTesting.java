@@ -18,23 +18,25 @@ import java.util.Set;
  * Total number of methods of other classes that are checked by a test case.
  *
  * Computation:
- * 1 - Iterate over the statements of a test case
- * [1: Start loop]
- * 2 - Verify if the current statement is an instance of MethodStatement
- * 3 (2 is True):
- *    3.1 - Get the method called in the respective statement
- *    3.2 - If the class that declares this method is different from the class under test: increment the smell counter
- * 4 - Verify if the current statement has assertions
+ * 1 - Create a smell counter and initialize the variable with the value 0
+ * 2 - Let S = {S1,...,Sn} be the set of n statements in a test case
+ * 3 - Iterate over S and, for each statement Si:
+ * [3: Start loop]
+ * 4 - Verify if Si corresponds to a method statement (instance of MethodStatement)
  * 5 (4 is True):
- *    5.1 - Iterate over the assertions of the current statement
- *    [5.1: Start loop]
- *    5.2 - Verify if the current assertion is an instance of InspectorAssertion
- *    5.3 (5.2 is True):
- *       5.3.1 - Get the method on which the assertion is made
- *       5.3.2 - If the class that declares this method is different from the class under test: increment the smell counter
- *    [5.1: End loop]
- * [1: End loop]
- * 6 - Return the smell counter
+ *    5.1 - If the class that declares the method called in Si is different from the class under test: increment the smell counter
+ * 6 - Verify if Si has assertions
+ * 7 (6 is True):
+ *    7.1 - Let A = {A1,...,Ak} be the set of k assertions in Si
+ *    7.2 - Iterate over A of Si and, for each assertion Aj:
+ *    [7.2: Start loop]
+ *    7.3 - Verify if Aj corresponds to an inspector assertion (instance of InspectorAssertion)
+ *    7.4 (6.3 is True):
+ *       7.4.1 - If the class that declares the method on which the assertion is made is different from the class
+ *               under test: increment the smell counter
+ *    [7.2: End loop]
+ * [3: End loop]
+ * 8 - Return the smell counter
  */
 public class IndirectTesting extends AbstractNormalizedTestCaseSmell {
 

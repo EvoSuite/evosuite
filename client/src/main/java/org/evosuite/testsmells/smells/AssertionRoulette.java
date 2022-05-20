@@ -13,7 +13,7 @@ import org.evosuite.testsmells.AbstractNormalizedTestCaseSmell;
  * Adaptation:
  * This smell can occur for one of two reasons:
  * 1 - A test case has assertions without assertion messages
- * 2 - A test case has an excessive number of assertions
+ * 2 - A test case has an excessive number of assertions (typically because the test case is inspecting too much functionality)
  * EvoSuite does not generate assertions with such messages, so this metric only focuses on avoiding an excessive
  * number of assertions. Before establishing this metric, it is necessary to stipulate what corresponds to an
  * "excessive" number of assertions. Specifically, a test case is only affected by this smell if the number of
@@ -31,10 +31,9 @@ import org.evosuite.testsmells.AbstractNormalizedTestCaseSmell;
  * 4 - Increment the assertion counter by the number of assertions in Si
  * 5 - Verify if Si corresponds to a method statement (instance of MethodStatement)
  * 6 (5 is True):
- *    6.1 - Get the method called in Si
- *    6.2 - If the class that declares this method is the same as the class under test: increment the method counter
+ *    6.1 - If the class that declares the method called in Si is the same as the class under test: increment the method counter
  * [3: End loop]
- * 7 - Calculate the difference between the smell counter and the method counter to determine the number of assertions
+ * 7 - Calculate the difference between the assertion counter and the method counter to determine the number of assertions
  *     in the test case that exceed the total amount of statements that call methods of the class under test: use
  *     Math.max() to ensure that the result is always greater than or equal to zero
  * 8 - If the result is greater than or equal to zero, return the result; otherwise, return 0
