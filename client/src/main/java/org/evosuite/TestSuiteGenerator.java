@@ -383,6 +383,18 @@ public class TestSuiteGenerator {
             }
         }
 
+        if (Properties.OUTPUT_VARIABLES != null && Properties.OUTPUT_VARIABLES.toLowerCase().contains("smell") &&
+                Properties.OUTPUT_VARIABLES.toLowerCase().contains("beforeminimization")) {
+
+            for (TestChromosome test : testSuite.getTestChromosomes()) {
+                ExecutionResult result;
+                result = TestCaseExecutor.runTest(test.getTestCase());
+                test.setLastExecutionResult(result);
+            }
+
+            TestSmellAnalyzer.writeNumTestSmellsBeforeMinimization(testSuite);
+        }
+
         if (Properties.INLINE) {
             ClientServices.getInstance().getClientNode().changeState(ClientState.INLINING);
             ConstantInliner inliner = new ConstantInliner();

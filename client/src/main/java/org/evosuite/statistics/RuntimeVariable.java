@@ -77,6 +77,36 @@ public enum RuntimeVariable {
 	 */
 	AllTestSmells,
 
+    /**
+     * The number of individual test smells before minimization
+     */
+    TestSmellAssertionRouletteBeforeMinimization,
+    TestSmellBrittleAssertionBeforeMinimization,
+    TestSmellDuplicateAssertBeforeMinimization,
+    TestSmellEagerTestBeforeMinimization,
+    TestSmellEmptyTestBeforeMinimization,
+    TestSmellIndirectTestingBeforeMinimization,
+    TestSmellLackOfCohesionOfMethodsBeforeMinimization,
+    TestSmellLazyTestBeforeMinimization,
+    TestSmellLikelyIneffectiveObjectComparisonBeforeMinimization,
+    TestSmellMysteryGuestBeforeMinimization,
+    TestSmellObscureInlineSetupBeforeMinimization,
+    TestSmellOverreferencingBeforeMinimization,
+    TestSmellRedundantAssertionBeforeMinimization,
+    TestSmellResourceOptimismBeforeMinimization,
+    TestSmellRottenGreenTestsBeforeMinimization,
+    TestSmellSlowTestsBeforeMinimization,
+    TestSmellTestRedundancyBeforeMinimization,
+    TestSmellUnknownTestBeforeMinimization,
+    TestSmellUnrelatedAssertionsBeforeMinimization,
+    TestSmellUnusedInputsBeforeMinimization,
+    TestSmellVerboseTestBeforeMinimization,
+
+    /**
+     * The total number of test smells before minimization
+     */
+    AllTestSmellsBeforeMinimization,
+
 	/**
 	 * Obtained test smell numbers at different points in time
 	 */

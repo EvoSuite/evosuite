@@ -55,6 +55,48 @@ public class TestSmellAnalyzer {
         }
     }
 
+    public static void writeNumTestSmellsBeforeMinimization(TestSuiteChromosome testSuite){
+
+        double specificSmell;
+
+        List<String> listOfVariables = new ArrayList<>();
+
+        for(String entry : Properties.OUTPUT_VARIABLES.split(",")){
+            listOfVariables.add(entry.trim());
+        }
+
+        if(listOfVariables.contains("AllTestSmellsBeforeMinimization")){
+            double smellCount = 0;
+
+            List<AbstractTestSmell> listOfTestSmells = initializeTestSmells();
+
+            for(AbstractTestSmell currentSmell : listOfTestSmells){
+                specificSmell = currentSmell.computeTestSmellMetric(testSuite);
+                if (!Double.isNaN(specificSmell)){
+                    smellCount += specificSmell;
+                }
+
+                if(listOfVariables.contains(currentSmell.getName() + "BeforeMinimization")){
+                    ClientServices.track(RuntimeVariable.valueOf(currentSmell.getName() + "BeforeMinimization"), specificSmell);
+                }
+            }
+
+            ClientServices.track(RuntimeVariable.valueOf("AllTestSmellsBeforeMinimization"), smellCount);
+
+        } else {
+
+            for (String entry : listOfVariables){
+
+                AbstractTestSmell testSmell = getAbstractTestSmellBeforeMinimization(entry);
+
+                if(testSmell != null){
+                    specificSmell = testSmell.computeTestSmellMetric(testSuite);
+                    ClientServices.track(RuntimeVariable.valueOf(entry), specificSmell);
+                }
+            }
+        }
+    }
+
     private static List<AbstractTestSmell> initializeTestSmells(){
 
         List<AbstractTestSmell> listOfTestSmells = new ArrayList<>();
@@ -131,6 +173,56 @@ public class TestSmellAnalyzer {
             case "TestSmellUnusedInputs":
                 return new UnusedInputs();
             case "TestSmellVerboseTest":
+                return new VerboseTest();
+            default:
+                return null;
+        }
+    }
+
+    private static AbstractTestSmell getAbstractTestSmellBeforeMinimization (String smellName) {
+
+        switch (smellName){
+            case "TestSmellAssertionRouletteBeforeMinimization":
+                return new AssertionRoulette();
+            case "TestSmellBrittleAssertionBeforeMinimization":
+                return new BrittleAssertion();
+            case "TestSmellDuplicateAssertBeforeMinimization":
+                return new DuplicateAssert();
+            case "TestSmellEagerTestBeforeMinimization":
+                return new EagerTest();
+            case "TestSmellEmptyTestBeforeMinimization":
+                return new EmptyTest();
+            case "TestSmellIndirectTestingBeforeMinimization":
+                return new IndirectTesting();
+            case "TestSmellLackOfCohesionOfMethodsBeforeMinimization":
+                return new LackOfCohesionOfMethods();
+            case "TestSmellLazyTestBeforeMinimization":
+                return new LazyTest();
+            case "TestSmellLikelyIneffectiveObjectComparisonBeforeMinimization":
+                return new LikelyIneffectiveObjectComparison();
+            case "TestSmellMysteryGuestBeforeMinimization":
+                return new MysteryGuest();
+            case "TestSmellObscureInlineSetupBeforeMinimization":
+                return new ObscureInlineSetup();
+            case "TestSmellOverreferencingBeforeMinimization":
+                return new Overreferencing();
+            case "TestSmellRedundantAssertionBeforeMinimization":
+                return new RedundantAssertion();
+            case "TestSmellResourceOptimismBeforeMinimization":
+                return new ResourceOptimism();
+            case "TestSmellRottenGreenTestsBeforeMinimization":
+                return new RottenGreenTests();
+            case "TestSmellSlowTestsBeforeMinimization":
+                return new SlowTests();
+            case "TestSmellTestRedundancyBeforeMinimization":
+                return new TestRedundancy();
+            case "TestSmellUnknownTestBeforeMinimization":
+                return new UnknownTest();
+            case "TestSmellUnrelatedAssertionsBeforeMinimization":
+                return new UnrelatedAssertions();
+            case "TestSmellUnusedInputsBeforeMinimization":
+                return new UnusedInputs();
+            case "TestSmellVerboseTestBeforeMinimization":
                 return new VerboseTest();
             default:
                 return null;
