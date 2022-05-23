@@ -10,14 +10,17 @@ import java.lang.reflect.Method;
 
 /**
  * Definition:
- * Assertions do not check input controlled by a test case (the test is checking too little).
+ * Assertions do not check values derived from input controlled by a test case (the test is checking too little).
  *
  * Adaptation:
- * Every statement which calls a method of the class under test that returns a value should necessarily have at
- * least one assertion. Otherwise, the test is considered smelly.
+ * Without having full access to the class under test, it is difficult to know for sure if an assertion does not check
+ * values controlled by the test case. Hence, the proposed metric only focuses on statements that should necessarily
+ * have assertions:
+ * -> Every statement which calls a method of the class under test that returns a value should necessarily have at
+ *    least one assertion; otherwise, the test is considered smelly.
  *
  * Metric:
- * Number of statements that call methods of the class under test but that do not have assertions.
+ * Number of statements without assertions that call methods of the class under test.
  *
  * Computation:
  * 1 - Create a smell counter and initialize the variable with the value 0
