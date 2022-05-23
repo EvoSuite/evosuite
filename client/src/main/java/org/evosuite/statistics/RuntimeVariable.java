@@ -80,32 +80,32 @@ public enum RuntimeVariable {
     /**
      * The number of individual test smells before minimization
      */
-    TestSmellAssertionRouletteBeforeMinimization,
-    TestSmellBrittleAssertionBeforeMinimization,
-    TestSmellDuplicateAssertBeforeMinimization,
-    TestSmellEagerTestBeforeMinimization,
-    TestSmellEmptyTestBeforeMinimization,
-    TestSmellIndirectTestingBeforeMinimization,
-    TestSmellLackOfCohesionOfMethodsBeforeMinimization,
-    TestSmellLazyTestBeforeMinimization,
-    TestSmellLikelyIneffectiveObjectComparisonBeforeMinimization,
-    TestSmellMysteryGuestBeforeMinimization,
-    TestSmellObscureInlineSetupBeforeMinimization,
-    TestSmellOverreferencingBeforeMinimization,
-    TestSmellRedundantAssertionBeforeMinimization,
-    TestSmellResourceOptimismBeforeMinimization,
-    TestSmellRottenGreenTestsBeforeMinimization,
-    TestSmellSlowTestsBeforeMinimization,
-    TestSmellTestRedundancyBeforeMinimization,
-    TestSmellUnknownTestBeforeMinimization,
-    TestSmellUnrelatedAssertionsBeforeMinimization,
-    TestSmellUnusedInputsBeforeMinimization,
-    TestSmellVerboseTestBeforeMinimization,
+    TestSmellAssertionRouletteBeforePostProcess,
+    TestSmellBrittleAssertionBeforePostProcess,
+    TestSmellDuplicateAssertBeforePostProcess,
+    TestSmellEagerTestBeforePostProcess,
+    TestSmellEmptyTestBeforePostProcess,
+    TestSmellIndirectTestingBeforePostProcess,
+    TestSmellLackOfCohesionOfMethodsBeforePostProcess,
+    TestSmellLazyTestBeforePostProcess,
+    TestSmellLikelyIneffectiveObjectComparisonBeforePostProcess,
+    TestSmellMysteryGuestBeforePostProcess,
+    TestSmellObscureInlineSetupBeforePostProcess,
+    TestSmellOverreferencingBeforePostProcess,
+    TestSmellRedundantAssertionBeforePostProcess,
+    TestSmellResourceOptimismBeforePostProcess,
+    TestSmellRottenGreenTestsBeforePostProcess,
+    TestSmellSlowTestsBeforePostProcess,
+    TestSmellTestRedundancyBeforePostProcess,
+    TestSmellUnknownTestBeforePostProcess,
+    TestSmellUnrelatedAssertionsBeforePostProcess,
+    TestSmellUnusedInputsBeforePostProcess,
+    TestSmellVerboseTestBeforePostProcess,
 
     /**
      * The total number of test smells before minimization
      */
-    AllTestSmellsBeforeMinimization,
+    AllTestSmellsBeforePostProcess,
 
 	/**
 	 * Obtained test smell numbers at different points in time

@@ -55,7 +55,7 @@ public class TestSmellAnalyzer {
         }
     }
 
-    public static void writeNumTestSmellsBeforeMinimization(TestSuiteChromosome testSuite){
+    public static void writeNumTestSmellsBeforePostProcess(TestSuiteChromosome testSuite){
 
         double specificSmell;
 
@@ -65,7 +65,7 @@ public class TestSmellAnalyzer {
             listOfVariables.add(entry.trim());
         }
 
-        if(listOfVariables.contains("AllTestSmellsBeforeMinimization")){
+        if(listOfVariables.contains("AllTestSmellsBeforePostProcess")){
             double smellCount = 0;
 
             List<AbstractTestSmell> listOfTestSmells = initializeTestSmells();
@@ -76,12 +76,12 @@ public class TestSmellAnalyzer {
                     smellCount += specificSmell;
                 }
 
-                if(listOfVariables.contains(currentSmell.getName() + "BeforeMinimization")){
-                    ClientServices.track(RuntimeVariable.valueOf(currentSmell.getName() + "BeforeMinimization"), specificSmell);
+                if(listOfVariables.contains(currentSmell.getName() + "BeforePostProcess")){
+                    ClientServices.track(RuntimeVariable.valueOf(currentSmell.getName() + "BeforePostProcess"), specificSmell);
                 }
             }
 
-            ClientServices.track(RuntimeVariable.valueOf("AllTestSmellsBeforeMinimization"), smellCount);
+            ClientServices.track(RuntimeVariable.valueOf("AllTestSmellsBeforePostProcess"), smellCount);
 
         } else {
 
@@ -182,47 +182,47 @@ public class TestSmellAnalyzer {
     private static AbstractTestSmell getAbstractTestSmellBeforeMinimization (String smellName) {
 
         switch (smellName){
-            case "TestSmellAssertionRouletteBeforeMinimization":
+            case "TestSmellAssertionRouletteBeforePostProcess":
                 return new AssertionRoulette();
-            case "TestSmellBrittleAssertionBeforeMinimization":
+            case "TestSmellBrittleAssertionBeforePostProcess":
                 return new BrittleAssertion();
-            case "TestSmellDuplicateAssertBeforeMinimization":
+            case "TestSmellDuplicateAssertBeforePostProcess":
                 return new DuplicateAssert();
-            case "TestSmellEagerTestBeforeMinimization":
+            case "TestSmellEagerTestBeforePostProcess":
                 return new EagerTest();
-            case "TestSmellEmptyTestBeforeMinimization":
+            case "TestSmellEmptyTestBeforePostProcess":
                 return new EmptyTest();
-            case "TestSmellIndirectTestingBeforeMinimization":
+            case "TestSmellIndirectTestingBeforePostProcess":
                 return new IndirectTesting();
-            case "TestSmellLackOfCohesionOfMethodsBeforeMinimization":
+            case "TestSmellLackOfCohesionOfMethodsBeforePostProcess":
                 return new LackOfCohesionOfMethods();
-            case "TestSmellLazyTestBeforeMinimization":
+            case "TestSmellLazyTestBeforePostProcess":
                 return new LazyTest();
-            case "TestSmellLikelyIneffectiveObjectComparisonBeforeMinimization":
+            case "TestSmellLikelyIneffectiveObjectComparisonBeforePostProcess":
                 return new LikelyIneffectiveObjectComparison();
-            case "TestSmellMysteryGuestBeforeMinimization":
+            case "TestSmellMysteryGuestBeforePostProcess":
                 return new MysteryGuest();
-            case "TestSmellObscureInlineSetupBeforeMinimization":
+            case "TestSmellObscureInlineSetupBeforePostProcess":
                 return new ObscureInlineSetup();
-            case "TestSmellOverreferencingBeforeMinimization":
+            case "TestSmellOverreferencingBeforePostProcess":
                 return new Overreferencing();
-            case "TestSmellRedundantAssertionBeforeMinimization":
+            case "TestSmellRedundantAssertionBeforePostProcess":
                 return new RedundantAssertion();
-            case "TestSmellResourceOptimismBeforeMinimization":
+            case "TestSmellResourceOptimismBeforePostProcess":
                 return new ResourceOptimism();
-            case "TestSmellRottenGreenTestsBeforeMinimization":
+            case "TestSmellRottenGreenTestsBeforePostProcess":
                 return new RottenGreenTests();
-            case "TestSmellSlowTestsBeforeMinimization":
+            case "TestSmellSlowTestsBeforePostProcess":
                 return new SlowTests();
-            case "TestSmellTestRedundancyBeforeMinimization":
+            case "TestSmellTestRedundancyBeforePostProcess":
                 return new TestRedundancy();
-            case "TestSmellUnknownTestBeforeMinimization":
+            case "TestSmellUnknownTestBeforePostProcess":
                 return new UnknownTest();
-            case "TestSmellUnrelatedAssertionsBeforeMinimization":
+            case "TestSmellUnrelatedAssertionsBeforePostProcess":
                 return new UnrelatedAssertions();
-            case "TestSmellUnusedInputsBeforeMinimization":
+            case "TestSmellUnusedInputsBeforePostProcess":
                 return new UnusedInputs();
-            case "TestSmellVerboseTestBeforeMinimization":
+            case "TestSmellVerboseTestBeforePostProcess":
                 return new VerboseTest();
             default:
                 return null;

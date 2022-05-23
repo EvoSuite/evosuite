@@ -384,15 +384,21 @@ public class TestSuiteGenerator {
         }
 
         if (Properties.OUTPUT_VARIABLES != null && Properties.OUTPUT_VARIABLES.toLowerCase().contains("smell") &&
-                Properties.OUTPUT_VARIABLES.toLowerCase().contains("beforeminimization")) {
+                Properties.OUTPUT_VARIABLES.toLowerCase().contains("beforepostprocess")) {
 
-            for (TestChromosome test : testSuite.getTestChromosomes()) {
-                ExecutionResult result;
-                result = TestCaseExecutor.runTest(test.getTestCase());
-                test.setLastExecutionResult(result);
+            if (!TimeController.getInstance().hasTimeToExecuteATestCase()) {
+                LoggingUtils.getEvoLogger().info("* " + ClientProcess.getPrettyPrintIdentifier()
+                        + "Skipping test smell analysis before post-processing because not enough time is left");
+            } else {
+
+                for (TestChromosome test : testSuite.getTestChromosomes()) {
+                    ExecutionResult result;
+                    result = TestCaseExecutor.runTest(test.getTestCase());
+                    test.setLastExecutionResult(result);
+                }
             }
 
-            TestSmellAnalyzer.writeNumTestSmellsBeforeMinimization(testSuite);
+            TestSmellAnalyzer.writeNumTestSmellsBeforePostProcess(testSuite);
         }
 
         if (Properties.INLINE) {
@@ -532,31 +538,43 @@ public class TestSuiteGenerator {
 
         if (Properties.TEST_SMELL_OPTIMIZATION) {
 
-            for (TestChromosome test : testSuite.getTestChromosomes()) {
-                ExecutionResult result;
-                result = TestCaseExecutor.runTest(test.getTestCase());
-                test.setLastExecutionResult(result);
-            }
+            if (!TimeController.getInstance().hasTimeToExecuteATestCase()) {
+                LoggingUtils.getEvoLogger().info("* " + ClientProcess.getPrettyPrintIdentifier()
+                        + "Skipping test smell analysis after post-processing because not enough time is left");
+            } else {
+                for (TestChromosome test : testSuite.getTestChromosomes()) {
+                    ExecutionResult result;
+                    result = TestCaseExecutor.runTest(test.getTestCase());
+                    test.setLastExecutionResult(result);
+                }
 
-            double before = testSuite.getFitness();
+                double before = testSuite.getFitness();
 
-            OptimizeTestSmellsPostProcessing optimized = new OptimizeTestSmellsPostProcessing();
+                OptimizeTestSmellsPostProcessing optimized = new OptimizeTestSmellsPostProcessing();
 
-            // TODO: This will change in the future
-            optimized.computeTotalNumberOfSmells(testSuite);
+                // TODO: This will change in the future
+                optimized.computeTotalNumberOfSmells(testSuite);
 
-            double after = testSuite.getFitness();
-            if (after > before + 0.01d) { // assume minimization
-                throw new Error("EvoSuite bug: minimization lead fitness from " + before + " to " + after);
+                double after = testSuite.getFitness();
+
+                if (after > before + 0.01d) {
+                    throw new Error("EvoSuite bug: test smell optimization as an additional post-processing step lead fitness from " + before + " to " + after);
+                }
             }
         }
 
         if (Properties.OUTPUT_VARIABLES != null && Properties.OUTPUT_VARIABLES.toLowerCase().contains("smell")) {
 
-            for (TestChromosome test : testSuite.getTestChromosomes()) {
-                ExecutionResult result;
-                result = TestCaseExecutor.runTest(test.getTestCase());
-                test.setLastExecutionResult(result);
+            if (!TimeController.getInstance().hasTimeToExecuteATestCase()) {
+                LoggingUtils.getEvoLogger().info("* " + ClientProcess.getPrettyPrintIdentifier()
+                        + "Skipping test smell analysis after post-processing because not enough time is left");
+            } else {
+
+                for (TestChromosome test : testSuite.getTestChromosomes()) {
+                    ExecutionResult result;
+                    result = TestCaseExecutor.runTest(test.getTestCase());
+                    test.setLastExecutionResult(result);
+                }
             }
 
             TestSmellAnalyzer.writeNumTestSmells(testSuite);
