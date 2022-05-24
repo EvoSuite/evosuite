@@ -16,8 +16,8 @@ public class DummySystemTest extends SystemTestBase{
                 Properties.Criterion.OUTPUT, Properties.Criterion.METHOD, Properties.Criterion.METHODNOEXCEPTION, Properties.Criterion.CBRANCH};
 
         //String targetClass = SimpleMutationExample2.class.getCanonicalName();
-        //String targetClass = TestSmellsServer.class.getCanonicalName();
-        String targetClass = TestSmellsTestingClass1.class.getCanonicalName();
+        String targetClass = TestSmellsServer.class.getCanonicalName();
+        //String targetClass = TestSmellsTestingClass1.class.getCanonicalName();
 
         //----------------------------
         //Set the secondary objective:

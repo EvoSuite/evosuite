@@ -215,6 +215,24 @@ public class TestSuiteGenerator {
 
         TestGenerationResult result = null;
         if (ClientProcess.DEFAULT_CLIENT_NAME.equals(ClientProcess.getIdentifier())) {
+
+            if (Properties.OUTPUT_VARIABLES != null && Properties.OUTPUT_VARIABLES.toLowerCase().contains("smell") &&
+                    Properties.OUTPUT_VARIABLES.toLowerCase().contains("beforepostprocess")) {
+
+                if (!TimeController.getInstance().hasTimeToExecuteATestCase()) {
+                    LoggingUtils.getEvoLogger().info("* " + ClientProcess.getPrettyPrintIdentifier()
+                            + "Skipping test smell analysis before post-processing because not enough time is left");
+                } else {
+
+                    for (TestChromosome test : testCases.getTestChromosomes()) {
+                        ExecutionResult res = TestCaseExecutor.runTest(test.getTestCase());
+                        test.setLastExecutionResult(res);
+                    }
+                }
+
+                TestSmellAnalyzer.writeNumTestSmellsBeforePostProcess(testCases);
+            }
+
             postProcessTests(testCases);
             ClientServices.getInstance().getClientNode().publishPermissionStatistics();
             PermissionStatistics.getInstance().printStatistics(LoggingUtils.getEvoLogger());
@@ -383,6 +401,7 @@ public class TestSuiteGenerator {
             }
         }
 
+        /*
         if (Properties.OUTPUT_VARIABLES != null && Properties.OUTPUT_VARIABLES.toLowerCase().contains("smell") &&
                 Properties.OUTPUT_VARIABLES.toLowerCase().contains("beforepostprocess")) {
 
@@ -400,6 +419,7 @@ public class TestSuiteGenerator {
 
             TestSmellAnalyzer.writeNumTestSmellsBeforePostProcess(testSuite);
         }
+         */
 
         if (Properties.INLINE) {
             ClientServices.getInstance().getClientNode().changeState(ClientState.INLINING);
