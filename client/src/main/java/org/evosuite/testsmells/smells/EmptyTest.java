@@ -6,7 +6,7 @@ import org.evosuite.testsuite.TestSuiteChromosome;
 
 /**
  * Definition:
- * A test case that does not have executable statements.
+ * Test cases without executable statements.
  *
  * Metric:
  * Number of executable statements.

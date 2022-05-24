@@ -14,7 +14,7 @@ import java.util.*;
 
 /**
  * Definition:
- * A test case tests the same condition several times.
+ * A test case contains several assertions that check the same condition.
  *
  * Adaptation:
  * In the proposed metric, two assertions are equal if they:

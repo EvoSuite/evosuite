@@ -14,6 +14,10 @@ import java.util.Set;
  * Definition:
  * Test cases that have assertions that are either permanently true or permanently false.
  *
+ * Adaptation:
+ * EvoSuite never generates assertions with the same values for the actual and expected parameters. As such, this
+ * metric focuses on another type of redundant assertions: assertions that check primitive statements.
+ *
  * Metric:
  * Total number of assertions that check primitive statements.
  *
