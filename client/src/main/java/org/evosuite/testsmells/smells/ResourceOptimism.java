@@ -15,7 +15,7 @@ import java.util.*;
  * Tests make optimistic assumptions about the existence/state of external resources.
  *
  * Metric:
- * The number of times an instance of a File class is used without first calling one of the following
+ * Number of times a test case uses instances of the File class before calling one of the following
  * methods: exists(); notExists(); isFile().
  *
  * Computation:

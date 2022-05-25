@@ -14,10 +14,9 @@ import org.evosuite.testsmells.AbstractNormalizedTestCaseSmell;
  * This smell can occur for one of two reasons:
  * 1 - A test case has assertions without assertion messages
  * 2 - A test case has an excessive number of assertions (typically because the test case is inspecting too much functionality)
- * EvoSuite does not generate assertions with such messages, so this metric only focuses on avoiding an excessive
- * number of assertions. Before establishing this metric, it is necessary to stipulate what corresponds to an
- * "excessive" number of assertions. Specifically, a test case is only affected by this smell if the number of
- * assertions is greater than the total number of method calls.
+ * EvoSuite does not generate assertion messages, so this metric only focuses on avoiding an excessive number of
+ * assertions. A test case is only affected by this smell if the number of assertions is greater than the total
+ * number of method calls.
  *
  * Metric:
  * Number of assertions in a test case that exceed the total amount of statements that call methods of

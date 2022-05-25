@@ -14,7 +14,7 @@ import java.util.Set;
 
 /**
  * Definition:
- * A test case checks multiple methods of the class under test (i.e., the test case verifies too much functionality).
+ * A test case checks multiple methods of the class under test (i.e., it verifies too much functionality).
  *
  * Metric:
  * Total number of different methods of the class under test that are checked by a test case.
