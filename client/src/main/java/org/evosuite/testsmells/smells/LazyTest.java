@@ -1,5 +1,6 @@
 package org.evosuite.testsmells.smells;
 
+import org.evosuite.Properties;
 import org.evosuite.assertion.Assertion;
 import org.evosuite.assertion.InspectorAssertion;
 import org.evosuite.ga.FitnessFunction;
@@ -32,7 +33,8 @@ import java.util.Set;
  * 7 - Verify if Sj corresponds to a method statement (instance of MethodStatement)
  * 8 (7 is True):
  *    8.1 - If a different test case already calls the method called in Si, increment the smell counter; otherwise,
- *          insert this method and the test case it is mapping into the LinkedHashMap
+ *          if the class that declares this method is the same as the class under test: insert this method and
+ *          the test case it is mapping into the LinkedHashMap
  * 9 - Verify if Si has assertions
  * 10 (9 is True):
  *    10.1 - Let A = {A1,...,Am} be the set of m assertions in Sj
@@ -41,7 +43,8 @@ import java.util.Set;
  *    10.3 - Verify if Ar corresponds to an inspector assertion (instance of InspectorAssertion)
  *    10.4 (10.3 is True):
  *       10.4.1 - If a different test case already calls the method on which Ar is made, increment the smell counter; otherwise,
- *                insert this method and the test case it is mapping into the LinkedHashMap
+ *                if the class that declares this method is the same as the class under test: insert this method and
+ *                the test case it is mapping into the LinkedHashMap
  *    [10.2: End loop]
  * [6: End loop]
  * [4: End loop]
@@ -75,7 +78,9 @@ public class LazyTest extends AbstractTestSmell {
                     if(methodsCalledByTestCases.containsKey(method) && !methodsCalledByTestCases.get(method).equals(testCase)){
                         count++;
                     }else{
-                        methodsCalledByTestCases.put(method, testCase);
+                        if(method.getDeclaringClass().getCanonicalName().equals(Properties.TARGET_CLASS)){
+                            methodsCalledByTestCases.put(method, testCase);
+                        }
                     }
                 }
 
@@ -90,7 +95,9 @@ public class LazyTest extends AbstractTestSmell {
                             if (methodsCalledByTestCases.containsKey(method) && !methodsCalledByTestCases.get(method).equals(testCase)) {
                                 count++;
                             } else {
-                                methodsCalledByTestCases.put(method, testCase);
+                                if(method.getDeclaringClass().getCanonicalName().equals(Properties.TARGET_CLASS)){
+                                    methodsCalledByTestCases.put(method, testCase);
+                                }
                             }
                         }
                     }
