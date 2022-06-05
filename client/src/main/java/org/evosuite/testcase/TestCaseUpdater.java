@@ -69,6 +69,8 @@ public class TestCaseUpdater {
     public static final String NEW_VALUE_IS_OF_AN_UNSUPPORTED_TYPE = "New value is of an unsupported type: ";
     public static final String NEW_REAL_VALUE_IS_OF_AN_UNSUPPORTED_TYPE = "New real value is of an unsupported type: ";
     public static final String NEW_INTEGER_VALUE_IS_OF_AN_UNSUPPORTED_TYPE = "New integer value is of an unsupported type: ";
+    public static final String SKIPPING_CURRENT_VALUE_AS_REFERENCES_ARE_NOT_ENABLED_VALUE = "Skipping current value as references are not enabled. Value: ";
+    public static final String SKIPPING_CURRENT_ARRAY_AS_THE_FEATURE_IS_NOT_ENABLED_VALUE = "Skipping current array as the feature is not enabled. Value: ";
 
 
     @SuppressWarnings({"rawtypes", "unchecked"})
@@ -85,13 +87,33 @@ public class TestCaseUpdater {
                 logger.info(NEW_VALUE + symbolicVariableName + ": " + updateValue);
 
                 // Reserved names cases
+                //// Arrays
                 if (ArraySymbolicLengthName.isArraySymbolicLengthVariableName(symbolicVariableName)) {
+                    // Skip if it's not enabled
+                    if (!Properties.IS_DSE_ARRAYS_SUPPORT_ENABLED) {
+                        logger.debug(SKIPPING_CURRENT_ARRAY_AS_THE_FEATURE_IS_NOT_ENABLED_VALUE + updateValue);
+                        continue;
+                    }
+
                     processArrayLengthValue(newTest, symbolicVariableName, (Long) updateValue);
+
+                //// References
                 } else if (ReferenceVariableUtil.isReferenceVariableName(symbolicVariableName)) {
-                    // TODO: not ready yet, needs classes
+                    // Skip if it's not enabled
+                    if (!Properties.IS_DSE_OBJECTS_SUPPORT_ENABLED) {
+                        logger.debug(SKIPPING_CURRENT_VALUE_AS_REFERENCES_ARE_NOT_ENABLED_VALUE + updateValue);
+                        continue;
+                    }
+
+                    // TODO (ilebrero): not ready yet, needs more work and testing
                     processObjectValue(newTest, symbolicVariableName, (Long) updateValue, created);
                 // Non-reserved names cases
                 } else if (Properties.isLazyArraysImplementationSelected() && SymbolicArrayUtil.isArrayContentVariableName(symbolicVariableName)) {
+                    if (!Properties.IS_DSE_ARRAYS_SUPPORT_ENABLED) {
+                        logger.debug(SKIPPING_CURRENT_VALUE_AS_REFERENCES_ARE_NOT_ENABLED_VALUE + updateValue);
+                        continue;
+                    }
+
                     processArrayElement(test, newTest, symbolicVariableName, updateValue);
                 } else if (updateValue instanceof Long) {
                     processLongValue(newTest, symbolicVariableName, updateValue);
@@ -100,6 +122,12 @@ public class TestCaseUpdater {
                 } else if (updateValue instanceof Double) {
                     processRealValue(test, newTest, symbolicVariableName, updateValue);
                 } else if (Properties.isArraysTheoryImplementationSelected() && updateValue.getClass().isArray()) {
+                    // Skip if it's not enabled
+                    if (!Properties.IS_DSE_ARRAYS_SUPPORT_ENABLED) {
+                        logger.debug(SKIPPING_CURRENT_ARRAY_AS_THE_FEATURE_IS_NOT_ENABLED_VALUE + updateValue);
+                        continue;
+                    }
+
                     processArray(test, newTest, symbolicVariableName, updateValue);
                 } else {
                     logger.debug(NEW_VALUE_IS_OF_AN_UNSUPPORTED_TYPE + updateValue);
@@ -275,10 +303,10 @@ public class TestCaseUpdater {
      *  2) Is the current instance already created?
      *    - Yes => Assign that one
      *    - No =>
-     *      3) it's a null statement, has to be a constructor?
+     *      3) if it's a null statement, it has to be a constructor?
      *        - Yes => build a new constructor statement for it
      *
-     *      4) It's a constructor statement, has to be null?
+     *      4) if it's a constructor statement, it has to be null?
      *        - Yes => Build a new null statement for the variable
      *
      * @param newTest
@@ -306,7 +334,7 @@ public class TestCaseUpdater {
          } else {
              // 3) is a null statement and a constructor is needed
              if (currentVariableStatement instanceof NullStatement && updateValue != 0) {
-                 //TODO: armar constructor statement
+                 //TODO: Build constructor statement
                  VariableReference varRef = currentVariableStatement.getReturnValue();
 
              // 4) is a constructor statement and null is needed
@@ -314,7 +342,8 @@ public class TestCaseUpdater {
                  NullStatement currentVariableNullStatement = new NullStatement(newTest, currentVariableStatement.getReturnType());
                  newTest.remove(currentVariableStatement.getPosition());
                  newTest.addStatement(currentVariableNullStatement, currentVariableStatement.getPosition());
-             }
+             // What happens here? do we need to do something else?
+             } else {}
          }
     }
 

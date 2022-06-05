@@ -45,12 +45,25 @@ public class TypeUtil {
           Type.BYTE_TYPE
     ).collect(Collectors.toSet());
 
-    public static final Set<Class> primitiveBv32Types = Stream.of(
+    public static final Set<Class> primitiveBv32Classes = Stream.of(
           boolean.class,
           short.class,
           char.class,
           int.class,
           byte.class
+    ).collect(Collectors.toSet());
+
+    public static final Set<Integer> primitiveBv32TypesSorts = Stream.of(
+        Type.BOOLEAN,
+        Type.SHORT,
+        Type.CHAR,
+        Type.INT,
+        Type.BYTE
+    ).collect(Collectors.toSet());
+
+    public static final Set<Integer> referenceTypesSorts = Stream.of(
+        Type.OBJECT,
+        Type.ARRAY
     ).collect(Collectors.toSet());
 
     /**
@@ -86,7 +99,7 @@ public class TypeUtil {
     }
 
     public static boolean isReferenceValue(Type arrayType) {
-        return arrayType.equals(Type.OBJECT) || arrayType.equals(Type.ARRAY);
+        return referenceTypesSorts.contains(arrayType.getSort());
     }
 
     public static boolean isStringValue(Type t) {
@@ -107,7 +120,7 @@ public class TypeUtil {
     }
 
     public static boolean isPrimitiveBv32(Class clazz) {
-        return primitiveBv32Types.contains(clazz);
+        return primitiveBv32Classes.contains(clazz);
     }
 
     public static boolean isPrimitiveBv64(Class clazz) {
