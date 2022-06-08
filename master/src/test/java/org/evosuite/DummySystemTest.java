@@ -19,14 +19,17 @@ public class DummySystemTest extends SystemTestBase{
         String targetClass = TestSmellsServer.class.getCanonicalName();
         //String targetClass = TestSmellsTestingClass1.class.getCanonicalName();
 
-        //----------------------------
-        //Set the secondary objective:
-        //----------------------------
+        //-----------------------------
+        // Set the secondary objective:
+        //-----------------------------
 
         //Properties.SECONDARY_OBJECTIVE = new Properties.SecondaryObjective[]{Properties.SecondaryObjective.TEST_SMELL_EAGER_TEST};
 
         //Properties.SECONDARY_OBJECTIVE = new Properties.SecondaryObjective[]{Properties.SecondaryObjective.TEST_SMELL_EAGER_TEST, Properties.SecondaryObjective.TEST_SMELL_EMPTY_TEST,
         //        Properties.SecondaryObjective.TEST_SMELL_INDIRECT_TESTING, Properties.SecondaryObjective.TEST_SMELL_VERBOSE_TEST};
+
+        //Properties.SECONDARY_OBJECTIVE = new Properties.SecondaryObjective[]{Properties.SecondaryObjective.TEST_SMELL_INDIRECT_TESTING,
+        //        Properties.SecondaryObjective.TEST_SMELL_ROTTEN_GREEN_TESTS};
 
         Properties.SECONDARY_OBJECTIVE = new Properties.SecondaryObjective[]{Properties.SecondaryObjective.TEST_SMELL_EAGER_TEST,
                 Properties.SecondaryObjective.TEST_SMELL_EMPTY_TEST, Properties.SecondaryObjective.TEST_SMELL_INDIRECT_TESTING,
@@ -35,9 +38,9 @@ public class DummySystemTest extends SystemTestBase{
                 Properties.SecondaryObjective.TEST_SMELL_RESOURCE_OPTIMISM,Properties.SecondaryObjective.TEST_SMELL_ROTTEN_GREEN_TESTS,
                 Properties.SecondaryObjective.TEST_SMELL_SLOW_TESTS,Properties.SecondaryObjective.TEST_SMELL_VERBOSE_TEST};
 
-        //-------------------------
-        //Set the output variables:
-        //-------------------------
+        //--------------------------
+        // Set the output variables:
+        //--------------------------
 
         //Properties.OUTPUT_VARIABLES = "AllTestSmellsBeforePostProcess,AllTestSmells";
 
@@ -85,6 +88,13 @@ public class DummySystemTest extends SystemTestBase{
                 "TestSmellUnrelatedAssertions,\n" +
                 "TestSmellUnusedInputs,\n" +
                 "TestSmellVerboseTest";
+
+        //---------------------
+        // Set the tiebreakers:
+        //---------------------
+
+        Properties.TIEBREAKER = new Properties.SecondaryObjective[]{Properties.SecondaryObjective.TEST_SMELL_EAGER_TEST,
+                Properties.SecondaryObjective.TEST_SMELL_ROTTEN_GREEN_TESTS, Properties.SecondaryObjective.TEST_SMELL_VERBOSE_TEST};
 
         String[] command = new String[] { "-generateMOSuite", "-class", targetClass };
 

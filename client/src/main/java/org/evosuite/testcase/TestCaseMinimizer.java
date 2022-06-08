@@ -96,6 +96,12 @@ public class TestCaseMinimizer {
             compare += objective.compareChromosomes(oldChromosome, newChromosome);
         }
 
+        if(compare == 0 && Properties.TIEBREAKER.length > 0){
+            for (SecondaryObjective<TestChromosome> objective : TestChromosome.getTiebreakers()) {
+                compare += objective.compareChromosomes(oldChromosome, newChromosome);
+            }
+        }
+
         return compare < 0;
     }
 

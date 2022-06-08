@@ -42,6 +42,7 @@ import java.io.Serializable;
 import java.util.*;
 
 import static org.evosuite.testcase.TestChromosome.getSecondaryObjectives;
+import static org.evosuite.testcase.TestChromosome.getTiebreakers;
 
 /**
  * A partial mapping of test targets onto the shortest encountered test cases covering the given
@@ -193,6 +194,14 @@ public abstract class Archive implements Serializable {
         double compare = 0;
         for (SecondaryObjective<TestChromosome> obj : getSecondaryObjectives()) {
             compare += obj.compareChromosomes(candidateSolution, currentSolution);
+        }
+
+        // If both solutions are equally good with respect to the secondary criteria, attempt to find the best
+        // solution using a tiebreaker
+        if(compare == 0 && Properties.TIEBREAKER.length > 0){
+            for (SecondaryObjective<TestChromosome> obj : getTiebreakers()) {
+                compare += obj.compareChromosomes(candidateSolution, currentSolution);
+            }
         }
 
         return compare < 0;
