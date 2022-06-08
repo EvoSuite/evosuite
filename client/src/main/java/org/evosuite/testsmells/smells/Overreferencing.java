@@ -16,10 +16,13 @@ import java.util.Set;
 
 /**
  * Definition:
- * Test cases that create unnecessary instances of classes from the application code.
+ * Test cases that reference classes an excessive number of times.
+ *
+ * Adaptation:
+ * Test cases that create unnecessary instances of classes (i.e., class instances that are created but never used).
  *
  * Metric:
- * Total number of unnecessary class instances (i.e., class instances that are created but never used).
+ * Number of unnecessary class instances (i.e., class instances that are created but never used).
  *
  * Computation:
  * 1 - Create an empty LinkedHashSet: elements - position of the statement on which a constructor is invoked to create a new object

@@ -29,7 +29,7 @@ import org.evosuite.testsuite.TestSuiteChromosome;
  *    5.1 - If the smell counter is greater than or equal to zero, increment the smell counter by the duration of the last
  *          execution of Ti; otherwise, change the value of the smell counter to the duration of the last execution of Ti
  * [3: End loop]
- * 6 - If the smell counter is equal to -1, return NaN
+ * 6 - If the smell counter is equal to -1: return NaN
  * 7 - Return the normalized value for the smell counter
  */
 public class SlowTests extends AbstractTestCaseSmell {
