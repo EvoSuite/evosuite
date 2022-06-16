@@ -36,7 +36,8 @@ public class TypeUtil {
     public static final String UNEXPECTED_VALUE = "Unexpected value: ";
     public static final String IS_NOT_A_PRIMITIVE_VALUE_CLASS = " is not a primitive value class!";
 
-    /** All 32 bits types */
+    //region 32 bits types
+    /** 32 bits types */
     public static final Set<Type> bv32Types = Stream.of(
           Type.BOOLEAN_TYPE,
           Type.SHORT_TYPE,
@@ -66,10 +67,13 @@ public class TypeUtil {
         Type.ARRAY
     ).collect(Collectors.toSet());
 
+    //endregion
+
+    //region ASM Type related helpers
+
     /**
      * ASM Type related helpers
      */
-
     public static boolean isBv32(Type t) {
         return bv32Types.contains(t);
     }
@@ -107,10 +111,13 @@ public class TypeUtil {
         return t.equals(stringType);
     }
 
+    //endregion
+
+    //region Class related helpers
+
     /**
      * Class related helpers
      */
-
     public static boolean isPrimitiveFp64(Class clazz) {
         return double.class.equals(clazz);
     }
@@ -204,4 +211,6 @@ public class TypeUtil {
 
         throw new IllegalStateException(UNEXPECTED_VALUE + componentTypeName);
     }
+
+    //endregion
 }
