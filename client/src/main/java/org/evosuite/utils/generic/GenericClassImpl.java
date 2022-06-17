@@ -1651,14 +1651,22 @@ public class GenericClassImpl implements Serializable, GenericClass<GenericClass
 		// ProjectCP is added to ClassLoader to ensure Dependencies of the class can be loaded.
 		*/
         ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
-        URL cpURL = new File(Properties.CP).toURI().toURL();
+        String[] cpElements = Properties.CP.split(File.pathSeparator);
+        boolean needToUpdateCP = true;
+        List<URL> urls = new ArrayList<>();
         // If the ContextClassLoader contains already the project cp, we don't add another one
         // We assume, that if the contextClassLoader is no URLClassLoader, it does not contain the projectCP
-        if (!(contextClassLoader instanceof URLClassLoader) ||
-                !Arrays.asList(((URLClassLoader) contextClassLoader).getURLs()).contains(cpURL)) {
-            URL[] urls;
-            urls = new URL[]{cpURL};
-            URLClassLoader urlClassLoader = new URLClassLoader(urls, contextClassLoader);
+        if(contextClassLoader instanceof URLClassLoader) {
+            needToUpdateCP = false;
+            List<URL> currentCpUrls = Arrays.asList(((URLClassLoader) contextClassLoader).getURLs());   
+            for(String cp : cpElements) {
+                URL cpElementUrl = new File(cp).toURI().toURL();
+                urls.add(cpElementUrl);
+                needToUpdateCP |= !currentCpUrls.contains(cpElementUrl);
+            }
+        }
+        if (needToUpdateCP) {
+            URLClassLoader urlClassLoader = new URLClassLoader(urls.toArray(new URL[0]), contextClassLoader);
             Thread.currentThread().setContextClassLoader(urlClassLoader);
         }
 
