@@ -59,4 +59,9 @@ public class LackOfCohesionOfMethods extends AbstractTestSmell {
 
         return FitnessFunction.normalize(count);
     }
+
+    @Override
+    public String computeTestSmellMetricForEachTestCase(TestSuiteChromosome chromosome) {
+        return String.valueOf(computeTestSmellMetric(chromosome));
+    }
 }

@@ -55,6 +55,27 @@ public class TestSmellAnalyzer {
         }
     }
 
+    public static void writeIndividualTestSmells(TestSuiteChromosome testSuite){
+
+        String specificSmell;
+
+        List<String> listOfVariables = new ArrayList<>();
+
+        for(String entry : Properties.OUTPUT_VARIABLES.split(",")){
+            listOfVariables.add(entry.trim());
+        }
+
+        for (String entry : listOfVariables){
+
+            AbstractTestSmell testSmell = getAbstractTestSmellList(entry);
+
+            if(testSmell != null){
+                specificSmell = testSmell.computeTestSmellMetricForEachTestCase(testSuite);
+                ClientServices.track(RuntimeVariable.valueOf(entry), specificSmell);
+            }
+        }
+    }
+
     public static void writeNumTestSmellsBeforePostProcess(TestSuiteChromosome testSuite){
 
         double specificSmell;
@@ -162,8 +183,6 @@ public class TestSmellAnalyzer {
                 return new RottenGreenTests();
             case "TestSmellSlowTests":
                 return new SlowTests();
-            //case "TestSmellTestCodeDuplication":
-            //    return new TestCodeDuplication();
             case "TestSmellTestRedundancy":
                 return new TestRedundancy();
             case "TestSmellUnknownTest":
@@ -173,6 +192,56 @@ public class TestSmellAnalyzer {
             case "TestSmellUnusedInputs":
                 return new UnusedInputs();
             case "TestSmellVerboseTest":
+                return new VerboseTest();
+            default:
+                return null;
+        }
+    }
+
+    private static AbstractTestSmell getAbstractTestSmellList (String smellName) {
+
+        switch (smellName){
+            case "TestSmellAssertionRouletteList":
+                return new AssertionRoulette();
+            case "TestSmellBrittleAssertionList":
+                return new BrittleAssertion();
+            case "TestSmellDuplicateAssertList":
+                return new DuplicateAssert();
+            case "TestSmellEagerTestList":
+                return new EagerTest();
+            case "TestSmellEmptyTestList":
+                return new EmptyTest();
+            case "TestSmellIndirectTestingList":
+                return new IndirectTesting();
+            case "TestSmellLackOfCohesionOfMethodsList":
+                return new LackOfCohesionOfMethods();
+            case "TestSmellLazyTestList":
+                return new LazyTest();
+            case "TestSmellLikelyIneffectiveObjectComparisonList":
+                return new LikelyIneffectiveObjectComparison();
+            case "TestSmellMysteryGuestList":
+                return new MysteryGuest();
+            case "TestSmellObscureInlineSetupList":
+                return new ObscureInlineSetup();
+            case "TestSmellOverreferencingList":
+                return new Overreferencing();
+            case "TestSmellRedundantAssertionList":
+                return new RedundantAssertion();
+            case "TestSmellResourceOptimismList":
+                return new ResourceOptimism();
+            case "TestSmellRottenGreenTestsList":
+                return new RottenGreenTests();
+            case "TestSmellSlowTestsList":
+                return new SlowTests();
+            case "TestSmellTestRedundancyList":
+                return new TestRedundancy();
+            case "TestSmellUnknownTestList":
+                return new UnknownTest();
+            case "TestSmellUnrelatedAssertionsList":
+                return new UnrelatedAssertions();
+            case "TestSmellUnusedInputsList":
+                return new UnusedInputs();
+            case "TestSmellVerboseTestList":
                 return new VerboseTest();
             default:
                 return null;

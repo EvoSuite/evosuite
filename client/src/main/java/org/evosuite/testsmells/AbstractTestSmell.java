@@ -27,4 +27,11 @@ public abstract class AbstractTestSmell implements Serializable {
      * @return double that corresponds to the computed test smell metric
      */
     public abstract double computeTestSmellMetric(TestSuiteChromosome chromosome);
+
+    /**
+     * Compute the test smell metric for each test case in a given test suite
+     * @param chromosome The analyzed test suite
+     * @return String that corresponds to the computed test smell metric for each test case
+     */
+    public abstract String computeTestSmellMetricForEachTestCase(TestSuiteChromosome chromosome);
 }

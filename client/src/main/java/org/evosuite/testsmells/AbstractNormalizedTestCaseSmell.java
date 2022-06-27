@@ -1,8 +1,12 @@
 package org.evosuite.testsmells;
 
+import org.apache.commons.lang3.StringUtils;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testsuite.TestSuiteChromosome;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public abstract class AbstractNormalizedTestCaseSmell extends AbstractTestCaseSmell {
 
@@ -33,5 +37,16 @@ public abstract class AbstractNormalizedTestCaseSmell extends AbstractTestCaseSm
         }
 
         return FitnessFunction.normalize(smellCount);
+    }
+
+    @Override
+    public String computeTestSmellMetricForEachTestCase(TestSuiteChromosome chromosome) {
+        List<Double> smellCountList = new ArrayList<>();
+
+        for(TestChromosome testcase : chromosome.getTestChromosomes()){
+            smellCountList.add(computeTestSmellMetric(testcase));
+        }
+
+        return StringUtils.join(smellCountList, "|");
     }
 }

@@ -50,4 +50,9 @@ public class EmptyTest extends AbstractTestCaseSmell {
 
         return 0;
     }
+
+    @Override
+    public String computeTestSmellMetricForEachTestCase(TestSuiteChromosome chromosome) {
+        return String.valueOf(computeTestSmellMetric(chromosome));
+    }
 }

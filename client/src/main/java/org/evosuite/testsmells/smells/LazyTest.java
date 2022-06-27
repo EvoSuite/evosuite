@@ -108,6 +108,11 @@ public class LazyTest extends AbstractTestSmell {
         return FitnessFunction.normalize(count);
     }
 
+    @Override
+    public String computeTestSmellMetricForEachTestCase(TestSuiteChromosome chromosome) {
+        return String.valueOf(computeTestSmellMetric(chromosome));
+    }
+
     /*
     @Override
     public double computeTestSmellMetric(TestSuiteChromosome chromosome) {

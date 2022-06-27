@@ -87,7 +87,28 @@ public class DummySystemTest extends SystemTestBase{
                 "TestSmellUnknownTest,\n" +
                 "TestSmellUnrelatedAssertions,\n" +
                 "TestSmellUnusedInputs,\n" +
-                "TestSmellVerboseTest";
+                "TestSmellVerboseTest,\n" +
+                "TestSmellAssertionRouletteList,\n" +
+                "TestSmellBrittleAssertionList,\n" +
+                "TestSmellDuplicateAssertList,\n" +
+                "TestSmellEagerTestList,\n" +
+                "TestSmellEmptyTestList,\n" +
+                "TestSmellIndirectTestingList,\n" +
+                "TestSmellLackOfCohesionOfMethods,\n" +
+                "TestSmellLazyTestList,\n" +
+                "TestSmellLikelyIneffectiveObjectComparisonList,\n" +
+                "TestSmellMysteryGuestList,\n" +
+                "TestSmellObscureInlineSetupList,\n" +
+                "TestSmellOverreferencingList,\n" +
+                "TestSmellRedundantAssertionList,\n" +
+                "TestSmellResourceOptimismList,\n" +
+                "TestSmellRottenGreenTestsList,\n" +
+                "TestSmellSlowTestsList,\n" +
+                "TestSmellTestRedundancyList,\n" +
+                "TestSmellUnknownTestList,\n" +
+                "TestSmellUnrelatedAssertionsList,\n" +
+                "TestSmellUnusedInputsList,\n" +
+                "TestSmellVerboseTestList";
 
         //---------------------
         // Set the tiebreakers:

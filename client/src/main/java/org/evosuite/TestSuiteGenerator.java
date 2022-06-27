@@ -563,6 +563,7 @@ public class TestSuiteGenerator {
             }
         }
 
+        // Number of test smells
         if (Properties.OUTPUT_VARIABLES != null && Properties.OUTPUT_VARIABLES.toLowerCase().contains("smell")) {
 
             if (!TimeController.getInstance().hasTimeToExecuteATestCase()) {
@@ -578,6 +579,24 @@ public class TestSuiteGenerator {
             }
 
             TestSmellAnalyzer.writeNumTestSmells(testSuite);
+        }
+
+        // List of test smells for each test case
+        if (Properties.OUTPUT_VARIABLES != null && Properties.OUTPUT_VARIABLES.toLowerCase().contains("smell")) {
+
+            if (!TimeController.getInstance().hasTimeToExecuteATestCase()) {
+                LoggingUtils.getEvoLogger().info("* " + ClientProcess.getPrettyPrintIdentifier()
+                        + "Skipping test smell analysis for individual test cases after post-processing because not enough time is left");
+            } else {
+
+                for (TestChromosome test : testSuite.getTestChromosomes()) {
+                    ExecutionResult result;
+                    result = TestCaseExecutor.runTest(test.getTestCase());
+                    test.setLastExecutionResult(result);
+                }
+            }
+
+            TestSmellAnalyzer.writeIndividualTestSmells(testSuite);
         }
     }
 

@@ -53,4 +53,9 @@ public class TestRedundancy extends AbstractTestSmell {
 
         return FitnessFunction.normalize(number_of_redundant_tests);
     }
+
+    @Override
+    public String computeTestSmellMetricForEachTestCase(TestSuiteChromosome chromosome) {
+        return String.valueOf(computeTestSmellMetric(chromosome));
+    }
 }

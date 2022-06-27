@@ -1,10 +1,12 @@
 package org.evosuite.testsmells.smells;
 
+import org.apache.commons.lang3.StringUtils;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testsmells.AbstractTestCaseSmell;
 import org.evosuite.testsuite.TestSuiteChromosome;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -66,5 +68,16 @@ public class UnknownTest extends AbstractTestCaseSmell {
         }
 
         return smellCount / testChromosomes.size();
+    }
+
+    @Override
+    public String computeTestSmellMetricForEachTestCase(TestSuiteChromosome chromosome) {
+        List<Double> smellCountList = new ArrayList<>();
+
+        for(TestChromosome testcase : chromosome.getTestChromosomes()){
+            smellCountList.add(computeTestSmellMetric(testcase));
+        }
+
+        return StringUtils.join(smellCountList, "|");
     }
 }
