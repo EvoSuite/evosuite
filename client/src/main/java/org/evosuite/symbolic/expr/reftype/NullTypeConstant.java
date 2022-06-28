@@ -17,35 +17,37 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite.symbolic.expr.ref;
+package org.evosuite.symbolic.expr.reftype;
 
 import org.evosuite.symbolic.expr.ExpressionVisitor;
-import org.evosuite.symbolic.expr.Variable;
+import org.evosuite.symbolic.expr.reftype.type.NullType;
+import org.evosuite.symbolic.vm.heap.SymbolicHeap;
 import org.objectweb.asm.Type;
 
-import java.util.Collections;
-import java.util.Set;
-
 /**
- * This class represents a reference that is not symbolic (e.g. a new Object()
- * somewhere during the execution of the code). After the NEW operation, the
- * concrete reference cannot be accessed until the <init> method finishes.
- * Therefore, we have to initialize the <code>ReferenceConstant</code> after the
- * <init> method ends.
+ * Symbolic representation of the null type.
+ * There should be only one instance of this object.
  *
- * @author galeotti
+ * @author Ignacio Lebrero
  */
-public abstract class ReferenceConstant extends ReferenceExpression {
+public final class NullTypeConstant extends ReferenceTypeConstant {
 
+    public static NullTypeConstant instance;
 
-    private static final long serialVersionUID = 4288259851884045452L;
+    public static synchronized NullTypeConstant getInstance() {
+        if (instance == null) {
+            instance = new NullTypeConstant();
+        }
 
-    public ReferenceConstant(Type objectType, int instanceId) {
-        super(objectType, instanceId, 1, false);
+        return instance;
+    }
+
+    private NullTypeConstant() {
+        super(Type.getType(NullType.class), SymbolicHeap.NULL_TYPE_ID);
     }
 
     @Override
-    public Set<Variable<?>> getVariables() {
-        return Collections.emptySet();
+    public <K, V> K accept(ExpressionVisitor<K, V> v, V arg) {
+        return v.visit(this, arg);
     }
 }

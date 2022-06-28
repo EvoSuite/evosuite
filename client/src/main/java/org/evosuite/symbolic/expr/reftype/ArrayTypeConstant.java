@@ -17,15 +17,23 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite.symbolic.expr.constraint;
+package org.evosuite.symbolic.expr.reftype;
 
-public interface ConstraintVisitor<K, V> {
+import org.evosuite.symbolic.expr.ExpressionVisitor;
+import org.objectweb.asm.Type;
 
-    K visit(IntegerConstraint n, V arg);
+/**
+ * Represents all array types
+ *
+ * @author Ignacio Lebrero
+ */
+public final class ArrayTypeConstant extends NonNullReferenceTypeConstant {
+    public ArrayTypeConstant(Type concreteClass, int referenceTypeId) {
+        super(concreteClass, referenceTypeId);
+    }
 
-    K visit(RealConstraint n, V arg);
-
-    K visit(StringConstraint n, V arg);
-
-    K visit(ReferenceConstraint n, V arg);
+    @Override
+    public <K, V> K accept(ExpressionVisitor<K, V> v, V arg) {
+        return v.visit(this, arg);
+    }
 }

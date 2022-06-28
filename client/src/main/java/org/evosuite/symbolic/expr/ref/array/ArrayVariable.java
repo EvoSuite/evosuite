@@ -65,8 +65,8 @@ public abstract class ArrayVariable extends ReferenceVariable implements ArrayVa
 
     public static final class StringArrayVariable extends ArrayVariable implements ArrayValue.StringArrayValue {
 
-        public StringArrayVariable(Type arrayType, int instanceId, String arrayName, Object concreteArray) {
-            super(arrayType, instanceId, arrayName, concreteArray);
+        public StringArrayVariable(int instanceId, String arrayName, Object concreteArray) {
+            super(Type.getType(String[].class), instanceId, arrayName, concreteArray);
         }
 
         @Override

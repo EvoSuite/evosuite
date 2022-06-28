@@ -24,11 +24,15 @@ import org.evosuite.symbolic.LambdaUtils;
 import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.bv.IntegerValue;
 import org.evosuite.symbolic.expr.fp.RealValue;
+import org.evosuite.symbolic.expr.ref.ClassReferenceConstant;
+import org.evosuite.symbolic.expr.ref.ClassReferenceVariable;
 import org.evosuite.symbolic.expr.ref.ReferenceConstant;
 import org.evosuite.symbolic.expr.ref.ReferenceExpression;
-import org.evosuite.symbolic.expr.ref.ReferenceVariable;
-import org.evosuite.symbolic.expr.reftype.LambdaSyntheticType;
-import org.evosuite.symbolic.expr.reftype.LiteralClassType;
+import org.evosuite.symbolic.expr.ref.array.ArrayConstant;
+import org.evosuite.symbolic.expr.ref.array.ArrayVariable;
+import org.evosuite.symbolic.expr.reftype.ArrayTypeConstant;
+import org.evosuite.symbolic.expr.reftype.ClassTypeConstant;
+import org.evosuite.symbolic.expr.reftype.LambdaSyntheticTypeConstant;
 import org.evosuite.symbolic.expr.reftype.ReferenceTypeExpression;
 import org.evosuite.symbolic.expr.str.StringValue;
 import org.evosuite.symbolic.vm.ExpressionFactory;
@@ -65,12 +69,28 @@ public final class SymbolicHeap {
     public static final String $STRING_BUFFER_CONTENTS = "$stringBuffer_contents";
     public static final String $STRING_BUILDER_CONTENTS = "$stringBuilder_contents";
 
+    /** Reference Constants */
+	public static final int NULL_INSTANCE_ID = 0;
+
+	/** Reference Type Constants */
+	public static final int NULL_TYPE_ID = 0;
+	public static final int OBJECT_TYPE_ID = 1;
+
     protected static final Logger logger = LoggerFactory.getLogger(SymbolicHeap.class);
 
     /**
      * Counter for instances
-     */
-    private int newInstanceCount = 0;
+     *
+	 * Note: 0 is reserved for the null constant.
+	 */
+	private int newInstanceCount = 1;
+
+	/**
+	 * Counter for reference types found during execution
+	 *
+	 * Note: 0 is reserved for the null constant and 1 for Object
+	 */
+	private int newReferenceTypeCount = 2;
 
     /**
      * Array's memory model
@@ -89,7 +109,7 @@ public final class SymbolicHeap {
      * time the ReferenceType for a given Object (non String) is needed, this
      * mapping is used.
      */
-    private final Map<Class, ReferenceTypeExpression> symbolicReferenceTypes = new HashMap<>();
+    private final Map<Type, ReferenceTypeExpression> symbolicReferenceTypes = new HashMap<>();
 
     /**
      * Stores a mapping between NonNullReferences and their symbolic values. The
@@ -121,12 +141,12 @@ public final class SymbolicHeap {
      * @param objectType
      * @return
      */
-    public ReferenceConstant buildNewReferenceConstant(Type objectType) {
+    public ClassReferenceConstant buildNewClassReferenceConstant(Type objectType) {
         if (objectType.getClassName() == null)
             throw new IllegalArgumentException();
 
         final int newInstanceId = newInstanceCount++;
-        return new ReferenceConstant(objectType, newInstanceId);
+        return new ClassReferenceConstant(objectType, newInstanceId);
     }
 
 
@@ -335,8 +355,7 @@ public final class SymbolicHeap {
     public ReferenceExpression getReference(Object conc_ref) {
         if (conc_ref == null) {
             // null reference
-            ReferenceConstant nullConstant = ExpressionFactory.buildNewNullExpression();
-            return nullConstant;
+            return ExpressionFactory.NULL_REFERENCE;
         } else {
             int identityHashCode = System.identityHashCode(conc_ref);
             if (nonNullRefs.containsKey(identityHashCode)) {
@@ -350,7 +369,7 @@ public final class SymbolicHeap {
                 if (conc_ref.getClass().isArray()) {
                     ref_constant = buildNewArrayReferenceConstant(type);
                 } else {
-                    ref_constant = buildNewReferenceConstant(type);
+                    ref_constant = buildNewClassReferenceConstant(type);
                 }
 
                 initializeReference(conc_ref, ref_constant);
@@ -368,7 +387,7 @@ public final class SymbolicHeap {
      * @param var_name
      * @return
      */
-    public ReferenceVariable buildNewReferenceVariable(Object concreteObject, String var_name) {
+    public ClassReferenceVariable buildNewClassReferenceVariable(Object concreteObject, String var_name) {
         final Type referenceType;
         if (concreteObject == null) {
             referenceType = Type.getType(Object.class);
@@ -376,7 +395,7 @@ public final class SymbolicHeap {
             referenceType = Type.getType(concreteObject.getClass());
         }
         final int newInstanceId = newInstanceCount++;
-        final ReferenceVariable r = new ReferenceVariable(referenceType, newInstanceId, var_name, concreteObject);
+        final ClassReferenceVariable r = new ClassReferenceVariable(referenceType, newInstanceId, var_name, concreteObject);
         return r;
     }
 
@@ -414,7 +433,7 @@ public final class SymbolicHeap {
      * @param arrayType
      * @return
      */
-    public ReferenceConstant buildNewArrayReferenceConstant(Type arrayType) {
+    public ArrayConstant buildNewArrayReferenceConstant(Type arrayType) {
         if (arrayType.getClassName() == null)
             throw new IllegalArgumentException();
 
@@ -429,7 +448,7 @@ public final class SymbolicHeap {
      * @param arrayVarName
      * @return
      */
-    public ReferenceVariable buildNewArrayReferenceVariable(Object concreteArray, String arrayVarName) {
+    public ArrayVariable buildNewArrayReferenceVariable(Object concreteArray, String arrayVarName) {
         final int newInstanceId = newInstanceCount++;
         return symbolicArrays.createVariableArray(concreteArray, newInstanceId, arrayVarName);
     }
@@ -533,7 +552,14 @@ public final class SymbolicHeap {
 
     /******** Types Implementation *******/
 
-    public ReferenceTypeExpression buildNewLambdaConstant(Class<?> lambdaAnonymousClass, boolean ownerIsIgnored) {
+    /**
+	 * Special case scenario for lambda synthetic types.
+	 *
+	 * @param lambdaAnonymousClass
+	 * @param ownerIsIgnored
+	 * @return
+	 */
+	public ReferenceTypeExpression buildNewLambdaTypeConstant(Type lambdaAnonymousClass, boolean ownerIsIgnored) {
         if (lambdaAnonymousClass == null)
             throw new IllegalArgumentException("Lambda Anonymous Class cannot be null.");
 
@@ -541,7 +567,9 @@ public final class SymbolicHeap {
         lambdaExpression = symbolicReferenceTypes.get(lambdaAnonymousClass);
 
         if (lambdaExpression == null) {
-            lambdaExpression = new LambdaSyntheticType(lambdaAnonymousClass, ownerIsIgnored);
+            final int newReferenceTypeId = newReferenceTypeCount++;
+
+            lambdaExpression = ExpressionFactory.buildLambdaSyntheticTypeConstant(lambdaAnonymousClass, ownerIsIgnored, newReferenceTypeId);
             symbolicReferenceTypes.put(lambdaAnonymousClass, lambdaExpression);
         }
 
@@ -549,24 +577,56 @@ public final class SymbolicHeap {
     }
 
     /**
-     * Retrieves the symbolic expression related to this class.
+     * General classes types constant references.
      *
      * @param type
      * @return
      */
-    public ReferenceTypeExpression getReferenceType(Class type) {
-        if (type == null) return ExpressionFactory.buildNewNullReferenceType();
+    public ReferenceTypeExpression buildNewClassTypeConstant(Type type) {
+	 	if (type == null)
+			throw new IllegalArgumentException("Class type cannot be null.");
+
+		ReferenceTypeExpression classExpression;
+		classExpression = symbolicReferenceTypes.get(type);
+
+		if (classExpression == null) {
+			final int newReferenceTypeId = newReferenceTypeCount++;
+
+			 classExpression = ExpressionFactory.buildClassTypeConstant(type, newReferenceTypeId);
+			 symbolicReferenceTypes.put(type, classExpression);
+		}
+
+		return classExpression;
+	}
+
+
+	/**
+	 * Retrieves the symbolic expression related to this class.
+	 *
+	 * @param classType
+	 * @return
+	 */
+	public ReferenceTypeExpression getReferenceType(Type classType) {
+		if (classType == null) return ExpressionFactory.NULL_TYPE_REFERENCE;
+		if (classType.getClass().equals(Object.class)) return ExpressionFactory.OBJECT_TYPE_REFERENCE;
 
         ReferenceTypeExpression typeExpression;
-        typeExpression = symbolicReferenceTypes.get(type);
+        Class typeClass = classType.getClass();
+		typeExpression = symbolicReferenceTypes.get(classType);
 
         if (typeExpression == null) {
-            if (LambdaUtils.isLambda(type)) {
+            final int newReferenceTypeId = newReferenceTypeCount++;
+
+			if (LambdaUtils.isLambda(typeClass)) {
                 //If we haven't seen this lambda before then it's from non-instrumented sources
-                typeExpression = new LambdaSyntheticType(type, true);
+                typeExpression = new LambdaSyntheticTypeConstant(classType, true, newReferenceTypeId);
+			} else if (typeClass.isArray()){
+				typeExpression = new ArrayTypeConstant(classType, newReferenceTypeId);
             } else {
-                typeExpression = new LiteralClassType(type);
+                typeExpression = new ClassTypeConstant(classType, newReferenceTypeId);
             }
+
+			symbolicReferenceTypes.put(classType, typeExpression);
         }
 
         return typeExpression;

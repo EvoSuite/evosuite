@@ -26,6 +26,7 @@ import org.evosuite.symbolic.ConstraintTypeCounter;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.constraint.IntegerConstraint;
 import org.evosuite.symbolic.expr.constraint.RealConstraint;
+import org.evosuite.symbolic.expr.constraint.ReferenceConstraint;
 import org.evosuite.symbolic.expr.constraint.StringConstraint;
 import org.evosuite.symbolic.solver.SolverCache;
 import org.slf4j.Logger;
@@ -376,12 +377,21 @@ public class DSEStatistics {
         int integerOnly = constraintTypeCounter.getIntegerOnlyConstraints();
         int realOnly = constraintTypeCounter.getRealOnlyConstraints();
         int stringOnly = constraintTypeCounter.getStringOnlyConstraints();
+        int referenceOnly = constraintTypeCounter.getReferenceOnlyConstraints();
 
         int integerRealOnly = constraintTypeCounter.getIntegerAndRealConstraints();
         int integerStringOnly = constraintTypeCounter.getIntegerAndStringConstraints();
         int realStringOnly = constraintTypeCounter.getRealAndStringConstraints();
+        int integerReferenceOnly = constraintTypeCounter.getIntegerAndReferenceConstraints();
+		int realReferenceOnly = constraintTypeCounter.getRealAndReferenceConstraints();
+		int stringReferenceOnly = constraintTypeCounter.getStringAndReferenceConstraints();
 
         int integerRealStringConstraints = constraintTypeCounter.getIntegerRealAndStringConstraints();
+        int integerRealReferenceOnly = constraintTypeCounter.getIntegerRealAndReferenceConstraints();
+		int integerStringReferenceOnly = constraintTypeCounter.getIntegerStringAndReferenceConstraints();
+		int realStringReferenceOnly = constraintTypeCounter.getRealStringAndReferenceConstraints();
+
+		int integerRealStringReferenceConstraints = constraintTypeCounter.getIntegerRealStringAndReferenceConstraints();
 
         if (total == 0) {
             logger.info(String.format("  - no constraints {}", avgConstraintSize));
@@ -389,14 +399,33 @@ public class DSEStatistics {
             String line1 = String.format("  - Number of integer only constraints : %s / %s ", integerOnly, total);
             String line2 = String.format("  - Number of real only constraints : %s", realOnly, total);
             String line3 = String.format("  - Number of string only constraints : %s", stringOnly, total);
-            String line4 = String.format("  - Number of integer+real constraints : %s / %s ", integerRealOnly,
-                    total);
-            String line5 = String.format("  - Number of integer+string constraints : %s / %s ", integerStringOnly,
-                    total);
-            String line6 = String.format("  - Number of real+string constraints : %s / %s ", realStringOnly,
-                    total);
-            String line7 = String.format("  - Number of integer+real+string constraints : %s / %s ",
-                    integerRealStringConstraints, total);
+            String line4 = String.format("  - Number of reference only constraints : %s", referenceOnly, total);
+
+			String line5 = String.format("  - Number of integer+real constraints : %s / %s ", integerRealOnly,
+					total);
+			String line6 = String.format("  - Number of integer+string constraints : %s / %s ", integerStringOnly,
+					total);
+			String line7 = String.format("  - Number of real+string constraints : %s / %s ", realStringOnly,
+					total);
+			String line8 = String.format("  - Number of integer+reference constraints : %s / %s ", integerReferenceOnly,
+					total);
+			String line9 = String.format("  - Number of real+reference constraints : %s / %s ", realReferenceOnly,
+					total);
+			String line10 = String.format("  - Number of string+reference constraints : %s / %s ", stringReferenceOnly,
+					total);
+
+
+			String line11 = String.format("  - Number of integer+real+string constraints : %s / %s ",
+					integerRealStringConstraints, total);
+			String line12 = String.format("  - Number of integer+real+reference constraints : %s / %s ",
+					integerRealReferenceOnly, total);
+			String line13 = String.format("  - Number of integer+string+reference constraints : %s / %s ",
+					integerStringReferenceOnly, total);
+			String line14 = String.format("  - Number of real+string+reference constraints : %s / %s ",
+					realStringReferenceOnly, total);
+
+			String line15 = String.format("  - Number of integer+real+string+reference constraints : %s / %s ",
+					integerRealStringReferenceConstraints, total);
 
             logger.info(line1);
             logger.info(line2);
@@ -405,7 +434,14 @@ public class DSEStatistics {
             logger.info(line5);
             logger.info(line6);
             logger.info(line7);
-
+            logger.info(line8);
+			logger.info(line9);
+			logger.info(line10);
+			logger.info(line11);
+			logger.info(line12);
+			logger.info(line13);
+			logger.info(line14);
+			logger.info(line15);
         }
     }
 
@@ -492,6 +528,8 @@ public class DSEStatistics {
         boolean hasIntegerConstraint = false;
         boolean hasRealConstraint = false;
         boolean hasStringConstraint = false;
+        boolean hasReferenceConstraint = false;
+
         for (Constraint<?> constraint : constraints) {
             if (constraint instanceof StringConstraint) {
                 hasStringConstraint = true;
@@ -499,12 +537,20 @@ public class DSEStatistics {
                 hasIntegerConstraint = true;
             } else if (constraint instanceof RealConstraint) {
                 hasRealConstraint = true;
+            } else if (constraint instanceof ReferenceConstraint) {
+				hasReferenceConstraint = true;
             } else {
                 throw new IllegalArgumentException(
                         "The constraint type " + constraint.getClass().getCanonicalName() + " is not considered!");
             }
         }
-        constraintTypeCounter.addNewConstraint(hasIntegerConstraint, hasRealConstraint, hasStringConstraint);
+
+        constraintTypeCounter.addNewConstraint(
+                hasIntegerConstraint,
+                hasRealConstraint,
+                hasStringConstraint,
+                hasReferenceConstraint
+        );
     }
 
     /**
@@ -600,21 +646,38 @@ public class DSEStatistics {
         int integerOnly = constraintTypeCounter.getIntegerOnlyConstraints();
         int realOnly = constraintTypeCounter.getRealOnlyConstraints();
         int stringOnly = constraintTypeCounter.getStringOnlyConstraints();
+        int referenceOnly = constraintTypeCounter.getReferenceOnlyConstraints();
 
         int integerRealOnly = constraintTypeCounter.getIntegerAndRealConstraints();
         int integerStringOnly = constraintTypeCounter.getIntegerAndStringConstraints();
         int realStringOnly = constraintTypeCounter.getRealAndStringConstraints();
+        int integerReferenceOnly = constraintTypeCounter.getIntegerAndReferenceConstraints();
+		int realReferenceConstraints = constraintTypeCounter.getRealAndReferenceConstraints();
+		int stringReferenceConstraints = constraintTypeCounter.getStringAndReferenceConstraints();
 
         int integerRealStringConstraints = constraintTypeCounter.getIntegerRealAndStringConstraints();
+        int integerRealReferenceConstraints = constraintTypeCounter.getIntegerRealAndReferenceConstraints();
+		int integerStringReferenceConstraints = constraintTypeCounter.getIntegerStringAndReferenceConstraints();
+		int realStringReferenceConstraints = constraintTypeCounter.getRealStringAndReferenceConstraints();
+
+		int integerRealStringReferenceConstraints = constraintTypeCounter.getIntegerRealStringAndReferenceConstraints();
 
         /** Specific tracking */
         trackOutputVariable(RuntimeVariable.IntegerOnlyConstraints, integerOnly);
         trackOutputVariable(RuntimeVariable.RealOnlyConstraints, realOnly);
         trackOutputVariable(RuntimeVariable.StringOnlyConstraints, stringOnly);
+        trackOutputVariable(RuntimeVariable.ReferenceOnlyConstraints, referenceOnly);
         trackOutputVariable(RuntimeVariable.IntegerAndRealConstraints, integerRealOnly);
         trackOutputVariable(RuntimeVariable.IntegerAndStringConstraints, integerStringOnly);
         trackOutputVariable(RuntimeVariable.RealAndStringConstraints, realStringOnly);
         trackOutputVariable(RuntimeVariable.IntegerRealAndStringConstraints, integerRealStringConstraints);
+        trackOutputVariable(RuntimeVariable.IntegerAndReferenceConstraints, integerReferenceOnly);
+		trackOutputVariable(RuntimeVariable.RealAndReferenceConstraints, realReferenceConstraints);
+		trackOutputVariable(RuntimeVariable.StringAndReferenceConstraints, stringReferenceConstraints);
+		trackOutputVariable(RuntimeVariable.IntegerRealAndReferenceConstraints, integerRealReferenceConstraints);
+		trackOutputVariable(RuntimeVariable.IntegerStringAndReferenceConstraints, integerStringReferenceConstraints);
+		trackOutputVariable(RuntimeVariable.RealStringAndReferenceConstraints, realStringReferenceConstraints);
+		trackOutputVariable(RuntimeVariable.IntegerRealStringAndReferenceConstraints, integerRealStringReferenceConstraints);
         trackOutputVariable(RuntimeVariable.TotalNumberOfConstraints, total);
     }
 

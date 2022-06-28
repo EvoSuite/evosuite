@@ -19,7 +19,6 @@
  */
 package org.evosuite.symbolic.expr.ref;
 
-import org.evosuite.symbolic.expr.ExpressionVisitor;
 import org.evosuite.symbolic.expr.Variable;
 import org.objectweb.asm.Type;
 
@@ -33,7 +32,7 @@ import java.util.Set;
  *
  * @author galeotti
  */
-public class ReferenceVariable extends ReferenceExpression implements Variable<Object> {
+public abstract class ReferenceVariable extends ReferenceExpression implements Variable<Object> {
 
 
     private static final long serialVersionUID = -5785895234153444210L;
@@ -97,10 +96,5 @@ public class ReferenceVariable extends ReferenceExpression implements Variable<O
     @Override
     public Object getMaxValue() {
         return this.getConcreteValue();
-    }
-
-    @Override
-    public <K, V> K accept(ExpressionVisitor<K, V> v, V arg) {
-        return v.visit(this, arg);
     }
 }

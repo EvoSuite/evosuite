@@ -17,33 +17,19 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite.symbolic.expr.reftype;
+package org.evosuite.symbolic.expr.ref;
 
-import org.evosuite.symbolic.expr.ExpressionVisitor;
+import org.objectweb.asm.Type;
 
 /**
- * General expression for anonymous jvm-created lambda classes (usually after invokedynamic is used).
- * <p>
- * TODO: Lambdas may be closures so a lot of fields may be attached to them.
+ * Represents all non null constant references
  *
  * @author Ignacio Lebrero
  */
-public class LambdaSyntheticType extends LiteralClassType {
+public abstract class NonNullReferenceConstant extends ReferenceConstant {
 
-    private final boolean callsNonInstrumentedCode;
-
-    public LambdaSyntheticType(Class concreteValue, boolean callsNonInstrumentedCode) {
-        super(concreteValue);
-
-        this.callsNonInstrumentedCode = callsNonInstrumentedCode;
+    public NonNullReferenceConstant(Type objectType, int instanceId) {
+        super(objectType, instanceId);
     }
 
-    public boolean callsNonInstrumentedCode() {
-        return callsNonInstrumentedCode;
-    }
-
-    @Override
-    public <K, V> K accept(ExpressionVisitor<K, V> v, V arg) {
-        return v.visit(this, arg);
-    }
 }

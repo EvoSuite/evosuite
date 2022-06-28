@@ -20,20 +20,45 @@ import org.apache.oro.text.regex.MalformedPatternException;
 import org.apache.oro.text.regex.Pattern;
 import org.apache.oro.text.regex.Perl5Compiler;
 import org.apache.oro.text.regex.Perl5Matcher;
-import org.evosuite.symbolic.expr.bv.*;
-import org.evosuite.symbolic.expr.fp.*;
+import org.evosuite.symbolic.expr.bv.IntegerBinaryExpression;
+import org.evosuite.symbolic.expr.bv.IntegerComparison;
+import org.evosuite.symbolic.expr.bv.IntegerConstant;
+import org.evosuite.symbolic.expr.bv.IntegerUnaryExpression;
+import org.evosuite.symbolic.expr.bv.IntegerVariable;
+import org.evosuite.symbolic.expr.bv.RealComparison;
+import org.evosuite.symbolic.expr.bv.RealToIntegerCast;
+import org.evosuite.symbolic.expr.bv.RealUnaryToIntegerExpression;
+import org.evosuite.symbolic.expr.bv.StringBinaryComparison;
+import org.evosuite.symbolic.expr.bv.StringBinaryToIntegerExpression;
+import org.evosuite.symbolic.expr.bv.StringMultipleComparison;
+import org.evosuite.symbolic.expr.bv.StringMultipleToIntegerExpression;
+import org.evosuite.symbolic.expr.bv.StringToIntegerCast;
+import org.evosuite.symbolic.expr.bv.StringUnaryToIntegerExpression;
+import org.evosuite.symbolic.expr.fp.IntegerToRealCast;
+import org.evosuite.symbolic.expr.fp.RealBinaryExpression;
+import org.evosuite.symbolic.expr.fp.RealConstant;
+import org.evosuite.symbolic.expr.fp.RealUnaryExpression;
+import org.evosuite.symbolic.expr.fp.RealVariable;
 import org.evosuite.symbolic.expr.reader.StringReaderExpr;
+import org.evosuite.symbolic.expr.ref.ClassReferenceConstant;
+import org.evosuite.symbolic.expr.ref.ClassReferenceVariable;
 import org.evosuite.symbolic.expr.ref.GetFieldExpression;
-import org.evosuite.symbolic.expr.ref.ReferenceConstant;
-import org.evosuite.symbolic.expr.ref.ReferenceVariable;
+import org.evosuite.symbolic.expr.ref.NullReferenceConstant;
 import org.evosuite.symbolic.expr.ref.array.ArrayConstant;
 import org.evosuite.symbolic.expr.ref.array.ArraySelect;
 import org.evosuite.symbolic.expr.ref.array.ArrayStore;
 import org.evosuite.symbolic.expr.ref.array.ArrayVariable;
-import org.evosuite.symbolic.expr.reftype.LambdaSyntheticType;
-import org.evosuite.symbolic.expr.reftype.LiteralClassType;
-import org.evosuite.symbolic.expr.reftype.LiteralNullType;
-import org.evosuite.symbolic.expr.str.*;
+import org.evosuite.symbolic.expr.reftype.ArrayTypeConstant;
+import org.evosuite.symbolic.expr.reftype.ClassTypeConstant;
+import org.evosuite.symbolic.expr.reftype.LambdaSyntheticTypeConstant;
+import org.evosuite.symbolic.expr.reftype.NullTypeConstant;
+import org.evosuite.symbolic.expr.str.IntegerToStringCast;
+import org.evosuite.symbolic.expr.str.RealToStringCast;
+import org.evosuite.symbolic.expr.str.StringBinaryExpression;
+import org.evosuite.symbolic.expr.str.StringConstant;
+import org.evosuite.symbolic.expr.str.StringMultipleExpression;
+import org.evosuite.symbolic.expr.str.StringUnaryExpression;
+import org.evosuite.symbolic.expr.str.StringVariable;
 import org.evosuite.symbolic.expr.token.HasMoreTokensExpr;
 import org.evosuite.symbolic.expr.token.NewTokenizerExpr;
 import org.evosuite.symbolic.expr.token.NextTokenizerExpr;
@@ -656,16 +681,6 @@ public class ExpressionEvaluator implements ExpressionVisitor<Object, Void> {
     }
 
     @Override
-    public Object visit(ReferenceConstant r, Void arg) {
-        return r.getConcreteValue();
-    }
-
-    @Override
-    public Object visit(ReferenceVariable r, Void arg) {
-        return r.getConcreteValue();
-    }
-
-    @Override
     public Object visit(GetFieldExpression r, Void arg) {
         final Object conc_receiver = r.getReceiverExpr().accept(this, arg);
         final String field_name = r.getFieldName();
@@ -685,6 +700,8 @@ public class ExpressionEvaluator implements ExpressionVisitor<Object, Void> {
             throw new RuntimeException(e);
         }
     }
+
+    // Array Store and Select
 
     @Override
     public Object visit(ArrayStore.IntegerArrayStore r, Void arg) {
@@ -750,6 +767,8 @@ public class ExpressionEvaluator implements ExpressionVisitor<Object, Void> {
         throw new UnsupportedOperationException(IMPLEMENT_ME);
     }
 
+    // Array Constant and Variables
+
     @Override
     public Object visit(ArrayConstant.IntegerArrayConstant r, Void arg) {
         return r.getConcreteValue();
@@ -761,14 +780,10 @@ public class ExpressionEvaluator implements ExpressionVisitor<Object, Void> {
     }
 
     @Override
-    public Object visit(ArrayConstant.StringArrayConstant r, Void arg) {
-        throw new UnsupportedOperationException(IMPLEMENT_ME);
-    }
+    public Object visit(ArrayConstant.StringArrayConstant r, Void arg) { return r.getConcreteValue(); }
 
     @Override
-    public Object visit(ArrayConstant.ReferenceArrayConstant r, Void arg) {
-        throw new UnsupportedOperationException(IMPLEMENT_ME);
-    }
+    public Object visit(ArrayConstant.ReferenceArrayConstant r, Void arg) { return r.getConcreteValue(); }
 
     @Override
     public Object visit(ArrayVariable.IntegerArrayVariable r, Void arg) {
@@ -781,27 +796,47 @@ public class ExpressionEvaluator implements ExpressionVisitor<Object, Void> {
     }
 
     @Override
-    public Object visit(ArrayVariable.StringArrayVariable r, Void arg) {
+    public Object visit(ArrayVariable.StringArrayVariable r, Void arg) { return r.getConcreteValue(); }
+
+    @Override
+    public Object visit(ArrayVariable.ReferenceArrayVariable r, Void arg) { return r.getConcreteValue(); }
+
+    // References
+
+    @Override
+    public Object visit(NullReferenceConstant r, Void arg) {
+        return r.getConcreteValue();
+    }
+
+    @Override
+    public Object visit(ClassReferenceConstant r, Void args) {
+        return r.getConcreteValue();
+    }
+
+    @Override
+    public Object visit(ClassReferenceVariable r, Void arg) {
+        return r.getConcreteValue();
+    }
+
+    // NOTE (ilebrero): Types comparisons are not supported at the time. Might be at some point but there's no ETA.
+
+    @Override
+    public Object visit(LambdaSyntheticTypeConstant r, Void arg) {
         throw new UnsupportedOperationException(IMPLEMENT_ME);
     }
 
     @Override
-    public Object visit(ArrayVariable.ReferenceArrayVariable r, Void arg) {
+    public Object visit(NullTypeConstant r, Void arg) {
         throw new UnsupportedOperationException(IMPLEMENT_ME);
     }
 
     @Override
-    public Object visit(LambdaSyntheticType r, Void arg) {
+    public Object visit(ClassTypeConstant r, Void arg) {
         throw new UnsupportedOperationException(IMPLEMENT_ME);
     }
 
     @Override
-    public Object visit(LiteralNullType r, Void arg) {
-        throw new UnsupportedOperationException(IMPLEMENT_ME);
-    }
-
-    @Override
-    public Object visit(LiteralClassType r, Void arg) {
+    public Object visit(ArrayTypeConstant r, Void arg) {
         throw new UnsupportedOperationException(IMPLEMENT_ME);
     }
 }
