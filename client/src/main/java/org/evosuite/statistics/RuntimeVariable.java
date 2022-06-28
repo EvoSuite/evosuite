@@ -65,7 +65,6 @@ public enum RuntimeVariable {
 	TestSmellResourceOptimism,
 	TestSmellRottenGreenTests,
 	TestSmellSlowTests,
-	//TestSmellTestCodeDuplication,
     TestSmellTestRedundancy,
 	TestSmellUnknownTest,
     TestSmellUnrelatedAssertions,
@@ -107,31 +106,6 @@ public enum RuntimeVariable {
      */
     AllTestSmellsBeforePostProcess,
 
-    /**
-     * List of individual test smells
-     */
-    TestSmellAssertionRouletteList,
-    TestSmellBrittleAssertionList,
-    TestSmellDuplicateAssertList,
-    TestSmellEagerTestList,
-    TestSmellEmptyTestList,
-    TestSmellIndirectTestingList,
-    TestSmellLackOfCohesionOfMethodsList,
-    TestSmellLazyTestList,
-    TestSmellLikelyIneffectiveObjectComparisonList,
-    TestSmellMysteryGuestList,
-    TestSmellObscureInlineSetupList,
-    TestSmellOverreferencingList,
-    TestSmellRedundantAssertionList,
-    TestSmellResourceOptimismList,
-    TestSmellRottenGreenTestsList,
-    TestSmellSlowTestsList,
-    TestSmellTestRedundancyList,
-    TestSmellUnknownTestList,
-    TestSmellUnrelatedAssertionsList,
-    TestSmellUnusedInputsList,
-    TestSmellVerboseTestList,
-
 	/**
 	 * Obtained test smell numbers at different points in time
 	 */
@@ -151,7 +125,6 @@ public enum RuntimeVariable {
 	TestSmellResourceOptimismTimeline,
 	TestSmellRottenGreenTestsTimeline,
 	TestSmellSlowTestsTimeline,
-	//TestSmellTestCodeDuplicationTimeline,
     TestSmellTestRedundancyTimeline,
 	TestSmellUnknownTestTimeline,
     TestSmellUnrelatedAssertionsTimeline,

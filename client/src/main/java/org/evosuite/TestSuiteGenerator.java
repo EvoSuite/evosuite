@@ -379,7 +379,13 @@ public class TestSuiteGenerator {
                 }
             }
 
-            TestSmellAnalyzer.writeNumTestSmellsBeforePostProcess(testSuite);
+            if(Properties.TEST_SMELL_LIST){
+                // Test smell list
+                TestSmellAnalyzer.writeNumIndividualTestSmellsBeforePostProcess(testSuite);
+            } else {
+                // Total number of test smells
+                TestSmellAnalyzer.writeNumTestSmellsBeforePostProcess(testSuite);
+            }
         }
 
         /*
@@ -542,6 +548,7 @@ public class TestSuiteGenerator {
                 LoggingUtils.getEvoLogger().info("* " + ClientProcess.getPrettyPrintIdentifier()
                         + "Skipping test smell analysis after post-processing because not enough time is left");
             } else {
+
                 for (TestChromosome test : testSuite.getTestChromosomes()) {
                     ExecutionResult result;
                     result = TestCaseExecutor.runTest(test.getTestCase());
@@ -552,7 +559,6 @@ public class TestSuiteGenerator {
 
                 OptimizeTestSmellsPostProcessing optimized = new OptimizeTestSmellsPostProcessing();
 
-                // TODO: This will change in the future
                 optimized.computeTotalNumberOfSmells(testSuite);
 
                 double after = testSuite.getFitness();
@@ -563,7 +569,6 @@ public class TestSuiteGenerator {
             }
         }
 
-        // Number of test smells
         if (Properties.OUTPUT_VARIABLES != null && Properties.OUTPUT_VARIABLES.toLowerCase().contains("smell")) {
 
             if (!TimeController.getInstance().hasTimeToExecuteATestCase()) {
@@ -578,25 +583,13 @@ public class TestSuiteGenerator {
                 }
             }
 
-            TestSmellAnalyzer.writeNumTestSmells(testSuite);
-        }
-
-        // List of test smells for each test case
-        if (Properties.OUTPUT_VARIABLES != null && Properties.OUTPUT_VARIABLES.toLowerCase().contains("smell")) {
-
-            if (!TimeController.getInstance().hasTimeToExecuteATestCase()) {
-                LoggingUtils.getEvoLogger().info("* " + ClientProcess.getPrettyPrintIdentifier()
-                        + "Skipping test smell analysis for individual test cases after post-processing because not enough time is left");
+            if(Properties.TEST_SMELL_LIST){
+                // Test smell list
+                TestSmellAnalyzer.writeIndividualTestSmells(testSuite);
             } else {
-
-                for (TestChromosome test : testSuite.getTestChromosomes()) {
-                    ExecutionResult result;
-                    result = TestCaseExecutor.runTest(test.getTestCase());
-                    test.setLastExecutionResult(result);
-                }
+                // Total number of test smells
+                TestSmellAnalyzer.writeNumTestSmells(testSuite);
             }
-
-            TestSmellAnalyzer.writeIndividualTestSmells(testSuite);
         }
     }
 

@@ -31,12 +31,16 @@ public class DummySystemTest extends SystemTestBase{
         //Properties.SECONDARY_OBJECTIVE = new Properties.SecondaryObjective[]{Properties.SecondaryObjective.TEST_SMELL_INDIRECT_TESTING,
         //        Properties.SecondaryObjective.TEST_SMELL_ROTTEN_GREEN_TESTS};
 
-        Properties.SECONDARY_OBJECTIVE = new Properties.SecondaryObjective[]{Properties.SecondaryObjective.TEST_SMELL_EAGER_TEST,
-                Properties.SecondaryObjective.TEST_SMELL_EMPTY_TEST, Properties.SecondaryObjective.TEST_SMELL_INDIRECT_TESTING,
-                Properties.SecondaryObjective.TEST_SMELL_LIKELY_INEFFECTIVE_OBJECT_COMPARISON, Properties.SecondaryObjective.TEST_SMELL_MYSTERY_GUEST,
+        // Test smell metrics that can be optimized as secondary criteria:
+        //Properties.SECONDARY_OBJECTIVE = new Properties.SecondaryObjective[]{Properties.SecondaryObjective.TEST_SMELL_EAGER_TEST,
+        //        Properties.SecondaryObjective.TEST_SMELL_INDIRECT_TESTING, Properties.SecondaryObjective.TEST_SMELL_LIKELY_INEFFECTIVE_OBJECT_COMPARISON,
+        //        Properties.SecondaryObjective.TEST_SMELL_OBSCURE_INLINE_SETUP,Properties.SecondaryObjective.TEST_SMELL_OVERREFERENCING,
+        //        Properties.SecondaryObjective.TEST_SMELL_ROTTEN_GREEN_TESTS, Properties.SecondaryObjective.TEST_SMELL_VERBOSE_TEST};
+
+        // Optimal combination of test smell metrics to optimize as secondary criteria:
+        Properties.SECONDARY_OBJECTIVE = new Properties.SecondaryObjective[]{Properties.SecondaryObjective.TEST_SMELL_INDIRECT_TESTING,
                 Properties.SecondaryObjective.TEST_SMELL_OBSCURE_INLINE_SETUP,Properties.SecondaryObjective.TEST_SMELL_OVERREFERENCING,
-                Properties.SecondaryObjective.TEST_SMELL_RESOURCE_OPTIMISM,Properties.SecondaryObjective.TEST_SMELL_ROTTEN_GREEN_TESTS,
-                Properties.SecondaryObjective.TEST_SMELL_SLOW_TESTS,Properties.SecondaryObjective.TEST_SMELL_VERBOSE_TEST};
+                Properties.SecondaryObjective.TEST_SMELL_ROTTEN_GREEN_TESTS, Properties.SecondaryObjective.TEST_SMELL_VERBOSE_TEST};
 
         //--------------------------
         // Set the output variables:
@@ -46,21 +50,21 @@ public class DummySystemTest extends SystemTestBase{
 
         Properties.OUTPUT_VARIABLES = "AllTestSmellsBeforePostProcess,\n" +
                 "TestSmellAssertionRouletteBeforePostProcess,\n" +
-                "TestSmellBrittleAssertionBeforePostProcess,\n" +
+                //"TestSmellBrittleAssertionBeforePostProcess,\n" +
                 "TestSmellDuplicateAssertBeforePostProcess,\n" +
                 "TestSmellEagerTestBeforePostProcess,\n" +
-                "TestSmellEmptyTestBeforePostProcess,\n" +
+                //"TestSmellEmptyTestBeforePostProcess,\n" +
                 "TestSmellIndirectTestingBeforePostProcess,\n" +
                 "TestSmellLackOfCohesionOfMethodsBeforePostProcess,\n" +
                 "TestSmellLazyTestBeforePostProcess,\n" +
                 "TestSmellLikelyIneffectiveObjectComparisonBeforePostProcess,\n" +
-                "TestSmellMysteryGuestBeforePostProcess,\n" +
+                //"TestSmellMysteryGuestBeforePostProcess,\n" +
                 "TestSmellObscureInlineSetupBeforePostProcess,\n" +
                 "TestSmellOverreferencingBeforePostProcess,\n" +
                 "TestSmellRedundantAssertionBeforePostProcess,\n" +
-                "TestSmellResourceOptimismBeforePostProcess,\n" +
+                //"TestSmellResourceOptimismBeforePostProcess,\n" +
                 "TestSmellRottenGreenTestsBeforePostProcess,\n" +
-                "TestSmellSlowTestsBeforePostProcess,\n" +
+                //"TestSmellSlowTestsBeforePostProcess,\n" +
                 "TestSmellTestRedundancyBeforePostProcess,\n" +
                 "TestSmellUnknownTestBeforePostProcess,\n" +
                 "TestSmellUnrelatedAssertionsBeforePostProcess,\n" +
@@ -68,56 +72,40 @@ public class DummySystemTest extends SystemTestBase{
                 "TestSmellVerboseTestBeforePostProcess,\n" +
                 "AllTestSmells,\n" +
                 "TestSmellAssertionRoulette,\n" +
-                "TestSmellBrittleAssertion,\n" +
+                //"TestSmellBrittleAssertion,\n" +
                 "TestSmellDuplicateAssert,\n" +
                 "TestSmellEagerTest,\n" +
-                "TestSmellEmptyTest,\n" +
+                //"TestSmellEmptyTest,\n" +
                 "TestSmellIndirectTesting,\n" +
                 "TestSmellLackOfCohesionOfMethods,\n" +
                 "TestSmellLazyTest,\n" +
                 "TestSmellLikelyIneffectiveObjectComparison,\n" +
-                "TestSmellMysteryGuest,\n" +
+                //"TestSmellMysteryGuest,\n" +
                 "TestSmellObscureInlineSetup,\n" +
                 "TestSmellOverreferencing,\n" +
                 "TestSmellRedundantAssertion,\n" +
-                "TestSmellResourceOptimism,\n" +
+                //"TestSmellResourceOptimism,\n" +
                 "TestSmellRottenGreenTests,\n" +
-                "TestSmellSlowTests,\n" +
+                //"TestSmellSlowTests,\n" +
                 "TestSmellTestRedundancy,\n" +
                 "TestSmellUnknownTest,\n" +
                 "TestSmellUnrelatedAssertions,\n" +
                 "TestSmellUnusedInputs,\n" +
-                "TestSmellVerboseTest,\n" +
-                "TestSmellAssertionRouletteList,\n" +
-                "TestSmellBrittleAssertionList,\n" +
-                "TestSmellDuplicateAssertList,\n" +
-                "TestSmellEagerTestList,\n" +
-                "TestSmellEmptyTestList,\n" +
-                "TestSmellIndirectTestingList,\n" +
-                "TestSmellLackOfCohesionOfMethods,\n" +
-                "TestSmellLazyTestList,\n" +
-                "TestSmellLikelyIneffectiveObjectComparisonList,\n" +
-                "TestSmellMysteryGuestList,\n" +
-                "TestSmellObscureInlineSetupList,\n" +
-                "TestSmellOverreferencingList,\n" +
-                "TestSmellRedundantAssertionList,\n" +
-                "TestSmellResourceOptimismList,\n" +
-                "TestSmellRottenGreenTestsList,\n" +
-                "TestSmellSlowTestsList,\n" +
-                "TestSmellTestRedundancyList,\n" +
-                "TestSmellUnknownTestList,\n" +
-                "TestSmellUnrelatedAssertionsList,\n" +
-                "TestSmellUnusedInputsList,\n" +
-                "TestSmellVerboseTestList";
+                "TestSmellVerboseTest";
 
         //---------------------
         // Set the tiebreakers:
         //---------------------
 
-        Properties.TIEBREAKER = new Properties.SecondaryObjective[]{Properties.SecondaryObjective.TEST_SMELL_EAGER_TEST,
-                Properties.SecondaryObjective.TEST_SMELL_ROTTEN_GREEN_TESTS, Properties.SecondaryObjective.TEST_SMELL_VERBOSE_TEST};
+        //Properties.TIEBREAKER = new Properties.SecondaryObjective[]{Properties.SecondaryObjective.TEST_SMELL_EAGER_TEST,
+        //        Properties.SecondaryObjective.TEST_SMELL_ROTTEN_GREEN_TESTS, Properties.SecondaryObjective.TEST_SMELL_VERBOSE_TEST};
+
+        //---------
+        // Command:
+        //---------
 
         String[] command = new String[] { "-generateMOSuite", "-class", targetClass };
+        //String[] command = new String[] { "-generateMOSuite", "-class", targetClass, "-Dtest_smell_list=false" };
 
         Object result = evosuite.parseCommandLine(command);
         GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);

@@ -976,6 +976,9 @@ public class Properties {
     @Parameter(key = "test_smell_optimization", group = "Output", description = "Optimize test smells as an additional post-processing step")
     public static boolean TEST_SMELL_OPTIMIZATION = false;
 
+    @Parameter(key = "test_smell_list", group = "Output", description = "Show test smell list")
+    public static boolean TEST_SMELL_LIST = true;
+
     @Parameter(key = "test_format", group = "Output", description = "Format of the resulting test cases")
     public static OutputFormat TEST_FORMAT = OutputFormat.JUNIT4;
 
