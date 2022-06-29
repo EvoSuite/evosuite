@@ -81,11 +81,14 @@ public class TestCaseSecondaryObjective {
             } // Not all objectives make sense for tests
         }
 
+        /*
         if(Properties.TIEBREAKER.length > 0){
             setTiebreaker();
         }
+         */
     }
 
+    /*
     private static void setTiebreaker() {
         // It might be a good idea to put the switch case in a separate method to avoid repetition
         for (Properties.SecondaryObjective tiebreaker : Properties.TIEBREAKER) {
@@ -142,4 +145,5 @@ public class TestCaseSecondaryObjective {
             } // Not all objectives make sense for tests
         }
     }
+     */
 }

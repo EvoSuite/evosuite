@@ -80,10 +80,8 @@ public final class TestChromosome extends AbstractTestChromosome<TestChromosome>
     private static final List<SecondaryObjective<TestChromosome>> secondaryObjectives =
             new ArrayList<>();
 
-    /**
-     * Tiebreakers used during ranking
-     */
-    private static final List<SecondaryObjective<TestChromosome>> tiebreakers = new ArrayList<>();
+    // Tiebreakers used during ranking
+    //private static final List<SecondaryObjective<TestChromosome>> tiebreakers = new ArrayList<>();
 
     /**
      * {@inheritDoc}
@@ -671,11 +669,13 @@ public final class TestChromosome extends AbstractTestChromosome<TestChromosome>
             compare += so.compareChromosomes(this.self(), o);
         }
 
+        /*
         if(compare == 0 && Properties.TIEBREAKER.length > 0){
             for (SecondaryObjective<TestChromosome> so : tiebreakers) {
                 compare += so.compareChromosomes(this.self(), o);
             }
         }
+         */
 
         return (int) Math.signum(compare);
     }
@@ -701,25 +701,15 @@ public final class TestChromosome extends AbstractTestChromosome<TestChromosome>
         return secondaryObjectives;
     }
 
-    /**
-     * Add an additional tiebreaker to the end of the list of tiebreakers
-     *
-     * @param objective a {@link org.evosuite.ga.SecondaryObjective} object.
-     */
+    /*
     public static void addTiebreaker(SecondaryObjective<TestChromosome> objective) {
         tiebreakers.add(objective);
     }
 
-    /**
-     * <p>
-     * Getter for the field <code>tiebreakers</code>.
-     * </p>
-     *
-     * @return a {@link java.util.List} object.
-     */
     public static List<SecondaryObjective<TestChromosome>> getTiebreakers() {
         return tiebreakers;
     }
+     */
 
     public TestSuiteChromosome toSuite() {
         return Stream.of(this).collect(toTestSuiteCollector);

@@ -825,8 +825,8 @@ public class Properties {
     @Parameter(key = "track_diversity", group = "Search Algorithm", description = "Track population diversity")
     public static boolean TRACK_DIVERSITY = false;
 
-    @Parameter(key = "tiebreakers", group = "Search Algorithm", description = "If two solutions are equally good in terms of secondary criteria, find the best solution using a tiebreaker")
-    public static SecondaryObjective[] TIEBREAKER = new SecondaryObjective[]{};
+    //@Parameter(key = "tiebreakers", group = "Search Algorithm", description = "If two solutions are equally good in terms of secondary criteria, find the best solution using a tiebreaker")
+    //public static SecondaryObjective[] TIEBREAKER = new SecondaryObjective[]{};
 
     @Parameter(key = "analysis_criteria", group = "Output", description = "List of criteria which should be measured on the completed test suite")
     public static String ANALYSIS_CRITERIA = "";
