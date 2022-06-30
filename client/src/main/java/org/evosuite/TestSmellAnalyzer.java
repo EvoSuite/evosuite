@@ -218,21 +218,21 @@ public class TestSmellAnalyzer {
         List<AbstractTestSmell> listOfTestSmells = new ArrayList<>();
 
         listOfTestSmells.add(new AssertionRoulette());
-        //listOfTestSmells.add(new BrittleAssertion());
+        listOfTestSmells.add(new BrittleAssertion());
         listOfTestSmells.add(new DuplicateAssert());
         listOfTestSmells.add(new EagerTest());
-        //listOfTestSmells.add(new EmptyTest());
+        listOfTestSmells.add(new EmptyTest());
         listOfTestSmells.add(new IndirectTesting());
         listOfTestSmells.add(new LackOfCohesionOfMethods());
         listOfTestSmells.add(new LazyTest());
         listOfTestSmells.add(new LikelyIneffectiveObjectComparison());
-        //listOfTestSmells.add(new MysteryGuest());
+        listOfTestSmells.add(new MysteryGuest());
         listOfTestSmells.add(new ObscureInlineSetup());
         listOfTestSmells.add(new Overreferencing());
         listOfTestSmells.add(new RedundantAssertion());
-        //listOfTestSmells.add(new ResourceOptimism());
+        listOfTestSmells.add(new ResourceOptimism());
         listOfTestSmells.add(new RottenGreenTests());
-        //listOfTestSmells.add(new SlowTests());
+        listOfTestSmells.add(new SlowTests());
         //listOfTestSmells.add(new TestCodeDuplication());
         listOfTestSmells.add(new TestRedundancy());
         listOfTestSmells.add(new UnknownTest());
@@ -253,14 +253,14 @@ public class TestSmellAnalyzer {
         switch (smellName){
             case "TestSmellAssertionRoulette":
                 return new AssertionRoulette();
-            //case "TestSmellBrittleAssertion":
-            //    return new BrittleAssertion();
+            case "TestSmellBrittleAssertion":
+                return new BrittleAssertion();
             case "TestSmellDuplicateAssert":
                 return new DuplicateAssert();
             case "TestSmellEagerTest":
                 return new EagerTest();
-            //case "TestSmellEmptyTest":
-            //    return new EmptyTest();
+            case "TestSmellEmptyTest":
+                return new EmptyTest();
             case "TestSmellIndirectTesting":
                 return new IndirectTesting();
             case "TestSmellLackOfCohesionOfMethods":
@@ -269,20 +269,20 @@ public class TestSmellAnalyzer {
                 return new LazyTest();
             case "TestSmellLikelyIneffectiveObjectComparison":
                 return new LikelyIneffectiveObjectComparison();
-            //case "TestSmellMysteryGuest":
-            //    return new MysteryGuest();
+            case "TestSmellMysteryGuest":
+                return new MysteryGuest();
             case "TestSmellObscureInlineSetup":
                 return new ObscureInlineSetup();
             case "TestSmellOverreferencing":
                 return new Overreferencing();
             case "TestSmellRedundantAssertion":
                 return new RedundantAssertion();
-            //case "TestSmellResourceOptimism":
-            //    return new ResourceOptimism();
+            case "TestSmellResourceOptimism":
+                return new ResourceOptimism();
             case "TestSmellRottenGreenTests":
                 return new RottenGreenTests();
-            //case "TestSmellSlowTests":
-            //    return new SlowTests();
+            case "TestSmellSlowTests":
+                return new SlowTests();
             //case "TestSmellTestCodeDuplication":
             //    return new TestCodeDuplication();
             case "TestSmellTestRedundancy":
@@ -310,14 +310,14 @@ public class TestSmellAnalyzer {
         switch (smellName){
             case "TestSmellAssertionRouletteBeforePostProcess":
                 return new AssertionRoulette();
-            //case "TestSmellBrittleAssertionBeforePostProcess":
-            //    return new BrittleAssertion();
+            case "TestSmellBrittleAssertionBeforePostProcess":
+                return new BrittleAssertion();
             case "TestSmellDuplicateAssertBeforePostProcess":
                 return new DuplicateAssert();
             case "TestSmellEagerTestBeforePostProcess":
                 return new EagerTest();
-            //case "TestSmellEmptyTestBeforePostProcess":
-            //    return new EmptyTest();
+            case "TestSmellEmptyTestBeforePostProcess":
+                return new EmptyTest();
             case "TestSmellIndirectTestingBeforePostProcess":
                 return new IndirectTesting();
             case "TestSmellLackOfCohesionOfMethodsBeforePostProcess":
@@ -326,20 +326,20 @@ public class TestSmellAnalyzer {
                 return new LazyTest();
             case "TestSmellLikelyIneffectiveObjectComparisonBeforePostProcess":
                 return new LikelyIneffectiveObjectComparison();
-            //case "TestSmellMysteryGuestBeforePostProcess":
-            //    return new MysteryGuest();
+            case "TestSmellMysteryGuestBeforePostProcess":
+                return new MysteryGuest();
             case "TestSmellObscureInlineSetupBeforePostProcess":
                 return new ObscureInlineSetup();
             case "TestSmellOverreferencingBeforePostProcess":
                 return new Overreferencing();
             case "TestSmellRedundantAssertionBeforePostProcess":
                 return new RedundantAssertion();
-            //case "TestSmellResourceOptimismBeforePostProcess":
-            //    return new ResourceOptimism();
+            case "TestSmellResourceOptimismBeforePostProcess":
+                return new ResourceOptimism();
             case "TestSmellRottenGreenTestsBeforePostProcess":
                 return new RottenGreenTests();
-            //case "TestSmellSlowTestsBeforePostProcess":
-            //    return new SlowTests();
+            case "TestSmellSlowTestsBeforePostProcess":
+                return new SlowTests();
             //case "TestSmellTestCodeDuplicationBeforePostProcess":
             //    return new TestCodeDuplication();
             case "TestSmellTestRedundancyBeforePostProcess":

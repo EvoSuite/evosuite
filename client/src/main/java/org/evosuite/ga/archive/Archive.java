@@ -195,16 +195,6 @@ public abstract class Archive implements Serializable {
             compare += obj.compareChromosomes(candidateSolution, currentSolution);
         }
 
-        // If both solutions are equally good with respect to the secondary criteria, attempt to find the best
-        // solution using a tiebreaker
-        /*
-        if(compare == 0 && Properties.TIEBREAKER.length > 0){
-            for (SecondaryObjective<TestChromosome> obj : getTiebreakers()) {
-                compare += obj.compareChromosomes(candidateSolution, currentSolution);
-            }
-        }
-         */
-
         return compare < 0;
     }
 

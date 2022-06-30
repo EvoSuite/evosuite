@@ -80,9 +80,6 @@ public final class TestChromosome extends AbstractTestChromosome<TestChromosome>
     private static final List<SecondaryObjective<TestChromosome>> secondaryObjectives =
             new ArrayList<>();
 
-    // Tiebreakers used during ranking
-    //private static final List<SecondaryObjective<TestChromosome>> tiebreakers = new ArrayList<>();
-
     /**
      * {@inheritDoc}
      */
@@ -669,14 +666,6 @@ public final class TestChromosome extends AbstractTestChromosome<TestChromosome>
             compare += so.compareChromosomes(this.self(), o);
         }
 
-        /*
-        if(compare == 0 && Properties.TIEBREAKER.length > 0){
-            for (SecondaryObjective<TestChromosome> so : tiebreakers) {
-                compare += so.compareChromosomes(this.self(), o);
-            }
-        }
-         */
-
         return (int) Math.signum(compare);
     }
 
@@ -700,16 +689,6 @@ public final class TestChromosome extends AbstractTestChromosome<TestChromosome>
     public static List<SecondaryObjective<TestChromosome>> getSecondaryObjectives() {
         return secondaryObjectives;
     }
-
-    /*
-    public static void addTiebreaker(SecondaryObjective<TestChromosome> objective) {
-        tiebreakers.add(objective);
-    }
-
-    public static List<SecondaryObjective<TestChromosome>> getTiebreakers() {
-        return tiebreakers;
-    }
-     */
 
     public TestSuiteChromosome toSuite() {
         return Stream.of(this).collect(toTestSuiteCollector);

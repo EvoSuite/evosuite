@@ -50,21 +50,21 @@ public class DummySystemTest extends SystemTestBase{
 
         Properties.OUTPUT_VARIABLES = "AllTestSmellsBeforePostProcess,\n" +
                 "TestSmellAssertionRouletteBeforePostProcess,\n" +
-                //"TestSmellBrittleAssertionBeforePostProcess,\n" +
+                "TestSmellBrittleAssertionBeforePostProcess,\n" +
                 "TestSmellDuplicateAssertBeforePostProcess,\n" +
                 "TestSmellEagerTestBeforePostProcess,\n" +
-                //"TestSmellEmptyTestBeforePostProcess,\n" +
+                "TestSmellEmptyTestBeforePostProcess,\n" +
                 "TestSmellIndirectTestingBeforePostProcess,\n" +
                 "TestSmellLackOfCohesionOfMethodsBeforePostProcess,\n" +
                 "TestSmellLazyTestBeforePostProcess,\n" +
                 "TestSmellLikelyIneffectiveObjectComparisonBeforePostProcess,\n" +
-                //"TestSmellMysteryGuestBeforePostProcess,\n" +
+                "TestSmellMysteryGuestBeforePostProcess,\n" +
                 "TestSmellObscureInlineSetupBeforePostProcess,\n" +
                 "TestSmellOverreferencingBeforePostProcess,\n" +
                 "TestSmellRedundantAssertionBeforePostProcess,\n" +
-                //"TestSmellResourceOptimismBeforePostProcess,\n" +
+                "TestSmellResourceOptimismBeforePostProcess,\n" +
                 "TestSmellRottenGreenTestsBeforePostProcess,\n" +
-                //"TestSmellSlowTestsBeforePostProcess,\n" +
+                "TestSmellSlowTestsBeforePostProcess,\n" +
                 "TestSmellTestRedundancyBeforePostProcess,\n" +
                 "TestSmellUnknownTestBeforePostProcess,\n" +
                 "TestSmellUnrelatedAssertionsBeforePostProcess,\n" +
@@ -72,21 +72,21 @@ public class DummySystemTest extends SystemTestBase{
                 "TestSmellVerboseTestBeforePostProcess,\n" +
                 "AllTestSmells,\n" +
                 "TestSmellAssertionRoulette,\n" +
-                //"TestSmellBrittleAssertion,\n" +
+                "TestSmellBrittleAssertion,\n" +
                 "TestSmellDuplicateAssert,\n" +
                 "TestSmellEagerTest,\n" +
-                //"TestSmellEmptyTest,\n" +
+                "TestSmellEmptyTest,\n" +
                 "TestSmellIndirectTesting,\n" +
                 "TestSmellLackOfCohesionOfMethods,\n" +
                 "TestSmellLazyTest,\n" +
                 "TestSmellLikelyIneffectiveObjectComparison,\n" +
-                //"TestSmellMysteryGuest,\n" +
+                "TestSmellMysteryGuest,\n" +
                 "TestSmellObscureInlineSetup,\n" +
                 "TestSmellOverreferencing,\n" +
                 "TestSmellRedundantAssertion,\n" +
-                //"TestSmellResourceOptimism,\n" +
+                "TestSmellResourceOptimism,\n" +
                 "TestSmellRottenGreenTests,\n" +
-                //"TestSmellSlowTests,\n" +
+                "TestSmellSlowTests,\n" +
                 "TestSmellTestRedundancy,\n" +
                 "TestSmellUnknownTest,\n" +
                 "TestSmellUnrelatedAssertions,\n" +
