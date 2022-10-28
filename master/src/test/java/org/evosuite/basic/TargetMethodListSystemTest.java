@@ -25,7 +25,7 @@ public class TargetMethodListSystemTest extends SystemTestBase {
 
         GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
         TestSuiteChromosome best = ga.getBestIndividual();
-        Assert.assertTrue(best.toString().contains("fwo"));
-        Assert.assertFalse(best.toString().contains("foo"));
+        Assert.assertTrue(best.toString().contains("foo"));
+        Assert.assertFalse(best.toString().contains("bar"));
     }
 }
