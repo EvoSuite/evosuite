@@ -20,11 +20,9 @@
 
 package org.evosuite.coverage.mutation;
 
-import jdk.internal.org.objectweb.asm.Type;
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.MethodNameMatcher;
-import org.evosuite.coverage.line.LineCoverageFactory;
 import org.evosuite.instrumentation.mutation.InsertUnaryOperator;
 import org.evosuite.instrumentation.mutation.ReplaceArithmeticOperator;
 import org.evosuite.instrumentation.mutation.ReplaceConstant;
