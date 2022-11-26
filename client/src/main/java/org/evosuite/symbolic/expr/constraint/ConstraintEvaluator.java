@@ -106,4 +106,22 @@ public class ConstraintEvaluator implements ConstraintVisitor<Object, Void> {
 
     }
 
+  @Override
+  public Object visit(ReferenceConstraint n, Void arg) {
+    ExpressionEvaluator visitor = new ExpressionEvaluator();
+    Object left = n.getLeftOperand().accept(visitor, null);
+    Object right = n.getRightOperand().accept(visitor, null);
+
+    Comparator cmpr = n.getComparator();
+
+    switch (cmpr) {
+      case EQ:
+        return left == right;
+      case NE:
+        return left != right;
+      default:
+        throw new IllegalArgumentException("unimplemented comparator");
+    }
+  }
+
 }

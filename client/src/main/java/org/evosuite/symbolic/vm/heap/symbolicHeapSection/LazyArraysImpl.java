@@ -25,7 +25,10 @@ import org.evosuite.symbolic.expr.fp.RealValue;
 import org.evosuite.symbolic.expr.ref.ReferenceConstant;
 import org.evosuite.symbolic.expr.ref.ReferenceExpression;
 import org.evosuite.symbolic.expr.ref.ReferenceVariable;
+import org.evosuite.symbolic.expr.ref.array.ArrayConstant;
+import org.evosuite.symbolic.expr.ref.array.ArrayVariable;
 import org.evosuite.symbolic.expr.str.StringValue;
+import org.evosuite.symbolic.vm.ExpressionFactory;
 import org.evosuite.symbolic.vm.heap.SymbolicArray;
 import org.evosuite.symbolic.vm.heap.SymbolicArrayImpl;
 import org.evosuite.symbolic.vm.heap.SymbolicInputArray;
@@ -120,31 +123,21 @@ public class LazyArraysImpl implements ArraysSection {
     }
 
     @Override
-    public ReferenceVariable createVariableArray(Object concreteArray, int instanceId, String arrayName) {
-        ReferenceVariable symbolicArrayVariableReference = new ReferenceVariable(
-                Type.getType(concreteArray.getClass()),
-                instanceId,
-                arrayName,
-                concreteArray
-        );
+    public ArrayVariable createVariableArray(Object concreteArray, int instanceId, String arrayName) {
+  	    ArrayVariable symbolicArrayVariable = (ArrayVariable) ExpressionFactory.buildArrayVariableExpression(instanceId, arrayName, concreteArray);
 
-        SymbolicArray symbolicArray = getOrCreateSymbolicArray(symbolicArrayVariableReference);
-        symbolicArrays.put(symbolicArrayVariableReference, new SymbolicInputArray(symbolicArray, arrayName));
+        SymbolicArray symbolicArray = getOrCreateSymbolicArray(symbolicArrayVariable);
+        symbolicArrays.put(symbolicArrayVariable, new SymbolicInputArray(symbolicArray, arrayName));
 
-        return symbolicArrayVariableReference;
+        return symbolicArrayVariable;
     }
 
     @Override
-    public ReferenceConstant createConstantArray(Type arrayType, int instanceId) {
-        ReferenceConstant symbolicArrayVariableReference = new ReferenceConstant(
-                arrayType,
-                instanceId
-        );
+    public ArrayConstant createConstantArray(Type arrayType, int instanceId) {
+	  ArrayConstant arrayReference = (ArrayConstant) ExpressionFactory.buildArrayConstantExpression(arrayType, instanceId);
+      getOrCreateSymbolicArray(arrayReference);
 
-        SymbolicArray symbolicArray = getOrCreateSymbolicArray(symbolicArrayVariableReference);
-        assert (symbolicArray != null);
-
-        return symbolicArrayVariableReference;
+        return arrayReference;
     }
 
     @Override

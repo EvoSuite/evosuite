@@ -26,11 +26,20 @@ import org.evosuite.symbolic.expr.bv.IntegerValue;
 import org.evosuite.symbolic.expr.fp.RealBinaryExpression;
 import org.evosuite.symbolic.expr.fp.RealConstant;
 import org.evosuite.symbolic.expr.fp.RealValue;
-import org.evosuite.symbolic.expr.ref.ReferenceConstant;
-import org.evosuite.symbolic.expr.ref.array.*;
-import org.evosuite.symbolic.expr.reftype.LiteralNullType;
+import org.evosuite.symbolic.expr.ref.NullReferenceConstant;
+import org.evosuite.symbolic.expr.ref.array.ArrayConstant;
+import org.evosuite.symbolic.expr.ref.array.ArraySelect;
+import org.evosuite.symbolic.expr.ref.array.ArrayStore;
+import org.evosuite.symbolic.expr.ref.array.ArrayValue;
+import org.evosuite.symbolic.expr.ref.array.ArrayVariable;
+import org.evosuite.symbolic.expr.reftype.ArrayTypeConstant;
+import org.evosuite.symbolic.expr.reftype.ClassTypeConstant;
+import org.evosuite.symbolic.expr.reftype.LambdaSyntheticTypeConstant;
+import org.evosuite.symbolic.expr.reftype.NullTypeConstant;
 import org.evosuite.symbolic.expr.str.StringConstant;
 import org.evosuite.symbolic.expr.str.StringValue;
+import org.evosuite.symbolic.vm.heap.SymbolicHeap;
+import org.evosuite.utils.TypeUtil;
 import org.objectweb.asm.Type;
 
 
@@ -39,6 +48,7 @@ import org.objectweb.asm.Type;
  */
 public abstract class ExpressionFactory {
 
+    /** Primitive Constants */
     public static final RealConstant RCONST_2 = new RealConstant(2);
     public static final RealConstant RCONST_1 = new RealConstant(1);
     public static final RealConstant RCONST_0 = new RealConstant(0);
@@ -49,6 +59,13 @@ public abstract class ExpressionFactory {
     public static final IntegerConstant ICONST_1 = new IntegerConstant(1);
     public static final IntegerConstant ICONST_0 = new IntegerConstant(0);
     public static final IntegerConstant ICONST_M1 = new IntegerConstant(-1);
+
+    /** Reference Constants */
+	public static final NullReferenceConstant NULL_REFERENCE = NullReferenceConstant.getInstance();
+
+	/** Reference Type Constants */
+	public static final NullTypeConstant NULL_TYPE_REFERENCE = NullTypeConstant.getInstance();
+	public static final ClassTypeConstant OBJECT_TYPE_REFERENCE = buildObjectTypeConstant();
 
     public static IntegerConstant buildNewIntegerConstant(int value) {
         return buildNewIntegerConstant((long) value);
@@ -323,13 +340,6 @@ public abstract class ExpressionFactory {
         return new IntegerBinaryExpression(left, Operator.REM, right, con);
     }
 
-    public static ReferenceConstant buildNewNullExpression() {
-        final Type objectType = Type.getType(Object.class);
-        final ReferenceConstant referenceConstant = new ReferenceConstant(objectType, 0);
-        referenceConstant.initializeReference(null);
-        return referenceConstant;
-    }
-
     /**************************** Arrays ****************************/
 
     public static ArrayValue.IntegerArrayValue buildIntegerArrayConstantExpression(Type objectType, int instanceId) {
@@ -340,8 +350,8 @@ public abstract class ExpressionFactory {
         return new ArrayConstant.RealArrayConstant(objectType, instanceId);
     }
 
-    public static ArrayValue.StringArrayValue buildStringArrayConstantExpression(Type objectType, int instanceId) {
-        return new ArrayConstant.StringArrayConstant(objectType, instanceId);
+    public static ArrayValue.StringArrayValue buildStringArrayConstantExpression(int instanceId) {
+		return new ArrayConstant.StringArrayConstant(instanceId);
     }
 
     public static ArrayValue.ReferenceArrayValue buildReferenceArrayConstantExpression(Type objectType, int instanceId) {
@@ -352,12 +362,49 @@ public abstract class ExpressionFactory {
         return new ArrayVariable.IntegerArrayVariable(objectType, instanceId, arrayName, concreteArray);
     }
 
+    public static ArrayValue buildArrayVariableExpression(int instanceId, String arrayName, Object concreteArray) {
+		Type arrayType = Type.getType(concreteArray.getClass());
+		Type elementType = arrayType.getElementType();
+
+		if (TypeUtil.isIntegerValue(elementType))
+			return buildIntegerArrayVariableExpression(arrayType, instanceId, arrayName, concreteArray);
+
+		if (TypeUtil.isRealValue(elementType))
+			return buildRealArrayVariableExpression(arrayType, instanceId, arrayName, concreteArray);
+
+		if (TypeUtil.isStringValue(elementType))
+			return buildStringArrayVariableExpression(arrayType, instanceId, arrayName, concreteArray);
+
+		if (TypeUtil.isReferenceValue(elementType))
+			return buildReferenceArrayVariableExpression(arrayType, instanceId, arrayName, concreteArray);
+
+		throw new IllegalArgumentException("Array type not yet implemented: " + arrayType.toString());
+	}
+
+	public static ArrayValue buildArrayConstantExpression(Type arrayType, int instanceId) {
+		Type elementType = arrayType.getElementType();
+
+		if (TypeUtil.isIntegerValue(elementType))
+		  return buildIntegerArrayConstantExpression(arrayType, instanceId);
+
+		if (TypeUtil.isRealValue(elementType))
+		  return buildRealArrayConstantExpression(arrayType, instanceId);
+
+		if (TypeUtil.isStringValue(elementType))
+		  return buildStringArrayConstantExpression(instanceId);
+
+		if (TypeUtil.isReferenceValue(elementType))
+		  return buildReferenceArrayConstantExpression(arrayType, instanceId);
+
+		throw new IllegalArgumentException("Array type not yet implemented: " + arrayType.toString());
+	}
+
     public static ArrayValue.RealArrayValue buildRealArrayVariableExpression(Type objectType, int instanceId, String arrayName, Object concreteArray) {
         return new ArrayVariable.RealArrayVariable(objectType, instanceId, arrayName, concreteArray);
     }
 
     public static ArrayValue.StringArrayValue buildStringArrayVariableExpression(Type objectType, int instanceId, String arrayName, Object concreteArray) {
-        return new ArrayVariable.StringArrayVariable(objectType, instanceId, arrayName, concreteArray);
+        return new ArrayVariable.StringArrayVariable(instanceId, arrayName, concreteArray);
     }
 
     public static ArrayValue.ReferenceArrayValue buildReferenceArrayVariableExpression(Type objectType, int instanceId, String arrayName, Object concreteArray) {
@@ -390,7 +437,45 @@ public abstract class ExpressionFactory {
 
     /**************************** Reference Types ****************************/
 
-    public static LiteralNullType buildNewNullReferenceType() {
-        return new LiteralNullType();
-    }
+    /**
+	 * Builds a new synthetic lambda reference type.
+	 *
+	 * @param lambdaAnonymousClass
+	 * @param ownerIsIgnored
+	 * @param newReferenceTypeId
+	 * @return*/
+	public static LambdaSyntheticTypeConstant buildLambdaSyntheticTypeConstant(Type lambdaAnonymousClass, boolean ownerIsIgnored, int newReferenceTypeId) {
+		return new LambdaSyntheticTypeConstant(lambdaAnonymousClass, ownerIsIgnored, newReferenceTypeId);
+	}
+
+	/**
+	 * Builds a new Class reference type.
+	 *
+	 * @param classType
+	 * @param newReferenceTypeId
+	 * @return
+	 */
+	public static ClassTypeConstant buildClassTypeConstant(Type classType, int newReferenceTypeId) {
+		return new ClassTypeConstant(classType, newReferenceTypeId);
+	}
+
+	/**
+	 * Builds a new Array reference type.
+	 *
+	 * @param classType
+	 * @param newReferenceTypeId
+	 * @return
+	 */
+	public static ArrayTypeConstant buildArrayTypeConstant(Type classType, int newReferenceTypeId) {
+		return new ArrayTypeConstant(classType, newReferenceTypeId);
+	}
+
+	/**
+	 * Builds a new Object reference type.
+	 *
+	 * @return
+	 */
+	private static ClassTypeConstant buildObjectTypeConstant() {
+		return new ClassTypeConstant(Type.getType(Object.class), SymbolicHeap.OBJECT_TYPE_ID);
+	}
 }

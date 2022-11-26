@@ -20,7 +20,7 @@
 package org.evosuite.symbolic.expr.ref.array;
 
 import org.evosuite.symbolic.expr.ExpressionVisitor;
-import org.evosuite.symbolic.expr.ref.ReferenceConstant;
+import org.evosuite.symbolic.expr.ref.NonNullReferenceConstant;
 import org.objectweb.asm.Type;
 
 /**
@@ -28,7 +28,7 @@ import org.objectweb.asm.Type;
  *
  * @author Ignacio Lebrero
  */
-public abstract class ArrayConstant extends ReferenceConstant implements ArrayValue {
+public abstract class ArrayConstant extends NonNullReferenceConstant implements ArrayValue {
 
     public ArrayConstant(Type arrayType, int instanceId) {
         super(arrayType, instanceId);
@@ -85,8 +85,8 @@ public abstract class ArrayConstant extends ReferenceConstant implements ArrayVa
 
     public static final class StringArrayConstant extends ArrayConstant implements ArrayValue.StringArrayValue {
 
-        public StringArrayConstant(Type arrayType, int instanceId) {
-            super(arrayType, instanceId);
+        public StringArrayConstant(int instanceId) {
+            super(Type.getType(String[].class), instanceId);
         }
 
         /**

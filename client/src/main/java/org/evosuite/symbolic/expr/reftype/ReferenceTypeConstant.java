@@ -19,22 +19,25 @@
  */
 package org.evosuite.symbolic.expr.reftype;
 
-import org.evosuite.symbolic.expr.ExpressionVisitor;
+import org.objectweb.asm.Type;
+import org.evosuite.symbolic.expr.Variable;
+
+import java.util.Collections;
+import java.util.Set;
 
 /**
- * Symbolic representation of the null type
+ * Represents all reference type literals (classes, interfaces and arrays).
  *
  * @author Ignacio Lebrero
  */
-public final class LiteralNullType extends LiteralClassType {
+public abstract class ReferenceTypeConstant extends ReferenceTypeExpression {
 
-    //TODO(ilebrero): There should be a Null class as a concrete object -> model it evetually
-    public LiteralNullType() {
-        super(null);
+    public ReferenceTypeConstant(Type concreteClass, int referenceTypeId) {
+        super(concreteClass, 1, false, referenceTypeId);
     }
 
     @Override
-    public <K, V> K accept(ExpressionVisitor<K, V> v, V arg) {
-        return null;
+    public Set<Variable<?>> getVariables() {
+        return Collections.emptySet();
     }
 }

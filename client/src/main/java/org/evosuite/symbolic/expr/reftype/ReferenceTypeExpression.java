@@ -19,6 +19,7 @@
  */
 package org.evosuite.symbolic.expr.reftype;
 
+import org.objectweb.asm.Type;
 import org.evosuite.symbolic.expr.AbstractExpression;
 
 /**
@@ -26,23 +27,32 @@ import org.evosuite.symbolic.expr.AbstractExpression;
  *
  * @author Ignacio Lebrero
  */
-public abstract class ReferenceTypeExpression extends AbstractExpression<Object> implements ReferenceTypeValue {
+public abstract class ReferenceTypeExpression extends AbstractExpression<Type> implements ReferenceTypeValue {
 
     private static final long serialVersionUID = 4684495307141703121L;
 
     /**
-     * This is the result of applying System.identityHashCode to the concrete
-     * class.
+     * referenceTypeId does not change during the lifetime of the reference
      */
-    private final int concIdentityHashCode;
+    private final int referenceTypeId;
 
-    public ReferenceTypeExpression(Class concreteClass, int size, boolean containsSymbolicVariable) {
+    /**
+     * This is the result of applying System.identityHashCode to the concrete class.
+     */
+    private int concIdentityHashCode;
+
+    public ReferenceTypeExpression(Type concreteClass, int size, boolean containsSymbolicVariable, int referenceTypeId) {
         super(concreteClass, size, containsSymbolicVariable);
 
+        this.referenceTypeId = referenceTypeId;
         this.concIdentityHashCode = System.identityHashCode(concreteClass);
     }
 
     public int getConcIdentityHashCode() {
         return this.concIdentityHashCode;
+    }
+
+    public int getReferenceTypeId() {
+        return referenceTypeId;
     }
 }

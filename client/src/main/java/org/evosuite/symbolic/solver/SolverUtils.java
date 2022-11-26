@@ -28,6 +28,7 @@ import org.evosuite.symbolic.expr.bv.IntegerConstant;
 import org.evosuite.symbolic.expr.bv.IntegerVariable;
 import org.evosuite.symbolic.expr.constraint.IntegerConstraint;
 import org.evosuite.symbolic.expr.fp.RealVariable;
+import org.evosuite.symbolic.expr.ref.ClassReferenceVariable;
 import org.evosuite.symbolic.expr.ref.array.ArrayVariable;
 import org.evosuite.symbolic.expr.str.StringVariable;
 import org.evosuite.symbolic.vm.ConstraintFactory;
@@ -98,7 +99,9 @@ public abstract class SolverUtils {
             } else if (variable instanceof StringVariable) {
                 // skip
             } else if (variable instanceof ArrayVariable) {
-                // skip
+				// skip
+			} else if (variable instanceof ClassReferenceVariable) {
+				//skip
             } else {
                 throw new UnsupportedOperationException(
                         "Unknown variable type " + variable.getClass().getName());

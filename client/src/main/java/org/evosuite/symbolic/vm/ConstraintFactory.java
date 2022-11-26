@@ -22,6 +22,8 @@ package org.evosuite.symbolic.vm;
 import org.evosuite.symbolic.expr.Comparator;
 import org.evosuite.symbolic.expr.bv.IntegerValue;
 import org.evosuite.symbolic.expr.constraint.IntegerConstraint;
+import org.evosuite.symbolic.expr.constraint.ReferenceConstraint;
+import org.evosuite.symbolic.expr.ref.ReferenceExpression;
 
 /**
  * @author galeotti
@@ -55,4 +57,14 @@ public abstract class ConstraintFactory {
         return new IntegerConstraint(left, Comparator.GE, right);
 
     }
+
+    public static ReferenceConstraint eq(ReferenceExpression left,
+                                         ReferenceExpression right) {
+		return new ReferenceConstraint(left, Comparator.EQ, right);
+	}
+
+	public static ReferenceConstraint neq(ReferenceExpression left,
+										 ReferenceExpression right) {
+		return new ReferenceConstraint(left, Comparator.NE, right);
+	}
 }

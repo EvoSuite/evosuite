@@ -20,32 +20,32 @@
 package org.evosuite.symbolic.expr.ref;
 
 import org.evosuite.symbolic.expr.ExpressionVisitor;
-import org.evosuite.symbolic.expr.Variable;
 import org.objectweb.asm.Type;
 
-import java.util.Collections;
-import java.util.Set;
-
 /**
- * This class represents a reference that is not symbolic (e.g. a new Object()
- * somewhere during the execution of the code). After the NEW operation, the
- * concrete reference cannot be accessed until the <init> method finishes.
- * Therefore, we have to initialize the <code>ReferenceConstant</code> after the
- * <init> method ends.
+ * Represents a non array reference variable.
  *
- * @author galeotti
+ * @author Ignacio Lebrero
  */
-public abstract class ReferenceConstant extends ReferenceExpression {
+public class ClassReferenceVariable extends ReferenceVariable {
 
+	/**
+	 * Creates a new reference variable using the type of the reference, an
+	 * instance id, the name of the variable and the concrete object reference.
+	 * The resulting variable is initialized.
+	 *
+	 * @param objectType
+	 * @param instanceId
+	 * @param name
+	 * @param concreteValue
+	 */
+	public ClassReferenceVariable(Type objectType, int instanceId, String name, Object concreteValue) {
+		super(objectType, instanceId, name, concreteValue);
+	}
 
-    private static final long serialVersionUID = 4288259851884045452L;
+	@Override
+	public <K, V> K accept(ExpressionVisitor<K, V> v, V arg) {
+		return v.visit(this, arg);
+	}
 
-    public ReferenceConstant(Type objectType, int instanceId) {
-        super(objectType, instanceId, 1, false);
-    }
-
-    @Override
-    public Set<Variable<?>> getVariables() {
-        return Collections.emptySet();
-    }
 }

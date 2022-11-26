@@ -27,16 +27,12 @@ import org.evosuite.symbolic.expr.SymbolicValue;
  *
  * @author Ignacio Lebrero
  */
-public interface ArrayValue {
-    interface RealArrayValue extends Expression<Object>, SymbolicValue {
-    }
+public interface ArrayValue extends Expression<Object>, SymbolicValue {
+    interface RealArrayValue extends ArrayValue {}
 
-    interface StringArrayValue extends Expression<Object>, SymbolicValue {
-    }
+    interface StringArrayValue extends ArrayValue {}
 
-    interface IntegerArrayValue extends Expression<Object>, SymbolicValue {
-    }
+    interface IntegerArrayValue extends ArrayValue {}
 
-    interface ReferenceArrayValue extends Expression<Object>, SymbolicValue {
-    }
+    interface ReferenceArrayValue extends ArrayValue {}
 }

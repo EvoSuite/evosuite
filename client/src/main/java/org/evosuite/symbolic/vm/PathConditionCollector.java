@@ -25,6 +25,7 @@ import org.evosuite.symbolic.IfBranchCondition;
 import org.evosuite.symbolic.SwitchBranchCondition;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.constraint.IntegerConstraint;
+import org.evosuite.symbolic.expr.constraint.ReferenceConstraint;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -109,6 +110,32 @@ public final class PathConditionCollector {
 
         currentSupportingConstraints.clear();
     }
+
+    /**
+	 * Add a new constraint to a branch condition for a IF instruction
+	 *
+	 * @param className
+	 *            the class name where the branch is
+	 * @param methName
+	 *            the method where the branch is
+	 * @param branchIndex
+	 *            the branch index
+	 * @param c
+	 *            the constraint for the branch condition
+	 */
+	public void appendIfBranchCondition(String className, String methName, int branchIndex, boolean isTrueBranch,
+			ReferenceConstraint c) {
+
+		LinkedList<Constraint<?>> branch_supporting_constraints = new LinkedList<>(
+				currentSupportingConstraints);
+
+		IfBranchCondition new_branch = new IfBranchCondition(className, methName, branchIndex, c,
+				branch_supporting_constraints, isTrueBranch);
+
+		branchConditions.add(new_branch);
+
+		currentSupportingConstraints.clear();
+	}
 
     /**
      * Appends a switch branch condition originated by a switch bytecode instruction

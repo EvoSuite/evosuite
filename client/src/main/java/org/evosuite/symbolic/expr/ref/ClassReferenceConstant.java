@@ -17,15 +17,24 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite.symbolic.expr.constraint;
+package org.evosuite.symbolic.expr.ref;
 
-public interface ConstraintVisitor<K, V> {
+import org.evosuite.symbolic.expr.ExpressionVisitor;
+import org.objectweb.asm.Type;
 
-    K visit(IntegerConstraint n, V arg);
+/**
+ * Represents all constant references related to general classes.
+ *
+ * @author Ignacio Lebrero
+ */
+public final class ClassReferenceConstant extends NonNullReferenceConstant {
 
-    K visit(RealConstraint n, V arg);
+    public ClassReferenceConstant(Type objectType, int instanceId) {
+        super(objectType, instanceId);
+    }
 
-    K visit(StringConstraint n, V arg);
-
-    K visit(ReferenceConstraint n, V arg);
+    @Override
+	public <K, V> K accept(ExpressionVisitor<K, V> v, V arg) {
+		return v.visit(this, arg);
+	}
 }

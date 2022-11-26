@@ -20,32 +20,39 @@
 package org.evosuite.symbolic.expr.ref;
 
 import org.evosuite.symbolic.expr.ExpressionVisitor;
-import org.evosuite.symbolic.expr.Variable;
 import org.objectweb.asm.Type;
 
-import java.util.Collections;
-import java.util.Set;
+import static org.evosuite.symbolic.vm.heap.SymbolicHeap.NULL_INSTANCE_ID;
 
 /**
- * This class represents a reference that is not symbolic (e.g. a new Object()
- * somewhere during the execution of the code). After the NEW operation, the
- * concrete reference cannot be accessed until the <init> method finishes.
- * Therefore, we have to initialize the <code>ReferenceConstant</code> after the
- * <init> method ends.
+ * This class represents a reference to Null.
  *
- * @author galeotti
+ * @author Ignacio Lebrero
  */
-public abstract class ReferenceConstant extends ReferenceExpression {
+public final class NullReferenceConstant extends ReferenceConstant {
 
+    private static final long serialVersionUID = 8675423326479140020L;
 
-    private static final long serialVersionUID = 4288259851884045452L;
+	/**
+	 * There should be only one instance of this object
+	 */
+    private static NullReferenceConstant instance;
 
-    public ReferenceConstant(Type objectType, int instanceId) {
-        super(objectType, instanceId, 1, false);
-    }
+    public synchronized static NullReferenceConstant getInstance() {
+    	if (instance == null) {
+    		instance = new NullReferenceConstant();
+		}
 
-    @Override
-    public Set<Variable<?>> getVariables() {
-        return Collections.emptySet();
+    	return instance;
+	}
+
+	@Override
+	public <K, V> K accept(ExpressionVisitor<K, V> v, V arg) {
+		return v.visit(this, arg);
+	}
+
+    private NullReferenceConstant() {
+        super(Type.getType(Object.class), NULL_INSTANCE_ID);
+        initializeReference(null);
     }
 }

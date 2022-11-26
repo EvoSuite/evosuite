@@ -17,15 +17,19 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite.symbolic.expr.constraint;
+package org.evosuite.symbolic.expr.reftype;
 
-public interface ConstraintVisitor<K, V> {
+import org.objectweb.asm.Type;
 
-    K visit(IntegerConstraint n, V arg);
+/**
+ * Represents all non null types.
+ *
+ * @author Ignacio Lebrero
+ */
+public abstract class NonNullReferenceTypeConstant extends ReferenceTypeConstant {
 
-    K visit(RealConstraint n, V arg);
+    public NonNullReferenceTypeConstant(Type concreteClass, int referenceTypeId) {
+        super(concreteClass, referenceTypeId);
+    }
 
-    K visit(StringConstraint n, V arg);
-
-    K visit(ReferenceConstraint n, V arg);
 }
