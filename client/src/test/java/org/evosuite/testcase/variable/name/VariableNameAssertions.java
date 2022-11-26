@@ -96,12 +96,12 @@ public final class VariableNameAssertions {
             fail(String.format("The identifiers must start with a Java Letter ([a-zA-Z_$]): %s", identifierName));
         }
         if (identifierName.length() > 1) {
-            int[] characterNumbers = identifierName.substring(1).chars().toArray();
-            for (int character : characterNumbers) {
+            char[] characters = identifierName.substring(1).toCharArray();
+            for (char character : characters) {
                 if ( !Character.isJavaIdentifierPart(character) ) {
                     fail(String.format(
                             "The identifiers should only contain Java Letters ([a-zA-Z_$]) or Java Digit ([0-9])." +
-                            "Found invalid chat '%s' in identifier '%s'",
+                            "Found invalid char '%s' in identifier '%s'",
                             character, identifierName));
                 }
             }
