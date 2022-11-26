@@ -2,7 +2,7 @@ package org.evosuite.testcase.variable.name;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
-abstract class AbstractVariableNameStrategyTest {
+public final class VariableNameAssertions {
 
     private static final String[] JAVA_RESERVED_KEYWORDS = {
             // Reserved keywords
@@ -56,7 +56,8 @@ abstract class AbstractVariableNameStrategyTest {
             "native",
             "super",
             "while",
-            "_", // Since Java 9
+            "_",
+            // Since Java 9
             // Boolean literals
             "true",
             "false",
@@ -70,13 +71,13 @@ abstract class AbstractVariableNameStrategyTest {
 
     /**
      * Assert identifier matches the requirements in Java Language Specification.
-     *
+     * <p>
      * See:
      * <a href="https://docs.oracle.com/javase/specs/jls/se16/html/jls-3.html#jls-3.8">Java Language Specification 16</a>
      *
      * @param identifierName The identifier to be tested.
      */
-    public void assertValidIdentifierName(String identifierName) {
+    public static void assertValidIdentifierName(String identifierName) {
         // Identifiers cannot be null
         if (identifierName == null) {
             fail("The identifiers name cannot be null");
@@ -99,8 +100,9 @@ abstract class AbstractVariableNameStrategyTest {
             for (int character : characterNumbers) {
                 if ( !Character.isJavaIdentifierPart(character) ) {
                     fail(String.format(
-                            "The identifiers should only contain Java Letters ([a-zA-Z_$]) or Java Digit ([0-9]): %s",
-                            identifierName));
+                            "The identifiers should only contain Java Letters ([a-zA-Z_$]) or Java Digit ([0-9])." +
+                            "Found invalid chat '%s' in identifier '%s'",
+                            character, identifierName));
                 }
             }
         }

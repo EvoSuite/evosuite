@@ -8,11 +8,12 @@ import org.evosuite.utils.generic.GenericClass;
 import org.evosuite.utils.generic.GenericClassFactory;
 import org.junit.jupiter.api.Test;
 
+import static org.evosuite.testcase.variable.name.VariableNameAssertions.assertValidIdentifierName;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
-class VariableNameTypeBasedStrategyTest extends AbstractVariableNameStrategyTest {
+class TypeBasedVariableNameStrategyTest {
 
     private final TestCase testCase = mock(TestCase.class);
 
@@ -30,6 +31,7 @@ class VariableNameTypeBasedStrategyTest extends AbstractVariableNameStrategyTest
         GenericClass<?> genericClass = GenericClassFactory.get(ClassUnderTest1.class);
         VariableReference variable = new VariableReferenceImpl(testCase, genericClass);
         String actualName = strategy.createNameForVariable(variable);
+        assertValidIdentifierName(actualName);
         assertTrue(actualName.endsWith("ClassUnderTest1_0"), actualName);
     }
 
@@ -46,11 +48,13 @@ class VariableNameTypeBasedStrategyTest extends AbstractVariableNameStrategyTest
         // 1.
         variable = new ArrayReference(testCase, GenericClassFactory.get(String.class), 1);
         actualName = strategy.createNameForVariable(variable);
+        assertValidIdentifierName(actualName);
         assertEquals("stringArray0", actualName);
 
         // 2.
         variable = new VariableReferenceImpl(testCase, GenericClassFactory.get(String[].class));
         actualName = strategy.createNameForVariable(variable);
+        assertValidIdentifierName(actualName);
         assertEquals("stringArray1", actualName);
     }
 
