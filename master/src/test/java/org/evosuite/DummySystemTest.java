@@ -38,9 +38,15 @@ public class DummySystemTest extends SystemTestBase{
         //        Properties.SecondaryObjective.TEST_SMELL_ROTTEN_GREEN_TESTS, Properties.SecondaryObjective.TEST_SMELL_VERBOSE_TEST};
 
         // Optimal combination of test smell metrics to optimize as secondary criteria:
-        Properties.SECONDARY_OBJECTIVE = new Properties.SecondaryObjective[]{Properties.SecondaryObjective.TEST_SMELL_INDIRECT_TESTING,
-                Properties.SecondaryObjective.TEST_SMELL_OBSCURE_INLINE_SETUP,Properties.SecondaryObjective.TEST_SMELL_OVERREFERENCING,
-                Properties.SecondaryObjective.TEST_SMELL_ROTTEN_GREEN_TESTS, Properties.SecondaryObjective.TEST_SMELL_VERBOSE_TEST};
+        //Properties.SECONDARY_OBJECTIVE = new Properties.SecondaryObjective[]{Properties.SecondaryObjective.TEST_SMELL_INDIRECT_TESTING,
+        //        Properties.SecondaryObjective.TEST_SMELL_OBSCURE_INLINE_SETUP,Properties.SecondaryObjective.TEST_SMELL_OVERREFERENCING,
+        //        Properties.SecondaryObjective.TEST_SMELL_ROTTEN_GREEN_TESTS, Properties.SecondaryObjective.TEST_SMELL_VERBOSE_TEST};
+
+
+        //Properties.SECONDARY_OBJECTIVE = new Properties.SecondaryObjective[]{Properties.SecondaryObjective.TEST_SMELL_INDIRECT_TESTING,
+        //        Properties.SecondaryObjective.TEST_SMELL_INDIRECT_TESTING};
+
+        Properties.SECONDARY_OBJECTIVE = new Properties.SecondaryObjective[]{Properties.SecondaryObjective.RANDOM};
 
         //--------------------------
         // Set the output variables:

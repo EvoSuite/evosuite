@@ -88,6 +88,9 @@ public class TestSuiteSecondaryObjective {
                 case TEST_SMELL_VERBOSE_TEST:
                     secondaryObjectiveInstance = new OptimizeTestSmellsSecondaryObjective(new VerboseTest());
                     break;
+                case RANDOM:
+                    secondaryObjectiveInstance = new ChooseRandomlySecondaryObjective();
+                    break;
                 default:
                     throw new RuntimeException(
                             "ERROR: asked for unknown secondary objective \"" + secondaryObjective.name() + "\"");
