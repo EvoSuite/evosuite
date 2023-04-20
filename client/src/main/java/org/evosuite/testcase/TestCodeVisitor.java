@@ -25,6 +25,7 @@ import dk.brics.automaton.RegExp;
 import org.apache.commons.lang3.CharUtils;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.TypeUtils;
 import org.evosuite.PackageInfo;
 import org.evosuite.Properties;
@@ -37,6 +38,7 @@ import org.evosuite.runtime.mock.EvoSuiteMock;
 import org.evosuite.testcase.fm.MethodDescriptor;
 import org.evosuite.testcase.statements.*;
 import org.evosuite.testcase.statements.environment.EnvironmentDataStatement;
+import org.evosuite.testcase.utils.HeuristicsUtil;
 import org.evosuite.testcase.variable.*;
 import org.evosuite.utils.NumberFormatter;
 import org.evosuite.utils.StringUtil;
@@ -70,6 +72,12 @@ public class TestCodeVisitor extends TestVisitor {
     protected final Map<Class<?>, String> classNames = new HashMap<>();
 
     protected final Map<String, Integer> nextIndices = new HashMap<>();
+
+    /**
+     * Dictionaries for naming information
+     */
+    protected Map<VariableReference, String> methodNames = new HashMap<>();
+    protected Map<VariableReference, String> argumentNames = new HashMap<>();
 
     /**
      * <p>
@@ -389,15 +397,15 @@ public class TestCodeVisitor extends TestVisitor {
                     + className.substring(1) + "Array";
             variableName = variableName.replace('.', '_').replace("[]", "");
             if (!variableNames.containsKey(var)) {
-                if (!nextIndices.containsKey(variableName)) {
-                    nextIndices.put(variableName, 0);
-                }
-
-                int index = nextIndices.get(variableName);
-                nextIndices.put(variableName, index + 1);
-
-                variableName += index;
-
+//                if (!nextIndices.containsKey(variableName)) {
+//                    nextIndices.put(variableName, 0);
+//                }
+//
+//                int index = nextIndices.get(variableName);
+//                nextIndices.put(variableName, index + 1);
+//
+//                variableName += index;
+                variableName = getNameByStrategy(var, variableName);
                 variableNames.put(var, variableName);
             }
 
@@ -422,19 +430,122 @@ public class TestCodeVisitor extends TestVisitor {
             if (CharUtils.isAsciiNumeric(variableName.charAt(variableName.length() - 1)))
                 variableName += "_";
 
-            if (!nextIndices.containsKey(variableName)) {
-                nextIndices.put(variableName, 0);
-            }
-
-            int index = nextIndices.get(variableName);
-            nextIndices.put(variableName, index + 1);
-
-            variableName += index;
+//            if (!nextIndices.containsKey(variableName)) {
+//                nextIndices.put(variableName, 0);
+//            }
+//
+//            int index = nextIndices.get(variableName);
+//            nextIndices.put(variableName, index + 1);
+//
+//            variableName += index;
             // }
-
+            variableName = getNameByStrategy(var, variableName);
             variableNames.put(var, variableName);
         }
         return variableNames.get(var);
+    }
+
+    /**
+     * Returns the suggested name for a variable according to Properties configuration
+     *
+     * 1. TYPE_BASED --> Using type names + index as suggested name (this is the traditional naming in EvoSuite)
+     * 2. HEURISTICS_BASED --> Using information about arguments + methods + types for proposing a name + index if name is repeated more than once
+     * 3. INFO_COLLECTOR --> Mode for controlling all the information about the test retrieved via reflection, only for debugging purposes
+     *
+     * @return String
+     */
+    private String getNameByStrategy(final VariableReference var, final String originalVariableName) {
+        String variableName = "";
+        if (Properties.VARIABLE_NAMING_STRATEGY == Properties.VariableNamingStrategy.TYPE_BASED) {
+            variableName = originalVariableName;
+            variableName = getIndexIncludingFirstAppearance(variableName);
+        }
+        if (Properties.VARIABLE_NAMING_STRATEGY == Properties.VariableNamingStrategy.HEURISTICS_BASED) {
+            variableName = this.getPrioritizedName(var, originalVariableName);
+            variableName = getVariableWithIndexExcludingFirstAppearance(variableName);
+        }
+        return variableName;
+    }
+
+    /**
+     * Returns the variable name + the corresponding index if and only if there is more than one repetition of the name,
+     * otherwise, it returns the name without an index at last.
+     *
+     * Mainly used for Heuristic Renaming Strategy.
+     *
+     * @return String
+     */
+    private String getVariableWithIndexExcludingFirstAppearance(String variableName) {
+        if (!this.nextIndices.containsKey(variableName)) {
+            this.nextIndices.put(variableName, 0);
+        }
+        else {
+            final int index = this.nextIndices.get(variableName);
+            this.nextIndices.put(variableName, index + 1);
+            variableName += this.nextIndices.get(variableName);
+        }
+        return variableName;
+    }
+
+    /**
+     * Returns the variable name + the number of repetitions counting from 0.
+     * i.e. If the variable appears only once in the test, it is named as variable0.
+     *
+     * Mainly used for Type-Based Renaming Strategy (traditional naming in EvoSuite).
+     *
+     * @return String
+     */
+    private String getIndexIncludingFirstAppearance(String variableName) {
+        if (!nextIndices.containsKey(variableName)) {
+            nextIndices.put(variableName, 0);
+        }
+        int index = nextIndices.get(variableName);
+        nextIndices.put(variableName, index + 1);
+        return variableName += index;
+    }
+    /**
+     * Retrieve a suggested name based on method, argument and type information.
+     *
+     * The followed order for prioritizing is:
+     * 1. Use argument suggestion, if not possible
+     * 2. Use method suggestion + reductions, if not possible
+     * 3. Use type suggestion, traditional naming.
+     *
+     * @return String
+     */
+    private String getPrioritizedName(final VariableReference var, String variableName) {
+        final String methodCode = this.methodNames.get(var);
+        final String arguments = this.argumentNames.get(var);
+        if (arguments != null) {
+            variableName = arguments;
+        }
+        else if (methodCode != null) {
+            variableName = analyzeMethodName(methodCode);
+        }
+        if(variableName.equals(var.getSimpleClassName())){
+            variableName = "_" + variableName;
+        }
+        return variableName;
+    }
+
+    /**
+     * Returns the suggested method name controlling camel case and excluding some particles
+     * of the method names.
+     *
+     * @return String
+     */
+    private String analyzeMethodName(String methodCode) {
+        String name = "";
+        ArrayList<String> methodName = HeuristicsUtil.separateByCamelCase(methodCode);
+        if(methodCode.length() > 0){
+            if(HeuristicsUtil.containsAvoidableParticle(methodName.get(0)) && methodName.size() > 1){
+                name = StringUtils.join(methodName.subList(1,methodName.size()), "");
+                final char[] auxCharArray = name.toCharArray();
+                auxCharArray[0] = Character.toLowerCase(auxCharArray[0]);
+                return new String(auxCharArray);
+            }
+        }
+        return methodCode;
     }
 
     /**
@@ -1380,17 +1491,18 @@ public class TestCodeVisitor extends TestVisitor {
         Throwable exception = getException(statement);
         List<VariableReference> parameters = statement.getParameterReferences();
         boolean isGenericMethod = method.hasTypeParameters();
-
         if (exception != null && !statement.isDeclaredException(exception)) {
             result += "// Undeclared exception!" + NEWLINE;
         }
-
         boolean lastStatement = statement.getPosition() == statement.getTestCase().size() - 1;
         boolean unused = !Properties.ASSERTIONS ? exception != null : test != null
                 && !test.hasReferences(retval);
 
         if (!retval.isVoid() && retval.getAdditionalVariableReference() == null
                 && !unused) {
+            if (!this.methodNames.containsKey(retval)) {
+                this.methodNames.put(retval, method.getName());
+            }
             if (exception != null) {
                 if (!lastStatement || statement.hasAssertions())
                     result += getClassName(retval) + " " + getVariableName(retval)
@@ -1403,7 +1515,22 @@ public class TestCodeVisitor extends TestVisitor {
             result += "try { " + NEWLINE + "  ";
         }
 
-
+        if (!this.argumentNames.containsKey(retval)) {
+            final List<String> parameterNames = (List<String>)statement.obtainParameterNameListInOrder();
+            int idx = 0;
+            for (final VariableReference param : parameters) {
+                this.argumentNames.put(param, parameterNames.get(idx));
+                ++idx;
+            }
+        }
+        if (retval.isVoid()) {
+            final List<String> parameterNames = (List<String>)statement.obtainParameterNameListInOrder();
+            int idx = 0;
+            for (final VariableReference param : parameters) {
+                this.argumentNames.put(param, parameterNames.get(idx));
+                ++idx;
+            }
+        }
         String parameter_string = getParameterString(method.getParameterTypes(),
                 parameters, isGenericMethod,
                 method.isOverloaded(parameters), 0);
@@ -1632,6 +1759,14 @@ public class TestCodeVisitor extends TestVisitor {
                 && !Modifier.isStatic(constructor.getConstructor().getDeclaringClass().getModifiers());
 
         List<VariableReference> parameters = statement.getParameterReferences();
+        if (!this.argumentNames.containsKey(retval)) {
+            final List<String> parameterNames = (List<String>)statement.obtainParameterNameListInOrder();
+            int idx = 0;
+            for (final VariableReference param : parameters) {
+                this.argumentNames.put(param, parameterNames.get(idx));
+                ++idx;
+            }
+        }
         int startPos = 0;
         if (isNonStaticMemberClass) {
             startPos = 1;
