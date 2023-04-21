@@ -23,6 +23,7 @@ import com.examples.with.different.packagename.AbstractEnumInInnerClass;
 import com.examples.with.different.packagename.AbstractEnumUser;
 import com.examples.with.different.packagename.EnumInInnerClass;
 import com.examples.with.different.packagename.EnumUser;
+import org.evosuite.Properties;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.testcase.statements.ArrayStatement;
 import org.evosuite.testcase.statements.AssignmentStatement;
@@ -32,6 +33,7 @@ import org.evosuite.testcase.variable.ArrayIndex;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.utils.generic.GenericConstructor;
 import org.evosuite.utils.generic.GenericMethod;
+import org.evosuite.utils.generic.Person;
 import org.evosuite.utils.generic.WildcardTypeImpl;
 import org.junit.Assert;
 import org.junit.Test;
@@ -321,5 +323,97 @@ public class TestCodeVisitorTest {
         System.out.println(code);
         assertFalse(code.contains("= AbstractEnumInInnerClass.AnEnum.1.FOO"));
         assertTrue(code.contains("= AbstractEnumInInnerClass.AnEnum.FOO"));
+    }
+
+    @Test
+    public void testMethodRenamingWithHeuristics() throws Exception{
+
+        Properties.getInstance().setValue("variable_naming_strategy", Properties.VariableNamingStrategy.HEURISTICS_BASED);
+        TestCase tc = new DefaultTestCase();
+        // new Person()
+        VariableReference person = TestFactory.getInstance().addConstructor(tc,
+                new GenericConstructor(Person.class.getDeclaredConstructor(), Person.class), 0, 0);
+        //getFixedId()
+        Method m0 = Person.class.getDeclaredMethod("getFixedId");
+        GenericMethod gm0 = new GenericMethod(m0, Person.class);
+        MethodStatement ms0 = new MethodStatement(tc, gm0, person, Arrays.asList());
+        VariableReference var0 = tc.addStatement(ms0);
+        //setAge();
+        Method m1 = Person.class.getDeclaredMethod("setAge", int.class);
+        GenericMethod gm1 = new GenericMethod(m1, Person.class);
+        MethodStatement ms1 = new MethodStatement(tc, gm1, person, Arrays.asList(var0));
+        tc.addStatement(ms1);
+        //getAge();
+        Method m2 = Person.class.getDeclaredMethod("getAge");
+        GenericMethod gm2 = new GenericMethod(m2, Person.class);
+        VariableReference var1 = TestFactory.getInstance().addMethod(tc, gm2,3,0);
+        AssignmentStatement as0 = new AssignmentStatement(tc, var0, var1);
+        tc.addStatement(as0);
+        //isAdult();
+        Method m3 = Person.class.getDeclaredMethod("isAdult");
+        GenericMethod gm3 = new GenericMethod(m3, Person.class);
+        VariableReference var2 = TestFactory.getInstance().addMethod(tc, gm3,4,0);
+        AssignmentStatement as1 = new AssignmentStatement(tc, var2, var2);
+        tc.addStatement(as1);
+
+
+        //Finally, visit the test
+        TestCodeVisitor visitor = new TestCodeVisitor();
+        tc.accept(visitor); //should not throw exception
+        String code = visitor.getCode();
+        System.out.println(code);
+
+        assertTrue(code.contains("int age = person.getAge()"));
+        assertFalse(code.contains("int int1 = person0.getAge()"));
+        assertTrue(code.contains("int fixedId = person.getFixedId()"));
+        assertFalse(code.contains("int int0 = person0.getFixedId()"));
+        assertTrue(code.contains("boolean adult = person.isAdult()"));
+        assertFalse(code.contains("boolean boolean0 = person0.isAdult()"));
+    }
+
+    @Test
+    public void testMethodRenamingWithTypes() throws Exception{
+
+        Properties.getInstance().setValue("variable_naming_strategy", Properties.VariableNamingStrategy.TYPE_BASED);
+        TestCase tc = new DefaultTestCase();
+        // new Person()
+        VariableReference person = TestFactory.getInstance().addConstructor(tc,
+                new GenericConstructor(Person.class.getDeclaredConstructor(), Person.class), 0, 0);
+        //getFixedId()
+        Method m0 = Person.class.getDeclaredMethod("getFixedId");
+        GenericMethod gm0 = new GenericMethod(m0, Person.class);
+        MethodStatement ms0 = new MethodStatement(tc, gm0, person, Arrays.asList());
+        VariableReference var0 = tc.addStatement(ms0);
+        //setAge();
+        Method m1 = Person.class.getDeclaredMethod("setAge", int.class);
+        GenericMethod gm1 = new GenericMethod(m1, Person.class);
+        MethodStatement ms1 = new MethodStatement(tc, gm1, person, Arrays.asList(var0));
+        tc.addStatement(ms1);
+        //getAge();
+        Method m2 = Person.class.getDeclaredMethod("getAge");
+        GenericMethod gm2 = new GenericMethod(m2, Person.class);
+        VariableReference var1 = TestFactory.getInstance().addMethod(tc, gm2,3,0);
+        AssignmentStatement as0 = new AssignmentStatement(tc, var0, var1);
+        tc.addStatement(as0);
+        //isAdult();
+        Method m3 = Person.class.getDeclaredMethod("isAdult");
+        GenericMethod gm3 = new GenericMethod(m3, Person.class);
+        VariableReference var2 = TestFactory.getInstance().addMethod(tc, gm3,4,0);
+        AssignmentStatement as1 = new AssignmentStatement(tc, var2, var2);
+        tc.addStatement(as1);
+
+
+        //Finally, visit the test
+        TestCodeVisitor visitor = new TestCodeVisitor();
+        tc.accept(visitor); //should not throw exception
+        String code = visitor.getCode();
+        System.out.println(code);
+
+        assertFalse(code.contains("int age = person.getAge()"));
+        assertTrue(code.contains("int int1 = person0.getAge()"));
+        assertFalse(code.contains("int fixedId = person.getFixedId()"));
+        assertTrue(code.contains("int int0 = person0.getFixedId()"));
+        assertFalse(code.contains("boolean adult = person.isAdult()"));
+        assertTrue(code.contains("boolean boolean0 = person0.isAdult()"));
     }
 }

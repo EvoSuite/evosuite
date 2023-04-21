@@ -1248,7 +1248,7 @@ public class Properties {
     }
 
     @Parameter(key = "variable_naming_strategy", group = "Output", description = "What strategy to use to name variables for tests")
-    public static VariableNamingStrategy VARIABLE_NAMING_STRATEGY = VariableNamingStrategy.HEURISTICS_BASED;
+    public static VariableNamingStrategy VARIABLE_NAMING_STRATEGY = VariableNamingStrategy.TYPE_BASED;
 
     // ---------------------------------------------------------------
     // Sandbox
