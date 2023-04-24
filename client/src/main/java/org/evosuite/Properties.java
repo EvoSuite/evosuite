@@ -1244,7 +1244,7 @@ public class Properties {
     public static TestNamingStrategy TEST_NAMING_STRATEGY = TestNamingStrategy.NUMBERED;
 
     public enum VariableNamingStrategy {
-        TYPE_BASED, HEURISTICS_BASED, INFO_COLLECTOR
+        TYPE_BASED, HEURISTICS_BASED
     }
 
     @Parameter(key = "variable_naming_strategy", group = "Output", description = "What strategy to use to name variables for tests")
