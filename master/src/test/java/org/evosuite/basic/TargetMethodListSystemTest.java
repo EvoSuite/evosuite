@@ -6,12 +6,31 @@ import org.evosuite.Properties;
 import org.evosuite.SystemTestBase;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.testsuite.TestSuiteChromosome;
-import org.junit.Assert;
 import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
 
 public class TargetMethodListSystemTest extends SystemTestBase {
+
     @Test
-    public void testTargetMethodWithBranchCoverage() {
+    public void testTargetMethodWithLineCoverage() {
+        EvoSuite evosuite = new EvoSuite();
+
+        String targetClass = TargetMethod.class.getCanonicalName();
+        String targetMethod = "foo(Ljava/lang/Integer;)Z";
+        Properties.TARGET_CLASS = targetClass;
+        Properties.TARGET_METHOD_LIST = targetMethod;
+        Properties.CRITERION = new Properties.Criterion[]{Properties.Criterion.BRANCH, Properties.Criterion.LINE};
+        String[] command = new String[]{"-generateMOSuite", "-class", targetClass};
+
+        Object result = evosuite.parseCommandLine(command);
+
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
+        Assertions.assertFalse(best.toString().contains("bar"));
+    }
+
+    @Test
+    public void testTargetMethodWithWeakMutation() {
         EvoSuite evosuite = new EvoSuite();
 
         String targetClass = TargetMethod.class.getCanonicalName();
@@ -25,7 +44,96 @@ public class TargetMethodListSystemTest extends SystemTestBase {
 
         GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
         TestSuiteChromosome best = ga.getBestIndividual();
-        Assert.assertTrue(best.toString().contains("foo"));
-        Assert.assertFalse(best.toString().contains("bar"));
+        Assertions.assertFalse(best.toString().contains("bar"));
+    }
+
+    @Test
+    public void testTargetMethodWithMethod() {
+        EvoSuite evosuite = new EvoSuite();
+
+        String targetClass = TargetMethod.class.getCanonicalName();
+        String targetMethod = "foo(Ljava/lang/Integer;)Z";
+        Properties.TARGET_CLASS = targetClass;
+        Properties.TARGET_METHOD_LIST = targetMethod;
+        Properties.CRITERION = new Properties.Criterion[]{Properties.Criterion.BRANCH, Properties.Criterion.METHOD};
+        String[] command = new String[]{"-generateMOSuite", "-class", targetClass};
+
+        Object result = evosuite.parseCommandLine(command);
+
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
+        Assertions.assertFalse(best.toString().contains("bar"));
+    }
+
+    @Test
+    public void testTargetMethodWithException() {
+        EvoSuite evosuite = new EvoSuite();
+
+        String targetClass = TargetMethod.class.getCanonicalName();
+        String targetMethod = "foo(Ljava/lang/Integer;)Z";
+        Properties.TARGET_CLASS = targetClass;
+        Properties.TARGET_METHOD_LIST = targetMethod;
+        Properties.CRITERION = new Properties.Criterion[]{Properties.Criterion.BRANCH, Properties.Criterion.EXCEPTION};
+        String[] command = new String[]{"-generateMOSuite", "-class", targetClass};
+
+        Object result = evosuite.parseCommandLine(command);
+
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
+        Assertions.assertFalse(best.toString().contains("bar"));
+    }
+
+    @Test
+    public void testTargetMethodWithMethodNoException() {
+        EvoSuite evosuite = new EvoSuite();
+
+        String targetClass = TargetMethod.class.getCanonicalName();
+        String targetMethod = "foo(Ljava/lang/Integer;)Z";
+        Properties.TARGET_CLASS = targetClass;
+        Properties.TARGET_METHOD_LIST = targetMethod;
+        Properties.CRITERION = new Properties.Criterion[]{Properties.Criterion.BRANCH, Properties.Criterion.METHODNOEXCEPTION};
+        String[] command = new String[]{"-generateMOSuite", "-class", targetClass};
+
+        Object result = evosuite.parseCommandLine(command);
+
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
+        Assertions.assertFalse(best.toString().contains("bar"));
+    }
+
+    @Test
+    public void testTargetMethodWithCBranch() {
+        EvoSuite evosuite = new EvoSuite();
+
+        String targetClass = TargetMethod.class.getCanonicalName();
+        String targetMethod = "foo(Ljava/lang/Integer;)Z";
+        Properties.TARGET_CLASS = targetClass;
+        Properties.TARGET_METHOD_LIST = targetMethod;
+        Properties.CRITERION = new Properties.Criterion[]{Properties.Criterion.BRANCH, Properties.Criterion.CBRANCH};
+        String[] command = new String[]{"-generateMOSuite", "-class", targetClass};
+
+        Object result = evosuite.parseCommandLine(command);
+
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
+        Assertions.assertFalse(best.toString().contains("bar"));
+    }
+
+    @Test
+    public void testTargetMethodWithOutput() {
+        EvoSuite evosuite = new EvoSuite();
+
+        String targetClass = TargetMethod.class.getCanonicalName();
+        String targetMethod = "foo(Ljava/lang/Integer;)Z";
+        Properties.TARGET_CLASS = targetClass;
+        Properties.TARGET_METHOD_LIST = targetMethod;
+        Properties.CRITERION = new Properties.Criterion[]{Properties.Criterion.BRANCH, Properties.Criterion.OUTPUT};
+        String[] command = new String[]{"-generateMOSuite", "-class", targetClass};
+
+        Object result = evosuite.parseCommandLine(command);
+
+        GeneticAlgorithm<TestSuiteChromosome> ga = getGAFromResult(result);
+        TestSuiteChromosome best = ga.getBestIndividual();
+        Assertions.assertFalse(best.toString().contains("bar"));
     }
 }
