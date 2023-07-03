@@ -22,7 +22,6 @@ package org.evosuite.testcase;
 import com.googlecode.gentyref.CaptureType;
 import com.googlecode.gentyref.GenericTypeReflector;
 import dk.brics.automaton.RegExp;
-import org.apache.commons.lang3.CharUtils;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.reflect.TypeUtils;
@@ -37,7 +36,12 @@ import org.evosuite.runtime.mock.EvoSuiteMock;
 import org.evosuite.testcase.fm.MethodDescriptor;
 import org.evosuite.testcase.statements.*;
 import org.evosuite.testcase.statements.environment.EnvironmentDataStatement;
-import org.evosuite.testcase.variable.*;
+import org.evosuite.testcase.variable.ArrayIndex;
+import org.evosuite.testcase.variable.ConstantValue;
+import org.evosuite.testcase.variable.FieldReference;
+import org.evosuite.testcase.variable.VariableReference;
+import org.evosuite.testcase.variable.name.VariableNameStrategy;
+import org.evosuite.testcase.variable.name.VariableNameStrategyFactory;
 import org.evosuite.utils.NumberFormatter;
 import org.evosuite.utils.StringUtil;
 import org.evosuite.utils.generic.*;
@@ -65,11 +69,9 @@ public class TestCodeVisitor extends TestVisitor {
 
     protected TestCase test = null;
 
-    protected final Map<VariableReference, String> variableNames = new HashMap<>();
-
     protected final Map<Class<?>, String> classNames = new HashMap<>();
 
-    protected final Map<String, Integer> nextIndices = new HashMap<>();
+    protected VariableNameStrategy variableNameStrategy = VariableNameStrategyFactory.get();
 
     /**
      * <p>
@@ -377,64 +379,9 @@ public class TestCodeVisitor extends TestVisitor {
                 result += "[" + index + "]";
             }
             return result;
-        } else if (var instanceof ArrayReference) {
-            String className = var.getSimpleClassName();
-            // int num = 0;
-            // for (VariableReference otherVar : variableNames.keySet()) {
-            // if (!otherVar.equals(var)
-            // && otherVar.getVariableClass().equals(var.getVariableClass()))
-            // num++;
-            // }
-            String variableName = className.substring(0, 1).toLowerCase()
-                    + className.substring(1) + "Array";
-            variableName = variableName.replace('.', '_').replace("[]", "");
-            if (!variableNames.containsKey(var)) {
-                if (!nextIndices.containsKey(variableName)) {
-                    nextIndices.put(variableName, 0);
-                }
-
-                int index = nextIndices.get(variableName);
-                nextIndices.put(variableName, index + 1);
-
-                variableName += index;
-
-                variableNames.put(var, variableName);
-            }
-
-        } else if (!variableNames.containsKey(var)) {
-            String className = var.getSimpleClassName();
-            // int num = 0;
-            // for (VariableReference otherVar : variableNames.keySet()) {
-            // if (otherVar.getVariableClass().equals(var.getVariableClass()))
-            // num++;
-            // }
-            String variableName = className.substring(0, 1).toLowerCase()
-                    + className.substring(1);
-            if (variableName.contains("[]")) {
-                variableName = variableName.replace("[]", "Array");
-            }
-            variableName = variableName.replace(".", "_");
-
-            // Need a way to check for exact types, not assignable
-            // int numObjectsOfType = test != null ? test.getObjects(var.getType(),
-            //                                                      test.size()).size() : 2;
-            // if (numObjectsOfType > 1 || className.equals(variableName)) {
-            if (CharUtils.isAsciiNumeric(variableName.charAt(variableName.length() - 1)))
-                variableName += "_";
-
-            if (!nextIndices.containsKey(variableName)) {
-                nextIndices.put(variableName, 0);
-            }
-
-            int index = nextIndices.get(variableName);
-            nextIndices.put(variableName, index + 1);
-
-            variableName += index;
-            // }
-
-            variableNames.put(var, variableName);
+        } else {
+            return variableNameStrategy.getNameForVariable(var);
         }
-        return variableNames.get(var);
     }
 
     /**
@@ -443,7 +390,7 @@ public class TestCodeVisitor extends TestVisitor {
      * @return
      */
     public Collection<String> getVariableNames() {
-        return variableNames.values();
+        return variableNameStrategy.getVariableNames();
     }
 
     /**
@@ -468,8 +415,7 @@ public class TestCodeVisitor extends TestVisitor {
     public void visitTestCase(TestCase test) {
         this.test = test;
         this.testCode = "";
-        this.variableNames.clear();
-        this.nextIndices.clear();
+        this.variableNameStrategy = VariableNameStrategyFactory.get();
     }
 
     /**
