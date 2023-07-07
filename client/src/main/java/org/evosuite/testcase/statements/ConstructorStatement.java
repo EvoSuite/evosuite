@@ -494,19 +494,4 @@ public class ConstructorStatement extends EntityWithParametersStatement {
         }
         return names;
     }
-
-    /**
-     * Returns a string concatenation of the parameter names of a method using reflection.
-     * The string contains the parameter names separated by low bars, and in order of declaration
-     *
-     * @return String
-     */
-    public String obtainParameterNamesInOrder() {
-        final Parameter[] parameters = this.constructor.getParameters();
-        String names = "";
-        for (final Parameter p : parameters) {
-            names = names + p.getName() + "_";
-        }
-        return names;
-    }
 }

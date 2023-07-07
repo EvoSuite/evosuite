@@ -19,36 +19,19 @@ public class TypeBasedVariableNameStrategy extends AbstractVariableNameStrategy 
 
     @Override
     public String createNameForVariable(VariableReference var) {
+        String variableName = getPlainNameForVariable(var);
+        return getIndexIncludingFirstAppearance(variableName);
+    }
+
+    public String getPlainNameForVariable(VariableReference var){
+        String className = var.getSimpleClassName();
+        String variableName;
         if (var instanceof ArrayReference) {
-            String className = var.getSimpleClassName();
-            // int num = 0;
-            // for (VariableReference otherVar : variableNames.keySet()) {
-            // if (!otherVar.equals(var)
-            // && otherVar.getVariableClass().equals(var.getVariableClass()))
-            // num++;
-            // }
-            String variableName = className.substring(0, 1).toLowerCase()
+            variableName = className.substring(0, 1).toLowerCase()
                     + className.substring(1) + "Array";
             variableName = variableName.replace('.', '_').replace("[]", "");
-
-            if (!nextIndices.containsKey(variableName)) {
-                nextIndices.put(variableName, 0);
-            }
-
-            int index = nextIndices.get(variableName);
-            nextIndices.put(variableName, index + 1);
-
-            variableName += index;
-
-            return variableName;
         } else {
-            String className = var.getSimpleClassName();
-            // int num = 0;
-            // for (VariableReference otherVar : variableNames.keySet()) {
-            // if (otherVar.getVariableClass().equals(var.getVariableClass()))
-            // num++;
-            // }
-            String variableName = className.substring(0, 1).toLowerCase()
+            variableName = className.substring(0, 1).toLowerCase()
                     + className.substring(1);
             if (variableName.contains("[]")) {
                 variableName = variableName.replace("[]", "Array");
@@ -61,19 +44,30 @@ public class TypeBasedVariableNameStrategy extends AbstractVariableNameStrategy 
             // if (numObjectsOfType > 1 || className.equals(variableName)) {
             if (CharUtils.isAsciiNumeric(variableName.charAt(variableName.length() - 1)))
                 variableName += "_";
-
-            if (!nextIndices.containsKey(variableName)) {
-                nextIndices.put(variableName, 0);
-            }
-
-            int index = nextIndices.get(variableName);
-            nextIndices.put(variableName, index + 1);
-
-            variableName += index;
             // }
 
-            return variableName;
         }
+        return variableName;
+    }
+
+    /**
+     * Returns the variable name + the number of repetitions counting from 0.
+     * i.e. If the variable appears only once in the test, it is named as variable0.
+     *
+     * Mainly used for Type-Based Renaming Strategy (traditional naming in EvoSuite).
+     *
+     * @return String
+     */
+    private String getIndexIncludingFirstAppearance(String variableName) {
+        if (!nextIndices.containsKey(variableName)) {
+            nextIndices.put(variableName, 0);
+        }
+        int index = nextIndices.get(variableName);
+        nextIndices.put(variableName, index + 1);
+        return variableName += index;
+    }
+    public void addVariableInformation(Map<String, Map<VariableReference, String>> information){
+        //If needed any information about types
     }
 
 }

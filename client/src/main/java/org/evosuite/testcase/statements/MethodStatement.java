@@ -660,13 +660,4 @@ public class MethodStatement extends EntityWithParametersStatement {
         }
         return names;
     }
-
-    public String obtainParameterNamesInOrder() {
-        final Parameter[] parameters = this.method.getParameters();
-        String names = "";
-        for (final Parameter p : parameters) {
-            names = names + p.getName() + "_";
-        }
-        return names;
-    }
 }

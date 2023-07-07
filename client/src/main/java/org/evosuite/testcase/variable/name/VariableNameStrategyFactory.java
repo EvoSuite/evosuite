@@ -24,7 +24,11 @@ public class VariableNameStrategyFactory {
     public static VariableNameStrategy get(Properties.VariableNamingStrategy identifierNamingStrategy) {
         if (Properties.VariableNamingStrategy.TYPE_BASED.equals(identifierNamingStrategy)) {
             return new TypeBasedVariableNameStrategy();
-        } else {
+        }
+        if (Properties.VariableNamingStrategy.HEURISTICS_BASED.equals(identifierNamingStrategy)) {
+            return new HeuristicsVariableNameStrategy();
+        }
+        else {
             throw new IllegalArgumentException(String.format("Unknown variable naming strategy: %s", identifierNamingStrategy));
         }
     }
@@ -42,6 +46,13 @@ public class VariableNameStrategyFactory {
 
     private VariableNameStrategyFactory() {
         // Nothing to do here
+    }
+
+    public static boolean gatherInformation(){
+        if (Properties.VariableNamingStrategy.HEURISTICS_BASED.equals(Properties.VARIABLE_NAMING_STRATEGY)) {
+            return true;
+        }
+        return false;
     }
 
 }

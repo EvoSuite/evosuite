@@ -3,6 +3,7 @@ package org.evosuite.testcase.variable.name;
 import org.evosuite.testcase.variable.VariableReference;
 
 import java.util.Collection;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -38,5 +39,11 @@ public interface VariableNameStrategy {
      * @return The collection of variable names.
      */
     Collection<String> getVariableNames();
+
+    /**
+     * Allows to add information on dictionaries for variable naming
+     */
+    void addVariableInformation(Map<String, Map<VariableReference, String>> information);
+
 
 }
