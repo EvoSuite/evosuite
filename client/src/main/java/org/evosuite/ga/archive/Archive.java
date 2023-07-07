@@ -155,6 +155,10 @@ public abstract class Archive implements Serializable {
      */
     public boolean isBetterThanCurrent(TestChromosome currentSolution, TestChromosome candidateSolution) {
 
+        if (currentSolution.equals(candidateSolution)) {
+            return false;
+        }
+ 
         ExecutionResult currentSolutionExecution = currentSolution.getLastExecutionResult();
         ExecutionResult candidateSolutionExecution = candidateSolution.getLastExecutionResult();
         if (currentSolutionExecution != null
