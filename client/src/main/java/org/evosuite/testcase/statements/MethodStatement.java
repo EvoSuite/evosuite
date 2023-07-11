@@ -36,6 +36,7 @@ import org.objectweb.asm.Type;
 
 import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Parameter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -649,5 +650,14 @@ public class MethodStatement extends EntityWithParametersStatement {
     @Override
     public String getMethodName() {
         return method.getName();
+    }
+
+    public List<String> obtainParameterNameListInOrder() {
+        final Parameter[] parameters = this.method.getParameters();
+        final List<String> names = new ArrayList<String>();
+        for (final Parameter p : parameters) {
+            names.add(p.getName());
+        }
+        return names;
     }
 }

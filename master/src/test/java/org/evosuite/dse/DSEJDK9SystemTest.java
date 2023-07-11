@@ -67,7 +67,7 @@ public final class DSEJDK9SystemTest extends DSESystemTestBase {
      */
     @Test
     public void testMethodReference() {
-        testDSEExecution(7, 1, SingleMethodReference.class);
+        testDSEExecution(6, 2, SingleMethodReference.class);
     }
 
     /**

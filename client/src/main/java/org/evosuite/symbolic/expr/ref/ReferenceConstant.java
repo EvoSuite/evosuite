@@ -35,7 +35,7 @@ import java.util.Set;
  *
  * @author galeotti
  */
-public class ReferenceConstant extends ReferenceExpression {
+public abstract class ReferenceConstant extends ReferenceExpression {
 
 
     private static final long serialVersionUID = 4288259851884045452L;
@@ -47,10 +47,5 @@ public class ReferenceConstant extends ReferenceExpression {
     @Override
     public Set<Variable<?>> getVariables() {
         return Collections.emptySet();
-    }
-
-    @Override
-    public <K, V> K accept(ExpressionVisitor<K, V> v, V arg) {
-        return v.visit(this, arg);
     }
 }

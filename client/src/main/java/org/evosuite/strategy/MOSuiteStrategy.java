@@ -95,6 +95,12 @@ public class MOSuiteStrategy extends TestGenerationStrategy {
 //		List<TestFitnessFunction> goals = getGoals(true);
         LoggingUtils.getEvoLogger().info("* " + ClientProcess.getPrettyPrintIdentifier() + "Total number of test goals for {}: {}",
                 Properties.ALGORITHM.name(), fitnessFunctions.size());
+        if (!canGenerateTestsForSUT()) {
+            LoggingUtils.getEvoLogger().info("* Found no testable methods in the target class " + Properties.TARGET_CLASS);
+            ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Goals, fitnessFunctions.size());
+
+            return new TestSuiteChromosome();
+        }
 
 //		ga.setChromosomeFactory(getChromosomeFactory(fitnessFunctions.get(0))); // FIXME: just one fitness function?
 

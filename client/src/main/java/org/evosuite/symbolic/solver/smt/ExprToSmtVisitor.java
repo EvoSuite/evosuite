@@ -22,25 +22,54 @@ package org.evosuite.symbolic.solver.smt;
 import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.ExpressionVisitor;
 import org.evosuite.symbolic.expr.Operator;
-import org.evosuite.symbolic.expr.bv.*;
-import org.evosuite.symbolic.expr.fp.*;
+import org.evosuite.symbolic.expr.bv.IntegerBinaryExpression;
+import org.evosuite.symbolic.expr.bv.IntegerComparison;
+import org.evosuite.symbolic.expr.bv.IntegerConstant;
+import org.evosuite.symbolic.expr.bv.IntegerUnaryExpression;
+import org.evosuite.symbolic.expr.bv.IntegerValue;
+import org.evosuite.symbolic.expr.bv.IntegerVariable;
+import org.evosuite.symbolic.expr.bv.RealComparison;
+import org.evosuite.symbolic.expr.bv.RealToIntegerCast;
+import org.evosuite.symbolic.expr.bv.RealUnaryToIntegerExpression;
+import org.evosuite.symbolic.expr.bv.StringBinaryComparison;
+import org.evosuite.symbolic.expr.bv.StringBinaryToIntegerExpression;
+import org.evosuite.symbolic.expr.bv.StringMultipleComparison;
+import org.evosuite.symbolic.expr.bv.StringMultipleToIntegerExpression;
+import org.evosuite.symbolic.expr.bv.StringToIntegerCast;
+import org.evosuite.symbolic.expr.bv.StringUnaryToIntegerExpression;
+import org.evosuite.symbolic.expr.fp.IntegerToRealCast;
+import org.evosuite.symbolic.expr.fp.RealBinaryExpression;
+import org.evosuite.symbolic.expr.fp.RealConstant;
+import org.evosuite.symbolic.expr.fp.RealUnaryExpression;
+import org.evosuite.symbolic.expr.fp.RealValue;
+import org.evosuite.symbolic.expr.fp.RealVariable;
 import org.evosuite.symbolic.expr.reader.StringReaderExpr;
+import org.evosuite.symbolic.expr.ref.ClassReferenceConstant;
+import org.evosuite.symbolic.expr.ref.ClassReferenceVariable;
 import org.evosuite.symbolic.expr.ref.GetFieldExpression;
-import org.evosuite.symbolic.expr.ref.ReferenceConstant;
-import org.evosuite.symbolic.expr.ref.ReferenceVariable;
+import org.evosuite.symbolic.expr.ref.NullReferenceConstant;
 import org.evosuite.symbolic.expr.ref.array.ArrayConstant;
 import org.evosuite.symbolic.expr.ref.array.ArraySelect;
 import org.evosuite.symbolic.expr.ref.array.ArrayStore;
 import org.evosuite.symbolic.expr.ref.array.ArrayVariable;
-import org.evosuite.symbolic.expr.reftype.LambdaSyntheticType;
-import org.evosuite.symbolic.expr.reftype.LiteralClassType;
-import org.evosuite.symbolic.expr.reftype.LiteralNullType;
-import org.evosuite.symbolic.expr.str.*;
+import org.evosuite.symbolic.expr.reftype.ArrayTypeConstant;
+import org.evosuite.symbolic.expr.reftype.ClassTypeConstant;
+import org.evosuite.symbolic.expr.reftype.LambdaSyntheticTypeConstant;
+import org.evosuite.symbolic.expr.reftype.NullTypeConstant;
+import org.evosuite.symbolic.expr.str.IntegerToStringCast;
+import org.evosuite.symbolic.expr.str.RealToStringCast;
+import org.evosuite.symbolic.expr.str.StringBinaryExpression;
+import org.evosuite.symbolic.expr.str.StringConstant;
+import org.evosuite.symbolic.expr.str.StringMultipleExpression;
+import org.evosuite.symbolic.expr.str.StringUnaryExpression;
+import org.evosuite.symbolic.expr.str.StringValue;
+import org.evosuite.symbolic.expr.str.StringVariable;
 import org.evosuite.symbolic.expr.token.HasMoreTokensExpr;
 import org.evosuite.symbolic.expr.token.NewTokenizerExpr;
 import org.evosuite.symbolic.expr.token.NextTokenizerExpr;
 import org.evosuite.symbolic.expr.token.StringNextTokenExpr;
 import org.evosuite.symbolic.solver.SmtExprBuilder;
+import org.evosuite.symbolic.vm.heap.SymbolicHeap;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -491,17 +520,6 @@ public class ExprToSmtVisitor implements ExpressionVisitor<SmtExpr, Void> {
     }
 
     @Override
-    public final SmtExpr visit(ReferenceConstant referenceConstant, Void arg) {
-        throw new UnsupportedOperationException("Translation to Z3 of ReferenceConstant is not yet implemented!");
-    }
-
-    @Override
-    public final SmtExpr visit(ReferenceVariable r, Void arg) {
-        throw new UnsupportedOperationException("Translation to Z3 of ReferenceVariable is not yet implemented!");
-
-    }
-
-    @Override
     public final SmtExpr visit(GetFieldExpression r, Void arg) {
         throw new UnsupportedOperationException("Translation to Z3 of GetFieldExpression is not yet implemented!");
 
@@ -656,21 +674,6 @@ public class ExprToSmtVisitor implements ExpressionVisitor<SmtExpr, Void> {
 
     @Override
     public SmtExpr visit(ArrayVariable.ReferenceArrayVariable r, Void arg) {
-        return null;
-    }
-
-    @Override
-    public SmtExpr visit(LambdaSyntheticType r, Void arg) {
-        return null;
-    }
-
-    @Override
-    public SmtExpr visit(LiteralNullType r, Void arg) {
-        return null;
-    }
-
-    @Override
-    public SmtExpr visit(LiteralClassType r, Void arg) {
         return null;
     }
 
@@ -1088,6 +1091,42 @@ public class ExprToSmtVisitor implements ExpressionVisitor<SmtExpr, Void> {
 
         return postVisit(e, operand);
     }
+
+    @Override
+	public SmtExpr visit(NullReferenceConstant r, Void arg) {
+		return SmtExprBuilder.mkIntConstant(SymbolicHeap.NULL_INSTANCE_ID);
+	}
+
+	@Override
+	public SmtExpr visit(ClassReferenceConstant r, Void args) {
+		return SmtExprBuilder.mkIntConstant(r.getInstanceId());
+	}
+
+	@Override
+	public final SmtExpr visit(ClassReferenceVariable r, Void arg) {
+		String varName = r.getName();
+		return SmtExprBuilder.mkIntVariable(varName);
+	}
+
+	@Override
+	public SmtExpr visit(NullTypeConstant r, Void arg) {
+		return SmtExprBuilder.mkIntConstant(r.getReferenceTypeId());
+	}
+
+	@Override
+	public SmtExpr visit(LambdaSyntheticTypeConstant r, Void arg) {
+		return null;
+	}
+
+	@Override
+	public SmtExpr visit(ClassTypeConstant r, Void arg) {
+		return null;
+	}
+
+	@Override
+	public SmtExpr visit(ArrayTypeConstant r, Void arg) {
+		return null;
+	}
 
     protected SmtExpr postVisit(StringToIntegerCast source, SmtExpr operand) {
         return SmtExprBuilder.mkStrToInt(operand);

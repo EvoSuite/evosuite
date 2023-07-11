@@ -288,7 +288,8 @@ public final class HeapVM extends AbstractVM {
          */
         Class<?> clazz = classLoader.getClassForName(className);
         Type objectType = Type.getType(clazz);
-        ReferenceConstant newObject = this.env.heap.buildNewReferenceConstant(objectType);
+        ReferenceConstant newObject = this.env.heap.buildNewClassReferenceConstant(objectType);
+		this.env.heap.buildNewClassTypeConstant(objectType);
         env.topFrame().operandStack.pushRef(newObject);
     }
 
@@ -802,7 +803,7 @@ public final class HeapVM extends AbstractVM {
 
         ReferenceExpression symb_value;
         if (conc_value == null) {
-            symb_value = ExpressionFactory.buildNewNullExpression();
+            symb_value = ExpressionFactory.NULL_REFERENCE;
         } else {
 
             /* Array load expression */

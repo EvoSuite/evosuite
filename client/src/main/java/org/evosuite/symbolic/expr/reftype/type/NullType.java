@@ -17,31 +17,26 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite.symbolic.expr.reftype;
+package org.evosuite.symbolic.expr.reftype.type;
 
-import org.evosuite.symbolic.expr.ExpressionVisitor;
-import org.evosuite.symbolic.expr.Variable;
-
-import java.util.Collections;
-import java.util.Set;
+import java.lang.reflect.Type;
 
 /**
- * This is the superclass of all literal classes
+ * Represents the null type.
  *
  * @author Ignacio Lebrero
  */
-public class LiteralClassType extends ReferenceTypeExpression {
-    public LiteralClassType(Class concreteValue) {
-        super(concreteValue, 1, false);
+public class NullType implements Type {
+
+    private static NullType instance;
+
+    public static NullType getInstance() {
+        if (instance == null) {
+            instance = new NullType();
+        }
+
+        return instance;
     }
 
-    @Override
-    public Set<Variable<?>> getVariables() {
-        return Collections.emptySet();
-    }
-
-    @Override
-    public <K, V> K accept(ExpressionVisitor<K, V> v, V arg) {
-        return v.visit(this, arg);
-    }
+    private NullType() {}
 }

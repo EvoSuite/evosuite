@@ -22,9 +22,9 @@ package org.evosuite.testcase;
 import com.googlecode.gentyref.CaptureType;
 import com.googlecode.gentyref.GenericTypeReflector;
 import dk.brics.automaton.RegExp;
-import org.apache.commons.lang3.CharUtils;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.TypeUtils;
 import org.evosuite.PackageInfo;
 import org.evosuite.Properties;
@@ -37,7 +37,12 @@ import org.evosuite.runtime.mock.EvoSuiteMock;
 import org.evosuite.testcase.fm.MethodDescriptor;
 import org.evosuite.testcase.statements.*;
 import org.evosuite.testcase.statements.environment.EnvironmentDataStatement;
-import org.evosuite.testcase.variable.*;
+import org.evosuite.testcase.variable.ArrayIndex;
+import org.evosuite.testcase.variable.ConstantValue;
+import org.evosuite.testcase.variable.FieldReference;
+import org.evosuite.testcase.variable.VariableReference;
+import org.evosuite.testcase.variable.name.VariableNameStrategy;
+import org.evosuite.testcase.variable.name.VariableNameStrategyFactory;
 import org.evosuite.utils.NumberFormatter;
 import org.evosuite.utils.StringUtil;
 import org.evosuite.utils.generic.*;
@@ -65,11 +70,20 @@ public class TestCodeVisitor extends TestVisitor {
 
     protected TestCase test = null;
 
-    protected final Map<VariableReference, String> variableNames = new HashMap<>();
-
     protected final Map<Class<?>, String> classNames = new HashMap<>();
 
-    protected final Map<String, Integer> nextIndices = new HashMap<>();
+    protected VariableNameStrategy variableNameStrategy = VariableNameStrategyFactory.get();
+
+    /**
+     * Dictionaries for naming information
+     */
+    /**
+     * Dictionaries for naming information
+     */
+    protected Map<VariableReference, String> methodNames = new HashMap<>();
+    protected Map<VariableReference, String> argumentNames = new HashMap<>();
+
+    private Map<String, Map<VariableReference, String>> information = new HashMap<>();
 
     /**
      * <p>
@@ -377,65 +391,16 @@ public class TestCodeVisitor extends TestVisitor {
                 result += "[" + index + "]";
             }
             return result;
-        } else if (var instanceof ArrayReference) {
-            String className = var.getSimpleClassName();
-            // int num = 0;
-            // for (VariableReference otherVar : variableNames.keySet()) {
-            // if (!otherVar.equals(var)
-            // && otherVar.getVariableClass().equals(var.getVariableClass()))
-            // num++;
-            // }
-            String variableName = className.substring(0, 1).toLowerCase()
-                    + className.substring(1) + "Array";
-            variableName = variableName.replace('.', '_').replace("[]", "");
-            if (!variableNames.containsKey(var)) {
-                if (!nextIndices.containsKey(variableName)) {
-                    nextIndices.put(variableName, 0);
-                }
-
-                int index = nextIndices.get(variableName);
-                nextIndices.put(variableName, index + 1);
-
-                variableName += index;
-
-                variableNames.put(var, variableName);
+        } else {
+            if(VariableNameStrategyFactory.gatherInformation()){
+                information.put("MethodNames", methodNames);
+                information.put("ArgumentNames", argumentNames);
+                variableNameStrategy.addVariableInformation(information);
             }
-
-        } else if (!variableNames.containsKey(var)) {
-            String className = var.getSimpleClassName();
-            // int num = 0;
-            // for (VariableReference otherVar : variableNames.keySet()) {
-            // if (otherVar.getVariableClass().equals(var.getVariableClass()))
-            // num++;
-            // }
-            String variableName = className.substring(0, 1).toLowerCase()
-                    + className.substring(1);
-            if (variableName.contains("[]")) {
-                variableName = variableName.replace("[]", "Array");
-            }
-            variableName = variableName.replace(".", "_");
-
-            // Need a way to check for exact types, not assignable
-            // int numObjectsOfType = test != null ? test.getObjects(var.getType(),
-            //                                                      test.size()).size() : 2;
-            // if (numObjectsOfType > 1 || className.equals(variableName)) {
-            if (CharUtils.isAsciiNumeric(variableName.charAt(variableName.length() - 1)))
-                variableName += "_";
-
-            if (!nextIndices.containsKey(variableName)) {
-                nextIndices.put(variableName, 0);
-            }
-
-            int index = nextIndices.get(variableName);
-            nextIndices.put(variableName, index + 1);
-
-            variableName += index;
-            // }
-
-            variableNames.put(var, variableName);
+            return variableNameStrategy.getNameForVariable(var);
         }
-        return variableNames.get(var);
     }
+
 
     /**
      * Retrieve the names of all known variables
@@ -443,7 +408,7 @@ public class TestCodeVisitor extends TestVisitor {
      * @return
      */
     public Collection<String> getVariableNames() {
-        return variableNames.values();
+        return variableNameStrategy.getVariableNames();
     }
 
     /**
@@ -468,8 +433,7 @@ public class TestCodeVisitor extends TestVisitor {
     public void visitTestCase(TestCase test) {
         this.test = test;
         this.testCode = "";
-        this.variableNames.clear();
-        this.nextIndices.clear();
+        this.variableNameStrategy = VariableNameStrategyFactory.get();
     }
 
     /**
@@ -1380,17 +1344,18 @@ public class TestCodeVisitor extends TestVisitor {
         Throwable exception = getException(statement);
         List<VariableReference> parameters = statement.getParameterReferences();
         boolean isGenericMethod = method.hasTypeParameters();
-
         if (exception != null && !statement.isDeclaredException(exception)) {
             result += "// Undeclared exception!" + NEWLINE;
         }
-
         boolean lastStatement = statement.getPosition() == statement.getTestCase().size() - 1;
         boolean unused = !Properties.ASSERTIONS ? exception != null : test != null
                 && !test.hasReferences(retval);
 
         if (!retval.isVoid() && retval.getAdditionalVariableReference() == null
                 && !unused) {
+            if (!this.methodNames.containsKey(retval) && VariableNameStrategyFactory.gatherInformation()) {
+                this.methodNames.put(retval, method.getName());
+            }
             if (exception != null) {
                 if (!lastStatement || statement.hasAssertions())
                     result += getClassName(retval) + " " + getVariableName(retval)
@@ -1403,7 +1368,22 @@ public class TestCodeVisitor extends TestVisitor {
             result += "try { " + NEWLINE + "  ";
         }
 
-
+        if (!this.argumentNames.containsKey(retval) && VariableNameStrategyFactory.gatherInformation()) {
+            final List<String> parameterNames = (List<String>)statement.obtainParameterNameListInOrder();
+            int idx = 0;
+            for (final VariableReference param : parameters) {
+                this.argumentNames.put(param, parameterNames.get(idx));
+                ++idx;
+            }
+        }
+        if (retval.isVoid() && VariableNameStrategyFactory.gatherInformation()) {
+            final List<String> parameterNames = (List<String>)statement.obtainParameterNameListInOrder();
+            int idx = 0;
+            for (final VariableReference param : parameters) {
+                this.argumentNames.put(param, parameterNames.get(idx));
+                ++idx;
+            }
+        }
         String parameter_string = getParameterString(method.getParameterTypes(),
                 parameters, isGenericMethod,
                 method.isOverloaded(parameters), 0);
@@ -1632,6 +1612,14 @@ public class TestCodeVisitor extends TestVisitor {
                 && !Modifier.isStatic(constructor.getConstructor().getDeclaringClass().getModifiers());
 
         List<VariableReference> parameters = statement.getParameterReferences();
+        if (!this.argumentNames.containsKey(retval) && VariableNameStrategyFactory.gatherInformation()) {
+            final List<String> parameterNames = statement.obtainParameterNameListInOrder();
+            int idx = 0;
+            for (final VariableReference param : parameters) {
+                this.argumentNames.put(param, parameterNames.get(idx));
+                ++idx;
+            }
+        }
         int startPos = 0;
         if (isNonStaticMemberClass) {
             startPos = 1;

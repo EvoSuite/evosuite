@@ -408,6 +408,20 @@ public class Properties {
         LAZY_VARIABLES
     }
 
+    /**
+	 * TODO (ilebrero) : Implement private fields tracking
+	 **/
+	public enum DSE_OBJECTS_MODEL_VERSION {
+		PUBLIC_FIELDS_NO_SUBCLASSES,
+		PUBLIC_FIELDS_AND_SUBCLASSES // TODO: Implement me!
+	}
+
+	@Parameter(key = "dse_enable_objects_support", group = "DSE", description = "If objects should be supported by the concolic engine")
+	public static  boolean IS_DSE_OBJECTS_SUPPORT_ENABLED = false;
+
+	@Parameter(key = "selected_dse_module_objects_model_version", group = "DSE", description = "Which implementation of objects is used on the concolic engine.")
+	public static DSE_OBJECTS_MODEL_VERSION SELECTED_DSE_OBJECTS_MODEL_VERSION = DSE_OBJECTS_MODEL_VERSION.PUBLIC_FIELDS_NO_SUBCLASSES;
+
     @Parameter(key = "dse_module_version", group = "DSE", description = "Module version of DSE, mostly used for benchmarking between modules. For other things the new one is recomended.")
     public static DSE_MODULE_VERSION CURRENT_DSE_MODULE_VERSION = DSE_MODULE_VERSION.NEW;
 
@@ -1230,12 +1244,21 @@ public class Properties {
     @Parameter(key = "max_coverage_depth", group = "Output", description = "Maximum depth in the calltree to count a branch as covered")
     public static int MAX_COVERAGE_DEPTH = -1;
 
+    // ---------------------------------------------------------------
+    // Naming
     public enum TestNamingStrategy {
         NUMBERED, COVERAGE
     }
 
     @Parameter(key = "test_naming_strategy", group = "Output", description = "What strategy to use to derive names for tests")
     public static TestNamingStrategy TEST_NAMING_STRATEGY = TestNamingStrategy.NUMBERED;
+
+    public enum VariableNamingStrategy {
+        TYPE_BASED, HEURISTICS_BASED
+    }
+
+    @Parameter(key = "variable_naming_strategy", group = "Output", description = "What strategy to use to derive names for variables")
+    public static VariableNamingStrategy VARIABLE_NAMING_STRATEGY = VariableNamingStrategy.TYPE_BASED;
 
     // ---------------------------------------------------------------
     // Sandbox

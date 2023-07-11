@@ -36,7 +36,8 @@ import org.evosuite.symbolic.expr.fp.RealValue;
 import org.evosuite.symbolic.expr.fp.RealVariable;
 import org.evosuite.symbolic.expr.ref.ReferenceConstant;
 import org.evosuite.symbolic.expr.ref.ReferenceExpression;
-import org.evosuite.symbolic.expr.ref.ReferenceVariable;
+import org.evosuite.symbolic.expr.ref.ReferenceVariableUtil;
+import org.evosuite.symbolic.expr.ref.array.ArrayVariable;
 import org.evosuite.symbolic.expr.str.StringConstant;
 import org.evosuite.symbolic.expr.str.StringValue;
 import org.evosuite.symbolic.expr.str.StringVariable;
@@ -105,10 +106,18 @@ public class SymbolicObserver extends ExecutionObserver {
         VM.CALL_RESULT(onwer, INIT, desc);
         VariableReference varRef = stmt.getReturnValue();
 
-        ReferenceConstant nonNullRef = (ReferenceConstant) env.topFrame().operandStack.popRef();
+        ReferenceExpression nonNullRef = env.topFrame().operandStack.popRef();
         String varName = varRef.getName();
-        symb_references.put(varName, nonNullRef);
 
+		// We upgrade the expression to an ExpressionVariable.
+		if (Properties.IS_DSE_OBJECTS_SUPPORT_ENABLED) {
+			// TODO (ilebrero): avoid recreating the object on the symbolic heap to use less instance ids
+			String referenceVariableName = ReferenceVariableUtil.getReferenceVariableName(varName);
+			nonNullRef = env.heap.buildNewClassReferenceVariable(nonNullRef.getConcreteValue(), referenceVariableName);
+
+		}
+
+        symb_references.put(varName, nonNullRef);
     }
 
     @Override
@@ -1426,8 +1435,15 @@ public class SymbolicObserver extends ExecutionObserver {
     private void after(NullStatement s, Scope scope) {
         VariableReference lhs = s.getReturnValue();
         String lhs_name = lhs.getName();
-        ReferenceExpression nullConstant = ExpressionFactory.buildNewNullExpression();
-        symb_references.put(lhs_name, nullConstant);
+        ReferenceExpression nullReference = ExpressionFactory.NULL_REFERENCE;
+
+		if (Properties.IS_DSE_OBJECTS_SUPPORT_ENABLED) {
+			String referenceVariableName = ReferenceVariableUtil.getReferenceVariableName(lhs.getName());
+			// Shouldn't a null reference be constant? or is this a reference to a variable which its current value is null?
+			nullReference = env.heap.buildNewClassReferenceVariable(nullReference.getConcreteValue(), referenceVariableName);
+		}
+
+		symb_references.put(lhs_name, nullReference);
     }
 
     private void after(FunctionalMockStatement statement, Scope scope) {
@@ -1946,7 +1962,7 @@ public class SymbolicObserver extends ExecutionObserver {
      */
     private void upgradeSymbolicArrayLiteralToVariable(ArrayReference arrayRef, Object conc_array) {
         if (Properties.IS_DSE_ARRAYS_SUPPORT_ENABLED) {
-            ReferenceVariable new_sym_array = env.heap.buildNewArrayReferenceVariable(conc_array, arrayRef.getName());
+            ArrayVariable new_sym_array = env.heap.buildNewArrayReferenceVariable(conc_array, arrayRef.getName());
             env.heap.initializeReference(conc_array, new_sym_array);
             env.heap.putField(
                     "",

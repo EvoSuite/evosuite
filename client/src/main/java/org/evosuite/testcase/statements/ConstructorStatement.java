@@ -38,6 +38,7 @@ import org.objectweb.asm.Type;
 import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Parameter;
 import java.util.*;
 
 /**
@@ -477,5 +478,20 @@ public class ConstructorStatement extends EntityWithParametersStatement {
     @Override
     public String getMethodName() {
         return "<init>";
+    }
+
+    /**
+     * Returns a list of the parameter names of a method using reflection. The list is in order of
+     * declaration in the method.
+     *
+     * @return List<String>
+     */
+    public List<String> obtainParameterNameListInOrder() {
+        final Parameter[] parameters = this.constructor.getParameters();
+        final List<String> names = new ArrayList<String>();
+        for (final Parameter p : parameters) {
+            names.add(p.getName());
+        }
+        return names;
     }
 }
