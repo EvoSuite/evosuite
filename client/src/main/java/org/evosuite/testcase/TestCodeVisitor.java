@@ -24,6 +24,7 @@ import com.googlecode.gentyref.GenericTypeReflector;
 import dk.brics.automaton.RegExp;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.TypeUtils;
 import org.evosuite.PackageInfo;
 import org.evosuite.Properties;
@@ -72,6 +73,17 @@ public class TestCodeVisitor extends TestVisitor {
     protected final Map<Class<?>, String> classNames = new HashMap<>();
 
     protected VariableNameStrategy variableNameStrategy = VariableNameStrategyFactory.get();
+
+    /**
+     * Dictionaries for naming information
+     */
+    /**
+     * Dictionaries for naming information
+     */
+    protected Map<VariableReference, String> methodNames = new HashMap<>();
+    protected Map<VariableReference, String> argumentNames = new HashMap<>();
+
+    private Map<String, Map<VariableReference, String>> information = new HashMap<>();
 
     /**
      * <p>
@@ -380,9 +392,15 @@ public class TestCodeVisitor extends TestVisitor {
             }
             return result;
         } else {
+            if(VariableNameStrategyFactory.gatherInformation()){
+                information.put("MethodNames", methodNames);
+                information.put("ArgumentNames", argumentNames);
+                variableNameStrategy.addVariableInformation(information);
+            }
             return variableNameStrategy.getNameForVariable(var);
         }
     }
+
 
     /**
      * Retrieve the names of all known variables
@@ -1326,17 +1344,18 @@ public class TestCodeVisitor extends TestVisitor {
         Throwable exception = getException(statement);
         List<VariableReference> parameters = statement.getParameterReferences();
         boolean isGenericMethod = method.hasTypeParameters();
-
         if (exception != null && !statement.isDeclaredException(exception)) {
             result += "// Undeclared exception!" + NEWLINE;
         }
-
         boolean lastStatement = statement.getPosition() == statement.getTestCase().size() - 1;
         boolean unused = !Properties.ASSERTIONS ? exception != null : test != null
                 && !test.hasReferences(retval);
 
         if (!retval.isVoid() && retval.getAdditionalVariableReference() == null
                 && !unused) {
+            if (!this.methodNames.containsKey(retval) && VariableNameStrategyFactory.gatherInformation()) {
+                this.methodNames.put(retval, method.getName());
+            }
             if (exception != null) {
                 if (!lastStatement || statement.hasAssertions())
                     result += getClassName(retval) + " " + getVariableName(retval)
@@ -1349,7 +1368,22 @@ public class TestCodeVisitor extends TestVisitor {
             result += "try { " + NEWLINE + "  ";
         }
 
-
+        if (!this.argumentNames.containsKey(retval) && VariableNameStrategyFactory.gatherInformation()) {
+            final List<String> parameterNames = (List<String>)statement.obtainParameterNameListInOrder();
+            int idx = 0;
+            for (final VariableReference param : parameters) {
+                this.argumentNames.put(param, parameterNames.get(idx));
+                ++idx;
+            }
+        }
+        if (retval.isVoid() && VariableNameStrategyFactory.gatherInformation()) {
+            final List<String> parameterNames = (List<String>)statement.obtainParameterNameListInOrder();
+            int idx = 0;
+            for (final VariableReference param : parameters) {
+                this.argumentNames.put(param, parameterNames.get(idx));
+                ++idx;
+            }
+        }
         String parameter_string = getParameterString(method.getParameterTypes(),
                 parameters, isGenericMethod,
                 method.isOverloaded(parameters), 0);
@@ -1578,6 +1612,14 @@ public class TestCodeVisitor extends TestVisitor {
                 && !Modifier.isStatic(constructor.getConstructor().getDeclaringClass().getModifiers());
 
         List<VariableReference> parameters = statement.getParameterReferences();
+        if (!this.argumentNames.containsKey(retval) && VariableNameStrategyFactory.gatherInformation()) {
+            final List<String> parameterNames = statement.obtainParameterNameListInOrder();
+            int idx = 0;
+            for (final VariableReference param : parameters) {
+                this.argumentNames.put(param, parameterNames.get(idx));
+                ++idx;
+            }
+        }
         int startPos = 0;
         if (isNonStaticMemberClass) {
             startPos = 1;
