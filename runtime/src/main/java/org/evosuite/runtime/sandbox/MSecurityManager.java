@@ -1072,6 +1072,13 @@ public class MSecurityManager extends SecurityManager {
             return true;
         }
 
+        // ByteBuddy
+        // https://javadoc.io/doc/net.bytebuddy/byte-buddy-dep/latest/net/bytebuddy/utility/dispatcher/JavaDispatcher.html
+        // In the following code, we do not use `equals("net.bytebuddy.createJavaDispatcher")` as the literal string will be shaded by EvoSuite's build
+        if (name.endsWith("bytebuddy.createJavaDispatcher")) {
+            return true;
+        }
+
         /*
          * those are perfectly fine
          */
