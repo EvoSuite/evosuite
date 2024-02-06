@@ -138,6 +138,7 @@ public class JobHandler extends Thread {
                 }
                 process = builder.start();
                 latestProcess = process;
+                handleProcessOutput(process);
 
                 int exitCode = process.waitFor(); //no need to have timeout here, as it is handled by the scheduler/executor
 
@@ -168,6 +169,28 @@ public class JobHandler extends Thread {
                 executor.doneWithJob(job);
             }
         }
+    }
+    private final void handleProcessOutput(final Process process) {
+        Thread reader = new Thread() {
+            @Override
+            public void run() {
+                try {
+                    BufferedReader in = new BufferedReader(
+                            new InputStreamReader(process.getInputStream()));
+                    String line = "";
+                    while (!this.isInterrupted()) {
+                        line = in.readLine();
+                        if (line != null && !line.isEmpty()) {
+                            logger.info(line);
+                        }
+                    }
+                } catch (Exception e) {
+                    logger.error("Exception while reading spawn process output: " + e);
+                }
+            }
+        };
+        reader.start();
+        logger.debug("Started thread to read spawn process output");
     }
 
     /**
