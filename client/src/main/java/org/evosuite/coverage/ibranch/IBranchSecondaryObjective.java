@@ -19,6 +19,7 @@
  */
 package org.evosuite.coverage.ibranch;
 
+import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.SecondaryObjective;
 import org.evosuite.testsuite.TestSuiteChromosome;
 
@@ -40,13 +41,13 @@ public class IBranchSecondaryObjective extends SecondaryObjective<TestSuiteChrom
     }
 
     @Override
-    public int compareChromosomes(
+    public double compareChromosomes(
             TestSuiteChromosome chromosome1,
             TestSuiteChromosome chromosome2) {
 
-        double fitness1 = ff.getFitness(chromosome1, false);
-        double fitness2 = ff.getFitness(chromosome2, false);
-        int i = (int) Math.signum(fitness1 - fitness2);
+        double fitness1 = FitnessFunction.normalize(ff.getFitness(chromosome1, false));
+        double fitness2 = FitnessFunction.normalize(ff.getFitness(chromosome2, false));
+        double i = fitness1 - fitness2;
 //		if (!chromosome1.hasExecutedFitness(ff) || chromosome1.isChanged())
 //			ff.getFitness(chromosome1);
 //		if (!chromosome2.hasExecutedFitness(ff) || chromosome2.isChanged())
@@ -56,7 +57,7 @@ public class IBranchSecondaryObjective extends SecondaryObjective<TestSuiteChrom
     }
 
     @Override
-    public int compareGenerations(
+    public double compareGenerations(
             TestSuiteChromosome parent1,
             TestSuiteChromosome parent2,
             TestSuiteChromosome child1,
@@ -72,9 +73,9 @@ public class IBranchSecondaryObjective extends SecondaryObjective<TestSuiteChrom
         if (!child2.hasExecutedFitness(ff) || child2.isChanged())
             ff.getFitness(child2);
 
-        double minParents = Math.min(parent1.getFitness(ff), parent2.getFitness(ff));
-        double minChildren = Math.min(child1.getFitness(ff), child2.getFitness(ff));
-        return Double.compare(minParents, minChildren);
+        double minParents = Math.min(FitnessFunction.normalize(parent1.getFitness(ff)), FitnessFunction.normalize(parent2.getFitness(ff)));
+        double minChildren = Math.min(FitnessFunction.normalize(child1.getFitness(ff)), FitnessFunction.normalize(child2.getFitness(ff)));
+        return minParents - minChildren;
     }
 
 }

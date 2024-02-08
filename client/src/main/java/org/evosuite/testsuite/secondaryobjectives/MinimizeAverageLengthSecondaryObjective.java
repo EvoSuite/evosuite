@@ -19,6 +19,7 @@
  */
 package org.evosuite.testsuite.secondaryobjectives;
 
+import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.SecondaryObjective;
 import org.evosuite.testsuite.TestSuiteChromosome;
 
@@ -32,8 +33,8 @@ public class MinimizeAverageLengthSecondaryObjective extends SecondaryObjective<
     private static final long serialVersionUID = -6272641645062817112L;
 
     private double getAverageLength(TestSuiteChromosome chromosome) {
-        return (double) chromosome.totalLengthOfTestCases()
-                / (double) chromosome.size();
+        return FitnessFunction.normalize((double) chromosome.totalLengthOfTestCases()
+                / (double) chromosome.size());
     }
 
     /*
@@ -48,9 +49,9 @@ public class MinimizeAverageLengthSecondaryObjective extends SecondaryObjective<
      * {@inheritDoc}
      */
     @Override
-    public int compareChromosomes(TestSuiteChromosome chromosome1, TestSuiteChromosome chromosome2) {
-        return (int) Math.signum(getAverageLength(chromosome1)
-                - getAverageLength(chromosome2));
+    public double compareChromosomes(TestSuiteChromosome chromosome1, TestSuiteChromosome chromosome2) {
+        return getAverageLength(chromosome1)
+                - getAverageLength(chromosome2);
     }
 
     /*
@@ -65,11 +66,11 @@ public class MinimizeAverageLengthSecondaryObjective extends SecondaryObjective<
      * {@inheritDoc}
      */
     @Override
-    public int compareGenerations(TestSuiteChromosome parent1, TestSuiteChromosome parent2,
+    public double compareGenerations(TestSuiteChromosome parent1, TestSuiteChromosome parent2,
                                   TestSuiteChromosome child1, TestSuiteChromosome child2) {
-        return (int) Math.signum(Math.min(getAverageLength(parent1),
+        return Math.min(getAverageLength(parent1),
                 getAverageLength(parent2))
-                - Math.min(getAverageLength(child1), getAverageLength(child2)));
+                - Math.min(getAverageLength(child1), getAverageLength(child2));
     }
 
 }

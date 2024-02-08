@@ -29,12 +29,17 @@ import org.evosuite.testcase.statements.Statement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.Serializable;
 import java.util.*;
 import java.util.stream.IntStream;
 
-public class ExecutionResult implements Cloneable {
+public class ExecutionResult implements Cloneable, Serializable {
 
     private static final Logger logger = LoggerFactory.getLogger(ExecutionResult.class);
+
+    private static final long serialVersionUID = 9162227361042557067L;
 
     /**
      * Test case that produced this execution result
@@ -49,7 +54,7 @@ public class ExecutionResult implements Cloneable {
     /**
      * Map statement number to raised exception
      */
-    protected Map<Integer, Throwable> exceptions = new HashMap<>();
+    protected transient Map<Integer, Throwable> exceptions = new HashMap<>();
 
     /**
      * Record for each exception if it was explicitly thrown
@@ -60,7 +65,7 @@ public class ExecutionResult implements Cloneable {
     /**
      * Trace recorded during execution
      */
-    protected ExecutionTrace trace;
+    protected transient ExecutionTrace trace;
 
     /**
      * Duration of execution
@@ -88,6 +93,8 @@ public class ExecutionResult implements Cloneable {
     protected boolean wasAnyPropertyWritten;
 
     private List<FeatureVector> featureVectors = new ArrayList<>(1);
+
+    private final Set<Integer> setOfExceptionPositions = new LinkedHashSet<>();
 
     /**
      * @return the executedStatements
@@ -136,6 +143,7 @@ public class ExecutionResult implements Cloneable {
      */
     public void setThrownExceptions(Map<Integer, Throwable> data) {
         exceptions.clear();
+        setOfExceptionPositions.clear();
         data.forEach(this::reportNewThrownException);
     }
 
@@ -163,6 +171,7 @@ public class ExecutionResult implements Cloneable {
      */
     public void reportNewThrownException(Integer position, Throwable t) {
         exceptions.put(position, t);
+        setOfExceptionPositions.add(position);
     }
 
     /**
@@ -409,6 +418,7 @@ public class ExecutionResult implements Cloneable {
     public ExecutionResult clone() {
         ExecutionResult copy = new ExecutionResult(test, mutation);
         copy.exceptions.putAll(exceptions);
+        copy.setOfExceptionPositions.addAll(setOfExceptionPositions);
         copy.trace = trace.lazyClone();
         copy.explicitExceptions.putAll(explicitExceptions);
         copy.executionTime = executionTime;
@@ -487,5 +497,17 @@ public class ExecutionResult implements Cloneable {
      */
     public List<FeatureVector> getFeatureVectors() {
         return Collections.unmodifiableList(this.featureVectors);
+    }
+
+    public Integer getFirstPositionOfThrownExceptionSetOfExceptionPositions() {
+        return setOfExceptionPositions.stream()
+                .min(Comparator.naturalOrder())
+                .orElse(null);
+    }
+
+    private void readObject(ObjectInputStream ois) throws ClassNotFoundException,
+            IOException {
+        ois.defaultReadObject();
+        this.exceptions = new HashMap<>();
     }
 }

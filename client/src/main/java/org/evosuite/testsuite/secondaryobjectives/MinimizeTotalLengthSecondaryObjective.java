@@ -19,6 +19,7 @@
  */
 package org.evosuite.testsuite.secondaryobjectives;
 
+import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.SecondaryObjective;
 import org.evosuite.testsuite.TestSuiteChromosome;
 
@@ -31,9 +32,9 @@ public class MinimizeTotalLengthSecondaryObjective extends SecondaryObjective<Te
 
     private static final long serialVersionUID = 1974099736891048617L;
 
-    private int getLengthSum(TestSuiteChromosome chromosome1,
+    private double getLengthSum(TestSuiteChromosome chromosome1,
                              TestSuiteChromosome chromosome2) {
-        return chromosome1.totalLengthOfTestCases() + chromosome2.totalLengthOfTestCases();
+        return FitnessFunction.normalize(chromosome1.totalLengthOfTestCases()) + FitnessFunction.normalize(chromosome2.totalLengthOfTestCases());
     }
 
     /*
@@ -48,9 +49,9 @@ public class MinimizeTotalLengthSecondaryObjective extends SecondaryObjective<Te
      * {@inheritDoc}
      */
     @Override
-    public int compareChromosomes(TestSuiteChromosome chromosome1, TestSuiteChromosome chromosome2) {
-        return chromosome1.totalLengthOfTestCases()
-                - chromosome2.totalLengthOfTestCases();
+    public double compareChromosomes(TestSuiteChromosome chromosome1, TestSuiteChromosome chromosome2) {
+        return FitnessFunction.normalize(chromosome1.totalLengthOfTestCases())
+                - FitnessFunction.normalize(chromosome2.totalLengthOfTestCases());
     }
 
     /*
@@ -65,7 +66,7 @@ public class MinimizeTotalLengthSecondaryObjective extends SecondaryObjective<Te
      * {@inheritDoc}
      */
     @Override
-    public int compareGenerations(TestSuiteChromosome parent1, TestSuiteChromosome parent2,
+    public double compareGenerations(TestSuiteChromosome parent1, TestSuiteChromosome parent2,
                                   TestSuiteChromosome child1, TestSuiteChromosome child2) {
         return getLengthSum(parent1, parent2)
                 - getLengthSum(child1, child2);

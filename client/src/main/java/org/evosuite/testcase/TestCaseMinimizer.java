@@ -91,12 +91,12 @@ public class TestCaseMinimizer {
                 return true;
         }
 
+        double compare = 0;
         for (SecondaryObjective<TestChromosome> objective : TestChromosome.getSecondaryObjectives()) {
-            if (objective.compareChromosomes(oldChromosome, newChromosome) < 0)
-                return true;
+            compare += objective.compareChromosomes(oldChromosome, newChromosome);
         }
 
-        return false;
+        return compare < 0;
     }
 
     private boolean isTimeoutReached() {

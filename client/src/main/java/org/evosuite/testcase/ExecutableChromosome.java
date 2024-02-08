@@ -34,7 +34,8 @@ public abstract class ExecutableChromosome<E extends ExecutableChromosome<E>> ex
 
     private static final long serialVersionUID = 1L;
 
-    protected transient ExecutionResult lastExecutionResult = null;
+    //protected transient ExecutionResult lastExecutionResult = null;
+    protected ExecutionResult lastExecutionResult = null;
 
     protected transient Map<Mutation, MutationExecutionResult> lastMutationResult = new HashMap<>();
 
@@ -119,7 +120,7 @@ public abstract class ExecutableChromosome<E extends ExecutableChromosome<E>> ex
     private void readObject(ObjectInputStream ois) throws ClassNotFoundException,
             IOException {
         ois.defaultReadObject();
-        lastExecutionResult = null;
+        //lastExecutionResult = null;
         lastMutationResult = new HashMap<>();
     }
 }
