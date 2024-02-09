@@ -19,6 +19,7 @@
  */
 package org.evosuite.runtime.classhandling;
 
+import org.burningwave.core.assembler.StaticComponentContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,8 +45,9 @@ public class JDKClassResetter {
      * Save current state of all JDK static fields we are going te reset later on
      */
     public static void init() {
-
         try {
+            // opens all modules by invoking addExportsToAll0
+            StaticComponentContainer.Modules.exportAllToAll();
             Field field = RenderingHints.Key.class.getDeclaredField("identitymap");
             field.setAccessible(true);
             renderingHintsKeyIdentityMap = (Map) field.get(null);

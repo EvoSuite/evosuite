@@ -37,6 +37,11 @@
 		</dependency>
 
         <!-- Third-party modules -->
+        <dependency>
+            <groupId>org.burningwave</groupId>
+            <artifactId>core</artifactId>
+            <version>12.62.7</version>
+        </dependency>
 
         <dependency>
             <groupId>junit</groupId>
