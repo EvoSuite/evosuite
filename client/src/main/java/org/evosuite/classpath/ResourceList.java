@@ -207,7 +207,7 @@ public class ResourceList {
             return null;
         }
 
-        if (cpEntry.endsWith(".jar")) {
+        if (cpEntry.endsWith(".jar") || cpEntry.endsWith(".war")) {
             JarFile jar = getCache().getJar(cpEntry);
             if (jar == null) {
                 return null;
@@ -226,7 +226,7 @@ public class ResourceList {
             }
             return is;
         } else {
-            //if not a jar, it is a folder
+            //if not a jar/war, it is a folder
             File classFile = null;
             if (File.separatorChar != '/') {
                 classFile = new File(cpEntry + File.separator + windowsPath);
@@ -497,7 +497,7 @@ public class ResourceList {
 
         if (file.isDirectory()) {
             scanDirectory(file, classPathElement);
-        } else if (file.getName().endsWith(".jar")) {
+        } else if (file.getName().endsWith(".jar") || file.getName().endsWith(".war")) {
             scanJar(classPathElement);
         } else {
             throw new IllegalArgumentException("The class path resource "
