@@ -19,50 +19,59 @@
  */
 package org.evosuite.intellij;
 
+import java.awt.Image;
+import java.io.File;
+import java.io.IOException;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import javax.imageio.ImageIO;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
+
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
-import com.intellij.openapi.module.Module;
-import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.ui.Messages;
+import com.intellij.openapi.util.IconLoader;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowManager;
 import org.evosuite.intellij.util.AsyncGUINotifier;
 import org.evosuite.intellij.util.EvoSuiteExecutor;
-import org.evosuite.intellij.util.Utils;
-
-import javax.imageio.ImageIO;
-import javax.swing.*;
-import java.awt.*;
-import java.io.File;
-import java.io.IOException;
-import java.util.*;
 
 /**
  * Created by arcuri on 9/24/14.
  */
 public class EvoAction extends AnAction {
 
-    public EvoAction() {
-        super("Run EvoSuite",
-                "Open GUI dialog to configure and start running EvoSuite to generate JUnit tests automatically",
-                loadIcon());
-    }
+    private static final Icon EVOSUITE_ICON = loadIcon();
 
     private static Icon loadIcon() {
         try {
-            Image image = ImageIO.read(EvoAction.class.getClassLoader().getResourceAsStream("evosuite.png"));
+            Image image = ImageIO.read(
+                    Objects.requireNonNull(
+                            EvoAction.class.getClassLoader().getResourceAsStream("icons/evosuite.png"),
+                            "getResourceAsStream result be null"
+                    )
+            );
             image = image.getScaledInstance(16, 16, java.awt.Image.SCALE_SMOOTH);
-            ImageIcon icon = new ImageIcon(image);
 
-            return icon;
-        } catch (IOException e) {
-            e.printStackTrace(); //should not really happen
+            return new ImageIcon(image);
+        } catch (Exception e) {
+            throw new RuntimeException("EvoAction.loadIcon failed", e);
         }
-        return null;
+    }
+
+    public EvoAction() {
+        super(
+                "Run EvoSuite",
+                "Open GUI dialog to configure and start running EvoSuite to generate JUnit tests automatically",
+                EVOSUITE_ICON
+        );
     }
 
     public void actionPerformed(AnActionEvent event) {
@@ -83,7 +92,8 @@ public class EvoAction extends AnAction {
 
         Map<String, Set<String>> map = getCUTsToTest(event);
         if (map == null || map.isEmpty() || map.values().stream().mapToInt(Set::size).sum() == 0) {
-            Messages.showMessageDialog(project, "No '.java' file or non-empty source folder was selected in a valid module",
+            Messages.showMessageDialog(project, "No '.java' file or non-empty source folder was selected in a valid " +
+                            "module",
                     title, Messages.getErrorIcon());
             return;
         }
@@ -129,7 +139,8 @@ public class EvoAction extends AnAction {
     }
 
 
-    private void recursiveHandle(Map<String, Set<String>> map, ModulesInfo modulesInfo, Set<String> alreadyHandled, String path) {
+    private void recursiveHandle(Map<String, Set<String>> map, ModulesInfo modulesInfo, Set<String> alreadyHandled,
+                                 String path) {
 
         if (alreadyHandled.contains(path)) {
             return;
@@ -144,7 +155,8 @@ public class EvoAction extends AnAction {
     }
 
 
-    private Set<String> handleSelectedPath(Map<String, Set<String>> map, ModulesInfo modulesInfo, String selectedFilePath) {
+    private Set<String> handleSelectedPath(Map<String, Set<String>> map, ModulesInfo modulesInfo,
+                                           String selectedFilePath) {
 
          /*
                 if Module A includes sub-module B, the source roots in B should
