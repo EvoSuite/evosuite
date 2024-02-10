@@ -19,6 +19,7 @@
  */
 package org.evosuite.runtime.util;
 
+import java.nio.file.Paths;
 import org.apache.commons.lang3.StringUtils;
 import org.hamcrest.core.IsEqual;
 import org.junit.Before;
@@ -100,7 +101,7 @@ public class JavaExecCmdUtilUnixTest {
                             // set correct java_home and get real path to java
                             environmentVariables.set("JAVA_HOME", JAVA_HOME_SYSTEM);
                             assertThat(JavaExecCmdUtil.getJavaBinExecutablePath(),
-                                    IsEqual.equalTo(JAVA_HOME_SYSTEM + SEPARATOR + "bin" + SEPARATOR + "java"));
+                                       IsEqual.equalTo(Paths.get(JAVA_HOME_SYSTEM, "bin", "java").toString()));
                         }
                 );
     }
