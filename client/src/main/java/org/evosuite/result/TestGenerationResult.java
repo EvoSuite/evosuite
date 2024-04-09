@@ -24,6 +24,7 @@ import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.symbolic.dse.algorithm.ExplorationAlgorithmBase;
 import org.evosuite.testcase.TestCase;
+import org.evosuite.testsuite.TestSuiteChromosome;
 
 import java.io.Serializable;
 import java.util.Set;
@@ -132,5 +133,9 @@ public interface TestGenerationResult<T extends Chromosome<T>> extends Serializa
      * Comment for that test
      */
     String getComment(String name);
+
+    void setTestSuite(TestSuiteChromosome testSuite);
+
+    TestSuiteChromosome getTestSuite();
 
 }

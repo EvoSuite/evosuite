@@ -17,6 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
+//BEGIN_NOSCAN
 package org.evosuite;
 
 import org.evosuite.Properties.AssertionStrategy;
@@ -29,7 +30,9 @@ import org.evosuite.contracts.FailingTestSet;
 import org.evosuite.coverage.CoverageCriteriaAnalyzer;
 import org.evosuite.coverage.FitnessFunctions;
 import org.evosuite.coverage.TestFitnessFactory;
+import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
 import org.evosuite.coverage.dataflow.DefUseCoverageSuiteFitness;
+import org.evosuite.coverage.line.LineCoverageSuiteFitness;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.ga.stoppingconditions.StoppingCondition;
 import org.evosuite.junit.JUnitAnalyzer;
@@ -220,7 +223,7 @@ public class TestSuiteGenerator {
             PermissionStatistics.getInstance().printStatistics(LoggingUtils.getEvoLogger());
 
             // progressMonitor.setCurrentPhase("Writing JUnit test cases");
-            LoggingUtils.getEvoLogger().info("* " + ClientProcess.getPrettyPrintIdentifier() + "Writing tests to file");
+            LoggingUtils.getEvoLogger().info("* " + ClientProcess.getPrettyPrintIdentifier() + "Writing " + testCases.size() + " tests to file");
             result = writeJUnitTestsAndCreateResult(testCases);
             writeJUnitFailingTests();
         }
@@ -234,7 +237,7 @@ public class TestSuiteGenerator {
         LoggingUtils.getEvoLogger().info("* " + ClientProcess.getPrettyPrintIdentifier() + "Done!");
         LoggingUtils.getEvoLogger().info("");
 
-        return result != null ? result : TestGenerationResultBuilder.buildSuccessResult();
+        return result != null ? result : TestGenerationResultBuilder.buildSuccessResult(testCases);
     }
 
     /**
@@ -340,6 +343,7 @@ public class TestSuiteGenerator {
             throw new EvosuiteError("Unexpected exception while creating Class Initializer Test Case");
         }
     }
+    //END_NOSCAN
 
     /**
      * Apply any readability optimizations and other techniques that should use
@@ -353,9 +357,11 @@ public class TestSuiteGenerator {
         // to come up with a suite without timeouts. However, they will slow
         // down
         // the rest of the process, and may lead to invalid tests
+        LoggingUtils.getEvoLogger().info("* test suite size before removal (timeout, exception): " + testSuite.size());
         testSuite.getTestChromosomes()
                 .removeIf(t -> t.getLastExecutionResult() != null && (t.getLastExecutionResult().hasTimeout() ||
                         t.getLastExecutionResult().hasTestException()));
+        LoggingUtils.getEvoLogger().info("* test suite size after removal: " + testSuite.size());
 
         if (Properties.CTG_SEEDS_FILE_OUT != null) {
             TestSuiteSerialization.saveTests(testSuite, new File(Properties.CTG_SEEDS_FILE_OUT));
@@ -436,6 +442,7 @@ public class TestSuiteGenerator {
         }
 
         double coverage = testSuite.getCoverage();
+        testSuite.getCoverageInstanceOf(BranchCoverageSuiteFitness.class);
 
         if (ArrayUtil.contains(Properties.CRITERION, Criterion.MUTATION)
                 || ArrayUtil.contains(Properties.CRITERION, Criterion.STRONGMUTATION)) {
@@ -456,7 +463,9 @@ public class TestSuiteGenerator {
         if (Properties.CRITERION.length > 1)
             LoggingUtils.getEvoLogger().info("* " + ClientProcess.getPrettyPrintIdentifier() + "Resulting test suite's coverage: "
                     + NumberFormat.getPercentInstance().format(coverage)
-                    + " (average coverage for all fitness functions)");
+                    + " (average coverage for all fitness functions)"
+                    + ", branch: " + NumberFormat.getPercentInstance().format(testSuite.getCoverageInstanceOf(BranchCoverageSuiteFitness.class))
+                    + ", line: " + NumberFormat.getPercentInstance().format(testSuite.getCoverageInstanceOf(LineCoverageSuiteFitness.class)));
         else
             LoggingUtils.getEvoLogger().info("* " + ClientProcess.getPrettyPrintIdentifier() + "Resulting test suite's coverage: "
                     + NumberFormat.getPercentInstance().format(coverage));
@@ -493,7 +502,7 @@ public class TestSuiteGenerator {
             LoggingUtils.getEvoLogger().info("* " + ClientProcess.getPrettyPrintIdentifier() + "Generating assertions");
             // progressMonitor.setCurrentPhase("Generating assertions");
             ClientServices.getInstance().getClientNode().changeState(ClientState.ASSERTION_GENERATION);
-            if (!TimeController.getInstance().hasTimeToExecuteATestCase()) {
+            if(!TimeController.getInstance().isThereStillTimeInThisPhase()) {
                 LoggingUtils.getEvoLogger().info("* " + ClientProcess.getPrettyPrintIdentifier()
                         + "Skipping assertion generation because not enough time is left");
             } else {
@@ -527,7 +536,9 @@ public class TestSuiteGenerator {
      * @param chromosome
      */
     private void compileAndCheckTests(TestSuiteChromosome chromosome) {
-        LoggingUtils.getEvoLogger().info("* " + ClientProcess.getPrettyPrintIdentifier() + "Compiling and checking tests");
+        int numTestsBeforeCheck = chromosome.size();
+        LoggingUtils.getEvoLogger().info("* " + ClientProcess.getPrettyPrintIdentifier() + "Compiling and checking " +
+                chromosome.size() + " tests");
 
         if (!JUnitAnalyzer.isJavaCompilerAvailable()) {
             String msg = "No Java compiler is available. Make sure to run EvoSuite with the JDK and not the JRE."
@@ -548,6 +559,7 @@ public class TestSuiteGenerator {
 
         // note: compiling and running JUnit tests can be very time consuming
         if (!TimeController.getInstance().isThereStillTimeInThisPhase()) {
+            LoggingUtils.getEvoLogger().info("* No time for compile and check test");
             Properties.USE_SEPARATE_CLASSLOADER = junitSeparateClassLoader;
             return;
         }
@@ -557,12 +569,16 @@ public class TestSuiteGenerator {
 
         // first, let's just get rid of all the tests that do not compile
         JUnitAnalyzer.removeTestsThatDoNotCompile(testCases);
+        int numTestsAfterCompilationCheck = testCases.size();
 
         // compile and run each test one at a time. and keep track of total time
         long start = java.lang.System.currentTimeMillis();
+        int numTestProcessed = 0, numTestCases = testCases.size();
         Iterator<TestCase> iter = testCases.iterator();
         while (iter.hasNext()) {
             if (!TimeController.getInstance().hasTimeToExecuteATestCase()) {
+                LoggingUtils.getEvoLogger().info("* No time for compile and check " +
+                        "remaining " + (numTestCases - numTestProcessed) + " tests" );
                 break;
             }
             TestCase tc = iter.next();
@@ -574,6 +590,7 @@ public class TestSuiteGenerator {
                 // final testSuite
                 iter.remove();
             }
+            numTestProcessed++;
         }
         /*
          * compiling and running each single test individually will take more
@@ -606,8 +623,10 @@ public class TestSuiteGenerator {
         ClientServices.track(RuntimeVariable.NumUnstableTests, numUnstable);
         Properties.USE_SEPARATE_CLASSLOADER = junitSeparateClassLoader;
 
+        LoggingUtils.getEvoLogger().info("* " + ClientProcess.getPrettyPrintIdentifier() + "# generated -> compile check -> junit check: "
+                    + numTestsBeforeCheck + " -> " + numTestsAfterCompilationCheck + " -> " + chromosome.size());
     }
-
+    //BEGIN_NOSCAN
     private static int checkAllTestsIfTime(List<TestCase> testCases, long delta) {
         if (TimeController.getInstance().hasTimeToExecuteATestCase()
                 && TimeController.getInstance().isThereStillTimeInThisPhase(delta)) {
@@ -660,6 +679,7 @@ public class TestSuiteGenerator {
      *
      * @param testSuite a test suite.
      */
+    //END_NOSCAN
     public static TestGenerationResult writeJUnitTestsAndCreateResult(TestSuiteChromosome testSuite, String suffix) {
         List<TestCase> tests = testSuite.getTests();
         if (Properties.JUNIT_TESTS) {
@@ -673,10 +693,12 @@ public class TestSuiteGenerator {
 
             LoggingUtils.getEvoLogger().info("* " + ClientProcess.getPrettyPrintIdentifier() + "Writing JUnit test case '"
                     + (name + suffix) + "' to " + testDir);
+            LoggingUtils.getEvoLogger().info("* of test cases to be written: " + tests.size());
             suiteWriter.writeTestSuite(name + suffix, testDir, testSuite.getLastExecutionResults());
         }
-        return TestGenerationResultBuilder.buildSuccessResult();
+        return TestGenerationResultBuilder.buildSuccessResult(testSuite);
     }
+    //BEGIN_NOSCAN
 
     /**
      * @param testSuite the test cases which should be written to file
@@ -763,7 +785,7 @@ public class TestSuiteGenerator {
 
         return r;
     }
-
+    //END_NOSCAN
     /**
      * <p>
      * getFitnessFactories
@@ -773,14 +795,18 @@ public class TestSuiteGenerator {
      * objects.
      */
     public static List<TestFitnessFactory<? extends TestFitnessFunction>> getFitnessFactories() {
+        return getFitnessFactories(Properties.CRITERION);
+    }
+
+    public static List<TestFitnessFactory<? extends TestFitnessFunction>> getFitnessFactories(Criterion[] criteria) {
         List<TestFitnessFactory<? extends TestFitnessFunction>> goalsFactory = new ArrayList<>();
-        for (int i = 0; i < Properties.CRITERION.length; i++) {
-            goalsFactory.add(FitnessFunctions.getFitnessFactory(Properties.CRITERION[i]));
+        for (int i = 0; i < criteria.length; i++) {
+            goalsFactory.add(FitnessFunctions.getFitnessFactory(criteria[i]));
         }
 
         return goalsFactory;
     }
-
+    //BEGIN_NOSCAN
     /**
      * <p>
      * main
@@ -793,5 +819,5 @@ public class TestSuiteGenerator {
         generator.generateTestSuite();
         System.exit(0);
     }
-
+    //END_NOSCAN
 }

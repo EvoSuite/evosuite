@@ -22,6 +22,8 @@ package org.evosuite.utils.generic;
 
 import org.evosuite.runtime.util.Inputs;
 import org.evosuite.utils.ParameterizedTypeImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.*;
 import java.util.LinkedHashMap;
@@ -32,6 +34,8 @@ import java.util.Map.Entry;
  * Mapping between type variables and actual parameters.
  */
 public class VarMap {
+
+    protected static final Logger logger = LoggerFactory.getLogger(VarMap.class);
 
     private final Map<TypeVariable<?>, Type> map = new LinkedHashMap<>();
 
@@ -78,7 +82,10 @@ public class VarMap {
                 //FIXME: (wrong) tmp workaround, as WildcardTypeImpl does crash EvoSuite
                 //return Object.class;
                 // TODO: Bounds should be mapped, but might be recursive so we just use unbounded for now
-                return new WildcardTypeImpl(new Type[]{Object.class}, new Type[]{});
+//                return new WildcardTypeImpl(new Type[]{Object.class}, new Type[]{});
+                // May be a infinite recursive call?
+//                logger.warn("No variable mapping for type '" + type + "', map the type to itself");
+                return type;
             }
         } else if (type instanceof ParameterizedType) {
             ParameterizedType pType = (ParameterizedType) type;

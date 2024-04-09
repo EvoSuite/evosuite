@@ -25,6 +25,7 @@ import org.evosuite.ga.SecondaryObjective;
 import org.evosuite.runtime.util.AtMostOnceLogger;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.TestCaseMinimizer;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
@@ -66,6 +67,8 @@ public abstract class Archive implements Serializable {
      * Has this archive been updated with new candidate solutions?
      */
     protected boolean hasBeenUpdated = false;
+
+    TestSuiteChromosome minimizedSuite = null;
 
     /**
      * Register a target.
@@ -155,10 +158,6 @@ public abstract class Archive implements Serializable {
      */
     public boolean isBetterThanCurrent(TestChromosome currentSolution, TestChromosome candidateSolution) {
 
-        if (currentSolution.equals(candidateSolution)) {
-            return false;
-        }
- 
         ExecutionResult currentSolutionExecution = currentSolution.getLastExecutionResult();
         ExecutionResult candidateSolutionExecution = candidateSolution.getLastExecutionResult();
         if (currentSolutionExecution != null
@@ -504,6 +503,7 @@ public abstract class Archive implements Serializable {
      * Reset any field.
      */
     public void reset() {
+        this.minimizedSuite = null;
         this.nonCoveredTargetsOfEachMethod.clear();
     }
 
@@ -536,5 +536,19 @@ public abstract class Archive implements Serializable {
             case MIO:
                 return MIOArchive.instance;
         }
+    }
+
+    public TestSuiteChromosome getMinimizedSuite() {
+        return minimizedSuite;
+    }
+
+    public void setMinimizedSuite(TestSuiteChromosome suite) {
+        minimizedSuite = suite;
+    }
+
+    public void addSolutionToMinimizedSuite(TestChromosome solution, TestFitnessFunction target) {
+        TestCaseMinimizer minimizer = new TestCaseMinimizer(target);
+        minimizer.minimize(solution);
+        minimizedSuite.addTestChromosome(solution);
     }
 }

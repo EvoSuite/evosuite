@@ -491,6 +491,10 @@ public class MSecurityManager extends SecurityManager {
             return true;
         }
 
+//        if(checkIfScaffolding(perm)) {
+//            return true;
+//        }
+
         if (checkIfEvoSuiteRMI(perm) || checkIfRMIDuringTests(perm)) {
             return true;
         }
@@ -750,6 +754,16 @@ public class MSecurityManager extends SecurityManager {
         }
 
         return true;
+    }
+
+    public boolean checkIfScaffolding(Permission perm) {
+        for (StackTraceElement element : Thread.currentThread().getStackTrace()) {
+            if(element.toString().contains("initializeSecurityManagerForSUT") ||
+                    element.toString().contains("resetDefaultSecurityManager")) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public boolean checkIfRMIDuringTests(Permission perm) {
@@ -1069,13 +1083,6 @@ public class MSecurityManager extends SecurityManager {
          * this looks safe... but not 100% sure to be honest
          */
         if (name.equals("setDefaultUncaughtExceptionHandler")) {
-            return true;
-        }
-
-        // ByteBuddy
-        // https://javadoc.io/doc/net.bytebuddy/byte-buddy-dep/latest/net/bytebuddy/utility/dispatcher/JavaDispatcher.html
-        // In the following code, we do not use `equals("net.bytebuddy.createJavaDispatcher")` as the literal string will be shaded by EvoSuite's build
-        if (name.endsWith("bytebuddy.createJavaDispatcher")) {
             return true;
         }
 

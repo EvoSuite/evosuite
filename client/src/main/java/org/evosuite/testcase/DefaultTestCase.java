@@ -388,6 +388,7 @@ public class DefaultTestCase implements TestCase, Serializable {
         t.id = idGenerator.getAndIncrement(); //always create new ID when making a clone
         //t.exception_statement = exception_statement;
         //t.exceptionThrown = exceptionThrown;
+        t.setRandomizableParamters(getRandomizableParameters());
         return t;
     }
 
@@ -632,6 +633,9 @@ public class DefaultTestCase implements TestCase, Serializable {
         Class<?> rawClass = genericClass.getRawClass();
         for (int i = 0; i < position && i < size(); i++) {
             Statement statement = statements.get(i);
+//            if(type.toString().contains("Map") && statement.toString().contains("createMap")) {
+//                logger.debug("time to debug");
+//            }
             if (statement instanceof MethodStatement) {
                 if (((MethodStatement) statement).getMethod().getName().equals("hashCode"))
                     continue;
@@ -642,6 +646,7 @@ public class DefaultTestCase implements TestCase, Serializable {
                 continue;
             if (value instanceof ArrayReference) {
 
+                //TODO: following classutils bugs have been fixed by me already? check and refactor following
                 // For some reason, TypeUtils/ClassUtils sometimes claims
                 // that an array is assignable to its component type
                 // TODO: Fix
@@ -1303,5 +1308,14 @@ public class DefaultTestCase implements TestCase, Serializable {
     @Override
     public String toString() {
         return toCode();
+    }
+
+    int randomizableParamters = 0;
+    public int getRandomizableParameters() {
+        return randomizableParamters;
+    }
+
+    public void setRandomizableParamters(int val) {
+        randomizableParamters = val;
     }
 }

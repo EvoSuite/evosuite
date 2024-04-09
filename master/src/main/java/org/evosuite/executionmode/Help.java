@@ -17,6 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
+//BEGIN_NOSCAN
 package org.evosuite.executionmode;
 
 import org.apache.commons.cli.HelpFormatter;
@@ -30,10 +31,10 @@ public class Help {
     public static Option getOption() {
         return new Option(NAME, "print this message");
     }
-
+//END_NOSCAN
     public static Object execute(Options options) {
         HelpFormatter formatter = new HelpFormatter();
-        formatter.printHelp("EvoSuite", options);
+        formatter.printHelp("EvoFuzz", options);
         return null;
     }
 }

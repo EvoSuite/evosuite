@@ -363,9 +363,9 @@ public abstract class JUnitAnalyzer {
 
             if (!compiled) {
                 logger.error("Compilation failed on compilation units: " + compilationUnits);
-                logger.error("Classpath: " + classpath);
+//                logger.error("Classpath: " + classpath);
                 //TODO remove
-                logger.error("evosuiteCP: " + evosuiteCP);
+//                logger.error("evosuiteCP: " + evosuiteCP);
 
 
                 for (Diagnostic<?> diagnostic : diagnostics.getDiagnostics()) {
@@ -387,7 +387,7 @@ public abstract class JUnitAnalyzer {
                         buffer.append((i + 1) + ": " + lines.get(i) + "\n");
                     }
                 }
-                logger.error(buffer.toString());
+//                logger.error(buffer.toString());
                 return null;
             }
 

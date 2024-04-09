@@ -118,6 +118,9 @@ public class TestFactory {
                                GenericAccessibleObject<?> call, int position) {
 
         logger.trace("addCallFor {}", callee.getName());
+//        if(call.toString().contains("ElementOrder.createMap")) {
+//            logger.debug("time to debug GUAVA-22");
+//        }
 
         int previousLength = test.size(); // length of the test case before inserting new statements
         currentRecursion.clear();
@@ -700,7 +703,6 @@ public class TestFactory {
         return attemptGeneration(test, type, position, 0, false, null, true, true);
     }
 
-
     /**
      * Try to generate an object of a given type
      *
@@ -725,9 +727,9 @@ public class TestFactory {
                 throw new ConstructionFailedException("Cannot generate unaccessible enum " + clazz);
             return createPrimitive(test, clazz, position, recursionDepth);
 
-        } else if (clazz.isPrimitive() || clazz.isClass()
-                || EnvironmentStatements.isEnvironmentData(clazz.getRawClass())) {
-
+        } else if (clazz.isPrimitive() || EnvironmentStatements.isEnvironmentData(clazz.getRawClass()) || clazz.isClass()) {
+            // if clazz is a class with generics, it should not be created with the following.
+            // isClass is Class.class... is the above correct?
             return createPrimitive(test, clazz, position, recursionDepth);
 
         } else if (clazz.isString()) {
@@ -1356,6 +1358,16 @@ public class TestFactory {
         return ret;
     }
 
+    private VariableReference createOrReuseVariable(TestCase test, Type parameterType,
+                                                    int position, int recursionDepth, VariableReference exclude, boolean allowNull,
+                                                    boolean excludeCalleeGenerators, boolean canUseMocks)
+        throws ConstructionFailedException {
+        VariableReference ref = _createOrReuseVariable(test, parameterType, position, recursionDepth, exclude, allowNull, excludeCalleeGenerators, canUseMocks);
+        if(!ref.isAssignableTo(parameterType)) {
+            throw new ConstructionFailedException(ref + " cannot be assigned to " + parameterType);
+        }
+        return ref;
+    }
 
     /**
      * In the given {@code test} case, tries to create a new variable of type {@code parameterType}
@@ -1369,7 +1381,7 @@ public class TestFactory {
      * @return
      * @throws ConstructionFailedException
      */
-    private VariableReference createOrReuseVariable(TestCase test, Type parameterType,
+    private VariableReference _createOrReuseVariable(TestCase test, Type parameterType,
                                                     int position, int recursionDepth, VariableReference exclude, boolean allowNull,
                                                     boolean excludeCalleeGenerators, boolean canUseMocks)
             throws ConstructionFailedException {
@@ -1501,6 +1513,9 @@ public class TestFactory {
 
     private List<VariableReference> getCandidatesForReuse(TestCase test, Type parameterType, int position, VariableReference exclude,
                                                           boolean allowNull, boolean canUseMocks) {
+//        if(parameterType.toString().contains("Map")) {
+//            logger.debug("time to debug");
+//        }
 
         //look at all vars defined before pos
         List<VariableReference> objects = test.getObjects(parameterType, position);
@@ -2281,6 +2296,9 @@ public class TestFactory {
 
         // Select a random variable
         logger.debug("Chosen object: {}", var.getName());
+//        if(var.toString().contains("ElementOrder")) {
+//            logger.debug("time to debug");
+//        }
 
         if (var instanceof ArrayReference) {
             logger.debug("Chosen object is array ");
@@ -2417,6 +2435,9 @@ public class TestFactory {
                 if (var == null) {
                     throw new ConstructionFailedException(
                             "Failed to create variable for type " + parameterType + " at position " + position);
+                }
+                if(!var.isAssignableTo(parameterType)) {
+                    throw new ConstructionFailedException(var + " cannot be assigned to " + parameterType);
                 }
             }
 

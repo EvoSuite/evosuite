@@ -70,7 +70,7 @@ public class Scope {
                     }
                     if (Array.getLength(value) == 0)
                         break;
-                    value = Array.get(value, 0);
+                    value = Array.get(value, 0); // TODO: may be a bug? 0 should be idx
                     idx++;
                 }
                 arrayRef.setLengths(lengths);
@@ -78,6 +78,7 @@ public class Scope {
                 arrayRef.setArrayLength(0);
         }
 
+        // TODO: following TODO will cause compilation error of the generated test code. should be fixed
         // TODO: Changing array types might invalidate array assignments - how to treat this properly?
         if (o != null && !o.getClass().equals(reference.getVariableClass())
                 && reference.getGenericClass().getNumParameters() == 0
@@ -160,6 +161,7 @@ public class Scope {
         List<VariableReference> refs = new ArrayList<>();
         for (Entry<VariableReference, Object> entry : pool.entrySet()) {
             if (type.equals(entry.getKey().getType())
+                    //TODO: can entry's type and value class have different types? may be due to setObject TODO.
                     || (entry.getValue() != null && type.equals(entry.getValue().getClass()))) {
                 refs.add(entry.getKey());
             }

@@ -59,6 +59,7 @@ public enum JdkPureMethodsList {
     private Set<String> loadInfo() {
         Set<String> set = new HashSet<>(2020);
 
+        //TODO: update jdk pure methods for java8+
         try (
             InputStream fstream = this.getClass().getResourceAsStream(
                     "/jdkPureMethods.txt");

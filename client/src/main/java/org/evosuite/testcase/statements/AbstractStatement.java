@@ -136,6 +136,10 @@ public abstract class AbstractStatement implements Statement, Serializable {
         if (type == null) {
             throw new IllegalArgumentException("type cannot be null");
         }
+//
+//        if(type.toString().contains("Map")) {
+//            logger.debug("time to debug");
+//        }
 
         GenericClass<?> c = GenericClassFactory.get(type);
         if (c.isArray()) {

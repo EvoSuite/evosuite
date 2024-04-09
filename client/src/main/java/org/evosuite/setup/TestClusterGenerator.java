@@ -358,6 +358,7 @@ public class TestClusterGenerator {
         }
         targetClasses.add(targetClass);
         addDeclaredClasses(targetClasses, targetClass);
+        //TODO: interface is changed significantly in Java8+, thus, following should be fixed appropriately
         if ((!targetClass.isInterface() && Modifier.isAbstract(targetClass.getModifiers())) || isInterfaceWithDefaultMethods(targetClass)) {
             logger.info("SUT is an abstract class");
 
@@ -385,6 +386,7 @@ public class TestClusterGenerator {
                     logger.debug("Loading inner class: " + icn.innerName + ", " + icn.name + "," + icn.outerName);
                     String innerClassName = ResourceList.getClassNameFromResourcePath(icn.name);
                     if (!innerClassName.startsWith(Properties.TARGET_CLASS)) {
+                        // NOTE: How can this happen? and some inner classes could not be analyzed on SBST`20 benchmarks, let's find it out
                         // TODO: Why does ASM report inner classes that are not actually inner classes?
                         // Let's ignore classes that don't start with the SUT name for now.
                         logger.debug("Ignoring inner class that is outside SUT {}", innerClassName);
@@ -432,6 +434,7 @@ public class TestClusterGenerator {
                 logger.info("Checking target constructor " + constructor);
                 String name = "<init>" + org.objectweb.asm.Type.getConstructorDescriptor(constructor);
 
+                //NOTE: evaluate the impact of testability transformation
                 if (Properties.TT) {
                     String orig = name;
                     name = BooleanTestabilityTransformation.getOriginalNameDesc(clazz.getName(), "<init>",
@@ -854,6 +857,7 @@ public class TestClusterGenerator {
         }
         analyzedClasses.add(clazz.getRawClass());
 
+        // TODO: remove this? no places used containerClasses
         // We keep track of generic containers in case we find other concrete
         // generic components during runtime
         if (clazz.isAssignableTo(Collection.class) || clazz.isAssignableTo(Map.class)) {
@@ -969,6 +973,8 @@ public class TestClusterGenerator {
                         if (!retClass.isPrimitive() && !retClass.isObject() && !retClass.isString())
                             cluster.addGenerator(GenericClassFactory.get(field.getGenericType()), genericField);
                         final boolean isFinalField = isFinalField(field);
+                        //TODO: why it does not consider the cases of initializeTargetMethods field manipulation?
+                        //Refer to the field processing of the initializeTargetMethods, may be due to the design choice?
                         if (!isFinalField) {
                             cluster.addModifier(clazz, // .getWithWildcardTypes(),
                                     genericField);

@@ -548,6 +548,20 @@ public class CastClassManager {
         GenericClass<?> genericClass = addToClassMapIfNotEmpty(assignableClasses, 10);
         if (genericClass != null) return genericClass;
 
+        // recompute bounds based on the typeMap
+//        Type[] mappedBounds = new Type[typeVariable.getBounds().length];
+//        int idx = 0;
+//        for(Type type : typeVariable.getBounds()) {
+//            if(typeMap.containsKey(type)) {
+//                mappedBounds[idx++] = typeMap.get(type);
+//            }else{
+//                mappedBounds[idx++] = type;
+//            }
+//        }
+
+//        if(typeVariable.getGenericDeclaration().toString().contains("createMap")) {
+//            logger.debug("time to debug guava-22");
+//        }
         // Compute the bound candidates of the type variable.
         final Set<Class<?>> boundCandidates = Arrays.stream(typeVariable.getBounds()) //
                 .map(GenericTypeReflector::erase) //

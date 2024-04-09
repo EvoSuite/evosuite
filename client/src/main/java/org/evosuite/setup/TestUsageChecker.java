@@ -67,11 +67,13 @@ public class TestUsageChecker {
         if (c.getDeclaringClass().isAnonymousClass())
             return false;
 
+        // TODO: should we avoid local class? e.g., Reflection cannot work for these classes..? may be true
         if (c.getDeclaringClass().isLocalClass()) {
             logger.debug("Skipping constructor of local class " + c.getName());
             return false;
         }
 
+        // TODO: same true?
         if (c.getDeclaringClass().isMemberClass() && !TestUsageChecker.canUse(c.getDeclaringClass()))
             return false;
 
@@ -93,6 +95,8 @@ public class TestUsageChecker {
         }
 
         for (java.lang.reflect.Type paramType : c.getGenericParameterTypes()) {
+            //NOTE: maybe very expensive operation and uses apache commons utils3 fixed by me
+            //bugs may exist in this function
             if (!canUse(paramType))
                 return false;
         }
@@ -153,10 +157,12 @@ public class TestUsageChecker {
             return false;
         }
 
+        //TODO: for other java versions, Invisible packages should updated
         if (isClassIncludedInPackage(c.getName(), Java9InvisiblePackage.instance.getClassesToBeIgnored())) {
             return false;
         }
 
+        //NOTE: cannot test junit?
         if (c.getName().startsWith("junit")) {
             return false;
         }
@@ -191,11 +197,13 @@ public class TestUsageChecker {
             return false;
         }
 
+        // TODO: may be current version cannot support Lambda?
         // Don't use Lambdas...for now
         if (c.getName().contains("$$Lambda")) {
             return false;
         }
 
+        // TODO: test the impact of deleting this
         // TODO: This should be unnecessary if Java reflection works...
         // This is inefficient
         if (TestClusterUtils.isAnonymousClass(c.getName())) {
@@ -344,11 +352,13 @@ public class TestUsageChecker {
             return false;
         }
 
+        // TODO: Fix following
         // FIXME: EvoSuite currently can't deal properly with the Map.of(...) methods introduced in Java 9
         if (m.getDeclaringClass().equals(java.util.Map.class) && Modifier.isStatic(m.getModifiers())) {
             return false;
         }
 
+        // TODO: Fix following
         // FIXME: EvoSuite currently can't deal properly with the Set.of(...) methods introduced in Java 9
         if (m.getDeclaringClass().equals(java.util.Set.class) && Modifier.isStatic(m.getModifiers())) {
             return false;
@@ -363,6 +373,7 @@ public class TestUsageChecker {
                 return false;
         }
 
+        // TODO: Fix following, there is no reason to exclude enum class as test target class
         if (m.getDeclaringClass().equals(Enum.class)) {
             return false;
 			/*

@@ -56,9 +56,10 @@ public class TestSuiteMinimizer {
     /**
      * Logger
      */
-    private final static Logger logger = LoggerFactory.getLogger(TestSuiteMinimizer.class);
+    protected final static Logger logger = LoggerFactory.getLogger(TestSuiteMinimizer.class);
 
-    private final List<TestFitnessFactory<?>> testFitnessFactories = new ArrayList<>();
+    protected final List<TestFitnessFactory<?>> testFitnessFactories = new ArrayList<>();
+    //BEGIN_NOSCAN
 
     /**
      * Assume the search has not started until startTime != 0
@@ -112,7 +113,7 @@ public class TestSuiteMinimizer {
                 suite.totalLengthOfTestCases());
     }
 
-    private void updateClientStatus(int progress) {
+    protected void updateClientStatus(int progress) {
         ClientState state = ClientState.MINIMIZATION;
         ClientStateInformation information = new ClientStateInformation(state);
         information.setProgress(progress);
@@ -145,7 +146,7 @@ public class TestSuiteMinimizer {
      *
      * @param suite a {@link org.evosuite.testsuite.TestSuiteChromosome} object.
      */
-    private void minimizeTests(TestSuiteChromosome suite) {
+    protected void minimizeTests(TestSuiteChromosome suite) {
 
         logger.info("Minimizing per test");
 
@@ -212,11 +213,7 @@ public class TestSuiteMinimizer {
             }
             Collections.sort(coveringTests);
             if (!coveringTests.isEmpty()) {
-                TestChromosome test = coveringTests.get(0);
-                org.evosuite.testcase.TestCaseMinimizer minimizer = new org.evosuite.testcase.TestCaseMinimizer(
-                        goal);
-                TestChromosome copy = test.clone();
-                minimizer.minimize(copy);
+                TestChromosome copy = minimizeTestCase(coveringTests.get(0), goal);
                 if (isTimeoutReached()) {
                     logger.warn("Minimization timeout. Roll back to original test suite");
                     return;
@@ -257,12 +254,7 @@ public class TestSuiteMinimizer {
 
         double suiteCoverage = suite.getCoverage();
         logger.info("Setting coverage to: " + suiteCoverage);
-
-        ClientState state = ClientState.MINIMIZATION;
-        ClientStateInformation information = new ClientStateInformation(state);
-        information.setProgress(100);
-        information.setCoverage((int) (Math.round(suiteCoverage * 100)));
-        ClientServices.getInstance().getClientNode().changeState(state, information);
+        updateCoverageProgressStatus(suiteCoverage);
 
         for (TestFitnessFunction goal : goals) {
             if (!covered.contains(goal))
@@ -271,7 +263,22 @@ public class TestSuiteMinimizer {
         // suite.tests = minimizedTests;
     }
 
-    private boolean isTimeoutReached() {
+    protected void updateCoverageProgressStatus(double suiteCoverage) {
+        ClientState state = ClientState.MINIMIZATION;
+        ClientStateInformation information = new ClientStateInformation(state);
+        information.setProgress(100);
+        information.setCoverage((int) (Math.round(suiteCoverage * 100)));
+        ClientServices.getInstance().getClientNode().changeState(state, information);
+    }
+
+    protected TestChromosome minimizeTestCase(TestChromosome test, TestFitnessFunction goal) {
+        org.evosuite.testcase.TestCaseMinimizer minimizer = new org.evosuite.testcase.TestCaseMinimizer(goal);
+        TestChromosome copy = test.clone();
+        minimizer.minimize(copy);
+        return copy;
+    }
+
+    protected boolean isTimeoutReached() {
         return !TimeController.getInstance().isThereStillTimeInThisPhase();
     }
 

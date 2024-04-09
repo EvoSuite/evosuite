@@ -315,7 +315,7 @@ public class ExternalProcessGroupHandler {
                      * NOTE: the handling of the parameters "-D" should be handled
                      * directly in JUnit by setting the different values in Properties
                      */
-                    ClientProcess.main(new String[0]);
+                    ClientProcess.main(command);
                 }
             };
             clientRunningOnThread.setName("client");

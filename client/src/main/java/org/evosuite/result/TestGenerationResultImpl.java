@@ -24,6 +24,7 @@ import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.symbolic.dse.algorithm.ExplorationAlgorithmBase;
 import org.evosuite.testcase.TestCase;
+import org.evosuite.testsuite.TestSuiteChromosome;
 
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -78,6 +79,8 @@ class TestGenerationResultImpl<T extends Chromosome<T>> implements TestGeneratio
     private GeneticAlgorithm<T> ga = null;
 
     private ExplorationAlgorithmBase dse = null;
+
+    private TestSuiteChromosome testSuite = null;
 
     /**
      * Did test generation succeed?
@@ -313,6 +316,14 @@ class TestGenerationResultImpl<T extends Chromosome<T>> implements TestGeneratio
 
     public void setUncoveredMutants(Set<MutationInfo> mutants) {
         uncoveredMutants.addAll(mutants);
+    }
+
+    public void setTestSuite(TestSuiteChromosome testSuite) {
+        this.testSuite = testSuite;
+    }
+
+    public TestSuiteChromosome getTestSuite() {
+        return this.testSuite;
     }
 
 }

@@ -80,6 +80,9 @@ public class ExcludedClasses {
         list.add(PackageInfo.getEvoSuitePackage());
         list.addAll(excludedClasses);
 
+
+        list.add("org.burningwave.");
+
         //Note: be sure each package is ended with ".", otherwise you might ban more packages than you wanted
 
 //        list.addAll(Arrays.asList(new String[]{"java.", "javax.", "sun.", PackageInfo.getEvoSuitePackage(), "org.exsyst",

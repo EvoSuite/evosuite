@@ -20,6 +20,7 @@
 package org.evosuite.junit.writer;
 
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.burningwave.core.assembler.StaticComponentContainer;
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.instrumentation.BytecodeInstrumentation;
@@ -155,7 +156,7 @@ public class Scaffolding {
             list.add(adapter.afterEach().getCanonicalName());
         }
 
-        if (wasSecurityException || TestSuiteWriterUtils.shouldResetProperties(results)) {
+        if (Properties.RESET_STATIC_FIELDS || wasSecurityException || TestSuiteWriterUtils.shouldResetProperties(results)) {
             list.add(getAdapter().afterAll().getCanonicalName());
         }
 
@@ -175,6 +176,8 @@ public class Scaffolding {
             list.add(java.util.concurrent.Future.class.getCanonicalName());
             list.add(java.util.concurrent.TimeUnit.class.getCanonicalName());
         }
+
+        list.add(StaticComponentContainer.class.getCanonicalName());
 
         return list;
     }
@@ -576,7 +579,7 @@ public class Scaffolding {
 
     private void generateAfterClass(StringBuilder bd, boolean wasSecurityException, List<ExecutionResult> results) {
 
-        if (wasSecurityException || TestSuiteWriterUtils.shouldResetProperties(results)) {
+        if (Properties.RESET_STATIC_FIELDS || wasSecurityException || TestSuiteWriterUtils.shouldResetProperties(results)) {
             bd.append(METHOD_SPACE);
             bd.append("@").append(getAdapter().afterAll().getSimpleName()).append("\n");
             bd.append(METHOD_SPACE);
@@ -586,7 +589,6 @@ public class Scaffolding {
                 bd.append(BLOCK_SPACE);
                 bd.append("Sandbox.resetDefaultSecurityManager(); \n");
             }
-
             if (wasSecurityException) {
                 bd.append(BLOCK_SPACE);
                 bd.append(EXECUTOR_SERVICE + ".shutdownNow(); \n");
@@ -670,6 +672,9 @@ public class Scaffolding {
         // FIXME: This is just commented out for experiments
         // bd.append("org.evosuite.utils.LoggingUtils.setLoggingForJUnit();
         // \n");
+
+        bd.append(BLOCK_SPACE);
+        bd.append(StaticComponentContainer.class.getName()).append(".Modules.exportAllToAll(); \n");
 
         bd.append(BLOCK_SPACE);
         bd.append(RuntimeSettings.class.getName()).append(".className = \"").append(Properties.TARGET_CLASS).append("\"; \n");

@@ -319,9 +319,10 @@ public class Properties {
         // many-objective algorithms
         MOSA, DYNAMOSA, LIPS, MIO,
         // multiple-objective optimisation algorithms
-        NSGAII, SPEA2
+        NSGAII, SPEA2,
+        // fuzzing
+        EVOFUZZ
     }
-
     // MOSA PROPERTIES
     public enum RankingType {
         // Preference sorting is the ranking strategy proposed in
@@ -559,6 +560,52 @@ public class Properties {
     @Parameter(key = "local_search_budget", group = "Local Search", description = "Maximum budget usable for improving individuals per local search")
     public static long LOCAL_SEARCH_BUDGET = 5;
 
+
+    public enum fuzzStrategy {
+        UNIFORM_COVERAGE, FITNESS, COVERAGE
+    }
+
+    @Parameter(key = "fuzz_minimization_disable", group = "evofuzz", description = "fuzz test minimization")
+    public static boolean FUZZ_MINIMIZATION = false;
+
+    @Parameter(key = "fuzz_use_extra_timeouts", group = "evofuzz", description = "use remaining timeouts for fuzzing")
+    public static boolean FUZZ_USE_EXTRA_TIMEOUTS = false;
+
+    @Parameter(key = "fuzz_budget", group = "evofuzz", description = "fuzz budget (no user value, set by master jvm)")
+    public static int FUZZ_BUDGET = 0;
+
+    @Parameter(key = "fuzz_minimization_timeout", group = "evofuzz", description = "minimization timeout of fuzzing (no user value)")
+    public static int FUZZ_MINIMIZATION_TIMEOUT = 60;
+
+    @Parameter(key = "fuzz_strategy", group = "evofuzz", description = "fuzzing strategy")
+    public static fuzzStrategy FUZZ_STRATEGY = fuzzStrategy.UNIFORM_COVERAGE;
+
+    @Parameter(key = "fuzz_mutations", group = "evofuzz", description = "# of mutations per test")
+    public static int FUZZ_NUM_MUTATIONS = 10;
+
+    @Parameter(key = "fuzz_start_percent", group = "evofuzz", description = "% of search budget where fuzzing starts")
+    @DoubleValue(min = 0.05, max = 1.0)
+    public static double FUZZ_START_PERCENT = 0.9;
+
+    @Parameter(key = "evofuzz_solution_criterion", group = "evofuzz", description = "EvoFuzz solution suite criterion. Can define more than one criterion by using a ':' separated list")
+    public static Criterion[] EVOFUZZ_SOLUTION_CRITERION = new Criterion[]{
+            // no mutation
+            Criterion.LINE, Criterion.BRANCH, Criterion.CBRANCH
+    };
+
+    @Parameter(key = "evofuzz_fuzz_criterion", group = "evofuzz", description = "EvoFuzz fuzzing fitness goal. Can define more than one criterion by using a ':' separated list")
+    public static Criterion[] EVOFUZZ_FUZZ_CRITERION = new Criterion[]{
+            Criterion.LINE, Criterion.BRANCH, Criterion.CBRANCH
+    };
+
+
+    @Parameter(key = "mean_mutation_count", group = "evofuzz", description = "mean number of mutations to perform in each round")
+    public static double MEAN_MUTATION_COUNT = 2.0;
+
+    @Parameter(key = "mean_mutation_size", group = "evofuzz", description = "mean number of contiguous bytes to mutate in each mutation")
+    public static double MEAN_MUTATION_SIZE = 1.0;
+
+    //BEGIN_NOSCAN
     public enum LocalSearchBudgetType {
         STATEMENTS, TESTS,
         /**
@@ -1155,7 +1202,7 @@ public class Properties {
     }
 
     @Parameter(key = "assertion_strategy", group = "Output", description = "Which assertions to generate")
-    public static AssertionStrategy ASSERTION_STRATEGY = AssertionStrategy.MUTATION;
+    public static AssertionStrategy ASSERTION_STRATEGY = AssertionStrategy.ALL;
 
     @Parameter(key = "filter_assertions", group = "Output", description = "Filter flaky assertions")
     public static boolean FILTER_ASSERTIONS = false;
@@ -1234,21 +1281,12 @@ public class Properties {
     @Parameter(key = "max_coverage_depth", group = "Output", description = "Maximum depth in the calltree to count a branch as covered")
     public static int MAX_COVERAGE_DEPTH = -1;
 
-    // ---------------------------------------------------------------
-    // Naming
     public enum TestNamingStrategy {
         NUMBERED, COVERAGE
     }
 
     @Parameter(key = "test_naming_strategy", group = "Output", description = "What strategy to use to derive names for tests")
     public static TestNamingStrategy TEST_NAMING_STRATEGY = TestNamingStrategy.NUMBERED;
-
-    public enum VariableNamingStrategy {
-        TYPE_BASED, HEURISTICS_BASED
-    }
-
-    @Parameter(key = "variable_naming_strategy", group = "Output", description = "What strategy to use to derive names for variables")
-    public static VariableNamingStrategy VARIABLE_NAMING_STRATEGY = VariableNamingStrategy.TYPE_BASED;
 
     // ---------------------------------------------------------------
     // Sandbox
@@ -1672,6 +1710,9 @@ public class Properties {
     @Parameter(key = "honour_data_annotations", group = "Runtime", description = "Allows EvoSuite to generate tests with or without honouring the parameter data annotations")
     public static boolean HONOUR_DATA_ANNOTATIONS = true;
 
+    @Parameter(key = "save_solution_in_resultbuilder", group = "Unit test", description =  "Saves test suite solution to TestGenerationResultBuilder (for unit testing")
+    public static boolean SAVE_SOLUTION_IN_RESULTBUILDER = false;
+
     /**
      * Get all parameters that are available
      *
@@ -1718,6 +1759,32 @@ public class Properties {
         if (POPULATION_LIMIT == PopulationLimit.STATEMENTS) {
             if (MAX_LENGTH < POPULATION) {
                 MAX_LENGTH = POPULATION;
+            }
+        }
+    }
+
+    public void initializeProperties(String[] args) throws IllegalStateException {
+        final String defStr = "-D", eqStr = "=";
+
+        for(String arg : args) {
+            if(!arg.startsWith(defStr)) {
+                continue;
+            }
+
+            String parameter = arg.substring(arg.indexOf(defStr) + defStr.length(), arg.indexOf(eqStr));
+            if(parameter == null || parameterMap.get(parameter) == null) {
+                continue;
+            }
+
+            String property = arg.substring(arg.indexOf(eqStr) + eqStr.length());
+            if(property == null) {
+                continue;
+            }
+
+            try {
+                setValue(parameter, property);
+            } catch (Exception e) {
+                throw new IllegalStateException("Wrong parameter settings for '" + parameter + "': " + e.getMessage());
             }
         }
     }
@@ -2363,6 +2430,11 @@ public class Properties {
      * @return a {@link java.lang.Class} object.
      */
     private static Class<?> getTargetClass(boolean initialise) {
+
+        if (TARGET_CLASS_INSTANCE != null
+                && TARGET_CLASS_INSTANCE.getCanonicalName() == null)
+            logger.error("Target : {}, Instance : {}",
+                    TARGET_CLASS, TARGET_CLASS_INSTANCE.getName());
 
         if (TARGET_CLASS_INSTANCE != null
                 && TARGET_CLASS_INSTANCE.getCanonicalName()

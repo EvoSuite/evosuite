@@ -53,6 +53,10 @@ public abstract class GenericAccessibleObject<T extends GenericAccessibleObject<
     protected GenericClass<?> owner;
 
     protected List<GenericClass<?>> typeVariables = new ArrayList<>();
+//
+//    public List<GenericClass<?>> getTypeVariables() {
+//        return typeVariables;
+//    }
 
     protected static Type getTypeFromExactReturnType(GenericArrayType returnType,
                                                      GenericArrayType type) {
@@ -351,7 +355,10 @@ public abstract class GenericAccessibleObject<T extends GenericAccessibleObject<
                     + concreteType.getTypeName());
             GenericClass<?> instantiation = concreteType.getGenericInstantiation(concreteTypes);
             logger.debug("Got instantiation for " + parameter + ": " + instantiation);
-            if (!instantiation.satisfiesBoundaries(parameter, concreteTypes)) {
+
+            Map<TypeVariable<?>, Type> ownerVariableMap = new HashMap<>();
+            ownerVariableMap.putAll(this.getOwnerClass().getTypeVariableMap());
+            if (!instantiation.satisfiesBoundaries(parameter, ownerVariableMap)) {
                 logger.info("Type parameter does not satisfy boundaries: " + parameter
                         + " " + instantiation);
                 logger.info(Arrays.asList(parameter.getBounds()).toString());

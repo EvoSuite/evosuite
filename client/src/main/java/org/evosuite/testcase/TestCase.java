@@ -487,4 +487,7 @@ public interface TestCase extends Iterable<Statement>, Cloneable, Listenable<Voi
      */
     String toCode(Map<Integer, Throwable> exceptions);
 
+    int getRandomizableParameters();
+
+    void setRandomizableParamters(int val);
 }

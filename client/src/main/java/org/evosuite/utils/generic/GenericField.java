@@ -91,7 +91,7 @@ public class GenericField extends GenericAccessibleObject<GenericField> {
 
     @Override
     public TypeVariable<?>[] getTypeParameters() {
-
+        //TODO: field can return null if it is primitive type. field != null guaranteed?
         if (field.getGenericType() instanceof TypeVariable) {
             return ArrayUtils.toArray((TypeVariable<?>) field.getGenericType());
         } else {

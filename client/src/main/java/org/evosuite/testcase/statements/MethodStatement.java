@@ -17,6 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
+//BEGIN_NOSCAN
 package org.evosuite.testcase.statements;
 
 import org.apache.commons.lang3.reflect.TypeUtils;
@@ -36,7 +37,6 @@ import org.objectweb.asm.Type;
 
 import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Parameter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -208,6 +208,7 @@ public class MethodStatement extends EntityWithParametersStatement {
     /**
      * {@inheritDoc}
      */
+    //END_NOSCAN
     @Override
     public Throwable execute(final Scope scope, PrintStream out)
             throws InvocationTargetException, IllegalArgumentException,
@@ -225,19 +226,20 @@ public class MethodStatement extends EntityWithParametersStatement {
                         InstantiationException, CodeUnderTestException {
                     Object callee_object;
                     try {
-                        java.lang.reflect.Type[] parameterTypes = method.getParameterTypes();
+                        java.lang.reflect.Type[] exactParameterTypes = method.getParameterTypes();
                         for (int i = 0; i < parameters.size(); i++) {
                             VariableReference parameterVar = parameters.get(i);
                             inputs[i] = parameterVar.getObject(scope);
                             if (inputs[i] == null && method.getMethod().getParameterTypes()[i].isPrimitive()) {
                                 throw new CodeUnderTestException(new NullPointerException());
                             }
-                            if (inputs[i] != null && !TypeUtils.isAssignable(inputs[i].getClass(), parameterTypes[i])) {
+                            //TODO: the following check can also be removed if we can find the root cause of type incompatiblity
+                            if (inputs[i] != null && !TypeUtils.isAssignable(inputs[i].getClass(), exactParameterTypes[i])) {
                                 // TODO: This used to be a check of the declared type, but the problem is that
                                 //       Generic types are not updated during execution, so this may fail:
                                 //!parameterVar.isAssignableTo(parameterTypes[i])) {
                                 throw new CodeUnderTestException(
-                                        new UncompilableCodeException("Cannot assign " + parameterVar.getVariableClass().getName() + " to " + parameterTypes[i]));
+                                        new UncompilableCodeException("Cannot assign " + parameterVar.getVariableClass().getName() + " to " + exactParameterTypes[i]));
                             }
                         }
 
@@ -271,6 +273,12 @@ public class MethodStatement extends EntityWithParametersStatement {
                         }
                     }
 
+                    // TODO: following also can be removed if we can find the root cause of the type incompatibility
+                    // This should be checked as the test code emulation of Evosuite is incomplete
+                    if(ret != null && !TypeUtils.isAssignable(ret.getClass(), retval.getType())) {
+                        throw new CodeUnderTestException(
+                                new UncompilableCodeException("variable and return value type does not match"));
+                    }
 
                     try {
                         retval.setObject(scope, ret);
@@ -297,6 +305,7 @@ public class MethodStatement extends EntityWithParametersStatement {
         }
         return exceptionThrown;
     }
+    //BEGIN_NOSCAN
 
     /**
      * {@inheritDoc}
@@ -651,13 +660,5 @@ public class MethodStatement extends EntityWithParametersStatement {
     public String getMethodName() {
         return method.getName();
     }
-
-    public List<String> obtainParameterNameListInOrder() {
-        final Parameter[] parameters = this.method.getParameters();
-        final List<String> names = new ArrayList<String>();
-        for (final Parameter p : parameters) {
-            names.add(p.getName());
-        }
-        return names;
-    }
+    //END_NOSCAN
 }

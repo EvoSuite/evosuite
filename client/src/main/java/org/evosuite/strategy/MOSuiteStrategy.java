@@ -17,6 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
+//BEGIN_NOSCAN
 package org.evosuite.strategy;
 
 import org.evosuite.ClientProcess;
@@ -37,6 +38,7 @@ import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionTracer;
 import org.evosuite.testcase.factories.RandomLengthTestFactory;
 import org.evosuite.testsuite.TestSuiteChromosome;
+import org.evosuite.testsuite.fuzzsearch.TestSuiteFuzzSearch;
 import org.evosuite.utils.ArrayUtil;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
@@ -49,6 +51,7 @@ import java.util.List;
  *
  * @author Annibale, Fitsum
  */
+//END_NOSCAN
 public class MOSuiteStrategy extends TestGenerationStrategy {
 
     @Override
@@ -95,12 +98,6 @@ public class MOSuiteStrategy extends TestGenerationStrategy {
 //		List<TestFitnessFunction> goals = getGoals(true);
         LoggingUtils.getEvoLogger().info("* " + ClientProcess.getPrettyPrintIdentifier() + "Total number of test goals for {}: {}",
                 Properties.ALGORITHM.name(), fitnessFunctions.size());
-        if (!canGenerateTestsForSUT()) {
-            LoggingUtils.getEvoLogger().info("* Found no testable methods in the target class " + Properties.TARGET_CLASS);
-            ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Goals, fitnessFunctions.size());
-
-            return new TestSuiteChromosome();
-        }
 
 //		ga.setChromosomeFactory(getChromosomeFactory(fitnessFunctions.get(0))); // FIXME: just one fitness function?
 
@@ -147,16 +144,21 @@ public class MOSuiteStrategy extends TestGenerationStrategy {
         // Newline after progress bar
         if (Properties.SHOW_PROGRESS)
             LoggingUtils.getEvoLogger().info("");
-
-        String text = " statements, best individual has fitness: ";
         LoggingUtils.getEvoLogger().info("* " + ClientProcess.getPrettyPrintIdentifier() + "Search finished after "
-                + (endTime - startTime)
-                + "s and "
-                + algorithm.getAge()
-                + " generations, "
-                + MaxStatementsStoppingCondition.getNumExecutedStatements()
-                + text
-                + testSuite.getFitness());
+                 + (endTime - startTime)
+                 + "s and "
+                 + algorithm.getAge()
+                 + " generations, "
+                 + MaxStatementsStoppingCondition.getNumExecutedStatements()
+                 + " statements, "
+                 + TestSuiteFuzzSearch.getInstance().getLastTemplateSize()
+                 + " last-template-size, "
+                 + TestSuiteFuzzSearch.getInstance().getTemplateFuzzingCalls()
+                 + " fuzzing-template-calls, "
+                 + TestSuiteFuzzSearch.getInstance().getTotalMutationCounts()
+                 + " mutations, "
+                 + " best individual has fitness: "
+                 + testSuite.getFitness());
         // Search is finished, send statistics
         sendExecutionStatistics();
 

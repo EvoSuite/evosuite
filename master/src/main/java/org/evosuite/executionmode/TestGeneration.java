@@ -17,6 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
+//BEGIN_NOSCAN
 package org.evosuite.executionmode;
 
 import org.apache.commons.cli.CommandLine;
@@ -37,6 +38,7 @@ import org.evosuite.rmi.service.ClientNodeRemote;
 import org.evosuite.runtime.util.JarPathing;
 import org.evosuite.runtime.util.JavaExecCmdUtil;
 import org.evosuite.statistics.SearchStatistics;
+import org.evosuite.testsuite.fuzzsearch.TestSuiteFuzzSearch;
 import org.evosuite.utils.ExternalProcessGroupHandler;
 import org.evosuite.utils.LoggingUtils;
 import org.slf4j.Logger;
@@ -58,11 +60,10 @@ public class TestGeneration {
         Strategy strategy = getChosenStrategy(javaOpts, line);
 
         /** Updating properties strategy */
-        Properties.STRATEGY = strategy;
-
-        if (strategy == null) {
+        if(strategy == null) {
             strategy = Strategy.MOSUITE;
         }
+        Properties.STRATEGY = strategy;
 
         List<List<TestGenerationResult>> results = new ArrayList<>();
 
@@ -210,7 +211,7 @@ public class TestGeneration {
 
         return false;
     }
-
+//END_NOSCAN
     private static List<List<TestGenerationResult>> generateTests(Properties.Strategy strategy, String target,
                                                                   List<String> args) {
 
@@ -385,7 +386,7 @@ public class TestGeneration {
                         + entry);
             }
         }
-
+        TestSuiteFuzzSearch.getInstance().setEvoFuzzParameters(cmdLine);
         /*
          * TODO: here we start the client with several properties that are set through -D. These properties are not visible to the master process (ie
          * this process), when we access the Properties file. At the moment, we only need few parameters, so we can hack them
@@ -571,7 +572,7 @@ public class TestGeneration {
 
         return results;
     }
-
+    //BEGIN_NOSCAN
     /**
      * Writes generation statistics.
      *
@@ -599,7 +600,7 @@ public class TestGeneration {
         if (!classPath.isEmpty() && !projectCP.isEmpty()) {
             classPath += File.pathSeparator;
         }
-
+        //Do not merge projectCP into CP?
         if (!projectCP.isEmpty()) {
             classPath += projectCP;
         }
@@ -659,4 +660,5 @@ public class TestGeneration {
 
         return results;
     }
+    //END_NOSCAN
 }

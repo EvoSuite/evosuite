@@ -19,12 +19,14 @@
  */
 package org.evosuite.testcase.statements;
 
+import org.apache.commons.lang3.reflect.TypeUtils;
 import org.evosuite.Properties;
 import org.evosuite.runtime.util.Inputs;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.variable.ArrayIndex;
 import org.evosuite.testcase.variable.NullReference;
 import org.evosuite.testcase.variable.VariableReference;
+import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
 import org.evosuite.utils.generic.GenericUtils;
 
@@ -186,6 +188,11 @@ public abstract class EntityWithParametersStatement extends AbstractStatement {
             throw new IllegalArgumentException("Out of range index " + numParameter + " from list of size " + parameters.size());
         }
 
+        //TODO: remove this after finding out root cause of type incompatibility (may be due to returnType vs. type of returnValue)
+        if(!TypeUtils.isAssignable(var.getType(), parameters.get(numParameter).getType())) {
+            throw new IllegalArgumentException(var.getType() + " cannot be assigned to " + parameters.get(numParameter).getType());
+        }
+
         parameters.set(numParameter, var);
     }
 
@@ -266,7 +273,18 @@ public abstract class EntityWithParametersStatement extends AbstractStatement {
         } else if (copy != null && replacement == copy.getReturnValue()) {
             test.addStatement(copy, getPosition());
         }
-        replaceParameterReference(replacement, numParameter);
+
+//        if(this.toString().contains("createMap")) {
+//            logger.debug("time to debug guava-22");
+//        }
+
+        try {
+            replaceParameterReference(replacement, numParameter);
+        }catch(IllegalArgumentException e) {
+            LoggingUtils.getEvoLogger().warn(e.getMessage());
+            return false;
+        }
+
         return true;
     }
 

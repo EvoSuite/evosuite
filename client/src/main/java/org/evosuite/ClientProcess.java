@@ -20,6 +20,7 @@
 
 package org.evosuite;
 
+import org.burningwave.core.assembler.StaticComponentContainer;
 import org.evosuite.classpath.ClassPathHacker;
 import org.evosuite.junit.writer.TestSuiteWriterUtils;
 import org.evosuite.result.TestGenerationResult;
@@ -64,9 +65,19 @@ public class ClientProcess {
      * run
      * </p>
      */
-    public void run() {
+    public void run(String[] args) {
+        boolean onThread = Properties.CLIENT_ON_THREAD;
         Properties.getInstance();
+        if(onThread && args.length > 0) {
+            Properties.getInstance().initializeProperties(args);
+        }
         setupRuntimeProperties();
+        try {
+            StaticComponentContainer.Modules.exportAllToAll();
+        }catch(Exception e) {
+            LoggingUtils.getEvoLogger().error(e.toString());
+        }
+
         JDKClassResetter.init();
         Sandbox.setCheckForInitialization(Properties.SANDBOX);
         MockFramework.enable();
@@ -177,17 +188,17 @@ public class ClientProcess {
          */
         boolean onThread = Properties.CLIENT_ON_THREAD;
 
-        if (args.length > 0) {
-            identifier = args[0];
-        } else {
+        if(onThread || args.length <= 0) {
             identifier = DEFAULT_CLIENT_NAME;
+        }else{
+            identifier = args[0];
         }
 
         try {
             LoggingUtils.getEvoLogger().info("* Starting " + getIdentifier());
             ClientProcess process = new ClientProcess();
             TimeController.resetSingleton();
-            process.run();
+            process.run(args);
             if (!onThread) {
                 /*
                  * If we we are in debug mode in which we run client on separated thread,

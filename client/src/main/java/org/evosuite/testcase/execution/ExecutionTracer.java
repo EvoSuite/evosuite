@@ -573,22 +573,22 @@ public class ExecutionTracer {
                 distance_true = distance_false == 0 ? 1.0 : 0.0;
                 break;
             case Opcodes.IF_ICMPLT:
-                // val1 >= val2?
+                // val1 < val2?
                 distance_true = val1 >= val2 ? (double) val1 - (double) val2 + 1.0 : 0.0;
                 distance_false = val1 < val2 ? (double) val2 - (double) val1 + 1.0 : 0.0;
                 break;
             case Opcodes.IF_ICMPGE:
-                // val1 < val2?
+                // val1 >= val2?
                 distance_true = val1 < val2 ? (double) val2 - (double) val1 + 1.0 : 0.0;
                 distance_false = val1 >= val2 ? (double) val1 - (double) val2 + 1.0 : 0.0;
                 break;
             case Opcodes.IF_ICMPGT:
-                // val1 <= val2?
+                // val1 > val2?
                 distance_true = val1 <= val2 ? (double) val2 - (double) val1 + 1.0 : 0.0;
                 distance_false = val1 > val2 ? (double) val1 - (double) val2 + 1.0 : 0.0;
                 break;
             case Opcodes.IF_ICMPLE:
-                // val1 > val2?
+                // val1 <= val2?
                 distance_true = val1 > val2 ? (double) val1 - (double) val2 + 1.0 : 0.0;
                 distance_false = val1 <= val2 ? (double) val2 - (double) val1 + 1.0 : 0.0;
                 break;

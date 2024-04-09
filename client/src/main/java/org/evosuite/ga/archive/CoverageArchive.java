@@ -108,7 +108,7 @@ public class CoverageArchive extends Archive {
         }
     }
 
-    private void addToArchive(TestFitnessFunction target, TestChromosome solution) {
+    public void addToArchive(TestFitnessFunction target, TestChromosome solution) {
         this.uncovered.remove(target);
         this.covered.put(target, solution);
         this.removeNonCoveredTargetOfAMethod(target);
@@ -120,8 +120,11 @@ public class CoverageArchive extends Archive {
                     "A solution with a timeout/exception result has been added to the archive. The covered goal was "
                             + target.toString());
         }
-    }
 
+        if(minimizedSuite != null) {
+            this.addSolutionToMinimizedSuite(solution, target);
+        }
+    }
     /**
      * {@inheritDoc}
      */

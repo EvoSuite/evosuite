@@ -40,6 +40,7 @@ import org.evosuite.testcase.fm.EvoInvocationListener;
 import org.evosuite.testcase.fm.MethodDescriptor;
 import org.evosuite.testcase.variable.ConstantValue;
 import org.evosuite.testcase.variable.VariableReference;
+import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.generic.GenericAccessibleObject;
 import org.evosuite.utils.generic.GenericClass;
 import org.evosuite.utils.generic.GenericClassFactory;
@@ -529,8 +530,24 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
                 return md.getMethod().getReturnType();
             }
         }
-
-        throw new AssertionError("");
+        LoggingUtils.getEvoLogger().error("Error for finding expected parameter type: " + i + ", " + mockedMethods);
+        return Object.class;
+//
+//        Object.class
+//
+//        LoggingUtils.getEvoLogger().warn("i: " + i);
+//        for (MethodDescriptor md : mockedMethods) {
+//            int[] bounds = methodParameters.get(md.getID());
+//
+//            LoggingUtils.getEvoLogger().warn("md: " + md);
+//            LoggingUtils.getEvoLogger().warn("md.getID(): " + md.getID());
+//            LoggingUtils.getEvoLogger().warn("methodParameters.get(md.getID()): " + bounds);
+//        }
+//
+//        AssertionError e = new AssertionError("");
+//        e.printStackTrace();
+//        LoggingUtils.getEvoLogger().error("should not happen error: " + i + ", " + mockedMethods);
+//        throw e;
     }
 
     //------------ override methods ---------------

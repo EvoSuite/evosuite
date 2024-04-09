@@ -140,6 +140,7 @@ public class PrimitiveExpression extends AbstractStatement {
                         scope.setObject(retval, false);
                     }
                     break;
+                    //TODO : implement other operators if necessary
                 default:
                     throw new UnsupportedOperationException("Method execute not implemented!");
             }

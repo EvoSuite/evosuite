@@ -71,6 +71,16 @@ public class TestGenerationResultBuilder {
         getInstance().fillInformationFromConfiguration(result);
         getInstance().fillInformationFromTestData(result);
         getInstance().resetTestData();
+
+        return result;
+    }
+
+
+    public static <T extends Chromosome<T>> TestGenerationResult<T> buildSuccessResult(TestSuiteChromosome testSuite) {
+        TestGenerationResult result = buildSuccessResult();
+        if(Properties.SAVE_SOLUTION_IN_RESULTBUILDER) {
+            result.setTestSuite(testSuite);
+        }
         return result;
     }
 

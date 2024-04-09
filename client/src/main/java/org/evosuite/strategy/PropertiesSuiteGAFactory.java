@@ -17,6 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
+//BEGIN_NOSCAN
 package org.evosuite.strategy;
 
 import org.evosuite.Properties;
@@ -32,6 +33,7 @@ import org.evosuite.ga.FitnessReplacementFunction;
 import org.evosuite.ga.archive.ArchiveTestChromosomeFactory;
 import org.evosuite.ga.metaheuristics.*;
 import org.evosuite.ga.metaheuristics.mosa.DynaMOSA;
+import org.evosuite.ga.metaheuristics.mosa.EvoFuzz;
 import org.evosuite.ga.metaheuristics.mosa.MOSA;
 import org.evosuite.ga.metaheuristics.mosa.MOSATestSuiteAdapter;
 import org.evosuite.ga.metaheuristics.mulambda.MuLambdaEA;
@@ -111,7 +113,7 @@ public class PropertiesSuiteGAFactory
                 ? new StatementsPopulationLimit<>()
                 : super.getPopulationLimit();
     }
-
+    //END_NOSCAN
     protected GeneticAlgorithm<TestSuiteChromosome> getGeneticAlgorithm(ChromosomeFactory<TestSuiteChromosome> factory) {
         switch (Properties.ALGORITHM) {
             case ONE_PLUS_ONE_EA:
@@ -225,12 +227,22 @@ public class PropertiesSuiteGAFactory
                     logger.info("Using a default factory that creates tests with variable length");
                     return new LIPSTestSuiteAdapter(new LIPS(new RandomLengthTestFactory()));
                 }
+            case EVOFUZZ:
+                logger.info("Chosen search algorithm: EvoFuzz");
+                if (factory instanceof TestSuiteChromosomeFactory) {
+                    final TestSuiteChromosomeFactory tscf = (TestSuiteChromosomeFactory) factory;
+                    return new MOSATestSuiteAdapter(new EvoFuzz(tscf.getTestChromosomeFactory()));
+                } else {
+                    logger.info("No specific factory for test cases given...");
+                    logger.info("Using a default factory that creates tests with variable length");
+                    return new MOSATestSuiteAdapter(new EvoFuzz(new RandomLengthTestFactory()));
+                }
             default:
                 logger.info("Chosen search algorithm: StandardGA");
                 return new StandardGA<>(factory);
         }
     }
-
+    //BEGIN_NOSCAN
     protected SelectionFunction<TestSuiteChromosome> getSelectionFunction() {
         switch (Properties.SELECTION_FUNCTION) {
             case ROULETTEWHEEL:
@@ -382,6 +394,5 @@ public class PropertiesSuiteGAFactory
         ga.addListener(new ResourceController<>());
         return ga;
     }
-
-
+    //END_NOSCAN
 }

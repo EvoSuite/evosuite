@@ -17,14 +17,15 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
+//BEGIN_NOSCAN
 package org.evosuite.testcase;
 
 import com.googlecode.gentyref.CaptureType;
 import com.googlecode.gentyref.GenericTypeReflector;
 import dk.brics.automaton.RegExp;
+import org.apache.commons.lang3.CharUtils;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.TypeUtils;
 import org.evosuite.PackageInfo;
 import org.evosuite.Properties;
@@ -37,12 +38,8 @@ import org.evosuite.runtime.mock.EvoSuiteMock;
 import org.evosuite.testcase.fm.MethodDescriptor;
 import org.evosuite.testcase.statements.*;
 import org.evosuite.testcase.statements.environment.EnvironmentDataStatement;
-import org.evosuite.testcase.variable.ArrayIndex;
-import org.evosuite.testcase.variable.ConstantValue;
-import org.evosuite.testcase.variable.FieldReference;
-import org.evosuite.testcase.variable.VariableReference;
-import org.evosuite.testcase.variable.name.VariableNameStrategy;
-import org.evosuite.testcase.variable.name.VariableNameStrategyFactory;
+import org.evosuite.testcase.variable.*;
+import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.NumberFormatter;
 import org.evosuite.utils.StringUtil;
 import org.evosuite.utils.generic.*;
@@ -70,20 +67,11 @@ public class TestCodeVisitor extends TestVisitor {
 
     protected TestCase test = null;
 
+    protected final Map<VariableReference, String> variableNames = new HashMap<>();
+
     protected final Map<Class<?>, String> classNames = new HashMap<>();
 
-    protected VariableNameStrategy variableNameStrategy = VariableNameStrategyFactory.get();
-
-    /**
-     * Dictionaries for naming information
-     */
-    /**
-     * Dictionaries for naming information
-     */
-    protected Map<VariableReference, String> methodNames = new HashMap<>();
-    protected Map<VariableReference, String> argumentNames = new HashMap<>();
-
-    private Map<String, Map<VariableReference, String>> information = new HashMap<>();
+    protected final Map<String, Integer> nextIndices = new HashMap<>();
 
     /**
      * <p>
@@ -391,16 +379,65 @@ public class TestCodeVisitor extends TestVisitor {
                 result += "[" + index + "]";
             }
             return result;
-        } else {
-            if(VariableNameStrategyFactory.gatherInformation()){
-                information.put("MethodNames", methodNames);
-                information.put("ArgumentNames", argumentNames);
-                variableNameStrategy.addVariableInformation(information);
-            }
-            return variableNameStrategy.getNameForVariable(var);
-        }
-    }
+        } else if (var instanceof ArrayReference) {
+            String className = var.getSimpleClassName();
+            // int num = 0;
+            // for (VariableReference otherVar : variableNames.keySet()) {
+            // if (!otherVar.equals(var)
+            // && otherVar.getVariableClass().equals(var.getVariableClass()))
+            // num++;
+            // }
+            String variableName = className.substring(0, 1).toLowerCase()
+                    + className.substring(1) + "Array";
+            variableName = variableName.replace('.', '_').replace("[]", "");
+            if (!variableNames.containsKey(var)) {
+                if (!nextIndices.containsKey(variableName)) {
+                    nextIndices.put(variableName, 0);
+                }
 
+                int index = nextIndices.get(variableName);
+                nextIndices.put(variableName, index + 1);
+
+                variableName += index;
+
+                variableNames.put(var, variableName);
+            }
+
+        } else if (!variableNames.containsKey(var)) {
+            String className = var.getSimpleClassName();
+            // int num = 0;
+            // for (VariableReference otherVar : variableNames.keySet()) {
+            // if (otherVar.getVariableClass().equals(var.getVariableClass()))
+            // num++;
+            // }
+            String variableName = className.substring(0, 1).toLowerCase()
+                    + className.substring(1);
+            if (variableName.contains("[]")) {
+                variableName = variableName.replace("[]", "Array");
+            }
+            variableName = variableName.replace(".", "_");
+
+            // Need a way to check for exact types, not assignable
+            // int numObjectsOfType = test != null ? test.getObjects(var.getType(),
+            //                                                      test.size()).size() : 2;
+            // if (numObjectsOfType > 1 || className.equals(variableName)) {
+            if (CharUtils.isAsciiNumeric(variableName.charAt(variableName.length() - 1)))
+                variableName += "_";
+
+            if (!nextIndices.containsKey(variableName)) {
+                nextIndices.put(variableName, 0);
+            }
+
+            int index = nextIndices.get(variableName);
+            nextIndices.put(variableName, index + 1);
+
+            variableName += index;
+            // }
+
+            variableNames.put(var, variableName);
+        }
+        return variableNames.get(var);
+    }
 
     /**
      * Retrieve the names of all known variables
@@ -408,7 +445,7 @@ public class TestCodeVisitor extends TestVisitor {
      * @return
      */
     public Collection<String> getVariableNames() {
-        return variableNameStrategy.getVariableNames();
+        return variableNames.values();
     }
 
     /**
@@ -433,7 +470,8 @@ public class TestCodeVisitor extends TestVisitor {
     public void visitTestCase(TestCase test) {
         this.test = test;
         this.testCode = "";
-        this.variableNameStrategy = VariableNameStrategyFactory.get();
+        this.variableNames.clear();
+        this.nextIndices.clear();
     }
 
     /**
@@ -1139,7 +1177,7 @@ public class TestCodeVisitor extends TestVisitor {
         return parameterString;
     }
 
-
+    //END_NOSCAN
     @Override
     public void visitFunctionalMockStatement(FunctionalMockStatement st) {
 
@@ -1152,7 +1190,7 @@ public class TestCodeVisitor extends TestVisitor {
 //			return;
 //		}
 
-        String result = "";
+        StringBuffer result = new StringBuffer();
 
         //by construction, we should avoid cases like:
         //  Object obj = mock(Foo.class);
@@ -1166,13 +1204,11 @@ public class TestCodeVisitor extends TestVisitor {
 
         //Foo foo = mock(Foo.class);
         String variableType = getClassName(retval);
-        result += variableType + " " + getVariableName(retval);
-
-        result += " = ";
+        result.append(variableType).append(" ").append(getVariableName(retval)).append(" = ");
         if (!variableType.equals(rawClassName)) {
             //this can happen in case of generics, eg
             //Foo<String> foo = (Foo<String>) mock(Foo.class);
-            result += "(" + variableType + ") ";
+            result.append("(").append(variableType).append(") ");
         }
 
 			/*
@@ -1196,9 +1232,9 @@ public class TestCodeVisitor extends TestVisitor {
         }
 
         if (st instanceof FunctionalMockForAbstractClassStatement) {
-            result += "mock(" + rawClassName + ".class, CALLS_REAL_METHODS);" + NEWLINE;
+            result.append("mock(").append(rawClassName).append(".class, CALLS_REAL_METHODS);").append(NEWLINE);
         } else {
-            result += "mock(" + rawClassName + ".class, new " + ViolatedAssumptionAnswer.class.getSimpleName() + "());" + NEWLINE;
+            result.append("mock(").append(rawClassName).append(".class, new ").append(ViolatedAssumptionAnswer.class.getSimpleName()).append("());").append(NEWLINE);
         }
 
         //when(...).thenReturn(...)
@@ -1208,6 +1244,9 @@ public class TestCodeVisitor extends TestVisitor {
             }
 
             List<VariableReference> params = st.getParameters(md.getID());
+            if(params == null) {
+                continue;
+            }
 
             GenericClass<?> returnType = md.getReturnClass();
             // Class<?> returnType = md.getMethod().getReturnType();
@@ -1243,13 +1282,14 @@ public class TestCodeVisitor extends TestVisitor {
             // tests we import MockitoExtension class
             //parameter_string = "doReturn(" + parameter_string.replaceAll(", ", ").doReturn(") + ")";
             //result += parameter_string+".when("+getVariableName(retval)+")";
-            result += "doReturn(" + parameter_string + ").when(" + getVariableName(retval) + ")";
-            result += "." + md.getMethodName() + "(" + md.getInputParameterMatchers() + ");";
-            result += NEWLINE;
+            result.append("doReturn(").append(parameter_string).append(").when(").append(getVariableName(retval)).append(")");
+            result.append(".").append(md.getMethodName()).append("(").append(md.getInputParameterMatchers()).append(");").append(NEWLINE);
+
         }
 
         testCode += result;
     }
+    //BEGIN_NOSCAN
 
     private String getParameterStringForFMthatReturnPrimitive(Class<?> returnType, List<VariableReference> parameters) {
 
@@ -1344,18 +1384,17 @@ public class TestCodeVisitor extends TestVisitor {
         Throwable exception = getException(statement);
         List<VariableReference> parameters = statement.getParameterReferences();
         boolean isGenericMethod = method.hasTypeParameters();
+
         if (exception != null && !statement.isDeclaredException(exception)) {
             result += "// Undeclared exception!" + NEWLINE;
         }
+
         boolean lastStatement = statement.getPosition() == statement.getTestCase().size() - 1;
         boolean unused = !Properties.ASSERTIONS ? exception != null : test != null
                 && !test.hasReferences(retval);
 
         if (!retval.isVoid() && retval.getAdditionalVariableReference() == null
                 && !unused) {
-            if (!this.methodNames.containsKey(retval) && VariableNameStrategyFactory.gatherInformation()) {
-                this.methodNames.put(retval, method.getName());
-            }
             if (exception != null) {
                 if (!lastStatement || statement.hasAssertions())
                     result += getClassName(retval) + " " + getVariableName(retval)
@@ -1368,22 +1407,7 @@ public class TestCodeVisitor extends TestVisitor {
             result += "try { " + NEWLINE + "  ";
         }
 
-        if (!this.argumentNames.containsKey(retval) && VariableNameStrategyFactory.gatherInformation()) {
-            final List<String> parameterNames = (List<String>)statement.obtainParameterNameListInOrder();
-            int idx = 0;
-            for (final VariableReference param : parameters) {
-                this.argumentNames.put(param, parameterNames.get(idx));
-                ++idx;
-            }
-        }
-        if (retval.isVoid() && VariableNameStrategyFactory.gatherInformation()) {
-            final List<String> parameterNames = (List<String>)statement.obtainParameterNameListInOrder();
-            int idx = 0;
-            for (final VariableReference param : parameters) {
-                this.argumentNames.put(param, parameterNames.get(idx));
-                ++idx;
-            }
-        }
+
         String parameter_string = getParameterString(method.getParameterTypes(),
                 parameters, isGenericMethod,
                 method.isOverloaded(parameters), 0);
@@ -1494,7 +1518,11 @@ public class TestCodeVisitor extends TestVisitor {
                 result += " catch(" + getClassName(Throwable.class) + " e) {" + NEWLINE;
             }
         } else {
-            result += " catch(" + getClassName(ex) + " e) {" + NEWLINE;
+            String className = getClassName(ex);
+            if(className.contains("Throwable.MockitoMock")) {
+                className = getClassName(Throwable.class);
+            }
+            result += " catch(" + className + " e) {" + NEWLINE;
         }
 
         // adding the message of the exception
@@ -1539,6 +1567,11 @@ public class TestCodeVisitor extends TestVisitor {
     }
 
     private String getSourceClassName(Throwable exception) {
+        if(exception.getStackTrace() == null) {
+            LoggingUtils.getEvoLogger().error("exception.getStackTrace() is null, exception: " + exception);
+            return null;
+        }
+
         if (exception.getStackTrace().length == 0) {
             return null;
         }
@@ -1612,14 +1645,6 @@ public class TestCodeVisitor extends TestVisitor {
                 && !Modifier.isStatic(constructor.getConstructor().getDeclaringClass().getModifiers());
 
         List<VariableReference> parameters = statement.getParameterReferences();
-        if (!this.argumentNames.containsKey(retval) && VariableNameStrategyFactory.gatherInformation()) {
-            final List<String> parameterNames = statement.obtainParameterNameListInOrder();
-            int idx = 0;
-            for (final VariableReference param : parameters) {
-                this.argumentNames.put(param, parameterNames.get(idx));
-                ++idx;
-            }
-        }
         int startPos = 0;
         if (isNonStaticMemberClass) {
             startPos = 1;
@@ -1826,6 +1851,6 @@ public class TestCodeVisitor extends TestVisitor {
         }
         super.visitStatement(statement);
     }
-
+    //END_NOSCAN
 
 }

@@ -198,6 +198,7 @@ public class JobHandler extends Thread {
     }
 
     private String configureAndGetClasspath() {
+        //Specify project cp here?
         String classpath = System.getProperty("java.class.path");
         classpath += File.pathSeparator + executor.getProjectClassPath();
 

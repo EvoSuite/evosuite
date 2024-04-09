@@ -17,6 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
+//BEGIN_NOSCAN
 package org.evosuite.setup;
 
 import org.evosuite.Properties;
@@ -81,6 +82,8 @@ public class TestCluster {
 
     /**
      * Cached information about how to generate types
+     * NOTE: this is different from generators as noted in the comment of function removeUnusableGenerators
+     * generatorCache is the actual generators of types, i.e., has instantiated generators for types
      */
     private final static Map<GenericClass<?>, Set<GenericAccessibleObject<?>>> generatorCache = new LinkedHashMap<>();
 
@@ -391,6 +394,7 @@ public class TestCluster {
      * @param clazz
      * @throws ConstructionFailedException
      */
+    //END_NOSCAN
     private void cacheGenerators(GenericClass<?> clazz) throws ConstructionFailedException {
 
         if (generatorCache.containsKey(clazz)) {
@@ -421,8 +425,9 @@ public class TestCluster {
                     for (GenericAccessibleObject<?> generator : generators.get(generatorClazz)) {
                         logger.debug("5. current instantiated generator: {}", generator);
                         try {
-
-                            if ((generator.isMethod() || generator.isField()) && clazz.isParameterizedType() && GenericClassUtils.isMissingTypeParameters(generator.getGenericGeneratedType())) {
+                            if ((generator.isMethod() || generator.isField())
+                                    && clazz.isParameterizedType()
+                                    && GenericClassUtils.isMissingTypeParameters(generator.getGenericGeneratedType())) {
                                 logger.debug("No type parameters present in generator for {}: {}", clazz, generator);
                                 continue;
                             }
@@ -456,17 +461,25 @@ public class TestCluster {
                                  * Here X and X are two different type variables, and these need to be matched here!
                                  *
                                  */
+//                                if(generatorClazz.toString().contains("Map") && newGenerator.toString().contains("createMap")) {
+//                                    logger.debug("time to debug");
+//                                }
                                 newGenerator = newGenerator.getGenericInstantiationFromReturnValue(clazz);
                                 hadTypeParameters = true;
                                 // newGenerator = newGenerator.getGenericInstantiation(clazz);
                             }
 
                             logger.debug("Current generator: {}", newGenerator);
-                            if ((!hadTypeParameters && generatorClazz.equals(clazz))
-                                    || clazz.isAssignableFrom(newGenerator.getGeneratedType())) {
-                                logger.debug("Got new generator: {} which generated: {}",
-                                        newGenerator, newGenerator.getGeneratedClass());
+                            if ((!hadTypeParameters && generatorClazz.equals(clazz)) || clazz.isAssignableFrom(newGenerator.getGeneratedType())) {
+                                logger.debug("Got new generator: {} which generated: {}", newGenerator, newGenerator.getGeneratedClass());
                                 logger.debug("{} vs {}", (!hadTypeParameters && generatorClazz.equals(clazz)), clazz.isAssignableFrom(newGenerator.getGeneratedType()));
+                                if(Properties.DEBUG && !clazz.hasTypeVariables()) {
+//                                    logger.warn("{} has no type variables", clazz);
+                                    if(!newGenerator.getGeneratedClass().canBeInstantiatedTo(clazz)) {
+                                        logger.error("{} cannot be assigned to {}", newGenerator.getGeneratedClass(), clazz);
+                                        throw new Error("should not happen");
+                                    }
+                                }
                                 targetGenerators.add(newGenerator);
 
                             } else if (logger.isDebugEnabled()) {
@@ -511,8 +524,9 @@ public class TestCluster {
      * @param target
      */
     public void clearGeneratorCache(GenericClass<?> target) {
-        generatorCache.clear();
+        generatorCache.remove(target);
     }
+    //BEGIN_NOSCAN
 
     /**
      * Get modifiers for instantiation of a generic type
@@ -533,6 +547,9 @@ public class TestCluster {
                 if (entry.getKey().getWithWildcardTypes().isGenericSuperTypeOf(clazz)) {
                     logger.debug(entry.getKey() + " can be instantiated to " + clazz);
                     for (GenericAccessibleObject<?> modifier : entry.getValue()) {
+//                        if(modifier.toString().contains("createMap")) {
+//                            logger.debug("time to debug guava-22");
+//                        }
                         try {
                             GenericAccessibleObject<?> newModifier = modifier.getGenericInstantiation(clazz);
                             logger.debug("Adding new modifier: " + newModifier);
@@ -657,7 +674,11 @@ public class TestCluster {
 
     public GenericAccessibleObject<?> getRandomCallFor(GenericClass<?> clazz, TestCase test, int position)
             throws ConstructionFailedException {
-
+//        boolean dbg = false;
+//        if(clazz.toString().contains("ElementOrder")) {
+//            logger.debug("time to debug the GUAVA-22");
+//            dbg = true;
+//        }
         Set<GenericAccessibleObject<?>> calls = getCallsFor(clazz, true);
 
         if (calls.isEmpty()) {
@@ -666,10 +687,31 @@ public class TestCluster {
         logger.debug("Possible modifiers for " + clazz + ": " + calls);
 
         GenericAccessibleObject<?> call = Randomness.choice(calls);
+//        if(dbg) {
+//            for (GenericAccessibleObject<?> _call : calls) {
+//                if (_call.toString().contains("createMap")) {
+//                    call = _call;
+//
+//                    Type t = clazz.getTypeVariableMap().values().iterator().next();
+//                    Type callT = call.getTypeVariables().get(0).getType();
+//                    if(!TypeUtils.isAssignable(callT, t)) {
+//                        logger.debug("time to debug");
+//                    }
+//                    break;
+//                }
+//            }
+//        }
+//        GenericAccessibleObject<?> call = Randomness.choice(calls);
         if (call.hasTypeParameters()) {
             logger.debug("Modifier has type parameters");
+//            if(call.toString().contains("createMap")) {
+//                logger.debug("time to debug GUAVA-22");
+//            }
             call = call.getGenericInstantiation(clazz);
         }
+//        if(dbg) {
+//            logger.debug("time to debug");
+//        }
         return call;
     }
 
@@ -1004,7 +1046,7 @@ public class TestCluster {
         }
         return generator;
     }
-
+    //END_NOSCAN
 
     /**
      * Randomly select one generator
@@ -1069,8 +1111,15 @@ public class TestCluster {
                     candidates = set;
                 }
             }
+            Set<GenericAccessibleObject<?>> candidatesWithNoTypeParameters = candidates.stream().
+                    filter(p -> !p.hasTypeParameters()).
+                    collect(Collectors.toCollection(LinkedHashSet::new));
 
-            generator = Randomness.choice(candidates);
+            if(!candidatesWithNoTypeParameters.isEmpty()) {
+                generator = Randomness.choice(candidatesWithNoTypeParameters);
+            }else{
+                generator = Randomness.choice(candidates);
+            }
             logger.debug("Chosen generator: " + generator);
         }
 
@@ -1078,6 +1127,10 @@ public class TestCluster {
             logger.debug("Owner class has a wildcard: " + clazz.getTypeName());
             generator = generator.copyWithNewOwner(generator.getOwnerClass().getGenericInstantiation());
         }
+
+//        if(generator.toString().contains("createMap")) {
+//            logger.debug("time to debug");
+//        }
 
         if (generator.hasTypeParameters()) {
             logger.debug("Generator has a type parameter: " + generator);
@@ -1090,6 +1143,7 @@ public class TestCluster {
         return generator;
 
     }
+    //BEGIN_NOSCAN
 
     /**
      * Randomly select a generator for an Object.class instance
@@ -1251,6 +1305,9 @@ public class TestCluster {
         }
 
         GenericAccessibleObject<?> choice = Properties.SORT_CALLS ? ListUtil.selectRankBiased(candidateTestMethods) : Randomness.choice(candidateTestMethods);
+//        if(choice.toString().contains("DefaultCoreFactory.create(java.lang.Class")) {
+//            logger.debug("time to debug the SPOON-65");
+//        }
         logger.debug("Chosen call: " + choice);
         if (choice.getOwnerClass().hasWildcardOrTypeVariables()) {
             GenericClass<?> concreteClass = choice.getOwnerClass().getGenericInstantiation();
@@ -1398,5 +1455,5 @@ public class TestCluster {
         }
         return result.toString();
     }
-
+    //END_NOSCAN
 }

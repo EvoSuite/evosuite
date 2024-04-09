@@ -17,6 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
+//BEGIN_NOSCAN
 package org.evosuite;
 
 import org.evosuite.Properties.StoppingCondition;
@@ -216,8 +217,12 @@ public class TimeController {
             return Properties.GLOBAL_TIMEOUT;
         }
     }
-
+//END_NOSCAN
     public int calculateForHowLongClientWillRunInSeconds() {
+        if(Properties.DEBUG) {
+            return Integer.MAX_VALUE / 1000;
+        }
+
         int time = Properties.EXTRA_TIMEOUT;
 
         time += Properties.INITIALIZATION_TIMEOUT;
@@ -243,7 +248,7 @@ public class TimeController {
 
         return time;
     }
-
+//BEGIN_NOSCAN
     /**
      * Is there time to execute a test case?
      * This not only depends on which phase we are in, but
@@ -318,4 +323,5 @@ public class TimeController {
     private boolean currentPhaseHasTimeout() {
         return phaseTimeouts.containsKey(state);
     }
+    //END_NOSCAN
 }
