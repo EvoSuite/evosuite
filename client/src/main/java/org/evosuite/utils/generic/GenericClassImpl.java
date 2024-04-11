@@ -363,8 +363,9 @@ public class GenericClassImpl implements Serializable, GenericClass<GenericClass
         if (getClass() != obj.getClass())
             return false;
         GenericClassImpl other = (GenericClassImpl) obj;
+        return getType().equals(other.getType());
         //return type.equals(other.type);
-        return getTypeName().equals(other.getTypeName());
+//        return getTypeName().equals(other.getTypeName());
 		/*
 		if (raw_class == null) {
 			if (other.raw_class != null)
