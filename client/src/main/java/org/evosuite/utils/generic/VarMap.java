@@ -21,6 +21,7 @@
 package org.evosuite.utils.generic;
 
 import org.evosuite.runtime.util.Inputs;
+import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.ParameterizedTypeImpl;
 
 import java.lang.reflect.*;
@@ -78,7 +79,10 @@ public class VarMap {
                 //FIXME: (wrong) tmp workaround, as WildcardTypeImpl does crash EvoSuite
                 //return Object.class;
                 // TODO: Bounds should be mapped, but might be recursive so we just use unbounded for now
-                return new WildcardTypeImpl(new Type[]{Object.class}, new Type[]{});
+//                return new WildcardTypeImpl(new Type[]{Object.class}, new Type[]{});
+                // May be a infinite recursive call?
+                LoggingUtils.getEvoLogger().warn("No variable mapping for type '%s', map the type to itself", type);
+                return type;
             }
         } else if (type instanceof ParameterizedType) {
             ParameterizedType pType = (ParameterizedType) type;
