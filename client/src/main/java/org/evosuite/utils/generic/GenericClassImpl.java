@@ -97,7 +97,8 @@ public class GenericClassImpl implements Serializable, GenericClass<GenericClass
                 return erase(captureType.getUpperBounds()[0]);
         } else {
             // TODO at least support CaptureType here
-            throw new RuntimeException("not supported: " + type.getClass());
+            logger.debug("not supported: {}", type == null? "null(=type)" : type.getClass());
+            return Object.class;
         }
     }
 
@@ -818,8 +819,11 @@ public class GenericClassImpl implements Serializable, GenericClass<GenericClass
     }
 
     public GenericClassImpl getSuperClass() {
-        return new GenericClassImpl(
-                GenericTypeReflector.getExactSuperType(type, rawClass.getSuperclass()));
+        Type superType = GenericTypeReflector.getExactSuperType(type, rawClass.getSuperclass());
+        if(superType == null) {
+            superType = GenericTypeReflector.getExactSuperType(type, (Class<?>)rawClass.getGenericSuperclass());
+        }
+        return superType != null ? new GenericClassImpl(superType) : new GenericClassImpl(this);
     }
 
     /**
