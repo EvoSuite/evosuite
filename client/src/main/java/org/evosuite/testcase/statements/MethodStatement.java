@@ -225,19 +225,19 @@ public class MethodStatement extends EntityWithParametersStatement {
                         InstantiationException, CodeUnderTestException {
                     Object callee_object;
                     try {
-                        java.lang.reflect.Type[] parameterTypes = method.getParameterTypes();
+                        java.lang.reflect.Type[] exactParameterTypes = method.getParameterTypes();
                         for (int i = 0; i < parameters.size(); i++) {
                             VariableReference parameterVar = parameters.get(i);
                             inputs[i] = parameterVar.getObject(scope);
                             if (inputs[i] == null && method.getMethod().getParameterTypes()[i].isPrimitive()) {
                                 throw new CodeUnderTestException(new NullPointerException());
                             }
-                            if (inputs[i] != null && !TypeUtils.isAssignable(inputs[i].getClass(), parameterTypes[i])) {
+                            if (inputs[i] != null && !TypeUtils.isAssignable(inputs[i].getClass(), exactParameterTypes[i])) {
                                 // TODO: This used to be a check of the declared type, but the problem is that
                                 //       Generic types are not updated during execution, so this may fail:
                                 //!parameterVar.isAssignableTo(parameterTypes[i])) {
                                 throw new CodeUnderTestException(
-                                        new UncompilableCodeException("Cannot assign " + parameterVar.getVariableClass().getName() + " to " + parameterTypes[i]));
+                                        new UncompilableCodeException("Cannot assign " + parameterVar.getVariableClass().getName() + " to " + exactParameterTypes[i]));
                             }
                         }
 
