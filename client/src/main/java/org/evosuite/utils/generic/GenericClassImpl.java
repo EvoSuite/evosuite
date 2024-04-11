@@ -851,49 +851,49 @@ public class GenericClassImpl implements Serializable, GenericClass<GenericClass
     private Map<TypeVariable<?>, Type> typeVariableMap = null;
 
     public Map<TypeVariable<?>, Type> getTypeVariableMap() {
-        if (typeVariableMap != null)
-            return typeVariableMap;
-        //logger.debug("Getting type variable map for " + type);
-        List<TypeVariable<?>> typeVariables = getTypeVariables();
-        List<Type> types = getParameterTypes();
-        Map<TypeVariable<?>, Type> typeMap = new LinkedHashMap<>();
-        try {
-            if (rawClass.getSuperclass() != null
-                    && !rawClass.isAnonymousClass()
-                    && !rawClass.getSuperclass().isAnonymousClass()
-                    && !(hasOwnerType() && getOwnerType().getRawClass().isAnonymousClass())) {
-                GenericClass<?> superClass = getSuperClass();
-                //logger.debug("Superclass of " + type + ": " + superClass);
-                Map<TypeVariable<?>, Type> superMap = superClass.getTypeVariableMap();
-                //logger.debug("Super map after " + superClass + ": " + superMap);
-                typeMap.putAll(superMap);
+        if (typeVariableMap == null) {
+            //logger.debug("Getting type variable map for " + type);
+            List<TypeVariable<?>> typeVariables = getTypeVariables();
+            List<Type> types = getParameterTypes();
+            Map<TypeVariable<?>, Type> typeMap = new LinkedHashMap<>();
+            try {
+                if (rawClass.getSuperclass() != null
+                        && !rawClass.isAnonymousClass()
+                        && !rawClass.getSuperclass().isAnonymousClass()
+                        && !(hasOwnerType() && getOwnerType().getRawClass().isAnonymousClass())) {
+                    GenericClass<?> superClass = getSuperClass();
+                    //logger.debug("Superclass of " + type + ": " + superClass);
+                    Map<TypeVariable<?>, Type> superMap = superClass.getTypeVariableMap();
+                    //logger.debug("Super map after " + superClass + ": " + superMap);
+                    typeMap.putAll(superMap);
+                }
+                for (Class<?> interFace : rawClass.getInterfaces()) {
+                    GenericClass<?> interFaceClass = new GenericClassImpl(interFace);
+                    //logger.debug("Interface of " + type + ": " + interFaceClass);
+                    Map<TypeVariable<?>, Type> superMap = interFaceClass.getTypeVariableMap();
+                    //logger.debug("Super map after " + superClass + ": " + superMap);
+                    typeMap.putAll(superMap);
+                }
+                if (isTypeVariable()) {
+                    for (Type boundType : ((TypeVariable<?>) type).getBounds()) {
+                        GenericClass<?> boundClass = new GenericClassImpl(boundType);
+                        typeMap.putAll(boundClass.getTypeVariableMap());
+                    }
+                }
+
+            } catch (Exception e) {
+                logger.debug("Exception while getting type map: " + e);
             }
-            for (Class<?> interFace : rawClass.getInterfaces()) {
-                GenericClass<?> interFaceClass = new GenericClassImpl(interFace);
-                //logger.debug("Interface of " + type + ": " + interFaceClass);
-                Map<TypeVariable<?>, Type> superMap = interFaceClass.getTypeVariableMap();
-                //logger.debug("Super map after " + superClass + ": " + superMap);
-                typeMap.putAll(superMap);
-            }
-            if (isTypeVariable()) {
-                for (Type boundType : ((TypeVariable<?>) type).getBounds()) {
-                    GenericClass<?> boundClass = new GenericClassImpl(boundType);
-                    typeMap.putAll(boundClass.getTypeVariableMap());
+            for (int i = 0; i < typeVariables.size(); i++) {
+                if (types.get(i) != typeVariables.get(i)) {
+                    typeMap.put(typeVariables.get(i), types.get(i));
                 }
             }
 
-        } catch (Exception e) {
-            logger.debug("Exception while getting type map: " + e);
-        }
-        for (int i = 0; i < typeVariables.size(); i++) {
-            if (types.get(i) != typeVariables.get(i)) {
-                typeMap.put(typeVariables.get(i), types.get(i));
-            }
-        }
-
         //logger.debug("Type map: " + typeMap);
-        typeVariableMap = typeMap;
-        return typeMap;
+            typeVariableMap = typeMap;
+        }
+        return new LinkedHashMap<>(typeVariableMap);
     }
 
     /**
