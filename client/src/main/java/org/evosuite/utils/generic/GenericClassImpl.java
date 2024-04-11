@@ -222,7 +222,11 @@ public class GenericClassImpl implements Serializable, GenericClass<GenericClass
      * @param otherType is the class we want to generate
      * @return
      */
-    public boolean canBeInstantiatedTo(GenericClass<?> otherType) {
+    public boolean canBeInstantiatedTo(GenericClass<?> otherType, int recursionLevel) {
+
+        if(recursionLevel > 100) {
+            LoggingUtils.getEvoLogger().warn("recursion level exceeds " + recursionLevel + ", stack overflow?");
+        }
 
         if (isPrimitive() && otherType.isWrapperType())
             return false;
@@ -255,7 +259,7 @@ public class GenericClassImpl implements Serializable, GenericClass<GenericClass
                 if (equals(instantiation)) {
                     return !hasWildcardOrTypeVariables();
                 }
-                return instantiation.canBeInstantiatedTo(otherType);
+                return instantiation.canBeInstantiatedTo(otherType, recursionLevel + 1);
             } catch (ConstructionFailedException e) {
                 logger.debug("Failed to instantiate " + this);
                 return false;
@@ -263,6 +267,10 @@ public class GenericClassImpl implements Serializable, GenericClass<GenericClass
         }
 
         return false;
+    }
+
+    public boolean canBeInstantiatedTo(GenericClass<?> otherType) {
+        return canBeInstantiatedTo(otherType, 0);
     }
 
     /**
