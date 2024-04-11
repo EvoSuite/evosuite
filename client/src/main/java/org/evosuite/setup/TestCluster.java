@@ -511,7 +511,7 @@ public class TestCluster {
      * @param target
      */
     public void clearGeneratorCache(GenericClass<?> target) {
-        generatorCache.clear();
+        generatorCache.remove(target);
     }
 
     /**
