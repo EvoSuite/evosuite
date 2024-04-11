@@ -186,6 +186,11 @@ public abstract class EntityWithParametersStatement extends AbstractStatement {
             throw new IllegalArgumentException("Out of range index " + numParameter + " from list of size " + parameters.size());
         }
 
+//        if(!TypeUtils.isAssignable(var.getType(), this.getAccessibleObject().getGenericParameterTypes()[numParameter])) {
+        if(!TypeUtils.isAssignable(var.getType(), parameters.get(numParameter).getType())) {
+            throw new IllegalArgumentException(var.getType() + " cannot be assigned to " + parameters.get(numParameter).getType());
+        }
+
         parameters.set(numParameter, var);
     }
 
