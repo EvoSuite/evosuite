@@ -22,6 +22,7 @@ package org.evosuite.testcase.statements;
 import org.apache.commons.lang3.reflect.TypeUtils;
 import org.evosuite.Properties;
 import org.evosuite.runtime.util.Inputs;
+import org.evosuite.setup.TestClusterUtils;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.variable.ArrayIndex;
 import org.evosuite.testcase.variable.FieldReference;
@@ -29,9 +30,11 @@ import org.evosuite.testcase.variable.NullReference;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
+import org.evosuite.utils.generic.GenericField;
 import org.evosuite.utils.generic.GenericUtils;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.*;
 
@@ -253,21 +256,35 @@ public abstract class EntityWithParametersStatement extends AbstractStatement {
             }
         }
 
-
         // If there are fewer objects than parameters of that type,
         // we consider adding an instance
-        boolean notAssignableFieldParameter = false; // parameter not is processed appropriately for now
         if (getNumParametersOfType(parameter.getVariableClass()) + 1 > objects.size()) {
             Statement originalStatement = test.getStatement(parameter.getStPosition());
-            copy = originalStatement.clone(test);
-            if (originalStatement instanceof PrimitiveStatement<?>) {
-                ((PrimitiveStatement<?>) copy).delta();
-            }
+            if(parameter instanceof FieldReference) {
+                VariableReference var = originalStatement.getReturnValue();
+                for(Field field : TestClusterUtils.getAccessibleFields(var.getVariableClass())) {
+                    if(field.getType() == parameter.getType()) {
+                        if(((FieldReference) parameter).getField().getField() == field) {
+                            logger.debug("same field is not added to mutate candidates");
+                        }else{
+                            Type fieldType = null;
+                            try {
+                                fieldType = field.getGenericType();
+                            }catch (java.lang.reflect.GenericSignatureFormatError e) {
+                                fieldType = field.getType();
+                            }
+                            FieldReference f = new FieldReference(test,
+                                    new GenericField(field, var.getGenericClass()), fieldType, var);
+                            objects.add(f);
+                        }
+                    }
+                }
+            }else {
+                copy = originalStatement.clone(test);
+                if (originalStatement instanceof PrimitiveStatement<?>) {
+                    ((PrimitiveStatement<?>) copy).delta();
+                }
 
-            if(parameter instanceof FieldReference &&
-                    !TypeUtils.isAssignable(copy.getReturnValue().getType(), parameter.getType())) {
-                notAssignableFieldParameter = true;
-            }else{
                 objects.add(copy.getReturnValue());
             }
         }
@@ -278,7 +295,7 @@ public abstract class EntityWithParametersStatement extends AbstractStatement {
         VariableReference replacement = Randomness.choice(objects);
         if (replacement == nullStatement.getReturnValue()) {
             test.addStatement(nullStatement, getPosition());
-        } else if (copy != null && replacement == copy.getReturnValue() && !notAssignableFieldParameter) {
+        } else if (!(parameter instanceof FieldReference) && copy != null && replacement == copy.getReturnValue()) {
             test.addStatement(copy, getPosition());
         }
 
