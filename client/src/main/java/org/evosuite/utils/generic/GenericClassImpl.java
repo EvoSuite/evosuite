@@ -696,16 +696,36 @@ public class GenericClassImpl implements Serializable, GenericClass<GenericClass
                     logger.debug("Is wildcard type, here we should value the wildcard boundaries");
                     logger.debug("Wildcard boundaries: " + parameterClass.getGenericBounds());
                     logger.debug("Boundaries of underlying var: " + Arrays.asList(typeParameters.get(numParam).getBounds()));
-                    GenericClass<?> parameterInstance = parameterClass.getGenericWildcardInstantiation(extendedMap, recursionLevel + 1);
-                    //GenericClass parameterTypeClass = new GenericClass(typeParameters.get(numParam));
+                    if(recursionLevel >= 1) {
+                        // NOTE: List<List<String>> cannot be assigned to List<List<?>>
+                        parameterTypes[numParam++] = parameterClass.getType();
+                    }else {
+                        WildcardType wildcardType = (WildcardType) parameterClass.getType();
+                        for(Type bound : wildcardType.getUpperBounds()) {
+                            if(bound instanceof ParameterizedType) {
+                                extendedMap.putAll(TypeUtils.getTypeArguments((ParameterizedType) bound));
+                            }else{
+                                logger.debug("bound is not parameterizedType");
+                            }
+                        }
+                        for(Type bound : wildcardType.getLowerBounds()) {
+                            if(bound instanceof  ParameterizedType) {
+                                extendedMap.putAll(TypeUtils.getTypeArguments((ParameterizedType) bound));
+                            }else{
+                                logger.debug("bound is not parameterizedType");
+                            }
+                        }
+                        GenericClass<?> parameterInstance = parameterClass.getGenericWildcardInstantiation(extendedMap, recursionLevel + 1);
+                        //GenericClass parameterTypeClass = new GenericClass(typeParameters.get(numParam));
 //					if(!parameterTypeClass.isAssignableFrom(parameterInstance)) {
-                    if (!parameterInstance.satisfiesBoundaries(typeParameters.get(numParam))) {
-                        throw new ConstructionFailedException("Invalid generic instance");
+                        if (!parameterInstance.satisfiesBoundaries(typeParameters.get(numParam))) {
+                            throw new ConstructionFailedException("Invalid generic instance");
+                        }
+                        //GenericClass parameterInstance = new GenericClass(
+                        //        typeParameters.get(numParam)).getGenericInstantiation(extendedMap,
+                        //                                                              recursionLevel + 1);
+                        parameterTypes[numParam++] = parameterInstance.getType();
                     }
-                    //GenericClass parameterInstance = new GenericClass(
-                    //        typeParameters.get(numParam)).getGenericInstantiation(extendedMap,
-                    //                                                              recursionLevel + 1);
-                    parameterTypes[numParam++] = parameterInstance.getType();
                 } else {
                     logger.debug("Is not wildcard but type variable? "
                             + parameterClass.isTypeVariable());
