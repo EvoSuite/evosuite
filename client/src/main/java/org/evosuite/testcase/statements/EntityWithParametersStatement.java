@@ -253,13 +253,20 @@ public abstract class EntityWithParametersStatement extends AbstractStatement {
 
         // If there are fewer objects than parameters of that type,
         // we consider adding an instance
+        boolean notAssignableFieldParameter = false; // parameter not is processed appropriately for now
         if (getNumParametersOfType(parameter.getVariableClass()) + 1 > objects.size()) {
             Statement originalStatement = test.getStatement(parameter.getStPosition());
             copy = originalStatement.clone(test);
             if (originalStatement instanceof PrimitiveStatement<?>) {
                 ((PrimitiveStatement<?>) copy).delta();
             }
-            objects.add(copy.getReturnValue());
+
+            if(parameter instanceof FieldReference &&
+                    !TypeUtils.isAssignable(copy.getReturnValue().getType(), parameter.getType())) {
+                notAssignableFieldParameter = true;
+            }else{
+                objects.add(copy.getReturnValue());
+            }
         }
 
         if (objects.isEmpty())
@@ -268,10 +275,17 @@ public abstract class EntityWithParametersStatement extends AbstractStatement {
         VariableReference replacement = Randomness.choice(objects);
         if (replacement == nullStatement.getReturnValue()) {
             test.addStatement(nullStatement, getPosition());
-        } else if (copy != null && replacement == copy.getReturnValue()) {
+        } else if (copy != null && replacement == copy.getReturnValue() && !notAssignableFieldParameter) {
             test.addStatement(copy, getPosition());
         }
-        replaceParameterReference(replacement, numParameter);
+
+        try {
+            replaceParameterReference(replacement, numParameter);
+        }catch(IllegalArgumentException e) {
+            LoggingUtils.getEvoLogger().warn(e.getMessage());
+            return false;
+        }
+
         return true;
     }
 
