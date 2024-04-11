@@ -556,6 +556,20 @@ public class GenericClassImpl implements Serializable, GenericClass<GenericClass
         return getWithComponentClass(componentClass);
     }
 
+    private static boolean isLoopInTypeMap(Type type, Map<TypeVariable<?>, Type> typeMap) {
+        Set<Type> types = new HashSet<>();
+        while(typeMap.containsKey(type)) {
+            types.add(type);
+            Type nextType = typeMap.get(type);
+            if(types.contains(nextType)) {
+                logger.warn(type + " points to itself in type mapping");
+                return true;
+            }
+            type = nextType;
+        }
+        return false;
+    }
+
     /**
      * Instantiate type variable
      *
@@ -567,12 +581,8 @@ public class GenericClassImpl implements Serializable, GenericClass<GenericClass
     private GenericClass<?> getGenericTypeVariableInstantiation(
             Map<TypeVariable<?>, Type> typeMap, int recursionLevel)
             throws ConstructionFailedException {
-        if (typeMap.containsKey(type)) {
+        if (typeMap.containsKey(type) && !isLoopInTypeMap(type, typeMap)) {
             logger.debug("Type contains {}: {}", this, typeMap);
-            if (typeMap.get(type) == type) {
-                // FIXXME: How does this happen?
-                throw new ConstructionFailedException("Type points to itself");
-            }
             GenericClass<?> selectedClass = new GenericClassImpl(typeMap.get(type)).getGenericInstantiation(typeMap,
                     recursionLevel + 1);
             if (!selectedClass.satisfiesBoundaries((TypeVariable<?>) type)) {
