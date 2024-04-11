@@ -530,7 +530,10 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
             }
         }
 
-        throw new AssertionError("");
+        AssertionError e = new AssertionError("");
+        e.printStackTrace();
+        LoggingUtils.getEvoLogger().error("Error? should not happen assertion error");
+        throw e;
     }
 
     //------------ override methods ---------------
