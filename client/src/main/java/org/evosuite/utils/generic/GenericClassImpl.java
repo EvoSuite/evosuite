@@ -26,6 +26,7 @@ import org.apache.commons.lang3.reflect.TypeUtils;
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.ga.ConstructionFailedException;
+import org.evosuite.ga.RecursiveConstructionFailedException;
 import org.evosuite.seeding.CastClassManager;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.ParameterizedTypeImpl;
@@ -56,6 +57,11 @@ public class GenericClassImpl implements Serializable, GenericClass<GenericClass
             Arrays.asList(Boolean.class, Character.class, Byte.class, Short.class,
                     Integer.class, Long.class, Float.class, Double.class,
                     Void.class));
+
+    /**
+     * Set of failed generic class that have failed generic Instantiations
+     */
+    private static final Set<GenericClass<?>> recursiveInstantiationFailedGCs = new HashSet<>();
 
     protected static Type addTypeParameters(Class<?> clazz) {
         if (clazz.isArray()) {
@@ -516,17 +522,36 @@ public class GenericClassImpl implements Serializable, GenericClass<GenericClass
      */
     public GenericClass<?> getGenericInstantiation(Map<TypeVariable<?>, Type> typeMap)
             throws ConstructionFailedException {
-        return getGenericInstantiation(typeMap, 0);
+
+        GenericClass<?> gc = null;
+        if (!recursiveInstantiationFailedGCs.contains(this)) {
+            final int initGenericDepth = Properties.MAX_GENERIC_DEPTH;
+            Properties.MAX_GENERIC_DEPTH = 15;
+            try {
+                gc = getGenericInstantiation(typeMap, 0);
+            }catch (RecursiveConstructionFailedException e) {
+                recursiveInstantiationFailedGCs.add(this);
+                throw e;
+            }finally {
+                Properties.MAX_GENERIC_DEPTH = initGenericDepth;
+            }
+        }else{
+            gc = getGenericInstantiation(typeMap, 0);
+        }
+        return gc;
     }
 
     public GenericClass<?> getGenericInstantiation(Map<TypeVariable<?>, Type> typeMap, int recursionLevel) throws ConstructionFailedException {
 
         logger.debug("Instantiation " + this + " with type map " + typeMap);
         // If there are no type variables, create copy
-        if (isRawClass() || !hasWildcardOrTypeVariables() || recursionLevel > Properties.MAX_GENERIC_DEPTH) {
-            logger.debug("Nothing to replace: " + this + ", " + isRawClass() + ", "
-                    + hasWildcardOrTypeVariables());
+        if (isRawClass() || !hasWildcardOrTypeVariables()) {
+            logger.debug("Nothing to replace: " + this + ", " + isRawClass() + ", " + hasWildcardOrTypeVariables());
             return new GenericClassImpl(this);
+        }
+
+        if(recursionLevel > Properties.MAX_GENERIC_DEPTH) {
+            throw new RecursiveConstructionFailedException("RecursionLevel exceeds max generic depth " + Properties.MAX_GENERIC_DEPTH);
         }
 
         if (isWildcardType()) {
