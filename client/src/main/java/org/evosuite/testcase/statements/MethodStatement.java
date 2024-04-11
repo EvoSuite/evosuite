@@ -271,6 +271,11 @@ public class MethodStatement extends EntityWithParametersStatement {
                         }
                     }
 
+                    // This should be checked as the test code emulation of Evosuite is incomplete
+                    if(ret != null && !TypeUtils.isAssignable(ret.getClass(), retval.getType())) {
+                        throw new CodeUnderTestException(
+                                new UncompilableCodeException("variable and return value type does not match"));
+                    }
 
                     try {
                         retval.setObject(scope, ret);
