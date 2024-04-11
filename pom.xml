@@ -272,7 +272,7 @@
     <repositories>
         <repository>
             <id>local-maven-repo</id>
-            <url>file:///${user.dir}/local-maven-repo</url>
+            <url>file:///${project.basedir}/local-maven-repo</url>
         </repository>
     </repositories>
 
