@@ -462,6 +462,13 @@ public class TestCluster {
                             if ((!hadTypeParameters && generatorClazz.equals(clazz)) || clazz.isAssignableFrom(newGenerator.getGeneratedType())) {
                                 logger.debug("Got new generator: {} which generated: {}", newGenerator, newGenerator.getGeneratedClass());
                                 logger.debug("{} vs {}", (!hadTypeParameters && generatorClazz.equals(clazz)), clazz.isAssignableFrom(newGenerator.getGeneratedType()));
+                                if(Properties.DEBUG && !clazz.hasTypeVariables()) {
+                                    logger.warn("{} has no type variables", clazz);
+                                    if(!newGenerator.getGeneratedClass().canBeInstantiatedTo(clazz)) {
+                                        logger.error("{} cannot be assigned to {}", newGenerator.getGeneratedClass(), clazz);
+                                        throw new Error("should not happen");
+                                    }
+                                }
                                 targetGenerators.add(newGenerator);
 
                             } else if (logger.isDebugEnabled()) {
