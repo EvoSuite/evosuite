@@ -1070,7 +1070,15 @@ public class TestCluster {
                 }
             }
 
-            generator = Randomness.choice(candidates);
+            Set<GenericAccessibleObject<?>> candidatesWithNoTypeParameters = candidates.stream().
+                    filter(p -> !p.hasTypeParameters()).
+                    collect(Collectors.toCollection(LinkedHashSet::new));
+
+            if(!candidatesWithNoTypeParameters.isEmpty()) {
+                generator = Randomness.choice(candidatesWithNoTypeParameters);
+            }else{
+                generator = Randomness.choice(candidates);
+            }
             logger.debug("Chosen generator: " + generator);
         }
 
