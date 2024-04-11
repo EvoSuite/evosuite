@@ -920,7 +920,18 @@ public class GenericClassImpl implements Serializable, GenericClass<GenericClass
                 }
             }
 
-        //logger.debug("Type map: " + typeMap);
+            Iterator<Map.Entry<TypeVariable<?>,Type>> iterator = typeMap.entrySet().iterator();
+            while(iterator.hasNext()) {
+                Type type = iterator.next().getKey();
+                if(type != null) {
+                    GenericClass gc = GenericClassFactory.get(type);
+                    if (gc.getTypeVariables().size() > 0) {
+                        typeMap.putAll(gc.getTypeVariableMap());
+                    }
+                }
+            }
+
+//            logger.debug("Type map: " + typeMap);
             typeVariableMap = typeMap;
         }
         return new LinkedHashMap<>(typeVariableMap);
