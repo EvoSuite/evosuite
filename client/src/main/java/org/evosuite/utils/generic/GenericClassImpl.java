@@ -998,13 +998,13 @@ public class GenericClassImpl implements Serializable, GenericClass<GenericClass
 
         Class<?> targetClass = superClass.getRawClass();
         Class<?> currentClass = rawClass;
-        Type[] parameterTypes = new Type[superClass.getNumParameters()];
-        superClass.getParameterTypes().toArray(parameterTypes);
+        Type[] superParameterTypes = new Type[superClass.getNumParameters()];
+        superClass.getParameterTypes().toArray(superParameterTypes);
 
         if (targetClass.equals(currentClass)) {
             logger.info("Raw classes match, setting parameters to: "
                     + superClass.getParameterTypes());
-            exactClass.type = new ParameterizedTypeImpl(currentClass, parameterTypes,
+            exactClass.type = new ParameterizedTypeImpl(currentClass, superParameterTypes,
                     pType.getOwnerType());
         } else {
             Type ownerType = pType.getOwnerType();
@@ -1022,23 +1022,19 @@ public class GenericClassImpl implements Serializable, GenericClass<GenericClass
                 TypeVariable<?> var = variables.get(i);
                 if (superTypeMap.containsKey(var)) {
                     arguments[i] = superTypeMap.get(var);
-                    logger.info("Setting type variable " + var + " to "
-                            + superTypeMap.get(var));
-                } else if (arguments[i] instanceof WildcardType
-                        && i < parameterTypes.length) {
-                    logger.info("Replacing wildcard with " + parameterTypes[i]);
-                    logger.info("Lower Bounds: "
-                            + Arrays.asList(TypeUtils.getImplicitLowerBounds((WildcardType) arguments[i])));
-                    logger.info("Upper Bounds: "
-                            + Arrays.asList(TypeUtils.getImplicitUpperBounds((WildcardType) arguments[i])));
+                    logger.info("Setting type variable " + var + " to " + superTypeMap.get(var));
+                } else if (arguments[i] instanceof WildcardType && i < superParameterTypes.length) {
+                    logger.info("Replacing wildcard with " + superParameterTypes[i]);
+                    logger.info("Lower Bounds: " + Arrays.asList(TypeUtils.getImplicitLowerBounds((WildcardType) arguments[i])));
+                    logger.info("Upper Bounds: " + Arrays.asList(TypeUtils.getImplicitUpperBounds((WildcardType) arguments[i])));
                     logger.info("Type variable: " + variables.get(i));
-                    if (!TypeUtils.isAssignable(parameterTypes[i], arguments[i])) {
+                    if (!TypeUtils.isAssignable(superParameterTypes[i], arguments[i])) {
                         logger.info("Not assignable to bounds!");
                         return null;
                     } else {
                         boolean assignable = false;
-                        for (Type bound : variables.get(i).getBounds()) {
-                            if (TypeUtils.isAssignable(parameterTypes[i], bound)) {
+                        for (Type bound : var.getBounds()) {
+                            if (TypeUtils.isAssignable(superParameterTypes[i], bound)) {
                                 assignable = true;
                                 break;
                             }
@@ -1048,14 +1044,15 @@ public class GenericClassImpl implements Serializable, GenericClass<GenericClass
                             return null;
                         }
                     }
-                    arguments[i] = parameterTypes[i];
+                    arguments[i] = superParameterTypes[i];
                 }
             }
-            GenericClass<?> ownerClass = new GenericClassImpl(ownerType).getWithParametersFromSuperclass(superClass);
-            if (ownerClass == null)
-                return null;
-            exactClass.type = new ParameterizedTypeImpl(currentClass, arguments,
-                    ownerClass.getType());
+            Type instantiatedOwnerType = ownerType == null ? null :
+                    new GenericClassImpl(ownerType).getWithParametersFromSuperclass(superClass).getType();
+            if(ownerType != null && instantiatedOwnerType == null) {
+                throw new ConstructionFailedException("Error? Why is this can happen?");
+            }
+            exactClass.type = new ParameterizedTypeImpl(currentClass, arguments, instantiatedOwnerType);
         }
 
         return exactClass;
