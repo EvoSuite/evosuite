@@ -415,8 +415,7 @@ public class TestCluster {
                 if (generatorClazz.canBeInstantiatedTo(clazz)) {
                     //logger.debug("4. generator " + generatorClazz + " can be instantiated to " + clazz);
                     GenericClass<?> instantiatedGeneratorClazz = generatorClazz.getWithParametersFromSuperclass(clazz);
-                    logger.debug("Instantiated type: {} for {} and superclass {}",
-                            instantiatedGeneratorClazz, generatorClazz, clazz);
+                    logger.debug("Instantiated type: {} for {} and superclass {}", instantiatedGeneratorClazz, generatorClazz, clazz);
 
                     for (GenericAccessibleObject<?> generator : generators.get(generatorClazz)) {
                         logger.debug("5. current instantiated generator: {}", generator);
@@ -427,7 +426,6 @@ public class TestCluster {
                                 continue;
                             }
 
-
                             // Set owner type parameters from new return type
                             GenericAccessibleObject<?> newGenerator = generator.copyWithOwnerFromReturnType(instantiatedGeneratorClazz);
 
@@ -436,8 +434,7 @@ public class TestCluster {
                             // Instantiate potential further type variables based on type variables of return type
                             if (newGenerator.getOwnerClass().hasWildcardOrTypeVariables()) {
                                 logger.debug("Instantiating type parameters of owner type: {}", newGenerator.getOwnerClass());
-                                GenericClass<?> concreteClass = newGenerator.getOwnerClass()
-                                        .getGenericInstantiation(clazz.getTypeVariableMap());
+                                GenericClass<?> concreteClass = newGenerator.getOwnerClass().getGenericInstantiation(clazz.getTypeVariableMap());
                                 newGenerator = newGenerator.copyWithNewOwner(concreteClass);
                                 hadTypeParameters = true;
                             }
@@ -462,10 +459,8 @@ public class TestCluster {
                             }
 
                             logger.debug("Current generator: {}", newGenerator);
-                            if ((!hadTypeParameters && generatorClazz.equals(clazz))
-                                    || clazz.isAssignableFrom(newGenerator.getGeneratedType())) {
-                                logger.debug("Got new generator: {} which generated: {}",
-                                        newGenerator, newGenerator.getGeneratedClass());
+                            if ((!hadTypeParameters && generatorClazz.equals(clazz)) || clazz.isAssignableFrom(newGenerator.getGeneratedType())) {
+                                logger.debug("Got new generator: {} which generated: {}", newGenerator, newGenerator.getGeneratedClass());
                                 logger.debug("{} vs {}", (!hadTypeParameters && generatorClazz.equals(clazz)), clazz.isAssignableFrom(newGenerator.getGeneratedType()));
                                 targetGenerators.add(newGenerator);
 
