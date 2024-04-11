@@ -5,9 +5,8 @@
   <versioning>
     <release>3.12.0-fix-LANG-1700</release>
     <versions>
-      <version>3.12.0-evofuzz</version>
       <version>3.12.0-fix-LANG-1700</version>
     </versions>
-    <lastUpdated>20230717120929</lastUpdated>
+    <lastUpdated>20230824074932</lastUpdated>
   </versioning>
 </metadata>
