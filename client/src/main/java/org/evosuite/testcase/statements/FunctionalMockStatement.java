@@ -530,11 +530,13 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
                 return md.getMethod().getReturnType();
             }
         }
+        LoggingUtils.getEvoLogger().error("Error for finding expected parameter type: " + i + ", " + mockedMethods);
+        return Object.class;
 
-        AssertionError e = new AssertionError("");
-        e.printStackTrace();
-        LoggingUtils.getEvoLogger().error("Error? should not happen assertion error");
-        throw e;
+//        AssertionError e = new AssertionError("");
+//        e.printStackTrace();
+//        LoggingUtils.getEvoLogger().error("should not happen error: " + i + ", " + mockedMethods);
+//        throw e;
     }
 
     //------------ override methods ---------------
