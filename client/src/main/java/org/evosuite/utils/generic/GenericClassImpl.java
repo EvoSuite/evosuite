@@ -729,6 +729,28 @@ public class GenericClassImpl implements Serializable, GenericClass<GenericClass
                     extendedMap.put(typeParameters.get(numParam), parameterClass.getType());
                 logger.debug("New type map: " + extendedMap);
 
+                // Shrink type mapping : A --> B --> C ==> A --> C
+                for(int i=0; i<numParam; i++) {
+                    TypeVariable<?> var = typeParameters.get(i);
+                    Set<TypeVariable<?>> targetVars = new HashSet<>();
+                    targetVars.add(var);
+
+                    while(extendedMap.containsKey(var)) {
+                        Type nextVar = extendedMap.get(var);
+                        if(!(nextVar instanceof TypeVariable<?>)) {
+                            break;
+                        }
+                        if (targetVars.contains(nextVar)) { // loop check
+                            break;
+                        }
+                        var = (TypeVariable<?>) nextVar;
+                        targetVars.add(var);
+                    }
+                    for(TypeVariable<?> _var : targetVars) {
+                        extendedMap.put(_var, parameterTypes[i]);
+                    }
+                }
+
                 if (parameterClass.isWildcardType()) {
                     logger.debug("Is wildcard type, here we should value the wildcard boundaries");
                     logger.debug("Wildcard boundaries: " + parameterClass.getGenericBounds());
