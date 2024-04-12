@@ -1205,6 +1205,9 @@ public class TestCodeVisitor extends TestVisitor {
             }
 
             List<VariableReference> params = st.getParameters(md.getID());
+            if(params == null) {
+                continue;
+            }
 
             GenericClass<?> returnType = md.getReturnClass();
             // Class<?> returnType = md.getMethod().getReturnType();
@@ -1491,7 +1494,11 @@ public class TestCodeVisitor extends TestVisitor {
                 result += " catch(" + getClassName(Throwable.class) + " e) {" + NEWLINE;
             }
         } else {
-            result += " catch(" + getClassName(ex) + " e) {" + NEWLINE;
+            String className = getClassName(ex);
+            if(className.contains("MockitoMock")) {
+                className = getClassName(Throwable.class);
+            }
+            result += " catch(" + className + " e) {" + NEWLINE;
         }
 
         // adding the message of the exception
@@ -1536,7 +1543,7 @@ public class TestCodeVisitor extends TestVisitor {
     }
 
     private String getSourceClassName(Throwable exception) {
-        if (exception.getStackTrace().length == 0) {
+        if(exception.getStackTrace() == null || exception.getStackTrace().length == 0) {
             return null;
         }
         return exception.getStackTrace()[0].getClassName();
