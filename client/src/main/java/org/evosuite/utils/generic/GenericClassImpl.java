@@ -231,8 +231,9 @@ public class GenericClassImpl implements Serializable, GenericClass<GenericClass
      */
     public boolean canBeInstantiatedTo(GenericClass<?> otherType, int recursionLevel) {
 
-        if(recursionLevel > 100) {
+        if(recursionLevel > Properties.MAX_RECURSION+1) {
             LoggingUtils.getEvoLogger().warn("recursion level exceeds " + recursionLevel + ", stack overflow?");
+            return false;
         }
 
         if (isPrimitive() && otherType.isWrapperType())
