@@ -24,7 +24,6 @@ import com.googlecode.gentyref.GenericTypeReflector;
 import dk.brics.automaton.RegExp;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.TypeUtils;
 import org.evosuite.PackageInfo;
 import org.evosuite.Properties;
@@ -1152,7 +1151,7 @@ public class TestCodeVisitor extends TestVisitor {
 //			return;
 //		}
 
-        String result = "";
+        StringBuffer result = new StringBuffer();
 
         //by construction, we should avoid cases like:
         //  Object obj = mock(Foo.class);
@@ -1166,13 +1165,11 @@ public class TestCodeVisitor extends TestVisitor {
 
         //Foo foo = mock(Foo.class);
         String variableType = getClassName(retval);
-        result += variableType + " " + getVariableName(retval);
-
-        result += " = ";
+        result.append(variableType).append(" ").append(getVariableName(retval)).append(" = ");
         if (!variableType.equals(rawClassName)) {
             //this can happen in case of generics, eg
             //Foo<String> foo = (Foo<String>) mock(Foo.class);
-            result += "(" + variableType + ") ";
+            result.append("(").append(variableType).append(") ");
         }
 
 			/*
@@ -1196,9 +1193,9 @@ public class TestCodeVisitor extends TestVisitor {
         }
 
         if (st instanceof FunctionalMockForAbstractClassStatement) {
-            result += "mock(" + rawClassName + ".class, CALLS_REAL_METHODS);" + NEWLINE;
+            result.append("mock(").append(rawClassName).append(".class, CALLS_REAL_METHODS);").append(NEWLINE);
         } else {
-            result += "mock(" + rawClassName + ".class, new " + ViolatedAssumptionAnswer.class.getSimpleName() + "());" + NEWLINE;
+            result.append("mock(").append(rawClassName).append(".class, new ").append(ViolatedAssumptionAnswer.class.getSimpleName()).append("());").append(NEWLINE);
         }
 
         //when(...).thenReturn(...)
@@ -1243,9 +1240,9 @@ public class TestCodeVisitor extends TestVisitor {
             // tests we import MockitoExtension class
             //parameter_string = "doReturn(" + parameter_string.replaceAll(", ", ").doReturn(") + ")";
             //result += parameter_string+".when("+getVariableName(retval)+")";
-            result += "doReturn(" + parameter_string + ").when(" + getVariableName(retval) + ")";
-            result += "." + md.getMethodName() + "(" + md.getInputParameterMatchers() + ");";
-            result += NEWLINE;
+            result.append("doReturn(").append(parameter_string).append(").when(").append(getVariableName(retval)).append(")");
+            result.append(".").append(md.getMethodName()).append("(").append(md.getInputParameterMatchers()).append(");").append(NEWLINE);
+
         }
 
         testCode += result;
