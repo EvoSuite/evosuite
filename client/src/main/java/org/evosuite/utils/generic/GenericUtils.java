@@ -55,23 +55,6 @@ public class GenericUtils {
 
     private static final Logger logger = LoggerFactory.getLogger(GenericUtils.class);
 
-//    public static Type replaceTypeVariables(Type targetType,
-//                                            Map<TypeVariable<?>, Type> typeMap) {
-//        Type returnType = targetType;
-//        for (Entry<TypeVariable<?>, Type> entry : typeMap.entrySet()) {
-//            if(entry.getKey() == entry.getValue()) {
-//                continue;
-//            }
-//            returnType = replaceTypeVariable(returnType, entry.getKey(), entry.getValue());
-//        }
-////		for (TypeVariable<?> var : typeMap.keySet()) {
-////			//logger.debug("Current variable: "+var+" of type "+typeMap.get(var)+" in "+returnType);
-////			returnType = replaceTypeVariable(returnType, var, typeMap.get(var));
-////		}
-//
-//        return returnType;
-//    }
-
     public static Type replaceTypeVariables(Type targetType,
                               Map<TypeVariable<?>, Type> typeMap) {
         Map<TypeVariable<?>, Type> newTypeMap = new LinkedHashMap<>();
@@ -106,90 +89,6 @@ public class GenericUtils {
         return targetType;
     }
 
-//    public static Type replaceTypeVariable(Type targetType, TypeVariable<?> variable,
-//                                           Type variableType) {
-//        if(variable == variableType) {
-//            return targetType;
-//        }
-//        if (targetType instanceof Class<?>)
-//            return targetType;
-//        else if (targetType instanceof GenericArrayType) {
-//            GenericArrayType gType = (GenericArrayType) targetType;
-//            Type componentType = replaceTypeVariable(gType.getGenericComponentType(),
-//                    variable, variableType);
-//            return GenericArrayTypeImpl.createArrayType(componentType);
-//
-//        } else if (targetType instanceof ParameterizedType) {
-//            ParameterizedType pType = (ParameterizedType) targetType;
-//            Type ownerType = null;
-//            if (pType.getOwnerType() != null) {
-//                ownerType = replaceTypeVariable(pType.getOwnerType(), variable,
-//                        variableType);
-//            }
-//            Type[] originalParameterTypes = pType.getActualTypeArguments(); // no mod.
-//            Type[] parameterTypes = new Type[originalParameterTypes.length];
-//            for (int i = 0; i < originalParameterTypes.length; i++) {
-//                parameterTypes[i] = replaceTypeVariable(originalParameterTypes[i],
-//                        variable, variableType);
-//            }
-//
-//			/*
-//			if (variableType instanceof ParameterizedType) {
-//				ParameterizedType parameterizedVars = (ParameterizedType) variableType;
-//				Map<TypeVariable<?>, Type> subTypes = TypeUtils.getTypeArguments(parameterizedVars);
-//				for (Entry<TypeVariable<?>, Type> subTypeEntry : subTypes.entrySet()) {
-//					if (pType.getOwnerType() != null) {
-//						ownerType = replaceTypeVariable(pType.getOwnerType(),
-//						                                subTypeEntry.getKey(),
-//						                                subTypeEntry.getValue());
-//					}
-//					for (int i = 0; i < originalParameterTypes.length; i++) {
-//						parameterTypes[i] = replaceTypeVariable(originalParameterTypes[i],
-//						                                        subTypeEntry.getKey(),
-//						                                        subTypeEntry.getValue());
-//					}
-//
-//				}
-//			}
-//			*/
-//
-//            return new ParameterizedTypeImpl((Class<?>) pType.getRawType(),
-//                    parameterTypes, ownerType);
-//
-//        } else if (targetType instanceof WildcardType) {
-//            WildcardType wType = (WildcardType) targetType;
-//            Type[] originalUpperBounds = wType.getUpperBounds();
-//            Type[] originalLowerBounds = wType.getLowerBounds();
-//            Type[] upperBounds = new Type[originalUpperBounds.length];
-//            Type[] lowerBounds = new Type[originalLowerBounds.length];
-//
-//            for (int i = 0; i < originalUpperBounds.length; i++) {
-//                upperBounds[i] = replaceTypeVariable(originalUpperBounds[i], variable,
-//                        variableType);
-//            }
-//            for (int i = 0; i < originalLowerBounds.length; i++) {
-//                lowerBounds[i] = replaceTypeVariable(originalLowerBounds[i], variable,
-//                        variableType);
-//            }
-//
-//            return new WildcardTypeImpl(upperBounds, lowerBounds);
-//        } else if (targetType instanceof TypeVariable<?>) {
-//            if (targetType.equals(variable)) {
-//                //logger.debug("Do equal: " + variable + "/" + targetType);
-//                return variableType;
-//            } else {
-//                //logger.debug("Do not equal: " + variable + "/" + targetType);
-//                //logger.debug("Do not equal: " + variable.getGenericDeclaration() + "/"
-//                //        + ((TypeVariable<?>) targetType).getGenericDeclaration());
-//                return targetType;
-//            }
-//        } else {
-//            //logger.debug("Unknown type of class " + targetType.getClass() + ": "
-//            //        + targetType);
-//            return targetType;
-//        }
-//    }
-
     public static Type replaceTypeVariable(Type targetType, TypeVariable<?> variable,
                                            Type variableType) {
         if(variable == variableType) {
@@ -199,7 +98,6 @@ public class GenericUtils {
         typeMap.put(variable, variableType);
         return TypeUtils.unrollVariables(typeMap, targetType);
     }
-
 
     public Map<TypeVariable<?>, Type> getMatchingTypeParameters(GenericArrayType p1,
                                                                 GenericArrayType p2) {
