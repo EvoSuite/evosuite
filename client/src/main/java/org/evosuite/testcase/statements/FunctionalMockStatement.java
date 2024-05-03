@@ -531,12 +531,10 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
             }
         }
         LoggingUtils.getEvoLogger().error("Error for finding expected parameter type: " + i + ", " + mockedMethods);
+        // TODO: This should not happen and if it is, some bugs are triggered. '
+        // Since 'return Object.class' can improve code coverage instead of giving it up, I do not forcefully trigger Error.
+        // This should be fixed (find the root causes of bugs and ..)
         return Object.class;
-
-//        AssertionError e = new AssertionError("");
-//        e.printStackTrace();
-//        LoggingUtils.getEvoLogger().error("should not happen error: " + i + ", " + mockedMethods);
-//        throw e;
     }
 
     //------------ override methods ---------------

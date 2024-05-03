@@ -2435,11 +2435,6 @@ public class TestFactory {
 
             assert !(!allowNullForParameter && ConstraintHelper.isNull(var, test));
 
-            // Generics instantiation may lead to invalid types, so better
-            // double check
-            if (!var.isAssignableTo(parameterType)) {
-                throw new ConstructionFailedException("Error: " + var + " is not assignable to " + parameterType);
-            }
             parameters.add(var);
 
             int currentLength = test.size();

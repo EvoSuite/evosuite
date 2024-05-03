@@ -527,6 +527,7 @@ public class GenericClassImpl implements Serializable, GenericClass<GenericClass
         GenericClass<?> gc = null;
         if (!recursiveInstantiationFailedGCs.contains(this)) {
             final int initGenericDepth = Properties.MAX_GENERIC_DEPTH;
+            // Note: I found this value empirically from the EvoFuzz evaluations on the SBST2020 benchmark
             Properties.MAX_GENERIC_DEPTH = 15;
             try {
                 gc = getGenericInstantiation(typeMap, 0);
@@ -1140,7 +1141,7 @@ public class GenericClassImpl implements Serializable, GenericClass<GenericClass
             Type instantiatedOwnerType = ownerType == null ? null :
                     new GenericClassImpl(ownerType).getWithParametersFromSuperclass(superClass).getType();
             if(ownerType != null && instantiatedOwnerType == null) {
-                throw new ConstructionFailedException("Error? Why is this can happen?");
+                throw new ConstructionFailedException("Failed to instantiate ownerType: " + ownerType);
             }
             exactClass.type = new ParameterizedTypeImpl(currentClass, arguments, instantiatedOwnerType);
         }
@@ -1751,7 +1752,7 @@ public class GenericClassImpl implements Serializable, GenericClass<GenericClass
 		*/
         ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
 
-        String[] classPaths = Properties.CP.split(":");
+        String[] classPaths = Properties.CP.split(File.pathSeparator);
         ArrayList<URL> cpURLs = new ArrayList<>();
         for(String classPath : classPaths) {
             cpURLs.add(new File(classPath).toURI().toURL());

@@ -235,7 +235,7 @@ public class MethodStatement extends EntityWithParametersStatement {
                             if (inputs[i] != null && !TypeUtils.isAssignable(inputs[i].getClass(), exactParameterTypes[i])) {
                                 // TODO: This used to be a check of the declared type, but the problem is that
                                 //       Generic types are not updated during execution, so this may fail:
-                                //!parameterVar.isAssignableTo(parameterTypes[i])) {
+                                //!parameterVar.isAssignableTo(exactParameterTypes[i])) {
                                 throw new CodeUnderTestException(
                                         new UncompilableCodeException("Cannot assign " + parameterVar.getVariableClass().getName() + " to " + exactParameterTypes[i]));
                             }
