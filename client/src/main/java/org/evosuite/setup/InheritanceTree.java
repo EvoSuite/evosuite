@@ -98,6 +98,8 @@ public class InheritanceTree {
     //TODO the initialization in the clinit dosen't work, no idea why - mattia
     public void addAnalyzedMethod(String classname, String methodname, String descriptor) {
         initialiseMap();
+        // Replaced File.separator with "/" as it would not work on windows, technically should
+        // still work on all platforms
         classname = classname.replace("/", ".");
         Set<String> tmp = analyzedMethods.get(classname);
         if (tmp == null)
