@@ -7,6 +7,7 @@ import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.SystemTestBase;
 import org.evosuite.Properties.Algorithm;
+import org.evosuite.Properties.Criterion;
 import org.evosuite.Properties.StoppingCondition;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
@@ -23,16 +24,23 @@ import javax.swing.*;
 public class DynaMOSAGASystemTest extends SystemTestBase {
 
     public List<Chromosome<?>> setup(StoppingCondition sc, int budget, String cut) {
+        Properties.SELECTION_FUNCTION = Properties.SelectionFunction.RANK_CROWD_DISTANCE_TOURNAMENT;
+        Properties.CRITERION = new Criterion[]{ Criterion.LINE, Criterion.BRANCH, Criterion.EXCEPTION,
+                Criterion.WEAKMUTATION, Criterion.OUTPUT, Criterion.METHOD, Criterion.METHODNOEXCEPTION,
+                Criterion.CBRANCH};
+
+        System.out.println("\n\n########## EVOSUITE PROPERTIES: ##########");
         System.out.println("ALGORITHM: " + Properties.ALGORITHM);
         System.out.println("STRATEGY: " + Properties.STRATEGY);
+        System.out.println("CRITERION: " + Properties.CRITERION.length + ":");
+        for (int i = 0; i < Properties.CRITERION.length; i++) {
+            System.out.println("- " + Properties.CRITERION[i]);
+        }
         System.out.println("SELECTION FUNCTION: " + Properties.SELECTION_FUNCTION);
+        System.out.println("TARGET CLASS: " + cut);
+        System.out.println("##############################################\n\n");
 
         EvoSuite evosuite = new EvoSuite();
-
-        Properties.TARGET_CLASS = cut;
-
-        System.out.println("TARGET CLASS: " + cut);
-
         String[] command = new String[]{"-generateMOSuite", "-class", cut};
 
         Object result = evosuite.parseCommandLine(command);
@@ -44,18 +52,12 @@ public class DynaMOSAGASystemTest extends SystemTestBase {
         System.out.println(ga.getBestIndividuals());
         System.out.println("######################################\n\n");
 
-        List<?> population = ga.getPopulation();
-        System.out.println("######### FROM MOSA #########");
-        System.out.println(population.get(0));
-        System.out.println("######### END FROM MOSA #########");
-
-
         return new ArrayList<>(ga.getBestIndividuals());
     }
 
     @Test
     public void testDynaMOSA() {
-        List<Chromosome<?>> population = this.setup(StoppingCondition.MAXTIME, 15, Stack.class.getCanonicalName());
+        List<Chromosome<?>> population = this.setup(null, 0, Stack.class.getCanonicalName());
 
         Assert.assertNotEquals(population.size(), 0);
     }
