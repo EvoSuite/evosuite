@@ -6,20 +6,14 @@ import java.util.List;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.SystemTestBase;
-import org.evosuite.Properties.Algorithm;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.Properties.StoppingCondition;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
-import org.evosuite.ga.metaheuristics.mosa.AbstractMOSA;
-import org.evosuite.ga.operators.selection.SelectionFunction;
-import org.evosuite.testcase.TestChromosome;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.examples.with.different.packagename.modalisa.Stack;
-
-import javax.swing.*;
+import com.examples.with.different.packagename.mosalisa.Stack;
 
 public class DynaMOSAGASystemTest extends SystemTestBase {
 
@@ -52,11 +46,13 @@ public class DynaMOSAGASystemTest extends SystemTestBase {
         System.out.println(ga.getBestIndividuals());
         System.out.println("######################################\n\n");
 
+        System.out.println("RANKING FUNCTION FROM GA: " + ga.getRankingFunction());
+
         return new ArrayList<>(ga.getBestIndividuals());
     }
 
     @Test
-    public void testDynaMOSA() {
+    public void testMOSALisa() {
         List<Chromosome<?>> population = this.setup(null, 0, Stack.class.getCanonicalName());
 
         Assert.assertNotEquals(population.size(), 0);

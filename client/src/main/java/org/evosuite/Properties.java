@@ -317,7 +317,7 @@ public class Properties {
         // mu-lambda
         ONE_PLUS_LAMBDA_LAMBDA_GA, ONE_PLUS_ONE_EA, MU_PLUS_LAMBDA_EA, MU_LAMBDA_EA,
         // many-objective algorithms
-        MOSA, DYNAMOSA, LIPS, MIO,
+        MOSA, DYNAMOSA, LIPS, MIO, MOSALISA,
         // multiple-objective optimisation algorithms
         NSGAII, SPEA2
     }
@@ -352,7 +352,7 @@ public class Properties {
     public static boolean MAP_ELITES_IGNORE_FEATURES = false;
 
     @Parameter(key = "algorithm", group = "Search Algorithm", description = "Search algorithm")
-    public static Algorithm ALGORITHM = Algorithm.DYNAMOSA;
+    public static Algorithm ALGORITHM = Algorithm.MOSALISA;
 
     /**
      * Different models of neighbourhoods in the Cellular GA

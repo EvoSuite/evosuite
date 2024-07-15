@@ -1,4 +1,4 @@
-package com.examples.with.different.packagename.modalisa;
+package com.examples.with.different.packagename.mosalisa;
 
 import java.util.EmptyStackException;
 
