@@ -83,27 +83,12 @@ public class MutationFactory extends AbstractFitnessFactory<MutationTestFitness>
      */
     @Override
     public List<MutationTestFitness> getCoverageGoals() {
-        return getCoverageGoals(null);
-    }
-
-    /**
-     * <p>
-     * getCoverageGoals
-     * </p>
-     *
-     * @param targetMethod a {@link java.lang.String} object.
-     * @return a {@link java.util.List} object.
-     */
-    public List<MutationTestFitness> getCoverageGoals(String targetMethod) {
         if (goals != null)
             return goals;
 
         goals = new ArrayList<>();
 
         for (Mutation m : getMutantsLimitedPerClass()) {
-            if (targetMethod != null && !m.getMethodName().endsWith(targetMethod))
-                continue;
-
             String methodName = m.getMethodName();
             if(!matcher.methodMatches(methodName)) {
                 logger.info("Method {} does not match criteria. ", methodName);
