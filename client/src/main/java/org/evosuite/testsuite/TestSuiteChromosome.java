@@ -26,6 +26,7 @@ import org.evosuite.ga.localsearch.LocalSearchObjective;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
+import org.evosuite.testsmells.AbstractTestSmell;
 import org.evosuite.testsuite.localsearch.TestSuiteLocalSearch;
 
 import java.util.*;
@@ -179,15 +180,12 @@ public final class TestSuiteChromosome
      */
     @Override
     public int compareSecondaryObjective(TestSuiteChromosome o) {
-        int objective = secondaryObjIndex;
-        int c = 0;
-        while (c == 0 && objective < secondaryObjectives.size()) {
-            SecondaryObjective<TestSuiteChromosome> so = secondaryObjectives.get(objective++);
-            if (so == null)
-                break;
-            c = so.compareChromosomes(this.self(), o);
+        double compare = 0;
+        for(SecondaryObjective<TestSuiteChromosome> so : secondaryObjectives) {
+            compare += so.compareChromosomes(this.self(), o);
         }
-        return c;
+
+        return (int) Math.signum(compare);
     }
 
 
@@ -282,4 +280,43 @@ public final class TestSuiteChromosome
         return result;
     }
 
+    /**
+     * Optimize a test smell metric
+     * @param testSmell Test smell metric to be optimized
+     * @return double with the test smell score
+     */
+    public double calculateSmellValuesTestSuite (AbstractTestSmell testSmell){
+
+        if(!this.smellValues.containsKey(testSmell.getName())){
+
+            double specificSmellScore = testSmell.computeTestSmellMetric(this);
+            if (!Double.isNaN(specificSmellScore)){
+                this.smellValues.put(testSmell.getName(), specificSmellScore);
+                return specificSmellScore;
+            } else {
+                return 0;
+            }
+        }
+
+        return this.smellValues.get(testSmell.getName());
+    }
+
+    /**
+     * Optimize test smell metrics
+     * @param listOfTestSmells A list with the test smell metrics that will be optimized
+     * @return double with the total test smell score
+     */
+	public double calculateSmellValuesTestSuiteUnrestricted (List<AbstractTestSmell> listOfTestSmells){
+
+	    double smellScore = 0;
+
+        for (AbstractTestSmell testSmell : listOfTestSmells){
+            double specificSmellScore = testSmell.computeTestSmellMetric(this);
+            if (!Double.isNaN(specificSmellScore)){
+                smellScore += specificSmellScore;
+            }
+        }
+
+        return smellScore;
+    }
 }

@@ -37,6 +37,7 @@ import org.evosuite.testcase.statements.FunctionalMockStatement;
 import org.evosuite.testcase.statements.PrimitiveStatement;
 import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.variable.VariableReference;
+import org.evosuite.testsmells.AbstractTestCaseSmell;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
@@ -78,7 +79,6 @@ public final class TestChromosome extends AbstractTestChromosome<TestChromosome>
      */
     private static final List<SecondaryObjective<TestChromosome>> secondaryObjectives =
             new ArrayList<>();
-
 
     /**
      * {@inheritDoc}
@@ -132,6 +132,7 @@ public final class TestChromosome extends AbstractTestChromosome<TestChromosome>
         c.setNumberOfEvaluations(this.getNumberOfEvaluations());
         c.setKineticEnergy(getKineticEnergy());
         c.setNumCollisions(getNumCollisions());
+        c.setSmellValues(getSmellValues());
 
         return c;
     }
@@ -660,17 +661,12 @@ public final class TestChromosome extends AbstractTestChromosome<TestChromosome>
 
     @Override
     public int compareSecondaryObjective(TestChromosome o) {
-        int objective = 0;
-        int c = 0;
-
-        while (c == 0 && objective < secondaryObjectives.size()) {
-
-            SecondaryObjective<TestChromosome> so = secondaryObjectives.get(objective++);
-            if (so == null)
-                break;
-            c = so.compareChromosomes(this.self(), o);
+        double compare = 0;
+        for (SecondaryObjective<TestChromosome> so : secondaryObjectives) {
+            compare += so.compareChromosomes(this.self(), o);
         }
-        return c;
+
+        return (int) Math.signum(compare);
     }
 
     /**
@@ -693,7 +689,6 @@ public final class TestChromosome extends AbstractTestChromosome<TestChromosome>
     public static List<SecondaryObjective<TestChromosome>> getSecondaryObjectives() {
         return secondaryObjectives;
     }
-
 
     public TestSuiteChromosome toSuite() {
         return Stream.of(this).collect(toTestSuiteCollector);
@@ -735,5 +730,24 @@ public final class TestChromosome extends AbstractTestChromosome<TestChromosome>
         }
     }
 
+    /**
+     * Optimize a test smell metric
+     * @param testSmell Test smell metric to be optimized
+     * @return double with the test smell score
+     */
+    public double calculateSmellValuesTestCase (AbstractTestCaseSmell testSmell){
 
+        if(!this.smellValues.containsKey(testSmell.getName())){
+
+            double specificSmellScore = testSmell.computeTestSmellMetric(this);
+            if (!Double.isNaN(specificSmellScore)){
+                this.smellValues.put(testSmell.getName(), specificSmellScore);
+                return specificSmellScore;
+            } else {
+                return 0;
+            }
+        }
+
+        return this.smellValues.get(testSmell.getName());
+    }
 }

@@ -364,6 +364,30 @@ public class TestSuiteGenerator {
                     new File(Properties.SEED_DIR + File.separator + Properties.TARGET_CLASS));
         }
 
+        if (Properties.OUTPUT_VARIABLES != null && Properties.OUTPUT_VARIABLES.toLowerCase().contains("smell") &&
+                Properties.OUTPUT_VARIABLES.toLowerCase().contains("beforepostprocess")) {
+
+            if (!TimeController.getInstance().hasTimeToExecuteATestCase()) {
+                LoggingUtils.getEvoLogger().info("* " + ClientProcess.getPrettyPrintIdentifier()
+                        + "Skipping test smell analysis before post-processing because not enough time is left");
+            } else {
+
+                for (TestChromosome test : testSuite.getTestChromosomes()) {
+                    ExecutionResult result;
+                    result = TestCaseExecutor.runTest(test.getTestCase());
+                    test.setLastExecutionResult(result);
+                }
+            }
+
+            if(Properties.TEST_SMELL_LIST){
+                // Test smell list
+                TestSmellAnalyzer.writeNumIndividualTestSmellsBeforePostProcess(testSuite);
+            } else {
+                // Total number of test smells
+                TestSmellAnalyzer.writeNumTestSmellsBeforePostProcess(testSuite);
+            }
+        }
+
         /*
          * Remove covered goals that are not part of the minimization targets,
          * as they might screw up coverage analysis when a minimization timeout
@@ -516,6 +540,56 @@ public class TestSuiteGenerator {
                 compileAndCheckTests(testSuite);
             else
                 logger.warn("Cannot run Junit test. Cause {}", ClassPathHacker.getCause());
+        }
+
+        if (Properties.TEST_SMELL_OPTIMIZATION) {
+
+            if (!TimeController.getInstance().hasTimeToExecuteATestCase()) {
+                LoggingUtils.getEvoLogger().info("* " + ClientProcess.getPrettyPrintIdentifier()
+                        + "Skipping test smell analysis after post-processing because not enough time is left");
+            } else {
+
+                for (TestChromosome test : testSuite.getTestChromosomes()) {
+                    ExecutionResult result;
+                    result = TestCaseExecutor.runTest(test.getTestCase());
+                    test.setLastExecutionResult(result);
+                }
+
+                double before = testSuite.getFitness();
+
+                OptimizeTestSmellsPostProcessing optimized = new OptimizeTestSmellsPostProcessing();
+
+                optimized.computeTotalNumberOfSmells(testSuite);
+
+                double after = testSuite.getFitness();
+
+                if (after > before + 0.01d) {
+                    throw new Error("EvoSuite bug: test smell optimization as an additional post-processing step lead fitness from " + before + " to " + after);
+                }
+            }
+        }
+
+        if (Properties.OUTPUT_VARIABLES != null && Properties.OUTPUT_VARIABLES.toLowerCase().contains("smell")) {
+
+            if (!TimeController.getInstance().hasTimeToExecuteATestCase()) {
+                LoggingUtils.getEvoLogger().info("* " + ClientProcess.getPrettyPrintIdentifier()
+                        + "Skipping test smell analysis after post-processing because not enough time is left");
+            } else {
+
+                for (TestChromosome test : testSuite.getTestChromosomes()) {
+                    ExecutionResult result;
+                    result = TestCaseExecutor.runTest(test.getTestCase());
+                    test.setLastExecutionResult(result);
+                }
+            }
+
+            if(Properties.TEST_SMELL_LIST){
+                // Test smell list
+                TestSmellAnalyzer.writeIndividualTestSmells(testSuite);
+            } else {
+                // Total number of test smells
+                TestSmellAnalyzer.writeNumTestSmells(testSuite);
+            }
         }
     }
 
