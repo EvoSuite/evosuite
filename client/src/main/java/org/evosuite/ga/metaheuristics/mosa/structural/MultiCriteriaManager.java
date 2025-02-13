@@ -336,6 +336,9 @@ public class MultiCriteriaManager extends StructuralGoalManager implements Seria
                 ClassLoader loader = TestGenerationContext.getInstance().getClassLoaderForSUT();
                 BytecodeInstructionPool pool = BytecodeInstructionPool.getInstance(loader);
                 BytecodeInstruction instruction = pool.getFirstInstructionAtLineNumber(line.getClassName(), line.getMethod(), line.getLine());
+                if(instruction == null) {
+                    return;
+                }
                 Set<ControlDependency> cds = instruction.getControlDependencies();
                 if (cds.size() == 0)
                     this.currentGoals.add(ff);

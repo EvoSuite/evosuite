@@ -1356,6 +1356,16 @@ public class TestFactory {
         return ret;
     }
 
+    private VariableReference createOrReuseVariable(TestCase test, Type parameterType,
+                                                    int position, int recursionDepth, VariableReference exclude, boolean allowNull,
+                                                    boolean excludeCalleeGenerators, boolean canUseMocks)
+        throws ConstructionFailedException {
+        VariableReference ref = _createOrReuseVariable(test, parameterType, position, recursionDepth, exclude, allowNull, excludeCalleeGenerators, canUseMocks);
+        if(!ref.isAssignableTo(parameterType)) {
+            throw new ConstructionFailedException(ref + " cannot be assigned to " + parameterType);
+        }
+        return ref;
+    }
 
     /**
      * In the given {@code test} case, tries to create a new variable of type {@code parameterType}
@@ -1369,7 +1379,7 @@ public class TestFactory {
      * @return
      * @throws ConstructionFailedException
      */
-    private VariableReference createOrReuseVariable(TestCase test, Type parameterType,
+    private VariableReference _createOrReuseVariable(TestCase test, Type parameterType,
                                                     int position, int recursionDepth, VariableReference exclude, boolean allowNull,
                                                     boolean excludeCalleeGenerators, boolean canUseMocks)
             throws ConstructionFailedException {
@@ -2418,15 +2428,13 @@ public class TestFactory {
                     throw new ConstructionFailedException(
                             "Failed to create variable for type " + parameterType + " at position " + position);
                 }
+                if(!var.isAssignableTo(parameterType)) {
+                    throw new ConstructionFailedException(var + " cannot be assigned to " + parameterType);
+                }
             }
 
             assert !(!allowNullForParameter && ConstraintHelper.isNull(var, test));
 
-            // Generics instantiation may lead to invalid types, so better
-            // double check
-            if (!var.isAssignableTo(parameterType)) {
-                throw new ConstructionFailedException("Error: " + var + " is not assignable to " + parameterType);
-            }
             parameters.add(var);
 
             int currentLength = test.size();

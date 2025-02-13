@@ -427,7 +427,6 @@ public class TestCluster {
                                 continue;
                             }
 
-
                             // Set owner type parameters from new return type
                             GenericAccessibleObject<?> newGenerator = generator.copyWithOwnerFromReturnType(instantiatedGeneratorClazz);
 
@@ -462,11 +461,16 @@ public class TestCluster {
                             }
 
                             logger.debug("Current generator: {}", newGenerator);
-                            if ((!hadTypeParameters && generatorClazz.equals(clazz))
-                                    || clazz.isAssignableFrom(newGenerator.getGeneratedType())) {
-                                logger.debug("Got new generator: {} which generated: {}",
-                                        newGenerator, newGenerator.getGeneratedClass());
+                            if ((!hadTypeParameters && generatorClazz.equals(clazz)) || clazz.isAssignableFrom(newGenerator.getGeneratedType())) {
+                                logger.debug("Got new generator: {} which generated: {}", newGenerator, newGenerator.getGeneratedClass());
                                 logger.debug("{} vs {}", (!hadTypeParameters && generatorClazz.equals(clazz)), clazz.isAssignableFrom(newGenerator.getGeneratedType()));
+                                if(Properties.DEBUG && !clazz.hasTypeVariables()) {
+                                    logger.warn("{} has no type variables", clazz);
+                                    if(!newGenerator.getGeneratedClass().canBeInstantiatedTo(clazz)) {
+                                        logger.error("{} cannot be assigned to {}", newGenerator.getGeneratedClass(), clazz);
+                                        throw new Error("should not happen");
+                                    }
+                                }
                                 targetGenerators.add(newGenerator);
 
                             } else if (logger.isDebugEnabled()) {
@@ -511,7 +515,7 @@ public class TestCluster {
      * @param target
      */
     public void clearGeneratorCache(GenericClass<?> target) {
-        generatorCache.clear();
+        generatorCache.remove(target);
     }
 
     /**
@@ -1070,7 +1074,15 @@ public class TestCluster {
                 }
             }
 
-            generator = Randomness.choice(candidates);
+            Set<GenericAccessibleObject<?>> candidatesWithNoTypeParameters = candidates.stream().
+                    filter(p -> !p.hasTypeParameters()).
+                    collect(Collectors.toCollection(LinkedHashSet::new));
+
+            if(!candidatesWithNoTypeParameters.isEmpty()) {
+                generator = Randomness.choice(candidatesWithNoTypeParameters);
+            }else{
+                generator = Randomness.choice(candidates);
+            }
             logger.debug("Chosen generator: " + generator);
         }
 
