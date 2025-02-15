@@ -176,7 +176,7 @@ public class ProcessRunner {
         List<String> list = new ArrayList<>();
         list.add(params.getMvnLocation());
         list.add("compile");
-        list.add("evosuite:generate");
+        list.add("org.evosuite.plugins:evosuite-maven-plugin:generate");
         list.add("-Dcores=" + params.getCores());
         //the memory is per core
         list.add("-DmemoryInMB=" + (params.getMemory() * params.getCores()));
@@ -193,7 +193,7 @@ public class ProcessRunner {
             }
         }
 
-        list.add("evosuite:export"); //note, here -Dctg_export_folder would do as well
+        list.add("org.evosuite.plugins:evosuite-maven-plugin:export"); //note, here -Dctg_export_folder would do as well
         list.add("-DtargetFolder=" + params.getFolder());
         return list;
     }

@@ -79,12 +79,12 @@ public class EvoParameters {
 
         String envJavaHome = System.getenv("JAVA_HOME");
         javaHome = p.getValue(JAVA_HOME, envJavaHome != null ? envJavaHome : "");
-        mvnLocation = p.getValue(MVN_LOCATION, "");
+        mvnLocation = p.getValue(MVN_LOCATION, getPossibleLocationForMvn());
         evosuiteJarLocation = p.getValue(EVOSUITE_JAR_LOCATION, "");
         executionMode = p.getValue(EXECUTION_MODE, EXECUTION_MODE_MVN);
 
-        guiWidth = p.getInt(GUI_DIALOG_WIDTH, 570);
-        guiHeight = p.getInt(GUI_DIALOG_HEIGHT, 300);
+        guiWidth = p.getInt(GUI_DIALOG_WIDTH, 600);
+        guiHeight = p.getInt(GUI_DIALOG_HEIGHT, 600);
     }
 
     public void save(Project project) {
