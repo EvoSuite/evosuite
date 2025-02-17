@@ -19,6 +19,7 @@
  */
 package org.evosuite.testsuite.secondaryobjectives;
 
+import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.SecondaryObjective;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testsuite.TestSuiteChromosome;
@@ -33,12 +34,12 @@ public class MinimizeMaxLengthSecondaryObjective extends SecondaryObjective<Test
 
     private static final long serialVersionUID = 2270058273932360617L;
 
-    private int getMaxLength(TestSuiteChromosome chromosome) {
+    private double getMaxLength(TestSuiteChromosome chromosome) {
         int max = 0;
         for (TestChromosome test : chromosome.getTestChromosomes()) {
             max = Math.max(max, test.size());
         }
-        return max;
+        return FitnessFunction.normalize(max);
     }
 
     /*
@@ -53,7 +54,7 @@ public class MinimizeMaxLengthSecondaryObjective extends SecondaryObjective<Test
      * {@inheritDoc}
      */
     @Override
-    public int compareChromosomes(TestSuiteChromosome chromosome1, TestSuiteChromosome chromosome2) {
+    public double compareChromosomes(TestSuiteChromosome chromosome1, TestSuiteChromosome chromosome2) {
         return getMaxLength(chromosome1) - getMaxLength(chromosome2);
     }
 
@@ -69,7 +70,7 @@ public class MinimizeMaxLengthSecondaryObjective extends SecondaryObjective<Test
      * {@inheritDoc}
      */
     @Override
-    public int compareGenerations(TestSuiteChromosome parent1, TestSuiteChromosome parent2,
+    public double compareGenerations(TestSuiteChromosome parent1, TestSuiteChromosome parent2,
                                   TestSuiteChromosome child1, TestSuiteChromosome child2) {
         return Math.min(getMaxLength(parent1), getMaxLength(parent2))
                 - Math.min(getMaxLength(child1), getMaxLength(child2));

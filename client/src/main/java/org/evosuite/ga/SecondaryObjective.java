@@ -48,7 +48,7 @@ public abstract class SecondaryObjective<T extends Chromosome<T>> implements Ser
      * @param chromosome2 a {@link org.evosuite.ga.Chromosome} object.
      * @return a int.
      */
-    public abstract int compareChromosomes(T chromosome1, T chromosome2);
+    public abstract double compareChromosomes(T chromosome1, T chromosome2);
 
     /**
      * Compare two parents to decide whether the children can replace the
@@ -60,7 +60,7 @@ public abstract class SecondaryObjective<T extends Chromosome<T>> implements Ser
      * @param child2  a {@link org.evosuite.ga.Chromosome} object.
      * @return a int.
      */
-    public abstract int compareGenerations(T parent1, T parent2,
+    public abstract double compareGenerations(T parent1, T parent2,
                                            T child1, T child2);
 
 }

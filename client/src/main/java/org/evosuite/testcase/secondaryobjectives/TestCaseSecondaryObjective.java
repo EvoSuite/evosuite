@@ -22,6 +22,7 @@ package org.evosuite.testcase.secondaryobjectives;
 import org.evosuite.Properties;
 import org.evosuite.ga.SecondaryObjective;
 import org.evosuite.testcase.TestChromosome;
+import org.evosuite.testsmells.smells.*;
 
 public class TestCaseSecondaryObjective {
 
@@ -37,6 +38,42 @@ public class TestCaseSecondaryObjective {
                         break;
                     case EXCEPTIONS:
                         secondaryObjectiveInstance = new MinimizeExceptionsSecondaryObjective();
+                        break;
+                    case TEST_SMELL_EAGER_TEST:
+                        secondaryObjectiveInstance = new OptimizeTestSmellsSecondaryObjective(new EagerTest());
+                        break;
+                    case TEST_SMELL_EMPTY_TEST:
+                        secondaryObjectiveInstance = new OptimizeTestSmellsSecondaryObjective(new EmptyTest());
+                        break;
+                    case TEST_SMELL_INDIRECT_TESTING:
+                        secondaryObjectiveInstance = new OptimizeTestSmellsSecondaryObjective(new IndirectTesting());
+                        break;
+                    case TEST_SMELL_LIKELY_INEFFECTIVE_OBJECT_COMPARISON:
+                        secondaryObjectiveInstance = new OptimizeTestSmellsSecondaryObjective(new LikelyIneffectiveObjectComparison());
+                        break;
+                    case TEST_SMELL_MYSTERY_GUEST:
+                        secondaryObjectiveInstance = new OptimizeTestSmellsSecondaryObjective(new MysteryGuest());
+                        break;
+                    case TEST_SMELL_OBSCURE_INLINE_SETUP:
+                        secondaryObjectiveInstance = new OptimizeTestSmellsSecondaryObjective(new ObscureInlineSetup());
+                        break;
+                    case TEST_SMELL_OVERREFERENCING:
+                        secondaryObjectiveInstance = new OptimizeTestSmellsSecondaryObjective(new Overreferencing());
+                        break;
+                    case TEST_SMELL_RESOURCE_OPTIMISM:
+                        secondaryObjectiveInstance = new OptimizeTestSmellsSecondaryObjective(new ResourceOptimism());
+                        break;
+                    case TEST_SMELL_ROTTEN_GREEN_TESTS:
+                        secondaryObjectiveInstance = new OptimizeTestSmellsSecondaryObjective(new RottenGreenTests());
+                        break;
+                    case TEST_SMELL_SLOW_TESTS:
+                        secondaryObjectiveInstance = new OptimizeTestSmellsSecondaryObjective(new SlowTests());
+                        break;
+                    case TEST_SMELL_VERBOSE_TEST:
+                        secondaryObjectiveInstance = new OptimizeTestSmellsSecondaryObjective(new VerboseTest());
+                        break;
+                    case RANDOM:
+                        secondaryObjectiveInstance = new ChooseRandomlySecondaryObjective();
                         break;
                     default:
                         throw new RuntimeException("ERROR: asked for unknown secondary objective \""

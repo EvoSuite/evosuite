@@ -75,7 +75,7 @@ public class DefaultTestCase implements TestCase, Serializable {
     /**
      * Coverage goals this test covers
      */
-    private transient Set<TestFitnessFunction> coveredGoals = new LinkedHashSet<>();
+    private final Set<TestFitnessFunction> coveredGoals = new LinkedHashSet<>();
 
     /**
      * Violations revealed by this test
@@ -1216,7 +1216,7 @@ public class DefaultTestCase implements TestCase, Serializable {
             IOException {
         ois.defaultReadObject();
 
-        coveredGoals = new LinkedHashSet<>();
+        //coveredGoals = new LinkedHashSet<>();
         contractViolations = new LinkedHashSet<>();
     }
 

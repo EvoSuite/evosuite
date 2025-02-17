@@ -759,7 +759,11 @@ public class Properties {
     public static MutationProbabilityDistribution MUTATION_PROBABILITY_DISTRIBUTION = MutationProbabilityDistribution.UNIFORM;
 
     public enum SecondaryObjective {
-        AVG_LENGTH, MAX_LENGTH, TOTAL_LENGTH, SIZE, EXCEPTIONS, IBRANCH, RHO
+        AVG_LENGTH, MAX_LENGTH, TOTAL_LENGTH, SIZE, EXCEPTIONS, IBRANCH, RHO, TEST_SMELL_EAGER_TEST,
+        TEST_SMELL_EMPTY_TEST, TEST_SMELL_INDIRECT_TESTING, TEST_SMELL_LIKELY_INEFFECTIVE_OBJECT_COMPARISON,
+        TEST_SMELL_MYSTERY_GUEST, TEST_SMELL_OBSCURE_INLINE_SETUP, TEST_SMELL_OVERREFERENCING,
+        TEST_SMELL_RESOURCE_OPTIMISM, TEST_SMELL_ROTTEN_GREEN_TESTS, TEST_SMELL_SLOW_TESTS, TEST_SMELL_VERBOSE_TEST,
+        RANDOM
     }
 
     @Parameter(key = "secondary_objectives", group = "Search Algorithm", description = "Secondary objective during search")
@@ -980,6 +984,12 @@ public class Properties {
     public enum OutputFormat {
         JUNIT3, JUNIT4, TESTNG, JUNIT5
     }
+
+    @Parameter(key = "test_smell_optimization", group = "Output", description = "Optimize test smells as an additional post-processing step")
+    public static boolean TEST_SMELL_OPTIMIZATION = false;
+
+    @Parameter(key = "test_smell_list", group = "Output", description = "Show test smell list")
+    public static boolean TEST_SMELL_LIST = true;
 
     @Parameter(key = "test_format", group = "Output", description = "Format of the resulting test cases")
     public static OutputFormat TEST_FORMAT = OutputFormat.JUNIT4;
@@ -2175,6 +2185,17 @@ public class Properties {
                 }
 
                 f.set(this, criteria);
+            } else if (f.getType().getComponentType().equals(SecondaryObjective.class)) {
+                String[] values = value.split(":");
+                SecondaryObjective[] secondaryObjectives = new SecondaryObjective[values.length];
+
+                int pos = 0;
+                for (String stringValue : values) {
+                    secondaryObjectives[pos++] = Enum.valueOf(SecondaryObjective.class,
+                            stringValue.toUpperCase());
+                }
+
+                f.set(this, secondaryObjectives);
             }
         } else {
             f.set(null, value);

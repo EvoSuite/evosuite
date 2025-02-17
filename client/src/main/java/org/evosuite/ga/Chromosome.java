@@ -26,9 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import static java.util.stream.Collectors.averagingDouble;
 
@@ -130,6 +128,9 @@ public abstract class Chromosome<T extends Chromosome<T>>
     // may experience a change in its molecular structure. It is a record of the total number of collisions
     // a molecule has taken. (field used by Chemical Reaction Optimization algorithms)
     protected int numCollisions = 0;
+
+    /** The score for each test smell metric */
+    protected LinkedHashMap<String, Double> smellValues = new LinkedHashMap<>();
 
     /**
      * Return current fitness value
@@ -388,6 +389,9 @@ public abstract class Chromosome<T extends Chromosome<T>>
      */
     public void setChanged(boolean changed) {
         this.changed = changed;
+        if (this.changed) {
+            this.smellValues.clear();
+        }
         // If it's changed, then that also implies LS is possible again
         localSearchApplied = false;
     }
@@ -675,5 +679,22 @@ public abstract class Chromosome<T extends Chromosome<T>>
      */
     public void increaseNumCollisionsByOne() {
         this.numCollisions++;
+    }
+
+    /**
+     * Get the score for each test smell metric
+     * @return LinkedHashMap containing the metrics and the respective scores
+     */
+    public LinkedHashMap<String, Double> getSmellValues() {
+        return this.smellValues;
+    }
+
+    /**
+     * Set the score for each test smell metric
+     * @param smellValues Smell values to be set
+     */
+    public void setSmellValues(LinkedHashMap<String, Double> smellValues) {
+        this.smellValues.clear();
+        this.smellValues.putAll(smellValues);
     }
 }

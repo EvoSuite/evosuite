@@ -19,6 +19,7 @@
  */
 package org.evosuite.coverage.rho;
 
+import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.SecondaryObjective;
 import org.evosuite.testsuite.TestSuiteChromosome;
 
@@ -40,10 +41,13 @@ public class RhoTestSuiteSecondaryObjective extends SecondaryObjective<TestSuite
      * {@inheritDoc}
      */
     @Override
-    public int compareChromosomes(TestSuiteChromosome suite1, TestSuiteChromosome suite2) {
-        double c1 = this.getRhoFitnessValue(suite1);
-        double c2 = this.getRhoFitnessValue(suite2);
+    public double compareChromosomes(TestSuiteChromosome suite1, TestSuiteChromosome suite2) {
+        double c1 = FitnessFunction.normalize(this.getRhoFitnessValue(suite1));
+        double c2 = FitnessFunction.normalize(this.getRhoFitnessValue(suite2));
 
+        return c1 - c2;
+
+        /*
         if (c1 == c2) {
             return 0;
         } else if (c1 < c2) {
@@ -52,13 +56,14 @@ public class RhoTestSuiteSecondaryObjective extends SecondaryObjective<TestSuite
         } else {
             return 1;
         }
+         */
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public int compareGenerations(TestSuiteChromosome parent1, TestSuiteChromosome parent2,
+    public double compareGenerations(TestSuiteChromosome parent1, TestSuiteChromosome parent2,
                                   TestSuiteChromosome child1, TestSuiteChromosome child2) {
         // this function is not used
         throw new RuntimeException(

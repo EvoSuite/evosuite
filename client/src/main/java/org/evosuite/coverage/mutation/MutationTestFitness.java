@@ -48,7 +48,7 @@ public abstract class MutationTestFitness extends TestFitnessFunction {
 
     private static final long serialVersionUID = 596930765039928708L;
 
-    protected transient Mutation mutation;
+    protected Mutation mutation;
 
     protected int mutantId;
 
@@ -266,7 +266,7 @@ public abstract class MutationTestFitness extends TestFitnessFunction {
         ois.defaultReadObject();
 
         mutantId = ois.readInt();
-        this.mutation = MutationPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getMutant(mutantId);
+        //this.mutation = MutationPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getMutant(mutantId);
         assert (this.mutation != null) : "mutation id not found " + mutantId;
     }
 }

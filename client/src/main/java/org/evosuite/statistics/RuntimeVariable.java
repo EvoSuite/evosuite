@@ -46,6 +46,91 @@ import java.util.Map;
  */
 public enum RuntimeVariable {
 
+	/**
+	 * The number of individual test smells
+	 */
+	TestSmellAssertionRoulette,
+	TestSmellBrittleAssertion,
+	TestSmellDuplicateAssert,
+	TestSmellEagerTest,
+	TestSmellEmptyTest,
+	TestSmellIndirectTesting,
+	TestSmellLackOfCohesionOfMethods,
+	TestSmellLazyTest,
+	TestSmellLikelyIneffectiveObjectComparison,
+	TestSmellMysteryGuest,
+	TestSmellObscureInlineSetup,
+	TestSmellOverreferencing,
+	TestSmellRedundantAssertion,
+	TestSmellResourceOptimism,
+	TestSmellRottenGreenTests,
+	TestSmellSlowTests,
+    TestSmellTestRedundancy,
+	TestSmellUnknownTest,
+    TestSmellUnrelatedAssertions,
+	TestSmellUnusedInputs,
+	TestSmellVerboseTest,
+
+	/**
+	 * The total number of test smells
+	 */
+	AllTestSmells,
+
+    /**
+     * The number of individual test smells before minimization
+     */
+    TestSmellAssertionRouletteBeforePostProcess,
+    TestSmellBrittleAssertionBeforePostProcess,
+    TestSmellDuplicateAssertBeforePostProcess,
+    TestSmellEagerTestBeforePostProcess,
+    TestSmellEmptyTestBeforePostProcess,
+    TestSmellIndirectTestingBeforePostProcess,
+    TestSmellLackOfCohesionOfMethodsBeforePostProcess,
+    TestSmellLazyTestBeforePostProcess,
+    TestSmellLikelyIneffectiveObjectComparisonBeforePostProcess,
+    TestSmellMysteryGuestBeforePostProcess,
+    TestSmellObscureInlineSetupBeforePostProcess,
+    TestSmellOverreferencingBeforePostProcess,
+    TestSmellRedundantAssertionBeforePostProcess,
+    TestSmellResourceOptimismBeforePostProcess,
+    TestSmellRottenGreenTestsBeforePostProcess,
+    TestSmellSlowTestsBeforePostProcess,
+    TestSmellTestRedundancyBeforePostProcess,
+    TestSmellUnknownTestBeforePostProcess,
+    TestSmellUnrelatedAssertionsBeforePostProcess,
+    TestSmellUnusedInputsBeforePostProcess,
+    TestSmellVerboseTestBeforePostProcess,
+
+    /**
+     * The total number of test smells before minimization
+     */
+    AllTestSmellsBeforePostProcess,
+
+	/**
+	 * Obtained test smell numbers at different points in time
+	 */
+	TestSmellAssertionRouletteTimeline,
+	TestSmellBrittleAssertionTimeline,
+	TestSmellDuplicateAssertTimeline,
+	TestSmellEagerTestTimeline,
+	TestSmellEmptyTestTimeline,
+	TestSmellIndirectTestingTimeline,
+	TestSmellLackOfCohesionOfMethodsTimeline,
+	TestSmellLazyTestTimeline,
+	TestSmellLikelyIneffectiveObjectComparisonTimeline,
+	TestSmellMysteryGuestTimeline,
+	TestSmellObscureInlineSetupTimeline,
+	TestSmellOverreferencingTimeline,
+	TestSmellRedundantAssertionTimeline,
+	TestSmellResourceOptimismTimeline,
+	TestSmellRottenGreenTestsTimeline,
+	TestSmellSlowTestsTimeline,
+    TestSmellTestRedundancyTimeline,
+	TestSmellUnknownTestTimeline,
+    TestSmellUnrelatedAssertionsTimeline,
+	TestSmellUnusedInputsTimeline,
+	TestSmellVerboseTestTimeline,
+
     /**
      * Number of predicates in CUT
      */
