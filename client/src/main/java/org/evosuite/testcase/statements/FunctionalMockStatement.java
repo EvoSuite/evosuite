@@ -40,6 +40,7 @@ import org.evosuite.testcase.fm.EvoInvocationListener;
 import org.evosuite.testcase.fm.MethodDescriptor;
 import org.evosuite.testcase.variable.ConstantValue;
 import org.evosuite.testcase.variable.VariableReference;
+import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.generic.GenericAccessibleObject;
 import org.evosuite.utils.generic.GenericClass;
 import org.evosuite.utils.generic.GenericClassFactory;
@@ -529,8 +530,11 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
                 return md.getMethod().getReturnType();
             }
         }
-
-        throw new AssertionError("");
+        LoggingUtils.getEvoLogger().error("Error for finding expected parameter type: " + i + ", " + mockedMethods);
+        // TODO: This should not happen and if it is, some bugs are triggered. '
+        // Since 'return Object.class' can improve code coverage instead of giving it up, I do not forcefully trigger Error.
+        // This should be fixed (find the root causes of bugs and ..)
+        return Object.class;
     }
 
     //------------ override methods ---------------

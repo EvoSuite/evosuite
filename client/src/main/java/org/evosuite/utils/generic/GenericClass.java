@@ -48,6 +48,8 @@ public interface GenericClass<T extends GenericClass<T>> extends Serializable {
      * @param otherType is the class we want to generate
      * @return whether this generic class can be instantiated to the given type.
      */
+    boolean canBeInstantiatedTo(GenericClass<?> otherType, int recursionLevel);
+
     boolean canBeInstantiatedTo(GenericClass<?> otherType);
 
     /**

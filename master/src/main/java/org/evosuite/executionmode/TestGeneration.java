@@ -58,11 +58,10 @@ public class TestGeneration {
         Strategy strategy = getChosenStrategy(javaOpts, line);
 
         /** Updating properties strategy */
-        Properties.STRATEGY = strategy;
-
-        if (strategy == null) {
+        if(strategy == null) {
             strategy = Strategy.MOSUITE;
         }
+        Properties.STRATEGY = strategy;
 
         List<List<TestGenerationResult>> results = new ArrayList<>();
 

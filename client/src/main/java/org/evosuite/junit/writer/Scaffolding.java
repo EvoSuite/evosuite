@@ -155,7 +155,7 @@ public class Scaffolding {
             list.add(adapter.afterEach().getCanonicalName());
         }
 
-        if (wasSecurityException || TestSuiteWriterUtils.shouldResetProperties(results)) {
+        if (Properties.RESET_STATIC_FIELDS || wasSecurityException || TestSuiteWriterUtils.shouldResetProperties(results)) {
             list.add(getAdapter().afterAll().getCanonicalName());
         }
 
@@ -586,7 +586,6 @@ public class Scaffolding {
                 bd.append(BLOCK_SPACE);
                 bd.append("Sandbox.resetDefaultSecurityManager(); \n");
             }
-
             if (wasSecurityException) {
                 bd.append(BLOCK_SPACE);
                 bd.append(EXECUTOR_SERVICE + ".shutdownNow(); \n");

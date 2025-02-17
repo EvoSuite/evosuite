@@ -1,0 +1,3 @@
+[submodule "libs/commons-lang"]
+	path = libs/commons-lang
+	url = https://github.com/cinemamoon/commons-lang.git

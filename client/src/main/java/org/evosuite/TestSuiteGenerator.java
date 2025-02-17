@@ -493,7 +493,7 @@ public class TestSuiteGenerator {
             LoggingUtils.getEvoLogger().info("* " + ClientProcess.getPrettyPrintIdentifier() + "Generating assertions");
             // progressMonitor.setCurrentPhase("Generating assertions");
             ClientServices.getInstance().getClientNode().changeState(ClientState.ASSERTION_GENERATION);
-            if (!TimeController.getInstance().hasTimeToExecuteATestCase()) {
+            if(!TimeController.getInstance().isThereStillTimeInThisPhase()) {
                 LoggingUtils.getEvoLogger().info("* " + ClientProcess.getPrettyPrintIdentifier()
                         + "Skipping assertion generation because not enough time is left");
             } else {

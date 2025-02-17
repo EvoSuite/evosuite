@@ -269,6 +269,12 @@
         </profile>
     </profiles>
 
+    <repositories>
+        <repository>
+            <id>local-maven-repo</id>
+            <url>file:///${user.dir}/local-maven-repo</url>
+        </repository>
+    </repositories>
 
     <dependencyManagement>
         <!-- It is important that _no_ GPL library is used here. Note, in some
@@ -398,7 +404,7 @@
                 <!-- Apache 2 -->
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
-                <version>3.12.0</version>
+                <version>3.12.0-fix-LANG-1700</version>
                 <!-- Version 3.2.1 leads to a NPE in org.jcvi.jillion.fasta.qual.QualityFastaRecordWriterBuilder
                     in 92_jcvi-javacommon -->
             </dependency>
@@ -807,6 +813,7 @@
                                             <exclude>org.apache.tools.ant.taskdefs.optional.junit.JUnitResultFormatter</exclude>
                                             <exclude>org.apache.tools.ant.taskdefs.optional.junit.JUnitTest</exclude>
                                             <exclude>org.apache.tools.ant.BuildException</exclude>
+                                            <exclude>org.apache.commons.lang3.reflect.*</exclude> <!-- for debugging -->
                                         </excludes>
                                     </relocation>
                                     <relocation>

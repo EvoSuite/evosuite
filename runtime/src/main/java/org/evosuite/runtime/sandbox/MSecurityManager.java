@@ -984,7 +984,8 @@ public class MSecurityManager extends SecurityManager {
                 || name.equals("setContextClassLoader")
                 || name.equals("enableContextClassLoaderOverride")
                 || name.equals("accessDeclaredMembers")
-                || name.equals("accessSystemModules")) {
+                || name.equals("accessSystemModules")
+                || name.equals("closeClassLoader")) {
             return true;
         }
 

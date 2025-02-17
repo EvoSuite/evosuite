@@ -25,3 +25,4 @@ master/dependency-reduced-pom.xml
 shaded/dependency-reduced-pom.xml
 standalone_runtime/dependency-reduced-pom.xml
 nbactions.xml
+!./local-maven-repo/org/apache/commons/commons-lang3/3.12.0-fix-LANG-1700/*.jar
