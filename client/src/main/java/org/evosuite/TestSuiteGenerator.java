@@ -19,6 +19,7 @@
  */
 package org.evosuite;
 
+import org.burningwave.core.assembler.StaticComponentContainer;
 import org.evosuite.Properties.AssertionStrategy;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.Properties.TestFactory;
@@ -85,6 +86,9 @@ public class TestSuiteGenerator {
 
 
     private void initializeTargetClass() throws Throwable {
+        // opens all modules by invoking addExportsToAll0
+        StaticComponentContainer.Modules.exportAllToAll();
+
         String cp = ClassPathHandler.getInstance().getTargetProjectClasspath();
 
         // Generate inheritance tree and call graph *before* loading the CUT
