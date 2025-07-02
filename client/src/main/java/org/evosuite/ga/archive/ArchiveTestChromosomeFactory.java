@@ -25,7 +25,7 @@ import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.factories.RandomLengthTestFactory;
 import org.evosuite.testsuite.TestSuiteSerialization;
 import org.evosuite.utils.LoggingUtils;
-import org.evosuite.utils.Randomness;
+import org.evosuite.runtime.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -31,7 +31,7 @@ import org.evosuite.testcase.execution.Scope;
 import org.evosuite.testcase.execution.UncompilableCodeException;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testcase.variable.VariableReferenceImpl;
-import org.evosuite.utils.Randomness;
+import org.evosuite.runtime.Randomness;
 import org.evosuite.utils.generic.GenericConstructor;
 import org.objectweb.asm.Type;
 

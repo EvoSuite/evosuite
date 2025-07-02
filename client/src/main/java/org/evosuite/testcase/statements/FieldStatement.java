@@ -28,7 +28,7 @@ import org.evosuite.testcase.execution.Scope;
 import org.evosuite.testcase.variable.ArrayReference;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testcase.variable.VariableReferenceImpl;
-import org.evosuite.utils.Randomness;
+import org.evosuite.runtime.Randomness;
 import org.evosuite.utils.generic.GenericField;
 
 import java.io.PrintStream;

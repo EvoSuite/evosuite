@@ -34,7 +34,7 @@ import org.evosuite.testcase.statements.environment.AccessedEnvironment;
 import org.evosuite.testcase.variable.*;
 import org.evosuite.utils.ListenableList;
 import org.evosuite.utils.Listener;
-import org.evosuite.utils.Randomness;
+import org.evosuite.runtime.Randomness;
 import org.evosuite.utils.generic.GenericClass;
 import org.evosuite.utils.generic.GenericClassFactory;
 import org.evosuite.utils.generic.GenericClassUtils;

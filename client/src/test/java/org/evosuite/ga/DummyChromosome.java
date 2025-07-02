@@ -20,7 +20,7 @@
 package org.evosuite.ga;
 
 import org.evosuite.ga.localsearch.LocalSearchObjective;
-import org.evosuite.utils.Randomness;
+import org.evosuite.runtime.Randomness;
 
 import java.util.ArrayList;
 import java.util.Collection;

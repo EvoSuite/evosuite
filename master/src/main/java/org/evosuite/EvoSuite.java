@@ -31,7 +31,7 @@ import org.evosuite.runtime.util.JavaExecCmdUtil;
 import org.evosuite.setup.InheritanceTree;
 import org.evosuite.setup.InheritanceTreeGenerator;
 import org.evosuite.utils.LoggingUtils;
-import org.evosuite.utils.Randomness;
+import org.evosuite.runtime.Randomness;
 import org.evosuite.utils.SpawnProcessKeepAliveChecker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

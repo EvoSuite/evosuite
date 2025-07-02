@@ -30,7 +30,7 @@ import org.evosuite.testcase.variable.ArrayReference;
 import org.evosuite.testcase.variable.FieldReference;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.utils.LoggingUtils;
-import org.evosuite.utils.Randomness;
+import org.evosuite.runtime.Randomness;
 import org.evosuite.utils.generic.GenericAccessibleObject;
 import org.evosuite.utils.generic.GenericClassFactory;
 

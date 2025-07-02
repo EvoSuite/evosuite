@@ -21,7 +21,7 @@
 package org.evosuite.testcase.statements.numeric;
 
 import org.evosuite.testcase.TestCase;
-import org.evosuite.utils.Randomness;
+import org.evosuite.runtime.Randomness;
 
 
 /**

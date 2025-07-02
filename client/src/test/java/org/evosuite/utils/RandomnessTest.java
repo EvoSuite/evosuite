@@ -19,6 +19,7 @@
  */
 package org.evosuite.utils;
 
+import org.evosuite.runtime.Randomness;
 import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;

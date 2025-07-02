@@ -19,7 +19,7 @@
  */
 package org.evosuite.ga.operators.mutation;
 
-import org.evosuite.utils.Randomness;
+import org.evosuite.runtime.Randomness;
 
 import java.util.LinkedHashSet;
 import java.util.Set;

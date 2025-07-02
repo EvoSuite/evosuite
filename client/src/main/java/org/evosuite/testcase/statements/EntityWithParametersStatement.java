@@ -25,7 +25,7 @@ import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.variable.ArrayIndex;
 import org.evosuite.testcase.variable.NullReference;
 import org.evosuite.testcase.variable.VariableReference;
-import org.evosuite.utils.Randomness;
+import org.evosuite.runtime.Randomness;
 import org.evosuite.utils.generic.GenericUtils;
 
 import java.lang.annotation.Annotation;

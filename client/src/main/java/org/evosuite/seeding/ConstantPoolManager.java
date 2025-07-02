@@ -21,7 +21,7 @@
 package org.evosuite.seeding;
 
 import org.evosuite.Properties;
-import org.evosuite.utils.Randomness;
+import org.evosuite.runtime.Randomness;
 
 /**
  * @author Gordon Fraser

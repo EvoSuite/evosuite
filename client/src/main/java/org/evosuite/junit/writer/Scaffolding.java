@@ -46,6 +46,7 @@ import org.evosuite.testcase.statements.Statement;
 import org.evosuite.utils.generic.GenericClassFactory;
 import org.mockito.Mockito;
 
+import java.lang.System;
 import java.util.*;
 
 import static org.evosuite.junit.writer.TestSuiteWriterUtils.*;
@@ -732,6 +733,12 @@ public class Scaffolding {
             bd.append(BLOCK_SPACE);
             bd.append("try { initMocksToAvoidTimeoutsInTheTests(); } catch(ClassNotFoundException e) {} \n");
         }
+
+        if (System.getenv("SEED_FOR_MOCKS") != null && !System.getenv("SEED_FOR_MOCKS").isEmpty()) {
+            bd.append(BLOCK_SPACE);
+            bd.append("org.evosuite.runtime.Randomness.setSeed(").append(System.getenv("SEED_FOR_MOCKS")).append(");\n");
+        }
+
         bd.append(METHOD_SPACE);
         bd.append("} \n");
 

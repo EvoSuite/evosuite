@@ -30,7 +30,7 @@ import org.evosuite.testcase.execution.UncompilableCodeException;
 import org.evosuite.testcase.variable.ArrayIndex;
 import org.evosuite.testcase.variable.ArrayReference;
 import org.evosuite.testcase.variable.VariableReference;
-import org.evosuite.utils.Randomness;
+import org.evosuite.runtime.Randomness;
 import org.evosuite.utils.generic.GenericMethod;
 import org.objectweb.asm.Type;
 

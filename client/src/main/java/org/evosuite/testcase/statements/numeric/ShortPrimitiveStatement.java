@@ -24,7 +24,7 @@ import org.evosuite.Properties;
 import org.evosuite.seeding.ConstantPool;
 import org.evosuite.seeding.ConstantPoolManager;
 import org.evosuite.testcase.TestCase;
-import org.evosuite.utils.Randomness;
+import org.evosuite.runtime.Randomness;
 
 /**
  * <p>

@@ -27,7 +27,7 @@ import org.evosuite.symbolic.expr.str.StringVariable;
 import org.evosuite.symbolic.expr.token.HasMoreTokensExpr;
 import org.evosuite.symbolic.solver.DistanceEstimator;
 import org.evosuite.symbolic.solver.SolverTimeoutException;
-import org.evosuite.utils.Randomness;
+import org.evosuite.runtime.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

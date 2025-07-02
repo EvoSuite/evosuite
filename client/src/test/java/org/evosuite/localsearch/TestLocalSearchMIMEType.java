@@ -36,7 +36,7 @@ import org.evosuite.testcase.execution.reset.ClassReInitializer;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
-import org.evosuite.utils.Randomness;
+import org.evosuite.runtime.Randomness;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

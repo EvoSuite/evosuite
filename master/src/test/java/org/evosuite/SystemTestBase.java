@@ -43,7 +43,7 @@ import org.evosuite.symbolic.dse.algorithm.ExplorationAlgorithmBase;
 import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.evosuite.testcase.execution.reset.ClassReInitializer;
 import org.evosuite.testsuite.TestSuiteChromosome;
-import org.evosuite.utils.Randomness;
+import org.evosuite.runtime.Randomness;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;

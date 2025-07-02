@@ -23,7 +23,7 @@ import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.ga.NSGAChromosome;
 import org.evosuite.ga.variables.DoubleVariable;
 import org.evosuite.ga.variables.Variable;
-import org.evosuite.utils.Randomness;
+import org.evosuite.runtime.Randomness;
 
 /**
  * Simulated Binary Crossover (SBX)

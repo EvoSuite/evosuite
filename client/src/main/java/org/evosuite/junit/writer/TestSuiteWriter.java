@@ -574,6 +574,10 @@ public class TestSuiteWriter implements Opcodes {
             list.add("useVFS = true");
         }
 
+        if (Properties.VIRTUAL_AUDIO){
+            list.add("useAudio = true");
+        }
+
         if (Properties.VIRTUAL_NET) {
             list.add("useVNET = true");
         }

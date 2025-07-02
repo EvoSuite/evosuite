@@ -29,7 +29,7 @@ import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.execution.EvosuiteError;
 import org.evosuite.testcase.execution.Scope;
 import org.evosuite.testcase.variable.*;
-import org.evosuite.utils.Randomness;
+import org.evosuite.runtime.Randomness;
 import org.evosuite.utils.generic.GenericAccessibleObject;
 import org.evosuite.utils.generic.GenericClassUtils;
 import org.evosuite.utils.generic.GenericField;

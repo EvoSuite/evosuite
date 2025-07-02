@@ -37,7 +37,7 @@ import org.evosuite.testcase.localsearch.TestCaseLocalSearch;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
-import org.evosuite.utils.Randomness;
+import org.evosuite.runtime.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

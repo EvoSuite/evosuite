@@ -29,7 +29,7 @@ import org.evosuite.testcase.statements.environment.EnvironmentStatements;
 import org.evosuite.testcase.statements.numeric.*;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testcase.variable.VariableReferenceImpl;
-import org.evosuite.utils.Randomness;
+import org.evosuite.runtime.Randomness;
 import org.evosuite.utils.generic.GenericAccessibleObject;
 import org.evosuite.utils.generic.GenericClass;
 import org.evosuite.utils.generic.GenericClassFactory;

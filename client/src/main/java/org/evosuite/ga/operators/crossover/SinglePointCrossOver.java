@@ -21,7 +21,7 @@ package org.evosuite.ga.operators.crossover;
 
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ConstructionFailedException;
-import org.evosuite.utils.Randomness;
+import org.evosuite.runtime.Randomness;
 
 /**
  * Select one random point in each individual and cross over (TPX)

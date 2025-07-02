@@ -20,7 +20,7 @@
 package org.evosuite.testcase.statements.reflection;
 
 import org.evosuite.runtime.Reflection;
-import org.evosuite.utils.Randomness;
+import org.evosuite.runtime.Randomness;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;

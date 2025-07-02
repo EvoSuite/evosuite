@@ -20,6 +20,7 @@
 package org.evosuite.utils;
 
 import org.apache.commons.lang3.StringUtils;
+import org.evosuite.runtime.Randomness;
 import org.evosuite.testcase.TestCaseUpdater;
 import org.objectweb.asm.Type;
 

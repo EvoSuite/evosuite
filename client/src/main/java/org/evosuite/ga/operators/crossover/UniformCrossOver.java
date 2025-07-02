@@ -22,7 +22,7 @@ package org.evosuite.ga.operators.crossover;
 import org.evosuite.Properties;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ConstructionFailedException;
-import org.evosuite.utils.Randomness;
+import org.evosuite.runtime.Randomness;
 
 /**
  * Implement uniform crossover. In a uniform crossover, we do not divide the

@@ -39,7 +39,7 @@ import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.evosuite.utils.ArrayUtil;
 import org.evosuite.utils.BudgetConsumptionMonitor;
-import org.evosuite.utils.Randomness;
+import org.evosuite.runtime.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

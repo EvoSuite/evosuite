@@ -23,7 +23,7 @@ import org.evosuite.Properties;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.testsuite.TestSuiteChromosome;
-import org.evosuite.utils.Randomness;
+import org.evosuite.runtime.Randomness;
 
 /**
  * @author Thomas White

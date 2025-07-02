@@ -27,7 +27,7 @@ import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.comparators.DominanceComparator;
 import org.evosuite.ga.comparators.StrengthFitnessComparator;
-import org.evosuite.utils.Randomness;
+import org.evosuite.runtime.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -41,7 +41,7 @@ import org.evosuite.testcase.statements.reflection.PrivateFieldStatement;
 import org.evosuite.testcase.statements.reflection.PrivateMethodStatement;
 import org.evosuite.testcase.statements.reflection.ReflectionFactory;
 import org.evosuite.testcase.variable.*;
-import org.evosuite.utils.Randomness;
+import org.evosuite.runtime.Randomness;
 import org.evosuite.utils.generic.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

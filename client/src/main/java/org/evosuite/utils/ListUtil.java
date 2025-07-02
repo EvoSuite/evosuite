@@ -19,6 +19,8 @@
  */
 package org.evosuite.utils;
 
+import org.evosuite.runtime.Randomness;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;

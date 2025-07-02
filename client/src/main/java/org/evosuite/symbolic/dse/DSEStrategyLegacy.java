@@ -35,7 +35,7 @@ import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.evosuite.utils.ArrayUtil;
 import org.evosuite.utils.LoggingUtils;
-import org.evosuite.utils.Randomness;
+import org.evosuite.runtime.Randomness;
 
 import java.util.ArrayList;
 import java.util.List;

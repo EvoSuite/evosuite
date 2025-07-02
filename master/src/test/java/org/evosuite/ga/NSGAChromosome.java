@@ -28,7 +28,7 @@ import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.ga.localsearch.LocalSearchObjective;
 import org.evosuite.ga.variables.DoubleVariable;
 import org.evosuite.ga.variables.Variable;
-import org.evosuite.utils.Randomness;
+import org.evosuite.runtime.Randomness;
 
 /**
  * @author José Campos

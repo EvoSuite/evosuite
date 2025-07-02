@@ -31,7 +31,7 @@ import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testsuite.TestSuiteChromosome;
-import org.evosuite.utils.Randomness;
+import org.evosuite.runtime.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

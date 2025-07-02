@@ -19,7 +19,7 @@
  */
 package org.evosuite.seeding;
 
-import org.evosuite.utils.Randomness;
+import org.evosuite.runtime.Randomness;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;

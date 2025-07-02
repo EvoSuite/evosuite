@@ -23,6 +23,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.evosuite.runtime.RuntimeSettings;
+import org.evosuite.runtime.mock.java.audio.MockAudioFormat;
+import org.evosuite.runtime.mock.java.audio.MockAudioInputStream;
+import org.evosuite.runtime.mock.java.audio.MockAudioSystem;
+import org.evosuite.runtime.mock.java.audio.MockBooleanControl;
+import org.evosuite.runtime.mock.java.audio.MockClip;
+import org.evosuite.runtime.mock.java.audio.MockControl;
+import org.evosuite.runtime.mock.java.audio.MockDataLine;
+import org.evosuite.runtime.mock.java.audio.MockFloatControl;
+import org.evosuite.runtime.mock.java.audio.MockLineInfo;
+import org.evosuite.runtime.mock.java.audio.MockMixer;
+import org.evosuite.runtime.mock.java.audio.MockMixerInfo;
+import org.evosuite.runtime.mock.java.audio.MockSourceDataLine;
+import org.evosuite.runtime.mock.java.audio.MockTargetDataLine;
 import org.evosuite.runtime.mock.java.io.MockFile;
 import org.evosuite.runtime.mock.java.io.MockFileInputStream;
 import org.evosuite.runtime.mock.java.io.MockFileOutputStream;
@@ -89,6 +102,23 @@ public class MockList {
 			list.add(MockFileHandler.class);
 			list.add(MockJFileChooser.class); // GUI Stuff?
 			list.add(MockFileSystemView.class);
+		}
+
+		if (RuntimeSettings.useAudio){
+			list.add(MockAudioFormat.class);
+			list.add(MockAudioInputStream.class);
+			list.add(MockAudioSystem.class);
+			list.add(MockBooleanControl.class);
+			list.add(MockClip.class);
+			list.add(MockControl.class);
+			list.add(MockFloatControl.class);
+			list.add(MockDataLine.class);
+			list.add(MockDataLine.MockInfo.class);
+			list.add(MockLineInfo.class);
+			list.add(MockMixer.class);
+			list.add(MockMixerInfo.class);
+			list.add(MockSourceDataLine.class);
+			list.add(MockTargetDataLine.class);
 		}
 
 		if (RuntimeSettings.mockJVMNonDeterminism) {
@@ -219,8 +249,8 @@ public class MockList {
 			throw new IllegalArgumentException("Empty className");
 		}
 
-		for (Class<? extends EvoSuiteMock> mock : getList()) {
 
+		for (Class<? extends EvoSuiteMock> mock : getList()) {
 			String name = null;
 
 			if (OverrideMock.class.isAssignableFrom(mock)) {

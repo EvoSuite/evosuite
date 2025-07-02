@@ -22,7 +22,7 @@ package org.evosuite.ga.metaheuristics;
 import org.evosuite.Properties;
 import org.evosuite.TimeController;
 import org.evosuite.ga.*;
-import org.evosuite.utils.Randomness;
+import org.evosuite.runtime.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

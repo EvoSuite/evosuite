@@ -30,7 +30,7 @@ import org.evosuite.seeding.CastClassManager;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.utils.ListUtil;
-import org.evosuite.utils.Randomness;
+import org.evosuite.runtime.Randomness;
 import org.evosuite.utils.generic.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

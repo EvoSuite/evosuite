@@ -26,7 +26,7 @@ import org.evosuite.seeding.ConstantPoolManager;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.execution.Scope;
-import org.evosuite.utils.Randomness;
+import org.evosuite.runtime.Randomness;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;

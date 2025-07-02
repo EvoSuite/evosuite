@@ -28,7 +28,7 @@ import org.evosuite.testcase.statements.PrimitiveStatement;
 import org.evosuite.testcase.variable.NullReference;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.utils.ListUtil;
-import org.evosuite.utils.Randomness;
+import org.evosuite.runtime.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -44,7 +44,7 @@ import org.evosuite.testcase.statements.StringPrimitiveStatement;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.localsearch.TestSuiteLocalSearch;
-import org.evosuite.utils.Randomness;
+import org.evosuite.runtime.Randomness;
 import org.evosuite.utils.generic.*;
 import org.junit.Assert;
 import org.junit.Before;

@@ -40,7 +40,7 @@ import org.evosuite.testsuite.TestSuiteMinimizer;
 import org.evosuite.testsuite.factories.FixedSizeTestSuiteChromosomeFactory;
 import org.evosuite.utils.ArrayUtil;
 import org.evosuite.utils.LoggingUtils;
-import org.evosuite.utils.Randomness;
+import org.evosuite.runtime.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

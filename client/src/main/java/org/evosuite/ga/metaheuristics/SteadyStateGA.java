@@ -24,7 +24,7 @@ import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.ga.FitnessFunction;
-import org.evosuite.utils.Randomness;
+import org.evosuite.runtime.Randomness;
 
 
 /**

@@ -19,7 +19,7 @@
  */
 package org.evosuite;
 
-import org.evosuite.utils.Randomness;
+import org.evosuite.runtime.Randomness;
 import org.junit.Before;
 
 import java.util.Calendar;

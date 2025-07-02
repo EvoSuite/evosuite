@@ -25,7 +25,7 @@ import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.runtime.Random;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testsuite.TestSuiteChromosome;
-import org.evosuite.utils.Randomness;
+import org.evosuite.runtime.Randomness;
 
 import java.util.List;
 

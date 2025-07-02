@@ -21,6 +21,7 @@
 package org.evosuite.utils;
 
 import org.evosuite.Properties;
+import org.evosuite.runtime.Randomness;
 
 import java.util.ArrayDeque;
 import java.util.HashSet;

@@ -21,7 +21,7 @@ package org.evosuite.ga.operators.selection;
 
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.comparators.RankAndCrowdingDistanceComparator;
-import org.evosuite.utils.Randomness;
+import org.evosuite.runtime.Randomness;
 
 import java.util.List;
 

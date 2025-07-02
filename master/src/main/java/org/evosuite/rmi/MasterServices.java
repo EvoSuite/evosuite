@@ -22,7 +22,7 @@ package org.evosuite.rmi;
 import org.evosuite.rmi.service.MasterNodeImpl;
 import org.evosuite.rmi.service.MasterNodeLocal;
 import org.evosuite.rmi.service.MasterNodeRemote;
-import org.evosuite.utils.Randomness;
+import org.evosuite.runtime.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

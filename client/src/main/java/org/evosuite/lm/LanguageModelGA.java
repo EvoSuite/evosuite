@@ -21,7 +21,7 @@ package org.evosuite.lm;
 
 import org.evosuite.testcase.ValueMinimizer;
 import org.evosuite.testcase.variable.ConstantValue;
-import org.evosuite.utils.Randomness;
+import org.evosuite.runtime.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

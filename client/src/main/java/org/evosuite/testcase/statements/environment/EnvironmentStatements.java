@@ -22,7 +22,7 @@ package org.evosuite.testcase.statements.environment;
 import org.evosuite.runtime.testdata.*;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.statements.PrimitiveStatement;
-import org.evosuite.utils.Randomness;
+import org.evosuite.runtime.Randomness;
 
 /**
  * @see org.evosuite.runtime.testdata.EnvironmentDataList

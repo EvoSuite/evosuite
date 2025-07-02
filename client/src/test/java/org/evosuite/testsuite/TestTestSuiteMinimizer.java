@@ -34,7 +34,7 @@ import org.evosuite.testcase.execution.reset.ClassReInitializer;
 import org.evosuite.testcase.statements.ConstructorStatement;
 import org.evosuite.testcase.statements.numeric.IntPrimitiveStatement;
 import org.evosuite.testcase.variable.VariableReference;
-import org.evosuite.utils.Randomness;
+import org.evosuite.runtime.Randomness;
 import org.evosuite.utils.generic.GenericClass;
 import org.evosuite.utils.generic.GenericClassFactory;
 import org.evosuite.utils.generic.GenericConstructor;

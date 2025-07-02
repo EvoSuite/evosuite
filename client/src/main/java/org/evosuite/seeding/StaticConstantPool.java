@@ -22,7 +22,7 @@ package org.evosuite.seeding;
 
 import org.evosuite.Properties;
 import org.evosuite.utils.LoggingUtils;
-import org.evosuite.utils.Randomness;
+import org.evosuite.runtime.Randomness;
 import org.objectweb.asm.Type;
 
 import java.util.Collections;

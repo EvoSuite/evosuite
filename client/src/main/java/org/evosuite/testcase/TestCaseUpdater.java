@@ -34,7 +34,7 @@ import org.evosuite.testcase.variable.ArrayReference;
 import org.evosuite.testcase.variable.ArraySymbolicLengthName;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.utils.ArrayUtil;
-import org.evosuite.utils.Randomness;
+import org.evosuite.runtime.Randomness;
 import org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

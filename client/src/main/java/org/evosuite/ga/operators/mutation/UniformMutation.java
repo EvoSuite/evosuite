@@ -19,7 +19,7 @@
  */
 package org.evosuite.ga.operators.mutation;
 
-import org.evosuite.utils.Randomness;
+import org.evosuite.runtime.Randomness;
 
 public class UniformMutation extends MutationDistribution {
 

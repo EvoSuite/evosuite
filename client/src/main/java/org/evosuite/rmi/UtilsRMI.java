@@ -19,7 +19,7 @@
  */
 package org.evosuite.rmi;
 
-import org.evosuite.utils.Randomness;
+import org.evosuite.runtime.Randomness;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;

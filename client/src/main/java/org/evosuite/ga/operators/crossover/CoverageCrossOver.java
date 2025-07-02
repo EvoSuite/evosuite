@@ -23,7 +23,7 @@ import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testsuite.TestSuiteChromosome;
-import org.evosuite.utils.Randomness;
+import org.evosuite.runtime.Randomness;
 
 import java.util.HashMap;
 import java.util.HashSet;

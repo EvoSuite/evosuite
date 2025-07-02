@@ -35,7 +35,7 @@ import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.evosuite.testcase.statements.*;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.utils.IterUtil;
-import org.evosuite.utils.Randomness;
+import org.evosuite.runtime.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

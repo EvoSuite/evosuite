@@ -33,7 +33,7 @@ import org.evosuite.runtime.mock.MockFramework;
 import org.evosuite.runtime.sandbox.MSecurityManager;
 import org.evosuite.runtime.sandbox.Sandbox;
 import org.evosuite.utils.LoggingUtils;
-import org.evosuite.utils.Randomness;
+import org.evosuite.runtime.Randomness;
 import org.evosuite.utils.SpawnProcessKeepAliveChecker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -132,6 +132,7 @@ public class ClientProcess {
 
     private static void setupRuntimeProperties() {
         RuntimeSettings.useVFS = Properties.VIRTUAL_FS;
+        RuntimeSettings.useAudio = Properties.VIRTUAL_AUDIO;
         RuntimeSettings.mockJVMNonDeterminism = Properties.REPLACE_CALLS;
         RuntimeSettings.mockSystemIn = Properties.REPLACE_SYSTEM_IN;
         RuntimeSettings.mockGUI = Properties.REPLACE_GUI;
