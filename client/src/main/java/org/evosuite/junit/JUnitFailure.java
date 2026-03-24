@@ -19,6 +19,7 @@
  */
 package org.evosuite.junit;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,7 +29,9 @@ import java.util.List;
  *
  * @author galeotti
  */
-public class JUnitFailure {
+public class JUnitFailure implements Serializable {
+
+    private static final long serialVersionUID = -4314422854131273625L;
 
     public JUnitFailure(String message, String exceptionClassName,
                         String descriptionMethodName, boolean isAssertionError, String trace) {

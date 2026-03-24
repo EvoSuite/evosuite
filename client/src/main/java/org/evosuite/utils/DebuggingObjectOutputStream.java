@@ -36,12 +36,15 @@ public class DebuggingObjectOutputStream extends ObjectOutputStream {
     private static final Field DEPTH_FIELD;
 
     static {
+        Field depthField = null;
         try {
-            DEPTH_FIELD = ObjectOutputStream.class.getDeclaredField("depth");
-            DEPTH_FIELD.setAccessible(true);
-        } catch (NoSuchFieldException e) {
-            throw new AssertionError(e);
+            depthField = ObjectOutputStream.class.getDeclaredField("depth");
+            depthField.setAccessible(true);
+        } catch (ReflectiveOperationException | RuntimeException ignored) {
+            // Modern JDKs can block reflective access to ObjectOutputStream internals.
+            // In that case we keep the stream usable and fall back to a best-effort stack.
         }
+        DEPTH_FIELD = depthField;
     }
 
     final List<Object> stack = new ArrayList<>();
@@ -103,11 +106,14 @@ public class DebuggingObjectOutputStream extends ObjectOutputStream {
      * being serialized.
      */
     private int currentDepth() {
+        if (DEPTH_FIELD == null) {
+            return stack.size();
+        }
         try {
             Integer oneBased = ((Integer) DEPTH_FIELD.get(this));
             return oneBased - 1;
-        } catch (IllegalAccessException e) {
-            throw new AssertionError(e);
+        } catch (IllegalAccessException | RuntimeException e) {
+            return stack.size();
         }
     }
 

@@ -48,17 +48,22 @@ public class NetworkInterfaceState {
     private final static Field indexField;
 
     static {
+        Constructor<NetworkInterface> networkInterfaceConstructor = null;
+        Field networkInterfaceNameField = null;
+        Field networkInterfaceIndexField = null;
         try {
-            constructor = NetworkInterface.class.getDeclaredConstructor();
-            constructor.setAccessible(true);
-            nameField = NetworkInterface.class.getDeclaredField("name");
-            nameField.setAccessible(true);
-            indexField = NetworkInterface.class.getDeclaredField("index");
-            indexField.setAccessible(true);
-        } catch (NoSuchMethodException | NoSuchFieldException e) {
-            //shouldn't really happen
-            throw new RuntimeException("Bug: failed to init " + NetworkInterfaceState.class + ": " + e.getMessage());
+            networkInterfaceConstructor = NetworkInterface.class.getDeclaredConstructor();
+            networkInterfaceConstructor.setAccessible(true);
+            networkInterfaceNameField = NetworkInterface.class.getDeclaredField("name");
+            networkInterfaceNameField.setAccessible(true);
+            networkInterfaceIndexField = NetworkInterface.class.getDeclaredField("index");
+            networkInterfaceIndexField.setAccessible(true);
+        } catch (NoSuchMethodException | NoSuchFieldException | RuntimeException e) {
+            logger.warn("Synthetic NetworkInterface creation is not available on this JDK: {}", e.getMessage());
         }
+        constructor = networkInterfaceConstructor;
+        nameField = networkInterfaceNameField;
+        indexField = networkInterfaceIndexField;
     }
 
     private NetworkInterface ni;
@@ -66,6 +71,20 @@ public class NetworkInterfaceState {
     private final byte[] mac;
     private final int mtu;
     private final boolean loopback;
+
+    public NetworkInterfaceState(
+            NetworkInterface networkInterface,
+            byte[] mac,
+            int mtu,
+            boolean loopback,
+            InetAddress anAddress) {
+
+        this.mtu = mtu;
+        this.loopback = loopback;
+        this.mac = mac != null ? mac.clone() : null;
+        localAddresses = Collections.singletonList(anAddress);
+        ni = networkInterface;
+    }
 
     public NetworkInterfaceState(
             String name,
@@ -80,6 +99,10 @@ public class NetworkInterfaceState {
         this.mac = mac != null ? mac.clone() : null;
         // for now, we just consider one (IPv4) address per interface
         localAddresses = Collections.singletonList(anAddress);
+
+        if (constructor == null || nameField == null || indexField == null) {
+            throw new IllegalStateException("Synthetic NetworkInterface creation is not supported on this JDK");
+        }
 
         try {
             ni = constructor.newInstance();

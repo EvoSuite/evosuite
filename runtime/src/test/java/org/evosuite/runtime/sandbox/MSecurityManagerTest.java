@@ -31,26 +31,35 @@ public class MSecurityManagerTest {
 
     private static ExecutorService executor;
     private static MSecurityManager securityManager;
+    private static boolean securityManagerSupported;
 
     @BeforeClass
     public static void initClass() {
+        securityManagerSupported = MSecurityManager.isSecurityManagerSupported();
+        Assume.assumeTrue(securityManagerSupported);
         executor = Executors.newCachedThreadPool();
         securityManager = new MSecurityManager();
     }
 
     @AfterClass
     public static void doneWithClass() {
-        executor.shutdownNow();
+        if (executor != null) {
+            executor.shutdownNow();
+        }
     }
 
     @Before
     public void initTest() {
+        Assume.assumeTrue(securityManagerSupported);
         securityManager.apply();
         securityManager.goingToExecuteTestCase();
     }
 
     @After
     public void doneWithTestCase() {
+        if (!securityManagerSupported || securityManager == null) {
+            return;
+        }
         securityManager.goingToEndTestCase();
         securityManager.restoreDefaultManager();
     }

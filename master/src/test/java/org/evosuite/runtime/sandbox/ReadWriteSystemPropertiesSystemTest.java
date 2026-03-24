@@ -59,6 +59,19 @@ public class ReadWriteSystemPropertiesSystemTest extends SystemTestBase {
         Assert.assertNull(aProperty);
     }
 
+    private void assertSandboxCapabilityState() {
+        Assert.assertTrue(Sandbox.isSandboxInitialized());
+        if (Sandbox.getEnforcementCapability() == Sandbox.EnforcementCapability.LEGACY_SECURITY_MANAGER) {
+            Assert.assertTrue(Sandbox.isEnforcingPermissions());
+            Assert.assertEquals(Sandbox.SandboxStatus.LEGACY_ENFORCEMENT, Sandbox.getSandboxStatus());
+            Assert.assertTrue(Sandbox.isLegacySecurityManagerSupported());
+        } else {
+            Assert.assertFalse(Sandbox.isEnforcingPermissions());
+            Assert.assertEquals(Sandbox.EnforcementCapability.NONE, Sandbox.getEnforcementCapability());
+            Assert.assertEquals(Sandbox.SandboxStatus.COORDINATION_ONLY, Sandbox.getSandboxStatus());
+        }
+    }
+
     @Test
     public void testReadLineSeparator() {
         EvoSuite evosuite = new EvoSuite();
@@ -89,6 +102,7 @@ public class ReadWriteSystemPropertiesSystemTest extends SystemTestBase {
 
         try {
             Sandbox.initializeSecurityManagerForSUT();
+            assertSandboxCapabilityState();
             JUnitAnalyzer.removeTestsThatDoNotCompile(list);
         } finally {
             Sandbox.resetDefaultSecurityManager();
@@ -172,6 +186,7 @@ public class ReadWriteSystemPropertiesSystemTest extends SystemTestBase {
 
         try {
             Sandbox.initializeSecurityManagerForSUT();
+            assertSandboxCapabilityState();
             for (TestCase tc : list) {
                 Assert.assertFalse(tc.isUnstable());
             }
@@ -190,5 +205,17 @@ public class ReadWriteSystemPropertiesSystemTest extends SystemTestBase {
         } finally {
             Sandbox.resetDefaultSecurityManager();
         }
+    }
+
+    @Test
+    public void testSandboxCapabilityReportingForJUnitAnalysis() {
+        Sandbox.initializeSecurityManagerForSUT();
+        try {
+            assertSandboxCapabilityState();
+        } finally {
+            Sandbox.resetDefaultSecurityManager();
+        }
+        Assert.assertEquals(Sandbox.SandboxStatus.OFF, Sandbox.getSandboxStatus());
+        Assert.assertEquals(Sandbox.EnforcementCapability.NONE, Sandbox.getEnforcementCapability());
     }
 }

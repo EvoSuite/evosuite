@@ -21,6 +21,7 @@ package org.evosuite.runtime.jvm;
 
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -29,6 +30,7 @@ public class ShutdownHookHandlerTest {
 
     @Before
     public void init() {
+        Assume.assumeTrue(ShutdownHookHandler.getInstance().isShutdownHookControlSupported());
         ShutdownHookHandler.getInstance().initHandler();
     }
 

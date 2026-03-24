@@ -32,6 +32,8 @@ import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Properties;
@@ -47,11 +49,16 @@ import static org.junit.Assert.assertTrue;
  */
 public class BuildSupportIT {
 
+    private static final String DEFAULT_EVOSUITE_VERSION = "1.2.1-SNAPSHOT";
+    private static final Path DEFAULT_LOCAL_REPOSITORY =
+            Paths.get("target", "maven-it", "local-repo").toAbsolutePath();
+    private static final String DEFAULT_MAVEN_HOME = resolveMavenHome();
+
     private final Path simple = Paths.get("projects","simple");
 
     private String getEvoSuiteVersion(){
         //update version if run from IDE instead of Maven
-        return System.getProperty("evosuiteVersion","1.0.5-SNAPSHOT");
+        return System.getProperty("evosuiteVersion", DEFAULT_EVOSUITE_VERSION);
     }
 
     @Before
@@ -143,11 +150,47 @@ public class BuildSupportIT {
 
 
     private Verifier getMaven(Path targetProject) throws Exception{
-        Verifier verifier  = new Verifier(targetProject.toAbsolutePath().toString());
+        Verifier verifier  = new Verifier(targetProject.toAbsolutePath().toString(), DEFAULT_MAVEN_HOME);
         Properties props = new Properties(System.getProperties());
         props.put("evosuiteVersion", getEvoSuiteVersion());
         verifier.setSystemProperties(props);
+        verifier.setLocalRepo(System.getProperty("maven.repo.local", DEFAULT_LOCAL_REPOSITORY.toString()));
+        verifier.addCliOption("-o");
         return verifier;
+    }
+
+    private static String resolveMavenHome() {
+        String mavenHome = System.getProperty("maven.home");
+        if (mavenHome != null && !mavenHome.trim().isEmpty()) {
+            return mavenHome;
+        }
+
+        mavenHome = System.getenv("M2_HOME");
+        if (mavenHome != null && !mavenHome.trim().isEmpty()) {
+            return mavenHome;
+        }
+
+        try {
+            Process process = new ProcessBuilder("which", "mvn").redirectErrorStream(true).start();
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+                String mvnPath = reader.readLine();
+                int exitCode = process.waitFor();
+                if (exitCode == 0 && mvnPath != null && !mvnPath.trim().isEmpty()) {
+                    Path mvn = Paths.get(mvnPath.trim()).toRealPath();
+                    Path bin = mvn.getParent();
+                    if (bin != null) {
+                        Path home = bin.getParent();
+                        if (home != null) {
+                            return home.toString();
+                        }
+                    }
+                }
+            }
+        } catch (Exception ignored) {
+            // Fall through to the verifier default if Maven home cannot be resolved.
+        }
+
+        return null;
     }
 
 }

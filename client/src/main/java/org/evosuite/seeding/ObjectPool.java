@@ -242,13 +242,17 @@ public class ObjectPool implements Serializable {
     }
 
     public void writePool(String fileName) {
-        try {
-            ObjectOutputStream out = new DebuggingObjectOutputStream(
-                    new FileOutputStream(fileName));
+        try (ObjectOutputStream out = new DebuggingObjectOutputStream(
+                new FileOutputStream(fileName))) {
             out.writeObject(this);
-            out.close();
-        } catch (IOException e) {
-            logger.warn("Error while writing pool to file " + fileName + ": " + e);
+        } catch (Throwable debugFailure) {
+            logger.warn("Falling back to plain object serialization for pool {}: {}", fileName,
+                    debugFailure.toString());
+            try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(fileName))) {
+                out.writeObject(this);
+            } catch (IOException e) {
+                logger.warn("Error while writing pool to file " + fileName + ": " + e);
+            }
         }
     }
 

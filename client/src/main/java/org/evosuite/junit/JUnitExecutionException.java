@@ -30,6 +30,10 @@ public class JUnitExecutionException extends Exception {
         super(e);
     }
 
+    public JUnitExecutionException(String message, Exception e) {
+        super(message, e);
+    }
+
 
     private static final long serialVersionUID = 9063744097191003972L;
 

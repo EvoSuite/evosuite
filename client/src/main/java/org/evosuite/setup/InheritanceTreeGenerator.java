@@ -449,7 +449,13 @@ public class InheritanceTreeGenerator {
         InputStream inheritance = InheritanceTreeGenerator.class.getResourceAsStream(fileName);
 
         if (inheritance != null) {
-            return (InheritanceTree) xstream.fromXML(inheritance);
+            try (InputStream stream = inheritance) {
+                return (InheritanceTree) xstream.fromXML(stream);
+            } catch (RuntimeException | IOException e) {
+                logger.warn("Failed to read bundled JDK inheritance tree from {}. "
+                        + "Falling back to incremental classpath analysis on this JDK.", fileName, e);
+                return new InheritanceTree();
+            }
         } else {
             logger.warn("Found no JDK inheritance tree in the resource path: " + fileName);
             return null;

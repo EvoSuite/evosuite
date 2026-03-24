@@ -43,6 +43,7 @@ public class GuiSupportTest {
     @Test
     public void testWhenNotHeadless() {
         Assume.assumeTrue(!GraphicsEnvironment.isHeadless());
+        Assume.assumeTrue(GuiSupport.isHeadlessControlSupported());
 
         GuiSupport.setHeadless();
         Assert.assertTrue(GraphicsEnvironment.isHeadless());

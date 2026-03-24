@@ -119,8 +119,6 @@ public class MSecurityManager extends SecurityManager {
      * Note: we need to mark for deletion _after_ test execution, otherwise
      * we can end up in a infinite recursion.
      */
-    private final Set<File> filesToDelete;
-
     static {
         File tmp = null;
         try {
@@ -143,22 +141,7 @@ public class MSecurityManager extends SecurityManager {
 
     private final SecurityManager defaultManager;
 
-    /**
-     * Is EvoSuite executing a test case?
-     */
-    private volatile boolean executingTestCase;
-
-
-    /**
-     * Data structure containing all the (EvoSuite) threads that do not need to
-     * go through the same sandbox as the SUT threads
-     */
-    private final Set<Thread> privilegedThreads;
-
-    /**
-     * Check whether a privileged thread should use the sandbox as for SUT code
-     */
-    private volatile Thread privilegedThreadToIgnore;
+    private final SandboxContext context;
 
     /**
      * Name of all the methods in the MasterNodeRemote interface.
@@ -168,6 +151,7 @@ public class MSecurityManager extends SecurityManager {
     private static Set<String> masterNodeRemoteMethodNames;
 
     private static boolean runningClientOnThread = false;
+    private static volatile Boolean securityManagerSupported;
 
     /**
      * It can happen that EvoSuite encounters permissions it does not recognize.
@@ -182,14 +166,35 @@ public class MSecurityManager extends SecurityManager {
      * instance is automatically added as "privileged"
      */
     public MSecurityManager() {
-        privilegedThreads = new CopyOnWriteArraySet<>();
-        privilegedThreads.add(Thread.currentThread());
-        defaultManager = System.getSecurityManager();
-        executingTestCase = false;
-        privilegedThreadToIgnore = null;
-        unrecognizedPermissions = new CopyOnWriteArraySet<>();
+        this(new SandboxContext());
+    }
 
-        filesToDelete = new CopyOnWriteArraySet<>();
+    MSecurityManager(SandboxContext context) {
+        this.context = context;
+        defaultManager = System.getSecurityManager();
+        unrecognizedPermissions = new CopyOnWriteArraySet<>();
+    }
+
+    public static boolean isSecurityManagerSupported() {
+        Boolean cached = securityManagerSupported;
+        if (cached != null) {
+            return cached;
+        }
+
+        synchronized (MSecurityManager.class) {
+            if (securityManagerSupported != null) {
+                return securityManagerSupported;
+            }
+
+            SecurityManager current = System.getSecurityManager();
+            try {
+                System.setSecurityManager(current);
+                securityManagerSupported = true;
+            } catch (UnsupportedOperationException e) {
+                securityManagerSupported = false;
+            }
+            return securityManagerSupported;
+        }
     }
 
     /**
@@ -208,8 +213,7 @@ public class MSecurityManager extends SecurityManager {
     }
 
     public Set<Thread> getPrivilegedThreads() {
-        Set<Thread> set = new LinkedHashSet<>(privilegedThreads);
-        return set;
+        return context.getPrivilegedThreads();
     }
 
     public static void setRunningClientOnThread(boolean runningClientOnThread) {
@@ -236,13 +240,7 @@ public class MSecurityManager extends SecurityManager {
      * @throws IllegalStateException
      */
     public void goingToExecuteUnsafeCodeOnSameThread() throws SecurityException, IllegalStateException {
-        if (!privilegedThreads.contains(Thread.currentThread())) {
-            throw new SecurityException("Current thread is not privileged");
-        }
-        if (privilegedThreadToIgnore != null) {
-            throw new IllegalStateException("The thread is already executing unsafe code");
-        }
-        privilegedThreadToIgnore = Thread.currentThread();
+        context.goingToExecuteUnsafeCodeOnSameThread();
     }
 
     /**
@@ -252,14 +250,7 @@ public class MSecurityManager extends SecurityManager {
      * @return
      */
     public boolean isSafeToExecuteSUTCode() {
-        Thread current = Thread.currentThread();
-        if (!privilegedThreads.contains(current)) {
-            //the thread is not privileged, so run inside the box
-            return true;
-        } else {
-            // this can happen if the thread is privileged, but already running SUT code
-            return privilegedThreadToIgnore == current;
-        }
+        return context.isSafeToExecuteSUTCode();
     }
 
     /**
@@ -271,14 +262,7 @@ public class MSecurityManager extends SecurityManager {
      */
     public void doneWithExecutingUnsafeCodeOnSameThread() throws SecurityException,
             IllegalStateException {
-        if (!privilegedThreads.contains(Thread.currentThread())) {
-            throw new SecurityException(
-                    "Only a privileged thread can return from unsafe code execution");
-        }
-        if (privilegedThreadToIgnore == null) {
-            throw new IllegalStateException("The thread was not executing unsafe code");
-        }
-        privilegedThreadToIgnore = null;
+        context.doneWithExecutingUnsafeCodeOnSameThread();
     }
 
     /**
@@ -318,9 +302,12 @@ public class MSecurityManager extends SecurityManager {
      * @throws IllegalStateException
      */
     public void apply() throws IllegalStateException {
+        if (!isSecurityManagerSupported()) {
+            throw new IllegalStateException("SecurityManager is not supported on this JDK");
+        }
         try {
             System.setSecurityManager(this);
-        } catch (SecurityException e) {
+        } catch (SecurityException | UnsupportedOperationException e) {
             // this should never happen in EvoSuite, ie this object should be created just once
             logger.error("Cannot instantiate mock security manager", e);
             throw new IllegalStateException(e);
@@ -331,38 +318,22 @@ public class MSecurityManager extends SecurityManager {
      * Note: an un-privileged thread would throw a security exception
      */
     public void restoreDefaultManager() throws SecurityException {
+        if (!isSecurityManagerSupported()) {
+            return;
+        }
         System.setSecurityManager(defaultManager);
     }
 
     public void goingToExecuteTestCase() throws IllegalStateException {
-        if (executingTestCase) {
-            throw new IllegalStateException("Trying to set up the sandbox while executing a test case");
-        }
-
-        executingTestCase = true;
+        context.goingToExecuteTestCase();
     }
 
     public boolean isExecutingTestCase() {
-        return executingTestCase;
+        return context.isExecutingTestCase();
     }
 
     public void goingToEndTestCase() throws IllegalStateException {
-        if (!executingTestCase) {
-            throw new IllegalStateException("Trying to disable sandbox when not test case was run");
-        }
-
-        /*
-         * it is important to call this method here as soon as the test case
-         * has finished executing, because properties could be used by
-         * EvoSuite as well
-         */
-        org.evosuite.runtime.System.restoreProperties();
-
-        for (File file : filesToDelete) {
-            file.deleteOnExit();
-        }
-
-        executingTestCase = false;
+        context.goingToEndTestCase();
     }
 
     /**
@@ -373,14 +344,14 @@ public class MSecurityManager extends SecurityManager {
      * @throws SecurityException if the thread calling this method is not privileged itself
      */
     public synchronized void addPrivilegedThread(Thread t) throws SecurityException {
-        if (privilegedThreads.contains(Thread.currentThread())) {
+        if (context.isPrivilegedThread(Thread.currentThread())) {
             logger.debug("Adding privileged thread: \"" + t.getName() + "\"");
-            privilegedThreads.add(t);
+            context.addPrivilegedThread(t);
         } else {
             String current = Thread.currentThread().getName();
             String msg = "Unprivileged thread \"" + current + "\" cannot add a privileged thread: failed to add \"" + t.getName() + "\"";
             msg += "\nCurrent privileged threads are: ";
-            for (Thread p : privilegedThreads) {
+            for (Thread p : context.getPrivilegedThreads()) {
                 msg += "\n\"" + p.getName() + "\"";
             }
             throw new SecurityException(msg);
@@ -424,7 +395,7 @@ public class MSecurityManager extends SecurityManager {
             for (StackTraceElement e : Thread.currentThread().getStackTrace()) {
                 stack += e + "\n";
             }
-            if (executingTestCase) {
+            if (context.isExecutingTestCase()) {
                 /*
                  * report statistics only during test case execution, although still log them. The reason is to avoid EvoSuite threads which might not
                  * privileged to mess up with the statistics on the SUT
@@ -435,7 +406,7 @@ public class MSecurityManager extends SecurityManager {
 
             throw new SecurityException("Security manager blocks " + perm + stack);
         } else {
-            if (executingTestCase) {
+            if (context.isExecutingTestCase()) {
                 statistics.permissionAllowed(perm);
             }
         }
@@ -496,11 +467,11 @@ public class MSecurityManager extends SecurityManager {
         }
 
         // first check if calling thread belongs to EvoSuite rather than the SUT
-        if (privilegedThreads.contains(Thread.currentThread())) {
+        if (context.isPrivilegedThread(Thread.currentThread())) {
 
             //it is an EvoSuite thread but, in special occasions, we might want to ignore its privileged status
 
-            if (privilegedThreadToIgnore == null || !Thread.currentThread().equals(privilegedThreadToIgnore)) {
+            if (context.getPrivilegedThreadToIgnore() == null || !Thread.currentThread().equals(context.getPrivilegedThreadToIgnore())) {
 
                 if (defaultManager == null) {
                     return true; // no security manager, so allow it
@@ -1175,7 +1146,7 @@ public class MSecurityManager extends SecurityManager {
             return true;
         }
 
-        if (perm.getActions().contains("write") && !executingTestCase) {
+        if (perm.getActions().contains("write") && !context.isExecutingTestCase()) {
             return !org.evosuite.runtime.System.isSystemProperty(perm.getName());
         }
 

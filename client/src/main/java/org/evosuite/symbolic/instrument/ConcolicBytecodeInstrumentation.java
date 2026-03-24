@@ -47,7 +47,7 @@ public class ConcolicBytecodeInstrumentation {
     public byte[] transformBytes(String className, ClassReader reader) {
         int readFlags = ClassReader.SKIP_FRAMES;
 
-        ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
+        ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
 
         ClassVisitor cv = writer;
 

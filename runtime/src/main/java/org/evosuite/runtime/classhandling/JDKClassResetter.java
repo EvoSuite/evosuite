@@ -38,6 +38,7 @@ public class JDKClassResetter {
 
     private static Map renderingHintsKeyIdentityMap;
     private static Map renderingHintsKeyIdentityMapCopy;
+    private static boolean resetSupported;
 
 
     /**
@@ -45,18 +46,26 @@ public class JDKClassResetter {
      */
     public static void init() {
 
+        resetSupported = false;
+        renderingHintsKeyIdentityMap = null;
+        renderingHintsKeyIdentityMapCopy = null;
+
         try {
             Field field = RenderingHints.Key.class.getDeclaredField("identitymap");
             field.setAccessible(true);
             renderingHintsKeyIdentityMap = (Map) field.get(null);
             renderingHintsKeyIdentityMapCopy = new LinkedHashMap<>(renderingHintsKeyIdentityMap.size());
             renderingHintsKeyIdentityMapCopy.putAll(renderingHintsKeyIdentityMap);
+            resetSupported = true;
 
         } catch (Exception e) {
-            //shouldn't really happen
-            logger.error("Failed to handle 'identitymap': " + e);
+            logger.warn("RenderingHints.Key reset is not available on this JDK: {}", e.getMessage());
         }
 
+    }
+
+    public static boolean isResetSupported() {
+        return resetSupported;
     }
 
     public static void reset() {

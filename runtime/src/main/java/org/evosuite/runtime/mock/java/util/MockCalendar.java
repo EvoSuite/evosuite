@@ -21,7 +21,6 @@ package org.evosuite.runtime.mock.java.util;
 
 import org.evosuite.runtime.mock.OverrideMock;
 
-import java.text.DateFormat;
 import java.util.*;
 
 /**
@@ -70,8 +69,7 @@ public abstract class MockCalendar extends Calendar implements OverrideMock{
 
 
     public static synchronized Locale[] getAvailableLocales(){
-        //TODO do we need to mock it?
-        return DateFormat.getAvailableLocales();
+        return Calendar.getAvailableLocales();
     }
 
 

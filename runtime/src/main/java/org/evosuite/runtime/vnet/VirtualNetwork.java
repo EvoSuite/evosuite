@@ -26,6 +26,8 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MalformedURLException;
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.net.URL;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -533,18 +535,36 @@ public class VirtualNetwork {
     private void initNetworkInterfaces() {
 
         try {
+            NetworkInterface loopbackInterface = getPreferredInterface(true);
             NetworkInterfaceState loopback = new NetworkInterfaceState(
-                    "Evo_lo0", 1, null, 16384, true, MockInetAddress.getByName("127.0.0.1"));
+                    loopbackInterface, null, 16384, true, MockInetAddress.getByName("127.0.0.1"));
             networkInterfaces.add(loopback);
 
+            NetworkInterface nonLoopbackInterface = getPreferredInterface(false);
             NetworkInterfaceState wifi = new NetworkInterfaceState(
-                    "Evo_en0", 5, new byte[]{0, 42, 0, 42, 0, 42},
+                    nonLoopbackInterface, new byte[]{0, 42, 0, 42, 0, 42},
                     1500, false, MockInetAddress.getByName("192.168.1.42"));
             networkInterfaces.add(wifi);
         } catch (Exception e) {
             //this should never happen
             throw new RuntimeException("EvoSuite error: " + e.getMessage());
         }
+    }
+
+    private NetworkInterface getPreferredInterface(boolean loopback) throws SocketException {
+        Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
+        if (interfaces == null) {
+            throw new SocketException("No network interfaces available on host JVM");
+        }
+
+        while (interfaces.hasMoreElements()) {
+            NetworkInterface networkInterface = interfaces.nextElement();
+            if (networkInterface.isLoopback() == loopback) {
+                return networkInterface;
+            }
+        }
+
+        throw new SocketException("Could not find a " + (loopback ? "loopback" : "non-loopback") + " network interface");
     }
 
     //------------------------------------------

@@ -98,6 +98,6 @@ public class MockDateFormat implements StaticReplacementMock {
     }
 
     public static Locale[] getAvailableLocales() {
-        return DateFormat.getAvailableLocales();
+        return Locale.getAvailableLocales();
     }
 }

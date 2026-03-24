@@ -48,6 +48,12 @@ public class DeleteFileSystemTest extends SystemTestBase {
 
     private static final boolean DEFAULT_RESET_STATIC = Properties.RESET_STATIC_FIELDS;
 
+    private void assumeSandboxEnforcementAvailable() {
+        Assume.assumeTrue("Requires active sandbox enforcement support on this JDK",
+                Sandbox.getEnforcementCapability() == Sandbox.EnforcementCapability.LEGACY_SECURITY_MANAGER
+                        || Sandbox.isLegacySecurityManagerSupported());
+    }
+
     @After
     public void tearDown() {
         Properties.RESET_STATIC_FIELDS = DEFAULT_RESET_STATIC;
@@ -55,6 +61,7 @@ public class DeleteFileSystemTest extends SystemTestBase {
 
     @Test
     public void testDeleteStaticNoReset() throws IOException {
+        assumeSandboxEnforcementAvailable();
 
         Properties.RESET_STATIC_FIELDS = false;
 
@@ -82,6 +89,7 @@ public class DeleteFileSystemTest extends SystemTestBase {
 
     @Test
     public void testDeleteStaticWithReset() throws IOException {
+        assumeSandboxEnforcementAvailable();
 
         Properties.RESET_STATIC_FIELDS = true;
 
@@ -110,6 +118,7 @@ public class DeleteFileSystemTest extends SystemTestBase {
 
     @Test
     public void testDeleteOnExit() throws IOException {
+        assumeSandboxEnforcementAvailable();
 
         String tmpdir = System.getProperty("java.io.tmpdir");
         File toDelete = new File(tmpdir + File.separator
@@ -135,6 +144,7 @@ public class DeleteFileSystemTest extends SystemTestBase {
 
     @Test
     public void testDeleteOnThread() throws IOException {
+        assumeSandboxEnforcementAvailable();
 
         String tmpdir = System.getProperty("java.io.tmpdir");
         File toDelete = new File(tmpdir + File.separator
@@ -160,6 +170,7 @@ public class DeleteFileSystemTest extends SystemTestBase {
 
     @Test
     public void testDeleteOnProcess() throws IOException {
+        assumeSandboxEnforcementAvailable();
         Assume.assumeTrue(new File("/bin/rm").exists());
 
         String tmpdir = System.getProperty("java.io.tmpdir");
@@ -186,6 +197,7 @@ public class DeleteFileSystemTest extends SystemTestBase {
 
     @Test
     public void testDeleteCommonsIO() throws IOException {
+        assumeSandboxEnforcementAvailable();
         Assume.assumeTrue(new File("/bin/rm").exists());
 
         String tmpdir = System.getProperty("java.io.tmpdir");

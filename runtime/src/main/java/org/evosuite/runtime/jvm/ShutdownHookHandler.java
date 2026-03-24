@@ -39,6 +39,7 @@ public class ShutdownHookHandler {
     private static final Logger logger = LoggerFactory.getLogger(ShutdownHookHandler.class);
 
     private static final ShutdownHookHandler instance = new ShutdownHookHandler();
+    private static volatile boolean shutdownHooksSupported = true;
 
     /**
      * A reference to the actual map in the JVM that holds the shutdown
@@ -74,6 +75,7 @@ public class ShutdownHookHandler {
              */
             String msg = "Failed to initialize shutdown hook handling";
             logger.error(msg);
+            shutdownHooksSupported = false;
         }
     }
 
@@ -81,11 +83,15 @@ public class ShutdownHookHandler {
         return instance;
     }
 
+    public boolean isShutdownHookControlSupported() {
+        return shutdownHooksSupported && hooksReference != null;
+    }
+
     /**
      * Important to check what hooks are currently registered
      */
     public void initHandler() {
-        if (hooksReference == null) {
+        if (!isShutdownHookControlSupported()) {
             return; //
         }
 
@@ -108,7 +114,7 @@ public class ShutdownHookHandler {
      * @return
      */
     public List<Thread> getAddedHooks() {
-        if (hooksReference == null || existingHooks == null) {
+        if (!isShutdownHookControlSupported() || existingHooks == null) {
             return null;
         }
 
@@ -128,7 +134,7 @@ public class ShutdownHookHandler {
      * @return
      */
     public int getNumberOfAllExistingHooks() {
-        if (hooksReference == null) {
+        if (!isShutdownHookControlSupported()) {
             return -1;
         }
         return hooksReference.size();

@@ -42,16 +42,21 @@ public class GuiSupport {
     private static final boolean isDefaultHeadless = GraphicsEnvironment.isHeadless();
 
     private static final Field headless; // need reflection
+    private static final boolean headlessControlSupported;
 
     static {
+        Field reflectedHeadlessField = null;
+        boolean canControlHeadless = false;
         try {
             //AWT classes check GraphicsEnvironment for headless state
-            headless = java.awt.GraphicsEnvironment.class.getDeclaredField("headless");
-            headless.setAccessible(true);
-        } catch (NoSuchFieldException | SecurityException | IllegalArgumentException e) {
-            //this should never happen. if it doesn't work, then all GUI tests would be messed up :(
-            throw new RuntimeException("ERROR: failed to use reflection for AWT Headless state: " + e.getMessage(), e);
+            reflectedHeadlessField = java.awt.GraphicsEnvironment.class.getDeclaredField("headless");
+            reflectedHeadlessField.setAccessible(true);
+            canControlHeadless = true;
+        } catch (NoSuchFieldException | RuntimeException e) {
+            logger.warn("AWT headless state cannot be controlled reflectively on this JDK: {}", e.getMessage());
         }
+        headless = reflectedHeadlessField;
+        headlessControlSupported = canControlHeadless;
     }
 
     /**
@@ -107,17 +112,24 @@ public class GuiSupport {
         }
     }
 
+    public static boolean isHeadlessControlSupported() {
+        return headlessControlSupported;
+    }
+
 
     private static void setHeadless(boolean isHeadless) {
 
         //changing system property is not enough
         java.lang.System.setProperty("java.awt.headless", "" + isHeadless);
 
+        if (!headlessControlSupported || headless == null) {
+            return;
+        }
+
         try {
             headless.set(null, isHeadless);
         } catch (IllegalAccessException e) {
-            //this should never happen. if it doesn't work, then all GUI tests would be messed up :(
-            throw new RuntimeException("ERROR: failed to change AWT Headless state: " + e.getMessage(), e);
+            logger.warn("Failed to change AWT headless state reflectively: {}", e.getMessage());
         }
 
     }

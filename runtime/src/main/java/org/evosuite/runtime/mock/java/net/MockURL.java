@@ -19,6 +19,7 @@
  */
 package org.evosuite.runtime.mock.java.net;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
@@ -105,20 +106,11 @@ public class MockURL implements StaticReplacementMock{
 	public static URL URL(String protocol, String host, int port, String file,
 			URLStreamHandler handler) throws MalformedURLException {
 
+		if(handler == null){
+			handler = getMockedURLStreamHandler(protocol);
+		}
 
 		URL url = new URL(protocol,host,port,file,handler);
-
-		//we just need to deal with "handler" if it wasn't specified
-		if(handler == null){
-			/*
-			 * if no handler is specified, then parent would load one based on 
-			 * protocol. As the function there is package level, we cannot modify/override it,
-			 * and we still have to call a constructor.
-			 * So, just replace the handler via reflection
-			 */
-			handler = getMockedURLStreamHandler(protocol);
-			URLUtil.setHandler(url, handler);
-		}
 
 		return url;
 	}
@@ -127,92 +119,26 @@ public class MockURL implements StaticReplacementMock{
 	public static URL URL(URL context, String spec, URLStreamHandler handler)
 			throws MalformedURLException{
 
+		if(handler == null){
+			String protocol = null;
+			if (context != null) {
+				protocol = context.getProtocol();
+			}
+			if (protocol == null || protocol.trim().isEmpty()) {
+				int protocolSeparator = spec.indexOf(':');
+				if (protocolSeparator > 0) {
+					protocol = spec.substring(0, protocolSeparator);
+				}
+			}
+
+			if (protocol != null && !protocol.trim().isEmpty()) {
+				handler = getMockedURLStreamHandler(protocol);
+			}
+		}
+
 		URL url = new URL(context,spec,handler);
 
-		//we just need to deal with "handler" if it wasn't specified
-		if(handler == null){
-			/*
-			 * if no handler is specified, then parent would load one based on 
-			 * protocol. As the function there is package level, we cannot modify/override it,
-			 * and we still have to call a constructor.
-			 * So, just replace the handler via reflection
-			 */
-			handler = getMockedURLStreamHandler(url.getProtocol());
-			URLUtil.setHandler(url, handler);
-
-			//this is needed, as called on the handler in the constructor we are mocking
-			handleParseUrl(url,spec,handler);
-		}
-
 		return url;
-	}
-
-
-
-	private static void handleParseUrl(URL url, String spec, URLStreamHandler handler) throws MalformedURLException {
-
-		//code here is based on URL constructor
-
-		int i, limit, c;
-		int start = 0;
-		boolean aRef=false;
-
-		limit = spec.length();
-		while ((limit > 0) && (spec.charAt(limit - 1) <= ' ')) {
-			limit--;        //eliminate trailing whitespace
-		}
-		while ((start < limit) && (spec.charAt(start) <= ' ')) {
-			start++;        // eliminate leading whitespace
-		}
-
-		if (spec.regionMatches(true, start, "url:", 0, 4)) {
-			start += 4;
-		}
-
-		if (start < spec.length() && spec.charAt(start) == '#') {
-			aRef=true;
-		}
-
-		for (i = start; !aRef && (i < limit) &&
-				((c = spec.charAt(i)) != '/'); i++) {
-			if (c == ':') {
-
-				String s = spec.substring(start, i).toLowerCase();
-				if (isValidProtocol(s)) {
-					start = i + 1;
-				}
-				break;
-			}
-		}
-
-		i = spec.indexOf('#', start);
-		if (i >= 0) {
-			limit = i;
-		}
-
-        try {
-            URLStreamHandlerUtil.parseURL(handler, url, spec, start, limit);
-        } catch (InvocationTargetException e) {
-           throw new MalformedURLException(e.getCause().toString());
-        }
-    }
-
-	//From URL
-	private static boolean isValidProtocol(String protocol) {
-		int len = protocol.length();
-		if (len < 1)
-			return false;
-		char c = protocol.charAt(0);
-		if (!Character.isLetter(c))
-			return false;
-		for (int i = 1; i < len; i++) {
-			c = protocol.charAt(i);
-			if (!Character.isLetterOrDigit(c) && c != '.' && c != '+' &&
-					c != '-') {
-				return false;
-			}
-		}
-		return true;
 	}
 
 	// ---------------------
@@ -315,13 +241,11 @@ public class MockURL implements StaticReplacementMock{
 			throw new IllegalArgumentException("proxy can not be null");
 		}
 
-		// Create a copy of Proxy as a security measure
-		//Proxy p = proxy == Proxy.NO_PROXY ? Proxy.NO_PROXY : sun.net.ApplicationProxy.create(proxy);
-        try {
-            return URLStreamHandlerUtil.openConnection(URLUtil.getHandler(url), url, proxy);
-        } catch (InvocationTargetException e) {
-            throw new MockIOException(e.getCause());
-        }
+		try {
+			return url.openConnection(proxy);
+		} catch (IOException e) {
+			throw new MockIOException(e);
+		}
     }
 
 

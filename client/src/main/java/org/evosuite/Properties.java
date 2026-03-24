@@ -53,7 +53,7 @@ import java.util.Set;
  */
 public class Properties {
 
-    public static final String JAVA_VERSION_WARN_MSG = "EvoSuite does not support Java versions > 8 yet";
+    public static final String JAVA_VERSION_WARN_MSG = "EvoSuite support for modern Java versions is incomplete and may require compatibility settings";
 
     private final static Logger logger = LoggerFactory.getLogger(Properties.class);
 

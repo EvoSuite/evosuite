@@ -112,7 +112,7 @@ public class RuntimeInstrumentation {
                     + classNameWithDots + ")! Load by parent (JVM) classloader.");
         }
 
-        int asmFlags = ClassWriter.COMPUTE_FRAMES;
+        int asmFlags = ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS;
         ClassWriter writer = new ComputeClassWriter(asmFlags);
 
         ClassVisitor cv = writer;

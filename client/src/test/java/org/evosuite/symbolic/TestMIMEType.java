@@ -20,13 +20,10 @@
 package org.evosuite.symbolic;
 
 import com.examples.with.different.packagename.concolic.MIMETypeTest;
-import org.apache.commons.lang3.SystemUtils;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.solver.DefaultTestCaseConcolicExecutor;
 import org.evosuite.symbolic.solver.SolverTimeoutException;
 import org.evosuite.testcase.DefaultTestCase;
-import org.junit.Assume;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.lang.reflect.Method;
@@ -41,12 +38,6 @@ public class TestMIMEType {
         Method method = MIMETypeTest.class.getMethod("test");
         tc.appendMethod(null, method);
         return tc.getDefaultTestCase();
-    }
-
-    @Before
-    public void before() {
-        final Integer javaVersion = Integer.valueOf(SystemUtils.JAVA_VERSION.split("\\.")[0]);
-        Assume.assumeTrue(javaVersion < 9);
     }
 
     @Test

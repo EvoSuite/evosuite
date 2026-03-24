@@ -46,18 +46,26 @@ public class JavaExecCmdUtil {
      * @apiNote under maven java.home property is ${JAVA_HOME}/jre/bin/java
      */
     public static String getJavaBinExecutablePath(final boolean isFullOriginalJavaExecRequired) {
-        final String JAVA_CMD = Paths.get(System.getProperty("java.home"), "bin", "java").toString();
+        return getJavaBinExecutablePath(
+                getJavaHomeEnv().orElse(null),
+                getOsName().orElse(null),
+                System.getProperty("java.home"),
+                isFullOriginalJavaExecRequired
+        );
+    }
 
-        return getJavaHomeEnv()
-                .map(javaHomeEnvVar ->
-                     Paths.get(javaHomeEnvVar, "bin", "java", getOsName()
-                               .filter(osName -> osName.toLowerCase().contains("windows"))
-                               .map(osName -> ".exe")
-                               .orElse("")).toFile()
-                )
+    static String getJavaBinExecutablePath(final String javaHomeEnv, final String osName,
+                                           final String javaHome, final boolean isFullOriginalJavaExecRequired) {
+        final String javaCmd = Paths.get(javaHome, "bin", "java").toString();
+        final String executableName = osName != null && osName.toLowerCase().contains("windows")
+                ? "java.exe"
+                : "java";
+
+        return Optional.ofNullable(javaHomeEnv)
+                .map(javaHomeEnvVar -> Paths.get(javaHomeEnvVar, "bin", executableName).toFile())
                 .filter(File::exists)
                 .map(File::getPath)
-                .orElse(isFullOriginalJavaExecRequired ? JAVA_CMD : "java");
+                .orElse(isFullOriginalJavaExecRequired ? javaCmd : "java");
     }
 
     /**

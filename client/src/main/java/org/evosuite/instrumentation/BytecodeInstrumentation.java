@@ -164,7 +164,7 @@ public class BytecodeInstrumentation {
          * have a JSRInlinerAdapter in NonTargetClassAdapter as well as
          * CFGAdapter.
          */
-        int asmFlags = ClassWriter.COMPUTE_FRAMES;
+        int asmFlags = ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS;
         ClassWriter writer = new ComputeClassWriter(asmFlags);
 
         ClassVisitor cv = writer;

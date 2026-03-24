@@ -29,18 +29,26 @@ import java.util.concurrent.TimeUnit;
 public class SandboxFromJUnitTest {
 
     private static ExecutorService executor;
+    private static boolean securityManagerSupported;
 
     @BeforeClass
     public static void initEvoSuiteFramework() {
+        securityManagerSupported = MSecurityManager.isSecurityManagerSupported();
+        Assume.assumeTrue(securityManagerSupported);
         Assert.assertNull(System.getSecurityManager());
 
         Sandbox.initializeSecurityManagerForSUT();
+        Assert.assertEquals(Sandbox.SandboxStatus.LEGACY_ENFORCEMENT, Sandbox.getSandboxStatus());
+        Assert.assertTrue(Sandbox.isEnforcingPermissions());
         executor = Executors.newCachedThreadPool();
 
     }
 
     @AfterClass
     public static void clearEvoSuiteFramework() {
+        if (!securityManagerSupported) {
+            return;
+        }
         Assert.assertNotNull(System.getSecurityManager());
 
         executor.shutdownNow();
@@ -51,13 +59,26 @@ public class SandboxFromJUnitTest {
 
     @Before
     public void initTest() {
+        Assume.assumeTrue(securityManagerSupported);
         Sandbox.goingToExecuteSUTCode();
         //TestGenerationContext.getInstance().goingToExecuteSUTCode();
     }
 
     @After
     public void doneWithTestCase() {
+        if (!securityManagerSupported) {
+            return;
+        }
         Sandbox.doneWithExecutingSUTCode();
+    }
+
+    @Test
+    public void testLegacySandboxStatus() {
+        Assert.assertTrue(Sandbox.isSandboxInitialized());
+        Assert.assertTrue(Sandbox.isEnforcingPermissions());
+        Assert.assertEquals(Sandbox.SandboxStatus.LEGACY_ENFORCEMENT, Sandbox.getSandboxStatus());
+        Assert.assertEquals(Sandbox.EnforcementCapability.LEGACY_SECURITY_MANAGER,
+                Sandbox.getEnforcementCapability());
     }
 
 
@@ -91,5 +112,3 @@ class Foo {
         System.exit(0);
     }
 }
-
-

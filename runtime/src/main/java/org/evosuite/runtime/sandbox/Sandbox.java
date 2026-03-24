@@ -30,6 +30,18 @@ import java.util.Set;
  */
 public class Sandbox {
 
+    public enum SandboxStatus {
+        OFF,
+        COORDINATION_ONLY,
+        LEGACY_ENFORCEMENT
+    }
+
+    public enum EnforcementCapability {
+        NONE,
+        LEGACY_SECURITY_MANAGER,
+        ISOLATED_PROCESS
+    }
+
     public enum SandboxMode {
         OFF, RECOMMENDED, IO
     }
@@ -37,6 +49,7 @@ public class Sandbox {
     private static final Logger logger = LoggerFactory.getLogger(Sandbox.class);
 
     private static volatile MSecurityManager manager;
+    private static volatile SandboxContext context;
 
     /**
      * count how often we tried to init the sandbox.
@@ -59,20 +72,25 @@ public class Sandbox {
      * Create and initialize security manager for SUT
      */
     public static synchronized void initializeSecurityManagerForSUT(Set<Thread> privileged) {
-        if (manager == null) {
-            manager = new MSecurityManager();
+        if (context == null) {
+            context = new SandboxContext();
 
             if (privileged == null) {
-                manager.makePrivilegedAllCurrentThreads();
+                makePrivilegedAllCurrentThreads(context);
             } else {
                 for (Thread t : privileged) {
-                    manager.addPrivilegedThread(t);
+                    context.addPrivilegedThread(t);
                 }
             }
-
-            manager.apply();
         } else {
             logger.warn("Sandbox can be initalized only once");
+        }
+
+        if (MSecurityManager.isSecurityManagerSupported() && manager == null) {
+            manager = new MSecurityManager(context);
+            manager.apply();
+        } else if (!MSecurityManager.isSecurityManagerSupported()) {
+            logger.warn("Sandbox security manager is not supported on this JDK; running with coordination-only sandbox mode");
         }
 
         counter++;
@@ -86,8 +104,9 @@ public class Sandbox {
     }
 
     public static void addPrivilegedThread(Thread t) {
-        if (manager != null)
-            manager.addPrivilegedThread(t);
+        if (context != null) {
+            context.addPrivilegedThread(t);
+        }
     }
 
     /**
@@ -95,10 +114,9 @@ public class Sandbox {
      * if then we want to reactivate the security manager with the same priviliged threads.
      */
     public static synchronized Set<Thread> resetDefaultSecurityManager() {
-
         Set<Thread> privileged = null;
-        if (manager != null) {
-            privileged = manager.getPrivilegedThreads();
+        if (context != null) {
+            privileged = context.getPrivilegedThreads();
         }
 
         counter--;
@@ -108,13 +126,44 @@ public class Sandbox {
                 manager.restoreDefaultManager();
             }
             manager = null;
+            context = null;
+            counter = 0;
         }
 
         return privileged;
     }
 
     public static boolean isSecurityManagerInitialized() {
+        return context != null;
+    }
+
+    public static boolean isSandboxInitialized() {
+        return context != null;
+    }
+
+    public static boolean isEnforcingPermissions() {
         return manager != null;
+    }
+
+    public static boolean isLegacySecurityManagerSupported() {
+        return MSecurityManager.isSecurityManagerSupported();
+    }
+
+    public static EnforcementCapability getEnforcementCapability() {
+        if (manager != null) {
+            return EnforcementCapability.LEGACY_SECURITY_MANAGER;
+        }
+        return EnforcementCapability.NONE;
+    }
+
+    public static SandboxStatus getSandboxStatus() {
+        if (context == null) {
+            return SandboxStatus.OFF;
+        }
+        if (manager != null) {
+            return SandboxStatus.LEGACY_ENFORCEMENT;
+        }
+        return SandboxStatus.COORDINATION_ONLY;
     }
 
     public static void goingToExecuteSUTCode() {
@@ -124,7 +173,7 @@ public class Sandbox {
             }
             return;
         }
-        manager.goingToExecuteTestCase();
+        context.goingToExecuteTestCase();
         PermissionStatistics.getInstance().getAndResetExceptionInfo();
     }
 
@@ -135,14 +184,14 @@ public class Sandbox {
             }
             return;
         }
-        manager.goingToEndTestCase();
+        context.goingToEndTestCase();
     }
 
     public static boolean isOnAndExecutingSUTCode() {
         if (!isSecurityManagerInitialized()) {
             return false;
         }
-        return manager.isExecutingTestCase();
+        return context.isExecutingTestCase();
     }
 
     public static void goingToExecuteUnsafeCodeOnSameThread() throws SecurityException,
@@ -150,7 +199,7 @@ public class Sandbox {
         if (!isSecurityManagerInitialized()) {
             return;
         }
-        manager.goingToExecuteUnsafeCodeOnSameThread();
+        context.goingToExecuteUnsafeCodeOnSameThread();
     }
 
     public static void doneWithExecutingUnsafeCodeOnSameThread()
@@ -158,7 +207,7 @@ public class Sandbox {
         if (!isSecurityManagerInitialized()) {
             return;
         }
-        manager.doneWithExecutingUnsafeCodeOnSameThread();
+        context.doneWithExecutingUnsafeCodeOnSameThread();
     }
 
 
@@ -166,6 +215,25 @@ public class Sandbox {
         if (!isSecurityManagerInitialized()) {
             return false;
         }
-        return manager.isSafeToExecuteSUTCode();
+        return context.isSafeToExecuteSUTCode();
+    }
+
+    static SandboxContext getContext() {
+        return context;
+    }
+
+    private static void makePrivilegedAllCurrentThreads(SandboxContext sandboxContext) {
+        ThreadGroup root = Thread.currentThread().getThreadGroup();
+        while (root.getParent() != null) {
+            root = root.getParent();
+        }
+
+        Thread[] threads = new Thread[root.activeCount() + 10];
+        root.enumerate(threads);
+        for (Thread t : threads) {
+            if (t != null) {
+                sandboxContext.addPrivilegedThread(t);
+            }
+        }
     }
 }

@@ -21,6 +21,7 @@ package org.evosuite.runtime.mock.java.net;
 
 import java.lang.reflect.Method;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,16 +43,24 @@ public class NetReflectionUtil {
 	 * @return
 	 */
 	public static InetAddress anyLocalAddress(){
-				
+		InetAddress loopback = InetAddress.getLoopbackAddress();
+		if (loopback != null) {
+			return loopback;
+		}
+
 		try {
 			Method m = InetAddress.class.getDeclaredMethod("anyLocalAddress");
 			m.setAccessible(true);
 			return (InetAddress) m.invoke(null);
 		} catch (Exception e) {
-			//should never happen
-			logger.error("Failed to use reflection on InetAddress.anyLocalAddress(): "+e.getMessage(),e);
+			logger.debug("Failed to use reflection on InetAddress.anyLocalAddress(): {}", e.getMessage());
 		} 
-		
-		return null;
+
+		try {
+			return InetAddress.getByAddress(new byte[]{0, 0, 0, 0});
+		} catch (UnknownHostException e) {
+			logger.error("Failed to resolve a fallback any-local address: {}", e.getMessage(), e);
+			return null;
+		}
 	}
 }

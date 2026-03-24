@@ -55,18 +55,16 @@ public class MockDatagramSocket extends DatagramSocket implements OverrideMock{
         try {
             m = DatagramSocket.class.getDeclaredMethod("createImpl");
             m.setAccessible(true);
-        } catch (NoSuchMethodException e) {
-            //should never happen
-            logger.error("Failed reflection on DatagramSocket: "+e.getMessage());
+        } catch (NoSuchMethodException | RuntimeException e) {
+            logger.warn("DatagramSocket#createImpl reflection is not available on this JDK: {}", e.getMessage());
         }
 
         Field f = null;
         try {
             f = DatagramSocket.class.getDeclaredField("impl");
             f.setAccessible(true);
-        } catch (NoSuchFieldException e) {
-            //should never happen
-            logger.error("Failed reflection on DatagramSocket: "+e.getMessage());
+        } catch (NoSuchFieldException | RuntimeException e) {
+            logger.warn("DatagramSocket#impl reflection is not available on this JDK: {}", e.getMessage());
         }
 
         CREATE_IMPL = m;
@@ -123,6 +121,9 @@ public class MockDatagramSocket extends DatagramSocket implements OverrideMock{
         super(new EvoDatagramSocketImpl());
 
         if(!MockFramework.isEnabled()){
+            if (IMPL == null || CREATE_IMPL == null) {
+                throw new SocketException("Real DatagramSocket fallback is not supported on this JDK without mock mode");
+            }
             try {
                 IMPL.set(this, null);
                 CREATE_IMPL.invoke(this);
@@ -152,6 +153,9 @@ public class MockDatagramSocket extends DatagramSocket implements OverrideMock{
         super(new EvoDatagramSocketImpl());
 
         if(!MockFramework.isEnabled()){
+            if (IMPL == null || CREATE_IMPL == null) {
+                throw new SocketException("Real DatagramSocket fallback is not supported on this JDK without mock mode");
+            }
             try {
                 IMPL.set(this, null);
                 CREATE_IMPL.invoke(this);

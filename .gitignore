@@ -25,3 +25,5 @@ master/dependency-reduced-pom.xml
 shaded/dependency-reduced-pom.xml
 standalone_runtime/dependency-reduced-pom.xml
 nbactions.xml
+plugins/gradle/.gradle/
+.codex-local/

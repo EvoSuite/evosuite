@@ -84,6 +84,17 @@ This is required for when EvoSuite tests are mixed with manually written existin
 	</plugin>
 
 
+When using Maven on JDK 24 or newer, Maven's own dependencies may emit a startup warning about
+terminally deprecated sun.misc.Unsafe memory-access methods before your build even begins. To keep
+the output clean, add the following file to the root of your project:
+
+	.mvn/jvm.config
+
+with this content:
+
+	--sun-misc-unsafe-memory-access=allow
+
+
 EvoSuite generates JUnit files, so it requires JUnit on the classpath. EvoSuite does not add it
 automatically as a dependency, as to avoid conflicts with different versions. We recommend to use
 a recent version of JUnit, at least 4.11 or above.
@@ -151,6 +162,11 @@ store all the best tests generated so far.
 
 5) "prepare" -> need to run the EvoSuite tests mixed with existing ones, eg "mvn evosuite:prepare test". 
 Best to just configure the evosuite plugin to always run it, as previously explained.  
+
+If you combine EvoSuite-generated tests with PIT mutation testing, configure PIT with fully
+qualified test class names, eg "com.example.Foo_ESTest" rather than "Foo_ESTest.java". On JDK 24+
+you may also want to set PIT's verbosity to "NO_SPINNER" so that progress spinner characters do
+not clutter machine-parsed logs.
 
 ------------------
 

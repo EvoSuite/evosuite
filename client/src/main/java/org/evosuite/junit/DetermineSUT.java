@@ -115,8 +115,8 @@ public class DetermineSUT {
 
         String className = fullyQualifiedTargetClass.replace('.', '/');
         try {
-
-            InputStream is = ClassLoader.getSystemResourceAsStream(className + ".class");
+            InputStream is = ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT())
+                    .getClassAsStream(fullyQualifiedTargetClass);
             if (is == null) {
                 throw new ClassNotFoundException("Class '" + className + ".class"
                         + "' should be in target project, but could not be found!");

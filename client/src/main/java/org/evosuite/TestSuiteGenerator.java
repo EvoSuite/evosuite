@@ -717,7 +717,12 @@ public class TestSuiteGenerator {
         if (!Properties.WRITE_POOL.isEmpty()) {
             LoggingUtils.getEvoLogger().info("* " + ClientProcess.getPrettyPrintIdentifier() + "Writing sequences to pool");
             ObjectPool pool = ObjectPool.getPoolFromTestSuite(suite);
-            pool.writePool(Properties.WRITE_POOL);
+            try {
+                pool.writePool(Properties.WRITE_POOL);
+            } catch (Throwable t) {
+                LoggingUtils.getEvoLogger().warn("* " + ClientProcess.getPrettyPrintIdentifier()
+                        + "Skipping pool serialization on this JDK: " + t);
+            }
         }
     }
 

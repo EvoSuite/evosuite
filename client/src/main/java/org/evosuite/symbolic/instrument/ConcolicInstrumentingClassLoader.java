@@ -96,7 +96,13 @@ public class ConcolicInstrumentingClassLoader extends ClassLoader {
         //logger.info("Instrumenting class '" + fullyQualifiedTargetClass + "'.");
         try {
             String className = fullyQualifiedTargetClass.replace('.', '/');
-            InputStream is = ClassLoader.getSystemResourceAsStream(className + ".class");
+            InputStream is = classLoader.getResourceAsStream(className + ".class");
+            if (is == null) {
+                ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
+                if (contextClassLoader != null) {
+                    is = contextClassLoader.getResourceAsStream(className + ".class");
+                }
+            }
             if (is == null) {
                 try {
                     is = findTargetResource(className + ".class");

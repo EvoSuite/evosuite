@@ -16,15 +16,15 @@
     </modules>
 
     <properties>
-        <jacoco.version>0.8.7</jacoco.version>
+        <jacoco.version>0.8.14</jacoco.version>
         <jmockit.version>1.23</jmockit.version>
         <junit.version>4.13.2</junit.version>
-        <surefire.version>2.21.0</surefire.version>
+        <surefire.version>3.5.2</surefire.version>
         <powermock.version>1.6.5</powermock.version>
         <cobertura.version>2.7</cobertura.version>
-        <pit.version>1.1.9</pit.version>
+        <pit.version>1.22.0</pit.version>
         <forkCount>1</forkCount>
-        <evosuiteVersion>1.1.1-SNAPSHOT</evosuiteVersion>
+        <evosuiteVersion>1.2.1-SNAPSHOT</evosuiteVersion>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
 
@@ -176,6 +176,7 @@
                             <targetTests>
                                 <param>${pit.tests}</param>
                             </targetTests>
+                            <verbosity>NO_SPINNER</verbosity>
                         </configuration>
                         <executions>
                             <execution>

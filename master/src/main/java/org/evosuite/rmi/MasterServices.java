@@ -22,7 +22,6 @@ package org.evosuite.rmi;
 import org.evosuite.rmi.service.MasterNodeImpl;
 import org.evosuite.rmi.service.MasterNodeLocal;
 import org.evosuite.rmi.service.MasterNodeRemote;
-import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,6 +30,9 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.net.InetAddress;
+import java.net.ServerSocket;
+import java.io.IOException;
 
 /**
  * This class should be used only in the Master process, not the clients.
@@ -77,23 +79,38 @@ public class MasterServices {
          * with several masters running on same node, eg when experiments on cluster.
          */
 
-        int port = 2000;
-        port += Randomness.nextInt(20000);
-
         final int TRIES = 100;
+        Exception lastFailure = null;
         for (int i = 0; i < TRIES; i++) {
             try {
-                int candidatePort = port + i;
+                int candidatePort = reserveFreePortOnLoopback();
                 UtilsRMI.ensureRegistryOnLoopbackAddress();
 
                 registry = LocateRegistry.createRegistry(candidatePort);
                 registryPort = candidatePort;
                 return true;
             } catch (RemoteException e) {
+                lastFailure = e;
+                logger.debug("Failed to create RMI registry on a candidate port", e);
+            } catch (IOException e) {
+                lastFailure = e;
+                logger.debug("Failed to reserve a free loopback port for the RMI registry", e);
             }
         }
 
+        if (lastFailure != null) {
+            logger.warn("Failed to start RMI registry after {} attempts", TRIES, lastFailure);
+        }
         return false;
+    }
+
+    public boolean canBindOnLoopback() {
+        try {
+            reserveFreePortOnLoopback();
+            return true;
+        } catch (IOException e) {
+            return false;
+        }
     }
 
     /**
@@ -133,6 +150,12 @@ public class MasterServices {
                 logger.warn("Failed to stop RMI registry", e);
             }
             registry = null;
+        }
+    }
+
+    private int reserveFreePortOnLoopback() throws IOException {
+        try (ServerSocket socket = new ServerSocket(0, 50, InetAddress.getByName("127.0.0.1"))) {
+            return socket.getLocalPort();
         }
     }
 }

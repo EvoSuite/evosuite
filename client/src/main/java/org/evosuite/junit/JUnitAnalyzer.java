@@ -20,38 +20,30 @@
 package org.evosuite.junit;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.evosuite.Properties;
-import org.evosuite.TestGenerationContext;
 import org.evosuite.TimeController;
 import org.evosuite.classpath.ClassPathHandler;
 import org.evosuite.instrumentation.NonInstrumentingClassLoader;
 import org.evosuite.junit.writer.TestSuiteWriter;
 import org.evosuite.junit.writer.TestSuiteWriterUtils;
-import org.evosuite.runtime.classhandling.JDKClassResetter;
-import org.evosuite.runtime.sandbox.Sandbox;
+import org.evosuite.runtime.util.JavaExecCmdUtil;
 import org.evosuite.runtime.util.JarPathing;
 import org.evosuite.testcase.TestCase;
-import org.junit.platform.engine.TestExecutionResult;
-import org.junit.platform.engine.discovery.DiscoverySelectors;
-import org.junit.platform.launcher.*;
-import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder;
-import org.junit.platform.launcher.core.LauncherFactory;
-import org.junit.runner.JUnitCore;
-import org.junit.runner.Result;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.tools.*;
 import javax.tools.JavaCompiler.CompilationTask;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.stream.Collectors;
-
-import static org.junit.platform.engine.discovery.ClassNameFilter.includeClassNamePatterns;
+import java.util.concurrent.TimeUnit;
 
 /**
  * This class is used to check if a set of test cases are valid for JUnit: ie,
@@ -70,13 +62,6 @@ public abstract class JUnitAnalyzer {
     private static final String CLASS = ".class";
 
     private static NonInstrumentingClassLoader loader = new NonInstrumentingClassLoader();
-
-    private static final VersionDependentAnalyzing versionDependentAnalyzer;
-
-    static {
-        versionDependentAnalyzer = Properties.TEST_FORMAT == Properties.OutputFormat.JUNIT5 ?
-                new JUnit5Analyzing() : new JUnit4Analyzing();
-    }
 
     /**
      * Try to compile each test separately, and remove the ones that cannot be
@@ -283,12 +268,38 @@ public abstract class JUnitAnalyzer {
 
     private static JUnitResult runTests(Class<?>[] testClasses, File testClassDir)
             throws JUnitExecutionException {
+        if (Properties.JUNIT_CHECK_ON_SEPARATE_PROCESS) {
+            return runJUnitOnSeparateProcess(testClasses, testClassDir);
+        }
         return runJUnitOnCurrentProcess(testClasses);
     }
 
+    private static JUnitResult runJUnitOnSeparateProcess(Class<?>[] testClasses, File testClassDir)
+            throws JUnitExecutionException {
+        File resultFile = new File(testClassDir, "junit-separate-process-result.ser");
+        String classpath = buildJUnitExecutionClasspath(testClassDir);
+        List<String> command = buildSeparateProcessCommand(classpath, resultFile, testClasses);
+        runProcess(command, Properties.JUNIT_CHECK_TIMEOUT * 1000);
+
+        if (!resultFile.isFile()) {
+            throw new JUnitExecutionException("Separate JUnit process finished without producing a result file");
+        }
+
+        try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(resultFile))) {
+            Object result = in.readObject();
+            if (!(result instanceof JUnitResult)) {
+                throw new JUnitExecutionException("Unexpected object returned by separate JUnit process: " + result);
+            }
+            return (JUnitResult) result;
+        } catch (IOException e) {
+            throw new JUnitExecutionException("Failed to read separate-process JUnit result", e);
+        } catch (ClassNotFoundException e) {
+            throw new JUnitExecutionException("Could not deserialize separate-process JUnit result", e);
+        }
+    }
 
     private static JUnitResult runJUnitOnCurrentProcess(Class<?>[] testClasses) {
-        return versionDependentAnalyzer.runJUnitOnCurrentProcess(testClasses);
+        return JUnitExecutor.runJUnit(testClasses);
     }
 
     /**
@@ -497,6 +508,61 @@ public abstract class JUnitAnalyzer {
         return str.substring(0, pos);
     }
 
+    private static String buildJUnitExecutionClasspath(File testClassDir) {
+        String evosuiteCP = ClassPathHandler.getInstance().getEvoSuiteClassPath();
+        if (JarPathing.containsAPathingJar(evosuiteCP)) {
+            evosuiteCP = JarPathing.expandPathingJars(evosuiteCP);
+        }
+
+        String targetProjectCP = ClassPathHandler.getInstance().getTargetProjectClasspath();
+        if (JarPathing.containsAPathingJar(targetProjectCP)) {
+            targetProjectCP = JarPathing.expandPathingJars(targetProjectCP);
+        }
+
+        return testClassDir.getAbsolutePath() + File.pathSeparator + targetProjectCP + File.pathSeparator + evosuiteCP;
+    }
+
+    private static List<String> buildSeparateProcessCommand(String classpath, File resultFile, Class<?>[] testClasses) {
+        List<String> command = new ArrayList<>();
+        command.add(JavaExecCmdUtil.getJavaBinExecutablePath(true));
+        command.add("-cp");
+        command.add(classpath);
+        command.add(SeparateProcessJUnitLauncher.class.getName());
+        command.add(resultFile.getAbsolutePath());
+        for (Class<?> testClass : testClasses) {
+            command.add(testClass.getName());
+        }
+        return command;
+    }
+
+    private static void runProcess(List<String> command, long timeoutMillis) throws JUnitExecutionException {
+        ProcessBuilder builder = new ProcessBuilder(command);
+        builder.redirectErrorStream(true);
+
+        try {
+            Process process = builder.start();
+            ByteArrayOutputStream output = new ByteArrayOutputStream();
+            try (InputStream in = process.getInputStream()) {
+                boolean finished = process.waitFor(timeoutMillis, TimeUnit.MILLISECONDS);
+                in.transferTo(output);
+                if (!finished) {
+                    process.destroyForcibly();
+                    throw new JUnitExecutionException("Timed out while running JUnit on a separate process");
+                }
+            }
+
+            if (process.exitValue() != 0) {
+                throw new JUnitExecutionException("Separate JUnit process failed with exit code "
+                        + process.exitValue() + ": " + output.toString(StandardCharsets.UTF_8));
+            }
+        } catch (IOException e) {
+            throw new JUnitExecutionException("Failed to run JUnit on a separate process", e);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new JUnitExecutionException("Interrupted while waiting for separate JUnit process", e);
+        }
+    }
+
     /**
      * <p>
      * The output of EvoSuite is a set of test cases. For debugging and
@@ -671,125 +737,4 @@ public abstract class JUnitAnalyzer {
         return testClass;
     }
 
-    /**
-     * Class defining what functionality must be defined for different JUNIT versions.
-     */
-    private static abstract class VersionDependentAnalyzing {
-        abstract JUnitResult runJUnitOnCurrentProcess(Class<?>[] testClasses);
-    }
-
-    /**
-     * Define functionality for JUnit 4 Tests.
-     */
-    private static class JUnit4Analyzing extends VersionDependentAnalyzing {
-        @Override
-        JUnitResult runJUnitOnCurrentProcess(Class<?>[] testClasses) {
-
-            JUnitCore runner = new JUnitCore();
-
-            /*
-             * Why deactivating the sandbox? This is pretty tricky.
-             * The JUnitCore runner will execute the test cases on a new
-             * thread, which might not be privileged. If the test cases need
-             * the JavaAgent, then they will fail due to the sandbox :(
-             * Note: if the test cases need a sandbox, they will have code
-             * to do that by their self. When they do it, the initialization
-             * will be after the agent is already loaded.
-             */
-            boolean wasSandboxOn = Sandbox.isSecurityManagerInitialized();
-
-            Set<Thread> privileged = null;
-            if (wasSandboxOn) {
-                privileged = Sandbox.resetDefaultSecurityManager();
-            }
-
-            Result result = null;
-            ClassLoader currentLoader = Thread.currentThread().getContextClassLoader();
-
-            try {
-                TestGenerationContext.getInstance().goingToExecuteSUTCode();
-                Thread.currentThread().setContextClassLoader(testClasses[0].getClassLoader());
-                JDKClassResetter.reset(); //be sure we reset it here, otherwise "init" in the test case would take current changed state
-                result = runner.run(testClasses);
-            } finally {
-                Thread.currentThread().setContextClassLoader(currentLoader);
-                TestGenerationContext.getInstance().doneWithExecutingSUTCode();
-            }
-
-
-            if (wasSandboxOn) {
-                //only activate Sandbox if it was already active before
-                if (!Sandbox.isSecurityManagerInitialized())
-                    Sandbox.initializeSecurityManagerForSUT(privileged);
-            } else {
-                if (Sandbox.isSecurityManagerInitialized()) {
-                    logger.warn("EvoSuite problem: tests set up a security manager, but they do not remove it after execution");
-                    Sandbox.resetDefaultSecurityManager();
-                }
-            }
-
-            JUnitResultBuilder builder = new JUnitResultBuilder();
-            return builder.build(result);
-        }
-    }
-
-
-    /**
-     * Define functionality for JUnit 5 tests.
-     */
-    private static class JUnit5Analyzing extends VersionDependentAnalyzing {
-
-        @Override
-        JUnitResult runJUnitOnCurrentProcess(Class<?>[] testClasses) {
-
-            boolean wasSandboxOn = Sandbox.isSecurityManagerInitialized();
-
-            Set<Thread> privileged = null;
-            if (wasSandboxOn) {
-                privileged = Sandbox.resetDefaultSecurityManager();
-            }
-
-            List<Pair<TestIdentifier, TestExecutionResult>> result = new ArrayList<>();
-            ClassLoader currentLoader = Thread.currentThread().getContextClassLoader();
-
-
-            try {
-                TestGenerationContext.getInstance().goingToExecuteSUTCode();
-                Thread.currentThread().setContextClassLoader(testClasses[0].getClassLoader());
-                JDKClassResetter.reset(); //be sure we reset it here, otherwise "init" in the test case would take current changed state
-                LauncherDiscoveryRequest request_ = LauncherDiscoveryRequestBuilder.request()
-                        .selectors(Arrays.stream(testClasses).map(DiscoverySelectors::selectClass).collect(Collectors.toList()))
-                        .filters(includeClassNamePatterns(".*Test"))
-                        .build();
-                Launcher launcher = LauncherFactory.create();
-                TestPlan testPlan = launcher.discover(request_);
-                launcher.registerTestExecutionListeners(new TestExecutionListener() {
-                    @Override
-                    public void executionFinished(TestIdentifier testIdentifier, TestExecutionResult testExecutionResult) {
-                        result.add(Pair.of(testIdentifier, testExecutionResult));
-                    }
-                });
-
-                launcher.execute(request_);
-            } finally {
-                Thread.currentThread().setContextClassLoader(currentLoader);
-                TestGenerationContext.getInstance().doneWithExecutingSUTCode();
-            }
-
-
-            if (wasSandboxOn) {
-                //only activate Sandbox if it was already active before
-                if (!Sandbox.isSecurityManagerInitialized())
-                    Sandbox.initializeSecurityManagerForSUT(privileged);
-            } else {
-                if (Sandbox.isSecurityManagerInitialized()) {
-                    logger.warn("EvoSuite problem: tests set up a security manager, but they do not remove it after execution");
-                    Sandbox.resetDefaultSecurityManager();
-                }
-            }
-
-            JUnitResultBuilder builder = new JUnitResultBuilder();
-            return builder.build(result);
-        }
-    }
 }

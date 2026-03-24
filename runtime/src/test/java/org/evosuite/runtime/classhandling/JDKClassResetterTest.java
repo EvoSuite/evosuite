@@ -20,6 +20,7 @@
 package org.evosuite.runtime.classhandling;
 
 
+import org.junit.Assume;
 import org.junit.Test;
 
 import java.awt.*;
@@ -47,6 +48,7 @@ public class JDKClassResetterTest {
     public void testReset() throws Exception {
 
         JDKClassResetter.init();
+        Assume.assumeTrue(JDKClassResetter.isResetSupported());
         int keyValue = 1234567;
 
         //this should be fine

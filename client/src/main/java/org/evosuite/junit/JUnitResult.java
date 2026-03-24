@@ -21,6 +21,7 @@ package org.evosuite.junit;
 
 import org.evosuite.testcase.execution.ExecutionTrace;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,7 +31,9 @@ import java.util.List;
  * @author galeotti
  * @author José Campos
  */
-public class JUnitResult {
+public class JUnitResult implements Serializable {
+
+    private static final long serialVersionUID = 8817137062518341862L;
 
 
     private String name;
@@ -45,7 +48,7 @@ public class JUnitResult {
     private String trace;
 
 
-    private ExecutionTrace executionTrace;
+    private transient ExecutionTrace executionTrace;
 
 
     private int failureCount;
@@ -57,7 +60,7 @@ public class JUnitResult {
     private final ArrayList<JUnitFailure> junitFailures = new ArrayList<>();
 
 
-    private Class<?> junitClass;
+    private transient Class<?> junitClass;
 
 
     public JUnitResult(String name) {

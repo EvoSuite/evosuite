@@ -41,22 +41,18 @@ public abstract class MockURLStreamHandler extends URLStreamHandler implements O
             return super.getHostAddress(u);
         }
 
-        if (URLUtil.getHostAddress(u) != null)
-			return URLUtil.getHostAddress(u);
-
 		String host = u.getHost();
 		if (host == null || host.equals("")) {
 			return null;
 		} else {
 			try {
-				URLUtil.setHostAddress(u, MockInetAddress.getByName(host));
+				return MockInetAddress.getByName(host);
 			} catch (UnknownHostException ex) {
 				return null;
 			} catch (SecurityException se) {
 				return null;
 			}
 		}
-		return URLUtil.getHostAddress(u);
 	}
 
 	/*

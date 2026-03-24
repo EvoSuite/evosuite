@@ -20,7 +20,6 @@
 package org.evosuite.symbolic;
 
 import com.examples.with.different.packagename.concolic.*;
-import org.apache.commons.lang3.SystemUtils;
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.symbolic.dse.ConcolicExecutorImpl;
@@ -46,9 +45,6 @@ public class ConcolicExecutionTest {
 
     @Before
     public void initializeExecutor() {
-
-        final Integer javaVersion = Integer.valueOf(SystemUtils.JAVA_VERSION.split("\\.")[0]);
-        Assume.assumeTrue(javaVersion < 9);
         TestCaseExecutor.getInstance().newObservers();
         TestCaseExecutor.initExecutor();
     }

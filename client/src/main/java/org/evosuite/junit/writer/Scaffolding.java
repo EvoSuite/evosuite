@@ -153,6 +153,7 @@ public class Scaffolding {
             list.add(adapter.beforeAll().getCanonicalName());
             list.add(adapter.beforeEach().getCanonicalName());
             list.add(adapter.afterEach().getCanonicalName());
+            list.add(adapter.afterAll().getCanonicalName());
         }
 
         if (wasSecurityException || TestSuiteWriterUtils.shouldResetProperties(results)) {

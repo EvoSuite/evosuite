@@ -29,6 +29,7 @@ import org.evosuite.strategy.TestGenerationStrategy;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -58,8 +59,15 @@ public class GeneratedFilesEvenWithSandboxSystemTest extends SystemTestBase {
         Properties.SANDBOX = DEFAULT_SANDBOX;
     }
 
+    private void assumeSandboxEnforcementAvailable() {
+        Assume.assumeTrue("Requires active sandbox enforcement support on this JDK",
+                Sandbox.getEnforcementCapability() == Sandbox.EnforcementCapability.LEGACY_SECURITY_MANAGER
+                        || Sandbox.isLegacySecurityManagerSupported());
+    }
+
     @Test
     public void testCreateWithNoCatch() {
+        assumeSandboxEnforcementAvailable();
 
         Assert.assertFalse(file.exists());
 
@@ -89,6 +97,7 @@ public class GeneratedFilesEvenWithSandboxSystemTest extends SystemTestBase {
 
     @Test
     public void testCreateInATryCatch() {
+        assumeSandboxEnforcementAvailable();
 
         Assert.assertFalse(file.exists());
 
@@ -119,6 +128,7 @@ public class GeneratedFilesEvenWithSandboxSystemTest extends SystemTestBase {
 
     @Test
     public void testCreateInATryCatchThatDoesNotCatchSecurityException() {
+        assumeSandboxEnforcementAvailable();
 
         Assert.assertFalse(file.exists());
 

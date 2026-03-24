@@ -144,13 +144,13 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 
     @Override
     public void visitMaxs(int maxStack, int maxLocals) {
-        // The instrumentation adds a boolean to the stack at one point
-        // which _may_ increase the max stack size. A ASM
-        // doesn't manage to calculate the maximum stack size
-        // correctly we just add one here
-        if (hasBeenInstrumented)
-            super.visitMaxs(maxStack + 1, maxLocals);
-        else
+        // Modern JDK verifiers are less forgiving about stale stack metadata.
+        // The surrounding instrumentation pipeline uses ASM compute flags, so
+        // relying on ASM's recomputation is safer than keeping a manual +1 hack.
+        if (hasBeenInstrumented) {
+            super.visitMaxs(0, 0);
+        } else {
             super.visitMaxs(maxStack, maxLocals);
+        }
     }
 }

@@ -174,17 +174,22 @@ public class JobHandler extends Thread {
         Thread reader = new Thread() {
             @Override
             public void run() {
-                try {
-                    BufferedReader in = new BufferedReader(
-                            new InputStreamReader(process.getInputStream()));
-                    String line = "";
+                try (BufferedReader in = new BufferedReader(
+                        new InputStreamReader(process.getInputStream()))) {
                     while (!this.isInterrupted()) {
-                        line = in.readLine();
-                        if (line != null && !line.isEmpty()) {
+                        String line = in.readLine();
+                        if (line == null) {
+                            break;
+                        }
+                        if (!line.isEmpty()) {
                             logger.info(line);
                         }
                     }
-                } catch (Exception e) {
+                } catch (IOException e) {
+                    if (!process.isAlive() || this.isInterrupted()) {
+                        logger.debug("Stopped reading spawn process output after process shutdown");
+                        return;
+                    }
                     logger.error("Exception while reading spawn process output: " + e);
                 }
             }
